@@ -572,7 +572,7 @@ export const ProgramCreatorModal: React.FC<Props> = ({
   return createPortal(
     <div
       id="program-creator-modal-overlay"
-      className="fixed inset-0 z-[250] flex flex-col bg-[#F2F2F7] dark:bg-[#000000] text-black dark:text-white font-sans overflow-hidden select-none"
+      className="fixed inset-0 z-[250] flex flex-col bg-[#FFFFFF] dark:bg-[#000000] text-black dark:text-white font-sans overflow-hidden select-none"
     >
       {/* ── 1. CLEAN ELEGANT HEADER (Uber App Style) ── */}
       <header className="shrink-0 z-10 border-b border-black/10 dark:border-white/10 obsidian-panel shadow-sm backdrop-blur-xl">

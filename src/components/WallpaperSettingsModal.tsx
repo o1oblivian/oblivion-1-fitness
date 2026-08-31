@@ -133,19 +133,19 @@ export const WallpaperSettingsModal: React.FC<WallpaperSettingsModalProps> = ({
                     onClick={() => update({ mode: m.id })}
                     className={`p-3.5 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-between min-h-[72px] ${
                       isSelected
-                        ? 'border-[#DC2626] bg-red-50/60 dark:bg-red-950/20 ring-1 ring-[#DC2626]'
+                        ? 'border-[#EA4335] bg-red-50/60 dark:bg-red-950/20 ring-1 ring-[#EA4335]'
                         : 'border-zinc-200 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-900/50'
                     }`}
                   >
                     <div className="flex items-center justify-between gap-1">
                       <span
                         className={`text-xs font-bold truncate ${
-                          isSelected ? 'text-[#DC2626]' : 'text-zinc-900 dark:text-white'
+                          isSelected ? 'text-[#EA4335]' : 'text-zinc-900 dark:text-white'
                         }`}
                       >
                         {m.label}
                       </span>
-                      {isSelected && <Check className="w-3.5 h-3.5 text-[#DC2626] shrink-0" />}
+                      {isSelected && <Check className="w-3.5 h-3.5 text-[#EA4335] shrink-0" />}
                     </div>
                     <span className="text-[10px] text-zinc-500 dark:text-zinc-400 block mt-1 leading-tight">
                       {m.desc}
@@ -178,7 +178,7 @@ export const WallpaperSettingsModal: React.FC<WallpaperSettingsModalProps> = ({
                     onClick={() => update({ autoPlay: !settings.autoPlay })}
                     className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors cursor-pointer shrink-0 ${
                       settings.autoPlay
-                        ? 'bg-[#DC2626] text-white hover:bg-red-700'
+                        ? 'bg-[#EA4335] text-white hover:bg-red-700'
                         : 'bg-zinc-200 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 hover:bg-zinc-300 dark:hover:bg-zinc-700'
                     }`}
                   >
@@ -204,7 +204,7 @@ export const WallpaperSettingsModal: React.FC<WallpaperSettingsModalProps> = ({
                     onClick={() => update({ shuffle: settings.shuffle === false ? true : false })}
                     className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer shrink-0 ${
                       settings.shuffle !== false
-                        ? 'bg-[#DC2626] text-white shadow-xs'
+                        ? 'bg-[#EA4335] text-white shadow-xs'
                         : 'bg-zinc-200 dark:bg-zinc-700 text-zinc-700 dark:text-zinc-300'
                     }`}
                   >
@@ -236,7 +236,7 @@ export const WallpaperSettingsModal: React.FC<WallpaperSettingsModalProps> = ({
                         }
                         className={`py-1.5 text-xs font-semibold rounded-xl border text-center transition-colors cursor-pointer ${
                           settings.refreshIntervalSec === opt.sec
-                            ? 'bg-[#DC2626] text-white border-[#DC2626]'
+                            ? 'bg-[#EA4335] text-white border-[#EA4335]'
                             : 'bg-white dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 border-zinc-200 dark:border-zinc-700/60 hover:border-zinc-300'
                         }`}
                       >
@@ -273,7 +273,7 @@ export const WallpaperSettingsModal: React.FC<WallpaperSettingsModalProps> = ({
                         onClick={() => update({ categoryFilter: cat.id as WallpaperCategory, autoPlay: true })}
                         className={`px-3 py-2.5 rounded-xl border text-left transition-all cursor-pointer flex items-center justify-between gap-2 ${
                           isSelected
-                            ? 'border-[#DC2626] bg-red-50/70 dark:bg-red-950/20 text-[#DC2626] font-bold'
+                            ? 'border-[#EA4335] bg-red-50/70 dark:bg-red-950/20 text-[#EA4335] font-bold'
                             : 'border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/40 text-zinc-700 dark:text-zinc-300 hover:border-zinc-300'
                         }`}
                       >
@@ -314,7 +314,7 @@ export const WallpaperSettingsModal: React.FC<WallpaperSettingsModalProps> = ({
                 onClick={() => fileInputRef.current?.click()}
                 className="w-full p-4 rounded-2xl border-2 border-dashed border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-900/40 hover:bg-zinc-100 dark:hover:bg-zinc-800/60 transition-all cursor-pointer flex items-center justify-center gap-3 text-center"
               >
-                <Plus className="w-5 h-5 text-[#DC2626]" />
+                <Plus className="w-5 h-5 text-[#EA4335]" />
                 <span className="text-xs font-bold text-zinc-900 dark:text-white">
                   Add Photos from Phone
                 </span>
@@ -367,7 +367,7 @@ export const WallpaperSettingsModal: React.FC<WallpaperSettingsModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="px-5 py-2.5 rounded-xl bg-[#DC2626] text-white text-xs font-bold uppercase tracking-wider hover:bg-red-700 transition-colors cursor-pointer shadow-sm"
+            className="px-5 py-2.5 rounded-xl bg-[#EA4335] text-white text-xs font-bold uppercase tracking-wider hover:bg-red-700 transition-colors cursor-pointer shadow-sm"
           >
             Apply & Close
           </button>

@@ -86,6 +86,8 @@ function parseGramsFromAmount(amount: string): number {
   return numMatch ? parseInt(numMatch[1], 10) * 30 : 100;
 }
 
+type Phase = 'viewfinder' | 'scanning' | 'results';
+
 export const AIMealScanModal: React.FC<AIMealScanModalProps> = ({
   isOpen,
   defaultMeal,
@@ -94,7 +96,6 @@ export const AIMealScanModal: React.FC<AIMealScanModalProps> = ({
   showToast,
   onOpenPayPlan,
 }) => {
-  type Phase = 'viewfinder' | 'scanning' | 'results';
   const [phase, setPhase] = useState<Phase>('viewfinder');
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [estimation, setEstimation] = useState<MealEstimation | null>(null);
@@ -126,16 +127,6 @@ export const AIMealScanModal: React.FC<AIMealScanModalProps> = ({
   const nativeCameraInputRef = useRef<HTMLInputElement>(null);
   const scanTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const abortRef = useRef<AbortController | null>(null);
-
-  useEffect(() => {
-    if (isOpen) {
-      setSelectedMeal(defaultMeal);
-      // Auto-start viewfinder when modal opens
-      startLiveViewfinder();
-    } else {
-      stopLiveViewfinder();
-    }
-  }, [isOpen, defaultMeal]);
 
   const stopLiveViewfinder = useCallback(async () => {
     try {
@@ -171,17 +162,12 @@ export const AIMealScanModal: React.FC<AIMealScanModalProps> = ({
     if (abortRef.current) abortRef.current.abort();
   }, [stopLiveViewfinder]);
 
-  const handleClose = () => {
-    reset();
-    onClose();
-  };
-
   const lookupBarcode = useCallback(async (code: string) => {
     await stopLiveViewfinder();
     setBarcodeLoading(true);
     setBarcodeResult(null);
     setBarcodeError('');
-    const cleanCode = code.trim();
+    const cleanCode = code.replace(/\D/g, '').trim() || code.trim();
 
     try {
       // 1. Try local server API
@@ -203,47 +189,88 @@ export const AIMealScanModal: React.FC<AIMealScanModalProps> = ({
           }
         }
       } catch {
-        // Fallback
+        // Fallback to direct client API
       }
 
-      // 2. Direct client-side OpenFoodFacts fallback
+      // 2. Direct client-side OpenFoodFacts v2 fallback
       if (!itemFound) {
-        const offRes = await fetch(
-          `https://world.openfoodfacts.org/api/v2/product/${encodeURIComponent(cleanCode)}.json`,
-          {
-            headers: { 'User-Agent': 'O1FC-Fitness-App/1.0 (o1oblivianfitness@gmail.com)' },
-          }
-        );
-        if (offRes.ok) {
-          const data = await offRes.json();
-          if (data.status === 1 && data.product) {
-            const p = data.product;
-            const n = p.nutriments || {};
-            const servingGrams = parseFloat(p.serving_quantity) || 100;
-            const ratio = servingGrams / 100;
-            const prot100 = Number(n.proteins_100g || n.proteins || 0);
-            const carb100 = Number(n.carbohydrates_100g || n.carbohydrates || 0);
-            const fat100 = Number(n.fat_100g || n.fat || 0);
-            const cal100 = Number(n['energy-kcal_100g'] || n['energy-kcal'] || prot100 * 4 + carb100 * 4 + fat100 * 9);
+        try {
+          const offRes = await fetch(
+            `https://world.openfoodfacts.org/api/v2/product/${encodeURIComponent(cleanCode)}.json`,
+            {
+              headers: { 'User-Agent': 'O1FC-Fitness-App/1.0 (o1oblivianfitness@gmail.com)' },
+            }
+          );
+          if (offRes.ok) {
+            const data = await offRes.json();
+            if ((data.status === 1 || data.status_verbose === 'product found') && data.product) {
+              const p = data.product;
+              const n = p.nutriments || {};
+              const servingGrams = parseFloat(p.serving_quantity) || 100;
+              const ratio = servingGrams / 100;
+              const prot100 = Number(n.proteins_100g || n.proteins || 0);
+              const carb100 = Number(n.carbohydrates_100g || n.carbohydrates || 0);
+              const fat100 = Number(n.fat_100g || n.fat || 0);
+              const cal100 = Number(n['energy-kcal_100g'] || n['energy-kcal'] || prot100 * 4 + carb100 * 4 + fat100 * 9);
 
-            setBarcodeResult({
-              name: p.product_name || p.product_name_en || `Scanned Item (${cleanCode})`,
-              p: Math.round(prot100 * ratio * 10) / 10,
-              c: Math.round(carb100 * ratio * 10) / 10,
-              f: Math.round(fat100 * ratio * 10) / 10,
-              cals: Math.round(cal100 * ratio),
-              serving: p.serving_size || `${servingGrams}g`,
-            });
-            itemFound = true;
+              setBarcodeResult({
+                name: p.product_name || p.product_name_en || p.brands || `Scanned Item (${cleanCode})`,
+                p: Math.round(prot100 * ratio * 10) / 10,
+                c: Math.round(carb100 * ratio * 10) / 10,
+                f: Math.round(fat100 * ratio * 10) / 10,
+                cals: Math.round(cal100 * ratio),
+                serving: p.serving_size || `${servingGrams}g`,
+              });
+              itemFound = true;
+            }
           }
+        } catch {
+          // Continue to v0 fallback
+        }
+      }
+
+      // 3. Fallback to OpenFoodFacts v0 standard product API
+      if (!itemFound) {
+        try {
+          const offV0Res = await fetch(
+            `https://world.openfoodfacts.org/api/v0/product/${encodeURIComponent(cleanCode)}.json`,
+            {
+              headers: { 'User-Agent': 'O1FC-Fitness-App/1.0 (o1oblivianfitness@gmail.com)' },
+            }
+          );
+          if (offV0Res.ok) {
+            const data = await offV0Res.json();
+            if (data.status === 1 && data.product) {
+              const p = data.product;
+              const n = p.nutriments || {};
+              const servingGrams = parseFloat(p.serving_quantity) || 100;
+              const ratio = servingGrams / 100;
+              const prot100 = Number(n.proteins_100g || n.proteins || 0);
+              const carb100 = Number(n.carbohydrates_100g || n.carbohydrates || 0);
+              const fat100 = Number(n.fat_100g || n.fat || 0);
+              const cal100 = Number(n['energy-kcal_100g'] || n['energy-kcal'] || prot100 * 4 + carb100 * 4 + fat100 * 9);
+
+              setBarcodeResult({
+                name: p.product_name || p.product_name_en || p.brands || `Scanned Item (${cleanCode})`,
+                p: Math.round(prot100 * ratio * 10) / 10,
+                c: Math.round(carb100 * ratio * 10) / 10,
+                f: Math.round(fat100 * ratio * 10) / 10,
+                cals: Math.round(cal100 * ratio),
+                serving: p.serving_size || `${servingGrams}g`,
+              });
+              itemFound = true;
+            }
+          }
+        } catch {
+          // Ignore
         }
       }
 
       if (!itemFound) {
-        setBarcodeError(`No nutritional record found for barcode "${cleanCode}". You can enter food details manually.`);
+        setBarcodeError(`No nutritional record found for barcode "${cleanCode}". You can enter food details manually or try scanning the nutrition label.`);
       }
     } catch {
-      setBarcodeError('Could not look up barcode. Check your connection and try again.');
+      setBarcodeError('Could not look up barcode. Check your connection or enter the numbers manually.');
     } finally {
       setBarcodeLoading(false);
     }
@@ -252,19 +279,35 @@ export const AIMealScanModal: React.FC<AIMealScanModalProps> = ({
   const startLiveViewfinder = useCallback(async () => {
     setBarcodeError('');
     await stopLiveViewfinder();
-    await new Promise((r) => setTimeout(r, 100));
+    await new Promise((r) => setTimeout(r, 120));
 
     const container = document.getElementById(scannerContainerId);
     if (!container) return;
 
     try {
-      const scanner = new Html5Qrcode(scannerContainerId, { verbose: false });
+      const scanner = new Html5Qrcode(scannerContainerId, {
+        verbose: false,
+        formatsToSupport: undefined, // Supports all formats (EAN-13, EAN-8, UPC-A, UPC-E, QR, Code128, etc.)
+      });
       html5QrRef.current = scanner;
+
+      const scanConfig = {
+        fps: 20,
+        qrbox: (viewfinderWidth: number, viewfinderHeight: number) => {
+          const minDim = Math.min(viewfinderWidth, viewfinderHeight);
+          return {
+            width: Math.min(Math.round(viewfinderWidth * 0.85), 320),
+            height: Math.min(Math.round(minDim * 0.6), 180),
+          };
+        },
+        aspectRatio: 1.333333,
+        disableFlip: false,
+      };
 
       try {
         await scanner.start(
           { facingMode: 'environment' },
-          { fps: 15, qrbox: { width: 280, height: 160 }, aspectRatio: 1.333, disableFlip: false },
+          scanConfig,
           (decodedText) => {
             haptic.thump();
             lookupBarcode(decodedText);
@@ -273,19 +316,25 @@ export const AIMealScanModal: React.FC<AIMealScanModalProps> = ({
         );
         setIsCameraActive(true);
       } catch {
-        // Fallback to any user camera
-        await scanner.start(
-          { facingMode: 'user' },
-          { fps: 15, qrbox: { width: 280, height: 160 }, aspectRatio: 1.333, disableFlip: false },
-          (decodedText) => {
-            haptic.thump();
-            lookupBarcode(decodedText);
-          },
-          () => {}
-        );
-        setIsCameraActive(true);
+        // Fallback to user facing camera or any default camera
+        try {
+          await scanner.start(
+            { facingMode: 'user' },
+            scanConfig,
+            (decodedText) => {
+              haptic.thump();
+              lookupBarcode(decodedText);
+            },
+            () => {}
+          );
+          setIsCameraActive(true);
+        } catch (camErr) {
+          console.warn('Camera continuous stream could not start:', camErr);
+          setIsCameraActive(false);
+        }
       }
-    } catch {
+    } catch (err) {
+      console.warn('Html5Qrcode init error:', err);
       setIsCameraActive(false);
     }
   }, [stopLiveViewfinder, lookupBarcode]);
@@ -477,6 +526,21 @@ export const AIMealScanModal: React.FC<AIMealScanModalProps> = ({
     [startMealAiScan, lookupBarcode]
   );
 
+  const handleClose = useCallback(() => {
+    reset();
+    onClose();
+  }, [reset, onClose]);
+
+  useEffect(() => {
+    if (isOpen) {
+      setSelectedMeal(defaultMeal);
+      // Auto-start viewfinder when modal opens
+      startLiveViewfinder();
+    } else {
+      stopLiveViewfinder();
+    }
+  }, [isOpen, defaultMeal, startLiveViewfinder, stopLiveViewfinder]);
+
   const toggleTorch = async () => {
     try {
       const stream = (document.querySelector(`#${scannerContainerId} video`) as any)?.srcObject as MediaStream | undefined;
@@ -546,9 +610,9 @@ export const AIMealScanModal: React.FC<AIMealScanModalProps> = ({
 
   const macroRingData = estimation
     ? [
-        { label: 'Protein', value: Math.round(estimation.totalP), color: '#3B82F6', max: 200 },
-        { label: 'Carbs', value: Math.round(estimation.totalC), color: '#F59E0B', max: 300 },
-        { label: 'Fats', value: Math.round(estimation.totalF), color: '#EF4444', max: 100 },
+        { label: 'Protein', value: Math.round(estimation.totalP), color: '#4285F4', max: 200 },
+        { label: 'Carbs', value: Math.round(estimation.totalC), color: '#FBBC05', max: 300 },
+        { label: 'Fats', value: Math.round(estimation.totalF), color: '#EA4335', max: 100 },
       ]
     : [];
 
@@ -564,7 +628,7 @@ export const AIMealScanModal: React.FC<AIMealScanModalProps> = ({
         <div className="px-5 pt-3 pb-3 flex items-center justify-between shrink-0 border-b border-white/5">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center">
-              <Sparkles className="w-4 h-4 text-[#DC2626]" />
+              <Sparkles className="w-4 h-4 text-[#EA4335]" />
             </div>
             <div>
               <h2 className="text-sm font-black tracking-tight flex items-center gap-1.5">
@@ -656,7 +720,7 @@ export const AIMealScanModal: React.FC<AIMealScanModalProps> = ({
                 {!isCameraActive ? (
                   <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center space-y-4 bg-gradient-to-b from-stone-900 to-black z-10">
                     <div className="w-14 h-14 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center">
-                      <Camera className="w-7 h-7 text-[#DC2626]" />
+                      <Camera className="w-7 h-7 text-[#EA4335]" />
                     </div>
                     <div className="space-y-1">
                       <p className="text-sm font-bold text-white tracking-tight">Food Vision & Barcode Scan</p>
@@ -668,7 +732,7 @@ export const AIMealScanModal: React.FC<AIMealScanModalProps> = ({
                     <div className="flex items-center gap-2.5 pt-1">
                       <button
                         onClick={() => nativeCameraInputRef.current?.click()}
-                        className="px-5 py-2.5 bg-[#DC2626] hover:bg-[#B91C1C] text-white text-xs font-bold rounded-xl transition-all active:scale-95 cursor-pointer flex items-center gap-2 shadow-lg shadow-red-500/20"
+                        className="px-5 py-2.5 bg-[#EA4335] hover:bg-[#EA4335] text-white text-xs font-bold rounded-xl transition-all active:scale-95 cursor-pointer flex items-center gap-2 shadow-lg shadow-red-500/20"
                       >
                         <Camera className="w-4 h-4" />
                         <span>Take Photo</span>
@@ -736,7 +800,7 @@ export const AIMealScanModal: React.FC<AIMealScanModalProps> = ({
                     className="w-18 h-18 rounded-full border-4 border-white/80 p-1 flex items-center justify-center hover:scale-105 active:scale-95 transition-all cursor-pointer shadow-xl shadow-red-500/10"
                     title="Snap Meal Plate"
                   >
-                    <div className="w-full h-full rounded-full bg-[#DC2626] flex items-center justify-center">
+                    <div className="w-full h-full rounded-full bg-[#EA4335] flex items-center justify-center">
                       <Camera className="w-7 h-7 text-white" />
                     </div>
                   </button>
@@ -825,22 +889,22 @@ export const AIMealScanModal: React.FC<AIMealScanModalProps> = ({
                 {imagePreview && (
                   <img src={imagePreview} alt="Captured Meal" className="absolute inset-0 w-full h-full object-cover" />
                 )}
-                <div className="absolute inset-0 bg-gradient-to-b from-[#DC2626]/20 via-transparent to-[#DC2626]/20">
+                <div className="absolute inset-0 bg-gradient-to-b from-[#EA4335]/20 via-transparent to-[#EA4335]/20">
                   <div
-                    className="absolute inset-x-0 h-0.5 bg-[#DC2626] shadow-[0_0_20px_rgba(217,79,79,0.8)]"
+                    className="absolute inset-x-0 h-0.5 bg-[#EA4335] shadow-[0_0_20px_rgba(217,79,79,0.8)]"
                     style={{ top: `${(scanProgress % 50) * 2}%`, transition: 'top 0.15s linear' }}
                   />
                 </div>
-                <div className="absolute top-3 left-3 w-5 h-5 border-t-2 border-l-2 border-[#DC2626] rounded-tl-md" />
-                <div className="absolute top-3 right-3 w-5 h-5 border-t-2 border-r-2 border-[#DC2626] rounded-tr-md" />
-                <div className="absolute bottom-3 left-3 w-5 h-5 border-b-2 border-l-2 border-[#DC2626] rounded-bl-md" />
-                <div className="absolute bottom-3 right-3 w-5 h-5 border-b-2 border-r-2 border-[#DC2626] rounded-br-md" />
+                <div className="absolute top-3 left-3 w-5 h-5 border-t-2 border-l-2 border-[#EA4335] rounded-tl-md" />
+                <div className="absolute top-3 right-3 w-5 h-5 border-t-2 border-r-2 border-[#EA4335] rounded-tr-md" />
+                <div className="absolute bottom-3 left-3 w-5 h-5 border-b-2 border-l-2 border-[#EA4335] rounded-bl-md" />
+                <div className="absolute bottom-3 right-3 w-5 h-5 border-b-2 border-r-2 border-[#EA4335] rounded-br-md" />
               </div>
 
               <div className="w-full space-y-1.5">
                 <div className="flex items-center justify-between text-xs">
                   <span className="text-gray-300 font-medium flex items-center gap-1.5">
-                    <Loader2 className="w-3.5 h-3.5 animate-spin text-[#DC2626]" />
+                    <Loader2 className="w-3.5 h-3.5 animate-spin text-[#EA4335]" />
                     {scanProgress < 25
                       ? 'Sending to O1FC Vision Intel...'
                       : scanProgress < 50
@@ -851,11 +915,11 @@ export const AIMealScanModal: React.FC<AIMealScanModalProps> = ({
                       ? 'Calculating protein & macros...'
                       : 'Finalizing nutritional breakdown...'}
                   </span>
-                  <span className="text-[#DC2626] font-mono font-bold">{Math.round(scanProgress)}%</span>
+                  <span className="text-[#EA4335] font-mono font-bold">{Math.round(scanProgress)}%</span>
                 </div>
                 <div className="w-full h-1 bg-white/10 rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-gradient-to-r from-[#DC2626] to-[#F59E0B] rounded-full transition-all duration-200"
+                    className="h-full bg-gradient-to-r from-[#EA4335] to-[#FBBC05] rounded-full transition-all duration-200"
                     style={{ width: `${scanProgress}%` }}
                   />
                 </div>
@@ -990,7 +1054,7 @@ export const AIMealScanModal: React.FC<AIMealScanModalProps> = ({
                           cy="24"
                           r="20"
                           fill="none"
-                          stroke="#22C55E"
+                          stroke="#34A853"
                           strokeWidth="3.5"
                           strokeLinecap="round"
                           strokeDasharray={`${(Math.min(estimation.fiber / 40, 1) * 125.7)} 125.7`}
@@ -1069,3 +1133,5 @@ export const AIMealScanModal: React.FC<AIMealScanModalProps> = ({
     </div>
   );
 };
+
+export default AIMealScanModal;

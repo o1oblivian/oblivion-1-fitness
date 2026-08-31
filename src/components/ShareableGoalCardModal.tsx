@@ -85,7 +85,7 @@ export const ShareableGoalCardModal: React.FC<ShareableGoalCardModalProps> = ({
         {/* Header */}
         <div className="flex items-center justify-between border-b border-neutral-100 dark:border-white/10 pb-3">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-red-500/10 dark:bg-[#7A9382]/20 border border-red-500/20 dark:border-[#7A9382]/40 text-red-600 dark:text-[#7A9382] flex items-center justify-center">
+            <div className="w-8 h-8 rounded-xl bg-red-500/10 dark:bg-[#34A853]/20 border border-red-500/20 dark:border-[#34A853]/40 text-red-600 dark:text-[#34A853] flex items-center justify-center">
               <Sparkles className="w-4 h-4" />
             </div>
             <div>

@@ -71,7 +71,7 @@ export const ClientRosterModal: React.FC<ClientRosterModalProps> = ({
       onClick={onClose}
     >
       <div
-        className="w-full max-w-lg bg-[#F2F2F7] dark:bg-[#121214] text-zinc-900 dark:text-white rounded-2xl shadow-2xl border border-zinc-200/80 dark:border-white/10 flex flex-col max-h-[88vh] overflow-hidden my-auto"
+        className="w-full max-w-lg bg-[#FFFFFF] dark:bg-[#121214] text-zinc-900 dark:text-white rounded-2xl shadow-2xl border border-zinc-200/80 dark:border-white/10 flex flex-col max-h-[88vh] overflow-hidden my-auto"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}

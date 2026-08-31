@@ -39,7 +39,7 @@ export const DIAL_CONFIGS: Record<
     name: 'Meridian',
     dayLabel: 'TUESDAY',
     accentColor: 'text-amber-400',
-    accentHex: '#F59E0B',
+    accentHex: '#FBBC05',
     subAccentHex: 'rgba(245, 158, 11, 0.25)',
     tagline: 'Seismograph Vector',
     description: 'A single vertical gold line with metrics fanning out horizontally at precision heights.',
@@ -48,7 +48,7 @@ export const DIAL_CONFIGS: Record<
     name: 'Orbital',
     dayLabel: 'WEDNESDAY',
     accentColor: 'text-cyan-400',
-    accentHex: '#00E5FF',
+    accentHex: '#4285F4',
     subAccentHex: 'rgba(0, 229, 255, 0.25)',
     tagline: 'Planetary Orrery',
     description: 'Precision orbital paths orbiting the central chronometer.',
@@ -57,7 +57,7 @@ export const DIAL_CONFIGS: Record<
     name: 'Crosshair',
     dayLabel: 'THURSDAY',
     accentColor: 'text-emerald-400',
-    accentHex: '#10B981',
+    accentHex: '#34A853',
     subAccentHex: 'rgba(16, 185, 129, 0.25)',
     tagline: 'Tactical Scope',
     description: 'Cold military crosshair precision with dead-center value and monospace telemetry.',
@@ -234,12 +234,12 @@ export const DailyDialOLED: React.FC<DailyDialFaceProps> = ({
                 y1="-150"
                 x2="0"
                 y2="150"
-                stroke="#F59E0B"
+                stroke="#FBBC05"
                 strokeWidth="1.5"
               />
               {/* Top & Bottom Anchor Reticles */}
-              <circle cx="0" cy="-150" r="3" fill="#F59E0B" />
-              <circle cx="0" cy="150" r="3" fill="#F59E0B" />
+              <circle cx="0" cy="-150" r="3" fill="#FBBC05" />
+              <circle cx="0" cy="150" r="3" fill="#FBBC05" />
               
               {/* Seismograph Horizontal Metric Ticks */}
               {/* Step Frequency Bar (Top) */}
@@ -253,7 +253,7 @@ export const DailyDialOLED: React.FC<DailyDialFaceProps> = ({
                       y1={y}
                       x2={width}
                       y2={y}
-                      stroke="#F59E0B"
+                      stroke="#FBBC05"
                       strokeWidth="1"
                       strokeOpacity={0.4 + (i / 15) * 0.6}
                     />
@@ -272,7 +272,7 @@ export const DailyDialOLED: React.FC<DailyDialFaceProps> = ({
                     y1={y}
                     x2="0"
                     y2={y}
-                    stroke="#F59E0B"
+                    stroke="#FBBC05"
                     strokeWidth="1"
                     strokeOpacity="0.6"
                   />
@@ -290,7 +290,7 @@ export const DailyDialOLED: React.FC<DailyDialFaceProps> = ({
                     y1={y}
                     x2={width}
                     y2={y}
-                    stroke="#F59E0B"
+                    stroke="#FBBC05"
                     strokeWidth="1"
                     strokeOpacity="0.6"
                   />
@@ -311,7 +311,7 @@ export const DailyDialOLED: React.FC<DailyDialFaceProps> = ({
                 rx="140"
                 ry="75"
                 fill="none"
-                stroke="#00E5FF"
+                stroke="#4285F4"
                 strokeWidth="1"
                 strokeOpacity="0.2"
                 transform="rotate(-25)"
@@ -325,7 +325,7 @@ export const DailyDialOLED: React.FC<DailyDialFaceProps> = ({
                 const rx = ex * Math.cos(rad) - ey * Math.sin(rad);
                 const ry = ex * Math.sin(rad) + ey * Math.cos(rad);
                 return (
-                  <circle cx={rx} cy={ry} r="3" fill="#00E5FF" />
+                  <circle cx={rx} cy={ry} r="3" fill="#4285F4" />
                 );
               })()}
 
@@ -334,7 +334,7 @@ export const DailyDialOLED: React.FC<DailyDialFaceProps> = ({
                 rx="110"
                 ry="95"
                 fill="none"
-                stroke="#00E5FF"
+                stroke="#4285F4"
                 strokeWidth="1"
                 strokeOpacity="0.25"
                 transform="rotate(35)"
@@ -347,7 +347,7 @@ export const DailyDialOLED: React.FC<DailyDialFaceProps> = ({
                 const rx = ex * Math.cos(rad) - ey * Math.sin(rad);
                 const ry = ex * Math.sin(rad) + ey * Math.cos(rad);
                 return (
-                  <circle cx={rx} cy={ry} r="2.5" fill="#00E5FF" />
+                  <circle cx={rx} cy={ry} r="2.5" fill="#4285F4" />
                 );
               })()}
 
@@ -355,7 +355,7 @@ export const DailyDialOLED: React.FC<DailyDialFaceProps> = ({
               <circle
                 r="78"
                 fill="none"
-                stroke="#00E5FF"
+                stroke="#4285F4"
                 strokeWidth="1"
                 strokeOpacity="0.3"
                 strokeDasharray="2 4"
@@ -364,7 +364,7 @@ export const DailyDialOLED: React.FC<DailyDialFaceProps> = ({
                 const angle = animationTick * (1.5 + kmPct * 2.0);
                 const cx = 78 * Math.cos(angle);
                 const cy = 78 * Math.sin(angle);
-                return <circle cx={cx} cy={cy} r="2" fill="#00E5FF" />;
+                return <circle cx={cx} cy={cy} r="2" fill="#4285F4" />;
               })()}
             </>
           )}
@@ -380,39 +380,39 @@ export const DailyDialOLED: React.FC<DailyDialFaceProps> = ({
               <circle
                 r="150"
                 fill="none"
-                stroke="#10B981"
+                stroke="#34A853"
                 strokeWidth="1"
                 strokeOpacity="0.3"
               />
               <circle
                 r="138"
                 fill="none"
-                stroke="#10B981"
+                stroke="#34A853"
                 strokeWidth="1"
                 strokeOpacity="0.2"
                 strokeDasharray="4 8"
               />
               {/* Crosshair Hairlines */}
-              <line x1="-155" y1="0" x2="-80" y2="0" stroke="#10B981" strokeWidth="1" />
-              <line x1="80" y1="0" x2="155" y2="0" stroke="#10B981" strokeWidth="1" />
-              <line x1="0" y1="-155" x2="0" y2="-65" stroke="#10B981" strokeWidth="1" />
-              <line x1="0" y1="65" x2="0" y2="155" stroke="#10B981" strokeWidth="1" />
+              <line x1="-155" y1="0" x2="-80" y2="0" stroke="#34A853" strokeWidth="1" />
+              <line x1="80" y1="0" x2="155" y2="0" stroke="#34A853" strokeWidth="1" />
+              <line x1="0" y1="-155" x2="0" y2="-65" stroke="#34A853" strokeWidth="1" />
+              <line x1="0" y1="65" x2="0" y2="155" stroke="#34A853" strokeWidth="1" />
 
               {/* Corner Rangefinder Brackets */}
               {/* Top-Left */}
-              <path d="M -110 -90 L -110 -110 L -90 -110" fill="none" stroke="#10B981" strokeWidth="1.5" />
+              <path d="M -110 -90 L -110 -110 L -90 -110" fill="none" stroke="#34A853" strokeWidth="1.5" />
               {/* Top-Right */}
-              <path d="M 110 -90 L 110 -110 L 90 -110" fill="none" stroke="#10B981" strokeWidth="1.5" />
+              <path d="M 110 -90 L 110 -110 L 90 -110" fill="none" stroke="#34A853" strokeWidth="1.5" />
               {/* Bottom-Left */}
-              <path d="M -110 90 L -110 110 L -90 110" fill="none" stroke="#10B981" strokeWidth="1.5" />
+              <path d="M -110 90 L -110 110 L -90 110" fill="none" stroke="#34A853" strokeWidth="1.5" />
               {/* Bottom-Right */}
-              <path d="M 110 90 L 110 110 L 90 110" fill="none" stroke="#10B981" strokeWidth="1.5" />
+              <path d="M 110 90 L 110 110 L 90 110" fill="none" stroke="#34A853" strokeWidth="1.5" />
 
               {/* Reticle Calibration Ticks */}
               {[-50, -30, 30, 50].map((val) => (
                 <React.Fragment key={val}>
-                  <line x1={val} y1="-5" x2={val} y2="5" stroke="#10B981" strokeWidth="1" strokeOpacity="0.6" />
-                  <line x1="-5" y1={val} x2="5" y2={val} stroke="#10B981" strokeWidth="1" strokeOpacity="0.6" />
+                  <line x1={val} y1="-5" x2={val} y2="5" stroke="#34A853" strokeWidth="1" strokeOpacity="0.6" />
+                  <line x1="-5" y1={val} x2="5" y2={val} stroke="#34A853" strokeWidth="1" strokeOpacity="0.6" />
                 </React.Fragment>
               ))}
             </>

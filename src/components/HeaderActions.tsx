@@ -97,39 +97,39 @@ export const HeaderActions: React.FC<HeaderActionsProps> = ({
               >
                 {onOpenProfile && (
                   <MenuRow
-                    icon={<MoreVertical className="w-4 h-4" />}
+                    icon={<MoreVertical className="w-4 h-4 text-[#4285F4]" />}
                     label="Profile & Settings"
                     onClick={() => handleAction(onOpenProfile)}
                   />
                 )}
                 {onOpenCommunityHub && (
                   <MenuRow
-                    icon={<Users className="w-4 h-4" />}
+                    icon={<Users className="w-4 h-4 text-[#EA4335]" />}
                     label="Community"
                     onClick={() => handleAction(onOpenCommunityHub)}
                   />
                 )}
                 {onOpenShareGoalCard && (
                   <MenuRow
-                    icon={<Share2 className="w-4 h-4" />}
+                    icon={<Share2 className="w-4 h-4 text-[#FBBC05]" />}
                     label="Share"
                     onClick={() => handleAction(onOpenShareGoalCard)}
                   />
                 )}
                 {onOpenSearch && (
                   <MenuRow
-                    icon={<Search className="w-4 h-4" />}
+                    icon={<Search className="w-4 h-4 text-[#34A853]" />}
                     label="Search"
                     onClick={() => handleAction(onOpenSearch)}
                   />
                 )}
                 <MenuRow
-                  icon={<Sparkles className="w-4 h-4" />}
+                  icon={<Sparkles className="w-4 h-4 text-[#4285F4]" />}
                   label="Intel Insights"
                   onClick={() => handleAction(() => setShowAiModal(true))}
                 />
                 <MenuRow
-                  icon={<Compass className="w-4 h-4" />}
+                  icon={<Compass className="w-4 h-4 text-[#EA4335]" />}
                   label="System Tutorial"
                   onClick={() => handleAction(() => setShowGuideModal(true))}
                 />

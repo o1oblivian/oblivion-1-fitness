@@ -38,8 +38,7 @@ export function ProfileSection({
   const [statValue, setStatValue] = useState('');
   
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { getProfile, updateProfile } = useAuthStorage();
-  const profile = getProfile() || {};
+  const { profile, updateProfile } = useAuthStorage();
 
   const handlePhotoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -165,7 +164,7 @@ export function ProfileSection({
         {/* Primary Training Focus / Discipline */}
         <div className="p-3 border-b border-zinc-100 dark:border-zinc-800/60">
           <div className="flex items-center gap-1.5 mb-2">
-            <Dumbbell className="w-3.5 h-3.5 text-red-600 dark:text-red-500" />
+            <Dumbbell className="w-3.5 h-3.5 text-[#FF3B30] dark:text-[#FF453A]" />
             <span className="text-[10px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
               Primary Training Discipline
             </span>
@@ -178,10 +177,10 @@ export function ProfileSection({
                   key={disc}
                   type="button"
                   onClick={() => updateProfile({ primary_focus: disc })}
-                  className={`text-[11px] font-semibold px-2.5 py-1 rounded-lg border transition-all cursor-pointer ${
+                  className={`text-[11px] font-semibold px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
                     isSelected
-                      ? 'bg-red-600 text-white border-red-600 shadow-xs'
-                      : 'bg-white dark:bg-zinc-900 text-zinc-600 dark:text-zinc-300 border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700'
+                      ? 'bg-[#FF3B30] dark:bg-[#FF453A] text-white shadow-xs'
+                      : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700'
                   }`}
                 >
                   {disc}
@@ -251,7 +250,7 @@ export function ProfileSection({
               onChange={e => setStatValue(e.target.value)}
               type="number"
               autoFocus
-              className="w-full text-base font-bold text-center text-zinc-900 dark:text-white bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-700 rounded-xl px-3 py-2 outline-none mb-3 focus:border-red-500/50"
+              className="w-full text-base font-bold text-center text-zinc-900 dark:text-white bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-700 rounded-xl px-3 py-2 outline-none mb-3 focus:border-[#FF3B30]/60 dark:focus:border-[#FF453A]/60"
             />
             <div className="flex gap-2">
               <button
@@ -264,7 +263,7 @@ export function ProfileSection({
               <button
                 type="button"
                 onClick={saveStat}
-                className="flex-1 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white text-xs font-semibold transition-colors cursor-pointer shadow-xs"
+                className="flex-1 py-2 rounded-lg bg-[#FF3B30] dark:bg-[#FF453A] hover:bg-[#E52E24] dark:hover:bg-[#FF3B30] text-white text-xs font-semibold transition-colors cursor-pointer shadow-xs"
               >
                 Save
               </button>

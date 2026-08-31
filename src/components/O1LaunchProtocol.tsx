@@ -919,7 +919,12 @@ export const O1LaunchProtocol: React.FC<O1LaunchProtocolProps> = ({
   return createPortal(
     <div className="fixed inset-0 z-[650] bg-black/50 backdrop-blur-2xl flex flex-col justify-between overflow-y-auto hide-scrollbar selection:bg-red-500/20 text-white font-sans">
       {/* Top Protocol Header Bar */}
-      <div className="w-full max-w-md mx-auto pt-3.5 px-4 flex items-center justify-between border-b border-white/10 pb-2.5 bg-black/30 backdrop-blur-md">
+      <div
+        className="w-full max-w-md mx-auto px-4 flex items-center justify-between border-b border-white/10 pb-2.5 bg-black/30 backdrop-blur-md shrink-0"
+        style={{
+          paddingTop: 'max(0.875rem, calc(env(safe-area-inset-top, 0px) + 0.625rem))',
+        }}
+      >
         <div className="flex items-center gap-2">
           <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
           <div className="text-[10px] font-mono font-bold tracking-[0.2em] text-zinc-200 uppercase">
@@ -948,7 +953,12 @@ export const O1LaunchProtocol: React.FC<O1LaunchProtocolProps> = ({
       </div>
 
       {/* Bottom Sticky Action Bar */}
-      <div className="w-full max-w-md mx-auto p-3.5 border-t border-white/10 bg-black/40 backdrop-blur-md">
+      <div
+        className="w-full max-w-md mx-auto px-3.5 pt-3 border-t border-white/10 bg-black/40 backdrop-blur-md shrink-0"
+        style={{
+          paddingBottom: 'max(1.25rem, calc(env(safe-area-inset-bottom, 0px) + 0.875rem))',
+        }}
+      >
         <div className="flex items-center gap-2.5">
           {step > 1 && (
             <button

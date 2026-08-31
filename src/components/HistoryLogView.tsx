@@ -288,32 +288,32 @@ function WorkoutSection({
 
 function LivePedometerRing({ stepCount, goal }: { stepCount: number; goal: number }) {
   const pct = Math.min((stepCount / goal) * 100, 100);
-  const radius = 52;
+  const radius = 58;
   const circumference = 2 * Math.PI * radius;
   const dashOffset = circumference - (pct / 100) * circumference;
 
   return (
-    <div className="relative w-32 h-32 mx-auto">
-      <svg viewBox="0 0 120 120" className="w-full h-full -rotate-90">
-        <circle cx="60" cy="60" r={radius} fill="none" className="log-ring-track" strokeWidth="6" />
+    <div className="relative w-40 h-40 mx-auto">
+      <svg viewBox="0 0 136 136" className="w-full h-full -rotate-90">
+        <circle cx="68" cy="68" r={radius} fill="none" className="log-ring-track" strokeWidth="8" />
         <circle
-          cx="60" cy="60" r={radius} fill="none"
-          stroke="url(#stepGrad)" strokeWidth="6" strokeLinecap="round"
+          cx="68" cy="68" r={radius} fill="none"
+          stroke="url(#stepGrad)" strokeWidth="8" strokeLinecap="round"
           strokeDasharray={circumference} strokeDashoffset={dashOffset}
           className="transition-all duration-500"
         />
         <defs>
           <linearGradient id="stepGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#2dd4bf" />
-            <stop offset="100%" stopColor="#06b6d4" />
+            <stop offset="0%" stopColor="#34A853" />
+            <stop offset="100%" stopColor="#34A853" />
           </linearGradient>
         </defs>
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="text-[24px] font-black font-mono text-slate-900 dark:text-white leading-none">
+        <span className="text-[28px] font-black font-mono text-slate-900 dark:text-white leading-none">
           {stepCount.toLocaleString()}
         </span>
-        <span className="text-[8px] font-mono text-slate-400 dark:text-white/30 uppercase tracking-widest mt-1">
+        <span className="text-[9px] font-mono text-slate-400 dark:text-white/40 uppercase tracking-widest mt-1.5 font-bold">
           / {goal.toLocaleString()}
         </span>
       </div>
@@ -1597,7 +1597,7 @@ export const HistoryLogView: React.FC<HistoryLogViewProps> = ({
       key: 'workout',
       label: 'Workout History',
       icon: <Dumbbell className="w-3.5 h-3.5 text-white" strokeWidth={2.2} />,
-      iconBg: 'bg-[#FF2D55]',
+      iconBg: 'bg-[#EA4335]',
       summary: workoutSummary,
       chart: workoutChart,
       content: <WorkoutSection sessions={sessions} onDelete={handleDeleteSession} onShare={handleShareSession} />,
@@ -1606,7 +1606,7 @@ export const HistoryLogView: React.FC<HistoryLogViewProps> = ({
       key: 'steps',
       label: 'Cardio / Steps',
       icon: <Footprints className="w-3.5 h-3.5 text-white" strokeWidth={2.2} />,
-      iconBg: 'bg-[#30B0C7]',
+      iconBg: 'bg-[#4285F4]',
       summary: stepsSummary,
       chart: stepsChart,
       content: (
@@ -1626,7 +1626,7 @@ export const HistoryLogView: React.FC<HistoryLogViewProps> = ({
       key: 'food',
       label: 'Food & Nutrition',
       icon: <Utensils className="w-3.5 h-3.5 text-white" strokeWidth={2.2} />,
-      iconBg: 'bg-[#FF9500]',
+      iconBg: 'bg-[#FBBC05]',
       summary: foodSummary,
       chart: foodChart,
       content: <FoodSection macros={macros} bodyweight={bodyweight} />,
@@ -1635,7 +1635,7 @@ export const HistoryLogView: React.FC<HistoryLogViewProps> = ({
       key: 'sleep',
       label: 'Sleep',
       icon: <Moon className="w-3.5 h-3.5 text-white" strokeWidth={2.2} />,
-      iconBg: 'bg-[#5856D6]',
+      iconBg: 'bg-[#5D6B82]',
       summary: sleepSummary,
       chart: sleepChart,
       content: <SleepSection entries={sleepLogs} onAdd={handleAddSleep} onDelete={handleDeleteSleep} />,
@@ -1644,7 +1644,7 @@ export const HistoryLogView: React.FC<HistoryLogViewProps> = ({
       key: 'meditation',
       label: 'Meditation',
       icon: <Sparkles className="w-3.5 h-3.5 text-white" strokeWidth={2.2} />,
-      iconBg: 'bg-[#34C759]',
+      iconBg: 'bg-[#5A7E65]',
       summary: medSummary,
       chart: medChart,
       content: <MeditationSection entries={meditations} onAdd={handleAddMeditation} onDelete={handleDeleteMeditation} />,

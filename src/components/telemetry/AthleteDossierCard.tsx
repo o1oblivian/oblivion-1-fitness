@@ -72,15 +72,15 @@ export const AthleteDossierCard: React.FC<AthleteDossierCardProps> = ({
 
   const tierColor =
     log.handle.includes('PRO-ELITE')
-      ? { bg: '#DC2626', text: 'white' }
+      ? { bg: '#EA4335', text: 'white' }
       : log.handle.includes('HYPERTROPHY')
       ? { bg: '#C9A227', text: 'white' }
-      : { bg: '#7A9382', text: 'white' };
+      : { bg: '#34A853', text: 'white' };
 
   return (
     <div
       onClick={onClick}
-      className={`bg-white rounded-2xl border ${log.approved ? 'border-[rgba(0,0,0,0.08)]' : 'border-[#DC2626]/40'} shadow-sm cursor-pointer hover:shadow-md transition-all active:scale-[0.99] overflow-hidden`}
+      className={`bg-white rounded-2xl border ${log.approved ? 'border-[rgba(0,0,0,0.08)]' : 'border-[#EA4335]/40'} shadow-sm cursor-pointer hover:shadow-md transition-all active:scale-[0.99] overflow-hidden`}
     >
       {/* Sleek identity row */}
       <div className="flex items-center justify-between px-4 pt-3.5 pb-3">
@@ -150,7 +150,7 @@ export const AthleteDossierCard: React.FC<AthleteDossierCardProps> = ({
             <div className="w-px h-7 bg-[#E5E5EA]" />
             <div className="flex flex-col">
               <span className="text-[8px] font-mono text-[#848785] uppercase tracking-wider">PRs</span>
-              <span className="text-sm font-black tabular-nums text-[#DC2626] flex items-center gap-0.5">
+              <span className="text-sm font-black tabular-nums text-[#EA4335] flex items-center gap-0.5">
                 <Flame className="w-3 h-3" />
                 {prs.length}
               </span>
@@ -165,9 +165,9 @@ export const AthleteDossierCard: React.FC<AthleteDossierCardProps> = ({
           <div key={i} className="flex items-center gap-2 text-[11px]">
             <span className="font-bold text-[#1C1C1E] truncate flex-1 font-mono">{ex.name.toUpperCase()}</span>
             {ex.hasVideo && (
-              <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-[#DC2626]/10 border border-[#DC2626]/25 shrink-0">
-                <Video className="w-2.5 h-2.5 text-[#DC2626]" />
-                <span className="text-[8px] font-mono font-bold text-[#DC2626]">0:18</span>
+              <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-[#EA4335]/10 border border-[#EA4335]/25 shrink-0">
+                <Video className="w-2.5 h-2.5 text-[#EA4335]" />
+                <span className="text-[8px] font-mono font-bold text-[#EA4335]">0:18</span>
               </span>
             )}
             <span className="text-[9px] font-mono text-[#848785] tabular-nums shrink-0">
@@ -182,10 +182,10 @@ export const AthleteDossierCard: React.FC<AthleteDossierCardProps> = ({
             {prs.slice(0, 2).map((pr, i) => (
               <span
                 key={i}
-                className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-gradient-to-r from-[#DC2626]/10 to-[#C9A227]/10 border border-[#DC2626]/25 text-[9px] font-mono font-bold"
+                className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-gradient-to-r from-[#EA4335]/10 to-[#C9A227]/10 border border-[#EA4335]/25 text-[9px] font-mono font-bold"
               >
-                <Flame className="w-2.5 h-2.5 text-[#DC2626]" />
-                <span className="text-[#DC2626]">+{pr.delta}kg PR</span>
+                <Flame className="w-2.5 h-2.5 text-[#EA4335]" />
+                <span className="text-[#EA4335]">+{pr.delta}kg PR</span>
                 <span className="text-[#848785]">{pr.exercise}</span>
               </span>
             ))}
@@ -198,19 +198,19 @@ export const AthleteDossierCard: React.FC<AthleteDossierCardProps> = ({
         <div className="px-4 py-2 bg-[#F2F2F7] border-t border-[rgba(0,0,0,0.08)]">
           <div className="flex items-center justify-between gap-2 text-[10px] font-mono">
             <div className="flex items-center gap-1 shrink-0">
-              <Activity className="w-3 h-3 text-[#7A9382]" />
+              <Activity className="w-3 h-3 text-[#34A853]" />
               <span className="font-bold tabular-nums text-[#1C1C1E]">
                 {latestMacro.calories.toLocaleString()}
               </span>
               <span className="text-[#848785]">/ {latestMacro.calorieTarget.toLocaleString()} kcal</span>
             </div>
             <div className="flex items-center gap-2 text-[#848785]">
-              <span><span className="font-bold text-[#7A9382]">P</span> {latestMacro.protein}g</span>
-              <span><span className="font-bold text-[#DC2626]">C</span> {latestMacro.carbs}g</span>
+              <span><span className="font-bold text-[#34A853]">P</span> {latestMacro.protein}g</span>
+              <span><span className="font-bold text-[#EA4335]">C</span> {latestMacro.carbs}g</span>
               <span><span className="font-bold text-[#C9A227]">F</span> {latestMacro.fat}g</span>
             </div>
             <div className="flex items-center gap-1 shrink-0">
-              <Droplet className="w-3 h-3 text-[#3B82F6]" />
+              <Droplet className="w-3 h-3 text-[#4285F4]" />
               <span className="font-bold tabular-nums text-[#1C1C1E]">{latestMacro.hydration}L</span>
             </div>
           </div>
@@ -237,7 +237,7 @@ export const AthleteDossierCard: React.FC<AthleteDossierCardProps> = ({
           }}
           className="flex-1 flex items-center justify-center gap-2 py-2 rounded-xl bg-[#F2F2F7] hover:bg-[#E5E5EA] border border-[rgba(0,0,0,0.08)] text-[10px] font-mono font-bold text-[#1C1C1E] transition-all active:scale-95 cursor-pointer"
         >
-          <Eye className="w-3.5 h-3.5 text-[#7A9382]" />
+          <Eye className="w-3.5 h-3.5 text-[#34A853]" />
           <span>Telemetry</span>
           <ChevronRight className="w-3 h-3 text-[#848785]" />
         </button>
@@ -261,7 +261,7 @@ export const AthleteDossierCard: React.FC<AthleteDossierCardProps> = ({
         ) : (
           <button
             onClick={onApprove}
-            className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-gradient-to-r from-[#DC2626] to-[#C24343] hover:from-[#C24343] hover:to-[#DC2626] text-white text-[10px] font-mono font-bold shadow-md transition-all active:scale-95 cursor-pointer shrink-0 border border-[#DC2626]"
+            className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-gradient-to-r from-[#EA4335] to-[#C24343] hover:from-[#C24343] hover:to-[#EA4335] text-white text-[10px] font-mono font-bold shadow-md transition-all active:scale-95 cursor-pointer shrink-0 border border-[#EA4335]"
           >
             {approving ? (
               <>

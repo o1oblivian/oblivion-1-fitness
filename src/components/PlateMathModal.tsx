@@ -372,8 +372,8 @@ export const PlateMathModal: React.FC<PlateMathModalProps> = ({
                 }}
                 className={`h-7 px-2.5 rounded-lg text-[11px] font-mono font-bold transition-all shrink-0 cursor-pointer ${
                   targetWeight === w
-                    ? 'bg-[#DC2626] text-white shadow-xs'
-                    : 'bg-zinc-100 dark:bg-white/5 border border-zinc-200/80 dark:border-white/10 text-zinc-700 dark:text-stone-300 hover:bg-zinc-200'
+                    ? 'bg-[#FF3B30] dark:bg-[#FF453A] text-white shadow-xs'
+                    : 'bg-zinc-100 dark:bg-white/5 text-zinc-700 dark:text-stone-300 hover:bg-zinc-200'
                 }`}
               >
                 {w}kg
@@ -389,7 +389,7 @@ export const PlateMathModal: React.FC<PlateMathModalProps> = ({
               haptic.tap();
               setTargetWeight(barWeight);
             }}
-            className="h-10 px-3 rounded-xl bg-zinc-100 dark:bg-white/10 border border-zinc-200/80 dark:border-white/10 text-zinc-700 dark:text-stone-300 text-[12px] font-medium flex items-center gap-1.5 hover:bg-zinc-200 transition-colors cursor-pointer"
+            className="h-10 px-3 rounded-xl bg-zinc-100 dark:bg-white/10 text-zinc-700 dark:text-stone-300 text-[12px] font-medium flex items-center gap-1.5 hover:bg-zinc-200 transition-colors cursor-pointer"
           >
             <RotateCcw className="w-3.5 h-3.5" />
             <span>Reset</span>
@@ -397,7 +397,7 @@ export const PlateMathModal: React.FC<PlateMathModalProps> = ({
 
           <button
             onClick={handleConfirm}
-            className="flex-1 h-10 rounded-xl bg-[#DC2626] hover:bg-[#B91C1C] text-white font-bold text-[13px] flex items-center justify-center gap-1.5 shadow-sm active:scale-[0.98] transition-all cursor-pointer"
+            className="flex-1 h-10 rounded-xl bg-[#FF3B30] dark:bg-[#FF453A] hover:bg-[#E52E24] text-white font-bold text-[13px] flex items-center justify-center gap-1.5 shadow-sm active:scale-[0.98] transition-all cursor-pointer"
           >
             <Check className="w-4 h-4" />
             <span>Apply {targetWeight}kg to Set</span>

@@ -198,7 +198,7 @@ export const ShareVictoryModal: React.FC<ShareVictoryModalProps> = ({
               {[
                 { label: 'BENCH', value: `${benchPress1RM.toFixed(1)}kg`, color: 'text-[#C8A97E]', icon: Trophy },
                 { label: 'STREAK', value: `${streakStr} Days`, color: 'text-[#C9A227]', icon: Flame },
-                { label: 'VOLUME', value: `${totalVolume.toFixed(1)} MT`, color: 'text-[#DC2626]', icon: TrendingUp },
+                { label: 'VOLUME', value: `${totalVolume.toFixed(1)} MT`, color: 'text-[#EA4335]', icon: TrendingUp },
               ].map((s, i) => {
                 const Icon = s.icon;
                 return (

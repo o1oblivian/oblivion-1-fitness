@@ -2110,7 +2110,7 @@ export const WorkoutDispatchModal: React.FC<WorkoutDispatchModalProps> = ({
                               <button
                                 type="button"
                                 onClick={() => handleAddSet(ex.id)}
-                                className="flex items-center gap-1 text-[#DC2626] hover:text-red-700 dark:text-[#EF4444] dark:hover:text-red-400 font-semibold text-xs py-0.5 px-0 transition-colors cursor-pointer bg-transparent border-0 active:opacity-75"
+                                className="flex items-center gap-1 text-[#EA4335] hover:text-red-700 dark:text-[#EA4335] dark:hover:text-red-400 font-semibold text-xs py-0.5 px-0 transition-colors cursor-pointer bg-transparent border-0 active:opacity-75"
                               >
                                 <Plus className="w-3 h-3" />
                                 <span>Add Set</span>

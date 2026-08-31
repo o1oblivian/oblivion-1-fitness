@@ -155,7 +155,7 @@ export const ProgramPurchaseModal: React.FC<ProgramPurchaseModalProps> = ({
             {program.cover_image_url ? (
               <img src={program.cover_image_url} alt="" className="w-full h-full object-cover" />
             ) : (
-              <div className="absolute inset-0 bg-gradient-to-br from-[#1A1E1D] via-[#2A2F2D] to-[#DC2626]/30" />
+              <div className="absolute inset-0 bg-gradient-to-br from-[#1A1E1D] via-[#2A2F2D] to-[#EA4335]/30" />
             )}
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
             <button
@@ -194,7 +194,7 @@ export const ProgramPurchaseModal: React.FC<ProgramPurchaseModalProps> = ({
               </div>
               <button
                 onClick={handleClose}
-                className="w-full mt-4 py-3 bg-[#DC2626] text-white font-bold text-xs rounded-xl hover:bg-[#B91C1C] active:scale-95 transition-all cursor-pointer"
+                className="w-full mt-4 py-3 bg-[#EA4335] text-white font-bold text-xs rounded-xl hover:bg-[#EA4335] active:scale-95 transition-all cursor-pointer"
               >
                 Start Training
               </button>
@@ -218,12 +218,12 @@ export const ProgramPurchaseModal: React.FC<ProgramPurchaseModalProps> = ({
               {/* Program Meta */}
               <div className="grid grid-cols-3 gap-2">
                 <div className="bg-[#F2F2F7] rounded-xl p-2 border border-[rgba(0,0,0,0.08)] text-center">
-                  <Clock className="w-3.5 h-3.5 text-[#DC2626] mx-auto mb-1" />
+                  <Clock className="w-3.5 h-3.5 text-[#EA4335] mx-auto mb-1" />
                   <div className="text-[9px] font-mono text-gray-500 uppercase tracking-wider">Duration</div>
                   <div className="text-xs font-bold text-[#000000]">{program.duration_weeks} weeks</div>
                 </div>
                 <div className="bg-[#F2F2F7] rounded-xl p-2 border border-[rgba(0,0,0,0.08)] text-center">
-                  <TrendingUp className="w-3.5 h-3.5 text-[#7A9382] mx-auto mb-1" />
+                  <TrendingUp className="w-3.5 h-3.5 text-[#34A853] mx-auto mb-1" />
                   <div className="text-[9px] font-mono text-gray-500 uppercase tracking-wider">Level</div>
                   <div className="text-xs font-bold text-[#000000]">{program.difficulty}</div>
                 </div>
@@ -244,7 +244,7 @@ export const ProgramPurchaseModal: React.FC<ProgramPurchaseModalProps> = ({
                   </div>
                   <div className="flex justify-between text-xs">
                     <span className="text-gray-600">Platform Fee ({PLATFORM_COMMISSION_PCT}%)</span>
-                    <span className="text-[#DC2626] font-mono">-{formatPrice(commission.fee)}</span>
+                    <span className="text-[#EA4335] font-mono">-{formatPrice(commission.fee)}</span>
                   </div>
                   <div className="border-t border-[rgba(0,0,0,0.08)] pt-2 flex justify-between text-xs">
                     <span className="text-gray-600">Coach Receives</span>
@@ -265,7 +265,7 @@ export const ProgramPurchaseModal: React.FC<ProgramPurchaseModalProps> = ({
                     onClick={() => setDispatchMode('auto')}
                     className={`flex-1 py-2.5 px-3 rounded-xl text-xs font-bold transition-all cursor-pointer border-2 ${
                       dispatchMode === 'auto'
-                        ? 'bg-[#DC2626] text-white border-[#DC2626]'
+                        ? 'bg-[#EA4335] text-white border-[#EA4335]'
                         : 'bg-white text-gray-600 border-[rgba(0,0,0,0.08)] hover:bg-gray-50'
                     }`}
                   >
@@ -276,7 +276,7 @@ export const ProgramPurchaseModal: React.FC<ProgramPurchaseModalProps> = ({
                     onClick={() => setDispatchMode('manual')}
                     className={`flex-1 py-2.5 px-3 rounded-xl text-xs font-bold transition-all cursor-pointer border-2 ${
                       dispatchMode === 'manual'
-                        ? 'bg-[#DC2626] text-white border-[#DC2626]'
+                        ? 'bg-[#EA4335] text-white border-[#EA4335]'
                         : 'bg-white text-gray-600 border-[rgba(0,0,0,0.08)] hover:bg-gray-50'
                     }`}
                   >
@@ -300,7 +300,7 @@ export const ProgramPurchaseModal: React.FC<ProgramPurchaseModalProps> = ({
                         value={startDate}
                         onChange={(e) => setStartDate(e.target.value)}
                         min={new Date().toISOString().split('T')[0]}
-                        className="w-full px-3 py-2 rounded-lg border border-[rgba(0,0,0,0.08)] bg-white text-xs font-mono text-[#000000] focus:outline-none focus:ring-2 focus:ring-[#DC2626]/30"
+                        className="w-full px-3 py-2 rounded-lg border border-[rgba(0,0,0,0.08)] bg-white text-xs font-mono text-[#000000] focus:outline-none focus:ring-2 focus:ring-[#EA4335]/30"
                       />
                     </div>
 
@@ -315,7 +315,7 @@ export const ProgramPurchaseModal: React.FC<ProgramPurchaseModalProps> = ({
                             )}
                             className={`flex-1 py-1.5 rounded-lg text-[9px] font-bold transition-all cursor-pointer border ${
                               selectedDays.includes(day)
-                                ? 'bg-[#DC2626] text-white border-[#DC2626]'
+                                ? 'bg-[#EA4335] text-white border-[#EA4335]'
                                 : 'bg-white text-gray-500 border-[rgba(0,0,0,0.08)]'
                             }`}
                           >
@@ -330,7 +330,7 @@ export const ProgramPurchaseModal: React.FC<ProgramPurchaseModalProps> = ({
 
               {/* Security badge */}
               <div className="flex items-center gap-2 text-[10px] text-gray-500 font-mono">
-                <Shield className="w-3.5 h-3.5 text-[#7A9382]" />
+                <Shield className="w-3.5 h-3.5 text-[#34A853]" />
                 <span>Secure purchase · Instant access · {isFree ? 'No payment required' : 'Payment processed in-app'}</span>
               </div>
 
@@ -338,7 +338,7 @@ export const ProgramPurchaseModal: React.FC<ProgramPurchaseModalProps> = ({
               <button
                 onClick={handlePurchase}
                 disabled={isProcessing}
-                className="w-full py-3.5 bg-[#DC2626] text-white font-bold text-sm rounded-xl hover:bg-[#B91C1C] active:scale-95 transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2 shadow-sm"
+                className="w-full py-3.5 bg-[#EA4335] text-white font-bold text-sm rounded-xl hover:bg-[#EA4335] active:scale-95 transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2 shadow-sm"
               >
                 {isProcessing ? (
                   <>

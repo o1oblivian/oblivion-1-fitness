@@ -110,7 +110,7 @@ export const DialChronoGauge: React.FC<DialChronoGaugeProps> = ({
           <circle cx={CX - 52} cy={CY + 54} r="28" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="3" />
           <path
             d={arcPath(CX - 52, CY + 54, 28, 0, 360 * aMove)}
-            fill="none" stroke="rgba(255,71,87,0.8)" strokeWidth="3" strokeLinecap="round"
+            fill="none" stroke="#EA4335" strokeWidth="3" strokeLinecap="round"
             className="transition-all duration-1000 ease-out"
           />
           <text x={CX - 52} y={CY + 52} textAnchor="middle" fill="white" fontSize="13" fontWeight="900" fontFamily="monospace">
@@ -126,7 +126,7 @@ export const DialChronoGauge: React.FC<DialChronoGaugeProps> = ({
           <circle cx={CX + 52} cy={CY + 54} r="28" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="3" />
           <path
             d={arcPath(CX + 52, CY + 54, 28, 0, 360 * aDist)}
-            fill="none" stroke="rgba(84,160,255,0.8)" strokeWidth="3" strokeLinecap="round"
+            fill="none" stroke="#34A853" strokeWidth="3" strokeLinecap="round"
             className="transition-all duration-1000 ease-out"
           />
           <text x={CX + 52} y={CY + 52} textAnchor="middle" fill="white" fontSize="13" fontWeight="900" fontFamily="monospace">

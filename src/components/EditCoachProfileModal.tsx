@@ -130,7 +130,7 @@ export const EditCoachProfileModal: React.FC<EditCoachProfileModalProps> = ({
     <FullScreenModal isOpen={isOpen} onClose={onClose} zIndex={190}>
         <ModalHeader
           onClose={onClose}
-          badge={{ label: 'Coach Dossier', color: '#DC2626' }}
+          badge={{ label: 'Coach Dossier', color: '#EA4335' }}
           title="Edit Coach Profile & Bio"
           closeSize="sm"
         />
@@ -146,7 +146,7 @@ export const EditCoachProfileModal: React.FC<EditCoachProfileModalProps> = ({
                 type="text"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className="w-full bg-white dark:bg-black/40 border border-[rgba(0,0,0,0.08)] dark:border-white/10 rounded-xl px-3 py-2 font-bold text-xs outline-none focus:border-[#DC2626]"
+                className="w-full bg-white dark:bg-black/40 border border-[rgba(0,0,0,0.08)] dark:border-white/10 rounded-xl px-3 py-2 font-bold text-xs outline-none focus:border-[#EA4335]"
               />
             </div>
             <div>
@@ -157,7 +157,7 @@ export const EditCoachProfileModal: React.FC<EditCoachProfileModalProps> = ({
                 type="text"
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                className="w-full bg-white dark:bg-black/40 border border-[rgba(0,0,0,0.08)] dark:border-white/10 rounded-xl px-3 py-2 font-bold text-xs outline-none focus:border-[#DC2626]"
+                className="w-full bg-white dark:bg-black/40 border border-[rgba(0,0,0,0.08)] dark:border-white/10 rounded-xl px-3 py-2 font-bold text-xs outline-none focus:border-[#EA4335]"
               />
             </div>
           </div>
@@ -171,7 +171,7 @@ export const EditCoachProfileModal: React.FC<EditCoachProfileModalProps> = ({
               rows={3}
               value={formData.bio}
               onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
-              className="w-full bg-white dark:bg-black/40 border border-[rgba(0,0,0,0.08)] dark:border-white/10 rounded-xl p-3 text-xs outline-none focus:border-[#DC2626] font-sans leading-relaxed"
+              className="w-full bg-white dark:bg-black/40 border border-[rgba(0,0,0,0.08)] dark:border-white/10 rounded-xl p-3 text-xs outline-none focus:border-[#EA4335] font-sans leading-relaxed"
             />
           </div>
 
@@ -184,7 +184,7 @@ export const EditCoachProfileModal: React.FC<EditCoachProfileModalProps> = ({
               {formData.specialties.map((spec, i) => (
                 <span
                   key={i}
-                  className="bg-[#DC2626]/10 text-[#DC2626] border border-[#DC2626]/30 px-1.5 py-0.5 rounded-full text-[10px] font-bold flex items-center gap-1"
+                  className="bg-[#EA4335]/10 text-[#EA4335] border border-[#EA4335]/30 px-1.5 py-0.5 rounded-full text-[10px] font-bold flex items-center gap-1"
                 >
                   #{spec}
                   <button
@@ -224,9 +224,9 @@ export const EditCoachProfileModal: React.FC<EditCoachProfileModalProps> = ({
               {formData.credentials.map((cred, i) => (
                 <span
                   key={i}
-                  className="bg-[#7A9382]/10 text-[#7A9382] border border-[#7A9382]/30 px-2 py-0.5 rounded-full text-[10px] font-bold flex items-center gap-1.5"
+                  className="bg-[#34A853]/10 text-[#34A853] border border-[#34A853]/30 px-2 py-0.5 rounded-full text-[10px] font-bold flex items-center gap-1.5"
                 >
-                  <Award className="w-3 h-3 text-[#7A9382]" />
+                  <Award className="w-3 h-3 text-[#34A853]" />
                   <span>{cred}</span>
                   <button
                     type="button"
@@ -249,7 +249,7 @@ export const EditCoachProfileModal: React.FC<EditCoachProfileModalProps> = ({
               <button
                 type="button"
                 onClick={handleAddCredential}
-                className="px-2 py-1 bg-[#7A9382] text-white font-bold rounded-xl text-xs"
+                className="px-2 py-1 bg-[#34A853] text-white font-bold rounded-xl text-xs"
               >
                 + Add
               </button>
@@ -337,7 +337,7 @@ export const EditCoachProfileModal: React.FC<EditCoachProfileModalProps> = ({
                       saveSocialProfiles(updated);
                     }}
                     placeholder="@handle"
-                    className="w-full bg-white dark:bg-black/40 border border-[rgba(0,0,0,0.08)] dark:border-white/10 rounded-xl px-2 py-1.5 text-xs outline-none focus:border-[#7A9382]"
+                    className="w-full bg-white dark:bg-black/40 border border-[rgba(0,0,0,0.08)] dark:border-white/10 rounded-xl px-2 py-1.5 text-xs outline-none focus:border-[#34A853]"
                   />
                 </div>
               ))}
@@ -355,7 +355,7 @@ export const EditCoachProfileModal: React.FC<EditCoachProfileModalProps> = ({
             </button>
             <button
               type="submit"
-              className="flex-[2] py-3 bg-[#DC2626] hover:bg-[#B91C1C] text-white font-extrabold rounded-2xl text-xs shadow-2xs transition-all cursor-pointer flex items-center justify-center gap-2"
+              className="flex-[2] py-3 bg-[#EA4335] hover:bg-[#EA4335] text-white font-extrabold rounded-2xl text-xs shadow-2xs transition-all cursor-pointer flex items-center justify-center gap-2"
             >
               <Check className="w-4 h-4" />
               <span>Save & Publish Coach Profile</span>

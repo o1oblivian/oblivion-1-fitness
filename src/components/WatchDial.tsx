@@ -178,13 +178,13 @@ export const WatchDial: React.FC<WatchDialProps> = ({
           >
             <div className="relative w-9 h-9">
               <svg className="w-full h-full -rotate-90" viewBox="0 0 36 36">
-                <circle cx="18" cy="18" r="15" fill="none" stroke="rgba(255,71,87,0.12)" strokeWidth="2.5" />
-                <circle cx="18" cy="18" r="15" fill="none" stroke="#FF4757" strokeWidth="2.5" strokeLinecap="round"
+                <circle cx="18" cy="18" r="15" fill="none" stroke="rgba(234,67,53,0.15)" strokeWidth="2.5" />
+                <circle cx="18" cy="18" r="15" fill="none" stroke="#EA4335" strokeWidth="2.5" strokeLinecap="round"
                   strokeDasharray={`${2 * Math.PI * 15 * movePct} ${2 * Math.PI * 15}`}
                   className="transition-all duration-700"
                 />
               </svg>
-              <Flame className="absolute inset-0 m-auto w-3.5 h-3.5 text-red-400" />
+              <Flame className="absolute inset-0 m-auto w-3.5 h-3.5 text-[#EA4335]" />
             </div>
             <span className="text-lg font-mono font-black text-white tabular-nums">{Math.round(dailyMove)}</span>
             <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-white/50">KCAL</span>
@@ -197,13 +197,13 @@ export const WatchDial: React.FC<WatchDialProps> = ({
           >
             <div className="relative w-9 h-9">
               <svg className="w-full h-full -rotate-90" viewBox="0 0 36 36">
-                <circle cx="18" cy="18" r="15" fill="none" stroke="rgba(84,160,255,0.12)" strokeWidth="2.5" />
-                <circle cx="18" cy="18" r="15" fill="none" stroke="#54A0FF" strokeWidth="2.5" strokeLinecap="round"
+                <circle cx="18" cy="18" r="15" fill="none" stroke="rgba(66,133,244,0.18)" strokeWidth="2.5" />
+                <circle cx="18" cy="18" r="15" fill="none" stroke="#4285F4" strokeWidth="2.5" strokeLinecap="round"
                   strokeDasharray={`${2 * Math.PI * 15 * distPct} ${2 * Math.PI * 15}`}
                   className="transition-all duration-700"
                 />
               </svg>
-              <MapPin className="absolute inset-0 m-auto w-3.5 h-3.5 text-blue-400" />
+              <MapPin className="absolute inset-0 m-auto w-3.5 h-3.5 text-[#34A853]" />
             </div>
             <span className="text-lg font-mono font-black text-white tabular-nums">{dailyDist.toFixed(2)}</span>
             <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-white/50">KM</span>
@@ -215,8 +215,8 @@ export const WatchDial: React.FC<WatchDialProps> = ({
             style={{ background: 'rgba(0,0,0,0.3)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}
           >
             <div className="relative w-9 h-9 flex items-center justify-center">
-              <Heart className="w-4 h-4 text-red-400/60" />
-              <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-red-400/70" />
+              <Heart className="w-4 h-4 text-[#EA4335]/70" />
+              <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-[#EA4335]" />
             </div>
             <span className="text-sm font-mono font-black text-white tabular-nums">{bpm}</span>
             <span className="text-[9px] font-mono font-bold uppercase tracking-wider text-white/35">BPM</span>

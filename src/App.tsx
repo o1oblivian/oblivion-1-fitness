@@ -109,7 +109,7 @@ export default function App() {
 
   return (
     <ErrorBoundary>
-    <div className="w-full max-w-full h-[100dvh] overflow-hidden box-border flex flex-col items-center justify-start bg-[#F2F2F7] dark:bg-[#000000] text-[#1C1C1E] dark:text-white transition-colors duration-300 font-sans antialiased relative selection:bg-accent/20 selection:text-accent safe-top">
+    <div className="w-full max-w-full h-[100dvh] overflow-hidden box-border flex flex-col items-center justify-start bg-[#FFFFFF] dark:bg-[#000000] text-[#1C1C1E] dark:text-white transition-colors duration-300 font-sans antialiased relative selection:bg-accent/20 selection:text-accent safe-top">
       <Toast toasts={s.toasts} />
 
       {isOffline && s.isAuthenticated && (
@@ -120,7 +120,7 @@ export default function App() {
       )}
 
       {s.isCheckingSession && !s.isAuthenticated && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#F2F2F7] dark:bg-[#000000]">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#FFFFFF] dark:bg-[#000000]">
           <div className="w-10 h-10 border-3 border-current/20 border-t-current rounded-full animate-spin" />
         </div>
       )}
@@ -221,7 +221,7 @@ export default function App() {
           <main
             onTouchStart={s.handleTouchStart}
             onTouchEnd={s.handleTouchEnd}
-            className="w-full max-w-md mx-auto px-3 sm:px-4 pt-0.5 pb-[calc(env(safe-area-inset-bottom,0px)+3.75rem)] flex-1 flex flex-col items-center justify-start relative z-10 box-border overflow-y-auto overflow-x-hidden hide-scrollbar overscroll-contain"
+            className="w-full max-w-md mx-auto px-3 sm:px-4 pt-0.5 pb-[max(5.5rem,calc(env(safe-area-inset-bottom,0px)+5rem))] flex-1 flex flex-col items-center justify-start relative z-10 box-border overflow-y-auto overflow-x-hidden hide-scrollbar overscroll-contain"
           >
             {/* Tracker tab - always mounted */}
             <div className={`w-full flex flex-col gap-2 ${s.currentMode === 'tracker' ? 'tab-view-enter' : 'hidden'}`}>

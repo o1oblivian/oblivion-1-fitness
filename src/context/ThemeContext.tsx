@@ -62,18 +62,18 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     } catch {}
 
     if (palette === 'organic') {
-      root.style.setProperty('--color-bg-light', '#FBF9F5');
-      root.style.setProperty('--color-card-light', '#F3EFEA');
+      root.style.setProperty('--color-bg-light', '#FFFFFF');
+      root.style.setProperty('--color-card-light', '#F4F4F6');
       root.style.setProperty('--color-bg-dark', '#121110');
       root.style.setProperty('--color-card-dark', '#1A1817');
       root.style.setProperty('--color-accent-primary', '#587B73');
       root.style.setProperty('--color-accent-secondary', '#C28E67');
     } else {
-      root.style.setProperty('--color-bg-light', '#F4F4F5');
-      root.style.setProperty('--color-card-light', '#FFFFFF');
+      root.style.setProperty('--color-bg-light', '#FFFFFF');
+      root.style.setProperty('--color-card-light', '#F4F4F6');
       root.style.setProperty('--color-bg-dark', '#09090B');
       root.style.setProperty('--color-card-dark', '#121216');
-      root.style.setProperty('--color-accent-primary', '#06B6D4');
+      root.style.setProperty('--color-accent-primary', '#4285F4');
       root.style.setProperty('--color-accent-secondary', '#84CC16');
     }
   }, [palette]);

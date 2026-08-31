@@ -40,8 +40,8 @@ export const DialRadial: React.FC<DialRadialProps> = ({
 
   const segments = [
     { r: 148, startDeg: 200, sweep: 320, pct: aSteps, color: '#ffffff', width: 12 },
-    { r: 120, startDeg: 220, sweep: 280, pct: aMove, color: '#FF4757', width: 10 },
-    { r: 95, startDeg: 240, sweep: 260, pct: aDist, color: '#54A0FF', width: 8 },
+    { r: 120, startDeg: 220, sweep: 280, pct: aMove, color: '#EA4335', width: 10 },
+    { r: 95, startDeg: 240, sweep: 260, pct: aDist, color: '#4285F4', width: 8 },
   ];
 
   return (
@@ -53,12 +53,12 @@ export const DialRadial: React.FC<DialRadialProps> = ({
             <stop offset="100%" stopColor="#ffffff" stopOpacity="1" />
           </linearGradient>
           <linearGradient id="radial-grad-1" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="#FF4757" stopOpacity="0.3" />
-            <stop offset="100%" stopColor="#FF4757" stopOpacity="1" />
+            <stop offset="0%" stopColor="#EA4335" stopOpacity="0.3" />
+            <stop offset="100%" stopColor="#EA4335" stopOpacity="1" />
           </linearGradient>
           <linearGradient id="radial-grad-2" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="#54A0FF" stopOpacity="0.3" />
-            <stop offset="100%" stopColor="#54A0FF" stopOpacity="1" />
+            <stop offset="0%" stopColor="#4285F4" stopOpacity="0.3" />
+            <stop offset="100%" stopColor="#4285F4" stopOpacity="1" />
           </linearGradient>
         </defs>
 
@@ -95,13 +95,13 @@ export const DialRadial: React.FC<DialRadialProps> = ({
 
         {/* Legend chips */}
         <g transform={`translate(${CX - 70}, ${CY + 50})`}>
-          <circle cx="0" cy="0" r="4" fill="#FF4757" />
+          <circle cx="0" cy="0" r="4" fill="#EA4335" />
           <text x="10" y="4" fill="rgba(255,255,255,0.6)" fontSize="10" fontWeight="700" fontFamily="monospace">
             {Math.round(dailyMove)} kcal
           </text>
         </g>
         <g transform={`translate(${CX - 70}, ${CY + 72})`}>
-          <circle cx="0" cy="0" r="4" fill="#54A0FF" />
+          <circle cx="0" cy="0" r="4" fill="#4285F4" />
           <text x="10" y="4" fill="rgba(255,255,255,0.6)" fontSize="10" fontWeight="700" fontFamily="monospace">
             {dailyDist.toFixed(2)} km
           </text>

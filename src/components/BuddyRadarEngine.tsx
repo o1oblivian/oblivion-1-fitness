@@ -310,7 +310,7 @@ export const BuddyRadarEngine: React.FC<BuddyRadarEngineProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-[9999] bg-[#F2F2F7] dark:bg-[#060608] flex flex-col">
+    <div className="fixed inset-0 z-[9999] bg-[#FFFFFF] dark:bg-[#060608] flex flex-col">
       {/* Top Header - Rendered only for main Radar views & Settings, Dedicated subviews (Chat & Profile) render their own single tier header */}
       {!isDedicatedView && (
         <div className="shrink-0 safe-top px-3 pt-2.5 pb-1.5 border-b border-zinc-200/60 dark:border-white/[0.06] bg-white/70 dark:bg-[#0A0A0E]/80 backdrop-blur-md">
@@ -1217,7 +1217,7 @@ const ChatDrawer: React.FC<{
   };
 
   return (
-    <div className="flex flex-col h-full bg-[#F2F2F7] dark:bg-[#060608]">
+    <div className="flex flex-col h-full bg-[#FFFFFF] dark:bg-[#060608]">
       {/* Chat header - Single tier nude header */}
       <div className="shrink-0 safe-top px-3 py-2 border-b border-zinc-200/60 dark:border-white/[0.08] bg-white/70 dark:bg-[#0A0A0E]/80 backdrop-blur-md">
         <div className="flex items-center gap-2">
@@ -2584,7 +2584,7 @@ const PrivacyToggleRow: React.FC<{
               maxHeight: '26px',
             }}
             className={`relative inline-flex shrink-0 cursor-pointer items-center rounded-full p-[2px] transition-colors duration-200 ease-in-out focus:outline-none select-none ${
-              value ? 'bg-[#DC2626]' : 'bg-zinc-300 dark:bg-zinc-700'
+              value ? 'bg-[#EA4335]' : 'bg-zinc-300 dark:bg-zinc-700'
             }`}
           >
             <span

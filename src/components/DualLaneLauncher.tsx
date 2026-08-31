@@ -28,11 +28,11 @@ interface GeneratedExercise {
   rest: string;
 }
 
-const GOAL_OPTIONS: { id: GoalMode; label: string; tag: string; icon: React.ComponentType<{ className?: string }>; color: string }[] = [
-  { id: 'burn', label: 'Burn kcal', tag: 'Metabolic Torch', icon: Flame, color: 'text-zinc-900 dark:text-white bg-zinc-100 dark:bg-zinc-800 border-zinc-300 dark:border-zinc-700' },
-  { id: 'build', label: 'Build Muscle', tag: 'Hypertrophy', icon: Dumbbell, color: 'text-zinc-900 dark:text-white bg-zinc-100 dark:bg-zinc-800 border-zinc-300 dark:border-zinc-700' },
-  { id: 'reset', label: 'Reset & Move', tag: 'Recovery & Joint Flow', icon: Activity, color: 'text-zinc-900 dark:text-white bg-zinc-100 dark:bg-zinc-800 border-zinc-300 dark:border-zinc-700' },
-  { id: 'perform', label: 'Athletic Peak', tag: 'Speed & Explosiveness', icon: Zap, color: 'text-zinc-900 dark:text-white bg-zinc-100 dark:bg-zinc-800 border-zinc-300 dark:border-zinc-700' },
+const GOAL_OPTIONS: { id: GoalMode; label: string; tag: string; icon: React.ComponentType<{ className?: string; style?: React.CSSProperties }>; iconColor: string }[] = [
+  { id: 'burn', label: 'Burn kcal', tag: 'Metabolic Torch', icon: Flame, iconColor: '#FF3B30' },
+  { id: 'build', label: 'Build Muscle', tag: 'Hypertrophy', icon: Dumbbell, iconColor: '#FF3B30' },
+  { id: 'reset', label: 'Reset & Move', tag: 'Recovery & Joint Flow', icon: Activity, iconColor: '#8B5CF6' },
+  { id: 'perform', label: 'Athletic Peak', tag: 'Speed & Explosiveness', icon: Zap, iconColor: '#3B82F6' },
 ];
 
 const DURATION_OPTIONS: { mins: DurationOption; label: string; arcPercent: number }[] = [
@@ -205,7 +205,7 @@ export const DualLaneLauncher: React.FC<DualLaneLauncherProps> = ({
                 ? 'bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white shadow-sm'
                 : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white border border-zinc-200 dark:border-zinc-700'
             }`}>
-              <Sparkles className="w-4 h-4 text-[#DC2626]" />
+              <Sparkles className="w-4 h-4 text-[#4285F4]" />
             </div>
             <div className="flex-1 min-w-0 text-left">
               <div className="text-[11px] font-extrabold leading-none">Intel Coach</div>
@@ -230,7 +230,7 @@ export const DualLaneLauncher: React.FC<DualLaneLauncherProps> = ({
                 ? 'bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white shadow-sm'
                 : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white border border-zinc-200 dark:border-zinc-700'
             }`}>
-              <UserCheck className="w-4 h-4 text-zinc-700 dark:text-zinc-300" />
+              <UserCheck className="w-4 h-4 text-[#FF3B30] dark:text-[#FF453A]" />
             </div>
             <div className="flex-1 min-w-0 text-left">
               <div className="text-[11px] font-extrabold leading-none">My Coach</div>
@@ -258,7 +258,7 @@ export const DualLaneLauncher: React.FC<DualLaneLauncherProps> = ({
                 <span className="text-[10px] text-zinc-500 dark:text-zinc-400">Autoregulated training prescription</span>
               </div>
             </div>
-            <span className="text-[10px] font-mono font-bold text-[#DC2626] bg-red-50 dark:bg-red-950/40 px-2 py-0.5 rounded border border-red-200 dark:border-red-900">
+            <span className="text-[10px] font-mono font-bold text-[#FF3B30] dark:text-[#FF453A] bg-red-500/10 px-2 py-0.5 rounded border border-red-500/20">
               INTEL ADAPTIVE
             </span>
           </div>
@@ -285,7 +285,7 @@ export const DualLaneLauncher: React.FC<DualLaneLauncherProps> = ({
               >
                 <div className="flex items-center justify-between mb-1">
                   <span className="text-[10px] font-mono font-bold uppercase">Low</span>
-                  <Battery className="w-3.5 h-3.5" />
+                  <Battery className="w-3.5 h-3.5 text-[#4285F4]" />
                 </div>
                 <div className={`text-[9px] ${energy === 'low' ? 'text-zinc-300 dark:text-zinc-600' : 'text-zinc-400'}`}>Reset & Ease</div>
               </button>
@@ -301,7 +301,7 @@ export const DualLaneLauncher: React.FC<DualLaneLauncherProps> = ({
               >
                 <div className="flex items-center justify-between mb-1">
                   <span className="text-[10px] font-mono font-bold uppercase">Steady</span>
-                  <BatteryCharging className="w-3.5 h-3.5" />
+                  <BatteryCharging className="w-3.5 h-3.5 text-[#FBBC05]" />
                 </div>
                 <div className={`text-[9px] ${energy === 'okay' ? 'text-zinc-300 dark:text-zinc-600' : 'text-zinc-400'}`}>Solid Work</div>
               </button>
@@ -317,7 +317,7 @@ export const DualLaneLauncher: React.FC<DualLaneLauncherProps> = ({
               >
                 <div className="flex items-center justify-between mb-1">
                   <span className="text-[10px] font-mono font-bold uppercase">Prime</span>
-                  <BatteryFull className="w-3.5 h-3.5" />
+                  <BatteryFull className="w-3.5 h-3.5 text-[#34A853]" />
                 </div>
                 <div className={`text-[9px] ${energy === 'ready' ? 'text-zinc-300 dark:text-zinc-600' : 'text-zinc-400'}`}>Full Attack</div>
               </button>
@@ -327,7 +327,7 @@ export const DualLaneLauncher: React.FC<DualLaneLauncherProps> = ({
           {/* 2. Goal Mode Selector */}
           <div className="space-y-1.5">
             <div className="text-[10px] font-mono text-zinc-500 dark:text-zinc-400 uppercase tracking-wider flex items-center gap-1.5">
-              <Target className="w-3 h-3 text-zinc-400" /> 2. Training Goal Mode
+              <Target className="w-3 h-3 text-[#4285F4]" /> 2. Training Goal Mode
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
               {GOAL_OPTIONS.map((g) => {
@@ -350,8 +350,8 @@ export const DualLaneLauncher: React.FC<DualLaneLauncherProps> = ({
                     }`}
                   >
                     <div className="flex items-center justify-between mb-1">
-                      <Icon className="w-4 h-4" />
-                      {isSelected && <Check className="w-3.5 h-3.5" />}
+                      <Icon className="w-4 h-4" style={{ color: g.iconColor }} />
+                      {isSelected && <Check className="w-3.5 h-3.5" style={{ color: g.iconColor }} />}
                     </div>
                     <div className="text-xs font-bold tracking-tight">{g.label}</div>
                     <div className={`text-[9px] mt-0.5 truncate ${isSelected ? 'text-zinc-300 dark:text-zinc-600' : 'text-zinc-400'}`}>{g.tag}</div>
@@ -366,7 +366,7 @@ export const DualLaneLauncher: React.FC<DualLaneLauncherProps> = ({
             <div className="p-3 bg-zinc-50 dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-800 rounded-2xl space-y-2 animate-fadeIn">
               <div className="flex items-center justify-between">
                 <span className="text-[10px] font-mono font-bold text-zinc-600 dark:text-zinc-300 uppercase tracking-wider flex items-center gap-1.5">
-                  <Flame className="w-3.5 h-3.5 text-[#DC2626]" /> Target Caloric Output
+                  <Flame className="w-3.5 h-3.5 text-[#FF3B30] dark:text-[#FF453A]" /> Target Caloric Output
                 </span>
                 <span className="text-[10px] font-mono text-zinc-500 dark:text-zinc-400">Est: {estCals} kcal</span>
               </div>
@@ -453,7 +453,7 @@ export const DualLaneLauncher: React.FC<DualLaneLauncherProps> = ({
                 <span>{time}m</span>
               </div>
               <div className="flex items-center gap-1.5 text-zinc-700 dark:text-zinc-300 font-mono">
-                <Flame className="w-3.5 h-3.5 text-[#DC2626]" />
+                <Flame className="w-3.5 h-3.5 text-[#FF3B30] dark:text-[#FF453A]" />
                 <span>~{estCals} kcal</span>
               </div>
               {goalMode === 'burn' && (
@@ -471,7 +471,7 @@ export const DualLaneLauncher: React.FC<DualLaneLauncherProps> = ({
               {isGenerating ? (
                 <span className="flex items-center gap-1"><span className="w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin" />Building...</span>
               ) : (
-                <><Zap className="w-3 h-3 text-[#DC2626]" />Design Session</>
+                <><Zap className="w-3 h-3 text-[#FF3B30] dark:text-[#FF453A]" />Design Session</>
               )}
             </button>
           </div>
@@ -483,7 +483,7 @@ export const DualLaneLauncher: React.FC<DualLaneLauncherProps> = ({
                 <div className="text-[10px] font-bold uppercase tracking-widest text-zinc-700 dark:text-zinc-300">
                   Prescription — {generated.length} movements
                 </div>
-                <div className="text-[10px] font-bold text-[#DC2626] flex items-center gap-0.5 font-mono">
+                <div className="text-[10px] font-bold text-[#FF3B30] dark:text-[#FF453A] flex items-center gap-0.5 font-mono">
                   <Flame className="w-2.5 h-2.5" />~{estCals} kcal
                 </div>
               </div>

@@ -141,7 +141,7 @@ export const ProgramProgressTracker: React.FC<ProgramProgressTrackerProps> = ({
     return (
       <div className="rounded-3xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#18181B] p-6 shadow-xl text-center space-y-3">
         <div className="flex items-center justify-center gap-2">
-          <div className="w-4 h-4 border-2 border-[#DC2626] border-t-transparent rounded-full animate-spin" />
+          <div className="w-4 h-4 border-2 border-[#EA4335] border-t-transparent rounded-full animate-spin" />
           <span className="text-xs font-mono font-bold text-zinc-600 dark:text-zinc-300">Syncing Coach Dispatches...</span>
         </div>
       </div>
@@ -163,7 +163,7 @@ export const ProgramProgressTracker: React.FC<ProgramProgressTrackerProps> = ({
             <span className="text-[10px] text-zinc-500 dark:text-zinc-400">Assigned workouts & active programs</span>
           </div>
         </div>
-        <span className="text-[10px] font-mono font-bold text-[#DC2626] bg-red-50 dark:bg-red-950/40 px-2 py-0.5 rounded border border-red-200 dark:border-red-900">
+        <span className="text-[10px] font-mono font-bold text-[#EA4335] bg-red-50 dark:bg-red-950/40 px-2 py-0.5 rounded border border-red-200 dark:border-red-900">
           COACH HUB
         </span>
       </div>
@@ -173,7 +173,7 @@ export const ProgramProgressTracker: React.FC<ProgramProgressTrackerProps> = ({
         <div className="space-y-2.5">
           <div className="flex items-center justify-between">
             <span className="text-[10px] font-mono text-zinc-500 dark:text-zinc-400 uppercase tracking-wider flex items-center gap-1.5">
-              <Sparkles className="w-3 h-3 text-[#DC2626]" /> Dispatched Workouts ({dispatchedWorkouts.length})
+              <Sparkles className="w-3 h-3 text-[#EA4335]" /> Dispatched Workouts ({dispatchedWorkouts.length})
             </span>
           </div>
           <div className="space-y-2 max-h-60 overflow-y-auto custom-scrollbar pr-1">
@@ -226,7 +226,7 @@ export const ProgramProgressTracker: React.FC<ProgramProgressTrackerProps> = ({
       {programs.length > 0 && (
         <div className="space-y-2.5">
           <div className="text-[10px] font-mono text-zinc-500 dark:text-zinc-400 uppercase tracking-wider flex items-center gap-1.5">
-            <Trophy className="w-3 h-3 text-[#DC2626]" /> Enrolled Programs
+            <Trophy className="w-3 h-3 text-[#EA4335]" /> Enrolled Programs
           </div>
           {programs.map((program) => {
             const isExpanded = expandedProgram === program.enrollment.id;
@@ -248,7 +248,7 @@ export const ProgramProgressTracker: React.FC<ProgramProgressTrackerProps> = ({
                   className="w-full flex items-center gap-3 p-3 active:bg-zinc-100 dark:active:bg-zinc-800 transition-colors cursor-pointer"
                 >
                   <div className="w-8 h-8 rounded-xl bg-zinc-200 dark:bg-zinc-800 flex items-center justify-center shrink-0 border border-zinc-300 dark:border-zinc-700">
-                    <Trophy className="w-4 h-4 text-[#DC2626]" />
+                    <Trophy className="w-4 h-4 text-[#EA4335]" />
                   </div>
                   <div className="flex-1 min-w-0 text-left">
                     <div className="text-[11px] font-bold text-zinc-900 dark:text-white leading-tight truncate">
@@ -266,10 +266,10 @@ export const ProgramProgressTracker: React.FC<ProgramProgressTrackerProps> = ({
                           cx="18" cy="18" r="15" fill="none" stroke="currentColor" strokeWidth="2.5"
                           strokeDasharray={`${progressPct} 100`}
                           strokeLinecap="round"
-                          className="text-[#DC2626]"
+                          className="text-[#EA4335]"
                         />
                       </svg>
-                      <span className="absolute inset-0 flex items-center justify-center text-[7px] font-black text-[#DC2626]">
+                      <span className="absolute inset-0 flex items-center justify-center text-[7px] font-black text-[#EA4335]">
                         {Math.round(progressPct)}%
                       </span>
                     </div>
@@ -320,7 +320,7 @@ export const ProgramProgressTracker: React.FC<ProgramProgressTrackerProps> = ({
       {!hasContent && (
         <div className="p-4 bg-zinc-50 dark:bg-zinc-900/40 border border-zinc-200 dark:border-zinc-800 rounded-2xl text-center space-y-3">
           <div className="w-10 h-10 rounded-2xl bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 flex items-center justify-center mx-auto text-zinc-500 dark:text-zinc-400">
-            <UserCheck className="w-5 h-5 text-[#DC2626]" />
+            <UserCheck className="w-5 h-5 text-[#EA4335]" />
           </div>
           <div>
             <div className="text-xs font-bold text-zinc-900 dark:text-white">No Coach Workouts Dispatched Yet</div>
@@ -333,7 +333,7 @@ export const ProgramProgressTracker: React.FC<ProgramProgressTrackerProps> = ({
               onClick={handleGenerateSampleDispatch}
               className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200 text-white text-xs font-bold shadow-md active:scale-95 transition-all cursor-pointer"
             >
-              <Sparkles className="w-3.5 h-3.5 text-[#DC2626]" />
+              <Sparkles className="w-3.5 h-3.5 text-[#EA4335]" />
               Generate Sample Coach Dispatch
             </button>
           </div>
@@ -381,13 +381,13 @@ const SessionRow: React.FC<SessionRowProps> = ({
         isCompleted
           ? 'bg-red-500/15'
           : isActive
-          ? 'bg-[#DC2626]/15'
+          ? 'bg-[#EA4335]/15'
           : 'bg-zinc-200 dark:bg-zinc-800'
       }`}>
         {isCompleted ? (
-          <CheckCircle2 className="w-3.5 h-3.5 text-[#DC2626]" />
+          <CheckCircle2 className="w-3.5 h-3.5 text-[#EA4335]" />
         ) : isActive ? (
-          <Flame className="w-3.5 h-3.5 text-[#DC2626]" />
+          <Flame className="w-3.5 h-3.5 text-[#EA4335]" />
         ) : (
           <Lock className="w-3 h-3 text-zinc-400" />
         )}
@@ -397,7 +397,7 @@ const SessionRow: React.FC<SessionRowProps> = ({
       <div className="flex-1 min-w-0">
         <div className={`text-[11px] font-bold leading-none ${
           isCompleted
-            ? 'text-[#DC2626]'
+            ? 'text-[#EA4335]'
             : isActive
             ? 'text-zinc-900 dark:text-white'
             : 'text-zinc-400 dark:text-zinc-500'
@@ -430,10 +430,10 @@ const SessionRow: React.FC<SessionRowProps> = ({
           <button
             onClick={onComplete}
             disabled={isCompleting}
-            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-red-500/10 text-[#DC2626] text-[9px] font-bold active:scale-95 transition-all cursor-pointer border border-red-400/20 disabled:opacity-50"
+            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-red-500/10 text-[#EA4335] text-[9px] font-bold active:scale-95 transition-all cursor-pointer border border-red-400/20 disabled:opacity-50"
           >
             {isCompleting ? (
-              <div className="w-3 h-3 border-2 border-[#DC2626] border-t-transparent rounded-full animate-spin" />
+              <div className="w-3 h-3 border-2 border-[#EA4335] border-t-transparent rounded-full animate-spin" />
             ) : (
               <CheckCircle2 className="w-3 h-3" />
             )}
@@ -443,7 +443,7 @@ const SessionRow: React.FC<SessionRowProps> = ({
       )}
 
       {isCompleted && (
-        <CheckCircle2 className="w-4 h-4 text-[#DC2626] shrink-0" />
+        <CheckCircle2 className="w-4 h-4 text-[#EA4335] shrink-0" />
       )}
     </div>
   );

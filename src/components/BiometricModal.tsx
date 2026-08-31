@@ -35,10 +35,10 @@ export const BiometricModal: React.FC<BiometricModalProps> = ({
     hrv: {
       title: 'HRV Stream (Heart Rate Variability)',
       badge: 'PARASYMPATHETIC TONE',
-      badgeBg: 'bg-[#7A9382]/15 text-[#7A9382] border-[#7A9382]/30',
+      badgeBg: 'bg-[#34A853]/15 text-[#34A853] border-[#34A853]/30',
       value: '68 ms',
       status: 'Optimal Baseline',
-      statusColor: 'text-[#7A9382]',
+      statusColor: 'text-[#34A853]',
       explanation:
         'Heart Rate Variability (HRV) measures the millisecond variations between consecutive heartbeats. High HRV reflects strong parasympathetic nervous system activity, rapid muscular recovery, and high stress resilience.',
       trend: [
@@ -54,10 +54,10 @@ export const BiometricModal: React.FC<BiometricModalProps> = ({
     strain: {
       title: 'Day Strain (Cardiovascular Load)',
       badge: 'STRESS & ADAPTATION',
-      badgeBg: 'bg-[#DC2626]/10 text-[#DC2626] border-[#DC2626]/30',
+      badgeBg: 'bg-[#EA4335]/10 text-[#EA4335] border-[#EA4335]/30',
       value: '14.2 / 21',
       status: 'High Target Reached',
-      statusColor: 'text-[#DC2626]',
+      statusColor: 'text-[#EA4335]',
       explanation:
         'Day Strain quantifies accumulated cardiovascular and muscular stress throughout your day on a logarithmic 0–21 scale. It aggregates heart rate zone durations to optimize conditioning without risking overreaching.',
       trend: [
@@ -73,10 +73,10 @@ export const BiometricModal: React.FC<BiometricModalProps> = ({
     recovery: {
       title: 'Recovery Stream (CNS & Readiness)',
       badge: 'PERFORMANCE READINESS',
-      badgeBg: 'bg-[#7A9382]/15 text-[#7A9382] border-[#7A9382]/30',
+      badgeBg: 'bg-[#34A853]/15 text-[#34A853] border-[#34A853]/30',
       value: '88%',
       status: 'Primed for Max Output',
-      statusColor: 'text-[#7A9382]',
+      statusColor: 'text-[#34A853]',
       explanation:
         'Your Recovery rating synthesizes nocturnal HRV, resting heart rate, respiratory stability, and deep sleep duration into a single readiness percentage. An 88% score indicates complete central nervous system restoration.',
       trend: [
@@ -157,7 +157,7 @@ export const BiometricModal: React.FC<BiometricModalProps> = ({
         {/* Physiological Explanation */}
         <div className="space-y-0.5">
           <h4 className="text-[10px] font-display font-bold text-neutral-900 dark:text-white uppercase tracking-wider flex items-center gap-1.5">
-            <Dna className="w-3.5 h-3.5 text-zinc-600 dark:text-[#7A9382]" />
+            <Dna className="w-3.5 h-3.5 text-zinc-600 dark:text-[#34A853]" />
             <span>Physiological Science & Importance</span>
           </h4>
           <p className="text-[11px] text-neutral-600 dark:text-gray-300 leading-snug font-sans bg-white dark:bg-[#12141C] p-2.5 rounded-xl border border-neutral-200 dark:border-white/10 shadow-2xs">
@@ -194,7 +194,7 @@ export const BiometricModal: React.FC<BiometricModalProps> = ({
                       className={`w-full rounded transition-all duration-300 ${
                         isSelected
                           ? type === 'strain'
-                            ? 'bg-[#DC2626]'
+                            ? 'bg-[#EA4335]'
                             : 'bg-stone-800 dark:bg-zinc-500'
                           : 'bg-neutral-300 dark:bg-white/10 group-hover:bg-stone-400 dark:group-hover:bg-zinc-500/40'
                       }`}

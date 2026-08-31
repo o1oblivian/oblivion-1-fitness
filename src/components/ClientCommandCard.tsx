@@ -108,7 +108,7 @@ function generateInsights(telemetry: any, athleteName: string) {
   const proteinDays = macros.filter((m: any) => m.protein < m.proteinTarget).length;
 
   const overtrainingRisk = highRPESessions >= 4 ? 'HIGH' : highRPESessions >= 2 ? 'MODERATE' : 'LOW';
-  const overtrainingColor = overtrainingRisk === 'HIGH' ? '#DC2626' : overtrainingRisk === 'MODERATE' ? '#D97706' : '#16A34A';
+  const overtrainingColor = overtrainingRisk === 'HIGH' ? '#EA4335' : overtrainingRisk === 'MODERATE' ? '#FBBC05' : '#34A853';
 
   // Find plateau exercises
   const plateauExercises: string[] = [];
@@ -367,7 +367,7 @@ export const ClientCommandCard: React.FC<ClientCommandCardProps> = ({
               { label: 'Recovery', value: `${recoveryScore}%`, color: recoveryColor },
               { label: 'Sessions', value: `${completedSessions}/7`, isDynamic: true },
               { label: 'Tonnage', value: `${totalTonnage.toFixed(0)}`, isDynamic: true },
-              { label: 'PRs', value: `${telemetry?.prs?.length ?? 0}`, color: '#DC2626' },
+              { label: 'PRs', value: `${telemetry?.prs?.length ?? 0}`, color: '#EA4335' },
             ].map((s, i) => (
               <div key={i} className="bg-white dark:bg-white/[0.04] rounded-xl p-2 text-center border border-neutral-200 dark:border-white/10 shadow-xs">
                 <div className="text-[8px] font-mono text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">{s.label}</div>
@@ -508,7 +508,7 @@ export const ClientCommandCard: React.FC<ClientCommandCardProps> = ({
                   <div className="grid grid-cols-2 gap-2">
                     {[
                       { label: 'Training', value: insights.trainingAdherence, color: '#0284C7' },
-                      { label: 'Nutrition', value: insights.nutritionAdherence, color: '#16A34A' },
+                      { label: 'Nutrition', value: insights.nutritionAdherence, color: '#34A853' },
                     ].map((m, i) => (
                       <div key={i} className="p-2 rounded-lg bg-neutral-50 dark:bg-white/[0.03] border border-neutral-200 dark:border-white/5">
                         <div className="flex items-center justify-between mb-1">
@@ -601,7 +601,7 @@ export const ClientCommandCard: React.FC<ClientCommandCardProps> = ({
                               <span className="col-span-2 font-bold text-amber-600 dark:text-amber-400">{si + 1}</span>
                               <span className="col-span-3 text-center font-bold text-zinc-900 dark:text-white tabular-nums">{s.weight}kg</span>
                               <span className="col-span-3 text-center text-zinc-600 dark:text-zinc-300 tabular-nums">{s.reps}</span>
-                              <span className="col-span-2 text-center" style={{ color: s.rpe >= 9 ? '#DC2626' : s.rpe >= 8 ? '#D97706' : '#16A34A' }}>
+                              <span className="col-span-2 text-center" style={{ color: s.rpe >= 9 ? '#EA4335' : s.rpe >= 8 ? '#FBBC05' : '#34A853' }}>
                                 {s.rpe?.toFixed(1)}
                               </span>
                               <span className="col-span-2 text-right text-zinc-500 dark:text-zinc-400 tabular-nums">{(s.weight * s.reps).toLocaleString()}</span>
@@ -737,7 +737,7 @@ export const ClientCommandCard: React.FC<ClientCommandCardProps> = ({
                             <div className="flex flex-wrap gap-1.5">
                               {(ex.sets ?? []).map((set: any, si: number) => (
                                 <span key={si} className="text-[9px] font-mono bg-white dark:bg-white/[0.04] text-zinc-700 dark:text-zinc-300 px-2 py-1 rounded-md border border-neutral-200 dark:border-white/5 shadow-2xs">
-                                  {set.weight > 0 ? `${set.weight}kg` : 'BW'} x {set.reps} <span className="text-zinc-400 dark:text-zinc-500" style={{ color: set.rpe >= 9 ? '#DC2626' : undefined }}>@{set.rpe}</span>
+                                  {set.weight > 0 ? `${set.weight}kg` : 'BW'} x {set.reps} <span className="text-zinc-400 dark:text-zinc-500" style={{ color: set.rpe >= 9 ? '#EA4335' : undefined }}>@{set.rpe}</span>
                                 </span>
                               ))}
                             </div>
@@ -764,7 +764,7 @@ export const ClientCommandCard: React.FC<ClientCommandCardProps> = ({
                     const pct = (s.totalVolume || 0) / maxVol;
                     return (
                       <div key={i} className="flex-1 flex flex-col items-center gap-0.5">
-                        <div className="w-full rounded-t-md transition-all" style={{ height: `${Math.max(pct * 100, 4)}%`, backgroundColor: s.completed ? '#DC2626' : 'rgba(120,120,120,0.15)' }} />
+                        <div className="w-full rounded-t-md transition-all" style={{ height: `${Math.max(pct * 100, 4)}%`, backgroundColor: s.completed ? '#EA4335' : 'rgba(120,120,120,0.15)' }} />
                         <span className="text-[7px] font-mono text-zinc-500 dark:text-zinc-400">{s.dateLabel}</span>
                       </div>
                     );

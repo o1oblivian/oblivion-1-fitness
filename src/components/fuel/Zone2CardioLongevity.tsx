@@ -43,7 +43,7 @@ export const Zone2CardioLongevity: React.FC<Zone2CardioLongevityProps> = ({
           <span>Zone 2 Cardio & Longevity</span>
         </h3>
         <div className="flex items-center gap-2">
-          <span className="text-[9px] font-mono font-bold bg-[#DC2626]/10 text-[#DC2626] px-1.5 py-0.5 rounded-full border border-[#DC2626]/30 uppercase">
+          <span className="text-[9px] font-mono font-bold bg-[#EA4335]/10 text-[#EA4335] px-1.5 py-0.5 rounded-full border border-[#EA4335]/30 uppercase">
             {activeLogs.length > 0 ? 'Live Data' : 'No Cardio Logged'}
           </span>
           <button onClick={() => setCollapsed(!collapsed)} className="w-6 h-6 rounded-lg bg-[#F2F2F7] dark:bg-white/10 flex items-center justify-center cursor-pointer active:scale-90 transition-all">
@@ -59,7 +59,7 @@ export const Zone2CardioLongevity: React.FC<Zone2CardioLongevityProps> = ({
               <div className="text-[9px] font-mono font-bold text-[#5A5F5D] dark:text-gray-400 uppercase tracking-wider mb-1">
                 Zone 2 HR Range
               </div>
-              <div className="text-base sm:text-lg font-black font-mono text-[#7A9382]">
+              <div className="text-base sm:text-lg font-black font-mono text-[#34A853]">
                 {targetHRLow} - {targetHRHigh} <span className="text-[10px] text-[#5A5F5D] dark:text-gray-400">BPM</span>
               </div>
               <div className="text-[8.5px] font-mono text-[#5A5F5D] dark:text-gray-400 mt-1">
@@ -76,11 +76,11 @@ export const Zone2CardioLongevity: React.FC<Zone2CardioLongevityProps> = ({
               </div>
               <div className="w-full h-1.5 rounded-full bg-[#E5E5EA] dark:bg-white/10 mt-1 overflow-hidden">
                 <div
-                  className="h-full bg-[#7A9382] rounded-full transition-all duration-500"
+                  className="h-full bg-[#34A853] rounded-full transition-all duration-500"
                   style={{ width: `${pct}%` }}
                 />
               </div>
-              <div className="text-[8.5px] font-mono text-[#7A9382] font-bold mt-1">
+              <div className="text-[8.5px] font-mono text-[#34A853] font-bold mt-1">
                 {Math.round(pct)}% Goal Reached
               </div>
             </div>
@@ -93,7 +93,7 @@ export const Zone2CardioLongevity: React.FC<Zone2CardioLongevityProps> = ({
             </div>
             <div className="flex items-center justify-between text-[10px] font-mono font-bold uppercase tracking-wider text-[#5A5F5D] dark:text-gray-400">
               <span>Metabolic Score:</span>
-              <span className="text-[#7A9382] font-black">{metabolicScore} / 100</span>
+              <span className="text-[#34A853] font-black">{metabolicScore} / 100</span>
             </div>
           </div>
         </>

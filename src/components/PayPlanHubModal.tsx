@@ -419,7 +419,7 @@ export const PayPlanHubModal: React.FC<PayPlanHubModalProps> = ({
       // 4. Graceful handling: If backend payment endpoint is not yet connected, activate the 90-Day Free Trial or Pro access seamlessly
       setLoadingMethod(null);
       
-      // Auto-activate 90-day trial for user
+      // Auto-activate plan for user
       const targetTier = selectedPlan.startsWith('coach') ? (selectedPlan as any) : (selectedPlan === 'freemium' ? 'freemium' : (selectedPlan as any));
       try {
         await upsertUserProfile({ subscription_tier: targetTier });
@@ -432,10 +432,13 @@ export const PayPlanHubModal: React.FC<PayPlanHubModalProps> = ({
         activatedAt: new Date().toISOString(),
         expiresAt: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString(),
         status: 'active',
-        isTrial: true,
+        isTrial: false,
       }));
+      localStorage.setItem('o1fc_cached_tier', targetTier);
+      window.dispatchEvent(new CustomEvent('o1fc-subscription-updated', { detail: { tier: targetTier } }));
+      window.dispatchEvent(new CustomEvent('user_profile_updated', { detail: { subscription_tier: targetTier } }));
 
-      showToast?.(`${isAthlete ? '90-Day All-Access Pass' : 'Coach Hub'} Activated!`, 'success');
+      showToast?.(`${currentPlan.name} Activated! All features unlocked.`, 'success');
       onClose();
     } catch (err: any) {
       setLoadingMethod(null);
@@ -443,7 +446,7 @@ export const PayPlanHubModal: React.FC<PayPlanHubModalProps> = ({
       setErrorMessage(msg);
       showToast?.(msg, 'error');
     }
-  }, [loadingMethod, selectedPlan, isFree, showToast, onClose, isAthlete]);
+  }, [loadingMethod, selectedPlan, isFree, showToast, onClose, currentPlan.name]);
 
   const handleApplyPromo = useCallback(async () => {
     const code = promoCode.trim().toUpperCase();
@@ -461,6 +464,9 @@ export const PayPlanHubModal: React.FC<PayPlanHubModalProps> = ({
         expiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
         status: 'active',
       }));
+      localStorage.setItem('o1fc_cached_tier', tier);
+      window.dispatchEvent(new CustomEvent('o1fc-subscription-updated', { detail: { tier } }));
+      window.dispatchEvent(new CustomEvent('user_profile_updated', { detail: { subscription_tier: tier } }));
       showToast?.(`${code === 'COACH' ? 'Coach Pro VIP' : 'VIP All-Access Pass'} Activated! Welcome to O1FC.`, 'success');
       setPromoNotice(null);
       onClose();
@@ -476,21 +482,18 @@ export const PayPlanHubModal: React.FC<PayPlanHubModalProps> = ({
     setExpandedFeatures(false);
   };
 
-  // Lock Body & HTML Scroll to strip background scroll
+  // Lock Body Scroll safely without killing touch interactions
   useEffect(() => {
     if (!isOpen) return;
     const prevBodyOverflow = document.body.style.overflow;
     const prevHtmlOverflow = document.documentElement.style.overflow;
-    const prevTouchAction = document.body.style.touchAction;
 
     document.body.style.overflow = 'hidden';
     document.documentElement.style.overflow = 'hidden';
-    document.body.style.touchAction = 'none';
 
     return () => {
       document.body.style.overflow = prevBodyOverflow;
       document.documentElement.style.overflow = prevHtmlOverflow;
-      document.body.style.touchAction = prevTouchAction;
     };
   }, [isOpen]);
 

@@ -78,15 +78,15 @@ export const VenueMapPreview: React.FC<VenueMapPreviewProps> = ({
   const getCategoryTheme = (category?: string) => {
     switch (category) {
       case 'Yoga':
-        return { icon: '', color: '#7A9382', bg: 'bg-[#7A9382]/20', border: 'border-[#7A9382]' };
+        return { icon: '', color: '#34A853', bg: 'bg-[#34A853]/20', border: 'border-[#34A853]' };
       case 'Spa':
         return { icon: '', color: '#E5A93C', bg: 'bg-[#E5A93C]/20', border: 'border-[#E5A93C]' };
       case 'Sauna':
         return { icon: '', color: '#A855F7', bg: 'bg-[#A855F7]/20', border: 'border-[#A855F7]' };
       case 'Sports':
-        return { icon: '', color: '#06B6D4', bg: 'bg-[#06B6D4]/20', border: 'border-[#06B6D4]' };
+        return { icon: '', color: '#4285F4', bg: 'bg-[#4285F4]/20', border: 'border-[#4285F4]' };
       default:
-        return { icon: '', color: '#DC2626', bg: 'bg-[#DC2626]/20', border: 'border-[#DC2626]' };
+        return { icon: '', color: '#EA4335', bg: 'bg-[#EA4335]/20', border: 'border-[#EA4335]' };
     }
   };
 
@@ -97,7 +97,7 @@ export const VenueMapPreview: React.FC<VenueMapPreviewProps> = ({
         <div className="flex items-center gap-2">
           <span className="w-2 h-2 rounded-full bg-emerald-400" />
           <span className="font-bold text-white text-[11px] tracking-wide flex items-center gap-1.5">
-            <MapPin className="w-3.5 h-3.5 text-[#DC2626]" />
+            <MapPin className="w-3.5 h-3.5 text-[#EA4335]" />
             <span>Interactive Venue Radar Map</span>
           </span>
           <span className="text-[10px] text-gray-400 bg-white/10 px-2 py-0.5 rounded-full border border-white/10">
@@ -133,7 +133,7 @@ export const VenueMapPreview: React.FC<VenueMapPreviewProps> = ({
           {onDetectGPS && (
             <button
               onClick={onDetectGPS}
-              className="px-2.5 py-1 rounded-lg bg-[#DC2626] hover:bg-[#B91C1C] text-white text-[10px] font-bold transition-all flex items-center gap-1 cursor-pointer shadow-xs"
+              className="px-2.5 py-1 rounded-lg bg-[#EA4335] hover:bg-[#EA4335] text-white text-[10px] font-bold transition-all flex items-center gap-1 cursor-pointer shadow-xs"
             >
               <Compass className="w-3 h-3" />
               <span>GPS</span>
@@ -206,7 +206,7 @@ export const VenueMapPreview: React.FC<VenueMapPreviewProps> = ({
                 <div
                   className={`relative px-2 py-1 rounded-xl font-black text-[10px] flex items-center gap-1 shadow-lg border transition-all transform ${
                     isSelected
-                      ? 'scale-125 z-30 bg-white text-black border-white shadow-2xl ring-2 ring-[#DC2626]'
+                      ? 'scale-125 z-30 bg-white text-black border-white shadow-2xl ring-2 ring-[#EA4335]'
                       : 'bg-[#1A1E29] text-white hover:scale-110 border-white/20'
                   }`}
                   style={{
@@ -251,7 +251,7 @@ export const VenueMapPreview: React.FC<VenueMapPreviewProps> = ({
             </p>
 
             <div className="flex items-center gap-2 text-[9px] mb-2.5">
-              <span className="bg-[#DC2626]/20 text-[#DC2626] px-1.5 py-0.5 rounded border border-[#DC2626]/30 uppercase font-bold">
+              <span className="bg-[#EA4335]/20 text-[#EA4335] px-1.5 py-0.5 rounded border border-[#EA4335]/30 uppercase font-bold">
                 {activeVenue.category || 'Gym'}
               </span>
               {activeVenue.city && (
@@ -285,7 +285,7 @@ export const VenueMapPreview: React.FC<VenueMapPreviewProps> = ({
                     onBuyPass(activeVenue);
                     setActivePinPopupId(null);
                   }}
-                  className="flex-1 py-1.5 px-2 bg-[#DC2626] hover:bg-[#B91C1C] text-white font-black text-[10.5px] rounded-xl transition-all cursor-pointer shadow-xs text-center"
+                  className="flex-1 py-1.5 px-2 bg-[#EA4335] hover:bg-[#EA4335] text-white font-black text-[10.5px] rounded-xl transition-all cursor-pointer shadow-xs text-center"
                 >
                   Pass (${activeVenue.pass_price_aud ? activeVenue.pass_price_aud.toFixed(2) : '14.99'})
                 </button>

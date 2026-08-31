@@ -32,39 +32,39 @@ export const MacroTrendsRatioAnalysis: React.FC<MacroTrendsRatioAnalysisProps> =
   const currentPieData =
     totalMacroGrams === 0
       ? [
-          { name: 'Protein (0g)', value: 1, color: '#f43f5e33', unit: 'g', calories: 0, isPlaceholder: true },
-          { name: 'Carbs (0g)', value: 1, color: '#06b6d433', unit: 'g', calories: 0, isPlaceholder: true },
-          { name: 'Fat (0g)', value: 1, color: '#f59e0b33', unit: 'g', calories: 0, isPlaceholder: true },
+          { name: 'Protein (0g)', value: 1, color: '#EA433533', unit: 'g', calories: 0, isPlaceholder: true },
+          { name: 'Carbs (0g)', value: 1, color: '#4285F433', unit: 'g', calories: 0, isPlaceholder: true },
+          { name: 'Fat (0g)', value: 1, color: '#FBBC0533', unit: 'g', calories: 0, isPlaceholder: true },
         ]
       : trendUnit === 'grams'
       ? [
-          { name: 'Protein', value: totalP, color: '#f43f5e', unit: 'g', calories: totalP * 4, goal: goalP },
-          { name: 'Carbs', value: totalC, color: '#06b6d4', unit: 'g', calories: totalC * 4, goal: goalC },
-          { name: 'Fat', value: totalF, color: '#f59e0b', unit: 'g', calories: totalF * 9, goal: goalF },
+          { name: 'Protein', value: totalP, color: '#EA4335', unit: 'g', calories: totalP * 4, goal: goalP },
+          { name: 'Carbs', value: totalC, color: '#4285F4', unit: 'g', calories: totalC * 4, goal: goalC },
+          { name: 'Fat', value: totalF, color: '#FBBC05', unit: 'g', calories: totalF * 9, goal: goalF },
         ]
       : [
-          { name: 'Protein', value: totalP * 4, color: '#f43f5e', unit: 'kcal', calories: totalP * 4, goal: goalP * 4 },
-          { name: 'Carbs', value: totalC * 4, color: '#06b6d4', unit: 'kcal', calories: totalC * 4, goal: goalC * 4 },
-          { name: 'Fat', value: totalF * 9, color: '#f59e0b', unit: 'kcal', calories: totalF * 9, goal: goalF * 9 },
+          { name: 'Protein', value: totalP * 4, color: '#EA4335', unit: 'kcal', calories: totalP * 4, goal: goalP * 4 },
+          { name: 'Carbs', value: totalC * 4, color: '#4285F4', unit: 'kcal', calories: totalC * 4, goal: goalC * 4 },
+          { name: 'Fat', value: totalF * 9, color: '#FBBC05', unit: 'kcal', calories: totalF * 9, goal: goalF * 9 },
         ];
 
   const targetPieData =
     goalMacroGrams === 0
       ? [
-          { name: 'Protein Goal', value: 1, color: '#f43f5e33', unit: 'g', calories: 0 },
-          { name: 'Carbs Goal', value: 1, color: '#06b6d433', unit: 'g', calories: 0 },
-          { name: 'Fat Goal', value: 1, color: '#f59e0b33', unit: 'g', calories: 0 },
+          { name: 'Protein Goal', value: 1, color: '#EA433533', unit: 'g', calories: 0 },
+          { name: 'Carbs Goal', value: 1, color: '#4285F433', unit: 'g', calories: 0 },
+          { name: 'Fat Goal', value: 1, color: '#FBBC0533', unit: 'g', calories: 0 },
         ]
       : trendUnit === 'grams'
       ? [
-          { name: 'Protein', value: goalP, color: '#f43f5e', unit: 'g', calories: goalP * 4 },
-          { name: 'Carbs', value: goalC, color: '#06b6d4', unit: 'g', calories: goalC * 4 },
-          { name: 'Fat', value: goalF, color: '#f59e0b', unit: 'g', calories: goalF * 9 },
+          { name: 'Protein', value: goalP, color: '#EA4335', unit: 'g', calories: goalP * 4 },
+          { name: 'Carbs', value: goalC, color: '#4285F4', unit: 'g', calories: goalC * 4 },
+          { name: 'Fat', value: goalF, color: '#FBBC05', unit: 'g', calories: goalF * 9 },
         ]
       : [
-          { name: 'Protein', value: goalP * 4, color: '#f43f5e', unit: 'kcal', calories: goalP * 4 },
-          { name: 'Carbs', value: goalC * 4, color: '#06b6d4', unit: 'kcal', calories: goalC * 4 },
-          { name: 'Fat', value: goalF * 9, color: '#f59e0b', unit: 'kcal', calories: goalF * 9 },
+          { name: 'Protein', value: goalP * 4, color: '#EA4335', unit: 'kcal', calories: goalP * 4 },
+          { name: 'Carbs', value: goalC * 4, color: '#4285F4', unit: 'kcal', calories: goalC * 4 },
+          { name: 'Fat', value: goalF * 9, color: '#FBBC05', unit: 'kcal', calories: goalF * 9 },
         ];
 
   return (
@@ -72,7 +72,7 @@ export const MacroTrendsRatioAnalysis: React.FC<MacroTrendsRatioAnalysisProps> =
       <div className="flex flex-row justify-between items-center border-b border-[rgba(0,0,0,0.08)] pb-2 gap-2">
         <div>
           <h3 className="text-xs font-mono font-black uppercase tracking-wider text-[#1A1E1D] flex items-center gap-1.5">
-            <TrendingUp className="w-3.5 h-3.5 text-[#DC2626]" />
+            <TrendingUp className="w-3.5 h-3.5 text-[#EA4335]" />
             <span>Macro Trends & Ratio Analysis</span>
           </h3>
           <p className="text-[10px] text-[#5A5F5D] font-mono">
@@ -108,7 +108,7 @@ export const MacroTrendsRatioAnalysis: React.FC<MacroTrendsRatioAnalysisProps> =
         {/* Current Intake Pie */}
         <div className="bg-white rounded-xl p-2 border border-[rgba(0,0,0,0.08)] flex flex-col items-center">
           <div className="text-[9px] font-mono font-bold text-[#1A1E1D] uppercase tracking-wider mb-0.5 flex items-center gap-1">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#DC2626]" /> Current
+            <span className="w-1.5 h-1.5 rounded-full bg-[#EA4335]" /> Current
           </div>
           <div className="w-full h-22 relative">
             <ResponsiveContainer width="100%" height="100%">
@@ -170,7 +170,7 @@ export const MacroTrendsRatioAnalysis: React.FC<MacroTrendsRatioAnalysisProps> =
         {/* Target Goal Pie */}
         <div className="bg-white rounded-xl p-2 border border-[rgba(0,0,0,0.08)] flex flex-col items-center">
           <div className="text-[9px] font-mono font-bold text-[#1A1E1D] uppercase tracking-wider mb-0.5 flex items-center gap-1">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#7A9382]" /> Target
+            <span className="w-1.5 h-1.5 rounded-full bg-[#34A853]" /> Target
           </div>
           <div className="w-full h-22 relative">
             <ResponsiveContainer width="100%" height="100%">
@@ -226,7 +226,7 @@ export const MacroTrendsRatioAnalysis: React.FC<MacroTrendsRatioAnalysisProps> =
       {/* Detailed Compact Badges */}
       <div className="grid grid-cols-3 gap-1.5 pt-1.5 border-t border-[rgba(0,0,0,0.08)] text-center font-mono">
         <div className="bg-white p-1.5 rounded-xl border border-[rgba(0,0,0,0.08)] flex flex-col items-center">
-          <span className="text-[9px] font-bold text-[#DC2626] uppercase">Protein</span>
+          <span className="text-[9px] font-bold text-[#EA4335] uppercase">Protein</span>
           <span className="text-xs font-bold text-[#1A1E1D] mt-0.5">
             {totalP}g / {goalP}g
           </span>
@@ -240,7 +240,7 @@ export const MacroTrendsRatioAnalysis: React.FC<MacroTrendsRatioAnalysisProps> =
         </div>
 
         <div className="bg-white p-1.5 rounded-xl border border-[rgba(0,0,0,0.08)] flex flex-col items-center">
-          <span className="text-[9px] font-bold text-[#7A9382] uppercase">Fat</span>
+          <span className="text-[9px] font-bold text-[#34A853] uppercase">Fat</span>
           <span className="text-xs font-bold text-[#1A1E1D] mt-0.5">
             {totalF}g / {goalF}g
           </span>

@@ -344,7 +344,7 @@ export const CoachProfileSheet: React.FC<CoachProfileSheetProps> = ({
     <div className="fixed inset-0 z-[210]" role="dialog" aria-modal="true">
       <div className={`absolute inset-0 bg-black/40 dark:bg-[#0A0A0C] transition-opacity duration-280 ${closing ? 'opacity-0' : 'opacity-100'}`} onClick={handleClose} />
 
-      <div className={`absolute inset-0 bg-[#F2F2F7] dark:bg-[#06080C] text-zinc-900 dark:text-white flex flex-col transition-transform duration-300 ease-out ${closing ? 'translate-y-full' : 'translate-y-0'}`}>
+      <div className={`absolute inset-0 bg-[#FFFFFF] dark:bg-[#06080C] text-zinc-900 dark:text-white flex flex-col transition-transform duration-300 ease-out ${closing ? 'translate-y-full' : 'translate-y-0'}`}>
         {/* Floating top bar — sits on top of hero */}
         <div className="absolute top-0 left-0 right-0 z-30 flex items-center justify-between px-4 pt-[env(safe-area-inset-top)] h-14">
           <button onClick={handleClose} className="btn-nude-close !text-white hover:!text-white" aria-label="Go back">
@@ -461,7 +461,7 @@ export const CoachProfileSheet: React.FC<CoachProfileSheetProps> = ({
           </div>
 
           {/* Tab bar - Compact reduced height */}
-          <div className="flex border-b border-neutral-200 dark:border-white/[0.08] sticky top-0 bg-[#F2F2F7] dark:bg-[#06080C] z-10 mt-2">
+          <div className="flex border-b border-neutral-200 dark:border-white/[0.08] sticky top-0 bg-[#FFFFFF] dark:bg-[#06080C] z-10 mt-2">
             {([
               { key: 'reels' as ProfileTab, icon: <Play className="w-3 h-3" />, label: 'Reels' },
               { key: 'results' as ProfileTab, icon: <Trophy className="w-3 h-3" />, label: 'Results' },

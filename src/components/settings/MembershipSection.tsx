@@ -21,7 +21,7 @@ export function MembershipSection({ onOpenPayPlan }: Props) {
               <span className="text-sm font-semibold text-zinc-900 dark:text-white">
                 {tierLabel}
               </span>
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider bg-red-50 dark:bg-red-950/40 text-[#DC2626] border border-red-200 dark:border-red-900/50">
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider bg-[#FF3B30]/10 dark:bg-[#FF453A]/10 text-[#FF3B30] dark:text-[#FF453A]">
                 {isPaid ? 'Active' : isTrialActive ? 'Trial' : 'Free'}
               </span>
             </div>
@@ -38,7 +38,7 @@ export function MembershipSection({ onOpenPayPlan }: Props) {
             <button
               type="button"
               onClick={() => onOpenPayPlan('premium')}
-              className="shrink-0 h-[26px] px-2.5 rounded-full bg-[#DC2626] text-white text-[11px] font-semibold flex items-center justify-center hover:bg-red-600 active:scale-[0.98] transition-all cursor-pointer shadow-xs"
+              className="shrink-0 h-[26px] px-2.5 rounded-full bg-[#FF3B30] dark:bg-[#FF453A] text-white text-[11px] font-semibold flex items-center justify-center hover:bg-[#E52E24] dark:hover:bg-[#FF3B30] active:scale-[0.98] transition-all cursor-pointer shadow-xs"
             >
               {isPaid ? 'Manage' : 'Upgrade'}
             </button>

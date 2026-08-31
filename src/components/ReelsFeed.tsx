@@ -393,7 +393,7 @@ export const ReelsFeed: React.FC<ReelsFeedProps> = ({ currentUserEmail, showToas
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-3">
-        <div className="w-10 h-10 border-2 border-[#DC2626] border-t-transparent rounded-full animate-spin" />
+        <div className="w-10 h-10 border-2 border-[#FF3B30] dark:border-[#FF453A] border-t-transparent rounded-full animate-spin" />
         <span className="text-sm font-mono text-black/60 dark:text-white/60 font-bold">Loading reels...</span>
       </div>
     );
@@ -404,7 +404,7 @@ export const ReelsFeed: React.FC<ReelsFeedProps> = ({ currentUserEmail, showToas
       <div className="flex flex-col items-center justify-center min-h-[50vh] gap-3 px-6 text-center">
         <Camera className="w-8 h-8 text-gray-400" />
         <span className="text-sm font-mono text-black/60 dark:text-white/60 font-bold">{error}</span>
-        <button onClick={loadReels} className="text-sm font-black text-[#DC2626] cursor-pointer">
+        <button onClick={loadReels} className="text-sm font-black text-[#FF3B30] dark:text-[#FF453A] cursor-pointer">
           Tap to retry
         </button>
       </div>
@@ -414,8 +414,8 @@ export const ReelsFeed: React.FC<ReelsFeedProps> = ({ currentUserEmail, showToas
   if (reels.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[50vh] gap-4 px-6 text-center">
-        <div className="w-16 h-16 rounded-full bg-[#DC2626]/10 flex items-center justify-center border border-[#DC2626]/20">
-          <Video className="w-7 h-7 text-[#DC2626]" />
+        <div className="w-16 h-16 rounded-full bg-[#FF3B30]/10 dark:bg-[#FF453A]/10 flex items-center justify-center border border-[#FF3B30]/20 dark:border-[#FF453A]/20">
+          <Video className="w-7 h-7 text-[#FF3B30] dark:text-[#FF453A]" />
         </div>
         <div>
           <h3 className="text-sm font-bold text-[#000000] dark:text-white mb-1">No reels yet</h3>
@@ -425,7 +425,7 @@ export const ReelsFeed: React.FC<ReelsFeedProps> = ({ currentUserEmail, showToas
         </div>
         <button
           onClick={() => setIsUploadOpen(true)}
-          className="px-5 py-3 bg-[#DC2626] text-white font-black text-sm rounded-xl hover:bg-[#B91C1C] active:scale-95 transition-all cursor-pointer flex items-center gap-2 shadow-lg"
+          className="px-5 py-3 bg-[#FF3B30] dark:bg-[#FF453A] text-white font-black text-sm rounded-xl hover:bg-[#E52E24] active:scale-95 transition-all cursor-pointer flex items-center gap-2 shadow-lg"
         >
           <Plus className="w-4 h-4" />
           Post Your First Reel
@@ -451,15 +451,15 @@ export const ReelsFeed: React.FC<ReelsFeedProps> = ({ currentUserEmail, showToas
       <div className="sticky top-0 z-30 bg-black/5 dark:bg-black/40 border-b border-black/15 dark:border-white/20 px-4 py-3 backdrop-blur-md">
         <div className="flex items-center justify-between mb-2.5">
           <div className="flex items-center gap-2">
-            <TrendingUp className="w-4 h-4 text-[#DC2626]" />
+            <TrendingUp className="w-4 h-4 text-[#FF3B30] dark:text-[#FF453A]" />
             <h2 className="text-base font-black text-black dark:text-white tracking-tight">Reels</h2>
-            <span className="text-[10px] font-mono font-black bg-[#DC2626]/10 text-[#DC2626] px-1.5 py-0.5 rounded-md">
+            <span className="text-[10px] font-mono font-black bg-[#FF3B30]/10 dark:bg-[#FF453A]/10 text-[#FF3B30] dark:text-[#FF453A] px-1.5 py-0.5 rounded-md">
               {reels.length} POSTS
             </span>
           </div>
           <button
             onClick={() => setIsUploadOpen(true)}
-            className="w-8 h-8 rounded-full bg-[#DC2626] text-white flex items-center justify-center hover:bg-[#B91C1C] active:scale-90 transition-all cursor-pointer shadow-sm"
+            className="w-8 h-8 rounded-full bg-[#FF3B30] dark:bg-[#FF453A] text-white flex items-center justify-center hover:bg-[#E52E24] active:scale-90 transition-all cursor-pointer shadow-sm"
             title="Post a reel"
           >
             <Plus className="w-4 h-4" />
@@ -474,7 +474,7 @@ export const ReelsFeed: React.FC<ReelsFeedProps> = ({ currentUserEmail, showToas
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search reels, coaches, exercises..."
-            className="w-full pl-9 pr-9 py-2 rounded-xl text-xs font-bold bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-black dark:text-white placeholder:text-black/40 dark:placeholder:text-white/40 focus:outline-none focus:border-[#DC2626]/40 focus:ring-2 focus:ring-[#DC2626]/10 transition-all"
+            className="w-full pl-9 pr-9 py-2 rounded-xl text-xs font-bold bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-black dark:text-white placeholder:text-black/40 dark:placeholder:text-white/40 focus:outline-none focus:border-[#FF3B30]/40 focus:ring-2 focus:ring-[#FF3B30]/10 transition-all"
           />
           {searchQuery && (
             <button
@@ -496,7 +496,7 @@ export const ReelsFeed: React.FC<ReelsFeedProps> = ({ currentUserEmail, showToas
                 className={`py-1 px-2.5 rounded-full text-xs font-bold whitespace-nowrap shrink-0 transition-all cursor-pointer ${
                   activeFilter === f
                     ? 'bg-[#1A1E1D] text-white'
-                    : 'bg-black/5 dark:bg-white/5 text-black/60 dark:text-white/60 border border-black/10 dark:border-white/10 hover:bg-black/10 dark:hover:bg-white/10'
+                    : 'bg-black/5 dark:bg-white/5 text-black/60 dark:text-white/60 hover:bg-black/10 dark:hover:bg-white/10'
                 }`}
               >
                 {f}
@@ -509,13 +509,13 @@ export const ReelsFeed: React.FC<ReelsFeedProps> = ({ currentUserEmail, showToas
             onClick={() => setFilterPanelOpen(!filterPanelOpen)}
             className={`shrink-0 flex items-center gap-1 px-2 py-1 rounded-full text-xs font-black transition-all cursor-pointer ${
               filterPanelOpen || activeFilterCount > 0
-                ? 'bg-[#DC2626] text-white'
-                : 'bg-black/5 dark:bg-white/5 text-black/60 dark:text-white/60 border border-black/10 dark:border-white/10'
+                ? 'bg-[#FF3B30] dark:bg-[#FF453A] text-white'
+                : 'bg-black/5 dark:bg-white/5 text-black/60 dark:text-white/60'
             }`}
           >
             <SlidersHorizontal className="w-3.5 h-3.5" />
             {activeFilterCount > 0 && (
-              <span className="text-[10px] bg-white text-[#DC2626] rounded-full w-4 h-4 flex items-center justify-center font-black">
+              <span className="text-[10px] bg-white text-[#FF3B30] dark:text-[#FF453A] rounded-full w-4 h-4 flex items-center justify-center font-black">
                 {activeFilterCount}
               </span>
             )}
@@ -541,7 +541,7 @@ export const ReelsFeed: React.FC<ReelsFeedProps> = ({ currentUserEmail, showToas
                     }}
                     className={`w-full flex items-center gap-2 px-3 py-2 text-xs font-bold transition-colors cursor-pointer ${
                       sortBy === opt.key
-                        ? 'bg-[#DC2626]/10 text-[#DC2626]'
+                        ? 'bg-[#EA4335]/10 text-[#EA4335]'
                         : 'text-black/70 dark:text-white/70 hover:bg-black/5 dark:hover:bg-white/5'
                     }`}
                   >
@@ -583,7 +583,7 @@ export const ReelsFeed: React.FC<ReelsFeedProps> = ({ currentUserEmail, showToas
                   setActiveFilter('All');
                   setDifficultyFilter('All');
                 }}
-                className="text-[10px] font-black text-[#DC2626] cursor-pointer hover:underline"
+                className="text-[10px] font-black text-[#EA4335] cursor-pointer hover:underline"
               >
                 Clear all filters
               </button>
@@ -643,7 +643,7 @@ export const ReelsFeed: React.FC<ReelsFeedProps> = ({ currentUserEmail, showToas
 
                   {/* Like count */}
                   <div className="absolute top-2 right-2 z-20 flex items-center gap-0.5 bg-black/40 rounded-full px-1.5 py-0.5">
-                    <Heart className={`w-2.5 h-2.5 ${isLiked ? 'fill-[#DC2626] text-[#DC2626]' : 'text-white'}`} />
+                    <Heart className={`w-2.5 h-2.5 ${isLiked ? 'fill-[#EA4335] text-[#EA4335]' : 'text-white'}`} />
                     <span className="text-[9px] font-mono font-black text-white">
                       {reel.like_count + (isLiked ? 1 : 0)}
                     </span>
@@ -693,7 +693,7 @@ export const ReelsFeed: React.FC<ReelsFeedProps> = ({ currentUserEmail, showToas
                 setDifficultyFilter('All');
                 setSearchQuery('');
               }}
-              className="text-xs font-black text-[#DC2626] cursor-pointer hover:underline"
+              className="text-xs font-black text-[#EA4335] cursor-pointer hover:underline"
             >
               Clear all filters
             </button>
@@ -765,7 +765,7 @@ export const ReelsFeed: React.FC<ReelsFeedProps> = ({ currentUserEmail, showToas
                       className="flex shrink-0 items-center gap-1 cursor-pointer active:scale-90 transition-transform"
                       aria-label={isLiked ? 'Unlike reel' : 'Like reel'}
                     >
-                      <Heart className={`h-3.5 w-3.5 ${isLiked ? 'fill-[#DC2626] text-[#DC2626]' : 'text-white'}`} />
+                      <Heart className={`h-3.5 w-3.5 ${isLiked ? 'fill-[#EA4335] text-[#EA4335]' : 'text-white'}`} />
                       <span className="text-[10px] font-black text-white font-mono">
                         {reel.like_count + (isLiked ? 1 : 0)}
                       </span>
@@ -798,7 +798,7 @@ export const ReelsFeed: React.FC<ReelsFeedProps> = ({ currentUserEmail, showToas
       {visibleReels.length < filteredReels.length && (
         <div ref={sentinelRef} className="flex items-center justify-center py-6">
           <div className="flex items-center gap-2 text-xs font-mono font-bold text-black/40 dark:text-white/40">
-            <div className="w-4 h-4 border-2 border-[#DC2626] border-t-transparent rounded-full animate-spin" />
+            <div className="w-4 h-4 border-2 border-[#EA4335] border-t-transparent rounded-full animate-spin" />
             Loading more reels...
           </div>
         </div>

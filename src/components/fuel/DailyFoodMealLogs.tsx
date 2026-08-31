@@ -582,25 +582,15 @@ export const DailyFoodMealLogs: React.FC<DailyFoodMealLogsProps> = ({
 
       {!collapsed && (
       <div className="space-y-2">
-        {(['breakfast', 'lunch', 'dinner', 'snack', 'drinks'] as const).map((meal) => {
+        {([
+          { id: 'breakfast' as const, color: '#F59E0B', Icon: Sunrise },
+          { id: 'lunch' as const, color: '#FF3B30', Icon: Utensils },
+          { id: 'dinner' as const, color: '#8B5CF6', Icon: Moon },
+          { id: 'snack' as const, color: '#10B981', Icon: Package },
+          { id: 'drinks' as const, color: '#06B6D4', Icon: Coffee },
+        ]).map(({ id: meal, color, Icon }) => {
           const items = dailyMeals[meal] || [];
           const mealCals = items.reduce((acc, i) => acc + i.cals, 0);
-
-          const getMealIcon = () => {
-            switch (meal) {
-              case 'breakfast':
-                return <Sunrise className="w-4 h-4 text-zinc-900 dark:text-white" />;
-              case 'lunch':
-                return <Utensils className="w-4 h-4 text-zinc-900 dark:text-white" />;
-              case 'dinner':
-                return <Moon className="w-4 h-4 text-zinc-900 dark:text-white" />;
-              case 'drinks':
-                return <Coffee className="w-4 h-4 text-zinc-900 dark:text-white" />;
-              case 'snack':
-              default:
-                return <Package className="w-4 h-4 text-zinc-900 dark:text-white" />;
-            }
-          };
 
           const mealP = items.reduce((acc, i) => acc + i.p, 0);
           const mealC = items.reduce((acc, i) => acc + i.c, 0);
@@ -613,8 +603,11 @@ export const DailyFoodMealLogs: React.FC<DailyFoodMealLogsProps> = ({
             >
               <div className="flex items-center justify-between p-2.5">
                 <div className="flex items-center gap-2.5 min-w-0">
-                  <div className="w-7 h-7 rounded-lg bg-slate-100 dark:bg-white/10 border border-slate-200 dark:border-white/10 flex items-center justify-center shrink-0">
-                    {getMealIcon()}
+                  <div
+                    className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 border"
+                    style={{ backgroundColor: `${color}1A`, borderColor: `${color}33` }}
+                  >
+                    <Icon className="w-4 h-4" style={{ color }} />
                   </div>
                   <span className="font-bold text-[15px] sm:text-[16px] tracking-tight text-[#000000] dark:text-white capitalize truncate">
                     {meal}
@@ -662,11 +655,11 @@ export const DailyFoodMealLogs: React.FC<DailyFoodMealLogsProps> = ({
                               </span>
                             </div>
                             <div className="text-[10.5px] font-mono mt-0.5 flex items-center gap-1.5 text-slate-500 dark:text-zinc-400">
-                              <span className="text-red-500 dark:text-red-400 font-medium">{item.p}p</span>
+                              <span className="text-[#FF3B30] dark:text-[#FF453A] font-medium">{item.p}p</span>
                               <span className="text-slate-300 dark:text-zinc-600">•</span>
-                              <span className="text-sky-500 dark:text-sky-400 font-medium">{item.c}c</span>
+                              <span className="text-[#F59E0B] dark:text-[#FBBF24] font-medium">{item.c}c</span>
                               <span className="text-slate-300 dark:text-zinc-600">•</span>
-                              <span className="text-amber-500 dark:text-amber-400 font-medium">{item.f}f</span>
+                              <span className="text-[#10B981] dark:text-[#34D399] font-medium">{item.f}f</span>
                             </div>
                           </div>
                         </div>
@@ -676,7 +669,7 @@ export const DailyFoodMealLogs: React.FC<DailyFoodMealLogsProps> = ({
                           </span>
                           <button
                             onClick={() => onDeleteMealItem(meal, item.id)}
-                            className="w-6 h-6 rounded-md bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-zinc-400 hover:text-red-500 hover:bg-red-500/10 flex items-center justify-center active:scale-90 transition-all cursor-pointer"
+                            className="w-6 h-6 rounded-md bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-zinc-400 hover:text-[#FF3B30] dark:hover:text-[#FF453A] hover:bg-red-500/10 flex items-center justify-center active:scale-90 transition-all cursor-pointer"
                             title="Delete item"
                           >
                             <Trash2 className="w-3 h-3" />
@@ -690,13 +683,13 @@ export const DailyFoodMealLogs: React.FC<DailyFoodMealLogsProps> = ({
               {/* Meal-level macro breakdown */}
               {items.length > 0 && (
                 <div className="px-3 py-2 bg-slate-50 dark:bg-white/[0.03] border-t border-slate-200 dark:border-white/10 flex items-center gap-3 text-[11px] font-mono">
-                  <span className="text-slate-900 dark:text-white font-bold">{Math.round(mealP)}p</span>
-                  <span className="text-slate-600 dark:text-zinc-400">{Math.round(mealC)}c</span>
-                  <span className="text-slate-600 dark:text-zinc-400">{Math.round(mealF)}f</span>
+                  <span className="text-[#FF3B30] dark:text-[#FF453A] font-bold">{Math.round(mealP)}p</span>
+                  <span className="text-[#F59E0B] dark:text-[#FBBF24] font-bold">{Math.round(mealC)}c</span>
+                  <span className="text-[#10B981] dark:text-[#34D399] font-bold">{Math.round(mealF)}f</span>
                   <div className="flex-1 flex gap-1 h-1.5 rounded-full overflow-hidden bg-slate-200 dark:bg-white/10">
-                    <div className="bg-slate-900 dark:bg-white" style={{ width: `${(mealP / (mealP + mealC + mealF || 1)) * 100}%` }} />
-                    <div className="bg-slate-500 dark:bg-zinc-400" style={{ width: `${(mealC / (mealP + mealC + mealF || 1)) * 100}%` }} />
-                    <div className="bg-slate-300 dark:bg-zinc-600" style={{ width: `${(mealF / (mealP + mealC + mealF || 1)) * 100}%` }} />
+                    <div className="bg-[#FF3B30] dark:bg-[#FF453A]" style={{ width: `${(mealP / (mealP + mealC + mealF || 1)) * 100}%` }} />
+                    <div className="bg-[#F59E0B]" style={{ width: `${(mealC / (mealP + mealC + mealF || 1)) * 100}%` }} />
+                    <div className="bg-[#10B981]" style={{ width: `${(mealF / (mealP + mealC + mealF || 1)) * 100}%` }} />
                   </div>
                 </div>
               )}
@@ -709,7 +702,7 @@ export const DailyFoodMealLogs: React.FC<DailyFoodMealLogsProps> = ({
                     className="h-8 px-3 rounded-lg bg-white dark:bg-white/10 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white text-xs font-semibold flex items-center gap-1.5 hover:border-zinc-400 transition-all cursor-pointer active:scale-95"
                     title={`Add item to ${meal}`}
                   >
-                    <Plus className="w-3.5 h-3.5 text-red-500" />
+                    <Plus className="w-3.5 h-3.5" style={{ color }} />
                     Add
                   </button>
                   <button

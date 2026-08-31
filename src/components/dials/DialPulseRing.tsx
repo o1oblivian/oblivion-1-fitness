@@ -27,9 +27,9 @@ export const DialPulseRing: React.FC<DialPulseRingProps> = ({
 
   const CX = 170, CY = 170;
   const rings = [
-    { r: 148, pct: aSteps, color: '#ffffff', trailColor: 'rgba(255,255,255,0.08)', width: 10, label: 'STEPS', value: dailySteps.toLocaleString() },
-    { r: 124, pct: aMove, color: '#FF4757', trailColor: 'rgba(255,71,87,0.08)', width: 8, label: 'KCAL', value: Math.round(dailyMove).toString() },
-    { r: 104, pct: aDist, color: '#54A0FF', trailColor: 'rgba(84,160,255,0.08)', width: 8, label: 'KM', value: dailyDist.toFixed(2) },
+    { r: 148, pct: aSteps, color: '#4285F4', trailColor: 'rgba(66,133,244,0.15)', width: 10, label: 'STEPS', value: dailySteps.toLocaleString() },
+    { r: 124, pct: aMove, color: '#EA4335', trailColor: 'rgba(234,67,53,0.15)', width: 8, label: 'KCAL', value: Math.round(dailyMove).toString() },
+    { r: 104, pct: aDist, color: '#34A853', trailColor: 'rgba(52,168,83,0.15)', width: 8, label: 'KM', value: dailyDist.toFixed(2) },
   ];
 
   return (
@@ -82,14 +82,14 @@ export const DialPulseRing: React.FC<DialPulseRingProps> = ({
         </text>
 
         {/* Ring labels at bottom */}
-        <text x={CX - 60} y={CY + 48} textAnchor="middle" fill="#FF4757" fontSize="14" fontWeight="900" fontFamily="monospace">
+        <text x={CX - 60} y={CY + 48} textAnchor="middle" fill="#EA4335" fontSize="14" fontWeight="900" fontFamily="monospace">
           {Math.round(dailyMove)}
         </text>
         <text x={CX - 60} y={CY + 62} textAnchor="middle" fill="rgba(255,255,255,0.35)" fontSize="8" fontWeight="700" fontFamily="monospace" letterSpacing="1.5">
           KCAL
         </text>
 
-        <text x={CX + 60} y={CY + 48} textAnchor="middle" fill="#54A0FF" fontSize="14" fontWeight="900" fontFamily="monospace">
+        <text x={CX + 60} y={CY + 48} textAnchor="middle" fill="#34A853" fontSize="14" fontWeight="900" fontFamily="monospace">
           {dailyDist.toFixed(2)}
         </text>
         <text x={CX + 60} y={CY + 62} textAnchor="middle" fill="rgba(255,255,255,0.35)" fontSize="8" fontWeight="700" fontFamily="monospace" letterSpacing="1.5">

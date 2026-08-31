@@ -142,34 +142,34 @@ function trendLine(
 }
 
 function radialGauge(
-  pct: number, label: string, value: string, color: string, size = 100,
+  pct: number, label: string, value: string, color: string, size = 112,
 ) {
-  const r = 38;
+  const r = 40;
   const circ = 2 * Math.PI * r;
   const offset = circ - (Math.min(pct, 1) * circ);
   const complete = pct >= 1;
   return (
     <div className="flex flex-col items-center">
-      <svg width={size} height={size} viewBox="0 0 100 100">
+      <svg width={size} height={size} viewBox="0 0 100 100" className="overflow-visible">
         <defs>
           <filter id={`rg-${color.replace('#', '')}`}>
-            <feGaussianBlur stdDeviation="3" result="b" />
+            <feGaussianBlur stdDeviation="2.5" result="b" />
             <feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
           </filter>
         </defs>
-        <circle cx="50" cy="50" r={r} fill="none" className="log-ring-track" strokeWidth="6" />
+        <circle cx="50" cy="50" r={r} fill="none" className="log-ring-track" strokeWidth="7" />
         <circle cx="50" cy="50" r={r} fill="none"
-          stroke={complete ? '#22C55E' : color}
-          strokeWidth="6" strokeLinecap="round"
+          stroke={complete ? '#34A853' : color}
+          strokeWidth="7" strokeLinecap="round"
           strokeDasharray={circ} strokeDashoffset={offset}
           transform="rotate(-90 50 50)"
           filter={`url(#rg-${color.replace('#', '')})`}
           className="transition-all duration-700"
         />
-        <text x="50" y="46" textAnchor="middle" className="log-ring-text" fontSize="14" fontFamily="monospace" fontWeight="900">
+        <text x="50" y="47" textAnchor="middle" className="log-ring-text" fontSize="15.5" fontFamily="monospace" fontWeight="900">
           {value}
         </text>
-        <text x="50" y="60" textAnchor="middle" className="log-ring-label" fontSize="7" fontFamily="monospace" fontWeight="700">
+        <text x="50" y="62" textAnchor="middle" className="log-ring-label" fontSize="8" fontFamily="monospace" fontWeight="700">
           {label}
         </text>
       </svg>
@@ -179,9 +179,9 @@ function radialGauge(
 
 function MultiRingDisplay({ rings }: { rings: { pct: number; color: string; label: string; value: string }[] }) {
   return (
-    <div className="flex items-center justify-center gap-4 py-2">
+    <div className="flex items-center justify-around gap-2 sm:gap-4 py-3 w-full max-w-sm mx-auto">
       {rings.map((ring, i) => (
-        <div key={i}>{radialGauge(ring.pct, ring.label, ring.value, ring.color, 88)}</div>
+        <div key={i} className="flex-1 flex justify-center">{radialGauge(ring.pct, ring.label, ring.value, ring.color, 112)}</div>
       ))}
     </div>
   );

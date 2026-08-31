@@ -305,8 +305,8 @@ export const ReelUploadModal: React.FC<ReelUploadModalProps> = ({
           {step === 'media' && (
             <div className="space-y-4">
               <div className="text-center py-2">
-                <div className="w-16 h-16 rounded-full bg-[#DC2626]/10 flex items-center justify-center mx-auto mb-3 border border-[#DC2626]/20">
-                  <Video className="w-7 h-7 text-[#DC2626]" />
+                <div className="w-16 h-16 rounded-full bg-[#FF3B30]/10 dark:bg-[#FF453A]/10 flex items-center justify-center mx-auto mb-3 border border-[#FF3B30]/20 dark:border-[#FF453A]/20">
+                  <Video className="w-7 h-7 text-[#FF3B30] dark:text-[#FF453A]" />
                 </div>
                 <h4 className="text-lg font-black text-black dark:text-white mb-1">Share Your Workout</h4>
                 <p className="text-sm text-black/60 dark:text-white/60 leading-relaxed font-bold">
@@ -382,7 +382,7 @@ export const ReelUploadModal: React.FC<ReelUploadModalProps> = ({
                         setMediaType('image');
                         setStep('details');
                       }}
-                      className="aspect-[9/14] rounded-lg overflow-hidden border-2 border-transparent hover:border-[#DC2626] transition-all cursor-pointer"
+                      className="aspect-[9/14] rounded-lg overflow-hidden border-2 border-transparent hover:border-[#EA4335] transition-all cursor-pointer"
                     >
                       <img src={url} alt="Demo" className="w-full h-full object-cover" />
                     </button>
@@ -471,7 +471,7 @@ export const ReelUploadModal: React.FC<ReelUploadModalProps> = ({
                       onClick={() => toggleTag(tag)}
                       className={`px-2 py-1 rounded-full text-sm font-black transition-all cursor-pointer flex items-center gap-1 ${
                         selectedTags.includes(tag)
-                          ? 'bg-[#DC2626] text-white'
+                          ? 'bg-[#EA4335] text-white'
                           : 'bg-black/5 dark:bg-white/5 text-black/60 dark:text-white/60 border border-black/10 dark:border-white/10'
                       }`}
                     >
@@ -539,7 +539,7 @@ export const ReelUploadModal: React.FC<ReelUploadModalProps> = ({
                     setLinkProgram(!linkProgram);
                     if (!linkProgram) loadUserPrograms();
                   }}
-                  className={`w-10 h-6 rounded-full transition-colors cursor-pointer ${linkProgram ? 'bg-[#DC2626]' : 'bg-gray-300'}`}
+                  className={`w-10 h-6 rounded-full transition-colors cursor-pointer ${linkProgram ? 'bg-[#FF3B30] dark:bg-[#FF453A]' : 'bg-gray-300 dark:bg-zinc-700'}`}
                 >
                   <div className={`w-5 h-5 bg-white rounded-full shadow-sm transition-transform ${linkProgram ? 'translate-x-4' : 'translate-x-0.5'}`} />
                 </button>
@@ -582,7 +582,7 @@ export const ReelUploadModal: React.FC<ReelUploadModalProps> = ({
                           onClick={() => setSelectedProgramId(selectedProgramId === p.id ? '' : p.id)}
                           className={`w-full flex items-center gap-2 p-2 rounded-xl border transition-all cursor-pointer text-left ${
                             selectedProgramId === p.id
-                              ? 'bg-[#DC2626]/5 border-[#DC2626]'
+                              ? 'bg-[#EA4335]/5 border-[#EA4335]'
                               : 'bg-white border-[rgba(0,0,0,0.08)] hover:bg-[#F2F2F7]'
                           }`}
                         >
@@ -601,7 +601,7 @@ export const ReelUploadModal: React.FC<ReelUploadModalProps> = ({
                               {p.duration_weeks}w · {p.difficulty} · {p.price_cents === 0 ? 'FREE' : `$${(p.price_cents / 100).toFixed(2)}`}
                             </div>
                           </div>
-                          {selectedProgramId === p.id && <Check className="w-4 h-4 text-[#DC2626] shrink-0" />}
+                          {selectedProgramId === p.id && <Check className="w-4 h-4 text-[#EA4335] shrink-0" />}
                         </button>
                       ))}
                     </div>
@@ -739,7 +739,7 @@ export const ReelUploadModal: React.FC<ReelUploadModalProps> = ({
                 <button
                   onClick={handlePost}
                   disabled={isPosting}
-                  className="w-full py-3 bg-[#DC2626] text-white font-bold text-xs rounded-xl hover:bg-[#B91C1C] active:scale-95 transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
+                  className="w-full py-3 bg-[#EA4335] text-white font-bold text-xs rounded-xl hover:bg-[#EA4335] active:scale-95 transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
                 >
                   {isPosting ? (
                     <>
@@ -761,7 +761,7 @@ export const ReelUploadModal: React.FC<ReelUploadModalProps> = ({
 
 function ShoppingBagIcon() {
   return (
-    <svg className="w-5 h-5 text-[#DC2626]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg className="w-5 h-5 text-[#EA4335]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
       <line x1="3" y1="6" x2="21" y2="6" />
       <path d="M16 10a4 4 0 0 1-8 0" />

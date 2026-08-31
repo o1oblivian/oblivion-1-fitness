@@ -146,11 +146,11 @@ const DEFAULT_MOCK_INSIGHTS: AthleteInsight[] = [
   },
 ];
 
-const TYPE_STYLE: Record<string, { bg: string; border: string; icon: React.ComponentType<{ className?: string }>; label: string }> = {
-  alert: { bg: 'bg-white/5', border: 'border-white/10', icon: AlertCircle, label: 'ALERT' },
-  milestone: { bg: 'bg-white/5', border: 'border-white/10', icon: Trophy, label: 'MILESTONE' },
-  trend: { bg: 'bg-white/5', border: 'border-white/10', icon: TrendingUp, label: 'TREND' },
-  suggestion: { bg: 'bg-white/5', border: 'border-white/10', icon: Lightbulb, label: 'COACHING CUE' },
+const TYPE_STYLE: Record<string, { bg: string; border: string; color: string; icon: React.ComponentType<{ className?: string; style?: React.CSSProperties }>; label: string }> = {
+  alert: { bg: 'bg-[#FF3B30]/10 dark:bg-[#FF453A]/10', border: 'border-[#FF3B30]/30 dark:border-[#FF453A]/30', color: '#FF3B30', icon: AlertCircle, label: 'ALERT' },
+  milestone: { bg: 'bg-[#3B82F6]/10', border: 'border-[#3B82F6]/30', color: '#3B82F6', icon: Trophy, label: 'MILESTONE' },
+  trend: { bg: 'bg-[#10B981]/10', border: 'border-[#10B981]/30', color: '#10B981', icon: TrendingUp, label: 'TREND' },
+  suggestion: { bg: 'bg-[#F59E0B]/10', border: 'border-[#F59E0B]/30', color: '#F59E0B', icon: Lightbulb, label: 'COACHING CUE' },
 };
 
 function timeAgo(dateStr: string): string {
@@ -278,10 +278,10 @@ export const AthleteIntelligenceFeed: React.FC<{
   };
 
   const CATEGORIES = [
-    { key: 'recovery' as const, label: 'Recovery', icon: Moon, count: insights.filter(i => i.category === 'recovery' && !dismissed.has(i.id)).length },
-    { key: 'training' as const, label: 'Training', icon: Dumbbell, count: insights.filter(i => i.category === 'training' && !dismissed.has(i.id)).length },
-    { key: 'nutrition' as const, label: 'Nutrition', icon: Utensils, count: insights.filter(i => i.category === 'nutrition' && !dismissed.has(i.id)).length },
-    { key: 'performance' as const, label: 'Performance', icon: Trophy, count: insights.filter(i => i.category === 'performance' && !dismissed.has(i.id)).length },
+    { key: 'recovery' as const, label: 'Recovery', icon: Moon, color: '#8B5CF6', count: insights.filter(i => i.category === 'recovery' && !dismissed.has(i.id)).length },
+    { key: 'training' as const, label: 'Training', icon: Dumbbell, color: '#FF3B30', count: insights.filter(i => i.category === 'training' && !dismissed.has(i.id)).length },
+    { key: 'nutrition' as const, label: 'Nutrition', icon: Utensils, color: '#F59E0B', count: insights.filter(i => i.category === 'nutrition' && !dismissed.has(i.id)).length },
+    { key: 'performance' as const, label: 'Performance', icon: Trophy, color: '#3B82F6', count: insights.filter(i => i.category === 'performance' && !dismissed.has(i.id)).length },
   ];
 
   return (
@@ -328,7 +328,7 @@ export const AthleteIntelligenceFeed: React.FC<{
                     : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-200/60 dark:hover:bg-white/5'
                 }`}
               >
-                <IconComponent className="w-3 h-3 shrink-0" />
+                <IconComponent className="w-3 h-3 shrink-0" style={{ color: isActive ? undefined : cat.color }} />
                 <span className="truncate">{cat.label}</span>
                 {cat.count > 0 && (
                   <span className={`text-[9px] px-1 py-0.2 rounded-full font-bold ml-0.5 ${
@@ -387,8 +387,8 @@ export const AthleteIntelligenceFeed: React.FC<{
                       <span className="text-[9px] text-zinc-500 dark:text-zinc-400 font-mono ml-auto">{ins.timestamp}</span>
                     </div>
                     <div className="flex items-center gap-1.5 mb-1">
-                      {React.createElement(style.icon, { className: 'w-3 h-3 text-zinc-700 dark:text-zinc-300' })}
-                      <span className="text-[9px] font-mono font-bold uppercase tracking-wider text-zinc-600 dark:text-zinc-400">
+                      {React.createElement(style.icon, { className: 'w-3 h-3', style: { color: style.color } })}
+                      <span className="text-[9px] font-mono font-bold uppercase tracking-wider" style={{ color: style.color }}>
                         {style.label}
                       </span>
                     </div>
@@ -407,8 +407,8 @@ export const AthleteIntelligenceFeed: React.FC<{
                       <p className="text-sm font-black text-zinc-900 dark:text-white leading-none mt-0.5">{ins.metric.value}</p>
                     </div>
                     <div className="ml-auto flex items-center gap-1">
-                      {ins.metric.direction === 'up' && <ArrowUpRight className="w-3.5 h-3.5 text-zinc-900 dark:text-white" />}
-                      {ins.metric.direction === 'down' && <ArrowDownRight className="w-3.5 h-3.5 text-zinc-500 dark:text-zinc-400" />}
+                      {ins.metric.direction === 'up' && <ArrowUpRight className="w-3.5 h-3.5 text-[#10B981]" />}
+                      {ins.metric.direction === 'down' && <ArrowDownRight className="w-3.5 h-3.5 text-[#FF3B30] dark:text-[#FF453A]" />}
                       {ins.metric.direction === 'flat' && <Minus className="w-3.5 h-3.5 text-zinc-500 dark:text-zinc-400" />}
                       <span className="text-xs font-bold font-mono text-zinc-900 dark:text-white">
                         {ins.metric.delta}

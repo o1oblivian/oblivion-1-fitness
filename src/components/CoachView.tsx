@@ -120,7 +120,7 @@ function renderMiniSparkline(data: number[], readinessScore: number) {
   const lastPt = pts[pts.length - 1];
   const isHigh = readinessScore >= 88;
   const isMed = readinessScore >= 75 && readinessScore < 88;
-  const strokeColor = isHigh ? '#22C55E' : isMed ? '#EAB308' : '#EF4444';
+  const strokeColor = isHigh ? '#34A853' : isMed ? '#C48B4F' : '#EA4335';
 
   return (
     <svg width={w} height={h} className="overflow-visible">
@@ -137,7 +137,6 @@ function renderMiniSparkline(data: number[], readinessScore: number) {
         cy={lastPt.y}
         r="2.5"
         fill={strokeColor}
-        className="animate-pulse"
       />
     </svg>
   );
@@ -205,17 +204,22 @@ export const CoachHubView: React.FC<{
       {/* ── Unified Mission Control Card ── */}
       <div className="bg-white dark:bg-[#12141A] border border-zinc-200/80 dark:border-white/10 rounded-2xl p-3.5 sm:p-4 shadow-sm dark:shadow-xl space-y-3 text-zinc-900 dark:text-white">
         
-        {/* Top Meta: Pulse Status */}
+        {/* Top Meta: Pulse Status & Live Telemetry Badge */}
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-red-500 dark:bg-white shadow-xs" />
-            <span className="text-[10px] font-mono font-bold tracking-widest text-zinc-600 dark:text-zinc-300 uppercase">
+            <span className="relative flex h-2.5 w-2.5">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#FF3B30] opacity-75" />
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#FF3B30] dark:bg-[#FF453A]" />
+            </span>
+            <span className="text-[10px] font-mono font-bold tracking-widest text-[#FF3B30] dark:text-[#FF453A] uppercase">
               {clientList.length} Athletes Active
             </span>
           </div>
-          <span className="text-[10px] font-mono text-zinc-500 dark:text-zinc-400 font-medium">
-            {new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-          </span>
+          <div className="flex items-center gap-1.5">
+            <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-zinc-100 dark:bg-white/10 text-zinc-600 dark:text-zinc-300">
+              {new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+            </span>
+          </div>
         </div>
 
         {/* Title, Subtitle & Vault Action */}
@@ -231,64 +235,83 @@ export const CoachHubView: React.FC<{
           <div className="flex items-center gap-1.5 shrink-0">
             <button
               onClick={onOpenVault}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] font-bold uppercase tracking-wider bg-zinc-100 dark:bg-white/5 hover:bg-zinc-200 dark:hover:bg-white/10 text-zinc-900 dark:text-white border border-zinc-200/80 dark:border-white/10 transition-all active:scale-95 cursor-pointer"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] font-bold uppercase tracking-wider bg-red-500/10 dark:bg-red-500/15 hover:bg-red-500/20 text-[#FF3B30] dark:text-[#FF453A] transition-all active:scale-95 cursor-pointer shadow-xs"
             >
-              <Video className="w-3.5 h-3.5 text-zinc-600 dark:text-zinc-300" />
+              <Video className="w-3.5 h-3.5" />
               <span>Vault</span>
             </button>
           </div>
         </div>
 
-        <div className="h-px bg-zinc-200 dark:bg-white/10 -mx-3.5 sm:-mx-4" />
+        <div className="h-px bg-zinc-200/80 dark:bg-white/10 -mx-3.5 sm:-mx-4" />
 
         {/* ── Tactical Command Dock ── */}
         <div className="space-y-2">
           <div className="text-[9px] font-mono font-bold uppercase tracking-widest text-zinc-600 dark:text-zinc-400 flex items-center justify-between">
             <span className="flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
+              <span className="w-1.5 h-1.5 rounded-full bg-[#FF3B30] dark:bg-[#FF453A]" />
               <span>Tactical Command Dock</span>
             </span>
-            <span className="text-zinc-500 dark:text-zinc-400">Core Actions</span>
+            <span className="text-[9px] font-mono text-zinc-500 dark:text-zinc-400">Core Actions</span>
           </div>
           <div className="grid grid-cols-2 gap-2">
             <button
               onClick={() => setShowProgramCreator(true)}
-              className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-xs font-bold bg-zinc-100 dark:bg-white/5 hover:bg-zinc-200 dark:hover:bg-white/10 text-zinc-900 dark:text-white border border-zinc-200/80 dark:border-white/10 transition-all active:scale-95 cursor-pointer text-center"
+              className="flex items-center gap-2.5 p-2.5 rounded-xl bg-zinc-50 dark:bg-white/[0.04] hover:bg-zinc-100 dark:hover:bg-white/[0.08] text-zinc-900 dark:text-white transition-all active:scale-[0.98] cursor-pointer text-left group"
             >
-              <FileText className="w-3.5 h-3.5 text-zinc-700 dark:text-zinc-300" />
-              <span className="truncate">Program</span>
+              <div className="w-8 h-8 rounded-lg bg-red-500/10 dark:bg-red-500/20 text-[#FF3B30] dark:text-[#FF453A] flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                <FileText className="w-4 h-4" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="text-xs font-bold text-zinc-900 dark:text-white leading-tight">Program</div>
+                <div className="text-[9.5px] font-mono text-zinc-500 dark:text-zinc-400 leading-tight mt-0.5 truncate">Dispatch & Edit</div>
+              </div>
             </button>
 
             <button
               onClick={onOpen1MinBuilder}
-              className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-xs font-bold bg-zinc-100 dark:bg-white/5 hover:bg-zinc-200 dark:hover:bg-white/10 text-zinc-900 dark:text-white border border-zinc-200/80 dark:border-white/10 transition-all active:scale-95 cursor-pointer text-center"
+              className="flex items-center gap-2.5 p-2.5 rounded-xl bg-zinc-50 dark:bg-white/[0.04] hover:bg-zinc-100 dark:hover:bg-white/[0.08] text-zinc-900 dark:text-white transition-all active:scale-[0.98] cursor-pointer text-left group"
             >
-              <SlidersHorizontal className="w-3.5 h-3.5 text-zinc-700 dark:text-zinc-300" />
-              <span className="truncate">Studio Engine</span>
+              <div className="w-8 h-8 rounded-lg bg-amber-500/10 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                <SlidersHorizontal className="w-4 h-4" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="text-xs font-bold text-zinc-900 dark:text-white leading-tight">Studio Engine</div>
+                <div className="text-[9.5px] font-mono text-zinc-500 dark:text-zinc-400 leading-tight mt-0.5 truncate">Fast Builder</div>
+              </div>
             </button>
           </div>
         </div>
 
-        {/* Hub Switcher Rail - Pure Typography, Zero Icons */}
-        <div className="flex gap-1 p-1 rounded-xl bg-zinc-100 dark:bg-white/[0.04] border border-zinc-200/80 dark:border-white/10">
+        {/* Hub Switcher Rail */}
+        <div className="flex gap-1 p-1 rounded-xl bg-zinc-100 dark:bg-white/[0.04]">
           {[
-            { key: 'intelligence' as const, label: 'INTEL' },
-            { key: 'submissions' as const, label: `INBOX (${pendingCount})` },
-            { key: 'consultations' as const, label: 'CONSULTS' },
-            { key: 'earnings' as const, label: 'EARNINGS' },
+            { key: 'intelligence' as const, label: 'INTEL', badge: null },
+            { key: 'submissions' as const, label: 'INBOX', badge: pendingCount > 0 ? pendingCount : null },
+            { key: 'consultations' as const, label: 'CONSULTS', badge: null },
+            { key: 'earnings' as const, label: 'EARNINGS', badge: null },
           ].map((t) => {
             const isActive = activeTab === t.key;
             return (
               <button
                 key={t.key}
                 onClick={() => setActiveTab(t.key)}
-                className={`flex-1 py-2 px-1 rounded-lg text-[10px] sm:text-[11px] font-mono font-bold uppercase tracking-wider transition-all cursor-pointer text-center ${
+                className={`flex-1 py-2 px-1 rounded-lg text-[10.5px] sm:text-[11px] font-mono font-bold uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center gap-1 ${
                   isActive
-                    ? 'bg-stone-900 dark:bg-white text-white dark:text-black font-bold shadow-xs border border-stone-900 dark:border-white'
+                    ? 'bg-[#FF3B30] dark:bg-[#FF453A] text-white font-bold shadow-xs'
                     : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-200/50 dark:hover:bg-white/5'
                 }`}
               >
                 <span>{t.label}</span>
+                {t.badge !== null && (
+                  <span className={`text-[9px] font-mono font-bold px-1.5 py-0.2 rounded-full ${
+                    isActive
+                      ? 'bg-white text-[#FF3B30]'
+                      : 'bg-[#FF3B30] dark:bg-[#FF453A] text-white'
+                  }`}>
+                    {t.badge}
+                  </span>
+                )}
               </button>
             );
           })}
@@ -439,7 +462,7 @@ export const CoachHubView: React.FC<{
                               {/* Live status dot */}
                               <span
                                 className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-white dark:border-[#12141A] ${
-                                  isPending ? 'bg-amber-500' : 'bg-emerald-500'
+                                  isPending ? 'bg-[#C48B4F]' : 'bg-[#34A853]'
                                 }`}
                               />
                             </div>
@@ -447,17 +470,17 @@ export const CoachHubView: React.FC<{
                             {/* Name, Handle, Badge & Volume */}
                             <div className="min-w-0 space-y-0.5">
                               <div className="flex items-center gap-2 flex-wrap">
-                                <h4 className="text-xs font-bold text-zinc-900 dark:text-white truncate group-hover:text-red-600 dark:group-hover:text-red-400 transition-colors">
+                                <h4 className="text-xs font-bold text-zinc-900 dark:text-white truncate group-hover:text-[#EA4335] dark:group-hover:text-[#EA4335] transition-colors">
                                   {client.name}
                                 </h4>
                                 {client.badge && (
                                   <span
                                     className={`text-[8px] font-mono font-bold px-1.5 py-0.2 rounded-full border ${
                                       isPending
-                                        ? 'bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-800/80'
+                                        ? 'bg-[#C48B4F]/10 text-[#C48B4F] border-[#C48B4F]/25'
                                         : isPR
-                                        ? 'bg-red-50 dark:bg-red-950/60 text-red-700 dark:text-red-400 border-red-200 dark:border-red-800/80'
-                                        : 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800/80'
+                                        ? 'bg-[#EA4335]/10 text-[#EA4335] border-[#EA4335]/25'
+                                        : 'bg-[#34A853]/10 text-[#34A853] border-[#34A853]/25'
                                     }`}
                                   >
                                     {client.badge}
@@ -477,10 +500,10 @@ export const CoachHubView: React.FC<{
                               <span
                                 className={`text-[8px] font-mono font-bold px-1.5 py-0.5 rounded-full border ${
                                   readinessScore >= 88
-                                    ? 'border-emerald-200 dark:border-emerald-900/60 text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40'
+                                    ? 'border-[#34A853]/30 text-[#34A853] bg-[#34A853]/10'
                                     : readinessScore >= 75
-                                    ? 'border-amber-200 dark:border-amber-900/60 text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40'
-                                    : 'border-red-200 dark:border-red-900/60 text-red-700 dark:text-red-400 bg-red-50 dark:bg-red-950/40'
+                                    ? 'border-[#C48B4F]/30 text-[#C48B4F] bg-[#C48B4F]/10'
+                                    : 'border-[#EA4335]/30 text-[#EA4335] bg-[#EA4335]/10'
                                 }`}
                               >
                                 {readinessScore}% READY

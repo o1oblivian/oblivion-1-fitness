@@ -333,8 +333,8 @@ const RequestCard: React.FC<{
           {(request.desired_services?.length || request.current_supplements || request.diet_preferences || request.injuries_limitations || request.daily_step_goal || request.timeline_goal || request.budget_range) && (
             <div className="space-y-2">
               <div className="flex items-center gap-1">
-                <Sparkles className="w-3 h-3 text-red-500 dark:text-[#DC2626]" />
-                <span className="text-[9px] font-mono font-bold text-red-600 dark:text-[#DC2626] uppercase tracking-wider">
+                <Sparkles className="w-3 h-3 text-red-500 dark:text-[#EA4335]" />
+                <span className="text-[9px] font-mono font-bold text-red-600 dark:text-[#EA4335] uppercase tracking-wider">
                   Intel Intake Profile
                 </span>
               </div>

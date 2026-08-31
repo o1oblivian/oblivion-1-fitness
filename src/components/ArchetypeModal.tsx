@@ -233,7 +233,7 @@ export const ArchetypeModal: React.FC<ArchetypeModalProps> = ({
                         <h4 className="text-xs font-bold text-zinc-900 dark:text-white truncate">
                           {ex.name}
                         </h4>
-                        <span className="text-[10px] font-semibold text-[#DC2626] uppercase tracking-wider">
+                        <span className="text-[10px] font-semibold text-[#EA4335] uppercase tracking-wider">
                           {PHASE_LABELS[ex.phase]}
                         </span>
                       </div>
@@ -268,10 +268,10 @@ export const ArchetypeModal: React.FC<ArchetypeModalProps> = ({
             disabled={loaded}
             className={`w-full py-3 px-4 rounded-full font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-98 shadow-xs ${
               isLocked
-                ? 'bg-[#DC2626] text-white hover:bg-red-600'
+                ? 'bg-[#EA4335] text-white hover:bg-red-600'
                 : loaded
                 ? 'bg-emerald-600 text-white'
-                : 'bg-[#DC2626] text-white hover:bg-red-600'
+                : 'bg-[#EA4335] text-white hover:bg-red-600'
             }`}
           >
             {loaded ? (

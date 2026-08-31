@@ -30,16 +30,13 @@ export const CaloriesDetailModal: React.FC<CaloriesDetailModalProps> = ({
     if (!isOpen) return;
     const prevBodyOverflow = document.body.style.overflow;
     const prevHtmlOverflow = document.documentElement.style.overflow;
-    const prevTouchAction = document.body.style.touchAction;
 
     document.body.style.overflow = 'hidden';
     document.documentElement.style.overflow = 'hidden';
-    document.body.style.touchAction = 'none';
 
     return () => {
       document.body.style.overflow = prevBodyOverflow;
       document.documentElement.style.overflow = prevHtmlOverflow;
-      document.body.style.touchAction = prevTouchAction;
     };
   }, [isOpen]);
 
@@ -126,10 +123,10 @@ export const CaloriesDetailModal: React.FC<CaloriesDetailModalProps> = ({
         <div className="flex justify-between items-center border-b border-[rgba(0,0,0,0.08)] dark:border-slate-800 pb-2">
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded-full bg-[#DC2626]/10 text-[#DC2626] border border-[#DC2626]/30 uppercase tracking-wider flex items-center gap-1">
-                <Flame className="w-3 h-3 text-[#DC2626]" /> Energy Matrix
+              <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded-full bg-[#EA4335]/10 text-[#EA4335] border border-[#EA4335]/30 uppercase tracking-wider flex items-center gap-1">
+                <Flame className="w-3 h-3 text-[#EA4335]" /> Energy Matrix
               </span>
-              <span className="text-[10px] font-mono font-bold text-[#7A9382] bg-[#7A9382]/10 px-1.5 py-0.5 rounded-md border border-[#7A9382]/30">
+              <span className="text-[10px] font-mono font-bold text-[#34A853] bg-[#34A853]/10 px-1.5 py-0.5 rounded-md border border-[#34A853]/30">
                 {netSurplusDeficit >= 0 ? `+${netSurplusDeficit} KCAL SURPLUS` : `${netSurplusDeficit} KCAL DEFICIT`}
               </span>
             </div>
@@ -163,8 +160,8 @@ export const CaloriesDetailModal: React.FC<CaloriesDetailModalProps> = ({
             onClick={() => setActiveTab('meals')}
             className={`flex-1 py-1.5 rounded-lg font-bold transition-all cursor-pointer text-center flex items-center justify-center gap-1 ${
               activeTab === 'meals'
-                ? 'bg-[#DC2626] text-white shadow-2xs'
-                : 'text-[#5A5F5D] dark:text-gray-400 hover:text-[#DC2626]'
+                ? 'bg-[#EA4335] text-white shadow-2xs'
+                : 'text-[#5A5F5D] dark:text-gray-400 hover:text-[#EA4335]'
             }`}
           >
             <Utensils className="w-3 h-3" /> Meal Logs
@@ -173,8 +170,8 @@ export const CaloriesDetailModal: React.FC<CaloriesDetailModalProps> = ({
             onClick={() => setActiveTab('expenditure')}
             className={`flex-1 py-1.5 rounded-lg font-bold transition-all cursor-pointer text-center flex items-center justify-center gap-1 ${
               activeTab === 'expenditure'
-                ? 'bg-[#7A9382] text-white shadow-2xs'
-                : 'text-[#5A5F5D] dark:text-gray-400 hover:text-[#7A9382]'
+                ? 'bg-[#34A853] text-white shadow-2xs'
+                : 'text-[#5A5F5D] dark:text-gray-400 hover:text-[#34A853]'
             }`}
           >
             <TrendingUp className="w-3 h-3" /> 7-Day Burn
@@ -189,18 +186,18 @@ export const CaloriesDetailModal: React.FC<CaloriesDetailModalProps> = ({
               <div className="bg-[#F2F2F7] dark:bg-white/5 p-2 rounded-xl border border-[rgba(0,0,0,0.08)] dark:border-white/10 flex flex-col justify-center">
                 <span className="text-[9px] text-[#5A5F5D] dark:text-gray-400 font-bold uppercase">INTAKE</span>
                 <span className="text-sm font-black text-[#000000] dark:text-white mt-0.5">{intake} kcal</span>
-                <span className="text-[8.5px] text-[#7A9382] font-bold">Goal: {target} kcal</span>
+                <span className="text-[8.5px] text-[#34A853] font-bold">Goal: {target} kcal</span>
               </div>
 
               <div className="bg-[#F2F2F7] dark:bg-white/5 p-2 rounded-xl border border-[rgba(0,0,0,0.08)] dark:border-white/10 flex flex-col justify-center">
-                <span className="text-[9px] text-[#DC2626] font-bold uppercase">TRAINING BURN</span>
-                <span className="text-sm font-black text-[#DC2626] mt-0.5">{burnVal} kcal</span>
+                <span className="text-[9px] text-[#EA4335] font-bold uppercase">TRAINING BURN</span>
+                <span className="text-sm font-black text-[#EA4335] mt-0.5">{burnVal} kcal</span>
                 <span className="text-[8.5px] text-[#5A5F5D]">Active Session</span>
               </div>
 
               <div className="bg-[#F2F2F7] dark:bg-white/5 p-2 rounded-xl border border-[rgba(0,0,0,0.08)] dark:border-white/10 flex flex-col justify-center">
-                <span className="text-[9px] text-[#7A9382] font-bold uppercase">NET BALANCE</span>
-                <span className="text-sm font-black text-[#7A9382] mt-0.5">{netSurplusDeficit > 0 ? `+${netSurplusDeficit}` : netSurplusDeficit}</span>
+                <span className="text-[9px] text-[#34A853] font-bold uppercase">NET BALANCE</span>
+                <span className="text-sm font-black text-[#34A853] mt-0.5">{netSurplusDeficit > 0 ? `+${netSurplusDeficit}` : netSurplusDeficit}</span>
                 <span className="text-[8.5px] text-[#5A5F5D]">kcal / day</span>
               </div>
             </div>
@@ -218,11 +215,11 @@ export const CaloriesDetailModal: React.FC<CaloriesDetailModalProps> = ({
               {/* Protein */}
               <div className="space-y-0.5">
                 <div className="flex justify-between items-center text-[10px]">
-                  <span className="font-bold text-[#DC2626]">Protein (4 kcal/g)</span>
+                  <span className="font-bold text-[#EA4335]">Protein (4 kcal/g)</span>
                   <span className="font-black text-[#000000] dark:text-white">195g / 210g (92%)</span>
                 </div>
                 <div className="w-full bg-[#E5E5EA] dark:bg-white/10 h-2 rounded-full overflow-hidden">
-                  <div className="bg-[#DC2626] h-full w-[92%] transition-all duration-500" />
+                  <div className="bg-[#EA4335] h-full w-[92%] transition-all duration-500" />
                 </div>
               </div>
 
@@ -240,11 +237,11 @@ export const CaloriesDetailModal: React.FC<CaloriesDetailModalProps> = ({
               {/* Fats */}
               <div className="space-y-0.5">
                 <div className="flex justify-between items-center text-[10px]">
-                  <span className="font-bold text-[#7A9382]">Fats (9 kcal/g)</span>
+                  <span className="font-bold text-[#34A853]">Fats (9 kcal/g)</span>
                   <span className="font-black text-[#000000] dark:text-white">72g / 75g (96%)</span>
                 </div>
                 <div className="w-full bg-[#E5E5EA] dark:bg-white/10 h-2 rounded-full overflow-hidden">
-                  <div className="bg-[#7A9382] h-full w-[96%] transition-all duration-500" />
+                  <div className="bg-[#34A853] h-full w-[96%] transition-all duration-500" />
                 </div>
               </div>
             </div>
@@ -252,7 +249,7 @@ export const CaloriesDetailModal: React.FC<CaloriesDetailModalProps> = ({
             {/* Quick Action */}
             <button
               onClick={() => showToast('Macro targets saved & synced with Fuel OS!', 'success')}
-              className="w-full py-2 rounded-xl bg-[#DC2626] hover:bg-[#B91C1C] text-white font-bold text-xs transition-all cursor-pointer shadow-2xs flex items-center justify-center gap-2"
+              className="w-full py-2 rounded-xl bg-[#EA4335] hover:bg-[#EA4335] text-white font-bold text-xs transition-all cursor-pointer shadow-2xs flex items-center justify-center gap-2"
             >
               <Zap className="w-3.5 h-3.5" />
               <span>Save & Sync Macro Targets</span>
@@ -267,7 +264,7 @@ export const CaloriesDetailModal: React.FC<CaloriesDetailModalProps> = ({
               <span className="text-[#5A5F5D] text-[9.5px] uppercase font-bold">5 Logged Meals Today</span>
               <button
                 onClick={() => showToast('Opening Food Intel Camera Scanner...')}
-                className="text-[9.5px] text-[#DC2626] hover:underline font-bold flex items-center gap-1 cursor-pointer"
+                className="text-[9.5px] text-[#EA4335] hover:underline font-bold flex items-center gap-1 cursor-pointer"
               >
                 <Plus className="w-3 h-3" /> Log Meal
               </button>
@@ -277,12 +274,12 @@ export const CaloriesDetailModal: React.FC<CaloriesDetailModalProps> = ({
               {mealTimingLogs.map((meal) => (
                 <div
                   key={meal.id}
-                  className="bg-white dark:bg-black/40 p-2 rounded-xl border border-[rgba(0,0,0,0.08)] dark:border-white/10 space-y-1 hover:border-[#DC2626] transition-all"
+                  className="bg-white dark:bg-black/40 p-2 rounded-xl border border-[rgba(0,0,0,0.08)] dark:border-white/10 space-y-1 hover:border-[#EA4335] transition-all"
                 >
                   <div className="flex justify-between items-center">
                     <div className="flex items-center gap-2">
                       <span className="font-bold text-[#000000] dark:text-white text-[11px]">{meal.mealName}</span>
-                      <span className="text-[8.5px] font-bold px-1.5 py-0.2 rounded bg-[#DC2626]/10 text-[#DC2626] border border-[#DC2626]/20">
+                      <span className="text-[8.5px] font-bold px-1.5 py-0.2 rounded bg-[#EA4335]/10 text-[#EA4335] border border-[#EA4335]/20">
                         {meal.badge}
                       </span>
                     </div>
@@ -296,7 +293,7 @@ export const CaloriesDetailModal: React.FC<CaloriesDetailModalProps> = ({
                   </p>
 
                   <div className="flex justify-between items-center text-[9.5px] pt-1 border-t border-[rgba(0,0,0,0.08)] dark:border-white/10">
-                    <span className="text-[#7A9382] font-bold">{meal.macros}</span>
+                    <span className="text-[#34A853] font-bold">{meal.macros}</span>
                     <span className="font-black text-[#000000] dark:text-white text-[11px]">{meal.cals} kcal</span>
                   </div>
                 </div>
@@ -314,12 +311,12 @@ export const CaloriesDetailModal: React.FC<CaloriesDetailModalProps> = ({
                 <span className="font-black text-[#000000] dark:text-white text-[11px]">{bmrVal} kcal</span>
               </div>
               <div className="flex justify-between items-center pb-1 border-b border-[rgba(0,0,0,0.08)] dark:border-white/10">
-                <span className="font-bold text-[#DC2626] text-[11px]">Active Training Burn (Avg)</span>
-                <span className="font-black text-[#DC2626] text-[11px]">+{burnVal} kcal</span>
+                <span className="font-bold text-[#EA4335] text-[11px]">Active Training Burn (Avg)</span>
+                <span className="font-black text-[#EA4335] text-[11px]">+{burnVal} kcal</span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="font-bold text-[#7A9382] text-[11px]">NEAT Non-Exercise Activity</span>
-                <span className="font-black text-[#7A9382] text-[11px]">+320 kcal</span>
+                <span className="font-bold text-[#34A853] text-[11px]">NEAT Non-Exercise Activity</span>
+                <span className="font-black text-[#34A853] text-[11px]">+320 kcal</span>
               </div>
             </div>
 
@@ -338,7 +335,7 @@ export const CaloriesDetailModal: React.FC<CaloriesDetailModalProps> = ({
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="text-[9.5px] text-[#5A5F5D]">In: {item.intake}</span>
-                      <span className="font-black text-[#DC2626]">Out: {item.total}</span>
+                      <span className="font-black text-[#EA4335]">Out: {item.total}</span>
                     </div>
                   </div>
                 ))}

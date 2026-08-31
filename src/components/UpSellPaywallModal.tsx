@@ -87,11 +87,11 @@ export const UpSellPaywallModal: React.FC<UpSellPaywallModalProps> = ({
         
         <div className="flex items-center justify-between border-b border-[rgba(0,0,0,0.08)] pb-3">
           <div className="flex items-center gap-2">
-            <div className="w-10 h-10 rounded-2xl bg-[#7A9382] text-white flex items-center justify-center shadow-none">
+            <div className="w-10 h-10 rounded-2xl bg-[#34A853] text-white flex items-center justify-center shadow-none">
               {content.icon}
             </div>
             <div>
-              <span className="text-[10px] font-mono font-bold text-[#7A9382] uppercase tracking-widest block">
+              <span className="text-[10px] font-mono font-bold text-[#34A853] uppercase tracking-widest block">
                 {content.badge}
               </span>
               <h3 className="text-base font-black text-[#000000] tracking-tight leading-snug font-mono">
@@ -118,7 +118,7 @@ export const UpSellPaywallModal: React.FC<UpSellPaywallModalProps> = ({
               onClose();
               onViewPlans(content.tier);
             }}
-            className="w-full py-3.5 bg-[#7A9382] hover:bg-[#688070] text-white font-mono font-bold text-xs rounded-xl shadow-none transition-all active:scale-95 cursor-pointer flex items-center justify-center gap-2 uppercase tracking-wider"
+            className="w-full py-3.5 bg-[#34A853] hover:bg-[#688070] text-white font-mono font-bold text-xs rounded-xl shadow-none transition-all active:scale-95 cursor-pointer flex items-center justify-center gap-2 uppercase tracking-wider"
           >
             <Sparkles className="w-4 h-4 text-amber-200" />
             <span>{content.buttonText}</span>
@@ -130,7 +130,7 @@ export const UpSellPaywallModal: React.FC<UpSellPaywallModalProps> = ({
               placeholder="PROMO CODE"
               value={promoCode}
               onChange={(e) => { setPromoCode(e.target.value.toUpperCase()); setPromoNotice(null); }}
-              className="flex-1 bg-[#F2F2F7] dark:bg-white/5 border border-[rgba(0,0,0,0.08)] dark:border-white/10 rounded-xl px-3 py-2 text-xs font-mono text-[#000000] dark:text-white placeholder-[#B8B0A2] dark:placeholder-gray-500 focus:outline-none focus:border-[#7A9382]"
+              className="flex-1 bg-[#F2F2F7] dark:bg-white/5 border border-[rgba(0,0,0,0.08)] dark:border-white/10 rounded-xl px-3 py-2 text-xs font-mono text-[#000000] dark:text-white placeholder-[#B8B0A2] dark:placeholder-gray-500 focus:outline-none focus:border-[#34A853]"
             />
             <button
               onClick={handleApplyPromo}

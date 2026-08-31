@@ -87,12 +87,19 @@ samp {
 
 @layer base {
   :root {
-    --apple-canvas: #F2F2F7;
-    --apple-secondary: #E5E5EA;
+    --apple-canvas: #FFFFFF;
+    --apple-secondary: #F4F4F6;
     --apple-surface: #FFFFFF;
     --apple-border: rgba(0, 0, 0, 0.08);
     --apple-text-primary: #1C1C1E;
     --apple-text-secondary: #8E8E93;
+
+    /* O1FC Apple Red Design System (#FF3B30 Light / #FF453A Dark) */
+    --o1-red-kinetic: #FF3B30;
+    --o1-red-apple: #FF3B30;
+    --o1-red-carmine: #E52E24;
+    --o1-red-subtle: rgba(255, 59, 48, 0.12);
+    --o1-red-glow: rgba(255, 59, 48, 0.25);
   }
 
   html.dark {
@@ -102,10 +109,17 @@ samp {
     --apple-border: rgba(255, 255, 255, 0.08);
     --apple-text-primary: #FFFFFF;
     --apple-text-secondary: #8E8E93;
+
+    /* O1FC Apple Red Design System (#FF3B30 Light / #FF453A Dark) */
+    --o1-red-kinetic: #FF453A;
+    --o1-red-apple: #FF453A;
+    --o1-red-carmine: #FF453A;
+    --o1-red-subtle: rgba(255, 69, 58, 0.15);
+    --o1-red-glow: rgba(255, 69, 58, 0.35);
   }
 
   html {
-    background-color: #F2F2F7;
+    background-color: #FFFFFF;
     color: #1C1C1E;
     width: 100%;
     max-width: 100vw;
@@ -208,7 +222,7 @@ samp {
     -webkit-overflow-scrolling: touch;
   }
   .modal-close-btn {
-    @apply min-w-[44px] min-h-[44px] rounded-full bg-[#E5E5EA] dark:bg-white/10 hover:bg-[#D1D1D6] dark:hover:bg-white/20 flex items-center justify-center text-[#8E8E93] dark:text-zinc-400 hover:text-[#1C1C1E] dark:hover:text-white transition-colors cursor-pointer active:scale-95;
+    @apply min-w-[44px] min-h-[44px] rounded-full bg-[#F4F4F6] dark:bg-white/10 hover:bg-[#E5E5EA] dark:hover:bg-white/20 flex items-center justify-center text-[#8E8E93] dark:text-zinc-400 hover:text-[#1C1C1E] dark:hover:text-white transition-colors cursor-pointer active:scale-95;
   }
   .input-pill {
     min-height: 30px;
@@ -225,10 +239,10 @@ samp {
     @apply bg-white dark:bg-[#121214] border border-black/[0.08] dark:border-white/10 shadow-sm rounded-3xl;
   }
   .theme-card-inset {
-    @apply bg-[#F2F2F7] dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/5 rounded-2xl;
+    @apply bg-[#F4F4F6] dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/5 rounded-2xl;
   }
   .theme-canvas {
-    @apply bg-[#F2F2F7] dark:bg-[#000000];
+    @apply bg-[#FFFFFF] dark:bg-[#000000];
   }
   /* Theme Typography */
   .theme-heading {
@@ -547,8 +561,8 @@ samp {
     color: #4B5563;
   }
   .delete-cell:hover {
-    background: rgba(244, 63, 94, 0.12);
-    color: #EF4444;
+    background: rgba(255, 59, 48, 0.12);
+    color: #FF3B30;
   }
 
   .input-pill {
@@ -568,7 +582,7 @@ samp {
     transition: border-color 0.15s ease;
   }
   .input-pill:focus {
-    border-color: #dc2626;
+    border-color: #FF3B30;
   }
   html.dark .input-pill {
     border-color: rgba(255, 255, 255, 0.05);
@@ -576,7 +590,7 @@ samp {
     color: #FFFFFF;
   }
   html.dark .input-pill:focus {
-    border-color: #dc2626;
+    border-color: #FF453A;
   }
 
   /* ================================================================
@@ -658,12 +672,21 @@ samp {
     box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.15);
   }
 
-  /* Safe Area Utilities */
+  /* Safe Area Utilities & Root Geometry Adaptability */
   .safe-top {
-    padding-top: env(safe-area-inset-top, 0px);
+    padding-top: max(0.5rem, env(safe-area-inset-top, 0px));
+  }
+  .safe-top-padded {
+    padding-top: max(0.875rem, calc(env(safe-area-inset-top, 0px) + 0.625rem));
   }
   .safe-bottom {
-    padding-bottom: env(safe-area-inset-bottom, 0px);
+    padding-bottom: max(0.75rem, env(safe-area-inset-bottom, 0px));
+  }
+  .safe-bottom-padded {
+    padding-bottom: max(1.25rem, calc(env(safe-area-inset-bottom, 0px) + 1rem));
+  }
+  .safe-dock-bottom {
+    bottom: max(0.75rem, calc(env(safe-area-inset-bottom, 0px) + 0.5rem));
   }
 
   /* ================================================================

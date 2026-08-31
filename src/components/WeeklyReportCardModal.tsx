@@ -338,10 +338,10 @@ function buildSportsScienceData(userEmail: string, weekStart: Date, weekEnd: Dat
   // Kinetic Volume Breakdown
   const totalCatVol = (pushVolume + pullVolume + legsVolume + coreVolume) || 1;
   const kineticBreakdown: KineticVolumeBreakdown[] = [
-    { pattern: 'Knee & Posterior Chain', tonnageKg: legsVolume || 7800, sets: legSets || 16, intensityPercent: Math.round(((legsVolume || 7800) / totalCatVol) * 100), color: '#DC2626' },
-    { pattern: 'Upper Pull / Lat Matrix', tonnageKg: pullVolume || 5200, sets: pullSets || 14, intensityPercent: Math.round(((pullVolume || 5200) / totalCatVol) * 100), color: '#3B82F6' },
-    { pattern: 'Push & Press Mechanics', tonnageKg: pushVolume || 4850, sets: pushSets || 12, intensityPercent: Math.round(((pushVolume || 4850) / totalCatVol) * 100), color: '#10B981' },
-    { pattern: 'Core & Trunk Stability', tonnageKg: coreVolume || 1950, sets: coreSets || 8, intensityPercent: Math.round(((coreVolume || 1950) / totalCatVol) * 100), color: '#F59E0B' },
+    { pattern: 'Knee & Posterior Chain', tonnageKg: legsVolume || 7800, sets: legSets || 16, intensityPercent: Math.round(((legsVolume || 7800) / totalCatVol) * 100), color: '#EA4335' },
+    { pattern: 'Upper Pull / Lat Matrix', tonnageKg: pullVolume || 5200, sets: pullSets || 14, intensityPercent: Math.round(((pullVolume || 5200) / totalCatVol) * 100), color: '#4285F4' },
+    { pattern: 'Push & Press Mechanics', tonnageKg: pushVolume || 4850, sets: pushSets || 12, intensityPercent: Math.round(((pushVolume || 4850) / totalCatVol) * 100), color: '#34A853' },
+    { pattern: 'Core & Trunk Stability', tonnageKg: coreVolume || 1950, sets: coreSets || 8, intensityPercent: Math.round(((coreVolume || 1950) / totalCatVol) * 100), color: '#FBBC05' },
   ];
 
   // Sport Science Calculations
@@ -606,11 +606,11 @@ export const WeeklyReportCardModal: React.FC<WeeklyReportCardModalProps> = ({
           <div className="bg-white/80 dark:bg-[#121418]/80 backdrop-blur-xl border-b border-zinc-200 dark:border-zinc-800/80 px-4 sm:px-6 py-3.5 flex items-center justify-between z-10 shrink-0">
             <div className="flex items-center gap-2.5 min-w-0">
               <div className="w-8 h-8 rounded-xl bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 flex items-center justify-center font-black shadow-xs">
-                <Activity className="w-4 h-4 text-[#DC2626]" />
+                <Activity className="w-4 h-4 text-[#EA4335]" />
               </div>
               <div className="min-w-0">
                 <div className="flex items-center gap-1.5">
-                  <span className="text-[10px] font-mono font-bold text-[#DC2626] uppercase tracking-wider">
+                  <span className="text-[10px] font-mono font-bold text-[#EA4335] uppercase tracking-wider">
                     Microcycle Telemetry
                   </span>
                   <span className="text-[9px] font-mono px-1.5 py-0.2 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-500 font-semibold">
@@ -659,7 +659,7 @@ export const WeeklyReportCardModal: React.FC<WeeklyReportCardModalProps> = ({
                   </span>
                 </div>
                 {isCurrentWeek && (
-                  <span className="text-[9px] font-mono font-bold text-[#DC2626] uppercase tracking-wider block -mt-0.5">
+                  <span className="text-[9px] font-mono font-bold text-[#EA4335] uppercase tracking-wider block -mt-0.5">
                     Active Microcycle
                   </span>
                 )}
@@ -695,7 +695,7 @@ export const WeeklyReportCardModal: React.FC<WeeklyReportCardModalProps> = ({
                         : 'bg-zinc-100/60 dark:bg-zinc-900/50 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200/60 dark:hover:bg-zinc-800'
                     }`}
                   >
-                    <Icon className={`w-3.5 h-3.5 ${active ? 'text-[#DC2626]' : 'text-zinc-400'}`} />
+                    <Icon className={`w-3.5 h-3.5 ${active ? 'text-[#EA4335]' : 'text-zinc-400'}`} />
                     <span>{tab.label}</span>
                   </button>
                 );
@@ -707,7 +707,7 @@ export const WeeklyReportCardModal: React.FC<WeeklyReportCardModalProps> = ({
           <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-2 pb-6 space-y-4 custom-scrollbar">
             {loading ? (
               <div className="flex flex-col items-center justify-center py-20 gap-3">
-                <div className="w-8 h-8 border-2 border-zinc-400 border-t-[#DC2626] rounded-full animate-spin" />
+                <div className="w-8 h-8 border-2 border-zinc-400 border-t-[#EA4335] rounded-full animate-spin" />
                 <div className="text-xs font-mono text-zinc-500 dark:text-zinc-400 animate-pulse">
                   Synthesizing mechanical & metabolic telemetry...
                 </div>
@@ -734,7 +734,7 @@ export const WeeklyReportCardModal: React.FC<WeeklyReportCardModalProps> = ({
                           </div>
                           <div>
                             <div className="flex items-center gap-1.5">
-                              <Trophy className="w-3.5 h-3.5 text-[#DC2626]" />
+                              <Trophy className="w-3.5 h-3.5 text-[#EA4335]" />
                               <span className="text-[11px] font-mono font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
                                 Microcycle Score
                               </span>
@@ -753,7 +753,7 @@ export const WeeklyReportCardModal: React.FC<WeeklyReportCardModalProps> = ({
                           {/* ACWR Indicator */}
                           <div className="p-2.5 rounded-2xl bg-white/80 dark:bg-zinc-800/60 border border-zinc-200/80 dark:border-zinc-700/80 text-left min-w-[130px]">
                             <div className="text-[9px] font-mono font-bold text-zinc-400 uppercase flex items-center gap-1">
-                              <Gauge className="w-3 h-3 text-[#DC2626]" /> ACWR Index
+                              <Gauge className="w-3 h-3 text-[#EA4335]" /> ACWR Index
                             </div>
                             <div className="text-base font-black font-mono text-zinc-900 dark:text-white mt-0.5">
                               {snap.acuteChronicRatio}x
@@ -787,7 +787,7 @@ export const WeeklyReportCardModal: React.FC<WeeklyReportCardModalProps> = ({
                     <div className="rounded-3xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/60 p-4 space-y-3">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                          <Compass className="w-4 h-4 text-[#DC2626]" />
+                          <Compass className="w-4 h-4 text-[#EA4335]" />
                           <span className="text-xs font-bold uppercase tracking-wider text-zinc-900 dark:text-white font-mono">
                             5-Axis Athlete Polygon
                           </span>
@@ -807,8 +807,8 @@ export const WeeklyReportCardModal: React.FC<WeeklyReportCardModalProps> = ({
                             <Radar
                               name="Athlete Load"
                               dataKey="score"
-                              stroke="#DC2626"
-                              fill="#DC2626"
+                              stroke="#EA4335"
+                              fill="#EA4335"
                               fillOpacity={0.35}
                             />
                           </RadarChart>
@@ -862,7 +862,7 @@ export const WeeklyReportCardModal: React.FC<WeeklyReportCardModalProps> = ({
                     <div className="rounded-3xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/60 p-4 sm:p-5 space-y-4">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                          <Layers className="w-4 h-4 text-[#DC2626]" />
+                          <Layers className="w-4 h-4 text-[#EA4335]" />
                           <div>
                             <h3 className="text-xs font-bold font-mono uppercase tracking-wider text-zinc-900 dark:text-white">
                               Kinetic Vector Volume Partition
@@ -911,7 +911,7 @@ export const WeeklyReportCardModal: React.FC<WeeklyReportCardModalProps> = ({
                     <div className="rounded-3xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/60 p-4 space-y-2.5">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-1.5">
-                          <Trophy className="w-3.5 h-3.5 text-[#DC2626]" />
+                          <Trophy className="w-3.5 h-3.5 text-[#EA4335]" />
                           <span className="text-xs font-bold uppercase font-mono tracking-wider text-zinc-900 dark:text-white">
                             Neuromuscular PRs Hit
                           </span>
@@ -923,7 +923,7 @@ export const WeeklyReportCardModal: React.FC<WeeklyReportCardModalProps> = ({
                         <div className="flex flex-wrap gap-1.5">
                           {snap.prs.map((pr, i) => (
                             <span key={i} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-xs font-bold font-mono text-zinc-900 dark:text-white shadow-xs">
-                              <Star className="w-3 h-3 text-[#DC2626] fill-[#DC2626]" />
+                              <Star className="w-3 h-3 text-[#EA4335] fill-[#EA4335]" />
                               {pr}
                             </span>
                           ))}
@@ -944,7 +944,7 @@ export const WeeklyReportCardModal: React.FC<WeeklyReportCardModalProps> = ({
                     <div className="rounded-3xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/60 p-4 space-y-3">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                          <Flame className="w-4 h-4 text-[#DC2626]" />
+                          <Flame className="w-4 h-4 text-[#EA4335]" />
                           <div>
                             <h3 className="text-xs font-bold font-mono uppercase tracking-wider text-zinc-900 dark:text-white">
                               Daily Caloric Balance Curve
@@ -954,7 +954,7 @@ export const WeeklyReportCardModal: React.FC<WeeklyReportCardModalProps> = ({
                         </div>
                         <div className="flex items-center gap-2 text-[10px] font-mono">
                           <span className="flex items-center gap-1 text-zinc-700 dark:text-zinc-300">
-                            <span className="w-2 h-2 rounded-full bg-[#DC2626]" /> Intake
+                            <span className="w-2 h-2 rounded-full bg-[#EA4335]" /> Intake
                           </span>
                           <span className="flex items-center gap-1 text-zinc-500">
                             <span className="w-2 h-2 rounded-full bg-blue-500" /> Target
@@ -967,8 +967,8 @@ export const WeeklyReportCardModal: React.FC<WeeklyReportCardModalProps> = ({
                           <AreaChart data={snap.dailyFlux}>
                             <defs>
                               <linearGradient id="fluxGrad" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="5%" stopColor="#DC2626" stopOpacity={0.3}/>
-                                <stop offset="95%" stopColor="#DC2626" stopOpacity={0}/>
+                                <stop offset="5%" stopColor="#EA4335" stopOpacity={0.3}/>
+                                <stop offset="95%" stopColor="#EA4335" stopOpacity={0}/>
                               </linearGradient>
                             </defs>
                             <XAxis dataKey="day" tick={{ fill: '#71717A', fontSize: 10 }} axisLine={false} tickLine={false} />
@@ -977,8 +977,8 @@ export const WeeklyReportCardModal: React.FC<WeeklyReportCardModalProps> = ({
                               contentStyle={{ backgroundColor: '#18181B', borderColor: '#27272A', borderRadius: 12, fontSize: 11 }}
                               labelStyle={{ color: '#FAFAFA', fontWeight: 700 }}
                             />
-                            <Area type="monotone" dataKey="intakeKcal" stroke="#DC2626" strokeWidth={2} fillOpacity={1} fill="url(#fluxGrad)" name="Intake kcal" />
-                            <Area type="monotone" dataKey="targetKcal" stroke="#3B82F6" strokeDasharray="3 3" strokeWidth={1.5} fill="none" name="Target kcal" />
+                            <Area type="monotone" dataKey="intakeKcal" stroke="#EA4335" strokeWidth={2} fillOpacity={1} fill="url(#fluxGrad)" name="Intake kcal" />
+                            <Area type="monotone" dataKey="targetKcal" stroke="#4285F4" strokeDasharray="3 3" strokeWidth={1.5} fill="none" name="Target kcal" />
                           </AreaChart>
                         </ResponsiveContainer>
                       </div>
@@ -1012,7 +1012,7 @@ export const WeeklyReportCardModal: React.FC<WeeklyReportCardModalProps> = ({
                               {snap.dailyFlux.map((entry, index) => (
                                 <Cell
                                   key={`cell-${index}`}
-                                  fill={entry.sleepHours >= 7.5 ? '#6366F1' : entry.sleepHours >= 6.5 ? '#818CF8' : '#EF4444'}
+                                  fill={entry.sleepHours >= 7.5 ? '#6366F1' : entry.sleepHours >= 6.5 ? '#818CF8' : '#EA4335'}
                                 />
                               ))}
                             </Bar>
@@ -1029,7 +1029,7 @@ export const WeeklyReportCardModal: React.FC<WeeklyReportCardModalProps> = ({
                     {/* AI Scientist Verdict Banner */}
                     <div className="rounded-3xl border border-zinc-200 dark:border-zinc-800 bg-zinc-900 dark:bg-zinc-900 text-white p-5 space-y-2.5 shadow-xl relative overflow-hidden">
                       <div className="flex items-center gap-2">
-                        <Sparkles className="w-4 h-4 text-[#DC2626]" />
+                        <Sparkles className="w-4 h-4 text-[#EA4335]" />
                         <span className="text-xs font-black uppercase font-mono tracking-wider text-white">
                           Sports Science Intelligence Verdict
                         </span>
@@ -1048,7 +1048,7 @@ export const WeeklyReportCardModal: React.FC<WeeklyReportCardModalProps> = ({
                     {report.highlights && report.highlights.length > 0 && (
                       <div className="rounded-3xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/60 p-4 space-y-2">
                         <div className="flex items-center gap-1.5 mb-1">
-                          <CheckCircle2 className="w-4 h-4 text-[#DC2626]" />
+                          <CheckCircle2 className="w-4 h-4 text-[#EA4335]" />
                           <span className="text-xs font-mono font-bold text-zinc-900 dark:text-white uppercase tracking-wider">
                             Verified Positive Milestones
                           </span>
@@ -1056,7 +1056,7 @@ export const WeeklyReportCardModal: React.FC<WeeklyReportCardModalProps> = ({
                         <div className="space-y-2">
                           {report.highlights.map((h, i) => (
                             <div key={i} className="flex items-start gap-2 text-xs text-zinc-700 dark:text-zinc-300">
-                              <Check className="w-3.5 h-3.5 text-[#DC2626] shrink-0 mt-0.5" />
+                              <Check className="w-3.5 h-3.5 text-[#EA4335] shrink-0 mt-0.5" />
                               <span>{h}</span>
                             </div>
                           ))}
@@ -1092,7 +1092,7 @@ export const WeeklyReportCardModal: React.FC<WeeklyReportCardModalProps> = ({
                   disabled={generating}
                   className="w-full py-3 rounded-2xl border border-zinc-200 dark:border-zinc-700 bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-800 dark:text-zinc-200 font-bold text-xs flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98] transition-all shadow-xs"
                 >
-                  <Zap className="w-3.5 h-3.5 text-[#DC2626]" />
+                  <Zap className="w-3.5 h-3.5 text-[#EA4335]" />
                   {generating ? 'Compiling Sport Science Matrix...' : 'Re-calculate Microcycle Matrix'}
                 </button>
               </div>
@@ -1100,7 +1100,7 @@ export const WeeklyReportCardModal: React.FC<WeeklyReportCardModalProps> = ({
               /* Empty State */
               <div className="flex flex-col items-center justify-center py-12 px-4 gap-4 text-center">
                 <div className="w-16 h-16 rounded-3xl bg-zinc-100 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700 flex items-center justify-center shadow-inner">
-                  <Activity className="w-8 h-8 text-[#DC2626]" />
+                  <Activity className="w-8 h-8 text-[#EA4335]" />
                 </div>
                 <div>
                   <h3 className="text-base font-black font-mono text-zinc-900 dark:text-white">
@@ -1112,7 +1112,7 @@ export const WeeklyReportCardModal: React.FC<WeeklyReportCardModalProps> = ({
                 </div>
 
                 {isFuture ? (
-                  <p className="text-xs text-[#DC2626] font-bold font-mono">
+                  <p className="text-xs text-[#EA4335] font-bold font-mono">
                     Future microcycles cannot be computed in advance
                   </p>
                 ) : (
@@ -1125,7 +1125,7 @@ export const WeeklyReportCardModal: React.FC<WeeklyReportCardModalProps> = ({
                       <span className="animate-pulse">Synthesizing Bio-data...</span>
                     ) : (
                       <>
-                        <Zap className="w-4 h-4 text-[#DC2626]" />
+                        <Zap className="w-4 h-4 text-[#EA4335]" />
                         <span>Generate Microcycle Card</span>
                       </>
                     )}

@@ -759,8 +759,8 @@ export const SupplementTracker: React.FC<SupplementTrackerProps> = ({ showToast,
             <AreaChart data={chartTrendData} margin={{ top: 2, right: 4, left: -26, bottom: 0 }}>
               <defs>
                 <linearGradient id="suppAdhGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#10b981" stopOpacity={0.4} />
-                  <stop offset="95%" stopColor="#10b981" stopOpacity={0.0} />
+                  <stop offset="5%" stopColor="#34A853" stopOpacity={0.4} />
+                  <stop offset="95%" stopColor="#34A853" stopOpacity={0.0} />
                 </linearGradient>
                 <linearGradient id="suppTgtGradient" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="#94a3b8" stopOpacity={0.2} />
@@ -783,7 +783,7 @@ export const SupplementTracker: React.FC<SupplementTrackerProps> = ({ showToast,
                   return null;
                 }}
               />
-              <Area type="monotone" dataKey="Compliance" stroke="#10b981" strokeWidth={1.8} fillOpacity={1} fill="url(#suppAdhGradient)" />
+              <Area type="monotone" dataKey="Compliance" stroke="#34A853" strokeWidth={1.8} fillOpacity={1} fill="url(#suppAdhGradient)" />
               <Area type="monotone" dataKey="CalorieTarget" stroke="#64748b" strokeWidth={1.2} strokeDasharray="2 2" fillOpacity={1} fill="url(#suppTgtGradient)" />
             </AreaChart>
           </ResponsiveContainer>

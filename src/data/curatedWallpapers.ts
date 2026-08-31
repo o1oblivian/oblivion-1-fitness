@@ -35,7 +35,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Gym Floor & Iron',
     photoId: 'photo-1517838277536-f5f99be501cd',
     author: 'Victor Freitas',
-    ringColors: { outer: '#DC2626', middle: '#EF4444', inner: '#F87171' },
+    ringColors: { outer: '#EA4335', middle: '#EA4335', inner: '#EA4335' },
   },
   {
     id: 'gym-02',
@@ -44,7 +44,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Gym Floor & Iron',
     photoId: 'photo-1534438327276-14e5300c3a48',
     author: 'Sven Mieke',
-    ringColors: { outer: '#EA580C', middle: '#F97316', inner: '#FDBA74' },
+    ringColors: { outer: '#FBBC05', middle: '#C89467', inner: '#E6CBB1' },
   },
   {
     id: 'gym-03',
@@ -53,7 +53,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Gym Floor & Iron',
     photoId: 'photo-1526506118085-60ce8714f8c5',
     author: 'Alora Griffiths',
-    ringColors: { outer: '#DC2626', middle: '#EF4444', inner: '#FCA5A5' },
+    ringColors: { outer: '#EA4335', middle: '#EA4335', inner: '#EA4335' },
   },
   {
     id: 'gym-04',
@@ -62,7 +62,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Gym Floor & Iron',
     photoId: 'photo-1540497077202-7c8a3999166f',
     author: 'Risky Rahadian',
-    ringColors: { outer: '#B91C1C', middle: '#DC2626', inner: '#FCA5A5' },
+    ringColors: { outer: '#EA4335', middle: '#EA4335', inner: '#EA4335' },
   },
   {
     id: 'gym-05',
@@ -71,7 +71,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Gym Floor & Iron',
     photoId: 'photo-1583454110551-21f2fa2afe61',
     author: 'Anastase Maragos',
-    ringColors: { outer: '#D97706', middle: '#F59E0B', inner: '#FDE68A' },
+    ringColors: { outer: '#FBBC05', middle: '#FBBC05', inner: '#FDE68A' },
   },
   {
     id: 'gym-06',
@@ -80,7 +80,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Gym Floor & Iron',
     photoId: 'photo-1517836357463-d25dfeac3438',
     author: 'Alexander Redl',
-    ringColors: { outer: '#DC2626', middle: '#EF4444', inner: '#FECACA' },
+    ringColors: { outer: '#EA4335', middle: '#EA4335', inner: '#E5AEA4' },
   },
   {
     id: 'gym-07',
@@ -98,7 +98,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Gym Floor & Iron',
     photoId: 'photo-1584735935682-2f2b69dff9d2',
     author: 'LyfeFuel',
-    ringColors: { outer: '#DC2626', middle: '#F87171', inner: '#FEE2E2' },
+    ringColors: { outer: '#EA4335', middle: '#EA4335', inner: '#F0CCC5' },
   },
   {
     id: 'gym-09',
@@ -107,7 +107,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Gym Floor & Iron',
     photoId: 'photo-1571019614242-c5c5dee9f50b',
     author: 'John Arano',
-    ringColors: { outer: '#B91C1C', middle: '#EF4444', inner: '#FCA5A5' },
+    ringColors: { outer: '#EA4335', middle: '#EA4335', inner: '#EA4335' },
   },
   {
     id: 'gym-10',
@@ -116,7 +116,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Gym Floor & Iron',
     photoId: 'photo-1581009146145-b5ef050c2e1e',
     author: 'Gordon Cowie',
-    ringColors: { outer: '#DC2626', middle: '#F87171', inner: '#FFE4E6' },
+    ringColors: { outer: '#EA4335', middle: '#EA4335', inner: '#EAD3CD' },
   },
   {
     id: 'gym-11',
@@ -134,7 +134,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Gym Floor & Iron',
     photoId: 'photo-1599058917212-d750089bc07e',
     author: 'Scott Webb',
-    ringColors: { outer: '#DC2626', middle: '#EF4444', inner: '#F87171' },
+    ringColors: { outer: '#EA4335', middle: '#EA4335', inner: '#EA4335' },
   },
   {
     id: 'gym-13',
@@ -152,7 +152,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Gym Floor & Iron',
     photoId: 'photo-1534367507873-d2d7e24c797f',
     author: 'Sam Sabourin',
-    ringColors: { outer: '#2563EB', middle: '#60A5FA', inner: '#DBEAFE' },
+    ringColors: { outer: '#4285F4', middle: '#7FAAA7', inner: '#DBEAFE' },
   },
   {
     id: 'gym-15',
@@ -161,7 +161,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Gym Floor & Iron',
     photoId: 'photo-1583454155184-870a1f63aebc',
     author: 'Anastase Maragos',
-    ringColors: { outer: '#059669', middle: '#34D399', inner: '#D1FAE5' },
+    ringColors: { outer: '#406B5B', middle: '#709E8B', inner: '#D1FAE5' },
   },
   {
     id: 'gym-16',
@@ -170,7 +170,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Gym Floor & Iron',
     photoId: 'photo-1579758629938-03607ccdbaba',
     author: 'Arthur Edelman',
-    ringColors: { outer: '#DC2626', middle: '#EF4444', inner: '#FCA5A5' },
+    ringColors: { outer: '#EA4335', middle: '#EA4335', inner: '#EA4335' },
   },
   {
     id: 'gym-17',
@@ -179,7 +179,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Gym Floor & Iron',
     photoId: 'photo-1517963879433-6ad2b056d712',
     author: 'Cesar Galeão',
-    ringColors: { outer: '#7C3AED', middle: '#A78BFA', inner: '#EDE9FE' },
+    ringColors: { outer: '#6E6277', middle: '#9E92A7', inner: '#EDE9FE' },
   },
   {
     id: 'gym-18',
@@ -188,7 +188,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Gym Floor & Iron',
     photoId: 'photo-1593079831268-3381b0db4a77',
     author: 'Karsten Winegeart',
-    ringColors: { outer: '#DC2626', middle: '#B91C1C', inner: '#7F1D1D' },
+    ringColors: { outer: '#EA4335', middle: '#EA4335', inner: '#5C261A' },
   },
   {
     id: 'gym-19',
@@ -197,7 +197,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Gym Floor & Iron',
     photoId: 'photo-1570829460005-c840387bb1ca',
     author: 'Karl Solano',
-    ringColors: { outer: '#EF4444', middle: '#F87171', inner: '#FEE2E2' },
+    ringColors: { outer: '#EA4335', middle: '#EA4335', inner: '#F0CCC5' },
   },
   {
     id: 'gym-20',
@@ -206,7 +206,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Gym Floor & Iron',
     photoId: 'photo-1521804906057-1df8fdb718b7',
     author: 'Edgar Chaparro',
-    ringColors: { outer: '#DC2626', middle: '#EA580C', inner: '#FBBF24' },
+    ringColors: { outer: '#EA4335', middle: '#FBBC05', inner: '#FBBC05' },
   },
   {
     id: 'gym-21',
@@ -215,7 +215,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Gym Floor & Iron',
     photoId: 'photo-1541534741688-6078c6bfb5c5',
     author: 'Danielle Cerullo',
-    ringColors: { outer: '#059669', middle: '#10B981', inner: '#A7F3D0' },
+    ringColors: { outer: '#406B5B', middle: '#54826F', inner: '#A7F3D0' },
   },
   {
     id: 'gym-22',
@@ -224,7 +224,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Gym Floor & Iron',
     photoId: 'photo-1590487988256-9ed24133863e',
     author: 'Alora Griffiths',
-    ringColors: { outer: '#DC2626', middle: '#EF4444', inner: '#FECACA' },
+    ringColors: { outer: '#EA4335', middle: '#EA4335', inner: '#E5AEA4' },
   },
   {
     id: 'gym-23',
@@ -233,7 +233,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Gym Floor & Iron',
     photoId: 'photo-1576678927484-cc907957088c',
     author: 'Sam Sabourin',
-    ringColors: { outer: '#2563EB', middle: '#3B82F6', inner: '#93C5FD' },
+    ringColors: { outer: '#4285F4', middle: '#4285F4', inner: '#A0C2C0' },
   },
   {
     id: 'gym-24',
@@ -242,7 +242,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Gym Floor & Iron',
     photoId: 'photo-1584824486509-112e4181ff6b',
     author: 'John Fornander',
-    ringColors: { outer: '#DC2626', middle: '#F87171', inner: '#FEF2F2' },
+    ringColors: { outer: '#EA4335', middle: '#EA4335', inner: '#F7E3DF' },
   },
 
   // ── HYROX & FUNCTIONAL ATHLETES ──
@@ -253,7 +253,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Hyrox & Functional',
     photoId: 'photo-1534367507873-d2d7e24c797f',
     author: 'Sam Sabourin',
-    ringColors: { outer: '#DC2626', middle: '#F97316', inner: '#FDE047' },
+    ringColors: { outer: '#EA4335', middle: '#C89467', inner: '#DFC295' },
   },
   {
     id: 'hyrox-02',
@@ -262,7 +262,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Hyrox & Functional',
     photoId: 'photo-1550345332-09e3ac987658',
     author: 'Karsten Winegeart',
-    ringColors: { outer: '#0284C7', middle: '#38BDF8', inner: '#E0F2FE' },
+    ringColors: { outer: '#4E7A77', middle: '#86ADA9', inner: '#E0F2FE' },
   },
   {
     id: 'hyrox-03',
@@ -271,7 +271,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Hyrox & Functional',
     photoId: 'photo-1571019614242-c5c5dee9f50b',
     author: 'John Arano',
-    ringColors: { outer: '#DC2626', middle: '#EF4444', inner: '#FCA5A5' },
+    ringColors: { outer: '#EA4335', middle: '#EA4335', inner: '#EA4335' },
   },
   {
     id: 'hyrox-04',
@@ -280,7 +280,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Hyrox & Functional',
     photoId: 'photo-1574680096145-d05b474e2155',
     author: 'Cathy Pham',
-    ringColors: { outer: '#DC2626', middle: '#EA580C', inner: '#FED7AA' },
+    ringColors: { outer: '#EA4335', middle: '#FBBC05', inner: '#EBD9C7' },
   },
   {
     id: 'hyrox-05',
@@ -289,7 +289,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Hyrox & Functional',
     photoId: 'photo-1517838277536-f5f99be501cd',
     author: 'Victor Freitas',
-    ringColors: { outer: '#B91C1C', middle: '#DC2626', inner: '#FECACA' },
+    ringColors: { outer: '#EA4335', middle: '#EA4335', inner: '#E5AEA4' },
   },
   {
     id: 'hyrox-06',
@@ -298,7 +298,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Hyrox & Functional',
     photoId: 'photo-1541534741688-6078c6bfb5c5',
     author: 'Danielle Cerullo',
-    ringColors: { outer: '#059669', middle: '#34D399', inner: '#D1FAE5' },
+    ringColors: { outer: '#406B5B', middle: '#709E8B', inner: '#D1FAE5' },
   },
   {
     id: 'hyrox-07',
@@ -307,7 +307,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Hyrox & Functional',
     photoId: 'photo-1583454155184-870a1f63aebc',
     author: 'Anastase Maragos',
-    ringColors: { outer: '#D97706', middle: '#F59E0B', inner: '#FEF3C7' },
+    ringColors: { outer: '#FBBC05', middle: '#FBBC05', inner: '#FEF3C7' },
   },
   {
     id: 'hyrox-08',
@@ -316,7 +316,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Hyrox & Functional',
     photoId: 'photo-1549060279-7e168fcee0c2',
     author: 'Logan Weaver',
-    ringColors: { outer: '#2563EB', middle: '#60A5FA', inner: '#DBEAFE' },
+    ringColors: { outer: '#4285F4', middle: '#7FAAA7', inner: '#DBEAFE' },
   },
   {
     id: 'hyrox-09',
@@ -325,7 +325,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Hyrox & Functional',
     photoId: 'photo-1552674605-db6ffd4facb5',
     author: 'Fitsum Admasu',
-    ringColors: { outer: '#DC2626', middle: '#EF4444', inner: '#F87171' },
+    ringColors: { outer: '#EA4335', middle: '#EA4335', inner: '#EA4335' },
   },
   {
     id: 'hyrox-10',
@@ -334,7 +334,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Hyrox & Functional',
     photoId: 'photo-1517836357463-d25dfeac3438',
     author: 'Alexander Redl',
-    ringColors: { outer: '#DC2626', middle: '#F97316', inner: '#FED7AA' },
+    ringColors: { outer: '#EA4335', middle: '#C89467', inner: '#EBD9C7' },
   },
   {
     id: 'hyrox-11',
@@ -343,7 +343,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Hyrox & Functional',
     photoId: 'photo-1594882645126-14020914d58d',
     author: 'Karsten Winegeart',
-    ringColors: { outer: '#DC2626', middle: '#EF4444', inner: '#FFE4E6' },
+    ringColors: { outer: '#EA4335', middle: '#EA4335', inner: '#EAD3CD' },
   },
   {
     id: 'hyrox-12',
@@ -352,7 +352,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Hyrox & Functional',
     photoId: 'photo-1571019613454-1cb2f99b2d8b',
     author: 'Jonathan Borba',
-    ringColors: { outer: '#7C3AED', middle: '#A78BFA', inner: '#EDE9FE' },
+    ringColors: { outer: '#6E6277', middle: '#9E92A7', inner: '#EDE9FE' },
   },
 
   // ── ELITE ATHLETES (19-35) ──
@@ -363,7 +363,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Elite Athletes',
     photoId: 'photo-1552674605-db6ffd4facb5',
     author: 'Fitsum Admasu',
-    ringColors: { outer: '#DC2626', middle: '#F97316', inner: '#FDE047' },
+    ringColors: { outer: '#EA4335', middle: '#C89467', inner: '#DFC295' },
   },
   {
     id: 'ath-02',
@@ -372,7 +372,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Elite Athletes',
     photoId: 'photo-1549719386-74dfcbf7dbed',
     author: 'Attentie Attentie',
-    ringColors: { outer: '#B91C1C', middle: '#DC2626', inner: '#FCA5A5' },
+    ringColors: { outer: '#EA4335', middle: '#EA4335', inner: '#EA4335' },
   },
   {
     id: 'ath-03',
@@ -381,7 +381,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Elite Athletes',
     photoId: 'photo-1522898467493-49726bf28798',
     author: 'Danielle Cerullo',
-    ringColors: { outer: '#0284C7', middle: '#38BDF8', inner: '#E0F2FE' },
+    ringColors: { outer: '#4E7A77', middle: '#86ADA9', inner: '#E0F2FE' },
   },
   {
     id: 'ath-04',
@@ -390,7 +390,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Elite Athletes',
     photoId: 'photo-1534438327276-14e5300c3a48',
     author: 'Sven Mieke',
-    ringColors: { outer: '#D97706', middle: '#F59E0B', inner: '#FEF3C7' },
+    ringColors: { outer: '#FBBC05', middle: '#FBBC05', inner: '#FEF3C7' },
   },
   {
     id: 'ath-05',
@@ -399,7 +399,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Elite Athletes',
     photoId: 'photo-1517438322307-e67111335449',
     author: 'Bogdan Yukhymchuk',
-    ringColors: { outer: '#DC2626', middle: '#EF4444', inner: '#FECACA' },
+    ringColors: { outer: '#EA4335', middle: '#EA4335', inner: '#E5AEA4' },
   },
   {
     id: 'ath-06',
@@ -408,7 +408,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Elite Athletes',
     photoId: 'photo-1571019613454-1cb2f99b2d8b',
     author: 'Jonathan Borba',
-    ringColors: { outer: '#059669', middle: '#10B981', inner: '#A7F3D0' },
+    ringColors: { outer: '#406B5B', middle: '#54826F', inner: '#A7F3D0' },
   },
   {
     id: 'ath-07',
@@ -417,7 +417,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Elite Athletes',
     photoId: 'photo-1517838277536-f5f99be501cd',
     author: 'Victor Freitas',
-    ringColors: { outer: '#EA580C', middle: '#FB923C', inner: '#FFEDD5' },
+    ringColors: { outer: '#FBBC05', middle: '#D8AF88', inner: '#FFEDD5' },
   },
   {
     id: 'ath-08',
@@ -426,7 +426,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Elite Athletes',
     photoId: 'photo-1544367567-0f2fcb009e0b',
     author: 'Dylan Gillis',
-    ringColors: { outer: '#DC2626', middle: '#EF4444', inner: '#FFE4E6' },
+    ringColors: { outer: '#EA4335', middle: '#EA4335', inner: '#EAD3CD' },
   },
   {
     id: 'ath-09',
@@ -435,7 +435,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Elite Athletes',
     photoId: 'photo-1461896836934-ffe607ba8211',
     author: 'Braden Collum',
-    ringColors: { outer: '#2563EB', middle: '#3B82F6', inner: '#BFDBFE' },
+    ringColors: { outer: '#4285F4', middle: '#4285F4', inner: '#C1DBD9' },
   },
   {
     id: 'ath-10',
@@ -453,7 +453,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Elite Athletes',
     photoId: 'photo-1476480862126-209bfaa8edc8',
     author: 'Fitsum Admasu',
-    ringColors: { outer: '#DC2626', middle: '#EF4444', inner: '#FCA5A5' },
+    ringColors: { outer: '#EA4335', middle: '#EA4335', inner: '#EA4335' },
   },
   {
     id: 'ath-12',
@@ -462,7 +462,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Elite Athletes',
     photoId: 'photo-1574680096145-d05b474e2155',
     author: 'Cathy Pham',
-    ringColors: { outer: '#CA8A04', middle: '#EAB308', inner: '#FEF08A' },
+    ringColors: { outer: '#CA8A04', middle: '#FBBC05', inner: '#FEF08A' },
   },
   {
     id: 'ath-13',
@@ -471,7 +471,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Elite Athletes',
     photoId: 'photo-1599058917212-d750089bc07e',
     author: 'Scott Webb',
-    ringColors: { outer: '#9333EA', middle: '#A855F7', inner: '#F3E8FF' },
+    ringColors: { outer: '#6A5E73', middle: '#86778F', inner: '#F3E8FF' },
   },
   {
     id: 'ath-14',
@@ -480,7 +480,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Elite Athletes',
     photoId: 'photo-1522163182402-834f871fd851',
     author: 'Hu Chen',
-    ringColors: { outer: '#B45309', middle: '#D97706', inner: '#FDE68A' },
+    ringColors: { outer: '#8C6839', middle: '#FBBC05', inner: '#FDE68A' },
   },
   {
     id: 'ath-15',
@@ -489,7 +489,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Elite Athletes',
     photoId: 'photo-1517438322307-e67111335449',
     author: 'Bogdan Yukhymchuk',
-    ringColors: { outer: '#DC2626', middle: '#B91C1C', inner: '#991B1B' },
+    ringColors: { outer: '#EA4335', middle: '#EA4335', inner: '#732F20' },
   },
   {
     id: 'ath-16',
@@ -507,7 +507,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Elite Athletes',
     photoId: 'photo-1565992441121-4367c2967103',
     author: 'Steven Lelham',
-    ringColors: { outer: '#2563EB', middle: '#60A5FA', inner: '#DBEAFE' },
+    ringColors: { outer: '#4285F4', middle: '#7FAAA7', inner: '#DBEAFE' },
   },
 
   // ── RUNNING & TRACK (36-52) ──
@@ -518,7 +518,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Running & Track',
     photoId: 'photo-1486218119243-13883505764c',
     author: 'Chander R',
-    ringColors: { outer: '#059669', middle: '#10B981', inner: '#6EE7B7' },
+    ringColors: { outer: '#406B5B', middle: '#54826F', inner: '#91BDB0' },
   },
   {
     id: 'run-02',
@@ -527,7 +527,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Running & Track',
     photoId: 'photo-1452626038306-9aae5e071dd3',
     author: 'Emma Simpson',
-    ringColors: { outer: '#EA580C', middle: '#FB923C', inner: '#FED7AA' },
+    ringColors: { outer: '#FBBC05', middle: '#D8AF88', inner: '#EBD9C7' },
   },
   {
     id: 'run-03',
@@ -536,7 +536,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Running & Track',
     photoId: 'photo-1530549387789-4c1017266635',
     author: 'Serena Repice',
-    ringColors: { outer: '#DC2626', middle: '#EF4444', inner: '#FCA5A5' },
+    ringColors: { outer: '#EA4335', middle: '#EA4335', inner: '#EA4335' },
   },
   {
     id: 'run-04',
@@ -545,7 +545,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Running & Track',
     photoId: 'photo-1502680390469-be75c86b636f',
     author: 'Goran Horvat',
-    ringColors: { outer: '#0284C7', middle: '#38BDF8', inner: '#BAE6FD' },
+    ringColors: { outer: '#4E7A77', middle: '#86ADA9', inner: '#BAE6FD' },
   },
   {
     id: 'run-05',
@@ -554,7 +554,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Running & Track',
     photoId: 'photo-1509099836639-18ba1795216d',
     author: 'Joshua Earle',
-    ringColors: { outer: '#7C3AED', middle: '#A855F7', inner: '#E9D5FF' },
+    ringColors: { outer: '#6E6277', middle: '#86778F', inner: '#E9D5FF' },
   },
   {
     id: 'run-06',
@@ -563,7 +563,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Running & Track',
     photoId: 'photo-1533560904424-a0c61dc306fc',
     author: 'Sporlab',
-    ringColors: { outer: '#D97706', middle: '#F59E0B', inner: '#FDE68A' },
+    ringColors: { outer: '#FBBC05', middle: '#FBBC05', inner: '#FDE68A' },
   },
   {
     id: 'run-07',
@@ -572,7 +572,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Running & Track',
     photoId: 'photo-1571008887538-b36bb32f4571',
     author: 'Brian Erickson',
-    ringColors: { outer: '#15803D', middle: '#22C55E', inner: '#86EFAC' },
+    ringColors: { outer: '#34A853', middle: '#34A853', inner: '#ADCFC0' },
   },
   {
     id: 'run-08',
@@ -581,7 +581,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Running & Track',
     photoId: 'photo-1476480862126-209bfaa8edc8',
     author: 'Fitsum Admasu',
-    ringColors: { outer: '#CA8A04', middle: '#EAB308', inner: '#FEF08A' },
+    ringColors: { outer: '#CA8A04', middle: '#FBBC05', inner: '#FEF08A' },
   },
   {
     id: 'run-09',
@@ -590,7 +590,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Running & Track',
     photoId: 'photo-1461896836934-ffe607ba8211',
     author: 'Braden Collum',
-    ringColors: { outer: '#DC2626', middle: '#EF4444', inner: '#FEE2E2' },
+    ringColors: { outer: '#EA4335', middle: '#EA4335', inner: '#F0CCC5' },
   },
   {
     id: 'run-10',
@@ -599,7 +599,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Running & Track',
     photoId: 'photo-1506126613408-eca07ce68773',
     author: 'Jeremy Bishop',
-    ringColors: { outer: '#0891B2', middle: '#06B6D4', inner: '#CFFAFE' },
+    ringColors: { outer: '#436562', middle: '#547A77', inner: '#CFFAFE' },
   },
   {
     id: 'run-11',
@@ -608,7 +608,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Running & Track',
     photoId: 'photo-1475778057357-d35f37fa89dd',
     author: 'Jenny Hill',
-    ringColors: { outer: '#DC2626', middle: '#F97316', inner: '#FDE047' },
+    ringColors: { outer: '#EA4335', middle: '#C89467', inner: '#DFC295' },
   },
   {
     id: 'run-12',
@@ -617,7 +617,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Running & Track',
     photoId: 'photo-1568605117036-5fe5e7bab0b7',
     author: 'Austris Augusts',
-    ringColors: { outer: '#DC2626', middle: '#B91C1C', inner: '#7F1D1D' },
+    ringColors: { outer: '#EA4335', middle: '#EA4335', inner: '#5C261A' },
   },
   {
     id: 'run-13',
@@ -635,7 +635,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Running & Track',
     photoId: 'photo-1464822759023-fed622ff2c3b',
     author: 'Kaley Dykstra',
-    ringColors: { outer: '#0369A1', middle: '#0EA5E9', inner: '#BAE6FD' },
+    ringColors: { outer: '#3D6360', middle: '#679390', inner: '#BAE6FD' },
   },
   {
     id: 'run-15',
@@ -644,7 +644,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Running & Track',
     photoId: 'photo-1448375240586-882707db888b',
     author: 'Sebastien Gabriel',
-    ringColors: { outer: '#C2410C', middle: '#EA580C', inner: '#FFEDD5' },
+    ringColors: { outer: '#966B38', middle: '#FBBC05', inner: '#FFEDD5' },
   },
   {
     id: 'run-16',
@@ -653,7 +653,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Running & Track',
     photoId: 'photo-1508215885820-46561f5f3e9c',
     author: 'Alex Motoc',
-    ringColors: { outer: '#DC2626', middle: '#EF4444', inner: '#FCA5A5' },
+    ringColors: { outer: '#EA4335', middle: '#EA4335', inner: '#EA4335' },
   },
   {
     id: 'run-17',
@@ -662,7 +662,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Running & Track',
     photoId: 'photo-1507525428034-b723cf961d3e',
     author: 'Sean Oulashin',
-    ringColors: { outer: '#0284C7', middle: '#38BDF8', inner: '#E0F2FE' },
+    ringColors: { outer: '#4E7A77', middle: '#86ADA9', inner: '#E0F2FE' },
   },
 
   // ── NATURE & ALPINE (53-72) ──
@@ -673,7 +673,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Nature & Alpine',
     photoId: 'photo-1464822759023-fed622ff2c3b',
     author: 'Kaley Dykstra',
-    ringColors: { outer: '#0369A1', middle: '#38BDF8', inner: '#E0F2FE' },
+    ringColors: { outer: '#3D6360', middle: '#86ADA9', inner: '#E0F2FE' },
   },
   {
     id: 'nat-02',
@@ -682,7 +682,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Nature & Alpine',
     photoId: 'photo-1506744038136-46273834b3fb',
     author: 'Bailey Zindel',
-    ringColors: { outer: '#EA580C', middle: '#F97316', inner: '#FDE047' },
+    ringColors: { outer: '#FBBC05', middle: '#C89467', inner: '#DFC295' },
   },
   {
     id: 'nat-03',
@@ -691,7 +691,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Nature & Alpine',
     photoId: 'photo-1448375240586-882707db888b',
     author: 'Sebastien Gabriel',
-    ringColors: { outer: '#15803D', middle: '#22C55E', inner: '#86EFAC' },
+    ringColors: { outer: '#34A853', middle: '#34A853', inner: '#ADCFC0' },
   },
   {
     id: 'nat-04',
@@ -700,7 +700,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Nature & Alpine',
     photoId: 'photo-1454496522488-7a8e488e8606',
     author: 'Luca Zanon',
-    ringColors: { outer: '#0284C7', middle: '#0EA5E9', inner: '#E0F2FE' },
+    ringColors: { outer: '#4E7A77', middle: '#679390', inner: '#E0F2FE' },
   },
   {
     id: 'nat-05',
@@ -718,7 +718,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Nature & Alpine',
     photoId: 'photo-1486870591958-9b9d0d1dda99',
     author: 'Kalen Emsley',
-    ringColors: { outer: '#B45309', middle: '#F59E0B', inner: '#FEF3C7' },
+    ringColors: { outer: '#8C6839', middle: '#FBBC05', inner: '#FEF3C7' },
   },
   {
     id: 'nat-07',
@@ -736,7 +736,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Nature & Alpine',
     photoId: 'photo-1426604966848-d7adac402bff',
     author: 'Dave Hoefler',
-    ringColors: { outer: '#D97706', middle: '#FBBF24', inner: '#FEF3C7' },
+    ringColors: { outer: '#FBBC05', middle: '#FBBC05', inner: '#FEF3C7' },
   },
   {
     id: 'nat-09',
@@ -745,7 +745,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Nature & Alpine',
     photoId: 'photo-1470071459604-3b5ec3a7fe05',
     author: 'Vadim Sherbakov',
-    ringColors: { outer: '#047857', middle: '#10B981', inner: '#A7F3D0' },
+    ringColors: { outer: '#047857', middle: '#54826F', inner: '#A7F3D0' },
   },
   {
     id: 'nat-10',
@@ -754,7 +754,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Nature & Alpine',
     photoId: 'photo-1517411032315-54ef2cb783bb',
     author: 'Jonatan Pie',
-    ringColors: { outer: '#059669', middle: '#34D399', inner: '#A7F3D0' },
+    ringColors: { outer: '#406B5B', middle: '#709E8B', inner: '#A7F3D0' },
   },
   {
     id: 'nat-11',
@@ -763,7 +763,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Nature & Alpine',
     photoId: 'photo-1509316975850-ff9c5deb0cd9',
     author: 'Willian Justen',
-    ringColors: { outer: '#C2410C', middle: '#FB923C', inner: '#FED7AA' },
+    ringColors: { outer: '#966B38', middle: '#D8AF88', inner: '#EBD9C7' },
   },
   {
     id: 'nat-12',
@@ -772,7 +772,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Nature & Alpine',
     photoId: 'photo-1433086966358-54859d0ed716',
     author: 'Robert Lukeman',
-    ringColors: { outer: '#0284C7', middle: '#38BDF8', inner: '#CFFAFE' },
+    ringColors: { outer: '#4E7A77', middle: '#86ADA9', inner: '#CFFAFE' },
   },
   {
     id: 'nat-13',
@@ -781,7 +781,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Nature & Alpine',
     photoId: 'photo-1511497584788-87676104235f',
     author: 'Casey Horner',
-    ringColors: { outer: '#15803D', middle: '#4ADE80', inner: '#BBF7D0' },
+    ringColors: { outer: '#34A853', middle: '#8FB8A4', inner: '#BBF7D0' },
   },
   {
     id: 'nat-14',
@@ -790,7 +790,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Nature & Alpine',
     photoId: 'photo-1495616811223-4d98c6e9c869',
     author: 'Shifaaz shamoon',
-    ringColors: { outer: '#DC2626', middle: '#EA580C', inner: '#FDE047' },
+    ringColors: { outer: '#EA4335', middle: '#FBBC05', inner: '#DFC295' },
   },
   {
     id: 'nat-15',
@@ -808,7 +808,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Nature & Alpine',
     photoId: 'photo-1544551763-46a013bb70d5',
     author: 'Jeremy Bishop',
-    ringColors: { outer: '#0891B2', middle: '#06B6D4', inner: '#A5F3FC' },
+    ringColors: { outer: '#436562', middle: '#547A77', inner: '#A5F3FC' },
   },
   {
     id: 'nat-17',
@@ -817,7 +817,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Nature & Alpine',
     photoId: 'photo-1473448912268-2022ce9509d8',
     author: 'Luca Bravo',
-    ringColors: { outer: '#B45309', middle: '#F59E0B', inner: '#FEF3C7' },
+    ringColors: { outer: '#8C6839', middle: '#FBBC05', inner: '#FEF3C7' },
   },
   {
     id: 'nat-18',
@@ -835,7 +835,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Nature & Alpine',
     photoId: 'photo-1501785888041-af3ef285b470',
     author: 'Pietro De Grandi',
-    ringColors: { outer: '#0284C7', middle: '#38BDF8', inner: '#E0F2FE' },
+    ringColors: { outer: '#4E7A77', middle: '#86ADA9', inner: '#E0F2FE' },
   },
   {
     id: 'nat-20',
@@ -844,7 +844,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Nature & Alpine',
     photoId: 'photo-1508873696983-2df5293cb32b',
     author: 'Kazuend',
-    ringColors: { outer: '#DC2626', middle: '#F97316', inner: '#FEE2E2' },
+    ringColors: { outer: '#EA4335', middle: '#C89467', inner: '#F0CCC5' },
   },
 
   // ── CYCLING & TRAIL (73-86) ──
@@ -855,7 +855,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Cycling & Trail',
     photoId: 'photo-1544161515-4ab6ce6db874',
     author: 'Coen van de Broek',
-    ringColors: { outer: '#DC2626', middle: '#EF4444', inner: '#FECACA' },
+    ringColors: { outer: '#EA4335', middle: '#EA4335', inner: '#E5AEA4' },
   },
   {
     id: 'cyc-02',
@@ -864,7 +864,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Cycling & Trail',
     photoId: 'photo-1511994298241-608e28f14fde',
     author: 'Viktor Kern',
-    ringColors: { outer: '#EA580C', middle: '#FB923C', inner: '#FED7AA' },
+    ringColors: { outer: '#FBBC05', middle: '#D8AF88', inner: '#EBD9C7' },
   },
   {
     id: 'cyc-03',
@@ -873,7 +873,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Cycling & Trail',
     photoId: 'photo-1474962558142-9ca83af70bb0',
     author: 'Munich Bikers',
-    ringColors: { outer: '#D97706', middle: '#F59E0B', inner: '#FEF3C7' },
+    ringColors: { outer: '#FBBC05', middle: '#FBBC05', inner: '#FEF3C7' },
   },
   {
     id: 'cyc-04',
@@ -882,7 +882,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Cycling & Trail',
     photoId: 'photo-1507035895480-2b3156c31fc8',
     author: 'Marek Piwnicki',
-    ringColors: { outer: '#15803D', middle: '#22C55E', inner: '#BBF7D0' },
+    ringColors: { outer: '#34A853', middle: '#34A853', inner: '#BBF7D0' },
   },
   {
     id: 'cyc-05',
@@ -891,7 +891,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Cycling & Trail',
     photoId: 'photo-1485965120184-e220f721d03e',
     author: 'Mikkel Bech',
-    ringColors: { outer: '#DC2626', middle: '#EF4444', inner: '#F87171' },
+    ringColors: { outer: '#EA4335', middle: '#EA4335', inner: '#EA4335' },
   },
   {
     id: 'cyc-06',
@@ -900,7 +900,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Cycling & Trail',
     photoId: 'photo-1517649763962-0c623266ddc0',
     author: 'Flo Karr',
-    ringColors: { outer: '#0284C7', middle: '#38BDF8', inner: '#BAE6FD' },
+    ringColors: { outer: '#4E7A77', middle: '#86ADA9', inner: '#BAE6FD' },
   },
   {
     id: 'cyc-07',
@@ -909,7 +909,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Cycling & Trail',
     photoId: 'photo-1532298229144-0ec0c57515c7',
     author: 'Cliford Mervil',
-    ringColors: { outer: '#7C3AED', middle: '#A855F7', inner: '#EDE9FE' },
+    ringColors: { outer: '#6E6277', middle: '#86778F', inner: '#EDE9FE' },
   },
   {
     id: 'cyc-08',
@@ -918,7 +918,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Cycling & Trail',
     photoId: 'photo-1544197150-b99a580bb7a8',
     author: 'Kyler Boone',
-    ringColors: { outer: '#047857', middle: '#10B981', inner: '#A7F3D0' },
+    ringColors: { outer: '#047857', middle: '#54826F', inner: '#A7F3D0' },
   },
   {
     id: 'cyc-09',
@@ -927,7 +927,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Cycling & Trail',
     photoId: 'photo-1502744688674-c619d1586c9e',
     author: 'David Dvoracek',
-    ringColors: { outer: '#2563EB', middle: '#60A5FA', inner: '#DBEAFE' },
+    ringColors: { outer: '#4285F4', middle: '#7FAAA7', inner: '#DBEAFE' },
   },
   {
     id: 'cyc-10',
@@ -936,7 +936,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Cycling & Trail',
     photoId: 'photo-1508873696983-2df5293cb32b',
     author: 'Kazuend',
-    ringColors: { outer: '#B45309', middle: '#D97706', inner: '#FDE68A' },
+    ringColors: { outer: '#8C6839', middle: '#FBBC05', inner: '#FDE68A' },
   },
   {
     id: 'cyc-11',
@@ -954,7 +954,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Cycling & Trail',
     photoId: 'photo-1544161515-4ab6ce6db874',
     author: 'Coen van de Broek',
-    ringColors: { outer: '#DC2626', middle: '#F97316', inner: '#FEE2E2' },
+    ringColors: { outer: '#EA4335', middle: '#C89467', inner: '#F0CCC5' },
   },
   {
     id: 'cyc-13',
@@ -963,7 +963,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Cycling & Trail',
     photoId: 'photo-1507035895480-2b3156c31fc8',
     author: 'Marek Piwnicki',
-    ringColors: { outer: '#15803D', middle: '#4ADE80', inner: '#DCFCE7' },
+    ringColors: { outer: '#34A853', middle: '#8FB8A4', inner: '#DCFCE7' },
   },
   {
     id: 'cyc-14',
@@ -972,7 +972,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Cycling & Trail',
     photoId: 'photo-1474962558142-9ca83af70bb0',
     author: 'Munich Bikers',
-    ringColors: { outer: '#EA580C', middle: '#FB923C', inner: '#FEF3C7' },
+    ringColors: { outer: '#FBBC05', middle: '#D8AF88', inner: '#FEF3C7' },
   },
 
   // ── RECOVERY & MIND (87-100) ──
@@ -983,7 +983,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Recovery & Mind',
     photoId: 'photo-1540555700478-4be289fbecef',
     author: 'Huaying Art',
-    ringColors: { outer: '#EA580C', middle: '#F97316', inner: '#FFEDD5' },
+    ringColors: { outer: '#FBBC05', middle: '#C89467', inner: '#FFEDD5' },
   },
   {
     id: 'rec-02',
@@ -992,7 +992,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Recovery & Mind',
     photoId: 'photo-1507525428034-b723cf961d3e',
     author: 'Sean Oulashin',
-    ringColors: { outer: '#0284C7', middle: '#38BDF8', inner: '#E0F2FE' },
+    ringColors: { outer: '#4E7A77', middle: '#86ADA9', inner: '#E0F2FE' },
   },
   {
     id: 'rec-03',
@@ -1001,7 +1001,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Recovery & Mind',
     photoId: 'photo-1506126613408-eca07ce68773',
     author: 'Jeremy Bishop',
-    ringColors: { outer: '#D97706', middle: '#F59E0B', inner: '#FEF3C7' },
+    ringColors: { outer: '#FBBC05', middle: '#FBBC05', inner: '#FEF3C7' },
   },
   {
     id: 'rec-04',
@@ -1019,7 +1019,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Recovery & Mind',
     photoId: 'photo-1503899036084-c55cdd92da26',
     author: 'Sora Sagano',
-    ringColors: { outer: '#059669', middle: '#34D399', inner: '#D1FAE5' },
+    ringColors: { outer: '#406B5B', middle: '#709E8B', inner: '#D1FAE5' },
   },
   {
     id: 'rec-06',
@@ -1028,7 +1028,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Recovery & Mind',
     photoId: 'photo-1514432324607-a09d9b4aefdd',
     author: 'Nathan Dumlao',
-    ringColors: { outer: '#B45309', middle: '#D97706', inner: '#FDE68A' },
+    ringColors: { outer: '#8C6839', middle: '#FBBC05', inner: '#FDE68A' },
   },
   {
     id: 'rec-07',
@@ -1037,7 +1037,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Recovery & Mind',
     photoId: 'photo-1495616811223-4d98c6e9c869',
     author: 'Shifaaz shamoon',
-    ringColors: { outer: '#0284C7', middle: '#0EA5E9', inner: '#BAE6FD' },
+    ringColors: { outer: '#4E7A77', middle: '#679390', inner: '#BAE6FD' },
   },
   {
     id: 'rec-08',
@@ -1046,7 +1046,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Recovery & Mind',
     photoId: 'photo-1584132967334-10e028bd69f7',
     author: 'Raphael Lovaski',
-    ringColors: { outer: '#0891B2', middle: '#22D3EE', inner: '#ECFEFF' },
+    ringColors: { outer: '#436562', middle: '#759B98', inner: '#ECFEFF' },
   },
   {
     id: 'rec-09',
@@ -1064,7 +1064,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Recovery & Mind',
     photoId: 'photo-1544367567-0f2fcb009e0b',
     author: 'Dylan Gillis',
-    ringColors: { outer: '#DC2626', middle: '#F87171', inner: '#FFE4E6' },
+    ringColors: { outer: '#EA4335', middle: '#EA4335', inner: '#EAD3CD' },
   },
   {
     id: 'rec-11',
@@ -1073,7 +1073,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Recovery & Mind',
     photoId: 'photo-1518780664697-55e3ad937233',
     author: 'Federico Respini',
-    ringColors: { outer: '#C2410C', middle: '#EA580C', inner: '#FFEDD5' },
+    ringColors: { outer: '#966B38', middle: '#FBBC05', inner: '#FFEDD5' },
   },
   {
     id: 'rec-12',
@@ -1082,7 +1082,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Recovery & Mind',
     photoId: 'photo-1501785888041-af3ef285b470',
     author: 'Pietro De Grandi',
-    ringColors: { outer: '#0369A1', middle: '#38BDF8', inner: '#E0F2FE' },
+    ringColors: { outer: '#3D6360', middle: '#86ADA9', inner: '#E0F2FE' },
   },
   {
     id: 'rec-13',
@@ -1091,7 +1091,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Recovery & Mind',
     photoId: 'photo-1490645935967-10de6ba17061',
     author: 'Ella Olsson',
-    ringColors: { outer: '#059669', middle: '#10B981', inner: '#A7F3D0' },
+    ringColors: { outer: '#406B5B', middle: '#54826F', inner: '#A7F3D0' },
   },
   {
     id: 'rec-14',
@@ -1100,7 +1100,7 @@ export const CURATED_100_WALLPAPERS: CuratedWallpaper[] = [
     categoryLabel: 'Recovery & Mind',
     photoId: 'photo-1534438327276-14e5300c3a48',
     author: 'Sven Mieke',
-    ringColors: { outer: '#DC2626', middle: '#EF4444', inner: '#F87171' },
+    ringColors: { outer: '#EA4335', middle: '#EA4335', inner: '#EA4335' },
   },
 ];
 

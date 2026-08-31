@@ -66,11 +66,11 @@ export const ClientProgressShare: React.FC<ClientProgressShareProps> = ({ client
       ctx.font = 'bold 70px monospace';
       ctx.fillText('OBLIVION 1 FITNESS CLUB', 100, 180);
 
-      ctx.fillStyle = '#06b6d4';
+      ctx.fillStyle = '#4285F4';
       ctx.font = '600 45px sans-serif';
       ctx.fillText('VERIFIED ATHLETE PROGRESS REPORT', 100, 260);
 
-      ctx.fillStyle = '#f43f5e';
+      ctx.fillStyle = '#EA4335';
       ctx.font = 'bold 60px sans-serif';
       ctx.fillText((clientName || 'ATHLETE').toUpperCase(), 100, 380);
 

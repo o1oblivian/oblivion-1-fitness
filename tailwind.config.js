@@ -11,6 +11,25 @@ export default {
         numbers: ['"Plus Jakarta Sans"', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'sans-serif'],
       },
       colors: {
+        // O1FC Apple Red Design System (#FF3B30 Light / #FF453A Dark)
+        o1red: {
+          DEFAULT: '#FF3B30',
+          kinetic: '#FF3B30',
+          apple: '#FF3B30',
+          dark: '#FF453A',
+          carmine: '#E52E24',
+          deep: '#D70015',
+          50: '#FFF1F2',
+          100: '#FFE4E6',
+          200: '#FECDD3',
+          300: '#FDA4AF',
+          400: '#FF6961',
+          500: '#FF3B30',
+          600: '#E52E24',
+          700: '#D70015',
+          800: '#B00020',
+          900: '#8A0010',
+        },
         // Luxury accent system
         accent: {
           DEFAULT: '#2D7FF9',

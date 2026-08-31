@@ -400,7 +400,7 @@ export const MediaVaultModal: React.FC<MediaVaultModalProps> = ({
               <button
                 type="button"
                 onClick={onBuyProgram}
-                className="flex-1 py-1.5 px-2.5 bg-[#DC2626] hover:bg-[#B91C1C] text-white font-mono text-[10px] font-bold rounded-lg transition-all cursor-pointer active:scale-95 flex items-center justify-center gap-1 shadow-xs"
+                className="flex-1 py-1.5 px-2.5 bg-[#EA4335] hover:bg-[#EA4335] text-white font-mono text-[10px] font-bold rounded-lg transition-all cursor-pointer active:scale-95 flex items-center justify-center gap-1 shadow-xs"
               >
                 <Lock className="w-3 h-3" />
                 <span>Buy Program{programPrice ? ` (${programPrice})` : ''}</span>
@@ -500,7 +500,7 @@ export const MediaVaultModal: React.FC<MediaVaultModalProps> = ({
           <button
             type="button"
             onClick={() => galleryInputRef.current?.click()}
-            className="py-1.5 px-3 rounded-xl bg-[#DC2626] hover:bg-[#B91C1C] text-white text-[10px] font-bold uppercase transition-all cursor-pointer flex items-center justify-center gap-1 active:scale-95 shrink-0 shadow-xs"
+            className="py-1.5 px-3 rounded-xl bg-[#EA4335] hover:bg-[#EA4335] text-white text-[10px] font-bold uppercase transition-all cursor-pointer flex items-center justify-center gap-1 active:scale-95 shrink-0 shadow-xs"
             title="Upload Photo or Video"
           >
             <Camera className="w-3.5 h-3.5" />

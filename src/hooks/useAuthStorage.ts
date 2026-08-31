@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { getSessionUserEmail } from '../utils/authStorage';
 import { supabase, isSupabaseConfigured } from '../utils/supabase';
 
@@ -15,6 +15,10 @@ export interface UserProfileData {
   latitude?: number;
   longitude?: number;
   primary_focus?: string;
+  training_days?: string[];
+  auto_dispatch?: boolean;
+  pre_workout_notif?: boolean;
+  input_method?: 'dial' | 'numpad';
   buddy_match_enabled?: boolean;
   reels_visibility_enabled?: boolean;
   rest_mode?: boolean;
@@ -34,6 +38,10 @@ export function getLocalProfile(): UserProfileData {
       display_name: fallbackName,
       username: fallbackName.toLowerCase().replace(/[^a-z0-9_]/g, '_'),
       primary_focus: 'Hypertrophy',
+      training_days: ['Mo', 'Tu', 'Th', 'Fr', 'Sa'],
+      auto_dispatch: true,
+      pre_workout_notif: true,
+      input_method: 'dial',
       home_gym: 'Melbourne, AU',
       buddy_match_enabled: true,
       reels_visibility_enabled: true,
@@ -61,6 +69,25 @@ export function saveLocalProfile(data: UserProfileData): void {
 
 export function useAuthStorage() {
   const [profile, setProfileState] = useState<UserProfileData>(getLocalProfile);
+
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const customEvent = e as CustomEvent<UserProfileData>;
+      if (customEvent.detail) {
+        setProfileState(customEvent.detail);
+      } else {
+        setProfileState(getLocalProfile());
+      }
+    };
+
+    window.addEventListener('user_profile_updated', handler);
+    window.addEventListener('storage', handler);
+
+    return () => {
+      window.removeEventListener('user_profile_updated', handler);
+      window.removeEventListener('storage', handler);
+    };
+  }, []);
 
   const getProfile = useCallback((): UserProfileData => {
     return getLocalProfile();

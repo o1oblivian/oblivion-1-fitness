@@ -339,13 +339,13 @@ export const AIMealSuggestPanel: React.FC<AIMealSuggestPanelProps> = ({
       <button
         onClick={fetchSuggestions}
         disabled={loading}
-        className="w-full flex items-center justify-between py-2.5 px-3.5 rounded-xl bg-white dark:bg-[#13161A] border border-[#EAE8E3] dark:border-white/10 hover:border-[#DC2626]/40 dark:hover:border-[#DC2626]/40 shadow-2xs transition-all cursor-pointer active:scale-[0.98] disabled:opacity-50"
+        className="w-full flex items-center justify-between py-2.5 px-3.5 rounded-xl bg-white dark:bg-[#13161A] border border-[#EAE8E3] dark:border-white/10 hover:border-[#EA4335]/40 dark:hover:border-[#EA4335]/40 shadow-2xs transition-all cursor-pointer active:scale-[0.98] disabled:opacity-50"
       >
         <div className="flex items-center gap-2">
           {loading ? (
-            <RefreshCw className="w-4 h-4 text-[#DC2626] animate-spin" />
+            <RefreshCw className="w-4 h-4 text-[#EA4335] animate-spin" />
           ) : (
-            <Sparkles className="w-4 h-4 text-[#DC2626]" />
+            <Sparkles className="w-4 h-4 text-[#EA4335]" />
           )}
           <span className="text-[12px] font-bold text-zinc-900 dark:text-white">
             {loading ? 'Analyzing produce & macros...' : 'Intel Meal Suggestions'}
@@ -354,7 +354,7 @@ export const AIMealSuggestPanel: React.FC<AIMealSuggestPanelProps> = ({
             {dietInfo.label}
           </span>
         </div>
-        <span className="text-[10.5px] font-mono font-bold text-[#DC2626]">
+        <span className="text-[10.5px] font-mono font-bold text-[#EA4335]">
           {Math.max(0, remainingProtein)}g P budget
         </span>
       </button>
@@ -365,7 +365,7 @@ export const AIMealSuggestPanel: React.FC<AIMealSuggestPanelProps> = ({
     <div className="rounded-xl border border-[#EAE8E3] dark:border-white/10 bg-white dark:bg-[#13161A] shadow-2xs overflow-hidden">
       <div className="flex items-center justify-between px-3 py-2 border-b border-[#EAE8E3] dark:border-white/10 bg-zinc-50 dark:bg-white/[0.02]">
         <div className="flex items-center gap-2">
-          <Sparkles className="w-3.5 h-3.5 text-[#DC2626]" />
+          <Sparkles className="w-3.5 h-3.5 text-[#EA4335]" />
           <span className="text-[11px] font-bold text-zinc-900 dark:text-white tracking-tight">
             Meal Suggestions
           </span>
@@ -387,7 +387,7 @@ export const AIMealSuggestPanel: React.FC<AIMealSuggestPanelProps> = ({
         <div className="text-[10px] font-mono text-zinc-600 dark:text-stone-400 flex items-center gap-2">
           <span>Budget:</span>
           <span className="text-zinc-900 dark:text-white font-bold">{Math.max(0,remainingCals)} kcal</span>
-          <span className="text-[#DC2626] font-bold">{Math.max(0,remainingProtein)}g P</span>
+          <span className="text-[#EA4335] font-bold">{Math.max(0,remainingProtein)}g P</span>
           <span className="text-[#D4A24A] font-bold">{Math.max(0,remainingCarbs)}g C</span>
           <span className="text-[#5D8A68] font-bold">{Math.max(0,remainingFat)}g F</span>
         </div>
@@ -395,7 +395,7 @@ export const AIMealSuggestPanel: React.FC<AIMealSuggestPanelProps> = ({
 
       {loading && (
         <div className="p-5 flex items-center justify-center gap-2">
-          <div className="w-4 h-4 rounded-full border-2 border-[#DC2626] border-t-transparent animate-spin" />
+          <div className="w-4 h-4 rounded-full border-2 border-[#EA4335] border-t-transparent animate-spin" />
           <span className="text-[11px] font-medium text-zinc-600 dark:text-stone-300">
             O1FC intel tailoring {countryInfo.name} ({dietInfo.label}) athletic recipes...
           </span>
@@ -404,7 +404,7 @@ export const AIMealSuggestPanel: React.FC<AIMealSuggestPanelProps> = ({
 
       {error && !loading && suggestions.length === 0 && (
         <div className="p-4 text-center">
-          <p className="text-[11px] text-[#DC2626] font-medium">{error}</p>
+          <p className="text-[11px] text-[#EA4335] font-medium">{error}</p>
         </div>
       )}
 
@@ -434,7 +434,7 @@ export const AIMealSuggestPanel: React.FC<AIMealSuggestPanelProps> = ({
 
               <div className="flex items-center gap-3 pt-0.5 text-[10.5px] font-mono">
                 <span className="font-bold text-zinc-900 dark:text-white">{meal.macros.calories} kcal</span>
-                <span className="text-[#DC2626] font-bold">{meal.macros.protein}g P</span>
+                <span className="text-[#EA4335] font-bold">{meal.macros.protein}g P</span>
                 <span className="text-[#D4A24A] font-bold">{meal.macros.carbs}g C</span>
                 <span className="text-[#5D8A68] font-bold">{meal.macros.fat}g F</span>
               </div>

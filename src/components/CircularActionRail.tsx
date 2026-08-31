@@ -23,19 +23,18 @@ export const CircularActionRail: React.FC<CircularActionRailProps> = ({
 
       <div
         ref={scrollRef}
-        className="flex gap-3.5 overflow-x-auto no-scrollbar px-3 py-1.5 items-center"
+        className="flex gap-3 sm:gap-3.5 overflow-x-auto no-scrollbar px-3 py-2 items-center"
         style={{ scrollSnapType: 'x proximity' }}
       >
-        {/* PIN #1 AT THE VERY FRONT: Elite Reels (Bezel-less & clean edge) */}
+        {/* PIN #1 AT THE VERY FRONT: Elite Reels (Frameless, clean edge-to-edge) */}
         <button
           id="btn-rail-elite-reels"
           onClick={onOpenEliteReels}
-          className="flex flex-col items-center gap-1.5 shrink-0 group cursor-pointer transition-transform active:scale-95 focus:outline-none"
-          style={{ minWidth: 68 }}
+          className="flex flex-col items-center gap-1.5 shrink-0 group cursor-pointer transition-transform active:scale-95 focus:outline-none min-w-[76px] sm:min-w-[68px]"
           aria-label="Open Elite Reels"
         >
-          {/* Bezel-less pure edge-to-edge circle */}
-          <div className="relative w-[64px] h-[64px] rounded-full overflow-hidden shadow-md bg-neutral-900 transition-all duration-300 group-hover:scale-105">
+          {/* Frameless pure edge-to-edge circle, slightly bigger on mobile */}
+          <div className="relative w-[74px] h-[74px] sm:w-[66px] sm:h-[66px] rounded-full overflow-hidden shadow-md bg-neutral-900 transition-all duration-300 group-hover:scale-105">
             <img
               src="https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=300&q=80"
               alt="Elite Reels"
@@ -46,13 +45,13 @@ export const CircularActionRail: React.FC<CircularActionRailProps> = ({
             <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors" />
 
             {/* Subtle Top-Right REELS Tag */}
-            <div className="absolute top-1 right-1 px-1.5 py-0.5 rounded-full bg-black/75 backdrop-blur-md text-white text-[7.5px] font-black tracking-wider uppercase border border-white/20 shadow-sm flex items-center gap-0.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
+            <div className="absolute top-1 right-1 px-1.5 py-0.5 rounded-full bg-black/80 backdrop-blur-md text-white text-[7.5px] font-black tracking-wider uppercase shadow-xs flex items-center gap-0.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#FF3B30] dark:bg-[#FF453A] animate-pulse" />
               REELS
             </div>
           </div>
 
-          <span className="text-[10px] font-black tracking-tight uppercase text-neutral-800 dark:text-neutral-200 group-hover:text-black dark:group-hover:text-white transition-colors text-center whitespace-nowrap max-w-[76px] truncate">
+          <span className="text-[10.5px] sm:text-[10px] font-black tracking-tight uppercase text-neutral-800 dark:text-neutral-200 group-hover:text-black dark:group-hover:text-white transition-colors text-center whitespace-nowrap max-w-[82px] sm:max-w-[74px] truncate">
             Elite Reels
           </span>
         </button>
@@ -66,12 +65,11 @@ export const CircularActionRail: React.FC<CircularActionRailProps> = ({
             <button
               key={archetype.id}
               onClick={() => onArchetypeSelect(archetype)}
-              className="flex flex-col items-center gap-1.5 shrink-0 group cursor-pointer transition-transform active:scale-95 focus:outline-none"
-              style={{ minWidth: 68 }}
+              className="flex flex-col items-center gap-1.5 shrink-0 group cursor-pointer transition-transform active:scale-95 focus:outline-none min-w-[76px] sm:min-w-[68px]"
               aria-label={archetype.name}
             >
-              {/* Bezel-less Circular Photo with edge-to-edge imagery */}
-              <div className="relative w-[64px] h-[64px] rounded-full overflow-hidden shadow-md bg-neutral-900 transition-all duration-300 group-hover:scale-105">
+              {/* Frameless Circular Photo, slightly bigger on mobile */}
+              <div className="relative w-[74px] h-[74px] sm:w-[66px] sm:h-[66px] rounded-full overflow-hidden shadow-md bg-neutral-900 transition-all duration-300 group-hover:scale-105">
                 <img
                   src={coverImage}
                   alt={archetype.name}
@@ -86,14 +84,14 @@ export const CircularActionRail: React.FC<CircularActionRailProps> = ({
                 <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors" />
 
                 {isPremium && (
-                  <div className="absolute top-1 right-1 w-3.5 h-3.5 rounded-full bg-amber-500/95 border border-black/40 flex items-center justify-center shadow-sm">
-                    <Sparkles className="w-2 h-2 text-black" />
+                  <div className="absolute top-1 right-1 w-4 h-4 rounded-full bg-black/70 backdrop-blur-md flex items-center justify-center shadow-xs">
+                    <Sparkles className="w-2.5 h-2.5 text-amber-400" />
                   </div>
                 )}
               </div>
 
               {/* Clean Single-Line Archetype Label */}
-              <span className="text-[10px] font-black tracking-tight uppercase text-neutral-700 dark:text-neutral-300 group-hover:text-black dark:group-hover:text-white transition-colors text-center whitespace-nowrap max-w-[76px] truncate">
+              <span className="text-[10.5px] sm:text-[10px] font-black tracking-tight uppercase text-neutral-700 dark:text-neutral-300 group-hover:text-black dark:group-hover:text-white transition-colors text-center whitespace-nowrap max-w-[82px] sm:max-w-[74px] truncate">
                 {archetype.name}
               </span>
             </button>
@@ -103,3 +101,4 @@ export const CircularActionRail: React.FC<CircularActionRailProps> = ({
     </div>
   );
 };
+

@@ -256,6 +256,6 @@ export function pickNextCustomWallpaper(customImages: string[], shuffle: boolean
     index: nextIndex + 1,
     total: customImages.length,
     title: `Phone Gallery Photo #${nextIndex + 1}`,
-    ringColors: { outer: '#DC2626', middle: '#EF4444', inner: '#F87171' },
+    ringColors: { outer: '#EA4335', middle: '#EA4335', inner: '#EA4335' },
   };
 }

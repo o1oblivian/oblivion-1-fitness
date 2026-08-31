@@ -264,6 +264,9 @@ export const WeeklyProgressChart: React.FC<WeeklyProgressChartProps> = ({
     metric === 'volume' ? 5000 : 15
   );
 
+  // Google 4-color pattern
+  const GOOGLE_COLORS = ['#4285F4', '#EA4335', '#FBBC05', '#34A853'];
+
   return (
     <div
       id="ofc-kinetic-progress-card"
@@ -273,7 +276,7 @@ export const WeeklyProgressChart: React.FC<WeeklyProgressChartProps> = ({
       <div className="flex items-center justify-between gap-2">
         <div className="min-w-0">
           <div className="flex items-center gap-1.5">
-            <div className="w-5 h-5 rounded-md bg-red-500/10 dark:bg-red-500/20 border border-red-500/30 flex items-center justify-center text-red-600 dark:text-red-400 shrink-0">
+            <div className="w-5 h-5 rounded-md bg-[#4285F4]/10 dark:bg-[#4285F4]/20 border border-[#4285F4]/30 flex items-center justify-center text-[#4285F4] shrink-0">
               <Activity className="w-3 h-3" />
             </div>
             <h3 className="text-xs font-bold text-slate-900 dark:text-white tracking-tight uppercase truncate">
@@ -293,7 +296,7 @@ export const WeeklyProgressChart: React.FC<WeeklyProgressChartProps> = ({
             </span>
             <span className="text-slate-300 dark:text-zinc-700">•</span>
             <span className="text-slate-500 dark:text-zinc-400 flex items-center gap-0.5">
-              <TrendingUp className="w-2.5 h-2.5 text-emerald-500" />
+              <TrendingUp className="w-2.5 h-2.5 text-[#34A853]" />
               Target: {metric === 'volume' ? `${(targetWeeklyVolume / 1000).toFixed(0)}k kg` : `${targetWeeklySets}s`}
             </span>
           </div>
@@ -310,7 +313,7 @@ export const WeeklyProgressChart: React.FC<WeeklyProgressChartProps> = ({
                 : 'text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
-            <Dumbbell className="w-2.5 h-2.5" />
+            <Dumbbell className="w-2.5 h-2.5 text-[#4285F4]" />
             <span>Volume</span>
           </button>
           <button
@@ -322,7 +325,7 @@ export const WeeklyProgressChart: React.FC<WeeklyProgressChartProps> = ({
                 : 'text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
-            <Layers className="w-2.5 h-2.5" />
+            <Layers className="w-2.5 h-2.5 text-[#EA4335]" />
             <span>Sets</span>
           </button>
         </div>
@@ -341,14 +344,6 @@ export const WeeklyProgressChart: React.FC<WeeklyProgressChartProps> = ({
             }}
           >
             <defs>
-              <linearGradient id="ofcActiveBarGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#f43f5e" stopOpacity={1} />
-                <stop offset="100%" stopColor="#e11d48" stopOpacity={0.9} />
-              </linearGradient>
-              <linearGradient id="ofcCompletedGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#3b82f6" stopOpacity={0.9} />
-                <stop offset="100%" stopColor="#1d4ed8" stopOpacity={0.8} />
-              </linearGradient>
               <linearGradient id="ofcGhostTargetGradient" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0%" stopColor="#94a3b8" stopOpacity={0.2} />
                 <stop offset="100%" stopColor="#64748b" stopOpacity={0.06} />
@@ -374,7 +369,7 @@ export const WeeklyProgressChart: React.FC<WeeklyProgressChartProps> = ({
                   : `${val}`
               }
             />
-            <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(244, 63, 94, 0.06)' }} />
+            <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(66, 133, 244, 0.06)' }} />
 
             {/* Target Blueprint Ghost Bar */}
             <Bar
@@ -391,15 +386,16 @@ export const WeeklyProgressChart: React.FC<WeeklyProgressChartProps> = ({
               barSize={16}
               className="cursor-pointer"
             >
-              {chartData.map((entry) => {
+              {chartData.map((entry, index) => {
                 const isSelected = entry.day === selectedDay;
-                const fill = isSelected ? 'url(#ofcActiveBarGradient)' : 'url(#ofcCompletedGradient)';
+                const baseColor = GOOGLE_COLORS[index % GOOGLE_COLORS.length];
                 return (
                   <Cell
                     key={`cell-${entry.day}`}
-                    fill={fill}
-                    stroke={isSelected ? '#e11d48' : 'transparent'}
-                    strokeWidth={isSelected ? 1.5 : 0}
+                    fill={baseColor}
+                    opacity={isSelected ? 1 : 0.8}
+                    stroke={isSelected ? '#ffffff' : 'transparent'}
+                    strokeWidth={isSelected ? 2 : 0}
                   />
                 );
               })}
@@ -410,8 +406,9 @@ export const WeeklyProgressChart: React.FC<WeeklyProgressChartProps> = ({
 
       {/* ── UNIFIED DAY BUTTONS (Acts as X-Axis + Interactive Day Selector) ── */}
       <div className="grid grid-cols-7 gap-1">
-        {chartData.map((d) => {
+        {chartData.map((d, index) => {
           const isSelected = d.day === selectedDay;
+          const color = GOOGLE_COLORS[index % GOOGLE_COLORS.length];
           return (
             <button
               key={d.day}
@@ -419,19 +416,26 @@ export const WeeklyProgressChart: React.FC<WeeklyProgressChartProps> = ({
               onClick={() => onSelectDay(d.day)}
               className={`py-1 px-0.5 rounded-lg border text-center transition-all cursor-pointer flex flex-col items-center justify-center gap-0.5 select-none ${
                 isSelected
-                  ? 'bg-red-500/10 dark:bg-red-500/20 border-red-500 text-red-600 dark:text-red-400 font-bold shadow-xs'
+                  ? 'bg-slate-100 dark:bg-white/10 font-bold shadow-xs'
                   : 'bg-slate-50 dark:bg-zinc-900/60 border-slate-200/80 dark:border-white/5 text-slate-600 dark:text-zinc-400 hover:border-slate-300 dark:hover:border-white/20'
               }`}
+              style={{
+                borderColor: isSelected ? color : undefined,
+                color: isSelected ? color : undefined,
+              }}
             >
               <span className="text-[10px] font-mono font-bold tracking-tight">{d.day}</span>
               <span
                 className={`text-[8.5px] px-1 rounded font-mono truncate max-w-full leading-tight ${
                   isSelected
-                    ? 'bg-red-500 text-white font-bold'
+                    ? 'text-white font-bold'
                     : d.isRest
                     ? 'text-slate-400 dark:text-zinc-500'
                     : 'text-slate-700 dark:text-zinc-300 font-medium'
                 }`}
+                style={{
+                  backgroundColor: isSelected ? color : undefined,
+                }}
               >
                 {d.routineShort}
               </span>

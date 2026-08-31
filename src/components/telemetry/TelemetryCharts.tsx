@@ -16,14 +16,14 @@ import {
 import { ExerciseProgressPoint, TrainingSession, DailyMacroLog } from '../../types';
 
 const COLORS = {
-  primary: '#7A9382',
-  primaryDark: '#5C7568',
-  accent: '#DC2626',
-  gold: '#C9A227',
-  emerald: '#B91C1C',
-  amber: '#B8860B',
-  rose: '#C05050',
-  blue: '#3B82F6',
+  primary: '#4285F4',
+  primaryDark: '#3367D6',
+  accent: '#EA4335',
+  gold: '#FBBC05',
+  emerald: '#34A853',
+  amber: '#FBBC05',
+  rose: '#EA4335',
+  blue: '#4285F4',
   textMuted: '#848785',
   textDark: '#1C1C1E',
   gridLine: 'rgba(0,0,0,0.08)',
@@ -185,9 +185,9 @@ export const ComplianceHeatmap: React.FC<ComplianceHeatmapProps> = ({ sessions, 
       return '#F7F5F0';
     }
     if (!s.completed) return 'rgba(0,0,0,0.08)';
-    if (s.avgRPE >= 8.5) return '#DC2626';
+    if (s.avgRPE >= 8.5) return '#EA4335';
     if (s.avgRPE >= 7) return '#C9A227';
-    if (s.avgRPE >= 4) return '#7A9382';
+    if (s.avgRPE >= 4) return '#34A853';
     return '#A8BFB0';
   };
 
@@ -201,7 +201,7 @@ export const ComplianceHeatmap: React.FC<ComplianceHeatmapProps> = ({ sessions, 
 
   const getMacroColor = (adherence: number) => {
     if (adherence >= 90) return '#3B7A57';
-    if (adherence >= 80) return '#7A9382';
+    if (adherence >= 80) return '#34A853';
     if (adherence >= 70) return '#B8860B';
     return '#C05050';
   };
@@ -248,7 +248,7 @@ export const ComplianceHeatmap: React.FC<ComplianceHeatmapProps> = ({ sessions, 
 
       <div className="flex items-center gap-3 mt-3 pt-3 border-t border-[rgba(0,0,0,0.08)]">
         <div className="flex items-center gap-1">
-          <div className="w-3 h-3 rounded bg-[#DC2626]" />
+          <div className="w-3 h-3 rounded bg-[#EA4335]" />
           <span className="text-[8px] font-mono text-[#848785]">RPE 8.5+</span>
         </div>
         <div className="flex items-center gap-1">
@@ -256,7 +256,7 @@ export const ComplianceHeatmap: React.FC<ComplianceHeatmapProps> = ({ sessions, 
           <span className="text-[8px] font-mono text-[#848785]">RPE 7-8</span>
         </div>
         <div className="flex items-center gap-1">
-          <div className="w-3 h-3 rounded bg-[#7A9382]" />
+          <div className="w-3 h-3 rounded bg-[#34A853]" />
           <span className="text-[8px] font-mono text-[#848785]">RPE 4-7</span>
         </div>
         <div className="flex items-center gap-1 ml-auto">
@@ -294,11 +294,11 @@ export const MacroAdherenceChart: React.FC<MacroAdherenceChartProps> = ({ macroH
         </div>
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-1">
-            <div className="w-2.5 h-2.5 rounded-sm bg-[#7A9382]" />
+            <div className="w-2.5 h-2.5 rounded-sm bg-[#34A853]" />
             <span className="text-[8px] font-mono text-[#848785]">P</span>
           </div>
           <div className="flex items-center gap-1">
-            <div className="w-2.5 h-2.5 rounded-sm bg-[#DC2626]" />
+            <div className="w-2.5 h-2.5 rounded-sm bg-[#EA4335]" />
             <span className="text-[8px] font-mono text-[#848785]">C</span>
           </div>
           <div className="flex items-center gap-1">

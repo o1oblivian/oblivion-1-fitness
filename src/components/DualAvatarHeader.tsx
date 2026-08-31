@@ -201,14 +201,14 @@ export const DualAvatarHeader: React.FC<DualAvatarHeaderProps> = ({
           className="group flex items-center gap-2.5 cursor-pointer"
         >
           <div className="relative">
-            <div className="w-11 h-11 rounded-full border-2 border-red-500/70 overflow-hidden bg-stone-900 dark:bg-neutral-900 flex items-center justify-center shadow-lg shadow-red-500/10 group-active:scale-95 transition-transform">
+            <div className="w-11 h-11 rounded-full border-2 border-[#FF3B30]/80 dark:border-[#FF453A]/80 overflow-hidden bg-stone-900 dark:bg-neutral-900 flex items-center justify-center shadow-sm group-active:scale-95 transition-transform">
               {profileImage ? (
                 <img src={profileImage} alt="" className="w-full h-full object-cover" />
               ) : (
                 <span className="text-xs font-bold text-white tracking-wider">{initials}</span>
               )}
             </div>
-            <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-red-500 border-2 border-white dark:border-[#0A0A0C]" />
+            <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-[#FF3B30] dark:bg-[#FF453A] border-2 border-white dark:border-[#0A0A0C]" />
           </div>
           <div className="text-left">
             <p className="text-[13px] font-bold text-zinc-900 dark:text-white leading-tight">{userName || 'Athlete'}</p>
@@ -224,17 +224,17 @@ export const DualAvatarHeader: React.FC<DualAvatarHeaderProps> = ({
           >
             <div className="text-right">
               <p className="text-[13px] font-bold text-zinc-900 dark:text-white leading-tight">{partnerName}</p>
-              <p className="text-[10px] text-cyan-600 dark:text-cyan-400 font-medium">Online</p>
+              <p className="text-[10px] text-[#4285F4] dark:text-[#34A853] font-medium">Online</p>
             </div>
             <div className="relative">
-              <div className="w-11 h-11 rounded-full border-2 border-cyan-500 overflow-hidden bg-stone-900 dark:bg-neutral-900 flex items-center justify-center shadow-lg shadow-cyan-500/20 group-active:scale-95 transition-transform ring-2 ring-cyan-500/20">
+              <div className="w-11 h-11 rounded-full border-2 border-[#4285F4] overflow-hidden bg-stone-900 dark:bg-neutral-900 flex items-center justify-center shadow-sm group-active:scale-95 transition-transform ring-2 ring-[#4285F4]/20">
                 {partnerImage ? (
                   <img src={partnerImage} alt="" className="w-full h-full object-cover" />
                 ) : (
-                  <span className="text-xs font-bold text-cyan-400">{partnerInitials}</span>
+                  <span className="text-xs font-bold text-[#34A853]">{partnerInitials}</span>
                 )}
               </div>
-              <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-cyan-400 border-2 border-white dark:border-[#0A0A0C]" />
+              <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-[#4285F4] border-2 border-white dark:border-[#0A0A0C]" />
             </div>
           </button>
         ) : (

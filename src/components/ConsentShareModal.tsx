@@ -389,12 +389,12 @@ export const ConsentShareModal: React.FC<ConsentShareModalProps> = ({
       ctx.fillRect(0, 0, width, height);
 
       // Card Container / Border
-      ctx.strokeStyle = cardTheme === 'crimson' ? '#DC2626' : cardTheme === 'gold' ? '#F59E0B' : '#52525B';
+      ctx.strokeStyle = cardTheme === 'crimson' ? '#EA4335' : cardTheme === 'gold' ? '#FBBC05' : '#52525B';
       ctx.lineWidth = 4;
       ctx.strokeRect(40, 40, width - 80, height - 80);
 
       // Header Tag
-      ctx.fillStyle = cardTheme === 'crimson' ? '#EF4444' : cardTheme === 'gold' ? '#FBBF24' : '#E4E4E7';
+      ctx.fillStyle = cardTheme === 'crimson' ? '#EA4335' : cardTheme === 'gold' ? '#FBBC05' : '#E4E4E7';
       ctx.font = 'bold 28px monospace';
       ctx.fillText('O1FC OFFICIAL • ATHLETE INTELLIGENCE DATA CARD', 80, 110);
 
@@ -411,7 +411,7 @@ export const ConsentShareModal: React.FC<ConsentShareModalProps> = ({
       const bannerY = 300;
       ctx.fillStyle = cardTheme === 'crimson' ? 'rgba(239, 68, 68, 0.15)' : 'rgba(255, 255, 255, 0.08)';
       ctx.fillRect(80, bannerY, width - 160, 90);
-      ctx.strokeStyle = cardTheme === 'crimson' ? '#EF4444' : '#71717A';
+      ctx.strokeStyle = cardTheme === 'crimson' ? '#EA4335' : '#71717A';
       ctx.lineWidth = 2;
       ctx.strokeRect(80, bannerY, width - 160, 90);
 
@@ -474,7 +474,7 @@ export const ConsentShareModal: React.FC<ConsentShareModalProps> = ({
 
       // Verification Stamp at bottom
       const footerY = height - 100;
-      ctx.fillStyle = '#10B981';
+      ctx.fillStyle = '#34A853';
       ctx.font = 'bold 24px monospace';
       ctx.fillText(`CLIENT CONSENT VERIFIED [OTP #${otpCode || '942'}] • O1FC AUTHENTICATED`, 80, footerY);
 

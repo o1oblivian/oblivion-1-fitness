@@ -24,7 +24,7 @@ const PHASE_INFO: Record<CyclePhase, {
   menstrual: {
     name: 'Menstrual',
     days: 'Days 1-5',
-    color: '#8B5CF6',
+    color: '#4285F4',
     bgColor: 'rgba(139, 92, 246, 0.15)',
     icon: Moon,
     description: 'Low estrogen and progesterone. Energy may be low — listen to your body.',
@@ -180,7 +180,7 @@ export const CycleSyncModal: React.FC<CycleSyncModalProps> = ({ isOpen, onClose,
           <div className="p-3.5 space-y-3">
             <div className="text-center py-2">
               <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-3" style={{ background: 'rgba(139, 92, 246, 0.2)', border: '2px solid rgba(139, 92, 246, 0.4)' }}>
-                <Droplet className="w-8 h-8 text-[#8B5CF6]" />
+                <Droplet className="w-8 h-8 text-[#4285F4]" />
               </div>
               <h3 className="text-lg font-black text-white">Sync Your Training to Your Cycle</h3>
               <p className="text-sm text-white/50 mt-1 leading-relaxed">Track your menstrual cycle and get phase-optimized workout recommendations. Your data stays on your device.</p>
@@ -193,7 +193,7 @@ export const CycleSyncModal: React.FC<CycleSyncModalProps> = ({ isOpen, onClose,
                   type="date"
                   value={setupStart}
                   onChange={(e) => setSetupStart(e.target.value)}
-                  className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-3 text-sm text-white outline-none focus:border-[#8B5CF6]/50 transition-colors [color-scheme:dark]"
+                  className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-3 text-sm text-white outline-none focus:border-[#4285F4]/50 transition-colors [color-scheme:dark]"
                 />
               </div>
 
@@ -216,7 +216,7 @@ export const CycleSyncModal: React.FC<CycleSyncModalProps> = ({ isOpen, onClose,
                 </div>
               </div>
 
-              <button onClick={handleSave} className="w-full py-3.5 rounded-2xl bg-[#8B5CF6] hover:bg-[#7C3AED] text-white font-black text-sm active:scale-95 transition-all shadow-lg cursor-pointer">
+              <button onClick={handleSave} className="w-full py-3.5 rounded-2xl bg-[#4285F4] hover:bg-[#4285F4] text-white font-black text-sm active:scale-95 transition-all shadow-lg cursor-pointer">
                 Activate Cycle Tracking
               </button>
             </div>
@@ -329,7 +329,7 @@ export const CycleSyncModal: React.FC<CycleSyncModalProps> = ({ isOpen, onClose,
               onClick={handleLogPeriod}
               className="w-full py-3 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 text-white font-bold text-sm transition-colors active:scale-95 cursor-pointer flex items-center justify-center gap-2"
             >
-              <Calendar className="w-4 h-4 text-[#8B5CF6]" />
+              <Calendar className="w-4 h-4 text-[#4285F4]" />
               Log Period Started Today
             </button>
           </div>

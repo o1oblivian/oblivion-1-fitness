@@ -126,7 +126,7 @@ export const RoutineSwapperModal: React.FC<RoutineSwapperModalProps> = ({
               placeholder="Search routines (e.g., Push, Hyrox, Boxing, Mobility)..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-zinc-50 dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-800 rounded-xl pl-9 pr-8 py-2 text-xs text-zinc-900 dark:text-white placeholder:text-zinc-400 outline-none focus:border-[#DC2626] transition-colors"
+              className="w-full bg-zinc-50 dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-800 rounded-xl pl-9 pr-8 py-2 text-xs text-zinc-900 dark:text-white placeholder:text-zinc-400 outline-none focus:border-[#EA4335] transition-colors"
             />
             <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
             {searchQuery && (
@@ -176,19 +176,19 @@ export const RoutineSwapperModal: React.FC<RoutineSwapperModalProps> = ({
                   onSelectRoutine?.(r.id);
                   onClose();
                 }}
-                className="w-full text-left p-3 hover:bg-red-50/40 dark:hover:bg-red-950/10 rounded-2xl transition-all flex flex-col justify-between bg-zinc-50/50 dark:bg-zinc-900/40 border border-zinc-200/80 dark:border-zinc-800/80 hover:border-[#DC2626]/40 text-zinc-900 dark:text-white cursor-pointer group active:scale-[0.99] space-y-1"
+                className="w-full text-left p-3 hover:bg-red-50/40 dark:hover:bg-red-950/10 rounded-2xl transition-all flex flex-col justify-between bg-zinc-50/50 dark:bg-zinc-900/40 border border-zinc-200/80 dark:border-zinc-800/80 hover:border-[#EA4335]/40 text-zinc-900 dark:text-white cursor-pointer group active:scale-[0.99] space-y-1"
               >
                 <div className="flex items-center justify-between gap-2">
-                  <span className="font-semibold text-xs text-zinc-900 dark:text-white group-hover:text-[#DC2626] transition-colors">
+                  <span className="font-semibold text-xs text-zinc-900 dark:text-white group-hover:text-[#EA4335] transition-colors">
                     {r.name}
                   </span>
                   <div className="flex items-center gap-2 shrink-0">
                     {r.badge && (
-                      <span className="text-[9px] font-semibold bg-red-50 dark:bg-red-950/40 text-[#DC2626] px-2 py-0.5 rounded-full border border-red-200 dark:border-red-900/50">
+                      <span className="text-[9px] font-semibold bg-red-50 dark:bg-red-950/40 text-[#EA4335] px-2 py-0.5 rounded-full border border-red-200 dark:border-red-900/50">
                         {r.badge}
                       </span>
                     )}
-                    <span className="text-xs font-semibold text-[#DC2626] opacity-80 group-hover:opacity-100">
+                    <span className="text-xs font-semibold text-[#EA4335] opacity-80 group-hover:opacity-100">
                       Load
                     </span>
                   </div>

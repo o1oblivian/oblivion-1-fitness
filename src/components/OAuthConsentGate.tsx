@@ -83,7 +83,7 @@ export const OAuthConsentGate: React.FC<OAuthConsentGateProps> = ({
                   onChange={(e) => setConsents((prev) => ({ ...prev, [check.id]: e.target.checked }))}
                   className="sr-only peer"
                 />
-                <div className="w-5 h-5 rounded-md border border-zinc-300 dark:border-zinc-700 peer-checked:bg-[#DC2626] peer-checked:border-[#DC2626] transition-all flex items-center justify-center">
+                <div className="w-5 h-5 rounded-md border border-zinc-300 dark:border-zinc-700 peer-checked:bg-[#EA4335] peer-checked:border-[#EA4335] transition-all flex items-center justify-center">
                   {consents[check.id] && (
                     <Check className="w-3.5 h-3.5 text-white stroke-[3]" />
                   )}
@@ -109,7 +109,7 @@ export const OAuthConsentGate: React.FC<OAuthConsentGateProps> = ({
             type="button"
             onClick={handleAccept}
             disabled={!allAccepted || loading}
-            className={`w-full py-3 rounded-full bg-[#DC2626] text-white hover:bg-red-600 text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-2 shadow-xs active:scale-98 ${
+            className={`w-full py-3 rounded-full bg-[#EA4335] text-white hover:bg-red-600 text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-2 shadow-xs active:scale-98 ${
               !allAccepted ? 'opacity-30 cursor-not-allowed' : ''
             }`}
           >

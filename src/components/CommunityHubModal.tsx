@@ -85,7 +85,7 @@ export const CommunityHubModal: React.FC<CommunityHubModalProps> = ({
               <h2 className="text-base font-bold tracking-tight text-zinc-900 dark:text-white">
                 O1FC Community Hub
               </h2>
-              <span className="text-[9px] font-semibold bg-red-50 dark:bg-red-950/50 text-[#DC2626] px-2 py-0.5 rounded-full border border-red-200 dark:border-red-900/50">
+              <span className="text-[9px] font-semibold bg-red-50 dark:bg-red-950/50 text-[#EA4335] px-2 py-0.5 rounded-full border border-red-200 dark:border-red-900/50">
                 OFFICIAL
               </span>
             </div>
@@ -109,7 +109,7 @@ export const CommunityHubModal: React.FC<CommunityHubModalProps> = ({
             <span className="text-[10px] text-zinc-400 uppercase font-semibold">Early Access</span>
           </div>
           <div className="border-x border-zinc-200 dark:border-zinc-800">
-            <span className="text-sm font-bold text-[#DC2626] block">Free</span>
+            <span className="text-sm font-bold text-[#EA4335] block">Free</span>
             <span className="text-[10px] text-zinc-400 uppercase font-semibold">Included</span>
           </div>
           <div>
@@ -132,7 +132,7 @@ export const CommunityHubModal: React.FC<CommunityHubModalProps> = ({
               onClose();
               onOpenShareModal?.();
             }}
-            className="py-1.5 px-3.5 bg-[#DC2626] hover:bg-red-600 text-white font-semibold text-xs rounded-full shadow-xs transition-all cursor-pointer shrink-0 flex items-center gap-1.5 active:scale-95"
+            className="py-1.5 px-3.5 bg-[#EA4335] hover:bg-red-600 text-white font-semibold text-xs rounded-full shadow-xs transition-all cursor-pointer shrink-0 flex items-center gap-1.5 active:scale-95"
           >
             <Share2 className="w-3.5 h-3.5" />
             <span>Share Goal</span>
@@ -160,7 +160,7 @@ export const CommunityHubModal: React.FC<CommunityHubModalProps> = ({
                   </div>
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
-                      <h4 className="text-xs font-semibold text-zinc-900 dark:text-white group-hover:text-[#DC2626] transition-colors truncate">
+                      <h4 className="text-xs font-semibold text-zinc-900 dark:text-white group-hover:text-[#EA4335] transition-colors truncate">
                         {c.name}
                       </h4>
                       <span className="text-[9px] font-semibold bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 px-1.5 py-0.5 rounded border border-zinc-200 dark:border-zinc-700 shrink-0">
@@ -168,7 +168,7 @@ export const CommunityHubModal: React.FC<CommunityHubModalProps> = ({
                       </span>
                     </div>
                     <p className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5 truncate">{c.desc}</p>
-                    <span className="text-[10px] text-[#DC2626] font-semibold mt-0.5 block">
+                    <span className="text-[10px] text-[#EA4335] font-semibold mt-0.5 block">
                       {c.members}
                     </span>
                   </div>
@@ -191,7 +191,7 @@ export const CommunityHubModal: React.FC<CommunityHubModalProps> = ({
               <div key={idx} className="bg-zinc-50 dark:bg-zinc-900/40 p-3 rounded-2xl border border-zinc-200/80 dark:border-zinc-800 space-y-1 text-xs">
                 <div className="flex items-center justify-between">
                   <span className="font-semibold text-zinc-900 dark:text-white">{h.athlete} ({h.city})</span>
-                  <span className="text-[10px] text-[#DC2626] flex items-center gap-1 font-semibold">
+                  <span className="text-[10px] text-[#EA4335] flex items-center gap-1 font-semibold">
                     <Heart className="w-3 h-3 fill-current" /> {h.likes}
                   </span>
                 </div>

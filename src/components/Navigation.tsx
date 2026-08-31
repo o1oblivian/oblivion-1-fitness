@@ -8,11 +8,11 @@ interface NavigationProps {
 }
 
 export const Navigation: React.FC<NavigationProps> = ({ currentMode, onModeChange }) => {
-  const modes: { id: AppMode; label: string; code: string }[] = [
-    { id: 'tracker', label: 'Workout', code: 'SYS.01' },
-    { id: 'fuel', label: 'Fuel', code: 'SYS.02' },
-    { id: 'coach', label: 'Coach', code: 'SYS.03' },
-    { id: 'client', label: 'Log', code: 'SYS.04' },
+  const modes: { id: AppMode; label: string; code: string; color: string }[] = [
+    { id: 'tracker', label: 'Workout', code: 'SYS.01', color: '#FF3B30' },
+    { id: 'fuel', label: 'Fuel', code: 'SYS.02', color: '#F59E0B' },
+    { id: 'coach', label: 'Coach', code: 'SYS.03', color: '#3B82F6' },
+    { id: 'client', label: 'Log', code: 'SYS.04', color: '#8B5CF6' },
   ];
 
   return (
@@ -33,7 +33,8 @@ export const Navigation: React.FC<NavigationProps> = ({ currentMode, onModeChang
               {isActive && (
                 <motion.div
                   layoutId="activeTabPill"
-                  className="absolute inset-0 bg-[#7A9382] rounded-full shadow-sm -z-10"
+                  className="absolute inset-0 rounded-full shadow-sm -z-10"
+                  style={{ backgroundColor: m.color }}
                   transition={{ type: 'spring', stiffness: 400, damping: 32 }}
                 />
               )}

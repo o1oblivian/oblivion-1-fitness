@@ -23,9 +23,9 @@ export const DialSplitColumn: React.FC<DialSplitColumnProps> = ({
   const distPct = goalDist > 0 ? Math.min(dailyDist / goalDist, 1) : 0;
 
   const metrics = [
-    { label: 'KCAL', value: Math.round(dailyMove).toString(), pct: movePct, color: '#FF4757' },
-    { label: 'KM', value: dailyDist.toFixed(2), pct: distPct, color: '#54A0FF' },
-    { label: 'GOAL', value: `${Math.round(stepsPct * 100)}%`, pct: stepsPct, color: '#ffffff' },
+    { label: 'KCAL', value: Math.round(dailyMove).toString(), pct: movePct, color: '#EA4335' },
+    { label: 'KM', value: dailyDist.toFixed(2), pct: distPct, color: '#34A853' },
+    { label: 'GOAL', value: `${Math.round(stepsPct * 100)}%`, pct: stepsPct, color: '#4285F4' },
   ];
 
   return (

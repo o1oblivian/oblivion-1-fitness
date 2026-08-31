@@ -296,8 +296,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[500] bg-[#0A0A0C] text-white flex flex-col justify-between p-6 sm:p-10 font-sans select-none overflow-y-auto antialiased"
+      className="fixed inset-0 z-[500] bg-[#0A0A0C] text-white flex flex-col justify-between px-6 sm:px-10 font-sans select-none overflow-y-auto antialiased"
       style={{
+        paddingTop: 'max(1rem, calc(env(safe-area-inset-top, 0px) + 0.75rem))',
+        paddingBottom: 'max(1rem, calc(env(safe-area-inset-bottom, 0px) + 0.75rem))',
         opacity: isExiting ? 0 : 1,
         transform: isExiting ? 'scale(0.96)' : 'scale(1)',
         transition: 'opacity 0.35s ease, transform 0.35s ease',

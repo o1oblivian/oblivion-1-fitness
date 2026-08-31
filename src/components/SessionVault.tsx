@@ -213,7 +213,7 @@ function BodyweightSparkline({ data, isDark = true }: { data: { week: string; we
         <defs>
           <linearGradient id="wgrad" x1="0" y1="0" x2="1" y2="0">
             <stop offset="0%" stopColor="#60a5fa" />
-            <stop offset="100%" stopColor={trend === 'down' ? '#34d399' : trend === 'up' ? '#fbbf24' : '#94a3b8'} />
+            <stop offset="100%" stopColor={trend === 'down' ? '#34d399' : trend === 'up' ? '#FBBC05' : '#94a3b8'} />
           </linearGradient>
         </defs>
       </svg>

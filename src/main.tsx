@@ -44,7 +44,7 @@ class ErrorBoundary extends Component<Props, State> {
       return (
         <div style={{ padding: '24px', textAlign: 'center', fontFamily: 'sans-serif', color: '#fff', backgroundColor: '#0a0a0c', minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
           <div style={{ background: '#18181b', border: '1px solid #27272a', borderRadius: '16px', padding: '28px', maxWidth: '440px', width: '100%', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.5)' }}>
-            <AlertTriangle style={{ width: '36px', height: '36px', color: '#ef4444', margin: '0 auto 12px', display: 'block' }} />
+            <AlertTriangle style={{ width: '36px', height: '36px', color: '#EA4335', margin: '0 auto 12px', display: 'block' }} />
             <h2 style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '8px', color: '#f4f4f5' }}>Application Error Caught</h2>
             <p style={{ fontSize: '13px', color: '#a1a1aa', marginBottom: '20px', lineHeight: '1.5', wordBreak: 'break-word', background: '#09090b', padding: '10px', borderRadius: '8px', border: '1px solid #27272a', textAlign: 'left' }}>
               {state.error?.message || 'An unexpected error occurred.'}
@@ -63,7 +63,7 @@ class ErrorBoundary extends Component<Props, State> {
                   } catch (e) {}
                   window.location.reload();
                 }}
-                style={{ backgroundColor: '#10b981', color: '#fff', border: 'none', padding: '10px 18px', borderRadius: '10px', fontWeight: 'bold', cursor: 'pointer', fontSize: '14px' }}
+                style={{ backgroundColor: '#34A853', color: '#fff', border: 'none', padding: '10px 18px', borderRadius: '10px', fontWeight: 'bold', cursor: 'pointer', fontSize: '14px' }}
               >
                 Reset & Reload
               </button>

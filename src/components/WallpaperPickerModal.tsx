@@ -118,7 +118,7 @@ export const WallpaperPickerModal: React.FC<WallpaperPickerModalProps> = ({
                   onClick={() => setActiveCategory(cat.id as WallpaperCategory)}
                   className={`shrink-0 px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
                     isActive
-                      ? 'bg-[#DC2626] text-white shadow-xs'
+                      ? 'bg-[#EA4335] text-white shadow-xs'
                       : 'bg-white dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700/80 border border-zinc-200 dark:border-zinc-700/50'
                   }`}
                 >
@@ -136,7 +136,7 @@ export const WallpaperPickerModal: React.FC<WallpaperPickerModalProps> = ({
               placeholder="Search wallpapers..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-3 py-1.5 rounded-xl bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700/60 text-xs text-zinc-900 dark:text-white placeholder-zinc-400 focus:outline-hidden focus:border-[#DC2626]"
+              className="w-full pl-9 pr-3 py-1.5 rounded-xl bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700/60 text-xs text-zinc-900 dark:text-white placeholder-zinc-400 focus:outline-hidden focus:border-[#EA4335]"
             />
           </div>
         </div>
@@ -145,7 +145,7 @@ export const WallpaperPickerModal: React.FC<WallpaperPickerModalProps> = ({
         <div className="p-3 sm:p-5 overflow-y-auto flex-1">
           {filteredWallpapers.length === 0 ? (
             <div className="py-16 text-center text-zinc-400 space-y-2">
-              <ImageIcon className="w-8 h-8 mx-auto opacity-40 text-[#DC2626]" />
+              <ImageIcon className="w-8 h-8 mx-auto opacity-40 text-[#EA4335]" />
               <p className="text-sm font-medium">No matching wallpapers found</p>
               <p className="text-xs text-zinc-500">Try changing your search query or category</p>
             </div>
@@ -161,7 +161,7 @@ export const WallpaperPickerModal: React.FC<WallpaperPickerModalProps> = ({
                     onClick={() => handleSelect(wp)}
                     className={`group relative rounded-2xl overflow-hidden aspect-[4/5] border text-left transition-all duration-200 cursor-pointer shadow-xs hover:shadow-md hover:scale-[1.02] active:scale-98 ${
                       isSelected
-                        ? 'border-[#DC2626] ring-2 ring-[#DC2626]'
+                        ? 'border-[#EA4335] ring-2 ring-[#EA4335]'
                         : 'border-zinc-200 dark:border-zinc-800 hover:border-zinc-400 dark:hover:border-zinc-600'
                     }`}
                   >
@@ -177,7 +177,7 @@ export const WallpaperPickerModal: React.FC<WallpaperPickerModalProps> = ({
 
                     {/* Selected Badge */}
                     {isSelected && (
-                      <div className="absolute top-2.5 left-2.5 w-6 h-6 rounded-full bg-[#DC2626] text-white flex items-center justify-center shadow-lg ring-2 ring-white/20">
+                      <div className="absolute top-2.5 left-2.5 w-6 h-6 rounded-full bg-[#EA4335] text-white flex items-center justify-center shadow-lg ring-2 ring-white/20">
                         <Check className="w-3.5 h-3.5 stroke-[3]" />
                       </div>
                     )}

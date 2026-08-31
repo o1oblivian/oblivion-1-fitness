@@ -314,7 +314,7 @@ export const ConsultationRequestModal: React.FC<ConsultationRequestModalProps> =
                       className="h-full rounded-full transition-all duration-500"
                       style={{
                         width: i < step ? '100%' : i === step ? '50%' : '0%',
-                        backgroundColor: i <= step ? '#DC2626' : 'transparent',
+                        backgroundColor: i <= step ? '#EA4335' : 'transparent',
                       }}
                     />
                   </div>

@@ -602,7 +602,7 @@ export default function FitnessIntelligenceApp({
         {/* Top Meta: • TODAY'S SESSION | Date */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
+            <span className="w-1.5 h-1.5 rounded-full bg-[#EA4335]" />
             <span className="text-[9px] font-mono font-bold tracking-widest text-zinc-500 dark:text-zinc-400 uppercase">Today's Session</span>
           </div>
           <span className="text-[9px] font-mono text-zinc-500 dark:text-zinc-500 font-medium">
@@ -625,17 +625,17 @@ export default function FitnessIntelligenceApp({
           <div className="flex items-center gap-2 text-right">
             <div className="flex flex-col items-end">
               <span className="text-[8.5px] font-mono text-zinc-500 dark:text-zinc-500 font-bold tracking-wider">RPE</span>
-              <span className="text-lg font-black text-red-500 leading-none">8.5</span>
+              <span className="text-lg font-black text-[#EA4335] leading-none">8.5</span>
             </div>
-            <div className="w-1.5 h-6 rounded-full bg-red-500 mt-0.5" />
+            <div className="w-1.5 h-6 rounded-full bg-[#EA4335] mt-0.5" />
           </div>
         </div>
 
-        {/* CTA Button: Solid Vibrant Crimson / Red */}
+        {/* CTA Button: Solid Natural Matte Terracotta */}
         <button
           onClick={simulateWorkoutComplete}
           disabled={isUpdating}
-          className="w-full py-2.5 px-3.5 rounded-xl font-bold text-xs uppercase tracking-wider flex items-center justify-between active:scale-[0.98] transition-all cursor-pointer text-white shadow-lg shadow-red-500/25 disabled:opacity-60 bg-gradient-to-r from-red-600 to-red-600 hover:from-red-500 hover:to-red-500 hover:opacity-95"
+          className="w-full py-2.5 px-3.5 rounded-xl font-bold text-xs uppercase tracking-wider flex items-center justify-between active:scale-[0.98] transition-all cursor-pointer text-white shadow-sm disabled:opacity-60 bg-[#EA4335] hover:bg-[#963426]"
         >
           <div className="flex items-center gap-2">
             <Play className="w-3.5 h-3.5 fill-white text-white" />
@@ -654,26 +654,26 @@ export default function FitnessIntelligenceApp({
           </div>
 
           <div className="text-right">
-            <div className="text-xs font-mono font-bold text-emerald-600 dark:text-emerald-400 flex items-center justify-end gap-0.5">
+            <div className="text-xs font-mono font-bold text-[#34A853] dark:text-[#34A853] flex items-center justify-end gap-0.5">
               <span>↗ 12.5 KG</span>
             </div>
             <p className="text-[8px] font-mono text-zinc-500 dark:text-zinc-500 uppercase tracking-wider">This Month</p>
           </div>
         </div>
 
-        {/* Smooth Emerald Curve */}
+        {/* Smooth Natural Matte Sage Curve */}
         <div className="relative w-full" style={{ height: 38 }}>
           <svg viewBox={`0 0 ${svgW} ${svgH}`} preserveAspectRatio="none" className="w-full h-full overflow-visible">
             <defs>
               <linearGradient id="prFill" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#10B981" stopOpacity="0.25" />
-                <stop offset="100%" stopColor="#10B981" stopOpacity="0.0" />
+                <stop offset="0%" stopColor="#34A853" stopOpacity="0.25" />
+                <stop offset="100%" stopColor="#34A853" stopOpacity="0.0" />
               </linearGradient>
             </defs>
             <path d={areaD} fill="url(#prFill)" className="animate-fade-in" />
-            <path d={pathD} fill="none" stroke="#10B981" strokeWidth="2.5" strokeLinecap="round" className="animate-draw-line" />
-            <circle cx={points[points.length - 1].x} cy={points[points.length - 1].y} r="3" fill="#10B981" />
-            <circle cx={points[points.length - 1].x} cy={points[points.length - 1].y} r="6" fill="none" stroke="#10B981" strokeWidth="1.5" opacity="0.5" />
+            <path d={pathD} fill="none" stroke="#34A853" strokeWidth="2.5" strokeLinecap="round" className="animate-draw-line" />
+            <circle cx={points[points.length - 1].x} cy={points[points.length - 1].y} r="3" fill="#34A853" />
+            <circle cx={points[points.length - 1].x} cy={points[points.length - 1].y} r="6" fill="none" stroke="#34A853" strokeWidth="1.5" opacity="0.5" />
           </svg>
         </div>
 
@@ -681,7 +681,7 @@ export default function FitnessIntelligenceApp({
         <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
           {['105kg Bench Milestone', '7-Day Perfect Streak', `${stats.totalVolume > 0 ? stats.totalVolume.toFixed(1) : '0.0'} MT Volume`].map((badge) => (
             <span key={badge} className="text-[8.5px] font-medium text-zinc-700 dark:text-zinc-400 bg-zinc-100 dark:bg-white/[0.03] px-2 py-0.5 rounded-md border border-zinc-200/80 dark:border-white/5 whitespace-nowrap shrink-0 flex items-center gap-1">
-              <Sparkles className="w-2.5 h-2.5 text-amber-500 dark:text-amber-400" /> {badge}
+              <Sparkles className="w-2.5 h-2.5 text-[#C48B4F]" /> {badge}
             </span>
           ))}
         </div>
@@ -758,7 +758,7 @@ export default function FitnessIntelligenceApp({
                   {ex.hasVideo && (
                     <button
                       onClick={() => setIsClientVaultOpen(true)}
-                      className="w-7 h-7 rounded-full bg-[#DC2626] hover:bg-red-600 text-white flex items-center justify-center font-bold text-xs shadow-md active:scale-95 transition-all cursor-pointer shrink-0"
+                      className="w-7 h-7 rounded-full bg-[#EA4335] hover:bg-red-600 text-white flex items-center justify-center font-bold text-xs shadow-md active:scale-95 transition-all cursor-pointer shrink-0"
                       title="Play Form Check Video"
                     >
                       ▶
@@ -842,7 +842,7 @@ export default function FitnessIntelligenceApp({
             <div>
               <div className="flex items-center gap-2">
                 <h2 className="text-base font-extrabold text-white tracking-tight">RECOVERY & WELLBEING HUB</h2>
-                <span className="text-[9px] font-mono font-bold bg-[#7A9382]/20 text-[#7A9382] px-1.5 py-0.5 rounded-md border border-[#7A9382]/30">
+                <span className="text-[9px] font-mono font-bold bg-[#34A853]/20 text-[#34A853] px-1.5 py-0.5 rounded-md border border-[#34A853]/30">
                   LIVE TELEMETRY
                 </span>
               </div>
@@ -891,31 +891,31 @@ export default function FitnessIntelligenceApp({
             </button>
             
             {/* Daily Readiness Ring */}
-            <div className="bg-slate-100 dark:bg-[#14171F] rounded-2xl p-3.5 border border-slate-200 dark:border-white/10 flex flex-col items-center justify-center relative overflow-hidden shadow-lg">
-              <div className="text-[10px] text-white/60 font-mono font-bold tracking-wider mb-2 z-10 uppercase">
+            <div className="bg-slate-100 dark:bg-[#14171F] rounded-2xl p-4 border border-slate-200 dark:border-white/10 flex flex-col items-center justify-center relative overflow-hidden shadow-lg">
+              <div className="text-[10px] text-zinc-600 dark:text-white/60 font-mono font-bold tracking-wider mb-2 z-10 uppercase">
                 Daily Readiness Score
               </div>
               
-              <div className="relative w-28 h-28 flex items-center justify-center z-10">
-                 <svg className="absolute inset-0 w-full h-full -rotate-90">
-                    <circle cx="56" cy="56" r="48" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="10" />
-                    <circle cx="56" cy="56" r="48" fill="none" stroke="#7A9382" strokeWidth="10" strokeLinecap="round" strokeDasharray="301" strokeDashoffset={301 - (301 * stats.readinessScore) / 100} className="transition-all duration-1000 ease-out" style={{ filter: 'drop-shadow(0 0 6px rgba(122,147,130,0.5))' }} />
+              <div className="relative w-36 h-36 flex items-center justify-center z-10 my-1">
+                 <svg className="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 144 144">
+                    <circle cx="72" cy="72" r="60" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="12" />
+                    <circle cx="72" cy="72" r="60" fill="none" stroke="#34A853" strokeWidth="12" strokeLinecap="round" strokeDasharray="377" strokeDashoffset={377 - (377 * stats.readinessScore) / 100} className="transition-all duration-1000 ease-out" style={{ filter: 'drop-shadow(0 0 6px rgba(90,139,115,0.4))' }} />
                  </svg>
                  <div className="text-center flex flex-col items-center justify-center">
-                    <span className="text-2xl font-black text-white tracking-tight" style={{ textShadow: '0 2px 8px rgba(0,0,0,0.5)' }}>{stats.readinessScore}</span>
-                    <span className="text-[8px] text-[#7A9382] font-mono font-bold tracking-widest uppercase">OPTIMAL</span>
+                    <span className="text-3xl font-black text-zinc-900 dark:text-white tracking-tight" style={{ textShadow: '0 2px 8px rgba(0,0,0,0.5)' }}>{stats.readinessScore}</span>
+                    <span className="text-[9px] text-[#34A853] font-mono font-bold tracking-widest uppercase mt-0.5">OPTIMAL</span>
                  </div>
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div className="bg-slate-100 dark:bg-[#14171F] rounded-2xl p-4 border border-slate-200 dark:border-white/10 flex flex-col justify-between shadow-lg">
-                <Moon className="w-4 h-4 text-[#DC2626] mb-2" />
+                <Moon className="w-4 h-4 text-[#EA4335] mb-2" />
                 <div className="text-[9px] text-white/50 font-mono font-bold tracking-wider mb-0.5 uppercase">SLEEP DURATION</div>
                 <div className="text-sm font-bold text-white font-sans">{stats.sleep}</div>
               </div>
               <div className="bg-slate-100 dark:bg-[#14171F] rounded-2xl p-4 border border-slate-200 dark:border-white/10 flex flex-col justify-between shadow-lg">
-                <Activity className="w-4 h-4 text-[#7A9382] mb-2" />
+                <Activity className="w-4 h-4 text-[#34A853] mb-2" />
                 <div className="text-[9px] text-white/50 font-mono font-bold tracking-wider mb-0.5 uppercase">HRV SCORE</div>
                 <div className="text-sm font-bold text-white font-sans">{stats.hrv}</div>
               </div>
@@ -927,15 +927,15 @@ export default function FitnessIntelligenceApp({
                 <span className="text-[10px] font-mono font-bold text-white/80 uppercase tracking-wider flex items-center gap-2">
                   ADVANCED RECOVERY & BIOHACKING
                 </span>
-                <span className="text-[9px] font-mono font-bold bg-[#DC2626]/15 text-[#DC2626] px-1.5 py-0.5 rounded-full border border-[#DC2626]/30">
+                <span className="text-[9px] font-mono font-bold bg-[#EA4335]/15 text-[#EA4335] px-1.5 py-0.5 rounded-full border border-[#EA4335]/30">
                   GLOBAL TREND
                 </span>
               </div>
 
               {[
                 { icon: Snowflake, title: 'Cold Plunge Protocol', desc: '3 mins @ 4°C \u2022 Vagus Nerve Reset', status: 'COMPLETED', hex: '#78716c' },
-                { icon: Flame, title: 'Infrared Sauna & Heat Therapy', desc: '25 mins @ 70°C \u2022 GH & Cellular Repair', status: 'SCHEDULED', hex: '#DC2626' },
-                { icon: Pill, title: 'Supplementation Protocol', desc: 'Mg L-Threonate + Omega-3 + Creatine 5g', status: 'TAKEN', hex: '#7A9382' },
+                { icon: Flame, title: 'Infrared Sauna & Heat Therapy', desc: '25 mins @ 70°C \u2022 GH & Cellular Repair', status: 'SCHEDULED', hex: '#EA4335' },
+                { icon: Pill, title: 'Supplementation Protocol', desc: 'Mg L-Threonate + Omega-3 + Creatine 5g', status: 'TAKEN', hex: '#34A853' },
               ].map((row) => {
                 const IconComponent = row.icon;
                 return (

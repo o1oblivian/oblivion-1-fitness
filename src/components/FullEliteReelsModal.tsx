@@ -720,7 +720,7 @@ export const FullEliteReelsModal: React.FC<FullEliteReelsModalProps> = ({
                 <img
                   src={selectedProgramsModalCoach.avatar}
                   alt={selectedProgramsModalCoach.coachName}
-                  className="w-12 h-12 rounded-full object-cover border-2 border-red-600 shadow-sm"
+                  className="w-12 h-12 rounded-full object-cover shadow-sm"
                 />
                 <div>
                   <h3 className="text-base font-black text-zinc-900 leading-tight">

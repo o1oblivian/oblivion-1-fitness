@@ -193,7 +193,7 @@ export const AutoPilotModal: React.FC<AutoPilotModalProps> = ({
         {/* Apple HIG Modal Header */}
         <div className="px-5 py-4 border-b border-zinc-100 dark:border-white/[0.06] flex justify-between items-center bg-zinc-50/50 dark:bg-white/[0.02] shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-[10px] bg-red-500/10 dark:bg-red-500/20 text-[#DC2626] dark:text-[#EF4444] flex items-center justify-center font-bold">
+            <div className="w-8 h-8 rounded-[10px] bg-red-500/10 dark:bg-red-500/20 text-[#EA4335] dark:text-[#EA4335] flex items-center justify-center font-bold">
               <Activity className="w-4 h-4" />
             </div>
             <div>
@@ -223,7 +223,7 @@ export const AutoPilotModal: React.FC<AutoPilotModalProps> = ({
               1. Anthropometrics & Demographics
             </span>
             <div className="grid grid-cols-3 gap-2">
-              <div className="bg-zinc-50 dark:bg-white/[0.03] border border-zinc-200/80 dark:border-white/[0.06] rounded-xl py-1.5 px-2.5 focus-within:border-[#DC2626] transition-colors">
+              <div className="bg-zinc-50 dark:bg-white/[0.03] border border-zinc-200/80 dark:border-white/[0.06] rounded-xl py-1.5 px-2.5 focus-within:border-[#EA4335] transition-colors">
                 <label className="text-[9px] font-bold text-zinc-400 dark:text-zinc-400 uppercase block">
                   Current (kg)
                 </label>
@@ -240,7 +240,7 @@ export const AutoPilotModal: React.FC<AutoPilotModalProps> = ({
                 />
               </div>
 
-              <div className="bg-zinc-50 dark:bg-white/[0.03] border border-zinc-200/80 dark:border-white/[0.06] rounded-xl py-1.5 px-2.5 focus-within:border-[#DC2626] transition-colors">
+              <div className="bg-zinc-50 dark:bg-white/[0.03] border border-zinc-200/80 dark:border-white/[0.06] rounded-xl py-1.5 px-2.5 focus-within:border-[#EA4335] transition-colors">
                 <label className="text-[9px] font-bold text-zinc-400 dark:text-zinc-400 uppercase block">
                   Height (cm)
                 </label>
@@ -257,7 +257,7 @@ export const AutoPilotModal: React.FC<AutoPilotModalProps> = ({
                 />
               </div>
 
-              <div className="bg-zinc-50 dark:bg-white/[0.03] border border-zinc-200/80 dark:border-white/[0.06] rounded-xl py-1.5 px-2.5 focus-within:border-[#DC2626] transition-colors">
+              <div className="bg-zinc-50 dark:bg-white/[0.03] border border-zinc-200/80 dark:border-white/[0.06] rounded-xl py-1.5 px-2.5 focus-within:border-[#EA4335] transition-colors">
                 <label className="text-[9px] font-bold text-zinc-400 dark:text-zinc-400 uppercase block">
                   Age (yrs)
                 </label>
@@ -322,7 +322,7 @@ export const AutoPilotModal: React.FC<AutoPilotModalProps> = ({
                 onClick={() => handleGoalSelect('fat_loss')}
                 className={`py-2 px-2 rounded-xl border text-center font-bold text-xs transition-all flex flex-col items-center justify-center gap-0.5 cursor-pointer ${
                   goalMode === 'fat_loss'
-                    ? 'border-[#FF2D55] bg-red-50 dark:bg-red-500/15 text-[#FF2D55] shadow-xs'
+                    ? 'border-[#EA4335] bg-red-50 dark:bg-red-500/15 text-[#EA4335] shadow-xs'
                     : 'border-zinc-200 dark:border-white/[0.06] text-zinc-600 dark:text-zinc-400 bg-zinc-50 dark:bg-white/[0.03] hover:bg-zinc-100 dark:hover:bg-white/[0.06]'
                 }`}
               >
@@ -361,7 +361,7 @@ export const AutoPilotModal: React.FC<AutoPilotModalProps> = ({
             {goalMode !== 'maintain' && (
               <div className="space-y-2 pt-0.5">
                 <div className="grid grid-cols-2 gap-2">
-                  <div className="bg-zinc-50 dark:bg-white/[0.03] border border-zinc-200/80 dark:border-white/[0.06] rounded-xl py-1.5 px-2.5 focus-within:border-[#DC2626] transition-colors">
+                  <div className="bg-zinc-50 dark:bg-white/[0.03] border border-zinc-200/80 dark:border-white/[0.06] rounded-xl py-1.5 px-2.5 focus-within:border-[#EA4335] transition-colors">
                     <label className="text-[9px] font-bold text-zinc-400 dark:text-zinc-400 uppercase block">
                       Target Goal Weight
                     </label>
@@ -385,7 +385,7 @@ export const AutoPilotModal: React.FC<AutoPilotModalProps> = ({
                     <span className="text-[9px] font-bold text-zinc-400 dark:text-zinc-400 uppercase block">
                       Target Delta
                     </span>
-                    <span className={`text-sm font-mono font-extrabold ${weightDeltaKg < 0 ? 'text-[#FF2D55]' : weightDeltaKg > 0 ? 'text-[#34C759]' : 'text-zinc-500 dark:text-zinc-400'}`}>
+                    <span className={`text-sm font-mono font-extrabold ${weightDeltaKg < 0 ? 'text-[#EA4335]' : weightDeltaKg > 0 ? 'text-[#34C759]' : 'text-zinc-500 dark:text-zinc-400'}`}>
                       {weightDeltaKg > 0 ? `+${weightDeltaKg}` : weightDeltaKg} kg
                     </span>
                   </div>
@@ -426,7 +426,7 @@ export const AutoPilotModal: React.FC<AutoPilotModalProps> = ({
                 {weeksToGoal > 0 && estimatedArrivalDate && (
                   <div className="bg-zinc-100 dark:bg-white/[0.04] border border-zinc-200/80 dark:border-white/[0.06] rounded-xl py-2 px-3 flex items-center justify-between text-xs">
                     <div className="flex items-center gap-1.5 text-zinc-700 dark:text-zinc-300 font-medium text-[11px]">
-                      <Calendar className="w-3.5 h-3.5 text-[#DC2626] dark:text-[#EF4444]" />
+                      <Calendar className="w-3.5 h-3.5 text-[#EA4335] dark:text-[#EA4335]" />
                       <span>Est. Timeline: <strong className="text-zinc-900 dark:text-white font-mono">{weeksToGoal} wks</strong></span>
                     </div>
                     <span className="text-[10px] font-mono font-bold text-zinc-500 dark:text-zinc-400">
@@ -458,15 +458,15 @@ export const AutoPilotModal: React.FC<AutoPilotModalProps> = ({
                     onClick={() => setMacroSplit(m.key as MacroSplit)}
                     className={`py-2 px-2.5 rounded-xl border text-left transition-all cursor-pointer ${
                       isActive
-                        ? 'border-[#DC2626] bg-red-500/10 dark:bg-red-500/15 shadow-xs'
+                        ? 'border-[#EA4335] bg-red-500/10 dark:bg-red-500/15 shadow-xs'
                         : 'border-zinc-200 dark:border-white/[0.06] bg-zinc-50 dark:bg-white/[0.03] hover:bg-zinc-100 dark:hover:bg-white/[0.06]'
                     }`}
                   >
                     <div className="flex items-center justify-between">
-                      <span className={`text-[11px] font-bold ${isActive ? 'text-[#DC2626] dark:text-[#EF4444]' : 'text-zinc-900 dark:text-white'}`}>
+                      <span className={`text-[11px] font-bold ${isActive ? 'text-[#EA4335] dark:text-[#EA4335]' : 'text-zinc-900 dark:text-white'}`}>
                         {m.label}
                       </span>
-                      {isActive && <Check className="w-3.5 h-3.5 text-[#DC2626] dark:text-[#EF4444]" />}
+                      {isActive && <Check className="w-3.5 h-3.5 text-[#EA4335] dark:text-[#EA4335]" />}
                     </div>
                     <div className="text-[9.5px] font-mono font-medium text-zinc-500 dark:text-zinc-400 mt-0.5">
                       {m.p} • {m.f}
@@ -515,9 +515,9 @@ export const AutoPilotModal: React.FC<AutoPilotModalProps> = ({
                 <span>Fat {fPercent}%</span>
               </div>
               <div className="h-2 w-full rounded-full overflow-hidden flex bg-white/10">
-                <div style={{ width: `${pPercent}%` }} className="bg-[#EF4444] h-full" title={`Protein ${pPercent}%`} />
+                <div style={{ width: `${pPercent}%` }} className="bg-[#EA4335] h-full" title={`Protein ${pPercent}%`} />
                 <div style={{ width: `${cPercent}%` }} className="bg-zinc-300 h-full" title={`Carbs ${cPercent}%`} />
-                <div style={{ width: `${fPercent}%` }} className="bg-[#F59E0B] h-full" title={`Fat ${fPercent}%`} />
+                <div style={{ width: `${fPercent}%` }} className="bg-[#FBBC05] h-full" title={`Fat ${fPercent}%`} />
               </div>
             </div>
 
@@ -548,7 +548,7 @@ export const AutoPilotModal: React.FC<AutoPilotModalProps> = ({
         <div className="p-4 sm:p-5 border-t border-zinc-100 dark:border-white/[0.06] bg-zinc-50/50 dark:bg-white/[0.02] shrink-0">
           <button
             onClick={handleConfirm}
-            className="w-full py-3.5 bg-[#DC2626] hover:bg-[#B91C1C] text-white font-bold rounded-2xl shadow-lg shadow-red-500/20 active:scale-[0.98] transition-all text-xs tracking-wider uppercase flex items-center justify-center gap-2 cursor-pointer"
+            className="w-full py-3.5 bg-[#EA4335] hover:bg-[#EA4335] text-white font-bold rounded-2xl shadow-lg shadow-red-500/20 active:scale-[0.98] transition-all text-xs tracking-wider uppercase flex items-center justify-center gap-2 cursor-pointer"
           >
             <Check className="w-4 h-4 stroke-[2.5]" />
             <span>Apply Prescribed Targets ({targetCals.toLocaleString()} kcal)</span>

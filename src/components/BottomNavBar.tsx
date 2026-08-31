@@ -46,7 +46,7 @@ const NAV_ITEMS: NavItem[] = [
     mode: 'buddy',
     label: 'Buddy',
     icon: (active) => (
-      <Heart className={`w-3.5 h-3.5 fill-[#DC2626] text-[#DC2626] transition-transform duration-150 ${active ? 'scale-110 drop-shadow-[0_0_5px_rgba(220,38,38,0.5)]' : 'opacity-90 hover:scale-105'}`} />
+      <Heart className={`w-3.5 h-3.5 fill-[#FF3B30] dark:fill-[#FF453A] text-[#FF3B30] dark:text-[#FF453A] transition-transform duration-150 ${active ? 'scale-110' : 'opacity-85 hover:scale-105'}`} />
     ),
   },
   {
@@ -71,7 +71,12 @@ export const BottomNavBar: React.FC<BottomNavBarProps> = ({
   onOpenGymNetwork,
 }) => {
   return (
-    <nav className="fixed bottom-1.5 left-0 right-0 z-50 mx-auto w-[88%] max-w-xs select-none pointer-events-auto">
+    <nav
+      className="fixed left-0 right-0 z-50 mx-auto w-[88%] max-w-xs select-none pointer-events-auto transition-all"
+      style={{
+        bottom: 'max(0.75rem, calc(env(safe-area-inset-bottom, 0px) + 0.5rem))',
+      }}
+    >
       <div className="relative rounded-full backdrop-blur-2xl backdrop-saturate-150 bg-white/20 dark:bg-black/40 border border-white/20 dark:border-white/10 shadow-[0_4px_20px_0_rgba(0,0,0,0.3)] dark:shadow-[0_4px_24px_0_rgba(0,0,0,0.6)] overflow-hidden">
         {/* Specular glass highlight */}
         <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/30 dark:via-white/20 to-transparent pointer-events-none" />
@@ -94,10 +99,10 @@ export const BottomNavBar: React.FC<BottomNavBarProps> = ({
                 className={`relative flex-1 flex flex-col items-center justify-center py-1 px-0.5 rounded-full transition-all duration-150 cursor-pointer group ${
                   isActive
                     ? item.mode === 'buddy'
-                      ? 'text-[#DC2626] font-bold'
+                      ? 'text-[#FF3B30] dark:text-[#FF453A] font-bold'
                       : 'text-zinc-950 dark:text-white font-bold'
                     : item.mode === 'buddy'
-                      ? 'text-[#DC2626]/80 hover:text-[#DC2626] font-medium'
+                      ? 'text-[#FF3B30]/80 dark:text-[#FF453A]/80 hover:text-[#FF3B30] dark:hover:text-[#FF453A] font-medium'
                       : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 font-medium'
                 }`}
                 title={item.label}
@@ -111,7 +116,7 @@ export const BottomNavBar: React.FC<BottomNavBarProps> = ({
                 </span>
 
                 {isActive && (
-                  <span className="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-[#DC2626] shadow-[0_0_4px_rgba(220,38,38,0.7)]" />
+                  <span className="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-[#FF3B30] dark:bg-[#FF453A]" />
                 )}
               </button>
             );

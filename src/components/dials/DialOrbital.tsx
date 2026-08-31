@@ -28,9 +28,9 @@ export const DialOrbital: React.FC<DialOrbitalProps> = ({
   const CX = 170, CY = 170;
 
   const orbits = [
-    { r: 145, pct: aSteps, color: '#ffffff', width: 3, dotR: 6, label: 'STEPS', value: dailySteps.toLocaleString(), delay: 0 },
-    { r: 118, pct: aMove, color: '#FF4757', width: 2.5, dotR: 5, label: 'KCAL', value: Math.round(dailyMove).toString(), delay: 100 },
-    { r: 91, pct: aDist, color: '#54A0FF', width: 2.5, dotR: 5, label: 'KM', value: dailyDist.toFixed(2), delay: 200 },
+    { r: 145, pct: aSteps, color: '#E5DFD5', width: 3, dotR: 6, label: 'STEPS', value: dailySteps.toLocaleString(), delay: 0 },
+    { r: 118, pct: aMove, color: '#EA4335', width: 2.5, dotR: 5, label: 'KCAL', value: Math.round(dailyMove).toString(), delay: 100 },
+    { r: 91, pct: aDist, color: '#4285F4', width: 2.5, dotR: 5, label: 'KM', value: dailyDist.toFixed(2), delay: 200 },
   ];
 
   const polarToXY = (cx: number, cy: number, r: number, pct: number) => {
@@ -97,13 +97,13 @@ export const DialOrbital: React.FC<DialOrbitalProps> = ({
         </text>
 
         {/* Orbit labels at bottom */}
-        <text x={CX - 55} y={CY + 78} textAnchor="middle" fill="#FF4757" fontSize="13" fontWeight="900" fontFamily="monospace">
+        <text x={CX - 55} y={CY + 78} textAnchor="middle" fill="#EA4335" fontSize="13" fontWeight="900" fontFamily="monospace">
           {Math.round(dailyMove)}
         </text>
         <text x={CX - 55} y={CY + 92} textAnchor="middle" fill="rgba(255,255,255,0.3)" fontSize="7" fontWeight="700" fontFamily="monospace" letterSpacing="1.5">
           KCAL
         </text>
-        <text x={CX + 55} y={CY + 78} textAnchor="middle" fill="#54A0FF" fontSize="13" fontWeight="900" fontFamily="monospace">
+        <text x={CX + 55} y={CY + 78} textAnchor="middle" fill="#34A853" fontSize="13" fontWeight="900" fontFamily="monospace">
           {dailyDist.toFixed(2)}
         </text>
         <text x={CX + 55} y={CY + 92} textAnchor="middle" fill="rgba(255,255,255,0.3)" fontSize="7" fontWeight="700" fontFamily="monospace" letterSpacing="1.5">

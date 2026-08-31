@@ -37,7 +37,7 @@ const ONBOARDING_STEPS: OnboardingStep[] = [
     instruction: 'Tap and hold the center value or zero dial to open the dynamic goal adjustment sheet. Drag the outer perimeter ring or use continuous circular gestures to fine-tune steps, reps, and targets.',
     actionTip: 'Pro Tip: Tap the center circle to trigger the interactive rotary calibration modal anytime.',
     icon: RotateCw,
-    accentColor: '#DC2626',
+    accentColor: '#EA4335',
     highlightTarget: 'dial-center'
   },
   {
@@ -48,7 +48,7 @@ const ONBOARDING_STEPS: OnboardingStep[] = [
     instruction: 'Select any exercise to log weight, reps, RPE, and rest timers. Long-press on any completed set to edit or swipe left to remove.',
     actionTip: 'Pro Tip: Tap the play button to initiate auto-timed rest intervals between sets.',
     icon: Dumbbell,
-    accentColor: '#3B82F6',
+    accentColor: '#4285F4',
     highlightTarget: 'training-tab'
   },
   {
@@ -59,7 +59,7 @@ const ONBOARDING_STEPS: OnboardingStep[] = [
     instruction: 'Tap quick-add macros or log whole meals with precise protein, carb, and fat distributions. Track your daily caloric balance against active burn.',
     actionTip: 'Pro Tip: Use the Macro Balance bar to stay aligned with your daily athletic targets.',
     icon: Flame,
-    accentColor: '#F59E0B',
+    accentColor: '#FBBC05',
     highlightTarget: 'fuel-tab'
   },
   {
@@ -70,7 +70,7 @@ const ONBOARDING_STEPS: OnboardingStep[] = [
     instruction: 'Connect with training partners via Tandem Mode for shared countdowns and synchronized sets. Open Gym Buddy Radar to discover nearby athletes training at your local gym.',
     actionTip: 'Pro Tip: Tap Tandem Sync to generate a secure 6-digit session room code.',
     icon: Users,
-    accentColor: '#10B981',
+    accentColor: '#34A853',
     highlightTarget: 'tandem-tab'
   }
 ];

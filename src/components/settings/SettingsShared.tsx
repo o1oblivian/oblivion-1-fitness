@@ -28,7 +28,7 @@ export function ToggleSwitch({
       className={`relative inline-flex shrink-0 cursor-pointer items-center rounded-full p-[2px] transition-colors duration-200 ease-in-out focus:outline-none select-none ${
         disabled ? 'opacity-40 cursor-not-allowed' : ''
       } ${
-        checked ? 'bg-[#DC2626]' : 'bg-zinc-300 dark:bg-zinc-700'
+        checked ? 'bg-[#FF3B30] dark:bg-[#FF453A]' : 'bg-zinc-300 dark:bg-zinc-700'
       }`}
     >
       <span
@@ -127,7 +127,7 @@ export function SettingsRow({
       }`}
     >
       <div className="flex-1 min-w-0 pr-2">
-        <span className={`text-sm font-medium block leading-snug ${destructive ? 'text-[#DC2626] font-semibold' : 'text-zinc-900 dark:text-zinc-100'}`}>
+        <span className={`text-sm font-medium block leading-snug ${destructive ? 'text-[#FF3B30] dark:text-[#FF453A] font-semibold' : 'text-zinc-900 dark:text-zinc-100'}`}>
           {label}
         </span>
         {sublabel && (
@@ -165,7 +165,7 @@ export function NavPill({
       onClick={onClick}
       className="w-full min-h-[52px] flex items-center justify-between px-3.5 py-1.5 rounded-xl bg-white dark:bg-[#18181B] border border-zinc-200/80 dark:border-zinc-800/80 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-all cursor-pointer text-left my-1 shadow-xs"
     >
-      <span className={`text-sm font-medium ${destructive ? 'text-[#DC2626] font-semibold' : 'text-zinc-900 dark:text-white'}`}>
+      <span className={`text-sm font-medium ${destructive ? 'text-[#FF3B30] dark:text-[#FF453A] font-semibold' : 'text-zinc-900 dark:text-white'}`}>
         {label}
       </span>
       <div className="flex items-center gap-2 shrink-0">

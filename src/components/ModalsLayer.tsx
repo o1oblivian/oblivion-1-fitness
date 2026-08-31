@@ -562,8 +562,8 @@ export function ModalsLayer({ s }: Props) {
 
       {/* Tandem Partner Floating Panel */}
       {s.showTandemPanel && (
-        <div className="fixed inset-0 z-[300] bg-[#F2F2F7] dark:bg-[#0A0A0C] overflow-y-auto animate-in slide-in-from-right duration-300">
-          <div className="sticky top-0 z-10 flex items-center gap-3 px-4 py-3 bg-[#F2F2F7]/90 dark:bg-[#0A0A0C]/90 backdrop-blur-md border-b border-[rgba(0,0,0,0.08)] dark:border-white/5">
+        <div className="fixed inset-0 z-[300] bg-[#FFFFFF] dark:bg-[#0A0A0C] overflow-y-auto animate-in slide-in-from-right duration-300">
+          <div className="sticky top-0 z-10 flex items-center gap-3 px-4 py-3 bg-[#FFFFFF]/90 dark:bg-[#0A0A0C]/90 backdrop-blur-md border-b border-[rgba(0,0,0,0.08)] dark:border-white/5">
             <button
               onClick={() => s.setShowTandemPanel(false)}
               className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors cursor-pointer"

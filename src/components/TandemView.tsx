@@ -686,13 +686,13 @@ function SharedGoalRing({ goal, isUserA, isLight, onContribute }: {
           <circle cx="60" cy="60" r={radius} fill="none" stroke={isLight ? '#e5e7eb' : 'rgba(255,255,255,0.06)'} strokeWidth="8" />
           <circle
             cx="60" cy="60" r={radius} fill="none"
-            stroke="#10b981" strokeWidth="8" strokeLinecap="round"
+            stroke="#34A853" strokeWidth="8" strokeLinecap="round"
             strokeDasharray={`${strokeA} ${circumference - strokeA}`}
             className="transition-all duration-700"
           />
           <circle
             cx="60" cy="60" r={radius} fill="none"
-            stroke="#06b6d4" strokeWidth="8" strokeLinecap="round"
+            stroke="#4285F4" strokeWidth="8" strokeLinecap="round"
             strokeDasharray={`${strokeB} ${circumference - strokeB}`}
             strokeDashoffset={-strokeA}
             className="transition-all duration-700"

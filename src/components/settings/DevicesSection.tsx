@@ -358,10 +358,10 @@ export function DevicesSection({ triggerToast }: Props) {
         <button
           type="button"
           onClick={() => openMetricEditor('heartRate')}
-          className="p-3 rounded-2xl bg-white dark:bg-[#18181B] border border-zinc-200/80 dark:border-zinc-800/80 text-left hover:border-[#DC2626] dark:hover:border-[#DC2626]/50 active:scale-[0.98] transition-all cursor-pointer group"
+          className="p-3 rounded-2xl bg-white dark:bg-[#18181B] border border-zinc-200/80 dark:border-zinc-800/80 text-left hover:border-[#EA4335] dark:hover:border-[#EA4335]/50 active:scale-[0.98] transition-all cursor-pointer group"
         >
           <div className="flex items-center justify-between mb-1">
-            <Heart className="w-3.5 h-3.5 text-[#DC2626]" />
+            <Heart className="w-3.5 h-3.5 text-[#EA4335]" />
             <span className="text-[9px] font-mono text-emerald-500 uppercase font-semibold group-hover:underline">
               {liveHeartRate ? 'Live' : 'Resting'}
             </span>
@@ -405,7 +405,7 @@ export function DevicesSection({ triggerToast }: Props) {
           <button
             type="button"
             onClick={() => setPairModalOpen(true)}
-            className="shrink-0 h-[26px] px-2.5 rounded-full bg-[#DC2626] text-white text-[11px] font-semibold flex items-center gap-1.5 hover:bg-red-600 active:scale-[0.98] transition-all cursor-pointer shadow-xs"
+            className="shrink-0 h-[26px] px-2.5 rounded-full bg-[#EA4335] text-white text-[11px] font-semibold flex items-center gap-1.5 hover:bg-red-600 active:scale-[0.98] transition-all cursor-pointer shadow-xs"
           >
             <Bluetooth className="w-3.5 h-3.5" />
             Pair Device
@@ -427,7 +427,7 @@ export function DevicesSection({ triggerToast }: Props) {
               >
                 <div className="flex items-center gap-2.5">
                   <div className="w-7 h-7 rounded-lg bg-red-500/10 flex items-center justify-center">
-                    <Activity className="w-3.5 h-3.5 text-[#DC2626]" />
+                    <Activity className="w-3.5 h-3.5 text-[#EA4335]" />
                   </div>
                   <div>
                     <div className="flex items-center gap-1.5">
@@ -443,7 +443,7 @@ export function DevicesSection({ triggerToast }: Props) {
                         </span>
                       )}
                       {dev.heartRate && (
-                        <span className="text-[#DC2626] font-bold tabular-nums">
+                        <span className="text-[#EA4335] font-bold tabular-nums">
                           {dev.heartRate} BPM
                         </span>
                       )}
@@ -454,7 +454,7 @@ export function DevicesSection({ triggerToast }: Props) {
                   type="button"
                   onClick={() => handleDisconnect(dev.id)}
                   title="Disconnect sensor"
-                  className="p-1.5 rounded-lg text-zinc-400 hover:text-[#DC2626] hover:bg-red-500/10 transition-colors cursor-pointer"
+                  className="p-1.5 rounded-lg text-zinc-400 hover:text-[#EA4335] hover:bg-red-500/10 transition-colors cursor-pointer"
                 >
                   <Unplug className="w-4 h-4" />
                 </button>
@@ -472,7 +472,7 @@ export function DevicesSection({ triggerToast }: Props) {
               <div className="flex items-center gap-2.5">
                 <div className={`w-8 h-8 rounded-xl flex items-center justify-center ${
                   editingMetric === 'steps' ? 'bg-red-500/10 text-red-500' :
-                  editingMetric === 'heartRate' ? 'bg-[#DC2626]/10 text-[#DC2626]' :
+                  editingMetric === 'heartRate' ? 'bg-[#EA4335]/10 text-[#EA4335]' :
                   'bg-indigo-500/10 text-indigo-400'
                 }`}>
                   {editingMetric === 'steps' && <Footprints className="w-4 h-4" />}
@@ -512,7 +512,7 @@ export function DevicesSection({ triggerToast }: Props) {
                   editingMetric === 'steps' ? '10000' :
                   editingMetric === 'heartRate' ? '65' : '8.0'
                 }
-                className="w-full h-12 text-center text-xl font-bold rounded-2xl bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white outline-none border border-zinc-200 dark:border-zinc-700/80 focus:border-[#DC2626]"
+                className="w-full h-12 text-center text-xl font-bold rounded-2xl bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white outline-none border border-zinc-200 dark:border-zinc-700/80 focus:border-[#EA4335]"
               />
             </div>
 
@@ -527,7 +527,7 @@ export function DevicesSection({ triggerToast }: Props) {
               <button
                 type="button"
                 onClick={handleSaveMetric}
-                className="flex-1 h-10 rounded-xl bg-[#DC2626] text-white text-xs font-semibold hover:bg-red-600 cursor-pointer shadow-xs"
+                className="flex-1 h-10 rounded-xl bg-[#EA4335] text-white text-xs font-semibold hover:bg-red-600 cursor-pointer shadow-xs"
               >
                 Save
               </button>
@@ -544,7 +544,7 @@ export function DevicesSection({ triggerToast }: Props) {
             <div className="p-4 border-b border-zinc-100 dark:border-zinc-800/80 flex items-center justify-between">
               <div className="flex items-center gap-2.5">
                 <div className="w-8 h-8 rounded-xl bg-red-500/10 flex items-center justify-center">
-                  <Bluetooth className="w-4 h-4 text-[#DC2626]" />
+                  <Bluetooth className="w-4 h-4 text-[#EA4335]" />
                 </div>
                 <div>
                   <h3 className="text-sm font-bold text-zinc-900 dark:text-white">Pair Bluetooth Sensor</h3>
@@ -569,7 +569,7 @@ export function DevicesSection({ triggerToast }: Props) {
               <div className="p-4 rounded-2xl bg-zinc-50 dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-800">
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
-                    <Radio className="w-4 h-4 text-[#DC2626]" />
+                    <Radio className="w-4 h-4 text-[#EA4335]" />
                     <span className="text-xs font-bold text-zinc-900 dark:text-white">Hardware Scanner</span>
                   </div>
                   {bleSupported ? (
@@ -591,7 +591,7 @@ export function DevicesSection({ triggerToast }: Props) {
                   type="button"
                   onClick={handleScanBLE}
                   disabled={scanning}
-                  className="w-full h-10 rounded-xl bg-[#DC2626] text-white text-xs font-semibold flex items-center justify-center gap-2 hover:bg-red-600 active:scale-[0.98] transition-all cursor-pointer disabled:opacity-50 shadow-xs"
+                  className="w-full h-10 rounded-xl bg-[#EA4335] text-white text-xs font-semibold flex items-center justify-center gap-2 hover:bg-red-600 active:scale-[0.98] transition-all cursor-pointer disabled:opacity-50 shadow-xs"
                 >
                   {scanning ? (
                     <>

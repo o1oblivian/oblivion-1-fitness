@@ -12,7 +12,7 @@ import { WatchDial } from './WatchDial';
 import { playRealBellSound, playPRBreakthroughChime } from '../utils/audio';
 import { getSmartDefault, recordSmartInput } from '../utils/frequencyDefaults';
 import { getDispatchedWorkouts, DispatchedWorkout } from '../utils/dispatchStore';
-import { Zap, Trash2, Share2, ChevronDown, Dumbbell, Plus, Save, Check, Sparkles, ChevronRight, Play, Pause, Square, X, Trophy, TrendingUp, Disc, Flame, Search } from 'lucide-react';
+import { Zap, Trash2, Share2, ChevronDown, Dumbbell, Plus, Save, Check, Sparkles, ChevronRight, Play, Pause, Square, X, Trophy, TrendingUp, Disc, Flame, Search, Activity } from 'lucide-react';
 import { DualLaneLauncher } from './DualLaneLauncher';
 import { VictoryShareModal } from './VictoryShareModal';
 import { PlateMathModal } from './PlateMathModal';
@@ -702,29 +702,33 @@ export const SoloView: React.FC<SoloViewProps> = ({
         {/* Category Tabs: Lift | Sports | Recovery */}
         <div className="flex gap-1 bg-zinc-100 dark:bg-white/[0.04] rounded-lg p-0.5">
           {([
-            { key: 'weights' as const, label: 'Lift', categories: liftCategories },
-            { key: 'sports' as const, label: 'Sports', categories: sportsCategories },
-            { key: 'recovery' as const, label: 'Recovery', categories: recoveryCategories },
-          ] as const).map((cat) => (
-            <button
-              key={cat.key}
-              onClick={() => {
-                haptic.tap();
-                setCategoryTypeGroup(cat.key);
-                if (!cat.categories.includes(selectedCategory)) {
-                  setSelectedCategory(cat.categories[0]);
-                }
-                setOpenDropdown(openDropdown === cat.key ? null : cat.key);
-              }}
-              className={`flex-1 h-8 rounded-md text-[11px] font-bold transition-all active:scale-95 flex items-center justify-center cursor-pointer ${
-                categoryTypeGroup === cat.key
-                  ? 'bg-white dark:bg-white/10 text-zinc-900 dark:text-white shadow-sm'
-                  : 'text-zinc-400 dark:text-white/35 hover:text-zinc-600 dark:hover:text-white/55'
-              }`}
-            >
-              {cat.label}
-            </button>
-          ))}
+            { key: 'weights' as const, label: 'Lift', categories: liftCategories, icon: Dumbbell, color: '#FF3B30' },
+            { key: 'sports' as const, label: 'Sports', categories: sportsCategories, icon: Flame, color: '#F59E0B' },
+            { key: 'recovery' as const, label: 'Recovery', categories: recoveryCategories, icon: Activity, color: '#8B5CF6' },
+          ] as const).map((cat) => {
+            const Icon = cat.icon;
+            return (
+              <button
+                key={cat.key}
+                onClick={() => {
+                  haptic.tap();
+                  setCategoryTypeGroup(cat.key);
+                  if (!cat.categories.includes(selectedCategory)) {
+                    setSelectedCategory(cat.categories[0]);
+                  }
+                  setOpenDropdown(openDropdown === cat.key ? null : cat.key);
+                }}
+                className={`flex-1 h-8 rounded-md text-[11px] font-bold transition-all active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer ${
+                  categoryTypeGroup === cat.key
+                    ? 'bg-white dark:bg-white/10 text-zinc-900 dark:text-white shadow-sm'
+                    : 'text-zinc-400 dark:text-white/35 hover:text-zinc-600 dark:hover:text-white/55'
+                }`}
+              >
+                <Icon className="w-3 h-3" style={{ color: cat.color }} />
+                <span>{cat.label}</span>
+              </button>
+            );
+          })}
         </div>
 
         {/* Dropdown Menu Content (Appears when any menu is open) */}
@@ -746,7 +750,7 @@ export const SoloView: React.FC<SoloViewProps> = ({
                     }}
                     className={`whitespace-nowrap h-8 px-3 rounded-xl text-xs font-bold shrink-0 transition-all flex items-center gap-1.5 border active:scale-95 cursor-pointer ${
                       isSelected
-                        ? 'bg-[#DC2626] text-white border-[#DC2626] shadow-xs'
+                        ? 'bg-[#EA4335] text-white border-[#EA4335] shadow-xs'
                         : 'bg-zinc-100/80 dark:bg-white/[0.05] text-zinc-700 dark:text-white/70 border-zinc-200 dark:border-zinc-800 hover:bg-zinc-200'
                     }`}
                   >
@@ -773,7 +777,7 @@ export const SoloView: React.FC<SoloViewProps> = ({
                   }
                   value={exerciseSearchQuery}
                   onChange={(e) => setExerciseSearchQuery(e.target.value)}
-                  className="w-full h-9 bg-zinc-100 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/80 rounded-xl pl-9 pr-9 text-xs font-medium text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-500 outline-none focus:border-[#DC2626] dark:focus:border-[#DC2626] focus:ring-1 focus:ring-[#DC2626]/20 transition-all"
+                  className="w-full h-9 bg-zinc-100 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/80 rounded-xl pl-9 pr-9 text-xs font-medium text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-500 outline-none focus:border-[#EA4335] dark:focus:border-[#EA4335] focus:ring-1 focus:ring-[#EA4335]/20 transition-all"
                 />
                 {exerciseSearchQuery.length > 0 && (
                   <button
@@ -823,12 +827,12 @@ export const SoloView: React.FC<SoloViewProps> = ({
               {exerciseSearchQuery.trim().length > 0 && (
                 <button
                   onClick={() => handleAddExercisePermanently(exerciseSearchQuery, selectedCategory)}
-                  className="w-full py-1.5 px-3 rounded-xl bg-zinc-100 dark:bg-zinc-800/90 border border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-white text-[11px] flex items-center justify-between transition-all hover:border-[#DC2626] active:scale-[0.98] cursor-pointer"
+                  className="w-full py-1.5 px-3 rounded-xl bg-zinc-100 dark:bg-zinc-800/90 border border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-white text-[11px] flex items-center justify-between transition-all hover:border-[#FF3B30] dark:hover:border-[#FF453A] active:scale-[0.98] cursor-pointer"
                 >
                   <span className="truncate pr-2 font-medium">
-                    + Add <strong className="font-bold text-[#DC2626]">"{exerciseSearchQuery.trim()}"</strong> to {selectedCategory}
+                    + Add <strong className="font-bold text-[#FF3B30] dark:text-[#FF453A]">"{exerciseSearchQuery.trim()}"</strong> to {selectedCategory}
                   </span>
-                  <span className="text-[9px] font-bold bg-[#DC2626] text-white px-2 py-0.5 rounded-md shrink-0">
+                  <span className="text-[9px] font-bold bg-[#FF3B30] dark:bg-[#FF453A] text-white px-2 py-0.5 rounded-md shrink-0">
                     Save
                   </span>
                 </button>
@@ -844,14 +848,14 @@ export const SoloView: React.FC<SoloViewProps> = ({
                 {isFallbackSearch ? (
                   <button
                     onClick={() => setActiveFilterTag('All')}
-                    className="text-[#DC2626] font-bold hover:underline flex items-center gap-1 cursor-pointer"
+                    className="text-[#FF3B30] dark:text-[#FF453A] font-bold hover:underline flex items-center gap-1 cursor-pointer"
                   >
                     Showing all equipment (0 matches for {activeFilterTag}) • Reset
                   </button>
                 ) : activeFilterTag !== 'All' ? (
                   <button
                     onClick={() => setActiveFilterTag('All')}
-                    className="text-[#DC2626] font-bold hover:underline flex items-center gap-1 cursor-pointer"
+                    className="text-[#FF3B30] dark:text-[#FF453A] font-bold hover:underline flex items-center gap-1 cursor-pointer"
                   >
                     Filtered by "{activeFilterTag}" <X className="w-2.5 h-2.5" />
                   </button>
@@ -878,7 +882,7 @@ export const SoloView: React.FC<SoloViewProps> = ({
                       </div>
                       <button
                         onClick={() => handleAddExercise(item.name)}
-                        className="shrink-0 px-2.5 py-1 rounded-lg flex items-center gap-1 text-[#DC2626] dark:text-[#EF4444] hover:bg-red-500/10 active:scale-95 transition-all font-bold text-[11px] cursor-pointer"
+                        className="shrink-0 px-2.5 py-1 rounded-lg flex items-center gap-1 text-[#FF3B30] dark:text-[#FF453A] hover:bg-red-500/10 active:scale-95 transition-all font-bold text-[11px] cursor-pointer"
                         title={`Add ${item.name}`}
                       >
                         <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
@@ -894,7 +898,7 @@ export const SoloView: React.FC<SoloViewProps> = ({
                     {exerciseSearchQuery.trim().length > 0 && (
                       <button
                         onClick={() => handleAddExercisePermanently(exerciseSearchQuery, selectedCategory)}
-                        className="text-xs font-bold text-white bg-[#DC2626] hover:bg-red-700 px-4 py-1.5 rounded-xl shadow-xs active:scale-95 transition-all cursor-pointer"
+                        className="text-xs font-bold text-white bg-[#FF3B30] dark:bg-[#FF453A] hover:bg-red-700 px-4 py-1.5 rounded-xl shadow-xs active:scale-95 transition-all cursor-pointer"
                       >
                         Save &quot;{exerciseSearchQuery.trim()}&quot; to {selectedCategory}
                       </button>
@@ -1213,7 +1217,7 @@ export const SoloView: React.FC<SoloViewProps> = ({
 
                         <button
                           onClick={() => { handleDeleteExerciseCard(log.id); if (expandedExerciseId === log.id) setExpandedExerciseId(null); }}
-                          className="h-7 w-7 rounded-md border border-[#DC2626]/30 text-[#DC2626] hover:bg-[#DC2626]/10 text-xs transition-all active:scale-95 flex items-center justify-center cursor-pointer"
+                          className="h-7 w-7 rounded-md border border-[#EA4335]/30 text-[#EA4335] hover:bg-[#EA4335]/10 text-xs transition-all active:scale-95 flex items-center justify-center cursor-pointer"
                           title="Delete Exercise"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
@@ -1256,11 +1260,11 @@ export const SoloView: React.FC<SoloViewProps> = ({
         {/* ── Weekly Report Card Strip ── */}
         <button
           onClick={() => setIsReportCardOpen(true)}
-          className="w-full group flex items-center justify-between gap-2 px-3 py-2.5 rounded-xl bg-white dark:bg-[#13161A] border border-slate-200 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20 transition-all cursor-pointer active:scale-[0.98] mt-1 shadow-2xs"
+          className="w-full group flex items-center justify-between gap-2 px-3 py-2.5 rounded-xl bg-white dark:bg-[#13161A] border border-slate-200 dark:border-white/10 hover:border-[#4285F4]/40 dark:hover:border-[#4285F4]/40 transition-all cursor-pointer active:scale-[0.98] mt-1 shadow-2xs"
         >
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-7 h-7 rounded-lg bg-slate-100 dark:bg-white/10 border border-slate-200 dark:border-white/10 flex items-center justify-center shrink-0">
-              <Zap className="w-3.5 h-3.5 text-slate-900 dark:text-white" />
+            <div className="w-7 h-7 rounded-lg bg-[#4285F4]/10 border border-[#4285F4]/20 flex items-center justify-center shrink-0">
+              <Zap className="w-3.5 h-3.5 text-[#4285F4]" />
             </div>
             <div className="min-w-0 text-left">
               <div className="text-[12px] font-bold text-slate-900 dark:text-white tracking-tight">Weekly Report Card</div>
@@ -1274,11 +1278,11 @@ export const SoloView: React.FC<SoloViewProps> = ({
         {onOpenAIInsights && (
           <button
             onClick={onOpenAIInsights}
-            className="w-full group flex items-center justify-between gap-2 px-3 py-2.5 rounded-xl bg-white dark:bg-[#13161A] border border-slate-200 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20 transition-all cursor-pointer active:scale-[0.98] mt-1 shadow-2xs"
+            className="w-full group flex items-center justify-between gap-2 px-3 py-2.5 rounded-xl bg-white dark:bg-[#13161A] border border-slate-200 dark:border-white/10 hover:border-[#FBBC05]/40 dark:hover:border-[#FBBC05]/40 transition-all cursor-pointer active:scale-[0.98] mt-1 shadow-2xs"
           >
             <div className="flex items-center gap-2.5 min-w-0">
-              <div className="w-7 h-7 rounded-lg bg-slate-100 dark:bg-white/10 border border-slate-200 dark:border-white/10 flex items-center justify-center shrink-0">
-                <Sparkles className="w-3.5 h-3.5 text-slate-900 dark:text-white" />
+              <div className="w-7 h-7 rounded-lg bg-[#FBBC05]/10 border border-[#FBBC05]/20 flex items-center justify-center shrink-0">
+                <Sparkles className="w-3.5 h-3.5 text-[#FBBC05]" />
               </div>
               <div className="min-w-0 text-left">
                 <div className="text-[12px] font-bold text-slate-900 dark:text-white tracking-tight">Intel Coach Intelligence</div>

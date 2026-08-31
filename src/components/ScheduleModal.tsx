@@ -85,7 +85,7 @@ export const ScheduleModal: React.FC<ScheduleModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-[150] bg-[#F2F2F7] dark:bg-[#0A0A0C] overflow-y-auto font-sans">
+    <div className="fixed inset-0 z-[150] bg-[#FFFFFF] dark:bg-[#0A0A0C] overflow-y-auto font-sans">
       <div className="min-h-screen p-4 pb-32">
         {/* Header */}
         <div className="flex justify-between items-center mb-5">
@@ -204,7 +204,7 @@ export const ScheduleModal: React.FC<ScheduleModalProps> = ({
         </div>
 
         {/* Save Button */}
-        <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-[#F2F2F7] via-[#F2F2F7]/95 dark:from-[#0A0A0C] dark:via-[#0A0A0C]/95 to-transparent">
+        <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-[#FFFFFF] via-[#FFFFFF]/95 dark:from-[#0A0A0C] dark:via-[#0A0A0C]/95 to-transparent">
           <button
             onClick={() => { onSave(localSchedule); onClose(); }}
             className="w-full py-3.5 bg-cyan-500 hover:bg-cyan-400 text-white dark:text-black rounded-2xl font-mono font-bold shadow-lg shadow-cyan-500/20 active:scale-[0.97] transition-all text-xs uppercase tracking-wider cursor-pointer"
