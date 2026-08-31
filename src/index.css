@@ -1,0 +1,1344 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* html5-qrcode library overrides */
+#barcode-scanner-region img[alt="Info"],
+#barcode-scanner-region > div:last-child,
+#barcode-scanner-region__header_message,
+#barcode-scanner-region__dashboard_section,
+#barcode-scanner-region__scan_region > img,
+#barcode-scanner-region > div[style*="position: absolute"][style*="border-width"] {
+  display: none !important;
+}
+#barcode-scanner-region video {
+  object-fit: cover !important;
+  border-radius: 0 !important;
+}
+#barcode-scanner-region #qr-shaded-region {
+  border-color: rgba(217, 79, 79, 0.6) !important;
+}
+
+/* ================================================================
+   TYPOGRAPHY — Luxury Athletic Design System
+   Fonts: Sora (display), Plus Jakarta Sans (body), 
+          Space Grotesk + JetBrains Mono (numbers)
+   ================================================================ */
+
+/* Browser Autofill Dark Mode Override to prevent yellow/beige input overlays */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus,
+select:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0px 1000px #121216 inset !important;
+  -webkit-text-fill-color: #FFFFFF !important;
+  caret-color: #FFFFFF !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+/* Global font enforcement: 100% Plus Jakarta Sans everywhere across the entire app */
+*,
+*::before,
+*::after,
+html,
+body,
+input,
+button,
+select,
+textarea,
+optgroup,
+pre,
+code,
+kbd,
+samp {
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+}
+
+/* Global Nude Architecture (No frame/fog close buttons, badges, and nude action strips) */
+.btn-nude-close {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0.375rem !important;
+  border-radius: 0.5rem !important;
+  color: #71717a !important;
+  transition: color 0.15s ease, transform 0.15s ease, opacity 0.15s ease !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+.btn-nude-close:hover {
+  color: #09090b !important;
+}
+.dark .btn-nude-close {
+  color: #a1a1aa !important;
+}
+.dark .btn-nude-close:hover {
+  color: #ffffff !important;
+}
+.btn-nude-close:active {
+  transform: scale(0.92) !important;
+}
+
+@layer base {
+  :root {
+    --apple-canvas: #F2F2F7;
+    --apple-secondary: #E5E5EA;
+    --apple-surface: #FFFFFF;
+    --apple-border: rgba(0, 0, 0, 0.08);
+    --apple-text-primary: #1C1C1E;
+    --apple-text-secondary: #8E8E93;
+  }
+
+  html.dark {
+    --apple-canvas: #000000;
+    --apple-secondary: #1C1C1E;
+    --apple-surface: #121214;
+    --apple-border: rgba(255, 255, 255, 0.08);
+    --apple-text-primary: #FFFFFF;
+    --apple-text-secondary: #8E8E93;
+  }
+
+  html {
+    background-color: #F2F2F7;
+    color: #1C1C1E;
+    width: 100%;
+    max-width: 100vw;
+    height: 100dvh;
+    overflow: hidden;
+    box-sizing: border-box;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  html.dark {
+    background-color: #000000;
+    color: #FFFFFF;
+  }
+
+  body {
+    width: 100%;
+    max-width: 100vw;
+    overflow: hidden;
+    height: 100dvh;
+    min-height: 100dvh;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    background-color: inherit;
+    color: inherit;
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+    font-weight: 500;
+    font-size: 13px;
+    line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    transition: background-color 0.25s ease, color 0.25s ease;
+  }
+
+  html.dark body {
+    background-color: #000000;
+    color: #FFFFFF;
+  }
+
+  #root {
+    width: 100%;
+    max-width: 100vw;
+    height: 100dvh;
+    overflow: hidden;
+    box-sizing: border-box;
+    background-color: inherit;
+  }
+
+  /* Headings — Plus Jakarta Sans, tight tracking, clean hierarchy */
+  h1, h2, h3, h4 {
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    color: inherit;
+  }
+
+  h1 { font-weight: 800; letter-spacing: -0.025em; }
+  h2 { font-weight: 700; letter-spacing: -0.02em; }
+  h3 { font-weight: 700; letter-spacing: -0.02em; }
+  h4 { font-weight: 600; letter-spacing: -0.015em; }
+
+  /* Tabular numerals for all metric numbers */
+  .tabular-nums,
+  input[type="number"],
+  input[type="tel"] {
+    font-variant-numeric: tabular-nums lining-nums;
+    font-feature-settings: 'tnum' 1, 'lnum' 1;
+  }
+}
+
+/* ================================================================
+   UTILITY CLASSES
+   ================================================================ */
+
+@layer utilities {
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  /* === LUXURY THEME MODAL SYSTEM === */
+  .modal-backdrop {
+    @apply fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center p-4;
+    z-index: 999;
+  }
+  .modal-card {
+    @apply bg-white dark:bg-[#121214] text-[#1C1C1E] dark:text-white border border-black/10 dark:border-white/10 shadow-2xl rounded-3xl overflow-hidden;
+    z-index: 1000;
+    max-height: 85vh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .modal-close-btn {
+    @apply min-w-[44px] min-h-[44px] rounded-full bg-[#E5E5EA] dark:bg-white/10 hover:bg-[#D1D1D6] dark:hover:bg-white/20 flex items-center justify-center text-[#8E8E93] dark:text-zinc-400 hover:text-[#1C1C1E] dark:hover:text-white transition-colors cursor-pointer active:scale-95;
+  }
+  .input-pill {
+    min-height: 30px;
+    height: 30px;
+    min-width: 32px;
+  }
+  .delete-cell {
+    min-height: 30px;
+    height: 30px;
+    min-width: 30px;
+  }
+  /* Theme Cards */
+  .theme-card {
+    @apply bg-white dark:bg-[#121214] border border-black/[0.08] dark:border-white/10 shadow-sm rounded-3xl;
+  }
+  .theme-card-inset {
+    @apply bg-[#F2F2F7] dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/5 rounded-2xl;
+  }
+  .theme-canvas {
+    @apply bg-[#F2F2F7] dark:bg-[#000000];
+  }
+  /* Theme Typography */
+  .theme-heading {
+    @apply text-[#1C1C1E] dark:text-white font-bold;
+  }
+  .theme-sub {
+    @apply text-[#8E8E93] dark:text-zinc-400 font-medium;
+  }
+  .theme-metric {
+    @apply text-[#1C1C1E] dark:text-white font-mono font-extrabold;
+  }
+
+  .animate-spin-slow {
+    animation: spin 8s linear infinite;
+  }
+
+  .animate-ring-once {
+    animation: ringSweepOnce 1.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+  }
+
+  .animate-marquee {
+    display: inline-block;
+    animation: marquee 22s linear infinite;
+  }
+
+  .animate-pulse {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+
+  /* Voice waveform animation — AI Studio style */
+  .voice-bar {
+    animation: voiceWave 0.9s ease-in-out infinite alternate;
+    will-change: height, transform;
+  }
+
+  @keyframes voiceWave {
+    0% { transform: scaleY(0.4); opacity: 0.6; }
+    100% { transform: scaleY(1); opacity: 1; }
+  }
+
+  .animate-voice-ring {
+    animation: voiceRing 1.4s ease-out infinite;
+  }
+
+  @keyframes voiceRing {
+    0% { transform: scale(1); opacity: 0.7; }
+    100% { transform: scale(1.5); opacity: 0; }
+  }
+
+  /* Font helpers */
+  .font-display {
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
+    letter-spacing: -0.02em;
+  }
+  .font-numbers {
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
+    font-variant-numeric: tabular-nums lining-nums;
+    font-feature-settings: 'tnum' 1, 'lnum' 1;
+  }
+  .font-mono-tech {
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
+    font-variant-numeric: tabular-nums lining-nums;
+  }
+
+  /* Luxury card surface — dark mode */
+  .lux-card {
+    border-radius: 16px;
+    border: 1px solid #222733;
+    background: #161A1F;
+    padding: 16px;
+  }
+
+  html:not(.dark) .lux-card {
+    border-color: #E8E4DA;
+    background: #FDFCFB;
+  }
+
+  /* Premium gradient text */
+  .text-gradient {
+    background: linear-gradient(135deg, var(--accent-color, #000000), color-mix(in srgb, var(--accent-color, #000000) 60%, #333333));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  /* Premium shimmer effect for loading / emphasis */
+  .shimmer {
+    background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.06) 50%, transparent 100%);
+    background-size: 200% 100%;
+    animation: shimmerSlide 2s linear infinite;
+  }
+  @keyframes shimmerSlide {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+
+  @keyframes shimmer {
+    100% { transform: translateX(100%); }
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  .animate-fadeIn { animation: fadeIn 0.3s ease forwards; }
+
+  /* Premium card hover lift */
+  .card-lift {
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease;
+  }
+  .card-lift:hover {
+    transform: translateY(-2px);
+  }
+  .card-lift:active {
+    transform: translateY(0) scale(0.99);
+  }
+
+  /* Glassmorphism surface — premium frosted glass */
+  .glass-premium {
+    background: rgba(253, 252, 251, 0.72);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(234, 230, 223, 0.6);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 8px 24px -8px rgba(0,0,0,0.08);
+  }
+  html.dark .glass-premium {
+    background: rgba(22, 26, 31, 0.72);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(34, 39, 51, 0.6);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2), 0 8px 24px -8px rgba(0,0,0,0.4);
+  }
+
+  /* Premium button press feedback */
+  .btn-press {
+    transition: transform 0.1s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .btn-press:active {
+    transform: scale(0.95);
+  }
+
+  /* Stagger animation children */
+  .stagger-in > * {
+    opacity: 0;
+    animation: staggerItem 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+  .stagger-in > *:nth-child(1) { animation-delay: 0.05s; }
+  .stagger-in > *:nth-child(2) { animation-delay: 0.10s; }
+  .stagger-in > *:nth-child(3) { animation-delay: 0.15s; }
+  .stagger-in > *:nth-child(4) { animation-delay: 0.20s; }
+  .stagger-in > *:nth-child(5) { animation-delay: 0.25s; }
+  .stagger-in > *:nth-child(6) { animation-delay: 0.30s; }
+  .stagger-in > *:nth-child(7) { animation-delay: 0.35s; }
+  .stagger-in > *:nth-child(8) { animation-delay: 0.40s; }
+
+  @keyframes staggerItem {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Smooth content fade-in on tab switch */
+  .tab-enter {
+    animation: tabEnter 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+  @keyframes tabEnter {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Premium ring glow for active states */
+  .ring-glow {
+    box-shadow: 0 0 0 2px var(--accent-color, #991B1B), 0 0 16px -4px var(--accent-color, #991B1B);
+  }
+
+  /* Custom scrollbar — thin and refined */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(0,0,0,0.12);
+    border-radius: 4px;
+  }
+  html.dark .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.12);
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(0,0,0,0.2);
+  }
+  html.dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(255,255,255,0.2);
+  }
+
+  /* No scrollbar utility (kept from original) */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  /* 3D OLED flip card */
+  .flip-perspective {
+    perspective: 1400px;
+  }
+  .flip-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+    transition: transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .flip-inner.flipped {
+    transform: rotateY(180deg);
+  }
+  .flip-face {
+    position: absolute;
+    inset: 0;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+  }
+  .flip-back {
+    transform: rotateY(180deg);
+  }
+  /* Disable touch/click on the hidden face so it doesn't intercept taps.
+     backface-visibility:hidden hides it visually, but WebKit still routes
+     pointer events through it on mobile. */
+  .flip-inner:not(.flipped) .flip-back {
+    pointer-events: none;
+  }
+  .flip-inner.flipped .flip-face:not(.flip-back) {
+    pointer-events: none;
+  }
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  /* Metric number styling */
+  .metric-number {
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
+    font-variant-numeric: tabular-nums lining-nums;
+    font-feature-settings: 'tnum' 1, 'lnum' 1;
+    font-weight: 600;
+  }
+
+  /* ================================================================
+     FLAT SURFACE TILES — Apple HIG / Material 3 flat elevation
+     Zero nested cards. Hairline borders only.
+     ================================================================ */
+  .surface-flat {
+    border-radius: 16px;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    background: #FFFFFF;
+  }
+  html.dark .surface-flat {
+    border-color: rgba(255, 255, 255, 0.08);
+    background: #121214;
+  }
+
+  /* 3-column metric grid with vertical dividers — replaces nested boxes */
+  .metric-grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    border-radius: 16px;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    background: #FFFFFF;
+    overflow: hidden;
+  }
+  html.dark .metric-grid-3 {
+    border-color: rgba(255, 255, 255, 0.08);
+    background: #121214;
+  }
+  .metric-grid-3 > div {
+    padding: 12px 8px;
+    border-right: 1px solid rgba(0, 0, 0, 0.06);
+  }
+  html.dark .metric-grid-3 > div {
+    border-right-color: rgba(255, 255, 255, 0.06);
+  }
+  .metric-grid-3 > div:last-child {
+    border-right: none;
+  }
+
+  /* Set row flat tile — compact, no nested card */
+  .set-row-flat {
+    display: grid;
+    grid-template-columns: 20px 3fr 3fr 2fr 20px;
+    align-items: center;
+    gap: 4px;
+    padding: 0;
+  }
+
+  .delete-cell {
+    width: 20px;
+    height: 20px;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #9CA3AF;
+    transition: all 0.15s ease;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  html.dark .delete-cell {
+    color: #4B5563;
+  }
+  .delete-cell:hover {
+    background: rgba(244, 63, 94, 0.12);
+    color: #EF4444;
+  }
+
+  .input-pill {
+    width: 100%;
+    height: 30px;
+    padding: 0 4px;
+    border-radius: 8px;
+    border: 1px solid #E5E7EB;
+    background: #F3F4F6;
+    text-align: center;
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
+    font-size: 12px;
+    font-weight: 600;
+    color: #000000;
+    outline: none;
+    cursor: pointer;
+    transition: border-color 0.15s ease;
+  }
+  .input-pill:focus {
+    border-color: #dc2626;
+  }
+  html.dark .input-pill {
+    border-color: rgba(255, 255, 255, 0.05);
+    background: #1E222A;
+    color: #FFFFFF;
+  }
+  html.dark .input-pill:focus {
+    border-color: #dc2626;
+  }
+
+  /* ================================================================
+     OBSIDIAN GLASS SYSTEM & ADAPTIVE BLACK/WHITE TOKENS
+     ================================================================ */
+  .obsidian-panel {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(28px) saturate(190%);
+    -webkit-backdrop-filter: blur(28px) saturate(190%);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    box-shadow: 0 4px 24px -2px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.02), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  }
+  html.dark .obsidian-panel {
+    background: rgba(13, 15, 20, 0.78);
+    backdrop-filter: blur(28px) saturate(190%);
+    -webkit-backdrop-filter: blur(28px) saturate(190%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 8px 32px -4px rgba(0, 0, 0, 0.65), 0 2px 6px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  }
+
+  .obsidian-panel-elevated {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(32px) saturate(200%);
+    -webkit-backdrop-filter: blur(32px) saturate(200%);
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    box-shadow: 0 20px 48px -10px rgba(0, 0, 0, 0.12), inset 0 1px 0 rgba(255, 255, 255, 1);
+  }
+  html.dark .obsidian-panel-elevated {
+    background: rgba(10, 11, 15, 0.88);
+    backdrop-filter: blur(32px) saturate(200%);
+    -webkit-backdrop-filter: blur(32px) saturate(200%);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    box-shadow: 0 24px 64px -12px rgba(0, 0, 0, 0.85), inset 0 1px 0 rgba(255, 255, 255, 0.18);
+  }
+
+  .obsidian-card-interactive {
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .obsidian-card-interactive:hover {
+    border-color: rgba(0, 0, 0, 0.2);
+    transform: translateY(-2px);
+    box-shadow: 0 12px 28px -6px rgba(0, 0, 0, 0.08);
+  }
+  html.dark .obsidian-card-interactive:hover {
+    border-color: rgba(255, 255, 255, 0.22);
+    transform: translateY(-2px);
+    box-shadow: 0 16px 36px -6px rgba(0, 0, 0, 0.7);
+  }
+
+  .obsidian-pill {
+    background: rgba(0, 0, 0, 0.04);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    color: #000000;
+  }
+  html.dark .obsidian-pill {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #FFFFFF;
+  }
+
+  .obsidian-input {
+    background: rgba(0, 0, 0, 0.03);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    color: #000000;
+  }
+  .obsidian-input:focus {
+    background: rgba(255, 255, 255, 1);
+    border-color: #000000;
+    box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
+  }
+  html.dark .obsidian-input {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #FFFFFF;
+  }
+  html.dark .obsidian-input:focus {
+    background: rgba(18, 20, 26, 0.95);
+    border-color: #FFFFFF;
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.15);
+  }
+
+  /* Safe Area Utilities */
+  .safe-top {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  /* ================================================================
+     MICRO-INTERACTION DEFAULTS
+     ================================================================ */
+  .tap-target {
+    min-height: 44px;
+    min-width: 44px;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .tap-target:active {
+    transform: scale(0.98);
+  }
+
+  /* Compact touch zone — uses padding to achieve 44px hit area
+     without inflating the visible control size */
+  .touch-zone {
+    position: relative;
+  }
+  .touch-zone::before {
+    content: '';
+    position: absolute;
+    inset: -8px;
+    border-radius: inherit;
+    z-index: -1;
+  }
+}
+
+/* ================================================================
+   KEYFRAMES & ANIMATIONS
+   ================================================================ */
+
+@keyframes marquee {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+
+.neon-breath-btn {
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+  border-color: rgba(15, 23, 42, 0.15);
+}
+
+/* Full Screen Modal Override */
+.full-screen-modal {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* Glass Card Styles */
+.glass {
+  background: #FDFCFB;
+  border: 1px solid #EAE6DF;
+  color: #000000;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+  border-radius: 16px;
+}
+
+html.dark .glass {
+  background: #161A1F;
+  border: 1px solid #222733;
+  color: #FFFFFF;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.btn-active:active {
+  transform: scale(0.96);
+  opacity: 0.9;
+}
+
+@keyframes slideDownFade {
+  from {
+    opacity: 0;
+    transform: translateY(-24px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-slideDownFade {
+  animation: slideDownFade 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes slideUpFade {
+  from {
+    opacity: 0;
+    transform: translateY(-24px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes slideUpFadeKeyframe {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-slideUpFade {
+  animation: slideUpFadeKeyframe 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.animate-scaleIn {
+  animation: scaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+@keyframes scaleIn {
+  from { opacity: 0; transform: translateX(-50%) scale(0); }
+  to { opacity: 1; transform: translateX(-50%) scale(1); }
+}
+
+.animate-breathe {
+  animation: breathe 3s ease-in-out infinite;
+}
+@keyframes breathe {
+  0%, 100% { opacity: 0.7; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.05); }
+}
+
+/* View transition — smooth crossfade between pages */
+.view-transition-enter {
+  animation: viewEnter 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+@keyframes viewEnter {
+  from { opacity: 0; transform: translateY(6px) scale(0.995); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Premium modal scale-in from center */
+.modal-scale-enter {
+  animation: modalScaleEnter 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+@keyframes modalScaleEnter {
+  from { opacity: 0; transform: scale(0.92); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* Backdrop fade */
+.backdrop-enter {
+  animation: backdropEnter 0.2s ease-out forwards;
+}
+@keyframes backdropEnter {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes wave {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(-10px); }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.animate-slideUp {
+  animation: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes ringSweepOnce {
+  0% {
+    transform: rotate(0deg);
+    opacity: 1;
+  }
+  75% {
+    transform: rotate(360deg);
+    opacity: 1;
+  }
+  100% {
+    transform: rotate(360deg);
+    opacity: 0;
+  }
+}
+
+.activity-ring {
+  transform: rotate(-90deg);
+  transform-origin: 50% 50%;
+}
+
+.activity-ring-circle {
+  transition: stroke-dashoffset 1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ================================================================
+   AUTH MODAL STYLES
+   ================================================================ */
+
+/* Auth portal styles removed — now Tailwind-only */
+
+/* ================================================================
+   DROPDOWN WINDOW
+   ================================================================ */
+
+.dropdown-window-container {
+  max-height: min(80vh, 560px) !important;
+  height: auto !important;
+  min-height: 240px;
+  overflow-y: auto !important;
+  margin-top: auto !important;
+  margin-bottom: 0 !important;
+  transform-origin: bottom center !important;
+  animation: dropdownOpenUp 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+  border-radius: 24px 24px 24px 24px !important;
+  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(255, 255, 255, 0.15) !important;
+  -webkit-overflow-scrolling: touch;
+}
+
+@keyframes dropdownOpenUp {
+  0% {
+    opacity: 0;
+    transform: translateY(24px) scale(0.96);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (max-height: 700px) {
+  .dropdown-window-container {
+    max-height: 75vh !important;
+  }
+}
+
+.dropdown-window-container .dropdown-scroll-body {
+  max-height: 52vh;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch;
+}
+
+.dropdown-window-container .grid-cols-2 {
+  gap: 0.5rem !important;
+}
+
+.dropdown-window-container .routine-box-card {
+  padding: 8px 12px !important;
+  min-height: 44px !important;
+  border-radius: 12px !important;
+}
+
+/* ================================================================
+   MOBILE BOTTOM SHEET SYSTEM
+   ================================================================ */
+
+.mobile-sheet {
+  border-radius: 24px 24px 0 0 !important;
+  animation: mobileSheetUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+}
+
+@keyframes mobileSheetUp {
+  0% {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.sheet-handle {
+  width: 40px;
+  height: 4px;
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 999px;
+  margin: 8px auto 4px;
+  flex-shrink: 0;
+}
+
+html.dark .sheet-handle {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* ================================================================
+   THEME ACCENT SYSTEM
+   ================================================================ */
+
+:root {
+  --accent-color: #991B1B;
+}
+
+[data-theme-palette="natural"] {
+  --accent-default: #991B1B;
+  --accent-color: #991B1B;
+}
+
+[data-theme-palette="neon"] {
+  --accent-default: #C8A97E;
+  --accent-color: #C8A97E;
+}
+
+.theme-accent-bg {
+  background-color: var(--accent-color, #991B1B) !important;
+}
+
+.theme-accent-text {
+  color: var(--accent-color, #991B1B) !important;
+}
+
+.theme-accent-border {
+  border-color: var(--accent-color, #991B1B) !important;
+}
+
+.theme-accent-ring {
+  --tw-ring-color: var(--accent-color, #991B1B) !important;
+}
+
+/* ================================================================
+   FLOATING MODAL SYSTEM
+   ================================================================ */
+
+:root {
+  --click-x: 50%;
+  --click-y: 50%;
+}
+
+@keyframes floatingModalPop {
+  0% {
+    opacity: 0;
+    transform: scale(0.88) translateY(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+
+
+.dropdown-window-container {
+  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.15) !important;
+}
+
+/* ================================================================
+   PWA STANDALONE MODE — iOS/Android installed app
+   ================================================================ */
+
+@supports (padding: env(safe-area-inset-top)) {
+  body {
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+}
+
+/* Prevent text selection on long press in standalone mode */
+@media (display-mode: standalone) {
+  body {
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+  }
+
+  input, textarea, [contenteditable] {
+    -webkit-user-select: text;
+    user-select: text;
+  }
+
+  /* Disable overscroll bounce on iOS */
+  html, body {
+    overscroll-behavior: none;
+  }
+}
+
+/* Prevent pull-to-refresh on mobile */
+html {
+  overscroll-behavior-y: contain;
+}
+
+/* ================================================================
+   CAPACITOR NATIVE APP STYLES
+   ================================================================ */
+
+/* Safe area insets for notches, home indicators, status bars */
+.safe-area-top {
+  padding-top: env(safe-area-inset-top);
+}
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.safe-area-left {
+  padding-left: env(safe-area-inset-left);
+}
+.safe-area-right {
+  padding-right: env(safe-area-inset-right);
+}
+.safe-area-all {
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+
+/* Fixed bottom nav needs safe area + extra spacing for home indicator */
+.safe-area-bottom-nav {
+  padding-bottom: calc(env(safe-area-inset-bottom) + 8px);
+}
+
+/* Disable text selection on non-input elements for native app feel */
+.capacitor-native *:not(input):not(textarea):not([contenteditable]) {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+/* Disable tap highlight on native */
+.capacitor-native * {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Native app: no scroll bounce on body, use inner scroll containers */
+.capacitor-native html,
+.capacitor-native body {
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Inputs still need selection */
+.capacitor-native input,
+.capacitor-native textarea,
+.capacitor-native [contenteditable] {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+/* Prevent iOS input zoom by keeping font-size >= 16px on native */
+.capacitor-native input,
+.capacitor-native textarea,
+.capacitor-native select {
+  font-size: 16px;
+}
+
+/* ================================================================
+   NATIVE TOUCH TARGET SIZING — minimum 44px for accessibility
+   Scoped to primary action buttons and nav only.
+   Compact controls (inputs, chips, toggles, swatches) are excluded
+   to prevent visual inflation of dense mobile layouts.
+   ================================================================ */
+
+/* ================================================================
+     LOG & CHART THEME UTILITIES
+     Light/dark aware classes for accordion cards, charts, etc.
+     ================================================================ */
+  .log-card {
+    background: #F5F3EE;
+    border: 1px solid #E5E1D8;
+  }
+  html.dark .log-card {
+    background: rgba(255,255,255,0.03);
+    border-color: rgba(255,255,255,0.07);
+  }
+  .log-card-inner {
+    background: #FAFAF8;
+    border: 1px solid #EAE6DE;
+  }
+  html.dark .log-card-inner {
+    background: rgba(255,255,255,0.04);
+    border-color: rgba(255,255,255,0.06);
+  }
+  .log-title { color: #1a1a1a; }
+  html.dark .log-title { color: #ffffff; }
+  .log-value { color: #0f172a; }
+  html.dark .log-value { color: #ffffff; }
+  .log-label { color: #64748b; }
+  html.dark .log-label { color: rgba(255,255,255,0.35); }
+  .log-sub { color: #94a3b8; }
+  html.dark .log-sub { color: rgba(255,255,255,0.25); }
+  .log-muted { color: #cbd5e1; }
+  html.dark .log-muted { color: rgba(255,255,255,0.15); }
+  .log-icon { color: #94a3b8; }
+  html.dark .log-icon { color: rgba(255,255,255,0.30); }
+  .log-divider { border-color: #e2e8f0; }
+  html.dark .log-divider { border-color: rgba(255,255,255,0.06); }
+  .log-input {
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    color: #0f172a;
+  }
+  html.dark .log-input {
+    background: rgba(255,255,255,0.06);
+    border-color: rgba(255,255,255,0.08);
+    color: #ffffff;
+  }
+  .log-input::placeholder { color: #94a3b8; }
+  html.dark .log-input::placeholder { color: rgba(255,255,255,0.20); }
+  .log-ring-track { stroke: #e2e8f0; }
+  html.dark .log-ring-track { stroke: rgba(255,255,255,0.06); }
+  .log-ring-text { fill: #0f172a; }
+  html.dark .log-ring-text { fill: #ffffff; }
+  .log-ring-label { fill: #64748b; }
+  html.dark .log-ring-label { fill: rgba(255,255,255,0.35); }
+  .log-svg-label { fill: #64748b; }
+  html.dark .log-svg-label { fill: rgba(255,255,255,0.25); }
+  .log-bar-empty { background: #e2e8f0; }
+  html.dark .log-bar-empty { background: rgba(255,255,255,0.08); }
+  .log-chip {
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    color: #64748b;
+  }
+  html.dark .log-chip {
+    background: rgba(255,255,255,0.04);
+    border-color: rgba(255,255,255,0.06);
+    color: rgba(255,255,255,0.40);
+  }
+  .log-chip-active {
+    font-weight: 700;
+  }
+  /* GymNetwork / Buddy modal surfaces */
+  .buddy-surface {
+    background: #FAFAF8;
+    border-color: #E5E1D8;
+    color: #1a1a1a;
+  }
+  html.dark .buddy-surface {
+    background: #121414;
+    border-color: #2A2E2D;
+    color: #ffffff;
+  }
+  .buddy-surface-alt {
+    background: #F0EDE6;
+    border-color: #E0DCD3;
+  }
+  html.dark .buddy-surface-alt {
+    background: #1A1D24;
+    border-color: #2A2E2D;
+  }
+  .buddy-input {
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    color: #0f172a;
+  }
+  html.dark .buddy-input {
+    background: #1A1D24;
+    border-color: #2A2E2D;
+    color: #ffffff;
+  }
+  .buddy-input::placeholder { color: #94a3b8; }
+  html.dark .buddy-input::placeholder { color: #6b7280; }
+
+/* ================================================================
+   APPLE-LEVEL POLISH — Micro-interactions & Transitions
+   ================================================================ */
+
+/* Smooth spring curve for all interactive elements */
+button, a, [role="button"] {
+  transition: transform 0.18s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              opacity 0.18s ease,
+              box-shadow 0.18s ease;
+  will-change: transform;
+}
+
+/* Natural press feedback — like iOS button depress */
+button:active:not(:disabled), [role="button"]:active {
+  transform: scale(0.97);
+}
+
+/* Smooth modal backdrop with blur ramp */
+.modal-backdrop-smooth {
+  animation: backdropSmoothIn 0.3s cubic-bezier(0.32, 0.72, 0, 1) forwards;
+}
+@keyframes backdropSmoothIn {
+  from { opacity: 0; backdrop-filter: blur(0px); }
+  to { opacity: 1; backdrop-filter: blur(12px); }
+}
+
+/* iOS-style spring modal entry */
+.modal-spring-enter {
+  animation: modalSpringIn 0.4s cubic-bezier(0.32, 0.72, 0, 1) forwards;
+}
+@keyframes modalSpringIn {
+  0% { opacity: 0; transform: translateY(40px) scale(0.94); }
+  60% { opacity: 1; transform: translateY(-2px) scale(1.005); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Tab content crossfade */
+.tab-view-enter {
+  animation: tabViewEnter 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: opacity, transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+@keyframes tabViewEnter {
+  from { opacity: 0; transform: translateY(4px) translateZ(0); }
+  to { opacity: 1; transform: translateY(0) translateZ(0); }
+}
+
+/* Smooth content fade for lazy-loaded views */
+.content-appear {
+  animation: contentAppear 0.25s ease-out forwards;
+}
+@keyframes contentAppear {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* ================================================================
+   DARK MODE CONTRAST FIXES — Ensure WCAG AA readability
+   ================================================================ */
+
+/* Boost low-opacity whites for readability */
+html.dark .text-white\/25 { color: rgba(255, 255, 255, 0.40) !important; }
+html.dark .text-white\/30 { color: rgba(255, 255, 255, 0.45) !important; }
+html.dark .text-white\/35 { color: rgba(255, 255, 255, 0.50) !important; }
+
+/* Ensure slate text is readable on dark backgrounds */
+html.dark .text-slate-400 { color: rgba(255, 255, 255, 0.55) !important; }
+html.dark .text-slate-500 { color: rgba(255, 255, 255, 0.50) !important; }
+
+/* Fix gray text variants */
+html.dark .text-gray-400 { color: rgba(255, 255, 255, 0.55) !important; }
+html.dark .text-gray-500 { color: rgba(255, 255, 255, 0.50) !important; }
+
+/* Ensure borders are visible in dark mode */
+html.dark .border-white\/5 { border-color: rgba(255, 255, 255, 0.08) !important; }
+html.dark .border-white\/6 { border-color: rgba(255, 255, 255, 0.10) !important; }
+
+/* ================================================================
+   SMOOTH SCROLLING — Native-feel momentum
+   ================================================================ */
+
+.smooth-scroll {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Overscroll glow instead of bounce for Android feel */
+@supports (overscroll-behavior: contain) {
+  .overscroll-glow {
+    overscroll-behavior: contain;
+  }
+}
+
+/* ================================================================
+   TOUCH TARGET ACCESSIBILITY
+   ================================================================ */
+
+/* Primary buttons and links: enforce 44px minimum */
+button:not(.input-pill):not([class*="text-[10px]"]):not([class*="text-[11px]"]):not([class*="w-7"]):not([class*="w-8"]):not([class*="w-10"]):not([class*="h-6"]):not([class*="h-7"]):not([class*="h-8"]):not(.compact-btn):not(.no-touch-target),
+a[href],
+summary,
+input[type="button"],
+input[type="submit"],
+input[type="reset"] {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* Bottom nav tab buttons: ensure full 44px touch zone */
+.capacitor-native .fixed.bottom-0 button,
+.fixed[class*="bottom-"] button {
+  min-height: 44px;
+}
+
