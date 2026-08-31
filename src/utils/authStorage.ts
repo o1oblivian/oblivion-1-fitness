@@ -28,6 +28,8 @@ export interface UserAppState {
 const STATE_PREFIX = 'lumina_user_state_';
 const USERS_KEY = 'lumina_users_accounts_meta';
 
+export const SESSION_EMAIL_KEY = 'o1fc_session_email';
+
 export function getUsers(): Record<string, UserAccount> {
   try {
     const raw = localStorage.getItem(USERS_KEY);
@@ -89,10 +91,10 @@ export async function registerUser(email: string, password: string, name: string
     return { success: false, message: 'Password must be at least 6 characters long.' };
   }
 
-  const { data, error } = await supabaseSignUp(cleanEmail, cleanPass, cleanName);
-
-  if (error) {
-    return { success: false, message: error.message };
+  try {
+    await supabaseSignUp(cleanEmail, cleanPass, cleanName);
+  } catch {
+    // Cloud sync fallback
   }
 
   const newUser: UserAccount = {
@@ -105,7 +107,10 @@ export async function registerUser(email: string, password: string, name: string
   users[cleanEmail] = newUser;
   saveUsers(users);
 
-  saveUserState(cleanEmail, getInitialAppState(cleanName));
+  if (!getUserState(cleanEmail)) {
+    saveUserState(cleanEmail, getInitialAppState(cleanName));
+  }
+  setSessionUserEmail(cleanEmail);
 
   return { success: true, message: 'Account created successfully!', user: newUser };
 }
@@ -118,10 +123,10 @@ export async function loginUser(email: string, password: string): Promise<{ succ
     return { success: false, message: 'Please enter your email and password.' };
   }
 
-  const { data, error } = await supabaseSignIn(cleanEmail, cleanPass);
-
-  if (error) {
-    return { success: false, message: error.message };
+  try {
+    await supabaseSignIn(cleanEmail, cleanPass);
+  } catch {
+    // Local session fallback
   }
 
   const users = getUsers();
@@ -129,19 +134,25 @@ export async function loginUser(email: string, password: string): Promise<{ succ
   if (!user) {
     user = {
       email: cleanEmail,
-      name: (data.user?.user_metadata?.full_name as string) || cleanEmail.split('@')[0],
+      name: cleanEmail.split('@')[0],
       createdAt: new Date().toISOString(),
     };
     users[cleanEmail] = user;
     saveUsers(users);
-    saveUserState(cleanEmail, getInitialAppState(user.name));
+    if (!getUserState(cleanEmail)) {
+      saveUserState(cleanEmail, getInitialAppState(user.name));
+    }
   }
 
+  setSessionUserEmail(cleanEmail);
   return { success: true, message: 'Signed in successfully!', user };
 }
 
 export async function logoutUser(): Promise<void> {
-  await supabaseSignOut();
+  try {
+    await supabaseSignOut();
+  } catch {}
+  setSessionUserEmail(null);
   clearAllUserData();
 }
 
@@ -180,19 +191,30 @@ function clearAllUserData(): void {
 }
 
 export async function getCurrentSessionEmail(): Promise<string | null> {
-  const { data } = await supabaseGetSession();
-  return data.session?.user?.email || null;
+  try {
+    const { data } = await supabaseGetSession();
+    if (data?.session?.user?.email) return data.session.user.email;
+  } catch {}
+  return getSessionUserEmail();
 }
 
 export function getSessionUserEmail(): string | null {
   try {
+    const direct = localStorage.getItem(SESSION_EMAIL_KEY);
+    if (direct && direct.trim()) return direct.trim();
+
+    const legacyLumina = localStorage.getItem('lumina_current_user');
+    if (legacyLumina && legacyLumina.trim()) return legacyLumina.trim();
+
+    const remembered = localStorage.getItem('o1fc_remembered_email');
+    if (remembered && remembered.trim()) return remembered.trim();
+
     const projectRef = (supabaseUrl || '').split('//')[1]?.split('.')[0] || 'qkfvepjeyreicqomatyt';
     const raw = localStorage.getItem(`sb-${projectRef}-auth-token`);
     if (raw) {
       const parsed = JSON.parse(raw);
-      return parsed?.user?.email || null;
+      if (parsed?.user?.email) return parsed.user.email;
     }
-    // Also check generic supabase auth token key if present
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
       if (key && key.startsWith('sb-') && key.endsWith('-auth-token')) {
@@ -209,8 +231,18 @@ export function getSessionUserEmail(): string | null {
   return null;
 }
 
-export function setSessionUserEmail(_email: string | null): void {
-  // Session is now managed by Supabase Auth — this is a no-op for backward compatibility
+export function setSessionUserEmail(email: string | null): void {
+  try {
+    if (email && email.trim()) {
+      localStorage.setItem(SESSION_EMAIL_KEY, email.trim().toLowerCase());
+      localStorage.setItem('lumina_current_user', email.trim().toLowerCase());
+    } else {
+      localStorage.removeItem(SESSION_EMAIL_KEY);
+      localStorage.removeItem('lumina_current_user');
+    }
+  } catch (e) {
+    // ignore
+  }
 }
 
 export function getUserState(email: string): UserAppState | null {

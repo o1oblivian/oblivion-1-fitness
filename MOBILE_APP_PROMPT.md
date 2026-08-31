@@ -13,7 +13,8 @@
 Build a production-quality React Native (Expo) mobile app called "OFC — Athletic Performance Intelligence". This is a 100% port of an existing web app. Every feature, screen, and data flow must be replicated exactly. The app connects to an existing Supabase backend — do NOT create new tables, reuse the existing schema.
 
 ### SUPABASE CREDENTIALS (already provisioned — use these env vars)
-- SUPABASE_URL (in .env)
+- SUPABASE_URL: `https://qkfvepjeyreicqomatyt.supabase.co`
+- SUPABASE_PROJECT_REF: `qkfvepjeyreicqomatyt`
 - SUPABASE_ANON_KEY (in .env)
 - SUPABASE_SERVICE_ROLE_KEY (in .env)
 

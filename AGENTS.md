@@ -5,6 +5,7 @@
 - **GitHub Username**: `o1oblivian`
 - **Repository**: `https://github.com/o1oblivian/oblivion-1-fitness`
 - **App Identity**: Oblivion 1 Fitness Club (O1FC Official) — Training OS Pro, Fuel OS, Tandem Mode, Coach Hub & Telemetry Intelligence.
+- **Supabase Backend (Immutable)**: `https://qkfvepjeyreicqomatyt.supabase.co` (Ref: `qkfvepjeyreicqomatyt`)
 
 ## Core Rules & Invariants
 1. **Never Replace or Override with Unrelated Projects**:

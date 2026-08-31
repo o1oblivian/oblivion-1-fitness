@@ -1,8 +1,10 @@
 /**
- * OFC Multi-tiered Web Haptics & Tactile Engine
- * Standardized navigator.vibrate patterns & tactile feedback
+ * OFC Multi-tiered Web & Native Haptics & Tactile Engine
+ * Standardized Capacitor native haptics + navigator.vibrate patterns
  */
 
+import { Haptics, ImpactStyle, NotificationType } from '@capacitor/haptics';
+import { isNativePlatform } from './capacitor';
 import { getFeedbackPreferences } from './feedbackPreferences';
 
 export type HapticTier = 'light' | 'medium' | 'double' | 'success' | 'warning';
@@ -21,15 +23,31 @@ const HAPTIC_PATTERNS: Record<HapticTier, number | number[]> = {
 };
 
 /**
- * Triggers hardware vibration using navigator.vibrate with fallback safety and user preference check
+ * Triggers hardware vibration using native Capacitor Haptics on iOS/Android, with navigator.vibrate fallback for Web
  */
 export function triggerHaptic(tier: HapticTier | number | number[] = 'light'): boolean {
   try {
-    if (typeof window === 'undefined' || !('vibrate' in navigator)) {
-      return false;
-    }
     const prefs = getFeedbackPreferences();
     if (!prefs.hapticsEnabled) {
+      return false;
+    }
+
+    if (isNativePlatform()) {
+      if (tier === 'light') {
+        Haptics.impact({ style: ImpactStyle.Light }).catch(() => {});
+      } else if (tier === 'medium') {
+        Haptics.impact({ style: ImpactStyle.Medium }).catch(() => {});
+      } else if (tier === 'double' || tier === 'warning') {
+        Haptics.notification({ type: NotificationType.Warning }).catch(() => {});
+      } else if (tier === 'success') {
+        Haptics.notification({ type: NotificationType.Success }).catch(() => {});
+      } else {
+        Haptics.impact({ style: ImpactStyle.Light }).catch(() => {});
+      }
+      return true;
+    }
+
+    if (typeof window === 'undefined' || !('vibrate' in navigator)) {
       return false;
     }
     const pattern = typeof tier === 'string' ? HAPTIC_PATTERNS[tier] ?? 8 : tier;

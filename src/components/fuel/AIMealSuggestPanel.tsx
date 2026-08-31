@@ -397,7 +397,7 @@ export const AIMealSuggestPanel: React.FC<AIMealSuggestPanelProps> = ({
         <div className="p-5 flex items-center justify-center gap-2">
           <div className="w-4 h-4 rounded-full border-2 border-[#DC2626] border-t-transparent animate-spin" />
           <span className="text-[11px] font-medium text-zinc-600 dark:text-stone-300">
-            Gemini tailoring {countryInfo.name} ({dietInfo.label}) athletic recipes...
+            O1FC intel tailoring {countryInfo.name} ({dietInfo.label}) athletic recipes...
           </span>
         </div>
       )}

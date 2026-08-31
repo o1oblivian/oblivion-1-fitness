@@ -25,6 +25,7 @@ import { PremiumShowcaseModal } from '@/components/PremiumShowcaseModal';
 import { FirstTimeOnboardingGuide } from '@/components/FirstTimeOnboardingGuide';
 import { useSubscription } from '@/utils/useSubscription';
 import { upsertUserProfile } from '@/utils/subscriptionStore';
+import { initNativeMobileApp } from '@/utils/capacitor';
 
 export default function App() {
   const s = useAppState();
@@ -34,6 +35,13 @@ export default function App() {
   const [isOffline, setIsOffline] = useState(!navigator.onLine);
   const [showPremiumShowcase, setShowPremiumShowcase] = useState(false);
   const { trialDaysLeft } = useSubscription();
+
+  // Native Mobile Initialization (Android / iOS Status Bar, Keyboard & Splash Screen)
+  useEffect(() => {
+    initNativeMobileApp().catch(err => {
+      console.debug('Mobile native bootstrap note:', err);
+    });
+  }, []);
 
   // Stripe Checkout return session verification
   useEffect(() => {
