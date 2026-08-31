@@ -21,11 +21,11 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Set up Java JDK 17
+      - name: Set up Java JDK 21
         uses: actions/setup-java@v4
         with:
-          distribution: 'zulu'
-          java-version: '17'
+          distribution: 'temurin'
+          java-version: '21'
 
       - name: Set up Node.js 20
         uses: actions/setup-node@v4
@@ -46,16 +46,18 @@ jobs:
           fi
           npx cap sync android
 
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
       - name: Grant Execute Permission for Gradlew
         run: |
           if [ -f "android/gradlew" ]; then
             chmod +x android/gradlew
           fi
 
-      - name: Build Debug APK & Release APK / AAB
+      - name: Build Debug APK
         working-directory: android
-        run: |
-          ./gradlew assembleDebug assembleRelease bundleRelease --stacktrace
+        run: ./gradlew assembleDebug --stacktrace
 
       - name: Upload Debug APK
         uses: actions/upload-artifact@v4
@@ -64,38 +66,23 @@ jobs:
           path: android/app/build/outputs/apk/debug/app-debug.apk
           retention-days: 14
 
-      - name: Upload Release APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: o1fc-release-apk
-          path: android/app/build/outputs/apk/release/app-release-unsigned.apk
-          retention-days: 14
-
-      - name: Upload Google Play Release Bundle (AAB)
-        uses: actions/upload-artifact@v4
-        with:
-          name: o1fc-google-play-bundle-aab
-          path: android/app/build/outputs/bundle/release/app-release.aab
-          retention-days: 14
-
       - name: Generate Release Tag
         id: tag_gen
         run: |
           TAG_NAME="release-$(date +'%Y.%m.%d-%H%M%S')"
           echo "TAG_NAME=$TAG_NAME" >> $GITHUB_OUTPUT
 
-      - name: Create GitHub Release with APKs
+      - name: Create GitHub Release with APK
         uses: softprops/action-gh-release@v2
+        if: success()
         with:
           tag_name: ${{ steps.tag_gen.outputs.TAG_NAME }}
           name: "O1FC Official Build ${{ steps.tag_gen.outputs.TAG_NAME }}"
-          body: "Automated Android APK & Google Play AAB bundle generated from GitHub push."
+          body: "Automated Android APK generated from GitHub push. Install app-debug.apk on your Android phone."
           draft: false
           prerelease: false
           files: |
             android/app/build/outputs/apk/debug/app-debug.apk
-            android/app/build/outputs/apk/release/app-release-unsigned.apk
-            android/app/build/outputs/bundle/release/app-release.aab
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
