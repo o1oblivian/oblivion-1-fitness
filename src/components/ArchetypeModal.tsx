@@ -90,7 +90,7 @@ export const ArchetypeModal: React.FC<ArchetypeModalProps> = ({
     >
       <div
         id="archetype-modal-container"
-        className="relative w-full max-w-xl bg-white dark:bg-[#18181B] border border-zinc-200 dark:border-zinc-800 rounded-t-3xl sm:rounded-3xl h-[88vh] sm:h-[82vh] max-h-[88vh] flex flex-col overflow-hidden shadow-2xl animate-in slide-in-from-bottom-6 duration-300 text-zinc-900 dark:text-white"
+        className="relative w-full max-w-xl bg-white dark:bg-[#18181B] border border-zinc-200 dark:border-zinc-800 rounded-t-3xl sm:rounded-3xl h-[88dvh] sm:h-[82vh] max-h-[88dvh] flex flex-col overflow-hidden shadow-2xl animate-in slide-in-from-bottom-6 duration-300 text-zinc-900 dark:text-white"
       >
         {/* Top Controls inside Card */}
         <div className="absolute top-3 right-3 z-30">
@@ -260,7 +260,7 @@ export const ArchetypeModal: React.FC<ArchetypeModalProps> = ({
         </div>
 
         {/* Bottom Sticky Action Button */}
-        <div className="p-4 bg-white dark:bg-[#18181B] border-t border-zinc-100 dark:border-zinc-800/80 shrink-0">
+        <div className="p-4 pb-[max(1.25rem,calc(env(safe-area-inset-bottom,0px)+1rem))] bg-white dark:bg-[#18181B] border-t border-zinc-100 dark:border-zinc-800/80 shrink-0">
           <button
             id="btn-load-archetype-workout"
             type="button"

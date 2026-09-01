@@ -114,7 +114,7 @@ export const CardioConsoleScanModal: React.FC<CardioConsoleScanModalProps> = ({
       onClick={onClose}
     >
       <div
-        className="w-full max-w-md bg-white dark:bg-[#0C0C0E] text-zinc-900 dark:text-white rounded-t-3xl sm:rounded-3xl border border-neutral-200 dark:border-white/10 shadow-2xl overflow-hidden flex flex-col max-h-[90dvh] pb-[env(safe-area-inset-bottom,0.75rem)]"
+        className="w-full max-w-md bg-white dark:bg-[#0C0C0E] text-zinc-900 dark:text-white rounded-t-3xl sm:rounded-3xl border border-neutral-200 dark:border-white/10 shadow-2xl overflow-hidden flex flex-col max-h-[90dvh]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Mobile Pull Handle */}
@@ -294,7 +294,7 @@ export const CardioConsoleScanModal: React.FC<CardioConsoleScanModalProps> = ({
         </div>
 
         {/* 4. Action Bar */}
-        <div className="p-3 border-t border-neutral-200 dark:border-white/[0.08] bg-neutral-50/90 dark:bg-[#0C0C0E] flex items-center gap-2">
+        <div className="p-3 pb-[max(1.25rem,calc(env(safe-area-inset-bottom,0px)+0.875rem))] border-t border-neutral-200 dark:border-white/[0.08] bg-neutral-50/90 dark:bg-[#0C0C0E] flex items-center gap-2">
           <button
             type="button"
             onClick={onClose}

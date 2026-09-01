@@ -149,7 +149,7 @@ function getCyclePhase(day: number, periodLength: number): { name: string; color
   if (day <= periodLength) return { name: 'MENSTRUAL', color: '#4285F4', phase: 'menstrual' };
   if (day <= 14) return { name: 'FOLLICULAR', color: '#30D158', phase: 'follicular' };
   if (day <= 18) return { name: 'OVULATORY', color: '#FF9F0A', phase: 'ovulation' };
-  return { name: 'LUTEAL', color: '#FF453A', phase: 'luteal' };
+  return { name: 'LUTEAL', color: '#D91F28', phase: 'luteal' };
 }
 
 function computeCycleDay(email: string): { day: number; phase: { name: string; color: string; phase: CyclePhase }; cycleLength: number; hasData: boolean } {

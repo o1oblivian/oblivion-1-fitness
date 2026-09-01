@@ -85,18 +85,18 @@ export const FuelIntelligencePanel: React.FC<FuelIntelligencePanelProps> = ({
   const currentPieData =
     totalMacroGrams === 0
       ? [
-          { name: 'Protein (0g)', value: 1, color: '#E11D4833', unit: 'g', calories: 0, isPlaceholder: true },
+          { name: 'Protein (0g)', value: 1, color: '#C4121A33', unit: 'g', calories: 0, isPlaceholder: true },
           { name: 'Carbs (0g)', value: 1, color: '#F59E0B33', unit: 'g', calories: 0, isPlaceholder: true },
           { name: 'Fat (0g)', value: 1, color: '#10B98133', unit: 'g', calories: 0, isPlaceholder: true },
         ]
       : trendUnit === 'grams'
       ? [
-          { name: 'Protein', value: totalP, color: '#E11D48', unit: 'g', calories: totalP * 4, goal: goalP },
+          { name: 'Protein', value: totalP, color: '#C4121A', unit: 'g', calories: totalP * 4, goal: goalP },
           { name: 'Carbs', value: totalC, color: '#F59E0B', unit: 'g', calories: totalC * 4, goal: goalC },
           { name: 'Fat', value: totalF, color: '#10B981', unit: 'g', calories: totalF * 9, goal: goalF },
         ]
       : [
-          { name: 'Protein', value: totalP * 4, color: '#E11D48', unit: 'kcal', calories: totalP * 4, goal: goalP * 4 },
+          { name: 'Protein', value: totalP * 4, color: '#C4121A', unit: 'kcal', calories: totalP * 4, goal: goalP * 4 },
           { name: 'Carbs', value: totalC * 4, color: '#F59E0B', unit: 'kcal', calories: totalC * 4, goal: goalC * 4 },
           { name: 'Fat', value: totalF * 9, color: '#10B981', unit: 'kcal', calories: totalF * 9, goal: goalF * 9 },
         ];
@@ -104,18 +104,18 @@ export const FuelIntelligencePanel: React.FC<FuelIntelligencePanelProps> = ({
   const targetPieData =
     goalMacroGrams === 0
       ? [
-          { name: 'Protein Goal', value: 1, color: '#E11D4833', unit: 'g', calories: 0 },
+          { name: 'Protein Goal', value: 1, color: '#C4121A33', unit: 'g', calories: 0 },
           { name: 'Carbs Goal', value: 1, color: '#F59E0B33', unit: 'g', calories: 0 },
           { name: 'Fat Goal', value: 1, color: '#10B98133', unit: 'g', calories: 0 },
         ]
       : trendUnit === 'grams'
       ? [
-          { name: 'Protein', value: goalP, color: '#E11D48', unit: 'g', calories: goalP * 4 },
+          { name: 'Protein', value: goalP, color: '#C4121A', unit: 'g', calories: goalP * 4 },
           { name: 'Carbs', value: goalC, color: '#F59E0B', unit: 'g', calories: goalC * 4 },
           { name: 'Fat', value: goalF, color: '#10B981', unit: 'g', calories: goalF * 9 },
         ]
       : [
-          { name: 'Protein', value: goalP * 4, color: '#E11D48', unit: 'kcal', calories: goalP * 4 },
+          { name: 'Protein', value: goalP * 4, color: '#C4121A', unit: 'kcal', calories: goalP * 4 },
           { name: 'Carbs', value: goalC * 4, color: '#F59E0B', unit: 'kcal', calories: goalC * 4 },
           { name: 'Fat', value: goalF * 9, color: '#10B981', unit: 'kcal', calories: goalF * 9 },
         ];
@@ -131,7 +131,7 @@ export const FuelIntelligencePanel: React.FC<FuelIntelligencePanelProps> = ({
       {/* Unified Header — borderless, separated by negative space */}
       <div className="flex items-center justify-between px-3 pt-3 pb-1.5">
         <div className="flex items-center gap-2 min-w-0">
-          <span className="p-2 rounded-xl bg-[#FF3B30]/10 dark:bg-[#FF453A]/10 text-[#FF3B30] dark:text-[#FF453A] shrink-0">
+          <span className="p-2 rounded-xl bg-[#C4121A]/10 dark:bg-[#D91F28]/10 text-[#C4121A] dark:text-[#D91F28] shrink-0">
             <Target className="w-4 h-4" />
           </span>
           <div className="min-w-0">
@@ -146,7 +146,7 @@ export const FuelIntelligencePanel: React.FC<FuelIntelligencePanelProps> = ({
             balanceLabel === 'BALANCED'
               ? 'bg-[#10B981]/15 text-[#10B981]'
               : balanceLabel === 'DEFICIT'
-              ? 'bg-[#FF3B30]/10 dark:bg-[#FF453A]/10 text-[#FF3B30] dark:text-[#FF453A]'
+              ? 'bg-[#C4121A]/10 dark:bg-[#D91F28]/10 text-[#C4121A] dark:text-[#D91F28]'
               : 'bg-amber-500/10 text-amber-500'
           }`}>
             {balanceLabel}
@@ -207,11 +207,11 @@ export const FuelIntelligencePanel: React.FC<FuelIntelligencePanelProps> = ({
                           setGoalF(Math.round((val * 0.25) / 9));
                         }
                       }}
-                      className="w-full bg-[#F2F2F7] dark:bg-white/5 border border-transparent rounded-xl px-3 py-2 outline-none font-mono font-black text-base text-[#000000] dark:text-white transition-all duration-200 focus:border-[#FF3B30] dark:focus:border-[#FF453A] active:scale-[0.98]"
+                      className="w-full bg-[#F2F2F7] dark:bg-white/5 border border-transparent rounded-xl px-3 py-2 outline-none font-mono font-black text-base text-[#000000] dark:text-white transition-all duration-200 focus:border-[#C4121A] dark:focus:border-[#D91F28] active:scale-[0.98]"
                     />
                   </div>
                   <div className="col-span-1 flex flex-col">
-                    <label className="text-[10.5px] sm:text-[11px] font-bold tracking-wide text-[#FF3B30] dark:text-[#FF453A] uppercase mb-1.5 block text-center">
+                    <label className="text-[10.5px] sm:text-[11px] font-bold tracking-wide text-[#C4121A] dark:text-[#D91F28] uppercase mb-1.5 block text-center">
                       Pro(g)
                     </label>
                     <input
@@ -223,7 +223,7 @@ export const FuelIntelligencePanel: React.FC<FuelIntelligencePanelProps> = ({
                         const clean = e.target.value.replace(/^0+(?=\d)/, '');
                         setGoalP(parseInt(clean) || 0);
                       }}
-                      className="w-full bg-[#F2F2F7] dark:bg-white/5 border border-transparent rounded-xl px-1 py-2 outline-none font-mono font-bold text-center text-xs text-[#000000] dark:text-white transition-all duration-200 focus:border-[#FF3B30] dark:focus:border-[#FF453A] active:scale-[0.98]"
+                      className="w-full bg-[#F2F2F7] dark:bg-white/5 border border-transparent rounded-xl px-1 py-2 outline-none font-mono font-bold text-center text-xs text-[#000000] dark:text-white transition-all duration-200 focus:border-[#C4121A] dark:focus:border-[#D91F28] active:scale-[0.98]"
                     />
                   </div>
                   <div className="col-span-1 flex flex-col">
@@ -270,7 +270,7 @@ export const FuelIntelligencePanel: React.FC<FuelIntelligencePanelProps> = ({
                       type="number"
                       value={bmr}
                       onChange={(e) => setBmr(parseInt(e.target.value) || 0)}
-                      className="w-24 bg-[#F2F2F7] dark:bg-white/5 border border-transparent text-right rounded-xl px-2 py-1 font-mono font-bold text-[#000000] dark:text-white outline-none text-xs focus:border-[#FF3B30] dark:focus:border-[#FF453A] transition-all duration-200"
+                      className="w-24 bg-[#F2F2F7] dark:bg-white/5 border border-transparent text-right rounded-xl px-2 py-1 font-mono font-bold text-[#000000] dark:text-white outline-none text-xs focus:border-[#C4121A] dark:focus:border-[#D91F28] transition-all duration-200"
                     />
                     <span className="text-[10.5px] sm:text-[11px] font-bold tracking-wide text-[#5A5F5D] dark:text-gray-500 uppercase">kcal</span>
                   </div>
@@ -288,7 +288,7 @@ export const FuelIntelligencePanel: React.FC<FuelIntelligencePanelProps> = ({
                   <button
                     onClick={handleSave}
                     disabled={isSaving}
-                    className="text-[13px] font-semibold text-white bg-[#FF3B30] dark:bg-[#FF453A] hover:bg-[#E52E24] dark:hover:bg-[#FF3B30] px-4 py-2 rounded-xl active:scale-[0.98] transition-all duration-200 cursor-pointer disabled:opacity-60"
+                    className="text-[13px] font-semibold text-white bg-[#C4121A] dark:bg-[#D91F28] hover:bg-[#B8121A] dark:hover:bg-[#C4121A] px-4 py-2 rounded-xl active:scale-[0.98] transition-all duration-200 cursor-pointer disabled:opacity-60"
                   >
                     {isSaving ? 'Saving...' : 'Save Targets'}
                   </button>
@@ -317,10 +317,10 @@ export const FuelIntelligencePanel: React.FC<FuelIntelligencePanelProps> = ({
                     </div>
                   </div>
                   <div className="flex flex-col items-center bg-[#F2F2F7] dark:bg-white/5 p-2 rounded-2xl">
-                    <div className="text-lg font-black font-mono text-[#FF3B30] dark:text-[#FF453A]">
+                    <div className="text-lg font-black font-mono text-[#C4121A] dark:text-[#D91F28]">
                       {trainingBurn}
                     </div>
-                    <div className="text-[10.5px] sm:text-[11px] font-bold tracking-wide text-[#FF3B30] dark:text-[#FF453A] uppercase mt-0.5">
+                    <div className="text-[10.5px] sm:text-[11px] font-bold tracking-wide text-[#C4121A] dark:text-[#D91F28] uppercase mt-0.5">
                       Burn
                     </div>
                   </div>
@@ -342,7 +342,7 @@ export const FuelIntelligencePanel: React.FC<FuelIntelligencePanelProps> = ({
                   </div>
                   <div className="relative h-3 rounded-full bg-[#E5E5EA] dark:bg-white/10 overflow-hidden">
                     <div
-                      className="h-full bg-gradient-to-r from-[#FF3B30] to-[#10B981] rounded-full transition-all duration-700"
+                      className="h-full bg-gradient-to-r from-[#C4121A] to-[#10B981] rounded-full transition-all duration-700"
                       style={{ width: `${Math.min(100, (totalIntakeCals / (totalDailyExpenditure || 1)) * 100)}%` }}
                     />
                   </div>
@@ -353,7 +353,7 @@ export const FuelIntelligencePanel: React.FC<FuelIntelligencePanelProps> = ({
                     Base BMR: <span className="text-[#000000] dark:text-white font-black">{bmr} kcal</span>
                   </div>
                   <div>
-                    Exercise Burn: <span className="text-[#FF3B30] dark:text-[#FF453A] font-black">{trainingBurn} kcal</span>
+                    Exercise Burn: <span className="text-[#C4121A] dark:text-[#D91F28] font-black">{trainingBurn} kcal</span>
                   </div>
                   <div>
                     Est. Spend: <span className="text-[#000000] dark:text-white font-black">{totalDailyExpenditure} kcal</span>
@@ -391,7 +391,7 @@ export const FuelIntelligencePanel: React.FC<FuelIntelligencePanelProps> = ({
                 <div className="grid grid-cols-2 gap-3 items-start">
                   <div className="bg-[#F2F2F7] dark:bg-white/5 rounded-2xl p-3 flex flex-col items-center">
                     <div className="text-[10.5px] sm:text-[11px] font-bold tracking-wide text-[#000000] dark:text-white uppercase mb-1.5 flex items-center gap-1 self-start">
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#FF3B30] dark:bg-[#FF453A]" /> Current
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#C4121A] dark:bg-[#D91F28]" /> Current
                     </div>
                     <div className="w-full h-24 relative">
                       <ResponsiveContainer width="100%" height="100%">
@@ -482,10 +482,10 @@ export const FuelIntelligencePanel: React.FC<FuelIntelligencePanelProps> = ({
                 {/* Detailed Compact Badges — borderless tiles, negative space separation */}
                 <div className="grid grid-cols-3 gap-2 pt-2 text-center font-mono">
                   <div className="bg-[#F2F2F7] dark:bg-white/5 p-2 rounded-xl flex flex-col items-center">
-                    <span className="text-[10.5px] sm:text-[11px] font-bold tracking-wide text-[#FF3B30] dark:text-[#FF453A] uppercase">Protein</span>
+                    <span className="text-[10.5px] sm:text-[11px] font-bold tracking-wide text-[#C4121A] dark:text-[#D91F28] uppercase">Protein</span>
                     <span className="text-[11px] sm:text-[12px] font-medium text-[#000000] dark:text-white mt-0.5">{totalP}g / {goalP}g</span>
                     <div className="w-full h-1.5 rounded-full bg-[#E5E5EA] dark:bg-white/10 mt-1 overflow-hidden">
-                      <div className="h-full bg-[#FF3B30] dark:bg-[#FF453A] rounded-full transition-all duration-500" style={{ width: `${Math.min(100, (totalP / (goalP || 1)) * 100)}%` }} />
+                      <div className="h-full bg-[#C4121A] dark:bg-[#D91F28] rounded-full transition-all duration-500" style={{ width: `${Math.min(100, (totalP / (goalP || 1)) * 100)}%` }} />
                     </div>
                   </div>
                   <div className="bg-[#F2F2F7] dark:bg-white/5 p-2 rounded-xl flex flex-col items-center">

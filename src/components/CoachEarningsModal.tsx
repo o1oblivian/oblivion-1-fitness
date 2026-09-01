@@ -7,6 +7,7 @@ import {
   Sparkles, CheckCheck, Clock, Layers, HelpCircle, AlertCircle
 } from 'lucide-react';
 import { getUserTier, fetchEarningsSummary, SubscriptionTier } from '../utils/subscriptionStore';
+import { apiFetch } from '../utils/apiUrl';
 
 interface CoachEarningsModalProps {
   isOpen: boolean;
@@ -539,7 +540,7 @@ export const CoachEarningsModal: React.FC<CoachEarningsModalProps> = ({
     const feeCents = Math.round(currentFee * 100);
 
     try {
-      const response = await fetch('/api/stripe-coach-payout', {
+      const response = await apiFetch('/api/stripe-coach-payout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

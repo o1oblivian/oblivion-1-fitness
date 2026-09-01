@@ -35,7 +35,7 @@ export function TrainingSection() {
         <div className="p-3">
           <div className="flex items-center justify-between mb-1.5">
             <span className="text-sm font-medium text-zinc-900 dark:text-zinc-100">Primary Focus</span>
-            <span className="text-xs font-semibold text-[#FF3B30] dark:text-[#FF453A]">{primaryFocus}</span>
+            <span className="text-xs font-semibold text-[#C4121A] dark:text-[#D91F28]">{primaryFocus}</span>
           </div>
           <div className="flex flex-wrap gap-1.5 pt-0.5">
             {FOCUS_OPTIONS.map((f) => (
@@ -45,7 +45,7 @@ export function TrainingSection() {
                 onClick={() => selectFocus(f)}
                 className={`h-[26px] px-2.5 rounded-full text-[11px] font-semibold flex items-center justify-center transition-all cursor-pointer ${
                   primaryFocus === f
-                    ? 'bg-[#FF3B30] dark:bg-[#FF453A] text-white shadow-xs'
+                    ? 'bg-[#C4121A] dark:bg-[#D91F28] text-white shadow-xs'
                     : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700'
                 }`}
               >
@@ -85,7 +85,7 @@ export function TrainingSection() {
                   onClick={() => toggleDay(day)}
                   className={`w-[26px] h-[26px] min-w-[26px] min-h-[26px] max-w-[26px] max-h-[26px] shrink-0 aspect-square rounded-full text-[10.5px] font-semibold flex items-center justify-center transition-all cursor-pointer ${
                     active
-                      ? 'bg-[#FF3B30] dark:bg-[#FF453A] text-white shadow-xs'
+                      ? 'bg-[#C4121A] dark:bg-[#D91F28] text-white shadow-xs'
                       : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700'
                   }`}
                 >

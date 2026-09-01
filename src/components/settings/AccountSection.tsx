@@ -121,7 +121,7 @@ export function AccountSection({ userEmail, onLogout, onDeleteAccount, onRerunLa
           >
             <div className="w-8 h-1 rounded-full bg-stone-300 dark:bg-zinc-700 mx-auto mb-3 sm:hidden" />
             <div className="flex items-center gap-2 mb-1.5">
-              <div className="w-7 h-7 rounded-lg bg-[#FF3B30]/10 dark:bg-[#FF453A]/10 flex items-center justify-center text-[#FF3B30] dark:text-[#FF453A]">
+              <div className="w-7 h-7 rounded-lg bg-[#C4121A]/10 dark:bg-[#D91F28]/10 flex items-center justify-center text-[#C4121A] dark:text-[#D91F28]">
                 <Trash2 className="w-3.5 h-3.5" />
               </div>
               <h3 className="text-sm font-bold text-zinc-900 dark:text-white">Delete Account?</h3>
@@ -130,7 +130,7 @@ export function AccountSection({ userEmail, onLogout, onDeleteAccount, onRerunLa
               This action is permanent. All your workout history, telemetry logs, and personal settings will be permanently erased.
             </p>
             {deleteError && (
-              <p className="text-xs text-[#FF3B30] dark:text-[#FF453A] mt-2 font-medium">{deleteError}</p>
+              <p className="text-xs text-[#C4121A] dark:text-[#D91F28] mt-2 font-medium">{deleteError}</p>
             )}
             <div className="flex gap-2 mt-4">
               <button
@@ -144,7 +144,7 @@ export function AccountSection({ userEmail, onLogout, onDeleteAccount, onRerunLa
                 type="button"
                 onClick={handleDelete}
                 disabled={isDeleting}
-                className="flex-1 py-2 rounded-lg bg-[#FF3B30] dark:bg-[#FF453A] text-white text-xs font-semibold hover:bg-[#E52E24] dark:hover:bg-[#FF3B30] cursor-pointer disabled:opacity-50 flex items-center justify-center gap-1.5 transition-colors shadow-xs"
+                className="flex-1 py-2 rounded-lg bg-[#C4121A] dark:bg-[#D91F28] text-white text-xs font-semibold hover:bg-[#B8121A] dark:hover:bg-[#C4121A] cursor-pointer disabled:opacity-50 flex items-center justify-center gap-1.5 transition-colors shadow-xs"
               >
                 {isDeleting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : null}
                 {isDeleting ? 'Deleting...' : 'Delete Forever'}

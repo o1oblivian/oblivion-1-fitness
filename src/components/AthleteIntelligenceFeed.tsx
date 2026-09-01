@@ -147,7 +147,7 @@ const DEFAULT_MOCK_INSIGHTS: AthleteInsight[] = [
 ];
 
 const TYPE_STYLE: Record<string, { bg: string; border: string; color: string; icon: React.ComponentType<{ className?: string; style?: React.CSSProperties }>; label: string }> = {
-  alert: { bg: 'bg-[#FF3B30]/10 dark:bg-[#FF453A]/10', border: 'border-[#FF3B30]/30 dark:border-[#FF453A]/30', color: '#FF3B30', icon: AlertCircle, label: 'ALERT' },
+  alert: { bg: 'bg-[#C4121A]/10 dark:bg-[#D91F28]/10', border: 'border-[#C4121A]/30 dark:border-[#D91F28]/30', color: '#C4121A', icon: AlertCircle, label: 'ALERT' },
   milestone: { bg: 'bg-[#3B82F6]/10', border: 'border-[#3B82F6]/30', color: '#3B82F6', icon: Trophy, label: 'MILESTONE' },
   trend: { bg: 'bg-[#10B981]/10', border: 'border-[#10B981]/30', color: '#10B981', icon: TrendingUp, label: 'TREND' },
   suggestion: { bg: 'bg-[#F59E0B]/10', border: 'border-[#F59E0B]/30', color: '#F59E0B', icon: Lightbulb, label: 'COACHING CUE' },
@@ -279,7 +279,7 @@ export const AthleteIntelligenceFeed: React.FC<{
 
   const CATEGORIES = [
     { key: 'recovery' as const, label: 'Recovery', icon: Moon, color: '#8B5CF6', count: insights.filter(i => i.category === 'recovery' && !dismissed.has(i.id)).length },
-    { key: 'training' as const, label: 'Training', icon: Dumbbell, color: '#FF3B30', count: insights.filter(i => i.category === 'training' && !dismissed.has(i.id)).length },
+    { key: 'training' as const, label: 'Training', icon: Dumbbell, color: '#C4121A', count: insights.filter(i => i.category === 'training' && !dismissed.has(i.id)).length },
     { key: 'nutrition' as const, label: 'Nutrition', icon: Utensils, color: '#F59E0B', count: insights.filter(i => i.category === 'nutrition' && !dismissed.has(i.id)).length },
     { key: 'performance' as const, label: 'Performance', icon: Trophy, color: '#3B82F6', count: insights.filter(i => i.category === 'performance' && !dismissed.has(i.id)).length },
   ];
@@ -408,7 +408,7 @@ export const AthleteIntelligenceFeed: React.FC<{
                     </div>
                     <div className="ml-auto flex items-center gap-1">
                       {ins.metric.direction === 'up' && <ArrowUpRight className="w-3.5 h-3.5 text-[#10B981]" />}
-                      {ins.metric.direction === 'down' && <ArrowDownRight className="w-3.5 h-3.5 text-[#FF3B30] dark:text-[#FF453A]" />}
+                      {ins.metric.direction === 'down' && <ArrowDownRight className="w-3.5 h-3.5 text-[#C4121A] dark:text-[#D91F28]" />}
                       {ins.metric.direction === 'flat' && <Minus className="w-3.5 h-3.5 text-zinc-500 dark:text-zinc-400" />}
                       <span className="text-xs font-bold font-mono text-zinc-900 dark:text-white">
                         {ins.metric.delta}

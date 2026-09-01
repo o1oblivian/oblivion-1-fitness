@@ -189,7 +189,7 @@ export const TravelPassModal: React.FC<TravelPassModalProps> = ({
         </div>
 
         {/* TOP BAR */}
-        <div className="px-5 py-4 border-b border-zinc-800/80 flex items-center justify-between">
+        <div className="px-5 py-4 pt-[max(1rem,calc(env(safe-area-inset-top,0px)+0.75rem))] sm:pt-4 border-b border-zinc-800/80 flex items-center justify-between">
           <button
             type="button"
             onClick={onClose}
@@ -216,7 +216,7 @@ export const TravelPassModal: React.FC<TravelPassModalProps> = ({
         </div>
 
         {/* CONTENT BODY */}
-        <div className="p-5 sm:p-6 space-y-6 flex-1 overflow-y-auto">
+        <div className="p-5 sm:p-6 pb-[max(2.5rem,calc(env(safe-area-inset-bottom,0px)+1.75rem))] space-y-6 flex-1 overflow-y-auto">
           {/* TITLE & BADGE */}
           <div className="space-y-2">
             <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-zinc-300 text-[11px] font-semibold">

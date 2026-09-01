@@ -25,7 +25,9 @@ import { PremiumShowcaseModal } from '@/components/PremiumShowcaseModal';
 import { FirstTimeOnboardingGuide } from '@/components/FirstTimeOnboardingGuide';
 import { useSubscription } from '@/utils/useSubscription';
 import { upsertUserProfile } from '@/utils/subscriptionStore';
-import { initNativeMobileApp } from '@/utils/capacitor';
+import { initNativeMobileApp, registerAndroidBackButton, registerAppUrlListener, closeInAppBrowser } from '@/utils/capacitor';
+import { apiFetch } from '@/utils/apiUrl';
+import { supabase } from '@/utils/supabase';
 
 export default function App() {
   const s = useAppState();
@@ -43,6 +45,61 @@ export default function App() {
     });
   }, []);
 
+  // Android Hardware Back Button Interception for Native APK
+  useEffect(() => {
+    const unregister = registerAndroidBackButton(() => {
+      // 1. Close open modals in priority order
+      if (showPremiumShowcase) { setShowPremiumShowcase(false); return true; }
+      if (s.isPayPlanOpen) { s.setIsPayPlanOpen(false); return true; }
+      if (s.isEditProfileOpen) { s.setIsEditProfileOpen(false); return true; }
+      if (s.isBuddyRadarOpen) { s.setIsBuddyRadarOpen(false); return true; }
+      if (s.isCommunityHubOpen) { s.setIsCommunityHubOpen(false); return true; }
+      if (s.isGlobalSearchOpen) { s.setIsGlobalSearchOpen(false); return true; }
+      if (s.isShareModalOpen) { s.setIsShareModalOpen(false); return true; }
+      if (s.isCycleSyncOpen) { s.setIsCycleSyncOpen(false); return true; }
+      if (s.isScheduleModalOpen) { s.setIsScheduleModalOpen(false); return true; }
+      if (s.isRoutineSwapperOpen) { s.setIsRoutineSwapperOpen(false); return true; }
+      if (s.isCommitModalOpen) { s.setIsCommitModalOpen(false); return true; }
+      if (s.dialConfig?.isOpen) { s.setDialConfig(prev => ({ ...prev, isOpen: false })); return true; }
+      if (s.isAIInsightsOpen) { s.setIsAIInsightsOpen(false); return true; }
+      if (s.isVaultViewerOpen) { s.setIsVaultViewerOpen(false); return true; }
+      if (s.isTravelPassOpen) { s.setIsTravelPassOpen(false); return true; }
+      if (s.isOwnProfileOpen) { s.setIsOwnProfileOpen(false); return true; }
+      if (s.showTandemPanel) { s.setShowTandemPanel(false); return true; }
+
+      // 2. Return to tracker tab if in sub-tab
+      if (s.currentMode !== 'tracker') {
+        s.handleModeChange('tracker');
+        return true;
+      }
+
+      // Default: let Android handle back (or exit)
+      return false;
+    });
+
+    return () => unregister();
+  }, [
+    showPremiumShowcase,
+    s.isPayPlanOpen,
+    s.isEditProfileOpen,
+    s.isBuddyRadarOpen,
+    s.isCommunityHubOpen,
+    s.isGlobalSearchOpen,
+    s.isShareModalOpen,
+    s.isCycleSyncOpen,
+    s.isScheduleModalOpen,
+    s.isRoutineSwapperOpen,
+    s.isCommitModalOpen,
+    s.dialConfig?.isOpen,
+    s.setDialConfig,
+    s.isAIInsightsOpen,
+    s.isVaultViewerOpen,
+    s.isTravelPassOpen,
+    s.isOwnProfileOpen,
+    s.showTandemPanel,
+    s.currentMode,
+  ]);
+
   // Stripe Checkout return session verification
   useEffect(() => {
     try {
@@ -56,7 +113,7 @@ export default function App() {
         
         // Verify session with server if session_id is present
         if (sessionId) {
-          fetch(`/api/stripe-verify-session?session_id=${sessionId}`)
+          apiFetch(`/api/stripe-verify-session?session_id=${sessionId}`)
             .then(res => res.json())
             .then(data => {
               if (data?.session?.payment_status === 'paid') {
@@ -92,6 +149,55 @@ export default function App() {
       // ignore
     }
   }, []);
+
+  // Native Deep Link Handling (OAuth & Payment Returns)
+  useEffect(() => {
+    const unregister = registerAppUrlListener(async (event) => {
+      closeInAppBrowser().catch(() => {});
+      const openUrl = event.url || '';
+
+      // 1. Handle OAuth token callback
+      if (openUrl.includes('access_token=') || openUrl.includes('refresh_token=')) {
+        try {
+          const hashIndex = openUrl.indexOf('#');
+          const queryIndex = openUrl.indexOf('?');
+          const paramString = hashIndex !== -1 ? openUrl.slice(hashIndex + 1) : (queryIndex !== -1 ? openUrl.slice(queryIndex + 1) : '');
+          const params = new URLSearchParams(paramString);
+          const accessToken = params.get('access_token');
+          const refreshToken = params.get('refresh_token');
+
+          if (accessToken && refreshToken && supabase) {
+            const { data } = await supabase.auth.setSession({
+              access_token: accessToken,
+              refresh_token: refreshToken,
+            });
+            if (data?.user?.email) {
+              s.handleAuthSuccess(data.user.email);
+              s.showToast('Successfully signed in!', 'success');
+            }
+          }
+        } catch (authErr) {
+          console.warn('Deep link auth parsing note:', authErr);
+        }
+      }
+
+      // 2. Handle Stripe payment callback in deep link
+      if (openUrl.includes('payment=success')) {
+        const tierMatch = openUrl.match(/tier=([^&]+)/);
+        const activatedTier = tierMatch ? decodeURIComponent(tierMatch[1]) : 'premium';
+        localStorage.setItem('o1fc_active_subscription', JSON.stringify({
+          tier: activatedTier,
+          activatedAt: new Date().toISOString(),
+          expiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
+          status: 'active',
+        }));
+        upsertUserProfile({ subscription_tier: activatedTier as any }).catch(() => {});
+        s.showToast(`O1FC ${activatedTier.replace('_', ' ').toUpperCase()} Activated!`, 'success');
+      }
+    });
+
+    return () => unregister();
+  }, [s.handleAuthSuccess, s.showToast]);
 
   useEffect(() => {
     const goOffline = () => setIsOffline(true);
@@ -221,7 +327,7 @@ export default function App() {
           <main
             onTouchStart={s.handleTouchStart}
             onTouchEnd={s.handleTouchEnd}
-            className="w-full max-w-md mx-auto px-3 sm:px-4 pt-0.5 pb-[max(5.5rem,calc(env(safe-area-inset-bottom,0px)+5rem))] flex-1 flex flex-col items-center justify-start relative z-10 box-border overflow-y-auto overflow-x-hidden hide-scrollbar overscroll-contain"
+            className="w-full max-w-md mx-auto px-3 sm:px-4 pt-[max(0.5rem,env(safe-area-inset-top,0px))] pb-[max(7.5rem,calc(env(safe-area-inset-bottom,0px)+6.5rem))] flex-1 flex flex-col items-center justify-start relative z-10 box-border overflow-y-auto overflow-x-hidden hide-scrollbar overscroll-contain"
           >
             {/* Tracker tab - always mounted */}
             <div className={`w-full flex flex-col gap-2 ${s.currentMode === 'tracker' ? 'tab-view-enter' : 'hidden'}`}>

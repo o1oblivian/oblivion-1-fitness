@@ -372,7 +372,7 @@ export const PlateMathModal: React.FC<PlateMathModalProps> = ({
                 }}
                 className={`h-7 px-2.5 rounded-lg text-[11px] font-mono font-bold transition-all shrink-0 cursor-pointer ${
                   targetWeight === w
-                    ? 'bg-[#FF3B30] dark:bg-[#FF453A] text-white shadow-xs'
+                    ? 'bg-[#C4121A] dark:bg-[#D91F28] text-white shadow-xs'
                     : 'bg-zinc-100 dark:bg-white/5 text-zinc-700 dark:text-stone-300 hover:bg-zinc-200'
                 }`}
               >
@@ -397,7 +397,7 @@ export const PlateMathModal: React.FC<PlateMathModalProps> = ({
 
           <button
             onClick={handleConfirm}
-            className="flex-1 h-10 rounded-xl bg-[#FF3B30] dark:bg-[#FF453A] hover:bg-[#E52E24] text-white font-bold text-[13px] flex items-center justify-center gap-1.5 shadow-sm active:scale-[0.98] transition-all cursor-pointer"
+            className="flex-1 h-10 rounded-xl bg-[#C4121A] dark:bg-[#D91F28] hover:bg-[#B8121A] text-white font-bold text-[13px] flex items-center justify-center gap-1.5 shadow-sm active:scale-[0.98] transition-all cursor-pointer"
           >
             <Check className="w-4 h-4" />
             <span>Apply {targetWeight}kg to Set</span>

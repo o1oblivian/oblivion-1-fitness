@@ -39,10 +39,10 @@ export const FoodCategoryIcon: React.FC<FoodCategoryIconProps> = ({
     return <Egg className={`${className} text-amber-500 dark:text-amber-400`} strokeWidth={1.75} />;
   }
   if (n.includes('chicken') || n.includes('poultry') || n.includes('turkey') || n.includes('wing') || n.includes('breast') || n.includes('thigh')) {
-    return <Drumstick className={`${className} text-[#FF3B30] dark:text-[#FF453A]`} strokeWidth={1.75} />;
+    return <Drumstick className={`${className} text-[#C4121A] dark:text-[#D91F28]`} strokeWidth={1.75} />;
   }
   if (n.includes('steak') || n.includes('beef') || n.includes('meat') || n.includes('pork') || n.includes('bacon') || n.includes('ribs') || n.includes('patty')) {
-    return <Beef className={`${className} text-[#FF3B30] dark:text-[#FF453A]`} strokeWidth={1.75} />;
+    return <Beef className={`${className} text-[#C4121A] dark:text-[#D91F28]`} strokeWidth={1.75} />;
   }
   if (n.includes('salmon') || n.includes('tuna') || n.includes('fish') || n.includes('shrimp') || n.includes('seafood') || n.includes('cod') || n.includes('prawn')) {
     return <Fish className={`${className} text-[#06B6D4] dark:text-[#22D3EE]`} strokeWidth={1.75} />;
@@ -86,7 +86,7 @@ export const FoodCategoryIcon: React.FC<FoodCategoryIconProps> = ({
     return <Pizza className={`${className} text-amber-500 dark:text-amber-400`} strokeWidth={1.75} />;
   }
   if (cat.includes('protein') || cat.includes('meat') || cat.includes('seafood')) {
-    return <Flame className={`${className} text-[#FF3B30] dark:text-[#FF453A]`} strokeWidth={1.75} />;
+    return <Flame className={`${className} text-[#C4121A] dark:text-[#D91F28]`} strokeWidth={1.75} />;
   }
   if (cat.includes('carb') || cat.includes('grain') || cat.includes('bakery') || cat.includes('fruit')) {
     return <Wheat className={`${className} text-[#F59E0B] dark:text-[#FBBF24]`} strokeWidth={1.75} />;

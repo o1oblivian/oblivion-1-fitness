@@ -95,8 +95,8 @@ export const RoutineSwapperModal: React.FC<RoutineSwapperModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[150] bg-black/60 backdrop-blur-xs overflow-y-auto font-sans flex items-center justify-center p-3 animate-in fade-in duration-200">
-      <div className="bg-white dark:bg-[#18181B] text-zinc-900 dark:text-white w-full max-w-xl max-h-[90vh] rounded-3xl p-5 shadow-2xl relative border border-zinc-200 dark:border-zinc-800 flex flex-col select-none">
+    <div className="fixed inset-0 z-[150] bg-black/60 backdrop-blur-xs overflow-y-auto font-sans flex items-end sm:items-center justify-center p-0 sm:p-3 animate-in fade-in duration-200">
+      <div className="bg-white dark:bg-[#18181B] text-zinc-900 dark:text-white w-full max-w-xl max-h-[88dvh] sm:max-h-[90vh] rounded-t-3xl sm:rounded-3xl p-4 sm:p-5 pb-[max(1.25rem,calc(env(safe-area-inset-bottom,0px)+1rem))] shadow-2xl relative border border-zinc-200 dark:border-zinc-800 flex flex-col select-none">
         {/* Header */}
         <div className="flex justify-between items-center pb-3 border-b border-zinc-100 dark:border-zinc-800/80 shrink-0">
           <div>

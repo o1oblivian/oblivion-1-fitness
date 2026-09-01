@@ -1682,7 +1682,7 @@ export const WorkoutDispatchModal: React.FC<WorkoutDispatchModalProps> = ({
       {/* ═══════════════════════════════════════════════════════════════════════
           OBSIDIAN TOP BAR
           ═══════════════════════════════════════════════════════════════════════ */}
-      <header className="bg-[#F2F2F7]/95 dark:bg-[#000000]/95 backdrop-blur-xl border-b border-zinc-200/80 dark:border-white/10 shrink-0 z-30">
+      <header className="bg-[#F2F2F7]/95 dark:bg-[#000000]/95 backdrop-blur-xl border-b border-zinc-200/80 dark:border-white/10 shrink-0 z-30 pt-[max(0.5rem,env(safe-area-inset-top,0px))]">
         <div className="w-full max-w-5xl mx-auto px-3 sm:px-4 py-2.5 flex items-center justify-between gap-2 min-h-[44px]">
           {/* Title & Movements Counter (Robust flexbox with no overlap) */}
           <div className="flex items-center gap-1.5 sm:gap-2 min-w-0 flex-1 mr-1">
@@ -2365,7 +2365,7 @@ export const WorkoutDispatchModal: React.FC<WorkoutDispatchModalProps> = ({
       {/* ═══════════════════════════════════════════════════════════════════════
           OBSIDIAN BOTTOM DISPATCH DOCK
           ═══════════════════════════════════════════════════════════════════════ */}
-      <footer className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-zinc-950/95 border-t border-zinc-200/80 dark:border-white/10 p-3.5 backdrop-blur-2xl shadow-2xl">
+      <footer className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-zinc-950/95 border-t border-zinc-200/80 dark:border-white/10 p-3.5 pb-[max(1.25rem,calc(env(safe-area-inset-bottom,0px)+0.875rem))] backdrop-blur-2xl shadow-2xl">
         <div className="w-full max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="min-w-0 w-full sm:w-auto text-left">
             <div className="text-xs font-semibold text-zinc-900 dark:text-white truncate flex items-center gap-2">

@@ -129,7 +129,7 @@ export function SettingsPage({
         <button
           type="button"
           onClick={onClose}
-          className="text-xs font-semibold text-[#FF3B30] dark:text-[#FF453A] hover:text-[#E52E24] dark:hover:text-[#FF3B30] cursor-pointer px-2 py-1"
+          className="text-xs font-semibold text-[#C4121A] dark:text-[#D91F28] hover:text-[#B8121A] dark:hover:text-[#C4121A] cursor-pointer px-2 py-1"
         >
           Done
         </button>

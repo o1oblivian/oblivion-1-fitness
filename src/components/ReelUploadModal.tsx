@@ -305,8 +305,8 @@ export const ReelUploadModal: React.FC<ReelUploadModalProps> = ({
           {step === 'media' && (
             <div className="space-y-4">
               <div className="text-center py-2">
-                <div className="w-16 h-16 rounded-full bg-[#FF3B30]/10 dark:bg-[#FF453A]/10 flex items-center justify-center mx-auto mb-3 border border-[#FF3B30]/20 dark:border-[#FF453A]/20">
-                  <Video className="w-7 h-7 text-[#FF3B30] dark:text-[#FF453A]" />
+                <div className="w-16 h-16 rounded-full bg-[#C4121A]/10 dark:bg-[#D91F28]/10 flex items-center justify-center mx-auto mb-3 border border-[#C4121A]/20 dark:border-[#D91F28]/20">
+                  <Video className="w-7 h-7 text-[#C4121A] dark:text-[#D91F28]" />
                 </div>
                 <h4 className="text-lg font-black text-black dark:text-white mb-1">Share Your Workout</h4>
                 <p className="text-sm text-black/60 dark:text-white/60 leading-relaxed font-bold">
@@ -539,7 +539,7 @@ export const ReelUploadModal: React.FC<ReelUploadModalProps> = ({
                     setLinkProgram(!linkProgram);
                     if (!linkProgram) loadUserPrograms();
                   }}
-                  className={`w-10 h-6 rounded-full transition-colors cursor-pointer ${linkProgram ? 'bg-[#FF3B30] dark:bg-[#FF453A]' : 'bg-gray-300 dark:bg-zinc-700'}`}
+                  className={`w-10 h-6 rounded-full transition-colors cursor-pointer ${linkProgram ? 'bg-[#C4121A] dark:bg-[#D91F28]' : 'bg-gray-300 dark:bg-zinc-700'}`}
                 >
                   <div className={`w-5 h-5 bg-white rounded-full shadow-sm transition-transform ${linkProgram ? 'translate-x-4' : 'translate-x-0.5'}`} />
                 </button>

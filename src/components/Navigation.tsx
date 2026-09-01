@@ -9,14 +9,14 @@ interface NavigationProps {
 
 export const Navigation: React.FC<NavigationProps> = ({ currentMode, onModeChange }) => {
   const modes: { id: AppMode; label: string; code: string; color: string }[] = [
-    { id: 'tracker', label: 'Workout', code: 'SYS.01', color: '#FF3B30' },
+    { id: 'tracker', label: 'Workout', code: 'SYS.01', color: '#C4121A' },
     { id: 'fuel', label: 'Fuel', code: 'SYS.02', color: '#F59E0B' },
     { id: 'coach', label: 'Coach', code: 'SYS.03', color: '#3B82F6' },
     { id: 'client', label: 'Log', code: 'SYS.04', color: '#8B5CF6' },
   ];
 
   return (
-    <nav className="fixed top-3 sm:top-4 left-1/2 -translate-x-1/2 z-[100] w-[94%] max-w-md select-none">
+    <nav className="fixed top-[max(0.75rem,calc(env(safe-area-inset-top,0px)+0.5rem))] sm:top-4 left-1/2 -translate-x-1/2 z-[100] w-[94%] max-w-md select-none">
       <div className="bg-[#FDFCFB] border border-[rgba(0,0,0,0.08)] p-1.5 rounded-full flex justify-between items-center shadow-sm relative overflow-hidden">
         {modes.map((m) => {
           const isActive = currentMode === m.id;

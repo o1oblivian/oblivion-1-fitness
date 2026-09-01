@@ -597,9 +597,9 @@ export const WeeklyReportCardModal: React.FC<WeeklyReportCardModalProps> = ({
   return createPortal(
     <>
       <div className="fixed inset-0 bg-black/70 dark:bg-black/85 backdrop-blur-md z-[250]" onClick={onClose} />
-      <div className="fixed inset-0 flex items-center justify-center p-2.5 sm:p-4 pointer-events-none z-[251]">
+      <div className="fixed inset-0 flex items-end sm:items-center justify-center p-0 sm:p-4 pointer-events-none z-[251]">
         <div
-          className="w-full max-w-xl max-h-[92vh] flex flex-col pointer-events-auto rounded-3xl border border-zinc-200/80 dark:border-zinc-800/80 bg-white/95 dark:bg-[#121418]/95 backdrop-blur-2xl shadow-2xl text-zinc-900 dark:text-white overflow-hidden"
+          className="w-full max-w-xl max-h-[88dvh] sm:max-h-[92vh] flex flex-col pointer-events-auto rounded-t-3xl sm:rounded-3xl border border-zinc-200/80 dark:border-zinc-800/80 bg-white/95 dark:bg-[#121418]/95 backdrop-blur-2xl shadow-2xl text-zinc-900 dark:text-white overflow-hidden"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
@@ -704,7 +704,7 @@ export const WeeklyReportCardModal: React.FC<WeeklyReportCardModalProps> = ({
           )}
 
           {/* Scrollable Content Container */}
-          <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-2 pb-6 space-y-4 custom-scrollbar">
+          <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-2 pb-[max(2rem,calc(env(safe-area-inset-bottom,0px)+1.5rem))] space-y-4 custom-scrollbar">
             {loading ? (
               <div className="flex flex-col items-center justify-center py-20 gap-3">
                 <div className="w-8 h-8 border-2 border-zinc-400 border-t-[#EA4335] rounded-full animate-spin" />

@@ -46,7 +46,7 @@ export const CircularActionRail: React.FC<CircularActionRailProps> = ({
 
             {/* Subtle Top-Right REELS Tag */}
             <div className="absolute top-1 right-1 px-1.5 py-0.5 rounded-full bg-black/80 backdrop-blur-md text-white text-[7.5px] font-black tracking-wider uppercase shadow-xs flex items-center gap-0.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#FF3B30] dark:bg-[#FF453A] animate-pulse" />
+              <span className="w-1.5 h-1.5 rounded-full bg-[#C4121A] dark:bg-[#D91F28] animate-pulse" />
               REELS
             </div>
           </div>

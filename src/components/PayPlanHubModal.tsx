@@ -11,6 +11,8 @@ import {
 import { supabase } from '@/utils/supabase';
 import { upsertUserProfile, type SubscriptionTier } from '@/utils/subscriptionStore';
 import { LegalAgreementsModal } from './LegalAgreementsModal';
+import { apiFetch } from '@/utils/apiUrl';
+import { openExternalUrl, isNativePlatform } from '@/utils/capacitor';
 
 /* ═══════════════════════════════════════════
    PLAN & FEATURE DATA
@@ -241,7 +243,7 @@ export const PayPlanHubModal: React.FC<PayPlanHubModalProps> = ({
       const userEmail = authSession?.user?.email || 'o1oblivianfitness@gmail.com';
       const baseUrl = window.location.origin;
 
-      const res = await fetch('/api/stripe-portal', {
+      const res = await apiFetch('/api/stripe-portal', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -317,22 +319,9 @@ export const PayPlanHubModal: React.FC<PayPlanHubModalProps> = ({
   const visibleFeatures = expandedFeatures ? features : features.slice(0, 8);
 
   const openStripeCheckout = (url: string) => {
-    // Navigate directly to Stripe Checkout
-    try {
-      window.location.href = url;
-    } catch (e) {
-      try {
-        const a = document.createElement('a');
-        a.href = url;
-        a.target = '_blank';
-        a.rel = 'noopener noreferrer';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-      } catch (err) {
-        console.warn('Checkout navigation error:', err);
-      }
-    }
+    openExternalUrl(url).catch((err) => {
+      console.warn('Checkout navigation error:', err);
+    });
   };
 
   /* ── Stripe Checkout Flow (Cards, Apple Pay, Google Pay & Link) ── */
@@ -350,14 +339,17 @@ export const PayPlanHubModal: React.FC<PayPlanHubModalProps> = ({
     try {
       const { data: { session: authSession } } = await supabase.auth.getSession();
       const userEmail = authSession?.user?.email || 'o1oblivianfitness@gmail.com';
-      const baseUrl = window.location.origin;
+      const isMobile = isNativePlatform();
+      const baseUrl = isMobile || !window.location.origin || window.location.origin.includes('localhost') || window.location.protocol.startsWith('capacitor')
+        ? 'https://ais-pre-ywak62jnfmfdpkjhp64wap-822845783036.asia-east1.run.app'
+        : window.location.origin;
 
       let checkoutUrl: string | null = null;
       let functionErrorMsg: string | null = null;
 
-      // 1. First call the full-stack server API endpoint (which connects directly to Stripe)
+      // 1. Call the server API endpoint via apiFetch (supports Web & Native Android APK)
       try {
-        const response = await fetch('/api/stripe-checkout', {
+        const response = await apiFetch('/api/stripe-checkout', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -500,8 +492,8 @@ export const PayPlanHubModal: React.FC<PayPlanHubModalProps> = ({
   if (!isOpen) return null;
 
   const modalContent = (
-    <div className="fixed inset-0 z-[99990] flex items-center justify-center bg-black/80 backdrop-blur-md p-3 sm:p-4 overflow-y-auto overscroll-contain animate-in fade-in duration-200">
-      <div className="w-full max-w-lg rounded-2xl bg-white dark:bg-[#0f121a] text-slate-900 dark:text-white border border-slate-200 dark:border-white/10 shadow-2xl my-auto max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 z-[99990] flex items-end sm:items-center justify-center bg-black/80 backdrop-blur-md p-0 sm:p-4 overflow-y-auto overscroll-contain animate-in fade-in duration-200">
+      <div className="w-full max-w-lg rounded-t-3xl sm:rounded-2xl bg-white dark:bg-[#0f121a] text-slate-900 dark:text-white border border-slate-200 dark:border-white/10 shadow-2xl my-0 sm:my-auto max-h-[90dvh] sm:max-h-[90vh] overflow-y-auto pb-[max(1.5rem,calc(env(safe-area-inset-bottom,0px)+1rem))]">
 
         {/* ── HEADER ── */}
         <div className="sticky top-0 z-20 bg-white/95 dark:bg-[#0f121a]/95 backdrop-blur-xl border-b border-slate-100 dark:border-white/5 px-4 pt-3.5 pb-2.5 rounded-t-2xl">

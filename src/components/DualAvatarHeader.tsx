@@ -201,14 +201,14 @@ export const DualAvatarHeader: React.FC<DualAvatarHeaderProps> = ({
           className="group flex items-center gap-2.5 cursor-pointer"
         >
           <div className="relative">
-            <div className="w-11 h-11 rounded-full border-2 border-[#FF3B30]/80 dark:border-[#FF453A]/80 overflow-hidden bg-stone-900 dark:bg-neutral-900 flex items-center justify-center shadow-sm group-active:scale-95 transition-transform">
+            <div className="w-11 h-11 rounded-full border-2 border-[#C4121A]/80 dark:border-[#D91F28]/80 overflow-hidden bg-stone-900 dark:bg-neutral-900 flex items-center justify-center shadow-sm group-active:scale-95 transition-transform">
               {profileImage ? (
                 <img src={profileImage} alt="" className="w-full h-full object-cover" />
               ) : (
                 <span className="text-xs font-bold text-white tracking-wider">{initials}</span>
               )}
             </div>
-            <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-[#FF3B30] dark:bg-[#FF453A] border-2 border-white dark:border-[#0A0A0C]" />
+            <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-[#C4121A] dark:bg-[#D91F28] border-2 border-white dark:border-[#0A0A0C]" />
           </div>
           <div className="text-left">
             <p className="text-[13px] font-bold text-zinc-900 dark:text-white leading-tight">{userName || 'Athlete'}</p>

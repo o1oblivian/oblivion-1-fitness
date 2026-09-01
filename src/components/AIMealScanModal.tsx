@@ -23,6 +23,7 @@ import {
 import { Html5Qrcode } from 'html5-qrcode';
 import { LoggedMealItem, DailyMeals } from '../types';
 import { haptic } from '../utils/haptics';
+import { apiFetch } from '../utils/apiUrl';
 
 interface ScannedFoodItem {
   name: string;
@@ -170,10 +171,10 @@ export const AIMealScanModal: React.FC<AIMealScanModalProps> = ({
     const cleanCode = code.replace(/\D/g, '').trim() || code.trim();
 
     try {
-      // 1. Try local server API
+      // 1. Try server API via apiFetch (supports Web & Native Android APK)
       let itemFound = false;
       try {
-        const res = await fetch(`/api/food-scan?barcode=${encodeURIComponent(cleanCode)}`);
+        const res = await apiFetch(`/api/food-scan?barcode=${encodeURIComponent(cleanCode)}`);
         if (res.ok) {
           const data = await res.json();
           if (data.success && data.result) {
@@ -360,10 +361,10 @@ export const AIMealScanModal: React.FC<AIMealScanModalProps> = ({
       const mimeType = mimeMatch ? mimeMatch[1] : 'image/jpeg';
       const rawBase64 = imgDataUrl.includes(',') ? imgDataUrl.split(',')[1] : imgDataUrl;
 
-      // 1. Primary: Server-side Gemini Vision
+      // 1. Primary: Server-side Gemini Vision via apiFetch (supports Web & Native Android APK)
       let data: any = null;
       try {
-        const response = await fetch('/api/food-scan', {
+        const response = await apiFetch('/api/food-scan', {
           method: 'POST',
           signal: controller.signal,
           headers: { 'Content-Type': 'application/json' },
@@ -371,9 +372,16 @@ export const AIMealScanModal: React.FC<AIMealScanModalProps> = ({
         });
         if (response.ok) {
           data = await response.json();
+        } else {
+          try {
+            const errData = await response.json();
+            if (errData?.message) {
+              data = errData;
+            }
+          } catch {}
         }
-      } catch {
-        /* continue fallback */
+      } catch (primaryErr) {
+        console.warn('Primary food-scan fetch attempt error:', primaryErr);
       }
 
       // 2. Secondary Supabase Edge Function fallback

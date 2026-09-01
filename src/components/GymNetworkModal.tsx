@@ -127,7 +127,7 @@ const POPULAR_ACTIVITIES = [
   { id: 'Basketball', label: 'Basketball', color: '#FF8C42' },
   { id: 'Yoga', label: 'Yoga & Flow', color: '#34A853' },
   { id: 'Calisthenics', label: 'Calisthenics', color: '#3B624E' },
-  { id: 'Hyrox', label: 'Hyrox Racing', color: '#FF3B30' },
+  { id: 'Hyrox', label: 'Hyrox Racing', color: '#C4121A' },
   { id: 'Sports', label: 'Sports Courts', color: '#5A8F3E' },
 ];
 
@@ -146,8 +146,8 @@ const COMPREHENSIVE_SPORTS_DIRECTORY = [
   {
     category: 'Strength & Conditioning',
     sports: [
-      { name: 'Gyms', color: '#EA4335' },
-      { name: 'Bodybuilding', color: '#EA4335' },
+      { name: 'Gyms', color: '#C4121A' },
+      { name: 'Bodybuilding', color: '#C4121A' },
       { name: 'Powerlifting', color: '#1A1E1D' },
       { name: 'Calisthenics', color: '#3B624E' },
       { name: 'Olympic Weightlifting', color: '#FBBC05' },
@@ -170,7 +170,7 @@ const COMPREHENSIVE_SPORTS_DIRECTORY = [
     category: 'HIIT & Endurance Racing',
     sports: [
       { name: 'CrossFit', color: '#FBBC05' },
-      { name: 'Hyrox', color: '#FF3B30' },
+      { name: 'Hyrox', color: '#C4121A' },
       { name: 'Running', color: '#4A90D9' },
       { name: 'Marathon & Track', color: '#FBBC05' },
       { name: 'Spinning / Indoor Cycling', color: '#2EC4B6' },
@@ -823,7 +823,7 @@ export const GymNetworkModal: React.FC<GymNetworkModalProps> = ({
     <div className="fixed inset-0 z-[200] bg-white dark:bg-[#0B0C0E] font-sans text-zinc-900 dark:text-white">
       <div className="bg-white dark:bg-[#0B0C0E] border border-slate-200 dark:border-zinc-800 w-full h-full text-zinc-900 dark:text-white shadow-2xl relative flex flex-col overflow-hidden box-border">
         {/* COMPACT TOP NAVIGATION HEADER */}
-        <div className="safe-top shrink-0 bg-white/95 dark:bg-[#0B0C0E]/95 backdrop-blur-md px-2 pt-1 pb-0 space-y-0.5 relative z-[100]">
+        <div className="safe-top shrink-0 bg-white/95 dark:bg-[#0B0C0E]/95 backdrop-blur-md px-2 pt-[max(0.5rem,env(safe-area-inset-top,0px))] pb-0 space-y-0.5 relative z-[100]">
           {/* Main Clean Header Row */}
           <div className="flex items-center justify-between gap-2 min-h-[30px] px-0.5 relative">
             {/* Left: Filter Trigger Button */}
@@ -975,7 +975,7 @@ export const GymNetworkModal: React.FC<GymNetworkModalProps> = ({
         </div>
 
         {/* SCROLLABLE BODY CONTENT WRAPPER */}
-        <div className="flex-1 overflow-y-auto min-h-0 pb-28">
+        <div className="flex-1 overflow-y-auto min-h-0 pb-[max(7.5rem,calc(env(safe-area-inset-bottom,0px)+6rem))]">
           {/* TAB 1: BUDDY DATING & MATCHMAKING DISCOVERY HUB */}
         {activeTab === 'buddy' && (
           <div className="p-3 space-y-2.5">

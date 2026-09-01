@@ -393,7 +393,7 @@ export const ReelsFeed: React.FC<ReelsFeedProps> = ({ currentUserEmail, showToas
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-3">
-        <div className="w-10 h-10 border-2 border-[#FF3B30] dark:border-[#FF453A] border-t-transparent rounded-full animate-spin" />
+        <div className="w-10 h-10 border-2 border-[#C4121A] dark:border-[#D91F28] border-t-transparent rounded-full animate-spin" />
         <span className="text-sm font-mono text-black/60 dark:text-white/60 font-bold">Loading reels...</span>
       </div>
     );
@@ -404,7 +404,7 @@ export const ReelsFeed: React.FC<ReelsFeedProps> = ({ currentUserEmail, showToas
       <div className="flex flex-col items-center justify-center min-h-[50vh] gap-3 px-6 text-center">
         <Camera className="w-8 h-8 text-gray-400" />
         <span className="text-sm font-mono text-black/60 dark:text-white/60 font-bold">{error}</span>
-        <button onClick={loadReels} className="text-sm font-black text-[#FF3B30] dark:text-[#FF453A] cursor-pointer">
+        <button onClick={loadReels} className="text-sm font-black text-[#C4121A] dark:text-[#D91F28] cursor-pointer">
           Tap to retry
         </button>
       </div>
@@ -414,8 +414,8 @@ export const ReelsFeed: React.FC<ReelsFeedProps> = ({ currentUserEmail, showToas
   if (reels.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[50vh] gap-4 px-6 text-center">
-        <div className="w-16 h-16 rounded-full bg-[#FF3B30]/10 dark:bg-[#FF453A]/10 flex items-center justify-center border border-[#FF3B30]/20 dark:border-[#FF453A]/20">
-          <Video className="w-7 h-7 text-[#FF3B30] dark:text-[#FF453A]" />
+        <div className="w-16 h-16 rounded-full bg-[#C4121A]/10 dark:bg-[#D91F28]/10 flex items-center justify-center border border-[#C4121A]/20 dark:border-[#D91F28]/20">
+          <Video className="w-7 h-7 text-[#C4121A] dark:text-[#D91F28]" />
         </div>
         <div>
           <h3 className="text-sm font-bold text-[#000000] dark:text-white mb-1">No reels yet</h3>
@@ -425,7 +425,7 @@ export const ReelsFeed: React.FC<ReelsFeedProps> = ({ currentUserEmail, showToas
         </div>
         <button
           onClick={() => setIsUploadOpen(true)}
-          className="px-5 py-3 bg-[#FF3B30] dark:bg-[#FF453A] text-white font-black text-sm rounded-xl hover:bg-[#E52E24] active:scale-95 transition-all cursor-pointer flex items-center gap-2 shadow-lg"
+          className="px-5 py-3 bg-[#C4121A] dark:bg-[#D91F28] text-white font-black text-sm rounded-xl hover:bg-[#B8121A] active:scale-95 transition-all cursor-pointer flex items-center gap-2 shadow-lg"
         >
           <Plus className="w-4 h-4" />
           Post Your First Reel
@@ -446,20 +446,20 @@ export const ReelsFeed: React.FC<ReelsFeedProps> = ({ currentUserEmail, showToas
   }
 
   return (
-    <div className="w-full max-w-md mx-auto pb-28 relative">
+    <div className="w-full max-w-md mx-auto pb-[max(7rem,calc(env(safe-area-inset-bottom,0px)+5.5rem))] relative">
       {/* Sticky header */}
       <div className="sticky top-0 z-30 bg-black/5 dark:bg-black/40 border-b border-black/15 dark:border-white/20 px-4 py-3 backdrop-blur-md">
         <div className="flex items-center justify-between mb-2.5">
           <div className="flex items-center gap-2">
-            <TrendingUp className="w-4 h-4 text-[#FF3B30] dark:text-[#FF453A]" />
+            <TrendingUp className="w-4 h-4 text-[#C4121A] dark:text-[#D91F28]" />
             <h2 className="text-base font-black text-black dark:text-white tracking-tight">Reels</h2>
-            <span className="text-[10px] font-mono font-black bg-[#FF3B30]/10 dark:bg-[#FF453A]/10 text-[#FF3B30] dark:text-[#FF453A] px-1.5 py-0.5 rounded-md">
+            <span className="text-[10px] font-mono font-black bg-[#C4121A]/10 dark:bg-[#D91F28]/10 text-[#C4121A] dark:text-[#D91F28] px-1.5 py-0.5 rounded-md">
               {reels.length} POSTS
             </span>
           </div>
           <button
             onClick={() => setIsUploadOpen(true)}
-            className="w-8 h-8 rounded-full bg-[#FF3B30] dark:bg-[#FF453A] text-white flex items-center justify-center hover:bg-[#E52E24] active:scale-90 transition-all cursor-pointer shadow-sm"
+            className="w-8 h-8 rounded-full bg-[#C4121A] dark:bg-[#D91F28] text-white flex items-center justify-center hover:bg-[#B8121A] active:scale-90 transition-all cursor-pointer shadow-sm"
             title="Post a reel"
           >
             <Plus className="w-4 h-4" />
@@ -474,7 +474,7 @@ export const ReelsFeed: React.FC<ReelsFeedProps> = ({ currentUserEmail, showToas
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search reels, coaches, exercises..."
-            className="w-full pl-9 pr-9 py-2 rounded-xl text-xs font-bold bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-black dark:text-white placeholder:text-black/40 dark:placeholder:text-white/40 focus:outline-none focus:border-[#FF3B30]/40 focus:ring-2 focus:ring-[#FF3B30]/10 transition-all"
+            className="w-full pl-9 pr-9 py-2 rounded-xl text-xs font-bold bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-black dark:text-white placeholder:text-black/40 dark:placeholder:text-white/40 focus:outline-none focus:border-[#C4121A]/40 focus:ring-2 focus:ring-[#C4121A]/10 transition-all"
           />
           {searchQuery && (
             <button
@@ -509,13 +509,13 @@ export const ReelsFeed: React.FC<ReelsFeedProps> = ({ currentUserEmail, showToas
             onClick={() => setFilterPanelOpen(!filterPanelOpen)}
             className={`shrink-0 flex items-center gap-1 px-2 py-1 rounded-full text-xs font-black transition-all cursor-pointer ${
               filterPanelOpen || activeFilterCount > 0
-                ? 'bg-[#FF3B30] dark:bg-[#FF453A] text-white'
+                ? 'bg-[#C4121A] dark:bg-[#D91F28] text-white'
                 : 'bg-black/5 dark:bg-white/5 text-black/60 dark:text-white/60'
             }`}
           >
             <SlidersHorizontal className="w-3.5 h-3.5" />
             {activeFilterCount > 0 && (
-              <span className="text-[10px] bg-white text-[#FF3B30] dark:text-[#FF453A] rounded-full w-4 h-4 flex items-center justify-center font-black">
+              <span className="text-[10px] bg-white text-[#C4121A] dark:text-[#D91F28] rounded-full w-4 h-4 flex items-center justify-center font-black">
                 {activeFilterCount}
               </span>
             )}

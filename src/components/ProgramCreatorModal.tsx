@@ -575,7 +575,7 @@ export const ProgramCreatorModal: React.FC<Props> = ({
       className="fixed inset-0 z-[250] flex flex-col bg-[#FFFFFF] dark:bg-[#000000] text-black dark:text-white font-sans overflow-hidden select-none"
     >
       {/* ── 1. CLEAN ELEGANT HEADER (Uber App Style) ── */}
-      <header className="shrink-0 z-10 border-b border-black/10 dark:border-white/10 obsidian-panel shadow-sm backdrop-blur-xl">
+      <header className="shrink-0 z-10 border-b border-black/10 dark:border-white/10 obsidian-panel shadow-sm backdrop-blur-xl pt-[max(0.625rem,env(safe-area-inset-top))]">
         <div className="flex items-center justify-between px-4 sm:px-6 py-3 max-w-xl mx-auto w-full">
           <button
             onClick={onClose}
@@ -1587,7 +1587,7 @@ export const ProgramCreatorModal: React.FC<Props> = ({
       )}
 
       {/* ── 4. FIXED BOTTOM ACTION BAR ── */}
-      <footer className="shrink-0 border-t border-black/10 dark:border-white/10 obsidian-panel pb-[calc(0.5rem+env(safe-area-inset-bottom))] shadow-lg backdrop-blur-xl">
+      <footer className="shrink-0 border-t border-black/10 dark:border-white/10 obsidian-panel pb-[max(1.25rem,calc(env(safe-area-inset-bottom,0px)+0.875rem))] shadow-lg backdrop-blur-xl">
         <div className="flex items-center gap-3 max-w-lg mx-auto px-4 sm:px-6 py-3">
           <button
             type="button"

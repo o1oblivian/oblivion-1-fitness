@@ -421,7 +421,7 @@ export const ApplePhotoGalleryViewer: React.FC<ApplePhotoGalleryViewerProps> = (
     >
       {/* ─── NUDE / BARE TOP RIGHT CONTROLS ─── */}
       <div
-        className={`absolute top-3 right-3 sm:top-4 sm:right-4 z-50 flex items-center gap-2 transition-opacity duration-200 ${
+        className={`absolute top-[max(0.75rem,env(safe-area-inset-top,0px))] right-3 sm:right-4 z-50 flex items-center gap-2 transition-opacity duration-200 ${
           showControls ? 'opacity-100' : 'opacity-0 pointer-events-none'
         }`}
       >
@@ -459,7 +459,7 @@ export const ApplePhotoGalleryViewer: React.FC<ApplePhotoGalleryViewerProps> = (
       {/* ─── TOP LEFT DATE & METADATA ─── */}
       {dateFormatted && (
         <div
-          className={`absolute top-3 left-3 sm:top-4 sm:left-4 z-40 flex flex-col pointer-events-none transition-opacity duration-200 ${
+          className={`absolute top-[max(0.75rem,env(safe-area-inset-top,0px))] left-3 sm:left-4 z-40 flex flex-col pointer-events-none transition-opacity duration-200 ${
             showControls ? 'opacity-100' : 'opacity-0'
           }`}
         >
@@ -596,7 +596,7 @@ export const ApplePhotoGalleryViewer: React.FC<ApplePhotoGalleryViewerProps> = (
       {/* ─── SLEEK MINIMALIST VIDEO TIMELINE ─── */}
       {isVideo && (
         <div
-          className={`absolute bottom-14 inset-x-3 sm:inset-x-6 z-50 flex flex-col gap-1.5 transition-opacity duration-200 ${
+          className={`absolute bottom-[max(4.25rem,calc(env(safe-area-inset-bottom,0px)+3.75rem))] inset-x-3 sm:inset-x-6 z-50 flex flex-col gap-1.5 transition-opacity duration-200 ${
             showControls ? 'opacity-100' : 'opacity-0 pointer-events-none'
           }`}
           onClick={(e) => e.stopPropagation()}
@@ -659,7 +659,7 @@ export const ApplePhotoGalleryViewer: React.FC<ApplePhotoGalleryViewerProps> = (
 
       {/* ─── REFINED APPLE PRO BOTTOM BAR (NUDE / BARE BUTTONS) ─── */}
       <div
-        className={`absolute bottom-4 sm:bottom-5 inset-x-0 z-[60] flex items-center justify-between px-4 sm:px-6 pointer-events-auto transition-opacity duration-200 ${
+        className={`absolute bottom-[max(1rem,calc(env(safe-area-inset-bottom,0px)+0.75rem))] inset-x-0 z-[60] flex items-center justify-between px-4 sm:px-6 pointer-events-auto transition-opacity duration-200 ${
           showControls ? 'opacity-100' : 'opacity-0 pointer-events-none'
         }`}
         onClick={(e) => e.stopPropagation()}
@@ -712,7 +712,7 @@ export const ApplePhotoGalleryViewer: React.FC<ApplePhotoGalleryViewerProps> = (
       {/* ─── APPLE PRO INLINE DELETION ACTION SHEET (NO BLOCKED WINDOW.CONFIRM) ─── */}
       {showDeletePrompt && (
         <div
-          className="fixed inset-0 z-[70] bg-black/40 dark:bg-black/80 backdrop-blur-xs flex items-end sm:items-center justify-center p-4"
+          className="fixed inset-0 z-[70] bg-black/40 dark:bg-black/80 backdrop-blur-xs flex items-end sm:items-center justify-center p-4 pb-[max(1.75rem,calc(env(safe-area-inset-bottom,0px)+1.5rem))]"
           onClick={(e) => {
             e.stopPropagation();
             setShowDeletePrompt(false);

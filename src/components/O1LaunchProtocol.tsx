@@ -283,54 +283,54 @@ export const O1LaunchProtocol: React.FC<O1LaunchProtocolProps> = ({
     switch (step) {
       case 1:
         return (
-          <div className="flex flex-col items-center w-full max-w-md mx-auto">
+          <div className="flex flex-col items-center w-full max-w-md mx-auto text-black dark:text-white">
             {/* Header Badge */}
             <div className="mb-2">
-              <div className="w-8 h-8 rounded-xl bg-zinc-900/80 border border-white/10 flex items-center justify-center text-white shadow-md">
-                <Cpu size={16} className="text-red-500" />
+              <div className="w-10 h-10 rounded-2xl bg-white/90 dark:bg-white/10 flex items-center justify-center text-red-600 shadow-sm">
+                <Cpu size={18} className="stroke-[2.5]" />
               </div>
             </div>
 
-            <div className="text-[10px] font-mono uppercase tracking-[0.2em] text-red-500 font-bold mb-0.5">
+            <div className="text-[11px] font-mono uppercase tracking-[0.2em] text-red-600 font-black mb-1">
               OBLIVION 1 FITNESS CLUB
             </div>
-            <h1 className="text-base sm:text-lg font-black text-white text-center uppercase tracking-tight leading-snug">
+            <h1 className="text-base sm:text-lg font-black text-black dark:text-white text-center uppercase tracking-tight leading-snug">
               WHAT WOULD MAKE O1FC MEANINGFUL TO YOU?
             </h1>
 
-            {/* Obsidian Glass Intro Card */}
-            <div className="w-full mt-2 mb-2 p-3 rounded-xl bg-zinc-900/50 backdrop-blur-xl border border-white/10 shadow-lg text-left">
+            {/* Intro Card - Minimalist Info Box */}
+            <div className="w-full mt-2.5 mb-2.5 p-3.5 rounded-2xl bg-white/85 dark:bg-zinc-900/80 shadow-sm text-left">
               <div className="flex items-center gap-1.5 mb-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
-                <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-zinc-300">
+                <span className="w-2 h-2 rounded-full bg-red-600 animate-pulse" />
+                <span className="text-[10px] font-mono font-black uppercase tracking-wider text-red-600">
                   Engineered For High Performance
                 </span>
               </div>
-              <p className="text-[11px] text-zinc-400 leading-relaxed">
-                <strong className="text-white font-semibold">O1FC</strong> is the all-in-one athletic operating system built for <strong className="text-zinc-200">rotary workout tracking</strong>, <strong className="text-zinc-200">AI vision macro nutrition</strong>, <strong className="text-zinc-200">live tandem synchronization</strong>, and <strong className="text-zinc-200">coach telemetry intelligence</strong>.
+              <p className="text-xs text-zinc-700 dark:text-zinc-300 leading-relaxed font-medium">
+                <strong className="text-black dark:text-white font-extrabold">O1FC</strong> is the all-in-one athletic operating system built for <strong className="text-black dark:text-white font-bold">rotary workout tracking</strong>, <strong className="text-black dark:text-white font-bold">AI vision macro nutrition</strong>, <strong className="text-black dark:text-white font-bold">live tandem synchronization</strong>, and <strong className="text-black dark:text-white font-bold">coach telemetry intelligence</strong>.
               </p>
             </div>
 
             {/* Select All Action Bar */}
             <div className="w-full flex items-center justify-between mb-2 px-0.5">
-              <span className="text-[9px] font-mono font-bold text-zinc-400 uppercase tracking-widest">
+              <span className="text-[10px] font-mono font-black text-black dark:text-white uppercase tracking-widest">
                 SELECT ALL THAT APPLY ({selectedIntents.length}/5)
               </span>
               <button
                 type="button"
                 onClick={handleToggleSelectAllIntents}
-                className={`px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold uppercase tracking-wider transition-all flex items-center gap-1 cursor-pointer ${
+                className={`px-3 py-1 rounded-xl text-[10px] font-mono font-black uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer ${
                   isAllIntentsSelected
-                    ? 'bg-red-500/20 text-red-400 border border-red-500/40'
-                    : 'bg-zinc-900/60 text-zinc-300 border border-white/10 hover:border-white/20'
+                    ? 'bg-red-600 text-white shadow-sm'
+                    : 'bg-white/85 dark:bg-white/10 text-black dark:text-white hover:bg-white dark:hover:bg-white/20 shadow-xs'
                 }`}
               >
-                <Check size={11} className={isAllIntentsSelected ? 'text-red-400 stroke-[3]' : 'text-zinc-400'} />
+                <Check size={12} className={isAllIntentsSelected ? 'text-white stroke-[3]' : 'text-black dark:text-white'} />
                 <span>{isAllIntentsSelected ? 'ALL SELECTED' : 'SELECT ALL'}</span>
               </button>
             </div>
 
-            {/* Path Options */}
+            {/* Path Options - Minimalist Cards */}
             <div className="w-full space-y-2">
               {INTENT_OPTIONS.map((opt) => {
                 const Icon = opt.icon;
@@ -341,39 +341,39 @@ export const O1LaunchProtocol: React.FC<O1LaunchProtocolProps> = ({
                     id={`intent-option-${opt.id}`}
                     type="button"
                     onClick={() => handleToggleIntent(opt.id)}
-                    className={`w-full text-left p-2.5 sm:p-3 rounded-xl border transition-all duration-150 flex items-center gap-3 group relative cursor-pointer ${
+                    className={`w-full text-left p-3 rounded-2xl transition-all duration-200 flex items-center gap-3 group relative cursor-pointer ${
                       isSelected
-                        ? 'bg-red-950/35 border-red-500/80 shadow-md ring-1 ring-red-500/30'
-                        : 'bg-zinc-900/50 backdrop-blur-md border-white/10 hover:border-white/20 hover:bg-zinc-900/70 shadow-sm'
+                        ? 'bg-white dark:bg-zinc-800 shadow-md'
+                        : 'bg-white/70 dark:bg-zinc-900/50 hover:bg-white/95 dark:hover:bg-zinc-900/90 shadow-xs'
                     }`}
                   >
                     <div
-                      className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-colors ${
+                      className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
                         isSelected
-                          ? 'bg-red-600 text-white font-bold shadow-sm'
-                          : 'bg-zinc-800/80 text-zinc-400 group-hover:text-white border border-white/5'
+                          ? 'bg-red-600 text-white shadow-sm'
+                          : 'bg-black/5 dark:bg-white/5 text-zinc-700 dark:text-zinc-300 group-hover:text-red-600'
                       }`}
                     >
-                      <Icon size={15} />
+                      <Icon size={16} className="stroke-[2.5]" />
                     </div>
 
                     <div className="flex-1 min-w-0 pr-1.5">
-                      <div className="text-xs sm:text-[13px] font-bold text-white tracking-wide truncate">
+                      <div className="text-xs sm:text-[13px] font-black text-black dark:text-white tracking-wide truncate">
                         {opt.title}
                       </div>
-                      <div className="text-[10px] sm:text-[11px] text-zinc-400 tracking-normal mt-0.5 leading-snug">
+                      <div className="text-[10px] sm:text-[11px] text-zinc-600 dark:text-zinc-400 tracking-normal mt-0.5 leading-snug font-medium">
                         {opt.subtitle}
                       </div>
                     </div>
 
                     <div
-                      className={`w-4 h-4 rounded-full flex items-center justify-center shrink-0 transition-all ${
+                      className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 transition-all ${
                         isSelected
                           ? 'bg-red-600 text-white shadow-sm'
-                          : 'border border-zinc-700 bg-transparent'
+                          : 'bg-black/5 dark:bg-white/10'
                       }`}
                     >
-                      {isSelected && <Check size={10} className="stroke-[3]" />}
+                      {isSelected && <Check size={11} className="stroke-[3] text-white" />}
                     </div>
                   </button>
                 );
@@ -384,31 +384,31 @@ export const O1LaunchProtocol: React.FC<O1LaunchProtocolProps> = ({
 
       case 2:
         return (
-          <div className="flex flex-col items-center w-full max-w-md mx-auto">
+          <div className="flex flex-col items-center w-full max-w-md mx-auto text-black dark:text-white">
             {/* Step Subheader */}
-            <div className="text-[10px] font-mono uppercase tracking-[0.2em] text-red-500 font-bold mb-0.5">
+            <div className="text-[11px] font-mono uppercase tracking-[0.2em] text-red-600 font-black mb-1">
               ATHLETE PASSPORT
             </div>
-            <h1 className="text-base sm:text-lg font-black text-white text-center uppercase tracking-tight">
+            <h1 className="text-base sm:text-lg font-black text-black dark:text-white text-center uppercase tracking-tight">
               ESTABLISH YOUR IDENTITY
             </h1>
-            <p className="text-[11px] text-zinc-400 text-center mt-0.5 mb-3.5">
+            <p className="text-xs text-zinc-600 dark:text-zinc-400 text-center mt-0.5 mb-3.5 font-medium">
               Set up your public persona and baseline biometric metrics.
             </p>
 
             <div className="w-full space-y-3">
-              {/* Avatar Preview & Upload */}
-              <div className="flex items-center gap-3.5 p-3 bg-zinc-900/50 backdrop-blur-xl border border-white/10 rounded-xl shadow-md">
+              {/* Avatar Preview & Upload - Minimalist Info Box */}
+              <div className="flex items-center gap-3.5 p-3.5 bg-white/85 dark:bg-zinc-900/80 rounded-2xl shadow-sm">
                 <label htmlFor="avatar-upload-input" className="relative group shrink-0 cursor-pointer block">
-                  <div className="w-14 h-14 rounded-full bg-zinc-800 border-2 border-zinc-700 group-hover:border-zinc-500 flex items-center justify-center text-white font-black text-lg overflow-hidden shadow-inner transition-all">
+                  <div className="w-14 h-14 rounded-2xl bg-black/5 dark:bg-white/5 flex items-center justify-center text-black dark:text-white font-black text-lg overflow-hidden transition-all">
                     {avatarUrl ? (
                       <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
                     ) : (
                       <span>{displayName.slice(0, 2).toUpperCase() || 'AT'}</span>
                     )}
                   </div>
-                  <div className="absolute -bottom-0.5 -right-0.5 p-1 bg-red-600 rounded-full text-white shadow-md transition-colors">
-                    <Camera size={10} className="stroke-[2.5]" />
+                  <div className="absolute -bottom-1 -right-1 p-1.5 bg-red-600 rounded-xl text-white shadow-sm transition-colors">
+                    <Camera size={11} className="stroke-[2.5]" />
                   </div>
                   <input
                     id="avatar-upload-input"
@@ -429,20 +429,20 @@ export const O1LaunchProtocol: React.FC<O1LaunchProtocolProps> = ({
                 </label>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between gap-2">
-                    <div className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
+                    <div className="text-xs font-black text-black dark:text-white uppercase tracking-wider flex items-center gap-1.5">
                       <span>Athlete ID</span>
-                      <span className="px-1.5 py-0.5 rounded-full bg-zinc-800 border border-white/10 text-zinc-300 text-[8px] font-mono font-bold">
+                      <span className="px-2 py-0.5 rounded-full bg-red-50 dark:bg-red-950/40 text-red-600 text-[9px] font-mono font-black">
                         VERIFIED
                       </span>
                     </div>
                     <label
                       htmlFor="avatar-upload-input"
-                      className="text-[9px] font-mono uppercase tracking-wider font-bold text-red-400 hover:text-red-300 bg-red-950/40 border border-red-500/30 px-2 py-0.5 rounded-md cursor-pointer transition-colors"
+                      className="text-[10px] font-mono uppercase tracking-wider font-black text-red-600 hover:text-red-700 bg-red-50 dark:bg-red-950/40 px-2.5 py-0.5 rounded-xl cursor-pointer transition-colors shadow-xs"
                     >
                       {avatarUrl ? 'Change' : 'Upload'}
                     </label>
                   </div>
-                  <p className="text-[10px] text-zinc-400 mt-0.5 leading-tight">
+                  <p className="text-xs text-zinc-600 dark:text-zinc-400 mt-1 leading-tight font-medium">
                     Set your athlete profile badge image.
                   </p>
                 </div>
@@ -451,7 +451,7 @@ export const O1LaunchProtocol: React.FC<O1LaunchProtocolProps> = ({
               {/* Name & Handle Inputs */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                 <div>
-                  <label className="text-[9px] font-mono font-bold text-zinc-400 uppercase tracking-widest block mb-1">
+                  <label className="text-[10px] font-mono font-black text-red-600 uppercase tracking-widest block mb-1">
                     Display Name
                   </label>
                   <input
@@ -459,22 +459,22 @@ export const O1LaunchProtocol: React.FC<O1LaunchProtocolProps> = ({
                     value={displayName}
                     onChange={(e) => setDisplayName(e.target.value)}
                     placeholder="Alex Rivera"
-                    className="w-full px-3 py-2 bg-black/40 border border-white/10 rounded-xl text-white text-xs focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500/20"
+                    className="w-full px-3.5 py-2.5 bg-white/85 dark:bg-zinc-900/80 rounded-xl text-black dark:text-white text-xs sm:text-sm font-bold shadow-xs focus:outline-none focus:bg-white dark:focus:bg-zinc-900 placeholder:text-zinc-400"
                   />
                 </div>
 
                 <div>
-                  <label className="text-[9px] font-mono font-bold text-zinc-400 uppercase tracking-widest block mb-1">
+                  <label className="text-[10px] font-mono font-black text-red-600 uppercase tracking-widest block mb-1">
                     Handle
                   </label>
                   <div className="relative flex items-center">
-                    <span className="absolute left-2.5 text-zinc-500 text-xs font-semibold">@</span>
+                    <span className="absolute left-3 text-red-600 text-xs font-black">@</span>
                     <input
                       type="text"
                       value={handle}
                       onChange={(e) => setHandle(e.target.value.replace(/[^a-zA-Z0-9_]/g, ''))}
                       placeholder="handle"
-                      className="w-full pl-6 pr-3 py-2 bg-black/40 border border-white/10 rounded-xl text-white text-xs focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500/20 font-mono"
+                      className="w-full pl-7 pr-3.5 py-2.5 bg-white/85 dark:bg-zinc-900/80 rounded-xl text-black dark:text-white text-xs sm:text-sm font-bold font-mono shadow-xs focus:outline-none focus:bg-white dark:focus:bg-zinc-900 placeholder:text-zinc-400"
                     />
                   </div>
                 </div>
@@ -482,7 +482,7 @@ export const O1LaunchProtocol: React.FC<O1LaunchProtocolProps> = ({
 
               {/* Bio / Mission */}
               <div>
-                <label className="text-[9px] font-mono font-bold text-zinc-400 uppercase tracking-widest block mb-1">
+                <label className="text-[10px] font-mono font-black text-red-600 uppercase tracking-widest block mb-1">
                   Athlete Bio & Focus
                 </label>
                 <textarea
@@ -490,48 +490,48 @@ export const O1LaunchProtocol: React.FC<O1LaunchProtocolProps> = ({
                   value={bio}
                   onChange={(e) => setBio(e.target.value)}
                   placeholder="e.g. HYROX competitor, morning lifter targeting sub-60min simulation"
-                  className="w-full px-3 py-1.5 bg-black/40 border border-white/10 rounded-xl text-white text-[11px] focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500/20 resize-none"
+                  className="w-full px-3.5 py-2 bg-white/85 dark:bg-zinc-900/80 rounded-xl text-black dark:text-white text-xs font-medium shadow-xs focus:outline-none focus:bg-white dark:focus:bg-zinc-900 resize-none placeholder:text-zinc-400"
                 />
               </div>
 
-              {/* Baselines */}
+              {/* Baselines - Minimalist Info Boxes */}
               <div className="grid grid-cols-3 gap-2 pt-0.5">
-                <div className="p-2.5 bg-zinc-900/50 backdrop-blur-xl border border-white/10 rounded-xl text-center shadow-sm">
-                  <span className="text-[8px] font-mono text-zinc-400 uppercase block font-semibold">Height</span>
+                <div className="p-3 bg-white/85 dark:bg-zinc-900/80 rounded-2xl text-center shadow-xs">
+                  <span className="text-[9px] font-mono text-red-600 uppercase block font-black">Height</span>
                   <div className="flex items-baseline justify-center gap-0.5 mt-0.5">
                     <input
                       type="number"
                       value={height}
                       onChange={(e) => setHeight(e.target.value)}
-                      className="w-10 bg-transparent text-center text-white font-bold text-sm focus:outline-none"
+                      className="w-12 bg-transparent text-center text-black dark:text-white font-black text-sm focus:outline-none"
                     />
-                    <span className="text-[9px] text-zinc-400 font-medium">cm</span>
+                    <span className="text-[10px] text-zinc-500 font-bold">cm</span>
                   </div>
                 </div>
 
-                <div className="p-2.5 bg-zinc-900/50 backdrop-blur-xl border border-white/10 rounded-xl text-center shadow-sm">
-                  <span className="text-[8px] font-mono text-zinc-400 uppercase block font-semibold">Weight</span>
+                <div className="p-3 bg-white/85 dark:bg-zinc-900/80 rounded-2xl text-center shadow-xs">
+                  <span className="text-[9px] font-mono text-red-600 uppercase block font-black">Weight</span>
                   <div className="flex items-baseline justify-center gap-0.5 mt-0.5">
                     <input
                       type="number"
                       value={weight}
                       onChange={(e) => setWeight(e.target.value)}
-                      className="w-10 bg-transparent text-center text-white font-bold text-sm focus:outline-none"
+                      className="w-12 bg-transparent text-center text-black dark:text-white font-black text-sm focus:outline-none"
                     />
-                    <span className="text-[9px] text-zinc-400 font-medium">kg</span>
+                    <span className="text-[10px] text-zinc-500 font-bold">kg</span>
                   </div>
                 </div>
 
-                <div className="p-2.5 bg-zinc-900/50 backdrop-blur-xl border border-white/10 rounded-xl text-center shadow-sm">
-                  <span className="text-[8px] font-mono text-zinc-400 uppercase block font-semibold">Age</span>
+                <div className="p-3 bg-white/85 dark:bg-zinc-900/80 rounded-2xl text-center shadow-xs">
+                  <span className="text-[9px] font-mono text-red-600 uppercase block font-black">Age</span>
                   <div className="flex items-baseline justify-center gap-0.5 mt-0.5">
                     <input
                       type="number"
                       value={age}
                       onChange={(e) => setAge(e.target.value)}
-                      className="w-10 bg-transparent text-center text-white font-bold text-sm focus:outline-none"
+                      className="w-12 bg-transparent text-center text-black dark:text-white font-black text-sm focus:outline-none"
                     />
-                    <span className="text-[9px] text-zinc-400 font-medium">yrs</span>
+                    <span className="text-[10px] text-zinc-500 font-bold">yrs</span>
                   </div>
                 </div>
               </div>
@@ -541,37 +541,37 @@ export const O1LaunchProtocol: React.FC<O1LaunchProtocolProps> = ({
 
       case 3:
         return (
-          <div className="flex flex-col items-center w-full max-w-md mx-auto">
-            <div className="text-[10px] font-mono uppercase tracking-[0.2em] text-red-500 font-bold mb-0.5">
+          <div className="flex flex-col items-center w-full max-w-md mx-auto text-black dark:text-white">
+            <div className="text-[11px] font-mono uppercase tracking-[0.2em] text-red-600 font-black mb-1">
               DISCIPLINE & CADENCE
             </div>
-            <h1 className="text-base sm:text-lg font-black text-white text-center uppercase tracking-tight">
+            <h1 className="text-base sm:text-lg font-black text-black dark:text-white text-center uppercase tracking-tight">
               SELECT YOUR DISCIPLINES
             </h1>
-            <p className="text-[11px] text-zinc-400 text-center mt-0.5 mb-2.5">
+            <p className="text-xs text-zinc-600 dark:text-zinc-400 text-center mt-0.5 mb-2.5 font-medium">
               Choose your primary training modalities and weekly target cadence.
             </p>
 
             {/* Select All Disciplines Toggle */}
             <div className="w-full flex items-center justify-between mb-2 px-0.5">
-              <span className="text-[9px] font-mono font-bold text-zinc-400 uppercase tracking-widest">
+              <span className="text-[10px] font-mono font-black text-black dark:text-white uppercase tracking-widest">
                 DISCIPLINES ({selectedDisciplines.length}/6)
               </span>
               <button
                 type="button"
                 onClick={handleToggleSelectAllDisciplines}
-                className={`px-2 py-0.5 rounded-lg text-[9px] font-mono font-bold uppercase tracking-wider transition-all flex items-center gap-1 cursor-pointer ${
+                className={`px-3 py-1 rounded-xl text-[10px] font-mono font-black uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer ${
                   isAllDisciplinesSelected
-                    ? 'bg-red-500/20 text-red-400 border border-red-500/40'
-                    : 'bg-zinc-900/60 text-zinc-300 border border-white/10 hover:border-white/20'
+                    ? 'bg-red-600 text-white shadow-sm'
+                    : 'bg-white/85 dark:bg-white/10 text-black dark:text-white hover:bg-white dark:hover:bg-white/20 shadow-xs'
                 }`}
               >
-                <Check size={10} className={isAllDisciplinesSelected ? 'text-red-400 stroke-[3]' : 'text-zinc-400'} />
+                <Check size={11} className={isAllDisciplinesSelected ? 'text-white stroke-[3]' : 'text-black dark:text-white'} />
                 <span>{isAllDisciplinesSelected ? 'ALL SELECTED' : 'SELECT ALL'}</span>
               </button>
             </div>
 
-            {/* Discipline Grid */}
+            {/* Discipline Grid - Minimalist Cards */}
             <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-2 mb-3.5">
               {DISCIPLINES.map((disc) => {
                 const isSelected = selectedDisciplines.includes(disc.id);
@@ -580,31 +580,31 @@ export const O1LaunchProtocol: React.FC<O1LaunchProtocolProps> = ({
                     key={disc.id}
                     type="button"
                     onClick={() => handleToggleDiscipline(disc.id)}
-                    className={`p-2.5 text-left rounded-xl border transition-all flex flex-col justify-between cursor-pointer ${
+                    className={`p-3 text-left rounded-2xl transition-all flex flex-col justify-between cursor-pointer ${
                       isSelected
-                        ? 'bg-red-950/35 border-red-500/80 ring-1 ring-red-500/30 shadow-sm'
-                        : 'bg-zinc-900/50 backdrop-blur-md border-white/10 hover:border-white/20 hover:bg-zinc-900/70 shadow-sm'
+                        ? 'bg-white dark:bg-zinc-800 shadow-md'
+                        : 'bg-white/70 dark:bg-zinc-900/50 hover:bg-white/95 dark:hover:bg-zinc-900/90 shadow-xs'
                     }`}
                   >
                     <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold text-white tracking-wide">{disc.label}</span>
+                      <span className="text-xs font-black text-black dark:text-white tracking-wide">{disc.label}</span>
                       {isSelected ? (
-                        <div className="w-3.5 h-3.5 rounded-full bg-red-600 text-white flex items-center justify-center">
-                          <Check size={9} className="stroke-[3]" />
+                        <div className="w-4 h-4 rounded-full bg-red-600 text-white flex items-center justify-center shadow-xs">
+                          <Check size={10} className="stroke-[3]" />
                         </div>
                       ) : (
-                        <div className="w-3.5 h-3.5 rounded-full border border-zinc-700" />
+                        <div className="w-4 h-4 rounded-full bg-black/5 dark:bg-white/10" />
                       )}
                     </div>
-                    <span className="text-[9px] sm:text-[10px] text-zinc-400 mt-0.5 leading-tight">{disc.desc}</span>
+                    <span className="text-[10px] sm:text-[11px] text-zinc-600 dark:text-zinc-400 mt-1 leading-tight font-medium">{disc.desc}</span>
                   </button>
                 );
               })}
             </div>
 
-            {/* Frequency Selector */}
+            {/* Frequency Selector - Minimalist Pill Buttons */}
             <div className="w-full">
-              <label className="text-[9px] font-mono font-bold text-zinc-400 uppercase tracking-widest block mb-1.5">
+              <label className="text-[10px] font-mono font-black text-red-600 uppercase tracking-widest block mb-1.5">
                 Target Training Cadence
               </label>
               <div className="grid grid-cols-3 gap-2">
@@ -613,10 +613,10 @@ export const O1LaunchProtocol: React.FC<O1LaunchProtocolProps> = ({
                     key={freq}
                     type="button"
                     onClick={() => setFrequency(freq)}
-                    className={`py-2 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
+                    className={`py-2.5 rounded-xl text-xs font-black font-mono transition-all cursor-pointer ${
                       frequency === freq
-                        ? 'bg-red-600 text-white border-red-500 shadow-md'
-                        : 'bg-zinc-900/50 backdrop-blur-md border-white/10 text-zinc-300 hover:bg-zinc-800'
+                        ? 'bg-red-600 text-white shadow-sm'
+                        : 'bg-white/85 dark:bg-zinc-900/80 text-black dark:text-white hover:bg-white dark:hover:bg-zinc-900 shadow-xs'
                     }`}
                   >
                     {freq}
@@ -629,18 +629,18 @@ export const O1LaunchProtocol: React.FC<O1LaunchProtocolProps> = ({
 
       case 4:
         return (
-          <div className="flex flex-col items-center w-full max-w-md mx-auto">
-            <div className="text-[10px] font-mono uppercase tracking-[0.2em] text-red-500 font-bold mb-0.5">
+          <div className="flex flex-col items-center w-full max-w-md mx-auto text-black dark:text-white">
+            <div className="text-[11px] font-mono uppercase tracking-[0.2em] text-red-600 font-black mb-1">
               PROGRAMMING ARCHITECTURE
             </div>
-            <h1 className="text-base sm:text-lg font-black text-white text-center uppercase tracking-tight">
+            <h1 className="text-base sm:text-lg font-black text-black dark:text-white text-center uppercase tracking-tight">
               HOW WOULD YOU LIKE TO OPERATE?
             </h1>
-            <p className="text-[11px] text-zinc-400 text-center mt-0.5 mb-3.5">
+            <p className="text-xs text-zinc-600 dark:text-zinc-400 text-center mt-0.5 mb-3.5 font-medium">
               Configure your guidance mode across the Oblivion 1 ecosystem.
             </p>
 
-            {/* Streamlined Non-Redundant Guidance Options */}
+            {/* Guidance Options - Minimalist Cards */}
             <div className="w-full space-y-2">
               {GUIDANCE_MODES.map((opt) => {
                 const isSelected = supportChoice === opt.id;
@@ -653,24 +653,24 @@ export const O1LaunchProtocol: React.FC<O1LaunchProtocolProps> = ({
                       setSupportChoice(opt.id);
                       setCoachingStyle(opt.styleTag);
                     }}
-                    className={`w-full text-left p-2.5 sm:p-3 rounded-xl border transition-all cursor-pointer flex items-center justify-between ${
+                    className={`w-full text-left p-3 rounded-2xl transition-all cursor-pointer flex items-center justify-between ${
                       isSelected
-                        ? 'bg-red-950/35 border-red-500/80 shadow-md ring-1 ring-red-500/30'
-                        : 'bg-zinc-900/50 backdrop-blur-md border-white/10 hover:border-white/20 shadow-sm'
+                        ? 'bg-white dark:bg-zinc-800 shadow-md'
+                        : 'bg-white/70 dark:bg-zinc-900/50 hover:bg-white/95 dark:hover:bg-zinc-900/90 shadow-xs'
                     }`}
                   >
                     <div className="min-w-0 pr-2">
-                      <div className="text-xs sm:text-[13px] font-bold text-white tracking-wide">{opt.title}</div>
-                      <div className="text-[10px] sm:text-[11px] text-zinc-400 mt-0.5 leading-snug">{opt.subtitle}</div>
+                      <div className="text-xs sm:text-[13px] font-black text-black dark:text-white tracking-wide">{opt.title}</div>
+                      <div className="text-[10px] sm:text-[11px] text-zinc-600 dark:text-zinc-400 mt-0.5 leading-snug font-medium">{opt.subtitle}</div>
                     </div>
                     <div
-                      className={`w-4 h-4 rounded-full flex items-center justify-center shrink-0 transition-all ${
+                      className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 transition-all ${
                         isSelected
                           ? 'bg-red-600 text-white shadow-sm'
-                          : 'border border-zinc-700 bg-transparent'
+                          : 'bg-black/5 dark:bg-white/10'
                       }`}
                     >
-                      {isSelected && <Check size={10} className="stroke-[3]" />}
+                      {isSelected && <Check size={11} className="stroke-[3] text-white" />}
                     </div>
                   </button>
                 );
@@ -681,27 +681,27 @@ export const O1LaunchProtocol: React.FC<O1LaunchProtocolProps> = ({
 
       case 5:
         return (
-          <div className="flex flex-col items-center w-full max-w-md mx-auto">
-            <div className="text-[10px] font-mono uppercase tracking-[0.2em] text-red-500 font-bold mb-0.5">
+          <div className="flex flex-col items-center w-full max-w-md mx-auto text-black dark:text-white">
+            <div className="text-[11px] font-mono uppercase tracking-[0.2em] text-red-600 font-black mb-1">
               CONNECTIVITY & TELEMETRY
             </div>
-            <h1 className="text-base sm:text-lg font-black text-white text-center uppercase tracking-tight">
+            <h1 className="text-base sm:text-lg font-black text-black dark:text-white text-center uppercase tracking-tight">
               RADAR & PRIVACY PREFERENCES
             </h1>
-            <p className="text-[11px] text-zinc-400 text-center mt-0.5 mb-3.5">
+            <p className="text-xs text-zinc-600 dark:text-zinc-400 text-center mt-0.5 mb-3.5 font-medium">
               Configure proximity discovery, gym telemetry, and community presence.
             </p>
 
             <div className="w-full space-y-2.5">
-              {/* Proximity Radar */}
-              <div className="p-3 bg-zinc-900/50 backdrop-blur-xl border border-white/10 rounded-xl flex items-center justify-between gap-3 shadow-md">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-lg bg-zinc-800 border border-white/10 text-white flex items-center justify-center shrink-0">
-                    <Radar size={15} />
+              {/* Proximity Radar - Minimalist Info Box */}
+              <div className="p-3.5 bg-white/85 dark:bg-zinc-900/80 rounded-2xl flex items-center justify-between gap-3 shadow-xs">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-red-50 dark:bg-red-950/40 text-red-600 flex items-center justify-center shrink-0 shadow-xs">
+                    <Radar size={17} className="stroke-[2.5]" />
                   </div>
                   <div>
-                    <div className="text-xs font-bold text-white">Proximity Radar</div>
-                    <div className="text-[10px] text-zinc-400 mt-0.5">
+                    <div className="text-xs font-black text-black dark:text-white">Proximity Radar</div>
+                    <div className="text-[10px] text-zinc-600 dark:text-zinc-400 mt-0.5 font-medium">
                       Discover athletes & coaches within 5km radius
                     </div>
                   </div>
@@ -709,23 +709,23 @@ export const O1LaunchProtocol: React.FC<O1LaunchProtocolProps> = ({
                 <button
                   type="button"
                   onClick={() => setRadarEnabled(!radarEnabled)}
-                  className={`w-10 h-6 rounded-full transition-colors p-0.5 flex items-center cursor-pointer ${
-                    radarEnabled ? 'bg-red-600 justify-end' : 'bg-zinc-800 justify-start'
+                  className={`w-12 h-7 rounded-full transition-colors p-0.5 flex items-center cursor-pointer ${
+                    radarEnabled ? 'bg-red-600 justify-end' : 'bg-zinc-200 dark:bg-zinc-700 justify-start'
                   }`}
                 >
-                  <div className="w-4 h-4 rounded-full bg-white shadow-md" />
+                  <div className="w-5 h-5 rounded-full bg-white shadow-xs" />
                 </button>
               </div>
 
-              {/* Broadcast Session */}
-              <div className="p-3 bg-zinc-900/50 backdrop-blur-xl border border-white/10 rounded-xl flex items-center justify-between gap-3 shadow-md">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-lg bg-zinc-800 border border-white/10 text-white flex items-center justify-center shrink-0">
-                    <Radio size={15} />
+              {/* Broadcast Session - Minimalist Info Box */}
+              <div className="p-3.5 bg-white/85 dark:bg-zinc-900/80 rounded-2xl flex items-center justify-between gap-3 shadow-xs">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-red-50 dark:bg-red-950/40 text-red-600 flex items-center justify-center shrink-0 shadow-xs">
+                    <Radio size={17} className="stroke-[2.5]" />
                   </div>
                   <div>
-                    <div className="text-xs font-bold text-white">Broadcast Gym Presence</div>
-                    <div className="text-[10px] text-zinc-400 mt-0.5">
+                    <div className="text-xs font-black text-black dark:text-white">Broadcast Gym Presence</div>
+                    <div className="text-[10px] text-zinc-600 dark:text-zinc-400 mt-0.5 font-medium">
                       Signal when you are actively logging sets
                     </div>
                   </div>
@@ -733,23 +733,23 @@ export const O1LaunchProtocol: React.FC<O1LaunchProtocolProps> = ({
                 <button
                   type="button"
                   onClick={() => setBroadcastActive(!broadcastActive)}
-                  className={`w-10 h-6 rounded-full transition-colors p-0.5 flex items-center cursor-pointer ${
-                    broadcastActive ? 'bg-red-600 justify-end' : 'bg-zinc-800 justify-start'
+                  className={`w-12 h-7 rounded-full transition-colors p-0.5 flex items-center cursor-pointer ${
+                    broadcastActive ? 'bg-red-600 justify-end' : 'bg-zinc-200 dark:bg-zinc-700 justify-start'
                   }`}
                 >
-                  <div className="w-4 h-4 rounded-full bg-white shadow-md" />
+                  <div className="w-5 h-5 rounded-full bg-white shadow-xs" />
                 </button>
               </div>
 
-              {/* Stealth Mode */}
-              <div className="p-3 bg-zinc-900/50 backdrop-blur-xl border border-white/10 rounded-xl flex items-center justify-between gap-3 shadow-md">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-lg bg-zinc-800 border border-white/10 text-white flex items-center justify-center shrink-0">
-                    <EyeOff size={15} />
+              {/* Stealth Mode - Minimalist Info Box */}
+              <div className="p-3.5 bg-white/85 dark:bg-zinc-900/80 rounded-2xl flex items-center justify-between gap-3 shadow-xs">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-red-50 dark:bg-red-950/40 text-red-600 flex items-center justify-center shrink-0 shadow-xs">
+                    <EyeOff size={17} className="stroke-[2.5]" />
                   </div>
                   <div>
-                    <div className="text-xs font-bold text-white">Stealth Privacy Mode</div>
-                    <div className="text-[10px] text-zinc-400 mt-0.5">
+                    <div className="text-xs font-black text-black dark:text-white">Stealth Privacy Mode</div>
+                    <div className="text-[10px] text-zinc-600 dark:text-zinc-400 mt-0.5 font-medium">
                       Hide exact location while keeping telemetry active
                     </div>
                   </div>
@@ -757,11 +757,11 @@ export const O1LaunchProtocol: React.FC<O1LaunchProtocolProps> = ({
                 <button
                   type="button"
                   onClick={() => setStealthMode(!stealthMode)}
-                  className={`w-10 h-6 rounded-full transition-colors p-0.5 flex items-center cursor-pointer ${
-                    stealthMode ? 'bg-red-600 justify-end' : 'bg-zinc-800 justify-start'
+                  className={`w-12 h-7 rounded-full transition-colors p-0.5 flex items-center cursor-pointer ${
+                    stealthMode ? 'bg-red-600 justify-end' : 'bg-zinc-200 dark:bg-zinc-700 justify-start'
                   }`}
                 >
-                  <div className="w-4 h-4 rounded-full bg-white shadow-md" />
+                  <div className="w-5 h-5 rounded-full bg-white shadow-xs" />
                 </button>
               </div>
             </div>
@@ -770,11 +770,11 @@ export const O1LaunchProtocol: React.FC<O1LaunchProtocolProps> = ({
 
       case 6:
         return (
-          <div className="flex flex-col items-center w-full max-w-md mx-auto">
-            {/* Top Passport Card */}
-            <div className="w-full p-4 bg-zinc-900/60 backdrop-blur-xl border border-white/10 rounded-xl mb-3 relative overflow-hidden shadow-xl">
+          <div className="flex flex-col items-center w-full max-w-md mx-auto text-black dark:text-white">
+            {/* Top Passport Card - Minimalist Info Box */}
+            <div className="w-full p-4 bg-white/85 dark:bg-zinc-900/80 rounded-2xl mb-3 relative overflow-hidden shadow-sm">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-full bg-zinc-800 border-2 border-zinc-700 flex items-center justify-center text-white font-black text-base overflow-hidden shrink-0">
+                <div className="w-12 h-12 rounded-2xl bg-black/5 dark:bg-white/5 flex items-center justify-center text-black dark:text-white font-black text-base overflow-hidden shrink-0">
                   {avatarUrl ? (
                     <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
                   ) : (
@@ -784,35 +784,35 @@ export const O1LaunchProtocol: React.FC<O1LaunchProtocolProps> = ({
 
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-1.5">
-                    <span className="text-sm font-black text-white truncate">{displayName || 'Athlete'}</span>
-                    <span className="w-4 h-4 rounded-full bg-zinc-800 text-white flex items-center justify-center shrink-0 border border-white/10">
-                      <Zap size={9} className="fill-red-500 text-red-500" />
+                    <span className="text-sm font-black text-black dark:text-white truncate">{displayName || 'Athlete'}</span>
+                    <span className="w-5 h-5 rounded-full bg-red-50 dark:bg-red-950/40 text-red-600 flex items-center justify-center shrink-0">
+                      <Zap size={10} className="fill-red-600 text-red-600" />
                     </span>
                   </div>
-                  <div className="text-[11px] text-zinc-400 font-mono">@{handle || 'handle'}</div>
-                  <div className="inline-block mt-0.5 px-2 py-0.5 bg-red-950/50 border border-red-500/30 rounded text-[9px] font-mono font-bold text-red-400 uppercase tracking-wider">
+                  <div className="text-xs text-red-600 font-mono font-bold">@{handle || 'handle'}</div>
+                  <div className="inline-block mt-0.5 px-2.5 py-0.5 bg-red-600 rounded-md text-[9px] font-mono font-black text-white uppercase tracking-wider shadow-xs">
                     {role === 'coach' || selectedIntents.includes('business') ? 'PRO COACH' : 'O1 ATHLETE'}
                   </div>
                 </div>
               </div>
 
-              {/* Metric stats summary */}
-              <div className="grid grid-cols-4 gap-1.5 mt-3 pt-2.5 border-t border-white/10 text-center">
+              {/* Metric stats summary - Minimalist Flow */}
+              <div className="grid grid-cols-4 gap-2 mt-3 pt-3 bg-black/[0.03] dark:bg-white/[0.03] rounded-xl text-center pb-2">
                 <div>
-                  <span className="text-[8px] font-mono text-zinc-400 block font-semibold">AGE</span>
-                  <span className="text-xs font-bold text-white">{age || '26'}</span>
+                  <span className="text-[9px] font-mono text-red-600 block font-black">AGE</span>
+                  <span className="text-xs font-black text-black dark:text-white">{age || '26'}</span>
                 </div>
                 <div>
-                  <span className="text-[8px] font-mono text-zinc-400 block font-semibold">HEIGHT</span>
-                  <span className="text-xs font-bold text-white">{height || '178'}cm</span>
+                  <span className="text-[9px] font-mono text-red-600 block font-black">HEIGHT</span>
+                  <span className="text-xs font-black text-black dark:text-white">{height || '178'}cm</span>
                 </div>
                 <div>
-                  <span className="text-[8px] font-mono text-zinc-400 block font-semibold">WEIGHT</span>
-                  <span className="text-xs font-bold text-white">{weight || '75'}kg</span>
+                  <span className="text-[9px] font-mono text-red-600 block font-black">WEIGHT</span>
+                  <span className="text-xs font-black text-black dark:text-white">{weight || '75'}kg</span>
                 </div>
                 <div>
-                  <span className="text-[8px] font-mono text-zinc-400 block font-semibold">FOCUS</span>
-                  <span className="text-xs font-bold text-white capitalize truncate block">
+                  <span className="text-[9px] font-mono text-red-600 block font-black">FOCUS</span>
+                  <span className="text-xs font-black text-black dark:text-white capitalize truncate block">
                     {selectedDisciplines[0] || 'General'}
                   </span>
                 </div>
@@ -820,92 +820,92 @@ export const O1LaunchProtocol: React.FC<O1LaunchProtocolProps> = ({
             </div>
 
             {/* Launch Heading */}
-            <div className="text-[10px] font-mono uppercase tracking-[0.2em] text-red-500 font-bold mb-0.5">
+            <div className="text-[11px] font-mono uppercase tracking-[0.2em] text-red-600 font-black mb-1">
               O1FC PASSPORT ACTIVE
             </div>
-            <h1 className="text-base sm:text-lg font-black text-white text-center uppercase tracking-tight">
+            <h1 className="text-base sm:text-lg font-black text-black dark:text-white text-center uppercase tracking-tight">
               WELCOME TO OBLIVION 1
             </h1>
-            <p className="text-[11px] text-zinc-400 text-center mt-0.5 mb-3">
+            <p className="text-xs text-zinc-600 dark:text-zinc-400 text-center mt-0.5 mb-3 font-medium">
               Your performance suite is calibrated. Choose where you want to start:
             </p>
 
-            {/* Action Cards */}
+            {/* Action Cards - Minimalist Cards */}
             <div className="w-full space-y-2">
               <button
                 type="button"
                 onClick={() => handleFinish('workout')}
-                className="w-full p-2.5 sm:p-3 bg-zinc-900/50 backdrop-blur-md border border-white/10 hover:border-red-500/50 rounded-xl flex items-center justify-between group transition-all cursor-pointer shadow-sm"
+                className="w-full p-3 bg-white/85 dark:bg-zinc-900/80 hover:bg-white dark:hover:bg-zinc-900 rounded-2xl flex items-center justify-between group transition-all cursor-pointer shadow-xs active:scale-[0.99]"
               >
-                <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-lg bg-zinc-800 border border-white/10 text-white flex items-center justify-center shrink-0">
-                    <Dumbbell size={15} />
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-red-50 dark:bg-red-950/40 text-red-600 flex items-center justify-center shrink-0 shadow-xs">
+                    <Dumbbell size={16} className="stroke-[2.5]" />
                   </div>
                   <div className="text-left">
-                    <div className="text-xs sm:text-[13px] font-bold text-white group-hover:text-red-400 transition-colors">
+                    <div className="text-xs sm:text-[13px] font-black text-black dark:text-white group-hover:text-red-600 transition-colors">
                       Training OS Pro & Rotary Dial
                     </div>
-                    <div className="text-[10px] text-zinc-400">Launch workout tracker, log sets and record PRs</div>
+                    <div className="text-[10px] text-zinc-600 dark:text-zinc-400 font-medium">Launch workout tracker, log sets and record PRs</div>
                   </div>
                 </div>
-                <ArrowRight size={14} className="text-zinc-500 group-hover:text-white transition-colors" />
+                <ArrowRight size={15} className="text-black dark:text-white group-hover:text-red-600 transition-colors stroke-[2.5]" />
               </button>
 
               <button
                 type="button"
                 onClick={() => handleFinish('fuel')}
-                className="w-full p-2.5 sm:p-3 bg-zinc-900/50 backdrop-blur-md border border-white/10 hover:border-red-500/50 rounded-xl flex items-center justify-between group transition-all cursor-pointer shadow-sm"
+                className="w-full p-3 bg-white/85 dark:bg-zinc-900/80 hover:bg-white dark:hover:bg-zinc-900 rounded-2xl flex items-center justify-between group transition-all cursor-pointer shadow-xs active:scale-[0.99]"
               >
-                <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-lg bg-zinc-800 border border-white/10 text-white flex items-center justify-center shrink-0">
-                    <Utensils size={15} />
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-red-50 dark:bg-red-950/40 text-red-600 flex items-center justify-center shrink-0 shadow-xs">
+                    <Utensils size={16} className="stroke-[2.5]" />
                   </div>
                   <div className="text-left">
-                    <div className="text-xs sm:text-[13px] font-bold text-white group-hover:text-red-400 transition-colors">
+                    <div className="text-xs sm:text-[13px] font-black text-black dark:text-white group-hover:text-red-600 transition-colors">
                       Fuel OS & AI Macro Scanner
                     </div>
-                    <div className="text-[10px] text-zinc-400">Log meals with vision analysis & barcode scanning</div>
+                    <div className="text-[10px] text-zinc-600 dark:text-zinc-400 font-medium">Log meals with vision analysis & barcode scanning</div>
                   </div>
                 </div>
-                <ArrowRight size={14} className="text-zinc-500 group-hover:text-white transition-colors" />
+                <ArrowRight size={15} className="text-black dark:text-white group-hover:text-red-600 transition-colors stroke-[2.5]" />
               </button>
 
               <button
                 type="button"
                 onClick={() => handleFinish('community')}
-                className="w-full p-2.5 sm:p-3 bg-zinc-900/50 backdrop-blur-md border border-white/10 hover:border-red-500/50 rounded-xl flex items-center justify-between group transition-all cursor-pointer shadow-sm"
+                className="w-full p-3 bg-white/85 dark:bg-zinc-900/80 hover:bg-white dark:hover:bg-zinc-900 rounded-2xl flex items-center justify-between group transition-all cursor-pointer shadow-xs active:scale-[0.99]"
               >
-                <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-lg bg-zinc-800 border border-white/10 text-white flex items-center justify-center shrink-0">
-                    <Users size={15} />
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-red-50 dark:bg-red-950/40 text-red-600 flex items-center justify-center shrink-0 shadow-xs">
+                    <Users size={16} className="stroke-[2.5]" />
                   </div>
                   <div className="text-left">
-                    <div className="text-xs sm:text-[13px] font-bold text-white group-hover:text-red-400 transition-colors">
+                    <div className="text-xs sm:text-[13px] font-black text-black dark:text-white group-hover:text-red-600 transition-colors">
                       Tandem Mode & Live Radar
                     </div>
-                    <div className="text-[10px] text-zinc-400">Sync sets with training partners in real time</div>
+                    <div className="text-[10px] text-zinc-600 dark:text-zinc-400 font-medium">Sync sets with training partners in real time</div>
                   </div>
                 </div>
-                <ArrowRight size={14} className="text-zinc-500 group-hover:text-white transition-colors" />
+                <ArrowRight size={15} className="text-black dark:text-white group-hover:text-red-600 transition-colors stroke-[2.5]" />
               </button>
 
               <button
                 type="button"
                 onClick={() => handleFinish('goal')}
-                className="w-full p-2.5 sm:p-3 bg-zinc-900/50 backdrop-blur-md border border-white/10 hover:border-red-500/50 rounded-xl flex items-center justify-between group transition-all cursor-pointer shadow-sm"
+                className="w-full p-3 bg-white/85 dark:bg-zinc-900/80 hover:bg-white dark:hover:bg-zinc-900 rounded-2xl flex items-center justify-between group transition-all cursor-pointer shadow-xs active:scale-[0.99]"
               >
-                <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-lg bg-zinc-800 border border-white/10 text-white flex items-center justify-center shrink-0">
-                    <Target size={15} />
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-red-50 dark:bg-red-950/40 text-red-600 flex items-center justify-center shrink-0 shadow-xs">
+                    <Target size={16} className="stroke-[2.5]" />
                   </div>
                   <div className="text-left">
-                    <div className="text-xs sm:text-[13px] font-bold text-white group-hover:text-red-400 transition-colors">
+                    <div className="text-xs sm:text-[13px] font-black text-black dark:text-white group-hover:text-red-600 transition-colors">
                       Coach Hub & Direct Dispatch
                     </div>
-                    <div className="text-[10px] text-zinc-400">Connect with coaches and review training plans</div>
+                    <div className="text-[10px] text-zinc-600 dark:text-zinc-400 font-medium">Connect with coaches and review training plans</div>
                   </div>
                 </div>
-                <ArrowRight size={14} className="text-zinc-500 group-hover:text-white transition-colors" />
+                <ArrowRight size={15} className="text-black dark:text-white group-hover:text-red-600 transition-colors stroke-[2.5]" />
               </button>
             </div>
           </div>
@@ -917,83 +917,76 @@ export const O1LaunchProtocol: React.FC<O1LaunchProtocolProps> = ({
   };
 
   return createPortal(
-    <div className="fixed inset-0 z-[650] bg-black/50 backdrop-blur-2xl flex flex-col justify-between overflow-y-auto hide-scrollbar selection:bg-red-500/20 text-white font-sans">
-      {/* Top Protocol Header Bar */}
-      <div
-        className="w-full max-w-md mx-auto px-4 flex items-center justify-between border-b border-white/10 pb-2.5 bg-black/30 backdrop-blur-md shrink-0"
-        style={{
-          paddingTop: 'max(0.875rem, calc(env(safe-area-inset-top, 0px) + 0.625rem))',
-        }}
-      >
-        <div className="flex items-center gap-2">
-          <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-          <div className="text-[10px] font-mono font-bold tracking-[0.2em] text-zinc-200 uppercase">
-            O1FC LAUNCH PROTOCOL
+    <div className="fixed inset-0 z-[650] bg-black/50 backdrop-blur-md flex items-center justify-center p-2 sm:p-4 md:p-6 overflow-y-auto overscroll-contain selection:bg-red-600/20 text-black dark:text-white font-sans">
+      <div className="w-full max-w-lg max-h-[94vh] sm:max-h-[90vh] bg-white/60 dark:bg-zinc-950/60 backdrop-blur-2xl rounded-3xl shadow-[0_20px_60px_rgba(0,0,0,0.25)] overflow-hidden my-auto flex flex-col">
+        {/* Progress Bar */}
+        <div className="w-full h-1 bg-black/10 dark:bg-white/10 shrink-0">
+          <div
+            className="h-full bg-red-600 transition-all duration-300"
+            style={{ width: `${(step / 6) * 100}%` }}
+          />
+        </div>
+
+        {/* Main Content Stage - Scrollable inside */}
+        <div className="p-4 sm:p-6 flex-1 min-h-0 overflow-y-auto overscroll-contain flex flex-col justify-start bg-transparent">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={step}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.16, ease: 'easeOut' }}
+              className="w-full my-auto"
+            >
+              {renderStepContent()}
+            </motion.div>
+          </AnimatePresence>
+        </div>
+
+        {/* Bottom Sticky Action Bar */}
+        <div
+          className="w-full px-4 sm:px-5 py-3 sm:py-4 bg-white/40 dark:bg-zinc-900/40 backdrop-blur-md shrink-0 rounded-b-3xl"
+        >
+          <div className="flex items-center gap-3">
+            {step > 1 && (
+              <button
+                id="onboarding-back-button"
+                type="button"
+                onClick={handleBack}
+                className="p-3 rounded-2xl bg-white/90 dark:bg-white/10 hover:bg-white dark:hover:bg-white/20 text-black dark:text-white transition-all shrink-0 cursor-pointer shadow-sm active:scale-95"
+                aria-label="Back"
+              >
+                <ArrowLeft size={16} className="stroke-[2.5]" />
+              </button>
+            )}
+
+            <div className="text-xs font-mono font-black text-black dark:text-white px-3 py-2.5 rounded-2xl bg-white/90 dark:bg-white/10 shrink-0 shadow-sm">
+              <span className="text-red-600">{step}</span> / 6
+            </div>
+
+            {step < 6 ? (
+              <button
+                id="onboarding-continue-button"
+                type="button"
+                onClick={handleNext}
+                className="flex-1 py-3 bg-red-600 hover:bg-red-700 text-white font-black text-xs uppercase tracking-[0.18em] rounded-2xl flex items-center justify-center gap-2 shadow-md active:scale-95 transition-all cursor-pointer"
+              >
+                <span>CONTINUE</span>
+                <ArrowRight size={14} className="stroke-[3]" />
+              </button>
+            ) : (
+              <button
+                id="onboarding-enter-o1-button"
+                type="button"
+                onClick={() => handleFinish()}
+                disabled={isSubmitting}
+                className="flex-1 py-3 bg-red-600 hover:bg-red-700 text-white font-black text-xs uppercase tracking-[0.18em] rounded-2xl flex items-center justify-center gap-2 shadow-md active:scale-95 transition-all cursor-pointer"
+              >
+                <span>ENTER O1FC</span>
+                <ArrowRight size={14} className="stroke-[3]" />
+              </button>
+            )}
           </div>
-        </div>
-        <div className="text-[11px] font-mono font-bold text-zinc-400 tracking-wider">
-          <span className="text-white">{step}</span> / 6
-        </div>
-      </div>
-
-      {/* Main Content Stage */}
-      <div className="flex-1 flex flex-col justify-center px-4 py-3 w-full max-w-md mx-auto">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={step}
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.16, ease: 'easeOut' }}
-            className="w-full"
-          >
-            {renderStepContent()}
-          </motion.div>
-        </AnimatePresence>
-      </div>
-
-      {/* Bottom Sticky Action Bar */}
-      <div
-        className="w-full max-w-md mx-auto px-3.5 pt-3 border-t border-white/10 bg-black/40 backdrop-blur-md shrink-0"
-        style={{
-          paddingBottom: 'max(1.25rem, calc(env(safe-area-inset-bottom, 0px) + 0.875rem))',
-        }}
-      >
-        <div className="flex items-center gap-2.5">
-          {step > 1 && (
-            <button
-              id="onboarding-back-button"
-              type="button"
-              onClick={handleBack}
-              className="p-2.5 rounded-xl border border-white/10 bg-zinc-900/80 hover:bg-zinc-800 text-zinc-300 transition-colors shrink-0 cursor-pointer"
-              aria-label="Back"
-            >
-              <ArrowLeft size={16} />
-            </button>
-          )}
-
-          {step < 6 ? (
-            <button
-              id="onboarding-continue-button"
-              type="button"
-              onClick={handleNext}
-              className="flex-1 py-2.5 bg-red-600 hover:bg-red-700 text-white font-extrabold text-[11px] uppercase tracking-[0.15em] rounded-xl flex items-center justify-center gap-1.5 shadow-md shadow-red-950/50 transition-all active:scale-[0.99] cursor-pointer"
-            >
-              <span>CONTINUE</span>
-              <ArrowRight size={13} className="stroke-[2.5]" />
-            </button>
-          ) : (
-            <button
-              id="onboarding-enter-o1-button"
-              type="button"
-              onClick={() => handleFinish()}
-              disabled={isSubmitting}
-              className="flex-1 py-2.5 bg-red-600 hover:bg-red-700 text-white font-extrabold text-[11px] uppercase tracking-[0.15em] rounded-xl flex items-center justify-center gap-1.5 shadow-md shadow-red-950/50 transition-all active:scale-[0.99] cursor-pointer"
-            >
-              <span>ENTER O1FC</span>
-              <ArrowRight size={13} className="stroke-[2.5]" />
-            </button>
-          )}
         </div>
       </div>
     </div>,

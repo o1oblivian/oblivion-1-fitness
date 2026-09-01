@@ -281,7 +281,7 @@ export const QuickStrikeWorkoutModal: React.FC<QuickStrikeWorkoutModalProps> = (
   };
 
   const intensityColor =
-    workout.intensity === 'High' ? '#FF453A' :
+    workout.intensity === 'High' ? '#D91F28' :
     workout.intensity === 'Moderate' ? '#FF9F0A' : '#30D158';
 
   return createPortal(

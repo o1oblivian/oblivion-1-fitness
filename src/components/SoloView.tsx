@@ -702,7 +702,7 @@ export const SoloView: React.FC<SoloViewProps> = ({
         {/* Category Tabs: Lift | Sports | Recovery */}
         <div className="flex gap-1 bg-zinc-100 dark:bg-white/[0.04] rounded-lg p-0.5">
           {([
-            { key: 'weights' as const, label: 'Lift', categories: liftCategories, icon: Dumbbell, color: '#FF3B30' },
+            { key: 'weights' as const, label: 'Lift', categories: liftCategories, icon: Dumbbell, color: '#C4121A' },
             { key: 'sports' as const, label: 'Sports', categories: sportsCategories, icon: Flame, color: '#F59E0B' },
             { key: 'recovery' as const, label: 'Recovery', categories: recoveryCategories, icon: Activity, color: '#8B5CF6' },
           ] as const).map((cat) => {
@@ -827,12 +827,12 @@ export const SoloView: React.FC<SoloViewProps> = ({
               {exerciseSearchQuery.trim().length > 0 && (
                 <button
                   onClick={() => handleAddExercisePermanently(exerciseSearchQuery, selectedCategory)}
-                  className="w-full py-1.5 px-3 rounded-xl bg-zinc-100 dark:bg-zinc-800/90 border border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-white text-[11px] flex items-center justify-between transition-all hover:border-[#FF3B30] dark:hover:border-[#FF453A] active:scale-[0.98] cursor-pointer"
+                  className="w-full py-1.5 px-3 rounded-xl bg-zinc-100 dark:bg-zinc-800/90 border border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-white text-[11px] flex items-center justify-between transition-all hover:border-[#C4121A] dark:hover:border-[#D91F28] active:scale-[0.98] cursor-pointer"
                 >
                   <span className="truncate pr-2 font-medium">
-                    + Add <strong className="font-bold text-[#FF3B30] dark:text-[#FF453A]">"{exerciseSearchQuery.trim()}"</strong> to {selectedCategory}
+                    + Add <strong className="font-bold text-[#C4121A] dark:text-[#D91F28]">"{exerciseSearchQuery.trim()}"</strong> to {selectedCategory}
                   </span>
-                  <span className="text-[9px] font-bold bg-[#FF3B30] dark:bg-[#FF453A] text-white px-2 py-0.5 rounded-md shrink-0">
+                  <span className="text-[9px] font-bold bg-[#C4121A] dark:bg-[#D91F28] text-white px-2 py-0.5 rounded-md shrink-0">
                     Save
                   </span>
                 </button>
@@ -848,14 +848,14 @@ export const SoloView: React.FC<SoloViewProps> = ({
                 {isFallbackSearch ? (
                   <button
                     onClick={() => setActiveFilterTag('All')}
-                    className="text-[#FF3B30] dark:text-[#FF453A] font-bold hover:underline flex items-center gap-1 cursor-pointer"
+                    className="text-[#C4121A] dark:text-[#D91F28] font-bold hover:underline flex items-center gap-1 cursor-pointer"
                   >
                     Showing all equipment (0 matches for {activeFilterTag}) • Reset
                   </button>
                 ) : activeFilterTag !== 'All' ? (
                   <button
                     onClick={() => setActiveFilterTag('All')}
-                    className="text-[#FF3B30] dark:text-[#FF453A] font-bold hover:underline flex items-center gap-1 cursor-pointer"
+                    className="text-[#C4121A] dark:text-[#D91F28] font-bold hover:underline flex items-center gap-1 cursor-pointer"
                   >
                     Filtered by "{activeFilterTag}" <X className="w-2.5 h-2.5" />
                   </button>
@@ -882,7 +882,7 @@ export const SoloView: React.FC<SoloViewProps> = ({
                       </div>
                       <button
                         onClick={() => handleAddExercise(item.name)}
-                        className="shrink-0 px-2.5 py-1 rounded-lg flex items-center gap-1 text-[#FF3B30] dark:text-[#FF453A] hover:bg-red-500/10 active:scale-95 transition-all font-bold text-[11px] cursor-pointer"
+                        className="shrink-0 px-2.5 py-1 rounded-lg flex items-center gap-1 text-[#C4121A] dark:text-[#D91F28] hover:bg-red-500/10 active:scale-95 transition-all font-bold text-[11px] cursor-pointer"
                         title={`Add ${item.name}`}
                       >
                         <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
@@ -898,7 +898,7 @@ export const SoloView: React.FC<SoloViewProps> = ({
                     {exerciseSearchQuery.trim().length > 0 && (
                       <button
                         onClick={() => handleAddExercisePermanently(exerciseSearchQuery, selectedCategory)}
-                        className="text-xs font-bold text-white bg-[#FF3B30] dark:bg-[#FF453A] hover:bg-red-700 px-4 py-1.5 rounded-xl shadow-xs active:scale-95 transition-all cursor-pointer"
+                        className="text-xs font-bold text-white bg-[#C4121A] dark:bg-[#D91F28] hover:bg-[#B8121A] px-4 py-1.5 rounded-xl shadow-xs active:scale-95 transition-all cursor-pointer"
                       >
                         Save &quot;{exerciseSearchQuery.trim()}&quot; to {selectedCategory}
                       </button>

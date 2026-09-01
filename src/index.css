@@ -94,12 +94,12 @@ samp {
     --apple-text-primary: #1C1C1E;
     --apple-text-secondary: #8E8E93;
 
-    /* O1FC Apple Red Design System (#FF3B30 Light / #FF453A Dark) */
-    --o1-red-kinetic: #FF3B30;
-    --o1-red-apple: #FF3B30;
-    --o1-red-carmine: #E52E24;
-    --o1-red-subtle: rgba(255, 59, 48, 0.12);
-    --o1-red-glow: rgba(255, 59, 48, 0.25);
+    /* O1FC Cartier Red Design System (#C4121A Signature Cartier Red) */
+    --o1-red-kinetic: #C4121A;
+    --o1-red-apple: #C4121A;
+    --o1-red-carmine: #B8121A;
+    --o1-red-subtle: rgba(196, 18, 26, 0.12);
+    --o1-red-glow: rgba(196, 18, 26, 0.25);
   }
 
   html.dark {
@@ -110,12 +110,12 @@ samp {
     --apple-text-primary: #FFFFFF;
     --apple-text-secondary: #8E8E93;
 
-    /* O1FC Apple Red Design System (#FF3B30 Light / #FF453A Dark) */
-    --o1-red-kinetic: #FF453A;
-    --o1-red-apple: #FF453A;
-    --o1-red-carmine: #FF453A;
-    --o1-red-subtle: rgba(255, 69, 58, 0.15);
-    --o1-red-glow: rgba(255, 69, 58, 0.35);
+    /* O1FC Cartier Red Design System (#C4121A Signature Cartier Red) */
+    --o1-red-kinetic: #D91F28;
+    --o1-red-apple: #D91F28;
+    --o1-red-carmine: #C4121A;
+    --o1-red-subtle: rgba(217, 31, 40, 0.15);
+    --o1-red-glow: rgba(217, 31, 40, 0.35);
   }
 
   html {
@@ -419,7 +419,7 @@ samp {
 
   /* Premium ring glow for active states */
   .ring-glow {
-    box-shadow: 0 0 0 2px var(--accent-color, #991B1B), 0 0 16px -4px var(--accent-color, #991B1B);
+    box-shadow: 0 0 0 2px var(--accent-color, #C4121A), 0 0 16px -4px var(--accent-color, #C4121A);
   }
 
   /* Custom scrollbar — thin and refined */
@@ -561,8 +561,8 @@ samp {
     color: #4B5563;
   }
   .delete-cell:hover {
-    background: rgba(255, 59, 48, 0.12);
-    color: #FF3B30;
+    background: rgba(196, 18, 26, 0.12);
+    color: #C4121A;
   }
 
   .input-pill {
@@ -582,7 +582,7 @@ samp {
     transition: border-color 0.15s ease;
   }
   .input-pill:focus {
-    border-color: #FF3B30;
+    border-color: #C4121A;
   }
   html.dark .input-pill {
     border-color: rgba(255, 255, 255, 0.05);
@@ -590,7 +590,7 @@ samp {
     color: #FFFFFF;
   }
   html.dark .input-pill:focus {
-    border-color: #FF453A;
+    border-color: #D91F28;
   }
 
   /* ================================================================
@@ -989,12 +989,12 @@ html.dark .sheet-handle {
    ================================================================ */
 
 :root {
-  --accent-color: #991B1B;
+  --accent-color: #C4121A;
 }
 
 [data-theme-palette="natural"] {
-  --accent-default: #991B1B;
-  --accent-color: #991B1B;
+  --accent-default: #C4121A;
+  --accent-color: #C4121A;
 }
 
 [data-theme-palette="neon"] {
@@ -1003,19 +1003,19 @@ html.dark .sheet-handle {
 }
 
 .theme-accent-bg {
-  background-color: var(--accent-color, #991B1B) !important;
+  background-color: var(--accent-color, #C4121A) !important;
 }
 
 .theme-accent-text {
-  color: var(--accent-color, #991B1B) !important;
+  color: var(--accent-color, #C4121A) !important;
 }
 
 .theme-accent-border {
-  border-color: var(--accent-color, #991B1B) !important;
+  border-color: var(--accent-color, #C4121A) !important;
 }
 
 .theme-accent-ring {
-  --tw-ring-color: var(--accent-color, #991B1B) !important;
+  --tw-ring-color: var(--accent-color, #C4121A) !important;
 }
 
 /* ================================================================

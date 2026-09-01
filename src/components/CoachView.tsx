@@ -208,10 +208,10 @@ export const CoachHubView: React.FC<{
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             <span className="relative flex h-2.5 w-2.5">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#FF3B30] opacity-75" />
-              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#FF3B30] dark:bg-[#FF453A]" />
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#C4121A] opacity-75" />
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#C4121A] dark:bg-[#D91F28]" />
             </span>
-            <span className="text-[10px] font-mono font-bold tracking-widest text-[#FF3B30] dark:text-[#FF453A] uppercase">
+            <span className="text-[10px] font-mono font-bold tracking-widest text-[#C4121A] dark:text-[#D91F28] uppercase">
               {clientList.length} Athletes Active
             </span>
           </div>
@@ -235,7 +235,7 @@ export const CoachHubView: React.FC<{
           <div className="flex items-center gap-1.5 shrink-0">
             <button
               onClick={onOpenVault}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] font-bold uppercase tracking-wider bg-red-500/10 dark:bg-red-500/15 hover:bg-red-500/20 text-[#FF3B30] dark:text-[#FF453A] transition-all active:scale-95 cursor-pointer shadow-xs"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] font-bold uppercase tracking-wider bg-red-500/10 dark:bg-red-500/15 hover:bg-red-500/20 text-[#C4121A] dark:text-[#D91F28] transition-all active:scale-95 cursor-pointer shadow-xs"
             >
               <Video className="w-3.5 h-3.5" />
               <span>Vault</span>
@@ -249,7 +249,7 @@ export const CoachHubView: React.FC<{
         <div className="space-y-2">
           <div className="text-[9px] font-mono font-bold uppercase tracking-widest text-zinc-600 dark:text-zinc-400 flex items-center justify-between">
             <span className="flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#FF3B30] dark:bg-[#FF453A]" />
+              <span className="w-1.5 h-1.5 rounded-full bg-[#C4121A] dark:bg-[#D91F28]" />
               <span>Tactical Command Dock</span>
             </span>
             <span className="text-[9px] font-mono text-zinc-500 dark:text-zinc-400">Core Actions</span>
@@ -259,7 +259,7 @@ export const CoachHubView: React.FC<{
               onClick={() => setShowProgramCreator(true)}
               className="flex items-center gap-2.5 p-2.5 rounded-xl bg-zinc-50 dark:bg-white/[0.04] hover:bg-zinc-100 dark:hover:bg-white/[0.08] text-zinc-900 dark:text-white transition-all active:scale-[0.98] cursor-pointer text-left group"
             >
-              <div className="w-8 h-8 rounded-lg bg-red-500/10 dark:bg-red-500/20 text-[#FF3B30] dark:text-[#FF453A] flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+              <div className="w-8 h-8 rounded-lg bg-red-500/10 dark:bg-red-500/20 text-[#C4121A] dark:text-[#D91F28] flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
                 <FileText className="w-4 h-4" />
               </div>
               <div className="min-w-0 flex-1">
@@ -298,7 +298,7 @@ export const CoachHubView: React.FC<{
                 onClick={() => setActiveTab(t.key)}
                 className={`flex-1 py-2 px-1 rounded-lg text-[10.5px] sm:text-[11px] font-mono font-bold uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center gap-1 ${
                   isActive
-                    ? 'bg-[#FF3B30] dark:bg-[#FF453A] text-white font-bold shadow-xs'
+                    ? 'bg-[#C4121A] dark:bg-[#D91F28] text-white font-bold shadow-xs'
                     : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-200/50 dark:hover:bg-white/5'
                 }`}
               >
@@ -306,8 +306,8 @@ export const CoachHubView: React.FC<{
                 {t.badge !== null && (
                   <span className={`text-[9px] font-mono font-bold px-1.5 py-0.2 rounded-full ${
                     isActive
-                      ? 'bg-white text-[#FF3B30]'
-                      : 'bg-[#FF3B30] dark:bg-[#FF453A] text-white'
+                      ? 'bg-white text-[#C4121A]'
+                      : 'bg-[#C4121A] dark:bg-[#D91F28] text-white'
                   }`}>
                     {t.badge}
                   </span>

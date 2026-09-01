@@ -57,8 +57,8 @@ const PHASE_INFO: Record<CyclePhase, {
   luteal: {
     name: 'Luteal',
     days: 'Days 19-28',
-    color: '#FF453A',
-    bgColor: 'rgba(255, 69, 58, 0.15)',
+    color: '#D91F28',
+    bgColor: 'rgba(217, 31, 40, 0.15)',
     icon: Flame,
     description: 'High progesterone, then declining. Metabolism rises. Moderate intensity is optimal.',
     training: ['Moderate hypertrophy (8-12 reps)', 'Steady-state cardio', 'Progressive deload toward end', 'Core & stability work'],
@@ -280,11 +280,11 @@ export const CycleSyncModal: React.FC<CycleSyncModalProps> = ({ isOpen, onClose,
                 ))}
               </div>
 
-              <div className="bg-[#FF453A]/10 border border-[#FF453A]/20 rounded-2xl p-3 space-y-2">
-                <span className="text-xs font-bold text-[#FF453A]">Avoid / Modify</span>
+              <div className="bg-[#D91F28]/10 border border-[#D91F28]/20 rounded-2xl p-3 space-y-2">
+                <span className="text-xs font-bold text-[#D91F28]">Avoid / Modify</span>
                 {phaseInfo.avoid.map((t, i) => (
                   <div key={i} className="flex items-center gap-2 text-sm text-white/80">
-                    <X className="w-3.5 h-3.5 text-[#FF453A] shrink-0" />
+                    <X className="w-3.5 h-3.5 text-[#D91F28] shrink-0" />
                     <span>{t}</span>
                   </div>
                 ))}

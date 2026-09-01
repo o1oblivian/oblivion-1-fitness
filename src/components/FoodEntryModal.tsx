@@ -4,6 +4,7 @@ import { FoodItem } from '../types';
 import { getSelectedCountry, setSelectedCountry, POPULAR_COUNTRIES, CountryOption, subscribeCountryChange } from '../utils/geolocation';
 import { FoodCategoryIcon } from './FoodCategoryIcon';
 import { matchFoodSearch } from '../utils/foodSearch';
+import { apiFetch } from '../utils/apiUrl';
 
 interface FoodEntryModalProps {
   isOpen: boolean;
@@ -82,9 +83,9 @@ export const FoodEntryModal: React.FC<FoodEntryModalProps> = ({
     try {
       let data: any = null;
 
-      // 1. Try local server API
+      // 1. Try server API via apiFetch (supports Web & Native Android APK)
       try {
-        const response = await fetch(`/api/food-scan?q=${encodeURIComponent(query.trim())}`, {
+        const response = await apiFetch(`/api/food-scan?q=${encodeURIComponent(query.trim())}`, {
           signal: controller.signal,
         });
         if (response.ok) {
@@ -321,7 +322,7 @@ export const FoodEntryModal: React.FC<FoodEntryModalProps> = ({
       onClick={onClose}
     >
       <div 
-        className="w-full max-w-lg bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white rounded-t-[1.75rem] sm:rounded-3xl shadow-2xl border-t sm:border border-zinc-200/80/90 dark:border-zinc-800/80 flex flex-col max-h-[92vh] overflow-hidden"
+        className="w-full max-w-lg bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white rounded-t-[1.75rem] sm:rounded-3xl shadow-2xl border-t sm:border border-zinc-200/80/90 dark:border-zinc-800/80 flex flex-col max-h-[90dvh] sm:max-h-[92vh] overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header Sheet Bar */}
@@ -547,7 +548,7 @@ export const FoodEntryModal: React.FC<FoodEntryModalProps> = ({
         </div>
 
         {/* Apple Pro Bottom Action Bar */}
-        <div className="p-3.5 border-t border-zinc-200/80/80 dark:border-zinc-800/80 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md flex items-center justify-between gap-3">
+        <div className="p-3.5 pb-[max(1.25rem,calc(env(safe-area-inset-bottom,0px)+0.875rem))] border-t border-zinc-200/80/80 dark:border-zinc-800/80 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md flex items-center justify-between gap-3">
           <button
             type="button"
             onClick={() => onOpenCustomModal(searchQuery)}
@@ -576,7 +577,7 @@ export const FoodEntryModal: React.FC<FoodEntryModalProps> = ({
           }}
         >
           <div 
-            className="w-full max-w-sm bg-white dark:bg-zinc-900 rounded-t-3xl sm:rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-2xl flex flex-col max-h-[80vh] overflow-hidden animate-in zoom-in-95 duration-150"
+            className="w-full max-w-sm bg-white dark:bg-zinc-900 rounded-t-3xl sm:rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-2xl flex flex-col max-h-[80dvh] pb-[max(1rem,calc(env(safe-area-inset-bottom,0px)+0.75rem))] overflow-hidden animate-in zoom-in-95 duration-150"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}

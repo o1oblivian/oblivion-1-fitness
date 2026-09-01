@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Sparkles, Clock, ChefHat, X, RefreshCw, Globe, Leaf } from 'lucide-react';
 import { getCountryObj, getSelectedCountry, subscribeCountryChange } from '../../utils/geolocation';
 import { getSelectedDietary, subscribeDietaryChange, getDietaryObj, DietaryType } from '../../utils/dietaryPreferences';
+import { apiFetch } from '../../utils/apiUrl';
 
 interface MealSuggestion {
   name: string;
@@ -76,9 +77,9 @@ export const AIMealSuggestPanel: React.FC<AIMealSuggestPanelProps> = ({
     try {
       let data: any = null;
 
-      // 1. Try local server API route with country and diet context
+      // 1. Try server API route with country and diet context via apiFetch (supports Web & Native Android APK)
       try {
-        const res = await fetch('/api/meal-suggest', {
+        const res = await apiFetch('/api/meal-suggest', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
