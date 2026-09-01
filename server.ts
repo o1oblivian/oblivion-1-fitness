@@ -335,7 +335,15 @@ Return ONLY a valid JSON object matching this schema:
           try {
             response = await ai.models.generateContent({
               model: modelName,
-              contents: { parts: [imagePart, textPart] },
+              contents: [
+                {
+                  inlineData: {
+                    data: rawBase64,
+                    mimeType: cleanMime,
+                  },
+                },
+                prompt,
+              ],
               config: {
                 responseMimeType: 'application/json',
               },
@@ -343,7 +351,7 @@ Return ONLY a valid JSON object matching this schema:
             if (response && response.text) break;
           } catch (modelErr) {
             lastModelError = modelErr;
-            console.warn(`Gemini vision with ${modelName} failed, trying fallback model:`, modelErr);
+            console.warn(`Gemini vision with ${modelName} attempt:`, modelErr);
           }
         }
 
@@ -864,10 +872,10 @@ Return a concise JSON object with:
     }
   });
 
-  // Stripe Session Verification Endpoint
-  app.post('/api/stripe-verify-session', async (req, res) => {
+  // Stripe Session Verification Endpoint (Supports POST & GET)
+  const handleVerifySession = async (req: any, res: any) => {
     try {
-      const { sessionId } = req.body || {};
+      const sessionId = req.body?.sessionId || req.query?.session_id || req.query?.sessionId;
       if (!sessionId || typeof sessionId !== 'string') {
         return res.status(400).json({ error: 'Valid sessionId is required' });
       }
@@ -899,6 +907,53 @@ Return a concise JSON object with:
     } catch (err: any) {
       console.error('Stripe verification error:', err);
       return res.status(500).json({ error: err.message || 'Could not verify session' });
+    }
+  };
+
+  app.post('/api/stripe-verify-session', handleVerifySession);
+  app.get('/api/stripe-verify-session', handleVerifySession);
+
+  // Live Founder Pass Sales Stats (Queried from live Stripe Checkout Sessions & transactions)
+  app.get('/api/founder-pass-stats', async (req, res) => {
+    try {
+      const TOTAL_LIMIT = 5000;
+      let claimedCount = 0;
+
+      const stripe = getStripe();
+      if (stripe) {
+        try {
+          // List completed Stripe checkout sessions
+          const sessions = await stripe.checkout.sessions.list({
+            limit: 100,
+            status: 'complete',
+          });
+          const founderSessions = sessions.data.filter((s: any) =>
+            s.payment_status === 'paid' &&
+            (s.metadata?.tier === 'founder_pass' || s.amount_total === 2400)
+          );
+          claimedCount = founderSessions.length;
+        } catch (stripeErr) {
+          console.warn('Founder pass Stripe session query warning:', stripeErr);
+        }
+      }
+
+      const remainingCount = Math.max(0, TOTAL_LIMIT - claimedCount);
+
+      return res.json({
+        totalLimit: TOTAL_LIMIT,
+        claimedCount,
+        remainingCount,
+        isLive: true,
+        lastUpdated: new Date().toISOString(),
+      });
+    } catch (err: any) {
+      console.error('Founder pass stats error:', err);
+      return res.json({
+        totalLimit: 5000,
+        claimedCount: 0,
+        remainingCount: 5000,
+        isLive: false,
+      });
     }
   });
 

@@ -76,18 +76,22 @@ export async function fetchRadarBuddies(
   myLat: number,
   myLng: number,
   filters: RadarFilters,
-  limit = 40
+  limit = 40,
+  allowMockFallback = false
 ): Promise<BuddyProfile[]> {
-  const cacheKey = `radar_${myLat.toFixed(2)}_${myLng.toFixed(2)}_${filters.radiusKm}_${filters.disciplines.join(',')}`;
+  const cacheKey = `radar_${myLat.toFixed(2)}_${myLng.toFixed(2)}_${filters.radiusKm}_${filters.disciplines.join(',')}_${allowMockFallback ? 'mock' : 'live'}`;
   const cached = globalProfileCache.get(cacheKey);
   if (cached && Date.now() - cached.timestamp < 30000) {
     return cached.data;
   }
 
   if (!isSupabaseConfigured()) {
-    const mock = generateMockBuddies(myLat, myLng);
-    globalProfileCache.set(cacheKey, { data: mock, timestamp: Date.now() });
-    return mock;
+    if (allowMockFallback) {
+      const mock = generateMockBuddies(myLat, myLng);
+      globalProfileCache.set(cacheKey, { data: mock, timestamp: Date.now() });
+      return mock;
+    }
+    return [];
   }
 
   // Fast-resolve with 1.2s timeout so the UI opens instantly even on cold start or network lag
@@ -128,9 +132,12 @@ export async function fetchRadarBuddies(
     const { data, error } = await query;
 
     if (error || !data || data.length === 0) {
-      const mock = generateMockBuddies(myLat, myLng);
-      globalProfileCache.set(cacheKey, { data: mock, timestamp: Date.now() });
-      return mock;
+      if (allowMockFallback) {
+        const mock = generateMockBuddies(myLat, myLng);
+        globalProfileCache.set(cacheKey, { data: mock, timestamp: Date.now() });
+        return mock;
+      }
+      return [];
     }
 
     const ids = data.map(d => d.id);

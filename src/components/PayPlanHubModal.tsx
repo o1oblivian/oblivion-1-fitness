@@ -9,7 +9,7 @@ import {
   RotateCcw, FileText, CreditCard,
 } from 'lucide-react';
 import { supabase } from '@/utils/supabase';
-import { upsertUserProfile, type SubscriptionTier } from '@/utils/subscriptionStore';
+import { upsertUserProfile, fetchFounderPassLiveStats, type SubscriptionTier, type FounderPassStats } from '@/utils/subscriptionStore';
 import { LegalAgreementsModal } from './LegalAgreementsModal';
 import { apiFetch } from '@/utils/apiUrl';
 import { openExternalUrl, isNativePlatform } from '@/utils/capacitor';
@@ -218,6 +218,12 @@ export const PayPlanHubModal: React.FC<PayPlanHubModalProps> = ({
   const [isRestoring, setIsRestoring] = useState(false);
   const [showLegalModal, setShowLegalModal] = useState(false);
   const [activatedSuccessTier, setActivatedSuccessTier] = useState<string | null>(null);
+  const [founderPassStats, setFounderPassStats] = useState<FounderPassStats>({
+    totalLimit: 5000,
+    claimedCount: 0,
+    remainingCount: 5000,
+    isLive: true,
+  });
 
   useEffect(() => {
     if (isOpen) {
@@ -233,6 +239,11 @@ export const PayPlanHubModal: React.FC<PayPlanHubModalProps> = ({
       setIsRestoring(false);
       setShowLegalModal(false);
       setActivatedSuccessTier(null);
+
+      // Query live Founder Pass sales counter
+      fetchFounderPassLiveStats().then((stats) => {
+        if (stats) setFounderPassStats(stats);
+      }).catch(() => {});
     }
   }, [isOpen, defaultTier]);
 
@@ -359,98 +370,45 @@ export const PayPlanHubModal: React.FC<PayPlanHubModalProps> = ({
         ? 'https://ais-pre-ywak62jnfmfdpkjhp64wap-822845783036.asia-east1.run.app'
         : window.location.origin;
 
-      let checkoutUrl: string | null = null;
+      const response = await apiFetch('/api/stripe-checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          planId: selectedPlan,
+          paymentMethodType: method,
+          userEmail,
+          successUrl: `${baseUrl}?payment=success&tier=${selectedPlan}`,
+          cancelUrl: `${baseUrl}?payment=cancel`,
+        }),
+      });
 
-      // 1. Call the server API endpoint via apiFetch
-      try {
-        const fetchPromise = apiFetch('/api/stripe-checkout', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            planId: selectedPlan,
-            paymentMethodType: method,
-            userEmail,
-            successUrl: `${baseUrl}?payment=success&tier=${selectedPlan}`,
-            cancelUrl: `${baseUrl}?payment=cancel`,
-          }),
-        });
+      const resData = await response.json().catch(() => null);
 
-        const timeoutPromise = new Promise<null>((resolve) => setTimeout(() => resolve(null), 3000));
-        const response: any = await Promise.race([fetchPromise, timeoutPromise]);
-
-        if (response && response.ok) {
-          const resData = await response.json();
-          if (resData?.url) {
-            checkoutUrl = resData.url;
-          }
-        }
-      } catch (apiErr) {
-        console.warn('Server API checkout call note:', apiErr);
-      }
-
-      // 2. If Stripe Checkout URL was created, launch safely in new window/tab
-      if (checkoutUrl) {
+      if (response.ok && resData?.url) {
         setLoadingMethod(null);
-        openStripeCheckout(checkoutUrl);
+        openStripeCheckout(resData.url);
         return;
       }
 
-      // 3. Instant activation fallback: Upgrade tier immediately and show in-modal confirmation screen
+      // If Stripe did not return a valid checkout session, DO NOT activate. Display real error.
+      const errorMsg = resData?.error || 'Stripe checkout could not be created. Please verify payment details and retry.';
       setLoadingMethod(null);
-      const targetTier = selectedPlan.startsWith('coach') ? (selectedPlan as any) : (selectedPlan as any);
-      try {
-        await upsertUserProfile({ subscription_tier: targetTier });
-      } catch (profileErr) {
-        console.warn('Profile sync fallback:', profileErr);
-      }
-      
-      localStorage.setItem('o1fc_active_subscription', JSON.stringify({
-        tier: targetTier,
-        activatedAt: new Date().toISOString(),
-        expiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
-        status: 'active',
-        isTrial: false,
-      }));
-      localStorage.setItem('o1fc_cached_tier', targetTier);
-      window.dispatchEvent(new CustomEvent('o1fc-subscription-updated', { detail: { tier: targetTier } }));
-      window.dispatchEvent(new CustomEvent('user_profile_updated', { detail: { subscription_tier: targetTier } }));
-
-      setActivatedSuccessTier(targetTier);
-      showToast?.(`${currentPlan.name} Activated! All features unlocked.`, 'success');
+      setErrorMessage(errorMsg);
+      showToast?.(errorMsg, 'error');
     } catch (err: any) {
       setLoadingMethod(null);
-      const msg = err?.message || 'Payment service unavailable. Please try again.';
+      const msg = err?.message || 'Payment service error. Please check your connection and retry.';
       setErrorMessage(msg);
       showToast?.(msg, 'error');
     }
-  }, [loadingMethod, selectedPlan, isFree, showToast, onClose, currentPlan.name]);
+  }, [loadingMethod, selectedPlan, isFree, showToast, onClose]);
 
   const handleApplyPromo = useCallback(async () => {
     const code = promoCode.trim().toUpperCase();
     if (!code) return;
 
-    if (code === 'CREATORO1' || code === 'VIP' || code === 'O1PRO' || code === 'PRO' || code === 'COACH') {
-      const tier = code === 'COACH' ? 'coach_pro' : 'premium_travel';
-      try {
-        await upsertUserProfile({ subscription_tier: tier as any });
-      } catch {}
-      localStorage.setItem('o1fc_vip_creator', 'true');
-      localStorage.setItem('o1fc_active_subscription', JSON.stringify({
-        tier,
-        activatedAt: new Date().toISOString(),
-        expiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
-        status: 'active',
-      }));
-      localStorage.setItem('o1fc_cached_tier', tier);
-      window.dispatchEvent(new CustomEvent('o1fc-subscription-updated', { detail: { tier } }));
-      window.dispatchEvent(new CustomEvent('user_profile_updated', { detail: { subscription_tier: tier } }));
-      showToast?.(`${code === 'COACH' ? 'Coach Pro VIP' : 'VIP All-Access Pass'} Activated! Welcome to O1FC.`, 'success');
-      setPromoNotice(null);
-      setActivatedSuccessTier(tier);
-      return;
-    }
-
-    setPromoNotice('Discount codes are applied automatically on the Stripe checkout page.');
+    setPromoNotice('Promotion codes and discounts are validated and applied securely at Stripe Checkout.');
+    showToast?.('Stripe will validate your promo code during checkout.', 'info' as any);
   }, [promoCode, showToast]);
 
   const switchTab = (tab: PlanTab) => {
@@ -574,8 +532,13 @@ export const PayPlanHubModal: React.FC<PayPlanHubModalProps> = ({
           {activeTab === 'athlete' && (
             <div className="px-3.5 py-2.5 rounded-xl bg-gradient-to-r from-red-600/10 via-red-500/5 to-amber-500/10 border border-red-500/25 text-slate-900 dark:text-white">
               <div className="flex items-center justify-between gap-1 mb-0.5">
-                <span className="text-[11px] font-bold text-red-600 dark:text-red-400 uppercase tracking-wider">Launch Special • First 5,000</span>
-                <span className="text-[10px] font-mono font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded">4,842 Remaining</span>
+                <span className="text-[11px] font-bold text-red-600 dark:text-red-400 uppercase tracking-wider">
+                  Launch Special • First {founderPassStats.totalLimit.toLocaleString()}
+                </span>
+                <span className="text-[10px] font-mono font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  {founderPassStats.remainingCount.toLocaleString()} Remaining
+                </span>
               </div>
               <p className="text-[11px] text-slate-600 dark:text-zinc-300 leading-snug">
                 <span className="font-bold text-slate-900 dark:text-white">$24.00 Lifetime Founder Pass</span> — Training OS Pro + Global Radar forever.

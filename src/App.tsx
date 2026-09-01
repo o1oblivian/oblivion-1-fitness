@@ -111,31 +111,35 @@ export default function App() {
       if (paymentStatus === 'success') {
         const activatedTier = tierParam || 'premium';
         
-        // Verify session with server if session_id is present
+        // Strict verification: if session_id is provided, verify with Stripe server
         if (sessionId) {
           apiFetch(`/api/stripe-verify-session?session_id=${sessionId}`)
             .then(res => res.json())
             .then(data => {
-              if (data?.session?.payment_status === 'paid') {
-                s.showToast('Stripe Payment Verified — Membership Active!', 'success');
+              if (data?.success) {
+                const verifiedTier = data.tier || activatedTier;
+                localStorage.setItem('o1fc_active_subscription', JSON.stringify({
+                  tier: verifiedTier,
+                  activatedAt: new Date().toISOString(),
+                  expiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
+                  status: 'active',
+                  stripeSessionId: sessionId,
+                }));
+                localStorage.setItem('o1fc_cached_tier', verifiedTier);
+                window.dispatchEvent(new CustomEvent('o1fc-subscription-updated', { detail: { tier: verifiedTier } }));
+                upsertUserProfile({ subscription_tier: verifiedTier as any }).catch(() => {});
+                s.showToast(`Stripe Payment Verified: O1FC ${verifiedTier.replace('_', ' ').toUpperCase()} Active!`, 'success');
+              } else {
+                s.showToast('Payment verification incomplete. Please contact support.', 'error');
               }
             })
             .catch(() => {
-              // fallback
+              s.showToast('Unable to verify Stripe checkout session.', 'error');
             });
+        } else {
+          // If no session ID was returned from checkout, do not grant unverified access
+          s.showToast('Payment session missing or invalid.', 'error');
         }
-
-        // Store active subscription
-        localStorage.setItem('o1fc_active_subscription', JSON.stringify({
-          tier: activatedTier,
-          activatedAt: new Date().toISOString(),
-          expiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
-          status: 'active',
-          stripeSessionId: sessionId || undefined,
-        }));
-
-        upsertUserProfile({ subscription_tier: activatedTier as any }).catch(() => {});
-        s.showToast(`O1FC ${activatedTier.replace('_', ' ').toUpperCase()} Activated!`, 'success');
 
         // Clean query params from address bar
         const newUrl = window.location.pathname;

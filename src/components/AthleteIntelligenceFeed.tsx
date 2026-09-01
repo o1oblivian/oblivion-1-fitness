@@ -163,12 +163,15 @@ function timeAgo(dateStr: string): string {
   return `${days}d ago`;
 }
 
+import { useCoachRosterStore } from '@/utils/coachRosterStore';
+
 export const AthleteIntelligenceFeed: React.FC<{
   showToast: (msg: string, type?: 'success' | 'error') => void;
 }> = ({ showToast }) => {
   const [categoryFilter, setCategoryFilter] = useState<'recovery' | 'training' | 'nutrition' | 'performance'>('recovery');
   const [dismissed, setDismissed] = useState<Set<string>>(new Set());
-  const [insights, setInsights] = useState<AthleteInsight[]>(DEFAULT_MOCK_INSIGHTS);
+  const { isDemoMode } = useCoachRosterStore();
+  const [realInsights, setRealInsights] = useState<AthleteInsight[]>([]);
   const [loading, setLoading] = useState(false);
 
   const coachEmail = typeof window !== 'undefined'
@@ -252,25 +255,30 @@ export const AthleteIntelligenceFeed: React.FC<{
       }
 
       if (generatedInsights.length > 0) {
-        // Merge real data with default mock data
-        setInsights([...generatedInsights, ...DEFAULT_MOCK_INSIGHTS]);
+        setRealInsights(generatedInsights);
       }
     } catch (e) {
       console.warn('Intelligence feed load error:', e);
     }
   }
 
+  const activeInsights = useMemo(() => {
+    if (realInsights.length > 0) return realInsights;
+    if (isDemoMode) return DEFAULT_MOCK_INSIGHTS;
+    return [];
+  }, [realInsights, isDemoMode]);
+
   const filteredInsights = useMemo(() => {
-    return insights
+    return activeInsights
       .filter((ins) => !dismissed.has(ins.id))
       .filter((ins) => ins.category === categoryFilter)
       .sort((a, b) => {
         const prio = { high: 0, medium: 1, low: 2 };
         return prio[a.priority] - prio[b.priority];
       });
-  }, [insights, categoryFilter, dismissed]);
+  }, [activeInsights, categoryFilter, dismissed]);
 
-  const alertCount = insights.filter((i) => i.type === 'alert' && !dismissed.has(i.id)).length;
+  const alertCount = activeInsights.filter((i) => i.type === 'alert' && !dismissed.has(i.id)).length;
 
   const handleAction = (insight: AthleteInsight) => {
     showToast(`Action transmitted to ${insight.athleteName}`, 'success');
@@ -278,10 +286,10 @@ export const AthleteIntelligenceFeed: React.FC<{
   };
 
   const CATEGORIES = [
-    { key: 'recovery' as const, label: 'Recovery', icon: Moon, color: '#8B5CF6', count: insights.filter(i => i.category === 'recovery' && !dismissed.has(i.id)).length },
-    { key: 'training' as const, label: 'Training', icon: Dumbbell, color: '#C4121A', count: insights.filter(i => i.category === 'training' && !dismissed.has(i.id)).length },
-    { key: 'nutrition' as const, label: 'Nutrition', icon: Utensils, color: '#F59E0B', count: insights.filter(i => i.category === 'nutrition' && !dismissed.has(i.id)).length },
-    { key: 'performance' as const, label: 'Performance', icon: Trophy, color: '#3B82F6', count: insights.filter(i => i.category === 'performance' && !dismissed.has(i.id)).length },
+    { key: 'recovery' as const, label: 'Recovery', icon: Moon, color: '#8B5CF6', count: activeInsights.filter(i => i.category === 'recovery' && !dismissed.has(i.id)).length },
+    { key: 'training' as const, label: 'Training', icon: Dumbbell, color: '#C4121A', count: activeInsights.filter(i => i.category === 'training' && !dismissed.has(i.id)).length },
+    { key: 'nutrition' as const, label: 'Nutrition', icon: Utensils, color: '#F59E0B', count: activeInsights.filter(i => i.category === 'nutrition' && !dismissed.has(i.id)).length },
+    { key: 'performance' as const, label: 'Performance', icon: Trophy, color: '#3B82F6', count: activeInsights.filter(i => i.category === 'performance' && !dismissed.has(i.id)).length },
   ];
 
   return (
@@ -357,7 +365,7 @@ export const AthleteIntelligenceFeed: React.FC<{
               <CheckCircle2 className="w-7 h-7 text-stone-400 dark:text-zinc-500 mx-auto mb-2" />
               <p className="text-xs font-bold text-zinc-900 dark:text-white">All Clear</p>
               <p className="text-[11px] text-zinc-600 dark:text-zinc-400 mt-0.5">
-                {insights.length === 0
+                {activeInsights.length === 0
                   ? 'Intelligence signals will trigger as your clients log workouts and nutrition'
                   : 'No actionable signals matching current filter'}
               </p>

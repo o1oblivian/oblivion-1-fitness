@@ -104,7 +104,8 @@ export const BuddyRadarEngine: React.FC<BuddyRadarEngineProps> = ({
   const myLng = 151.2093;
 
   const [activeTab, setActiveTab] = useState<'discover' | 'matched'>('discover');
-  const [buddies, setBuddies] = useState<BuddyProfile[]>(() => generateMockBuddies(myLat, myLng));
+  const [isDemoMode, setIsDemoMode] = useState(false);
+  const [buddies, setBuddies] = useState<BuddyProfile[]>([]);
   const [filters, setFilters] = useState<RadarFilters>(DEFAULT_FILTERS);
   const [loading, setLoading] = useState(false);
   const [selectedBuddy, setSelectedBuddy] = useState<BuddyProfile | null>(null);
@@ -139,10 +140,10 @@ export const BuddyRadarEngine: React.FC<BuddyRadarEngineProps> = ({
     if (showBlockingSpinner) setLoading(true);
     try {
       const [b, c] = await Promise.all([
-        fetchRadarBuddies(currentUserEmail, myLat, myLng, filters),
+        fetchRadarBuddies(currentUserEmail, myLat, myLng, filters, 40, isDemoMode),
         fetchMyConnections(currentUserEmail),
       ]);
-      if (b && b.length > 0) setBuddies(b);
+      setBuddies(b || []);
       const bumpSet = new Set(c.filter(cn => cn.status === 'fist_bumped').map(cn =>
         cn.user_email === currentUserEmail ? cn.buddy_email : cn.user_email
       ));
@@ -152,7 +153,7 @@ export const BuddyRadarEngine: React.FC<BuddyRadarEngineProps> = ({
     } finally {
       if (showBlockingSpinner) setLoading(false);
     }
-  }, [currentUserEmail, filters]);
+  }, [currentUserEmail, filters, isDemoMode]);
 
   useEffect(() => {
     if (isOpen) {
@@ -387,6 +388,17 @@ export const BuddyRadarEngine: React.FC<BuddyRadarEngineProps> = ({
               <div className="flex items-center gap-0.5">
                 {activeTab === 'discover' && (
                   <>
+                    <button
+                      onClick={() => setIsDemoMode((prev) => !prev)}
+                      className={`px-2 py-1 rounded-lg text-[9px] font-mono font-bold uppercase tracking-wider transition-all cursor-pointer mr-1 ${
+                        isDemoMode
+                          ? 'bg-amber-500/20 text-amber-500 border border-amber-500/40'
+                          : 'bg-zinc-100 dark:bg-white/5 text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white'
+                      }`}
+                      title={isDemoMode ? 'Showing Demo Radar Athletes' : 'Showing Real Supabase Athletes'}
+                    >
+                      {isDemoMode ? 'Demo' : 'Live'}
+                    </button>
                     <button
                       onClick={() => { setShowPrivacy(!showPrivacy); setShowFilters(false); }}
                       className={`p-1.5 flex items-center justify-center text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white active:scale-90 transition-all cursor-pointer bg-transparent border-0 ${

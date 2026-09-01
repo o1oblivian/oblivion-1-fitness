@@ -1,4 +1,5 @@
 import { supabase, isSupabaseConfigured } from './supabase';
+import { apiFetch } from './apiUrl';
 
 export type UserRole = 'athlete' | 'coach';
 export type SubscriptionTier = 'free' | 'freemium' | 'premium' | 'premium_travel' | 'founder_pass' | 'coach_free' | 'coach_pro';
@@ -153,3 +154,54 @@ export async function recordCoachEarning(params: {
   });
   return !error;
 }
+
+export interface FounderPassStats {
+  totalLimit: number;
+  claimedCount: number;
+  remainingCount: number;
+  isLive: boolean;
+}
+
+export async function fetchFounderPassLiveStats(): Promise<FounderPassStats> {
+  try {
+    const res = await apiFetch('/api/founder-pass-stats');
+    if (res.ok) {
+      const data = await res.json();
+      return {
+        totalLimit: data.totalLimit || 5000,
+        claimedCount: data.claimedCount || 0,
+        remainingCount: data.remainingCount ?? 5000,
+        isLive: true,
+      };
+    }
+  } catch (e) {
+    console.warn('Founder pass live stats API warning:', e);
+  }
+
+  // Direct Supabase fallback
+  if (isSupabaseConfigured()) {
+    try {
+      const { count, error } = await supabase
+        .from('user_profiles')
+        .select('*', { count: 'exact', head: true })
+        .eq('subscription_tier', 'founder_pass');
+
+      if (!error && typeof count === 'number') {
+        return {
+          totalLimit: 5000,
+          claimedCount: count,
+          remainingCount: Math.max(0, 5000 - count),
+          isLive: true,
+        };
+      }
+    } catch {}
+  }
+
+  return {
+    totalLimit: 5000,
+    claimedCount: 0,
+    remainingCount: 5000,
+    isLive: true,
+  };
+}
+

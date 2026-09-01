@@ -43,6 +43,7 @@ import {
   Loader2,
 } from 'lucide-react';
 import { COACH_CLIENTS } from '../data/exerciseDatabase';
+import { useCoachRosterStore } from '@/utils/coachRosterStore';
 import { AthleteData } from '../types';
 import { ClientRosterModal } from './ClientRosterModal';
 import { WorkoutDispatchModal } from './WorkoutDispatchModal';
@@ -1037,7 +1038,7 @@ export default function FitnessIntelligenceApp({
       <ClientRosterModal
         isOpen={isRosterModalOpen}
         onClose={() => setIsRosterModalOpen(false)}
-        clients={COACH_CLIENTS}
+        clients={useCoachRosterStore.getState().isDemoMode || useCoachRosterStore.getState().clients.length === 0 ? COACH_CLIENTS : Object.fromEntries(useCoachRosterStore.getState().clients.map(c => [c.id, { key: c.id, name: c.name, handle: c.handle, avatar: c.avatar, status: c.status, badge: c.badge || 'ACTIVE', volume: `${c.weeklyVolumeKg.toLocaleString()} KG`, lastSeen: c.lastActive, todayLog: [], history: [] }]))}
         onOpenDispatchForClients={(keys) => {
           setDispatchTargetKeys(keys);
           setIsDispatchModalOpen(true);
@@ -1056,7 +1057,7 @@ export default function FitnessIntelligenceApp({
       <WorkoutDispatchModal
         isOpen={isDispatchModalOpen}
         onClose={() => setIsDispatchModalOpen(false)}
-        clients={COACH_CLIENTS}
+        clients={useCoachRosterStore.getState().isDemoMode || useCoachRosterStore.getState().clients.length === 0 ? COACH_CLIENTS : Object.fromEntries(useCoachRosterStore.getState().clients.map(c => [c.id, { key: c.id, name: c.name, handle: c.handle, avatar: c.avatar, status: c.status, badge: c.badge || 'ACTIVE', volume: `${c.weeklyVolumeKg.toLocaleString()} KG`, lastSeen: c.lastActive, todayLog: [], history: [] }]))}
         initialSelectedClientKeys={dispatchTargetKeys}
         coachName={coachProfileData.name}
         onDispatchSuccess={(count) => {

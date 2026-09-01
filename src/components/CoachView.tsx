@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import {
@@ -34,6 +34,7 @@ import { WelcomeCrewCards } from '@/components/WelcomeCrewCards';
 import { ProgramCreatorModal } from '@/components/ProgramCreatorModal';
 import { CoachEarningsModal } from '@/components/CoachEarningsModal';
 import { COACH_CLIENTS } from '@/data/exerciseDatabase';
+import { useCoachRosterStore, INITIAL_DEMO_CLIENTS } from '@/utils/coachRosterStore';
 import type { AthleteData } from '@/types';
 
 interface Submission {
@@ -159,21 +160,24 @@ export const CoachHubView: React.FC<{
   // Modals
   const [showEarningsModal, setShowEarningsModal] = useState(false);
 
+  // Coach Roster state (Persisted & Clean by default)
+  const { clients: customClients, isDemoMode, toggleDemoMode, addClient } = useCoachRosterStore();
+
   // Filter for Roster Strip
   const [rosterFilter, setRosterFilter] = useState<'all' | 'review' | 'live' | 'pr'>('all');
   const [isRosterExpanded, setIsRosterExpanded] = useState(true);
 
-  const [earningsSummary, setEarningsSummary] = useState({ totalEarned: 142000, pendingPayout: 38500, totalPaid: 103500, salesCount: 14 });
+  const [earningsSummary, setEarningsSummary] = useState({ totalEarned: 0, pendingPayout: 0, totalPaid: 0, salesCount: 0 });
   const [recentEarnings, setRecentEarnings] = useState<CoachEarning[]>([]);
   const [showAllEarnings, setShowAllEarnings] = useState(false);
 
   useEffect(() => {
     (async () => {
       const [summary, earnings] = await Promise.all([fetchEarningsSummary(), fetchCoachEarnings()]);
-      if (summary.totalEarned > 0) {
+      if (summary && summary.totalEarned > 0) {
         setEarningsSummary(summary);
       }
-      setRecentEarnings(earnings);
+      setRecentEarnings(earnings || []);
     })();
   }, [activeTab]);
 
@@ -185,9 +189,30 @@ export const CoachHubView: React.FC<{
   };
 
   const pendingCount = submissions.filter((s) => s.status === 'pending').length;
-  const clientList = Object.values(COACH_CLIENTS);
+  
+  // Transform active client list based on real additions or demo mode
+  const activeClientsList: AthleteData[] = useMemo(() => {
+    if (customClients.length > 0) {
+      return customClients.map((c) => ({
+        key: c.id,
+        name: c.name,
+        handle: c.handle,
+        avatar: c.avatar,
+        status: c.status,
+        badge: c.badge || 'ACTIVE',
+        volume: `${c.weeklyVolumeKg.toLocaleString()} KG`,
+        lastSeen: c.lastActive,
+        todayLog: [],
+        history: [],
+      }));
+    }
+    if (isDemoMode) {
+      return Object.values(COACH_CLIENTS);
+    }
+    return [];
+  }, [customClients, isDemoMode]);
 
-  const filteredClients = clientList.filter((client) => {
+  const filteredClients = activeClientsList.filter((client) => {
     if (rosterFilter === 'review') return client.status === 'PENDING' || client.badge?.includes('PENDING');
     if (rosterFilter === 'pr') return client.badge?.includes('PR');
     return true;
@@ -212,10 +237,21 @@ export const CoachHubView: React.FC<{
               <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#C4121A] dark:bg-[#D91F28]" />
             </span>
             <span className="text-[10px] font-mono font-bold tracking-widest text-[#C4121A] dark:text-[#D91F28] uppercase">
-              {clientList.length} Athletes Active
+              {activeClientsList.length} Athletes {isDemoMode ? '(Demo Roster)' : 'Active'}
             </span>
           </div>
           <div className="flex items-center gap-1.5">
+            <button
+              onClick={toggleDemoMode}
+              className={`px-2 py-0.5 rounded-full text-[9px] font-mono font-bold uppercase tracking-wider transition-all cursor-pointer ${
+                isDemoMode
+                  ? 'bg-amber-500/20 text-amber-500 border border-amber-500/40'
+                  : 'bg-zinc-100 dark:bg-white/10 text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white'
+              }`}
+              title="Toggle Demo Athlete Roster for App Reviewer Testing"
+            >
+              {isDemoMode ? 'Demo Roster' : 'Live Mode'}
+            </button>
             <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-zinc-100 dark:bg-white/10 text-zinc-600 dark:text-zinc-300">
               {new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
             </span>
@@ -372,7 +408,7 @@ export const CoachHubView: React.FC<{
                     className="flex items-center gap-2 text-zinc-500 dark:text-zinc-400 text-xs font-mono cursor-pointer"
                   >
                     <div className="flex -space-x-1.5 overflow-hidden">
-                      {clientList.slice(0, 4).map((c) => (
+                      {activeClientsList.slice(0, 4).map((c) => (
                         <div
                           key={c.key}
                           className="w-5 h-5 rounded-full ring-2 ring-white dark:ring-[#12141A] bg-zinc-200 dark:bg-white/20 text-[8px] font-bold flex items-center justify-center text-zinc-800 dark:text-white shrink-0"
@@ -382,7 +418,7 @@ export const CoachHubView: React.FC<{
                       ))}
                     </div>
                     <span className="text-[10px] text-zinc-500 dark:text-zinc-400 font-mono hidden sm:inline">
-                      {clientList.length} athletes
+                      {activeClientsList.length} athletes
                     </span>
                   </div>
                 )}
@@ -521,10 +557,35 @@ export const CoachHubView: React.FC<{
                     })}
 
                     {filteredClients.length === 0 && (
-                      <div className="py-8 text-center">
-                        <p className="text-xs text-zinc-500 dark:text-zinc-400 font-mono">
-                          No athletes matching this filter.
-                        </p>
+                      <div className="py-10 px-4 text-center space-y-3">
+                        <div className="w-12 h-12 rounded-2xl bg-zinc-100 dark:bg-white/5 border border-zinc-200 dark:border-white/10 flex items-center justify-center mx-auto text-zinc-400">
+                          <Users className="w-6 h-6 stroke-[1.5]" />
+                        </div>
+                        <div className="space-y-1">
+                          <p className="text-xs font-bold text-zinc-900 dark:text-white uppercase tracking-wider">
+                            No Active Athletes in Roster
+                          </p>
+                          <p className="text-[11px] text-zinc-500 dark:text-zinc-400 max-w-xs mx-auto">
+                            Share your coach intake link or activate Demo Mode to preview live athlete telemetry and rapid dispatch.
+                          </p>
+                        </div>
+                        <div className="flex items-center justify-center gap-2 pt-1">
+                          <button
+                            onClick={() => {
+                              navigator.clipboard?.writeText?.(window.location.origin + '/?coach=' + coachEmail);
+                              showToast('Coach athlete invite link copied to clipboard', 'success');
+                            }}
+                            className="px-3 py-1.5 rounded-xl bg-zinc-900 dark:bg-white dark:text-black text-white text-[10px] font-mono font-bold uppercase tracking-wider active:scale-95 transition-all cursor-pointer"
+                          >
+                            Copy Athlete Link
+                          </button>
+                          <button
+                            onClick={toggleDemoMode}
+                            className="px-3 py-1.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-[#C4121A] dark:text-[#D91F28] border border-red-500/20 text-[10px] font-mono font-bold uppercase tracking-wider active:scale-95 transition-all cursor-pointer"
+                          >
+                            Load Demo Roster
+                          </button>
+                        </div>
                       </div>
                     )}
                   </div>
