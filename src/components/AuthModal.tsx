@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, ArrowRight, ArrowLeft, Eye, EyeOff, Check } from 'lucide-react';
+import { X, ArrowRight, ArrowLeft, Eye, EyeOff, Check, Shield } from 'lucide-react';
 import { supabase, isSupabaseConfigured, supabaseResetPassword } from '@/utils/supabase';
 import { setSessionUserEmail, loginUser, registerUser } from '@/utils/authStorage';
 import { upsertUserProfile, type UserRole } from '@/utils/subscriptionStore';
-import { CONSENT_CHECKS } from '@/utils/legalContent';
 import { LegalAgreementsModal } from './LegalAgreementsModal';
 import { openExternalUrl, isNativePlatform } from '@/utils/capacitor';
+import { LiquidSilkBackground } from '@/components/ui/LiquidSilkBackground';
 
 // ── Brand Vector Logos ──
 
@@ -43,35 +42,21 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   onClose,
   showToast,
 }) => {
-  const [mode, setMode] = useState<'signin' | 'register' | 'guide' | 'forgot'>('signin');
+  const [mode, setMode] = useState<'signin' | 'register' | 'forgot'>('signin');
   const [email, setEmail] = useState(() => {
     try { return localStorage.getItem('o1fc_remembered_email') || ''; } catch { return ''; }
   });
   const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
+  const [role, setRole] = useState<UserRole>('athlete');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(() => {
     try { return localStorage.getItem('o1fc_remember_me') === 'true'; } catch { return false; }
   });
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [loading, setLoading] = useState(false);
   const [isExiting, setIsExiting] = useState(false);
-
-  const [role, setRole] = useState<UserRole>('athlete');
-  const [name, setName] = useState('');
-  const [handle, setHandle] = useState('');
-  const [discipline, setDiscipline] = useState('hyrox');
-  const [radarRadius, setRadarRadius] = useState(15);
-  const [telemetrySync, setTelemetrySync] = useState(true);
-  const [gymBroadcast, setGymBroadcast] = useState(false);
-
-  const [consents, setConsents] = useState({
-    health_consent: false,
-    coach_liability_consent: false,
-    terms_consent: false,
-  });
   const [showLegalModal, setShowLegalModal] = useState(false);
-  const allConsentsAccepted = consents.health_consent && consents.coach_liability_consent && consents.terms_consent;
-
-  const configured = isSupabaseConfigured();
 
   useEffect(() => {
     if (!supabase) return;
@@ -100,7 +85,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const animateOut = (userEmail: string) => {
     persistRememberMe(userEmail);
     setIsExiting(true);
-    setTimeout(() => onSuccess(userEmail), 350);
+    setTimeout(() => onSuccess(userEmail), 300);
   };
 
   const handleSignIn = async (e: React.FormEvent) => {
@@ -125,7 +110,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           loggedIn = true;
         }
       } catch {
-        // Supabase network/DNS fallback
+        // Network fallback
       }
 
       if (!loggedIn) {
@@ -145,53 +130,56 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     }
   };
 
-  const handleRegisterSubmit = async () => {
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault();
     const cleanEmail = email.trim();
     const cleanPass = password.trim();
+    const cleanName = name.trim() || cleanEmail.split('@')[0];
+
     if (!cleanEmail || !cleanPass) {
-      showToast('Please complete email and password', 'error');
+      showToast('Please provide your email and password', 'error');
       return;
     }
     if (cleanPass.length < 6) {
       showToast('Password must be at least 6 characters', 'error');
       return;
     }
-    if (!allConsentsAccepted) {
-      showToast('Please accept all mandatory consents', 'error');
+    if (!acceptedTerms) {
+      showToast('Please accept the health & membership agreement', 'error');
       return;
     }
+
     setLoading(true);
     try {
-      const displayName = name.trim() || cleanEmail.split('@')[0];
       let userEmail = cleanEmail;
 
       try {
         const { data } = await supabase.auth.signUp({
           email: cleanEmail,
           password: cleanPass,
-          options: { data: { full_name: displayName } },
+          options: { data: { full_name: cleanName } },
         });
         if (data?.user?.email) {
           userEmail = data.user.email;
         }
       } catch {
-        // Supabase network/DNS fallback
+        // Fallback
       }
 
-      await registerUser(cleanEmail, cleanPass, displayName);
+      await registerUser(cleanEmail, cleanPass, cleanName);
 
       try {
         localStorage.setItem(`o1fc_consents_${userEmail.toLowerCase()}`, JSON.stringify({
-          health_consent: consents.health_consent,
-          coach_liability_consent: consents.coach_liability_consent,
-          terms_consent: consents.terms_consent,
+          health_consent: true,
+          coach_liability_consent: true,
+          terms_consent: true,
           timestamp: new Date().toISOString(),
         }));
         await supabase.from('user_consent').insert({
           user_email: userEmail.toLowerCase(),
-          health_consent: consents.health_consent,
-          coach_liability_consent: consents.coach_liability_consent,
-          terms_consent: consents.terms_consent,
+          health_consent: true,
+          coach_liability_consent: true,
+          terms_consent: true,
           app_version: '1.0.0',
         });
       } catch {}
@@ -200,19 +188,19 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         await upsertUserProfile({
           email: userEmail.toLowerCase(),
           role,
-          display_name: displayName,
-          workout_focus: discipline || null,
+          display_name: cleanName,
+          workout_focus: 'hyrox',
           postcode: null,
         });
       } catch {}
 
       setSessionUserEmail(userEmail);
-      showToast('Oblivion FC Membership Initialized', 'success');
+      showToast('Account Created — Starting Calibration Protocol', 'success');
       animateOut(userEmail);
     } catch (err: any) {
-      await registerUser(cleanEmail, cleanPass, name.trim() || cleanEmail.split('@')[0]);
+      await registerUser(cleanEmail, cleanPass, cleanName);
       setSessionUserEmail(cleanEmail);
-      showToast('Oblivion FC Membership Initialized', 'success');
+      showToast('Account Created — Starting Calibration Protocol', 'success');
       animateOut(cleanEmail);
     } finally {
       setLoading(false);
@@ -245,81 +233,91 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           oauthUrl = data.url;
         }
       } catch (sbErr) {
-        console.warn('Supabase OAuth init notice:', sbErr);
+        console.warn('Supabase OAuth notice:', sbErr);
       }
 
       if (oauthUrl) {
-        await openExternalUrl(oauthUrl);
-        showToast(`Opening ${provider === 'google' ? 'Google' : 'Apple'} Sign-In...`, 'success');
-        setLoading(false);
-        return;
+        if (isMobile) {
+          await openExternalUrl(oauthUrl);
+        } else {
+          const width = 500;
+          const height = 650;
+          const left = window.screenX + (window.outerWidth - width) / 2;
+          const top = window.screenY + (window.outerHeight - height) / 2;
+          window.open(
+            oauthUrl,
+            'o1fc_oauth_signin',
+            `width=${width},height=${height},left=${left},top=${top},toolbar=no,menubar=no`
+          );
+        }
+      } else {
+        const mockEmail = provider === 'google' ? 'athlete.google@o1fc.app' : 'athlete.apple@o1fc.app';
+        await registerUser(mockEmail, 'oauth_authenticated_session', provider === 'google' ? 'Google Athlete' : 'Apple Athlete');
+        setSessionUserEmail(mockEmail);
+        showToast(`Connected with ${provider === 'google' ? 'Google' : 'Apple'}`, 'success');
+        animateOut(mockEmail);
       }
-
-      // If OAuth provider is pending in Supabase config or device is offline, instant seamless authenticated entry
-      const fallbackEmail = provider === 'google' ? 'athlete.google@ofc.fitness' : 'athlete.apple@ofc.fitness';
-      const fallbackName = provider === 'google' ? 'Google Athlete' : 'Apple Athlete';
-      await registerUser(fallbackEmail, 'password123', fallbackName);
-      setSessionUserEmail(fallbackEmail);
-      showToast(`Signed in with ${provider === 'google' ? 'Google' : 'Apple'}`, 'success');
-      animateOut(fallbackEmail);
-    } catch (err: any) {
-      showToast(err?.message || 'Error opening authentication provider', 'error');
+    } catch {
+      showToast(`Unable to initiate ${provider} auth. Please use email.`, 'error');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleForgot = async () => {
-    const cleanEmail = email.trim();
-    if (!cleanEmail) {
-      showToast('Enter your email address first', 'error');
+  const handleForgot = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email.trim()) {
+      showToast('Please enter your registered email address', 'error');
       return;
     }
     setLoading(true);
     try {
-      if (configured) {
-        const { error } = await supabaseResetPassword(cleanEmail);
-        if (error) showToast(error.message, 'error');
-        else {
-          showToast(`Reset link sent to ${cleanEmail}`, 'success');
-          setMode('signin');
-        }
+      const res = await supabaseResetPassword(email.trim());
+      if (!res.error) {
+        showToast('Password reset link sent to your email', 'success');
+        setMode('signin');
       } else {
-        showToast(`Reset link sent to ${cleanEmail}`, 'success');
+        showToast(res.error.message || 'Password reset requested. Check your inbox.', 'success');
         setMode('signin');
       }
+    } catch {
+      showToast('Password reset requested. Check your inbox.', 'success');
+      setMode('signin');
     } finally {
       setLoading(false);
     }
   };
 
-  return createPortal(
+  return (
     <div
-      className="fixed inset-0 z-[500] bg-black/75 dark:bg-black/85 backdrop-blur-md text-zinc-900 dark:text-white flex flex-col justify-between px-4 sm:px-6 font-sans select-none overflow-y-auto antialiased"
+      className="fixed inset-0 z-[600] flex flex-col justify-between items-center px-4 sm:px-6 overflow-y-auto overscroll-contain selection:bg-red-600/20"
       style={{
         paddingTop: 'max(1rem, calc(env(safe-area-inset-top, 0px) + 0.75rem))',
         paddingBottom: 'max(1rem, calc(env(safe-area-inset-bottom, 0px) + 0.75rem))',
         opacity: isExiting ? 0 : 1,
         transform: isExiting ? 'scale(0.96)' : 'scale(1)',
-        transition: 'opacity 0.35s ease, transform 0.35s ease',
+        transition: 'opacity 0.3s ease, transform 0.3s ease',
       }}
     >
+      {/* Dynamic Ambient Background */}
+      <LiquidSilkBackground theme="light" intensity={1.1} speed={1.0} />
+
       {/* Header */}
       <header className="relative z-20 w-full max-w-md mx-auto flex items-center justify-end pb-2 min-h-[40px]">
         {onClose && (
           <button
             onClick={onClose}
             aria-label="Close"
-            className="w-9 h-9 rounded-full bg-zinc-100/80 dark:bg-zinc-800/80 hover:bg-zinc-200 dark:hover:bg-zinc-700 flex items-center justify-center text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-all cursor-pointer shadow-sm active:scale-95"
+            className="w-9 h-9 rounded-full bg-zinc-100/90 dark:bg-zinc-800/90 hover:bg-zinc-200 dark:hover:bg-zinc-700 flex items-center justify-center text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-all cursor-pointer shadow-sm active:scale-95"
           >
             <X className="w-4 h-4 stroke-[2]" />
           </button>
         )}
       </header>
 
-      {/* Main Container Card (Frameless) */}
+      {/* Main Glass Card */}
       <main className="relative z-10 w-full max-w-md mx-auto my-auto py-2">
-        <div className="w-full bg-white dark:bg-[#121418] rounded-3xl p-6 sm:p-7 shadow-2xl">
+        <div className="w-full bg-white/95 dark:bg-[#121418]/95 backdrop-blur-2xl rounded-3xl p-6 sm:p-7 shadow-[0_25px_70px_rgba(0,0,0,0.15)] border border-white/80 dark:border-white/10">
           <AnimatePresence mode="wait">
             {/* ── Sign In ── */}
             {mode === 'signin' && (
@@ -338,6 +336,24 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   <p className="text-xs text-zinc-500 dark:text-zinc-400 font-medium">Training OS Pro • Fuel OS • Coach Hub</p>
                 </div>
 
+                {/* Segmented Switcher */}
+                <div className="flex bg-zinc-100 dark:bg-zinc-900/90 p-1 rounded-2xl border border-zinc-200/60 dark:border-zinc-800">
+                  <button
+                    type="button"
+                    onClick={() => setMode('signin')}
+                    className="flex-1 py-2 text-xs font-black uppercase tracking-wider rounded-xl transition-all bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white shadow-sm cursor-pointer"
+                  >
+                    Sign In
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setMode('register')}
+                    className="flex-1 py-2 text-xs font-black uppercase tracking-wider rounded-xl transition-all text-zinc-500 hover:text-zinc-900 dark:hover:text-white cursor-pointer"
+                  >
+                    Sign Up
+                  </button>
+                </div>
+
                 <form onSubmit={handleSignIn} className="space-y-4">
                   <div className="space-y-3">
                     <div className="space-y-1 text-left">
@@ -347,7 +363,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                         required
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        placeholder="name@domain.com"
+                        placeholder="athlete@domain.com"
                         className="w-full bg-zinc-50 dark:bg-zinc-900/90 border border-zinc-200 dark:border-zinc-800 focus:border-red-600 dark:focus:border-red-500 text-zinc-900 dark:text-white text-sm px-4 py-3 rounded-2xl placeholder:text-zinc-400 dark:placeholder:text-zinc-600 outline-none transition-all"
                       />
                     </div>
@@ -462,7 +478,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               </motion.div>
             )}
 
-            {/* ── Register (all 3 sections on one page) ── */}
+            {/* ── Register (Clean 1-Screen Apple/Samsung Standard) ── */}
             {mode === 'register' && (
               <motion.div
                 key="register"
@@ -470,306 +486,197 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -8 }}
                 transition={{ duration: 0.18 }}
-                className="space-y-6 text-left py-1"
+                className="space-y-5"
               >
-                {/* 1/3 Details & Identity */}
-                <section className="space-y-3">
-                  <div className="flex items-center gap-2.5 border-b border-zinc-200 dark:border-zinc-800 pb-2">
-                    <span className="text-xs font-mono font-bold text-red-600 dark:text-red-400 px-2 py-0.5 rounded-full bg-red-50 dark:bg-red-950/40">1 / 3</span>
-                    <span className="text-xs font-black text-zinc-900 dark:text-white uppercase tracking-wider">DETAILS & IDENTITY</span>
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="text-[11px] font-bold text-zinc-700 dark:text-zinc-300 block tracking-wide">Your email address</label>
-                    <input
-                      type="email"
-                      required
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="name@domain.com"
-                      className="w-full bg-zinc-50 dark:bg-zinc-900/90 border border-zinc-200 dark:border-zinc-800 focus:border-red-600 dark:focus:border-red-500 px-3.5 py-2.5 text-sm text-zinc-900 dark:text-white placeholder:text-zinc-400 dark:placeholder:text-zinc-600 outline-none rounded-2xl transition-colors"
-                    />
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="text-[11px] font-bold text-zinc-700 dark:text-zinc-300 block tracking-wide">Choose password (min 6 chars)</label>
-                    <div className="relative">
-                      <input
-                        type={showPassword ? 'text' : 'password'}
-                        required
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        placeholder="••••••••"
-                        className="w-full bg-zinc-50 dark:bg-zinc-900/90 border border-zinc-200 dark:border-zinc-800 focus:border-red-600 dark:focus:border-red-500 px-3.5 py-2.5 pr-8 text-sm text-zinc-900 dark:text-white placeholder:text-zinc-400 dark:placeholder:text-zinc-600 outline-none rounded-2xl transition-colors"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 p-1 cursor-pointer"
-                      >
-                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-2.5 pt-1">
-                    <button
-                      type="button"
-                      onClick={() => setRole('athlete')}
-                      className={`p-3 text-left rounded-2xl transition-all cursor-pointer ${
-                        role === 'athlete'
-                          ? 'bg-red-600 text-white font-black shadow-md'
-                          : 'bg-zinc-100 dark:bg-zinc-800/80 text-zinc-900 dark:text-white hover:bg-zinc-200 dark:hover:bg-zinc-700'
-                      }`}
-                    >
-                      <span className="text-xs font-black block uppercase tracking-wider">ATHLETE</span>
-                      <span className={`text-[10px] ${role === 'athlete' ? 'text-red-100 font-semibold' : 'text-zinc-500 dark:text-zinc-400 font-medium'}`}>Train & sync strain</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setRole('coach')}
-                      className={`p-3 text-left rounded-2xl transition-all cursor-pointer ${
-                        role === 'coach'
-                          ? 'bg-red-600 text-white font-black shadow-md'
-                          : 'bg-zinc-100 dark:bg-zinc-800/80 text-zinc-900 dark:text-white hover:bg-zinc-200 dark:hover:bg-zinc-700'
-                      }`}
-                    >
-                      <span className="text-xs font-black block uppercase tracking-wider">COACH</span>
-                      <span className={`text-[10px] ${role === 'coach' ? 'text-red-100 font-semibold' : 'text-zinc-500 dark:text-zinc-400 font-medium'}`}>Roster & dispatch</span>
-                    </button>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-2">
-                    <div className="space-y-1">
-                      <label className="text-[11px] font-bold text-zinc-700 dark:text-zinc-300 block tracking-wide">Display Name</label>
-                      <input
-                        type="text"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        placeholder="e.g. Marcus"
-                        className="w-full bg-zinc-50 dark:bg-zinc-900/90 border border-zinc-200 dark:border-zinc-800 focus:border-red-600 dark:focus:border-red-500 px-3 py-2 text-sm text-zinc-900 dark:text-white placeholder:text-zinc-400 dark:placeholder:text-zinc-600 outline-none rounded-xl transition-colors"
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-[11px] font-bold text-zinc-700 dark:text-zinc-300 block tracking-wide">Athlete Handle</label>
-                      <input
-                        type="text"
-                        value={handle}
-                        onChange={(e) => setHandle(e.target.value)}
-                        placeholder="@handle"
-                        className="w-full bg-zinc-50 dark:bg-zinc-900/90 border border-zinc-200 dark:border-zinc-800 focus:border-red-600 dark:focus:border-red-500 px-3 py-2 text-sm text-zinc-900 dark:text-white placeholder:text-zinc-400 dark:placeholder:text-zinc-600 outline-none rounded-xl transition-colors"
-                      />
-                    </div>
-                  </div>
-                </section>
-
-                {/* 2/3 Discipline Focus */}
-                <section className="space-y-3">
-                  <div className="flex items-center gap-2.5 border-b border-zinc-200 dark:border-zinc-800 pb-2">
-                    <span className="text-xs font-mono font-bold text-red-600 dark:text-red-400 px-2 py-0.5 rounded-full bg-red-50 dark:bg-red-950/40">2 / 3</span>
-                    <span className="text-xs font-black text-zinc-900 dark:text-white uppercase tracking-wider">DISCIPLINE FOCUS</span>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-2">
-                    {[
-                      { id: 'hyrox', label: 'HYROX Racing' },
-                      { id: 'powerlifting', label: 'Strength & Barbell' },
-                      { id: 'functional', label: 'Functional Engine' },
-                      { id: 'endurance', label: 'Running & Track' },
-                      { id: 'bodybuilding', label: 'Hypertrophy' },
-                      { id: 'longevity', label: 'Longevity & Mobility' },
-                    ].map((d) => (
-                      <button
-                        key={d.id}
-                        type="button"
-                        onClick={() => setDiscipline(d.id)}
-                        className={`p-2.5 text-left rounded-xl transition-all cursor-pointer ${
-                          discipline === d.id
-                            ? 'bg-red-600 text-white font-black shadow-md'
-                            : 'bg-zinc-100 dark:bg-zinc-800/80 text-zinc-900 dark:text-white hover:bg-zinc-200 dark:hover:bg-zinc-700'
-                        }`}
-                      >
-                        <span className="text-xs font-black block tracking-wide">{d.label}</span>
-                      </button>
-                    ))}
-                  </div>
-                </section>
-
-                {/* 3/3 Radar & Telemetry */}
-                <section className="space-y-3">
-                  <div className="flex items-center gap-2.5 border-b border-zinc-200 dark:border-zinc-800 pb-2">
-                    <span className="text-xs font-mono font-bold text-red-600 dark:text-red-400 px-2 py-0.5 rounded-full bg-red-50 dark:bg-red-950/40">3 / 3</span>
-                    <span className="text-xs font-black text-zinc-900 dark:text-white uppercase tracking-wider">RADAR & TELEMETRY</span>
-                  </div>
-
-                  <div className="p-3.5 bg-zinc-50 dark:bg-zinc-900/90 border border-zinc-200 dark:border-zinc-800 rounded-2xl space-y-2">
-                    <div className="flex justify-between items-center text-xs">
-                      <span className="text-zinc-800 dark:text-zinc-200 font-bold">Proximity Radar Radius</span>
-                      <span className="font-mono font-black text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/40 px-2 py-0.5 rounded-full">{radarRadius} km</span>
-                    </div>
-                    <input
-                      type="range"
-                      min={1}
-                      max={50}
-                      value={radarRadius}
-                      onChange={(e) => setRadarRadius(Number(e.target.value))}
-                      className="w-full accent-red-600 h-2 bg-zinc-200 dark:bg-zinc-800 rounded-lg cursor-pointer"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setTelemetrySync(!telemetrySync)}
-                      className={`p-3 rounded-2xl text-left transition-all cursor-pointer flex items-center justify-between ${
-                        telemetrySync
-                          ? 'bg-red-600 text-white font-black shadow-md'
-                          : 'bg-zinc-100 dark:bg-zinc-800/80 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700'
-                      }`}
-                    >
-                      <div>
-                        <span className="text-xs font-black block">Telemetry Sync</span>
-                        <span className={`text-[10px] ${telemetrySync ? 'text-red-100 font-semibold' : 'text-zinc-500 dark:text-zinc-400 font-medium'}`}>Live HRV & Strain</span>
-                      </div>
-                      {telemetrySync && <Check className="w-3.5 h-3.5 text-white stroke-[3]" />}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setGymBroadcast(!gymBroadcast)}
-                      className={`p-3 rounded-2xl text-left transition-all cursor-pointer flex items-center justify-between ${
-                        gymBroadcast
-                          ? 'bg-red-600 text-white font-black shadow-md'
-                          : 'bg-zinc-100 dark:bg-zinc-800/80 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700'
-                      }`}
-                    >
-                      <div>
-                        <span className="text-xs font-black block">Gym Broadcast</span>
-                        <span className={`text-[10px] ${gymBroadcast ? 'text-red-100 font-semibold' : 'text-zinc-500 dark:text-zinc-400 font-medium'}`}>Partner Check-in</span>
-                      </div>
-                      {gymBroadcast && <Check className="w-3.5 h-3.5 text-white stroke-[3]" />}
-                    </button>
-                  </div>
-                </section>
-
-                {/* Consents */}
-                <section className="space-y-3">
-                  <div className="flex items-center gap-2.5 border-b border-zinc-200 dark:border-zinc-800 pb-2">
-                    <span className="text-xs font-black text-zinc-900 dark:text-white uppercase tracking-wider">AGREEMENTS</span>
-                  </div>
-                  {CONSENT_CHECKS.map((check) => (
-                    <label key={check.id} className="flex items-start gap-3 cursor-pointer select-none group">
-                      <div className="relative mt-0.5 shrink-0">
-                        <input
-                          type="checkbox"
-                          checked={consents[check.id]}
-                          onChange={(e) => setConsents((prev) => ({ ...prev, [check.id]: e.target.checked }))}
-                          className="sr-only peer"
-                        />
-                        <div className="w-5 h-5 rounded bg-zinc-100 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 peer-checked:bg-red-600 peer-checked:border-red-600 transition-all flex items-center justify-center">
-                          {consents[check.id] && (
-                            <svg className="w-3 h-3 text-white" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                              <path d="M2 6l3 3 5-5" />
-                            </svg>
-                          )}
-                        </div>
-                      </div>
-                      <span className="text-[12px] font-medium leading-snug text-zinc-700 dark:text-zinc-300 group-hover:text-zinc-900 dark:group-hover:text-white transition-colors">{check.label}</span>
-                    </label>
-                  ))}
-                  <button
-                    type="button"
-                    onClick={() => setShowLegalModal(true)}
-                    className="text-[11px] font-bold text-red-600 dark:text-red-400 hover:underline transition-colors cursor-pointer"
-                  >
-                    Read Full Agreements
-                  </button>
-                </section>
-
-                {/* BACK / NEXT */}
-                <div className="pt-3 grid grid-cols-2 gap-2.5 sticky bottom-0 bg-white dark:bg-[#121418] border-t border-zinc-200 dark:border-zinc-800 -mx-0 px-0 py-3">
-                  <button
-                    type="button"
-                    onClick={() => setMode('signin')}
-                    className="w-full h-12 bg-zinc-100 dark:bg-zinc-800/80 text-zinc-900 dark:text-white hover:bg-zinc-200 dark:hover:bg-zinc-700 rounded-2xl text-xs font-black tracking-widest uppercase transition-all cursor-pointer flex items-center justify-center gap-2 active:scale-[0.99]"
-                  >
-                    <ArrowLeft className="w-4 h-4 stroke-[2.5]" />
-                    <span>BACK</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleRegisterSubmit}
-                    disabled={loading || !allConsentsAccepted}
-                    className={`w-full h-12 bg-red-600 text-white hover:bg-red-700 rounded-2xl text-xs font-black tracking-widest uppercase transition-all cursor-pointer flex items-center justify-center gap-2 shadow-md active:scale-[0.99] ${
-                      !allConsentsAccepted ? 'opacity-40 cursor-not-allowed' : ''
-                    }`}
-                  >
-                    {loading ? (
-                      <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    ) : (
-                      <>
-                        <span>NEXT</span>
-                        <ArrowRight className="w-4 h-4 stroke-[2.5]" />
-                      </>
-                    )}
-                  </button>
+                <div className="text-center space-y-1 pb-1">
+                  <h1 className="text-2xl sm:text-3xl font-black uppercase tracking-[0.2em] text-zinc-900 dark:text-white leading-tight">
+                    OBLIVION 1 <span className="text-red-600">FC</span>
+                  </h1>
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400 font-medium">New Membership Registration</p>
                 </div>
-              </motion.div>
-            )}
 
-            {/* ── Protocol Guide (all 3 stages) ── */}
-            {mode === 'guide' && (
-              <motion.div
-                key="guide"
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -8 }}
-                transition={{ duration: 0.18 }}
-                className="space-y-5 text-left py-1"
-              >
-                {[
-                  {
-                    step: '1 / 3',
-                    title: 'WORKOUT TELEMETRY',
-                    desc: 'Real-Time Biometrics & Precision Rotary Dial for instant load logging, rest counters, and strain scoring.',
-                  },
-                  {
-                    step: '2 / 3',
-                    title: 'NUTRITION MATRIX',
-                    desc: 'Dynamic Fuel Matrix & Macro Automation calibrated to your real metabolic demands with Intel visual scans.',
-                  },
-                  {
-                    step: '3 / 3',
-                    title: 'NETWORK & RADAR',
-                    desc: 'Proximity Radar & Global Club Network for verified local training partners and digital gym check-ins.',
-                  },
-                ].map((s) => (
-                  <section key={s.step} className="p-3.5 bg-zinc-50 dark:bg-zinc-900/90 border border-zinc-200 dark:border-zinc-800 rounded-2xl space-y-1.5">
-                    <div className="flex items-center gap-2.5 border-b border-zinc-200 dark:border-zinc-800 pb-1.5">
-                      <span className="text-xs font-mono font-bold text-red-600 dark:text-red-400 px-2 py-0.5 rounded-full bg-red-50 dark:bg-red-950/40">{s.step}</span>
-                      <span className="text-xs font-black text-zinc-900 dark:text-white uppercase tracking-wider">{s.title}</span>
-                    </div>
-                    <p className="text-xs text-zinc-600 dark:text-zinc-400 font-medium leading-relaxed">{s.desc}</p>
-                  </section>
-                ))}
-
-                <div className="pt-2 grid grid-cols-2 gap-2.5">
+                {/* Segmented Switcher */}
+                <div className="flex bg-zinc-100 dark:bg-zinc-900/90 p-1 rounded-2xl border border-zinc-200/60 dark:border-zinc-800">
                   <button
                     type="button"
                     onClick={() => setMode('signin')}
-                    className="w-full h-12 bg-zinc-100 dark:bg-zinc-800/80 text-zinc-900 dark:text-white hover:bg-zinc-200 dark:hover:bg-zinc-700 rounded-2xl text-xs font-black tracking-widest uppercase transition-all cursor-pointer flex items-center justify-center gap-2 active:scale-[0.99]"
+                    className="flex-1 py-2 text-xs font-black uppercase tracking-wider rounded-xl transition-all text-zinc-500 hover:text-zinc-900 dark:hover:text-white cursor-pointer"
                   >
-                    <ArrowLeft className="w-4 h-4 stroke-[2.5]" />
-                    <span>BACK</span>
+                    Sign In
                   </button>
                   <button
                     type="button"
                     onClick={() => setMode('register')}
-                    className="w-full h-12 bg-red-600 hover:bg-red-700 text-white rounded-2xl text-xs font-black tracking-widest uppercase transition-all cursor-pointer flex items-center justify-center gap-2 shadow-md active:scale-[0.99]"
+                    className="flex-1 py-2 text-xs font-black uppercase tracking-wider rounded-xl transition-all bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white shadow-sm cursor-pointer"
                   >
-                    <span>NEXT</span>
-                    <ArrowRight className="w-4 h-4 stroke-[2.5]" />
+                    Sign Up
                   </button>
                 </div>
+
+                <form onSubmit={handleRegister} className="space-y-3.5">
+                  <div className="space-y-3">
+                    <div className="space-y-1 text-left">
+                      <label className="text-[11px] font-black uppercase tracking-wider text-zinc-800 dark:text-zinc-200">Full Name</label>
+                      <input
+                        type="text"
+                        required
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        placeholder="Marcus Vance"
+                        className="w-full bg-zinc-50 dark:bg-zinc-900/90 border border-zinc-200 dark:border-zinc-800 focus:border-red-600 dark:focus:border-red-500 text-zinc-900 dark:text-white text-sm px-4 py-2.5 rounded-2xl placeholder:text-zinc-400 dark:placeholder:text-zinc-600 outline-none transition-all"
+                      />
+                    </div>
+
+                    <div className="space-y-1 text-left">
+                      <label className="text-[11px] font-black uppercase tracking-wider text-zinc-800 dark:text-zinc-200">Email Address</label>
+                      <input
+                        type="email"
+                        required
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="athlete@domain.com"
+                        className="w-full bg-zinc-50 dark:bg-zinc-900/90 border border-zinc-200 dark:border-zinc-800 focus:border-red-600 dark:focus:border-red-500 text-zinc-900 dark:text-white text-sm px-4 py-2.5 rounded-2xl placeholder:text-zinc-400 dark:placeholder:text-zinc-600 outline-none transition-all"
+                      />
+                    </div>
+
+                    <div className="space-y-1 text-left">
+                      <label className="text-[11px] font-black uppercase tracking-wider text-zinc-800 dark:text-zinc-200">Choose Password</label>
+                      <div className="relative">
+                        <input
+                          type={showPassword ? 'text' : 'password'}
+                          required
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          placeholder="Min 6 characters"
+                          className="w-full bg-zinc-50 dark:bg-zinc-900/90 border border-zinc-200 dark:border-zinc-800 focus:border-red-600 dark:focus:border-red-500 text-zinc-900 dark:text-white text-sm px-4 py-2.5 pr-10 rounded-2xl placeholder:text-zinc-400 dark:placeholder:text-zinc-600 outline-none transition-all"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword(!showPassword)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 p-1 cursor-pointer transition-colors"
+                        >
+                          {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Role Selection */}
+                    <div className="grid grid-cols-2 gap-2 pt-0.5">
+                      <button
+                        type="button"
+                        onClick={() => setRole('athlete')}
+                        className={`p-2.5 text-left rounded-2xl transition-all cursor-pointer ${
+                          role === 'athlete'
+                            ? 'bg-red-600 text-white font-black shadow-md'
+                            : 'bg-zinc-100 dark:bg-zinc-800/80 text-zinc-900 dark:text-white hover:bg-zinc-200 dark:hover:bg-zinc-700'
+                        }`}
+                      >
+                        <span className="text-xs font-black block uppercase tracking-wider">ATHLETE</span>
+                        <span className={`text-[10px] ${role === 'athlete' ? 'text-red-100 font-semibold' : 'text-zinc-500 dark:text-zinc-400 font-medium'}`}>Train & track sets</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setRole('coach')}
+                        className={`p-2.5 text-left rounded-2xl transition-all cursor-pointer ${
+                          role === 'coach'
+                            ? 'bg-red-600 text-white font-black shadow-md'
+                            : 'bg-zinc-100 dark:bg-zinc-800/80 text-zinc-900 dark:text-white hover:bg-zinc-200 dark:hover:bg-zinc-700'
+                        }`}
+                      >
+                        <span className="text-xs font-black block uppercase tracking-wider">COACH</span>
+                        <span className={`text-[10px] ${role === 'coach' ? 'text-red-100 font-semibold' : 'text-zinc-500 dark:text-zinc-400 font-medium'}`}>Roster & dispatch</span>
+                      </button>
+                    </div>
+
+                    {/* Consent Checkbox */}
+                    <div className="pt-1">
+                      <label className="flex items-start gap-2.5 cursor-pointer select-none group">
+                        <div className="relative mt-0.5 shrink-0">
+                          <input
+                            type="checkbox"
+                            checked={acceptedTerms}
+                            onChange={(e) => setAcceptedTerms(e.target.checked)}
+                            className="sr-only peer"
+                          />
+                          <div className="w-4 h-4 rounded bg-zinc-100 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 peer-checked:bg-red-600 peer-checked:border-red-600 transition-all flex items-center justify-center">
+                            {acceptedTerms && (
+                              <svg className="w-2.5 h-2.5 text-white" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M2 6l3 3 5-5" />
+                              </svg>
+                            )}
+                          </div>
+                        </div>
+                        <span className="text-[11px] font-medium leading-tight text-zinc-600 dark:text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-white transition-colors">
+                          I accept the{' '}
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              setShowLegalModal(true);
+                            }}
+                            className="text-red-600 dark:text-red-400 font-bold hover:underline"
+                          >
+                            Legal Agreements, Health Waiver & Terms
+                          </button>
+                        </span>
+                      </label>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2 pt-1">
+                    <button
+                      type="submit"
+                      disabled={loading || !acceptedTerms}
+                      className={`w-full h-12 bg-red-600 hover:bg-red-700 active:bg-red-800 text-white font-black rounded-2xl text-xs tracking-[0.18em] uppercase transition-all cursor-pointer flex items-center justify-center gap-2 shadow-md active:scale-[0.99] ${
+                        !acceptedTerms ? 'opacity-50 cursor-not-allowed' : ''
+                      }`}
+                    >
+                      {loading ? (
+                        <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      ) : (
+                        <>
+                          <span>Create Account & Calibrate</span>
+                          <ArrowRight className="w-4 h-4 stroke-[2.5]" />
+                        </>
+                      )}
+                    </button>
+                  </div>
+
+                  {/* Social Auth */}
+                  <div className="pt-1 space-y-2.5">
+                    <div className="flex items-center gap-3">
+                      <div className="h-[1px] bg-zinc-200 dark:bg-zinc-800 flex-1" />
+                      <span className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">or sign up with</span>
+                      <div className="h-[1px] bg-zinc-200 dark:bg-zinc-800 flex-1" />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2.5">
+                      <button
+                        type="button"
+                        onClick={() => handleSocialAuth('google')}
+                        disabled={loading}
+                        className="h-10 bg-zinc-100 dark:bg-zinc-800/80 hover:bg-zinc-200 dark:hover:bg-zinc-700 border border-zinc-200/60 dark:border-zinc-700/50 rounded-2xl flex items-center justify-center gap-2 px-2 transition-all cursor-pointer group active:scale-[0.99]"
+                      >
+                        <GmailLogo />
+                        <span className="text-[11px] font-black text-zinc-900 dark:text-white group-hover:text-red-600 dark:group-hover:text-red-400 tracking-wider uppercase">
+                          Gmail
+                        </span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => handleSocialAuth('apple')}
+                        disabled={loading}
+                        className="h-10 bg-zinc-100 dark:bg-zinc-800/80 hover:bg-zinc-200 dark:hover:bg-zinc-700 border border-zinc-200/60 dark:border-zinc-700/50 rounded-2xl flex items-center justify-center gap-2 px-2 transition-all cursor-pointer group active:scale-[0.99]"
+                      >
+                        <AppleLogo />
+                        <span className="text-[11px] font-black text-zinc-900 dark:text-white group-hover:text-red-600 dark:group-hover:text-red-400 tracking-wider uppercase">
+                          Apple
+                        </span>
+                      </button>
+                    </div>
+                  </div>
+                </form>
               </motion.div>
             )}
 
@@ -788,7 +695,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   <p className="text-xs text-zinc-500 dark:text-zinc-400 font-medium">Enter your email to receive recovery instructions.</p>
                 </div>
 
-                <div className="space-y-4 pt-1">
+                <form onSubmit={handleForgot} className="space-y-4 pt-1">
                   <div className="space-y-1">
                     <label className="text-[11px] font-bold text-zinc-700 dark:text-zinc-300 block tracking-wide">Your email address</label>
                     <input
@@ -796,7 +703,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                       required
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      placeholder="name@domain.com"
+                      placeholder="athlete@domain.com"
                       className="w-full bg-zinc-50 dark:bg-zinc-900/90 border border-zinc-200 dark:border-zinc-800 focus:border-red-600 dark:focus:border-red-500 px-4 py-3 text-sm text-zinc-900 dark:text-white placeholder:text-zinc-400 dark:placeholder:text-zinc-600 outline-none rounded-2xl transition-colors"
                     />
                   </div>
@@ -811,15 +718,21 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                       <span>BACK</span>
                     </button>
                     <button
-                      type="button"
-                      onClick={handleForgot}
+                      type="submit"
+                      disabled={loading}
                       className="w-full h-12 bg-red-600 hover:bg-red-700 text-white rounded-2xl text-xs font-black tracking-widest uppercase transition-all cursor-pointer flex items-center justify-center gap-2 shadow-md active:scale-[0.99]"
                     >
-                      <span>SEND</span>
-                      <ArrowRight className="w-4 h-4 stroke-[2.5]" />
+                      {loading ? (
+                        <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      ) : (
+                        <>
+                          <span>SEND</span>
+                          <ArrowRight className="w-4 h-4 stroke-[2.5]" />
+                        </>
+                      )}
                     </button>
                   </div>
-                </div>
+                </form>
               </motion.div>
             )}
           </AnimatePresence>
@@ -831,7 +744,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       </footer>
 
       <LegalAgreementsModal isOpen={showLegalModal} onClose={() => setShowLegalModal(false)} />
-    </div>,
-    document.body
+    </div>
   );
 };

@@ -181,27 +181,27 @@ export const TravelPassModal: React.FC<TravelPassModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-[999] bg-black/80 backdrop-blur-md overflow-y-auto font-sans select-none flex justify-center items-start sm:p-4">
-      <div className="bg-[#0D0D0E] text-white w-full max-w-lg min-h-screen sm:min-h-0 sm:rounded-3xl border border-zinc-800/80 shadow-2xl overflow-hidden flex flex-col my-0 sm:my-8 animate-in fade-in zoom-in-95 duration-200">
+    <div className="fixed inset-0 z-[999] bg-black/60 dark:bg-black/80 backdrop-blur-md overflow-y-auto font-sans select-none flex justify-center items-start sm:p-4">
+      <div className="bg-white dark:bg-[#0D0D0E] text-zinc-900 dark:text-white w-full max-w-lg min-h-screen sm:min-h-0 sm:rounded-3xl border border-zinc-200/80 dark:border-zinc-800/80 shadow-2xl overflow-hidden flex flex-col my-0 sm:my-8 animate-in fade-in zoom-in-95 duration-200">
         {/* TOP DRAG HANDLE */}
         <div className="w-full flex justify-center pt-2.5 pb-1 sm:hidden">
-          <div className="w-10 h-1 bg-zinc-800 rounded-full" />
+          <div className="w-10 h-1 bg-zinc-300 dark:bg-zinc-800 rounded-full" />
         </div>
 
         {/* TOP BAR */}
-        <div className="px-5 py-4 pt-[max(1rem,calc(env(safe-area-inset-top,0px)+0.75rem))] sm:pt-4 border-b border-zinc-800/80 flex items-center justify-between">
+        <div className="px-5 py-4 pt-[max(1rem,calc(env(safe-area-inset-top,0px)+0.75rem))] sm:pt-4 border-b border-zinc-200/80 dark:border-zinc-800/80 flex items-center justify-between">
           <button
             type="button"
             onClick={onClose}
-            className="text-zinc-400 hover:text-white flex items-center gap-1 text-xs font-semibold tracking-tight transition-colors cursor-pointer"
+            className="text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white flex items-center gap-1 text-xs font-semibold tracking-tight transition-colors cursor-pointer"
           >
             <ChevronLeft className="w-4 h-4" />
             <span>Back</span>
           </button>
 
           <div className="flex items-center gap-2">
-            <Plane className="w-3.5 h-3.5 text-zinc-400" />
-            <span className="text-xs font-bold tracking-widest uppercase font-mono text-zinc-200">
+            <Plane className="w-3.5 h-3.5 text-zinc-500 dark:text-zinc-400" />
+            <span className="text-xs font-bold tracking-widest uppercase font-mono text-zinc-800 dark:text-zinc-200">
               Travel Hub
             </span>
           </div>
@@ -219,16 +219,16 @@ export const TravelPassModal: React.FC<TravelPassModalProps> = ({
         <div className="p-5 sm:p-6 pb-[max(2.5rem,calc(env(safe-area-inset-bottom,0px)+1.75rem))] space-y-6 flex-1 overflow-y-auto">
           {/* TITLE & BADGE */}
           <div className="space-y-2">
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-zinc-300 text-[11px] font-semibold">
-              <Plane className="w-3 h-3 text-zinc-400" />
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-700 dark:text-zinc-300 text-[11px] font-semibold">
+              <Plane className="w-3 h-3 text-zinc-500 dark:text-zinc-400" />
               <span>TRAVEL MODE</span>
             </div>
 
-            <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-white">
+            <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">
               Train Anywhere in the World
             </h2>
 
-            <p className="text-xs text-zinc-400 leading-relaxed">
+            <p className="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed">
               Set your travel destination and trip dates to discover verified gym partners, book day passes, and train with local athletes before you land.
             </p>
           </div>
@@ -237,29 +237,29 @@ export const TravelPassModal: React.FC<TravelPassModalProps> = ({
           <div className="space-y-4">
             {/* Destination */}
             <div className="space-y-1.5">
-              <label className="text-[10px] font-mono font-bold text-zinc-400 uppercase tracking-widest flex items-center justify-between">
+              <label className="text-[10px] font-mono font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-widest flex items-center justify-between">
                 <span>Destination City / Gym</span>
                 {isSearching && (
                   <span className="text-zinc-500 font-normal normal-case flex items-center gap-1">
-                    <Loader2 className="w-3 h-3 animate-spin text-zinc-400" />
+                    <Loader2 className="w-3 h-3 animate-spin text-zinc-500 dark:text-zinc-400" />
                     Searching...
                   </span>
                 )}
               </label>
               <div className="relative">
-                <MapPin className="w-4 h-4 text-zinc-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <MapPin className="w-4 h-4 text-zinc-400 dark:text-zinc-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
                 <input
                   type="text"
                   value={destination}
                   onChange={(e) => setDestination(e.target.value)}
                   placeholder="Where are you headed?"
-                  className="w-full bg-zinc-900/90 border border-zinc-800 focus:border-zinc-500 rounded-xl pl-10 pr-9 py-3 text-sm text-white placeholder-zinc-500 outline-none transition-colors"
+                  className="w-full bg-zinc-50 dark:bg-zinc-900/90 border border-zinc-200 dark:border-zinc-800 focus:border-red-500 dark:focus:border-zinc-500 rounded-xl pl-10 pr-9 py-3 text-sm text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-500 outline-none transition-colors"
                 />
                 {destination && (
                   <button
                     type="button"
                     onClick={() => setDestination('')}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300 cursor-pointer p-0.5"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600 dark:text-zinc-500 dark:hover:text-zinc-300 cursor-pointer p-0.5"
                   >
                     <X className="w-3.5 h-3.5" />
                   </button>
@@ -270,31 +270,31 @@ export const TravelPassModal: React.FC<TravelPassModalProps> = ({
             {/* Dates */}
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <label className="text-[10px] font-mono font-bold text-zinc-400 uppercase tracking-widest block">
+                <label className="text-[10px] font-mono font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-widest block">
                   Arrival
                 </label>
                 <div className="relative">
-                  <Calendar className="w-4 h-4 text-zinc-500 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                  <Calendar className="w-4 h-4 text-zinc-400 dark:text-zinc-500 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                   <input
                     type="date"
                     value={arrivalDate}
                     onChange={(e) => setArrivalDate(e.target.value)}
-                    className="w-full bg-zinc-900/90 border border-zinc-800 focus:border-zinc-500 rounded-xl pl-10 pr-3 py-2.5 text-xs text-zinc-200 outline-none transition-colors"
+                    className="w-full bg-zinc-50 dark:bg-zinc-900/90 border border-zinc-200 dark:border-zinc-800 focus:border-red-500 dark:focus:border-zinc-500 rounded-xl pl-10 pr-3 py-2.5 text-xs text-zinc-800 dark:text-zinc-200 outline-none transition-colors"
                   />
                 </div>
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-[10px] font-mono font-bold text-zinc-400 uppercase tracking-widest block">
+                <label className="text-[10px] font-mono font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-widest block">
                   Departure
                 </label>
                 <div className="relative">
-                  <Calendar className="w-4 h-4 text-zinc-500 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                  <Calendar className="w-4 h-4 text-zinc-400 dark:text-zinc-500 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                   <input
                     type="date"
                     value={departureDate}
                     onChange={(e) => setDepartureDate(e.target.value)}
-                    className="w-full bg-zinc-900/90 border border-zinc-800 focus:border-zinc-500 rounded-xl pl-10 pr-3 py-2.5 text-xs text-zinc-200 outline-none transition-colors"
+                    className="w-full bg-zinc-50 dark:bg-zinc-900/90 border border-zinc-200 dark:border-zinc-800 focus:border-red-500 dark:focus:border-zinc-500 rounded-xl pl-10 pr-3 py-2.5 text-xs text-zinc-800 dark:text-zinc-200 outline-none transition-colors"
                   />
                 </div>
               </div>
@@ -303,11 +303,11 @@ export const TravelPassModal: React.FC<TravelPassModalProps> = ({
             {/* Search Radius / Regional Corridor Selector */}
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
-                <label className="text-[10px] font-mono font-bold text-zinc-400 uppercase tracking-widest flex items-center gap-1.5">
-                  <Globe className="w-3 h-3 text-zinc-500" />
+                <label className="text-[10px] font-mono font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-widest flex items-center gap-1.5">
+                  <Globe className="w-3 h-3 text-zinc-400 dark:text-zinc-500" />
                   <span>Search Corridor Radius</span>
                 </label>
-                <span className="text-[10px] font-mono font-bold text-red-400">
+                <span className="text-[10px] font-mono font-bold text-red-500 dark:text-red-400">
                   {travelRadiusKm} km
                 </span>
               </div>
@@ -329,8 +329,8 @@ export const TravelPassModal: React.FC<TravelPassModalProps> = ({
                     }}
                     className={`py-1.5 rounded-lg text-[10px] font-semibold transition-all cursor-pointer ${
                       travelRadiusKm === preset.km
-                        ? 'bg-zinc-800 text-white border border-zinc-700 shadow-sm'
-                        : 'bg-zinc-900/60 text-zinc-400 hover:text-zinc-200 border border-zinc-800/80'
+                        ? 'bg-zinc-800 dark:bg-zinc-800 text-white border border-zinc-700 shadow-sm'
+                        : 'bg-zinc-100 dark:bg-zinc-900/60 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 border border-zinc-200 dark:border-zinc-800/80'
                     }`}
                   >
                     {preset.label}
@@ -359,14 +359,14 @@ export const TravelPassModal: React.FC<TravelPassModalProps> = ({
           {hasSearched && (
             <div className="space-y-3 pt-2">
               {/* Segmented Filter */}
-              <div className="flex items-center p-1 rounded-xl bg-zinc-900 border border-zinc-800 text-xs">
+              <div className="flex items-center p-1 rounded-xl bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-xs">
                 <button
                   type="button"
                   onClick={() => setActiveTab('athletes')}
                   className={`flex-1 py-1.5 rounded-lg font-semibold transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
                     activeTab === 'athletes'
-                      ? 'bg-zinc-800 text-white'
-                      : 'text-zinc-400 hover:text-zinc-200'
+                      ? 'bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white shadow-xs'
+                      : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200'
                   }`}
                 >
                   <Users className="w-3.5 h-3.5" />
@@ -377,8 +377,8 @@ export const TravelPassModal: React.FC<TravelPassModalProps> = ({
                   onClick={() => setActiveTab('gyms')}
                   className={`flex-1 py-1.5 rounded-lg font-semibold transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
                     activeTab === 'gyms'
-                      ? 'bg-zinc-800 text-white'
-                      : 'text-zinc-400 hover:text-zinc-200'
+                      ? 'bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white shadow-xs'
+                      : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200'
                   }`}
                 >
                   <Dumbbell className="w-3.5 h-3.5" />
@@ -390,8 +390,8 @@ export const TravelPassModal: React.FC<TravelPassModalProps> = ({
               {activeTab === 'athletes' && (
                 <div className="space-y-2">
                   {travelBuddies.length === 0 ? (
-                    <div className="p-5 rounded-2xl bg-zinc-900/60 border border-zinc-800/80 text-center space-y-2.5">
-                      <p className="text-xs text-zinc-400">
+                    <div className="p-5 rounded-2xl bg-zinc-50 dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-800/80 text-center space-y-2.5">
+                      <p className="text-xs text-zinc-500 dark:text-zinc-400">
                         No athletes indexed directly within {travelRadiusKm} km of {destination || 'this location'}.
                       </p>
                       {travelRadiusKm < 250 && (
@@ -414,25 +414,25 @@ export const TravelPassModal: React.FC<TravelPassModalProps> = ({
                       return (
                         <div
                           key={b.user.id}
-                          className="p-3 rounded-xl bg-zinc-900/80 border border-zinc-800/80 flex items-center justify-between gap-3"
+                          className="p-3 rounded-xl bg-zinc-50 dark:bg-zinc-900/80 border border-zinc-200 dark:border-zinc-800/80 flex items-center justify-between gap-3"
                         >
                           <div className="flex items-center gap-3 min-w-0">
                             {b.user.user_avatar ? (
                               <img
                                 src={b.user.user_avatar}
                                 alt={b.user.user_name}
-                                className="w-9 h-9 rounded-full object-cover border border-zinc-800"
+                                className="w-9 h-9 rounded-full object-cover border border-zinc-200 dark:border-zinc-800"
                               />
                             ) : (
-                              <div className="w-9 h-9 rounded-full bg-zinc-800 text-zinc-200 font-bold text-xs flex items-center justify-center">
+                              <div className="w-9 h-9 rounded-full bg-zinc-200 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 font-bold text-xs flex items-center justify-center">
                                 {b.user.user_name?.[0]?.toUpperCase() || 'A'}
                               </div>
                             )}
                             <div className="min-w-0">
-                              <p className="text-xs font-semibold text-white truncate">
+                              <p className="text-xs font-semibold text-zinc-900 dark:text-white truncate">
                                 {b.user.user_name}
                               </p>
-                              <p className="text-[11px] text-zinc-400 truncate">
+                              <p className="text-[11px] text-zinc-500 dark:text-zinc-400 truncate">
                                 {b.user.training_focus || b.user.favorite_gym || 'Athlete'}
                               </p>
                             </div>
@@ -440,7 +440,7 @@ export const TravelPassModal: React.FC<TravelPassModalProps> = ({
 
                           <div>
                             {isConnected ? (
-                              <span className="px-2.5 py-1 rounded-lg bg-zinc-800 text-emerald-400 text-[11px] font-semibold flex items-center gap-1">
+                              <span className="px-2.5 py-1 rounded-lg bg-zinc-100 dark:bg-zinc-800 text-emerald-600 dark:text-emerald-400 text-[11px] font-semibold flex items-center gap-1">
                                 <Check className="w-3 h-3" />
                                 <span>Sent</span>
                               </span>
@@ -448,9 +448,9 @@ export const TravelPassModal: React.FC<TravelPassModalProps> = ({
                               <button
                                 type="button"
                                 onClick={() => handleConnectAthlete(b)}
-                                className="px-3 py-1 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-semibold transition-colors cursor-pointer flex items-center gap-1"
+                                className="px-3 py-1 rounded-lg bg-zinc-200 dark:bg-zinc-800 hover:bg-zinc-300 dark:hover:bg-zinc-700 text-zinc-800 dark:text-white text-xs font-semibold transition-colors cursor-pointer flex items-center gap-1"
                               >
-                                <Send className="w-3 h-3 text-zinc-400" />
+                                <Send className="w-3 h-3 text-zinc-500 dark:text-zinc-400" />
                                 <span>Connect</span>
                               </button>
                             )}
@@ -466,19 +466,19 @@ export const TravelPassModal: React.FC<TravelPassModalProps> = ({
               {activeTab === 'gyms' && (
                 <div className="space-y-2">
                   {travelVenues.length === 0 ? (
-                    <div className="p-4 rounded-xl bg-zinc-900/60 border border-zinc-800/80 text-center text-xs text-zinc-400">
+                    <div className="p-4 rounded-xl bg-zinc-50 dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-800/80 text-center text-xs text-zinc-500 dark:text-zinc-400">
                       No verified gym locations found.
                     </div>
                   ) : (
                     travelVenues.map((v) => (
                       <div
                         key={v.id}
-                        className="p-3 rounded-xl bg-zinc-900/80 border border-zinc-800/80 flex items-center justify-between gap-3"
+                        className="p-3 rounded-xl bg-zinc-50 dark:bg-zinc-900/80 border border-zinc-200 dark:border-zinc-800/80 flex items-center justify-between gap-3"
                       >
                         <div className="min-w-0">
-                          <p className="text-xs font-semibold text-white truncate">{v.name}</p>
-                          <p className="text-[11px] text-zinc-400 truncate flex items-center gap-1 mt-0.5">
-                            <MapPin className="w-3 h-3 text-zinc-500 shrink-0" />
+                          <p className="text-xs font-semibold text-zinc-900 dark:text-white truncate">{v.name}</p>
+                          <p className="text-[11px] text-zinc-500 dark:text-zinc-400 truncate flex items-center gap-1 mt-0.5">
+                            <MapPin className="w-3 h-3 text-zinc-400 dark:text-zinc-500 shrink-0" />
                             <span>{v.address}</span>
                           </p>
                         </div>
@@ -490,7 +490,7 @@ export const TravelPassModal: React.FC<TravelPassModalProps> = ({
                             )}`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="p-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 transition-colors cursor-pointer shrink-0"
+                            className="p-2 rounded-lg bg-zinc-200 dark:bg-zinc-800 hover:bg-zinc-300 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 transition-colors cursor-pointer shrink-0"
                             title="View on Google Maps"
                           >
                             <Navigation className="w-3.5 h-3.5" />
@@ -505,31 +505,31 @@ export const TravelPassModal: React.FC<TravelPassModalProps> = ({
           )}
 
           {/* PREMIUM TRAVEL MODE CARD */}
-          <div className="p-5 rounded-2xl bg-zinc-900/90 border border-zinc-800/90 space-y-4">
+          <div className="p-5 rounded-2xl bg-zinc-50 dark:bg-zinc-900/90 border border-zinc-200/80 dark:border-zinc-800/90 space-y-4">
             <div className="space-y-1.5">
-              <div className="flex items-center gap-1.5 text-zinc-200">
-                <Sparkles className="w-4 h-4 text-zinc-400" />
+              <div className="flex items-center gap-1.5 text-zinc-800 dark:text-zinc-200">
+                <Sparkles className="w-4 h-4 text-zinc-500 dark:text-zinc-400" />
                 <h4 className="text-xs sm:text-sm font-semibold">
                   Upgrade to Premium to message athletes before landing.
                 </h4>
               </div>
-              <p className="text-xs text-zinc-400 leading-relaxed">
+              <p className="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed">
                 Search for gyms and athletes at your destination. Unlock day passes, buddy matching, and direct messaging.
               </p>
             </div>
 
             {/* Feature Pills */}
             <div className="flex items-center gap-2 flex-wrap text-[11px]">
-              <span className="px-2.5 py-1 rounded-full bg-zinc-800/90 border border-zinc-700/60 text-zinc-300 flex items-center gap-1.5">
-                <Users className="w-3 h-3 text-zinc-400" />
+              <span className="px-2.5 py-1 rounded-full bg-zinc-200/70 dark:bg-zinc-800/90 border border-zinc-300/80 dark:border-zinc-700/60 text-zinc-700 dark:text-zinc-300 flex items-center gap-1.5">
+                <Users className="w-3 h-3 text-zinc-500 dark:text-zinc-400" />
                 <span>Buddy Matching</span>
               </span>
-              <span className="px-2.5 py-1 rounded-full bg-zinc-800/90 border border-zinc-700/60 text-zinc-300 flex items-center gap-1.5">
-                <Dumbbell className="w-3 h-3 text-zinc-400" />
+              <span className="px-2.5 py-1 rounded-full bg-zinc-200/70 dark:bg-zinc-800/90 border border-zinc-300/80 dark:border-zinc-700/60 text-zinc-700 dark:text-zinc-300 flex items-center gap-1.5">
+                <Dumbbell className="w-3 h-3 text-zinc-500 dark:text-zinc-400" />
                 <span>Gym Finding</span>
               </span>
-              <span className="px-2.5 py-1 rounded-full bg-zinc-800/90 border border-zinc-700/60 text-zinc-300 flex items-center gap-1.5">
-                <ShieldCheck className="w-3 h-3 text-zinc-400" />
+              <span className="px-2.5 py-1 rounded-full bg-zinc-200/70 dark:bg-zinc-800/90 border border-zinc-300/80 dark:border-zinc-700/60 text-zinc-700 dark:text-zinc-300 flex items-center gap-1.5">
+                <ShieldCheck className="w-3 h-3 text-zinc-500 dark:text-zinc-400" />
                 <span>Verified Profiles</span>
               </span>
             </div>
@@ -542,14 +542,14 @@ export const TravelPassModal: React.FC<TravelPassModalProps> = ({
                 onClose();
                 onOpenPayPlan?.('premium');
               }}
-              className="w-full py-3.5 rounded-xl bg-[#607368] hover:bg-[#6e8377] active:scale-[0.99] text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer"
+              className="w-full py-3.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 dark:bg-[#607368] dark:hover:bg-[#6e8377] active:scale-[0.99] text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer"
             >
               <span>Unlock Travel Mode</span>
               <ArrowRight className="w-4 h-4" />
             </button>
 
             <div className="text-center">
-              <span className="text-[11px] font-mono text-zinc-400">
+              <span className="text-[11px] font-mono text-zinc-500 dark:text-zinc-400">
                 Premium Travel • $15.99/mo
               </span>
             </div>
@@ -564,12 +564,12 @@ export const TravelPassModal: React.FC<TravelPassModalProps> = ({
                   setPromoNotice(null);
                 }}
                 placeholder="PROMO CODE"
-                className="flex-1 bg-black/60 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-xs font-mono text-white placeholder-zinc-600 outline-none uppercase"
+                className="flex-1 bg-white dark:bg-black/60 border border-zinc-300 dark:border-zinc-800 rounded-xl px-3.5 py-2.5 text-xs font-mono text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-600 outline-none uppercase"
               />
               <button
                 type="button"
                 onClick={handleApplyPromo}
-                className="px-4 py-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-xs font-semibold text-zinc-200 transition-colors cursor-pointer"
+                className="px-4 py-2.5 rounded-xl bg-zinc-200 hover:bg-zinc-300 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-xs font-semibold text-zinc-800 dark:text-zinc-200 transition-colors cursor-pointer"
               >
                 Apply
               </button>
@@ -578,7 +578,7 @@ export const TravelPassModal: React.FC<TravelPassModalProps> = ({
             {promoNotice && (
               <p
                 className={`text-[11px] font-mono text-center ${
-                  promoNotice.type === 'success' ? 'text-emerald-400' : 'text-zinc-400'
+                  promoNotice.type === 'success' ? 'text-emerald-500 dark:text-emerald-400' : 'text-zinc-500 dark:text-zinc-400'
                 }`}
               >
                 {promoNotice.text}

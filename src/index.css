@@ -87,19 +87,19 @@ samp {
 
 @layer base {
   :root {
-    --apple-canvas: #FFFFFF;
-    --apple-secondary: #F4F4F6;
+    --apple-canvas: #F8F9FA;
+    --apple-secondary: #F4F4F5;
     --apple-surface: #FFFFFF;
     --apple-border: rgba(0, 0, 0, 0.08);
-    --apple-text-primary: #1C1C1E;
-    --apple-text-secondary: #8E8E93;
+    --apple-text-primary: #18181B;
+    --apple-text-secondary: #71717A;
 
     /* O1FC Cartier Red Design System (#C4121A Signature Cartier Red) */
     --o1-red-kinetic: #C4121A;
     --o1-red-apple: #C4121A;
     --o1-red-carmine: #B8121A;
-    --o1-red-subtle: rgba(196, 18, 26, 0.12);
-    --o1-red-glow: rgba(196, 18, 26, 0.25);
+    --o1-red-subtle: rgba(196, 18, 26, 0.10);
+    --o1-red-glow: rgba(196, 18, 26, 0.20);
   }
 
   html.dark {
@@ -119,8 +119,8 @@ samp {
   }
 
   html {
-    background-color: #FFFFFF;
-    color: #1C1C1E;
+    background-color: #F8F9FA;
+    color: #18181B;
     width: 100%;
     max-width: 100vw;
     height: 100dvh;

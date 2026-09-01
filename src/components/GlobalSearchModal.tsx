@@ -231,7 +231,7 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({
     <AnimatePresence>
       {isOpen && (
         <div
-          className="fixed inset-0 z-[300] flex items-start justify-center pt-[env(safe-area-inset-top)] bg-[#0A0A0C]"
+          className="fixed inset-0 z-[300] flex items-start justify-center pt-[max(1rem,calc(env(safe-area-inset-top,0px)+0.75rem))] pb-[max(1.5rem,calc(env(safe-area-inset-bottom,0px)+1rem))] px-4 bg-black/60 dark:bg-black/80 backdrop-blur-md overflow-y-auto"
           onClick={onClose}
         >
           <motion.div
@@ -240,24 +240,25 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({
             exit={{ opacity: 0, y: -20, scale: 0.98 }}
             transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
             onClick={(e) => e.stopPropagation()}
-            className="w-full max-w-lg mt-4 mx-4 bg-white dark:bg-neutral-900 rounded-3xl shadow-2xl border border-neutral-200 dark:border-neutral-700 overflow-hidden"
+            className="w-full max-w-lg mt-2 bg-white dark:bg-[#121214] rounded-3xl shadow-2xl border border-zinc-200 dark:border-zinc-800 overflow-hidden"
           >
             {/* Search bar */}
-            <div className="flex items-center gap-3 px-4 py-3.5 border-b border-neutral-200 dark:border-neutral-700">
-              <Search className="w-5 h-5 text-neutral-400 shrink-0" />
+            <div className="flex items-center gap-3 px-4 py-3.5 border-b border-zinc-200 dark:border-zinc-800">
+              <Search className="w-5 h-5 text-zinc-400 shrink-0" />
               <input
                 ref={inputRef}
                 type="text"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Search exercises, foods, pages..."
-                className="flex-1 bg-transparent text-black dark:text-white text-base font-semibold outline-none placeholder:text-neutral-400"
+                className="flex-1 bg-transparent text-zinc-900 dark:text-white text-base font-semibold outline-none placeholder:text-zinc-400"
               />
               <button
                 onClick={onClose}
-                className="p-1.5 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors cursor-pointer shrink-0"
+                className="w-8 h-8 rounded-full bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 flex items-center justify-center text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white transition-colors cursor-pointer shrink-0"
+                aria-label="Close"
               >
-                <X className="w-4 h-4 text-neutral-500" />
+                <X className="w-4 h-4" />
               </button>
             </div>
 

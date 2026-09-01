@@ -363,23 +363,28 @@ export const AICoachInsightsModal: React.FC<AICoachInsightsModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-[180] bg-white dark:bg-[#09090B] overflow-y-auto font-sans animate-fadeIn">
-      <div className="bg-white dark:bg-[#09090B] text-zinc-900 dark:text-white w-full min-h-screen p-4 relative flex flex-col gap-3 overflow-y-auto select-none pb-28">
+      <div className="w-full max-w-xl mx-auto min-h-screen pt-[max(1rem,calc(env(safe-area-inset-top,0px)+0.75rem))] px-4 sm:px-6 pb-[max(2.5rem,calc(env(safe-area-inset-bottom,0px)+1.5rem))] text-zinc-900 dark:text-white flex flex-col gap-4 select-none">
         {/* Header */}
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between items-center pb-1">
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded-full bg-[#EA4335]/10 text-[#EA4335] border border-[#EA4335]/30 uppercase tracking-wider flex items-center gap-1">
+              <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-[#EA4335]/10 text-[#EA4335] border border-[#EA4335]/30 uppercase tracking-wider flex items-center gap-1">
                 <Cpu className="w-3 h-3" /> Intel Engine
               </span>
-              <span className={`text-[10px] font-mono font-bold px-1.5 py-0.5 rounded-md border ${readinessBg} ${readinessColor}`}>
+              <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-md border ${readinessBg} ${readinessColor}`}>
                 READINESS: {recovery.readiness}
               </span>
             </div>
-            <h3 className="text-sm font-black mt-1 tracking-tight font-mono">
+            <h3 className="text-sm sm:text-base font-black mt-1.5 tracking-tight font-mono text-zinc-900 dark:text-white">
               Intel Coach Intelligence Report
             </h3>
           </div>
-          <button onClick={onClose} className="btn-nude-close shrink-0">
+          <button
+            onClick={onClose}
+            className="w-9 h-9 rounded-full bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white flex items-center justify-center transition-colors cursor-pointer shrink-0"
+            title="Close"
+            aria-label="Close"
+          >
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -786,9 +791,14 @@ export const AICoachInsightsModal: React.FC<AICoachInsightsModalProps> = ({
         )}
 
         {/* Close */}
-        <button onClick={onClose} className="w-full py-2.5 bg-[#1A1E1D] dark:bg-white hover:bg-[#3A3F3D] text-white dark:text-black font-mono font-bold text-xs rounded-xl transition-all cursor-pointer shadow-sm mt-1 active:scale-[0.98]">
-          Close Report
-        </button>
+        <div className="pt-2 sticky bottom-0 bg-white/90 dark:bg-[#09090B]/90 backdrop-blur-md pb-1 z-10">
+          <button 
+            onClick={onClose} 
+            className="w-full py-3.5 bg-zinc-900 hover:bg-zinc-800 dark:bg-white dark:hover:bg-zinc-100 text-white dark:text-zinc-900 font-bold text-xs uppercase tracking-wider rounded-2xl transition-all cursor-pointer shadow-md active:scale-[0.98] flex items-center justify-center gap-2"
+          >
+            <span>Close Report</span>
+          </button>
+        </div>
       </div>
     </div>
   );

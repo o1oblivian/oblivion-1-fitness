@@ -347,9 +347,9 @@ export const PayPlanHubModal: React.FC<PayPlanHubModalProps> = ({
       let checkoutUrl: string | null = null;
       let functionErrorMsg: string | null = null;
 
-      // 1. Call the server API endpoint via apiFetch (supports Web & Native Android APK)
+      // 1. Call the server API endpoint via apiFetch (supports Web & Native Android APK) with strict timeout
       try {
-        const response = await apiFetch('/api/stripe-checkout', {
+        const fetchPromise = apiFetch('/api/stripe-checkout', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -361,7 +361,10 @@ export const PayPlanHubModal: React.FC<PayPlanHubModalProps> = ({
           }),
         });
 
-        if (response.ok) {
+        const timeoutPromise = new Promise<null>((resolve) => setTimeout(() => resolve(null), 4000));
+        const response: any = await Promise.race([fetchPromise, timeoutPromise]);
+
+        if (response && response.ok) {
           const resData = await response.json();
           if (resData?.url) {
             checkoutUrl = resData.url;
@@ -379,7 +382,7 @@ export const PayPlanHubModal: React.FC<PayPlanHubModalProps> = ({
             headers['Authorization'] = `Bearer ${authSession.access_token}`;
           }
 
-          const { data, error } = await supabase.functions.invoke('stripe-checkout', {
+          const edgePromise = supabase.functions.invoke('stripe-checkout', {
             body: {
               planId: selectedPlan,
               paymentMethodType: method,
@@ -389,6 +392,10 @@ export const PayPlanHubModal: React.FC<PayPlanHubModalProps> = ({
             },
             headers: Object.keys(headers).length > 0 ? headers : undefined,
           });
+
+          const edgeTimeout = new Promise<any>((resolve) => setTimeout(() => resolve({ data: null, error: 'timeout' }), 3000));
+          const { data, error } = await Promise.race([edgePromise, edgeTimeout]);
+
           if (data?.url) {
             checkoutUrl = data.url;
           } else if (error) {

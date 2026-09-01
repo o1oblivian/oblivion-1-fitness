@@ -1,41 +1,24 @@
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef } from 'react';
+import { backNavManager } from '@/utils/backNavigationManager';
 
 type ModalCloser = () => void;
 
-const modalStack: ModalCloser[] = [];
-let listenerAttached = false;
-
-function handlePopState() {
-  const closer = modalStack.pop();
-  if (closer) closer();
-}
-
-function attachListener() {
-  if (listenerAttached) return;
-  listenerAttached = true;
-  window.addEventListener('popstate', handlePopState);
-}
-
-export function useModalHistory(isOpen: boolean, onClose: ModalCloser) {
+export function useModalHistory(isOpen: boolean, onClose: ModalCloser, idPrefix: string = 'modal') {
   const closerRef = useRef(onClose);
   closerRef.current = onClose;
-
-  const stableClose = useCallback(() => {
-    closerRef.current();
-  }, []);
+  const idRef = useRef<string>(`${idPrefix}_${Math.random().toString(36).substring(2, 9)}`);
 
   useEffect(() => {
-    attachListener();
-  }, []);
+    if (!isOpen) return;
 
-  useEffect(() => {
-    if (isOpen) {
-      window.history.pushState({ modalOpen: true }, '');
-      modalStack.push(stableClose);
-    }
+    const modalId = idRef.current;
+    const cleanup = backNavManager.pushModal(modalId, () => {
+      closerRef.current();
+    });
+
     return () => {
-      const idx = modalStack.indexOf(stableClose);
-      if (idx !== -1) modalStack.splice(idx, 1);
+      cleanup();
     };
-  }, [isOpen, stableClose]);
+  }, [isOpen]);
 }
+

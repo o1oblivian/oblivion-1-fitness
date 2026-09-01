@@ -6,6 +6,8 @@ import {
   Dumbbell, 
   Flame, 
   Users, 
+  Target,
+  Cpu,
   CheckCircle2, 
   X, 
   ChevronRight, 
@@ -13,6 +15,7 @@ import {
   Sparkles,
   HelpCircle
 } from 'lucide-react';
+import { LiquidSilkBackground } from '@/components/ui/LiquidSilkBackground';
 
 const ONBOARDING_STORAGE_KEY = 'ofc_onboarding_completed_v1';
 
@@ -31,8 +34,8 @@ export interface OnboardingStep {
 const ONBOARDING_STEPS: OnboardingStep[] = [
   {
     id: 'rotary-dial',
-    badge: 'CORE INTERACTION',
-    title: 'Precision Rotary Dial & Steps',
+    badge: '01 • ROTARY DIAL',
+    title: 'Precision Rotary Dial & Goals',
     headline: 'Tap & Hold Center to Set Goals',
     instruction: 'Tap and hold the center value or zero dial to open the dynamic goal adjustment sheet. Drag the outer perimeter ring or use continuous circular gestures to fine-tune steps, reps, and targets.',
     actionTip: 'Pro Tip: Tap the center circle to trigger the interactive rotary calibration modal anytime.',
@@ -42,7 +45,7 @@ const ONBOARDING_STEPS: OnboardingStep[] = [
   },
   {
     id: 'training-os',
-    badge: 'SOLO WORKOUTS',
+    badge: '02 • TRAINING OS PRO',
     title: 'Training OS Pro Logger',
     headline: 'High-Precision Set & Rep Recording',
     instruction: 'Select any exercise to log weight, reps, RPE, and rest timers. Long-press on any completed set to edit or swipe left to remove.',
@@ -53,7 +56,7 @@ const ONBOARDING_STEPS: OnboardingStep[] = [
   },
   {
     id: 'fuel-os',
-    badge: 'METABOLIC TRACKING',
+    badge: '03 • FUEL OS',
     title: 'Fuel OS & Macro Engine',
     headline: 'Log Nutrition in Seconds',
     instruction: 'Tap quick-add macros or log whole meals with precise protein, carb, and fat distributions. Track your daily caloric balance against active burn.',
@@ -64,7 +67,7 @@ const ONBOARDING_STEPS: OnboardingStep[] = [
   },
   {
     id: 'tandem-sync',
-    badge: 'COMMUNITY & RADAR',
+    badge: '04 • TANDEM SYNC',
     title: 'Live Tandem & Gym Radar',
     headline: 'Synchronize Live with Partners & Coaches',
     instruction: 'Connect with training partners via Tandem Mode for shared countdowns and synchronized sets. Open Gym Buddy Radar to discover nearby athletes training at your local gym.',
@@ -72,6 +75,28 @@ const ONBOARDING_STEPS: OnboardingStep[] = [
     icon: Users,
     accentColor: '#34A853',
     highlightTarget: 'tandem-tab'
+  },
+  {
+    id: 'coach-hub',
+    badge: '05 • COACH HUB',
+    title: 'Coach Hub & Telemetry Dispatch',
+    headline: 'Monitor Roster & Dispatch Workouts',
+    instruction: 'Access professional coach intelligence to review real-time client strain, assign structured periodized training blocks, and stream high-performance video consultations.',
+    actionTip: 'Pro Tip: Switch to Coach Hub from the top menu to access athlete roster telemetry.',
+    icon: Target,
+    accentColor: '#EA4335',
+    highlightTarget: 'coach-tab'
+  },
+  {
+    id: 'vault-radar',
+    badge: '06 • ATHLETE VAULT',
+    title: 'Session Vault & Biometric Analytics',
+    headline: 'Comprehensive Progression History',
+    instruction: 'Review historical volume metrics, 1RM curves, body composition trends, and verified workout completion certificates in your encrypted athletic vault.',
+    actionTip: 'Pro Tip: Tap the Vault icon in the navigation bar to export verified PDF session cards.',
+    icon: Cpu,
+    accentColor: '#9333EA',
+    highlightTarget: 'vault-tab'
   }
 ];
 
@@ -145,15 +170,18 @@ export const FirstTimeOnboardingGuide: React.FC<FirstTimeOnboardingGuideProps> =
     <AnimatePresence>
       <div 
         id="onboarding-guide-overlay"
-        className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 md:p-6 overflow-y-auto overscroll-contain bg-black/40 backdrop-blur-md"
+        className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 md:p-6 overflow-y-auto overscroll-contain bg-slate-900/30 dark:bg-black/70 backdrop-blur-xl relative"
       >
+        {/* Light Liquid Silk Ambient Dynamic Simulation */}
+        <LiquidSilkBackground theme="light" intensity={1.15} speed={1.0} />
+
         <motion.div
           id="onboarding-guide-card"
           initial={{ opacity: 0, scale: 0.95, y: 10 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 10 }}
           transition={{ duration: 0.25, ease: 'easeOut' }}
-          className="relative w-full max-w-lg max-h-[92vh] sm:max-h-[88vh] flex flex-col my-auto bg-white/60 dark:bg-zinc-950/60 backdrop-blur-2xl rounded-3xl shadow-[0_20px_60px_rgba(0,0,0,0.25)] overflow-hidden text-black dark:text-white font-sans"
+          className="relative z-10 w-full max-w-lg max-h-[92vh] sm:max-h-[88vh] flex flex-col my-auto bg-white/95 dark:bg-zinc-950/90 backdrop-blur-2xl rounded-3xl shadow-[0_25px_70px_rgba(0,0,0,0.2)] border border-white/80 dark:border-white/10 overflow-hidden text-black dark:text-white font-sans"
         >
           {/* Top Header Bar */}
           <div className="flex items-center justify-between px-6 pt-5 pb-4 bg-transparent shrink-0">

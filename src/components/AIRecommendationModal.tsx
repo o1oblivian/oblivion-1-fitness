@@ -119,44 +119,45 @@ export const AIRecommendationModal: React.FC<AIRecommendationModalProps> = ({
 
   return createPortal(
     <>
-      <div className="fixed inset-0 bg-[#0A0A0C]" style={{ zIndex: 999 }} onClick={onClose} />
-      <div className="fixed inset-0 flex items-start justify-center pt-4 pb-4 px-3 pointer-events-none" style={{ zIndex: 1000 }}>
+      <div className="fixed inset-0 bg-black/60 dark:bg-black/80 backdrop-blur-md" style={{ zIndex: 999 }} onClick={onClose} />
+      <div className="fixed inset-0 flex items-start justify-center pt-[max(1rem,calc(env(safe-area-inset-top,0px)+0.75rem))] pb-[max(1.5rem,calc(env(safe-area-inset-bottom,0px)+1rem))] px-3 pointer-events-none" style={{ zIndex: 1000 }}>
         <div
-          className="w-full max-w-md max-h-[94vh] overflow-y-auto pointer-events-auto rounded-2xl border border-white/10 bg-[#14171F] shadow-2xl"
+          className="w-full max-w-md max-h-[92vh] flex flex-col pointer-events-auto rounded-3xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#14171F] text-zinc-900 dark:text-white shadow-2xl overflow-hidden"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
-          <div className="sticky top-0 bg-[#14171F]/95 backdrop-blur-md border-b border-white/10 px-5 py-4 flex items-center justify-between rounded-t-2xl z-10">
+          <div className="sticky top-0 bg-white/95 dark:bg-[#14171F]/95 backdrop-blur-md border-b border-zinc-200 dark:border-zinc-800 px-5 py-4 flex items-center justify-between z-10 shrink-0">
             <div>
-              <span className="text-[10px] font-mono font-bold text-orange-400 uppercase tracking-wider block mb-0.5">
+              <span className="text-[10px] font-mono font-bold text-orange-500 dark:text-orange-400 uppercase tracking-wider block mb-0.5">
                 Intel Recommendation Engine
               </span>
-              <h2 className="text-sm font-black text-white font-mono tracking-tight">
+              <h2 className="text-sm font-black text-zinc-900 dark:text-white font-mono tracking-tight">
                 Program & Diet Generator
               </h2>
             </div>
             <button
               onClick={onClose}
-              className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-gray-300 hover:text-white transition-colors cursor-pointer active:scale-95"
+              className="w-8 h-8 rounded-full bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 flex items-center justify-center text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white transition-colors cursor-pointer active:scale-95"
+              aria-label="Close"
             >
               <X className="w-4 h-4" />
             </button>
           </div>
 
-          <div className="px-5 py-4 space-y-4">
+          <div className="p-5 space-y-4 overflow-y-auto flex-1 custom-scrollbar">
             {/* Intake Summary */}
-            <div className="bg-[#1E222A] border border-white/10 rounded-xl p-4">
-              <span className="text-[10px] font-mono font-bold text-gray-400 uppercase tracking-wider">Client Intake</span>
+            <div className="bg-zinc-50 dark:bg-[#1E222A] border border-zinc-200 dark:border-zinc-800 rounded-2xl p-4">
+              <span className="text-[10px] font-mono font-bold text-zinc-500 dark:text-gray-400 uppercase tracking-wider">Client Intake</span>
               <div className="grid grid-cols-2 gap-x-4 gap-y-2 mt-3">
-                <InfoRow icon={<Target className="w-3 h-3 text-blue-400" />} label="Goal" value={intake.goal} />
-                <InfoRow icon={<Dumbbell className="w-3 h-3 text-orange-400" />} label="Level" value={intake.experienceLevel} />
-                <InfoRow icon={<Calendar className="w-3 h-3 text-teal-400" />} label="Days/wk" value={`${intake.trainingDaysPerWeek}`} />
-                <InfoRow icon={<Clock className="w-3 h-3 text-amber-400" />} label="Timeline" value={intake.timelineGoal} />
+                <InfoRow icon={<Target className="w-3 h-3 text-blue-500 dark:text-blue-400" />} label="Goal" value={intake.goal} />
+                <InfoRow icon={<Dumbbell className="w-3 h-3 text-orange-500 dark:text-orange-400" />} label="Level" value={intake.experienceLevel} />
+                <InfoRow icon={<Calendar className="w-3 h-3 text-teal-500 dark:text-teal-400" />} label="Days/wk" value={`${intake.trainingDaysPerWeek}`} />
+                <InfoRow icon={<Clock className="w-3 h-3 text-amber-500 dark:text-amber-400" />} label="Timeline" value={intake.timelineGoal} />
                 {intake.dietPreferences && (
-                  <InfoRow icon={<Utensils className="w-3 h-3 text-emerald-400" />} label="Diet" value={intake.dietPreferences} />
+                  <InfoRow icon={<Utensils className="w-3 h-3 text-emerald-500 dark:text-emerald-400" />} label="Diet" value={intake.dietPreferences} />
                 )}
                 {intake.injuriesLimitations && (
-                  <InfoRow icon={<AlertTriangle className="w-3 h-3 text-red-400" />} label="Injuries" value={intake.injuriesLimitations} />
+                  <InfoRow icon={<AlertTriangle className="w-3 h-3 text-red-500 dark:text-red-400" />} label="Injuries" value={intake.injuriesLimitations} />
                 )}
               </div>
             </div>
@@ -165,7 +166,7 @@ export const AIRecommendationModal: React.FC<AIRecommendationModalProps> = ({
             {!recommendation && !loading && (
               <button
                 onClick={generate}
-                className="w-full py-4 rounded-xl bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-500 hover:to-red-500 text-white font-black text-sm flex items-center justify-center gap-2 shadow-lg shadow-orange-600/20 cursor-pointer active:scale-[0.98] transition-all"
+                className="w-full py-4 rounded-2xl bg-zinc-900 hover:bg-zinc-800 dark:bg-gradient-to-r dark:from-orange-600 dark:to-red-600 dark:hover:from-orange-500 dark:hover:to-red-500 text-white font-black text-sm flex items-center justify-center gap-2 shadow-lg cursor-pointer active:scale-[0.98] transition-all"
               >
                 <Sparkles className="w-4 h-4" />
                 Generate Intel Program & Diet Plan
@@ -174,17 +175,17 @@ export const AIRecommendationModal: React.FC<AIRecommendationModalProps> = ({
 
             {loading && (
               <div className="flex flex-col items-center justify-center py-12 gap-3">
-                <Loader2 className="w-8 h-8 text-orange-400 animate-spin" />
-                <p className="text-xs text-gray-400 font-mono animate-pulse">Intel building custom program...</p>
-                <p className="text-[10px] text-gray-500">This may take 10-15 seconds</p>
+                <Loader2 className="w-8 h-8 text-orange-500 dark:text-orange-400 animate-spin" />
+                <p className="text-xs text-zinc-600 dark:text-gray-400 font-mono animate-pulse">Intel building custom program...</p>
+                <p className="text-[10px] text-zinc-400 dark:text-gray-500">This may take 10-15 seconds</p>
               </div>
             )}
 
             {error && (
-              <div className="bg-red-900/15 border border-red-500/20 rounded-xl p-4 text-center">
-                <AlertTriangle className="w-5 h-5 text-red-400 mx-auto mb-2" />
-                <p className="text-xs text-red-300">{error}</p>
-                <button onClick={generate} className="mt-3 px-4 py-2 bg-red-600 hover:bg-red-500 rounded-lg text-xs font-bold text-white cursor-pointer">
+              <div className="bg-red-50 dark:bg-red-900/15 border border-red-200 dark:border-red-500/20 rounded-2xl p-4 text-center">
+                <AlertTriangle className="w-5 h-5 text-red-500 dark:text-red-400 mx-auto mb-2" />
+                <p className="text-xs text-red-600 dark:text-red-300">{error}</p>
+                <button onClick={generate} className="mt-3 px-4 py-2 bg-red-600 hover:bg-red-500 rounded-xl text-xs font-bold text-white cursor-pointer">
                   Retry
                 </button>
               </div>
@@ -193,30 +194,30 @@ export const AIRecommendationModal: React.FC<AIRecommendationModalProps> = ({
             {recommendation && (
               <>
                 {/* Program Header */}
-                <div className="bg-gradient-to-br from-orange-500/10 to-red-500/10 border border-orange-500/20 rounded-2xl p-5 text-center">
+                <div className="bg-orange-50/70 dark:bg-gradient-to-br dark:from-orange-500/10 dark:to-red-500/10 border border-orange-200 dark:border-orange-500/20 rounded-2xl p-5 text-center">
                   <div className="flex items-center justify-center gap-2 mb-2">
-                    <Zap className="w-5 h-5 text-orange-400" />
-                    <span className="text-[10px] font-mono font-bold text-orange-400 uppercase tracking-wider">Generated Program</span>
+                    <Zap className="w-5 h-5 text-orange-500 dark:text-orange-400" />
+                    <span className="text-[10px] font-mono font-bold text-orange-500 dark:text-orange-400 uppercase tracking-wider">Generated Program</span>
                   </div>
-                  <h3 className="text-lg font-black text-white">{recommendation.programName}</h3>
-                  <p className="text-xs text-gray-300 mt-2 leading-relaxed">{recommendation.summary}</p>
+                  <h3 className="text-lg font-black text-zinc-900 dark:text-white">{recommendation.programName}</h3>
+                  <p className="text-xs text-zinc-600 dark:text-gray-300 mt-2 leading-relaxed">{recommendation.summary}</p>
                   <div className="flex items-center justify-center gap-3 mt-3">
-                    <span className="text-[10px] font-mono text-gray-400 bg-white/5 px-2 py-1 rounded">{recommendation.duration_weeks} weeks</span>
-                    <span className="text-[10px] font-mono text-gray-400 bg-white/5 px-2 py-1 rounded">{recommendation.training.split}</span>
+                    <span className="text-[10px] font-mono text-zinc-600 dark:text-gray-400 bg-white/70 dark:bg-white/5 border border-zinc-200 dark:border-white/10 px-2 py-1 rounded">{recommendation.duration_weeks} weeks</span>
+                    <span className="text-[10px] font-mono text-zinc-600 dark:text-gray-400 bg-white/70 dark:bg-white/5 border border-zinc-200 dark:border-white/10 px-2 py-1 rounded">{recommendation.training.split}</span>
                   </div>
                 </div>
 
                 {/* Training Days */}
                 <div className="space-y-2">
                   <div className="flex items-center gap-2 px-1">
-                    <Dumbbell className="w-3.5 h-3.5 text-blue-400" />
-                    <span className="text-[10px] font-mono font-bold text-blue-400 uppercase tracking-wider">Training Split</span>
+                    <Dumbbell className="w-3.5 h-3.5 text-blue-500 dark:text-blue-400" />
+                    <span className="text-[10px] font-mono font-bold text-blue-500 dark:text-blue-400 uppercase tracking-wider">Training Split</span>
                   </div>
                   {recommendation.training.days.map((day, i) => (
-                    <div key={i} className="bg-[#1E222A] border border-white/10 rounded-xl overflow-hidden">
+                    <div key={i} className="bg-zinc-50 dark:bg-[#1E222A] border border-zinc-200 dark:border-white/10 rounded-2xl overflow-hidden">
                       <button
                         onClick={() => setExpandedDay(expandedDay === i ? null : i)}
-                        className="w-full px-4 py-3 flex items-center justify-between cursor-pointer hover:bg-white/5 transition-colors"
+                        className="w-full px-4 py-3 flex items-center justify-between cursor-pointer hover:bg-zinc-100/60 dark:hover:bg-white/5 transition-colors"
                       >
                         <div className="flex items-center gap-2">
                           <span className="text-xs font-black text-white">{day.day}</span>

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { X, Check, Delete, Play, Pause, RotateCcw } from 'lucide-react';
 import { getDialConfig } from '@/components/RotaryDialModal';
 
@@ -156,13 +157,13 @@ export const TacticalNumpadModal: React.FC<TacticalNumpadModalProps> = ({
 
   const KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '.', '0', 'del'];
 
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-[200] flex items-center justify-center p-3 bg-black/30 dark:bg-black/50 animate-in fade-in duration-150 select-none overflow-y-auto"
+      className="fixed inset-0 z-[99990] flex items-center justify-center pt-[max(1rem,calc(env(safe-area-inset-top,0px)+0.75rem))] pb-[max(1.5rem,calc(env(safe-area-inset-bottom,0px)+1rem))] px-3 sm:px-4 bg-black/60 dark:bg-black/80 backdrop-blur-md animate-in fade-in duration-150 select-none overflow-y-auto"
       onClick={onClose}
     >
       <div
-        className="relative flex flex-col items-center w-full max-w-[340px] bg-[#F7F5F0] dark:bg-[#12151E] rounded-3xl p-5 shadow-lg transition-all overflow-hidden text-zinc-900 dark:text-white"
+        className="relative flex flex-col items-center w-full max-w-[340px] bg-white dark:bg-[#121214] border border-zinc-200 dark:border-zinc-800 rounded-3xl p-5 shadow-2xl transition-all overflow-hidden text-zinc-900 dark:text-white"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close */}
@@ -173,15 +174,15 @@ export const TacticalNumpadModal: React.FC<TacticalNumpadModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="w-8 h-8 flex items-center justify-center text-zinc-400 hover:text-zinc-900 dark:text-zinc-500 dark:hover:text-white transition-colors cursor-pointer active:scale-90"
+            className="w-8 h-8 rounded-full bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 flex items-center justify-center text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white transition-colors cursor-pointer active:scale-95"
             aria-label="Close"
           >
-            <X className="w-5 h-5 stroke-[2]" />
+            <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* Display */}
-        <div className="w-full bg-black/5 dark:bg-white/5 rounded-2xl px-4 py-3 mb-3 flex flex-col items-center">
+        <div className="w-full bg-zinc-50 dark:bg-zinc-900/70 border border-zinc-200/80 dark:border-zinc-800 rounded-2xl px-4 py-3 mb-3 flex flex-col items-center">
           {isTimer && isTimerRunning ? (
             <div className="flex flex-col items-center">
               <span className="font-mono font-black text-3xl text-zinc-900 dark:text-white tracking-tight">{formatTimer(timerVal)}</span>
@@ -222,7 +223,7 @@ export const TacticalNumpadModal: React.FC<TacticalNumpadModalProps> = ({
           </div>
         )}
 
-        {/* Numpad Grid - Nude / Bare Digits */}
+        {/* Numpad Grid */}
         <div className="w-full grid grid-cols-3 gap-1.5 mb-3">
           {KEYS.map((key) => {
             if (key === 'del') {
@@ -231,7 +232,7 @@ export const TacticalNumpadModal: React.FC<TacticalNumpadModalProps> = ({
                   key={key}
                   onClick={handleBackspace}
                   onDoubleClick={handleClear}
-                  className="h-11 rounded-xl flex items-center justify-center text-zinc-500 hover:text-red-500 active:text-red-500 transition-colors cursor-pointer active:scale-90"
+                  className="h-11 rounded-xl flex items-center justify-center text-zinc-500 hover:text-red-500 active:text-red-500 bg-zinc-50 dark:bg-zinc-900/40 hover:bg-zinc-100 dark:hover:bg-zinc-800 border border-zinc-200/60 dark:border-zinc-800 transition-colors cursor-pointer active:scale-95"
                 >
                   <Delete className="w-5 h-5 stroke-[1.75]" />
                 </button>
@@ -243,7 +244,7 @@ export const TacticalNumpadModal: React.FC<TacticalNumpadModalProps> = ({
                   <button
                     key={key}
                     onClick={handleClear}
-                    className="h-11 rounded-xl flex items-center justify-center text-zinc-400 hover:text-zinc-900 dark:hover:text-white font-mono font-bold text-sm transition-colors cursor-pointer active:scale-90"
+                    className="h-11 rounded-xl flex items-center justify-center text-zinc-400 hover:text-zinc-900 dark:hover:text-white font-mono font-bold text-sm bg-zinc-50 dark:bg-zinc-900/40 hover:bg-zinc-100 dark:hover:bg-zinc-800 border border-zinc-200/60 dark:border-zinc-800 transition-colors cursor-pointer active:scale-95"
                   >
                     C
                   </button>
@@ -253,7 +254,7 @@ export const TacticalNumpadModal: React.FC<TacticalNumpadModalProps> = ({
                 <button
                   key={key}
                   onClick={handleDecimal}
-                  className="h-11 rounded-xl flex items-center justify-center text-zinc-600 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-white font-mono font-bold text-lg transition-colors cursor-pointer active:scale-90"
+                  className="h-11 rounded-xl flex items-center justify-center text-zinc-600 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-white font-mono font-bold text-lg bg-zinc-50 dark:bg-zinc-900/40 hover:bg-zinc-100 dark:hover:bg-zinc-800 border border-zinc-200/60 dark:border-zinc-800 transition-colors cursor-pointer active:scale-95"
                 >
                   .
                 </button>
@@ -263,7 +264,7 @@ export const TacticalNumpadModal: React.FC<TacticalNumpadModalProps> = ({
               <button
                 key={key}
                 onClick={() => handleDigit(key)}
-                className="h-11 rounded-xl flex items-center justify-center text-zinc-800 hover:text-amber-500 dark:text-zinc-100 dark:hover:text-amber-400 font-mono font-bold text-xl transition-all cursor-pointer active:scale-90"
+                className="h-11 rounded-xl flex items-center justify-center text-zinc-800 hover:text-amber-500 dark:text-zinc-100 dark:hover:text-amber-400 font-mono font-bold text-xl bg-zinc-50 dark:bg-zinc-900/40 hover:bg-zinc-100 dark:hover:bg-zinc-800 border border-zinc-200/60 dark:border-zinc-800 transition-all cursor-pointer active:scale-95"
               >
                 {key}
               </button>
@@ -271,19 +272,19 @@ export const TacticalNumpadModal: React.FC<TacticalNumpadModalProps> = ({
           })}
         </div>
 
-        {/* Presets - Nude / Bare Number Buttons */}
+        {/* Presets */}
         <div className="w-full z-10 mb-3">
-          <div className="flex gap-4 overflow-x-auto pb-0.5 no-scrollbar justify-center items-center">
+          <div className="flex gap-2 overflow-x-auto pb-0.5 no-scrollbar justify-center items-center">
             {config.presets.map((val) => {
               const isSelected = currentNumeric === val;
               return (
                 <button
                   key={val}
                   onClick={() => handlePresetSelect(val)}
-                  className={`px-1 py-1 text-xs font-mono transition-all shrink-0 cursor-pointer active:scale-90 ${
+                  className={`px-2.5 py-1 text-xs font-mono rounded-lg transition-all shrink-0 cursor-pointer active:scale-95 border ${
                     isSelected
-                      ? 'text-amber-500 font-black scale-110 underline decoration-amber-500 decoration-2 underline-offset-4'
-                      : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white font-semibold'
+                      ? 'bg-amber-500 text-zinc-950 font-bold border-amber-500 shadow-xs'
+                      : 'bg-zinc-100 dark:bg-zinc-800/80 text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white border-zinc-200 dark:border-zinc-700 font-semibold'
                   }`}
                 >
                   {isTimer ? (val < 60 ? `${val}s` : `${Math.floor(val / 60)}m`) : config.category === 'weight' ? `${val}kg` : config.category === 'steps' && val >= 1000 ? `${val / 1000}k` : `${val}`}
@@ -296,13 +297,14 @@ export const TacticalNumpadModal: React.FC<TacticalNumpadModalProps> = ({
         {/* Confirm */}
         <button
           onClick={handleConfirm}
-          className="w-full py-3 rounded-2xl bg-amber-500 hover:bg-amber-400 active:scale-[0.98] text-zinc-950 font-mono font-bold text-sm tracking-wider uppercase flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer"
+          className="w-full py-3 rounded-xl bg-amber-500 hover:bg-amber-400 active:scale-[0.98] text-zinc-950 font-mono font-bold text-sm tracking-wider uppercase flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer"
         >
           <Check className="w-4 h-4 stroke-[3]" />
           <span>Confirm</span>
         </button>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 

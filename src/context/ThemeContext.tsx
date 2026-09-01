@@ -16,9 +16,9 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [theme, setThemeState] = useState<DisplayTheme>(() => {
     try {
-      return (localStorage.getItem('fitlab_theme') as DisplayTheme) || 'system';
+      return (localStorage.getItem('fitlab_theme') as DisplayTheme) || 'light';
     } catch {
-      return 'system';
+      return 'light';
     }
   });
 
@@ -30,14 +30,14 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
   });
 
-  const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark'>('dark');
+  const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark'>('light');
 
   useEffect(() => {
     const root = document.documentElement;
-    let currentTheme: 'light' | 'dark' = 'dark';
+    let currentTheme: 'light' | 'dark' = 'light';
 
     if (theme === 'system') {
-      const systemDark = typeof window !== 'undefined' && window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)').matches : true;
+      const systemDark = typeof window !== 'undefined' && window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)').matches : false;
       currentTheme = systemDark ? 'dark' : 'light';
     } else {
       currentTheme = theme;

@@ -344,7 +344,7 @@ export const MediaVaultModal: React.FC<MediaVaultModalProps> = ({
         onTouchEnd={handleShowroomTouchEnd}
       >
         {/* Top bar — Apple Studio compact header */}
-        <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-b from-black/80 to-transparent absolute top-0 left-0 right-0 z-30">
+        <div className="flex items-center justify-between px-4 pt-[max(0.75rem,calc(env(safe-area-inset-top,0px)+0.5rem))] pb-3 bg-gradient-to-b from-black/80 to-transparent absolute top-0 left-0 right-0 z-30">
           <div className="flex items-center gap-2 min-w-0">
             <div className="w-7 h-7 rounded-full bg-white/10 border border-white/15 flex items-center justify-center shrink-0">
               <Lock className="w-3.5 h-3.5 text-amber-400" />
@@ -438,7 +438,7 @@ export const MediaVaultModal: React.FC<MediaVaultModalProps> = ({
         </div>
 
         {/* Floating Bottom Action Sheet */}
-        <div className="absolute bottom-0 left-0 right-0 z-30 bg-[#12141A]/95 backdrop-blur-xl border-t border-white/10 px-4 py-2.5 space-y-2">
+        <div className="absolute bottom-0 left-0 right-0 z-30 bg-[#12141A]/95 backdrop-blur-xl border-t border-white/10 px-4 pt-2.5 pb-[max(0.75rem,calc(env(safe-area-inset-bottom,0px)+0.5rem))] space-y-2">
           <div className="flex items-center justify-between gap-2">
             <div className="min-w-0">
               <span className="text-[9px] font-mono uppercase text-red-400 font-bold tracking-wider">
@@ -485,7 +485,7 @@ export const MediaVaultModal: React.FC<MediaVaultModalProps> = ({
   // ─── APPLE STUDIO VAULT MODAL (EDGE-TO-EDGE & COMPACT) ───
   const modalUi = (
     <div
-      className="fixed inset-0 z-[99990] bg-black/40 dark:bg-black/80 backdrop-blur-xs flex flex-col sm:items-center sm:justify-center p-0 sm:p-4 animate-in fade-in duration-150 overscroll-contain"
+      className="fixed inset-0 z-[99990] bg-black/40 dark:bg-black/80 backdrop-blur-xs flex flex-col sm:items-center sm:justify-center p-0 sm:p-4 pt-[max(0rem,calc(env(safe-area-inset-top,0px)))] pb-[max(0rem,calc(env(safe-area-inset-bottom,0px)))] animate-in fade-in duration-150 overscroll-contain"
       onClick={onClose}
     >
       <div
@@ -493,7 +493,7 @@ export const MediaVaultModal: React.FC<MediaVaultModalProps> = ({
         onClick={(e) => e.stopPropagation()}
       >
         {/* Apple Studio Header */}
-        <div className="px-4 py-2.5 border-b border-neutral-100 dark:border-white/10 flex items-center justify-between bg-white dark:bg-[#0D0F15] shrink-0">
+        <div className="px-4 pt-[max(0.625rem,calc(env(safe-area-inset-top,0px)+0.25rem))] sm:pt-2.5 pb-2.5 border-b border-neutral-100 dark:border-white/10 flex items-center justify-between bg-white dark:bg-[#0D0F15] shrink-0">
           <div className="min-w-0 flex-1 pr-2">
             <div className="flex items-center gap-1.5 flex-wrap">
               <span className="text-[9px] font-mono font-bold px-2 py-0.5 rounded-md bg-red-500/10 text-red-600 dark:text-red-400 uppercase tracking-wider">

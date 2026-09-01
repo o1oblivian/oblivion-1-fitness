@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion } from 'motion/react';
 import {
   X,
@@ -21,6 +22,15 @@ export const CommunityHubModal: React.FC<CommunityHubModalProps> = ({
   onClose,
   onOpenShareModal,
 }) => {
+  useEffect(() => {
+    if (!isOpen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   const communities = [
@@ -70,22 +80,22 @@ export const CommunityHubModal: React.FC<CommunityHubModalProps> = ({
     },
   ];
 
-  return (
-    <div className="fixed inset-0 z-[200] bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 overflow-y-auto animate-in fade-in duration-200 select-none">
+  return createPortal(
+    <div className="fixed inset-0 z-[99990] flex items-center justify-center pt-[max(1rem,calc(env(safe-area-inset-top,0px)+0.75rem))] pb-[max(1.5rem,calc(env(safe-area-inset-bottom,0px)+1rem))] px-3 sm:px-4 bg-black/60 dark:bg-black/80 backdrop-blur-md overflow-y-auto animate-in fade-in duration-200 select-none">
       <motion.div
         initial={{ opacity: 0, scale: 0.98, y: 10 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.98, y: 10 }}
-        className="bg-white dark:bg-[#18181B] border border-zinc-200 dark:border-zinc-800 rounded-3xl p-5 w-full max-w-lg shadow-2xl relative text-zinc-900 dark:text-white space-y-4 max-h-[90vh] overflow-y-auto"
+        className="bg-white dark:bg-[#121214] border border-zinc-200 dark:border-zinc-800 rounded-3xl w-full max-w-lg shadow-2xl relative text-zinc-900 dark:text-white max-h-[90vh] flex flex-col overflow-hidden"
       >
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-zinc-100 dark:border-zinc-800/80 pb-3">
+        <div className="flex items-center justify-between border-b border-zinc-100 dark:border-zinc-800 px-5 py-4 shrink-0 bg-white/95 dark:bg-[#121214]/95 backdrop-blur-md">
           <div>
             <div className="flex items-center gap-2">
               <h2 className="text-base font-bold tracking-tight text-zinc-900 dark:text-white">
                 O1FC Community Hub
               </h2>
-              <span className="text-[9px] font-semibold bg-red-50 dark:bg-red-950/50 text-[#EA4335] px-2 py-0.5 rounded-full border border-red-200 dark:border-red-900/50">
+              <span className="text-[9px] font-semibold bg-red-50 dark:bg-red-950/50 text-red-600 dark:text-red-400 px-2 py-0.5 rounded-full border border-red-200 dark:border-red-900/50">
                 OFFICIAL
               </span>
             </div>
@@ -96,112 +106,128 @@ export const CommunityHubModal: React.FC<CommunityHubModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="btn-nude-close"
+            className="w-8 h-8 rounded-full bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 flex items-center justify-center text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white transition-colors cursor-pointer active:scale-95 shrink-0"
+            aria-label="Close"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4" />
           </button>
         </div>
 
-        {/* Community Stats Row */}
-        <div className="grid grid-cols-3 gap-2 bg-zinc-50 dark:bg-zinc-900/50 p-3 rounded-2xl border border-zinc-200/80 dark:border-zinc-800 text-center">
-          <div>
-            <span className="text-sm font-bold text-zinc-900 dark:text-white block">Join Now</span>
-            <span className="text-[10px] text-zinc-400 uppercase font-semibold">Early Access</span>
+        {/* Scrollable Content */}
+        <div className="p-5 space-y-4 overflow-y-auto flex-1 custom-scrollbar">
+          {/* Community Stats Row */}
+          <div className="grid grid-cols-3 gap-2 bg-zinc-50 dark:bg-zinc-900/60 p-3 rounded-2xl border border-zinc-200 dark:border-zinc-800 text-center">
+            <div>
+              <span className="text-sm font-bold text-zinc-900 dark:text-white block">Join Now</span>
+              <span className="text-[10px] text-zinc-400 dark:text-zinc-500 uppercase font-semibold">Early Access</span>
+            </div>
+            <div className="border-x border-zinc-200 dark:border-zinc-800">
+              <span className="text-sm font-bold text-red-600 dark:text-red-400 block">Free</span>
+              <span className="text-[10px] text-zinc-400 dark:text-zinc-500 uppercase font-semibold">Included</span>
+            </div>
+            <div>
+              <span className="text-sm font-bold text-zinc-900 dark:text-white block">24/7</span>
+              <span className="text-[10px] text-zinc-400 dark:text-zinc-500 uppercase font-semibold">Peer Support</span>
+            </div>
           </div>
-          <div className="border-x border-zinc-200 dark:border-zinc-800">
-            <span className="text-sm font-bold text-[#EA4335] block">Free</span>
-            <span className="text-[10px] text-zinc-400 uppercase font-semibold">Included</span>
-          </div>
-          <div>
-            <span className="text-sm font-bold text-zinc-900 dark:text-white block">24/7</span>
-            <span className="text-[10px] text-zinc-400 uppercase font-semibold">Peer Support</span>
-          </div>
-        </div>
 
-        {/* Share Goal Banner */}
-        <div className="bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-200/80 dark:border-zinc-800 p-4 rounded-2xl flex items-center justify-between gap-3">
-          <div className="space-y-0.5 min-w-0 pr-2">
-            <h4 className="text-xs font-semibold text-zinc-900 dark:text-white">
-              Got a new PR or Goal?
-            </h4>
-            <p className="text-[11px] text-zinc-500 dark:text-zinc-400">Generate a branded story card for social platforms.</p>
+          {/* Share Goal Banner */}
+          <div className="bg-zinc-50 dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-800 p-4 rounded-2xl flex items-center justify-between gap-3">
+            <div className="space-y-0.5 min-w-0 pr-2">
+              <h4 className="text-xs font-semibold text-zinc-900 dark:text-white">
+                Got a new PR or Goal?
+              </h4>
+              <p className="text-[11px] text-zinc-500 dark:text-zinc-400">Generate a branded story card for social platforms.</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                onClose();
+                onOpenShareModal?.();
+              }}
+              className="py-2 px-3.5 bg-red-600 hover:bg-red-700 text-white font-semibold text-xs rounded-xl shadow-xs transition-all cursor-pointer shrink-0 flex items-center gap-1.5 active:scale-95"
+            >
+              <Share2 className="w-3.5 h-3.5" />
+              <span>Share Goal</span>
+            </button>
           </div>
-          <button
-            type="button"
-            onClick={() => {
-              onClose();
-              onOpenShareModal?.();
-            }}
-            className="py-1.5 px-3.5 bg-[#EA4335] hover:bg-red-600 text-white font-semibold text-xs rounded-full shadow-xs transition-all cursor-pointer shrink-0 flex items-center gap-1.5 active:scale-95"
-          >
-            <Share2 className="w-3.5 h-3.5" />
-            <span>Share Goal</span>
-          </button>
-        </div>
 
-        {/* Official Social Channels List */}
-        <div className="space-y-2">
-          <h3 className="text-xs font-semibold uppercase tracking-wider text-zinc-400 dark:text-zinc-500 px-1">
-            Official Communities
-          </h3>
-
+          {/* Official Social Channels List */}
           <div className="space-y-2">
-            {communities.map((c, i) => (
-              <a
-                key={i}
-                href={c.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-between p-3 rounded-2xl bg-zinc-50 dark:bg-zinc-900/40 border border-zinc-200/80 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 transition-all group cursor-pointer"
-              >
-                <div className="flex items-center gap-3 min-w-0">
-                  <div className={`p-2 rounded-xl border ${c.color} shrink-0`}>
-                    {c.icon}
-                  </div>
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-2">
-                      <h4 className="text-xs font-semibold text-zinc-900 dark:text-white group-hover:text-[#EA4335] transition-colors truncate">
-                        {c.name}
-                      </h4>
-                      <span className="text-[9px] font-semibold bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 px-1.5 py-0.5 rounded border border-zinc-200 dark:border-zinc-700 shrink-0">
-                        {c.tag}
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-zinc-400 dark:text-zinc-500 px-1">
+              Official Communities
+            </h3>
+
+            <div className="space-y-2">
+              {communities.map((c, i) => (
+                <a
+                  key={i}
+                  href={c.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-between p-3 rounded-2xl bg-zinc-50 dark:bg-zinc-900/40 border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 transition-all group cursor-pointer"
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className={`p-2 rounded-xl border ${c.color} shrink-0`}>
+                      {c.icon}
+                    </div>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2">
+                        <h4 className="text-xs font-semibold text-zinc-900 dark:text-white group-hover:text-red-600 dark:group-hover:text-red-400 transition-colors truncate">
+                          {c.name}
+                        </h4>
+                        <span className="text-[9px] font-semibold bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 px-1.5 py-0.5 rounded border border-zinc-200 dark:border-zinc-700 shrink-0">
+                          {c.tag}
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5 truncate">{c.desc}</p>
+                      <span className="text-[10px] text-red-600 dark:text-red-400 font-semibold mt-0.5 block">
+                        {c.members}
                       </span>
                     </div>
-                    <p className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5 truncate">{c.desc}</p>
-                    <span className="text-[10px] text-[#EA4335] font-semibold mt-0.5 block">
-                      {c.members}
+                  </div>
+
+                  <ExternalLink className="w-4 h-4 text-zinc-400 group-hover:text-zinc-700 dark:group-hover:text-white transition-colors shrink-0 ml-2" />
+                </a>
+              ))}
+            </div>
+          </div>
+
+          {/* Highlights */}
+          <div className="space-y-2 pt-2 border-t border-zinc-100 dark:border-zinc-800">
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-zinc-400 dark:text-zinc-500 px-1">
+              Community Highlights
+            </h3>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              {communityHighlights.map((h, idx) => (
+                <div key={idx} className="bg-zinc-50 dark:bg-zinc-900/40 p-3 rounded-2xl border border-zinc-200 dark:border-zinc-800 space-y-1 text-xs">
+                  <div className="flex items-center justify-between">
+                    <span className="font-semibold text-zinc-900 dark:text-white">{h.athlete} ({h.city})</span>
+                    <span className="text-[10px] text-red-600 dark:text-red-400 flex items-center gap-1 font-semibold">
+                      <Heart className="w-3 h-3 fill-current" /> {h.likes}
                     </span>
                   </div>
+                  <div className="text-zinc-700 dark:text-zinc-300 font-medium text-[11px]">{h.achievement}</div>
+                  <p className="text-[11px] text-zinc-500 dark:text-zinc-400 italic">"{h.quote}"</p>
                 </div>
-
-                <ExternalLink className="w-4 h-4 text-zinc-400 group-hover:text-zinc-700 dark:group-hover:text-white transition-colors shrink-0 ml-2" />
-              </a>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
 
-        {/* Highlights */}
-        <div className="space-y-2 pt-2 border-t border-zinc-100 dark:border-zinc-800/80">
-          <h3 className="text-xs font-semibold uppercase tracking-wider text-zinc-400 dark:text-zinc-500 px-1">
-            Community Highlights
-          </h3>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-            {communityHighlights.map((h, idx) => (
-              <div key={idx} className="bg-zinc-50 dark:bg-zinc-900/40 p-3 rounded-2xl border border-zinc-200/80 dark:border-zinc-800 space-y-1 text-xs">
-                <div className="flex items-center justify-between">
-                  <span className="font-semibold text-zinc-900 dark:text-white">{h.athlete} ({h.city})</span>
-                  <span className="text-[10px] text-[#EA4335] flex items-center gap-1 font-semibold">
-                    <Heart className="w-3 h-3 fill-current" /> {h.likes}
-                  </span>
-                </div>
-                <div className="text-zinc-700 dark:text-zinc-300 font-medium text-[11px]">{h.achievement}</div>
-                <p className="text-[11px] text-zinc-500 dark:text-zinc-400 italic">"{h.quote}"</p>
-              </div>
-            ))}
-          </div>
+        {/* Sticky Footer */}
+        <div className="p-4 border-t border-zinc-100 dark:border-zinc-800 bg-white/95 dark:bg-[#121214]/95 backdrop-blur-md shrink-0">
+          <button
+            type="button"
+            onClick={onClose}
+            className="w-full py-3 rounded-xl bg-zinc-900 hover:bg-zinc-800 dark:bg-white dark:hover:bg-zinc-100 text-white dark:text-zinc-900 font-bold text-sm transition-all cursor-pointer active:scale-[0.99] shadow-sm"
+          >
+            Done
+          </button>
         </div>
       </motion.div>
-    </div>
+    </div>,
+    document.body
   );
 };

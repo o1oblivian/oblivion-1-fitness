@@ -61,6 +61,9 @@ import { getInputMethod } from '@/utils/inputMethodStore';
 import type { WorkoutRegistration } from '@/components/FitnessIntelligenceApp';
 import { VaultMediaItem } from '@/components/MediaVaultModal';
 import { ProgramPreview } from '@/utils/reelsTypes';
+import { backNavManager } from '@/utils/backNavigationManager';
+import { useModalBackHandler } from '@/utils/modalHistory';
+
 
 export function formatDuration(secs: number): string {
   if (secs <= 0) return '00:00';
@@ -111,7 +114,15 @@ export function useAppState() {
 
   // ─── Navigation ───
   const NAVIGATION_MODES: AppMode[] = ['tracker', 'fuel', 'coach', 'client'];
-  const [currentMode, setCurrentMode] = useState<AppMode>('tracker');
+  const [currentMode, setCurrentMode] = useState<AppMode>(() => {
+    try {
+      const saved = localStorage.getItem('o1fc_active_mode');
+      if (saved && (saved === 'tracker' || saved === 'fuel' || saved === 'coach' || saved === 'client')) {
+        return saved as AppMode;
+      }
+    } catch {}
+    return 'tracker';
+  });
   const [slideDirection, setSlideDirection] = useState<'left' | 'right'>('left');
   const [touchStart, setTouchStart] = useState<{ x: number; y: number; time: number } | null>(null);
 
@@ -225,9 +236,58 @@ export function useAppState() {
     isOpen: false, type: 'Value', maxVal: 500, currentVal: 0, onConfirm: () => {},
   });
 
+  // ─── Modal Back-Navigation Stack Integration ───
+  useModalBackHandler(isScheduleModalOpen, () => setIsScheduleModalOpen(false), 'modal_schedule');
+  useModalBackHandler(isRoutineSwapperOpen, () => setIsRoutineSwapperOpen(false), 'modal_routine_swapper');
+  useModalBackHandler(isCommitModalOpen, () => setIsCommitModalOpen(false), 'modal_commit');
+  useModalBackHandler(isAutoPilotOpen, () => setIsAutoPilotOpen(false), 'modal_autopilot');
+  useModalBackHandler(isCycleSyncOpen, () => setIsCycleSyncOpen(false), 'modal_cycle_sync');
+  useModalBackHandler(foodModalMeal !== null, () => setFoodModalMeal(null), 'modal_food_meal');
+  useModalBackHandler(customFoodQuery !== null, () => setCustomFoodQuery(null), 'modal_custom_food');
+  useModalBackHandler(aiScanMeal !== null, () => setAiScanMeal(null), 'modal_ai_scan');
+  useModalBackHandler(isEditProfileOpen, () => setIsEditProfileOpen(false), 'modal_edit_profile');
+  useModalBackHandler(isVaultViewerOpen, () => setIsVaultViewerOpen(false), 'modal_vault_viewer');
+  useModalBackHandler(showReminderManager, () => setShowReminderManager(false), 'modal_reminders');
+  useModalBackHandler(isCoachShowroomOpen, () => setIsCoachShowroomOpen(false), 'modal_coach_showroom');
+  useModalBackHandler(programToBuy !== null, () => setProgramToBuy(null), 'modal_program_to_buy');
+  useModalBackHandler(dialConfig.isOpen, () => setDialConfig((p) => ({ ...p, isOpen: false })), 'modal_dial');
+  useModalBackHandler(isExportHelpOpen, () => setIsExportHelpOpen(false), 'modal_export_help');
+  useModalBackHandler(isGymNetworkOpen, () => setIsGymNetworkOpen(false), 'modal_gym_network');
+  useModalBackHandler(isBuddyRadarOpen, () => setIsBuddyRadarOpen(false), 'modal_buddy_radar');
+  useModalBackHandler(isOwnProfileOpen, () => setIsOwnProfileOpen(false), 'modal_own_profile');
+  useModalBackHandler(showTandemPanel, () => setShowTandemPanel(false), 'modal_tandem_panel');
+  useModalBackHandler(isAIInsightsOpen, () => setIsAIInsightsOpen(false), 'modal_ai_insights');
+  useModalBackHandler(isPayPlanOpen, () => setIsPayPlanOpen(false), 'modal_pay_plan');
+  useModalBackHandler(isTravelPassOpen, () => setIsTravelPassOpen(false), 'modal_travel_pass');
+  useModalBackHandler(isShareModalOpen, () => setIsShareModalOpen(false), 'modal_share');
+  useModalBackHandler(isCommunityHubOpen, () => setIsCommunityHubOpen(false), 'modal_community');
+  useModalBackHandler(isGlobalSearchOpen, () => setIsGlobalSearchOpen(false), 'modal_global_search');
+  useModalBackHandler(shareClientProgressAthlete !== null, () => setShareClientProgressAthlete(null), 'modal_share_progress');
+
   // ═══════════════════════════════════════
   // EFFECTS
   // ═══════════════════════════════════════
+
+  // Initialize Global Back Navigation Manager
+  useEffect(() => {
+    backNavManager.init(
+      currentMode,
+      (targetMode) => {
+        haptic.tap();
+        try {
+          localStorage.setItem('o1fc_active_mode', targetMode);
+        } catch {}
+        const oldIdx = NAVIGATION_MODES.indexOf(currentMode);
+        const newIdx = NAVIGATION_MODES.indexOf(targetMode);
+        if (oldIdx !== -1 && newIdx !== -1) setSlideDirection(newIdx > oldIdx ? 'left' : 'right');
+        setCurrentMode(targetMode);
+        trackPageView(targetMode);
+        requestAnimationFrame(() => document.querySelector('.overflow-y-auto.hide-scrollbar')?.scrollTo(0, 0));
+      },
+      (msg) => showToast(msg, 'success')
+    );
+  }, [currentMode]);
+
 
   // Global pointer tracker for modal origin animations
   useEffect(() => {
@@ -244,10 +304,16 @@ export function useAppState() {
 
   // Auth session check + listener
   useEffect(() => {
+    let isMounted = true;
     async function checkSession() {
       try {
-        const { data } = await supabase.auth.getSession();
-        if (data?.session?.user?.email) {
+        const timeoutPromise = new Promise<{ data: { session: null } }>((resolve) =>
+          setTimeout(() => resolve({ data: { session: null } }), 1000)
+        );
+        const sessionPromise = supabase.auth.getSession();
+        const { data } = await Promise.race([sessionPromise, timeoutPromise]);
+        
+        if (data?.session?.user?.email && isMounted) {
           const email = data.session.user.email;
           setCurrentUserEmail(email);
           setSessionUserEmail(email);
@@ -257,15 +323,27 @@ export function useAppState() {
           setIsCheckingSession(false);
           authHandledRef.current = true;
           flushMealOfflineQueue();
-          try {
-            const { data: consentRow } = await supabase.from('user_consent').select('id').eq('user_email', email.toLowerCase()).maybeSingle();
-            if (!consentRow) setNeedsOAuthConsent(true);
-          } catch {}
+          
+          const hasCompletedSetup = localStorage.getItem(`o1fc_quicksetup_completed_${email}`) === 'true';
+          if (!hasCompletedSetup && isMounted) {
+            setShowQuickSetup(true);
+          }
           return;
         }
       } catch {}
+      
+      if (!isMounted) return;
       const savedEmail = getSessionUserEmail();
-      if (savedEmail) { setCurrentUserEmail(savedEmail); setIsAuthenticated(true); setIsAuthModalOpen(false); authHandledRef.current = true; }
+      if (savedEmail) {
+        setCurrentUserEmail(savedEmail);
+        setIsAuthenticated(true);
+        setIsAuthModalOpen(false);
+        authHandledRef.current = true;
+        const hasCompletedSetup = localStorage.getItem(`o1fc_quicksetup_completed_${savedEmail}`) === 'true';
+        if (!hasCompletedSetup) {
+          setShowQuickSetup(true);
+        }
+      }
       setIsCheckingSession(false);
     }
     checkSession();
@@ -532,7 +610,7 @@ export function useAppState() {
       document.body.classList.toggle('dark', isDark);
       if (Capacitor.isNativePlatform()) {
         StatusBar.setStyle({ style: isDark ? StatusBarStyle.Dark : StatusBarStyle.Light }).catch(() => {});
-        StatusBar.setBackgroundColor({ color: isDark ? '#000000' : '#F7F5F0' }).catch(() => {});
+        StatusBar.setBackgroundColor({ color: isDark ? '#000000' : '#F8F9FA' }).catch(() => {});
       }
     };
     applyTheme(theme);
@@ -561,9 +639,13 @@ export function useAppState() {
   const handleModeChange = (newMode: AppMode) => {
     if (newMode === currentMode) return;
     haptic.tap();
+    try {
+      localStorage.setItem('o1fc_active_mode', newMode);
+    } catch {}
     const oldIdx = NAVIGATION_MODES.indexOf(currentMode);
     const newIdx = NAVIGATION_MODES.indexOf(newMode);
     if (oldIdx !== -1 && newIdx !== -1) setSlideDirection(newIdx > oldIdx ? 'left' : 'right');
+    backNavManager.recordModeChange(newMode);
     setCurrentMode(newMode);
     trackPageView(newMode);
     requestAnimationFrame(() => document.querySelector('.overflow-y-auto.hide-scrollbar')?.scrollTo(0, 0));
@@ -585,8 +667,11 @@ export function useAppState() {
     if (dt < 650 && Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy) * 1.2) {
       const ci = NAVIGATION_MODES.indexOf(currentMode);
       if (ci !== -1) {
-        if (dx < 0 && ci < NAVIGATION_MODES.length - 1) { setSlideDirection('left'); setCurrentMode(NAVIGATION_MODES[ci + 1]); }
-        else if (dx > 0 && ci > 0) { setSlideDirection('right'); setCurrentMode(NAVIGATION_MODES[ci - 1]); }
+        if (dx < 0 && ci < NAVIGATION_MODES.length - 1) {
+          handleModeChange(NAVIGATION_MODES[ci + 1]);
+        } else if (dx > 0 && ci > 0) {
+          handleModeChange(NAVIGATION_MODES[ci - 1]);
+        }
       }
     }
     setTouchStart(null);

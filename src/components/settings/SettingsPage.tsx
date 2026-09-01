@@ -57,7 +57,7 @@ export function SettingsPage({
       const saved = localStorage.getItem('theme');
       if (saved === 'dark' || saved === 'light' || saved === 'system') return saved;
     } catch {}
-    return 'dark';
+    return 'light';
   });
   const [inputMethod, setInputMethod] = useState<'dial' | 'numpad'>(() => {
     try {

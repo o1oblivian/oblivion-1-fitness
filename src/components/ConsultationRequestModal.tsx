@@ -274,31 +274,32 @@ export const ConsultationRequestModal: React.FC<ConsultationRequestModalProps> =
   return createPortal(
     <>
       <div
-        className="fixed inset-0 bg-black/40 backdrop-blur-sm"
+        className="fixed inset-0 bg-black/60 dark:bg-black/80 backdrop-blur-md"
         style={{ zIndex: 999 }}
         onClick={onClose}
       />
       <div
-        className="fixed inset-0 flex items-start justify-center pt-6 pb-6 px-4 pointer-events-none"
+        className="fixed inset-0 flex items-start justify-center pt-[max(1rem,calc(env(safe-area-inset-top,0px)+0.75rem))] pb-[max(1.5rem,calc(env(safe-area-inset-bottom,0px)+1rem))] px-3 sm:px-4 pointer-events-none"
         style={{ zIndex: 1000 }}
       >
         <div
-          className="w-full max-w-md max-h-[92vh] overflow-y-auto pointer-events-auto rounded-2xl border border-zinc-200/80 bg-white shadow-2xl text-zinc-900"
+          className="w-full max-w-md max-h-[92vh] flex flex-col pointer-events-auto rounded-3xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#121214] shadow-2xl text-zinc-900 dark:text-white overflow-hidden"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
-          <div className="sticky top-0 bg-white/95 backdrop-blur-md border-b border-zinc-200/80 px-5 py-4 flex items-center justify-between rounded-t-2xl z-10">
+          <div className="sticky top-0 bg-white/95 dark:bg-[#121214]/95 backdrop-blur-md border-b border-zinc-200 dark:border-zinc-800 px-5 py-4 flex items-center justify-between z-10 shrink-0">
             <div className="min-w-0">
-              <span className="text-[10px] font-mono font-bold text-red-600 uppercase tracking-wider block mb-0.5">
+              <span className="text-[10px] font-mono font-bold text-red-600 dark:text-red-500 uppercase tracking-wider block mb-0.5">
                 Intel Coach Consultation
               </span>
-              <h2 className="text-sm font-black text-zinc-900 font-mono tracking-tight leading-tight truncate">
+              <h2 className="text-sm font-black text-zinc-900 dark:text-white font-mono tracking-tight leading-tight truncate">
                 {coachName}
               </h2>
             </div>
             <button
               onClick={onClose}
-              className="w-9 h-9 rounded-full bg-zinc-100 hover:bg-zinc-200 flex items-center justify-center text-zinc-500 hover:text-zinc-900 transition-colors cursor-pointer active:scale-95 shrink-0 ml-3"
+              className="w-8 h-8 rounded-full bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 flex items-center justify-center text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white transition-colors cursor-pointer active:scale-95 shrink-0 ml-3"
+              aria-label="Close"
             >
               <X className="w-4 h-4" />
             </button>
@@ -306,35 +307,35 @@ export const ConsultationRequestModal: React.FC<ConsultationRequestModalProps> =
 
           {/* Progress bar */}
           {!sent && (
-            <div className="px-5 pt-4 pb-1">
-              <div className="flex items-center gap-1.5 mb-2">
+            <div className="px-5 pt-3 pb-1 shrink-0 bg-white dark:bg-[#121214]">
+              <div className="flex items-center gap-1.5 mb-1.5">
                 {Array.from({ length: TOTAL_STEPS }).map((_, i) => (
-                  <div key={i} className="flex-1 h-1.5 rounded-full overflow-hidden bg-zinc-100">
+                  <div key={i} className="flex-1 h-1.5 rounded-full overflow-hidden bg-zinc-100 dark:bg-zinc-800">
                     <div
                       className="h-full rounded-full transition-all duration-500"
                       style={{
                         width: i < step ? '100%' : i === step ? '50%' : '0%',
-                        backgroundColor: i <= step ? '#EA4335' : 'transparent',
+                        backgroundColor: i <= step ? '#DC2626' : 'transparent',
                       }}
                     />
                   </div>
                 ))}
               </div>
-              <p className="text-[10px] font-mono text-zinc-500 uppercase tracking-wider font-semibold">
+              <p className="text-[10px] font-mono text-zinc-500 dark:text-zinc-400 uppercase tracking-wider font-semibold">
                 Step {step + 1} of {TOTAL_STEPS}
               </p>
             </div>
           )}
 
           {/* Body */}
-          <div className="px-5 py-4">
+          <div className="p-5 overflow-y-auto flex-1 custom-scrollbar">
             {sent ? (
               <div className="flex flex-col items-center justify-center py-12 gap-4">
-                <div className="w-16 h-16 rounded-full bg-red-50 flex items-center justify-center">
-                  <CheckCircle2 className="w-8 h-8 text-red-600" />
+                <div className="w-16 h-16 rounded-full bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800/60 flex items-center justify-center">
+                  <CheckCircle2 className="w-8 h-8 text-red-600 dark:text-red-500" />
                 </div>
-                <h3 className="text-lg font-black text-zinc-900">Request Sent</h3>
-                <p className="text-sm text-zinc-600 text-center max-w-xs">
+                <h3 className="text-lg font-black text-zinc-900 dark:text-white">Request Sent</h3>
+                <p className="text-sm text-zinc-600 dark:text-zinc-400 text-center max-w-xs">
                   {coachName} will review your full profile, training data, supplement stack, and goals to craft a tailored program.
                 </p>
               </div>
@@ -345,24 +346,24 @@ export const ConsultationRequestModal: React.FC<ConsultationRequestModalProps> =
                 {step === 0 && (
                   <>
                     <div className="space-y-2">
-                      <label className="text-[10px] font-mono font-bold text-zinc-500 uppercase tracking-wider flex items-center gap-1.5">
+                      <label className="text-[10px] font-mono font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider flex items-center gap-1.5">
                         <Target className="w-3.5 h-3.5 text-zinc-500" /> Primary Goal
                       </label>
                       <button
                         onClick={() => setShowGoalPicker(!showGoalPicker)}
-                        className="w-full text-left px-4 py-3 rounded-xl border border-zinc-200/80 bg-zinc-50 text-sm font-semibold text-zinc-900 flex items-center justify-between cursor-pointer hover:border-red-500/50 transition-colors"
+                        className="w-full text-left px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/60 text-sm font-semibold text-zinc-900 dark:text-white flex items-center justify-between cursor-pointer hover:border-red-500/50 transition-colors"
                       >
-                        <span className={goal ? 'text-zinc-900' : 'text-stone-400'}>{goal || 'Select your primary goal...'}</span>
+                        <span className={goal ? 'text-zinc-900 dark:text-white' : 'text-zinc-400 dark:text-zinc-500'}>{goal || 'Select your primary goal...'}</span>
                         <ChevronDown className={`w-4 h-4 text-zinc-500 transition-transform ${showGoalPicker ? 'rotate-180' : ''}`} />
                       </button>
                       {showGoalPicker && (
-                        <div className="bg-white border border-zinc-200/80 rounded-xl overflow-hidden shadow-lg">
+                        <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl overflow-hidden shadow-lg">
                           {GOALS.map((g) => (
                             <button
                               key={g}
                               onClick={() => { setGoal(g); setShowGoalPicker(false); }}
-                              className={`w-full text-left px-4 py-3 text-xs font-semibold transition-colors cursor-pointer border-b border-zinc-100 last:border-b-0 ${
-                                goal === g ? 'bg-red-50 text-red-600 font-bold' : 'text-zinc-700 hover:bg-zinc-50'
+                              className={`w-full text-left px-4 py-3 text-xs font-semibold transition-colors cursor-pointer border-b border-zinc-100 dark:border-zinc-800 last:border-b-0 ${
+                                goal === g ? 'bg-red-50 dark:bg-red-950/30 text-red-600 dark:text-red-400 font-bold' : 'text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800'
                               }`}
                             >
                               {g}
@@ -373,7 +374,7 @@ export const ConsultationRequestModal: React.FC<ConsultationRequestModalProps> =
                     </div>
 
                     <div className="space-y-2">
-                      <label className="text-[10px] font-mono font-bold text-zinc-500 uppercase tracking-wider flex items-center gap-1.5">
+                      <label className="text-[10px] font-mono font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider flex items-center gap-1.5">
                         <Dumbbell className="w-3.5 h-3.5 text-zinc-500" /> Experience Level
                       </label>
                       <div className="grid grid-cols-3 gap-2">
@@ -383,19 +384,19 @@ export const ConsultationRequestModal: React.FC<ConsultationRequestModalProps> =
                             onClick={() => setExperience(lvl.value)}
                             className={`py-3 px-2 rounded-xl border text-center transition-all cursor-pointer ${
                               experience === lvl.value
-                                ? 'bg-red-50 border-red-500 text-red-600'
-                                : 'bg-zinc-50 border-zinc-200/80 text-zinc-600 hover:border-zinc-300'
+                                ? 'bg-red-50 dark:bg-red-950/30 border-red-500 text-red-600 dark:text-red-400'
+                                : 'bg-zinc-50 dark:bg-zinc-900/60 border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:border-zinc-300 dark:hover:border-zinc-700'
                             }`}
                           >
                             <span className="text-xs font-bold block">{lvl.label}</span>
-                            <span className="text-[9px] text-zinc-500 block mt-0.5">{lvl.desc}</span>
+                            <span className="text-[9px] text-zinc-500 dark:text-zinc-400 block mt-0.5">{lvl.desc}</span>
                           </button>
                         ))}
                       </div>
                     </div>
 
                     <div className="space-y-2">
-                      <label className="text-[10px] font-mono font-bold text-zinc-500 uppercase tracking-wider flex items-center gap-1.5">
+                      <label className="text-[10px] font-mono font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider flex items-center gap-1.5">
                         <Calendar className="w-3.5 h-3.5 text-zinc-500" /> Training Days per Week
                       </label>
                       <div className="flex gap-2">
@@ -405,8 +406,8 @@ export const ConsultationRequestModal: React.FC<ConsultationRequestModalProps> =
                             onClick={() => setTrainingDays(d)}
                             className={`flex-1 py-3 rounded-xl border text-sm font-bold transition-all cursor-pointer ${
                               trainingDays === d
-                                ? 'bg-red-50 border-red-500 text-red-600'
-                                : 'bg-zinc-50 border-zinc-200/80 text-zinc-700 hover:border-zinc-300'
+                                ? 'bg-red-50 dark:bg-red-950/30 border-red-500 text-red-600 dark:text-red-400'
+                                : 'bg-zinc-50 dark:bg-zinc-900/60 border-zinc-200 dark:border-zinc-800 text-zinc-700 dark:text-zinc-300 hover:border-zinc-300 dark:hover:border-zinc-700'
                             }`}
                           >
                             {d}
@@ -416,7 +417,7 @@ export const ConsultationRequestModal: React.FC<ConsultationRequestModalProps> =
                     </div>
 
                     <div className="space-y-2">
-                      <label className="text-[10px] font-mono font-bold text-zinc-500 uppercase tracking-wider flex items-center gap-1.5">
+                      <label className="text-[10px] font-mono font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider flex items-center gap-1.5">
                         <Clock className="w-3.5 h-3.5 text-zinc-500" /> Timeline
                       </label>
                       <div className="grid grid-cols-3 gap-2">
@@ -426,12 +427,12 @@ export const ConsultationRequestModal: React.FC<ConsultationRequestModalProps> =
                             onClick={() => setTimeline(t.value)}
                             className={`py-2.5 px-2 rounded-xl border text-center transition-all cursor-pointer ${
                               timeline === t.value
-                                ? 'bg-red-50 border-red-500 text-red-600'
-                                : 'bg-zinc-50 border-zinc-200/80 text-zinc-600 hover:border-zinc-300'
+                                ? 'bg-red-50 dark:bg-red-950/30 border-red-500 text-red-600 dark:text-red-400'
+                                : 'bg-zinc-50 dark:bg-zinc-900/60 border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:border-zinc-300 dark:hover:border-zinc-700'
                             }`}
                           >
                             <span className="text-xs font-bold block">{t.label}</span>
-                            <span className="text-[9px] text-zinc-500 block mt-0.5">{t.desc}</span>
+                            <span className="text-[9px] text-zinc-500 dark:text-zinc-400 block mt-0.5">{t.desc}</span>
                           </button>
                         ))}
                       </div>
@@ -443,7 +444,7 @@ export const ConsultationRequestModal: React.FC<ConsultationRequestModalProps> =
                 {step === 1 && (
                   <>
                     <div className="space-y-2">
-                      <label className="text-[10px] font-mono font-bold text-zinc-500 uppercase tracking-wider flex items-center gap-1.5">
+                      <label className="text-[10px] font-mono font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider flex items-center gap-1.5">
                         <Pill className="w-3.5 h-3.5 text-zinc-500" /> Current Supplements
                       </label>
                       <textarea
@@ -451,13 +452,13 @@ export const ConsultationRequestModal: React.FC<ConsultationRequestModalProps> =
                         onChange={(e) => setSupplements(e.target.value)}
                         placeholder="List your current supplements (e.g. Whey Protein, Creatine 5g, Vitamin D 4000IU, Fish Oil, Pre-workout...)"
                         rows={3}
-                        className="w-full px-4 py-3 text-sm bg-zinc-50 border border-zinc-200/80 rounded-xl resize-none focus:outline-none focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-all text-zinc-900 placeholder-stone-400"
+                        className="w-full px-4 py-3 text-sm bg-zinc-50 dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-800 rounded-xl resize-none focus:outline-none focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-all text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-600"
                       />
-                      <p className="text-[9px] text-zinc-500 italic">Your coach will factor these into your nutrition plan to avoid doubling up</p>
+                      <p className="text-[9px] text-zinc-500 dark:text-zinc-400 italic">Your coach will factor these into your nutrition plan to avoid doubling up</p>
                     </div>
 
                     <div className="space-y-2">
-                      <label className="text-[10px] font-mono font-bold text-zinc-500 uppercase tracking-wider flex items-center gap-1.5">
+                      <label className="text-[10px] font-mono font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider flex items-center gap-1.5">
                         <Utensils className="w-3.5 h-3.5 text-zinc-500" /> Dietary Preferences & Restrictions
                       </label>
                       <textarea
@@ -465,12 +466,12 @@ export const ConsultationRequestModal: React.FC<ConsultationRequestModalProps> =
                         onChange={(e) => setDietPreferences(e.target.value)}
                         placeholder="Any dietary approach, allergies, or restrictions (e.g. Keto, Vegan, Gluten-free, Lactose intolerant, Halal, no red meat...)"
                         rows={3}
-                        className="w-full px-4 py-3 text-sm bg-zinc-50 border border-zinc-200/80 rounded-xl resize-none focus:outline-none focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-all text-zinc-900 placeholder-stone-400"
+                        className="w-full px-4 py-3 text-sm bg-zinc-50 dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-800 rounded-xl resize-none focus:outline-none focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-all text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-600"
                       />
                     </div>
 
                     <div className="space-y-2">
-                      <label className="text-[10px] font-mono font-bold text-zinc-500 uppercase tracking-wider flex items-center gap-1.5">
+                      <label className="text-[10px] font-mono font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider flex items-center gap-1.5">
                         <AlertTriangle className="w-3.5 h-3.5 text-zinc-500" /> Injuries & Limitations
                       </label>
                       <textarea
@@ -478,7 +479,7 @@ export const ConsultationRequestModal: React.FC<ConsultationRequestModalProps> =
                         onChange={(e) => setInjuries(e.target.value)}
                         placeholder="Any current injuries, mobility issues, or medical conditions your coach should know about (e.g. Lower back pain, shoulder impingement, knee surgery 2024...)"
                         rows={3}
-                        className="w-full px-4 py-3 text-sm bg-zinc-50 border border-zinc-200/80 rounded-xl resize-none focus:outline-none focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-all text-zinc-900 placeholder-stone-400"
+                        className="w-full px-4 py-3 text-sm bg-zinc-50 dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-800 rounded-xl resize-none focus:outline-none focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-all text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-600"
                       />
                     </div>
                   </>
@@ -488,7 +489,7 @@ export const ConsultationRequestModal: React.FC<ConsultationRequestModalProps> =
                 {step === 2 && (
                   <>
                     <div className="space-y-2">
-                      <label className="text-[10px] font-mono font-bold text-zinc-500 uppercase tracking-wider flex items-center gap-1.5">
+                      <label className="text-[10px] font-mono font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider flex items-center gap-1.5">
                         <Sparkles className="w-3.5 h-3.5 text-zinc-500" /> What Do You Need From Your Coach?
                       </label>
                       <div className="grid grid-cols-2 gap-2">
@@ -501,15 +502,15 @@ export const ConsultationRequestModal: React.FC<ConsultationRequestModalProps> =
                               onClick={() => toggleService(svc.id)}
                               className={`py-3 px-3 rounded-xl border text-left transition-all cursor-pointer ${
                                 active
-                                  ? 'bg-red-50 border-red-500'
-                                  : 'bg-zinc-50 border-zinc-200/80 hover:border-zinc-300'
+                                  ? 'bg-red-50 dark:bg-red-950/30 border-red-500'
+                                  : 'bg-zinc-50 dark:bg-zinc-900/60 border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700'
                               }`}
                             >
                               <div className="flex items-center gap-2 mb-1">
-                                <Icon className={`w-3.5 h-3.5 ${active ? 'text-red-600' : 'text-zinc-500'}`} />
-                                <span className={`text-xs font-bold ${active ? 'text-red-600' : 'text-zinc-800'}`}>{svc.label}</span>
+                                <Icon className={`w-3.5 h-3.5 ${active ? 'text-red-600 dark:text-red-400' : 'text-zinc-500'}`} />
+                                <span className={`text-xs font-bold ${active ? 'text-red-600 dark:text-red-400' : 'text-zinc-800 dark:text-zinc-200'}`}>{svc.label}</span>
                               </div>
-                              <span className="text-[9px] text-zinc-500 block">{svc.desc}</span>
+                              <span className="text-[9px] text-zinc-500 dark:text-zinc-400 block">{svc.desc}</span>
                             </button>
                           );
                         })}
@@ -517,7 +518,7 @@ export const ConsultationRequestModal: React.FC<ConsultationRequestModalProps> =
                     </div>
 
                     <div className="space-y-2">
-                      <label className="text-[10px] font-mono font-bold text-zinc-500 uppercase tracking-wider flex items-center gap-1.5">
+                      <label className="text-[10px] font-mono font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider flex items-center gap-1.5">
                         <Footprints className="w-3.5 h-3.5 text-zinc-500" /> Daily Step Goal
                       </label>
                       {!showCustomSteps ? (
@@ -528,8 +529,8 @@ export const ConsultationRequestModal: React.FC<ConsultationRequestModalProps> =
                               onClick={() => setStepGoal(s)}
                               className={`py-2.5 rounded-xl border text-center transition-all cursor-pointer ${
                                 stepGoal === s && !showCustomSteps
-                                  ? 'bg-red-50 border-red-500 text-red-600 font-bold'
-                                  : 'bg-zinc-50 border-zinc-200/80 text-zinc-700 hover:border-zinc-300'
+                                  ? 'bg-red-50 dark:bg-red-950/30 border-red-500 text-red-600 dark:text-red-400 font-bold'
+                                  : 'bg-zinc-50 dark:bg-zinc-900/60 border-zinc-200 dark:border-zinc-800 text-zinc-700 dark:text-zinc-300 hover:border-zinc-300 dark:hover:border-zinc-700'
                               }`}
                             >
                               <span className="text-xs font-bold">{s.toLocaleString()}</span>
@@ -544,19 +545,19 @@ export const ConsultationRequestModal: React.FC<ConsultationRequestModalProps> =
                           placeholder="Enter step goal..."
                           min={1000}
                           max={50000}
-                          className="w-full px-4 py-3 text-sm bg-zinc-50 border border-zinc-200/80 rounded-xl focus:outline-none focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-all text-zinc-900 placeholder-stone-400"
+                          className="w-full px-4 py-3 text-sm bg-zinc-50 dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-800 rounded-xl focus:outline-none focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-all text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-600"
                         />
                       )}
                       <button
                         onClick={() => setShowCustomSteps(!showCustomSteps)}
-                        className="text-[10px] font-mono font-bold text-red-600 hover:text-red-700 cursor-pointer transition-colors"
+                        className="text-[10px] font-mono font-bold text-red-600 dark:text-red-400 hover:text-red-700 cursor-pointer transition-colors"
                       >
                         {showCustomSteps ? 'Use preset goals' : 'Enter custom number'}
                       </button>
                     </div>
 
                     <div className="space-y-2">
-                      <label className="text-[10px] font-mono font-bold text-zinc-500 uppercase tracking-wider flex items-center gap-1.5">
+                      <label className="text-[10px] font-mono font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider flex items-center gap-1.5">
                         <Wallet className="w-3.5 h-3.5 text-zinc-500" /> Budget Range
                       </label>
                       <div className="grid grid-cols-3 gap-2">
@@ -566,12 +567,12 @@ export const ConsultationRequestModal: React.FC<ConsultationRequestModalProps> =
                             onClick={() => setBudget(b.value)}
                             className={`py-3 px-2 rounded-xl border text-center transition-all cursor-pointer ${
                               budget === b.value
-                                ? 'bg-red-50 border-red-500 text-red-600 font-bold'
-                                : 'bg-zinc-50 border-zinc-200/80 text-zinc-600 hover:border-zinc-300'
+                                ? 'bg-red-50 dark:bg-red-950/30 border-red-500 text-red-600 dark:text-red-400 font-bold'
+                                : 'bg-zinc-50 dark:bg-zinc-900/60 border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:border-zinc-300 dark:hover:border-zinc-700'
                             }`}
                           >
                             <span className="text-xs font-bold block">{b.label}</span>
-                            <span className="text-[9px] text-zinc-500 block mt-0.5">{b.desc}</span>
+                            <span className="text-[9px] text-zinc-500 dark:text-zinc-400 block mt-0.5">{b.desc}</span>
                           </button>
                         ))}
                       </div>
@@ -583,7 +584,7 @@ export const ConsultationRequestModal: React.FC<ConsultationRequestModalProps> =
                 {step === 3 && (
                   <>
                     <div className="space-y-2">
-                      <label className="text-[10px] font-mono font-bold text-zinc-500 uppercase tracking-wider flex items-center gap-1.5">
+                      <label className="text-[10px] font-mono font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider flex items-center gap-1.5">
                         <ClipboardCheck className="w-3.5 h-3.5 text-zinc-500" /> Why are you seeking coaching now?
                       </label>
                       <textarea
@@ -591,13 +592,13 @@ export const ConsultationRequestModal: React.FC<ConsultationRequestModalProps> =
                         onChange={(e) => setWhyNow(e.target.value)}
                         placeholder="Tell the coach what's driving you -- a goal, a plateau, an event, a life change..."
                         rows={3}
-                        className="w-full px-4 py-3 text-sm bg-zinc-50 border border-zinc-200/80 rounded-xl resize-none focus:outline-none focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-all text-zinc-900 placeholder-stone-400"
+                        className="w-full px-4 py-3 text-sm bg-zinc-50 dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-800 rounded-xl resize-none focus:outline-none focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-all text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-600"
                       />
                     </div>
 
                     {/* Summary card */}
-                    <div className="bg-zinc-50 border border-zinc-200/80 rounded-xl p-4 space-y-3">
-                      <h4 className="text-[10px] font-mono font-bold text-red-600 uppercase tracking-wider">Your Consultation Summary</h4>
+                    <div className="bg-zinc-50 dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-4 space-y-3">
+                      <h4 className="text-[10px] font-mono font-bold text-red-600 dark:text-red-400 uppercase tracking-wider">Your Consultation Summary</h4>
 
                       <SummaryRow label="Goal" value={goal} />
                       <SummaryRow label="Experience" value={experience} />
@@ -625,33 +626,33 @@ export const ConsultationRequestModal: React.FC<ConsultationRequestModalProps> =
                             Auto-Attached Progress Data
                           </span>
                         </div>
-                        <div className="bg-zinc-50 border border-zinc-200/80 rounded-xl p-4 grid grid-cols-2 gap-4">
+                        <div className="bg-zinc-50 dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-4 grid grid-cols-2 gap-4">
                           <SnapshotCard
-                            icon={<Dumbbell className="w-3.5 h-3.5 text-blue-600" />}
+                            icon={<Dumbbell className="w-3.5 h-3.5 text-blue-500" />}
                             label="Workouts"
                             value={`${snapshot.workouts.totalSessions} sessions`}
                             sub={`~${snapshot.workouts.avgPerWeek}/week`}
                           />
                           <SnapshotCard
-                            icon={<Utensils className="w-3.5 h-3.5 text-amber-600" />}
+                            icon={<Utensils className="w-3.5 h-3.5 text-amber-500" />}
                             label="Nutrition"
                             value={`${snapshot.nutrition.avgCalories} cal`}
                             sub={`${snapshot.nutrition.avgProtein}g protein`}
                           />
                           <SnapshotCard
-                            icon={<Moon className="w-3.5 h-3.5 text-indigo-600" />}
+                            icon={<Moon className="w-3.5 h-3.5 text-indigo-500" />}
                             label="Sleep"
                             value={`${snapshot.sleep.avgHours} hrs avg`}
                             sub={`${snapshot.sleep.qualityScore}% quality`}
                           />
                           <SnapshotCard
-                            icon={<Scale className="w-3.5 h-3.5 text-teal-600" />}
+                            icon={<Scale className="w-3.5 h-3.5 text-teal-500" />}
                             label="Bodyweight"
                             value={`${snapshot.bodyweight.current} kg`}
                             sub={snapshot.bodyweight.trend}
                           />
                           <SnapshotCard
-                            icon={<Footprints className="w-3.5 h-3.5 text-emerald-600" />}
+                            icon={<Footprints className="w-3.5 h-3.5 text-emerald-500" />}
                             label="Avg Steps"
                             value={`${snapshot.steps.avgDaily.toLocaleString()}`}
                             sub="steps/day"
@@ -670,7 +671,7 @@ export const ConsultationRequestModal: React.FC<ConsultationRequestModalProps> =
                   {step > 0 && (
                     <button
                       onClick={() => setStep(step - 1)}
-                      className="flex-1 py-3.5 rounded-xl border border-zinc-200/80 bg-zinc-100 text-zinc-700 font-bold text-sm flex items-center justify-center gap-2 cursor-pointer hover:bg-zinc-200 active:scale-[0.98] transition-all"
+                      className="flex-1 py-3.5 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 font-bold text-sm flex items-center justify-center gap-2 cursor-pointer hover:bg-zinc-200 dark:hover:bg-zinc-700 active:scale-[0.98] transition-all"
                     >
                       <ChevronLeft className="w-4 h-4" />
                       Back
@@ -680,7 +681,7 @@ export const ConsultationRequestModal: React.FC<ConsultationRequestModalProps> =
                     <button
                       onClick={() => canAdvance() && setStep(step + 1)}
                       disabled={!canAdvance()}
-                      className="flex-1 py-3.5 rounded-xl bg-red-600 hover:bg-red-700 disabled:opacity-40 text-white font-bold text-sm flex items-center justify-center gap-2 shadow-lg shadow-red-600/20 cursor-pointer active:scale-[0.98] transition-all"
+                      className="flex-1 py-3.5 rounded-2xl bg-zinc-900 hover:bg-zinc-800 dark:bg-white dark:hover:bg-zinc-100 disabled:opacity-40 text-white dark:text-zinc-900 font-bold text-sm flex items-center justify-center gap-2 shadow-md cursor-pointer active:scale-[0.98] transition-all"
                     >
                       Continue
                       <ChevronRight className="w-4 h-4" />
@@ -689,7 +690,7 @@ export const ConsultationRequestModal: React.FC<ConsultationRequestModalProps> =
                     <button
                       onClick={handleSubmit}
                       disabled={!canAdvance() || sending}
-                      className="flex-1 py-3.5 rounded-xl bg-red-600 hover:bg-red-700 disabled:opacity-40 text-white font-black text-sm flex items-center justify-center gap-2 shadow-lg shadow-red-600/20 cursor-pointer active:scale-[0.98] transition-all"
+                      className="flex-1 py-3.5 rounded-2xl bg-red-600 hover:bg-red-700 disabled:opacity-40 text-white font-black text-sm flex items-center justify-center gap-2 shadow-lg shadow-red-600/20 cursor-pointer active:scale-[0.98] transition-all"
                     >
                       {sending ? (
                         <span className="animate-pulse">Sending...</span>
@@ -714,8 +715,8 @@ export const ConsultationRequestModal: React.FC<ConsultationRequestModalProps> =
 
 const SummaryRow: React.FC<{ label: string; value: string }> = ({ label, value }) => (
   <div className="flex items-start gap-2">
-    <span className="text-[9px] font-mono text-zinc-500 uppercase font-semibold shrink-0 w-20 pt-0.5">{label}</span>
-    <span className="text-xs text-zinc-900 font-semibold leading-snug">{value}</span>
+    <span className="text-[9px] font-mono text-zinc-500 dark:text-zinc-400 uppercase font-semibold shrink-0 w-20 pt-0.5">{label}</span>
+    <span className="text-xs text-zinc-900 dark:text-zinc-100 font-semibold leading-snug">{value}</span>
   </div>
 );
 
@@ -725,9 +726,9 @@ const SnapshotCard: React.FC<{ icon: React.ReactNode; label: string; value: stri
   <div className="flex items-start gap-2.5">
     <div className="mt-0.5">{icon}</div>
     <div>
-      <span className="text-[9px] font-mono text-zinc-500 uppercase block font-semibold">{label}</span>
-      <p className="text-xs font-bold text-zinc-900 leading-tight">{value}</p>
-      <p className="text-[10px] text-zinc-500">{sub}</p>
+      <span className="text-[9px] font-mono text-zinc-500 dark:text-zinc-400 uppercase block font-semibold">{label}</span>
+      <p className="text-xs font-bold text-zinc-900 dark:text-zinc-100 leading-tight">{value}</p>
+      <p className="text-[10px] text-zinc-500 dark:text-zinc-400">{sub}</p>
     </div>
   </div>
 );

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X, Check, ShieldCheck, Lock, ExternalLink, Trash2, ArrowRightLeft, User } from 'lucide-react';
+import { LiquidSilkBackground } from '@/components/ui/LiquidSilkBackground';
 
 export interface SocialAuthModalProps {
   isOpen: boolean;
@@ -231,10 +232,13 @@ export const SocialAuthModal: React.FC<SocialAuthModalProps> = ({
 
   return (
     <div
-      className="fixed inset-0 z-[300] bg-white dark:bg-[#121414] overflow-y-auto font-mono"
+      className="fixed inset-0 z-[300] bg-slate-900/30 dark:bg-black/70 backdrop-blur-xl overflow-y-auto font-mono flex items-center justify-center p-3 sm:p-5 relative"
     >
+      {/* Light Liquid Silk Ambient Dynamic Simulation */}
+      <LiquidSilkBackground theme="light" intensity={1.1} speed={1.0} />
+
       <div
-        className="bg-white dark:bg-[#0D0F14] text-[#000000] dark:text-white border border-[rgba(0,0,0,0.08)] dark:border-[#EA4335]/40 p-4 sm:p-3.5 w-full h-full min-h-screen space-y-4 shadow-2xl relative select-none animate-fadeIn"
+        className="bg-white/95 dark:bg-[#0D0F14]/95 text-[#000000] dark:text-white border border-white/80 dark:border-white/10 p-5 sm:p-6 w-full max-w-lg rounded-3xl space-y-4 shadow-[0_25px_70px_rgba(0,0,0,0.2)] relative z-10 select-none animate-fadeIn my-auto"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Top Header Row */}

@@ -85,7 +85,7 @@ async function setupNativeApp() {
   try {
     const isDark = document.documentElement.classList.contains('dark');
     await StatusBar.setStyle({ style: isDark ? Style.Dark : Style.Light });
-    await StatusBar.setBackgroundColor({ color: isDark ? '#0D0F14' : '#F7F5F0' });
+    await StatusBar.setBackgroundColor({ color: isDark ? '#000000' : '#F8F9FA' });
   } catch (e) {
     // StatusBar not available on web
   }
@@ -95,19 +95,8 @@ async function setupNativeApp() {
   } catch (e) {
     // SplashScreen not available
   }
-
-  try {
-    CapApp.addListener('backButton', () => {
-      if (window.history.length > 1) {
-        window.history.back();
-      } else {
-        CapApp.exitApp();
-      }
-    });
-  } catch (e) {
-    // App plugin not available
-  }
 }
+
 
 setupNativeApp();
 initGlobalErrorHandlers();

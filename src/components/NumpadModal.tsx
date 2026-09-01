@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { X, Check, Delete, RotateCcw, Volume2, VolumeX } from 'lucide-react';
 import { recordSmartInput } from '../utils/frequencyDefaults';
 import {
@@ -38,6 +39,11 @@ export const NumpadModal: React.FC<NumpadModalProps> = ({
     if (isOpen) {
       const initial = initialVal !== undefined && initialVal > 0 ? String(initialVal) : '';
       setInputStr(initial);
+      const prev = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = prev;
+      };
     }
   }, [isOpen, initialVal]);
 
@@ -174,56 +180,56 @@ export const NumpadModal: React.FC<NumpadModalProps> = ({
 
   const displayValue = inputStr === '' ? '0' : inputStr;
 
-  return (
+  return createPortal(
     <div
       id="numpad-modal-backdrop"
-      className="fixed inset-0 z-[200] flex items-center justify-center p-3 bg-black/30 dark:bg-black/50 animate-fadeIn select-none overflow-y-auto"
+      className="fixed inset-0 z-[99990] flex items-center justify-center pt-[max(1rem,calc(env(safe-area-inset-top,0px)+0.75rem))] pb-[max(1.5rem,calc(env(safe-area-inset-bottom,0px)+1rem))] px-3 sm:px-4 bg-black/60 dark:bg-black/80 backdrop-blur-md animate-fadeIn select-none overflow-y-auto"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
     >
       <div
         id="numpad-modal-card"
-        className="w-full max-w-[320px] bg-[#F7F5F0] dark:bg-[#12151E] rounded-3xl p-5 flex flex-col items-center shadow-lg text-zinc-900 dark:text-white relative overflow-hidden transition-colors"
+        className="w-full max-w-[340px] bg-white dark:bg-[#121214] border border-zinc-200 dark:border-zinc-800 rounded-3xl p-5 flex flex-col items-center shadow-2xl text-zinc-900 dark:text-white relative overflow-hidden transition-colors"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Top Controls: Sound Toggle & Nude Close Button */}
+        {/* Top Controls: Sound Toggle & Close Button */}
         <div className="w-full flex items-center justify-between z-30 mb-2 px-0.5">
           <button
             type="button"
             onClick={toggleSound}
-            className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase transition-colors cursor-pointer ${
+            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-mono font-bold uppercase transition-colors cursor-pointer border ${
               soundEnabled
-                ? 'text-amber-500'
-                : 'text-zinc-400 dark:text-zinc-500'
+                ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20'
+                : 'bg-zinc-100 dark:bg-zinc-800/80 text-zinc-500 dark:text-zinc-400 border-zinc-200 dark:border-zinc-700'
             }`}
-            title="Soft Tactile Tick Feedback"
+            title="Audio feedback toggle"
           >
             {soundEnabled ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5" />}
-            <span>{soundEnabled ? 'Haptic' : 'Muted'}</span>
+            <span>{soundEnabled ? 'Voice' : 'Muted'}</span>
           </button>
 
           <button
             type="button"
             onClick={onClose}
-            className="w-8 h-8 flex items-center justify-center text-zinc-400 hover:text-zinc-900 dark:text-zinc-500 dark:hover:text-white transition-colors cursor-pointer active:scale-90"
+            className="w-8 h-8 rounded-full bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 flex items-center justify-center text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white transition-colors cursor-pointer active:scale-95"
             title="Close"
             aria-label="Close"
           >
-            <X className="w-5 h-5 stroke-[2]" />
+            <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* Type & Readout Glass Screen */}
-        <div className="w-full bg-black/5 dark:bg-white/5 rounded-2xl p-3 flex flex-col items-center justify-center relative mb-3">
+        <div className="w-full bg-zinc-50 dark:bg-zinc-900/70 border border-zinc-200/80 dark:border-zinc-800 rounded-2xl p-4 flex flex-col items-center justify-center relative mb-3">
           <div className="flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
-            <span className="text-[9px] font-mono font-bold uppercase tracking-widest text-zinc-500 dark:text-zinc-400">
+            <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
               {type || 'Tactical Numpad'}
             </span>
           </div>
 
-          <div className="flex items-baseline gap-1.5 mt-1">
+          <div className="flex items-baseline gap-1.5 mt-1.5">
             <span className="font-mono font-black text-3xl sm:text-4xl text-zinc-900 dark:text-white tracking-tight">
               {displayValue}
             </span>
@@ -233,9 +239,9 @@ export const NumpadModal: React.FC<NumpadModalProps> = ({
           </div>
         </div>
 
-        {/* Quick Tactical Preset Chips - Nude / Bare Numbers */}
+        {/* Quick Tactical Preset Chips */}
         <div className="w-full mb-3">
-          <div className="flex gap-4 overflow-x-auto pb-1 no-scrollbar justify-center items-center">
+          <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar justify-center items-center">
             {presets.map((val) => {
               const isSelected = parseFloat(inputStr) === val;
               return (
@@ -243,10 +249,10 @@ export const NumpadModal: React.FC<NumpadModalProps> = ({
                   key={val}
                   type="button"
                   onClick={() => handlePreset(val)}
-                  className={`px-1 py-1 text-xs font-mono transition-all shrink-0 cursor-pointer active:scale-90 ${
+                  className={`px-2.5 py-1 text-xs font-mono rounded-lg transition-all shrink-0 cursor-pointer active:scale-95 border ${
                     isSelected
-                      ? 'text-amber-500 font-black scale-110 underline decoration-amber-500 decoration-2 underline-offset-4'
-                      : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white font-semibold'
+                      ? 'bg-amber-500 text-zinc-950 font-bold border-amber-500 shadow-xs'
+                      : 'bg-zinc-100 dark:bg-zinc-800/80 text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white border-zinc-200 dark:border-zinc-700 font-semibold'
                   }`}
                 >
                   {isTimer
@@ -264,14 +270,14 @@ export const NumpadModal: React.FC<NumpadModalProps> = ({
           </div>
         </div>
 
-        {/* Tactical Numpad Grid - Nude / Bare Digits */}
+        {/* Tactical Numpad Grid */}
         <div className="grid grid-cols-3 gap-1.5 w-full mb-3">
           {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map((num) => (
             <button
               key={num}
               type="button"
               onClick={() => handleKeyPress(num)}
-              className="h-11 rounded-xl flex items-center justify-center font-mono font-bold text-xl text-zinc-800 hover:text-amber-500 dark:text-zinc-100 dark:hover:text-amber-400 transition-all cursor-pointer select-none active:scale-90"
+              className="h-11 rounded-xl flex items-center justify-center font-mono font-bold text-xl text-zinc-800 hover:text-amber-500 dark:text-zinc-100 dark:hover:text-amber-400 bg-zinc-50 dark:bg-zinc-900/40 hover:bg-zinc-100 dark:hover:bg-zinc-800 border border-zinc-200/60 dark:border-zinc-800 transition-all cursor-pointer select-none active:scale-95"
             >
               {num}
             </button>
@@ -281,7 +287,7 @@ export const NumpadModal: React.FC<NumpadModalProps> = ({
           <button
             type="button"
             onClick={() => (isRpe || isWeight ? handleKeyPress('.') : handleClear())}
-            className="h-11 rounded-xl flex items-center justify-center font-mono font-bold text-lg text-zinc-600 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-white transition-colors cursor-pointer select-none active:scale-90"
+            className="h-11 rounded-xl flex items-center justify-center font-mono font-bold text-lg text-zinc-600 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-white bg-zinc-50 dark:bg-zinc-900/40 hover:bg-zinc-100 dark:hover:bg-zinc-800 border border-zinc-200/60 dark:border-zinc-800 transition-colors cursor-pointer select-none active:scale-95"
           >
             {isRpe || isWeight ? '.' : <RotateCcw className="w-4 h-4" />}
           </button>
@@ -290,7 +296,7 @@ export const NumpadModal: React.FC<NumpadModalProps> = ({
           <button
             type="button"
             onClick={() => handleKeyPress('0')}
-            className="h-11 rounded-xl flex items-center justify-center font-mono font-bold text-xl text-zinc-800 hover:text-amber-500 dark:text-zinc-100 dark:hover:text-amber-400 transition-all cursor-pointer select-none active:scale-90"
+            className="h-11 rounded-xl flex items-center justify-center font-mono font-bold text-xl text-zinc-800 hover:text-amber-500 dark:text-zinc-100 dark:hover:text-amber-400 bg-zinc-50 dark:bg-zinc-900/40 hover:bg-zinc-100 dark:hover:bg-zinc-800 border border-zinc-200/60 dark:border-zinc-800 transition-all cursor-pointer select-none active:scale-95"
           >
             0
           </button>
@@ -299,7 +305,7 @@ export const NumpadModal: React.FC<NumpadModalProps> = ({
           <button
             type="button"
             onClick={handleBackspace}
-            className="h-11 rounded-xl flex items-center justify-center text-zinc-500 hover:text-red-500 active:text-red-500 transition-colors cursor-pointer select-none active:scale-90"
+            className="h-11 rounded-xl flex items-center justify-center text-zinc-500 hover:text-red-500 active:text-red-500 bg-zinc-50 dark:bg-zinc-900/40 hover:bg-zinc-100 dark:hover:bg-zinc-800 border border-zinc-200/60 dark:border-zinc-800 transition-colors cursor-pointer select-none active:scale-95"
             title="Backspace"
           >
             <Delete className="w-5 h-5 stroke-[1.75]" />
@@ -311,7 +317,7 @@ export const NumpadModal: React.FC<NumpadModalProps> = ({
           <button
             type="button"
             onClick={handleClear}
-            className="px-3 py-2 text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white font-mono font-bold text-xs uppercase tracking-wider transition-colors cursor-pointer active:scale-95"
+            className="px-4 py-3 text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white font-mono font-bold text-xs uppercase tracking-wider rounded-xl bg-zinc-100 dark:bg-zinc-800/80 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors cursor-pointer active:scale-95"
           >
             Clear
           </button>
@@ -319,14 +325,15 @@ export const NumpadModal: React.FC<NumpadModalProps> = ({
           <button
             type="button"
             onClick={handleConfirm}
-            className="flex-1 py-3 rounded-2xl bg-amber-500 hover:bg-amber-400 text-zinc-950 font-mono font-bold text-sm uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-sm active:scale-[0.98] transition-all cursor-pointer"
+            className="flex-1 py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-zinc-950 font-mono font-bold text-sm uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-sm active:scale-[0.98] transition-all cursor-pointer"
           >
             <Check className="w-4 h-4 stroke-[3]" />
             <span>Confirm</span>
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 

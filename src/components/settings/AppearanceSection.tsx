@@ -27,14 +27,14 @@ export function AppearanceSection({
             <span className="text-xs text-zinc-500 dark:text-zinc-400 block">Select visual atmosphere</span>
           </div>
 
-          <div className="h-[30px] flex items-center rounded-full bg-zinc-100 dark:bg-zinc-800/80 p-0.5 border border-zinc-200 dark:border-zinc-700/60">
+          <div className="h-[32px] flex items-center rounded-full bg-zinc-100 dark:bg-zinc-800/80 p-0.5 border border-zinc-200/80 dark:border-zinc-700/60">
             <button
               type="button"
               onClick={() => onSelectThemeMode('light')}
-              className={`h-full px-2.5 rounded-full text-xs font-medium flex items-center justify-center transition-all cursor-pointer ${
+              className={`h-full px-3 rounded-full text-xs font-medium flex items-center justify-center transition-all cursor-pointer ${
                 themeMode === 'light'
-                  ? 'bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white shadow-xs font-semibold'
-                  : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-800'
+                  ? 'bg-white dark:bg-zinc-700 text-zinc-950 dark:text-white shadow-xs font-semibold'
+                  : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white'
               }`}
             >
               Light
@@ -42,10 +42,10 @@ export function AppearanceSection({
             <button
               type="button"
               onClick={() => onSelectThemeMode('dark')}
-              className={`h-full px-2.5 rounded-full text-xs font-medium flex items-center justify-center transition-all cursor-pointer ${
+              className={`h-full px-3 rounded-full text-xs font-medium flex items-center justify-center transition-all cursor-pointer ${
                 themeMode === 'dark'
-                  ? 'bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white shadow-xs font-semibold'
-                  : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-200'
+                  ? 'bg-white dark:bg-zinc-700 text-zinc-950 dark:text-white shadow-xs font-semibold'
+                  : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white'
               }`}
             >
               Dark
@@ -53,10 +53,10 @@ export function AppearanceSection({
             <button
               type="button"
               onClick={() => onSelectThemeMode('system')}
-              className={`h-full px-2.5 rounded-full text-xs font-medium flex items-center justify-center transition-all cursor-pointer ${
+              className={`h-full px-3 rounded-full text-xs font-medium flex items-center justify-center transition-all cursor-pointer ${
                 themeMode === 'system'
-                  ? 'bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white shadow-xs font-semibold'
-                  : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-200'
+                  ? 'bg-white dark:bg-zinc-700 text-zinc-950 dark:text-white shadow-xs font-semibold'
+                  : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white'
               }`}
             >
               System

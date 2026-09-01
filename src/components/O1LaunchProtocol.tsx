@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   Dumbbell,
@@ -26,6 +25,7 @@ import {
   O1LaunchProtocolData,
   persistLaunchProtocol,
 } from '@/utils/onboardingStore';
+import { LiquidSilkBackground } from '@/components/ui/LiquidSilkBackground';
 
 interface O1LaunchProtocolProps {
   isOpen: boolean;
@@ -916,9 +916,12 @@ export const O1LaunchProtocol: React.FC<O1LaunchProtocolProps> = ({
     }
   };
 
-  return createPortal(
-    <div className="fixed inset-0 z-[650] bg-black/50 backdrop-blur-md flex items-center justify-center p-2 sm:p-4 md:p-6 overflow-y-auto overscroll-contain selection:bg-red-600/20 text-black dark:text-white font-sans">
-      <div className="w-full max-w-lg max-h-[94vh] sm:max-h-[90vh] bg-white/60 dark:bg-zinc-950/60 backdrop-blur-2xl rounded-3xl shadow-[0_20px_60px_rgba(0,0,0,0.25)] overflow-hidden my-auto flex flex-col">
+  return (
+    <div className="fixed inset-0 z-[650] bg-slate-900/30 dark:bg-black/70 backdrop-blur-xl flex items-center justify-center p-2 sm:p-4 md:p-6 overflow-y-auto overscroll-contain selection:bg-red-600/20 text-black dark:text-white font-sans relative">
+      {/* Light Liquid Silk Ambient Dynamic Simulation */}
+      <LiquidSilkBackground theme="light" intensity={1.15} speed={1.0} />
+
+      <div className="w-full max-w-lg max-h-[94vh] sm:max-h-[90vh] bg-white/95 dark:bg-zinc-950/90 backdrop-blur-2xl rounded-3xl shadow-[0_25px_70px_rgba(0,0,0,0.2)] border border-white/80 dark:border-white/10 overflow-hidden my-auto flex flex-col relative z-10">
         {/* Progress Bar */}
         <div className="w-full h-1 bg-black/10 dark:bg-white/10 shrink-0">
           <div
@@ -989,8 +992,7 @@ export const O1LaunchProtocol: React.FC<O1LaunchProtocolProps> = ({
           </div>
         </div>
       </div>
-    </div>,
-    document.body
+    </div>
   );
 };
 

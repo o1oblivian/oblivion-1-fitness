@@ -15,6 +15,7 @@ import {
 import { ArchetypeBlueprint, PHASE_LABELS, Phase } from '@/data/archetypeBlueprints';
 import { getArchetypeImage, PREMIUM_ARCHETYPES } from '@/data/archetypeVisuals';
 import { useSubscription } from '@/utils/useSubscription';
+import { useModalBackHandler } from '@/utils/modalHistory';
 
 interface ArchetypeModalProps {
   isOpen: boolean;
@@ -33,7 +34,9 @@ export const ArchetypeModal: React.FC<ArchetypeModalProps> = ({
   showToast,
   onUpgrade,
 }) => {
+  useModalBackHandler(isOpen, onClose, 'archetype_modal');
   const { canAccess } = useSubscription();
+
   const hasAccess = canAccess('archetypes');
   const [selectedPhase, setSelectedPhase] = useState<'all' | Phase>('all');
   const [loaded, setLoaded] = useState(false);

@@ -204,189 +204,201 @@ export function ModalsLayer({ s }: Props) {
     <div id="o1fc-modals-root" className="contents">
       <Suspense fallback={null}>
       {/* Schedule Modal */}
-      <ScheduleModal
-        isOpen={s.isScheduleModalOpen}
-        schedule={s.weeklySchedule}
-        onSave={(newSched) => {
-          s.setWeeklySchedule(newSched);
-          try {
-            localStorage.setItem('lumina_weekly_schedule', JSON.stringify(newSched));
-          } catch {}
-          s.showToast('Weekly Schedule Saved!');
-        }}
-        onClose={() => s.setIsScheduleModalOpen(false)}
-      />
+      {s.isScheduleModalOpen && (
+        <ScheduleModal
+          isOpen={s.isScheduleModalOpen}
+          schedule={s.weeklySchedule}
+          onSave={(newSched) => {
+            s.setWeeklySchedule(newSched);
+            try {
+              localStorage.setItem('lumina_weekly_schedule', JSON.stringify(newSched));
+            } catch {}
+            s.showToast('Weekly Schedule Saved!');
+          }}
+          onClose={() => s.setIsScheduleModalOpen(false)}
+        />
+      )}
 
       {/* Routine Swapper Modal */}
-      <RoutineSwapperModal
-        isOpen={s.isRoutineSwapperOpen}
-        onSelectRoutine={(routineId) => {
-          if (ROUTINE_TEMPLATES[routineId]) {
-            const newLogs: ExerciseLog[] = ROUTINE_TEMPLATES[routineId].map((exName) => ({
-              id: 'ex_' + Math.random().toString(36).substring(2, 9),
-              exerciseName: exName,
-              sets: [
-                {
-                  id: 'set_' + Math.random().toString(36).substring(2, 9),
-                  reps: 0,
-                  weight: 0,
-                  rpe: 0,
-                },
-              ],
-            }));
-            s.setActiveLogs(newLogs);
-            s.handleModeChange('tracker');
-            s.showToast("Session loaded into Workout — let's go!");
-          }
-        }}
-        onClose={() => s.setIsRoutineSwapperOpen(false)}
-      />
+      {s.isRoutineSwapperOpen && (
+        <RoutineSwapperModal
+          isOpen={s.isRoutineSwapperOpen}
+          onSelectRoutine={(routineId) => {
+            if (ROUTINE_TEMPLATES[routineId]) {
+              const newLogs: ExerciseLog[] = ROUTINE_TEMPLATES[routineId].map((exName) => ({
+                id: 'ex_' + Math.random().toString(36).substring(2, 9),
+                exerciseName: exName,
+                sets: [
+                  {
+                    id: 'set_' + Math.random().toString(36).substring(2, 9),
+                    reps: 0,
+                    weight: 0,
+                    rpe: 0,
+                  },
+                ],
+              }));
+              s.setActiveLogs(newLogs);
+              s.handleModeChange('tracker');
+              s.showToast("Session loaded into Workout — let's go!");
+            }
+          }}
+          onClose={() => s.setIsRoutineSwapperOpen(false)}
+        />
+      )}
 
       {/* Commit / Save Workout Modal */}
-      <CommitSaveModal
-        isOpen={s.isCommitModalOpen}
-        exerciseCount={s.activeLogs.length}
-        totalSets={s.activeLogs.reduce((sum, l) => sum + l.sets.length, 0)}
-        totalVolume={s.activeLogs.reduce(
-          (sum, l) =>
-            sum +
-            l.sets.reduce((ss, st) => ss + (Number(st.weight) || 0) * (Number(st.reps) || 0), 0),
-          0
-        )}
-        onSaveToDay={async (day) => {
-          const durationSecs = Math.round((Date.now() - s.workoutStartRef.current) / 1000);
-          const sessionData = buildSessionFromLogs(s.currentUserEmail, s.activeLogs, durationSecs);
-          await saveCompletedSession(sessionData);
-          s.setSessionVaultRefresh((p: number) => p + 1);
-          const exercises = s.activeLogs.map((l) => l.exerciseName);
-          const customKey = 'custom_' + day.toLowerCase();
-          ROUTINE_TEMPLATES[customKey] = exercises;
-          const updatedSched = { ...s.weeklySchedule, [day]: customKey };
-          s.setWeeklySchedule(updatedSched);
-          try {
-            localStorage.setItem('lumina_weekly_schedule', JSON.stringify(updatedSched));
-          } catch {}
-          s.setActiveLogs([]);
-          s.workoutStartRef.current = Date.now();
-          s.showToast(`Workout saved to ${day} & logged to Vault!`);
-          s.setIsCommitModalOpen(false);
-        }}
-        onSaveStandalone={async () => {
-          const durationSecs = Math.round((Date.now() - s.workoutStartRef.current) / 1000);
-          const sessionData = buildSessionFromLogs(s.currentUserEmail, s.activeLogs, durationSecs);
-          await saveCompletedSession(sessionData);
-          s.setSessionVaultRefresh((p: number) => p + 1);
-          const totalVol = s.activeLogs.reduce(
+      {s.isCommitModalOpen && (
+        <CommitSaveModal
+          isOpen={s.isCommitModalOpen}
+          exerciseCount={s.activeLogs.length}
+          totalSets={s.activeLogs.reduce((sum, l) => sum + l.sets.length, 0)}
+          totalVolume={s.activeLogs.reduce(
             (sum, l) =>
               sum +
               l.sets.reduce((ss, st) => ss + (Number(st.weight) || 0) * (Number(st.reps) || 0), 0),
             0
-          );
-          const title =
-            s.activeLogs.length > 0
-              ? s.activeLogs
-                  .map((l) => l.exerciseName)
-                  .slice(0, 2)
-                  .join(' / ')
-              : 'Power Session';
-          const now = Date.now();
-          const historyEntry = {
-            id: `h_${now}`,
-            date: 'TODAY',
-            title: title.toUpperCase(),
-            volume: (totalVol / 1000).toFixed(1),
-            duration: formatDuration(durationSecs),
-            exercises: s.activeLogs.map((l) => ({
-              name: l.exerciseName,
-              sets: l.sets.map((st) => ({
-                weight: Number(st.weight) || 0,
-                reps: Number(st.reps) || 0,
-                rpe: Number(st.rpe) || 0,
+          )}
+          onSaveToDay={async (day) => {
+            const durationSecs = Math.round((Date.now() - s.workoutStartRef.current) / 1000);
+            const sessionData = buildSessionFromLogs(s.currentUserEmail, s.activeLogs, durationSecs);
+            await saveCompletedSession(sessionData);
+            s.setSessionVaultRefresh((p: number) => p + 1);
+            const exercises = s.activeLogs.map((l) => l.exerciseName);
+            const customKey = 'custom_' + day.toLowerCase();
+            ROUTINE_TEMPLATES[customKey] = exercises;
+            const updatedSched = { ...s.weeklySchedule, [day]: customKey };
+            s.setWeeklySchedule(updatedSched);
+            try {
+              localStorage.setItem('lumina_weekly_schedule', JSON.stringify(updatedSched));
+            } catch {}
+            s.setActiveLogs([]);
+            s.workoutStartRef.current = Date.now();
+            s.showToast(`Workout saved to ${day} & logged to Vault!`);
+            s.setIsCommitModalOpen(false);
+          }}
+          onSaveStandalone={async () => {
+            const durationSecs = Math.round((Date.now() - s.workoutStartRef.current) / 1000);
+            const sessionData = buildSessionFromLogs(s.currentUserEmail, s.activeLogs, durationSecs);
+            await saveCompletedSession(sessionData);
+            s.setSessionVaultRefresh((p: number) => p + 1);
+            const totalVol = s.activeLogs.reduce(
+              (sum, l) =>
+                sum +
+                l.sets.reduce((ss, st) => ss + (Number(st.weight) || 0) * (Number(st.reps) || 0), 0),
+              0
+            );
+            const title =
+              s.activeLogs.length > 0
+                ? s.activeLogs
+                    .map((l) => l.exerciseName)
+                    .slice(0, 2)
+                    .join(' / ')
+                : 'Power Session';
+            const now = Date.now();
+            const historyEntry = {
+              id: `h_${now}`,
+              date: 'TODAY',
+              title: title.toUpperCase(),
+              volume: (totalVol / 1000).toFixed(1),
+              duration: formatDuration(durationSecs),
+              exercises: s.activeLogs.map((l) => ({
+                name: l.exerciseName,
+                sets: l.sets.map((st) => ({
+                  weight: Number(st.weight) || 0,
+                  reps: Number(st.reps) || 0,
+                  rpe: Number(st.rpe) || 0,
+                })),
               })),
-            })),
-          };
-          const coachLog = {
-            id: `log_${now}`,
-            athleteName: s.currentUserEmail.split('@')[0] || 'Athlete',
-            handle: `@${s.currentUserEmail.split('@')[0] || 'athlete'}`,
-            volume: `${(totalVol / 1000).toFixed(1)} MT`,
-            timeAgo: 'JUST NOW',
-            approved: false,
-            duration: formatDuration(durationSecs),
-            readiness: Math.max(
-              50,
-              Math.round(
-                100 -
-                  (s.activeLogs.reduce(
-                    (sum, l) =>
-                      sum + l.sets.reduce((ss, st) => ss + (Number(st.rpe) || 0), 0),
-                    0
-                  ) /
-                    Math.max(
-                      1,
-                      s.activeLogs.reduce((sum, l) => sum + l.sets.length, 0)
-                    )) *
-                    5
-              )
-            ),
-            title: title.toUpperCase(),
-            date: 'TODAY',
-            exercises: s.activeLogs.map((l) => ({
-              name: l.exerciseName,
-              sets: l.sets.map((st) => ({
-                weight: Number(st.weight) || 0,
-                reps: Number(st.reps) || 0,
-                rpe: Number(st.rpe) || 0,
+            };
+            const coachLog = {
+              id: `log_${now}`,
+              athleteName: s.currentUserEmail.split('@')[0] || 'Athlete',
+              handle: `@${s.currentUserEmail.split('@')[0] || 'athlete'}`,
+              volume: `${(totalVol / 1000).toFixed(1)} MT`,
+              timeAgo: 'JUST NOW',
+              approved: false,
+              duration: formatDuration(durationSecs),
+              readiness: Math.max(
+                50,
+                Math.round(
+                  100 -
+                    (s.activeLogs.reduce(
+                      (sum, l) =>
+                        sum + l.sets.reduce((ss, st) => ss + (Number(st.rpe) || 0), 0),
+                      0
+                    ) /
+                      Math.max(
+                        1,
+                        s.activeLogs.reduce((sum, l) => sum + l.sets.length, 0)
+                      )) *
+                      5
+                )
+              ),
+              title: title.toUpperCase(),
+              date: 'TODAY',
+              exercises: s.activeLogs.map((l) => ({
+                name: l.exerciseName,
+                sets: l.sets.map((st) => ({
+                  weight: Number(st.weight) || 0,
+                  reps: Number(st.reps) || 0,
+                  rpe: Number(st.rpe) || 0,
+                })),
+                hasVideo: false,
+                coachNote: '',
               })),
-              hasVideo: false,
-              coachNote: '',
-            })),
-          };
-          if (s.registerWorkoutRef.current)
-            s.registerWorkoutRef.current({ historyEntry, coachLog });
-          s.setActiveLogs([]);
-          s.workoutStartRef.current = Date.now();
-          s.showToast('Session saved to your Vault!', 'success');
-          s.setIsCommitModalOpen(false);
-        }}
-        onClose={() => s.setIsCommitModalOpen(false)}
-      />
+            };
+            if (s.registerWorkoutRef.current)
+              s.registerWorkoutRef.current({ historyEntry, coachLog });
+            s.setActiveLogs([]);
+            s.workoutStartRef.current = Date.now();
+            s.showToast('Session saved to your Vault!', 'success');
+            s.setIsCommitModalOpen(false);
+          }}
+          onClose={() => s.setIsCommitModalOpen(false)}
+        />
+      )}
 
       {/* Auto Pilot Modal */}
-      <AutoPilotModal
-        isOpen={s.isAutoPilotOpen}
-        onApply={(newBmr, targetCals, p, c, f) => {
-          s.setBmr(newBmr);
-          s.setGoalCals(targetCals);
-          s.setGoalP(p);
-          s.setGoalC(c);
-          s.setGoalF(f);
-          s.showToast(
-            `Mifflin-St Jeor Targets Applied: ${targetCals.toLocaleString()} kcal`,
-            'success'
-          );
-        }}
-        onClose={() => s.setIsAutoPilotOpen(false)}
-      />
+      {s.isAutoPilotOpen && (
+        <AutoPilotModal
+          isOpen={s.isAutoPilotOpen}
+          onApply={(newBmr, targetCals, p, c, f) => {
+            s.setBmr(newBmr);
+            s.setGoalCals(targetCals);
+            s.setGoalP(p);
+            s.setGoalC(c);
+            s.setGoalF(f);
+            s.showToast(
+              `Mifflin-St Jeor Targets Applied: ${targetCals.toLocaleString()} kcal`,
+              'success'
+            );
+          }}
+          onClose={() => s.setIsAutoPilotOpen(false)}
+        />
+      )}
 
       {/* Core Food Entry Modal */}
-      <FoodEntryModal
-        isOpen={!!s.foodModalMeal}
-        mealName={s.foodModalMeal || ''}
-        foodDB={s.foodDB}
-        onSelectFood={s.handleSelectFoodForMeal}
-        onOpenCustomModal={(query) => s.setCustomFoodQuery(query)}
-        onClose={() => s.setFoodModalMeal(null)}
-        onOpenDial={s.openDial}
-      />
+      {s.foodModalMeal && (
+        <FoodEntryModal
+          isOpen={!!s.foodModalMeal}
+          mealName={s.foodModalMeal || ''}
+          foodDB={s.foodDB}
+          onSelectFood={s.handleSelectFoodForMeal}
+          onOpenCustomModal={(query) => s.setCustomFoodQuery(query)}
+          onClose={() => s.setFoodModalMeal(null)}
+          onOpenDial={s.openDial}
+        />
+      )}
 
       {/* Custom Food Creation Modal */}
-      <CustomFoodModal
-        isOpen={s.customFoodQuery !== null}
-        initialQuery={s.customFoodQuery || ''}
-        onSaveFood={s.handleSaveCustomFood}
-        onClose={() => s.setCustomFoodQuery(null)}
-      />
+      {s.customFoodQuery !== null && (
+        <CustomFoodModal
+          isOpen={s.customFoodQuery !== null}
+          initialQuery={s.customFoodQuery || ''}
+          onSaveFood={s.handleSaveCustomFood}
+          onClose={() => s.setCustomFoodQuery(null)}
+        />
+      )}
 
       {/* AI Meal Scan Modal */}
       {s.aiScanMeal && (
@@ -482,7 +494,7 @@ export function ModalsLayer({ s }: Props) {
       )}
 
       {/* Rotary Dial or Tactical Numpad Modals (Direct imports) */}
-      {getInputMethod() === 'dial' ? (
+      {s.dialConfig.isOpen && (getInputMethod() === 'dial' ? (
         <RotaryDialModal
           isOpen={s.dialConfig.isOpen}
           type={s.dialConfig.type}
@@ -500,7 +512,7 @@ export function ModalsLayer({ s }: Props) {
           onConfirm={s.dialConfig.onConfirm}
           onClose={() => s.setDialConfig((p) => ({ ...p, isOpen: false }))}
         />
-      )}
+      ))}
 
       {/* Export Data Help Modal */}
       {s.isExportHelpOpen && (

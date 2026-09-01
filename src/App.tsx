@@ -244,7 +244,7 @@ export default function App() {
 
       {/* Consent gate can be accessed from Settings/Legal when needed, no longer blocking dashboard */}
 
-      {s.isAuthenticated && (s.showQuickSetup || s.showWelcomeOnboarding) && !s.needsOAuthConsent && (
+      {s.isAuthenticated && (s.showQuickSetup || s.showWelcomeOnboarding) && (
         <Suspense fallback={null}>
           <O1LaunchProtocol
             isOpen={true}
@@ -254,7 +254,12 @@ export default function App() {
               if (data.displayName) s.setAthleteName(data.displayName);
               if (data.handle) s.setAthleteHandle(data.handle);
               if (data.profileImage) s.setProfileImage(data.profileImage);
-              if (data.role === 'coach') s.handleModeChange('coach');
+              try {
+                if (s.currentUserEmail) {
+                  localStorage.setItem(`o1fc_quicksetup_completed_${s.currentUserEmail}`, 'true');
+                  localStorage.setItem(`o1fc_onboarding_completed_${s.currentUserEmail}`, 'true');
+                }
+              } catch {}
               s.setShowQuickSetup(false);
               s.setShowWelcomeOnboarding(false);
               s.showToast('Welcome to O1 FC — Launch Protocol complete', 'success');

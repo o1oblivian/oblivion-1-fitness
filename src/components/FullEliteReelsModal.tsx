@@ -25,6 +25,7 @@ import { ConsultationRequestModal } from '@/components/ConsultationRequestModal'
 import { CoachShowcaseSlotModal } from '@/components/CoachShowcaseSlotModal';
 import { getCoachShowcase } from '@/utils/coachShowcaseStore';
 import { Sliders } from 'lucide-react';
+import { useModalBackHandler } from '@/utils/modalHistory';
 
 export interface MiniMediaWindow {
   type: 'video' | 'photo';
@@ -282,7 +283,9 @@ export const FullEliteReelsModal: React.FC<FullEliteReelsModalProps> = ({
   reels = [],
   showToast,
 }) => {
+  useModalBackHandler(isOpen, onClose, 'full_elite_reels_modal');
   const activeReels = reels && reels.length > 0 ? reels : DEFAULT_ELITE_REELS;
+
   const [activeFilter, setActiveFilter] = useState('All');
   const [muted, setMuted] = useState(true);
   const [liked, setLiked] = useState<Record<string, boolean>>({});

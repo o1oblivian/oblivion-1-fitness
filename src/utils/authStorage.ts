@@ -203,12 +203,6 @@ export function getSessionUserEmail(): string | null {
     const direct = localStorage.getItem(SESSION_EMAIL_KEY);
     if (direct && direct.trim()) return direct.trim();
 
-    const legacyLumina = localStorage.getItem('lumina_current_user');
-    if (legacyLumina && legacyLumina.trim()) return legacyLumina.trim();
-
-    const remembered = localStorage.getItem('o1fc_remembered_email');
-    if (remembered && remembered.trim()) return remembered.trim();
-
     const projectRef = (supabaseUrl || '').split('//')[1]?.split('.')[0] || 'qkfvepjeyreicqomatyt';
     const raw = localStorage.getItem(`sb-${projectRef}-auth-token`);
     if (raw) {
