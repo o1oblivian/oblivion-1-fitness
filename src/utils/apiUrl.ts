@@ -1,7 +1,8 @@
 import { Capacitor } from '@capacitor/core';
 
-// Cloud Run Production & Development Endpoints for Oblivion 1 Fitness Club
+// Cloud Run Production & Public Endpoints for Oblivion 1 Fitness Club
 export const CLOUD_ENDPOINTS = [
+  'https://o1fc-official-1.ai.studio',
   'https://ais-pre-ywak62jnfmfdpkjhp64wap-822845783036.asia-east1.run.app',
   'https://ais-dev-ywak62jnfmfdpkjhp64wap-822845783036.asia-east1.run.app',
 ];
