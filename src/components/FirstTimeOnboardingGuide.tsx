@@ -170,114 +170,122 @@ export const FirstTimeOnboardingGuide: React.FC<FirstTimeOnboardingGuideProps> =
     <AnimatePresence>
       <div 
         id="onboarding-guide-overlay"
-        className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 md:p-6 overflow-y-auto overscroll-contain bg-slate-900/30 dark:bg-black/70 backdrop-blur-xl relative"
+        className="fixed inset-0 z-[650] bg-[#f8fafc] text-black font-sans flex flex-col justify-between overflow-hidden select-none"
       >
-        {/* Light Liquid Silk Ambient Dynamic Simulation */}
-        <LiquidSilkBackground theme="light" intensity={1.15} speed={1.0} />
+        {/* Pure Light Fluid Silk Canvas Background (No Dark Smoke / No Floating Box) */}
+        <LiquidSilkBackground theme="light" intensity={0.9} speed={0.8} interactive={true} className="opacity-95" />
 
-        <motion.div
-          id="onboarding-guide-card"
-          initial={{ opacity: 0, scale: 0.95, y: 10 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.95, y: 10 }}
-          transition={{ duration: 0.25, ease: 'easeOut' }}
-          className="relative z-10 w-full max-w-lg max-h-[92vh] sm:max-h-[88vh] flex flex-col my-auto bg-white/95 dark:bg-zinc-950/90 backdrop-blur-2xl rounded-3xl shadow-[0_25px_70px_rgba(0,0,0,0.2)] border border-white/80 dark:border-white/10 overflow-hidden text-black dark:text-white font-sans"
-        >
-          {/* Top Header Bar */}
-          <div className="flex items-center justify-between px-6 pt-5 pb-4 bg-transparent shrink-0">
-            <div className="flex items-center space-x-2.5">
-              <div className="p-1.5 rounded-xl bg-white/90 dark:bg-white/10 text-red-600 shadow-sm">
-                <Compass className="w-4 h-4" />
+        {/* 1. Fixed Top Status Bar & Progress Bar */}
+        <header className="relative z-20 w-full shrink-0 pt-safe-top pt-4 px-4 sm:px-6 md:px-8 bg-white/40 backdrop-blur-xl border-b border-black/[0.04]">
+          <div className="max-w-md mx-auto flex flex-col items-center">
+            {/* Top Brand Tag & Step Counter + Dismiss */}
+            <div className="w-full flex items-center justify-between py-1 text-black">
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 rounded-lg bg-red-600/10 text-red-600 flex items-center justify-center">
+                  <Compass size={13} className="stroke-[2.5]" />
+                </div>
+                <span className="text-[11px] font-mono font-black uppercase tracking-[0.22em] text-red-600">
+                  O1FC System Guide
+                </span>
               </div>
-              <span className="text-xs font-mono font-black tracking-wider text-red-600 uppercase">
-                O1FC System Guide
-              </span>
+
+              <div className="flex items-center gap-2.5">
+                <div className="text-[11px] font-mono font-black text-black/70 px-2.5 py-0.5 rounded-full bg-white/70 shadow-xs border border-black/[0.04]">
+                  <span className="text-red-600 font-extrabold">{currentStepIndex + 1}</span> / {ONBOARDING_STEPS.length}
+                </div>
+                <button
+                  id="btn-skip-onboarding"
+                  onClick={handleComplete}
+                  className="p-1.5 text-black/60 hover:text-black rounded-xl hover:bg-white/80 transition-colors cursor-pointer"
+                  title="Dismiss Guide"
+                  aria-label="Dismiss Guide"
+                >
+                  <X className="w-4 h-4 stroke-[2.5]" />
+                </button>
+              </div>
             </div>
 
-            <div className="flex items-center space-x-3">
-              <span className="text-xs font-mono font-black text-black dark:text-white px-2.5 py-0.5 rounded-full bg-white/90 dark:bg-white/10 shadow-sm">
-                {currentStepIndex + 1} / {ONBOARDING_STEPS.length}
-              </span>
+            {/* Unified Progress Bar */}
+            <div className="w-full h-1 bg-black/[0.06] rounded-full mt-2.5 mb-2 overflow-hidden flex gap-1">
+              {ONBOARDING_STEPS.map((step, idx) => (
+                <div
+                  key={step.id}
+                  className={`h-full transition-all duration-300 rounded-full ${
+                    idx <= currentStepIndex ? 'bg-red-600 flex-1' : 'bg-black/10 flex-1'
+                  }`}
+                />
+              ))}
+            </div>
+          </div>
+        </header>
+
+        {/* 2. Unified Content Canvas (Centered, Never Opening Too Low) */}
+        <main className="relative z-10 flex-1 w-full overflow-y-auto overscroll-contain px-4 sm:px-6 md:px-8 py-5 flex flex-col items-center">
+          <div className="w-full max-w-md my-auto flex flex-col justify-start">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={currentStep.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.18, ease: 'easeOut' }}
+                className="w-full space-y-6"
+              >
+                {/* Visual Icon Badge */}
+                <div className="flex items-center justify-between">
+                  <div className="w-14 h-14 rounded-2xl flex items-center justify-center bg-white/90 text-red-600 shadow-sm border border-black/[0.04]">
+                    <StepIcon className="w-7 h-7 stroke-[2.5]" />
+                  </div>
+                  <span className="text-[11px] font-mono font-black tracking-widest text-black uppercase bg-white/80 px-3.5 py-1 rounded-full shadow-2xs border border-black/[0.04]">
+                    {currentStep.badge}
+                  </span>
+                </div>
+
+                {/* Titles & Instructions */}
+                <div className="space-y-2">
+                  <span className="text-[11px] font-mono uppercase tracking-[0.2em] text-red-600 font-black block">
+                    {currentStep.title}
+                  </span>
+                  <h3 className="text-2xl sm:text-3xl font-black tracking-tight text-black leading-tight">
+                    {currentStep.headline}
+                  </h3>
+                  <p className="text-sm sm:text-base text-zinc-700 leading-relaxed pt-1 font-medium">
+                    {currentStep.instruction}
+                  </p>
+                </div>
+
+                {/* Action Tip Box */}
+                <div className="p-4 rounded-2xl bg-white/80 border border-black/[0.04] flex items-start space-x-3 text-black shadow-xs">
+                  <Sparkles className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
+                  <p className="text-xs sm:text-sm text-zinc-800 leading-relaxed font-sans font-medium">
+                    {currentStep.actionTip}
+                  </p>
+                </div>
+              </motion.div>
+            </AnimatePresence>
+          </div>
+        </main>
+
+        {/* 3. Pinned Bottom Action Bar (Fixed, Never Cut Off) */}
+        <footer className="relative z-20 w-full shrink-0 pb-safe-bottom pb-4 pt-3 px-4 sm:px-6 md:px-8 bg-white/60 backdrop-blur-xl border-t border-black/[0.04]">
+          <div className="max-w-md mx-auto flex items-center gap-3">
+            {currentStepIndex > 0 && (
               <button
-                id="btn-skip-onboarding"
-                onClick={handleComplete}
-                className="p-1.5 text-black dark:text-white hover:text-red-600 rounded-xl hover:bg-white/80 dark:hover:bg-white/10 transition-colors cursor-pointer"
-                title="Dismiss Guide"
-                aria-label="Dismiss Guide"
+                id="btn-prev-onboarding"
+                type="button"
+                onClick={handlePrev}
+                className="h-12 px-4 rounded-2xl bg-white/90 hover:bg-white text-black font-mono font-black text-xs transition-all flex items-center justify-center gap-1.5 shrink-0 cursor-pointer shadow-xs active:scale-95 border border-black/[0.06]"
               >
-                <X className="w-4 h-4 stroke-[2.5]" />
+                <ChevronLeft className="w-4 h-4 stroke-[2.5]" />
+                <span>PREVIOUS</span>
               </button>
-            </div>
-          </div>
-
-          {/* Progress Indicators */}
-          <div className="flex w-full h-1 bg-black/10 dark:bg-white/10 shrink-0">
-            {ONBOARDING_STEPS.map((step, idx) => (
-              <div
-                key={step.id}
-                className={`h-full transition-all duration-300 ${
-                  idx <= currentStepIndex ? 'bg-red-600 flex-1' : 'bg-transparent flex-1'
-                }`}
-              />
-            ))}
-          </div>
-
-          {/* Step Content */}
-          <div className="p-6 md:p-8 space-y-5 bg-transparent flex-1 min-h-0 overflow-y-auto overscroll-contain">
-            {/* Visual Icon Badge */}
-            <div className="flex items-center justify-between">
-              <div 
-                className="p-4 rounded-2xl flex items-center justify-center transition-all duration-300 bg-white/90 dark:bg-white/10 text-red-600 shadow-sm"
-              >
-                <StepIcon className="w-7 h-7 stroke-[2.5]" />
-              </div>
-              <span className="text-[11px] font-mono font-black tracking-widest text-black dark:text-white uppercase bg-white/90 dark:bg-white/10 px-3.5 py-1 rounded-full shadow-xs">
-                {currentStep.badge}
-              </span>
-            </div>
-
-            {/* Titles & Instructions */}
-            <div className="space-y-1.5">
-              <h4 className="text-xs font-mono uppercase tracking-wider text-red-600 font-black">
-                {currentStep.title}
-              </h4>
-              <h3 className="text-xl sm:text-2xl font-black tracking-tight text-black dark:text-white leading-tight">
-                {currentStep.headline}
-              </h3>
-              <p className="text-sm text-zinc-700 dark:text-zinc-300 leading-relaxed pt-1 font-medium">
-                {currentStep.instruction}
-              </p>
-            </div>
-
-            {/* Action Tip Box of Information */}
-            <div className="p-4 rounded-2xl bg-white/85 dark:bg-zinc-900/80 flex items-start space-x-3 text-black dark:text-white shadow-sm">
-              <Sparkles className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
-              <p className="text-xs text-zinc-800 dark:text-zinc-200 leading-relaxed font-sans font-medium">
-                {currentStep.actionTip}
-              </p>
-            </div>
-          </div>
-
-          {/* Footer Controls */}
-          <div className="flex items-center justify-between px-6 py-4 bg-white/40 dark:bg-zinc-900/40 backdrop-blur-md shrink-0">
-            <button
-              id="btn-prev-onboarding"
-              onClick={handlePrev}
-              disabled={currentStepIndex === 0}
-              className={`flex items-center space-x-1.5 px-4 py-2.5 rounded-xl text-xs font-black font-mono transition-all ${
-                currentStepIndex === 0 
-                  ? 'text-zinc-400 bg-white/30 dark:bg-white/5 cursor-not-allowed' 
-                  : 'bg-white/90 dark:bg-white/10 text-black dark:text-white hover:bg-white dark:hover:bg-white/20 cursor-pointer shadow-sm active:scale-95'
-              }`}
-            >
-              <ChevronLeft className="w-4 h-4 stroke-[2.5]" />
-              <span>PREVIOUS</span>
-            </button>
+            )}
 
             <button
               id="btn-next-onboarding"
+              type="button"
               onClick={handleNext}
-              className="flex items-center space-x-2 px-6 py-2.5 rounded-xl text-xs font-black font-mono tracking-wider text-white bg-red-600 hover:bg-red-700 transition-all shadow-md active:scale-95 cursor-pointer"
+              className="flex-1 h-12 bg-red-600 hover:bg-red-700 text-white font-black text-xs font-mono uppercase tracking-[0.2em] rounded-2xl flex items-center justify-center gap-2 shadow-sm active:scale-[0.98] transition-all cursor-pointer"
             >
               <span>{currentStepIndex === ONBOARDING_STEPS.length - 1 ? 'GET STARTED' : 'CONTINUE'}</span>
               {currentStepIndex === ONBOARDING_STEPS.length - 1 ? (
@@ -287,7 +295,7 @@ export const FirstTimeOnboardingGuide: React.FC<FirstTimeOnboardingGuideProps> =
               )}
             </button>
           </div>
-        </motion.div>
+        </footer>
       </div>
     </AnimatePresence>
   );

@@ -471,7 +471,7 @@ export function ModalsLayer({ s }: Props) {
           onSendFeedback={() => s.showToast('Feedback submitted!', 'success')}
           onOpenPayPlan={(tier) => {
             if (tier === 'coach' || tier === 'premium') s.setPayPlanHighlightTier(tier);
-            s.setModalOpenedFromSettings(false);
+            s.setModalOpenedFromSettings(true);
             s.setIsEditProfileOpen(false);
             s.setIsPayPlanOpen(true);
           }}
@@ -605,7 +605,10 @@ export function ModalsLayer({ s }: Props) {
           isOpen={s.isPayPlanOpen}
           onClose={() => {
             s.setIsPayPlanOpen(false);
-            s.setModalOpenedFromSettings(false);
+            if (s.modalOpenedFromSettings) {
+              s.setModalOpenedFromSettings(false);
+              s.setIsEditProfileOpen(true);
+            }
           }}
           defaultTier={s.payPlanHighlightTier}
           showToast={s.showToast}

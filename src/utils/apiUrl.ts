@@ -7,18 +7,18 @@ export const CLOUD_ENDPOINTS = [
 ];
 
 /**
- * Determine if running in an Android APK, Capacitor native shell, or local file/localhost environment
+ * Determine if running inside a native mobile APK shell (Capacitor/Cordova)
  */
-export function isNativeOrLocal(): boolean {
+export function isNativePlatform(): boolean {
   if (typeof window === 'undefined') return false;
-  if (Capacitor.isNativePlatform()) return true;
+  try {
+    if (Capacitor.isNativePlatform()) return true;
+  } catch {}
 
   const origin = window.location.origin || '';
   const protocol = window.location.protocol || '';
 
   return (
-    origin.includes('localhost') ||
-    origin.includes('127.0.0.1') ||
     protocol.startsWith('capacitor') ||
     protocol.startsWith('file') ||
     origin === 'null' ||
@@ -39,13 +39,13 @@ export function getApiUrl(path: string): string {
     return `${base}${cleanPath}`;
   }
 
-  // 2. If running inside Android APK / Capacitor native shell / localhost debug environment
-  if (isNativeOrLocal()) {
+  // 2. If running inside Android APK / Capacitor native shell
+  if (isNativePlatform()) {
     const primaryCloud = CLOUD_ENDPOINTS[0];
     return `${primaryCloud}${cleanPath}`;
   }
 
-  // 3. Running in standard Web Browser on Cloud Run or Custom Domain
+  // 3. Running in standard Web Browser (AI Studio Preview, Localhost, or Cloud Run)
   return cleanPath;
 }
 

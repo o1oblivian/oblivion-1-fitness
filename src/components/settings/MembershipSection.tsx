@@ -9,7 +9,28 @@ interface Props {
 export function MembershipSection({ onOpenPayPlan }: Props) {
   const { tier, isPaid, isTrialActive, trialDaysLeft } = useSubscription();
 
-  const tierLabel = tier === 'premium' ? 'Premium Athlete' : tier === 'coach_pro' ? 'Coach Pro' : tier === 'premium_travel' ? 'Premium + Travel' : 'Free Tier Athlete';
+  const getTierLabel = (t: string) => {
+    switch (t) {
+      case 'founder_pass':
+        return 'Founder Pass (Lifetime)';
+      case 'premium':
+      case 'premium_50k':
+      case 'premium_50km':
+        return 'Premium Athlete (Pro)';
+      case 'premium_travel':
+        return 'Premium + Travel (VIP)';
+      case 'coach_pro':
+        return 'Coach Pro (Unlimited)';
+      case 'coach_starter':
+        return 'Coach Starter';
+      case 'coach_free':
+        return 'Coach Free';
+      default:
+        return 'Core Free Athlete';
+    }
+  };
+
+  const tierLabel = getTierLabel(tier);
 
   return (
     <div>

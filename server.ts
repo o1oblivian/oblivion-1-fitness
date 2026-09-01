@@ -7,11 +7,11 @@ import { createServer as createViteServer } from 'vite';
 let stripeClient: Stripe | null = null;
 let aiClient: GoogleGenAI | null = null;
 
-const DEFAULT_STRIPE_LIVE_KEY = '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';
+const LIVE_STRIPE_SECRET_KEY = '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';
 
 function getStripe(): Stripe | null {
   const envKey = (process.env.STRIPE_SECRET_KEY || '').trim();
-  const key = (envKey.startsWith('sk_') || envKey.startsWith('rk_')) ? envKey : DEFAULT_STRIPE_LIVE_KEY;
+  const key = (envKey.startsWith('sk_') || envKey.startsWith('rk_')) ? envKey : LIVE_STRIPE_SECRET_KEY;
   if (!key) return null;
   if (!stripeClient) {
     stripeClient = new Stripe(key, {
@@ -264,160 +264,138 @@ async function startServer() {
         const cleanMime = mimeType || 'image/jpeg';
         const ai = getAI();
 
-        if (ai) {
-          try {
-            const prompt = `You are a certified sports dietitian, clinical nutritionist, and high-precision computer vision AI.
-Analyze this food photo with strict accuracy and integrity.
+        if (!ai) {
+          return res.status(503).json({
+            success: false,
+            message: 'AI Vision Engine is initializing or Gemini API key is missing. Please enter food manually or try again in a moment.',
+          });
+        }
 
-Follow this hierarchical protocol:
-1. NUTRITION FACTS PANEL / INGREDIENT LABEL:
-   - If a printed nutrition facts panel, table, or back-of-pack label is visible, READ THE EXACT PRINTED NUMBERS:
-     * Extract the exact product name and brand.
-     * Extract the exact serving size (e.g., "100g", "1 tub (475ml)", "1 scoop (32g)").
-     * Extract the EXACT printed calories/energy (kcal), protein (g), total carbs (g), total fat (g), and dietary fiber (g).
+        const prompt = `You are a world-class board-certified clinical sports dietitian and high-precision computer vision AI for Oblivion 1 Fitness Club.
+Analyze this food photograph with strict scientific accuracy, anatomical honesty, and nutritional integrity.
 
-2. PACKAGED PRODUCT / BRANDED CONTAINER:
-   - If a commercial product container, tub, pouch, or front-of-pack is shown (e.g., "Denada Triple Choc Ice Cream", "Chobani Fit Yogurt", "Quest Bar", "Optimum Nutrition Whey", etc.):
-     * Recognize the EXACT brand, sub-brand, flavor, and variety.
-     * Look for visible front-of-pack nutritional badges (e.g., "102 CALS", "20g PROTEIN", "97% SUGAR FREE", "LOW CARB").
-     * Retrieve the verified manufacturer nutritional specifications for that exact commercial product.
-     * Calculate the accurate macros for 1 standard serving or the container portion shown.
+CRITICAL INSTRUCTIONS:
+1. ONLY ANALYZE WHAT IS VISIBLE:
+   - Identify ONLY the exact ingredients and food items physically present in the photo.
+   - STRICT PROHIBITION: DO NOT invent, hallucinate, or add unpictured side dishes, carbs, sauces, or greens. (For example, if you see only chicken pieces in a container, DO NOT add rice or vegetables. If you see only eggs on a plate, DO NOT add toast, oatmeal, or berries. If you see only nuts in a bowl, DO NOT add yogurt or cereal).
 
-3. PREPARED MEAL / WHOLE FOOD DISH:
-   - If a plated meal or raw whole food is shown (e.g., grilled chicken breast, basmati rice, broccoli, eggs):
-     * Accurately identify each distinct visible ingredient component.
-     * Estimate realistic portion weights in grams based on visual volume and plate dimensions.
-     * Calculate true scientific macronutrients (USDA standard) for each component.
+2. WHOLE FOODS & PLATED MEALS:
+   - EGGS: Identify preparation (e.g. "Fried Eggs (Sunny-Side Up)", "Boiled Eggs", "Scrambled Eggs") and count exact eggs. (1 large whole egg = ~72 kcal, 6.3g protein, 4.8g fat, 0.4g carb).
+   - NUTS & SEEDS: Identify the exact nut variety (e.g. "Walnut Halves", "Raw Almonds", "Pecans", "Cashews") and estimate realistic weight in grams (e.g. ~25-30g per handful, ~160-195 kcal, ~4g protein, ~16-20g healthy fat, ~3g carbs).
+   - POULTRY & MEATS: Identify the cut, cooking method, and visible coatings/sauces (e.g. "Grilled Chicken Breast", "Cooked Seasoned Chicken Thigh Pieces in Sauce", "Seared Sirloin Steak"). Estimate realistic weight in grams and true USDA macronutrients.
+   - FRUITS & VEGETABLES: Identify specific items and portions (e.g. "Steamed Broccoli Florets 100g", "Medium Banana 118g", "Blueberries 50g").
 
-4. NON-FOOD / UNIDENTIFIABLE:
-   - If the image is not food, or is too blurry/dark to identify nutritional content with confidence, set "isFood": false and explain in "message".
+3. PACKAGED ITEMS & NUTRITION PANELS:
+   - If a printed nutrition facts panel is visible, transcribe the EXACT printed values for calories, protein, carbs, fat, and fiber.
+   - If a branded packaged container is visible, recognize the brand and product flavor, and calculate macros for 1 standard serving or the container portion.
 
-CRITICAL INTEGRITY INVARIANTS:
-- NEVER output generic placeholder meals if you are looking at a specific branded product (e.g., NEVER label an ice cream tub, yogurt, or protein bar as "Lean Protein Cut" or "Balanced Athletic Fuel Plate").
-- Provide realistic, truthful macronutrients.
+4. NON-FOOD OR UNRECOGNIZABLE:
+   - If the image contains no food, or is too blurry/dark to recognize nutrition, set "isFood": false and explain clearly in "message".
+
+5. MACRO MATH:
+   - Ensure calories match: Calories = (protein * 4) + (carbs * 4) + (fats * 9).
+   - All gram values must be realistic positive numbers.
 
 Return ONLY a valid JSON object matching this schema:
 {
   "isFood": true,
-  "name": "Accurate Specific Food or Product Name",
-  "fiber": 4.5,
+  "name": "Specific Descriptive Meal or Item Name",
+  "fiber": 2.5,
   "breakdown": [
     {
-      "item": "Specific Food or Component Name",
-      "amount": "100g",
-      "protein": 12.5,
-      "carbs": 4.0,
-      "fats": 6.2,
-      "calories": 122
+      "item": "Specific Food Component Name",
+      "amount": "120g",
+      "protein": 24.0,
+      "carbs": 0.0,
+      "fats": 3.5,
+      "calories": 128
     }
   ]
 }`;
 
-            let response: any = null;
-            const modelsToTry = [
-              'gemini-2.5-flash',
-              'gemini-2.0-flash',
-              'gemini-1.5-flash',
-              'gemini-3.7-flash',
-              'gemini-flash-latest',
-              'gemini-2.5-pro',
-            ];
-            for (const modelName of modelsToTry) {
-              try {
-                response = await ai.models.generateContent({
-                  model: modelName,
-                  contents: [
-                    {
-                      role: 'user',
-                      parts: [
-                        { text: prompt },
-                        {
-                          inlineData: {
-                            data: rawBase64,
-                            mimeType: cleanMime,
-                          },
-                        },
-                      ],
-                    },
-                  ],
-                  config: {
-                    responseMimeType: 'application/json',
-                  },
-                });
-                if (response && response.text) break;
-              } catch (modelErr) {
-                console.warn(`Gemini vision with ${modelName} failed, trying next model:`, modelErr);
-              }
-            }
+        const imagePart = {
+          inlineData: {
+            data: rawBase64,
+            mimeType: cleanMime,
+          },
+        };
+        const textPart = {
+          text: prompt,
+        };
 
-            const text = response?.text || '';
-            const cleaned = text.replace(/^```json\s*/i, '').replace(/\s*```$/i, '').trim();
-            if (cleaned) {
-              const parsed = JSON.parse(cleaned);
+        let response: any = null;
+        const modelsToTry = [
+          'gemini-3.7-flash',
+          'gemini-flash-latest',
+          'gemini-3.1-flash-lite',
+        ];
 
-              if (parsed.isFood === false) {
-                return res.json({
-                  success: false,
-                  message: parsed.message || 'No food or nutrition information could be detected in this photo. Please take a clearer photo or search by name.',
-                });
-              }
-
-              if (parsed && parsed.breakdown && Array.isArray(parsed.breakdown) && parsed.breakdown.length > 0) {
-                return res.json({
-                  success: true,
-                  vision: {
-                    name: parsed.name || 'Identified Meal',
-                    fiber: Number(parsed.fiber) || 0,
-                    breakdown: parsed.breakdown.map((b: any) => ({
-                      item: b.item || 'Food Item',
-                      amount: b.amount || '100g',
-                      protein: Math.round((Number(b.protein) || 0) * 10) / 10,
-                      carbs: Math.round((Number(b.carbs) || 0) * 10) / 10,
-                      fats: Math.round((Number(b.fats) || 0) * 10) / 10,
-                      calories: Math.round(Number(b.calories) || (Number(b.protein || 0) * 4 + Number(b.carbs || 0) * 4 + Number(b.fats || 0) * 9)),
-                    })),
-                  },
-                });
-              }
-            }
-          } catch (aiErr) {
-            console.error('Gemini vision analysis error:', aiErr);
+        let lastModelError: any = null;
+        for (const modelName of modelsToTry) {
+          try {
+            response = await ai.models.generateContent({
+              model: modelName,
+              contents: { parts: [imagePart, textPart] },
+              config: {
+                responseMimeType: 'application/json',
+              },
+            });
+            if (response && response.text) break;
+          } catch (modelErr) {
+            lastModelError = modelErr;
+            console.warn(`Gemini vision with ${modelName} failed, trying fallback model:`, modelErr);
           }
         }
 
-        // Smart fallback nutrition estimation if Gemini vision is temporarily rate-limited or key unavailable
-        return res.json({
-          success: true,
-          vision: {
-            name: 'Athletic High-Protein Meal Plate',
-            fiber: 5,
-            breakdown: [
-              {
-                item: 'Grilled Chicken Breast / Lean Protein',
-                amount: '180g',
-                protein: 42.5,
-                carbs: 0,
-                fats: 4.2,
-                calories: 215,
-              },
-              {
-                item: 'Steamed Jasmine Rice / Complex Carbs',
-                amount: '150g',
-                protein: 4.1,
-                carbs: 45.0,
-                fats: 0.6,
-                calories: 205,
-              },
-              {
-                item: 'Charred Greens & Olive Dressing',
-                amount: '100g',
-                protein: 2.8,
-                carbs: 6.2,
-                fats: 5.5,
-                calories: 85,
-              },
-            ],
-          },
+        const text = response?.text || '';
+        const cleaned = text.replace(/^```json\s*/i, '').replace(/\s*```$/i, '').trim();
+
+        if (cleaned) {
+          try {
+            const parsed = JSON.parse(cleaned);
+
+            if (parsed.isFood === false) {
+              return res.json({
+                success: false,
+                message: parsed.message || 'No food could be identified in this photo. Please retake photo with clearer lighting or search food by name.',
+              });
+            }
+
+            if (parsed && parsed.breakdown && Array.isArray(parsed.breakdown) && parsed.breakdown.length > 0) {
+              const breakdown = parsed.breakdown.map((b: any) => {
+                const p = Math.round((Number(b.protein) || 0) * 10) / 10;
+                const c = Math.round((Number(b.carbs) || 0) * 10) / 10;
+                const f = Math.round((Number(b.fats) || 0) * 10) / 10;
+                const calcCals = Math.round(p * 4 + c * 4 + f * 9);
+                const statedCals = Math.round(Number(b.calories) || calcCals);
+                return {
+                  item: String(b.item || 'Food Item').trim(),
+                  amount: String(b.amount || '100g').trim(),
+                  protein: p,
+                  carbs: c,
+                  fats: f,
+                  calories: statedCals > 0 ? statedCals : calcCals,
+                };
+              });
+
+              return res.json({
+                success: true,
+                vision: {
+                  name: parsed.name || breakdown[0]?.item || 'Identified Meal',
+                  fiber: Math.round((Number(parsed.fiber) || 0) * 10) / 10,
+                  breakdown,
+                },
+              });
+            }
+          } catch (parseErr) {
+            console.error('Failed to parse Gemini vision response JSON:', parseErr, text);
+          }
+        }
+
+        // Return honest error instead of fake fabricated nutritional data
+        return res.status(422).json({
+          success: false,
+          message: 'Unable to accurately detect food items in this photo. Please retake with better lighting or enter food items manually.',
         });
       } catch (err: any) {
         console.error('Food scan fatal error:', err);
@@ -476,12 +454,12 @@ Return ONLY valid JSON matching this schema:
 }`;
 
           let response: any = null;
-          const modelsToTry = ['gemini-3.7-flash', 'gemini-2.5-flash', 'gemini-3.1-pro-preview'];
+          const modelsToTry = ['gemini-3.7-flash', 'gemini-flash-latest', 'gemini-3.1-flash-lite'];
           for (const modelName of modelsToTry) {
             try {
               response = await ai.models.generateContent({
                 model: modelName,
-                contents: [{ role: 'user', parts: [{ text: prompt }] }],
+                contents: prompt,
                 config: { responseMimeType: 'application/json' },
               });
               if (response && response.text) break;
@@ -719,12 +697,12 @@ Return a concise JSON object with:
 }`;
 
           let response: any = null;
-          const modelsToTry = ['gemini-3.7-flash', 'gemini-2.5-flash', 'gemini-3.1-pro-preview'];
+          const modelsToTry = ['gemini-3.7-flash', 'gemini-flash-latest', 'gemini-3.1-flash-lite'];
           for (const modelName of modelsToTry) {
             try {
               response = await ai.models.generateContent({
                 model: modelName,
-                contents: [{ role: 'user', parts: [{ text: prompt }] }],
+                contents: prompt,
                 config: { responseMimeType: 'application/json' },
               });
               if (response && response.text) break;

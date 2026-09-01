@@ -1,7 +1,7 @@
 import { supabase, isSupabaseConfigured } from './supabase';
 
 export type UserRole = 'athlete' | 'coach';
-export type SubscriptionTier = 'free' | 'premium' | 'premium_travel' | 'coach_free' | 'coach_pro';
+export type SubscriptionTier = 'free' | 'freemium' | 'premium' | 'premium_travel' | 'founder_pass' | 'coach_free' | 'coach_pro';
 
 export interface UserProfile {
   id: string;

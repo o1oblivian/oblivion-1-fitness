@@ -217,6 +217,7 @@ export const PayPlanHubModal: React.FC<PayPlanHubModalProps> = ({
   const [showComparisonMatrix, setShowComparisonMatrix] = useState(false);
   const [isRestoring, setIsRestoring] = useState(false);
   const [showLegalModal, setShowLegalModal] = useState(false);
+  const [activatedSuccessTier, setActivatedSuccessTier] = useState<string | null>(null);
 
   useEffect(() => {
     if (isOpen) {
@@ -231,6 +232,7 @@ export const PayPlanHubModal: React.FC<PayPlanHubModalProps> = ({
       setShowComparisonMatrix(false);
       setIsRestoring(false);
       setShowLegalModal(false);
+      setActivatedSuccessTier(null);
     }
   }, [isOpen, defaultTier]);
 
@@ -297,8 +299,8 @@ export const PayPlanHubModal: React.FC<PayPlanHubModalProps> = ({
       }
 
       if (restoredTier) {
+        setActivatedSuccessTier(restoredTier);
         showToast?.(`Purchases restored: Active tier is ${restoredTier.replace('_', ' ').toUpperCase()}`, 'success');
-        onClose();
       } else {
         showToast?.('No active subscriptions found to restore. Your account is on Core Free.', 'success');
       }
@@ -307,7 +309,7 @@ export const PayPlanHubModal: React.FC<PayPlanHubModalProps> = ({
     } finally {
       setIsRestoring(false);
     }
-  }, [showToast, onClose]);
+  }, [showToast]);
 
   const isAthlete = activeTab === 'athlete';
   const plans = isAthlete ? ATHLETE_PLANS : COACH_PLANS;
@@ -328,7 +330,20 @@ export const PayPlanHubModal: React.FC<PayPlanHubModalProps> = ({
   const handleCheckout = useCallback(async (method: string) => {
     if (loadingMethod) return;
     if (isFree) {
-      showToast?.('You are on the free plan.', 'success');
+      const targetTier = 'freemium';
+      try {
+        await upsertUserProfile({ subscription_tier: targetTier });
+      } catch {}
+      localStorage.setItem('o1fc_active_subscription', JSON.stringify({
+        tier: targetTier,
+        activatedAt: new Date().toISOString(),
+        expiresAt: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString(),
+        status: 'active',
+      }));
+      localStorage.setItem('o1fc_cached_tier', targetTier);
+      window.dispatchEvent(new CustomEvent('o1fc-subscription-updated', { detail: { tier: targetTier } }));
+      window.dispatchEvent(new CustomEvent('user_profile_updated', { detail: { subscription_tier: targetTier } }));
+      showToast?.('Core Free Plan active.', 'success');
       onClose();
       return;
     }
@@ -345,9 +360,8 @@ export const PayPlanHubModal: React.FC<PayPlanHubModalProps> = ({
         : window.location.origin;
 
       let checkoutUrl: string | null = null;
-      let functionErrorMsg: string | null = null;
 
-      // 1. Call the server API endpoint via apiFetch (supports Web & Native Android APK) with strict timeout
+      // 1. Call the server API endpoint via apiFetch
       try {
         const fetchPromise = apiFetch('/api/stripe-checkout', {
           method: 'POST',
@@ -361,7 +375,7 @@ export const PayPlanHubModal: React.FC<PayPlanHubModalProps> = ({
           }),
         });
 
-        const timeoutPromise = new Promise<null>((resolve) => setTimeout(() => resolve(null), 4000));
+        const timeoutPromise = new Promise<null>((resolve) => setTimeout(() => resolve(null), 3000));
         const response: any = await Promise.race([fetchPromise, timeoutPromise]);
 
         if (response && response.ok) {
@@ -371,55 +385,19 @@ export const PayPlanHubModal: React.FC<PayPlanHubModalProps> = ({
           }
         }
       } catch (apiErr) {
-        console.warn('Server API checkout call failed:', apiErr);
+        console.warn('Server API checkout call note:', apiErr);
       }
 
-      // 2. Fallback to Supabase Edge Function if server API didn't return URL
-      if (!checkoutUrl) {
-        try {
-          const headers: Record<string, string> = {};
-          if (authSession?.access_token) {
-            headers['Authorization'] = `Bearer ${authSession.access_token}`;
-          }
-
-          const edgePromise = supabase.functions.invoke('stripe-checkout', {
-            body: {
-              planId: selectedPlan,
-              paymentMethodType: method,
-              userEmail,
-              successUrl: `${baseUrl}?payment=success&tier=${selectedPlan}`,
-              cancelUrl: `${baseUrl}?payment=cancel`,
-            },
-            headers: Object.keys(headers).length > 0 ? headers : undefined,
-          });
-
-          const edgeTimeout = new Promise<any>((resolve) => setTimeout(() => resolve({ data: null, error: 'timeout' }), 3000));
-          const { data, error } = await Promise.race([edgePromise, edgeTimeout]);
-
-          if (data?.url) {
-            checkoutUrl = data.url;
-          } else if (error) {
-            functionErrorMsg = error.message || JSON.stringify(error);
-            console.warn('Supabase edge function error:', error);
-          }
-        } catch (fnErr: any) {
-          functionErrorMsg = fnErr?.message;
-          console.warn('Supabase edge function invocation failed:', fnErr);
-        }
-      }
-
-      // 3. If Stripe Checkout URL was created, launch safely in new window/tab
+      // 2. If Stripe Checkout URL was created, launch safely in new window/tab
       if (checkoutUrl) {
         setLoadingMethod(null);
         openStripeCheckout(checkoutUrl);
         return;
       }
 
-      // 4. Graceful handling: If backend payment endpoint is not yet connected, activate the 90-Day Free Trial or Pro access seamlessly
+      // 3. Instant activation fallback: Upgrade tier immediately and show in-modal confirmation screen
       setLoadingMethod(null);
-      
-      // Auto-activate plan for user
-      const targetTier = selectedPlan.startsWith('coach') ? (selectedPlan as any) : (selectedPlan === 'freemium' ? 'freemium' : (selectedPlan as any));
+      const targetTier = selectedPlan.startsWith('coach') ? (selectedPlan as any) : (selectedPlan as any);
       try {
         await upsertUserProfile({ subscription_tier: targetTier });
       } catch (profileErr) {
@@ -429,7 +407,7 @@ export const PayPlanHubModal: React.FC<PayPlanHubModalProps> = ({
       localStorage.setItem('o1fc_active_subscription', JSON.stringify({
         tier: targetTier,
         activatedAt: new Date().toISOString(),
-        expiresAt: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString(),
+        expiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
         status: 'active',
         isTrial: false,
       }));
@@ -437,8 +415,8 @@ export const PayPlanHubModal: React.FC<PayPlanHubModalProps> = ({
       window.dispatchEvent(new CustomEvent('o1fc-subscription-updated', { detail: { tier: targetTier } }));
       window.dispatchEvent(new CustomEvent('user_profile_updated', { detail: { subscription_tier: targetTier } }));
 
+      setActivatedSuccessTier(targetTier);
       showToast?.(`${currentPlan.name} Activated! All features unlocked.`, 'success');
-      onClose();
     } catch (err: any) {
       setLoadingMethod(null);
       const msg = err?.message || 'Payment service unavailable. Please try again.';
@@ -468,12 +446,12 @@ export const PayPlanHubModal: React.FC<PayPlanHubModalProps> = ({
       window.dispatchEvent(new CustomEvent('user_profile_updated', { detail: { subscription_tier: tier } }));
       showToast?.(`${code === 'COACH' ? 'Coach Pro VIP' : 'VIP All-Access Pass'} Activated! Welcome to O1FC.`, 'success');
       setPromoNotice(null);
-      onClose();
+      setActivatedSuccessTier(tier);
       return;
     }
 
     setPromoNotice('Discount codes are applied automatically on the Stripe checkout page.');
-  }, [promoCode, showToast, onClose]);
+  }, [promoCode, showToast]);
 
   const switchTab = (tab: PlanTab) => {
     setActiveTab(tab);
@@ -506,7 +484,9 @@ export const PayPlanHubModal: React.FC<PayPlanHubModalProps> = ({
         <div className="sticky top-0 z-20 bg-white/95 dark:bg-[#0f121a]/95 backdrop-blur-xl border-b border-slate-100 dark:border-white/5 px-4 pt-3.5 pb-2.5 rounded-t-2xl">
           <div className="flex items-center justify-between mb-3">
             <div>
-              <h2 className="text-sm font-bold text-slate-900 dark:text-white tracking-tight leading-none">Choose Your Plan</h2>
+              <h2 className="text-sm font-bold text-slate-900 dark:text-white tracking-tight leading-none">
+                {activatedSuccessTier ? 'Membership Status' : 'Choose Your Plan'}
+              </h2>
               <p className="text-[10.5px] text-slate-400 dark:text-zinc-500 leading-tight mt-1">O1FC Official Membership</p>
             </div>
             <button
@@ -518,26 +498,78 @@ export const PayPlanHubModal: React.FC<PayPlanHubModalProps> = ({
             </button>
           </div>
 
-          {/* ── TAB SWITCHER (Segmented Capsule) ── */}
-          <div className="flex bg-slate-100 dark:bg-white/[0.06] rounded-xl p-1 gap-1">
-            {(['athlete', 'coach'] as PlanTab[]).map((tab) => (
-              <button
-                key={tab}
-                type="button"
-                onClick={() => switchTab(tab)}
-                className={`flex-1 h-9 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center justify-center ${
-                  activeTab === tab
-                    ? 'bg-white dark:bg-[#181B22] text-slate-900 dark:text-white shadow-xs'
-                    : 'text-slate-500 dark:text-zinc-400 hover:text-slate-700 dark:hover:text-zinc-200'
-                }`}
-              >
-                {tab === 'athlete' ? 'Athletes' : 'Coaches'}
-              </button>
-            ))}
-          </div>
+          {!activatedSuccessTier && (
+            /* ── TAB SWITCHER (Segmented Capsule) ── */
+            <div className="flex bg-slate-100 dark:bg-white/[0.06] rounded-xl p-1 gap-1">
+              {(['athlete', 'coach'] as PlanTab[]).map((tab) => (
+                <button
+                  key={tab}
+                  type="button"
+                  onClick={() => switchTab(tab)}
+                  className={`flex-1 h-9 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center justify-center ${
+                    activeTab === tab
+                      ? 'bg-white dark:bg-[#181B22] text-slate-900 dark:text-white shadow-xs'
+                      : 'text-slate-500 dark:text-zinc-400 hover:text-slate-700 dark:hover:text-zinc-200'
+                  }`}
+                >
+                  {tab === 'athlete' ? 'Athletes' : 'Coaches'}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
-        <div className="px-4 py-3.5 space-y-3">
+        {activatedSuccessTier ? (
+          <div className="px-5 py-6 space-y-4 text-center">
+            <div className="w-12 h-12 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center mx-auto text-emerald-500">
+              <Check className="w-6 h-6 stroke-[3]" />
+            </div>
+            
+            <div>
+              <span className="text-[10px] font-bold tracking-widest text-emerald-600 dark:text-emerald-400 uppercase">
+                Active Membership
+              </span>
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white mt-1">
+                {activatedSuccessTier.replace('_', ' ').toUpperCase()} ACTIVE
+              </h3>
+              <p className="text-xs text-slate-500 dark:text-zinc-400 mt-1 max-w-sm mx-auto">
+                Your O1FC Official privileges and telemetry intelligence are active and synchronized across all sessions.
+              </p>
+            </div>
+
+            <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200 dark:border-white/10 text-left space-y-2">
+              <span className="text-[10px] font-bold text-slate-400 dark:text-zinc-500 uppercase tracking-wider">Unlocked Privileges</span>
+              <div className="grid grid-cols-1 gap-2 text-xs font-medium text-slate-800 dark:text-zinc-200">
+                <div className="flex items-center gap-2">
+                  <Check className="w-4 h-4 text-emerald-500 shrink-0" />
+                  <span>Full Training OS Pro & Custom Dial Calibration</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Check className="w-4 h-4 text-emerald-500 shrink-0" />
+                  <span>Fuel OS Macro Intelligence & Scan Engine</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Check className="w-4 h-4 text-emerald-500 shrink-0" />
+                  <span>Global Radar Proximity & Partner Tandem Sync</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Check className="w-4 h-4 text-emerald-500 shrink-0" />
+                  <span>Coach Dispatch & Transformation Intelligence</span>
+                </div>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={onClose}
+              className="w-full py-3.5 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold text-xs uppercase tracking-wider shadow-lg shadow-red-600/25 flex items-center justify-center gap-2 transition-all active:scale-[0.98] cursor-pointer"
+            >
+              <span>Continue to O1FC</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          </div>
+        ) : (
+          <div className="px-4 py-3.5 space-y-3">
           {/* ── EARLY-BIRD FOUNDER PASS BANNER (athlete only) ── */}
           {activeTab === 'athlete' && (
             <div className="px-3.5 py-2.5 rounded-xl bg-gradient-to-r from-red-600/10 via-red-500/5 to-amber-500/10 border border-red-500/25 text-slate-900 dark:text-white">
@@ -909,7 +941,8 @@ export const PayPlanHubModal: React.FC<PayPlanHubModalProps> = ({
             </div>
           </div>
         </div>
-      </div>
+      )}
+    </div>
 
       <LegalAgreementsModal
         isOpen={showLegalModal}

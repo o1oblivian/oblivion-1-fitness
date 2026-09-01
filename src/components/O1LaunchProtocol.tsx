@@ -917,81 +917,95 @@ export const O1LaunchProtocol: React.FC<O1LaunchProtocolProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-[650] bg-slate-900/30 dark:bg-black/70 backdrop-blur-xl flex items-center justify-center p-2 sm:p-4 md:p-6 overflow-y-auto overscroll-contain selection:bg-red-600/20 text-black dark:text-white font-sans relative">
-      {/* Light Liquid Silk Ambient Dynamic Simulation */}
-      <LiquidSilkBackground theme="light" intensity={1.15} speed={1.0} />
+    <div className="fixed inset-0 z-[650] bg-[#f8fafc] text-black font-sans flex flex-col justify-between overflow-hidden select-none">
+      {/* ── 1. Pure Light Fluid Silk Canvas Background (No Dark Smoke / No Floating Box) ── */}
+      <LiquidSilkBackground theme="light" intensity={0.9} speed={0.8} interactive={true} className="opacity-95" />
 
-      <div className="w-full max-w-lg max-h-[94vh] sm:max-h-[90vh] bg-white/95 dark:bg-zinc-950/90 backdrop-blur-2xl rounded-3xl shadow-[0_25px_70px_rgba(0,0,0,0.2)] border border-white/80 dark:border-white/10 overflow-hidden my-auto flex flex-col relative z-10">
-        {/* Progress Bar */}
-        <div className="w-full h-1 bg-black/10 dark:bg-white/10 shrink-0">
-          <div
-            className="h-full bg-red-600 transition-all duration-300"
-            style={{ width: `${(step / 6) * 100}%` }}
-          />
+      {/* ── 2. Fixed Top Status Bar & Progress Tracker (Zero Jumping / Absolute Consistency) ── */}
+      <header className="relative z-20 w-full shrink-0 pt-safe-top pt-4 px-4 sm:px-6 md:px-8 bg-white/40 backdrop-blur-xl border-b border-black/[0.04]">
+        <div className="max-w-md mx-auto flex flex-col items-center">
+          {/* Top Brand Tag & Step Counter */}
+          <div className="w-full flex items-center justify-between py-1 text-black">
+            <div className="flex items-center gap-2">
+              <div className="w-6 h-6 rounded-lg bg-red-600/10 text-red-600 flex items-center justify-center">
+                <Cpu size={13} className="stroke-[2.5]" />
+              </div>
+              <span className="text-[11px] font-mono font-black uppercase tracking-[0.22em] text-red-600">
+                O1FC LAUNCH PROTOCOL
+              </span>
+            </div>
+            <div className="text-[11px] font-mono font-black text-black/70 px-2.5 py-0.5 rounded-full bg-white/70 shadow-xs border border-black/[0.04]">
+              <span className="text-red-600 font-extrabold">{step}</span> / 6
+            </div>
+          </div>
+
+          {/* Unified Progress Bar */}
+          <div className="w-full h-1 bg-black/[0.06] rounded-full mt-2.5 mb-2 overflow-hidden">
+            <div
+              className="h-full bg-red-600 transition-all duration-300 ease-out rounded-full"
+              style={{ width: `${(step / 6) * 100}%` }}
+            />
+          </div>
         </div>
+      </header>
 
-        {/* Main Content Stage - Scrollable inside */}
-        <div className="p-4 sm:p-6 flex-1 min-h-0 overflow-y-auto overscroll-contain flex flex-col justify-start bg-transparent">
+      {/* ── 3. Unified Direct Printed Silk Stage (Scrollable Content, Locked Baseline) ── */}
+      <main className="relative z-10 flex-1 w-full overflow-y-auto overscroll-contain px-4 sm:px-6 md:px-8 py-5 flex flex-col items-center">
+        <div className="w-full max-w-md my-auto flex flex-col justify-start">
           <AnimatePresence mode="wait">
             <motion.div
               key={step}
-              initial={{ opacity: 0, y: 8 }}
+              initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.16, ease: 'easeOut' }}
-              className="w-full my-auto"
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.18, ease: 'easeOut' }}
+              className="w-full"
             >
               {renderStepContent()}
             </motion.div>
           </AnimatePresence>
         </div>
+      </main>
 
-        {/* Bottom Sticky Action Bar */}
-        <div
-          className="w-full px-4 sm:px-5 py-3 sm:py-4 bg-white/40 dark:bg-zinc-900/40 backdrop-blur-md shrink-0 rounded-b-3xl"
-        >
-          <div className="flex items-center gap-3">
-            {step > 1 && (
-              <button
-                id="onboarding-back-button"
-                type="button"
-                onClick={handleBack}
-                className="p-3 rounded-2xl bg-white/90 dark:bg-white/10 hover:bg-white dark:hover:bg-white/20 text-black dark:text-white transition-all shrink-0 cursor-pointer shadow-sm active:scale-95"
-                aria-label="Back"
-              >
-                <ArrowLeft size={16} className="stroke-[2.5]" />
-              </button>
-            )}
+      {/* ── 4. Pinned Bottom Native Action Bar (Fixed Coordinates Across All 6 Steps) ── */}
+      <footer className="relative z-20 w-full shrink-0 pb-safe-bottom pb-4 pt-3 px-4 sm:px-6 md:px-8 bg-white/60 backdrop-blur-xl border-t border-black/[0.04]">
+        <div className="max-w-md mx-auto flex items-center gap-3">
+          {step > 1 && (
+            <button
+              id="onboarding-back-button"
+              type="button"
+              onClick={handleBack}
+              className="h-12 w-12 rounded-2xl bg-white/90 hover:bg-white text-black transition-all flex items-center justify-center shrink-0 cursor-pointer shadow-xs active:scale-95 border border-black/[0.06]"
+              aria-label="Back"
+            >
+              <ArrowLeft size={17} className="stroke-[2.5]" />
+            </button>
+          )}
 
-            <div className="text-xs font-mono font-black text-black dark:text-white px-3 py-2.5 rounded-2xl bg-white/90 dark:bg-white/10 shrink-0 shadow-sm">
-              <span className="text-red-600">{step}</span> / 6
-            </div>
-
-            {step < 6 ? (
-              <button
-                id="onboarding-continue-button"
-                type="button"
-                onClick={handleNext}
-                className="flex-1 py-3 bg-red-600 hover:bg-red-700 text-white font-black text-xs uppercase tracking-[0.18em] rounded-2xl flex items-center justify-center gap-2 shadow-md active:scale-95 transition-all cursor-pointer"
-              >
-                <span>CONTINUE</span>
-                <ArrowRight size={14} className="stroke-[3]" />
-              </button>
-            ) : (
-              <button
-                id="onboarding-enter-o1-button"
-                type="button"
-                onClick={() => handleFinish()}
-                disabled={isSubmitting}
-                className="flex-1 py-3 bg-red-600 hover:bg-red-700 text-white font-black text-xs uppercase tracking-[0.18em] rounded-2xl flex items-center justify-center gap-2 shadow-md active:scale-95 transition-all cursor-pointer"
-              >
-                <span>ENTER O1FC</span>
-                <ArrowRight size={14} className="stroke-[3]" />
-              </button>
-            )}
-          </div>
+          {step < 6 ? (
+            <button
+              id="onboarding-continue-button"
+              type="button"
+              onClick={handleNext}
+              className="flex-1 h-12 bg-red-600 hover:bg-red-700 text-white font-black text-xs uppercase tracking-[0.2em] rounded-2xl flex items-center justify-center gap-2 shadow-sm active:scale-[0.98] transition-all cursor-pointer"
+            >
+              <span>CONTINUE</span>
+              <ArrowRight size={15} className="stroke-[3]" />
+            </button>
+          ) : (
+            <button
+              id="onboarding-enter-o1-button"
+              type="button"
+              onClick={() => handleFinish()}
+              disabled={isSubmitting}
+              className="flex-1 h-12 bg-red-600 hover:bg-red-700 text-white font-black text-xs uppercase tracking-[0.2em] rounded-2xl flex items-center justify-center gap-2 shadow-sm active:scale-[0.98] transition-all cursor-pointer"
+            >
+              <span>ENTER O1FC</span>
+              <ArrowRight size={15} className="stroke-[3]" />
+            </button>
+          )}
         </div>
-      </div>
+      </footer>
     </div>
   );
 };

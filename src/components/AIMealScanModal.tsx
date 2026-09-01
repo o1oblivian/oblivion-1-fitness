@@ -409,38 +409,14 @@ export const AIMealScanModal: React.FC<AIMealScanModalProps> = ({
 
       let vision = data?.vision;
 
-      // Intelligent athlete nutrition fallback if cloud vision or network is temporarily unreachable
-      if (!vision || !Array.isArray(vision.breakdown) || vision.breakdown.length === 0) {
-        if (selectedMeal === 'breakfast') {
-          vision = {
-            name: 'Protein Oatmeal & Greek Yogurt Bowl',
-            fiber: 7,
-            breakdown: [
-              { item: 'Rolled Oats / Muesli Grains', amount: '80g', protein: 10.5, carbs: 54.0, fats: 5.5, calories: 308 },
-              { item: 'Greek Yogurt / Protein Base', amount: '150g', protein: 15.0, carbs: 6.0, fats: 0.5, calories: 89 },
-              { item: 'Mixed Berries & Crushed Almonds', amount: '40g', protein: 3.5, carbs: 8.0, fats: 7.0, calories: 109 },
-            ],
-          };
-        } else if (selectedMeal === 'snack') {
-          vision = {
-            name: 'High-Protein Athletic Snack Bowl',
-            fiber: 4,
-            breakdown: [
-              { item: 'Greek Yogurt / Whey Protein Blend', amount: '170g', protein: 22.0, carbs: 8.0, fats: 1.5, calories: 134 },
-              { item: 'Granola & Chia Seeds', amount: '35g', protein: 4.5, carbs: 18.0, fats: 5.0, calories: 135 },
-            ],
-          };
-        } else {
-          vision = {
-            name: 'Athletic High-Protein Meal Plate',
-            fiber: 5,
-            breakdown: [
-              { item: 'Grilled Chicken Breast / Lean Protein', amount: '180g', protein: 42.0, carbs: 0, fats: 4.0, calories: 204 },
-              { item: 'Steamed Jasmine Rice / Sweet Potato', amount: '150g', protein: 3.5, carbs: 42.0, fats: 0.5, calories: 187 },
-              { item: 'Steamed Greens / Mixed Vegetables', amount: '100g', protein: 2.5, carbs: 7.0, fats: 0.5, calories: 43 },
-            ],
-          };
-        }
+      // If no valid vision breakdown was returned or the photo had no detectable food
+      if (!data?.success || !vision || !Array.isArray(vision.breakdown) || vision.breakdown.length === 0) {
+        const errorMsg = data?.message || 'Could not recognize food in this photo. Please retake photo with clearer lighting or add food item manually.';
+        setScanError(errorMsg);
+        setPhase('viewfinder');
+        showToast(errorMsg, 'error');
+        haptic.warning();
+        return;
       }
 
       const items: ScannedFoodItem[] = (vision.breakdown || []).map((b: any) => {
@@ -477,37 +453,16 @@ export const AIMealScanModal: React.FC<AIMealScanModalProps> = ({
       setTimeout(() => {
         setEstimation(est);
         setPhase('results');
-      }, 300);
+        haptic.success();
+      }, 200);
     } catch (err: any) {
       if (scanTimerRef.current) clearInterval(scanTimerRef.current);
       if (err.name === 'AbortError') return;
-      // Provide robust fallback instead of failing
-      const fallbackEst: MealEstimation = {
-        title: 'Nutritional Meal Plate',
-        items: [
-          {
-            name: 'Protein Oatmeal / Grain Bowl',
-            grams: 250,
-            p: 28.0,
-            c: 62.0,
-            f: 12.0,
-            cals: 468,
-            baseP: 28.0,
-            baseC: 62.0,
-            baseF: 12.0,
-            baseCals: 468,
-            baseGrams: 250,
-            servings: 1,
-          },
-        ],
-        totalCals: 468,
-        totalP: 28.0,
-        totalC: 62.0,
-        totalF: 12.0,
-        fiber: 6,
-      };
-      setEstimation(fallbackEst);
-      setPhase('results');
+      const errorMsg = err?.message || 'Food scan failed. Please check connection and try again.';
+      setScanError(errorMsg);
+      setPhase('viewfinder');
+      showToast(errorMsg, 'error');
+      haptic.warning();
     }
   }, [stopLiveViewfinder]);
 
