@@ -26,10 +26,91 @@ import {
   ChevronUp,
   Activity,
   Calendar,
+  FileText,
+  Sliders,
+  FolderOpen,
+  Lock,
 } from 'lucide-react';
+import { useSubscription } from '@/utils/useSubscription';
 import { EXERCISE_DATABASE } from '@/data/exerciseDatabase';
 import { supabase, isSupabaseConfigured } from '@/utils/supabase';
-import { generateSmartBlueprint, getIntelligentExercises } from '@/utils/intelligentWorkoutEngine';
+import {
+  generateSmartBlueprint,
+  getIntelligentExercises,
+  CATEGORY_FOCUS_OPTIONS,
+  getDefaultFocusForCategory,
+  CATEGORY_DEFAULT_SPLITS,
+} from '@/utils/intelligentWorkoutEngine';
+import { ProgramCoverVaultPicker } from './ProgramCoverVaultPicker';
+
+export const PROGRAM_DESCRIPTION_TEMPLATES: { label: string; category: string; short: string; full: string }[] = [
+  {
+    label: 'Hypertrophy Power Protocol',
+    category: 'Hypertrophy',
+    short: 'High-volume hypertrophy system engineering maximum myofibrillar growth with calibrated mechanical tension.',
+    full: 'Targeted at intermediate to advanced lifters seeking rapid muscle growth. Combines heavy primary compound movements in the 6-8 rep range with high-density isolation volume (10-15 reps) to maximize muscular tension and metabolic stress across a structured split.',
+  },
+  {
+    label: 'Push Pull Legs Mastery',
+    category: 'Push Pull Legs',
+    short: 'Classic 6-day PPL split structured for maximum weekly frequency and balanced muscular development.',
+    full: 'Built for lifters wanting consistent frequency per muscle group. Sessions alternate between upper pressing, pulling, and lower body drive with built-in autoregulation and progressive overload tracking.',
+  },
+  {
+    label: 'HYROX Race Conditioning',
+    category: 'HYROX',
+    short: 'Hybrid engine builder blending sled work, skierg intervals, running pacing, and functional power.',
+    full: 'Engineered specifically for hybrid fitness racers and HYROX competitors. Combines compromised running stamina with station-specific strength endurance (sled push/pull, burpee broad jumps, wall balls) to peak aerobic and anaerobic capacity.',
+  },
+  {
+    label: 'Pure Strength 5x5 System',
+    category: 'Strength',
+    short: 'Linear and undulating barbell strength blueprint focused on bench press, squat, deadlift, and overhead press.',
+    full: 'A foundational strength methodology built around progressive overload on the core power lifts. Focuses on nervous system efficiency, force production, and sub-maximal volume with dedicated deload protocols.',
+  },
+  {
+    label: 'Powerlifting Meet Prep Peak',
+    category: 'Powerlifting',
+    short: 'Peaking protocol targeting maximal 1RM strength on Squat, Bench Press, and Deadlift with calibrated RPE.',
+    full: 'Designed for competitive powerlifters and strength athletes. Features heavy compound singles/doubles, specific accessory weakness targeting, pausing variations, and a structured taper to peak on meet day.',
+  },
+  {
+    label: 'Combat & Striking Conditioning',
+    category: 'Combat & Boxing',
+    short: 'Rotational power, footwork agility, punch endurance, and neck/core bulletproofing for combat athletes.',
+    full: 'Tailored for boxers, martial artists, and combat athletes. Blends high-velocity rotational med-ball throws, heavy bag sprint intervals, neck isometric bridges, and shoulder endurance circuits for 12-round stamina.',
+  },
+  {
+    label: 'Endurance & Zone 2 Aerobic Base',
+    category: 'Endurance',
+    short: 'Mitochondrial density, lactate threshold pacing, and high-efficiency aerobic stamina development.',
+    full: 'A comprehensive aerobic conditioning protocol for runners, triathletes, and hybrid performers. Structures Zone 2 base building, VO2 max high-intensity intervals, and muscular endurance sessions.',
+  },
+  {
+    label: 'Functional Mobility & Joint Longevity',
+    category: 'Mobility',
+    short: 'Joint stability, hip & shoulder mobility, and structural bulletproofing for injury resilience and posture.',
+    full: 'Focuses on end-range joint strength, spinal decompression, hip opening, and posterior chain activation. Ideal as an active recovery cycle or foundational movement restoration block.',
+  },
+  {
+    label: 'Sport Speed & Athletic Agility',
+    category: 'Sport-Specific',
+    short: 'First-step acceleration, plyometric vertical force, deceleration control, and field agility.',
+    full: 'Built for court, turf, and field athletes. Incorporates sprint mechanics, plyometric depth jumps, reactive ladder footwork, and unilateral lower-body deceleration strength to dominate on game day.',
+  },
+  {
+    label: 'Calisthenics & Bodyweight Dominance',
+    category: 'Calisthenics',
+    short: 'Relative strength, straight-arm levers, muscle-up mastery, and strict gymnastics strength.',
+    full: 'Focuses on mastery over one’s own bodyweight. Progresses pull-ups, ring dips, pistol squats, handstand push-ups, and lever isometric holds with strict mechanical control.',
+  },
+  {
+    label: 'Athletic Body Recomposition',
+    category: 'Body Recomp',
+    short: 'Metabolic resistance training and high-yield supersets designed to shed body fat while preserving lean tissue.',
+    full: 'Optimized for simultaneous fat loss and lean mass retention. Features undulating rep ranges, active rest intervals, and targeted metabolic conditioning circuits to elevate daily energy expenditure.',
+  },
+];
 
 /* ───────── types ───────── */
 
@@ -66,19 +147,21 @@ const STEPS: { key: Step; label: string; number: number }[] = [
 
 const CATEGORIES = [
   'Hypertrophy',
+  'Push Pull Legs',
   'Strength',
   'Powerlifting',
-  'Conditioning',
   'HYROX',
-  'Push Pull Legs',
-  'Weight Loss',
-  'Body Recomp',
-  'Full Body',
-  'Upper / Lower',
-  'Sport-Specific',
-  'Mobility',
-  'Beginner Friendly',
+  'Combat & Boxing',
   'Endurance',
+  'Mobility',
+  'Sport-Specific',
+  'Calisthenics',
+  'Conditioning',
+  'Body Recomp',
+  'Weight Loss',
+  'Upper / Lower',
+  'Full Body',
+  'Beginner Friendly',
 ];
 
 const DIFFICULTIES = ['Beginner', 'Intermediate', 'Advanced', 'Elite'];
@@ -129,19 +212,19 @@ function makeExercise(): ProgramExercise {
   };
 }
 
-function makeDay(index: number): ProgramDay {
+function makeDay(index: number, cat = 'Hypertrophy'): ProgramDay {
   return {
     id: uid(),
     label: DAY_LABELS[index] || `Day ${index + 1}`,
-    focus: index === 0 ? 'Push' : index === 1 ? 'Pull' : index === 2 ? 'Legs' : 'Conditioning',
+    focus: getDefaultFocusForCategory(cat, index),
     exercises: [makeExercise(), makeExercise()],
   };
 }
 
-function makeWeek(daysCount: number): ProgramWeek {
+function makeWeek(daysCount: number, cat = 'Hypertrophy'): ProgramWeek {
   return {
     id: uid(),
-    days: Array.from({ length: daysCount }, (_, i) => makeDay(i)),
+    days: Array.from({ length: daysCount }, (_, i) => makeDay(i, cat)),
   };
 }
 
@@ -160,12 +243,16 @@ export const ProgramCreatorModal: React.FC<Props> = ({
   coachEmail,
   showToast,
 }) => {
+  const { isCoachRole } = useSubscription();
+
   /* step */
   const [step, setStep] = useState<Step>('details');
 
   /* details */
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
+  const [shortDescription, setShortDescription] = useState('');
+  const [descTab, setDescTab] = useState<'short' | 'full' | 'starters'>('short');
   const [category, setCategory] = useState('Hypertrophy');
   const [difficulty, setDifficulty] = useState('Intermediate');
   const [weekCount, setWeekCount] = useState(4);
@@ -193,9 +280,9 @@ export const ProgramCreatorModal: React.FC<Props> = ({
   const scrollRef = useRef<HTMLDivElement>(null);
 
   /* initialize weeks when opening or moving to builder */
-  const initWeeks = (customWeekCount = weekCount, customDays = daysPerWeek) => {
+  const initWeeks = (customWeekCount = weekCount, customDays = daysPerWeek, customCat = category) => {
     if (weeks.length === 0) {
-      setWeeks(Array.from({ length: customWeekCount }, () => makeWeek(customDays)));
+      setWeeks(Array.from({ length: customWeekCount }, () => makeWeek(customDays, customCat)));
     }
   };
 
@@ -205,12 +292,36 @@ export const ProgramCreatorModal: React.FC<Props> = ({
     }
   }, [isOpen]);
 
+  /* dynamic focus options based on selected coaching category */
+  const availableFocusOptions = useMemo(() => {
+    return CATEGORY_FOCUS_OPTIONS[category] || FOCUS_OPTIONS;
+  }, [category]);
+
+  /* sync category change across program */
+  const handleCategoryChange = (newCat: string) => {
+    setCategory(newCat);
+    if (weeks.length > 0) {
+      setWeeks((prev) =>
+        prev.map((wk) => ({
+          ...wk,
+          days: wk.days.map((d, dIdx) => {
+            const isEmpty = d.exercises.every((e) => !e.name || !e.name.trim());
+            return {
+              ...d,
+              focus: isEmpty ? getDefaultFocusForCategory(newCat, dIdx) : d.focus,
+            };
+          }),
+        }))
+      );
+    }
+  };
+
   /* sync weeks count if changed in step 1 */
   const handleWeekCountChange = (w: number) => {
     setWeekCount(w);
     if (weeks.length > 0) {
       if (w > weeks.length) {
-        const added = Array.from({ length: w - weeks.length }, () => makeWeek(daysPerWeek));
+        const added = Array.from({ length: w - weeks.length }, () => makeWeek(daysPerWeek, category));
         setWeeks((prev) => [...prev, ...added]);
       } else if (w < weeks.length) {
         setWeeks((prev) => prev.slice(0, w));
@@ -226,7 +337,7 @@ export const ProgramCreatorModal: React.FC<Props> = ({
         prev.map((wk) => {
           if (d > wk.days.length) {
             const added = Array.from({ length: d - wk.days.length }, (_, i) =>
-              makeDay(wk.days.length + i)
+              makeDay(wk.days.length + i, category)
             );
             return { ...wk, days: [...wk.days, ...added] };
           } else if (d < wk.days.length) {
@@ -237,6 +348,20 @@ export const ProgramCreatorModal: React.FC<Props> = ({
       );
       if (activeDay >= d) setActiveDay(Math.max(0, d - 1));
     }
+  };
+
+  /* sync entire week split to the recommended discipline split */
+  const syncWeekSplitToCategory = (weekIdx: number) => {
+    setWeeks((prev) => {
+      const next = structuredClone(prev);
+      if (next[weekIdx]) {
+        next[weekIdx].days.forEach((day, dIdx) => {
+          day.focus = getDefaultFocusForCategory(category, dIdx);
+        });
+      }
+      return next;
+    });
+    showToast(`Synced Week ${weekIdx + 1} schedule to ${category} split`, 'success');
   };
 
   /* exercise database query */
@@ -301,8 +426,8 @@ export const ProgramCreatorModal: React.FC<Props> = ({
   };
 
   const applySmartBlueprint = (weekIdx: number, dayIdx: number) => {
-    const focus = weeks[weekIdx]?.days[dayIdx]?.focus || 'Push';
-    const blueprint = generateSmartBlueprint(focus);
+    const focus = weeks[weekIdx]?.days[dayIdx]?.focus || getDefaultFocusForCategory(category, dayIdx);
+    const blueprint = generateSmartBlueprint(focus, category, difficulty);
     setWeeks((prev) => {
       const next = structuredClone(prev);
       if (next[weekIdx]?.days[dayIdx]) {
@@ -319,7 +444,7 @@ export const ProgramCreatorModal: React.FC<Props> = ({
       }
       return next;
     });
-    showToast(`Applied ${focus} blueprint`, 'success');
+    showToast(`Applied ${focus} Blueprint (${blueprint.length} movements)`, 'success');
   };
 
   const quickAddExercise = (weekIdx: number, dayIdx: number, exerciseName: string) => {
@@ -501,10 +626,16 @@ export const ProgramCreatorModal: React.FC<Props> = ({
       })),
     }));
 
+    const finalDescription = shortDescription.trim()
+      ? description.trim()
+        ? `${shortDescription.trim()}\n\n${description.trim()}`
+        : shortDescription.trim()
+      : description.trim();
+
     const payload = {
       coach_email: coachEmail || 'coach@o1fc.app',
       title: title.trim(),
-      description: description.trim(),
+      description: finalDescription,
       category,
       difficulty,
       duration_weeks: weeks.length,
@@ -553,6 +684,8 @@ export const ProgramCreatorModal: React.FC<Props> = ({
     setStep('details');
     setTitle('');
     setDescription('');
+    setShortDescription('');
+    setDescTab('short');
     setCategory('Hypertrophy');
     setDifficulty('Intermediate');
     setWeekCount(4);
@@ -568,6 +701,50 @@ export const ProgramCreatorModal: React.FC<Props> = ({
   const currentDay = weeks[activeWeek]?.days[activeDay];
 
   if (!isOpen) return null;
+
+  if (!isCoachRole) {
+    return createPortal(
+      <div
+        id="program-creator-auth-guard"
+        className="fixed inset-0 z-[250] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-fade-in"
+      >
+        <div className="w-full max-w-sm rounded-2xl border border-zinc-200 dark:border-white/10 bg-white dark:bg-[#121214] p-6 text-center flex flex-col items-center gap-3.5 shadow-2xl">
+          <div className="w-12 h-12 rounded-2xl bg-red-600/10 dark:bg-red-500/15 border border-red-600/20 flex items-center justify-center text-red-600 dark:text-red-400">
+            <Lock size={22} className="stroke-[2.2]" />
+          </div>
+          <div>
+            <h2 className="text-base font-bold text-black dark:text-white">
+              Coach Pro License Required
+            </h2>
+            <p className="text-xs text-zinc-600 dark:text-zinc-300 mt-1 leading-relaxed">
+              Program authoring, pricing matrices, and marketplace publishing are reserved for certified O1FC coaches.
+            </p>
+          </div>
+          <div className="w-full flex flex-col gap-2 pt-1">
+            <button
+              type="button"
+              onClick={() => {
+                onClose();
+                showToast('Opening Coach Pro Licensing options...', 'success');
+                window.dispatchEvent(new CustomEvent('open_pay_plan_coach'));
+              }}
+              className="w-full py-2.5 px-4 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold transition-all shadow-sm active:scale-95 cursor-pointer"
+            >
+              Upgrade to Coach Pro
+            </button>
+            <button
+              type="button"
+              onClick={onClose}
+              className="w-full py-2 px-4 rounded-xl border border-zinc-200 dark:border-white/10 text-zinc-600 dark:text-zinc-400 text-xs font-semibold hover:bg-zinc-100 dark:hover:bg-white/5 transition-all cursor-pointer"
+            >
+              Dismiss
+            </button>
+          </div>
+        </div>
+      </div>,
+      document.body
+    );
+  }
 
   return createPortal(
     <div
@@ -653,11 +830,11 @@ export const ProgramCreatorModal: React.FC<Props> = ({
 
           {/* ═════════ STEP 1: DETAILS ═════════ */}
           {step === 'details' && (
-            <div className="space-y-3 animate-fadeIn">
+            <div className="space-y-3.5 animate-fadeIn">
               <SectionHeader
                 icon={<BookOpen className="w-3.5 h-3.5 text-black dark:text-white" />}
                 title="Program Details"
-                subtitle="Set title, description, category, and training schedule"
+                subtitle="Set title, athletic overview, cover asset, and training schedule"
               />
 
               {/* Title Input */}
@@ -673,31 +850,137 @@ export const ProgramCreatorModal: React.FC<Props> = ({
                 />
               </div>
 
-              {/* Description Input */}
-              <div className="space-y-1">
-                <FieldLabel label="Description" />
-                <textarea
-                  id="program-desc-input"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Summarize target athletes, training frequency, expected progress, and methodology..."
-                  rows={2}
-                  className="w-full obsidian-input rounded-xl px-3 py-2 text-xs font-normal placeholder-zinc-400 dark:placeholder-zinc-500 outline-none transition-all resize-none shadow-2xs leading-relaxed focus:ring-1 focus:ring-black dark:focus:ring-white"
-                />
+              {/* Description Section with Tabs (Short Overview / Full Methodology / Quick Starters) */}
+              <div className="space-y-2 obsidian-panel rounded-xl p-3 shadow-2xs">
+                <div className="flex items-center justify-between">
+                  <FieldLabel label="Program Description & Overview" />
+                  <div className="flex items-center gap-1 bg-black/5 dark:bg-white/10 p-0.5 rounded-lg">
+                    <button
+                      type="button"
+                      onClick={() => setDescTab('short')}
+                      className={`px-2 py-0.5 rounded-md text-[10px] font-semibold transition-all cursor-pointer ${
+                        descTab === 'short'
+                          ? 'bg-black text-white dark:bg-white dark:text-black shadow-2xs'
+                          : 'text-zinc-600 dark:text-zinc-400 hover:text-black dark:hover:text-white'
+                      }`}
+                    >
+                      Short Overview
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setDescTab('full')}
+                      className={`px-2 py-0.5 rounded-md text-[10px] font-semibold transition-all cursor-pointer ${
+                        descTab === 'full'
+                          ? 'bg-black text-white dark:bg-white dark:text-black shadow-2xs'
+                          : 'text-zinc-600 dark:text-zinc-400 hover:text-black dark:hover:text-white'
+                      }`}
+                    >
+                      Full Methodology
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setDescTab('starters')}
+                      className={`px-2 py-0.5 rounded-md text-[10px] font-semibold transition-all cursor-pointer flex items-center gap-1 ${
+                        descTab === 'starters'
+                          ? 'bg-black text-white dark:bg-white dark:text-black shadow-2xs'
+                          : 'text-zinc-600 dark:text-zinc-400 hover:text-black dark:hover:text-white'
+                      }`}
+                    >
+                      <Sparkles className="w-2.5 h-2.5" />
+                      Starters
+                    </button>
+                  </div>
+                </div>
+
+                {/* Tab 1: Short Overview */}
+                {descTab === 'short' && (
+                  <div className="space-y-1.5 animate-fadeIn">
+                    <div className="flex items-center justify-between text-[10px] text-zinc-500 dark:text-zinc-400">
+                      <span>Catchy 1-2 sentence hook for program cards & marketplace preview</span>
+                      <span className={`${shortDescription.length > 140 ? 'text-amber-500' : 'text-zinc-400'}`}>
+                        {shortDescription.length}/140
+                      </span>
+                    </div>
+                    <textarea
+                      id="program-short-desc-input"
+                      value={shortDescription}
+                      onChange={(e) => setShortDescription(e.target.value)}
+                      placeholder="e.g. High-volume hypertrophy system engineering maximum myofibrillar growth with calibrated mechanical tension."
+                      rows={2}
+                      className="w-full obsidian-input rounded-xl px-3 py-2 text-xs font-normal placeholder-zinc-400 dark:placeholder-zinc-500 outline-none transition-all resize-none shadow-2xs leading-relaxed focus:ring-1 focus:ring-black dark:focus:ring-white"
+                    />
+                  </div>
+                )}
+
+                {/* Tab 2: Full Methodology */}
+                {descTab === 'full' && (
+                  <div className="space-y-1.5 animate-fadeIn">
+                    <div className="text-[10px] text-zinc-500 dark:text-zinc-400">
+                      In-depth breakdown of target athletes, weekly progression rules, and recovery guidance
+                    </div>
+                    <textarea
+                      id="program-desc-input"
+                      value={description}
+                      onChange={(e) => setDescription(e.target.value)}
+                      placeholder="Summarize target athletes, training frequency, expected progress, and methodology..."
+                      rows={3}
+                      className="w-full obsidian-input rounded-xl px-3 py-2 text-xs font-normal placeholder-zinc-400 dark:placeholder-zinc-500 outline-none transition-all resize-none shadow-2xs leading-relaxed focus:ring-1 focus:ring-black dark:focus:ring-white"
+                    />
+                  </div>
+                )}
+
+                {/* Tab 3: Quick Starters */}
+                {descTab === 'starters' && (
+                  <div className="space-y-1.5 animate-fadeIn">
+                    <div className="text-[10px] text-zinc-500 dark:text-zinc-400">
+                      Select a proven high-performance template to auto-populate description & overview:
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 pt-0.5">
+                      {PROGRAM_DESCRIPTION_TEMPLATES.map((tmpl) => (
+                        <button
+                          key={tmpl.label}
+                          type="button"
+                          onClick={() => {
+                            setShortDescription(tmpl.short);
+                            setDescription(tmpl.full);
+                            if (CATEGORIES.includes(tmpl.category)) {
+                              setCategory(tmpl.category);
+                            }
+                            setDescTab('short');
+                            showToast(`Loaded "${tmpl.label}" description`, 'success');
+                          }}
+                          className="p-2 rounded-lg bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 border border-black/5 dark:border-white/10 text-left transition-all cursor-pointer group"
+                        >
+                          <div className="flex items-center justify-between">
+                            <span className="text-[11px] font-semibold text-black dark:text-white group-hover:text-red-500 transition-colors">
+                              {tmpl.label}
+                            </span>
+                            <span className="text-[9px] px-1.5 py-0.5 rounded bg-black/5 dark:bg-white/10 text-zinc-500 dark:text-zinc-400 font-medium">
+                              {tmpl.category}
+                            </span>
+                          </div>
+                          <p className="text-[10px] text-zinc-500 dark:text-zinc-400 line-clamp-2 mt-1 leading-normal">
+                            {tmpl.short}
+                          </p>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Category Quick-Pills */}
               <div className="space-y-1.5">
-                <FieldLabel label="Category" />
+                <FieldLabel label="Category & Discipline" />
                 <div className="flex flex-wrap gap-1.5">
                   {CATEGORIES.map((cat) => (
                     <button
                       key={cat}
                       type="button"
-                      onClick={() => setCategory(cat)}
+                      onClick={() => handleCategoryChange(cat)}
                       className={`px-2.5 py-1 rounded-lg text-[11px] font-medium transition-all cursor-pointer ${
                         category === cat
-                          ? 'bg-black text-white dark:bg-white dark:text-black shadow-2xs'
+                          ? 'bg-black text-white dark:bg-white dark:text-black shadow-2xs font-semibold'
                           : 'bg-black/5 dark:bg-white/5 text-zinc-700 dark:text-zinc-300 hover:bg-black/10 dark:hover:bg-white/10'
                       }`}
                     >
@@ -773,73 +1056,47 @@ export const ProgramCreatorModal: React.FC<Props> = ({
                 </div>
               </div>
 
-              {/* Cover Banner URL with Preset Selector */}
-              <div className="space-y-2 obsidian-panel rounded-xl p-2.5 shadow-2xs">
-                <FieldLabel label="Cover Image" />
-                <div className="flex gap-2 items-center">
-                  <input
-                    type="url"
-                    value={coverUrl}
-                    onChange={(e) => setCoverUrl(e.target.value)}
-                    placeholder="https://images.unsplash.com/..."
-                    className="flex-1 obsidian-input rounded-lg px-2.5 py-1.5 text-xs placeholder-zinc-400 dark:placeholder-zinc-500 outline-none"
-                  />
-                  <div className="w-10 h-8 rounded-lg overflow-hidden border border-black/10 dark:border-white/10 shrink-0 bg-black/5">
-                    {coverUrl ? (
-                      <img src={coverUrl} alt="Cover Preview" className="w-full h-full object-cover" />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-zinc-400">
-                        <ImageIcon className="w-3.5 h-3.5" />
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Preset Banners */}
-                <div className="flex items-center gap-1.5 pt-0.5 overflow-x-auto scrollbar-none">
-                  <span className="text-[11px] font-medium text-zinc-400 shrink-0">Presets:</span>
-                  {PRESET_BANNERS.map((preset, pIdx) => (
-                    <button
-                      key={preset}
-                      type="button"
-                      onClick={() => setCoverUrl(preset)}
-                      className={`w-9 h-6 rounded-md overflow-hidden border shrink-0 transition-all cursor-pointer ${
-                        coverUrl === preset ? 'border-black dark:border-white ring-1 ring-black/20 dark:ring-white/20' : 'border-transparent opacity-60 hover:opacity-100'
-                      }`}
-                    >
-                      <img src={preset} alt={`Preset ${pIdx + 1}`} className="w-full h-full object-cover" />
-                    </button>
-                  ))}
-                </div>
-              </div>
+              {/* Upgraded Vault Cover Media Selector */}
+              <ProgramCoverVaultPicker
+                coverUrl={coverUrl}
+                onSelectCover={setCoverUrl}
+                programCategory={category}
+                showToast={showToast}
+              />
             </div>
           )}
 
-          {/* ═════════ STEP 2: BUILDER ═════════ */}
+          {/* ═════════ STEP 2: BUILDER (Bare Minimalist Ergonomics) ═════════ */}
           {step === 'builder' && (
-            <div className="space-y-4 animate-fadeIn">
-              {/* Header Bar */}
-              <div className="flex items-center justify-between">
-                <SectionHeader
-                  icon={<Layers className="w-4 h-4 text-black dark:text-white" />}
-                  title="Curriculum"
-                  subtitle={`${weeks.length} Weeks · ${totalTrainingDays} Training Days · ${totalExercises} Exercises`}
-                />
+            <div className="space-y-3 animate-fadeIn">
+              {/* Top Compact Curriculum Metrics Strip */}
+              <div className="flex items-center justify-between pb-1 border-b border-black/5 dark:border-white/5">
+                <div className="flex items-center gap-1.5">
+                  <Layers className="w-3.5 h-3.5 text-black dark:text-white" />
+                  <span className="text-xs font-semibold text-black dark:text-white">Curriculum</span>
+                </div>
+                <div className="flex items-center gap-2 text-[10px] text-zinc-500 dark:text-zinc-400 font-medium">
+                  <span>{weeks.length}w</span>
+                  <span>·</span>
+                  <span>{totalTrainingDays}d</span>
+                  <span>·</span>
+                  <span className="text-black dark:text-white font-semibold">{totalExercises} exercises</span>
+                </div>
               </div>
 
-              {/* Week Selector Ribbon */}
-              <div className="obsidian-panel rounded-xl p-2.5 shadow-2xs space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-semibold text-zinc-700 dark:text-zinc-300">
-                    Weeks ({weeks.length})
+              {/* Bare Week Selector Ribbon */}
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between px-0.5">
+                  <span className="text-[10px] uppercase tracking-wider font-semibold text-zinc-500 dark:text-zinc-400">
+                    Weeks
                   </span>
                   <div className="flex items-center gap-1">
                     <button
                       type="button"
                       onClick={() => duplicateWeek(activeWeek)}
-                      className="p-1.5 rounded-lg bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/15 text-zinc-800 dark:text-zinc-200 transition-colors cursor-pointer"
-                      title="Duplicate week"
-                      aria-label="Duplicate week"
+                      className="p-1 rounded-md hover:bg-black/5 dark:hover:bg-white/10 text-zinc-600 dark:text-zinc-400 hover:text-black dark:hover:text-white transition-colors cursor-pointer"
+                      title="Duplicate active week"
+                      aria-label="Duplicate active week"
                     >
                       <Copy className="w-3 h-3" />
                     </button>
@@ -847,9 +1104,9 @@ export const ProgramCreatorModal: React.FC<Props> = ({
                       <button
                         type="button"
                         onClick={() => removeWeek(activeWeek)}
-                        className="p-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-500 transition-colors cursor-pointer"
-                        title="Delete week"
-                        aria-label="Delete week"
+                        className="p-1 rounded-md hover:bg-red-500/10 text-zinc-400 hover:text-red-500 transition-colors cursor-pointer"
+                        title="Delete active week"
+                        aria-label="Delete active week"
                       >
                         <Trash2 className="w-3 h-3" />
                       </button>
@@ -857,8 +1114,8 @@ export const ProgramCreatorModal: React.FC<Props> = ({
                   </div>
                 </div>
 
-                {/* Week Tabs */}
-                <div className="flex gap-1.5 overflow-x-auto pb-0.5 scrollbar-none">
+                {/* Week Tabs Strip */}
+                <div className="flex gap-1 overflow-x-auto pb-1 scrollbar-none">
                   {weeks.map((_, wIdx) => {
                     const isActive = activeWeek === wIdx;
                     const exCount = weeks[wIdx].days.reduce(
@@ -873,15 +1130,15 @@ export const ProgramCreatorModal: React.FC<Props> = ({
                           setActiveWeek(wIdx);
                           setActiveDay(0);
                         }}
-                        className={`shrink-0 px-3 py-1.5 rounded-lg transition-all cursor-pointer flex flex-col items-center ${
+                        className={`shrink-0 px-2.5 py-1.5 rounded-lg transition-all cursor-pointer flex items-center gap-1.5 ${
                           isActive
                             ? 'bg-black text-white dark:bg-white dark:text-black shadow-2xs font-semibold'
                             : 'bg-black/5 dark:bg-white/5 text-zinc-700 dark:text-zinc-300 hover:bg-black/10 dark:hover:bg-white/10'
                         }`}
                       >
-                        <span className="text-[11px]">Week {wIdx + 1}</span>
-                        <span className={`text-[9px] font-normal ${isActive ? 'opacity-80' : 'text-zinc-400'}`}>
-                          {exCount} ex
+                        <span className="text-[11px]">W{wIdx + 1}</span>
+                        <span className={`text-[9px] px-1 py-0.2 rounded ${isActive ? 'bg-white/20 dark:bg-black/20 text-white dark:text-black' : 'bg-black/5 dark:bg-white/5 text-zinc-400'}`}>
+                          {exCount}
                         </span>
                       </button>
                     );
@@ -889,28 +1146,16 @@ export const ProgramCreatorModal: React.FC<Props> = ({
                   <button
                     type="button"
                     onClick={addWeek}
-                    className="shrink-0 px-2.5 py-1.5 rounded-lg border border-dashed border-black/20 dark:border-white/20 text-zinc-600 dark:text-zinc-400 hover:border-black dark:hover:border-white hover:text-black dark:hover:text-white text-[11px] font-medium flex items-center gap-1 cursor-pointer transition-all"
+                    className="shrink-0 px-2 py-1.5 rounded-lg border border-dashed border-black/20 dark:border-white/20 text-zinc-500 hover:text-black dark:hover:text-white text-[10px] font-medium flex items-center gap-1 cursor-pointer transition-all"
                   >
-                    <Plus className="w-3 h-3" /> Add Week
+                    <Plus className="w-2.5 h-2.5" /> Week
                   </button>
                 </div>
               </div>
 
-              {/* Day Selector Tabs & Action Bar */}
+              {/* Bare Day Schedule Grid */}
               {weeks[activeWeek] && (
-                <div className="obsidian-panel rounded-xl p-2.5 shadow-2xs space-y-2.5">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[11px] font-semibold text-zinc-700 dark:text-zinc-300">
-                      Day Schedule · Week {activeWeek + 1}
-                    </span>
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-[11px] font-medium text-black dark:text-white">
-                        {currentDay?.label || 'Day'} <span className="text-zinc-400">·</span> {currentDay?.focus || 'Push'}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Day Tabs */}
+                <div className="space-y-2">
                   <div className="grid grid-cols-4 sm:grid-cols-7 gap-1">
                     {weeks[activeWeek].days.map((day, dIdx) => {
                       const isSelected = activeDay === dIdx;
@@ -926,216 +1171,202 @@ export const ProgramCreatorModal: React.FC<Props> = ({
                               : 'bg-black/5 dark:bg-white/5 text-zinc-700 dark:text-zinc-300 hover:bg-black/10 dark:hover:bg-white/10'
                           }`}
                         >
-                          <span className="text-[11px] block font-semibold">{day.label.slice(0, 3)}</span>
-                          <span className={`text-[9px] block truncate mt-0.5 ${isSelected ? 'opacity-80' : 'text-zinc-500 dark:text-zinc-400'}`}>
+                          <span className="text-[10px] block font-semibold">{day.label.slice(0, 3)}</span>
+                          <span className={`text-[8.5px] block truncate mt-0.5 ${isSelected ? 'opacity-80' : 'text-zinc-400'}`}>
                             {day.focus || 'Train'}
                           </span>
                           {hasEx && (
-                            <span className={`w-1 h-1 rounded-full mx-auto mt-0.5 block ${isSelected ? (isSelected ? 'bg-white dark:bg-black' : 'bg-black dark:bg-white') : 'bg-zinc-400 dark:bg-zinc-600'}`} />
+                            <span className={`w-1 h-1 rounded-full mx-auto mt-0.5 block ${isSelected ? 'bg-white dark:bg-black' : 'bg-red-500'}`} />
                           )}
                         </button>
                       );
                     })}
                   </div>
 
-                  {/* Focus Selector */}
+                  {/* Discipline Header & Split Synchronizer */}
+                  <div className="flex items-center justify-between px-0.5 text-[10px] text-zinc-500 dark:text-zinc-400">
+                    <div className="flex items-center gap-1.5 font-medium">
+                      <span className="w-1.5 h-1.5 rounded-full bg-red-500 shrink-0" />
+                      <span>Discipline: <strong className="text-black dark:text-white font-semibold">{category}</strong></span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => syncWeekSplitToCategory(activeWeek)}
+                      className="hover:text-black dark:hover:text-white text-[9.5px] font-medium flex items-center gap-1 transition-colors cursor-pointer"
+                      title={`Reset Week ${activeWeek + 1} schedule to ${category} recommended split`}
+                    >
+                      <Sliders className="w-2.5 h-2.5" />
+                      <span>Sync {category} Split</span>
+                    </button>
+                  </div>
+
+                  {/* Focus Row + Duplicate to All Weeks */}
                   {currentDay && (
-                    <div className="space-y-1.5 pt-0.5">
-                      <div className="flex items-center justify-between">
-                        <span className="text-[11px] font-medium text-zinc-500 dark:text-zinc-400">
-                          Day Focus:
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() => duplicateDayToAllWeeks(activeWeek, activeDay)}
-                          className="p-1 rounded-md bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/15 text-zinc-700 dark:text-zinc-300 hover:text-black dark:hover:text-white transition-colors cursor-pointer"
-                          title="Apply this routine to all weeks"
-                          aria-label="Apply this routine to all weeks"
-                        >
-                          <Copy className="w-3 h-3" />
-                        </button>
-                      </div>
-                      <div className="flex flex-wrap gap-1">
-                        {FOCUS_OPTIONS.map((focus) => (
+                    <div className="flex items-center justify-between gap-1 overflow-x-auto pb-0.5 scrollbar-none pt-0.5">
+                      <div className="flex items-center gap-1 shrink-0">
+                        {availableFocusOptions.map((focus) => (
                           <button
                             key={focus}
                             type="button"
                             onClick={() => updateDayFocus(activeWeek, activeDay, focus)}
-                            className={`px-2.5 py-0.5 rounded-full text-[11px] font-medium transition-all cursor-pointer ${
+                            className={`px-2 py-0.5 rounded-full text-[10px] font-medium transition-all cursor-pointer whitespace-nowrap ${
                               currentDay.focus === focus
                                 ? 'bg-black text-white dark:bg-white dark:text-black font-semibold shadow-2xs'
-                                : 'bg-black/5 dark:bg-white/5 text-zinc-700 dark:text-zinc-300 hover:bg-black/10 dark:hover:bg-white/10'
+                                : 'bg-black/5 dark:bg-white/5 text-zinc-600 dark:text-zinc-400 hover:bg-black/10 dark:hover:bg-white/10'
                             }`}
                           >
                             {focus}
                           </button>
                         ))}
                       </div>
+                      <button
+                        type="button"
+                        onClick={() => duplicateDayToAllWeeks(activeWeek, activeDay)}
+                        className="px-2 py-0.5 rounded-full bg-black/5 dark:bg-white/10 hover:bg-black/10 text-zinc-700 dark:text-zinc-300 text-[9.5px] font-medium flex items-center gap-1 shrink-0 cursor-pointer"
+                        title="Copy routine to all weeks"
+                      >
+                        <Copy className="w-2.5 h-2.5" /> Sync All Wks
+                      </button>
                     </div>
                   )}
 
-                  {/* Blueprint & Quick-Add Hub */}
+                  {/* Blueprint & Quick Add Chips */}
                   {currentDay && (
-                    <div className="pt-1.5 border-t border-black/5 dark:border-white/5 space-y-2">
-                      <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+                      <button
+                        type="button"
+                        onClick={() => applySmartBlueprint(activeWeek, activeDay)}
+                        className="px-2.5 py-1 rounded-lg bg-black text-white dark:bg-white dark:text-black font-semibold text-[10px] flex items-center gap-1 shadow-2xs active:scale-95 transition-all shrink-0 cursor-pointer hover:opacity-90"
+                      >
+                        <Sparkles className="w-2.5 h-2.5" />
+                        <span>AI {currentDay.focus || category} Blueprint</span>
+                      </button>
+                      {getIntelligentExercises(currentDay.focus, '', '', category).slice(0, 6).map((item) => (
                         <button
+                          key={item.name}
                           type="button"
-                          onClick={() => applySmartBlueprint(activeWeek, activeDay)}
-                          className="flex-1 py-2 px-3 rounded-lg bg-black text-white dark:bg-white dark:text-black font-medium text-[11px] flex items-center justify-center gap-1.5 shadow-2xs active:scale-95 transition-all cursor-pointer hover:opacity-90"
+                          onClick={() => quickAddExercise(activeWeek, activeDay, item.name)}
+                          className="px-2 py-1 rounded-lg bg-black/5 dark:bg-white/5 hover:bg-black/10 text-zinc-800 dark:text-zinc-200 text-[10px] font-medium flex items-center gap-1 transition-all shrink-0 cursor-pointer active:scale-95 border border-black/5 dark:border-white/5"
                         >
-                          <Sparkles className="w-3.5 h-3.5" />
-                          <span>Generate {currentDay.focus} Blueprint</span>
+                          <Plus className="w-2 h-2 text-zinc-400" />
+                          <span>{item.name}</span>
                         </button>
-                      </div>
-
-                      {/* Quick-Add Pills */}
-                      <div className="space-y-1">
-                        <span className="text-[11px] font-medium text-zinc-500 dark:text-zinc-400 block">
-                          Quick Add ({currentDay.focus}):
-                        </span>
-                        <div className="flex flex-wrap gap-1">
-                          {getIntelligentExercises(currentDay.focus).slice(0, 6).map((item) => (
-                            <button
-                              key={item.name}
-                              type="button"
-                              onClick={() => quickAddExercise(activeWeek, activeDay, item.name)}
-                              className="px-2 py-0.5 rounded-md bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/15 border border-black/5 dark:border-white/10 text-black dark:text-white text-[11px] font-medium flex items-center gap-1 transition-all cursor-pointer active:scale-95"
-                            >
-                              <Plus className="w-2.5 h-2.5 text-zinc-400" />
-                              <span>{item.name}</span>
-                            </button>
-                          ))}
-                        </div>
-                      </div>
+                      ))}
                     </div>
                   )}
                 </div>
               )}
 
-              {/* Exercises Stack for Current Day */}
+              {/* Bare Exercise Stack */}
               {currentDay && (
-                <div className="space-y-2">
+                <div className="space-y-2 pt-1">
                   <div className="flex items-center justify-between px-0.5">
-                    <div className="flex items-center gap-1.5">
-                      <Dumbbell className="w-3.5 h-3.5 text-black dark:text-white" />
-                      <span className="text-xs font-semibold text-black dark:text-white">
-                        {currentDay.label} Exercises ({currentDay.exercises.length})
-                      </span>
-                    </div>
+                    <span className="text-[11px] font-semibold text-black dark:text-white">
+                      {currentDay.label} · {currentDay.exercises.length} Exercises
+                    </span>
                     <button
                       type="button"
                       onClick={() => addExercise(activeWeek, activeDay)}
-                      className="px-2.5 py-1 rounded-lg bg-black text-white dark:bg-white dark:text-black text-[11px] font-semibold flex items-center gap-1 cursor-pointer transition-all active:scale-95 shadow-2xs hover:opacity-90"
+                      className="px-2.5 py-1 rounded-lg bg-black text-white dark:bg-white dark:text-black text-[10px] font-semibold flex items-center gap-1 cursor-pointer transition-all active:scale-95 shadow-2xs hover:opacity-90"
                     >
-                      <Plus className="w-3 h-3" /> Add Exercise
+                      <Plus className="w-2.5 h-2.5" /> Add Exercise
                     </button>
                   </div>
 
                   {currentDay.exercises.map((ex, exIdx) => (
                     <div
                       key={ex.id}
-                      className="obsidian-panel rounded-xl p-2.5 shadow-2xs space-y-2 transition-all hover:border-black/20 dark:hover:border-white/20"
+                      className="rounded-xl border border-black/10 dark:border-white/10 p-2.5 space-y-2 bg-black/[0.02] dark:bg-white/[0.02] transition-all hover:border-black/20 dark:hover:border-white/20"
                     >
                       {/* Top: Name Selector & Delete */}
-                      <div className="flex items-center gap-2">
-                        <span className="w-5 h-5 rounded-full bg-black/5 dark:bg-white/10 text-[11px] font-semibold flex items-center justify-center text-black dark:text-white shrink-0">
+                      <div className="flex items-center gap-1.5">
+                        <span className="w-4 h-4 rounded-full bg-black/5 dark:bg-white/10 text-[9px] font-semibold flex items-center justify-center text-zinc-600 dark:text-zinc-300 shrink-0">
                           {exIdx + 1}
                         </span>
 
                         <button
                           type="button"
                           onClick={() => setShowExercisePicker(ex.id)}
-                          className="flex-1 text-left px-2.5 py-1.5 rounded-lg bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 hover:border-black/30 dark:hover:border-white/30 transition-all cursor-pointer flex items-center justify-between group"
+                          className="flex-1 text-left px-2 py-1 rounded-lg bg-white dark:bg-zinc-900 border border-black/10 dark:border-white/10 hover:border-black/30 dark:hover:border-white/30 transition-all cursor-pointer flex items-center justify-between group"
                         >
                           <span
-                            className={`text-xs font-medium ${
+                            className={`text-[11px] font-medium ${
                               ex.name ? 'text-black dark:text-white' : 'text-zinc-400 dark:text-zinc-500'
                             }`}
                           >
-                            {ex.name || 'Select exercise from library...'}
+                            {ex.name || 'Select exercise...'}
                           </span>
-                          <Search className="w-3 h-3 text-zinc-400 group-hover:text-black dark:group-hover:text-white transition-colors" />
+                          <Search className="w-2.5 h-2.5 text-zinc-400 group-hover:text-black dark:group-hover:text-white transition-colors" />
                         </button>
 
                         {currentDay.exercises.length > 1 && (
                           <button
                             type="button"
                             onClick={() => removeExercise(activeWeek, activeDay, exIdx)}
-                            className="p-1.5 rounded-lg hover:bg-red-500/10 text-zinc-400 hover:text-red-500 transition-colors cursor-pointer"
+                            className="p-1 rounded-md hover:bg-red-500/10 text-zinc-400 hover:text-red-500 transition-colors cursor-pointer"
                             aria-label="Remove exercise"
                           >
-                            <Trash2 className="w-3.5 h-3.5" />
+                            <Trash2 className="w-3 h-3" />
                           </button>
                         )}
                       </div>
 
                       {/* Middle: Sets / Reps / Rest */}
-                      <div className="grid grid-cols-3 gap-2">
+                      <div className="grid grid-cols-3 gap-1.5">
                         {/* Sets */}
-                        <div className="space-y-0.5">
-                          <label className="text-[10px] font-medium text-zinc-500 dark:text-zinc-400 block">
-                            Sets
-                          </label>
-                          <div className="flex items-center bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-lg px-2 py-1">
-                            <input
-                              type="number"
-                              min={1}
-                              max={20}
-                              value={ex.sets}
-                              onChange={(e) =>
-                                updateExercise(activeWeek, activeDay, exIdx, {
-                                 sets: parseInt(e.target.value) || 1,
-                                })
-                              }
-                              className="w-full bg-transparent text-xs font-semibold text-black dark:text-white outline-none"
-                            />
-                          </div>
+                        <div className="flex items-center bg-white dark:bg-zinc-900 border border-black/10 dark:border-white/10 rounded-lg px-2 py-1">
+                          <span className="text-[9px] text-zinc-400 mr-1.5 font-medium">Sets</span>
+                          <input
+                            type="number"
+                            min={1}
+                            max={20}
+                            value={ex.sets}
+                            onChange={(e) =>
+                              updateExercise(activeWeek, activeDay, exIdx, {
+                                sets: parseInt(e.target.value) || 1,
+                              })
+                            }
+                            className="w-full bg-transparent text-[11px] font-semibold text-black dark:text-white outline-none"
+                          />
                         </div>
 
                         {/* Reps */}
-                        <div className="space-y-0.5">
-                          <label className="text-[10px] font-medium text-zinc-500 dark:text-zinc-400 block">
-                            Reps
-                          </label>
-                          <div className="flex items-center bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-lg px-2 py-1">
-                            <input
-                              type="text"
-                              value={ex.reps}
-                              onChange={(e) =>
-                                updateExercise(activeWeek, activeDay, exIdx, {
-                                  reps: e.target.value,
-                                })
-                              }
-                              placeholder="8-12"
-                              className="w-full bg-transparent text-xs font-medium text-black dark:text-white outline-none"
-                            />
-                          </div>
+                        <div className="flex items-center bg-white dark:bg-zinc-900 border border-black/10 dark:border-white/10 rounded-lg px-2 py-1">
+                          <span className="text-[9px] text-zinc-400 mr-1.5 font-medium">Reps</span>
+                          <input
+                            type="text"
+                            value={ex.reps}
+                            onChange={(e) =>
+                              updateExercise(activeWeek, activeDay, exIdx, {
+                                reps: e.target.value,
+                              })
+                            }
+                            placeholder="8-12"
+                            className="w-full bg-transparent text-[11px] font-medium text-black dark:text-white outline-none"
+                          />
                         </div>
 
                         {/* Rest Sec */}
-                        <div className="space-y-0.5">
-                          <label className="text-[10px] font-medium text-zinc-500 dark:text-zinc-400 block">
-                            Rest (s)
-                          </label>
-                          <div className="flex items-center bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-lg px-2 py-1">
-                            <input
-                              type="number"
-                              step={15}
-                              min={0}
-                              value={ex.restSec}
-                              onChange={(e) =>
-                                updateExercise(activeWeek, activeDay, exIdx, {
-                                  restSec: parseInt(e.target.value) || 0,
-                                })
-                              }
-                              className="w-full bg-transparent text-xs font-medium text-black dark:text-white outline-none"
-                            />
-                          </div>
+                        <div className="flex items-center bg-white dark:bg-zinc-900 border border-black/10 dark:border-white/10 rounded-lg px-2 py-1">
+                          <span className="text-[9px] text-zinc-400 mr-1.5 font-medium">Rest</span>
+                          <input
+                            type="number"
+                            step={15}
+                            min={0}
+                            value={ex.restSec}
+                            onChange={(e) =>
+                              updateExercise(activeWeek, activeDay, exIdx, {
+                                restSec: parseInt(e.target.value) || 0,
+                              })
+                            }
+                            className="w-full bg-transparent text-[11px] font-medium text-black dark:text-white outline-none"
+                          />
+                          <span className="text-[9px] text-zinc-400 ml-0.5">s</span>
                         </div>
                       </div>
 
-                      {/* Coach Notes / Cues */}
-                      <div className="space-y-0.5">
+                      {/* Coach Notes & Media URL (Inline Bare Rows) */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
                         <input
                           type="text"
                           value={ex.notes}
@@ -1144,14 +1375,10 @@ export const ProgramCreatorModal: React.FC<Props> = ({
                               notes: e.target.value,
                             })
                           }
-                          placeholder="Coach cues (e.g. 3-sec eccentric tempo, RPE 8...)"
-                          className="w-full obsidian-input rounded-lg px-2.5 py-1.5 text-xs font-normal placeholder-zinc-400 dark:placeholder-zinc-500 outline-none"
+                          placeholder="Coach cue / tempo (optional)"
+                          className="w-full bg-white dark:bg-zinc-900 border border-black/10 dark:border-white/10 rounded-lg px-2 py-1 text-[10px] text-black dark:text-white placeholder-zinc-400 outline-none"
                         />
-                      </div>
-
-                      {/* Demo Link / Video Link */}
-                      <div className="flex items-center gap-1.5">
-                        <div className="flex-1 flex items-center obsidian-input rounded-lg px-2.5 py-1 text-xs">
+                        <div className="flex items-center bg-white dark:bg-zinc-900 border border-black/10 dark:border-white/10 rounded-lg px-2 py-1">
                           <input
                             type="url"
                             value={ex.mediaUrl}
@@ -1165,15 +1392,15 @@ export const ProgramCreatorModal: React.FC<Props> = ({
                                   : '',
                               })
                             }
-                            placeholder="Demo video or GIF link (optional)"
-                            className="w-full bg-transparent text-black dark:text-white placeholder-zinc-400 dark:placeholder-zinc-500 outline-none text-[11px]"
+                            placeholder="Demo video / media link (optional)"
+                            className="w-full bg-transparent text-black dark:text-white placeholder-zinc-400 outline-none text-[10px]"
                           />
+                          {ex.mediaUrl && (
+                            <span className="text-[8px] font-semibold px-1 rounded bg-black/10 dark:bg-white/10 text-black dark:text-white shrink-0 ml-1">
+                              {ex.mediaType === 'video' ? 'VID' : 'IMG'}
+                            </span>
+                          )}
                         </div>
-                        {ex.mediaUrl && (
-                          <span className="text-[9px] font-medium px-1.5 py-0.5 rounded bg-black/10 dark:bg-white/10 text-black dark:text-white shrink-0">
-                            {ex.mediaType === 'video' ? 'Video' : 'Media'}
-                          </span>
-                        )}
                       </div>
                     </div>
                   ))}
@@ -1332,6 +1559,11 @@ export const ProgramCreatorModal: React.FC<Props> = ({
                     <h3 className="text-base font-bold text-black dark:text-white">
                       {title || 'Untitled Program'}
                     </h3>
+                    {shortDescription && (
+                      <p className="text-xs font-medium text-black dark:text-zinc-200 mt-1 leading-relaxed">
+                        {shortDescription}
+                      </p>
+                    )}
                     {description && (
                       <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1 leading-relaxed">
                         {description}
@@ -1531,7 +1763,7 @@ export const ProgramCreatorModal: React.FC<Props> = ({
 
             {/* Exercises List Area */}
             <div className="flex-1 overflow-y-auto min-h-0 p-3 space-y-1">
-              {getIntelligentExercises(searchCategory || currentDay.focus, exerciseSearch, searchCategory).map((item) => (
+              {getIntelligentExercises(searchCategory || currentDay.focus, exerciseSearch, searchCategory, category).map((item) => (
                 <button
                   key={`${item.category}-${item.name}`}
                   type="button"
@@ -1563,7 +1795,7 @@ export const ProgramCreatorModal: React.FC<Props> = ({
                 </button>
               ))}
 
-              {getIntelligentExercises(searchCategory || currentDay.focus, exerciseSearch, searchCategory).length === 0 && (
+              {getIntelligentExercises(searchCategory || currentDay.focus, exerciseSearch, searchCategory, category).length === 0 && (
                 <div className="text-center py-10 space-y-3">
                   <p className="text-xs text-zinc-400">No exercises found for &quot;{exerciseSearch}&quot;</p>
                   <button

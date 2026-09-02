@@ -66,6 +66,8 @@ import { ShareResultModal } from './ShareResultModal';
 import { ShareProgressModal } from './ShareProgressModal';
 import { ReelsFeed } from './ReelsFeed';
 import { CoachHubView } from './CoachView';
+import { AthleteCoachPortal } from './AthleteCoachPortal';
+import { useSubscription } from '@/utils/useSubscription';
 import { ClientConsentBanner } from './ClientConsentBanner';
 import { getDispatchedWorkouts, getDispatchedWorkoutsForClient, DispatchedWorkout } from '../utils/dispatchStore';
 import { ProgressPhotoVault } from './ProgressPhotoVault';
@@ -322,6 +324,22 @@ export default function FitnessIntelligenceApp({
       onTabChange(tab);
     }
   };
+
+  // Subscription & Role State
+  const { isCoachRole: baseCoachRole, isCoachPro, tier, role: userRole } = useSubscription();
+  const isOwnerOrCoach = useMemo(() => {
+    const norm = currentUserEmail?.toLowerCase().trim();
+    return norm === 'o1oblivianfitness@gmail.com' || norm === 'pathik23@yahoo.com' || baseCoachRole;
+  }, [currentUserEmail, baseCoachRole]);
+
+  const [coachViewMode, setCoachViewMode] = useState<'command' | 'marketplace'>(() => {
+    const norm = currentUserEmail?.toLowerCase().trim();
+    if (norm === 'o1oblivianfitness@gmail.com' || norm === 'pathik23@yahoo.com') return 'command';
+    return baseCoachRole ? 'command' : 'marketplace';
+  });
+
+  const isCoachRole = isOwnerOrCoach;
+  const isCoachActive = isCoachRole && coachViewMode === 'command';
 
   // Modals & Interactive State
   const [selectedLog, setSelectedLog] = useState<CoachLog | null>(null);
@@ -1041,22 +1059,50 @@ export default function FitnessIntelligenceApp({
       
       {showTopNavTabs && renderTopNav()}
       
-      <main className="relative z-10 pt-0.5 pb-2">
+      <div className="relative z-10 w-full pt-0 pb-2 px-0">
         {activeTab === 'Coach' && (
           <div className="tab-view-enter">
-            <CoachHubView
-              onOpen1MinBuilder={() => { setDispatchTargetKeys(Object.keys(activeRosterMap)); setIsDispatchModalOpen(true); }}
-              onOpenVault={() => setIsCoachVaultOpen(true)}
-              onViewRoster={() => setIsRosterModalOpen(true)}
-              onOpenPayPlan={() => setIsPayPlanOpen(true)}
-              coachEmail={currentUserEmail}
-              showToast={showToast}
-            />
+            {isCoachActive ? (
+              <CoachHubView
+                onOpen1MinBuilder={() => {
+                  setDispatchTargetKeys(Object.keys(activeRosterMap));
+                  setIsDispatchModalOpen(true);
+                }}
+                onOpenVault={() => {
+                  setIsCoachVaultOpen(true);
+                }}
+                onViewRoster={() => {
+                  setIsRosterModalOpen(true);
+                }}
+                onOpenPayPlan={() => setIsPayPlanOpen(true)}
+                onSwitchToMarketplace={() => {
+                  setCoachViewMode('marketplace');
+                  showToast('Switched to Athlete Coach Marketplace', 'success');
+                }}
+                coachEmail={currentUserEmail}
+                showToast={showToast}
+              />
+            ) : (
+              <AthleteCoachPortal
+                currentUserEmail={currentUserEmail}
+                userName={userName}
+                showToast={showToast}
+                onSwitchToWorkout={onSwitchToWorkout}
+                onOpenPayPlan={(highlightTier) => setIsPayPlanOpen(true)}
+                onOpenShowroom={(email, name) => showToast(`Opening ${name}'s Showroom & Programs`, 'success')}
+                onOpenConsultation={(coach) => showToast(`Consultation request sent to ${coach.name}!`, 'success')}
+                onSwitchToCoachMode={() => {
+                  setCoachViewMode('command');
+                  showToast('Switched to Head Coach Command OS', 'success');
+                }}
+                isCoachUnlocked={isCoachRole}
+              />
+            )}
           </div>
         )}
         {activeTab === 'Reels' && <div className="tab-view-enter"><ReelsFeed currentUserEmail={currentUserEmail} showToast={showToast} /></div>}
         {activeTab === 'Client' && <div className="tab-view-enter">{renderClientUI()}</div>}
-      </main>
+      </div>
 
       {renderLogDetailsModal()}
       {renderBioMetricsModal()}
@@ -1112,8 +1158,34 @@ export default function FitnessIntelligenceApp({
         isOpen={isEditCoachModalOpen}
         onClose={() => setIsEditCoachModalOpen(false)}
         coachData={coachProfileData}
-        onSave={(updatedData) => {
+        onSave={async (updatedData) => {
           setCoachProfileData(updatedData);
+          try {
+            const { saveCoachProfileToSupabase } = await import('@/utils/coachMarketplaceStore');
+            await saveCoachProfileToSupabase({
+              id: `coach-${currentUserEmail || 'me'}`,
+              name: updatedData.name,
+              email: currentUserEmail || 'coach@o1fc.app',
+              avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80',
+              specialty: updatedData.specialties[0] || 'Strength & Conditioning',
+              badge: 'PRO COACH',
+              bio: updatedData.bio,
+              rating: 5.0,
+              reviewsCount: 0,
+              athletesCount: 1,
+              monthlyRate: updatedData.pricingTiers[0]?.price ? `$${updatedData.pricingTiers[0].price}/mo` : '$149/mo',
+              monthlyRateNum: parseInt(updatedData.pricingTiers[0]?.price?.replace(/\D/g, '') || '149', 10),
+              tags: updatedData.specialties,
+              certifications: updatedData.credentials,
+              responseTime: '< 1 hr',
+              successRate: '99%',
+              slotsRemaining: 5,
+              liveStatus: 'online',
+            });
+            showToast('Coach profile published live to marketplace!', 'success');
+          } catch (e) {
+            console.warn('Coach marketplace sync error:', e);
+          }
         }}
         showToast={showToast}
       />

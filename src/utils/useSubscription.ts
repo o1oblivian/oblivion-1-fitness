@@ -1,13 +1,28 @@
 import { useState, useEffect } from 'react';
-import { SubscriptionTier, fetchUserProfile, isPremium, UserProfile } from './subscriptionStore';
+import {
+  SubscriptionTier,
+  fetchUserProfile,
+  isPremium,
+  isCoach,
+  UserProfile,
+  UserRole,
+  getStoredUserRole,
+  cacheUserRole,
+  upsertUserProfile,
+} from './subscriptionStore';
 
 interface SubscriptionState {
   tier: SubscriptionTier;
+  role: UserRole;
   loading: boolean;
   isPaid: boolean;
   isTrialActive: boolean;
+  isCoachRole: boolean;
+  isCoachPro: boolean;
+  canAccessCoachStudio: boolean;
   trialDaysLeft: number;
   canAccess: (feature: FeatureGate) => boolean;
+  switchRole: (newRole: UserRole) => Promise<void>;
 }
 
 export type FeatureGate =
@@ -76,6 +91,7 @@ export function useSubscription(): SubscriptionState {
     } catch {}
     return getStoredTier();
   });
+  const [role, setRole] = useState<UserRole>(() => getStoredUserRole());
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -88,6 +104,10 @@ export function useSubscription(): SubscriptionState {
         if (p?.subscription_tier) {
           setTier(p.subscription_tier);
         }
+        if (p?.role) {
+          setRole(p.role);
+          cacheUserRole(p.role, p.email);
+        }
         setLoading(false);
       }
     })();
@@ -99,7 +119,15 @@ export function useSubscription(): SubscriptionState {
       }
     };
 
+    const handleRoleUpdate = (e: any) => {
+      const newRole = e?.detail?.role;
+      if (newRole) {
+        setRole(newRole);
+      }
+    };
+
     window.addEventListener('o1fc-subscription-updated', handleUpdate);
+    window.addEventListener('o1fc-user-role-updated', handleRoleUpdate);
     window.addEventListener('storage', () => {
       try {
         const active = localStorage.getItem('o1fc_active_subscription');
@@ -107,19 +135,24 @@ export function useSubscription(): SubscriptionState {
           const parsed = JSON.parse(active);
           if (parsed.tier) setTier(parsed.tier);
         }
+        const storedRole = getStoredUserRole();
+        setRole(storedRole);
       } catch {}
     });
 
     return () => {
       cancelled = true;
       window.removeEventListener('o1fc-subscription-updated', handleUpdate);
+      window.removeEventListener('o1fc-user-role-updated', handleRoleUpdate);
     };
   }, []);
 
   const isPaid = isPremium(tier);
   const trial = computeTrialFromProfile(profile);
   const isTrialActive = !isPaid && trial.active;
-  const hasAccess = isPaid || isTrialActive;
+  const isCoachRole = role === 'coach' || isCoach(tier);
+  const isCoachPro = tier === 'coach_pro';
+  const canAccessCoachStudio = isCoachRole;
 
   const canAccess = (feature: FeatureGate): boolean => {
     if (PRO_ONLY_FEATURES.includes(feature)) {
@@ -137,13 +170,26 @@ export function useSubscription(): SubscriptionState {
     return true;
   };
 
+  const switchRole = async (newRole: UserRole): Promise<void> => {
+    setRole(newRole);
+    cacheUserRole(newRole, profile?.email);
+    try {
+      await upsertUserProfile({ role: newRole });
+    } catch {}
+  };
+
   return {
     tier,
+    role,
     loading,
     isPaid,
     isTrialActive,
+    isCoachRole,
+    isCoachPro,
+    canAccessCoachStudio,
     trialDaysLeft: trial.daysLeft,
     canAccess,
+    switchRole,
   };
 }
 

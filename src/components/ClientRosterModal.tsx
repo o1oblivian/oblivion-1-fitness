@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
-import { X, Share2, Check, Search, Users, ChevronRight } from 'lucide-react';
+import { X, Share2, Check, Search, Users, ChevronRight, Lock } from 'lucide-react';
 import { AthleteData } from '../types';
+import { useSubscription } from '@/utils/useSubscription';
 
 interface ClientRosterModalProps {
   isOpen: boolean;
@@ -20,6 +21,7 @@ export const ClientRosterModal: React.FC<ClientRosterModalProps> = ({
   onSelectClientDetail,
   onOpenShareClientProgress,
 }) => {
+  const { isCoachRole } = useSubscription();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedKeys, setSelectedKeys] = useState<string[]>(() => Object.keys(clients));
   const [filterBadge, setFilterBadge] = useState<string>('ALL');
@@ -64,6 +66,53 @@ export const ClientRosterModal: React.FC<ClientRosterModalProps> = ({
   };
 
   if (!isOpen) return null;
+
+  if (!isCoachRole) {
+    return createPortal(
+      <div
+        id="client-roster-auth-guard"
+        className="fixed inset-0 z-[9999] bg-black/80 backdrop-blur-md flex items-center justify-center p-4 animate-fade-in"
+        onClick={onClose}
+      >
+        <div
+          className="w-full max-w-sm rounded-2xl border border-zinc-200 dark:border-white/10 bg-white dark:bg-[#121214] p-6 text-center flex flex-col items-center gap-3.5 shadow-2xl"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="w-12 h-12 rounded-2xl bg-red-600/10 dark:bg-red-500/15 border border-red-600/20 flex items-center justify-center text-red-600 dark:text-red-400">
+            <Lock size={22} className="stroke-[2.2]" />
+          </div>
+          <div>
+            <h2 className="text-base font-bold text-black dark:text-white">
+              Coach Pro License Required
+            </h2>
+            <p className="text-xs text-zinc-600 dark:text-zinc-300 mt-1 leading-relaxed">
+              Client roster command, biometrics surveillance, and batch workout dispatches require a verified O1FC Coach Pro license.
+            </p>
+          </div>
+          <div className="w-full flex flex-col gap-2 pt-1">
+            <button
+              type="button"
+              onClick={() => {
+                onClose();
+                window.dispatchEvent(new CustomEvent('open_pay_plan_coach'));
+              }}
+              className="w-full py-2.5 px-4 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold transition-all shadow-sm active:scale-95 cursor-pointer"
+            >
+              Upgrade to Coach Pro
+            </button>
+            <button
+              type="button"
+              onClick={onClose}
+              className="w-full py-2 px-4 rounded-xl border border-zinc-200 dark:border-white/10 text-zinc-600 dark:text-zinc-400 text-xs font-semibold hover:bg-zinc-100 dark:hover:bg-white/5 transition-all cursor-pointer"
+            >
+              Dismiss
+            </button>
+          </div>
+        </div>
+      </div>,
+      document.body
+    );
+  }
 
   return createPortal(
     <div

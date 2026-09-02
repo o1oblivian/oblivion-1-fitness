@@ -163,7 +163,8 @@ export const CoachHubView: React.FC<{
   coachEmail?: string;
   showToast?: (msg: string, type?: 'success' | 'error') => void;
   onOpenPayPlan?: (tier?: string) => void;
-}> = ({ onOpen1MinBuilder, onOpenVault, onViewRoster, coachEmail = 'coach@o1fc.app', showToast = () => {}, onOpenPayPlan }) => {
+  onSwitchToMarketplace?: () => void;
+}> = ({ onOpen1MinBuilder, onOpenVault, onViewRoster, coachEmail = 'coach@o1fc.app', showToast = () => {}, onOpenPayPlan, onSwitchToMarketplace }) => {
   const [realSubmissions, setRealSubmissions] = useState<Submission[]>(() => loadPersistedSubmissions());
   const [demoSubmissions, setDemoSubmissions] = useState<Submission[]>(INITIAL_SUBMISSIONS);
   const [customDemoActive, setCustomDemoActive] = useState(false);
@@ -267,11 +268,8 @@ export const CoachHubView: React.FC<{
         
         {/* Top Meta: Pulse Status & Live Telemetry Badge */}
         <div className="flex items-center justify-between gap-2">
-          <div className="flex items-center gap-2">
-            <span className="relative flex h-2.5 w-2.5">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#C4121A] opacity-75" />
-              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#C4121A] dark:bg-[#D91F28]" />
-            </span>
+          <div className="flex items-center gap-1.5">
+            <span className="inline-block w-2 h-2 rounded-full bg-[#C4121A] dark:bg-[#D91F28]" />
             <span className="text-[10px] font-mono font-bold tracking-widest text-[#C4121A] dark:text-[#D91F28] uppercase">
               {activeClientsList.length} Athletes {isDemoMode ? '(Demo Roster)' : 'Active'}
             </span>
@@ -305,6 +303,17 @@ export const CoachHubView: React.FC<{
             </p>
           </div>
           <div className="flex items-center gap-1.5 shrink-0">
+            {onSwitchToMarketplace && (
+              <button
+                type="button"
+                onClick={onSwitchToMarketplace}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] font-bold uppercase tracking-wider bg-zinc-100 hover:bg-zinc-200 dark:bg-white/10 dark:hover:bg-white/15 text-zinc-700 dark:text-zinc-200 transition-all active:scale-95 cursor-pointer shadow-xs"
+                title="Switch to Athlete Coach Marketplace"
+              >
+                <Users className="w-3.5 h-3.5 text-zinc-500" />
+                <span>Marketplace</span>
+              </button>
+            )}
             <button
               onClick={onOpenVault}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] font-bold uppercase tracking-wider bg-red-500/10 dark:bg-red-500/15 hover:bg-red-500/20 text-[#C4121A] dark:text-[#D91F28] transition-all active:scale-95 cursor-pointer shadow-xs"

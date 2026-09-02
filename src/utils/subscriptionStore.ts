@@ -98,7 +98,41 @@ export async function getUserTier(): Promise<SubscriptionTier> {
 
 export async function getUserRole(): Promise<UserRole> {
   const profile = await fetchUserProfile();
-  return profile?.role || 'athlete';
+  if (profile?.role) {
+    cacheUserRole(profile.role, profile.email);
+    return profile.role;
+  }
+  return getStoredUserRole();
+}
+
+export function getStoredUserRole(email?: string): UserRole {
+  try {
+    if (typeof window === 'undefined') return 'athlete';
+    const normalizedEmail = email?.toLowerCase().trim();
+    if (normalizedEmail === 'o1oblivianfitness@gmail.com' || normalizedEmail === 'pathik23@yahoo.com') {
+      return 'coach';
+    }
+    if (email) {
+      const emailRole = localStorage.getItem(`o1fc_user_role_${email.toLowerCase()}`);
+      if (emailRole === 'coach' || emailRole === 'athlete') return emailRole;
+    }
+    const globalRole = localStorage.getItem('o1fc_user_role');
+    if (globalRole === 'coach' || globalRole === 'athlete') return globalRole;
+    const cachedTier = (localStorage.getItem('o1fc_cached_tier') as SubscriptionTier) || 'free';
+    if (isCoach(cachedTier)) return 'coach';
+  } catch {}
+  return 'athlete';
+}
+
+export function cacheUserRole(role: UserRole, email?: string): void {
+  try {
+    if (typeof window === 'undefined') return;
+    localStorage.setItem('o1fc_user_role', role);
+    if (email) {
+      localStorage.setItem(`o1fc_user_role_${email.toLowerCase()}`, role);
+    }
+    window.dispatchEvent(new CustomEvent('o1fc-user-role-updated', { detail: { role, email } }));
+  } catch {}
 }
 
 export function isPremium(tier: SubscriptionTier): boolean {

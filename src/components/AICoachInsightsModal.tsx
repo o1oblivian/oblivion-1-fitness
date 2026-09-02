@@ -61,8 +61,20 @@ function computeE1RM(weight: number, reps: number): number {
 }
 
 export const AICoachInsightsModal: React.FC<AICoachInsightsModalProps> = ({
-  isOpen, onClose, activeLogs, dailyMeals, goalCals, goalP, goalC, goalF,
-  bmr, currentUserEmail, weeklySchedule, selectedDay, showToast, onOpenPayPlan,
+  isOpen,
+  onClose,
+  activeLogs = [],
+  dailyMeals = { breakfast: [], lunch: [], dinner: [], snack: [], drinks: [] },
+  goalCals = 2000,
+  goalP = 150,
+  goalC = 200,
+  goalF = 60,
+  bmr = 1800,
+  currentUserEmail = 'athlete@o1fc.app',
+  weeklySchedule = {},
+  selectedDay = 'Monday',
+  showToast,
+  onOpenPayPlan,
 }) => {
   const [historical, setHistorical] = useState<HistoricalData>({ recentMacros: [], bodyweightTrend: [], recentWorkouts: [] });
   const [loading, setLoading] = useState(true);
@@ -920,3 +932,5 @@ export const AICoachInsightsModal: React.FC<AICoachInsightsModalProps> = ({
     </div>
   );
 };
+
+export default AICoachInsightsModal;
