@@ -68,14 +68,19 @@ export function TrainingSection() {
         />
 
         {/* Training Days */}
-        <div className="p-3">
-          <span className="text-sm font-medium text-zinc-900 dark:text-zinc-100 block mb-0.5">
-            Training Days
-          </span>
-          <span className="text-xs text-zinc-500 dark:text-zinc-400 block mb-2">
+        <div className="p-3.5">
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-sm font-medium text-zinc-900 dark:text-zinc-100 block">
+              Training Days
+            </span>
+            <span className="text-[11px] font-medium text-zinc-500 dark:text-zinc-400">
+              {selectedDays.length} of 7 active
+            </span>
+          </div>
+          <span className="text-xs text-zinc-500 dark:text-zinc-400 block mb-3">
             Select scheduled active training days
           </span>
-          <div className="flex items-center justify-between gap-1.5">
+          <div className="grid grid-cols-7 gap-1.5 p-1 bg-zinc-100 dark:bg-zinc-900/90 rounded-2xl border border-zinc-200/70 dark:border-white/[0.06]">
             {WEEKDAYS.map((day) => {
               const active = selectedDays.includes(day);
               return (
@@ -83,13 +88,24 @@ export function TrainingSection() {
                   key={day}
                   type="button"
                   onClick={() => toggleDay(day)}
-                  className={`w-[26px] h-[26px] min-w-[26px] min-h-[26px] max-w-[26px] max-h-[26px] shrink-0 aspect-square rounded-full text-[10.5px] font-semibold flex items-center justify-center transition-all cursor-pointer ${
+                  className={`group relative flex flex-col items-center justify-center py-2 rounded-xl transition-all duration-200 cursor-pointer active:scale-95 ${
                     active
-                      ? 'bg-[#C4121A] dark:bg-[#D91F28] text-white shadow-xs'
-                      : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700'
+                      ? 'bg-white dark:bg-zinc-800 text-zinc-950 dark:text-white shadow-xs border border-zinc-200/80 dark:border-white/10'
+                      : 'text-zinc-400 dark:text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 hover:bg-zinc-200/50 dark:hover:bg-white/[0.03]'
                   }`}
                 >
-                  {day}
+                  <span className={`text-xs font-semibold tracking-tight transition-colors ${
+                    active ? 'text-zinc-900 dark:text-white' : 'text-zinc-400 dark:text-zinc-500'
+                  }`}>
+                    {day}
+                  </span>
+                  <div className="h-1 flex items-center justify-center mt-1">
+                    {active ? (
+                      <span className="w-2.5 h-0.5 rounded-full bg-red-600 dark:bg-red-500" />
+                    ) : (
+                      <span className="w-1 h-1 rounded-full bg-transparent" />
+                    )}
+                  </div>
                 </button>
               );
             })}

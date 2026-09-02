@@ -28,11 +28,11 @@
     <meta name="twitter:image" content="/mobile-preview-v17.webp">
 
     <script>
-      // Pre-mount theme & wallpaper application — prevents FOUC
+      // Pre-mount theme application — prevents FOUC on cold boot
       (function() {
-        var theme = 'light';
+        var theme = 'dark';
         try { 
-          var s = localStorage.getItem('theme'); 
+          var s = localStorage.getItem('o1fc_theme_preference') || localStorage.getItem('theme'); 
           if (s === 'light' || s === 'dark') theme = s;
           else if (s === 'system') {
             theme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
@@ -44,16 +44,23 @@
           html.style.backgroundColor = '#000000';
         } else {
           html.classList.remove('dark');
-          html.style.backgroundColor = '#F8F9FA';
+          html.style.backgroundColor = '#FFFFFF';
         }
         document.addEventListener('DOMContentLoaded', function() {
-          document.body.style.backgroundColor = theme === 'dark' ? '#000000' : '#F8F9FA';
+          if (document.body) {
+            document.body.style.backgroundColor = theme === 'dark' ? '#000000' : '#FFFFFF';
+            if (theme === 'dark') {
+              document.body.classList.add('dark');
+            } else {
+              document.body.classList.remove('dark');
+            }
+          }
         });
       })();
     </script>
     <style>
       /* Prevent flash: solid background before CSS loads */
-      html { background-color: #F8F9FA; }
+      html { background-color: #FFFFFF; }
       html.dark { background-color: #000000; }
       #root { background-color: inherit; min-height: 100dvh; }
     </style>

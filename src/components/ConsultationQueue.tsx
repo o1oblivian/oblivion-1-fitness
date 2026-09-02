@@ -144,7 +144,7 @@ export const ConsultationQueue: React.FC<ConsultationQueueProps> = ({ coachEmail
 
   if (requests.length === 0) {
     return (
-      <div className="bg-white dark:bg-[#161922] border border-neutral-200/80 dark:border-white/10 rounded-2xl p-8 text-center shadow-xs">
+      <div className="bg-white dark:bg-[#121214] border border-neutral-200/80 dark:border-white/10 rounded-2xl p-8 text-center shadow-xs">
         <ClipboardList className="w-10 h-10 text-neutral-400 dark:text-gray-600 mx-auto mb-3" strokeWidth={1.5} />
         <p className="text-sm font-bold text-neutral-900 dark:text-gray-200">No Consultation Requests Yet</p>
         <p className="text-[11px] text-neutral-500 dark:text-gray-400 mt-1 max-w-xs mx-auto">
@@ -273,7 +273,7 @@ const RequestCard: React.FC<{
   const timeAgo = getTimeAgo(request.created_at);
 
   return (
-    <div className="bg-white dark:bg-[#161922] border border-neutral-200/80 dark:border-white/10 rounded-2xl overflow-hidden shadow-xs dark:shadow-md transition-colors">
+    <div className="bg-white dark:bg-[#121214] border border-neutral-200/80 dark:border-white/10 rounded-2xl overflow-hidden shadow-xs dark:shadow-md transition-colors">
       {/* Header */}
       <button
         onClick={onToggle}
@@ -338,7 +338,7 @@ const RequestCard: React.FC<{
                   Intel Intake Profile
                 </span>
               </div>
-              <div className="bg-neutral-50 dark:bg-[#0F1218] border border-neutral-200 dark:border-white/10 rounded-xl p-3 space-y-2.5">
+              <div className="bg-neutral-50 dark:bg-[#18181B] border border-neutral-200 dark:border-white/10 rounded-xl p-3 space-y-2.5">
                 {request.desired_services && request.desired_services.length > 0 && (
                   <IntakeRow icon={<Sparkles className="w-3 h-3 text-amber-500 dark:text-amber-400" />} label="Requested Services">
                     <div className="flex flex-wrap gap-1">
@@ -394,7 +394,7 @@ const RequestCard: React.FC<{
                 Athlete Progress Snapshot
               </span>
             </div>
-            <div className="bg-neutral-50 dark:bg-[#0F1218] border border-neutral-200 dark:border-white/10 rounded-xl p-3 grid grid-cols-2 gap-3">
+            <div className="bg-neutral-50 dark:bg-[#18181B] border border-neutral-200 dark:border-white/10 rounded-xl p-3 grid grid-cols-2 gap-3">
               <SnapshotMetric
                 icon={<Dumbbell className="w-3 h-3 text-blue-500" />}
                 label="Training"
@@ -478,7 +478,7 @@ const RequestCard: React.FC<{
                     type="number"
                     value={proposedWeeks}
                     onChange={(e) => setProposedWeeks(e.target.value)}
-                    className="w-full px-3 py-2 text-xs bg-neutral-50 dark:bg-[#0F1218] border border-neutral-200 dark:border-white/10 rounded-xl focus:outline-none focus:border-red-400 text-neutral-900 dark:text-white"
+                    className="w-full px-3 py-2 text-xs bg-neutral-50 dark:bg-[#18181B] border border-neutral-200 dark:border-white/10 rounded-xl focus:outline-none focus:border-red-400 text-neutral-900 dark:text-white"
                   />
                 </div>
                 <div>
@@ -488,7 +488,7 @@ const RequestCard: React.FC<{
                     value={proposedPrice}
                     onChange={(e) => setProposedPrice(e.target.value)}
                     placeholder="e.g. 199"
-                    className="w-full px-3 py-2 text-xs bg-neutral-50 dark:bg-[#0F1218] border border-neutral-200 dark:border-white/10 rounded-xl focus:outline-none focus:border-red-400 text-neutral-900 dark:text-white placeholder-neutral-400 dark:placeholder-gray-500"
+                    className="w-full px-3 py-2 text-xs bg-neutral-50 dark:bg-[#18181B] border border-neutral-200 dark:border-white/10 rounded-xl focus:outline-none focus:border-red-400 text-neutral-900 dark:text-white placeholder-neutral-400 dark:placeholder-gray-500"
                   />
                 </div>
               </div>
@@ -500,7 +500,7 @@ const RequestCard: React.FC<{
                   value={proposedFocus}
                   onChange={(e) => setProposedFocus(e.target.value)}
                   placeholder="e.g. Hypertrophy + Nutrition Overhaul"
-                  className="w-full px-3 py-2 text-xs bg-neutral-50 dark:bg-[#0F1218] border border-neutral-200 dark:border-white/10 rounded-xl focus:outline-none focus:border-red-400 text-neutral-900 dark:text-white placeholder-neutral-400 dark:placeholder-gray-500"
+                  className="w-full px-3 py-2 text-xs bg-neutral-50 dark:bg-[#18181B] border border-neutral-200 dark:border-white/10 rounded-xl focus:outline-none focus:border-red-400 text-neutral-900 dark:text-white placeholder-neutral-400 dark:placeholder-gray-500"
                 />
               </div>
 
@@ -511,7 +511,7 @@ const RequestCard: React.FC<{
                   onChange={(e) => setResponseNote(e.target.value)}
                   placeholder="Reference their snapshot — e.g. 'Your protein is low for your volume, I can fix that...'"
                   rows={3}
-                  className="w-full px-3 py-2 text-xs bg-neutral-50 dark:bg-[#0F1218] border border-neutral-200 dark:border-white/10 rounded-2xl resize-none focus:outline-none focus:border-red-400 text-neutral-900 dark:text-white placeholder-neutral-400 dark:placeholder-gray-500"
+                  className="w-full px-3 py-2 text-xs bg-neutral-50 dark:bg-[#18181B] border border-neutral-200 dark:border-white/10 rounded-2xl resize-none focus:outline-none focus:border-red-400 text-neutral-900 dark:text-white placeholder-neutral-400 dark:placeholder-gray-500"
                 />
               </div>
 
@@ -531,7 +531,7 @@ const RequestCard: React.FC<{
 };
 
 const CompactRequestCard: React.FC<{ request: ConsultationRequest }> = ({ request }) => (
-  <div className="bg-white dark:bg-[#161922] border border-neutral-200/80 dark:border-white/10 rounded-xl px-4 py-2.5 flex items-center justify-between shadow-2xs">
+  <div className="bg-white dark:bg-[#121214] border border-neutral-200/80 dark:border-white/10 rounded-xl px-4 py-2.5 flex items-center justify-between shadow-2xs">
     <div className="flex items-center gap-2 min-w-0">
       <div className={`w-2 h-2 rounded-full ${request.status === 'accepted' ? 'bg-red-500' : 'bg-neutral-400'}`} />
       <span className="text-xs font-bold text-neutral-800 dark:text-gray-300 truncate">{request.client_email}</span>

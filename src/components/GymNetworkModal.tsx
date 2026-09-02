@@ -24,6 +24,7 @@ import {
   Send,
   Copy,
   CheckCircle2,
+  MessageCircle,
   Dumbbell,
   Utensils,
   Activity,
@@ -247,13 +248,12 @@ export const GymNetworkModal: React.FC<GymNetworkModalProps> = ({
     const saved = localStorage.getItem('lumina_action_count');
     return saved ? parseInt(saved, 10) : 0;
   });
-  const [distanceKm, setDistanceKm] = useState<number>(250);
+  const isFreeTier = userTier !== 'premium' && userTier !== 'premium_travel' && userTier !== 'founder_pass' && userTier !== 'coach' && userTier !== 'coach_pro';
+  const [distanceKm, setDistanceKm] = useState<number>(() => (isFreeTier ? 25 : 250));
   const [upSellState, setUpSellState] = useState<{ isOpen: boolean; type: UpSellType }>({
     isOpen: false,
     type: 'action_quota',
   });
-
-  const isFreeTier = userTier !== 'premium' && userTier !== 'coach';
 
   // Global Social Media Authorization State
   const [socialAuthModalOpen, setSocialAuthModalOpen] = useState<boolean>(false);
@@ -1160,30 +1160,47 @@ export const GymNetworkModal: React.FC<GymNetworkModalProps> = ({
                               CORRIDOR RADIUS: <strong className="text-red-500 font-extrabold">{distanceKm} KM</strong>
                             </span>
                             <div className="flex items-center gap-1">
-                              {[10, 25, 50, 100, 250].map((preset) => (
-                                <button
-                                  key={preset}
-                                  type="button"
-                                  onClick={() => setDistanceKm(preset)}
-                                  className={`text-[9px] font-bold px-1.5 py-0.5 rounded transition-all ${
-                                    distanceKm === preset
-                                      ? 'bg-red-600 text-white'
-                                      : 'bg-zinc-200 dark:bg-zinc-700 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-300'
-                                  }`}
-                                >
-                                  {preset === 250 ? '250km' : `${preset}k`}
-                                </button>
-                              ))}
+                              {[10, 25, 50, 100, 250].map((preset) => {
+                                const isLocked = isFreeTier && preset > 25;
+                                return (
+                                  <button
+                                    key={preset}
+                                    type="button"
+                                    onClick={() => {
+                                      if (isLocked) {
+                                        setUpSellState({ isOpen: true, type: 'distance_travel' });
+                                        showToast?.('Radiuses above 25 km require Premium Pro or Global Travel Pass.');
+                                        return;
+                                      }
+                                      setDistanceKm(preset);
+                                    }}
+                                    className={`text-[9px] font-bold px-1.5 py-0.5 rounded transition-all flex items-center gap-0.5 cursor-pointer ${
+                                      distanceKm === preset
+                                        ? 'bg-red-600 text-white'
+                                        : isLocked
+                                        ? 'bg-zinc-200/60 dark:bg-zinc-800 text-zinc-400 opacity-80'
+                                        : 'bg-zinc-200 dark:bg-zinc-700 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-300'
+                                    }`}
+                                  >
+                                    {preset === 250 ? '250km' : `${preset}k`}
+                                  </button>
+                                );
+                              })}
                             </div>
                           </div>
                           <input
                             type="range"
                             min="5"
-                            max="250"
+                            max={isFreeTier ? "25" : "250"}
                             step="5"
-                            value={distanceKm}
+                            value={Math.min(distanceKm, isFreeTier ? 25 : 250)}
                             onChange={(e) => {
                               const val = parseInt(e.target.value, 10);
+                              if (isFreeTier && val > 25) {
+                                setUpSellState({ isOpen: true, type: 'distance_travel' });
+                                showToast?.('Corridor radius above 25 km is locked to Premium Pro.');
+                                return;
+                              }
                               setDistanceKm(val);
                             }}
                             className="w-full h-1.5 bg-zinc-200 dark:bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-red-600"
@@ -1334,13 +1351,19 @@ export const GymNetworkModal: React.FC<GymNetworkModalProps> = ({
                     <button
                       type="button"
                       onClick={() => {
+                        if (isFreeTier) {
+                          setUpSellState({ isOpen: true, type: 'distance_travel' });
+                          showToast?.('250 km Regional Corridor is locked to Premium Pro or Global Travel Pass.');
+                          return;
+                        }
                         setDistanceKm(250);
                         loadBuddyProfiles(selectedBuddyCategory, universalSearchQuery);
                         showToast?.('Expanded corridor to 250 km');
                       }}
-                      className="px-3.5 py-2 bg-zinc-200 dark:bg-zinc-800 hover:bg-zinc-300 dark:hover:bg-zinc-700 text-zinc-900 dark:text-white text-xs font-bold rounded-xl transition-all cursor-pointer"
+                      className="px-3.5 py-2 bg-zinc-200 dark:bg-zinc-800 hover:bg-zinc-300 dark:hover:bg-zinc-700 text-zinc-900 dark:text-white text-xs font-bold rounded-xl transition-all cursor-pointer flex items-center gap-1.5"
                     >
-                      Expand to 250 km Corridor
+                      {isFreeTier && <Sparkles className="w-3.5 h-3.5 text-amber-500" />}
+                      {isFreeTier ? 'Unlock 250 km Corridor' : 'Expand to 250 km Corridor'}
                     </button>
                   )}
                   <button
@@ -1354,7 +1377,7 @@ export const GymNetworkModal: React.FC<GymNetworkModalProps> = ({
                       setSelectedBuddyCategory('');
                       setSelectedGender('');
                       setSelectedPref('');
-                      setDistanceKm(250);
+                      setDistanceKm(isFreeTier ? 25 : 250);
                       loadBuddyProfiles('', '');
                       showToast?.('Reset all filters');
                     }}
@@ -1479,6 +1502,116 @@ export const GymNetworkModal: React.FC<GymNetworkModalProps> = ({
                 <Share2 className="w-4 h-4" />
                 Share App Link
               </button>
+
+              {/* Social share quick capsules with precision vector icons */}
+              <div className="grid grid-cols-6 gap-1.5 pt-1">
+                {/* WhatsApp */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    const text = encodeURIComponent(`Train with me on O1FC! Use my handle: ${userHandle}\n${window.location.origin}`);
+                    window.open(`https://wa.me/?text=${text}`, '_blank');
+                  }}
+                  className="flex flex-col items-center gap-1 py-2 rounded-xl bg-white dark:bg-zinc-800/80 border border-zinc-200/80 dark:border-zinc-700/60 hover:bg-zinc-100 dark:hover:bg-zinc-700/80 active:scale-95 transition-all cursor-pointer"
+                  title="Share on WhatsApp"
+                >
+                  <div className="w-5 h-5 rounded-md flex items-center justify-center bg-[#25D366]/10 text-[#25D366]">
+                    <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                  </div>
+                  <span className="text-[8px] font-medium text-zinc-600 dark:text-zinc-400">WhatsApp</span>
+                </button>
+
+                {/* Telegram */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    const text = encodeURIComponent(`Train with me on O1FC! My handle: ${userHandle}`);
+                    const url = encodeURIComponent(window.location.origin);
+                    window.open(`https://t.me/share/url?url=${url}&text=${text}`, '_blank');
+                  }}
+                  className="flex flex-col items-center gap-1 py-2 rounded-xl bg-white dark:bg-zinc-800/80 border border-zinc-200/80 dark:border-zinc-700/60 hover:bg-zinc-100 dark:hover:bg-zinc-700/80 active:scale-95 transition-all cursor-pointer"
+                  title="Share on Telegram"
+                >
+                  <div className="w-5 h-5 rounded-md flex items-center justify-center bg-[#26A5E4]/10 text-[#26A5E4]">
+                    <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.479.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+                  </div>
+                  <span className="text-[8px] font-medium text-zinc-600 dark:text-zinc-400">Telegram</span>
+                </button>
+
+                {/* Messages */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    const body = encodeURIComponent(`Train with me on O1FC! My handle: ${userHandle}\n${window.location.origin}`);
+                    window.location.href = `sms:?&body=${body}`;
+                  }}
+                  className="flex flex-col items-center gap-1 py-2 rounded-xl bg-white dark:bg-zinc-800/80 border border-zinc-200/80 dark:border-zinc-700/60 hover:bg-zinc-100 dark:hover:bg-zinc-700/80 active:scale-95 transition-all cursor-pointer"
+                  title="Share on Messages"
+                >
+                  <div className="w-5 h-5 rounded-md flex items-center justify-center bg-[#34C759]/10 text-[#34C759]">
+                    <MessageCircle className="w-4 h-4 text-[#34C759]" />
+                  </div>
+                  <span className="text-[8px] font-medium text-zinc-600 dark:text-zinc-400">Messages</span>
+                </button>
+
+                {/* X */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    const text = encodeURIComponent(`Train with me on O1FC! Handle: ${userHandle} ${window.location.origin}`);
+                    window.open(`https://twitter.com/intent/tweet?text=${text}`, '_blank');
+                  }}
+                  className="flex flex-col items-center gap-1 py-2 rounded-xl bg-white dark:bg-zinc-800/80 border border-zinc-200/80 dark:border-zinc-700/60 hover:bg-zinc-100 dark:hover:bg-zinc-700/80 active:scale-95 transition-all cursor-pointer"
+                  title="Share on X"
+                >
+                  <div className="w-5 h-5 rounded-md flex items-center justify-center bg-zinc-900/10 dark:bg-white/10 text-zinc-900 dark:text-white">
+                    <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                  </div>
+                  <span className="text-[8px] font-medium text-zinc-600 dark:text-zinc-400">X</span>
+                </button>
+
+                {/* Instagram (Fixed Vector Badge) */}
+                <button
+                  type="button"
+                  onClick={async () => {
+                    const text = `Train with me on O1FC! My handle: ${userHandle}\n${window.location.origin}`;
+                    await navigator.clipboard.writeText(text);
+                    showToast?.('Invite text copied! Opening Instagram...');
+                    window.open('https://instagram.com', '_blank');
+                  }}
+                  className="flex flex-col items-center gap-1 py-2 rounded-xl bg-white dark:bg-zinc-800/80 border border-zinc-200/80 dark:border-zinc-700/60 hover:bg-zinc-100 dark:hover:bg-zinc-700/80 active:scale-95 transition-all cursor-pointer"
+                  title="Share on Instagram"
+                >
+                  <div className="w-5 h-5 rounded-md flex items-center justify-center bg-gradient-to-tr from-[#FFDC80] via-[#F56040] to-[#C13584] shadow-xs">
+                    <svg className="w-3.5 h-3.5 text-white stroke-current fill-none" viewBox="0 0 24 24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+                      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+                      <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" strokeWidth="2.5" />
+                    </svg>
+                  </div>
+                  <span className="text-[8px] font-medium text-zinc-600 dark:text-zinc-400">Instagram</span>
+                </button>
+
+                {/* Snapchat (Fixed Ghost Vector Badge) */}
+                <button
+                  type="button"
+                  onClick={async () => {
+                    const shareUrl = window.location.origin;
+                    await navigator.clipboard.writeText(`Train with me on O1FC! My handle: ${userHandle}\n${shareUrl}`);
+                    showToast?.('Invite copied! Opening Snapchat...');
+                    window.open(`https://www.snapchat.com/scan?attachmentUrl=${encodeURIComponent(shareUrl)}`, '_blank');
+                  }}
+                  className="flex flex-col items-center gap-1 py-2 rounded-xl bg-white dark:bg-zinc-800/80 border border-zinc-200/80 dark:border-zinc-700/60 hover:bg-zinc-100 dark:hover:bg-zinc-700/80 active:scale-95 transition-all cursor-pointer"
+                  title="Share on Snapchat"
+                >
+                  <div className="w-5 h-5 rounded-md flex items-center justify-center bg-[#FFFC00] shadow-xs border border-amber-300/40">
+                    <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="#FFFFFF" stroke="#000000" strokeWidth="1.2" strokeLinejoin="round">
+                      <path d="M12.206 1.793c.99 0 4.347.276 5.93 3.821.529 1.193.403 3.219.299 4.847l-.003.06c-.012.18-.022.345-.03.51.075.045.203.09.401.09.3-.016.659-.12.922-.214.12-.042.195-.063.27-.063a.56.56 0 01.344.12c.18.15.243.39.185.585-.045.15-.15.270-.24.337a2.555 2.555 0 01-1.166.454c-.09.015-.18.025-.255.037-.165.024-.315.044-.405.105-.104.073-.18.24-.18.39 0 .045.008.09.015.135.09.42.444.975.944 1.517.195.211.42.42.66.623.78.66 1.695 1.2 1.965 1.8.09.195.135.42.135.6v.015c-.015.585-.51 1.065-1.095 1.215-.18.047-.36.075-.54.09-.165.015-.33.015-.51.015-.12 0-.225.01-.345.024-.255.03-.54.12-.855.24-.48.18-1.065.39-2.01.39-.06 0-.12 0-.195-.01h-.045c-.93 0-1.5-.195-1.98-.39-.314-.12-.584-.21-.839-.24a3.62 3.62 0 00-.36-.024h-.03c-.18 0-.36 0-.54-.015-.18-.015-.36-.044-.54-.09-.585-.15-1.08-.63-1.095-1.215v-.015a1.47 1.47 0 01.135-.6c.27-.6 1.185-1.14 1.965-1.8.24-.195.465-.405.66-.623.5-.537.854-1.095.944-1.517.008-.045.015-.09.015-.135 0-.15-.075-.315-.18-.39-.09-.06-.24-.08-.405-.105a2.87 2.87 0 01-.255-.037 2.555 2.555 0 01-1.166-.454.552.552 0 01-.24-.337.564.564 0 01.186-.585.56.56 0 01.344-.12c.075 0 .15.021.27.063.263.094.622.198.922.214.198 0 .326-.045.401-.09a8.882 8.882 0 01-.033-.57c-.104-1.628-.23-3.654.3-4.847C7.65 2.07 11.007 1.793 11.996 1.793h.21z" />
+                    </svg>
+                  </div>
+                  <span className="text-[8px] font-medium text-zinc-600 dark:text-zinc-400">Snapchat</span>
+                </button>
+              </div>
             </div>
           </div>
         )}

@@ -292,7 +292,7 @@ export const FuelView: React.FC<FuelViewProps> = ({
       {/* Country Market Quick Switcher Modal */}
       {showCountryModal && createPortal(
         <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-black/40 dark:bg-black/80 backdrop-blur-xs" onClick={() => setShowCountryModal(false)}>
-          <div className="w-full max-w-sm bg-white dark:bg-[#13161A] rounded-2xl border border-neutral-200 dark:border-white/10 shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150" onClick={(e) => e.stopPropagation()}>
+          <div className="w-full max-w-sm bg-white dark:bg-[#121214] rounded-2xl border border-neutral-200 dark:border-white/10 shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150" onClick={(e) => e.stopPropagation()}>
             <div className="p-3.5 border-b border-neutral-200 dark:border-white/10 flex items-center justify-between bg-zinc-50 dark:bg-white/[0.02]">
               <div className="flex items-center gap-2">
                 <Globe className="w-4 h-4 text-[#EA4335]" />
@@ -363,7 +363,7 @@ export const FuelView: React.FC<FuelViewProps> = ({
       />
 
       {/* 2. Compact Hydration Pill */}
-      <div className="flex items-center gap-2 bg-white dark:bg-[#13161A] border border-[#EAE8E3] dark:border-white/10 rounded-xl px-3 py-2 shadow-2xs">
+      <div className="flex items-center gap-2 bg-white dark:bg-[#121214] border border-[#EAE8E3] dark:border-white/10 rounded-xl px-3 py-2 shadow-2xs">
         <Droplets className="w-4 h-4 text-[#4A7D94] shrink-0" />
 
         {/* Progress bar background */}

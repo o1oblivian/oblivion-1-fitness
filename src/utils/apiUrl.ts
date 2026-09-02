@@ -53,8 +53,9 @@ export function getApiUrl(path: string): string {
 /**
  * Robust fetch with automatic failover across Cloud Run endpoints for Android APK & Web.
  * Ensures the response is genuine application/json and not an AI Studio cookie/login redirect page.
+ * Includes timeout protection to prevent hanging requests on unstable network connections.
  */
-export async function apiFetch(path: string, options?: RequestInit): Promise<Response> {
+export async function apiFetch(path: string, options?: RequestInit, timeoutMs = 15000): Promise<Response> {
   const cleanPath = path.startsWith('/') ? path : `/${path}`;
 
   // Candidate URLs to try in priority order
@@ -81,11 +82,16 @@ export async function apiFetch(path: string, options?: RequestInit): Promise<Res
 
   for (const url of urlsToTry) {
     try {
-      const response = await fetch(url, options);
+      let fetchOptions = options || {};
+      if (!fetchOptions.signal && typeof AbortSignal !== 'undefined' && 'timeout' in AbortSignal) {
+        fetchOptions = { ...fetchOptions, signal: AbortSignal.timeout(timeoutMs) };
+      }
+
+      const response = await fetch(url, fetchOptions);
       const contentType = response.headers.get('content-type') || '';
 
       // If it returned JSON (or appropriate status with JSON), accept it
-      if (contentType.includes('application/json') && (response.ok || response.status === 400 || response.status === 422)) {
+      if (contentType.includes('application/json') && (response.ok || response.status === 400 || response.status === 422 || response.status === 404)) {
         return response;
       }
 
@@ -95,8 +101,8 @@ export async function apiFetch(path: string, options?: RequestInit): Promise<Res
       }
 
       lastResponse = response;
-    } catch (err) {
-      // Endpoint failed, continue to next
+    } catch {
+      // Endpoint timed out or failed, continue to next candidate
     }
   }
 

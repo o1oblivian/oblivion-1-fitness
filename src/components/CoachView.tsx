@@ -23,6 +23,7 @@ import {
   Building2,
   Layers,
   Zap,
+  RotateCcw,
 } from 'lucide-react';
 import { StatCard } from '@/components/ui/FullScreenModal';
 import { ConsentShareModal } from '@/components/ConsentShareModal';
@@ -49,6 +50,18 @@ interface Submission {
   hasVideo: boolean;
   videoUrl?: string;
   notes?: string;
+}
+
+const COACH_SUBMISSIONS_STORAGE_KEY = 'o1fc_coach_workout_submissions_v2';
+
+function loadPersistedSubmissions(): Submission[] {
+  if (typeof window === 'undefined') return [];
+  try {
+    const raw = localStorage.getItem(COACH_SUBMISSIONS_STORAGE_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
 }
 
 const INITIAL_SUBMISSIONS: Submission[] = [
@@ -149,8 +162,11 @@ export const CoachHubView: React.FC<{
   onViewRoster?: () => void;
   coachEmail?: string;
   showToast?: (msg: string, type?: 'success' | 'error') => void;
-}> = ({ onOpen1MinBuilder, onOpenVault, onViewRoster, coachEmail = 'coach@o1fc.app', showToast = () => {} }) => {
-  const [submissions, setSubmissions] = useState<Submission[]>(INITIAL_SUBMISSIONS);
+  onOpenPayPlan?: (tier?: string) => void;
+}> = ({ onOpen1MinBuilder, onOpenVault, onViewRoster, coachEmail = 'coach@o1fc.app', showToast = () => {}, onOpenPayPlan }) => {
+  const [realSubmissions, setRealSubmissions] = useState<Submission[]>(() => loadPersistedSubmissions());
+  const [demoSubmissions, setDemoSubmissions] = useState<Submission[]>(INITIAL_SUBMISSIONS);
+  const [customDemoActive, setCustomDemoActive] = useState(false);
   const [activeVideo, setActiveVideo] = useState<Submission | null>(null);
   const [shareTarget, setShareTarget] = useState<Submission | null>(null);
   const [activeTab, setActiveTab] = useState<'submissions' | 'earnings' | 'consultations' | 'intelligence'>('intelligence');
@@ -162,6 +178,13 @@ export const CoachHubView: React.FC<{
 
   // Coach Roster state (Persisted & Clean by default)
   const { clients: customClients, isDemoMode, toggleDemoMode, addClient } = useCoachRosterStore();
+
+  // Active submissions calculation (0% fake data in live mode)
+  const submissions: Submission[] = useMemo(() => {
+    if (realSubmissions.length > 0) return realSubmissions;
+    if (isDemoMode || customDemoActive) return demoSubmissions;
+    return [];
+  }, [realSubmissions, isDemoMode, customDemoActive, demoSubmissions]);
 
   // Filter for Roster Strip
   const [rosterFilter, setRosterFilter] = useState<'all' | 'review' | 'live' | 'pr'>('all');
@@ -182,9 +205,22 @@ export const CoachHubView: React.FC<{
   }, [activeTab]);
 
   const handleApprove = (id: string) => {
-    setSubmissions((prev) =>
-      prev.map((sub) => (sub.id === id ? { ...sub, status: 'approved' } : sub))
-    );
+    if (realSubmissions.length > 0) {
+      const updated = realSubmissions.map((sub) =>
+        sub.id === id ? { ...sub, status: 'approved' as const } : sub
+      );
+      setRealSubmissions(updated);
+      try {
+        localStorage.setItem(COACH_SUBMISSIONS_STORAGE_KEY, JSON.stringify(updated));
+      } catch {}
+    } else {
+      setDemoSubmissions((prev) =>
+        prev.map((sub) => (sub.id === id ? { ...sub, status: 'approved' as const } : sub))
+      );
+    }
+    if (typeof navigator !== 'undefined' && navigator.vibrate) {
+      navigator.vibrate(10);
+    }
     showToast('Workout verified & signed by Head Coach', 'success');
   };
 
@@ -227,7 +263,7 @@ export const CoachHubView: React.FC<{
   return (
     <div className="w-full bg-transparent text-zinc-900 dark:text-white p-1 sm:p-2 space-y-2.5 pb-3">
       {/* ── Unified Mission Control Card ── */}
-      <div className="bg-white dark:bg-[#12141A] border border-zinc-200/80 dark:border-white/10 rounded-2xl p-3.5 sm:p-4 shadow-sm dark:shadow-xl space-y-3 text-zinc-900 dark:text-white">
+      <div className="bg-white dark:bg-[#121214] border border-zinc-200/80 dark:border-white/10 rounded-2xl p-3.5 sm:p-4 shadow-sm dark:shadow-xl space-y-3 text-zinc-900 dark:text-white">
         
         {/* Top Meta: Pulse Status & Live Telemetry Badge */}
         <div className="flex items-center justify-between gap-2">
@@ -358,7 +394,7 @@ export const CoachHubView: React.FC<{
       {activeTab === 'intelligence' ? (
         <div className="space-y-2.5">
           {/* Athlete Micro-Telemetry Command Grid — Apple Pro Inset Grouped Collapsible */}
-          <div className="bg-white dark:bg-[#12141A] border border-zinc-200/80 dark:border-white/10 rounded-2xl p-3.5 sm:p-4 space-y-3 text-zinc-900 dark:text-white shadow-sm dark:shadow-xl transition-all">
+          <div className="bg-white dark:bg-[#121214] border border-zinc-200/80 dark:border-white/10 rounded-2xl p-3.5 sm:p-4 space-y-3 text-zinc-900 dark:text-white shadow-sm dark:shadow-xl transition-all">
             {/* Collapsible Header */}
             <div
               onClick={() => setIsRosterExpanded((prev) => !prev)}
@@ -411,7 +447,7 @@ export const CoachHubView: React.FC<{
                       {activeClientsList.slice(0, 4).map((c) => (
                         <div
                           key={c.key}
-                          className="w-5 h-5 rounded-full ring-2 ring-white dark:ring-[#12141A] bg-zinc-200 dark:bg-white/20 text-[8px] font-bold flex items-center justify-center text-zinc-800 dark:text-white shrink-0"
+                          className="w-5 h-5 rounded-full ring-2 ring-white dark:ring-[#121214] bg-zinc-200 dark:bg-white/20 text-[8px] font-bold flex items-center justify-center text-zinc-800 dark:text-white shrink-0"
                         >
                           {c.name[0]}
                         </div>
@@ -497,7 +533,7 @@ export const CoachHubView: React.FC<{
                               </div>
                               {/* Live status dot */}
                               <span
-                                className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-white dark:border-[#12141A] ${
+                                className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-white dark:border-[#121214] ${
                                   isPending ? 'bg-[#C48B4F]' : 'bg-[#34A853]'
                                 }`}
                               />
@@ -614,7 +650,7 @@ export const CoachHubView: React.FC<{
           </div>
 
           {/* Payout Rails Configuration Card */}
-          <div className="bg-white dark:bg-[#12141A] border border-zinc-200/80 dark:border-white/10 rounded-2xl p-4 flex items-center justify-between gap-3 text-zinc-900 dark:text-white shadow-sm dark:shadow-xl">
+          <div className="bg-white dark:bg-[#121214] border border-zinc-200/80 dark:border-white/10 rounded-2xl p-4 flex items-center justify-between gap-3 text-zinc-900 dark:text-white shadow-sm dark:shadow-xl">
             <div>
               <p className="text-xs font-bold text-zinc-900 dark:text-white flex items-center gap-1.5">
                 <Building2 className="w-4 h-4 text-zinc-700 dark:text-zinc-300" />
@@ -650,7 +686,7 @@ export const CoachHubView: React.FC<{
             </div>
 
             {recentEarnings.length === 0 ? (
-              <div className="bg-white dark:bg-[#12141A] border border-zinc-200/80 dark:border-white/10 rounded-2xl p-6 text-center text-zinc-900 dark:text-white shadow-sm">
+              <div className="bg-white dark:bg-[#121214] border border-zinc-200/80 dark:border-white/10 rounded-2xl p-6 text-center text-zinc-900 dark:text-white shadow-sm">
                 <DollarSign className="w-8 h-8 text-stone-400 dark:text-zinc-500 mx-auto mb-2" />
                 <p className="text-sm font-bold text-zinc-900 dark:text-white">14 Client Subscriptions Active</p>
                 <p className="text-[11px] text-zinc-600 dark:text-zinc-400 mt-1">
@@ -661,7 +697,7 @@ export const CoachHubView: React.FC<{
               (showAllEarnings ? recentEarnings : recentEarnings.slice(0, 5)).map((earning) => (
                 <div
                   key={earning.id}
-                  className="bg-white dark:bg-[#12141A] border border-zinc-200/80 dark:border-white/10 rounded-xl p-3 flex items-center justify-between text-zinc-900 dark:text-white shadow-sm"
+                  className="bg-white dark:bg-[#121214] border border-zinc-200/80 dark:border-white/10 rounded-xl p-3 flex items-center justify-between text-zinc-900 dark:text-white shadow-sm"
                 >
                   <div className="flex-1 min-w-0">
                     <p className="text-xs font-bold text-zinc-900 dark:text-white truncate">{earning.program_title}</p>
@@ -687,7 +723,14 @@ export const CoachHubView: React.FC<{
           {/* Submissions Queue */}
           <div className="space-y-3 text-zinc-900 dark:text-white">
             <div className="flex items-center justify-between text-xs">
-              <span className="text-zinc-700 dark:text-zinc-300 font-semibold uppercase tracking-wider">Workout Submissions & Review Queue</span>
+              <div className="flex items-center gap-2">
+                <span className="text-zinc-700 dark:text-zinc-300 font-semibold uppercase tracking-wider">Workout Submissions & Review Queue</span>
+                {(isDemoMode || customDemoActive) && realSubmissions.length === 0 && (
+                  <span className="text-[9px] font-mono font-bold px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/25">
+                    Demo Sandbox
+                  </span>
+                )}
+              </div>
               {pendingCount > 0 && (
                 <span className="bg-zinc-200 dark:bg-white/10 text-zinc-800 dark:text-white border border-zinc-300 dark:border-white/20 px-2.5 py-0.5 rounded-full font-bold text-[10px]">
                   {pendingCount} Pending Review
@@ -695,19 +738,63 @@ export const CoachHubView: React.FC<{
               )}
             </div>
 
+            {/* Sandbox Notice Banner if demo is active */}
+            {(isDemoMode || customDemoActive) && realSubmissions.length === 0 && (
+              <div className="flex items-center justify-between px-3 py-2 rounded-xl bg-amber-500/10 border border-amber-500/20 text-zinc-800 dark:text-zinc-200 text-xs">
+                <div className="flex items-center gap-2 min-w-0">
+                  <Sparkles className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                  <span className="text-[11px] truncate">Showing preview submissions for interactive testing</span>
+                </div>
+                <button
+                  onClick={() => {
+                    setCustomDemoActive(false);
+                    if (isDemoMode) toggleDemoMode();
+                    showToast?.('Switched to live review queue', 'success');
+                  }}
+                  className="text-[10px] font-mono font-bold text-amber-600 dark:text-amber-400 hover:underline shrink-0 ml-2 cursor-pointer"
+                >
+                  Clear Demo
+                </button>
+              </div>
+            )}
+
             {filteredSubmissions.length === 0 ? (
-              <div className="bg-white dark:bg-[#12141A] border border-zinc-200/80 dark:border-white/10 rounded-2xl p-8 text-center text-zinc-900 dark:text-white shadow-sm">
-                <CheckCircle2 className="w-8 h-8 text-stone-400 dark:text-zinc-500 mx-auto mb-2" />
-                <p className="text-sm font-bold text-zinc-900 dark:text-white">No submissions pending</p>
-                <p className="text-[11px] text-zinc-600 dark:text-zinc-400 mt-1">
-                  All athlete workout logs are up to date and verified.
-                </p>
+              <div className="bg-white dark:bg-[#121214] border border-zinc-200/80 dark:border-white/10 rounded-2xl p-8 text-center text-zinc-900 dark:text-white shadow-sm space-y-3">
+                <div className="w-12 h-12 rounded-2xl bg-zinc-100 dark:bg-white/5 border border-zinc-200 dark:border-white/10 flex items-center justify-center mx-auto text-zinc-400">
+                  <Inbox className="w-6 h-6 stroke-[1.5]" />
+                </div>
+                <div className="space-y-1">
+                  <p className="text-sm font-bold text-zinc-900 dark:text-white uppercase tracking-wider">
+                    Review Queue Clear
+                  </p>
+                  <p className="text-[11px] text-zinc-500 dark:text-zinc-400 max-w-xs mx-auto">
+                    When connected athletes submit workout form checks or complete dispatched sessions, their logs will stream here for 1-tap coach approval.
+                  </p>
+                </div>
+                <div className="flex items-center justify-center gap-2 pt-2">
+                  <button
+                    onClick={() => setShowProgramCreator(true)}
+                    className="px-3.5 py-1.5 rounded-xl bg-zinc-900 dark:bg-white dark:text-black text-white text-[10.5px] font-mono font-bold uppercase tracking-wider active:scale-95 transition-all cursor-pointer shadow-sm"
+                  >
+                    Dispatch Workout
+                  </button>
+                  <button
+                    onClick={() => {
+                      setCustomDemoActive(true);
+                      setDemoSubmissions(INITIAL_SUBMISSIONS);
+                      showToast?.('Loaded demo submissions for sandbox testing', 'success');
+                    }}
+                    className="px-3.5 py-1.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-[#C4121A] dark:text-[#D91F28] border border-red-500/20 text-[10.5px] font-mono font-bold uppercase tracking-wider active:scale-95 transition-all cursor-pointer"
+                  >
+                    Load Demo Submissions
+                  </button>
+                </div>
               </div>
             ) : (
               filteredSubmissions.map((sub) => (
               <div
                 key={sub.id}
-                className="bg-white dark:bg-[#12141A] border border-zinc-200/80 dark:border-white/10 rounded-2xl p-4 space-y-3 shadow-sm dark:shadow-xl text-zinc-900 dark:text-white"
+                className="bg-white dark:bg-[#121214] border border-zinc-200/80 dark:border-white/10 rounded-2xl p-4 space-y-3 shadow-sm dark:shadow-xl text-zinc-900 dark:text-white"
               >
                 <div className="flex items-start gap-3">
                   {sub.avatar ? (
@@ -818,6 +905,7 @@ export const CoachHubView: React.FC<{
         onClose={() => setCommandCardAthlete(null)}
         athlete={commandCardAthlete}
         showToast={showToast}
+        onOpenPayPlan={onOpenPayPlan}
         onBuildWorkout={() => {
           setCommandCardAthlete(null);
           onOpen1MinBuilder?.();
@@ -839,7 +927,7 @@ export const CoachHubView: React.FC<{
           onClick={() => setActiveVideo(null)}
         >
           <div
-            className="bg-white dark:bg-[#12141A] border border-neutral-200 dark:border-white/10 rounded-3xl p-4 max-w-sm w-full space-y-3 text-zinc-900 dark:text-white shadow-2xl"
+            className="bg-white dark:bg-[#121214] border border-neutral-200 dark:border-white/10 rounded-3xl p-4 max-w-sm w-full space-y-3 text-zinc-900 dark:text-white shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between">

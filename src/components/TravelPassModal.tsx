@@ -164,20 +164,8 @@ export const TravelPassModal: React.FC<TravelPassModalProps> = ({
     if (!code) return;
     triggerHaptic('medium');
 
-    if (code === 'CREATORO1' || code === 'TRAVELVIP' || code === 'OFCPRO') {
-      try {
-        await upsertUserProfile({ subscription_tier: 'premium_travel' });
-      } catch {}
-      localStorage.setItem('o1fc_vip_creator', 'true');
-      setIsVip(true);
-      setPromoNotice({ text: 'Travel Mode Unlocked', type: 'success' });
-      showToast?.('Travel Mode Activated', 'success');
-      triggerHaptic('success');
-      return;
-    }
-
-    setPromoNotice({ text: 'Invalid promo code', type: 'error' });
-    triggerHaptic('warning');
+    setPromoNotice({ text: 'Promo codes are applied at checkout', type: 'info' as any });
+    showToast?.('Enter your promotion code at Stripe checkout for discount', 'success');
   };
 
   return (

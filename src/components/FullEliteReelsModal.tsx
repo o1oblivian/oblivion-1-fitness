@@ -19,6 +19,9 @@ import {
   Users,
   ChevronRight,
   ExternalLink,
+  Search,
+  LayoutGrid,
+  Film,
 } from 'lucide-react';
 import { CoachProfileSheet } from '@/components/CoachProfileSheet';
 import { ConsultationRequestModal } from '@/components/ConsultationRequestModal';
@@ -26,6 +29,7 @@ import { CoachShowcaseSlotModal } from '@/components/CoachShowcaseSlotModal';
 import { getCoachShowcase } from '@/utils/coachShowcaseStore';
 import { Sliders } from 'lucide-react';
 import { useModalBackHandler } from '@/utils/modalHistory';
+import { ReelsExploreGrid } from '@/components/ReelsExploreGrid';
 
 export interface MiniMediaWindow {
   type: 'video' | 'photo';
@@ -275,7 +279,15 @@ interface FullEliteReelsModalProps {
   onViewProfile?: (reel: EliteReelData) => void;
 }
 
-const CATEGORIES = ['All', 'Mobility', 'Biomechanics', 'Hypertrophy'];
+const CATEGORIES = [
+  'All',
+  'Mobility',
+  'Biomechanics',
+  'Hypertrophy',
+  'Strength',
+  'Rehab',
+  'Cardio & HIIT',
+];
 
 export const FullEliteReelsModal: React.FC<FullEliteReelsModalProps> = ({
   isOpen,
@@ -287,6 +299,7 @@ export const FullEliteReelsModal: React.FC<FullEliteReelsModalProps> = ({
   const activeReels = reels && reels.length > 0 ? reels : DEFAULT_ELITE_REELS;
 
   const [activeFilter, setActiveFilter] = useState('All');
+  const [viewMode, setViewMode] = useState<'stream' | 'explore'>('explore');
   const [muted, setMuted] = useState(true);
   const [liked, setLiked] = useState<Record<string, boolean>>({});
   const [saved, setSaved] = useState<Record<string, boolean>>({});
@@ -302,6 +315,24 @@ export const FullEliteReelsModal: React.FC<FullEliteReelsModalProps> = ({
   const [profileCoach, setProfileCoach] = useState<EliteReelData | null>(null);
   const [consultCoach, setConsultCoach] = useState<EliteReelData | null>(null);
   const clientEmail = typeof window !== 'undefined' ? localStorage.getItem('o1fc_user_email') || 'athlete@o1fc.app' : 'athlete@o1fc.app';
+
+  const handleSelectFromExplore = (reelId: string, mediaWindow?: MiniMediaWindow) => {
+    setViewMode('stream');
+    const targetIdx = activeReels.findIndex((r) => r.id === reelId);
+    if (targetIdx !== -1) {
+      setActiveIdx(targetIdx);
+      if (mediaWindow) {
+        setActiveMediaOverride((prev) => ({
+          ...prev,
+          [reelId]: { type: mediaWindow.type, url: mediaWindow.url, poster: mediaWindow.poster },
+        }));
+      }
+      setTimeout(() => {
+        const targetEl = scrollRef.current?.querySelector(`[data-idx="${targetIdx}"]`);
+        targetEl?.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
+    }
+  };
 
   useEffect(() => {
     setLikeCounts(prev => {
@@ -332,6 +363,7 @@ export const FullEliteReelsModal: React.FC<FullEliteReelsModalProps> = ({
       setActiveIdx(0);
       setActiveFilter('All');
       setActiveMediaOverride({});
+      setViewMode('explore');
     }
   }, [isOpen]);
 
@@ -407,52 +439,79 @@ export const FullEliteReelsModal: React.FC<FullEliteReelsModalProps> = ({
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
-      {/* Top Header Rail - Pure Nude, No Fog, No Frames */}
-      <div className="absolute top-0 left-0 right-0 z-40 pt-[max(env(safe-area-inset-top),8px)] px-3 pointer-events-none">
-        <div className="flex items-center justify-between gap-3 max-w-lg mx-auto pointer-events-auto">
-          {/* Close Button - Frameless Pure Vector Glyph */}
-          <button
-            onClick={handleClose}
-            aria-label="Close"
-            className="p-2 flex items-center justify-center text-white active:scale-90 hover:text-white/80 transition-transform cursor-pointer shrink-0 drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]"
-          >
-            <X className="w-6 h-6 stroke-[2]" />
-          </button>
+      {/* Top Header Rail - Only shown during vertical swipe stream mode */}
+      {viewMode === 'stream' && (
+        <div className="absolute top-0 left-0 right-0 z-40 pt-[max(env(safe-area-inset-top),8px)] px-3 pointer-events-none">
+          <div className="flex items-center justify-between gap-2 sm:gap-3 max-w-lg mx-auto pointer-events-auto">
+            {/* Close Button - Frameless Pure Vector Glyph */}
+            <button
+              onClick={handleClose}
+              aria-label="Close"
+              className="p-2 flex items-center justify-center text-white active:scale-90 hover:text-white/80 transition-transform cursor-pointer shrink-0 drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]"
+            >
+              <X className="w-6 h-6 stroke-[2]" />
+            </button>
 
-          {/* Category Capsules - Pure Typography Rail, No Frames, No Fog, Clean Horizontal Scroll */}
-          <div className="flex-1 min-w-0 overflow-x-auto no-scrollbar py-1">
-            <div className="flex items-center justify-center gap-4 sm:gap-6 min-w-max px-1">
-              {CATEGORIES.map((cat) => {
-                const isActive = activeFilter === cat;
-                return (
-                  <button
-                    key={cat}
-                    onClick={() => setActiveFilter(cat)}
-                    className={`text-[11px] uppercase tracking-wider whitespace-nowrap transition-all cursor-pointer active:scale-95 drop-shadow-[0_2px_4px_rgba(0,0,0,0.95)] ${
-                      isActive
-                        ? 'text-white font-black underline underline-offset-4 decoration-2 decoration-white'
-                        : 'text-white/70 hover:text-white font-bold'
-                    }`}
-                  >
-                    {cat}
-                  </button>
-                );
-              })}
+            {/* Central Categories Rail in Stream Mode */}
+            <div className="flex-1 min-w-0 overflow-x-auto no-scrollbar py-1">
+              <div className="flex items-center justify-center gap-3 sm:gap-5 min-w-max px-1">
+                {CATEGORIES.map((cat) => {
+                  const isActive = activeFilter === cat;
+                  return (
+                    <button
+                      key={cat}
+                      onClick={() => setActiveFilter(cat)}
+                      className={`text-[11px] uppercase tracking-wider whitespace-nowrap transition-all cursor-pointer active:scale-95 drop-shadow-[0_2px_4px_rgba(0,0,0,0.95)] ${
+                        isActive
+                          ? 'text-white font-black underline underline-offset-4 decoration-2 decoration-white'
+                          : 'text-white/70 hover:text-white font-bold'
+                      }`}
+                    >
+                      {cat}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Right Action Cluster */}
+            <div className="flex items-center gap-1 shrink-0">
+              <button
+                onClick={() => setViewMode('explore')}
+                aria-label="Explore Exercises Grid"
+                className="p-2 flex items-center justify-center text-white active:scale-90 hover:text-white/80 transition-transform cursor-pointer drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]"
+                title="Search & Explore Grid"
+              >
+                <LayoutGrid className="w-5 h-5 stroke-[2]" />
+              </button>
+
+              <button
+                onClick={() => setMuted(!muted)}
+                aria-label={muted ? 'Unmute' : 'Mute'}
+                className="p-2 flex items-center justify-center text-white active:scale-90 hover:text-white/80 transition-transform cursor-pointer drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]"
+              >
+                {muted ? <VolumeX className="w-6 h-6 stroke-[2]" /> : <Volume2 className="w-6 h-6 stroke-[2]" />}
+              </button>
             </div>
           </div>
-
-          {/* Sound Toggle - Frameless Pure Vector Glyph */}
-          <button
-            onClick={() => setMuted(!muted)}
-            aria-label={muted ? 'Unmute' : 'Mute'}
-            className="p-2 flex items-center justify-center text-white active:scale-90 hover:text-white/80 transition-transform cursor-pointer shrink-0 drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]"
-          >
-            {muted ? <VolumeX className="w-6 h-6 stroke-[2]" /> : <Volume2 className="w-6 h-6 stroke-[2]" />}
-          </button>
         </div>
-      </div>
+      )}
 
-      {/* Vertical Snap Reel Feed */}
+      {/* Main View Area: Explore Grid vs Vertical Snap Reel Feed */}
+      {viewMode === 'explore' ? (
+        <div className="h-full w-full">
+          <ReelsExploreGrid
+            reels={activeReels}
+            onSelectReel={(id, window) => handleSelectFromExplore(id, window)}
+            onOpenCoachProfile={(coachId) => {
+              const coach = activeReels.find((r) => r.id === coachId);
+              if (coach) setProfileCoach(coach);
+            }}
+            onClose={handleClose}
+            onSwitchToStream={() => setViewMode('stream')}
+          />
+        </div>
+      ) : (
       <div
         ref={scrollRef}
         className="h-full w-full overflow-y-scroll snap-y snap-mandatory"
@@ -706,6 +765,7 @@ export const FullEliteReelsModal: React.FC<FullEliteReelsModalProps> = ({
           );
         })}
       </div>
+      )}
 
       {/* Interactive Programs & Consultation Drawer Modal - Apple Light Theme */}
       {selectedProgramsModalCoach && (

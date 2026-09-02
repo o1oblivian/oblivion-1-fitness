@@ -556,6 +556,10 @@ export function ModalsLayer({ s }: Props) {
           onClose={() => s.setIsBuddyRadarOpen(false)}
           currentUserEmail={s.currentUserEmail}
           showToast={s.showToast}
+          onOpenPayPlan={(tier) => {
+            if (tier === 'coach' || tier === 'premium') s.setPayPlanHighlightTier(tier);
+            s.setIsPayPlanOpen(true);
+          }}
         />
       )}
 

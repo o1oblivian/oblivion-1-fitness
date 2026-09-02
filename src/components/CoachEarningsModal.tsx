@@ -1588,7 +1588,7 @@ export const CoachEarningsModal: React.FC<CoachEarningsModalProps> = ({
       {/* APPLE WALLET STYLE DIGITAL RECEIPT MODAL */}
       {selectedReceipt && (
         <div className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in">
-          <div className="bg-white dark:bg-[#12141A] border border-zinc-200/80 dark:border-white/10 rounded-3xl w-full max-w-sm p-6 shadow-2xl space-y-4 text-center">
+          <div className="bg-white dark:bg-[#121214] border border-zinc-200/80 dark:border-white/10 rounded-3xl w-full max-w-sm p-6 shadow-2xl space-y-4 text-center">
             
             <div className="w-12 h-12 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mx-auto">
               <CheckCircle2 className="w-6 h-6" />

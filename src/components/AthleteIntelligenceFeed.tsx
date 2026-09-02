@@ -295,7 +295,7 @@ export const AthleteIntelligenceFeed: React.FC<{
   return (
     <div className="space-y-2.5 text-zinc-900 dark:text-white">
       {/* ── Intelligence Header & Category Filters ── */}
-      <div className="bg-white dark:bg-[#12141A] border border-zinc-200/80 dark:border-white/10 rounded-2xl p-3.5 sm:p-4 shadow-sm dark:shadow-xl space-y-3 text-zinc-900 dark:text-white">
+      <div className="bg-white dark:bg-[#121214] border border-zinc-200/80 dark:border-white/10 rounded-2xl p-3.5 sm:p-4 shadow-sm dark:shadow-xl space-y-3 text-zinc-900 dark:text-white">
         
         {/* Top Meta: Status */}
         <div className="flex items-center justify-between">
@@ -361,7 +361,7 @@ export const AthleteIntelligenceFeed: React.FC<{
       {!loading && (
         <div className="space-y-2.5 text-zinc-900 dark:text-white">
           {filteredInsights.length === 0 && (
-            <div className="text-center py-8 bg-white dark:bg-[#12141A] border border-zinc-200/80 dark:border-white/10 rounded-2xl p-5 text-zinc-900 dark:text-white shadow-sm">
+            <div className="text-center py-8 bg-white dark:bg-[#121214] border border-zinc-200/80 dark:border-white/10 rounded-2xl p-5 text-zinc-900 dark:text-white shadow-sm">
               <CheckCircle2 className="w-7 h-7 text-stone-400 dark:text-zinc-500 mx-auto mb-2" />
               <p className="text-xs font-bold text-zinc-900 dark:text-white">All Clear</p>
               <p className="text-[11px] text-zinc-600 dark:text-zinc-400 mt-0.5">
@@ -377,7 +377,7 @@ export const AthleteIntelligenceFeed: React.FC<{
             return (
               <div
                 key={ins.id}
-                className="bg-white dark:bg-[#12141A] border border-zinc-200/80 dark:border-white/10 rounded-2xl p-3.5 space-y-2.5 shadow-sm dark:shadow-md transition-all text-zinc-900 dark:text-white"
+                className="bg-white dark:bg-[#121214] border border-zinc-200/80 dark:border-white/10 rounded-2xl p-3.5 space-y-2.5 shadow-sm dark:shadow-md transition-all text-zinc-900 dark:text-white"
               >
                 {/* Header */}
                 <div className="flex items-start gap-2.5">

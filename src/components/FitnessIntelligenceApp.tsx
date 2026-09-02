@@ -63,7 +63,6 @@ import {
 
 import { ClientProgressShareModal } from './ClientProgressShareModal';
 import { ShareResultModal } from './ShareResultModal';
-import { ShareVictoryModal } from './ShareVictoryModal';
 import { ShareProgressModal } from './ShareProgressModal';
 import { ReelsFeed } from './ReelsFeed';
 import { CoachHubView } from './CoachView';
@@ -340,7 +339,6 @@ export default function FitnessIntelligenceApp({
 
   const [shareClientAthlete, setShareClientAthlete] = useState<AthleteData | null>(null);
   const [shareResultLog, setShareResultLog] = useState<CoachLog | null>(null);
-  const [isVictoryShareOpen, setIsVictoryShareOpen] = useState<boolean>(false);
   const [isShareProgressOpen, setIsShareProgressOpen] = useState<boolean>(false);
   const [isVaultOpen, setIsVaultOpen] = useState<boolean>(false);
   const [intelligenceTelemetry, setIntelligenceTelemetry] = useState<AthleteTelemetry | null>(null);
@@ -1022,6 +1020,7 @@ export default function FitnessIntelligenceApp({
               onOpen1MinBuilder={() => { setDispatchTargetKeys(Object.keys(COACH_CLIENTS)); setIsDispatchModalOpen(true); }}
               onOpenVault={() => setIsCoachVaultOpen(true)}
               onViewRoster={() => setIsRosterModalOpen(true)}
+              onOpenPayPlan={() => setIsPayPlanOpen(true)}
               coachEmail={currentUserEmail}
               showToast={showToast}
             />
@@ -1190,18 +1189,6 @@ export default function FitnessIntelligenceApp({
         log={shareResultLog}
         coachName={coachProfileData.name}
         onClose={() => setShareResultLog(null)}
-        showToast={showToast}
-      />
-
-      {/* Share My Victory Modal */}
-      <ShareVictoryModal
-        isOpen={isVictoryShareOpen}
-        onClose={() => setIsVictoryShareOpen(false)}
-        athleteName={stats.name}
-        benchPress1RM={105.0}
-        benchPressGain={10.0}
-        streak={stats.streak}
-        totalVolume={stats.totalVolume}
         showToast={showToast}
       />
 

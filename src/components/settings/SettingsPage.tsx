@@ -13,6 +13,7 @@ import { SupportSection } from './SupportSection';
 import { MembershipSection } from './MembershipSection';
 import { AccountSection } from './AccountSection';
 import { useAuthStorage, getSessionUserEmail } from '../../hooks/useAuthStorage';
+import { getSavedThemePreference, applyAndSaveTheme, DisplayTheme } from '../../utils/themeStorage';
 
 interface SettingsPageProps {
   isOpen: boolean;
@@ -52,13 +53,7 @@ export function SettingsPage({
 
   const [currentName, setCurrentName] = useState(profile.display_name || '');
   const [currentHandle, setCurrentHandle] = useState(profile.username || '');
-  const [themeMode, setThemeMode] = useState<'dark' | 'light' | 'system'>(() => {
-    try {
-      const saved = localStorage.getItem('theme');
-      if (saved === 'dark' || saved === 'light' || saved === 'system') return saved;
-    } catch {}
-    return 'light';
-  });
+  const [themeMode, setThemeMode] = useState<DisplayTheme>(() => getSavedThemePreference());
   const [inputMethod, setInputMethod] = useState<'dial' | 'numpad'>(() => {
     try {
       const s = localStorage.getItem('ofc_input_method');
@@ -81,15 +76,10 @@ export function SettingsPage({
     };
   }, [isOpen]);
 
-  const handleSelectThemeMode = (mode: 'dark' | 'light' | 'system') => {
+  const handleSelectThemeMode = (mode: DisplayTheme) => {
     setThemeMode(mode);
-    try {
-      localStorage.setItem('theme', mode);
-    } catch {}
+    applyAndSaveTheme(mode);
     updateProfile({ theme: mode });
-    const isDark = mode === 'dark' || (mode === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
-    document.documentElement.classList.toggle('dark', isDark);
-    document.body.classList.toggle('dark', isDark);
   };
 
   const handleSelectInputMethod = (m: 'dial' | 'numpad') => {

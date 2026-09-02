@@ -57,7 +57,7 @@ export async function supabaseSignUp(email: string, password: string, name?: str
       },
     });
   } catch (err: any) {
-    return { data: { user: { email, id: `local_${Date.now()}` } } as any, error: null };
+    return { data: { user: null, session: null }, error: err };
   }
 }
 
@@ -68,7 +68,7 @@ export async function supabaseSignIn(email: string, password: string) {
       password,
     });
   } catch (err: any) {
-    return { data: { user: { email, id: `local_${Date.now()}` } } as any, error: null };
+    return { data: { user: null, session: null }, error: err };
   }
 }
 

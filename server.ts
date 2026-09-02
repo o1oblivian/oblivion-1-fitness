@@ -114,6 +114,43 @@ async function startServer() {
     queryCache.set(key, { timestamp: Date.now(), data });
   }
 
+  // High-performance in-memory sliding window rate limiter for scale & DoS protection
+  const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
+  setInterval(() => {
+    const now = Date.now();
+    for (const [key, val] of rateLimitMap.entries()) {
+      if (now > val.resetAt) rateLimitMap.delete(key);
+    }
+  }, 60 * 1000);
+
+  function createRateLimiter(maxRequests: number, windowMs: number) {
+    return (req: express.Request, res: express.Response, next: express.NextFunction) => {
+      const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'unknown';
+      const key = `${String(ip)}:${req.baseUrl || req.path}`;
+      const now = Date.now();
+      const current = rateLimitMap.get(key);
+
+      if (!current || now > current.resetAt) {
+        rateLimitMap.set(key, { count: 1, resetAt: now + windowMs });
+        return next();
+      }
+
+      if (current.count >= maxRequests) {
+        res.setHeader('Retry-After', Math.ceil((current.resetAt - now) / 1000));
+        return res.status(429).json({
+          error: 'Too Many Requests',
+          message: 'Rate limit exceeded. Please slow down and try again shortly.',
+        });
+      }
+
+      current.count += 1;
+      next();
+    };
+  }
+
+  const standardApiLimiter = createRateLimiter(120, 60 * 1000);
+  const aiHeavyLimiter = createRateLimiter(30, 60 * 1000);
+
   // Security headers & Cross-Origin Resource Sharing (CORS) for Web & Native Android APK
   app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -154,7 +191,7 @@ async function startServer() {
   });
 
   // Food Scan & Barcode Lookup API
-  app.all('/api/food-scan', async (req, res) => {
+  app.all('/api/food-scan', aiHeavyLimiter, async (req, res) => {
     // GET: Barcode or Query search
     if (req.method === 'GET') {
       const barcode = typeof req.query.barcode === 'string' ? req.query.barcode.trim() : '';
@@ -415,7 +452,7 @@ Return ONLY a valid JSON object matching this schema:
   });
 
   // AI Meal Suggestion API
-  app.post('/api/meal-suggest', async (req, res) => {
+  app.post('/api/meal-suggest', standardApiLimiter, async (req, res) => {
     try {
       const { remainingCals, remainingProtein, remainingCarbs, remainingFat, mealSlot, country, diet } = req.body || {};
       const ai = getAI();
@@ -683,29 +720,39 @@ Return ONLY valid JSON matching this schema:
   });
 
   // AI Coach Insights API
-  app.post('/api/gemini-coach', async (req, res) => {
+  app.post('/api/gemini-coach', standardApiLimiter, async (req, res) => {
     try {
-      const { sessionSummary, nutrition, athleteProfile } = req.body || {};
+      const { sessionSummary, nutrition, athleteProfile, recovery, context, metrics } = req.body || {};
+      const activeSession = sessionSummary || metrics?.sessionSummary || {};
+      const activeNutrition = nutrition || metrics?.nutrition || {};
+      const activeRecovery = recovery || metrics?.recovery || {};
+      const activeContext = context || metrics?.context || athleteProfile || {};
+
       const ai = getAI();
 
       if (ai) {
         try {
-          const prompt = `You are Oblivion 1 Fitness Club (O1FC) Intelligence Coach. Provide high-level training and recovery analysis based on:
-Session: ${JSON.stringify(sessionSummary || {})}
-Nutrition: ${JSON.stringify(nutrition || {})}
-Athlete Profile: ${JSON.stringify(athleteProfile || {})}
+          const prompt = `You are Oblivion 1 Fitness Club (O1FC) Intelligence Coach and sports scientist.
+Provide personalized, actionable athletic intelligence based on this telemetry:
+- Session Data: ${JSON.stringify(activeSession)}
+- Fuel/Nutrition: ${JSON.stringify(activeNutrition)}
+- Recovery/Readiness: ${JSON.stringify(activeRecovery)}
+- Athlete Profile/Context: ${JSON.stringify(activeContext)}
 
-Return a concise JSON object with:
+Format your response as 3 to 4 concise bullet points with bold titles (e.g. "**Progressive Overload** -- ...", "**Fuel Timing** -- ...", "**Readiness & Deload** -- ...").
+Directly reference specific numbers (weights, sets, grams of protein, readiness scores).
+Also return clean JSON with:
 {
-  "summary": "1-2 sentence assessment",
-  "intensityVerdict": "Optimal / High / Deload needed",
-  "nutritionVerdict": "On Track / Needs Protein / Deficit",
+  "insights": "**Insight 1 Title** -- Detail sentence.\\n\\n**Insight 2 Title** -- Detail sentence.\\n\\n**Insight 3 Title** -- Detail sentence.",
+  "summary": "1-2 sentence high-level assessment",
+  "intensityVerdict": "Optimal",
+  "nutritionVerdict": "On Track",
   "recommendations": ["Recommendation 1", "Recommendation 2", "Recommendation 3"],
   "recoveryScore": 88
 }`;
 
           let response: any = null;
-          const modelsToTry = ['gemini-3.7-flash', 'gemini-flash-latest', 'gemini-3.1-flash-lite'];
+          const modelsToTry = ['gemini-3.7-flash', 'gemini-flash-latest', 'gemini-2.5-flash'];
           for (const modelName of modelsToTry) {
             try {
               response = await ai.models.generateContent({
@@ -721,13 +768,24 @@ Return a concise JSON object with:
 
           const text = response?.text || '';
           const cleaned = text.replace(/^```json\s*/i, '').replace(/\s*```$/i, '').trim();
-          return res.json(JSON.parse(cleaned));
+          const parsed = JSON.parse(cleaned);
+          if (!parsed.insights && parsed.recommendations) {
+            parsed.insights = parsed.recommendations.map((r: string, i: number) => `**Telemetry Insight ${i + 1}** -- ${r}`).join('\n\n');
+          }
+          return res.json(parsed);
         } catch (e) {
           console.error('Gemini coach error:', e);
         }
       }
 
+      const defaultInsights = [
+        `**Session Volume** -- Total volume aligns with progressive overload goals. High intensity zone sustained.`,
+        `**Fuel Timing** -- Maintain 1.6-2.2g/kg protein intake distributed across feeding windows.`,
+        `**Recovery & Adaptation** -- Target 7-9 hours of deep sleep to maximize muscle protein synthesis and readiness.`,
+      ].join('\n\n');
+
       return res.json({
+        insights: defaultInsights,
         summary: 'Solid performance logged. Training volume aligns with progressive overload goals.',
         intensityVerdict: 'Optimal',
         nutritionVerdict: 'On Track',
@@ -760,7 +818,7 @@ Return a concise JSON object with:
   });
 
   // Stripe Checkout Endpoint
-  app.post('/api/stripe-checkout', async (req, res) => {
+  app.post('/api/stripe-checkout', standardApiLimiter, async (req, res) => {
     try {
       const { planId, userEmail, successUrl, cancelUrl, programTitle, programPriceCents } = req.body || {};
 
@@ -958,7 +1016,7 @@ Return a concise JSON object with:
   });
 
   // Stripe Customer Billing Portal
-  app.post('/api/stripe-portal', async (req, res) => {
+  app.post('/api/stripe-portal', standardApiLimiter, async (req, res) => {
     try {
       const { userEmail, customerId } = req.body || {};
       const stripe = getStripe();
@@ -994,7 +1052,7 @@ Return a concise JSON object with:
   });
 
   // Coach Payout Processing Endpoint (Stripe, PayPal, Local Banking Rails)
-  app.post('/api/stripe-coach-payout', async (req, res) => {
+  app.post('/api/stripe-coach-payout', standardApiLimiter, async (req, res) => {
     try {
       const {
         coachEmail,

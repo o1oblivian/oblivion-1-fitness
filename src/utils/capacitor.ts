@@ -4,6 +4,7 @@ import { StatusBar, Style } from '@capacitor/status-bar';
 import { SplashScreen } from '@capacitor/splash-screen';
 import { Keyboard } from '@capacitor/keyboard';
 import { Browser } from '@capacitor/browser';
+import { backNavManager } from './backNavigationManager';
 
 export function isNativePlatform(): boolean {
   return Capacitor.isNativePlatform();
@@ -16,15 +17,22 @@ export function getPlatform(): 'ios' | 'android' | 'web' {
 /**
  * Register hardware back button listener for Android
  */
-export function registerAndroidBackButton(handler: () => boolean | void): () => void {
+export function registerAndroidBackButton(fallbackHandler?: () => boolean | void): () => void {
   if (!isNativePlatform() || Capacitor.getPlatform() !== 'android') {
     return () => {};
   }
 
-  const listenerPromise = CapacitorApp.addListener('backButton', ({ canGoBack }) => {
-    const handled = handler();
-    if (!handled && canGoBack) {
-      window.history.back();
+  const listenerPromise = CapacitorApp.addListener('backButton', () => {
+    // 1. Delegate to central back navigation manager (modals stack, history, etc.)
+    const handledByBackNav = backNavManager.handleBack();
+    if (handledByBackNav) {
+      return;
+    }
+
+    // 2. Fallback to custom handler if provided
+    if (fallbackHandler) {
+      const handled = fallbackHandler();
+      if (handled) return;
     }
   });
 

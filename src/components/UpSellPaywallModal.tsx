@@ -28,15 +28,8 @@ export const UpSellPaywallModal: React.FC<UpSellPaywallModalProps> = ({
   const handleApplyPromo = async () => {
     const code = promoCode.trim().toUpperCase();
     if (!code) return;
-    if (code === 'CREATORO1') {
-      try { await upsertUserProfile({ subscription_tier: 'premium_travel' }); } catch {}
-      localStorage.setItem('o1fc_vip_creator', 'true');
-      showToast?.('VIP Creator Pass Activated! Welcome to O1FC.', 'success');
-      onUnlockSuccess?.();
-      onClose();
-      return;
-    }
-    setPromoNotice('Invalid code. Check your spelling and try again.');
+    setPromoNotice('Promotional codes can be applied directly at Stripe checkout.');
+    showToast?.('Enter your promo code on the Stripe checkout page for instant discount.', 'success');
   };
 
   useEffect(() => {

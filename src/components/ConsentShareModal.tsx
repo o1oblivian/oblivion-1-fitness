@@ -498,11 +498,11 @@ export const ConsentShareModal: React.FC<ConsentShareModalProps> = ({
       onClick={onClose}
     >
       <div
-        className="w-full max-w-lg bg-white dark:bg-[#12141A] text-zinc-900 dark:text-white border border-zinc-200/80 dark:border-white/10 rounded-3xl overflow-hidden shadow-2xl my-auto max-h-[92vh] flex flex-col"
+        className="w-full max-w-lg bg-white dark:bg-[#121214] text-zinc-900 dark:text-white border border-zinc-200/80 dark:border-white/10 rounded-3xl overflow-hidden shadow-2xl my-auto max-h-[92vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal Header */}
-        <div className="sticky top-0 z-20 bg-white/95 dark:bg-[#12141A]/95 backdrop-blur-xl border-b border-zinc-200/80 dark:border-white/10 px-4 sm:px-5 py-3.5 flex items-center justify-between shrink-0">
+        <div className="sticky top-0 z-20 bg-white/95 dark:bg-[#121214]/95 backdrop-blur-xl border-b border-zinc-200/80 dark:border-white/10 px-4 sm:px-5 py-3.5 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-red-500/10 border border-red-500/30 flex items-center justify-center text-red-500">
               <Share2 className="w-4 h-4" />
@@ -1156,7 +1156,7 @@ export const ConsentShareModal: React.FC<ConsentShareModalProps> = ({
                     ? 'bg-gradient-to-br from-[#18080A] via-[#220B0E] to-[#0D0405] border-red-500/40 text-white'
                     : cardTheme === 'gold'
                     ? 'bg-gradient-to-br from-[#18140B] via-[#282112] to-[#0E0C06] border-amber-500/40 text-white'
-                    : 'bg-gradient-to-br from-[#12141A] via-[#1A1D24] to-[#0B0C0E] border-stone-700 text-white'
+                    : 'bg-gradient-to-br from-[#121214] via-[#1A1A1E] to-[#0B0B0D] border-stone-700 text-white'
                 }`}
               >
                 {/* Brand Header */}

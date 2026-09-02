@@ -120,32 +120,38 @@ export async function loginUser(email: string, password: string): Promise<{ succ
   const cleanPass = password.trim();
 
   if (!cleanEmail || !cleanPass) {
-    return { success: false, message: 'Please enter your email and password.' };
+    return { success: false, message: 'Please enter both your email and password.' };
+  }
+
+  if (cleanPass.length < 6) {
+    return { success: false, message: 'Password must be at least 6 characters.' };
   }
 
   try {
-    await supabaseSignIn(cleanEmail, cleanPass);
-  } catch {
-    // Local session fallback
-  }
-
-  const users = getUsers();
-  let user = users[cleanEmail];
-  if (!user) {
-    user = {
-      email: cleanEmail,
-      name: cleanEmail.split('@')[0],
-      createdAt: new Date().toISOString(),
-    };
-    users[cleanEmail] = user;
-    saveUsers(users);
-    if (!getUserState(cleanEmail)) {
-      saveUserState(cleanEmail, getInitialAppState(user.name));
+    const res = await supabaseSignIn(cleanEmail, cleanPass);
+    if (res.error) {
+      return { success: false, message: res.error.message || 'Invalid email or password.' };
     }
+    if (res.data?.user?.email) {
+      const users = getUsers();
+      let user = users[cleanEmail];
+      if (!user) {
+        user = {
+          email: cleanEmail,
+          name: cleanEmail.split('@')[0],
+          createdAt: new Date().toISOString(),
+        };
+        users[cleanEmail] = user;
+        saveUsers(users);
+      }
+      setSessionUserEmail(cleanEmail);
+      return { success: true, message: 'Signed in successfully!', user };
+    }
+  } catch (err: any) {
+    return { success: false, message: err?.message || 'Authentication error. Please check your credentials.' };
   }
 
-  setSessionUserEmail(cleanEmail);
-  return { success: true, message: 'Signed in successfully!', user };
+  return { success: false, message: 'Invalid credentials. Please verify your email and password.' };
 }
 
 export async function logoutUser(): Promise<void> {

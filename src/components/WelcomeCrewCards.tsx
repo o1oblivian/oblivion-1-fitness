@@ -61,7 +61,7 @@ export const WelcomeCrewCards: React.FC<WelcomeCrewCardsProps> = ({ onAction }) 
   };
 
   return (
-    <div className="relative rounded-2xl border border-zinc-200/80 dark:border-white/10 bg-white dark:bg-[#12141A] overflow-hidden text-zinc-900 dark:text-white shadow-sm dark:shadow-md">
+    <div className="relative rounded-2xl border border-zinc-200/80 dark:border-white/10 bg-white dark:bg-[#121214] overflow-hidden text-zinc-900 dark:text-white shadow-sm dark:shadow-md">
       {/* Header */}
       <div className="flex items-center justify-between px-4 pt-3.5 pb-2">
         <div>

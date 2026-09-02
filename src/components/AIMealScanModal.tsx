@@ -632,7 +632,7 @@ export const AIMealScanModal: React.FC<AIMealScanModalProps> = ({
     <div className="fixed inset-0 z-[150] flex flex-col justify-end sm:justify-center items-center sm:p-4">
       <div className="absolute inset-0 bg-black/60 dark:bg-black/90 backdrop-blur-md" onClick={handleClose} />
 
-      <div className="relative w-full max-w-lg bg-white dark:bg-stone-950 text-zinc-900 dark:text-white rounded-t-[32px] sm:rounded-[32px] border border-zinc-200/80 dark:border-white/10 shadow-2xl overflow-hidden flex flex-col max-h-[92vh] sm:max-h-[85vh]">
+      <div className="relative w-full max-w-lg bg-white dark:bg-stone-950 text-zinc-900 dark:text-white rounded-t-[32px] sm:rounded-[32px] border border-zinc-200/80 dark:border-white/10 shadow-2xl overflow-hidden flex flex-col max-h-[88dvh] sm:max-h-[85vh] pb-[max(0.75rem,env(safe-area-inset-bottom,0px))]">
         {/* Apple Pill Handle */}
         <div className="w-10 h-1 bg-zinc-300 dark:bg-white/20 rounded-full mx-auto mt-3 mb-1 shrink-0 sm:hidden" />
 
@@ -703,7 +703,7 @@ export const AIMealScanModal: React.FC<AIMealScanModalProps> = ({
         )}
 
         {/* Main Content Area */}
-        <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3">
+        <div className="flex-1 overflow-y-auto px-4 pt-3 pb-8 sm:pb-6 space-y-3.5 overscroll-contain">
           {/* 1. VIEWFINDER PHASE (UNIFIED CAMERA HUD) */}
           {phase === 'viewfinder' && !barcodeResult && (
             <div className="space-y-3">
@@ -896,7 +896,7 @@ export const AIMealScanModal: React.FC<AIMealScanModalProps> = ({
 
           {/* 2. SCANNING ANALYSIS PHASE */}
           {phase === 'scanning' && (
-            <div className="flex flex-col items-center gap-4 py-4">
+            <div className="flex flex-col items-center gap-4 pt-2 pb-8">
               <div className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden border border-zinc-200 dark:border-white/10">
                 {imagePreview && (
                   <img src={imagePreview} alt="Captured Meal" className="absolute inset-0 w-full h-full object-cover" />
@@ -1122,22 +1122,24 @@ export const AIMealScanModal: React.FC<AIMealScanModalProps> = ({
               </div>
 
               {/* Log CTA */}
-              <button
-                onClick={handleLogMeal}
-                className="w-full py-3 bg-red-600 hover:bg-red-500 text-white font-extrabold text-sm rounded-2xl transition-all active:scale-[0.98] shadow-lg shadow-red-600/20 flex items-center justify-center gap-2 cursor-pointer"
-              >
-                <Check className="w-4 h-4" />
-                Log to {selectedMeal}
-              </button>
-              <button
-                onClick={() => {
-                  reset();
-                  startLiveViewfinder();
-                }}
-                className="w-full py-1.5 text-zinc-500 dark:text-white/50 hover:text-zinc-900 dark:hover:text-white font-bold text-xs transition cursor-pointer text-center"
-              >
-                Scan another meal
-              </button>
+              <div className="pt-2 pb-2 space-y-2">
+                <button
+                  onClick={handleLogMeal}
+                  className="w-full py-3.5 bg-red-600 hover:bg-red-500 text-white font-extrabold text-sm rounded-2xl transition-all active:scale-[0.98] shadow-lg shadow-red-600/25 flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  <Check className="w-4 h-4 stroke-[3]" />
+                  Log to {selectedMeal}
+                </button>
+                <button
+                  onClick={() => {
+                    reset();
+                    startLiveViewfinder();
+                  }}
+                  className="w-full py-2 text-zinc-500 dark:text-white/50 hover:text-zinc-900 dark:hover:text-white font-bold text-xs transition cursor-pointer text-center block"
+                >
+                  Scan another meal
+                </button>
+              </div>
             </div>
           )}
         </div>

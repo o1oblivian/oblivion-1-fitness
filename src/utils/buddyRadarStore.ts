@@ -44,7 +44,7 @@ export interface RadarFilters {
 
 export const DEFAULT_FILTERS: RadarFilters = {
   ageRange: [18, 55],
-  radiusKm: 50,
+  radiusKm: 25,
   disciplines: [],
   preferredTimes: [],
 };

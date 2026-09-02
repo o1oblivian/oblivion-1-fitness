@@ -80,7 +80,7 @@ export async function upsertUserProfile(profile: Partial<UserProfile>): Promise<
       email: user.email || '',
       role: profile.role || 'athlete',
       display_name: profile.display_name || user.user_metadata?.full_name || '',
-      subscription_tier: 'premium',
+      subscription_tier: profile.subscription_tier || (profile.role === 'coach' ? 'coach_free' : 'free'),
       trial_ends_at: trialEndsAt,
       ...profile,
     })
@@ -102,7 +102,7 @@ export async function getUserRole(): Promise<UserRole> {
 }
 
 export function isPremium(tier: SubscriptionTier): boolean {
-  return tier === 'premium' || tier === 'premium_travel' || tier === 'coach_pro';
+  return tier === 'premium' || tier === 'premium_travel' || tier === 'founder_pass' || tier === 'coach_pro';
 }
 
 export function isCoach(tier: SubscriptionTier): boolean {

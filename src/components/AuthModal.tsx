@@ -96,35 +96,33 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       showToast('Please enter your email and password', 'error');
       return;
     }
+    if (cleanPass.length < 8) {
+      showToast('Password must be at least 8 characters', 'error');
+      return;
+    }
     setLoading(true);
     try {
-      let userEmail = cleanEmail;
-      let loggedIn = false;
-      try {
-        const { data, error } = await supabase.auth.signInWithPassword({
-          email: cleanEmail,
-          password: cleanPass,
-        });
-        if (!error && data?.user?.email) {
-          userEmail = data.user.email;
-          loggedIn = true;
-        }
-      } catch {
-        // Network fallback
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: cleanEmail,
+        password: cleanPass,
+      });
+
+      if (error) {
+        showToast(error.message || 'Invalid email or password. Please try again.', 'error');
+        setLoading(false);
+        return;
       }
 
-      if (!loggedIn) {
-        await loginUser(cleanEmail, cleanPass);
+      if (data?.user?.email) {
+        const userEmail = data.user.email;
+        showToast('Welcome back to Oblivion FC', 'success');
+        setSessionUserEmail(userEmail);
+        animateOut(userEmail);
+      } else {
+        showToast('Unable to sign in. Please verify your credentials.', 'error');
       }
-
-      showToast('Welcome back to Oblivion FC', 'success');
-      setSessionUserEmail(userEmail);
-      animateOut(userEmail);
     } catch (err: any) {
-      await loginUser(cleanEmail, cleanPass);
-      showToast('Welcome back to Oblivion FC', 'success');
-      setSessionUserEmail(cleanEmail);
-      animateOut(cleanEmail);
+      showToast(err?.message || 'Authentication error. Please check your credentials.', 'error');
     } finally {
       setLoading(false);
     }
@@ -140,8 +138,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       showToast('Please provide your email and password', 'error');
       return;
     }
-    if (cleanPass.length < 6) {
-      showToast('Password must be at least 6 characters', 'error');
+    if (cleanPass.length < 8) {
+      showToast('Password must be at least 8 characters', 'error');
       return;
     }
     if (!acceptedTerms) {
@@ -151,20 +149,19 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
     setLoading(true);
     try {
-      let userEmail = cleanEmail;
+      const { data, error } = await supabase.auth.signUp({
+        email: cleanEmail,
+        password: cleanPass,
+        options: { data: { full_name: cleanName } },
+      });
 
-      try {
-        const { data } = await supabase.auth.signUp({
-          email: cleanEmail,
-          password: cleanPass,
-          options: { data: { full_name: cleanName } },
-        });
-        if (data?.user?.email) {
-          userEmail = data.user.email;
-        }
-      } catch {
-        // Fallback
+      if (error) {
+        showToast(error.message || 'Registration failed. Please try a different email.', 'error');
+        setLoading(false);
+        return;
       }
+
+      const userEmail = data?.user?.email || cleanEmail;
 
       await registerUser(cleanEmail, cleanPass, cleanName);
 
@@ -185,6 +182,16 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       } catch {}
 
       try {
+        await supabase.from('profiles').upsert({
+          user_email: userEmail.toLowerCase(),
+          user_name: cleanName,
+          handle: cleanName.toLowerCase().replace(/[^a-z0-9_]/g, '_'),
+          is_coach: role === 'coach',
+          updated_at: new Date().toISOString(),
+        }, { onConflict: 'user_email' });
+      } catch {}
+
+      try {
         await upsertUserProfile({
           email: userEmail.toLowerCase(),
           role,
@@ -194,14 +201,18 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         });
       } catch {}
 
+      // If Supabase has email confirmation enabled and session is not yet active
+      if (data?.user && !data?.session) {
+        showToast('Verification email sent. Please check your inbox to confirm your account.', 'success');
+        setMode('signin');
+        return;
+      }
+
       setSessionUserEmail(userEmail);
-      showToast('Account Created — Starting Calibration Protocol', 'success');
+      showToast('Account Created — Welcome to Oblivion FC', 'success');
       animateOut(userEmail);
     } catch (err: any) {
-      await registerUser(cleanEmail, cleanPass, cleanName);
-      setSessionUserEmail(cleanEmail);
-      showToast('Account Created — Starting Calibration Protocol', 'success');
-      animateOut(cleanEmail);
+      showToast(err?.message || 'Failed to create account. Please try again.', 'error');
     } finally {
       setLoading(false);
     }
@@ -211,9 +222,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     setLoading(true);
     try {
       const isMobile = isNativePlatform();
-      const redirectUrl = isMobile
-        ? 'https://ais-pre-ywak62jnfmfdpkjhp64wap-822845783036.asia-east1.run.app'
-        : (typeof window !== 'undefined' ? `${window.location.origin}${window.location.pathname}` : undefined);
+      const redirectUrl = typeof window !== 'undefined'
+        ? (isMobile ? 'https://o1fc-official-1.ai.studio' : `${window.location.origin}${window.location.pathname}`)
+        : 'https://o1fc-official-1.ai.studio';
 
       let oauthUrl: string | null = null;
       try {
@@ -251,11 +262,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           );
         }
       } else {
-        const mockEmail = provider === 'google' ? 'athlete.google@o1fc.app' : 'athlete.apple@o1fc.app';
-        await registerUser(mockEmail, 'oauth_authenticated_session', provider === 'google' ? 'Google Athlete' : 'Apple Athlete');
-        setSessionUserEmail(mockEmail);
-        showToast(`Connected with ${provider === 'google' ? 'Google' : 'Apple'}`, 'success');
-        animateOut(mockEmail);
+        showToast(`Unable to connect to ${provider === 'google' ? 'Google' : 'Apple'} authentication.`, 'error');
       }
     } catch {
       showToast(`Unable to initiate ${provider} auth. Please use email.`, 'error');
@@ -370,21 +377,29 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
                     <div className="space-y-1 text-left">
                       <label className="text-[11px] font-black uppercase tracking-wider text-zinc-800 dark:text-zinc-200">Password</label>
-                      <div className="relative">
+                      <div className="relative flex items-center">
                         <input
                           type={showPassword ? 'text' : 'password'}
                           required
                           value={password}
                           onChange={(e) => setPassword(e.target.value)}
                           placeholder="••••••••"
-                          className="w-full bg-zinc-50 dark:bg-zinc-900/90 border border-zinc-200 dark:border-zinc-800 focus:border-red-600 dark:focus:border-red-500 text-zinc-900 dark:text-white text-sm px-4 py-3 pr-10 rounded-2xl placeholder:text-zinc-400 dark:placeholder:text-zinc-600 outline-none transition-all"
+                          className="w-full bg-zinc-50 dark:bg-zinc-900/90 border border-zinc-200 dark:border-zinc-800 focus:border-red-600 dark:focus:border-red-500 text-zinc-900 dark:text-white text-sm px-4 py-3 pr-12 rounded-2xl placeholder:text-zinc-400 dark:placeholder:text-zinc-600 outline-none transition-all"
                         />
                         <button
                           type="button"
-                          onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 p-1 cursor-pointer transition-colors"
+                          aria-label={showPassword ? 'Hide password' : 'Show password'}
+                          onPointerDown={(e) => {
+                            e.preventDefault();
+                            setShowPassword((prev) => !prev);
+                          }}
+                          className="absolute right-1 top-0 bottom-0 w-11 flex items-center justify-center text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 cursor-pointer z-20 transition-colors"
                         >
-                          {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                          {showPassword ? (
+                            <EyeOff className="w-4 h-4 text-red-500" />
+                          ) : (
+                            <Eye className="w-4 h-4" />
+                          )}
                         </button>
                       </div>
                     </div>
@@ -541,21 +556,29 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
                     <div className="space-y-1 text-left">
                       <label className="text-[11px] font-black uppercase tracking-wider text-zinc-800 dark:text-zinc-200">Choose Password</label>
-                      <div className="relative">
+                      <div className="relative flex items-center">
                         <input
                           type={showPassword ? 'text' : 'password'}
                           required
                           value={password}
                           onChange={(e) => setPassword(e.target.value)}
-                          placeholder="Min 6 characters"
-                          className="w-full bg-zinc-50 dark:bg-zinc-900/90 border border-zinc-200 dark:border-zinc-800 focus:border-red-600 dark:focus:border-red-500 text-zinc-900 dark:text-white text-sm px-4 py-2.5 pr-10 rounded-2xl placeholder:text-zinc-400 dark:placeholder:text-zinc-600 outline-none transition-all"
+                          placeholder="Min 8 characters"
+                          className="w-full bg-zinc-50 dark:bg-zinc-900/90 border border-zinc-200 dark:border-zinc-800 focus:border-red-600 dark:focus:border-red-500 text-zinc-900 dark:text-white text-sm px-4 py-2.5 pr-12 rounded-2xl placeholder:text-zinc-400 dark:placeholder:text-zinc-600 outline-none transition-all"
                         />
                         <button
                           type="button"
-                          onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 p-1 cursor-pointer transition-colors"
+                          aria-label={showPassword ? 'Hide password' : 'Show password'}
+                          onPointerDown={(e) => {
+                            e.preventDefault();
+                            setShowPassword((prev) => !prev);
+                          }}
+                          className="absolute right-1 top-0 bottom-0 w-11 flex items-center justify-center text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 cursor-pointer z-20 transition-colors"
                         >
-                          {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                          {showPassword ? (
+                            <EyeOff className="w-4 h-4 text-red-500" />
+                          ) : (
+                            <Eye className="w-4 h-4" />
+                          )}
                         </button>
                       </div>
                     </div>

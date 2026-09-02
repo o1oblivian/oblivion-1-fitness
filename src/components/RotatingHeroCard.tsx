@@ -15,6 +15,7 @@ import {
   DollarSign,
   Clock,
   RotateCw,
+  RotateCcw,
   TrendingUp,
   Zap,
   Sunrise,
@@ -794,15 +795,23 @@ export const RotatingHeroCard: React.FC<RotatingHeroCardProps> = ({
   const toggleSupplement = (id: string) => {
     try {
       const raw = localStorage.getItem(SUPPLEMENT_KEY);
+      let parsed: SupplementItem[] = [];
       if (raw) {
-        const parsed: SupplementItem[] = JSON.parse(raw);
-        const updated = parsed.map((s) =>
-          s.id === id ? { ...s, taken: !s.taken, takenAt: !s.taken ? new Date().toISOString() : undefined } : s
-        );
-        localStorage.setItem(SUPPLEMENT_KEY, JSON.stringify(updated));
-        setSupplements(updated);
-        setTick((t) => t + 1);
+        try {
+          parsed = JSON.parse(raw);
+        } catch {
+          parsed = [];
+        }
       }
+      if (!parsed || parsed.length === 0) {
+        parsed = supplements.length > 0 ? supplements : getSupplements();
+      }
+      const updated = parsed.map((s) =>
+        s.id === id ? { ...s, taken: !s.taken, takenAt: !s.taken ? new Date().toISOString() : undefined } : s
+      );
+      localStorage.setItem(SUPPLEMENT_KEY, JSON.stringify(updated));
+      setSupplements(updated);
+      setTick((t) => t + 1);
     } catch {}
   };
 
@@ -1586,31 +1595,36 @@ export const RotatingHeroCard: React.FC<RotatingHeroCardProps> = ({
 
                 {/* Supplement Rows (Current Stack) */}
                 {!showAddSupplement && (
-                  <div className="space-y-1.5 max-h-56 overflow-y-auto pr-0.5">
+                  <div className="space-y-2 max-h-[46vh] sm:max-h-[380px] overflow-y-auto pr-0.5 pb-2">
                     {supplements.length === 0 ? (
-                      <div className="py-6 text-center text-xs font-mono text-slate-400 dark:text-zinc-500">
+                      <div className="py-8 text-center text-xs font-mono text-slate-400 dark:text-zinc-500">
                         No supplements in stack yet. Tap below to add.
                       </div>
                     ) : (
                       supplements.map((sup) => (
                         <div
                           key={sup.id}
-                          className={`group flex items-center justify-between py-1.5 px-2.5 rounded-xl border transition-all select-none ${
+                          onClick={() => {
+                            playSound('pill');
+                            if (navigator.vibrate) navigator.vibrate(8);
+                            toggleSupplement(sup.id);
+                          }}
+                          className={`group flex items-center justify-between py-2 px-3 rounded-2xl border transition-all select-none cursor-pointer active:scale-[0.98] ${
                             sup.taken
-                              ? 'bg-slate-50/70 dark:bg-zinc-900/40 border-slate-200/70 dark:border-white/5 opacity-75'
-                              : 'bg-white dark:bg-[#141518] border-slate-200/90 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20'
+                              ? 'bg-emerald-950/15 dark:bg-emerald-950/30 border-emerald-500/30 text-emerald-900 dark:text-emerald-200'
+                              : 'bg-white dark:bg-[#141518] border-slate-200/90 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20 shadow-2xs'
                           }`}
                         >
-                          <div
-                            onClick={() => { playSound('pill'); if (navigator.vibrate) navigator.vibrate(8); toggleSupplement(sup.id); }}
-                            className="flex items-center gap-2 min-w-0 pr-2 flex-1 cursor-pointer"
-                          >
-                            <div className={`w-5 h-5 rounded-full flex items-center justify-center border shrink-0 transition-all ${
-                              sup.taken
-                                ? 'bg-emerald-500 text-white border-emerald-500'
-                                : 'border-slate-300 dark:border-zinc-700 bg-slate-50 dark:bg-zinc-800'
-                            }`}>
-                              {sup.taken ? <Check className="w-3 h-3 stroke-[3]" /> : null}
+                          <div className="flex items-center gap-3 min-w-0 pr-2 flex-1">
+                            {/* Apple-grade touch target */}
+                            <div className="w-8 h-8 -m-1.5 flex items-center justify-center shrink-0">
+                              <div className={`w-5 h-5 rounded-full flex items-center justify-center border transition-all ${
+                                sup.taken
+                                  ? 'bg-emerald-500 text-black border-emerald-500 shadow-xs'
+                                  : 'border-slate-400 dark:border-zinc-600 bg-slate-100 dark:bg-zinc-800'
+                              }`}>
+                                {sup.taken && <Check className="w-3.5 h-3.5 stroke-[3] text-black" />}
+                              </div>
                             </div>
                             <div className="min-w-0 flex-1">
                               <div className="flex items-center gap-1.5">
@@ -1618,30 +1632,34 @@ export const RotatingHeroCard: React.FC<RotatingHeroCardProps> = ({
                                   {sup.name}
                                 </span>
                                 {sup.brand && (
-                                  <span className="text-[8.5px] font-mono px-1 py-0.2 rounded bg-slate-100 dark:bg-zinc-800 text-slate-500 dark:text-zinc-400 shrink-0">
+                                  <span className="text-[8.5px] font-mono px-1.5 py-0.2 rounded bg-slate-100 dark:bg-zinc-800 text-slate-500 dark:text-zinc-400 shrink-0 font-medium">
                                     {sup.brand}
                                   </span>
+                                )}
+                              </div>
+                              <div className="flex items-center gap-2 mt-0.5 text-[9.5px] font-mono text-slate-500 dark:text-zinc-400">
+                                {sup.dose && <span>{sup.dose}</span>}
+                                {sup.dose && <span>·</span>}
+                                <span className="capitalize">{sup.timeOfDay ? getTimingDisplay(sup.timeOfDay) : 'Daily'}</span>
+                                {sup.note && (
+                                  <>
+                                    <span>·</span>
+                                    <span className="truncate text-slate-400 dark:text-zinc-500">{sup.note}</span>
+                                  </>
                                 )}
                               </div>
                             </div>
                           </div>
                           <div className="flex items-center gap-1.5 shrink-0">
-                            {sup.dose && (
-                              <span className="text-[9px] font-mono px-1.5 py-0.5 rounded-md bg-slate-100 dark:bg-zinc-800/80 text-slate-600 dark:text-zinc-400 border border-slate-200/60 dark:border-white/5">
-                                {sup.dose}
-                              </span>
-                            )}
-                            <span className="text-[8.5px] font-mono uppercase px-1.5 py-0.5 rounded-md bg-slate-100 dark:bg-zinc-800 text-slate-500 dark:text-zinc-400">
-                              {sup.timeOfDay ? getTimingDisplay(sup.timeOfDay) : 'Daily'}
-                            </span>
                             <button
                               type="button"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 removeSupplement(sup.id, sup.name);
                               }}
-                              className="p-1 text-slate-300 hover:text-red-500 dark:text-zinc-600 dark:hover:text-red-400 transition-colors cursor-pointer"
+                              className="p-1.5 text-slate-400 hover:text-red-500 dark:text-zinc-600 dark:hover:text-red-400 transition-colors cursor-pointer rounded-lg hover:bg-red-500/10 active:scale-90"
                               title="Remove from stack"
+                              aria-label="Remove supplement"
                             >
                               <Trash2 className="w-3.5 h-3.5" />
                             </button>
@@ -1897,8 +1915,8 @@ export const RotatingHeroCard: React.FC<RotatingHeroCardProps> = ({
                   </div>
                 )}
 
-                {/* Main Action Buttons */}
-                <div className="flex gap-1.5 pt-1">
+                {/* Main Action Buttons — Fitted lower for mobile */}
+                <div className="flex gap-2 pt-2 pb-1 border-t border-slate-200/70 dark:border-white/5 mt-auto shrink-0">
                   <button
                     type="button"
                     onClick={() => {
@@ -1906,13 +1924,13 @@ export const RotatingHeroCard: React.FC<RotatingHeroCardProps> = ({
                       setShowAddSupplement((prev) => !prev);
                       if (!showAddSupplement) setExpandedTracker(null);
                     }}
-                    className={`flex-1 py-1.5 rounded-xl border text-[10.5px] font-mono uppercase font-bold transition-all flex items-center justify-center gap-1 cursor-pointer ${
+                    className={`flex-1 py-2 rounded-xl border text-[11px] font-mono uppercase font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs active:scale-95 ${
                       showAddSupplement
                         ? 'bg-emerald-600 text-white border-emerald-600'
-                        : 'bg-slate-100 dark:bg-zinc-800/80 border-slate-200 dark:border-white/10 text-slate-700 dark:text-zinc-300 hover:bg-slate-200 dark:hover:bg-zinc-700'
+                        : 'bg-slate-100 dark:bg-zinc-800/90 border-slate-200/90 dark:border-white/10 text-slate-800 dark:text-zinc-200 hover:bg-slate-200 dark:hover:bg-zinc-700'
                     }`}
                   >
-                    <Plus className="w-3 h-3" /> {showAddSupplement ? 'Close Search' : 'Add Custom / Search'}
+                    <Plus className="w-3.5 h-3.5" /> {showAddSupplement ? 'Close Search' : 'Add Custom / Search'}
                   </button>
                   <button
                     type="button"
@@ -1921,9 +1939,9 @@ export const RotatingHeroCard: React.FC<RotatingHeroCardProps> = ({
                       setExpandedTracker(expandedTracker === 'supplements' ? null : 'supplements');
                       if (expandedTracker !== 'supplements') setShowAddSupplement(false);
                     }}
-                    className="flex-1 py-1.5 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-black text-[10.5px] font-mono uppercase font-bold hover:bg-slate-800 dark:hover:bg-zinc-100 transition-all flex items-center justify-center gap-1 cursor-pointer"
+                    className="flex-1 py-2 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-black text-[11px] font-mono uppercase font-bold hover:bg-slate-800 dark:hover:bg-zinc-100 transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs active:scale-95"
                   >
-                    <Pill className="w-3 h-3" /> {expandedTracker === 'supplements' ? 'Collapse' : 'Adherence'}
+                    <Pill className="w-3.5 h-3.5" /> {expandedTracker === 'supplements' ? 'Collapse' : 'Adherence'}
                   </button>
                 </div>
               </>
@@ -2035,12 +2053,12 @@ export const RotatingHeroCard: React.FC<RotatingHeroCardProps> = ({
                   )}
                 </div>
 
-                {/* Quick Generic Increments */}
+                {/* Quick Generic Increments — Pure Vector Icons */}
                 <div className="grid grid-cols-3 gap-1.5 pt-0.5">
                   {[
-                    { label: 'Standard Beer', icon: Beer, delta: 1.0 },
-                    { label: 'Glass Wine', icon: Wine, delta: 1.2 },
-                    { label: 'Spirit Shot', icon: Wine, delta: 1.0 },
+                    { label: 'Beer', icon: Beer, delta: 1.0, sub: '1.0 unit' },
+                    { label: 'Wine', icon: Wine, delta: 1.2, sub: '1.2 units' },
+                    { label: 'Shot', icon: Flame, delta: 1.0, sub: '1.0 unit' },
                   ].map((d, i) => {
                     const Icon = d.icon;
                     return (
@@ -2048,31 +2066,41 @@ export const RotatingHeroCard: React.FC<RotatingHeroCardProps> = ({
                         key={i}
                         type="button"
                         onClick={() => { playSound('tick'); if (navigator.vibrate) navigator.vibrate(8); addDrink(d.delta); }}
-                        className="py-1.5 rounded-xl bg-slate-50 dark:bg-[#141518] border border-slate-200/90 dark:border-white/10 text-slate-800 dark:text-zinc-200 font-mono text-[10.5px] font-bold hover:bg-slate-100 dark:hover:bg-zinc-800 active:scale-95 transition-all flex items-center justify-center gap-1 cursor-pointer shadow-2xs"
+                        className="py-2 px-1 rounded-xl bg-slate-50 dark:bg-[#141518] border border-slate-200/90 dark:border-white/10 text-slate-800 dark:text-zinc-200 font-mono text-[11px] font-bold hover:bg-slate-100 dark:hover:bg-zinc-800 active:scale-95 transition-all flex flex-col items-center justify-center gap-0.5 cursor-pointer shadow-2xs"
                       >
-                        <Icon className="w-3 h-3 text-slate-400" />
-                        <span>+{d.delta} {d.label.split(' ')[1] || d.label}</span>
+                        <div className="flex items-center gap-1">
+                          <Icon className="w-3 h-3 text-slate-400" />
+                          <span>+{d.delta} {d.label}</span>
+                        </div>
+                        <span className="text-[8px] font-normal text-slate-400 dark:text-zinc-500">{d.sub}</span>
                       </button>
                     );
                   })}
                 </div>
 
                 {/* Today's Counter & Reset */}
-                <div className="rounded-xl border border-slate-200/90 dark:border-white/10 bg-white dark:bg-[#141518] p-2 flex items-center justify-between shadow-2xs">
+                <div className="rounded-xl border border-slate-200/90 dark:border-white/10 bg-white dark:bg-[#141518] p-2.5 flex items-center justify-between shadow-2xs">
                   <div>
                     <div className="text-[8.5px] font-mono uppercase text-slate-400">Today's Log</div>
                     <div className="text-base font-black font-mono text-slate-900 dark:text-white">
-                      {alcoholDrinks} {alcoholDrinks === 1 ? 'drink' : 'drinks'} <span className="text-xs font-normal text-slate-400 font-mono"> (~{Math.round(alcoholDrinks * 140)} kcal)</span>
+                      {alcoholDrinks} {alcoholDrinks === 1 ? 'drink' : 'drinks'}{' '}
+                      <span className="text-xs font-normal text-slate-400 font-mono">
+                        (-{Math.round(alcoholDrinks * 140)} kcal)
+                      </span>
                     </div>
                   </div>
-                  {alcoholDrinks > 0 && (
+                  {alcoholDrinks > 0 ? (
                     <button
                       type="button"
                       onClick={() => { playSound('tick'); addDrink(-1); }}
-                      className="px-2 py-1 rounded-lg bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-zinc-300 text-[10px] font-bold hover:bg-slate-200 active:scale-95 transition-all flex items-center gap-1 cursor-pointer font-mono"
+                      className="px-2.5 py-1.5 rounded-lg bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-zinc-300 text-[10.5px] font-bold hover:bg-slate-200 active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer font-mono shadow-2xs"
                     >
-                      <X className="w-2.5 h-2.5" /> Undo
+                      <RotateCcw className="w-3 h-3" /> Undo
                     </button>
+                  ) : (
+                    <span className="text-[9.5px] font-mono font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-md">
+                      Clean Record
+                    </span>
                   )}
                 </div>
               </>

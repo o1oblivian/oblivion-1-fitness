@@ -1278,7 +1278,7 @@ export const SoloView: React.FC<SoloViewProps> = ({
         {onOpenAIInsights && (
           <button
             onClick={onOpenAIInsights}
-            className="w-full group flex items-center justify-between gap-2 px-3 py-2.5 rounded-xl bg-white dark:bg-[#13161A] border border-slate-200 dark:border-white/10 hover:border-[#FBBC05]/40 dark:hover:border-[#FBBC05]/40 transition-all cursor-pointer active:scale-[0.98] mt-1 shadow-2xs"
+            className="w-full group flex items-center justify-between gap-2 px-3 py-2.5 rounded-xl bg-white dark:bg-[#121214] border border-slate-200 dark:border-white/10 hover:border-[#FBBC05]/40 dark:hover:border-[#FBBC05]/40 transition-all cursor-pointer active:scale-[0.98] mt-1 shadow-2xs"
           >
             <div className="flex items-center gap-2.5 min-w-0">
               <div className="w-7 h-7 rounded-lg bg-[#FBBC05]/10 border border-[#FBBC05]/20 flex items-center justify-center shrink-0">

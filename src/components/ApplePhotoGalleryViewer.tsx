@@ -15,6 +15,7 @@ import {
   VolumeX,
 } from 'lucide-react';
 import { idbGetVaultItem } from '../utils/indexedDbMediaVault';
+import { useModalBackHandler } from '../utils/modalHistory';
 
 export interface AppleGalleryItem {
   id: string;
@@ -81,6 +82,7 @@ export const ApplePhotoGalleryViewer: React.FC<ApplePhotoGalleryViewerProps> = (
   onToggleBuddy,
   onDelete,
 }) => {
+  useModalBackHandler(isOpen, onClose, 'apple_gallery_viewer');
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showControls, setShowControls] = useState(true);

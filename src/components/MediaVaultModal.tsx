@@ -37,6 +37,7 @@ import {
   saveCoachVaultItems,
 } from '../utils/vaultPersistenceStore';
 import { idbDeleteVaultItem } from '../utils/indexedDbMediaVault';
+import { useModalBackHandler } from '../utils/modalHistory';
 
 export interface VaultMediaItem {
   id: string;
@@ -128,6 +129,7 @@ export const MediaVaultModal: React.FC<MediaVaultModalProps> = ({
   onDeleteItem,
   onToggleBuddy,
 }) => {
+  useModalBackHandler(isOpen, onClose, 'media_vault_modal');
   const [items, setItems] = useState<VaultMediaItem[]>(initialItems);
   const [activeItem, setActiveItem] = useState<VaultMediaItem | null>(null);
   const [showroomIndex, setShowroomIndex] = useState<number>(0);
@@ -321,7 +323,7 @@ export const MediaVaultModal: React.FC<MediaVaultModalProps> = ({
     if (!currentItem) {
       const emptyUi = (
         <div className="fixed inset-0 z-[99990] bg-black/90 backdrop-blur-2xl flex items-center justify-center p-4 overscroll-contain">
-          <div className="bg-[#12141A] border border-white/10 rounded-2xl p-6 text-center max-w-sm text-white space-y-4">
+          <div className="bg-[#121214] border border-white/10 rounded-2xl p-6 text-center max-w-sm text-white space-y-4">
             <p className="text-zinc-400 font-mono text-xs">No media preview available for this coach.</p>
             <button
               onClick={onClose}
@@ -438,7 +440,7 @@ export const MediaVaultModal: React.FC<MediaVaultModalProps> = ({
         </div>
 
         {/* Floating Bottom Action Sheet */}
-        <div className="absolute bottom-0 left-0 right-0 z-30 bg-[#12141A]/95 backdrop-blur-xl border-t border-white/10 px-4 pt-2.5 pb-[max(0.75rem,calc(env(safe-area-inset-bottom,0px)+0.5rem))] space-y-2">
+        <div className="absolute bottom-0 left-0 right-0 z-30 bg-[#121214]/95 backdrop-blur-xl border-t border-white/10 px-4 pt-2.5 pb-[max(0.75rem,calc(env(safe-area-inset-bottom,0px)+0.5rem))] space-y-2">
           <div className="flex items-center justify-between gap-2">
             <div className="min-w-0">
               <span className="text-[9px] font-mono uppercase text-red-400 font-bold tracking-wider">
@@ -495,25 +497,27 @@ export const MediaVaultModal: React.FC<MediaVaultModalProps> = ({
         {/* Apple Studio Header */}
         <div className="px-4 pt-[max(0.625rem,calc(env(safe-area-inset-top,0px)+0.25rem))] sm:pt-2.5 pb-2.5 border-b border-neutral-100 dark:border-white/10 flex items-center justify-between bg-white dark:bg-[#0D0F15] shrink-0">
           <div className="min-w-0 flex-1 pr-2">
-            <div className="flex items-center gap-1.5 flex-wrap">
-              <span className="text-[9px] font-mono font-bold px-2 py-0.5 rounded-md bg-red-500/10 text-red-600 dark:text-red-400 uppercase tracking-wider">
-                {vaultTitle.toLowerCase().endsWith('vault') ? vaultTitle : `${vaultTitle} Vault`}
-              </span>
-              <span className="text-[9px] font-mono text-neutral-500 dark:text-zinc-400">
-                {items.length} Items
+            <div className="flex items-center gap-2">
+              <h3 className="text-sm sm:text-base font-bold text-zinc-900 dark:text-white tracking-tight truncate">
+                {ownerName && ownerName.trim() && ownerName !== 'Athlete'
+                  ? `${ownerName}'s Media Vault`
+                  : (vaultTitle.toLowerCase().endsWith('vault') ? vaultTitle : `${vaultTitle} Vault`)}
+              </h3>
+              <span className="text-[10px] font-mono text-neutral-500 dark:text-zinc-400 bg-neutral-100 dark:bg-white/5 px-2 py-0.5 rounded-md shrink-0">
+                {items.length} {items.length === 1 ? 'Item' : 'Items'}
               </span>
               {items.filter((i) => i.show_on_buddy).length > 0 && (
-                <span className="flex items-center gap-1 text-[8.5px] font-mono text-red-600 dark:text-red-400 bg-red-500/10 px-1.5 py-0.5 rounded-md border border-red-500/20">
+                <span className="flex items-center gap-1 text-[8.5px] font-mono text-red-600 dark:text-red-400 bg-red-500/10 px-1.5 py-0.5 rounded-md border border-red-500/20 shrink-0">
                   <Users className="w-2.5 h-2.5" />
                   {items.filter((i) => i.show_on_buddy).length} on Buddy Radar
                 </span>
               )}
             </div>
-            <h3 className="text-sm font-bold text-zinc-900 dark:text-white mt-0.5 tracking-tight truncate">
-              {ownerName && ownerName.trim() && ownerName !== 'Athlete'
-                ? `${ownerName}'s Media Vault`
-                : (vaultTitle.toLowerCase().endsWith('vault') ? vaultTitle : `${vaultTitle} Vault`)}
-            </h3>
+            <p className="text-[10.5px] font-mono text-zinc-400 dark:text-zinc-500 mt-0.5 truncate">
+              {mode === 'coach'
+                ? 'Movement demonstrations, exercise cues & video form checks'
+                : 'Athlete transformation photos, body composition & media records'}
+            </p>
           </div>
           
           <div className="flex items-center gap-1 shrink-0">

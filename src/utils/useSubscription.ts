@@ -122,13 +122,17 @@ export function useSubscription(): SubscriptionState {
   const hasAccess = isPaid || isTrialActive;
 
   const canAccess = (feature: FeatureGate): boolean => {
-    if (ADDON_FEATURES.includes(feature)) return hasAccess;
-
     if (PRO_ONLY_FEATURES.includes(feature)) {
-      return tier === 'premium_travel' || tier === 'coach_pro';
+      return tier === 'premium_travel' || tier === 'founder_pass' || tier === 'coach_pro';
     }
 
-    if (PREMIUM_FEATURES.includes(feature)) return hasAccess;
+    if (ADDON_FEATURES.includes(feature)) {
+      return isPaid;
+    }
+
+    if (PREMIUM_FEATURES.includes(feature)) {
+      return isPaid;
+    }
 
     return true;
   };

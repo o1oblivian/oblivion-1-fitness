@@ -23,12 +23,14 @@ import {
   updateMyRadarProfile,
   generateMockBuddies,
 } from '@/utils/buddyRadarStore';
+import { useSubscription } from '@/utils/useSubscription';
 
 interface BuddyRadarEngineProps {
   isOpen: boolean;
   onClose: () => void;
   currentUserEmail: string;
   showToast: (msg: string, type?: 'success' | 'error') => void;
+  onOpenPayPlan?: (highlightTier?: 'premium' | 'coach') => void;
 }
 
 const AGE_PRESETS: { label: string; range: [number, number] }[] = [
@@ -98,8 +100,9 @@ function computeMatchPercent(buddy: BuddyProfile): number {
 }
 
 export const BuddyRadarEngine: React.FC<BuddyRadarEngineProps> = ({
-  isOpen, onClose, currentUserEmail, showToast,
+  isOpen, onClose, currentUserEmail, showToast, onOpenPayPlan,
 }) => {
+  const { isPaid } = useSubscription();
   const myLat = -33.8688;
   const myLng = 151.2093;
 
@@ -468,6 +471,9 @@ export const BuddyRadarEngine: React.FC<BuddyRadarEngineProps> = ({
             setHomeGymOnly={setHomeGymOnly}
             onApply={() => { setShowFilters(false); loadData(); }}
             onReset={() => { setFilters(DEFAULT_FILTERS); setHomeGymOnly(false); }}
+            isPaid={isPaid}
+            onOpenPayPlan={onOpenPayPlan}
+            showToast={showToast}
           />
         ) : showPrivacy ? (
           <PrivacyPanel
@@ -514,6 +520,11 @@ export const BuddyRadarEngine: React.FC<BuddyRadarEngineProps> = ({
             scanning={scanning}
             currentRadiusKm={filters.radiusKm}
             onExpandRadius={(newKm) => {
+              if (newKm > 25 && !isPaid) {
+                showToast('Search radius above 25 km requires Premium Pro or Founder Pass.', 'error');
+                onOpenPayPlan?.('premium');
+                return;
+              }
               setFilters(prev => ({ ...prev, radiusKm: newKm }));
             }}
             likedEmails={likedEmails}
@@ -524,6 +535,8 @@ export const BuddyRadarEngine: React.FC<BuddyRadarEngineProps> = ({
             onDismiss={handleDismiss}
             onChat={setChatBuddy}
             onRefresh={handleRefresh}
+            isPaid={isPaid}
+            onOpenPayPlan={onOpenPayPlan}
           />
         ) : (
           <MatchedInbox
@@ -869,10 +882,12 @@ const RadarGrid: React.FC<{
   onDismiss: (b: BuddyProfile) => void;
   onChat: (b: BuddyProfile) => void;
   onRefresh: () => void;
+  isPaid?: boolean;
+  onOpenPayPlan?: (highlightTier?: 'premium' | 'coach') => void;
 }> = ({
   buddies, loading, scanning, currentRadiusKm, onExpandRadius,
   likedEmails, bumpedEmails, dismissingEmail, onSelectBuddy,
-  onLike, onDismiss, onChat, onRefresh,
+  onLike, onDismiss, onChat, onRefresh, isPaid = false, onOpenPayPlan,
 }) => {
   if (loading) {
     return (
@@ -914,19 +929,34 @@ const RadarGrid: React.FC<{
         <div className="mb-3 p-3 rounded-2xl bg-gradient-to-r from-red-950/40 via-zinc-900 to-zinc-900 border border-red-500/25 flex items-center justify-between gap-2 shadow-sm">
           <div className="min-w-0 flex items-center gap-2.5">
             <div className="w-7 h-7 rounded-xl bg-red-500/15 text-red-400 flex items-center justify-center shrink-0">
-              <Globe className="w-4 h-4" />
+              {isPaid ? <Globe className="w-4 h-4" /> : <Lock className="w-4 h-4 text-amber-400" />}
             </div>
             <div className="min-w-0">
-              <p className="text-white text-[11px] font-bold truncate">Regional Corridor Available</p>
-              <p className="text-zinc-400 text-[9px] leading-tight">Expand search up to 250 km for neighboring cities</p>
+              <p className="text-white text-[11px] font-bold truncate">
+                {isPaid ? 'Regional Corridor Available' : 'Regional Corridor (250 km) • Pro'}
+              </p>
+              <p className="text-zinc-400 text-[9px] leading-tight">
+                {isPaid
+                  ? 'Expand search up to 250 km for neighboring cities'
+                  : 'Unlock 250 km corridor with Premium Pro or Founder Pass'}
+              </p>
             </div>
           </div>
-          <button
-            onClick={() => onExpandRadius(250)}
-            className="px-2.5 py-1.5 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold text-[10px] uppercase tracking-wider shrink-0 active:scale-95 transition-all shadow-sm"
-          >
-            250 km Scan
-          </button>
+          {isPaid ? (
+            <button
+              onClick={() => onExpandRadius(250)}
+              className="px-2.5 py-1.5 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold text-[10px] uppercase tracking-wider shrink-0 active:scale-95 transition-all shadow-sm cursor-pointer"
+            >
+              250 km Scan
+            </button>
+          ) : (
+            <button
+              onClick={() => onOpenPayPlan?.('premium')}
+              className="px-2.5 py-1.5 rounded-xl bg-gradient-to-r from-red-600 to-amber-600 hover:from-red-500 hover:to-amber-500 text-white font-bold text-[10px] uppercase tracking-wider shrink-0 active:scale-95 transition-all shadow-sm flex items-center gap-1 cursor-pointer"
+            >
+              <Lock className="w-3 h-3" /> Unlock 250km
+            </button>
+          )}
         </div>
       )}
 
@@ -972,18 +1002,27 @@ const RadarGrid: React.FC<{
           </div>
           <h3 className="text-zinc-900 dark:text-white font-bold text-sm">No athletes in {currentRadiusKm} km radius</h3>
           <p className="text-zinc-500 dark:text-white/40 text-xs text-center max-w-xs leading-relaxed">
-            Expand to the 250 km regional corridor to discover gym partners, crossfitters, and lifters across neighboring hubs.
+            {isPaid
+              ? 'Expand to the 250 km regional corridor to discover gym partners, crossfitters, and lifters across neighboring hubs.'
+              : 'Unlock the 250 km regional corridor or Global Travel Pass with Premium Pro to discover gym partners, crossfitters, and lifters across neighboring hubs.'}
           </p>
           <div className="flex items-center gap-2 mt-2">
-            {currentRadiusKm < 250 && (
+            {isPaid && currentRadiusKm < 250 ? (
               <button
                 onClick={() => onExpandRadius(250)}
-                className="px-4 py-2.5 rounded-xl bg-red-600 hover:bg-red-500 text-white text-xs font-bold shadow-md shadow-red-600/30 active:scale-95 transition-all"
+                className="px-4 py-2.5 rounded-xl bg-red-600 hover:bg-red-500 text-white text-xs font-bold shadow-md shadow-red-600/30 active:scale-95 transition-all cursor-pointer"
               >
                 Expand to 250 km
               </button>
-            )}
-            <button onClick={onRefresh} className="px-4 py-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs font-semibold active:scale-95 transition-transform">
+            ) : !isPaid ? (
+              <button
+                onClick={() => onOpenPayPlan?.('premium')}
+                className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-red-600 to-amber-600 hover:from-red-500 hover:to-amber-500 text-white text-xs font-bold shadow-md shadow-red-600/30 active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer"
+              >
+                <Lock className="w-3.5 h-3.5" /> Unlock 250 km (Premium)
+              </button>
+            ) : null}
+            <button onClick={onRefresh} className="px-4 py-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs font-semibold active:scale-95 transition-transform cursor-pointer">
               Rescan Area
             </button>
           </div>
@@ -2337,7 +2376,10 @@ const FilterPanel: React.FC<{
   setHomeGymOnly: (v: boolean) => void;
   onApply: () => void;
   onReset: () => void;
-}> = ({ filters, setFilters, homeGymOnly, setHomeGymOnly, onApply, onReset }) => {
+  isPaid?: boolean;
+  onOpenPayPlan?: (highlightTier?: 'premium' | 'coach') => void;
+  showToast?: (msg: string, type?: 'success' | 'error') => void;
+}> = ({ filters, setFilters, homeGymOnly, setHomeGymOnly, onApply, onReset, isPaid = false, onOpenPayPlan, showToast }) => {
   return (
     <div className="px-3 pb-6">
       <div className="flex items-center justify-between mb-4">
@@ -2396,9 +2438,10 @@ const FilterPanel: React.FC<{
         <div className="flex items-center justify-between mb-1.5">
           <div className="flex items-center gap-1.5">
             <label className="text-zinc-700 dark:text-white/60 text-xs font-medium">Search Radius</label>
-            {filters.radiusKm > 50 && (
-              <span className="px-1.5 py-0.5 rounded bg-red-500/15 border border-red-500/25 text-[8px] font-bold text-red-400 uppercase tracking-wide">
-                Regional Corridor
+            {filters.radiusKm > 25 && (
+              <span className="px-1.5 py-0.5 rounded bg-red-500/15 border border-red-500/25 text-[8px] font-bold text-red-400 uppercase tracking-wide flex items-center gap-1">
+                {!isPaid && <Lock className="w-2.5 h-2.5 text-amber-400" />}
+                {filters.radiusKm > 50 ? 'Regional Corridor' : 'Expanded Radius'}
               </span>
             )}
           </div>
@@ -2408,39 +2451,63 @@ const FilterPanel: React.FC<{
         {/* Quick Distance Presets */}
         <div className="flex flex-wrap gap-1.5 mb-2.5">
           {[
-            { label: '10 km', km: 10 },
-            { label: '25 km', km: 25 },
-            { label: '50 km', km: 50 },
-            { label: '100 km', km: 100 },
-            { label: '150 km', km: 150 },
-            { label: '250 km', km: 250 },
+            { label: '10 km', km: 10, locked: false },
+            { label: '25 km', km: 25, locked: false },
+            { label: '50 km', km: 50, locked: !isPaid },
+            { label: '100 km', km: 100, locked: !isPaid },
+            { label: '150 km', km: 150, locked: !isPaid },
+            { label: '250 km', km: 250, locked: !isPaid },
           ].map((preset) => {
             const active = filters.radiusKm === preset.km;
             return (
               <button
                 key={preset.km}
                 type="button"
-                onClick={() => setFilters({ ...filters, radiusKm: preset.km })}
-                className={`px-2.5 py-1 rounded-full text-[10px] font-semibold transition-all active:scale-95 ${
+                onClick={() => {
+                  if (preset.locked) {
+                    showToast?.('Radiuses above 25 km require Premium Pro or Founder Pass.', 'error');
+                    onOpenPayPlan?.('premium');
+                    return;
+                  }
+                  setFilters({ ...filters, radiusKm: preset.km });
+                }}
+                className={`px-2.5 py-1 rounded-full text-[10px] font-semibold transition-all active:scale-95 flex items-center gap-1 cursor-pointer ${
                   active
                     ? 'bg-red-500 text-white shadow-sm shadow-red-500/30'
+                    : preset.locked
+                    ? 'bg-zinc-900/60 text-zinc-500 border border-zinc-800'
                     : 'bg-zinc-100 dark:bg-white/[0.05] text-zinc-600 dark:text-white/50 border border-zinc-200/60 dark:border-white/[0.08]'
                 }`}
               >
+                {preset.locked && <Lock className="w-2.5 h-2.5 text-amber-400/80" />}
                 {preset.label}
               </button>
             );
           })}
         </div>
 
-        <input type="range" min={1} max={250} value={filters.radiusKm}
-          onChange={(e) => setFilters({ ...filters, radiusKm: +e.target.value })}
+        <input
+          type="range"
+          min={1}
+          max={isPaid ? 250 : 25}
+          value={Math.min(filters.radiusKm, isPaid ? 250 : 25)}
+          onChange={(e) => {
+            const val = +e.target.value;
+            if (val > 25 && !isPaid) {
+              showToast?.('Radius above 25 km is locked to Premium Pro.', 'error');
+              onOpenPayPlan?.('premium');
+              return;
+            }
+            setFilters({ ...filters, radiusKm: val });
+          }}
           className="w-full accent-red-500 h-1 rounded-full appearance-none bg-zinc-200 dark:bg-white/10 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-red-400 [&::-webkit-slider-thumb]:shadow-md cursor-pointer"
         />
         <div className="flex justify-between mt-1 mb-2">
           <span className="text-zinc-400 dark:text-white/25 text-[9px]">1 km (Local)</span>
-          <span className="text-zinc-400 dark:text-white/25 text-[9px]">50 km</span>
-          <span className="text-red-400/80 text-[9px] font-semibold">250 km (Regional Corridor)</span>
+          <span className="text-zinc-400 dark:text-white/25 text-[9px]">25 km (Free Cap)</span>
+          <span className={`text-[9px] font-semibold flex items-center gap-0.5 ${isPaid ? 'text-red-400/80' : 'text-amber-400/80'}`}>
+            {!isPaid && <Lock className="w-2.5 h-2.5" />} 250 km (Pro)
+          </span>
         </div>
 
         <button

@@ -70,6 +70,60 @@ export function saveLocalProfile(data: UserProfileData): void {
 export function useAuthStorage() {
   const [profile, setProfileState] = useState<UserProfileData>(getLocalProfile);
 
+  // Sync profile from Supabase when user signs in or mounts
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchRemoteProfile = async () => {
+      if (!isSupabaseConfigured() || !supabase) return;
+      try {
+        const { data: sess } = await supabase.auth.getSession();
+        const email = sess?.session?.user?.email || getSessionUserEmail();
+        if (!email) return;
+
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('user_email', email.toLowerCase())
+          .maybeSingle();
+
+        if (data && !error && isMounted) {
+          const current = getLocalProfile();
+          const merged: UserProfileData = {
+            ...current,
+            email: data.user_email || email,
+            display_name: data.user_name || current.display_name,
+            username: data.handle || current.username,
+            avatar_url: data.avatar_url || current.avatar_url,
+            bio: data.bio || current.bio,
+            home_gym: data.home_gym || current.home_gym,
+            age: data.age || current.age,
+            height_cm: data.height || current.height_cm,
+            weight_kg: data.weight || current.weight_kg,
+            primary_focus: data.training_focus || current.primary_focus,
+          };
+          saveLocalProfile(merged);
+          setProfileState(merged);
+        }
+      } catch {
+        // quiet fallback to local storage
+      }
+    };
+
+    fetchRemoteProfile();
+
+    const { data: authListener } = supabase?.auth?.onAuthStateChange((event, session) => {
+      if (session?.user?.email && (event === 'SIGNED_IN' || event === 'USER_UPDATED' || event === 'INITIAL_SESSION')) {
+        fetchRemoteProfile();
+      }
+    }) || { data: null };
+
+    return () => {
+      isMounted = false;
+      authListener?.subscription?.unsubscribe();
+    };
+  }, []);
+
   useEffect(() => {
     const handler = (e: Event) => {
       const customEvent = e as CustomEvent<UserProfileData>;
@@ -99,12 +153,19 @@ export function useAuthStorage() {
     saveLocalProfile(updated);
     setProfileState(updated);
 
-    if (isSupabaseConfigured()) {
+    if (isSupabaseConfigured() && supabase) {
       try {
         const { data: sess } = await supabase.auth.getSession();
-        const email = sess?.session?.user?.email;
+        const email = sess?.session?.user?.email || getSessionUserEmail();
         if (email) {
-          await supabase.from('profiles').update(partial).eq('user_email', email);
+          await supabase.from('profiles').upsert({
+            user_email: email.toLowerCase(),
+            user_name: updated.display_name,
+            handle: updated.username,
+            avatar_url: updated.avatar_url,
+            home_gym: updated.home_gym,
+            updated_at: new Date().toISOString(),
+          }, { onConflict: 'user_email' });
         }
       } catch (e) {
         // quiet fallback

@@ -188,7 +188,7 @@ export const AutoPilotModal: React.FC<AutoPilotModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-[130] bg-black/60 dark:bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
-      <div className="bg-white dark:bg-[#12141A] text-zinc-900 dark:text-white w-full max-w-lg rounded-[28px] border border-zinc-200/80 dark:border-white/[0.08] shadow-2xl overflow-hidden flex flex-col max-h-[92vh] animate-slideUpFade">
+      <div className="bg-white dark:bg-[#121214] text-zinc-900 dark:text-white w-full max-w-lg rounded-[28px] border border-zinc-200/80 dark:border-white/[0.08] shadow-2xl overflow-hidden flex flex-col max-h-[92vh] animate-slideUpFade">
         
         {/* Apple HIG Modal Header */}
         <div className="px-5 py-4 border-b border-zinc-100 dark:border-white/[0.06] flex justify-between items-center bg-zinc-50/50 dark:bg-white/[0.02] shrink-0">

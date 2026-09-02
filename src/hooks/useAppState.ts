@@ -58,9 +58,14 @@ import {
   showBrowserNotification,
 } from '@/utils/reminderEngine';
 import { getInputMethod } from '@/utils/inputMethodStore';
+import { ProgramPreview } from '@/utils/reelsTypes';
 import type { WorkoutRegistration } from '@/components/FitnessIntelligenceApp';
 import { VaultMediaItem } from '@/components/MediaVaultModal';
-import { ProgramPreview } from '@/utils/reelsTypes';
+import {
+  DisplayTheme,
+  applyAndSaveTheme,
+  getSavedThemePreference,
+} from '@/utils/themeStorage';
 import { backNavManager } from '@/utils/backNavigationManager';
 import { useModalBackHandler } from '@/utils/modalHistory';
 
@@ -130,13 +135,15 @@ export function useAppState() {
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
 
   // ─── Theme ───
-  const [theme, setTheme] = useState<'dark' | 'light' | 'system'>(() => {
-    try {
-      const saved = localStorage.getItem('theme');
-      if (saved === 'dark' || saved === 'light' || saved === 'system') return saved;
-    } catch {}
-    return 'light';
-  });
+  const [theme, setThemeState] = useState<DisplayTheme>(() => getSavedThemePreference());
+
+  const setTheme = (t: DisplayTheme | ((prev: DisplayTheme) => DisplayTheme)) => {
+    setThemeState((prev) => {
+      const nextTheme = typeof t === 'function' ? t(prev) : t;
+      applyAndSaveTheme(nextTheme);
+      return nextTheme;
+    });
+  };
 
   const [themeAccent, setThemeAccent] = useState<string>(() => {
     try { const s = localStorage.getItem('lumina_theme_accent'); if (s) return s; } catch {}
@@ -604,20 +611,10 @@ export function useAppState() {
 
   // Theme sync
   useEffect(() => {
-    const applyTheme = (t: 'dark' | 'light' | 'system') => {
-      let isDark = t === 'dark' || (t === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
-      document.documentElement.classList.toggle('dark', isDark);
-      document.body.classList.toggle('dark', isDark);
-      if (Capacitor.isNativePlatform()) {
-        StatusBar.setStyle({ style: isDark ? StatusBarStyle.Dark : StatusBarStyle.Light }).catch(() => {});
-        StatusBar.setBackgroundColor({ color: isDark ? '#000000' : '#F8F9FA' }).catch(() => {});
-      }
-    };
-    applyTheme(theme);
-    try { localStorage.setItem('theme', theme); } catch {}
+    applyAndSaveTheme(theme);
     if (theme === 'system') {
       const mq = window.matchMedia('(prefers-color-scheme: dark)');
-      const listener = () => applyTheme('system');
+      const listener = () => applyAndSaveTheme('system');
       mq.addEventListener('change', listener);
       return () => mq.removeEventListener('change', listener);
     }

@@ -291,31 +291,94 @@ export const DualAvatarHeader: React.FC<DualAvatarHeaderProps> = ({
                 Share Invite Link
               </button>
 
-              {/* Social share grid — compact, even */}
+              {/* Social share grid — compact, even, high-precision vector badges */}
               <div className="grid grid-cols-6 gap-1.5">
-                <button onClick={openWhatsApp} className="flex flex-col items-center gap-1 py-2 rounded-lg bg-zinc-100/80 dark:bg-white/[0.04] border border-zinc-200/60 dark:border-transparent hover:bg-zinc-200/80 dark:hover:bg-white/[0.08] active:scale-95 transition-all cursor-pointer">
-                  <svg className="w-4 h-4" fill="#25D366" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-                  <span className="text-[8px] font-medium text-zinc-600 dark:text-white/40">WhatsApp</span>
+                {/* WhatsApp */}
+                <button
+                  onClick={openWhatsApp}
+                  className="flex flex-col items-center gap-1 py-2 rounded-lg bg-zinc-100/80 dark:bg-white/[0.04] border border-zinc-200/60 dark:border-transparent hover:bg-zinc-200/80 dark:hover:bg-white/[0.08] active:scale-95 transition-all cursor-pointer group"
+                  title="Share on WhatsApp"
+                >
+                  <div className="w-5 h-5 rounded-md flex items-center justify-center bg-[#25D366]/10 text-[#25D366]">
+                    <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                  </div>
+                  <span className="text-[8px] font-medium text-zinc-600 dark:text-white/50">WhatsApp</span>
                 </button>
-                <button onClick={openTelegram} className="flex flex-col items-center gap-1 py-2 rounded-lg bg-zinc-100/80 dark:bg-white/[0.04] border border-zinc-200/60 dark:border-transparent hover:bg-zinc-200/80 dark:hover:bg-white/[0.08] active:scale-95 transition-all cursor-pointer">
-                  <svg className="w-4 h-4" fill="#26A5E4" viewBox="0 0 24 24"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.479.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
-                  <span className="text-[8px] font-medium text-zinc-600 dark:text-white/40">Telegram</span>
+
+                {/* Telegram */}
+                <button
+                  onClick={openTelegram}
+                  className="flex flex-col items-center gap-1 py-2 rounded-lg bg-zinc-100/80 dark:bg-white/[0.04] border border-zinc-200/60 dark:border-transparent hover:bg-zinc-200/80 dark:hover:bg-white/[0.08] active:scale-95 transition-all cursor-pointer group"
+                  title="Share on Telegram"
+                >
+                  <div className="w-5 h-5 rounded-md flex items-center justify-center bg-[#26A5E4]/10 text-[#26A5E4]">
+                    <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.479.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+                  </div>
+                  <span className="text-[8px] font-medium text-zinc-600 dark:text-white/50">Telegram</span>
                 </button>
-                <button onClick={openSMS} className="flex flex-col items-center gap-1 py-2 rounded-lg bg-zinc-100/80 dark:bg-white/[0.04] border border-zinc-200/60 dark:border-transparent hover:bg-zinc-200/80 dark:hover:bg-white/[0.08] active:scale-95 transition-all cursor-pointer">
-                  <MessageCircle className="w-4 h-4 text-[#34C759]" />
-                  <span className="text-[8px] font-medium text-zinc-600 dark:text-white/40">iMessage</span>
+
+                {/* iMessage */}
+                <button
+                  onClick={openSMS}
+                  className="flex flex-col items-center gap-1 py-2 rounded-lg bg-zinc-100/80 dark:bg-white/[0.04] border border-zinc-200/60 dark:border-transparent hover:bg-zinc-200/80 dark:hover:bg-white/[0.08] active:scale-95 transition-all cursor-pointer group"
+                  title="Share on Messages"
+                >
+                  <div className="w-5 h-5 rounded-md flex items-center justify-center bg-[#34C759]/10 text-[#34C759]">
+                    <MessageCircle className="w-4 h-4 text-[#34C759]" />
+                  </div>
+                  <span className="text-[8px] font-medium text-zinc-600 dark:text-white/50">Messages</span>
                 </button>
-                <button onClick={() => window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(getShareText() + ' ' + getShareUrl())}`, '_blank')} className="flex flex-col items-center gap-1 py-2 rounded-lg bg-zinc-100/80 dark:bg-white/[0.04] border border-zinc-200/60 dark:border-transparent hover:bg-zinc-200/80 dark:hover:bg-white/[0.08] active:scale-95 transition-all cursor-pointer">
-                  <svg className="w-4 h-4 fill-zinc-900 dark:fill-white" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-                  <span className="text-[8px] font-medium text-zinc-600 dark:text-white/40">X</span>
+
+                {/* X */}
+                <button
+                  onClick={() => window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(getShareText() + ' ' + getShareUrl())}`, '_blank')}
+                  className="flex flex-col items-center gap-1 py-2 rounded-lg bg-zinc-100/80 dark:bg-white/[0.04] border border-zinc-200/60 dark:border-transparent hover:bg-zinc-200/80 dark:hover:bg-white/[0.08] active:scale-95 transition-all cursor-pointer group"
+                  title="Share on X"
+                >
+                  <div className="w-5 h-5 rounded-md flex items-center justify-center bg-zinc-900/10 dark:bg-white/10 text-zinc-900 dark:text-white">
+                    <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                  </div>
+                  <span className="text-[8px] font-medium text-zinc-600 dark:text-white/50">X</span>
                 </button>
-                <button onClick={() => { copyToClipboard(getShareText() + ' ' + getShareUrl()); showToast('Copied! Paste into Instagram DM', 'success'); }} className="flex flex-col items-center gap-1 py-2 rounded-lg bg-zinc-100/80 dark:bg-white/[0.04] border border-zinc-200/60 dark:border-transparent hover:bg-zinc-200/80 dark:hover:bg-white/[0.08] active:scale-95 transition-all cursor-pointer">
-                  <svg className="w-4 h-4" fill="url(#ig-grad)" viewBox="0 0 24 24"><defs><linearGradient id="ig-grad" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" stopColor="#FFDC80"/><stop offset="50%" stopColor="#F56040"/><stop offset="100%" stopColor="#833AB4"/></linearGradient></defs><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
-                  <span className="text-[8px] font-medium text-zinc-600 dark:text-white/40">Insta</span>
+
+                {/* Instagram (Fixed Vector Badge) */}
+                <button
+                  onClick={() => {
+                    const text = `${getShareText()} ${getShareUrl()}`;
+                    copyToClipboard(text);
+                    showToast('Link copied! Open Instagram to share', 'success');
+                    window.open('https://instagram.com', '_blank');
+                  }}
+                  className="flex flex-col items-center gap-1 py-2 rounded-lg bg-zinc-100/80 dark:bg-white/[0.04] border border-zinc-200/60 dark:border-transparent hover:bg-zinc-200/80 dark:hover:bg-white/[0.08] active:scale-95 transition-all cursor-pointer group"
+                  title="Share on Instagram"
+                >
+                  <div className="w-5 h-5 rounded-md flex items-center justify-center bg-gradient-to-tr from-[#FFDC80] via-[#F56040] to-[#C13584] shadow-xs">
+                    <svg className="w-3.5 h-3.5 text-white stroke-current fill-none" viewBox="0 0 24 24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+                      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+                      <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" strokeWidth="2.5" />
+                    </svg>
+                  </div>
+                  <span className="text-[8px] font-medium text-zinc-600 dark:text-white/50">Instagram</span>
                 </button>
-                <button onClick={() => { copyToClipboard(getShareText() + ' ' + getShareUrl()); showToast('Link copied! Open Snapchat to share', 'success'); }} className="flex flex-col items-center gap-1 py-2 rounded-lg bg-zinc-100/80 dark:bg-white/[0.04] border border-zinc-200/60 dark:border-transparent hover:bg-zinc-200/80 dark:hover:bg-white/[0.08] active:scale-95 transition-all cursor-pointer">
-                  <svg className="w-4 h-4" fill="#FFFC00" viewBox="0 0 24 24"><path d="M12.206.793c.99 0 4.347.276 5.93 3.821.529 1.193.403 3.219.299 4.847l-.003.06c-.012.18-.022.345-.03.51.075.045.203.09.401.09.3-.016.659-.12.922-.214.12-.042.195-.063.27-.063a.56.56 0 01.344.12c.18.15.243.39.185.585-.045.15-.15.270-.24.337a2.555 2.555 0 01-1.166.454c-.09.015-.18.025-.255.037-.165.024-.315.044-.405.105-.104.073-.18.24-.18.39 0 .045.008.09.015.135.09.42.444.975.944 1.517.195.211.42.42.66.623.78.66 1.695 1.2 1.965 1.8.09.195.135.42.135.6v.015c-.015.585-.51 1.065-1.095 1.215-.18.047-.36.075-.54.09-.165.015-.33.015-.51.015-.12 0-.225.01-.345.024-.255.03-.54.12-.855.24-.48.18-1.065.39-2.01.39-.06 0-.12 0-.195-.01h-.045c-.93 0-1.5-.195-1.98-.39-.314-.12-.584-.21-.839-.24a3.62 3.62 0 00-.36-.024h-.03c-.18 0-.36 0-.54-.015-.18-.015-.36-.044-.54-.09-.585-.15-1.08-.63-1.095-1.215v-.015a1.47 1.47 0 01.135-.6c.27-.6 1.185-1.14 1.965-1.8.24-.195.465-.405.66-.623.5-.537.854-1.095.944-1.517.008-.045.015-.09.015-.135 0-.15-.075-.315-.18-.39-.09-.06-.24-.08-.405-.105a2.87 2.87 0 01-.255-.037 2.555 2.555 0 01-1.166-.454.552.552 0 01-.24-.337.564.564 0 01.186-.585.56.56 0 01.344-.12c.075 0 .15.021.27.063.263.094.622.198.922.214.198 0 .326-.045.401-.09a8.882 8.882 0 01-.033-.57c-.104-1.628-.23-3.654.3-4.847C7.65 1.07 11.007.793 11.996.793h.21z"/></svg>
-                  <span className="text-[8px] font-medium text-zinc-600 dark:text-white/40">Snap</span>
+
+                {/* Snapchat (Fixed Ghost Vector Badge) */}
+                <button
+                  onClick={() => {
+                    const shareUrl = getShareUrl();
+                    copyToClipboard(`${getShareText()} ${shareUrl}`);
+                    showToast('Link copied! Opening Snapchat...', 'success');
+                    window.open(`https://www.snapchat.com/scan?attachmentUrl=${encodeURIComponent(shareUrl)}`, '_blank');
+                  }}
+                  className="flex flex-col items-center gap-1 py-2 rounded-lg bg-zinc-100/80 dark:bg-white/[0.04] border border-zinc-200/60 dark:border-transparent hover:bg-zinc-200/80 dark:hover:bg-white/[0.08] active:scale-95 transition-all cursor-pointer group"
+                  title="Share on Snapchat"
+                >
+                  <div className="w-5 h-5 rounded-md flex items-center justify-center bg-[#FFFC00] shadow-xs border border-amber-300/40">
+                    <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="#FFFFFF" stroke="#000000" strokeWidth="1.2" strokeLinejoin="round">
+                      <path d="M12.206 1.793c.99 0 4.347.276 5.93 3.821.529 1.193.403 3.219.299 4.847l-.003.06c-.012.18-.022.345-.03.51.075.045.203.09.401.09.3-.016.659-.12.922-.214.12-.042.195-.063.27-.063a.56.56 0 01.344.12c.18.15.243.39.185.585-.045.15-.15.270-.24.337a2.555 2.555 0 01-1.166.454c-.09.015-.18.025-.255.037-.165.024-.315.044-.405.105-.104.073-.18.24-.18.39 0 .045.008.09.015.135.09.42.444.975.944 1.517.195.211.42.42.66.623.78.66 1.695 1.2 1.965 1.8.09.195.135.42.135.6v.015c-.015.585-.51 1.065-1.095 1.215-.18.047-.36.075-.54.09-.165.015-.33.015-.51.015-.12 0-.225.01-.345.024-.255.03-.54.12-.855.24-.48.18-1.065.39-2.01.39-.06 0-.12 0-.195-.01h-.045c-.93 0-1.5-.195-1.98-.39-.314-.12-.584-.21-.839-.24a3.62 3.62 0 00-.36-.024h-.03c-.18 0-.36 0-.54-.015-.18-.015-.36-.044-.54-.09-.585-.15-1.08-.63-1.095-1.215v-.015a1.47 1.47 0 01.135-.6c.27-.6 1.185-1.14 1.965-1.8.24-.195.465-.405.66-.623.5-.537.854-1.095.944-1.517.008-.045.015-.09.015-.135 0-.15-.075-.315-.18-.39-.09-.06-.24-.08-.405-.105a2.87 2.87 0 01-.255-.037 2.555 2.555 0 01-1.166-.454.552.552 0 01-.24-.337.564.564 0 01.186-.585.56.56 0 01.344-.12c.075 0 .15.021.27.063.263.094.622.198.922.214.198 0 .326-.045.401-.09a8.882 8.882 0 01-.033-.57c-.104-1.628-.23-3.654.3-4.847C7.65 2.07 11.007 1.793 11.996 1.793h.21z" />
+                    </svg>
+                  </div>
+                  <span className="text-[8px] font-medium text-zinc-600 dark:text-white/50">Snapchat</span>
                 </button>
               </div>
 
