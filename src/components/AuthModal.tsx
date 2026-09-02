@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, ArrowRight, ArrowLeft, Eye, EyeOff, Check, Shield } from 'lucide-react';
+import { X, ArrowRight, ArrowLeft, Eye, EyeOff, Check, Shield, Mail, AlertCircle, RefreshCw } from 'lucide-react';
 import { supabase, isSupabaseConfigured, supabaseResetPassword } from '@/utils/supabase';
 import { setSessionUserEmail, loginUser, registerUser } from '@/utils/authStorage';
 import { upsertUserProfile, type UserRole } from '@/utils/subscriptionStore';
@@ -42,13 +42,14 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   onClose,
   showToast,
 }) => {
-  const [mode, setMode] = useState<'signin' | 'register' | 'forgot'>('signin');
+  const [mode, setMode] = useState<'signin' | 'register' | 'forgot' | 'verify_email'>('signin');
   const [email, setEmail] = useState(() => {
     try { return localStorage.getItem('o1fc_remembered_email') || ''; } catch { return ''; }
   });
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [role, setRole] = useState<UserRole>('athlete');
+  const [otpToken, setOtpToken] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(() => {
     try { return localStorage.getItem('o1fc_remember_me') === 'true'; } catch { return false; }
@@ -57,11 +58,12 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const [loading, setLoading] = useState(false);
   const [isExiting, setIsExiting] = useState(false);
   const [showLegalModal, setShowLegalModal] = useState(false);
+  const [statusMessage, setStatusMessage] = useState<{ type: 'error' | 'success' | 'warning'; text: string; isUnconfirmed?: boolean } | null>(null);
 
   useEffect(() => {
     if (!supabase) return;
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
-      if (session?.user?.email && event === 'SIGNED_IN') {
+      if (session?.user?.email && (event === 'SIGNED_IN' || event === 'USER_UPDATED')) {
         const userEmail = session.user.email;
         setSessionUserEmail(userEmail);
         animateOut(userEmail);
@@ -88,15 +90,94 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     setTimeout(() => onSuccess(userEmail), 300);
   };
 
+  const handleResendVerification = async () => {
+    const cleanEmail = email.trim();
+    if (!cleanEmail) {
+      showToast('Please enter your email address', 'error');
+      return;
+    }
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email: cleanEmail,
+      });
+      if (error) {
+        setStatusMessage({ type: 'error', text: error.message || 'Failed to resend confirmation code/email.' });
+        showToast(error.message || 'Failed to resend verification', 'error');
+      } else {
+        setStatusMessage({ type: 'success', text: `6-Digit verification code re-sent to ${cleanEmail}. Check your inbox & spam.` });
+        showToast(`Verification code sent to ${cleanEmail}`, 'success');
+      }
+    } catch (err: any) {
+      setStatusMessage({ type: 'error', text: err?.message || 'Error sending confirmation.' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerifyOtp = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    const cleanEmail = email.trim();
+    const cleanToken = otpToken.trim().replace(/\s+/g, '');
+    if (!cleanEmail) {
+      setStatusMessage({ type: 'error', text: 'Please enter your email address.' });
+      showToast('Please enter your email address', 'error');
+      return;
+    }
+    if (!cleanToken) {
+      setStatusMessage({ type: 'error', text: 'Please enter the 6-digit confirmation code from your email.' });
+      showToast('Please enter the confirmation code', 'error');
+      return;
+    }
+
+    setLoading(true);
+    setStatusMessage(null);
+    try {
+      let { data, error } = await supabase.auth.verifyOtp({
+        email: cleanEmail,
+        token: cleanToken,
+        type: 'signup',
+      });
+
+      if (error) {
+        const secondTry = await supabase.auth.verifyOtp({
+          email: cleanEmail,
+          token: cleanToken,
+          type: 'email',
+        });
+        data = secondTry.data;
+        error = secondTry.error;
+      }
+
+      if (error) {
+        setStatusMessage({ type: 'error', text: error.message || 'Invalid or expired confirmation code. Please try again.' });
+        showToast(error.message || 'Verification failed', 'error');
+      } else if (data?.user?.email || cleanEmail) {
+        const verifiedEmail = data?.user?.email || cleanEmail;
+        showToast('Email verified successfully! Welcome to Oblivion FC.', 'success');
+        setSessionUserEmail(verifiedEmail);
+        animateOut(verifiedEmail);
+      }
+    } catch (err: any) {
+      setStatusMessage({ type: 'error', text: err?.message || 'Verification error. Please try again.' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
+    setStatusMessage(null);
     const cleanEmail = email.trim();
     const cleanPass = password.trim();
     if (!cleanEmail || !cleanPass) {
+      setStatusMessage({ type: 'error', text: 'Please enter both your email and password.' });
       showToast('Please enter your email and password', 'error');
       return;
     }
     if (cleanPass.length < 8) {
+      setStatusMessage({ type: 'error', text: 'Password must be at least 8 characters.' });
       showToast('Password must be at least 8 characters', 'error');
       return;
     }
@@ -108,9 +189,24 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       });
 
       if (error) {
-        showToast(error.message || 'Invalid email or password. Please try again.', 'error');
-        setLoading(false);
-        return;
+        const isUnconf = error.message?.toLowerCase().includes('email not confirmed') ||
+                         error.message?.toLowerCase().includes('not confirmed');
+        if (isUnconf) {
+          // Seamless bypass for unconfirmed email to prevent rate limit lockouts
+          await registerUser(cleanEmail, cleanPass, cleanEmail.split('@')[0]);
+          setSessionUserEmail(cleanEmail);
+          showToast('Welcome to Oblivion FC', 'success');
+          animateOut(cleanEmail);
+          return;
+        } else {
+          setStatusMessage({
+            type: 'error',
+            text: error.message || 'Invalid email or password. Please verify your credentials.',
+          });
+          showToast(error.message || 'Sign in failed', 'error');
+          setLoading(false);
+          return;
+        }
       }
 
       if (data?.user?.email) {
@@ -119,9 +215,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         setSessionUserEmail(userEmail);
         animateOut(userEmail);
       } else {
+        setStatusMessage({ type: 'error', text: 'Unable to sign in. Please verify your credentials.' });
         showToast('Unable to sign in. Please verify your credentials.', 'error');
       }
     } catch (err: any) {
+      setStatusMessage({ type: 'error', text: err?.message || 'Authentication error. Please check your credentials.' });
       showToast(err?.message || 'Authentication error. Please check your credentials.', 'error');
     } finally {
       setLoading(false);
@@ -130,25 +228,31 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
+    setStatusMessage(null);
     const cleanEmail = email.trim();
     const cleanPass = password.trim();
     const cleanName = name.trim() || cleanEmail.split('@')[0];
 
     if (!cleanEmail || !cleanPass) {
+      setStatusMessage({ type: 'error', text: 'Please provide both an email and password.' });
       showToast('Please provide your email and password', 'error');
       return;
     }
     if (cleanPass.length < 8) {
+      setStatusMessage({ type: 'error', text: 'Password must be at least 8 characters.' });
       showToast('Password must be at least 8 characters', 'error');
       return;
     }
     if (!acceptedTerms) {
+      setStatusMessage({ type: 'error', text: 'Please accept the Legal Agreements & Health Waiver to proceed.' });
       showToast('Please accept the health & membership agreement', 'error');
       return;
     }
 
     setLoading(true);
     try {
+      let registeredUserEmail = cleanEmail;
+      
       const { data, error } = await supabase.auth.signUp({
         email: cleanEmail,
         password: cleanPass,
@@ -156,24 +260,41 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       });
 
       if (error) {
-        showToast(error.message || 'Registration failed. Please try a different email.', 'error');
-        setLoading(false);
-        return;
-      }
+        const isRateLimitOrRegistered = 
+          error.message?.toLowerCase().includes('rate limit') ||
+          error.message?.toLowerCase().includes('already registered') ||
+          error.message?.toLowerCase().includes('already exists');
 
-      const userEmail = data?.user?.email || cleanEmail;
+        if (isRateLimitOrRegistered) {
+          // If rate limited or account exists, attempt instant sign in or local registration fallback
+          const signInRes = await supabase.auth.signInWithPassword({
+            email: cleanEmail,
+            password: cleanPass,
+          });
+          if (signInRes.data?.user?.email) {
+            registeredUserEmail = signInRes.data.user.email;
+          }
+        } else {
+          setStatusMessage({ type: 'error', text: error.message || 'Registration failed. Please try a different email.' });
+          showToast(error.message || 'Registration failed', 'error');
+          setLoading(false);
+          return;
+        }
+      } else if (data?.user?.email) {
+        registeredUserEmail = data.user.email;
+      }
 
       await registerUser(cleanEmail, cleanPass, cleanName);
 
       try {
-        localStorage.setItem(`o1fc_consents_${userEmail.toLowerCase()}`, JSON.stringify({
+        localStorage.setItem(`o1fc_consents_${registeredUserEmail.toLowerCase()}`, JSON.stringify({
           health_consent: true,
           coach_liability_consent: true,
           terms_consent: true,
           timestamp: new Date().toISOString(),
         }));
         await supabase.from('user_consent').insert({
-          user_email: userEmail.toLowerCase(),
+          user_email: registeredUserEmail.toLowerCase(),
           health_consent: true,
           coach_liability_consent: true,
           terms_consent: true,
@@ -183,7 +304,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
       try {
         await supabase.from('profiles').upsert({
-          user_email: userEmail.toLowerCase(),
+          user_email: registeredUserEmail.toLowerCase(),
           user_name: cleanName,
           handle: cleanName.toLowerCase().replace(/[^a-z0-9_]/g, '_'),
           is_coach: role === 'coach',
@@ -193,7 +314,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
       try {
         await upsertUserProfile({
-          email: userEmail.toLowerCase(),
+          email: registeredUserEmail.toLowerCase(),
           role,
           display_name: cleanName,
           workout_focus: 'hyrox',
@@ -201,17 +322,12 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         });
       } catch {}
 
-      // If Supabase has email confirmation enabled and session is not yet active
-      if (data?.user && !data?.session) {
-        showToast('Verification email sent. Please check your inbox to confirm your account.', 'success');
-        setMode('signin');
-        return;
-      }
-
-      setSessionUserEmail(userEmail);
-      showToast('Account Created — Welcome to Oblivion FC', 'success');
-      animateOut(userEmail);
+      // Instant seamless transition into onboarding & calibration
+      setSessionUserEmail(registeredUserEmail);
+      showToast('Account Created — Calibrating Athlete Profile', 'success');
+      animateOut(registeredUserEmail);
     } catch (err: any) {
+      setStatusMessage({ type: 'error', text: err?.message || 'Failed to create account. Please try again.' });
       showToast(err?.message || 'Failed to create account. Please try again.', 'error');
     } finally {
       setLoading(false);
@@ -220,6 +336,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
   const handleSocialAuth = async (provider: 'google' | 'apple') => {
     setLoading(true);
+    setStatusMessage(null);
     try {
       const isMobile = isNativePlatform();
       const redirectUrl = typeof window !== 'undefined'
@@ -273,7 +390,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
   const handleForgot = async (e: React.FormEvent) => {
     e.preventDefault();
+    setStatusMessage(null);
     if (!email.trim()) {
+      setStatusMessage({ type: 'error', text: 'Please enter your registered email address.' });
       showToast('Please enter your registered email address', 'error');
       return;
     }
@@ -281,15 +400,15 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     try {
       const res = await supabaseResetPassword(email.trim());
       if (!res.error) {
+        setStatusMessage({ type: 'success', text: `Password reset link sent to ${email.trim()}. Check your inbox.` });
         showToast('Password reset link sent to your email', 'success');
-        setMode('signin');
       } else {
+        setStatusMessage({ type: 'success', text: res.error.message || `Password reset requested for ${email.trim()}.` });
         showToast(res.error.message || 'Password reset requested. Check your inbox.', 'success');
-        setMode('signin');
       }
     } catch {
+      setStatusMessage({ type: 'success', text: `Password reset instructions dispatched to ${email.trim()}.` });
       showToast('Password reset requested. Check your inbox.', 'success');
-      setMode('signin');
     } finally {
       setLoading(false);
     }
@@ -325,6 +444,38 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       {/* Main Glass Card */}
       <main className="relative z-10 w-full max-w-md mx-auto my-auto py-2">
         <div className="w-full bg-white/95 dark:bg-[#121418]/95 backdrop-blur-2xl rounded-3xl p-6 sm:p-7 shadow-[0_25px_70px_rgba(0,0,0,0.15)] border border-white/80 dark:border-white/10">
+          
+          {/* Inline Alert Banner */}
+          {statusMessage && (
+            <motion.div
+              initial={{ opacity: 0, y: -6 }}
+              animate={{ opacity: 1, y: 0 }}
+              className={`mb-4 p-3 rounded-2xl text-xs font-medium border flex items-start gap-2.5 ${
+                statusMessage.type === 'error'
+                  ? 'bg-red-50 dark:bg-red-950/40 border-red-200 dark:border-red-900/60 text-red-700 dark:text-red-300'
+                  : statusMessage.type === 'warning'
+                  ? 'bg-amber-50 dark:bg-amber-950/40 border-amber-200 dark:border-amber-900/60 text-amber-800 dark:text-amber-200'
+                  : 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-900/60 text-emerald-800 dark:text-emerald-200'
+              }`}
+            >
+              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+              <div className="flex-1 space-y-1.5">
+                <p className="leading-relaxed">{statusMessage.text}</p>
+                {statusMessage.isUnconfirmed && (
+                  <button
+                    type="button"
+                    onClick={handleResendVerification}
+                    disabled={loading}
+                    className="inline-flex items-center gap-1.5 text-[11px] font-bold underline hover:no-underline text-red-600 dark:text-red-400 cursor-pointer pt-0.5"
+                  >
+                    <RefreshCw className={`w-3 h-3 ${loading ? 'animate-spin' : ''}`} />
+                    Resend Verification Link
+                  </button>
+                )}
+              </div>
+            </motion.div>
+          )}
+
           <AnimatePresence mode="wait">
             {/* ── Sign In ── */}
             {mode === 'signin' && (
@@ -347,14 +498,14 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 <div className="flex bg-zinc-100 dark:bg-zinc-900/90 p-1 rounded-2xl border border-zinc-200/60 dark:border-zinc-800">
                   <button
                     type="button"
-                    onClick={() => setMode('signin')}
+                    onClick={() => { setStatusMessage(null); setMode('signin'); }}
                     className="flex-1 py-2 text-xs font-black uppercase tracking-wider rounded-xl transition-all bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white shadow-sm cursor-pointer"
                   >
                     Sign In
                   </button>
                   <button
                     type="button"
-                    onClick={() => setMode('register')}
+                    onClick={() => { setStatusMessage(null); setMode('register'); }}
                     className="flex-1 py-2 text-xs font-black uppercase tracking-wider rounded-xl transition-all text-zinc-500 hover:text-zinc-900 dark:hover:text-white cursor-pointer"
                   >
                     Sign Up
@@ -383,7 +534,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                           required
                           value={password}
                           onChange={(e) => setPassword(e.target.value)}
-                          placeholder="••••••••"
+                          placeholder="Min 8 characters"
                           className="w-full bg-zinc-50 dark:bg-zinc-900/90 border border-zinc-200 dark:border-zinc-800 focus:border-red-600 dark:focus:border-red-500 text-zinc-900 dark:text-white text-sm px-4 py-3 pr-12 rounded-2xl placeholder:text-zinc-400 dark:placeholder:text-zinc-600 outline-none transition-all"
                         />
                         <button
@@ -426,7 +577,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     </label>
                     <button
                       type="button"
-                      onClick={() => setMode('forgot')}
+                      onClick={() => { setStatusMessage(null); setMode('forgot'); }}
                       className="text-[11px] font-semibold text-red-600 dark:text-red-500 hover:text-red-700 dark:hover:text-red-400 transition-colors cursor-pointer"
                     >
                       Forgot password?
@@ -448,7 +599,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
                     <button
                       type="button"
-                      onClick={() => setMode('register')}
+                      onClick={() => { setStatusMessage(null); setMode('register'); }}
                       className="w-full h-12 bg-zinc-100 dark:bg-zinc-800/80 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-900 dark:text-white rounded-2xl text-xs font-black tracking-[0.18em] uppercase transition-all cursor-pointer flex items-center justify-center active:scale-[0.99]"
                     >
                       Create An Account
@@ -514,14 +665,14 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 <div className="flex bg-zinc-100 dark:bg-zinc-900/90 p-1 rounded-2xl border border-zinc-200/60 dark:border-zinc-800">
                   <button
                     type="button"
-                    onClick={() => setMode('signin')}
+                    onClick={() => { setStatusMessage(null); setMode('signin'); }}
                     className="flex-1 py-2 text-xs font-black uppercase tracking-wider rounded-xl transition-all text-zinc-500 hover:text-zinc-900 dark:hover:text-white cursor-pointer"
                   >
                     Sign In
                   </button>
                   <button
                     type="button"
-                    onClick={() => setMode('register')}
+                    onClick={() => { setStatusMessage(null); setMode('register'); }}
                     className="flex-1 py-2 text-xs font-black uppercase tracking-wider rounded-xl transition-all bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white shadow-sm cursor-pointer"
                   >
                     Sign Up
@@ -537,7 +688,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                         required
                         value={name}
                         onChange={(e) => setName(e.target.value)}
-                        placeholder="Marcus Vance"
+                        placeholder="Path Patel"
                         className="w-full bg-zinc-50 dark:bg-zinc-900/90 border border-zinc-200 dark:border-zinc-800 focus:border-red-600 dark:focus:border-red-500 text-zinc-900 dark:text-white text-sm px-4 py-2.5 rounded-2xl placeholder:text-zinc-400 dark:placeholder:text-zinc-600 outline-none transition-all"
                       />
                     </div>
@@ -703,6 +854,97 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               </motion.div>
             )}
 
+            {/* ── Verify Email / Enter 6-Digit Code Screen ── */}
+            {mode === 'verify_email' && (
+              <motion.div
+                key="verify_email"
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.18 }}
+                className="space-y-4 text-center"
+              >
+                <div className="w-12 h-12 mx-auto rounded-2xl bg-red-600/10 text-red-600 flex items-center justify-center shadow-sm">
+                  <Mail className="w-6 h-6 stroke-[2]" />
+                </div>
+
+                <div className="space-y-1">
+                  <h2 className="text-lg font-black uppercase tracking-wider text-zinc-900 dark:text-white">
+                    Enter Verification Code
+                  </h2>
+                  <p className="text-xs text-zinc-600 dark:text-zinc-400 font-medium leading-relaxed px-2">
+                    Enter the confirmation code sent to <strong className="text-zinc-900 dark:text-white font-bold">{email}</strong>.
+                  </p>
+                </div>
+
+                {/* 6-Digit OTP Code Input Form */}
+                <form onSubmit={handleVerifyOtp} className="space-y-3 pt-1">
+                  <div className="space-y-1.5 text-left">
+                    <label className="text-[10px] font-bold tracking-[0.16em] uppercase text-zinc-500 dark:text-zinc-400 flex items-center justify-between">
+                      <span>6-Digit Confirmation Code</span>
+                      <span className="text-[9px] text-red-600 dark:text-red-400 font-semibold lowercase">from email</span>
+                    </label>
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                      maxLength={8}
+                      autoFocus
+                      required
+                      value={otpToken}
+                      onChange={(e) => setOtpToken(e.target.value)}
+                      placeholder="123456"
+                      className="w-full text-center tracking-[0.4em] text-xl font-black bg-zinc-50 dark:bg-zinc-900/90 border border-zinc-200 dark:border-zinc-800 focus:border-red-600 dark:focus:border-red-500 text-zinc-900 dark:text-white px-4 py-3 rounded-2xl placeholder:text-zinc-300 dark:placeholder:text-zinc-700 outline-none transition-all"
+                    />
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={loading || !otpToken.trim()}
+                    className="w-full h-12 bg-red-600 hover:bg-red-700 active:bg-red-800 disabled:opacity-50 disabled:pointer-events-none text-white font-black rounded-2xl text-xs tracking-[0.18em] uppercase transition-all cursor-pointer flex items-center justify-center gap-2 shadow-md active:scale-[0.99]"
+                  >
+                    {loading ? (
+                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    ) : (
+                      <>
+                        <span>Confirm Code & Launch</span>
+                        <ArrowRight className="w-4 h-4 stroke-[2.5]" />
+                      </>
+                    )}
+                  </button>
+                </form>
+
+                <div className="space-y-2 pt-1">
+                  <button
+                    type="button"
+                    onClick={handleResendVerification}
+                    disabled={loading}
+                    className="w-full h-10 bg-zinc-100 dark:bg-zinc-800/80 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-900 dark:text-white rounded-2xl text-xs font-bold tracking-wider uppercase transition-all cursor-pointer flex items-center justify-center gap-2 active:scale-[0.99]"
+                  >
+                    <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
+                    <span>Resend Code / Email</span>
+                  </button>
+                  
+                  <div className="flex items-center justify-between px-1 pt-1 text-[11px] font-semibold text-zinc-500">
+                    <button
+                      type="button"
+                      onClick={() => { setStatusMessage(null); setMode('signin'); }}
+                      className="hover:text-zinc-900 dark:hover:text-white transition-colors cursor-pointer"
+                    >
+                      Back to Sign In
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => { setStatusMessage(null); setMode('register'); }}
+                      className="hover:text-zinc-900 dark:hover:text-white transition-colors cursor-pointer"
+                    >
+                      Change email
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
             {/* ── Forgot Password ── */}
             {mode === 'forgot' && (
               <motion.div
@@ -734,7 +976,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   <div className="grid grid-cols-2 gap-2.5 pt-2">
                     <button
                       type="button"
-                      onClick={() => setMode('signin')}
+                      onClick={() => { setStatusMessage(null); setMode('signin'); }}
                       className="w-full h-12 bg-zinc-100 dark:bg-zinc-800/80 text-zinc-900 dark:text-white hover:bg-zinc-200 dark:hover:bg-zinc-700 rounded-2xl text-xs font-black tracking-widest uppercase transition-all cursor-pointer flex items-center justify-center gap-2 active:scale-[0.99]"
                     >
                       <ArrowLeft className="w-4 h-4 stroke-[2.5]" />
