@@ -295,7 +295,6 @@ export const FullEliteReelsModal: React.FC<FullEliteReelsModalProps> = ({
   reels = [],
   showToast,
 }) => {
-  useModalBackHandler(isOpen, onClose, 'full_elite_reels_modal');
   const activeReels = reels && reels.length > 0 ? reels : DEFAULT_ELITE_REELS;
 
   const [activeFilter, setActiveFilter] = useState('All');
@@ -335,7 +334,7 @@ export const FullEliteReelsModal: React.FC<FullEliteReelsModalProps> = ({
   };
 
   useEffect(() => {
-    setLikeCounts(prev => {
+    setLikeCounts((prev) => {
       const counts: Record<string, number> = { ...prev };
       activeReels.forEach((r) => {
         if (!(r.id in counts)) {
@@ -357,6 +356,28 @@ export const FullEliteReelsModal: React.FC<FullEliteReelsModalProps> = ({
       onClose();
     }, 250);
   }, [onClose]);
+
+  const handleBackModal = useCallback(() => {
+    if (consultCoach) {
+      setConsultCoach(null);
+      return;
+    }
+    if (profileCoach) {
+      setProfileCoach(null);
+      return;
+    }
+    if (selectedProgramsModalCoach) {
+      setSelectedProgramsModalCoach(null);
+      return;
+    }
+    if (viewMode === 'stream') {
+      setViewMode('explore');
+      return;
+    }
+    handleClose();
+  }, [consultCoach, profileCoach, selectedProgramsModalCoach, viewMode, handleClose]);
+
+  useModalBackHandler(isOpen, handleBackModal, 'full_elite_reels_modal');
 
   useEffect(() => {
     if (!isOpen) {

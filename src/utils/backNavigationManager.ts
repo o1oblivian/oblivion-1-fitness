@@ -123,16 +123,17 @@ class BackNavigationManager {
       }
     }
 
-    // Priority 3: If not on home tab and history empty, return to Home dashboard
-    if (this.currentMode !== 'home') {
-      this.currentMode = 'home';
+    // Priority 3: If not on default tracker/home tab and history empty, return to main Workout tracker
+    if (this.currentMode !== 'tracker' && this.currentMode !== 'home') {
+      const defaultMode: AppMode = 'tracker';
+      this.currentMode = defaultMode;
       if (this.onModeChangeCallback) {
-        this.onModeChangeCallback('home');
+        this.onModeChangeCallback(defaultMode);
       }
       return true;
     }
 
-    // Priority 4: We are on Home with zero open modals -> Double back to exit
+    // Priority 4: We are on main screen with zero open modals -> Double back to exit
     const now = Date.now();
     if (now - this.lastExitPressTime < 2000) {
       if (Capacitor.isNativePlatform()) {

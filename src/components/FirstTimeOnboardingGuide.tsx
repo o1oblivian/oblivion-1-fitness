@@ -139,7 +139,7 @@ export const FirstTimeOnboardingGuide: React.FC<FirstTimeOnboardingGuideProps> =
     <AnimatePresence>
       <div 
         id="onboarding-guide-overlay"
-        className="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-md overflow-y-auto"
+        className="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-6 bg-transparent backdrop-blur-md overflow-y-auto"
         style={{
           paddingTop: 'max(12px, env(safe-area-inset-top))',
           paddingBottom: 'max(16px, env(safe-area-inset-bottom))',
@@ -150,24 +150,21 @@ export const FirstTimeOnboardingGuide: React.FC<FirstTimeOnboardingGuideProps> =
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.96, y: 16 }}
           transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-          className="relative w-full max-w-lg bg-white dark:bg-[#121214] text-zinc-900 dark:text-white rounded-[28px] border border-black/10 dark:border-white/10 shadow-2xl overflow-hidden flex flex-col max-h-[90dvh]"
+          className="relative w-full max-w-lg bg-black/50 backdrop-blur-2xl text-white rounded-[28px] border border-white/15 shadow-2xl overflow-hidden flex flex-col max-h-[90dvh]"
         >
-          {/* Background */}
-          <div className="absolute inset-0 pointer-events-none opacity-30">
-            <LiquidSilkBackground />
-          </div>
+          {/* Background removed for 100% transparent layering */}
 
           {/* Top Bar */}
-          <div className="relative z-10 pt-5 px-6 pb-3.5 border-b border-black/5 dark:border-white/5 flex items-center justify-between">
+          <div className="relative z-10 pt-5 px-6 pb-3.5 border-b border-white/10 flex items-center justify-between">
             <div className="flex items-center gap-2.5">
               <div className="w-8 h-8 rounded-xl bg-red-600 text-white flex items-center justify-center shadow-md shadow-red-600/20">
                 <BookOpen className="w-4 h-4" />
               </div>
               <div>
-                <p className="text-[10px] font-mono font-bold tracking-widest text-red-600 dark:text-red-400 uppercase">
+                <p className="text-[10px] font-mono font-bold tracking-widest text-red-400 uppercase">
                   System Reference
                 </p>
-                <h2 className="text-base sm:text-lg font-bold text-zinc-950 dark:text-white">
+                <h2 className="text-base sm:text-lg font-bold text-white">
                   O1FC Feature Guide
                 </h2>
               </div>
@@ -177,7 +174,7 @@ export const FirstTimeOnboardingGuide: React.FC<FirstTimeOnboardingGuideProps> =
               id="btn-close-onboarding-guide"
               type="button"
               onClick={handleClose}
-              className="w-8 h-8 rounded-full bg-zinc-100 dark:bg-white/10 text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white flex items-center justify-center transition-colors cursor-pointer"
+              className="w-8 h-8 rounded-full bg-white/10 text-zinc-300 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
             >
               <X className="w-4 h-4" />
             </button>
@@ -195,8 +192,8 @@ export const FirstTimeOnboardingGuide: React.FC<FirstTimeOnboardingGuideProps> =
                   onClick={() => setExpandedId(isExpanded ? null : feature.id)}
                   className={`p-3.5 rounded-2xl border transition-all cursor-pointer ${
                     isExpanded
-                      ? 'bg-zinc-100/90 dark:bg-white/[0.08] border-black/15 dark:border-white/15 shadow-sm'
-                      : 'bg-zinc-50/80 dark:bg-white/[0.03] border-black/5 dark:border-white/5 hover:bg-zinc-100/60 dark:hover:bg-white/[0.05]'
+                      ? 'bg-white/[0.14] border-white/20 shadow-md'
+                      : 'bg-white/10 border-white/15 hover:bg-white/[0.12]'
                   }`}
                 >
                   <div className="flex items-center justify-between gap-3">
@@ -206,14 +203,14 @@ export const FirstTimeOnboardingGuide: React.FC<FirstTimeOnboardingGuideProps> =
                       </div>
                       <div className="min-w-0">
                         <div className="flex items-center gap-2">
-                          <span className="text-[10px] font-mono font-bold text-zinc-400 dark:text-zinc-500">
+                          <span className="text-[10px] font-mono font-bold text-zinc-400">
                             {feature.badge}
                           </span>
-                          <h3 className="text-xs sm:text-sm font-semibold text-zinc-900 dark:text-white truncate">
+                          <h3 className="text-xs sm:text-sm font-semibold text-white truncate">
                             {feature.title}
                           </h3>
                         </div>
-                        <p className="text-[11px] text-zinc-500 dark:text-zinc-400 truncate">
+                        <p className="text-[11px] text-zinc-400 truncate">
                           {feature.headline}
                         </p>
                       </div>
@@ -234,10 +231,10 @@ export const FirstTimeOnboardingGuide: React.FC<FirstTimeOnboardingGuideProps> =
                         animate={{ opacity: 1, height: 'auto' }}
                         exit={{ opacity: 0, height: 0 }}
                         transition={{ duration: 0.2 }}
-                        className="mt-3 pt-3 border-t border-black/5 dark:border-white/5 text-[11px] sm:text-xs text-zinc-600 dark:text-zinc-300 space-y-2"
+                        className="mt-3 pt-3 border-t border-white/10 text-[11px] sm:text-xs text-zinc-300 space-y-2"
                       >
                         <p className="leading-relaxed">{feature.instruction}</p>
-                        <div className="flex items-start gap-1.5 p-2 rounded-xl bg-red-500/5 dark:bg-red-500/10 text-red-700 dark:text-red-300 text-[10.5px]">
+                        <div className="flex items-start gap-1.5 p-2 rounded-xl bg-red-500/10 text-red-300 text-[10.5px]">
                           <Sparkles className="w-3.5 h-3.5 shrink-0 mt-0.5" />
                           <span>{feature.actionTip}</span>
                         </div>
@@ -251,7 +248,7 @@ export const FirstTimeOnboardingGuide: React.FC<FirstTimeOnboardingGuideProps> =
 
           {/* Sticky Footer */}
           <div 
-            className="relative z-10 px-5 sm:px-6 pt-3 pb-5 border-t border-black/5 dark:border-white/5 bg-white/90 dark:bg-[#121214]/90 backdrop-blur-md"
+            className="relative z-10 px-5 sm:px-6 pt-3 pb-5 border-t border-white/10 bg-transparent"
             style={{
               paddingBottom: 'max(16px, calc(env(safe-area-inset-bottom) + 12px))'
             }}
@@ -260,7 +257,7 @@ export const FirstTimeOnboardingGuide: React.FC<FirstTimeOnboardingGuideProps> =
               id="btn-done-onboarding-guide"
               type="button"
               onClick={handleClose}
-              className="w-full h-11 sm:h-12 bg-zinc-900 dark:bg-white text-white dark:text-zinc-950 hover:bg-zinc-800 dark:hover:bg-zinc-100 text-xs sm:text-sm font-bold tracking-wide rounded-2xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-[0.99]"
+              className="w-full h-11 sm:h-12 bg-white hover:bg-zinc-100 text-zinc-950 text-xs sm:text-sm font-bold tracking-wide rounded-2xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-[0.99]"
             >
               <Check className="w-4 h-4 stroke-[2.5]" />
               <span>Done</span>

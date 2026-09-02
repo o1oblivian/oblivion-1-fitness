@@ -78,7 +78,7 @@ export const AthleteIntelligenceModal: React.FC<AthleteIntelligenceModalProps> =
       className="fixed inset-0 z-[180] bg-black/60 backdrop-blur-sm overflow-hidden flex flex-col items-center justify-center p-0 sm:p-4"
     >
       <div
-        className="bg-white w-full h-full max-w-2xl sm:rounded-2xl shadow-2xl animate-slideDownFade flex flex-col overflow-hidden"
+        className="bg-white w-full h-full sm:h-auto sm:max-h-[90dvh] max-w-2xl sm:rounded-2xl shadow-2xl animate-slideDownFade flex flex-col overflow-hidden"
       >
         {/* Header */}
         <div className="sticky top-0 z-10 bg-white/95 backdrop-blur-md px-4 sm:px-5 pt-3.5 pb-2.5 border-b border-[rgba(0,0,0,0.08)]">
@@ -382,7 +382,7 @@ export const AthleteIntelligenceModal: React.FC<AthleteIntelligenceModalProps> =
         </div>
 
         {/* Feedback + approve action bar */}
-        <div className="sticky bottom-0 bg-white/95 backdrop-blur-md border-t border-[rgba(0,0,0,0.08)] px-4 py-3 space-y-2">
+        <div className="sticky bottom-0 bg-white/95 backdrop-blur-md border-t border-[rgba(0,0,0,0.08)] px-4 py-3 pb-[max(1.25rem,calc(env(safe-area-inset-bottom,0px)+0.875rem))] space-y-2">
           <div className="flex gap-2">
             <input
               type="text"

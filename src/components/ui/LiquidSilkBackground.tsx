@@ -72,21 +72,16 @@ export const LiquidSilkBackground: React.FC<LiquidSilkBackgroundProps> = ({
       const logicalW = width;
       const logicalH = height;
 
-      // ── 1. Base Pearlescent Light Gradient ──
+      // ── 1. Base Gradient (100% transparent on light, 50% opacity on dark) ──
+      ctx.clearRect(0, 0, logicalW, logicalH);
       const baseGrad = ctx.createLinearGradient(0, 0, logicalW, logicalH);
       if (theme === 'dark') {
-        baseGrad.addColorStop(0, '#0a0b0d');
-        baseGrad.addColorStop(0.5, '#121418');
-        baseGrad.addColorStop(1, '#08090a');
-      } else {
-        // High-end Luxury Light Palette (Pearl White, Silky Satin Platinum, Alabaster)
-        baseGrad.addColorStop(0, '#fbfcfe');
-        baseGrad.addColorStop(0.35, '#f4f6f8');
-        baseGrad.addColorStop(0.7, '#ebeff3');
-        baseGrad.addColorStop(1, '#e2e7ec');
+        baseGrad.addColorStop(0, 'rgba(10, 11, 13, 0.5)');
+        baseGrad.addColorStop(0.5, 'rgba(18, 20, 24, 0.5)');
+        baseGrad.addColorStop(1, 'rgba(8, 9, 10, 0.5)');
+        ctx.fillStyle = baseGrad;
+        ctx.fillRect(0, 0, logicalW, logicalH);
       }
-      ctx.fillStyle = baseGrad;
-      ctx.fillRect(0, 0, logicalW, logicalH);
 
       // ── 2. Fluid Undulating Silk Folds ──
       const cols = 6;
@@ -207,13 +202,13 @@ export const LiquidSilkBackground: React.FC<LiquidSilkBackgroundProps> = ({
   }, [intensity, speed, theme, interactive]);
 
   return (
-    <div className={`absolute inset-0 pointer-events-none overflow-hidden select-none bg-[#f4f6f8] dark:bg-[#0a0b0d] ${className}`}>
+    <div className={`absolute inset-0 pointer-events-none overflow-hidden select-none bg-transparent ${className}`}>
       <canvas
         ref={canvasRef}
-        className="w-full h-full block opacity-100"
+        className="w-full h-full block opacity-75"
       />
       {/* Subtle organic satin sheen film */}
-      <div className="absolute inset-0 bg-gradient-to-tr from-white/30 via-transparent to-white/40 mix-blend-overlay pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-tr from-white/10 via-transparent to-white/15 mix-blend-overlay pointer-events-none" />
     </div>
   );
 };

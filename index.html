@@ -28,28 +28,35 @@
     <meta name="twitter:image" content="/mobile-preview-v17.webp">
 
     <script>
-      // Pre-mount theme application — prevents FOUC on cold boot
+      // Pre-mount theme application — prevents FOUC on cold boot across Android and iOS
       (function() {
         var theme = 'dark';
         try { 
-          var s = localStorage.getItem('o1fc_theme_preference') || localStorage.getItem('theme'); 
+          var s = localStorage.getItem('o1fc_theme_preference') || 
+                  localStorage.getItem('o1fc_theme') || 
+                  localStorage.getItem('theme'); 
           if (s === 'light' || s === 'dark') theme = s;
           else if (s === 'system') {
             theme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
           }
         } catch(e) {}
         var html = document.documentElement;
-        if (theme === 'dark') {
+        var isDark = theme === 'dark';
+        if (isDark) {
           html.classList.add('dark');
           html.style.backgroundColor = '#000000';
         } else {
           html.classList.remove('dark');
           html.style.backgroundColor = '#FFFFFF';
         }
+        var metaTheme = document.querySelector('meta[name="theme-color"]');
+        if (metaTheme) {
+          metaTheme.setAttribute('content', isDark ? '#000000' : '#FFFFFF');
+        }
         document.addEventListener('DOMContentLoaded', function() {
           if (document.body) {
-            document.body.style.backgroundColor = theme === 'dark' ? '#000000' : '#FFFFFF';
-            if (theme === 'dark') {
+            document.body.style.backgroundColor = isDark ? '#000000' : '#FFFFFF';
+            if (isDark) {
               document.body.classList.add('dark');
             } else {
               document.body.classList.remove('dark');

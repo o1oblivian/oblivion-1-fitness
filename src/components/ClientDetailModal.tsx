@@ -62,7 +62,7 @@ export const ClientDetailModal: React.FC<ClientDetailModalProps> = ({
       onClick={onClose}
     >
       <div
-        className="w-full max-w-lg bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white rounded-t-[1.5rem] sm:rounded-2xl shadow-2xl border-t sm:border border-zinc-200/80/90 dark:border-zinc-800 flex flex-col max-h-[94vh] overflow-hidden"
+        className="w-full max-w-lg bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white rounded-t-[1.5rem] sm:rounded-2xl shadow-2xl border-t sm:border border-zinc-200/80/90 dark:border-zinc-800 flex flex-col max-h-[92dvh] sm:max-h-[90vh] overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header — sleek identity row */}
@@ -250,7 +250,7 @@ export const ClientDetailModal: React.FC<ClientDetailModalProps> = ({
         </div>
 
         {/* Feedback action bar */}
-        <div className="p-3 border-t border-zinc-200/80 dark:border-zinc-800 bg-white/90 dark:bg-zinc-900/90 space-y-2">
+        <div className="p-3 pb-[max(1.25rem,calc(env(safe-area-inset-bottom,0px)+0.875rem))] border-t border-zinc-200/80 dark:border-zinc-800 bg-white/90 dark:bg-zinc-900/90 space-y-2">
           <div className="flex gap-1.5">
             <input
               type="text"

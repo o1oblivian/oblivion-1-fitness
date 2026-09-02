@@ -379,7 +379,7 @@ export const ClientCommandCard: React.FC<ClientCommandCardProps> = ({
       onClick={handleClose}
     >
       <div
-        className={`w-full max-w-lg bg-[#F2F2F7] dark:bg-[#121214] text-zinc-900 dark:text-white rounded-t-3xl sm:rounded-3xl border border-neutral-200 dark:border-white/10 shadow-2xl max-h-[92vh] flex flex-col transition-transform duration-300 ${closing ? 'translate-y-full sm:scale-95' : 'translate-y-0 sm:scale-100'}`}
+        className={`w-full max-w-lg bg-[#F2F2F7] dark:bg-[#121214] text-zinc-900 dark:text-white rounded-t-3xl sm:rounded-3xl border border-neutral-200 dark:border-white/10 shadow-2xl max-h-[92dvh] sm:max-h-[90vh] flex flex-col transition-transform duration-300 ${closing ? 'translate-y-full sm:scale-95' : 'translate-y-0 sm:scale-100'}`}
         onClick={e => e.stopPropagation()}
       >
         {/* Hero Header -- Fixed Minimal Top Bar */}
@@ -409,7 +409,7 @@ export const ClientCommandCard: React.FC<ClientCommandCardProps> = ({
         </div>
 
         {/* Unified Scroll Body -- Smooth, Full Depth Scrolling for all Screen Sizes */}
-        <div className="flex-1 overflow-y-auto overscroll-contain px-5 py-4 space-y-3.5 min-h-0">
+        <div className="flex-1 overflow-y-auto overscroll-contain px-5 py-4 pb-[max(2.5rem,calc(env(safe-area-inset-bottom,0px)+2rem))] space-y-3.5 min-h-0">
 
           {/* Quick Stats Grid */}
           <div className="grid grid-cols-4 gap-2">

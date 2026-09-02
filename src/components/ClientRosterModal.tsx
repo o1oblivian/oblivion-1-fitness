@@ -71,7 +71,7 @@ export const ClientRosterModal: React.FC<ClientRosterModalProps> = ({
       onClick={onClose}
     >
       <div
-        className="w-full max-w-lg bg-[#FFFFFF] dark:bg-[#121214] text-zinc-900 dark:text-white rounded-2xl shadow-2xl border border-zinc-200/80 dark:border-white/10 flex flex-col max-h-[88vh] overflow-hidden my-auto"
+        className="w-full max-w-lg bg-[#FFFFFF] dark:bg-[#121214] text-zinc-900 dark:text-white rounded-2xl shadow-2xl border border-zinc-200/80 dark:border-white/10 flex flex-col max-h-[92dvh] sm:max-h-[88vh] overflow-hidden my-auto"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -262,7 +262,7 @@ export const ClientRosterModal: React.FC<ClientRosterModalProps> = ({
         </div>
 
         {/* Footer Actions */}
-        <div className="p-3.5 border-t border-zinc-200/80 dark:border-white/10 bg-white dark:bg-[#161618] flex items-center gap-2.5">
+        <div className="p-3.5 pb-[max(1.25rem,calc(env(safe-area-inset-bottom,0px)+0.875rem))] border-t border-zinc-200/80 dark:border-white/10 bg-white dark:bg-[#161618] flex items-center gap-2.5">
           <button
             type="button"
             onClick={onClose}

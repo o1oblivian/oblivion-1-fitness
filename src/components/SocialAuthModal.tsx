@@ -232,17 +232,16 @@ export const SocialAuthModal: React.FC<SocialAuthModalProps> = ({
 
   return (
     <div
-      className="fixed inset-0 z-[300] bg-slate-900/30 dark:bg-black/70 backdrop-blur-xl overflow-y-auto font-mono flex items-center justify-center p-3 sm:p-5 relative"
+      className="fixed inset-0 z-[300] bg-transparent backdrop-blur-xl overflow-y-auto font-mono flex items-center justify-center p-3 sm:p-5 relative"
     >
-      {/* Light Liquid Silk Ambient Dynamic Simulation */}
-      <LiquidSilkBackground theme="light" intensity={1.1} speed={1.0} />
+      {/* Light Liquid Silk Ambient Dynamic Simulation - Removed for 100% transparent background */}
 
       <div
-        className="bg-white/95 dark:bg-[#0D0F14]/95 text-[#000000] dark:text-white border border-white/80 dark:border-white/10 p-5 sm:p-6 w-full max-w-lg rounded-3xl space-y-4 shadow-[0_25px_70px_rgba(0,0,0,0.2)] relative z-10 select-none animate-fadeIn my-auto"
+        className="bg-black/50 text-white border border-white/15 p-5 sm:p-6 w-full max-w-lg rounded-3xl space-y-4 shadow-[0_25px_70px_rgba(0,0,0,0.4)] backdrop-blur-2xl relative z-10 select-none animate-fadeIn my-auto"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Top Header Row */}
-        <div className="flex items-start justify-between border-b border-[rgba(0,0,0,0.08)] dark:border-white/10 pb-3">
+        <div className="flex items-start justify-between border-b border-white/10 pb-3">
           <div className="flex items-center gap-3">
             <div className={`p-2 rounded-xl border ${details.bgColor} ${details.borderColor} shrink-0`}>
               {details.icon}

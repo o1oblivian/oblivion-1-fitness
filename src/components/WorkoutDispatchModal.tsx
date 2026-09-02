@@ -2468,45 +2468,61 @@ export const WorkoutDispatchModal: React.FC<WorkoutDispatchModalProps> = ({
 
             {/* Unified Client List Container */}
             <div className="bg-[#F2F2F7]/50 dark:bg-white/[0.02] border border-zinc-200 dark:border-white/10 rounded-xl divide-y divide-zinc-200/60 dark:divide-white/5 overflow-y-auto max-h-[50vh] sm:max-h-60 hide-scrollbar">
-              {Object.entries(clients)
-                .filter(([k, athlete]) =>
+              {Object.keys(clients).length === 0 ? (
+                <div className="p-6 text-center text-zinc-500 dark:text-zinc-400 space-y-1">
+                  <div className="text-xs font-semibold text-zinc-800 dark:text-zinc-200">No Live Athletes Yet</div>
+                  <p className="text-[11px] leading-relaxed">
+                    Athletes who join via your Coach Link will appear here automatically.
+                  </p>
+                </div>
+              ) : Object.entries(clients).filter(([k, athlete]) =>
                   (athlete?.name || k).toLowerCase().includes(clientSearchQuery.toLowerCase()) ||
                   (athlete?.handle || '').toLowerCase().includes(clientSearchQuery.toLowerCase())
-                )
-                .map(([k, athlete]) => {
-                  const isSelected = selectedClientKeys.includes(k);
-                  return (
-                    <div
-                      key={k}
-                      onClick={() => {
-                        setSelectedClientKeys((prev) =>
-                          isSelected ? prev.filter((id) => id !== k) : [...prev, k]
-                        );
-                      }}
-                      className={`px-3 py-2 cursor-pointer flex items-center justify-between transition-colors text-xs ${
-                        isSelected
-                          ? 'bg-zinc-200/90 dark:bg-white/10 text-zinc-900 dark:text-white'
-                          : 'hover:bg-zinc-200/50 dark:hover:bg-white/5 text-zinc-700 dark:text-zinc-300'
-                      }`}
-                    >
-                      <div className="min-w-0 pr-2">
-                        <div className="font-semibold text-zinc-900 dark:text-white truncate">{athlete?.name || k}</div>
-                        <div className="text-[10px] text-zinc-500 dark:text-zinc-400 truncate leading-tight mt-0.5">
-                          {athlete?.handle || `@${k}`} {athlete?.badge ? `• ${athlete.badge}` : ''}
-                        </div>
-                      </div>
+                ).length === 0 ? (
+                <div className="p-4 text-center text-xs text-zinc-500 dark:text-zinc-400">
+                  No athletes match "{clientSearchQuery}"
+                </div>
+              ) : (
+                Object.entries(clients)
+                  .filter(([k, athlete]) =>
+                    (athlete?.name || k).toLowerCase().includes(clientSearchQuery.toLowerCase()) ||
+                    (athlete?.handle || '').toLowerCase().includes(clientSearchQuery.toLowerCase())
+                  )
+                  .map(([k, athlete]) => {
+                    const isSelected = selectedClientKeys.includes(k);
+                    return (
                       <div
-                        className={`w-4 h-4 rounded-md flex items-center justify-center text-xs shrink-0 transition-colors ${
+                        key={k}
+                        onClick={() => {
+                          setSelectedClientKeys((prev) =>
+                            isSelected ? prev.filter((id) => id !== k) : [...prev, k]
+                          );
+                        }}
+                        className={`px-3 py-2 cursor-pointer flex items-center justify-between transition-colors text-xs ${
                           isSelected
-                            ? 'bg-zinc-900 dark:bg-white text-white dark:text-black font-bold'
-                            : 'border border-zinc-300 dark:border-white/20'
+                            ? 'bg-zinc-200/90 dark:bg-white/10 text-zinc-900 dark:text-white'
+                            : 'hover:bg-zinc-200/50 dark:hover:bg-white/5 text-zinc-700 dark:text-zinc-300'
                         }`}
                       >
-                        {isSelected && <Check className="w-2.5 h-2.5 stroke-[3]" />}
+                        <div className="min-w-0 pr-2">
+                          <div className="font-semibold text-zinc-900 dark:text-white truncate">{athlete?.name || k}</div>
+                          <div className="text-[10px] text-zinc-500 dark:text-zinc-400 truncate leading-tight mt-0.5">
+                            {athlete?.handle || `@${k}`} {athlete?.badge ? `• ${athlete.badge}` : ''}
+                          </div>
+                        </div>
+                        <div
+                          className={`w-4 h-4 rounded-md flex items-center justify-center text-xs shrink-0 transition-colors ${
+                            isSelected
+                              ? 'bg-zinc-900 dark:bg-white text-white dark:text-black font-bold'
+                              : 'border border-zinc-300 dark:border-white/20'
+                          }`}
+                        >
+                          {isSelected && <Check className="w-2.5 h-2.5 stroke-[3]" />}
+                        </div>
                       </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })
+              )}
             </div>
 
             <button

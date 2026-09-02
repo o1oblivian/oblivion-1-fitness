@@ -444,6 +444,35 @@ export default function FitnessIntelligenceApp({
   }, []);
 
   // Coach Roster & Workout Dispatch States
+  const rosterClients = useCoachRosterStore((s) => s.clients);
+  const isDemoMode = useCoachRosterStore((s) => s.isDemoMode);
+
+  // Compute active roster dictionary matching Live vs Demo state
+  const activeRosterMap: Record<string, AthleteData> = useMemo(() => {
+    if (isDemoMode) {
+      return COACH_CLIENTS;
+    }
+    if (rosterClients.length > 0) {
+      return Object.fromEntries(
+        rosterClients.map((c) => [
+          c.id,
+          {
+            key: c.id,
+            name: c.name,
+            handle: c.handle,
+            avatar: c.avatar,
+            status: c.status,
+            badge: c.badge || 'ACTIVE',
+            volume: `${c.weeklyVolumeKg.toLocaleString()} KG`,
+            lastSeen: c.lastActive,
+            todayLog: [],
+            history: [],
+          },
+        ])
+      );
+    }
+    return {};
+  }, [rosterClients, isDemoMode]);
 
   const [isRosterModalOpen, setIsRosterModalOpen] = useState<boolean>(false);
   const [isDispatchModalOpen, setIsDispatchModalOpen] = useState<boolean>(false);
@@ -1017,7 +1046,7 @@ export default function FitnessIntelligenceApp({
         {activeTab === 'Coach' && (
           <div className="tab-view-enter">
             <CoachHubView
-              onOpen1MinBuilder={() => { setDispatchTargetKeys(Object.keys(COACH_CLIENTS)); setIsDispatchModalOpen(true); }}
+              onOpen1MinBuilder={() => { setDispatchTargetKeys(Object.keys(activeRosterMap)); setIsDispatchModalOpen(true); }}
               onOpenVault={() => setIsCoachVaultOpen(true)}
               onViewRoster={() => setIsRosterModalOpen(true)}
               onOpenPayPlan={() => setIsPayPlanOpen(true)}
@@ -1037,7 +1066,7 @@ export default function FitnessIntelligenceApp({
       <ClientRosterModal
         isOpen={isRosterModalOpen}
         onClose={() => setIsRosterModalOpen(false)}
-        clients={useCoachRosterStore.getState().isDemoMode || useCoachRosterStore.getState().clients.length === 0 ? COACH_CLIENTS : Object.fromEntries(useCoachRosterStore.getState().clients.map(c => [c.id, { key: c.id, name: c.name, handle: c.handle, avatar: c.avatar, status: c.status, badge: c.badge || 'ACTIVE', volume: `${c.weeklyVolumeKg.toLocaleString()} KG`, lastSeen: c.lastActive, todayLog: [], history: [] }]))}
+        clients={activeRosterMap}
         onOpenDispatchForClients={(keys) => {
           setDispatchTargetKeys(keys);
           setIsDispatchModalOpen(true);
@@ -1056,7 +1085,7 @@ export default function FitnessIntelligenceApp({
       <WorkoutDispatchModal
         isOpen={isDispatchModalOpen}
         onClose={() => setIsDispatchModalOpen(false)}
-        clients={useCoachRosterStore.getState().isDemoMode || useCoachRosterStore.getState().clients.length === 0 ? COACH_CLIENTS : Object.fromEntries(useCoachRosterStore.getState().clients.map(c => [c.id, { key: c.id, name: c.name, handle: c.handle, avatar: c.avatar, status: c.status, badge: c.badge || 'ACTIVE', volume: `${c.weeklyVolumeKg.toLocaleString()} KG`, lastSeen: c.lastActive, todayLog: [], history: [] }]))}
+        clients={activeRosterMap}
         initialSelectedClientKeys={dispatchTargetKeys}
         coachName={coachProfileData.name}
         onDispatchSuccess={(count) => {

@@ -425,8 +425,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         transition: 'opacity 0.3s ease, transform 0.3s ease',
       }}
     >
-      {/* Dynamic Ambient Background */}
-      <LiquidSilkBackground theme="light" intensity={1.1} speed={1.0} />
+      {/* Dynamic Ambient Background - 100% Transparent */}
+      {/* LiquidSilkBackground removed for pure 100% transparent backdrop */}
 
       {/* Header */}
       <header className="relative z-20 w-full max-w-md mx-auto flex items-center justify-end pb-2 min-h-[40px]">
@@ -434,16 +434,16 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           <button
             onClick={onClose}
             aria-label="Close"
-            className="w-9 h-9 rounded-full bg-zinc-100/90 dark:bg-zinc-800/90 hover:bg-zinc-200 dark:hover:bg-zinc-700 flex items-center justify-center text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-all cursor-pointer shadow-sm active:scale-95"
+            className="w-9 h-9 rounded-full bg-black/50 hover:bg-black/70 border border-white/10 flex items-center justify-center text-zinc-300 hover:text-white transition-all cursor-pointer shadow-sm active:scale-95"
           >
             <X className="w-4 h-4 stroke-[2]" />
           </button>
         )}
       </header>
 
-      {/* Main Glass Card */}
+      {/* Main Glass Card - 50% transparent black container */}
       <main className="relative z-10 w-full max-w-md mx-auto my-auto py-2">
-        <div className="w-full bg-white/95 dark:bg-[#121418]/95 backdrop-blur-2xl rounded-3xl p-6 sm:p-7 shadow-[0_25px_70px_rgba(0,0,0,0.15)] border border-white/80 dark:border-white/10">
+        <div className="w-full bg-black/50 backdrop-blur-2xl rounded-3xl p-6 sm:p-7 shadow-[0_25px_70px_rgba(0,0,0,0.4)] border border-white/15 text-white">
           
           {/* Inline Alert Banner */}
           {statusMessage && (
