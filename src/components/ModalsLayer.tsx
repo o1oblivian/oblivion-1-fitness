@@ -310,6 +310,8 @@ export function ModalsLayer({ s }: Props) {
         <SettingsPage
           isOpen={s.isEditProfileOpen}
           onClose={() => s.setIsEditProfileOpen(false)}
+          theme={s.theme}
+          onSelectThemeMode={s.setTheme}
           onOpenGymNetwork={() => {
             s.setModalOpenedFromSettings(true);
             s.setIsEditProfileOpen(false);

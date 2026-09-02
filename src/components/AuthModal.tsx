@@ -487,11 +487,13 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 transition={{ duration: 0.18 }}
                 className="space-y-5"
               >
-                <div className="text-center space-y-1 pb-1">
-                  <h1 className="text-2xl sm:text-3xl font-black uppercase tracking-[0.2em] text-zinc-900 dark:text-white leading-tight">
-                    OBLIVION 1 <span className="text-red-600">FC</span>
+                <div className="text-center space-y-1.5 pb-1">
+                  <h1 className="text-2xl sm:text-3xl font-[950] font-black uppercase tracking-[0.24em] text-stone-900 dark:text-[#FAF7F2] drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)] subpixel-antialiased select-none leading-none pt-1">
+                    OBLIVION 1 <span className="text-[#DC2626] dark:text-[#FF3B30] font-[950] tracking-[0.16em] drop-shadow-[0_0_16px_rgba(220,38,38,0.45)] ml-1">FC</span>
                   </h1>
-                  <p className="text-xs text-zinc-500 dark:text-zinc-400 font-medium">Training OS Pro • Fuel OS • Coach Hub</p>
+                  <p className="text-[11.5px] sm:text-xs font-semibold tracking-wider text-stone-500 dark:text-[#D8D2C4] uppercase pt-0.5">
+                    Training OS Pro <span className="text-red-500/80 px-1 font-bold">•</span> Fuel OS <span className="text-red-500/80 px-1 font-bold">•</span> Coach Hub
+                  </p>
                 </div>
 
                 {/* Segmented Switcher */}
@@ -654,11 +656,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 transition={{ duration: 0.18 }}
                 className="space-y-5"
               >
-                <div className="text-center space-y-1 pb-1">
-                  <h1 className="text-2xl sm:text-3xl font-black uppercase tracking-[0.2em] text-zinc-900 dark:text-white leading-tight">
-                    OBLIVION 1 <span className="text-red-600">FC</span>
+                <div className="text-center space-y-1.5 pb-1">
+                  <h1 className="text-2xl sm:text-3xl font-[950] font-black uppercase tracking-[0.24em] text-stone-900 dark:text-[#FAF7F2] drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)] subpixel-antialiased select-none leading-none pt-1">
+                    OBLIVION 1 <span className="text-[#DC2626] dark:text-[#FF3B30] font-[950] tracking-[0.16em] drop-shadow-[0_0_16px_rgba(220,38,38,0.45)] ml-1">FC</span>
                   </h1>
-                  <p className="text-xs text-zinc-500 dark:text-zinc-400 font-medium">New Membership Registration</p>
+                  <p className="text-[11.5px] sm:text-xs font-semibold tracking-wider text-stone-500 dark:text-[#D8D2C4] uppercase pt-0.5">New Membership Registration</p>
                 </div>
 
                 {/* Segmented Switcher */}

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { HistoryLogView } from './HistoryLogView';
 import { DualAvatarHeader } from './DualAvatarHeader';
 import { 
@@ -444,8 +444,7 @@ export default function FitnessIntelligenceApp({
   }, []);
 
   // Coach Roster & Workout Dispatch States
-  const rosterClients = useCoachRosterStore((s) => s.clients);
-  const isDemoMode = useCoachRosterStore((s) => s.isDemoMode);
+  const { clients: rosterClients, isDemoMode } = useCoachRosterStore();
 
   // Compute active roster dictionary matching Live vs Demo state
   const activeRosterMap: Record<string, AthleteData> = useMemo(() => {

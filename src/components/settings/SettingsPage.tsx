@@ -18,6 +18,8 @@ import { getSavedThemePreference, applyAndSaveTheme, DisplayTheme } from '../../
 interface SettingsPageProps {
   isOpen: boolean;
   onClose: () => void;
+  theme?: DisplayTheme;
+  onSelectThemeMode?: (mode: DisplayTheme) => void;
   onLogout?: () => void;
   onDeleteAccount?: (email: string) => void;
   onOpenPrivacy?: () => void;
@@ -35,6 +37,8 @@ interface SettingsPageProps {
 export function SettingsPage({
   isOpen,
   onClose,
+  theme,
+  onSelectThemeMode: propSelectThemeMode,
   onLogout,
   onDeleteAccount,
   onOpenGymNetwork,
@@ -53,7 +57,7 @@ export function SettingsPage({
 
   const [currentName, setCurrentName] = useState(profile.display_name || '');
   const [currentHandle, setCurrentHandle] = useState(profile.username || '');
-  const [themeMode, setThemeMode] = useState<DisplayTheme>(() => getSavedThemePreference());
+  const [themeMode, setThemeMode] = useState<DisplayTheme>(() => theme || getSavedThemePreference());
   const [inputMethod, setInputMethod] = useState<'dial' | 'numpad'>(() => {
     try {
       const s = localStorage.getItem('ofc_input_method');
@@ -61,6 +65,12 @@ export function SettingsPage({
     } catch {}
     return 'dial';
   });
+
+  useEffect(() => {
+    if (theme) {
+      setThemeMode(theme);
+    }
+  }, [theme]);
 
   useEffect(() => {
     if (isOpen) {
@@ -79,6 +89,9 @@ export function SettingsPage({
   const handleSelectThemeMode = (mode: DisplayTheme) => {
     setThemeMode(mode);
     applyAndSaveTheme(mode);
+    if (propSelectThemeMode) {
+      propSelectThemeMode(mode);
+    }
     updateProfile({ theme: mode });
   };
 

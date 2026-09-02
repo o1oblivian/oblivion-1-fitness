@@ -5,7 +5,6 @@ import {
   Bar,
   XAxis,
   YAxis,
-  Tooltip,
   Cell,
   CartesianGrid,
 } from 'recharts';
@@ -16,10 +15,7 @@ import {
   Dumbbell,
   Layers,
   Sparkles,
-  ChevronRight,
   TrendingUp,
-  X,
-  Zap,
 } from 'lucide-react';
 
 interface DayData {
@@ -54,7 +50,6 @@ export const WeeklyProgressChart: React.FC<WeeklyProgressChartProps> = ({
   currentDaySets,
 }) => {
   const [metric, setMetric] = useState<'volume' | 'sets'>('volume');
-  const [dayDetailModal, setDayDetailModal] = useState<DayData | null>(null);
 
   const daysList = [
     { short: 'Mon', full: 'Monday' },
@@ -78,61 +73,6 @@ export const WeeklyProgressChart: React.FC<WeeklyProgressChartProps> = ({
     legs_b: { volume: 9200, sets: 22, calories: 680, duration: 75, shortLabel: 'Legs B' },
     Rest: { volume: 0, sets: 0, calories: 120, duration: 25, shortLabel: 'Rest' },
     rest: { volume: 0, sets: 0, calories: 120, duration: 25, shortLabel: 'Rest' },
-  };
-
-  const exerciseBreakdownMap: Record<string, { name: string; setsReps: string; weight: string }[]> = {
-    push_a: [
-      { name: 'Barbell Bench Press', setsReps: '4 sets × 8 reps', weight: '85 kg' },
-      { name: 'Incline Dumbbell Press', setsReps: '3 sets × 10 reps', weight: '32 kg' },
-      { name: 'Standing Overhead Press', setsReps: '3 sets × 8 reps', weight: '55 kg' },
-      { name: 'Cable Chest Flyes', setsReps: '3 sets × 12 reps', weight: '18 kg' },
-      { name: 'Tricep Rope Pushdowns', setsReps: '3 sets × 12 reps', weight: '28 kg' },
-    ],
-    pull_a: [
-      { name: 'Conventional Deadlift', setsReps: '4 sets × 5 reps', weight: '140 kg' },
-      { name: 'Wide-Grip Lat Pulldown', setsReps: '4 sets × 10 reps', weight: '70 kg' },
-      { name: 'Seated Cable Row', setsReps: '3 sets × 12 reps', weight: '65 kg' },
-      { name: 'Face Pulls', setsReps: '3 sets × 15 reps', weight: '22 kg' },
-      { name: 'EZ-Bar Bicep Curls', setsReps: '4 sets × 10 reps', weight: '35 kg' },
-    ],
-    legs_a: [
-      { name: 'Barbell Back Squat', setsReps: '4 sets × 6 reps', weight: '120 kg' },
-      { name: 'Romanian Deadlift', setsReps: '4 sets × 8 reps', weight: '100 kg' },
-      { name: 'Leg Press 45°', setsReps: '4 sets × 12 reps', weight: '220 kg' },
-      { name: 'Standing Calf Raises', setsReps: '4 sets × 15 reps', weight: '80 kg' },
-      { name: 'Hanging Leg Raises', setsReps: '4 sets × 15 reps', weight: 'Bodyweight' },
-    ],
-    push_b: [
-      { name: 'Incline Barbell Bench Press', setsReps: '4 sets × 8 reps', weight: '75 kg' },
-      { name: 'Flat Dumbbell Press', setsReps: '3 sets × 10 reps', weight: '34 kg' },
-      { name: 'Dumbbell Lateral Raises', setsReps: '4 sets × 15 reps', weight: '14 kg' },
-      { name: 'Skullcrushers (EZ Bar)', setsReps: '3 sets × 10 reps', weight: '32 kg' },
-      { name: 'Cable Kickbacks', setsReps: '3 sets × 12 reps', weight: '12 kg' },
-    ],
-    pull_b: [
-      { name: 'Weighted Pull-Ups', setsReps: '4 sets × 6 reps', weight: '+15 kg' },
-      { name: 'Barbell Bent Over Row', setsReps: '4 sets × 8 reps', weight: '80 kg' },
-      { name: 'Single-Arm DB Row', setsReps: '3 sets × 10 reps', weight: '38 kg' },
-      { name: 'Incline Dumbbell Curls', setsReps: '3 sets × 12 reps', weight: '16 kg' },
-      { name: 'Reverse Pec Deck Flyes', setsReps: '3 sets × 15 reps', weight: '45 kg' },
-    ],
-    legs_b: [
-      { name: 'Walking Dumbbell Lunges', setsReps: '4 sets × 12 steps', weight: '24 kg' },
-      { name: 'Lying Hamstring Curls', setsReps: '4 sets × 12 reps', weight: '55 kg' },
-      { name: 'Leg Extensions', setsReps: '4 sets × 15 reps', weight: '65 kg' },
-      { name: 'Seated Calf Raises', setsReps: '4 sets × 15 reps', weight: '60 kg' },
-      { name: 'Ab Wheel Rollouts', setsReps: '3 sets × 12 reps', weight: 'Bodyweight' },
-    ],
-    Rest: [
-      { name: 'Mobility & Foam Rolling', setsReps: '1 session', weight: '20 mins' },
-      { name: 'Light Zone 2 Cardio Walk', setsReps: '8,000 steps', weight: '30 mins' },
-      { name: 'Diaphragmatic Breathing', setsReps: '1 session', weight: '10 mins' },
-    ],
-    rest: [
-      { name: 'Mobility & Foam Rolling', setsReps: '1 session', weight: '20 mins' },
-      { name: 'Light Zone 2 Cardio Walk', setsReps: '8,000 steps', weight: '30 mins' },
-      { name: 'Diaphragmatic Breathing', setsReps: '1 session', weight: '10 mins' },
-    ],
   };
 
   const chartData: DayData[] = daysList.map(({ short, full }) => {
@@ -210,52 +150,6 @@ export const WeeklyProgressChart: React.FC<WeeklyProgressChartProps> = ({
 
   const handleBarClick = (data: DayData) => {
     onSelectDay(data.day);
-  };
-
-  const CustomTooltip = ({ active, payload }: any) => {
-    if (active && payload && payload.length) {
-      const data: DayData = payload[0].payload;
-      return (
-        <div className="bg-white/95 dark:bg-zinc-900/95 backdrop-blur-xl border border-slate-200 dark:border-white/15 p-3 rounded-2xl shadow-xl font-sans min-w-[170px] z-50 animate-in fade-in duration-150">
-          <div className="flex items-center justify-between gap-2 mb-1">
-            <span className="text-xs font-bold text-slate-900 dark:text-white font-mono">{data.fullDay}</span>
-            <span
-              className={`text-[9px] font-bold px-1.5 py-0.5 rounded-md uppercase font-mono ${
-                data.isRest
-                  ? 'bg-slate-100 dark:bg-white/10 text-slate-500 dark:text-zinc-400'
-                  : 'bg-red-500/15 text-red-600 dark:text-red-400 border border-red-500/20'
-              }`}
-            >
-              {data.routineShort}
-            </span>
-          </div>
-          <div className="text-[11px] text-slate-600 dark:text-zinc-300 font-medium mb-2 truncate">
-            {data.routine}
-          </div>
-          <div className="space-y-1.5 font-mono text-xs pt-1.5 border-t border-slate-100 dark:border-white/10">
-            <div className="flex justify-between items-center text-slate-700 dark:text-zinc-300">
-              <span className="text-[10px] text-slate-400 dark:text-zinc-500">Logged Vol:</span>
-              <span className="font-bold text-slate-900 dark:text-white">
-                {data.volume > 0 ? `${data.volume.toLocaleString()} kg` : '0 kg'}
-              </span>
-            </div>
-            <div className="flex justify-between items-center text-slate-700 dark:text-zinc-300">
-              <span className="text-[10px] text-slate-400 dark:text-zinc-500">Target Vol:</span>
-              <span className="font-medium text-slate-500 dark:text-zinc-400">
-                {data.targetVolume.toLocaleString()} kg
-              </span>
-            </div>
-            <div className="flex justify-between items-center text-slate-700 dark:text-zinc-300">
-              <span className="text-[10px] text-slate-400 dark:text-zinc-500">Working Sets:</span>
-              <span className="font-bold text-red-500 dark:text-red-400">
-                {data.sets} / {data.targetSets}
-              </span>
-            </div>
-          </div>
-        </div>
-      );
-    }
-    return null;
   };
 
   // Determine the highest value to scale the chart dynamically
@@ -369,7 +263,6 @@ export const WeeklyProgressChart: React.FC<WeeklyProgressChartProps> = ({
                   : `${val}`
               }
             />
-            <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(66, 133, 244, 0.06)' }} />
 
             {/* Target Blueprint Ghost Bar */}
             <Bar
@@ -404,8 +297,8 @@ export const WeeklyProgressChart: React.FC<WeeklyProgressChartProps> = ({
         </ResponsiveContainer>
       </div>
 
-      {/* ── UNIFIED DAY BUTTONS (Acts as X-Axis + Interactive Day Selector) ── */}
-      <div className="grid grid-cols-7 gap-1">
+      {/* ── UNIFIED DAY BUTTONS (Moved lower with dedicated spacing & subtle separator) ── */}
+      <div className="grid grid-cols-7 gap-1 sm:gap-1.5 mt-4 pt-2 border-t border-slate-100 dark:border-white/5">
         {chartData.map((d, index) => {
           const isSelected = d.day === selectedDay;
           const color = GOOGLE_COLORS[index % GOOGLE_COLORS.length];
@@ -414,9 +307,9 @@ export const WeeklyProgressChart: React.FC<WeeklyProgressChartProps> = ({
               key={d.day}
               type="button"
               onClick={() => onSelectDay(d.day)}
-              className={`py-1 px-0.5 rounded-lg border text-center transition-all cursor-pointer flex flex-col items-center justify-center gap-0.5 select-none ${
+              className={`py-1.5 px-0.5 rounded-lg border text-center transition-all cursor-pointer flex flex-col items-center justify-center gap-0.5 select-none ${
                 isSelected
-                  ? 'bg-slate-100 dark:bg-white/10 font-bold shadow-xs'
+                  ? 'bg-slate-100 dark:bg-white/10 font-bold shadow-xs scale-[1.02]'
                   : 'bg-slate-50 dark:bg-zinc-900/60 border-slate-200/80 dark:border-white/5 text-slate-600 dark:text-zinc-400 hover:border-slate-300 dark:hover:border-white/20'
               }`}
               style={{
@@ -445,7 +338,7 @@ export const WeeklyProgressChart: React.FC<WeeklyProgressChartProps> = ({
       </div>
 
       {/* ── SELECTED DAY INSPECTOR STRIP ── */}
-      <div className="flex items-center justify-between gap-2 p-2 rounded-xl bg-slate-50 dark:bg-zinc-900/80 border border-slate-200/90 dark:border-white/10 font-mono">
+      <div className="flex items-center justify-between gap-2 p-2 rounded-xl bg-slate-50 dark:bg-zinc-900/80 border border-slate-200/90 dark:border-white/10 font-mono mt-2.5">
         <div className="min-w-0 flex items-center gap-1.5">
           <div className="w-1.5 h-1.5 rounded-full bg-red-500 shrink-0" />
           <div className="min-w-0">
@@ -459,150 +352,19 @@ export const WeeklyProgressChart: React.FC<WeeklyProgressChartProps> = ({
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
-          <div className="hidden sm:flex items-center gap-2 text-[10px] text-slate-600 dark:text-zinc-400 pr-2 border-r border-slate-200 dark:border-white/10">
+          <div className="flex items-center gap-2 text-[10px] text-slate-600 dark:text-zinc-400">
             <span>
               <strong className="text-slate-900 dark:text-white font-mono">
                 {selectedDayData.volume > 0 ? `${selectedDayData.volume.toLocaleString()} kg` : `${selectedDayData.targetVolume.toLocaleString()} kg`}
               </strong>
             </span>
+            <span className="text-slate-300 dark:text-zinc-700">&bull;</span>
+            <span>
+              {selectedDayData.targetSets} sets
+            </span>
           </div>
-
-          <button
-            type="button"
-            onClick={() => setDayDetailModal(selectedDayData)}
-            className="px-3 py-1.5 rounded-lg bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold text-xs flex items-center gap-1 shadow-xs hover:opacity-90 active:scale-95 transition-all cursor-pointer"
-          >
-            <span>View Routine</span>
-            <ChevronRight className="w-3.5 h-3.5" />
-          </button>
         </div>
       </div>
-
-      {/* ── ROUTINE PREVIEW MODAL ── */}
-      {dayDetailModal && (
-        <div
-          className="fixed inset-0 z-[220] flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md overflow-y-auto animate-in fade-in duration-150"
-          onClick={() => setDayDetailModal(null)}
-        >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            className="bg-white dark:bg-zinc-950 text-slate-900 dark:text-white w-full max-w-md max-h-[85dvh] sm:max-h-[80vh] rounded-3xl shadow-2xl border border-slate-200 dark:border-white/15 flex flex-col overflow-hidden animate-in zoom-in-95 duration-150 my-auto"
-          >
-            {/* Mobile Grab Handle Bar */}
-            <div className="w-12 h-1 rounded-full bg-slate-300 dark:bg-zinc-700 mx-auto mt-2 sm:hidden shrink-0" />
-
-            {/* Modal Header */}
-            <div className="flex justify-between items-center px-5 py-3.5 border-b border-slate-200/80 dark:border-white/10 shrink-0">
-              <div className="min-w-0 space-y-0.5">
-                <div className="flex items-center gap-2">
-                  <span className="text-[11px] font-mono font-bold text-red-600 dark:text-red-400 uppercase">
-                    {dayDetailModal.day} • {dayDetailModal.routineShort}
-                  </span>
-                  <span className="text-[10px] text-zinc-400 dark:text-zinc-500 font-medium">
-                    &middot;
-                  </span>
-                  <span
-                    className={`text-[10px] font-semibold ${
-                      dayDetailModal.isRest
-                        ? 'text-slate-500 dark:text-zinc-400'
-                        : 'text-emerald-600 dark:text-emerald-400'
-                    }`}
-                  >
-                    {dayDetailModal.status}
-                  </span>
-                </div>
-                <h3 className="text-sm font-bold text-slate-900 dark:text-white truncate">
-                  {dayDetailModal.routine}
-                </h3>
-              </div>
-              <button
-                type="button"
-                onClick={() => setDayDetailModal(null)}
-                className="btn-nude-close shrink-0"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            {/* Quick Metrics Strip */}
-            <div className="grid grid-cols-4 gap-2 px-4 py-2.5 bg-slate-100/70 dark:bg-zinc-900/40 border-b border-slate-200 dark:border-white/10 font-mono text-center shrink-0">
-              <div>
-                <div className="text-[9px] text-slate-400 dark:text-zinc-500 uppercase">Target Vol</div>
-                <div className="text-xs font-black text-slate-900 dark:text-white">
-                  {(dayDetailModal.targetVolume / 1000).toFixed(1)}k kg
-                </div>
-              </div>
-              <div>
-                <div className="text-[9px] text-slate-400 dark:text-zinc-500 uppercase">Sets</div>
-                <div className="text-xs font-black text-red-500 dark:text-red-400">
-                  {dayDetailModal.targetSets}
-                </div>
-              </div>
-              <div>
-                <div className="text-[9px] text-slate-400 dark:text-zinc-500 uppercase">Est Burn</div>
-                <div className="text-xs font-black text-amber-500">{dayDetailModal.calories} kcal</div>
-              </div>
-              <div>
-                <div className="text-[9px] text-slate-400 dark:text-zinc-500 uppercase">Time</div>
-                <div className="text-xs font-black text-slate-700 dark:text-zinc-300">
-                  {dayDetailModal.durationMins}m
-                </div>
-              </div>
-            </div>
-
-            {/* Exercise List - Scrollable */}
-            <div className="flex-1 overflow-y-auto min-h-0 px-4 py-3 space-y-2 overscroll-contain touch-pan-y">
-              <div className="text-[10px] font-mono font-bold text-slate-400 dark:text-zinc-500 uppercase tracking-wider px-0.5">
-                Choreographed Movements ({exerciseBreakdownMap[dayDetailModal.routineKey]?.length || 0})
-              </div>
-              <div className="space-y-1.5 pb-2">
-                {(exerciseBreakdownMap[dayDetailModal.routineKey] || exerciseBreakdownMap['Rest']).map(
-                  (ex, i) => (
-                    <div
-                      key={i}
-                      className="p-2.5 bg-slate-50 dark:bg-zinc-900/90 rounded-xl border border-slate-200/90 dark:border-white/10 flex justify-between items-center hover:border-slate-300 dark:hover:border-white/20 transition-colors"
-                    >
-                      <div className="min-w-0 flex-1">
-                        <div className="font-bold text-xs text-slate-900 dark:text-white truncate">
-                          {ex.name}
-                        </div>
-                        <div className="text-[11px] text-slate-500 dark:text-zinc-400 font-mono">
-                          {ex.setsReps}
-                        </div>
-                      </div>
-                      <span className="text-[11px] font-mono font-bold text-slate-800 dark:text-zinc-200 bg-white dark:bg-white/10 px-2 py-0.5 rounded-lg border border-slate-200 dark:border-white/10 shrink-0 ml-2 shadow-2xs">
-                        {ex.weight}
-                      </span>
-                    </div>
-                  )
-                )}
-              </div>
-            </div>
-
-            {/* Modal Actions - Pinned at bottom */}
-            <div className="flex gap-2.5 px-4 py-3 border-t border-slate-200 dark:border-white/10 bg-slate-50/80 dark:bg-zinc-900/50 backdrop-blur-sm shrink-0">
-              <button
-                type="button"
-                onClick={() => setDayDetailModal(null)}
-                className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-white/10 dark:hover:bg-white/15 text-slate-700 dark:text-zinc-300 font-bold rounded-xl text-xs transition-colors cursor-pointer"
-              >
-                Close
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  onSelectDay(dayDetailModal.day);
-                  setDayDetailModal(null);
-                }}
-                className="flex-[1.8] py-2.5 bg-red-600 hover:bg-red-500 text-white font-extrabold rounded-xl text-xs shadow-md transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-98"
-              >
-                <Zap className="w-3.5 h-3.5" />
-                <span>Load {dayDetailModal.day} Routine</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
