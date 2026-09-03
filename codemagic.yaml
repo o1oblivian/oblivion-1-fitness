@@ -8,7 +8,7 @@ workflows:
       xcode: latest
       cocoapods: default
       groups:
-        - app_store_credentials # Optional: define in Codemagic UI for automatic signing & publishing
+        - app_store_credentials
     scripts:
       - name: Install dependencies
         script: |
@@ -19,18 +19,27 @@ workflows:
       - name: Sync Capacitor iOS
         script: |
           npx cap sync ios
-      - name: Install CocoaPods
+      - name: Install CocoaPods (if Podfile exists)
         script: |
-          cd ios/App && pod install
+          if [ -f "ios/App/Podfile" ]; then
+            cd ios/App && pod install
+          else
+            echo "Swift Package Manager (SPM) detected; skipping CocoaPods installation."
+          fi
       - name: Set up code signing
         script: |
-          # If App Store credentials are set up in Codemagic, this automatically signs the app
-          xcode-project use-profiles || echo "Skipping profile installation (configure in Codemagic for signed builds)"
+          xcode-project use-profiles || echo "Skipping profile installation"
       - name: Build iOS App
         script: |
-          xcode-project build-ipa \
-            --workspace "$CM_BUILD_DIR/ios/App/App.xcworkspace" \
-            --scheme "App"
+          if [ -d "$CM_BUILD_DIR/ios/App/App.xcworkspace" ]; then
+            xcode-project build-ipa \
+              --workspace "$CM_BUILD_DIR/ios/App/App.xcworkspace" \
+              --scheme "App"
+          else
+            xcode-project build-ipa \
+              --project "$CM_BUILD_DIR/ios/App/App.xcodeproj" \
+              --scheme "App"
+          fi
     artifacts:
       - build/ios/ipa/*.ipa
       - /tmp/xcodebuild_logs/*.log
