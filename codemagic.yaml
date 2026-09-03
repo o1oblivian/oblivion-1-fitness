@@ -7,9 +7,6 @@ workflows:
       node: latest
       xcode: latest
       cocoapods: default
-      ios_signing:
-        distribution_type: app_store
-        bundle_identifier: com.o1fc.fitness
       groups:
         - app_store_credentials
     scripts:
@@ -40,9 +37,11 @@ workflows:
             app-store-connect fetch-signing-files "com.o1fc.fitness" \
               --type IOS_APP_STORE \
               --create || true
+            keychain add-certificates || true
+            xcode-project use-profiles || true
+          else
+            echo "App Store Connect API credentials not found in environment. Proceeding to build without manual certificate..."
           fi
-          keychain add-certificates || true
-          xcode-project use-profiles || true
       - name: Build iOS App
         script: |
           PROJECT_ARG="--project $CM_BUILD_DIR/ios/App/App.xcodeproj"
@@ -55,15 +54,20 @@ workflows:
             echo "Provisioning profile detected. Building signed IPA..."
             xcode-project build-ipa $PROJECT_ARG --scheme "App"
           else
-            echo "No provisioning profile found in $PROFILES_DIR."
-            echo "Attempting standard signed build first..."
-            xcode-project build-ipa $PROJECT_ARG --scheme "App" || {
-              echo "Signed build failed due to missing credentials. Building with signing disabled to verify Xcode compilation..."
-              xcode-project build-ipa $PROJECT_ARG --scheme "App" --archive-xcargs "CODE_SIGNING_ALLOWED=NO CODE_SIGN_IDENTITY='' CODE_SIGNING_REQUIRED=NO"
-            }
+            echo "No local provisioning profile found. Building without code signing to verify full build..."
+            xcodebuild \
+              -project "$CM_BUILD_DIR/ios/App/App.xcodeproj" \
+              -scheme "App" \
+              -destination "generic/platform=iOS" \
+              -archivePath "$CM_BUILD_DIR/build/ios/xcarchive/App.xcarchive" \
+              archive \
+              CODE_SIGNING_ALLOWED=NO \
+              CODE_SIGNING_REQUIRED=NO \
+              CODE_SIGN_IDENTITY=""
           fi
     artifacts:
       - build/ios/ipa/*.ipa
+      - build/ios/xcarchive/*.xcarchive
       - /tmp/xcodebuild_logs/*.log
     publishing:
       email:
