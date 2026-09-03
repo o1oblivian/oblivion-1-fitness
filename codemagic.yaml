@@ -9,7 +9,7 @@ workflows:
       cocoapods: default
       ios_signing:
         distribution_type: app_store
-        bundle_identifier: com.ofc.fitness
+        bundle_identifier: com.o1fc.fitness
       groups:
         - app_store_credentials
     scripts:
@@ -37,7 +37,7 @@ workflows:
           keychain initialize
           if [ -n "$APP_STORE_CONNECT_PRIVATE_KEY" ] || [ -n "$APP_STORE_CONNECT_KEY_IDENTIFIER" ]; then
             echo "Fetching signing files via App Store Connect API..."
-            app-store-connect fetch-signing-files "com.ofc.fitness" \
+            app-store-connect fetch-signing-files "com.o1fc.fitness" \
               --type IOS_APP_STORE \
               --create || true
           fi
@@ -55,9 +55,10 @@ workflows:
             echo "Provisioning profile detected. Building signed IPA..."
             xcode-project build-ipa $PROJECT_ARG --scheme "App"
           else
+            echo "No provisioning profile found in $PROFILES_DIR."
             echo "Attempting standard signed build first..."
             xcode-project build-ipa $PROJECT_ARG --scheme "App" || {
-              echo "Signed build failed due to missing credentials. Building with signing fallback to verify archive..."
+              echo "Signed build failed due to missing credentials. Building with signing disabled to verify Xcode compilation..."
               xcode-project build-ipa $PROJECT_ARG --scheme "App" --archive-xcargs "CODE_SIGNING_ALLOWED=NO CODE_SIGN_IDENTITY='' CODE_SIGNING_REQUIRED=NO"
             }
           fi

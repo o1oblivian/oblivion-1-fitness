@@ -42,7 +42,7 @@ export function registerAndroidBackButton(fallbackHandler?: () => boolean | void
 }
 
 /**
- * Register deep-link handler for OAuth and payment return URLs (e.g., com.ofc.fitness://)
+ * Register deep-link handler for OAuth and payment return URLs (e.g., com.o1fc.fitness://)
  */
 export function registerAppUrlListener(handler: (event: URLOpenListenerEvent) => void): () => void {
   if (!isNativePlatform()) {

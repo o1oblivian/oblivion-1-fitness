@@ -1,7 +1,7 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.ofc.fitness',
+  appId: 'com.o1fc.fitness',
   appName: 'Oblivion 1 Fitness Club',
   webDir: 'dist',
   server: {
