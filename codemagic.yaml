@@ -4,15 +4,26 @@ workflows:
     max_build_duration: 60
     instance_type: mac_mini_m2
     environment:
-      node: latest
-      xcode: latest
-      cocoapods: default
       groups:
         - app_store_credentials
+      vars:
+        XCODE_WORKSPACE: "ios/App/App.xcworkspace"
+        XCODE_SCHEME: "App"
+        BUNDLE_ID: "com.o1fc.fitness"
+      node: 20
+      xcode: latest
+      cocoapods: default
+    triggering:
+      events:
+        - push
+      branch_patterns:
+        - pattern: 'main'
+          include: true
+          source: true
     scripts:
       - name: Install dependencies
         script: |
-          npm install --legacy-peer-deps
+          npm ci --legacy-peer-deps || npm install --legacy-peer-deps
       - name: Build web application
         script: |
           npm run build
@@ -21,58 +32,40 @@ workflows:
           npx cap sync ios
       - name: Install CocoaPods (if Podfile exists)
         script: |
-          if [ -f "ios/App/Podfile" ]; then
-            cd ios/App && pod install
-          else
-            echo "Swift Package Manager (SPM) detected; skipping CocoaPods installation."
+          cd ios/App
+          if [ -f "Podfile" ]; then
+            pod install --repo-update
           fi
-      - name: Resolve Swift Package dependencies
-        script: |
-          xcodebuild -resolvePackageDependencies -project ios/App/App.xcodeproj
       - name: Set up code signing
         script: |
           keychain initialize
-          if [ -n "$APP_STORE_CONNECT_PRIVATE_KEY" ] || [ -n "$APP_STORE_CONNECT_KEY_IDENTIFIER" ]; then
-            echo "Fetching signing files via App Store Connect API..."
-            app-store-connect fetch-signing-files "com.o1fc.fitness" \
-              --type IOS_APP_STORE \
-              --create || true
-            keychain add-certificates || true
-            xcode-project use-profiles || true
-          else
-            echo "App Store Connect API credentials not found in environment. Proceeding to build without manual certificate..."
+          if [ -n "$CERT_P12" ]; then
+            echo "$CERT_P12" | base64 --decode > /tmp/cert.p12
+            keychain add-certificates --certificate /tmp/cert.p12 ${CERT_PASSWORD:+--certificate-password "$CERT_PASSWORD"}
           fi
+          if [ -n "$PROFILE_BASE64" ]; then
+            PROFILES_HOME="$HOME/Library/MobileDevice/Provisioning Profiles"
+            mkdir -p "$PROFILES_HOME"
+            echo "$PROFILE_BASE64" | base64 --decode > "$PROFILES_HOME/app.mobileprovision"
+          fi
+          xcode-project use-profiles
       - name: Build iOS App
         script: |
-          PROJECT_ARG="--project $CM_BUILD_DIR/ios/App/App.xcodeproj"
-          if [ -d "$CM_BUILD_DIR/ios/App/App.xcworkspace" ]; then
-            PROJECT_ARG="--workspace $CM_BUILD_DIR/ios/App/App.xcworkspace"
-          fi
-
-          PROFILES_DIR="$HOME/Library/MobileDevice/Provisioning Profiles"
-          if [ -d "$PROFILES_DIR" ] && [ "$(ls -A "$PROFILES_DIR" 2>/dev/null)" ]; then
-            echo "Provisioning profile detected. Building signed IPA..."
-            xcode-project build-ipa $PROJECT_ARG --scheme "App"
-          else
-            echo "No local provisioning profile found. Building without code signing to verify full build..."
-            xcodebuild \
-              -project "$CM_BUILD_DIR/ios/App/App.xcodeproj" \
-              -scheme "App" \
-              -destination "generic/platform=iOS" \
-              -archivePath "$CM_BUILD_DIR/build/ios/xcarchive/App.xcarchive" \
-              archive \
-              CODE_SIGNING_ALLOWED=NO \
-              CODE_SIGNING_REQUIRED=NO \
-              CODE_SIGN_IDENTITY=""
-          fi
+          xcode-project build-ipa \
+            --workspace "$XCODE_WORKSPACE" \
+            --scheme "$XCODE_SCHEME"
     artifacts:
       - build/ios/ipa/*.ipa
-      - build/ios/xcarchive/*.xcarchive
       - /tmp/xcodebuild_logs/*.log
+      - $HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.app
+      - $HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.dSYM
     publishing:
       email:
         recipients:
           - o1oblivianfitness@gmail.com
         notify:
-          success: true
           failure: true
+          success: true
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true
