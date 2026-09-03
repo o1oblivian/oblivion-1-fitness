@@ -1,4 +1,5 @@
 import { supabase, isSupabaseConfigured } from './supabase';
+import { getLocalDateString } from './midnightRolloverEngine';
 import type { DailyMeals, LoggedMealItem } from '../types';
 
 const MEAL_TYPES = ['breakfast', 'lunch', 'dinner', 'snack', 'drinks'] as const;
@@ -86,6 +87,30 @@ async function saveMealsToCloudDirect(userEmail: string, meals: DailyMeals, logD
         await supabase.from('meal_logs').delete().in('id', toDelete);
       }
     }
+
+    // Sync calculated day totals to daily_macros table for analytics
+    let totalCals = 0;
+    let totalP = 0;
+    let totalC = 0;
+    let totalF = 0;
+    for (const r of rows) {
+      totalCals += Number(r.calories) || 0;
+      totalP += Number(r.protein) || 0;
+      totalC += Number(r.carbs) || 0;
+      totalF += Number(r.fat) || 0;
+    }
+    try {
+      await supabase.from('daily_macros').upsert({
+        user_email: email,
+        record_date: logDate,
+        calories: Math.round(totalCals),
+        protein: Math.round(totalP),
+        carbs: Math.round(totalC),
+        fat: Math.round(totalF),
+      }, { onConflict: 'user_email,record_date' });
+    } catch {
+      // Non-blocking fallback
+    }
   } else {
     const { error } = await supabase.from('meal_logs').delete().eq('user_email', email).eq('log_date', logDate);
     if (error) throw new Error(error.message);
@@ -94,7 +119,7 @@ async function saveMealsToCloudDirect(userEmail: string, meals: DailyMeals, logD
 
 export async function saveMealsToCloud(userEmail: string, meals: DailyMeals, logDate?: string): Promise<void> {
   if (!isSupabaseConfigured() || !userEmail) return;
-  const date = logDate || new Date().toISOString().split('T')[0];
+  const date = logDate || getLocalDateString();
 
   if (!navigator.onLine) {
     enqueueOfflineSave(userEmail, meals, date);
@@ -110,7 +135,7 @@ export async function saveMealsToCloud(userEmail: string, meals: DailyMeals, log
 
 export async function loadMealsFromCloud(userEmail: string, logDate?: string): Promise<DailyMeals | null> {
   if (!isSupabaseConfigured() || !userEmail) return null;
-  const date = logDate || new Date().toISOString().split('T')[0];
+  const date = logDate || getLocalDateString();
   const email = userEmail.toLowerCase();
 
   try {

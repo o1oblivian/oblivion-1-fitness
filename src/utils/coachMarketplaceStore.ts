@@ -159,14 +159,14 @@ export const VERIFIED_MARKETPLACE_COACHES: CoachMarketplaceProfile[] = [
     reviews: [
       {
         id: 'rev-s-1',
-        athleteName: 'Alex Rivera',
+        athleteName: 'Jordan Hayes',
         rating: 5.0,
         date: '5 days ago',
         programName: 'HYROX Race Ready Blueprint',
         prGain: 'HYROX Men Open: 1:12:40 -> 1:02:15 (-10m 25s)',
         comment: 'Sarah revolutionized my compromised running pacing. I didn’t redline on the sleds for the first time in 3 races. Sub-60 is definitely coming next!',
         verified: true,
-        coachResponse: 'Your wall ball breathing pacing was textbook on race day. Proud of you Alex!',
+        coachResponse: 'Your wall ball breathing pacing was textbook on race day. Proud of you Jordan!',
       },
       {
         id: 'rev-s-2',

@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { DailyMeals, LoggedMealItem, FoodItem } from '../../types';
-import { Mic, X, Check, Sparkles, Trash2, Clock, ChevronDown, Camera, Plus, Sunrise, Utensils, Moon, Coffee, Package } from 'lucide-react';
+import { Mic, X, Check, Sparkles, Trash2, Clock, ChevronDown, Camera, Plus, Sunrise, Utensils, Moon, Coffee, Package, RotateCcw } from 'lucide-react';
 import { parseFoodVoiceInput, wordsToNumbers } from '../../utils/voiceParser';
 import { matchFoodFromDB, extractQuantity, MatchedFood } from '../../utils/foodVoiceSearch';
 import { FoodCategoryIcon } from '../FoodCategoryIcon';
@@ -11,6 +11,7 @@ interface DailyFoodMealLogsProps {
   onOpenFoodModal: (meal: keyof DailyMeals) => void;
   onOpenScanModal: (meal: keyof DailyMeals) => void;
   onDeleteMealItem: (meal: keyof DailyMeals, id: string) => void;
+  onClearAllMeals?: () => void;
   onAddDirectMealItem?: (meal: keyof DailyMeals, item: LoggedMealItem) => void;
   recentFoods?: LoggedMealItem[];
 }
@@ -28,6 +29,7 @@ export const DailyFoodMealLogs: React.FC<DailyFoodMealLogsProps> = ({
   onOpenFoodModal,
   onOpenScanModal,
   onDeleteMealItem,
+  onClearAllMeals,
   onAddDirectMealItem,
   recentFoods = [],
 }) => {
@@ -36,6 +38,7 @@ export const DailyFoodMealLogs: React.FC<DailyFoodMealLogsProps> = ({
   const [matchedFoods, setMatchedFoods] = useState<MatchedFoodDisplay[]>([]);
   const [voiceHint, setVoiceHint] = useState('');
   const [collapsed, setCollapsed] = useState(false);
+  const [confirmReset, setConfirmReset] = useState(false);
   const recognitionRef = useRef<any>(null);
   const voiceActiveRef = useRef(false);
   const lastProcessedRef = useRef('');
@@ -493,10 +496,43 @@ export const DailyFoodMealLogs: React.FC<DailyFoodMealLogsProps> = ({
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between px-1">
-        <h3 className="text-[20px] sm:text-[22px] font-extrabold tracking-tight text-[#000000] dark:text-white flex items-center gap-2 cursor-pointer select-none" onClick={() => setCollapsed(!collapsed)}>
-          <span>Daily Food & Meal Logs</span>
-        </h3>
         <div className="flex items-center gap-2">
+          <h3 className="text-[20px] sm:text-[22px] font-extrabold tracking-tight text-[#000000] dark:text-white flex items-center gap-2 cursor-pointer select-none" onClick={() => setCollapsed(!collapsed)}>
+            <span>Daily Food & Meal Logs</span>
+          </h3>
+          <span className="text-[9.5px] font-mono font-bold tracking-wider px-2 py-0.5 rounded-md bg-zinc-100 dark:bg-white/5 text-zinc-500 dark:text-white/40 border border-zinc-200 dark:border-white/10 uppercase">
+            Today
+          </span>
+        </div>
+        <div className="flex items-center gap-2">
+          {totalIntakeCals > 0 && onClearAllMeals && (
+            confirmReset ? (
+              <div className="flex items-center gap-1 bg-red-500/10 border border-red-500/20 px-2 py-1 rounded-xl animate-fadeIn">
+                <span className="text-[10px] text-red-500 font-bold">Clear?</span>
+                <button
+                  onClick={() => { onClearAllMeals(); setConfirmReset(false); }}
+                  className="px-1.5 py-0.5 text-[9.5px] font-bold bg-red-600 text-white rounded hover:bg-red-700 cursor-pointer"
+                >
+                  Yes
+                </button>
+                <button
+                  onClick={() => setConfirmReset(false)}
+                  className="px-1.5 py-0.5 text-[9.5px] font-bold text-zinc-400 hover:text-zinc-200 cursor-pointer"
+                >
+                  No
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => setConfirmReset(true)}
+                title="Reset today's meals to fresh state"
+                className="h-6 px-2 rounded-lg bg-zinc-100 dark:bg-white/5 hover:bg-zinc-200 dark:hover:bg-white/10 text-zinc-500 dark:text-zinc-400 flex items-center gap-1 text-[10px] font-bold transition-all cursor-pointer"
+              >
+                <RotateCcw className="w-2.5 h-2.5" />
+                <span className="hidden sm:inline">Reset</span>
+              </button>
+            )
+          )}
           <span className="text-[10.5px] sm:text-[11px] font-bold tracking-wide px-1.5 py-0.5 rounded-xl bg-[#1A1E1D] dark:bg-white/10 text-white shadow-2xs uppercase">
             {totalIntakeCals} kcal Logged
           </span>

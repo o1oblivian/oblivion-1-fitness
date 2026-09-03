@@ -19,6 +19,7 @@ interface FuelViewProps {
   onOpenFoodModal: (meal: keyof DailyMeals) => void;
   onOpenScanModal: (meal: keyof DailyMeals) => void;
   onDeleteMealItem: (meal: keyof DailyMeals, id: string) => void;
+  onClearAllMeals?: () => void;
   onAddDirectMealItem?: (meal: keyof DailyMeals, item: LoggedMealItem) => void;
   bmr: number;
   setBmr: (bmr: number) => void;
@@ -47,6 +48,7 @@ export const FuelView: React.FC<FuelViewProps> = ({
   onOpenFoodModal,
   onOpenScanModal,
   onDeleteMealItem,
+  onClearAllMeals,
   onAddDirectMealItem,
   bmr,
   setBmr,
@@ -411,6 +413,7 @@ export const FuelView: React.FC<FuelViewProps> = ({
         onOpenFoodModal={onOpenFoodModal}
         onOpenScanModal={onOpenScanModal}
         onDeleteMealItem={onDeleteMealItem}
+        onClearAllMeals={onClearAllMeals}
         onAddDirectMealItem={onAddDirectMealItem}
         recentFoods={recentFoods}
       />

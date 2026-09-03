@@ -451,6 +451,7 @@ export default function App() {
                     onOpenFoodModal={(meal) => s.setFoodModalMeal(meal)}
                     onOpenScanModal={(meal) => s.setAiScanMeal(meal)}
                     onDeleteMealItem={s.handleDeleteMealItem}
+                    onClearAllMeals={s.handleClearAllMeals}
                     onAddDirectMealItem={s.handleAddDirectMealItem}
                     bmr={s.bmr} setBmr={s.setBmr}
                     goalCals={s.goalCals} setGoalCals={s.setGoalCals}

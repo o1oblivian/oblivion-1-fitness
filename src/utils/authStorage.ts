@@ -13,6 +13,8 @@ export interface UserAppState {
   weeklySchedule: Record<string, string>;
   activeLogs: ExerciseLog[];
   dailyMeals: DailyMeals;
+  mealsDate?: string;
+  activeLogsDate?: string;
   stepTarget: number;
   bmr: number;
   goalCals: number;
@@ -61,6 +63,7 @@ function getInitialAppState(name: string): UserAppState {
       Sun: 'Rest',
     },
     activeLogs: [],
+    activeLogsDate: new Date().toISOString().slice(0, 10),
     dailyMeals: {
       breakfast: [],
       lunch: [],
@@ -68,6 +71,7 @@ function getInitialAppState(name: string): UserAppState {
       snack: [],
       drinks: [],
     },
+    mealsDate: new Date().toISOString().slice(0, 10),
     stepTarget: 10000,
     bmr: 2000,
     goalCals: 3000,
@@ -163,37 +167,15 @@ export async function logoutUser(): Promise<void> {
 }
 
 function clearAllUserData(): void {
-  const keysToRemove: string[] = [];
+  // Clear only active transient session keys, NOT user accounts or profile preferences
+  localStorage.removeItem(SESSION_EMAIL_KEY);
+  localStorage.removeItem('lumina_current_user');
   for (let i = 0; i < localStorage.length; i++) {
     const key = localStorage.key(i);
-    if (!key) continue;
-    if (
-      key.startsWith('lumina_') ||
-      key.startsWith('o1fc_') ||
-      key.startsWith('sb-') ||
-      key.startsWith('workout_') ||
-      key.startsWith('meal_') ||
-      key.startsWith('steps_') ||
-      key.startsWith('sleep_') ||
-      key.startsWith('meditation_') ||
-      key.startsWith('tandem_') ||
-      key.startsWith('buddy_') ||
-      key.startsWith('coach_') ||
-      key.startsWith('dispatch_') ||
-      key.startsWith('program_') ||
-      key.startsWith('supplement_') ||
-      key.startsWith('wallpaper_') ||
-      key.startsWith('telemetry_') ||
-      key.startsWith('profile_') ||
-      key.startsWith('session_vault_') ||
-      key.startsWith('reminder_') ||
-      key.startsWith('hydration_') ||
-      key.startsWith('social_')
-    ) {
-      keysToRemove.push(key);
+    if (key && (key.startsWith('sb-') && key.endsWith('-auth-token'))) {
+      localStorage.removeItem(key);
     }
   }
-  keysToRemove.forEach((key) => localStorage.removeItem(key));
 }
 
 export async function getCurrentSessionEmail(): Promise<string | null> {

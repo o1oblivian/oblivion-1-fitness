@@ -207,7 +207,7 @@ const DEFAULT_CONFIG: PayoutFormData = {
   schedule: 'weekly',
   
   bankName: 'JPMorgan Chase',
-  accountHolder: 'Coach Alex Rivera',
+  accountHolder: 'O1FC Head Coach',
   routingNumber: '021000021',
   accountNumber: '4821',
   
@@ -218,7 +218,7 @@ const DEFAULT_CONFIG: PayoutFormData = {
   stripeAccountId: 'acct_1UAHOJRODtVyN8ro',
   stripeConnected: true,
   
-  paypalEmail: 'alex.rivera.coach@gmail.com',
+  paypalEmail: 'coach.payouts@o1fc.app',
   
   sortCode: '20-04-15',
   ukAccountNumber: '83920144',
@@ -232,16 +232,16 @@ const DEFAULT_CONFIG: PayoutFormData = {
   
   bsbNumber: '082-001',
   auAccountNumber: '12345678',
-  payId: 'alex.coach@o1fc.app',
+  payId: 'coach@o1fc.app',
   
-  upiId: 'alexrivera@okhdfcbank',
+  upiId: 'o1fccoach@okhdfcbank',
   ifscCode: 'HDFC0001234',
   inAccountNumber: '50100234567890',
   panNumber: 'ABCDE1234F',
   
   payNowId: 'UEN202401234A',
   
-  wiseEmail: 'alex.rivera@protraining.io',
+  wiseEmail: 'coach@o1fc.app',
   wiseIban: 'GB82WEST12345698765432',
 };
 
@@ -296,7 +296,7 @@ const INITIAL_HISTORY: SettlementReceipt[] = [
     localAmount: '$650.00 USD',
     currency: 'USD',
     rail: 'PayPal Commerce Payout',
-    destination: 'alex.rivera.coach@gmail.com',
+    destination: 'coach.payouts@o1fc.app',
     status: 'Settled',
   },
 ];

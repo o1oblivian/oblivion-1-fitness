@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Capacitor } from '@capacitor/core';
-import { fetchUserProfile } from '@/utils/subscriptionStore';
+import { fetchUserProfile, upsertUserProfile } from '@/utils/subscriptionStore';
 import { cacheCurrentTier } from '@/utils/useSubscription';
 import { StatusBar, Style as StatusBarStyle } from '@capacitor/status-bar';
 import {
@@ -57,7 +57,7 @@ import {
   requestNotificationPermission,
   showBrowserNotification,
 } from '@/utils/reminderEngine';
-import { startMidnightRolloverScheduler } from '@/utils/midnightRolloverEngine';
+import { startMidnightRolloverScheduler, getLocalDateString } from '@/utils/midnightRolloverEngine';
 import { getInputMethod } from '@/utils/inputMethodStore';
 import { ProgramPreview } from '@/utils/reelsTypes';
 import type { WorkoutRegistration } from '@/components/FitnessIntelligenceApp';
@@ -413,19 +413,46 @@ export function useAppState() {
   useEffect(() => {
     if (!currentUserEmail) return;
     const saved = getUserState(currentUserEmail);
+    // Hydrate profile from Supabase user_profiles for permanent cross-device persistence
+    fetchUserProfile().then(cloudProfile => {
+      if (cloudProfile) {
+        if (cloudProfile.display_name) setAthleteName(cloudProfile.display_name);
+        if (cloudProfile.profile_image_url) setProfileImage(cloudProfile.profile_image_url);
+      }
+    }).catch(() => {});
+
     if (saved) {
+      const todayStr = getLocalDateString();
       if (saved.athleteName) setAthleteName(saved.athleteName);
       if (saved.athleteHandle) setAthleteHandle(saved.athleteHandle);
       if (saved.weeklySchedule) setWeeklySchedule(saved.weeklySchedule);
-      if (saved.activeLogs) setActiveLogs(saved.activeLogs);
-      if (saved.dailyMeals) setDailyMeals(saved.dailyMeals);
-      loadMealsFromCloud(currentUserEmail).then(c => {
+
+      // Only restore active workout logs if they belong to today (yesterday was auto-archived)
+      if (saved.activeLogs) {
+        if (!saved.activeLogsDate || saved.activeLogsDate === todayStr) {
+          setActiveLogs(saved.activeLogs);
+        } else {
+          setActiveLogs([]);
+        }
+      }
+
+      // Only restore daily meals if they were logged on today's date
+      // If from yesterday, start today with a clean slate
+      const isMealToday = saved.mealsDate === todayStr;
+      if (saved.dailyMeals && isMealToday) {
+        setDailyMeals(saved.dailyMeals);
+      } else {
+        setDailyMeals({ breakfast: [], lunch: [], dinner: [], snack: [], drinks: [] });
+      }
+
+      loadMealsFromCloud(currentUserEmail, todayStr).then(c => {
         if (c) {
-          const localTotal = Object.values(saved.dailyMeals || {}).flat().length;
+          const currentTotal = isMealToday ? Object.values(saved.dailyMeals || {}).flat().length : 0;
           const cloudTotal = Object.values(c).flat().length;
-          if (cloudTotal >= localTotal) setDailyMeals(c);
+          if (cloudTotal >= currentTotal) setDailyMeals(c);
         }
       }).catch(() => {});
+
       if (saved.stepTarget) setStepTarget(saved.stepTarget);
       if (saved.bmr) setBmr(saved.bmr);
       if (saved.goalCals) setGoalCals(saved.goalCals);
@@ -442,14 +469,23 @@ export function useAppState() {
   const mealSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => {
     if (!isAuthenticated || !currentUserEmail) return;
+    const todayStr = getLocalDateString();
     const userState: UserAppState = {
       athleteName, athleteHandle, weeklySchedule, activeLogs, dailyMeals,
+      mealsDate: todayStr,
+      activeLogsDate: todayStr,
       stepTarget, bmr, goalCals, goalP, goalC, goalF, theme, profileImage, themeAccent,
     };
     saveUserState(currentUserEmail, userState);
     if (mealSaveTimer.current) clearTimeout(mealSaveTimer.current);
     mealSaveTimer.current = setTimeout(() => {
-      saveMealsToCloud(currentUserEmail, dailyMeals).catch(() => {});
+      saveMealsToCloud(currentUserEmail, dailyMeals, todayStr).catch(() => {});
+      if (athleteName || profileImage) {
+        upsertUserProfile({
+          display_name: athleteName || null,
+          profile_image_url: profileImage || null,
+        }).catch(() => {});
+      }
     }, 1500);
   }, [isAuthenticated, currentUserEmail, athleteName, athleteHandle, weeklySchedule, activeLogs, dailyMeals, stepTarget, bmr, goalCals, goalP, goalC, goalF, theme, profileImage, themeAccent]);
 
@@ -489,14 +525,34 @@ export function useAppState() {
   // Automatic Midnight History Rollover
   const activeLogsRef = useRef(activeLogs);
   activeLogsRef.current = activeLogs;
+  const dailyMealsRef = useRef(dailyMeals);
+  dailyMealsRef.current = dailyMeals;
   useEffect(() => {
     if (!currentUserEmail) return;
     const unsub = startMidnightRolloverScheduler(
       currentUserEmail,
       () => activeLogsRef.current,
-      (msg) => showToast(msg, 'success')
+      (msg) => showToast(msg, 'success'),
+      () => dailyMealsRef.current
     );
     return () => unsub();
+  }, [currentUserEmail]);
+
+  // Handle midnight rollover broadcast: clean reset to new day
+  useEffect(() => {
+    const handleRollover = (e: any) => {
+      const todayStr = e.detail?.today || getLocalDateString();
+      setDailyMeals({ breakfast: [], lunch: [], dinner: [], snack: [], drinks: [] });
+      setActiveLogs([]);
+      if (currentUserEmail) {
+        loadMealsFromCloud(currentUserEmail, todayStr).then(c => {
+          if (c) setDailyMeals(c);
+        }).catch(() => {});
+      }
+      showToast('New day initialized: Daily fuel & workout tracker refreshed.', 'success');
+    };
+    window.addEventListener('o1fc-midnight-rollover', handleRollover);
+    return () => window.removeEventListener('o1fc-midnight-rollover', handleRollover);
   }, [currentUserEmail]);
 
   // Workout log sync subscription
@@ -727,11 +783,11 @@ export function useAppState() {
     const prevEmail = currentUserEmail;
     try { await supabaseSignOut(); } catch {}
     setSessionUserEmail(null); setCurrentUserEmail(''); setIsAuthenticated(false); setIsAuthModalOpen(true);
-    // Clear user-specific active logs / transient caches without clearing onboarding completion records
+    // Clear transient active logs while preserving user profile state & onboarding records for seamless sign-in
     if (prevEmail) {
       const keys = Object.keys(localStorage);
       for (const key of keys) {
-        if (key.includes(prevEmail) && !key.includes('completed') && !key.includes('onboarding') && !key.includes('setup')) {
+        if (key.includes(prevEmail) && !key.includes('completed') && !key.includes('onboarding') && !key.includes('setup') && !key.includes('user_state_')) {
           localStorage.removeItem(key);
         }
       }
@@ -817,6 +873,15 @@ export function useAppState() {
     showToast('Item removed', 'error');
   };
 
+  const handleClearAllMeals = () => {
+    const empty: DailyMeals = { breakfast: [], lunch: [], dinner: [], snack: [], drinks: [] };
+    setDailyMeals(empty);
+    if (currentUserEmail) {
+      saveMealsToCloud(currentUserEmail, empty, getLocalDateString()).catch(() => {});
+    }
+    showToast('Food log cleared for today', 'success');
+  };
+
   const handleAddDirectMealItem = (meal: keyof DailyMeals, item: LoggedMealItem) => {
     setDailyMeals((prev) => ({ ...prev, [meal]: [...(prev[meal] || []), item] }));
     showToast(`Added to ${meal}: ${item.name} (${item.cals} kcal)`, 'success');
@@ -876,7 +941,7 @@ export function useAppState() {
     // Fuel
     dailyMeals, setDailyMeals, bmr, setBmr, goalCals, setGoalCals,
     goalP, setGoalP, goalC, setGoalC, goalF, setGoalF,
-    foodDB, handleSelectFoodForMeal, handleSaveCustomFood, handleDeleteMealItem, handleAddDirectMealItem,
+    foodDB, handleSelectFoodForMeal, handleSaveCustomFood, handleDeleteMealItem, handleClearAllMeals, handleAddDirectMealItem,
 
     // Coach
     coachClients, selectedCoachClient, setSelectedCoachClient,

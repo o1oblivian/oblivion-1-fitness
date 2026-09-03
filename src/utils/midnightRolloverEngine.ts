@@ -1,6 +1,6 @@
 import { buildSessionFromLogs, saveCompletedSession } from './sessionVaultStore';
 import { getStoredWorkoutLogs, clearActiveWorkoutLogs } from './workoutLogsStore';
-import { ExerciseLog } from '../types';
+import { ExerciseLog, DailyMeals } from '../types';
 
 const LAST_ROLLOVER_KEY = 'o1fc_last_midnight_rollover_date';
 const DAILY_ARCHIVE_KEY = (email: string) => `o1fc_daily_archives_${email}`;
@@ -42,7 +42,8 @@ export function getYesterdayDateString(): string {
 export async function executeMidnightRollover(
   userEmail: string,
   getActiveLogs?: () => ExerciseLog[],
-  onNotify?: (msg: string) => void
+  onNotify?: (msg: string) => void,
+  getDailyMeals?: () => DailyMeals
 ): Promise<{ success: boolean; archived: boolean; message: string }> {
   if (!userEmail) return { success: false, archived: false, message: 'No user email' };
 
@@ -95,7 +96,18 @@ export async function executeMidnightRollover(
       sessionSaved = true;
     }
 
-    // 3. Snapshot daily archive entry
+    // 3. Count meals if provided
+    let mealCount = 0;
+    if (getDailyMeals) {
+      try {
+        const m = getDailyMeals();
+        if (m) mealCount = Object.values(m).flat().length;
+      } catch {
+        // ignore
+      }
+    }
+
+    // 4. Snapshot daily archive entry
     const archiveRecord: DailyArchiveSnapshot = {
       date: yesterdayStr,
       userEmail,
@@ -106,7 +118,7 @@ export async function executeMidnightRollover(
       ),
       totalSets: validLogs.reduce((acc, l) => acc + l.sets.length, 0),
       sessionCount: sessionSaved ? 1 : 0,
-      mealCount: 0,
+      mealCount,
       stepsCount: 0,
     };
 
@@ -161,7 +173,8 @@ let watcherInterval: ReturnType<typeof setInterval> | null = null;
 export function startMidnightRolloverScheduler(
   userEmail: string,
   getActiveLogs?: () => ExerciseLog[],
-  onNotify?: (msg: string) => void
+  onNotify?: (msg: string) => void,
+  getDailyMeals?: () => DailyMeals
 ): () => void {
   stopMidnightRolloverScheduler();
   if (!userEmail) return () => {};
@@ -172,7 +185,7 @@ export function startMidnightRolloverScheduler(
 
     // If day changed, trigger rollover immediately
     if (lastDate && lastDate !== todayStr) {
-      executeMidnightRollover(userEmail, getActiveLogs, onNotify);
+      executeMidnightRollover(userEmail, getActiveLogs, onNotify, getDailyMeals);
     } else if (!lastDate) {
       // First boot on a device: initialize last rollover to today
       localStorage.setItem(LAST_ROLLOVER_KEY, todayStr);
