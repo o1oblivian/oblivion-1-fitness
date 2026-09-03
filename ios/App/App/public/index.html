@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <meta name="theme-color" content="#FFFFFF" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Oblivion 1 Fitness Club" />
+    <meta name="application-name" content="Oblivion 1 Fitness Club" />
+    <meta name="description" content="Oblivion 1 Fitness Club (O1FC) — Athletic performance intelligence for athletes and coaches." />
+    <meta name="google-site-verification" content="rblJ27L4iL8_k7QlwqcHWY7Wu2MiUvsC0vSkDilnLTA" />
+    <meta name="google-site-verification" content="43Zqa37SWZfRmaFG3XoRduR9PnDpsYyWw96IpAz6l_k" />
+
+    <link rel="manifest" href="./manifest.json" />
+    <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png" />
+    <link rel="icon" type="image/png" sizes="512x512" href="./icon-512.png" />
+    <link rel="icon" href="./favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png" />
+
+    <title>Oblivion 1 Fitness Club</title>
+    <meta property="og:title" content="Oblivion 1 Fitness Club" />
+    <meta property="og:description" content="Oblivion 1 Fitness Club (O1FC) — Athletic performance intelligence for athletes and coaches." />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600;1,700&display=swap" rel="stylesheet">
+    <meta property="og:image" content="./mobile-preview-v17.webp">
+    <meta property="og:image:alt" content="O1FC Oblivion Fitness Club app preview">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="./mobile-preview-v17.webp">
+
+    <script>
+      // Pre-mount theme application — prevents FOUC on cold boot across Android and iOS
+      (function() {
+        var theme = 'light';
+        try { 
+          var s = localStorage.getItem('o1fc_theme_preference') || 
+                  localStorage.getItem('o1fc_theme') || 
+                  localStorage.getItem('theme'); 
+          if (s === 'light' || s === 'dark') theme = s;
+          else if (s === 'system') {
+            theme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+          }
+        } catch(e) {}
+        var html = document.documentElement;
+        var isDark = theme === 'dark';
+        if (isDark) {
+          html.classList.add('dark');
+          html.style.backgroundColor = '#000000';
+        } else {
+          html.classList.remove('dark');
+          html.style.backgroundColor = '#FFFFFF';
+        }
+        var metaTheme = document.querySelector('meta[name="theme-color"]');
+        if (metaTheme) {
+          metaTheme.setAttribute('content', isDark ? '#000000' : '#FFFFFF');
+        }
+        document.addEventListener('DOMContentLoaded', function() {
+          if (document.body) {
+            document.body.style.backgroundColor = isDark ? '#000000' : '#FFFFFF';
+            if (isDark) {
+              document.body.classList.add('dark');
+            } else {
+              document.body.classList.remove('dark');
+            }
+          }
+        });
+      })();
+    </script>
+    <style>
+      /* Prevent flash: solid background before CSS loads */
+      html { background-color: #FFFFFF; }
+      html.dark { background-color: #000000; }
+      #root { background-color: inherit; min-height: 100dvh; }
+    </style>
+  <script type="module" crossorigin src="./assets/index-BmslesfB.js"></script>
+  <link rel="modulepreload" crossorigin href="./assets/vendor-lucide-CF6ep8uL.js">
+  <link rel="modulepreload" crossorigin href="./assets/vendor-motion-Di3vwXU9.js">
+  <link rel="modulepreload" crossorigin href="./assets/vendor-react-B93g8iyA.js">
+  <link rel="modulepreload" crossorigin href="./assets/vendor-supabase-BLTfs_0E.js">
+  <link rel="stylesheet" crossorigin href="./assets/index-96mZNuY3.css">
+</head>
+  <body class="bg-[#F8F9FA] dark:bg-[#000000] text-zinc-900 dark:text-white font-sans antialiased selection:bg-red-500/20 selection:text-red-600">
+    <div id="root"></div>
+  </body>
+</html>
