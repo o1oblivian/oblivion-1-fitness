@@ -26,7 +26,7 @@ interface FuelIntelligencePanelProps {
   currentUserEmail: string;
 }
 
-type Tab = 'targets' | 'energy' | 'trends';
+type Tab = 'energy' | 'targets' | 'trends';
 
 export const FuelIntelligencePanel: React.FC<FuelIntelligencePanelProps> = ({
   goalCals, setGoalCals,
@@ -39,7 +39,7 @@ export const FuelIntelligencePanel: React.FC<FuelIntelligencePanelProps> = ({
   trendUnit, setTrendUnit,
   onOpenAutoPilot, showToast, currentUserEmail,
 }) => {
-  const [activeTab, setActiveTab] = useState<Tab>('targets');
+  const [activeTab, setActiveTab] = useState<Tab>('energy');
   const [isSaving, setIsSaving] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
 
@@ -79,6 +79,13 @@ export const FuelIntelligencePanel: React.FC<FuelIntelligencePanelProps> = ({
       showToast('Targets saved!', 'success');
     }
     setIsSaving(false);
+    // After setting target, ensure Energy is visible
+    setActiveTab('energy');
+  };
+
+  const handleOpenCalculator = () => {
+    setActiveTab('energy');
+    onOpenAutoPilot();
   };
 
   // Pie chart data for trends
@@ -120,9 +127,9 @@ export const FuelIntelligencePanel: React.FC<FuelIntelligencePanelProps> = ({
           { name: 'Fat', value: goalF * 9, color: '#10B981', unit: 'kcal', calories: goalF * 9 },
         ];
 
-  const tabs: { id: Tab; label: string; icon: typeof Target }[] = [
-    { id: 'targets', label: 'Targets', icon: Target },
+  const tabs: { id: Tab; label: string; icon: typeof Zap }[] = [
     { id: 'energy', label: 'Energy', icon: Zap },
+    { id: 'targets', label: 'Targets', icon: Target },
     { id: 'trends', label: 'Trends', icon: TrendingUp },
   ];
 
@@ -132,7 +139,7 @@ export const FuelIntelligencePanel: React.FC<FuelIntelligencePanelProps> = ({
       <div className="flex items-center justify-between px-3 pt-3 pb-1.5">
         <div className="flex items-center gap-2 min-w-0">
           <span className="p-2 rounded-xl bg-[#C4121A]/10 dark:bg-[#D91F28]/10 text-[#C4121A] dark:text-[#D91F28] shrink-0">
-            <Target className="w-4 h-4" />
+            <Zap className="w-4 h-4" />
           </span>
           <div className="min-w-0">
             <h2 className="text-[15px] sm:text-[16px] font-bold tracking-tight truncate text-[#000000] dark:text-white">Fuel Intelligence</h2>
@@ -187,6 +194,42 @@ export const FuelIntelligencePanel: React.FC<FuelIntelligencePanelProps> = ({
             {/* TARGETS TAB */}
             {activeTab === 'targets' && (
               <>
+                {/* Live Energy Preview while editing targets */}
+                <div className="grid grid-cols-4 gap-2 text-center items-center pb-1">
+                  <div className="flex flex-col items-center bg-[#F2F2F7] dark:bg-white/5 p-2 rounded-2xl">
+                    <div className="text-base sm:text-lg font-black font-mono text-[#000000] dark:text-white">
+                      {goalCals}
+                    </div>
+                    <div className="text-[10px] sm:text-[10.5px] font-bold tracking-wide text-[#5A5F5D] dark:text-gray-500 uppercase mt-0.5">
+                      Target
+                    </div>
+                  </div>
+                  <div className="flex flex-col items-center bg-[#F2F2F7] dark:bg-white/5 p-2 rounded-2xl">
+                    <div className="text-base sm:text-lg font-black font-mono text-[#000000] dark:text-white">
+                      {totalIntakeCals}
+                    </div>
+                    <div className="text-[10px] sm:text-[10.5px] font-bold tracking-wide text-[#5A5F5D] dark:text-gray-500 uppercase mt-0.5">
+                      Intake
+                    </div>
+                  </div>
+                  <div className="flex flex-col items-center bg-[#F2F2F7] dark:bg-white/5 p-2 rounded-2xl">
+                    <div className="text-base sm:text-lg font-black font-mono text-[#C4121A] dark:text-[#D91F28]">
+                      {trainingBurn}
+                    </div>
+                    <div className="text-[10px] sm:text-[10.5px] font-bold tracking-wide text-[#C4121A] dark:text-[#D91F28] uppercase mt-0.5">
+                      Burn
+                    </div>
+                  </div>
+                  <div className="flex flex-col items-center bg-[#10B981]/10 p-2 rounded-2xl">
+                    <div className="text-base sm:text-lg font-black font-mono text-[#10B981]">
+                      {remainingCals}
+                    </div>
+                    <div className="text-[10px] sm:text-[10.5px] font-bold tracking-wide text-[#10B981] uppercase mt-0.5">
+                      Remain
+                    </div>
+                  </div>
+                </div>
+
                 <div className="grid grid-cols-5 gap-2 sm:gap-3">
                   <div className="col-span-2">
                     <label className="text-[10.5px] sm:text-[11px] font-bold tracking-wide text-[#5A5F5D] dark:text-gray-500 uppercase mb-1.5 block">
@@ -279,7 +322,7 @@ export const FuelIntelligencePanel: React.FC<FuelIntelligencePanelProps> = ({
                 {/* Action buttons */}
                 <div className="flex justify-end gap-2 pt-1.5">
                   <button
-                    onClick={onOpenAutoPilot}
+                    onClick={handleOpenCalculator}
                     className="text-[13px] font-semibold text-[#000000] dark:text-gray-200 bg-[#F2F2F7] dark:bg-white/5 hover:bg-[#E5E5EA] dark:hover:bg-white/10 px-3 py-2 rounded-xl active:scale-[0.98] transition-all duration-200 flex items-center gap-2 cursor-pointer"
                   >
                     <Calculator className="w-4 h-4" />

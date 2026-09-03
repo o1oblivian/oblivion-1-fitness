@@ -7,14 +7,11 @@ import { createServer as createViteServer } from 'vite';
 let stripeClient: Stripe | null = null;
 let aiClient: GoogleGenAI | null = null;
 
-const LIVE_STRIPE_SECRET_KEY = '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';
-
 function getStripe(): Stripe | null {
   const envKey = (process.env.STRIPE_SECRET_KEY || '').trim();
-  const key = (envKey.startsWith('sk_') || envKey.startsWith('rk_')) ? envKey : LIVE_STRIPE_SECRET_KEY;
-  if (!key) return null;
+  if (!envKey) return null;
   if (!stripeClient) {
-    stripeClient = new Stripe(key, {
+    stripeClient = new Stripe(envKey, {
       apiVersion: '2025-02-24.acacia' as any,
     });
   }
@@ -804,7 +801,8 @@ Also return clean JSON with:
   // Stripe Configuration Status
   app.get('/api/stripe-status', (_req, res) => {
     const stripe = getStripe();
-    const isLive = Boolean(process.env.STRIPE_SECRET_KEY?.startsWith('sk_live_'));
+    const activeKey = (process.env.STRIPE_SECRET_KEY || '').trim();
+    const isLive = Boolean(activeKey.startsWith('sk_live_'));
     res.json({
       configured: Boolean(stripe),
       liveMode: isLive,

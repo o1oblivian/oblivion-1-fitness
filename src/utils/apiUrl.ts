@@ -28,13 +28,28 @@ export function isNativePlatform(): boolean {
 }
 
 /**
+ * Retrieve custom API base URL from localStorage override or Vite environment variables
+ */
+export function getCustomApiUrl(): string {
+  try {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      const stored = window.localStorage.getItem('ofc_custom_api_url');
+      if (stored && stored.trim().startsWith('http')) {
+        return stored.trim();
+      }
+    }
+  } catch {}
+  return (import.meta.env.VITE_API_URL || import.meta.env.VITE_APP_URL || '').trim();
+}
+
+/**
  * Get full API endpoint URL for both Web and Android / iOS APK native environments
  */
 export function getApiUrl(path: string): string {
   const cleanPath = path.startsWith('/') ? path : `/${path}`;
 
-  // 1. If custom environment variable is set
-  const customEnvUrl = (import.meta.env.VITE_API_URL || import.meta.env.VITE_APP_URL || '').trim();
+  // 1. If custom environment variable or localStorage override is set
+  const customEnvUrl = getCustomApiUrl();
   if (customEnvUrl) {
     const base = customEnvUrl.endsWith('/') ? customEnvUrl.slice(0, -1) : customEnvUrl;
     return `${base}${cleanPath}`;
@@ -61,7 +76,7 @@ export async function apiFetch(path: string, options?: RequestInit, timeoutMs = 
   // Candidate URLs to try in priority order
   const urlsToTry: string[] = [];
 
-  const customEnvUrl = (import.meta.env.VITE_API_URL || import.meta.env.VITE_APP_URL || '').trim();
+  const customEnvUrl = getCustomApiUrl();
   if (customEnvUrl) {
     const base = customEnvUrl.endsWith('/') ? customEnvUrl.slice(0, -1) : customEnvUrl;
     urlsToTry.push(`${base}${cleanPath}`);
@@ -90,9 +105,22 @@ export async function apiFetch(path: string, options?: RequestInit, timeoutMs = 
       const response = await fetch(url, fetchOptions);
       const contentType = response.headers.get('content-type') || '';
 
-      // If it returned JSON (or appropriate status with JSON), accept it
-      if (contentType.includes('application/json') && (response.ok || response.status === 400 || response.status === 422 || response.status === 404)) {
-        return response;
+      // If it returned JSON (or appropriate status with JSON), inspect status
+      if (contentType.includes('application/json')) {
+        // If the response is a 500 server error containing an expired key, failover to next endpoint
+        if (response.status >= 500) {
+          const cloned = response.clone();
+          const text = await cloned.text().catch(() => '');
+          if (text.includes('Expired API Key') || text.includes('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')) {
+            console.warn(`[apiFetch] Endpoint ${url} returned expired key error, failing over to next candidate...`);
+            lastResponse = response;
+            continue;
+          }
+        }
+
+        if (response.ok || response.status === 400 || response.status === 422 || response.status === 404) {
+          return response;
+        }
       }
 
       // If it's OK and not HTML (or binary like images), accept

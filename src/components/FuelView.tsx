@@ -208,7 +208,7 @@ export const FuelView: React.FC<FuelViewProps> = ({
   const hydrationPct = Math.min(100, (liters / TARGET_L) * 100);
 
   return (
-    <div className="space-y-2.5 tab-enter pb-2">
+    <div className="space-y-2.5 tab-enter pb-32">
       {/* FUEL OS HEADER */}
       <header className="flex justify-between items-center mb-0.5">
         <div className="min-w-0 flex-1">
