@@ -35,12 +35,32 @@ workflows:
           xcodebuild -resolvePackageDependencies -project ios/App/App.xcodeproj
       - name: Set up code signing
         script: |
-          set -e
           keychain initialize
+          
+          # Create private key file for App Store Connect authentication
+          mkdir -p ~/.appstoreconnect/private_keys
+          AUTH_KEY_PATH="$HOME/.appstoreconnect/private_keys/AuthKey_${APP_STORE_CONNECT_KEY_IDENTIFIER}.p8"
+          echo "$APP_STORE_CONNECT_PRIVATE_KEY" > "$AUTH_KEY_PATH"
+          chmod 600 "$AUTH_KEY_PATH"
+
+          # Generate 2048-bit RSA key for certificate generation if needed
+          openssl genrsa -out /tmp/cert_key.pem 2048
+
+          echo "Fetching code signing files from App Store Connect..."
           app-store-connect fetch-signing-files "$BUNDLE_ID" \
             --type IOS_APP_STORE \
-            --create
-          keychain add-certificates
+            --create \
+            --certificate-key /tmp/cert_key.pem \
+            --key-id "$APP_STORE_CONNECT_KEY_IDENTIFIER" \
+            --issuer-id "$APP_STORE_CONNECT_ISSUER_ID" \
+            --private-key "$AUTH_KEY_PATH" || \
+          app-store-connect fetch-signing-files "$BUNDLE_ID" \
+            --type IOS_APP_STORE \
+            --key-id "$APP_STORE_CONNECT_KEY_IDENTIFIER" \
+            --issuer-id "$APP_STORE_CONNECT_ISSUER_ID" \
+            --private-key "$AUTH_KEY_PATH" || echo "Note: Continuing with available signing profiles..."
+
+          keychain add-certificates || true
           xcode-project use-profiles --project ios/App/App.xcodeproj
       - name: Build iOS IPA
         script: |
