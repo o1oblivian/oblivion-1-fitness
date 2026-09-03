@@ -12,7 +12,7 @@ workflows:
         BUNDLE_ID: "com.o1fc.fitness"
       xcode: latest
       cocoapods: default
-      node: 20
+      node: 22
     scripts:
       - name: Install dependencies
         script: |
