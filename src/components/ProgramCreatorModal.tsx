@@ -1239,7 +1239,7 @@ export const ProgramCreatorModal: React.FC<Props> = ({
                         className="px-2.5 py-1 rounded-lg bg-black text-white dark:bg-white dark:text-black font-semibold text-[10px] flex items-center gap-1 shadow-2xs active:scale-95 transition-all shrink-0 cursor-pointer hover:opacity-90"
                       >
                         <Sparkles className="w-2.5 h-2.5" />
-                        <span>AI {currentDay.focus || category} Blueprint</span>
+                        <span>O1FC {currentDay.focus || category} Blueprint</span>
                       </button>
                       {getIntelligentExercises(currentDay.focus, '', '', category).slice(0, 6).map((item) => (
                         <button

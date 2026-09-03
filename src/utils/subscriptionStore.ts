@@ -1,8 +1,21 @@
 import { supabase, isSupabaseConfigured } from './supabase';
 import { apiFetch } from './apiUrl';
+import { getSessionUserEmail } from './authStorage';
 
 export type UserRole = 'athlete' | 'coach';
 export type SubscriptionTier = 'free' | 'freemium' | 'premium' | 'premium_travel' | 'founder_pass' | 'coach_free' | 'coach_pro';
+
+export const OWNER_EMAILS = [
+  'o1oblivianfitness@gmail.com',
+  'pathik23@yahoo.com',
+  'o1oblivian@gmail.com',
+];
+
+export function isOwnerEmail(email?: string | null): boolean {
+  if (!email) return false;
+  const normalized = email.toLowerCase().trim();
+  return OWNER_EMAILS.includes(normalized) || normalized.includes('o1oblivian') || normalized.includes('oblivianfitness');
+}
 
 export interface UserProfile {
   id: string;
@@ -108,12 +121,12 @@ export async function getUserRole(): Promise<UserRole> {
 export function getStoredUserRole(email?: string): UserRole {
   try {
     if (typeof window === 'undefined') return 'athlete';
-    const normalizedEmail = email?.toLowerCase().trim();
-    if (normalizedEmail === 'o1oblivianfitness@gmail.com' || normalizedEmail === 'pathik23@yahoo.com') {
+    const activeEmail = email || getSessionUserEmail();
+    if (isOwnerEmail(activeEmail)) {
       return 'coach';
     }
-    if (email) {
-      const emailRole = localStorage.getItem(`o1fc_user_role_${email.toLowerCase()}`);
+    if (activeEmail) {
+      const emailRole = localStorage.getItem(`o1fc_user_role_${activeEmail.toLowerCase()}`);
       if (emailRole === 'coach' || emailRole === 'athlete') return emailRole;
     }
     const globalRole = localStorage.getItem('o1fc_user_role');

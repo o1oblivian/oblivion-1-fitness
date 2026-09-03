@@ -57,6 +57,7 @@ import {
   requestNotificationPermission,
   showBrowserNotification,
 } from '@/utils/reminderEngine';
+import { startMidnightRolloverScheduler } from '@/utils/midnightRolloverEngine';
 import { getInputMethod } from '@/utils/inputMethodStore';
 import { ProgramPreview } from '@/utils/reelsTypes';
 import type { WorkoutRegistration } from '@/components/FitnessIntelligenceApp';
@@ -483,6 +484,19 @@ export function useAppState() {
       showBrowserNotification(reminder.title, reminder.body);
     });
     return () => stopReminderPolling();
+  }, [currentUserEmail]);
+
+  // Automatic Midnight History Rollover
+  const activeLogsRef = useRef(activeLogs);
+  activeLogsRef.current = activeLogs;
+  useEffect(() => {
+    if (!currentUserEmail) return;
+    const unsub = startMidnightRolloverScheduler(
+      currentUserEmail,
+      () => activeLogsRef.current,
+      (msg) => showToast(msg, 'success')
+    );
+    return () => unsub();
   }, [currentUserEmail]);
 
   // Workout log sync subscription

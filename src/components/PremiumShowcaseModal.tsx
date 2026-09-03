@@ -13,7 +13,7 @@ const UNLOCKED_FEATURES = [
   {
     icon: Brain,
     title: 'Intel Coach',
-    badge: 'AI ENGINE',
+    badge: 'O1FC ENGINE',
     description: 'Personalized training insights powered by machine intelligence',
   },
   {

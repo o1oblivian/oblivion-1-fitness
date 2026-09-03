@@ -681,7 +681,7 @@ export const WeeklyReportCardModal: React.FC<WeeklyReportCardModalProps> = ({
                 { id: 'telemetry' as const, label: 'Overview', icon: Gauge },
                 { id: 'biomechanics' as const, label: 'Volume & Kinetic', icon: Layers },
                 { id: 'metabolic' as const, label: 'Energy Flux', icon: HeartPulse },
-                { id: 'prescription' as const, label: 'Verdict & AI', icon: Sparkles },
+                { id: 'prescription' as const, label: 'Verdict & O1FC', icon: Sparkles },
               ].map((tab) => {
                 const Icon = tab.icon;
                 const active = activeTab === tab.id;

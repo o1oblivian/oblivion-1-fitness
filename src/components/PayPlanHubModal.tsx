@@ -436,10 +436,10 @@ export const PayPlanHubModal: React.FC<PayPlanHubModalProps> = ({
 
   const modalContent = (
     <div className="fixed inset-0 z-[99990] flex items-end sm:items-center justify-center bg-black/80 backdrop-blur-md p-0 sm:p-4 overflow-y-auto overscroll-contain animate-in fade-in duration-200">
-      <div className="w-full max-w-lg rounded-t-3xl sm:rounded-2xl bg-white dark:bg-[#0f121a] text-slate-900 dark:text-white border border-slate-200 dark:border-white/10 shadow-2xl my-0 sm:my-auto max-h-[90dvh] sm:max-h-[90vh] overflow-y-auto pb-[max(1.5rem,calc(env(safe-area-inset-bottom,0px)+1rem))]">
+      <div className="w-full max-w-lg rounded-t-3xl sm:rounded-2xl bg-white dark:bg-[#121214] text-slate-900 dark:text-white border border-slate-200 dark:border-white/10 shadow-2xl my-0 sm:my-auto max-h-[90dvh] sm:max-h-[90vh] overflow-y-auto pb-[max(1.5rem,calc(env(safe-area-inset-bottom,0px)+1rem))]">
 
         {/* ── HEADER ── */}
-        <div className="sticky top-0 z-20 bg-white/95 dark:bg-[#0f121a]/95 backdrop-blur-xl border-b border-slate-100 dark:border-white/5 px-4 pt-3.5 pb-2.5 rounded-t-2xl">
+        <div className="sticky top-0 z-20 bg-white/95 dark:bg-[#121214]/95 backdrop-blur-xl border-b border-slate-100 dark:border-white/5 px-4 pt-3.5 pb-2.5 rounded-t-2xl">
           <div className="flex items-center justify-between mb-3">
             <div>
               <h2 className="text-sm font-bold text-slate-900 dark:text-white tracking-tight leading-none">

@@ -95,22 +95,28 @@ export const RoutineSwapperModal: React.FC<RoutineSwapperModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[150] bg-black/60 backdrop-blur-xs overflow-y-auto font-sans flex items-end sm:items-center justify-center p-0 sm:p-3 animate-in fade-in duration-200">
-      <div className="bg-white dark:bg-[#18181B] text-zinc-900 dark:text-white w-full max-w-xl max-h-[88dvh] sm:max-h-[90vh] rounded-t-3xl sm:rounded-3xl p-4 sm:p-5 pb-[max(1.25rem,calc(env(safe-area-inset-bottom,0px)+1rem))] shadow-2xl relative border border-zinc-200 dark:border-zinc-800 flex flex-col select-none">
+    <div 
+      className="fixed inset-0 z-[150] bg-black/80 backdrop-blur-md font-sans flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-200"
+      onClick={onClose}
+    >
+      <div 
+        onClick={(e) => e.stopPropagation()}
+        className="bg-white dark:bg-[#121214] text-zinc-900 dark:text-white w-full max-w-lg max-h-[88dvh] rounded-2xl sm:rounded-3xl p-4 sm:p-5 shadow-2xl relative border border-black/10 dark:border-white/10 flex flex-col select-none overflow-hidden"
+      >
         {/* Header */}
-        <div className="flex justify-between items-center pb-3 border-b border-zinc-100 dark:border-zinc-800/80 shrink-0">
+        <div className="flex justify-between items-center pb-3 border-b border-black/5 dark:border-white/10 shrink-0">
           <div>
-            <h3 className="font-bold text-base text-zinc-900 dark:text-white">
+            <h3 className="font-bold text-sm sm:text-base text-zinc-900 dark:text-white">
               Routine Swapper & Preset Library
             </h3>
-            <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
+            <p className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5">
               Load targeted presets directly into your active session
             </p>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="btn-nude-close shrink-0"
+            className="w-8 h-8 rounded-full bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/20 flex items-center justify-center text-gray-500 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors cursor-pointer active:scale-95 shrink-0"
             title="Close"
           >
             <X className="w-4 h-4" />
@@ -126,7 +132,7 @@ export const RoutineSwapperModal: React.FC<RoutineSwapperModalProps> = ({
               placeholder="Search routines (e.g., Push, Hyrox, Boxing, Mobility)..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-zinc-50 dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-800 rounded-xl pl-9 pr-8 py-2 text-xs text-zinc-900 dark:text-white placeholder:text-zinc-400 outline-none focus:border-[#EA4335] transition-colors"
+              className="w-full bg-zinc-50 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-xl pl-9 pr-8 py-2 text-xs text-zinc-900 dark:text-white placeholder:text-zinc-400 outline-none focus:border-[#C4121A] transition-colors"
             />
             <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
             {searchQuery && (
@@ -141,7 +147,7 @@ export const RoutineSwapperModal: React.FC<RoutineSwapperModalProps> = ({
           </div>
 
           {/* Category Tabs */}
-          <div className="flex gap-1 bg-zinc-100 dark:bg-zinc-900/60 rounded-xl p-1">
+          <div className="flex gap-1 bg-zinc-100 dark:bg-white/5 rounded-xl p-1">
             {[
               { key: 'all' as const, label: 'All', count: routines.length },
               { key: 'lift' as const, label: 'Lift & Strength', count: routines.filter((r) => r.category === 'lift').length },
@@ -154,7 +160,7 @@ export const RoutineSwapperModal: React.FC<RoutineSwapperModalProps> = ({
                 onClick={() => setActiveTab(tab.key)}
                 className={`flex-1 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center justify-center gap-1 cursor-pointer ${
                   activeTab === tab.key
-                    ? 'bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white shadow-xs'
+                    ? 'bg-white dark:bg-white/15 text-zinc-900 dark:text-white shadow-xs'
                     : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200'
                 }`}
               >
@@ -176,19 +182,19 @@ export const RoutineSwapperModal: React.FC<RoutineSwapperModalProps> = ({
                   onSelectRoutine?.(r.id);
                   onClose();
                 }}
-                className="w-full text-left p-3 hover:bg-red-50/40 dark:hover:bg-red-950/10 rounded-2xl transition-all flex flex-col justify-between bg-zinc-50/50 dark:bg-zinc-900/40 border border-zinc-200/80 dark:border-zinc-800/80 hover:border-[#EA4335]/40 text-zinc-900 dark:text-white cursor-pointer group active:scale-[0.99] space-y-1"
+                className="w-full text-left p-3 hover:bg-red-50/40 dark:hover:bg-red-950/10 rounded-xl transition-all flex flex-col justify-between bg-zinc-50 dark:bg-white/[0.03] border border-black/5 dark:border-white/5 hover:border-[#C4121A]/40 text-zinc-900 dark:text-white cursor-pointer group active:scale-[0.99] space-y-1"
               >
                 <div className="flex items-center justify-between gap-2">
-                  <span className="font-semibold text-xs text-zinc-900 dark:text-white group-hover:text-[#EA4335] transition-colors">
+                  <span className="font-semibold text-xs text-zinc-900 dark:text-white group-hover:text-[#C4121A] transition-colors">
                     {r.name}
                   </span>
                   <div className="flex items-center gap-2 shrink-0">
                     {r.badge && (
-                      <span className="text-[9px] font-semibold bg-red-50 dark:bg-red-950/40 text-[#EA4335] px-2 py-0.5 rounded-full border border-red-200 dark:border-red-900/50">
+                      <span className="text-[9px] font-semibold bg-red-50 dark:bg-red-950/40 text-[#C4121A] px-2 py-0.5 rounded-full border border-red-200 dark:border-red-900/50">
                         {r.badge}
                       </span>
                     )}
-                    <span className="text-xs font-semibold text-[#EA4335] opacity-80 group-hover:opacity-100">
+                    <span className="text-xs font-semibold text-[#C4121A] opacity-80 group-hover:opacity-100">
                       Load
                     </span>
                   </div>

@@ -431,7 +431,7 @@ export const AICoachInsightsModal: React.FC<AICoachInsightsModalProps> = ({
             <div className="p-2.5 rounded-xl bg-zinc-50 dark:bg-white/[0.03] border border-zinc-200/80 dark:border-white/5">
               <div className="flex items-center gap-1.5 text-zinc-900 dark:text-white mb-1">
                 <Cpu className="w-3.5 h-3.5 text-emerald-500" />
-                <span className="text-[10px] font-bold">Gemini AI Coach</span>
+                <span className="text-[10px] font-bold">O1FC Neural Coach</span>
               </div>
               <p className="text-[9px] text-zinc-500 dark:text-zinc-400 leading-tight">Real-time telemetry analysis personalized to your bio-markers.</p>
             </div>

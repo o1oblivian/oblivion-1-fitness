@@ -340,3 +340,23 @@ export function subscribeWorkoutLogsSync(
     }
   };
 }
+
+/**
+ * Clear cached active workout logs locally
+ */
+export function clearActiveWorkoutLogs(userEmail: string): void {
+  const email = (userEmail || 'athlete@ofc.app').toLowerCase();
+  try {
+    localStorage.removeItem(ACTIVE_LOGS_CACHE_PREFIX + email);
+    localStorage.removeItem('o1fc_active_logs_v2');
+    localStorage.removeItem('lumina_active_logs');
+  } catch (_) {}
+}
+
+/**
+ * Alias to retrieve stored workout logs
+ */
+export function getStoredWorkoutLogs(userEmail: string): ExerciseLog[] {
+  return loadCachedActiveLogs(userEmail);
+}
+

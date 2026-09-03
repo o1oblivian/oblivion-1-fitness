@@ -114,7 +114,7 @@ const MOCK_EDUCATIONAL_REELS: Reel[] = [
     coach_email: 'coach.sophia@o1fc.app',
     coach_name: 'Sophia Laurent',
     coach_avatar: 'https://images.pexels.com/photos/14055666/pexels-photo-14055666.jpeg?auto=compress&cs=tinysrgb&h=100&w=100',
-    caption: 'Fuel OS & Metabolic Intelligence: Live macro periodization and AI meal scanning built for elite body composition.',
+    caption: 'Fuel OS & Metabolic Intelligence: Live macro periodization and O1FC meal scanning built for elite body composition.',
     media_url: 'https://videos.pexels.com/video-files/4761449/4761449-uhd_1440_2560_25fps.mp4',
     media_type: 'video',
     thumbnail_url: 'https://images.pexels.com/photos/1552242/pexels-photo-1552242.jpeg?auto=compress&cs=tinysrgb&h=650&w=940',

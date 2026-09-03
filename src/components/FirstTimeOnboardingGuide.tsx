@@ -55,7 +55,7 @@ const SYSTEM_FEATURES: SystemFeature[] = [
   {
     id: 'fuel-os',
     badge: '03',
-    title: 'Fuel OS & AI Macro Scanner',
+    title: 'Fuel OS & O1FC Macro Scanner',
     headline: 'Log nutrition with computer vision',
     instruction: 'Tap food scan to deconstruct meals with USDA-grade macro decomposition and barcode lookup.',
     actionTip: 'Pro Tip: Check the Macro Balance bar to stay aligned with daily targets.',

@@ -70,22 +70,22 @@ const DAY_DIAL_MAP: Record<string, DialMode> = {
 };
 
 export const WatchDial: React.FC<WatchDialProps> = ({
-  weeklySchedule,
-  selectedDay,
-  onSelectDay,
-  stepTarget,
-  setStepTarget,
-  showToast,
-  restTimerSecs,
-  setRestTimerSecs,
-  restTimerRunning,
-  onToggleRestTimer,
+  weeklySchedule = {},
+  selectedDay = 'Mon',
+  onSelectDay = () => {},
+  stepTarget = 10000,
+  setStepTarget = () => {},
+  showToast = () => {},
+  restTimerSecs = 90,
+  setRestTimerSecs = () => {},
+  restTimerRunning = false,
+  onToggleRestTimer = () => {},
   onOpenDial,
   embedded = false,
   onDialModeChange,
   requestedDialMode,
 }) => {
-  const dialMode: DialMode = requestedDialMode || DAY_DIAL_MAP[selectedDay] || 'chrono';
+  const dialMode: DialMode = requestedDialMode || DAY_DIAL_MAP[selectedDay || 'Mon'] || 'chrono';
 
   useEffect(() => {
     const modeInfo = DIAL_MODES.find(m => m.key === dialMode);

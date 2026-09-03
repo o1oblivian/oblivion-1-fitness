@@ -1,15 +1,24 @@
-// OFC Hyper-Scale Engine (100 Million+ Members Capacity Architecture)
+// OFC Hyper-Scale Engine (900 Million+ Members Capacity Architecture)
 // Implements consistent shard hashing, geohash spatial indexing, cursor streaming,
 // LRU memory bounding, token-bucket rate limiting, and idempotent delta sync queues.
 
 export interface ShardMetadata {
   shardId: number;
-  region: 'us-east' | 'us-west' | 'eu-central' | 'ap-southeast' | 'ap-east';
+  region: 'us-east' | 'us-west' | 'eu-west' | 'eu-central' | 'ap-southeast' | 'ap-east' | 'ap-northeast' | 'sa-east';
   clusterEndpoint: string;
 }
 
-const TOTAL_VIRTUAL_SHARDS = 1024;
-const REGIONS: Array<ShardMetadata['region']> = ['us-east', 'us-west', 'eu-central', 'ap-southeast', 'ap-east'];
+const TOTAL_VIRTUAL_SHARDS = 4096;
+const REGIONS: Array<ShardMetadata['region']> = [
+  'us-east',
+  'us-west',
+  'eu-west',
+  'eu-central',
+  'ap-southeast',
+  'ap-east',
+  'ap-northeast',
+  'sa-east',
+];
 
 // 1. Consistent Shard Hashing (Murmur3-inspired fast 32-bit hash)
 export function hashString(str: string): number {

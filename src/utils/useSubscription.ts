@@ -4,12 +4,14 @@ import {
   fetchUserProfile,
   isPremium,
   isCoach,
+  isOwnerEmail,
   UserProfile,
   UserRole,
   getStoredUserRole,
   cacheUserRole,
   upsertUserProfile,
 } from './subscriptionStore';
+import { getSessionUserEmail } from './authStorage';
 
 interface SubscriptionState {
   tier: SubscriptionTier;
@@ -147,16 +149,23 @@ export function useSubscription(): SubscriptionState {
     };
   }, []);
 
-  const isPaid = isPremium(tier);
+  const activeEmail = profile?.email || getSessionUserEmail();
+  const isOwner = isOwnerEmail(activeEmail);
+  const effectiveRole = isOwner ? 'coach' : role;
+  const effectiveTier = isOwner ? 'coach_pro' : tier;
+
+  const isPaid = isOwner || isPremium(effectiveTier);
   const trial = computeTrialFromProfile(profile);
   const isTrialActive = !isPaid && trial.active;
-  const isCoachRole = role === 'coach' || isCoach(tier);
-  const isCoachPro = tier === 'coach_pro';
+  const isCoachRole = isOwner || effectiveRole === 'coach' || isCoach(effectiveTier);
+  const isCoachPro = isOwner || effectiveTier === 'coach_pro';
   const canAccessCoachStudio = isCoachRole;
 
   const canAccess = (feature: FeatureGate): boolean => {
+    if (isOwner) return true;
+
     if (PRO_ONLY_FEATURES.includes(feature)) {
-      return tier === 'premium_travel' || tier === 'founder_pass' || tier === 'coach_pro';
+      return effectiveTier === 'premium_travel' || effectiveTier === 'founder_pass' || effectiveTier === 'coach_pro';
     }
 
     if (ADDON_FEATURES.includes(feature)) {
@@ -172,15 +181,15 @@ export function useSubscription(): SubscriptionState {
 
   const switchRole = async (newRole: UserRole): Promise<void> => {
     setRole(newRole);
-    cacheUserRole(newRole, profile?.email);
+    cacheUserRole(newRole, activeEmail || undefined);
     try {
       await upsertUserProfile({ role: newRole });
     } catch {}
   };
 
   return {
-    tier,
-    role,
+    tier: effectiveTier,
+    role: effectiveRole,
     loading,
     isPaid,
     isTrialActive,

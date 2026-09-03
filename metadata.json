@@ -1,6 +1,6 @@
 {
   "name": "Oblivion 1 Fitness Club",
-  "description": "Oblivion 1 Fitness Club (O1FC) - Training OS Pro & Fuel OS",
-  "requestFramePermissions": ["camera"],
+  "description": "Oblivion 1 Fitness Club (O1FC) — Athletic performance intelligence for athletes and coaches.",
+  "requestFramePermissions": ["camera", "microphone", "geolocation"],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

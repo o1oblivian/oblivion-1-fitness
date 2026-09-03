@@ -22,7 +22,7 @@ export function getSavedThemePreference(): DisplayTheme {
   } catch (e) {
     // ignore
   }
-  return 'dark'; // OFC standard default
+  return 'light'; // Clean light theme default
 }
 
 /**

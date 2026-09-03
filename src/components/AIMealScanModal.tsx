@@ -646,7 +646,7 @@ export const AIMealScanModal: React.FC<AIMealScanModalProps> = ({
               <h2 className="text-sm font-black tracking-tight flex items-center gap-1.5 text-zinc-900 dark:text-white">
                 <span>O1FC Vision Lens</span>
                 <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded-full bg-zinc-100 dark:bg-white/10 text-zinc-700 dark:text-white/80 border border-zinc-200/60 dark:border-white/5">
-                  AUTO-AI
+                  AUTO-O1FC
                 </span>
               </h2>
               <p className="text-[10px] text-zinc-500 dark:text-white/50 font-medium">Meal Vision & Barcode Telemetry</p>

@@ -155,15 +155,24 @@ function getCyclePhase(day: number, periodLength: number): { name: string; color
 
 function computeCycleDay(email: string): { day: number; phase: { name: string; color: string; phase: CyclePhase }; cycleLength: number; hasData: boolean } {
   try {
-    const raw = localStorage.getItem(CYCLE_KEY(email));
+    const safeEmail = email || 'athlete@o1fc.app';
+    const raw = localStorage.getItem(CYCLE_KEY(safeEmail));
     if (!raw) return { day: 0, phase: { name: '', color: '#4285F4', phase: 'menstrual' }, cycleLength: 28, hasData: false };
     const data: CycleData = JSON.parse(raw);
+    if (!data || typeof data !== 'object' || !data.lastPeriodStart || !data.cycleLength) {
+      return { day: 0, phase: { name: '', color: '#4285F4', phase: 'menstrual' }, cycleLength: 28, hasData: false };
+    }
     const start = new Date(data.lastPeriodStart);
+    if (isNaN(start.getTime())) {
+      return { day: 0, phase: { name: '', color: '#4285F4', phase: 'menstrual' }, cycleLength: 28, hasData: false };
+    }
     const today = new Date();
+    const cycleLength = Number(data.cycleLength) || 28;
+    const periodLength = Number(data.periodLength) || 5;
     const diffDays = Math.floor((today.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
-    const dayInCycle = ((diffDays % data.cycleLength) + data.cycleLength) % data.cycleLength;
+    const dayInCycle = ((diffDays % cycleLength) + cycleLength) % cycleLength;
     const day = dayInCycle + 1;
-    return { day, phase: getCyclePhase(day, data.periodLength), cycleLength: data.cycleLength, hasData: true };
+    return { day, phase: getCyclePhase(day, periodLength), cycleLength, hasData: true };
   } catch {
     return { day: 0, phase: { name: '', color: '#4285F4', phase: 'menstrual' }, cycleLength: 28, hasData: false };
   }
@@ -171,18 +180,20 @@ function computeCycleDay(email: string): { day: number; phase: { name: string; c
 
 function computeSoberDays(email: string): number {
   try {
-    const raw = localStorage.getItem(ALCOHOL_KEY(email));
+    const safeEmail = email || 'athlete@o1fc.app';
+    const raw = localStorage.getItem(ALCOHOL_KEY(safeEmail));
     if (!raw) return 0;
-    const records: AlcoholRecord[] = JSON.parse(raw);
+    const records = JSON.parse(raw);
+    if (!Array.isArray(records) || records.length === 0) return 0;
     const todayStr = TODAY_KEY();
-    const todayRecord = records.find((r) => r.date === todayStr);
+    const todayRecord = records.find((r) => r && r.date === todayStr);
     if (todayRecord && todayRecord.drinks > 0) return 0;
     let streak = todayRecord ? 1 : 0;
     for (let i = 1; i < records.length + 1; i++) {
       const checkDate = new Date();
       checkDate.setDate(checkDate.getDate() - i);
       const checkStr = checkDate.toISOString().slice(0, 10);
-      const rec = records.find((r) => r.date === checkStr);
+      const rec = records.find((r) => r && r.date === checkStr);
       if (rec && rec.drinks === 0) streak++;
       else break;
     }
@@ -193,9 +204,9 @@ function computeSoberDays(email: string): number {
 function getSupplements(): SupplementItem[] {
   try {
     const raw = localStorage.getItem(SUPPLEMENT_KEY);
-    if (raw) {
+    if (raw !== null) {
       const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      if (Array.isArray(parsed)) return parsed;
     }
   } catch {}
   return [
@@ -221,20 +232,20 @@ export function getTimingDisplay(timing?: SupplementTiming): string {
 }
 
 export const RotatingHeroCard: React.FC<RotatingHeroCardProps> = ({
-  currentUserEmail,
+  currentUserEmail = 'athlete@o1fc.app',
   profileImage,
-  weeklySchedule,
-  selectedDay,
-  onSelectDay,
-  stepTarget,
-  setStepTarget,
-  showToast,
-  onOpenProfile,
+  weeklySchedule = {},
+  selectedDay = 'Mon',
+  onSelectDay = () => {},
+  stepTarget = 10000,
+  setStepTarget = () => {},
+  showToast = () => {},
+  onOpenProfile = () => {},
   onOpenDial,
-  onOpenCycleSync,
-  onOpenSupplementTracker,
-  onOpenAlcoholTracker,
-  onOpenHydrationTracker,
+  onOpenCycleSync = () => {},
+  onOpenSupplementTracker = () => {},
+  onOpenAlcoholTracker = () => {},
+  onOpenHydrationTracker = () => {},
 }) => {
   // ── Flip state ──
   const [isFlipped, setIsFlipped] = useState(false);
@@ -555,18 +566,26 @@ export const RotatingHeroCard: React.FC<RotatingHeroCardProps> = ({
     try {
       const raw = localStorage.getItem(HYDRATION_KEY(currentUserEmail));
       if (raw) {
-        const records: HydrationRecord[] = JSON.parse(raw);
-        const today = records.find((r) => r.date === TODAY_KEY());
-        setHydrationLiters(today ? today.liters : 0);
+        const records = JSON.parse(raw);
+        if (Array.isArray(records)) {
+          const today = records.find((r) => r && r.date === TODAY_KEY());
+          setHydrationLiters(today ? Number(today.liters) || 0 : 0);
+        } else {
+          setHydrationLiters(0);
+        }
       } else { setHydrationLiters(0); }
     } catch { setHydrationLiters(0); }
 
     try {
       const raw = localStorage.getItem(ALCOHOL_KEY(currentUserEmail));
       if (raw) {
-        const records: AlcoholRecord[] = JSON.parse(raw);
-        const today = records.find((r) => r.date === TODAY_KEY());
-        setAlcoholDrinks(today ? today.drinks : 0);
+        const records = JSON.parse(raw);
+        if (Array.isArray(records)) {
+          const today = records.find((r) => r && r.date === TODAY_KEY());
+          setAlcoholDrinks(today ? Number(today.drinks) || 0 : 0);
+        } else {
+          setAlcoholDrinks(0);
+        }
       } else { setAlcoholDrinks(0); }
     } catch { setAlcoholDrinks(0); }
     setSoberDays(computeSoberDays(currentUserEmail));
@@ -599,17 +618,21 @@ export const RotatingHeroCard: React.FC<RotatingHeroCardProps> = ({
     const handler = (e: StorageEvent) => {
       if (e.key === HYDRATION_KEY(currentUserEmail)) {
         try {
-          const records: HydrationRecord[] = e.newValue ? JSON.parse(e.newValue) : [];
-          const today = records.find((r) => r.date === TODAY_KEY());
-          setHydrationLiters(today ? today.liters : 0);
+          const records = e.newValue ? JSON.parse(e.newValue) : [];
+          if (Array.isArray(records)) {
+            const today = records.find((r) => r && r.date === TODAY_KEY());
+            setHydrationLiters(today ? Number(today.liters) || 0 : 0);
+          }
         } catch {}
       }
       if (e.key === ALCOHOL_KEY(currentUserEmail)) {
         try {
-          const records: AlcoholRecord[] = e.newValue ? JSON.parse(e.newValue) : [];
-          const today = records.find((r) => r.date === TODAY_KEY());
-          setAlcoholDrinks(today ? today.drinks : 0);
-          setSoberDays(computeSoberDays(currentUserEmail));
+          const records = e.newValue ? JSON.parse(e.newValue) : [];
+          if (Array.isArray(records)) {
+            const today = records.find((r) => r && r.date === TODAY_KEY());
+            setAlcoholDrinks(today ? Number(today.drinks) || 0 : 0);
+            setSoberDays(computeSoberDays(currentUserEmail));
+          }
         } catch {}
       }
       if (e.key === CYCLE_KEY(currentUserEmail)) {
@@ -628,8 +651,12 @@ export const RotatingHeroCard: React.FC<RotatingHeroCardProps> = ({
     setHydrationLiters(liters);
     try {
       const raw = localStorage.getItem(HYDRATION_KEY(currentUserEmail));
-      let records: HydrationRecord[] = raw ? JSON.parse(raw) : [];
-      const idx = records.findIndex((r) => r.date === TODAY_KEY());
+      let records: HydrationRecord[] = [];
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) records = parsed;
+      }
+      const idx = records.findIndex((r) => r && r.date === TODAY_KEY());
       if (idx >= 0) records[idx].liters = liters;
       else records.push({ date: TODAY_KEY(), liters });
       records = records.slice(-30);
@@ -725,14 +752,18 @@ export const RotatingHeroCard: React.FC<RotatingHeroCardProps> = ({
   const removeSupplement = (id: string, name: string) => {
     try {
       const raw = localStorage.getItem(SUPPLEMENT_KEY);
-      const parsed: SupplementItem[] = raw ? JSON.parse(raw) : supplements;
-      const updated = parsed.filter((s) => s.id !== id);
+      let parsed: SupplementItem[] = supplements;
+      if (raw) {
+        const p = JSON.parse(raw);
+        if (Array.isArray(p)) parsed = p;
+      }
+      const updated = parsed.filter((s) => s && s.id !== id);
       localStorage.setItem(SUPPLEMENT_KEY, JSON.stringify(updated));
       setSupplements(updated);
       setTick((t) => t + 1);
       showToast(`Removed ${name}`, 'success');
     } catch {
-      setSupplements((prev) => prev.filter((s) => s.id !== id));
+      setSupplements((prev) => prev.filter((s) => s && s.id !== id));
     }
   };
 
@@ -744,8 +775,12 @@ export const RotatingHeroCard: React.FC<RotatingHeroCardProps> = ({
     setAlcoholDrinks(drinks);
     try {
       const raw = localStorage.getItem(ALCOHOL_KEY(currentUserEmail));
-      let records: AlcoholRecord[] = raw ? JSON.parse(raw) : [];
-      const idx = records.findIndex((r) => r.date === TODAY_KEY());
+      let records: AlcoholRecord[] = [];
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) records = parsed;
+      }
+      const idx = records.findIndex((r) => r && r.date === TODAY_KEY());
       if (idx >= 0) records[idx].drinks = drinks;
       else records.push({ date: TODAY_KEY(), drinks });
       records = records.slice(-30);
@@ -871,11 +906,11 @@ export const RotatingHeroCard: React.FC<RotatingHeroCardProps> = ({
 
 
   const currentWorkoutLabel = (() => {
-    const val = weeklySchedule[selectedDay];
+    const val = weeklySchedule?.[selectedDay || 'Mon'];
     if (!val) return 'Rest Day';
     if (ROUTINE_LABEL_MAP[val]) return ROUTINE_LABEL_MAP[val];
-    if (val.startsWith('custom_')) return 'Custom Workout';
-    return val;
+    if (typeof val === 'string' && val.startsWith('custom_')) return 'Custom Workout';
+    return String(val);
   })();
 
 

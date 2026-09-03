@@ -25,10 +25,23 @@ import {
   Calendar,
   UserCheck,
   Lock,
+  Send,
+  RefreshCw,
+  Target,
+  Bookmark,
+  BookmarkCheck,
+  Pencil,
 } from 'lucide-react';
 import { useSubscription } from '../utils/useSubscription';
 import { AthleteData } from '../types';
 import { DispatchedExercise, dispatchWorkout } from '../utils/dispatchStore';
+import {
+  CoachSavedBlueprint,
+  getCoachSavedBlueprints,
+  saveCoachBlueprint,
+  deleteCoachBlueprint,
+  updateCoachBlueprintTitle,
+} from '../utils/coachBlueprintStore';
 import {
   EXERCISE_DATABASE,
   SPORTS_CATEGORIES,
@@ -1079,68 +1092,6 @@ const buildMasterCuratedLibrary = (): CuratedExercise[] => {
 
 export const MASTER_EXERCISE_LIBRARY: CuratedExercise[] = buildMasterCuratedLibrary();
 
-// ═══════════════════════════════════════════════════════════════════════
-// INSTANT SPLIT ARCHITECTURES (1-Tap Smart Baselines)
-// ═══════════════════════════════════════════════════════════════════════
-export const SMART_SPLIT_BLUEPRINTS = [
-  {
-    id: 'arch_push_heavy',
-    title: 'Push Alpha: Chest & Tricep Overload',
-    split: 'PUSH',
-    focus: 'Hypertrophy & Strength',
-    description: 'Heavy competition paused bench followed by incline dumbbell press, dips, and triceps isolation.',
-    exerciseIds: [
-      'push_bb_flat_bench',
-      'push_incline_db_press',
-      'push_dips_chest',
-      'push_cable_lateral_raise',
-      'push_tricep_rope_pushdown',
-    ],
-  },
-  {
-    id: 'arch_pull_density',
-    title: 'Pull Alpha: Lat Density & Biceps',
-    split: 'PULL',
-    focus: 'Hypertrophy & Power',
-    description: 'Deadlift foundation paired with weighted pull-ups, chest-supported rows, and incline stretch curls.',
-    exerciseIds: [
-      'pull_deadlift_conv',
-      'pull_weighted_pullups',
-      'pull_tbar_row',
-      'pull_face_pulls',
-      'pull_incline_db_curl',
-    ],
-  },
-  {
-    id: 'arch_legs_quad_dom',
-    title: 'Legs Alpha: Quad Focus & Posterior',
-    split: 'LEGS',
-    focus: 'Hypertrophy & Kinetic Power',
-    description: 'Back squats paired with Romanian deadlifts, Bulgarian split squats, and isolation finishers.',
-    exerciseIds: [
-      'legs_back_squat',
-      'legs_rdl_barbell',
-      'legs_bulgarian_split_squat',
-      'legs_leg_extension',
-      'legs_standing_calf_raise',
-    ],
-  },
-  {
-    id: 'arch_hyrox_metcon',
-    title: 'Hyrox Race Simulator',
-    split: 'HYROX',
-    focus: 'Engine & Threshold Conditioning',
-    description: 'Race pace SkiErg, heavy sled push, burpee broad jumps, farmers carry, and wall ball finisher.',
-    exerciseIds: [
-      'hyrox_skierg',
-      'hyrox_sled_push',
-      'hyrox_burpee_broad_jump',
-      'hyrox_farmers_carry',
-      'hyrox_wall_balls',
-    ],
-  },
-];
-
 export const WorkoutDispatchModal: React.FC<WorkoutDispatchModalProps> = ({
   isOpen,
   onClose,
@@ -1238,6 +1189,34 @@ export const WorkoutDispatchModal: React.FC<WorkoutDispatchModalProps> = ({
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [isDispatching, setIsDispatching] = useState(false);
 
+  // ─── O1FC Intelligent Blueprint Synthesizer State ───
+  const [synthIntent, setSynthIntent] = useState<
+    'PUSH' | 'PULL' | 'LEGS' | 'UPPER' | 'LOWER' | 'SPEED' | 'HYROX' | 'STRENGTH' | 'RECOVERY'
+  >('PUSH');
+  const [synthDuration, setSynthDuration] = useState<'30m' | '45m' | '60m'>('45m');
+  const [synthEquipment, setSynthEquipment] = useState<'FULL' | 'DUMBBELL' | 'BODYWEIGHT'>('FULL');
+  const [synthRpe, setSynthRpe] = useState<'PROGRESSIVE' | 'FAILURE'>('PROGRESSIVE');
+  const [synthSeed, setSynthSeed] = useState<number>(0);
+  const [isSynthDispatching, setIsSynthDispatching] = useState<boolean>(false);
+
+  // ─── Coach Saved Blueprints Vault State ───
+  const [savedBlueprints, setSavedBlueprints] = useState<CoachSavedBlueprint[]>(() => getCoachSavedBlueprints());
+  const [expandedSavedBpId, setExpandedSavedBpId] = useState<string | null>(null);
+  const [editingBpId, setEditingBpId] = useState<string | null>(null);
+  const [editingTitle, setEditingTitle] = useState<string>('');
+
+  useEffect(() => {
+    const handleUpdate = () => {
+      setSavedBlueprints(getCoachSavedBlueprints());
+    };
+    if (typeof window !== 'undefined') {
+      window.addEventListener('o1fc-coach-blueprints-updated', handleUpdate);
+      return () => {
+        window.removeEventListener('o1fc-coach-blueprints-updated', handleUpdate);
+      };
+    }
+  }, []);
+
   // Lock Body & HTML Scroll to completely strip background scroll
   useEffect(() => {
     if (!isOpen) return;
@@ -1259,6 +1238,336 @@ export const WorkoutDispatchModal: React.FC<WorkoutDispatchModalProps> = ({
   const showToast = (msg: string) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 2500);
+  };
+
+  // ─── Biomechanical Blueprint Synthesizer Engine ───
+  const synthesizedBlueprint = useMemo(() => {
+    const isAlt = synthSeed % 2 === 1;
+
+    interface MovementDescriptor {
+      name: string;
+      category: string;
+      primaryMuscle: string;
+      movementType: 'Compound' | 'Isolation' | 'Functional' | 'Plyometric' | 'Mobility';
+      tier: string;
+      defaultSets: number;
+      defaultReps: number;
+      defaultWeight: number;
+      tempo: string;
+      restSec: number;
+      cue: string;
+    }
+
+    let title = '';
+    let split = 'PUSH';
+    let focus = '';
+    let notes = '';
+    let movements: MovementDescriptor[] = [];
+
+    switch (synthIntent) {
+      case 'PUSH':
+        split = 'PUSH';
+        title = `O1FC Push Alpha • ${synthEquipment === 'BODYWEIGHT' ? 'Calisthenics Armor' : synthEquipment === 'DUMBBELL' ? 'Dumbbell Tension' : 'Chest & Delts'}`;
+        focus = 'Sternal & Clavicular Hypertrophy, Scapular Drive';
+        notes = 'Full mechanical stretch. Maintain retracted scapulae and pause 1s at maximum eccentric depth.';
+        if (synthEquipment === 'BODYWEIGHT') {
+          movements = [
+            { name: isAlt ? 'Archer Push-ups' : 'Decline Deficit Push-ups', category: 'Push', primaryMuscle: 'Chest', movementType: 'Compound', tier: 'Tier 1: Heavy CNS Compound', defaultSets: 4, defaultReps: 10, defaultWeight: 0, tempo: '3-1-1-0', restSec: 90, cue: 'Drive through outer palms, full chest stretch.' },
+            { name: 'Dips (Chest Leaning)', category: 'Push', primaryMuscle: 'Chest', movementType: 'Compound', tier: 'Tier 2: Length-Tension Stretch', defaultSets: 4, defaultReps: 12, defaultWeight: 0, tempo: '3-1-1-0', restSec: 75, cue: 'Forward lean to prioritize lower sternal fibers.' },
+            { name: 'Pike Push-ups to Handstand Push-up Progression', category: 'Push', primaryMuscle: 'Shoulders', movementType: 'Compound', tier: 'Tier 3: Contraction Isolator', defaultSets: 3, defaultReps: 8, defaultWeight: 0, tempo: '2-1-1-0', restSec: 60, cue: 'Elbows track at 45 degrees, head touches floor.' },
+            { name: 'Diamond Push-ups (Triceps Burnout)', category: 'Push', primaryMuscle: 'Arms', movementType: 'Isolation', tier: 'Tier 4: Unilateral Vector', defaultSets: 3, defaultReps: 15, defaultWeight: 0, tempo: '2-0-1-1', restSec: 60, cue: 'Tuck elbows tight to ribs, lock out triceps.' },
+            { name: 'Hindu Push-ups (Dynamic Armor)', category: 'Push', primaryMuscle: 'Shoulders', movementType: 'Functional', tier: 'Tier 5: Synergist Finisher', defaultSets: 3, defaultReps: 12, defaultWeight: 0, tempo: '2-1-1-0', restSec: 60, cue: 'Smooth swoop from downward dog to cobra extension.' },
+            { name: 'Plank Shoulder Taps (Anti-Rotation Core)', category: 'Push', primaryMuscle: 'Core', movementType: 'Functional', tier: 'Tier 6: Metabolic Burnout', defaultSets: 3, defaultReps: 20, defaultWeight: 0, tempo: '1-0-1-0', restSec: 45, cue: 'Zero pelvic sway. Contract glutes and anterior core.' },
+          ];
+        } else if (synthEquipment === 'DUMBBELL') {
+          movements = [
+            { name: isAlt ? 'Incline Dumbbell Bench Press (30°)' : 'Flat Dumbbell Bench Press', category: 'Push', primaryMuscle: 'Chest', movementType: 'Compound', tier: 'Tier 1: Heavy CNS Compound', defaultSets: 4, defaultReps: 8, defaultWeight: 34, tempo: '3-1-1-0', restSec: 100, cue: 'Deep eccentric stretch. Converge dumbbells without touching.' },
+            { name: isAlt ? 'Flat Dumbbell Press (Neutral Grip)' : 'Incline Dumbbell Press (45°)', category: 'Push', primaryMuscle: 'Chest', movementType: 'Compound', tier: 'Tier 2: Length-Tension Stretch', defaultSets: 3, defaultReps: 10, defaultWeight: 28, tempo: '3-1-1-0', restSec: 75, cue: 'Controlled 3-second descent, feel the clavicular head stretch.' },
+            { name: 'Dumbbell Floor Chest Flyes', category: 'Push', primaryMuscle: 'Chest', movementType: 'Isolation', tier: 'Tier 3: Contraction Isolator', defaultSets: 3, defaultReps: 12, defaultWeight: 16, tempo: '2-1-1-1', restSec: 60, cue: 'Elbows lightly touch floor to protect shoulder joints.' },
+            { name: 'Standing Dumbbell Lateral Raise', category: 'Push', primaryMuscle: 'Shoulders', movementType: 'Isolation', tier: 'Tier 4: Unilateral Vector', defaultSets: 4, defaultReps: 15, defaultWeight: 12, tempo: '2-0-1-1', restSec: 60, cue: 'Lead with elbows. Stop at parallel, 1-second squeeze.' },
+            { name: 'Overhead Dumbbell Triceps Extension', category: 'Push', primaryMuscle: 'Arms', movementType: 'Isolation', tier: 'Tier 5: Synergist Finisher', defaultSets: 3, defaultReps: 12, defaultWeight: 24, tempo: '3-0-1-0', restSec: 60, cue: 'Maximum long-head tricep stretch behind the neck.' },
+            { name: 'Deficit Dumbbell Push-ups to Failure', category: 'Push', primaryMuscle: 'Chest', movementType: 'Compound', tier: 'Tier 6: Metabolic Burnout', defaultSets: 3, defaultReps: 20, defaultWeight: 0, tempo: '2-0-1-0', restSec: 45, cue: 'Chest sinks below handle height for maximum pump.' },
+          ];
+        } else {
+          movements = [
+            { name: isAlt ? 'Incline Barbell Bench Press (30°)' : 'Barbell Flat Bench Press', category: 'Push', primaryMuscle: 'Chest', movementType: 'Compound', tier: 'Tier 1: Heavy CNS Compound', defaultSets: 4, defaultReps: 6, defaultWeight: 85, tempo: '3-1-1-0', restSec: 120, cue: 'Plant feet, touch mid-sternum, drive bar up and back.' },
+            { name: isAlt ? 'Incline Dumbbell Press' : 'Weighted Dips (Chest Leaning)', category: 'Push', primaryMuscle: 'Chest', movementType: 'Compound', tier: 'Tier 2: Length-Tension Stretch', defaultSets: 3, defaultReps: 8, defaultWeight: 32, tempo: '3-1-1-0', restSec: 90, cue: 'Full mechanical stretch, feel chest stretch under load.' },
+            { name: 'Cable Chest Flyes (Mid-Height)', category: 'Push', primaryMuscle: 'Chest', movementType: 'Isolation', tier: 'Tier 3: Contraction Isolator', defaultSets: 3, defaultReps: 12, defaultWeight: 15, tempo: '2-1-1-1', restSec: 60, cue: 'Cross hands at midline for peak sternal contraction.' },
+            { name: 'Cable Lateral Raise (Behind Body)', category: 'Push', primaryMuscle: 'Shoulders', movementType: 'Isolation', tier: 'Tier 4: Unilateral Vector', defaultSets: 4, defaultReps: 15, defaultWeight: 10, tempo: '2-0-1-1', restSec: 60, cue: 'Constant tension throughout full range, lead with elbows.' },
+            { name: 'Triceps Pushdown (Rope)', category: 'Push', primaryMuscle: 'Arms', movementType: 'Isolation', tier: 'Tier 5: Synergist Finisher', defaultSets: 3, defaultReps: 12, defaultWeight: 25, tempo: '2-0-1-1', restSec: 60, cue: 'Flare rope outward at bottom for lateral head contraction.' },
+            { name: 'Overhead Cable Triceps Extension', category: 'Push', primaryMuscle: 'Arms', movementType: 'Isolation', tier: 'Tier 6: Metabolic Burnout', defaultSets: 3, defaultReps: 15, defaultWeight: 20, tempo: '3-0-1-0', restSec: 45, cue: 'Full extension overhead, keeping upper arms pinned.' },
+          ];
+        }
+        break;
+
+      case 'PULL':
+        split = 'PULL';
+        title = `O1FC Pull Beta • ${synthEquipment === 'BODYWEIGHT' ? 'Calisthenics Lat Armor' : synthEquipment === 'DUMBBELL' ? 'Unilateral Lat Density' : 'Lat Density & Chain'}`;
+        focus = 'Thoracic Retraction, Latissimus Dorsi & Biceps Armor';
+        notes = 'Initiate all pulls by depressing the scapulae. Pull elbows into pockets.';
+        if (synthEquipment === 'BODYWEIGHT') {
+          movements = [
+            { name: isAlt ? 'Weighted Dead-Hang Pull-ups' : 'Strict Dead-Hang Pull-ups', category: 'Pull', primaryMuscle: 'Back', movementType: 'Compound', tier: 'Tier 1: Heavy CNS Compound', defaultSets: 4, defaultReps: 8, defaultWeight: 0, tempo: '2-1-1-0', restSec: 90, cue: 'Chest to bar, full dead-hang at bottom.' },
+            { name: 'Inverted Bodyweight Rows (Bar or Rings)', category: 'Pull', primaryMuscle: 'Back', movementType: 'Compound', tier: 'Tier 2: Length-Tension Stretch', defaultSets: 4, defaultReps: 12, defaultWeight: 0, tempo: '2-0-1-1', restSec: 60, cue: 'Retract scapulae and squeeze mid-traps at top.' },
+            { name: 'Chin-ups (Underhand Bicep Focus)', category: 'Pull', primaryMuscle: 'Arms', movementType: 'Compound', tier: 'Tier 3: Contraction Isolator', defaultSets: 3, defaultReps: 10, defaultWeight: 0, tempo: '3-0-1-0', restSec: 75, cue: 'Full range of motion, biceps load on eccentric descent.' },
+            { name: 'Scapular Pull-ups (Retraction Power)', category: 'Pull', primaryMuscle: 'Back', movementType: 'Isolation', tier: 'Tier 4: Unilateral Vector', defaultSets: 3, defaultReps: 15, defaultWeight: 0, tempo: '1-2-1-0', restSec: 45, cue: 'Depress shoulders without bending elbows.' },
+            { name: 'Doorframe / Towel Bicep Curls (Isometric)', category: 'Pull', primaryMuscle: 'Arms', movementType: 'Isolation', tier: 'Tier 5: Synergist Finisher', defaultSets: 3, defaultReps: 15, defaultWeight: 0, tempo: '2-1-1-1', restSec: 45, cue: 'Continuous peak contraction against resistance.' },
+            { name: 'Bar Dead Hang (Spinal Decompression & Grip)', category: 'Pull', primaryMuscle: 'Back', movementType: 'Mobility', tier: 'Tier 6: Metabolic Burnout', defaultSets: 3, defaultReps: 60, defaultWeight: 0, tempo: 'Static', restSec: 45, cue: 'Passive lat stretch, deep belly breathing.' },
+          ];
+        } else if (synthEquipment === 'DUMBBELL') {
+          movements = [
+            { name: isAlt ? 'Dual Dumbbell Romanian Deadlift' : 'Heavy Single-Arm Dumbbell Row', category: 'Pull', primaryMuscle: 'Back', movementType: 'Compound', tier: 'Tier 1: Heavy CNS Compound', defaultSets: 4, defaultReps: 8, defaultWeight: 36, tempo: '3-1-1-0', restSec: 90, cue: 'Brace core, pull dumbbell to hip pocket.' },
+            { name: 'Chest-Supported Incline Dumbbell Row', category: 'Pull', primaryMuscle: 'Back', movementType: 'Compound', tier: 'Tier 2: Length-Tension Stretch', defaultSets: 4, defaultReps: 10, defaultWeight: 26, tempo: '2-1-1-1', restSec: 75, cue: 'Eliminate momentum, focus on upper back squeeze.' },
+            { name: 'Dumbbell Incline Bicep Curl', category: 'Pull', primaryMuscle: 'Arms', movementType: 'Isolation', tier: 'Tier 3: Contraction Isolator', defaultSets: 3, defaultReps: 12, defaultWeight: 14, tempo: '3-0-1-1', restSec: 60, cue: 'Full biceps long-head stretch at bottom of incline.' },
+            { name: 'Dumbbell Rear Delt Prone Flyes', category: 'Pull', primaryMuscle: 'Shoulders', movementType: 'Isolation', tier: 'Tier 4: Unilateral Vector', defaultSets: 4, defaultReps: 15, defaultWeight: 10, tempo: '2-0-1-1', restSec: 45, cue: 'Chest against bench, squeeze rear delts at top.' },
+            { name: 'Dumbbell Hammer Curls', category: 'Pull', primaryMuscle: 'Arms', movementType: 'Isolation', tier: 'Tier 5: Synergist Finisher', defaultSets: 3, defaultReps: 12, defaultWeight: 16, tempo: '2-0-1-0', restSec: 45, cue: 'Target brachialis and forearm grip strength.' },
+            { name: 'Dumbbell Shrugs (2-Second Hold)', category: 'Pull', primaryMuscle: 'Back', movementType: 'Isolation', tier: 'Tier 6: Metabolic Burnout', defaultSets: 3, defaultReps: 15, defaultWeight: 30, tempo: '1-2-1-0', restSec: 45, cue: 'Elevate scapulae towards ears, hard isometric squeeze.' },
+          ];
+        } else {
+          movements = [
+            { name: isAlt ? 'Conventional Deadlift' : 'Barbell Bent-Over Row', category: 'Pull', primaryMuscle: 'Back', movementType: 'Compound', tier: 'Tier 1: Heavy CNS Compound', defaultSets: 4, defaultReps: 6, defaultWeight: 110, tempo: '3-1-1-0', restSec: 150, cue: 'Lock lats, push floor away, explosive lockout.' },
+            { name: isAlt ? 'Weighted Pull-ups' : 'Wide-Grip Lat Pulldown', category: 'Pull', primaryMuscle: 'Back', movementType: 'Compound', tier: 'Tier 2: Length-Tension Stretch', defaultSets: 4, defaultReps: 8, defaultWeight: 75, tempo: '3-1-1-0', restSec: 90, cue: 'Drive elbows down and back to touch collarbone.' },
+            { name: 'T-Bar Row (Close Grip)', category: 'Pull', primaryMuscle: 'Back', movementType: 'Compound', tier: 'Tier 3: Contraction Isolator', defaultSets: 3, defaultReps: 10, defaultWeight: 60, tempo: '2-1-1-1', restSec: 75, cue: 'Keep lumbar spine neutral, full stretch at bottom.' },
+            { name: 'Face Pulls (Cable Rope to Forehead)', category: 'Pull', primaryMuscle: 'Shoulders', movementType: 'Isolation', tier: 'Tier 4: Unilateral Vector', defaultSets: 4, defaultReps: 15, defaultWeight: 25, tempo: '2-0-1-1', restSec: 60, cue: 'External rotation focus for rear delt and rotator cuff longevity.' },
+            { name: 'Incline Dumbbell Bicep Curl', category: 'Pull', primaryMuscle: 'Arms', movementType: 'Isolation', tier: 'Tier 5: Synergist Finisher', defaultSets: 3, defaultReps: 12, defaultWeight: 14, tempo: '3-0-1-0', restSec: 60, cue: 'Deep supinated stretch, slow 3-second descent.' },
+            { name: 'Cable Rope Hammer Curls', category: 'Pull', primaryMuscle: 'Arms', movementType: 'Isolation', tier: 'Tier 6: Metabolic Burnout', defaultSets: 3, defaultReps: 15, defaultWeight: 25, tempo: '2-0-1-0', restSec: 45, cue: 'Flare rope outward at top, forearm pump.' },
+          ];
+        }
+        break;
+
+      case 'LEGS':
+        split = 'LEGS';
+        title = `O1FC Legs Alpha • ${synthEquipment === 'BODYWEIGHT' ? 'Unilateral Force Transfer' : synthEquipment === 'DUMBBELL' ? 'Goblet & Split Squat' : 'Quad & Posterior Chain'}`;
+        focus = 'Bilateral Knee Extension & Hip Hinge Kinetics';
+        notes = 'Hit parallel or deeper on squats. Control eccentric descent on knee-dominant movements.';
+        if (synthEquipment === 'BODYWEIGHT') {
+          movements = [
+            { name: isAlt ? 'Pistol Squats (Single Leg)' : 'Bulgarian Split Squat (Tempo 3-1-1-0)', category: 'Legs', primaryMuscle: 'Legs', movementType: 'Compound', tier: 'Tier 1: Heavy CNS Compound', defaultSets: 4, defaultReps: 8, defaultWeight: 0, tempo: '3-1-1-0', restSec: 90, cue: 'Full single-leg balance and quad extension.' },
+            { name: 'Nordic Hamstring Curl (Assisted)', category: 'Legs', primaryMuscle: 'Legs', movementType: 'Compound', tier: 'Tier 2: Length-Tension Stretch', defaultSets: 4, defaultReps: 6, defaultWeight: 0, tempo: '4-0-1-0', restSec: 90, cue: 'Resist forward fall with eccentric hamstring tension.' },
+            { name: 'Single-Leg Glute Bridge (Elevated Foot)', category: 'Legs', primaryMuscle: 'Glutes', movementType: 'Isolation', tier: 'Tier 3: Contraction Isolator', defaultSets: 3, defaultReps: 12, defaultWeight: 0, tempo: '2-2-1-0', restSec: 60, cue: 'Full hip extension, 2-second glute squeeze at peak.' },
+            { name: 'Jump Squats (Explosive Ground Contact)', category: 'Legs', primaryMuscle: 'Legs', movementType: 'Plyometric', tier: 'Tier 4: Unilateral Vector', defaultSets: 3, defaultReps: 12, defaultWeight: 0, tempo: '1-0-X-0', restSec: 60, cue: 'Triple extension at ankles, knees, and hips.' },
+            { name: 'Standing Single-Leg Calf Raise', category: 'Legs', primaryMuscle: 'Legs', movementType: 'Isolation', tier: 'Tier 5: Synergist Finisher', defaultSets: 4, defaultReps: 20, defaultWeight: 0, tempo: '2-1-1-1', restSec: 45, cue: 'Full dorsiflexion stretch, pause 1 second at top.' },
+            { name: 'Wall Sit Iso-Hold (45s Hold)', category: 'Legs', primaryMuscle: 'Legs', movementType: 'Functional', tier: 'Tier 6: Metabolic Burnout', defaultSets: 3, defaultReps: 45, defaultWeight: 0, tempo: 'Static', restSec: 45, cue: 'Thighs parallel to floor, contract quads.' },
+          ];
+        } else if (synthEquipment === 'DUMBBELL') {
+          movements = [
+            { name: isAlt ? 'Heavy Dumbbell Goblet Squat' : 'Dumbbell Front Rack Squats', category: 'Legs', primaryMuscle: 'Legs', movementType: 'Compound', tier: 'Tier 1: Heavy CNS Compound', defaultSets: 4, defaultReps: 10, defaultWeight: 36, tempo: '3-1-1-0', restSec: 90, cue: 'Tall chest, spread floor with feet, full depth.' },
+            { name: 'Dumbbell Romanian Deadlift', category: 'Legs', primaryMuscle: 'Legs', movementType: 'Compound', tier: 'Tier 2: Length-Tension Stretch', defaultSets: 4, defaultReps: 10, defaultWeight: 30, tempo: '3-1-1-0', restSec: 90, cue: 'Hinge back into hips, keep dumbbells grazing shins.' },
+            { name: 'Bulgarian Split Squat (Dual Dumbbells)', category: 'Legs', primaryMuscle: 'Legs', movementType: 'Compound', tier: 'Tier 3: Contraction Isolator', defaultSets: 3, defaultReps: 10, defaultWeight: 18, tempo: '3-0-1-0', restSec: 75, cue: 'Forward torso lean to recruit glutes and quad stretch.' },
+            { name: 'Dumbbell Walking Lunges', category: 'Legs', primaryMuscle: 'Legs', movementType: 'Compound', tier: 'Tier 4: Unilateral Vector', defaultSets: 3, defaultReps: 20, defaultWeight: 16, tempo: '2-0-1-0', restSec: 60, cue: 'Touch back knee softly to floor, explosive step.' },
+            { name: 'Standing Single-Leg Dumbbell Calf Raise', category: 'Legs', primaryMuscle: 'Legs', movementType: 'Isolation', tier: 'Tier 5: Synergist Finisher', defaultSets: 4, defaultReps: 15, defaultWeight: 16, tempo: '2-1-1-1', restSec: 45, cue: 'Pause in deepest dorsiflexion stretch.' },
+            { name: 'Dumbbell Sumo Squat Pulse Finisher', category: 'Legs', primaryMuscle: 'Legs', movementType: 'Isolation', tier: 'Tier 6: Metabolic Burnout', defaultSets: 3, defaultReps: 15, defaultWeight: 24, tempo: '1-1-1-0', restSec: 45, cue: 'Maintain bottom 50% range of motion for lactic burn.' },
+          ];
+        } else {
+          movements = [
+            { name: isAlt ? 'Barbell Front Squat' : 'Barbell Back Squat', category: 'Legs', primaryMuscle: 'Legs', movementType: 'Compound', tier: 'Tier 1: Heavy CNS Compound', defaultSets: 4, defaultReps: 6, defaultWeight: 105, tempo: '3-1-1-0', restSec: 150, cue: 'Break at hips and knees simultaneously, hit below parallel.' },
+            { name: 'Romanian Deadlift (Barbell)', category: 'Legs', primaryMuscle: 'Legs', movementType: 'Compound', tier: 'Tier 2: Length-Tension Stretch', defaultSets: 4, defaultReps: 8, defaultWeight: 90, tempo: '3-1-1-0', restSec: 100, cue: 'Maximum hamstring stretch at bottom, snap hips at top.' },
+            { name: 'Leg Press (45-Degree High Foot Placement)', category: 'Legs', primaryMuscle: 'Legs', movementType: 'Compound', tier: 'Tier 3: Contraction Isolator', defaultSets: 3, defaultReps: 12, defaultWeight: 180, tempo: '3-0-1-0', restSec: 90, cue: 'Control descent without pelvis tucking off pad.' },
+            { name: 'Leg Extension (Machine)', category: 'Legs', primaryMuscle: 'Legs', movementType: 'Isolation', tier: 'Tier 4: Unilateral Vector', defaultSets: 3, defaultReps: 15, defaultWeight: 60, tempo: '2-1-1-1', restSec: 60, cue: '2-second peak isometric contraction at full lockout.' },
+            { name: 'Lying Hamstring Leg Curl', category: 'Legs', primaryMuscle: 'Legs', movementType: 'Isolation', tier: 'Tier 5: Synergist Finisher', defaultSets: 3, defaultReps: 12, defaultWeight: 50, tempo: '2-0-1-1', restSec: 60, cue: 'Dorsiflex ankles, squeeze heels toward glutes.' },
+            { name: 'Standing Machine Calf Raise', category: 'Legs', primaryMuscle: 'Legs', movementType: 'Isolation', tier: 'Tier 6: Metabolic Burnout', defaultSets: 4, defaultReps: 15, defaultWeight: 70, tempo: '2-1-1-1', restSec: 45, cue: 'Strict 2-second pause in full stretch before driving up.' },
+          ];
+        }
+        break;
+
+      case 'UPPER':
+        split = 'UPPER';
+        title = 'O1FC Upper Body • Antagonist Armor & Power';
+        focus = 'Horizontal/Vertical Push-Pull Balance & Shoulder Health';
+        notes = 'Superset pushing and pulling movement patterns for balanced joint kinematics.';
+        movements = [
+          { name: isAlt ? 'Incline Barbell Bench Press' : 'Barbell Flat Bench Press', category: 'Upper', primaryMuscle: 'Chest', movementType: 'Compound', tier: 'Tier 1: Heavy CNS Compound', defaultSets: 4, defaultReps: 6, defaultWeight: 80, tempo: '3-1-1-0', restSec: 120, cue: 'Tight upper back arch, drive bar explosively.' },
+          { name: 'Weighted Pull-ups or Lat Pulldown', category: 'Upper', primaryMuscle: 'Back', movementType: 'Compound', tier: 'Tier 2: Length-Tension Stretch', defaultSets: 4, defaultReps: 8, defaultWeight: 70, tempo: '3-1-1-0', restSec: 90, cue: 'Chest to bar, pull elbows into ribcage.' },
+          { name: 'Standing Dumbbell Overhead Press', category: 'Upper', primaryMuscle: 'Shoulders', movementType: 'Compound', tier: 'Tier 3: Contraction Isolator', defaultSets: 3, defaultReps: 8, defaultWeight: 22, tempo: '2-1-1-0', restSec: 75, cue: 'Neutral grip, lock out over midfoot without hyperextending back.' },
+          { name: 'Chest-Supported T-Bar or Dumbbell Row', category: 'Upper', primaryMuscle: 'Back', movementType: 'Compound', tier: 'Tier 4: Unilateral Vector', defaultSets: 3, defaultReps: 10, defaultWeight: 50, tempo: '2-1-1-1', restSec: 60, cue: 'Full stretch at bottom, squeeze shoulder blades together.' },
+          { name: 'Cable Lateral Raise (Behind Body)', category: 'Upper', primaryMuscle: 'Shoulders', movementType: 'Isolation', tier: 'Tier 5: Synergist Finisher', defaultSets: 3, defaultReps: 15, defaultWeight: 10, tempo: '2-0-1-1', restSec: 45, cue: 'Constant tension, lead with elbows.' },
+          { name: 'Antagonist Biceps/Triceps Superset', category: 'Upper', primaryMuscle: 'Arms', movementType: 'Isolation', tier: 'Tier 6: Metabolic Burnout', defaultSets: 3, defaultReps: 12, defaultWeight: 20, tempo: '2-0-1-0', restSec: 45, cue: 'Incline curls paired with cable rope pushdowns back-to-back.' },
+        ];
+        break;
+
+      case 'LOWER':
+        split = 'LOWER';
+        title = 'O1FC Lower Body • Explosive Triple Extension';
+        focus = 'Bilateral Power, Posterior Chain & Unilateral Deceleration';
+        notes = 'Focus on explosive hip drive out of the hole and deep eccentric control on lunges.';
+        movements = [
+          { name: isAlt ? 'Trap Bar Deadlift (High Velocity)' : 'Competition Barbell Squat', category: 'Lower', primaryMuscle: 'Legs', movementType: 'Compound', tier: 'Tier 1: Heavy CNS Compound', defaultSets: 4, defaultReps: 5, defaultWeight: 110, tempo: '3-1-X-0', restSec: 150, cue: 'Maximum acceleration on concentric drive.' },
+          { name: 'Barbell Romanian Deadlift', category: 'Lower', primaryMuscle: 'Legs', movementType: 'Compound', tier: 'Tier 2: Length-Tension Stretch', defaultSets: 4, defaultReps: 8, defaultWeight: 85, tempo: '3-1-1-0', restSec: 90, cue: 'Hamstring stretch, snap glutes forward at top.' },
+          { name: 'Bulgarian Split Squat (Dumbbells)', category: 'Lower', primaryMuscle: 'Legs', movementType: 'Compound', tier: 'Tier 3: Contraction Isolator', defaultSets: 3, defaultReps: 10, defaultWeight: 20, tempo: '3-0-1-0', restSec: 75, cue: 'Maintain knee alignment, full hip extension.' },
+          { name: 'Barbell Hip Thrust (2s Squeeze)', category: 'Lower', primaryMuscle: 'Glutes', movementType: 'Compound', tier: 'Tier 4: Unilateral Vector', defaultSets: 3, defaultReps: 10, defaultWeight: 90, tempo: '2-0-1-2', restSec: 60, cue: 'Tuck chin, full hip lockout at top without arching lower back.' },
+          { name: 'Lying Hamstring Curl', category: 'Lower', primaryMuscle: 'Legs', movementType: 'Isolation', tier: 'Tier 5: Synergist Finisher', defaultSets: 3, defaultReps: 12, defaultWeight: 50, tempo: '2-0-1-1', restSec: 60, cue: 'Dorsiflex toes, slow 3-second eccentric phase.' },
+          { name: 'Standing Calf Raise with 2s Stretch', category: 'Lower', primaryMuscle: 'Legs', movementType: 'Isolation', tier: 'Tier 6: Metabolic Burnout', defaultSets: 4, defaultReps: 15, defaultWeight: 60, tempo: '2-1-1-1', restSec: 45, cue: 'Deep stretch at bottom, drive up onto big toe.' },
+        ];
+        break;
+
+      case 'SPEED':
+        split = 'SPORT';
+        title = 'O1FC Kinetic Speed • Agility & Deceleration';
+        focus = 'Rate of Force Development, First-Step Shin Angles & COD';
+        notes = 'Rest sufficiently between sprint efforts to ensure maximum neurological power output.';
+        movements = [
+          { name: isAlt ? '20m Acceleration Sprints (3-Point Stance)' : '10m Fly-In Sprints (Max Velocity)', category: 'Speed', primaryMuscle: 'Legs', movementType: 'Plyometric', tier: 'Tier 1: Heavy CNS Compound', defaultSets: 6, defaultReps: 1, defaultWeight: 0, tempo: 'Max Velocity', restSec: 120, cue: 'Low forward shin angle, drive track backward aggressively.' },
+          { name: 'Lateral Skater Bounds with Stick Landing', category: 'Speed', primaryMuscle: 'Legs', movementType: 'Plyometric', tier: 'Tier 2: Length-Tension Stretch', defaultSets: 4, defaultReps: 6, defaultWeight: 0, tempo: '1-0-X-1', restSec: 60, cue: 'Absorb landing softly in a loaded athletic hinge stance.' },
+          { name: 'Trap Bar Speed Pull (65% 1RM + Bands)', category: 'Speed', primaryMuscle: 'Legs', movementType: 'Compound', tier: 'Tier 3: Contraction Isolator', defaultSets: 4, defaultReps: 3, defaultWeight: 80, tempo: '1-0-X-0', restSec: 90, cue: 'Pull with maximal violent velocity from the floor.' },
+          { name: '5-10-5 Pro Agility Shuttle Drill', category: 'Speed', primaryMuscle: 'Legs', movementType: 'Functional', tier: 'Tier 4: Unilateral Vector', defaultSets: 4, defaultReps: 1, defaultWeight: 0, tempo: 'COD', restSec: 90, cue: 'Low center of mass at change-of-direction lines.' },
+          { name: 'Rotational Medicine Ball Slam', category: 'Speed', primaryMuscle: 'Core', movementType: 'Plyometric', tier: 'Tier 5: Synergist Finisher', defaultSets: 4, defaultReps: 8, defaultWeight: 8, tempo: 'Explosive', restSec: 60, cue: 'Violent hip rotation transfer into the floor.' },
+          { name: 'Deceleration 5-Step Braking Drill', category: 'Speed', primaryMuscle: 'Legs', movementType: 'Functional', tier: 'Tier 6: Metabolic Burnout', defaultSets: 3, defaultReps: 4, defaultWeight: 0, tempo: 'Decel', restSec: 45, cue: 'Drop hips and absorb deceleration through the front quad.' },
+        ];
+        break;
+
+      case 'HYROX':
+        split = 'HYROX';
+        title = 'O1FC Hyrox Engine • Sled & Threshold Capacity';
+        focus = 'Compromised Running Economy & Lactate Station Stamina';
+        notes = 'Simulate competition station transitions without pacing collapse.';
+        movements = [
+          { name: isAlt ? 'Concept2 SkiErg 1000m Interval' : 'Concept2 Rowing 1000m Interval', category: 'Hyrox', primaryMuscle: 'Full Body', movementType: 'Functional', tier: 'Tier 1: Heavy CNS Compound', defaultSets: 2, defaultReps: 1000, defaultWeight: 0, tempo: 'Race Pace', restSec: 90, cue: 'Maintain strong hip hinge and stroke rhythm.' },
+          { name: 'Heavy Sled Push 50m (Comp Weight)', category: 'Hyrox', primaryMuscle: 'Legs', movementType: 'Functional', tier: 'Tier 2: Length-Tension Stretch', defaultSets: 3, defaultReps: 50, defaultWeight: 140, tempo: 'Constant Drive', restSec: 90, cue: 'Low torso angle, continuous high knee drive.' },
+          { name: 'Burpee Broad Jumps (80m or 4x20m)', category: 'Hyrox', primaryMuscle: 'Full Body', movementType: 'Plyometric', tier: 'Tier 3: Contraction Isolator', defaultSets: 3, defaultReps: 20, defaultWeight: 0, tempo: 'Cadence', restSec: 60, cue: 'Jump forward immediately out of the burpee push-up.' },
+          { name: 'Heavy Farmers Carry 200m (2x28kg or 2x32kg)', category: 'Hyrox', primaryMuscle: 'Full Body', movementType: 'Functional', tier: 'Tier 4: Unilateral Vector', defaultSets: 3, defaultReps: 200, defaultWeight: 56, tempo: 'Upright', restSec: 60, cue: 'Tall posture, proud chest, unbreakable grip.' },
+          { name: 'Wall Balls 100 Reps (6kg/9kg)', category: 'Hyrox', primaryMuscle: 'Full Body', movementType: 'Functional', tier: 'Tier 5: Synergist Finisher', defaultSets: 4, defaultReps: 25, defaultWeight: 9, tempo: 'Rhythmic', restSec: 45, cue: 'Full squat depth, catch ball and drive straight up.' },
+          { name: 'Sandbag Walking Lunges (100m)', category: 'Hyrox', primaryMuscle: 'Legs', movementType: 'Functional', tier: 'Tier 6: Metabolic Burnout', defaultSets: 2, defaultReps: 50, defaultWeight: 20, tempo: 'Cadence', restSec: 45, cue: 'Upright torso, knee touches floor on every stride.' },
+        ];
+        break;
+
+      case 'STRENGTH':
+        split = 'STRENGTH';
+        title = 'O1FC Max Strength • 5x5 CNS Peaking';
+        focus = 'Absolute Neurological Recruitment & Structural Tension';
+        notes = 'Take 3-4 minutes rest between primary sets. Maximum competition intent.';
+        movements = [
+          { name: isAlt ? 'Competition Low Bar Squat (3x3)' : 'Competition Low Bar Squat (5x5)', category: 'Strength', primaryMuscle: 'Legs', movementType: 'Compound', tier: 'Tier 1: Heavy CNS Compound', defaultSets: 5, defaultReps: 3, defaultWeight: 130, tempo: '3-1-X-0', restSec: 180, cue: 'Brace abdominal wall with 360-degree intra-abdominal pressure.' },
+          { name: 'Competition Paused Bench Press (Sternum 1s Pause)', category: 'Strength', primaryMuscle: 'Chest', movementType: 'Compound', tier: 'Tier 2: Length-Tension Stretch', defaultSets: 5, defaultReps: 3, defaultWeight: 95, tempo: '2-1-X-0', restSec: 180, cue: 'Leg drive active before bar touches chest. Violent press.' },
+          { name: 'Deficit Deadlift or Heavy Conventional Pull', category: 'Strength', primaryMuscle: 'Back', movementType: 'Compound', tier: 'Tier 3: Contraction Isolator', defaultSets: 4, defaultReps: 3, defaultWeight: 140, tempo: '1-1-X-0', restSec: 180, cue: 'Overcome the off-the-floor sticking point with locked lats.' },
+          { name: 'Weighted Dips (Heavy 3x5)', category: 'Strength', primaryMuscle: 'Chest', movementType: 'Compound', tier: 'Tier 4: Unilateral Vector', defaultSets: 3, defaultReps: 5, defaultWeight: 20, tempo: '2-1-X-0', restSec: 120, cue: 'Tricep and lower chest overload.' },
+          { name: 'Barbell Shrugs (Heavy 2-Second Hold)', category: 'Strength', primaryMuscle: 'Back', movementType: 'Isolation', tier: 'Tier 5: Synergist Finisher', defaultSets: 3, defaultReps: 8, defaultWeight: 100, tempo: '1-2-1-0', restSec: 75, cue: 'Reinforce upper back shelf and grip strength.' },
+          { name: 'Ab Wheel Rollout from Knees', category: 'Strength', primaryMuscle: 'Core', movementType: 'Functional', tier: 'Tier 6: Metabolic Burnout', defaultSets: 3, defaultReps: 10, defaultWeight: 0, tempo: '3-1-1-0', restSec: 60, cue: 'Anterior core bracing under heavy spinal shear load.' },
+        ];
+        break;
+
+      case 'RECOVERY':
+        split = 'RECOVERY';
+        title = 'O1FC Bio-Recovery • Joint Flow & Decompression';
+        focus = 'Parasympathetic Shift, Joint Capsule CARs & Disc Traction';
+        notes = 'Nasal diaphragmatic breathing throughout. Do not force joint pain.';
+        movements = [
+          { name: '90/90 Hip Transition & Active CARs', category: 'Recovery', primaryMuscle: 'Glutes', movementType: 'Mobility', tier: 'Tier 1: Heavy CNS Compound', defaultSets: 3, defaultReps: 8, defaultWeight: 0, tempo: 'Flow', restSec: 30, cue: 'Smooth internal and external rotation of the hip capsules.' },
+          { name: 'Segmental Cat-Cow Flow (Breath Synchronized)', category: 'Recovery', primaryMuscle: 'Back', movementType: 'Mobility', tier: 'Tier 2: Length-Tension Stretch', defaultSets: 3, defaultReps: 10, defaultWeight: 0, tempo: 'Flow', restSec: 30, cue: 'Articulate each spinal vertebra individually.' },
+          { name: 'Dead Hang Spinal Decompression (Bar or Rings)', category: 'Recovery', primaryMuscle: 'Back', movementType: 'Mobility', tier: 'Tier 3: Contraction Isolator', defaultSets: 3, defaultReps: 60, defaultWeight: 0, tempo: 'Static', restSec: 45, cue: 'Release tension in lumbar spine and allow shoulders to elevate naturally.' },
+          { name: 'Cossack Squat (Deep Lateral Hip Opener)', category: 'Recovery', primaryMuscle: 'Legs', movementType: 'Mobility', tier: 'Tier 4: Unilateral Vector', defaultSets: 3, defaultReps: 8, defaultWeight: 0, tempo: 'Flow', restSec: 45, cue: 'Keep grounded heel flat, open adductor long-head.' },
+          { name: 'Thread the Needle Thoracic Reach', category: 'Recovery', primaryMuscle: 'Back', movementType: 'Mobility', tier: 'Tier 5: Synergist Finisher', defaultSets: 3, defaultReps: 8, defaultWeight: 0, tempo: 'Flow', restSec: 30, cue: 'Deep thoracic rotation and rib expansion.' },
+          { name: 'Diaphragmatic Box Breathing (4s in / 4s hold / 4s out)', category: 'Recovery', primaryMuscle: 'Core', movementType: 'Mobility', tier: 'Tier 6: Metabolic Burnout', defaultSets: 1, defaultReps: 5, defaultWeight: 0, tempo: 'Box Breathing', restSec: 0, cue: 'Trigger parasympathetic nervous recovery tone.' },
+        ];
+        break;
+    }
+
+    // Filter count by duration
+    const count = synthDuration === '30m' ? 3 : synthDuration === '45m' ? 5 : 6;
+    const selectedDescriptors = movements.slice(0, count);
+
+    // Map to StagedExercise array
+    const mappedExercises: StagedExercise[] = selectedDescriptors.map((desc, idx) => {
+      const setsCount = desc.defaultSets;
+      const sets: IntelligentSet[] = Array.from({ length: setsCount }, (_, sIdx) => {
+        const isLast = sIdx === setsCount - 1;
+        const isFailure = synthRpe === 'FAILURE';
+        return {
+          setNum: sIdx + 1,
+          type: isFailure && isLast ? 'dropset' : (sIdx === 0 && desc.defaultWeight > 60 ? 'warmup' : 'working'),
+          reps: isFailure && isLast ? Math.max(6, desc.defaultReps + 2) : desc.defaultReps,
+          weight: isFailure && isLast ? Math.max(0, Math.round(desc.defaultWeight * 0.8)) : desc.defaultWeight,
+          rpe: isFailure ? (isLast ? 10 : 9) : (7.5 + sIdx * 0.5),
+        };
+      });
+
+      return {
+        id: `synth_${synthIntent.toLowerCase()}_${idx}_${Date.now()}`,
+        name: desc.name,
+        category: desc.category,
+        primaryMuscle: desc.primaryMuscle,
+        movementType: desc.movementType,
+        restSec: desc.restSec,
+        tempo: desc.tempo,
+        progressionScheme: synthRpe === 'FAILURE' ? 'Reverse Pyramid' : 'Straight',
+        notes: `[${desc.tier}] ${desc.cue}`,
+        isExpanded: false,
+        sets,
+      };
+    });
+
+    const estMinutes = synthDuration === '30m' ? 30 : synthDuration === '45m' ? 45 : 65;
+
+    return {
+      title,
+      split,
+      focus,
+      notes,
+      estimatedMinutes: estMinutes,
+      exercises: mappedExercises,
+    };
+  }, [synthIntent, synthDuration, synthEquipment, synthRpe, synthSeed]);
+
+  // ─── Load Synthesized Blueprint Into Stack ───
+  const handleLoadSynthIntoStack = () => {
+    setStagedExercises(synthesizedBlueprint.exercises);
+    setRoutineTitle(synthesizedBlueprint.title);
+    setActiveTab('stack');
+    showToast(`Loaded "${synthesizedBlueprint.title}" into Stack`);
+  };
+
+  // ─── Instant Dispatch Synthesized Blueprint to Selected Athletes ───
+  const handleInstantSynthDispatch = async () => {
+    if (selectedClientKeys.length === 0) {
+      showToast('Select target athletes to dispatch this blueprint');
+      setIsClientSheetOpen(true);
+      return;
+    }
+
+    setIsSynthDispatching(true);
+    const synth = synthesizedBlueprint;
+
+    const transformedExercises: DispatchedExercise[] = synth.exercises.map((ex) => {
+      const primarySet = ex.sets[0] || { reps: 10, weight: 50 };
+      return {
+        name: ex.name,
+        sets: ex.sets.length,
+        reps: `${primarySet.reps} reps`,
+        targetLoad: `${primarySet.weight > 0 ? `${primarySet.weight} kg • ` : ''}Tempo ${ex.tempo}`,
+        notes: `${ex.notes} [${ex.progressionScheme}]`,
+      };
+    });
+
+    const selectedClientNames = selectedClientKeys.map(
+      (key) => clients[key]?.name || key
+    );
+
+    try {
+      await dispatchWorkout({
+        coachId: 'coach_main',
+        coachName: coachName || 'Head Coach',
+        clientIds: selectedClientKeys,
+        clientNames: selectedClientNames,
+        title: synth.title,
+        routineCategory: synth.split,
+        scheduledDay,
+        scheduledDate: new Date().toISOString().split('T')[0],
+        exercises: transformedExercises,
+        notes: `[O1FC Blueprint • ${synthDuration} • ${synthEquipment} • ${synthRpe === 'FAILURE' ? 'Failure' : 'Progressive'}] ${synth.notes}`,
+      });
+
+      // Align active stack as well
+      setStagedExercises(synth.exercises);
+      setRoutineTitle(synth.title);
+      setIsSynthDispatching(false);
+
+      if (onDispatchSuccess) {
+        onDispatchSuccess(selectedClientKeys.length);
+      }
+      showToast(`Dispatched "${synth.title}" to ${selectedClientKeys.length} athlete(s)!`);
+    } catch (e) {
+      setIsSynthDispatching(false);
+      showToast('Dispatch failed. Retrying...');
+    }
   };
 
   // ─── Progression Generator ───
@@ -1493,35 +1802,129 @@ export const WorkoutDispatchModal: React.FC<WorkoutDispatchModalProps> = ({
     });
   };
 
-  // ─── 1-Tap Load Full Blueprint ───
-  const handleLoadBlueprint = (blueprint: typeof SMART_SPLIT_BLUEPRINTS[0]) => {
-    setRoutineTitle(blueprint.title);
-    setSelectedSplit(blueprint.split as any);
+  // ─── Coach Blueprint Saved Handlers ───
+  const handleSaveSynthesizedBlueprint = () => {
+    const newBp = saveCoachBlueprint({
+      title: synthesizedBlueprint.title,
+      split: synthesizedBlueprint.split,
+      focus: synthesizedBlueprint.focus,
+      notes: synthesizedBlueprint.notes,
+      estimatedMinutes: synthesizedBlueprint.estimatedMinutes,
+      equipment: synthEquipment === 'FULL' ? 'Full Gym' : synthEquipment === 'DUMBBELL' ? 'DB & Bench' : 'Bodyweight',
+      intensity: synthRpe === 'FAILURE' ? 'Failure Dropset' : 'Progressive RPE 8',
+      exercises: synthesizedBlueprint.exercises,
+    });
+    setSavedBlueprints(getCoachSavedBlueprints());
+    showToast(`Saved "${newBp.title}" to My Blueprints`);
+  };
 
-    const mapped: StagedExercise[] = blueprint.exerciseIds
-      .map((exId, idx) => {
-        const curated = CURATED_EXERCISE_LIBRARY.find((c) => c.id === exId);
-        if (!curated) return null;
-        const sets = generateSetsForScheme(curated.defaultWeight, curated.defaultReps, 'Straight', curated.defaultSets);
-        return {
-          id: `stg_${Date.now()}_${idx}`,
-          name: curated.name,
-          category: curated.split,
-          primaryMuscle: curated.muscleGroup,
-          movementType: curated.type,
-          restSec: curated.defaultRestSec,
-          tempo: curated.defaultTempo,
-          progressionScheme: 'Straight' as const,
-          notes: curated.coachingCue,
-          isExpanded: false,
-          sets,
-        };
-      })
-      .filter(Boolean) as StagedExercise[];
+  const handleSaveActiveStackAsBlueprint = () => {
+    if (stagedExercises.length === 0) {
+      showToast('Add at least one exercise to save as a blueprint');
+      return;
+    }
+    const title = routineTitle.trim() || 'Custom Workout Prescription';
+    const newBp = saveCoachBlueprint({
+      title,
+      split: selectedSplit || 'PUSH',
+      focus: coachPrescription || `${periodizationFocus} • ${stagedExercises.length} movements`,
+      notes: coachPrescription,
+      estimatedMinutes: Math.max(25, stagedExercises.length * 8),
+      equipment: 'Custom',
+      intensity: periodizationFocus,
+      exercises: stagedExercises,
+    });
+    setSavedBlueprints(getCoachSavedBlueprints());
+    showToast(`Saved "${newBp.title}" to My Blueprints`);
+  };
 
-    setStagedExercises(mapped);
+  const handleLoadSavedBlueprint = (bp: CoachSavedBlueprint) => {
+    setRoutineTitle(bp.title);
+    if (bp.split) {
+      setSelectedSplit(bp.split as any);
+    }
+
+    const cloned: StagedExercise[] = bp.exercises.map((ex, idx) => ({
+      ...ex,
+      id: `stg_${Date.now()}_${idx}`,
+      sets: ex.sets ? ex.sets.map((s) => ({ ...s })) : [],
+      isExpanded: false,
+    }));
+
+    setStagedExercises(cloned);
     setActiveTab('stack');
-    showToast(`Loaded ${blueprint.title}`);
+    showToast(`Loaded "${bp.title}" into Stack`);
+  };
+
+  const handleDeleteSavedBlueprint = (id: string, title: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const updated = deleteCoachBlueprint(id);
+    setSavedBlueprints(updated);
+    showToast(`Removed "${title}" from Blueprints`);
+  };
+
+  const handleUpdateBlueprintTitle = (id: string, newTitle: string) => {
+    if (!newTitle.trim()) {
+      setEditingBpId(null);
+      return;
+    }
+    const updated = updateCoachBlueprintTitle(id, newTitle);
+    setSavedBlueprints(updated);
+    setEditingBpId(null);
+    showToast('Blueprint title updated');
+  };
+
+  const handleInstantDispatchSavedBlueprint = async (bp: CoachSavedBlueprint) => {
+    if (selectedClientKeys.length === 0) {
+      showToast('Select target athletes to dispatch this blueprint');
+      setIsClientSheetOpen(true);
+      return;
+    }
+
+    setIsSynthDispatching(true);
+
+    const transformedExercises: DispatchedExercise[] = bp.exercises.map((ex) => {
+      const primarySet = ex.sets[0] || { reps: 10, weight: 50 };
+      return {
+        name: ex.name,
+        sets: ex.sets.length,
+        reps: `${primarySet.reps} reps`,
+        targetLoad: `${primarySet.weight > 0 ? `${primarySet.weight} kg • ` : ''}Tempo ${ex.tempo}`,
+        notes: `${ex.notes} [${ex.progressionScheme}]`,
+      };
+    });
+
+    const selectedClientNames = selectedClientKeys.map(
+      (key) => clients[key]?.name || key
+    );
+
+    try {
+      await dispatchWorkout({
+        coachId: 'coach_main',
+        coachName: coachName || 'Head Coach',
+        clientIds: selectedClientKeys,
+        clientNames: selectedClientNames,
+        title: bp.title,
+        routineCategory: bp.split,
+        scheduledDay,
+        scheduledDate: new Date().toISOString().split('T')[0],
+        exercises: transformedExercises,
+        notes: `[O1FC Saved Blueprint • ${bp.equipment || 'Gym'} • ${bp.estimatedMinutes}m] ${bp.notes || bp.focus}`,
+      });
+
+      // Align active stack as well
+      setStagedExercises(bp.exercises);
+      setRoutineTitle(bp.title);
+      setIsSynthDispatching(false);
+
+      if (onDispatchSuccess) {
+        onDispatchSuccess(selectedClientKeys.length);
+      }
+      showToast(`Dispatched "${bp.title}" to ${selectedClientKeys.length} athlete(s)!`);
+    } catch (e) {
+      setIsSynthDispatching(false);
+      showToast('Dispatch failed. Please check connection.');
+    }
   };
 
   // ─── Live Telemetry Engine ───
@@ -1723,67 +2126,67 @@ export const WorkoutDispatchModal: React.FC<WorkoutDispatchModalProps> = ({
   const modalContent = (
     <div
       id="studio-builder-modal"
-      className="fixed inset-0 z-[99990] bg-[#F2F2F7] dark:bg-[#000000] text-zinc-900 dark:text-white flex flex-col w-full h-full overflow-hidden font-sans select-none backdrop-blur-3xl animate-in fade-in duration-150 overscroll-contain"
+      className="fixed inset-0 z-[99990] bg-white text-black flex flex-col w-full h-full overflow-hidden font-sans select-none animate-in fade-in duration-150 overscroll-contain"
       onClick={(e) => e.stopPropagation()}
     >
       {/* ═══════════════════════════════════════════════════════════════════════
-          OBSIDIAN TOP BAR
+          CLEAN LIGHT TOP BAR
           ═══════════════════════════════════════════════════════════════════════ */}
-      <header className="bg-[#F2F2F7]/95 dark:bg-[#000000]/95 backdrop-blur-xl border-b border-zinc-200/80 dark:border-white/10 shrink-0 z-30 pt-[max(0.5rem,env(safe-area-inset-top,0px))]">
+      <header className="bg-white border-b border-zinc-200 shrink-0 z-30 pt-[max(0.5rem,env(safe-area-inset-top,0px))]">
         <div className="w-full max-w-5xl mx-auto px-3 sm:px-4 py-2.5 flex items-center justify-between gap-2 min-h-[44px]">
-          {/* Title & Movements Counter (Robust flexbox with no overlap) */}
+          {/* Title & Movements Counter */}
           <div className="flex items-center gap-1.5 sm:gap-2 min-w-0 flex-1 mr-1">
-            <div className="w-2 h-2 rounded-full bg-red-600 dark:bg-red-500 shrink-0" />
-            <h1 className="text-xs sm:text-sm font-semibold tracking-tight text-zinc-900 dark:text-white flex items-center gap-1.5 min-w-0 overflow-hidden">
+            <div className="w-2.5 h-2.5 rounded-full bg-red-600 shrink-0" />
+            <h1 className="text-xs sm:text-sm font-bold tracking-tight text-black flex items-center gap-1.5 min-w-0 overflow-hidden">
               <span className="truncate">Workout Dispatch Studio</span>
-              <span className="text-[11px] font-medium text-zinc-500 dark:text-zinc-400 shrink-0">
+              <span className="text-[11px] font-semibold text-zinc-700 shrink-0">
                 ({stagedExercises.length})
               </span>
             </h1>
           </div>
 
-          {/* Top Actions: Athlete Selector & Close (Nude & Clean) */}
+          {/* Top Actions: Athlete Selector & Close */}
           <div className="flex items-center gap-1 shrink-0">
             <button
               type="button"
               onClick={() => setIsClientSheetOpen(true)}
-              className="p-1 sm:p-1.5 flex items-center gap-1 sm:gap-1.5 text-xs font-semibold text-zinc-700 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-white transition-colors cursor-pointer bg-transparent border-0 active:scale-95 shrink-0"
+              className="p-1 sm:p-1.5 flex items-center gap-1 sm:gap-1.5 text-xs font-bold text-black hover:text-red-600 transition-colors cursor-pointer bg-transparent border-0 active:scale-95 shrink-0"
               title="Select Athletes"
             >
-              <Users className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-zinc-500 dark:text-zinc-400 stroke-[1.75] shrink-0" />
+              <Users className="w-4 h-4 text-black stroke-[2] shrink-0" />
               <span className="truncate max-w-[90px] xs:max-w-[120px] sm:max-w-[180px]">
                 {selectedClientKeys.length === 1
                   ? clients[selectedClientKeys[0]]?.name || '1 Athlete'
                   : `${selectedClientKeys.length} Athletes`}
               </span>
-              <ChevronDown className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-zinc-400 dark:text-zinc-500 stroke-[2] shrink-0" />
+              <ChevronDown className="w-3.5 h-3.5 text-black stroke-[2.5] shrink-0" />
             </button>
 
             <button
               onClick={onClose}
-              className="p-1.5 -mr-1 flex items-center justify-center text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white transition-all active:scale-90 cursor-pointer bg-transparent border-0 shrink-0"
+              className="p-1.5 -mr-1 flex items-center justify-center text-black hover:text-red-600 transition-all active:scale-90 cursor-pointer bg-transparent border-0 shrink-0"
               title="Close Studio"
             >
-              <X className="w-5 h-5 stroke-[1.75]" />
+              <X className="w-5 h-5 stroke-[2]" />
             </button>
           </div>
         </div>
 
-        {/* ─── LIVE TELEMETRY & MUSCLE LOAD HUD ─── */}
-        <div className="bg-zinc-200/50 dark:bg-black/60 border-t border-zinc-200/80 dark:border-white/5 px-3 sm:px-4 py-2">
-          <div className="w-full max-w-5xl mx-auto flex flex-wrap items-center justify-between gap-2 text-xs text-zinc-600 dark:text-zinc-400">
-            <div className="flex items-center gap-4 text-[11px] sm:text-xs">
+        {/* ─── LIVE TELEMETRY & MUSCLE LOAD HUD (Clean Light Theme) ─── */}
+        <div className="bg-white border-t border-zinc-200 px-3 sm:px-4 py-2">
+          <div className="w-full max-w-5xl mx-auto flex flex-wrap items-center justify-between gap-2 text-xs text-black">
+            <div className="flex items-center gap-3 sm:gap-5 text-xs">
               <div>
-                <span className="text-zinc-400 dark:text-zinc-500">Sets: </span>
-                <span className="text-zinc-900 dark:text-white font-semibold">{telemetry.totalSets}</span>
+                <span className="text-zinc-600 font-medium">Sets: </span>
+                <span className="text-black font-bold">{telemetry.totalSets}</span>
               </div>
               <div>
-                <span className="text-zinc-400 dark:text-zinc-500">Est. Time: </span>
-                <span className="text-zinc-900 dark:text-white font-semibold">{telemetry.estDurationMinutes} min</span>
+                <span className="text-zinc-600 font-medium">Est. Time: </span>
+                <span className="text-black font-bold">{telemetry.estDurationMinutes}m</span>
               </div>
               <div>
-                <span className="text-zinc-400 dark:text-zinc-500">Volume: </span>
-                <span className="text-zinc-900 dark:text-white font-semibold">
+                <span className="text-zinc-600 font-medium">Volume: </span>
+                <span className="text-black font-bold">
                   {(telemetry.totalVolumeKg / 1000).toFixed(1)}k kg
                 </span>
               </div>
@@ -1792,12 +2195,12 @@ export const WorkoutDispatchModal: React.FC<WorkoutDispatchModalProps> = ({
             {/* Muscle Breakdown Pills */}
             {telemetry.muscleBreakdown.length > 0 && (
               <div className="flex items-center gap-1.5 overflow-x-auto hide-scrollbar shrink-0">
-                {telemetry.muscleBreakdown.slice(0, 3).map((item) => (
+                {telemetry.muscleBreakdown.slice(0, 2).map((item) => (
                   <span
                     key={item.muscle}
-                    className="px-2 py-0.5 rounded-md bg-white dark:bg-white/5 border border-zinc-200/80 dark:border-white/10 text-[10px] text-zinc-700 dark:text-zinc-300 font-medium whitespace-nowrap shrink-0 shadow-2xs"
+                    className="px-2 py-0.5 rounded-md bg-white border border-zinc-300 text-[11px] text-black font-semibold whitespace-nowrap shrink-0 shadow-xs"
                   >
-                    {item.muscle} <span className="text-zinc-900 dark:text-white font-semibold">{item.percent}%</span>
+                    {item.muscle} <span className="text-red-600 font-bold">{item.percent}%</span>
                   </span>
                 ))}
               </div>
@@ -1805,46 +2208,49 @@ export const WorkoutDispatchModal: React.FC<WorkoutDispatchModalProps> = ({
           </div>
         </div>
 
-        {/* ─── CLEAR SEGMENTED NAVIGATION TABS ─── */}
-        <div className="border-t border-zinc-200/80 dark:border-white/10 px-3 sm:px-4 py-1.5 bg-[#F2F2F7]/90 dark:bg-zinc-950/60">
-          <div className="w-full max-w-5xl mx-auto flex items-center gap-1 p-0.5 bg-zinc-200/70 dark:bg-black/60 rounded-xl border border-zinc-200/80 dark:border-white/10">
+        {/* ─── 3 STANDARDIZED CAPSULES (Apple Pro Height, Clean White & Red) ─── */}
+        <div className="border-t border-zinc-200 px-3 sm:px-4 py-2 bg-white">
+          <div className="w-full max-w-5xl mx-auto grid grid-cols-3 gap-1.5 sm:gap-2">
             <button
+              id="tab-workout-stack"
               type="button"
               onClick={() => setActiveTab('stack')}
-              className={`flex-1 py-1.5 px-2 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer whitespace-nowrap ${
+              className={`h-9 px-2 sm:px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer whitespace-nowrap ${
                 activeTab === 'stack'
-                  ? 'bg-white dark:bg-white text-zinc-900 dark:text-black shadow-2xs font-bold'
-                  : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-white/50 dark:hover:bg-white/5'
+                  ? 'bg-red-600 text-white shadow-sm shadow-red-600/30'
+                  : 'bg-white text-black hover:bg-zinc-50 border border-zinc-300 hover:border-black'
               }`}
             >
-              <Dumbbell className="w-3.5 h-3.5" />
-              <span>Workout Stack ({stagedExercises.length})</span>
+              <Dumbbell className="w-4 h-4 shrink-0 stroke-[2]" />
+              <span>Stack ({stagedExercises.length})</span>
             </button>
 
             <button
+              id="tab-exercise-library"
               type="button"
               onClick={() => setActiveTab('library')}
-              className={`flex-1 py-1.5 px-2 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer whitespace-nowrap ${
+              className={`h-9 px-2 sm:px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer whitespace-nowrap ${
                 activeTab === 'library'
-                  ? 'bg-white dark:bg-white text-zinc-900 dark:text-black shadow-2xs font-bold'
-                  : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-white/50 dark:hover:bg-white/5'
+                  ? 'bg-red-600 text-white shadow-sm shadow-red-600/30'
+                  : 'bg-white text-black hover:bg-zinc-50 border border-zinc-300 hover:border-black'
               }`}
             >
-              <Search className="w-3.5 h-3.5" />
-              <span>Exercise Library ({availableExercises.length})</span>
+              <Search className="w-4 h-4 shrink-0 stroke-[2]" />
+              <span>Library</span>
             </button>
 
             <button
+              id="tab-o1fc-blueprints"
               type="button"
               onClick={() => setActiveTab('templates')}
-              className={`flex-1 py-1.5 px-2 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer whitespace-nowrap ${
+              className={`h-9 px-2 sm:px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer whitespace-nowrap ${
                 activeTab === 'templates'
-                  ? 'bg-white dark:bg-white text-zinc-900 dark:text-black shadow-2xs font-bold'
-                  : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-white/50 dark:hover:bg-white/5'
+                  ? 'bg-red-600 text-white shadow-sm shadow-red-600/30'
+                  : 'bg-white text-black hover:bg-zinc-50 border border-zinc-300 hover:border-black'
               }`}
             >
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>1-Tap Presets ({SMART_SPLIT_BLUEPRINTS.length})</span>
+              <Sparkles className="w-4 h-4 shrink-0 stroke-[2]" />
+              <span>Blueprints {savedBlueprints.length > 0 ? `(${savedBlueprints.length})` : ''}</span>
             </button>
           </div>
         </div>
@@ -1852,7 +2258,7 @@ export const WorkoutDispatchModal: React.FC<WorkoutDispatchModalProps> = ({
 
       {/* TOAST ALERTS */}
       {toastMessage && (
-        <div className="bg-zinc-900 dark:bg-white text-white dark:text-black px-4 py-1.5 text-xs font-semibold text-center tracking-wide shrink-0 animate-in fade-in z-50">
+        <div className="bg-black text-white px-4 py-2 text-xs font-bold text-center tracking-wide shrink-0 animate-in fade-in z-50">
           {toastMessage}
         </div>
       )}
@@ -1867,34 +2273,34 @@ export const WorkoutDispatchModal: React.FC<WorkoutDispatchModalProps> = ({
         {activeTab === 'stack' && (
           <div className="space-y-3 animate-in fade-in">
             {/* WORKOUT SETUP PARAMETERS CARD */}
-            <div className="p-3.5 rounded-2xl bg-white dark:bg-zinc-950/80 border border-zinc-200/80 dark:border-white/10 backdrop-blur-xl space-y-2.5 shadow-2xs">
+            <div className="p-3.5 rounded-2xl bg-white border border-zinc-200 space-y-2.5 shadow-sm">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 min-w-0">
-                  <SlidersHorizontal className="w-3.5 h-3.5 text-zinc-500 dark:text-zinc-400 shrink-0" />
-                  <span className="text-xs font-semibold uppercase tracking-wider text-zinc-900 dark:text-white truncate">
+                  <SlidersHorizontal className="w-4 h-4 text-black stroke-[2] shrink-0" />
+                  <span className="text-xs font-bold uppercase tracking-wider text-black truncate">
                     Workout Parameters
                   </span>
                 </div>
                 <button
                   type="button"
                   onClick={() => setIsParamsExpanded(!isParamsExpanded)}
-                  className="text-[11px] text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white flex items-center gap-1 cursor-pointer shrink-0"
+                  className="text-xs text-black hover:text-red-600 font-bold flex items-center gap-1 cursor-pointer shrink-0 transition-colors"
                 >
                   <span>{isParamsExpanded ? 'Hide Details' : 'Edit Setup'}</span>
-                  {isParamsExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                  {isParamsExpanded ? <ChevronUp className="w-3.5 h-3.5 stroke-[2.5]" /> : <ChevronDown className="w-3.5 h-3.5 stroke-[2.5]" />}
                 </button>
               </div>
 
               {/* Quick Summary row when collapsed */}
               {!isParamsExpanded && (
                 <div className="flex flex-wrap items-center gap-2 text-xs pt-0.5">
-                  <div className="font-semibold text-zinc-900 dark:text-white truncate max-w-[200px] sm:max-w-xs">
+                  <div className="font-bold text-black truncate max-w-[200px] sm:max-w-xs">
                     {routineTitle || 'Custom Workout Prescription'}
                   </div>
-                  <span className="text-zinc-300 dark:text-zinc-600">•</span>
-                  <span className="text-zinc-600 dark:text-zinc-400">{scheduledDay}</span>
-                  <span className="text-zinc-300 dark:text-zinc-600">•</span>
-                  <span className="px-1.5 py-0.5 rounded-md bg-[#F2F2F7] dark:bg-white/5 border border-zinc-200/80 dark:border-white/10 text-[10px] text-zinc-700 dark:text-zinc-300 font-medium">
+                  <span className="text-zinc-300">•</span>
+                  <span className="text-black font-semibold">{scheduledDay}</span>
+                  <span className="text-zinc-300">•</span>
+                  <span className="px-2 py-0.5 rounded-md bg-white border border-zinc-300 text-[11px] text-black font-bold">
                     {periodizationFocus}
                   </span>
                 </div>
@@ -1902,30 +2308,30 @@ export const WorkoutDispatchModal: React.FC<WorkoutDispatchModalProps> = ({
 
               {/* Full inputs when expanded */}
               {isParamsExpanded && (
-                <div className="space-y-2.5 pt-2 border-t border-zinc-100 dark:border-white/5 animate-in fade-in">
+                <div className="space-y-2.5 pt-2 border-t border-zinc-200 animate-in fade-in">
                   <div className="grid grid-cols-1 md:grid-cols-12 gap-2">
                     {/* Routine Title */}
                     <div className="md:col-span-6 space-y-1">
-                      <label className="text-[10px] font-medium text-zinc-500 dark:text-zinc-400">Workout Title</label>
+                      <label className="text-[10px] font-bold text-black uppercase tracking-wider">Workout Title</label>
                       <input
                         type="text"
                         value={routineTitle}
                         onChange={(e) => setRoutineTitle(e.target.value)}
                         placeholder="e.g. Push Hypertrophy Heavy"
-                        className="w-full bg-[#F2F2F7]/60 dark:bg-black/60 border border-zinc-200 dark:border-white/10 rounded-lg px-2.5 py-1.5 text-xs text-zinc-900 dark:text-white font-medium focus:outline-none focus:border-zinc-400 dark:focus:border-white transition-colors"
+                        className="w-full bg-white border border-zinc-300 rounded-lg px-2.5 py-1.5 text-xs text-black font-bold placeholder:text-zinc-400 focus:outline-none focus:border-black focus:ring-1 focus:ring-black transition-colors"
                       />
                     </div>
 
                     {/* Scheduled Day */}
                     <div className="md:col-span-3 space-y-1">
-                      <label className="text-[10px] font-medium text-zinc-500 dark:text-zinc-400">Schedule Day</label>
+                      <label className="text-[10px] font-bold text-black uppercase tracking-wider">Schedule Day</label>
                       <select
                         value={scheduledDay}
                         onChange={(e) => setScheduledDay(e.target.value as any)}
-                        className="w-full bg-[#F2F2F7]/60 dark:bg-black/60 border border-zinc-200 dark:border-white/10 rounded-lg px-2.5 py-1.5 text-xs text-zinc-900 dark:text-white font-medium focus:outline-none focus:border-zinc-400 dark:focus:border-white"
+                        className="w-full bg-white border border-zinc-300 rounded-lg px-2.5 py-1.5 text-xs text-black font-bold focus:outline-none focus:border-black focus:ring-1 focus:ring-black"
                       >
                         {['Today', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((d) => (
-                          <option key={d} value={d} className="bg-white dark:bg-zinc-950 text-zinc-900 dark:text-white">
+                          <option key={d} value={d} className="bg-white text-black font-semibold">
                             {d}
                           </option>
                         ))}
@@ -1934,11 +2340,11 @@ export const WorkoutDispatchModal: React.FC<WorkoutDispatchModalProps> = ({
 
                     {/* Periodization Focus */}
                     <div className="md:col-span-3 space-y-1">
-                      <label className="text-[10px] font-medium text-zinc-500 dark:text-zinc-400">Target Goal</label>
+                      <label className="text-[10px] font-bold text-black uppercase tracking-wider">Target Goal</label>
                       <select
                         value={periodizationFocus}
                         onChange={(e) => setPeriodizationFocus(e.target.value as any)}
-                        className="w-full bg-[#F2F2F7]/60 dark:bg-black/60 border border-zinc-200 dark:border-white/10 rounded-lg px-2.5 py-1.5 text-xs text-zinc-900 dark:text-white font-medium focus:outline-none focus:border-zinc-400 dark:focus:border-white"
+                        className="w-full bg-white border border-zinc-300 rounded-lg px-2.5 py-1.5 text-xs text-black font-bold focus:outline-none focus:border-black focus:ring-1 focus:ring-black"
                       >
                         <option value="Hypertrophy (8-12)">Hypertrophy (8-12)</option>
                         <option value="Max Strength (3-6)">Max Strength (3-6)</option>
@@ -1951,13 +2357,13 @@ export const WorkoutDispatchModal: React.FC<WorkoutDispatchModalProps> = ({
 
                   {/* Coach Technique Cue */}
                   <div className="space-y-1">
-                    <label className="text-[10px] font-medium text-zinc-500 dark:text-zinc-400">Technique Focus & Coaching Notes</label>
+                    <label className="text-[10px] font-bold text-black uppercase tracking-wider">Technique Focus & Coaching Notes</label>
                     <input
                       type="text"
                       value={coachPrescription}
                       onChange={(e) => setCoachPrescription(e.target.value)}
                       placeholder="e.g. Explode on concentric drive, control 3-second descent..."
-                      className="w-full bg-[#F2F2F7]/60 dark:bg-black/60 border border-zinc-200 dark:border-white/10 rounded-lg px-2.5 py-1.5 text-xs text-zinc-900 dark:text-zinc-300 focus:outline-none focus:border-zinc-400 dark:focus:border-white transition-colors"
+                      className="w-full bg-white border border-zinc-300 rounded-lg px-2.5 py-1.5 text-xs text-black font-semibold placeholder:text-zinc-400 focus:outline-none focus:border-black focus:ring-1 focus:ring-black transition-colors"
                     />
                   </div>
                 </div>
@@ -1968,56 +2374,70 @@ export const WorkoutDispatchModal: React.FC<WorkoutDispatchModalProps> = ({
             <div className="space-y-2.5">
               <div className="flex items-center justify-between px-0.5">
                 <div className="flex items-center gap-2">
-                  <span className="text-xs font-semibold uppercase tracking-wider text-zinc-900 dark:text-white">
+                  <span className="text-xs font-bold uppercase tracking-wider text-black">
                     Programmed Exercises ({stagedExercises.length})
                   </span>
                 </div>
 
-                <button
-                  type="button"
-                  onClick={() => setActiveTab('library')}
-                  className="px-2.5 py-1 rounded-lg bg-zinc-900 dark:bg-white text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200 text-xs font-semibold flex items-center gap-1.5 cursor-pointer shadow-2xs transition-all active:scale-95"
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                  <span>Add Exercise</span>
-                </button>
+                <div className="flex items-center gap-1.5">
+                  <button
+                    type="button"
+                    onClick={handleSaveActiveStackAsBlueprint}
+                    disabled={stagedExercises.length === 0}
+                    className="px-2.5 py-1.5 rounded-lg bg-white hover:bg-zinc-50 border border-zinc-300 hover:border-black text-black text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-xs transition-all active:scale-95 disabled:opacity-40"
+                    title="Save current stack to your Blueprints list"
+                  >
+                    <Bookmark className="w-3.5 h-3.5 text-red-600 stroke-[2.5]" />
+                    <span className="hidden sm:inline">Save Stack as Blueprint</span>
+                    <span className="sm:hidden">Save</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('library')}
+                    className="px-3 py-1.5 rounded-lg bg-black text-white hover:bg-zinc-800 text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-sm transition-all active:scale-95"
+                  >
+                    <Plus className="w-4 h-4 stroke-[2.5]" />
+                    <span>Add Exercise</span>
+                  </button>
+                </div>
               </div>
 
               {stagedExercises.length === 0 ? (
-                <div className="p-6 text-center rounded-2xl bg-white dark:bg-zinc-950/60 border border-dashed border-zinc-200 dark:border-white/10 space-y-2.5 shadow-2xs">
-                  <Dumbbell className="w-8 h-8 mx-auto text-zinc-400 dark:text-zinc-500" />
-                  <p className="text-xs sm:text-sm font-semibold text-zinc-900 dark:text-white">No exercises in this workout yet</p>
-                  <p className="text-[11px] text-zinc-500 dark:text-zinc-400 max-w-sm mx-auto">
-                    Add movements from the Exercise Library or pick a 1-tap prebuilt template to start programming.
+                <div className="p-8 text-center rounded-2xl bg-white border border-dashed border-zinc-300 space-y-3 shadow-xs">
+                  <Dumbbell className="w-8 h-8 mx-auto text-black stroke-[1.5]" />
+                  <p className="text-sm font-bold text-black">No exercises in this workout yet</p>
+                  <p className="text-xs text-zinc-700 max-w-sm mx-auto font-medium">
+                    Add movements from the Exercise Library or pick an O1FC Blueprint to start programming.
                   </p>
-                  <div className="flex flex-wrap items-center justify-center gap-2 pt-1">
+                  <div className="flex flex-wrap items-center justify-center gap-2 pt-2">
                     <button
                       type="button"
                       onClick={() => setActiveTab('library')}
-                      className="px-3.5 py-1.5 rounded-lg bg-zinc-900 dark:bg-white text-white dark:text-black text-xs font-semibold flex items-center gap-1.5 hover:bg-zinc-800 dark:hover:bg-zinc-200 cursor-pointer shadow-2xs"
+                      className="px-4 py-2 rounded-xl bg-black text-white hover:bg-zinc-800 text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-xs"
                     >
-                      <Search className="w-3.5 h-3.5" />
+                      <Search className="w-3.5 h-3.5 stroke-[2]" />
                       <span>Browse Library</span>
                     </button>
                     <button
                       type="button"
                       onClick={() => setActiveTab('templates')}
-                      className="px-3.5 py-1.5 rounded-lg bg-[#F2F2F7] hover:bg-zinc-200/80 dark:bg-white/10 dark:hover:bg-white/15 border border-zinc-200/80 dark:border-white/10 text-zinc-900 dark:text-white text-xs font-semibold flex items-center gap-1.5 cursor-pointer"
+                      className="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-md shadow-red-600/30"
                     >
-                      <Sparkles className="w-3.5 h-3.5" />
-                      <span>Load 1-Tap Preset</span>
+                      <Sparkles className="w-3.5 h-3.5 stroke-[2]" />
+                      <span>Load O1FC Blueprint</span>
                     </button>
                   </div>
                 </div>
               ) : (
-                <div className="space-y-2">
+                <div className="space-y-2.5">
                   {stagedExercises.map((ex, exIdx) => {
                     const isCollapsed = ex.isExpanded === false;
 
                     return (
                       <div
                         key={ex.id}
-                        className={`rounded-2xl bg-white dark:bg-zinc-950/80 border border-zinc-200/80 dark:border-white/10 backdrop-blur-xl text-zinc-900 dark:text-white transition-all shadow-2xs ${
+                        className={`rounded-2xl bg-white border border-zinc-200 text-black transition-all shadow-sm ${
                           isCollapsed ? 'px-3.5 py-2.5' : 'px-3.5 py-3 space-y-2.5'
                         }`}
                       >
@@ -2035,20 +2455,20 @@ export const WorkoutDispatchModal: React.FC<WorkoutDispatchModalProps> = ({
                           }
                         >
                           <div className="flex items-center gap-2 min-w-0">
-                            <Dumbbell className="w-3.5 h-3.5 text-zinc-500 dark:text-zinc-400 shrink-0" />
-                            <h4 className="text-xs sm:text-sm font-bold text-zinc-900 dark:text-white tracking-tight truncate">
+                            <Dumbbell className="w-4 h-4 text-black stroke-[2] shrink-0" />
+                            <h4 className="text-xs sm:text-sm font-bold text-black tracking-tight truncate">
                               {ex.name}
                             </h4>
                           </div>
-                          <div className="flex items-center gap-1.5 shrink-0">
-                            <span className="text-[11px] font-medium text-zinc-500 dark:text-zinc-400">
+                          <div className="flex items-center gap-2 shrink-0">
+                            <span className="text-xs font-bold text-zinc-700">
                               {ex.sets.length} {ex.sets.length === 1 ? 'set' : 'sets'}
                             </span>
-                            <div className="p-0.5 text-zinc-400 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-white transition-colors">
+                            <div className="p-0.5 text-black hover:text-red-600 transition-colors">
                               {isCollapsed ? (
-                                <ChevronDown className="w-3.5 h-3.5" />
+                                <ChevronDown className="w-4 h-4 stroke-[2.5]" />
                               ) : (
-                                <ChevronUp className="w-3.5 h-3.5" />
+                                <ChevronUp className="w-4 h-4 stroke-[2.5]" />
                               )}
                             </div>
                           </div>
@@ -2057,7 +2477,7 @@ export const WorkoutDispatchModal: React.FC<WorkoutDispatchModalProps> = ({
                         {!isCollapsed && (
                           <>
                             {/* Column Header Labels */}
-                            <div className="grid grid-cols-[24px_1fr_1fr_1fr_24px] items-center gap-1.5 text-[9px] font-bold tracking-wider text-zinc-400 dark:text-zinc-500 uppercase font-mono px-0.5">
+                            <div className="grid grid-cols-[28px_1fr_1fr_1fr_28px] items-center gap-1.5 text-[10px] font-bold tracking-wider text-black uppercase font-mono px-0.5">
                               <span className="text-center">SET</span>
                               <span className="text-center">REPS</span>
                               <span className="text-center">KG</span>
@@ -2070,15 +2490,15 @@ export const WorkoutDispatchModal: React.FC<WorkoutDispatchModalProps> = ({
                               {ex.sets.map((s, sIdx) => (
                                 <div
                                   key={sIdx}
-                                  className="grid grid-cols-[24px_1fr_1fr_1fr_24px] items-center gap-1.5"
+                                  className="grid grid-cols-[28px_1fr_1fr_1fr_28px] items-center gap-1.5"
                                 >
                                   {/* SET NUMBER */}
-                                  <span className="text-center font-bold text-xs text-zinc-600 dark:text-zinc-400 font-mono">
+                                  <span className="text-center font-bold text-xs text-black font-mono">
                                     {s.setNum || sIdx + 1}
                                   </span>
 
                                   {/* REPS INPUT BOX */}
-                                  <div className="h-7 sm:h-7.5 bg-[#F2F2F7] dark:bg-white/5 border border-zinc-200/90 dark:border-white/10 rounded-lg px-1 flex items-center justify-center focus-within:border-zinc-400 dark:focus-within:border-white/40 focus-within:bg-white dark:focus-within:bg-zinc-900 transition-all overflow-hidden">
+                                  <div className="h-7 sm:h-7.5 bg-white border border-zinc-300 rounded-lg px-1 flex items-center justify-center focus-within:border-black focus-within:ring-1 focus-within:ring-black transition-all overflow-hidden">
                                     <input
                                       type="number"
                                       min={1}
@@ -2092,12 +2512,12 @@ export const WorkoutDispatchModal: React.FC<WorkoutDispatchModalProps> = ({
                                           parseInt(e.target.value) || 0
                                         )
                                       }
-                                      className="w-full bg-transparent text-center font-bold text-xs sm:text-sm text-zinc-900 dark:text-white focus:outline-none p-0 m-0 leading-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                      className="w-full bg-transparent text-center font-bold text-xs sm:text-sm text-black focus:outline-none p-0 m-0 leading-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                     />
                                   </div>
 
                                   {/* KG INPUT BOX */}
-                                  <div className="h-7 sm:h-7.5 bg-[#F2F2F7] dark:bg-white/5 border border-zinc-200/90 dark:border-white/10 rounded-lg px-1 flex items-center justify-center focus-within:border-zinc-400 dark:focus-within:border-white/40 focus-within:bg-white dark:focus-within:bg-zinc-900 transition-all overflow-hidden">
+                                  <div className="h-7 sm:h-7.5 bg-white border border-zinc-300 rounded-lg px-1 flex items-center justify-center focus-within:border-black focus-within:ring-1 focus-within:ring-black transition-all overflow-hidden">
                                     <input
                                       type="number"
                                       step="0.5"
@@ -2112,12 +2532,12 @@ export const WorkoutDispatchModal: React.FC<WorkoutDispatchModalProps> = ({
                                           parseFloat(e.target.value) || 0
                                         )
                                       }
-                                      className="w-full bg-transparent text-center font-bold text-xs sm:text-sm text-zinc-900 dark:text-white focus:outline-none p-0 m-0 leading-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                      className="w-full bg-transparent text-center font-bold text-xs sm:text-sm text-black focus:outline-none p-0 m-0 leading-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                     />
                                   </div>
 
                                   {/* RPE INPUT BOX */}
-                                  <div className="h-7 sm:h-7.5 bg-[#F2F2F7] dark:bg-white/5 border border-zinc-200/90 dark:border-white/10 rounded-lg px-1 flex items-center justify-center focus-within:border-zinc-400 dark:focus-within:border-white/40 focus-within:bg-white dark:focus-within:bg-zinc-900 transition-all overflow-hidden">
+                                  <div className="h-7 sm:h-7.5 bg-white border border-zinc-300 rounded-lg px-1 flex items-center justify-center focus-within:border-black focus-within:ring-1 focus-within:ring-black transition-all overflow-hidden">
                                     <input
                                       type="number"
                                       step="0.5"
@@ -2132,7 +2552,7 @@ export const WorkoutDispatchModal: React.FC<WorkoutDispatchModalProps> = ({
                                           parseFloat(e.target.value) || 0
                                         )
                                       }
-                                      className="w-full bg-transparent text-center font-bold text-xs sm:text-sm text-zinc-900 dark:text-white focus:outline-none p-0 m-0 leading-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                      className="w-full bg-transparent text-center font-bold text-xs sm:text-sm text-black focus:outline-none p-0 m-0 leading-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                     />
                                   </div>
 
@@ -2142,10 +2562,10 @@ export const WorkoutDispatchModal: React.FC<WorkoutDispatchModalProps> = ({
                                       type="button"
                                       onClick={() => handleRemoveSet(ex.id, sIdx)}
                                       disabled={ex.sets.length <= 1}
-                                      className="w-6 h-6 flex items-center justify-center text-zinc-400 hover:text-red-600 dark:text-zinc-600 dark:hover:text-red-400 disabled:opacity-0 transition-colors p-0 cursor-pointer bg-transparent border-0"
+                                      className="w-6 h-6 flex items-center justify-center text-zinc-500 hover:text-red-600 disabled:opacity-0 transition-colors p-0 cursor-pointer bg-transparent border-0"
                                       title="Delete Set"
                                     >
-                                      <Trash2 className="w-3 h-3" />
+                                      <Trash2 className="w-3.5 h-3.5" />
                                     </button>
                                   </div>
                                 </div>
@@ -2153,23 +2573,23 @@ export const WorkoutDispatchModal: React.FC<WorkoutDispatchModalProps> = ({
                             </div>
 
                             {/* Bottom Action Row: Add Set & Delete Exercise */}
-                            <div className="flex items-center justify-between gap-2 pt-0.5 px-0.5">
+                            <div className="flex items-center justify-between gap-2 pt-1 px-0.5">
                               <button
                                 type="button"
                                 onClick={() => handleAddSet(ex.id)}
-                                className="flex items-center gap-1 text-[#EA4335] hover:text-red-700 dark:text-[#EA4335] dark:hover:text-red-400 font-semibold text-xs py-0.5 px-0 transition-colors cursor-pointer bg-transparent border-0 active:opacity-75"
+                                className="flex items-center gap-1 text-red-600 hover:text-red-700 font-bold text-xs py-0.5 px-0 transition-colors cursor-pointer bg-transparent border-0 active:opacity-75"
                               >
-                                <Plus className="w-3 h-3" />
+                                <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
                                 <span>Add Set</span>
                               </button>
                               <button
                                 type="button"
                                 onClick={() => handleRemoveExercise(ex.id)}
-                                className="text-zinc-400 hover:text-red-600 dark:text-zinc-500 dark:hover:text-red-400 p-0.5 transition-colors cursor-pointer bg-transparent border-0 active:opacity-75"
+                                className="text-zinc-500 hover:text-red-600 p-0.5 transition-colors cursor-pointer bg-transparent border-0 active:opacity-75"
                                 title="Delete Exercise"
                                 aria-label="Delete Exercise"
                               >
-                                <Trash2 className="w-3.5 h-3.5" />
+                                <Trash2 className="w-4 h-4" />
                               </button>
                             </div>
                           </>
@@ -2183,10 +2603,10 @@ export const WorkoutDispatchModal: React.FC<WorkoutDispatchModalProps> = ({
 
             {/* SMART NEXT MOVE RECOMMENDATIONS */}
             {smartSuggestions.length > 0 && stagedExercises.length > 0 && (
-              <div className="p-3.5 rounded-2xl bg-white dark:bg-zinc-950/80 border border-zinc-200/80 dark:border-white/10 backdrop-blur-xl space-y-2.5 shadow-2xs">
+              <div className="p-3.5 rounded-2xl bg-white border border-zinc-200 space-y-2.5 shadow-sm">
                 <div className="flex items-center gap-2">
-                  <Zap className="w-3.5 h-3.5 text-zinc-800 dark:text-white" />
-                  <span className="text-xs font-semibold uppercase tracking-wider text-zinc-900 dark:text-white">
+                  <Zap className="w-4 h-4 text-black stroke-[2]" />
+                  <span className="text-xs font-bold uppercase tracking-wider text-black">
                     Suggested Next Movements
                   </span>
                 </div>
@@ -2196,18 +2616,18 @@ export const WorkoutDispatchModal: React.FC<WorkoutDispatchModalProps> = ({
                       key={sug.id}
                       type="button"
                       onClick={() => handleAddExercise(sug)}
-                      className="p-2.5 rounded-xl bg-[#F2F2F7]/60 hover:bg-[#F2F2F7] dark:bg-black/60 dark:hover:bg-white/10 border border-zinc-200/80 dark:border-white/10 text-left transition-all group cursor-pointer flex items-center justify-between gap-2"
+                      className="p-2.5 rounded-xl bg-white hover:bg-zinc-50 border border-zinc-200 hover:border-black text-left transition-all group cursor-pointer flex items-center justify-between gap-2 shadow-xs"
                     >
                       <div className="min-w-0">
-                        <div className="text-xs font-semibold text-zinc-900 dark:text-white truncate">
+                        <div className="text-xs font-bold text-black truncate">
                           {sug.name}
                         </div>
-                        <div className="text-[10px] text-zinc-500 dark:text-zinc-400 truncate">
+                        <div className="text-[10px] text-zinc-700 font-semibold truncate">
                           {sug.muscleGroup} • {sug.type}
                         </div>
                       </div>
-                      <div className="w-5 h-5 rounded-md bg-zinc-200 dark:bg-white/10 flex items-center justify-center text-zinc-700 dark:text-white shrink-0 group-hover:bg-zinc-900 group-hover:text-white dark:group-hover:bg-white dark:group-hover:text-black transition-colors">
-                        <Plus className="w-3 h-3" />
+                      <div className="w-6 h-6 rounded-md bg-white border border-zinc-300 flex items-center justify-center text-black shrink-0 group-hover:bg-black group-hover:text-white transition-colors">
+                        <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
                       </div>
                     </button>
                   ))}
@@ -2221,29 +2641,29 @@ export const WorkoutDispatchModal: React.FC<WorkoutDispatchModalProps> = ({
             TAB 2: EXERCISE LIBRARY
             ───────────────────────────────────────────────────────────────── */}
         {activeTab === 'library' && (
-          <div className="p-3 sm:p-3.5 rounded-2xl bg-white dark:bg-zinc-950/80 border border-zinc-200/80 dark:border-white/10 backdrop-blur-xl space-y-3 animate-in fade-in shadow-2xs">
+          <div className="p-3.5 rounded-2xl bg-white border border-zinc-200 space-y-3 animate-in fade-in shadow-sm">
             {/* Header & Movement Type Chips */}
             <div className="flex flex-wrap items-center justify-between gap-2">
               <div>
-                <h3 className="text-xs font-semibold uppercase tracking-wider text-zinc-900 dark:text-white">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-black">
                   Exercise Directory
                 </h3>
-                <p className="text-[10px] text-zinc-500 dark:text-zinc-400">
+                <p className="text-[10px] text-zinc-700 font-semibold">
                   {availableExercises.length} Movements matching filters
                 </p>
               </div>
 
               {/* Movement Type Filter Chips */}
-              <div className="flex items-center gap-1 bg-zinc-100 dark:bg-black/60 p-0.5 rounded-lg border border-zinc-200/80 dark:border-white/10">
+              <div className="flex items-center gap-1 bg-white p-0.5 rounded-lg border border-zinc-200">
                 {(['ALL', 'Compound', 'Isolation', 'Functional'] as const).map((t) => (
                   <button
                     key={t}
                     type="button"
                     onClick={() => setMovementTypeFilter(t)}
-                    className={`px-2 py-0.5 rounded-md text-[11px] font-medium transition-colors cursor-pointer whitespace-nowrap ${
+                    className={`px-2.5 py-1 rounded-md text-[11px] font-bold transition-colors cursor-pointer whitespace-nowrap ${
                       movementTypeFilter === t
-                        ? 'bg-white dark:bg-white text-zinc-900 dark:text-black font-semibold shadow-2xs'
-                        : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white'
+                        ? 'bg-black text-white font-bold shadow-xs'
+                        : 'text-black hover:bg-zinc-100'
                     }`}
                   >
                     {t}
@@ -2254,21 +2674,21 @@ export const WorkoutDispatchModal: React.FC<WorkoutDispatchModalProps> = ({
 
             {/* Search Bar */}
             <div className="relative">
-              <Search className="w-3.5 h-3.5 text-zinc-400 dark:text-zinc-400 absolute left-3 top-2.5" />
+              <Search className="w-4 h-4 text-black stroke-[2] absolute left-3 top-2.5" />
               <input
                 type="text"
                 placeholder="Search by exercise name, muscle or equipment..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-[#F2F2F7]/70 dark:bg-black/60 border border-zinc-200 dark:border-white/10 rounded-lg pl-8 pr-8 py-1.5 text-xs text-zinc-900 dark:text-white font-medium focus:outline-none focus:border-zinc-400 dark:focus:border-white transition-colors"
+                className="w-full bg-white border border-zinc-300 rounded-lg pl-9 pr-8 py-2 text-xs text-black font-bold placeholder:text-zinc-400 focus:outline-none focus:border-black focus:ring-1 focus:ring-black transition-colors"
               />
               {searchQuery && (
                 <button
                   type="button"
                   onClick={() => setSearchQuery('')}
-                  className="absolute right-2.5 top-2 text-zinc-400 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-white text-xs cursor-pointer"
+                  className="absolute right-2.5 top-2.5 text-black hover:text-red-600 text-xs cursor-pointer"
                 >
-                  <X className="w-3.5 h-3.5" />
+                  <X className="w-4 h-4 stroke-[2]" />
                 </button>
               )}
             </div>
@@ -2297,10 +2717,10 @@ export const WorkoutDispatchModal: React.FC<WorkoutDispatchModalProps> = ({
                       setSelectedMuscleSubFilter('ALL');
                       setSearchQuery('');
                     }}
-                    className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold whitespace-nowrap shrink-0 transition-all cursor-pointer border ${
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap shrink-0 transition-all cursor-pointer border ${
                       isActive
-                        ? 'bg-zinc-900 dark:bg-white text-white dark:text-black border-zinc-900 dark:border-white shadow-2xs'
-                        : 'bg-[#F2F2F7] dark:bg-black/60 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white border-zinc-200/80 dark:border-white/10 hover:border-zinc-300 dark:hover:border-white/20'
+                        ? 'bg-black text-white border-black shadow-xs'
+                        : 'bg-white text-black hover:bg-zinc-50 border-zinc-200 hover:border-black'
                     }`}
                   >
                     {split.label}
@@ -2310,7 +2730,7 @@ export const WorkoutDispatchModal: React.FC<WorkoutDispatchModalProps> = ({
             </div>
 
             {/* Exercise Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 max-h-[440px] overflow-y-auto hide-scrollbar pr-0.5">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 max-h-[440px] overflow-y-auto hide-scrollbar pr-0.5">
               {availableExercises.map((curated) => {
                 const isAdded = stagedExercises.some(
                   (e) => e.name.toLowerCase() === curated.name.toLowerCase()
@@ -2320,36 +2740,36 @@ export const WorkoutDispatchModal: React.FC<WorkoutDispatchModalProps> = ({
                   <div
                     key={curated.id}
                     onClick={() => handleAddExercise(curated)}
-                    className={`p-2.5 rounded-xl border text-left transition-all flex items-center justify-between gap-2.5 cursor-pointer ${
+                    className={`p-3 rounded-xl border text-left transition-all flex items-center justify-between gap-2.5 cursor-pointer ${
                       isAdded
-                        ? 'bg-zinc-200/80 dark:bg-white/10 border-zinc-300 dark:border-white/30 text-zinc-900 dark:text-white'
-                        : 'bg-[#F2F2F7]/50 hover:bg-[#F2F2F7] dark:bg-black/60 dark:hover:bg-white/5 border-zinc-200/80 dark:border-white/10 hover:border-zinc-300 dark:hover:border-white/20 text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white'
+                        ? 'bg-zinc-50 border-black text-black shadow-xs'
+                        : 'bg-white hover:bg-zinc-50 border-zinc-200 hover:border-black text-black shadow-xs'
                     }`}
                   >
                     <div className="min-w-0 space-y-0.5">
-                      <div className="text-xs font-semibold text-zinc-900 dark:text-white truncate">{curated.name}</div>
-                      <div className="text-[10px] text-zinc-500 dark:text-zinc-400 truncate flex items-center gap-1.5">
-                        <span className="text-zinc-700 dark:text-zinc-300 font-medium">{curated.muscleGroup}</span>
+                      <div className="text-xs font-bold text-black truncate">{curated.name}</div>
+                      <div className="text-[10px] text-zinc-700 truncate flex items-center gap-1.5 font-medium">
+                        <span className="text-black font-bold">{curated.muscleGroup}</span>
                         <span>•</span>
                         <span>{curated.subMuscle}</span>
                         <span>•</span>
-                        <span className="text-zinc-500 dark:text-zinc-400">{curated.type}</span>
+                        <span className="text-zinc-600">{curated.type}</span>
                       </div>
                       {curated.coachingCue && (
-                        <p className="text-[10px] text-zinc-500 dark:text-zinc-400 line-clamp-1 font-normal">
+                        <p className="text-[10px] text-zinc-600 line-clamp-1 font-normal">
                           {curated.coachingCue}
                         </p>
                       )}
                     </div>
 
                     <div
-                      className={`w-6 h-6 rounded-lg flex items-center justify-center text-xs shrink-0 transition-transform active:scale-90 ${
+                      className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs shrink-0 transition-transform active:scale-90 ${
                         isAdded
-                          ? 'bg-zinc-900 dark:bg-white text-white dark:text-black font-bold shadow-2xs'
-                          : 'bg-zinc-200 dark:bg-white/10 border border-zinc-300 dark:border-white/15 text-zinc-700 dark:text-white hover:bg-zinc-900 dark:hover:bg-white hover:text-white dark:hover:text-black'
+                          ? 'bg-black text-white font-bold shadow-xs'
+                          : 'bg-white border border-zinc-300 text-black hover:bg-black hover:text-white'
                       }`}
                     >
-                      {isAdded ? <Check className="w-3.5 h-3.5" /> : <Plus className="w-3.5 h-3.5" />}
+                      {isAdded ? <Check className="w-4 h-4 stroke-[2.5]" /> : <Plus className="w-4 h-4 stroke-[2.5]" />}
                     </div>
                   </div>
                 );
@@ -2362,121 +2782,561 @@ export const WorkoutDispatchModal: React.FC<WorkoutDispatchModalProps> = ({
             TAB 3: PRESETS & BLUEPRINT TEMPLATES
             ───────────────────────────────────────────────────────────────── */}
         {activeTab === 'templates' && (
-          <div className="space-y-2.5 animate-in fade-in">
-            <div className="px-0.5">
-              <h3 className="text-xs font-semibold uppercase tracking-wider text-zinc-900 dark:text-white">
-                Prebuilt Split Architectures
-              </h3>
-              <p className="text-[10px] text-zinc-500 dark:text-zinc-400">
-                1-tap load standard athletic blueprints into your active workout stack
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
-              {SMART_SPLIT_BLUEPRINTS.map((bp) => (
-                <div
-                  key={bp.id}
-                  className="p-3 sm:p-3.5 rounded-2xl bg-white dark:bg-zinc-950/90 border border-zinc-200/80 dark:border-white/10 hover:border-zinc-300 dark:hover:border-white/20 transition-all flex flex-col justify-between gap-2.5 shadow-2xs"
-                >
-                  <div className="space-y-1.5">
-                    <div className="flex items-center justify-between text-[10px] text-zinc-500 dark:text-zinc-400">
-                      <span className="px-1.5 py-0.5 rounded-md bg-[#F2F2F7] dark:bg-white/10 border border-zinc-200/80 dark:border-white/10 text-zinc-800 dark:text-white font-semibold uppercase text-[9px]">
-                        {bp.split}
+          <div className="space-y-4 animate-in fade-in">
+            {/* ═══ O1FC INTELLIGENT BLUEPRINT SYNTHESIZER ═══ */}
+            <div className="p-3.5 sm:p-4 rounded-2xl bg-white border border-zinc-200 shadow-sm space-y-3">
+              {/* Header (Compact Single-Row Header) */}
+              <div className="flex items-center justify-between gap-2 pb-2.5 border-b border-zinc-200">
+                <div className="flex items-center gap-2 min-w-0">
+                  <div className="w-7 h-7 rounded-lg bg-red-50 border border-red-200 flex items-center justify-center text-red-600 shrink-0">
+                    <Zap className="w-4 h-4 stroke-[2.5]" />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-1.5">
+                      <h3 className="text-xs sm:text-sm font-bold text-black tracking-tight truncate">
+                        Blueprint Synthesizer
+                      </h3>
+                      <span className="px-1.5 py-0.2 rounded bg-red-100 border border-red-200 text-red-600 font-bold uppercase text-[8px] tracking-wider shrink-0">
+                        Live
                       </span>
-                      <span className="text-zinc-700 dark:text-zinc-300 font-medium">{bp.focus}</span>
                     </div>
-                    <h4 className="text-xs sm:text-sm font-semibold text-zinc-900 dark:text-white">{bp.title}</h4>
-                    <p className="text-[11px] text-zinc-600 dark:text-zinc-400 line-clamp-2 leading-relaxed">{bp.description}</p>
-                    
-                    {/* Exercise previews count */}
-                    <div className="text-[10px] text-zinc-400 dark:text-zinc-500 pt-0.5">
-                      Includes {bp.exerciseIds.length} choreographed movements
-                    </div>
+                    <p className="text-[10px] text-zinc-700 font-medium truncate">
+                      Sports-science vector synthesis
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setSynthSeed((s) => s + 1)}
+                  className="h-7 px-2.5 rounded-lg bg-white border border-zinc-300 hover:border-black text-black hover:bg-zinc-50 text-[11px] font-bold flex items-center gap-1.5 transition-colors cursor-pointer shrink-0 active:scale-95 shadow-2xs"
+                  title="Shuffle movement variation within current vector"
+                >
+                  <RefreshCw className="w-3 h-3 stroke-[2.5]" />
+                  <span>Shuffle</span>
+                </button>
+              </div>
+
+              {/* Vector Selection (Athletic Intent) */}
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold uppercase tracking-wider text-black flex items-center gap-1.5">
+                  <Target className="w-3.5 h-3.5 text-red-600 stroke-[2.5]" />
+                  <span>1. Target Athletic Vector</span>
+                </label>
+                <div className="flex flex-wrap gap-1.5">
+                  {(
+                    [
+                      { id: 'PUSH', label: 'Push Alpha' },
+                      { id: 'PULL', label: 'Pull Beta' },
+                      { id: 'LEGS', label: 'Legs Alpha' },
+                      { id: 'UPPER', label: 'Upper Body' },
+                      { id: 'LOWER', label: 'Lower Body' },
+                      { id: 'SPEED', label: 'Speed & COD' },
+                      { id: 'HYROX', label: 'Hyrox Metcon' },
+                      { id: 'STRENGTH', label: 'Strength 5x5' },
+                      { id: 'RECOVERY', label: 'Bio-Recovery' },
+                    ] as const
+                  ).map((v) => {
+                    const isSelected = synthIntent === v.id;
+                    return (
+                      <button
+                        key={v.id}
+                        type="button"
+                        onClick={() => setSynthIntent(v.id)}
+                        className={`h-7 px-3 rounded-lg text-[11px] font-bold transition-all cursor-pointer border ${
+                          isSelected
+                            ? 'bg-red-600 text-white border-red-600 shadow-xs ring-1 ring-red-400'
+                            : 'bg-white text-black border-zinc-300 hover:border-black hover:bg-zinc-50'
+                        }`}
+                      >
+                        {v.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Micro-Constraints Matrix */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-0.5">
+                {/* Duration */}
+                <div className="space-y-1">
+                  <label className="text-[9px] font-bold uppercase tracking-wider text-black flex items-center gap-1">
+                    <Clock className="w-3 h-3 text-black stroke-[2]" />
+                    <span>Duration</span>
+                  </label>
+                  <div className="grid grid-cols-3 gap-1 p-0.5 bg-white rounded-lg border border-zinc-300">
+                    {(
+                      [
+                        { id: '30m', label: '30m (3)' },
+                        { id: '45m', label: '45m (5)' },
+                        { id: '60m', label: '60m (6)' },
+                      ] as const
+                    ).map((d) => (
+                      <button
+                        key={d.id}
+                        type="button"
+                        onClick={() => setSynthDuration(d.id)}
+                        className={`h-6 text-[10px] font-bold rounded-md transition-all text-center cursor-pointer flex items-center justify-center ${
+                          synthDuration === d.id
+                            ? 'bg-black text-white shadow-xs'
+                            : 'text-black hover:bg-zinc-100'
+                        }`}
+                      >
+                        {d.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Equipment */}
+                <div className="space-y-1">
+                  <label className="text-[9px] font-bold uppercase tracking-wider text-black flex items-center gap-1">
+                    <Dumbbell className="w-3 h-3 text-black stroke-[2]" />
+                    <span>Facility / Gear</span>
+                  </label>
+                  <div className="grid grid-cols-3 gap-1 p-0.5 bg-white rounded-lg border border-zinc-300">
+                    {(
+                      [
+                        { id: 'FULL', label: 'Full Gym' },
+                        { id: 'DUMBBELL', label: 'DB & Bench' },
+                        { id: 'BODYWEIGHT', label: 'Bodyweight' },
+                      ] as const
+                    ).map((eq) => (
+                      <button
+                        key={eq.id}
+                        type="button"
+                        onClick={() => setSynthEquipment(eq.id)}
+                        className={`h-6 text-[10px] font-bold rounded-md transition-all text-center cursor-pointer flex items-center justify-center ${
+                          synthEquipment === eq.id
+                            ? 'bg-black text-white shadow-xs'
+                            : 'text-black hover:bg-zinc-100'
+                        }`}
+                      >
+                        {eq.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Intensity */}
+                <div className="space-y-1">
+                  <label className="text-[9px] font-bold uppercase tracking-wider text-black flex items-center gap-1">
+                    <Flame className="w-3 h-3 text-black stroke-[2]" />
+                    <span>Intensity Ceiling</span>
+                  </label>
+                  <div className="grid grid-cols-2 gap-1 p-0.5 bg-white rounded-lg border border-zinc-300">
+                    {(
+                      [
+                        { id: 'PROGRESSIVE', label: 'Progressive RPE 8' },
+                        { id: 'FAILURE', label: 'Failure Dropset' },
+                      ] as const
+                    ).map((m) => (
+                      <button
+                        key={m.id}
+                        type="button"
+                        onClick={() => setSynthRpe(m.id)}
+                        className={`h-6 text-[10px] font-bold rounded-md transition-all text-center cursor-pointer flex items-center justify-center ${
+                          synthRpe === m.id
+                            ? 'bg-black text-white shadow-xs'
+                            : 'text-black hover:bg-zinc-100'
+                        }`}
+                      >
+                        {m.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Synthesized Routine Preview Card */}
+              <div className="p-3.5 rounded-xl bg-white border border-zinc-200 shadow-2xs space-y-2.5">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 pb-2 border-b border-zinc-200">
+                  <div className="min-w-0">
+                    <span className="text-[8px] font-bold uppercase tracking-wider text-red-600">
+                      Synthesized Workout Blueprint
+                    </span>
+                    <h4 className="text-xs sm:text-sm font-bold text-black tracking-tight truncate">
+                      {synthesizedBlueprint.title}
+                    </h4>
+                    <p className="text-[10px] text-zinc-700 font-semibold truncate">
+                      {synthesizedBlueprint.focus}
+                    </p>
                   </div>
 
+                  <div className="flex items-center gap-1.5 shrink-0 self-start sm:self-auto">
+                    <span className="px-2 py-0.5 rounded-md bg-white border border-zinc-300 text-black font-bold text-[10px]">
+                      ~{synthesizedBlueprint.estimatedMinutes}m
+                    </span>
+                    <span className="px-2 py-0.5 rounded-md bg-white border border-zinc-300 text-black font-bold text-[10px]">
+                      {synthesizedBlueprint.exercises.length} Moves • {synthesizedBlueprint.exercises.reduce((a, b) => a + b.sets.length, 0)} Sets
+                    </span>
+                  </div>
+                </div>
+
+                {/* Movements List Preview */}
+                <div className="space-y-1.5 max-h-48 overflow-y-auto hide-scrollbar">
+                  {synthesizedBlueprint.exercises.map((ex, idx) => (
+                    <div
+                      key={ex.id || idx}
+                      className="p-2.5 rounded-lg bg-white border border-zinc-200 flex items-center justify-between gap-2 text-xs"
+                    >
+                      <div className="flex items-center gap-2 min-w-0">
+                        <span className="w-5 h-5 rounded bg-black text-white font-mono font-bold text-[9px] flex items-center justify-center shrink-0">
+                          0{idx + 1}
+                        </span>
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-1.5">
+                            <span className="font-bold text-black truncate text-[11px]">
+                              {ex.name}
+                            </span>
+                            <span className="px-1.5 py-0.2 rounded text-[8px] font-bold bg-zinc-100 text-black border border-zinc-200 uppercase">
+                              {ex.primaryMuscle}
+                            </span>
+                          </div>
+                          <p className="text-[9px] text-zinc-600 truncate font-normal">
+                            {ex.notes}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-1.5 text-[10px] text-zinc-700 font-bold shrink-0">
+                        <span className="font-bold text-black">
+                          {ex.sets.length}×{ex.sets[0]?.reps || 10}
+                        </span>
+                        <span>•</span>
+                        <span className="font-mono text-[9px] text-zinc-600">
+                          {ex.tempo}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Bottom Action Controls */}
+                <div className="pt-2 flex items-center justify-between gap-2 border-t border-zinc-200">
                   <button
                     type="button"
-                    onClick={() => handleLoadBlueprint(bp)}
-                    className="w-full py-2 rounded-xl bg-zinc-900 dark:bg-white text-white dark:text-black text-xs font-semibold flex items-center justify-center gap-1.5 hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-colors cursor-pointer shadow-2xs"
+                    onClick={() => setIsClientSheetOpen(true)}
+                    className="h-8 px-2.5 rounded-lg bg-white hover:bg-zinc-50 border border-zinc-300 hover:border-black text-black font-bold text-xs flex items-center gap-1.5 transition-colors cursor-pointer shrink-0"
                   >
-                    <span>Load Architecture ({bp.exerciseIds.length} Moves)</span>
-                    <ArrowUpRight className="w-3.5 h-3.5" />
+                    <Users className="w-3.5 h-3.5 text-red-600 stroke-[2.5]" />
+                    <span>{selectedClientKeys.length} Athlete{selectedClientKeys.length !== 1 ? 's' : ''}</span>
+                    <ChevronDown className="w-3 h-3 text-black stroke-[2]" />
                   </button>
+
+                  <div className="flex items-center gap-1.5 flex-wrap justify-end">
+                    <button
+                      type="button"
+                      onClick={handleSaveSynthesizedBlueprint}
+                      className="h-8 px-3 rounded-lg bg-white hover:bg-zinc-50 border border-zinc-300 hover:border-black text-black text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-95 shadow-2xs"
+                      title="Save this synthesized workout blueprint to your library"
+                    >
+                      <Bookmark className="w-3.5 h-3.5 text-red-600 stroke-[2.5]" />
+                      <span>Save Blueprint</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={handleLoadSynthIntoStack}
+                      className="h-8 px-3 rounded-lg bg-white hover:bg-zinc-50 border border-zinc-300 hover:border-black text-black text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-95 shadow-2xs"
+                    >
+                      <Layers className="w-3.5 h-3.5 stroke-[2]" />
+                      <span>Load Into Stack</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      disabled={isSynthDispatching}
+                      onClick={handleInstantSynthDispatch}
+                      className="h-8 px-3.5 rounded-lg bg-red-600 hover:bg-red-500 text-white text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-sm shadow-red-600/30 active:scale-95 disabled:opacity-50"
+                    >
+                      {isSynthDispatching ? (
+                        <>
+                          <RefreshCw className="w-3 h-3 animate-spin stroke-[2.5]" />
+                          <span>Dispatching...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Send className="w-3 h-3 stroke-[2.5]" />
+                          <span>Instant Dispatch</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
                 </div>
-              ))}
+              </div>
+            </div>
+
+            {/* ═══ MY SAVED BLUEPRINTS VAULT ═══ */}
+            <div className="pt-2 space-y-2.5">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 px-0.5">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-black">
+                      My Saved Blueprints
+                    </h3>
+                    <span className="px-2 py-0.5 rounded-md bg-black text-white font-mono text-[10px] font-bold">
+                      {savedBlueprints.length}
+                    </span>
+                  </div>
+                  <p className="text-[10px] text-zinc-700 font-semibold mt-0.5">
+                    Your personal playbook of saved workouts for recurring client programming and rapid dispatch
+                  </p>
+                </div>
+
+                {stagedExercises.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={handleSaveActiveStackAsBlueprint}
+                    className="h-7 px-2.5 rounded-lg bg-white hover:bg-zinc-50 border border-zinc-300 hover:border-black text-black text-[11px] font-bold flex items-center gap-1.5 transition-all cursor-pointer active:scale-95 shrink-0 self-start sm:self-auto shadow-2xs"
+                    title="Save current active stack as a custom blueprint"
+                  >
+                    <Bookmark className="w-3.5 h-3.5 text-red-600 stroke-[2.5]" />
+                    <span>Save Active Stack ({stagedExercises.length})</span>
+                  </button>
+                )}
+              </div>
+
+              {savedBlueprints.length === 0 ? (
+                <div className="p-8 text-center rounded-2xl bg-white border border-dashed border-zinc-300 space-y-2.5 shadow-2xs">
+                  <div className="w-10 h-10 rounded-full bg-zinc-100 flex items-center justify-center mx-auto text-black">
+                    <Bookmark className="w-5 h-5 stroke-[2] text-zinc-500" />
+                  </div>
+                  <h4 className="text-xs sm:text-sm font-bold text-black">
+                    No Saved Blueprints Yet
+                  </h4>
+                  <p className="text-[11px] text-zinc-600 max-w-sm mx-auto leading-relaxed">
+                    Generate an athletic split above or build your Stack, then tap{' '}
+                    <span className="font-bold text-black">"Save Blueprint"</span> to save it here for frequent reuse.
+                  </p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
+                  {savedBlueprints.map((bp) => {
+                    const isExpanded = expandedSavedBpId === bp.id;
+                    const isEditing = editingBpId === bp.id;
+                    const totalSets = bp.exercises.reduce((a, b) => a + (b.sets?.length || 0), 0);
+
+                    return (
+                      <div
+                        key={bp.id}
+                        className="p-3.5 rounded-2xl bg-white border border-zinc-200 hover:border-black transition-all flex flex-col justify-between gap-3 shadow-xs"
+                      >
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between gap-2">
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                              <span className="px-2 py-0.5 rounded-md bg-black text-white font-bold uppercase text-[9px] shadow-2xs">
+                                {bp.split}
+                              </span>
+                              {bp.equipment && (
+                                <span className="px-1.5 py-0.5 rounded-md bg-zinc-100 border border-zinc-200 text-black font-semibold text-[9px]">
+                                  {bp.equipment}
+                                </span>
+                              )}
+                              <span className="text-[10px] text-zinc-500 font-medium">
+                                {new Date(bp.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                              </span>
+                            </div>
+
+                            <div className="flex items-center gap-1">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  if (isEditing) {
+                                    handleUpdateBlueprintTitle(bp.id, editingTitle);
+                                  } else {
+                                    setEditingBpId(bp.id);
+                                    setEditingTitle(bp.title);
+                                  }
+                                }}
+                                className="p-1 rounded-md text-zinc-400 hover:text-black hover:bg-zinc-100 transition-colors cursor-pointer"
+                                title={isEditing ? 'Save title' : 'Rename blueprint'}
+                              >
+                                {isEditing ? <Check className="w-3.5 h-3.5 text-red-600 stroke-[2.5]" /> : <Pencil className="w-3.5 h-3.5 stroke-[2]" />}
+                              </button>
+
+                              <button
+                                type="button"
+                                onClick={(e) => handleDeleteSavedBlueprint(bp.id, bp.title, e)}
+                                className="p-1 rounded-md text-zinc-400 hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+                                title="Delete blueprint"
+                              >
+                                <Trash2 className="w-3.5 h-3.5 stroke-[2]" />
+                              </button>
+                            </div>
+                          </div>
+
+                          <div>
+                            {isEditing ? (
+                              <input
+                                type="text"
+                                value={editingTitle}
+                                onChange={(e) => setEditingTitle(e.target.value)}
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter') handleUpdateBlueprintTitle(bp.id, editingTitle);
+                                  if (e.key === 'Escape') setEditingBpId(null);
+                                }}
+                                autoFocus
+                                className="w-full text-xs font-bold text-black border border-black rounded px-2 py-1 bg-white focus:outline-none focus:ring-1 focus:ring-red-600"
+                              />
+                            ) : (
+                              <h4 className="text-xs sm:text-sm font-bold text-black leading-snug">
+                                {bp.title}
+                              </h4>
+                            )}
+                            <p className="text-[11px] text-zinc-700 font-medium line-clamp-1 mt-0.5">
+                              {bp.focus}
+                            </p>
+                          </div>
+
+                          {/* Quick Stats Pill */}
+                          <div className="flex items-center gap-2 text-[10px] text-zinc-700 font-semibold">
+                            <span className="px-2 py-0.5 rounded-md bg-zinc-100 border border-zinc-200 text-black font-bold">
+                              ~{bp.estimatedMinutes}m
+                            </span>
+                            <span>•</span>
+                            <span>{bp.exercises.length} Movements</span>
+                            <span>•</span>
+                            <span>{totalSets} Sets</span>
+                          </div>
+
+                          {/* Expandable Exercise Preview */}
+                          <div>
+                            <button
+                              type="button"
+                              onClick={() => setExpandedSavedBpId(isExpanded ? null : bp.id)}
+                              className="text-[10px] font-bold text-black hover:text-red-600 flex items-center gap-1 cursor-pointer transition-colors"
+                            >
+                              <span>{isExpanded ? 'Hide movements' : `Preview ${bp.exercises.length} movements`}</span>
+                              {isExpanded ? <ChevronUp className="w-3 h-3 stroke-[2.5]" /> : <ChevronDown className="w-3 h-3 stroke-[2.5]" />}
+                            </button>
+
+                            {isExpanded && (
+                              <div className="mt-2 space-y-1 max-h-36 overflow-y-auto hide-scrollbar border-t border-zinc-100 pt-2">
+                                {bp.exercises.map((ex, idx) => (
+                                  <div
+                                    key={ex.id || idx}
+                                    className="p-1.5 rounded-md bg-zinc-50 border border-zinc-200 flex items-center justify-between text-[11px]"
+                                  >
+                                    <div className="flex items-center gap-1.5 min-w-0">
+                                      <span className="font-mono text-[9px] font-bold text-zinc-500">
+                                        {idx + 1}.
+                                      </span>
+                                      <span className="font-bold text-black truncate">
+                                        {ex.name}
+                                      </span>
+                                    </div>
+                                    <span className="text-[10px] text-zinc-600 font-semibold shrink-0">
+                                      {ex.sets?.length || 4}×{ex.sets?.[0]?.reps || 10}
+                                    </span>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Action buttons: Load into stack or Quick Dispatch */}
+                        <div className="grid grid-cols-2 gap-2 pt-1 border-t border-zinc-100">
+                          <button
+                            type="button"
+                            onClick={() => handleLoadSavedBlueprint(bp)}
+                            className="h-8 rounded-xl bg-black hover:bg-zinc-800 text-white text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-xs active:scale-95"
+                          >
+                            <Layers className="w-3.5 h-3.5 stroke-[2]" />
+                            <span>Load Into Stack</span>
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => handleInstantDispatchSavedBlueprint(bp)}
+                            disabled={isSynthDispatching}
+                            className="h-8 rounded-xl bg-red-600 hover:bg-red-500 text-white text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-xs shadow-red-600/20 active:scale-95 disabled:opacity-50"
+                          >
+                            <Send className="w-3 h-3 stroke-[2.5]" />
+                            <span>Quick Dispatch</span>
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           </div>
         )}
       </main>
 
       {/* ═══════════════════════════════════════════════════════════════════════
-          OBSIDIAN BOTTOM DISPATCH DOCK
+          OBSIDIAN BOTTOM DISPATCH DOCK (Rendered ONLY on active workout stack)
           ═══════════════════════════════════════════════════════════════════════ */}
-      <footer className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-zinc-950/95 border-t border-zinc-200/80 dark:border-white/10 p-3.5 pb-[max(1.25rem,calc(env(safe-area-inset-bottom,0px)+0.875rem))] backdrop-blur-2xl shadow-2xl">
-        <div className="w-full max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
-          <div className="min-w-0 w-full sm:w-auto text-left">
-            <div className="text-xs font-semibold text-zinc-900 dark:text-white truncate flex items-center gap-2">
-              <span>{routineTitle || 'Workout Prescription'}</span>
-              <span className="text-zinc-500 dark:text-zinc-400 font-normal">({scheduledDay})</span>
+      {activeTab === 'stack' && (
+        <footer className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-zinc-200 p-3 pb-[max(1.25rem,calc(env(safe-area-inset-bottom,0px)+0.875rem))] shadow-lg">
+          <div className="w-full max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div className="min-w-0 w-full sm:w-auto text-left">
+              <div className="text-xs font-bold text-black truncate flex items-center gap-2">
+                <span>{routineTitle || 'Workout Prescription'}</span>
+                <span className="text-zinc-600 font-semibold">({scheduledDay})</span>
+              </div>
+              <div className="text-[11px] text-zinc-700 font-medium truncate mt-0.5">
+                {stagedExercises.length} Movements • {telemetry.totalSets} Sets • Target:{' '}
+                <span className="font-bold text-black">{selectedClientKeys.length} Athlete{selectedClientKeys.length > 1 ? 's' : ''}</span>
+              </div>
             </div>
-            <div className="text-[11px] text-zinc-500 dark:text-zinc-400 truncate mt-0.5">
-              {stagedExercises.length} Movements • {telemetry.totalSets} Sets • Target:{' '}
-              {selectedClientKeys.length} Athlete{selectedClientKeys.length > 1 ? 's' : ''}
+
+            <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+              <button
+                type="button"
+                onClick={() => setIsClientSheetOpen(true)}
+                className="h-9 px-3.5 bg-white hover:bg-zinc-50 border border-zinc-300 hover:border-black rounded-xl text-xs font-bold text-black cursor-pointer transition-colors shadow-2xs"
+              >
+                Select Athletes ({selectedClientKeys.length})
+              </button>
+
+              <button
+                type="button"
+                onClick={handleDispatch}
+                disabled={isDispatching || selectedClientKeys.length === 0 || stagedExercises.length === 0}
+                className="h-9 px-6 bg-red-600 hover:bg-red-500 text-white disabled:opacity-30 rounded-xl text-xs font-bold tracking-tight transition-transform active:scale-95 cursor-pointer shadow-md shadow-red-600/30 shrink-0 flex items-center gap-2 justify-center"
+              >
+                {isDispatching ? (
+                  <span>Broadcasting...</span>
+                ) : (
+                  <span>Dispatch to {selectedClientKeys.length} Athlete{selectedClientKeys.length > 1 ? 's' : ''}</span>
+                )}
+              </button>
             </div>
           </div>
-
-          <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
-            <button
-              type="button"
-              onClick={() => setIsClientSheetOpen(true)}
-              className="px-3.5 py-2.5 bg-[#F2F2F7] hover:bg-zinc-200/80 dark:bg-zinc-900 dark:hover:bg-zinc-800 border border-zinc-200/80 dark:border-white/10 rounded-xl text-xs font-medium text-zinc-900 dark:text-white cursor-pointer transition-colors"
-            >
-              Select Athletes ({selectedClientKeys.length})
-            </button>
-
-            <button
-              type="button"
-              onClick={handleDispatch}
-              disabled={isDispatching || selectedClientKeys.length === 0 || stagedExercises.length === 0}
-              className="px-6 py-2.5 bg-zinc-900 dark:bg-white text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200 disabled:opacity-30 rounded-xl text-xs font-bold tracking-tight transition-transform active:scale-95 cursor-pointer shadow-lg shrink-0 flex items-center gap-2 justify-center"
-            >
-              {isDispatching ? (
-                <span>Broadcasting...</span>
-              ) : (
-                <span>Dispatch to {selectedClientKeys.length} Athlete{selectedClientKeys.length > 1 ? 's' : ''}</span>
-              )}
-            </button>
-          </div>
-        </div>
-      </footer>
+        </footer>
+      )}
 
       {/* ═══════════════════════════════════════════════════════════════════════
           ATHLETE TARGET SELECTOR SHEET
           ═══════════════════════════════════════════════════════════════════════ */}
       {isClientSheetOpen && (
         <div
-          className="fixed inset-0 z-[99995] bg-black/70 dark:bg-black/85 flex items-end sm:items-center justify-center p-0 sm:p-4 backdrop-blur-md animate-in fade-in duration-150 overscroll-contain"
+          className="fixed inset-0 z-[99995] bg-black/50 flex items-end sm:items-center justify-center p-0 sm:p-4 backdrop-blur-xs animate-in fade-in duration-150 overscroll-contain"
           onClick={() => setIsClientSheetOpen(false)}
         >
           <div
-            className="bg-white dark:bg-zinc-950 border-t sm:border border-zinc-200 dark:border-white/10 rounded-t-2xl sm:rounded-2xl w-full max-w-md p-3.5 sm:p-4 space-y-2.5 shadow-2xl max-h-[85vh] sm:max-h-[80vh] flex flex-col mb-0 pb-[calc(env(safe-area-inset-bottom,0px)+1rem)] sm:pb-4"
+            className="bg-white border-t sm:border border-zinc-200 rounded-t-2xl sm:rounded-2xl w-full max-w-md p-4 space-y-3 shadow-2xl max-h-[85vh] sm:max-h-[80vh] flex flex-col mb-0 pb-[calc(env(safe-area-inset-bottom,0px)+1rem)] sm:pb-4"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Sheet Header */}
-            <div className="flex items-center justify-between border-b border-zinc-200/80 dark:border-white/10 pb-2.5">
+            <div className="flex items-center justify-between border-b border-zinc-200 pb-2.5">
               <div className="min-w-0">
-                <h3 className="text-xs font-semibold text-zinc-900 dark:text-white uppercase tracking-wider truncate">
+                <h3 className="text-xs font-bold text-black uppercase tracking-wider truncate">
                   Target Athletes ({selectedClientKeys.length})
                 </h3>
-                <p className="text-[10px] text-zinc-500 dark:text-zinc-400 truncate">Select athletes who will receive this workout</p>
+                <p className="text-[10px] text-zinc-600 font-medium truncate">Select athletes who will receive this workout</p>
               </div>
               <button
                 type="button"
                 onClick={() => setIsClientSheetOpen(false)}
-                className="p-1 -mr-1 text-zinc-400 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white flex items-center justify-center cursor-pointer shrink-0 transition-all bg-transparent border-0 active:scale-90"
+                className="p-1 -mr-1 text-black hover:text-red-600 flex items-center justify-center cursor-pointer shrink-0 transition-all bg-transparent border-0 active:scale-90"
                 title="Close"
               >
-                <X className="w-4 h-4 stroke-[1.75]" />
+                <X className="w-4 h-4 stroke-[2]" />
               </button>
             </div>
 
@@ -2486,7 +3346,7 @@ export const WorkoutDispatchModal: React.FC<WorkoutDispatchModalProps> = ({
               placeholder="Search athlete by name or handle..."
               value={clientSearchQuery}
               onChange={(e) => setClientSearchQuery(e.target.value)}
-              className="w-full bg-[#F2F2F7]/70 dark:bg-black/60 border border-zinc-200 dark:border-white/10 rounded-lg px-2.5 py-1.5 text-xs text-zinc-900 dark:text-white focus:outline-none focus:border-zinc-400 dark:focus:border-white transition-colors"
+              className="w-full bg-white border border-zinc-300 rounded-lg px-3 py-2 text-xs text-black font-bold placeholder:text-zinc-400 focus:outline-none focus:border-black focus:ring-1 focus:ring-black transition-colors"
             />
 
             {/* Quick Actions */}
@@ -2495,29 +3355,29 @@ export const WorkoutDispatchModal: React.FC<WorkoutDispatchModalProps> = ({
                 <button
                   type="button"
                   onClick={() => setSelectedClientKeys(Object.keys(clients))}
-                  className="text-zinc-900 dark:text-white hover:underline font-semibold cursor-pointer text-xs"
+                  className="text-black hover:underline font-bold cursor-pointer text-xs"
                 >
                   Select All ({Object.keys(clients).length})
                 </button>
-                <span className="text-zinc-300 dark:text-zinc-600">•</span>
+                <span className="text-zinc-300">•</span>
                 <button
                   type="button"
                   onClick={() => setSelectedClientKeys([])}
-                  className="text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white cursor-pointer text-xs"
+                  className="text-zinc-600 hover:text-black cursor-pointer text-xs font-semibold"
                 >
                   Clear All
                 </button>
               </div>
-              <span className="text-[10px] font-mono text-zinc-400 dark:text-zinc-500">
+              <span className="text-[10px] font-mono font-bold text-black">
                 {selectedClientKeys.length} / {Object.keys(clients).length} Selected
               </span>
             </div>
 
             {/* Unified Client List Container */}
-            <div className="bg-[#F2F2F7]/50 dark:bg-white/[0.02] border border-zinc-200 dark:border-white/10 rounded-xl divide-y divide-zinc-200/60 dark:divide-white/5 overflow-y-auto max-h-[50vh] sm:max-h-60 hide-scrollbar">
+            <div className="bg-white border border-zinc-200 rounded-xl divide-y divide-zinc-200 overflow-y-auto max-h-[50vh] sm:max-h-60 hide-scrollbar">
               {Object.keys(clients).length === 0 ? (
-                <div className="p-6 text-center text-zinc-500 dark:text-zinc-400 space-y-1">
-                  <div className="text-xs font-semibold text-zinc-800 dark:text-zinc-200">No Live Athletes Yet</div>
+                <div className="p-6 text-center text-zinc-600 space-y-1">
+                  <div className="text-xs font-bold text-black">No Live Athletes Yet</div>
                   <p className="text-[11px] leading-relaxed">
                     Athletes who join via your Coach Link will appear here automatically.
                   </p>
@@ -2526,7 +3386,7 @@ export const WorkoutDispatchModal: React.FC<WorkoutDispatchModalProps> = ({
                   (athlete?.name || k).toLowerCase().includes(clientSearchQuery.toLowerCase()) ||
                   (athlete?.handle || '').toLowerCase().includes(clientSearchQuery.toLowerCase())
                 ).length === 0 ? (
-                <div className="p-4 text-center text-xs text-zinc-500 dark:text-zinc-400">
+                <div className="p-4 text-center text-xs text-zinc-600">
                   No athletes match "{clientSearchQuery}"
                 </div>
               ) : (
@@ -2545,23 +3405,23 @@ export const WorkoutDispatchModal: React.FC<WorkoutDispatchModalProps> = ({
                             isSelected ? prev.filter((id) => id !== k) : [...prev, k]
                           );
                         }}
-                        className={`px-3 py-2 cursor-pointer flex items-center justify-between transition-colors text-xs ${
+                        className={`px-3 py-2.5 cursor-pointer flex items-center justify-between transition-colors text-xs ${
                           isSelected
-                            ? 'bg-zinc-200/90 dark:bg-white/10 text-zinc-900 dark:text-white'
-                            : 'hover:bg-zinc-200/50 dark:hover:bg-white/5 text-zinc-700 dark:text-zinc-300'
+                            ? 'bg-zinc-100 text-black font-bold'
+                            : 'hover:bg-zinc-50 text-black'
                         }`}
                       >
                         <div className="min-w-0 pr-2">
-                          <div className="font-semibold text-zinc-900 dark:text-white truncate">{athlete?.name || k}</div>
-                          <div className="text-[10px] text-zinc-500 dark:text-zinc-400 truncate leading-tight mt-0.5">
+                          <div className="font-bold text-black truncate">{athlete?.name || k}</div>
+                          <div className="text-[10px] text-zinc-600 truncate leading-tight mt-0.5">
                             {athlete?.handle || `@${k}`} {athlete?.badge ? `• ${athlete.badge}` : ''}
                           </div>
                         </div>
                         <div
                           className={`w-4 h-4 rounded-md flex items-center justify-center text-xs shrink-0 transition-colors ${
                             isSelected
-                              ? 'bg-zinc-900 dark:bg-white text-white dark:text-black font-bold'
-                              : 'border border-zinc-300 dark:border-white/20'
+                              ? 'bg-black text-white font-bold'
+                              : 'border border-zinc-300'
                           }`}
                         >
                           {isSelected && <Check className="w-2.5 h-2.5 stroke-[3]" />}
@@ -2575,7 +3435,7 @@ export const WorkoutDispatchModal: React.FC<WorkoutDispatchModalProps> = ({
             <button
               type="button"
               onClick={() => setIsClientSheetOpen(false)}
-              className="w-full py-2 bg-zinc-900 dark:bg-white text-white dark:text-black font-semibold text-xs rounded-xl cursor-pointer shadow-2xs hover:opacity-90 active:scale-98 transition-all"
+              className="w-full py-2.5 bg-black text-white font-bold text-xs rounded-xl cursor-pointer shadow-xs hover:bg-zinc-800 active:scale-98 transition-all"
             >
               Done ({selectedClientKeys.length} Selected)
             </button>
