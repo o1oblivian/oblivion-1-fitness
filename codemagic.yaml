@@ -39,47 +39,30 @@ workflows:
           
           mkdir -p ~/.appstoreconnect/private_keys
           AUTH_KEY_PATH="$HOME/.appstoreconnect/private_keys/AuthKey_${APP_STORE_CONNECT_KEY_IDENTIFIER}.p8"
-          echo "$APP_STORE_CONNECT_PRIVATE_KEY" > "$AUTH_KEY_PATH"
+          
+          # Ensure private key is properly formatted with newlines whether it has literal \n or raw newlines
+          printf "%b\n" "$APP_STORE_CONNECT_PRIVATE_KEY" | sed 's/\\n/\n/g' > "$AUTH_KEY_PATH"
           chmod 600 "$AUTH_KEY_PATH"
 
-          echo "Attempting to fetch or create signing files for $BUNDLE_ID from Apple Developer Portal..."
+          echo "Fetching or creating signing files for $BUNDLE_ID from Apple Developer Portal..."
           app-store-connect fetch-signing-files "$BUNDLE_ID" \
             --type IOS_APP_STORE \
             --create \
             --key-id "$APP_STORE_CONNECT_KEY_IDENTIFIER" \
             --issuer-id "$APP_STORE_CONNECT_ISSUER_ID" \
-            --private-key "$AUTH_KEY_PATH" || true
+            --private-key "$AUTH_KEY_PATH"
 
-          keychain add-certificates || true
+          keychain add-certificates
 
-          # Check if a profile was obtained; if so, configure Xcode for manual profile signing.
-          PROFILES_COUNT=$(ls -1 ~/Library/MobileDevice/"Provisioning Profiles" 2>/dev/null | wc -l || echo 0)
-          echo "Found $PROFILES_COUNT provisioning profile(s) in system."
-          if [ "$PROFILES_COUNT" -gt 0 ]; then
-            echo "Applying profiles to Xcode project..."
-            xcode-project use-profiles --project ios/App/App.xcodeproj
-          else
-            echo "No provisioning profile fetched. Building with automatic/development signing."
-          fi
+          echo "Configuring Xcode project profiles..."
+          xcode-project use-profiles --project ios/App/App.xcodeproj
 
       - name: Build iOS IPA
         script: |
           set -e
-          PROFILES_COUNT=$(ls -1 ~/Library/MobileDevice/"Provisioning Profiles" 2>/dev/null | wc -l || echo 0)
-          if [ "$PROFILES_COUNT" -gt 0 ]; then
-            echo "Building signed App Store IPA with profiles..."
-            xcode-project build-ipa --project ios/App/App.xcodeproj --scheme "App"
-          else
-            echo "Building archive without manual profiles (Xcode automatic signing / archive)..."
-            xcodebuild archive \
-              -project ios/App/App.xcodeproj \
-              -scheme "App" \
-              -configuration Release \
-              -destination "generic/platform=iOS" \
-              -archivePath build/ios/xcarchive/App.xcarchive \
-              CODE_SIGNING_ALLOWED=NO
-            echo "Native iOS archive generated successfully at build/ios/xcarchive/App.xcarchive"
-          fi
+          echo "Building signed App Store IPA for publishing..."
+          xcode-project build-ipa --project ios/App/App.xcodeproj --scheme "App"
+
     artifacts:
       - build/ios/ipa/*.ipa
       - build/ios/xcarchive/**
