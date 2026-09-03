@@ -10,62 +10,56 @@ workflows:
         XCODE_WORKSPACE: "ios/App/App.xcworkspace"
         XCODE_SCHEME: "App"
         BUNDLE_ID: "com.o1fc.fitness"
-      node: 20
       xcode: latest
       cocoapods: default
-    triggering:
-      events:
-        - push
-      branch_patterns:
-        - pattern: 'main'
-          include: true
-          source: true
+      node: 20
     scripts:
       - name: Install dependencies
         script: |
-          npm ci --legacy-peer-deps || npm install --legacy-peer-deps
+          npm install --legacy-peer-deps
       - name: Build web application
         script: |
           npm run build
       - name: Sync Capacitor iOS
         script: |
           npx cap sync ios
-      - name: Install CocoaPods (if Podfile exists)
+      - name: Install CocoaPods
         script: |
-          cd ios/App
-          if [ -f "Podfile" ]; then
-            pod install --repo-update
+          if [ -f "ios/App/Podfile" ]; then
+            cd ios/App && pod install
+          else
+            echo "Swift Package Manager in use; skipping CocoaPods."
           fi
+      - name: Resolve Swift Package dependencies
+        script: |
+          xcodebuild -resolvePackageDependencies -project ios/App/App.xcodeproj
       - name: Set up code signing
         script: |
-          keychain initialize
-          if [ -n "$CERT_P12" ]; then
-            echo "$CERT_P12" | base64 --decode > /tmp/cert.p12
-            keychain add-certificates --certificate /tmp/cert.p12 ${CERT_PASSWORD:+--certificate-password "$CERT_PASSWORD"}
-          fi
-          if [ -n "$PROFILE_BASE64" ]; then
-            PROFILES_HOME="$HOME/Library/MobileDevice/Provisioning Profiles"
-            mkdir -p "$PROFILES_HOME"
-            echo "$PROFILE_BASE64" | base64 --decode > "$PROFILES_HOME/app.mobileprovision"
-          fi
+          echo "Fetching profiles from App Store Connect..."
+          app-store-connect fetch-signing-files "$BUNDLE_ID" \
+            --type IOS_APP_STORE \
+            --create
           xcode-project use-profiles
-      - name: Build iOS App
+      - name: Build iOS IPA
         script: |
-          xcode-project build-ipa \
-            --workspace "$XCODE_WORKSPACE" \
-            --scheme "$XCODE_SCHEME"
+          PROJECT_ARG="--project $CM_BUILD_DIR/ios/App/App.xcodeproj"
+          if [ -d "$CM_BUILD_DIR/ios/App/App.xcworkspace" ]; then
+            PROJECT_ARG="--workspace $CM_BUILD_DIR/ios/App/App.xcworkspace"
+          fi
+          echo "Building signed iOS IPA for App Store / TestFlight..."
+          xcode-project build-ipa $PROJECT_ARG --scheme "App"
     artifacts:
       - build/ios/ipa/*.ipa
       - /tmp/xcodebuild_logs/*.log
-      - $HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.app
-      - $HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.dSYM
     publishing:
+      app_store_connect:
+        api_key: $APP_STORE_CONNECT_PRIVATE_KEY
+        key_id: $APP_STORE_CONNECT_KEY_IDENTIFIER
+        issuer_id: $APP_STORE_CONNECT_ISSUER_ID
+        submit_to_testflight: true
       email:
         recipients:
           - o1oblivianfitness@gmail.com
         notify:
-          failure: true
           success: true
-      app_store_connect:
-        auth: integration
-        submit_to_testflight: true
+          failure: true
