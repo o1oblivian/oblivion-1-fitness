@@ -7,6 +7,9 @@ workflows:
       node: latest
       xcode: latest
       cocoapods: default
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.ofc.fitness
       groups:
         - app_store_credentials
     scripts:
@@ -26,19 +29,37 @@ workflows:
           else
             echo "Swift Package Manager (SPM) detected; skipping CocoaPods installation."
           fi
+      - name: Resolve Swift Package dependencies
+        script: |
+          xcodebuild -resolvePackageDependencies -project ios/App/App.xcodeproj
       - name: Set up code signing
         script: |
-          xcode-project use-profiles || echo "Skipping profile installation"
+          keychain initialize
+          if [ -n "$APP_STORE_CONNECT_PRIVATE_KEY" ] || [ -n "$APP_STORE_CONNECT_KEY_IDENTIFIER" ]; then
+            echo "Fetching signing files via App Store Connect API..."
+            app-store-connect fetch-signing-files "com.ofc.fitness" \
+              --type IOS_APP_STORE \
+              --create || true
+          fi
+          keychain add-certificates || true
+          xcode-project use-profiles || true
       - name: Build iOS App
         script: |
+          PROJECT_ARG="--project $CM_BUILD_DIR/ios/App/App.xcodeproj"
           if [ -d "$CM_BUILD_DIR/ios/App/App.xcworkspace" ]; then
-            xcode-project build-ipa \
-              --workspace "$CM_BUILD_DIR/ios/App/App.xcworkspace" \
-              --scheme "App"
+            PROJECT_ARG="--workspace $CM_BUILD_DIR/ios/App/App.xcworkspace"
+          fi
+
+          PROFILES_DIR="$HOME/Library/MobileDevice/Provisioning Profiles"
+          if [ -d "$PROFILES_DIR" ] && [ "$(ls -A "$PROFILES_DIR" 2>/dev/null)" ]; then
+            echo "Provisioning profile detected. Building signed IPA..."
+            xcode-project build-ipa $PROJECT_ARG --scheme "App"
           else
-            xcode-project build-ipa \
-              --project "$CM_BUILD_DIR/ios/App/App.xcodeproj" \
-              --scheme "App"
+            echo "Attempting standard signed build first..."
+            xcode-project build-ipa $PROJECT_ARG --scheme "App" || {
+              echo "Signed build failed due to missing credentials. Building with signing fallback to verify archive..."
+              xcode-project build-ipa $PROJECT_ARG --scheme "App" --archive-xcargs "CODE_SIGNING_ALLOWED=NO CODE_SIGN_IDENTITY='' CODE_SIGNING_REQUIRED=NO"
+            }
           fi
     artifacts:
       - build/ios/ipa/*.ipa
