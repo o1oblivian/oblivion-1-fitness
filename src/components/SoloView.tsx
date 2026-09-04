@@ -1233,6 +1233,17 @@ export const SoloView: React.FC<SoloViewProps> = ({
           </div>
         )}
 
+        {/* ── In-Flow Finish & Save Button ── */}
+        {activeLogs.length > 0 && (
+          <button
+            onClick={onOpenCommitModal}
+            className="w-full h-11 rounded-xl bg-red-700 hover:bg-red-800 text-white font-semibold text-[13px] shadow-md hover:shadow-lg active:scale-[0.98] transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer mt-2"
+          >
+            <Save className="w-4 h-4" />
+            Finish &amp; Save Session
+          </button>
+        )}
+
         {/* ── OFC Microcycle Kinetic Progress Barometer ── */}
         <div className="mt-2">
           <WeeklyProgressChart
@@ -1243,19 +1254,6 @@ export const SoloView: React.FC<SoloViewProps> = ({
             currentDaySets={totalSets}
           />
         </div>
-
-
-
-        {/* ── In-Flow Finish & Save Button ── */}
-        {activeLogs.length > 0 && (
-          <button
-            onClick={onOpenCommitModal}
-            className="w-full h-11 rounded-xl bg-red-700 hover:bg-red-800 text-white font-semibold text-[13px] shadow-md hover:shadow-lg active:scale-[0.98] transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer mt-1"
-          >
-            <Save className="w-4 h-4" />
-            Finish &amp; Save Session
-          </button>
-        )}
 
         {/* ── Weekly Report Card Strip ── */}
         <button
