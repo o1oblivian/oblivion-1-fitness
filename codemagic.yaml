@@ -7,7 +7,7 @@ workflows:
       groups:
         - app_store_credentials
       vars:
-        XCODE_WORKSPACE: "ios/App/App.xcworkspace"
+        XCODE_PROJECT: "ios/App/App.xcodeproj"
         XCODE_SCHEME: "App"
         BUNDLE_ID: "com.o1fc.fitness"
       xcode: latest
@@ -35,27 +35,50 @@ workflows:
           xcodebuild -resolvePackageDependencies -project ios/App/App.xcodeproj
       - name: Set up code signing
         script: |
+          set -e
+          echo "Initializing macOS keychain for CI signing..."
           keychain initialize
-          
+
+          echo "Preparing App Store Connect API Key..."
           mkdir -p ~/.appstoreconnect/private_keys
           AUTH_KEY_PATH="$HOME/.appstoreconnect/private_keys/AuthKey_${APP_STORE_CONNECT_KEY_IDENTIFIER}.p8"
-          
-          # Ensure private key is properly formatted with newlines whether it has literal \n or raw newlines
+
+          # Normalize private key format, converting literal \n to actual newlines
           printf "%b\n" "$APP_STORE_CONNECT_PRIVATE_KEY" | sed 's/\\n/\n/g' > "$AUTH_KEY_PATH"
           chmod 600 "$AUTH_KEY_PATH"
 
+          # Generate 2048-bit RSA key for certificate generation if a new certificate is needed
+          CERT_KEY_PATH="/tmp/cert_key.pem"
+          openssl genrsa -out "$CERT_KEY_PATH" 2048
+          chmod 600 "$CERT_KEY_PATH"
+
           echo "Fetching or creating signing files for $BUNDLE_ID from Apple Developer Portal..."
+          # Pass @file: prefix so Codemagic CLI reads the file rather than interpreting the path as raw PEM text
           app-store-connect fetch-signing-files "$BUNDLE_ID" \
             --type IOS_APP_STORE \
             --create \
             --key-id "$APP_STORE_CONNECT_KEY_IDENTIFIER" \
             --issuer-id "$APP_STORE_CONNECT_ISSUER_ID" \
-            --private-key "$AUTH_KEY_PATH"
+            --private-key "@file:$AUTH_KEY_PATH" \
+            --certificate-key "@file:$CERT_KEY_PATH" || \
+          app-store-connect fetch-signing-files "$BUNDLE_ID" \
+            --type IOS_APP_STORE \
+            --key-id "$APP_STORE_CONNECT_KEY_IDENTIFIER" \
+            --issuer-id "$APP_STORE_CONNECT_ISSUER_ID" \
+            --private-key "@file:$AUTH_KEY_PATH"
 
+          echo "Adding signing certificates to keychain..."
           keychain add-certificates
+          security import "$CERT_KEY_PATH" -k ~/Library/Keychains/$(keychain default) -T /usr/bin/codesign -T /usr/bin/productsign 2>/dev/null || true
 
-          echo "Configuring Xcode project profiles..."
-          xcode-project use-profiles --project ios/App/App.xcodeproj
+          echo "=== Installed Signing Identities ==="
+          security find-identity -v -p codesigning || true
+
+          echo "=== Downloaded Provisioning Profiles ==="
+          ls -la ~/Library/MobileDevice/"Provisioning Profiles" 2>/dev/null || true
+
+          echo "Configuring Xcode project profiles and code signing..."
+          xcode-project use-profiles --project ios/App/App.xcodeproj --archive-method=app-store --warn-only
 
       - name: Build iOS IPA
         script: |
