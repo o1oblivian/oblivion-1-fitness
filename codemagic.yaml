@@ -140,8 +140,6 @@ workflows:
           include: true
           source: true
     environment:
-      groups:
-        - google_play_credentials
       vars:
         PACKAGE_NAME: "com.o1fc.fitness"
       node: 22
@@ -164,6 +162,9 @@ workflows:
             echo "Using Codemagic environment keystore..."
             echo "$CM_KEYSTORE" | base64 --decode > app/release-keystore.jks
             export CM_KEYSTORE_PATH="app/release-keystore.jks"
+          elif [ ! -f "app/release-keystore.jks" ]; then
+            echo "Creating production release keystore for Google Play AAB..."
+            keytool -genkeypair -v -keystore app/release-keystore.jks -alias o1fc -keyalg RSA -keysize 2048 -validity 10000 -storepass o1fcfitness -keypass o1fcfitness -dname "CN=Oblivion 1 Fitness Club, OU=Mobile, O=O1FC, L=Sydney, ST=NSW, C=AU"
           fi
       - name: Build Android App Bundle (AAB)
         script: |
