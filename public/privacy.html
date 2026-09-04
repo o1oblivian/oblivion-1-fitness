@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Privacy Policy - Oblivion 1 Fitness Club (O1FC)</title>
+  <style>
+    :root {
+      --bg: #09090b;
+      --card: #18181b;
+      --border: #27272a;
+      --text: #f4f4f5;
+      --text-muted: #a1a1aa;
+      --accent: #dc2626;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 32px 20px;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 40px 32px;
+    }
+    .badge {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: rgba(220, 38, 38, 0.1);
+      border: 1px solid rgba(220, 38, 38, 0.3);
+      padding: 4px 12px;
+      border-radius: 9999px;
+      margin-bottom: 16px;
+    }
+    h1 {
+      font-size: 28px;
+      font-weight: 800;
+      margin-bottom: 8px;
+      color: #ffffff;
+    }
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 14px;
+      margin-bottom: 32px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 16px;
+    }
+    h2 {
+      font-size: 20px;
+      font-weight: 700;
+      color: #ffffff;
+      margin-top: 28px;
+      margin-bottom: 12px;
+    }
+    p, ul {
+      color: var(--text-muted);
+      font-size: 15px;
+      margin-bottom: 16px;
+    }
+    ul {
+      padding-left: 24px;
+    }
+    li {
+      margin-bottom: 8px;
+    }
+    strong {
+      color: var(--text);
+    }
+    a {
+      color: #ef4444;
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    .contact-card {
+      margin-top: 32px;
+      padding: 20px;
+      background: #111114;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <span class="badge">Official Compliance</span>
+    <h1>Privacy Policy</h1>
+    <p class="subtitle">Oblivion 1 Fitness Club (O1FC Official) &bull; Last updated: September 4, 2026</p>
+
+    <h2>1. Overview</h2>
+    <p>Oblivion 1 Fitness Club ("O1FC", "we", "us", or "our") values and respects your personal privacy. This Privacy Policy describes how we collect, use, process, and protect your information when you use our mobile application (Package ID: <code>com.o1fc.fitness</code>) and associated services.</p>
+
+    <h2>2. Information We Collect</h2>
+    <p>To provide high-performance training, metabolic fuel tracking, and telemetry intelligence, we collect the following categories of information:</p>
+    <ul>
+      <li><strong>Account & Identity Information:</strong> Email address and authentication credentials managed securely via Supabase Auth (or Google/Apple OAuth).</li>
+      <li><strong>Fitness & Workout Data:</strong> Logged exercises, repetitions, weights, sets, session timestamps, and training telemetry.</li>
+      <li><strong>Nutrition & Meal Data:</strong> Logged foods, macros (protein, carbohydrates, fats), calories, and user-provided meal photos processed strictly for nutritional decomposition.</li>
+      <li><strong>Device & Health Telemetry:</strong> Optional heart rate, step count, and active energy synchronized locally from authorized health frameworks (such as Health Connect or Apple Health) when enabled by the athlete.</li>
+    </ul>
+
+    <h2>3. Camera & Image Data Usage</h2>
+    <p>O1FC requests Camera and Photo Library permissions strictly to allow athletes to photograph meals for nutritional analysis (Fuel OS Vision). Meal photos are processed transiently to extract calorie and macronutrient breakdowns using Google Gemini AI models. <strong>We do not sell, rent, or use athlete photos for advertising or general model training.</strong></p>
+
+    <h2>4. How We Use Your Data</h2>
+    <ul>
+      <li>To deliver personalized workout tracking, exercise analytics, and volume calculations.</li>
+      <li>To calculate macro balances, metabolic strain, and fuel targets.</li>
+      <li>To facilitate Coach Dispatch and live Tandem partner workout sessions when initiated by the user.</li>
+      <li>To process secure membership transactions via Stripe (financial credentials are handled directly by Stripe and are never stored on our servers).</li>
+    </ul>
+
+    <h2>5. Data Storage & Security</h2>
+    <p>All data is transmitted via modern cryptographic standards (HTTPS/TLS) and stored in encrypted databases managed by Supabase and industry-standard cloud infrastructure. We implement strict Row-Level Security (RLS) policies ensuring that athlete data is only accessible by authorized users.</p>
+
+    <h2>6. User Rights & Data Deletion</h2>
+    <p>You retain full ownership and control over your personal data. You have the right to request access to, correction of, or permanent deletion of your data at any time:</p>
+    <ul>
+      <li><strong>In-App Deletion:</strong> Navigate to <em>Settings &rarr; Delete Account & Purge Data</em> inside the app to instantaneously erase your profile, workout logs, and nutrition records.</li>
+      <li><strong>Email Request:</strong> You may also email our data privacy officer at <a href="mailto:o1oblivianfitness@gmail.com">o1oblivianfitness@gmail.com</a> to request complete data erasure. All requests are honored within 30 days.</li>
+    </ul>
+
+    <h2>7. Third-Party Service Providers</h2>
+    <p>We work with trusted infrastructure providers that adhere to rigorous security and privacy standards:</p>
+    <ul>
+      <li><strong>Supabase:</strong> Cloud database, authentication, and secure edge execution.</li>
+      <li><strong>Google Cloud & Gemini AI:</strong> Encrypted image-to-nutrition parsing.</li>
+      <li><strong>Stripe:</strong> Payment processing and billing portal management.</li>
+    </ul>
+
+    <div class="contact-card">
+      <h2 style="margin-top: 0;">Contact & Inquiries</h2>
+      <p>If you have any questions or concerns regarding this Privacy Policy or your data, please contact:</p>
+      <p><strong>Oblivion 1 Fitness Club</strong><br>
+      Email: <a href="mailto:o1oblivianfitness@gmail.com">o1oblivianfitness@gmail.com</a><br>
+      GitHub: <a href="https://github.com/o1oblivian/oblivion-1-fitness" target="_blank">o1oblivian/oblivion-1-fitness</a></p>
+    </div>
+  </div>
+</body>
+</html>
