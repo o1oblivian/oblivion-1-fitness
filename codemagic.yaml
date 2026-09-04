@@ -87,6 +87,20 @@ workflows:
           echo "Configuring Xcode project profiles and code signing..."
           xcode-project use-profiles --project ios/App/App.xcodeproj --archive-method=app-store --warn-only
 
+      - name: Increment build number
+        script: |
+          set -e
+          LATEST_BUILD=$(app-store-connect get-latest-testflight-build-number "$BUNDLE_ID" \
+            --key-id "$APP_STORE_CONNECT_KEY_IDENTIFIER" \
+            --issuer-id "$APP_STORE_CONNECT_ISSUER_ID" \
+            --private-key "@file:$AUTH_KEY_PATH" 2>/dev/null || echo "1")
+          if [ -z "$LATEST_BUILD" ] || [ "$LATEST_BUILD" = "null" ]; then
+            LATEST_BUILD=1
+          fi
+          NEW_BUILD=$((LATEST_BUILD + 1))
+          echo "Setting build number: latest TestFlight was $LATEST_BUILD -> new build number is $NEW_BUILD"
+          cd ios/App && xcrun agvtool new-version -all "$NEW_BUILD" || true
+
       - name: Build iOS IPA
         script: |
           set -e
