@@ -94,16 +94,40 @@ workflows:
       - name: Increment build number
         script: |
           set -e
+          echo "=== Setting Up App Store Connect Build Number ==="
           LATEST_BUILD=$(app-store-connect get-latest-testflight-build-number "$BUNDLE_ID" \
             --key-id "$APP_STORE_CONNECT_KEY_IDENTIFIER" \
             --issuer-id "$APP_STORE_CONNECT_ISSUER_ID" \
-            --private-key "@file:$AUTH_KEY_PATH" 2>/dev/null || echo "1")
-          if [ -z "$LATEST_BUILD" ] || [ "$LATEST_BUILD" = "null" ]; then
-            LATEST_BUILD=1
+            --private-key "@file:$AUTH_KEY_PATH" 2>/dev/null || echo "")
+
+          echo "App Store Connect reports latest TestFlight build: '$LATEST_BUILD'"
+          
+          # Codemagic builds provide $BUILD_NUMBER (e.g. 27, 28...)
+          CM_BUILD=${BUILD_NUMBER:-0}
+          
+          # Determine the next build number: must be strictly greater than previous (previous was 2)
+          NEW_BUILD=4
+          if [ -n "$LATEST_BUILD" ] && [ "$LATEST_BUILD" != "null" ] && [ "$LATEST_BUILD" -ge 1 ] 2>/dev/null; then
+            NEW_BUILD=$((LATEST_BUILD + 1))
           fi
-          NEW_BUILD=$((LATEST_BUILD + 1))
-          echo "Setting build number: latest TestFlight was $LATEST_BUILD -> new build number is $NEW_BUILD"
-          cd ios/App && xcrun agvtool new-version -all "$NEW_BUILD" || true
+          
+          # If Codemagic build run number is higher, use it to ensure uniqueness
+          if [ "$CM_BUILD" -gt "$NEW_BUILD" ]; then
+            NEW_BUILD=$CM_BUILD
+          fi
+
+          # Absolute safety guard: Apple confirmed version 2 is already used
+          if [ "$NEW_BUILD" -le 2 ]; then
+            NEW_BUILD=4
+          fi
+
+          echo "Selected build number for this release: $NEW_BUILD"
+          cd ios/App
+          xcrun agvtool new-version -all "$NEW_BUILD" || true
+          /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $NEW_BUILD" App/Info.plist 2>/dev/null || \
+          /usr/libexec/PlistBuddy -c "Add :CFBundleVersion string $NEW_BUILD" App/Info.plist 2>/dev/null || true
+          echo "Verification of CFBundleVersion in Info.plist:"
+          /usr/libexec/PlistBuddy -c "Print :CFBundleVersion" App/Info.plist || true
 
       - name: Build iOS IPA
         script: |
