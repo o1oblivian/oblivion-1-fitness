@@ -58,13 +58,28 @@ samp {
   font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
 }
 
-/* Global Nude Architecture (No frame/fog close buttons, badges, and nude action strips) */
-.btn-nude-close {
+/* ================================================================
+   GLOBAL NUDE / BARE BUTTON ARCHITECTURE (Zero frame, Zero fog, Zero inflation)
+   ================================================================ */
+.btn-bare,
+.btn-nude,
+.btn-nude-close,
+.modal-close-bare,
+button.btn-nude-close {
   background: transparent !important;
+  background-color: transparent !important;
   border: none !important;
+  outline: none !important;
   box-shadow: none !important;
-  padding: 0.375rem !important;
-  border-radius: 0.5rem !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  padding: 0.25rem !important;
+  margin: 0 !important;
+  min-height: unset !important;
+  max-height: unset !important;
+  min-width: unset !important;
+  max-width: unset !important;
+  border-radius: 0.375rem !important;
   color: #71717a !important;
   transition: color 0.15s ease, transform 0.15s ease, opacity 0.15s ease !important;
   cursor: pointer !important;
@@ -72,17 +87,94 @@ samp {
   align-items: center !important;
   justify-content: center !important;
 }
-.btn-nude-close:hover {
+.btn-bare:hover,
+.btn-nude:hover,
+.btn-nude-close:hover,
+.modal-close-bare:hover,
+button.btn-nude-close:hover {
   color: #09090b !important;
+  background: transparent !important;
 }
-.dark .btn-nude-close {
+.dark .btn-bare,
+.dark .btn-nude,
+.dark .btn-nude-close,
+.dark .modal-close-bare,
+.dark button.btn-nude-close {
   color: #a1a1aa !important;
 }
-.dark .btn-nude-close:hover {
+.dark .btn-bare:hover,
+.dark .btn-nude:hover,
+.dark .btn-nude-close:hover,
+.dark .modal-close-bare:hover,
+.dark button.btn-nude-close:hover {
   color: #ffffff !important;
+  background: transparent !important;
 }
-.btn-nude-close:active {
-  transform: scale(0.92) !important;
+.btn-bare:active,
+.btn-nude:active,
+.btn-nude-close:active,
+.modal-close-bare:active,
+button.btn-nude-close:active {
+  transform: scale(0.90) !important;
+}
+
+/* ================================================================
+   GLOBAL UI CAPSULE SPECIFICATIONS — Standardized Precision Heights
+   ================================================================ */
+.capsule-xs {
+  height: 22px !important;
+  min-height: 22px !important;
+  max-height: 22px !important;
+  padding: 0 8px !important;
+  font-size: 10px !important;
+  line-height: 1 !important;
+  border-radius: 9999px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  white-space: nowrap !important;
+}
+
+.capsule,
+.capsule-sm,
+.capsule-pill,
+.ui-capsule {
+  height: 28px !important;
+  min-height: 28px !important;
+  max-height: 28px !important;
+  padding: 0 10px !important;
+  font-size: 11px !important;
+  line-height: 1 !important;
+  border-radius: 9999px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  white-space: nowrap !important;
+}
+
+.capsule-md {
+  height: 32px !important;
+  min-height: 32px !important;
+  max-height: 32px !important;
+  padding: 0 12px !important;
+  font-size: 12px !important;
+  line-height: 1 !important;
+  border-radius: 9999px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  white-space: nowrap !important;
+}
+
+/* Global anti-fog rule: zero blurred fog overlays across modals, refresh & cards */
+.no-fog,
+.no-fog *,
+[class*="backdrop-blur"],
+.modal-backdrop,
+.modal-backdrop-smooth,
+.modal-card {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
 }
 
 @layer base {
@@ -211,8 +303,10 @@ samp {
 
   /* === LUXURY THEME MODAL SYSTEM === */
   .modal-backdrop {
-    @apply fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center p-4;
+    @apply fixed inset-0 bg-black/75 flex items-center justify-center p-4;
     z-index: 999;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
   }
   .modal-card {
     @apply bg-white dark:bg-[#121214] text-[#1C1C1E] dark:text-white border border-black/10 dark:border-white/10 shadow-2xl rounded-3xl overflow-hidden;
@@ -220,9 +314,13 @@ samp {
     max-height: 85vh;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
+    backdrop-filter: none !important;
   }
   .modal-close-btn {
-    @apply min-w-[44px] min-h-[44px] rounded-full bg-[#F4F4F6] dark:bg-white/10 hover:bg-[#E5E5EA] dark:hover:bg-white/20 flex items-center justify-center text-[#8E8E93] dark:text-zinc-400 hover:text-[#1C1C1E] dark:hover:text-white transition-colors cursor-pointer active:scale-95;
+    @apply w-8 h-8 rounded-lg bg-transparent border-0 flex items-center justify-center text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors cursor-pointer active:scale-90;
+    min-width: unset !important;
+    min-height: unset !important;
+    background-color: transparent !important;
   }
   .input-pill {
     min-height: 30px;
@@ -1275,40 +1373,39 @@ button:active:not(:disabled), [role="button"]:active {
   transform: scale(0.97);
 }
 
-/* Smooth modal backdrop with blur ramp */
+/* Smooth modal backdrop — clean crisp fade, zero fog */
 .modal-backdrop-smooth {
-  animation: backdropSmoothIn 0.3s cubic-bezier(0.32, 0.72, 0, 1) forwards;
+  animation: backdropSmoothIn 0.2s ease-out forwards;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
 }
 @keyframes backdropSmoothIn {
-  from { opacity: 0; backdrop-filter: blur(0px); }
-  to { opacity: 1; backdrop-filter: blur(12px); }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 /* iOS-style spring modal entry */
 .modal-spring-enter {
-  animation: modalSpringIn 0.4s cubic-bezier(0.32, 0.72, 0, 1) forwards;
+  animation: modalSpringIn 0.3s cubic-bezier(0.32, 0.72, 0, 1) forwards;
 }
 @keyframes modalSpringIn {
-  0% { opacity: 0; transform: translateY(40px) scale(0.94); }
-  60% { opacity: 1; transform: translateY(-2px) scale(1.005); }
+  0% { opacity: 0; transform: translateY(20px) scale(0.97); }
   100% { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-/* Tab content crossfade */
+/* Tab content crossfade — clean fade without layout jump on refresh */
 .tab-view-enter {
-  animation: tabViewEnter 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  will-change: opacity, transform;
-  transform: translateZ(0);
-  backface-visibility: hidden;
+  animation: tabViewEnter 0.15s ease-out forwards;
+  will-change: opacity;
 }
 @keyframes tabViewEnter {
-  from { opacity: 0; transform: translateY(4px) translateZ(0); }
-  to { opacity: 1; transform: translateY(0) translateZ(0); }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 /* Smooth content fade for lazy-loaded views */
 .content-appear {
-  animation: contentAppear 0.25s ease-out forwards;
+  animation: contentAppear 0.2s ease-out forwards;
 }
 @keyframes contentAppear {
   from { opacity: 0; }
@@ -1353,23 +1450,28 @@ html.dark .border-white\/6 { border-color: rgba(255, 255, 255, 0.10) !important;
 }
 
 /* ================================================================
-   TOUCH TARGET ACCESSIBILITY
+   TOUCH TARGET ACCESSIBILITY (Zero Capsule Bloat / Bare Button Preservation)
    ================================================================ */
 
-/* Primary buttons and links: enforce 44px minimum */
-button:not(.input-pill):not([class*="text-[10px]"]):not([class*="text-[11px]"]):not([class*="w-7"]):not([class*="w-8"]):not([class*="w-10"]):not([class*="h-6"]):not([class*="h-7"]):not([class*="h-8"]):not(.compact-btn):not(.no-touch-target),
-a[href],
-summary,
-input[type="button"],
-input[type="submit"],
-input[type="reset"] {
+/* Only explicit major CTA buttons enforce 44px min-height */
+.btn-primary-cta,
+.btn-full-action {
   min-height: 44px;
-  min-width: 44px;
 }
 
-/* Bottom nav tab buttons: ensure full 44px touch zone */
-.capacitor-native .fixed.bottom-0 button,
-.fixed[class*="bottom-"] button {
-  min-height: 44px;
+/* Enforce capsules, bare buttons, and chips retain their exact compact dimensions */
+button.capsule,
+button.capsule-xs,
+button.capsule-sm,
+button.capsule-md,
+button.capsule-pill,
+button.ui-capsule,
+button.btn-bare,
+button.btn-nude,
+button.btn-nude-close,
+button.modal-close-bare,
+button.modal-close-btn,
+button[class*="rounded-full"]:not(.btn-primary-cta) {
+  min-width: unset !important;
 }
 

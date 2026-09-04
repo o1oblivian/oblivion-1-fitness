@@ -25,7 +25,7 @@ import {
   setSessionUserEmail,
   UserAppState,
 } from '@/utils/authStorage';
-import { saveMealsToCloud, loadMealsFromCloud, flushMealOfflineQueue } from '@/utils/mealLogsStore';
+import { saveMealsToCloud, loadMealsFromCloud, loadCachedDailyMeals, saveDailyMealsLocalFirst, flushMealOfflineQueue } from '@/utils/mealLogsStore';
 import { supabase, supabaseSignOut } from '@/utils/supabase';
 import { getSmartDefault, recordSmartInput } from '@/utils/frequencyDefaults';
 import {
@@ -112,7 +112,7 @@ export function useAppState() {
   // ─── Auth ───
   const [currentUserEmail, setCurrentUserEmail] = useState<string>(() => getSessionUserEmail() || '');
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => !!getSessionUserEmail());
-  const [isCheckingSession, setIsCheckingSession] = useState(true);
+  const [isCheckingSession, setIsCheckingSession] = useState<boolean>(() => !getSessionUserEmail());
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [showQuickSetup, setShowQuickSetup] = useState(false);
   const [showWelcomeOnboarding, setShowWelcomeOnboarding] = useState(false);
@@ -197,7 +197,21 @@ export function useAppState() {
   const setGoalC = (val: number) => { recordSmartInput('fuel_goal_c', val); setGoalCState(val); };
   const setGoalF = (val: number) => { recordSmartInput('fuel_goal_f', val); setGoalFState(val); };
 
-  const [dailyMeals, setDailyMeals] = useState<DailyMeals>({ breakfast: [], lunch: [], dinner: [], snack: [], drinks: [] });
+  const [dailyMeals, setDailyMeals] = useState<DailyMeals>(() => {
+    const email = getSessionUserEmail() || '';
+    const todayStr = getLocalDateString();
+    // 1. Try dedicated fast meals cache
+    const cached = loadCachedDailyMeals(email, todayStr);
+    if (cached) return cached;
+    // 2. Try userAppState
+    if (email) {
+      const saved = getUserState(email);
+      if (saved?.dailyMeals && (!saved.mealsDate || saved.mealsDate === todayStr)) {
+        return saved.dailyMeals;
+      }
+    }
+    return { breakfast: [], lunch: [], dinner: [], snack: [], drinks: [] };
+  });
 
   const [foodDB, setFoodDB] = useState<Record<string, FoodItem[]>>(() => {
     let custom: Record<string, FoodItem[]> = {};
@@ -437,19 +451,26 @@ export function useAppState() {
       }
 
       // Only restore daily meals if they were logged on today's date
-      // If from yesterday, start today with a clean slate
+      // Check local cache first, then saved user state
+      const cachedMeals = loadCachedDailyMeals(currentUserEmail, todayStr);
       const isMealToday = saved.mealsDate === todayStr;
-      if (saved.dailyMeals && isMealToday) {
+      if (cachedMeals && Object.values(cachedMeals).flat().length > 0) {
+        setDailyMeals(cachedMeals);
+      } else if (saved.dailyMeals && isMealToday) {
         setDailyMeals(saved.dailyMeals);
-      } else {
+      } else if (!isMealToday) {
         setDailyMeals({ breakfast: [], lunch: [], dinner: [], snack: [], drinks: [] });
       }
 
       loadMealsFromCloud(currentUserEmail, todayStr).then(c => {
         if (c) {
-          const currentTotal = isMealToday ? Object.values(saved.dailyMeals || {}).flat().length : 0;
+          const currentMeals = loadCachedDailyMeals(currentUserEmail, todayStr) || (isMealToday ? saved.dailyMeals : null);
+          const currentTotal = currentMeals ? Object.values(currentMeals).flat().length : 0;
           const cloudTotal = Object.values(c).flat().length;
-          if (cloudTotal >= currentTotal) setDailyMeals(c);
+          if (cloudTotal >= currentTotal && cloudTotal > 0) {
+            setDailyMeals(c);
+            saveDailyMealsLocalFirst(currentUserEmail, c, todayStr);
+          }
         }
       }).catch(() => {});
 
@@ -840,18 +861,25 @@ export function useAppState() {
 
   const handleSelectFoodForMeal = (food: FoodItem) => {
     if (!foodModalMeal) return;
-    openDial('Weight (g)', 5000, 100, (weightInGrams) => {
+    const initialGrams = food.defaultServingGrams && food.defaultServingGrams > 0 ? food.defaultServingGrams : 100;
+    openDial('Portion Weight (g)', 1500, initialGrams, (weightInGrams) => {
       if (weightInGrams <= 0) return;
       const mult = weightInGrams / 100;
       const p = Math.round(food.p * mult), c = Math.round(food.c * mult), f = Math.round(food.f * mult);
       const cals = Math.round(p * 4 + c * 4 + f * 9);
-      setDailyMeals((prev) => ({
-        ...prev,
-        [foodModalMeal]: [...prev[foodModalMeal], {
-          id: 'food_' + Math.random().toString(36).substring(2, 9),
-          name: food.name, weight: weightInGrams, p, c, f, cals,
-        }],
-      }));
+      setDailyMeals((prev) => {
+        const next = {
+          ...prev,
+          [foodModalMeal]: [...prev[foodModalMeal], {
+            id: 'food_' + Math.random().toString(36).substring(2, 9),
+            name: food.name, weight: weightInGrams, p, c, f, cals,
+          }],
+        };
+        const email = currentUserEmail || getSessionUserEmail() || '';
+        const todayStr = getLocalDateString();
+        saveDailyMealsLocalFirst(email, next, todayStr);
+        return next;
+      });
       setFoodModalMeal(null);
       showToast(`Logged ${weightInGrams}g of ${food.name}`);
     });
@@ -869,21 +897,36 @@ export function useAppState() {
   };
 
   const handleDeleteMealItem = (meal: keyof DailyMeals, id: string) => {
-    setDailyMeals((prev) => ({ ...prev, [meal]: (prev[meal] || []).filter((item) => item.id !== id) }));
+    setDailyMeals((prev) => {
+      const next = { ...prev, [meal]: (prev[meal] || []).filter((item) => item.id !== id) };
+      const email = currentUserEmail || getSessionUserEmail() || '';
+      const todayStr = getLocalDateString();
+      saveDailyMealsLocalFirst(email, next, todayStr);
+      return next;
+    });
     showToast('Item removed', 'error');
   };
 
   const handleClearAllMeals = () => {
     const empty: DailyMeals = { breakfast: [], lunch: [], dinner: [], snack: [], drinks: [] };
+    const email = currentUserEmail || getSessionUserEmail() || '';
+    const todayStr = getLocalDateString();
+    saveDailyMealsLocalFirst(email, empty, todayStr);
     setDailyMeals(empty);
-    if (currentUserEmail) {
-      saveMealsToCloud(currentUserEmail, empty, getLocalDateString()).catch(() => {});
+    if (email) {
+      saveMealsToCloud(email, empty, todayStr).catch(() => {});
     }
     showToast('Food log cleared for today', 'success');
   };
 
   const handleAddDirectMealItem = (meal: keyof DailyMeals, item: LoggedMealItem) => {
-    setDailyMeals((prev) => ({ ...prev, [meal]: [...(prev[meal] || []), item] }));
+    setDailyMeals((prev) => {
+      const next = { ...prev, [meal]: [...(prev[meal] || []), item] };
+      const email = currentUserEmail || getSessionUserEmail() || '';
+      const todayStr = getLocalDateString();
+      saveDailyMealsLocalFirst(email, next, todayStr);
+      return next;
+    });
     showToast(`Added to ${meal}: ${item.name} (${item.cals} kcal)`, 'success');
   };
 

@@ -5,6 +5,7 @@ import {
   Share2, Trash2, TrendingUp, ArrowUpRight, ArrowDownRight, Minus,
   Plus, Star, Brain, Play, Square, RotateCcw, Zap, MapPin,
   Smartphone, Activity, Camera, HeartPulse, CheckCircle2,
+  Sunrise, Package, Coffee,
 } from 'lucide-react';
 import {
   ChartStyleSwitcher,
@@ -28,13 +29,21 @@ import { loadMeditationSessions, saveMeditationSession, deleteMeditationSession,
 import { CardioMachineType, CardioMachineEntry } from '@/types/cardio';
 import { getCardioLogs, saveCardioLog, deleteCardioLog } from '@/utils/cardioStorage';
 import { CardioConsoleScanModal } from './CardioConsoleScanModal';
-import type { DailyMacroLog } from '@/types';
+import { loadCachedDailyMeals } from '@/utils/mealLogsStore';
+import { getUserState, getSessionUserEmail } from '@/utils/authStorage';
+import type { DailyMacroLog, DailyMeals, LoggedMealItem } from '@/types';
 
 interface HistoryLogViewProps {
   currentUserEmail: string;
   showToast: (msg: string, type?: 'success' | 'error') => void;
   onOpenPayPlan?: () => void;
   refreshTrigger?: number;
+  dailyMeals?: DailyMeals;
+  goalCals?: number;
+  goalP?: number;
+  goalC?: number;
+  goalF?: number;
+  onNavigateToFuel?: () => void;
 }
 
 // ─── Helpers ────────────────────────────────────────────
@@ -983,17 +992,55 @@ function CardioStepsSection({
 
 // ─── Food Section ───────────────────────────────────────
 
-function FoodSection({
-  macros, bodyweight,
-}: {
+interface FoodSectionProps {
   macros: DailyMacroLog[];
   bodyweight: { week: string; weight: number }[];
-}) {
-  if (macros.length === 0 && bodyweight.length < 2) {
+  todayMeals?: DailyMeals;
+  goalCals?: number;
+  goalP?: number;
+  goalC?: number;
+  goalF?: number;
+  onNavigateToFuel?: () => void;
+}
+
+function FoodSection({
+  macros,
+  bodyweight,
+  todayMeals,
+  goalCals = 3000,
+  goalP = 180,
+  goalC = 300,
+  goalF = 70,
+  onNavigateToFuel,
+}: FoodSectionProps) {
+  const mealCategories: { key: keyof DailyMeals; label: string; icon: React.ReactNode }[] = [
+    { key: 'breakfast', label: 'Breakfast', icon: <Sunrise className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400" strokeWidth={2} /> },
+    { key: 'lunch', label: 'Lunch', icon: <Utensils className="w-3.5 h-3.5 text-orange-500 dark:text-orange-400" strokeWidth={2} /> },
+    { key: 'dinner', label: 'Dinner', icon: <Moon className="w-3.5 h-3.5 text-indigo-500 dark:text-indigo-400" strokeWidth={2} /> },
+    { key: 'snack', label: 'Snacks', icon: <Package className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400" strokeWidth={2} /> },
+    { key: 'drinks', label: 'Drinks', icon: <Coffee className="w-3.5 h-3.5 text-cyan-500 dark:text-cyan-400" strokeWidth={2} /> },
+  ];
+
+  const allItems = Object.values(todayMeals || {}).flat();
+  const totalCals = allItems.reduce((s, i) => s + (Number(i.cals) || 0), 0);
+  const totalP = allItems.reduce((s, i) => s + (Number(i.p) || 0), 0);
+  const totalC = allItems.reduce((s, i) => s + (Number(i.c) || 0), 0);
+  const totalF = allItems.reduce((s, i) => s + (Number(i.f) || 0), 0);
+  const hasMealsToday = allItems.length > 0;
+
+  if (!hasMealsToday && macros.length === 0 && bodyweight.length < 2) {
     return (
-      <div className="text-center py-8">
-        <Utensils className="w-7 h-7 mx-auto mb-2 text-slate-300 dark:text-white/10" />
+      <div className="text-center py-8 space-y-3">
+        <Utensils className="w-7 h-7 mx-auto mb-2 text-slate-300 dark:text-white/10" strokeWidth={1.8} />
         <p className="text-[11px] font-mono text-slate-400 dark:text-white/30">No nutrition data logged yet</p>
+        {onNavigateToFuel && (
+          <button
+            onClick={onNavigateToFuel}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 hover:bg-amber-500/20 text-[10px] font-mono font-bold uppercase tracking-wider transition cursor-pointer"
+          >
+            <Plus className="w-3 h-3" strokeWidth={2.2} /> Log Food in Fuel OS
+          </button>
+        )}
       </div>
     );
   }
@@ -1016,12 +1063,125 @@ function FoodSection({
 
   return (
     <div className="space-y-3">
+      {/* Today's Intake Overview Card (if food logged today) */}
+      {hasMealsToday && (
+        <div className="rounded-xl p-3.5 log-card-inner space-y-3 border border-slate-200/60 dark:border-white/[0.06]">
+          <div className="flex items-center justify-between">
+            <span className="text-[9px] font-mono font-bold uppercase tracking-widest text-slate-500 dark:text-white/40 flex items-center gap-1.5">
+              <Sparkles className="w-3 h-3 text-amber-500" strokeWidth={2} /> Today's Macro Intake
+            </span>
+            <span className="text-[11px] font-mono font-bold text-slate-900 dark:text-white">
+              {Math.round(totalCals)} <span className="text-slate-400 dark:text-white/40 font-normal">/ {goalCals} kcal</span>
+            </span>
+          </div>
+
+          {/* Calorie Bar */}
+          <div className="w-full bg-slate-200 dark:bg-white/[0.08] h-2 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-gradient-to-r from-amber-500 to-[#EA4335] rounded-full transition-all duration-300"
+              style={{ width: `${Math.min(100, Math.round((totalCals / Math.max(1, goalCals)) * 100))}%` }}
+            />
+          </div>
+
+          {/* Macro Breakdown Pills */}
+          <div className="grid grid-cols-3 gap-2 pt-0.5">
+            <div className="p-2 rounded-lg bg-slate-100 dark:bg-white/[0.03] border border-slate-200/50 dark:border-white/[0.04]">
+              <div className="text-[8px] font-mono uppercase tracking-wider text-slate-500 dark:text-white/40">Protein</div>
+              <div className="text-xs font-mono font-bold text-slate-900 dark:text-white mt-0.5">
+                {Math.round(totalP)}g <span className="text-[9px] font-normal text-slate-400 dark:text-white/30">/ {goalP}g</span>
+              </div>
+            </div>
+            <div className="p-2 rounded-lg bg-slate-100 dark:bg-white/[0.03] border border-slate-200/50 dark:border-white/[0.04]">
+              <div className="text-[8px] font-mono uppercase tracking-wider text-slate-500 dark:text-white/40">Carbs</div>
+              <div className="text-xs font-mono font-bold text-slate-900 dark:text-white mt-0.5">
+                {Math.round(totalC)}g <span className="text-[9px] font-normal text-slate-400 dark:text-white/30">/ {goalC}g</span>
+              </div>
+            </div>
+            <div className="p-2 rounded-lg bg-slate-100 dark:bg-white/[0.03] border border-slate-200/50 dark:border-white/[0.04]">
+              <div className="text-[8px] font-mono uppercase tracking-wider text-slate-500 dark:text-white/40">Fat</div>
+              <div className="text-xs font-mono font-bold text-slate-900 dark:text-white mt-0.5">
+                {Math.round(totalF)}g <span className="text-[9px] font-normal text-slate-400 dark:text-white/30">/ {goalF}g</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Itemized Logged Meals by Category */}
+      {hasMealsToday && (
+        <div className="space-y-2">
+          <div className="flex items-center justify-between px-1">
+            <span className="text-[9px] font-mono font-bold uppercase tracking-widest text-slate-500 dark:text-white/40 flex items-center gap-1.5">
+              <Utensils className="w-3 h-3 text-orange-400" strokeWidth={2} /> Logged Food ({allItems.length})
+            </span>
+            {onNavigateToFuel && (
+              <button
+                onClick={onNavigateToFuel}
+                className="text-[9px] font-mono text-amber-600 dark:text-amber-400 hover:underline flex items-center gap-1 transition cursor-pointer"
+              >
+                <span>Edit in Fuel OS</span>
+                <ArrowUpRight className="w-2.5 h-2.5" strokeWidth={2.2} />
+              </button>
+            )}
+          </div>
+
+          {mealCategories.map(({ key, label, icon }) => {
+            const items = todayMeals?.[key] || [];
+            if (items.length === 0) return null;
+            const mealCals = items.reduce((s, i) => s + (Number(i.cals) || 0), 0);
+
+            return (
+              <div key={key} className="rounded-xl p-3 log-card-inner space-y-2 border border-slate-200/50 dark:border-white/[0.04]">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    {icon}
+                    <span className="text-[11px] font-mono font-bold text-slate-800 dark:text-white tracking-wide">
+                      {label}
+                    </span>
+                    <span className="text-[9px] font-mono text-slate-400 dark:text-white/40">
+                      ({items.length})
+                    </span>
+                  </div>
+                  <span className="text-[10px] font-mono font-bold text-amber-600 dark:text-amber-400">
+                    {Math.round(mealCals)} kcal
+                  </span>
+                </div>
+
+                <div className="divide-y divide-slate-100 dark:divide-white/[0.04]">
+                  {items.map((item) => (
+                    <div key={item.id} className="py-2 first:pt-1 last:pb-0 flex items-center justify-between gap-2">
+                      <div className="min-w-0 flex-1">
+                        <div className="text-[11px] font-medium text-slate-800 dark:text-white truncate">
+                          {item.name}
+                        </div>
+                        <div className="text-[9px] font-mono text-slate-400 dark:text-white/40 mt-0.5 flex items-center gap-2">
+                          <span>{item.weight}g</span>
+                          <span>•</span>
+                          <span>{item.p}p</span>
+                          <span>{item.c}c</span>
+                          <span>{item.f}f</span>
+                        </div>
+                      </div>
+                      <div className="text-right flex-shrink-0">
+                        <span className="text-[10px] font-mono font-bold text-slate-700 dark:text-white/80">
+                          {Math.round(item.cals)} cal
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
       {/* Consistency score */}
       {macros.length > 0 && (
         <div className="rounded-xl p-3 log-card-inner">
           <div className="flex items-center justify-between mb-2">
             <span className="text-[9px] font-mono font-bold uppercase tracking-widest text-slate-500 dark:text-white/40 flex items-center gap-1.5">
-              <Target className="w-3 h-3" /> Nutrition Consistency
+              <Target className="w-3 h-3" strokeWidth={2} /> Nutrition Consistency
             </span>
             <span className={`text-[10px] font-mono font-bold ${pct >= 70 ? 'text-red-400' : pct >= 40 ? 'text-amber-400' : 'text-red-400'}`}>
               {pct}%
@@ -1050,14 +1210,14 @@ function FoodSection({
         <div className="rounded-xl p-3 log-card-inner">
           <div className="flex items-center justify-between mb-2">
             <span className="text-[9px] font-mono font-bold uppercase tracking-widest text-slate-500 dark:text-white/40 flex items-center gap-1.5">
-              <TrendingUp className="w-3 h-3" /> Weight Journey
+              <TrendingUp className="w-3 h-3" strokeWidth={2} /> Weight Journey
             </span>
             <span className={`text-[10px] font-mono font-bold flex items-center gap-0.5 ${
               bwTrend === 'down' ? 'text-red-400' : bwTrend === 'up' ? 'text-amber-400' : 'text-slate-400 dark:text-white/40'
             }`}>
-              {bwTrend === 'down' ? <ArrowDownRight className="w-3 h-3" /> :
-               bwTrend === 'up' ? <ArrowUpRight className="w-3 h-3" /> :
-               <Minus className="w-3 h-3" />}
+              {bwTrend === 'down' ? <ArrowDownRight className="w-3 h-3" strokeWidth={2} /> :
+               bwTrend === 'up' ? <ArrowUpRight className="w-3 h-3" strokeWidth={2} /> :
+               <Minus className="w-3 h-3" strokeWidth={2} />}
               {Math.abs(bwDiff).toFixed(1)} kg
             </span>
           </div>
@@ -1084,11 +1244,11 @@ function FoodSection({
         </div>
       )}
 
-      {/* Daily macro list */}
+      {/* Daily macro history list */}
       {macros.slice(0, 7).map((m, i) => (
         <div key={i} className="flex items-center justify-between px-1 py-1.5">
           <div className="flex items-center gap-2">
-            <Utensils className="w-3 h-3 text-orange-400/40" />
+            <Utensils className="w-3 h-3 text-orange-400/40" strokeWidth={2} />
             <span className="text-[10px] font-mono text-slate-600 dark:text-white/50">{m.dateLabel || m.date}</span>
           </div>
           <div className="flex items-center gap-3">
@@ -1390,6 +1550,12 @@ export const HistoryLogView: React.FC<HistoryLogViewProps> = ({
   showToast,
   onOpenPayPlan,
   refreshTrigger = 0,
+  dailyMeals,
+  goalCals = 3000,
+  goalP = 180,
+  goalC = 300,
+  goalF = 70,
+  onNavigateToFuel,
 }) => {
   const [openSections, setOpenSections] = useState<Set<string>>(new Set());
   const [chartStyles, setChartStyle] = useChartStyles();
@@ -1405,10 +1571,43 @@ export const HistoryLogView: React.FC<HistoryLogViewProps> = ({
   const [sleepLogs, setSleepLogs] = useState<SleepLogEntry[]>([]);
   const [meditations, setMeditations] = useState<MeditationEntry[]>([]);
 
+  // Local-first meals state
+  const [todayMeals, setTodayMeals] = useState<DailyMeals>(() => {
+    if (dailyMeals && Object.values(dailyMeals).flat().length > 0) return dailyMeals;
+    const email = currentUserEmail || getSessionUserEmail() || '';
+    const cached = loadCachedDailyMeals(email);
+    if (cached && Object.values(cached).flat().length > 0) return cached;
+    if (email) {
+      const saved = getUserState(email);
+      if (saved?.dailyMeals && Object.values(saved.dailyMeals).flat().length > 0) return saved.dailyMeals;
+    }
+    return { breakfast: [], lunch: [], dinner: [], snack: [], drinks: [] };
+  });
+
+  useEffect(() => {
+    if (dailyMeals && Object.values(dailyMeals).flat().length > 0) {
+      setTodayMeals(dailyMeals);
+    }
+  }, [dailyMeals]);
+
   useEffect(() => {
     setCardioLogs(getCardioLogs());
     if (!currentUserEmail) { setLoading(false); return; }
     setLoading(true);
+
+    const email = currentUserEmail || getSessionUserEmail() || '';
+    const cached = loadCachedDailyMeals(email);
+    const localUserState = email ? getUserState(email) : null;
+    const currentLocalMeals = (dailyMeals && Object.values(dailyMeals).flat().length > 0)
+      ? dailyMeals
+      : (cached && Object.values(cached).flat().length > 0)
+        ? cached
+        : (localUserState?.dailyMeals || null);
+
+    if (currentLocalMeals) {
+      setTodayMeals(currentLocalMeals);
+    }
+
     Promise.all([
       loadCompletedSessions(currentUserEmail).catch(() => [] as CompletedSession[]),
       loadDailySteps(currentUserEmail).catch(() => [] as DailyStepEntry[]),
@@ -1417,14 +1616,47 @@ export const HistoryLogView: React.FC<HistoryLogViewProps> = ({
       loadSleepLogs(currentUserEmail).catch(() => [] as SleepLogEntry[]),
       loadMeditationSessions(currentUserEmail).catch(() => [] as MeditationEntry[]),
     ]).then(([sess, st, mac, bw, sl, med]) => {
+      let updatedMacros = [...mac];
+      const items = Object.values(currentLocalMeals || todayMeals || {}).flat();
+      let tCals = 0, tP = 0, tC = 0, tF = 0;
+      for (const item of items) {
+        tCals += Number(item.cals) || 0;
+        tP += Number(item.p) || 0;
+        tC += Number(item.c) || 0;
+        tF += Number(item.f) || 0;
+      }
+      if (items.length > 0 || tCals > 0) {
+        const today = new Date().toISOString().split('T')[0];
+        const existingIdx = updatedMacros.findIndex(m => m.date === today);
+        const todayEntry: DailyMacroLog = {
+          date: today,
+          dateLabel: 'TODAY',
+          calories: Math.round(tCals),
+          calorieTarget: goalCals,
+          protein: Math.round(tP),
+          proteinTarget: goalP,
+          carbs: Math.round(tC),
+          carbsTarget: goalC,
+          fat: Math.round(tF),
+          fatTarget: goalF,
+          hydration: 0,
+          hydrationTarget: 3,
+        };
+        if (existingIdx >= 0) {
+          updatedMacros[existingIdx] = { ...updatedMacros[existingIdx], ...todayEntry };
+        } else {
+          updatedMacros = [todayEntry, ...updatedMacros];
+        }
+      }
+
       setSessions(sess);
       setSteps(st);
-      setMacros(mac);
+      setMacros(updatedMacros);
       setBodyweight(bw);
       setSleepLogs(sl);
       setMeditations(med);
     }).finally(() => setLoading(false));
-  }, [currentUserEmail, refreshTrigger]);
+  }, [currentUserEmail, refreshTrigger, dailyMeals, goalCals, goalP, goalC, goalF]);
 
   const toggleSection = (key: string) => {
     setOpenSections(prev => {
@@ -1555,7 +1787,17 @@ export const HistoryLogView: React.FC<HistoryLogViewProps> = ({
     if (cardioLogs.length > 0) parts.push(`${cardioLogs.length} cardio`);
     return parts.join(' • ') || 'Track motion';
   })() : '';
-  const foodSummary = macros.length > 0 ? `${Math.round(macros[0]?.calories || 0)} cal today` : '';
+  const foodSummary = useMemo(() => {
+    const allItems = Object.values(todayMeals || {}).flat();
+    const todayCals = allItems.reduce((acc, i) => acc + (Number(i.cals) || 0), 0);
+    if (allItems.length > 0) {
+      return `${Math.round(todayCals)} cal today • ${allItems.length} item${allItems.length === 1 ? '' : 's'}`;
+    }
+    if (macros.length > 0 && (macros[0]?.calories || 0) > 0) {
+      return `${Math.round(macros[0].calories)} cal today`;
+    }
+    return '';
+  }, [todayMeals, macros]);
   const sleepSummary = sleepLogs.length > 0 ? (() => {
     const avg = Math.round(sleepLogs.slice(0, 7).reduce((s, e) => s + e.duration_minutes, 0) / Math.min(sleepLogs.length, 7));
     return `${Math.floor(avg / 60)}h ${avg % 60}m avg`;
@@ -1629,7 +1871,18 @@ export const HistoryLogView: React.FC<HistoryLogViewProps> = ({
       iconBg: 'bg-[#FBBC05]',
       summary: foodSummary,
       chart: foodChart,
-      content: <FoodSection macros={macros} bodyweight={bodyweight} />,
+      content: (
+        <FoodSection
+          macros={macros}
+          bodyweight={bodyweight}
+          todayMeals={todayMeals}
+          goalCals={goalCals}
+          goalP={goalP}
+          goalC={goalC}
+          goalF={goalF}
+          onNavigateToFuel={onNavigateToFuel}
+        />
+      ),
     },
     {
       key: 'sleep',

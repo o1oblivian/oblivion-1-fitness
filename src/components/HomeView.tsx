@@ -50,6 +50,7 @@ export const HomeView: React.FC<HomeViewProps> = memo(({
   userName,
   currentUserEmail,
   profileImage,
+  dailyMeals,
   weeklySchedule,
   showToast,
   selectedDay,
@@ -120,6 +121,7 @@ export const HomeView: React.FC<HomeViewProps> = memo(({
         onOpenSupplementTracker={onOpenSupplementTracker}
         onOpenAlcoholTracker={onOpenAlcoholTracker}
         onOpenHydrationTracker={onOpenHydrationTracker}
+        dailyMeals={dailyMeals}
       />
 
       {/* Specialized Archetype Workouts Circular Rail with Pin #1 Elite Reels */}

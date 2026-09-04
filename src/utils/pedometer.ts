@@ -213,10 +213,28 @@ class Pedometer {
     this.emit();
   }
 
+  setSteps(count: number, customCalories?: number, customDistKm?: number) {
+    this.state.stepCount = Math.max(0, count);
+    this.state.distanceKm = customDistKm !== undefined ? customDistKm : parseFloat(((this.state.stepCount * STRIDE_LENGTH_M) / 1000).toFixed(2));
+    this.state.caloriesBurned = customCalories !== undefined ? customCalories : Math.round(this.state.stepCount * CAL_PER_STEP);
+    saveSession({
+      date: todayStr(),
+      stepCount: this.state.stepCount,
+      elapsedSecs: this.state.elapsedSecs,
+      startTime: this.startTime || Date.now(),
+    });
+    this.emit();
+  }
+
   private handleMotion(event: DeviceMotionEvent) {
     const accel = event.accelerationIncludingGravity;
     if (!accel || accel.x === null || accel.y === null || accel.z === null) return;
     if (typeof accel.x !== 'number' || typeof accel.y !== 'number' || typeof accel.z !== 'number') return;
+
+    // Verification log for accelerometer telemetry
+    if (Math.random() < 0.05) {
+      console.log('[Pedometer:Motion]', { x: accel.x.toFixed(2), y: accel.y.toFixed(2), z: accel.z.toFixed(2) });
+    }
 
     const sumSq = accel.x ** 2 + accel.y ** 2 + accel.z ** 2;
     if (isNaN(sumSq) || !isFinite(sumSq)) return;
@@ -236,6 +254,7 @@ class Pedometer {
       this.state.distanceKm = (this.state.stepCount * STRIDE_LENGTH_M) / 1000;
       this.state.caloriesBurned = this.state.stepCount * CAL_PER_STEP;
       this.lastStepTime = now;
+      console.log('[Pedometer:StepDetected]', { stepCount: this.state.stepCount, calories: this.state.caloriesBurned });
     }
 
     this.prevPrevMag = this.prevMag;

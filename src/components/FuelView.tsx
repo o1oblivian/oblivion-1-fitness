@@ -11,6 +11,8 @@ import { FuelIntelligencePanel } from './fuel/FuelIntelligencePanel';
 import { DailyFoodMealLogs } from './fuel/DailyFoodMealLogs';
 import { SupplementMatrixIntakeLog } from './fuel/SupplementMatrixIntakeLog';
 import { supabase, isSupabaseConfigured } from '../utils/supabase';
+import { getTodayCardioTotals, subscribeCardioUpdates } from '../utils/cardioStorage';
+import { pedometer } from '../utils/pedometer';
 
 interface FuelViewProps {
   dailyMeals: DailyMeals;
@@ -85,6 +87,14 @@ export const FuelView: React.FC<FuelViewProps> = ({
     });
   }, []);
 
+  // Live cardio and pedometer burn subscription
+  const [cardioTotals, setCardioTotals] = useState(getTodayCardioTotals);
+  useEffect(() => {
+    return subscribeCardioUpdates(() => {
+      setCardioTotals(getTodayCardioTotals());
+    });
+  }, []);
+
   const currentCountryObj = useMemo(() => getCountryObj(activeCountry), [activeCountry]);
   const regionalTags = useMemo(() => getCountryTags(activeCountry), [activeCountry]);
   const currentDietObj = useMemo(() => getDietaryObj(activeDiet), [activeDiet]);
@@ -116,7 +126,8 @@ export const FuelView: React.FC<FuelViewProps> = ({
     });
   });
 
-  let trainingBurn = 0;
+  // Include resistance training + cardio machines + live pedometer step burn
+  let trainingBurn = cardioTotals.totalCalories + (pedometer.getState()?.caloriesBurned || 0);
   activeLogs.forEach((log) => {
     log.sets.forEach((s) => {
       const w = parseInt(`${s.weight}`) || 0;
@@ -208,7 +219,7 @@ export const FuelView: React.FC<FuelViewProps> = ({
   const hydrationPct = Math.min(100, (liters / TARGET_L) * 100);
 
   return (
-    <div className="space-y-2.5 tab-enter pb-32">
+    <div className="space-y-2.5 tab-enter pb-3">
       {/* FUEL OS HEADER */}
       <header className="flex justify-between items-center mb-0.5">
         <div className="min-w-0 flex-1">

@@ -77,11 +77,8 @@ export const BottomNavBar: React.FC<BottomNavBarProps> = ({
         bottom: 'max(0.75rem, calc(env(safe-area-inset-bottom, 0px) + 0.5rem))',
       }}
     >
-      <div className="relative rounded-full backdrop-blur-2xl backdrop-saturate-150 bg-white/20 dark:bg-black/40 border border-white/20 dark:border-white/10 shadow-[0_4px_20px_0_rgba(0,0,0,0.3)] dark:shadow-[0_4px_24px_0_rgba(0,0,0,0.6)] overflow-hidden">
-        {/* Specular glass highlight */}
-        <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/30 dark:via-white/20 to-transparent pointer-events-none" />
-        
-        <div className="flex items-center justify-between px-1 py-0.5 relative z-10">
+      <div className="relative rounded-full bg-white dark:bg-[#121214] border border-black/10 dark:border-white/10 shadow-[0_2px_12px_rgba(0,0,0,0.08)] dark:shadow-[0_2px_16px_rgba(0,0,0,0.4)] overflow-hidden">
+        <div className="flex items-center justify-between px-1.5 py-0.5 relative z-10">
           {NAV_ITEMS.map((item) => {
             const isActive = currentMode === item.mode;
 

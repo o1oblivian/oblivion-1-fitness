@@ -448,6 +448,199 @@ Return ONLY a valid JSON object matching this schema:
     res.status(405).json({ error: 'Method not allowed' });
   });
 
+  // Real Gemini Multimodal Vision Cardio Console OCR Scanner
+  app.post('/api/cardio-scan', aiHeavyLimiter, async (req, res) => {
+    try {
+      const { image, mimeType } = req.body || {};
+      if (!image) {
+        return res.status(400).json({ success: false, message: 'No image data provided' });
+      }
+
+      let cleanMime = mimeType || 'image/jpeg';
+      let rawBase64 = image;
+      if (image.startsWith('data:')) {
+        const matches = image.match(/^data:([^;]+);base64,(.+)$/);
+        if (matches) {
+          cleanMime = matches[1];
+          rawBase64 = matches[2];
+        }
+      }
+
+      const ai = getAI();
+      if (!ai) {
+        return res.status(503).json({
+          success: false,
+          message: 'AI Vision Engine is initializing or Gemini API key is missing. Please enter metrics manually.',
+        });
+      }
+
+      const prompt = `You are a world-class optical character recognition (OCR) and computer vision engine specialized in gym fitness cardio equipment for Oblivion 1 Fitness Club (O1FC).
+
+Carefully examine this photograph of a cardio machine display or exercise console (e.g., Treadmill, StairMaster, Stationary Bike, Assault Air Bike, Concept2 Rower, Elliptical, Apple Watch, Garmin, etc.).
+
+CRITICAL INSTRUCTIONS:
+1. STRICT METRIC TRUTH (ABSOLUTELY ZERO FABRICATION OR HARDCODED FALLBACKS):
+   - You MUST read the EXACT digital numerals physically visible on the screen.
+   - Look specifically for:
+     * Calories Burned: Look for numbers beside "CALORIES", "KCAL", "CAL", "TOTAL CALS", etc. (e.g., if the screen says "3 CALORIES" or "3", the value is 3. NEVER guess or invent a fake 300+ kcal workout!).
+     * Duration / Elapsed Time: Look for time displays like "1:57", "01:57", "35:00", "00:32:15", "TIME", "ELAPSED", "TIME REMAINING".
+       - If time is "1:57", that is 1 minute and 57 seconds (~2 minutes). Convert to decimal minutes (e.g. 1.95 or 2.0).
+       - Provide durationMinutes as a number, and durationSeconds as total seconds (e.g. 117).
+     * Distance: Look for numbers beside "KM", "MI", "MILES", "DIST", "DISTANCE" (e.g. "0.02 KM" -> 0.02).
+     * Speed / Pace: Look for "KM/H", "MPH", "SPEED", "PACE" (e.g. "0.8 KM/H" -> 0.8).
+     * Incline / Level: Look for "INCLINE", "%", "LEVEL", "RESISTANCE" (e.g. 0.0, 1.0, 5, etc.).
+     * Heart Rate: Look for "BPM", "HR", heart icon.
+     * Steps: If visible on screen (e.g. Casio G-Shock, Apple Watch, Garmin, Pedometer, or treadmill showing "5508 STEPS"), extract stepsCount precisely.
+     * Smartwatch / Pedometer Steps Calculation: If the screen displays daily steps (such as "5508 STEPS") but does NOT display calories or distance on that screen, you MUST calculate caloriesBurned using standard metabolic burn (~0.045 kcal/step, e.g. 5,508 steps = ~248 kcal), distanceKm (~0.000762 km/step, e.g. 4.2 km), and durationMinutes (~100 steps/min, e.g. 55 min). NEVER return 0 calories when steps are present!
+
+2. MACHINE IDENTIFICATION:
+   - Identify the machine apparatus: "treadmill", "stairmaster", "rower", "echo_bike", "elliptical", "outdoor_run", "outdoor_walk".
+   - Brand name if visible (e.g., "Casio", "G-Shock", "Apple Watch", "Garmin", "LifeFitness", "Technogym", "Matrix", "Concept2", "Woodway", "Precor").
+
+3. NON-CARDIO OR UNREADABLE:
+   - If the image does not show a fitness machine console or readable workout metrics, set "isCardioConsole": false and explain in "message".
+
+Return ONLY a valid JSON object matching this schema:
+{
+  "isCardioConsole": true,
+  "machineType": "treadmill",
+  "detectedBrand": "LifeFitness",
+  "caloriesBurned": 3,
+  "durationMinutes": 2,
+  "durationSeconds": 117,
+  "distanceKm": 0.02,
+  "speedKmh": 0.8,
+  "incline": null,
+  "heartRate": null,
+  "stepsCount": 26,
+  "readings": {
+    "calories": "3",
+    "elapsed": "1:57",
+    "distance": "0.02",
+    "speed": "0.8"
+  },
+  "summary": "1:57 elapsed, 0.02 km, 3 calories burned at 0.8 km/h"
+}`;
+
+      const imagePart = {
+        inlineData: {
+          data: rawBase64,
+          mimeType: cleanMime,
+        },
+      };
+      const textPart = { text: prompt };
+
+      let response: any = null;
+      const modelsToTry = [
+        'gemini-3.7-flash',
+        'gemini-flash-latest',
+        'gemini-3.1-flash-lite',
+      ];
+
+      let lastError: any = null;
+      for (const modelName of modelsToTry) {
+        try {
+          response = await ai.models.generateContent({
+            model: modelName,
+            contents: [imagePart, textPart] as any,
+            config: {
+              temperature: 0.1,
+              responseMimeType: 'application/json',
+            },
+          });
+          if (response && response.text) break;
+        } catch (mErr: any) {
+          lastError = mErr;
+          console.warn(`Cardio scan attempt on ${modelName} failed, trying next model:`, mErr?.message || mErr);
+        }
+      }
+
+      if (!response || !response.text) {
+        return res.status(502).json({
+          success: false,
+          message: 'AI vision model unavailable or could not process image: ' + (lastError?.message || 'Unknown error'),
+        });
+      }
+
+      const text = response.text.trim();
+      try {
+        const cleaned = text.replace(/^```json\s*/i, '').replace(/\s*```$/i, '').trim();
+        const parsed = JSON.parse(cleaned);
+
+        if (parsed.isCardioConsole === false) {
+          return res.status(422).json({
+            success: false,
+            message: parsed.message || 'No readable cardio machine screen detected. Please focus camera on the metrics display.',
+          });
+        }
+
+        let durationMinutes = typeof parsed.durationMinutes === 'number' 
+          ? Math.round(parsed.durationMinutes * 10) / 10 
+          : (parsed.durationSeconds ? Math.round((parsed.durationSeconds / 60) * 10) / 10 : 0);
+        
+        let caloriesBurned = typeof parsed.caloriesBurned === 'number' 
+          ? Math.round(parsed.caloriesBurned) 
+          : 0;
+
+        let distanceKm = typeof parsed.distanceKm === 'number' 
+          ? Math.round(parsed.distanceKm * 100) / 100 
+          : undefined;
+
+        const speedKmh = typeof parsed.speedKmh === 'number'
+          ? Math.round(parsed.speedKmh * 10) / 10
+          : undefined;
+
+        let stepsCount = typeof parsed.stepsCount === 'number'
+          ? Math.round(parsed.stepsCount)
+          : undefined;
+
+        // Auto-calculate missing metrics if steps are detected
+        if (stepsCount && stepsCount > 0) {
+          if (!caloriesBurned || caloriesBurned === 0) {
+            caloriesBurned = Math.round(stepsCount * 0.045);
+          }
+          if (!distanceKm || distanceKm === 0) {
+            distanceKm = Math.round(stepsCount * 0.000762 * 100) / 100;
+          }
+          if (!durationMinutes || durationMinutes === 0) {
+            durationMinutes = Math.round(stepsCount / 100);
+          }
+        } else if (!stepsCount && distanceKm) {
+          stepsCount = Math.round(distanceKm * 1300);
+        } else if (!stepsCount && durationMinutes) {
+          stepsCount = Math.round(durationMinutes * 120);
+        }
+
+        return res.json({
+          success: true,
+          result: {
+            machineType: parsed.machineType || 'treadmill',
+            detectedBrand: parsed.detectedBrand || undefined,
+            caloriesBurned,
+            durationMinutes,
+            durationSeconds: parsed.durationSeconds || Math.round(durationMinutes * 60),
+            distanceKm,
+            speedKmh,
+            incline: parsed.incline,
+            heartRate: parsed.heartRate,
+            stepsCount,
+            readings: parsed.readings || {},
+            summary: parsed.summary || `${durationMinutes}m • ${distanceKm || 0}km • ${caloriesBurned} kcal`,
+          },
+        });
+      } catch (parseErr) {
+        console.error('Failed to parse Gemini cardio scan response:', parseErr, text);
+        return res.status(422).json({
+          success: false,
+          message: 'Unable to parse machine console metrics. Please adjust angle or enter manually.',
+        });
+      }
+    } catch (err: any) {
+      console.error('Cardio scan fatal error:', err);
+      return res.status(500).json({ success: false, message: err.message || 'Server error during cardio vision analysis' });
+    }
+  });
+
   // AI Meal Suggestion API
   app.post('/api/meal-suggest', standardApiLimiter, async (req, res) => {
     try {

@@ -1,9 +1,69 @@
 import { supabase, isSupabaseConfigured } from './supabase';
 import { getLocalDateString } from './midnightRolloverEngine';
+import { saveDailyMacroRecord } from './telemetryStore';
 import type { DailyMeals, LoggedMealItem } from '../types';
 
 const MEAL_TYPES = ['breakfast', 'lunch', 'dinner', 'snack', 'drinks'] as const;
 const OFFLINE_QUEUE_KEY = 'o1fc_meal_offline_queue';
+const MEALS_CACHE_PREFIX = 'o1fc_meals_cache_';
+
+export function getCachedDailyMealsKey(userEmail: string, date: string): string {
+  const email = (userEmail || 'athlete@o1fc.app').toLowerCase();
+  return `${MEALS_CACHE_PREFIX}${email}_${date}`;
+}
+
+export function loadCachedDailyMeals(userEmail: string, logDate?: string): DailyMeals | null {
+  const date = logDate || getLocalDateString();
+  const key = getCachedDailyMealsKey(userEmail, date);
+  try {
+    const raw = localStorage.getItem(key);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed && typeof parsed === 'object') {
+        return {
+          breakfast: parsed.breakfast || [],
+          lunch: parsed.lunch || [],
+          dinner: parsed.dinner || [],
+          snack: parsed.snack || [],
+          drinks: parsed.drinks || [],
+        };
+      }
+    }
+  } catch {}
+  return null;
+}
+
+export function saveDailyMealsLocalFirst(userEmail: string, meals: DailyMeals, logDate?: string): void {
+  const date = logDate || getLocalDateString();
+  const key = getCachedDailyMealsKey(userEmail, date);
+  try {
+    localStorage.setItem(key, JSON.stringify(meals));
+  } catch {}
+
+  // Keep daily macros local record synchronized immediately
+  if (userEmail && meals) {
+    let totalCals = 0;
+    let totalP = 0;
+    let totalC = 0;
+    let totalF = 0;
+    for (const mealType of MEAL_TYPES) {
+      const items = meals[mealType] || [];
+      for (const item of items) {
+        totalCals += Number(item.cals) || 0;
+        totalP += Number(item.p) || 0;
+        totalC += Number(item.c) || 0;
+        totalF += Number(item.f) || 0;
+      }
+    }
+    saveDailyMacroRecord(userEmail, {
+      date,
+      calories: totalCals,
+      protein: totalP,
+      carbs: totalC,
+      fat: totalF,
+    });
+  }
+}
 
 interface QueuedMealSave {
   userEmail: string;
@@ -118,8 +178,10 @@ async function saveMealsToCloudDirect(userEmail: string, meals: DailyMeals, logD
 }
 
 export async function saveMealsToCloud(userEmail: string, meals: DailyMeals, logDate?: string): Promise<void> {
-  if (!isSupabaseConfigured() || !userEmail) return;
   const date = logDate || getLocalDateString();
+  saveDailyMealsLocalFirst(userEmail, meals, date);
+
+  if (!isSupabaseConfigured() || !userEmail) return;
 
   if (!navigator.onLine) {
     enqueueOfflineSave(userEmail, meals, date);
@@ -134,8 +196,11 @@ export async function saveMealsToCloud(userEmail: string, meals: DailyMeals, log
 }
 
 export async function loadMealsFromCloud(userEmail: string, logDate?: string): Promise<DailyMeals | null> {
-  if (!isSupabaseConfigured() || !userEmail) return null;
   const date = logDate || getLocalDateString();
+
+  if (!isSupabaseConfigured() || !userEmail) {
+    return loadCachedDailyMeals(userEmail, date);
+  }
   const email = userEmail.toLowerCase();
 
   try {
@@ -145,7 +210,9 @@ export async function loadMealsFromCloud(userEmail: string, logDate?: string): P
       .eq('user_email', email)
       .eq('log_date', date);
 
-    if (error || !data || data.length === 0) return null;
+    if (error || !data || data.length === 0) {
+      return loadCachedDailyMeals(userEmail, date);
+    }
 
     const meals: DailyMeals = { breakfast: [], lunch: [], dinner: [], snack: [], drinks: [] };
     for (const row of data) {
@@ -165,8 +232,9 @@ export async function loadMealsFromCloud(userEmail: string, logDate?: string): P
         meals.snack.push(item);
       }
     }
+    saveDailyMealsLocalFirst(userEmail, meals, date);
     return meals;
   } catch {
-    return null;
+    return loadCachedDailyMeals(userEmail, date);
   }
 }

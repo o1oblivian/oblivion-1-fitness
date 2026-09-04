@@ -197,14 +197,10 @@ export const BuddyRadarEngine: React.FC<BuddyRadarEngineProps> = ({
       const next = new Set(prev);
       if (next.has(buddy.user_email)) {
         next.delete(buddy.user_email);
+        showToast(`Removed like for ${buddy.user_name}`);
       } else {
         next.add(buddy.user_email);
-        const isMutual = Math.random() > 0.35;
-        if (isMutual) {
-          showToast(`Matched with ${buddy.user_name}! You can now send an icebreaker request.`, 'success');
-        } else {
-          showToast(`You liked ${buddy.user_name}`, 'success');
-        }
+        showToast(`Liked ${buddy.user_name}`, 'success');
       }
       return next;
     });
@@ -625,34 +621,20 @@ export const BuddyRadarEngine: React.FC<BuddyRadarEngineProps> = ({
 };
 
 /* ═══════════════════ Matched Inbox ═══════════════════ */
-const FAKE_CONVERSATIONS: { [email: string]: { lastMessage: string; time: string; unread: number; hasBooking?: boolean; isTyping?: boolean; fromMe?: boolean } } = {};
+const CONVERSATION_CACHE: { [email: string]: { lastMessage: string; time: string; unread: number; hasBooking?: boolean; isTyping?: boolean; fromMe?: boolean } } = {};
 
 function getConversationData(buddy: BuddyProfile) {
-  if (!FAKE_CONVERSATIONS[buddy.user_email]) {
-    const messages = [
-      'Sounds great, let me check my schedule!',
-      'I am usually at the gym around that time too.',
-      'Absolutely, let us do it!',
-      'Nice one! See you there.',
-      'I am down for a session this week.',
-      'Just finished a solid chest day!',
-      'Want to hit legs tomorrow?',
-      'What time works for you?',
-      'Great session today, thanks!',
-      'Let me know when you are free next.',
-    ];
-    const times = ['2m', '5m', '12m', '23m', '1h', '2h', '5h', '1d', '2d', '3d'];
-    const unread = Math.random() > 0.6 ? Math.floor(Math.random() * 4) + 1 : 0;
-    FAKE_CONVERSATIONS[buddy.user_email] = {
-      lastMessage: messages[Math.floor(Math.random() * messages.length)],
-      time: times[Math.floor(Math.random() * times.length)],
-      unread,
-      hasBooking: Math.random() > 0.75,
-      isTyping: unread === 0 && Math.random() > 0.85,
-      fromMe: unread === 0 && Math.random() > 0.5,
+  if (!CONVERSATION_CACHE[buddy.user_email]) {
+    CONVERSATION_CACHE[buddy.user_email] = {
+      lastMessage: 'Connected • Tap to send a message',
+      time: 'New',
+      unread: 0,
+      hasBooking: false,
+      isTyping: false,
+      fromMe: false,
     };
   }
-  return FAKE_CONVERSATIONS[buddy.user_email];
+  return CONVERSATION_CACHE[buddy.user_email];
 }
 
 function isOnlineFromLastActive(dateStr: string): boolean {
@@ -1202,63 +1184,13 @@ const ChatDrawer: React.FC<{
     const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     setMessages(prev => [...prev, { type: 'text', text: text.trim(), fromMe: true, time: now }]);
     setInput('');
-
-    setTimeout(() => {
-      const replies = [
-        'Sounds great, let me check my schedule!',
-        'I am usually at the gym around that time too.',
-        'Absolutely, let us do it!',
-        'Nice one! What program are you running?',
-        'I am down for a session this week.',
-      ];
-      const reply = replies[Math.floor(Math.random() * replies.length)];
-      const t = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-      setMessages(prev => [...prev, { type: 'text', text: reply, fromMe: false, time: t }]);
-    }, 1200 + Math.random() * 1500);
   };
 
   const sendBooking = (booking: BookingProposal) => {
     const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     setMessages(prev => [...prev, { type: 'booking', fromMe: true, time: now, booking }]);
     setShowBooking(false);
-    showToast(booking.isMidpoint ? 'Midpoint session invite sent!' : 'Session invite sent!', 'success');
-
-    setTimeout(() => {
-      const accepted = Math.random() > 0.25;
-      const t = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-      if (accepted) {
-        setMessages(prev => {
-          const updated = prev.map(m =>
-            m.type === 'booking' && m.booking.status === 'pending'
-              ? { ...m, booking: { ...m.booking, status: 'accepted' as const } }
-              : m
-          );
-          return [...updated, {
-            type: 'text' as const,
-            text: booking.isMidpoint
-              ? `Locked in! Meeting halfway at ${booking.gym} (${booking.travelSplit?.userTime || '12 min'} for you · ${booking.travelSplit?.buddyTime || '14 min'} for me) on ${booking.date} at ${booking.timeSlot}. Let's crush this session!`
-              : `Locked in! See you at ${booking.gym} on ${booking.date} at ${booking.timeSlot}. Let's crush it!`,
-            fromMe: false,
-            time: t,
-          }];
-        });
-        showToast(`${buddy.user_name} accepted your session!`, 'success');
-      } else {
-        setMessages(prev => {
-          const updated = prev.map(m =>
-            m.type === 'booking' && m.booking.status === 'pending'
-              ? { ...m, booking: { ...m.booking, status: 'declined' as const } }
-              : m
-          );
-          return [...updated, {
-            type: 'text' as const,
-            text: `Hey, that time doesn't work for me. Can we try another slot or a different gym?`,
-            fromMe: false,
-            time: t,
-          }];
-        });
-      }
-    }, 2500 + Math.random() * 2000);
+    showToast(booking.isMidpoint ? 'Midpoint session invite sent! Awaiting partner response.' : 'Session invite sent! Awaiting partner response.', 'success');
   };
 
   const handleSubmit = (e: React.FormEvent) => {

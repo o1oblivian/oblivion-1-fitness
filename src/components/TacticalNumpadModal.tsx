@@ -194,7 +194,7 @@ export const TacticalNumpadModal: React.FC<TacticalNumpadModalProps> = ({
             </span>
           )}
           <span className="text-[9px] font-mono text-zinc-500 dark:text-zinc-400 mt-0.5">
-            {isTimer ? 'seconds' : `max ${config.max}`}
+            {isTimer ? 'seconds' : `max ${config.max} ${config.unit.toLowerCase()}`}
           </span>
         </div>
 
@@ -287,7 +287,15 @@ export const TacticalNumpadModal: React.FC<TacticalNumpadModalProps> = ({
                       : 'bg-zinc-100 dark:bg-zinc-800/80 text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white border-zinc-200 dark:border-zinc-700 font-semibold'
                   }`}
                 >
-                  {isTimer ? (val < 60 ? `${val}s` : `${Math.floor(val / 60)}m`) : config.category === 'weight' ? `${val}kg` : config.category === 'steps' && val >= 1000 ? `${val / 1000}k` : `${val}`}
+                  {isTimer
+                    ? (val < 60 ? `${val}s` : `${Math.floor(val / 60)}m`)
+                    : config.category === 'weight'
+                    ? `${val}kg`
+                    : config.category === 'food_grams' || config.unit === 'G'
+                    ? `${val}g`
+                    : config.category === 'steps' && val >= 1000
+                    ? `${val / 1000}k`
+                    : `${val}`}
                 </button>
               );
             })}

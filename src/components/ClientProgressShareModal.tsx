@@ -88,17 +88,6 @@ export const ClientProgressShareModal: React.FC<ClientProgressShareModalProps> =
     }
   };
 
-  const handleSimulateClientApprove = () => {
-    if (!generatedCode) {
-      handleGenerateConsentCode();
-    }
-    setInputCode(generatedCode || `FIT-8829`);
-    setGeneratedCode(generatedCode || `FIT-8829`);
-    setCodeDispatched(true);
-    setIsConsentVerified(true);
-    showToast(`Client ${athlete.name} approved consent request`, 'success');
-  };
-
   const handleNativeShare = async () => {
     if (!isConsentVerified) {
       showToast('Sharing locked! Requires verified client consent code.', 'error');
@@ -381,7 +370,7 @@ export const ClientProgressShareModal: React.FC<ClientProgressShareModalProps> =
           </div>
 
           <p className="text-[11px] text-gray-600 dark:text-gray-300 font-sans leading-relaxed">
-            Client data privacy requirement: Dispatches a unique 6-digit authorization code to {athlete.name}'s app. Enter code or simulate approval to unlock social export.
+            Client data privacy requirement: Dispatches a unique 6-digit authorization code to {athlete.name}'s app. Enter the code verified by the client to unlock social export.
           </p>
 
           {!isConsentVerified ? (
@@ -418,17 +407,6 @@ export const ClientProgressShareModal: React.FC<ClientProgressShareModalProps> =
                   </div>
                 </div>
               )}
-
-              {/* Simulation Option */}
-              <div className="pt-1 text-center">
-                <button
-                  onClick={handleSimulateClientApprove}
-                  className="text-[10px] text-stone-400 hover:underline font-mono cursor-pointer flex items-center justify-center gap-1 mx-auto"
-                >
-                  <CheckCircle2 className="w-3 h-3" />
-                  <span>Simulate Instant Client App Consent Approval</span>
-                </button>
-              </div>
             </div>
           ) : (
             <div className="flex items-center gap-2 text-xs text-zinc-700 dark:text-stone-300 font-bold bg-zinc-500/10 p-2.5 rounded-xl border border-stone-500/20">

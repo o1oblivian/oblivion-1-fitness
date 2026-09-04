@@ -176,16 +176,13 @@ export async function fetchRadarBuddies(
   };
 
   try {
-    const timeoutPromise = new Promise<BuddyProfile[]>((resolve) =>
-      setTimeout(() => {
-        const mock = generateMockBuddies(myLat, myLng);
-        resolve(mock);
-      }, 1500)
-    );
-    return await Promise.race([remoteFetchPromise(), timeoutPromise]);
-  } catch {
-    const mock = generateMockBuddies(myLat, myLng);
-    return mock;
+    return await remoteFetchPromise();
+  } catch (err) {
+    console.warn('Radar fetch failed:', err);
+    if (allowMockFallback) {
+      return generateMockBuddies(myLat, myLng);
+    }
+    return [];
   }
 }
 

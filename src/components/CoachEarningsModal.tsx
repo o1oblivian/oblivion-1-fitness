@@ -591,35 +591,11 @@ export const CoachEarningsModal: React.FC<CoachEarningsModalProps> = ({
       } else {
         throw new Error(data.error || 'Payout transfer failed');
       }
-    } catch {
-      // Fallback simulation
-      setTimeout(() => {
-        setIsTransferring(false);
-        setTransferSuccess(true);
-        const remainingPending = Math.max(0, summary.pendingPayout - amountCents);
-        setSummary(prev => ({
-          ...prev,
-          totalPaid: prev.totalPaid + amountCents,
-          pendingPayout: remainingPending,
-        }));
-        setWithdrawAmountDollars(Math.round(remainingPending / 100));
-        
-        const fallbackReceipt: SettlementReceipt = {
-          id: `po_${Date.now().toString(36)}`,
-          referenceId: `O1FC-PAY-${Math.floor(100000 + Math.random() * 900000)}`,
-          date: new Date().toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }),
-          amountUsd: withdrawAmountDollars,
-          feeUsd: currentFee,
-          netUsd: currentNetDollars,
-          localAmount: `${countryInfo.currencySymbol}${currentNetLocal} ${countryInfo.currency}`,
-          currency: countryInfo.currency,
-          rail: activeRailMeta.title,
-          destination: activeRailMeta.description,
-          status: 'Settled',
-        };
-        setHistoryList([fallbackReceipt, ...historyList]);
-        setTimeout(() => setTransferSuccess(false), 3000);
-      }, 750);
+    } catch (err: any) {
+      setIsTransferring(false);
+      setTransferSuccess(false);
+      console.error('Coach payout transfer error:', err);
+      setPayoutMessage(err?.message || 'Payout transfer failed. Please verify your Stripe bank connection.');
     }
   };
 

@@ -46,6 +46,7 @@ import { pedometer } from '@/utils/pedometer';
 import { BiometricModal, BiometricType } from './BiometricModal';
 import { WatchDial } from './WatchDial';
 import { optimizeImageUrl, preloadImage } from '@/utils/imageOptimizer';
+import type { DailyMeals } from '../types';
 
 const WallpaperSettingsModal = lazy(() => import('./WallpaperSettingsModal').then(m => ({ default: m.WallpaperSettingsModal })));
 const WallpaperPickerModal = lazy(() => import('./WallpaperPickerModal').then(m => ({ default: m.WallpaperPickerModal })));
@@ -103,6 +104,7 @@ interface RotatingHeroCardProps {
   onOpenSupplementTracker: () => void;
   onOpenAlcoholTracker: () => void;
   onOpenHydrationTracker: () => void;
+  dailyMeals?: DailyMeals;
 }
 
 // ── Constants ──
@@ -246,6 +248,7 @@ export const RotatingHeroCard: React.FC<RotatingHeroCardProps> = ({
   onOpenSupplementTracker = () => {},
   onOpenAlcoholTracker = () => {},
   onOpenHydrationTracker = () => {},
+  dailyMeals,
 }) => {
   // ── Flip state ──
   const [isFlipped, setIsFlipped] = useState(false);
@@ -991,6 +994,7 @@ export const RotatingHeroCard: React.FC<RotatingHeroCardProps> = ({
                 embedded={true}
                 onOpenProfile={onOpenProfile}
                 profileImage={profileImage}
+                dailyMeals={dailyMeals}
               />
             </div>
 

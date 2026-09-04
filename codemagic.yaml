@@ -127,3 +127,59 @@ workflows:
         notify:
           success: true
           failure: true
+
+  android-release:
+    name: Android Release (Google Play AAB)
+    max_build_duration: 60
+    instance_type: linux_x2
+    triggering:
+      events:
+        - push
+      branch_patterns:
+        - pattern: 'main'
+          include: true
+          source: true
+    environment:
+      groups:
+        - google_play_credentials
+      vars:
+        PACKAGE_NAME: "com.o1fc.fitness"
+      node: 22
+      java: 21
+    scripts:
+      - name: Install dependencies
+        script: |
+          npm install --legacy-peer-deps
+      - name: Build web application
+        script: |
+          npm run build
+      - name: Sync Capacitor Android
+        script: |
+          npx cap sync android
+      - name: Set up keystore and sign
+        script: |
+          set -e
+          cd android
+          if [ -n "$CM_KEYSTORE" ]; then
+            echo "Using Codemagic environment keystore..."
+            echo "$CM_KEYSTORE" | base64 --decode > app/release-keystore.jks
+            export CM_KEYSTORE_PATH="app/release-keystore.jks"
+          fi
+      - name: Build Android App Bundle (AAB)
+        script: |
+          set -e
+          cd android
+          chmod +x gradlew
+          ./gradlew bundleRelease --no-daemon
+          ./gradlew assembleRelease --no-daemon || true
+    artifacts:
+      - android/app/build/outputs/bundle/**/*.aab
+      - android/app/build/outputs/apk/**/*.apk
+    publishing:
+      email:
+        recipients:
+          - o1oblivianfitness@gmail.com
+        notify:
+          success: true
+          failure: true
+

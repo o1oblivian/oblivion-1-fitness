@@ -8,11 +8,12 @@ interface DialRadialProps {
   goalMove: number;
   dailyDist: number;
   goalDist: number;
+  dailyIntake?: number;
   onOpenStepDial: () => void;
 }
 
 export const DialRadial: React.FC<DialRadialProps> = ({
-  dailySteps, stepTarget, dailyMove, goalMove, dailyDist, goalDist, onOpenStepDial,
+  dailySteps, stepTarget, dailyMove, goalMove, dailyDist, goalDist, dailyIntake = 0, onOpenStepDial,
 }) => {
   const [loaded, setLoaded] = useState(false);
   const { isPressing, handlers: stepLongPressHandlers } = useLongPress(onOpenStepDial, { threshold: 1000 });
@@ -94,22 +95,22 @@ export const DialRadial: React.FC<DialRadialProps> = ({
         </text>
 
         {/* Legend chips */}
-        <g transform={`translate(${CX - 70}, ${CY + 50})`}>
+        <g transform={`translate(${CX - 80}, ${CY + 46})`}>
           <circle cx="0" cy="0" r="4" fill="#EA4335" />
-          <text x="10" y="4" fill="rgba(255,255,255,0.6)" fontSize="10" fontWeight="700" fontFamily="monospace">
-            {Math.round(dailyMove)} kcal
+          <text x="10" y="4" fill="rgba(255,255,255,0.75)" fontSize="10" fontWeight="700" fontFamily="monospace">
+            {Math.round(dailyMove)} kcal burn
           </text>
         </g>
-        <g transform={`translate(${CX - 70}, ${CY + 72})`}>
+        <g transform={`translate(${CX - 80}, ${CY + 66})`}>
+          <circle cx="0" cy="0" r="4" fill="#34A853" />
+          <text x="10" y="4" fill="rgba(255,255,255,0.75)" fontSize="10" fontWeight="700" fontFamily="monospace">
+            {Math.round(dailyIntake)} kcal intake
+          </text>
+        </g>
+        <g transform={`translate(${CX - 80}, ${CY + 86})`}>
           <circle cx="0" cy="0" r="4" fill="#4285F4" />
-          <text x="10" y="4" fill="rgba(255,255,255,0.6)" fontSize="10" fontWeight="700" fontFamily="monospace">
-            {dailyDist.toFixed(2)} km
-          </text>
-        </g>
-        <g transform={`translate(${CX - 70}, ${CY + 94})`}>
-          <circle cx="0" cy="0" r="4" fill="#ffffff" />
-          <text x="10" y="4" fill="rgba(255,255,255,0.6)" fontSize="10" fontWeight="700" fontFamily="monospace">
-            {Math.round(stepsPct * 100)}% goal
+          <text x="10" y="4" fill="rgba(255,255,255,0.75)" fontSize="10" fontWeight="700" fontFamily="monospace">
+            {dailyDist.toFixed(2)} km • {Math.round(stepsPct * 100)}% goal
           </text>
         </g>
       </svg>

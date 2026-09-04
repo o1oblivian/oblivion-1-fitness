@@ -8,11 +8,12 @@ interface DialPulseRingProps {
   goalMove: number;
   dailyDist: number;
   goalDist: number;
+  dailyIntake?: number;
   onOpenStepDial: () => void;
 }
 
 export const DialPulseRing: React.FC<DialPulseRingProps> = ({
-  dailySteps, stepTarget, dailyMove, goalMove, dailyDist, goalDist, onOpenStepDial,
+  dailySteps, stepTarget, dailyMove, goalMove, dailyDist, goalDist, dailyIntake = 0, onOpenStepDial,
 }) => {
   const [loaded, setLoaded] = useState(false);
   const { isPressing, handlers: stepLongPressHandlers } = useLongPress(onOpenStepDial, { threshold: 1000 });
@@ -82,23 +83,25 @@ export const DialPulseRing: React.FC<DialPulseRingProps> = ({
         </text>
 
         {/* Ring labels at bottom */}
-        <text x={CX - 60} y={CY + 48} textAnchor="middle" fill="#EA4335" fontSize="14" fontWeight="900" fontFamily="monospace">
+        <text x={CX - 56} y={CY + 48} textAnchor="middle" fill="#EA4335" fontSize="13" fontWeight="900" fontFamily="monospace">
           {Math.round(dailyMove)}
         </text>
-        <text x={CX - 60} y={CY + 62} textAnchor="middle" fill="rgba(255,255,255,0.35)" fontSize="8" fontWeight="700" fontFamily="monospace" letterSpacing="1.5">
-          KCAL
+        <text x={CX - 56} y={CY + 62} textAnchor="middle" fill="rgba(255,255,255,0.4)" fontSize="7" fontWeight="700" fontFamily="monospace" letterSpacing="1.5">
+          BURN
         </text>
 
-        <text x={CX + 60} y={CY + 48} textAnchor="middle" fill="#34A853" fontSize="14" fontWeight="900" fontFamily="monospace">
-          {dailyDist.toFixed(2)}
+        <text x={CX} y={CY + 48} textAnchor="middle" fill="#FBBC05" fontSize="13" fontWeight="900" fontFamily="monospace">
+          {Math.round(dailyIntake)}
         </text>
-        <text x={CX + 60} y={CY + 62} textAnchor="middle" fill="rgba(255,255,255,0.35)" fontSize="8" fontWeight="700" fontFamily="monospace" letterSpacing="1.5">
+        <text x={CX} y={CY + 62} textAnchor="middle" fill="rgba(255,255,255,0.4)" fontSize="7" fontWeight="700" fontFamily="monospace" letterSpacing="1.5">
+          INTAKE
+        </text>
+
+        <text x={CX + 56} y={CY + 48} textAnchor="middle" fill="#34A853" fontSize="13" fontWeight="900" fontFamily="monospace">
+          {dailyDist.toFixed(1)}
+        </text>
+        <text x={CX + 56} y={CY + 62} textAnchor="middle" fill="rgba(255,255,255,0.4)" fontSize="7" fontWeight="700" fontFamily="monospace" letterSpacing="1.5">
           KM
-        </text>
-
-        {/* Percentage */}
-        <text x={CX} y={CY + 60} textAnchor="middle" fill="rgba(255,255,255,0.5)" fontSize="11" fontWeight="800" fontFamily="monospace">
-          {Math.round(stepsPct * 100)}%
         </text>
       </svg>
 

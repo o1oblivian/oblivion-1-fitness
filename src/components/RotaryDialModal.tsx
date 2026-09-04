@@ -27,6 +27,37 @@ export interface DialProfile {
 export const getSupercarProfile = (type: string, maxVal: number): DialProfile => {
   const t = (type || '').toLowerCase();
 
+  // Food scale / portion weight in grams (Checked before gym workout weight load!)
+  const isFoodGrams =
+    t.includes('(g)') ||
+    t.includes('gram') ||
+    t.includes('food') ||
+    t.includes('scale') ||
+    t.includes('portion') ||
+    t.includes('serving');
+
+  if (isFoodGrams) {
+    const max = Math.max(300, maxVal || 1000);
+    return {
+      title: 'FOOD PORTION',
+      unit: 'G',
+      min: 5,
+      max: max,
+      step: 5,
+      highZoneStart: Math.round(max * 0.75),
+      presets: [25, 50, 75, 100, 125, 150, 200, 250, 300, 400, 500].filter((v) => v <= max),
+      isTimer: false,
+      scaleMarks: [
+        { val: 0, label: '0' },
+        { val: Math.round(max * 0.2), label: `${Math.round(max * 0.2)}g` },
+        { val: Math.round(max * 0.4), label: `${Math.round(max * 0.4)}g` },
+        { val: Math.round(max * 0.6), label: `${Math.round(max * 0.6)}g` },
+        { val: Math.round(max * 0.8), label: `${Math.round(max * 0.8)}g` },
+        { val: max, label: max >= 1000 ? `${(max / 1000).toFixed(0)}kg` : `${max}g` },
+      ],
+    };
+  }
+
   if (t.includes('rep')) {
     const max = Math.max(30, maxVal || 50);
     return {
@@ -114,6 +145,70 @@ export const getSupercarProfile = (type: string, maxVal: number): DialProfile =>
     };
   }
 
+  if (t.includes('step')) {
+    const max = Math.max(20000, maxVal || 30000);
+    return {
+      title: 'DAILY STEP TARGET',
+      unit: 'STEPS',
+      min: 1000,
+      max: max,
+      step: 250,
+      highZoneStart: 12000,
+      presets: [5000, 7500, 8000, 10000, 12000, 15000, 20000].filter((v) => v <= max),
+      isTimer: false,
+      scaleMarks: [
+        { val: 0, label: '0' },
+        { val: 5000, label: '5k' },
+        { val: 10000, label: '10k' },
+        { val: 15000, label: '15k' },
+        { val: 20000, label: '20k' },
+        { val: max, label: `${Math.round(max / 1000)}k` },
+      ],
+    };
+  }
+
+  if (t.includes('cal') || t.includes('kcal') || t.includes('burn')) {
+    const max = Math.max(1500, maxVal || 3500);
+    return {
+      title: 'CALORIE GOAL',
+      unit: 'KCAL',
+      min: 100,
+      max: max,
+      step: 50,
+      highZoneStart: Math.round(max * 0.8),
+      presets: [400, 600, 800, 1000, 1500, 2000, 2500].filter((v) => v <= max),
+      isTimer: false,
+      scaleMarks: [
+        { val: 0, label: '0' },
+        { val: Math.round(max * 0.25), label: `${Math.round(max * 0.25)}` },
+        { val: Math.round(max * 0.5), label: `${Math.round(max * 0.5)}` },
+        { val: Math.round(max * 0.75), label: `${Math.round(max * 0.75)}` },
+        { val: max, label: `${max}` },
+      ],
+    };
+  }
+
+  if (t.includes('dist') || t.includes('km') || t.includes('mile')) {
+    const max = Math.max(10, maxVal || 42);
+    return {
+      title: 'DISTANCE TARGET',
+      unit: 'KM',
+      min: 0,
+      max: max,
+      step: 0.5,
+      highZoneStart: Math.round(max * 0.75),
+      presets: [3, 5, 8, 10, 15, 21].filter((v) => v <= max),
+      isTimer: false,
+      scaleMarks: [
+        { val: 0, label: '0' },
+        { val: Math.round(max * 0.25), label: `${Math.round(max * 0.25)}` },
+        { val: Math.round(max * 0.5), label: `${Math.round(max * 0.5)}` },
+        { val: Math.round(max * 0.75), label: `${Math.round(max * 0.75)}` },
+        { val: max, label: `${max}k` },
+      ],
+    };
+  }
+
   const effectiveMax = Math.max(10, maxVal || 100);
   return {
     title: (type || 'VALUE').toUpperCase(),
@@ -141,15 +236,28 @@ export const getSupercarProfile = (type: string, maxVal: number): DialProfile =>
 
 export const getDialConfig = (type: string, maxVal: number) => {
   const profile = getSupercarProfile(type, maxVal);
+  const t = (type || '').toLowerCase();
+  const isFoodGrams =
+    t.includes('(g)') ||
+    t.includes('gram') ||
+    t.includes('food') ||
+    t.includes('scale') ||
+    t.includes('portion') ||
+    t.includes('serving');
+
   return {
     category: profile.isTimer
       ? 'timer'
-      : type.toLowerCase().includes('rep')
+      : isFoodGrams
+      ? 'food_grams'
+      : t.includes('rep')
       ? 'reps'
-      : type.toLowerCase().includes('weight') || type.toLowerCase().includes('kg')
+      : t.includes('weight') || t.includes('kg')
       ? 'weight'
-      : type.toLowerCase().includes('rpe')
+      : t.includes('rpe')
       ? 'rpe'
+      : t.includes('step')
+      ? 'steps'
       : 'generic',
     max: profile.max,
     min: profile.min,
@@ -587,6 +695,8 @@ export const RotaryDialModal: React.FC<RotaryDialModalProps> = ({
                       : `${Math.floor(pVal / 60)}m`
                     : profile.unit === 'KG'
                     ? `${pVal}kg`
+                    : profile.unit === 'G'
+                    ? `${pVal}g`
                     : `${pVal}`}
                 </button>
               );

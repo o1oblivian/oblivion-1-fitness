@@ -8,11 +8,12 @@ interface DialOrbitalProps {
   goalMove: number;
   dailyDist: number;
   goalDist: number;
+  dailyIntake?: number;
   onOpenStepDial: () => void;
 }
 
 export const DialOrbital: React.FC<DialOrbitalProps> = ({
-  dailySteps, stepTarget, dailyMove, goalMove, dailyDist, goalDist, onOpenStepDial,
+  dailySteps, stepTarget, dailyMove, goalMove, dailyDist, goalDist, dailyIntake = 0, onOpenStepDial,
 }) => {
   const [loaded, setLoaded] = useState(false);
   const { isPressing, handlers: stepLongPressHandlers } = useLongPress(onOpenStepDial, { threshold: 1000 });
@@ -97,16 +98,24 @@ export const DialOrbital: React.FC<DialOrbitalProps> = ({
         </text>
 
         {/* Orbit labels at bottom */}
-        <text x={CX - 55} y={CY + 78} textAnchor="middle" fill="#EA4335" fontSize="13" fontWeight="900" fontFamily="monospace">
+        <text x={CX - 56} y={CY + 78} textAnchor="middle" fill="#EA4335" fontSize="12" fontWeight="900" fontFamily="monospace">
           {Math.round(dailyMove)}
         </text>
-        <text x={CX - 55} y={CY + 92} textAnchor="middle" fill="rgba(255,255,255,0.3)" fontSize="7" fontWeight="700" fontFamily="monospace" letterSpacing="1.5">
-          KCAL
+        <text x={CX - 56} y={CY + 92} textAnchor="middle" fill="rgba(255,255,255,0.4)" fontSize="7" fontWeight="700" fontFamily="monospace" letterSpacing="1.5">
+          BURN
         </text>
-        <text x={CX + 55} y={CY + 78} textAnchor="middle" fill="#34A853" fontSize="13" fontWeight="900" fontFamily="monospace">
-          {dailyDist.toFixed(2)}
+
+        <text x={CX} y={CY + 78} textAnchor="middle" fill="#FBBC05" fontSize="12" fontWeight="900" fontFamily="monospace">
+          {Math.round(dailyIntake)}
         </text>
-        <text x={CX + 55} y={CY + 92} textAnchor="middle" fill="rgba(255,255,255,0.3)" fontSize="7" fontWeight="700" fontFamily="monospace" letterSpacing="1.5">
+        <text x={CX} y={CY + 92} textAnchor="middle" fill="rgba(255,255,255,0.4)" fontSize="7" fontWeight="700" fontFamily="monospace" letterSpacing="1.5">
+          INTAKE
+        </text>
+
+        <text x={CX + 56} y={CY + 78} textAnchor="middle" fill="#34A853" fontSize="12" fontWeight="900" fontFamily="monospace">
+          {dailyDist.toFixed(1)}
+        </text>
+        <text x={CX + 56} y={CY + 92} textAnchor="middle" fill="rgba(255,255,255,0.4)" fontSize="7" fontWeight="700" fontFamily="monospace" letterSpacing="1.5">
           KM
         </text>
       </svg>

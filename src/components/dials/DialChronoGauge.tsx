@@ -8,11 +8,12 @@ interface DialChronoGaugeProps {
   goalMove: number;
   dailyDist: number;
   goalDist: number;
+  dailyIntake?: number;
   onOpenStepDial: () => void;
 }
 
 export const DialChronoGauge: React.FC<DialChronoGaugeProps> = ({
-  dailySteps, stepTarget, dailyMove, goalMove, dailyDist, goalDist, onOpenStepDial,
+  dailySteps, stepTarget, dailyMove, goalMove, dailyDist, goalDist, dailyIntake = 0, onOpenStepDial,
 }) => {
   const [loaded, setLoaded] = useState(false);
   const { isPressing, handlers: stepLongPressHandlers } = useLongPress(onOpenStepDial, { threshold: 1000 });
@@ -137,9 +138,9 @@ export const DialChronoGauge: React.FC<DialChronoGaugeProps> = ({
           </text>
         </g>
 
-        {/* Percentage at bottom */}
-        <text x={CX} y={CY + 108} textAnchor="middle" fill="rgba(255,255,255,0.5)" fontSize="11" fontWeight="800" fontFamily="monospace" letterSpacing="2">
-          {Math.round(stepsPct * 100)}% GOAL
+        {/* Percentage & Intake at bottom */}
+        <text x={CX} y={CY + 108} textAnchor="middle" fill="rgba(255,255,255,0.6)" fontSize="10" fontWeight="800" fontFamily="monospace" letterSpacing="1.5">
+          {Math.round(stepsPct * 100)}% GOAL • {Math.round(dailyIntake)} KCAL IN
         </text>
       </svg>
 

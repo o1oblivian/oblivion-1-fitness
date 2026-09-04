@@ -336,7 +336,7 @@ export default function App() {
           <main
             onTouchStart={s.handleTouchStart}
             onTouchEnd={s.handleTouchEnd}
-            className="w-full max-w-md mx-auto px-3 sm:px-4 pt-[max(0.5rem,env(safe-area-inset-top,0px))] pb-[max(8.5rem,calc(env(safe-area-inset-bottom,0px)+7.5rem))] flex-1 flex flex-col items-center justify-start relative z-10 box-border overflow-y-auto overflow-x-hidden hide-scrollbar overscroll-contain"
+            className="w-full max-w-md mx-auto px-3 sm:px-4 pt-[max(0.5rem,env(safe-area-inset-top,0px))] pb-[max(4.25rem,calc(env(safe-area-inset-bottom,0px)+3.75rem))] flex-1 flex flex-col items-center justify-start relative z-10 box-border overflow-y-auto overflow-x-hidden hide-scrollbar overscroll-contain"
           >
             {/* Tracker tab - always mounted */}
             <div className={`w-full flex flex-col gap-2 ${s.currentMode === 'tracker' ? 'tab-view-enter' : 'hidden'}`}>
@@ -493,6 +493,12 @@ export default function App() {
                   showToast={s.showToast}
                   onTapSelf={() => s.handleModeChange('client')}
                   onTapPartner={() => s.setShowTandemPanel(true)}
+                  dailyMeals={s.dailyMeals}
+                  goalCals={s.goalCals}
+                  goalP={s.goalP}
+                  goalC={s.goalC}
+                  goalF={s.goalF}
+                  onNavigateToFuel={() => s.handleModeChange('fuel')}
                 />
                 </ViewBoundary>
               </div>
@@ -502,7 +508,16 @@ export default function App() {
             {mounted['client'] && (
               <div className={`w-full flex flex-col gap-2 ${s.currentMode === 'client' ? 'tab-view-enter' : 'hidden'}`}>
                 <ViewBoundary fallbackLabel="Athlete Session Vault">
-                  <AthleteView currentUserEmail={s.currentUserEmail} sessionVaultRefresh={s.sessionVaultRefresh} />
+                  <AthleteView
+                    currentUserEmail={s.currentUserEmail}
+                    sessionVaultRefresh={s.sessionVaultRefresh}
+                    dailyMeals={s.dailyMeals}
+                    goalCals={s.goalCals}
+                    goalP={s.goalP}
+                    goalC={s.goalC}
+                    goalF={s.goalF}
+                    onNavigateToFuel={() => s.handleModeChange('fuel')}
+                  />
                 </ViewBoundary>
               </div>
             )}

@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { Flame, MapPin, Heart, Timer, Gauge, Activity, BarChart3, Orbit } from 'lucide-react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { Flame, MapPin, Heart, Timer, Gauge, Activity, BarChart3, Orbit, Utensils } from 'lucide-react';
 import { pedometer, type PedometerState } from '@/utils/pedometer';
+import { getTodayCardioTotals, subscribeCardioUpdates } from '@/utils/cardioStorage';
+import type { DailyMeals } from '../types';
 import { BiometricModal, BiometricType } from './BiometricModal';
 import { DialChronoGauge } from './dials/DialChronoGauge';
 import { DialPulseRing } from './dials/DialPulseRing';
@@ -35,6 +37,8 @@ interface WatchDialProps {
   profileImage?: string;
   onDialModeChange?: (mode: DialMode, label: string) => void;
   requestedDialMode?: DialMode | null;
+  dailyMeals?: DailyMeals;
+  dailyIntake?: number;
 }
 
 export type { DialMode };
@@ -84,6 +88,8 @@ export const WatchDial: React.FC<WatchDialProps> = ({
   embedded = false,
   onDialModeChange,
   requestedDialMode,
+  dailyMeals,
+  dailyIntake,
 }) => {
   const dialMode: DialMode = requestedDialMode || DAY_DIAL_MAP[selectedDay || 'Mon'] || 'chrono';
 
@@ -93,7 +99,18 @@ export const WatchDial: React.FC<WatchDialProps> = ({
   }, [dialMode]);
 
   const [pedometerState, setPedometerState] = useState<PedometerState>(pedometer.getState());
-  useEffect(() => pedometer.subscribe(setPedometerState), []);
+  useEffect(() => {
+    const unsub = pedometer.subscribe(setPedometerState);
+    pedometer.start().catch(() => {});
+    return () => unsub();
+  }, []);
+
+  const [cardioTotals, setCardioTotals] = useState(getTodayCardioTotals);
+  useEffect(() => {
+    return subscribeCardioUpdates(() => {
+      setCardioTotals(getTodayCardioTotals());
+    });
+  }, []);
 
   const [dailySteps, setDailyStepsState] = useState<number>(0);
   const [dailyMove, setDailyMoveState] = useState<number>(0);
@@ -119,11 +136,46 @@ export const WatchDial: React.FC<WatchDialProps> = ({
   const goalMove = 500;
   const goalDist = 5.0;
 
+  // Real-time recalculation of total steps, calories burn, and distance
   useEffect(() => {
-    setDailyStepsState(pedometerState.stepCount);
-    setDailyMoveState(pedometerState.caloriesBurned);
-    setDailyDistState(pedometerState.distanceKm);
-  }, [pedometerState.stepCount, pedometerState.caloriesBurned, pedometerState.distanceKm]);
+    const cTotals = getTodayCardioTotals();
+    const totalSteps = (pedometerState.stepCount || 0) + (cTotals.totalSteps || 0);
+    let totalBurn = (pedometerState.caloriesBurned || 0) + (cTotals.totalCalories || 0);
+    // If steps are logged (e.g. 5508 steps) but calories were 0, auto-estimate 0.045 kcal/step
+    if (totalSteps > 0 && totalBurn === 0) {
+      totalBurn = Math.round(totalSteps * 0.045);
+    }
+    const totalDistance = parseFloat(((pedometerState.distanceKm || 0) + (cTotals.totalDistance || 0)).toFixed(2));
+
+    setDailyStepsState(totalSteps);
+    setDailyMoveState(Math.round(totalBurn));
+    setDailyDistState(totalDistance);
+  }, [pedometerState.stepCount, pedometerState.caloriesBurned, pedometerState.distanceKm, cardioTotals]);
+
+  // Real-time calculation of consumed calories
+  const dailyIntakeCals = useMemo(() => {
+    if (typeof dailyIntake === 'number' && dailyIntake > 0) return dailyIntake;
+    if (dailyMeals) {
+      let sum = 0;
+      (['breakfast', 'lunch', 'dinner', 'snack', 'drinks'] as const).forEach(m => {
+        (dailyMeals[m] || []).forEach(item => {
+          sum += (item.cals || 0);
+        });
+      });
+      if (sum > 0) return sum;
+    }
+    try {
+      const raw = localStorage.getItem('o1fc_meal_logs');
+      if (raw) {
+        const logs = JSON.parse(raw);
+        if (Array.isArray(logs)) {
+          const sum = logs.reduce((acc: number, curr: any) => acc + (curr.cals || curr.calories || 0), 0);
+          if (sum > 0) return sum;
+        }
+      }
+    } catch {}
+    return 0;
+  }, [dailyIntake, dailyMeals]);
 
   const handleOpenStepDial = () => {
     if (onOpenDial) {
@@ -140,6 +192,7 @@ export const WatchDial: React.FC<WatchDialProps> = ({
 
   const movePct = Math.min(dailyMove / goalMove, 1);
   const distPct = Math.min(dailyDist / goalDist, 1);
+  const intakePct = Math.min(dailyIntakeCals / 2500, 1);
 
   const bpm = 0;
 
@@ -150,6 +203,7 @@ export const WatchDial: React.FC<WatchDialProps> = ({
 
   const dialSharedProps = {
     dailySteps, stepTarget, dailyMove, goalMove, dailyDist, goalDist,
+    dailyIntake: dailyIntakeCals,
     onOpenStepDial: handleOpenStepDial,
   };
 
@@ -173,10 +227,10 @@ export const WatchDial: React.FC<WatchDialProps> = ({
         <div className="flex items-stretch gap-2 mt-6 px-1">
           <button
             onClick={() => showToast(`Move Goal: ${dailyMove}/${goalMove} kcal`, 'success')}
-            className="flex-1 flex flex-col items-center gap-1.5 py-3 px-2 rounded-2xl border border-white/10 cursor-pointer hover:bg-white/[0.06] active:scale-95 transition-all"
+            className="flex-1 flex flex-col items-center gap-1.5 py-3 px-1 rounded-2xl border border-white/10 cursor-pointer hover:bg-white/[0.06] active:scale-95 transition-all"
             style={{ background: 'rgba(0,0,0,0.3)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}
           >
-            <div className="relative w-9 h-9">
+            <div className="relative w-8 h-8">
               <svg className="w-full h-full -rotate-90" viewBox="0 0 36 36">
                 <circle cx="18" cy="18" r="15" fill="none" stroke="rgba(234,67,53,0.15)" strokeWidth="2.5" />
                 <circle cx="18" cy="18" r="15" fill="none" stroke="#EA4335" strokeWidth="2.5" strokeLinecap="round"
@@ -184,41 +238,60 @@ export const WatchDial: React.FC<WatchDialProps> = ({
                   className="transition-all duration-700"
                 />
               </svg>
-              <Flame className="absolute inset-0 m-auto w-3.5 h-3.5 text-[#EA4335]" />
+              <Flame className="absolute inset-0 m-auto w-3 h-3 text-[#EA4335]" />
             </div>
-            <span className="text-lg font-mono font-black text-white tabular-nums">{Math.round(dailyMove)}</span>
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-white/50">KCAL</span>
+            <span className="text-base font-mono font-black text-white tabular-nums">{Math.round(dailyMove)}</span>
+            <span className="text-[9px] font-mono font-bold uppercase tracking-wider text-white/50">BURN</span>
+          </button>
+
+          <button
+            onClick={() => showToast(`Food Intake: ${Math.round(dailyIntakeCals)} kcal`, 'success')}
+            className="flex-1 flex flex-col items-center gap-1.5 py-3 px-1 rounded-2xl border border-white/10 cursor-pointer hover:bg-white/[0.06] active:scale-95 transition-all"
+            style={{ background: 'rgba(0,0,0,0.3)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}
+          >
+            <div className="relative w-8 h-8">
+              <svg className="w-full h-full -rotate-90" viewBox="0 0 36 36">
+                <circle cx="18" cy="18" r="15" fill="none" stroke="rgba(251,188,5,0.15)" strokeWidth="2.5" />
+                <circle cx="18" cy="18" r="15" fill="none" stroke="#FBBC05" strokeWidth="2.5" strokeLinecap="round"
+                  strokeDasharray={`${2 * Math.PI * 15 * intakePct} ${2 * Math.PI * 15}`}
+                  className="transition-all duration-700"
+                />
+              </svg>
+              <Utensils className="absolute inset-0 m-auto w-3 h-3 text-[#FBBC05]" />
+            </div>
+            <span className="text-base font-mono font-black text-white tabular-nums">{Math.round(dailyIntakeCals)}</span>
+            <span className="text-[9px] font-mono font-bold uppercase tracking-wider text-white/50">INTAKE</span>
           </button>
 
           <button
             onClick={() => showToast(`Distance Goal: ${dailyDist.toFixed(2)}/${goalDist} km`, 'success')}
-            className="flex-1 flex flex-col items-center gap-1.5 py-3 px-2 rounded-2xl border border-white/10 cursor-pointer hover:bg-white/[0.06] active:scale-95 transition-all"
+            className="flex-1 flex flex-col items-center gap-1.5 py-3 px-1 rounded-2xl border border-white/10 cursor-pointer hover:bg-white/[0.06] active:scale-95 transition-all"
             style={{ background: 'rgba(0,0,0,0.3)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}
           >
-            <div className="relative w-9 h-9">
+            <div className="relative w-8 h-8">
               <svg className="w-full h-full -rotate-90" viewBox="0 0 36 36">
-                <circle cx="18" cy="18" r="15" fill="none" stroke="rgba(66,133,244,0.18)" strokeWidth="2.5" />
-                <circle cx="18" cy="18" r="15" fill="none" stroke="#4285F4" strokeWidth="2.5" strokeLinecap="round"
+                <circle cx="18" cy="18" r="15" fill="none" stroke="rgba(52,168,83,0.18)" strokeWidth="2.5" />
+                <circle cx="18" cy="18" r="15" fill="none" stroke="#34A853" strokeWidth="2.5" strokeLinecap="round"
                   strokeDasharray={`${2 * Math.PI * 15 * distPct} ${2 * Math.PI * 15}`}
                   className="transition-all duration-700"
                 />
               </svg>
-              <MapPin className="absolute inset-0 m-auto w-3.5 h-3.5 text-[#34A853]" />
+              <MapPin className="absolute inset-0 m-auto w-3 h-3 text-[#34A853]" />
             </div>
-            <span className="text-lg font-mono font-black text-white tabular-nums">{dailyDist.toFixed(2)}</span>
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-white/50">KM</span>
+            <span className="text-base font-mono font-black text-white tabular-nums">{dailyDist.toFixed(1)}</span>
+            <span className="text-[9px] font-mono font-bold uppercase tracking-wider text-white/50">KM</span>
           </button>
 
           <button
             onClick={() => setActiveBiometricModal('hrv')}
-            className="flex-1 flex flex-col items-center gap-1.5 py-3 px-2 rounded-2xl border border-white/10 cursor-pointer hover:bg-white/[0.06] active:scale-95 transition-all"
+            className="flex-1 flex flex-col items-center gap-1.5 py-3 px-1 rounded-2xl border border-white/10 cursor-pointer hover:bg-white/[0.06] active:scale-95 transition-all"
             style={{ background: 'rgba(0,0,0,0.3)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}
           >
-            <div className="relative w-9 h-9 flex items-center justify-center">
-              <Heart className="w-4 h-4 text-[#EA4335]/70" />
-              <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-[#EA4335]" />
+            <div className="relative w-8 h-8 flex items-center justify-center">
+              <Heart className="w-3.5 h-3.5 text-[#EA4335]/70" />
+              <span className="absolute 1 1 w-1.5 h-1.5 rounded-full bg-[#EA4335]" />
             </div>
-            <span className="text-sm font-mono font-black text-white tabular-nums">{bpm}</span>
+            <span className="text-base font-mono font-black text-white tabular-nums">{bpm}</span>
             <span className="text-[9px] font-mono font-bold uppercase tracking-wider text-white/35">BPM</span>
           </button>
         </div>

@@ -44,7 +44,7 @@ import {
 } from 'lucide-react';
 import { COACH_CLIENTS } from '../data/exerciseDatabase';
 import { useCoachRosterStore } from '@/utils/coachRosterStore';
-import { AthleteData } from '../types';
+import { AthleteData, DailyMeals } from '../types';
 import { ClientRosterModal } from './ClientRosterModal';
 import { WorkoutDispatchModal } from './WorkoutDispatchModal';
 import { PayPlanHubModal } from './PayPlanHubModal';
@@ -180,6 +180,12 @@ interface FitnessIntelligenceAppProps {
   showToast?: (msg: string, type?: 'success' | 'error') => void;
   onTapSelf?: () => void;
   onTapPartner?: () => void;
+  dailyMeals?: DailyMeals;
+  goalCals?: number;
+  goalP?: number;
+  goalC?: number;
+  goalF?: number;
+  onNavigateToFuel?: () => void;
 }
 
 export type { WorkoutRegistration };
@@ -200,6 +206,12 @@ export default function FitnessIntelligenceApp({
   showToast: showToastProp,
   onTapSelf,
   onTapPartner,
+  dailyMeals,
+  goalCals,
+  goalP,
+  goalC,
+  goalF,
+  onNavigateToFuel,
 }: FitnessIntelligenceAppProps) {
   const [activeTab, setActiveTab] = useState<'Coach' | 'Client' | 'Reels'>(initialTab);
   const [logs, setLogs] = useState<CoachLog[]>(ENRICHED_LOGS);
@@ -297,19 +309,11 @@ export default function FitnessIntelligenceApp({
 
   const handleSyncDeviceHealth = () => {
     setIsHealthSyncing(true);
-    showToast('Connecting to Apple HealthKit / Google Health Connect...');
+    showToast('Checking Apple HealthKit / Google Health Connect bridge...');
     setTimeout(() => {
       setIsHealthSyncing(false);
-      const randomHrv = Math.floor(64 + Math.random() * 12);
-      const randomReadiness = (89 + Math.random() * 6).toFixed(1);
-      setStats((prev) => ({
-        ...prev,
-        sleep: '07h 48m (REM: 1h 52m • Deep: 2h 15m)',
-        hrv: `${randomHrv}ms`,
-        readinessScore: parseFloat(randomReadiness),
-      }));
-      showToast('HealthKit / Google Health Connect Sleep Telemetry Synced!', 'success');
-    }, 1200);
+      showToast('HealthKit & Health Connect require native iOS/Android permissions. Real biometric telemetry active.');
+    }, 600);
   };
 
   useEffect(() => {
@@ -578,7 +582,7 @@ export default function FitnessIntelligenceApp({
     { name: 'Hammer Curls', numSets: 3 },
   ];
 
-  const simulateWorkoutComplete = () => {
+  const loadAssignedWorkout = () => {
     if (!setActiveLogsExternal) return;
     setIsUpdating(true);
 
@@ -678,7 +682,7 @@ export default function FitnessIntelligenceApp({
 
         {/* CTA Button: Solid Natural Matte Terracotta */}
         <button
-          onClick={simulateWorkoutComplete}
+          onClick={loadAssignedWorkout}
           disabled={isUpdating}
           className="w-full py-2.5 px-3.5 rounded-xl font-bold text-xs uppercase tracking-wider flex items-center justify-between active:scale-[0.98] transition-all cursor-pointer text-white shadow-sm disabled:opacity-60 bg-[#EA4335] hover:bg-[#963426]"
         >
@@ -768,6 +772,12 @@ export default function FitnessIntelligenceApp({
         showToast={showToast}
         onOpenPayPlan={() => setIsPayPlanOpen(true)}
         refreshTrigger={sessionVaultRefresh}
+        dailyMeals={dailyMeals}
+        goalCals={goalCals}
+        goalP={goalP}
+        goalC={goalC}
+        goalF={goalF}
+        onNavigateToFuel={onNavigateToFuel}
       />
     </div>
     );

@@ -8,11 +8,12 @@ interface DialHorizonProps {
   goalMove: number;
   dailyDist: number;
   goalDist: number;
+  dailyIntake?: number;
   onOpenStepDial: () => void;
 }
 
 export const DialHorizon: React.FC<DialHorizonProps> = ({
-  dailySteps, stepTarget, dailyMove, goalMove, dailyDist, goalDist, onOpenStepDial,
+  dailySteps, stepTarget, dailyMove, goalMove, dailyDist, goalDist, dailyIntake = 0, onOpenStepDial,
 }) => {
   const [loaded, setLoaded] = useState(false);
   const { isPressing, handlers: stepLongPressHandlers } = useLongPress(onOpenStepDial, { threshold: 1000 });
@@ -49,11 +50,12 @@ export const DialHorizon: React.FC<DialHorizonProps> = ({
       </div>
 
       {/* Horizon bars */}
-      <div className="w-full space-y-4">
+      <div className="w-full space-y-3.5">
         {[
           { label: 'STEPS', pct: stepsPct, color: '#ffffff', value: `${Math.round(stepsPct * 100)}%`, delay: 0 },
           { label: 'BURN', pct: movePct, color: '#EA4335', value: `${Math.round(dailyMove)} kcal`, delay: 80 },
-          { label: 'DIST', pct: distPct, color: '#4285F4', value: `${dailyDist.toFixed(2)} km`, delay: 160 },
+          { label: 'INTAKE', pct: Math.min(dailyIntake / 2500, 1), color: '#34A853', value: `${Math.round(dailyIntake)} kcal`, delay: 140 },
+          { label: 'DIST', pct: distPct, color: '#4285F4', value: `${dailyDist.toFixed(2)} km`, delay: 200 },
         ].map((bar, i) => (
           <div key={i} className="flex items-center gap-3">
             <span className="text-[8px] font-mono font-bold tracking-[0.2em] text-white/35 w-10 text-right uppercase">

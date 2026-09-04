@@ -8,11 +8,12 @@ interface DialSplitColumnProps {
   goalMove: number;
   dailyDist: number;
   goalDist: number;
+  dailyIntake?: number;
   onOpenStepDial: () => void;
 }
 
 export const DialSplitColumn: React.FC<DialSplitColumnProps> = ({
-  dailySteps, stepTarget, dailyMove, goalMove, dailyDist, goalDist, onOpenStepDial,
+  dailySteps, stepTarget, dailyMove, goalMove, dailyDist, goalDist, dailyIntake = 0, onOpenStepDial,
 }) => {
   const [loaded, setLoaded] = useState(false);
   const { isPressing, handlers: stepLongPressHandlers } = useLongPress(onOpenStepDial, { threshold: 1000 });
@@ -23,9 +24,9 @@ export const DialSplitColumn: React.FC<DialSplitColumnProps> = ({
   const distPct = goalDist > 0 ? Math.min(dailyDist / goalDist, 1) : 0;
 
   const metrics = [
-    { label: 'KCAL', value: Math.round(dailyMove).toString(), pct: movePct, color: '#EA4335' },
-    { label: 'KM', value: dailyDist.toFixed(2), pct: distPct, color: '#34A853' },
-    { label: 'GOAL', value: `${Math.round(stepsPct * 100)}%`, pct: stepsPct, color: '#4285F4' },
+    { label: 'BURN', value: `${Math.round(dailyMove)}`, pct: movePct, color: '#EA4335' },
+    { label: 'INTAKE', value: `${Math.round(dailyIntake)}`, pct: Math.min(dailyIntake / 2500, 1), color: '#FBBC05' },
+    { label: 'DIST', value: `${dailyDist.toFixed(1)} km`, pct: distPct, color: '#34A853' },
   ];
 
   return (

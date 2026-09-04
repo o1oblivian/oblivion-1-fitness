@@ -76,13 +76,15 @@ export async function apiFetch(path: string, options?: RequestInit, timeoutMs = 
   // Candidate URLs to try in priority order
   const urlsToTry: string[] = [];
 
+  // 1. If custom environment variable or localStorage override is set
   const customEnvUrl = getCustomApiUrl();
   if (customEnvUrl) {
     const base = customEnvUrl.endsWith('/') ? customEnvUrl.slice(0, -1) : customEnvUrl;
     urlsToTry.push(`${base}${cleanPath}`);
   }
 
-  if (typeof window !== 'undefined' && window.location.origin && window.location.origin !== 'null' && !window.location.protocol.startsWith('file')) {
+  // 2. On web browsers, try relative path first. On native iOS/Android, try cloud endpoints first
+  if (!isNativePlatform() && typeof window !== 'undefined' && window.location.origin && window.location.origin !== 'null' && !window.location.protocol.startsWith('file')) {
     urlsToTry.push(cleanPath);
   }
 
@@ -91,6 +93,11 @@ export async function apiFetch(path: string, options?: RequestInit, timeoutMs = 
     if (!urlsToTry.includes(full)) {
       urlsToTry.push(full);
     }
+  }
+
+  // If native and relative path was skipped, append it at the very end as a last resort
+  if (isNativePlatform() && !urlsToTry.includes(cleanPath)) {
+    urlsToTry.push(cleanPath);
   }
 
   let lastResponse: Response | null = null;
