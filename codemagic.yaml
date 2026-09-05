@@ -3,13 +3,14 @@ workflows:
     name: iOS Release (App Store / TestFlight)
     max_build_duration: 60
     instance_type: mac_mini_m2
-    triggering:
-      events:
-        - push
-      branch_patterns:
-        - pattern: 'main'
-          include: true
-          source: true
+    # Automatic trigger paused so Build 35 remains active in review without creating Build 36
+    # triggering:
+    #   events:
+    #     - push
+    #   branch_patterns:
+    #     - pattern: 'main'
+    #       include: true
+    #       source: true
     environment:
       groups:
         - app_store_credentials
@@ -188,10 +189,14 @@ workflows:
             echo "Using Codemagic environment keystore..."
             echo "$CM_KEYSTORE" | base64 --decode > app/release-keystore.jks
             export CM_KEYSTORE_PATH="app/release-keystore.jks"
-          elif [ ! -f "app/release-keystore.jks" ]; then
+          elif [ -f "app/release-keystore.jks" ]; then
+            echo "Using persistent repository release keystore (app/release-keystore.jks)..."
+          else
             echo "Creating production release keystore for Google Play AAB..."
             keytool -genkeypair -v -keystore app/release-keystore.jks -alias o1fc -keyalg RSA -keysize 2048 -validity 10000 -storepass o1fcfitness -keypass o1fcfitness -dname "CN=Oblivion 1 Fitness Club, OU=Mobile, O=O1FC, L=Sydney, ST=NSW, C=AU"
           fi
+          echo "Verifying Keystore Fingerprints:"
+          keytool -list -v -keystore app/release-keystore.jks -alias o1fc -storepass o1fcfitness | grep -E "SHA1:|SHA256:" || true
       - name: Build Android App Bundle (AAB)
         script: |
           set -e
@@ -202,11 +207,12 @@ workflows:
     artifacts:
       - android/app/build/outputs/bundle/**/*.aab
       - android/app/build/outputs/apk/**/*.apk
+      - android/app/upload_certificate.pem
     publishing:
       google_play:
         credentials: $GCLOUD_SERVICE_ACCOUNT_CREDENTIALS
         track: internal
-        submit_as_draft: false
+        submit_as_draft: true
       email:
         recipients:
           - o1oblivianfitness@gmail.com

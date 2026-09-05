@@ -187,6 +187,12 @@ async function startServer() {
     });
   });
 
+  // Download Google Play Upload Key Certificate (.PEM)
+  app.get(['/api/download-upload-cert', '/upload_certificate.pem'], (_req, res) => {
+    const certPath = path.join(process.cwd(), 'public', 'upload_certificate.pem');
+    res.download(certPath, 'upload_certificate.pem');
+  });
+
   // Food Scan & Barcode Lookup API
   app.all('/api/food-scan', aiHeavyLimiter, async (req, res) => {
     // GET: Barcode or Query search

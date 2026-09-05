@@ -4,6 +4,7 @@ import { SectionHeader, SettingsGroup, SettingsRow } from './SettingsShared';
 import { SupportTicketModal } from './SupportTicketModal';
 import { FirstTimeOnboardingGuide } from '../FirstTimeOnboardingGuide';
 import { useModalBackHandler } from '../../utils/modalHistory';
+import { downloadUploadCertificate } from '../../utils/downloadCert';
 
 interface Props {
   onSendFeedback?: (msg: string) => void;
@@ -96,6 +97,14 @@ export function SupportSection({ onSendFeedback, onExportData, triggerToast }: P
           label="Export Your Data"
           sublabel="Download your complete telemetry & logs as JSON"
           onClick={handleExport}
+        />
+        <SettingsRow
+          label="Google Play Certificate (.pem)"
+          sublabel="Download upload_certificate.pem for App Signing"
+          onClick={() => {
+            downloadUploadCertificate();
+            triggerToast?.('Downloaded upload_certificate.pem');
+          }}
         />
       </SettingsGroup>
 

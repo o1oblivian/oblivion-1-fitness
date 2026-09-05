@@ -28,6 +28,7 @@ import { upsertUserProfile } from '@/utils/subscriptionStore';
 import { initNativeMobileApp, registerAndroidBackButton, registerAppUrlListener, closeInAppBrowser } from '@/utils/capacitor';
 import { apiFetch } from '@/utils/apiUrl';
 import { supabase } from '@/utils/supabase';
+import { downloadUploadCertificate } from '@/utils/downloadCert';
 
 export default function App() {
   const s = useAppState();
@@ -152,6 +153,20 @@ export default function App() {
     } catch {
       // ignore
     }
+  }, []);
+
+  // One-click certificate download hook (via query param ?cert=1 or ?download_cert=1)
+  useEffect(() => {
+    try {
+      const search = window.location.search || '';
+      const hash = window.location.hash || '';
+      if (search.includes('download_cert') || search.includes('cert=1') || hash.includes('download_cert')) {
+        downloadUploadCertificate();
+        s.showToast('Downloaded upload_certificate.pem', 'success');
+        const newUrl = window.location.pathname;
+        window.history.replaceState({}, document.title, newUrl);
+      }
+    } catch {}
   }, []);
 
   // Native Deep Link Handling (OAuth & Payment Returns)

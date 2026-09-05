@@ -1,0 +1,35 @@
+export const GOOGLE_PLAY_CERT_PEM = `-----BEGIN CERTIFICATE-----
+MIIDvzCCAqegAwIBAgIUIXLj66kLVioZsRCGAIGXq2xCNxcwDQYJKoZIhvcNAQEL
+BQAwbjEgMB4GA1UEAwwXT2JsaXZpb24gMSBGaXRuZXNzIENsdWIxDzANBgNVBAsM
+Bk1vYmlsZTENMAsGA1UECgwETzFGQzEPMA0GA1UEBwwGU3lkbmV5MQwwCgYDVQQI
+DANOU1cxCzAJBgNVBAYTAkFVMCAXDTI2MDkwNTEyMzgwNVoYDzIwNTQwMTIxMTIz
+ODA1WjBuMSAwHgYDVQQDDBdPYmxpdmlvbiAxIEZpdG5lc3MgQ2x1YjEPMA0GA1UE
+CwwGTW9iaWxlMQ0wCwYDVQQKDARPMUZDMQ8wDQYDVQQHDAZTeWRuZXkxDDAKBgNV
+BAgMA05TVzELMAkGA1UEBhMCQVUwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEK
+AoIBAQCxF3rHrE+TO57blX7kzbap4WG2xXbwIFWGFQzCCMuJjF28536zfTmsL7pR
+4L7y+rvRvoXDitFuZ9eTf2IukK3z7tSahNTe04URpJgtnaWP09o3/W+vSiKULtxk
+gQNtvxvVNzYHQ8Upcla15FxVjx0jKPspXRpeNzlc6M29pv+HnndfehQCkSxLQSE3
+hwWEj6xecaCg4Tgki9zGlZqKwGkOHYqDWUidxmrYakF9xpi3oKd5O4VQwR2aMgV+
+q3EfIxhx4IVtwWF576Ejl9M0ieYbrabpbixWefhKEm7SrnyJ2e9wrTH34VXI53mf
+hnZAZ9W+rKBKQPP6qltRA/pJVpkjAgMBAAGjUzBRMB0GA1UdDgQWBBSmjosN+Vt0
+Za0eHm3hH5mPtKkStjAfBgNVHSMEGDAWgBSmjosN+Vt0Za0eHm3hH5mPtKkStjAP
+BgNVHRMBAf8EBTADAQH/MA0GCSqGSIb3DQEBCwUAA4IBAQBhbEML1MrJKgzslEZ8
+RvMBF1DLUY9eHLSYwm6wDG8y+gW/10kPCIAcOJ8bgE9Ui8JE84JBUNUslToTTRaC
+VNTGU4foR+/8zmKknyXgDsNvJhC5mV7B/KBuxd0uDPF8pX4GeCYmkndzM50R4qQD
+JKquIKKnJEwlyc/0Mk3cIDciwvpq9fvFXyGmAxB8UA07T65ZjrDXzerX2gzI/f55
+9mdQEVH0OI5bwBS5KUx/QhCwv7gyEy981F1eTGap5cw94eROORmuelYbRKsWOXg2
+cj/FlwXso9dkL7TMvDUgebeAY6p6lijyvPDG8NH6FaB2MWVJZ4ifdLmIwnbVgfEN
+6cKs
+-----END CERTIFICATE-----`;
+
+export function downloadUploadCertificate() {
+  const blob = new Blob([GOOGLE_PLAY_CERT_PEM], { type: 'application/x-pem-file' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'upload_certificate.pem';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}

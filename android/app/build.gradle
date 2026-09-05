@@ -7,7 +7,8 @@ android {
         applicationId "com.o1fc.fitness"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
+        def appVersionCode = Integer.parseInt(System.getenv("BUILD_NUMBER") ?: "12")
+        versionCode appVersionCode
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
