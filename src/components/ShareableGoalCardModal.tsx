@@ -74,7 +74,7 @@ export const ShareableGoalCardModal: React.FC<ShareableGoalCardModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-[220] bg-black/40 dark:bg-black/80 backdrop-blur-xs overflow-y-auto pb-28 flex items-start justify-center p-3 sm:p-4" onClick={onClose}>
+    <div className="fixed inset-0 z-[220] bg-black/50 dark:bg-black/80 backdrop-blur-xs overflow-y-auto flex items-center justify-center p-3 sm:p-4" onClick={onClose}>
       <motion.div
         initial={{ opacity: 0, scale: 0.95, y: 10 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}

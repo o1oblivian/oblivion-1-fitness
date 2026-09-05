@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { X, Check, RotateCcw, Plus, Minus, ArrowRight, Shield } from 'lucide-react';
 import { haptic } from '../utils/haptics';
 import { playDigitalCrownClick } from '../utils/audio';
+import { useModalBackHandler } from '../utils/modalHistory';
 
 interface PlateConfig {
   weight: number;
@@ -13,7 +14,7 @@ interface PlateConfig {
   widthClass: string;
 }
 
-export const OLYMPIC_PLATES: PlateConfig[] = [
+export const OLYMPIC_PLATES_KG: PlateConfig[] = [
   {
     weight: 25,
     label: '25kg',
@@ -88,12 +89,81 @@ export const OLYMPIC_PLATES: PlateConfig[] = [
   },
 ];
 
-export const BAR_WEIGHTS = [
-  { label: '20kg (Men\'s Olympic)', weight: 20 },
-  { label: '15kg (Women\'s Olympic)', weight: 15 },
-  { label: '10kg (EZ-Curl / Junior)', weight: 10 },
-  { label: '0kg (Machine / Smith)', weight: 0 },
+export const OLYMPIC_PLATES_LBS: PlateConfig[] = [
+  {
+    weight: 45,
+    label: '45lb',
+    color: 'bg-[#2B6CB0] dark:bg-[#3182CE]',
+    borderColor: 'border-[#2C5282] dark:border-[#BEE3F8]',
+    textColor: 'text-white',
+    heightClass: 'h-28',
+    widthClass: 'w-4.5',
+  },
+  {
+    weight: 35,
+    label: '35lb',
+    color: 'bg-[#D69E2E] dark:bg-[#ECC94B]',
+    borderColor: 'border-[#B7791F] dark:border-[#FEFCBF]',
+    textColor: 'text-zinc-900',
+    heightClass: 'h-24',
+    widthClass: 'w-4',
+  },
+  {
+    weight: 25,
+    label: '25lb',
+    color: 'bg-[#38A169] dark:bg-[#48BB78]',
+    borderColor: 'border-[#276749] dark:border-[#C6F6D5]',
+    textColor: 'text-white',
+    heightClass: 'h-20',
+    widthClass: 'w-3.5',
+  },
+  {
+    weight: 10,
+    label: '10lb',
+    color: 'bg-stone-800 dark:bg-stone-700',
+    borderColor: 'border-stone-900 dark:border-white/20',
+    textColor: 'text-white',
+    heightClass: 'h-16',
+    widthClass: 'w-2.5',
+  },
+  {
+    weight: 5,
+    label: '5lb',
+    color: 'bg-zinc-300 dark:bg-stone-400',
+    borderColor: 'border-stone-400 dark:border-stone-500',
+    textColor: 'text-zinc-900',
+    heightClass: 'h-13',
+    widthClass: 'w-2',
+  },
+  {
+    weight: 2.5,
+    label: '2.5lb',
+    color: 'bg-stone-500 dark:bg-stone-600',
+    borderColor: 'border-stone-600 dark:border-white/20',
+    textColor: 'text-white',
+    heightClass: 'h-10',
+    widthClass: 'w-1.5',
+  },
 ];
+
+export const OLYMPIC_PLATES = OLYMPIC_PLATES_KG;
+
+export const BAR_WEIGHTS_KG = [
+  { label: '20kg (Olympic)', weight: 20 },
+  { label: '15kg (Women\'s)', weight: 15 },
+  { label: '10kg (Junior)', weight: 10 },
+  { label: '0kg (Machine)', weight: 0 },
+];
+
+export const BAR_WEIGHTS_LBS = [
+  { label: '45lb (Olympic)', weight: 45 },
+  { label: '35lb (Women\'s)', weight: 35 },
+  { label: '55lb (Trap/SSB)', weight: 55 },
+  { label: '25lb (Junior)', weight: 25 },
+  { label: '0lb (Machine)', weight: 0 },
+];
+
+export const BAR_WEIGHTS = BAR_WEIGHTS_KG;
 
 interface PlateMathModalProps {
   isOpen: boolean;
@@ -110,15 +180,49 @@ export const PlateMathModal: React.FC<PlateMathModalProps> = ({
   onApplyWeight,
   onClose,
 }) => {
-  const [targetWeight, setTargetWeight] = useState<number>(() => Math.max(0, initialWeight || 60));
-  const [barWeight, setBarWeight] = useState<number>(20);
+  const [unit, setUnit] = useState<'kg' | 'lbs'>(() => {
+    try {
+      const stored = localStorage.getItem('o1fc_weight_unit');
+      if (stored === 'lbs' || stored === 'kg') return stored;
+    } catch {}
+    return 'kg';
+  });
+
+  const activePlates = useMemo(() => (unit === 'lbs' ? OLYMPIC_PLATES_LBS : OLYMPIC_PLATES_KG), [unit]);
+  const activeBars = useMemo(() => (unit === 'lbs' ? BAR_WEIGHTS_LBS : BAR_WEIGHTS_KG), [unit]);
+
+  const [barWeight, setBarWeight] = useState<number>(() => (unit === 'lbs' ? 45 : 20));
+  const [targetWeight, setTargetWeight] = useState<number>(() => Math.max(0, initialWeight || (unit === 'lbs' ? 135 : 60)));
+
+  // Toggle unit handler
+  const handleToggleUnit = (newUnit: 'kg' | 'lbs') => {
+    if (newUnit === unit) return;
+    haptic.tap();
+    playDigitalCrownClick(1.0);
+    setUnit(newUnit);
+    try {
+      localStorage.setItem('o1fc_weight_unit', newUnit);
+    } catch {}
+
+    if (newUnit === 'lbs') {
+      const converted = Math.round((targetWeight * 2.20462) / 5) * 5;
+      setBarWeight(45);
+      setTargetWeight(Math.max(45, converted || 135));
+    } else {
+      const converted = Math.round((targetWeight / 2.20462) / 2.5) * 2.5;
+      setBarWeight(20);
+      setTargetWeight(Math.max(20, converted || 60));
+    }
+  };
 
   // Sync initial weight when opened
   React.useEffect(() => {
     if (isOpen) {
-      setTargetWeight(Math.max(0, initialWeight || 60));
+      const def = unit === 'lbs' ? 135 : 60;
+      setTargetWeight(Math.max(0, initialWeight || def));
+      setBarWeight(unit === 'lbs' ? 45 : 20);
     }
-  }, [isOpen, initialWeight]);
+  }, [isOpen, initialWeight, unit]);
 
   // Compute plates per side
   const calculation = useMemo(() => {
@@ -129,7 +233,7 @@ export const PlateMathModal: React.FC<PlateMathModalProps> = ({
     let remaining = perSide;
     const platesPerSide: { plate: PlateConfig; count: number }[] = [];
 
-    OLYMPIC_PLATES.forEach((plate) => {
+    activePlates.forEach((plate) => {
       if (remaining >= plate.weight - 0.001) {
         const count = Math.floor(remaining / plate.weight);
         if (count > 0) {
@@ -149,9 +253,13 @@ export const PlateMathModal: React.FC<PlateMathModalProps> = ({
       remainingPerSide: remaining,
       totalActualLoad,
     };
-  }, [targetWeight, barWeight]);
+  }, [targetWeight, barWeight, activePlates]);
+
+  useModalBackHandler(isOpen, onClose, 'plate_math_modal');
 
   if (!isOpen) return null;
+
+  const stepSize = unit === 'lbs' ? 5 : 2.5;
 
   const handleAddWeight = (delta: number) => {
     haptic.tap();
@@ -186,22 +294,54 @@ export const PlateMathModal: React.FC<PlateMathModalProps> = ({
         {/* Header */}
         <div className="px-4 py-3 border-b border-[#EAE8E3] dark:border-white/10 flex items-center justify-between bg-zinc-50 dark:bg-white/[0.02]">
           <div>
-            <h3 className="text-[14px] font-bold text-zinc-900 dark:text-white tracking-tight">
-              Plate Math Visualizer
+            <h3 className="text-[14px] font-bold text-zinc-900 dark:text-white tracking-tight flex items-center gap-2">
+              <span>Plate Math Visualizer</span>
+              <span className="text-[9px] font-mono uppercase px-1.5 py-0.5 rounded bg-red-600/10 text-red-600 dark:text-red-400 font-bold">
+                Olympic
+              </span>
             </h3>
             <p className="text-[11px] text-zinc-500 dark:text-stone-400 truncate">
-              {exerciseName || 'Olympic Barbell Plate Breakdown'}
+              {exerciseName || 'Barbell Plate Breakdown'}
             </p>
           </div>
-          <button
-            onClick={() => {
-              haptic.tap();
-              onClose();
-            }}
-            className="btn-nude-close"
-          >
-            <X className="w-4 h-4" />
-          </button>
+
+          <div className="flex items-center gap-2">
+            {/* Unit Toggle KG / LBS */}
+            <div className="flex items-center bg-zinc-200/80 dark:bg-white/10 p-0.5 rounded-lg border border-black/5 dark:border-white/10">
+              <button
+                type="button"
+                onClick={() => handleToggleUnit('kg')}
+                className={`px-2 py-0.5 text-[10px] font-mono font-bold rounded-md transition-all cursor-pointer ${
+                  unit === 'kg'
+                    ? 'bg-white dark:bg-stone-800 text-zinc-900 dark:text-white shadow-2xs'
+                    : 'text-zinc-500 dark:text-stone-400 hover:text-zinc-900'
+                }`}
+              >
+                KG
+              </button>
+              <button
+                type="button"
+                onClick={() => handleToggleUnit('lbs')}
+                className={`px-2 py-0.5 text-[10px] font-mono font-bold rounded-md transition-all cursor-pointer ${
+                  unit === 'lbs'
+                    ? 'bg-white dark:bg-stone-800 text-zinc-900 dark:text-white shadow-2xs'
+                    : 'text-zinc-500 dark:text-stone-400 hover:text-zinc-900'
+                }`}
+              >
+                LBS
+              </button>
+            </div>
+
+            <button
+              onClick={() => {
+                haptic.tap();
+                onClose();
+              }}
+              className="btn-nude-close"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
         </div>
 
         {/* Content */}
@@ -214,16 +354,16 @@ export const PlateMathModal: React.FC<PlateMathModalProps> = ({
               </span>
               <div className="flex items-center gap-1.5">
                 <button
-                  onClick={() => handleAddWeight(-2.5)}
+                  onClick={() => handleAddWeight(-stepSize)}
                   className="w-7 h-7 rounded-lg bg-white dark:bg-white/10 border border-zinc-200/80 dark:border-white/10 flex items-center justify-center text-zinc-700 dark:text-stone-300 active:scale-90 transition-transform cursor-pointer"
                 >
                   <Minus className="w-3.5 h-3.5" />
                 </button>
                 <div className="px-3 py-1 bg-white dark:bg-black/30 border border-zinc-200/80 dark:border-white/10 rounded-lg text-[18px] font-mono font-extrabold text-stone-950 dark:text-white">
-                  {targetWeight} <span className="text-[12px] font-sans font-normal text-stone-400">kg</span>
+                  {targetWeight} <span className="text-[12px] font-sans font-normal text-stone-400">{unit}</span>
                 </div>
                 <button
-                  onClick={() => handleAddWeight(2.5)}
+                  onClick={() => handleAddWeight(stepSize)}
                   className="w-7 h-7 rounded-lg bg-white dark:bg-white/10 border border-zinc-200/80 dark:border-white/10 flex items-center justify-center text-zinc-700 dark:text-stone-300 active:scale-90 transition-transform cursor-pointer"
                 >
                   <Plus className="w-3.5 h-3.5" />
@@ -234,9 +374,9 @@ export const PlateMathModal: React.FC<PlateMathModalProps> = ({
             {/* Barbell Selection Pills */}
             <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pt-1">
               <span className="text-[10px] font-bold text-stone-400 uppercase shrink-0">Bar:</span>
-              {BAR_WEIGHTS.map((b) => (
+              {activeBars.map((b) => (
                 <button
-                  key={b.weight}
+                  key={b.label}
                   onClick={() => {
                     haptic.tap();
                     setBarWeight(b.weight);
@@ -247,7 +387,7 @@ export const PlateMathModal: React.FC<PlateMathModalProps> = ({
                       : 'bg-white dark:bg-white/5 border border-zinc-200/80 dark:border-white/10 text-zinc-600 dark:text-stone-400 hover:bg-zinc-100'
                   }`}
                 >
-                  {b.weight}kg
+                  {b.label}
                 </button>
               ))}
             </div>
@@ -256,7 +396,7 @@ export const PlateMathModal: React.FC<PlateMathModalProps> = ({
           {/* Barbell Visualizer Sleeve */}
           <div className="bg-stone-950 dark:bg-black/80 rounded-xl p-4 border border-stone-800 text-white relative overflow-hidden flex flex-col items-center justify-center min-h-[140px]">
             <div className="text-[10px] font-mono text-stone-400 uppercase tracking-widest absolute top-2.5 left-3">
-              Barbell Sleeve (Per Side: <span className="text-white font-bold">{calculation.perSide}kg</span>)
+              Barbell Sleeve (Per Side: <span className="text-white font-bold">{calculation.perSide}{unit}</span>)
             </div>
 
             {/* Visual Barbell Graphic */}
@@ -271,7 +411,7 @@ export const PlateMathModal: React.FC<PlateMathModalProps> = ({
                 <div className="flex items-center gap-0.5 bg-stone-800/40 px-1 py-4 border-y-2 border-stone-700 min-w-[140px] max-w-[220px] overflow-x-auto">
                   {calculation.platesPerSide.length === 0 ? (
                     <span className="text-[11px] font-mono text-zinc-500 px-2 italic">
-                      Empty Bar (0kg on sleeve)
+                      Empty Bar (0{unit} on sleeve)
                     </span>
                   ) : (
                     calculation.platesPerSide.flatMap(({ plate, count }, pIdx) =>
@@ -302,15 +442,15 @@ export const PlateMathModal: React.FC<PlateMathModalProps> = ({
                 <span>
                   Load per side:{' '}
                   {calculation.platesPerSide
-                    .map((p) => `${p.count}×${p.plate.weight}kg`)
+                    .map((p) => `${p.count}×${p.plate.label}`)
                     .join(' + ')}
                 </span>
               ) : (
-                <span>Unloaded Barbell ({barWeight}kg)</span>
+                <span>Unloaded Barbell ({barWeight}{unit})</span>
               )}
               {calculation.remainingPerSide > 0 && (
                 <span className="text-[#D4A24A] block text-[10px]">
-                  * {calculation.remainingPerSide * 2}kg remainder not divisible by available plates
+                  * {calculation.remainingPerSide * 2}{unit} remainder not divisible by available plates
                 </span>
               )}
             </div>
@@ -323,8 +463,8 @@ export const PlateMathModal: React.FC<PlateMathModalProps> = ({
               <span className="text-[10px] text-stone-400">1-Tap Load</span>
             </div>
 
-            <div className="grid grid-cols-4 gap-1.5">
-              {OLYMPIC_PLATES.slice(0, 8).map((plate) => {
+            <div className="grid grid-cols-3 sm:grid-cols-4 gap-1.5">
+              {activePlates.map((plate) => {
                 const loadedCount =
                   calculation.platesPerSide.find((p) => p.plate.weight === plate.weight)?.count || 0;
 
@@ -362,7 +502,10 @@ export const PlateMathModal: React.FC<PlateMathModalProps> = ({
 
           {/* Quick Target Presets */}
           <div className="flex items-center gap-1 overflow-x-auto no-scrollbar py-0.5">
-            {[40, 60, 80, 100, 120, 140, 160, 180, 200].map((w) => (
+            {(unit === 'lbs'
+              ? [95, 135, 185, 225, 275, 315, 365, 405, 495]
+              : [40, 60, 80, 100, 120, 140, 160, 180, 200]
+            ).map((w) => (
               <button
                 key={w}
                 onClick={() => {
@@ -376,14 +519,14 @@ export const PlateMathModal: React.FC<PlateMathModalProps> = ({
                     : 'bg-zinc-100 dark:bg-white/5 text-zinc-700 dark:text-stone-300 hover:bg-zinc-200'
                 }`}
               >
-                {w}kg
+                {w}{unit}
               </button>
             ))}
           </div>
         </div>
 
         {/* Footer Actions */}
-        <div className="p-3 border-t border-[#EAE8E3] dark:border-white/10 bg-zinc-50 dark:bg-white/[0.02] flex items-center gap-2">
+        <div className="p-3 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] border-t border-[#EAE8E3] dark:border-white/10 bg-zinc-50 dark:bg-white/[0.02] flex items-center gap-2">
           <button
             onClick={() => {
               haptic.tap();
@@ -400,7 +543,7 @@ export const PlateMathModal: React.FC<PlateMathModalProps> = ({
             className="flex-1 h-10 rounded-xl bg-[#C4121A] dark:bg-[#D91F28] hover:bg-[#B8121A] text-white font-bold text-[13px] flex items-center justify-center gap-1.5 shadow-sm active:scale-[0.98] transition-all cursor-pointer"
           >
             <Check className="w-4 h-4" />
-            <span>Apply {targetWeight}kg to Set</span>
+            <span>Apply {targetWeight}{unit} to Set</span>
           </button>
         </div>
       </div>

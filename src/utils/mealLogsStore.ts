@@ -1,6 +1,7 @@
 import { supabase, isSupabaseConfigured } from './supabase';
 import { getLocalDateString } from './midnightRolloverEngine';
 import { saveDailyMacroRecord } from './telemetryStore';
+import { isCloudSyncEnabled } from './cloudSyncPreferences';
 import type { DailyMeals, LoggedMealItem } from '../types';
 
 const MEAL_TYPES = ['breakfast', 'lunch', 'dinner', 'snack', 'drinks'] as const;
@@ -81,6 +82,7 @@ function saveOfflineQueue(queue: QueuedMealSave[]) {
 }
 
 function enqueueOfflineSave(userEmail: string, meals: DailyMeals, logDate: string) {
+  if (!isCloudSyncEnabled()) return;
   const queue = getOfflineQueue().filter(
     q => !(q.userEmail === userEmail && q.logDate === logDate)
   );
@@ -89,6 +91,10 @@ function enqueueOfflineSave(userEmail: string, meals: DailyMeals, logDate: strin
 }
 
 export async function flushMealOfflineQueue(): Promise<void> {
+  if (!isCloudSyncEnabled()) {
+    saveOfflineQueue([]);
+    return;
+  }
   const queue = getOfflineQueue();
   if (queue.length === 0) return;
   const remaining: QueuedMealSave[] = [];
@@ -104,9 +110,15 @@ export async function flushMealOfflineQueue(): Promise<void> {
 
 if (typeof window !== 'undefined') {
   window.addEventListener('online', () => { flushMealOfflineQueue(); });
+  window.addEventListener('o1fc_cloud_sync_toggled', (e: any) => {
+    if (e.detail?.enabled === false) {
+      saveOfflineQueue([]);
+    }
+  });
 }
 
 async function saveMealsToCloudDirect(userEmail: string, meals: DailyMeals, logDate: string): Promise<void> {
+  if (!isCloudSyncEnabled()) return;
   const email = userEmail.toLowerCase();
   const rows: any[] = [];
   for (const mealType of MEAL_TYPES) {

@@ -20,6 +20,7 @@ import {
   type WallpaperSettings,
   type WallpaperItem,
 } from '../utils/wallpaperStore';
+import { useModalBackHandler } from '../utils/modalHistory';
 
 interface WallpaperPickerModalProps {
   isOpen: boolean;
@@ -38,9 +39,10 @@ export const WallpaperPickerModal: React.FC<WallpaperPickerModalProps> = ({
   const [activeCategory, setActiveCategory] = useState<WallpaperCategory>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [settings, setSettings] = useState<WallpaperSettings>(loadWallpaperSettings());
+  const [failedImages, setFailedImages] = useState<Set<string>>(new Set());
 
   const filteredWallpapers = useMemo(() => {
-    let list = CURATED_100_WALLPAPERS;
+    let list = CURATED_100_WALLPAPERS.filter((w) => !failedImages.has(w.id));
     if (activeCategory !== 'all') {
       list = list.filter((w) => w.category === activeCategory);
     }
@@ -54,7 +56,9 @@ export const WallpaperPickerModal: React.FC<WallpaperPickerModalProps> = ({
       );
     }
     return list;
-  }, [activeCategory, searchQuery]);
+  }, [activeCategory, searchQuery, failedImages]);
+
+  useModalBackHandler(isOpen, onClose, 'wallpaper_picker_modal');
 
   if (!isOpen) return null;
 
@@ -82,8 +86,14 @@ export const WallpaperPickerModal: React.FC<WallpaperPickerModalProps> = ({
   };
 
   return createPortal(
-    <div className="fixed inset-0 z-[99999] flex items-center justify-center p-2 sm:p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200 select-none">
-      <div className="w-full max-w-4xl bg-white dark:bg-[#18181B] border border-zinc-200 dark:border-zinc-800 rounded-3xl overflow-hidden shadow-2xl text-zinc-900 dark:text-white flex flex-col h-[90vh] font-sans">
+    <div
+      className="fixed inset-0 z-[99999] flex items-center justify-center p-2 sm:p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200 select-none"
+      onClick={onClose}
+    >
+      <div
+        className="w-full max-w-4xl bg-white dark:bg-[#18181B] border border-zinc-200 dark:border-zinc-800 rounded-3xl overflow-hidden shadow-2xl text-zinc-900 dark:text-white flex flex-col h-[90vh] font-sans"
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Header: Title and subtitle on left, ONLY X on top right */}
         <div className="p-4 sm:px-6 sm:py-4.5 border-b border-zinc-100 dark:border-zinc-800 flex items-center justify-between bg-white dark:bg-[#18181B] shrink-0">
           <div>
@@ -91,7 +101,7 @@ export const WallpaperPickerModal: React.FC<WallpaperPickerModalProps> = ({
               Curated Athletic Wallpapers
             </h3>
             <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
-              Gym Floor, Hyrox Athletes, Track, Alpine, Cycling & Recovery
+              200 Curated: Hyrox, Mr. Olympia, Gym Floor, Athletes, Fitness, Nature & Outdoor
             </p>
           </div>
 
@@ -169,6 +179,9 @@ export const WallpaperPickerModal: React.FC<WallpaperPickerModalProps> = ({
                       src={thumb}
                       alt={wp.title}
                       loading="lazy"
+                      onError={() => {
+                        setFailedImages((prev) => new Set(prev).add(wp.id));
+                      }}
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                     />
 

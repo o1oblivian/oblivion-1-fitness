@@ -4,29 +4,30 @@ import type { DailyStepEntry } from '@/utils/stepsStore';
 import type { SleepLogEntry } from '@/utils/sleepStore';
 import type { MeditationEntry } from '@/utils/meditationStore';
 import type { DailyMacroLog } from '@/types';
-import { BarChart3, TrendingUp, Target } from 'lucide-react';
+import { BarChart3, TrendingUp, Calendar, Dumbbell, Footprints, Utensils, Moon, Sparkles } from 'lucide-react';
 
-export type ChartStyle = 'bar' | 'trend' | 'ring';
+export type ChartStyle = 'bar' | 'trend' | 'year';
 
 // ─── Chart Style Switcher ──────────────────────────────
 export function ChartStyleSwitcher({
   value, onChange,
 }: { value: ChartStyle; onChange: (s: ChartStyle) => void }) {
-  const styles: { key: ChartStyle; icon: React.ReactNode }[] = [
-    { key: 'bar', icon: <BarChart3 className="w-3 h-3" /> },
-    { key: 'trend', icon: <TrendingUp className="w-3 h-3" /> },
-    { key: 'ring', icon: <Target className="w-3 h-3" /> },
+  const styles: { key: ChartStyle; icon: React.ReactNode; label: string }[] = [
+    { key: 'bar', icon: <BarChart3 className="w-3 h-3" />, label: 'Bar' },
+    { key: 'trend', icon: <TrendingUp className="w-3 h-3" />, label: 'Trend' },
+    { key: 'year', icon: <Calendar className="w-3 h-3" />, label: '1-Year History' },
   ];
   return (
     <div className="flex items-center rounded-lg bg-slate-100 dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.08] p-0.5 gap-0.5">
       {styles.map(s => (
         <button
           key={s.key}
+          title={s.label}
           onClick={(e) => { e.stopPropagation(); onChange(s.key); }}
           className={`w-6 h-6 rounded-md flex items-center justify-center transition-all cursor-pointer ${
             value === s.key
-              ? 'bg-white dark:bg-white/[0.12] text-slate-900 dark:text-white shadow-sm'
-              : 'text-slate-400 dark:text-white/30 hover:text-slate-600 dark:hover:text-white/50'
+              ? 'bg-white dark:bg-white/[0.14] text-slate-900 dark:text-white shadow-xs font-bold'
+              : 'text-slate-400 dark:text-white/30 hover:text-slate-600 dark:hover:text-white/60'
           }`}
         >
           {s.icon}
@@ -90,7 +91,14 @@ function trendLine(
   color: string,
   avgLine?: number,
 ) {
-  if (data.length < 2) return <div className="text-[10px] font-mono log-sub text-center py-4">Not enough data for trend</div>;
+  if (data.length < 2) {
+    return (
+      <EmptyChart
+        label="Record 2+ entries to unlock trajectory"
+        icon={<TrendingUp className="w-4 h-4 text-slate-400 dark:text-white/30" />}
+      />
+    );
+  }
   const min = Math.min(...data) * 0.9;
   const max = Math.max(...data) * 1.1 || 1;
   const range = max - min || 1;
@@ -141,48 +149,138 @@ function trendLine(
   );
 }
 
-function radialGauge(
-  pct: number, label: string, value: string, color: string, size = 112,
-) {
-  const r = 40;
-  const circ = 2 * Math.PI * r;
-  const offset = circ - (Math.min(pct, 1) * circ);
-  const complete = pct >= 1;
-  return (
-    <div className="flex flex-col items-center">
-      <svg width={size} height={size} viewBox="0 0 100 100" className="overflow-visible">
-        <defs>
-          <filter id={`rg-${color.replace('#', '')}`}>
-            <feGaussianBlur stdDeviation="2.5" result="b" />
-            <feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
-          </filter>
-        </defs>
-        <circle cx="50" cy="50" r={r} fill="none" className="log-ring-track" strokeWidth="7" />
-        <circle cx="50" cy="50" r={r} fill="none"
-          stroke={complete ? '#34A853' : color}
-          strokeWidth="7" strokeLinecap="round"
-          strokeDasharray={circ} strokeDashoffset={offset}
-          transform="rotate(-90 50 50)"
-          filter={`url(#rg-${color.replace('#', '')})`}
-          className="transition-all duration-700"
-        />
-        <text x="50" y="47" textAnchor="middle" className="log-ring-text" fontSize="15.5" fontFamily="monospace" fontWeight="900">
-          {value}
-        </text>
-        <text x="50" y="62" textAnchor="middle" className="log-ring-label" fontSize="8" fontFamily="monospace" fontWeight="700">
-          {label}
-        </text>
-      </svg>
-    </div>
-  );
+// ─── 12-Month Timeline Helper ──────────────────────────
+export interface MonthSummarySlot {
+  key: string; // YYYY-MM
+  label: string; // Jan, Feb...
+  shortLabel: string; // J, F, M...
+  isCurrent: boolean;
 }
 
-function MultiRingDisplay({ rings }: { rings: { pct: number; color: string; label: string; value: string }[] }) {
+export function getLast12Months(): MonthSummarySlot[] {
+  const slots: MonthSummarySlot[] = [];
+  const now = new Date();
+  const currentKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+
+  for (let i = 11; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+    slots.push({
+      key,
+      label: d.toLocaleDateString('en-US', { month: 'short' }),
+      shortLabel: d.toLocaleDateString('en-US', { month: 'narrow' }),
+      isCurrent: key === currentKey,
+    });
+  }
+  return slots;
+}
+
+// ─── 1-Year Master Matrix Component ────────────────────
+interface YearMatrixProps {
+  title: string;
+  badge: string;
+  months: {
+    key: string;
+    label: string;
+    value: number;
+    formattedValue: string;
+    isCurrent: boolean;
+    hit?: boolean;
+  }[];
+  stat1: { label: string; value: string };
+  stat2: { label: string; value: string };
+  stat3: { label: string; value: string };
+  accentColor?: string;
+}
+
+function YearlyHistoryMatrix({
+  title,
+  badge,
+  months,
+  stat1,
+  stat2,
+  stat3,
+  accentColor = '#DC2626',
+}: YearMatrixProps) {
+  const maxVal = Math.max(...months.map(m => m.value), 1);
+
   return (
-    <div className="flex items-center justify-around gap-2 sm:gap-4 py-3 w-full max-w-sm mx-auto">
-      {rings.map((ring, i) => (
-        <div key={i} className="flex-1 flex justify-center">{radialGauge(ring.pct, ring.label, ring.value, ring.color, 112)}</div>
-      ))}
+    <div className="py-2 space-y-3">
+      {/* Header & Annual Badge */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-1.5">
+          <Calendar className="w-3.5 h-3.5 text-slate-500 dark:text-white/40" />
+          <span className="text-[9px] font-mono font-bold uppercase tracking-wider text-slate-700 dark:text-white/80">
+            {title}
+          </span>
+        </div>
+        <span className="px-2 py-0.5 rounded-full bg-slate-100 dark:bg-white/[0.08] text-[8px] font-mono font-bold uppercase text-slate-600 dark:text-white/60 tracking-wider">
+          {badge}
+        </span>
+      </div>
+
+      {/* 12-Month Bar Distribution */}
+      <div className="pt-2 pb-1">
+        <div className="flex items-end gap-1 sm:gap-1.5 h-18 px-0.5">
+          {months.map((m) => {
+            const pct = maxVal > 0 ? (m.value / maxVal) * 100 : 0;
+            const hasData = m.value > 0;
+            return (
+              <div key={m.key} className="flex-1 flex flex-col items-center gap-1.5 h-full justify-end group relative">
+                {/* Value tooltip on hover */}
+                {hasData && (
+                  <div className="opacity-0 group-hover:opacity-100 transition-opacity absolute -top-5 z-20 pointer-events-none whitespace-nowrap px-1.5 py-0.5 rounded bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-[7px] font-mono shadow-sm">
+                    {m.label}: {m.formattedValue}
+                  </div>
+                )}
+                <div className="w-full relative flex-1 flex items-end">
+                  <div
+                    className={`w-full rounded-t-sm transition-all duration-500 ${
+                      m.isCurrent
+                        ? 'border-t-2 border-white/80'
+                        : ''
+                    }`}
+                    style={{
+                      height: hasData ? `${Math.max(pct, 6)}%` : '4%',
+                      background: hasData
+                        ? m.isCurrent
+                          ? `linear-gradient(to top, ${accentColor}, ${accentColor}90)`
+                          : 'linear-gradient(to top, #71717A90, #71717A40)'
+                        : 'rgba(113, 113, 122, 0.12)',
+                      boxShadow: m.isCurrent && hasData ? `0 0 10px ${accentColor}40` : 'none',
+                    }}
+                  />
+                </div>
+                <span
+                  className={`text-[7px] font-mono tracking-tight ${
+                    m.isCurrent
+                      ? 'text-slate-900 dark:text-white font-bold'
+                      : 'text-slate-400 dark:text-white/30'
+                  }`}
+                >
+                  {m.label}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Annual Key Metrics Strip */}
+      <div className="grid grid-cols-3 gap-2 p-2 rounded-xl bg-slate-100/70 dark:bg-white/[0.04] border border-slate-200/60 dark:border-white/[0.06] text-center">
+        <div>
+          <div className="text-[11px] font-mono font-bold text-slate-900 dark:text-white">{stat1.value}</div>
+          <div className="text-[7px] font-mono text-slate-400 dark:text-white/35 uppercase tracking-wider">{stat1.label}</div>
+        </div>
+        <div>
+          <div className="text-[11px] font-mono font-bold text-slate-900 dark:text-white">{stat2.value}</div>
+          <div className="text-[7px] font-mono text-slate-400 dark:text-white/35 uppercase tracking-wider">{stat2.label}</div>
+        </div>
+        <div>
+          <div className="text-[11px] font-mono font-bold text-slate-900 dark:text-white">{stat3.value}</div>
+          <div className="text-[7px] font-mono text-slate-400 dark:text-white/35 uppercase tracking-wider">{stat3.label}</div>
+        </div>
+      </div>
     </div>
   );
 }
@@ -210,7 +308,7 @@ export function WorkoutBarChart({ sessions }: { sessions: CompletedSession[] }) 
 
 export function WorkoutTrendChart({ sessions }: { sessions: CompletedSession[] }) {
   const last7 = sessions.slice(0, 7).reverse();
-  if (last7.length < 2) return <EmptyChart label="Need 2+ sessions for trend" />;
+  if (last7.length < 2) return <EmptyChart label="Record 2+ sessions to unlock trajectory" icon={<TrendingUp className="w-4 h-4 text-slate-400 dark:text-white/30" />} />;
   const maxWeights = last7.map(s => {
     const allWeights = s.exercises.flatMap(e => e.sets.map(st => st.weight));
     return allWeights.length > 0 ? Math.max(...allWeights) : 0;
@@ -225,24 +323,60 @@ export function WorkoutTrendChart({ sessions }: { sessions: CompletedSession[] }
   );
 }
 
-export function WorkoutRingChart({ sessions }: { sessions: CompletedSession[] }) {
-  const totalVol = sessions.reduce((s, x) => s + x.total_volume_kg, 0);
-  const totalSets = sessions.reduce((s, x) => s + x.total_sets, 0);
-  const totalTime = sessions.reduce((s, x) => s + x.duration_secs, 0);
-  const volGoal = 5000;
-  const setsGoal = 50;
-  const timeGoal = 3600;
+export function WorkoutYearChart({ sessions }: { sessions: CompletedSession[] }) {
+  const slots = getLast12Months();
+  const totalAnnualVolume = sessions.reduce((acc, s) => acc + (s.total_volume_kg || 0), 0);
+  const totalAnnualSets = sessions.reduce((acc, s) => acc + (s.total_sets || 0), 0);
+  const totalSessions = sessions.length;
+
+  const monthMap = new Map<string, { volume: number; count: number }>();
+  for (const s of sessions) {
+    if (!s.completed_at) continue;
+    const monthKey = s.completed_at.slice(0, 7);
+    const curr = monthMap.get(monthKey) || { volume: 0, count: 0 };
+    curr.volume += s.total_volume_kg || 0;
+    curr.count += 1;
+    monthMap.set(monthKey, curr);
+  }
+
+  const monthsData = slots.map(s => {
+    const data = monthMap.get(s.key) || { volume: 0, count: 0 };
+    return {
+      key: s.key,
+      label: s.label,
+      value: data.volume,
+      formattedValue: data.volume >= 1000 ? `${(data.volume / 1000).toFixed(1)} MT` : `${Math.round(data.volume)} kg`,
+      isCurrent: s.isCurrent,
+    };
+  });
+
+  const activeMonths = monthsData.filter(m => m.value > 0).length;
+  const avgMonthlySessions = activeMonths > 0 ? (totalSessions / activeMonths).toFixed(1) : '0';
+
   return (
-    <div className="py-1">
-      <div className="text-[8px] font-mono log-sub uppercase tracking-wider mb-2 text-center">Weekly Targets</div>
-      <MultiRingDisplay rings={[
-        { pct: totalVol / volGoal, color: '#A1A1AA', label: 'VOLUME', value: totalVol >= 1000 ? `${(totalVol / 1000).toFixed(1)}MT` : `${Math.round(totalVol)}` },
-        { pct: totalSets / setsGoal, color: '#71717A', label: 'SETS', value: String(totalSets) },
-        { pct: totalTime / timeGoal, color: '#52525B', label: 'TIME', value: `${Math.floor(totalTime / 60)}m` },
-      ]} />
-    </div>
+    <YearlyHistoryMatrix
+      title="1-Year Workout Load"
+      badge="Past 12 Months"
+      months={monthsData}
+      stat1={{
+        label: 'Annual Volume',
+        value: totalAnnualVolume >= 1000 ? `${(totalAnnualVolume / 1000).toFixed(1)} MT` : `${Math.round(totalAnnualVolume)} kg`,
+      }}
+      stat2={{
+        label: 'Total Sessions',
+        value: `${totalSessions}`,
+      }}
+      stat3={{
+        label: 'Monthly Cadence',
+        value: `${avgMonthlySessions} / mo`,
+      }}
+      accentColor="#DC2626"
+    />
   );
 }
+
+// Backward-compatibility alias
+export const WorkoutRingChart = WorkoutYearChart;
 
 // ─── Steps Charts ──────────────────────────────────────
 export function StepsBarChart({ entries }: { entries: DailyStepEntry[] }) {
@@ -277,23 +411,59 @@ export function StepsTrendChart({ entries }: { entries: DailyStepEntry[] }) {
   );
 }
 
-export function StepsRadialChart({ entries }: { entries: DailyStepEntry[] }) {
-  const today = entries[0];
-  const steps = today?.steps || 0;
-  const goal = today?.goal || 10000;
-  const dist = (steps * 0.000762).toFixed(1);
-  const cal = Math.round(steps * 0.04);
+export function StepsYearChart({ entries }: { entries: DailyStepEntry[] }) {
+  const slots = getLast12Months();
+  const totalAnnualSteps = entries.reduce((acc, e) => acc + (e.steps || 0), 0);
+  const totalDistanceKm = totalAnnualSteps * 0.000762;
+  const daysLogged = entries.length;
+  const avgDaily = daysLogged > 0 ? Math.round(totalAnnualSteps / daysLogged) : 0;
+
+  const monthMap = new Map<string, { totalSteps: number; days: number }>();
+  for (const e of entries) {
+    if (!e.log_date) continue;
+    const monthKey = e.log_date.slice(0, 7);
+    const curr = monthMap.get(monthKey) || { totalSteps: 0, days: 0 };
+    curr.totalSteps += e.steps || 0;
+    curr.days += 1;
+    monthMap.set(monthKey, curr);
+  }
+
+  const monthsData = slots.map(s => {
+    const data = monthMap.get(s.key) || { totalSteps: 0, days: 0 };
+    const avgForMonth = data.days > 0 ? Math.round(data.totalSteps / data.days) : 0;
+    return {
+      key: s.key,
+      label: s.label,
+      value: avgForMonth,
+      formattedValue: `${avgForMonth.toLocaleString()} /d`,
+      isCurrent: s.isCurrent,
+    };
+  });
+
   return (
-    <div className="py-1">
-      <div className="text-[8px] font-mono log-sub uppercase tracking-wider mb-2 text-center">Today's Progress</div>
-      <MultiRingDisplay rings={[
-        { pct: steps / goal, color: '#A1A1AA', label: 'STEPS', value: steps >= 1000 ? `${(steps / 1000).toFixed(1)}k` : String(steps) },
-        { pct: parseFloat(dist) / 8, color: '#71717A', label: 'KM', value: dist },
-        { pct: cal / 400, color: '#52525B', label: 'KCAL', value: String(cal) },
-      ]} />
-    </div>
+    <YearlyHistoryMatrix
+      title="1-Year Daily Step Averages"
+      badge="12-Month History"
+      months={monthsData}
+      stat1={{
+        label: 'Annual Steps',
+        value: totalAnnualSteps >= 1000000 ? `${(totalAnnualSteps / 1000000).toFixed(2)}M` : `${Math.round(totalAnnualSteps / 1000)}k`,
+      }}
+      stat2={{
+        label: 'Daily Average',
+        value: `${avgDaily.toLocaleString()}`,
+      }}
+      stat3={{
+        label: 'Total Distance',
+        value: `${totalDistanceKm.toFixed(1)} km`,
+      }}
+      accentColor="#0D9488"
+    />
   );
 }
+
+// Backward-compatibility alias
+export const StepsRadialChart = StepsYearChart;
 
 // ─── Nutrition Charts ──────────────────────────────────
 export function NutritionBarChart({ macros }: { macros: DailyMacroLog[] }) {
@@ -326,26 +496,67 @@ export function NutritionTrendChart({ macros }: { macros: DailyMacroLog[] }) {
   );
 }
 
-export function NutritionDonutChart({ macros }: { macros: DailyMacroLog[] }) {
-  const today = macros[0];
-  if (!today) return <EmptyChart label="No macro data" />;
-  const p = today.protein || 0;
-  const c = today.carbs || 0;
-  const f = today.fat || 0;
-  const total = p + c + f || 1;
-  const pTarget = today.proteinTarget || 150;
-  const calTarget = today.calorieTarget || 2200;
+export function NutritionYearChart({ macros }: { macros: DailyMacroLog[] }) {
+  const slots = getLast12Months();
+  const daysLogged = macros.length;
+  const totalCals = macros.reduce((acc, m) => acc + (m.calories || 0), 0);
+  const avgCals = daysLogged > 0 ? Math.round(totalCals / daysLogged) : 0;
+  const totalProtein = macros.reduce((acc, m) => acc + (m.protein || 0), 0);
+  const avgProtein = daysLogged > 0 ? Math.round(totalProtein / daysLogged) : 0;
+
+  const hitDays = macros.filter(m => {
+    const calHit = m.calorieTarget > 0 && m.calories >= m.calorieTarget * 0.85 && m.calories <= m.calorieTarget * 1.15;
+    const protHit = m.proteinTarget > 0 && m.protein >= m.proteinTarget * 0.8;
+    return calHit || protHit;
+  }).length;
+  const consistencyPct = daysLogged > 0 ? Math.round((hitDays / daysLogged) * 100) : 0;
+
+  const monthMap = new Map<string, { totalCals: number; days: number }>();
+  for (const m of macros) {
+    if (!m.date) continue;
+    const monthKey = m.date.slice(0, 7);
+    const curr = monthMap.get(monthKey) || { totalCals: 0, days: 0 };
+    curr.totalCals += m.calories || 0;
+    curr.days += 1;
+    monthMap.set(monthKey, curr);
+  }
+
+  const monthsData = slots.map(s => {
+    const data = monthMap.get(s.key) || { totalCals: 0, days: 0 };
+    const avgForMonth = data.days > 0 ? Math.round(data.totalCals / data.days) : 0;
+    return {
+      key: s.key,
+      label: s.label,
+      value: avgForMonth,
+      formattedValue: `${avgForMonth} kcal`,
+      isCurrent: s.isCurrent,
+    };
+  });
+
   return (
-    <div className="py-1">
-      <div className="text-[8px] font-mono log-sub uppercase tracking-wider mb-2 text-center">Today's Macros</div>
-      <MultiRingDisplay rings={[
-        { pct: p / pTarget, color: '#A1A1AA', label: 'PROTEIN', value: `${Math.round(p)}g` },
-        { pct: today.calories / calTarget, color: '#71717A', label: 'KCAL', value: String(Math.round(today.calories)) },
-        { pct: f / (total * 0.3), color: '#52525B', label: 'FAT', value: `${Math.round(f)}g` },
-      ]} />
-    </div>
+    <YearlyHistoryMatrix
+      title="1-Year Calorie Intake History"
+      badge="12-Month Averages"
+      months={monthsData}
+      stat1={{
+        label: 'Avg Daily Cals',
+        value: `${avgCals} kcal`,
+      }}
+      stat2={{
+        label: 'Avg Protein',
+        value: `${avgProtein}g / day`,
+      }}
+      stat3={{
+        label: 'Consistency',
+        value: `${consistencyPct}%`,
+      }}
+      accentColor="#F59E0B"
+    />
   );
 }
+
+// Backward-compatibility alias
+export const NutritionDonutChart = NutritionYearChart;
 
 // ─── Sleep Charts ──────────────────────────────────────
 export function SleepBarChart({ entries }: { entries: SleepLogEntry[] }) {
@@ -381,22 +592,62 @@ export function SleepTrendChart({ entries }: { entries: SleepLogEntry[] }) {
   );
 }
 
-export function SleepDialChart({ entries }: { entries: SleepLogEntry[] }) {
-  const last7 = entries.slice(0, 7);
-  const avgMins = last7.length > 0 ? Math.round(last7.reduce((s, e) => s + e.duration_minutes, 0) / last7.length) : 0;
-  const avgQual = last7.length > 0 ? last7.reduce((s, e) => s + e.quality, 0) / last7.length : 0;
-  const goalMins = 480;
+export function SleepYearChart({ entries }: { entries: SleepLogEntry[] }) {
+  const slots = getLast12Months();
+  const nightsLogged = entries.length;
+  const totalMins = entries.reduce((acc, e) => acc + (e.duration_minutes || 0), 0);
+  const avgMins = nightsLogged > 0 ? Math.round(totalMins / nightsLogged) : 0;
+  const totalQual = entries.reduce((acc, e) => acc + (e.quality || 0), 0);
+  const avgQual = nightsLogged > 0 ? (totalQual / nightsLogged).toFixed(1) : '0';
+  const goalNights = entries.filter(e => e.duration_minutes >= 420).length;
+  const optimalPct = nightsLogged > 0 ? Math.round((goalNights / nightsLogged) * 100) : 0;
+
+  const monthMap = new Map<string, { totalMins: number; days: number }>();
+  for (const e of entries) {
+    if (!e.log_date) continue;
+    const monthKey = e.log_date.slice(0, 7);
+    const curr = monthMap.get(monthKey) || { totalMins: 0, days: 0 };
+    curr.totalMins += e.duration_minutes || 0;
+    curr.days += 1;
+    monthMap.set(monthKey, curr);
+  }
+
+  const monthsData = slots.map(s => {
+    const data = monthMap.get(s.key) || { totalMins: 0, days: 0 };
+    const avgForMonth = data.days > 0 ? Math.round(data.totalMins / data.days) : 0;
+    return {
+      key: s.key,
+      label: s.label,
+      value: avgForMonth,
+      formattedValue: `${Math.floor(avgForMonth / 60)}h ${avgForMonth % 60}m`,
+      isCurrent: s.isCurrent,
+    };
+  });
+
   return (
-    <div className="py-1">
-      <div className="text-[8px] font-mono log-sub uppercase tracking-wider mb-2 text-center">Sleep Targets</div>
-      <MultiRingDisplay rings={[
-        { pct: avgMins / goalMins, color: '#A1A1AA', label: 'DURATION', value: `${Math.floor(avgMins / 60)}h${avgMins % 60}m` },
-        { pct: avgQual / 5, color: '#71717A', label: 'QUALITY', value: avgQual.toFixed(1) },
-        { pct: last7.filter(e => e.duration_minutes >= 420).length / 7, color: '#52525B', label: 'STREAK', value: `${last7.filter(e => e.duration_minutes >= 420).length}/7` },
-      ]} />
-    </div>
+    <YearlyHistoryMatrix
+      title="1-Year Sleep & Recovery"
+      badge="12-Month History"
+      months={monthsData}
+      stat1={{
+        label: 'Avg Nightly Sleep',
+        value: `${Math.floor(avgMins / 60)}h ${avgMins % 60}m`,
+      }}
+      stat2={{
+        label: 'Quality Score',
+        value: `${avgQual} / 5.0`,
+      }}
+      stat3={{
+        label: 'Optimal (7h+)',
+        value: `${optimalPct}%`,
+      }}
+      accentColor="#6366F1"
+    />
   );
 }
+
+// Backward-compatibility alias
+export const SleepDialChart = SleepYearChart;
 
 // ─── Meditation Charts ─────────────────────────────────
 export function MeditationBarChart({ entries }: { entries: MeditationEntry[] }) {
@@ -443,39 +694,66 @@ export function MeditationTrendChart({ entries }: { entries: MeditationEntry[] }
   );
 }
 
-export function MeditationRingChart({ entries }: { entries: MeditationEntry[] }) {
-  const totalMins = Math.round(entries.reduce((s, e) => s + e.duration_secs, 0) / 60);
-  const weekGoal = 70;
-  const dates = new Set(entries.map(e => e.completed_at.slice(0, 10)));
-  let streak = 0;
-  const d = new Date();
-  for (let i = 0; i < 30; i++) {
-    if (dates.has(d.toISOString().slice(0, 10))) streak++;
-    else if (i > 0) break;
-    d.setDate(d.getDate() - 1);
+export function MeditationYearChart({ entries }: { entries: MeditationEntry[] }) {
+  const slots = getLast12Months();
+  const totalMins = Math.round(entries.reduce((acc, e) => acc + (e.duration_secs || 0), 0) / 60);
+  const totalSessions = entries.length;
+
+  const monthMap = new Map<string, { totalMins: number; sessions: number }>();
+  for (const e of entries) {
+    if (!e.completed_at) continue;
+    const monthKey = e.completed_at.slice(0, 7);
+    const curr = monthMap.get(monthKey) || { totalMins: 0, sessions: 0 };
+    curr.totalMins += (e.duration_secs || 0) / 60;
+    curr.sessions += 1;
+    monthMap.set(monthKey, curr);
   }
-  const todayMins = Math.round(
-    entries
-      .filter(e => e.completed_at.slice(0, 10) === new Date().toISOString().slice(0, 10))
-      .reduce((s, e) => s + e.duration_secs / 60, 0)
-  );
+
+  const monthsData = slots.map(s => {
+    const data = monthMap.get(s.key) || { totalMins: 0, sessions: 0 };
+    const roundedMins = Math.round(data.totalMins);
+    return {
+      key: s.key,
+      label: s.label,
+      value: roundedMins,
+      formattedValue: `${roundedMins} min`,
+      isCurrent: s.isCurrent,
+    };
+  });
+
+  const activeMonths = monthsData.filter(m => m.value > 0).length;
+
   return (
-    <div className="py-1">
-      <div className="text-[8px] font-mono log-sub uppercase tracking-wider mb-2 text-center">Mindfulness Habits</div>
-      <MultiRingDisplay rings={[
-        { pct: todayMins / 15, color: '#A1A1AA', label: 'TODAY', value: `${todayMins}m` },
-        { pct: totalMins / weekGoal, color: '#71717A', label: 'WEEKLY', value: `${totalMins}m` },
-        { pct: streak / 7, color: '#52525B', label: 'STREAK', value: `${streak}d` },
-      ]} />
-    </div>
+    <YearlyHistoryMatrix
+      title="1-Year Mindfulness History"
+      badge="12-Month Total"
+      months={monthsData}
+      stat1={{
+        label: 'Annual Practice',
+        value: totalMins >= 60 ? `${(totalMins / 60).toFixed(1)} hrs` : `${totalMins} min`,
+      }}
+      stat2={{
+        label: 'Total Sessions',
+        value: `${totalSessions}`,
+      }}
+      stat3={{
+        label: 'Active Months',
+        value: `${activeMonths} / 12`,
+      }}
+      accentColor="#10B981"
+    />
   );
 }
 
+// Backward-compatibility alias
+export const MeditationRingChart = MeditationYearChart;
+
 // ─── Empty State ───────────────────────────────────────
-function EmptyChart({ label }: { label: string }) {
+function EmptyChart({ label, icon }: { label: string; icon?: React.ReactNode }) {
   return (
-    <div className="text-center py-5">
-      <p className="text-[10px] font-mono log-sub">{label}</p>
+    <div className="flex flex-col items-center justify-center py-6 px-4 rounded-xl bg-slate-50/50 dark:bg-white/[0.02] border border-dashed border-slate-200 dark:border-white/[0.06] text-center">
+      {icon && <div className="mb-1.5">{icon}</div>}
+      <p className="text-[10px] font-mono text-slate-500 dark:text-white/40">{label}</p>
     </div>
   );
 }

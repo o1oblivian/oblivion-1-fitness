@@ -1,6 +1,7 @@
 import { ExerciseLog } from '../types';
 import { getUserState, saveUserState, UserAppState } from './authStorage';
 import { supabase, isSupabaseConfigured } from './supabase';
+import { isCloudSyncEnabled } from './cloudSyncPreferences';
 
 export interface PendingWorkoutSync {
   id: string;
@@ -151,6 +152,19 @@ export async function saveActiveLogsLocalFirst(
     });
   }
 
+  // If athlete disabled cloud sync (Local-Only / Private on-device mode), stop here
+  if (!isCloudSyncEnabled()) {
+    clearPendingLogsQueue(email);
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(
+        new CustomEvent('workout_logs_sync_status', {
+          detail: { isOnline: true, pendingCount: 0, status: 'local_only' },
+        })
+      );
+    }
+    return { isOnline: true, pendingCount: 0 };
+  }
+
   const isOnline = getIsOnline();
 
   if (isOnline && isSupabaseConfigured()) {
@@ -220,6 +234,13 @@ export async function syncPendingWorkoutLogs(
   userEmail: string
 ): Promise<{ syncedCount: number; remainingCount: number }> {
   const email = (userEmail || 'athlete@ofc.app').toLowerCase();
+
+  // If cloud sync disabled, clear queue and return
+  if (!isCloudSyncEnabled()) {
+    clearPendingLogsQueue(email);
+    return { syncedCount: 0, remainingCount: 0 };
+  }
+
   const queue = getPendingLogsQueue(email);
 
   if (queue.length === 0) {
@@ -309,8 +330,19 @@ export function subscribeWorkoutLogsSync(
     if (e.detail) {
       onSyncStatusChange({
         isOnline: e.detail.isOnline,
-        pendingCount: e.detail.pendingCount,
+        pendingCount: isCloudSyncEnabled() ? e.detail.pendingCount : 0,
       });
+    }
+  };
+
+  const handleCloudSyncToggled = (e: any) => {
+    const isEnabled = e.detail?.enabled !== false && isCloudSyncEnabled();
+    if (!isEnabled) {
+      clearPendingLogsQueue(email);
+      onSyncStatusChange({ isOnline: true, pendingCount: 0 });
+    } else {
+      const queue = getPendingLogsQueue(email);
+      onSyncStatusChange({ isOnline: getIsOnline(), pendingCount: queue.length });
     }
   };
 
@@ -318,16 +350,17 @@ export function subscribeWorkoutLogsSync(
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
     window.addEventListener('workout_logs_sync_status', handleStatusEvent);
+    window.addEventListener('o1fc_cloud_sync_toggled', handleCloudSyncToggled);
 
     // Trigger initial status check
-    const currentQueue = getPendingLogsQueue(email);
+    const currentQueue = isCloudSyncEnabled() ? getPendingLogsQueue(email) : [];
     onSyncStatusChange({
       isOnline: getIsOnline(),
       pendingCount: currentQueue.length,
     });
 
     // If online on mount and there are pending items, attempt immediate flush
-    if (getIsOnline() && currentQueue.length > 0) {
+    if (isCloudSyncEnabled() && getIsOnline() && currentQueue.length > 0) {
       syncPendingWorkoutLogs(email);
     }
   }
@@ -337,6 +370,7 @@ export function subscribeWorkoutLogsSync(
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
       window.removeEventListener('workout_logs_sync_status', handleStatusEvent);
+      window.removeEventListener('o1fc_cloud_sync_toggled', handleCloudSyncToggled);
     }
   };
 }

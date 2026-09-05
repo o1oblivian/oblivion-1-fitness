@@ -508,11 +508,11 @@ button.btn-nude-close:active {
 
   /* Smooth content fade-in on tab switch */
   .tab-enter {
-    animation: tabEnter 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    animation: tabEnter 0.15s ease-out forwards;
   }
   @keyframes tabEnter {
-    from { opacity: 0; transform: translateY(8px); }
-    to { opacity: 1; transform: translateY(0); }
+    from { opacity: 0; }
+    to { opacity: 1; }
   }
 
   /* Premium ring glow for active states */
@@ -1473,5 +1473,29 @@ button.modal-close-bare,
 button.modal-close-btn,
 button[class*="rounded-full"]:not(.btn-primary-cta) {
   min-width: unset !important;
+}
+
+/* ================================================================
+   SAFE AREA INSETS — Dynamic Island & Gesture Bar Polish
+   ================================================================ */
+
+.safe-pb {
+  padding-bottom: max(1rem, env(safe-area-inset-bottom, 1rem)) !important;
+}
+
+.safe-pt {
+  padding-top: max(0.75rem, env(safe-area-inset-top, 0.75rem)) !important;
+}
+
+.safe-mb {
+  margin-bottom: max(0.5rem, env(safe-area-inset-bottom, 0.5rem)) !important;
+}
+
+.safe-bottom-bar {
+  padding-bottom: max(1rem, calc(env(safe-area-inset-bottom) + 0.5rem));
+}
+
+.safe-top-bar {
+  padding-top: max(0.75rem, calc(env(safe-area-inset-top) + 0.5rem));
 }
 

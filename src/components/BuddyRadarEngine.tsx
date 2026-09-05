@@ -24,6 +24,8 @@ import {
   generateMockBuddies,
 } from '@/utils/buddyRadarStore';
 import { useSubscription } from '@/utils/useSubscription';
+import { BuddyScaleTestConsole } from '@/components/BuddyScaleTestConsole';
+import { useAuthStorage } from '@/hooks/useAuthStorage';
 
 interface BuddyRadarEngineProps {
   isOpen: boolean;
@@ -106,7 +108,7 @@ export const BuddyRadarEngine: React.FC<BuddyRadarEngineProps> = ({
   const myLat = -33.8688;
   const myLng = 151.2093;
 
-  const [activeTab, setActiveTab] = useState<'discover' | 'matched'>('discover');
+  const [activeTab, setActiveTab] = useState<'discover' | 'matched' | 'scaleTest'>('discover');
   const [isDemoMode, setIsDemoMode] = useState(false);
   const [buddies, setBuddies] = useState<BuddyProfile[]>([]);
   const [filters, setFilters] = useState<RadarFilters>(DEFAULT_FILTERS);
@@ -124,12 +126,21 @@ export const BuddyRadarEngine: React.FC<BuddyRadarEngineProps> = ({
   const [blockedEmails, setBlockedEmails] = useState<Set<string>>(new Set());
   const [reportingBuddy, setReportingBuddy] = useState<BuddyProfile | null>(null);
   const [reportReason, setReportReason] = useState('inappropriate');
-  const [ghostMode, setGhostMode] = useState(false);
-  const [gymSharing, setGymSharing] = useState(true);
-  const [publicTelemetry, setPublicTelemetry] = useState(true);
-  const [showUserWeight, setShowUserWeight] = useState(false);
+  
+  const { profile, updateProfile } = useAuthStorage();
+  const [ghostMode, setGhostMode] = useState<boolean>(() => profile.is_ghost_mode === true);
+  const [gymSharing, setGymSharing] = useState<boolean>(() => profile.gym_zone_sharing !== false);
+  const [publicTelemetry, setPublicTelemetry] = useState<boolean>(() => profile.public_telemetry !== false);
+  const [showUserWeight, setShowUserWeight] = useState<boolean>(() => profile.show_weight === true);
   const [homeGymOnly, setHomeGymOnly] = useState(false);
   const [scanning, setScanning] = useState(false);
+
+  useEffect(() => {
+    setGhostMode(profile.is_ghost_mode === true);
+    setGymSharing(profile.gym_zone_sharing !== false);
+    setPublicTelemetry(profile.public_telemetry !== false);
+    setShowUserWeight(profile.show_weight === true);
+  }, [profile.is_ghost_mode, profile.gym_zone_sharing, profile.public_telemetry, profile.show_weight]);
 
   const activeFilterCount = [
     filters.ageRange[0] !== 18 || filters.ageRange[1] !== 65,
@@ -294,6 +305,7 @@ export const BuddyRadarEngine: React.FC<BuddyRadarEngineProps> = ({
     if (field === 'gym_zone_sharing') setGymSharing(value);
     if (field === 'public_telemetry') setPublicTelemetry(value);
     if (field === 'show_weight') setShowUserWeight(value);
+    updateProfile({ [field]: value });
     await updateMyRadarProfile(currentUserEmail, { [field]: value } as any);
   };
 
@@ -335,34 +347,50 @@ export const BuddyRadarEngine: React.FC<BuddyRadarEngineProps> = ({
 
             {/* Center Segmented Toggle or Screen Title */}
             {!isFilterOrPrivacy ? (
-              <div className="flex-1 max-w-xs mx-2">
-                <div className="relative flex bg-black/[0.04] dark:bg-white/[0.06] rounded-full p-[3px] border border-gray-200/40 dark:border-white/[0.06]">
+              <div className="flex-1 max-w-sm mx-1 sm:mx-2">
+                <div className="relative flex bg-black/[0.04] dark:bg-white/[0.06] rounded-full p-[2.5px] border border-gray-200/40 dark:border-white/[0.06]">
                   <div
-                    className="absolute top-[3px] bottom-[3px] w-[calc(50%-3px)] rounded-full bg-white dark:bg-white/[0.12] shadow-sm transition-transform duration-200 ease-out"
-                    style={{ transform: activeTab === 'discover' ? 'translateX(0)' : 'translateX(100%)' }}
+                    className="absolute top-[2.5px] bottom-[2.5px] rounded-full bg-white dark:bg-white/[0.12] shadow-sm transition-transform duration-200 ease-out"
+                    style={{
+                      width: 'calc(33.333% - 2px)',
+                      transform: activeTab === 'discover'
+                        ? 'translateX(0)'
+                        : activeTab === 'matched'
+                        ? 'translateX(100%)'
+                        : 'translateX(200%)',
+                    }}
                   />
                   <button
                     onClick={() => setActiveTab('discover')}
-                    className={`relative z-10 flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-full text-[11px] font-semibold transition-colors duration-200 cursor-pointer ${
+                    className={`relative z-10 flex-1 flex items-center justify-center gap-1 py-1.5 rounded-full text-[10.5px] font-semibold transition-colors duration-200 cursor-pointer ${
                       activeTab === 'discover' ? 'text-gray-900 dark:text-white font-bold' : 'text-gray-500 dark:text-white/40'
                     }`}
                   >
-                    <Compass className="w-3.5 h-3.5" />
+                    <Compass className="w-3 h-3" />
                     Discover
                   </button>
                   <button
                     onClick={() => setActiveTab('matched')}
-                    className={`relative z-10 flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-full text-[11px] font-semibold transition-colors duration-200 cursor-pointer ${
+                    className={`relative z-10 flex-1 flex items-center justify-center gap-1 py-1.5 rounded-full text-[10.5px] font-semibold transition-colors duration-200 cursor-pointer ${
                       activeTab === 'matched' ? 'text-gray-900 dark:text-white font-bold' : 'text-gray-500 dark:text-white/40'
                     }`}
                   >
-                    <Users className="w-3.5 h-3.5" />
+                    <Users className="w-3 h-3" />
                     Matched
                     {matchedBuddies.length > 0 && (
-                      <span className="ml-0.5 w-4 h-4 rounded-full bg-red-500 text-[8.5px] font-bold text-white flex items-center justify-center">
+                      <span className="ml-0.5 w-3.5 h-3.5 rounded-full bg-red-500 text-[8px] font-bold text-white flex items-center justify-center">
                         {matchedBuddies.length}
                       </span>
                     )}
+                  </button>
+                  <button
+                    onClick={() => setActiveTab('scaleTest')}
+                    className={`relative z-10 flex-1 flex items-center justify-center gap-1 py-1.5 rounded-full text-[10.5px] font-semibold transition-colors duration-200 cursor-pointer ${
+                      activeTab === 'scaleTest' ? 'text-gray-900 dark:text-white font-bold' : 'text-gray-500 dark:text-white/40'
+                    }`}
+                  >
+                    <Globe className="w-3 h-3 text-red-500" />
+                    Global 1000s
                   </button>
                 </div>
               </div>
@@ -442,7 +470,7 @@ export const BuddyRadarEngine: React.FC<BuddyRadarEngineProps> = ({
           </div>
 
           {/* Search bar - show on discover or matched */}
-          {!isFilterOrPrivacy && (
+          {!isFilterOrPrivacy && activeTab !== 'scaleTest' && (
             <div className="relative pb-1">
               <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-zinc-400 dark:text-white/30" />
               <input
@@ -454,6 +482,24 @@ export const BuddyRadarEngine: React.FC<BuddyRadarEngineProps> = ({
               />
             </div>
           )}
+        </div>
+      )}
+
+      {/* Ghost Mode Active Alert Banner */}
+      {ghostMode && !isDedicatedView && !showPrivacy && (
+        <div className="shrink-0 bg-zinc-900 text-white px-3.5 py-2 border-b border-zinc-800 flex items-center justify-between text-xs animate-fade-in">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+            <span className="font-semibold tracking-wide text-zinc-100">Ghost Mode Active</span>
+            <span className="text-zinc-400 text-[11px] hidden sm:inline">• Hidden from other athletes on Buddy Radar</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => handlePrivacyToggle('is_ghost_mode', false)}
+            className="text-[11px] font-semibold text-red-400 hover:text-red-300 underline cursor-pointer"
+          >
+            Disable Stealth
+          </button>
         </div>
       )}
 
@@ -534,7 +580,7 @@ export const BuddyRadarEngine: React.FC<BuddyRadarEngineProps> = ({
             isPaid={isPaid}
             onOpenPayPlan={onOpenPayPlan}
           />
-        ) : (
+        ) : activeTab === 'matched' ? (
           <MatchedInbox
             matchedBuddies={matchedBuddies}
             allBuddies={buddies}
@@ -542,6 +588,14 @@ export const BuddyRadarEngine: React.FC<BuddyRadarEngineProps> = ({
             searchQuery={searchQuery}
             onSelectBuddy={setSelectedBuddy}
             onChat={setChatBuddy}
+          />
+        ) : (
+          <BuddyScaleTestConsole
+            currentUserEmail={currentUserEmail}
+            showToast={showToast}
+            onSelectBuddyToChat={(buddy) => {
+              setSelectedBuddy(buddy as any);
+            }}
           />
         )}
       </div>

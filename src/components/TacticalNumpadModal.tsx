@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { X, Check, Delete, Play, Pause, RotateCcw } from 'lucide-react';
 import { getDialConfig } from '@/components/RotaryDialModal';
+import { useModalBackHandler } from '@/utils/modalHistory';
 
 interface TacticalNumpadModalProps {
   isOpen: boolean;
@@ -156,6 +157,10 @@ export const TacticalNumpadModal: React.FC<TacticalNumpadModalProps> = ({
   };
 
   const KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '.', '0', 'del'];
+
+  useModalBackHandler(isOpen, onClose, 'tactical_numpad_modal');
+
+  if (!isOpen) return null;
 
   return createPortal(
     <div

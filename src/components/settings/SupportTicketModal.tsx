@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { X, Loader2, CheckCircle, Monitor } from 'lucide-react';
 import { supabase, isSupabaseConfigured } from '@/utils/supabase';
+import { useModalBackHandler } from '@/utils/modalHistory';
 
 const CATEGORIES = [
   'Bug Report',
@@ -41,6 +42,8 @@ export function SupportTicketModal({ isOpen, onClose, triggerToast }: Props) {
     resetForm();
     onClose();
   };
+
+  useModalBackHandler(isOpen, handleClose, 'support_ticket_modal');
 
   const handleSubmit = async () => {
     if (!subject.trim() || !message.trim()) return;

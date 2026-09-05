@@ -25,6 +25,7 @@ import { Html5Qrcode } from 'html5-qrcode';
 import { LoggedMealItem, DailyMeals } from '../types';
 import { haptic } from '../utils/haptics';
 import { apiFetch } from '../utils/apiUrl';
+import { useModalBackHandler } from '../utils/modalHistory';
 
 interface ScannedFoodItem {
   name: string;
@@ -544,6 +545,8 @@ export const AIMealScanModal: React.FC<AIMealScanModalProps> = ({
     onClose();
   }, [reset, onClose]);
 
+  useModalBackHandler(isOpen, handleClose, 'ai_meal_scan_modal');
+
   useEffect(() => {
     if (isOpen) {
       setSelectedMeal(defaultMeal);
@@ -697,55 +700,108 @@ export const AIMealScanModal: React.FC<AIMealScanModalProps> = ({
 
         {/* Main Content Area */}
         <div className="flex-1 overflow-y-auto px-4 pt-3 pb-8 sm:pb-6 space-y-3.5 overscroll-contain">
+          {/* Mode Selector Pill: Meal Vision vs Live Barcode */}
+          {phase === 'viewfinder' && !barcodeResult && (
+            <div className="flex items-center justify-center p-1 bg-zinc-100 dark:bg-white/[0.06] rounded-xl max-w-xs mx-auto border border-zinc-200/60 dark:border-white/10">
+              <button
+                type="button"
+                onClick={() => {
+                  setScanMode('camera');
+                  setBarcodeError('');
+                  if (!isCameraActive) startLiveViewfinder();
+                }}
+                className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                  scanMode === 'camera'
+                    ? 'bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white shadow-xs'
+                    : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-white'
+                }`}
+              >
+                <Camera className="w-3.5 h-3.5" />
+                <span>Meal Vision</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setScanMode('barcode');
+                  setScanError(null);
+                  if (!isCameraActive) startLiveViewfinder();
+                }}
+                className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                  scanMode === 'barcode'
+                    ? 'bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white shadow-xs'
+                    : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-white'
+                }`}
+              >
+                <Barcode className="w-3.5 h-3.5" />
+                <span>Live Barcode</span>
+              </button>
+            </div>
+          )}
+
           {/* 1. VIEWFINDER PHASE (APPLE CAMERA HUD & BARCODE LOOKUP) */}
           {phase === 'viewfinder' && !barcodeResult && (
             <>
-              {scanMode === 'camera' ? (
-                <div className="space-y-3">
-                  {/* Error Banner */}
-                  {(scanError || barcodeError) && (
-                    <div className="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-3 flex items-start gap-2.5">
-                      <AlertCircle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
-                      <div className="text-[11px] text-amber-900 dark:text-amber-200/90 leading-snug">
-                        {scanError || barcodeError}
-                      </div>
+              <div className="space-y-3">
+                {/* Error Banner */}
+                {(scanError || barcodeError) && (
+                  <div className="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-3 flex items-start gap-2.5">
+                    <AlertCircle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
+                    <div className="text-[11px] text-amber-900 dark:text-amber-200/90 leading-snug">
+                      {scanError || barcodeError}
                     </div>
-                  )}
+                  </div>
+                )}
 
-                  {/* Universal Viewfinder Canvas */}
-                  <div className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-black border border-zinc-200/80 dark:border-white/10 shadow-inner flex items-center justify-center">
-                    {/* Real-time HTML5 Camera Viewport */}
-                    <div
-                      id={scannerContainerId}
-                      className={`absolute inset-0 w-full h-full [&_video]:object-cover [&_video]:w-full [&_video]:h-full ${
-                        isCameraActive ? 'opacity-100' : 'opacity-0 pointer-events-none'
-                      }`}
-                    />
-                    <div id="barcode-file-region" className="hidden" />
+                {/* Universal Viewfinder Canvas */}
+                <div className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-black border border-zinc-200/80 dark:border-white/10 shadow-inner flex items-center justify-center">
+                  {/* Real-time HTML5 Camera Viewport */}
+                  <div
+                    id={scannerContainerId}
+                    className={`absolute inset-0 w-full h-full [&_video]:object-cover [&_video]:w-full [&_video]:h-full ${
+                      isCameraActive ? 'opacity-100' : 'opacity-0 pointer-events-none'
+                    }`}
+                  />
+                  <div id="barcode-file-region" className="hidden" />
 
-                    {/* Viewfinder Overlays */}
-                    {isCameraActive ? (
-                      <div className="absolute inset-0 pointer-events-none flex flex-col items-center justify-between p-3.5 z-10">
-                        {/* Top HUD Row */}
-                        <div className="w-full flex items-center justify-between pointer-events-auto">
-                          <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/15 text-[10px] font-mono tracking-wider text-white/90">
-                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                            <span>ACTIVE</span>
-                          </div>
-                          <button
-                            onClick={toggleTorch}
-                            className={`w-8 h-8 rounded-full flex items-center justify-center transition-all cursor-pointer ${
-                              torchOn
-                                ? 'bg-amber-400 text-black shadow-lg shadow-amber-400/30'
-                                : 'bg-black/60 text-white border border-white/15 backdrop-blur-md'
-                            }`}
-                            title="Flash / Torch"
-                          >
-                            <Zap className={`w-3.5 h-3.5 ${torchOn ? 'fill-black' : ''}`} />
-                          </button>
+                  {/* Viewfinder Overlays */}
+                  {isCameraActive ? (
+                    <div className="absolute inset-0 pointer-events-none flex flex-col items-center justify-between p-3.5 z-10">
+                      {/* Top HUD Row */}
+                      <div className="w-full flex items-center justify-between pointer-events-auto">
+                        <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/15 text-[10px] font-mono tracking-wider text-white/90">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                          <span>{scanMode === 'barcode' ? 'BARCODE ACTIVE' : 'MEAL VISION'}</span>
                         </div>
+                        <button
+                          onClick={toggleTorch}
+                          className={`w-8 h-8 rounded-full flex items-center justify-center transition-all cursor-pointer ${
+                            torchOn
+                              ? 'bg-amber-400 text-black shadow-lg shadow-amber-400/30'
+                              : 'bg-black/60 text-white border border-white/15 backdrop-blur-md'
+                          }`}
+                          title="Flash / Torch"
+                        >
+                          <Zap className={`w-3.5 h-3.5 ${torchOn ? 'fill-black' : ''}`} />
+                        </button>
+                      </div>
 
-                        {/* Center Precision Target Crosshair */}
+                      {/* Reticle Overlay */}
+                      {scanMode === 'barcode' ? (
+                        <div className="flex flex-col items-center gap-2">
+                          <div className="relative w-64 h-28 border-2 border-red-500/70 rounded-xl overflow-hidden bg-red-500/5 shadow-[0_0_15px_rgba(239,68,68,0.2)]">
+                            <div className="absolute -top-px -left-px w-4 h-4 border-t-2 border-l-2 border-red-500" />
+                            <div className="absolute -top-px -right-px w-4 h-4 border-t-2 border-r-2 border-red-500" />
+                            <div className="absolute -bottom-px -left-px w-4 h-4 border-b-2 border-l-2 border-red-500" />
+                            <div className="absolute -bottom-px -right-px w-4 h-4 border-b-2 border-r-2 border-red-500" />
+                            {/* Animated horizontal laser beam */}
+                            <div className="absolute inset-x-0 h-0.5 bg-gradient-to-r from-transparent via-red-500 to-transparent shadow-[0_0_8px_rgba(239,68,68,1)] animate-pulse" style={{ top: '50%' }} />
+                          </div>
+                          <span className="text-[10px] font-medium font-mono text-white/90 bg-black/60 px-3 py-1 rounded-full border border-white/10 backdrop-blur-xs">
+                            Align barcode inside red reticle
+                          </span>
+                        </div>
+                      ) : (
+                        /* Center Precision Target Crosshair */
                         <div className="relative w-52 h-32 border border-white/25 rounded-xl">
                           <div className="absolute -top-px -left-px w-4 h-4 border-t-[1.5px] border-l-[1.5px] border-red-500 rounded-tl-sm" />
                           <div className="absolute -top-px -right-px w-4 h-4 border-t-[1.5px] border-r-[1.5px] border-red-500 rounded-tr-sm" />
@@ -757,30 +813,33 @@ export const AIMealScanModal: React.FC<AIMealScanModalProps> = ({
                             </div>
                           </div>
                         </div>
+                      )}
 
-                        <div className="h-4" />
+                      <div className="h-4" />
+                    </div>
+                  ) : (
+                    /* Standby State: Precision Frame with Single Enable Action */
+                    <div className="absolute inset-0 flex flex-col items-center justify-center p-6 bg-zinc-950 z-10">
+                      <div className="relative w-52 h-32 border border-white/15 rounded-xl flex items-center justify-center">
+                        <div className="absolute -top-px -left-px w-4 h-4 border-t-[1.5px] border-l-[1.5px] border-red-500 rounded-tl-sm" />
+                        <div className="absolute -top-px -right-px w-4 h-4 border-t-[1.5px] border-r-[1.5px] border-red-500 rounded-tr-sm" />
+                        <div className="absolute -bottom-px -left-px w-4 h-4 border-b-[1.5px] border-l-[1.5px] border-red-500 rounded-bl-sm" />
+                        <div className="absolute -bottom-px -right-px w-4 h-4 border-b-[1.5px] border-r-[1.5px] border-red-500 rounded-br-sm" />
+                        <button
+                          onClick={startLiveViewfinder}
+                          className="px-4 py-2 bg-red-600 hover:bg-red-500 active:scale-95 text-white text-xs font-semibold rounded-xl flex items-center gap-2 shadow-lg transition-all cursor-pointer"
+                        >
+                          <Camera className="w-4 h-4" />
+                          <span>Start Camera</span>
+                        </button>
                       </div>
-                    ) : (
-                      /* Standby State: Precision Frame with Single Enable Action */
-                      <div className="absolute inset-0 flex flex-col items-center justify-center p-6 bg-zinc-950 z-10">
-                        <div className="relative w-52 h-32 border border-white/15 rounded-xl flex items-center justify-center">
-                          <div className="absolute -top-px -left-px w-4 h-4 border-t-[1.5px] border-l-[1.5px] border-red-500 rounded-tl-sm" />
-                          <div className="absolute -top-px -right-px w-4 h-4 border-t-[1.5px] border-r-[1.5px] border-red-500 rounded-tr-sm" />
-                          <div className="absolute -bottom-px -left-px w-4 h-4 border-b-[1.5px] border-l-[1.5px] border-red-500 rounded-bl-sm" />
-                          <div className="absolute -bottom-px -right-px w-4 h-4 border-b-[1.5px] border-r-[1.5px] border-red-500 rounded-br-sm" />
-                          <button
-                            onClick={startLiveViewfinder}
-                            className="px-4 py-2 bg-red-600 hover:bg-red-500 active:scale-95 text-white text-xs font-semibold rounded-xl flex items-center gap-2 shadow-lg transition-all cursor-pointer"
-                          >
-                            <Camera className="w-4 h-4" />
-                            <span>Start Camera</span>
-                          </button>
-                        </div>
-                      </div>
-                    )}
-                  </div>
+                    </div>
+                  )}
+                </div>
 
-                  {/* Apple Floating Micro-Controls: Library | Shutter | Barcode */}
+                {/* Controls specific to Mode */}
+                {scanMode === 'camera' ? (
+                  /* Apple Floating Micro-Controls: Library | Shutter | Mode Switch */
                   <div className="pt-2 pb-1 px-6 flex items-center justify-between max-w-xs mx-auto">
                     {/* Photo Library */}
                     <button
@@ -802,115 +861,85 @@ export const AIMealScanModal: React.FC<AIMealScanModalProps> = ({
                       </div>
                     </button>
 
-                    {/* Barcode Search Toggle */}
+                    {/* Barcode Search Switch */}
                     <button
                       onClick={() => {
                         setScanMode('barcode');
-                        stopLiveViewfinder();
+                        setScanError(null);
                       }}
                       className="w-12 h-12 rounded-full bg-zinc-100 dark:bg-white/[0.08] hover:bg-zinc-200 dark:hover:bg-white/[0.15] border border-zinc-200/80 dark:border-white/10 text-zinc-700 dark:text-white flex items-center justify-center transition-all cursor-pointer active:scale-95"
-                      title="Barcode Search"
+                      title="Switch to Barcode Mode"
                     >
                       <Barcode className="w-5 h-5 stroke-[1.8]" />
                     </button>
                   </div>
-                </div>
-              ) : (
-                /* Dedicated Apple Numeric Barcode Search */
-                <div className="space-y-4 pt-1">
-                  {/* Mode Header with Return to Camera Button */}
-                  <div className="flex items-center justify-between px-1">
-                    <div className="flex items-center gap-2">
-                      <Barcode className="w-4 h-4 text-red-500" />
-                      <span className="text-xs font-bold text-zinc-900 dark:text-white">Barcode Search</span>
+                ) : (
+                  /* Barcode Manual Fallback & Quick Test Items */
+                  <div className="space-y-3 pt-1">
+                    {/* iOS Style Unified Search Input */}
+                    <div className="relative flex items-center">
+                      <div className="absolute left-3.5 text-zinc-400 dark:text-zinc-500 pointer-events-none">
+                        <Barcode className="w-4 h-4" />
+                      </div>
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        pattern="[0-9]*"
+                        placeholder="Or enter barcode numbers..."
+                        value={barcodeInput}
+                        onChange={(e) => setBarcodeInput(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' && barcodeInput.trim()) lookupBarcode(barcodeInput.trim());
+                        }}
+                        className="w-full h-11 pl-10 pr-24 bg-zinc-100 dark:bg-white/[0.06] text-zinc-900 dark:text-white rounded-xl text-sm font-mono placeholder:font-sans placeholder:text-zinc-400 dark:placeholder:text-zinc-500 border border-zinc-200/80 dark:border-white/10 outline-none focus:border-red-500 transition-all"
+                      />
+                      {barcodeInput.trim() && (
+                        <button
+                          type="button"
+                          onClick={() => lookupBarcode(barcodeInput.trim())}
+                          disabled={barcodeLoading}
+                          className="absolute right-1.5 h-8 px-3.5 bg-red-600 hover:bg-red-500 disabled:opacity-50 text-white text-xs font-semibold rounded-lg transition-colors flex items-center gap-1.5 cursor-pointer active:scale-95"
+                        >
+                          {barcodeLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Search className="w-3.5 h-3.5" />}
+                          <span>Search</span>
+                        </button>
+                      )}
                     </div>
-                    <button
-                      onClick={() => {
-                        setScanMode('camera');
-                        setBarcodeError('');
-                        startLiveViewfinder();
-                      }}
-                      className="text-xs font-semibold text-red-500 hover:text-red-600 transition-colors flex items-center gap-1 cursor-pointer active:scale-95"
-                    >
-                      <Camera className="w-3.5 h-3.5" />
-                      <span>Camera</span>
-                    </button>
-                  </div>
 
-                  {/* Error Banner */}
-                  {barcodeError && (
-                    <div className="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-3 flex items-start gap-2.5">
-                      <AlertCircle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
-                      <div className="text-[11px] text-amber-900 dark:text-amber-200/90 leading-snug">
-                        {barcodeError}
+                    {/* Quick Sample Items for Instant Testing */}
+                    <div className="space-y-1.5">
+                      <p className="text-[10px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider px-0.5">
+                        Quick Test Items
+                      </p>
+                      <div className="grid grid-cols-2 gap-2">
+                        {[
+                          { name: 'Nutella Spread', code: '3017620422003', sub: 'Ferrero' },
+                          { name: 'Greek Yogurt', code: '0052159700072', sub: 'Chobani' },
+                          { name: 'Organic Rolled Oats', code: '0041196910173', sub: 'Quaker' },
+                          { name: 'Silk Almond Milk', code: '0025293000987', sub: 'Danone' },
+                        ].map((item) => (
+                          <button
+                            key={item.code}
+                            type="button"
+                            onClick={() => {
+                              setBarcodeInput(item.code);
+                              lookupBarcode(item.code);
+                            }}
+                            className="p-2 text-left bg-zinc-100/80 dark:bg-white/[0.04] hover:bg-zinc-200/70 dark:hover:bg-white/[0.08] border border-zinc-200/60 dark:border-white/5 rounded-xl transition-all cursor-pointer group"
+                          >
+                            <p className="text-xs font-semibold text-zinc-900 dark:text-white group-hover:text-red-500 transition-colors truncate">
+                              {item.name}
+                            </p>
+                            <p className="text-[10px] font-mono text-zinc-400 dark:text-zinc-500 mt-0.5 truncate">
+                              {item.code} &bull; {item.sub}
+                            </p>
+                          </button>
+                        ))}
                       </div>
                     </div>
-                  )}
-
-                  {/* iOS Style Unified Search Input */}
-                  <div className="relative flex items-center">
-                    <div className="absolute left-3.5 text-zinc-400 dark:text-zinc-500 pointer-events-none">
-                      <Barcode className="w-4 h-4" />
-                    </div>
-                    <input
-                      type="text"
-                      inputMode="numeric"
-                      pattern="[0-9]*"
-                      placeholder="Enter 8, 12, or 13-digit barcode"
-                      value={barcodeInput}
-                      onChange={(e) => setBarcodeInput(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' && barcodeInput.trim()) lookupBarcode(barcodeInput.trim());
-                      }}
-                      autoFocus
-                      className="w-full h-11 pl-10 pr-24 bg-zinc-100 dark:bg-white/[0.06] text-zinc-900 dark:text-white rounded-xl text-sm font-mono placeholder:font-sans placeholder:text-zinc-400 dark:placeholder:text-zinc-500 border border-zinc-200/80 dark:border-white/10 outline-none focus:border-red-500 transition-all"
-                    />
-                    {barcodeInput.trim() && (
-                      <button
-                        type="button"
-                        onClick={() => lookupBarcode(barcodeInput.trim())}
-                        disabled={barcodeLoading}
-                        className="absolute right-1.5 h-8 px-3.5 bg-red-600 hover:bg-red-500 disabled:opacity-50 text-white text-xs font-semibold rounded-lg transition-colors flex items-center gap-1.5 cursor-pointer active:scale-95"
-                      >
-                        {barcodeLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Search className="w-3.5 h-3.5" />}
-                        <span>Search</span>
-                      </button>
-                    )}
                   </div>
-
-                  {/* Quick Sample Items for Instant Testing */}
-                  <div className="space-y-2 pt-1">
-                    <p className="text-[10px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider px-0.5">
-                      Quick Test Items
-                    </p>
-                    <div className="grid grid-cols-2 gap-2">
-                      {[
-                        { name: 'Nutella Spread', code: '3017620422003', sub: 'Ferrero' },
-                        { name: 'Greek Yogurt', code: '0052159700072', sub: 'Chobani' },
-                        { name: 'Organic Rolled Oats', code: '0041196910173', sub: 'Quaker' },
-                        { name: 'Silk Almond Milk', code: '0025293000987', sub: 'Danone' },
-                      ].map((item) => (
-                        <button
-                          key={item.code}
-                          type="button"
-                          onClick={() => {
-                            setBarcodeInput(item.code);
-                            lookupBarcode(item.code);
-                          }}
-                          className="p-2.5 text-left bg-zinc-100/80 dark:bg-white/[0.04] hover:bg-zinc-200/70 dark:hover:bg-white/[0.08] border border-zinc-200/60 dark:border-white/5 rounded-xl transition-all cursor-pointer group"
-                        >
-                          <p className="text-xs font-semibold text-zinc-900 dark:text-white group-hover:text-red-500 transition-colors truncate">
-                            {item.name}
-                          </p>
-                          <p className="text-[10px] font-mono text-zinc-400 dark:text-zinc-500 mt-0.5 truncate">
-                            {item.code} &bull; {item.sub}
-                          </p>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              )}
+                )}
+              </div>
 
               {/* Hidden File Pickers */}
               <input

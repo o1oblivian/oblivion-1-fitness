@@ -37,6 +37,10 @@ import type { AthleteData } from '@/types';
 import { getAthleteTelemetryByCoachLog } from '@/data/athleteTelemetry';
 import { fetchLiveTelemetry } from '@/utils/telemetryStore';
 import { supabase } from '@/utils/supabase';
+import {
+  createShareConsentRequest,
+  getConsentRequestStatus,
+} from '@/utils/shareConsentStore';
 
 type TabId = 'log' | 'history' | 'chat' | 'comment' | 'share';
 
@@ -303,21 +307,18 @@ export const ClientCommandCard: React.FC<ClientCommandCardProps> = ({
   const handleRequestConsent = async () => {
     if (!athlete) return;
     setConsentSending(true);
-    const code = String(Math.floor(100 + Math.random() * 900));
-    setConsentCode(code);
     const clientEmail = `${athlete.name.toLowerCase().replace(/\s+/g, '.')}@o1fc.app`;
+    const shareType = Object.entries(shareItems).filter(([,v]) => v).map(([k]) => k).join(', ') || 'progress';
     try {
-      const { data, error } = await supabase.from('share_consent_requests').insert({
-        coach_email: 'coach@o1fc.app',
-        client_email: clientEmail,
-        client_name: athlete.name,
-        share_type: Object.entries(shareItems).filter(([,v]) => v).map(([k]) => k).join(', ') || 'progress',
-        share_description: `Sharing selected data for ${athlete.name}`,
-        otp_code: code,
-        expires_at: new Date(Date.now() + 10 * 60 * 1000).toISOString(),
-      }).select('id').maybeSingle();
-      if (error) throw error;
-      if (data) setConsentRequestId(data.id);
+      const request = await createShareConsentRequest({
+        coachEmail: 'coach@o1fc.app',
+        clientEmail,
+        clientName: athlete.name,
+        shareType,
+        shareDescription: `Sharing selected data for ${athlete.name}`,
+      });
+      setConsentCode(request.otp_code);
+      setConsentRequestId(request.id);
       showToast(`3-digit consent code sent to ${athlete.name}`);
     } catch {
       showToast('Failed to send consent request', 'error');
@@ -330,16 +331,12 @@ export const ClientCommandCard: React.FC<ClientCommandCardProps> = ({
   const pollConsentStatus = useCallback(async () => {
     if (!consentRequestId) return;
     try {
-      const { data } = await supabase
-        .from('share_consent_requests')
-        .select('status')
-        .eq('id', consentRequestId)
-        .maybeSingle();
-      if (data?.status === 'approved') {
+      const { status } = await getConsentRequestStatus(consentRequestId);
+      if (status === 'approved') {
         setConsentGranted(true);
         setConsentPolling(false);
         showToast(`${athlete?.name} approved sharing!`);
-      } else if (data?.status === 'denied') {
+      } else if (status === 'denied') {
         setConsentPolling(false);
         setConsentCode('');
         setConsentRequestId(null);

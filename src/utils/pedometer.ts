@@ -3,6 +3,9 @@
 // Designed for mobile browsers; will be replaced by native HealthKit / Health Connect
 // when the app ships as a Capacitor native build.
 
+import { upsertDailySteps } from './stepsStore';
+import { getSessionUserEmail } from './authStorage';
+
 export interface PedometerState {
   isTracking: boolean;
   stepCount: number;
@@ -32,6 +35,15 @@ function todayStr(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
+function archiveDaySteps(dateStr: string, steps: number) {
+  try {
+    const email = getSessionUserEmail() || '';
+    if (email && steps > 0) {
+      upsertDailySteps(email, dateStr, steps, 10000).catch(() => {});
+    }
+  } catch {}
+}
+
 function loadSession(): SavedSession | null {
   if (typeof window === 'undefined') return null;
   try {
@@ -39,6 +51,9 @@ function loadSession(): SavedSession | null {
     if (!raw) return null;
     const s: SavedSession = JSON.parse(raw);
     if (s.date !== todayStr()) {
+      if (s.stepCount > 0) {
+        archiveDaySteps(s.date, s.stepCount);
+      }
       localStorage.removeItem(SAVE_KEY);
       return null;
     }
@@ -50,6 +65,9 @@ function saveSession(s: SavedSession) {
   if (typeof window === 'undefined') return;
   try {
     localStorage.setItem(SAVE_KEY, JSON.stringify(s));
+    if (s.stepCount > 0) {
+      archiveDaySteps(s.date, s.stepCount);
+    }
   } catch {}
 }
 

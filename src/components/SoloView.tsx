@@ -11,16 +11,19 @@ import { WeeklyProgressChart } from './WeeklyProgressChart';
 import { WatchDial } from './WatchDial';
 import { playRealBellSound, playPRBreakthroughChime } from '../utils/audio';
 import { getSmartDefault, recordSmartInput } from '../utils/frequencyDefaults';
-import { getDispatchedWorkouts, DispatchedWorkout } from '../utils/dispatchStore';
-import { Zap, Trash2, Share2, ChevronDown, Dumbbell, Plus, Save, Check, Sparkles, ChevronRight, Play, Pause, Square, X, Trophy, TrendingUp, Disc, Flame, Search, Activity } from 'lucide-react';
+import { getDispatchedWorkouts, DispatchedWorkout, dispatchCoachPRAlert } from '../utils/dispatchStore';
+import { Zap, Trash2, Share2, ChevronDown, Dumbbell, Plus, Save, Check, Sparkles, ChevronRight, Play, Pause, Square, X, Trophy, TrendingUp, Disc, Flame, Search, Activity, Timer, Layers } from 'lucide-react';
 import { DualLaneLauncher } from './DualLaneLauncher';
 import { VictoryShareModal } from './VictoryShareModal';
 import { PlateMathModal } from './PlateMathModal';
+import { WarmupLadderModal } from './WarmupLadderModal';
 import { haptic, triggerHaptic } from '../utils/haptics';
 import { evaluateSetProgression, recordPersonalRecord, calculate1RM, getExerciseHistoryStats } from '../utils/prIntelligence';
 
 import { loadSocialProfiles, getSocialHandle } from '@/utils/socialProfilesStore';
 import { WeeklyReportCardModal } from './WeeklyReportCardModal';
+import { ReadinessScoreCard } from './ReadinessScoreCard';
+import { BiometricModal, BiometricType } from './BiometricModal';
 
 
 interface SoloViewProps {
@@ -95,6 +98,7 @@ export const SoloView: React.FC<SoloViewProps> = ({
   const [dispatchedWorkouts, setDispatchedWorkouts] = useState<DispatchedWorkout[]>([]);
   const [isVictoryShareOpen, setIsVictoryShareOpen] = useState(false);
   const [isReportCardOpen, setIsReportCardOpen] = useState(false);
+  const [activeBiometricType, setActiveBiometricType] = useState<BiometricType | null>(null);
   const [expandedExerciseId, setExpandedExerciseId] = useState<string | null>(null);
   const [plateMathModal, setPlateMathModal] = useState<{
     isOpen: boolean;
@@ -103,6 +107,55 @@ export const SoloView: React.FC<SoloViewProps> = ({
     logId: string;
     setId: string;
   } | null>(null);
+  const [warmupModal, setWarmupModal] = useState<{
+    isOpen: boolean;
+    exerciseName: string;
+    logId: string;
+    workingWeight: number;
+  } | null>(null);
+
+  const handleToggleSuperset = (logId: string) => {
+    haptic.tap();
+    setActiveLogs((prev) => {
+      const idx = prev.findIndex((l) => l.id === logId);
+      if (idx === -1) return prev;
+      const current = prev[idx];
+
+      if (current.supersetGroupId) {
+        return prev.map((l) =>
+          l.supersetGroupId === current.supersetGroupId
+            ? { ...l, supersetGroupId: undefined, supersetIndex: undefined }
+            : l
+        );
+      }
+
+      const targetIdx = idx < prev.length - 1 ? idx + 1 : idx - 1;
+      if (targetIdx < 0 || targetIdx >= prev.length) {
+        showToast('Add another exercise to link a superset pair', 'error');
+        return prev;
+      }
+
+      const groupId = `SS_${Date.now().toString(36).slice(-3).toUpperCase()}`;
+      return prev.map((l, i) => {
+        if (i === idx) return { ...l, supersetGroupId: groupId, supersetIndex: 1 };
+        if (i === targetIdx) return { ...l, supersetGroupId: groupId, supersetIndex: 2 };
+        return l;
+      });
+    });
+    showToast('Superset linked — rest intervals adapt to antagonist transitions', 'success');
+  };
+
+  const handleApplyWarmupSets = (logId: string, warmupSets: SetData[]) => {
+    setActiveLogs((prev) =>
+      prev.map((l) => {
+        if (l.id !== logId) return l;
+        return {
+          ...l,
+          sets: [...warmupSets, ...l.sets],
+        };
+      })
+    );
+  };
 
   const handleUpdateSetWeight = (log: ExerciseLog, setId: string, newWeight: number) => {
     recordSmartInput('exercise_weight_' + log.exerciseName, newWeight);
@@ -116,6 +169,14 @@ export const SoloView: React.FC<SoloViewProps> = ({
       playPRBreakthroughChime();
       const numReps = typeof reps === 'number' ? reps : parseInt(String(reps)) || 1;
       recordPersonalRecord(log.exerciseName, newWeight, numReps, currentUserEmail);
+      dispatchCoachPRAlert({
+        athleteEmail: currentUserEmail,
+        athleteName: currentUserEmail.split('@')[0],
+        exerciseName: log.exerciseName,
+        weight: newWeight,
+        reps: numReps,
+        estimated1RM: evalRes.current1RM,
+      });
       showToast(`NEW ALL-TIME PR! ${log.exerciseName}: ${newWeight}kg x ${reps} (1RM: ${evalRes.current1RM}kg)`, 'success');
     } else {
       haptic.thump();
@@ -146,6 +207,14 @@ export const SoloView: React.FC<SoloViewProps> = ({
       playPRBreakthroughChime();
       const numReps = typeof newReps === 'number' ? newReps : parseInt(String(newReps)) || 1;
       recordPersonalRecord(log.exerciseName, weight, numReps, currentUserEmail);
+      dispatchCoachPRAlert({
+        athleteEmail: currentUserEmail,
+        athleteName: currentUserEmail.split('@')[0],
+        exerciseName: log.exerciseName,
+        weight: Number(weight) || 0,
+        reps: numReps,
+        estimated1RM: evalRes.current1RM,
+      });
       showToast(`NEW ALL-TIME PR! ${log.exerciseName}: ${weight}kg x ${finalReps} (1RM: ${evalRes.current1RM}kg)`, 'success');
     } else {
       haptic.thump();
@@ -946,6 +1015,12 @@ export const SoloView: React.FC<SoloViewProps> = ({
           </div>
         </div>
 
+        {/* Daily Recovery & Energy — Slim Telemetry Banner */}
+        <ReadinessScoreCard
+          userEmail={currentUserEmail}
+          onOpenBiometrics={(type) => setActiveBiometricType(type)}
+        />
+
         {/* Accordion Exercise List */}
         {activeLogs.length === 0 ? (
           <div className="glass-premium rounded-2xl text-center p-4 text-sm font-medium text-[#848785] dark:text-gray-400 border border-dashed border-[rgba(0,0,0,0.08)] dark:border-white/10">
@@ -989,6 +1064,11 @@ export const SoloView: React.FC<SoloViewProps> = ({
                     <span className="text-[15px] sm:text-[16px] font-bold tracking-tight text-[#000000] dark:text-white truncate flex-1">
                       {log.exerciseName}
                     </span>
+                    {log.supersetGroupId && (
+                      <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-purple-500/15 text-purple-600 dark:text-purple-400 border border-purple-500/20 shrink-0 flex items-center gap-1">
+                        <Layers className="w-2.5 h-2.5" /> SS {log.supersetIndex === 1 ? 'A' : 'B'}
+                      </span>
+                    )}
                     {exerciseHistory.allTimePR1RM > 0 && (
                       <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded-md bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20 shrink-0 flex items-center gap-1">
                         <Trophy className="w-2.5 h-2.5" /> PR {exerciseHistory.allTimePR1RM}kg
@@ -1004,14 +1084,14 @@ export const SoloView: React.FC<SoloViewProps> = ({
                   {isExpanded && (
                     <div className="px-3 pb-3 animate-fadeIn">
 
-                      {/* Column Headers */}
-                      <div className="grid grid-cols-[20px_3fr_3fr_2fr_20px] gap-1 mb-0.5 mt-0.5">
-                        <div className="text-[9px] font-bold tracking-widest uppercase text-[#848785] dark:text-gray-500 text-center">Set</div>
-                        <div className="text-[9px] font-bold tracking-widest uppercase text-[#848785] dark:text-gray-500 text-center">{col1Label}</div>
-                        <div className="text-[9px] font-bold tracking-widest uppercase text-[#848785] dark:text-gray-500 text-center">{col2Label}</div>
-                        <div className="text-[9px] font-bold tracking-widest uppercase text-[#848785] dark:text-gray-500 text-center">RPE</div>
-                        <div />
-                      </div>
+                        {/* Column Headers */}
+                        <div className="grid grid-cols-[20px_3fr_3fr_2fr_20px] gap-1 mb-0.5 mt-0.5">
+                          <div className="text-[9px] font-bold tracking-widest uppercase text-[#848785] dark:text-gray-500 text-center">Set</div>
+                          <div className="text-[9px] font-bold tracking-widest uppercase text-[#848785] dark:text-gray-500 text-center">{col1Label}</div>
+                          <div className="text-[9px] font-bold tracking-widest uppercase text-[#848785] dark:text-gray-500 text-center">{col2Label}</div>
+                          <div className="text-[9px] font-bold tracking-widest uppercase text-[#848785] dark:text-gray-500 text-center" title="Rate of Perceived Exertion / Reps In Reserve">RPE/RIR</div>
+                          <div />
+                        </div>
 
                       {/* Set Rows */}
                       <div className="space-y-1.5">
@@ -1029,7 +1109,13 @@ export const SoloView: React.FC<SoloViewProps> = ({
                             <div key={s.id} className="flex flex-col gap-0.5">
                               <div className="set-row-flat">
                                 <div className={`text-[11px] font-mono font-semibold text-center ${setComplete ? 'text-red-700 dark:text-red-400' : 'text-[#000000] dark:text-white'}`}>
-                                  {setComplete ? <Check className="w-2.5 h-2.5 mx-auto" /> : idx + 1}
+                                  {s.isWarmup ? (
+                                    <span className="text-[9px] font-bold px-1 py-0.5 rounded bg-amber-500/15 text-amber-600 dark:text-amber-400">W</span>
+                                  ) : setComplete ? (
+                                    <Check className="w-2.5 h-2.5 mx-auto" />
+                                  ) : (
+                                    idx + 1
+                                  )}
                                 </div>
                                 <div className="relative">
                                   <input
@@ -1120,11 +1206,11 @@ export const SoloView: React.FC<SoloViewProps> = ({
                                     </div>
                                   )}
                                 </div>
-                                <div className="relative">
+                                <div className="relative flex items-center justify-center">
                                   <input
                                     type="text"
                                     readOnly
-                                    value={s.rpe}
+                                    value={s.rpe ? `${s.rpe}` : '8'}
                                     onClick={() =>
                                       onOpenDial('RPE', 10, s.rpe, (val) => {
                                         recordSmartInput('exercise_rpe_' + log.exerciseName, val);
@@ -1137,8 +1223,16 @@ export const SoloView: React.FC<SoloViewProps> = ({
                                         );
                                       })
                                     }
-                                    className="input-pill"
+                                    className="input-pill text-center font-mono cursor-pointer"
                                   />
+                                  {Number(s.rpe) > 0 && (
+                                    <span
+                                      className="absolute -top-1.5 right-0.5 text-[7px] font-mono font-bold px-1 rounded bg-black/5 dark:bg-white/10 text-stone-500 dark:text-stone-400 pointer-events-none"
+                                      title="Reps in reserve"
+                                    >
+                                      {Math.max(0, 10 - Number(s.rpe))}RIR
+                                    </span>
+                                  )}
                                 </div>
                                 <button
                                   onClick={() => handleDeleteSet(log.id, s.id)}
@@ -1148,6 +1242,14 @@ export const SoloView: React.FC<SoloViewProps> = ({
                                   <Trash2 className="w-2.5 h-2.5" />
                                 </button>
                               </div>
+
+                              {/* Live RPE Auto-Regulation Warning at CNS Failure Limit */}
+                              {Number(s.rpe) >= 9.5 && (
+                                <div className="flex items-center gap-1.5 px-2 py-0.5 bg-amber-500/10 dark:bg-amber-500/15 rounded-md text-[9px] font-mono text-amber-700 dark:text-amber-300 border border-amber-500/20 select-none">
+                                  <Activity className="w-2.5 h-2.5 shrink-0 stroke-[2.2]" />
+                                  <span>CNS Peak Limit (@{s.rpe} • {Math.max(0, 10 - Number(s.rpe))} RIR) — Recommend +45s rest or -5% on next set</span>
+                                </div>
+                              )}
 
                               {/* Real-Time Live PR Intelligence & Auto-Progressive Overload Telemetry */}
                               {progression && (progression.isNewPR || progression.current1RM > 0) && (
@@ -1189,7 +1291,9 @@ export const SoloView: React.FC<SoloViewProps> = ({
                       {/* Quick Seconds Bar (Timed Exercises Only) */}
                       {isTimedExercise && (
                         <div className="mt-1.5 pt-1.5 border-t border-[rgba(0,0,0,0.08)] dark:border-white/10 flex items-center gap-1 overflow-x-auto scrollbar-hide">
-                          <span className="text-[9px] font-bold tracking-wide uppercase text-[#848785] whitespace-nowrap">⏱</span>
+                          <span className="text-[9px] font-bold tracking-wide uppercase text-[#848785] whitespace-nowrap flex items-center">
+                            <Timer className="w-3 h-3 stroke-[2.2]" />
+                          </span>
                           {[30, 60, 90, 120].map((sec) => (
                             <button
                               key={sec}
@@ -1206,13 +1310,46 @@ export const SoloView: React.FC<SoloViewProps> = ({
                         </div>
                       )}
 
-                      {/* In-Flow Action Row: Add Set + Voice Log + Delete Exercise */}
+                      {/* In-Flow Action Row: Add Set + Warmup Ladder + Superset + Delete Exercise */}
                       <div className="mt-1.5 flex items-center gap-1">
                         <button
                           onClick={() => handleAddSet(log.id)}
                           className="flex-1 h-7 rounded-md border border-dashed border-red-700/40 text-red-700 dark:text-red-400 hover:bg-red-700/5 font-medium text-xs transition-all duration-200 active:scale-[0.98] flex items-center justify-center gap-1 cursor-pointer"
                         >
                           <Plus className="w-3 h-3" /> Add Set
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => {
+                            haptic.tap();
+                            const firstSetWeight = log.sets.find((s) => Number(s.weight) > 0)?.weight || 100;
+                            setWarmupModal({
+                              isOpen: true,
+                              exerciseName: log.exerciseName,
+                              logId: log.id,
+                              workingWeight: Number(firstSetWeight),
+                            });
+                          }}
+                          className="h-7 px-2 rounded-md border border-amber-500/30 text-amber-600 dark:text-amber-400 hover:bg-amber-500/10 text-xs font-mono font-medium transition-all active:scale-95 flex items-center gap-1 cursor-pointer"
+                          title="Scientific 4-Stage Warm-Up Ladder"
+                        >
+                          <Flame className="w-3 h-3 stroke-[2.2]" />
+                          <span className="hidden sm:inline">Warmup</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => handleToggleSuperset(log.id)}
+                          className={`h-7 px-2 rounded-md border text-xs font-mono font-medium transition-all active:scale-95 flex items-center gap-1 cursor-pointer ${
+                            log.supersetGroupId
+                              ? 'border-purple-500/40 bg-purple-500/15 text-purple-600 dark:text-purple-400'
+                              : 'border-zinc-300 dark:border-white/10 text-zinc-600 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/5'
+                          }`}
+                          title={log.supersetGroupId ? 'Unlink Superset' : 'Link as Superset with Adjacent Exercise'}
+                        >
+                          <Layers className="w-3 h-3 stroke-[2.2]" />
+                          <span className="hidden sm:inline">{log.supersetGroupId ? 'Linked' : 'Superset'}</span>
                         </button>
 
                         <button
@@ -1244,8 +1381,8 @@ export const SoloView: React.FC<SoloViewProps> = ({
           </button>
         )}
 
-        {/* ── OFC Microcycle Kinetic Progress Barometer ── */}
-        <div className="mt-2">
+        {/* ── Microcycle Load & Volume Barometer ── */}
+        <div className="mt-3">
           <WeeklyProgressChart
             selectedDay={selectedDay}
             onSelectDay={onSelectDay}
@@ -1258,41 +1395,39 @@ export const SoloView: React.FC<SoloViewProps> = ({
         {/* ── Weekly Report Card Strip ── */}
         <button
           onClick={() => setIsReportCardOpen(true)}
-          className="w-full group flex items-center justify-between gap-2 px-3 py-2.5 rounded-xl bg-white dark:bg-[#13161A] border border-slate-200 dark:border-white/10 hover:border-[#4285F4]/40 dark:hover:border-[#4285F4]/40 transition-all cursor-pointer active:scale-[0.98] mt-1 shadow-2xs"
+          className="w-full group flex items-center justify-between gap-2 px-3.5 py-3 rounded-2xl bg-white dark:bg-[#13161A] border border-slate-200 dark:border-white/10 hover:border-[#4285F4]/40 dark:hover:border-[#4285F4]/40 transition-all cursor-pointer active:scale-[0.98] mt-2 shadow-2xs"
         >
-          <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-7 h-7 rounded-lg bg-[#4285F4]/10 border border-[#4285F4]/20 flex items-center justify-center shrink-0">
-              <Zap className="w-3.5 h-3.5 text-[#4285F4]" />
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-8 h-8 rounded-xl bg-[#4285F4]/10 border border-[#4285F4]/20 flex items-center justify-center shrink-0">
+              <Zap className="w-4 h-4 text-[#4285F4]" />
             </div>
             <div className="min-w-0 text-left">
-              <div className="text-[12px] font-bold text-slate-900 dark:text-white tracking-tight">Weekly Report Card</div>
-              <div className="text-[9px] font-mono text-slate-500 dark:text-zinc-400 truncate">Grade your week -- training, nutrition, sleep & steps</div>
+              <div className="text-[13px] font-bold text-slate-900 dark:text-white tracking-tight">Weekly Report Card</div>
+              <div className="text-[10.5px] font-mono text-slate-500 dark:text-zinc-400 truncate">Grade your week -- training, nutrition, sleep &amp; steps</div>
             </div>
           </div>
           <ChevronRight className="w-4 h-4 text-slate-400 dark:text-zinc-500 group-hover:text-slate-900 dark:group-hover:text-white transition-colors shrink-0" />
         </button>
 
-        {/* ── Intel Coach Insights Strip ── */}
+        {/* ── Intel Coach Intelligence Strip ── */}
         {onOpenAIInsights && (
           <button
             onClick={onOpenAIInsights}
-            className="w-full group flex items-center justify-between gap-2 px-3 py-2.5 rounded-xl bg-white dark:bg-[#121214] border border-slate-200 dark:border-white/10 hover:border-[#FBBC05]/40 dark:hover:border-[#FBBC05]/40 transition-all cursor-pointer active:scale-[0.98] mt-1 shadow-2xs"
+            className="w-full group flex items-center justify-between gap-2 px-3.5 py-3 rounded-2xl bg-white dark:bg-[#121214] border border-slate-200 dark:border-white/10 hover:border-[#FBBC05]/40 dark:hover:border-[#FBBC05]/40 transition-all cursor-pointer active:scale-[0.98] mt-2 shadow-2xs"
           >
-            <div className="flex items-center gap-2.5 min-w-0">
-              <div className="w-7 h-7 rounded-lg bg-[#FBBC05]/10 border border-[#FBBC05]/20 flex items-center justify-center shrink-0">
-                <Sparkles className="w-3.5 h-3.5 text-[#FBBC05]" />
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="w-8 h-8 rounded-xl bg-[#FBBC05]/10 border border-[#FBBC05]/20 flex items-center justify-center shrink-0">
+                <Sparkles className="w-4 h-4 text-[#FBBC05]" />
               </div>
               <div className="min-w-0 text-left">
-                <div className="text-[12px] font-bold text-slate-900 dark:text-white tracking-tight">Intel Coach Intelligence</div>
-                <div className="text-[9px] font-mono text-slate-500 dark:text-zinc-400 truncate">Session analysis, fuel status & recovery insights</div>
+                <div className="text-[13px] font-bold text-slate-900 dark:text-white tracking-tight">Intel Coach Intelligence</div>
+                <div className="text-[10.5px] font-mono text-slate-500 dark:text-zinc-400 truncate">Session analysis, fuel status &amp; recovery insights</div>
               </div>
             </div>
             <ChevronRight className="w-4 h-4 text-slate-400 dark:text-zinc-500 group-hover:text-slate-900 dark:group-hover:text-white transition-colors shrink-0" />
           </button>
         )}
       </div>
-
-
 
       <WeeklyReportCardModal
         isOpen={isReportCardOpen}
@@ -1318,6 +1453,20 @@ export const SoloView: React.FC<SoloViewProps> = ({
         />
       )}
 
+      {warmupModal && (
+        <WarmupLadderModal
+          isOpen={warmupModal.isOpen}
+          onClose={() => setWarmupModal(null)}
+          exerciseName={warmupModal.exerciseName}
+          workingWeight={warmupModal.workingWeight}
+          onApplyWarmupSets={(sets) => {
+            handleApplyWarmupSets(warmupModal.logId, sets);
+            setWarmupModal(null);
+            showToast(`Inserted 4-stage warmup ladder for ${warmupModal.exerciseName}`, 'success');
+          }}
+        />
+      )}
+
       <VictoryShareModal
         isOpen={isVictoryShareOpen}
         onClose={() => setIsVictoryShareOpen(false)}
@@ -1328,6 +1477,12 @@ export const SoloView: React.FC<SoloViewProps> = ({
           athleteHandle: getSocialHandle('instagram', loadSocialProfiles()) || undefined,
         }}
         showToast={showToast}
+      />
+
+      {/* Biometrics & Physiological Telemetry Inspector */}
+      <BiometricModal
+        type={activeBiometricType}
+        onClose={() => setActiveBiometricType(null)}
       />
     </div>
   );

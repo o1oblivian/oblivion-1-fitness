@@ -54,7 +54,7 @@ if (typeof window !== 'undefined') {
   window.addEventListener('online', () => { flushStepsOfflineQueue(); });
 }
 
-export async function loadDailySteps(email: string, limit = 30): Promise<DailyStepEntry[]> {
+export async function loadDailySteps(email: string, limit = 365): Promise<DailyStepEntry[]> {
   if (isSupabaseConfigured() && navigator.onLine) {
     try {
       const { data, error } = await supabase

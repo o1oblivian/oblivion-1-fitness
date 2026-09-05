@@ -14,6 +14,7 @@ import { MembershipSection } from './MembershipSection';
 import { AccountSection } from './AccountSection';
 import { useAuthStorage, getSessionUserEmail } from '../../hooks/useAuthStorage';
 import { getSavedThemePreference, applyAndSaveTheme, DisplayTheme } from '../../utils/themeStorage';
+import { useModalBackHandler } from '../../utils/modalHistory';
 
 interface SettingsPageProps {
   isOpen: boolean;
@@ -57,6 +58,7 @@ export function SettingsPage({
 
   const [currentName, setCurrentName] = useState(profile.display_name || '');
   const [currentHandle, setCurrentHandle] = useState(profile.username || '');
+  useModalBackHandler(isOpen, onClose, 'settings_page');
   const [themeMode, setThemeMode] = useState<DisplayTheme>(() => theme || getSavedThemePreference());
   const [inputMethod, setInputMethod] = useState<'dial' | 'numpad'>(() => {
     try {

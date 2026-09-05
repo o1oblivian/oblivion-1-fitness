@@ -24,6 +24,7 @@ import {
   Layers,
   Zap,
   RotateCcw,
+  Trophy,
 } from 'lucide-react';
 import { StatCard } from '@/components/ui/FullScreenModal';
 import { ConsentShareModal } from '@/components/ConsentShareModal';
@@ -34,6 +35,8 @@ import { AthleteIntelligenceFeed } from '@/components/AthleteIntelligenceFeed';
 import { WelcomeCrewCards } from '@/components/WelcomeCrewCards';
 import { ProgramCreatorModal } from '@/components/ProgramCreatorModal';
 import { CoachEarningsModal } from '@/components/CoachEarningsModal';
+import { FormCheckTelestratorModal } from '@/components/FormCheckTelestratorModal';
+import { CoachPRAlert, getCoachPRAlerts, acknowledgeCoachPRAlert } from '@/utils/dispatchStore';
 import { COACH_CLIENTS } from '@/data/exerciseDatabase';
 import { useCoachRosterStore, INITIAL_DEMO_CLIENTS } from '@/utils/coachRosterStore';
 import type { AthleteData } from '@/types';
@@ -194,15 +197,42 @@ export const CoachHubView: React.FC<{
   const [earningsSummary, setEarningsSummary] = useState({ totalEarned: 0, pendingPayout: 0, totalPaid: 0, salesCount: 0 });
   const [recentEarnings, setRecentEarnings] = useState<CoachEarning[]>([]);
   const [showAllEarnings, setShowAllEarnings] = useState(false);
+  const [prAlerts, setPrAlerts] = useState<CoachPRAlert[]>([]);
 
   useEffect(() => {
     (async () => {
-      const [summary, earnings] = await Promise.all([fetchEarningsSummary(), fetchCoachEarnings()]);
+      const [summary, earnings, alerts] = await Promise.all([
+        fetchEarningsSummary(),
+        fetchCoachEarnings(),
+        getCoachPRAlerts(),
+      ]);
       if (summary && summary.totalEarned > 0) {
         setEarningsSummary(summary);
       }
       setRecentEarnings(earnings || []);
+      setPrAlerts(alerts || []);
     })();
+
+    const handleNewSubmission = () => {
+      setRealSubmissions(loadPersistedSubmissions());
+    };
+
+    const handleNewPRAlert = () => {
+      getCoachPRAlerts().then((alerts) => setPrAlerts(alerts || []));
+    };
+
+    if (typeof window !== 'undefined') {
+      window.addEventListener('coach_workout_submission_created', handleNewSubmission);
+      window.addEventListener('coach_workout_submission_approved', handleNewSubmission);
+      window.addEventListener('coach_pr_alert_created', handleNewPRAlert);
+      window.addEventListener('coach_pr_alert_updated', handleNewPRAlert);
+      return () => {
+        window.removeEventListener('coach_workout_submission_created', handleNewSubmission);
+        window.removeEventListener('coach_workout_submission_approved', handleNewSubmission);
+        window.removeEventListener('coach_pr_alert_created', handleNewPRAlert);
+        window.removeEventListener('coach_pr_alert_updated', handleNewPRAlert);
+      };
+    }
   }, [activeTab]);
 
   const handleApprove = (id: string) => {
@@ -325,6 +355,53 @@ export const CoachHubView: React.FC<{
         </div>
 
         <div className="h-px bg-zinc-200/80 dark:bg-white/10 -mx-3.5 sm:-mx-4" />
+
+        {/* ── Live Athlete PR Breakthrough Dispatch Alerts ── */}
+        {prAlerts.filter((a) => !a.acknowledged).length > 0 && (
+          <div className="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/30 space-y-2 animate-fadeIn">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 rounded-lg bg-amber-500/20 text-amber-500 flex items-center justify-center">
+                  <Trophy className="w-3.5 h-3.5 stroke-[2.2]" />
+                </div>
+                <span className="text-xs font-bold text-amber-500 tracking-wide">
+                  PR Breakthrough Alert ({prAlerts.filter((a) => !a.acknowledged).length})
+                </span>
+              </div>
+              <span className="text-[9px] font-mono uppercase px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-400 font-bold">
+                HIGH PRIORITY
+              </span>
+            </div>
+
+            <div className="space-y-1.5">
+              {prAlerts.filter((a) => !a.acknowledged).map((alert) => (
+                <div
+                  key={alert.id}
+                  className="flex items-center justify-between p-2 rounded-xl bg-black/20 border border-amber-500/20 text-xs text-stone-200"
+                >
+                  <div className="min-w-0 pr-2">
+                    <span className="font-bold text-white block truncate">
+                      {alert.athleteName} • {alert.exerciseName}
+                    </span>
+                    <span className="text-[10px] font-mono text-amber-400">
+                      {alert.weight}kg × {alert.reps} reps (Est 1RM: {alert.estimated1RM}kg)
+                    </span>
+                  </div>
+
+                  <button
+                    onClick={() => {
+                      acknowledgeCoachPRAlert(alert.id);
+                      showToast(`PR acknowledged for ${alert.athleteName} — mesocycle ready to scale`, 'success');
+                    }}
+                    className="px-2.5 py-1 rounded-lg bg-amber-500 hover:bg-amber-400 text-black font-bold font-mono text-[10px] transition-colors cursor-pointer shrink-0"
+                  >
+                    Acknowledge
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* ── Tactical Command Dock ── */}
         <div className="space-y-2">
@@ -929,41 +1006,20 @@ export const CoachHubView: React.FC<{
         showToast={showToast}
       />
 
-      {/* Video Player Modal */}
-      {activeVideo && createPortal(
-        <div
-          className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/60 dark:bg-black/80 backdrop-blur-md"
-          onClick={() => setActiveVideo(null)}
-        >
-          <div
-            className="bg-white dark:bg-[#121214] border border-neutral-200 dark:border-white/10 rounded-3xl p-4 max-w-sm w-full space-y-3 text-zinc-900 dark:text-white shadow-2xl"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between">
-              <h4 className="text-xs font-bold text-zinc-900 dark:text-white">
-                Form Check: {activeVideo.athleteName}
-              </h4>
-              <button
-                onClick={() => setActiveVideo(null)}
-                className="text-neutral-500 hover:text-neutral-900 dark:text-zinc-400 dark:hover:text-white p-1 rounded-lg hover:bg-neutral-100 dark:hover:bg-white/10 transition-all cursor-pointer"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-            <video
-              src={activeVideo.videoUrl}
-              controls
-              autoPlay
-              className="w-full rounded-2xl aspect-video bg-black object-cover"
-            />
-            {activeVideo.notes && (
-              <p className="text-[11px] text-zinc-700 dark:text-zinc-300 italic bg-neutral-50 dark:bg-white/5 p-2.5 rounded-xl border border-neutral-200 dark:border-white/5">
-                &ldquo;{activeVideo.notes}&rdquo;
-              </p>
-            )}
-          </div>
-        </div>,
-        document.body
+      {/* Video Telestrator & Biomechanical Form Check Modal */}
+      {activeVideo && (
+        <FormCheckTelestratorModal
+          isOpen={!!activeVideo}
+          onClose={() => setActiveVideo(null)}
+          athleteName={activeVideo.athleteName}
+          videoUrl={activeVideo.videoUrl}
+          exerciseTitle={activeVideo.title}
+          athleteNotes={activeVideo.notes}
+          showToast={showToast}
+          onSendFeedback={(feedback) => {
+            showToast(`Form cue sent to ${activeVideo.athleteName}: "${feedback.slice(0, 30)}..."`, 'success');
+          }}
+        />
       )}
     </div>
   );

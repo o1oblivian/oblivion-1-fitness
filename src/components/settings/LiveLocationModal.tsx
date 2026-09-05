@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Search, MapPin, Loader2, Check, Navigation, Building2, X } from 'lucide-react';
 import { useAuthStorage } from '../../hooks/useAuthStorage';
 import { haversineKm } from '../../utils/gymNetworkStore';
+import { useModalBackHandler } from '../../utils/modalHistory';
 
 interface LiveLocationModalProps {
   isOpen: boolean;
@@ -219,11 +220,19 @@ export function LiveLocationModal({
     onClose();
   };
 
+  useModalBackHandler(isOpen, onClose, 'live_location_modal');
+
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[250] bg-black/60 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4">
-      <div className="w-full max-w-lg bg-white dark:bg-zinc-900 rounded-t-3xl sm:rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-2xl flex flex-col max-h-[85vh] overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+    <div
+      className="fixed inset-0 z-[250] bg-black/60 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4"
+      onClick={onClose}
+    >
+      <div
+        className="w-full max-w-lg bg-white dark:bg-zinc-900 rounded-t-3xl sm:rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-2xl flex flex-col max-h-[85vh] overflow-hidden animate-in fade-in zoom-in-95 duration-150"
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Header */}
         <div className="p-4 border-b border-zinc-200/80 dark:border-zinc-800 flex items-center justify-between">
           <div className="flex items-center gap-2.5">

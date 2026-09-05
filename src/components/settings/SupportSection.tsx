@@ -3,6 +3,7 @@ import { Send, CheckCircle, X, Search, ChevronRight, Compass } from 'lucide-reac
 import { SectionHeader, SettingsGroup, SettingsRow } from './SettingsShared';
 import { SupportTicketModal } from './SupportTicketModal';
 import { FirstTimeOnboardingGuide } from '../FirstTimeOnboardingGuide';
+import { useModalBackHandler } from '../../utils/modalHistory';
 
 interface Props {
   onSendFeedback?: (msg: string) => void;
@@ -39,6 +40,7 @@ export function SupportSection({ onSendFeedback, onExportData, triggerToast }: P
   const [showHelpCentre, setShowHelpCentre] = useState(false);
   const [showTicketModal, setShowTicketModal] = useState(false);
   const [showGuideModal, setShowGuideModal] = useState(false);
+  useModalBackHandler(showHelpCentre, () => setShowHelpCentre(false), 'settings_help_centre');
   const [helpSearch, setHelpSearch] = useState('');
   const [expandedFaq, setExpandedFaq] = useState<string | null>(null);
 

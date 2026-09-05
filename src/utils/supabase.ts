@@ -17,20 +17,37 @@ export const isSupabaseConfigured = (): boolean => {
 
 export const storageAdapter = {
   getItem: async (key: string): Promise<string | null> => {
-    if (typeof window !== 'undefined' && window.localStorage) {
-      return localStorage.getItem(key);
-    }
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        return window.localStorage.getItem(key);
+      }
+      if (typeof localStorage !== 'undefined') {
+        return localStorage.getItem(key);
+      }
+    } catch {}
     return null;
   },
   setItem: async (key: string, value: string): Promise<void> => {
-    if (typeof window !== 'undefined' && window.localStorage) {
-      localStorage.setItem(key, value);
-    }
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        window.localStorage.setItem(key, value);
+        return;
+      }
+      if (typeof localStorage !== 'undefined') {
+        localStorage.setItem(key, value);
+      }
+    } catch {}
   },
   removeItem: async (key: string): Promise<void> => {
-    if (typeof window !== 'undefined' && window.localStorage) {
-      localStorage.removeItem(key);
-    }
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        window.localStorage.removeItem(key);
+        return;
+      }
+      if (typeof localStorage !== 'undefined') {
+        localStorage.removeItem(key);
+      }
+    } catch {}
   },
 };
 
@@ -44,8 +61,35 @@ export const supabase: SupabaseClient = createClient(
       persistSession: true,
       detectSessionInUrl: true,
     },
+    realtime: {
+      params: {
+        eventsPerSecond: 10,
+      },
+      timeout: 30000,
+      heartbeatIntervalMs: 15000,
+    },
   }
 );
+
+// Automatic Realtime Channel Reconnect & Presence Recovery for Gym Basements
+if (typeof window !== 'undefined') {
+  const recoverRealtimeConnection = () => {
+    try {
+      if (navigator.onLine && supabase.realtime) {
+        supabase.realtime.connect();
+      }
+    } catch (e) {
+      console.warn('[Supabase Realtime] Reconnect notice:', e);
+    }
+  };
+
+  window.addEventListener('online', recoverRealtimeConnection);
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') {
+      recoverRealtimeConnection();
+    }
+  });
+}
 
 export async function supabaseSignUp(email: string, password: string, name?: string) {
   try {
@@ -125,29 +169,60 @@ export function subscribeToRealtimeTable(
 ) {
   if (!isSupabaseConfigured()) return null;
 
-  try {
-    const channelName = filter ? `realtime_${tableName}_${filter.replace(/[^a-zA-Z0-9_]/g, '_')}` : `realtime_${tableName}`;
-    const channelConfig: any = { event: '*', schema: 'public', table: tableName };
-    if (filter) {
-      channelConfig.filter = filter;
-    }
+  let channel: any = null;
+  let retryTimeout: any = null;
+  let retryDelayMs = 1500;
+  let isDissolved = false;
 
-    const channel = supabase
-      .channel(channelName)
-      .on(
-        'postgres_changes' as any,
-        channelConfig,
-        (payload: any) => {
+  const connect = () => {
+    if (isDissolved) return;
+    try {
+      const channelName = filter
+        ? `realtime_${tableName}_${filter.replace(/[^a-zA-Z0-9_]/g, '_')}_${Date.now()}`
+        : `realtime_${tableName}_${Date.now()}`;
+
+      const channelConfig: any = { event: '*', schema: 'public', table: tableName };
+      if (filter) {
+        channelConfig.filter = filter;
+      }
+
+      channel = supabase
+        .channel(channelName)
+        .on('postgres_changes' as any, channelConfig, (payload: any) => {
           onPayload(payload);
-        }
-      )
-      .subscribe();
+        })
+        .subscribe((status: string) => {
+          if (status === 'SUBSCRIBED') {
+            retryDelayMs = 1500;
+          } else if (
+            (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') &&
+            !isDissolved
+          ) {
+            if (retryTimeout) clearTimeout(retryTimeout);
+            retryTimeout = setTimeout(() => {
+              if (navigator.onLine && !isDissolved) {
+                connect();
+              }
+            }, retryDelayMs);
+            retryDelayMs = Math.min(20000, retryDelayMs * 1.8);
+          }
+        });
+    } catch (e) {
+      console.warn(`Realtime subscription error for ${tableName}:`, e);
+    }
+  };
 
-    return channel;
-  } catch (e) {
-    console.warn(`Realtime subscription error for ${tableName}:`, e);
-    return null;
-  }
+  connect();
+
+  return {
+    unsubscribe: () => {
+      isDissolved = true;
+      if (retryTimeout) clearTimeout(retryTimeout);
+      if (channel) {
+        supabase.removeChannel(channel).catch(() => {});
+      }
+    },
+  };
 }
 
 export async function fetchNearbyGymsPostGIS(lat: number, lng: number, radiusMeters = 25000) {

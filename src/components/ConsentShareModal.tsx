@@ -28,6 +28,11 @@ import {
   Eye,
 } from 'lucide-react';
 import { supabase } from '@/utils/supabase';
+import {
+  createShareConsentRequest,
+  getConsentRequestStatus,
+} from '@/utils/shareConsentStore';
+import { useModalBackHandler } from '@/utils/modalHistory';
 
 interface SubmissionData {
   id: string;
@@ -228,63 +233,39 @@ export const ConsentShareModal: React.FC<ConsentShareModalProps> = ({
   const handleSendConsent = async () => {
     if (!submission) return;
     setSending(true);
-    const code = generateOTP();
-    setOtpCode(code);
-
     const clientEmail = submission.userEmail || `${submission.athleteName.toLowerCase().replace(/\s+/g, '.')}@o1fc.app`;
     const shareTypeStr = Array.from(selectedTypes).join(', ');
 
     try {
-      const { data, error } = await supabase
-        .from('share_consent_requests')
-        .insert({
-          coach_email: coachEmail || 'coach@o1fc.app',
-          client_email: clientEmail,
-          client_name: submission.athleteName,
-          share_type: shareTypeStr,
-          share_description: `Sharing ${shareTypeStr}. ${description}`.trim(),
-          otp_code: code,
-          expires_at: new Date(Date.now() + 10 * 60 * 1000).toISOString(),
-        })
-        .select('id')
-        .maybeSingle();
-
-      if (error) {
-        console.warn('Supabase consent request error (using local state fallback):', error);
-      }
-      if (data?.id) {
-        setRequestId(data.id);
-      } else {
-        setRequestId(`req_${Date.now()}`);
-      }
-
+      const request = await createShareConsentRequest({
+        coachEmail: coachEmail || 'coach@o1fc.app',
+        clientEmail,
+        clientName: submission.athleteName,
+        shareType: shareTypeStr,
+        shareDescription: `Sharing ${shareTypeStr}. ${description}`.trim(),
+      });
+      setOtpCode(request.otp_code);
+      setRequestId(request.id);
       setStep('consent');
-      showToast(`Consent code #${code} sent to ${submission.athleteName}!`, 'success');
+      showToast(`Consent code #${request.otp_code} sent to ${submission.athleteName}!`, 'success');
     } catch (e) {
-      console.warn('Fallback to local OTP consent flow:', e);
-      setRequestId(`req_${Date.now()}`);
-      setStep('consent');
-      showToast(`Consent code #${code} sent to ${submission.athleteName}!`, 'success');
+      console.warn('Fallback error sending consent request:', e);
+      showToast('Failed to send consent request', 'error');
     } finally {
       setSending(false);
     }
   };
 
   const pollConsent = useCallback(async () => {
-    if (!requestId || requestId.startsWith('req_')) return;
+    if (!requestId) return;
     try {
-      const { data } = await supabase
-        .from('share_consent_requests')
-        .select('status')
-        .eq('id', requestId)
-        .maybeSingle();
-
-      if (data?.status === 'approved') {
+      const { status } = await getConsentRequestStatus(requestId);
+      if (status === 'approved') {
         setConsentStatus('approved');
         setPolling(false);
         setStep('share');
         showToast(`${submission?.athleteName} approved sharing!`, 'success');
-      } else if (data?.status === 'denied') {
+      } else if (status === 'denied') {
         setConsentStatus('denied');
         setPolling(false);
         showToast(`${submission?.athleteName} denied the share request`, 'error');
@@ -489,6 +470,8 @@ export const ConsentShareModal: React.FC<ConsentShareModalProps> = ({
       showToast('Failed to export graphic card', 'error');
     }
   };
+
+  useModalBackHandler(isOpen && !!submission, onClose, 'consent_share_modal');
 
   if (!isOpen || !submission) return null;
 

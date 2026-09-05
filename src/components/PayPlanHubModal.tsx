@@ -36,7 +36,7 @@ const ATHLETE_PLANS: PlanDef[] = [
   {
     id: 'founder_pass',
     name: 'Founder Pass',
-    tagline: 'Lifetime All-Access (First 1K)',
+    tagline: 'Lifetime All-Access (First 5,000)',
     price: '$24.00',
     period: 'once',
     popular: true,
@@ -807,6 +807,14 @@ export const PayPlanHubModal: React.FC<PayPlanHubModalProps> = ({
             </>
           )}
 
+          {/* ── Native Cross-Platform Compliance Notice ── */}
+          {isNativePlatform() && !isFree && (
+            <div className="p-2.5 rounded-xl bg-zinc-100 dark:bg-white/[0.04] border border-zinc-200 dark:border-white/10 text-[10px] text-zinc-600 dark:text-zinc-400 flex items-start gap-2">
+              <ShieldCheck className="w-3.5 h-3.5 text-red-500 shrink-0 mt-0.5" />
+              <span>Multiplatform Subscription: Your plan unlocks across all devices. Tap below to proceed via secure portal, or tap Restore below if already subscribed.</span>
+            </div>
+          )}
+
           {/* ── PRIMARY CTA ── */}
           <button
             type="button"
@@ -821,6 +829,12 @@ export const PayPlanHubModal: React.FC<PayPlanHubModalProps> = ({
               </div>
             ) : isFree ? (
               <span>Continue with Free</span>
+            ) : isNativePlatform() ? (
+              <>
+                <Lock className="w-4 h-4 stroke-[2.5]" />
+                <span>Open Secure Web Portal</span>
+                <ArrowRight className="w-4 h-4 stroke-[2.5]" />
+              </>
             ) : (
               <>
                 <Lock className="w-4 h-4 stroke-[2.5]" />

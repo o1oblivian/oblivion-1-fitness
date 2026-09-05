@@ -1,6 +1,10 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { ShieldCheck, X, CheckCircle2, XCircle, Clock, Share2 } from 'lucide-react';
-import { supabase } from '@/utils/supabase';
+import {
+  getPendingConsentRequestsForClient,
+  respondToConsentRequest,
+  type ShareConsentRequest,
+} from '@/utils/shareConsentStore';
 
 interface ConsentRequest {
   id: string;
@@ -26,18 +30,16 @@ export const ClientConsentBanner: React.FC<ClientConsentBannerProps> = ({ client
 
   const fetchPending = useCallback(async () => {
     if (!clientEmail) return;
-    const { data } = await supabase
-      .from('share_consent_requests')
-      .select('id, coach_email, client_name, share_type, share_description, otp_code, expires_at')
-      .eq('client_email', clientEmail)
-      .eq('status', 'pending')
-      .gt('expires_at', new Date().toISOString())
-      .order('created_at', { ascending: false });
-
-    if (data && data.length > 0) {
-      setRequests(data);
-      setActiveRequest(prev => prev || data[0]);
-    } else {
+    try {
+      const data = await getPendingConsentRequestsForClient(clientEmail);
+      if (data && data.length > 0) {
+        setRequests(data);
+        setActiveRequest(prev => prev || data[0]);
+      } else {
+        setRequests([]);
+        setActiveRequest(null);
+      }
+    } catch {
       setRequests([]);
       setActiveRequest(null);
     }
@@ -55,19 +57,17 @@ export const ClientConsentBanner: React.FC<ClientConsentBannerProps> = ({ client
       showToast('Enter the full 3-digit code', 'error');
       return;
     }
-    if (otpInput !== activeRequest.otp_code) {
-      showToast('Incorrect code. Please check and try again.', 'error');
-      return;
-    }
     setResponding(true);
     try {
-      await supabase.from('share_consent_requests')
-        .update({ status: 'approved', responded_at: new Date().toISOString() })
-        .eq('id', activeRequest.id);
-      showToast('Share consent approved!');
-      setActiveRequest(null);
-      setOtpInput('');
-      setRequests(prev => prev.filter(r => r.id !== activeRequest.id));
+      const res = await respondToConsentRequest(activeRequest.id, otpInput, 'approve');
+      if (res.success) {
+        showToast('Share consent approved!');
+        setActiveRequest(null);
+        setOtpInput('');
+        setRequests(prev => prev.filter(r => r.id !== activeRequest.id));
+      } else {
+        showToast(res.error || 'Incorrect code. Please check and try again.', 'error');
+      }
     } catch {
       showToast('Failed to approve', 'error');
     } finally {
@@ -79,9 +79,7 @@ export const ClientConsentBanner: React.FC<ClientConsentBannerProps> = ({ client
     if (!activeRequest) return;
     setResponding(true);
     try {
-      await supabase.from('share_consent_requests')
-        .update({ status: 'denied', responded_at: new Date().toISOString() })
-        .eq('id', activeRequest.id);
+      await respondToConsentRequest(activeRequest.id, '', 'deny');
       showToast('Share request denied');
       setActiveRequest(null);
       setOtpInput('');
@@ -95,9 +93,7 @@ export const ClientConsentBanner: React.FC<ClientConsentBannerProps> = ({ client
 
   const handleDismiss = async () => {
     if (activeRequest) {
-      await supabase.from('share_consent_requests')
-        .update({ status: 'dismissed', responded_at: new Date().toISOString() })
-        .eq('id', activeRequest.id);
+      await respondToConsentRequest(activeRequest.id, '', 'dismiss');
       setRequests(prev => prev.filter(r => r.id !== activeRequest.id));
     }
     setActiveRequest(null);

@@ -17,6 +17,7 @@ import {
 import { CardioMachineType, CardioMachineEntry } from '../types/cardio';
 import { saveCardioLog } from '../utils/cardioStorage';
 import { apiFetch } from '../utils/apiUrl';
+import { useModalBackHandler } from '../utils/modalHistory';
 
 interface CardioConsoleScanModalProps {
   isOpen: boolean;
@@ -54,6 +55,8 @@ export const CardioConsoleScanModal: React.FC<CardioConsoleScanModalProps> = ({
 
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const galleryInputRef = useRef<HTMLInputElement>(null);
+
+  useModalBackHandler(isOpen, onClose, 'cardio_console_scan_modal');
 
   if (!isOpen) return null;
 
@@ -203,7 +206,7 @@ export const CardioConsoleScanModal: React.FC<CardioConsoleScanModalProps> = ({
     }
 
     const entry = saveCardioLog({
-      date: 'Today',
+      date: new Date().toISOString().slice(0, 10),
       machineType,
       durationMinutes: finalMins,
       caloriesBurned: finalCals,

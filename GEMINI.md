@@ -23,4 +23,11 @@
 5. **Apple Ecosystem**: Apple OAuth in `AuthModal.tsx`, Apple Pay in Stripe Checkout, Apple Health (HealthKit) telemetry mapping in `BiometricModal.tsx`.
 6. **Unsplash Visual Engine**: `VITE_UNSPLASH_ACCESS_KEY` for athletic vault media.
 
+### Note 3: Automated CI/CD Mobile Deployment Pipeline (Recorded: September 5, 2026)
+1. **Chain of Automation**: AI Studio $\rightarrow$ GitHub (`main`) $\rightarrow$ Codemagic (auto-triggers `ios-release` and `android-release` on Mac M2 runners).
+2. **Apple TestFlight**: `ios-release` compiles web bundle, syncs iOS Capacitor, auto-increments build number (e.g. Build 35), signs with Apple API credentials, and uploads directly to TestFlight with tester notifications.
+3. **Google Play Internal Testing**: `android-release` compiles web bundle, syncs Android Capacitor, signs production AAB (`bundleRelease`), and pushes directly to Google Play's `internal` track.
+4. **Public Store Submission**: Reaching test devices is 100% automated. Promoting to public production requires selecting the build in App Store Connect / promoting the release in Google Play Console.
+
+
 

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { X, Play, Pause, RotateCcw, Check } from 'lucide-react';
 import { haptic } from '../utils/haptics';
 import { playDigitalCrownClick, playRealBellSound } from '../utils/audio';
+import { useModalBackHandler } from '../utils/modalHistory';
 
 interface RotaryDialModalProps {
   isOpen: boolean;
@@ -423,6 +424,8 @@ export const RotaryDialModal: React.FC<RotaryDialModalProps> = ({
     onClose();
   };
 
+  useModalBackHandler(isOpen, onClose, 'rotary_dial_modal');
+
   if (!isOpen) return null;
 
   // Geometry Specs (Clean circular scale)
@@ -477,7 +480,7 @@ export const RotaryDialModal: React.FC<RotaryDialModalProps> = ({
 
   return (
     <div
-      className="fixed inset-0 z-[200] flex items-center justify-center p-3 bg-black/30 dark:bg-black/50 animate-in fade-in duration-150 select-none overflow-y-auto"
+      className="fixed inset-0 z-[200] flex items-center justify-center p-3 pt-[max(0.75rem,env(safe-area-inset-top,0px))] pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] bg-black/30 dark:bg-black/50 animate-in fade-in duration-150 select-none overflow-y-auto"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
@@ -705,7 +708,7 @@ export const RotaryDialModal: React.FC<RotaryDialModalProps> = ({
         </div>
 
         {/* Confirm Button */}
-        <div className="w-full" onPointerDown={(e) => e.stopPropagation()}>
+        <div className="w-full pb-[env(safe-area-inset-bottom,0px)]" onPointerDown={(e) => e.stopPropagation()}>
           <button
             type="button"
             onClick={handleConfirm}

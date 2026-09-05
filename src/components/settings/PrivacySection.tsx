@@ -1,61 +1,60 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { SectionHeader, SettingsGroup, SettingsRow, ToggleSwitch } from './SettingsShared';
-import { supabase, isSupabaseConfigured } from '@/utils/supabase';
+import { useAuthStorage } from '../../hooks/useAuthStorage';
+import { triggerHaptic } from '@/utils/haptics';
+import { isCloudSyncEnabled, setCloudSyncEnabled, enforceLocalOnlyStorage } from '../../utils/cloudSyncPreferences';
 
 export function PrivacySection() {
-  const [crashReports, setCrashReports] = useState(true);
-  const [gymZoneShare, setGymZoneShare] = useState(true);
-  const [publicTelemetry, setPublicTelemetry] = useState(false);
-  const [ghostMode, setGhostMode] = useState(false);
+  const { profile, updateProfile } = useAuthStorage();
+  const [cloudSync, setCloudSync] = useState(() => isCloudSyncEnabled());
 
-  useEffect(() => {
-    if (!isSupabaseConfigured()) return;
-    (async () => {
-      const { data: sess } = await supabase.auth.getSession();
-      const email = sess?.session?.user?.email;
-      if (!email) return;
-      const { data } = await supabase
-        .from('profiles')
-        .select('gym_zone_sharing, public_telemetry, is_ghost_mode')
-        .eq('user_email', email)
-        .maybeSingle();
-      if (data) {
-        setGymZoneShare(data.gym_zone_sharing ?? true);
-        setPublicTelemetry(data.public_telemetry ?? false);
-        setGhostMode(data.is_ghost_mode ?? false);
-      }
-    })();
-  }, []);
+  const ghostMode = profile.is_ghost_mode === true;
+  const crashReports = profile.crash_reports !== false;
+  const gymZoneShare = profile.gym_zone_sharing !== false;
+  const publicTelemetry = profile.public_telemetry !== false;
 
-  const persistToggle = async (field: string, value: boolean) => {
-    if (!isSupabaseConfigured()) return;
-    const { data: sess } = await supabase.auth.getSession();
-    const email = sess?.session?.user?.email;
-    if (!email) return;
-    await supabase.from('profiles').update({ [field]: value }).eq('user_email', email);
+  const handleCloudSyncToggle = (val: boolean) => {
+    triggerHaptic(val ? 'medium' : 'light');
+    setCloudSync(val);
+    if (!val) {
+      enforceLocalOnlyStorage();
+    } else {
+      setCloudSyncEnabled(true);
+    }
   };
 
   const handleGhostMode = (val: boolean) => {
-    setGhostMode(val);
-    if (val) { setGymZoneShare(false); persistToggle('gym_zone_sharing', false); }
-    persistToggle('is_ghost_mode', val);
+    triggerHaptic(val ? 'medium' : 'light');
+    updateProfile({ is_ghost_mode: val });
+  };
+
+  const handleCrashReports = (val: boolean) => {
+    triggerHaptic('light');
+    updateProfile({ crash_reports: val });
   };
 
   const handleGymZone = (val: boolean) => {
-    if (ghostMode && val) { setGhostMode(false); persistToggle('is_ghost_mode', false); }
-    setGymZoneShare(val);
-    persistToggle('gym_zone_sharing', val);
+    triggerHaptic('light');
+    updateProfile({ gym_zone_sharing: val });
   };
 
   const handleTelemetry = (val: boolean) => {
-    setPublicTelemetry(val);
-    persistToggle('public_telemetry', val);
+    triggerHaptic('light');
+    updateProfile({ public_telemetry: val });
   };
 
   return (
     <div>
       <SectionHeader title="Privacy & Social Visibility" />
       <SettingsGroup>
+        <SettingsRow
+          label="Outbound Cloud Sync"
+          sublabel={cloudSync 
+            ? "Backing up workouts & nutrition to cloud database across devices" 
+            : "100% Local-Only Mode active: Zero data leaves your physical device"}
+          rightElement={<ToggleSwitch checked={cloudSync} onChange={handleCloudSyncToggle} />}
+        />
+
         <SettingsRow
           label="Ghost Mode"
           sublabel="Hide from radar entirely. Browse and train in stealth."
@@ -65,7 +64,7 @@ export function PrivacySection() {
         <SettingsRow
           label="Crash & Diagnostics"
           sublabel="Share anonymous performance data to improve stability"
-          rightElement={<ToggleSwitch checked={crashReports} onChange={setCrashReports} />}
+          rightElement={<ToggleSwitch checked={crashReports} onChange={handleCrashReports} />}
         />
 
         <SettingsRow
@@ -83,3 +82,4 @@ export function PrivacySection() {
     </div>
   );
 }
+

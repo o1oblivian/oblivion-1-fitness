@@ -41,6 +41,7 @@ import {
   saveCompletedSession,
 } from '@/utils/sessionVaultStore';
 import { playRealBellSound } from '@/utils/audio';
+import { restTimerEngine } from '@/utils/restTimerEngine';
 import { haptic } from '@/utils/haptics';
 import { subscribeToBuddyNotificationsRealtime } from '@/utils/gymNetworkStore';
 import {
@@ -591,6 +592,18 @@ export function useAppState() {
     return () => window.removeEventListener('workout_logs_batch_synced', handler);
   }, []);
 
+  // Instant notification toast listener
+  useEffect(() => {
+    const handler = (e: any) => {
+      const detail = e.detail;
+      if (detail && detail.title) {
+        showToast(`${detail.title}: ${detail.body}`, 'success');
+      }
+    };
+    window.addEventListener('ofc_instant_notification', handler);
+    return () => window.removeEventListener('ofc_instant_notification', handler);
+  }, []);
+
   // Local-first auto-save for activeLogs
   const prevActiveLogsLenRef = useRef(0);
   useEffect(() => {
@@ -641,64 +654,46 @@ export function useAppState() {
     };
   }, []);
 
-  // Rest timer — timestamp-based so it never drifts when screen locks
-  const restEndTimeRef = useRef<number>(0);
+  // Rest timer — backed by background Web Worker ticker & WakeLock engine
   const [restTimerPaused, setRestTimerPaused] = useState(false);
-  const restPausedRemainingRef = useRef<number>(0);
+
+  useEffect(() => {
+    const unsub = restTimerEngine.subscribe((state) => {
+      setRestTimerSecsState(state.remainingSeconds);
+      setRestTimerRunning(state.isRunning);
+      setRestTimerPaused(state.isPaused);
+    });
+
+    const handleCompleted = (e: any) => {
+      showToast(e.detail?.message || 'Rest time over! Next set ready.', 'success');
+    };
+
+    window.addEventListener('ofc_rest_timer_completed', handleCompleted);
+    return () => {
+      unsub();
+      window.removeEventListener('ofc_rest_timer_completed', handleCompleted);
+    };
+  }, []);
 
   const startRestTimer = (seconds: number) => {
-    restEndTimeRef.current = Date.now() + seconds * 1000;
-    setRestTimerSecsState(seconds);
-    setRestTimerRunning(true);
-    setRestTimerPaused(false);
+    restTimerEngine.start(seconds);
   };
 
   const pauseRestTimer = () => {
-    if (!restTimerRunning || restTimerPaused) return;
-    restPausedRemainingRef.current = Math.max(0, Math.ceil((restEndTimeRef.current - Date.now()) / 1000));
-    setRestTimerPaused(true);
+    restTimerEngine.pause();
   };
 
   const resumeRestTimer = () => {
-    if (!restTimerPaused) return;
-    restEndTimeRef.current = Date.now() + restPausedRemainingRef.current * 1000;
-    setRestTimerPaused(false);
+    restTimerEngine.resume();
   };
 
   const addRestTime = (extraSecs: number) => {
-    if (!restTimerRunning) return;
-    if (restTimerPaused) {
-      restPausedRemainingRef.current += extraSecs;
-      setRestTimerSecsState(restPausedRemainingRef.current);
-    } else {
-      restEndTimeRef.current += extraSecs * 1000;
-    }
+    restTimerEngine.addTime(extraSecs);
   };
 
   const skipRestTimer = () => {
-    setRestTimerRunning(false);
-    setRestTimerPaused(false);
-    setRestTimerSecsState(0);
+    restTimerEngine.stop();
   };
-
-  useEffect(() => {
-    if (!restTimerRunning || restTimerPaused) return;
-    const tick = () => {
-      const remaining = Math.max(0, Math.ceil((restEndTimeRef.current - Date.now()) / 1000));
-      setRestTimerSecsState(remaining);
-      if (remaining <= 0) {
-        setRestTimerRunning(false);
-        showToast('Rest time over! Back to work.');
-        playRealBellSound();
-        haptic.pulse();
-      }
-    };
-    tick();
-    const interval = window.setInterval(tick, 250);
-    const handleVisibility = () => { if (document.visibilityState === 'visible') tick(); };
-    document.addEventListener('visibilitychange', handleVisibility);
-    return () => { clearInterval(interval); document.removeEventListener('visibilitychange', handleVisibility); };
-  }, [restTimerRunning, restTimerPaused]);
 
   // Theme sync
   useEffect(() => {

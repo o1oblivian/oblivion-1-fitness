@@ -60,16 +60,31 @@ interface Props {
 
 export function DevicesSection({ triggerToast }: Props) {
   const [activeDevices, setActiveDevices] = useState<ActiveDevice[]>([]);
-  const [autoSync, setAutoSync] = useState(true);
+  const [autoSync, setAutoSync] = useState(() => {
+    try {
+      return localStorage.getItem('ofc_live_telemetry_stream') !== 'false';
+    } catch {
+      return true;
+    }
+  });
   const [scanning, setScanning] = useState(false);
   const [scanError, setScanError] = useState<string | null>(null);
   const [pairModalOpen, setPairModalOpen] = useState(false);
 
+  const handleToggleAutoSync = (nextVal: boolean) => {
+    setAutoSync(nextVal);
+    try {
+      localStorage.setItem('ofc_live_telemetry_stream', String(nextVal));
+    } catch {}
+    triggerHaptic('light');
+    triggerToast?.(nextVal ? 'Live ingestion telemetry stream enabled' : 'Live ingestion telemetry stream paused');
+  };
+
   // Ingestion metrics state
-  const [currentSteps, setCurrentSteps] = useState(8420);
+  const [currentSteps, setCurrentSteps] = useState(0);
   const [liveHeartRate, setLiveHeartRate] = useState<number | null>(null);
-  const [sleepHours, setSleepHours] = useState(7.5);
-  const [restingHR, setRestingHR] = useState(62);
+  const [sleepHours, setSleepHours] = useState(0);
+  const [restingHR, setRestingHR] = useState<number | null>(null);
 
   // Modal for editing a metric on tap
   const [editingMetric, setEditingMetric] = useState<'steps' | 'heartRate' | 'sleep' | null>(null);
@@ -85,8 +100,8 @@ export function DevicesSection({ triggerToast }: Props) {
       try {
         const telemetry = await fetchHealthTelemetry(userEmail);
         if (telemetry) {
-          setCurrentSteps(telemetry.steps || 8420);
-          setSleepHours(telemetry.sleep_hours || 7.5);
+          setCurrentSteps(telemetry.steps || 0);
+          setSleepHours(telemetry.sleep_hours || 0);
         }
         const stepList = await loadDailySteps(userEmail, 1);
         if (stepList.length > 0) {
@@ -415,7 +430,7 @@ export function DevicesSection({ triggerToast }: Props) {
         <SettingsRow
           label="Live Ingestion Stream"
           sublabel="Stream live heart rate data straight into workout telemetry"
-          rightElement={<ToggleSwitch checked={autoSync} onChange={setAutoSync} />}
+          rightElement={<ToggleSwitch checked={autoSync} onChange={handleToggleAutoSync} />}
         />
 
         {activeDevices.length > 0 && (

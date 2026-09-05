@@ -73,4 +73,15 @@
 6. **Unsplash Visual Engine**:
    - **Key**: Configured via `VITE_UNSPLASH_ACCESS_KEY` (`yvN-Z1XNNrn_1ulP5NuGJu2HqpTWieOG7rO3-GJmysY`) for high-fidelity fitness photography and transformation vault assets.
 
+### Note 3: Automated CI/CD Mobile Deployment Pipeline (Recorded: September 5, 2026)
+1. **Chain of Automation**:
+   - **AI Studio $\rightarrow$ GitHub**: Synced/pushed to repository `github.com/o1oblivian/oblivion-1-fitness` on `main` branch.
+   - **GitHub $\rightarrow$ Codemagic**: Codemagic webhook listens to `push` events on `main` branch, triggering parallel Mac mini M2 build runners.
+   - **Codemagic $\rightarrow$ App Store Connect**: The `ios-release` workflow builds web assets (`vite build`), runs `npx cap sync ios`, auto-increments the TestFlight build number (e.g. Build 35), signs with Apple credentials, and submits directly to TestFlight with automatic email notifications.
+   - **Codemagic $\rightarrow$ Google Play Console**: The `android-release` workflow builds web assets, runs `npx cap sync android`, generates signed production AAB (`bundleRelease`), and publishes directly to Google Play's `internal` track without draft holding.
+2. **Channel Delivery Guarantees**:
+   - **Internal Testing & TestFlight**: 100% automated delivery to test devices.
+   - **Public Store Review**: Requires standard one-click release promotion / submission selection in the respective store dashboards (Google Play Production track rollout / App Store version build attachment).
+
+
 

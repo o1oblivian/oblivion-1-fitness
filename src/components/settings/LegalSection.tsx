@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { X, ShieldCheck } from 'lucide-react';
 import { SectionHeader, SettingsGroup, SettingsRow } from './SettingsShared';
+import { useModalBackHandler } from '../../utils/modalHistory';
 
 export function LegalSection() {
   const [showTerms, setShowTerms] = useState(false);
+  useModalBackHandler(showTerms, () => setShowTerms(false), 'settings_legal_terms');
 
   return (
     <div>

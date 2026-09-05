@@ -83,8 +83,8 @@ export const ExportHelpModal: React.FC<ExportHelpModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-[999] bg-[#F8F9FA] dark:bg-[#0A0A0C] overflow-y-auto animate-fadeIn font-sans">
-      <div className="bg-white dark:bg-[#14171F] border border-[rgba(0,0,0,0.08)] dark:border-white/10 w-full h-full min-h-screen rounded-none p-3.5 shadow-2xl relative text-gray-900 dark:text-white flex flex-col gap-3 overflow-y-auto animate-slideDownFade pb-28">
+    <div className="fixed inset-0 z-[999] bg-black/75 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 overflow-y-auto animate-fadeIn font-sans" onClick={onClose}>
+      <div className="bg-white dark:bg-[#14171F] border border-[rgba(0,0,0,0.08)] dark:border-white/10 w-full max-w-md rounded-2xl p-4 shadow-2xl relative text-gray-900 dark:text-white flex flex-col gap-3 my-auto animate-slideDownFade" onClick={(e) => e.stopPropagation()}>
 
         <div className="flex items-center justify-between border-b border-[rgba(0,0,0,0.08)] pb-3">
           <div className="flex items-center gap-2">

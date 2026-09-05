@@ -2,6 +2,32 @@
 import { getFeedbackPreferences } from './feedbackPreferences';
 
 let audioCtx: AudioContext | null = null;
+let isUnlocked = false;
+
+function unlockAudioContext() {
+  if (isUnlocked || !audioCtx) return;
+  if (audioCtx.state === 'suspended') {
+    audioCtx.resume().then(() => {
+      isUnlocked = true;
+    }).catch(() => {});
+  } else if (audioCtx.state === 'running') {
+    isUnlocked = true;
+  }
+}
+
+// Automatically warm up AudioContext on the first touch, click, or keypress
+if (typeof window !== 'undefined') {
+  const handleFirstInteraction = () => {
+    getAudioContext();
+    unlockAudioContext();
+    window.removeEventListener('pointerdown', handleFirstInteraction);
+    window.removeEventListener('touchstart', handleFirstInteraction);
+    window.removeEventListener('keydown', handleFirstInteraction);
+  };
+  window.addEventListener('pointerdown', handleFirstInteraction, { passive: true, once: true });
+  window.addEventListener('touchstart', handleFirstInteraction, { passive: true, once: true });
+  window.addEventListener('keydown', handleFirstInteraction, { passive: true, once: true });
+}
 
 function getAudioContext(): AudioContext | null {
   if (typeof window === 'undefined') return null;
@@ -12,7 +38,11 @@ function getAudioContext(): AudioContext | null {
       window.AudioContext ||
       (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
     if (AudioContextClass) {
-      audioCtx = new AudioContextClass();
+      try {
+        audioCtx = new AudioContextClass({ latencyHint: 'interactive' });
+      } catch {
+        audioCtx = new AudioContextClass();
+      }
     }
   }
   if (audioCtx && audioCtx.state === 'suspended') {

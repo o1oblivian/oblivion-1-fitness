@@ -78,5 +78,9 @@
 	<string>Oblivion 1 Fitness Club uses motion sensor data to track your real-time daily steps, active burn, and workout cadence.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Oblivion 1 Fitness Club uses your location to discover nearby gym locations and connect with training partners in Tandem mode.</string>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>Oblivion 1 Fitness Club requires Bluetooth to pair with wireless heart rate monitors, Whoop straps, and gym telemetry equipment.</string>
+	<key>NSBluetoothPeripheralUsageDescription</key>
+	<string>Oblivion 1 Fitness Club uses Bluetooth to connect with biometric sensors and gym training gear.</string>
 </dict>
 </plist>

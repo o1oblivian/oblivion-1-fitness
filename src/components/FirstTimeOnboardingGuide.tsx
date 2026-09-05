@@ -14,6 +14,7 @@ import {
   BookOpen
 } from 'lucide-react';
 import { LiquidSilkBackground } from '@/components/ui/LiquidSilkBackground';
+import { useModalBackHandler } from '@/utils/modalHistory';
 
 const ONBOARDING_STORAGE_KEY = 'ofc_onboarding_completed_v1';
 
@@ -133,6 +134,9 @@ export const FirstTimeOnboardingGuide: React.FC<FirstTimeOnboardingGuideProps> =
   };
 
   const isVisible = controlledIsOpen !== undefined ? controlledIsOpen : internalIsOpen;
+
+  useModalBackHandler(isVisible, handleClose, 'onboarding_guide');
+
   if (!isVisible) return null;
 
   return (
@@ -140,6 +144,7 @@ export const FirstTimeOnboardingGuide: React.FC<FirstTimeOnboardingGuideProps> =
       <div 
         id="onboarding-guide-overlay"
         className="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-6 bg-transparent backdrop-blur-md overflow-y-auto"
+        onClick={handleClose}
         style={{
           paddingTop: 'max(12px, env(safe-area-inset-top))',
           paddingBottom: 'max(16px, env(safe-area-inset-bottom))',
@@ -150,6 +155,7 @@ export const FirstTimeOnboardingGuide: React.FC<FirstTimeOnboardingGuideProps> =
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.96, y: 16 }}
           transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+          onClick={(e) => e.stopPropagation()}
           className="relative w-full max-w-lg bg-black/50 backdrop-blur-2xl text-white rounded-[28px] border border-white/15 shadow-2xl overflow-hidden flex flex-col max-h-[90dvh]"
         >
           {/* Background removed for 100% transparent layering */}

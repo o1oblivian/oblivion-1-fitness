@@ -31,7 +31,7 @@ export function calcDurationMinutes(bedtime: string, wakeTime: string): number {
   return wakeMins - bedMins;
 }
 
-export async function loadSleepLogs(email: string, limit = 30): Promise<SleepLogEntry[]> {
+export async function loadSleepLogs(email: string, limit = 365): Promise<SleepLogEntry[]> {
   if (isSupabaseConfigured()) {
     const { data, error } = await supabase
       .from('sleep_logs')

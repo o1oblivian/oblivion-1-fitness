@@ -6,16 +6,59 @@ export const CARDIO_UPDATED_EVENT = 'ofc_cardio_updated';
 // 0% Fake templates - strictly genuine athlete logged cardio/step sessions
 export const INITIAL_CARDIO_LOGS: CardioMachineEntry[] = [];
 
-function isToday(timestamp: number, dateStr?: string): boolean {
-  if (dateStr && dateStr.toLowerCase().includes('today')) return true;
-  if (!timestamp) return false;
-  const d = new Date(timestamp);
+export function isToday(timestamp?: number, dateStr?: string): boolean {
   const now = new Date();
-  return (
-    d.getFullYear() === now.getFullYear() &&
-    d.getMonth() === now.getMonth() &&
-    d.getDate() === now.getDate()
-  );
+  const todayY = now.getFullYear();
+  const todayM = now.getMonth();
+  const todayD = now.getDate();
+
+  // 1. Authoritative check: numeric timestamp
+  if (timestamp && Number.isFinite(timestamp) && timestamp > 0) {
+    const d = new Date(timestamp);
+    return (
+      d.getFullYear() === todayY &&
+      d.getMonth() === todayM &&
+      d.getDate() === todayD
+    );
+  }
+
+  // 2. ISO calendar date check (e.g. "2026-09-04")
+  if (dateStr && /^\d{4}-\d{2}-\d{2}/.test(dateStr)) {
+    const [y, m, d] = dateStr.slice(0, 10).split('-').map(Number);
+    return y === todayY && (m - 1) === todayM && d === todayD;
+  }
+
+  return false;
+}
+
+export function formatCardioDate(timestamp?: number, dateStr?: string): string {
+  let dateObj: Date | null = null;
+
+  if (timestamp && Number.isFinite(timestamp) && timestamp > 0) {
+    dateObj = new Date(timestamp);
+  } else if (dateStr && /^\d{4}-\d{2}-\d{2}/.test(dateStr)) {
+    const [y, m, d] = dateStr.slice(0, 10).split('-').map(Number);
+    dateObj = new Date(y, m - 1, d);
+  }
+
+  if (dateObj && !isNaN(dateObj.getTime())) {
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const target = new Date(dateObj.getFullYear(), dateObj.getMonth(), dateObj.getDate());
+    const diffDays = Math.floor((today.getTime() - target.getTime()) / (1000 * 60 * 60 * 24));
+
+    if (diffDays === 0) return 'Today';
+    if (diffDays === 1) return 'Yesterday';
+    if (diffDays > 1 && diffDays < 7) {
+      return dateObj.toLocaleDateString('en-US', { weekday: 'short' });
+    }
+    return dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  }
+
+  if (dateStr && dateStr !== 'Today') {
+    return dateStr;
+  }
+  return 'Today';
 }
 
 export function getCardioLogs(): CardioMachineEntry[] {
@@ -30,7 +73,7 @@ export function getCardioLogs(): CardioMachineEntry[] {
     const sanitized = parsed.filter((l) => l.id !== 'c-1' && l.id !== 'c-2' && l.id !== 'c-3');
     if (sanitized.length !== parsed.length) hasChanges = true;
 
-    // Self-heal: ensure entries with steps calculate calories & distance if 0
+    // Self-heal: ensure genuine date format & calculate calories & distance if 0
     const healed = sanitized.map((entry) => {
       const steps = entry.stepsCount || 0;
       let cals = entry.caloriesBurned;
@@ -50,8 +93,16 @@ export function getCardioLogs(): CardioMachineEntry[] {
         hasChanges = true;
       }
 
+      // If entry has a timestamp and date is the static string 'Today', heal it to actual ISO date
+      let entryDate = entry.date;
+      if (entry.timestamp && (!entryDate || entryDate === 'Today')) {
+        entryDate = new Date(entry.timestamp).toISOString().slice(0, 10);
+        hasChanges = true;
+      }
+
       return {
         ...entry,
+        date: entryDate,
         caloriesBurned: cals,
         distanceKm: dist,
         durationMinutes: mins,
@@ -115,13 +166,19 @@ export function saveCardioLog(entry: Omit<CardioMachineEntry, 'id' | 'timestamp'
     finalMins = Math.round(steps / 100);
   }
 
+  const now = Date.now();
+  const dateStr = entry.date && entry.date !== 'Today'
+    ? entry.date
+    : new Date(now).toISOString().slice(0, 10);
+
   const newEntry: CardioMachineEntry = {
     ...entry,
+    date: dateStr,
     durationMinutes: finalMins,
     distanceKm: finalDist,
     caloriesBurned: finalCals,
-    id: `cardio-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
-    timestamp: Date.now(),
+    id: `cardio-${now}-${Math.random().toString(36).slice(2, 7)}`,
+    timestamp: now,
   };
 
   const updated = [newEntry, ...logs];

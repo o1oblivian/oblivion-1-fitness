@@ -14,12 +14,40 @@ export function LocationSection({
   onOpenTravelPass,
   triggerToast,
 }: LocationSectionProps) {
-  const { getProfile, updateProfile } = useAuthStorage();
-  const profile = getProfile() || {};
-  const [autoLocation, setAutoLocation] = useState(true);
+  const { profile, updateProfile } = useAuthStorage();
+  const autoLocation = profile.auto_location_enabled !== false;
   const [isLiveLocationOpen, setIsLiveLocationOpen] = useState(false);
 
   const homeGym = profile.home_gym || 'Melbourne, AU';
+
+  const handleToggleAutoLocation = (nextVal: boolean) => {
+    if (nextVal) {
+      if (typeof window !== 'undefined' && 'geolocation' in navigator) {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            const { latitude, longitude, accuracy } = pos.coords;
+            updateProfile({
+              auto_location_enabled: true,
+              latitude,
+              longitude,
+            });
+            triggerToast?.(`Live GPS synchronized (±${Math.round(accuracy)}m)`);
+          },
+          () => {
+            updateProfile({ auto_location_enabled: true });
+            triggerToast?.('Auto-Location enabled');
+          },
+          { timeout: 8000, enableHighAccuracy: true }
+        );
+      } else {
+        updateProfile({ auto_location_enabled: true });
+        triggerToast?.('Auto-Location enabled');
+      }
+    } else {
+      updateProfile({ auto_location_enabled: false });
+      triggerToast?.('Auto-Location disabled (Static base active)');
+    }
+  };
 
   const handleLocationSelected = (name: string, lat?: number, lng?: number) => {
     updateProfile({
@@ -36,7 +64,7 @@ export function LocationSection({
         <SettingsRow
           label="Auto-Location"
           sublabel="Boost match accuracy with nearby athletes"
-          rightElement={<ToggleSwitch checked={autoLocation} onChange={setAutoLocation} />}
+          rightElement={<ToggleSwitch checked={autoLocation} onChange={handleToggleAutoLocation} />}
         />
 
         <SettingsRow

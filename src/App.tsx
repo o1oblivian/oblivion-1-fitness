@@ -297,8 +297,6 @@ export default function App() {
             showToast={s.showToast}
             currentMode={s.currentMode}
             onModeChange={s.handleModeChange}
-            syncStatus={s.syncStatus}
-            onSyncPendingLogs={s.handleManualSyncPendingLogs}
             onOpenCommunityHub={() => s.setIsCommunityHubOpen(true)}
             onOpenShareGoalCard={() => s.setIsShareModalOpen(true)}
             onOpenSearch={() => s.setIsGlobalSearchOpen(true)}
@@ -336,7 +334,7 @@ export default function App() {
           <main
             onTouchStart={s.handleTouchStart}
             onTouchEnd={s.handleTouchEnd}
-            className="w-full max-w-md mx-auto px-3 sm:px-4 pt-[max(0.5rem,env(safe-area-inset-top,0px))] pb-[max(4.25rem,calc(env(safe-area-inset-bottom,0px)+3.75rem))] flex-1 flex flex-col items-center justify-start relative z-10 box-border overflow-y-auto overflow-x-hidden hide-scrollbar overscroll-contain"
+            className="w-full max-w-md mx-auto px-3 sm:px-4 pt-[max(0.5rem,env(safe-area-inset-top,0px))] pb-[max(3.75rem,calc(env(safe-area-inset-bottom,0px)+3.25rem))] flex-1 flex flex-col items-center justify-start relative z-10 box-border overflow-y-auto overflow-x-hidden hide-scrollbar overscroll-contain"
           >
             {/* Tracker tab - always mounted */}
             <div className={`w-full flex flex-col gap-2 ${s.currentMode === 'tracker' ? 'tab-view-enter' : 'hidden'}`}>

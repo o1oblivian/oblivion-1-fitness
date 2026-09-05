@@ -31,7 +31,21 @@ const STORAGE_KEY = 'coach_dispatched_workouts_v2';
 // In-memory initial seed if empty
 const INITIAL_DISPATCHED_WORKOUTS: DispatchedWorkout[] = [];
 
-export async function getDispatchedWorkouts(coachId?: string, limit = 100): Promise<DispatchedWorkout[]> {
+let _dispatchedMemoryCache: { timestamp: number; data: DispatchedWorkout[] } | null = null;
+const CACHE_TTL_MS = 2000;
+
+export function invalidateDispatchedCache() {
+  _dispatchedMemoryCache = null;
+}
+
+export async function getDispatchedWorkouts(coachId?: string, limit = 2000, forceRefresh = false): Promise<DispatchedWorkout[]> {
+  // Check memory cache if not forcing refresh and no specific coach filter
+  if (!forceRefresh && !coachId && _dispatchedMemoryCache && (Date.now() - _dispatchedMemoryCache.timestamp < CACHE_TTL_MS)) {
+    return _dispatchedMemoryCache.data.slice(0, limit);
+  }
+
+  let results: DispatchedWorkout[] = [];
+
   // 1. Try Supabase if configured
   if (isSupabaseConfigured()) {
     try {
@@ -47,7 +61,7 @@ export async function getDispatchedWorkouts(coachId?: string, limit = 100): Prom
 
       const { data, error } = await query;
       if (!error && data && data.length > 0) {
-        return data.map((row: any) => ({
+        results = data.map((row: any) => ({
           id: row.id,
           coachId: row.coachid,
           coachName: row.coachname,
@@ -68,19 +82,34 @@ export async function getDispatchedWorkouts(coachId?: string, limit = 100): Prom
     }
   }
 
-  // 2. Fallback to storageAdapter (localStorage/AsyncStorage)
-  const stored = await storageAdapter.getItem(STORAGE_KEY);
-  if (stored) {
-    try {
-      return JSON.parse(stored);
-    } catch (e) {
-      console.error('Parse stored workouts error:', e);
+  // 2. Fallback to storageAdapter if Supabase returned nothing
+  if (results.length === 0) {
+    const stored = await storageAdapter.getItem(STORAGE_KEY);
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed)) {
+          if (coachId) {
+            results = parsed.filter((w) => w.coachId === coachId).slice(0, limit);
+          } else {
+            results = parsed.slice(0, limit);
+          }
+        }
+      } catch (e) {
+        console.error('Parse stored workouts error:', e);
+      }
     }
   }
 
-  // Save initial seed if nothing found
-  await storageAdapter.setItem(STORAGE_KEY, JSON.stringify(INITIAL_DISPATCHED_WORKOUTS));
-  return INITIAL_DISPATCHED_WORKOUTS;
+  if (results.length === 0 && !coachId) {
+    results = INITIAL_DISPATCHED_WORKOUTS;
+  }
+
+  if (!coachId) {
+    _dispatchedMemoryCache = { timestamp: Date.now(), data: results };
+  }
+
+  return results;
 }
 
 export async function dispatchWorkout(workout: Omit<DispatchedWorkout, 'id' | 'createdAt' | 'status'>): Promise<DispatchedWorkout> {
@@ -110,11 +139,12 @@ export async function dispatchWorkout(workout: Omit<DispatchedWorkout, 'id' | 'c
   });
 
   // 1. Get existing
-  const currentWorkouts = await getDispatchedWorkouts();
-  const updated = [newWorkout, ...currentWorkouts];
+  const currentWorkouts = await getDispatchedWorkouts(undefined, 2000);
+  const updated = [newWorkout, ...currentWorkouts.filter((w) => w.id !== newWorkout.id)];
 
-  // 2. Save locally
-  await storageAdapter.setItem(STORAGE_KEY, JSON.stringify(updated.slice(0, 200)));
+  // 2. Save locally (up to 2000 capacity)
+  await storageAdapter.setItem(STORAGE_KEY, JSON.stringify(updated.slice(0, 2000)));
+  invalidateDispatchedCache();
 
   // 3. Save to Supabase table if available
   if (isSupabaseConfigured()) {
@@ -148,18 +178,21 @@ export async function dispatchWorkout(workout: Omit<DispatchedWorkout, 'id' | 'c
   return newWorkout;
 }
 
-export async function getDispatchedWorkoutsForClient(clientKeyOrName: string): Promise<DispatchedWorkout[]> {
-  const all = await getDispatchedWorkouts();
-  const normalizedSearch = clientKeyOrName.toLowerCase();
+export async function getDispatchedWorkoutsForClient(clientKeyOrName: string, limit = 2000): Promise<DispatchedWorkout[]> {
+  const all = await getDispatchedWorkouts(undefined, limit);
+  const normalizedSearch = clientKeyOrName.trim().toLowerCase();
+  if (!normalizedSearch) return [];
 
   return all.filter((w) =>
-    w.clientIds.some(
-      (id) =>
-        id.toLowerCase() === normalizedSearch ||
-        id.toLowerCase().includes(normalizedSearch)
-    ) ||
+    w.clientIds.some((id) => {
+      const normId = id.trim().toLowerCase();
+      return normId === normalizedSearch || (normalizedSearch.length >= 3 && normId.includes(normalizedSearch));
+    }) ||
     (w.clientNames &&
-      w.clientNames.some((n) => n.toLowerCase().includes(normalizedSearch)))
+      w.clientNames.some((n) => {
+        const normN = n.trim().toLowerCase();
+        return normN === normalizedSearch || (normalizedSearch.length >= 3 && normN.includes(normalizedSearch));
+      }))
   );
 }
 
@@ -231,7 +264,7 @@ export async function fetchLiveWorkoutLogs(workoutId: string): Promise<LiveWorko
         .select('*')
         .eq('workout_id', workoutId)
         .order('completed_at', { ascending: true });
-      if (!error && data) return data as LiveWorkoutLog[];
+      if (!error && data && data.length > 0) return data as LiveWorkoutLog[];
     } catch (e) {
       console.warn('Supabase fetch live logs error:', e);
     }
@@ -272,4 +305,138 @@ export function subscribeToDispatchedWorkoutsRealtime(onUpdate: (workout: Dispat
     return null;
   }
 }
+
+export interface WorkoutSubmission {
+  id: string;
+  workoutId?: string;
+  coachId?: string;
+  athleteName: string;
+  athleteEmail?: string;
+  avatar: string;
+  title: string;
+  volume: string;
+  duration: string;
+  status: 'pending' | 'approved';
+  exercises: string[];
+  hasVideo: boolean;
+  videoUrl?: string;
+  notes?: string;
+  submittedAt?: string;
+}
+
+export const COACH_SUBMISSIONS_STORAGE_KEY = 'o1fc_coach_workout_submissions_v2';
+
+export async function submitWorkoutForCoachReview(
+  submission: Omit<WorkoutSubmission, 'id' | 'status' | 'submittedAt'> & { id?: string; status?: 'pending' | 'approved' }
+): Promise<WorkoutSubmission> {
+  const newSubmission: WorkoutSubmission = {
+    id: submission.id || `sub_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+    ...submission,
+    status: submission.status || 'pending',
+    submittedAt: new Date().toISOString(),
+  };
+
+  const existing = await getCoachWorkoutSubmissions();
+  const updated = [newSubmission, ...existing.filter((s) => s.id !== newSubmission.id)];
+  await storageAdapter.setItem(COACH_SUBMISSIONS_STORAGE_KEY, JSON.stringify(updated.slice(0, 2000)));
+
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('coach_workout_submission_created', { detail: newSubmission }));
+  }
+
+  return newSubmission;
+}
+
+export async function getCoachWorkoutSubmissions(coachId?: string): Promise<WorkoutSubmission[]> {
+  const raw = await storageAdapter.getItem(COACH_SUBMISSIONS_STORAGE_KEY);
+  let list: WorkoutSubmission[] = [];
+  if (raw) {
+    try {
+      list = JSON.parse(raw);
+    } catch {
+      list = [];
+    }
+  }
+  if (!Array.isArray(list)) list = [];
+  if (coachId) {
+    return list.filter((s) => !s.coachId || s.coachId === coachId);
+  }
+  return list;
+}
+
+export async function approveCoachWorkoutSubmission(submissionId: string): Promise<boolean> {
+  const list = await getCoachWorkoutSubmissions();
+  let found = false;
+  const updated = list.map((s) => {
+    if (s.id === submissionId) {
+      found = true;
+      return { ...s, status: 'approved' as const };
+    }
+    return s;
+  });
+  if (found) {
+    await storageAdapter.setItem(COACH_SUBMISSIONS_STORAGE_KEY, JSON.stringify(updated));
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('coach_workout_submission_approved', { detail: { id: submissionId } }));
+    }
+  }
+  return found;
+}
+
+export interface CoachPRAlert {
+  id: string;
+  athleteEmail: string;
+  athleteName: string;
+  exerciseName: string;
+  weight: number;
+  reps: number;
+  estimated1RM: number;
+  timestamp: string;
+  acknowledged?: boolean;
+}
+
+export const COACH_PR_ALERTS_STORAGE_KEY = 'o1fc_coach_pr_alerts_v1';
+
+export async function dispatchCoachPRAlert(
+  alert: Omit<CoachPRAlert, 'id' | 'timestamp'>
+): Promise<CoachPRAlert> {
+  const newAlert: CoachPRAlert = {
+    ...alert,
+    id: `pr_alert_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+    timestamp: new Date().toISOString(),
+    acknowledged: false,
+  };
+
+  const existing = await getCoachPRAlerts();
+  const updated = [newAlert, ...existing.filter((a) => a.id !== newAlert.id)].slice(0, 100);
+  await storageAdapter.setItem(COACH_PR_ALERTS_STORAGE_KEY, JSON.stringify(updated));
+
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('coach_pr_alert_created', { detail: newAlert }));
+  }
+
+  return newAlert;
+}
+
+export async function getCoachPRAlerts(): Promise<CoachPRAlert[]> {
+  const raw = await storageAdapter.getItem(COACH_PR_ALERTS_STORAGE_KEY);
+  if (!raw) return [];
+  try {
+    const list = JSON.parse(raw);
+    return Array.isArray(list) ? list : [];
+  } catch {
+    return [];
+  }
+}
+
+export async function acknowledgeCoachPRAlert(alertId: string): Promise<void> {
+  const list = await getCoachPRAlerts();
+  const updated = list.map((a) => (a.id === alertId ? { ...a, acknowledged: true } : a));
+  await storageAdapter.setItem(COACH_PR_ALERTS_STORAGE_KEY, JSON.stringify(updated));
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('coach_pr_alert_updated', { detail: { id: alertId } }));
+  }
+}
+
+
 

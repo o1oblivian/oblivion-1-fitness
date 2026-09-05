@@ -1,5 +1,6 @@
 import {
   CURATED_100_WALLPAPERS,
+  WALLPAPER_CATEGORIES,
   type CuratedWallpaper,
   type WallpaperCategory,
   getCuratedWallpaperUrl,
@@ -51,11 +52,20 @@ export function loadWallpaperSettings(): WallpaperSettings {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
+      const validCategoryIds = WALLPAPER_CATEGORIES.map((c) => c.id as string);
+      let cat = parsed.categoryFilter || 'all';
+      if (!validCategoryIds.includes(cat)) {
+        if (cat === 'running' || cat === 'cycling') cat = 'outdoor';
+        else if (cat === 'hyrox') cat = 'fitness';
+        else cat = 'all';
+      }
+      const selectedIdValid = CURATED_100_WALLPAPERS.some((w) => w.id === parsed.selectedWallpaperId);
       return {
         ...DEFAULT_SETTINGS,
         ...parsed,
         mode: ['curated', 'custom', 'off'].includes(parsed.mode) ? parsed.mode : 'curated',
-        categoryFilter: parsed.categoryFilter || 'all',
+        categoryFilter: cat as WallpaperCategory,
+        selectedWallpaperId: selectedIdValid ? parsed.selectedWallpaperId : CURATED_100_WALLPAPERS[0]?.id || 'gym-01',
         autoPlay: parsed.autoPlay !== undefined ? parsed.autoPlay : true,
         shuffle: parsed.shuffle !== undefined ? parsed.shuffle : true,
       };

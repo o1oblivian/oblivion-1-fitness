@@ -526,26 +526,6 @@ export const RotatingHeroCard: React.FC<RotatingHeroCardProps> = ({
     return () => window.removeEventListener('open-wallpaper-settings', handler);
   }, []);
 
-  // ── Per-day activity data (varies by selectedDay) ──
-  const DAY_ACTIVITY_DATA: Record<string, { steps: number; move: number; dist: number }> = {
-    Mon: { steps: 8420, move: 385, dist: 4.2 },
-    Tue: { steps: 11230, move: 520, dist: 5.8 },
-    Wed: { steps: 6150, move: 280, dist: 3.1 },
-    Thu: { steps: 9870, move: 445, dist: 5.0 },
-    Fri: { steps: 12400, move: 590, dist: 6.3 },
-    Sat: { steps: 5200, move: 210, dist: 2.6 },
-    Sun: { steps: 3800, move: 155, dist: 1.9 },
-  };
-
-  useEffect(() => {
-    const dayData = DAY_ACTIVITY_DATA[selectedDay];
-    if (dayData) {
-      setDailyStepsState(dayData.steps);
-      setDailyMoveState(dayData.move);
-      setDailyDistState(dayData.dist);
-    }
-  }, [selectedDay]);
-
   useEffect(() => {
     const t = setTimeout(() => setIsLoaded(true), 80);
     return () => clearTimeout(t);

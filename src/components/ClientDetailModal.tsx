@@ -6,6 +6,7 @@ import { AthleteData, AthleteTelemetry } from '../types';
 import { getAthleteTelemetryByCoachLog } from '../data/athleteTelemetry';
 import { fetchLiveTelemetry } from '../utils/telemetryStore';
 import { getCoachClientProgress, ProgramEnrollment, ScheduleEntry } from '@/utils/programScheduleStore';
+import { useModalBackHandler } from '../utils/modalHistory';
 
 export type { AthleteData };
 
@@ -41,6 +42,8 @@ export const ClientDetailModal: React.FC<ClientDetailModalProps> = ({
     });
     return () => { cancelled = true; };
   }, [athlete]);
+
+  useModalBackHandler(!!athlete, onClose, 'client_detail_modal');
 
   if (!athlete || !telemetry) return null;
   const recoveryScore = telemetry.recoveryScore;

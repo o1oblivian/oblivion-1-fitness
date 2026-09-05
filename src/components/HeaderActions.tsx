@@ -60,6 +60,7 @@ export const HeaderActions: React.FC<HeaderActionsProps> = ({
 
   return (
     <>
+
       {showTrigger && <div
         ref={menuRef}
         className="fixed z-[110]"

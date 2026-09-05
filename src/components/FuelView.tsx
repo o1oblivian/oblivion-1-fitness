@@ -9,7 +9,7 @@ import { haptic } from '../utils/haptics';
 
 import { FuelIntelligencePanel } from './fuel/FuelIntelligencePanel';
 import { DailyFoodMealLogs } from './fuel/DailyFoodMealLogs';
-import { SupplementMatrixIntakeLog } from './fuel/SupplementMatrixIntakeLog';
+import { SupplementsHub } from './fuel/SupplementsHub';
 import { supabase, isSupabaseConfigured } from '../utils/supabase';
 import { getTodayCardioTotals, subscribeCardioUpdates } from '../utils/cardioStorage';
 import { pedometer } from '../utils/pedometer';
@@ -297,7 +297,7 @@ export const FuelView: React.FC<FuelViewProps> = ({
             </div>
           </div>
           <p className="text-[11.5px] font-medium text-zinc-500 dark:text-stone-400 mt-0.5 truncate">
-            Food Intelligence & Energy Matrix
+            Daily Nutrition & Energy Balance
           </p>
         </div>
       </header>
@@ -429,9 +429,9 @@ export const FuelView: React.FC<FuelViewProps> = ({
         recentFoods={recentFoods}
       />
 
-      {/* 4. Supplement Matrix */}
+      {/* Unified Supplements & Electrolytes Hub */}
       <div id="fuel-supplement-tracker">
-        <SupplementMatrixIntakeLog showToast={showToast} currentUserEmail={currentUserEmail} />
+        <SupplementsHub showToast={showToast} currentUserEmail={currentUserEmail} />
       </div>
     </div>
   );

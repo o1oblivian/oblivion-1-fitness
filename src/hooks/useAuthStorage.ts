@@ -11,9 +11,11 @@ export interface UserProfileData {
   age?: number;
   height_cm?: number;
   weight_kg?: number;
+  show_weight?: boolean;
   home_gym?: string;
   latitude?: number;
   longitude?: number;
+  auto_location_enabled?: boolean;
   primary_focus?: string;
   training_days?: string[];
   auto_dispatch?: boolean;
@@ -21,6 +23,10 @@ export interface UserProfileData {
   input_method?: 'dial' | 'numpad';
   buddy_match_enabled?: boolean;
   reels_visibility_enabled?: boolean;
+  is_ghost_mode?: boolean;
+  gym_zone_sharing?: boolean;
+  public_telemetry?: boolean;
+  crash_reports?: boolean;
   rest_mode?: boolean;
   private_training?: boolean;
   theme?: 'dark' | 'light' | 'system';
@@ -43,8 +49,16 @@ export function getLocalProfile(): UserProfileData {
       pre_workout_notif: true,
       input_method: 'dial',
       home_gym: 'Melbourne, AU',
+      latitude: -37.8136,
+      longitude: 144.9631,
+      auto_location_enabled: true,
       buddy_match_enabled: true,
       reels_visibility_enabled: true,
+      is_ghost_mode: false,
+      gym_zone_sharing: true,
+      public_telemetry: true,
+      crash_reports: true,
+      show_weight: false,
       rest_mode: false,
       private_training: false,
       age: 26,
@@ -97,11 +111,22 @@ export function useAuthStorage() {
             avatar_url: data.avatar_url || current.avatar_url,
             bio: data.bio || current.bio,
             home_gym: data.home_gym || current.home_gym,
+            latitude: data.latitude ?? current.latitude,
+            longitude: data.longitude ?? current.longitude,
             age: data.age || current.age,
             height_cm: data.height || current.height_cm,
             weight_kg: data.weight || current.weight_kg,
+            show_weight: data.show_weight ?? current.show_weight,
             primary_focus: data.training_focus || current.primary_focus,
+            is_ghost_mode: data.is_ghost_mode ?? current.is_ghost_mode,
+            gym_zone_sharing: data.gym_zone_sharing ?? current.gym_zone_sharing,
+            public_telemetry: data.public_telemetry ?? current.public_telemetry,
           };
+          // Cross-sync buddy match with ghost mode
+          if (merged.is_ghost_mode) {
+            merged.buddy_match_enabled = false;
+            merged.gym_zone_sharing = false;
+          }
           saveLocalProfile(merged);
           setProfileState(merged);
         }
@@ -149,7 +174,35 @@ export function useAuthStorage() {
 
   const updateProfile = useCallback(async (partial: Partial<UserProfileData>) => {
     const current = getLocalProfile();
-    const updated = { ...current, ...partial };
+    const updated: UserProfileData = { ...current, ...partial };
+
+    // Strict Cross-Sync Invariant:
+    // If Ghost Mode is enabled -> User is hidden from Buddy Radar & Gym Zone Sharing is disabled
+    if (partial.is_ghost_mode === true) {
+      updated.is_ghost_mode = true;
+      updated.buddy_match_enabled = false;
+      updated.gym_zone_sharing = false;
+    } else if (partial.is_ghost_mode === false) {
+      updated.is_ghost_mode = false;
+      if (partial.buddy_match_enabled === undefined) {
+        updated.buddy_match_enabled = true;
+      }
+      if (partial.gym_zone_sharing === undefined) {
+        updated.gym_zone_sharing = true;
+      }
+    }
+
+    // If Buddy Radar Discovery is toggled:
+    if (partial.buddy_match_enabled === false) {
+      updated.buddy_match_enabled = false;
+      updated.is_ghost_mode = true;
+      updated.gym_zone_sharing = false;
+    } else if (partial.buddy_match_enabled === true) {
+      updated.buddy_match_enabled = true;
+      updated.is_ghost_mode = false;
+      updated.gym_zone_sharing = true;
+    }
+
     saveLocalProfile(updated);
     setProfileState(updated);
 
@@ -163,7 +216,19 @@ export function useAuthStorage() {
             user_name: updated.display_name,
             handle: updated.username,
             avatar_url: updated.avatar_url,
+            bio: updated.bio,
             home_gym: updated.home_gym,
+            age: updated.age,
+            height: updated.height_cm,
+            weight: updated.weight_kg,
+            show_weight: updated.show_weight ?? false,
+            training_focus: updated.primary_focus,
+            discipline: updated.primary_focus,
+            is_ghost_mode: updated.is_ghost_mode ?? false,
+            gym_zone_sharing: updated.gym_zone_sharing ?? true,
+            public_telemetry: updated.public_telemetry ?? true,
+            latitude: updated.latitude,
+            longitude: updated.longitude,
             updated_at: new Date().toISOString(),
           }, { onConflict: 'user_email' });
         }

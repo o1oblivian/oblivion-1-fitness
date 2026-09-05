@@ -220,10 +220,39 @@ export interface BlueprintSlot {
   notes: string;
 }
 
+export function applyDifficultyModifier(slots: BlueprintSlot[], difficulty: string): BlueprintSlot[] {
+  const diff = (difficulty || 'Intermediate').toLowerCase();
+  if (diff.includes('beginner')) {
+    return slots.map((s) => ({
+      ...s,
+      sets: Math.max(2, s.sets - 1),
+      restSec: s.restSec > 0 ? Math.round(s.restSec * 1.25) : 0,
+      notes: s.notes ? `${s.notes} • Form priority` : 'Controlled tempo & form priority',
+    }));
+  }
+  if (diff.includes('advanced')) {
+    return slots.map((s) => ({
+      ...s,
+      sets: Math.min(5, s.sets + 1),
+      notes: s.notes ? `${s.notes} • RPE 8.5` : 'High tension load',
+    }));
+  }
+  if (diff.includes('elite')) {
+    return slots.map((s) => ({
+      ...s,
+      sets: Math.min(6, s.sets + 1),
+      restSec: s.restSec > 60 ? Math.round(s.restSec * 0.9) : s.restSec,
+      notes: s.notes ? `${s.notes} • Peak intensity RPE 9.0+` : 'Peak neural drive',
+    }));
+  }
+  return slots;
+}
+
 export function generateSmartBlueprint(focus: string, programCategory = '', difficulty = 'Intermediate'): BlueprintSlot[] {
   const f = (focus || '').toLowerCase();
   const cat = (programCategory || '').toLowerCase();
 
+  const getBaseSlots = (): BlueprintSlot[] => {
   // 1. Mobility & Movement Flow
   if (cat.includes('mobility') || f.includes('mobility') || f.includes('pelvic') || f.includes('hip') || f.includes('thoracic') || f.includes('spine') || f.includes('restore') || f.includes('decompression')) {
     if (f.includes('hip') || f.includes('pelvic')) {
@@ -471,13 +500,17 @@ export function generateSmartBlueprint(focus: string, programCategory = '', diff
     ];
   }
 
-  // 9. Upper / Lower / Full Body Default
-  return [
-    { name: 'Barbell Bench Press (Flat)', sets: 4, reps: '6-8', restSec: 120, notes: 'Main press power driver' },
-    { name: 'Pull-up (Strict Dead-Hang)', sets: 4, reps: '8-10', restSec: 90, notes: 'Full range of motion' },
-    { name: 'Barbell Overhead Press (Standing Military)', sets: 3, reps: '8-10', restSec: 90, notes: 'Strict lock at top' },
-    { name: 'Barbell Bent-Over Row (Overhand)', sets: 3, reps: '8-10', restSec: 90, notes: 'Controlled torso angle' },
-    { name: 'Dumbbell Alternating Bicep Curl', sets: 3, reps: '12-15', restSec: 60, notes: 'Super-set finisher' },
-  ];
+    // 9. Upper / Lower / Full Body Default
+    return [
+      { name: 'Barbell Bench Press (Flat)', sets: 4, reps: '6-8', restSec: 120, notes: 'Main press power driver' },
+      { name: 'Pull-up (Strict Dead-Hang)', sets: 4, reps: '8-10', restSec: 90, notes: 'Full range of motion' },
+      { name: 'Barbell Overhead Press (Standing Military)', sets: 3, reps: '8-10', restSec: 90, notes: 'Strict lock at top' },
+      { name: 'Barbell Bent-Over Row (Overhand)', sets: 3, reps: '8-10', restSec: 90, notes: 'Controlled torso angle' },
+      { name: 'Dumbbell Alternating Bicep Curl', sets: 3, reps: '12-15', restSec: 60, notes: 'Super-set finisher' },
+    ];
+  };
+
+  const baseSlots = getBaseSlots();
+  return applyDifficultyModifier(baseSlots, difficulty);
 }
 

@@ -152,7 +152,7 @@ export async function saveCompletedSession(
 
 export async function loadCompletedSessions(
   email: string,
-  limit = 50,
+  limit = 500,
 ): Promise<CompletedSession[]> {
   if (isSupabaseConfigured()) {
     const { data, error } = await supabase

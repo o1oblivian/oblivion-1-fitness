@@ -18,6 +18,7 @@ import {
   type WallpaperCategory,
   CURATED_100_WALLPAPERS,
 } from '../data/curatedWallpapers';
+import { useModalBackHandler } from '../utils/modalHistory';
 
 interface WallpaperSettingsModalProps {
   isOpen: boolean;
@@ -43,6 +44,8 @@ export const WallpaperSettingsModal: React.FC<WallpaperSettingsModalProps> = ({
 }) => {
   const [settings, setSettings] = useState<WallpaperSettings>(loadWallpaperSettings());
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useModalBackHandler(isOpen, onClose, 'wallpaper_settings_modal');
 
   if (!isOpen) return null;
 
@@ -80,8 +83,14 @@ export const WallpaperSettingsModal: React.FC<WallpaperSettingsModalProps> = ({
   };
 
   return createPortal(
-    <div className="fixed inset-0 z-[99999] bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-200 select-none">
-      <div className="bg-white dark:bg-[#18181B] text-zinc-900 dark:text-white w-full max-w-lg rounded-3xl border border-zinc-200 dark:border-zinc-800 shadow-2xl relative flex flex-col overflow-hidden font-sans max-h-[90vh]">
+    <div
+      className="fixed inset-0 z-[99999] bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-200 select-none"
+      onClick={onClose}
+    >
+      <div
+        className="bg-white dark:bg-[#18181B] text-zinc-900 dark:text-white w-full max-w-lg rounded-3xl border border-zinc-200 dark:border-zinc-800 shadow-2xl relative flex flex-col overflow-hidden font-sans max-h-[90vh]"
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Header */}
         <div className="sticky top-0 z-30 bg-white dark:bg-[#18181B] px-5 py-4 border-b border-zinc-100 dark:border-zinc-800 flex items-center justify-between shrink-0">
           <div>

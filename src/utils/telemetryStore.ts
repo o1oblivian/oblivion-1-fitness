@@ -126,7 +126,7 @@ export function saveDailyMacroRecord(userEmail: string, macroLog: Partial<DailyM
   const date = macroLog.date || today;
 
   try {
-    const existing = getLocalDailyMacros(email, 30);
+    const existing = getLocalDailyMacros(email, 365);
     const idx = existing.findIndex(m => m.date === date);
     const entry: DailyMacroLog = {
       date,
@@ -149,7 +149,7 @@ export function saveDailyMacroRecord(userEmail: string, macroLog: Partial<DailyM
       existing.unshift(entry);
     }
     existing.sort((a, b) => b.date.localeCompare(a.date));
-    const serialized = JSON.stringify(existing.slice(0, 30));
+    const serialized = JSON.stringify(existing.slice(0, 365));
     localStorage.setItem(LOCAL_MACROS_KEY(email), serialized);
     // Also sync to global key for Consultation/Weekly modals
     localStorage.setItem(GLOBAL_MACROS_KEY, serialized);

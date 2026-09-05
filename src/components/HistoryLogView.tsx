@@ -4,30 +4,31 @@ import {
   Sparkles, Clock, Flame, Calendar, Weight, Target, Award,
   Share2, Trash2, TrendingUp, ArrowUpRight, ArrowDownRight, Minus,
   Plus, Star, Brain, Play, Square, RotateCcw, Zap, MapPin,
-  Smartphone, Activity, Camera, HeartPulse, CheckCircle2,
-  Sunrise, Package, Coffee,
+  Smartphone, Activity, Camera, HeartPulse, CheckCircle2, AlertCircle,
+  Sunrise, Package, Coffee, History,
 } from 'lucide-react';
 import {
   ChartStyleSwitcher,
   type ChartStyle,
-  WorkoutBarChart, WorkoutTrendChart, WorkoutRingChart,
-  StepsBarChart, StepsTrendChart, StepsRadialChart,
-  NutritionBarChart, NutritionTrendChart, NutritionDonutChart,
-  SleepBarChart, SleepTrendChart, SleepDialChart,
-  MeditationBarChart, MeditationTrendChart, MeditationRingChart,
+  WorkoutBarChart, WorkoutTrendChart, WorkoutYearChart,
+  StepsBarChart, StepsTrendChart, StepsYearChart,
+  NutritionBarChart, NutritionTrendChart, NutritionYearChart,
+  SleepBarChart, SleepTrendChart, SleepYearChart,
+  MeditationBarChart, MeditationTrendChart, MeditationYearChart,
 } from './LogCharts';
+import { YearHistoryExplorerModal, type HistoryCategory } from './YearHistoryExplorerModal';
 import { pedometer, type PedometerState } from '@/utils/pedometer';
 import {
   type CompletedSession,
   loadCompletedSessions,
   deleteCompletedSession,
 } from '@/utils/sessionVaultStore';
-import { fetchDailyMacros, fetchBodyweightHistory } from '@/utils/telemetryStore';
+import { fetchDailyMacros, fetchBodyweightHistory, saveDailyMacroRecord } from '@/utils/telemetryStore';
 import { loadDailySteps, upsertDailySteps, deleteDailySteps, type DailyStepEntry } from '@/utils/stepsStore';
 import { loadSleepLogs, upsertSleepLog, deleteSleepLog, type SleepLogEntry } from '@/utils/sleepStore';
 import { loadMeditationSessions, saveMeditationSession, deleteMeditationSession, type MeditationEntry } from '@/utils/meditationStore';
 import { CardioMachineType, CardioMachineEntry } from '@/types/cardio';
-import { getCardioLogs, saveCardioLog, deleteCardioLog } from '@/utils/cardioStorage';
+import { getCardioLogs, saveCardioLog, deleteCardioLog, formatCardioDate } from '@/utils/cardioStorage';
 import { CardioConsoleScanModal } from './CardioConsoleScanModal';
 import { loadCachedDailyMeals } from '@/utils/mealLogsStore';
 import { getUserState, getSessionUserEmail } from '@/utils/authStorage';
@@ -96,13 +97,26 @@ function todayStr(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
+function yesterdayStr(): string {
+  const d = new Date();
+  d.setDate(d.getDate() - 1);
+  return d.toISOString().slice(0, 10);
+}
+
 // ─── Accordion Header ───────────────────────────────────
 
 function useChartStyles(): [Record<string, ChartStyle>, (key: string, style: ChartStyle) => void] {
   const [styles, setStyles] = useState<Record<string, ChartStyle>>(() => {
     try {
       const saved = localStorage.getItem('log-chart-styles');
-      return saved ? JSON.parse(saved) : {};
+      if (!saved) return {};
+      const parsed = JSON.parse(saved);
+      // Migrate any legacy 'ring' chart settings to 'year'
+      const migrated: Record<string, ChartStyle> = {};
+      for (const [k, v] of Object.entries(parsed)) {
+        migrated[k] = (v === ('ring' as any)) ? 'year' : (v as ChartStyle);
+      }
+      return migrated;
     } catch { return {}; }
   });
   const setStyle = useCallback((key: string, style: ChartStyle) => {
@@ -116,7 +130,7 @@ function useChartStyles(): [Record<string, ChartStyle>, (key: string, style: Cha
 }
 
 function AccordionHeader({
-  icon, label, iconBg, summary, isOpen, onToggle, chartStyle, onChartStyleChange, isFirst, isLast,
+  icon, label, iconBg, summary, isOpen, onToggle, isFirst, isLast,
 }: {
   icon: React.ReactNode;
   label: string;
@@ -124,8 +138,6 @@ function AccordionHeader({
   summary: string;
   isOpen: boolean;
   onToggle: () => void;
-  chartStyle?: ChartStyle;
-  onChartStyleChange?: (s: ChartStyle) => void;
   isFirst?: boolean;
   isLast?: boolean;
 }) {
@@ -140,7 +152,7 @@ function AccordionHeader({
           onToggle();
         }
       }}
-      className={`w-full flex items-center justify-between py-3 px-3.5 transition-colors cursor-pointer select-none group hover:bg-black/[0.02] dark:hover:bg-white/[0.04] ${
+      className={`w-full flex items-center justify-between py-3 px-3.5 sm:px-4 transition-colors cursor-pointer select-none group hover:bg-black/[0.02] dark:hover:bg-white/[0.04] ${
         isFirst ? 'rounded-t-[20px]' : ''
       } ${isLast && !isOpen ? 'rounded-b-[20px]' : ''}`}
     >
@@ -152,14 +164,9 @@ function AccordionHeader({
         <span className="text-[13px] font-semibold text-slate-900 dark:text-white tracking-tight">{label}</span>
       </div>
 
-      <div className="flex items-center gap-2 shrink-0">
+      <div className="flex items-center gap-2.5 shrink-0">
         {summary && (
           <span className="text-[11px] font-mono font-medium text-slate-500 dark:text-white/40 tracking-tight">{summary}</span>
-        )}
-        {isOpen && chartStyle && onChartStyleChange && (
-          <div className="shrink-0 mr-1" onClick={e => e.stopPropagation()}>
-            <ChartStyleSwitcher value={chartStyle} onChange={onChartStyleChange} />
-          </div>
         )}
         <div className="text-slate-400 dark:text-white/30 group-hover:text-slate-600 dark:group-hover:text-white/60 transition shrink-0 ml-1">
           {isOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
@@ -169,14 +176,53 @@ function AccordionHeader({
   );
 }
 
+// ─── Inline Category Timeframe Switcher ─────────────────
+function CategoryTimeframeSwitcher({
+  value, onChange,
+}: {
+  value: ChartStyle;
+  onChange: (s: ChartStyle) => void;
+}) {
+  const options: { key: ChartStyle; label: string }[] = [
+    { key: 'bar', label: '7 Days' },
+    { key: 'trend', label: '30D Trend' },
+    { key: 'year', label: '1 Year' },
+  ];
+
+  return (
+    <div className="flex items-center justify-between pb-2 mb-2 border-b border-slate-200/50 dark:border-white/[0.06]">
+      <span className="text-[9px] font-mono font-bold uppercase tracking-wider text-slate-500 dark:text-white/40">
+        Timeframe
+      </span>
+      <div className="flex items-center rounded-lg bg-slate-200/60 dark:bg-white/[0.06] p-0.5 gap-0.5">
+        {options.map(opt => (
+          <button
+            key={opt.key}
+            type="button"
+            onClick={(e) => { e.stopPropagation(); onChange(opt.key); }}
+            className={`px-2.5 py-1 rounded-md text-[10px] font-mono font-bold tracking-tight transition-all cursor-pointer ${
+              value === opt.key
+                ? 'bg-white dark:bg-white/[0.16] text-slate-900 dark:text-white shadow-xs'
+                : 'text-slate-500 dark:text-white/40 hover:text-slate-800 dark:hover:text-white/70'
+            }`}
+          >
+            {opt.label}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // ─── Workout Section ────────────────────────────────────
 
 function WorkoutSection({
-  sessions, onDelete, onShare,
+  sessions, onDelete, onShare, onOpenHistory,
 }: {
   sessions: CompletedSession[];
   onDelete: (id: string) => void;
   onShare: (s: CompletedSession) => void;
+  onOpenHistory?: () => void;
 }) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [visibleCount, setVisibleCount] = useState(10);
@@ -363,6 +409,7 @@ function CardioStepsSection({
   onAddCardio,
   onDeleteCardio,
   onOpenScanModal,
+  onOpenHistory,
 }: {
   entries: DailyStepEntry[];
   cardioLogs: CardioMachineEntry[];
@@ -372,11 +419,14 @@ function CardioStepsSection({
   onAddCardio: (entry: Omit<CardioMachineEntry, 'id' | 'timestamp'>) => void;
   onDeleteCardio: (id: string) => void;
   onOpenScanModal: () => void;
+  onOpenHistory?: () => void;
 }) {
   const [subTab, setSubTab] = useState<'steps' | 'cardio'>('steps');
 
   // Steps state
   const [showManual, setShowManual] = useState(false);
+  const [stepLogDateChoice, setStepLogDateChoice] = useState<'today' | 'yesterday' | 'custom'>('today');
+  const [customStepLogDate, setCustomStepLogDate] = useState(yesterdayStr());
   const [stepsVal, setStepsVal] = useState('');
   const [goalVal, setGoalVal] = useState('10000');
   const [pedometerState, setPedometerState] = useState<PedometerState>(pedometer.getState());
@@ -397,6 +447,8 @@ function CardioStepsSection({
   }, []);
 
   const todayEntry = entries.find(e => e.log_date === todayStr());
+  const yDate = yesterdayStr();
+  const yesterdayEntry = entries.find(e => e.log_date === yDate);
   const last7 = entries.slice(0, 7);
   const avgSteps = last7.length > 0 ? Math.round(last7.reduce((s, e) => s + e.steps, 0) / last7.length) : 0;
   const maxSteps = last7.length > 0 ? Math.max(...last7.map(e => e.steps)) : 1;
@@ -434,7 +486,10 @@ function CardioStepsSection({
     const s = parseInt(stepsVal);
     const g = parseInt(goalVal) || 10000;
     if (!s || s <= 0) return;
-    onAdd(todayStr(), s, g);
+    const targetDate = stepLogDateChoice === 'today' ? todayStr()
+      : stepLogDateChoice === 'yesterday' ? yesterdayStr()
+      : customStepLogDate;
+    onAdd(targetDate, s, g);
     setStepsVal('');
     setShowManual(false);
   };
@@ -458,7 +513,7 @@ function CardioStepsSection({
     if (duration <= 0 && calories <= 0) return;
 
     onAddCardio({
-      date: 'Today',
+      date: new Date().toISOString().slice(0, 10),
       machineType: cardioMachine,
       durationMinutes: duration,
       caloriesBurned: calories,
@@ -735,7 +790,7 @@ function CardioStepsSection({
                       {getMachineLabel(log.machineType)}
                     </span>
                     <span className="text-[9px] font-mono text-slate-400 dark:text-white/30">
-                      {log.date || 'Today'}
+                      {formatCardioDate(log.timestamp, log.date)}
                     </span>
                     {log.source === 'ocr_scan' && (
                       <span className="text-[8px] font-mono text-cyan-600 dark:text-cyan-400/80 uppercase">
@@ -902,12 +957,26 @@ function CardioStepsSection({
 
           {/* Manual entry toggle */}
           <div className="flex items-center justify-between">
-            <button
-              onClick={() => setShowManual(!showManual)}
-              className="text-[9px] font-mono text-slate-500 dark:text-white/35 hover:text-slate-700 dark:hover:text-white/55 transition cursor-pointer flex items-center gap-1.5"
-            >
-              <Plus className="w-3 h-3" /> Manual step entry
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setShowManual(!showManual)}
+                className="text-[9px] font-mono text-slate-500 dark:text-white/35 hover:text-slate-700 dark:hover:text-white/55 transition cursor-pointer flex items-center gap-1.5"
+              >
+                <Plus className="w-3 h-3" /> Manual step entry
+              </button>
+              {!yesterdayEntry && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setStepLogDateChoice('yesterday');
+                    setShowManual(true);
+                  }}
+                  className="text-[9px] font-mono text-teal-600 dark:text-teal-400 hover:underline flex items-center gap-1 cursor-pointer"
+                >
+                  <span>• Log yesterday ({yDate})</span>
+                </button>
+              )}
+            </div>
             {todayEntry && (
               <span className="text-[9px] font-mono text-slate-400 dark:text-white/25">
                 Saved: {todayEntry.steps.toLocaleString()} steps
@@ -918,6 +987,48 @@ function CardioStepsSection({
           {/* Manual add form */}
           {showManual && (
             <div className="rounded-xl log-card-inner p-3 space-y-2 animate-[fadeIn_0.15s_ease]">
+              <div className="flex items-center justify-between pb-0.5">
+                <span className="text-[8px] font-mono text-slate-500 dark:text-white/40 uppercase tracking-wider">Log Date</span>
+                <div className="flex gap-1">
+                  <button
+                    type="button"
+                    onClick={() => setStepLogDateChoice('today')}
+                    className={`px-2 py-0.5 rounded text-[9px] font-mono font-bold transition cursor-pointer ${
+                      stepLogDateChoice === 'today' ? 'bg-teal-500 text-white' : 'bg-slate-100 dark:bg-white/[0.08] text-slate-600 dark:text-white/50'
+                    }`}
+                  >
+                    Today
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setStepLogDateChoice('yesterday')}
+                    className={`px-2 py-0.5 rounded text-[9px] font-mono font-bold transition cursor-pointer ${
+                      stepLogDateChoice === 'yesterday' ? 'bg-amber-500 text-white' : 'bg-slate-100 dark:bg-white/[0.08] text-slate-600 dark:text-white/50'
+                    }`}
+                  >
+                    Yesterday
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setStepLogDateChoice('custom')}
+                    className={`px-2 py-0.5 rounded text-[9px] font-mono font-bold transition cursor-pointer ${
+                      stepLogDateChoice === 'custom' ? 'bg-slate-800 text-white dark:bg-white dark:text-slate-900' : 'bg-slate-100 dark:bg-white/[0.08] text-slate-600 dark:text-white/50'
+                    }`}
+                  >
+                    Custom
+                  </button>
+                </div>
+              </div>
+
+              {stepLogDateChoice === 'custom' && (
+                <input
+                  type="date"
+                  value={customStepLogDate}
+                  onChange={e => setCustomStepLogDate(e.target.value)}
+                  className="w-full log-input rounded-lg px-2.5 py-1 text-[11px] font-mono outline-none mb-1"
+                />
+              )}
+
               <div className="flex gap-2">
                 <div className="flex-1">
                   <label className="text-[8px] font-mono text-slate-500 dark:text-white/30 uppercase tracking-wider mb-1 block">Steps</label>
@@ -1001,6 +1112,7 @@ interface FoodSectionProps {
   goalC?: number;
   goalF?: number;
   onNavigateToFuel?: () => void;
+  onOpenHistory?: () => void;
 }
 
 function FoodSection({
@@ -1012,6 +1124,7 @@ function FoodSection({
   goalC = 300,
   goalF = 70,
   onNavigateToFuel,
+  onOpenHistory,
 }: FoodSectionProps) {
   const mealCategories: { key: keyof DailyMeals; label: string; icon: React.ReactNode }[] = [
     { key: 'breakfast', label: 'Breakfast', icon: <Sunrise className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400" strokeWidth={2} /> },
@@ -1108,7 +1221,7 @@ function FoodSection({
       )}
 
       {/* Itemized Logged Meals by Category */}
-      {hasMealsToday && (
+      {hasMealsToday ? (
         <div className="space-y-2">
           <div className="flex items-center justify-between px-1">
             <span className="text-[9px] font-mono font-bold uppercase tracking-widest text-slate-500 dark:text-white/40 flex items-center gap-1.5">
@@ -1173,6 +1286,22 @@ function FoodSection({
               </div>
             );
           })}
+        </div>
+      ) : (
+        <div className="rounded-xl p-4 log-card-inner text-center space-y-2">
+          <Utensils className="w-5 h-5 text-slate-300 dark:text-white/20 mx-auto" strokeWidth={1.75} />
+          <p className="text-[11px] font-mono text-slate-500 dark:text-white/40">
+            No itemized meals recorded for today yet
+          </p>
+          {onNavigateToFuel && (
+            <button
+              onClick={onNavigateToFuel}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/25 text-[10px] font-mono font-bold text-amber-600 dark:text-amber-400 hover:bg-amber-500/20 transition cursor-pointer"
+            >
+              <span>+ Log Meal in Fuel OS</span>
+              <ArrowUpRight className="w-3 h-3" />
+            </button>
+          )}
         </div>
       )}
 
@@ -1264,13 +1393,16 @@ function FoodSection({
 // ─── Sleep Section ──────────────────────────────────────
 
 function SleepSection({
-  entries, onAdd, onDelete,
+  entries, onAdd, onDelete, onOpenHistory,
 }: {
   entries: SleepLogEntry[];
   onAdd: (date: string, bedtime: string, wakeTime: string, quality: number) => void;
   onDelete: (id: string) => void;
+  onOpenHistory?: () => void;
 }) {
   const [showForm, setShowForm] = useState(false);
+  const [sleepDateChoice, setSleepDateChoice] = useState<'yesterday' | 'today' | 'custom'>('yesterday');
+  const [customSleepDate, setCustomSleepDate] = useState(yesterdayStr());
   const [bedtime, setBedtime] = useState('22:30');
   const [wakeTime, setWakeTime] = useState('06:30');
   const [quality, setQuality] = useState(3);
@@ -1281,7 +1413,10 @@ function SleepSection({
   const avgM = avgMins % 60;
 
   const handleSubmit = () => {
-    onAdd(todayStr(), bedtime, wakeTime, quality);
+    const targetDate = sleepDateChoice === 'today' ? todayStr()
+      : sleepDateChoice === 'yesterday' ? yesterdayStr()
+      : customSleepDate;
+    onAdd(targetDate, bedtime, wakeTime, quality);
     setShowForm(false);
   };
 
@@ -1309,6 +1444,48 @@ function SleepSection({
       {/* Add form */}
       {showForm && (
         <div className="rounded-xl log-card-inner p-3 space-y-3 animate-[fadeIn_0.15s_ease]">
+          <div className="flex items-center justify-between pb-0.5">
+            <span className="text-[8px] font-mono text-slate-500 dark:text-white/40 uppercase tracking-wider">Sleep Date</span>
+            <div className="flex gap-1">
+              <button
+                type="button"
+                onClick={() => setSleepDateChoice('yesterday')}
+                className={`px-2 py-0.5 rounded text-[9px] font-mono font-bold transition cursor-pointer ${
+                  sleepDateChoice === 'yesterday' ? 'bg-indigo-500 text-white' : 'bg-slate-100 dark:bg-white/[0.08] text-slate-600 dark:text-white/50'
+                }`}
+              >
+                Yesterday
+              </button>
+              <button
+                type="button"
+                onClick={() => setSleepDateChoice('today')}
+                className={`px-2 py-0.5 rounded text-[9px] font-mono font-bold transition cursor-pointer ${
+                  sleepDateChoice === 'today' ? 'bg-indigo-500 text-white' : 'bg-slate-100 dark:bg-white/[0.08] text-slate-600 dark:text-white/50'
+                }`}
+              >
+                Today
+              </button>
+              <button
+                type="button"
+                onClick={() => setSleepDateChoice('custom')}
+                className={`px-2 py-0.5 rounded text-[9px] font-mono font-bold transition cursor-pointer ${
+                  sleepDateChoice === 'custom' ? 'bg-slate-800 text-white dark:bg-white dark:text-slate-900' : 'bg-slate-100 dark:bg-white/[0.08] text-slate-600 dark:text-white/50'
+                }`}
+              >
+                Custom
+              </button>
+            </div>
+          </div>
+
+          {sleepDateChoice === 'custom' && (
+            <input
+              type="date"
+              value={customSleepDate}
+              onChange={e => setCustomSleepDate(e.target.value)}
+              className="w-full log-input rounded-lg px-2.5 py-1 text-[11px] font-mono outline-none mb-1"
+            />
+          )}
+
           <div className="flex gap-2">
             <div className="flex-1">
               <label className="text-[8px] font-mono text-slate-500 dark:text-white/30 uppercase tracking-wider mb-1 block">Bedtime</label>
@@ -1405,11 +1582,12 @@ function SleepSection({
 // ─── Meditation Section ─────────────────────────────────
 
 function MeditationSection({
-  entries, onAdd, onDelete,
+  entries, onAdd, onDelete, onOpenHistory,
 }: {
   entries: MeditationEntry[];
   onAdd: (durationSecs: number, soundscape: string) => void;
   onDelete: (id: string) => void;
+  onOpenHistory?: () => void;
 }) {
   const [showForm, setShowForm] = useState(false);
   const [minutes, setMinutes] = useState('10');
@@ -1559,6 +1737,7 @@ export const HistoryLogView: React.FC<HistoryLogViewProps> = ({
 }) => {
   const [openSections, setOpenSections] = useState<Set<string>>(new Set());
   const [chartStyles, setChartStyle] = useChartStyles();
+  const [historyModalCategory, setHistoryModalCategory] = useState<HistoryCategory | null>(null);
   const [loading, setLoading] = useState(!!currentUserEmail);
 
   // Data states
@@ -1570,6 +1749,56 @@ export const HistoryLogView: React.FC<HistoryLogViewProps> = ({
   const [bodyweight, setBodyweight] = useState<{ week: string; weight: number }[]>([]);
   const [sleepLogs, setSleepLogs] = useState<SleepLogEntry[]>([]);
   const [meditations, setMeditations] = useState<MeditationEntry[]>([]);
+  const [selectedDate, setSelectedDate] = useState<string>(todayStr());
+
+  // 7-day athletic telemetry snapshot
+  const last7Days = useMemo(() => {
+    const days: {
+      date: string;
+      label: string;
+      num: number;
+      isToday: boolean;
+      isYesterday: boolean;
+      hasWorkout: boolean;
+      stepsCount: number;
+      calories: number;
+      sleepHours: number;
+    }[] = [];
+
+    const now = new Date();
+    const tStr = todayStr();
+    const yStr = yesterdayStr();
+
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(now);
+      d.setDate(now.getDate() - i);
+      const dateStr = d.toISOString().split('T')[0];
+      const isToday = dateStr === tStr;
+      const isYesterday = dateStr === yStr;
+
+      const daySessions = sessions.filter(s => s.completed_at?.startsWith(dateStr));
+      const stepEntry = steps.find(s => s.log_date === dateStr);
+      const macroEntry = macros.find(m => m.date === dateStr);
+      const sleepEntry = sleepLogs.find(sl => sl.log_date === dateStr);
+
+      days.push({
+        date: dateStr,
+        label: d.toLocaleDateString('en-US', { weekday: 'narrow' }),
+        num: d.getDate(),
+        isToday,
+        isYesterday,
+        hasWorkout: daySessions.length > 0,
+        stepsCount: stepEntry ? stepEntry.steps : 0,
+        calories: macroEntry ? Math.round(macroEntry.calories) : 0,
+        sleepHours: sleepEntry ? sleepEntry.duration_minutes / 60 : 0,
+      });
+    }
+    return days;
+  }, [sessions, steps, macros, sleepLogs]);
+
+  const selectedDayInfo = useMemo(() => {
+    return last7Days.find(d => d.date === selectedDate) || last7Days[last7Days.length - 1];
+  }, [last7Days, selectedDate]);
 
   // Local-first meals state
   const [todayMeals, setTodayMeals] = useState<DailyMeals>(() => {
@@ -1611,7 +1840,7 @@ export const HistoryLogView: React.FC<HistoryLogViewProps> = ({
     Promise.all([
       loadCompletedSessions(currentUserEmail).catch(() => [] as CompletedSession[]),
       loadDailySteps(currentUserEmail).catch(() => [] as DailyStepEntry[]),
-      fetchDailyMacros(currentUserEmail, 7).catch(() => [] as DailyMacroLog[]),
+      fetchDailyMacros(currentUserEmail, 365).catch(() => [] as DailyMacroLog[]),
       fetchBodyweightHistory(currentUserEmail, 12).catch(() => [] as { week: string; weight: number }[]),
       loadSleepLogs(currentUserEmail).catch(() => [] as SleepLogEntry[]),
       loadMeditationSessions(currentUserEmail).catch(() => [] as MeditationEntry[]),
@@ -1778,6 +2007,44 @@ export const HistoryLogView: React.FC<HistoryLogViewProps> = ({
     showToast('Entry removed');
   };
 
+  const handleSaveMacroRecord = useCallback((date: string, cals: number, p: number, c: number, f: number) => {
+    saveDailyMacroRecord(currentUserEmail, {
+      date,
+      calories: cals,
+      protein: p,
+      carbs: c,
+      fat: f,
+      calorieTarget: goalCals,
+      proteinTarget: goalP,
+      carbsTarget: goalC,
+      fatTarget: goalF,
+    });
+    setMacros(prev => {
+      const idx = prev.findIndex(m => m.date === date);
+      const entry: DailyMacroLog = {
+        date,
+        dateLabel: date === todayStr() ? 'TODAY' : date === yesterdayStr() ? 'YESTERDAY' : date,
+        calories: cals,
+        protein: p,
+        carbs: c,
+        fat: f,
+        calorieTarget: goalCals,
+        proteinTarget: goalP,
+        carbsTarget: goalC,
+        fatTarget: goalF,
+        hydration: 0,
+        hydrationTarget: 3.5,
+      };
+      if (idx >= 0) {
+        const next = [...prev];
+        next[idx] = entry;
+        return next;
+      }
+      return [entry, ...prev].sort((a, b) => b.date.localeCompare(a.date));
+    });
+    showToast('Nutrition logged');
+  }, [currentUserEmail, goalCals, goalP, goalC, goalF, showToast]);
+
   // Summary strings for collapsed headers
   const workoutSummary = sessions.length > 0 ? `${sessions.length} session${sessions.length !== 1 ? 's' : ''}` : '';
   const stepsSummary = (steps.length > 0 || cardioLogs.length > 0) ? (() => {
@@ -1812,26 +2079,30 @@ export const HistoryLogView: React.FC<HistoryLogViewProps> = ({
     );
   }
 
-  const chartFor = (key: string): ChartStyle => chartStyles[key] || 'bar';
+  const chartFor = (key: string): ChartStyle => {
+    const s = chartStyles[key];
+    if (s === ('ring' as any)) return 'year';
+    return s || 'bar';
+  };
 
-  const workoutChart = chartFor('workout') === 'trend' ? <WorkoutTrendChart sessions={sessions} />
-    : chartFor('workout') === 'ring' ? <WorkoutRingChart sessions={sessions} />
+  const workoutChart = chartFor('workout') === 'year' ? <WorkoutYearChart sessions={sessions} />
+    : chartFor('workout') === 'trend' ? <WorkoutTrendChart sessions={sessions} />
     : <WorkoutBarChart sessions={sessions} />;
 
-  const stepsChart = chartFor('steps') === 'trend' ? <StepsTrendChart entries={steps} />
-    : chartFor('steps') === 'ring' ? <StepsRadialChart entries={steps} />
+  const stepsChart = chartFor('steps') === 'year' ? <StepsYearChart entries={steps} />
+    : chartFor('steps') === 'trend' ? <StepsTrendChart entries={steps} />
     : <StepsBarChart entries={steps} />;
 
-  const foodChart = chartFor('food') === 'trend' ? <NutritionTrendChart macros={macros} />
-    : chartFor('food') === 'ring' ? <NutritionDonutChart macros={macros} />
+  const foodChart = chartFor('food') === 'year' ? <NutritionYearChart macros={macros} />
+    : chartFor('food') === 'trend' ? <NutritionTrendChart macros={macros} />
     : <NutritionBarChart macros={macros} />;
 
-  const sleepChart = chartFor('sleep') === 'trend' ? <SleepTrendChart entries={sleepLogs} />
-    : chartFor('sleep') === 'ring' ? <SleepDialChart entries={sleepLogs} />
+  const sleepChart = chartFor('sleep') === 'year' ? <SleepYearChart entries={sleepLogs} />
+    : chartFor('sleep') === 'trend' ? <SleepTrendChart entries={sleepLogs} />
     : <SleepBarChart entries={sleepLogs} />;
 
-  const medChart = chartFor('meditation') === 'trend' ? <MeditationTrendChart entries={meditations} />
-    : chartFor('meditation') === 'ring' ? <MeditationRingChart entries={meditations} />
+  const medChart = chartFor('meditation') === 'year' ? <MeditationYearChart entries={meditations} />
+    : chartFor('meditation') === 'trend' ? <MeditationTrendChart entries={meditations} />
     : <MeditationBarChart entries={meditations} />;
 
   const sections = [
@@ -1842,7 +2113,14 @@ export const HistoryLogView: React.FC<HistoryLogViewProps> = ({
       iconBg: 'bg-[#EA4335]',
       summary: workoutSummary,
       chart: workoutChart,
-      content: <WorkoutSection sessions={sessions} onDelete={handleDeleteSession} onShare={handleShareSession} />,
+      content: (
+        <WorkoutSection
+          sessions={sessions}
+          onDelete={handleDeleteSession}
+          onShare={handleShareSession}
+          onOpenHistory={() => setHistoryModalCategory('workout')}
+        />
+      ),
     },
     {
       key: 'steps',
@@ -1861,6 +2139,7 @@ export const HistoryLogView: React.FC<HistoryLogViewProps> = ({
           onAddCardio={handleAddCardio}
           onDeleteCardio={handleDeleteCardio}
           onOpenScanModal={() => setShowCardioScanModal(true)}
+          onOpenHistory={() => setHistoryModalCategory('steps')}
         />
       ),
     },
@@ -1881,6 +2160,7 @@ export const HistoryLogView: React.FC<HistoryLogViewProps> = ({
           goalC={goalC}
           goalF={goalF}
           onNavigateToFuel={onNavigateToFuel}
+          onOpenHistory={() => setHistoryModalCategory('food')}
         />
       ),
     },
@@ -1891,7 +2171,14 @@ export const HistoryLogView: React.FC<HistoryLogViewProps> = ({
       iconBg: 'bg-[#5D6B82]',
       summary: sleepSummary,
       chart: sleepChart,
-      content: <SleepSection entries={sleepLogs} onAdd={handleAddSleep} onDelete={handleDeleteSleep} />,
+      content: (
+        <SleepSection
+          entries={sleepLogs}
+          onAdd={handleAddSleep}
+          onDelete={handleDeleteSleep}
+          onOpenHistory={() => setHistoryModalCategory('sleep')}
+        />
+      ),
     },
     {
       key: 'meditation',
@@ -1900,12 +2187,119 @@ export const HistoryLogView: React.FC<HistoryLogViewProps> = ({
       iconBg: 'bg-[#5A7E65]',
       summary: medSummary,
       chart: medChart,
-      content: <MeditationSection entries={meditations} onAdd={handleAddMeditation} onDelete={handleDeleteMeditation} />,
+      content: (
+        <MeditationSection
+          entries={meditations}
+          onAdd={handleAddMeditation}
+          onDelete={handleDeleteMeditation}
+          onOpenHistory={() => setHistoryModalCategory('meditation')}
+        />
+      ),
     },
   ];
 
   return (
-    <div className="mt-3 mb-3">
+    <div className="mt-3 mb-3 space-y-3">
+      {/* 7-Day Athletic Strip */}
+      <div className="rounded-[20px] bg-white dark:bg-[#1C1C1E] border border-slate-200/80 dark:border-white/[0.08] p-3.5 shadow-xs">
+        <div className="flex items-center justify-between mb-2.5 px-1">
+          <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 dark:text-white/40">
+            7-Day Activity Matrix
+          </span>
+          <span className="text-[9px] font-mono text-slate-400 dark:text-white/30">
+            Tap a day to inspect
+          </span>
+        </div>
+
+        {/* 7 Day Columns */}
+        <div className="grid grid-cols-7 gap-1.5 sm:gap-2">
+          {last7Days.map((day) => {
+            const isSel = day.date === selectedDate;
+            return (
+              <button
+                key={day.date}
+                type="button"
+                onClick={() => setSelectedDate(day.date)}
+                className={`group flex flex-col items-center py-2 px-1 rounded-2xl transition-all cursor-pointer select-none ${
+                  isSel
+                    ? 'bg-slate-900 text-white dark:bg-white dark:text-black shadow-sm ring-1 ring-black/10 dark:ring-white/20'
+                    : 'bg-slate-50 hover:bg-slate-100 dark:bg-white/[0.04] dark:hover:bg-white/[0.08] text-slate-700 dark:text-white/70'
+                }`}
+              >
+                <span className={`text-[10px] font-mono font-semibold uppercase ${
+                  isSel ? 'text-white/70 dark:text-black/70' : 'text-slate-400 dark:text-white/30'
+                }`}>
+                  {day.label}
+                </span>
+                <span className="text-[14px] font-mono font-bold tracking-tight my-0.5">
+                  {day.num}
+                </span>
+                {/* Activity Dots: Red (Workout), Teal (Steps), Amber (Nutrition) */}
+                <div className="flex items-center gap-1 mt-1 h-1.5">
+                  <span
+                    className={`w-1.5 h-1.5 rounded-full transition-opacity ${
+                      day.hasWorkout
+                        ? 'bg-red-500'
+                        : isSel ? 'bg-white/20 dark:bg-black/20' : 'bg-slate-200 dark:bg-white/10'
+                    }`}
+                    title={day.hasWorkout ? 'Workout logged' : 'No workout'}
+                  />
+                  <span
+                    className={`w-1.5 h-1.5 rounded-full transition-opacity ${
+                      day.stepsCount > 0
+                        ? 'bg-teal-400'
+                        : isSel ? 'bg-white/20 dark:bg-black/20' : 'bg-slate-200 dark:bg-white/10'
+                    }`}
+                    title={day.stepsCount > 0 ? `${day.stepsCount.toLocaleString()} steps` : 'No steps'}
+                  />
+                  <span
+                    className={`w-1.5 h-1.5 rounded-full transition-opacity ${
+                      day.calories > 0
+                        ? 'bg-amber-400'
+                        : isSel ? 'bg-white/20 dark:bg-black/20' : 'bg-slate-200 dark:bg-white/10'
+                    }`}
+                    title={day.calories > 0 ? `${day.calories} kcal` : 'No meals'}
+                  />
+                </div>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Selected Day Performance Snapshot */}
+        <div className="mt-3 pt-3 border-t border-slate-100 dark:border-white/[0.06] flex flex-wrap items-center justify-between gap-2 px-1">
+          <div className="flex items-center gap-2">
+            <span className="text-[12px] font-bold text-slate-900 dark:text-white">
+              {selectedDayInfo.isToday
+                ? 'Today'
+                : selectedDayInfo.isYesterday
+                  ? 'Yesterday'
+                  : `${new Date(selectedDayInfo.date + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`}
+            </span>
+            <span className="text-[10px] font-mono text-slate-400 dark:text-white/30">
+              {selectedDayInfo.date}
+            </span>
+          </div>
+
+          <div className="flex items-center gap-3 text-[11px] font-mono">
+            <span className={`flex items-center gap-1 ${selectedDayInfo.hasWorkout ? 'text-red-500 font-bold' : 'text-slate-400 dark:text-white/30'}`}>
+              <Dumbbell className="w-3 h-3" />
+              <span>{selectedDayInfo.hasWorkout ? 'Lifted' : 'Rest'}</span>
+            </span>
+
+            <span className={`flex items-center gap-1 ${selectedDayInfo.stepsCount > 0 ? 'text-teal-600 dark:text-teal-400 font-bold' : 'text-slate-400 dark:text-white/30'}`}>
+              <Footprints className="w-3 h-3" />
+              <span>{selectedDayInfo.stepsCount > 0 ? `${selectedDayInfo.stepsCount.toLocaleString()} steps` : '0 steps'}</span>
+            </span>
+
+            <span className={`flex items-center gap-1 ${selectedDayInfo.calories > 0 ? 'text-amber-600 dark:text-amber-400 font-bold' : 'text-slate-400 dark:text-white/30'}`}>
+              <Utensils className="w-3 h-3" />
+              <span>{selectedDayInfo.calories > 0 ? `${selectedDayInfo.calories} cal` : '0 cal'}</span>
+            </span>
+          </div>
+        </div>
+      </div>
+
       {/* Apple Inset Grouped Table Container */}
       <div className="bg-white dark:bg-[#1C1C1E] border border-slate-200/80 dark:border-white/[0.08] rounded-[20px] shadow-xs overflow-hidden divide-y divide-slate-100 dark:divide-white/[0.06]">
         {sections.map((s, idx) => (
@@ -1917,14 +2311,16 @@ export const HistoryLogView: React.FC<HistoryLogViewProps> = ({
               summary={s.summary}
               isOpen={openSections.has(s.key)}
               onToggle={() => toggleSection(s.key)}
-              chartStyle={chartFor(s.key)}
-              onChartStyleChange={(style) => setChartStyle(s.key, style)}
               isFirst={idx === 0}
               isLast={idx === sections.length - 1}
             />
             {openSections.has(s.key) && (
               <div className="px-3.5 pb-4 pt-1 animate-[fadeIn_0.2s_ease] bg-slate-50/50 dark:bg-black/20 border-t border-slate-100 dark:border-white/[0.04]">
-                <div className="mb-3 rounded-xl log-card-inner px-3 py-2">
+                <div className="mb-3 rounded-xl log-card-inner px-3 py-2.5">
+                  <CategoryTimeframeSwitcher
+                    value={chartFor(s.key)}
+                    onChange={(style) => setChartStyle(s.key, style)}
+                  />
                   {s.chart}
                 </div>
                 {s.content}
@@ -1939,6 +2335,26 @@ export const HistoryLogView: React.FC<HistoryLogViewProps> = ({
         isOpen={showCardioScanModal}
         onClose={() => setShowCardioScanModal(false)}
         onSaved={handleCardioScanned}
+      />
+
+      {/* 1-Year History Explorer Modal */}
+      <YearHistoryExplorerModal
+        isOpen={historyModalCategory !== null}
+        onClose={() => setHistoryModalCategory(null)}
+        initialCategory={historyModalCategory || 'steps'}
+        sessions={sessions}
+        steps={steps}
+        macros={macros}
+        sleepLogs={sleepLogs}
+        meditations={meditations}
+        onAddSteps={handleAddSteps}
+        onDeleteSteps={handleDeleteSteps}
+        onDeleteSession={handleDeleteSession}
+        onDeleteSleep={handleDeleteSleep}
+        onDeleteMeditation={handleDeleteMeditation}
+        onAddSleep={handleAddSleep}
+        onSaveMacro={handleSaveMacroRecord}
+        onNavigateToFuel={onNavigateToFuel}
       />
     </div>
   );

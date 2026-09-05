@@ -2,6 +2,7 @@ import React, { useState, Suspense, lazy, memo } from 'react';
 import { AppMode, DailyMeals, ExerciseLog, SetData } from '../types';
 import { RotatingHeroCard } from './RotatingHeroCard';
 import { CircularActionRail } from './CircularActionRail';
+import { BiometricModal, BiometricType } from './BiometricModal';
 import { ArchetypeBlueprint } from '@/data/archetypeBlueprints';
 
 const ArchetypeModal = lazy(() => import('./ArchetypeModal').then(m => ({ default: m.ArchetypeModal })));
@@ -72,6 +73,7 @@ export const HomeView: React.FC<HomeViewProps> = memo(({
 }) => {
   const [selectedArchetype, setSelectedArchetype] = useState<ArchetypeBlueprint | null>(null);
   const [isEliteReelsOpen, setIsEliteReelsOpen] = useState(false);
+  const [activeBiometricType, setActiveBiometricType] = useState<BiometricType | null>(null);
 
   const handleArchetypeSelect = (archetype: ArchetypeBlueprint) => {
     setSelectedArchetype(archetype);
@@ -124,7 +126,7 @@ export const HomeView: React.FC<HomeViewProps> = memo(({
         dailyMeals={dailyMeals}
       />
 
-      {/* Specialized Archetype Workouts Circular Rail with Pin #1 Elite Reels */}
+      {/* Specialized Archetype Workouts Circular Rail with Pin #1 Elite Reels (Reels train under OLED) */}
       <CircularActionRail
         onArchetypeSelect={handleArchetypeSelect}
         onOpenEliteReels={() => setIsEliteReelsOpen(true)}
@@ -152,6 +154,12 @@ export const HomeView: React.FC<HomeViewProps> = memo(({
             showToast={showToast}
           />
         )}
+
+        {/* Biometrics & Physiological Telemetry Inspector */}
+        <BiometricModal
+          type={activeBiometricType}
+          onClose={() => setActiveBiometricType(null)}
+        />
       </Suspense>
     </div>
   );

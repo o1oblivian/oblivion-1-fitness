@@ -167,8 +167,8 @@ export const ShareResultModal: React.FC<ShareResultModalProps> = ({ log, coachNa
   const durationStr = log.duration.replace(/^00:/, '');
 
   return (
-    <div className="fixed inset-0 z-[200] flex justify-center bg-[#F8F9FA] dark:bg-[#0A0A0C] p-3 overflow-y-auto pb-28" onClick={onClose}>
-      <div className="w-full max-w-sm my-4" onClick={(e) => e.stopPropagation()}>
+    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/75 backdrop-blur-xs p-3 overflow-y-auto" onClick={onClose}>
+      <div className="w-full max-w-sm my-auto" onClick={(e) => e.stopPropagation()}>
         {/* 9:16 OLED Card Frame — card content stays dark */}
         <div className="relative rounded-3xl overflow-hidden shadow-2xl border border-red-500/30 mb-4" style={{ aspectRatio: '9/16' }}>
           <canvas ref={canvasRef} className="w-full h-full" />

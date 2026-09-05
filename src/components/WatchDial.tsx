@@ -107,9 +107,19 @@ export const WatchDial: React.FC<WatchDialProps> = ({
 
   const [cardioTotals, setCardioTotals] = useState(getTodayCardioTotals);
   useEffect(() => {
-    return subscribeCardioUpdates(() => {
+    const refreshTotals = () => {
       setCardioTotals(getTodayCardioTotals());
-    });
+    };
+    const unsub = subscribeCardioUpdates(refreshTotals);
+    window.addEventListener('focus', refreshTotals);
+    document.addEventListener('visibilitychange', refreshTotals);
+    const interval = setInterval(refreshTotals, 30000);
+    return () => {
+      unsub();
+      window.removeEventListener('focus', refreshTotals);
+      document.removeEventListener('visibilitychange', refreshTotals);
+      clearInterval(interval);
+    };
   }, []);
 
   const [dailySteps, setDailyStepsState] = useState<number>(0);

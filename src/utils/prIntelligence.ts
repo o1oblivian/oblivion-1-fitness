@@ -36,8 +36,9 @@ export interface SetProgressEvaluation {
 }
 
 /**
- * Standard Epley formula for estimated 1-Rep Max
+ * Standard Epley formula for estimated 1-Rep Max with high-rep dampening
  * 1RM = Weight * (1 + Reps / 30)
+ * When reps > 20, applies logarithmic decay to account for muscular endurance vs maximal force.
  */
 export function calculate1RM(weight: number | string, reps: number | string): number {
   const w = Math.max(0, parseFloat(String(weight)) || 0);
@@ -46,7 +47,14 @@ export function calculate1RM(weight: number | string, reps: number | string): nu
   if (w <= 0 || r <= 0) return 0;
   if (r === 1) return w;
 
-  const raw1RM = w * (1 + r / 30);
+  let raw1RM: number;
+  if (r <= 20) {
+    raw1RM = w * (1 + r / 30);
+  } else {
+    // Dampen endurance rep counts above 20 to prevent distorted maximal strength estimates
+    raw1RM = w * (1 + 20 / 30 + (r - 20) / 60);
+  }
+
   return Math.round(raw1RM * 10) / 10;
 }
 
@@ -198,12 +206,27 @@ export function recordPersonalRecord(
   reps: number,
   userEmail: string = 'athlete@o1fc.app'
 ): boolean {
-  if (!exerciseName || weight <= 0 || reps <= 0) return false;
+  if (!exerciseName || weight < 0 || reps <= 0) return false;
   try {
     const normTarget = exerciseName.trim().toLowerCase();
     const epley = calculate1RM(weight, reps);
     const key = LOCAL_PR_KEY(userEmail);
     const cached = JSON.parse(localStorage.getItem(key) || '{}');
+
+    // If bodyweight set (weight == 0)
+    if (weight === 0) {
+      if (!cached[normTarget] || reps > (cached[normTarget].reps || 0)) {
+        cached[normTarget] = {
+          pr1RM: 0,
+          weight: 0,
+          reps,
+          date: new Date().toISOString(),
+        };
+        localStorage.setItem(key, JSON.stringify(cached));
+        return true;
+      }
+      return false;
+    }
 
     if (!cached[normTarget] || epley > cached[normTarget].pr1RM) {
       cached[normTarget] = {
@@ -250,7 +273,94 @@ export function evaluateSetProgression(
   const lastWeekDiff = lastWeek1RM > 0 && current1RM > 0 ? Math.round((current1RM - lastWeek1RM) * 10) / 10 : 0;
 
   // Evaluation badges
-  if (current1RM <= 0 || numWeight <= 0 || numReps <= 0) {
+  if (numReps <= 0) {
+    return {
+      current1RM: 0,
+      allTimePR1RM: allTimePR,
+      isNewPR: false,
+      prDiff: 0,
+      prPercent: 0,
+      lastWeek1RM,
+      lastWeekDiff: 0,
+      lastWeekVolume: lastWeekVol,
+      currentSetVolume: 0,
+      historySetsCount: history.totalHistoricalSessions,
+      statusBadge: {
+        text: allTimePR > 0 ? `PR ${allTimePR}kg` : 'Epley 1RM',
+        variant: 'empty',
+        isCelebration: false,
+      },
+    };
+  }
+
+  // Handle Bodyweight Exercise (numWeight === 0, e.g. Pull-ups, Dips, Push-ups)
+  if (numWeight === 0 && numReps > 0) {
+    const allTimeReps = history.allTimePRReps || 0;
+    const isNewRepsPR = allTimeReps > 0 ? numReps > allTimeReps : numReps >= 8;
+    const repsDiff = allTimeReps > 0 ? numReps - allTimeReps : 0;
+
+    if (isNewRepsPR) {
+      return {
+        current1RM: 0,
+        allTimePR1RM: allTimePR,
+        isNewPR: true,
+        prDiff: 0,
+        prPercent: allTimeReps > 0 ? Math.round(((numReps - allTimeReps) / allTimeReps) * 100) : 100,
+        lastWeek1RM,
+        lastWeekDiff: 0,
+        lastWeekVolume: lastWeekVol,
+        currentSetVolume: 0,
+        historySetsCount: history.totalHistoricalSessions,
+        statusBadge: {
+          text: repsDiff > 0 ? `+${repsDiff} Reps PR` : `${numReps} Reps PR`,
+          subtext: `${numReps} Bodyweight Reps`,
+          variant: 'pr',
+          isCelebration: true,
+        },
+      };
+    }
+
+    if (allTimeReps > 0 && numReps === allTimeReps) {
+      return {
+        current1RM: 0,
+        allTimePR1RM: allTimePR,
+        isNewPR: false,
+        prDiff: 0,
+        prPercent: 0,
+        lastWeek1RM,
+        lastWeekDiff: 0,
+        lastWeekVolume: lastWeekVol,
+        currentSetVolume: 0,
+        historySetsCount: history.totalHistoricalSessions,
+        statusBadge: {
+          text: `Matches Max Reps (${numReps})`,
+          variant: 'match',
+          isCelebration: false,
+        },
+      };
+    }
+
+    return {
+      current1RM: 0,
+      allTimePR1RM: allTimePR,
+      isNewPR: false,
+      prDiff: 0,
+      prPercent: 0,
+      lastWeek1RM,
+      lastWeekDiff: 0,
+      lastWeekVolume: lastWeekVol,
+      currentSetVolume: 0,
+      historySetsCount: history.totalHistoricalSessions,
+      statusBadge: {
+        text: `${numReps} Reps`,
+        subtext: allTimeReps > 0 ? `Best: ${allTimeReps} reps` : undefined,
+        variant: 'neutral',
+        isCelebration: false,
+      },
+    };
+  }
+
+  if (current1RM <= 0 || numWeight <= 0) {
     return {
       current1RM: 0,
       allTimePR1RM: allTimePR,

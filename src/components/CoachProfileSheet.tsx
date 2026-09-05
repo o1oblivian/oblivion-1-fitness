@@ -29,6 +29,7 @@ import {
 } from 'lucide-react';
 import type { EliteReelData } from '@/components/FullEliteReelsModal';
 import { getCoachShowcase, saveCoachShowcase, CoachShowcaseConfig, ShowcaseSlotMedia } from '@/utils/coachShowcaseStore';
+import { useModalBackHandler } from '@/utils/modalHistory';
 
 /* ── props ── */
 interface CoachProfileSheetProps {
@@ -318,13 +319,21 @@ export const CoachProfileSheet: React.FC<CoachProfileSheetProps> = ({
     }, 100);
   };
 
+  const handleClose = () => {
+    setClosing(true);
+    setTimeout(() => {
+      setClosing(false);
+      onClose();
+    }, 280);
+  };
+
+  useModalBackHandler(isOpen && !!coach, handleClose, 'coach_profile_sheet');
+
   if (!isOpen || !coach || !stats) return null;
 
   const coachReels = allReels.filter((r) => r.coachName === coach.coachName);
   const accent = TIER_COLOR[coach.tier] || '#0A84FF';
   const handle = coach.handle || `@${coach.coachName.toLowerCase().replace(/\s+/g, '_')}`;
-
-  const handleClose = () => { setClosing(true); setTimeout(() => { setClosing(false); onClose(); }, 280); };
 
   const handleShare = async () => {
     const url = `${window.location.origin}/coach/${coach.coachName.toLowerCase().replace(/\s+/g, '-')}`;

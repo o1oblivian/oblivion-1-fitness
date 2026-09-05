@@ -158,8 +158,8 @@ export const WeeklyProgressChart: React.FC<WeeklyProgressChartProps> = ({
     metric === 'volume' ? 5000 : 15
   );
 
-  // Google 4-color pattern
-  const GOOGLE_COLORS = ['#4285F4', '#EA4335', '#FBBC05', '#34A853'];
+  // Theme colors: Blue, Red, Yellow, Orange (Zero Green)
+  const GOOGLE_COLORS = ['#4285F4', '#EA4335', '#FBBC05', '#F97316'];
 
   return (
     <div
@@ -190,7 +190,7 @@ export const WeeklyProgressChart: React.FC<WeeklyProgressChartProps> = ({
             </span>
             <span className="text-slate-300 dark:text-zinc-700">•</span>
             <span className="text-slate-500 dark:text-zinc-400 flex items-center gap-0.5">
-              <TrendingUp className="w-2.5 h-2.5 text-[#34A853]" />
+              <TrendingUp className="w-2.5 h-2.5 text-[#4285F4]" />
               Target: {metric === 'volume' ? `${(targetWeeklyVolume / 1000).toFixed(0)}k kg` : `${targetWeeklySets}s`}
             </span>
           </div>

@@ -14,12 +14,15 @@ export interface SetData {
   rpe: number;
   rawVal1?: string;
   rawVal2?: string;
+  isWarmup?: boolean;
 }
 
 export interface ExerciseLog {
   id: string;
   exerciseName: string;
   sets: SetData[];
+  supersetGroupId?: string;
+  supersetIndex?: number;
 }
 
 export type TrackingType = 'reps_weight' | 'reps_time' | 'time_dist';

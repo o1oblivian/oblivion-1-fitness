@@ -35,6 +35,7 @@ import {
 import { useSubscription } from '../utils/useSubscription';
 import { AthleteData } from '../types';
 import { DispatchedExercise, dispatchWorkout } from '../utils/dispatchStore';
+import { useModalBackHandler } from '../utils/modalHistory';
 import {
   CoachSavedBlueprint,
   getCoachSavedBlueprints,
@@ -2077,6 +2078,8 @@ export const WorkoutDispatchModal: React.FC<WorkoutDispatchModalProps> = ({
       showToast('Dispatch failed. Retrying...');
     }
   };
+
+  useModalBackHandler(isOpen, onClose, 'workout_dispatch_modal');
 
   if (!isOpen) return null;
 

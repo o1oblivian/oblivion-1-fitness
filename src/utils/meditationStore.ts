@@ -20,7 +20,7 @@ function saveLocal(email: string, entries: MeditationEntry[]) {
   localStorage.setItem(LOCAL_KEY(email), JSON.stringify(entries));
 }
 
-export async function loadMeditationSessions(email: string, limit = 50): Promise<MeditationEntry[]> {
+export async function loadMeditationSessions(email: string, limit = 365): Promise<MeditationEntry[]> {
   if (isSupabaseConfigured()) {
     const { data, error } = await supabase
       .from('meditation_sessions')

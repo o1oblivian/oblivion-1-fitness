@@ -24,6 +24,7 @@ import {
   Cell
 } from 'recharts';
 import { supabase } from '@/utils/supabase';
+import { useModalBackHandler } from '@/utils/modalHistory';
 
 interface WeeklyReportCardModalProps {
   isOpen: boolean;
@@ -485,6 +486,7 @@ export const WeeklyReportCardModal: React.FC<WeeklyReportCardModalProps> = ({
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<'telemetry' | 'biomechanics' | 'metabolic' | 'prescription'>('telemetry');
   const cardRef = useRef<HTMLDivElement>(null);
+  useModalBackHandler(isOpen, onClose, 'weekly_report_card_modal');
 
   const today = new Date();
   const baseMonday = getMonday(today);
