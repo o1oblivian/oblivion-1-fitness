@@ -135,7 +135,10 @@ export async function apiFetch(path: string, options?: RequestInit, timeoutMs = 
         return response;
       }
 
-      lastResponse = response;
+      // Only remember last response if it was genuine JSON
+      if (contentType.includes('application/json')) {
+        lastResponse = response;
+      }
     } catch {
       // Endpoint timed out or failed, continue to next candidate
     }
@@ -143,6 +146,30 @@ export async function apiFetch(path: string, options?: RequestInit, timeoutMs = 
 
   if (lastResponse) return lastResponse;
 
-  // Ultimate fallback
+  // If we are on native mobile and the relative path was already tried or will fail, return safe JSON error
+  if (isNativePlatform() || cleanPath.startsWith('/api/')) {
+    try {
+      const fallbackRes = await fetch(cleanPath, options);
+      const fbCt = fallbackRes.headers.get('content-type') || '';
+      if (fbCt.includes('application/json')) {
+        return fallbackRes;
+      }
+    } catch {
+      /* ignore native relative failure */
+    }
+
+    return new Response(
+      JSON.stringify({
+        success: false,
+        message: 'Cloud service endpoint is currently unreachable. Please check network or enter manually.',
+      }),
+      {
+        status: 503,
+        headers: { 'Content-Type': 'application/json' },
+      }
+    );
+  }
+
+  // Ultimate fallback for web
   return fetch(cleanPath, options);
 }

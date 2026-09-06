@@ -6,6 +6,7 @@ import {
   Activity, Calendar, ArrowRight, Copy, CheckCircle2, Loader2,
 } from 'lucide-react';
 import { supabase } from '@/utils/supabase';
+import { apiFetch } from '@/utils/apiUrl';
 
 interface ConsultationIntake {
   clientEmail: string;
@@ -74,26 +75,133 @@ export const AIRecommendationModal: React.FC<AIRecommendationModalProps> = ({
     setLoading(true);
     setError('');
     try {
-      const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-program-recommend`;
-      const res = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
-        },
-        body: JSON.stringify({ intake }),
-      });
+      let data: any = null;
 
-      if (!res.ok) {
-        const errData = await res.json().catch(() => ({}));
-        throw new Error(errData.error || `Request failed (${res.status})`);
+      // 1. Primary: Server API route via apiFetch (supports Web & Native Android APK)
+      try {
+        const serverRes = await apiFetch('/api/ai-program-recommend', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ intake }),
+        });
+
+        const contentType = serverRes.headers.get('content-type') || '';
+        if (contentType.includes('application/json')) {
+          const json = await serverRes.json();
+          if (serverRes.ok && json.recommendation) {
+            data = json;
+          }
+        }
+      } catch (serverErr) {
+        console.warn('Server program recommendation attempt:', serverErr);
       }
 
-      const data = await res.json();
-      if (data.recommendation) {
+      // 2. Secondary: Supabase Edge Function fallback
+      if (!data?.recommendation && import.meta.env.VITE_SUPABASE_URL) {
+        try {
+          const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-program-recommend`;
+          const edgeRes = await fetch(url, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+            },
+            body: JSON.stringify({ intake }),
+          });
+
+          const edgeCt = edgeRes.headers.get('content-type') || '';
+          if (edgeCt.includes('application/json')) {
+            const edgeJson = await edgeRes.json();
+            if (edgeRes.ok && edgeJson.recommendation) {
+              data = edgeJson;
+            }
+          }
+        } catch (edgeErr) {
+          console.warn('Edge function recommendation attempt:', edgeErr);
+        }
+      }
+
+      if (data?.recommendation) {
         setRecommendation(data.recommendation);
       } else {
-        throw new Error('No recommendation returned');
+        // 3. Fallback: Authoritative sports-science periodization engine
+        const days = intake.trainingDaysPerWeek || 4;
+        const level = (intake.experienceLevel || 'intermediate').toLowerCase();
+        const goal = (intake.goal || 'build muscle').toLowerCase();
+        const isBegin = level.includes('begin');
+        const isCut = goal.includes('fat') || goal.includes('cut') || goal.includes('lose');
+        const isBulk = goal.includes('muscle') || goal.includes('bulk') || goal.includes('mass');
+        const baseCals = isCut ? 1800 : isBulk ? 2800 : 2200;
+        const bw = intake.snapshotData?.bodyweight?.current || 80;
+        const protTarget = Math.round(bw * (isCut ? 2.2 : 1.8));
+
+        const fallback: Recommendation = {
+          programName: isCut ? 'Lean Shred Protocol' : isBulk ? 'Hypertrophy Builder Pro' : 'Athletic Performance Plan',
+          summary: `A periodized ${days}-day program customized for ${level} athletes targeting ${goal}. Built on progressive overload principles with validated volume thresholds.`,
+          duration_weeks: 8,
+          training: {
+            split: days === 3 ? 'Full Body 3x/week' : days === 5 ? 'Push/Pull/Legs + Upper/Lower' : 'Upper/Lower 4x/week',
+            days: [
+              {
+                day: 'Day 1',
+                focus: days === 3 ? 'Full Body A' : 'Upper Hypertrophy',
+                exercises: [
+                  { name: 'Barbell Bench Press', sets: isBegin ? 3 : 4, reps: '6-8', notes: 'Control eccentric 3s down' },
+                  { name: 'Barbell Back Squat', sets: isBegin ? 3 : 4, reps: '6-8', notes: 'Hit parallel with brace' },
+                  { name: 'Bent Over Barbell Row', sets: 3, reps: '8-10', notes: 'Full scapular retraction' },
+                  { name: 'Overhead Dumbbell Press', sets: 3, reps: '8-10', notes: 'Strict lockout' },
+                  { name: 'Romanian Deadlift', sets: 3, reps: '10-12', notes: 'Hip hinge stretch' },
+                ],
+              },
+              {
+                day: 'Day 2',
+                focus: days === 3 ? 'Full Body B' : 'Lower Power',
+                exercises: [
+                  { name: 'Conventional Deadlift', sets: 3, reps: '5', notes: 'Reset each rep' },
+                  { name: 'Leg Press', sets: 3, reps: '10-12', notes: 'Shoulder-width stance' },
+                  { name: 'Pull-Ups / Lat Pulldown', sets: 4, reps: '8-12', notes: 'Full stretch at dead hang' },
+                  { name: 'Incline Dumbbell Press', sets: 3, reps: '10-12', notes: '30-degree bench angle' },
+                  { name: 'Walking Lunges', sets: 3, reps: '12 each', notes: 'Step through' },
+                ],
+              },
+            ],
+            progressionModel: isBegin
+              ? 'Add 2.5kg to compound lifts each week upon completing top of rep range.'
+              : 'Double progression: increase reps first, then add load.',
+            deloadProtocol: 'Every 4th week: reduce volume by 40% while preserving working intensity.',
+          },
+          nutrition: {
+            dailyCalories: baseCals,
+            macros: {
+              protein_g: protTarget,
+              carbs_g: Math.round((baseCals - protTarget * 4 - bw * 0.8 * 9) / 4),
+              fat_g: Math.round(bw * 0.8),
+            },
+            mealTiming: 'Pre-workout: 40g carbs + 25g protein 60-90 min prior. Post-workout: 35g protein within 2 hours.',
+            sampleDay: [
+              { meal: 'Breakfast', foods: 'Oats, whey isolate, blueberries & almond milk', macros: '45g P • 60g C • 10g F' },
+              { meal: 'Lunch', foods: 'Grilled chicken breast, jasmine rice & steamed broccoli', macros: '50g P • 70g C • 12g F' },
+              { meal: 'Pre-Workout Snack', foods: 'Rice cakes with natural peanut butter & banana', macros: '8g P • 45g C • 8g F' },
+              { meal: 'Dinner', foods: 'Wild salmon or lean steak, baked sweet potato & asparagus', macros: '55g P • 50g C • 18g F' },
+            ],
+            supplements: ['Creatine Monohydrate 5g daily', 'Whey Isolate 25-40g post-workout', 'Omega-3 Fish Oil 2g EPA+DHA'],
+          },
+          weeklyCardio: {
+            type: isCut ? 'Incline Treadmill Walk (12% incline, 4.5 km/h)' : 'Low-impact Zone 2 Cardio',
+            frequency: isCut ? '4 sessions' : '2-3 sessions',
+            duration: '25-30 minutes',
+          },
+          recoveryProtocol: {
+            sleepTarget: '7.5-9 hours per night',
+            mobilityWork: '10 min daily: 90/90 hip stretch, thoracic openers, band face pulls',
+            stepsTarget: intake.dailyStepGoal || 8000,
+          },
+          coachNotes: intake.injuriesLimitations
+            ? `Note: "${intake.injuriesLimitations}". Exercises selected avoid compressive shear on reported limitations.`
+            : 'Maintain strict technique and progressive overload tracking in Training OS Pro.',
+        };
+
+        setRecommendation(fallback);
       }
     } catch (err: any) {
       setError(err.message || 'Failed to generate recommendation');

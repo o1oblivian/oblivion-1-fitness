@@ -83,5 +83,14 @@
    - **Internal Testing & TestFlight**: 100% automated delivery to test devices.
    - **Public Store Review**: Requires standard one-click release promotion / submission selection in the respective store dashboards (Google Play Production track rollout / App Store version build attachment).
 
+### Note 4: iOS Release Trigger Management & Google Play Key Activation (Recorded: September 5, 2026)
+1. **iOS Release Workflow State**:
+   - The automatic push trigger for `ios-release` in `codemagic.yaml` is intentionally paused to preserve **Build 35** while it is in Apple App Store review and public testing.
+   - **Unpause Instruction**: Whenever the user asks to update iOS, release a new iOS build, or unpause iOS, immediately re-enable the `triggering` section in `codemagic.yaml` under `ios-release` (uncomment lines 7-13). This will auto-increment to Build 36+ and publish to TestFlight.
+2. **Google Play Key Activation Schedule**:
+   - Permanent upload certificate (`upload_certificate.pem` / `release-keystore.jks`) was registered on Sep 5, 2026 (SHA1: `CC:15:7C:65:54:1D:F9:AE:6C:09:12:87:9D:17:E2:AF:98:7E:6D:BE`).
+   - Google Play 48-hour security hold expires on **September 7, 2026 at 1:09 PM UTC**.
+   - After this timestamp, builds submitted to Google Play will publish directly without key mismatch errors.
+
 
 

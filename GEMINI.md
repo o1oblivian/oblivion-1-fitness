@@ -29,5 +29,13 @@
 3. **Google Play Internal Testing**: `android-release` compiles web bundle, syncs Android Capacitor, signs production AAB (`bundleRelease`), and pushes directly to Google Play's `internal` track.
 4. **Public Store Submission**: Reaching test devices is 100% automated. Promoting to public production requires selecting the build in App Store Connect / promoting the release in Google Play Console.
 
+### Note 4: iOS Release Trigger Management & Google Play Key Activation (Recorded: September 5, 2026)
+1. **iOS Release Workflow State**:
+   - `ios-release` automatic push trigger in `codemagic.yaml` is paused to keep **Build 35** safe during active App Store review and public testing.
+   - **Unpause Instruction**: When the user requests an iOS update or asks to unpause iOS, re-enable lines 7-13 in `codemagic.yaml` to resume auto-building Build 36+ to TestFlight.
+2. **Google Play Key Activation Schedule**:
+   - Permanent upload key (`release-keystore.jks`) SHA1: `CC:15:7C:65:54:1D:F9:AE:6C:09:12:87:9D:17:E2:AF:98:7E:6D:BE`.
+   - Security hold ends **September 7, 2026 at 1:09 PM UTC**, after which Codemagic will publish automatically.
+
 
 
