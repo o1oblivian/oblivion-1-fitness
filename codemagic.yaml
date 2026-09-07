@@ -3,14 +3,14 @@ workflows:
     name: iOS Release (App Store / TestFlight)
     max_build_duration: 60
     instance_type: mac_mini_m2
-    # Automatic trigger paused so Build 35 remains active in review without creating Build 36
-    # triggering:
-    #   events:
-    #     - push
-    #   branch_patterns:
-    #     - pattern: 'main'
-    #       include: true
-    #       source: true
+    # Automatic trigger active for Build 36+ TestFlight distribution
+    triggering:
+      events:
+        - push
+      branch_patterns:
+        - pattern: 'main'
+          include: true
+          source: true
     environment:
       groups:
         - app_store_credentials
@@ -157,6 +157,7 @@ workflows:
     name: Android Release (Google Play AAB)
     max_build_duration: 60
     instance_type: mac_mini_m2
+    # Active automatic trigger for Google Play internal publishing
     triggering:
       events:
         - push
@@ -212,7 +213,7 @@ workflows:
       google_play:
         credentials: $GCLOUD_SERVICE_ACCOUNT_CREDENTIALS
         track: internal
-        submit_as_draft: true
+        submit_as_draft: false
       email:
         recipients:
           - o1oblivianfitness@gmail.com

@@ -12,7 +12,7 @@ import { WatchDial } from './WatchDial';
 import { playRealBellSound, playPRBreakthroughChime } from '../utils/audio';
 import { getSmartDefault, recordSmartInput } from '../utils/frequencyDefaults';
 import { getDispatchedWorkouts, DispatchedWorkout, dispatchCoachPRAlert } from '../utils/dispatchStore';
-import { Zap, Trash2, Share2, ChevronDown, Dumbbell, Plus, Save, Check, Sparkles, ChevronRight, Play, Pause, Square, X, Trophy, TrendingUp, Disc, Flame, Search, Activity, Timer, Layers } from 'lucide-react';
+import { Zap, Trash2, Share2, ChevronDown, Dumbbell, Plus, Save, Check, Sparkles, ChevronRight, Play, Pause, Square, X, Trophy, TrendingUp, Disc, Flame, Search, Activity, Timer, Layers, Award, HeartPulse } from 'lucide-react';
 import { DualLaneLauncher } from './DualLaneLauncher';
 import { VictoryShareModal } from './VictoryShareModal';
 import { PlateMathModal } from './PlateMathModal';
@@ -24,6 +24,7 @@ import { loadSocialProfiles, getSocialHandle } from '@/utils/socialProfilesStore
 import { WeeklyReportCardModal } from './WeeklyReportCardModal';
 import { ReadinessScoreCard } from './ReadinessScoreCard';
 import { BiometricModal, BiometricType } from './BiometricModal';
+import { SomaticRecoveryDeckModal, SomaticProtocolId } from './SomaticRecoveryDeckModal';
 
 
 interface SoloViewProps {
@@ -98,6 +99,8 @@ export const SoloView: React.FC<SoloViewProps> = ({
   const [dispatchedWorkouts, setDispatchedWorkouts] = useState<DispatchedWorkout[]>([]);
   const [isVictoryShareOpen, setIsVictoryShareOpen] = useState(false);
   const [isReportCardOpen, setIsReportCardOpen] = useState(false);
+  const [isSomaticDeckOpen, setIsSomaticDeckOpen] = useState(false);
+  const [somaticInitialProtocol, setSomaticInitialProtocol] = useState<SomaticProtocolId>('box');
   const [activeBiometricType, setActiveBiometricType] = useState<BiometricType | null>(null);
   const [expandedExerciseId, setExpandedExerciseId] = useState<string | null>(null);
   const [plateMathModal, setPlateMathModal] = useState<{
@@ -751,6 +754,7 @@ export const SoloView: React.FC<SoloViewProps> = ({
         showToast={showToast}
         onUpgrade={onOpenPayPlan}
         currentUserEmail={currentUserEmail}
+        onOpenSomaticDeck={() => setIsSomaticDeckOpen(true)}
       />
 
       {/* Exercise Database Main Menu & Dropdown Hub */}
@@ -772,8 +776,8 @@ export const SoloView: React.FC<SoloViewProps> = ({
         <div className="flex gap-1 bg-zinc-100 dark:bg-white/[0.04] rounded-lg p-0.5">
           {([
             { key: 'weights' as const, label: 'Lift', categories: liftCategories, icon: Dumbbell, color: '#C4121A' },
-            { key: 'sports' as const, label: 'Sports', categories: sportsCategories, icon: Flame, color: '#F59E0B' },
-            { key: 'recovery' as const, label: 'Recovery', categories: recoveryCategories, icon: Activity, color: '#8B5CF6' },
+            { key: 'sports' as const, label: 'Sports', categories: sportsCategories, icon: Trophy, color: '#E8B04A' },
+            { key: 'recovery' as const, label: 'Recovery', categories: recoveryCategories, icon: HeartPulse, color: '#3FB98E' },
           ] as const).map((cat) => {
             const Icon = cat.icon;
             return (
@@ -782,6 +786,8 @@ export const SoloView: React.FC<SoloViewProps> = ({
                 onClick={() => {
                   haptic.tap();
                   setCategoryTypeGroup(cat.key);
+                  setActiveFilterTag('All');
+                  setExerciseSearchQuery('');
                   if (!cat.categories.includes(selectedCategory)) {
                     setSelectedCategory(cat.categories[0]);
                   }
@@ -803,6 +809,35 @@ export const SoloView: React.FC<SoloViewProps> = ({
         {/* Dropdown Menu Content (Appears when any menu is open) */}
         {openDropdown !== null && (
           <div className="space-y-2 pt-2 border-t border-zinc-200/60 dark:border-zinc-800 animate-fadeIn">
+            {/* Somatic & Breathwork Deck Launcher (Active under Recovery) */}
+            {categoryTypeGroup === 'recovery' && (
+              <div className="p-2.5 sm:p-3 rounded-2xl bg-gradient-to-r from-red-950/30 via-zinc-900 to-zinc-900 border border-[#C4121A]/30 dark:border-[#D91F28]/30 flex items-center justify-between gap-2.5 text-left">
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <div className="w-8 h-8 rounded-xl bg-[#C4121A]/15 dark:bg-[#D91F28]/20 border border-[#C4121A]/30 flex items-center justify-center text-[#C4121A] dark:text-[#D91F28] shrink-0">
+                    <HeartPulse className="w-4 h-4" />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-xs font-bold text-white tracking-tight">Somatic Breath & Sound Engine</span>
+                      <span className="text-[9px] font-semibold px-1.5 py-0.2 rounded bg-[#C4121A]/20 dark:bg-[#D91F28]/20 text-[#C4121A] dark:text-[#D91F28] font-mono uppercase">Calm OS</span>
+                    </div>
+                    <p className="text-[11px] text-zinc-400 truncate">Kinetic breath ring, 432Hz binaural audio & NSDR</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    haptic.tap();
+                    setIsSomaticDeckOpen(true);
+                  }}
+                  className="px-3 h-7.5 rounded-xl bg-[#C4121A] dark:bg-[#D91F28] hover:opacity-90 text-white font-bold text-xs shrink-0 flex items-center gap-1 transition-all shadow-xs active:scale-95 cursor-pointer"
+                >
+                  <span>Launch</span>
+                  <ChevronRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            )}
+
             {/* Sub-Category Selector Pills with Count Badges */}
             <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 px-0.5">
               {currentCategoryList.map((cat) => {
@@ -819,7 +854,7 @@ export const SoloView: React.FC<SoloViewProps> = ({
                     }}
                     className={`whitespace-nowrap h-8 px-3 rounded-xl text-xs font-bold shrink-0 transition-all flex items-center gap-1.5 border active:scale-95 cursor-pointer ${
                       isSelected
-                        ? 'bg-[#EA4335] text-white border-[#EA4335] shadow-xs'
+                        ? 'bg-[#C4121A] dark:bg-[#D91F28] text-white border-[#C4121A] dark:border-[#D91F28] shadow-xs'
                         : 'bg-zinc-100/80 dark:bg-white/[0.05] text-zinc-700 dark:text-white/70 border-zinc-200 dark:border-zinc-800 hover:bg-zinc-200'
                     }`}
                   >
@@ -842,11 +877,13 @@ export const SoloView: React.FC<SoloViewProps> = ({
                   placeholder={
                     exerciseSearchQuery.length > 0
                       ? 'Search all 2,000+ exercises...'
+                      : categoryTypeGroup === 'recovery'
+                      ? `Search ${selectedCategory} (${categoryExerciseCount} practices)...`
                       : `Search ${selectedCategory} (${categoryExerciseCount} exercises)...`
                   }
                   value={exerciseSearchQuery}
                   onChange={(e) => setExerciseSearchQuery(e.target.value)}
-                  className="w-full h-9 bg-zinc-100 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/80 rounded-xl pl-9 pr-9 text-xs font-medium text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-500 outline-none focus:border-[#EA4335] dark:focus:border-[#EA4335] focus:ring-1 focus:ring-[#EA4335]/20 transition-all"
+                  className="w-full h-9 bg-zinc-100 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/80 rounded-xl pl-9 pr-9 text-xs font-medium text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-500 outline-none focus:border-[#C4121A] dark:focus:border-[#D91F28] focus:ring-1 focus:ring-[#C4121A]/20 transition-all"
                 />
                 {exerciseSearchQuery.length > 0 && (
                   <button
@@ -860,37 +897,37 @@ export const SoloView: React.FC<SoloViewProps> = ({
                 )}
               </div>
 
-              {/* Quick Equipment Tag Filters */}
-              <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
-                {(categoryTypeGroup === 'weights'
-                  ? ['All', 'Barbell', 'Dumbbell', 'Cable', 'Machine', 'Push-up', 'Pull-up', 'Squat', 'Deadlift']
-                  : categoryTypeGroup === 'sports'
-                  ? ['All', 'Drill', 'Sprint', 'Rounds', 'Sparring', 'Interval', 'Match']
-                  : ['All', 'Breath', 'Stretch', 'Mobility', 'Sauna', 'Cold', 'Massage', 'Rest']
-                ).map((tag) => {
-                  const isTagActive = activeFilterTag === tag;
-                  return (
-                    <button
-                      key={tag}
-                      type="button"
-                      onClick={() => {
-                        haptic.tap();
-                        setActiveFilterTag(isTagActive && tag !== 'All' ? 'All' : tag);
-                      }}
-                      className={`h-7 px-3 rounded-lg text-xs font-semibold shrink-0 transition-all border flex items-center gap-1 whitespace-nowrap leading-none cursor-pointer active:scale-95 ${
-                        isTagActive
-                          ? 'bg-zinc-900 text-white border-zinc-900 dark:bg-white dark:text-zinc-900 dark:border-white font-bold shadow-xs'
-                          : 'bg-zinc-100/80 dark:bg-zinc-800/60 text-zinc-600 dark:text-zinc-400 border-zinc-200 dark:border-zinc-700/80 hover:bg-zinc-200 dark:hover:bg-zinc-700'
-                      }`}
-                    >
-                      <span>{tag}</span>
-                      {isTagActive && tag !== 'All' && (
-                        <X className="w-2.5 h-2.5 opacity-70 hover:opacity-100" />
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
+              {/* Quick Equipment Tag Filters (Only for Lift & Sports, hidden in Recovery to prevent duplicate/conflicting filtering) */}
+              {categoryTypeGroup !== 'recovery' && (
+                <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
+                  {(categoryTypeGroup === 'weights'
+                    ? ['All', 'Barbell', 'Dumbbell', 'Cable', 'Machine', 'Push-up', 'Pull-up', 'Squat', 'Deadlift']
+                    : ['All', 'Drill', 'Sprint', 'Rounds', 'Sparring', 'Interval', 'Match']
+                  ).map((tag) => {
+                    const isTagActive = activeFilterTag === tag;
+                    return (
+                      <button
+                        key={tag}
+                        type="button"
+                        onClick={() => {
+                          haptic.tap();
+                          setActiveFilterTag(isTagActive && tag !== 'All' ? 'All' : tag);
+                        }}
+                        className={`h-7 px-3 rounded-lg text-xs font-semibold shrink-0 transition-all border flex items-center gap-1 whitespace-nowrap leading-none cursor-pointer active:scale-95 ${
+                          isTagActive
+                            ? 'bg-zinc-900 text-white border-zinc-900 dark:bg-white dark:text-zinc-900 dark:border-white font-bold shadow-xs'
+                            : 'bg-zinc-100/80 dark:bg-zinc-800/60 text-zinc-600 dark:text-zinc-400 border-zinc-200 dark:border-zinc-700/80 hover:bg-zinc-200 dark:hover:bg-zinc-700'
+                        }`}
+                      >
+                        <span>{tag}</span>
+                        {isTagActive && tag !== 'All' && (
+                          <X className="w-2.5 h-2.5 opacity-70 hover:opacity-100" />
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
 
               {/* Add Custom Exercise Banner */}
               {exerciseSearchQuery.trim().length > 0 && (
@@ -919,7 +956,7 @@ export const SoloView: React.FC<SoloViewProps> = ({
                     onClick={() => setActiveFilterTag('All')}
                     className="text-[#C4121A] dark:text-[#D91F28] font-bold hover:underline flex items-center gap-1 cursor-pointer"
                   >
-                    Showing all equipment (0 matches for {activeFilterTag}) • Reset
+                    Showing all items (0 matches for {activeFilterTag}) • Reset
                   </button>
                 ) : activeFilterTag !== 'All' ? (
                   <button
@@ -949,14 +986,38 @@ export const SoloView: React.FC<SoloViewProps> = ({
                           </span>
                         )}
                       </div>
-                      <button
-                        onClick={() => handleAddExercise(item.name)}
-                        className="shrink-0 px-2.5 py-1 rounded-lg flex items-center gap-1 text-[#C4121A] dark:text-[#D91F28] hover:bg-red-500/10 active:scale-95 transition-all font-bold text-[11px] cursor-pointer"
-                        title={`Add ${item.name}`}
-                      >
-                        <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
-                        <span>Add</span>
-                      </button>
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        {(categoryTypeGroup === 'recovery' || RECOVERY_CATEGORIES.includes(item.category)) && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              haptic.tap();
+                              const lower = item.name.toLowerCase();
+                              if (lower.includes('box')) setSomaticInitialProtocol('box');
+                              else if (lower.includes('4-7-8') || lower.includes('vagus') || lower.includes('sleep')) setSomaticInitialProtocol('478');
+                              else if (lower.includes('coherence') || lower.includes('hrv') || lower.includes('5-5')) setSomaticInitialProtocol('coherence');
+                              else if (lower.includes('wim') || lower.includes('tummo') || lower.includes('power')) setSomaticInitialProtocol('wimhof');
+                              else if (lower.includes('nidra') || lower.includes('nsdr') || lower.includes('scan') || lower.includes('vipassana') || lower.includes('meditation')) setSomaticInitialProtocol('nsdr');
+                              else if (lower.includes('yoga') || lower.includes('surya') || lower.includes('warrior') || lower.includes('pigeon') || lower.includes('asana') || lower.includes('stretch') || lower.includes('flow')) setSomaticInitialProtocol('yoga');
+                              else setSomaticInitialProtocol('box');
+                              setIsSomaticDeckOpen(true);
+                            }}
+                            className="px-2 py-1 rounded-lg flex items-center gap-1 text-[#C4121A] dark:text-[#D91F28] hover:bg-red-500/10 active:scale-95 transition-all font-bold text-[11px] cursor-pointer"
+                            title={`Launch Somatic Guide for ${item.name}`}
+                          >
+                            <HeartPulse className="w-3.5 h-3.5" />
+                            <span>Guide</span>
+                          </button>
+                        )}
+                        <button
+                          onClick={() => handleAddExercise(item.name)}
+                          className="px-2.5 py-1 rounded-lg flex items-center gap-1 text-[#C4121A] dark:text-[#D91F28] hover:bg-red-500/10 active:scale-95 transition-all font-bold text-[11px] cursor-pointer"
+                          title={`Add ${item.name}`}
+                        >
+                          <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+                          <span>Add</span>
+                        </button>
+                      </div>
                     </div>
                   ))
                 ) : (
@@ -1354,7 +1415,7 @@ export const SoloView: React.FC<SoloViewProps> = ({
 
                         <button
                           onClick={() => { handleDeleteExerciseCard(log.id); if (expandedExerciseId === log.id) setExpandedExerciseId(null); }}
-                          className="h-7 w-7 rounded-md border border-[#EA4335]/30 text-[#EA4335] hover:bg-[#EA4335]/10 text-xs transition-all active:scale-95 flex items-center justify-center cursor-pointer"
+                          className="h-7 w-7 rounded-md border border-[#C4121A]/30 dark:border-[#D91F28]/30 text-[#C4121A] dark:text-[#D91F28] hover:bg-red-500/10 text-xs transition-all active:scale-95 flex items-center justify-center cursor-pointer"
                           title="Delete Exercise"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
@@ -1395,11 +1456,11 @@ export const SoloView: React.FC<SoloViewProps> = ({
         {/* ── Weekly Report Card Strip ── */}
         <button
           onClick={() => setIsReportCardOpen(true)}
-          className="w-full group flex items-center justify-between gap-2 px-3.5 py-3 rounded-2xl bg-white dark:bg-[#13161A] border border-slate-200 dark:border-white/10 hover:border-[#4285F4]/40 dark:hover:border-[#4285F4]/40 transition-all cursor-pointer active:scale-[0.98] mt-2 shadow-2xs"
+          className="w-full group flex items-center justify-between gap-2 px-3.5 py-3 rounded-2xl bg-white dark:bg-[#13161A] border border-slate-200 dark:border-white/10 hover:border-[#2D7FF9]/40 dark:hover:border-[#2D7FF9]/40 transition-all cursor-pointer active:scale-[0.98] mt-2 shadow-2xs"
         >
           <div className="flex items-center gap-3 min-w-0">
-            <div className="w-8 h-8 rounded-xl bg-[#4285F4]/10 border border-[#4285F4]/20 flex items-center justify-center shrink-0">
-              <Zap className="w-4 h-4 text-[#4285F4]" />
+            <div className="w-8 h-8 rounded-xl bg-[#2D7FF9]/10 border border-[#2D7FF9]/20 flex items-center justify-center shrink-0">
+              <Award className="w-4 h-4 text-[#2D7FF9]" />
             </div>
             <div className="min-w-0 text-left">
               <div className="text-[13px] font-bold text-slate-900 dark:text-white tracking-tight">Weekly Report Card</div>
@@ -1413,11 +1474,11 @@ export const SoloView: React.FC<SoloViewProps> = ({
         {onOpenAIInsights && (
           <button
             onClick={onOpenAIInsights}
-            className="w-full group flex items-center justify-between gap-2 px-3.5 py-3 rounded-2xl bg-white dark:bg-[#121214] border border-slate-200 dark:border-white/10 hover:border-[#FBBC05]/40 dark:hover:border-[#FBBC05]/40 transition-all cursor-pointer active:scale-[0.98] mt-2 shadow-2xs"
+            className="w-full group flex items-center justify-between gap-2 px-3.5 py-3 rounded-2xl bg-white dark:bg-[#121214] border border-slate-200 dark:border-white/10 hover:border-[#E8B04A]/40 dark:hover:border-[#E8B04A]/40 transition-all cursor-pointer active:scale-[0.98] mt-2 shadow-2xs"
           >
             <div className="flex items-center gap-3 min-w-0">
-              <div className="w-8 h-8 rounded-xl bg-[#FBBC05]/10 border border-[#FBBC05]/20 flex items-center justify-center shrink-0">
-                <Sparkles className="w-4 h-4 text-[#FBBC05]" />
+              <div className="w-8 h-8 rounded-xl bg-[#E8B04A]/10 border border-[#E8B04A]/20 flex items-center justify-center shrink-0">
+                <Sparkles className="w-4 h-4 text-[#E8B04A]" />
               </div>
               <div className="min-w-0 text-left">
                 <div className="text-[13px] font-bold text-slate-900 dark:text-white tracking-tight">Intel Coach Intelligence</div>
@@ -1483,6 +1544,14 @@ export const SoloView: React.FC<SoloViewProps> = ({
       <BiometricModal
         type={activeBiometricType}
         onClose={() => setActiveBiometricType(null)}
+      />
+
+      {/* Somatic & Breathwork Deck Modal */}
+      <SomaticRecoveryDeckModal
+        isOpen={isSomaticDeckOpen}
+        onClose={() => setIsSomaticDeckOpen(false)}
+        initialProtocol={somaticInitialProtocol}
+        showToast={showToast}
       />
     </div>
   );

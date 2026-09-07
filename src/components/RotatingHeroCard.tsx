@@ -149,7 +149,7 @@ type BeverageType = 'water' | 'electrolytes' | 'coffee';
 
 // ── Helpers ──
 function getCyclePhase(day: number, periodLength: number): { name: string; color: string; phase: CyclePhase } {
-  if (day <= periodLength) return { name: 'MENSTRUAL', color: '#4285F4', phase: 'menstrual' };
+  if (day <= periodLength) return { name: 'MENSTRUAL', color: '#2D7FF9', phase: 'menstrual' };
   if (day <= 14) return { name: 'FOLLICULAR', color: '#30D158', phase: 'follicular' };
   if (day <= 18) return { name: 'OVULATORY', color: '#FF9F0A', phase: 'ovulation' };
   return { name: 'LUTEAL', color: '#D91F28', phase: 'luteal' };
@@ -159,14 +159,14 @@ function computeCycleDay(email: string): { day: number; phase: { name: string; c
   try {
     const safeEmail = email || 'athlete@o1fc.app';
     const raw = localStorage.getItem(CYCLE_KEY(safeEmail));
-    if (!raw) return { day: 0, phase: { name: '', color: '#4285F4', phase: 'menstrual' }, cycleLength: 28, hasData: false };
+    if (!raw) return { day: 0, phase: { name: '', color: '#2D7FF9', phase: 'menstrual' }, cycleLength: 28, hasData: false };
     const data: CycleData = JSON.parse(raw);
     if (!data || typeof data !== 'object' || !data.lastPeriodStart || !data.cycleLength) {
-      return { day: 0, phase: { name: '', color: '#4285F4', phase: 'menstrual' }, cycleLength: 28, hasData: false };
+      return { day: 0, phase: { name: '', color: '#2D7FF9', phase: 'menstrual' }, cycleLength: 28, hasData: false };
     }
     const start = new Date(data.lastPeriodStart);
     if (isNaN(start.getTime())) {
-      return { day: 0, phase: { name: '', color: '#4285F4', phase: 'menstrual' }, cycleLength: 28, hasData: false };
+      return { day: 0, phase: { name: '', color: '#2D7FF9', phase: 'menstrual' }, cycleLength: 28, hasData: false };
     }
     const today = new Date();
     const cycleLength = Number(data.cycleLength) || 28;
@@ -176,7 +176,7 @@ function computeCycleDay(email: string): { day: number; phase: { name: string; c
     const day = dayInCycle + 1;
     return { day, phase: getCyclePhase(day, periodLength), cycleLength, hasData: true };
   } catch {
-    return { day: 0, phase: { name: '', color: '#4285F4', phase: 'menstrual' }, cycleLength: 28, hasData: false };
+    return { day: 0, phase: { name: '', color: '#2D7FF9', phase: 'menstrual' }, cycleLength: 28, hasData: false };
   }
 }
 
@@ -978,45 +978,45 @@ export const RotatingHeroCard: React.FC<RotatingHeroCardProps> = ({
               />
             </div>
 
-            {/* Bottom: 3-Pill Bar: CARDIO (left) | SUN REST DAY (center) | VITALS (right) */}
+            {/* Bottom: 3-Pill Bar: CARDIO (left) | SUN REST DAY (center) | VITALS (right) - Retro Original Colors */}
             <div className="relative z-10 w-full px-3 pb-3">
               <div className="flex items-center justify-between gap-2">
-                {/* Left: Cardio Scan & Log Trigger - Google Blue #4285F4 */}
+                {/* Left: Cardio Scan & Log Trigger - Retro Luxury Accent Blue #2D7FF9 */}
                 <button
                   type="button"
                   onClick={(e) => {
                     e.stopPropagation();
                     setIsCardioScanModalOpen(true);
                   }}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/35 backdrop-blur-md border border-[#4285F4]/30 hover:border-[#4285F4]/50 hover:bg-black/50 active:scale-95 transition-all cursor-pointer group shrink-0 shadow-sm"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/35 backdrop-blur-md border border-[#2D7FF9]/30 hover:border-[#2D7FF9]/50 hover:bg-black/50 active:scale-95 transition-all cursor-pointer group shrink-0 shadow-sm"
                   aria-label="Log Cardio Machine"
                 >
-                  <Gauge className="w-3 h-3 text-[#4285F4] group-hover:scale-110 transition-transform" />
-                  <span className="text-[10px] font-mono font-black uppercase tracking-wider text-[#4285F4]">Cardio</span>
+                  <Gauge className="w-3 h-3 text-[#2D7FF9] group-hover:scale-110 transition-transform" />
+                  <span className="text-[10px] font-mono font-black uppercase tracking-wider text-[#2D7FF9]">Cardio</span>
                 </button>
 
-                {/* Center: Day + Focus label - Google Red #EA4335 */}
+                {/* Center: Day + Focus label - Retro Original Cartier Red #C4121A / #D91F28 */}
                 <button
                   type="button"
                   onClick={handleCycleDay}
                   className="flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 transition-all truncate"
                 >
-                  <div className="flex items-center gap-1.5 rounded-full bg-black/35 backdrop-blur-md px-3 py-1.5 border border-[#EA4335]/30 hover:bg-black/50 transition-colors shadow-sm">
-                    <span className="text-[10px] font-mono font-black tracking-widest text-[#EA4335]">{(DAY_FULL_NAMES[selectedDay]?.slice(0, 3) || selectedDay).toUpperCase()}</span>
+                  <div className="flex items-center gap-1.5 rounded-full bg-black/35 backdrop-blur-md px-3 py-1.5 border border-[#C4121A]/40 dark:border-[#D91F28]/40 hover:bg-black/50 transition-colors shadow-sm">
+                    <span className="text-[10px] font-mono font-black tracking-widest text-[#C4121A] dark:text-[#D91F28]">{(DAY_FULL_NAMES[selectedDay]?.slice(0, 3) || selectedDay).toUpperCase()}</span>
                     <span className="w-px h-3 bg-white/20" />
                     <span className="text-[9px] font-mono font-bold tracking-wider text-white/90">{currentWorkoutLabel.toUpperCase()}</span>
                   </div>
                 </button>
 
-                {/* Right: VITALS flip button - Google Yellow #FBBC05 */}
+                {/* Right: VITALS flip button - Retro Amber Gold #E8B04A */}
                 <button
                   onClick={(e) => handleFlip(e)}
                   aria-label="Flip to vitals"
-                  className="relative flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/35 backdrop-blur-md border border-[#FBBC05]/30 hover:border-[#FBBC05]/50 hover:bg-black/50 active:scale-95 transition-all cursor-pointer group shrink-0 shadow-sm"
+                  className="relative flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/35 backdrop-blur-md border border-[#E8B04A]/30 hover:border-[#E8B04A]/50 hover:bg-black/50 active:scale-95 transition-all cursor-pointer group shrink-0 shadow-sm"
                 >
-                  <RotateCw className="w-3 h-3 text-[#FBBC05] group-hover:rotate-180 transition-transform duration-500" />
-                  <span className="text-[10px] font-mono font-black uppercase tracking-wider text-[#FBBC05]">Vitals</span>
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#FBBC05]" />
+                  <RotateCw className="w-3 h-3 text-[#E8B04A] group-hover:rotate-180 transition-transform duration-500" />
+                  <span className="text-[10px] font-mono font-black uppercase tracking-wider text-[#E8B04A]">Vitals</span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#E8B04A]" />
                 </button>
               </div>
             </div>
@@ -1096,11 +1096,11 @@ export const RotatingHeroCard: React.FC<RotatingHeroCardProps> = ({
                   {/* Inner ring: Supplements (Green) */}
                   <circle
                     cx="60" cy="60" r={RI}
-                    stroke="#34A853" strokeWidth="3.2"
+                    stroke="#3FB98E" strokeWidth="3.2"
                     strokeDasharray={CI}
                     strokeDashoffset={isLoaded ? CI * (1 - (suppsTotal > 0 ? suppsTaken / suppsTotal : 0)) : CI}
                     strokeLinecap="round" fill="transparent"
-                    style={{ filter: 'drop-shadow(0 0 6px rgba(34,197,94,0.55))', transition: 'stroke-dashoffset 1.5s cubic-bezier(0.16,1,0.3,1)' }}
+                    style={{ filter: 'drop-shadow(0 0 6px rgba(63,185,142,0.55))', transition: 'stroke-dashoffset 1.5s cubic-bezier(0.16,1,0.3,1)' }}
                   />
                 </svg>
                 {/* Center score */}
@@ -1125,8 +1125,8 @@ export const RotatingHeroCard: React.FC<RotatingHeroCardProps> = ({
                 <span className="flex items-center gap-1 text-[7.5px] font-mono uppercase tracking-wider text-[#A855F7] font-bold">
                   <span className="w-1.5 h-1.5 rounded-full bg-[#A855F7] shadow-[0_0_5px_#A855F7]" />Bio-Sync
                 </span>
-                <span className="flex items-center gap-1 text-[7.5px] font-mono uppercase tracking-wider text-[#34A853] font-bold">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#34A853] shadow-[0_0_5px_#34A853]" />Supplements
+                <span className="flex items-center gap-1 text-[7.5px] font-mono uppercase tracking-wider text-[#3FB98E] font-bold">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#3FB98E] shadow-[0_0_5px_#3FB98E]" />Supplements
                 </span>
               </div>
             </div>
@@ -1135,14 +1135,14 @@ export const RotatingHeroCard: React.FC<RotatingHeroCardProps> = ({
 
             {/* 2x2 Quadrant Chips */}
             <div className="relative z-10 grid grid-cols-2 grid-rows-2 gap-2.5 px-0.5 mt-2.5 pb-0.5" style={{ gridAutoRows: '1fr' }}>
-              {/* Q1: Hydration - Google Blue #4285F4 */}
+              {/* Q1: Hydration - Retro Luxury Accent Blue #2D7FF9 */}
               <button
                 type="button"
                 onClick={() => handleDialTap('hydration', 'water')}
-                className="flex flex-col justify-between rounded-2xl bg-black/45 backdrop-blur-md border border-white/10 p-3 text-left active:scale-[0.97] transition-all cursor-pointer hover:border-[#4285F4]/40 shadow-lg overflow-hidden h-[84px]"
+                className="flex flex-col justify-between rounded-2xl bg-black/45 backdrop-blur-md border border-white/10 p-3 text-left active:scale-[0.97] transition-all cursor-pointer hover:border-[#2D7FF9]/40 shadow-lg overflow-hidden h-[84px]"
               >
                 <div className="flex items-center gap-1.5">
-                  <Droplets className="w-3.5 h-3.5 text-[#4285F4] shrink-0" />
+                  <Droplets className="w-3.5 h-3.5 text-[#2D7FF9] shrink-0" />
                   <span className="text-[8.5px] font-mono font-bold uppercase tracking-wider text-neutral-300">Hydration</span>
                 </div>
                 <div className="flex items-baseline gap-1 my-auto">
@@ -1150,39 +1150,39 @@ export const RotatingHeroCard: React.FC<RotatingHeroCardProps> = ({
                   <span className="text-[10px] font-mono text-neutral-400">/ {dynamicTarget.toFixed(1)}L</span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <span className="text-[8px] font-mono text-[#4285F4] font-medium">{hydrationPercent}% Target</span>
+                  <span className="text-[8px] font-mono text-[#2D7FF9] font-medium">{hydrationPercent}% Target</span>
                 </div>
               </button>
 
-              {/* Q2: Bio-Sync - Google Red #EA4335 */}
+              {/* Q2: Bio-Sync - Retro Cartier Red #C4121A / #D91F28 */}
               <button
                 type="button"
                 onClick={() => handleDialTap('menstrual', 'chime')}
-                className="flex flex-col justify-between rounded-2xl bg-black/45 backdrop-blur-md border border-white/10 p-3 text-left active:scale-[0.97] transition-all cursor-pointer hover:border-[#EA4335]/40 shadow-lg overflow-hidden h-[84px]"
+                className="flex flex-col justify-between rounded-2xl bg-black/45 backdrop-blur-md border border-white/10 p-3 text-left active:scale-[0.97] transition-all cursor-pointer hover:border-[#C4121A]/40 shadow-lg overflow-hidden h-[84px]"
               >
                 <div className="flex items-center gap-1.5">
-                  <Moon className="w-3.5 h-3.5 text-[#EA4335] shrink-0" />
+                  <Moon className="w-3.5 h-3.5 text-[#C4121A] dark:text-[#D91F28] shrink-0" />
                   <span className="text-[8.5px] font-mono font-bold uppercase tracking-wider text-neutral-300">Bio-Sync</span>
                 </div>
-                <div className="font-mono text-lg font-black leading-none text-[#EA4335] my-auto">
+                <div className="font-mono text-lg font-black leading-none text-[#C4121A] dark:text-[#D91F28] my-auto">
                   {cycle.hasData ? `${cycle.day}d ${cycle.phase.name.slice(0, 4)}` : 'Day 14'}
                 </div>
-                <div className="text-[8px] font-mono text-[#EA4335]/80 truncate">
+                <div className="text-[8px] font-mono text-[#C4121A]/80 dark:text-[#D91F28]/80 truncate">
                   {cycle.hasData ? `88% Recovery · HRV 68ms` : 'Optimal Recovery'}
                 </div>
               </button>
 
-              {/* Q3: Supplement Stack - Google Yellow #FBBC05 */}
+              {/* Q3: Supplement Stack - Retro Amber Gold #E8B04A */}
               <button
                 type="button"
                 onClick={() => handleDialTap('supplements', 'pill')}
-                className="flex flex-col justify-between rounded-2xl bg-black/45 backdrop-blur-md border border-white/10 p-3 text-left active:scale-[0.97] transition-all cursor-pointer hover:border-[#FBBC05]/40 shadow-lg overflow-hidden h-[84px]"
+                className="flex flex-col justify-between rounded-2xl bg-black/45 backdrop-blur-md border border-white/10 p-3 text-left active:scale-[0.97] transition-all cursor-pointer hover:border-[#E8B04A]/40 shadow-lg overflow-hidden h-[84px]"
               >
                 <div className="flex items-center gap-1.5">
-                  <Pill className="w-3.5 h-3.5 text-[#FBBC05] shrink-0" />
+                  <Pill className="w-3.5 h-3.5 text-[#E8B04A] shrink-0" />
                   <span className="text-[8.5px] font-mono font-bold uppercase tracking-wider text-neutral-300">Supplements</span>
                 </div>
-                <div className="font-mono text-lg font-black text-[#FBBC05] leading-none my-auto">
+                <div className="font-mono text-lg font-black text-[#E8B04A] leading-none my-auto">
                   {suppsTaken}/{suppsTotal} Logged
                 </div>
                 <div className="flex items-center gap-1 overflow-hidden">
@@ -1191,7 +1191,7 @@ export const RotatingHeroCard: React.FC<RotatingHeroCardProps> = ({
                       key={s.id}
                       className={`text-[7.5px] font-mono px-1.5 py-0.5 rounded leading-none flex items-center gap-0.5 ${
                         s.taken
-                          ? 'bg-[#FBBC05]/20 text-[#FBBC05] border border-[#FBBC05]/40'
+                          ? 'bg-[#E8B04A]/20 text-[#E8B04A] border border-[#E8B04A]/40'
                           : 'bg-neutral-800/90 text-neutral-400 border border-white/5'
                       }`}
                     >
@@ -1202,20 +1202,20 @@ export const RotatingHeroCard: React.FC<RotatingHeroCardProps> = ({
                 </div>
               </button>
 
-              {/* Q4: Habit & Clean - Google Green #34A853 */}
+              {/* Q4: Habit & Clean - Retro Mint Green #3FB98E */}
               <button
                 type="button"
                 onClick={() => handleDialTap('alcohol', 'flame')}
-                className="flex flex-col justify-between rounded-2xl bg-black/45 backdrop-blur-md border border-white/10 p-3 text-left active:scale-[0.97] transition-all cursor-pointer hover:border-[#34A853]/40 shadow-lg overflow-hidden h-[84px]"
+                className="flex flex-col justify-between rounded-2xl bg-black/45 backdrop-blur-md border border-white/10 p-3 text-left active:scale-[0.97] transition-all cursor-pointer hover:border-[#3FB98E]/40 shadow-lg overflow-hidden h-[84px]"
               >
                 <div className="flex items-center gap-1.5">
-                  <Flame className="w-3.5 h-3.5 text-[#34A853] shrink-0" />
+                  <Flame className="w-3.5 h-3.5 text-[#3FB98E] shrink-0" />
                   <span className="text-[8.5px] font-mono font-bold uppercase tracking-wider text-neutral-300">Habit & Clean</span>
                 </div>
-                <div className={`font-mono text-lg font-black leading-none my-auto ${alcoholDrinks === 0 ? 'text-white' : 'text-[#34A853]'}`}>
+                <div className={`font-mono text-lg font-black leading-none my-auto ${alcoholDrinks === 0 ? 'text-white' : 'text-[#3FB98E]'}`}>
                   {alcoholDrinks} Drinks
                 </div>
-                <div className="text-[8px] font-mono text-[#34A853]/90 truncate">
+                <div className="text-[8px] font-mono text-[#3FB98E]/90 truncate">
                   {soberDays}-Day Clean · REM Protected
                 </div>
               </button>
@@ -1244,23 +1244,23 @@ export const RotatingHeroCard: React.FC<RotatingHeroCardProps> = ({
             <div className="flex items-center justify-between px-4 py-2.5 border-b border-black/[0.06] dark:border-white/10 bg-[#F7F5F0] dark:bg-[#12151E] shrink-0">
               <div className="flex items-center gap-2">
                 {activeModal === 'hydration' && (
-                  <div className="w-6 h-6 rounded-lg bg-[#4285F4]/15 flex items-center justify-center">
-                    <Droplets className="w-3.5 h-3.5 text-[#4285F4]" />
+                  <div className="w-6 h-6 rounded-lg bg-[#2D7FF9]/15 flex items-center justify-center">
+                    <Droplets className="w-3.5 h-3.5 text-[#2D7FF9]" />
                   </div>
                 )}
                 {activeModal === 'menstrual' && (
-                  <div className="w-6 h-6 rounded-lg bg-[#EA4335]/15 flex items-center justify-center">
-                    <Moon className="w-3.5 h-3.5 text-[#EA4335]" />
+                  <div className="w-6 h-6 rounded-lg bg-[#C4121A]/15 dark:bg-[#D91F28]/20 flex items-center justify-center">
+                    <Moon className="w-3.5 h-3.5 text-[#C4121A] dark:text-[#D91F28]" />
                   </div>
                 )}
                 {activeModal === 'supplements' && (
-                  <div className="w-6 h-6 rounded-lg bg-[#FBBC05]/15 flex items-center justify-center">
-                    <Pill className="w-3.5 h-3.5 text-[#FBBC05]" />
+                  <div className="w-6 h-6 rounded-lg bg-[#E8B04A]/15 flex items-center justify-center">
+                    <Pill className="w-3.5 h-3.5 text-[#E8B04A]" />
                   </div>
                 )}
                 {activeModal === 'alcohol' && (
-                  <div className="w-6 h-6 rounded-lg bg-[#34A853]/15 flex items-center justify-center">
-                    <Flame className="w-3.5 h-3.5 text-[#34A853]" />
+                  <div className="w-6 h-6 rounded-lg bg-[#3FB98E]/15 flex items-center justify-center">
+                    <Flame className="w-3.5 h-3.5 text-[#3FB98E]" />
                   </div>
                 )}
                 <h3 className="text-xs sm:text-sm font-bold font-mono tracking-wide text-slate-900 dark:text-white">
@@ -1426,7 +1426,7 @@ export const RotatingHeroCard: React.FC<RotatingHeroCardProps> = ({
                           <div key={day} className="flex-1 flex flex-col items-center gap-0.5">
                             <span className="text-[7.5px] font-mono text-slate-600 dark:text-zinc-400 tabular-nums">{v.toFixed(1)}L</span>
                             <div className="w-full rounded-md overflow-hidden bg-slate-200 dark:bg-white/10 h-12">
-                              <div className="w-full rounded-md transition-all duration-500" style={{ height: `${pct}%`, marginTop: `${100 - pct}%`, background: pct >= 80 ? '#34A853' : pct >= 50 ? '#FBBC05' : '#EA4335' }} />
+                              <div className="w-full rounded-md transition-all duration-500" style={{ height: `${pct}%`, marginTop: `${100 - pct}%`, background: pct >= 80 ? '#3FB98E' : pct >= 50 ? '#E8B04A' : '#C4121A' }} />
                             </div>
                             <span className={`text-[7.5px] font-mono ${i === 6 ? 'text-slate-900 dark:text-white font-bold' : 'text-slate-400 dark:text-zinc-500'}`}>{day}</span>
                           </div>
@@ -1601,7 +1601,7 @@ export const RotatingHeroCard: React.FC<RotatingHeroCardProps> = ({
                       </div>
                     </div>
                     <div className="relative shrink-0">
-                      <div className="h-11 w-11 rounded-full border border-emerald-400/30 flex items-center justify-center shadow-xs" style={{ background: `conic-gradient(#34A853 ${suppsTotal ? (suppsTaken / suppsTotal) * 360 : 0}deg, rgba(0,0,0,.06) 0deg)` }}>
+                      <div className="h-11 w-11 rounded-full border border-emerald-400/30 flex items-center justify-center shadow-xs" style={{ background: `conic-gradient(#3FB98E ${suppsTotal ? (suppsTaken / suppsTotal) * 360 : 0}deg, rgba(0,0,0,.06) 0deg)` }}>
                         <div className="h-8 w-8 rounded-full bg-white dark:bg-[#0E0F12] flex items-center justify-center shadow-inner">
                           <span className="text-xs font-black font-mono text-slate-900 dark:text-white tabular-nums">
                             {suppsTotal ? Math.round((suppsTaken / suppsTotal) * 100) : 0}%

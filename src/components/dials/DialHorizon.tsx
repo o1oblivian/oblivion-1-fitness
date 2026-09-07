@@ -53,9 +53,9 @@ export const DialHorizon: React.FC<DialHorizonProps> = ({
       <div className="w-full space-y-3.5">
         {[
           { label: 'STEPS', pct: stepsPct, color: '#ffffff', value: `${Math.round(stepsPct * 100)}%`, delay: 0 },
-          { label: 'BURN', pct: movePct, color: '#EA4335', value: `${Math.round(dailyMove)} kcal`, delay: 80 },
-          { label: 'INTAKE', pct: Math.min(dailyIntake / 2500, 1), color: '#34A853', value: `${Math.round(dailyIntake)} kcal`, delay: 140 },
-          { label: 'DIST', pct: distPct, color: '#4285F4', value: `${dailyDist.toFixed(2)} km`, delay: 200 },
+          { label: 'BURN', pct: movePct, color: '#C4121A', value: `${Math.round(dailyMove)} kcal`, delay: 80 },
+          { label: 'INTAKE', pct: Math.min(dailyIntake / 2500, 1), color: '#3FB98E', value: `${Math.round(dailyIntake)} kcal`, delay: 140 },
+          { label: 'DIST', pct: distPct, color: '#2D7FF9', value: `${dailyDist.toFixed(2)} km`, delay: 200 },
         ].map((bar, i) => (
           <div key={i} className="flex items-center gap-3">
             <span className="text-[8px] font-mono font-bold tracking-[0.2em] text-white/35 w-10 text-right uppercase">

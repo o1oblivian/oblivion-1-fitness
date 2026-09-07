@@ -434,7 +434,7 @@ export const MediaVaultModal: React.FC<MediaVaultModalProps> = ({
                   idx === showroomIndex ? 'w-3.5 bg-white' : 'w-1 bg-white/30'
                 }`}
                 aria-label={`Go to slide ${idx + 1}`}
-              />
+              ></button>
             ))}
           </div>
         </div>
@@ -470,7 +470,7 @@ export const MediaVaultModal: React.FC<MediaVaultModalProps> = ({
               <button
                 type="button"
                 onClick={onBuyProgram}
-                className="flex-1 py-1.5 px-2.5 bg-[#EA4335] hover:bg-[#EA4335] text-white font-mono text-[10px] font-bold rounded-lg transition-all cursor-pointer active:scale-95 flex items-center justify-center gap-1 shadow-xs"
+                className="flex-1 py-1.5 px-2.5 bg-[#C4121A] hover:bg-[#D91F28] text-white font-mono text-[10px] font-bold rounded-lg transition-all cursor-pointer active:scale-95 flex items-center justify-center gap-1 shadow-xs"
               >
                 <Lock className="w-3 h-3" />
                 <span>Buy Program{programPrice ? ` (${programPrice})` : ''}</span>
@@ -658,7 +658,7 @@ export const MediaVaultModal: React.FC<MediaVaultModalProps> = ({
               <button
                 type="button"
                 onClick={() => galleryInputRef.current?.click()}
-                className="py-1.5 px-3 rounded-xl bg-[#EA4335] hover:bg-[#EA4335] text-white text-[10px] font-bold uppercase transition-all cursor-pointer flex items-center justify-center gap-1 active:scale-95 shrink-0 shadow-xs"
+                className="py-1.5 px-3 rounded-xl bg-[#C4121A] hover:bg-[#D91F28] text-white text-[10px] font-bold uppercase transition-all cursor-pointer flex items-center justify-center gap-1 active:scale-95 shrink-0 shadow-xs"
                 title="Upload Photo or Video"
               >
                 <Camera className="w-3.5 h-3.5" />

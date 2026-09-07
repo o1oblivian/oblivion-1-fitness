@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ofc-athlete-v4';
+const CACHE_NAME = 'ofc-athlete-v5';
 const APP_SHELL = [
   '/',
   '/index.html',
@@ -7,14 +7,6 @@ const APP_SHELL = [
   '/apple-touch-icon.png',
   '/icon-192.png',
   '/icon-512.png',
-  '/icon-512.webp',
-  '/o1fc-logo.webp',
-  '/wallpaper-sunrise.webp',
-  '/wallpaper-strain.webp',
-  '/wallpaper-recovery.webp',
-  '/wallpaper-night.webp',
-  '/wallpaper-mountain-dawn.webp',
-  '/wallpaper-gym-neon.webp',
 ];
 
 self.addEventListener('install', (event) => {

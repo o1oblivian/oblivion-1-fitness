@@ -56,10 +56,10 @@ export const BiometricModal: React.FC<BiometricModalProps> = ({
     strain: {
       title: 'Daily Activity (Workout Load)',
       badge: 'DAILY EFFORT',
-      badgeBg: 'bg-[#EA4335]/10 text-[#EA4335] border-[#EA4335]/30',
+      badgeBg: 'bg-[#C4121A]/10 text-[#C4121A] dark:text-[#D91F28] border-[#C4121A]/30',
       value: '14.2 / 21',
       status: 'Target Reached',
-      statusColor: 'text-[#EA4335]',
+      statusColor: 'text-[#C4121A] dark:text-[#D91F28]',
       explanation:
         'Daily Activity measures how much work your heart and muscles did today on a scale from 0 to 21 based on your workouts, steps, and movement.',
       trend: [
@@ -191,7 +191,7 @@ export const BiometricModal: React.FC<BiometricModalProps> = ({
                       className={`w-full rounded transition-all duration-300 ${
                         isSelected
                           ? type === 'strain'
-                            ? 'bg-[#EA4335]'
+                            ? 'bg-[#C4121A]'
                             : 'bg-blue-600 dark:bg-blue-500'
                           : 'bg-neutral-400 dark:bg-white/10 group-hover:bg-blue-400/40'
                       }`}

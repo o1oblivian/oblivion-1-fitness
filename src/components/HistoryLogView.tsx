@@ -157,19 +157,21 @@ function AccordionHeader({
       } ${isLast && !isOpen ? 'rounded-b-[20px]' : ''}`}
     >
       <div className="flex items-center gap-3 min-w-0">
-        {/* Apple Health Squircle Icon (28x28 with 7px radius, solid high-contrast glyph) */}
-        <div className={`w-7 h-7 rounded-[8px] flex items-center justify-center shrink-0 shadow-xs text-white ${iconBg}`}>
+        {/* Apple Health Squircle Icon (28x28 with 9px radius, solid high-contrast glyph) */}
+        <div className={`w-7 h-7 rounded-[9px] flex items-center justify-center shrink-0 shadow-2xs text-white ring-1 ring-black/10 dark:ring-white/20 ${iconBg}`}>
           {icon}
         </div>
         <span className="text-[13px] font-semibold text-slate-900 dark:text-white tracking-tight">{label}</span>
       </div>
 
-      <div className="flex items-center gap-2.5 shrink-0">
+      <div className="flex items-center gap-2 shrink-0">
         {summary && (
-          <span className="text-[11px] font-mono font-medium text-slate-500 dark:text-white/40 tracking-tight">{summary}</span>
+          <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded-md bg-slate-100 dark:bg-white/[0.05] border border-slate-200/80 dark:border-white/[0.07] text-slate-600 dark:text-white/60 tracking-tight">
+            {summary}
+          </span>
         )}
-        <div className="text-slate-400 dark:text-white/30 group-hover:text-slate-600 dark:group-hover:text-white/60 transition shrink-0 ml-1">
-          {isOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+        <div className={`text-slate-400 dark:text-white/30 group-hover:text-slate-600 dark:group-hover:text-white/60 transition-transform duration-200 shrink-0 ml-1 ${isOpen ? 'rotate-180 text-[#C4121A] dark:text-[#C4121A]' : ''}`}>
+          <ChevronDown className="w-4 h-4" />
         </div>
       </div>
     </div>
@@ -359,8 +361,8 @@ function LivePedometerRing({ stepCount, goal }: { stepCount: number; goal: numbe
         />
         <defs>
           <linearGradient id="stepGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#34A853" />
-            <stop offset="100%" stopColor="#34A853" />
+            <stop offset="0%" stopColor="#3FB98E" />
+            <stop offset="100%" stopColor="#3FB98E" />
           </linearGradient>
         </defs>
       </svg>
@@ -1191,7 +1193,7 @@ function FoodSection({
           {/* Calorie Bar */}
           <div className="w-full bg-slate-200 dark:bg-white/[0.08] h-2 rounded-full overflow-hidden">
             <div
-              className="h-full bg-gradient-to-r from-amber-500 to-[#EA4335] rounded-full transition-all duration-300"
+              className="h-full bg-gradient-to-r from-amber-500 to-[#C4121A] rounded-full transition-all duration-300"
               style={{ width: `${Math.min(100, Math.round((totalCals / Math.max(1, goalCals)) * 100))}%` }}
             />
           </div>
@@ -2046,14 +2048,14 @@ export const HistoryLogView: React.FC<HistoryLogViewProps> = ({
   }, [currentUserEmail, goalCals, goalP, goalC, goalF, showToast]);
 
   // Summary strings for collapsed headers
-  const workoutSummary = sessions.length > 0 ? `${sessions.length} session${sessions.length !== 1 ? 's' : ''}` : '';
+  const workoutSummary = sessions.length > 0 ? `${sessions.length} session${sessions.length !== 1 ? 's' : ''}` : 'Pull B Ready';
   const stepsSummary = (steps.length > 0 || cardioLogs.length > 0) ? (() => {
     const avg = steps.length > 0 ? Math.round(steps.slice(0, 7).reduce((s, e) => s + e.steps, 0) / Math.min(steps.length, 7)) : 0;
     const parts = [];
     if (avg > 0) parts.push(`${avg.toLocaleString()} steps`);
     if (cardioLogs.length > 0) parts.push(`${cardioLogs.length} cardio`);
-    return parts.join(' • ') || 'Track motion';
-  })() : '';
+    return parts.join(' • ') || '0 / 10k steps';
+  })() : '0 / 10k steps';
   const foodSummary = useMemo(() => {
     const allItems = Object.values(todayMeals || {}).flat();
     const todayCals = allItems.reduce((acc, i) => acc + (Number(i.cals) || 0), 0);
@@ -2063,13 +2065,13 @@ export const HistoryLogView: React.FC<HistoryLogViewProps> = ({
     if (macros.length > 0 && (macros[0]?.calories || 0) > 0) {
       return `${Math.round(macros[0].calories)} cal today`;
     }
-    return '';
+    return '0 / 2,400 kcal';
   }, [todayMeals, macros]);
   const sleepSummary = sleepLogs.length > 0 ? (() => {
     const avg = Math.round(sleepLogs.slice(0, 7).reduce((s, e) => s + e.duration_minutes, 0) / Math.min(sleepLogs.length, 7));
     return `${Math.floor(avg / 60)}h ${avg % 60}m avg`;
-  })() : '';
-  const medSummary = meditations.length > 0 ? `${meditations.length} session${meditations.length !== 1 ? 's' : ''}` : '';
+  })() : 'Sleep Vault';
+  const medSummary = meditations.length > 0 ? `${meditations.length} session${meditations.length !== 1 ? 's' : ''}` : 'Mindfulness';
 
   if (loading) {
     return (
@@ -2110,7 +2112,7 @@ export const HistoryLogView: React.FC<HistoryLogViewProps> = ({
       key: 'workout',
       label: 'Workout History',
       icon: <Dumbbell className="w-3.5 h-3.5 text-white" strokeWidth={2.2} />,
-      iconBg: 'bg-[#EA4335]',
+      iconBg: 'bg-[#C4121A]',
       summary: workoutSummary,
       chart: workoutChart,
       content: (
@@ -2126,7 +2128,7 @@ export const HistoryLogView: React.FC<HistoryLogViewProps> = ({
       key: 'steps',
       label: 'Cardio / Steps',
       icon: <Footprints className="w-3.5 h-3.5 text-white" strokeWidth={2.2} />,
-      iconBg: 'bg-[#4285F4]',
+      iconBg: 'bg-[#2D7FF9]',
       summary: stepsSummary,
       chart: stepsChart,
       content: (
@@ -2147,7 +2149,7 @@ export const HistoryLogView: React.FC<HistoryLogViewProps> = ({
       key: 'food',
       label: 'Food & Nutrition',
       icon: <Utensils className="w-3.5 h-3.5 text-white" strokeWidth={2.2} />,
-      iconBg: 'bg-[#FBBC05]',
+      iconBg: 'bg-[#E8B04A]',
       summary: foodSummary,
       chart: foodChart,
       content: (
@@ -2201,18 +2203,21 @@ export const HistoryLogView: React.FC<HistoryLogViewProps> = ({
   return (
     <div className="mt-3 mb-3 space-y-3">
       {/* 7-Day Athletic Strip */}
-      <div className="rounded-[20px] bg-white dark:bg-[#1C1C1E] border border-slate-200/80 dark:border-white/[0.08] p-3.5 shadow-xs">
-        <div className="flex items-center justify-between mb-2.5 px-1">
-          <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 dark:text-white/40">
-            7-Day Activity Matrix
-          </span>
-          <span className="text-[9px] font-mono text-slate-400 dark:text-white/30">
-            Tap a day to inspect
+      <div className="rounded-2xl bg-white dark:bg-[#13161A] border border-zinc-200/90 dark:border-white/[0.08] p-3 sm:p-3.5 shadow-sm dark:shadow-xl space-y-2.5">
+        <div className="flex items-center justify-between px-0.5">
+          <div className="flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#C4121A]" />
+            <span className="text-[9.5px] font-mono font-bold uppercase tracking-wider text-zinc-600 dark:text-zinc-400">
+              7-Day Activity Matrix
+            </span>
+          </div>
+          <span className="text-[8.5px] font-mono text-zinc-400 dark:text-zinc-500 tracking-wider uppercase">
+            Tap day to inspect
           </span>
         </div>
 
         {/* 7 Day Columns */}
-        <div className="grid grid-cols-7 gap-1.5 sm:gap-2">
+        <div className="grid grid-cols-7 gap-1 sm:gap-1.5">
           {last7Days.map((day) => {
             const isSel = day.date === selectedDate;
             return (
@@ -2220,43 +2225,46 @@ export const HistoryLogView: React.FC<HistoryLogViewProps> = ({
                 key={day.date}
                 type="button"
                 onClick={() => setSelectedDate(day.date)}
-                className={`group flex flex-col items-center py-2 px-1 rounded-2xl transition-all cursor-pointer select-none ${
+                className={`group flex flex-col items-center py-2 px-1 rounded-xl transition-all cursor-pointer select-none relative ${
                   isSel
-                    ? 'bg-slate-900 text-white dark:bg-white dark:text-black shadow-sm ring-1 ring-black/10 dark:ring-white/20'
-                    : 'bg-slate-50 hover:bg-slate-100 dark:bg-white/[0.04] dark:hover:bg-white/[0.08] text-slate-700 dark:text-white/70'
+                    ? 'bg-zinc-900 text-white dark:bg-white dark:text-zinc-950 shadow-md ring-1 ring-black/20 dark:ring-white/40 scale-[1.03]'
+                    : 'bg-zinc-50 hover:bg-zinc-100 dark:bg-white/[0.03] dark:hover:bg-white/[0.06] text-zinc-700 dark:text-zinc-300 border border-zinc-200/70 dark:border-white/[0.05]'
                 }`}
               >
-                <span className={`text-[10px] font-mono font-semibold uppercase ${
-                  isSel ? 'text-white/70 dark:text-black/70' : 'text-slate-400 dark:text-white/30'
+                {day.isToday && (
+                  <span className={`absolute -top-1 w-1.5 h-1.5 rounded-full ${isSel ? 'bg-[#C4121A]' : 'bg-[#C4121A] animate-pulse'}`} />
+                )}
+                <span className={`text-[9px] font-mono font-bold uppercase tracking-wider ${
+                  isSel ? 'text-zinc-300 dark:text-zinc-600' : 'text-zinc-400 dark:text-zinc-500'
                 }`}>
                   {day.label}
                 </span>
-                <span className="text-[14px] font-mono font-bold tracking-tight my-0.5">
+                <span className="text-[14px] font-mono font-black tracking-tight my-0.5">
                   {day.num}
                 </span>
-                {/* Activity Dots: Red (Workout), Teal (Steps), Amber (Nutrition) */}
-                <div className="flex items-center gap-1 mt-1 h-1.5">
+                {/* Micro-Gauge Activity Track */}
+                <div className="flex items-center gap-0.5 mt-1">
                   <span
-                    className={`w-1.5 h-1.5 rounded-full transition-opacity ${
+                    className={`w-1.5 h-1 rounded-full transition-opacity ${
                       day.hasWorkout
-                        ? 'bg-red-500'
-                        : isSel ? 'bg-white/20 dark:bg-black/20' : 'bg-slate-200 dark:bg-white/10'
+                        ? 'bg-[#C4121A]'
+                        : isSel ? 'bg-white/20 dark:bg-black/20' : 'bg-zinc-200 dark:bg-white/10'
                     }`}
                     title={day.hasWorkout ? 'Workout logged' : 'No workout'}
                   />
                   <span
-                    className={`w-1.5 h-1.5 rounded-full transition-opacity ${
+                    className={`w-1.5 h-1 rounded-full transition-opacity ${
                       day.stepsCount > 0
-                        ? 'bg-teal-400'
-                        : isSel ? 'bg-white/20 dark:bg-black/20' : 'bg-slate-200 dark:bg-white/10'
+                        ? 'bg-[#3FB98E]'
+                        : isSel ? 'bg-white/20 dark:bg-black/20' : 'bg-zinc-200 dark:bg-white/10'
                     }`}
                     title={day.stepsCount > 0 ? `${day.stepsCount.toLocaleString()} steps` : 'No steps'}
                   />
                   <span
-                    className={`w-1.5 h-1.5 rounded-full transition-opacity ${
+                    className={`w-1.5 h-1 rounded-full transition-opacity ${
                       day.calories > 0
-                        ? 'bg-amber-400'
-                        : isSel ? 'bg-white/20 dark:bg-black/20' : 'bg-slate-200 dark:bg-white/10'
+                        ? 'bg-[#E8B04A]'
+                        : isSel ? 'bg-white/20 dark:bg-black/20' : 'bg-zinc-200 dark:bg-white/10'
                     }`}
                     title={day.calories > 0 ? `${day.calories} kcal` : 'No meals'}
                   />
@@ -2267,33 +2275,45 @@ export const HistoryLogView: React.FC<HistoryLogViewProps> = ({
         </div>
 
         {/* Selected Day Performance Snapshot */}
-        <div className="mt-3 pt-3 border-t border-slate-100 dark:border-white/[0.06] flex flex-wrap items-center justify-between gap-2 px-1">
-          <div className="flex items-center gap-2">
-            <span className="text-[12px] font-bold text-slate-900 dark:text-white">
+        <div className="pt-2 border-t border-zinc-200/70 dark:border-white/[0.06] flex flex-wrap items-center justify-between gap-1.5 px-0.5">
+          <div className="flex items-center gap-1.5">
+            <span className="text-[11px] font-bold text-zinc-900 dark:text-white uppercase tracking-wide">
               {selectedDayInfo.isToday
                 ? 'Today'
                 : selectedDayInfo.isYesterday
                   ? 'Yesterday'
-                  : `${new Date(selectedDayInfo.date + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`}
+                  : new Date(selectedDayInfo.date + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
             </span>
-            <span className="text-[10px] font-mono text-slate-400 dark:text-white/30">
+            <span className="text-[9.5px] font-mono text-zinc-400 dark:text-zinc-500">
               {selectedDayInfo.date}
             </span>
           </div>
 
-          <div className="flex items-center gap-3 text-[11px] font-mono">
-            <span className={`flex items-center gap-1 ${selectedDayInfo.hasWorkout ? 'text-red-500 font-bold' : 'text-slate-400 dark:text-white/30'}`}>
-              <Dumbbell className="w-3 h-3" />
+          <div className="flex items-center gap-1.5 text-[10px] font-mono flex-wrap">
+            <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md ${
+              selectedDayInfo.hasWorkout
+                ? 'bg-[#C4121A]/10 text-[#C4121A] border border-[#C4121A]/20 font-bold'
+                : 'bg-zinc-100 dark:bg-white/[0.03] text-zinc-400 dark:text-zinc-500'
+            }`}>
+              <Dumbbell className="w-2.5 h-2.5" />
               <span>{selectedDayInfo.hasWorkout ? 'Lifted' : 'Rest'}</span>
             </span>
 
-            <span className={`flex items-center gap-1 ${selectedDayInfo.stepsCount > 0 ? 'text-teal-600 dark:text-teal-400 font-bold' : 'text-slate-400 dark:text-white/30'}`}>
-              <Footprints className="w-3 h-3" />
+            <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md ${
+              selectedDayInfo.stepsCount > 0
+                ? 'bg-[#3FB98E]/10 text-[#2AA377] dark:text-[#3FB98E] border border-[#3FB98E]/20 font-bold'
+                : 'bg-zinc-100 dark:bg-white/[0.03] text-zinc-400 dark:text-zinc-500'
+            }`}>
+              <Footprints className="w-2.5 h-2.5" />
               <span>{selectedDayInfo.stepsCount > 0 ? `${selectedDayInfo.stepsCount.toLocaleString()} steps` : '0 steps'}</span>
             </span>
 
-            <span className={`flex items-center gap-1 ${selectedDayInfo.calories > 0 ? 'text-amber-600 dark:text-amber-400 font-bold' : 'text-slate-400 dark:text-white/30'}`}>
-              <Utensils className="w-3 h-3" />
+            <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md ${
+              selectedDayInfo.calories > 0
+                ? 'bg-[#E8B04A]/10 text-[#B88428] dark:text-[#E8B04A] border border-[#E8B04A]/20 font-bold'
+                : 'bg-zinc-100 dark:bg-white/[0.03] text-zinc-400 dark:text-zinc-500'
+            }`}>
+              <Utensils className="w-2.5 h-2.5" />
               <span>{selectedDayInfo.calories > 0 ? `${selectedDayInfo.calories} cal` : '0 cal'}</span>
             </span>
           </div>
@@ -2301,7 +2321,7 @@ export const HistoryLogView: React.FC<HistoryLogViewProps> = ({
       </div>
 
       {/* Apple Inset Grouped Table Container */}
-      <div className="bg-white dark:bg-[#1C1C1E] border border-slate-200/80 dark:border-white/[0.08] rounded-[20px] shadow-xs overflow-hidden divide-y divide-slate-100 dark:divide-white/[0.06]">
+      <div className="bg-white dark:bg-[#13161A] border border-zinc-200/90 dark:border-white/[0.08] rounded-2xl shadow-sm dark:shadow-xl overflow-hidden divide-y divide-zinc-100 dark:divide-white/[0.06]">
         {sections.map((s, idx) => (
           <div key={s.key} className="transition-colors">
             <AccordionHeader

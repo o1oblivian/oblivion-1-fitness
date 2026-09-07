@@ -130,13 +130,13 @@ export const SupplementsHub: React.FC<SupplementsHubProps> = ({
   return (
     <div className="w-full bg-white dark:bg-[#121214] border border-slate-200 dark:border-white/10 rounded-2xl shadow-xs overflow-hidden transition-all">
       {/* Unified Single Header */}
-      <button
-        type="button"
-        onClick={toggleExpanded}
-        className="w-full flex items-center justify-between p-3 sm:p-3.5 hover:bg-slate-50 dark:hover:bg-zinc-900/60 transition-colors cursor-pointer select-none text-left"
-        aria-expanded={isExpanded}
-      >
-        <div className="flex items-center gap-2.5 min-w-0">
+      <div className="w-full flex items-center justify-between p-3 sm:p-3.5 hover:bg-slate-50 dark:hover:bg-zinc-900/60 transition-colors select-none text-left">
+        <button
+          type="button"
+          onClick={toggleExpanded}
+          className="flex-1 flex items-center gap-2.5 min-w-0 cursor-pointer text-left focus:outline-none"
+          aria-expanded={isExpanded}
+        >
           <div className="p-2 rounded-xl bg-red-500/10 text-red-500 border border-red-500/20 shrink-0">
             <Pill className="w-4 h-4 stroke-[2]" />
           </div>
@@ -148,9 +148,9 @@ export const SupplementsHub: React.FC<SupplementsHubProps> = ({
               {isExpanded ? 'Daily intake checklist, salt, caffeine & creatine' : 'Tap to expand intake log & electrolyte levels'}
             </p>
           </div>
-        </div>
+        </button>
 
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex items-center gap-1.5 shrink-0 ml-2">
           {isExpanded && (
             <button
               type="button"
@@ -161,11 +161,18 @@ export const SupplementsHub: React.FC<SupplementsHubProps> = ({
               <RotateCcw className="w-3.5 h-3.5" />
             </button>
           )}
-          <ChevronDown
-            className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}
-          />
+          <button
+            type="button"
+            onClick={toggleExpanded}
+            className="p-1 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-white transition-colors cursor-pointer"
+            aria-label={isExpanded ? 'Collapse section' : 'Expand section'}
+          >
+            <ChevronDown
+              className={`w-4 h-4 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}
+            />
+          </button>
         </div>
-      </button>
+      </div>
 
       {/* Expandable Unified Body */}
       {isExpanded && (

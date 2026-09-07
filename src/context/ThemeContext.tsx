@@ -73,8 +73,8 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       root.style.setProperty('--color-card-light', '#F4F4F6');
       root.style.setProperty('--color-bg-dark', '#09090B');
       root.style.setProperty('--color-card-dark', '#121216');
-      root.style.setProperty('--color-accent-primary', '#4285F4');
-      root.style.setProperty('--color-accent-secondary', '#84CC16');
+      root.style.setProperty('--color-accent-primary', '#C4121A');
+      root.style.setProperty('--color-accent-secondary', '#D91F28');
     }
   }, [palette]);
 

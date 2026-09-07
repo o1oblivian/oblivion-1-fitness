@@ -9,7 +9,7 @@ import {
   CartesianGrid,
 } from 'recharts';
 import {
-  Activity,
+  BarChart3,
   Flame,
   Clock,
   Dumbbell,
@@ -158,8 +158,8 @@ export const WeeklyProgressChart: React.FC<WeeklyProgressChartProps> = ({
     metric === 'volume' ? 5000 : 15
   );
 
-  // Theme colors: Blue, Red, Yellow, Orange (Zero Green)
-  const GOOGLE_COLORS = ['#4285F4', '#EA4335', '#FBBC05', '#F97316'];
+  // Theme colors: Retro Palette (Blue, Cartier Red, Warm Amber, Mint Green)
+  const RETRO_PALETTE_COLORS = ['#2D7FF9', '#C4121A', '#E8B04A', '#3FB98E'];
 
   return (
     <div
@@ -170,8 +170,8 @@ export const WeeklyProgressChart: React.FC<WeeklyProgressChartProps> = ({
       <div className="flex items-center justify-between gap-2">
         <div className="min-w-0">
           <div className="flex items-center gap-1.5">
-            <div className="w-5 h-5 rounded-md bg-[#4285F4]/10 dark:bg-[#4285F4]/20 border border-[#4285F4]/30 flex items-center justify-center text-[#4285F4] shrink-0">
-              <Activity className="w-3 h-3" />
+            <div className="w-5 h-5 rounded-md bg-[#2D7FF9]/10 dark:bg-[#2D7FF9]/20 border border-[#2D7FF9]/30 flex items-center justify-center text-[#2D7FF9] shrink-0">
+              <BarChart3 className="w-3 h-3" />
             </div>
             <h3 className="text-xs font-bold text-slate-900 dark:text-white tracking-tight uppercase truncate">
               Microcycle Load & Volume
@@ -190,7 +190,7 @@ export const WeeklyProgressChart: React.FC<WeeklyProgressChartProps> = ({
             </span>
             <span className="text-slate-300 dark:text-zinc-700">•</span>
             <span className="text-slate-500 dark:text-zinc-400 flex items-center gap-0.5">
-              <TrendingUp className="w-2.5 h-2.5 text-[#4285F4]" />
+              <TrendingUp className="w-2.5 h-2.5 text-[#2D7FF9]" />
               Target: {metric === 'volume' ? `${(targetWeeklyVolume / 1000).toFixed(0)}k kg` : `${targetWeeklySets}s`}
             </span>
           </div>
@@ -207,7 +207,7 @@ export const WeeklyProgressChart: React.FC<WeeklyProgressChartProps> = ({
                 : 'text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
-            <Dumbbell className="w-2.5 h-2.5 text-[#4285F4]" />
+            <Dumbbell className="w-2.5 h-2.5 text-[#2D7FF9]" />
             <span>Volume</span>
           </button>
           <button
@@ -219,7 +219,7 @@ export const WeeklyProgressChart: React.FC<WeeklyProgressChartProps> = ({
                 : 'text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
-            <Layers className="w-2.5 h-2.5 text-[#EA4335]" />
+            <Layers className="w-2.5 h-2.5 text-[#C4121A]" />
             <span>Sets</span>
           </button>
         </div>
@@ -281,7 +281,7 @@ export const WeeklyProgressChart: React.FC<WeeklyProgressChartProps> = ({
             >
               {chartData.map((entry, index) => {
                 const isSelected = entry.day === selectedDay;
-                const baseColor = GOOGLE_COLORS[index % GOOGLE_COLORS.length];
+                const baseColor = RETRO_PALETTE_COLORS[index % RETRO_PALETTE_COLORS.length];
                 return (
                   <Cell
                     key={`cell-${entry.day}`}
@@ -301,7 +301,7 @@ export const WeeklyProgressChart: React.FC<WeeklyProgressChartProps> = ({
       <div className="grid grid-cols-7 gap-1 sm:gap-1.5 mt-4 pt-2 border-t border-slate-100 dark:border-white/5">
         {chartData.map((d, index) => {
           const isSelected = d.day === selectedDay;
-          const color = GOOGLE_COLORS[index % GOOGLE_COLORS.length];
+          const color = RETRO_PALETTE_COLORS[index % RETRO_PALETTE_COLORS.length];
           return (
             <button
               key={d.day}

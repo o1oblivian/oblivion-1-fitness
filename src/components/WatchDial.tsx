@@ -242,13 +242,13 @@ export const WatchDial: React.FC<WatchDialProps> = ({
           >
             <div className="relative w-8 h-8">
               <svg className="w-full h-full -rotate-90" viewBox="0 0 36 36">
-                <circle cx="18" cy="18" r="15" fill="none" stroke="rgba(234,67,53,0.15)" strokeWidth="2.5" />
-                <circle cx="18" cy="18" r="15" fill="none" stroke="#EA4335" strokeWidth="2.5" strokeLinecap="round"
+                <circle cx="18" cy="18" r="15" fill="none" stroke="rgba(196,18,26,0.15)" strokeWidth="2.5" />
+                <circle cx="18" cy="18" r="15" fill="none" stroke="#C4121A" strokeWidth="2.5" strokeLinecap="round"
                   strokeDasharray={`${2 * Math.PI * 15 * movePct} ${2 * Math.PI * 15}`}
                   className="transition-all duration-700"
                 />
               </svg>
-              <Flame className="absolute inset-0 m-auto w-3 h-3 text-[#EA4335]" />
+              <Flame className="absolute inset-0 m-auto w-3 h-3 text-[#C4121A]" />
             </div>
             <span className="text-base font-mono font-black text-white tabular-nums">{Math.round(dailyMove)}</span>
             <span className="text-[9px] font-mono font-bold uppercase tracking-wider text-white/50">BURN</span>
@@ -261,13 +261,13 @@ export const WatchDial: React.FC<WatchDialProps> = ({
           >
             <div className="relative w-8 h-8">
               <svg className="w-full h-full -rotate-90" viewBox="0 0 36 36">
-                <circle cx="18" cy="18" r="15" fill="none" stroke="rgba(251,188,5,0.15)" strokeWidth="2.5" />
-                <circle cx="18" cy="18" r="15" fill="none" stroke="#FBBC05" strokeWidth="2.5" strokeLinecap="round"
+                <circle cx="18" cy="18" r="15" fill="none" stroke="rgba(232,176,74,0.15)" strokeWidth="2.5" />
+                <circle cx="18" cy="18" r="15" fill="none" stroke="#E8B04A" strokeWidth="2.5" strokeLinecap="round"
                   strokeDasharray={`${2 * Math.PI * 15 * intakePct} ${2 * Math.PI * 15}`}
                   className="transition-all duration-700"
                 />
               </svg>
-              <Utensils className="absolute inset-0 m-auto w-3 h-3 text-[#FBBC05]" />
+              <Utensils className="absolute inset-0 m-auto w-3 h-3 text-[#E8B04A]" />
             </div>
             <span className="text-base font-mono font-black text-white tabular-nums">{Math.round(dailyIntakeCals)}</span>
             <span className="text-[9px] font-mono font-bold uppercase tracking-wider text-white/50">INTAKE</span>
@@ -280,13 +280,13 @@ export const WatchDial: React.FC<WatchDialProps> = ({
           >
             <div className="relative w-8 h-8">
               <svg className="w-full h-full -rotate-90" viewBox="0 0 36 36">
-                <circle cx="18" cy="18" r="15" fill="none" stroke="rgba(52,168,83,0.18)" strokeWidth="2.5" />
-                <circle cx="18" cy="18" r="15" fill="none" stroke="#34A853" strokeWidth="2.5" strokeLinecap="round"
+                <circle cx="18" cy="18" r="15" fill="none" stroke="rgba(63,185,142,0.18)" strokeWidth="2.5" />
+                <circle cx="18" cy="18" r="15" fill="none" stroke="#3FB98E" strokeWidth="2.5" strokeLinecap="round"
                   strokeDasharray={`${2 * Math.PI * 15 * distPct} ${2 * Math.PI * 15}`}
                   className="transition-all duration-700"
                 />
               </svg>
-              <MapPin className="absolute inset-0 m-auto w-3 h-3 text-[#34A853]" />
+              <MapPin className="absolute inset-0 m-auto w-3 h-3 text-[#3FB98E]" />
             </div>
             <span className="text-base font-mono font-black text-white tabular-nums">{dailyDist.toFixed(1)}</span>
             <span className="text-[9px] font-mono font-bold uppercase tracking-wider text-white/50">KM</span>
@@ -298,8 +298,8 @@ export const WatchDial: React.FC<WatchDialProps> = ({
             style={{ background: 'rgba(0,0,0,0.3)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}
           >
             <div className="relative w-8 h-8 flex items-center justify-center">
-              <Heart className="w-3.5 h-3.5 text-[#EA4335]/70" />
-              <span className="absolute 1 1 w-1.5 h-1.5 rounded-full bg-[#EA4335]" />
+              <Heart className="w-3.5 h-3.5 text-[#C4121A]/70" />
+              <span className="absolute 1 1 w-1.5 h-1.5 rounded-full bg-[#C4121A]" />
             </div>
             <span className="text-base font-mono font-black text-white tabular-nums">{bpm}</span>
             <span className="text-[9px] font-mono font-bold uppercase tracking-wider text-white/35">BPM</span>

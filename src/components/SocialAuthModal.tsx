@@ -248,7 +248,7 @@ export const SocialAuthModal: React.FC<SocialAuthModalProps> = ({
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-[9px] font-bold text-[#EA4335] uppercase tracking-wider block">
+                <span className="text-[9px] font-bold text-[#C4121A] uppercase tracking-wider block">
                   OAUTH 2.0 INTEGRATION
                 </span>
                 {isLinked && (
@@ -275,7 +275,7 @@ export const SocialAuthModal: React.FC<SocialAuthModalProps> = ({
         <div className="space-y-1.5">
           <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider flex items-center justify-between">
             <span className="flex items-center gap-1">
-              <User className="w-3 h-3 text-[#EA4335]" />
+              <User className="w-3 h-3 text-[#C4121A]" />
               {details.name} Handle / Username
             </span>
             <span className="text-[9px] text-gray-500">Optional</span>
@@ -286,7 +286,7 @@ export const SocialAuthModal: React.FC<SocialAuthModalProps> = ({
               value={handleInput}
               onChange={(e) => setHandleInput(e.target.value)}
               placeholder={details.placeholder}
-              className="w-full bg-white/5 border border-white/15 focus:border-[#EA4335] rounded-xl px-3 py-2 text-xs text-white placeholder-gray-500 outline-none transition-all font-mono"
+              className="w-full bg-white/5 border border-white/15 focus:border-[#C4121A] rounded-xl px-3 py-2 text-xs text-white placeholder-gray-500 outline-none transition-all font-mono"
             />
           </div>
         </div>
@@ -310,7 +310,7 @@ export const SocialAuthModal: React.FC<SocialAuthModalProps> = ({
         <div className="space-y-2 border-t border-white/10 pt-3">
           <div className="flex items-center justify-between">
             <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 flex items-center gap-1">
-              <ArrowRightLeft className="w-3.5 h-3.5 text-[#EA4335]" />
+              <ArrowRightLeft className="w-3.5 h-3.5 text-[#C4121A]" />
               Swap or Change Platform
             </span>
             <button
@@ -334,7 +334,7 @@ export const SocialAuthModal: React.FC<SocialAuthModalProps> = ({
                     onClick={() => handleSelectSwap(plat.id)}
                     className={`p-2 rounded-lg border text-left text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
                       isCurrent
-                        ? 'bg-[#EA4335]/20 border-[#EA4335] text-white'
+                        ? 'bg-[#C4121A]/20 border-[#C4121A] text-white'
                         : 'bg-white/5 border-white/10 text-gray-300 hover:bg-white/10'
                     }`}
                   >

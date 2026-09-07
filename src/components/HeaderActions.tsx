@@ -98,39 +98,39 @@ export const HeaderActions: React.FC<HeaderActionsProps> = ({
               >
                 {onOpenProfile && (
                   <MenuRow
-                    icon={<MoreVertical className="w-4 h-4 text-[#4285F4]" />}
+                    icon={<MoreVertical className="w-4 h-4 text-[#2D7FF9]" />}
                     label="Profile & Settings"
                     onClick={() => handleAction(onOpenProfile)}
                   />
                 )}
                 {onOpenCommunityHub && (
                   <MenuRow
-                    icon={<Users className="w-4 h-4 text-[#EA4335]" />}
+                    icon={<Users className="w-4 h-4 text-[#C4121A]" />}
                     label="Community"
                     onClick={() => handleAction(onOpenCommunityHub)}
                   />
                 )}
                 {onOpenShareGoalCard && (
                   <MenuRow
-                    icon={<Share2 className="w-4 h-4 text-[#FBBC05]" />}
+                    icon={<Share2 className="w-4 h-4 text-[#E8B04A]" />}
                     label="Share"
                     onClick={() => handleAction(onOpenShareGoalCard)}
                   />
                 )}
                 {onOpenSearch && (
                   <MenuRow
-                    icon={<Search className="w-4 h-4 text-[#34A853]" />}
+                    icon={<Search className="w-4 h-4 text-[#3FB98E]" />}
                     label="Search"
                     onClick={() => handleAction(onOpenSearch)}
                   />
                 )}
                 <MenuRow
-                  icon={<Sparkles className="w-4 h-4 text-[#4285F4]" />}
+                  icon={<Sparkles className="w-4 h-4 text-[#2D7FF9]" />}
                   label="Intel Insights"
                   onClick={() => handleAction(() => setShowAiModal(true))}
                 />
                 <MenuRow
-                  icon={<Compass className="w-4 h-4 text-[#EA4335]" />}
+                  icon={<Compass className="w-4 h-4 text-[#C4121A]" />}
                   label="System Tutorial"
                   onClick={() => handleAction(() => setShowGuideModal(true))}
                 />

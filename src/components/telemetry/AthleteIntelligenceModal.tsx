@@ -52,10 +52,10 @@ export const AthleteIntelligenceModal: React.FC<AthleteIntelligenceModalProps> =
 
   const tierColor =
     telemetry.tier === 'PRO-ELITE'
-      ? '#EA4335'
+      ? '#C4121A'
       : telemetry.tier === 'HYPERTROPHY'
       ? '#C9A227'
-      : '#34A853';
+      : '#3FB98E';
 
   const completedSessions = telemetry.sessions.filter((s) => s.completed).length;
   const totalTonnage = telemetry.sessions.reduce((sum, s) => sum + s.totalVolume, 0);
@@ -135,7 +135,7 @@ export const AthleteIntelligenceModal: React.FC<AthleteIntelligenceModalProps> =
             </div>
             <div className="bg-[#F2F2F7] rounded-xl p-2 text-center border border-[rgba(0,0,0,0.08)]">
               <div className="text-[8px] font-mono text-[#848785] uppercase tracking-wider">PRs</div>
-              <div className="text-sm font-black tabular-nums text-[#EA4335] flex items-center justify-center gap-0.5">
+              <div className="text-sm font-black tabular-nums text-[#C4121A] flex items-center justify-center gap-0.5">
                 <Flame className="w-3 h-3" />
                 {telemetry.prs.length}
               </div>
@@ -167,9 +167,9 @@ export const AthleteIntelligenceModal: React.FC<AthleteIntelligenceModalProps> =
             <>
               {/* PR Banner */}
               {telemetry.prs.length > 0 && (
-                <div className="bg-gradient-to-r from-[#EA4335]/8 to-[#C9A227]/8 rounded-2xl border border-[#EA4335]/20 p-3">
+                <div className="bg-gradient-to-r from-[#C4121A]/8 to-[#C9A227]/8 rounded-2xl border border-[#C4121A]/20 p-3">
                   <div className="flex items-center gap-2 mb-2">
-                    <Flame className="w-3.5 h-3.5 text-[#EA4335]" />
+                    <Flame className="w-3.5 h-3.5 text-[#C4121A]" />
                     <span className="text-[10px] font-mono font-bold text-[#1C1C1E] uppercase tracking-wider">Personal Records This Week</span>
                   </div>
                   <div className="space-y-1.5">
@@ -178,7 +178,7 @@ export const AthleteIntelligenceModal: React.FC<AthleteIntelligenceModalProps> =
                         <span className="font-bold text-[#1C1C1E]">{pr.exercise}</span>
                         <div className="flex items-center gap-2">
                           <span className="text-[#848785]">{pr.date}</span>
-                          <span className="font-black text-[#EA4335] tabular-nums">{pr.weight}kg</span>
+                          <span className="font-black text-[#C4121A] tabular-nums">{pr.weight}kg</span>
                           <span className="text-[9px] font-bold text-red-700 bg-red-700/10 px-1.5 py-0.5 rounded-md">
                             +{pr.delta}kg
                           </span>
@@ -210,8 +210,8 @@ export const AthleteIntelligenceModal: React.FC<AthleteIntelligenceModalProps> =
                       className="flex items-center justify-between p-2 rounded-xl bg-[#F2F2F7] border border-[rgba(0,0,0,0.08)]"
                     >
                       <div className="flex items-center gap-2 min-w-0">
-                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${s.completed ? 'bg-[#34A853]/15' : 'bg-[#E5E5EA]'}`}>
-                          <span className="text-[9px] font-mono font-bold text-[#34A853]">{s.dateLabel}</span>
+                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${s.completed ? 'bg-[#3FB98E]/15' : 'bg-[#E5E5EA]'}`}>
+                          <span className="text-[9px] font-mono font-bold text-[#3FB98E]">{s.dateLabel}</span>
                         </div>
                         <div className="min-w-0">
                           <div className="text-[11px] font-bold text-[#1C1C1E] truncate">{s.title}</div>
@@ -221,7 +221,7 @@ export const AthleteIntelligenceModal: React.FC<AthleteIntelligenceModalProps> =
                         </div>
                       </div>
                       {s.completed && s.exercises.some((e) => e.isPR) && (
-                        <Flame className="w-3.5 h-3.5 text-[#EA4335] shrink-0" />
+                        <Flame className="w-3.5 h-3.5 text-[#C4121A] shrink-0" />
                       )}
                     </div>
                   ))}
@@ -239,8 +239,8 @@ export const AthleteIntelligenceModal: React.FC<AthleteIntelligenceModalProps> =
                   <div className="grid grid-cols-2 gap-2">
                     {[
                       { label: 'Calories', value: telemetry.macroHistory[0].calories, target: telemetry.macroHistory[0].calorieTarget, unit: 'kcal', color: '#1C1C1E' },
-                      { label: 'Protein', value: telemetry.macroHistory[0].protein, target: telemetry.macroHistory[0].proteinTarget, unit: 'g', color: '#34A853' },
-                      { label: 'Carbs', value: telemetry.macroHistory[0].carbs, target: telemetry.macroHistory[0].carbsTarget, unit: 'g', color: '#EA4335' },
+                      { label: 'Protein', value: telemetry.macroHistory[0].protein, target: telemetry.macroHistory[0].proteinTarget, unit: 'g', color: '#3FB98E' },
+                      { label: 'Carbs', value: telemetry.macroHistory[0].carbs, target: telemetry.macroHistory[0].carbsTarget, unit: 'g', color: '#C4121A' },
                       { label: 'Fat', value: telemetry.macroHistory[0].fat, target: telemetry.macroHistory[0].fatTarget, unit: 'g', color: '#C9A227' },
                     ].map((m, i) => {
                       const pct = Math.min(100, (m.value / m.target) * 100);
@@ -261,7 +261,7 @@ export const AthleteIntelligenceModal: React.FC<AthleteIntelligenceModalProps> =
                   <div className="flex items-center justify-between mt-3 pt-3 border-t border-[rgba(0,0,0,0.08)]">
                     <div className="flex items-center gap-2">
                       <div className="flex items-center gap-1">
-                        <div className="w-2 h-2 rounded-full" style={{ backgroundColor: '#4285F4' }} />
+                        <div className="w-2 h-2 rounded-full" style={{ backgroundColor: '#2D7FF9' }} />
                         <span className="text-[9px] font-mono text-[#848785]">Hydration</span>
                       </div>
                       <span className="text-[10px] font-mono font-bold tabular-nums text-[#1C1C1E]">
@@ -291,9 +291,9 @@ export const AthleteIntelligenceModal: React.FC<AthleteIntelligenceModalProps> =
           {tab === 'insights' && (
             <>
               {/* AI Briefing */}
-              <div className="bg-gradient-to-br from-[#34A853]/8 to-[#EA4335]/8 rounded-2xl border border-[#34A853]/20 p-4">
+              <div className="bg-gradient-to-br from-[#3FB98E]/8 to-[#C4121A]/8 rounded-2xl border border-[#3FB98E]/20 p-4">
                 <div className="flex items-center gap-2 mb-2">
-                  <Sparkles className="w-4 h-4 text-[#34A853]" />
+                  <Sparkles className="w-4 h-4 text-[#3FB98E]" />
                   <span className="text-[10px] font-mono font-bold text-[#1C1C1E] uppercase tracking-wider">Intel Coach Briefing</span>
                 </div>
                 <p className="text-[12px] text-[#1C1C1E] leading-relaxed">{telemetry.aiBriefing}</p>
@@ -347,7 +347,7 @@ export const AthleteIntelligenceModal: React.FC<AthleteIntelligenceModalProps> =
                           key={i}
                           className="flex-1 h-2 rounded-full"
                           style={{
-                            backgroundColor: i < telemetry.compliance.weeklyStreak ? '#34A853' : 'rgba(0,0,0,0.08)',
+                            backgroundColor: i < telemetry.compliance.weeklyStreak ? '#3FB98E' : 'rgba(0,0,0,0.08)',
                           }}
                         />
                       ))}
@@ -363,8 +363,8 @@ export const AthleteIntelligenceModal: React.FC<AthleteIntelligenceModalProps> =
                   {telemetry.prs.map((pr, i) => (
                     <div key={i} className="flex items-center justify-between p-2 rounded-xl bg-[#F2F2F7] border border-[rgba(0,0,0,0.08)]">
                       <div className="flex items-center gap-2">
-                        <div className="w-7 h-7 rounded-lg bg-[#EA4335]/10 flex items-center justify-center">
-                          <Flame className="w-3.5 h-3.5 text-[#EA4335]" />
+                        <div className="w-7 h-7 rounded-lg bg-[#C4121A]/10 flex items-center justify-center">
+                          <Flame className="w-3.5 h-3.5 text-[#C4121A]" />
                         </div>
                         <span className="text-[11px] font-bold text-[#1C1C1E]">{pr.exercise}</span>
                       </div>
@@ -389,12 +389,12 @@ export const AthleteIntelligenceModal: React.FC<AthleteIntelligenceModalProps> =
               value={feedback}
               onChange={(e) => setFeedback(e.target.value)}
               placeholder="Type coach feedback..."
-              className="flex-1 bg-[#F2F2F7] border border-[rgba(0,0,0,0.08)] rounded-xl px-3 py-2 text-[11px] font-mono text-[#1C1C1E] placeholder-[#848785] focus:outline-none focus:border-[#34A853] transition-colors"
+              className="flex-1 bg-[#F2F2F7] border border-[rgba(0,0,0,0.08)] rounded-xl px-3 py-2 text-[11px] font-mono text-[#1C1C1E] placeholder-[#848785] focus:outline-none focus:border-[#3FB98E] transition-colors"
             />
             <button
               onClick={handleSendFeedback}
               disabled={!feedback.trim()}
-              className="w-10 h-10 rounded-xl bg-[#34A853] hover:bg-[#5C7568] disabled:opacity-40 text-white flex items-center justify-center transition-all active:scale-95 cursor-pointer shrink-0"
+              className="w-10 h-10 rounded-xl bg-[#3FB98E] hover:bg-[#2F9B73] disabled:opacity-40 text-white flex items-center justify-center transition-all active:scale-95 cursor-pointer shrink-0"
             >
               <Send className="w-4 h-4" />
             </button>
@@ -405,7 +405,7 @@ export const AthleteIntelligenceModal: React.FC<AthleteIntelligenceModalProps> =
                 onApprove();
                 showToast?.('Workout approved & verified');
               }}
-              className="w-full py-3 bg-gradient-to-r from-[#EA4335] to-[#C24343] hover:from-[#C24343] hover:to-[#EA4335] text-white font-mono font-bold text-xs rounded-xl shadow-md transition-all active:scale-95 flex items-center justify-center gap-2 cursor-pointer border border-[#EA4335]"
+              className="w-full py-3 bg-[#C4121A] hover:bg-[#9B0E14] text-white font-mono font-bold text-xs rounded-xl shadow-md transition-all active:scale-95 flex items-center justify-center gap-2 cursor-pointer border border-[#C4121A]"
             >
               <Sparkles className="w-4 h-4" />
               APPROVE & SEND FEEDBACK

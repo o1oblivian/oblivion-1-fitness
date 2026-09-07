@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import {
   ChevronDown, Clock, Flame, Zap, Play, Dumbbell, Target, UserCheck, AlertCircle,
-  Battery, BatteryCharging, BatteryFull, Activity, Sliders, Check, Sparkles, Compass
+  Battery, BatteryCharging, BatteryFull, Activity, Sliders, Check, Sparkles, Compass, Cpu, HeartPulse
 } from 'lucide-react';
 import { ROUTINE_TEMPLATES } from '@/data/exerciseDatabase';
 import { ProgramProgressTracker } from '@/components/ProgramProgressTracker';
@@ -13,6 +13,7 @@ interface DualLaneLauncherProps {
   connectedCoachName?: string;
   onUpgrade?: () => void;
   currentUserEmail?: string;
+  onOpenSomaticDeck?: () => void;
 }
 
 type EnergyLevel = 'low' | 'okay' | 'ready';
@@ -31,7 +32,7 @@ interface GeneratedExercise {
 const GOAL_OPTIONS: { id: GoalMode; label: string; tag: string; icon: React.ComponentType<{ className?: string; style?: React.CSSProperties }>; iconColor: string }[] = [
   { id: 'burn', label: 'Burn kcal', tag: 'Metabolic Torch', icon: Flame, iconColor: '#C4121A' },
   { id: 'build', label: 'Build Muscle', tag: 'Hypertrophy', icon: Dumbbell, iconColor: '#C4121A' },
-  { id: 'reset', label: 'Reset & Move', tag: 'Recovery & Joint Flow', icon: Activity, iconColor: '#8B5CF6' },
+  { id: 'reset', label: 'Reset & Move', tag: 'Recovery & Joint Flow', icon: HeartPulse, iconColor: '#8B5CF6' },
   { id: 'perform', label: 'Athletic Peak', tag: 'Speed & Explosiveness', icon: Zap, iconColor: '#3B82F6' },
 ];
 
@@ -90,6 +91,7 @@ export const DualLaneLauncher: React.FC<DualLaneLauncherProps> = ({
   connectedCoachName,
   onUpgrade,
   currentUserEmail = '',
+  onOpenSomaticDeck,
 }) => {
   const [expandedLane, setExpandedLane] = useState<'intel' | 'coach' | null>(null);
   const [energy, setEnergy] = useState<EnergyLevel>('okay');
@@ -205,7 +207,7 @@ export const DualLaneLauncher: React.FC<DualLaneLauncherProps> = ({
                 ? 'bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white shadow-sm'
                 : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white border border-zinc-200 dark:border-zinc-700'
             }`}>
-              <Sparkles className="w-4 h-4 text-[#4285F4]" />
+              <Cpu className="w-4 h-4 text-[#2D7FF9]" />
             </div>
             <div className="flex-1 min-w-0 text-left">
               <div className="text-[11px] font-extrabold leading-none">Intel Coach</div>
@@ -285,7 +287,7 @@ export const DualLaneLauncher: React.FC<DualLaneLauncherProps> = ({
               >
                 <div className="flex items-center justify-between mb-1">
                   <span className="text-[10px] font-mono font-bold uppercase">Low</span>
-                  <Battery className="w-3.5 h-3.5 text-[#4285F4]" />
+                  <Battery className="w-3.5 h-3.5 text-[#2D7FF9]" />
                 </div>
                 <div className={`text-[9px] ${energy === 'low' ? 'text-zinc-300 dark:text-zinc-600' : 'text-zinc-400'}`}>Reset & Ease</div>
               </button>
@@ -301,7 +303,7 @@ export const DualLaneLauncher: React.FC<DualLaneLauncherProps> = ({
               >
                 <div className="flex items-center justify-between mb-1">
                   <span className="text-[10px] font-mono font-bold uppercase">Steady</span>
-                  <BatteryCharging className="w-3.5 h-3.5 text-[#FBBC05]" />
+                  <BatteryCharging className="w-3.5 h-3.5 text-[#E8B04A]" />
                 </div>
                 <div className={`text-[9px] ${energy === 'okay' ? 'text-zinc-300 dark:text-zinc-600' : 'text-zinc-400'}`}>Solid Work</div>
               </button>
@@ -317,7 +319,7 @@ export const DualLaneLauncher: React.FC<DualLaneLauncherProps> = ({
               >
                 <div className="flex items-center justify-between mb-1">
                   <span className="text-[10px] font-mono font-bold uppercase">Prime</span>
-                  <BatteryFull className="w-3.5 h-3.5 text-[#34A853]" />
+                  <BatteryFull className="w-3.5 h-3.5 text-[#3FB98E]" />
                 </div>
                 <div className={`text-[9px] ${energy === 'ready' ? 'text-zinc-300 dark:text-zinc-600' : 'text-zinc-400'}`}>Full Attack</div>
               </button>
@@ -327,7 +329,7 @@ export const DualLaneLauncher: React.FC<DualLaneLauncherProps> = ({
           {/* 2. Goal Mode Selector */}
           <div className="space-y-1.5">
             <div className="text-[10px] font-mono text-zinc-500 dark:text-zinc-400 uppercase tracking-wider flex items-center gap-1.5">
-              <Target className="w-3 h-3 text-[#4285F4]" /> 2. Training Goal Mode
+              <Target className="w-3 h-3 text-[#2D7FF9]" /> 2. Training Goal Mode
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
               {GOAL_OPTIONS.map((g) => {
@@ -360,6 +362,31 @@ export const DualLaneLauncher: React.FC<DualLaneLauncherProps> = ({
               })}
             </div>
           </div>
+
+          {/* Somatic & Breathwork Deck Launcher (in Reset Mode) */}
+          {goalMode === 'reset' && onOpenSomaticDeck && (
+            <div className="p-3 bg-gradient-to-r from-violet-950/40 via-zinc-900 to-indigo-950/40 border border-violet-500/25 rounded-2xl flex items-center justify-between gap-3 animate-fadeIn">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-violet-500/15 border border-violet-500/30 flex items-center justify-center text-violet-400 shrink-0">
+                  <HeartPulse className="w-4 h-4" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-xs font-bold text-white tracking-tight">Somatic & Breathwork Deck</span>
+                    <span className="text-[8px] font-mono px-1 py-0.5 rounded bg-violet-500/20 text-violet-300 font-semibold uppercase">Calm OS</span>
+                  </div>
+                  <div className="text-[10px] text-zinc-400">Kinetic breath ring, 432Hz binaural frequencies & NSDR</div>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={onOpenSomaticDeck}
+                className="px-3 py-1.5 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-[11px] font-bold shrink-0 transition-all active:scale-95 cursor-pointer shadow-sm"
+              >
+                Launch Deck
+              </button>
+            </div>
+          )}
 
           {/* Calorie Burn Target Selector (in Burn Mode) */}
           {goalMode === 'burn' && (

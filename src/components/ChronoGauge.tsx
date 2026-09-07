@@ -68,7 +68,7 @@ export const ChronoGauge: React.FC<ChronoGaugeProps> = ({
         <defs>
           {/* Needle drop shadow */}
           <filter id="needleGlow" x="-50%" y="-50%" width="200%" height="200%">
-            <feDropShadow dx="0" dy="2" stdDeviation="3" floodColor="#EA4335" floodOpacity="0.6" />
+            <feDropShadow dx="0" dy="2" stdDeviation="3" floodColor="#C4121A" floodOpacity="0.6" />
           </filter>
           <filter id="metallicSheen" x="-20%" y="-20%" width="140%" height="140%">
             <feDropShadow dx="0" dy="1" stdDeviation="1.5" floodColor="#000000" floodOpacity="0.8" />
@@ -76,14 +76,14 @@ export const ChronoGauge: React.FC<ChronoGaugeProps> = ({
           <linearGradient id="brushedArc" x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" stopColor="#94A3B8" />
             <stop offset="50%" stopColor="#E2E8F0" />
-            <stop offset="85%" stopColor="#EA4335" />
-            <stop offset="100%" stopColor="#EA4335" />
+            <stop offset="85%" stopColor="#C4121A" />
+            <stop offset="100%" stopColor="#C4121A" />
           </linearGradient>
           <linearGradient id="activeTachArc" x1="0%" y1="100%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="#38BDF8" />
-            <stop offset="60%" stopColor="#FBBC05" />
-            <stop offset="85%" stopColor="#EA4335" />
-            <stop offset="100%" stopColor="#EA4335" />
+            <stop offset="0%" stopColor="#2D7FF9" />
+            <stop offset="60%" stopColor="#E8B04A" />
+            <stop offset="85%" stopColor="#C4121A" />
+            <stop offset="100%" stopColor="#C4121A" />
           </linearGradient>
         </defs>
 
@@ -133,7 +133,7 @@ export const ChronoGauge: React.FC<ChronoGaugeProps> = ({
                 y1={y1}
                 x2={x2}
                 y2={y2}
-                stroke={isRedline ? '#EA4335' : isMajor ? '#F8FAFC' : isMedium ? '#94A3B8' : '#475569'}
+                stroke={isRedline ? '#C4121A' : isMajor ? '#F8FAFC' : isMedium ? '#94A3B8' : '#475569'}
                 strokeWidth={isMajor ? '2.5' : isMedium ? '1.5' : '1'}
                 strokeLinecap="round"
               />
@@ -156,7 +156,7 @@ export const ChronoGauge: React.FC<ChronoGaugeProps> = ({
                 y={y}
                 textAnchor="middle"
                 dominantBaseline="central"
-                fill={isRedline ? '#EA4335' : '#CBD5E1'}
+                fill={isRedline ? '#C4121A' : '#CBD5E1'}
                 className="font-mono text-[11px] font-black tracking-tight"
                 filter="url(#metallicSheen)"
               >
@@ -180,7 +180,7 @@ export const ChronoGauge: React.FC<ChronoGaugeProps> = ({
           <path
             d="M 68 -122 A 140 140 0 0 1 99 99"
             fill="none"
-            stroke="#EA4335"
+            stroke="#C4121A"
             strokeWidth="3"
             strokeDasharray="3 3"
             opacity="0.8"
@@ -191,11 +191,11 @@ export const ChronoGauge: React.FC<ChronoGaugeProps> = ({
             {/* Needle Body */}
             <path
               d="M -3.5 0 L -0.5 -136 L 0.5 -136 L 3.5 0 Z"
-              fill="#EA4335"
+              fill="#C4121A"
               filter="url(#needleGlow)"
             />
             <circle cx="0" cy="0" r="14" fill="#0F172A" stroke="#E2E8F0" strokeWidth="2.5" />
-            <circle cx="0" cy="0" r="5" fill="#EA4335" />
+            <circle cx="0" cy="0" r="5" fill="#C4121A" />
           </g>
         </g>
 
@@ -206,10 +206,10 @@ export const ChronoGauge: React.FC<ChronoGaugeProps> = ({
           
           {/* Calorie needle */}
           <g transform={`rotate(${moveAngle - 90})`}>
-            <line x1="0" y1="0" x2="0" y2="-20" stroke="#EA4335" strokeWidth="1.5" strokeLinecap="round" />
-            <circle cx="0" cy="0" r="3" fill="#EA4335" />
+            <line x1="0" y1="0" x2="0" y2="-20" stroke="#C4121A" strokeWidth="1.5" strokeLinecap="round" />
+            <circle cx="0" cy="0" r="3" fill="#C4121A" />
           </g>
-          <text x="0" y="10" textAnchor="middle" fill="#EA4335" className="font-mono text-[7px] font-black uppercase tracking-wider">
+          <text x="0" y="10" textAnchor="middle" fill="#C4121A" className="font-mono text-[7px] font-black uppercase tracking-wider">
             KCAL
           </text>
         </g>
@@ -221,10 +221,10 @@ export const ChronoGauge: React.FC<ChronoGaugeProps> = ({
           
           {/* Distance needle */}
           <g transform={`rotate(${kmAngle - 90})`}>
-            <line x1="0" y1="0" x2="0" y2="-20" stroke="#34A853" strokeWidth="1.5" strokeLinecap="round" />
-            <circle cx="0" cy="0" r="3" fill="#34A853" />
+            <line x1="0" y1="0" x2="0" y2="-20" stroke="#3FB98E" strokeWidth="1.5" strokeLinecap="round" />
+            <circle cx="0" cy="0" r="3" fill="#3FB98E" />
           </g>
-          <text x="0" y="10" textAnchor="middle" fill="#34A853" className="font-mono text-[7px] font-black uppercase tracking-wider">
+          <text x="0" y="10" textAnchor="middle" fill="#3FB98E" className="font-mono text-[7px] font-black uppercase tracking-wider">
             KM
           </text>
         </g>
@@ -235,7 +235,7 @@ export const ChronoGauge: React.FC<ChronoGaugeProps> = ({
         {/* Cue Pill */}
         <button
           onClick={onOpenReels}
-          className="mb-1 px-2.5 py-0.5 rounded-full bg-[#1C1F1E] border border-[#FBBC05]/30 text-[9px] font-mono font-black tracking-widest text-[#FBBC05] uppercase transition-all active:scale-95 cursor-pointer shadow-md flex items-center gap-1"
+          className="mb-1 px-2.5 py-0.5 rounded-full bg-[#1C1F1E] border border-[#E8B04A]/30 text-[9px] font-mono font-black tracking-widest text-[#E8B04A] uppercase transition-all active:scale-95 cursor-pointer shadow-md flex items-center gap-1"
         >
           <Gauge className="w-2.5 h-2.5" />
           <span>CHRONO GT · 911</span>

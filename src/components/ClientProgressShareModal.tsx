@@ -165,7 +165,7 @@ export const ClientProgressShareModal: React.FC<ClientProgressShareModalProps> =
         ctx.fillRect(0, 0, width, height);
 
         // Header branding
-        ctx.fillStyle = '#34A853';
+        ctx.fillStyle = '#3FB98E';
         ctx.font = 'bold 36px monospace';
         ctx.fillText('O1FC • CLIENT PROGRESS REPORT', 80, 120);
 
@@ -272,7 +272,7 @@ export const ClientProgressShareModal: React.FC<ClientProgressShareModalProps> =
                 type="checkbox"
                 checked={includeVaultMedia}
                 onChange={(e) => setIncludeVaultMedia(e.target.checked)}
-                className="w-4 h-4 accent-[#34A853] rounded cursor-pointer"
+                className="w-4 h-4 accent-[#3FB98E] rounded cursor-pointer"
               />
             </label>
 
@@ -312,7 +312,7 @@ export const ClientProgressShareModal: React.FC<ClientProgressShareModalProps> =
                 type="checkbox"
                 checked={includeLogHistory}
                 onChange={(e) => setIncludeLogHistory(e.target.checked)}
-                className="w-4 h-4 accent-[#34A853] rounded cursor-pointer"
+                className="w-4 h-4 accent-[#3FB98E] rounded cursor-pointer"
               />
             </label>
 
@@ -329,7 +329,7 @@ export const ClientProgressShareModal: React.FC<ClientProgressShareModalProps> =
                 type="checkbox"
                 checked={includeTransformationCard}
                 onChange={(e) => setIncludeTransformationCard(e.target.checked)}
-                className="w-4 h-4 accent-[#34A853] rounded cursor-pointer"
+                className="w-4 h-4 accent-[#3FB98E] rounded cursor-pointer"
               />
             </label>
           </div>
@@ -341,7 +341,7 @@ export const ClientProgressShareModal: React.FC<ClientProgressShareModalProps> =
               type="text"
               value={headline}
               onChange={(e) => setHeadline(e.target.value)}
-              className="w-full bg-white dark:bg-[#14171F] border border-gray-200 dark:border-white/10 rounded-xl px-2 py-1.5 text-xs text-gray-900 dark:text-white outline-none focus:border-[#34A853]"
+              className="w-full bg-white dark:bg-[#14171F] border border-gray-200 dark:border-white/10 rounded-xl px-2 py-1.5 text-xs text-gray-900 dark:text-white outline-none focus:border-[#3FB98E]"
               placeholder="e.g. Smashed 120kg Bench PR!"
             />
           </div>
@@ -396,7 +396,7 @@ export const ClientProgressShareModal: React.FC<ClientProgressShareModalProps> =
                       value={inputCode}
                       onChange={(e) => setInputCode(e.target.value)}
                       placeholder="Enter code..."
-                      className="flex-1 min-w-0 bg-white dark:bg-[#14171F] border border-gray-200 dark:border-white/10 rounded-xl px-3 py-2 text-xs font-mono text-gray-900 dark:text-white outline-none focus:border-[#34A853] uppercase tracking-wider"
+                      className="flex-1 min-w-0 bg-white dark:bg-[#14171F] border border-gray-200 dark:border-white/10 rounded-xl px-3 py-2 text-xs font-mono text-gray-900 dark:text-white outline-none focus:border-[#3FB98E] uppercase tracking-wider"
                     />
                     <button
                       onClick={handleVerifyCode}
@@ -429,11 +429,13 @@ export const ClientProgressShareModal: React.FC<ClientProgressShareModalProps> =
               {(['iron', 'gold', 'crimson', 'dark'] as const).map((t) => (
                 <button
                   key={t}
+                  type="button"
                   onClick={() => setTheme(t)}
-                  className={`w-4 h-4 rounded-full border transition-all ${
+                  aria-label={t}
+                  className={`w-4 h-4 rounded-full border transition-all cursor-pointer ${
                     t === 'iron' ? 'bg-red-700' : t === 'gold' ? 'bg-amber-500' : t === 'crimson' ? 'bg-red-500' : 'bg-gray-700'
                   } ${theme === t ? 'border-white scale-110' : 'border-transparent opacity-50'}`}
-                />
+                ></button>
               ))}
             </div>
           </div>
@@ -442,13 +444,13 @@ export const ClientProgressShareModal: React.FC<ClientProgressShareModalProps> =
           <div className="relative rounded-2xl p-4 border bg-gradient-to-b from-[#161B22] via-[#0D1117] to-[#161B22] border-white/10 shadow-2xl space-y-3 overflow-hidden">
             {/* Top Bar */}
             <div className="flex items-center justify-between font-mono text-[10px]">
-              <span className="font-extrabold text-[#4285F4] tracking-wider uppercase">O1FC • COACH REPORT</span>
+              <span className="font-extrabold text-[#2D7FF9] tracking-wider uppercase">O1FC • COACH REPORT</span>
               <span className="text-gray-400 font-mono">#{athlete.key || 'ATH-01'}</span>
             </div>
 
             {/* Client Avatar & Name */}
             <div className="flex items-center gap-3 bg-white/5 p-2 rounded-xl border border-white/5">
-              <div className="w-10 h-10 rounded-xl bg-[#34A853] text-white font-black text-sm flex items-center justify-center shrink-0">
+              <div className="w-10 h-10 rounded-xl bg-[#3FB98E] text-white font-black text-sm flex items-center justify-center shrink-0">
                 {athlete.avatar}
               </div>
               <div className="min-w-0 flex-1">
@@ -511,7 +513,7 @@ export const ClientProgressShareModal: React.FC<ClientProgressShareModalProps> =
             disabled={!isConsentVerified}
             className={`py-2.5 px-3 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-all ${
               isConsentVerified
-                ? 'bg-[#34A853] hover:bg-[#688070] text-white cursor-pointer active:scale-95 shadow-md'
+                ? 'bg-[#3FB98E] hover:bg-[#2F9B73] text-white cursor-pointer active:scale-95 shadow-md'
                 : 'bg-gray-200 dark:bg-gray-800 text-gray-400 dark:text-gray-500 cursor-not-allowed border border-gray-300 dark:border-white/5'
             }`}
           >

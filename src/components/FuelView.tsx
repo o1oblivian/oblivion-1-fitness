@@ -226,7 +226,7 @@ export const FuelView: React.FC<FuelViewProps> = ({
           <div className="flex items-center gap-2">
             <h1 className="text-[20px] sm:text-[22px] font-extrabold tracking-tight text-stone-950 dark:text-white flex items-center gap-2">
               Fuel OS
-              <span className="text-[10.5px] sm:text-[11px] px-1.5 py-0.5 rounded-full font-bold tracking-wide bg-[#EA4335]/10 text-[#EA4335] border border-[#EA4335]/30 uppercase shrink-0">
+              <span className="text-[10.5px] sm:text-[11px] px-1.5 py-0.5 rounded-full font-bold tracking-wide bg-[#C4121A]/10 text-[#C4121A] border border-[#C4121A]/30 uppercase shrink-0">
                 PRO
               </span>
             </h1>
@@ -274,7 +274,7 @@ export const FuelView: React.FC<FuelViewProps> = ({
                             onClick={() => handleSelectDiet(diet.id)}
                             className={`w-full px-2.5 py-1.5 rounded-lg flex items-center justify-between text-left transition-colors cursor-pointer ${
                               isSelected
-                                ? 'bg-[#EA4335]/10 text-[#EA4335] font-bold'
+                                ? 'bg-[#C4121A]/10 text-[#C4121A] font-bold'
                                 : 'hover:bg-zinc-100 dark:hover:bg-white/5 text-zinc-800 dark:text-stone-200'
                             }`}
                           >
@@ -286,7 +286,7 @@ export const FuelView: React.FC<FuelViewProps> = ({
                                 {diet.description}
                               </div>
                             </div>
-                            {isSelected && <Check className="w-3.5 h-3.5 text-[#EA4335] shrink-0" />}
+                            {isSelected && <Check className="w-3.5 h-3.5 text-[#C4121A] shrink-0" />}
                           </button>
                         );
                       })}
@@ -308,7 +308,7 @@ export const FuelView: React.FC<FuelViewProps> = ({
           <div className="w-full max-w-sm bg-white dark:bg-[#121214] rounded-2xl border border-neutral-200 dark:border-white/10 shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150" onClick={(e) => e.stopPropagation()}>
             <div className="p-3.5 border-b border-neutral-200 dark:border-white/10 flex items-center justify-between bg-zinc-50 dark:bg-white/[0.02]">
               <div className="flex items-center gap-2">
-                <Globe className="w-4 h-4 text-[#EA4335]" />
+                <Globe className="w-4 h-4 text-[#C4121A]" />
                 <h3 className="text-[14px] font-bold text-zinc-900 dark:text-white">Client Country Market</h3>
               </div>
               <button
@@ -329,7 +329,7 @@ export const FuelView: React.FC<FuelViewProps> = ({
                     onClick={() => handleSelectCountry(c.code)}
                     className={`w-full h-10 px-3 rounded-xl flex items-center justify-between text-left transition-colors cursor-pointer ${
                       isSelected
-                        ? 'bg-[#EA4335]/10 text-[#EA4335] font-bold'
+                        ? 'bg-[#C4121A]/10 text-[#C4121A] font-bold'
                         : 'hover:bg-zinc-100 dark:hover:bg-white/5 text-zinc-800 dark:text-stone-200'
                     }`}
                   >
@@ -337,7 +337,7 @@ export const FuelView: React.FC<FuelViewProps> = ({
                       <span className="text-base">{c.flag}</span>
                       <span className="text-[12.5px]">{c.name}</span>
                     </div>
-                    {isSelected && <Check className="w-4 h-4 text-[#EA4335]" />}
+                    {isSelected && <Check className="w-4 h-4 text-[#C4121A]" />}
                   </button>
                 );
               })}

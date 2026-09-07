@@ -67,18 +67,18 @@ export const PulseRing: React.FC<PulseRingProps> = ({
 
           {/* Linear Gradients for Active Rings */}
           <linearGradient id="stepsPulseGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#4285F4" />
-            <stop offset="50%" stopColor="#34A853" />
+            <stop offset="0%" stopColor="#2D7FF9" />
+            <stop offset="50%" stopColor="#3FB98E" />
             <stop offset="100%" stopColor="#34D399" />
           </linearGradient>
           <linearGradient id="movePulseGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#FBBC05" />
-            <stop offset="70%" stopColor="#EA4335" />
+            <stop offset="0%" stopColor="#E8B04A" />
+            <stop offset="70%" stopColor="#C4121A" />
             <stop offset="100%" stopColor="#F87171" />
           </linearGradient>
           <linearGradient id="kmPulseGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#4285F4" />
-            <stop offset="100%" stopColor="#EA4335" />
+            <stop offset="0%" stopColor="#2D7FF9" />
+            <stop offset="100%" stopColor="#C4121A" />
           </linearGradient>
         </defs>
 
@@ -146,7 +146,7 @@ export const PulseRing: React.FC<PulseRingProps> = ({
               y1={-rSteps}
               x2="-25"
               y2={-rSteps + 3}
-              stroke="#4285F4"
+              stroke="#2D7FF9"
               strokeWidth="3.5"
               strokeLinecap="round"
               opacity="0.7"
@@ -186,7 +186,7 @@ export const PulseRing: React.FC<PulseRingProps> = ({
               cx="0"
               cy={-rMove}
               r="3.5"
-              fill="#FBBC05"
+              fill="#E8B04A"
               filter="url(#amberPulseGlow)"
             />
           </g>
@@ -224,7 +224,7 @@ export const PulseRing: React.FC<PulseRingProps> = ({
               cx="0"
               cy={-rKm}
               r="3"
-              fill="#EA4335"
+              fill="#C4121A"
               filter="url(#fuchsiaPulseGlow)"
             />
           </g>
@@ -233,7 +233,7 @@ export const PulseRing: React.FC<PulseRingProps> = ({
           <path
             d="M -30 42 L -18 42 L -12 36 L -6 48 L 0 32 L 6 52 L 12 42 L 30 42"
             fill="none"
-            stroke="#4285F4"
+            stroke="#2D7FF9"
             strokeWidth="1.5"
             strokeLinecap="round"
             strokeLinejoin="round"

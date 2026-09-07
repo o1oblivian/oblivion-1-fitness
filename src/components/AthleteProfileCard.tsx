@@ -191,11 +191,13 @@ export const AthleteProfileCard: React.FC<AthleteProfileCardProps> = ({
                   {media.map((_, i) => (
                     <button
                       key={i}
+                      type="button"
                       onClick={() => setActiveIndex(i)}
+                      aria-label={`Slide ${i + 1}`}
                       className={`h-1 rounded-full transition-all cursor-pointer ${
                         i === activeIndex ? 'w-6 bg-white' : 'w-1.5 bg-white/40'
                       }`}
-                    />
+                    ></button>
                   ))}
                 </div>
               )}

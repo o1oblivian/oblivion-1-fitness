@@ -2649,7 +2649,7 @@ const PrivacyToggleRow: React.FC<{
               maxHeight: '26px',
             }}
             className={`relative inline-flex shrink-0 cursor-pointer items-center rounded-full p-[2px] transition-colors duration-200 ease-in-out focus:outline-none select-none ${
-              value ? 'bg-[#EA4335]' : 'bg-zinc-300 dark:bg-zinc-700'
+              value ? 'bg-[#C4121A]' : 'bg-zinc-300 dark:bg-zinc-700'
             }`}
           >
             <span

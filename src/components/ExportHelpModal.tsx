@@ -88,7 +88,7 @@ export const ExportHelpModal: React.FC<ExportHelpModalProps> = ({
 
         <div className="flex items-center justify-between border-b border-[rgba(0,0,0,0.08)] pb-3">
           <div className="flex items-center gap-2">
-            <div className="w-9 h-9 rounded-2xl bg-[#34A853]/10 border border-[#34A853]/30 flex items-center justify-center text-[#34A853]">
+            <div className="w-9 h-9 rounded-2xl bg-[#3FB98E]/10 border border-[#3FB98E]/30 flex items-center justify-center text-[#3FB98E]">
               <Download className="w-4 h-4" />
             </div>
             <div>
@@ -105,13 +105,13 @@ export const ExportHelpModal: React.FC<ExportHelpModalProps> = ({
           </button>
         </div>
 
-        <div className="bg-[#34A853]/10 border border-[#34A853]/30 rounded-2xl p-4 flex flex-col gap-3">
+        <div className="bg-[#3FB98E]/10 border border-[#3FB98E]/30 rounded-2xl p-4 flex flex-col gap-3">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-[#34A853] uppercase tracking-wider font-mono flex items-center gap-2">
+            <span className="text-xs font-bold text-[#3FB98E] uppercase tracking-wider font-mono flex items-center gap-2">
               <HardDrive className="w-3.5 h-3.5" />
               Full Data Backup
             </span>
-            <span className="text-[10px] font-bold text-[#34A853] bg-[#34A853]/15 px-1.5 py-0.5 rounded-full border border-[#34A853]/30">
+            <span className="text-[10px] font-bold text-[#3FB98E] bg-[#3FB98E]/15 px-1.5 py-0.5 rounded-full border border-[#3FB98E]/30">
               JSON
             </span>
           </div>
@@ -122,7 +122,7 @@ export const ExportHelpModal: React.FC<ExportHelpModalProps> = ({
           <button
             onClick={handleExportData}
             disabled={isExporting}
-            className="w-full py-3 bg-[#34A853] hover:bg-[#688070] disabled:opacity-60 text-[#FDFCFB] font-extrabold rounded-xl text-xs flex items-center justify-center gap-2 shadow-lg border-0 active:scale-95 transition-all"
+            className="w-full py-3 bg-[#3FB98E] hover:bg-[#349e78] disabled:opacity-60 text-[#FDFCFB] font-extrabold rounded-xl text-xs flex items-center justify-center gap-2 shadow-lg border-0 active:scale-95 transition-all"
           >
             <Download className="w-4 h-4" />
             <span>{isExporting ? 'Creating backup...' : 'Download My Data'}</span>
@@ -131,7 +131,7 @@ export const ExportHelpModal: React.FC<ExportHelpModalProps> = ({
 
         <div className="bg-[#F2F2F7] border border-[rgba(0,0,0,0.08)] rounded-2xl p-4 flex flex-col gap-2">
           <span className="text-xs font-bold text-[#000000] uppercase tracking-wider font-mono flex items-center gap-2">
-            <Shield className="w-3.5 h-3.5 text-[#34A853]" />
+            <Shield className="w-3.5 h-3.5 text-[#3FB98E]" />
             Your Privacy
           </span>
           <p className="text-xs text-[#848785] leading-relaxed">

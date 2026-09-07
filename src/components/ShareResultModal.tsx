@@ -52,10 +52,10 @@ export const ShareResultModal: React.FC<ShareResultModalProps> = ({ log, coachNa
     ctx.fillStyle = grad; ctx.fillRect(0, 0, W, H);
 
     const accentGrad = ctx.createLinearGradient(0, 0, W, 0);
-    accentGrad.addColorStop(0, '#EA4335'); accentGrad.addColorStop(1, '#C9A227');
+    accentGrad.addColorStop(0, '#C4121A'); accentGrad.addColorStop(1, '#C9A227');
     ctx.fillStyle = accentGrad; ctx.fillRect(0, 0, W, 8);
 
-    ctx.fillStyle = 'rgba(217, 79, 79, 0.08)';
+    ctx.fillStyle = 'rgba(196, 18, 26, 0.08)';
     ctx.beginPath(); ctx.arc(W * 0.85, H * 0.15, 300, 0, Math.PI * 2); ctx.fill();
     ctx.fillStyle = 'rgba(201, 162, 39, 0.06)';
     ctx.beginPath(); ctx.arc(W * 0.15, H * 0.8, 250, 0, Math.PI * 2); ctx.fill();
@@ -73,18 +73,18 @@ export const ShareResultModal: React.FC<ShareResultModalProps> = ({ log, coachNa
     ctx.font = '500 28px system-ui, sans-serif';
     ctx.fillText(`Coached by ${coachName}`, W / 2, 250);
 
-    ctx.strokeStyle = 'rgba(217, 79, 79, 0.3)'; ctx.lineWidth = 2;
+    ctx.strokeStyle = 'rgba(196, 18, 26, 0.3)'; ctx.lineWidth = 2;
     ctx.beginPath(); ctx.moveTo(W * 0.2, 290); ctx.lineTo(W * 0.8, 290); ctx.stroke();
 
     if (topPR) {
-      ctx.fillStyle = '#EA4335'; ctx.font = 'bold 32px system-ui, sans-serif';
+      ctx.fillStyle = '#C4121A'; ctx.font = 'bold 32px system-ui, sans-serif';
       ctx.fillText('NEW PR', W / 2, 370);
       ctx.fillStyle = '#FFFFFF'; ctx.font = 'bold 56px system-ui, sans-serif';
       ctx.fillText(`+${topPR.delta}kg ${topPR.exercise}`, W / 2, 440);
     }
 
     const stats = [
-      { label: 'TOTAL VOLUME', value: `${sessionVol.toFixed(1)} MT`, color: '#EA4335' },
+      { label: 'TOTAL VOLUME', value: `${sessionVol.toFixed(1)} MT`, color: '#C4121A' },
       { label: 'DURATION', value: log.duration.replace(/^00:/, ''), color: '#FFFFFF' },
       { label: 'AVG RPE', value: avgRPE.toFixed(1), color: '#C9A227' },
       { label: 'NEW PRs', value: `${telemetry.prs.length}`, color: '#3B7A57' },
@@ -180,7 +180,7 @@ export const ShareResultModal: React.FC<ShareResultModalProps> = ({ log, coachNa
           {/* Live HTML preview — card content, stays dark */}
           <div className="absolute inset-0 flex flex-col bg-gradient-to-b from-[#0A0B0F] via-[#12141B] to-[#0A0B0F] p-3.5">
             {/* Accent top border */}
-            <div className="w-full h-1 bg-gradient-to-r from-[#EA4335] to-[#C9A227] rounded-full -mt-6 -mx-6 mb-3" />
+            <div className="w-full h-1 bg-gradient-to-r from-[#C4121A] to-[#C9A227] rounded-full -mt-6 -mx-6 mb-3" />
 
             {/* Header */}
             <div className="flex items-center justify-between mt-1">
@@ -190,7 +190,7 @@ export const ShareResultModal: React.FC<ShareResultModalProps> = ({ log, coachNa
               </div>
               <span className="text-[8px] font-mono text-red-400/70 bg-red-500/10 px-2 py-1 rounded-full border border-red-500/20 uppercase tracking-wider">Verified</span>
             </div>
-            <div className="w-2/3 h-px bg-[#EA4335]/30 mx-auto my-3" />
+            <div className="w-2/3 h-px bg-[#C4121A]/30 mx-auto my-3" />
 
             {/* PR badge */}
             {topPR && (
@@ -234,7 +234,7 @@ export const ShareResultModal: React.FC<ShareResultModalProps> = ({ log, coachNa
             {/* 3-Column Micro-Grid */}
             <div className="grid grid-cols-3 gap-1.5 mt-2">
               {[
-                { label: 'VOLUME', value: `${sessionVol.toFixed(1)} MT`, color: 'text-[#EA4335]', icon: TrendingUp },
+                { label: 'VOLUME', value: `${sessionVol.toFixed(1)} MT`, color: 'text-[#C4121A]', icon: TrendingUp },
                 { label: 'DURATION', value: durationStr, color: 'text-white', icon: Clock },
                 { label: 'NEW PRs', value: `${telemetry.prs.length}`, color: 'text-red-700 dark:text-red-400', icon: Flame },
               ].map((s, i) => {

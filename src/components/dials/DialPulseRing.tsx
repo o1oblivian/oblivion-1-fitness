@@ -28,9 +28,9 @@ export const DialPulseRing: React.FC<DialPulseRingProps> = ({
 
   const CX = 170, CY = 170;
   const rings = [
-    { r: 148, pct: aSteps, color: '#4285F4', trailColor: 'rgba(66,133,244,0.15)', width: 10, label: 'STEPS', value: dailySteps.toLocaleString() },
-    { r: 124, pct: aMove, color: '#EA4335', trailColor: 'rgba(234,67,53,0.15)', width: 8, label: 'KCAL', value: Math.round(dailyMove).toString() },
-    { r: 104, pct: aDist, color: '#34A853', trailColor: 'rgba(52,168,83,0.15)', width: 8, label: 'KM', value: dailyDist.toFixed(2) },
+    { r: 148, pct: aSteps, color: '#2D7FF9', trailColor: 'rgba(45,127,249,0.15)', width: 10, label: 'STEPS', value: dailySteps.toLocaleString() },
+    { r: 124, pct: aMove, color: '#C4121A', trailColor: 'rgba(196,18,26,0.15)', width: 8, label: 'KCAL', value: Math.round(dailyMove).toString() },
+    { r: 104, pct: aDist, color: '#3FB98E', trailColor: 'rgba(63,185,142,0.15)', width: 8, label: 'KM', value: dailyDist.toFixed(2) },
   ];
 
   return (
@@ -83,21 +83,21 @@ export const DialPulseRing: React.FC<DialPulseRingProps> = ({
         </text>
 
         {/* Ring labels at bottom */}
-        <text x={CX - 56} y={CY + 48} textAnchor="middle" fill="#EA4335" fontSize="13" fontWeight="900" fontFamily="monospace">
+        <text x={CX - 56} y={CY + 48} textAnchor="middle" fill="#C4121A" fontSize="13" fontWeight="900" fontFamily="monospace">
           {Math.round(dailyMove)}
         </text>
         <text x={CX - 56} y={CY + 62} textAnchor="middle" fill="rgba(255,255,255,0.4)" fontSize="7" fontWeight="700" fontFamily="monospace" letterSpacing="1.5">
           BURN
         </text>
 
-        <text x={CX} y={CY + 48} textAnchor="middle" fill="#FBBC05" fontSize="13" fontWeight="900" fontFamily="monospace">
+        <text x={CX} y={CY + 48} textAnchor="middle" fill="#E8B04A" fontSize="13" fontWeight="900" fontFamily="monospace">
           {Math.round(dailyIntake)}
         </text>
         <text x={CX} y={CY + 62} textAnchor="middle" fill="rgba(255,255,255,0.4)" fontSize="7" fontWeight="700" fontFamily="monospace" letterSpacing="1.5">
           INTAKE
         </text>
 
-        <text x={CX + 56} y={CY + 48} textAnchor="middle" fill="#34A853" fontSize="13" fontWeight="900" fontFamily="monospace">
+        <text x={CX + 56} y={CY + 48} textAnchor="middle" fill="#3FB98E" fontSize="13" fontWeight="900" fontFamily="monospace">
           {dailyDist.toFixed(1)}
         </text>
         <text x={CX + 56} y={CY + 62} textAnchor="middle" fill="rgba(255,255,255,0.4)" fontSize="7" fontWeight="700" fontFamily="monospace" letterSpacing="1.5">

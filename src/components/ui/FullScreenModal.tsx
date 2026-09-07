@@ -81,7 +81,7 @@ export const ModalHeader: React.FC<ModalHeaderProps> = ({
   subtitle,
   closeSize = 'md',
 }) => {
-  const badgeColor = badge?.color || '#34A853';
+  const badgeColor = badge?.color || '#3FB98E';
   return (
     <div className="flex justify-between items-start border-b border-[rgba(0,0,0,0.08)] dark:border-white/10 pb-3">
       <div>

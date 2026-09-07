@@ -602,7 +602,7 @@ export const CoachProfileSheet: React.FC<CoachProfileSheetProps> = ({
                     </div>
                     <div className="flex justify-center gap-1.5 pb-2">
                       {transformations.map((_, i) => (
-                        <button key={i} onClick={() => setTransformIdx(i)} className={`h-1 rounded-full transition-all cursor-pointer ${i === transformIdx ? 'w-4 bg-zinc-900 dark:bg-white' : 'w-1 bg-neutral-300 dark:bg-white/20'}`} />
+                        <button key={i} type="button" onClick={() => setTransformIdx(i)} aria-label={`Transformation ${i + 1}`} className={`h-1 rounded-full transition-all cursor-pointer ${i === transformIdx ? 'w-4 bg-zinc-900 dark:bg-white' : 'w-1 bg-neutral-300 dark:bg-white/20'}`}></button>
                       ))}
                     </div>
                   </div>

@@ -541,7 +541,7 @@ export const ReelsFeed: React.FC<ReelsFeedProps> = ({ currentUserEmail, showToas
                     }}
                     className={`w-full flex items-center gap-2 px-3 py-2 text-xs font-bold transition-colors cursor-pointer ${
                       sortBy === opt.key
-                        ? 'bg-[#EA4335]/10 text-[#EA4335]'
+                        ? 'bg-[#C4121A]/10 text-[#C4121A]'
                         : 'text-black/70 dark:text-white/70 hover:bg-black/5 dark:hover:bg-white/5'
                     }`}
                   >
@@ -583,7 +583,7 @@ export const ReelsFeed: React.FC<ReelsFeedProps> = ({ currentUserEmail, showToas
                   setActiveFilter('All');
                   setDifficultyFilter('All');
                 }}
-                className="text-[10px] font-black text-[#EA4335] cursor-pointer hover:underline"
+                className="text-[10px] font-black text-[#C4121A] cursor-pointer hover:underline"
               >
                 Clear all filters
               </button>
@@ -643,7 +643,7 @@ export const ReelsFeed: React.FC<ReelsFeedProps> = ({ currentUserEmail, showToas
 
                   {/* Like count */}
                   <div className="absolute top-2 right-2 z-20 flex items-center gap-0.5 bg-black/40 rounded-full px-1.5 py-0.5">
-                    <Heart className={`w-2.5 h-2.5 ${isLiked ? 'fill-[#EA4335] text-[#EA4335]' : 'text-white'}`} />
+                    <Heart className={`w-2.5 h-2.5 ${isLiked ? 'fill-[#C4121A] text-[#C4121A]' : 'text-white'}`} />
                     <span className="text-[9px] font-mono font-black text-white">
                       {reel.like_count + (isLiked ? 1 : 0)}
                     </span>
@@ -693,7 +693,7 @@ export const ReelsFeed: React.FC<ReelsFeedProps> = ({ currentUserEmail, showToas
                 setDifficultyFilter('All');
                 setSearchQuery('');
               }}
-              className="text-xs font-black text-[#EA4335] cursor-pointer hover:underline"
+              className="text-xs font-black text-[#C4121A] cursor-pointer hover:underline"
             >
               Clear all filters
             </button>
@@ -765,7 +765,7 @@ export const ReelsFeed: React.FC<ReelsFeedProps> = ({ currentUserEmail, showToas
                       className="flex shrink-0 items-center gap-1 cursor-pointer active:scale-90 transition-transform"
                       aria-label={isLiked ? 'Unlike reel' : 'Like reel'}
                     >
-                      <Heart className={`h-3.5 w-3.5 ${isLiked ? 'fill-[#EA4335] text-[#EA4335]' : 'text-white'}`} />
+                      <Heart className={`h-3.5 w-3.5 ${isLiked ? 'fill-[#C4121A] text-[#C4121A]' : 'text-white'}`} />
                       <span className="text-[10px] font-black text-white font-mono">
                         {reel.like_count + (isLiked ? 1 : 0)}
                       </span>
@@ -798,7 +798,7 @@ export const ReelsFeed: React.FC<ReelsFeedProps> = ({ currentUserEmail, showToas
       {visibleReels.length < filteredReels.length && (
         <div ref={sentinelRef} className="flex items-center justify-center py-6">
           <div className="flex items-center gap-2 text-xs font-mono font-bold text-black/40 dark:text-white/40">
-            <div className="w-4 h-4 border-2 border-[#EA4335] border-t-transparent rounded-full animate-spin" />
+            <div className="w-4 h-4 border-2 border-[#C4121A] border-t-transparent rounded-full animate-spin" />
             Loading more reels...
           </div>
         </div>

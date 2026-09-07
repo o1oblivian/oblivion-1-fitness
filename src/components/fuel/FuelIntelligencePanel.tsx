@@ -164,54 +164,54 @@ export const FuelIntelligencePanel: React.FC<FuelIntelligencePanelProps> = ({
   const currentPieData =
     totalMacroGrams === 0
       ? [
-          { name: 'Protein', value: 1, color: '#DC262622', unit: 'g', calories: 0, isPlaceholder: true },
-          { name: 'Carbs', value: 1, color: '#F59E0B22', unit: 'g', calories: 0, isPlaceholder: true },
-          { name: 'Fat', value: 1, color: '#10B98122', unit: 'g', calories: 0, isPlaceholder: true },
+          { name: 'Protein', value: 1, color: '#C4121A22', unit: 'g', calories: 0, isPlaceholder: true },
+          { name: 'Carbs', value: 1, color: '#E8B04A22', unit: 'g', calories: 0, isPlaceholder: true },
+          { name: 'Fat', value: 1, color: '#3FB98E22', unit: 'g', calories: 0, isPlaceholder: true },
         ]
       : trendUnit === 'grams'
       ? [
-          { name: 'Protein', value: totalP, color: '#DC2626', unit: 'g', calories: totalP * 4, goal: goalP },
-          { name: 'Carbs', value: totalC, color: '#F59E0B', unit: 'g', calories: totalC * 4, goal: goalC },
-          { name: 'Fat', value: totalF, color: '#10B981', unit: 'g', calories: totalF * 9, goal: goalF },
+          { name: 'Protein', value: totalP, color: '#C4121A', unit: 'g', calories: totalP * 4, goal: goalP },
+          { name: 'Carbs', value: totalC, color: '#E8B04A', unit: 'g', calories: totalC * 4, goal: goalC },
+          { name: 'Fat', value: totalF, color: '#3FB98E', unit: 'g', calories: totalF * 9, goal: goalF },
         ]
       : [
-          { name: 'Protein', value: totalP * 4, color: '#DC2626', unit: 'kcal', calories: totalP * 4, goal: goalP * 4 },
-          { name: 'Carbs', value: totalC * 4, color: '#F59E0B', unit: 'kcal', calories: totalC * 4, goal: goalC * 4 },
-          { name: 'Fat', value: totalF * 9, color: '#10B981', unit: 'kcal', calories: totalF * 9, goal: goalF * 9 },
+          { name: 'Protein', value: totalP * 4, color: '#C4121A', unit: 'kcal', calories: totalP * 4, goal: goalP * 4 },
+          { name: 'Carbs', value: totalC * 4, color: '#E8B04A', unit: 'kcal', calories: totalC * 4, goal: goalC * 4 },
+          { name: 'Fat', value: totalF * 9, color: '#3FB98E', unit: 'kcal', calories: totalF * 9, goal: goalF * 9 },
         ];
 
   const targetPieData =
     goalMacroGrams === 0
       ? [
-          { name: 'Protein Goal', value: 1, color: '#DC262622', unit: 'g', calories: 0 },
-          { name: 'Carbs Goal', value: 1, color: '#F59E0B22', unit: 'g', calories: 0 },
-          { name: 'Fat Goal', value: 1, color: '#10B98122', unit: 'g', calories: 0 },
+          { name: 'Protein Goal', value: 1, color: '#C4121A22', unit: 'g', calories: 0 },
+          { name: 'Carbs Goal', value: 1, color: '#E8B04A22', unit: 'g', calories: 0 },
+          { name: 'Fat Goal', value: 1, color: '#3FB98E22', unit: 'g', calories: 0 },
         ]
       : trendUnit === 'grams'
       ? [
-          { name: 'Protein', value: goalP, color: '#DC2626', unit: 'g', calories: goalP * 4 },
-          { name: 'Carbs', value: goalC, color: '#F59E0B', unit: 'g', calories: goalC * 4 },
-          { name: 'Fat', value: goalF, color: '#10B981', unit: 'g', calories: goalF * 9 },
+          { name: 'Protein', value: goalP, color: '#C4121A', unit: 'g', calories: goalP * 4 },
+          { name: 'Carbs', value: goalC, color: '#E8B04A', unit: 'g', calories: goalC * 4 },
+          { name: 'Fat', value: goalF, color: '#3FB98E', unit: 'g', calories: goalF * 9 },
         ]
       : [
-          { name: 'Protein', value: goalP * 4, color: '#DC2626', unit: 'kcal', calories: goalP * 4 },
-          { name: 'Carbs', value: goalC * 4, color: '#F59E0B', unit: 'kcal', calories: goalC * 4 },
-          { name: 'Fat', value: goalF * 9, color: '#10B981', unit: 'kcal', calories: goalF * 9 },
+          { name: 'Protein', value: goalP * 4, color: '#C4121A', unit: 'kcal', calories: goalP * 4 },
+          { name: 'Carbs', value: goalC * 4, color: '#E8B04A', unit: 'kcal', calories: goalC * 4 },
+          { name: 'Fat', value: goalF * 9, color: '#3FB98E', unit: 'kcal', calories: goalF * 9 },
         ];
 
   return (
     <div className="bg-white dark:bg-[#121214] border border-[#EAE8E3] dark:border-white/10 rounded-2xl overflow-hidden text-zinc-900 dark:text-white shadow-2xs">
       {/* 1. Header Surface */}
-      <div className="flex items-center justify-between px-3.5 pt-3 pb-2 border-b border-zinc-100 dark:border-white/5">
+      <div className="flex items-center justify-between px-3.5 py-2.5 border-b border-zinc-100 dark:border-white/5">
         <div className="flex items-center gap-2.5 min-w-0">
-          <span className="w-7 h-7 rounded-xl bg-[#DC2626]/10 text-[#DC2626] flex items-center justify-center shrink-0">
+          <span className="w-7 h-7 rounded-xl bg-[#C4121A]/10 text-[#C4121A] flex items-center justify-center shrink-0">
             <Zap className="w-4 h-4" />
           </span>
           <div className="min-w-0">
-            <h2 className="text-[15px] sm:text-[16px] font-bold tracking-tight text-zinc-900 dark:text-white truncate">
+            <h2 className="text-[14px] sm:text-[15px] font-bold tracking-tight text-zinc-900 dark:text-white truncate">
               Daily Energy
             </h2>
-            <p className="text-[11px] sm:text-[12px] font-medium text-zinc-500 dark:text-zinc-400 truncate">
+            <p className="text-[11px] font-medium text-zinc-500 dark:text-zinc-400 truncate">
               {remainingCals >= 0 ? `${remainingCals.toLocaleString()} kcal left today` : `${Math.abs(remainingCals).toLocaleString()} kcal over target`}
             </p>
           </div>
@@ -231,8 +231,8 @@ export const FuelIntelligencePanel: React.FC<FuelIntelligencePanelProps> = ({
           {/* Simple status badge */}
           <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${
             remainingCals >= 0
-              ? 'bg-[#10B981]/15 text-[#10B981]'
-              : 'bg-[#DC2626]/10 text-[#DC2626]'
+              ? 'bg-[#3FB98E]/15 text-[#3FB98E]'
+              : 'bg-[#C4121A]/10 text-[#C4121A]'
           }`}>
             {remainingCals >= 0 ? 'On Track' : 'Over Target'}
           </span>
@@ -251,7 +251,7 @@ export const FuelIntelligencePanel: React.FC<FuelIntelligencePanelProps> = ({
       {/* Inline Weigh-In Bar */}
       {isWeighInOpen && (
         <div className="px-3.5 py-2 flex items-center gap-2 bg-zinc-50/80 dark:bg-white/[0.02] border-b border-zinc-100 dark:border-white/5 animate-in fade-in duration-150">
-          <div className="flex-1 flex items-center gap-2 bg-white dark:bg-zinc-900 rounded-xl px-2.5 py-1.5 border border-zinc-200 dark:border-white/10 focus-within:border-[#DC2626]">
+          <div className="flex-1 flex items-center gap-2 bg-white dark:bg-zinc-900 rounded-xl px-2.5 py-1.5 border border-zinc-200 dark:border-white/10 focus-within:border-[#C4121A]">
             <Scale className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
             <input
               type="number"
@@ -265,7 +265,7 @@ export const FuelIntelligencePanel: React.FC<FuelIntelligencePanelProps> = ({
           </div>
           <button
             onClick={handleSaveWeight}
-            className="px-3 py-1.5 rounded-xl bg-[#DC2626] hover:bg-[#B91C1C] text-white text-xs font-semibold transition-colors cursor-pointer shrink-0"
+            className="px-3 py-1.5 rounded-xl bg-[#C4121A] hover:bg-[#9B0E14] text-white text-xs font-semibold transition-colors cursor-pointer shrink-0"
           >
             Save Weight
           </button>
@@ -275,203 +275,202 @@ export const FuelIntelligencePanel: React.FC<FuelIntelligencePanelProps> = ({
       {!collapsed && (
         <>
           {/* Segmented Tab Navigation */}
-          <div className="px-3.5 pt-2.5 pb-1 flex gap-1">
+          <div className="px-3 pt-2 pb-0.5 flex gap-1">
             <button
               onClick={() => setActiveTab('today')}
-              className={`flex-1 py-1.5 px-3 rounded-xl text-[12px] font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+              className={`flex-1 py-1.5 px-2.5 rounded-xl text-[11px] sm:text-[12px] font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
                 activeTab === 'today'
                   ? 'bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 shadow-2xs'
                   : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-white/5'
               }`}
             >
-              <Zap className="w-3.5 h-3.5" />
+              <Zap className="w-3 h-3" />
               <span>Today</span>
             </button>
             <button
               onClick={() => setActiveTab('macros')}
-              className={`flex-1 py-1.5 px-3 rounded-xl text-[12px] font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+              className={`flex-1 py-1.5 px-2.5 rounded-xl text-[11px] sm:text-[12px] font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
                 activeTab === 'macros'
                   ? 'bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 shadow-2xs'
                   : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-white/5'
               }`}
             >
-              <PieChartIcon className="w-3.5 h-3.5" />
+              <PieChartIcon className="w-3 h-3" />
               <span>Macro Split</span>
             </button>
             <button
               onClick={() => setActiveTab('adjust')}
-              className={`flex-1 py-1.5 px-3 rounded-xl text-[12px] font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+              className={`flex-1 py-1.5 px-2.5 rounded-xl text-[11px] sm:text-[12px] font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
                 activeTab === 'adjust'
                   ? 'bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 shadow-2xs'
                   : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-white/5'
               }`}
             >
-              <SlidersHorizontal className="w-3.5 h-3.5" />
+              <SlidersHorizontal className="w-3 h-3" />
               <span>Adjust Targets</span>
             </button>
           </div>
 
-          <div className="p-3.5 space-y-3">
+          <div className="p-3 space-y-2.5">
             {/* ----------------- TAB 1: TODAY (LIVE TELEMETRY) ----------------- */}
             {activeTab === 'today' && (
-              <div className="space-y-3 animate-in fade-in duration-150">
-                {/* Hero Energy HUD Box */}
-                <div className="bg-zinc-50 dark:bg-white/[0.03] border border-zinc-200/70 dark:border-white/[0.06] rounded-2xl p-3.5">
-                  <div className="flex items-baseline justify-between mb-2">
-                    <div>
-                      <div className="text-2xl sm:text-3xl font-black font-mono tracking-tight text-zinc-900 dark:text-white">
+              <div className="space-y-2 animate-in fade-in duration-150">
+                {/* Unified Energy HUD Box */}
+                <div className="bg-zinc-50 dark:bg-white/[0.03] border border-zinc-200/70 dark:border-white/[0.06] rounded-xl p-2.5 sm:p-3">
+                  <div className="flex items-baseline justify-between mb-1.5">
+                    <div className="flex items-baseline gap-1.5">
+                      <span className="text-xl sm:text-2xl font-black font-mono tracking-tight text-zinc-900 dark:text-white">
                         {remainingCals >= 0 ? remainingCals.toLocaleString() : Math.abs(remainingCals).toLocaleString()}
-                        <span className="text-xs sm:text-sm font-sans font-semibold text-zinc-500 dark:text-zinc-400 ml-1.5">
-                          kcal
-                        </span>
-                      </div>
-                      <div className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-zinc-400 dark:text-zinc-500 mt-0.5">
-                        {remainingCals >= 0 ? 'Calories Remaining Today' : 'Calories Over Target'}
-                      </div>
+                      </span>
+                      <span className="text-[11px] sm:text-xs font-semibold text-zinc-500 dark:text-zinc-400 font-mono">
+                        kcal
+                      </span>
+                      <span className="text-[9.5px] sm:text-[10px] font-bold uppercase tracking-wider text-zinc-400 dark:text-zinc-500 ml-0.5">
+                        {remainingCals >= 0 ? 'Remaining' : 'Over Target'}
+                      </span>
                     </div>
 
-                    <div className="text-right">
-                      <div className="text-xs font-mono font-bold text-zinc-700 dark:text-zinc-300">
+                    <div className="flex items-baseline gap-1 text-right">
+                      <span className="text-xs font-mono font-bold text-zinc-700 dark:text-zinc-300">
                         {budgetConsumedPct}%
-                      </div>
-                      <div className="text-[10px] text-zinc-400 dark:text-zinc-500 uppercase font-semibold">
-                        of budget
-                      </div>
+                      </span>
+                      <span className="text-[9.5px] sm:text-[10px] text-zinc-400 dark:text-zinc-500 uppercase font-medium">
+                        budget
+                      </span>
                     </div>
                   </div>
 
                   {/* Clean progress bar */}
-                  <div className="relative h-2 rounded-full bg-zinc-200 dark:bg-white/10 overflow-hidden mb-3">
+                  <div className="relative h-1.5 rounded-full bg-zinc-200 dark:bg-white/10 overflow-hidden mb-2">
                     <div
                       className={`h-full rounded-full transition-all duration-500 ${
                         remainingCals >= 0
                           ? 'bg-zinc-900 dark:bg-white'
-                          : 'bg-[#DC2626]'
+                          : 'bg-[#C4121A]'
                       }`}
                       style={{ width: `${budgetConsumedPct}%` }}
                     />
                   </div>
 
-                  {/* 3-Column Clean Glance (Every number appears once, no duplicates) */}
-                  <div className="grid grid-cols-3 gap-2 pt-2 border-t border-zinc-200/50 dark:border-white/5 text-center">
+                  {/* 3-Column Clean Glance */}
+                  <div className="grid grid-cols-3 gap-1 pt-1.5 border-t border-zinc-200/50 dark:border-white/5 text-center font-mono">
                     <div className="flex flex-col items-center">
-                      <span className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
+                      <span className="text-[9px] sm:text-[9.5px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
                         Eaten
                       </span>
-                      <span className="text-sm font-mono font-bold text-zinc-900 dark:text-white mt-0.5">
-                        {totalIntakeCals.toLocaleString()}
+                      <span className="text-xs sm:text-[13px] font-bold text-zinc-900 dark:text-white mt-0.5">
+                        {totalIntakeCals.toLocaleString()} <span className="text-[9px] font-normal text-zinc-400">kcal</span>
                       </span>
-                      <span className="text-[9.5px] text-zinc-400 font-mono">kcal</span>
                     </div>
 
                     <div className="flex flex-col items-center">
-                      <span className="text-[10px] font-bold text-[#DC2626] uppercase tracking-wider">
+                      <span className="text-[9px] sm:text-[9.5px] font-semibold text-[#C4121A] uppercase tracking-wider">
                         Exercise Burn
                       </span>
-                      <span className="text-sm font-mono font-bold text-[#DC2626] mt-0.5">
-                        +{trainingBurn.toLocaleString()}
+                      <span className="text-xs sm:text-[13px] font-bold text-[#C4121A] mt-0.5">
+                        +{trainingBurn.toLocaleString()} <span className="text-[9px] font-normal text-zinc-400">kcal</span>
                       </span>
-                      <span className="text-[9.5px] text-zinc-400 font-mono">kcal</span>
                     </div>
 
                     <div className="flex flex-col items-center">
-                      <span className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
+                      <span className="text-[9px] sm:text-[9.5px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
                         Daily Target
                       </span>
-                      <span className="text-sm font-mono font-bold text-zinc-900 dark:text-white mt-0.5">
-                        {goalCals.toLocaleString()}
+                      <span className="text-xs sm:text-[13px] font-bold text-zinc-900 dark:text-white mt-0.5">
+                        {goalCals.toLocaleString()} <span className="text-[9px] font-normal text-zinc-400">kcal</span>
                       </span>
-                      <span className="text-[9.5px] text-zinc-400 font-mono">kcal</span>
                     </div>
                   </div>
                 </div>
 
-                {/* Macronutrient Tracking Bars */}
-                <div className="bg-zinc-50 dark:bg-white/[0.03] border border-zinc-200/70 dark:border-white/[0.06] rounded-2xl p-3.5 space-y-2.5">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
+                {/* Macronutrient Tracking - High-density 3-column glance */}
+                <div className="space-y-1">
+                  <div className="flex items-center justify-between px-0.5">
+                    <span className="text-[9.5px] sm:text-[10px] font-bold uppercase tracking-wider text-zinc-400 dark:text-zinc-500">
                       Macronutrients
                     </span>
-                    <span className="text-[10.5px] font-mono text-zinc-400">
+                    <span className="text-[9.5px] sm:text-[10px] font-mono text-zinc-400 dark:text-zinc-500">
                       {totalMacroGrams}g / {goalMacroGrams}g consumed
                     </span>
                   </div>
 
-                  {/* Protein Bar */}
-                  <div className="space-y-1">
-                    <div className="flex items-center justify-between text-xs font-mono">
-                      <div className="flex items-center gap-1.5">
-                        <span className="w-2 h-2 rounded-full bg-[#DC2626]" />
-                        <span className="font-bold text-zinc-900 dark:text-white">Protein</span>
-                      </div>
-                      <div className="text-zinc-500 dark:text-zinc-400">
-                        <span className="font-bold text-zinc-900 dark:text-white">{totalP}g</span> / {goalP}g
-                        <span className="text-[10px] text-zinc-400 ml-1.5">
-                          ({goalP > totalP ? `${goalP - totalP}g left` : 'Goal met'})
+                  <div className="grid grid-cols-3 gap-1.5">
+                    {/* Protein */}
+                    <div className="p-2 rounded-xl bg-zinc-50 dark:bg-white/[0.03] border border-zinc-200/60 dark:border-white/[0.05]">
+                      <div className="flex items-center justify-between text-[10px] mb-0.5">
+                        <span className="flex items-center gap-1 font-bold text-zinc-800 dark:text-zinc-200">
+                          <span className="w-1.5 h-1.5 rounded-full bg-[#C4121A]" />
+                          Protein
+                        </span>
+                        <span className="text-[9px] font-mono text-zinc-400">
+                          {goalP > totalP ? `${goalP - totalP}g` : 'Met'}
                         </span>
                       </div>
+                      <div className="text-xs font-mono font-bold text-zinc-900 dark:text-white mb-1">
+                        {totalP}g <span className="text-[9.5px] font-normal text-zinc-400">/ {goalP}g</span>
+                      </div>
+                      <div className="h-1 rounded-full bg-zinc-200 dark:bg-white/10 overflow-hidden">
+                        <div
+                          className="h-full bg-[#C4121A] rounded-full transition-all duration-500"
+                          style={{ width: `${pPct}%` }}
+                        />
+                      </div>
                     </div>
-                    <div className="h-1.5 rounded-full bg-zinc-200 dark:bg-white/10 overflow-hidden">
-                      <div
-                        className="h-full bg-[#DC2626] rounded-full transition-all duration-500"
-                        style={{ width: `${pPct}%` }}
-                      />
-                    </div>
-                  </div>
 
-                  {/* Carbs Bar */}
-                  <div className="space-y-1">
-                    <div className="flex items-center justify-between text-xs font-mono">
-                      <div className="flex items-center gap-1.5">
-                        <span className="w-2 h-2 rounded-full bg-[#F59E0B]" />
-                        <span className="font-bold text-zinc-900 dark:text-white">Carbohydrates</span>
-                      </div>
-                      <div className="text-zinc-500 dark:text-zinc-400">
-                        <span className="font-bold text-zinc-900 dark:text-white">{totalC}g</span> / {goalC}g
-                        <span className="text-[10px] text-zinc-400 ml-1.5">
-                          ({goalC > totalC ? `${goalC - totalC}g left` : 'Goal met'})
+                    {/* Carbohydrates */}
+                    <div className="p-2 rounded-xl bg-zinc-50 dark:bg-white/[0.03] border border-zinc-200/60 dark:border-white/[0.05]">
+                      <div className="flex items-center justify-between text-[10px] mb-0.5">
+                        <span className="flex items-center gap-1 font-bold text-zinc-800 dark:text-zinc-200">
+                          <span className="w-1.5 h-1.5 rounded-full bg-[#E8B04A]" />
+                          Carbs
+                        </span>
+                        <span className="text-[9px] font-mono text-zinc-400">
+                          {goalC > totalC ? `${goalC - totalC}g` : 'Met'}
                         </span>
                       </div>
+                      <div className="text-xs font-mono font-bold text-zinc-900 dark:text-white mb-1">
+                        {totalC}g <span className="text-[9.5px] font-normal text-zinc-400">/ {goalC}g</span>
+                      </div>
+                      <div className="h-1 rounded-full bg-zinc-200 dark:bg-white/10 overflow-hidden">
+                        <div
+                          className="h-full bg-[#E8B04A] rounded-full transition-all duration-500"
+                          style={{ width: `${cPct}%` }}
+                        />
+                      </div>
                     </div>
-                    <div className="h-1.5 rounded-full bg-zinc-200 dark:bg-white/10 overflow-hidden">
-                      <div
-                        className="h-full bg-[#F59E0B] rounded-full transition-all duration-500"
-                        style={{ width: `${cPct}%` }}
-                      />
-                    </div>
-                  </div>
 
-                  {/* Fats Bar */}
-                  <div className="space-y-1">
-                    <div className="flex items-center justify-between text-xs font-mono">
-                      <div className="flex items-center gap-1.5">
-                        <span className="w-2 h-2 rounded-full bg-[#10B981]" />
-                        <span className="font-bold text-zinc-900 dark:text-white">Fats</span>
-                      </div>
-                      <div className="text-zinc-500 dark:text-zinc-400">
-                        <span className="font-bold text-zinc-900 dark:text-white">{totalF}g</span> / {goalF}g
-                        <span className="text-[10px] text-zinc-400 ml-1.5">
-                          ({goalF > totalF ? `${goalF - totalF}g left` : 'Goal met'})
+                    {/* Fats */}
+                    <div className="p-2 rounded-xl bg-zinc-50 dark:bg-white/[0.03] border border-zinc-200/60 dark:border-white/[0.05]">
+                      <div className="flex items-center justify-between text-[10px] mb-0.5">
+                        <span className="flex items-center gap-1 font-bold text-zinc-800 dark:text-zinc-200">
+                          <span className="w-1.5 h-1.5 rounded-full bg-[#3FB98E]" />
+                          Fats
+                        </span>
+                        <span className="text-[9px] font-mono text-zinc-400">
+                          {goalF > totalF ? `${goalF - totalF}g` : 'Met'}
                         </span>
                       </div>
-                    </div>
-                    <div className="h-1.5 rounded-full bg-zinc-200 dark:bg-white/10 overflow-hidden">
-                      <div
-                        className="h-full bg-[#10B981] rounded-full transition-all duration-500"
-                        style={{ width: `${fPct}%` }}
-                      />
+                      <div className="text-xs font-mono font-bold text-zinc-900 dark:text-white mb-1">
+                        {totalF}g <span className="text-[9.5px] font-normal text-zinc-400">/ {goalF}g</span>
+                      </div>
+                      <div className="h-1 rounded-full bg-zinc-200 dark:bg-white/10 overflow-hidden">
+                        <div
+                          className="h-full bg-[#3FB98E] rounded-full transition-all duration-500"
+                          style={{ width: `${fPct}%` }}
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>
 
-                {/* Footer note & shortcut to adjust */}
-                <div className="flex items-center justify-between px-1 text-[11px] text-zinc-500 dark:text-zinc-400">
+                {/* Footer note & shortcut */}
+                <div className="flex items-center justify-between px-0.5 pt-0.5 text-[10px] text-zinc-500 dark:text-zinc-400">
                   <span>
-                    Total Daily Burn: <strong className="text-zinc-800 dark:text-zinc-200 font-mono">{totalDailyExpenditure.toLocaleString()}</strong> kcal (Resting BMR: {bmr})
+                    Total Daily Burn: <strong className="text-zinc-800 dark:text-zinc-200 font-mono">{totalDailyExpenditure.toLocaleString()}</strong> kcal (BMR: {bmr})
                   </span>
                   <button
                     onClick={() => setActiveTab('adjust')}
-                    className="text-[#DC2626] hover:underline font-semibold cursor-pointer"
+                    className="text-[#C4121A] hover:underline font-semibold cursor-pointer text-[10.5px]"
                   >
                     Adjust Targets
                   </button>
@@ -481,16 +480,16 @@ export const FuelIntelligencePanel: React.FC<FuelIntelligencePanelProps> = ({
 
             {/* ----------------- TAB 2: MACRO SPLIT (RATIOS & DONUT CHARTS) ----------------- */}
             {activeTab === 'macros' && (
-              <div className="space-y-3 animate-in fade-in duration-150">
+              <div className="space-y-2 animate-in fade-in duration-150">
                 {/* Unit Switcher */}
                 <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
                     Ratio Breakdown
                   </span>
-                  <div className="flex bg-zinc-100 dark:bg-white/5 p-0.5 rounded-xl font-mono text-xs">
+                  <div className="flex bg-zinc-100 dark:bg-white/5 p-0.5 rounded-xl font-mono text-[11px]">
                     <button
                       onClick={() => setTrendUnit('grams')}
-                      className={`px-2.5 py-1 rounded-lg font-semibold transition-all cursor-pointer ${
+                      className={`px-2 py-0.5 rounded-lg font-semibold transition-all cursor-pointer ${
                         trendUnit === 'grams'
                           ? 'bg-zinc-900 dark:bg-white text-white dark:text-zinc-900'
                           : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-white'
@@ -500,7 +499,7 @@ export const FuelIntelligencePanel: React.FC<FuelIntelligencePanelProps> = ({
                     </button>
                     <button
                       onClick={() => setTrendUnit('calories')}
-                      className={`px-2.5 py-1 rounded-lg font-semibold transition-all cursor-pointer ${
+                      className={`px-2 py-0.5 rounded-lg font-semibold transition-all cursor-pointer ${
                         trendUnit === 'calories'
                           ? 'bg-zinc-900 dark:bg-white text-white dark:text-zinc-900'
                           : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-white'
@@ -512,12 +511,12 @@ export const FuelIntelligencePanel: React.FC<FuelIntelligencePanelProps> = ({
                 </div>
 
                 {/* Side-by-side charts */}
-                <div className="grid grid-cols-2 gap-2.5">
-                  <div className="bg-zinc-50 dark:bg-white/[0.03] border border-zinc-200/70 dark:border-white/[0.06] rounded-2xl p-3 flex flex-col items-center">
-                    <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-1 self-start">
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="bg-zinc-50 dark:bg-white/[0.03] border border-zinc-200/70 dark:border-white/[0.06] rounded-xl p-2 flex flex-col items-center">
+                    <div className="text-[9.5px] font-bold text-zinc-500 uppercase tracking-wider mb-0.5 self-start">
                       Current Intake
                     </div>
-                    <div className="w-full h-24 relative">
+                    <div className="w-full h-20 relative">
                       <ResponsiveContainer width="100%" height="100%">
                         <PieChart>
                           <Pie
@@ -570,11 +569,11 @@ export const FuelIntelligencePanel: React.FC<FuelIntelligencePanelProps> = ({
                     </div>
                   </div>
 
-                  <div className="bg-zinc-50 dark:bg-white/[0.03] border border-zinc-200/70 dark:border-white/[0.06] rounded-2xl p-3 flex flex-col items-center">
-                    <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-1 self-start">
+                  <div className="bg-zinc-50 dark:bg-white/[0.03] border border-zinc-200/70 dark:border-white/[0.06] rounded-xl p-2 flex flex-col items-center">
+                    <div className="text-[9.5px] font-bold text-zinc-500 uppercase tracking-wider mb-0.5 self-start">
                       Target Goal
                     </div>
-                    <div className="w-full h-24 relative">
+                    <div className="w-full h-20 relative">
                       <ResponsiveContainer width="100%" height="100%">
                         <PieChart>
                           <Pie
@@ -622,21 +621,21 @@ export const FuelIntelligencePanel: React.FC<FuelIntelligencePanelProps> = ({
                 </div>
 
                 {/* Macro Summary Stats */}
-                <div className="grid grid-cols-3 gap-2 text-center font-mono">
-                  <div className="bg-zinc-50 dark:bg-white/[0.03] border border-zinc-200/70 dark:border-white/[0.06] p-2.5 rounded-xl">
-                    <span className="text-[10px] font-bold text-[#DC2626] uppercase block">Protein</span>
+                <div className="grid grid-cols-3 gap-1.5 text-center font-mono">
+                  <div className="bg-zinc-50 dark:bg-white/[0.03] border border-zinc-200/70 dark:border-white/[0.06] p-2 rounded-xl">
+                    <span className="text-[9.5px] font-bold text-[#C4121A] uppercase block">Protein</span>
                     <span className="text-xs font-bold text-zinc-900 dark:text-white mt-0.5 block">{totalP}g / {goalP}g</span>
-                    <span className="text-[9.5px] text-zinc-400 block">{totalP * 4} kcal</span>
+                    <span className="text-[9px] text-zinc-400 block">{totalP * 4} kcal</span>
                   </div>
-                  <div className="bg-zinc-50 dark:bg-white/[0.03] border border-zinc-200/70 dark:border-white/[0.06] p-2.5 rounded-xl">
-                    <span className="text-[10px] font-bold text-[#F59E0B] uppercase block">Carbs</span>
+                  <div className="bg-zinc-50 dark:bg-white/[0.03] border border-zinc-200/70 dark:border-white/[0.06] p-2 rounded-xl">
+                    <span className="text-[9.5px] font-bold text-[#E8B04A] uppercase block">Carbs</span>
                     <span className="text-xs font-bold text-zinc-900 dark:text-white mt-0.5 block">{totalC}g / {goalC}g</span>
-                    <span className="text-[9.5px] text-zinc-400 block">{totalC * 4} kcal</span>
+                    <span className="text-[9px] text-zinc-400 block">{totalC * 4} kcal</span>
                   </div>
-                  <div className="bg-zinc-50 dark:bg-white/[0.03] border border-zinc-200/70 dark:border-white/[0.06] p-2.5 rounded-xl">
-                    <span className="text-[10px] font-bold text-[#10B981] uppercase block">Fats</span>
+                  <div className="bg-zinc-50 dark:bg-white/[0.03] border border-zinc-200/70 dark:border-white/[0.06] p-2 rounded-xl">
+                    <span className="text-[9.5px] font-bold text-[#3FB98E] uppercase block">Fats</span>
                     <span className="text-xs font-bold text-zinc-900 dark:text-white mt-0.5 block">{totalF}g / {goalF}g</span>
-                    <span className="text-[9.5px] text-zinc-400 block">{totalF * 9} kcal</span>
+                    <span className="text-[9px] text-zinc-400 block">{totalF * 9} kcal</span>
                   </div>
                 </div>
               </div>
@@ -644,41 +643,41 @@ export const FuelIntelligencePanel: React.FC<FuelIntelligencePanelProps> = ({
 
             {/* ----------------- TAB 3: ADJUST GOALS & TARGETS ----------------- */}
             {activeTab === 'adjust' && (
-              <div className="space-y-3.5 animate-in fade-in duration-150">
+              <div className="space-y-2.5 animate-in fade-in duration-150">
                 {/* 1. Quick Presets (Clean, simple language, no jargon!) */}
-                <div className="space-y-1.5">
-                  <span className="text-[10.5px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 block">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 block">
                     Quick Goal Presets
                   </span>
-                  <div className="grid grid-cols-3 gap-2">
+                  <div className="grid grid-cols-3 gap-1.5">
                     <button
                       onClick={() => handleApplyPreset('lose')}
-                      className="px-3 py-2 rounded-xl bg-zinc-50 dark:bg-white/[0.03] hover:bg-zinc-100 dark:hover:bg-white/[0.06] border border-zinc-200/70 dark:border-white/[0.06] text-left transition-all active:scale-[0.98] cursor-pointer"
+                      className="px-2.5 py-1.5 rounded-xl bg-zinc-50 dark:bg-white/[0.03] hover:bg-zinc-100 dark:hover:bg-white/[0.06] border border-zinc-200/70 dark:border-white/[0.06] text-left transition-all active:scale-[0.98] cursor-pointer"
                     >
                       <div className="text-xs font-bold text-zinc-900 dark:text-white">Lose Fat</div>
-                      <div className="text-[10px] font-mono text-[#DC2626] font-semibold mt-0.5">-400 kcal</div>
+                      <div className="text-[9.5px] font-mono text-[#C4121A] font-semibold mt-0.5">-400 kcal</div>
                     </button>
                     <button
                       onClick={() => handleApplyPreset('maintain')}
-                      className="px-3 py-2 rounded-xl bg-zinc-50 dark:bg-white/[0.03] hover:bg-zinc-100 dark:hover:bg-white/[0.06] border border-zinc-200/70 dark:border-white/[0.06] text-left transition-all active:scale-[0.98] cursor-pointer"
+                      className="px-2.5 py-1.5 rounded-xl bg-zinc-50 dark:bg-white/[0.03] hover:bg-zinc-100 dark:hover:bg-white/[0.06] border border-zinc-200/70 dark:border-white/[0.06] text-left transition-all active:scale-[0.98] cursor-pointer"
                     >
-                      <div className="text-xs font-bold text-zinc-900 dark:text-white">Maintain Weight</div>
-                      <div className="text-[10px] font-mono text-[#10B981] font-semibold mt-0.5">Stay Same</div>
+                      <div className="text-xs font-bold text-zinc-900 dark:text-white">Maintain</div>
+                      <div className="text-[9.5px] font-mono text-[#3FB98E] font-semibold mt-0.5">Stay Same</div>
                     </button>
                     <button
                       onClick={() => handleApplyPreset('build')}
-                      className="px-3 py-2 rounded-xl bg-zinc-50 dark:bg-white/[0.03] hover:bg-zinc-100 dark:hover:bg-white/[0.06] border border-zinc-200/70 dark:border-white/[0.06] text-left transition-all active:scale-[0.98] cursor-pointer"
+                      className="px-2.5 py-1.5 rounded-xl bg-zinc-50 dark:bg-white/[0.03] hover:bg-zinc-100 dark:hover:bg-white/[0.06] border border-zinc-200/70 dark:border-white/[0.06] text-left transition-all active:scale-[0.98] cursor-pointer"
                     >
                       <div className="text-xs font-bold text-zinc-900 dark:text-white">Build Muscle</div>
-                      <div className="text-[10px] font-mono text-amber-500 font-semibold mt-0.5">+300 kcal</div>
+                      <div className="text-[9.5px] font-mono text-[#E8B04A] font-semibold mt-0.5">+300 kcal</div>
                     </button>
                   </div>
                 </div>
 
                 {/* 2. Target Inputs */}
-                <div className="grid grid-cols-5 gap-2 pt-1">
+                <div className="grid grid-cols-5 gap-1.5 pt-0.5">
                   <div className="col-span-2">
-                    <label className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 block mb-1">
+                    <label className="text-[9.5px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 block mb-0.5">
                       Daily Target
                     </label>
                     <div className="relative">
@@ -697,16 +696,16 @@ export const FuelIntelligencePanel: React.FC<FuelIntelligencePanelProps> = ({
                             setGoalF(Math.round((val * 0.25) / 9));
                           }
                         }}
-                        className="w-full bg-zinc-50 dark:bg-white/[0.03] border border-zinc-200/70 dark:border-white/[0.06] rounded-xl px-2.5 py-2 font-mono font-bold text-base text-zinc-900 dark:text-white outline-none focus:border-[#DC2626] transition-colors"
+                        className="w-full bg-zinc-50 dark:bg-white/[0.03] border border-zinc-200/70 dark:border-white/[0.06] rounded-xl px-2.5 py-1.5 font-mono font-bold text-sm text-zinc-900 dark:text-white outline-none focus:border-[#C4121A] transition-colors"
                       />
-                      <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] font-mono text-zinc-400 pointer-events-none">
+                      <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[9.5px] font-mono text-zinc-400 pointer-events-none">
                         kcal
                       </span>
                     </div>
                   </div>
 
                   <div className="col-span-1">
-                    <label className="text-[10px] font-bold uppercase tracking-wider text-[#DC2626] block text-center mb-1">
+                    <label className="text-[9.5px] font-bold uppercase tracking-wider text-[#C4121A] block text-center mb-0.5">
                       Protein
                     </label>
                     <input
@@ -718,12 +717,12 @@ export const FuelIntelligencePanel: React.FC<FuelIntelligencePanelProps> = ({
                         const clean = e.target.value.replace(/^0+(?=\d)/, '');
                         setGoalP(parseInt(clean) || 0);
                       }}
-                      className="w-full bg-zinc-50 dark:bg-white/[0.03] border border-zinc-200/70 dark:border-white/[0.06] rounded-xl py-2 font-mono font-bold text-xs text-center text-zinc-900 dark:text-white outline-none focus:border-[#DC2626] transition-colors"
+                      className="w-full bg-zinc-50 dark:bg-white/[0.03] border border-zinc-200/70 dark:border-white/[0.06] rounded-xl py-1.5 font-mono font-bold text-xs text-center text-zinc-900 dark:text-white outline-none focus:border-[#C4121A] transition-colors"
                     />
                   </div>
 
                   <div className="col-span-1">
-                    <label className="text-[10px] font-bold uppercase tracking-wider text-[#F59E0B] block text-center mb-1">
+                    <label className="text-[9.5px] font-bold uppercase tracking-wider text-[#E8B04A] block text-center mb-0.5">
                       Carbs
                     </label>
                     <input
@@ -735,12 +734,12 @@ export const FuelIntelligencePanel: React.FC<FuelIntelligencePanelProps> = ({
                         const clean = e.target.value.replace(/^0+(?=\d)/, '');
                         setGoalC(parseInt(clean) || 0);
                       }}
-                      className="w-full bg-zinc-50 dark:bg-white/[0.03] border border-zinc-200/70 dark:border-white/[0.06] rounded-xl py-2 font-mono font-bold text-xs text-center text-zinc-900 dark:text-white outline-none focus:border-[#F59E0B] transition-colors"
+                      className="w-full bg-zinc-50 dark:bg-white/[0.03] border border-zinc-200/70 dark:border-white/[0.06] rounded-xl py-1.5 font-mono font-bold text-xs text-center text-zinc-900 dark:text-white outline-none focus:border-[#E8B04A] transition-colors"
                     />
                   </div>
 
                   <div className="col-span-1">
-                    <label className="text-[10px] font-bold uppercase tracking-wider text-[#10B981] block text-center mb-1">
+                    <label className="text-[9.5px] font-bold uppercase tracking-wider text-[#3FB98E] block text-center mb-0.5">
                       Fats
                     </label>
                     <input
@@ -752,49 +751,49 @@ export const FuelIntelligencePanel: React.FC<FuelIntelligencePanelProps> = ({
                         const clean = e.target.value.replace(/^0+(?=\d)/, '');
                         setGoalF(parseInt(clean) || 0);
                       }}
-                      className="w-full bg-zinc-50 dark:bg-white/[0.03] border border-zinc-200/70 dark:border-white/[0.06] rounded-xl py-2 font-mono font-bold text-xs text-center text-zinc-900 dark:text-white outline-none focus:border-[#10B981] transition-colors"
+                      className="w-full bg-zinc-50 dark:bg-white/[0.03] border border-zinc-200/70 dark:border-white/[0.06] rounded-xl py-1.5 font-mono font-bold text-xs text-center text-zinc-900 dark:text-white outline-none focus:border-[#3FB98E] transition-colors"
                     />
                   </div>
                 </div>
 
                 {/* Macro calorie verification line */}
                 {hasMacroMismatch ? (
-                  <div className="flex items-center justify-between text-[11px] font-mono px-3 py-2 rounded-xl bg-amber-500/10 text-amber-700 dark:text-amber-400 gap-2">
+                  <div className="flex items-center justify-between text-[10.5px] font-mono px-2.5 py-1.5 rounded-xl bg-amber-500/10 text-amber-700 dark:text-amber-400 gap-1.5">
                     <span className="truncate">
                       Macros total {goalMacroCals} kcal ({goalMacroCals > goalCals ? `+${goalMacroCals - goalCals}` : `${goalMacroCals - goalCals}`} vs target)
                     </span>
                     <div className="flex items-center gap-1.5 shrink-0">
                       <button
                         onClick={syncCalsFromMacros}
-                        className="px-2 py-1 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-[10px] font-bold cursor-pointer transition-colors"
+                        className="px-2 py-0.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-[9.5px] font-bold cursor-pointer transition-colors"
                       >
                         Match Calories
                       </button>
                       <button
                         onClick={autoBalanceMacros}
-                        className="px-2 py-1 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-[10px] font-bold cursor-pointer transition-colors"
+                        className="px-2 py-0.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-[9.5px] font-bold cursor-pointer transition-colors"
                       >
                         Auto-Balance
                       </button>
                     </div>
                   </div>
                 ) : (
-                  <div className="flex items-center justify-between text-[10.5px] font-mono px-3 py-1.5 rounded-xl bg-zinc-50 dark:bg-white/[0.03] border border-zinc-200/70 dark:border-white/[0.06] text-zinc-500 dark:text-zinc-400">
+                  <div className="flex items-center justify-between text-[10px] font-mono px-2.5 py-1 rounded-xl bg-zinc-50 dark:bg-white/[0.03] border border-zinc-200/70 dark:border-white/[0.06] text-zinc-500 dark:text-zinc-400">
                     <span>Protein: {goalP * 4} · Carbs: {goalC * 4} · Fat: {goalF * 9} kcal</span>
-                    <span className="text-[#10B981] font-semibold flex items-center gap-1">
+                    <span className="text-[#3FB98E] font-semibold flex items-center gap-1">
                       <Check className="w-3 h-3" /> Balanced
                     </span>
                   </div>
                 )}
 
                 {/* 3. Resting Burn (BMR) with simple helper text */}
-                <div className="flex justify-between items-center pt-1">
+                <div className="flex justify-between items-center pt-0.5">
                   <div>
-                    <span className="text-[10.5px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 block">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 block">
                       Resting Burn (BMR)
                     </span>
-                    <span className="text-[10px] text-zinc-400">
-                      Calories your body burns at rest without exercise
+                    <span className="text-[9.5px] text-zinc-400">
+                      Calories your body burns at rest
                     </span>
                   </div>
                   <div className="flex items-center gap-1.5">
@@ -802,26 +801,26 @@ export const FuelIntelligencePanel: React.FC<FuelIntelligencePanelProps> = ({
                       type="number"
                       value={bmr}
                       onChange={(e) => setBmr(parseInt(e.target.value) || 0)}
-                      className="w-24 bg-zinc-50 dark:bg-white/[0.03] border border-zinc-200/70 dark:border-white/[0.06] text-right rounded-xl px-2.5 py-1.5 font-mono font-bold text-xs text-zinc-900 dark:text-white outline-none focus:border-[#DC2626] transition-colors"
+                      className="w-20 bg-zinc-50 dark:bg-white/[0.03] border border-zinc-200/70 dark:border-white/[0.06] text-right rounded-xl px-2 py-1 font-mono font-bold text-xs text-zinc-900 dark:text-white outline-none focus:border-[#C4121A] transition-colors"
                     />
-                    <span className="text-[11px] font-mono text-zinc-400">kcal</span>
+                    <span className="text-[10px] font-mono text-zinc-400">kcal</span>
                   </div>
                 </div>
 
                 {/* 4. Action Buttons */}
-                <div className="flex items-center justify-between gap-2 pt-2 border-t border-zinc-100 dark:border-white/5">
+                <div className="flex items-center justify-between gap-2 pt-1.5 border-t border-zinc-100 dark:border-white/5">
                   <button
                     onClick={onOpenAutoPilot}
-                    className="text-xs font-semibold text-zinc-800 dark:text-zinc-200 bg-zinc-100 dark:bg-white/5 hover:bg-zinc-200 dark:hover:bg-white/10 px-3 py-2 rounded-xl transition-colors flex items-center gap-1.5 cursor-pointer"
+                    className="text-xs font-semibold text-zinc-800 dark:text-zinc-200 bg-zinc-100 dark:bg-white/5 hover:bg-zinc-200 dark:hover:bg-white/10 px-2.5 py-1.5 rounded-xl transition-colors flex items-center gap-1.5 cursor-pointer"
                   >
-                    <Calculator className="w-3.5 h-3.5 text-[#DC2626]" />
+                    <Calculator className="w-3.5 h-3.5 text-[#C4121A]" />
                     <span>Calculate Daily Needs</span>
                   </button>
 
                   <button
                     onClick={handleSave}
                     disabled={isSaving}
-                    className="text-xs font-semibold text-white bg-[#DC2626] hover:bg-[#B91C1C] px-4 py-2 rounded-xl transition-colors cursor-pointer disabled:opacity-60 flex items-center gap-1.5"
+                    className="text-xs font-semibold text-white bg-[#C4121A] hover:bg-[#9B0E14] px-3.5 py-1.5 rounded-xl transition-colors cursor-pointer disabled:opacity-60 flex items-center gap-1.5"
                   >
                     <Check className="w-3.5 h-3.5" />
                     <span>{isSaving ? 'Saving...' : 'Save Targets'}</span>

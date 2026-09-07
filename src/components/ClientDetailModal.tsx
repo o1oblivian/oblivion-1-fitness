@@ -48,12 +48,12 @@ export const ClientDetailModal: React.FC<ClientDetailModalProps> = ({
   if (!athlete || !telemetry) return null;
   const recoveryScore = telemetry.recoveryScore;
   const recoveryColor =
-    recoveryScore >= 85 ? '#34A853' : recoveryScore >= 70 ? '#FBBC05' : '#EA4335';
+    recoveryScore >= 85 ? '#3FB98E' : recoveryScore >= 70 ? '#E8B04A' : '#C4121A';
   const tierColor = athlete.badge?.includes('PR')
-    ? '#EA4335'
+    ? '#C4121A'
     : athlete.badge?.includes('PENDING')
-    ? '#FBBC05'
-    : '#34A853';
+    ? '#E8B04A'
+    : '#3FB98E';
 
   const completedSessions = telemetry.sessions.filter((s) => s.completed).length;
   const totalTonnage = telemetry.sessions.reduce((sum, s) => sum + s.totalVolume, 0);
@@ -212,10 +212,10 @@ export const ClientDetailModal: React.FC<ClientDetailModalProps> = ({
               </h4>
               <div className="grid grid-cols-2 gap-1.5">
                 {[
-                  { label: 'Calories', value: latestMacro.calories, target: latestMacro.calorieTarget, unit: 'kcal', color: '#34A853' },
-                  { label: 'Protein', value: latestMacro.protein, target: latestMacro.proteinTarget, unit: 'g', color: '#4285F4' },
-                  { label: 'Carbs', value: latestMacro.carbs, target: latestMacro.carbsTarget, unit: 'g', color: '#EA4335' },
-                  { label: 'Fat', value: latestMacro.fat, target: latestMacro.fatTarget, unit: 'g', color: '#FBBC05' },
+                  { label: 'Calories', value: latestMacro.calories, target: latestMacro.calorieTarget, unit: 'kcal', color: '#3FB98E' },
+                  { label: 'Protein', value: latestMacro.protein, target: latestMacro.proteinTarget, unit: 'g', color: '#2D7FF9' },
+                  { label: 'Carbs', value: latestMacro.carbs, target: latestMacro.carbsTarget, unit: 'g', color: '#C4121A' },
+                  { label: 'Fat', value: latestMacro.fat, target: latestMacro.fatTarget, unit: 'g', color: '#E8B04A' },
                 ].map((m, i) => {
                   const pct = Math.min(100, (m.value / m.target) * 100);
                   return (

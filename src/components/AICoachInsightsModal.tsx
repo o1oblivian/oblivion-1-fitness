@@ -474,7 +474,7 @@ export const AICoachInsightsModal: React.FC<AICoachInsightsModalProps> = ({
         <div className="flex justify-between items-center pb-1">
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-[#EA4335]/10 text-[#EA4335] border border-[#EA4335]/30 uppercase tracking-wider flex items-center gap-1">
+              <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-[#C4121A]/10 text-[#C4121A] dark:text-[#D91F28] border border-[#C4121A]/30 uppercase tracking-wider flex items-center gap-1">
                 <Cpu className="w-3 h-3" /> Intel Engine
               </span>
               <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-md border ${readinessBg} ${readinessColor}`}>
@@ -507,7 +507,7 @@ export const AICoachInsightsModal: React.FC<AICoachInsightsModalProps> = ({
         {loading ? (
           <div className="flex-1 flex items-center justify-center py-16">
             <div className="flex flex-col items-center gap-3">
-              <div className="w-8 h-8 rounded-full border-2 border-[#EA4335] border-t-transparent animate-spin" />
+              <div className="w-8 h-8 rounded-full border-2 border-[#C4121A] border-t-transparent animate-spin" />
               <span className="text-[11px] font-mono text-[#848785]">Analyzing telemetry...</span>
             </div>
           </div>
@@ -587,7 +587,7 @@ export const AICoachInsightsModal: React.FC<AICoachInsightsModalProps> = ({
                         <Flame className="w-4 h-4 text-orange-400" />
                         <span className="text-xs font-bold">Estimated Burn</span>
                       </div>
-                      <span className="text-sm font-black text-[#EA4335]">~{session.estimatedCalsBurned} kcal</span>
+                      <span className="text-sm font-black text-[#C4121A] dark:text-[#D91F28]">~{session.estimatedCalsBurned} kcal</span>
                     </div>
 
                     {/* Muscle group breakdown */}
@@ -603,7 +603,7 @@ export const AICoachInsightsModal: React.FC<AICoachInsightsModalProps> = ({
                                 <span className="font-mono text-[#848785]">{vol >= 1000 ? `${(vol / 1000).toFixed(1)}T` : `${vol}kg`} ({Math.round(pct)}%)</span>
                               </div>
                               <div className="h-1.5 bg-[#E5E5EA] dark:bg-white/10 rounded-full overflow-hidden">
-                                <div className="h-full bg-[#EA4335] rounded-full transition-all duration-500" style={{ width: `${pct}%` }} />
+                                <div className="h-full bg-[#C4121A] dark:bg-[#D91F28] rounded-full transition-all duration-500" style={{ width: `${pct}%` }} />
                               </div>
                             </div>
                           );
@@ -622,7 +622,7 @@ export const AICoachInsightsModal: React.FC<AICoachInsightsModalProps> = ({
                               <div className="text-[9px] text-[#848785] font-mono">{lift.weight}kg x {lift.reps}</div>
                             </div>
                             <div className="text-right">
-                              <div className="text-sm font-black text-[#EA4335]">{Math.round(lift.e1rm)}kg</div>
+                              <div className="text-sm font-black text-[#C4121A] dark:text-[#D91F28]">{Math.round(lift.e1rm)}kg</div>
                               <div className="text-[8px] text-[#848785] font-mono uppercase">Est. 1RM</div>
                             </div>
                           </div>
@@ -781,7 +781,7 @@ export const AICoachInsightsModal: React.FC<AICoachInsightsModalProps> = ({
                           const h = ((pt.weight - min) / range) * 100;
                           return (
                             <div key={i} className="flex-1 flex flex-col justify-end">
-                              <div className="bg-[#EA4335] rounded-t-sm min-h-[2px] transition-all" style={{ height: `${Math.max(h, 8)}%` }} />
+                              <div className="bg-[#C4121A] dark:bg-[#D91F28] rounded-t-sm min-h-[2px] transition-all" style={{ height: `${Math.max(h, 8)}%` }} />
                             </div>
                           );
                         })}
@@ -842,9 +842,9 @@ export const AICoachInsightsModal: React.FC<AICoachInsightsModalProps> = ({
             {/* ── AI RECOMMENDATIONS (always visible) ── */}
             <div className="space-y-2 pt-1">
               <div className="flex items-center gap-2">
-                <Brain className="w-3.5 h-3.5 text-[#EA4335]" />
+                <Brain className="w-3.5 h-3.5 text-[#C4121A] dark:text-[#D91F28]" />
                 <span className="text-[10px] font-mono font-bold text-[#848785] uppercase tracking-wider">Intel Recommendations</span>
-                <span className="text-[9px] font-mono bg-[#EA4335]/10 text-[#EA4335] px-1.5 py-0.5 rounded-full border border-[#EA4335]/30 font-bold">{recommendations.length}</span>
+                <span className="text-[9px] font-mono bg-[#C4121A]/10 text-[#C4121A] dark:text-[#D91F28] px-1.5 py-0.5 rounded-full border border-[#C4121A]/30 font-bold">{recommendations.length}</span>
               </div>
               {recommendations.map((rec, i) => (
                 <div key={i} className={`bg-white dark:bg-white/5 border rounded-xl p-3 space-y-1 ${

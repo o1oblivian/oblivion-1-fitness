@@ -137,7 +137,7 @@ function renderMiniSparkline(data: number[], readinessScore: number) {
   const lastPt = pts[pts.length - 1];
   const isHigh = readinessScore >= 88;
   const isMed = readinessScore >= 75 && readinessScore < 88;
-  const strokeColor = isHigh ? '#34A853' : isMed ? '#C48B4F' : '#EA4335';
+  const strokeColor = isHigh ? '#3FB98E' : isMed ? '#C48B4F' : '#C4121A';
 
   return (
     <svg width={w} height={h} className="overflow-visible">
@@ -620,7 +620,7 @@ export const CoachHubView: React.FC<{
                               {/* Live status dot */}
                               <span
                                 className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-white dark:border-[#121214] ${
-                                  isPending ? 'bg-[#C48B4F]' : 'bg-[#34A853]'
+                                  isPending ? 'bg-[#C48B4F]' : 'bg-[#3FB98E]'
                                 }`}
                               />
                             </div>
@@ -628,7 +628,7 @@ export const CoachHubView: React.FC<{
                             {/* Name, Handle, Badge & Volume */}
                             <div className="min-w-0 space-y-0.5">
                               <div className="flex items-center gap-2 flex-wrap">
-                                <h4 className="text-xs font-bold text-zinc-900 dark:text-white truncate group-hover:text-[#EA4335] dark:group-hover:text-[#EA4335] transition-colors">
+                                <h4 className="text-xs font-bold text-zinc-900 dark:text-white truncate group-hover:text-[#C4121A] dark:group-hover:text-[#C4121A] transition-colors">
                                   {client.name}
                                 </h4>
                                 {client.badge && (
@@ -637,8 +637,8 @@ export const CoachHubView: React.FC<{
                                       isPending
                                         ? 'bg-[#C48B4F]/10 text-[#C48B4F] border-[#C48B4F]/25'
                                         : isPR
-                                        ? 'bg-[#EA4335]/10 text-[#EA4335] border-[#EA4335]/25'
-                                        : 'bg-[#34A853]/10 text-[#34A853] border-[#34A853]/25'
+                                        ? 'bg-[#C4121A]/10 text-[#C4121A] border-[#C4121A]/25'
+                                        : 'bg-[#3FB98E]/10 text-[#3FB98E] border-[#3FB98E]/25'
                                     }`}
                                   >
                                     {client.badge}
@@ -658,10 +658,10 @@ export const CoachHubView: React.FC<{
                               <span
                                 className={`text-[8px] font-mono font-bold px-1.5 py-0.5 rounded-full border ${
                                   readinessScore >= 88
-                                    ? 'border-[#34A853]/30 text-[#34A853] bg-[#34A853]/10'
+                                    ? 'border-[#3FB98E]/30 text-[#3FB98E] bg-[#3FB98E]/10'
                                     : readinessScore >= 75
                                     ? 'border-[#C48B4F]/30 text-[#C48B4F] bg-[#C48B4F]/10'
-                                    : 'border-[#EA4335]/30 text-[#EA4335] bg-[#EA4335]/10'
+                                    : 'border-[#C4121A]/30 text-[#C4121A] bg-[#C4121A]/10'
                                 }`}
                               >
                                 {readinessScore}% READY

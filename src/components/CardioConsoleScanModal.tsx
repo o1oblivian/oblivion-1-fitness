@@ -174,20 +174,13 @@ export const CardioConsoleScanModal: React.FC<CardioConsoleScanModalProps> = ({
         setParsedSummary(`${steps.toLocaleString()} steps • ${dist || 0} km • ~${cals} kcal burn`);
       }
     } else {
-      // 3. Graceful Fallback: Pre-fill realistic athletic benchmarks for current machine apparatus
-      const currentMachine = MACHINES.find((m) => m.type === machineType) || MACHINES[0];
-      if (caloriesBurned === 0 && durationMinutes === 0) {
-        setDurationMinutes(currentMachine.defaultMins);
-        setCaloriesBurned(currentMachine.defaultCals);
-        if (currentMachine.dist > 0) setDistanceKm(currentMachine.dist);
-        setStepsCount(Math.round(currentMachine.defaultMins * 140));
-      }
-
+      // Strictly 0% fake data: Never inject benchmark numbers when scan fails.
+      // Keep metrics at current/zero so the athlete knows metrics could not be extracted automatically.
       const rawMsg = data?.message || '';
-      const friendlyMsg = rawMsg.includes('cardio machine screen') || rawMsg.includes('solid green')
+      const honestMsg = rawMsg
         ? rawMsg
-        : 'Photo attached. Please confirm or adjust console metrics below.';
-      setScanError(friendlyMsg);
+        : 'Unable to extract metrics from console photo. Please ensure numbers are visible, or adjust values below.';
+      setScanError(honestMsg);
     }
   };
 

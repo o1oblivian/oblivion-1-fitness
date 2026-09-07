@@ -345,9 +345,20 @@ export const ProgressPhotoVault: React.FC<ProgressPhotoVaultProps> = ({ onOpenPa
             const isVideo = p.media_type === 'video';
             const isSelected = selectedIds.has(p.id);
             return (
-              <button
+              <div
                 key={p.id}
-                type="button"
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    if (isSelectMode) {
+                      handleToggleSelect(p.id);
+                    } else {
+                      setSelectedIndex(idx);
+                    }
+                  }
+                }}
                 onClick={() => {
                   if (isSelectMode) {
                     handleToggleSelect(p.id);
@@ -355,7 +366,7 @@ export const ProgressPhotoVault: React.FC<ProgressPhotoVaultProps> = ({ onOpenPa
                     setSelectedIndex(idx);
                   }
                 }}
-                className={`relative aspect-[3/4] rounded-xl overflow-hidden bg-neutral-100 dark:bg-neutral-900 group cursor-pointer transition-all active:scale-[0.97] ${
+                className={`relative aspect-[3/4] rounded-xl overflow-hidden bg-neutral-100 dark:bg-neutral-900 group cursor-pointer transition-all select-none active:scale-[0.97] ${
                   isSelected
                     ? 'border-2 border-red-500 ring-2 ring-red-500/40'
                     : 'border border-[rgba(0,0,0,0.08)] dark:border-white/10 hover:border-red-500/60'
@@ -426,7 +437,7 @@ export const ProgressPhotoVault: React.FC<ProgressPhotoVaultProps> = ({ onOpenPa
                 <span className="absolute bottom-1.5 left-1.5 text-[8px] font-mono text-white/80">
                   {new Date(p.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
                 </span>
-              </button>
+              </div>
             );
           })}
           {photos.length < maxPhotos && !isSelectMode && (

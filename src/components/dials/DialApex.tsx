@@ -62,8 +62,8 @@ export const DialApex: React.FC<DialApexProps> = ({
         ))}
 
         {/* Inner ring - Move */}
-        <circle cx={CX} cy={CY} r="92" fill="none" stroke="rgba(234,67,53,0.15)" strokeWidth="5" />
-        <circle cx={CX} cy={CY} r="92" fill="none" stroke="#EA4335" strokeWidth="5"
+        <circle cx={CX} cy={CY} r="92" fill="none" stroke="rgba(196,18,26,0.15)" strokeWidth="5" />
+        <circle cx={CX} cy={CY} r="92" fill="none" stroke="#C4121A" strokeWidth="5"
           strokeLinecap="round"
           strokeDasharray={`${2 * Math.PI * 92 * (loaded ? movePct : 0)} ${2 * Math.PI * 92}`}
           transform={`rotate(-90 ${CX} ${CY})`}
@@ -72,8 +72,8 @@ export const DialApex: React.FC<DialApexProps> = ({
         />
 
         {/* Innermost ring - Distance */}
-        <circle cx={CX} cy={CY} r="76" fill="none" stroke="rgba(52,168,83,0.15)" strokeWidth="4" />
-        <circle cx={CX} cy={CY} r="76" fill="none" stroke="#34A853" strokeWidth="4"
+        <circle cx={CX} cy={CY} r="76" fill="none" stroke="rgba(63,185,142,0.15)" strokeWidth="4" />
+        <circle cx={CX} cy={CY} r="76" fill="none" stroke="#3FB98E" strokeWidth="4"
           strokeLinecap="round"
           strokeDasharray={`${2 * Math.PI * 76 * (loaded ? distPct : 0)} ${2 * Math.PI * 76}`}
           transform={`rotate(-90 ${CX} ${CY})`}
@@ -97,21 +97,21 @@ export const DialApex: React.FC<DialApexProps> = ({
         </text>
 
         {/* Bottom metrics */}
-        <text x={CX - 56} y={CY + 60} textAnchor="middle" fill="#EA4335" fontSize="12" fontWeight="900" fontFamily="monospace">
+        <text x={CX - 56} y={CY + 60} textAnchor="middle" fill="#C4121A" fontSize="12" fontWeight="900" fontFamily="monospace">
           {Math.round(dailyMove)}
         </text>
         <text x={CX - 56} y={CY + 74} textAnchor="middle" fill="rgba(255,255,255,0.4)" fontSize="7" fontWeight="700" fontFamily="monospace" letterSpacing="1.5">
           BURN
         </text>
 
-        <text x={CX} y={CY + 60} textAnchor="middle" fill="#FBBC05" fontSize="12" fontWeight="900" fontFamily="monospace">
+        <text x={CX} y={CY + 60} textAnchor="middle" fill="#E8B04A" fontSize="12" fontWeight="900" fontFamily="monospace">
           {Math.round(dailyIntake)}
         </text>
         <text x={CX} y={CY + 74} textAnchor="middle" fill="rgba(255,255,255,0.4)" fontSize="7" fontWeight="700" fontFamily="monospace" letterSpacing="1.5">
           INTAKE
         </text>
 
-        <text x={CX + 56} y={CY + 60} textAnchor="middle" fill="#34A853" fontSize="12" fontWeight="900" fontFamily="monospace">
+        <text x={CX + 56} y={CY + 60} textAnchor="middle" fill="#3FB98E" fontSize="12" fontWeight="900" fontFamily="monospace">
           {dailyDist.toFixed(1)}
         </text>
         <text x={CX + 56} y={CY + 74} textAnchor="middle" fill="rgba(255,255,255,0.4)" fontSize="7" fontWeight="700" fontFamily="monospace" letterSpacing="1.5">

@@ -24,6 +24,7 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
 // server.ts
 var import_express = __toESM(require("express"), 1);
 var import_path = __toESM(require("path"), 1);
+var import_fs = __toESM(require("fs"), 1);
 var import_stripe = __toESM(require("stripe"), 1);
 var import_genai = require("@google/genai");
 var import_vite = require("vite");
@@ -174,6 +175,12 @@ async function startServer() {
       req.rawBody = buf;
     }
   }));
+  app.use("/videos", import_express.default.static(import_path.default.join(process.cwd(), "public", "videos")));
+  app.get("/api/download-video/:filename", (req, res) => {
+    const safeName = import_path.default.basename(req.params.filename);
+    const videoPath = import_path.default.join(process.cwd(), "public", "videos", safeName);
+    res.download(videoPath, safeName);
+  });
   app.get("/api/health", (_req, res) => {
     const mem = process.memoryUsage();
     res.json({
@@ -186,6 +193,10 @@ async function startServer() {
         heapUsedMb: Math.round(mem.heapUsed / 1024 / 1024)
       }
     });
+  });
+  app.get(["/api/download-upload-cert", "/upload_certificate.pem"], (_req, res) => {
+    const certPath = import_path.default.join(process.cwd(), "public", "upload_certificate.pem");
+    res.download(certPath, "upload_certificate.pem");
   });
   app.all("/api/food-scan", aiHeavyLimiter, async (req, res) => {
     if (req.method === "GET") {
@@ -910,6 +921,161 @@ Also return clean JSON with:
       return res.status(500).json({ error: err.message || "Coach insights error" });
     }
   });
+  app.post("/api/ai-program-recommend", standardApiLimiter, async (req, res) => {
+    try {
+      const { intake } = req.body || {};
+      if (!intake) {
+        return res.status(400).json({ error: "Missing intake data" });
+      }
+      const days = intake.trainingDaysPerWeek || 4;
+      const level = (intake.experienceLevel || "intermediate").toLowerCase();
+      const goal = (intake.goal || "build muscle").toLowerCase();
+      const ai = getAI();
+      if (ai) {
+        try {
+          const prompt = `You are an elite master strength and conditioning specialist for Oblivion 1 Fitness Club (O1FC).
+Design an authoritative, comprehensive 8-week periodized training, nutrition, and recovery program based on this athlete's intake:
+- Goal: ${intake.goal || "Hypertrophy & Strength"}
+- Experience Level: ${intake.experienceLevel || "Intermediate"}
+- Available Training Days: ${days} days per week
+- Motivation / Why Now: ${intake.whyNow || "Peak performance"}
+- Current Supplements: ${intake.currentSupplements || "None"}
+- Diet Preferences: ${intake.dietPreferences || "Omnivore"}
+- Injuries / Limitations: ${intake.injuriesLimitations || "None"}
+- Daily Steps: ${intake.currentDailySteps || 8e3} (Goal: ${intake.dailyStepGoal || 1e4})
+
+Return ONLY valid JSON matching this schema:
+{
+  "programName": "Descriptive Program Name",
+  "summary": "2-3 sentence overview explaining rationale",
+  "duration_weeks": 8,
+  "training": {
+    "split": "Specific Split Name",
+    "days": [
+      {
+        "day": "Day 1",
+        "focus": "Muscle Group Focus",
+        "exercises": [
+          { "name": "Exercise Name", "sets": 4, "reps": "8-10", "notes": "Cues" }
+        ]
+      }
+    ],
+    "progressionModel": "Detailed progression rules",
+    "deloadProtocol": "Deload strategy"
+  },
+  "nutrition": {
+    "dailyCalories": 2400,
+    "macros": { "protein_g": 180, "carbs_g": 250, "fat_g": 65 },
+    "mealTiming": "Pre/post workout strategy",
+    "supplements": ["Creatine 5g", "Whey isolate"]
+  },
+  "weeklyCardio": {
+    "type": "Cardio apparatus & intensity",
+    "frequency": "3 sessions",
+    "duration": "25-30 mins"
+  },
+  "recoveryProtocol": {
+    "sleepTarget": "7.5-9 hours",
+    "mobilityWork": "Specific mobility routine",
+    "stepsTarget": 10000
+  },
+  "coachNotes": "Specific safety and execution directives"
+}`;
+          let response = null;
+          const modelsToTry = ["gemini-3.7-flash", "gemini-flash-latest", "gemini-3.1-flash-lite"];
+          for (const modelName of modelsToTry) {
+            try {
+              response = await ai.models.generateContent({
+                model: modelName,
+                contents: [{ parts: [{ text: prompt }] }],
+                config: {
+                  temperature: 0.3,
+                  maxOutputTokens: 3e3,
+                  responseMimeType: "application/json"
+                }
+              });
+              if (response?.text) break;
+            } catch {
+              continue;
+            }
+          }
+          if (response?.text) {
+            const cleanJson = response.text.replace(/```json\s*/gi, "").replace(/```\s*/gi, "").trim();
+            const parsed = JSON.parse(cleanJson);
+            if (parsed.programName && parsed.training) {
+              return res.json({ success: true, recommendation: parsed });
+            }
+          }
+        } catch (aiErr) {
+          console.warn("Gemini program recommendation error, using sports-science engine:", aiErr);
+        }
+      }
+      const isBegin = level.includes("begin");
+      const isCut = goal.includes("fat") || goal.includes("cut") || goal.includes("lose");
+      const isBulk = goal.includes("muscle") || goal.includes("bulk") || goal.includes("mass");
+      const baseCals = isCut ? 1800 : isBulk ? 2800 : 2200;
+      const bw = intake.snapshotData?.bodyweight?.current || 80;
+      const protTarget = Math.round(bw * (isCut ? 2.2 : 1.8));
+      const fallbackRecommendation = {
+        programName: isCut ? "Lean Shred Protocol" : isBulk ? "Hypertrophy Builder Pro" : "Athletic Performance Plan",
+        summary: `A periodized ${days}-day program customized for ${level} athletes targeting ${goal}. Built on progressive overload principles and scientifically validated volume thresholds.`,
+        duration_weeks: 8,
+        training: {
+          split: days === 3 ? "Full Body 3x/week" : days === 5 ? "Push/Pull/Legs + Upper/Lower" : "Upper/Lower 4x/week",
+          days: [
+            {
+              day: "Day 1",
+              focus: days === 3 ? "Full Body A" : "Upper Hypertrophy",
+              exercises: [
+                { name: "Barbell Bench Press", sets: isBegin ? 3 : 4, reps: "6-8", notes: "Control eccentric 3s down" },
+                { name: "Barbell Back Squat", sets: isBegin ? 3 : 4, reps: "6-8", notes: "Hit parallel with brace" },
+                { name: "Bent Over Barbell Row", sets: 3, reps: "8-10", notes: "Full scapular retraction" },
+                { name: "Overhead Dumbbell Press", sets: 3, reps: "8-10", notes: "Strict lockout" },
+                { name: "Romanian Deadlift", sets: 3, reps: "10-12", notes: "Hip hinge stretch" }
+              ]
+            },
+            {
+              day: "Day 2",
+              focus: days === 3 ? "Full Body B" : "Lower Power",
+              exercises: [
+                { name: "Conventional Deadlift", sets: 3, reps: "5", notes: "Reset each rep" },
+                { name: "Leg Press", sets: 3, reps: "10-12", notes: "Shoulder-width stance" },
+                { name: "Pull-Ups / Lat Pulldown", sets: 4, reps: "8-12", notes: "Full stretch at dead hang" },
+                { name: "Incline Dumbbell Press", sets: 3, reps: "10-12", notes: "30-degree bench angle" },
+                { name: "Walking Lunges", sets: 3, reps: "12 each", notes: "Step through" }
+              ]
+            }
+          ],
+          progressionModel: isBegin ? "Add 2.5kg to compound lifts each week upon completing top of rep range." : "Double progression: increase reps first, then add load.",
+          deloadProtocol: "Every 4th week: reduce volume by 40% while preserving working intensity."
+        },
+        nutrition: {
+          dailyCalories: baseCals,
+          macros: {
+            protein_g: protTarget,
+            carbs_g: Math.round((baseCals - protTarget * 4 - bw * 0.8 * 9) / 4),
+            fat_g: Math.round(bw * 0.8)
+          },
+          mealTiming: "Pre-workout: 40g carbs + 25g protein 60-90 min prior. Post-workout: 35g protein within 2 hours.",
+          supplements: ["Creatine Monohydrate 5g daily", "Whey Isolate 25-40g post-workout", "Omega-3 Fish Oil 2g EPA+DHA"]
+        },
+        weeklyCardio: {
+          type: isCut ? "Incline Treadmill Walk (12% incline, 4.5 km/h)" : "Low-impact Zone 2 Cardio",
+          frequency: isCut ? "4 sessions" : "2-3 sessions",
+          duration: "25-30 minutes"
+        },
+        recoveryProtocol: {
+          sleepTarget: "7.5-9 hours per night",
+          mobilityWork: "10 min daily: 90/90 hip stretch, thoracic openers, band face pulls",
+          stepsTarget: intake.dailyStepGoal || 8e3
+        },
+        coachNotes: intake.injuriesLimitations ? `Note: "${intake.injuriesLimitations}". Exercises selected avoid compressive shear on reported limitations.` : "Maintain strict technique and progressive overload tracking in Training OS Pro."
+      };
+      return res.json({ success: true, recommendation: fallbackRecommendation });
+    } catch (err) {
+      return res.status(500).json({ error: err.message || "Recommendation generation failed" });
+    }
+  });
   app.get("/api/stripe-status", (_req, res) => {
     const stripe = getStripe();
     const activeKey = (process.env.STRIPE_SECRET_KEY || "").trim();
@@ -1268,6 +1434,37 @@ Also return clean JSON with:
       console.error("[Stripe Webhook] Signature verification or processing error:", err.message);
       return res.status(400).send(`Webhook Error: ${err.message}`);
     }
+  });
+  app.get("/api/download-video/:filename", (req, res) => {
+    const filename = import_path.default.basename(req.params.filename);
+    const candidatePaths = [
+      import_path.default.join(process.cwd(), "public", "videos", filename),
+      import_path.default.join(process.cwd(), "dist", "videos", filename)
+    ];
+    for (const p of candidatePaths) {
+      if (import_fs.default.existsSync(p)) {
+        res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+        res.setHeader("Content-Type", "video/mp4");
+        return res.sendFile(p);
+      }
+    }
+    return res.status(404).json({ error: "Video file not found" });
+  });
+  app.get("/api/download-photo/:filename", (req, res) => {
+    const filename = import_path.default.basename(req.params.filename);
+    const candidatePaths = [
+      import_path.default.join(process.cwd(), "public", "live_photos", filename),
+      import_path.default.join(process.cwd(), "dist", "live_photos", filename),
+      import_path.default.join(process.cwd(), "public", filename)
+    ];
+    for (const p of candidatePaths) {
+      if (import_fs.default.existsSync(p)) {
+        res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+        res.setHeader("Content-Type", "image/png");
+        return res.sendFile(p);
+      }
+    }
+    return res.status(404).json({ error: "Photo file not found" });
   });
   if (process.env.NODE_ENV !== "production") {
     const vite = await (0, import_vite.createServer)({

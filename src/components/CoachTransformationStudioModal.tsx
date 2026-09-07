@@ -127,7 +127,7 @@ export const CoachTransformationStudioModal: React.FC<CoachTransformationStudioM
         {/* Header */}
         <div className="flex items-center justify-between border-b border-zinc-100 dark:border-zinc-800/80 pb-3">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-red-50 dark:bg-red-950/50 text-[#EA4335] flex items-center justify-center border border-red-200 dark:border-red-900/40">
+            <div className="w-8 h-8 rounded-xl bg-red-50 dark:bg-red-950/50 text-[#C4121A] dark:text-[#D91F28] flex items-center justify-center border border-red-200 dark:border-red-900/40">
               <Award className="w-4 h-4" />
             </div>
             <div>

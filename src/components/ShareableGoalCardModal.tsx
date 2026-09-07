@@ -85,7 +85,7 @@ export const ShareableGoalCardModal: React.FC<ShareableGoalCardModalProps> = ({
         {/* Header */}
         <div className="flex items-center justify-between border-b border-neutral-100 dark:border-white/10 pb-3">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-red-500/10 dark:bg-[#34A853]/20 border border-red-500/20 dark:border-[#34A853]/40 text-red-600 dark:text-[#34A853] flex items-center justify-center">
+            <div className="w-8 h-8 rounded-xl bg-red-500/10 dark:bg-[#3FB98E]/20 border border-red-500/20 dark:border-[#3FB98E]/40 text-red-600 dark:text-[#3FB98E] flex items-center justify-center">
               <Sparkles className="w-4 h-4" />
             </div>
             <div>
@@ -117,10 +117,11 @@ export const ShareableGoalCardModal: React.FC<ShareableGoalCardModalProps> = ({
               <label className="text-[10px] text-zinc-500 dark:text-gray-400 font-bold uppercase">Color Theme</label>
               <div className="flex items-center gap-2 mt-1">
                 {(['iron', 'crimson', 'gold', 'dark'] as const).map((t) => (
-                  <button key={t} onClick={() => setCardTheme(t)}
-                    className={`w-6 h-6 rounded-full border-2 transition-all ${
+                  <button key={t} type="button" onClick={() => setCardTheme(t)} aria-label={t}
+                    className={`w-6 h-6 rounded-full border-2 transition-all cursor-pointer ${
                       t === 'iron' ? 'bg-red-700' : t === 'crimson' ? 'bg-red-500' : t === 'gold' ? 'bg-amber-500' : 'bg-gray-700'
-                    } ${cardTheme === t ? 'border-zinc-900 dark:border-white scale-110 shadow-md' : 'border-transparent opacity-60'}`} />
+                    } ${cardTheme === t ? 'border-zinc-900 dark:border-white scale-110 shadow-md' : 'border-transparent opacity-60'}`}
+                  ></button>
                 ))}
               </div>
             </div>

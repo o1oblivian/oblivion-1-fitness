@@ -112,21 +112,21 @@ const GENDERS = ['Female', 'Male', 'Non-Binary'];
 const WORKOUT_PREFS = ['Hypertrophy', 'Powerlifting', 'Cardio', 'Recovery', 'CrossFit', 'Calisthenics'];
 
 const POPULAR_ACTIVITIES = [
-  { id: 'Gyms', label: 'Gyms & Barbell Clubs', color: '#EA4335' },
-  { id: 'Padel', label: 'Padel & Pickleball', color: '#FBBC05' },
+  { id: 'Gyms', label: 'Gyms & Barbell Clubs', color: '#C4121A' },
+  { id: 'Padel', label: 'Padel & Pickleball', color: '#E8B04A' },
   { id: 'Climbing', label: 'Bouldering & Climbing', color: '#8B5A2B' },
   { id: 'Running', label: 'Run Club & Coffee Loops', color: '#4A90D9' },
   { id: 'Sauna', label: 'Recovery Bathhouses & Saunas', color: '#E84855' },
-  { id: 'Pilates', label: 'Reformer Pilates & Yoga', color: '#34A853' },
+  { id: 'Pilates', label: 'Reformer Pilates & Yoga', color: '#3FB98E' },
   { id: 'Trails', label: 'Scenic Trails & Hikes', color: '#3B624E' },
-  { id: 'CrossFit', label: 'CrossFit & HIIT', color: '#FBBC05' },
+  { id: 'CrossFit', label: 'CrossFit & HIIT', color: '#E8B04A' },
   { id: 'Swimming', label: 'Swimming', color: '#00B8D9' },
   { id: 'Boxing', label: 'Boxing & MMA', color: '#1A1E1D' },
   { id: 'Cycling', label: 'Cycling & Spin', color: '#2EC4B6' },
   { id: 'Spa', label: 'Spa & Wellness', color: '#B388EB' },
   { id: 'Dance', label: 'Dance & Barre', color: '#E0507E' },
   { id: 'Basketball', label: 'Basketball', color: '#FF8C42' },
-  { id: 'Yoga', label: 'Yoga & Flow', color: '#34A853' },
+  { id: 'Yoga', label: 'Yoga & Flow', color: '#3FB98E' },
   { id: 'Calisthenics', label: 'Calisthenics', color: '#3B624E' },
   { id: 'Hyrox', label: 'Hyrox Racing', color: '#C4121A' },
   { id: 'Sports', label: 'Sports Courts', color: '#5A8F3E' },
@@ -136,12 +136,12 @@ const COMPREHENSIVE_SPORTS_DIRECTORY = [
   {
     category: 'Racquet Sports',
     sports: [
-      { name: 'Padel', color: '#FBBC05' },
-      { name: 'Tennis', color: '#FBBC05' },
-      { name: 'Pickleball', color: '#34A853' },
+      { name: 'Padel', color: '#E8B04A' },
+      { name: 'Tennis', color: '#E8B04A' },
+      { name: 'Pickleball', color: '#3FB98E' },
       { name: 'Badminton', color: '#4A90D9' },
-      { name: 'Squash', color: '#FBBC05' },
-      { name: 'Table Tennis', color: '#34A853' },
+      { name: 'Squash', color: '#E8B04A' },
+      { name: 'Table Tennis', color: '#3FB98E' },
     ],
   },
   {
@@ -151,29 +151,29 @@ const COMPREHENSIVE_SPORTS_DIRECTORY = [
       { name: 'Bodybuilding', color: '#C4121A' },
       { name: 'Powerlifting', color: '#1A1E1D' },
       { name: 'Calisthenics', color: '#3B624E' },
-      { name: 'Olympic Weightlifting', color: '#FBBC05' },
+      { name: 'Olympic Weightlifting', color: '#E8B04A' },
       { name: 'Strongman', color: '#8B5A2B' },
     ],
   },
   {
     category: 'Mind, Core & Mobility',
     sports: [
-      { name: 'Pilates Reformer', color: '#34A853' },
-      { name: 'Mat Pilates', color: '#34A853' },
+      { name: 'Pilates Reformer', color: '#3FB98E' },
+      { name: 'Mat Pilates', color: '#3FB98E' },
       { name: 'Hot Yoga', color: '#B388EB' },
-      { name: 'Vinyasa Flow', color: '#34A853' },
+      { name: 'Vinyasa Flow', color: '#3FB98E' },
       { name: 'Barre', color: '#E0507E' },
       { name: 'Breathwork', color: '#00B8D9' },
-      { name: 'Stretching & Mobility', color: '#34A853' },
+      { name: 'Stretching & Mobility', color: '#3FB98E' },
     ],
   },
   {
     category: 'HIIT & Endurance Racing',
     sports: [
-      { name: 'CrossFit', color: '#FBBC05' },
+      { name: 'CrossFit', color: '#E8B04A' },
       { name: 'Hyrox', color: '#C4121A' },
       { name: 'Running', color: '#4A90D9' },
-      { name: 'Marathon & Track', color: '#FBBC05' },
+      { name: 'Marathon & Track', color: '#E8B04A' },
       { name: 'Spinning / Indoor Cycling', color: '#2EC4B6' },
       { name: 'Road Cycling', color: '#2EC4B6' },
       { name: 'Swimming', color: '#00B8D9' },
@@ -185,12 +185,12 @@ const COMPREHENSIVE_SPORTS_DIRECTORY = [
     category: 'Combat & Martial Arts',
     sports: [
       { name: 'Boxing', color: '#1A1E1D' },
-      { name: 'Muay Thai', color: '#FBBC05' },
+      { name: 'Muay Thai', color: '#E8B04A' },
       { name: 'Brazilian Jiu Jitsu (BJJ)', color: '#8B5A2B' },
-      { name: 'Kickboxing', color: '#EA4335' },
+      { name: 'Kickboxing', color: '#C4121A' },
       { name: 'Karate', color: '#1A1E1D' },
       { name: 'Judo', color: '#5A5F5D' },
-      { name: 'MMA & Grappling', color: '#EA4335' },
+      { name: 'MMA & Grappling', color: '#C4121A' },
     ],
   },
   {
@@ -201,7 +201,7 @@ const COMPREHENSIVE_SPORTS_DIRECTORY = [
       { name: 'Infrared Spa', color: '#B388EB' },
       { name: 'Cryotherapy', color: '#00B8D9' },
       { name: 'Hydrotherapy Pool', color: '#00B8D9' },
-      { name: 'Sports Massage', color: '#34A853' },
+      { name: 'Sports Massage', color: '#3FB98E' },
     ],
   },
   {
@@ -225,7 +225,7 @@ const COMPREHENSIVE_SPORTS_DIRECTORY = [
       { name: 'Kite Surfing', color: '#4A90D9' },
       { name: 'Kayaking & SUP', color: '#2EC4B6' },
       { name: 'Hiking & Trail Running', color: '#3B624E' },
-      { name: 'Skateboarding', color: '#FBBC05' },
+      { name: 'Skateboarding', color: '#E8B04A' },
     ],
   },
 ];
@@ -856,7 +856,7 @@ export const GymNetworkModal: React.FC<GymNetworkModalProps> = ({
                   className="p-1.5 rounded-lg transition-all cursor-pointer flex items-center justify-center shrink-0 text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800"
                   title={`Status: ${partnerStatus}`}
                 >
-                  <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: partnerStatus === 'Open for Gym Date' ? '#34A853' : partnerStatus === 'Training Partner' ? '#FBBC05' : '#5A5F5D' }} />
+                  <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: partnerStatus === 'Open for Gym Date' ? '#3FB98E' : partnerStatus === 'Training Partner' ? '#E8B04A' : '#5A5F5D' }} />
                 </button>
 
                 {/* Heart Popover Menu with all 3 Options */}
@@ -880,7 +880,7 @@ export const GymNetworkModal: React.FC<GymNetworkModalProps> = ({
                             : 'text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-white'
                         }`}
                       >
-                        <span className="w-2.5 h-2.5 rounded-full bg-[#34A853] shrink-0" />
+                        <span className="w-2.5 h-2.5 rounded-full bg-[#3FB98E] shrink-0" />
                         <div className="flex flex-col">
                           <span className="font-bold">Open for Gym Date</span>
                           <span className="text-[8.5px] text-zinc-500 dark:text-zinc-400">Available to match</span>
@@ -900,7 +900,7 @@ export const GymNetworkModal: React.FC<GymNetworkModalProps> = ({
                             : 'text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-white'
                         }`}
                       >
-                        <span className="w-2.5 h-2.5 rounded-full bg-[#FBBC05] shrink-0" />
+                        <span className="w-2.5 h-2.5 rounded-full bg-[#E8B04A] shrink-0" />
                         <div className="flex flex-col">
                           <span className="font-bold">Training Partner</span>
                           <span className="text-[8.5px] text-zinc-500 dark:text-zinc-400">Serious training buddy</span>
@@ -1390,7 +1390,7 @@ export const GymNetworkModal: React.FC<GymNetworkModalProps> = ({
             ) : (
               <div className="grid grid-cols-2 gap-2">
                 {buddyProfiles.filter(({ user }) => !dismissedUserIds[user.id]).map(({ user, matchPercentage, matchBreakdown }) => {
-                  const matchColor = matchPercentage >= 85 ? '#34A853' : matchPercentage >= 70 ? '#FBBC05' : '#EA4335';
+                  const matchColor = matchPercentage >= 85 ? '#3FB98E' : matchPercentage >= 70 ? '#E8B04A' : '#C4121A';
                   return (
                     <div
                       key={user.id}
@@ -1753,12 +1753,12 @@ export const GymNetworkModal: React.FC<GymNetworkModalProps> = ({
                     {/* Row 1: Name + Badges */}
                     <div className="flex items-start justify-between gap-2 mb-2">
                       <div className="flex items-center gap-2 flex-wrap min-w-0 flex-1">
-                        <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: v.category === 'Gym' ? '#EA4335' : v.category === 'Barbell Club' ? '#FBBC05' : v.category === '24/7 Gym' ? '#4A90D9' : v.category === 'CrossFit' ? '#E84855' : v.category === 'Functional' ? '#FBBC05' : v.category === 'Yoga' ? '#34A853' : v.category === 'Pilates' ? '#34A853' : v.category === 'Climbing' ? '#8B5A2B' : v.category === 'Sauna' ? '#E84855' : v.category === 'Combat' ? '#1A1E1D' : v.category === 'Padel' ? '#FBBC05' : '#5A8F3E' }} />
+                        <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: v.category === 'Gym' ? '#C4121A' : v.category === 'Barbell Club' ? '#E8B04A' : v.category === '24/7 Gym' ? '#4A90D9' : v.category === 'CrossFit' ? '#E84855' : v.category === 'Functional' ? '#E8B04A' : v.category === 'Yoga' ? '#3FB98E' : v.category === 'Pilates' ? '#3FB98E' : v.category === 'Climbing' ? '#8B5A2B' : v.category === 'Sauna' ? '#E84855' : v.category === 'Combat' ? '#1A1E1D' : v.category === 'Padel' ? '#E8B04A' : '#5A8F3E' }} />
                         <h4 className="text-[13px] font-bold text-[#000000] dark:text-white truncate">
                           {v.name}
                         </h4>
                       </div>
-                      <span className="text-[9px] font-bold text-[#EA4335] bg-[#EA4335]/10 px-2 py-0.5 rounded-full border border-[#EA4335]/20 uppercase shrink-0 whitespace-nowrap">
+                      <span className="text-[9px] font-bold text-[#C4121A] bg-[#C4121A]/10 px-2 py-0.5 rounded-full border border-[#C4121A]/20 uppercase shrink-0 whitespace-nowrap">
                         {v.category}
                       </span>
                     </div>
@@ -1771,13 +1771,13 @@ export const GymNetworkModal: React.FC<GymNetworkModalProps> = ({
                         </span>
                       )}
                       {v.rating && (
-                        <span className="text-[10px] font-bold text-[#FBBC05] flex items-center gap-0.5">
+                        <span className="text-[10px] font-bold text-[#E8B04A] flex items-center gap-0.5">
                           <span>&#9733;</span> {v.rating}
                         </span>
                       )}
                       {v.status && (
-                        <span className="text-[10px] font-bold text-[#34A853] flex items-center gap-1">
-                          <span className="w-1.5 h-1.5 rounded-full bg-[#34A853]" />
+                        <span className="text-[10px] font-bold text-[#3FB98E] flex items-center gap-1">
+                          <span className="w-1.5 h-1.5 rounded-full bg-[#3FB98E]" />
                           {v.status}
                         </span>
                       )}
@@ -1788,9 +1788,9 @@ export const GymNetworkModal: React.FC<GymNetworkModalProps> = ({
                       href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(v.name + ' ' + (v.address || v.city))}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-start gap-1.5 min-w-0 max-w-full hover:text-[#EA4335] transition-colors mb-2"
+                      className="flex items-start gap-1.5 min-w-0 max-w-full hover:text-[#C4121A] transition-colors mb-2"
                     >
-                      <MapPin className="w-3 h-3 text-[#EA4335] shrink-0 mt-0.5" />
+                      <MapPin className="w-3 h-3 text-[#C4121A] shrink-0 mt-0.5" />
                       <p className="text-[11px] text-[#5A5F5D] dark:text-gray-400 font-semibold leading-relaxed line-clamp-1">
                         {v.address || v.city}{v.city && v.country ? `, ${v.country}` : ''}
                       </p>
@@ -1808,8 +1808,8 @@ export const GymNetworkModal: React.FC<GymNetworkModalProps> = ({
                           </span>
                         ))}
                         {v.active_checkins_count > 0 && (
-                          <span className="text-[9px] text-[#34A853] font-bold flex items-center gap-1">
-                            <span className="w-1.5 h-1.5 rounded-full bg-[#34A853]" />
+                          <span className="text-[9px] text-[#3FB98E] font-bold flex items-center gap-1">
+                            <span className="w-1.5 h-1.5 rounded-full bg-[#3FB98E]" />
                             {v.active_checkins_count} training now
                           </span>
                         )}
@@ -1830,7 +1830,7 @@ export const GymNetworkModal: React.FC<GymNetworkModalProps> = ({
                       </button>
                       <button
                         onClick={() => handleBuyPass(v)}
-                        className="flex-1 px-3 py-2 rounded-xl bg-[#EA4335] hover:bg-[#EA4335] text-white font-bold text-[11px] cursor-pointer transition-all flex items-center justify-center gap-1.5"
+                        className="flex-1 px-3 py-2 rounded-xl bg-[#C4121A] hover:bg-[#9B0E14] text-white font-bold text-[11px] cursor-pointer transition-all flex items-center justify-center gap-1.5"
                       >
                         <Ticket className="w-3 h-3" />
                         Passes
@@ -1858,17 +1858,17 @@ export const GymNetworkModal: React.FC<GymNetworkModalProps> = ({
           <div className="p-2 sm:p-4 space-y-3">
             <div className="flex items-center justify-between">
               <h3 className="text-xs font-mono font-black text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
-                <Ticket className="w-4 h-4 text-[#EA4335]" />
+                <Ticket className="w-4 h-4 text-[#C4121A]" />
                 My Day Passes
               </h3>
-              <span className="text-[10px] font-mono font-bold text-[#EA4335] bg-[#EA4335]/10 px-1.5 py-0.5 rounded-full border border-[#EA4335]/20">
+              <span className="text-[10px] font-mono font-bold text-[#C4121A] bg-[#C4121A]/10 px-1.5 py-0.5 rounded-full border border-[#C4121A]/20">
                 {userPasses.filter(p => !p.redeemed).length} Active
               </span>
             </div>
 
             {userPasses.length === 0 ? (
               <div className="text-center py-4 bg-gradient-to-br from-[#F7F5F0] to-white dark:from-white/5 dark:to-black/20 rounded-2xl border border-[rgba(0,0,0,0.08)] dark:border-white/10 p-4 space-y-3">
-                <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-[#EA4335] to-[#FBBC05] flex items-center justify-center shadow-lg shadow-[#EA4335]/20">
+                <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-[#C4121A] to-[#E8B04A] flex items-center justify-center shadow-lg shadow-[#C4121A]/20">
                   <Ticket className="w-8 h-8 text-white" />
                 </div>
                 <h4 className="text-sm font-mono font-black text-slate-900 dark:text-white">No Passes Yet</h4>
@@ -1885,24 +1885,24 @@ export const GymNetworkModal: React.FC<GymNetworkModalProps> = ({
                     className={`relative p-4 rounded-2xl border transition-all cursor-pointer space-y-2 overflow-hidden ${
                       pass.redeemed
                         ? 'bg-slate-100 dark:bg-white/5 border-slate-200 dark:border-white/10 opacity-60'
-                        : 'bg-gradient-to-br from-slate-50 to-white dark:from-[#1A1E1D] dark:to-[#0A0A0B] border-[#EA4335]/30 hover:border-[#EA4335]/60 shadow-lg shadow-[#EA4335]/10'
+                        : 'bg-gradient-to-br from-slate-50 to-white dark:from-[#1A1E1D] dark:to-[#0A0A0B] border-[#C4121A]/30 hover:border-[#C4121A]/60 shadow-lg shadow-[#C4121A]/10'
                     }`}
                   >
                     {/* Decorative corner notch */}
                     {!pass.redeemed && (
-                      <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-bl from-[#EA4335]/20 to-transparent rounded-bl-full pointer-events-none" />
+                      <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-bl from-[#C4121A]/20 to-transparent rounded-bl-full pointer-events-none" />
                     )}
 
                     <div className="flex items-center justify-between">
                       <span className={`text-[9px] font-mono font-black uppercase tracking-wider ${
-                        pass.redeemed ? 'text-slate-400' : 'text-[#FBBC05]'
+                        pass.redeemed ? 'text-slate-400' : 'text-[#E8B04A]'
                       }`}>
                         {pass.pass_type}
                       </span>
                       <span className={`text-[9px] font-mono font-black px-1.5 py-0.5 rounded-md ${
                         pass.redeemed
                           ? 'bg-slate-200 text-slate-400 dark:bg-white/10 dark:text-gray-500'
-                          : 'bg-[#34A853]/20 text-[#34A853] border border-[#34A853]/30'
+                          : 'bg-[#3FB98E]/20 text-[#3FB98E] border border-[#3FB98E]/30'
                       }`}>
                         {pass.redeemed ? 'REDEEMED' : 'READY TO SCAN'}
                       </span>
@@ -1910,7 +1910,7 @@ export const GymNetworkModal: React.FC<GymNetworkModalProps> = ({
 
                     <div>
                       <h4 className="text-sm font-mono font-black text-slate-900 dark:text-white flex items-center gap-2">
-                        <MapPin className="w-3.5 h-3.5 text-[#EA4335]" />
+                        <MapPin className="w-3.5 h-3.5 text-[#C4121A]" />
                         {pass.venue_name}
                       </h4>
                     </div>
@@ -2046,7 +2046,7 @@ export const GymNetworkModal: React.FC<GymNetworkModalProps> = ({
             onClick={() => setSelectedPass(null)}
           >
             <div
-              className="bg-white dark:bg-gradient-to-b dark:from-[#1A1E1D] dark:to-[#0A0A0B] border border-neutral-200 dark:border-[#EA4335]/40 rounded-3xl p-3.5 max-w-xs w-full text-center space-y-4 shadow-2xl relative text-zinc-900 dark:text-white my-0 max-h-[80vh] overflow-y-auto"
+              className="bg-white dark:bg-gradient-to-b dark:from-[#1A1E1D] dark:to-[#0A0A0B] border border-neutral-200 dark:border-[#C4121A]/40 rounded-3xl p-3.5 max-w-xs w-full text-center space-y-4 shadow-2xl relative text-zinc-900 dark:text-white my-0 max-h-[80vh] overflow-y-auto"
               onClick={(e) => e.stopPropagation()}
             >
               <button
@@ -2057,11 +2057,11 @@ export const GymNetworkModal: React.FC<GymNetworkModalProps> = ({
               </button>
 
               <div className="space-y-1">
-                <span className="text-[9px] font-mono text-[#FBBC05] uppercase tracking-widest block font-black">
+                <span className="text-[9px] font-mono text-[#E8B04A] uppercase tracking-widest block font-black">
                   Digital Turnstile Pass
                 </span>
                 <h3 className="text-sm font-mono font-black flex items-center justify-center gap-2">
-                  <MapPin className="w-4 h-4 text-[#EA4335]" />
+                  <MapPin className="w-4 h-4 text-[#C4121A]" />
                   {selectedPass.venue_name}
                 </h3>
               </div>
@@ -2074,7 +2074,7 @@ export const GymNetworkModal: React.FC<GymNetworkModalProps> = ({
                   rel="noopener noreferrer"
                   className="w-full py-2.5 bg-slate-100 dark:bg-[#14171F] hover:bg-slate-200 dark:hover:bg-[#2A2E2D] text-slate-900 dark:text-white font-mono font-bold text-xs rounded-xl border border-slate-200 dark:border-white/10 flex items-center justify-center gap-2 transition-all"
                 >
-                  <MapPin className="w-4 h-4 text-[#EA4335]" />
+                  <MapPin className="w-4 h-4 text-[#C4121A]" />
                   Open in Maps
                 </a>
                 <button
@@ -2086,7 +2086,7 @@ export const GymNetworkModal: React.FC<GymNetworkModalProps> = ({
                     }
                     showToast?.('Ready to propose a workout session!');
                   }}
-                  className="w-full py-2.5 bg-[#34A853] hover:bg-[#4ea85e] text-black font-mono font-bold text-xs rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg"
+                  className="w-full py-2.5 bg-[#3FB98E] hover:bg-[#349e78] text-black font-mono font-bold text-xs rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg"
                 >
                   <CalendarPlus className="w-4 h-4" />
                   Propose Workout Session
@@ -2101,7 +2101,7 @@ export const GymNetworkModal: React.FC<GymNetworkModalProps> = ({
               {!selectedPass.redeemed ? (
                 <button
                   onClick={() => handleRedeemPass(selectedPass.pass_token)}
-                  className="w-full py-2 bg-gradient-to-r from-[#EA4335] to-[#FBBC05] hover:from-[#EA4335] hover:to-[#A66D3D] text-white font-mono font-black text-xs rounded-xl cursor-pointer shadow-lg shadow-[#EA4335]/30 active:scale-95 flex items-center justify-center gap-2"
+                  className="w-full py-2 bg-gradient-to-r from-[#C4121A] to-[#E8B04A] hover:from-[#9B0E14] hover:to-[#C69238] text-white font-mono font-black text-xs rounded-xl cursor-pointer shadow-lg shadow-[#C4121A]/30 active:scale-95 flex items-center justify-center gap-2"
                 >
                   <Zap className="w-4 h-4" />
                   Simulate Gate Scan
@@ -2410,7 +2410,7 @@ export const GymNetworkModal: React.FC<GymNetworkModalProps> = ({
                       setActiveChatUser(null);
                       handleOpenMeetingModal(userToPropose);
                     }}
-                    className="px-2 py-1 bg-gradient-to-r from-[#EA4335] to-[#FBBC05] hover:from-[#EA4335] hover:to-[#A66D3D] text-white border border-[#EA4335]/40 font-mono text-[10px] font-black rounded-lg cursor-pointer flex items-center gap-2 transition-all active:scale-95 shadow-md shadow-[#EA4335]/20"
+                    className="px-2 py-1 bg-gradient-to-r from-[#C4121A] to-[#E8B04A] hover:from-[#9B0E14] hover:to-[#C69238] text-white border border-[#C4121A]/40 font-mono text-[10px] font-black rounded-lg cursor-pointer flex items-center gap-2 transition-all active:scale-95 shadow-md shadow-[#C4121A]/20"
                   >
                     <CalendarPlus className="w-3.5 h-3.5" />
                     <span>Book Gym Date</span>
@@ -2493,7 +2493,7 @@ export const GymNetworkModal: React.FC<GymNetworkModalProps> = ({
                     setSelectedDetailedUser(null);
                     setLightboxMedia(null);
                   }}
-                  className="flex items-center gap-1 text-xs font-mono font-bold text-[#000000] dark:text-white hover:text-[#EA4335] bg-[#F2F2F7] dark:bg-white/10 px-1.5 py-0.5 rounded-full border border-[rgba(0,0,0,0.08)] dark:border-white/10 transition-colors cursor-pointer"
+                  className="flex items-center gap-1 text-xs font-mono font-bold text-[#000000] dark:text-white hover:text-[#C4121A] bg-[#F2F2F7] dark:bg-white/10 px-1.5 py-0.5 rounded-full border border-[rgba(0,0,0,0.08)] dark:border-white/10 transition-colors cursor-pointer"
                 >
                   <span>← Back</span>
                 </button>
@@ -2528,8 +2528,8 @@ export const GymNetworkModal: React.FC<GymNetworkModalProps> = ({
                   onClick={() => setProfileModalTab('vault')}
                   className={`px-1.5 py-0.5 rounded-full font-bold transition-all cursor-pointer whitespace-nowrap text-center flex items-center justify-center gap-2 shrink-0 tracking-wide ${
                     profileModalTab === 'vault'
-                      ? 'bg-[#EA4335] text-white shadow-2xs font-black'
-                      : 'text-[#5A5F5D] dark:text-gray-400 hover:text-[#EA4335]'
+                      ? 'bg-[#C4121A] text-white shadow-2xs font-black'
+                      : 'text-[#5A5F5D] dark:text-gray-400 hover:text-[#C4121A]'
                   }`}
                 >
                   <span>Vault</span>
@@ -2539,8 +2539,8 @@ export const GymNetworkModal: React.FC<GymNetworkModalProps> = ({
                   onClick={() => setProfileModalTab('metrics')}
                   className={`px-1.5 py-0.5 rounded-full font-bold transition-all cursor-pointer whitespace-nowrap text-center shrink-0 tracking-wide ${
                     profileModalTab === 'metrics'
-                      ? 'bg-[#34A853] text-white shadow-2xs font-black'
-                      : 'text-[#5A5F5D] dark:text-gray-400 hover:text-[#34A853]'
+                      ? 'bg-[#3FB98E] text-white shadow-2xs font-black'
+                      : 'text-[#5A5F5D] dark:text-gray-400 hover:text-[#3FB98E]'
                   }`}
                 >
                   Metrics
@@ -2574,7 +2574,7 @@ export const GymNetworkModal: React.FC<GymNetworkModalProps> = ({
                   <div className="absolute top-3 right-3 flex items-center gap-2 z-10">
                     {(() => {
                       const pct = selectedDetailedUser.matchPercentage;
-                      const ringColor = pct >= 85 ? '#34A853' : pct >= 70 ? '#FBBC05' : '#EA4335';
+                      const ringColor = pct >= 85 ? '#3FB98E' : pct >= 70 ? '#E8B04A' : '#C4121A';
                       return (
                         <div className="flex items-center gap-2 bg-black/50 backdrop-blur-md px-2 py-1 rounded-full border border-white/15">
                           <div className="relative w-8 h-8 flex items-center justify-center">
@@ -2605,14 +2605,14 @@ export const GymNetworkModal: React.FC<GymNetworkModalProps> = ({
                       <h2 className="text-2xl font-display font-black tracking-tight drop-shadow-2xl">
                         {selectedDetailedUser.user.user_name.split(' ')[0]}, {selectedDetailedUser.user.age || 24}
                       </h2>
-                      <div className="w-5 h-5 rounded-full bg-[#34A853] flex items-center justify-center shrink-0 shadow-[0_0_8px_rgba(52,211,153,0.6)]">
+                      <div className="w-5 h-5 rounded-full bg-[#3FB98E] flex items-center justify-center shrink-0 shadow-[0_0_8px_rgba(52,211,153,0.6)]">
                         <svg className="w-3 h-3 text-black" fill="currentColor" viewBox="0 0 20 20">
                           <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                         </svg>
                       </div>
                     </div>
                     <div className="flex items-center gap-2 text-xs font-mono text-gray-200">
-                      <MapPin className="w-3 h-3 text-[#EA4335]" />
+                      <MapPin className="w-3 h-3 text-[#C4121A]" />
                       <span className="font-semibold">{selectedDetailedUser.user.city_town}</span>
                       {selectedDetailedUser.user.favorite_gym && (
                         <>
@@ -2644,7 +2644,7 @@ export const GymNetworkModal: React.FC<GymNetworkModalProps> = ({
                   {/* Quick Stats Strip — 3-column premium */}
                   <div className="grid grid-cols-3 gap-2">
                     <div className="bg-gradient-to-br from-[#F7F5F0] to-white dark:from-white/5 dark:to-black/20 p-3 rounded-2xl border border-[rgba(0,0,0,0.08)] dark:border-white/10 flex flex-col items-center text-center">
-                      <span className="text-lg font-black text-[#EA4335]">{selectedDetailedUser.user.rpe_target}</span>
+                      <span className="text-lg font-black text-[#C4121A]">{selectedDetailedUser.user.rpe_target}</span>
                       <span className="text-[9px] font-mono font-bold text-[#5A5F5D] dark:text-gray-400 uppercase mt-0.5">RPE / 10</span>
                     </div>
                     <div className="bg-gradient-to-br from-[#F7F5F0] to-white dark:from-white/5 dark:to-black/20 p-3 rounded-2xl border border-[rgba(0,0,0,0.08)] dark:border-white/10 flex flex-col items-center text-center">
@@ -2652,7 +2652,7 @@ export const GymNetworkModal: React.FC<GymNetworkModalProps> = ({
                       <span className="text-[9px] font-mono font-bold text-[#5A5F5D] dark:text-gray-400 uppercase mt-0.5">Sets / Wk</span>
                     </div>
                     <div className="bg-gradient-to-br from-[#F7F5F0] to-white dark:from-white/5 dark:to-black/20 p-3 rounded-2xl border border-[rgba(0,0,0,0.08)] dark:border-white/10 flex flex-col items-center text-center">
-                      <span className="text-lg font-black text-[#34A853]">{selectedDetailedUser.user.training_focus?.slice(0, 4) || 'Hyper'}</span>
+                      <span className="text-lg font-black text-[#3FB98E]">{selectedDetailedUser.user.training_focus?.slice(0, 4) || 'Hyper'}</span>
                       <span className="text-[9px] font-mono font-bold text-[#5A5F5D] dark:text-gray-400 uppercase mt-0.5">Focus</span>
                     </div>
                   </div>
@@ -2661,11 +2661,11 @@ export const GymNetworkModal: React.FC<GymNetworkModalProps> = ({
                   {selectedDetailedUser.matchBreakdown && (() => {
                     const mb = selectedDetailedUser.matchBreakdown;
                     const bars = [
-                      { label: 'Training Style', value: mb.trainingSimilarity, color: '#EA4335' },
-                      { label: 'Activity Overlap', value: mb.activityOverlap, color: '#34A853' },
-                      { label: 'Proximity', value: mb.proximity, color: '#FBBC05' },
-                      { label: 'Status Align', value: mb.statusAlignment, color: '#34A853' },
-                      { label: 'Intensity Match', value: mb.intensityCompatibility, color: '#FBBC05' },
+                      { label: 'Training Style', value: mb.trainingSimilarity, color: '#C4121A' },
+                      { label: 'Activity Overlap', value: mb.activityOverlap, color: '#3FB98E' },
+                      { label: 'Proximity', value: mb.proximity, color: '#E8B04A' },
+                      { label: 'Status Align', value: mb.statusAlignment, color: '#3FB98E' },
+                      { label: 'Intensity Match', value: mb.intensityCompatibility, color: '#E8B04A' },
                     ];
                     return (
                       <div className="bg-gradient-to-br from-[#F7F5F0] to-white dark:from-white/5 dark:to-black/20 p-4 rounded-2xl border border-[rgba(0,0,0,0.08)] dark:border-white/10 space-y-2">
@@ -2674,7 +2674,7 @@ export const GymNetworkModal: React.FC<GymNetworkModalProps> = ({
                             Match Breakdown
                           </h3>
                           {mb.distanceKm != null && (
-                            <span className="text-[10px] font-mono font-bold text-white bg-[#EA4335] px-1.5 py-0.5 rounded-full">
+                            <span className="text-[10px] font-mono font-bold text-white bg-[#C4121A] px-1.5 py-0.5 rounded-full">
                               {mb.distanceKm < 1 ? '<1 km' : `${mb.distanceKm.toFixed(1)} km`}
                             </span>
                           )}
@@ -2692,8 +2692,8 @@ export const GymNetworkModal: React.FC<GymNetworkModalProps> = ({
                                     background: bar.value > 0.7
                                       ? 'linear-gradient(90deg, #5B8C5A, #3B7A57)'
                                       : bar.value > 0.4
-                                      ? 'linear-gradient(90deg, #FBBC05, #FBBC05)'
-                                      : 'linear-gradient(90deg, #EA4335, #FBBC05)',
+                                      ? 'linear-gradient(90deg, #E8B04A, #E8B04A)'
+                                      : 'linear-gradient(90deg, #C4121A, #E8B04A)',
                                     boxShadow: bar.value > 0.7 ? '0 0 8px rgba(52,211,153,0.4)' : 'none',
                                   }}
                                 />
@@ -2714,7 +2714,7 @@ export const GymNetworkModal: React.FC<GymNetworkModalProps> = ({
                       About
                     </h3>
                     <div className="relative bg-gradient-to-br from-white to-[#F7F5F0] dark:from-black/40 dark:to-white/5 p-4 rounded-2xl border border-[rgba(0,0,0,0.08)] dark:border-white/10 text-sm leading-relaxed font-sans text-[#000000] dark:text-gray-200">
-                      <span className="absolute top-2 left-3 text-3xl text-[#EA4335]/15 font-serif leading-none">“</span>
+                      <span className="absolute top-2 left-3 text-3xl text-[#C4121A]/15 font-serif leading-none">“</span>
                       <p className="pl-5">
                         {selectedDetailedUser.user.bio || "Looking for a deadlift or leg day partner at Equinox! Heavy sets & post-workout protein smoothies"}
                       </p>
@@ -2730,13 +2730,13 @@ export const GymNetworkModal: React.FC<GymNetworkModalProps> = ({
                       <div className="flex justify-between items-center pb-2 border-b border-[rgba(0,0,0,0.08)] dark:border-white/10">
                         <span className="text-[#5A5F5D] dark:text-gray-400">Home Gym</span>
                         <span className="font-bold text-[#000000] dark:text-white flex items-center gap-1">
-                          <MapPin className="w-3 h-3 text-[#EA4335]" />
+                          <MapPin className="w-3 h-3 text-[#C4121A]" />
                           {selectedDetailedUser.user.favorite_gym || 'Equinox Hudson Yards'}
                         </span>
                       </div>
                       <div className="flex justify-between items-center pb-2 border-b border-[rgba(0,0,0,0.08)] dark:border-white/10">
                         <span className="text-[#5A5F5D] dark:text-gray-400">Focus Split</span>
-                        <span className="font-bold text-[#EA4335]">{selectedDetailedUser.user.training_focus}</span>
+                        <span className="font-bold text-[#C4121A]">{selectedDetailedUser.user.training_focus}</span>
                       </div>
                       <div className="flex justify-between items-center">
                         <span className="text-[#5A5F5D] dark:text-gray-400">Target Volume</span>
@@ -2771,7 +2771,7 @@ export const GymNetworkModal: React.FC<GymNetworkModalProps> = ({
                           setMidpointGyms(gyms);
                           setIsLoadingMidpoint(false);
                         }}
-                        className="w-full py-2 bg-[#FBBC05]/20 hover:bg-[#FBBC05]/30 text-[#FBBC05] font-mono font-black text-xs rounded-xl border border-[#FBBC05]/30 flex items-center justify-center gap-2 cursor-pointer transition-all"
+                        className="w-full py-2 bg-[#E8B04A]/20 hover:bg-[#E8B04A]/30 text-[#E8B04A] font-mono font-black text-xs rounded-xl border border-[#E8B04A]/30 flex items-center justify-center gap-2 cursor-pointer transition-all"
                       >
                         <Compass className="w-4 h-4" />
                         Find Gyms Halfway Between Us
@@ -2783,7 +2783,7 @@ export const GymNetworkModal: React.FC<GymNetworkModalProps> = ({
                       )}
                       {midpointGyms.length > 0 && (
                         <div className="space-y-1.5">
-                          <h4 className="text-[10px] font-mono font-black text-[#FBBC05] uppercase tracking-wider">
+                          <h4 className="text-[10px] font-mono font-black text-[#E8B04A] uppercase tracking-wider">
                             Mutual Meetup Gyms
                           </h4>
                           {midpointGyms.slice(0, 5).map((gym) => (
@@ -2800,7 +2800,7 @@ export const GymNetworkModal: React.FC<GymNetworkModalProps> = ({
                               </div>
                               <p className="text-[10px] text-gray-400 leading-relaxed break-words line-clamp-2">{gym.address}</p>
                               <div className="flex items-center justify-between">
-                                <span className="text-[10px] font-mono text-[#34A853]">
+                                <span className="text-[10px] font-mono text-[#3FB98E]">
                                   {gym.distFromA.toFixed(1)}km from you &middot; {gym.distFromB.toFixed(1)}km from {selectedDetailedUser.user.user_name.split(' ')[0]}
                                 </span>
                                 <button
@@ -2817,7 +2817,7 @@ export const GymNetworkModal: React.FC<GymNetworkModalProps> = ({
                                     handleOpenMeetingModal(selectedDetailedUser.user);
                                     setSelectedDetailedUser(null);
                                   }}
-                                  className="text-[9px] font-mono font-black text-[#34A853] hover:text-white bg-[#34A853]/10 hover:bg-[#34A853]/20 px-2 py-1 rounded-lg border border-[#34A853]/30 cursor-pointer transition-all"
+                                  className="text-[9px] font-mono font-black text-[#3FB98E] hover:text-white bg-[#3FB98E]/10 hover:bg-[#3FB98E]/20 px-2 py-1 rounded-lg border border-[#3FB98E]/30 cursor-pointer transition-all"
                                 >
                                   Propose Session Here
                                 </button>
@@ -2936,7 +2936,7 @@ export const GymNetworkModal: React.FC<GymNetworkModalProps> = ({
                           setLightboxMedia(item);
                           setIsMediaPlaying(item.type === 'video');
                         }}
-                        className="group relative h-40 rounded-2xl overflow-hidden border border-[rgba(0,0,0,0.08)] dark:border-white/10 bg-black cursor-pointer shadow-2xs hover:border-[#EA4335] transition-all"
+                        className="group relative h-40 rounded-2xl overflow-hidden border border-[rgba(0,0,0,0.08)] dark:border-white/10 bg-black cursor-pointer shadow-2xs hover:border-[#C4121A] transition-all"
                       >
                         <img
                           src={item.url}
@@ -2948,7 +2948,7 @@ export const GymNetworkModal: React.FC<GymNetworkModalProps> = ({
 
                         {/* Top Category Tag */}
                         <div className="absolute top-2 left-2 z-10">
-                          <span className="text-[8.5px] font-bold px-1.5 py-0.5 rounded-full bg-[#EA4335] text-white shadow-2xs">
+                          <span className="text-[8.5px] font-bold px-1.5 py-0.5 rounded-full bg-[#C4121A] text-white shadow-2xs">
                             {item.category}
                           </span>
                         </div>
@@ -2986,7 +2986,7 @@ export const GymNetworkModal: React.FC<GymNetworkModalProps> = ({
                 {/* Exercise PR History */}
                 <div className="space-y-1.5">
                   <h3 className="text-xs font-mono font-bold text-[#5A5F5D] dark:text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
-                    <Dumbbell className="w-3.5 h-3.5 text-[#EA4335]" /> Exercise History & Personal Records
+                    <Dumbbell className="w-3.5 h-3.5 text-[#C4121A]" /> Exercise History & Personal Records
                   </h3>
                   <div className="bg-white dark:bg-black/40 p-4 rounded-2xl border border-[rgba(0,0,0,0.08)] dark:border-white/10 space-y-2">
                     <div className="flex justify-between items-center pb-1.5 border-b border-[rgba(0,0,0,0.08)] dark:border-white/10">
@@ -2994,7 +2994,7 @@ export const GymNetworkModal: React.FC<GymNetworkModalProps> = ({
                         <div className="font-bold text-[#000000] dark:text-white">Barbell Back Squat</div>
                         <div className="text-[10px] text-[#5A5F5D] dark:text-gray-400">3 sets x 3 reps • RPE 9.0</div>
                       </div>
-                      <span className="font-black text-[#EA4335] text-sm">210 kg</span>
+                      <span className="font-black text-[#C4121A] text-sm">210 kg</span>
                     </div>
 
                     <div className="flex justify-between items-center pb-1.5 border-b border-[rgba(0,0,0,0.08)] dark:border-white/10">
@@ -3010,7 +3010,7 @@ export const GymNetworkModal: React.FC<GymNetworkModalProps> = ({
                         <div className="font-bold text-[#000000] dark:text-white">Conventional Deadlift</div>
                         <div className="text-[10px] text-[#5A5F5D] dark:text-gray-400">2 sets x 2 reps • RPE 9.0</div>
                       </div>
-                      <span className="font-black text-[#34A853] text-sm">255 kg</span>
+                      <span className="font-black text-[#3FB98E] text-sm">255 kg</span>
                     </div>
 
                     <div className="flex justify-between items-center">
@@ -3035,7 +3035,7 @@ export const GymNetworkModal: React.FC<GymNetworkModalProps> = ({
                     </div>
                     <div className="grid grid-cols-3 gap-2 text-center pt-1 border-t border-[rgba(0,0,0,0.08)] dark:border-white/10">
                       <div className="bg-[#F2F2F7] dark:bg-white/5 p-2 rounded-xl">
-                        <span className="text-[9px] text-[#EA4335] font-bold block">PROTEIN</span>
+                        <span className="text-[9px] text-[#C4121A] font-bold block">PROTEIN</span>
                         <span className="font-bold text-xs text-[#000000] dark:text-white">195g</span>
                       </div>
                       <div className="bg-[#F2F2F7] dark:bg-white/5 p-2 rounded-xl">
@@ -3043,13 +3043,13 @@ export const GymNetworkModal: React.FC<GymNetworkModalProps> = ({
                         <span className="font-bold text-xs text-[#000000] dark:text-white">310g</span>
                       </div>
                       <div className="bg-[#F2F2F7] dark:bg-white/5 p-2 rounded-xl">
-                        <span className="text-[9px] text-[#34A853] font-bold block">FAT</span>
+                        <span className="text-[9px] text-[#3FB98E] font-bold block">FAT</span>
                         <span className="font-bold text-xs text-[#000000] dark:text-white">70g</span>
                       </div>
                     </div>
                     <div className="flex justify-between items-center text-[10.5px] pt-1">
                       <span className="text-[#5A5F5D] dark:text-gray-400">Meal Logging Consistency</span>
-                      <span className="font-bold text-[#34A853]">96% Adherence (30 Days)</span>
+                      <span className="font-bold text-[#3FB98E]">96% Adherence (30 Days)</span>
                     </div>
                   </div>
                 </div>
@@ -3057,14 +3057,14 @@ export const GymNetworkModal: React.FC<GymNetworkModalProps> = ({
                 {/* Biometrics */}
                 <div className="space-y-1.5">
                   <h3 className="text-xs font-mono font-bold text-[#5A5F5D] dark:text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
-                    <Activity className="w-3.5 h-3.5 text-[#34A853]" /> Biometric Performance Matrix
+                    <Activity className="w-3.5 h-3.5 text-[#3FB98E]" /> Biometric Performance Matrix
                   </h3>
                   <div className="grid grid-cols-2 gap-2">
                     <div className="bg-white dark:bg-black/40 p-3 rounded-2xl border border-[rgba(0,0,0,0.08)] dark:border-white/10 flex flex-col justify-between">
                       <span className="text-[10px] text-[#5A5F5D] dark:text-gray-400 font-bold">RECOVERY SCORE</span>
-                      <span className="text-lg font-black text-[#34A853]">88%</span>
+                      <span className="text-lg font-black text-[#3FB98E]">88%</span>
                       <div className="w-full bg-[#E5E5EA] dark:bg-white/10 h-1.5 rounded-full overflow-hidden mt-1">
-                        <div className="bg-[#34A853] h-full w-[88%]" />
+                        <div className="bg-[#3FB98E] h-full w-[88%]" />
                       </div>
                     </div>
 
@@ -3072,15 +3072,15 @@ export const GymNetworkModal: React.FC<GymNetworkModalProps> = ({
                       <span className="text-[10px] text-[#5A5F5D] dark:text-gray-400 font-bold">HRV AVG</span>
                       <span className="text-lg font-black text-[#000000] dark:text-white">76 ms</span>
                       <div className="w-full bg-[#E5E5EA] dark:bg-white/10 h-1.5 rounded-full overflow-hidden mt-1">
-                        <div className="bg-[#EA4335] h-full w-[76%]" />
+                        <div className="bg-[#C4121A] h-full w-[76%]" />
                       </div>
                     </div>
 
                     <div className="bg-white dark:bg-black/40 p-3 rounded-2xl border border-[rgba(0,0,0,0.08)] dark:border-white/10 flex flex-col justify-between">
                       <span className="text-[10px] text-[#5A5F5D] dark:text-gray-400 font-bold">DAY STRAIN</span>
-                      <span className="text-lg font-black text-[#EA4335]">14.8 / 20</span>
+                      <span className="text-lg font-black text-[#C4121A]">14.8 / 20</span>
                       <div className="w-full bg-[#E5E5EA] dark:bg-white/10 h-1.5 rounded-full overflow-hidden mt-1">
-                        <div className="bg-[#EA4335] h-full w-[74%]" />
+                        <div className="bg-[#C4121A] h-full w-[74%]" />
                       </div>
                     </div>
 
@@ -3088,7 +3088,7 @@ export const GymNetworkModal: React.FC<GymNetworkModalProps> = ({
                       <span className="text-[10px] text-[#5A5F5D] dark:text-gray-400 font-bold">SLEEP EFFICIENCY</span>
                       <span className="text-lg font-black text-[#000000] dark:text-white">92%</span>
                       <div className="w-full bg-[#E5E5EA] dark:bg-white/10 h-1.5 rounded-full overflow-hidden mt-1">
-                        <div className="bg-[#34A853] h-full w-[92%]" />
+                        <div className="bg-[#3FB98E] h-full w-[92%]" />
                       </div>
                     </div>
                   </div>
@@ -3115,13 +3115,13 @@ export const GymNetworkModal: React.FC<GymNetworkModalProps> = ({
                   onClick={() => handleLikeBuddy(selectedDetailedUser.user)}
                   className={`w-11 h-11 rounded-full font-mono transition-all cursor-pointer flex items-center justify-center active:scale-90 ${
                     likedUserIds[selectedDetailedUser.user.id]
-                      ? 'bg-[#EA4335] text-white shadow-[0_0_12px_rgba(217,79,79,0.4)]'
-                      : 'bg-[#F2F2F7] dark:bg-white/10 hover:bg-[#E5E5EA] dark:hover:bg-white/20 text-[#EA4335] border border-[rgba(0,0,0,0.08)] dark:border-white/10'
+                      ? 'bg-[#C4121A] text-white shadow-[0_0_12px_rgba(217,79,79,0.4)]'
+                      : 'bg-[#F2F2F7] dark:bg-white/10 hover:bg-[#E5E5EA] dark:hover:bg-white/20 text-[#C4121A] border border-[rgba(0,0,0,0.08)] dark:border-white/10'
                   }`}
                   title={likedUserIds[selectedDetailedUser.user.id] ? 'Unlike' : 'Like'}
                   aria-label={likedUserIds[selectedDetailedUser.user.id] ? 'Unlike' : 'Like'}
                 >
-                  <Heart className={`w-5 h-5 ${likedUserIds[selectedDetailedUser.user.id] ? 'fill-current text-white' : 'text-[#EA4335]'}`} />
+                  <Heart className={`w-5 h-5 ${likedUserIds[selectedDetailedUser.user.id] ? 'fill-current text-white' : 'text-[#C4121A]'}`} />
                 </button>
                 <button
                   onClick={() => {
@@ -3129,7 +3129,7 @@ export const GymNetworkModal: React.FC<GymNetworkModalProps> = ({
                     setSelectedDetailedUser(null);
                     handleOpenChat(target);
                   }}
-                  className="w-11 h-11 rounded-full bg-[#34A853] hover:bg-[#34A853] text-white transition-all cursor-pointer flex items-center justify-center shadow-md active:scale-90"
+                  className="w-11 h-11 rounded-full bg-[#3FB98E] hover:bg-[#2F9B73] text-white transition-all cursor-pointer flex items-center justify-center shadow-md active:scale-90"
                   title={`Chat with ${selectedDetailedUser.user.user_name.split(' ')[0]}`}
                   aria-label={`Chat with ${selectedDetailedUser.user.user_name.split(' ')[0]}`}
                 >
@@ -3154,7 +3154,7 @@ export const GymNetworkModal: React.FC<GymNetworkModalProps> = ({
             {/* Header */}
             <div className="flex items-center justify-between pb-2 border-b border-neutral-200 dark:border-white/10 font-mono text-xs">
               <div className="flex items-center gap-2">
-                <span className="font-bold px-1.5 py-0.5 rounded-full bg-[#EA4335] text-white">
+                <span className="font-bold px-1.5 py-0.5 rounded-full bg-[#C4121A] text-white">
                   {lightboxMedia.category}
                 </span>
                 <span className="text-neutral-400 dark:text-gray-400">{lightboxMedia.date}</span>
@@ -3180,7 +3180,7 @@ export const GymNetworkModal: React.FC<GymNetworkModalProps> = ({
                 <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center space-y-2">
                   <button
                     onClick={() => setIsMediaPlaying(!isMediaPlaying)}
-                    className="w-16 h-16 rounded-full bg-[#EA4335] text-white flex items-center justify-center font-bold text-xl shadow-2xl hover:scale-110 active:scale-95 transition-all cursor-pointer"
+                    className="w-16 h-16 rounded-full bg-[#C4121A] text-white flex items-center justify-center font-bold text-xl shadow-2xl hover:scale-110 active:scale-95 transition-all cursor-pointer"
                   >
                     {isMediaPlaying ? <Pause className="w-6 h-6" /> : <Play className="w-6 h-6 ml-0.5" />}
                   </button>
@@ -3323,7 +3323,7 @@ export const GymNetworkModal: React.FC<GymNetworkModalProps> = ({
                       }}
                       className={`px-2 py-1 rounded-xl text-xs font-bold font-mono transition-all cursor-pointer flex items-center gap-2 border ${
                         selectedBuddyCategory === act.id
-                          ? 'bg-[#EA4335] text-white border-[#EA4335]'
+                          ? 'bg-[#C4121A] text-white border-[#C4121A]'
                           : 'bg-white/5 hover:bg-white/15 text-gray-200 border-white/10 hover:border-amber-400/50'
                       }`}
                     >

@@ -626,9 +626,9 @@ export const AIMealScanModal: React.FC<AIMealScanModalProps> = ({
 
   const macroRingData = estimation
     ? [
-        { label: 'Protein', value: Math.round(estimation.totalP), color: '#4285F4', max: 200 },
-        { label: 'Carbs', value: Math.round(estimation.totalC), color: '#FBBC05', max: 300 },
-        { label: 'Fats', value: Math.round(estimation.totalF), color: '#EA4335', max: 100 },
+        { label: 'Protein', value: Math.round(estimation.totalP), color: '#2D7FF9', max: 200 },
+        { label: 'Carbs', value: Math.round(estimation.totalC), color: '#E8B04A', max: 300 },
+        { label: 'Fats', value: Math.round(estimation.totalF), color: '#C4121A', max: 100 },
       ]
     : [];
 
@@ -1134,7 +1134,7 @@ export const AIMealScanModal: React.FC<AIMealScanModalProps> = ({
                           cy="24"
                           r="20"
                           fill="none"
-                          stroke="#34A853"
+                          stroke="#3FB98E"
                           strokeWidth="3.5"
                           strokeLinecap="round"
                           strokeDasharray={`${(Math.min(estimation.fiber / 40, 1) * 125.7)} 125.7`}

@@ -686,13 +686,13 @@ function SharedGoalRing({ goal, isUserA, isLight, onContribute }: {
           <circle cx="60" cy="60" r={radius} fill="none" stroke={isLight ? '#e5e7eb' : 'rgba(255,255,255,0.06)'} strokeWidth="8" />
           <circle
             cx="60" cy="60" r={radius} fill="none"
-            stroke="#34A853" strokeWidth="8" strokeLinecap="round"
+            stroke="#C4121A" strokeWidth="8" strokeLinecap="round"
             strokeDasharray={`${strokeA} ${circumference - strokeA}`}
             className="transition-all duration-700"
           />
           <circle
             cx="60" cy="60" r={radius} fill="none"
-            stroke="#4285F4" strokeWidth="8" strokeLinecap="round"
+            stroke="#2D7FF9" strokeWidth="8" strokeLinecap="round"
             strokeDasharray={`${strokeB} ${circumference - strokeB}`}
             strokeDashoffset={-strokeA}
             className="transition-all duration-700"
@@ -707,11 +707,11 @@ function SharedGoalRing({ goal, isUserA, isLight, onContribute }: {
         <p className={`text-sm font-bold truncate ${isLight ? 'text-gray-900' : 'text-white'}`}>{goal.title}</p>
         <div className="flex items-center gap-3 mt-1.5">
           <div className="flex items-center gap-1">
-            <span className="w-2 h-2 rounded-full bg-red-500" />
+            <span className="w-2 h-2 rounded-full bg-[#C4121A]" />
             <span className={`text-[10px] ${isLight ? 'text-gray-500' : 'text-white/50'}`}>You: {isUserA ? goal.current_value_a : goal.current_value_b}</span>
           </div>
           <div className="flex items-center gap-1">
-            <span className="w-2 h-2 rounded-full bg-cyan-500" />
+            <span className="w-2 h-2 rounded-full bg-[#2D7FF9]" />
             <span className={`text-[10px] ${isLight ? 'text-gray-500' : 'text-white/50'}`}>Partner: {isUserA ? goal.current_value_b : goal.current_value_a}</span>
           </div>
         </div>
