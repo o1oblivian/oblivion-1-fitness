@@ -1,14 +1,5 @@
 import React, { useState } from 'react';
 import {
-  ResponsiveContainer,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Cell,
-  CartesianGrid,
-} from 'recharts';
-import {
   BarChart3,
   Flame,
   Clock,
@@ -226,75 +217,127 @@ export const WeeklyProgressChart: React.FC<WeeklyProgressChartProps> = ({
       </div>
 
       {/* ── KINETIC PILL BAROMETER CANVAS (COMPACT 90px) ── */}
-      <div className="w-full h-[95px] font-mono text-xs relative">
-        <ResponsiveContainer width="100%" height="100%">
-          <BarChart
-            data={chartData}
-            margin={{ top: 6, right: 4, left: -24, bottom: 0 }}
-            onClick={(state: any) => {
-              if (state && state.activePayload && state.activePayload.length) {
-                handleBarClick(state.activePayload[0].payload as DayData);
-              }
-            }}
-          >
-            <defs>
-              <linearGradient id="ofcGhostTargetGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#94a3b8" stopOpacity={0.2} />
-                <stop offset="100%" stopColor="#64748b" stopOpacity={0.06} />
-              </linearGradient>
-            </defs>
+      <div className="w-full h-[95px] font-mono text-xs relative select-none">
+        <svg
+          viewBox="0 0 700 95"
+          className="w-full h-full overflow-visible"
+          preserveAspectRatio="none"
+        >
+          <defs>
+            <linearGradient id="ofcGhostTargetGradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#94a3b8" stopOpacity={0.25} />
+              <stop offset="100%" stopColor="#64748b" stopOpacity={0.08} />
+            </linearGradient>
+          </defs>
 
-            <CartesianGrid
-              strokeDasharray="3 3"
-              stroke="currentColor"
-              className="text-slate-200/60 dark:text-zinc-800/80"
-              vertical={false}
-            />
-            <YAxis
-              axisLine={false}
-              tickLine={false}
-              tick={{ fill: '#94a3b8', fontSize: 9 }}
-              domain={[0, maxMetricValue]}
-              tickFormatter={(val) =>
-                metric === 'volume'
-                  ? val >= 1000
-                    ? `${(val / 1000).toFixed(0)}k`
-                    : `${val}`
-                  : `${val}`
-              }
-            />
+          {/* Horizontal Reference Grid Lines */}
+          <line
+            x1="0"
+            y1="8"
+            x2="700"
+            y2="8"
+            stroke="currentColor"
+            strokeDasharray="4 4"
+            className="text-slate-200/50 dark:text-zinc-800/60"
+            strokeWidth="1"
+          />
+          <line
+            x1="0"
+            y1="46"
+            x2="700"
+            y2="46"
+            stroke="currentColor"
+            strokeDasharray="4 4"
+            className="text-slate-200/40 dark:text-zinc-800/50"
+            strokeWidth="1"
+          />
+          <line
+            x1="0"
+            y1="84"
+            x2="700"
+            y2="84"
+            stroke="currentColor"
+            className="text-slate-200/80 dark:text-zinc-800/90"
+            strokeWidth="1"
+          />
 
-            {/* Target Blueprint Ghost Bar */}
-            <Bar
-              dataKey={metric === 'volume' ? 'targetVolume' : 'targetSets'}
-              radius={[4, 4, 1, 1]}
-              barSize={16}
-              fill="url(#ofcGhostTargetGradient)"
-            />
+          {/* Day Bar Groups */}
+          {chartData.map((d, index) => {
+            const isSelected = d.day === selectedDay;
+            const baseColor = RETRO_PALETTE_COLORS[index % RETRO_PALETTE_COLORS.length];
+            const colWidth = 100;
+            const centerX = colWidth * index + colWidth / 2;
+            const barWidth = 24;
+            const barX = centerX - barWidth / 2;
+            const baselineY = 84;
+            const maxH = 74;
 
-            {/* Actual Logged Volume / Sets Bar */}
-            <Bar
-              dataKey={metric === 'volume' ? 'volume' : 'sets'}
-              radius={[4, 4, 1, 1]}
-              barSize={16}
-              className="cursor-pointer"
-            >
-              {chartData.map((entry, index) => {
-                const isSelected = entry.day === selectedDay;
-                const baseColor = RETRO_PALETTE_COLORS[index % RETRO_PALETTE_COLORS.length];
-                return (
-                  <Cell
-                    key={`cell-${entry.day}`}
+            const targetVal = metric === 'volume' ? d.targetVolume : d.targetSets;
+            const targetRatio = maxMetricValue > 0 ? Math.min(1, Math.max(0.1, targetVal / maxMetricValue)) : 0.1;
+            const targetH = Math.max(8, targetRatio * maxH);
+            const targetY = baselineY - targetH;
+
+            const actualVal = metric === 'volume' ? d.volume : d.sets;
+            const actualRatio = maxMetricValue > 0 ? Math.min(1, actualVal / maxMetricValue) : 0;
+            const actualH = actualVal > 0 ? Math.max(8, actualRatio * maxH) : 0;
+            const actualY = baselineY - actualH;
+
+            return (
+              <g
+                key={`bar-group-${d.day}`}
+                onClick={() => handleBarClick(d)}
+                className="cursor-pointer group"
+              >
+                {/* Full column click target */}
+                <rect
+                  x={colWidth * index}
+                  y="0"
+                  width={colWidth}
+                  height="95"
+                  fill="transparent"
+                />
+
+                {/* Target blueprint ghost bar */}
+                <rect
+                  x={barX}
+                  y={targetY}
+                  width={barWidth}
+                  height={targetH}
+                  rx="4"
+                  ry="4"
+                  fill="url(#ofcGhostTargetGradient)"
+                />
+
+                {/* Actual logged bar */}
+                {actualVal > 0 && (
+                  <rect
+                    x={barX}
+                    y={actualY}
+                    width={barWidth}
+                    height={actualH}
+                    rx="4"
+                    ry="4"
                     fill={baseColor}
-                    opacity={isSelected ? 1 : 0.8}
+                    opacity={isSelected ? 1 : 0.85}
                     stroke={isSelected ? '#ffffff' : 'transparent'}
                     strokeWidth={isSelected ? 2 : 0}
+                    className="transition-all duration-300"
                   />
-                );
-              })}
-            </Bar>
-          </BarChart>
-        </ResponsiveContainer>
+                )}
+
+                {/* Selected active indicator dot */}
+                {isSelected && (
+                  <circle
+                    cx={centerX}
+                    cy={actualVal > 0 ? actualY - 5 : targetY - 5}
+                    r="2.5"
+                    fill={baseColor}
+                  />
+                )}
+              </g>
+            );
+          })}
+        </svg>
       </div>
 
       {/* ── UNIFIED DAY BUTTONS (Moved lower with dedicated spacing & subtle separator) ── */}

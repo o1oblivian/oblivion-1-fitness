@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { VaultMediaItem, formatVaultMediaTitle } from './MediaVaultModal';
+import { VaultMediaItem, formatVaultMediaTitle } from '../types/vaultMedia';
 import { ApplePhotoGalleryViewer, AppleGalleryItem } from './ApplePhotoGalleryViewer';
 
 interface SwipeableMediaViewerProps {

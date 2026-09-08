@@ -25,6 +25,8 @@ import { WeeklyReportCardModal } from './WeeklyReportCardModal';
 import { ReadinessScoreCard } from './ReadinessScoreCard';
 import { BiometricModal, BiometricType } from './BiometricModal';
 import { SomaticRecoveryDeckModal, SomaticProtocolId } from './SomaticRecoveryDeckModal';
+import { LiveTandemWorkoutHUD } from './LiveTandemWorkoutHUD';
+import { broadcastTandemLiveEvent } from '@/utils/tandemStore';
 
 
 interface SoloViewProps {
@@ -56,6 +58,7 @@ interface SoloViewProps {
   onOpenProfile?: () => void;
   onOpenAIInsights?: () => void;
   onOpenPayPlan?: () => void;
+  onNavigateToTandem?: () => void;
 }
 
 export const SoloView: React.FC<SoloViewProps> = ({
@@ -87,6 +90,7 @@ export const SoloView: React.FC<SoloViewProps> = ({
   onOpenProfile,
   onOpenAIInsights,
   onOpenPayPlan,
+  onNavigateToTandem,
 }) => {
   const [selectedCategory, setSelectedCategory] = useState<string>('Chest & Triceps');
   const [exerciseBtnText, setExerciseBtnText] = useState<string>('Barbell Bench Press');
@@ -497,6 +501,22 @@ export const SoloView: React.FC<SoloViewProps> = ({
     } else {
       showToast('New set added', 'success');
     }
+
+    // Broadcast live event to Tandem partner
+    try {
+      const exercise = activeLogs.find((l) => l.id === exerciseId);
+      broadcastTandemLiveEvent({
+        senderId: currentUserEmail || 'me',
+        senderName: currentUserEmail ? currentUserEmail.split('@')[0] : 'Athlete',
+        type: 'set_completed',
+        exerciseName: exercise?.exerciseName || 'Exercise',
+        setNumber: (exercise?.sets.length || 0) + 1,
+        weightLbs: Number(suggestedWeight) || 0,
+        reps: Number(suggestedReps) || 8,
+        timestamp: new Date().toISOString(),
+      });
+    } catch (_) {}
+
     onStartRestTimer(90);
   };
 
@@ -1075,6 +1095,15 @@ export const SoloView: React.FC<SoloViewProps> = ({
             )}
           </div>
         </div>
+
+        {/* Live In-Workout Tandem HUD */}
+        <LiveTandemWorkoutHUD
+          currentUserEmail={currentUserEmail}
+          currentVolume={totalVolume}
+          currentSets={totalSets}
+          showToast={showToast}
+          onNavigateToTandem={onNavigateToTandem}
+        />
 
         {/* Daily Recovery & Energy — Slim Telemetry Banner */}
         <ReadinessScoreCard

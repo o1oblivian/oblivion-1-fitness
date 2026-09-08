@@ -77,7 +77,6 @@ export const O1LaunchProtocol: React.FC<O1LaunchProtocolProps> = ({
   const [notifGranted, setNotifGranted] = useState<boolean>(() => {
     return typeof Notification !== 'undefined' && Notification.permission === 'granted';
   });
-  const [requestingPerms, setRequestingPerms] = useState(false);
 
   if (!isOpen) return null;
 
@@ -134,15 +133,6 @@ export const O1LaunchProtocol: React.FC<O1LaunchProtocolProps> = ({
     }
   };
 
-  const handleConnectAllHardware = async () => {
-    setRequestingPerms(true);
-    requestLocationPerm();
-    await requestMediaPerm('camera');
-    await requestMediaPerm('mic');
-    await requestNotifPerm();
-    setRequestingPerms(false);
-  };
-
   const handleFinish = async () => {
     if (isSubmitting) return;
     setIsSubmitting(true);
@@ -181,8 +171,6 @@ export const O1LaunchProtocol: React.FC<O1LaunchProtocolProps> = ({
       intent: 'train',
     });
   };
-
-  const allHardwareConnected = locationGranted && cameraGranted && micGranted && notifGranted;
 
   return (
     <AnimatePresence>
@@ -265,24 +253,22 @@ export const O1LaunchProtocol: React.FC<O1LaunchProtocolProps> = ({
               </div>
             </div>
 
-            {/* Hardware & Device Permissions Section */}
+            {/* Hardware & Device Features Section (Optional & Respectful) */}
             <div className="p-3.5 rounded-xl bg-gray-50 dark:bg-white/[0.03] border border-black/5 dark:border-white/5 space-y-2.5">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-1.5">
                   <ShieldCheck className="w-3.5 h-3.5 text-[#C4121A]" />
                   <span className="text-[11px] font-mono uppercase tracking-wider text-gray-800 dark:text-zinc-200 font-bold">
-                    Connected Hardware Permissions
+                    Device Features (Optional)
                   </span>
                 </div>
-                <button
-                  type="button"
-                  onClick={handleConnectAllHardware}
-                  disabled={requestingPerms || allHardwareConnected}
-                  className="text-[10px] font-mono text-[#C4121A] hover:underline font-bold disabled:opacity-50 cursor-pointer"
-                >
-                  {allHardwareConnected ? 'All Connected' : requestingPerms ? 'Connecting...' : 'Connect All'}
-                </button>
+                <span className="text-[10px] font-mono text-gray-500 dark:text-zinc-400">
+                  Optional
+                </span>
               </div>
+              <p className="text-[10px] text-gray-500 dark:text-zinc-400 leading-normal">
+                You can enable these features to use photo meal scanning, voice logging, and nearby gym detection. You may skip this step and adjust permissions anytime in your device Settings &gt; O1FC.
+              </p>
 
               <div className="grid grid-cols-2 gap-2">
                 {/* Location */}
@@ -301,7 +287,7 @@ export const O1LaunchProtocol: React.FC<O1LaunchProtocolProps> = ({
                   {locationGranted ? (
                     <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
                   ) : (
-                    <span className="text-[9px] font-mono text-[#C4121A] font-bold uppercase">Grant</span>
+                    <span className="text-[9px] font-mono text-[#C4121A] font-bold uppercase">Continue</span>
                   )}
                 </button>
 
@@ -321,7 +307,7 @@ export const O1LaunchProtocol: React.FC<O1LaunchProtocolProps> = ({
                   {cameraGranted ? (
                     <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
                   ) : (
-                    <span className="text-[9px] font-mono text-[#C4121A] font-bold uppercase">Grant</span>
+                    <span className="text-[9px] font-mono text-[#C4121A] font-bold uppercase">Continue</span>
                   )}
                 </button>
 
@@ -341,7 +327,7 @@ export const O1LaunchProtocol: React.FC<O1LaunchProtocolProps> = ({
                   {micGranted ? (
                     <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
                   ) : (
-                    <span className="text-[9px] font-mono text-[#C4121A] font-bold uppercase">Grant</span>
+                    <span className="text-[9px] font-mono text-[#C4121A] font-bold uppercase">Continue</span>
                   )}
                 </button>
 
@@ -361,7 +347,7 @@ export const O1LaunchProtocol: React.FC<O1LaunchProtocolProps> = ({
                   {notifGranted ? (
                     <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
                   ) : (
-                    <span className="text-[9px] font-mono text-[#C4121A] font-bold uppercase">Grant</span>
+                    <span className="text-[9px] font-mono text-[#C4121A] font-bold uppercase">Continue</span>
                   )}
                 </button>
               </div>

@@ -2,8 +2,9 @@ import React, { useState, useEffect, useCallback } from 'react';
 import {
   Users, Link2, Unlink, Target, Plus, Send, Dumbbell, Trophy,
   Copy, CheckCircle2, Clock, ArrowRight, Flame, X, ChevronRight,
-  Loader2, Zap, TrendingUp,
+  Loader2, Zap, TrendingUp, Share2, Camera, QrCode, Sparkles,
 } from 'lucide-react';
+import QRCode from 'qrcode';
 import {
   TandemPair, TandemGoal, TandemWorkout, TandemActivityEntry,
   createTandemPair, joinTandemPair, getActivePair, getPendingPair,
@@ -14,6 +15,7 @@ import {
 } from '@/utils/tandemStore';
 import { supabase } from '@/utils/supabase';
 import { TandemSendWorkoutModal } from './TandemSendWorkoutModal';
+import { TandemStoryCardModal } from './TandemStoryCardModal';
 
 interface TandemViewProps {
   theme: 'dark' | 'light' | 'system';
@@ -52,8 +54,54 @@ export const TandemView: React.FC<TandemViewProps> = ({ theme, showToast, curren
   const [foundUser, setFoundUser] = useState<{ userId: string; name: string; handle: string } | null>(null);
   const [connectingUser, setConnectingUser] = useState(false);
   const [showSuccess, setShowSuccess] = useState<string | null>(null);
+  const [showStoryModal, setShowStoryModal] = useState(false);
+  const [showQrModal, setShowQrModal] = useState(false);
+  const [qrDataUrl, setQrDataUrl] = useState<string>('');
 
   const isUserA = pair?.user_a === currentUserId;
+
+  // Auto-generate QR code data URL whenever pendingPair has an invite code
+  useEffect(() => {
+    if (pendingPair?.invite_code) {
+      const origin = typeof window !== 'undefined' ? window.location.origin : 'https://o1fc.app';
+      const url = `${origin}/?tandem=${encodeURIComponent(pendingPair.invite_code)}`;
+      QRCode.toDataURL(url, {
+        width: 240,
+        margin: 1,
+        color: { dark: '#FFFFFF', light: '#070709' },
+      })
+        .then(setQrDataUrl)
+        .catch((err) => console.warn('QR code gen error:', err));
+    }
+  }, [pendingPair]);
+
+  // Check URL parameter (?tandem=CODE) or pre-filled code on launch
+  useEffect(() => {
+    try {
+      const urlParams = new URLSearchParams(window.location.search);
+      const codeParam =
+        urlParams.get('tandem') ||
+        urlParams.get('pair') ||
+        localStorage.getItem('o1fc_auto_join_tandem_code');
+
+      if (codeParam && !pair) {
+        const clean = codeParam.trim().toUpperCase();
+        setJoinCode(clean);
+        localStorage.removeItem('o1fc_auto_join_tandem_code');
+
+        (async () => {
+          setJoining(true);
+          const { pair: joined, error } = await joinTandemPair(clean);
+          if (joined) {
+            setPair(joined);
+            setPendingPair(null);
+            showToast('Tandem link verified! Paired with your training partner.', 'success');
+          }
+          setJoining(false);
+        })();
+      }
+    } catch (_) {}
+  }, [pair, showToast]);
 
   const loadData = useCallback(async () => {
     if (!pair) return;
@@ -152,6 +200,31 @@ export const TandemView: React.FC<TandemViewProps> = ({ theme, showToast, curren
     }
   };
 
+  const handleShareInvite = async () => {
+    if (!pendingPair) return;
+    const origin = typeof window !== 'undefined' ? window.location.origin : 'https://o1fc.app';
+    const link = `${origin}/?tandem=${pendingPair.invite_code}`;
+    const text = `Train with me in Tandem on Oblivion 1 Fitness Club. Sync sets and rest timers live: ${link}`;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: 'O1FC Tandem Mode Invite',
+          text,
+          url: link,
+        });
+        showToast('Invite shared!', 'success');
+      } catch (e) {
+        // user cancelled
+      }
+    } else {
+      navigator.clipboard.writeText(link);
+      setCopied(true);
+      showToast('Invite link copied to clipboard', 'success');
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
   const handleDissolve = async () => {
     if (!pair) return;
     await dissolvePair(pair.id);
@@ -240,22 +313,67 @@ export const TandemView: React.FC<TandemViewProps> = ({ theme, showToast, curren
 
         {/* Pairing actions */}
         {pendingPair ? (
-          <div className={`rounded-2xl border p-5 text-center space-y-3 ${cardBg}`}>
-            <p className={`text-sm font-semibold ${textPrimary}`}>Share this code with your partner</p>
+          <div className={`rounded-2xl border p-5 text-center space-y-4 ${cardBg}`}>
+            <div>
+              <p className={`text-xs uppercase tracking-wider font-mono font-bold text-red-400 mb-1`}>
+                BILATERAL TANDEM INVITE
+              </p>
+              <p className={`text-sm font-semibold ${textPrimary}`}>Share this code with your partner</p>
+            </div>
+
             <div className={`text-3xl font-mono font-bold tracking-[0.3em] ${textPrimary}`}>
               {pendingPair.invite_code}
             </div>
-            <button
-              onClick={handleCopy}
-              className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition ${
-                copied
-                  ? 'bg-red-500/20 text-red-400'
-                  : isLight ? 'bg-gray-100 text-gray-700 hover:bg-gray-200' : 'bg-white/10 text-white hover:bg-white/15'
-              }`}
-            >
-              {copied ? <CheckCircle2 className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-              {copied ? 'Copied!' : 'Copy Code'}
-            </button>
+
+            {/* Quick Share Buttons */}
+            <div className="flex items-center justify-center gap-2">
+              <button
+                onClick={handleShareInvite}
+                className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 shadow-md shadow-red-600/30 transition cursor-pointer active:scale-95"
+              >
+                <Share2 className="w-3.5 h-3.5" />
+                <span>Share Deep-Link</span>
+              </button>
+
+              <button
+                onClick={handleCopy}
+                className={`inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl text-xs font-medium transition cursor-pointer active:scale-95 ${
+                  copied
+                    ? 'bg-red-500/20 text-red-400 font-semibold'
+                    : isLight
+                    ? 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    : 'bg-white/10 text-white hover:bg-white/15'
+                }`}
+              >
+                {copied ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                <span>{copied ? 'Copied' : 'Copy'}</span>
+              </button>
+            </div>
+
+            {/* In-Gym QR Code Section */}
+            <div className="pt-2 border-t border-white/10 space-y-2">
+              <button
+                onClick={() => setShowQrModal(!showQrModal)}
+                className="text-xs font-mono text-red-400 hover:text-red-300 transition flex items-center justify-center gap-1.5 mx-auto cursor-pointer"
+              >
+                <QrCode className="w-3.5 h-3.5" />
+                <span>{showQrModal ? 'Hide In-Gym QR Code' : 'Show In-Gym QR Code'}</span>
+              </button>
+
+              {showQrModal && qrDataUrl && (
+                <div className="p-3 bg-black/80 rounded-2xl border border-white/15 inline-block mx-auto animate-in fade-in zoom-in-95 shadow-xl">
+                  <img
+                    src={qrDataUrl}
+                    alt="Tandem Pairing QR Code"
+                    className="w-36 h-36 mx-auto rounded-xl object-contain bg-white/5 p-1"
+                  />
+                  <p className="text-[10px] font-mono text-white/60 mt-2">
+                    Point camera across the gym bench to pair
+                  </p>
+                </div>
+              )}
+            </div>
+
             <p className={`text-xs ${textSecondary}`}>Waiting for your partner to join...</p>
           </div>
         ) : (
@@ -378,12 +496,22 @@ export const TandemView: React.FC<TandemViewProps> = ({ theme, showToast, curren
             </p>
           </div>
         </div>
-        <button
-          onClick={() => setShowUnlinkConfirm(true)}
-          className={`p-2 rounded-xl transition ${isLight ? 'hover:bg-gray-100' : 'hover:bg-white/10'}`}
-        >
-          <Unlink className={`w-4 h-4 ${textSecondary}`} />
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setShowStoryModal(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-red-600/20 hover:bg-red-600/30 border border-red-500/40 text-red-400 hover:text-red-300 text-xs font-bold transition cursor-pointer"
+            title="Export Tandem Duo Story Card"
+          >
+            <Camera className="w-3.5 h-3.5" />
+            <span>Story Card</span>
+          </button>
+          <button
+            onClick={() => setShowUnlinkConfirm(true)}
+            className={`p-2 rounded-xl transition ${isLight ? 'hover:bg-gray-100' : 'hover:bg-white/10'}`}
+          >
+            <Unlink className={`w-4 h-4 ${textSecondary}`} />
+          </button>
+        </div>
       </div>
 
       {/* Tab bar */}
@@ -411,6 +539,33 @@ export const TandemView: React.FC<TandemViewProps> = ({ theme, showToast, curren
       {/* Dashboard tab */}
       {activeTab === 'dashboard' && (
         <div className="space-y-4">
+          {/* Tandem Duo Story Card Banner */}
+          <div
+            className={`rounded-2xl border p-4 ${cardBg} relative overflow-hidden bg-gradient-to-r from-red-950/40 via-[#0a0a0c] to-black/60 border-red-500/20`}
+          >
+            <div className="flex items-center justify-between gap-3">
+              <div className="space-y-1">
+                <div className="flex items-center gap-1.5">
+                  <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                  <p className="text-[10px] font-mono uppercase tracking-widest text-red-400 font-bold">
+                    BILATERAL DUO STORY
+                  </p>
+                </div>
+                <h4 className={`text-sm font-bold ${textPrimary}`}>Export Tandem Story Card</h4>
+                <p className={`text-xs ${textSecondary} max-w-xs`}>
+                  Attach gym photo, synchronized telemetry & partner tags ready for Instagram/TikTok.
+                </p>
+              </div>
+              <button
+                onClick={() => setShowStoryModal(true)}
+                className="px-3.5 py-2.5 rounded-xl bg-gradient-to-r from-red-600 to-red-700 text-white font-bold text-xs uppercase tracking-wider shadow-md shadow-red-600/30 hover:scale-[1.02] active:scale-[0.98] transition flex items-center gap-1.5 cursor-pointer flex-shrink-0"
+              >
+                <Camera className="w-3.5 h-3.5" />
+                <span>Create</span>
+              </button>
+            </div>
+          </div>
+
           {/* Shared Goal Ring */}
           {goals.length > 0 && (
             <div className={`rounded-2xl border p-5 ${cardBg}`}>
@@ -660,6 +815,22 @@ export const TandemView: React.FC<TandemViewProps> = ({ theme, showToast, curren
             </div>
           </div>
         </div>
+      )}
+
+      {/* High-Contrast Tandem Duo Story Card Modal with Photo */}
+      {showStoryModal && (
+        <TandemStoryCardModal
+          isOpen={showStoryModal}
+          onClose={() => setShowStoryModal(false)}
+          userHandle={currentUserEmail ? currentUserEmail.split('@')[0] : 'athlete'}
+          partnerHandle={partnerName || 'partner'}
+          sessionTitle="TANDEM DUO HYPERTROPHY PROTOCOL"
+          totalVolumeLbs={21450}
+          totalSets={26}
+          durationMinutes={54}
+          inviteCode={pair?.invite_code || pendingPair?.invite_code || 'O1FC'}
+          showToast={showToast}
+        />
       )}
     </div>
   );

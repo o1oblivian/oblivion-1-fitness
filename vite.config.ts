@@ -11,7 +11,21 @@ export default defineConfig(() => {
     resolve: {
       alias: {
         '@': path.resolve(__dirname, './src'),
+        'react': path.resolve(__dirname, './node_modules/react'),
+        'react-dom': path.resolve(__dirname, './node_modules/react-dom'),
       },
+      dedupe: ['react', 'react-dom', 'react-is'],
+    },
+    optimizeDeps: {
+      include: [
+        'react',
+        'react-dom',
+        'react/jsx-runtime',
+        'react/jsx-dev-runtime',
+        'recharts',
+        'lucide-react',
+        'motion',
+      ],
     },
     base: './',
     build: {
@@ -22,7 +36,7 @@ export default defineConfig(() => {
         output: {
           manualChunks: {
             'vendor-react': ['react', 'react-dom'],
-            'vendor-motion': ['motion/react'],
+            'vendor-motion': ['motion'],
             'vendor-supabase': ['@supabase/supabase-js'],
             'vendor-lucide': ['lucide-react'],
           },

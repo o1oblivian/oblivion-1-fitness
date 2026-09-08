@@ -47,9 +47,6 @@ import { BiometricModal, BiometricType } from './BiometricModal';
 import { WatchDial } from './WatchDial';
 import { optimizeImageUrl, preloadImage } from '@/utils/imageOptimizer';
 import type { DailyMeals } from '../types';
-
-const WallpaperSettingsModal = lazy(() => import('./WallpaperSettingsModal').then(m => ({ default: m.WallpaperSettingsModal })));
-const WallpaperPickerModal = lazy(() => import('./WallpaperPickerModal').then(m => ({ default: m.WallpaperPickerModal })));
 import {
   type WallpaperSettings,
   loadWallpaperSettings,
@@ -85,6 +82,9 @@ import {
   type SupplementTiming,
 } from '../data/supplementDatabase';
 import type { CyclePhase } from './CycleSyncModal';
+
+const WallpaperSettingsModal = lazy(() => import('./WallpaperSettingsModal'));
+const WallpaperPickerModal = lazy(() => import('./WallpaperPickerModal'));
 
 export type DialCategory = 'hydration' | 'menstrual' | 'supplements' | 'alcohol' | null;
 
@@ -2132,20 +2132,24 @@ export const RotatingHeroCard: React.FC<RotatingHeroCardProps> = ({
       )}
 
       <Suspense fallback={null}>
-        <WallpaperSettingsModal
-          isOpen={isWallpaperSettingsOpen}
-          onClose={() => setIsWallpaperSettingsOpen(false)}
-          onChange={handleWallpaperSettingsChange}
-          onOpenPicker={() => setIsWallpaperPickerOpen(true)}
-        />
+        {isWallpaperSettingsOpen && (
+          <WallpaperSettingsModal
+            isOpen={isWallpaperSettingsOpen}
+            onClose={() => setIsWallpaperSettingsOpen(false)}
+            onChange={handleWallpaperSettingsChange}
+            onOpenPicker={() => setIsWallpaperPickerOpen(true)}
+          />
+        )}
 
-        <WallpaperPickerModal
-          isOpen={isWallpaperPickerOpen}
-          onClose={() => setIsWallpaperPickerOpen(false)}
-          selectedWallpaperUrl={wallpaperOverride ?? wallpaperUrl}
-          onSelectWallpaper={handleSelectWallpaper}
-          onOpenSettings={() => setIsWallpaperSettingsOpen(true)}
-        />
+        {isWallpaperPickerOpen && (
+          <WallpaperPickerModal
+            isOpen={isWallpaperPickerOpen}
+            onClose={() => setIsWallpaperPickerOpen(false)}
+            selectedWallpaperUrl={wallpaperOverride ?? wallpaperUrl}
+            onSelectWallpaper={handleSelectWallpaper}
+            onOpenSettings={() => setIsWallpaperSettingsOpen(true)}
+          />
+        )}
       </Suspense>
 
       {/* ── Biometric modal ── */}

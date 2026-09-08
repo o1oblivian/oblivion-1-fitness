@@ -38,22 +38,10 @@ import {
 } from '../utils/vaultPersistenceStore';
 import { idbDeleteVaultItem } from '../utils/indexedDbMediaVault';
 import { useModalBackHandler } from '../utils/modalHistory';
+import { VaultMediaItem, formatVaultMediaTitle } from '../types/vaultMedia';
 
-export interface VaultMediaItem {
-  id: string;
-  title: string;
-  type: 'photo' | 'video';
-  url: string;
-  thumbnailUrl: string;
-  category: 'Photos' | 'Videos' | 'Physique' | 'Form Video' | 'PR Clip' | 'Tutorial' | 'Transformation';
-  date: string;
-  likes: number;
-  coachNote?: string;
-  tags?: string[];
-  specialization?: string;
-  show_on_buddy?: boolean;
-  rawBlob?: Blob | File;
-}
+export type { VaultMediaItem };
+export { formatVaultMediaTitle };
 
 interface MediaVaultModalProps {
   isOpen: boolean;
@@ -62,24 +50,19 @@ interface MediaVaultModalProps {
   isUnlocked?: boolean;
   displayName?: string;
   ownerName?: string;
-  vaultTitle?: string;
-  showroomMode?: boolean;
-  maskedName?: string;
+  programPrice?: string | number;
   realName?: string;
-  socialLinks?: any;
-  programPrice?: string;
+  socialLinks?: { instagram?: string; tiktok?: string; strava?: string };
   onBuyProgram?: () => void;
   onTestExercise?: (item: VaultMediaItem) => void;
   mode?: 'athlete' | 'coach';
+  vaultTitle?: string;
+  showroomMode?: boolean;
+  maskedName?: string;
   onAddItem?: (item: VaultMediaItem) => void;
   onDeleteItem?: (item: VaultMediaItem) => void;
   onToggleBuddy?: (item: VaultMediaItem) => void;
-  showToast?: (msg?: string, type?: 'error' | 'success') => void;
-}
-
-export function formatVaultMediaTitle(item: VaultMediaItem): string {
-  if (item.title && item.title.trim()) return item.title;
-  return item.type === 'video' ? 'Form Check Video' : 'Athlete Progress Shot';
+  showToast?: (msg: string, type?: 'success' | 'error') => void;
 }
 
 function resolveVideoSrc(item: VaultMediaItem): string {

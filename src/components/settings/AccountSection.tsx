@@ -56,16 +56,17 @@ export function AccountSection({ userEmail, onLogout, onDeleteAccount, onRerunLa
   };
 
   const handleDelete = async () => {
-    if (!userEmail) return;
     setIsDeleting(true);
     setDeleteError(null);
     try {
       await purgeAllUserData(userEmail);
-      onDeleteAccount?.(userEmail);
+      onDeleteAccount?.(userEmail || 'athlete');
+      triggerToast?.('Account and all associated data permanently purged.');
     } catch {
       setDeleteError('Something went wrong. Please try again.');
+    } finally {
+      setIsDeleting(false);
     }
-    setIsDeleting(false);
   };
 
   return (

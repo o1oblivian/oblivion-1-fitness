@@ -156,6 +156,15 @@ export function SettingsPage({
           {/* Membership */}
           <MembershipSection onOpenPayPlan={onOpenPayPlan} />
 
+          {/* Account & Deletion Management (Apple Guideline 5.1.1(v) Prominence) */}
+          <AccountSection
+            userEmail={userEmail}
+            onLogout={onLogout}
+            onDeleteAccount={onDeleteAccount}
+            onRerunLaunchProtocol={onRerunLaunchProtocol}
+            triggerToast={triggerToast}
+          />
+
           {/* Training & Schedule */}
           <TrainingSection />
 
@@ -196,15 +205,6 @@ export function SettingsPage({
 
           {/* Legal */}
           <LegalSection />
-
-          {/* Account */}
-          <AccountSection
-            userEmail={userEmail}
-            onLogout={onLogout}
-            onDeleteAccount={onDeleteAccount}
-            onRerunLaunchProtocol={onRerunLaunchProtocol}
-            triggerToast={triggerToast}
-          />
         </div>
       </div>
     </div>

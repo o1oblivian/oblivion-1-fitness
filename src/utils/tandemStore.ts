@@ -310,3 +310,88 @@ export async function pairWithUser(targetUserId: string): Promise<{ pair: Tandem
   if (error) return { pair: null, error: error.message };
   return { pair: data as TandemPair, error: null };
 }
+
+// ── Live In-Workout Tandem Realtime Sync ──
+export interface TandemLiveEvent {
+  pairId?: string;
+  senderId: string;
+  senderName: string;
+  type: 'set_completed' | 'rest_started' | 'weight_changed' | 'workout_started' | 'workout_finished' | 'fist_bump';
+  exerciseName?: string;
+  setNumber?: number;
+  weightLbs?: number;
+  reps?: number;
+  restDurationSec?: number;
+  timestamp: string;
+  note?: string;
+}
+
+const TANDEM_LIVE_EVENT_NAME = 'o1fc-tandem-live-pulse';
+
+export function broadcastTandemLiveEvent(event: TandemLiveEvent): void {
+  // 1. Dispatch custom event locally for instant UI update & multi-tab/local feedback
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent(TANDEM_LIVE_EVENT_NAME, { detail: event }));
+  }
+
+  // 2. Broadcast over Supabase Realtime channel if active and online
+  if (isSupabaseConfigured() && event.pairId) {
+    try {
+      const channel = supabase.channel(`tandem_live_${event.pairId}`);
+      channel.send({
+        type: 'broadcast',
+        event: 'live_pulse',
+        payload: event,
+      }).catch((e) => {
+        console.warn('Tandem realtime broadcast catch:', e);
+      });
+    } catch (err) {
+      console.warn('Tandem broadcast error:', err);
+    }
+  }
+}
+
+export function subscribeToTandemLive(
+  pairId: string | undefined,
+  onEvent: (event: TandemLiveEvent) => void
+): () => void {
+  // Local window event listener
+  const localHandler = (e: Event) => {
+    const custom = e as CustomEvent<TandemLiveEvent>;
+    if (custom.detail) {
+      if (!pairId || !custom.detail.pairId || custom.detail.pairId === pairId) {
+        onEvent(custom.detail);
+      }
+    }
+  };
+
+  if (typeof window !== 'undefined') {
+    window.addEventListener(TANDEM_LIVE_EVENT_NAME, localHandler);
+  }
+
+  // Supabase Realtime channel listener
+  let realtimeChannel: ReturnType<typeof supabase.channel> | null = null;
+  if (isSupabaseConfigured() && pairId) {
+    try {
+      realtimeChannel = supabase
+        .channel(`tandem_live_${pairId}`)
+        .on('broadcast', { event: 'live_pulse' }, ({ payload }) => {
+          if (payload) {
+            onEvent(payload as TandemLiveEvent);
+          }
+        })
+        .subscribe();
+    } catch (err) {
+      console.warn('Tandem realtime subscription error:', err);
+    }
+  }
+
+  return () => {
+    if (typeof window !== 'undefined') {
+      window.removeEventListener(TANDEM_LIVE_EVENT_NAME, localHandler);
+    }
+    if (realtimeChannel) {
+      realtimeChannel.unsubscribe().catch?.(() => {});
+    }
+  };
+}

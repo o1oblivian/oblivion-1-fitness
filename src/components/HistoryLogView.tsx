@@ -30,6 +30,7 @@ import { loadMeditationSessions, saveMeditationSession, deleteMeditationSession,
 import { CardioMachineType, CardioMachineEntry } from '@/types/cardio';
 import { getCardioLogs, saveCardioLog, deleteCardioLog, formatCardioDate } from '@/utils/cardioStorage';
 import { CardioConsoleScanModal } from './CardioConsoleScanModal';
+import { ClinicalCitationsModal, ClinicalCitationsCard } from './ClinicalCitationsModal';
 import { loadCachedDailyMeals } from '@/utils/mealLogsStore';
 import { getUserState, getSessionUserEmail } from '@/utils/authStorage';
 import type { DailyMacroLog, DailyMeals, LoggedMealItem } from '@/types';
@@ -1752,6 +1753,7 @@ export const HistoryLogView: React.FC<HistoryLogViewProps> = ({
   const [sleepLogs, setSleepLogs] = useState<SleepLogEntry[]>([]);
   const [meditations, setMeditations] = useState<MeditationEntry[]>([]);
   const [selectedDate, setSelectedDate] = useState<string>(todayStr());
+  const [isCitationsOpen, setIsCitationsOpen] = useState<boolean>(false);
 
   // 7-day athletic telemetry snapshot
   const last7Days = useMemo(() => {
@@ -2350,6 +2352,12 @@ export const HistoryLogView: React.FC<HistoryLogViewProps> = ({
         ))}
       </div>
 
+      {/* Clinical & Scientific Citations Card (Apple Guideline 1.4.1) */}
+      <ClinicalCitationsCard
+        sectionName="History Log"
+        onOpenModal={() => setIsCitationsOpen(true)}
+      />
+
       {/* OCR Scan Console Modal */}
       <CardioConsoleScanModal
         isOpen={showCardioScanModal}
@@ -2375,6 +2383,12 @@ export const HistoryLogView: React.FC<HistoryLogViewProps> = ({
         onAddSleep={handleAddSleep}
         onSaveMacro={handleSaveMacroRecord}
         onNavigateToFuel={onNavigateToFuel}
+      />
+
+      {/* Clinical Citations Modal (Guideline 1.4.1) */}
+      <ClinicalCitationsModal
+        isOpen={isCitationsOpen}
+        onClose={() => setIsCitationsOpen(false)}
       />
     </div>
   );

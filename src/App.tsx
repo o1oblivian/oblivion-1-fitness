@@ -448,6 +448,7 @@ export default function App() {
                   onOpenProfile={() => s.setIsEditProfileOpen(true)}
                   onOpenAIInsights={() => s.setIsAIInsightsOpen(true)}
                   onOpenPayPlan={() => { s.setPayPlanHighlightTier('premium'); s.setIsPayPlanOpen(true); }}
+                  onNavigateToTandem={() => s.handleModeChange('tandem')}
                 />
                 </ViewBoundary>
               </div>

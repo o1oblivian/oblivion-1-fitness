@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Activity, TrendingDown, Scale, TrendingUp, Check, PieChart, Calendar, Target } from 'lucide-react';
+import { X, Activity, TrendingDown, Scale, TrendingUp, Check, PieChart, Calendar, Target, BookOpen, ExternalLink } from 'lucide-react';
 import { getSmartDefault, recordSmartInput } from '../utils/frequencyDefaults';
 
 interface AutoPilotModalProps {
@@ -540,6 +540,23 @@ export const AutoPilotModal: React.FC<AutoPilotModalProps> = ({
                 <div className="text-lg font-black text-white mt-0.5">{fGrams}g</div>
                 <div className="text-[10px] text-zinc-400">{fCals} kcal</div>
               </div>
+            </div>
+
+            {/* Clinical & Scientific Source Citation (Apple Guideline 1.4.1) */}
+            <div className="p-3 rounded-xl bg-zinc-100 dark:bg-white/[0.04] border border-zinc-200/80 dark:border-white/[0.08] flex items-center justify-between text-[11px] text-zinc-600 dark:text-zinc-400">
+              <div className="flex items-center gap-2">
+                <BookOpen className="w-3.5 h-3.5 text-[#C4121A] shrink-0" />
+                <span className="truncate">Source: Mifflin MD et al. Am J Clin Nutr 1990; 51(2):241-7</span>
+              </div>
+              <a
+                href="https://pubmed.ncbi.nlm.nih.gov/2305711/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 text-blue-500 dark:text-blue-400 hover:underline font-semibold shrink-0 ml-2"
+              >
+                <span>PubMed</span>
+                <ExternalLink className="w-3 h-3" />
+              </a>
             </div>
           </div>
         </div>

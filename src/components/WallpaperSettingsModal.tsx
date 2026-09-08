@@ -386,3 +386,5 @@ export const WallpaperSettingsModal: React.FC<WallpaperSettingsModalProps> = ({
     document.body
   );
 };
+
+export default WallpaperSettingsModal;

@@ -231,3 +231,5 @@ export const WallpaperPickerModal: React.FC<WallpaperPickerModalProps> = ({
     document.body
   );
 };
+
+export default WallpaperPickerModal;

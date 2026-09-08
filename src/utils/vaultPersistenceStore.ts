@@ -1,5 +1,5 @@
 import { supabase, isSupabaseConfigured } from './supabase';
-import { VaultMediaItem } from '../components/MediaVaultModal';
+import type { VaultMediaItem } from '../types/vaultMedia';
 import { idbSaveVaultItem, idbSaveVaultItems, idbGetVaultItems, idbDeleteVaultItem } from './indexedDbMediaVault';
 
 const ATHLETE_VAULT_KEY = 'o1fc_athlete_media_vault_v1';

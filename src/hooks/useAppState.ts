@@ -62,7 +62,7 @@ import { startMidnightRolloverScheduler, getLocalDateString } from '@/utils/midn
 import { getInputMethod } from '@/utils/inputMethodStore';
 import { ProgramPreview } from '@/utils/reelsTypes';
 import type { WorkoutRegistration } from '@/components/FitnessIntelligenceApp';
-import { VaultMediaItem } from '@/components/MediaVaultModal';
+import type { VaultMediaItem } from '@/types/vaultMedia';
 import {
   DisplayTheme,
   applyAndSaveTheme,

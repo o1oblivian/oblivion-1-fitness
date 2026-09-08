@@ -16,7 +16,7 @@ import {
   getSavedAthleteVaultItems,
   persistUploadedVaultMedia,
 } from '@/utils/vaultPersistenceStore';
-import { VaultMediaItem } from '@/components/MediaVaultModal';
+import type { VaultMediaItem } from '@/types/vaultMedia';
 
 export interface PresetPack {
   label: string;
