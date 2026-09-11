@@ -47,6 +47,21 @@
    - **Commit Description**: `build: update Android configuration and permissions - Increment version to 1.0.2 - Enable R8 shrinkage`
    - **Workflows**: `android-release` (Google Play internal track AAB) & `ios-release` (App Store / TestFlight IPA)
 
+### Note 6: Mobile Overlay Truth, Policy Invariants & In-App Authentication/Payment Architecture (Recorded: September 11, 2026)
+1. **Correction of Prior Assistant Misinformation**:
+   - The previous claim that Google, Apple, and Stripe would open strictly in-app without any browser chrome was inaccurate.
+   - On Android, `@capacitor/browser` invokes Android Custom Tabs using the user's default browser (Brave/Chrome), which enforces top chrome (URL bar, share, logo) by Android OS design.
+   - The 404 error occurred because Supabase OAuth redirected to an inactive Cloud Run address (`https://o1fc-official-822845783036.asia-southeast1.run.app`).
+2. **Policy Invariants**:
+   - Google blocks OAuth in embedded webviews (`disallowed_useragent`).
+   - Apple requires native Apple Sign-In on iOS (Guideline 4.8).
+   - Stripe prevents arbitrary iframe embedding via security headers.
+3. **Fix Implemented**:
+   - Decommissioned `asia-southeast1.run.app` in `apiUrl.ts`.
+   - Built `/auth/callback` bridge in `server.ts` to redirect OAuth tokens into `com.o1fc.fitness://auth/callback`.
+   - Updated `AuthModal.tsx` redirect URI to target the active server bridge.
+   - `src/App.tsx` listener catches the deep link, updates the session, and triggers `closeInAppBrowser()` to dismiss the browser tab immediately upon authentication.
+
 
 
 

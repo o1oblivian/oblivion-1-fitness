@@ -351,13 +351,12 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     setStatusMessage(null);
     try {
       const isNative = isNativePlatform();
-      // On native mobile APK, redirect directly back into the app using custom deep-link scheme
-      // On web, redirect back to current browser origin
-      const currentOrigin = typeof window !== 'undefined' && window.location.origin && !window.location.origin.includes('localhost')
-        ? `${window.location.origin}${window.location.pathname}`
-        : (typeof window !== 'undefined' ? window.location.origin : 'https://o1fc-official-1.ai.studio');
-
-      const redirectUri = isNative ? 'com.o1fc.fitness://auth/callback' : currentOrigin;
+      // Use the verified production server bridge for OAuth returns to ensure deep links
+      // are bridged back into com.o1fc.fitness without dead-end 404 errors
+      const cloudBridgeUrl = 'https://o1fc-official-1.ai.studio/auth/callback';
+      const redirectUri = (!isNative && typeof window !== 'undefined' && window.location.origin && !window.location.origin.includes('localhost') && !window.location.protocol.startsWith('capacitor'))
+        ? `${window.location.origin}/auth/callback`
+        : cloudBridgeUrl;
 
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider,

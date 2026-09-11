@@ -1420,6 +1420,51 @@ Return ONLY valid JSON matching this schema:
     return res.redirect(returnPath);
   });
 
+  // OAuth Authentication Return Bridge for Google & Apple Sign-In
+  // Bridges Supabase web redirects seamlessly back into the native APK deep link
+  app.get(['/auth/callback', '/api/auth-callback'], (req, res) => {
+    return res.send(`<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Authenticating • Oblivion 1</title>
+  <style>
+    body { background: #000000; color: #ffffff; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; padding: 20px; box-sizing: border-box; text-align: center; }
+    .spinner { width: 44px; height: 44px; border: 3px solid #27272a; border-top-color: #dc2626; border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 20px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    h1 { font-size: 18px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; margin: 0 0 8px 0; }
+    p { font-size: 13px; color: #a1a1aa; margin: 0 0 24px 0; }
+    .btn { display: inline-block; padding: 12px 24px; background: #dc2626; color: #ffffff; text-decoration: none; border-radius: 10px; font-size: 13px; font-weight: 700; text-transform: uppercase; }
+  </style>
+</head>
+<body>
+  <div class="spinner"></div>
+  <h1>Authenticating Athlete</h1>
+  <p>Connecting to Oblivion 1 Training OS...</p>
+  <a id="return-btn" class="btn" href="#">Return to Oblivion 1</a>
+  <script>
+    const hash = window.location.hash || '';
+    const search = window.location.search || '';
+    const deepLink = 'com.o1fc.fitness://auth/callback' + (hash || search);
+    const returnBtn = document.getElementById('return-btn');
+    if (returnBtn) returnBtn.href = deepLink;
+    
+    // Attempt instant auto-redirect into native app
+    try {
+      window.location.replace(deepLink);
+    } catch (e) {
+      window.location.href = deepLink;
+    }
+
+    setTimeout(function() {
+      if (window.opener) { window.close(); }
+    }, 1500);
+  </script>
+</body>
+</html>`);
+  });
+
   // Live Founder Pass Sales Stats (Queried from live Stripe Checkout Sessions & transactions)
   app.get('/api/founder-pass-stats', async (req, res) => {
     try {

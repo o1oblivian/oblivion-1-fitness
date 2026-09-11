@@ -102,6 +102,20 @@
    - **Commit Description**: `build: update Android configuration and permissions - Increment version to 1.0.2 - Enable R8 shrinkage`
    - **Workflows**: `android-release` (Google Play internal track AAB) & `ios-release` (App Store / TestFlight IPA)
 
+### Note 6: Mobile Overlay Truth, Policy Invariants & In-App Authentication/Payment Architecture (Recorded: September 11, 2026)
+1. **Correction of Prior Assistant Misinformation**:
+   - The AI assistant previously falsely asserted that Google Sign-In, Apple Sign-In, and Stripe Checkout would render strictly as an internal sheet without any browser involvement or chrome.
+   - **Reality on Android**: `@capacitor/browser` opens Android Custom Tabs (backed by the device's default browser engine, such as Brave or Chrome). Android Custom Tabs mandate a top bar with the domain name (`stripe.com`, `accounts.google.com`), a share button, and browser controls. This is an Android OS architectural constraint and not an invisible in-app sheet.
+   - **Cause of the 404 "Page Not Found" Error**: The Google OAuth callback redirected to an obsolete, decommissioned Cloud Run URL (`https://o1fc-official-822845783036.asia-southeast1.run.app`) because Supabase's default Site URL fell back to this dead address when the custom scheme was unrouted.
+2. **Policy Compliance Invariants**:
+   - **Google Security Policy**: Google strictly disallows OAuth in embedded webviews (`disallowed_useragent`, Error 403). It must be handled via Google Play Services Credential Manager natively or through a secure Custom Tab bridge.
+   - **Apple App Store Review Guidelines (Guideline 4.8)**: Requires native Apple Sign-In via `AuthenticationServices` on iOS devices, while web/Android requires the web OAuth redirect bridge.
+   - **Stripe PCI-DSS & Google Play Billing Rules**: Stripe hosted checkout enforces `X-Frame-Options: SAMEORIGIN` and cannot be placed inside an arbitrary unverified iframe. It must use either Stripe Embedded Checkout or native Payment Sheet.
+3. **Architectural Fixes Implemented**:
+   - **Purged Dead URLs**: Removed the obsolete `asia-southeast1.run.app` endpoint from `src/utils/apiUrl.ts`.
+   - **Production Server OAuth Bridge**: Implemented `/auth/callback` in `server.ts`. This endpoint receives OAuth hash fragments and tokens from Supabase and immediately forwards them via the `com.o1fc.fitness://auth/callback` custom scheme to `MainActivity`.
+   - **Automatic Browser Dismissal**: When `registerAppUrlListener` in `src/App.tsx` receives the tokens, it invokes `supabase.auth.setSession()`, notifies the UI, and executes `closeInAppBrowser()`, cleanly dismissing the overlay.
+
 
 
 
