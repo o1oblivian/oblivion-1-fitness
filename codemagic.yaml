@@ -56,6 +56,7 @@ workflows:
         distribution_type: app_store
         bundle_identifier: com.o1fc.fitness
       vars:
+        XCODE_PROJECT: "ios/App/App.xcodeproj"
         XCODE_SCHEME: "App"
       node: 22
       xcode: latest
@@ -84,13 +85,21 @@ workflows:
           sed -i '' -e "s/CURRENT_PROJECT_VERSION = [0-9]*/CURRENT_PROJECT_VERSION = $NEW_NUM/g" ios/App/App.xcodeproj/project.pbxproj 2>/dev/null || sed -i -e "s/CURRENT_PROJECT_VERSION = [0-9]*/CURRENT_PROJECT_VERSION = $NEW_NUM/g" ios/App/App.xcodeproj/project.pbxproj
       - name: Set up code signing settings on Xcode project
         script: |
-          xcode-project use-profiles
+          xcode-project use-profiles --project "ios/App/App.xcodeproj" --warn-only || true
       - name: Build iOS IPA
         script: |
-          set -e
+          cd ios/App
+          xcodebuild -resolvePackageDependencies -project App.xcodeproj -scheme "$XCODE_SCHEME"
+          cd ../..
           xcode-project build-ipa --project "ios/App/App.xcodeproj" --scheme "$XCODE_SCHEME" || {
             echo "=== XCODEBUILD ERROR LOGS ==="
-            find /tmp/xcodebuild_logs ~/Library/Logs -name "*.log" -exec cat {} + 2>/dev/null | tail -n 250
+            if [ -d "/tmp/xcodebuild_logs" ]; then
+              for logfile in /tmp/xcodebuild_logs/*.log; do
+                [ -f "$logfile" ] || continue
+                echo "--- $logfile ---"
+                grep -i -E "error:|fatal:|failed" "$logfile" | tail -n 50 || tail -n 50 "$logfile"
+              done
+            fi
             exit 1
           }
     artifacts:

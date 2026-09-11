@@ -54,17 +54,20 @@
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
-		<string>UIInterfaceOrientationLandscapeLeft</string>
-		<string>UIInterfaceOrientationLandscapeRight</string>
-	</array>
-	<key>UISupportedInterfaceOrientations~ipad</key>
-	<array>
-		<string>UIInterfaceOrientationPortrait</string>
-		<string>UIInterfaceOrientationPortraitUpsideDown</string>
-		<string>UIInterfaceOrientationLandscapeLeft</string>
-		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Oblivion 1 Fitness Club uses your microphone for voice-logging workouts, voice notes, and audio coaching commands.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Oblivion 1 Fitness Club uses your camera for computer vision meal scanning and capturing athlete progress photos.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Oblivion 1 Fitness Club accesses your photo library to select avatar images and workout progress media.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Oblivion 1 Fitness Club saves workout performance certificates and telemetry badges to your photo library.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Oblivion 1 Fitness Club uses your location to identify nearby gym facilities and partner network hubs.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>Oblivion 1 Fitness Club uses speech recognition for hands-free workout logging during training.</string>
 </dict>
 </plist>

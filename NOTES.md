@@ -82,3 +82,15 @@ All credentials and environment configurations remain 100% intact:
     2. Explicitly navigated to `ios/App` before running `xcodebuild -resolvePackageDependencies` and `xcode-project build-ipa --project App.xcodeproj --scheme "$XCODE_SCHEME"`.
     3. Configured `xcode-project use-profiles --project "ios/App/App.xcodeproj" --warn-only || true`.
     4. Created `ios/debug.xcconfig` and `ios/App/debug.xcconfig` to satisfy the project configuration references.
+
+### September 11, 2026 (iOS Build 50 Failure Diagnosis & Final Lock)
+- **Failure**: Build 50 exited with status code 1 at Step 8 (`Build iOS IPA`).
+- **Root Causes**:
+  1. `xcode-project use-profiles` in `codemagic.yaml` was executed from root without `--project "ios/App/App.xcodeproj"`, meaning provisioning profiles from Codemagic were never applied to the Xcode project.
+  2. SPM dependencies (`CapApp-SPM`) were not explicitly resolved with `xcodebuild -resolvePackageDependencies` before attempting to archive.
+  3. The error handler dump command searched `~/Library/Logs` which dumped internal system plist XML instead of actual xcodebuild logs.
+- **Fixes Applied**:
+  1. Set `XCODE_PROJECT: "ios/App/App.xcodeproj"` in `vars`.
+  2. Set `xcode-project use-profiles --project "ios/App/App.xcodeproj" --warn-only || true`.
+  3. Added `xcodebuild -resolvePackageDependencies -project App.xcodeproj -scheme "$XCODE_SCHEME"` inside `ios/App`.
+  4. Restricted failure log output specifically to `/tmp/xcodebuild_logs/*.log` to expose compilation errors directly if any occur.
