@@ -10,6 +10,12 @@ workflows:
         - pattern: 'main'
           include: true
           source: true
+    environment:
+      vars:
+        PACKAGE_NAME: "com.o1fc.fitness"
+        GOOGLE_PLAY_TRACK: "internal"
+      node: 20
+      java: 17
     scripts:
       - name: Install dependencies
         script: |
@@ -19,7 +25,7 @@ workflows:
           npm run build
       - name: Sync Capacitor Android
         script: |
-          npx cap sync android || true
+          npx cap sync android
       - name: Build Android AAB
         script: |
           cd android
@@ -29,6 +35,11 @@ workflows:
       - android/app/build/outputs/**/*.aab
       - android/app/build/outputs/**/*.apk
       - dist/**
+    publishing:
+      google_play:
+        credentials: ${GCLOUD_SERVICE_ACCOUNT_CREDENTIALS:-$GOOGLE_PLAY_SERVICE_ACCOUNT_CREDENTIALS}
+        track: ${GOOGLE_PLAY_TRACK:-internal}
+        submit_as_draft: false
 
   ios-release:
     name: iOS Release (App Store / TestFlight)
@@ -42,10 +53,12 @@ workflows:
           include: true
           source: true
     environment:
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.o1fc.fitness
       vars:
-        XCODE_WORKSPACE: "ios/App/App.xcworkspace"
         XCODE_SCHEME: "App"
-      node: latest
+      node: 20
       xcode: latest
     scripts:
       - name: Install dependencies
@@ -56,10 +69,32 @@ workflows:
           npm run build
       - name: Sync Capacitor iOS
         script: |
-          npx cap sync ios || true
+          npx cap sync ios
+      - name: Set up code signing settings on Xcode project
+        script: |
+          xcode-project use-profiles
+      - name: Increment iOS Build Number
+        script: |
+          cd ios/App
+          CURRENT_NUM=$(sed -n '/CURRENT_PROJECT_VERSION =/{s/.*= *//;s/;.*//;p;q;}' App.xcodeproj/project.pbxproj | tr -d '[:space:]')
+          NEW_NUM=${BUILD_NUMBER:-42}
+          if [ -n "$CURRENT_NUM" ] && [ "$NEW_NUM" -le "$CURRENT_NUM" ]; then
+            NEW_NUM=$((CURRENT_NUM + 1))
+          fi
+          echo "Setting iOS build version to $NEW_NUM"
+          agvtool new-version -all "$NEW_NUM"
       - name: Build iOS IPA
         script: |
-          xcode-project build-ipa --workspace "$XCODE_WORKSPACE" --scheme "$XCODE_SCHEME" || true
+          set -e
+          if [ -d "ios/App/App.xcworkspace" ]; then
+            xcode-project build-ipa --workspace "ios/App/App.xcworkspace" --scheme "$XCODE_SCHEME" --archive-flags="-destination 'generic/platform=iOS'"
+          else
+            xcode-project build-ipa --project "ios/App/App.xcodeproj" --scheme "$XCODE_SCHEME" --archive-flags="-destination 'generic/platform=iOS'"
+          fi
     artifacts:
       - build/ios/ipa/*.ipa
-      - dist/**
+      - /tmp/xcodebuild_logs/*.log
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true
