@@ -50,5 +50,18 @@ All credentials and environment configurations remain 100% intact:
     3. Added direct asset preparation script to both `android-release` and `ios-release` workflows in `codemagic.yaml` under `Build web assets`.
     4. Generated `ios/App/Podfile` to prevent CocoaPods dependency resolution warnings during `npx cap sync ios`.
 
-
-
+### September 11, 2026 (Pipeline Full Fix & Verification)
+- **Android Missing Wrapper & CWD Crash (Exit 127)**:
+  - **Root Cause 1**: In `codemagic.yaml`, the build step was executing `./gradlew` from the workspace root instead of navigating into `android/`.
+  - **Root Cause 2**: The `android/` directory was missing the Gradle wrapper binary (`gradlew`, `gradlew.bat`, `gradle/wrapper/gradle-wrapper.jar`, `gradle-wrapper.properties`), root `build.gradle`, and `settings.gradle`.
+  - **Root Cause 3**: The Java entry package directory was missing `MainActivity.java` (`android/app/src/main/java/com/o1fc/fitness/MainActivity.java`).
+  - **Fixes Applied**:
+    1. Fixed `codemagic.yaml` to `cd android && chmod +x gradlew && ./gradlew bundleRelease`.
+    2. Generated the complete standard Gradle wrapper (`gradlew`, `gradlew.bat`, `gradle/wrapper/*`) configured for Java 17 and Gradle 8+.
+    3. Generated `android/build.gradle`, `android/settings.gradle`, `android/variables.gradle`, and `android/gradle.properties`.
+    4. Created `MainActivity.java` extending Capacitor `BridgeActivity`.
+    5. Executed `npx cap doctor`: Confirmed `Android looking great! 👌`.
+    6. Verified both Android and iOS asset synchronization via `npx cap sync android` and `npx cap sync ios`.
+- **iOS Missing Swift Package Manager Reference (`CapApp-SPM`)**:
+  - **Root Cause**: In Xcode project `App.xcodeproj/project.pbxproj`, target `App` references `XCLocalSwiftPackageReference "CapApp-SPM"`. The directory `ios/App/CapApp-SPM` was missing from the repository. When `xcode-project build-ipa` ran, Xcode would fail with: `Missing package product 'CapApp-SPM'` or compile errors from missing `@capacitor/*` Swift bridges.
+  - **Fix Applied**: Generated the official Capacitor 8 Swift Package Manager module in `ios/App/CapApp-SPM/` with `Package.swift` linking all 7 plugins (`CapacitorApp`, `CapacitorBrowser`, `CapacitorHaptics`, `CapacitorKeyboard`, `CapacitorPreferences`, `CapacitorSplashScreen`, `CapacitorStatusBar`) to `capacitor-swift-pm` 8.5.1. Verified with `npx cap sync ios` which confirmed: `[info] All Capacitor plugins have a Package.swift file and will be included in Package.swift`.
