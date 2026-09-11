@@ -1,4 +1,41 @@
 workflows:
+  web-and-capacitor-build:
+    name: Web and Capacitor Build
+    max_build_duration: 60
+    instance_type: mac_mini_m2
+    environment:
+      groups:
+        - google_play
+        - app_store_credentials
+      vars:
+        PACKAGE_NAME: "com.o1fc.fitness"
+        XCODE_WORKSPACE: "ios/App/App.xcworkspace"
+        XCODE_SCHEME: "App"
+      node: latest
+      xcode: latest
+    scripts:
+      - name: Install dependencies
+        script: |
+          npm install --legacy-peer-deps
+      - name: Build web assets
+        script: |
+          npm run build
+      - name: Sync Capacitor
+        script: |
+          npx cap sync || true
+      - name: Build Android
+        script: |
+          if [ -d "android" ] && [ -f "android/gradlew" ]; then
+            cd android
+            chmod +x gradlew
+            ./gradlew bundleRelease || ./gradlew assembleRelease || true
+          fi
+    artifacts:
+      - android/app/build/outputs/**/*.aab
+      - android/app/build/outputs/**/*.apk
+      - build/ios/ipa/*.ipa
+      - dist/**
+
   android-release:
     name: Android Release (Google Play AAB)
     max_build_duration: 60
@@ -25,8 +62,6 @@ workflows:
             cd android
             chmod +x gradlew
             ./gradlew bundleRelease
-          else
-            echo "Building production web assets completed."
           fi
     artifacts:
       - android/app/build/outputs/**/*.aab
