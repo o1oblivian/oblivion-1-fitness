@@ -75,23 +75,25 @@ workflows:
           npx cap sync ios
       - name: Increment iOS Build Number
         script: |
-          cd ios/App
-          CURRENT_NUM=$(sed -n '/CURRENT_PROJECT_VERSION =/{s/.*= *//;s/;.*//;p;q;}' App.xcodeproj/project.pbxproj | tr -d '[:space:]')
+          CURRENT_NUM=$(sed -n '/CURRENT_PROJECT_VERSION =/{s/.*= *//;s/;.*//;p;q;}' ios/App/App.xcodeproj/project.pbxproj | tr -d '[:space:]')
           NEW_NUM=${BUILD_NUMBER:-42}
           if [ -n "$CURRENT_NUM" ] && [ "$NEW_NUM" -le "$CURRENT_NUM" ]; then
             NEW_NUM=$((CURRENT_NUM + 1))
           fi
           echo "Setting iOS build version to $NEW_NUM"
-          sed -i '' -e "s/CURRENT_PROJECT_VERSION = [0-9]*/CURRENT_PROJECT_VERSION = $NEW_NUM/g" App.xcodeproj/project.pbxproj 2>/dev/null || sed -i -e "s/CURRENT_PROJECT_VERSION = [0-9]*/CURRENT_PROJECT_VERSION = $NEW_NUM/g" App.xcodeproj/project.pbxproj
+          sed -i '' -e "s/CURRENT_PROJECT_VERSION = [0-9]*/CURRENT_PROJECT_VERSION = $NEW_NUM/g" ios/App/App.xcodeproj/project.pbxproj 2>/dev/null || sed -i -e "s/CURRENT_PROJECT_VERSION = [0-9]*/CURRENT_PROJECT_VERSION = $NEW_NUM/g" ios/App/App.xcodeproj/project.pbxproj
       - name: Set up code signing settings on Xcode project
         script: |
-          xcode-project use-profiles --project "ios/App/App.xcodeproj" --warn-only || true
+          xcode-project use-profiles
       - name: Build iOS IPA
         script: |
           set -e
-          cd ios/App
-          xcodebuild -resolvePackageDependencies -project App.xcodeproj || true
-          xcode-project build-ipa --project App.xcodeproj --scheme "$XCODE_SCHEME"
+          xcode-project build-ipa --project "ios/App/App.xcodeproj" --scheme "$XCODE_SCHEME" || {
+            echo "=== XCODEBUILD ERROR LOGS ==="
+            find /tmp/xcodebuild_logs -name "*.log" -exec cat {} + 2>/dev/null | tail -n 250
+            exit 1
+          }
     artifacts:
       - build/ios/ipa/*.ipa
+      - ios/App/build/ios/ipa/*.ipa
       - /tmp/xcodebuild_logs/*.log
