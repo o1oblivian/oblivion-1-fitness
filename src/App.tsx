@@ -174,8 +174,8 @@ export default function App() {
       closeInAppBrowser().catch(() => {});
       const openUrl = event.url || '';
 
-      // 1. Handle OAuth token callback
-      if (openUrl.includes('access_token=') || openUrl.includes('refresh_token=')) {
+      // 1. Handle OAuth token or code callback
+      if (openUrl.includes('access_token=') || openUrl.includes('refresh_token=') || openUrl.includes('code=')) {
         try {
           const hashIndex = openUrl.indexOf('#');
           const queryIndex = openUrl.indexOf('?');
@@ -183,6 +183,7 @@ export default function App() {
           const params = new URLSearchParams(paramString);
           const accessToken = params.get('access_token');
           const refreshToken = params.get('refresh_token');
+          const code = params.get('code');
 
           if (accessToken && refreshToken && supabase) {
             const { data } = await supabase.auth.setSession({
@@ -192,6 +193,14 @@ export default function App() {
             if (data?.user?.email) {
               s.handleAuthSuccess(data.user.email);
               s.showToast('Successfully signed in!', 'success');
+              closeInAppBrowser().catch(() => {});
+            }
+          } else if (code && supabase) {
+            const { data } = await supabase.auth.exchangeCodeForSession(code);
+            if (data?.user?.email) {
+              s.handleAuthSuccess(data.user.email);
+              s.showToast('Successfully signed in!', 'success');
+              closeInAppBrowser().catch(() => {});
             }
           }
         } catch (authErr) {
@@ -200,7 +209,7 @@ export default function App() {
       }
 
       // 2. Handle Stripe payment callback in deep link
-      if (openUrl.includes('payment=success')) {
+      if (openUrl.includes('payment=success') || openUrl.includes('payment/success')) {
         const tierMatch = openUrl.match(/tier=([^&]+)/);
         const activatedTier = tierMatch ? decodeURIComponent(tierMatch[1]) : 'premium';
         localStorage.setItem('o1fc_active_subscription', JSON.stringify({
@@ -209,8 +218,12 @@ export default function App() {
           expiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
           status: 'active',
         }));
+        localStorage.setItem('o1fc_cached_tier', activatedTier);
+        window.dispatchEvent(new CustomEvent('o1fc-subscription-updated', { detail: { tier: activatedTier } }));
+        window.dispatchEvent(new CustomEvent('user_profile_updated', { detail: { subscription_tier: activatedTier } }));
         upsertUserProfile({ subscription_tier: activatedTier as any }).catch(() => {});
         s.showToast(`O1FC ${activatedTier.replace('_', ' ').toUpperCase()} Activated!`, 'success');
+        closeInAppBrowser().catch(() => {});
       }
     });
 

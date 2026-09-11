@@ -453,23 +453,25 @@ export const CoachHubView: React.FC<{
         {/* ── Coach Migration Booklet Quick Callout ── */}
         <div 
           onClick={() => setShowPlaybook(true)}
-          className="p-3 rounded-2xl bg-gradient-to-r from-red-500/10 via-black to-zinc-900/60 border border-red-500/20 flex items-center justify-between gap-3 cursor-pointer hover:border-red-500/40 transition-all group"
+          className="p-3 rounded-2xl bg-white dark:bg-[#111114] border border-zinc-200/90 dark:border-white/10 hover:border-red-500/40 dark:hover:border-red-500/40 shadow-xs dark:shadow-none flex items-center justify-between gap-3 cursor-pointer transition-all group"
         >
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-8 h-8 rounded-xl bg-red-500/20 text-[#EF4444] flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
-              <BookOpen className="w-4 h-4" />
+            <div className="w-8 h-8 rounded-xl bg-red-500/10 dark:bg-red-500/20 text-[#C4121A] dark:text-[#EF4444] border border-red-500/20 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+              <BookOpen className="w-4 h-4 stroke-[2]" />
             </div>
             <div className="min-w-0">
-              <div className="text-xs font-bold text-white flex items-center gap-1.5">
+              <div className="text-xs font-bold text-zinc-900 dark:text-white flex items-center gap-1.5 flex-wrap">
                 <span>Coach Field Manual & Client Migration Guide</span>
-                <span className="text-[8px] font-mono uppercase px-1 py-0.2 rounded bg-red-500/20 text-[#EF4444] font-bold">Booklet</span>
+                <span className="text-[8px] font-mono uppercase px-1.5 py-0.5 rounded-md bg-red-500/10 dark:bg-red-500/20 text-[#C4121A] dark:text-[#EF4444] font-bold border border-red-500/20 tracking-wider">
+                  Booklet
+                </span>
               </div>
-              <p className="text-[10px] text-zinc-400 truncate mt-0.5">
+              <p className="text-[10.5px] text-zinc-600 dark:text-zinc-400 truncate mt-0.5">
                 How to transfer clients in 48h, copy pre-written invite scripts, and save $150+/mo
               </p>
             </div>
           </div>
-          <ChevronRight className="w-4 h-4 text-zinc-400 group-hover:text-white transition-colors shrink-0" />
+          <ChevronRight className="w-4 h-4 text-zinc-400 dark:text-zinc-500 group-hover:text-zinc-900 dark:group-hover:text-white group-hover:translate-x-0.5 transition-all shrink-0" />
         </div>
 
         {/* Hub Switcher Rail */}

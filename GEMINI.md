@@ -37,5 +37,16 @@
    - Permanent upload key (`release-keystore.jks`) SHA1: `CC:15:7C:65:54:1D:F9:AE:6C:09:12:87:9D:17:E2:AF:98:7E:6D:BE`.
    - Security hold ends **September 7, 2026 at 1:09 PM UTC**, after which Codemagic will publish automatically.
 
+### Note 5: Active Codemagic CI/CD Build Reference Tracker (Recorded: September 11, 2026)
+1. **Current Production Build Numbers**:
+   - **Android Release (Google Play AAB)**: **Build #18** (preceded by Build #17)
+   - **iOS Release (App Store / TestFlight)**: **Build #38** (preceded by Build #35, #36, #37)
+2. **Trigger Details**:
+   - **Target Branch**: `main`
+   - **Triggering Commit**: `02b4821`
+   - **Commit Description**: `build: update Android configuration and permissions - Increment version to 1.0.2 - Enable R8 shrinkage`
+   - **Workflows**: `android-release` (Google Play internal track AAB) & `ios-release` (App Store / TestFlight IPA)
+
+
 
 

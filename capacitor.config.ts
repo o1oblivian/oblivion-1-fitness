@@ -2,7 +2,7 @@ import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
   appId: 'com.o1fc.fitness',
-  appName: 'Oblivion 1 Fitness Club',
+  appName: 'Oblivion 1',
   webDir: 'dist',
   server: {
     androidScheme: 'https',
@@ -38,7 +38,7 @@ const config: CapacitorConfig = {
     backgroundColor: '#000000',
     contentInset: 'always',
     preferredContentMode: 'mobile',
-    scheme: 'Oblivion 1 Fitness Club',
+    scheme: 'o1fc',
   },
 };
 

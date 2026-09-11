@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" width="500" height="500">
-  <!-- Exact O1FC Logo Vector Definition -->
-  <g fill="currentColor">
+  <!-- Exact O1FC Logo Vector Definition - Perfectly Centered -->
+  <g transform="translate(10, -13.5)" fill="currentColor">
     <!-- Top 0 -->
     <path
       d="M 190 75 C 242.47 75, 285 117.53, 285 170 C 285 222.47, 242.47 265, 190 265 C 137.53 265, 95 222.47, 95 170 C 95 117.53, 137.53 75, 190 75 Z M 190 120 C 162.39 120, 140 142.39, 140 170 C 140 197.61, 162.39 220, 190 220 C 217.61 220, 240 197.61, 240 170 C 240 142.39, 217.61 120, 190 120 Z"

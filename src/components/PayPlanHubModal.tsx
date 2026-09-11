@@ -522,9 +522,9 @@ export const PayPlanHubModal: React.FC<PayPlanHubModalProps> = ({
       const { data: { session: authSession } } = await supabase.auth.getSession();
       const userEmail = authSession?.user?.email || 'o1oblivianfitness@gmail.com';
       const isMobile = isNativePlatform();
-      const baseUrl = isMobile || !window.location.origin || window.location.origin.includes('localhost') || window.location.protocol.startsWith('capacitor')
-        ? 'https://ais-pre-ywak62jnfmfdpkjhp64wap-822845783036.asia-east1.run.app'
-        : window.location.origin;
+      const clientOrigin = (!isMobile && typeof window !== 'undefined' && window.location.origin && !window.location.origin.includes('localhost') && !window.location.protocol.startsWith('capacitor'))
+        ? window.location.origin
+        : '';
 
       const response = await apiFetch('/api/stripe-checkout', {
         method: 'POST',
@@ -533,8 +533,8 @@ export const PayPlanHubModal: React.FC<PayPlanHubModalProps> = ({
           planId: selectedPlan,
           paymentMethodType: method,
           userEmail,
-          successUrl: `${baseUrl}?payment=success&tier=${selectedPlan}`,
-          cancelUrl: `${baseUrl}?payment=cancel`,
+          isMobile,
+          clientOrigin,
         }),
       });
 

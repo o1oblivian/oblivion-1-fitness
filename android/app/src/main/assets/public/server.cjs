@@ -1093,24 +1093,28 @@ Return ONLY valid JSON matching this schema:
   });
   app.post("/api/stripe-checkout", standardApiLimiter, async (req, res) => {
     try {
-      const { planId, userEmail, successUrl, cancelUrl, programTitle, programPriceCents } = req.body || {};
+      const { planId, userEmail, successUrl, cancelUrl, programTitle, programPriceCents, isMobile, clientOrigin } = req.body || {};
       const stripe = getStripe();
       if (!stripe) {
         return res.status(500).json({
           error: "STRIPE_SECRET_KEY is not configured in the environment variables."
         });
       }
+      const reqProto = req.get("x-forwarded-proto") || req.protocol || "https";
+      const reqHost = req.get("x-forwarded-host") || req.get("host") || "o1fc-official-1.ai.studio";
+      const serverOrigin = `${reqProto}://${reqHost}`;
       const rawOrigin = req.headers.origin || "";
-      const fallbackOrigin = (rawOrigin.startsWith("http://") || rawOrigin.startsWith("https://")) && !rawOrigin.includes("localhost") && !rawOrigin.startsWith("capacitor:") ? rawOrigin : "https://ais-pre-ywak62jnfmfdpkjhp64wap-822845783036.asia-east1.run.app";
+      const effectiveWebOrigin = clientOrigin && clientOrigin.startsWith("http") ? clientOrigin : (rawOrigin.startsWith("http://") || rawOrigin.startsWith("https://")) && !rawOrigin.includes("localhost") && !rawOrigin.startsWith("capacitor:") ? rawOrigin : serverOrigin;
       const sessionUrlParam = "{CHECKOUT_SESSION_ID}";
-      const sanitizeUrl = (url, fallbackPath = "") => {
-        if (!url || url.startsWith("capacitor:") || url.startsWith("file:") || url.includes("localhost")) {
-          return `${fallbackOrigin}${fallbackPath}`;
-        }
-        return url;
-      };
-      const finalSuccessUrl = successUrl ? successUrl.includes("session_id=") ? sanitizeUrl(successUrl, `?payment=success&tier=${planId || "premium"}&session_id=${sessionUrlParam}`) : `${sanitizeUrl(successUrl, `?payment=success&tier=${planId || "premium"}`)}&session_id=${sessionUrlParam}` : `${fallbackOrigin}?payment=success&tier=${planId || "premium"}&session_id=${sessionUrlParam}`;
-      const finalCancelUrl = sanitizeUrl(cancelUrl, "?payment=cancel");
+      let finalSuccessUrl;
+      let finalCancelUrl;
+      if (isMobile) {
+        finalSuccessUrl = `${serverOrigin}/api/stripe-payment-return?status=success&tier=${encodeURIComponent(planId || "premium")}&session_id=${sessionUrlParam}&target=app`;
+        finalCancelUrl = `${serverOrigin}/api/stripe-payment-return?status=cancel&target=app`;
+      } else {
+        finalSuccessUrl = successUrl ? successUrl.includes("session_id=") ? successUrl : `${successUrl}&session_id=${sessionUrlParam}` : `${effectiveWebOrigin}?payment=success&tier=${encodeURIComponent(planId || "premium")}&session_id=${sessionUrlParam}`;
+        finalCancelUrl = cancelUrl || `${effectiveWebOrigin}?payment=cancel`;
+      }
       if (programPriceCents && Number(programPriceCents) > 0) {
         const session2 = await stripe.checkout.sessions.create({
           customer_email: userEmail || void 0,
@@ -1220,6 +1224,70 @@ Return ONLY valid JSON matching this schema:
   };
   app.post("/api/stripe-verify-session", handleVerifySession);
   app.get("/api/stripe-verify-session", handleVerifySession);
+  app.get("/api/stripe-payment-return", (req, res) => {
+    const { status, tier = "premium", session_id, target } = req.query;
+    const isApp = target === "app";
+    if (isApp) {
+      if (status === "success") {
+        const deepLink = `com.o1fc.fitness://payment/success?status=success&tier=${encodeURIComponent(String(tier))}&session_id=${encodeURIComponent(String(session_id || ""))}`;
+        return res.send(`<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Payment Confirmed \u2022 Oblivion 1</title>
+  <style>
+    body { background: #000000; color: #ffffff; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; padding: 20px; box-sizing: border-box; text-align: center; }
+    .badge { width: 56px; height: 56px; border-radius: 50%; background: #dc2626; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; box-shadow: 0 0 30px rgba(220,38,38,0.5); }
+    h1 { font-size: 20px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; margin: 0 0 8px 0; }
+    p { font-size: 14px; color: #a1a1aa; margin: 0 0 24px 0; max-width: 300px; line-height: 1.5; }
+    .btn { display: inline-block; padding: 14px 28px; background: #dc2626; color: #ffffff; text-decoration: none; border-radius: 12px; font-size: 13px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; }
+  </style>
+</head>
+<body>
+  <div class="badge">
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+  </div>
+  <h1>Payment Confirmed</h1>
+  <p>Your O1FC subscription is active. Returning to the app...</p>
+  <a class="btn" href="${deepLink}">Return to Oblivion 1</a>
+  <script>
+    window.location.href = "${deepLink}";
+    setTimeout(function() {
+      if (window.opener) { window.close(); }
+    }, 1500);
+  </script>
+</body>
+</html>`);
+      } else {
+        const cancelLink = "com.o1fc.fitness://payment/cancel";
+        return res.send(`<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout Canceled \u2022 Oblivion 1</title>
+  <style>
+    body { background: #000000; color: #ffffff; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; padding: 20px; box-sizing: border-box; text-align: center; }
+    h1 { font-size: 18px; font-weight: 700; margin: 0 0 8px 0; }
+    p { font-size: 14px; color: #a1a1aa; margin: 0 0 24px 0; }
+    .btn { display: inline-block; padding: 12px 24px; background: #27272a; color: #ffffff; text-decoration: none; border-radius: 10px; font-size: 13px; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <h1>Checkout Canceled</h1>
+  <p>Returning to Oblivion 1...</p>
+  <a class="btn" href="${cancelLink}">Return to App</a>
+  <script>
+    window.location.href = "${cancelLink}";
+  </script>
+</body>
+</html>`);
+      }
+    }
+    const returnPath = status === "success" ? `/?payment=success&tier=${encodeURIComponent(String(tier))}&session_id=${encodeURIComponent(String(session_id || ""))}` : "/?payment=cancel";
+    return res.redirect(returnPath);
+  });
   app.get("/api/founder-pass-stats", async (req, res) => {
     try {
       const TOTAL_LIMIT = 5e3;

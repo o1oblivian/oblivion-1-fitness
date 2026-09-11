@@ -350,13 +350,20 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     setLoading(true);
     setStatusMessage(null);
     try {
-      // Direct redirect to current origin so OAuth completes on the active URL
-      const currentOrigin = typeof window !== 'undefined' ? window.location.origin : 'https://ais-pre-ywak62jnfmfdpkjhp64wap-822845783036.asia-east1.run.app';
+      const isNative = isNativePlatform();
+      // On native mobile APK, redirect directly back into the app using custom deep-link scheme
+      // On web, redirect back to current browser origin
+      const currentOrigin = typeof window !== 'undefined' && window.location.origin && !window.location.origin.includes('localhost')
+        ? `${window.location.origin}${window.location.pathname}`
+        : (typeof window !== 'undefined' ? window.location.origin : 'https://o1fc-official-1.ai.studio');
+
+      const redirectUri = isNative ? 'com.o1fc.fitness://auth/callback' : currentOrigin;
 
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
-          redirectTo: currentOrigin,
+          redirectTo: redirectUri,
+          skipBrowserRedirect: true,
           queryParams: provider === 'google' ? {
             access_type: 'offline',
             prompt: 'select_account',
@@ -370,7 +377,12 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       }
 
       if (data?.url) {
-        window.location.href = data.url;
+        if (isNative) {
+          // Open in-app Custom Tab overlay with black bar, staying inside the app
+          await openExternalUrl(data.url);
+        } else {
+          window.location.href = data.url;
+        }
       }
     } catch {
       showToast(`Unable to initiate ${provider} auth. Please use email.`, 'error');

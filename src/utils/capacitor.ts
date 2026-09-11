@@ -66,7 +66,7 @@ export async function openExternalUrl(url: string): Promise<void> {
     try {
       await Browser.open({
         url,
-        windowName: '_blank',
+        windowName: '_self',
         presentationStyle: 'fullscreen',
         toolbarColor: '#000000',
       });

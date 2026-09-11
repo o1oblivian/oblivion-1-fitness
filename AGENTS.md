@@ -92,5 +92,16 @@
    - Google Play 48-hour security hold expires on **September 7, 2026 at 1:09 PM UTC**.
    - After this timestamp, builds submitted to Google Play will publish directly without key mismatch errors.
 
+### Note 5: Active Codemagic CI/CD Build Reference Tracker (Recorded: September 11, 2026)
+1. **Current Production Build Numbers**:
+   - **Android Release (Google Play AAB)**: **Build #18** (preceded by Build #17)
+   - **iOS Release (App Store / TestFlight)**: **Build #38** (preceded by Build #35, #36, #37)
+2. **Trigger Details**:
+   - **Target Branch**: `main`
+   - **Triggering Commit**: `02b4821`
+   - **Commit Description**: `build: update Android configuration and permissions - Increment version to 1.0.2 - Enable R8 shrinkage`
+   - **Workflows**: `android-release` (Google Play internal track AAB) & `ios-release` (App Store / TestFlight IPA)
+
+
 
 
