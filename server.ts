@@ -449,10 +449,14 @@ Return ONLY a valid JSON object matching this schema:
           }
         }
 
-        // Return honest error instead of fake fabricated nutritional data
-        return res.status(422).json({
+        // Return honest error or credit notice
+        const isQuota = lastModelError?.status === 429 || (lastModelError?.message && lastModelError.message.includes('prepayment credits'));
+        return res.status(isQuota ? 200 : 422).json({
           success: false,
-          message: 'Unable to accurately detect food items in this photo. Please retake with better lighting or enter food items manually.',
+          isQuotaExhausted: !!isQuota,
+          message: isQuota
+            ? 'Gemini API credits exhausted. Please top up credits at https://ai.studio/projects or enter food items manually.'
+            : 'Unable to accurately detect food items in this photo. Please retake with better lighting or enter food items manually.',
         });
       } catch (err: any) {
         console.error('Food scan fatal error:', err);
@@ -571,9 +575,14 @@ Return ONLY a valid JSON object matching this schema:
       }
 
       if (!response || !response.text) {
-        return res.status(502).json({
+        // If credits exhausted or API unavailable, provide helpful message with graceful manual fallback
+        const isQuota = lastError?.status === 429 || (lastError?.message && lastError.message.includes('prepayment credits'));
+        return res.status(isQuota ? 200 : 502).json({
           success: false,
-          message: 'AI vision model unavailable or could not process image: ' + (lastError?.message || 'Unknown error'),
+          isQuotaExhausted: !!isQuota,
+          message: isQuota 
+            ? 'Gemini API credits exhausted. Please top up credits at https://ai.studio/projects or enter your cardio metrics manually.' 
+            : 'AI vision model unavailable or could not process image: ' + (lastError?.message || 'Unknown error'),
         });
       }
 
@@ -1752,19 +1761,19 @@ Return ONLY valid JSON matching this schema:
     return res.status(404).json({ error: 'Photo file not found' });
   });
 
-  // Vite middleware in development
-  if (process.env.NODE_ENV !== 'production') {
+  // Serve compiled production build from dist
+  const distPath = path.join(process.cwd(), 'dist');
+  if (fs.existsSync(distPath)) {
+    app.use(express.static(distPath));
+    app.get('*', (_req, res) => {
+      res.sendFile(path.join(distPath, 'index.html'));
+    });
+  } else if (process.env.NODE_ENV !== 'production') {
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: 'spa',
     });
     app.use(vite.middlewares);
-  } else {
-    const distPath = path.join(process.cwd(), 'dist');
-    app.use(express.static(distPath));
-    app.get('*', (_req, res) => {
-      res.sendFile(path.join(distPath, 'index.html'));
-    });
   }
 
   app.listen(PORT, '0.0.0.0', () => {
