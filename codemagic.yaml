@@ -1,6 +1,37 @@
 workflows:
-  web-and-capacitor-build:
-    name: Web and Capacitor Build
+  android-release:
+    name: Android Release (Google Play AAB)
+    max_build_duration: 60
+    instance_type: mac_mini_m2
+    triggering:
+      events:
+        - push
+      branch_patterns:
+        - pattern: 'main'
+          include: true
+          source: true
+    scripts:
+      - name: Install dependencies
+        script: |
+          npm install --legacy-peer-deps
+      - name: Build web assets
+        script: |
+          npm run build
+      - name: Sync Capacitor Android
+        script: |
+          npx cap sync android || true
+      - name: Build Android AAB
+        script: |
+          cd android
+          chmod +x gradlew
+          ./gradlew bundleRelease
+    artifacts:
+      - android/app/build/outputs/**/*.aab
+      - android/app/build/outputs/**/*.apk
+      - dist/**
+
+  ios-release:
+    name: iOS Release (App Store / TestFlight)
     max_build_duration: 60
     instance_type: mac_mini_m2
     triggering:
@@ -11,13 +42,8 @@ workflows:
           include: true
           source: true
     environment:
-      groups:
-        - google_play_credentials
-        - app_store_credentials
       vars:
-        PACKAGE_NAME: "com.o1fc.fitness"
-        BUNDLE_ID: "com.o1fc.fitness"
-        XCODE_PROJECT: "ios/App/App.xcodeproj"
+        XCODE_WORKSPACE: "ios/App/App.xcworkspace"
         XCODE_SCHEME: "App"
       node: latest
       xcode: latest
@@ -25,33 +51,15 @@ workflows:
       - name: Install dependencies
         script: |
           npm install --legacy-peer-deps
-      - name: Build web application
+      - name: Build web assets
         script: |
           npm run build
-      - name: Sync Capacitor iOS & Android
+      - name: Sync Capacitor iOS
         script: |
-          npx cap sync || true
-      - name: Build Android Release AAB
-        script: |
-          if [ -d "android" ]; then
-            cd android
-            gradle bundleRelease || ./gradlew bundleRelease || true
-          fi
+          npx cap sync ios || true
       - name: Build iOS IPA
         script: |
-          if [ -d "ios" ]; then
-            xcode-project build-ipa --project "$XCODE_PROJECT" --scheme "$XCODE_SCHEME" || true
-          fi
+          xcode-project build-ipa --workspace "$XCODE_WORKSPACE" --scheme "$XCODE_SCHEME" || true
     artifacts:
-      - android/app/build/outputs/**/*.aab
-      - android/app/build/outputs/**/*.apk
       - build/ios/ipa/*.ipa
       - dist/**
-    publishing:
-      google_play:
-        credentials: $GCLOUD_SERVICE_ACCOUNT_CREDENTIALS
-        track: internal
-        submit_as_draft: false
-      app_store_connect:
-        auth: integration
-        submit_to_testflight: true
