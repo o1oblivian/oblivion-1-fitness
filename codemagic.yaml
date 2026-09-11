@@ -4,13 +4,6 @@ workflows:
     max_build_duration: 60
     instance_type: mac_mini_m2
     environment:
-      groups:
-        - google_play
-        - app_store_credentials
-      vars:
-        PACKAGE_NAME: "com.o1fc.fitness"
-        XCODE_WORKSPACE: "ios/App/App.xcworkspace"
-        XCODE_SCHEME: "App"
       node: latest
       xcode: latest
     scripts:
@@ -33,63 +26,5 @@ workflows:
     artifacts:
       - android/app/build/outputs/**/*.aab
       - android/app/build/outputs/**/*.apk
-      - build/ios/ipa/*.ipa
-      - dist/**
-
-  android-release:
-    name: Android Release (Google Play AAB)
-    max_build_duration: 60
-    instance_type: mac_mini_m2
-    environment:
-      groups:
-        - google_play
-      vars:
-        PACKAGE_NAME: "com.o1fc.fitness"
-      node: latest
-    scripts:
-      - name: Install dependencies
-        script: |
-          npm install --legacy-peer-deps
-      - name: Build web assets
-        script: |
-          npm run build
-      - name: Sync Capacitor Android
-        script: |
-          npx cap sync android || true
-      - name: Build Android AAB
-        script: |
-          if [ -d "android" ] && [ -f "android/gradlew" ]; then
-            cd android
-            chmod +x gradlew
-            ./gradlew bundleRelease
-          fi
-    artifacts:
-      - android/app/build/outputs/**/*.aab
-      - android/app/build/outputs/**/*.apk
-      - dist/**
-
-  ios-release:
-    name: iOS Release
-    max_build_duration: 60
-    instance_type: mac_mini_m2
-    environment:
-      groups:
-        - app_store_credentials
-      vars:
-        XCODE_WORKSPACE: "ios/App/App.xcworkspace"
-        XCODE_SCHEME: "App"
-      node: latest
-      xcode: latest
-    scripts:
-      - name: Install dependencies
-        script: |
-          npm install --legacy-peer-deps
-      - name: Build web assets
-        script: |
-          npm run build
-      - name: Sync Capacitor iOS
-        script: |
-          npx cap sync ios || true
-    artifacts:
       - build/ios/ipa/*.ipa
       - dist/**
