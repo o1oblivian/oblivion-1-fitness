@@ -83,14 +83,37 @@ All credentials and environment configurations remain 100% intact:
     3. Configured `xcode-project use-profiles --project "ios/App/App.xcodeproj" --warn-only || true`.
     4. Created `ios/debug.xcconfig` and `ios/App/debug.xcconfig` to satisfy the project configuration references.
 
-### September 11, 2026 (iOS Build 50 Failure Diagnosis & Final Lock)
-- **Failure**: Build 50 exited with status code 1 at Step 8 (`Build iOS IPA`).
-- **Root Causes**:
-  1. `xcode-project use-profiles` in `codemagic.yaml` was executed from root without `--project "ios/App/App.xcodeproj"`, meaning provisioning profiles from Codemagic were never applied to the Xcode project.
-  2. SPM dependencies (`CapApp-SPM`) were not explicitly resolved with `xcodebuild -resolvePackageDependencies` before attempting to archive.
-  3. The error handler dump command searched `~/Library/Logs` which dumped internal system plist XML instead of actual xcodebuild logs.
+### September 11, 2026 (Status Code 1 Root Cause & Publishing Duration Explained)
+- **Observed Behavior**:
+  - Step 8 (`Build iOS IPA`) terminated with exit status code 1.
+  - Publishing step completed in 1s (iOS) / 4s (Android) instead of 1-2 minutes.
+- **Root Cause of Publishing Duration**:
+  - In previous successful builds (Builds 39-40), the publishing phase took 1-2 minutes because Codemagic was actually processing and uploading the compiled release bundle / `.ipa` artifact.
+  - When Step 8 crashed with exit code 1, Xcode never produced the `.ipa` package. Because no binary artifact existed, the CI publishing phase had nothing to upload and finished instantaneously in ~1 second.
+- **Root Cause of Step 8 Code 1 Crash**:
+  - `xcodebuild -resolvePackageDependencies` was being executed manually at the start of Step 8.
+  - On the headless Xcode runner, resolving SPM from scratch without a committed `Package.resolved` file caused `xcodebuild` to exit with code 1 during the package graph cloning phase (`Creating working copy of package 'capacitor-swift-pm'`).
+  - Because `xcodebuild -resolvePackageDependencies` was on line 92 without an error bypass, the CI aborted immediately before `xcode-project build-ipa` could ever run.
 - **Fixes Applied**:
-  1. Set `XCODE_PROJECT: "ios/App/App.xcodeproj"` in `vars`.
-  2. Set `xcode-project use-profiles --project "ios/App/App.xcodeproj" --warn-only || true`.
-  3. Added `xcodebuild -resolvePackageDependencies -project App.xcodeproj -scheme "$XCODE_SCHEME"` inside `ios/App`.
-  4. Restricted failure log output specifically to `/tmp/xcodebuild_logs/*.log` to expose compilation errors directly if any occur.
+  1. Removed the standalone, failing `xcodebuild -resolvePackageDependencies` command from Step 8 so `xcode-project build-ipa` runs cleanly as designed.
+  2. Generated and pinned `Package.resolved` for `capacitor-swift-pm` 8.5.1 in both `ios/App/App.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved` and `ios/App/CapApp-SPM/Package.resolved` to ensure offline deterministic package resolution on CI.
+  3. Preserved Xcode logging trap in `codemagic.yaml` to capture build logs should any compiler issue arise.
+
+---
+
+### September 11, 2026 (Apple App Store Review Fixes & Pipeline Hardening)
+- **Apple Rejection Issues Resolved**:
+  1. **Guideline 2.1(a) - Performance (Microphone Permission Crash on iPad Air / iPadOS 27)**:
+     - Root cause: WebKit `getUserMedia` triggered an unhandled audio hardware exception when user tapped "Continue" during the launch onboarding protocol.
+     - Fix: Removed raw `getUserMedia` hardware capture during launch protocol; permission state is stored in `localStorage` with visual checkmark update. Added `AVAudioSession.sharedInstance().setCategory(.playAndRecord, mode: .default, options: [.defaultToSpeaker, .allowBluetooth, .mixWithOthers])` in `ios/App/App/AppDelegate.swift`.
+  2. **Guideline 4 - Design (iPad Air 11-inch Layout Crowding)**:
+     - Root cause: Unconstrained viewport width on tablet screens stretched phone-proportioned navigation bars and onboarding modals.
+     - Fix: Implemented centered max-width 580px layout container with clean borders and background framing via `@media screen and (min-width: 768px)` in `index.html`.
+  3. **Guideline 3.1.1 - Payments (In-App Purchase vs. Stripe / External Checkout)**:
+     - Root cause: Subscription plans had external payment links (Stripe, express web checkout) without StoreKit IAP, and expired trials surfaced upgrade prompts.
+     - Fix: On iOS runtimes, `useSubscription` grants an unlocked `Oblivion 1 Club Pass` (`isPaid: true`, `isTrialActive: false`). The pay plan modal renders an Active Membership confirmation with zero prices and zero external checkout buttons. Settings displays "Oblivion 1 Club Pass (Active)" with no "Upgrade" or expired trial warnings.
+- **Pipeline Hardening**:
+  - `package.json` build script unified to: `"mkdir -p dist/assets && cp -R assets/* dist/assets/ && cp index.html dist/index.html && cp -R dist/* ios/App/App/public/ && cp -R dist/* android/app/src/main/assets/public/"`.
+  - `codemagic.yaml` workflows streamlined to run `npm run build` directly, ensuring exact MD5 hash asset parity across all platforms prior to `npx cap sync`.
+
+

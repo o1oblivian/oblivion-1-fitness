@@ -22,10 +22,6 @@ workflows:
           npm install --legacy-peer-deps
       - name: Build web assets
         script: |
-          mkdir -p dist
-          if [ -d "android/app/src/main/assets/public" ]; then
-            cp -R android/app/src/main/assets/public/* dist/
-          fi
           npm run build
       - name: Sync Capacitor Android
         script: |
@@ -66,10 +62,6 @@ workflows:
           npm install --legacy-peer-deps
       - name: Build web assets
         script: |
-          mkdir -p dist
-          if [ -d "android/app/src/main/assets/public" ]; then
-            cp -R android/app/src/main/assets/public/* dist/
-          fi
           npm run build
       - name: Sync Capacitor iOS
         script: |
@@ -88,9 +80,6 @@ workflows:
           xcode-project use-profiles --project "ios/App/App.xcodeproj" --warn-only || true
       - name: Build iOS IPA
         script: |
-          cd ios/App
-          xcodebuild -resolvePackageDependencies -project App.xcodeproj -scheme "$XCODE_SCHEME"
-          cd ../..
           xcode-project build-ipa --project "ios/App/App.xcodeproj" --scheme "$XCODE_SCHEME" || {
             echo "=== XCODEBUILD ERROR LOGS ==="
             if [ -d "/tmp/xcodebuild_logs" ]; then
