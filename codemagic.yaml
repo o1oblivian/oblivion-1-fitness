@@ -90,10 +90,11 @@ workflows:
           set -e
           xcode-project build-ipa --project "ios/App/App.xcodeproj" --scheme "$XCODE_SCHEME" || {
             echo "=== XCODEBUILD ERROR LOGS ==="
-            find /tmp/xcodebuild_logs -name "*.log" -exec cat {} + 2>/dev/null | tail -n 250
+            find /tmp/xcodebuild_logs ~/Library/Logs -name "*.log" -exec cat {} + 2>/dev/null | tail -n 250
             exit 1
           }
     artifacts:
       - build/ios/ipa/*.ipa
       - ios/App/build/ios/ipa/*.ipa
       - /tmp/xcodebuild_logs/*.log
+      - ~/Library/Logs/gym/*.log

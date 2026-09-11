@@ -1761,12 +1761,18 @@ Return ONLY valid JSON matching this schema:
     return res.status(404).json({ error: 'Photo file not found' });
   });
 
-  // Serve compiled production build from dist
+  // Static assets serving: prioritize dist/, then android/app/src/main/assets/public/
   const distPath = path.join(process.cwd(), 'dist');
-  if (fs.existsSync(distPath)) {
-    app.use(express.static(distPath));
+  const androidAssetsPath = path.join(process.cwd(), 'android', 'app', 'src', 'main', 'assets', 'public');
+  const staticRoot = (fs.existsSync(path.join(distPath, 'index.html')))
+    ? distPath
+    : (fs.existsSync(path.join(androidAssetsPath, 'index.html')) ? androidAssetsPath : null);
+
+  if (staticRoot) {
+    app.use('/assets', express.static(path.join(staticRoot, 'assets'), { maxAge: '1h' }));
+    app.use(express.static(staticRoot));
     app.get('*', (_req, res) => {
-      res.sendFile(path.join(distPath, 'index.html'));
+      res.sendFile(path.join(staticRoot, 'index.html'));
     });
   } else if (process.env.NODE_ENV !== 'production') {
     const vite = await createViteServer({

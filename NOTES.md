@@ -1,5 +1,10 @@
 # O1FC Project & Release Build Notes
 
+## 🔒 LOCKED PRODUCTION PIPELINE RULES
+1. **GitHub Actions Workflow**: `.github/workflows/android-build.yml` is locked to verified commit `746991b` (Build #56). NEVER replace, modify, or delete this file.
+2. **Android Builds**: Codemagic Build #30 verified generating `app-release.aab`.
+3. **Asset Integrity**: Root `assets/` and `dist/assets/` synchronized with `index.html`.
+
 ## System Credentials Status (Verified Active & Untouched)
 All credentials and environment configurations remain 100% intact:
 - **Gemini API Key**: Active
