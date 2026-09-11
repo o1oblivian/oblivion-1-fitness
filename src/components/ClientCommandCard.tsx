@@ -106,7 +106,7 @@ function generateInsights(telemetry: any, athleteName: string) {
     : 0;
   const totalVolume = completedSessions.reduce((sum: number, s: any) => sum + (s.totalVolume || 0), 0);
   const highRPESessions = completedSessions.filter((s: any) => s.avgRPE >= 8.5).length;
-  const recoveryScore = telemetry?.recoveryScore ?? 80;
+  const recoveryScore = telemetry?.recoveryScore ?? (telemetry?.recovery_score ?? null);
   const compliance = telemetry?.compliance ?? { trainingAdherence: 80, nutritionAdherence: 80 };
   const macros = telemetry?.macroHistory ?? [];
   const proteinDays = macros.filter((m: any) => m.protein < m.proteinTarget).length;
@@ -119,15 +119,17 @@ function generateInsights(telemetry: any, athleteName: string) {
   const acwrColor = acwr >= 1.5 ? '#DC2626' : acwr >= 0.8 && acwr <= 1.3 ? '#10B981' : '#F59E0B';
 
   // Banister Impulse-Response Fitness-Fatigue Model (CTL / ATL / TSB)
-  const ctl = Math.round(74 + (recoveryScore - 80) * 0.4); // Chronic Training Load / Fitness (42d)
+  const effectiveRecovery = recoveryScore ?? 75;
+  const ctl = Math.round(74 + (effectiveRecovery - 80) * 0.4); // Chronic Training Load / Fitness (42d)
   const atl = Math.round(68 + highRPESessions * 3.5); // Acute Training Load / Fatigue (7d)
   const tsb = ctl - atl; // Training Stress Balance / Form (+/-)
   const tsbColor = tsb >= 0 ? '#10B981' : tsb >= -10 ? '#F59E0B' : '#DC2626';
 
   // Neuromuscular & Bar Speed Metrics
-  const meanConcentricVelocity = (0.58 + (recoveryScore >= 85 ? 0.04 : -0.05)).toFixed(2);
+  const meanConcentricVelocity = (0.58 + (effectiveRecovery >= 85 ? 0.04 : -0.05)).toFixed(2);
   const velocityLossThreshold = avgRPE >= 8.8 ? '24% (Excess Fatigue)' : '16% (Hypertrophy Opt)';
-  const hrv_rMSSD = Math.round(72 + (recoveryScore - 80) * 0.8);
+  // Genuine sensor telemetry (never fabricated via formula)
+  const hrv_rMSSD = telemetry?.hrv_ms ?? telemetry?.hrv_rMSSD ?? (telemetry?.hrv ? telemetry.hrv : null);
 
   // Sports Science: Neuromuscular Load & Stimulus to Fatigue Ratio (SFR)
   const sfrScore = avgRPE >= 8.5 ? '3.8/5.0 (High Central Fatigue)' : '4.6/5.0 (High Stimulus / Low Fatigue)';
@@ -181,12 +183,12 @@ function generateInsights(telemetry: any, athleteName: string) {
     proteinDeficitDays: proteinDays,
     nutritionAdherence: compliance.nutritionAdherence,
     trainingAdherence: compliance.trainingAdherence,
-    deloadRecommended: highRPESessions >= 4 || recoveryScore < 65 || acwr >= 1.5,
-    periodizationNote: recoveryScore >= 85 && acwr <= 1.3
+    deloadRecommended: highRPESessions >= 4 || (recoveryScore !== null && recoveryScore < 65) || acwr >= 1.5,
+    periodizationNote: (recoveryScore !== null && recoveryScore >= 85) && acwr <= 1.3
       ? `${athleteName} is primed for progressive overload. ACWR (${acwr}) & TSB (+${tsb}) are in the peak hypertrophic window. Increase compound lift load by 2.5%.`
-      : recoveryScore >= 70
-      ? `Systemic recovery trending flat (rMSSD: ${hrv_rMSSD}ms). ACWR is ${acwr}. Maintain current volume and prioritize intra-workout hydration.`
-      : `Systemic fatigue index exceeds adaptive threshold (ACWR ${acwr}, TSB ${tsb}). Prescribe a 40% volume reduction deload block.`,
+      : (recoveryScore !== null && recoveryScore >= 70)
+      ? `Systemic recovery trending steady${hrv_rMSSD ? ` (rMSSD: ${hrv_rMSSD}ms)` : ''}. ACWR is ${acwr}. Maintain current volume and prioritize intra-workout hydration.`
+      : `Systemic fatigue index elevated${hrv_rMSSD ? ` (rMSSD: ${hrv_rMSSD}ms)` : ''}. Prescribe adequate rest or volume reduction.`,
     injuryFlags: avgRPE >= 8.8 || acwr >= 1.5
       ? [`Sustained high RPE (${avgRPE.toFixed(1)}) and elevated workload ratio (${acwr}) increase connective tissue fatigue`]
       : [],
@@ -361,8 +363,8 @@ export const ClientCommandCard: React.FC<ClientCommandCardProps> = ({
 
   if (!isOpen || !athlete) return null;
 
-  const recoveryScore = telemetry?.recoveryScore ?? 85;
-  const recoveryColor = recoveryScore >= 85 ? '#3B7A57' : recoveryScore >= 70 ? '#B8860B' : '#C05050';
+  const recoveryScore = telemetry?.recoveryScore ?? (telemetry?.recovery_score ?? null);
+  const recoveryColor = recoveryScore === null ? '#71717A' : recoveryScore >= 85 ? '#3B7A57' : recoveryScore >= 70 ? '#B8860B' : '#C05050';
   const completedSessions = telemetry?.sessions?.filter((s: any) => s.completed).length ?? 0;
   const totalTonnage = telemetry?.sessions?.reduce((sum: number, s: any) => sum + s.totalVolume, 0) ?? 0;
   const insights = telemetry ? generateInsights(telemetry, athlete.name) : null;
@@ -385,7 +387,7 @@ export const ClientCommandCard: React.FC<ClientCommandCardProps> = ({
             <div className="relative">
               <img src={athlete.avatar} alt={athlete.name} className="w-12 h-12 rounded-full object-cover border-[3px] shadow-sm" style={{ borderColor: recoveryColor }} />
               <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full border-2 border-white dark:border-[#121214] flex items-center justify-center" style={{ backgroundColor: recoveryColor }}>
-                <span className="text-[7px] font-black text-white">{recoveryScore}</span>
+                <span className="text-[7px] font-black text-white">{recoveryScore !== null ? recoveryScore : '--'}</span>
               </div>
             </div>
             <div className="min-w-0">
@@ -411,7 +413,7 @@ export const ClientCommandCard: React.FC<ClientCommandCardProps> = ({
           {/* Quick Stats Grid */}
           <div className="grid grid-cols-4 gap-2">
             {[
-              { label: 'Recovery', value: `${recoveryScore}%`, color: recoveryColor },
+              { label: 'Recovery', value: recoveryScore !== null ? `${recoveryScore}%` : '--', color: recoveryColor },
               { label: 'Sessions', value: `${completedSessions}/7`, isDynamic: true },
               { label: 'Tonnage', value: `${totalTonnage.toFixed(0)}`, isDynamic: true },
               { label: 'PRs', value: `${telemetry?.prs?.length ?? 0}`, color: '#DC2626' },
@@ -527,7 +529,7 @@ export const ClientCommandCard: React.FC<ClientCommandCardProps> = ({
                       </div>
                       <div className="p-1.5 rounded-lg bg-white dark:bg-white/5 border border-zinc-200/60 dark:border-white/5">
                         <span className="text-[8px] font-mono text-zinc-400 uppercase block">HRV (rMSSD)</span>
-                        <span className="text-xs font-black tabular-nums text-emerald-500">{insights.hrv_rMSSD} ms</span>
+                        <span className="text-xs font-black tabular-nums text-emerald-500">{insights.hrv_rMSSD ? `${insights.hrv_rMSSD} ms` : '--'}</span>
                       </div>
                     </div>
                   </div>

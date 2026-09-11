@@ -322,6 +322,17 @@ export function useAppState() {
     return () => window.removeEventListener('pointerdown', handler);
   }, []);
 
+  // Global listeners to trigger Pay Plan / Subscription modal from any module
+  useEffect(() => {
+    const handlePayPlan = () => setIsPayPlanOpen(true);
+    window.addEventListener('open_pay_plan', handlePayPlan);
+    window.addEventListener('open_pay_plan_coach', handlePayPlan);
+    return () => {
+      window.removeEventListener('open_pay_plan', handlePayPlan);
+      window.removeEventListener('open_pay_plan_coach', handlePayPlan);
+    };
+  }, []);
+
   // Ref to suppress duplicate SIGNED_IN events after handleAuthSuccess already set state
   const authHandledRef = useRef(false);
 
@@ -720,17 +731,18 @@ export function useAppState() {
   const toggleTheme = () => setTheme((prev) => prev === 'dark' ? 'light' : 'dark');
 
   const handleModeChange = (newMode: AppMode) => {
-    if (newMode === currentMode) return;
+    const resolvedMode = ((newMode as string) === 'tandem' ? 'client' : newMode) as AppMode;
+    if (resolvedMode === currentMode) return;
     haptic.tap();
     try {
-      localStorage.setItem('o1fc_active_mode', newMode);
+      localStorage.setItem('o1fc_active_mode', resolvedMode);
     } catch {}
     const oldIdx = NAVIGATION_MODES.indexOf(currentMode);
-    const newIdx = NAVIGATION_MODES.indexOf(newMode);
+    const newIdx = NAVIGATION_MODES.indexOf(resolvedMode);
     if (oldIdx !== -1 && newIdx !== -1) setSlideDirection(newIdx > oldIdx ? 'left' : 'right');
-    backNavManager.recordModeChange(newMode);
-    setCurrentMode(newMode);
-    trackPageView(newMode);
+    backNavManager.recordModeChange(resolvedMode);
+    setCurrentMode(resolvedMode);
+    trackPageView(resolvedMode);
     requestAnimationFrame(() => document.querySelector('.overflow-y-auto.hide-scrollbar')?.scrollTo(0, 0));
   };
 

@@ -1168,7 +1168,7 @@ export const RotatingHeroCard: React.FC<RotatingHeroCardProps> = ({
                   {cycle.hasData ? `${cycle.day}d ${cycle.phase.name.slice(0, 4)}` : 'Day 14'}
                 </div>
                 <div className="text-[8px] font-mono text-[#C4121A]/80 dark:text-[#D91F28]/80 truncate">
-                  {cycle.hasData ? `88% Recovery · HRV 68ms` : 'Optimal Recovery'}
+                  {cycle.hasData ? `${cycle.phase.name} Phase` : 'Bio-Rhythm Active'}
                 </div>
               </button>
 

@@ -9,7 +9,6 @@ import {
   Share2,
   Plus,
   Compass,
-  Film,
   ArrowRight,
 } from 'lucide-react';
 import { EliteReelData, MiniMediaWindow } from '@/components/FullEliteReelsModal';
@@ -202,23 +201,10 @@ export const ReelsExploreGrid: React.FC<ReelsExploreGridProps> = ({
       {/* ── Obsidian Glass Header & Navigation Hub ── */}
       <div className="shrink-0 bg-[#08080a]/90 backdrop-blur-2xl border-b border-white/[0.08] z-20">
         
-        {/* Top Header Row: Close | Mode Switcher (Elite Reels vs Coaches) | Stream Icon */}
-        <div className="pt-[max(env(safe-area-inset-top),10px)] px-3 sm:px-4 py-2.5 flex items-center justify-between gap-3 max-w-lg mx-auto">
-          {/* Left: Close Button */}
-          {onClose ? (
-            <button
-              onClick={onClose}
-              className="p-2 -ml-1 text-zinc-400 hover:text-white transition-colors cursor-pointer rounded-full active:scale-90"
-              aria-label="Close"
-            >
-              <X className="w-5 h-5 stroke-[2]" />
-            </button>
-          ) : (
-            <div className="w-9" />
-          )}
-
+        {/* Top Header Row: Centered Mode Switcher (Elite Reels vs Coaches) */}
+        <div className="pt-[max(env(safe-area-inset-top),10px)] px-3 sm:px-4 py-2.5 flex items-center justify-center max-w-lg mx-auto">
           {/* Center: Elite Reels & Coaches Pill Switcher */}
-          <div className="flex items-center justify-center flex-1 max-w-[240px]">
+          <div className="flex items-center justify-center w-full max-w-[240px]">
             <div className="grid grid-cols-2 p-1 bg-[#141418] border border-white/10 rounded-full w-full shadow-inner">
               <button
                 className="py-1.5 px-3 rounded-full text-xs tracking-tight transition-all flex items-center justify-center gap-1 cursor-pointer bg-white text-black font-black shadow-sm"
@@ -240,20 +226,6 @@ export const ReelsExploreGrid: React.FC<ReelsExploreGridProps> = ({
               </button>
             </div>
           </div>
-
-          {/* Right: Switch to Full-Screen Stream Mode */}
-          {onSwitchToStream ? (
-            <button
-              onClick={onSwitchToStream}
-              className="p-2 -mr-1 text-zinc-400 hover:text-white transition-colors cursor-pointer rounded-full active:scale-90"
-              title="Full-Screen Stream Mode"
-              aria-label="Full-Screen Stream Mode"
-            >
-              <Film className="w-5 h-5 stroke-[2]" />
-            </button>
-          ) : (
-            <div className="w-9" />
-          )}
         </div>
 
         {/* Divider Line Under Switcher */}

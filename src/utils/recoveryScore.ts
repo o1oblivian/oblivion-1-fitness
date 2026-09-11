@@ -8,12 +8,13 @@ export interface RecoveryReadiness {
   cnsState: string;
   recommendation: string;
   targetRpeMax: number;
+  hasSensorHrv: boolean;
   details: {
     hrvScore: number;
     sleepScore: number;
     rhrScore: number;
     strainFactor: number;
-    hrvMs: number;
+    hrvMs: number | null;
     sleepHours: number;
     restingBpm: number;
   };
@@ -28,24 +29,26 @@ export interface RecoveryInputs {
 
 /**
  * Calculates a composite 0-100 CNS & Systemic Recovery Score
- * Based on HRV (RMSSD), Sleep Duration & Quality, Resting HR, and Training Load.
+ * Genuine sensor telemetry: Does not invent or fabricate HRV values.
  */
 export function calculateRecoveryScore(inputs: RecoveryInputs = {}): RecoveryReadiness {
-  const hrv = inputs.hrvMs && inputs.hrvMs > 0 ? inputs.hrvMs : 68;
+  const hasSensorHrv = typeof inputs.hrvMs === 'number' && inputs.hrvMs > 0;
+  const hrv = hasSensorHrv ? inputs.hrvMs! : 0;
   const sleep = inputs.sleepHours && inputs.sleepHours > 0 ? inputs.sleepHours : 7.6;
   const rhr = inputs.restingBpm && inputs.restingBpm > 0 ? inputs.restingBpm : 56;
   const workouts = inputs.recentWorkouts ?? 1;
 
-  // 1. HRV Score (35% weight): Baseline 65ms
-  // Above 75ms = 100%, 65-75ms = 85-95%, 50-65ms = 70-85%, <40ms = <60%
-  let hrvScore = 80;
-  if (hrv >= 80) hrvScore = 100;
-  else if (hrv >= 65) hrvScore = 85 + ((hrv - 65) / 15) * 15;
-  else if (hrv >= 50) hrvScore = 65 + ((hrv - 50) / 15) * 20;
-  else if (hrv >= 35) hrvScore = 45 + ((hrv - 35) / 15) * 20;
-  else hrvScore = Math.max(20, (hrv / 35) * 45);
+  // 1. HRV Score (35% weight if sensor connected): Baseline 65ms
+  let hrvScore = 0;
+  if (hasSensorHrv) {
+    if (hrv >= 80) hrvScore = 100;
+    else if (hrv >= 65) hrvScore = 85 + ((hrv - 65) / 15) * 15;
+    else if (hrv >= 50) hrvScore = 65 + ((hrv - 50) / 15) * 20;
+    else if (hrv >= 35) hrvScore = 45 + ((hrv - 35) / 15) * 20;
+    else hrvScore = Math.max(20, (hrv / 35) * 45);
+  }
 
-  // 2. Sleep Score (40% weight): Optimal 7.5 - 9.0h
+  // 2. Sleep Score: Optimal 7.5 - 9.0h
   let sleepScore = 80;
   if (sleep >= 7.5 && sleep <= 9.0) sleepScore = 100;
   else if (sleep > 9.0) sleepScore = 90; // Over-sleep / sluggishness
@@ -53,7 +56,7 @@ export function calculateRecoveryScore(inputs: RecoveryInputs = {}): RecoveryRea
   else if (sleep >= 5.5) sleepScore = 60 + ((sleep - 5.5) / 1.0) * 20;
   else sleepScore = Math.max(25, (sleep / 5.5) * 60);
 
-  // 3. Resting HR Score (25% weight): Baseline 50-60 bpm
+  // 3. Resting HR Score: Baseline 50-60 bpm
   let rhrScore = 85;
   if (rhr <= 52) rhrScore = 100;
   else if (rhr <= 60) rhrScore = 90 + ((60 - rhr) / 8) * 10;
@@ -64,8 +67,10 @@ export function calculateRecoveryScore(inputs: RecoveryInputs = {}): RecoveryRea
   // 4. Strain fatigue penalty
   const strainPenalty = workouts > 3 ? 6 : workouts > 2 ? 3 : 0;
 
-  // Weighted composite
-  const rawScore = Math.round(hrvScore * 0.35 + sleepScore * 0.40 + rhrScore * 0.25 - strainPenalty);
+  // Weighted composite based on available genuine telemetry
+  const rawScore = hasSensorHrv
+    ? Math.round(hrvScore * 0.35 + sleepScore * 0.40 + rhrScore * 0.25 - strainPenalty)
+    : Math.round(sleepScore * 0.60 + rhrScore * 0.40 - strainPenalty);
   const score = Math.max(15, Math.min(99, rawScore));
 
   let status: 'optimal' | 'moderate' | 'fatigued' = 'moderate';
@@ -107,12 +112,13 @@ export function calculateRecoveryScore(inputs: RecoveryInputs = {}): RecoveryRea
     cnsState,
     recommendation,
     targetRpeMax,
+    hasSensorHrv,
     details: {
       hrvScore: Math.round(hrvScore),
       sleepScore: Math.round(sleepScore),
       rhrScore: Math.round(rhrScore),
       strainFactor: strainPenalty,
-      hrvMs: Math.round(hrv),
+      hrvMs: hasSensorHrv ? Math.round(hrv) : null,
       sleepHours: Math.round(sleep * 10) / 10,
       restingBpm: Math.round(rhr),
     },

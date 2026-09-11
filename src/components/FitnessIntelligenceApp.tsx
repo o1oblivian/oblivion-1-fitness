@@ -47,6 +47,7 @@ import { COACH_CLIENTS } from '../data/exerciseDatabase';
 import { useCoachRosterStore } from '@/utils/coachRosterStore';
 import { AthleteData, DailyMeals } from '../types';
 import { ClientRosterModal } from './ClientRosterModal';
+import { CoachPlaybookModal } from './CoachPlaybookModal';
 import { WorkoutDispatchModal } from './WorkoutDispatchModal';
 import { PayPlanHubModal } from './PayPlanHubModal';
 import { CaloriesDetailModal } from './CaloriesDetailModal';
@@ -364,6 +365,7 @@ export default function FitnessIntelligenceApp({
   const [shareResultLog, setShareResultLog] = useState<CoachLog | null>(null);
   const [isShareProgressOpen, setIsShareProgressOpen] = useState<boolean>(false);
   const [isVaultOpen, setIsVaultOpen] = useState<boolean>(false);
+  const [isCoachPlaybookOpen, setIsCoachPlaybookOpen] = useState<boolean>(false);
   const [intelligenceTelemetry, setIntelligenceTelemetry] = useState<AthleteTelemetry | null>(null);
   const [intelligenceLogId, setIntelligenceLogId] = useState<string | null>(null);
 
@@ -458,9 +460,14 @@ export default function FitnessIntelligenceApp({
     const handleCoachVaultSync = () => {
       setCoachVaultItems(getSavedCoachVaultItems());
     };
+    const handleOpenPlaybook = () => {
+      setIsCoachPlaybookOpen(true);
+    };
+    window.addEventListener('open_coach_playbook', handleOpenPlaybook);
     window.addEventListener('o1fc_athlete_vault_updated', handleAthleteVaultSync);
     window.addEventListener('o1fc_coach_vault_updated', handleCoachVaultSync);
     return () => {
+      window.removeEventListener('open_coach_playbook', handleOpenPlaybook);
       window.removeEventListener('o1fc_athlete_vault_updated', handleAthleteVaultSync);
       window.removeEventListener('o1fc_coach_vault_updated', handleCoachVaultSync);
     };
@@ -1074,8 +1081,18 @@ export default function FitnessIntelligenceApp({
                     <circle cx="72" cy="72" r="60" fill="none" stroke="#3FB98E" strokeWidth="12" strokeLinecap="round" strokeDasharray="377" strokeDashoffset={377 - (377 * stats.readinessScore) / 100} className="transition-all duration-1000 ease-out" style={{ filter: 'drop-shadow(0 0 6px rgba(90,139,115,0.4))' }} />
                  </svg>
                  <div className="text-center flex flex-col items-center justify-center">
-                    <span className="text-3xl font-black text-zinc-900 dark:text-white tracking-tight" style={{ textShadow: '0 2px 8px rgba(0,0,0,0.5)' }}>{stats.readinessScore}</span>
-                    <span className="text-[9px] text-[#3FB98E] font-mono font-bold tracking-widest uppercase mt-0.5">OPTIMAL</span>
+                    <span className="text-3xl font-black text-zinc-900 dark:text-white tracking-tight" style={{ textShadow: '0 2px 8px rgba(0,0,0,0.5)' }}>
+                      {stats.readinessScore > 0 ? stats.readinessScore : '--'}
+                    </span>
+                    <span className="text-[9px] text-[#3FB98E] font-mono font-bold tracking-widest uppercase mt-0.5">
+                      {stats.readinessScore > 0
+                        ? stats.readinessScore >= 80
+                          ? 'OPTIMAL'
+                          : stats.readinessScore >= 60
+                          ? 'MODERATE'
+                          : 'FATIGUED'
+                        : 'PENDING STREAM'}
+                    </span>
                  </div>
               </div>
             </div>
@@ -1443,6 +1460,17 @@ export default function FitnessIntelligenceApp({
           setTimeout(() => setFeedbackText(''), 100);
         }}
         showToast={showToast}
+      />
+      {/* Coach Playbook & Client Migration Guide */}
+      <CoachPlaybookModal
+        isOpen={isCoachPlaybookOpen}
+        onClose={() => setIsCoachPlaybookOpen(false)}
+        coachEmail={currentUserEmail}
+        showToast={showToast}
+        onOpenDispatch={() => {
+          setIsCoachPlaybookOpen(false);
+          setIsDispatchModalOpen(true);
+        }}
       />
       {/* Client Consent Banner (visible when athlete receives share request) */}
       <ClientConsentBanner clientEmail={currentUserEmail} showToast={showToast} />

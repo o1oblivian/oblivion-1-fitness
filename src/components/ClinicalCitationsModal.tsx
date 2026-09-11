@@ -97,13 +97,19 @@ export const ClinicalCitationsModal: React.FC<Props> = ({ isOpen, onClose }) => 
     : CLINICAL_CITATIONS.filter(c => c.category === selectedCategory);
 
   return (
-    <div className="fixed inset-0 z-[500] bg-black/70 dark:bg-black/85 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-150">
+    <div 
+      className="fixed inset-0 z-[500] bg-black/70 dark:bg-black/85 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-150"
+      onClick={onClose}
+    >
       <div 
-        className="w-full max-w-xl max-h-[90vh] bg-white dark:bg-zinc-950 rounded-2xl shadow-2xl border border-zinc-200/80 dark:border-zinc-800 flex flex-col overflow-hidden"
+        className="w-full max-w-xl max-h-[90vh] bg-white dark:bg-zinc-950 rounded-t-[1.75rem] sm:rounded-2xl shadow-2xl border-t sm:border border-zinc-200/80 dark:border-zinc-800 flex flex-col overflow-hidden pb-[max(0.75rem,calc(env(safe-area-inset-bottom,0px)+0.5rem))]"
         onClick={(e) => e.stopPropagation()}
       >
+        {/* Mobile Drag Handle */}
+        <div className="w-8 h-1 rounded-full bg-stone-300 dark:bg-zinc-700 mx-auto mt-2.5 mb-1 sm:hidden shrink-0" />
+
         {/* Header */}
-        <div className="px-5 py-4 border-b border-zinc-100 dark:border-zinc-800/80 flex items-center justify-between shrink-0 bg-zinc-50/50 dark:bg-zinc-900/50">
+        <div className="px-5 py-3.5 border-b border-zinc-100 dark:border-zinc-800/80 flex items-center justify-between shrink-0 bg-zinc-50/50 dark:bg-zinc-900/50">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-xl bg-red-500/10 flex items-center justify-center text-[#C4121A] dark:text-[#D91F28]">
               <BookOpen className="w-4 h-4" />
@@ -144,7 +150,7 @@ export const ClinicalCitationsModal: React.FC<Props> = ({ isOpen, onClose }) => 
               onClick={() => setSelectedCategory(cat)}
               className={`px-3 py-1 rounded-full text-[11px] font-semibold whitespace-nowrap transition-colors cursor-pointer ${
                 selectedCategory === cat
-                  ? 'bg-[#C4121A] text-white shadow-xs'
+                  ? 'bg-[#C4121A] dark:bg-[#D91F28] text-white shadow-xs'
                   : 'bg-zinc-100 dark:bg-zinc-800/70 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700'
               }`}
             >
@@ -189,7 +195,7 @@ export const ClinicalCitationsModal: React.FC<Props> = ({ isOpen, onClose }) => 
                     href={cit.pubmedUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 text-[11px] font-semibold text-blue-600 dark:text-blue-400 hover:underline px-2 py-1 rounded-md bg-blue-500/10"
+                    className="inline-flex items-center gap-1 text-[11px] font-medium text-zinc-700 dark:text-zinc-300 hover:text-zinc-950 dark:hover:text-white px-2 py-1 rounded-md bg-zinc-100 dark:bg-zinc-800 border border-zinc-200/80 dark:border-zinc-700/60 transition-colors"
                   >
                     <span>PubMed Central</span>
                     <ExternalLink className="w-3 h-3" />
@@ -200,7 +206,7 @@ export const ClinicalCitationsModal: React.FC<Props> = ({ isOpen, onClose }) => 
                     href={cit.doiUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 hover:underline px-2 py-1 rounded-md bg-emerald-500/10"
+                    className="inline-flex items-center gap-1 text-[11px] font-medium text-zinc-700 dark:text-zinc-300 hover:text-zinc-950 dark:hover:text-white px-2 py-1 rounded-md bg-zinc-100 dark:bg-zinc-800 border border-zinc-200/80 dark:border-zinc-700/60 transition-colors"
                   >
                     <span>Journal DOI</span>
                     <ExternalLink className="w-3 h-3" />
@@ -211,7 +217,7 @@ export const ClinicalCitationsModal: React.FC<Props> = ({ isOpen, onClose }) => 
                     href={cit.govUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 text-[11px] font-semibold text-purple-600 dark:text-purple-400 hover:underline px-2 py-1 rounded-md bg-purple-500/10"
+                    className="inline-flex items-center gap-1 text-[11px] font-medium text-zinc-700 dark:text-zinc-300 hover:text-zinc-950 dark:hover:text-white px-2 py-1 rounded-md bg-zinc-100 dark:bg-zinc-800 border border-zinc-200/80 dark:border-zinc-700/60 transition-colors"
                   >
                     <span>Official Guidelines</span>
                     <ExternalLink className="w-3 h-3" />
@@ -225,7 +231,7 @@ export const ClinicalCitationsModal: React.FC<Props> = ({ isOpen, onClose }) => 
         {/* Footer */}
         <div className="p-3 border-t border-zinc-100 dark:border-zinc-800/80 bg-zinc-50/50 dark:bg-zinc-900/50 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-1.5 text-[11px] text-zinc-500">
-            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
+            <CheckCircle2 className="w-3.5 h-3.5 text-[#C4121A] dark:text-[#D91F28]" />
             <span>Compliant with Apple Guideline 1.4.1</span>
           </div>
           <button

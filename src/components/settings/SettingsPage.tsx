@@ -32,6 +32,7 @@ interface SettingsPageProps {
   onSendFeedback?: (msg: string) => void;
   onExportData?: () => void;
   onSaveProfileImage?: (url: string) => void;
+  onOpenReminders?: () => void;
   triggerToast?: (msg: string) => void;
 }
 
@@ -50,6 +51,7 @@ export function SettingsPage({
   onSendFeedback,
   onExportData,
   onSaveProfileImage,
+  onOpenReminders,
   triggerToast = () => {},
 }: SettingsPageProps) {
   const { getProfile, updateProfile } = useAuthStorage();
@@ -153,20 +155,11 @@ export function SettingsPage({
             onSaveProfileImage={onSaveProfileImage}
           />
 
-          {/* Membership */}
-          <MembershipSection onOpenPayPlan={onOpenPayPlan} />
-
-          {/* Account & Deletion Management (Apple Guideline 5.1.1(v) Prominence) */}
-          <AccountSection
-            userEmail={userEmail}
-            onLogout={onLogout}
-            onDeleteAccount={onDeleteAccount}
-            onRerunLaunchProtocol={onRerunLaunchProtocol}
-            triggerToast={triggerToast}
-          />
-
           {/* Training & Schedule */}
           <TrainingSection />
+
+          {/* Membership & Billing */}
+          <MembershipSection onOpenPayPlan={onOpenPayPlan} />
 
           {/* Location & Travel */}
           <LocationSection
@@ -188,7 +181,7 @@ export function SettingsPage({
           <FeedbackSection />
 
           {/* Notifications */}
-          <NotificationsSection />
+          <NotificationsSection onOpenReminders={onOpenReminders} />
 
           {/* Privacy & Social Visibility */}
           <PrivacySection />
@@ -205,6 +198,15 @@ export function SettingsPage({
 
           {/* Legal */}
           <LegalSection />
+
+          {/* Bottom Nude Account Actions (Log out, Delete Account, Data Archive & Brand Footer) */}
+          <AccountSection
+            userEmail={userEmail}
+            onLogout={onLogout}
+            onDeleteAccount={onDeleteAccount}
+            onRerunLaunchProtocol={onRerunLaunchProtocol}
+            triggerToast={triggerToast}
+          />
         </div>
       </div>
     </div>

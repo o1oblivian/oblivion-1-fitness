@@ -2,6 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { X, HeartPulse, Flame, BatteryCharging, ShieldCheck, Dna, BarChart3 } from 'lucide-react';
 import { useModalBackHandler } from '../utils/modalHistory';
+import {
+  getCachedTelemetry,
+  fetchHealthTelemetry,
+  fetchRecentTelemetryHistory,
+  HealthTelemetry,
+} from '../utils/healthTelemetryStore';
+import { calculateRecoveryScore } from '../utils/recoveryScore';
 
 export type BiometricType = 'hrv' | 'strain' | 'recovery';
 
@@ -10,101 +17,185 @@ interface BiometricModalProps {
   onClose: () => void;
   wearables?: Record<string, boolean>;
   onToggleWearable?: (deviceKey: string) => void;
+  userEmail?: string;
 }
 
 export const BiometricModal: React.FC<BiometricModalProps> = ({
   type,
   onClose,
+  userEmail = 'athlete@o1fc.app',
 }) => {
-  const [selectedDayIndex, setSelectedDayIndex] = useState<number>(6); // Default Sunday (latest)
+  const [telemetry, setTelemetry] = useState<HealthTelemetry>(() => getCachedTelemetry(userEmail));
+  const [history, setHistory] = useState<{ date: string; dayLabel: string; telemetry: HealthTelemetry | null }[]>([]);
+  const [selectedDayIndex, setSelectedDayIndex] = useState<number>(6); // Default latest day
 
   useEffect(() => {
     if (type) {
       document.body.style.overflow = 'hidden';
+      // Fetch genuine telemetry and 7-day history
+      fetchHealthTelemetry(userEmail).then((tel) => {
+        setTelemetry(tel);
+      });
+      fetchRecentTelemetryHistory(userEmail, 7).then((hist) => {
+        setHistory(hist);
+      });
     } else {
       document.body.style.overflow = '';
     }
     return () => {
       document.body.style.overflow = '';
     };
-  }, [type]);
+  }, [type, userEmail]);
 
   useModalBackHandler(!!type, onClose, 'biometric_modal');
 
   if (!type) return null;
 
+  // Compute genuine strain from workouts and steps
+  const workoutsToday = telemetry.workout_count || 0;
+  const stepsToday = telemetry.steps || 0;
+  const hasStrainActivity = workoutsToday > 0 || stepsToday > 0;
+  const computedStrain = hasStrainActivity
+    ? Math.min(21, workoutsToday * 4.5 + (stepsToday / 10000) * 5.5).toFixed(1)
+    : '0.0';
+
+  // Compute genuine recovery score
+  const recovery = calculateRecoveryScore({
+    hrvMs: telemetry.hrv_ms > 0 ? telemetry.hrv_ms : undefined,
+    sleepHours: telemetry.sleep_hours > 0 ? telemetry.sleep_hours : undefined,
+    recentWorkouts: workoutsToday,
+  });
+  const hasRecoveryData = recovery.hasSensorHrv || telemetry.sleep_hours > 0;
+
+  // Build genuine 7-day trend arrays from history
+  const safeHistory = history.length === 7 ? history : Array.from({ length: 7 }, (_, i) => {
+    const d = new Date();
+    d.setDate(d.getDate() - (6 - i));
+    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    return {
+      date: d.toISOString().split('T')[0],
+      dayLabel: days[d.getDay()],
+      telemetry: i === 6 ? telemetry : null,
+    };
+  });
+
   const DATA_MAP = {
     hrv: {
       title: 'Heart Rhythm (HRV)',
-      badge: 'HEALTHY RHYTHM',
-      badgeBg: 'bg-blue-500/15 text-blue-600 dark:text-blue-400 border-blue-500/30',
-      value: '68 ms',
-      status: 'Normal & Steady',
-      statusColor: 'text-blue-500',
+      badge: telemetry.hrv_ms > 0 ? 'REAL-TIME SENSOR' : 'SENSOR REQUIRED',
+      badgeBg:
+        telemetry.hrv_ms > 0
+          ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30'
+          : 'bg-neutral-500/15 text-neutral-600 dark:text-neutral-400 border-neutral-500/30',
+      value: telemetry.hrv_ms > 0 ? `${telemetry.hrv_ms} ms` : '--',
+      status:
+        telemetry.hrv_ms > 0
+          ? telemetry.hrv_ms >= 65
+            ? 'Optimal Rhythm'
+            : telemetry.hrv_ms >= 45
+            ? 'Normal Baseline'
+            : 'Suppressed Rhythm'
+          : 'No Sensor Stream',
+      statusColor:
+        telemetry.hrv_ms > 0
+          ? telemetry.hrv_ms >= 65
+            ? 'text-emerald-500'
+            : 'text-amber-500'
+          : 'text-neutral-400',
       explanation:
-        'Heart Rate Variability measures the natural timing between your heartbeats. A steady rhythm means your body is calm, well-rested, and handling stress well.',
-      trend: [
-        { day: 'Mon', val: '62 ms', height: '62%' },
-        { day: 'Tue', val: '65 ms', height: '68%' },
-        { day: 'Wed', val: '58 ms', height: '52%' },
-        { day: 'Thu', val: '71 ms', height: '88%' },
-        { day: 'Fri', val: '64 ms', height: '65%' },
-        { day: 'Sat', val: '70 ms', height: '84%' },
-        { day: 'Sun', val: '68 ms', height: '78%' },
-      ],
+        telemetry.hrv_ms > 0
+          ? 'Heart Rate Variability measures beat-to-beat variations (rMSSD) captured from your connected wearable. Higher variability indicates parasympathetic dominance and prime training readiness.'
+          : 'Heart Rate Variability requires a connected BLE heart rate monitor, Apple HealthKit, or Health Connect stream. Connect your sensor in Settings > Devices to stream genuine rMSSD readings.',
+      trend: safeHistory.map((h, i) => {
+        const tel = i === 6 ? telemetry : h.telemetry;
+        const val = tel?.hrv_ms;
+        const hasVal = typeof val === 'number' && val > 0;
+        return {
+          day: h.dayLabel,
+          val: hasVal ? `${val} ms` : '--',
+          height: hasVal ? `${Math.min(100, Math.max(15, (val / 100) * 100))}%` : '8%',
+          hasData: hasVal,
+        };
+      }),
     },
     strain: {
       title: 'Daily Activity (Workout Load)',
-      badge: 'DAILY EFFORT',
-      badgeBg: 'bg-[#C4121A]/10 text-[#C4121A] dark:text-[#D91F28] border-[#C4121A]/30',
-      value: '14.2 / 21',
-      status: 'Target Reached',
-      statusColor: 'text-[#C4121A] dark:text-[#D91F28]',
+      badge: hasStrainActivity ? 'TRAINING EFFORT' : 'REST / BASELINE',
+      badgeBg: hasStrainActivity
+        ? 'bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/30'
+        : 'bg-neutral-500/15 text-neutral-600 dark:text-neutral-400 border-neutral-500/30',
+      value: `${computedStrain} / 21`,
+      status: hasStrainActivity
+        ? parseFloat(computedStrain) >= 14
+          ? 'High Volume Load'
+          : parseFloat(computedStrain) >= 8
+          ? 'Active Training'
+          : 'Light Movement'
+        : 'No Recorded Workouts',
+      statusColor: hasStrainActivity ? 'text-red-500' : 'text-neutral-400',
       explanation:
-        'Daily Activity measures how much work your heart and muscles did today on a scale from 0 to 21 based on your workouts, steps, and movement.',
-      trend: [
-        { day: 'Mon', val: '11.5', height: '52%' },
-        { day: 'Tue', val: '16.8', height: '82%' },
-        { day: 'Wed', val: '8.2', height: '38%' },
-        { day: 'Thu', val: '15.1', height: '72%' },
-        { day: 'Fri', val: '12.4', height: '59%' },
-        { day: 'Sat', val: '17.5', height: '88%' },
-        { day: 'Sun', val: '14.2', height: '68%' },
-      ],
+        'Daily Activity measures total cardiovascular and muscular load on a 0 to 21 scale based on completed workouts and verified step accumulation.',
+      trend: safeHistory.map((h, i) => {
+        const tel = i === 6 ? telemetry : h.telemetry;
+        const w = tel?.workout_count || 0;
+        const s = tel?.steps || 0;
+        const st = w > 0 || s > 0 ? Math.min(21, w * 4.5 + (s / 10000) * 5.5) : 0;
+        return {
+          day: h.dayLabel,
+          val: st > 0 ? st.toFixed(1) : '--',
+          height: st > 0 ? `${Math.min(100, Math.max(12, (st / 21) * 100))}%` : '8%',
+          hasData: st > 0,
+        };
+      }),
     },
     recovery: {
       title: 'Recovery & Energy',
-      badge: 'READY TO TRAIN',
-      badgeBg: 'bg-blue-500/15 text-blue-600 dark:text-blue-400 border-blue-500/30',
-      value: '88%',
-      status: 'High Energy • Ready',
-      statusColor: 'text-blue-500',
-      explanation:
-        'Shows how recharged your body is today based on your sleep, resting heart rate, and heart rhythm. An 88% score means your body is fully rested and ready to train.',
-      trend: [
-        { day: 'Mon', val: '75%', height: '75%' },
-        { day: 'Tue', val: '82%', height: '82%' },
-        { day: 'Wed', val: '91%', height: '91%' },
-        { day: 'Thu', val: '68%', height: '68%' },
-        { day: 'Fri', val: '84%', height: '84%' },
-        { day: 'Sat', val: '80%', height: '80%' },
-        { day: 'Sun', val: '88%', height: '88%' },
-      ],
+      badge: hasRecoveryData ? recovery.status.toUpperCase() : 'DATA PENDING',
+      badgeBg: hasRecoveryData
+        ? recovery.badgeBg
+        : 'bg-neutral-500/15 text-neutral-600 dark:text-neutral-400 border-neutral-500/30',
+      value: hasRecoveryData ? `${recovery.score}%` : '--',
+      status: hasRecoveryData ? recovery.statusLabel : 'Awaiting Sleep / HRV Stream',
+      statusColor: hasRecoveryData ? 'text-red-500' : 'text-neutral-400',
+      explanation: hasRecoveryData
+        ? recovery.recommendation
+        : 'Composite recovery requires real sleep duration and resting heart rate or HRV from your connected health ecosystem. Connect Apple Health or wearable to compute genuine recovery.',
+      trend: safeHistory.map((h, i) => {
+        const tel = i === 6 ? telemetry : h.telemetry;
+        if (!tel || (!tel.hrv_ms && !tel.sleep_hours)) {
+          return { day: h.dayLabel, val: '--', height: '8%', hasData: false };
+        }
+        const sc = calculateRecoveryScore({
+          hrvMs: tel.hrv_ms > 0 ? tel.hrv_ms : undefined,
+          sleepHours: tel.sleep_hours > 0 ? tel.sleep_hours : undefined,
+          recentWorkouts: tel.workout_count || 0,
+        });
+        return {
+          day: h.dayLabel,
+          val: `${sc.score}%`,
+          height: `${Math.min(100, Math.max(15, sc.score))}%`,
+          hasData: true,
+        };
+      }),
     },
   };
 
   const currentData = DATA_MAP[type];
-  const activePoint = currentData.trend[selectedDayIndex];
+  const safeIndex = Math.min(selectedDayIndex, currentData.trend.length - 1);
+  const activePoint = currentData.trend[safeIndex] || currentData.trend[currentData.trend.length - 1];
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[300] bg-black/75 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 overflow-y-auto font-sans animate-fadeIn"
+      className="fixed inset-0 z-[300] bg-black/75 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4 font-sans animate-fadeIn"
       onClick={onClose}
     >
       <div
-        className="bg-white dark:bg-[#16171B] border border-neutral-200 dark:border-white/10 text-neutral-900 dark:text-white w-full max-w-sm rounded-2xl p-3.5 sm:p-4 shadow-2xl relative my-auto animate-slideUpFade space-y-3 select-none"
+        className="bg-white dark:bg-[#16171B] border-t sm:border border-neutral-200 dark:border-white/10 text-neutral-900 dark:text-white w-full max-w-sm rounded-t-[1.75rem] sm:rounded-2xl p-4 sm:p-4 shadow-2xl relative animate-slideUpFade space-y-3 select-none pb-[max(1rem,calc(env(safe-area-inset-bottom,0px)+0.75rem))]"
         onClick={(e) => e.stopPropagation()}
       >
+        {/* Mobile Drag Handle */}
+        <div className="w-8 h-1 rounded-full bg-stone-300 dark:bg-zinc-700 mx-auto -mt-1 mb-1 sm:hidden shrink-0" />
+
         {/* Header */}
         <div className="flex justify-between items-center pb-2.5 border-b border-neutral-200 dark:border-white/10">
           <div>
@@ -131,7 +222,7 @@ export const BiometricModal: React.FC<BiometricModalProps> = ({
         <div className="bg-neutral-50 dark:bg-[#12141C] border border-neutral-200 dark:border-white/10 rounded-xl p-3 flex justify-between items-center shadow-xs">
           <div>
             <div className="text-[9px] font-mono font-bold text-neutral-500 dark:text-gray-400 uppercase tracking-wider">
-              Today's Score
+              Live Sensor Reading
             </div>
             <div className="text-xl sm:text-2xl font-black font-mono text-neutral-900 dark:text-white my-0.5">
               {currentData.value}
@@ -146,7 +237,7 @@ export const BiometricModal: React.FC<BiometricModalProps> = ({
             ) : type === 'strain' ? (
               <Flame className="w-5 h-5 text-amber-500" />
             ) : (
-              <BatteryCharging className="w-5 h-5 text-blue-500" />
+              <BatteryCharging className="w-5 h-5 text-red-500" />
             )}
           </div>
         </div>
@@ -154,8 +245,8 @@ export const BiometricModal: React.FC<BiometricModalProps> = ({
         {/* Physiological Explanation */}
         <div className="space-y-0.5">
           <h4 className="text-[10px] font-display font-bold text-neutral-900 dark:text-white uppercase tracking-wider flex items-center gap-1.5">
-            <Dna className="w-3.5 h-3.5 text-blue-500" />
-            <span>What This Means</span>
+            <Dna className="w-3.5 h-3.5 text-red-500" />
+            <span>Biometric Context</span>
           </h4>
           <p className="text-[11px] text-neutral-600 dark:text-gray-300 leading-snug font-sans bg-neutral-50 dark:bg-[#12141C] p-2.5 rounded-xl border border-neutral-200 dark:border-white/10 shadow-2xs">
             {currentData.explanation}
@@ -166,17 +257,17 @@ export const BiometricModal: React.FC<BiometricModalProps> = ({
         <div className="bg-neutral-50 dark:bg-[#12141C] border border-neutral-200 dark:border-white/10 rounded-xl p-3 space-y-2 shadow-xs">
           <div className="flex justify-between items-center">
             <span className="text-[10px] font-mono font-bold text-neutral-900 dark:text-white uppercase tracking-wider flex items-center gap-1.5">
-              <BarChart3 className="w-3.5 h-3.5 text-sky-500" />
-              7-Day Trend
+              <BarChart3 className="w-3.5 h-3.5 text-red-500" />
+              7-Day Telemetry Log
             </span>
             <span className="text-[10px] font-mono font-bold text-neutral-700 dark:text-stone-400 bg-neutral-100 dark:bg-stone-900/40 px-1.5 py-0.5 rounded border border-neutral-200 dark:border-stone-700/40">
-              Selected: {activePoint.day} ({activePoint.val})
+              {activePoint.day}: {activePoint.val}
             </span>
           </div>
 
           <div className="h-28 flex items-end justify-between gap-2 pt-2 px-1">
             {currentData.trend.map((point, i) => {
-              const isSelected = i === selectedDayIndex;
+              const isSelected = i === safeIndex;
               return (
                 <button
                   key={point.day}
@@ -190,15 +281,15 @@ export const BiometricModal: React.FC<BiometricModalProps> = ({
                     <div
                       className={`w-full rounded transition-all duration-300 ${
                         isSelected
-                          ? type === 'strain'
-                            ? 'bg-[#C4121A]'
-                            : 'bg-blue-600 dark:bg-blue-500'
-                          : 'bg-neutral-400 dark:bg-white/10 group-hover:bg-blue-400/40'
+                          ? 'bg-[#DC2626]'
+                          : point.hasData
+                          ? 'bg-neutral-400 dark:bg-white/20 group-hover:bg-red-400/50'
+                          : 'bg-neutral-300/40 dark:bg-white/5'
                       }`}
                       style={{ height: point.height }}
                     />
                   </div>
-                  <span className={`text-[9px] font-mono font-bold uppercase ${isSelected ? 'text-neutral-900 dark:text-white underline' : 'text-neutral-400 dark:text-gray-500'}`}>
+                  <span className={`text-[9px] font-mono font-bold uppercase ${isSelected ? 'text-neutral-900 dark:text-white font-black' : 'text-neutral-400 dark:text-gray-500'}`}>
                     {point.day}
                   </span>
                 </button>
@@ -212,8 +303,8 @@ export const BiometricModal: React.FC<BiometricModalProps> = ({
           onClick={onClose}
           className="w-full py-2.5 bg-neutral-900 dark:bg-white text-white dark:text-black hover:bg-neutral-800 dark:hover:bg-neutral-200 font-mono font-extrabold text-xs rounded-xl transition-all cursor-pointer shadow-xs mt-1 flex items-center justify-center gap-1.5 active:scale-[0.99]"
         >
-          <ShieldCheck className="w-4 h-4 text-blue-400 dark:text-blue-600" />
-          Done
+          <ShieldCheck className="w-4 h-4 text-red-500" />
+          Dismiss
         </button>
       </div>
     </div>,

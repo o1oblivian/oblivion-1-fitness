@@ -38,6 +38,7 @@ import {
 } from '../utils/vaultPersistenceStore';
 import { idbDeleteVaultItem } from '../utils/indexedDbMediaVault';
 import { useModalBackHandler } from '../utils/modalHistory';
+import { useSubscription } from '../utils/useSubscription';
 import { VaultMediaItem, formatVaultMediaTitle } from '../types/vaultMedia';
 
 export type { VaultMediaItem };
@@ -111,6 +112,7 @@ export const MediaVaultModal: React.FC<MediaVaultModalProps> = ({
   onAddItem,
   onDeleteItem,
   onToggleBuddy,
+  showToast,
 }) => {
   useModalBackHandler(isOpen, onClose, 'media_vault_modal');
   const [items, setItems] = useState<VaultMediaItem[]>(initialItems);
@@ -123,6 +125,12 @@ export const MediaVaultModal: React.FC<MediaVaultModalProps> = ({
   const [showBatchDeletePrompt, setShowBatchDeletePrompt] = useState<boolean>(false);
   const showroomTouchStartRef = useRef<number>(0);
   const galleryInputRef = useRef<HTMLInputElement>(null);
+
+  const { isPaid } = useSubscription();
+  const FREE_MAX_PHOTOS = 10;
+  const FREE_MAX_VIDEOS = 3;
+  const photoCount = useMemo(() => items.filter((i) => i.type === 'photo').length, [items]);
+  const videoCount = useMemo(() => items.filter((i) => i.type === 'video').length, [items]);
 
   // Sync external items
   useEffect(() => {
@@ -262,6 +270,49 @@ export const MediaVaultModal: React.FC<MediaVaultModalProps> = ({
     const file = e.target.files?.[0];
     if (!file) return;
 
+    const isVideo = file.type.startsWith('video');
+
+    // 1. Max 20MB file size limit to prevent unexpected storage ballooning
+    if (file.size > 20 * 1024 * 1024) {
+      if (showToast) {
+        showToast(
+          isVideo
+            ? 'Video clip exceeds 20MB limit. Please trim to under 60 seconds.'
+            : 'Photo exceeds 20MB limit.',
+          'error'
+        );
+      }
+      e.target.value = '';
+      return;
+    }
+
+    // 2. Soft vault limit for free tier athletes
+    if (mode === 'athlete' && !isPaid) {
+      if (isVideo && videoCount >= FREE_MAX_VIDEOS) {
+        if (showToast) {
+          showToast(
+            `Free vault limit reached (${FREE_MAX_VIDEOS} videos). Upgrade to O1FC Plus for unlimited storage.`,
+            'error'
+          );
+        }
+        window.dispatchEvent(new CustomEvent('open_pay_plan'));
+        e.target.value = '';
+        return;
+      }
+
+      if (!isVideo && photoCount >= FREE_MAX_PHOTOS) {
+        if (showToast) {
+          showToast(
+            `Free vault limit reached (${FREE_MAX_PHOTOS} photos). Upgrade to O1FC Plus for unlimited storage.`,
+            'error'
+          );
+        }
+        window.dispatchEvent(new CustomEvent('open_pay_plan'));
+        e.target.value = '';
+        return;
+      }
+    }
+
     try {
       const persisted = await persistUploadedVaultMedia(
         file,
@@ -270,8 +321,14 @@ export const MediaVaultModal: React.FC<MediaVaultModalProps> = ({
       const updated = [persisted, ...items.filter((i) => i.id !== persisted.id)];
       setItems(updated);
       if (onAddItem) onAddItem(persisted);
-    } catch (err) {
+      if (showToast) {
+        showToast(isVideo ? 'Video clip saved to Vault' : 'Photo saved to Vault', 'success');
+      }
+    } catch (err: any) {
       console.error('Failed to persist vault upload', err);
+      if (showToast) {
+        showToast(err?.message || 'Failed to upload media', 'error');
+      }
     } finally {
       e.target.value = '';
     }
@@ -489,6 +546,17 @@ export const MediaVaultModal: React.FC<MediaVaultModalProps> = ({
               <span className="text-[10px] font-mono text-neutral-500 dark:text-zinc-400 bg-neutral-100 dark:bg-white/5 px-2 py-0.5 rounded-md shrink-0">
                 {items.length} {items.length === 1 ? 'Item' : 'Items'}
               </span>
+              {mode === 'athlete' && !isPaid && (
+                <button
+                  type="button"
+                  onClick={() => window.dispatchEvent(new CustomEvent('open_pay_plan'))}
+                  className="flex items-center gap-1 text-[8.5px] font-mono text-amber-600 dark:text-amber-400 bg-amber-500/10 px-1.5 py-0.5 rounded-md border border-amber-500/20 hover:bg-amber-500/20 transition-colors cursor-pointer shrink-0"
+                  title="Upgrade to O1FC Plus for unlimited vault storage"
+                >
+                  <span>{photoCount}/{FREE_MAX_PHOTOS} Photos • {videoCount}/{FREE_MAX_VIDEOS} Videos</span>
+                  <span className="text-red-500 font-bold ml-0.5">Upgrade</span>
+                </button>
+              )}
               {items.filter((i) => i.show_on_buddy).length > 0 && (
                 <span className="flex items-center gap-1 text-[8.5px] font-mono text-red-600 dark:text-red-400 bg-red-500/10 px-1.5 py-0.5 rounded-md border border-red-500/20 shrink-0">
                   <Users className="w-2.5 h-2.5" />

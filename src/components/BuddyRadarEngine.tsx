@@ -2679,3 +2679,6 @@ function getTimeAgo(dateStr: string): string {
   if (hrs < 24) return `${hrs}h`;
   return `${Math.floor(hrs / 24)}d`;
 }
+
+export default BuddyRadarEngine;
+

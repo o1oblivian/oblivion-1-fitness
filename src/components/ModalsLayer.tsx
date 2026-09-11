@@ -13,6 +13,7 @@ import { Settings, Dumbbell, Globe, CreditCard, Plane, Image, Share2, Moon } fro
 import { RotaryDialModal } from '@/components/RotaryDialModal';
 import { TacticalNumpadModal } from '@/components/TacticalNumpadModal';
 import { TandemView } from '@/components/TandemView';
+import { BuddyRadarEngine } from '@/components/BuddyRadarEngine';
 
 // Code-split dynamic modals for maximum performance & instant boot
 const ScheduleModal = lazy(() => import('@/components/ScheduleModal').then(m => ({ default: m.ScheduleModal })));
@@ -27,7 +28,6 @@ const ClientProgressShareModal = lazy(() => import('@/components/ClientProgressS
 const SettingsPage = lazy(() => import('@/components/settings/SettingsPage'));
 const ExportHelpModal = lazy(() => import('@/components/ExportHelpModal').then(m => ({ default: m.ExportHelpModal })));
 const GymNetworkModal = lazy(() => import('@/components/GymNetworkModal').then(m => ({ default: m.GymNetworkModal })));
-const BuddyRadarEngine = lazy(() => import('@/components/BuddyRadarEngine').then(m => ({ default: m.BuddyRadarEngine })));
 const PayPlanHubModal = lazy(() => import('@/components/PayPlanHubModal').then(m => ({ default: m.PayPlanHubModal })));
 const TravelPassModal = lazy(() => import('@/components/TravelPassModal').then(m => ({ default: m.TravelPassModal })));
 const ShareableGoalCardModal = lazy(() => import('@/components/ShareableGoalCardModal').then(m => ({ default: m.ShareableGoalCardModal })));
@@ -341,6 +341,7 @@ export function ModalsLayer({ s }: Props) {
             s.setIsEditProfileOpen(false);
             s.handleLogout();
           }}
+          onOpenReminders={() => s.setShowReminderManager(true)}
           triggerToast={(msg) => s.showToast(msg)}
         />
       )}

@@ -1,4 +1,4 @@
-export type AppMode = 'home' | 'tracker' | 'fuel' | 'buddy' | 'coach' | 'client' | 'tandem';
+export type AppMode = 'home' | 'tracker' | 'fuel' | 'buddy' | 'coach' | 'client';
 
 export type AuthMode = 'signin' | 'signup';
 

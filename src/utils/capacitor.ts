@@ -107,12 +107,8 @@ export async function initNativeMobileApp(): Promise<void> {
   if (!isNativePlatform()) return;
 
   try {
-    // Configure Status Bar for dark luxury aesthetics
+    // Configure Status Bar for dark luxury aesthetics (Android 15+ Edge-to-Edge compliant)
     await StatusBar.setStyle({ style: Style.Dark });
-    if (Capacitor.getPlatform() === 'android') {
-      await StatusBar.setBackgroundColor({ color: '#000000' });
-      await StatusBar.setOverlaysWebView({ overlay: false });
-    }
   } catch (err) {
     console.debug('StatusBar initialization fallback:', err);
   }

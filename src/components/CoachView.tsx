@@ -25,7 +25,9 @@ import {
   Zap,
   RotateCcw,
   Trophy,
+  BookOpen,
 } from 'lucide-react';
+import { CoachPlaybookModal } from '@/components/CoachPlaybookModal';
 import { StatCard } from '@/components/ui/FullScreenModal';
 import { ConsentShareModal } from '@/components/ConsentShareModal';
 import { ClientCommandCard } from '@/components/ClientCommandCard';
@@ -176,6 +178,7 @@ export const CoachHubView: React.FC<{
   const [activeTab, setActiveTab] = useState<'submissions' | 'earnings' | 'consultations' | 'intelligence'>('intelligence');
   const [commandCardAthlete, setCommandCardAthlete] = useState<AthleteData | null>(null);
   const [showProgramCreator, setShowProgramCreator] = useState(false);
+  const [showPlaybook, setShowPlaybook] = useState(false);
   
   // Modals
   const [showEarningsModal, setShowEarningsModal] = useState(false);
@@ -221,12 +224,16 @@ export const CoachHubView: React.FC<{
       getCoachPRAlerts().then((alerts) => setPrAlerts(alerts || []));
     };
 
+    const handleOpenPlaybook = () => setShowPlaybook(true);
+
     if (typeof window !== 'undefined') {
+      window.addEventListener('open_coach_playbook', handleOpenPlaybook);
       window.addEventListener('coach_workout_submission_created', handleNewSubmission);
       window.addEventListener('coach_workout_submission_approved', handleNewSubmission);
       window.addEventListener('coach_pr_alert_created', handleNewPRAlert);
       window.addEventListener('coach_pr_alert_updated', handleNewPRAlert);
       return () => {
+        window.removeEventListener('open_coach_playbook', handleOpenPlaybook);
         window.removeEventListener('coach_workout_submission_created', handleNewSubmission);
         window.removeEventListener('coach_workout_submission_approved', handleNewSubmission);
         window.removeEventListener('coach_pr_alert_created', handleNewPRAlert);
@@ -323,21 +330,21 @@ export const CoachHubView: React.FC<{
         </div>
 
         {/* Title, Subtitle & Vault Action */}
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <h1 className="text-xl sm:text-2xl font-black text-zinc-900 dark:text-white tracking-tight leading-tight flex items-center gap-2">
-              <span>Athlete Performance Center</span>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div className="min-w-0 flex-1">
+            <h1 className="text-xl sm:text-2xl font-black text-zinc-900 dark:text-white tracking-tight leading-tight">
+              Athlete Performance Center
             </h1>
-            <p className="text-xs text-zinc-600 dark:text-zinc-400 mt-0.5 font-medium">
+            <p className="text-xs text-zinc-600 dark:text-zinc-400 mt-1 font-medium">
               Real-time telemetry, 1-tap rapid dispatch & coaching signals
             </p>
           </div>
-          <div className="flex items-center gap-1.5 shrink-0">
+          <div className="grid grid-cols-2 sm:flex sm:items-center gap-2 w-full sm:w-auto shrink-0">
             {onSwitchToMarketplace && (
               <button
                 type="button"
                 onClick={onSwitchToMarketplace}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] font-bold uppercase tracking-wider bg-zinc-100 hover:bg-zinc-200 dark:bg-white/10 dark:hover:bg-white/15 text-zinc-700 dark:text-zinc-200 transition-all active:scale-95 cursor-pointer shadow-xs"
+                className="flex items-center justify-center gap-1.5 px-3 py-2 sm:py-1.5 rounded-xl text-[11px] font-bold uppercase tracking-wider bg-zinc-100 hover:bg-zinc-200 dark:bg-white/10 dark:hover:bg-white/15 text-zinc-700 dark:text-zinc-200 transition-all active:scale-95 cursor-pointer shadow-xs"
                 title="Switch to Athlete Coach Marketplace"
               >
                 <Users className="w-3.5 h-3.5 text-zinc-500" />
@@ -346,7 +353,9 @@ export const CoachHubView: React.FC<{
             )}
             <button
               onClick={onOpenVault}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] font-bold uppercase tracking-wider bg-red-500/10 dark:bg-red-500/15 hover:bg-red-500/20 text-[#C4121A] dark:text-[#D91F28] transition-all active:scale-95 cursor-pointer shadow-xs"
+              className={`flex items-center justify-center gap-1.5 px-3 py-2 sm:py-1.5 rounded-xl text-[11px] font-bold uppercase tracking-wider bg-red-500/10 dark:bg-red-500/15 hover:bg-red-500/20 text-[#C4121A] dark:text-[#D91F28] transition-all active:scale-95 cursor-pointer shadow-xs ${
+                !onSwitchToMarketplace ? 'col-span-2 sm:col-span-1' : ''
+              }`}
             >
               <Video className="w-3.5 h-3.5" />
               <span>Vault</span>
@@ -415,30 +424,52 @@ export const CoachHubView: React.FC<{
           <div className="grid grid-cols-2 gap-2">
             <button
               onClick={() => setShowProgramCreator(true)}
-              className="flex items-center gap-2.5 p-2.5 rounded-xl bg-zinc-50 dark:bg-white/[0.04] hover:bg-zinc-100 dark:hover:bg-white/[0.08] text-zinc-900 dark:text-white transition-all active:scale-[0.98] cursor-pointer text-left group"
+              className="flex items-center gap-2 p-2 rounded-xl bg-zinc-50 dark:bg-white/[0.04] hover:bg-zinc-100 dark:hover:bg-white/[0.08] text-zinc-900 dark:text-white transition-all active:scale-[0.98] cursor-pointer text-left group"
             >
-              <div className="w-8 h-8 rounded-lg bg-red-500/10 dark:bg-red-500/20 text-[#C4121A] dark:text-[#D91F28] flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
-                <FileText className="w-4 h-4" />
+              <div className="w-7 h-7 rounded-lg bg-red-500/10 dark:bg-red-500/20 text-[#C4121A] dark:text-[#D91F28] flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                <FileText className="w-3.5 h-3.5" />
               </div>
               <div className="min-w-0 flex-1">
-                <div className="text-xs font-bold text-zinc-900 dark:text-white leading-tight">Program</div>
-                <div className="text-[9.5px] font-mono text-zinc-500 dark:text-zinc-400 leading-tight mt-0.5 truncate">Dispatch & Edit</div>
+                <div className="text-[11px] font-bold text-zinc-900 dark:text-white leading-tight">Program</div>
+                <div className="text-[8.5px] font-mono text-zinc-500 dark:text-zinc-400 leading-tight mt-0.5 truncate">Dispatch</div>
               </div>
             </button>
 
             <button
               onClick={onOpen1MinBuilder}
-              className="flex items-center gap-2.5 p-2.5 rounded-xl bg-zinc-50 dark:bg-white/[0.04] hover:bg-zinc-100 dark:hover:bg-white/[0.08] text-zinc-900 dark:text-white transition-all active:scale-[0.98] cursor-pointer text-left group"
+              className="flex items-center gap-2 p-2 rounded-xl bg-zinc-50 dark:bg-white/[0.04] hover:bg-zinc-100 dark:hover:bg-white/[0.08] text-zinc-900 dark:text-white transition-all active:scale-[0.98] cursor-pointer text-left group"
             >
-              <div className="w-8 h-8 rounded-lg bg-amber-500/10 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
-                <SlidersHorizontal className="w-4 h-4" />
+              <div className="w-7 h-7 rounded-lg bg-amber-500/10 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                <SlidersHorizontal className="w-3.5 h-3.5" />
               </div>
               <div className="min-w-0 flex-1">
-                <div className="text-xs font-bold text-zinc-900 dark:text-white leading-tight">Studio Engine</div>
-                <div className="text-[9.5px] font-mono text-zinc-500 dark:text-zinc-400 leading-tight mt-0.5 truncate">Fast Builder</div>
+                <div className="text-[11px] font-bold text-zinc-900 dark:text-white leading-tight">Studio</div>
+                <div className="text-[8.5px] font-mono text-zinc-500 dark:text-zinc-400 leading-tight mt-0.5 truncate">Fast Builder</div>
               </div>
             </button>
           </div>
+        </div>
+
+        {/* ── Coach Migration Booklet Quick Callout ── */}
+        <div 
+          onClick={() => setShowPlaybook(true)}
+          className="p-3 rounded-2xl bg-gradient-to-r from-red-500/10 via-black to-zinc-900/60 border border-red-500/20 flex items-center justify-between gap-3 cursor-pointer hover:border-red-500/40 transition-all group"
+        >
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="w-8 h-8 rounded-xl bg-red-500/20 text-[#EF4444] flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+              <BookOpen className="w-4 h-4" />
+            </div>
+            <div className="min-w-0">
+              <div className="text-xs font-bold text-white flex items-center gap-1.5">
+                <span>Coach Field Manual & Client Migration Guide</span>
+                <span className="text-[8px] font-mono uppercase px-1 py-0.2 rounded bg-red-500/20 text-[#EF4444] font-bold">Booklet</span>
+              </div>
+              <p className="text-[10px] text-zinc-400 truncate mt-0.5">
+                How to transfer clients in 48h, copy pre-written invite scripts, and save $150+/mo
+              </p>
+            </div>
+          </div>
+          <ChevronRight className="w-4 h-4 text-zinc-400 group-hover:text-white transition-colors shrink-0" />
         </div>
 
         {/* Hub Switcher Rail */}
@@ -484,7 +515,7 @@ export const CoachHubView: React.FC<{
             {/* Collapsible Header */}
             <div
               onClick={() => setIsRosterExpanded((prev) => !prev)}
-              className={`flex items-center justify-between gap-2 flex-wrap cursor-pointer select-none group/header ${
+              className={`flex items-center justify-between gap-2 cursor-pointer select-none group/header ${
                 isRosterExpanded ? 'pb-2 border-b border-zinc-100 dark:border-white/5' : ''
               }`}
               role="button"
@@ -504,26 +535,9 @@ export const CoachHubView: React.FC<{
                 </div>
               </div>
 
-              {/* Right Controls: Filter Pills (when expanded) or Summary Avatars (when collapsed) + Rotating Chevron */}
+              {/* Right Controls: Collapsed summary preview + Apple Standard Collapse/Expand Toggle Chevron */}
               <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-                {isRosterExpanded ? (
-                  /* Segmented Filter Pills */
-                  <div className="flex items-center gap-1 bg-zinc-100 dark:bg-white/[0.04] p-0.5 rounded-lg border border-zinc-200/80 dark:border-white/10">
-                    {(['all', 'review', 'pr'] as const).map((filter) => (
-                      <button
-                        key={filter}
-                        onClick={() => setRosterFilter(filter)}
-                        className={`px-2.5 py-1 rounded-md text-[10px] font-mono font-bold uppercase tracking-wider transition-all cursor-pointer ${
-                          rosterFilter === filter
-                            ? 'bg-stone-900 dark:bg-white text-white dark:text-black font-bold shadow-xs'
-                            : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white'
-                        }`}
-                      >
-                        {filter === 'all' ? 'All' : filter === 'review' ? 'Needs Review' : 'PRs'}
-                      </button>
-                    ))}
-                  </div>
-                ) : (
+                {!isRosterExpanded && (
                   /* Collapsed Quick Summary Preview */
                   <div
                     onClick={() => setIsRosterExpanded(true)}
@@ -568,8 +582,24 @@ export const CoachHubView: React.FC<{
                   animate={{ height: 'auto', opacity: 1 }}
                   exit={{ height: 0, opacity: 0 }}
                   transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-                  className="overflow-hidden"
+                  className="overflow-hidden space-y-3"
                 >
+                  {/* Full-width Apple Pro Segmented Filter Control */}
+                  <div className="grid grid-cols-3 gap-1 bg-zinc-100 dark:bg-white/[0.04] p-1 rounded-xl border border-zinc-200/80 dark:border-white/10 w-full">
+                    {(['all', 'review', 'pr'] as const).map((filter) => (
+                      <button
+                        key={filter}
+                        onClick={() => setRosterFilter(filter)}
+                        className={`w-full py-1.5 rounded-lg text-[11px] font-mono font-bold uppercase tracking-wider transition-all cursor-pointer text-center ${
+                          rosterFilter === filter
+                            ? 'bg-stone-900 dark:bg-white text-white dark:text-black font-bold shadow-xs'
+                            : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white'
+                        }`}
+                      >
+                        {filter === 'all' ? 'All' : filter === 'review' ? 'Needs Review' : 'PRs'}
+                      </button>
+                    ))}
+                  </div>
                   {/* Apple Inset Grouped Roster Cell List */}
                   <div className="divide-y divide-stone-100 dark:divide-white/5 rounded-xl border border-zinc-200/80 dark:border-white/10 bg-zinc-50/50 dark:bg-black/30 overflow-hidden">
                     {filteredClients.map((client, idx) => {
@@ -1004,6 +1034,15 @@ export const CoachHubView: React.FC<{
         onClose={() => setShowProgramCreator(false)}
         coachEmail={coachEmail}
         showToast={showToast}
+      />
+
+      {/* Coach Playbook & Client Migration Booklet */}
+      <CoachPlaybookModal
+        isOpen={showPlaybook}
+        onClose={() => setShowPlaybook(false)}
+        coachEmail={coachEmail}
+        showToast={showToast}
+        onOpenDispatch={() => setShowProgramCreator(true)}
       />
 
       {/* Video Telestrator & Biomechanical Form Check Modal */}

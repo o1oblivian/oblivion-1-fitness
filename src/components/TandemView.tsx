@@ -15,7 +15,6 @@ import {
 } from '@/utils/tandemStore';
 import { supabase } from '@/utils/supabase';
 import { TandemSendWorkoutModal } from './TandemSendWorkoutModal';
-import { TandemStoryCardModal } from './TandemStoryCardModal';
 
 interface TandemViewProps {
   theme: 'dark' | 'light' | 'system';
@@ -54,7 +53,6 @@ export const TandemView: React.FC<TandemViewProps> = ({ theme, showToast, curren
   const [foundUser, setFoundUser] = useState<{ userId: string; name: string; handle: string } | null>(null);
   const [connectingUser, setConnectingUser] = useState(false);
   const [showSuccess, setShowSuccess] = useState<string | null>(null);
-  const [showStoryModal, setShowStoryModal] = useState(false);
   const [showQrModal, setShowQrModal] = useState(false);
   const [qrDataUrl, setQrDataUrl] = useState<string>('');
 
@@ -498,14 +496,6 @@ export const TandemView: React.FC<TandemViewProps> = ({ theme, showToast, curren
         </div>
         <div className="flex items-center gap-2">
           <button
-            onClick={() => setShowStoryModal(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-red-600/20 hover:bg-red-600/30 border border-red-500/40 text-red-400 hover:text-red-300 text-xs font-bold transition cursor-pointer"
-            title="Export Tandem Duo Story Card"
-          >
-            <Camera className="w-3.5 h-3.5" />
-            <span>Story Card</span>
-          </button>
-          <button
             onClick={() => setShowUnlinkConfirm(true)}
             className={`p-2 rounded-xl transition ${isLight ? 'hover:bg-gray-100' : 'hover:bg-white/10'}`}
           >
@@ -539,33 +529,6 @@ export const TandemView: React.FC<TandemViewProps> = ({ theme, showToast, curren
       {/* Dashboard tab */}
       {activeTab === 'dashboard' && (
         <div className="space-y-4">
-          {/* Tandem Duo Story Card Banner */}
-          <div
-            className={`rounded-2xl border p-4 ${cardBg} relative overflow-hidden bg-gradient-to-r from-red-950/40 via-[#0a0a0c] to-black/60 border-red-500/20`}
-          >
-            <div className="flex items-center justify-between gap-3">
-              <div className="space-y-1">
-                <div className="flex items-center gap-1.5">
-                  <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-                  <p className="text-[10px] font-mono uppercase tracking-widest text-red-400 font-bold">
-                    BILATERAL DUO STORY
-                  </p>
-                </div>
-                <h4 className={`text-sm font-bold ${textPrimary}`}>Export Tandem Story Card</h4>
-                <p className={`text-xs ${textSecondary} max-w-xs`}>
-                  Attach gym photo, synchronized telemetry & partner tags ready for Instagram/TikTok.
-                </p>
-              </div>
-              <button
-                onClick={() => setShowStoryModal(true)}
-                className="px-3.5 py-2.5 rounded-xl bg-gradient-to-r from-red-600 to-red-700 text-white font-bold text-xs uppercase tracking-wider shadow-md shadow-red-600/30 hover:scale-[1.02] active:scale-[0.98] transition flex items-center gap-1.5 cursor-pointer flex-shrink-0"
-              >
-                <Camera className="w-3.5 h-3.5" />
-                <span>Create</span>
-              </button>
-            </div>
-          </div>
-
           {/* Shared Goal Ring */}
           {goals.length > 0 && (
             <div className={`rounded-2xl border p-5 ${cardBg}`}>
@@ -815,22 +778,6 @@ export const TandemView: React.FC<TandemViewProps> = ({ theme, showToast, curren
             </div>
           </div>
         </div>
-      )}
-
-      {/* High-Contrast Tandem Duo Story Card Modal with Photo */}
-      {showStoryModal && (
-        <TandemStoryCardModal
-          isOpen={showStoryModal}
-          onClose={() => setShowStoryModal(false)}
-          userHandle={currentUserEmail ? currentUserEmail.split('@')[0] : 'athlete'}
-          partnerHandle={partnerName || 'partner'}
-          sessionTitle="TANDEM DUO HYPERTROPHY PROTOCOL"
-          totalVolumeLbs={21450}
-          totalSets={26}
-          durationMinutes={54}
-          inviteCode={pair?.invite_code || pendingPair?.invite_code || 'O1FC'}
-          showToast={showToast}
-        />
       )}
     </div>
   );

@@ -6,7 +6,7 @@ import {
   MapPin, Camera, BarChart3, Droplets, Pill, Wine, Share2,
   Eye, Palette, Watch, FileDown, Bot, Users, Video, Mic,
   Award, TrendingUp, DollarSign, Upload, BadgeCheck, ChevronDown, Zap,
-  RotateCcw, FileText, CreditCard,
+  RotateCcw, FileText, CreditCard, Info,
 } from 'lucide-react';
 import { supabase } from '@/utils/supabase';
 import { upsertUserProfile, fetchFounderPassLiveStats, type SubscriptionTier, type FounderPassStats } from '@/utils/subscriptionStore';
@@ -105,77 +105,231 @@ type CellValue = string | boolean;
 interface FeatureRow {
   icon: React.ReactNode;
   label: string;
+  info: string;
   values: CellValue[];
 }
 
 const ATHLETE_FEATURES: FeatureRow[] = [
-  { icon: <Heart className="w-3.5 h-3.5" />, label: 'Likes / Connections', values: ['Unlimited + VIP', '5 / day', 'Unlimited', 'Unlimited + VIP'] },
-  { icon: <MessageSquare className="w-3.5 h-3.5" />, label: 'Direct Messages', values: ['Unlimited', '3 / day', 'Unlimited', 'Unlimited'] },
-  { icon: <MapPin className="w-3.5 h-3.5" />, label: 'Radar Radius', values: ['Global Corridor', '25 km', '250 km', 'Global Corridor'] },
-  { icon: <Plane className="w-3.5 h-3.5" />, label: 'Travel Pass', values: [true, false, false, true] },
-  { icon: <Video className="w-3.5 h-3.5" />, label: 'HD Form Reels', values: [true, true, true, true] },
-  { icon: <Dumbbell className="w-3.5 h-3.5" />, label: 'Workout Logger', values: ['All exercises', 'All exercises', 'All exercises', 'All exercises'] },
-  { icon: <BarChart3 className="w-3.5 h-3.5" />, label: 'Fuel Tracker', values: ['Full + Intel Scan', 'Basic', 'Full + Intel Scan', 'Full + Intel Scan'] },
-  { icon: <Droplets className="w-3.5 h-3.5" />, label: 'Hydration Tracker', values: [true, true, true, true] },
-  { icon: <Pill className="w-3.5 h-3.5" />, label: 'Supplement Tracker', values: [true, true, true, true] },
-  { icon: <Wine className="w-3.5 h-3.5" />, label: 'Alcohol Impact Tracker', values: [true, true, true, true] },
-  { icon: <TrendingUp className="w-3.5 h-3.5" />, label: 'Weekly Progress Charts', values: [true, true, true, true] },
-  { icon: <Share2 className="w-3.5 h-3.5" />, label: 'Share Progress Cards', values: [true, true, true, true] },
-  { icon: <Users className="w-3.5 h-3.5" />, label: 'Coach Marketplace', values: ['Browse + VIP', 'Browse + message', 'Browse + purchase', 'Browse + purchase'] },
-  { icon: <Palette className="w-3.5 h-3.5" />, label: 'Wallpapers', values: ['All wallpapers', '3 presets', 'All wallpapers', 'All wallpapers'] },
-  { icon: <Watch className="w-3.5 h-3.5" />, label: 'Watch Dial Faces', values: ['All 5 dials', '1 default', 'All 5 dials', 'All 5 dials'] },
-  { icon: <Eye className="w-3.5 h-3.5" />, label: 'Telemetry / Body Metrics', values: ['Full edit + history', 'View only', 'Full edit + history', 'Full edit + history'] },
-  { icon: <Camera className="w-3.5 h-3.5" />, label: 'Progress Photo Vault', values: ['Unlimited', '5 photos', 'Unlimited', 'Unlimited'] },
-  { icon: <FileDown className="w-3.5 h-3.5" />, label: 'Data Export', values: ['CSV + PDF', false, 'CSV', 'CSV + PDF'] },
-  { icon: <Bot className="w-3.5 h-3.5" />, label: 'O1FC Intelligence Insights', values: ['Included (Lifetime)', false, 'Included in Pro', 'Included in Pro'] },
+  {
+    icon: <Heart className="w-3.5 h-3.5" />,
+    label: 'Likes / Connections',
+    info: 'Send buddy requests and connect with lifters in your area.',
+    values: ['Unlimited + VIP', '5 / day', 'Unlimited', 'Unlimited + VIP'],
+  },
+  {
+    icon: <MessageSquare className="w-3.5 h-3.5" />,
+    label: 'Direct Messages',
+    info: 'Direct private messaging with training partners and spotters.',
+    values: ['Unlimited', '3 / day', 'Unlimited', 'Unlimited'],
+  },
+  {
+    icon: <MapPin className="w-3.5 h-3.5" />,
+    label: 'Radar Radius',
+    info: 'Proximity scanning range to discover nearby athletes on the map.',
+    values: ['Global Corridor', '25 km', '250 km', 'Global Corridor'],
+  },
+  {
+    icon: <Plane className="w-3.5 h-3.5" />,
+    label: 'Travel Pass',
+    info: 'Instant access to gym networks and training partners when traveling.',
+    values: [true, false, false, true],
+  },
+  {
+    icon: <Video className="w-3.5 h-3.5" />,
+    label: 'HD Form Reels',
+    info: 'High-definition exercise movement cues and biomechanical breakdowns.',
+    values: [true, true, true, true],
+  },
+  {
+    icon: <Dumbbell className="w-3.5 h-3.5" />,
+    label: 'Workout Logger',
+    info: 'Track sets, reps, weight, RPE, rest intervals, and workout volume.',
+    values: ['All exercises', 'All exercises', 'All exercises', 'All exercises'],
+  },
+  {
+    icon: <BarChart3 className="w-3.5 h-3.5" />,
+    label: 'Fuel Tracker',
+    info: 'Macronutrient logging, calorie targets, and AI camera meal scanning.',
+    values: ['Full + Intel Scan', 'Basic', 'Full + Intel Scan', 'Full + Intel Scan'],
+  },
+  {
+    icon: <Droplets className="w-3.5 h-3.5" />,
+    label: 'Hydration Tracker',
+    info: 'Real-time water intake tracking calibrated for workout intensity.',
+    values: [true, true, true, true],
+  },
+  {
+    icon: <Pill className="w-3.5 h-3.5" />,
+    label: 'Supplement Tracker',
+    info: 'Log daily creatine, protein, and pre-workout supplement protocols.',
+    values: [true, true, true, true],
+  },
+  {
+    icon: <Wine className="w-3.5 h-3.5" />,
+    label: 'Alcohol Impact Tracker',
+    info: 'Calculate recovery penalty and hydration deficit from alcohol intake.',
+    values: [true, true, true, true],
+  },
+  {
+    icon: <TrendingUp className="w-3.5 h-3.5" />,
+    label: 'Weekly Progress Charts',
+    info: 'Visual volume trends, strength curves, and body composition analytics.',
+    values: [true, true, true, true],
+  },
+  {
+    icon: <Share2 className="w-3.5 h-3.5" />,
+    label: 'Share Progress Cards',
+    info: 'Export clean athletic PR summary cards for Instagram and social media.',
+    values: [true, true, true, true],
+  },
+  {
+    icon: <Users className="w-3.5 h-3.5" />,
+    label: 'Coach Marketplace',
+    info: 'Browse certified strength coaches and book personalized programming.',
+    values: ['Browse + VIP', 'Browse + message', 'Browse + purchase', 'Browse + purchase'],
+  },
+  {
+    icon: <Palette className="w-3.5 h-3.5" />,
+    label: 'Wallpapers',
+    info: 'Access the complete O1FC dark luxury athletic wallpaper collection.',
+    values: ['All wallpapers', '3 presets', 'All wallpapers', 'All wallpapers'],
+  },
+  {
+    icon: <Watch className="w-3.5 h-3.5" />,
+    label: 'Watch Dial Faces',
+    info: 'Custom digital workout rotary dials calibrated to your training split.',
+    values: ['All 5 dials', '1 default', 'All 5 dials', 'All 5 dials'],
+  },
+  {
+    icon: <Eye className="w-3.5 h-3.5" />,
+    label: 'Telemetry / Body Metrics',
+    info: 'Log body fat %, resting heart rate, sleep quality, and muscle mass.',
+    values: ['Full edit + history', 'View only', 'Full edit + history', 'Full edit + history'],
+  },
+  {
+    icon: <Camera className="w-3.5 h-3.5" />,
+    label: 'Progress Photo Vault',
+    info: 'Private encrypted physique locker with side-by-side comparison slider.',
+    values: ['Unlimited', '5 photos', 'Unlimited', 'Unlimited'],
+  },
+  {
+    icon: <FileDown className="w-3.5 h-3.5" />,
+    label: 'Data Export',
+    info: 'Export your workout logs, lift PRs, and health metrics to CSV and PDF.',
+    values: ['CSV + PDF', false, 'CSV', 'CSV + PDF'],
+  },
+  {
+    icon: <Bot className="w-3.5 h-3.5" />,
+    label: 'O1FC Intelligence Insights',
+    info: 'AI-driven recovery readiness, volume autoregulation, and fatigue alerts.',
+    values: ['Included (Lifetime)', false, 'Included in Pro', 'Included in Pro'],
+  },
 ];
 
 const COACH_FEATURES: FeatureRow[] = [
-  { icon: <Users className="w-3.5 h-3.5" />, label: 'Client Roster', values: ['Up to 5', 'Unlimited'] },
-  { icon: <Dumbbell className="w-3.5 h-3.5" />, label: 'Workout Dispatch', values: [true, true] },
-  { icon: <Eye className="w-3.5 h-3.5" />, label: 'Client Detail View', values: [true, true] },
-  { icon: <Video className="w-3.5 h-3.5" />, label: 'Form Check Video Review', values: [true, true] },
-  { icon: <Share2 className="w-3.5 h-3.5" />, label: 'Client Consent Sharing', values: [true, true] },
-  { icon: <Camera className="w-3.5 h-3.5" />, label: 'Transformation Studio', values: [false, true] },
-  { icon: <FileDown className="w-3.5 h-3.5" />, label: 'Client Progress Export', values: [false, true] },
-  { icon: <TrendingUp className="w-3.5 h-3.5" />, label: 'Earnings Dashboard', values: [false, true] },
-  { icon: <DollarSign className="w-3.5 h-3.5" />, label: 'Program Sales (80% rev)', values: [false, true] },
-  { icon: <Upload className="w-3.5 h-3.5" />, label: 'Reels Upload', values: ['3 reels', 'Unlimited'] },
-  { icon: <Award className="w-3.5 h-3.5" />, label: 'Branded Coach Profile', values: ['Basic', 'Full customization'] },
-  { icon: <BadgeCheck className="w-3.5 h-3.5" />, label: 'PRO COACH Badge', values: [false, true] },
-  { icon: <Bot className="w-3.5 h-3.5" />, label: 'Intel Coach Insights', values: ['+$9.99/mo', '+$9.99/mo'] },
+  {
+    icon: <Users className="w-3.5 h-3.5" />,
+    label: 'Client Roster',
+    info: 'Manage athlete capacity and active client profiles in your coach roster.',
+    values: ['Up to 5', 'Unlimited'],
+  },
+  {
+    icon: <Dumbbell className="w-3.5 h-3.5" />,
+    label: 'Workout Dispatch',
+    info: 'Push structured workout programs directly to athletes on training days.',
+    values: [true, true],
+  },
+  {
+    icon: <Eye className="w-3.5 h-3.5" />,
+    label: 'Client Detail View',
+    info: 'Real-time telemetry, workout compliance, and fuel logs for each athlete.',
+    values: [true, true],
+  },
+  {
+    icon: <Video className="w-3.5 h-3.5" />,
+    label: 'Form Check Video Review',
+    info: 'Analyze athlete lift videos with timestamped feedback and coaching cues.',
+    values: [true, true],
+  },
+  {
+    icon: <Share2 className="w-3.5 h-3.5" />,
+    label: 'Client Consent Sharing',
+    info: 'Securely publish client PRs and transformations with privacy consent.',
+    values: [true, true],
+  },
+  {
+    icon: <Camera className="w-3.5 h-3.5" />,
+    label: 'Transformation Studio',
+    info: 'Generate side-by-side client transformation cards and marketing assets.',
+    values: [false, true],
+  },
+  {
+    icon: <FileDown className="w-3.5 h-3.5" />,
+    label: 'Client Progress Export',
+    info: 'Export comprehensive client training and nutrition reports as PDF/CSV.',
+    values: [false, true],
+  },
+  {
+    icon: <TrendingUp className="w-3.5 h-3.5" />,
+    label: 'Earnings Dashboard',
+    info: 'Track coaching subscription income, monthly revenue, and Stripe payouts.',
+    values: [false, true],
+  },
+  {
+    icon: <DollarSign className="w-3.5 h-3.5" />,
+    label: 'Program Sales (80% rev)',
+    info: 'Sell pre-made workout programs and fitness guides on the marketplace.',
+    values: [false, true],
+  },
+  {
+    icon: <Upload className="w-3.5 h-3.5" />,
+    label: 'Reels Upload',
+    info: 'Publish coaching reels, form guides, and technique clips to the community.',
+    values: ['3 reels', 'Unlimited'],
+  },
+  {
+    icon: <Award className="w-3.5 h-3.5" />,
+    label: 'Branded Coach Profile',
+    info: 'Custom coach biography, specialty tags, pricing tiers, and client reviews.',
+    values: ['Basic', 'Full customization'],
+  },
+  {
+    icon: <BadgeCheck className="w-3.5 h-3.5" />,
+    label: 'PRO COACH Badge',
+    info: 'Official verified Coach badge displayed on your profile and leaderboards.',
+    values: [false, true],
+  },
+  {
+    icon: <Bot className="w-3.5 h-3.5" />,
+    label: 'Intel Coach Insights',
+    info: 'AI coach assistant suggesting tailored programming and fatigue warnings.',
+    values: ['+$9.99/mo', '+$9.99/mo'],
+  },
 ];
 
 /* ═══════════════════════════════════════════
    CELL RENDERER & VALUE FORMATTER
    ═══════════════════════════════════════════ */
 
-const FeatureValuePill: React.FC<{ value: CellValue; isSelectedTier?: boolean }> = ({ value, isSelectedTier }) => {
+const FeatureValuePill: React.FC<{ value: CellValue; isSelectedTier?: boolean }> = ({ value }) => {
   if (value === true) {
     return (
-      <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold tracking-wide ${
-        isSelectedTier
-          ? 'bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20'
-          : 'bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-gray-300'
-      }`}>
-        <Check className="w-3.5 h-3.5 stroke-[2.5]" />
-        <span>Included</span>
-      </span>
+      <div className="flex items-center justify-center">
+        <Check className="w-4 h-4 text-zinc-900 dark:text-zinc-100 stroke-[2.75]" />
+      </div>
     );
   }
   if (value === false) {
     return (
-      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-mono text-slate-400 dark:text-gray-600 bg-slate-100/60 dark:bg-white/[0.02]">
-        Not Included
-      </span>
+      <div className="flex items-center justify-center">
+        <span className="text-zinc-300 dark:text-zinc-600 font-medium text-xs select-none">
+          —
+        </span>
+      </div>
     );
   }
   return (
-    <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-mono font-bold tracking-tight text-right ${
-      isSelectedTier
-        ? 'bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20'
-        : 'bg-slate-100 dark:bg-white/5 text-slate-700 dark:text-gray-300'
-    }`}>
+    <span className="text-xs font-semibold text-zinc-800 dark:text-zinc-200 tracking-tight select-none">
       {value}
     </span>
   );
@@ -215,6 +369,7 @@ export const PayPlanHubModal: React.FC<PayPlanHubModalProps> = ({
   const [promoNotice, setPromoNotice] = useState<string | null>(null);
   const [expandedFeatures, setExpandedFeatures] = useState(false);
   const [showComparisonMatrix, setShowComparisonMatrix] = useState(false);
+  const [activeInfoKey, setActiveInfoKey] = useState<string | null>(null);
   const [isRestoring, setIsRestoring] = useState(false);
   const [showLegalModal, setShowLegalModal] = useState(false);
   const [activatedSuccessTier, setActivatedSuccessTier] = useState<string | null>(null);
@@ -236,6 +391,7 @@ export const PayPlanHubModal: React.FC<PayPlanHubModalProps> = ({
       setPromoNotice(null);
       setExpandedFeatures(false);
       setShowComparisonMatrix(false);
+      setActiveInfoKey(null);
       setIsRestoring(false);
       setShowLegalModal(false);
       setActivatedSuccessTier(null);
@@ -415,6 +571,7 @@ export const PayPlanHubModal: React.FC<PayPlanHubModalProps> = ({
     setActiveTab(tab);
     setSelectedPlan(tab === 'athlete' ? 'premium' : 'coach_pro');
     setExpandedFeatures(false);
+    setActiveInfoKey(null);
   };
 
   // Lock Body Scroll safely without killing touch interactions
@@ -479,12 +636,12 @@ export const PayPlanHubModal: React.FC<PayPlanHubModalProps> = ({
 
         {activatedSuccessTier ? (
           <div className="px-5 py-6 space-y-4 text-center">
-            <div className="w-12 h-12 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center mx-auto text-emerald-500">
+            <div className="w-12 h-12 rounded-full bg-[#DC2626]/10 border border-[#DC2626]/30 flex items-center justify-center mx-auto text-[#DC2626]">
               <Check className="w-6 h-6 stroke-[3]" />
             </div>
             
             <div>
-              <span className="text-[10px] font-bold tracking-widest text-emerald-600 dark:text-emerald-400 uppercase">
+              <span className="text-[10px] font-bold tracking-widest text-[#DC2626] uppercase">
                 Active Membership
               </span>
               <h3 className="text-lg font-bold text-slate-900 dark:text-white mt-1">
@@ -499,19 +656,19 @@ export const PayPlanHubModal: React.FC<PayPlanHubModalProps> = ({
               <span className="text-[10px] font-bold text-slate-400 dark:text-zinc-500 uppercase tracking-wider">Unlocked Privileges</span>
               <div className="grid grid-cols-1 gap-2 text-xs font-medium text-slate-800 dark:text-zinc-200">
                 <div className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-emerald-500 shrink-0" />
+                  <Check className="w-4 h-4 text-[#DC2626] shrink-0" />
                   <span>Full Training OS Pro & Custom Dial Calibration</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-emerald-500 shrink-0" />
+                  <Check className="w-4 h-4 text-[#DC2626] shrink-0" />
                   <span>Fuel OS Macro Intelligence & Scan Engine</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-emerald-500 shrink-0" />
+                  <Check className="w-4 h-4 text-[#DC2626] shrink-0" />
                   <span>Global Radar Proximity & Partner Tandem Sync</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-emerald-500 shrink-0" />
+                  <Check className="w-4 h-4 text-[#DC2626] shrink-0" />
                   <span>Coach Dispatch & Transformation Intelligence</span>
                 </div>
               </div>
@@ -530,13 +687,13 @@ export const PayPlanHubModal: React.FC<PayPlanHubModalProps> = ({
           <div className="px-4 py-3.5 space-y-3">
           {/* ── EARLY-BIRD FOUNDER PASS BANNER (athlete only) ── */}
           {activeTab === 'athlete' && (
-            <div className="px-3.5 py-2.5 rounded-xl bg-gradient-to-r from-red-600/10 via-red-500/5 to-amber-500/10 border border-red-500/25 text-slate-900 dark:text-white">
+            <div className="px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200/90 dark:border-white/10 text-slate-900 dark:text-white">
               <div className="flex items-center justify-between gap-1 mb-0.5">
-                <span className="text-[11px] font-bold text-red-600 dark:text-red-400 uppercase tracking-wider">
+                <span className="text-[11px] font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider">
                   Launch Special • First {founderPassStats.totalLimit.toLocaleString()}
                 </span>
-                <span className="text-[10px] font-mono font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="text-[10px] font-mono font-bold text-zinc-800 dark:text-zinc-200 bg-zinc-200/70 dark:bg-white/10 px-1.5 py-0.5 rounded flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-red-600" />
                   {founderPassStats.remainingCount.toLocaleString()} Remaining
                 </span>
               </div>
@@ -614,7 +771,7 @@ export const PayPlanHubModal: React.FC<PayPlanHubModalProps> = ({
               <button
                 type="button"
                 onClick={() => setShowComparisonMatrix(!showComparisonMatrix)}
-                className="text-[10.5px] font-semibold text-red-600 dark:text-red-400 hover:underline cursor-pointer flex items-center gap-0.5"
+                className="text-[10.5px] font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors cursor-pointer flex items-center gap-0.5"
               >
                 <span>{showComparisonMatrix ? 'Hide Matrix' : 'Compare Plans'}</span>
               </button>
@@ -624,19 +781,45 @@ export const PayPlanHubModal: React.FC<PayPlanHubModalProps> = ({
               <div className="rounded-xl border border-slate-200/90 dark:border-white/10 bg-slate-50/40 dark:bg-white/[0.02] divide-y divide-slate-100/90 dark:divide-white/5 overflow-hidden">
                 {visibleFeatures.map((feature, idx) => {
                   const val = feature.values[selectedIndex];
+                  const isInfoOpen = activeInfoKey === feature.label;
                   return (
                     <div
                       key={idx}
-                      className="flex items-center justify-between gap-2 px-3 py-2 hover:bg-slate-100/50 dark:hover:bg-white/[0.03] transition-colors"
+                      className="hover:bg-slate-100/50 dark:hover:bg-white/[0.03] transition-colors"
                     >
-                      <div className="flex items-center gap-2 min-w-0 pr-1">
-                        <span className="text-xs font-medium text-slate-800 dark:text-zinc-200 leading-none truncate">
-                          {feature.label}
-                        </span>
+                      <div className="flex items-center justify-between gap-2 px-3.5 py-2.5">
+                        <div className="flex items-center gap-1.5 min-w-0 pr-1 flex-1">
+                          <span className="text-xs font-medium text-slate-800 dark:text-zinc-200 leading-normal">
+                            {feature.label}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setActiveInfoKey(isInfoOpen ? null : feature.label);
+                            }}
+                            className={`w-4 h-4 rounded-full flex items-center justify-center transition-colors shrink-0 cursor-pointer ${
+                              isInfoOpen
+                                ? 'text-zinc-900 dark:text-white bg-zinc-200 dark:bg-zinc-700'
+                                : 'text-zinc-400 hover:text-zinc-700 dark:text-zinc-500 dark:hover:text-zinc-300'
+                            }`}
+                            title={feature.info}
+                            aria-label={`Info for ${feature.label}`}
+                          >
+                            <Info className="w-3.5 h-3.5 stroke-[1.8]" />
+                          </button>
+                        </div>
+                        <div className="shrink-0 flex items-center justify-end">
+                          <FeatureValuePill value={val} isSelectedTier={val !== false} />
+                        </div>
                       </div>
-                      <div className="shrink-0">
-                        <FeatureValuePill value={val} isSelectedTier={val !== false} />
-                      </div>
+                      {isInfoOpen && (
+                        <div className="px-3.5 pb-2.5 pt-0">
+                          <div className="p-2.5 rounded-lg bg-zinc-100 dark:bg-white/[0.05] border border-zinc-200/80 dark:border-white/10 text-[11px] leading-relaxed text-zinc-600 dark:text-zinc-300">
+                            {feature.info}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   );
                 })}
@@ -646,12 +829,12 @@ export const PayPlanHubModal: React.FC<PayPlanHubModalProps> = ({
                 <table className="w-full text-left border-collapse min-w-[320px]">
                   <thead>
                     <tr className="bg-slate-100/70 dark:bg-white/[0.05] border-b border-slate-200 dark:border-white/10 text-[9px] uppercase tracking-wider text-slate-500 dark:text-zinc-400">
-                      <th className="py-2 px-2.5 font-bold">Feature</th>
+                      <th className="py-2.5 px-3 font-bold">Feature</th>
                       {plans.map((p) => (
                         <th
                           key={p.id}
-                          className={`py-2 px-1.5 text-center font-bold ${
-                            p.id === selectedPlan ? 'text-red-600 dark:text-red-400 bg-red-500/5' : ''
+                          className={`py-2.5 px-1.5 text-center font-bold ${
+                            p.id === selectedPlan ? 'text-zinc-900 dark:text-white' : ''
                           }`}
                         >
                           {p.name}
@@ -660,23 +843,49 @@ export const PayPlanHubModal: React.FC<PayPlanHubModalProps> = ({
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 dark:divide-white/5 text-[11px]">
-                    {visibleFeatures.map((feature, idx) => (
-                      <tr key={idx} className="hover:bg-slate-100/40 dark:hover:bg-white/[0.02] transition-colors">
-                        <td className="py-2 px-2.5">
-                          <span className="font-medium text-slate-700 dark:text-zinc-300 truncate">{feature.label}</span>
-                        </td>
-                        {feature.values.map((val, vi) => (
-                          <td
-                            key={vi}
-                            className={`py-1.5 px-1 text-center ${
-                              plans[vi]?.id === selectedPlan ? 'bg-red-500/[0.03]' : ''
-                            }`}
-                          >
-                            <FeatureValuePill value={val} isSelectedTier={plans[vi]?.id === selectedPlan && val !== false} />
+                    {visibleFeatures.map((feature, idx) => {
+                      const isInfoOpen = activeInfoKey === feature.label;
+                      return (
+                        <tr key={idx} className="hover:bg-slate-100/40 dark:hover:bg-white/[0.02] transition-colors">
+                          <td className="py-2.5 px-3">
+                            <div className="flex items-center gap-1.5">
+                              <span className="font-medium text-slate-700 dark:text-zinc-300 leading-normal">{feature.label}</span>
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setActiveInfoKey(isInfoOpen ? null : feature.label);
+                                }}
+                                className={`w-4 h-4 rounded-full flex items-center justify-center transition-colors shrink-0 cursor-pointer ${
+                                  isInfoOpen
+                                    ? 'text-zinc-900 dark:text-white bg-zinc-200 dark:bg-zinc-700'
+                                    : 'text-zinc-400 hover:text-zinc-700 dark:text-zinc-500 dark:hover:text-zinc-300'
+                                }`}
+                                title={feature.info}
+                                aria-label={`Info for ${feature.label}`}
+                              >
+                                <Info className="w-3.5 h-3.5 stroke-[1.8]" />
+                              </button>
+                            </div>
+                            {isInfoOpen && (
+                              <div className="mt-1.5 p-2 rounded bg-zinc-100 dark:bg-white/[0.05] border border-zinc-200/80 dark:border-white/10 text-[10.5px] leading-relaxed text-zinc-600 dark:text-zinc-300">
+                                {feature.info}
+                              </div>
+                            )}
                           </td>
-                        ))}
-                      </tr>
-                    ))}
+                          {feature.values.map((val, vi) => (
+                            <td
+                              key={vi}
+                              className={`py-2 px-1 text-center ${
+                                plans[vi]?.id === selectedPlan ? 'bg-slate-100/50 dark:bg-white/[0.03]' : ''
+                              }`}
+                            >
+                              <FeatureValuePill value={val} isSelectedTier={plans[vi]?.id === selectedPlan && val !== false} />
+                            </td>
+                          ))}
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
@@ -687,7 +896,7 @@ export const PayPlanHubModal: React.FC<PayPlanHubModalProps> = ({
               <button
                 type="button"
                 onClick={() => setExpandedFeatures(!expandedFeatures)}
-                className="w-full py-1 flex items-center justify-center gap-1 text-[10px] font-bold text-slate-500 dark:text-zinc-400 hover:text-red-600 dark:hover:text-red-400 transition-colors cursor-pointer"
+                className="w-full py-1 flex items-center justify-center gap-1 text-[10px] font-bold text-slate-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors cursor-pointer"
               >
                 <ChevronDown className={`w-3.5 h-3.5 transition-transform ${expandedFeatures ? 'rotate-180' : ''}`} />
                 <span>{expandedFeatures ? 'Show less' : `Show all ${features.length} features`}</span>
@@ -703,7 +912,7 @@ export const PayPlanHubModal: React.FC<PayPlanHubModalProps> = ({
                 Smart recovery, nutrition & volume periodization
               </p>
             </div>
-            <span className="text-[11px] font-bold text-red-600 dark:text-red-400 shrink-0">Included with Pro</span>
+            <span className="text-[11px] font-semibold text-zinc-800 dark:text-zinc-200 shrink-0">Included with Pro</span>
           </div>
 
           {/* ── 1-TAP EXPRESS (paid plans only) ── */}

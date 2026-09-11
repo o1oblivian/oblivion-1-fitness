@@ -143,31 +143,28 @@ export const FirstTimeOnboardingGuide: React.FC<FirstTimeOnboardingGuideProps> =
     <AnimatePresence>
       <div 
         id="onboarding-guide-overlay"
-        className="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-6 bg-transparent backdrop-blur-md overflow-y-auto"
+        className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center p-0 sm:p-6 bg-black/80 backdrop-blur-md overflow-hidden"
         onClick={handleClose}
-        style={{
-          paddingTop: 'max(12px, env(safe-area-inset-top))',
-          paddingBottom: 'max(16px, env(safe-area-inset-bottom))',
-        }}
       >
         <motion.div
-          initial={{ opacity: 0, scale: 0.96, y: 16 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.96, y: 16 }}
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 40 }}
           transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
           onClick={(e) => e.stopPropagation()}
-          className="relative w-full max-w-lg bg-black/50 backdrop-blur-2xl text-white rounded-[28px] border border-white/15 shadow-2xl overflow-hidden flex flex-col max-h-[90dvh]"
+          className="relative w-full max-w-lg bg-zinc-950 text-white rounded-t-[1.75rem] sm:rounded-[28px] border-t sm:border border-zinc-800 shadow-2xl overflow-hidden flex flex-col max-h-[88dvh] select-none"
         >
-          {/* Background removed for 100% transparent layering */}
+          {/* Mobile Drag Handle */}
+          <div className="w-8 h-1 rounded-full bg-zinc-700 mx-auto mt-2.5 mb-1 sm:hidden shrink-0" />
 
           {/* Top Bar */}
-          <div className="relative z-10 pt-5 px-6 pb-3.5 border-b border-white/10 flex items-center justify-between">
+          <div className="relative z-10 pt-3 sm:pt-5 px-6 pb-3.5 border-b border-zinc-800/80 bg-zinc-950 flex items-center justify-between shrink-0">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-red-600 text-white flex items-center justify-center shadow-md shadow-red-600/20">
+              <div className="w-8 h-8 rounded-xl bg-[#C4121A] text-white flex items-center justify-center shadow-md shadow-red-600/20">
                 <BookOpen className="w-4 h-4" />
               </div>
               <div>
-                <p className="text-[10px] font-mono font-bold tracking-widest text-red-400 uppercase">
+                <p className="text-[10px] font-mono font-bold tracking-widest text-[#EF4444] uppercase">
                   System Reference
                 </p>
                 <h2 className="text-base sm:text-lg font-bold text-white">
@@ -180,14 +177,14 @@ export const FirstTimeOnboardingGuide: React.FC<FirstTimeOnboardingGuideProps> =
               id="btn-close-onboarding-guide"
               type="button"
               onClick={handleClose}
-              className="w-8 h-8 rounded-full bg-white/10 text-zinc-300 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
+              className="w-8 h-8 rounded-full bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
             >
               <X className="w-4 h-4" />
             </button>
           </div>
 
           {/* Core Feature List (Apple Inset Grouped) */}
-          <div className="relative z-10 flex-1 overflow-y-auto px-5 sm:px-6 py-4 space-y-2.5">
+          <div className="relative z-10 flex-1 overflow-y-auto px-5 sm:px-6 py-4 space-y-2.5 bg-zinc-950">
             {SYSTEM_FEATURES.map((feature) => {
               const isExpanded = expandedId === feature.id;
               const IconComponent = feature.icon;
@@ -198,8 +195,8 @@ export const FirstTimeOnboardingGuide: React.FC<FirstTimeOnboardingGuideProps> =
                   onClick={() => setExpandedId(isExpanded ? null : feature.id)}
                   className={`p-3.5 rounded-2xl border transition-all cursor-pointer ${
                     isExpanded
-                      ? 'bg-white/[0.14] border-white/20 shadow-md'
-                      : 'bg-white/10 border-white/15 hover:bg-white/[0.12]'
+                      ? 'bg-zinc-900 border-zinc-700 shadow-md'
+                      : 'bg-zinc-900/70 border-zinc-800/80 hover:bg-zinc-900 hover:border-zinc-700'
                   }`}
                 >
                   <div className="flex items-center justify-between gap-3">
@@ -224,7 +221,7 @@ export const FirstTimeOnboardingGuide: React.FC<FirstTimeOnboardingGuideProps> =
 
                     <ChevronRight 
                       className={`w-4 h-4 text-zinc-400 transition-transform duration-200 shrink-0 ${
-                        isExpanded ? 'rotate-90 text-red-500' : ''
+                        isExpanded ? 'rotate-90 text-[#EF4444]' : ''
                       }`} 
                     />
                   </div>
@@ -237,7 +234,7 @@ export const FirstTimeOnboardingGuide: React.FC<FirstTimeOnboardingGuideProps> =
                         animate={{ opacity: 1, height: 'auto' }}
                         exit={{ opacity: 0, height: 0 }}
                         transition={{ duration: 0.2 }}
-                        className="mt-3 pt-3 border-t border-white/10 text-[11px] sm:text-xs text-zinc-300 space-y-2"
+                        className="mt-3 pt-3 border-t border-zinc-800 text-[11px] sm:text-xs text-zinc-300 space-y-2"
                       >
                         <p className="leading-relaxed">{feature.instruction}</p>
                         <div className="flex items-start gap-1.5 p-2 rounded-xl bg-red-500/10 text-red-300 text-[10.5px]">
@@ -254,7 +251,7 @@ export const FirstTimeOnboardingGuide: React.FC<FirstTimeOnboardingGuideProps> =
 
           {/* Sticky Footer */}
           <div 
-            className="relative z-10 px-5 sm:px-6 pt-3 pb-5 border-t border-white/10 bg-transparent"
+            className="relative z-10 px-5 sm:px-6 pt-3 pb-5 border-t border-zinc-800/80 bg-zinc-950 shrink-0"
             style={{
               paddingBottom: 'max(16px, calc(env(safe-area-inset-bottom) + 12px))'
             }}
@@ -263,7 +260,7 @@ export const FirstTimeOnboardingGuide: React.FC<FirstTimeOnboardingGuideProps> =
               id="btn-done-onboarding-guide"
               type="button"
               onClick={handleClose}
-              className="w-full h-11 sm:h-12 bg-white hover:bg-zinc-100 text-zinc-950 text-xs sm:text-sm font-bold tracking-wide rounded-2xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-[0.99]"
+              className="w-full h-11 sm:h-12 bg-[#C4121A] hover:bg-[#9B0E14] active:scale-[0.99] text-white text-xs sm:text-sm font-bold tracking-wide rounded-2xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
             >
               <Check className="w-4 h-4 stroke-[2.5]" />
               <span>Done</span>

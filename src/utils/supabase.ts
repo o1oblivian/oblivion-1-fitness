@@ -84,11 +84,13 @@ if (typeof window !== 'undefined') {
   };
 
   window.addEventListener('online', recoverRealtimeConnection);
-  document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'visible') {
-      recoverRealtimeConnection();
-    }
-  });
+  if (typeof document !== 'undefined') {
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') {
+        recoverRealtimeConnection();
+      }
+    });
+  }
 }
 
 export async function supabaseSignUp(email: string, password: string, name?: string) {

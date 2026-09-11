@@ -9,13 +9,13 @@
 const CLOUD_SYNC_KEY = 'o1fc_cloud_sync_enabled';
 
 export function isCloudSyncEnabled(): boolean {
-  if (typeof window === 'undefined') return false;
+  if (typeof window === 'undefined') return true;
   try {
     const val = localStorage.getItem(CLOUD_SYNC_KEY);
-    // Cloud sync is OFF by default; only active if user explicitly set to 'true'
-    return val === 'true';
+    // Cloud sync is active by default; only false if explicitly turned off
+    return val !== 'false';
   } catch {
-    return false;
+    return true;
   }
 }
 

@@ -62,7 +62,6 @@ export function applyAndSaveTheme(theme: DisplayTheme): void {
   if (Capacitor.isNativePlatform()) {
     try {
       StatusBar.setStyle({ style: isDark ? StatusBarStyle.Dark : StatusBarStyle.Light }).catch(() => {});
-      StatusBar.setBackgroundColor({ color: isDark ? '#000000' : '#FFFFFF' }).catch(() => {});
     } catch {}
   }
 }

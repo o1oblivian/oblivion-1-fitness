@@ -3,9 +3,6 @@ import {
   Loader2,
   Unplug,
   Activity,
-  Heart,
-  Moon,
-  Footprints,
   RefreshCw,
   Plus,
   ShieldCheck,
@@ -34,8 +31,6 @@ import {
   removeStoredDevice,
   StoredDevice,
 } from '@/utils/bluetoothManager';
-import { upsertDailySteps, loadDailySteps } from '@/utils/stepsStore';
-import { upsertSleepLog, loadSleepLogs } from '@/utils/sleepStore';
 import { fetchHealthTelemetry, saveHealthTelemetry } from '@/utils/healthTelemetryStore';
 import { getSessionUserEmail } from '@/utils/authStorage';
 import { triggerHaptic } from '@/utils/haptics';
@@ -80,39 +75,16 @@ export function DevicesSection({ triggerToast }: Props) {
     triggerToast?.(nextVal ? 'Live ingestion telemetry stream enabled' : 'Live ingestion telemetry stream paused');
   };
 
-  // Ingestion metrics state
-  const [currentSteps, setCurrentSteps] = useState(0);
+  // Genuine sensor telemetry state (live heart rate for connected BLE devices)
   const [liveHeartRate, setLiveHeartRate] = useState<number | null>(null);
-  const [sleepHours, setSleepHours] = useState(0);
-  const [restingHR, setRestingHR] = useState<number | null>(null);
-
-  // Modal for editing a metric on tap
-  const [editingMetric, setEditingMetric] = useState<'steps' | 'heartRate' | 'sleep' | null>(null);
-  const [editValue, setEditValue] = useState('');
 
   const hrCharRefs = useRef<Map<string, BluetoothRemoteGATTCharacteristic>>(new Map());
   const bleSupported = isWebBluetoothSupported();
   const userEmail = getSessionUserEmail() || 'athlete@ofc.com';
 
-  // Load current ingested telemetry and restore stored devices on mount
+  // Restore stored devices on mount
   useEffect(() => {
-    async function loadData() {
-      try {
-        const telemetry = await fetchHealthTelemetry(userEmail);
-        if (telemetry) {
-          setCurrentSteps(telemetry.steps || 0);
-          setSleepHours(telemetry.sleep_hours || 0);
-        }
-        const stepList = await loadDailySteps(userEmail, 1);
-        if (stepList.length > 0) {
-          setCurrentSteps(stepList[0].steps);
-        }
-        const sleepList = await loadSleepLogs(userEmail, 1);
-        if (sleepList.length > 0) {
-          setSleepHours(Number((sleepList[0].duration_minutes / 60).toFixed(1)));
-        }
-      } catch {}
-
+    function loadData() {
       // Restore previously stored paired devices
       const stored = getStoredDevices();
       if (stored.length > 0) {
@@ -205,7 +177,7 @@ export function DevicesSection({ triggerToast }: Props) {
           fetchHealthTelemetry(userEmail).then((cur) => {
             saveHealthTelemetry({
               ...cur,
-              hrv_ms: Math.round(55 + (bpm % 20)),
+              updated_at: new Date().toISOString(),
             }).catch(() => {});
           });
         }
@@ -271,140 +243,12 @@ export function DevicesSection({ triggerToast }: Props) {
     triggerToast?.('Device disconnected');
   };
 
-  // Ingestion Submissions on tap
-  const handleSaveMetric = async () => {
-    if (!editingMetric) return;
-
-    if (editingMetric === 'steps') {
-      const steps = parseInt(editValue, 10);
-      if (!steps || steps <= 0) {
-        triggerToast?.('Enter a valid step count');
-        return;
-      }
-      const today = new Date().toISOString().split('T')[0];
-      try {
-        await upsertDailySteps(userEmail, today, steps);
-        const cur = await fetchHealthTelemetry(userEmail);
-        await saveHealthTelemetry({ ...cur, steps });
-        setCurrentSteps(steps);
-        triggerHaptic('medium');
-        triggerToast?.(`${steps.toLocaleString()} steps updated`);
-      } catch {
-        triggerToast?.('Could not save steps');
-      }
-    } else if (editingMetric === 'sleep') {
-      const hours = parseFloat(editValue);
-      if (!hours || hours <= 0 || hours > 24) {
-        triggerToast?.('Enter valid sleep hours (e.g. 7.5)');
-        return;
-      }
-      const today = new Date().toISOString().split('T')[0];
-      try {
-        const bedtime = '23:00';
-        const wakeMins = 23 * 60 + Math.round(hours * 60);
-        const wakeH = Math.floor((wakeMins % (24 * 60)) / 60)
-          .toString()
-          .padStart(2, '0');
-        const wakeM = Math.floor(wakeMins % 60)
-          .toString()
-          .padStart(2, '0');
-        const wakeTime = `${wakeH}:${wakeM}`;
-
-        await upsertSleepLog(userEmail, today, bedtime, wakeTime, 85, 'Direct Ingestion');
-        const cur = await fetchHealthTelemetry(userEmail);
-        await saveHealthTelemetry({ ...cur, sleep_hours: hours });
-        setSleepHours(hours);
-        triggerHaptic('medium');
-        triggerToast?.(`${hours}h sleep updated`);
-      } catch {
-        triggerToast?.('Could not save sleep');
-      }
-    } else if (editingMetric === 'heartRate') {
-      const hr = parseInt(editValue, 10);
-      if (!hr || hr < 30 || hr > 240) {
-        triggerToast?.('Enter valid heart rate (30-240 BPM)');
-        return;
-      }
-      setRestingHR(hr);
-      triggerHaptic('medium');
-      triggerToast?.(`Resting HR ${hr} BPM updated`);
-    }
-
-    setEditingMetric(null);
-    setEditValue('');
-  };
-
-  const openMetricEditor = (metric: 'steps' | 'heartRate' | 'sleep') => {
-    triggerHaptic('light');
-    setEditingMetric(metric);
-    if (metric === 'steps') setEditValue(String(currentSteps));
-    if (metric === 'heartRate') setEditValue(String(liveHeartRate || restingHR));
-    if (metric === 'sleep') setEditValue(String(sleepHours));
-  };
-
   return (
     <div>
       <SectionHeader
-        title="Wearables & Telemetry Ingestion"
-        subtitle="Tap any metric card to edit, or pair a live Bluetooth sensor"
+        title="Connected Devices & Wearables"
+        subtitle="Manage Bluetooth heart rate monitors, smart sensors, and wearable connections"
       />
-
-      {/* Telemetry Summary Cards - Tap to Edit */}
-      <div className="grid grid-cols-3 gap-2 mb-3">
-        {/* Daily Steps */}
-        <button
-          type="button"
-          onClick={() => openMetricEditor('steps')}
-          className="p-3 rounded-2xl bg-white dark:bg-[#18181B] border border-zinc-200/80 dark:border-zinc-800/80 text-left hover:border-red-400 dark:hover:border-red-500/50 active:scale-[0.98] transition-all cursor-pointer group"
-        >
-          <div className="flex items-center justify-between mb-1">
-            <Footprints className="w-3.5 h-3.5 text-red-500" />
-            <span className="text-[9px] font-mono text-zinc-400 uppercase font-semibold group-hover:text-red-500 transition-colors">
-              Tap Edit
-            </span>
-          </div>
-          <p className="text-base font-bold text-zinc-900 dark:text-white tabular-nums tracking-tight">
-            {currentSteps.toLocaleString()}
-          </p>
-          <p className="text-[10px] text-zinc-500 mt-0.5">Daily Steps</p>
-        </button>
-
-        {/* Live / Resting Heart Rate */}
-        <button
-          type="button"
-          onClick={() => openMetricEditor('heartRate')}
-          className="p-3 rounded-2xl bg-white dark:bg-[#18181B] border border-zinc-200/80 dark:border-zinc-800/80 text-left hover:border-[#C4121A] dark:hover:border-[#C4121A]/50 active:scale-[0.98] transition-all cursor-pointer group"
-        >
-          <div className="flex items-center justify-between mb-1">
-            <Heart className="w-3.5 h-3.5 text-[#C4121A]" />
-            <span className="text-[9px] font-mono text-emerald-500 uppercase font-semibold group-hover:underline">
-              {liveHeartRate ? 'Live' : 'Resting'}
-            </span>
-          </div>
-          <p className="text-base font-bold text-zinc-900 dark:text-white tabular-nums tracking-tight">
-            {liveHeartRate || restingHR} <span className="text-[10px] font-normal text-zinc-500">BPM</span>
-          </p>
-          <p className="text-[10px] text-zinc-500 mt-0.5">Heart Rate</p>
-        </button>
-
-        {/* Sleep Duration */}
-        <button
-          type="button"
-          onClick={() => openMetricEditor('sleep')}
-          className="p-3 rounded-2xl bg-white dark:bg-[#18181B] border border-zinc-200/80 dark:border-zinc-800/80 text-left hover:border-indigo-400 dark:hover:border-indigo-500/50 active:scale-[0.98] transition-all cursor-pointer group"
-        >
-          <div className="flex items-center justify-between mb-1">
-            <Moon className="w-3.5 h-3.5 text-indigo-400" />
-            <span className="text-[9px] font-mono text-zinc-400 uppercase font-semibold group-hover:text-indigo-400 transition-colors">
-              Tap Edit
-            </span>
-          </div>
-          <p className="text-base font-bold text-zinc-900 dark:text-white tabular-nums tracking-tight">
-            {sleepHours} <span className="text-[10px] font-normal text-zinc-500">hrs</span>
-          </p>
-          <p className="text-[10px] text-zinc-500 mt-0.5">Sleep Log</p>
-        </button>
-      </div>
 
       <SettingsGroup>
         {/* Bluetooth Device Pairing Header */}
@@ -447,10 +291,10 @@ export function DevicesSection({ triggerToast }: Props) {
                   <div>
                     <div className="flex items-center gap-1.5">
                       <p className="text-xs font-semibold text-zinc-900 dark:text-white">{dev.name}</p>
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#C4121A] dark:bg-[#D91F28]" />
                     </div>
                     <div className="flex items-center gap-2 text-[10px] text-zinc-500 mt-0.5">
-                      <span className="text-emerald-500 font-medium">Connected</span>
+                      <span className="text-zinc-600 dark:text-zinc-400 font-medium">Connected</span>
                       {dev.battery !== null && (
                         <span className="flex items-center gap-0.5 text-zinc-400">
                           <Battery className="w-3 h-3 text-zinc-400" />
@@ -458,7 +302,7 @@ export function DevicesSection({ triggerToast }: Props) {
                         </span>
                       )}
                       {dev.heartRate && (
-                        <span className="text-[#C4121A] font-bold tabular-nums">
+                        <span className="text-[#C4121A] dark:text-[#D91F28] font-bold tabular-nums">
                           {dev.heartRate} BPM
                         </span>
                       )}
@@ -478,78 +322,6 @@ export function DevicesSection({ triggerToast }: Props) {
           </div>
         )}
       </SettingsGroup>
-
-      {/* Direct In-Place Metric Edit Modal (Apple Health Style) */}
-      {editingMetric && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-fade-in">
-          <div className="relative w-full max-w-sm bg-white dark:bg-[#121316] rounded-3xl border border-zinc-200 dark:border-zinc-800 shadow-2xl p-5 space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <div className={`w-8 h-8 rounded-xl flex items-center justify-center ${
-                  editingMetric === 'steps' ? 'bg-red-500/10 text-red-500' :
-                  editingMetric === 'heartRate' ? 'bg-[#C4121A]/10 text-[#C4121A]' :
-                  'bg-indigo-500/10 text-indigo-400'
-                }`}>
-                  {editingMetric === 'steps' && <Footprints className="w-4 h-4" />}
-                  {editingMetric === 'heartRate' && <Heart className="w-4 h-4" />}
-                  {editingMetric === 'sleep' && <Moon className="w-4 h-4" />}
-                </div>
-                <div>
-                  <h3 className="text-sm font-bold text-zinc-900 dark:text-white">
-                    {editingMetric === 'steps' && 'Edit Daily Steps'}
-                    {editingMetric === 'heartRate' && 'Edit Resting Heart Rate'}
-                    {editingMetric === 'sleep' && 'Edit Sleep Duration'}
-                  </h3>
-                  <p className="text-[11px] text-zinc-500">
-                    {editingMetric === 'steps' && 'Enter total steps taken today'}
-                    {editingMetric === 'heartRate' && 'Enter baseline resting BPM (30-240)'}
-                    {editingMetric === 'sleep' && 'Enter total sleep in hours (e.g. 7.5)'}
-                  </p>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => setEditingMetric(null)}
-                className="btn-nude-close"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            <div>
-              <input
-                type="number"
-                step={editingMetric === 'sleep' ? '0.1' : '1'}
-                value={editValue}
-                onChange={(e) => setEditValue(e.target.value)}
-                autoFocus
-                placeholder={
-                  editingMetric === 'steps' ? '10000' :
-                  editingMetric === 'heartRate' ? '65' : '8.0'
-                }
-                className="w-full h-12 text-center text-xl font-bold rounded-2xl bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white outline-none border border-zinc-200 dark:border-zinc-700/80 focus:border-[#C4121A]"
-              />
-            </div>
-
-            <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={() => setEditingMetric(null)}
-                className="flex-1 h-10 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 text-xs font-semibold hover:bg-zinc-200 dark:hover:bg-zinc-700 cursor-pointer"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={handleSaveMetric}
-                className="flex-1 h-10 rounded-xl bg-[#C4121A] text-white text-xs font-semibold hover:bg-[#9B0E14] cursor-pointer shadow-xs"
-              >
-                Save
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* ─── Apple Pro Pair Device & Sensor Hub Modal ─── */}
       {pairModalOpen && (
@@ -588,11 +360,11 @@ export function DevicesSection({ triggerToast }: Props) {
                     <span className="text-xs font-bold text-zinc-900 dark:text-white">Hardware Scanner</span>
                   </div>
                   {bleSupported ? (
-                    <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500 text-[10px] font-semibold">
+                    <span className="px-2 py-0.5 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 border border-zinc-200 dark:border-zinc-700 text-[10px] font-semibold">
                       Web BLE Ready
                     </span>
                   ) : (
-                    <span className="px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-500 text-[10px] font-semibold">
+                    <span className="px-2 py-0.5 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-700 text-[10px] font-semibold">
                       Browser Restricted
                     </span>
                   )}
@@ -641,7 +413,7 @@ export function DevicesSection({ triggerToast }: Props) {
                     Pairing Checklist & Compatibility
                   </span>
                 </div>
-                <ul className="text-[11px] text-zinc-500 space-y-1.5 pl-4 list-disc marker:text-red-500">
+                <ul className="text-[11px] text-zinc-500 space-y-1.5 pl-4 list-disc marker:text-[#C4121A]">
                   <li>
                     <strong className="text-zinc-700 dark:text-zinc-300">Device Pairing Mode:</strong> Make sure your heart rate strap or sensor is strapped on / awake and not actively connected to another app.
                   </li>
@@ -658,7 +430,7 @@ export function DevicesSection({ triggerToast }: Props) {
             {/* Modal Footer */}
             <div className="p-3 bg-zinc-50 dark:bg-zinc-900/40 border-t border-zinc-100 dark:border-zinc-800/80 flex items-center justify-between text-[11px] text-zinc-400">
               <span className="flex items-center gap-1.5">
-                <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
+                <ShieldCheck className="w-3.5 h-3.5 text-zinc-400 dark:text-zinc-500" />
                 Direct hardware GATT connection
               </span>
               <button

@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { supabase } from '@/utils/supabase';
 import { ProgramPreview } from '@/utils/reelsTypes';
+import { compressImageFile } from '@/utils/imageOptimizer';
 
 interface ReelUploadModalProps {
   isOpen: boolean;
@@ -95,25 +96,30 @@ export const ReelUploadModal: React.FC<ReelUploadModalProps> = ({
   }, [currentUserEmail]);
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const rawFile = e.target.files?.[0];
+    if (!rawFile) return;
 
-    const isVideo = file.type.startsWith('video/');
-    const isImage = file.type.startsWith('image/');
+    const isVideo = rawFile.type.startsWith('video/');
+    const isImage = rawFile.type.startsWith('image/');
     if (!isVideo && !isImage) {
       setError('Please select a video or image file');
       return;
     }
 
-    if (file.size > 50 * 1024 * 1024) {
-      setError('File too large — max 50MB');
+    // 20MB limit to keep storage optimized and prevent unexpected bills
+    const MAX_REEL_SIZE_BYTES = 20 * 1024 * 1024;
+    if (rawFile.size > MAX_REEL_SIZE_BYTES) {
+      setError(isVideo ? 'Video too large — max 20MB for reel clips' : 'Image too large — max 20MB');
       return;
     }
 
     setError(null);
     setUploadingMedia(true);
 
-    const fileExt = file.name.split('.').pop() || (isVideo ? 'mp4' : 'jpg');
+    // Auto-compress photo if image upload
+    const file = isImage ? await compressImageFile(rawFile) : rawFile;
+
+    const fileExt = file.name.split('.').pop() || (isVideo ? 'mp4' : 'webp');
     const fileName = `${Date.now()}-${Math.random().toString(36).slice(2, 9)}.${fileExt}`;
     const filePath = `${currentUserEmail || 'anonymous'}/${fileName}`;
 

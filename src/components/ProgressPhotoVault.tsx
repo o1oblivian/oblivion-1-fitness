@@ -22,6 +22,7 @@ import {
   toggleBuddyVisibility,
 } from '../utils/profileMediaStore';
 import { ApplePhotoGalleryViewer, AppleGalleryItem } from './ApplePhotoGalleryViewer';
+import { useSubscription } from '../utils/useSubscription';
 
 interface ProgressPhotoVaultProps {
   onOpenPayPlan?: () => void;
@@ -39,8 +40,8 @@ export const ProgressPhotoVault: React.FC<ProgressPhotoVaultProps> = ({ onOpenPa
   const [gridDensity, setGridDensity] = useState<'3-col' | '4-col'>('3-col');
   const [showBatchDeletePrompt, setShowBatchDeletePrompt] = useState(false);
 
-  const isPaid = true;
-  const maxPhotos = 12;
+  const { isPaid } = useSubscription();
+  const maxPhotos = isPaid ? 9999 : 10;
 
   const loadPhotos = useCallback(async () => {
     setLoading(true);
@@ -74,7 +75,11 @@ export const ProgressPhotoVault: React.FC<ProgressPhotoVaultProps> = ({ onOpenPa
     if (!file) return;
 
     if (photos.length >= maxPhotos) {
+      if (showToast) {
+        showToast('Free vault limit reached (10 photos). Upgrade to Plus for unlimited vault storage.');
+      }
       if (onOpenPayPlan) onOpenPayPlan();
+      else window.dispatchEvent(new CustomEvent('open_pay_plan'));
       return;
     }
 
@@ -213,9 +218,20 @@ export const ProgressPhotoVault: React.FC<ProgressPhotoVaultProps> = ({ onOpenPa
                 </span>
               )}
             </div>
-            <p className="text-[9px] text-[#848785] dark:text-gray-400 font-mono">
-              {photos.length} / {maxPhotos} media
-            </p>
+            <div className="flex items-center gap-1.5 mt-0.5">
+              <p className="text-[9px] text-[#848785] dark:text-gray-400 font-mono">
+                {isPaid ? `${photos.length} media • Unlimited Plus` : `${photos.length}/${maxPhotos} media (Free)`}
+              </p>
+              {!isPaid && (
+                <button
+                  type="button"
+                  onClick={() => onOpenPayPlan ? onOpenPayPlan() : window.dispatchEvent(new CustomEvent('open_pay_plan'))}
+                  className="text-[9px] font-bold text-red-500 hover:underline cursor-pointer"
+                >
+                  Upgrade
+                </button>
+              )}
+            </div>
           </div>
         </div>
 

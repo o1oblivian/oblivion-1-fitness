@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Camera, X, MapPin, Dumbbell, Users, Film, Sparkles, Check } from 'lucide-react';
+import { Camera, X } from 'lucide-react';
 import { SectionHeader, SettingsGroup, SettingsRow, ToggleSwitch } from './SettingsShared';
 import { useAuthStorage } from '../../hooks/useAuthStorage';
 
@@ -12,16 +12,6 @@ interface ProfileSectionProps {
   onSaveProfileImage?: (url: string) => void;
   onOpenPrivacy?: () => void;
 }
-
-const DISCIPLINES = [
-  'Hypertrophy',
-  'Powerlifting',
-  'Hyrox / Hybrid',
-  'CrossFit',
-  'Calisthenics',
-  'Endurance',
-  'Strength & Conditioning',
-];
 
 export function ProfileSection({
   name: initName,
@@ -161,35 +151,6 @@ export function ProfileSection({
           </button>
         </div>
 
-        {/* Primary Training Focus / Discipline */}
-        <div className="p-3 border-b border-zinc-100 dark:border-zinc-800/60">
-          <div className="flex items-center gap-1.5 mb-2">
-            <Dumbbell className="w-3.5 h-3.5 text-[#C4121A] dark:text-[#D91F28]" />
-            <span className="text-[10px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
-              Primary Training Discipline
-            </span>
-          </div>
-          <div className="flex flex-wrap gap-1.5">
-            {DISCIPLINES.map((disc) => {
-              const isSelected = (profile.primary_focus || 'Hypertrophy') === disc;
-              return (
-                <button
-                  key={disc}
-                  type="button"
-                  onClick={() => updateProfile({ primary_focus: disc })}
-                  className={`text-[11px] font-semibold px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
-                    isSelected
-                      ? 'bg-[#C4121A] dark:bg-[#D91F28] text-white shadow-xs'
-                      : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700'
-                  }`}
-                >
-                  {disc}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
         {/* Bio row */}
         <div className="p-3 border-b border-zinc-100 dark:border-zinc-800/60">
           <span className="text-[10px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider block mb-1">
@@ -204,17 +165,7 @@ export function ProfileSection({
           />
         </div>
 
-        {/* Network & Reels Visibility Toggles */}
-        <SettingsRow
-          label="Buddy Radar Discovery"
-          sublabel="Allow nearby athletes to discover your training profile"
-          rightElement={
-            <ToggleSwitch
-              checked={profile.buddy_match_enabled !== false}
-              onChange={() => updateProfile({ buddy_match_enabled: profile.buddy_match_enabled === false })}
-            />
-          }
-        />
+        {/* Reels Visibility Toggle */}
         <SettingsRow
           label="Elite Reels Presence"
           sublabel="Showcase your profile card and training highlights across reels"
@@ -230,7 +181,7 @@ export function ProfileSection({
       {/* Stat Editor Modal */}
       {editingStat && (
         <div className="fixed inset-0 z-[400] bg-black/60 dark:bg-black/80 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-150" onClick={() => setEditingStat(null)}>
-          <div onClick={e => e.stopPropagation()} className="w-full max-w-xs bg-zinc-50 dark:bg-zinc-950 rounded-t-[1.5rem] sm:rounded-2xl border-t sm:border border-zinc-200/80 dark:border-zinc-800 p-4 shadow-2xl flex flex-col">
+          <div onClick={e => e.stopPropagation()} className="w-full max-w-xs bg-zinc-50 dark:bg-zinc-950 rounded-t-[1.5rem] sm:rounded-2xl border-t sm:border border-zinc-200/80 dark:border-zinc-800 p-4 pb-[max(1rem,calc(env(safe-area-inset-bottom,0px)+1rem))] shadow-2xl flex flex-col">
             <div className="w-8 h-1 rounded-full bg-stone-300 dark:bg-zinc-700 mx-auto mb-3 sm:hidden" />
             <div className="flex items-center justify-between mb-3">
               <span className="text-sm font-bold text-zinc-900 dark:text-white capitalize">

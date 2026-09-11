@@ -85,7 +85,6 @@ async function setupNativeApp() {
   try {
     const isDark = document.documentElement.classList.contains('dark');
     await StatusBar.setStyle({ style: isDark ? Style.Dark : Style.Light });
-    await StatusBar.setBackgroundColor({ color: isDark ? '#000000' : '#F8F9FA' });
   } catch (e) {
     // StatusBar not available on web
   }

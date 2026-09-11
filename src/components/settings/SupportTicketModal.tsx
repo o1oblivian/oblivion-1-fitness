@@ -94,7 +94,7 @@ export function SupportTicketModal({ isOpen, onClose, triggerToast }: Props) {
       onClick={handleClose}
     >
       <div
-        className="w-full max-w-md max-h-[90vh] bg-zinc-50 dark:bg-zinc-950 sm:rounded-2xl rounded-t-[1.5rem] overflow-hidden flex flex-col border-t sm:border border-zinc-200/80 dark:border-zinc-800 shadow-2xl"
+        className="w-full max-w-md max-h-[90vh] bg-zinc-50 dark:bg-zinc-950 sm:rounded-2xl rounded-t-[1.5rem] overflow-hidden flex flex-col border-t sm:border border-zinc-200/80 dark:border-zinc-800 shadow-2xl pb-[env(safe-area-inset-bottom,0px)]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -116,14 +116,14 @@ export function SupportTicketModal({ isOpen, onClose, triggerToast }: Props) {
 
         {success ? (
           <div className="flex-1 flex flex-col items-center justify-center p-6 text-center gap-3">
-            <div className="w-12 h-12 rounded-full bg-red-50 dark:bg-red-950/80 border border-red-200 dark:border-red-800 flex items-center justify-center text-red-600 dark:text-red-400">
+            <div className="w-12 h-12 rounded-full bg-red-50 dark:bg-red-950/80 border border-red-200 dark:border-red-800 flex items-center justify-center text-[#C4121A] dark:text-[#D91F28]">
               <CheckCircle className="w-6 h-6" />
             </div>
             <div>
               <p className="text-sm font-bold text-zinc-900 dark:text-white">
                 Ticket Submitted Successfully!
               </p>
-              <p className="text-xs font-mono text-red-600 dark:text-red-400 mt-1">
+              <p className="text-xs font-mono text-[#C4121A] dark:text-[#D91F28] mt-1">
                 Ticket ID: {ticketId}
               </p>
             </div>
@@ -153,7 +153,7 @@ export function SupportTicketModal({ isOpen, onClose, triggerToast }: Props) {
                       onClick={() => setCategory(cat)}
                       className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer border ${
                         category === cat
-                          ? 'bg-stone-900 dark:bg-white text-white dark:text-black border-transparent shadow-xs'
+                          ? 'bg-[#C4121A] dark:bg-[#D91F28] text-white border-transparent shadow-xs'
                           : 'bg-white dark:bg-zinc-900 text-zinc-600 dark:text-zinc-300 border-zinc-200/80 dark:border-zinc-800 hover:border-stone-400 dark:hover:border-zinc-600'
                       }`}
                     >
@@ -173,7 +173,7 @@ export function SupportTicketModal({ isOpen, onClose, triggerToast }: Props) {
                   value={subject}
                   onChange={(e) => setSubject(e.target.value)}
                   placeholder="Brief description of your issue"
-                  className="w-full px-3 py-2 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 text-xs text-zinc-900 dark:text-white placeholder:text-stone-400 dark:placeholder:text-zinc-500 outline-none focus:border-stone-400 dark:focus:border-zinc-500 transition-colors"
+                  className="w-full px-3 py-2 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 text-xs text-zinc-900 dark:text-white placeholder:text-stone-400 dark:placeholder:text-zinc-500 outline-none focus:border-[#C4121A] transition-colors"
                   maxLength={120}
                 />
               </div>
@@ -188,7 +188,7 @@ export function SupportTicketModal({ isOpen, onClose, triggerToast }: Props) {
                   onChange={(e) => setMessage(e.target.value)}
                   placeholder="Describe the issue in detail..."
                   rows={3}
-                  className="w-full px-3 py-2 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 text-xs text-zinc-900 dark:text-white placeholder:text-stone-400 dark:placeholder:text-zinc-500 outline-none focus:border-stone-400 dark:focus:border-zinc-500 transition-colors resize-none leading-relaxed"
+                  className="w-full px-3 py-2 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 text-xs text-zinc-900 dark:text-white placeholder:text-stone-400 dark:placeholder:text-zinc-500 outline-none focus:border-[#C4121A] transition-colors resize-none leading-relaxed"
                   maxLength={2000}
                 />
               </div>
@@ -202,12 +202,12 @@ export function SupportTicketModal({ isOpen, onClose, triggerToast }: Props) {
                 <div
                   className={`w-4 h-4 rounded-md border flex items-center justify-center transition-all shrink-0 ${
                     includeDiagnostics
-                      ? 'bg-stone-900 dark:bg-white border-stone-900 dark:border-white'
+                      ? 'bg-[#C4121A] dark:bg-[#D91F28] border-[#C4121A] dark:border-[#D91F28]'
                       : 'border-zinc-300 dark:border-zinc-600'
                   }`}
                 >
                   {includeDiagnostics && (
-                    <svg className="w-2.5 h-2.5 text-white dark:text-black" viewBox="0 0 12 12" fill="none">
+                    <svg className="w-2.5 h-2.5 text-white" viewBox="0 0 12 12" fill="none">
                       <path d="M2 6L5 9L10 3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
                   )}
@@ -226,7 +226,7 @@ export function SupportTicketModal({ isOpen, onClose, triggerToast }: Props) {
               <button
                 onClick={handleSubmit}
                 disabled={submitting || !subject.trim() || !message.trim()}
-                className="w-full py-2.5 rounded-xl bg-stone-900 hover:bg-black dark:bg-white dark:hover:bg-zinc-200 text-white dark:text-black text-xs font-semibold disabled:opacity-40 transition-all cursor-pointer flex items-center justify-center gap-2"
+                className="w-full py-2.5 rounded-xl bg-[#C4121A] hover:bg-[#9B0E14] text-white text-xs font-semibold disabled:opacity-40 transition-all cursor-pointer flex items-center justify-center gap-2 shadow-xs"
               >
                 {submitting ? (
                   <>

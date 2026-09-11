@@ -13,7 +13,6 @@ import { WifiOff } from 'lucide-react';
 import { HomeView } from '@/components/HomeView';
 import { SoloView } from '@/components/SoloView';
 import { FuelView } from '@/components/FuelView';
-import { TandemView } from '@/components/TandemView';
 import FitnessIntelligenceApp from '@/components/FitnessIntelligenceApp';
 import { AthleteView } from '@/components/AthleteView';
 
@@ -401,7 +400,6 @@ export default function App() {
                     s.setWeeklySchedule(newSched);
                     try { localStorage.setItem('lumina_weekly_schedule', JSON.stringify(newSched)); } catch {}
                   }}
-                  onNavigateToTandem={() => s.setShowTandemPanel(true)}
                   onTapSelf={() => s.setIsOwnProfileOpen(true)}
                   handle={handle}
                   onUpgrade={() => { s.setPayPlanHighlightTier('premium'); s.setIsPayPlanOpen(true); }}
@@ -448,7 +446,6 @@ export default function App() {
                   onOpenProfile={() => s.setIsEditProfileOpen(true)}
                   onOpenAIInsights={() => s.setIsAIInsightsOpen(true)}
                   onOpenPayPlan={() => { s.setPayPlanHighlightTier('premium'); s.setIsPayPlanOpen(true); }}
-                  onNavigateToTandem={() => s.handleModeChange('tandem')}
                 />
                 </ViewBoundary>
               </div>
@@ -475,15 +472,6 @@ export default function App() {
                     showToast={s.showToast}
                     currentUserEmail={s.currentUserEmail || 'athlete@o1fc.app'}
                   />
-                </ViewBoundary>
-              </div>
-            )}
-
-            {/* Tandem tab */}
-            {mounted['tandem'] && (
-              <div className={`w-full flex flex-col gap-2 ${s.currentMode === 'tandem' ? 'tab-view-enter' : 'hidden'}`}>
-                <ViewBoundary fallbackLabel="Tandem Sync">
-                  <TandemView theme={s.theme} showToast={s.showToast} currentUserEmail={s.currentUserEmail} />
                 </ViewBoundary>
               </div>
             )}

@@ -132,7 +132,9 @@ export const ReadinessScoreCard: React.FC<ReadinessScoreCardProps> = ({
           {/* HRV Chip */}
           <div className="flex items-center gap-1 px-1.5 py-0.5 rounded-lg bg-zinc-50 dark:bg-white/[0.04] border border-zinc-200/60 dark:border-white/10 text-[9.5px] font-mono">
             <HeartPulse className="w-2.5 h-2.5 text-red-500 shrink-0" />
-            <span className="font-bold text-zinc-900 dark:text-white">{readiness.details.hrvMs}</span>
+            <span className="font-bold text-zinc-900 dark:text-white">
+              {readiness.details.hrvMs !== null ? readiness.details.hrvMs : '--'}
+            </span>
             <span className="text-[8px] text-zinc-400">ms</span>
           </div>
 

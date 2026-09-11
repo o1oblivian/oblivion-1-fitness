@@ -75,6 +75,59 @@ export async function fetchHealthTelemetry(userEmail: string, dateStr?: string):
   return record;
 }
 
+export function getCachedTelemetry(userEmail?: string): HealthTelemetry {
+  const email = userEmail || 'athlete@fitlab.io';
+  const today = new Date().toISOString().split('T')[0];
+  try {
+    const raw = localStorage.getItem(`${TELEMETRY_KEY}_${email}_${today}`);
+    if (raw) {
+      return JSON.parse(raw);
+    }
+  } catch {}
+  return {
+    user_email: email,
+    record_date: today,
+    steps: 0,
+    step_target: 10000,
+    calories_consumed: 0,
+    protein_g: 0,
+    carbs_g: 0,
+    fat_g: 0,
+    water_ml: 0,
+    hrv_ms: 0,
+    sleep_hours: 0,
+    workout_count: 0,
+    updated_at: new Date().toISOString(),
+  };
+}
+
+export async function fetchRecentTelemetryHistory(
+  userEmail?: string,
+  days = 7
+): Promise<{ date: string; dayLabel: string; telemetry: HealthTelemetry | null }[]> {
+  const email = userEmail || 'athlete@fitlab.io';
+  const result: { date: string; dayLabel: string; telemetry: HealthTelemetry | null }[] = [];
+  const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+  for (let i = days - 1; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const dateStr = d.toISOString().split('T')[0];
+    const dayLabel = dayNames[d.getDay()];
+
+    let tel: HealthTelemetry | null = null;
+    try {
+      const raw = await storageAdapter.getItem(`${TELEMETRY_KEY}_${email}_${dateStr}`);
+      if (raw) {
+        tel = JSON.parse(raw);
+      }
+    } catch {}
+    result.push({ date: dateStr, dayLabel, telemetry: tel });
+  }
+
+  return result;
+}
+
 export async function saveHealthTelemetry(telemetry: HealthTelemetry): Promise<HealthTelemetry> {
   const updated = {
     ...telemetry,
@@ -155,16 +208,12 @@ export async function syncHealthEcosystem(
       }
     }
 
-    // Baseline smart defaults if first connection
-    if (syncedSteps === 0) syncedSteps = 7842;
-    if (syncedHrv === 0) syncedHrv = source === 'whoop' ? 72 : 68;
-    if (syncedSleep === 0) syncedSleep = source === 'oura' ? 7.8 : 7.4;
-
+    // Genuine synchronization: only update metrics when provided by sensor/OS
     const updated = await saveHealthTelemetry({
       ...current,
-      steps: Math.max(current.steps, syncedSteps),
-      hrv_ms: syncedHrv || current.hrv_ms,
-      sleep_hours: syncedSleep || current.sleep_hours,
+      steps: syncedSteps > 0 ? Math.max(current.steps, syncedSteps) : current.steps,
+      hrv_ms: syncedHrv > 0 ? syncedHrv : current.hrv_ms,
+      sleep_hours: syncedSleep > 0 ? syncedSleep : current.sleep_hours,
       updated_at: new Date().toISOString(),
     });
 

@@ -1,6 +1,7 @@
 import { supabase, isSupabaseConfigured } from './supabase';
 import type { VaultMediaItem } from '../types/vaultMedia';
 import { idbSaveVaultItem, idbSaveVaultItems, idbGetVaultItems, idbDeleteVaultItem } from './indexedDbMediaVault';
+import { compressImageFile } from './imageOptimizer';
 
 const ATHLETE_VAULT_KEY = 'o1fc_athlete_media_vault_v1';
 const COACH_VAULT_KEY = 'o1fc_coach_media_vault_v1';
@@ -247,13 +248,29 @@ export function deleteCoachVaultItem(id: string): void {
   }
 }
 
+// Maximum file sizes for media vault (cost protection)
+export const MAX_VAULT_FILE_SIZE_BYTES = 20 * 1024 * 1024; // 20 MB
+
 // Persist a newly uploaded media item (photo or video) across local, IndexedDB and cloud
 export async function persistUploadedVaultMedia(
-  file: File,
+  rawFile: File,
   targetVault: 'athlete' | 'coach',
   customTitle?: string
 ): Promise<VaultMediaItem> {
-  const isVideo = file.type.startsWith('video');
+  const isVideo = rawFile.type.startsWith('video');
+
+  // Hard 20MB cap on uploads to keep storage lean and prevent bill spikes
+  if (rawFile.size > MAX_VAULT_FILE_SIZE_BYTES) {
+    throw new Error(
+      isVideo
+        ? 'Video clip exceeds 20MB limit. Please trim to under 60 seconds.'
+        : 'Photo exceeds 20MB limit.'
+    );
+  }
+
+  // Auto-compress photos on device before saving or cloud upload
+  const file = isVideo ? rawFile : await compressImageFile(rawFile);
+
   const mediaType: 'photo' | 'video' = isVideo ? 'video' : 'photo';
   const category = mediaType === 'video' ? 'Videos' : 'Photos';
   const dateFormatted = new Date().toLocaleDateString('en-GB', {

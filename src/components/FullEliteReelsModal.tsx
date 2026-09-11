@@ -20,7 +20,6 @@ import {
   ChevronRight,
   ExternalLink,
   Search,
-  LayoutGrid,
   Film,
 } from 'lucide-react';
 import { CoachProfileSheet } from '@/components/CoachProfileSheet';
@@ -453,39 +452,40 @@ export const FullEliteReelsModal: React.FC<FullEliteReelsModalProps> = ({
 
   return createPortal(
     <div
-      className={`fixed inset-0 z-[200] bg-black transition-transform duration-300 ease-out select-none ${closing ? 'translate-y-full' : 'translate-y-0'}`}
+      className={`fixed inset-0 z-[200] bg-[#050507] transition-transform duration-300 ease-out select-none flex flex-col overflow-hidden ${closing ? 'translate-y-full' : 'translate-y-0'}`}
       role="dialog"
       aria-modal="true"
       aria-label="Elite Coaches Showcase"
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
-      {/* Top Header Rail - Only shown during vertical swipe stream mode */}
+      {/* Top Header Rail - Plain Obsidian Glass Navigation Bar */}
       {viewMode === 'stream' && (
-        <div className="absolute top-0 left-0 right-0 z-40 pt-[max(env(safe-area-inset-top),8px)] px-3 pointer-events-none">
-          <div className="flex items-center justify-between gap-2 sm:gap-3 max-w-lg mx-auto pointer-events-auto">
-            {/* Close Button - Frameless Pure Vector Glyph */}
+        <div className="shrink-0 bg-[#08080a]/90 backdrop-blur-2xl border-b border-white/[0.08] z-40 shadow-lg">
+          <div className="pt-[max(env(safe-area-inset-top),10px)] pb-2.5 px-3 sm:px-4 flex items-center justify-between gap-2 sm:gap-3 max-w-lg mx-auto">
+            {/* Top Left: Reels Icon to go back to Elite Reels Explore page */}
             <button
-              onClick={handleClose}
-              aria-label="Close"
-              className="p-2 flex items-center justify-center text-white active:scale-90 hover:text-white/80 transition-transform cursor-pointer shrink-0 drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]"
+              onClick={() => setViewMode('explore')}
+              aria-label="Back to Elite Reels"
+              title="Back to Elite Reels"
+              className="p-2 -ml-1 flex items-center justify-center text-zinc-400 hover:text-white active:scale-90 transition-colors cursor-pointer shrink-0 rounded-full"
             >
-              <X className="w-6 h-6 stroke-[2]" />
+              <Film className="w-5 h-5 stroke-[2]" />
             </button>
 
             {/* Central Categories Rail in Stream Mode */}
-            <div className="flex-1 min-w-0 overflow-x-auto no-scrollbar py-1">
-              <div className="flex items-center justify-center gap-3 sm:gap-5 min-w-max px-1">
+            <div className="flex-1 min-w-0 overflow-x-auto no-scrollbar py-0.5">
+              <div className="flex items-center justify-center gap-3 sm:gap-4 min-w-max px-1">
                 {CATEGORIES.map((cat) => {
                   const isActive = activeFilter === cat;
                   return (
                     <button
                       key={cat}
                       onClick={() => setActiveFilter(cat)}
-                      className={`text-[11px] uppercase tracking-wider whitespace-nowrap transition-all cursor-pointer active:scale-95 drop-shadow-[0_2px_4px_rgba(0,0,0,0.95)] ${
+                      className={`text-[11px] uppercase tracking-wider whitespace-nowrap transition-all cursor-pointer active:scale-95 py-1 ${
                         isActive
                           ? 'text-white font-black underline underline-offset-4 decoration-2 decoration-white'
-                          : 'text-white/70 hover:text-white font-bold'
+                          : 'text-zinc-400 hover:text-white font-bold'
                       }`}
                     >
                       {cat}
@@ -498,20 +498,11 @@ export const FullEliteReelsModal: React.FC<FullEliteReelsModalProps> = ({
             {/* Right Action Cluster */}
             <div className="flex items-center gap-1 shrink-0">
               <button
-                onClick={() => setViewMode('explore')}
-                aria-label="Explore Exercises Grid"
-                className="p-2 flex items-center justify-center text-white active:scale-90 hover:text-white/80 transition-transform cursor-pointer drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]"
-                title="Search & Explore Grid"
-              >
-                <LayoutGrid className="w-5 h-5 stroke-[2]" />
-              </button>
-
-              <button
                 onClick={() => setMuted(!muted)}
                 aria-label={muted ? 'Unmute' : 'Mute'}
-                className="p-2 flex items-center justify-center text-white active:scale-90 hover:text-white/80 transition-transform cursor-pointer drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]"
+                className="p-2 -mr-1 flex items-center justify-center text-zinc-400 hover:text-white active:scale-90 transition-colors cursor-pointer rounded-full"
               >
-                {muted ? <VolumeX className="w-6 h-6 stroke-[2]" /> : <Volume2 className="w-6 h-6 stroke-[2]" />}
+                {muted ? <VolumeX className="w-5 h-5 stroke-[2]" /> : <Volume2 className="w-5 h-5 stroke-[2]" />}
               </button>
             </div>
           </div>
@@ -520,7 +511,7 @@ export const FullEliteReelsModal: React.FC<FullEliteReelsModalProps> = ({
 
       {/* Main View Area: Explore Grid vs Vertical Snap Reel Feed */}
       {viewMode === 'explore' ? (
-        <div className="h-full w-full">
+        <div className="flex-1 h-full w-full overflow-hidden">
           <ReelsExploreGrid
             reels={activeReels}
             onSelectReel={(id, window) => handleSelectFromExplore(id, window)}
@@ -535,7 +526,7 @@ export const FullEliteReelsModal: React.FC<FullEliteReelsModalProps> = ({
       ) : (
       <div
         ref={scrollRef}
-        className="h-full w-full overflow-y-scroll snap-y snap-mandatory"
+        className="flex-1 h-full w-full overflow-y-scroll snap-y snap-mandatory relative bg-black"
         style={{ scrollSnapType: 'y mandatory' }}
       >
         {filteredReels.length === 0 && (

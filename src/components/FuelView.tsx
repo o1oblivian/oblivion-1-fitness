@@ -10,7 +10,6 @@ import { haptic } from '../utils/haptics';
 import { FuelIntelligencePanel } from './fuel/FuelIntelligencePanel';
 import { DailyFoodMealLogs } from './fuel/DailyFoodMealLogs';
 import { SupplementsHub } from './fuel/SupplementsHub';
-import { ClinicalCitationsModal, ClinicalCitationsCard } from './ClinicalCitationsModal';
 import { supabase, isSupabaseConfigured } from '../utils/supabase';
 import { getTodayCardioTotals, subscribeCardioUpdates } from '../utils/cardioStorage';
 import { pedometer } from '../utils/pedometer';
@@ -73,9 +72,6 @@ export const FuelView: React.FC<FuelViewProps> = ({
   // Client dietary choice state & dropdown
   const [activeDiet, setActiveDiet] = useState<DietaryType>(() => getSelectedDietary());
   const [showDietDropdown, setShowDietDropdown] = useState<boolean>(false);
-
-  // Clinical citations modal state (Apple Guideline 1.4.1 compliance)
-  const [isCitationsOpen, setIsCitationsOpen] = useState<boolean>(false);
 
   // Synchronize immediately when country is switched from FoodEntryModal, Fuel OS header, or any other component
   useEffect(() => {
@@ -379,12 +375,6 @@ export const FuelView: React.FC<FuelViewProps> = ({
         currentUserEmail={currentUserEmail}
       />
 
-      {/* Clinical & Scientific Medical Citations Card (Apple Guideline 1.4.1) */}
-      <ClinicalCitationsCard
-        sectionName="Fuel OS"
-        onOpenModal={() => setIsCitationsOpen(true)}
-      />
-
       {/* 2. Compact Hydration Pill */}
       <div className="flex items-center gap-2 bg-white dark:bg-[#121214] border border-[#EAE8E3] dark:border-white/10 rounded-xl px-3 py-2 shadow-2xs">
         <Droplets className="w-4 h-4 text-[#4A7D94] shrink-0" />
@@ -443,12 +433,6 @@ export const FuelView: React.FC<FuelViewProps> = ({
       <div id="fuel-supplement-tracker">
         <SupplementsHub showToast={showToast} currentUserEmail={currentUserEmail} />
       </div>
-
-      {/* Clinical & Scientific Medical Citations Modal */}
-      <ClinicalCitationsModal
-        isOpen={isCitationsOpen}
-        onClose={() => setIsCitationsOpen(false)}
-      />
     </div>
   );
 };

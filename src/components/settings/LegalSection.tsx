@@ -2,10 +2,13 @@ import React, { useState } from 'react';
 import { X, ShieldCheck } from 'lucide-react';
 import { SectionHeader, SettingsGroup, SettingsRow } from './SettingsShared';
 import { useModalBackHandler } from '../../utils/modalHistory';
+import { ClinicalCitationsModal } from '../ClinicalCitationsModal';
 
 export function LegalSection() {
   const [showTerms, setShowTerms] = useState(false);
+  const [showCitations, setShowCitations] = useState(false);
   useModalBackHandler(showTerms, () => setShowTerms(false), 'settings_legal_terms');
+  useModalBackHandler(showCitations, () => setShowCitations(false), 'settings_legal_citations');
 
   return (
     <div>
@@ -16,7 +19,18 @@ export function LegalSection() {
           sublabel="Usage terms, data protection rights & athletic disclaimer"
           onClick={() => setShowTerms(true)}
         />
+        <SettingsRow
+          label="Scientific Sources & Medical Citations"
+          sublabel="Peer-reviewed formulas (Mifflin-St Jeor, USDA, Ainsworth METs, Brzycki)"
+          onClick={() => setShowCitations(true)}
+        />
       </SettingsGroup>
+
+      {/* Clinical Citations Modal */}
+      <ClinicalCitationsModal
+        isOpen={showCitations}
+        onClose={() => setShowCitations(false)}
+      />
 
       {showTerms && (
         <div className="fixed inset-0 z-[400] bg-black/60 dark:bg-black/80 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-150" onClick={() => setShowTerms(false)}>

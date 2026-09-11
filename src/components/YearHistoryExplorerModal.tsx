@@ -223,11 +223,19 @@ export function YearHistoryExplorerModal({
   ];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md animate-[fadeIn_0.15s_ease]">
-      <div className="relative w-full max-w-2xl max-h-[92vh] flex flex-col bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-white/[0.1] rounded-3xl shadow-2xl overflow-hidden">
+    <div 
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/80 backdrop-blur-md animate-[fadeIn_0.15s_ease]"
+      onClick={onClose}
+    >
+      <div 
+        className="relative w-full max-w-2xl max-h-[92vh] flex flex-col bg-white dark:bg-[#1C1C1E] border-t sm:border border-slate-200 dark:border-white/[0.1] rounded-t-[1.75rem] sm:rounded-3xl shadow-2xl overflow-hidden pb-[max(0.75rem,calc(env(safe-area-inset-bottom,0px)+0.5rem))]"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Mobile Drag Handle */}
+        <div className="w-8 h-1 rounded-full bg-slate-300 dark:bg-zinc-700 mx-auto mt-2.5 mb-1 sm:hidden shrink-0" />
         
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100 dark:border-white/[0.08] shrink-0">
+        <div className="flex items-center justify-between px-5 py-3.5 border-b border-slate-100 dark:border-white/[0.08] shrink-0">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-500">
               <Calendar className="w-4 h-4" />

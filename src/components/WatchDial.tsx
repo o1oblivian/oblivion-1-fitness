@@ -2,6 +2,8 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Flame, MapPin, Heart, Timer, Gauge, Activity, BarChart3, Orbit, Utensils } from 'lucide-react';
 import { pedometer, type PedometerState } from '@/utils/pedometer';
 import { getTodayCardioTotals, subscribeCardioUpdates } from '@/utils/cardioStorage';
+import { getCachedTelemetry, fetchHealthTelemetry, HealthTelemetry } from '@/utils/healthTelemetryStore';
+import { getCachedRecoveryScore, calculateRecoveryScore, RecoveryReadiness } from '@/utils/recoveryScore';
 import type { DailyMeals } from '../types';
 import { BiometricModal, BiometricType } from './BiometricModal';
 import { DialChronoGauge } from './dials/DialChronoGauge';
@@ -126,6 +128,35 @@ export const WatchDial: React.FC<WatchDialProps> = ({
   const [dailyMove, setDailyMoveState] = useState<number>(0);
   const [dailyDist, setDailyDistState] = useState<number>(0);
 
+  const [telemetry, setTelemetry] = useState<HealthTelemetry>(() => getCachedTelemetry());
+  const [recovery, setRecovery] = useState<RecoveryReadiness>(() => getCachedRecoveryScore());
+
+  useEffect(() => {
+    let mounted = true;
+    const syncData = async () => {
+      try {
+        const tel = await fetchHealthTelemetry('athlete@o1fc.app');
+        if (!mounted) return;
+        setTelemetry(tel);
+        const rec = calculateRecoveryScore({
+          hrvMs: tel.hrv_ms > 0 ? tel.hrv_ms : undefined,
+          sleepHours: tel.sleep_hours > 0 ? tel.sleep_hours : undefined,
+          recentWorkouts: tel.workout_count || 0,
+        });
+        setRecovery(rec);
+      } catch {}
+    };
+
+    syncData();
+    window.addEventListener('health_telemetry_updated', syncData);
+    window.addEventListener('o1fc_recovery_updated', syncData);
+    return () => {
+      mounted = false;
+      window.removeEventListener('health_telemetry_updated', syncData);
+      window.removeEventListener('o1fc_recovery_updated', syncData);
+    };
+  }, []);
+
   const [activeBiometricModal, setActiveBiometricModal] = useState<BiometricType | null>(null);
   const [wearables, setWearables] = useState<Record<string, boolean>>({
     appleHealth: true, googleFit: false, whoop: true, oura: true,
@@ -204,7 +235,16 @@ export const WatchDial: React.FC<WatchDialProps> = ({
   const distPct = Math.min(dailyDist / goalDist, 1);
   const intakePct = Math.min(dailyIntakeCals / 2500, 1);
 
-  const bpm = 0;
+  const bpm = (telemetry as any).heart_rate_bpm || 0;
+
+  const computedStrain = useMemo(() => {
+    const workouts = telemetry.workout_count || 0;
+    const steps = dailySteps;
+    if (workouts === 0 && steps === 0) return null;
+    const workoutStrain = Math.min(14, workouts * 4.5);
+    const stepStrain = Math.min(7, (steps / 10000) * 5.5);
+    return Math.min(21.0, parseFloat((workoutStrain + stepStrain).toFixed(1)));
+  }, [telemetry.workout_count, dailySteps]);
 
   const getWorkoutLabel = (val: string | undefined): string => {
     if (!val || val === 'rest' || val === 'unassigned') return 'REST / UNASSIGNED';
@@ -301,7 +341,7 @@ export const WatchDial: React.FC<WatchDialProps> = ({
               <Heart className="w-3.5 h-3.5 text-[#C4121A]/70" />
               <span className="absolute 1 1 w-1.5 h-1.5 rounded-full bg-[#C4121A]" />
             </div>
-            <span className="text-base font-mono font-black text-white tabular-nums">{bpm}</span>
+            <span className="text-base font-mono font-black text-white tabular-nums">{bpm > 0 ? bpm : '--'}</span>
             <span className="text-[9px] font-mono font-bold uppercase tracking-wider text-white/35">BPM</span>
           </button>
         </div>
@@ -338,22 +378,34 @@ export const WatchDial: React.FC<WatchDialProps> = ({
             className="rounded-xl py-2 px-1 flex flex-col items-center border border-white/8 cursor-pointer hover:bg-white/[0.04] active:scale-95 transition-all"
             style={{ background: 'rgba(0,0,0,0.2)' }}>
             <span className="text-[8px] font-mono font-bold text-white/35 uppercase tracking-wider">HRV</span>
-            <span className="text-[13px] font-mono font-black text-white mt-0.5">68 ms</span>
-            <span className="text-[8px] font-mono font-medium text-white/30">Optimal</span>
+            <span className="text-[13px] font-mono font-black text-white mt-0.5">
+              {telemetry.hrv_ms > 0 ? `${telemetry.hrv_ms} ms` : '--'}
+            </span>
+            <span className="text-[8px] font-mono font-medium text-white/30">
+              {telemetry.hrv_ms > 0 ? (telemetry.hrv_ms >= 65 ? 'Optimal' : telemetry.hrv_ms >= 45 ? 'Normal' : 'Low') : 'No Stream'}
+            </span>
           </button>
           <button onClick={() => setActiveBiometricModal('strain')}
             className="rounded-xl py-2 px-1 flex flex-col items-center border border-white/8 cursor-pointer hover:bg-white/[0.04] active:scale-95 transition-all"
             style={{ background: 'rgba(0,0,0,0.2)' }}>
             <span className="text-[8px] font-mono font-bold text-white/35 uppercase tracking-wider">Strain</span>
-            <span className="text-[13px] font-mono font-black text-amber-100/70 mt-0.5">14.2</span>
-            <span className="text-[8px] font-mono font-medium text-white/30">High</span>
+            <span className="text-[13px] font-mono font-black text-amber-100/70 mt-0.5">
+              {computedStrain !== null ? computedStrain.toFixed(1) : '--'}
+            </span>
+            <span className="text-[8px] font-mono font-medium text-white/30">
+              {computedStrain !== null ? (computedStrain >= 14 ? 'High Load' : computedStrain >= 8 ? 'Active' : 'Light') : 'Rest Day'}
+            </span>
           </button>
           <button onClick={() => setActiveBiometricModal('recovery')}
             className="rounded-xl py-2 px-1 flex flex-col items-center border border-white/8 cursor-pointer hover:bg-white/[0.04] active:scale-95 transition-all"
             style={{ background: 'rgba(0,0,0,0.2)' }}>
             <span className="text-[8px] font-mono font-bold text-white/35 uppercase tracking-wider">Recovery</span>
-            <span className="text-[13px] font-mono font-black text-white mt-0.5">88%</span>
-            <span className="text-[8px] font-mono font-medium text-white/30">Primed</span>
+            <span className="text-[13px] font-mono font-black text-white mt-0.5">
+              {recovery.hasSensorHrv || telemetry.sleep_hours > 0 ? `${recovery.score}%` : '--'}
+            </span>
+            <span className="text-[8px] font-mono font-medium text-white/30">
+              {recovery.hasSensorHrv || telemetry.sleep_hours > 0 ? recovery.statusLabel.split('•')[0].trim() : 'Pending'}
+            </span>
           </button>
         </div>
         </>}

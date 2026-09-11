@@ -232,14 +232,16 @@ export const SocialAuthModal: React.FC<SocialAuthModalProps> = ({
 
   return (
     <div
-      className="fixed inset-0 z-[300] bg-transparent backdrop-blur-xl overflow-y-auto font-mono flex items-center justify-center p-3 sm:p-5 relative"
+      className="fixed inset-0 z-[300] bg-black/75 backdrop-blur-md overflow-hidden font-mono flex items-end sm:items-center justify-center p-0 sm:p-5 relative"
+      onClick={onClose}
     >
-      {/* Light Liquid Silk Ambient Dynamic Simulation - Removed for 100% transparent background */}
-
       <div
-        className="bg-black/50 text-white border border-white/15 p-5 sm:p-6 w-full max-w-lg rounded-3xl space-y-4 shadow-[0_25px_70px_rgba(0,0,0,0.4)] backdrop-blur-2xl relative z-10 select-none animate-fadeIn my-auto"
+        className="bg-zinc-950 text-white border-t sm:border border-zinc-800 p-5 sm:p-6 w-full max-w-lg rounded-t-[1.75rem] sm:rounded-3xl space-y-4 shadow-2xl relative z-10 select-none animate-slideUpFade max-h-[90vh] overflow-y-auto pb-[max(1.25rem,calc(env(safe-area-inset-bottom,0px)+0.75rem))]"
         onClick={(e) => e.stopPropagation()}
       >
+        {/* Mobile Drag Handle */}
+        <div className="w-8 h-1 rounded-full bg-zinc-700 mx-auto -mt-2 mb-2 sm:hidden shrink-0" />
+
         {/* Top Header Row */}
         <div className="flex items-start justify-between border-b border-white/10 pb-3">
           <div className="flex items-center gap-3">

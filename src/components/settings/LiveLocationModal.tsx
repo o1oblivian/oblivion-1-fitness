@@ -230,13 +230,13 @@ export function LiveLocationModal({
       onClick={onClose}
     >
       <div
-        className="w-full max-w-lg bg-white dark:bg-zinc-900 rounded-t-3xl sm:rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-2xl flex flex-col max-h-[85vh] overflow-hidden animate-in fade-in zoom-in-95 duration-150"
+        className="w-full max-w-lg bg-white dark:bg-zinc-900 rounded-t-3xl sm:rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-2xl flex flex-col max-h-[85vh] overflow-hidden animate-in fade-in zoom-in-95 duration-150 pb-[env(safe-area-inset-bottom,0px)]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
         <div className="p-4 border-b border-zinc-200/80 dark:border-zinc-800 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-full bg-red-500/10 dark:bg-red-500/20 flex items-center justify-center text-red-600 dark:text-red-500">
+            <div className="w-8 h-8 rounded-full bg-[#C4121A]/10 dark:bg-[#D91F28]/10 flex items-center justify-center text-[#C4121A] dark:text-[#D91F28]">
               <MapPin className="w-4 h-4" />
             </div>
             <div>
@@ -267,10 +267,10 @@ export function LiveLocationModal({
               onChange={handleInputChange}
               placeholder="Search verified gym or city (e.g. Gold's Gym Venice, Melbourne CBD)..."
               autoFocus
-              className="w-full pl-10 pr-10 py-2.5 bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl text-xs font-semibold text-zinc-900 dark:text-white placeholder:text-zinc-400 dark:placeholder:text-zinc-500 outline-none focus:border-red-500"
+              className="w-full pl-10 pr-10 py-2.5 bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl text-xs font-semibold text-zinc-900 dark:text-white placeholder:text-zinc-400 dark:placeholder:text-zinc-500 outline-none focus:border-[#C4121A]"
             />
             {isLoading && (
-              <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-red-600 animate-spin" />
+              <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#C4121A] animate-spin" />
             )}
           </div>
 
@@ -278,7 +278,7 @@ export function LiveLocationModal({
             type="button"
             onClick={handleUseCurrentGPS}
             disabled={isLocatingGps}
-            className="w-full py-2.5 px-3 rounded-xl bg-red-600 hover:bg-red-700 active:scale-[0.98] transition-all text-white text-xs font-bold flex items-center justify-center gap-2 cursor-pointer shadow-xs disabled:opacity-50"
+            className="w-full py-2.5 px-3 rounded-xl bg-[#C4121A] dark:bg-[#D91F28] hover:bg-[#9B0E14] active:scale-[0.98] transition-all text-white text-xs font-bold flex items-center justify-center gap-2 cursor-pointer shadow-xs disabled:opacity-50"
           >
             {isLocatingGps ? (
               <>
@@ -299,7 +299,7 @@ export function LiveLocationModal({
           {currentValue && !searchQuery && (
             <div className="mb-3 px-3 py-2 rounded-xl bg-zinc-100/80 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700/60 flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Check className="w-4 h-4 text-red-600 dark:text-red-400" />
+                <Check className="w-4 h-4 text-[#C4121A] dark:text-[#D91F28]" />
                 <div>
                   <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider block">
                     Current Active Base
@@ -323,13 +323,13 @@ export function LiveLocationModal({
                 <div className="flex items-start gap-3 min-w-0">
                   <div className="w-7 h-7 rounded-lg bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center shrink-0 mt-0.5 text-zinc-600 dark:text-zinc-300">
                     {item.type === 'gym' ? (
-                      <Building2 className="w-3.5 h-3.5 text-red-600 dark:text-red-400" />
+                      <Building2 className="w-3.5 h-3.5 text-[#C4121A] dark:text-[#D91F28]" />
                     ) : (
                       <MapPin className="w-3.5 h-3.5" />
                     )}
                   </div>
                   <div className="min-w-0">
-                    <p className="text-xs font-bold text-zinc-900 dark:text-white truncate group-hover:text-red-600 dark:group-hover:text-red-400">
+                    <p className="text-xs font-bold text-zinc-900 dark:text-white truncate group-hover:text-[#C4121A] dark:group-hover:text-[#D91F28]">
                       {item.name}
                     </p>
                     <p className="text-[11px] text-zinc-500 dark:text-zinc-400 truncate">

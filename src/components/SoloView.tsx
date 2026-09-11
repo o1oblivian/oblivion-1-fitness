@@ -12,7 +12,7 @@ import { WatchDial } from './WatchDial';
 import { playRealBellSound, playPRBreakthroughChime } from '../utils/audio';
 import { getSmartDefault, recordSmartInput } from '../utils/frequencyDefaults';
 import { getDispatchedWorkouts, DispatchedWorkout, dispatchCoachPRAlert } from '../utils/dispatchStore';
-import { Zap, Trash2, Share2, ChevronDown, Dumbbell, Plus, Save, Check, Sparkles, ChevronRight, Play, Pause, Square, X, Trophy, TrendingUp, Disc, Flame, Search, Activity, Timer, Layers, Award, HeartPulse } from 'lucide-react';
+import { Zap, Trash2, Share2, ChevronDown, Dumbbell, Plus, Save, Check, Sparkles, ChevronRight, Play, Pause, Square, X, Trophy, TrendingUp, Disc, Flame, Search, Activity, Timer, Layers, Award, HeartPulse, Target, Waves, Battery } from 'lucide-react';
 import { DualLaneLauncher } from './DualLaneLauncher';
 import { VictoryShareModal } from './VictoryShareModal';
 import { PlateMathModal } from './PlateMathModal';
@@ -25,7 +25,8 @@ import { WeeklyReportCardModal } from './WeeklyReportCardModal';
 import { ReadinessScoreCard } from './ReadinessScoreCard';
 import { BiometricModal, BiometricType } from './BiometricModal';
 import { SomaticRecoveryDeckModal, SomaticProtocolId } from './SomaticRecoveryDeckModal';
-import { LiveTandemWorkoutHUD } from './LiveTandemWorkoutHUD';
+import { RecoveryPracticeDeckModal, RecoveryPracticeConfig, RecoveryCategoryMode } from './RecoveryPracticeDeckModal';
+import { AthleticPacingModal } from './AthleticPacingModal';
 import { broadcastTandemLiveEvent } from '@/utils/tandemStore';
 
 
@@ -58,8 +59,185 @@ interface SoloViewProps {
   onOpenProfile?: () => void;
   onOpenAIInsights?: () => void;
   onOpenPayPlan?: () => void;
-  onNavigateToTandem?: () => void;
 }
+
+export const getRecoveryCategoryMode = (category: string, exerciseName?: string): {
+  mode: RecoveryCategoryMode | 'somatic';
+  title: string;
+  tag: string;
+  subtitle: string;
+  description: string;
+  icon: React.ComponentType<{ className?: string }>;
+  actionLabel: string;
+  btnLabel: string;
+} => {
+  const catLower = (category || '').toLowerCase();
+  const exLower = (exerciseName || '').toLowerCase();
+
+  // If exercise or category is explicitly breathwork related
+  if (
+    catLower.includes('breath') ||
+    exLower.includes('box breath') ||
+    exLower.includes('4-7-8') ||
+    exLower.includes('coherence') ||
+    exLower.includes('wim hof') ||
+    exLower.includes('tummo') ||
+    exLower.includes('nsdr') ||
+    exLower.includes('nidra')
+  ) {
+    return {
+      mode: 'somatic',
+      title: 'Somatic Breath & Sound Engine',
+      tag: 'Calm OS',
+      subtitle: 'Kinetic breath ring, 432Hz binaural audio & NSDR restoration',
+      description: 'Parasympathetic autonomic stabilization and vagus nerve brake.',
+      icon: HeartPulse,
+      actionLabel: 'Launch Breathwork',
+      btnLabel: 'Guide',
+    };
+  }
+
+  if (catLower.includes('mobility') || catLower.includes('joint') || exLower.includes('car') || exLower.includes('90/90') || exLower.includes('floss')) {
+    return {
+      mode: 'mobility',
+      title: 'Joint CARs & Capsule Rotations',
+      tag: 'Mobility OS',
+      subtitle: 'Controlled Articular Rotations, end-range isometrics & active flossing',
+      description: 'Rotational joint pacing, capsule isolation and active mobility flow.',
+      icon: Activity,
+      actionLabel: 'Launch Mobility',
+      btnLabel: 'Practice',
+    };
+  }
+
+  if (catLower.includes('stretch') || catLower.includes('flexibility') || exLower.includes('stretch') || exLower.includes('hamstring') || exLower.includes('quad')) {
+    return {
+      mode: 'stretching',
+      title: 'PNF & Static Stretch Protocol',
+      tag: 'Flexibility OS',
+      subtitle: '30s/45s bilateral hold intervals, contract-relax cues & switch chimes',
+      description: 'Contract-relax PNF cycles and bilateral static flexibility holds.',
+      icon: Timer,
+      actionLabel: 'Launch Stretch Timer',
+      btnLabel: 'Stretch',
+    };
+  }
+
+  if (catLower.includes('pilates') || catLower.includes('core') || exLower.includes('hundred') || exLower.includes('teaser') || exLower.includes('pelvic')) {
+    return {
+      mode: 'pilates',
+      title: 'Pilates Precision & Core Engine',
+      tag: 'Control OS',
+      subtitle: 'Transverse core engagement, The Hundred pump cadence & hollow holds',
+      description: 'Centering cadence, 100-beat breath pump timer & neutral spine alignment.',
+      icon: Target,
+      actionLabel: 'Launch Core Control',
+      btnLabel: 'Engage',
+    };
+  }
+
+  if (catLower.includes('tai chi') || catLower.includes('qigong') || exLower.includes('zhan zhuang') || exLower.includes('brocade') || exLower.includes('silk')) {
+    return {
+      mode: 'taichi',
+      title: 'Qigong Flow & Internal Energy',
+      tag: 'Qi Flow OS',
+      subtitle: 'Silk reeling tempo, 8 Brocades flow & Zhan Zhuang standing stake timer',
+      description: 'Slow breath-motion alignment, rooted stance timer & internal martial energy.',
+      icon: Sparkles,
+      actionLabel: 'Launch Qigong Flow',
+      btnLabel: 'Flow',
+    };
+  }
+
+  if (catLower.includes('yoga') || catLower.includes('vinyasa') || exLower.includes('asana') || exLower.includes('surya') || exLower.includes('warrior') || exLower.includes('pigeon')) {
+    return {
+      mode: 'yoga',
+      title: 'Vinyasa Flow & Asana Pacer',
+      tag: 'Vinyasa OS',
+      subtitle: 'Sun Salutation transitions, 5-breath asana holds & alignment cues',
+      description: 'Breath-synchronized transitions, sun salutations & peak asana holds.',
+      icon: HeartPulse,
+      actionLabel: 'Launch Yoga Flow',
+      btnLabel: 'Flow',
+    };
+  }
+
+  if (catLower.includes('cold') || catLower.includes('heat') || catLower.includes('thermal') || exLower.includes('plunge') || exLower.includes('sauna')) {
+    return {
+      mode: 'thermal',
+      title: 'Thermal Exposure & Contrast OS',
+      tag: 'Thermal OS',
+      subtitle: 'Deliberate cold plunge (2-3m @ 4-8°C) & Finnish sauna (15-20m @ 85°C)',
+      description: 'Thermal shock adaptation, cold plunge pacer & Finnish dry sauna protocol.',
+      icon: Flame,
+      actionLabel: 'Launch Thermal Protocol',
+      btnLabel: 'Protocol',
+    };
+  }
+
+  if (catLower.includes('fascia') || catLower.includes('myofascial') || exLower.includes('foam roll') || exLower.includes('trigger') || exLower.includes('lacrosse')) {
+    return {
+      mode: 'fascia',
+      title: 'Myofascial Trigger Point OS',
+      tag: 'Release OS',
+      subtitle: '60-90s ischemic trigger compression, tissue shear & roller glides',
+      description: 'Targeted trigger knot compression countdown and cross-fiber tissue shear.',
+      icon: Disc,
+      actionLabel: 'Launch Fascia Guide',
+      btnLabel: 'Release',
+    };
+  }
+
+  if (catLower.includes('sleep') || catLower.includes('cns') || exLower.includes('sigh') || exLower.includes('wind down')) {
+    return {
+      mode: 'sleep',
+      title: 'Autonomic Wind-Down & Sleep Reset',
+      tag: 'Somna OS',
+      subtitle: 'Physiological sigh sequence, vagal tone shift & CNS recovery',
+      description: 'Parasympathetic shift, vagal stimulation and physiological sigh sequence.',
+      icon: Battery,
+      actionLabel: 'Launch Sleep Reset',
+      btnLabel: 'Reset',
+    };
+  }
+
+  if (catLower.includes('decompression') || catLower.includes('traction') || exLower.includes('hang') || exLower.includes('inversion')) {
+    return {
+      mode: 'decompression',
+      title: 'Spinal Decompression & Gravity Hang',
+      tag: 'Spine OS',
+      subtitle: 'Passive dead hang intervals, lumbar traction & vertebral disc rehydration',
+      description: 'Gravitational disc traction, dead hang intervals and vertebral rehydration.',
+      icon: Layers,
+      actionLabel: 'Launch Decompression',
+      btnLabel: 'Hang',
+    };
+  }
+
+  if (catLower.includes('active recovery') || catLower.includes('massage') || exLower.includes('gun') || exLower.includes('flush')) {
+    return {
+      mode: 'flush',
+      title: 'Metabolic Flush & Percussion OS',
+      tag: 'Flush OS',
+      subtitle: 'Zone 1 capillary flush & percussion massage gun per-muscle group protocol',
+      description: 'Zone 1 cardiovascular flush and percussion massage gun timer.',
+      icon: Waves,
+      actionLabel: 'Launch Flush Protocol',
+      btnLabel: 'Flush',
+    };
+  }
+
+  return {
+    mode: 'mobility',
+    title: `${category || 'Athletic Recovery'} Protocol`,
+    tag: 'Recovery OS',
+    subtitle: 'End-range isometric pacing, active recovery & bio-feedback',
+    description: 'Active recovery cadence and targeted restoration protocol.',
+    icon: HeartPulse,
+    actionLabel: 'Launch Protocol',
+    btnLabel: 'Practice',
+  };
+};
 
 export const SoloView: React.FC<SoloViewProps> = ({
   weeklySchedule,
@@ -90,7 +268,6 @@ export const SoloView: React.FC<SoloViewProps> = ({
   onOpenProfile,
   onOpenAIInsights,
   onOpenPayPlan,
-  onNavigateToTandem,
 }) => {
   const [selectedCategory, setSelectedCategory] = useState<string>('Chest & Triceps');
   const [exerciseBtnText, setExerciseBtnText] = useState<string>('Barbell Bench Press');
@@ -105,6 +282,10 @@ export const SoloView: React.FC<SoloViewProps> = ({
   const [isReportCardOpen, setIsReportCardOpen] = useState(false);
   const [isSomaticDeckOpen, setIsSomaticDeckOpen] = useState(false);
   const [somaticInitialProtocol, setSomaticInitialProtocol] = useState<SomaticProtocolId>('box');
+  const [recoveryPracticeConfig, setRecoveryPracticeConfig] = useState<RecoveryPracticeConfig | null>(null);
+  const [isRecoveryPracticeOpen, setIsRecoveryPracticeOpen] = useState(false);
+  const [isAthleticPacingOpen, setIsAthleticPacingOpen] = useState(false);
+  const [athleticPacingSportName, setAthleticPacingSportName] = useState('Hyrox 1km Run Interval');
   const [activeBiometricType, setActiveBiometricType] = useState<BiometricType | null>(null);
   const [expandedExerciseId, setExpandedExerciseId] = useState<string | null>(null);
   const [plateMathModal, setPlateMathModal] = useState<{
@@ -829,30 +1010,124 @@ export const SoloView: React.FC<SoloViewProps> = ({
         {/* Dropdown Menu Content (Appears when any menu is open) */}
         {openDropdown !== null && (
           <div className="space-y-2 pt-2 border-t border-zinc-200/60 dark:border-zinc-800 animate-fadeIn">
-            {/* Somatic & Breathwork Deck Launcher (Active under Recovery) */}
-            {categoryTypeGroup === 'recovery' && (
-              <div className="p-2.5 sm:p-3 rounded-2xl bg-gradient-to-r from-red-950/30 via-zinc-900 to-zinc-900 border border-[#C4121A]/30 dark:border-[#D91F28]/30 flex items-center justify-between gap-2.5 text-left">
+            {/* Category Intelligence Deck Launcher (Custom and True to selected category) */}
+            {categoryTypeGroup === 'recovery' && (() => {
+              const recMeta = getRecoveryCategoryMode(selectedCategory);
+              const RecIcon = recMeta.icon;
+
+              return (
+                <div className="p-2.5 sm:p-3 rounded-2xl bg-gradient-to-r from-red-950/25 via-zinc-900 to-zinc-900 border border-[#C4121A]/30 dark:border-[#D91F28]/30 flex items-center justify-between gap-2.5 text-left">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div className="w-8 h-8 rounded-xl bg-[#C4121A]/15 dark:bg-[#D91F28]/20 border border-[#C4121A]/30 flex items-center justify-center text-[#C4121A] dark:text-[#D91F28] shrink-0">
+                      <RecIcon className="w-4 h-4" />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-xs font-bold text-white tracking-tight truncate">{recMeta.title}</span>
+                        <span className="text-[9px] font-semibold px-1.5 py-0.2 rounded bg-[#C4121A]/20 dark:bg-[#D91F28]/20 text-[#C4121A] dark:text-[#D91F28] font-mono uppercase shrink-0">{recMeta.tag}</span>
+                      </div>
+                      <p className="text-[11px] text-zinc-400 truncate">{recMeta.subtitle}</p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      haptic.tap();
+                      if (recMeta.mode === 'somatic') {
+                        setIsSomaticDeckOpen(true);
+                      } else {
+                        setRecoveryPracticeConfig({
+                          mode: recMeta.mode,
+                          categoryTitle: recMeta.title,
+                          tag: recMeta.tag,
+                          description: recMeta.subtitle,
+                        });
+                        setIsRecoveryPracticeOpen(true);
+                      }
+                    }}
+                    className="px-3 h-7.5 rounded-xl bg-[#C4121A] dark:bg-[#D91F28] hover:opacity-90 text-white font-bold text-xs shrink-0 flex items-center gap-1 transition-all shadow-xs active:scale-95 cursor-pointer"
+                  >
+                    <span>{recMeta.actionLabel}</span>
+                    <ChevronRight className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              );
+            })()}
+
+            {categoryTypeGroup === 'weights' && (
+              <div className="p-2.5 sm:p-3 rounded-2xl bg-gradient-to-r from-zinc-900 via-zinc-900 to-zinc-950 border border-zinc-800 dark:border-zinc-800 flex items-center justify-between gap-2.5 text-left">
                 <div className="flex items-center gap-2.5 min-w-0">
-                  <div className="w-8 h-8 rounded-xl bg-[#C4121A]/15 dark:bg-[#D91F28]/20 border border-[#C4121A]/30 flex items-center justify-center text-[#C4121A] dark:text-[#D91F28] shrink-0">
-                    <HeartPulse className="w-4 h-4" />
+                  <div className="w-8 h-8 rounded-xl bg-red-500/15 border border-red-500/30 flex items-center justify-center text-red-500 shrink-0">
+                    <Dumbbell className="w-4 h-4" />
                   </div>
                   <div className="min-w-0">
                     <div className="flex items-center gap-1.5">
-                      <span className="text-xs font-bold text-white tracking-tight">Somatic Breath & Sound Engine</span>
-                      <span className="text-[9px] font-semibold px-1.5 py-0.2 rounded bg-[#C4121A]/20 dark:bg-[#D91F28]/20 text-[#C4121A] dark:text-[#D91F28] font-mono uppercase">Calm OS</span>
+                      <span className="text-xs font-bold text-white tracking-tight truncate">Strength & Hypertrophy OS</span>
+                      <span className="text-[9px] font-semibold px-1.5 py-0.2 rounded bg-zinc-800 text-zinc-300 font-mono uppercase shrink-0">Barbell OS</span>
                     </div>
-                    <p className="text-[11px] text-zinc-400 truncate">Kinetic breath ring, 432Hz binaural audio & NSDR</p>
+                    <p className="text-[11px] text-zinc-400 truncate">Warmup ladder generator & plate loading math calculator</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-1.5 shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      haptic.tap();
+                      setWarmupModal({
+                        isOpen: true,
+                        exerciseName: availableExercises[0]?.name || 'Barbell Bench Press',
+                        workingWeight: 100,
+                        logId: '',
+                      });
+                    }}
+                    className="px-2.5 h-7.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 font-bold text-xs shrink-0 flex items-center gap-1 transition-all active:scale-95 cursor-pointer"
+                  >
+                    <span>Ladder</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      haptic.tap();
+                      setPlateMathModal({
+                        isOpen: true,
+                        exerciseName: availableExercises[0]?.name || 'Barbell Bench Press',
+                        weight: 100,
+                        logId: '',
+                        setId: '',
+                      });
+                    }}
+                    className="px-2.5 h-7.5 rounded-xl bg-[#C4121A] dark:bg-[#D91F28] hover:opacity-90 text-white font-bold text-xs shrink-0 flex items-center gap-1 transition-all shadow-xs active:scale-95 cursor-pointer"
+                  >
+                    <span>Plate Math</span>
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {categoryTypeGroup === 'sports' && (
+              <div className="p-2.5 sm:p-3 rounded-2xl bg-gradient-to-r from-zinc-900 via-zinc-900 to-zinc-950 border border-zinc-800 dark:border-zinc-800 flex items-center justify-between gap-2.5 text-left">
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <div className="w-8 h-8 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-500 shrink-0">
+                    <Trophy className="w-4 h-4" />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-xs font-bold text-white tracking-tight truncate">Hyrox & Athletic Conditioning OS</span>
+                      <span className="text-[9px] font-semibold px-1.5 py-0.2 rounded bg-zinc-800 text-zinc-300 font-mono uppercase shrink-0">Pacing OS</span>
+                    </div>
+                    <p className="text-[11px] text-zinc-400 truncate">Target split pacing, aerobic Zone 2 intervals & sprint-rest cadence</p>
                   </div>
                 </div>
                 <button
                   type="button"
                   onClick={() => {
                     haptic.tap();
-                    setIsSomaticDeckOpen(true);
+                    setAthleticPacingSportName(availableExercises[0]?.name || selectedCategory);
+                    setIsAthleticPacingOpen(true);
                   }}
-                  className="px-3 h-7.5 rounded-xl bg-[#C4121A] dark:bg-[#D91F28] hover:opacity-90 text-white font-bold text-xs shrink-0 flex items-center gap-1 transition-all shadow-xs active:scale-95 cursor-pointer"
+                  className="px-3 h-7.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-black font-extrabold text-xs shrink-0 flex items-center gap-1 transition-all shadow-xs active:scale-95 cursor-pointer"
                 >
-                  <span>Launch</span>
+                  <span>Interval Pacer</span>
                   <ChevronRight className="w-3.5 h-3.5" />
                 </button>
               </div>
@@ -1007,28 +1282,80 @@ export const SoloView: React.FC<SoloViewProps> = ({
                         )}
                       </div>
                       <div className="flex items-center gap-1.5 shrink-0">
-                        {(categoryTypeGroup === 'recovery' || RECOVERY_CATEGORIES.includes(item.category)) && (
+                        {categoryTypeGroup === 'recovery' && (() => {
+                          const itemRec = getRecoveryCategoryMode(item.category, item.name);
+                          const ItemIcon = itemRec.icon;
+                          return (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                haptic.tap();
+                                if (itemRec.mode === 'somatic') {
+                                  const lower = item.name.toLowerCase();
+                                  if (lower.includes('box')) setSomaticInitialProtocol('box');
+                                  else if (lower.includes('4-7-8') || lower.includes('vagus') || lower.includes('sleep')) setSomaticInitialProtocol('478');
+                                  else if (lower.includes('coherence') || lower.includes('hrv') || lower.includes('5-5')) setSomaticInitialProtocol('coherence');
+                                  else if (lower.includes('wim') || lower.includes('tummo') || lower.includes('power')) setSomaticInitialProtocol('wimhof');
+                                  else if (lower.includes('nidra') || lower.includes('nsdr') || lower.includes('scan') || lower.includes('vipassana') || lower.includes('meditation')) setSomaticInitialProtocol('nsdr');
+                                  else if (lower.includes('yoga') || lower.includes('surya') || lower.includes('warrior') || lower.includes('pigeon') || lower.includes('asana') || lower.includes('stretch') || lower.includes('flow')) setSomaticInitialProtocol('yoga');
+                                  else setSomaticInitialProtocol('box');
+                                  setIsSomaticDeckOpen(true);
+                                } else {
+                                  setRecoveryPracticeConfig({
+                                    mode: itemRec.mode,
+                                    categoryTitle: itemRec.title,
+                                    tag: itemRec.tag,
+                                    exerciseName: item.name,
+                                    description: itemRec.subtitle,
+                                  });
+                                  setIsRecoveryPracticeOpen(true);
+                                }
+                              }}
+                              className="px-2 py-1 rounded-lg flex items-center gap-1 text-[#C4121A] dark:text-[#D91F28] hover:bg-red-500/10 active:scale-95 transition-all font-bold text-[11px] cursor-pointer"
+                              title={`Launch ${itemRec.title} for ${item.name}`}
+                            >
+                              <ItemIcon className="w-3.5 h-3.5" />
+                              <span>{itemRec.btnLabel}</span>
+                            </button>
+                          );
+                        })()}
+
+                        {categoryTypeGroup === 'weights' && (
                           <button
                             type="button"
                             onClick={() => {
                               haptic.tap();
-                              const lower = item.name.toLowerCase();
-                              if (lower.includes('box')) setSomaticInitialProtocol('box');
-                              else if (lower.includes('4-7-8') || lower.includes('vagus') || lower.includes('sleep')) setSomaticInitialProtocol('478');
-                              else if (lower.includes('coherence') || lower.includes('hrv') || lower.includes('5-5')) setSomaticInitialProtocol('coherence');
-                              else if (lower.includes('wim') || lower.includes('tummo') || lower.includes('power')) setSomaticInitialProtocol('wimhof');
-                              else if (lower.includes('nidra') || lower.includes('nsdr') || lower.includes('scan') || lower.includes('vipassana') || lower.includes('meditation')) setSomaticInitialProtocol('nsdr');
-                              else if (lower.includes('yoga') || lower.includes('surya') || lower.includes('warrior') || lower.includes('pigeon') || lower.includes('asana') || lower.includes('stretch') || lower.includes('flow')) setSomaticInitialProtocol('yoga');
-                              else setSomaticInitialProtocol('box');
-                              setIsSomaticDeckOpen(true);
+                              setWarmupModal({
+                                isOpen: true,
+                                exerciseName: item.name,
+                                workingWeight: 100,
+                                logId: '',
+                              });
                             }}
-                            className="px-2 py-1 rounded-lg flex items-center gap-1 text-[#C4121A] dark:text-[#D91F28] hover:bg-red-500/10 active:scale-95 transition-all font-bold text-[11px] cursor-pointer"
-                            title={`Launch Somatic Guide for ${item.name}`}
+                            className="px-2 py-1 rounded-lg flex items-center gap-1 text-zinc-600 dark:text-zinc-400 hover:text-[#C4121A] hover:bg-red-500/10 active:scale-95 transition-all font-bold text-[11px] cursor-pointer"
+                            title={`Calculate Warmup Ladder for ${item.name}`}
                           >
-                            <HeartPulse className="w-3.5 h-3.5" />
-                            <span>Guide</span>
+                            <Flame className="w-3.5 h-3.5 text-orange-500" />
+                            <span>Ladder</span>
                           </button>
                         )}
+
+                        {categoryTypeGroup === 'sports' && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              haptic.tap();
+                              setAthleticPacingSportName(item.name);
+                              setIsAthleticPacingOpen(true);
+                            }}
+                            className="px-2 py-1 rounded-lg flex items-center gap-1 text-amber-600 dark:text-amber-400 hover:bg-amber-500/10 active:scale-95 transition-all font-bold text-[11px] cursor-pointer"
+                            title={`Launch Pacing Interval for ${item.name}`}
+                          >
+                            <Timer className="w-3.5 h-3.5" />
+                            <span>Pacing</span>
+                          </button>
+                        )}
+
                         <button
                           onClick={() => handleAddExercise(item.name)}
                           className="px-2.5 py-1 rounded-lg flex items-center gap-1 text-[#C4121A] dark:text-[#D91F28] hover:bg-red-500/10 active:scale-95 transition-all font-bold text-[11px] cursor-pointer"
@@ -1095,15 +1422,6 @@ export const SoloView: React.FC<SoloViewProps> = ({
             )}
           </div>
         </div>
-
-        {/* Live In-Workout Tandem HUD */}
-        <LiveTandemWorkoutHUD
-          currentUserEmail={currentUserEmail}
-          currentVolume={totalVolume}
-          currentSets={totalSets}
-          showToast={showToast}
-          onNavigateToTandem={onNavigateToTandem}
-        />
 
         {/* Daily Recovery & Energy — Slim Telemetry Banner */}
         <ReadinessScoreCard
@@ -1580,6 +1898,24 @@ export const SoloView: React.FC<SoloViewProps> = ({
         isOpen={isSomaticDeckOpen}
         onClose={() => setIsSomaticDeckOpen(false)}
         initialProtocol={somaticInitialProtocol}
+        showToast={showToast}
+      />
+
+      {/* Recovery Practice Deck Modal (Custom & True to each category) */}
+      {recoveryPracticeConfig && (
+        <RecoveryPracticeDeckModal
+          isOpen={isRecoveryPracticeOpen}
+          onClose={() => setIsRecoveryPracticeOpen(false)}
+          config={recoveryPracticeConfig}
+          showToast={showToast}
+        />
+      )}
+
+      {/* Athletic Pacing Interval HUD for Sports */}
+      <AthleticPacingModal
+        isOpen={isAthleticPacingOpen}
+        onClose={() => setIsAthleticPacingOpen(false)}
+        sportName={athleticPacingSportName}
         showToast={showToast}
       />
     </div>

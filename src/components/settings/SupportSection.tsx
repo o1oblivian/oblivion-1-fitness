@@ -4,7 +4,6 @@ import { SectionHeader, SettingsGroup, SettingsRow } from './SettingsShared';
 import { SupportTicketModal } from './SupportTicketModal';
 import { FirstTimeOnboardingGuide } from '../FirstTimeOnboardingGuide';
 import { useModalBackHandler } from '../../utils/modalHistory';
-import { downloadUploadCertificate } from '../../utils/downloadCert';
 
 interface Props {
   onSendFeedback?: (msg: string) => void;
@@ -54,26 +53,6 @@ export function SupportSection({ onSendFeedback, onExportData, triggerToast }: P
     setTimeout(() => setFeedbackSent(false), 3000);
   };
 
-  const handleExport = () => {
-    onExportData?.();
-    const data = {
-      exportedAt: new Date().toISOString(),
-      profile: JSON.parse(localStorage.getItem('o1fc_user_state') || '{}'),
-      workoutLogs: JSON.parse(localStorage.getItem('o1fc_workout_logs') || '[]'),
-      mealLogs: JSON.parse(localStorage.getItem('o1fc_meal_logs') || '[]'),
-    };
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `ofc-export-${new Date().toISOString().slice(0, 10)}.json`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    triggerToast?.('Data exported successfully');
-  };
-
   return (
     <div>
       <SectionHeader title="Help & Support" />
@@ -93,50 +72,37 @@ export function SupportSection({ onSendFeedback, onExportData, triggerToast }: P
           sublabel="Submit a ticket to our concierge team"
           onClick={() => setShowTicketModal(true)}
         />
-        <SettingsRow
-          label="Export Your Data"
-          sublabel="Download your complete telemetry & logs as JSON"
-          onClick={handleExport}
-        />
-        <SettingsRow
-          label="Google Play Certificate (.pem)"
-          sublabel="Download upload_certificate.pem for App Signing"
-          onClick={() => {
-            downloadUploadCertificate();
-            triggerToast?.('Downloaded upload_certificate.pem');
-          }}
-        />
-      </SettingsGroup>
 
-      {/* Send Feedback Group */}
-      <SectionHeader title="Feedback" />
-      <SettingsGroup>
-        <div className="p-4">
+        {/* Share Athlete Feedback */}
+        <div className="p-3.5 border-t border-zinc-100 dark:border-zinc-800/60">
+          <span className="text-[10px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider block mb-1.5">
+            Share Athlete Feedback
+          </span>
           {feedbackSent ? (
-            <div className="flex items-center gap-2 py-2">
-              <CheckCircle className="w-4 h-4 text-[#C4121A]" />
+            <div className="flex items-center gap-2 py-1.5">
+              <CheckCircle className="w-4 h-4 text-[#C4121A] dark:text-[#D91F28]" />
               <span className="text-xs font-semibold text-zinc-900 dark:text-white">
-                Thank you for your feedback!
+                Thank you! Your feedback has been submitted.
               </span>
             </div>
           ) : (
-            <div className="space-y-2.5">
+            <div className="space-y-2">
               <textarea
                 value={feedbackText}
                 onChange={(e) => setFeedbackText(e.target.value)}
                 placeholder="Share your thoughts or suggest a feature..."
                 rows={2}
-                className="w-full text-xs text-zinc-800 dark:text-zinc-200 bg-transparent outline-none resize-none placeholder:text-zinc-400 leading-relaxed"
+                className="w-full text-xs text-zinc-800 dark:text-zinc-200 bg-transparent outline-none resize-none placeholder:text-zinc-400 dark:placeholder:text-zinc-600 leading-relaxed"
               />
               <div className="flex justify-end">
                 <button
                   type="button"
                   onClick={handleSend}
                   disabled={!feedbackText.trim()}
-                  className="h-[30px] px-3 rounded-full bg-[#C4121A] text-white text-xs font-semibold hover:bg-[#9B0E14] disabled:opacity-40 transition-all cursor-pointer shadow-xs flex items-center gap-1.5"
+                  className="h-7 px-3 rounded-full bg-[#C4121A] dark:bg-[#D91F28] text-white text-xs font-semibold hover:bg-[#9B0E14] disabled:opacity-40 transition-all cursor-pointer shadow-xs flex items-center gap-1.5"
                 >
                   <Send className="w-3 h-3" />
-                  Send
+                  Send Feedback
                 </button>
               </div>
             </div>

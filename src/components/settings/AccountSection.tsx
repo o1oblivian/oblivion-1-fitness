@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { Loader2, Trash2, Download, Check } from 'lucide-react';
-import { SectionHeader, SettingsGroup, SettingsRow } from './SettingsShared';
+import { Loader2, Trash2 } from 'lucide-react';
 import { purgeAllUserData } from '@/utils/accountDeletion';
 
 interface Props {
@@ -70,54 +69,74 @@ export function AccountSection({ userEmail, onLogout, onDeleteAccount, onRerunLa
   };
 
   return (
-    <div>
-      <SectionHeader title="Account" />
-      <SettingsGroup>
-        {userEmail && (
-          <div className="min-h-[52px] px-3.5 py-1.5 flex flex-col justify-center">
-            <span className="text-[10px] uppercase font-semibold text-zinc-400 dark:text-zinc-500 tracking-wider block">
-              Signed in as
-            </span>
-            <span className="text-xs font-semibold text-zinc-900 dark:text-zinc-100 mt-0.5 block truncate">
-              {userEmail}
-            </span>
-          </div>
-        )}
+    <div className="pt-2 pb-6 space-y-3">
+      {userEmail && (
+        <p className="text-center text-xs text-zinc-500 dark:text-zinc-400">
+          Signed in as <span className="text-zinc-800 dark:text-zinc-200 font-medium">{userEmail}</span>
+        </p>
+      )}
 
-        {onRerunLaunchProtocol && (
-          <SettingsRow
-            label="Launch Protocol"
-            sublabel="Re-customize athlete discipline & profile onboarding"
+      {onRerunLaunchProtocol && (
+        <div className="flex justify-center">
+          <button
+            type="button"
             onClick={onRerunLaunchProtocol}
-          />
-        )}
+            className="text-xs text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200 underline-offset-4 hover:underline transition-colors py-1 cursor-pointer"
+          >
+            Re-customize Launch Protocol
+          </button>
+        </div>
+      )}
 
-        {onLogout && (
-          <SettingsRow
-            label="Log out"
-            onClick={onLogout}
-          />
-        )}
+      {onLogout && (
+        <button
+          type="button"
+          onClick={onLogout}
+          className="w-full py-3.5 px-6 rounded-full border border-zinc-300 dark:border-zinc-800 bg-white/60 dark:bg-zinc-900/40 hover:bg-zinc-100 dark:hover:bg-zinc-800/80 text-sm font-semibold text-zinc-900 dark:text-white transition-all active:scale-[0.99] text-center cursor-pointer shadow-xs"
+        >
+          Log out
+        </button>
+      )}
 
-        <SettingsRow
-          label={isExporting ? "Preparing Archive..." : "Export My Data Archive"}
-          sublabel="Download full JSON export of all workouts, logs and profile telemetry (GDPR / CCPA)"
-          onClick={handleExportData}
-        />
-
-        <SettingsRow
-          label="Delete Account & Purge Data"
-          sublabel="Permanently erase all workouts, logs and profile data"
-          destructive
+      <div className="flex flex-col items-center justify-center gap-1.5 pt-1">
+        <button
+          type="button"
           onClick={() => setShowDeleteConfirm(true)}
-        />
-      </SettingsGroup>
+          className="text-xs font-normal text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200 transition-colors py-1.5 px-3 cursor-pointer"
+        >
+          Delete account
+        </button>
+
+        <button
+          type="button"
+          onClick={handleExportData}
+          disabled={isExporting}
+          className="text-[11px] text-zinc-400 hover:text-zinc-600 dark:text-zinc-500 dark:hover:text-zinc-300 transition-colors py-0.5 cursor-pointer disabled:opacity-50"
+        >
+          {isExporting ? 'Preparing archive...' : 'Export My Data Archive (GDPR / CCPA)'}
+        </button>
+      </div>
+
+      {/* Brand footer mark */}
+      <div className="pt-6 pb-2 flex flex-col items-center justify-center gap-1">
+        <div className="flex items-center gap-1.5">
+          <div className="w-4 h-4 rounded-full bg-[#C4121A] flex items-center justify-center text-white text-[8px] font-black tracking-tighter">
+            O1
+          </div>
+          <span className="text-[11px] font-bold tracking-widest text-zinc-400 dark:text-zinc-600 uppercase">
+            Oblivion 1 Fitness Club
+          </span>
+        </div>
+        <span className="text-[10px] text-zinc-400 dark:text-zinc-600 tracking-tight">
+          Training OS Pro • v1.0.2
+        </span>
+      </div>
 
       {/* Delete Confirmation Sheet */}
       {showDeleteConfirm && (
         <div className="fixed inset-0 z-[400] bg-black/60 dark:bg-black/80 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-150" onClick={() => setShowDeleteConfirm(false)}>
           <div
-            className="w-full max-w-sm bg-zinc-50 dark:bg-zinc-950 rounded-t-[1.5rem] sm:rounded-2xl p-4 shadow-2xl border-t sm:border border-zinc-200/80 dark:border-zinc-800 flex flex-col"
+            className="w-full max-w-sm bg-zinc-50 dark:bg-zinc-950 rounded-t-[1.5rem] sm:rounded-2xl p-4 pb-[max(1rem,calc(env(safe-area-inset-bottom,0px)+1rem))] shadow-2xl border-t sm:border border-zinc-200/80 dark:border-zinc-800 flex flex-col"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="w-8 h-1 rounded-full bg-stone-300 dark:bg-zinc-700 mx-auto mb-3 sm:hidden" />

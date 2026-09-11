@@ -59,7 +59,7 @@ export function MembershipSection({ onOpenPayPlan }: Props) {
             <button
               type="button"
               onClick={() => onOpenPayPlan('premium')}
-              className="shrink-0 h-[26px] px-2.5 rounded-full bg-[#C4121A] dark:bg-[#D91F28] text-white text-[11px] font-semibold flex items-center justify-center hover:bg-[#B8121A] dark:hover:bg-[#C4121A] active:scale-[0.98] transition-all cursor-pointer shadow-xs"
+              className="shrink-0 h-7 px-3 rounded-full bg-[#C4121A] dark:bg-[#D91F28] text-white text-xs font-semibold flex items-center justify-center hover:bg-[#B8121A] dark:hover:bg-[#C4121A] active:scale-[0.98] transition-all cursor-pointer shadow-xs"
             >
               {isPaid ? 'Manage' : 'Upgrade'}
             </button>

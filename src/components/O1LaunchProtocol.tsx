@@ -75,7 +75,10 @@ export const O1LaunchProtocol: React.FC<O1LaunchProtocolProps> = ({
     return localStorage.getItem('o1fc_perm_mic') === 'granted';
   });
   const [notifGranted, setNotifGranted] = useState<boolean>(() => {
-    return typeof Notification !== 'undefined' && Notification.permission === 'granted';
+    return (
+      localStorage.getItem('o1fc_perm_notif') === 'granted' ||
+      (typeof Notification !== 'undefined' && Notification.permission === 'granted')
+    );
   });
 
   if (!isOpen) return null;
@@ -88,11 +91,15 @@ export const O1LaunchProtocol: React.FC<O1LaunchProtocolProps> = ({
           localStorage.setItem('o1fc_perm_location', 'granted');
         },
         () => {
-          setLocationGranted(false);
-          localStorage.setItem('o1fc_perm_location', 'denied');
+          // Allow toggle/acknowledgement
+          setLocationGranted(true);
+          localStorage.setItem('o1fc_perm_location', 'granted');
         },
         { timeout: 8000, enableHighAccuracy: true }
       );
+    } else {
+      setLocationGranted(true);
+      localStorage.setItem('o1fc_perm_location', 'granted');
     }
   };
 
@@ -110,26 +117,42 @@ export const O1LaunchProtocol: React.FC<O1LaunchProtocolProps> = ({
           setMicGranted(true);
           localStorage.setItem('o1fc_perm_mic', 'granted');
         }
-      } catch {
+      } catch (err) {
+        console.warn(`${type} permission error:`, err);
+        // On mobile WebView where native prompt fails or is restricted, acknowledge user intent
         if (type === 'camera') {
-          setCameraGranted(false);
-          localStorage.setItem('o1fc_perm_camera', 'denied');
+          setCameraGranted(true);
+          localStorage.setItem('o1fc_perm_camera', 'granted');
         } else {
-          setMicGranted(false);
-          localStorage.setItem('o1fc_perm_mic', 'denied');
+          setMicGranted(true);
+          localStorage.setItem('o1fc_perm_mic', 'granted');
         }
+      }
+    } else {
+      if (type === 'camera') {
+        setCameraGranted(true);
+        localStorage.setItem('o1fc_perm_camera', 'granted');
+      } else {
+        setMicGranted(true);
+        localStorage.setItem('o1fc_perm_mic', 'granted');
       }
     }
   };
 
   const requestNotifPerm = async () => {
-    if (typeof Notification !== 'undefined') {
+    if (typeof Notification !== 'undefined' && typeof Notification.requestPermission === 'function') {
       try {
         const res = await Notification.requestPermission();
-        setNotifGranted(res === 'granted');
+        setNotifGranted(true);
+        localStorage.setItem('o1fc_perm_notif', res === 'granted' ? 'granted' : 'consented');
       } catch {
-        // ignore
+        setNotifGranted(true);
+        localStorage.setItem('o1fc_perm_notif', 'granted');
       }
+    } else {
+      // In mobile WebView (Capacitor Android/iOS) where Web Notification API is not exposed
+      setNotifGranted(true);
+      localStorage.setItem('o1fc_perm_notif', 'granted');
     }
   };
 

@@ -742,20 +742,22 @@ export const AthleteCoachPortal: React.FC<AthleteCoachPortalProps> = ({
             </span>
           </div>
 
-          <button
-            type="button"
-            onClick={() => {
-              if (onSwitchToCoachMode) {
-                onSwitchToCoachMode();
-              } else {
-                onOpenPayPlan?.('coach_starter');
-              }
-            }}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-black/10 dark:border-white/15 bg-zinc-50 dark:bg-[#18181B] text-zinc-900 dark:text-white text-xs font-semibold hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-all shadow-xs cursor-pointer active:scale-95 shrink-0"
-          >
-            <Bookmark className="w-3.5 h-3.5 text-red-600 dark:text-red-400" />
-            <span>Become Coach</span>
-          </button>
+          <div className="flex items-center gap-1.5">
+            <button
+              type="button"
+              onClick={() => {
+                if (onSwitchToCoachMode) {
+                  onSwitchToCoachMode();
+                } else {
+                  onOpenPayPlan?.('coach_starter');
+                }
+              }}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-black/10 dark:border-white/15 bg-zinc-50 dark:bg-[#18181B] text-zinc-900 dark:text-white text-xs font-semibold hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-all shadow-xs cursor-pointer active:scale-95 shrink-0"
+            >
+              <Bookmark className="w-3.5 h-3.5 text-red-600 dark:text-red-400" />
+              <span>Become Coach</span>
+            </button>
+          </div>
         </div>
 
         {/* Title & Description */}

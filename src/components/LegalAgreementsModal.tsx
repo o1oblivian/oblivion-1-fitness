@@ -33,17 +33,22 @@ export const LegalAgreementsModal: React.FC<LegalAgreementsModalProps> = ({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[700] bg-black/70 backdrop-blur-xl flex items-center justify-center p-3 sm:p-5 overflow-y-auto"
+          className="fixed inset-0 z-[700] bg-black/70 backdrop-blur-xl flex items-end sm:items-center justify-center p-0 sm:p-5 overflow-hidden"
+          onClick={onClose}
         >
           <motion.div
-            initial={{ scale: 0.96, y: 14 }}
+            initial={{ scale: 0.98, y: 36 }}
             animate={{ scale: 1, y: 0 }}
-            exit={{ scale: 0.96, y: 14 }}
+            exit={{ scale: 0.98, y: 36 }}
             transition={{ type: 'spring', damping: 28, stiffness: 340 }}
-            className="bg-white/95 dark:bg-[#121418]/95 backdrop-blur-2xl text-zinc-900 dark:text-white w-full max-w-xl max-h-[90vh] rounded-3xl shadow-[0_25px_70px_rgba(0,0,0,0.3)] border border-white/80 dark:border-white/10 flex flex-col overflow-hidden font-sans"
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white/95 dark:bg-[#121418]/95 backdrop-blur-2xl text-zinc-900 dark:text-white w-full max-w-xl max-h-[90vh] rounded-t-[1.75rem] sm:rounded-3xl shadow-[0_25px_70px_rgba(0,0,0,0.3)] border-t sm:border border-white/80 dark:border-white/10 flex flex-col overflow-hidden font-sans pb-[max(0.75rem,calc(env(safe-area-inset-bottom,0px)+0.5rem))]"
           >
+            {/* Mobile Drag Handle */}
+            <div className="w-8 h-1 rounded-full bg-stone-300 dark:bg-zinc-700 mx-auto mt-2.5 mb-1 sm:hidden shrink-0" />
+
             {/* Header */}
-            <div className="flex items-center justify-between px-6 py-5 border-b border-zinc-200/80 dark:border-zinc-800/80 bg-white/60 dark:bg-zinc-900/60 backdrop-blur-md shrink-0">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-200/80 dark:border-zinc-800/80 bg-white/60 dark:bg-zinc-900/60 backdrop-blur-md shrink-0">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-2xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/40 flex items-center justify-center text-red-600 dark:text-red-400 shrink-0">
                   <Shield className="w-5 h-5 stroke-[2.2]" />

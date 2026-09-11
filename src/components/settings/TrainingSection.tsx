@@ -1,8 +1,16 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { SectionHeader, SettingsGroup, SettingsRow, ToggleSwitch } from './SettingsShared';
 import { useAuthStorage } from '../../hooks/useAuthStorage';
 
-const FOCUS_OPTIONS = ['Hypertrophy', 'Strength', 'Endurance', 'Recomp', 'Mobility'];
+const DISCIPLINES = [
+  'Hypertrophy',
+  'Powerlifting',
+  'Hyrox / Hybrid',
+  'CrossFit',
+  'Calisthenics',
+  'Endurance',
+  'Strength & Conditioning',
+];
 const WEEKDAYS = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
 
 export function TrainingSection() {
@@ -10,11 +18,8 @@ export function TrainingSection() {
 
   const primaryFocus = profile.primary_focus || 'Hypertrophy';
   const autoDispatch = profile.auto_dispatch !== false;
-  const preWorkoutNotif = profile.pre_workout_notif !== false;
   const selectedDays = profile.training_days || ['Mo', 'Tu', 'Th', 'Fr', 'Sa'];
-  const buddyMatch = profile.buddy_match_enabled !== false;
   const restRecovery = profile.rest_mode === true;
-  const privateTraining = profile.private_training === true;
 
   const selectFocus = (f: string) => {
     updateProfile({ primary_focus: f });
@@ -31,19 +36,19 @@ export function TrainingSection() {
     <div>
       <SectionHeader title="Training & Schedule" />
       <SettingsGroup>
-        {/* Primary Focus selector */}
+        {/* Primary Training Discipline selector */}
         <div className="p-3">
-          <div className="flex items-center justify-between mb-1.5">
-            <span className="text-sm font-medium text-zinc-900 dark:text-zinc-100">Primary Focus</span>
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm font-medium text-zinc-900 dark:text-zinc-100">Primary Discipline</span>
             <span className="text-xs font-semibold text-[#C4121A] dark:text-[#D91F28]">{primaryFocus}</span>
           </div>
           <div className="flex flex-wrap gap-1.5 pt-0.5">
-            {FOCUS_OPTIONS.map((f) => (
+            {DISCIPLINES.map((f) => (
               <button
                 key={f}
                 type="button"
                 onClick={() => selectFocus(f)}
-                className={`h-[26px] px-2.5 rounded-full text-[11px] font-semibold flex items-center justify-center transition-all cursor-pointer ${
+                className={`h-7 px-3 rounded-full text-xs font-semibold flex items-center justify-center transition-all cursor-pointer ${
                   primaryFocus === f
                     ? 'bg-[#C4121A] dark:bg-[#D91F28] text-white shadow-xs'
                     : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700'
@@ -101,7 +106,7 @@ export function TrainingSection() {
                   </span>
                   <div className="h-1 flex items-center justify-center mt-1">
                     {active ? (
-                      <span className="w-2.5 h-0.5 rounded-full bg-red-600 dark:bg-red-500" />
+                      <span className="w-2.5 h-0.5 rounded-full bg-[#C4121A] dark:bg-[#D91F28]" />
                     ) : (
                       <span className="w-1 h-1 rounded-full bg-transparent" />
                     )}
@@ -112,30 +117,6 @@ export function TrainingSection() {
           </div>
         </div>
 
-        {/* Pre-workout notification */}
-        <SettingsRow
-          label="Pre-Workout Notification"
-          sublabel="Get notified 1 hour before scheduled session"
-          rightElement={
-            <ToggleSwitch
-              checked={preWorkoutNotif}
-              onChange={(v) => updateProfile({ pre_workout_notif: v })}
-            />
-          }
-        />
-
-        {/* Buddy Match */}
-        <SettingsRow
-          label="Buddy Match"
-          sublabel="Allow matching with nearby athletes during shared training times"
-          rightElement={
-            <ToggleSwitch
-              checked={buddyMatch}
-              onChange={(v) => updateProfile({ buddy_match_enabled: v })}
-            />
-          }
-        />
-
         {/* Rest Recovery */}
         <SettingsRow
           label="Rest & Recovery Mode"
@@ -144,18 +125,6 @@ export function TrainingSection() {
             <ToggleSwitch
               checked={restRecovery}
               onChange={(v) => updateProfile({ rest_mode: v })}
-            />
-          }
-        />
-
-        {/* Private training */}
-        <SettingsRow
-          label="Private Training"
-          sublabel="Hide session telemetry from public athlete leaderboards"
-          rightElement={
-            <ToggleSwitch
-              checked={privateTraining}
-              onChange={(v) => updateProfile({ private_training: v })}
             />
           }
         />

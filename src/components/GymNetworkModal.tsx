@@ -3057,40 +3057,15 @@ export const GymNetworkModal: React.FC<GymNetworkModalProps> = ({
                 {/* Biometrics */}
                 <div className="space-y-1.5">
                   <h3 className="text-xs font-mono font-bold text-[#5A5F5D] dark:text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
-                    <Activity className="w-3.5 h-3.5 text-[#3FB98E]" /> Biometric Performance Matrix
+                    <Activity className="w-3.5 h-3.5 text-[#3FB98E]" /> Biometric Telemetry Matrix
                   </h3>
-                  <div className="grid grid-cols-2 gap-2">
-                    <div className="bg-white dark:bg-black/40 p-3 rounded-2xl border border-[rgba(0,0,0,0.08)] dark:border-white/10 flex flex-col justify-between">
-                      <span className="text-[10px] text-[#5A5F5D] dark:text-gray-400 font-bold">RECOVERY SCORE</span>
-                      <span className="text-lg font-black text-[#3FB98E]">88%</span>
-                      <div className="w-full bg-[#E5E5EA] dark:bg-white/10 h-1.5 rounded-full overflow-hidden mt-1">
-                        <div className="bg-[#3FB98E] h-full w-[88%]" />
-                      </div>
-                    </div>
-
-                    <div className="bg-white dark:bg-black/40 p-3 rounded-2xl border border-[rgba(0,0,0,0.08)] dark:border-white/10 flex flex-col justify-between">
-                      <span className="text-[10px] text-[#5A5F5D] dark:text-gray-400 font-bold">HRV AVG</span>
-                      <span className="text-lg font-black text-[#000000] dark:text-white">76 ms</span>
-                      <div className="w-full bg-[#E5E5EA] dark:bg-white/10 h-1.5 rounded-full overflow-hidden mt-1">
-                        <div className="bg-[#C4121A] h-full w-[76%]" />
-                      </div>
-                    </div>
-
-                    <div className="bg-white dark:bg-black/40 p-3 rounded-2xl border border-[rgba(0,0,0,0.08)] dark:border-white/10 flex flex-col justify-between">
-                      <span className="text-[10px] text-[#5A5F5D] dark:text-gray-400 font-bold">DAY STRAIN</span>
-                      <span className="text-lg font-black text-[#C4121A]">14.8 / 20</span>
-                      <div className="w-full bg-[#E5E5EA] dark:bg-white/10 h-1.5 rounded-full overflow-hidden mt-1">
-                        <div className="bg-[#C4121A] h-full w-[74%]" />
-                      </div>
-                    </div>
-
-                    <div className="bg-white dark:bg-black/40 p-3 rounded-2xl border border-[rgba(0,0,0,0.08)] dark:border-white/10 flex flex-col justify-between">
-                      <span className="text-[10px] text-[#5A5F5D] dark:text-gray-400 font-bold">SLEEP EFFICIENCY</span>
-                      <span className="text-lg font-black text-[#000000] dark:text-white">92%</span>
-                      <div className="w-full bg-[#E5E5EA] dark:bg-white/10 h-1.5 rounded-full overflow-hidden mt-1">
-                        <div className="bg-[#3FB98E] h-full w-[92%]" />
-                      </div>
-                    </div>
+                  <div className="bg-white dark:bg-black/40 p-3 rounded-2xl border border-[rgba(0,0,0,0.08)] dark:border-white/10 text-center py-4 space-y-1">
+                    <span className="text-[10px] text-[#5A5F5D] dark:text-gray-400 font-mono font-bold uppercase tracking-wider block">
+                      Live Sensor Telemetry
+                    </span>
+                    <p className="text-xs text-neutral-600 dark:text-gray-400 font-mono">
+                      Telemetry streaming requires mutual tandem session or live sensor synchronization.
+                    </p>
                   </div>
                 </div>
               </div>
@@ -3415,3 +3390,6 @@ export const GymNetworkModal: React.FC<GymNetworkModalProps> = ({
     </div>
   );
 };
+
+export default GymNetworkModal;
+

@@ -41,7 +41,6 @@ interface HomeViewProps {
   onOpenAlcoholTracker: () => void;
   onOpenHydrationTracker: () => void;
   setActiveLogs: React.Dispatch<React.SetStateAction<ExerciseLog[]>>;
-  onNavigateToTandem?: () => void;
   onTapSelf?: () => void;
   handle?: string;
   onUpgrade?: () => void;
@@ -65,7 +64,6 @@ export const HomeView: React.FC<HomeViewProps> = memo(({
   onOpenAlcoholTracker,
   onOpenHydrationTracker,
   setActiveLogs,
-  onNavigateToTandem,
   onTapSelf,
   handle,
   onNavigate,

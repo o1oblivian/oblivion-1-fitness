@@ -71,14 +71,14 @@ export function AppearanceSection({
             <span className="text-xs text-zinc-500 dark:text-zinc-400 block">Workout entry dial or keypad</span>
           </div>
 
-          <div className="h-[30px] flex items-center rounded-full bg-zinc-100 dark:bg-zinc-800/80 p-0.5 border border-zinc-200 dark:border-zinc-700/60">
+          <div className="h-[32px] flex items-center rounded-full bg-zinc-100 dark:bg-zinc-800/80 p-0.5 border border-zinc-200/80 dark:border-zinc-700/60">
             <button
               type="button"
               onClick={() => onSelectInputMethod('dial')}
               className={`h-full px-3 rounded-full text-xs font-medium flex items-center justify-center transition-all cursor-pointer ${
                 inputMethod === 'dial'
-                  ? 'bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white shadow-xs font-semibold'
-                  : 'text-zinc-500 dark:text-zinc-400'
+                  ? 'bg-white dark:bg-zinc-700 text-zinc-950 dark:text-white shadow-xs font-semibold'
+                  : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white'
               }`}
             >
               Rotary Dial
@@ -88,8 +88,8 @@ export function AppearanceSection({
               onClick={() => onSelectInputMethod('numpad')}
               className={`h-full px-3 rounded-full text-xs font-medium flex items-center justify-center transition-all cursor-pointer ${
                 inputMethod === 'numpad'
-                  ? 'bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white shadow-xs font-semibold'
-                  : 'text-zinc-500 dark:text-zinc-400'
+                  ? 'bg-white dark:bg-zinc-700 text-zinc-950 dark:text-white shadow-xs font-semibold'
+                  : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white'
               }`}
             >
               Keypad
