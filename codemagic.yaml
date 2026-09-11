@@ -17,13 +17,6 @@ workflows:
       node: 20
       java: 17
     scripts:
-      - name: Prepare Google Play credentials
-        script: |
-          if [ -z "$GCLOUD_SERVICE_ACCOUNT_CREDENTIALS" ] && [ -n "$GOOGLE_PLAY_SERVICE_ACCOUNT_CREDENTIALS" ]; then
-            echo "GCLOUD_SERVICE_ACCOUNT_CREDENTIALS<<EOF" >> $CM_ENV
-            echo "$GOOGLE_PLAY_SERVICE_ACCOUNT_CREDENTIALS" >> $CM_ENV
-            echo "EOF" >> $CM_ENV
-          fi
       - name: Install dependencies
         script: |
           npm install --legacy-peer-deps
@@ -42,18 +35,11 @@ workflows:
       - android/app/build/outputs/**/*.aab
       - android/app/build/outputs/**/*.apk
       - dist/**
-    publishing:
-      google_play:
-        credentials: $GCLOUD_SERVICE_ACCOUNT_CREDENTIALS
-        track: internal
-        submit_as_draft: false
 
   ios-release:
     name: iOS Release (App Store / TestFlight)
     max_build_duration: 60
     instance_type: mac_mini_m2
-    integrations:
-      app_store_connect: "O1FC Admin Key"
     triggering:
       events:
         - push
@@ -103,7 +89,3 @@ workflows:
     artifacts:
       - build/ios/ipa/*.ipa
       - /tmp/xcodebuild_logs/*.log
-    publishing:
-      app_store_connect:
-        auth: integration
-        submit_to_testflight: true

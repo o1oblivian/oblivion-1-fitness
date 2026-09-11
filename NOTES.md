@@ -32,24 +32,13 @@ All credentials and environment configurations remain 100% intact:
   - Web assets built, Capacitor synced, Xcode compiled the archive, and the release `.ipa` artifact was produced.
   - **Issue**: Build 41 did not appear on TestFlight because `codemagic.yaml` was saving the `.ipa` as an artifact but did not include an automated upload command to TestFlight.
 
-### September 11, 2026 (Approx. 9:30 AM – 10:20 AM AEST)
-- **Integration Resolution**:
-  - Verified user's Codemagic team integrations: `O1FC Key` and `O1FC Admin Key`.
-  - Added `integrations: app_store_connect: "O1FC Admin Key"` directly to the `ios-release` workflow.
-  - Linked `publishing: app_store_connect:` with `auth: integration` and `submit_to_testflight: true`.
-  - Codemagic now has the direct link to the App Store Connect API Key to automatically upload and submit every successful iOS build to TestFlight.
+### September 11, 2026 (Approx. 9:30 AM – 10:30 AM AEST)
+- **Failure Analysis (Builds iOS #42 & Android #23)**:
+  - Both builds failed at 11s during the "Preparing build machine" step.
+  - **Root Cause**: Codemagic's runner validates workflow configuration and required publishing credentials *before* launching build scripts. Adding `publishing: google_play: credentials: $GCLOUD_SERVICE_ACCOUNT_CREDENTIALS` caused the Android machine preparation to abort because `$GCLOUD_SERVICE_ACCOUNT_CREDENTIALS` was not present in the app's environment variables. Similarly, adding `integrations: app_store_connect: "O1FC Admin Key"` caused iOS machine preparation to fail.
+- **Rollback Applied**:
+  - Reverted `codemagic.yaml` back to the exact configuration that produced the successful iOS Build 41 archive without blocking machine preparation.
+  - Reverted `android/app/build.gradle` back to standard clean configuration.
+  - Workflows are now restored to run cleanly and produce the release `.ipa` and `.aab` artifacts without crashing at step 0.
 
-- **End-to-End Audit (Point A to Point Z)**:
-  - **Point A (AI Studio Web App)**: Verified production assets in `dist/`, including web manifest, app icons (192, 512, 1024), splash screen, and privacy page. Applet compiles cleanly.
-  - **Bridge (Capacitor & Native Wrappers)**: Verified `capacitor.config.json` configured with appId `com.o1fc.fitness` and name `Oblivion 1`.
-  - **Point Z (Apple / TestFlight)**:
-    - Bundle ID `com.o1fc.fitness` matched across `project.pbxproj` and `codemagic.yaml`.
-    - Shared Xcode scheme `App.xcscheme` committed and active.
-    - Automatic version incrementing prevents version collision on TestFlight.
-    - Automated TestFlight submission enabled via `app_store_connect: "O1FC Admin Key"`.
-  - **Point Z (Google Play Console)**:
-    - Application ID `com.o1fc.fitness` verified in `android/app/build.gradle` and `AndroidManifest.xml`.
-    - Dynamic `versionCode` linked to `$BUILD_NUMBER` to prevent Google Play duplicate version code rejections.
-    - Release signing configurations hooked to Codemagic keystore environment variables (`CM_KEYSTORE_PATH`).
-    - Standardized Google Play publishing credentials pipeline in `codemagic.yaml`.
 
