@@ -34,7 +34,7 @@ workflows:
         script: |
           cd android
           chmod +x gradlew
-          ./gradlew bundleRelease
+          ./gradlew bundleRelease --stacktrace
     artifacts:
       - android/app/build/outputs/**/*.aab
       - android/app/build/outputs/**/*.apk
@@ -85,16 +85,13 @@ workflows:
           sed -i '' -e "s/CURRENT_PROJECT_VERSION = [0-9]*/CURRENT_PROJECT_VERSION = $NEW_NUM/g" App.xcodeproj/project.pbxproj 2>/dev/null || sed -i -e "s/CURRENT_PROJECT_VERSION = [0-9]*/CURRENT_PROJECT_VERSION = $NEW_NUM/g" App.xcodeproj/project.pbxproj
       - name: Set up code signing settings on Xcode project
         script: |
-          xcode-project use-profiles
+          xcode-project use-profiles --project "ios/App/App.xcodeproj" --warn-only || true
       - name: Build iOS IPA
         script: |
           set -e
-          xcodebuild -resolvePackageDependencies -project "ios/App/App.xcodeproj" || true
-          xcode-project build-ipa --project "ios/App/App.xcodeproj" --scheme "$XCODE_SCHEME" --archive-flags="-destination 'generic/platform=iOS'" || {
-            echo "=== XCODEBUILD FAILED - PRINTING BUILD LOG ==="
-            cat /tmp/xcodebuild_logs/*.log 2>/dev/null | tail -n 200
-            exit 1
-          }
+          cd ios/App
+          xcodebuild -resolvePackageDependencies -project App.xcodeproj || true
+          xcode-project build-ipa --project App.xcodeproj --scheme "$XCODE_SCHEME"
     artifacts:
       - build/ios/ipa/*.ipa
       - /tmp/xcodebuild_logs/*.log

@@ -65,3 +65,15 @@ All credentials and environment configurations remain 100% intact:
 - **iOS Missing Swift Package Manager Reference (`CapApp-SPM`)**:
   - **Root Cause**: In Xcode project `App.xcodeproj/project.pbxproj`, target `App` references `XCLocalSwiftPackageReference "CapApp-SPM"`. The directory `ios/App/CapApp-SPM` was missing from the repository. When `xcode-project build-ipa` ran, Xcode would fail with: `Missing package product 'CapApp-SPM'` or compile errors from missing `@capacitor/*` Swift bridges.
   - **Fix Applied**: Generated the official Capacitor 8 Swift Package Manager module in `ios/App/CapApp-SPM/` with `Package.swift` linking all 7 plugins (`CapacitorApp`, `CapacitorBrowser`, `CapacitorHaptics`, `CapacitorKeyboard`, `CapacitorPreferences`, `CapacitorSplashScreen`, `CapacitorStatusBar`) to `capacitor-swift-pm` 8.5.1. Verified with `npx cap sync ios` which confirmed: `[info] All Capacitor plugins have a Package.swift file and will be included in Package.swift`.
+- **Exit Code 1 Resolution (Android & iOS Pipelines)**:
+  - **Android Code 1 Cause**: In `android/app/build.gradle`, `buildTypes.release` was unconditionally assigned `signingConfig signingConfigs.release`. When running on CI without `CM_KEYSTORE_PATH` present, `storeFile` was `null`, causing Android Gradle Plugin's `:app:signReleaseBundle` task to crash with exit code 1 (`SigningConfig 'release' is missing required property 'storeFile'`).
+  - **Android Fix**: Made `signingConfig signingConfigs.release` conditional on `System.getenv("CM_KEYSTORE_PATH") && file(System.getenv("CM_KEYSTORE_PATH")).exists()`, allowing unsigned release bundle generation when no keystore is attached, while signing automatically when `CM_KEYSTORE_PATH` is provided. Updated AGP to `8.13.2`.
+  - **iOS Code 1 Cause**: 
+    1. In `codemagic.yaml`, `--archive-flags="-destination 'generic/platform=iOS'"` was passed to `xcode-project build-ipa`. `xcode-project build-ipa` already automatically configures the iOS destination; passing it again inside `archive-flags` caused argument collision and quoting syntax errors during `xcodebuild archive`, exiting with code 1.
+    2. `ios/debug.xcconfig` referenced in `project.pbxproj` was missing from the repository, creating warnings/errors during base configuration resolution.
+    3. `xcode-project use-profiles` was running from the root workspace directory without an explicit `--project` argument and without `--warn-only`.
+  - **iOS Fix**:
+    1. Removed the redundant `--archive-flags="-destination 'generic/platform=iOS'"` from `xcode-project build-ipa`.
+    2. Explicitly navigated to `ios/App` before running `xcodebuild -resolvePackageDependencies` and `xcode-project build-ipa --project App.xcodeproj --scheme "$XCODE_SCHEME"`.
+    3. Configured `xcode-project use-profiles --project "ios/App/App.xcodeproj" --warn-only || true`.
+    4. Created `ios/debug.xcconfig` and `ios/App/debug.xcconfig` to satisfy the project configuration references.

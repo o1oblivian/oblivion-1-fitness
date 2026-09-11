@@ -1,0 +1,2 @@
+// Debug configuration for Capacitor App
+#include? "Pods/Target Support Files/Pods-App/Pods-App.debug.xcconfig"
