@@ -15,7 +15,7 @@ workflows:
         PACKAGE_NAME: "com.o1fc.fitness"
         GOOGLE_PLAY_TRACK: "internal"
       node: 22
-      java: 17
+      java: 21
     scripts:
       - name: Install dependencies
         script: |
@@ -73,9 +73,6 @@ workflows:
       - name: Sync Capacitor iOS
         script: |
           npx cap sync ios
-      - name: Set up code signing settings on Xcode project
-        script: |
-          xcode-project use-profiles
       - name: Increment iOS Build Number
         script: |
           cd ios/App
@@ -85,15 +82,19 @@ workflows:
             NEW_NUM=$((CURRENT_NUM + 1))
           fi
           echo "Setting iOS build version to $NEW_NUM"
-          agvtool new-version -all "$NEW_NUM"
+          sed -i '' -e "s/CURRENT_PROJECT_VERSION = [0-9]*/CURRENT_PROJECT_VERSION = $NEW_NUM/g" App.xcodeproj/project.pbxproj 2>/dev/null || sed -i -e "s/CURRENT_PROJECT_VERSION = [0-9]*/CURRENT_PROJECT_VERSION = $NEW_NUM/g" App.xcodeproj/project.pbxproj
+      - name: Set up code signing settings on Xcode project
+        script: |
+          xcode-project use-profiles
       - name: Build iOS IPA
         script: |
           set -e
-          if [ -d "ios/App/App.xcworkspace" ]; then
-            xcode-project build-ipa --workspace "ios/App/App.xcworkspace" --scheme "$XCODE_SCHEME" --archive-flags="-destination 'generic/platform=iOS'"
-          else
-            xcode-project build-ipa --project "ios/App/App.xcodeproj" --scheme "$XCODE_SCHEME" --archive-flags="-destination 'generic/platform=iOS'"
-          fi
+          xcodebuild -resolvePackageDependencies -project "ios/App/App.xcodeproj" || true
+          xcode-project build-ipa --project "ios/App/App.xcodeproj" --scheme "$XCODE_SCHEME" --archive-flags="-destination 'generic/platform=iOS'" || {
+            echo "=== XCODEBUILD FAILED - PRINTING BUILD LOG ==="
+            cat /tmp/xcodebuild_logs/*.log 2>/dev/null | tail -n 200
+            exit 1
+          }
     artifacts:
       - build/ios/ipa/*.ipa
       - /tmp/xcodebuild_logs/*.log
