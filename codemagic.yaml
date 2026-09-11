@@ -22,6 +22,10 @@ workflows:
           npm install --legacy-peer-deps
       - name: Build web assets
         script: |
+          mkdir -p dist
+          if [ -d "android/app/src/main/assets/public" ]; then
+            cp -R android/app/src/main/assets/public/* dist/
+          fi
           npm run build
       - name: Sync Capacitor Android
         script: |
@@ -61,6 +65,10 @@ workflows:
           npm install --legacy-peer-deps
       - name: Build web assets
         script: |
+          mkdir -p dist
+          if [ -d "android/app/src/main/assets/public" ]; then
+            cp -R android/app/src/main/assets/public/* dist/
+          fi
           npm run build
       - name: Sync Capacitor iOS
         script: |

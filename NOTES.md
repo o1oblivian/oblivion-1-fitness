@@ -41,5 +41,14 @@ All credentials and environment configurations remain 100% intact:
   - Failed at "Sync Capacitor Android" / "Sync Capacitor iOS" with: `[fatal] The Capacitor CLI requires NodeJS >=22.0.0. Please install the latest LTS version.`
   - **Resolution**: Updated `node: 20` to `node: 22` in both `android-release` and `ios-release` workflows in `codemagic.yaml`.
 
+- **Missing `dist/` Web Assets Directory Resolution (Builds iOS #44 & Android #25)**:
+  - Error: `[error] Could not find the web assets directory: ./dist. Please create it and make sure it has an index.html file.`
+  - **Root Cause**: `package.json` had `"build": "echo 'Using production dist build'"`, so when Codemagic cloned the repository, no `dist` folder was compiled or created before Capacitor ran `npx cap sync`.
+  - **Resolution**:
+    1. Populated `./dist` in workspace with all production assets, scripts, CSS, and `index.html`.
+    2. Updated `package.json` build script to ensure `dist/` is always populated: `"build": "mkdir -p dist && if [ -d \"android/app/src/main/assets/public\" ]; then cp -R android/app/src/main/assets/public/* dist/; fi"`.
+    3. Added direct asset preparation script to both `android-release` and `ios-release` workflows in `codemagic.yaml` under `Build web assets`.
+    4. Generated `ios/App/Podfile` to prevent CocoaPods dependency resolution warnings during `npx cap sync ios`.
+
 
 

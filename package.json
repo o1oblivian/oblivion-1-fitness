@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "tsx server.ts",
-    "build": "echo 'Using production dist build'",
+    "build": "mkdir -p dist && if [ -d \"android/app/src/main/assets/public\" ]; then cp -R android/app/src/main/assets/public/* dist/; fi",
     "start": "node server.ts"
   },
   "dependencies": {
