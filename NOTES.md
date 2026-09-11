@@ -36,9 +36,10 @@ All credentials and environment configurations remain 100% intact:
 - **Failure Analysis (Builds iOS #42 & Android #23)**:
   - Both builds failed at 11s during the "Preparing build machine" step.
   - **Root Cause**: Codemagic's runner validates workflow configuration and required publishing credentials *before* launching build scripts. Adding `publishing: google_play: credentials: $GCLOUD_SERVICE_ACCOUNT_CREDENTIALS` caused the Android machine preparation to abort because `$GCLOUD_SERVICE_ACCOUNT_CREDENTIALS` was not present in the app's environment variables. Similarly, adding `integrations: app_store_connect: "O1FC Admin Key"` caused iOS machine preparation to fail.
-- **Rollback Applied**:
-  - Reverted `codemagic.yaml` back to the exact configuration that produced the successful iOS Build 41 archive without blocking machine preparation.
-  - Reverted `android/app/build.gradle` back to standard clean configuration.
-  - Workflows are now restored to run cleanly and produce the release `.ipa` and `.aab` artifacts without crashing at step 0.
+- **Capacitor CLI Node.js Version Update**:
+  - In the subsequent build, the runner progressed past "Preparing build machine", "Fetching app sources", "Install dependencies", and "Build web assets".
+  - Failed at "Sync Capacitor Android" / "Sync Capacitor iOS" with: `[fatal] The Capacitor CLI requires NodeJS >=22.0.0. Please install the latest LTS version.`
+  - **Resolution**: Updated `node: 20` to `node: 22` in both `android-release` and `ios-release` workflows in `codemagic.yaml`.
+
 
 
