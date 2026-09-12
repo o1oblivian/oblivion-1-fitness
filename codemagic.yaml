@@ -33,5 +33,5 @@ workflows:
       - /tmp/xcodebuild_logs/*.log
     publishing:
       app_store_connect:
-        auth: key
+        auth: integration
         submit_to_testflight: true
