@@ -1,8 +1,14 @@
 workflows:
-  android-release:
-    name: Android Release (Google Play AAB)
+  ios-app-store:
+    name: Oblivion 1 - iOS App Store Release
     max_build_duration: 60
     instance_type: mac_mini_m2
+    environment:
+      node: 22.14.0
+      xcode: 16.0
+      cocoapods: default
+      groups:
+        - apple_credentials # Requires: APP_STORE_CONNECT_PRIVATE_KEY, APP_STORE_CONNECT_KEY_IDENTIFIER, APP_STORE_CONNECT_ISSUER_ID, CERTIFICATE_PRIVATE_KEY
     triggering:
       events:
         - push
@@ -10,92 +16,74 @@ workflows:
         - pattern: 'main'
           include: true
           source: true
-    environment:
-      vars:
-        PACKAGE_NAME: "com.o1fc.fitness"
-        GOOGLE_PLAY_TRACK: "internal"
-      node: 22
-      java: 21
     scripts:
       - name: Install dependencies
         script: |
-          npm install --legacy-peer-deps
-      - name: Build web assets
-        script: |
-          npm run build
-      - name: Sync Capacitor Android
-        script: |
-          npx cap sync android
-      - name: Build Android AAB
-        script: |
-          cd android
-          chmod +x gradlew
-          ./gradlew bundleRelease --stacktrace
-    artifacts:
-      - android/app/build/outputs/**/*.aab
-      - android/app/build/outputs/**/*.apk
-      - dist/**
-
-  ios-release:
-    name: iOS Release (App Store / TestFlight)
-    max_build_duration: 60
-    instance_type: mac_mini_m2
-    triggering:
-      events:
-        - push
-      branch_patterns:
-        - pattern: 'main'
-          include: true
-          source: true
-    environment:
-      ios_signing:
-        distribution_type: app_store
-        bundle_identifier: com.o1fc.fitness
-      vars:
-        XCODE_PROJECT: "ios/App/App.xcodeproj"
-        XCODE_SCHEME: "App"
-      node: 22
-      xcode: latest
-    scripts:
-      - name: Install dependencies
-        script: |
-          npm install --legacy-peer-deps
+          npm ci --legacy-peer-deps
       - name: Build web assets
         script: |
           npm run build
       - name: Sync Capacitor iOS
         script: |
           npx cap sync ios
-          ln -sfn ios/App/CapApp-SPM ./CapApp-SPM
-      - name: Increment iOS Build Number
+      - name: Install CocoaPods
         script: |
-          CURRENT_NUM=$(sed -n '/CURRENT_PROJECT_VERSION =/{s/.*= *//;s/;.*//;p;q;}' ios/App/App.xcodeproj/project.pbxproj | tr -d '[:space:]')
-          NEW_NUM=${BUILD_NUMBER:-42}
-          if [ -n "$CURRENT_NUM" ] && [ "$NEW_NUM" -le "$CURRENT_NUM" ]; then
-            NEW_NUM=$((CURRENT_NUM + 1))
-          fi
-          echo "Setting iOS build version to $NEW_NUM"
-          sed -i '' -e "s/CURRENT_PROJECT_VERSION = [0-9]*/CURRENT_PROJECT_VERSION = $NEW_NUM/g" ios/App/App.xcodeproj/project.pbxproj 2>/dev/null || sed -i -e "s/CURRENT_PROJECT_VERSION = [0-9]*/CURRENT_PROJECT_VERSION = $NEW_NUM/g" ios/App/App.xcodeproj/project.pbxproj
-      - name: Set up code signing settings on Xcode project
+          cd ios/App && pod install
+      - name: Set up code signing
         script: |
-          echo "=== Signing Identities in Keychain ==="
-          security find-identity -v -p codesigning || true
-          echo "=== Available Provisioning Profiles ==="
-          ls -la "$HOME/Library/MobileDevice/Provisioning Profiles" || true
-          xcode-project use-profiles --project "ios/App/App.xcodeproj"
-      - name: Build iOS IPA
+          xcode-project use-profiles
+      - name: Increment build number
+        script: |
+          cd ios/App
+          agvtool new-version -all $(($BUILD_NUMBER))
+      - name: Build iOS IPA (Workspace Target)
         script: |
           xcode-project build-ipa \
-            --project "ios/App/App.xcodeproj" \
-            --scheme "$XCODE_SCHEME" \
-            --verbose || {
-            echo "=== BUILD FAILED - DUMPING GYM AND XCODE LOGS ==="
-            find ~/Library/Logs/gym -name "*.log" -exec echo "--- {} ---" \; -exec tail -n 200 {} \; 2>/dev/null || true
-            find ~/Library/Developer/Xcode/DerivedData -name "*.log" -exec echo "--- {} ---" \; -exec grep -i -C 5 -E "error:|fatal error:|failed with exit code" {} + 2>/dev/null || true
-            exit 1
-          }
+            --workspace "ios/App/App.xcworkspace" \
+            --scheme "App"
     artifacts:
       - build/ios/ipa/*.ipa
-      - ios/App/build/ios/ipa/*.ipa
-      - ~/Library/Logs/gym/*.log
-      - ~/Library/Developer/Xcode/DerivedData/**/Logs/Build/*.log
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true
+        submit_to_app_store: false
+
+  android-google-play:
+    name: Oblivion 1 - Android Release
+    max_build_duration: 45
+    instance_type: mac_mini_m2
+    environment:
+      node: 22.14.0
+      java: 17
+      groups:
+        - google_credentials # Requires: GCLOUD_SERVICE_ACCOUNT_CREDENTIALS, ANDROID_KEYSTORE, ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS, ANDROID_KEY_PASSWORD
+    triggering:
+      events:
+        - push
+      branch_patterns:
+        - pattern: 'main'
+          include: true
+          source: true
+    scripts:
+      - name: Install dependencies
+        script: |
+          npm ci --legacy-peer-deps
+      - name: Build web assets
+        script: |
+          npm run build
+      - name: Sync Capacitor Android
+        script: |
+          npx cap sync android
+      - name: Set Android permissions & build AAB
+        script: |
+          cd android
+          chmod +x gradlew
+          ./gradlew bundleRelease
+    artifacts:
+      - android/app/build/outputs/bundle/release/*.aab
+    publishing:
+      google_play:
+        credentials: $GCLOUD_SERVICE_ACCOUNT_CREDENTIALS
+        track: internal
+        submit_as_draft: false

@@ -1769,9 +1769,30 @@ Return ONLY valid JSON matching this schema:
     : (fs.existsSync(path.join(androidAssetsPath, 'index.html')) ? androidAssetsPath : null);
 
   if (staticRoot) {
-    app.use('/assets', express.static(path.join(staticRoot, 'assets'), { maxAge: '1h' }));
-    app.use(express.static(staticRoot));
+    const assetsDir = fs.existsSync(path.join(process.cwd(), 'assets'))
+      ? path.join(process.cwd(), 'assets')
+      : path.join(staticRoot, 'assets');
+
+    app.use('/assets', express.static(assetsDir, {
+      maxAge: 0,
+      etag: false,
+      setHeaders: (res) => {
+        res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+        res.setHeader('Pragma', 'no-cache');
+        res.setHeader('Expires', '0');
+      },
+    }));
+    app.use(express.static(staticRoot, {
+      maxAge: 0,
+      etag: false,
+      setHeaders: (res) => {
+        res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+        res.setHeader('Pragma', 'no-cache');
+        res.setHeader('Expires', '0');
+      },
+    }));
     app.get('*', (_req, res) => {
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
       res.sendFile(path.join(staticRoot, 'index.html'));
     });
   } else if (process.env.NODE_ENV !== 'production') {
