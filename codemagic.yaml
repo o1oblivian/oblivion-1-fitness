@@ -8,7 +8,7 @@ workflows:
       xcode: 16.0
       cocoapods: default
       groups:
-        - apple_credentials # Requires: APP_STORE_CONNECT_PRIVATE_KEY, APP_STORE_CONNECT_KEY_IDENTIFIER, APP_STORE_CONNECT_ISSUER_ID, CERTIFICATE_PRIVATE_KEY
+        - app_store_credentials # Requires: APP_STORE_CONNECT_PRIVATE_KEY, APP_STORE_CONNECT_KEY_IDENTIFIER, APP_STORE_CONNECT_ISSUER_ID, CERTIFICATE_PRIVATE_KEY
     triggering:
       events:
         - push
@@ -59,7 +59,7 @@ workflows:
       node: 22.14.0
       java: 17
       groups:
-        - google_credentials # Requires: GCLOUD_SERVICE_ACCOUNT_CREDENTIALS, ANDROID_KEYSTORE, ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS, ANDROID_KEY_PASSWORD
+        - google_play_credentials # Requires: GCLOUD_SERVICE_ACCOUNT_CREDENTIALS, ANDROID_KEYSTORE, ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS, ANDROID_KEY_PASSWORD
     triggering:
       events:
         - push
