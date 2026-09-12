@@ -28,23 +28,28 @@ workflows:
           npx cap sync ios
       - name: Set up code signing
         script: |
+          cd ios/App
           keychain initialize
-          app-store-connect fetch-signing-files $(xcode-project detect-bundle-id) \
+          BUNDLE_ID=$(xcode-project detect-bundle-id --project App.xcodeproj 2>/dev/null || echo "com.o1fc.fitness")
+          [ -z "$BUNDLE_ID" ] && BUNDLE_ID="com.o1fc.fitness"
+          echo "Signing with Bundle ID: $BUNDLE_ID"
+          app-store-connect fetch-signing-files "$BUNDLE_ID" \
             --type IOS_APP_STORE \
             --create
           keychain add-certificates
-          xcode-project use-profiles --warn-only
+          xcode-project use-profiles --project App.xcodeproj
       - name: Increment build number
         script: |
           cd ios/App
           agvtool new-version -all $(($BUILD_NUMBER))
       - name: Build iOS IPA
         script: |
+          cd ios/App
           xcode-project build-ipa \
-            --project "ios/App/App.xcodeproj" \
+            --project "App.xcodeproj" \
             --scheme "App"
     artifacts:
-      - build/ios/ipa/*.ipa
+      - "**/*.ipa"
     publishing:
       app_store_connect:
         api_key: $APP_STORE_CONNECT_PRIVATE_KEY
