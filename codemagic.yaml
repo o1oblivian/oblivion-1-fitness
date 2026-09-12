@@ -26,9 +26,6 @@ workflows:
       - name: Sync Capacitor iOS
         script: |
           npx cap sync ios
-      - name: Install CocoaPods
-        script: |
-          cd ios/App && pod install
       - name: Set up code signing
         script: |
           xcode-project use-profiles
@@ -36,11 +33,13 @@ workflows:
         script: |
           cd ios/App
           agvtool new-version -all $(($BUILD_NUMBER))
-      - name: Build iOS IPA (Workspace Target)
+      - name: Build iOS IPA
         script: |
-          xcode-project build-ipa \
-            --workspace "ios/App/App.xcworkspace" \
-            --scheme "App"
+          if [ -d "ios/App/App.xcworkspace" ]; then
+            xcode-project build-ipa --workspace "ios/App/App.xcworkspace" --scheme "App"
+          else
+            xcode-project build-ipa --project "ios/App/App.xcodeproj" --scheme "App"
+          fi
     artifacts:
       - build/ios/ipa/*.ipa
     publishing:
