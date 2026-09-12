@@ -116,4 +116,19 @@ All credentials and environment configurations remain 100% intact:
   - `package.json` build script unified to: `"mkdir -p dist/assets && cp -R assets/* dist/assets/ && cp index.html dist/index.html && cp -R dist/* ios/App/App/public/ && cp -R dist/* android/app/src/main/assets/public/"`.
   - `codemagic.yaml` workflows streamlined to run `npm run build` directly, ensuring exact MD5 hash asset parity across all platforms prior to `npx cap sync`.
 
+---
+
+### September 12, 2026 (Codemagic Step 8 Exit Code 1 Root Cause Diagnosis & Resolution)
+- **Root Cause Analysis (Why Step 8 "Build iOS IPA" failed with Exit Code 1)**:
+  1. **Silent Log Masking**: `xcode-project build-ipa` runs Fastlane Gym / xcpretty under the hood, writing build and linker logs to `~/Library/Logs/gym/*.log`. The previous failure trap checked `/tmp/xcodebuild_logs`, an empty/non-existent directory, causing the build to fail silently without outputting the true compiler errors.
+  2. **Code Signing Identity Mismatch**: In `ios/App/App.xcodeproj/project.pbxproj`, the project-level `Release` build configuration specified `CODE_SIGN_IDENTITY = "iPhone Developer"`. Because Codemagic's `distribution_type: app_store` provisions an **Apple Distribution** certificate rather than a Developer certificate, `xcodebuild archive` failed code signing verification for Team `5ZXH526274`.
+  3. **Obsolete Architecture in Info.plist**: `Info.plist` specified `UIRequiredDeviceCapabilities = [armv7]`. For `IPHONEOS_DEPLOYMENT_TARGET = 15.0`, 32-bit `armv7` is obsolete and rejected during modern Xcode 16 archive validation.
+  4. **Silenced Profile Matching (`--warn-only || true`)**: Step 7 suppressed errors with `|| true`, allowing an unsanitized project configuration to proceed into `xcodebuild archive` where it failed without clear feedback.
+- **Fixes Applied**:
+  1. **Configured `CODE_SIGN_IDENTITY` for Release**: Changed `CODE_SIGN_IDENTITY` and `"CODE_SIGN_IDENTITY[sdk=iphoneos*]"` to `"iPhone Distribution"` across both project and target `Release` build configurations in `project.pbxproj`.
+  2. **Updated Device Capabilities**: Changed `armv7` to `arm64` in `ios/App/App/Info.plist`.
+  3. **Clean AVAudioSession Initialization**: Removed premature `setActive(true)` from `AppDelegate.didFinishLaunchingWithOptions` to prevent headless audio hardware traps during launch.
+  4. **Transparent Build Logging & Error Dumps**: Added `--verbose` to `xcode-project build-ipa` and updated the failure handler in `codemagic.yaml` to dump `~/Library/Logs/gym/*.log` and Xcode DerivedData diagnostic logs directly to stdout.
+  5. **SPM Path Resolution Symlink**: Created a root-level `CapApp-SPM` symlink pointing to `ios/App/CapApp-SPM` to ensure seamless resolution from both the repository root and project subdirectories.
+
 

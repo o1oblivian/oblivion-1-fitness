@@ -8,10 +8,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        // Configure AVAudioSession safely so WebKit media permissions never cause unhandled audio hardware exceptions
+        // Configure AVAudioSession category safely so WebKit media permissions never cause unhandled audio hardware exceptions
         do {
             try AVAudioSession.sharedInstance().setCategory(.playAndRecord, mode: .default, options: [.defaultToSpeaker, .allowBluetooth, .mixWithOthers])
-            try AVAudioSession.sharedInstance().setActive(true)
         } catch {
             print("AVAudioSession configuration note: \(error)")
         }

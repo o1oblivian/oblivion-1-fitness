@@ -66,6 +66,7 @@ workflows:
       - name: Sync Capacitor iOS
         script: |
           npx cap sync ios
+          ln -sfn ios/App/CapApp-SPM ./CapApp-SPM
       - name: Increment iOS Build Number
         script: |
           CURRENT_NUM=$(sed -n '/CURRENT_PROJECT_VERSION =/{s/.*= *//;s/;.*//;p;q;}' ios/App/App.xcodeproj/project.pbxproj | tr -d '[:space:]')
@@ -77,22 +78,24 @@ workflows:
           sed -i '' -e "s/CURRENT_PROJECT_VERSION = [0-9]*/CURRENT_PROJECT_VERSION = $NEW_NUM/g" ios/App/App.xcodeproj/project.pbxproj 2>/dev/null || sed -i -e "s/CURRENT_PROJECT_VERSION = [0-9]*/CURRENT_PROJECT_VERSION = $NEW_NUM/g" ios/App/App.xcodeproj/project.pbxproj
       - name: Set up code signing settings on Xcode project
         script: |
-          xcode-project use-profiles --project "ios/App/App.xcodeproj" --warn-only || true
+          echo "=== Signing Identities in Keychain ==="
+          security find-identity -v -p codesigning || true
+          echo "=== Available Provisioning Profiles ==="
+          ls -la "$HOME/Library/MobileDevice/Provisioning Profiles" || true
+          xcode-project use-profiles --project "ios/App/App.xcodeproj"
       - name: Build iOS IPA
         script: |
-          xcode-project build-ipa --project "ios/App/App.xcodeproj" --scheme "$XCODE_SCHEME" || {
-            echo "=== XCODEBUILD ERROR LOGS ==="
-            if [ -d "/tmp/xcodebuild_logs" ]; then
-              for logfile in /tmp/xcodebuild_logs/*.log; do
-                [ -f "$logfile" ] || continue
-                echo "--- $logfile ---"
-                grep -i -E "error:|fatal:|failed" "$logfile" | tail -n 50 || tail -n 50 "$logfile"
-              done
-            fi
+          xcode-project build-ipa \
+            --project "ios/App/App.xcodeproj" \
+            --scheme "$XCODE_SCHEME" \
+            --verbose || {
+            echo "=== BUILD FAILED - DUMPING GYM AND XCODE LOGS ==="
+            find ~/Library/Logs/gym -name "*.log" -exec echo "--- {} ---" \; -exec tail -n 200 {} \; 2>/dev/null || true
+            find ~/Library/Developer/Xcode/DerivedData -name "*.log" -exec echo "--- {} ---" \; -exec grep -i -C 5 -E "error:|fatal error:|failed with exit code" {} + 2>/dev/null || true
             exit 1
           }
     artifacts:
       - build/ios/ipa/*.ipa
       - ios/App/build/ios/ipa/*.ipa
-      - /tmp/xcodebuild_logs/*.log
       - ~/Library/Logs/gym/*.log
+      - ~/Library/Developer/Xcode/DerivedData/**/Logs/Build/*.log
