@@ -12,7 +12,7 @@ workflows:
         distribution_type: app_store
         bundle_identifier: com.o1fc.fitness
       vars:
-        XCODE_PROJECT: "ios/App/App.xcodeproj"
+        XCODE_WORKSPACE: "ios/App/App.xcworkspace"
         XCODE_SCHEME: "App"
       node: 22.14.0
       xcode: 16.0
@@ -24,11 +24,11 @@ workflows:
       - name: Sync Capacitor iOS
         script: npx cap sync ios
       - name: Link Provisioning Profile
-        script: xcode-project use-profiles --project ios/App/App.xcodeproj
+        script: xcode-project use-profiles
       - name: Build iOS IPA
         script: |
           xcode-project build-ipa \
-            --project "ios/App/App.xcodeproj" \
+            --workspace "ios/App/App.xcworkspace" \
             --scheme "App"
     artifacts:
       - build/ios/ipa/*.ipa
