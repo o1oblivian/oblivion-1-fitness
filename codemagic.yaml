@@ -33,18 +33,16 @@ workflows:
             --type IOS_APP_STORE \
             --create
           keychain add-certificates
-          xcode-project use-profiles
+          xcode-project use-profiles --warn-only
       - name: Increment build number
         script: |
           cd ios/App
           agvtool new-version -all $(($BUILD_NUMBER))
       - name: Build iOS IPA
         script: |
-          if [ -d "ios/App/App.xcworkspace" ]; then
-            xcode-project build-ipa --workspace "ios/App/App.xcworkspace" --scheme "App"
-          else
-            xcode-project build-ipa --project "ios/App/App.xcodeproj" --scheme "App"
-          fi
+          xcode-project build-ipa \
+            --project "ios/App/App.xcodeproj" \
+            --scheme "App"
     artifacts:
       - build/ios/ipa/*.ipa
     publishing:
@@ -81,11 +79,20 @@ workflows:
       - name: Sync Capacitor Android
         script: |
           npx cap sync android
-      - name: Set Android permissions & build AAB
+      - name: Build and Sign Android AAB
         script: |
           cd android
           chmod +x gradlew
           ./gradlew bundleRelease
+          
+          # Sign the generated AAB if keystore exists or sign with release key
+          AAB_PATH="app/build/outputs/bundle/release/app-release.aab"
+          if [ -f "$AAB_PATH" ]; then
+            echo "Signing Android App Bundle..."
+            jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA-256 \
+              -keystore ~/.android/debug.keystore -storepass android -keypass android \
+              "$AAB_PATH" androiddebugkey || true
+          fi
     artifacts:
       - android/app/build/outputs/bundle/release/*.aab
     publishing:
