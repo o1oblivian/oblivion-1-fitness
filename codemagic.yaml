@@ -19,7 +19,7 @@ workflows:
     scripts:
       - name: Install dependencies
         script: |
-          npm ci --legacy-peer-deps
+          npm install --legacy-peer-deps
       - name: Build web assets
         script: |
           npm run build
@@ -70,7 +70,7 @@ workflows:
     scripts:
       - name: Install dependencies
         script: |
-          npm ci --legacy-peer-deps
+          npm install --legacy-peer-deps
       - name: Build web assets
         script: |
           npm run build
