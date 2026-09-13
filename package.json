@@ -5,10 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "tsx server.ts",
-    "build": "mkdir -p dist/assets && cp -R assets/* dist/assets/ && cp index.html dist/index.html && cp -R dist/* ios/App/App/public/ && cp -R dist/* android/app/src/main/assets/public/",
+    "build": "mkdir -p dist/assets && cp -R assets/* dist/assets/ && cp index.html dist/index.html && cp -f *.png *.ico dist/ 2>/dev/null || true && cp -R dist/* ios/App/App/public/ && cp -R dist/* android/app/src/main/assets/public/",
     "start": "node server.ts"
   },
   "dependencies": {
+    "@capacitor-community/apple-sign-in": "^7.1.0",
     "@capacitor/android": "^8.5.1",
     "@capacitor/app": "^8.1.1",
     "@capacitor/browser": "^8.0.4",
@@ -21,6 +22,7 @@
     "@capacitor/splash-screen": "^8.0.2",
     "@capacitor/status-bar": "^8.0.3",
     "@google/genai": "^2.16.0",
+    "@revenuecat/purchases-capacitor": "^13.5.1",
     "@supabase/supabase-js": "^2.112.2",
     "express": "^4.22.2",
     "lucide-react": "^0.546.0",

@@ -55,20 +55,31 @@
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
 	</array>
+	<key>UISupportedInterfaceOrientations~ipad</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationPortraitUpsideDown</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
+	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
-	<key>NSMicrophoneUsageDescription</key>
-	<string>Oblivion 1 Fitness Club requires microphone access for audio and coach interactions.</string>
-	<key>NSCameraUsageDescription</key>
-	<string>Oblivion 1 Fitness Club requires camera access for workout and form tracking.</string>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Oblivion 1 Fitness Club accesses your photo library to select avatar images and workout progress media.</string>
-	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>Oblivion 1 Fitness Club saves workout performance certificates and telemetry badges to your photo library.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Oblivion 1 Fitness Club requires location access for outdoor workout tracking.</string>
+	<string>Oblivion 1 Fitness Club uses your location to discover nearby training partners, track running telemetry, and locate partner gyms.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Oblivion 1 Fitness Club uses your location to track outdoor workout distance and alert you to nearby training partners even when running in the background.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>Oblivion 1 Fitness Club uses your location to accurately record outdoor running telemetry and notify you of nearby fitness club members.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Oblivion 1 Fitness Club requires camera access to scan nutrition barcodes, analyze workout movement form, and record progress photos.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Oblivion 1 Fitness Club accesses your photo library to select athlete avatar images and upload workout progress photos.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Oblivion 1 Fitness Club saves workout performance certificates, telemetry badges, and training summaries to your photo library.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Oblivion 1 Fitness Club requires microphone access for hands-free voice nutrition logging and audio coach interactions.</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
-	<string>Oblivion 1 Fitness Club uses speech recognition for hands-free workout logging during training.</string>
+	<string>Oblivion 1 Fitness Club uses speech recognition for hands-free fuel and workout logging during high-intensity training.</string>
     <key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 </dict>

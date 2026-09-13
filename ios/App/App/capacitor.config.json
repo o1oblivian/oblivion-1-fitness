@@ -20,12 +20,14 @@
 		}
 	},
 	"packageClassList": [
+		"SignInWithApple",
 		"AppPlugin",
 		"CAPBrowserPlugin",
 		"HapticsPlugin",
 		"KeyboardPlugin",
 		"PreferencesPlugin",
 		"SplashScreenPlugin",
-		"StatusBarPlugin"
+		"StatusBarPlugin",
+		"PurchasesPlugin"
 	]
 }

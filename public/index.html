@@ -75,26 +75,112 @@
       html.dark { background-color: #000000; }
       #root { background-color: inherit; min-height: 100dvh; }
 
-      /* iPad and Tablet responsive layout optimization (iPad Air 11-inch, iPadOS) */
+      /* Safe-area insets & dynamic viewport scaling for Apple devices (iPhone, iPad, Dynamic Island) */
+      :root {
+        --sat: env(safe-area-inset-top, 0px);
+        --sar: env(safe-area-inset-right, 0px);
+        --sab: env(safe-area-inset-bottom, 0px);
+        --sal: env(safe-area-inset-left, 0px);
+      }
+
+      body {
+        padding-top: env(safe-area-inset-top, 0px);
+        padding-bottom: env(safe-area-inset-bottom, 0px);
+        padding-left: env(safe-area-inset-left, 0px);
+        padding-right: env(safe-area-inset-right, 0px);
+        box-sizing: border-box;
+      }
+
+      /* iPad and Tablet responsive layout optimization (iPad Air 11-inch, iPadOS 17/18, Safari) */
       @media screen and (min-width: 768px) {
         body {
           background-color: #0A0A0C !important;
           display: flex;
           justify-content: center;
-          align-items: center;
-          min-height: 100vh;
+          align-items: stretch;
+          min-height: 100dvh;
+          height: 100dvh;
+          overflow: hidden;
         }
         #root {
-          max-width: 580px;
+          max-width: 600px;
           width: 100%;
-          min-height: 100vh;
+          min-height: 100dvh;
+          height: 100dvh;
           margin: 0 auto;
           box-shadow: 0 0 60px rgba(0, 0, 0, 0.5);
           position: relative;
           border-left: 1px solid rgba(255, 255, 255, 0.08);
           border-right: 1px solid rgba(255, 255, 255, 0.08);
+          overflow-y: auto;
           overflow-x: hidden;
+          -webkit-overflow-scrolling: touch;
         }
+      }
+
+      /* Apple Guideline 4.0.0: iPad UI Layout & Safe Area Scaling */
+      .auth-scroll-container,
+      div[class*="overflow-y-auto"] {
+        -webkit-overflow-scrolling: touch;
+      }
+
+      /* Ensure Authentication modal never clips or compresses buttons on iPad (4:3 aspect ratio) */
+      div[class*="fixed inset-0"][class*="z-[600]"],
+      #auth-screen-overlay,
+      #paywall-overlay {
+        min-height: 100vh !important;
+        min-height: 100dvh !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        display: flex !important;
+        flex-direction: column !important;
+      }
+
+      /* Safe-area padding bottom constraint */
+      div[class*="fixed inset-0"][class*="z-[600]"] > div,
+      #auth-scroll-wrapper {
+        min-height: 100% !important;
+        padding-bottom: max(2rem, env(safe-area-inset-bottom, 24px)) !important;
+        box-sizing: border-box !important;
+      }
+
+      /* Apple Human Interface Guidelines (HIG) compliance for auth and subscription buttons */
+      button[aria-label="Sign in with Apple"],
+      button#btn-sign-in-apple,
+      button#btn-sign-in-google,
+      button#auth-submit-btn,
+      button#btn-iap-subscribe {
+        min-height: 48px !important;
+        height: 48px !important;
+        flex-shrink: 0 !important;
+        box-sizing: border-box !important;
+      }
+
+      /* Prevent button overlapping and ensure consistent spacing on tablet viewports */
+      div[class*="flex flex-col gap-2.5"],
+      div[class*="flex flex-col gap-3"] {
+        row-gap: 12px !important;
+        flex-shrink: 0 !important;
+      }
+
+      /* Oblivion 1 Brand Button Styling & Fallbacks */
+      .bg-\[\#B91C1C\],
+      .bg-\[\#C4121A\],
+      button.bg-red-600,
+      button[type="submit"].bg-red-600 {
+        background-color: #C4121A !important;
+        color: #FFFFFF !important;
+      }
+      .bg-\[\#B91C1C\]:hover,
+      .bg-\[\#C4121A\]:hover,
+      button.hover\:bg-red-700:hover,
+      button[type="submit"].hover\:bg-red-700:hover {
+        background-color: #A30F16 !important;
+      }
+      .bg-\[\#7F1D1D\],
+      button.active\:bg-red-800:active,
+      button[type="submit"].active\:bg-red-800:active {
+        background-color: #800C11 !important;
       }
     </style>
   <link rel="modulepreload" crossorigin href="/assets/vendor-lucide-Cs8OsUA1-D4z-EMbx-D4z-EMbx.js">

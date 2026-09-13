@@ -1202,6 +1202,21 @@ Return ONLY valid JSON matching this schema:
     try {
       const { planId, userEmail, successUrl, cancelUrl, programTitle, programPriceCents, isMobile, clientOrigin } = req.body || {};
 
+      // Requirement 1 & 3: Isolate Stripe completely to web viewports (Capacitor.getPlatform() === 'web')
+      const userAgent = req.get('user-agent') || '';
+      const platformHeader = (req.get('x-platform') || (req.body && req.body.platform) || '').toLowerCase();
+      const isIos = platformHeader === 'ios' || /iPad|iPhone|iPod/.test(userAgent) || /Capacitor.*iOS/i.test(userAgent);
+      const isAndroid = platformHeader === 'android' || /Android/i.test(userAgent) || /Capacitor.*Android/i.test(userAgent);
+      const isMobileNative = isIos || isAndroid;
+
+      if (isMobileNative && platformHeader !== 'web') {
+        return res.status(403).json({
+          error: isIos
+            ? 'External payments are disabled on iOS pursuant to Apple App Store Guideline 3.1.1. Please use Apple In-App Purchase.'
+            : 'External payments are disabled on Android. Please use Google Play In-App Purchase.',
+        });
+      }
+
       const stripe = getStripe();
       if (!stripe) {
         return res.status(500).json({
@@ -1521,6 +1536,22 @@ Return ONLY valid JSON matching this schema:
   // Stripe Customer Billing Portal
   app.post('/api/stripe-portal', standardApiLimiter, async (req, res) => {
     try {
+      // Guideline 3.1.1: Direct mobile users to native subscription settings
+      const userAgent = req.get('user-agent') || '';
+      const platformHeader = (req.get('x-platform') || (req.body && req.body.platform) || '').toLowerCase();
+      const isIos = platformHeader === 'ios' || /iPad|iPhone|iPod/.test(userAgent) || /Capacitor.*iOS/i.test(userAgent);
+      const isAndroid = platformHeader === 'android' || /Android/i.test(userAgent) || /Capacitor.*Android/i.test(userAgent);
+      if (isIos && platformHeader !== 'web') {
+        return res.status(403).json({
+          error: 'Please manage your active subscriptions directly in iOS Settings > Apple ID > Subscriptions.',
+        });
+      }
+      if (isAndroid && platformHeader !== 'web') {
+        return res.status(403).json({
+          error: 'Please manage your active subscriptions directly in the Google Play Store > Payments & subscriptions.',
+        });
+      }
+
       const { userEmail, customerId } = req.body || {};
       const stripe = getStripe();
       if (!stripe) {
