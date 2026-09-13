@@ -11,8 +11,6 @@ workflows:
           include: true
           source: true
     environment:
-      groups:
-        - appstore_credentials
       ios_signing:
         distribution_type: app_store
         bundle_identifier: com.o1fc.fitness
@@ -34,6 +32,9 @@ workflows:
         script: |
           npx cap sync ios
           xcodebuild -resolvePackageDependencies -project ios/App/App.xcodeproj
+      - name: Set up code signing settings on Xcode project
+        script: |
+          xcode-project use-profiles
       - name: Set build version
         script: |
           NEW_BUILD=4
