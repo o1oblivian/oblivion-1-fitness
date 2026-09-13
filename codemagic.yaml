@@ -16,7 +16,6 @@ workflows:
         bundle_identifier: com.o1fc.fitness
       vars:
         BUNDLE_ID: "com.o1fc.fitness"
-        XCODE_WORKSPACE: "ios/App/App.xcworkspace"
         XCODE_SCHEME: "App"
       node: 22
       xcode: latest
@@ -59,7 +58,7 @@ workflows:
           set -e
           echo "Building signed App Store IPA for publishing..."
           xcode-project build-ipa \
-            --workspace "$XCODE_WORKSPACE" \
+            --project "ios/App/App.xcodeproj" \
             --scheme "$XCODE_SCHEME"
     artifacts:
       - build/ios/ipa/*.ipa
