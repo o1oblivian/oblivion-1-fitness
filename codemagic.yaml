@@ -18,13 +18,13 @@ workflows:
         BUNDLE_ID: "com.o1fc.fitness"
         XCODE_WORKSPACE: "ios/App/App.xcworkspace"
         XCODE_SCHEME: "App"
-      node: 20
+      node: 22
       xcode: latest
       cocoapods: default
     scripts:
       - name: Install dependencies
         script: |
-          npm ci --legacy-peer-deps
+          npm install --legacy-peer-deps
       - name: Build web assets
         script: |
           npm run build
