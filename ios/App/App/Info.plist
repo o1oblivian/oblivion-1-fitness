@@ -82,5 +82,16 @@
 	<string>Oblivion 1 Fitness Club uses speech recognition for hands-free fuel and workout logging during high-intensity training.</string>
     <key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>com.o1fc.fitness</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.o1fc.fitness</string>
+			</array>
+		</dict>
+	</array>
 </dict>
 </plist>

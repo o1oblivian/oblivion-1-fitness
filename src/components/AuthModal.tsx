@@ -1,18 +1,18 @@
 import React, { useState } from 'react';
-import { Mail, Lock, Eye, EyeOff, Loader2, AlertCircle, CheckCircle2, Shield } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, Loader2, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { Capacitor } from '@capacitor/core';
 import { SignInWithApple } from '@capacitor-community/apple-sign-in';
 import { Browser } from '@capacitor/browser';
 import { supabase } from '../lib/supabase';
 
-interface AuthViewProps {
+interface AuthModalProps {
   isOpen: boolean;
   onClose?: () => void;
   onSuccess?: (user: any) => void;
   showToast?: (message: string, type?: 'success' | 'error' | 'info') => void;
 }
 
-export const AuthView: React.FC<AuthViewProps> = ({
+export const AuthModal: React.FC<AuthModalProps> = ({
   isOpen,
   onClose,
   onSuccess = () => {},
@@ -39,11 +39,20 @@ export const AuthView: React.FC<AuthViewProps> = ({
 
     if (mode === 'forgot') {
       setLoading(true);
-      setTimeout(() => {
+      try {
+        const { error } = await supabase.auth.resetPasswordForEmail(email.trim());
+        if (error) {
+          setStatusMessage({ type: 'error', text: error.message });
+          showToast(error.message, 'error');
+        } else {
+          setStatusMessage({ type: 'success', text: `Password reset instructions dispatched to ${email.trim()}.` });
+          showToast('Password reset requested. Check your inbox.', 'success');
+        }
+      } catch (err: any) {
+        setStatusMessage({ type: 'error', text: err?.message || 'Password reset request failed.' });
+      } finally {
         setLoading(false);
-        setStatusMessage({ type: 'success', text: `Password reset instructions dispatched to ${email.trim()}.` });
-        showToast('Password reset requested. Check your inbox.', 'success');
-      }, 800);
+      }
       return;
     }
 
@@ -58,72 +67,150 @@ export const AuthView: React.FC<AuthViewProps> = ({
     }
 
     setLoading(true);
-    setTimeout(() => {
+    try {
+      if (mode === 'signin') {
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email: email.trim(),
+          password,
+        });
+        if (error) {
+          setStatusMessage({ type: 'error', text: error.message });
+          showToast(error.message, 'error');
+          return;
+        }
+        showToast('Signed in successfully', 'success');
+        onSuccess(data.user);
+        if (onClose) onClose();
+      } else {
+        const { data, error } = await supabase.auth.signUp({
+          email: email.trim(),
+          password,
+        });
+        if (error) {
+          setStatusMessage({ type: 'error', text: error.message });
+          showToast(error.message, 'error');
+          return;
+        }
+        showToast('Account created successfully', 'success');
+        onSuccess(data.user);
+        if (onClose) onClose();
+      }
+    } catch (err: any) {
+      setStatusMessage({ type: 'error', text: err?.message || 'Authentication failed.' });
+    } finally {
       setLoading(false);
-      const user = { email: email.trim(), id: 'ath_' + Date.now() };
-      showToast(mode === 'signin' ? 'Signed in successfully' : 'Account created successfully', 'success');
-      onSuccess(user);
-      if (onClose) onClose();
-    }, 900);
+    }
   };
 
-  const handleOAuth = async (provider: 'apple' | 'google') => {
+  const handleAppleSignIn = async () => {
     setStatusMessage(null);
     setLoading(true);
     try {
-      if (provider === 'apple') {
-        const isIosNative = Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'ios';
-        if (isIosNative) {
-          // Native Apple Sign In via ASAuthorizationController (@capacitor-community/apple-sign-in)
-          showToast('Authenticating with Apple ID...', 'info');
-          try {
-            const result = await SignInWithApple.authorize({
-              clientId: 'com.o1fc.fitness',
-              redirectURI: 'https://o1fc-official-1.ai.studio',
-              scopes: 'email name',
+      if (Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'ios') {
+        // 1. Native iOS Apple Sign-In:
+        // Use SignInWithApple.authorize to display the native iOS bottom sheet.
+        // Pass returned identityToken to supabase.auth.signInWithIdToken({ provider: 'apple', token: identityToken }).
+        // MUST NOT navigate away or open Safari/web browser.
+        try {
+          const result = await SignInWithApple.authorize({
+            clientId: 'com.o1fc.fitness',
+            redirectURI: 'https://o1fc-official-1.ai.studio',
+            scopes: 'email name',
+          });
+
+          if (result && result.response && result.response.identityToken) {
+            const { data, error } = await supabase.auth.signInWithIdToken({
+              provider: 'apple',
+              token: result.response.identityToken,
             });
-            if (result && result.response && result.response.identityToken) {
-              const { data, error } = await supabase.auth.signInWithIdToken({
-                provider: 'apple',
-                token: result.response.identityToken,
-              });
 
-              if (error) {
-                setLoading(false);
-                setStatusMessage({ type: 'error', text: error.message });
-                showToast(error.message, 'error');
-                return;
-              }
-
-              const appleEmail = result.response.email || data?.user?.email || 'athlete@privaterelay.appleid.com';
-              const userName = [result.response.givenName, result.response.familyName].filter(Boolean).join(' ') || 'Athlete';
-              setLoading(false);
-              const user = data?.user || { email: appleEmail, id: 'apple_' + Date.now(), name: userName };
-              showToast('Signed in with Apple', 'success');
-              onSuccess(user);
-              if (onClose) onClose();
+            if (error) {
+              setStatusMessage({ type: 'error', text: error.message });
+              showToast(error.message, 'error');
               return;
             }
-          } catch (nativeErr: any) {
-            setLoading(false);
-            if (nativeErr?.code === 1 || nativeErr?.userCancelled || nativeErr?.message?.toLowerCase().includes('cancel')) {
-              return;
-            }
-            setStatusMessage({ type: 'error', text: nativeErr?.message || 'Apple Sign In was not completed.' });
-            showToast(nativeErr?.message || 'Apple Sign In was not completed.', 'error');
+
+            const user = data?.user || {
+              email: result.response.email || 'athlete@privaterelay.appleid.com',
+              id: 'apple_' + Date.now(),
+            };
+            showToast('Signed in with Apple', 'success');
+            onSuccess(user);
+            if (onClose) onClose();
             return;
           }
+        } catch (nativeErr: any) {
+          if (nativeErr?.code === 1 || nativeErr?.userCancelled || nativeErr?.message?.toLowerCase().includes('cancel')) {
+            return;
+          }
+          const errMsg = nativeErr?.message || 'Apple Sign-In failed.';
+          setStatusMessage({ type: 'error', text: errMsg });
+          showToast(errMsg, 'error');
+          return;
+        }
+      }
+
+      // For web preview, keep standard supabase.auth.signInWithOAuth fallback
+      const redirectTo = typeof window !== 'undefined' && window.location.origin
+        ? window.location.origin
+        : 'https://o1fc-official-1.ai.studio';
+
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'apple',
+        options: {
+          redirectTo,
+        },
+      });
+
+      if (error) {
+        setStatusMessage({ type: 'error', text: error.message });
+        showToast(error.message, 'error');
+      }
+    } catch (err: any) {
+      const msg = err?.message || 'Unable to complete Apple Sign-In.';
+      setStatusMessage({ type: 'error', text: msg });
+      showToast(msg, 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    setStatusMessage(null);
+    setLoading(true);
+    try {
+      if (Capacitor.isNativePlatform()) {
+        const { data, error } = await supabase.auth.signInWithOAuth({
+          provider: 'google',
+          options: {
+            redirectTo: 'com.o1fc.fitness://auth/callback',
+            skipBrowserRedirect: true,
+          },
+        });
+
+        if (error) {
+          setStatusMessage({ type: 'error', text: error.message });
+          showToast(error.message, 'error');
+          return;
         }
 
-        // Web / preview environment fallback: supabase.auth.signInWithOAuth
+        if (data?.url) {
+          await Browser.open({ url: data.url, windowName: '_self' });
+        }
+      } else {
+        // Web fallback for preview browser
         const redirectTo = typeof window !== 'undefined' && window.location.origin
           ? window.location.origin
           : 'https://o1fc-official-1.ai.studio';
 
         const { error } = await supabase.auth.signInWithOAuth({
-          provider: 'apple',
+          provider: 'google',
           options: {
             redirectTo,
+            queryParams: {
+              access_type: 'offline',
+              prompt: 'select_account',
+            },
           },
         });
 
@@ -131,51 +218,11 @@ export const AuthView: React.FC<AuthViewProps> = ({
           setStatusMessage({ type: 'error', text: error.message });
           showToast(error.message, 'error');
         }
-      } else {
-        // Google Sign In
-        showToast('Authenticating with Google...', 'info');
-        if (Capacitor.isNativePlatform()) {
-          const { data, error } = await supabase.auth.signInWithOAuth({
-            provider: 'google',
-            options: {
-              redirectTo: 'com.o1fc.fitness://auth/callback',
-              skipBrowserRedirect: true,
-            },
-          });
-
-          if (error) {
-            setStatusMessage({ type: 'error', text: error.message });
-            showToast(error.message, 'error');
-            return;
-          }
-
-          if (data?.url) {
-            await Browser.open({ url: data.url, windowName: '_self' });
-          }
-        } else {
-          const redirectTo = typeof window !== 'undefined' && window.location.origin
-            ? window.location.origin
-            : 'https://o1fc-official-1.ai.studio';
-
-          const { error } = await supabase.auth.signInWithOAuth({
-            provider: 'google',
-            options: {
-              redirectTo,
-              queryParams: {
-                access_type: 'offline',
-                prompt: 'select_account',
-              },
-            },
-          });
-
-          if (error) {
-            setStatusMessage({ type: 'error', text: error.message });
-            showToast(error.message, 'error');
-          }
-        }
       }
     } catch (err: any) {
-      setStatusMessage({ type: 'error', text: `Unable to initiate ${provider} authentication.` });
+      const msg = err?.message || 'Unable to complete Google Sign-In.';
+      setStatusMessage({ type: 'error', text: msg });
+      showToast(msg, 'error');
     } finally {
       setLoading(false);
     }
@@ -183,14 +230,13 @@ export const AuthView: React.FC<AuthViewProps> = ({
 
   return (
     <div
-      id="auth-screen-overlay"
+      id="auth-modal-overlay"
       className="fixed inset-0 z-[600] overflow-y-auto overscroll-contain bg-[#0A0A0C] text-zinc-100 selection:bg-red-600/20"
       style={{
         minHeight: '100vh',
         WebkitOverflowScrolling: 'touch',
       }}
     >
-      {/* Scrollable Main Container: Vertically and horizontally centered on phone and iPad */}
       <div
         id="auth-scroll-wrapper"
         className="w-full flex flex-col justify-center items-center"
@@ -204,12 +250,11 @@ export const AuthView: React.FC<AuthViewProps> = ({
           boxSizing: 'border-box',
         }}
       >
-        {/* Main Card: Vertically & horizontally centered */}
         <div
           id="auth-modal-card"
           className="w-full max-w-sm sm:max-w-md mx-auto my-auto bg-[#121214] border border-white/10 rounded-2xl sm:rounded-3xl p-5 sm:p-7 shadow-2xl transition-all"
         >
-          {/* Header & Logo */}
+          {/* Header & Logo - STRICT: No 3-dots menus or avatar icons */}
           <div className="text-center space-y-2 pb-3">
             <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-[#C4121A] text-white shadow-md mx-auto">
               <span className="font-black text-lg tracking-tighter">O1</span>
@@ -252,7 +297,7 @@ export const AuthView: React.FC<AuthViewProps> = ({
             </div>
           )}
 
-          {/* Feedback message banner */}
+          {/* Feedback banner */}
           {statusMessage && (
             <div
               className={`mb-4 p-3 rounded-xl text-xs font-semibold border flex items-start gap-2.5 ${
@@ -270,9 +315,8 @@ export const AuthView: React.FC<AuthViewProps> = ({
             </div>
           )}
 
-          {/* Form */}
+          {/* Email / Password Form */}
           <form onSubmit={handleSubmit} className="space-y-3.5">
-            {/* Email Field */}
             <div className="space-y-1">
               <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider block">
                 Email Address
@@ -290,7 +334,6 @@ export const AuthView: React.FC<AuthViewProps> = ({
               </div>
             </div>
 
-            {/* Password Field */}
             {mode !== 'forgot' && (
               <div className="space-y-1">
                 <div className="flex items-center justify-between">
@@ -331,7 +374,6 @@ export const AuthView: React.FC<AuthViewProps> = ({
               </div>
             )}
 
-            {/* Confirm Password (Sign Up only) */}
             {mode === 'signup' && (
               <div className="space-y-1">
                 <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider block">
@@ -351,7 +393,6 @@ export const AuthView: React.FC<AuthViewProps> = ({
               </div>
             )}
 
-            {/* Primary Submit Button */}
             <button
               id="auth-submit-btn"
               type="submit"
@@ -381,10 +422,9 @@ export const AuthView: React.FC<AuthViewProps> = ({
             )}
           </form>
 
-          {/* Social Auth Providers (Sign in with Apple & Google) */}
+          {/* Social Auth Providers */}
           {mode !== 'forgot' && (
             <div className="pt-4 space-y-3">
-              {/* Divider */}
               <div className="relative flex items-center justify-center">
                 <div className="w-full border-t border-white/10" />
                 <span className="absolute bg-[#121214] px-3 text-[11px] font-black uppercase tracking-[0.14em] text-zinc-500 select-none">
@@ -392,29 +432,27 @@ export const AuthView: React.FC<AuthViewProps> = ({
                 </span>
               </div>
 
-              {/* Action Buttons Stack (Compliant with Apple HIG) */}
               <div className="flex flex-col gap-3 pt-2">
-                {/* Apple HIG Standard Button */}
+                {/* Apple Sign-In Button */}
                 <button
                   id="btn-sign-in-apple"
                   type="button"
-                  onClick={() => handleOAuth('apple')}
+                  onClick={handleAppleSignIn}
                   disabled={loading}
                   className="w-full h-12 min-h-[48px] bg-black hover:bg-zinc-900 active:bg-zinc-950 text-white rounded-full flex items-center justify-center gap-3 px-4 transition-all cursor-pointer border border-white/20 shadow-sm active:scale-[0.99] disabled:opacity-50"
                   aria-label="Sign in with Apple"
                 >
-                  {/* Apple Logo SVG */}
                   <svg className="w-5 h-5 fill-current shrink-0" viewBox="0 0 170 170">
                     <path d="M150.37 130.25c-2.45 5.66-5.35 10.87-8.71 15.66-4.58 6.53-8.33 11.05-11.22 13.56-4.48 4.12-9.28 6.23-14.42 6.35-3.69 0-8.14-1.05-13.32-3.18-5.19-2.12-9.97-3.17-14.34-3.17-4.58 0-9.49 1.05-14.75 3.17-5.26 2.13-9.5 3.24-12.74 3.35-4.35.13-9.16-1.9-14.42-6.08-3.69-3.04-7.64-7.81-11.87-14.3-6.42-9.78-11.53-21.36-15.34-34.74-3.8-13.38-5.71-25.79-5.71-37.24 0-15.02 3.73-27.42 11.19-37.21 7.46-9.79 17.07-14.88 28.84-15.26 4.79 0 10.15 1.25 16.08 3.77 5.92 2.51 9.87 3.82 11.83 3.92 1.63-.1 5.64-1.41 12.02-3.92 6.38-2.52 11.96-3.7 16.74-3.55 12.42.66 22.38 5.43 29.89 14.32-10.89 6.64-16.22 15.78-16 27.42.22 9.15 3.75 16.88 10.6 23.18 6.84 6.31 15.04 9.93 24.59 10.86-2.17 6.74-4.89 13.59-8.17 20.55zM119.22 33.64c0-7.18 2.61-13.91 7.82-20.2 5.22-6.28 11.75-10.45 19.6-12.51.22 1.52.33 2.93.33 4.24 0 7.07-2.67 13.9-8.02 20.48-5.34 6.58-11.91 10.87-19.73 12.87-.22-1.3-.33-2.66-.33-4.08z" />
                   </svg>
                   <span className="text-sm font-semibold tracking-normal text-white">Sign in with Apple</span>
                 </button>
 
-                {/* Google Sign In Button */}
+                {/* Google Sign-In Button */}
                 <button
                   id="btn-sign-in-google"
                   type="button"
-                  onClick={() => handleOAuth('google')}
+                  onClick={handleGoogleSignIn}
                   disabled={loading}
                   className="w-full h-12 min-h-[48px] bg-white hover:bg-zinc-100 active:bg-zinc-200 text-zinc-900 rounded-full flex items-center justify-center gap-3 px-4 transition-all cursor-pointer border border-zinc-300 shadow-xs active:scale-[0.99] disabled:opacity-50"
                   aria-label="Continue with Google"
@@ -441,7 +479,6 @@ export const AuthView: React.FC<AuthViewProps> = ({
                 </button>
               </div>
 
-              {/* Terms & Privacy */}
               <div className="pt-2 text-center text-[10px] text-zinc-400">
                 By continuing, you agree to our{' '}
                 <a
@@ -470,5 +507,4 @@ export const AuthView: React.FC<AuthViewProps> = ({
   );
 };
 
-export default AuthView;
-export { AuthView as AuthModal };
+export default AuthModal;

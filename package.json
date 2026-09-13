@@ -22,7 +22,7 @@
     "@capacitor/splash-screen": "^8.0.2",
     "@capacitor/status-bar": "^8.0.3",
     "@google/genai": "^2.16.0",
-    "@revenuecat/purchases-capacitor": "^13.5.1",
+    "@revenuecat/purchases-capacitor": "latest",
     "@supabase/supabase-js": "^2.112.2",
     "express": "^4.22.2",
     "lucide-react": "^0.546.0",

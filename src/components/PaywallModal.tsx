@@ -1,14 +1,71 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import {
-  getAppPlatform,
-  purchaseNativeSubscription,
-  restoreNativePurchases,
-  applyLocalSubscription,
-  IAP_PRODUCTS,
-  TERMS_OF_SERVICE_URL,
-  PRIVACY_POLICY_URL,
-} from '../services/iapService';
+import { Capacitor } from '@capacitor/core';
+import { purchaseSubscription, restorePurchases } from '../services/iapService';
 import { X, Check, ShieldCheck, RefreshCw, ExternalLink, Loader2, Sparkles, CreditCard, AlertCircle } from 'lucide-react';
+
+export interface IAPProductInfo {
+  id: string;
+  name: string;
+  price: string;
+  description: string;
+  productId: string;
+}
+
+export const IAP_PRODUCTS: Record<string, IAPProductInfo> = {
+  premium: {
+    id: 'premium',
+    productId: 'com.o1fc.fitness.plus_monthly',
+    name: 'O1FC Plus (50km Radius)',
+    price: '$9.99/mo',
+    description: 'Full workout OS, Fuel macro intelligence & 50km Buddy radar',
+  },
+  premium_travel: {
+    id: 'premium_travel',
+    productId: 'com.o1fc.fitness.travel_monthly',
+    name: 'O1FC Global VIP (Travel Pass)',
+    price: '$15.99/mo',
+    description: 'Unlimited worldwide Buddy Radar, PostGIS global matching & AI Coach Insights',
+  },
+  coach_pro: {
+    id: 'coach_pro',
+    productId: 'com.o1fc.fitness.coach_pro_monthly',
+    name: 'O1FC Coach Pro (Unlimited)',
+    price: '$29.99/mo',
+    description: 'Unlimited athlete roster, automated workout dispatch, transformation studio & video monetization',
+  },
+};
+
+export const TERMS_OF_SERVICE_URL = 'https://www.apple.com/legal/internet-services/itunes/dev/stdeula/';
+export const PRIVACY_POLICY_URL = 'https://o1fc-official-1.ai.studio';
+
+function getAppPlatform(): 'ios' | 'android' | 'web' {
+  try {
+    if (Capacitor.isNativePlatform()) {
+      const p = Capacitor.getPlatform();
+      if (p === 'ios') return 'ios';
+      if (p === 'android') return 'android';
+    }
+  } catch {}
+  return 'web';
+}
+
+function applyLocalSubscription(tier: string, provider: 'apple_iap' | 'google_play' | 'stripe' = 'apple_iap') {
+  try {
+    localStorage.setItem(
+      'o1fc_active_subscription',
+      JSON.stringify({
+        tier,
+        activatedAt: new Date().toISOString(),
+        expiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
+        provider,
+        status: 'active',
+      })
+    );
+    localStorage.setItem('o1fc_cached_tier', tier);
+    window.dispatchEvent(new CustomEvent('o1fc-subscription-updated', { detail: { tier, provider } }));
+    window.dispatchEvent(new CustomEvent('user_profile_updated', { detail: { subscription_tier: tier } }));
+  } catch {}
+}
 
 interface PaywallModalProps {
   isOpen: boolean;
@@ -50,106 +107,53 @@ export const PaywallModal: React.FC<PaywallModalProps> = ({
   const handlePurchase = useCallback(async () => {
     setErrorMessage(null);
     setNativeNotice(null);
-
-    // If native platform (iOS / Android)
-    if (isNative) {
-      // In the browser/preview environment, intercept the call:
-      // Show a clear in-app modal/alert ("Native In-App Purchase can only be executed on a physical device or emulator")
-      // instead of failing silently and closing the modal.
-      if (!Capacitor.isNativePlatform()) {
-        const previewNotice = 'Native In-App Purchase can only be executed on a physical device or emulator';
-        setNativeNotice(previewNotice);
-        showToast(previewNotice, 'info');
-        return; // Do NOT automatically close or dismiss the modal
-      }
-
-      // On native devices (iOS/Android), properly await the purchase transaction, set a loading spinner on the button ("Processing..."),
-      // and only close the modal if the purchase succeeds. If the user cancels or an error occurs, keep the paywall open and display the error message.
-      setLoading(true);
-      try {
-        const result = await purchaseNativeSubscription(selectedPlan);
-        if (result.success) {
-          const providerName = isIOS ? 'Apple In-App Purchase' : 'Google Play';
-          showToast(`${providerName} Confirmed — Membership Unlocked.`, 'success');
-          // ONLY close the modal if the purchase succeeds!
-          onClose();
-        } else {
-          // If the user cancels or an error occurs, keep the paywall open and display the error message
-          const msg = result.error || 'Failed to complete transaction.';
-          setErrorMessage(msg);
-          showToast(msg, msg.toLowerCase().includes('cancel') ? 'info' : 'error');
-        }
-      } catch (err: any) {
-        const msg = err?.message || 'Payment transaction failed.';
-        setErrorMessage(msg);
-        showToast(msg, 'error');
-      } finally {
-        setLoading(false);
-      }
-      return;
-    }
-
-    // Web Platform: Stripe Checkout (Web only)
     setLoading(true);
+
     try {
-      const userEmail = (typeof localStorage !== 'undefined' && localStorage.getItem('o1fc_user_email')) || 'athlete@o1fc.app';
-      const clientOrigin = typeof window !== 'undefined' && window.location.origin && !window.location.origin.includes('localhost') ? window.location.origin : '';
-      
-      const res = await fetch('/api/stripe-checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          planId: selectedPlan,
-          userEmail,
-          clientOrigin,
-          platform: 'web',
-        }),
-      });
-      const data = await res.json().catch(() => null);
-      if (res.ok && data?.url) {
-        window.location.href = data.url;
-      } else {
-        showToast(data?.message || 'Stripe Checkout initiated.', 'success');
-        applyLocalSubscription(selectedPlan, 'stripe');
+      const result = await purchaseSubscription('com.o1fc.fitness.plus_monthly');
+      if (result && result.success) {
+        applyLocalSubscription('premium', isIOS ? 'apple_iap' : 'google_play');
+        const providerName = isIOS ? 'Apple Pay' : 'Google Play';
+        showToast(`${providerName} Confirmed — Membership Unlocked.`, 'success');
         onClose();
+      } else {
+        // DO NOT dismiss or close the modal if the purchase fails or returns an error.
+        const errMsg = result?.message || 'Failed to complete transaction.';
+        setErrorMessage(errMsg);
+        showToast(errMsg, 'error');
       }
     } catch (err: any) {
-      setErrorMessage(err?.message || 'Payment transaction failed.');
-      showToast(err?.message || 'Payment transaction failed.', 'error');
+      // DO NOT dismiss or close the modal if the purchase fails or returns an error.
+      const errMsg = err?.message || String(err) || 'Payment transaction failed.';
+      setErrorMessage(errMsg);
+      showToast(errMsg, 'error');
     } finally {
       setLoading(false);
     }
-  }, [isNative, isIOS, selectedPlan, showToast, onClose]);
+  }, [isIOS, showToast, onClose]);
 
   const handleRestore = useCallback(async () => {
     setRestoring(true);
     setErrorMessage(null);
     setNativeNotice(null);
     try {
-      if (isNative) {
-        if (!Capacitor.isNativePlatform()) {
-          const notice = 'Native In-App Purchase can only be executed on a physical device or emulator';
-          setNativeNotice(notice);
-          showToast(notice, 'info');
-          return;
-        }
-        const res = await restoreNativePurchases();
-        if (res.success && res.tier && res.tier !== 'freemium') {
-          showToast(`Purchases restored: Active plan is ${res.tier.toUpperCase()}`, 'success');
-          onClose();
-        } else {
-          showToast('No active subscriptions found to restore.', 'info');
-        }
+      const res = await restorePurchases();
+      if (res && res.success) {
+        showToast('Purchases restored successfully.', 'success');
+        onClose();
       } else {
-        showToast('Restore purchases is for mobile app subscriptions.', 'info');
+        const msg = res?.message || 'No active subscriptions found to restore.';
+        setErrorMessage(msg);
+        showToast(msg, 'info');
       }
     } catch (err: any) {
-      setErrorMessage(err?.message || 'Unable to restore purchases.');
-      showToast(err?.message || 'Unable to restore purchases.', 'error');
+      const errMsg = err?.message || String(err) || 'Unable to restore purchases.';
+      setErrorMessage(errMsg);
+      showToast(errMsg, 'error');
     } finally {
       setRestoring(false);
     }
-  }, [isNative, showToast, onClose]);
+  }, [showToast, onClose]);
 
   if (!isOpen) return null;
 
@@ -157,11 +161,10 @@ export const PaywallModal: React.FC<PaywallModalProps> = ({
 
   const getButtonLabel = () => {
     if (loading) {
-      return 'Processing...';
+      return 'Connecting to store...';
     }
-    if (isIOS) return 'Subscribe with Apple Pay / In-App Purchase';
-    if (isAndroid) return 'Subscribe with Google Play';
-    return 'Secure Checkout (Stripe)';
+    if (isAndroid) return 'SUBSCRIBE WITH GOOGLE PLAY';
+    return 'SUBSCRIBE WITH APPLE PAY';
   };
 
   return (
