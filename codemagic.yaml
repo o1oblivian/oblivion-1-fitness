@@ -34,7 +34,7 @@ workflows:
           xcodebuild -resolvePackageDependencies -project ios/App/App.xcodeproj
       - name: Set up code signing settings on Xcode project
         script: |
-          xcode-project use-profiles
+          xcode-project use-profiles --project ios/App/App.xcodeproj
       - name: Set build version
         script: |
           NEW_BUILD=4
@@ -51,14 +51,16 @@ workflows:
           cd ios/App
           xcrun agvtool new-version -all "$NEW_BUILD" || true
           /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $NEW_BUILD" App/Info.plist 2>/dev/null || \
-          /usr/libexec/PlistBuddy -c "Add :CFBundleVersion string $NEW_BUILD" App/Info.plist
+          /usr/libexec/PlistBuddy -c "Add :CFBundleVersion string $NEW_BUILD" App/Info.plist || true
           echo "Verification of CFBundleVersion in Info.plist:"
           /usr/libexec/PlistBuddy -c "Print :CFBundleVersion" App/Info.plist || true
       - name: Build iOS IPA
         script: |
           set -e
           echo "Building signed App Store IPA for publishing..."
-          xcode-project build-ipa --project ios/App/App.xcodeproj --scheme "App"
+          xcode-project build-ipa \
+            --workspace "$XCODE_WORKSPACE" \
+            --scheme "$XCODE_SCHEME"
     artifacts:
       - build/ios/ipa/*.ipa
       - build/ios/xcarchive/**
