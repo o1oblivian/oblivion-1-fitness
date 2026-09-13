@@ -1,40 +1,222 @@
 workflows:
-  ios-app-store:
-    name: Oblivion 1 - iOS App Store Release
+  ios-release:
+    name: iOS Release (App Store / TestFlight)
     max_build_duration: 60
     instance_type: mac_mini_m2
-    integrations:
-      app_store_connect: "O1FC Admin key"
+    # Automatic trigger active for Build 36+ TestFlight distribution
+    triggering:
+      events:
+        - push
+      branch_patterns:
+        - pattern: 'main'
+          include: true
+          source: true
     environment:
       groups:
         - app_store_credentials
-      ios_signing:
-        distribution_type: app_store
-        bundle_identifier: com.o1fc.fitness
       vars:
-        XCODE_WORKSPACE: "ios/App/App.xcworkspace"
+        XCODE_PROJECT: "ios/App/App.xcodeproj"
         XCODE_SCHEME: "App"
-      node: 22.14.0
-      xcode: 16.0
+        BUNDLE_ID: "com.o1fc.fitness"
+      xcode: latest
+      cocoapods: default
+      node: 22
     scripts:
       - name: Install dependencies
-        script: npm install
+        script: |
+          npm install --legacy-peer-deps
       - name: Build web application
-        script: npm run build
+        script: |
+          npm run build
       - name: Sync Capacitor iOS
-        script: npx cap sync ios
+        script: |
+          npx cap sync ios
       - name: Install CocoaPods
         script: |
-          cd ios/App && pod install
+          if [ -f "ios/App/Podfile" ]; then
+            cd ios/App && pod install
+          else
+            echo "Swift Package Manager in use; skipping CocoaPods."
+          fi
+      - name: Resolve Swift Package dependencies
+        script: |
+          xcodebuild -resolvePackageDependencies -project ios/App/App.xcodeproj
+      - name: Set up code signing
+        script: |
+          set -e
+          echo "Initializing macOS keychain for CI signing..."
+          keychain initialize
+
+          echo "Preparing App Store Connect API Key..."
+          mkdir -p ~/.appstoreconnect/private_keys
+          AUTH_KEY_PATH="$HOME/.appstoreconnect/private_keys/AuthKey_${APP_STORE_CONNECT_KEY_IDENTIFIER}.p8"
+
+          # Normalize private key format, converting literal \n to actual newlines
+          printf "%b\n" "$APP_STORE_CONNECT_PRIVATE_KEY" | sed 's/\\n/\n/g' > "$AUTH_KEY_PATH"
+          chmod 600 "$AUTH_KEY_PATH"
+
+          # Use persistent certificate private key to preserve and reuse the Distribution Certificate across all CI runs
+          CERT_KEY_PATH="ios/certs/dist_key.pem"
+          if [ ! -f "$CERT_KEY_PATH" ]; then
+            echo "Generating persistent RSA private key for iOS Distribution Certificate..."
+            mkdir -p ios/certs
+            openssl genrsa -out "$CERT_KEY_PATH" 2048
+          fi
+          chmod 600 "$CERT_KEY_PATH"
+
+          echo "Fetching or creating signing files for $BUNDLE_ID from Apple Developer Portal..."
+          # Pass @file: prefix so Codemagic CLI reads the file rather than interpreting the path as raw PEM text
+          app-store-connect fetch-signing-files "$BUNDLE_ID" \
+            --type IOS_APP_STORE \
+            --create \
+            --key-id "$APP_STORE_CONNECT_KEY_IDENTIFIER" \
+            --issuer-id "$APP_STORE_CONNECT_ISSUER_ID" \
+            --private-key "@file:$AUTH_KEY_PATH" \
+            --certificate-key "@file:$CERT_KEY_PATH" || \
+          app-store-connect fetch-signing-files "$BUNDLE_ID" \
+            --type IOS_APP_STORE \
+            --key-id "$APP_STORE_CONNECT_KEY_IDENTIFIER" \
+            --issuer-id "$APP_STORE_CONNECT_ISSUER_ID" \
+            --private-key "@file:$AUTH_KEY_PATH"
+
+          echo "Adding signing certificates to keychain..."
+          keychain add-certificates
+          security import "$CERT_KEY_PATH" -k ~/Library/Keychains/$(keychain default) -T /usr/bin/codesign -T /usr/bin/productsign 2>/dev/null || true
+
+          echo "=== Installed Signing Identities ==="
+          security find-identity -v -p codesigning || true
+
+          echo "=== Downloaded Provisioning Profiles ==="
+          ls -la ~/Library/MobileDevice/"Provisioning Profiles" 2>/dev/null || true
+
+          echo "Configuring Xcode project profiles and code signing..."
+          xcode-project use-profiles --project ios/App/App.xcodeproj --archive-method=app-store --warn-only
+
+      - name: Increment build number
+        script: |
+          set -e
+          echo "=== Setting Up App Store Connect Build Number ==="
+          LATEST_BUILD=$(app-store-connect get-latest-testflight-build-number "$BUNDLE_ID" \
+            --key-id "$APP_STORE_CONNECT_KEY_IDENTIFIER" \
+            --issuer-id "$APP_STORE_CONNECT_ISSUER_ID" \
+            --private-key "@file:$AUTH_KEY_PATH" 2>/dev/null || echo "")
+
+          echo "App Store Connect reports latest TestFlight build: '$LATEST_BUILD'"
+          
+          # Codemagic builds provide $BUILD_NUMBER (e.g. 27, 28...)
+          CM_BUILD=${BUILD_NUMBER:-0}
+          
+          # Determine the next build number: must be strictly greater than previous (previous was 2)
+          NEW_BUILD=4
+          if [ -n "$LATEST_BUILD" ] && [ "$LATEST_BUILD" != "null" ] && [ "$LATEST_BUILD" -ge 1 ] 2>/dev/null; then
+            NEW_BUILD=$((LATEST_BUILD + 1))
+          fi
+          
+          # If Codemagic build run number is higher, use it to ensure uniqueness
+          if [ "$CM_BUILD" -gt "$NEW_BUILD" ]; then
+            NEW_BUILD=$CM_BUILD
+          fi
+
+          # Absolute safety guard: Apple confirmed version 2 is already used
+          if [ "$NEW_BUILD" -le 2 ]; then
+            NEW_BUILD=4
+          fi
+
+          echo "Selected build number for this release: $NEW_BUILD"
+          cd ios/App
+          xcrun agvtool new-version -all "$NEW_BUILD" || true
+          /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $NEW_BUILD" App/Info.plist 2>/dev/null || \
+          /usr/libexec/PlistBuddy -c "Add :CFBundleVersion string $NEW_BUILD" App/Info.plist 2>/dev/null || true
+          echo "Verification of CFBundleVersion in Info.plist:"
+          /usr/libexec/PlistBuddy -c "Print :CFBundleVersion" App/Info.plist || true
+
       - name: Build iOS IPA
         script: |
-          xcode-project build-ipa \
-            --workspace "ios/App/App.xcworkspace" \
-            --scheme "App"
+          set -e
+          echo "Building signed App Store IPA for publishing..."
+          xcode-project build-ipa --project ios/App/App.xcodeproj --scheme "App"
+
     artifacts:
       - build/ios/ipa/*.ipa
+      - build/ios/xcarchive/**
       - /tmp/xcodebuild_logs/*.log
     publishing:
       app_store_connect:
-        auth: integration
+        api_key: $APP_STORE_CONNECT_PRIVATE_KEY
+        key_id: $APP_STORE_CONNECT_KEY_IDENTIFIER
+        issuer_id: $APP_STORE_CONNECT_ISSUER_ID
         submit_to_testflight: true
+      email:
+        recipients:
+          - o1oblivianfitness@gmail.com
+        notify:
+          success: true
+          failure: true
+
+  android-release:
+    name: Android Release (Google Play AAB)
+    max_build_duration: 60
+    instance_type: mac_mini_m2
+    # Active automatic trigger for Google Play internal publishing
+    triggering:
+      events:
+        - push
+      branch_patterns:
+        - pattern: 'main'
+          include: true
+          source: true
+    environment:
+      groups:
+        - google_play_credentials
+      vars:
+        PACKAGE_NAME: "com.o1fc.fitness"
+      node: 22
+      java: 21
+    scripts:
+      - name: Install dependencies
+        script: |
+          npm install --legacy-peer-deps
+      - name: Build web application
+        script: |
+          npm run build
+      - name: Sync Capacitor Android
+        script: |
+          npx cap sync android
+      - name: Set up keystore and sign
+        script: |
+          set -e
+          cd android
+          if [ -n "$CM_KEYSTORE" ]; then
+            echo "Using Codemagic environment keystore..."
+            echo "$CM_KEYSTORE" | base64 --decode > app/release-keystore.jks
+            export CM_KEYSTORE_PATH="app/release-keystore.jks"
+          elif [ -f "app/release-keystore.jks" ]; then
+            echo "Using persistent repository release keystore (app/release-keystore.jks)..."
+          else
+            echo "Creating production release keystore for Google Play AAB..."
+            keytool -genkeypair -v -keystore app/release-keystore.jks -alias o1fc -keyalg RSA -keysize 2048 -validity 10000 -storepass o1fcfitness -keypass o1fcfitness -dname "CN=Oblivion 1 Fitness Club, OU=Mobile, O=O1FC, L=Sydney, ST=NSW, C=AU"
+          fi
+          echo "Verifying Keystore Fingerprints:"
+          keytool -list -v -keystore app/release-keystore.jks -alias o1fc -storepass o1fcfitness | grep -E "SHA1:|SHA256:" || true
+      - name: Build Android App Bundle (AAB)
+        script: |
+          set -e
+          cd android
+          chmod +x gradlew
+          ./gradlew bundleRelease --no-daemon
+          ./gradlew assembleRelease --no-daemon || true
+    artifacts:
+      - android/app/build/outputs/bundle/**/*.aab
+      - android/app/build/outputs/apk/**/*.apk
+      - android/app/upload_certificate.pem
+    publishing:
+      google_play:
+        credentials: $GCLOUD_SERVICE_ACCOUNT_CREDENTIALS
+        track: internal
+        submit_as_draft: false
+      email:
+        recipients:
+          - o1oblivianfitness@gmail.com
+        notify:
+          success: true
+          failure: true
