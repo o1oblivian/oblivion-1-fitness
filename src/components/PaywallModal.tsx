@@ -110,15 +110,21 @@ export const PaywallModal: React.FC<PaywallModalProps> = ({
     setLoading(true);
 
     try {
-      const result = await purchaseSubscription('com.o1fc.fitness.plus_monthly');
-      if (result && result.success) {
+      const customerInfo: any = await purchaseSubscription('com.o1fc.fitness.plus_monthly');
+      const isSubscribed =
+        customerInfo?.success ||
+        customerInfo?.entitlements?.active?.['pro'] !== undefined ||
+        customerInfo?.entitlements?.active?.['O1FC Plus (50km Radius)'] !== undefined ||
+        Object.keys(customerInfo?.entitlements?.active || {}).length > 0;
+
+      if (isSubscribed) {
         applyLocalSubscription('premium', isIOS ? 'apple_iap' : 'google_play');
         const providerName = isIOS ? 'Apple Pay' : 'Google Play';
         showToast(`${providerName} Confirmed — Membership Unlocked.`, 'success');
         onClose();
       } else {
         // DO NOT dismiss or close the modal if the purchase fails or returns an error.
-        const errMsg = result?.message || 'Failed to complete transaction.';
+        const errMsg = customerInfo?.message || 'Failed to complete transaction.';
         setErrorMessage(errMsg);
         showToast(errMsg, 'error');
       }

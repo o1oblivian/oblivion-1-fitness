@@ -34,6 +34,17 @@
     <script>
       // Pre-mount theme application — prevents FOUC on cold boot across Android and iOS
       (function() {
+        try {
+          var p = window.location.pathname || '';
+          if (p.indexOf('/join') !== -1 || p.indexOf('/welcome') !== -1 || (window.location.search && window.location.search.indexOf('coach_id=') !== -1)) {
+            document.documentElement.classList.add('athlete-intake-route');
+            document.addEventListener('DOMContentLoaded', function() {
+              if (document.body) document.body.classList.add('athlete-intake-route');
+              var r = document.getElementById('root');
+              if (r) r.classList.add('athlete-intake-route');
+            });
+          }
+        } catch(e) {}
         var theme = 'light';
         try { 
           var s = localStorage.getItem('o1fc_theme_preference') || 
@@ -74,6 +85,45 @@
       html { background-color: #000000; }
       html.dark { background-color: #000000; }
       #root { background-color: inherit; min-height: 100dvh; }
+
+      /* Athlete Intake Route: Unset fixed viewport locks and enable native touch scrolling */
+      html.athlete-intake-route,
+      body.athlete-intake-route,
+      html.athlete-intake-route #root,
+      body.athlete-intake-route #root,
+      .athlete-intake-wrapper {
+        height: auto !important;
+        min-height: 100dvh !important;
+        max-height: none !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        -webkit-overflow-scrolling: touch !important;
+        overscroll-behavior-y: auto !important;
+      }
+      @media screen and (max-width: 767px) {
+        html.athlete-intake-route,
+        body.athlete-intake-route,
+        html.athlete-intake-route body,
+        html.athlete-intake-route #root {
+          height: auto !important;
+          min-height: 100dvh !important;
+          max-height: none !important;
+          overflow-y: auto !important;
+          overflow-x: hidden !important;
+          -webkit-overflow-scrolling: touch !important;
+        }
+      }
+      @media screen and (min-width: 768px) {
+        body.athlete-intake-route {
+          overflow-y: auto !important;
+          height: auto !important;
+        }
+        body.athlete-intake-route #root {
+          overflow-y: auto !important;
+          height: auto !important;
+          min-height: 100dvh !important;
+        }
+      }
 
       /* Safe-area insets & dynamic viewport scaling for Apple devices (iPhone, iPad, Dynamic Island) */
       :root {

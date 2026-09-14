@@ -16,11 +16,10 @@ workflows:
         bundle_identifier: com.o1fc.fitness
       vars:
         BUNDLE_ID: "com.o1fc.fitness"
-        XCODE_WORKSPACE: "ios/App/App.xcworkspace"
+        XCODE_PROJECT: "ios/App/App.xcodeproj"
         XCODE_SCHEME: "App"
       node: 22
       xcode: latest
-      cocoapods: default
     scripts:
       - name: Install dependencies
         script: |
@@ -31,7 +30,6 @@ workflows:
       - name: Sync Capacitor iOS
         script: |
           npx cap sync ios
-          cd ios/App && pod install
       - name: Set up code signing settings on Xcode project
         script: |
           xcode-project use-profiles --project ios/App/App.xcodeproj
@@ -59,8 +57,13 @@ workflows:
           set -e
           echo "Building signed App Store IPA for publishing..."
           xcode-project build-ipa \
-            --workspace "$XCODE_WORKSPACE" \
-            --scheme "$XCODE_SCHEME"
+            --project ios/App/App.xcodeproj \
+            --scheme "App" \
+            --archive-flags="-destination 'generic/platform=iOS'" || {
+              echo "=== XCODEBUILD ERROR LOG ==="
+              grep -E -A 3 -B 1 "error:" /tmp/xcodebuild_logs/*.log || cat /tmp/xcodebuild_logs/*.log
+              exit 1
+            }
     artifacts:
       - build/ios/ipa/*.ipa
       - build/ios/xcarchive/**

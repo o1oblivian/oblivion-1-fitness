@@ -1,4 +1,7 @@
-import {
+import fs from 'fs';
+import esbuild from 'esbuild';
+
+const travelModalCode = `import {
   x as s,
   a6 as Z,
   bc as ee,
@@ -468,7 +471,7 @@ const TravelPassModal = ({ isOpen: m, onClose: p, onOpenPayPlan: v, showToast: n
                     e.jsx("div", {
                       className: "flex flex-wrap gap-1.5",
                       children: [
-                        { name: "Melbourne", city: "Melbourne", country: "Australia", lat: -37.8136, lng: 144.9631, flag: "🇦🇺", hub: "Chapel St / Doherty'''s" },
+                        { name: "Melbourne", city: "Melbourne", country: "Australia", lat: -37.8136, lng: 144.9631, flag: "🇦🇺", hub: "Chapel St / Doherty'\''s" },
                         { name: "Sydney", city: "Sydney", country: "Australia", lat: -33.8688, lng: 151.2093, flag: "🇦🇺", hub: "Bondi / Surry Hills" },
                         { name: "Gold Coast", city: "Gold Coast", country: "Australia", lat: -28.0167, lng: 153.4000, flag: "🇦🇺", hub: "Surfers / Burleigh" },
                         { name: "Miami", city: "Miami", country: "United States", lat: 25.7617, lng: -80.1918, flag: "🇺🇸", hub: "South Beach / Brickell" },
@@ -775,3 +778,19 @@ const TravelPassModal = ({ isOpen: m, onClose: p, onOpenPayPlan: v, showToast: n
 };
 
 export { TravelPassModal };
+`;
+
+console.log('Validating TravelPassModal with esbuild...');
+esbuild.transformSync(travelModalCode, { loader: 'js' });
+console.log('TravelPassModal syntax is 100% valid!');
+
+const targetPath = 'assets/TravelPassModal-Bgu4TdMZ-CcSltve7-BdL4ZAf_.js';
+const distTargetPath = 'dist/assets/TravelPassModal-Bgu4TdMZ-CcSltve7-BdL4ZAf_.js';
+
+fs.writeFileSync(targetPath, travelModalCode, 'utf8');
+console.log('Written to', targetPath);
+
+if (fs.existsSync('dist/assets')) {
+  fs.writeFileSync(distTargetPath, travelModalCode, 'utf8');
+  console.log('Written to', distTargetPath);
+}

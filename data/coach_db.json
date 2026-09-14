@@ -1,0 +1,183 @@
+{
+  "coach_profiles": {
+    "default_coach": {
+      "coach_id": "default_coach",
+      "available_balance": 3850,
+      "lifetime_earnings": 14200,
+      "pending_payout": 0,
+      "updated_at": "2026-09-14T01:00:11.689Z",
+      "payout_method": "bank_transfer",
+      "payout_details": {
+        "country": "AU",
+        "activeRail": "bank_transfer",
+        "schedule": "weekly",
+        "bankName": "Commonwealth Bank of Australia",
+        "accountHolder": "O1FC Head Coach",
+        "routingNumber": "021000021",
+        "accountNumber": "12345678",
+        "cardBrand": "Visa Platinum Debit",
+        "cardLast4": "9012",
+        "cardExp": "08/28",
+        "stripeAccountId": "acct_1O1FCOblivianCoach",
+        "stripeConnected": true,
+        "paypalEmail": "o1oblivianfitness@gmail.com",
+        "sortCode": "20-04-15",
+        "ukAccountNumber": "83920144",
+        "iban": "DE89370400440532013000",
+        "bicSwift": "DEUTDEDDFXX",
+        "institutionNumber": "001",
+        "transitNumber": "12345",
+        "caAccountNumber": "9876543",
+        "bsbNumber": "082-001",
+        "auAccountNumber": "12345678",
+        "payId": "coach@o1fc.app",
+        "upiId": "o1fccoach@okhdfcbank",
+        "ifscCode": "HDFC0001234",
+        "inAccountNumber": "50100234567890",
+        "panNumber": "ABCDE1234F",
+        "payNowId": "UEN202401234A",
+        "wiseEmail": "coach@o1fc.app",
+        "wiseIban": "GB82WEST12345698765432",
+        "accountName": "Oblivian Performance Ltd",
+        "bsb": "062-000",
+        "paypalAccountHolder": "Oblivian Fitness",
+        "stripeStatus": "Active"
+      }
+    }
+  },
+  "coach_payouts": [
+    {
+      "id": "po_init_1",
+      "coach_id": "default_coach",
+      "amount": 850,
+      "status": "completed",
+      "destination_summary": "Commonwealth Bank •••• 4821 (BSB: 062-000)",
+      "created_at": "2026-09-06T23:09:30.212Z"
+    },
+    {
+      "id": "po_init_2",
+      "coach_id": "default_coach",
+      "amount": 1200,
+      "status": "completed",
+      "destination_summary": "PayPal: coach@o1fc.app",
+      "created_at": "2026-08-23T23:09:30.212Z"
+    }
+  ],
+  "coach_clients": [
+    {
+      "id": "ath_1789344013042_kbxl",
+      "coach_id": "default_coach",
+      "client_id": "ath_1789344013042_kbxl",
+      "name": "Jordan Miller",
+      "handle": "@jordanmiller_3042",
+      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+      "status": "ACTIVE",
+      "badge": "ENROLLED",
+      "weeklyVolumeKg": 0,
+      "lastActive": "Just enrolled",
+      "joined_at": "2026-09-14T00:00:13.042Z"
+    },
+    {
+      "id": "athlete_alex",
+      "coach_id": "default_coach",
+      "client_id": "athlete_alex",
+      "name": "Alex Rivera",
+      "handle": "@arivera_lift",
+      "avatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80",
+      "status": "ACTIVE",
+      "badge": "NEW ATHLETE",
+      "weeklyVolumeKg": 0,
+      "lastActive": "Just joined",
+      "joined_at": "2026-09-13T23:09:43.895Z"
+    },
+    {
+      "id": "client_active_1",
+      "coach_id": "default_coach",
+      "client_id": "athlete_jordan",
+      "name": "Jordan Hayes",
+      "handle": "@jhayes_elite",
+      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+      "status": "ACTIVE",
+      "badge": "ACTIVE",
+      "weeklyVolumeKg": 18450,
+      "lastActive": "2 hours ago",
+      "joined_at": "2026-08-30T23:09:30.212Z"
+    },
+    {
+      "id": "client_active_2",
+      "coach_id": "default_coach",
+      "client_id": "athlete_sam",
+      "name": "Samira Chen",
+      "handle": "@schen_power",
+      "avatar": "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150&auto=format&fit=crop&q=80",
+      "status": "ACTIVE",
+      "badge": "PR HIT",
+      "weeklyVolumeKg": 22100,
+      "lastActive": "45 mins ago",
+      "joined_at": "2026-08-14T23:09:30.212Z"
+    }
+  ],
+  "coach_programs": [
+    {
+      "id": "prog_1789340976131_64pt",
+      "coach_id": "default_coach",
+      "title": "O1FC Push Alpha • Hypertrophy Overload",
+      "routine_category": "Push",
+      "exercises": [
+        {
+          "name": "Incline Bench Press",
+          "sets": 4,
+          "reps": "8-10",
+          "weight": 85
+        }
+      ],
+      "notes": "Controlled eccentric tempo 3s.",
+      "scheduled_day": "Today",
+      "created_at": "2026-09-13T23:09:36.131Z"
+    }
+  ],
+  "assigned_programs": [
+    {
+      "id": "asgn_1789340976204_0_yams",
+      "coach_id": "default_coach",
+      "coach_name": "Head Coach",
+      "client_id": "athlete_jordan",
+      "client_name": "Jordan Hayes",
+      "program_id": "prog_1789340976131_64pt",
+      "status": "active",
+      "program_title": "O1FC Push Alpha • Hypertrophy Overload",
+      "scheduled_date": "2026-09-13",
+      "exercises": [
+        {
+          "name": "Incline Bench Press",
+          "sets": 4,
+          "reps": "8-10",
+          "weight": 85
+        }
+      ],
+      "notes": "Controlled eccentric tempo 3s.",
+      "created_at": "2026-09-13T23:09:36.204Z"
+    },
+    {
+      "id": "asgn_1789340976276_1_vs56",
+      "coach_id": "default_coach",
+      "coach_name": "Head Coach",
+      "client_id": "athlete_sam",
+      "client_name": "Samira Chen",
+      "program_id": "prog_1789340976131_64pt",
+      "status": "active",
+      "program_title": "O1FC Push Alpha • Hypertrophy Overload",
+      "scheduled_date": "2026-09-13",
+      "exercises": [
+        {
+          "name": "Incline Bench Press",
+          "sets": 4,
+          "reps": "8-10",
+          "weight": 85
+        }
+      ],
+      "notes": "Controlled eccentric tempo 3s.",
+      "created_at": "2026-09-13T23:09:36.276Z"
+    }
+  ]
+}

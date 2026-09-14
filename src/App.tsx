@@ -4,11 +4,22 @@ import { Browser } from '@capacitor/browser';
 import { Capacitor } from '@capacitor/core';
 import { supabase } from './lib/supabase';
 import { initializeIAP } from './services/iapService';
+import { upsertCurrentUserBuddyProfile } from './services/buddyService';
 
 export const AppRoot: React.FC = () => {
   const [isIAPReady, setIsIAPReady] = useState(false);
 
   useEffect(() => {
+    // Upsert authenticated user buddy profile on startup
+    upsertCurrentUserBuddyProfile();
+
+    // Listen to Supabase auth state changes to auto-upsert profile
+    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+      if (session?.user?.email) {
+        upsertCurrentUserBuddyProfile();
+      }
+    });
+
     // 1. Immediately initialize and await RevenueCat on app startup before paywall renders
     if (Capacitor.isNativePlatform()) {
       initializeIAP()
@@ -32,10 +43,11 @@ export const AppRoot: React.FC = () => {
       const listenerPromise = App.addListener('appUrlOpen', async ({ url }) => {
         if (!url || !url.includes('auth/callback')) return;
 
+        // Immediately call await Browser.close() before exchanging the session
         try {
           await Browser.close();
-        } catch (e) {
-          // In-app browser might already be closed
+        } catch {
+          // In-app browser might already be dismissed
         }
 
         try {
@@ -99,7 +111,12 @@ export const AppRoot: React.FC = () => {
       });
 
       return () => {
+        authListener.subscription.unsubscribe();
         listenerPromise.then(handler => handler.remove()).catch(() => {});
+      };
+    } else {
+      return () => {
+        authListener.subscription.unsubscribe();
       };
     }
   }, []);

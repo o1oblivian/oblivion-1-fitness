@@ -1,0 +1,503 @@
+// ==========================================
+// ZERO-COMMISSION WEB INTAKE & WELCOME VIEWS
+// ==========================================
+const SvgShieldCheck = ({ className = "w-4 h-4" }) => r.jsx("svg", { className, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round", children: [r.jsx("path", { d: "M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" }), r.jsx("path", { d: "m9 12 2 2 4-4" })] });
+const SvgCheck = ({ className = "w-4 h-4" }) => r.jsx("svg", { className, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.5", strokeLinecap: "round", strokeLinejoin: "round", children: r.jsx("polyline", { points: "20 6 9 17 4 12" }) });
+const SvgExternalLink = ({ className = "w-4 h-4" }) => r.jsx("svg", { className, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round", children: [r.jsx("path", { d: "M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" }), r.jsx("polyline", { points: "15 3 21 3 21 9" }), r.jsx("line", { x1: "10", y1: "14", x2: "21", y2: "3" })] });
+const SvgCopy = ({ className = "w-4 h-4" }) => r.jsx("svg", { className, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round", children: [r.jsx("rect", { width: "14", height: "14", x: "8", y: "8", rx: "2", ry: "2" }), r.jsx("path", { d: "M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" })] });
+const SvgSparkles = ({ className = "w-4 h-4" }) => r.jsx("svg", { className, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round", children: [r.jsx("path", { d: "m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" })] });
+const SvgArrowRight = ({ className = "w-4 h-4" }) => r.jsx("svg", { className, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round", children: [r.jsx("line", { x1: "5", y1: "12", x2: "19", y2: "12" }), r.jsx("polyline", { points: "12 5 19 12 12 19" })] });
+
+const CoachIntakeView = ({ coachId, onNavigateHome }) => {
+  const [profile, setProfile] = g.useState(null);
+  const [loading, setLoading] = g.useState(true);
+  const [selectedTier, setSelectedTier] = g.useState("pro_coaching");
+  const [athleteName, setAthleteName] = g.useState("");
+  const [athleteEmail, setAthleteEmail] = g.useState("");
+  const [isSubmitting, setIsSubmitting] = g.useState(false);
+  const [errorMsg, setErrorMsg] = g.useState(null);
+
+  g.useEffect(() => {
+    if (typeof document !== "undefined") {
+      document.documentElement.classList.add("athlete-intake-route");
+      document.body.classList.add("athlete-intake-route");
+      const rootEl = document.getElementById("root");
+      if (rootEl) rootEl.classList.add("athlete-intake-route");
+      return () => {
+        document.documentElement.classList.remove("athlete-intake-route");
+        document.body.classList.remove("athlete-intake-route");
+        if (rootEl) rootEl.classList.remove("athlete-intake-route");
+      };
+    }
+  }, []);
+
+  g.useEffect(() => {
+    let mounted = true;
+    fetch("/api/coach/profile?coach_id=" + encodeURIComponent(coachId || "default_coach"))
+      .then(res => res.json())
+      .then(data => {
+        if (mounted && data.profile) {
+          setProfile(data.profile);
+        }
+      })
+      .catch(err => console.warn("Failed to load coach profile:", err))
+      .finally(() => { if (mounted) setLoading(false); });
+    return () => { mounted = false; };
+  }, [coachId]);
+
+  const pricingTiers = [
+    {
+      id: "standard_coaching",
+      name: "Standard Performance",
+      price_aud: 149,
+      description: "Custom weekly training program, workout tracking, and progressive overload calculations."
+    },
+    {
+      id: "pro_coaching",
+      name: "Pro Athlete Protocol",
+      price_aud: 249,
+      description: "Comprehensive customized programming with video form feedback and direct coach messaging."
+    },
+    {
+      id: "elite_1on1",
+      name: "Elite 1-on-1 Performance",
+      price_aud: 399,
+      description: "Fully individualized coaching protocol with 1-on-1 consultations and priority check-ins."
+    }
+  ];
+
+  const activeTierObj = pricingTiers.find(t => t.id === selectedTier) || pricingTiers[1];
+
+  const handleSubmit = async (e) => {
+    if (e && e.preventDefault) e.preventDefault();
+    if (!athleteName.trim()) {
+      setErrorMsg("Please enter your full name.");
+      return;
+    }
+    if (!athleteEmail.trim() || !athleteEmail.includes("@")) {
+      setErrorMsg("Please enter a valid email address.");
+      return;
+    }
+
+    setErrorMsg(null);
+    setIsSubmitting(true);
+
+    try {
+      const payload = {
+        coach_id: coachId || "default_coach",
+        athlete_name: athleteName.trim(),
+        athlete_email: athleteEmail.trim().toLowerCase(),
+        primary_goal: "Comprehensive Athletic Coaching",
+        medical_clearance: "Cleared",
+        plan_tier: selectedTier,
+        mode: "subscription",
+        client_origin: window.location.origin
+      };
+
+      const res = await fetch("/api/coach/web-checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.url) {
+        throw new Error(data.error || "Failed to create secure checkout session.");
+      }
+
+      window.location.href = data.url;
+    } catch (err) {
+      console.error("Checkout initiation error:", err);
+      setErrorMsg(err.message || "An error occurred initiating checkout. Please try again.");
+      setIsSubmitting(false);
+    }
+  };
+
+  const coachName = (profile && profile.display_name) || "Marcus Vance";
+  const coachTitle = (profile && profile.title) || "Head of Athletic Performance";
+  const coachAvatar = (profile && profile.avatar) || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop&q=80";
+
+  return r.jsxs("div", {
+    className: "athlete-intake-wrapper w-full min-h-screen h-auto overflow-y-auto overflow-x-hidden bg-[#0A0C10] text-[#F5F5F7] font-sans pb-24 selection:bg-red-600/30",
+    style: {
+      WebkitOverflowScrolling: "touch",
+      minHeight: "100vh",
+      height: "auto",
+      overflowY: "auto"
+    },
+    children: [
+      // Top Navigation Bar
+      r.jsx("header", {
+        className: "sticky top-0 z-40 bg-[#0A0C10]/90 backdrop-blur-md border-b border-white/[0.08] px-4 py-3",
+        children: r.jsxs("div", {
+          className: "max-w-xl mx-auto flex items-center justify-between",
+          children: [
+            r.jsxs("div", {
+              className: "flex items-center gap-2",
+              children: [
+                r.jsx("span", { className: "w-2 h-2 rounded-full bg-red-600" }),
+                r.jsx("span", { className: "font-mono font-bold tracking-widest text-xs uppercase text-white", children: "O1FC ATHLETE INTAKE" })
+              ]
+            }),
+            r.jsx("button", {
+              type: "button",
+              onClick: onNavigateHome,
+              className: "text-[11px] font-mono text-zinc-400 hover:text-white transition-colors cursor-pointer px-2 py-1 rounded-lg hover:bg-white/[0.05]",
+              children: "App Home →"
+            })
+          ]
+        })
+      }),
+
+      r.jsxs("main", {
+        className: "max-w-xl mx-auto px-4 pt-6 space-y-6 pb-12",
+        children: [
+          // 1. Coach Profile Card (Avatar, Name, Title only)
+          r.jsx("div", {
+            className: "p-4 sm:p-5 rounded-2xl bg-white/[0.03] border border-white/[0.08] shadow-lg",
+            children: r.jsxs("div", {
+              className: "flex items-center gap-4",
+              children: [
+                r.jsx("img", {
+                  src: coachAvatar,
+                  alt: coachName,
+                  className: "w-16 h-16 rounded-2xl object-cover border border-white/10 shadow-md shrink-0"
+                }),
+                r.jsxs("div", {
+                  className: "min-w-0 flex-1",
+                  children: [
+                    r.jsx("h1", { className: "text-lg sm:text-xl font-bold tracking-tight text-white", children: coachName }),
+                    r.jsx("p", { className: "text-xs text-zinc-400 font-mono mt-0.5", children: coachTitle })
+                  ]
+                })
+              ]
+            })
+          }),
+
+          // 2. Clean Tier Selection
+          r.jsxs("div", {
+            className: "space-y-3",
+            children: [
+              r.jsx("h2", { className: "text-xs font-bold uppercase font-mono tracking-wider text-zinc-400", children: "Select Coaching Plan" }),
+              r.jsx("div", {
+                className: "grid grid-cols-1 sm:grid-cols-3 gap-2.5",
+                children: pricingTiers.map(tier => {
+                  const isSelected = selectedTier === tier.id;
+                  return r.jsxs("button", {
+                    key: tier.id,
+                    type: "button",
+                    onClick: () => setSelectedTier(tier.id),
+                    className: "p-4 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between " + (isSelected ? "bg-red-600/10 border-red-500 shadow-md shadow-red-500/10 ring-1 ring-red-500" : "bg-white/[0.02] border-white/10 hover:border-white/20"),
+                    children: [
+                      r.jsxs("div", {
+                        children: [
+                          r.jsx("div", { className: "text-xs font-bold text-white", children: tier.name }),
+                          r.jsxs("div", {
+                            className: "mt-1 flex items-baseline gap-1",
+                            children: [
+                              r.jsx("span", { className: "text-lg font-black text-white font-mono", children: "$" + tier.price_aud }),
+                              r.jsx("span", { className: "text-[10px] font-mono text-zinc-400", children: "AUD/mo" })
+                            ]
+                          })
+                        ]
+                      }),
+                      r.jsx("p", { className: "mt-2.5 text-xs text-zinc-400 leading-relaxed", children: tier.description })
+                    ]
+                  });
+                })
+              })
+            ]
+          }),
+
+          // 3. Minimal Intake Form & Ultra-Clean Checkout Bar
+          r.jsxs("form", {
+            onSubmit: handleSubmit,
+            className: "p-4 sm:p-5 rounded-2xl bg-white/[0.03] border border-white/[0.08] space-y-4 font-mono",
+            children: [
+              r.jsxs("div", {
+                children: [
+                  r.jsx("h2", { className: "text-xs font-bold uppercase tracking-wider text-zinc-400", children: "Athlete Details" }),
+                  r.jsx("p", { className: "text-[11px] text-zinc-400 mt-0.5", children: "Enter your contact details to begin onboarding with your coach." })
+                ]
+              }),
+
+              // Full Name & Email
+              r.jsxs("div", {
+                className: "grid grid-cols-1 sm:grid-cols-2 gap-3",
+                children: [
+                  r.jsxs("div", {
+                    children: [
+                      r.jsx("label", { className: "text-[10px] text-zinc-400 uppercase font-bold block mb-1", children: "Full Name *" }),
+                      r.jsx("input", {
+                        type: "text",
+                        required: true,
+                        placeholder: "Alex Hunter",
+                        value: athleteName,
+                        onChange: e => setAthleteName(e.target.value),
+                        className: "w-full px-3 py-2.5 rounded-xl bg-black/40 border border-white/10 text-white placeholder-zinc-600 text-xs focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all font-sans"
+                      })
+                    ]
+                  }),
+                  r.jsxs("div", {
+                    children: [
+                      r.jsx("label", { className: "text-[10px] text-zinc-400 uppercase font-bold block mb-1", children: "Email Address *" }),
+                      r.jsx("input", {
+                        type: "email",
+                        required: true,
+                        placeholder: "alex@athlete.com",
+                        value: athleteEmail,
+                        onChange: e => setAthleteEmail(e.target.value),
+                        className: "w-full px-3 py-2.5 rounded-xl bg-black/40 border border-white/10 text-white placeholder-zinc-600 text-xs focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all font-sans"
+                      })
+                    ]
+                  })
+                ]
+              }),
+
+              // Error display if any
+              errorMsg && r.jsx("div", {
+                className: "p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs font-mono",
+                children: errorMsg
+              }),
+
+              // 4. Ultra-Clean Checkout Bar
+              r.jsxs("div", {
+                className: "pt-2 space-y-2.5",
+                children: [
+                  r.jsxs("div", {
+                    className: "flex items-center justify-between text-xs font-mono text-zinc-300 px-0.5",
+                    children: [
+                      r.jsx("span", { children: "Monthly Investment" }),
+                      r.jsx("span", { className: "text-white font-bold text-sm", children: "$" + activeTierObj.price_aud + " AUD" })
+                    ]
+                  }),
+
+                  r.jsx("button", {
+                    type: "submit",
+                    disabled: isSubmitting,
+                    className: "w-full py-3.5 px-4 rounded-xl bg-red-600 hover:bg-red-500 active:scale-[0.99] disabled:opacity-50 text-white font-bold text-xs uppercase tracking-wider font-mono shadow-lg flex items-center justify-center gap-2 transition-all cursor-pointer",
+                    children: isSubmitting
+                      ? r.jsxs(r.Fragment, {
+                          children: [
+                            r.jsx("span", { className: "w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" }),
+                            r.jsx("span", { children: "CONNECTING TO CHECKOUT..." })
+                          ]
+                        })
+                      : r.jsx("span", { children: "Proceed to Secure Enrollment" })
+                  })
+                ]
+              })
+            ]
+          })
+        ]
+      })
+    ]
+  });
+};
+
+const AthleteWelcomeView = ({ onNavigateHome }) => {
+  const [sessionInfo, setSessionInfo] = g.useState(null);
+  const [loading, setLoading] = g.useState(true);
+
+  g.useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const sessionId = params.get("session_id") || "";
+    const coachId = params.get("coach_id") || "";
+    const clientEmail = params.get("client_email") || "";
+    const clientName = params.get("client_name") || "";
+    const planTier = params.get("plan_tier") || "";
+
+    const url = "/api/coach/checkout-session?session_id=" + encodeURIComponent(sessionId) + "&coach_id=" + encodeURIComponent(coachId) + "&client_email=" + encodeURIComponent(clientEmail) + "&client_name=" + encodeURIComponent(clientName) + "&plan_tier=" + encodeURIComponent(planTier);
+
+    fetch(url)
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          setSessionInfo(data);
+        }
+      })
+      .catch(err => console.warn("Session check notice:", err))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const coach = (sessionInfo && sessionInfo.coach) || { display_name: "Coach Marcus Vance", coach_id: "default_coach" };
+  const tier = (sessionInfo && sessionInfo.tier) || { name: "Pro Athlete Protocol", price_aud: 249 };
+  const session = (sessionInfo && sessionInfo.session) || {};
+  const athleteEmail = (session.metadata && session.metadata.client_email) || session.customer_email || "your email";
+  const athleteName = (session.metadata && session.metadata.client_name) || "Athlete";
+
+  g.useEffect(() => {
+    if (typeof document !== "undefined") {
+      document.documentElement.classList.add("athlete-intake-route");
+      document.body.classList.add("athlete-intake-route");
+      const rootEl = document.getElementById("root");
+      if (rootEl) rootEl.classList.add("athlete-intake-route");
+      return () => {
+        document.documentElement.classList.remove("athlete-intake-route");
+        document.body.classList.remove("athlete-intake-route");
+        if (rootEl) rootEl.classList.remove("athlete-intake-route");
+      };
+    }
+  }, []);
+
+  return r.jsxs("div", {
+    className: "athlete-intake-wrapper w-full min-h-screen h-auto overflow-y-auto overflow-x-hidden bg-[#0A0C10] text-[#F5F5F7] font-sans pb-24 selection:bg-red-600/30",
+    style: {
+      WebkitOverflowScrolling: "touch",
+      minHeight: "100vh",
+      height: "auto",
+      overflowY: "auto"
+    },
+    children: [
+      r.jsx("header", {
+        className: "sticky top-0 z-40 bg-[#0A0C10]/90 backdrop-blur-md border-b border-white/[0.08] px-4 py-3",
+        children: r.jsxs("div", {
+          className: "max-w-xl mx-auto flex items-center justify-between",
+          children: [
+            r.jsxs("div", {
+              className: "flex items-center gap-2",
+              children: [
+                r.jsx("span", { className: "w-2.5 h-2.5 rounded-full bg-emerald-500" }),
+                r.jsx("span", { className: "font-mono font-bold tracking-widest text-xs uppercase text-white", children: "O1FC ENROLLMENT CONFIRMED" })
+              ]
+            }),
+            r.jsx("button", {
+              type: "button",
+              onClick: onNavigateHome,
+              className: "text-[11px] font-mono text-zinc-400 hover:text-white transition-colors cursor-pointer px-2 py-1 rounded-lg hover:bg-white/[0.05]",
+              children: "Dashboard →"
+            })
+          ]
+        })
+      }),
+
+      r.jsxs("main", {
+        className: "max-w-xl mx-auto px-4 pt-10 space-y-6 text-center",
+        children: [
+          // Success badge icon
+          r.jsxs("div", {
+            className: "flex flex-col items-center",
+            children: [
+              r.jsx("div", {
+                className: "w-16 h-16 rounded-3xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 flex items-center justify-center shadow-xl shadow-emerald-500/10 mb-4 animate-bounce",
+                children: r.jsx(SvgCheck, { className: "w-8 h-8" })
+              }),
+              r.jsx("h1", { className: "text-2xl font-black tracking-tight text-white", children: "Welcome to the Club!" }),
+              r.jsx("p", { className: "text-sm text-zinc-400 font-mono mt-1", children: "Your coach enrollment is confirmed and active." })
+            ]
+          }),
+
+          // Enrollment Summary Card
+          r.jsxs("div", {
+            className: "p-5 rounded-2xl bg-white/[0.03] border border-white/[0.08] text-left font-mono space-y-3",
+            children: [
+              r.jsx("div", { className: "text-[10px] uppercase font-bold text-zinc-500 tracking-wider", children: "Enrollment Summary" }),
+              r.jsxs("div", {
+                className: "grid grid-cols-2 gap-3 pt-1 text-xs",
+                children: [
+                  r.jsxs("div", {
+                    children: [
+                      r.jsx("span", { className: "text-zinc-500 block text-[10px]", children: "Assigned Coach" }),
+                      r.jsx("span", { className: "text-white font-bold", children: coach.display_name })
+                    ]
+                  }),
+                  r.jsxs("div", {
+                    children: [
+                      r.jsx("span", { className: "text-zinc-500 block text-[10px]", children: "Selected Plan" }),
+                      r.jsx("span", { className: "text-white font-bold", children: tier.name })
+                    ]
+                  }),
+                  r.jsxs("div", {
+                    children: [
+                      r.jsx("span", { className: "text-zinc-500 block text-[10px]", children: "Athlete Name" }),
+                      r.jsx("span", { className: "text-zinc-300", children: athleteName })
+                    ]
+                  }),
+                  r.jsxs("div", {
+                    children: [
+                      r.jsx("span", { className: "text-zinc-500 block text-[10px]", children: "Registered Email" }),
+                      r.jsx("span", { className: "text-zinc-300 truncate block", children: athleteEmail })
+                    ]
+                  })
+                ]
+              }),
+              r.jsxs("div", {
+                className: "pt-2 border-t border-white/[0.06] flex items-center justify-between text-[11px]",
+                children: [
+                  r.jsx("span", { className: "text-zinc-400", children: "Payment Rail:" }),
+                  r.jsx("span", { className: "text-emerald-400 font-bold", children: "Direct Stripe Checkout" })
+                ]
+              })
+            ]
+          }),
+
+          // 3-Step App Download & Sign-In Instructions
+          r.jsxs("div", {
+            className: "p-5 rounded-2xl bg-white/[0.02] border border-white/[0.06] text-left space-y-4 font-mono",
+            children: [
+              r.jsx("div", { className: "text-xs font-bold uppercase text-white tracking-wider", children: "Next Steps" }),
+              r.jsxs("div", {
+                className: "space-y-3 text-xs text-zinc-300",
+                children: [
+                  r.jsxs("div", {
+                    className: "flex items-start gap-3",
+                    children: [
+                      r.jsx("span", { className: "w-6 h-6 rounded-full bg-red-600/20 text-red-400 border border-red-500/30 flex items-center justify-center text-xs font-bold shrink-0", children: "1" }),
+                      r.jsxs("div", {
+                        children: [
+                          r.jsx("strong", { className: "text-white block", children: "Check Your Email" }),
+                          r.jsx("span", { className: "text-zinc-400 text-[11px]", children: "A confirmation receipt and instant athlete login link have been dispatched to " + athleteEmail + "." })
+                        ]
+                      })
+                    ]
+                  }),
+                  r.jsxs("div", {
+                    className: "flex items-start gap-3",
+                    children: [
+                      r.jsx("span", { className: "w-6 h-6 rounded-full bg-red-600/20 text-red-400 border border-red-500/30 flex items-center justify-center text-xs font-bold shrink-0", children: "2" }),
+                      r.jsxs("div", {
+                        children: [
+                          r.jsx("strong", { className: "text-white block", children: "Open Oblivion 1 Fitness Club" }),
+                          r.jsx("span", { className: "text-zinc-400 text-[11px]", children: "Launch O1FC in your web browser or open your installed app." })
+                        ]
+                      })
+                    ]
+                  }),
+                  r.jsxs("div", {
+                    className: "flex items-start gap-3",
+                    children: [
+                      r.jsx("span", { className: "w-6 h-6 rounded-full bg-red-600/20 text-red-400 border border-red-500/30 flex items-center justify-center text-xs font-bold shrink-0", children: "3" }),
+                      r.jsxs("div", {
+                        children: [
+                          r.jsx("strong", { className: "text-white block", children: "Log In With Your Registered Email" }),
+                          r.jsx("span", { className: "text-zinc-400 text-[11px]", children: "Your coach will review your enrollment and dispatch your personalized training mesocycle directly to your account." })
+                        ]
+                      })
+                    ]
+                  })
+                ]
+              })
+            ]
+          }),
+
+          // Primary Launch App CTA
+          r.jsxs("button", {
+            type: "button",
+            onClick: () => {
+              if (typeof localStorage !== "undefined" && athleteEmail) {
+                localStorage.setItem("o1fc_user_email", athleteEmail);
+              }
+              onNavigateHome();
+            },
+            className: "w-full py-4 px-6 rounded-2xl bg-red-600 hover:bg-red-500 active:scale-[0.99] text-white font-bold font-mono text-xs uppercase tracking-widest shadow-xl shadow-red-600/25 flex items-center justify-center gap-2 cursor-pointer transition-all",
+            children: [
+              r.jsx(SvgSparkles, { className: "w-4 h-4" }),
+              r.jsx("span", { children: "ENTER ATHLETE DASHBOARD" }),
+              r.jsx(SvgArrowRight, { className: "w-4 h-4" })
+            ]
+          })
+        ]
+      })
+    ]
+  });
+};

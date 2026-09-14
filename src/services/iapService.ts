@@ -112,7 +112,7 @@ export async function getOfferings() {
   }
 }
 
-export async function purchaseSubscription(productId: string = 'com.o1fc.fitness.plus_monthly') {
+export async function purchaseSubscription(productId: string = 'com.o1fc.fitness.plus_monthly'): Promise<any> {
   if (!Capacitor.isNativePlatform()) {
     alert('Native Store checkout is only available when running on an iOS or Android device.');
     return { success: false, message: 'Web environment' };
@@ -123,31 +123,21 @@ export async function purchaseSubscription(productId: string = 'com.o1fc.fitness
   }
 
   if (!isConfigured) {
-    return { success: false, message: 'RevenueCat not configured' };
+    throw new Error('RevenueCat not configured');
   }
 
-  try {
-    const { products } = await Purchases.getProducts({ productIdentifiers: [productId] });
-    if (!products || products.length === 0) {
-      alert(`Product ${productId} not found in store.`);
-      return { success: false, message: 'Product not found' };
-    }
+  const offerings = await Purchases.getOfferings();
+  const currentOffering = offerings.current;
+  if (!currentOffering) throw new Error("No current offering configured in RevenueCat");
 
-    const { customerInfo } = await Purchases.purchaseStoreProduct({
-      product: products[0]
-    });
+  // Find package matching packageType or identifier
+  const pkg = currentOffering.availablePackages.find(
+    p => p.product.identifier === productId || p.identifier === productId || p.packageType?.toLowerCase()?.includes('monthly')
+  );
+  if (!pkg) throw new Error("Package not found: " + productId);
 
-    const isSubscribed = typeof customerInfo.entitlements.active['pro'] !== 'undefined' ||
-                         typeof customerInfo.entitlements.active['O1FC Plus (50km Radius)'] !== 'undefined';
-
-    return { success: isSubscribed, customerInfo };
-  } catch (error: any) {
-    if (error.code === '1' || error.userCancelled) {
-      return { success: false, message: 'User cancelled transaction.' };
-    }
-    alert('Purchase Failed: ' + (error.message || JSON.stringify(error)));
-    return { success: false, message: error.message };
-  }
+  const { customerInfo } = await Purchases.purchasePackage({ aPackage: pkg });
+  return customerInfo;
 }
 
 export async function restorePurchases() {

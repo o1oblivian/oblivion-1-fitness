@@ -4,6 +4,7 @@ import fs from 'fs';
 import Stripe from 'stripe';
 import { GoogleGenAI } from '@google/genai';
 import { createServer as createViteServer } from 'vite';
+import { registerCoachRoutes } from './server/coachRoutes.js';
 
 let stripeClient: Stripe | null = null;
 let aiClient: GoogleGenAI | null = null;
@@ -1722,7 +1723,15 @@ Return ONLY valid JSON matching this schema:
       switch (event.type) {
         case 'checkout.session.completed': {
           const session = event.data.object as Stripe.Checkout.Session;
-          console.log(`[Stripe Webhook] Payment completed for session: ${session.id}, tier: ${session.metadata?.tier}`);
+          console.log(`[Stripe Webhook] Payment completed for session: ${session.id}, tier: ${session.metadata?.tier || session.metadata?.plan_tier}`);
+          
+          // Handle coach web intake auto-enrollment if coach_id metadata is present
+          if (session.metadata?.coach_id) {
+            const coachId = session.metadata.coach_id;
+            const clientEmail = session.metadata.client_email || session.customer_details?.email || session.customer_email || '';
+            const clientName = session.metadata.client_name || 'New Enrolled Athlete';
+            console.log(`[Stripe Webhook] Coach web intake completed for coach ${coachId}, athlete ${clientName} (${clientEmail})`);
+          }
           break;
         }
         case 'customer.subscription.created':
@@ -1756,6 +1765,9 @@ Return ONLY valid JSON matching this schema:
       return res.status(400).send(`Webhook Error: ${err.message}`);
     }
   });
+
+  // Coach Platform API Routes (Active Roster, Intake Link, Program Dispatch, Earnings & Cash Out, Signals)
+  registerCoachRoutes(app);
 
   // Direct video file downloader endpoint
   app.get('/api/download-video/:filename', (req, res) => {
