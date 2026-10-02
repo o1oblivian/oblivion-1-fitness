@@ -9,7 +9,7 @@ workflows:
       node: 20
       java: 17
     scripts:
-      - name: Install npm dependencies
+      - name: Install dependencies
         script: |
           npm ci --legacy-peer-deps || npm install --legacy-peer-deps
       - name: Build web bundle and sync Capacitor
@@ -45,7 +45,7 @@ workflows:
       vars:
         BUNDLE_ID: "com.oblivion1.fitness"
     scripts:
-      - name: Install npm dependencies
+      - name: Install dependencies
         script: |
           npm ci --legacy-peer-deps || npm install --legacy-peer-deps
       - name: Build web bundle and sync Capacitor
@@ -74,4 +74,7 @@ workflows:
       - /tmp/xcodebuild_logs/*.log
     publishing:
       app_store_connect:
-        auth: integration
+        api_key: $APP_STORE_CONNECT_PRIVATE_KEY
+        key_id: $APP_STORE_CONNECT_KEY_IDENTIFIER
+        issuer_id: $APP_STORE_CONNECT_ISSUER_ID
+        submit_to_testflight: true
