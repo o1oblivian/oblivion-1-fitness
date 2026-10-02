@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Account & Data Deletion - Oblivion 1 Fitness Club</title>
+  <style>
+    :root {
+      --bg: #09090b;
+      --card-bg: #18181b;
+      --border: #27272a;
+      --text: #f4f4f5;
+      --text-muted: #a1a1aa;
+      --accent: #ef4444;
+      --accent-soft: rgba(239, 68, 68, 0.12);
+      --success: #10b981;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+      padding: 24px 16px 64px;
+    }
+    .container {
+      max-width: 760px;
+      margin: 0 auto;
+    }
+    header {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 24px;
+      margin-bottom: 32px;
+    }
+    .badge {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--accent);
+      background-color: var(--accent-soft);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      padding: 4px 10px;
+      border-radius: 9999px;
+      margin-bottom: 12px;
+    }
+    h1 {
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: #ffffff;
+      margin-bottom: 8px;
+    }
+    .meta {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+    section {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+    h2 {
+      font-size: 18px;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    h2::before {
+      content: "";
+      display: inline-block;
+      width: 4px;
+      height: 18px;
+      background: var(--accent);
+      border-radius: 2px;
+    }
+    p {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+    ul, ol {
+      padding-left: 20px;
+      margin: 12px 0;
+    }
+    li {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+    strong {
+      color: #ffffff;
+    }
+    a {
+      color: #ef4444;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+    a:hover {
+      color: #f87171;
+    }
+    .warning-box {
+      background-color: rgba(239, 68, 68, 0.08);
+      border: 1px solid rgba(239, 68, 68, 0.25);
+      border-radius: 12px;
+      padding: 16px;
+      margin: 16px 0;
+    }
+    .warning-box p {
+      color: #fca5a5;
+      font-size: 13px;
+      margin: 0;
+    }
+    form {
+      margin-top: 16px;
+    }
+    .form-group {
+      margin-bottom: 16px;
+    }
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+    input[type="email"], input[type="text"], textarea {
+      width: 100%;
+      padding: 12px 14px;
+      background-color: #09090b;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: #ffffff;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    input[type="email"]:focus, input[type="text"]:focus, textarea:focus {
+      border-color: var(--accent);
+    }
+    .checkbox-label {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 13px;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+    .checkbox-label input {
+      margin-top: 4px;
+      accent-color: var(--accent);
+    }
+    button.submit-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      padding: 14px 20px;
+      background-color: var(--accent);
+      color: #ffffff;
+      font-size: 14px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background-color 0.2s, transform 0.1s;
+    }
+    button.submit-btn:hover {
+      background-color: #dc2626;
+    }
+    button.submit-btn:active {
+      transform: scale(0.99);
+    }
+    .contact-card {
+      background-color: #09090b;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      margin-top: 16px;
+    }
+    .status-banner {
+      display: none;
+      background-color: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      color: #a7f3d0;
+      padding: 16px;
+      border-radius: 12px;
+      font-size: 14px;
+      margin-top: 16px;
+    }
+    .footer-nav {
+      margin-top: 32px;
+      text-align: center;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+    .footer-nav a {
+      margin: 0 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <span class="badge">Google Play Account Deletion Policy</span>
+      <h1>Account &amp; Data Deletion Request</h1>
+      <p class="meta">Oblivion 1 Fitness Club (O1FC) • Direct Erasure Portal</p>
+    </header>
+
+    <main>
+      <section>
+        <h2>1. Data Deletion Policy</h2>
+        <p>
+          In full accordance with Google Play Developer Policies and global data protection regulations (GDPR &amp; CCPA), users of <strong>Oblivion 1 Fitness Club</strong> have the absolute right to request the permanent deletion of their athlete account and all associated personal records.
+        </p>
+        <p>Upon processing your deletion request, the following data is permanently purged:</p>
+        <ul>
+          <li><strong>Athlete Profile:</strong> Account identifiers, email address, profile handle, and preferences.</li>
+          <li><strong>Workout Logs &amp; History:</strong> All recorded exercise sets, weights, repetitions, RPE ratings, and program logs.</li>
+          <li><strong>Telemetry &amp; Biometrics:</strong> Historical step logs, active caloric burn estimates, cardio routes, and volume telemetry.</li>
+          <li><strong>Nutrition &amp; Fuel Data:</strong> Daily macro records, logged meals, and caloric goals.</li>
+          <li><strong>Cloud Backups &amp; Sync:</strong> All synchronized cloud documents and associated telemetry stores.</li>
+        </ul>
+        <div class="warning-box">
+          <p><strong>Warning:</strong> Deletion is irreversible. Once completed, your past athletic milestones, personal records (PRs), and telemetry archives cannot be recovered.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>2. Option A: Instant In-App Reset</h2>
+        <p>If you have access to the mobile application, you can immediately erase your locally stored telemetry data:</p>
+        <ol>
+          <li>Open the <strong>Oblivion 1 Fitness Club</strong> app on your device.</li>
+          <li>Navigate to <strong>Log / Telemetry</strong> or application <strong>Settings</strong>.</li>
+          <li>Select <strong>Clear Local Telemetry &amp; Caches</strong>.</li>
+          <li>Confirm the reset prompt to wipe all local workout and nutritional state.</li>
+        </ol>
+      </section>
+
+      <section>
+        <h2>3. Option B: Request Complete Account Erasure</h2>
+        <p>To request permanent server-side erasure of your athlete account and all cloud telemetry, submit the form below or email our support team directly.</p>
+
+        <form id="deletion-form" onsubmit="handleFormSubmit(event)">
+          <div class="form-group">
+            <label for="athlete-email">Registered Email Address *</label>
+            <input type="email" id="athlete-email" name="email" required placeholder="athlete@example.com">
+          </div>
+
+          <div class="form-group">
+            <label for="athlete-handle">Athlete Name or User ID (Optional)</label>
+            <input type="text" id="athlete-handle" name="handle" placeholder="e.g. ApexAthlete">
+          </div>
+
+          <div class="form-group">
+            <label for="deletion-reason">Reason for Deletion (Optional)</label>
+            <textarea id="deletion-reason" name="reason" rows="3" placeholder="Let us know if there is anything we could have improved..."></textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="checkbox-label">
+              <input type="checkbox" id="confirm-deletion" required>
+              <span>I understand that this action is permanent and will completely erase my athlete profile, workout logs, and historical fitness telemetry.</span>
+            </label>
+          </div>
+
+          <button type="submit" class="submit-btn">Submit Deletion Request</button>
+        </form>
+
+        <div id="status-banner" class="status-banner">
+          <strong>Request Received:</strong> Your erasure request has been initiated. A confirmation email will be sent within 24 hours, and complete account deletion will be finalized within 72 hours.
+        </div>
+
+        <div class="contact-card">
+          <p><strong>Direct Support Email:</strong></p>
+          <p>
+            You may also email us directly at:
+            <br>
+            <a href="mailto:o1oblivianfitness@gmail.com?subject=Account%20and%20Data%20Deletion%20Request&body=Please%20delete%20my%20Oblivion%201%20Fitness%20Club%20account%20and%20all%20associated%20telemetry%20data.%0A%0ARegistered%20Email:%20">
+              o1oblivianfitness@gmail.com
+            </a>
+          </p>
+          <p style="font-size: 12px; color: #71717a; margin-top: 8px;">
+            Subject: Account and Data Deletion Request<br>
+            Standard turnaround time: Within 72 hours of request receipt.
+          </p>
+        </div>
+      </section>
+    </main>
+
+    <div class="footer-nav">
+      <a href="/privacy-policy.html">Privacy Policy</a> •
+      <a href="/delete-account.html">Delete Account &amp; Data</a>
+    </div>
+  </div>
+
+  <script>
+    function handleFormSubmit(event) {
+      event.preventDefault();
+      var email = document.getElementById('athlete-email').value;
+      var handle = document.getElementById('athlete-handle').value;
+      var reason = document.getElementById('deletion-reason').value;
+
+      var subject = encodeURIComponent("Account and Data Deletion Request - " + email);
+      var body = encodeURIComponent(
+        "Please permanently delete my Oblivion 1 Fitness Club account and all associated telemetry.\n\n" +
+        "Registered Email: " + email + "\n" +
+        "Athlete ID / Handle: " + (handle || "N/A") + "\n" +
+        "Reason: " + (reason || "User requested deletion")
+      );
+
+      var mailtoUrl = "mailto:o1oblivianfitness@gmail.com?subject=" + subject + "&body=" + body;
+
+      var banner = document.getElementById('status-banner');
+      if (banner) {
+        banner.style.display = 'block';
+        banner.scrollIntoView({ behavior: 'smooth' });
+      }
+
+      setTimeout(function() {
+        window.location.href = mailtoUrl;
+      }, 500);
+    }
+  </script>
+</body>
+</html>

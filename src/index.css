@@ -1,0 +1,272 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --o1-canvas: #F4F4F7;
+  --o1-panel: #FFFFFF;
+  --o1-card: #FFFFFF;
+  --o1-surface: #F1F2F4;
+  --o1-crimson: #C4121A;
+  --o1-crimson-hover: #A30F16;
+  --o1-crimson-active: #800C11;
+  --o1-border-active: rgba(196, 18, 26, 0.4);
+  --sat: env(safe-area-inset-top, 0px);
+  --sab: env(safe-area-inset-bottom, 0px);
+  --sal: env(safe-area-inset-left, 0px);
+  --sar: env(safe-area-inset-right, 0px);
+}
+
+.dark {
+  --o1-canvas: #09090B;
+  --o1-panel: #0E0E11;
+  --o1-card: #121214;
+  --o1-surface: #18181B;
+}
+
+@theme {
+  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', system-ui, sans-serif;
+  --font-display: 'Outfit', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
+  --font-tactical: 'Outfit', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
+  --font-mono: 'Outfit', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
+  --font-telemetry: 'Outfit', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
+
+  --color-canvas: #F4F4F7;
+  --color-canvas-deep: #EBEBEF;
+  --color-canvas-elevated: #FFFFFF;
+  --color-canvas-card: #FFFFFF;
+  --color-canvas-surface: #F1F2F4;
+
+  --color-crimson-50: #FEF2F2;
+  --color-crimson-100: #FEE2E2;
+  --color-crimson-200: #FECACA;
+  --color-crimson-300: #FCA5A5;
+  --color-crimson-400: #F87171;
+  --color-crimson-500: #EF4444;
+  --color-crimson-600: #DC2626;
+  --color-crimson-700: #C4121A;
+  --color-crimson-800: #A30F16;
+  --color-crimson-900: #800C11;
+  --color-crimson-dark: #520609;
+
+  --color-tactical-black: #09090b;
+  --color-tactical-panel: #0E0E11;
+  --color-tactical-card: #121214;
+  --color-tactical-border: transparent;
+  --color-tactical-border-active: rgba(196, 18, 26, 0.4);
+  --color-tactical-zinc: #18181b;
+  --color-tactical-muted: #71717A;
+  --color-tactical-amber: #D97706;
+  --color-tactical-cyan: #0284C7;
+  --color-tactical-indigo: #4F46E5;
+  --color-tactical-purple: #9333EA;
+
+  --color-brand-red: #C4121A;
+  --color-brand-red-hover: #A30F16;
+  --color-brand-red-active: #800C11;
+  --color-brand-red-dark: #7F1D1D;
+  --color-brand-red-light: #EF4444;
+
+  --color-red-400: #F87171;
+  --color-red-500: #EF4444;
+  --color-red-600: #C4121A;
+  --color-red-700: #A30F16;
+  --color-red-800: #800C11;
+  --color-red-900: #520609;
+}
+
+/* Universal Top Font Enforcement across all pages, cards, lines, words, buttons, inputs */
+*, *::before, *::after {
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11", "tnum";
+}
+
+html, body, button, input, optgroup, select, textarea {
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
+}
+
+/* Enforce Outfit / Plus Jakarta Sans across all tactical, display, and legacy monospace utility tags */
+.font-tactical, .font-display, [class*="font-tactical"], [class*="font-display"] {
+  font-family: 'Outfit', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif !important;
+}
+
+.font-mono, .font-telemetry, [class*="font-mono"], [class*="font-telemetry"] {
+  font-family: 'Outfit', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif !important;
+  letter-spacing: -0.01em;
+}
+
+/* Base Light Mode Setup */
+html, body {
+  background-color: #F4F4F7;
+  color: #171717;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11", "tnum";
+  -webkit-tap-highlight-color: transparent;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  min-height: 100vh;
+}
+
+#root {
+  min-height: 100vh;
+  width: 100%;
+  background-color: #F4F4F7;
+  margin: 0;
+  padding: 0;
+}
+
+/* Explicit Dark Mode Setup */
+html.dark, html.dark body {
+  background-color: #09090b;
+  color: #f5f5f5;
+}
+
+html.dark #root {
+  background-color: #09090b;
+}
+
+svg.lucide, .lucide {
+  stroke-width: 2.2px !important;
+}
+
+/* Surface Classes */
+.tactical-glass {
+  background: #FFFFFF;
+}
+.dark .tactical-glass {
+  background: #121214;
+}
+
+.glass-panel {
+  background: #FFFFFF;
+}
+.dark .glass-panel {
+  background: #121214;
+}
+
+/* Natural Zero-Neon Elevation Styles */
+.card-elevation {
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.06), 0 1px 2px -1px rgba(0, 0, 0, 0.04);
+}
+.dark .card-elevation {
+  box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.5);
+}
+
+/* No Scrollbar Utility */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Safe Area Inset Helpers */
+.pt-safe {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* 3D Hardware-Accelerated Flip Card System */
+.flip-perspective {
+  perspective: 1400px;
+}
+.flip-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.flip-inner.flipped {
+  transform: rotateY(180deg);
+}
+.flip-face {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+.flip-back {
+  transform: rotateY(180deg);
+}
+.flip-inner:not(.flipped) .flip-back {
+  pointer-events: none;
+}
+.flip-inner.flipped .flip-face:not(.flip-back) {
+  pointer-events: none;
+}
+
+/* Dual Range Slider Styles (Tinder / Bumble Style) */
+.dual-range-input {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  pointer-events: none;
+  outline: none;
+}
+
+.dual-range-input::-webkit-slider-runnable-track {
+  background: transparent;
+  border: none;
+}
+
+.dual-range-input::-moz-range-track {
+  background: transparent;
+  border: none;
+}
+
+.dual-range-input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  pointer-events: auto;
+  width: 22px;
+  height: 22px;
+  border-radius: 9999px;
+  background-color: #C4121A;
+  border: 2.5px solid #FFFFFF;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+  cursor: grab;
+  transition: transform 0.1s ease;
+}
+
+.dark .dual-range-input::-webkit-slider-thumb {
+  border-color: #121214;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.7);
+}
+
+.dual-range-input::-webkit-slider-thumb:active {
+  cursor: grabbing;
+  transform: scale(1.18);
+}
+
+.dual-range-input::-moz-range-thumb {
+  pointer-events: auto;
+  width: 22px;
+  height: 22px;
+  border-radius: 9999px;
+  background-color: #C4121A;
+  border: 2.5px solid #FFFFFF;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+  cursor: grab;
+  transition: transform 0.1s ease;
+}
+
+.dark .dual-range-input::-moz-range-thumb {
+  border-color: #121214;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.7);
+}
+
+.dual-range-input::-moz-range-thumb:active {
+  cursor: grabbing;
+  transform: scale(1.18);
+}

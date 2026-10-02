@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <rect width="512" height="512" rx="112" fill="#09090b"/>
+  <circle cx="256" cy="256" r="230" stroke="#C4121A" stroke-width="4" fill="none" opacity="0.4"/>
+  <path d="M 256 96 L 396 172 V 304 C 396 376 256 424 256 424 C 256 424 116 376 116 304 V 172 Z" fill="#121214" stroke="#C4121A" stroke-width="12" stroke-linejoin="round"/>
+  <path d="M 256 128 L 366 188 V 292 C 366 348 256 388 256 388 C 256 388 146 348 146 292 V 188 Z" fill="#C4121A" opacity="0.15"/>
+  <!-- Tactical Roman Numeral / 1 / Monogram -->
+  <text x="256" y="300" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-weight="900" font-size="160" fill="#FFFFFF" text-anchor="middle" letter-spacing="4">O1</text>
+  <circle cx="256" cy="345" r="8" fill="#C4121A"/>
+</svg>
