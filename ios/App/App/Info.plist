@@ -17,9 +17,9 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>$(MARKETING_VERSION)</string>
+	<string>1.0.1</string>
 	<key>CFBundleVersion</key>
-	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<string>38</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>
@@ -37,12 +37,14 @@
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>Oblivion 1 Fitness Club uses your camera to scan meal macros and console telemetry.</string>
+	<string>Oblivion 1 uses camera for meal scanning and form telemetry.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Oblivion 1 Fitness Club requires photo access to upload meal photos and workout logs.</string>
+	<string>Oblivion 1 accesses photos for progress tracking and log uploads.</string>
 	<key>NSBluetoothAlwaysUsageDescription</key>
-	<string>Oblivion 1 Fitness Club connects to compatible Bluetooth fitness monitors and heart rate straps.</string>
+	<string>Oblivion 1 connects to heart rate monitors and gym sensors.</string>
 	<key>NSBluetoothPeripheralUsageDescription</key>
-	<string>Oblivion 1 Fitness Club connects to Bluetooth training equipment and biometric telemetry sensors.</string>
+	<string>Oblivion 1 pairs with external fitness wearables.</string>
+	<key>NSMotionUsageDescription</key>
+	<string>Oblivion 1 records movement and steps when external sensors disconnect.</string>
 </dict>
 </plist>

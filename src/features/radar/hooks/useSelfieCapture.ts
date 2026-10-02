@@ -17,13 +17,18 @@ export function useSelfieCapture(isOpen: boolean, onVerified?: () => void) {
 
   const startCamera = async () => {
     try {
+      if (!navigator.mediaDevices?.getUserMedia) {
+        setErrorMessage('Camera access is not supported on this device. You can upload a photo instead.');
+        return;
+      }
       const stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } },
       });
       streamRef.current = stream;
       if (videoRef.current) videoRef.current.srcObject = stream;
-    } catch (e) {
+    } catch (e: any) {
       console.warn('[SelfieCapture] Camera fallback active:', e);
+      setErrorMessage('Camera access was denied or unavailable. You can upload a photo or allow camera in device settings.');
     }
   };
 

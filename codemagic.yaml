@@ -1,9 +1,11 @@
 workflows:
   android-release:
     name: Android Release (Google Play AAB)
-    max_build_duration: 60
+    max_build_duration: 120
     instance_type: linux_x2
     environment:
+      groups:
+        - google_play_credentials
       node: 20
       java: 17
     scripts:
@@ -13,23 +15,35 @@ workflows:
       - name: Build web bundle and sync Capacitor
         script: |
           npm run cap:build
-      - name: Build Android release bundle
+      - name: Setup Android release signing
         script: |
           cd android
           chmod +x ./gradlew
+      - name: Build Android Release AAB
+        script: |
+          cd android
           ./gradlew bundleRelease
     artifacts:
       - android/app/build/outputs/bundle/**/*.aab
       - android/app/build/outputs/apk/**/*.apk
+    publishing:
+      google_play:
+        credentials: $GCLOUD_SERVICE_ACCOUNT_KEY
+        track: internal
+        submit_as_draft: true
 
   ios-release:
     name: iOS Release (App Store / TestFlight)
-    max_build_duration: 60
+    max_build_duration: 120
     instance_type: mac_mini_m2
     environment:
+      groups:
+        - app_store_credentials
       node: 20
       xcode: latest
       cocoapods: default
+      vars:
+        BUNDLE_ID: "com.oblivion1.fitness"
     scripts:
       - name: Install npm dependencies
         script: |
@@ -41,10 +55,23 @@ workflows:
         script: |
           cd ios/App
           pod install
-      - name: Compile iOS Project
+      - name: Set up code signing with App Store Connect API
+        script: |
+          keychain initialize
+          app-store-connect fetch-signing-files "$BUNDLE_ID" \
+            --type IOS_APP_STORE \
+            --create
+          keychain add-certificates
+          xcode-project use-profiles
+      - name: Build iOS IPA
         script: |
           cd ios/App
-          xcodebuild -workspace App.xcworkspace -scheme App -configuration Release -destination generic/platform=iOS clean build CODE_SIGNING_ALLOWED=NO
+          xcode-project build-ipa \
+            --workspace "App.xcworkspace" \
+            --scheme "App"
     artifacts:
-      - ios/App/build/**/*.ipa
+      - build/ios/ipa/*.ipa
       - /tmp/xcodebuild_logs/*.log
+    publishing:
+      app_store_connect:
+        auth: integration
