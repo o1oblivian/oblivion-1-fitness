@@ -1,8 +1,8 @@
 workflows:
   android-release:
     name: Android Release (Google Play AAB)
-    max_build_duration: 120
-    instance_type: linux
+    max_build_duration: 60
+    instance_type: mac_mini_m2
     environment:
       groups:
         - google_play_credentials
@@ -10,18 +10,15 @@ workflows:
       java: 17
     scripts:
       - name: Install dependencies
+        script: npm install --legacy-peer-deps
+      - name: Build web bundle and copy Android assets
         script: |
-          npm ci --legacy-peer-deps || npm install --legacy-peer-deps
-      - name: Build web bundle and sync Capacitor
-        script: |
-          npm run cap:build
-      - name: Setup Android release signing
-        script: |
-          cd android
-          chmod +x ./gradlew
+          npm run build
+          npx cap copy android
       - name: Build Android Release AAB
         script: |
           cd android
+          chmod +x ./gradlew
           ./gradlew bundleRelease
     artifacts:
       - android/app/build/outputs/bundle/**/*.aab
@@ -34,8 +31,8 @@ workflows:
 
   ios-release:
     name: iOS Release (App Store / TestFlight)
-    max_build_duration: 120
-    instance_type: mac_mini_m1
+    max_build_duration: 60
+    instance_type: mac_mini_m2
     environment:
       groups:
         - app_store_credentials
@@ -46,15 +43,15 @@ workflows:
         BUNDLE_ID: "com.oblivion1.fitness"
     scripts:
       - name: Install dependencies
+        script: npm install --legacy-peer-deps
+      - name: Build web bundle and copy iOS assets
         script: |
-          npm ci --legacy-peer-deps || npm install --legacy-peer-deps
-      - name: Build web bundle and sync Capacitor
-        script: |
-          npm run cap:build
+          npm run build
+          npx cap copy ios
       - name: Install CocoaPods
         script: |
           cd ios/App
-          pod install
+          pod install --repo-update
       - name: Set up code signing with App Store Connect API
         script: |
           keychain initialize
