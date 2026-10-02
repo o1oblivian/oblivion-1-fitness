@@ -114,6 +114,10 @@ workflows:
             echo "Self-healing Gradle wrapper..."
             tar -xzf node_modules/@capacitor/cli/assets/android-template.tar.gz -C android gradlew gradlew.bat gradle build.gradle settings.gradle variables.gradle gradle.properties 2>/dev/null || true
           fi
+          if [ ! -f "android/app/src/main/res/values/styles.xml" ]; then
+            echo "Self-healing Android resources..."
+            tar -xzf node_modules/@capacitor/cli/assets/android-template.tar.gz -C android app/src/main/res 2>/dev/null || true
+          fi
           chmod +x android/gradlew || true
       - name: Set up keystore and sign
         script: |
