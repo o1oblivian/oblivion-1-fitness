@@ -6,7 +6,7 @@ workflows:
     environment:
       groups:
         - google_play_credentials
-      node: 20
+      node: 22
       java: 17
     scripts:
       - name: Install dependencies
@@ -39,7 +39,7 @@ workflows:
     environment:
       groups:
         - app_store_credentials
-      node: 20
+      node: 22
       xcode: latest
       cocoapods: default
       vars:
