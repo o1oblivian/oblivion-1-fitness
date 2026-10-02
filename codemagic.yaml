@@ -37,8 +37,8 @@ workflows:
           xcode-project use-profiles --project ios/App/App.xcodeproj
       - name: Set build version
         script: |
-          NEW_BUILD=39
-          if [ -n "$LATEST_BUILD" ] && [ "$LATEST_BUILD" != "null" ] && [ "$LATEST_BUILD" -ge 39 ]; then
+          NEW_BUILD=40
+          if [ -n "$LATEST_BUILD" ] && [ "$LATEST_BUILD" != "null" ] && [ "$LATEST_BUILD" -ge 40 ]; then
             NEW_BUILD=$((LATEST_BUILD + 1))
           fi
           if [ -n "$CM_BUILD" ] && [ "$CM_BUILD" -gt "$NEW_BUILD" ]; then

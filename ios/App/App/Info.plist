@@ -22,8 +22,14 @@
 	<string>1.0.1</string>
 	<key>CFBundleVersion</key>
 	<string>38</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>NSCameraUsageDescription</key>
 	<string>Oblivion 1 uses camera for meal scanning and form telemetry.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Oblivion 1 uses the microphone for hands-free voice coaching during workouts.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>Oblivion 1 uses speech recognition to understand voice workout commands.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Oblivion 1 accesses photos for progress tracking and log uploads.</string>
 	<key>NSBluetoothAlwaysUsageDescription</key>
