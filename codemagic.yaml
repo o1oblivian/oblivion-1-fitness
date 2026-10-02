@@ -2,7 +2,7 @@ workflows:
   android-release:
     name: Android Release (Google Play AAB)
     max_build_duration: 120
-    instance_type: linux_x2
+    instance_type: linux
     environment:
       groups:
         - google_play_credentials
@@ -35,7 +35,7 @@ workflows:
   ios-release:
     name: iOS Release (App Store / TestFlight)
     max_build_duration: 120
-    instance_type: mac_mini_m2
+    instance_type: mac_mini_m1
     environment:
       groups:
         - app_store_credentials
