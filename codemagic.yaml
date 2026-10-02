@@ -105,7 +105,16 @@ workflows:
           npm run build
       - name: Sync Capacitor Android
         script: |
+          set -e
+          if [ ! -d "android" ]; then
+            npx cap add android
+          fi
           npx cap sync android
+          if [ ! -f "android/gradlew" ]; then
+            echo "Self-healing Gradle wrapper..."
+            tar -xzf node_modules/@capacitor/cli/assets/android-template.tar.gz -C android gradlew gradlew.bat gradle build.gradle settings.gradle variables.gradle gradle.properties 2>/dev/null || true
+          fi
+          chmod +x android/gradlew || true
       - name: Set up keystore and sign
         script: |
           set -e
