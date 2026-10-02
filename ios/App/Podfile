@@ -1,7 +1,10 @@
 require_relative '../../node_modules/@capacitor/ios/scripts/pods_helpers'
 
-platform :ios, '14.0'
+platform :ios, '15.0'
 use_frameworks!
+
+# Explicitly link Xcode project so CocoaPods never fails automatic selection
+project 'App.xcodeproj'
 
 install! 'cocoapods', :disable_input_output_paths => true
 

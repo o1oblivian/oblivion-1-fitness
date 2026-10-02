@@ -2,10 +2,12 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+  <key>CAPACITOR_DEBUG</key>
+	<string>$(CAPACITOR_DEBUG)</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
-	<string>Oblivion 1 Fitness Club</string>
+        <string>Oblivion 1 Fitness Club</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -20,8 +22,37 @@
 	<string>1.0.1</string>
 	<key>CFBundleVersion</key>
 	<string>38</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Oblivion 1 uses camera for meal scanning and form telemetry.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Oblivion 1 accesses photos for progress tracking and log uploads.</string>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>Oblivion 1 connects to heart rate monitors and gym sensors.</string>
+	<key>NSBluetoothPeripheralUsageDescription</key>
+	<string>Oblivion 1 pairs with external fitness wearables.</string>
+	<key>NSMotionUsageDescription</key>
+	<string>Oblivion 1 records movement and steps when external sensors disconnect.</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>UIApplicationSceneManifest</key>
+	<dict>
+		<key>UIApplicationSupportsMultipleScenes</key>
+    <false/>
+    <key>UISceneConfigurations</key>
+    <dict>
+      <key>UIWindowSceneSessionRoleApplication</key>
+      <array>
+        <dict>
+            <key>UISceneConfigurationName</key>
+            <string>Default Configuration</string>
+            <key>UISceneDelegateClassName</key>
+            <string>$(PRODUCT_MODULE_NAME).SceneDelegate</string>
+            <key>UISceneStoryboardFile</key>
+            <string>Main</string>
+        </dict>
+      </array>
+    </dict>
+	</dict>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
@@ -33,18 +64,17 @@
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
+	</array>
+	<key>UISupportedInterfaceOrientations~ipad</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationPortraitUpsideDown</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
-	<key>NSCameraUsageDescription</key>
-	<string>Oblivion 1 uses camera for meal scanning and form telemetry.</string>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Oblivion 1 accesses photos for progress tracking and log uploads.</string>
-	<key>NSBluetoothAlwaysUsageDescription</key>
-	<string>Oblivion 1 connects to heart rate monitors and gym sensors.</string>
-	<key>NSBluetoothPeripheralUsageDescription</key>
-	<string>Oblivion 1 pairs with external fitness wearables.</string>
-	<key>NSMotionUsageDescription</key>
-	<string>Oblivion 1 records movement and steps when external sensors disconnect.</string>
 </dict>
 </plist>

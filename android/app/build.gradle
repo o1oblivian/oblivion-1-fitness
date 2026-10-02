@@ -16,8 +16,23 @@ android {
              ignoreAssetsPattern '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+    signingConfigs {
+        release {
+            def ksPath = System.getenv("CM_KEYSTORE") ?: System.getenv("KEYSTORE_PATH")
+            if (ksPath != null && file(ksPath).exists()) {
+                storeFile file(ksPath)
+                storePassword System.getenv("CM_KEYSTORE_PASSWORD") ?: System.getenv("KEYSTORE_PASSWORD") ?: "oblivion123"
+                keyAlias System.getenv("CM_KEY_ALIAS") ?: System.getenv("KEY_ALIAS") ?: "oblivion1"
+                keyPassword System.getenv("CM_KEY_PASSWORD") ?: System.getenv("KEY_PASSWORD") ?: "oblivion123"
+            }
+        }
+    }
     buildTypes {
         release {
+            def ksPath = System.getenv("CM_KEYSTORE") ?: System.getenv("KEYSTORE_PATH")
+            if (ksPath != null && file(ksPath).exists()) {
+                signingConfig signingConfigs.release
+            }
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
