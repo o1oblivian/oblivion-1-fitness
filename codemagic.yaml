@@ -92,8 +92,6 @@ workflows:
           include: true
           source: true
     environment:
-      groups:
-        - google_play_credentials
       vars:
         PACKAGE_NAME: "com.o1fc.fitness"
       node: 22
@@ -136,10 +134,6 @@ workflows:
       - android/app/build/outputs/apk/**/*.apk
       - android/app/upload_certificate.pem
     publishing:
-      google_play:
-        credentials: ${GCLOUD_SERVICE_ACCOUNT_KEY:-$GCLOUD_SERVICE_ACCOUNT_CREDENTIALS}
-        track: internal
-        submit_as_draft: true
       email:
         recipients:
           - o1oblivianfitness@gmail.com
