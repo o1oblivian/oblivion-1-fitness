@@ -1,87 +1,71 @@
 workflows:
-  android-release:
-    name: Android Release (Google Play AAB)
-    max_build_duration: 60
-    instance_type: mac_mini_m2
-    environment:
-      groups:
-        - google_play_credentials
-      node: 22
-      java: 17
-    scripts:
-      - name: Install dependencies
-        script: npm install --legacy-peer-deps
-      - name: Build web bundle and sync Android
-        script: |
-          npm run build
-          npx cap sync android
-      - name: Setup Android release signing
-        script: |
-          cd android
-          chmod +x ./gradlew
-          if [ -z "$CM_KEYSTORE" ] && [ -z "$KEYSTORE_PATH" ]; then
-            echo "No custom keystore found, generating self-signed release keystore..."
-            keytool -genkeypair -v -keystore release.keystore -alias oblivion1 -keyalg RSA -keysize 2048 -validity 10000 -storepass oblivion123 -keypass oblivion123 -dname "CN=Oblivion1, OU=Fitness, O=Oblivion, L=City, S=State, C=US"
-            echo "CM_KEYSTORE=$(pwd)/release.keystore" >> $CM_ENV
-            echo "CM_KEYSTORE_PASSWORD=oblivion123" >> $CM_ENV
-            echo "CM_KEY_ALIAS=oblivion1" >> $CM_ENV
-            echo "CM_KEY_PASSWORD=oblivion123" >> $CM_ENV
-          fi
-      - name: Build Android Release AAB
-        script: |
-          cd android
-          chmod +x ./gradlew
-          ./gradlew bundleRelease
-    artifacts:
-      - android/app/build/outputs/bundle/**/*.aab
-      - android/app/build/outputs/apk/**/*.apk
-    publishing:
-      google_play:
-        credentials: $GCLOUD_SERVICE_ACCOUNT_KEY
-        track: internal
-        submit_as_draft: true
-
   ios-release:
     name: iOS Release (App Store / TestFlight)
     max_build_duration: 60
     instance_type: mac_mini_m2
+    triggering:
+      events:
+        - push
+      branch_patterns:
+        - pattern: 'main'
+          include: true
+          source: true
     environment:
       groups:
         - app_store_credentials
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.o1fc.fitness
+      vars:
+        BUNDLE_ID: "com.o1fc.fitness"
+        XCODE_PROJECT: "ios/App/App.xcodeproj"
+        XCODE_SCHEME: "App"
       node: 22
       xcode: latest
-      cocoapods: default
-      vars:
-        BUNDLE_ID: "com.oblivion1.fitness"
     scripts:
       - name: Install dependencies
-        script: npm install --legacy-peer-deps
-      - name: Build web bundle and sync iOS
+        script: |
+          npm install --legacy-peer-deps
+      - name: Build web assets
         script: |
           npm run build
+      - name: Sync Capacitor iOS
+        script: |
           npx cap sync ios
-      - name: Install CocoaPods
+      - name: Set up code signing settings on Xcode project
         script: |
-          cd ios/App
-          pod install --repo-update
-      - name: Set up code signing with App Store Connect API
-        script: |
-          keychain initialize
-          app-store-connect fetch-signing-files "$BUNDLE_ID" \
-            --type IOS_APP_STORE \
-            --create
-          keychain add-certificates
           xcode-project use-profiles --project ios/App/App.xcodeproj
+      - name: Set build version
+        script: |
+          NEW_BUILD=39
+          if [ -n "$LATEST_BUILD" ] && [ "$LATEST_BUILD" != "null" ] && [ "$LATEST_BUILD" -ge 39 ]; then
+            NEW_BUILD=$((LATEST_BUILD + 1))
+          fi
+          if [ -n "$CM_BUILD" ] && [ "$CM_BUILD" -gt "$NEW_BUILD" ]; then
+            NEW_BUILD=$CM_BUILD
+          fi
+          echo "Selected build number for this release: $NEW_BUILD"
+          cd ios/App
+          xcrun agvtool new-version -all "$NEW_BUILD" || true
+          /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $NEW_BUILD" App/Info.plist 2>/dev/null || \
+          /usr/libexec/PlistBuddy -c "Add :CFBundleVersion string $NEW_BUILD" App/Info.plist || true
+          echo "Verification of CFBundleVersion in Info.plist:"
+          /usr/libexec/PlistBuddy -c "Print :CFBundleVersion" App/Info.plist || true
       - name: Build iOS IPA
         script: |
-          cd ios/App
-          xcode-project use-profiles
+          set -e
+          echo "Building signed App Store IPA for publishing..."
           xcode-project build-ipa \
-            --workspace "App.xcworkspace" \
-            --scheme "App"
+            --project ios/App/App.xcodeproj \
+            --scheme "App" \
+            --archive-flags="-destination 'generic/platform=iOS'" || {
+              echo "=== XCODEBUILD ERROR LOG ==="
+              grep -E -A 3 -B 1 "error:" /tmp/xcodebuild_logs/*.log || cat /tmp/xcodebuild_logs/*.log
+              exit 1
+            }
     artifacts:
       - build/ios/ipa/*.ipa
-      - ios/App/build/ios/ipa/*.ipa
+      - build/ios/xcarchive/**
       - /tmp/xcodebuild_logs/*.log
     publishing:
       app_store_connect:
@@ -89,3 +73,76 @@ workflows:
         key_id: $APP_STORE_CONNECT_KEY_IDENTIFIER
         issuer_id: $APP_STORE_CONNECT_ISSUER_ID
         submit_to_testflight: true
+      email:
+        recipients:
+          - o1oblivionfitness@gmail.com
+        notify:
+          success: true
+          failure: true
+
+  android-release:
+    name: Android Release (Google Play AAB)
+    max_build_duration: 60
+    instance_type: mac_mini_m2
+    triggering:
+      events:
+        - push
+      branch_patterns:
+        - pattern: 'main'
+          include: true
+          source: true
+    environment:
+      groups:
+        - google_play_credentials
+      vars:
+        PACKAGE_NAME: "com.o1fc.fitness"
+      node: 22
+      java: 21
+    scripts:
+      - name: Install dependencies
+        script: |
+          npm install --legacy-peer-deps
+      - name: Build web application
+        script: |
+          npm run build
+      - name: Sync Capacitor Android
+        script: |
+          npx cap sync android
+      - name: Set up keystore and sign
+        script: |
+          set -e
+          cd android
+          if [ -n "$CM_KEYSTORE" ]; then
+            echo "Using Codemagic environment keystore..."
+            echo "$CM_KEYSTORE" | base64 --decode > app/release-keystore.jks
+            export CM_KEYSTORE_PATH="app/release-keystore.jks"
+          elif [ -f "app/release-keystore.jks" ]; then
+            echo "Using persistent repository release keystore (app/release-keystore.jks)..."
+          else
+            echo "Creating production release keystore for Google Play AAB..."
+            keytool -genkeypair -v -keystore app/release-keystore.jks -alias o1fc -keyalg RSA -keysize 2048 -validity 10000 -storepass o1fcfitness -keypass o1fcfitness -dname "CN=Oblivion 1 Fitness Club, OU=Mobile, O=O1FC, L=Sydney, ST=NSW, C=AU"
+          fi
+          echo "Verifying Keystore Fingerprints:"
+          keytool -list -v -keystore app/release-keystore.jks -alias o1fc -storepass o1fcfitness | grep -E "SHA1:|SHA256:" || true
+      - name: Build Android App Bundle (AAB)
+        script: |
+          set -e
+          cd android
+          chmod +x gradlew
+          ./gradlew bundleRelease --no-daemon
+          ./gradlew assembleRelease --no-daemon || true
+    artifacts:
+      - android/app/build/outputs/bundle/**/*.aab
+      - android/app/build/outputs/apk/**/*.apk
+      - android/app/upload_certificate.pem
+    publishing:
+      google_play:
+        credentials: ${GCLOUD_SERVICE_ACCOUNT_KEY:-$GCLOUD_SERVICE_ACCOUNT_CREDENTIALS}
+        track: internal
+        submit_as_draft: true
+      email:
+        recipients:
+          - o1oblivianfitness@gmail.com
+        notify:
+          success: true
+          failure: true

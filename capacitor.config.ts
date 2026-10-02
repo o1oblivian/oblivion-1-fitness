@@ -1,8 +1,8 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.oblivion1.fitness',
-  appName: 'Oblivion 1 Fitness Club',
+  appId: 'com.o1fc.fitness',
+  appName: 'Oblivion 1',
   webDir: 'dist',
   server: {
     androidScheme: 'https',
