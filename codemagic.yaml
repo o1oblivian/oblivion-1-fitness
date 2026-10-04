@@ -37,13 +37,31 @@ workflows:
           xcode-project use-profiles --project ios/App/App.xcodeproj
       - name: Set build version
         script: |
-          NEW_BUILD=40
-          if [ -n "$LATEST_BUILD" ] && [ "$LATEST_BUILD" != "null" ] && [ "$LATEST_BUILD" -ge 40 ]; then
-            NEW_BUILD=$((LATEST_BUILD + 1))
+          # Base published build number in App Store Connect is 40
+          BASE_BUILD=40
+          NEW_BUILD=$((BASE_BUILD + 1))
+
+          # 1. Try querying App Store Connect API if APP_STORE_APP_ID is configured
+          if [ -n "$APP_STORE_APP_ID" ]; then
+            LATEST_TF=$(app-store-connect get-latest-testflight-build-number "$APP_STORE_APP_ID" 2>/dev/null || true)
+            if [ -n "$LATEST_TF" ] && [ "$LATEST_TF" != "null" ] && [ "$LATEST_TF" -ge "$BASE_BUILD" ] 2>/dev/null; then
+              NEW_BUILD=$((LATEST_TF + 1))
+              echo "Fetched latest TestFlight build ($LATEST_TF) -> Setting build to $NEW_BUILD"
+            fi
           fi
-          if [ -n "$CM_BUILD" ] && [ "$CM_BUILD" -gt "$NEW_BUILD" ]; then
-            NEW_BUILD=$CM_BUILD
+
+          # 2. Codemagic provides $BUILD_NUMBER on every build
+          if [ -n "$BUILD_NUMBER" ] && [ "$BUILD_NUMBER" -gt "$BASE_BUILD" ] 2>/dev/null; then
+            if [ "$BUILD_NUMBER" -ge "$NEW_BUILD" ]; then
+              NEW_BUILD=$BUILD_NUMBER
+            fi
+          elif [ -n "$BUILD_NUMBER" ] && [ "$BUILD_NUMBER" -gt 0 ] 2>/dev/null; then
+            CALCULATED_BUILD=$((BUILD_NUMBER + BASE_BUILD))
+            if [ "$CALCULATED_BUILD" -ge "$NEW_BUILD" ]; then
+              NEW_BUILD=$CALCULATED_BUILD
+            fi
           fi
+
           echo "Selected build number for this release: $NEW_BUILD"
           cd ios/App
           xcrun agvtool new-version -all "$NEW_BUILD" || true
