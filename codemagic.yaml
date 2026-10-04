@@ -138,17 +138,6 @@ workflows:
             echo "Self-healing Android resources..."
             tar -xzf node_modules/@capacitor/cli/assets/android-template.tar.gz -C android app/src/main/res 2>/dev/null || true
           fi
-          if [ ! -f "android/app/src/main/java/com/o1fc/fitness/MainActivity.java" ]; then
-            echo "Self-healing MainActivity.java..."
-            mkdir -p android/app/src/main/java/com/o1fc/fitness
-            cat << 'EOF' > android/app/src/main/java/com/o1fc/fitness/MainActivity.java
-package com.o1fc.fitness;
-
-import com.getcapacitor.BridgeActivity;
-
-public class MainActivity extends BridgeActivity {}
-EOF
-          fi
           chmod +x android/gradlew || true
       - name: Verify Google Play Publishing Credentials
         script: |
