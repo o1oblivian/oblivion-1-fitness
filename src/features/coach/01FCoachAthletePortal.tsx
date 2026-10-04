@@ -97,7 +97,7 @@ export const O1FCoachAthletePortal: React.FC<O1FCoachAthletePortalProps> = ({
             priceUsd: Number(p.price_usd || p.priceUsd || 0),
             rating: Number(p.rating || 5.0),
             enrolledCount: Number(p.enrolled_count || p.enrolledCount || 0),
-            coverImage: p.cover_image || p.coverImage || 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=800&auto=format&fit=crop&q=80',
+            coverImage: p.cover_image || p.coverImage || 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=600&h=600&q=80',
             videoPreviewUrl: p.video_preview_url || p.videoPreviewUrl,
             description: p.description || '',
             highlights: Array.isArray(p.highlights) ? p.highlights : [],
