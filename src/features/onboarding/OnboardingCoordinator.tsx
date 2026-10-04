@@ -50,16 +50,6 @@ export const OnboardingCoordinator: React.FC<{ onComplete: () => void }> = ({ on
     onComplete();
   };
 
-  const handleWipeAccount = () => {
-    tactileEngine.triggerDialHaptic();
-    if (window.confirm('Wipe all local athletic data and reset admission?')) {
-      localStorage.clear();
-      sessionStorage.clear();
-      setData(INITIAL_ONBOARDING_DATA);
-      setPhase('auth');
-    }
-  };
-
   return (
     <div className="fixed inset-0 z-50 bg-[#040406] text-white flex flex-col justify-between overflow-y-auto no-scrollbar select-none">
       {/* Exact High-Definition Dark Celestial Background from reference image */}
@@ -100,21 +90,6 @@ export const OnboardingCoordinator: React.FC<{ onComplete: () => void }> = ({ on
               onLaunch={handleFinish}
             />
           )}
-        </div>
-
-        {/* Footer Hardware Info */}
-        <div className="pb-3 border-t border-white/[0.08] pt-3 flex items-center justify-between text-[10px] font-mono text-neutral-500">
-          <span className="flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
-            ATHLETE OS v2.6 // GENUINE
-          </span>
-          <button
-            type="button"
-            onClick={handleWipeAccount}
-            className="hover:text-red-400 transition cursor-pointer font-sans"
-          >
-            Reset All Data
-          </button>
         </div>
       </div>
 
