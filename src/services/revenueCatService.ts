@@ -1,6 +1,9 @@
+import { Capacitor } from '@capacitor/core';
 import { Purchases, type Package, type CustomerInfo } from '@revenuecat/purchases-js';
 import { supabase } from './supabaseClient';
+import { appleKey, googleKey } from './purchasesService';
 
+export { appleKey, googleKey };
 export const REVENUECAT_WEB_BILLING_KEY = 'rcb_FyTrwaYRNbRxDuYZuEeksYMwXwam', REVENUECAT_ENTITLEMENT_PRO = 'pro', REVENUECAT_TIER_MONTHLY = 'o1fc_pro_monthly', REVENUECAT_TIER_ANNUAL = 'o1fc_pro_annual';
 const STORAGE_KEY = 'o1fc_revenuecat_entitlements';
 
@@ -8,32 +11,31 @@ export interface EntitlementInfo {
   isActive: boolean; tierId: string; tierName: string; platform: 'ios' | 'android' | 'web'; expiresAt: string | null; willRenew: boolean;
 }
 
-function getSafeEnv(key: string): string {
-  try {
-    if (typeof import.meta !== 'undefined' && (import.meta as any)?.env?.[key]) return (import.meta as any).env[key];
-    if (typeof process !== 'undefined' && process?.env?.[key]) return process.env[key]!;
-  } catch {}
-  return '';
-}
-
 class RevenueCatManager {
   private purchasesInstance: Purchases | null = null;
-  isNative = (): boolean => typeof window !== 'undefined' && Boolean((window as any)?.Capacitor?.isNativePlatform?.() || (window as any)?.ReactNativeWebView || (window as any)?.cordova);
+  isNative = (): boolean => {
+    if (typeof window === 'undefined') return false;
+    const platform = Capacitor.getPlatform();
+    return platform === 'ios' || platform === 'android';
+  };
 
   async init(appUserId: string = 'default-athlete'): Promise<Purchases | null> {
     if (typeof window === 'undefined') return null;
+    const platform = Capacitor.getPlatform();
+
+    if (platform !== 'ios' && platform !== 'android') {
+      console.warn(`[RevenueCat] Non-native platform (${platform}). Skipping Purchases.configure() gracefully to prevent preview crash.`);
+      return null;
+    }
+
     try {
-      if (this.purchasesInstance && Purchases.isConfigured()) return this.purchasesInstance;
-      if (this.isNative()) {
-        const nativePurchases = (window as any)?.Purchases;
-        const nativeKey = getSafeEnv('VITE_REVENUECAT_APPLE_KEY') || getSafeEnv('VITE_REVENUECAT_API_KEY') || REVENUECAT_WEB_BILLING_KEY;
-        if (nativePurchases?.configure) await nativePurchases.configure({ apiKey: nativeKey, appUserId });
-        return nativePurchases || null;
+      const nativePurchases = (window as any)?.Purchases;
+      const apiKey = platform === 'ios' ? appleKey : googleKey;
+      if (apiKey && nativePurchases?.configure) {
+        await nativePurchases.configure({ apiKey, appUserId });
+        return nativePurchases;
       }
-      const key = getSafeEnv('VITE_REVENUECAT_WEB_KEY') || REVENUECAT_WEB_BILLING_KEY;
-      this.purchasesInstance = Purchases.configure({ apiKey: key, appUserId });
-      await this.handleStripeRedirectReturn(appUserId);
-      return this.purchasesInstance;
+      return nativePurchases || null;
     } catch (e) {
       console.warn('[RevenueCat Safe Guard] Initialization fallback:', e);
       return null;

@@ -16,24 +16,37 @@ import {
 
 dotenv.config();
 
+function getGeminiApiKey(explicitKey?: string): string {
+  return (
+    explicitKey ||
+    process.env.GEMINI_API_KEY ||
+    (process.env as any).VITE_GEMINI_API_KEY ||
+    (process.env as any).GEMINI_API_KEY_2 ||
+    (process.env as any).VITE_GEMINI_API_KEY_2 ||
+    ''
+  );
+}
+
 let aiClient: GoogleGenAI | null = null;
-function getGenAI(): GoogleGenAI | null {
-  const activeKey = process.env.GEMINI_API_KEY;
-  if (!aiClient && activeKey) {
-    try {
-      aiClient = new GoogleGenAI({
-        apiKey: activeKey,
-        httpOptions: {
-          headers: {
-            'User-Agent': 'aistudio-build',
-          },
+function getGenAI(overrideKey?: string): GoogleGenAI | null {
+  const activeKey = getGeminiApiKey(overrideKey);
+  if (!activeKey) return null;
+  if (aiClient && !overrideKey) return aiClient;
+  try {
+    const client = new GoogleGenAI({
+      apiKey: activeKey,
+      httpOptions: {
+        headers: {
+          'User-Agent': 'aistudio-build',
         },
-      });
-    } catch (e) {
-      console.error('Failed to initialize GoogleGenAI client:', e);
-    }
+      },
+    });
+    if (!overrideKey) aiClient = client;
+    return client;
+  } catch (e) {
+    console.error('Failed to initialize GoogleGenAI client:', e);
+    return null;
   }
-  return aiClient;
 }
 
 // Resilient Gemini generateContent caller with model fallback & exponential retry for 503/429 spikes
@@ -717,7 +730,8 @@ Return STRICT JSON matching this schema:
         return res.status(400).json({ error: 'Image base64 data required' });
       }
       const cleanBase64 = imageBase64.replace(/^data:image\/[a-z]+;base64,/, '');
-      const genAI = getGenAI();
+      const reqKey = (req.headers['x-gemini-key'] as string) || req.body?.geminiKey;
+      const genAI = getGenAI(reqKey);
 
       let prompt = `You are a clinical sports nutritionist. Analyze the meal photo. Estimate real portion sizes, macro ratios (protein, carbs, fats), and total calories based on FSANZ / AUSNUT Australian nutritional tables. Never return generic mock arrays. Return valid JSON only.
 

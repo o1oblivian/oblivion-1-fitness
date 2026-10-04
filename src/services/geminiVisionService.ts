@@ -4,6 +4,14 @@
  */
 import { downscaleBase64IfNeeded } from './imageDownscaleUtils';
 
+// 1. PERMANENT GEMINI API KEY FALLBACK
+export const geminiKey: string =
+  (typeof process !== 'undefined' && process.env?.GEMINI_API_KEY) ||
+  (typeof import.meta !== 'undefined' && import.meta.env?.VITE_GEMINI_API_KEY) ||
+  (typeof import.meta !== 'undefined' && (import.meta.env as any)?.GEMINI_API_KEY_2) ||
+  (typeof process !== 'undefined' && process.env?.GEMINI_API_KEY_2) ||
+  '';
+
 export interface CardioTelemetryResult {
   elapsedDisplay?: string | number | null;
   elapsedMinutes: number | null;
@@ -34,9 +42,11 @@ export async function analyzeConsoleTelemetry(base64Image: string): Promise<Card
   const cleanBase64 = await downscaleBase64IfNeeded(base64Image, 1024, 0.8);
   for (let attempt = 1; attempt <= 2; attempt++) {
     try {
+      const headers: Record<string, string> = { 'Content-Type': 'application/json', Accept: 'application/json' };
+      if (geminiKey) headers['x-gemini-key'] = geminiKey;
       const response = await fetch('/api/vision/cardio-telemetry', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        headers,
         body: JSON.stringify({ imageBase64: cleanBase64, mimeType: 'image/jpeg' }),
       });
       if (!response.ok) {
@@ -90,9 +100,11 @@ export async function analyzeMealNutrients(
 
   for (let attempt = 1; attempt <= 2; attempt++) {
     try {
+      const headers: Record<string, string> = { 'Content-Type': 'application/json', Accept: 'application/json' };
+      if (geminiKey) headers['x-gemini-key'] = geminiKey;
       const response = await fetch('/api/vision/meal-nutrients', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        headers,
         body: JSON.stringify({
           imageBase64: cleanBase64,
           mimeType: 'image/jpeg',
