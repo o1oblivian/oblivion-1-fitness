@@ -106,14 +106,6 @@ export async function analyzeMealNutrients(base64Image: string): Promise<MealNut
       }
     }
   } catch {}
-  return {
-    mealName: 'High-Protein Athletic Plate',
-    detectedItems: ['Lean Protein Source', 'Complex Carbohydrates', 'Fresh Greens'],
-    estimatedGrams: 420,
-    calories: 520,
-    proteinGrams: 42,
-    carbsGrams: 48,
-    fatGrams: 14,
-    confidenceScore: 92,
-  };
+
+  throw new Error('Vision endpoint inactive: Sensor Standby. Camera in standby mode.');
 }

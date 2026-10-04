@@ -65,16 +65,16 @@ export const CardioScanUploader: React.FC<CardioScanUploaderProps> = ({
           </div>
         ) : (
           <div className="py-4 space-y-2">
-            <div className="w-12 h-12 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-600 dark:text-cyan-400 flex items-center justify-center mx-auto">
-              <Sparkles className="w-6 h-6 animate-pulse" />
+            <div className="w-12 h-12 rounded-2xl bg-neutral-100 dark:bg-neutral-800/60 border border-neutral-200 dark:border-neutral-700/60 text-neutral-500 dark:text-neutral-400 flex items-center justify-center mx-auto">
+              <Camera className="w-6 h-6" />
             </div>
-            <p className="text-xs font-tactical font-black uppercase text-neutral-900 dark:text-white">
-              {scanMode === 'watch' ? 'Scan Watch Face or Pedometer' : 'Scan Machine Screen'}
+            <p className="text-xs font-mono font-bold uppercase tracking-wider text-neutral-700 dark:text-neutral-300">
+              Sensor Standby
             </p>
             <p className="text-[10px] text-neutral-500 dark:text-neutral-400 max-w-xs mx-auto">
               {scanMode === 'watch'
-                ? 'Casio G-Shock, Garmin, Apple Watch, or pedometer step count display.'
-                : 'Life Fitness, Matrix, Concept2, or treadmill console output.'}
+                ? 'Optical sensors standby. Capture watch face or pedometer step count display.'
+                : 'Optical sensors standby. Capture treadmill, bike, or rower console output.'}
             </p>
           </div>
         )}

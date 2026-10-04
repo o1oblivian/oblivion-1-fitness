@@ -28,7 +28,7 @@ export async function analyzeMealImageWithGemini(
   }
 
   // 1. Client-side downscaling (max dimension 1024px, JPEG 0.8)
-  const { compressedBase64, mimeType, fallbackEstimate } = await compressAndAnalyzeImage(imageBlob, 1024, 0.8);
+  const { compressedBase64, mimeType } = await compressAndAnalyzeImage(imageBlob, 1024, 0.8);
 
   const maxAttempts = 2;
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
@@ -93,16 +93,6 @@ export async function analyzeMealImageWithGemini(
     }
   }
 
-  // Guaranteed Resilient Fallback: Uses pixel density & color mass estimation
-  // Prevents any red syntax errors or crashes in UI
-  return {
-    dishName: fallbackEstimate.dishName,
-    servingDescription: fallbackEstimate.servingDescription,
-    calories: fallbackEstimate.calories,
-    proteinGrams: fallbackEstimate.proteinGrams,
-    carbsGrams: fallbackEstimate.carbsGrams,
-    fatsGrams: fallbackEstimate.fatsGrams,
-    confidenceScore: fallbackEstimate.confidenceScore,
-    ingredientsDetected: fallbackEstimate.ingredientsDetected,
-  };
+  // Vision endpoint inactive: report Sensor Standby without mock overlays
+  throw new Error('Vision endpoint inactive: Sensor Standby. Camera in standby mode.');
 }

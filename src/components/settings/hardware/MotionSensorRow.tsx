@@ -57,8 +57,11 @@ export const MotionSensorRow: React.FC<MotionSensorRowProps> = ({
             <span className="text-[9px] text-neutral-500 dark:text-neutral-400 uppercase block font-tactical">
               Barbell Velocity (VBT)
             </span>
-            <span className="text-sm font-bold text-[#C4121A]">
-              {status.estimatedVelocityMs} <span className="text-[10px] text-neutral-400">m/s</span>
+            <span className="text-sm font-bold text-[#C4121A] block">
+              {status.estimatedVelocityMs.toFixed(1)} <span className="text-[10px] text-neutral-400">m/s</span>
+            </span>
+            <span className="text-[9px] text-neutral-500 dark:text-neutral-400 block mt-0.5 truncate">
+              {status.vbtStatus || 'Awaiting Barbell Motion'}
             </span>
           </div>
         </div>

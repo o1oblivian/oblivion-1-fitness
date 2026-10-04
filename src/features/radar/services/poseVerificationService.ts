@@ -69,11 +69,12 @@ export async function verifyAthletePose(
     if (res.ok) {
       data = await res.json();
     } else {
-      data = {
-        match: true,
-        posePassed: true,
-        confidence: 0.94,
-        reason: 'Tactical geometric facial biometrics and pose verified.',
+      return {
+        match: false,
+        posePassed: false,
+        confidence: 0,
+        reason: 'Vision verification service unavailable (Sensor Standby).',
+        isVerified: false,
       };
     }
 
@@ -100,11 +101,11 @@ export async function verifyAthletePose(
     };
   } catch (err: any) {
     return {
-      match: true,
-      posePassed: true,
-      confidence: 0.92,
-      reason: 'Biometric edge verification passed with secondary sensor.',
-      isVerified: true,
+      match: false,
+      posePassed: false,
+      confidence: 0,
+      reason: 'Biometric optical sensors standby. Could not reach verification service.',
+      isVerified: false,
     };
   }
 }

@@ -10,6 +10,7 @@ interface LiveBarcodeScannerProps {
 export const LiveBarcodeScanner: React.FC<LiveBarcodeScannerProps> = ({ onDetected, onClose }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isStreaming, setIsStreaming] = useState<boolean>(false);
   const streamRef = useRef<MediaStream | null>(null);
 
   useEffect(() => {
@@ -29,6 +30,7 @@ export const LiveBarcodeScanner: React.FC<LiveBarcodeScannerProps> = ({ onDetect
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
           await videoRef.current.play();
+          setIsStreaming(true);
         }
 
         scanInterval = setInterval(async () => {
@@ -40,6 +42,7 @@ export const LiveBarcodeScanner: React.FC<LiveBarcodeScannerProps> = ({ onDetect
           }
         }, 350);
       } catch (err: any) {
+        setIsStreaming(false);
         setError('Camera permission denied or unavailable. Use manual lookup or photo upload.');
       }
     }
@@ -56,26 +59,42 @@ export const LiveBarcodeScanner: React.FC<LiveBarcodeScannerProps> = ({ onDetect
   }, [onDetected]);
 
   return (
-    <div className="relative rounded-2xl overflow-hidden bg-black aspect-video flex flex-col items-center justify-center border border-neutral-700">
+    <div className="relative rounded-2xl overflow-hidden bg-black aspect-video flex flex-col items-center justify-center border border-neutral-800">
       <video ref={videoRef} className="w-full h-full object-cover" playsInline muted />
-      {/* Viewfinder Target Reticle */}
-      <div className="absolute inset-0 pointer-events-none flex flex-col items-center justify-center p-4">
-        <div className="w-48 h-28 border-2 border-emerald-400/80 rounded-xl relative">
-          <div className="absolute inset-x-0 top-1/2 h-0.5 bg-emerald-400 animate-pulse" />
+
+      {/* Sensor Standby State when camera is inactive */}
+      {!isStreaming && !error && (
+        <div className="absolute inset-0 bg-[#09090b] flex flex-col items-center justify-center p-4 text-center space-y-1">
+          <div className="w-8 h-8 rounded-xl bg-neutral-800/60 border border-neutral-700/60 flex items-center justify-center text-neutral-400">
+            <Camera className="w-4 h-4" />
+          </div>
+          <span className="text-xs font-mono font-bold tracking-widest uppercase text-neutral-400">
+            Sensor Standby
+          </span>
+          <p className="text-[11px] text-neutral-600">Initializing optical barcode sensor stream...</p>
         </div>
-        <span className="text-[11px] font-mono font-bold text-white bg-black/70 px-2.5 py-1 rounded-full mt-2">
-          Align UPC/EAN Barcode in Frame
-        </span>
-      </div>
+      )}
+
+      {/* Clean Optical Alignment Frame (Zero fake pulsing simulated inference) */}
+      {isStreaming && !error && (
+        <div className="absolute inset-0 pointer-events-none flex flex-col items-center justify-center p-4">
+          <div className="w-48 h-28 border border-neutral-400/40 rounded-xl" />
+          <span className="text-[10px] font-mono text-neutral-300 bg-black/60 px-2 py-0.5 rounded mt-2">
+            Align Barcode In Sensor Field
+          </span>
+        </div>
+      )}
+
       {error && (
         <div className="absolute inset-0 bg-black/90 p-4 flex flex-col items-center justify-center text-center text-red-300 text-xs gap-2">
           <AlertCircle className="w-5 h-5 text-red-400" />
           <span>{error}</span>
-          <button type="button" onClick={onClose} className="px-3 py-1 bg-white/10 rounded-lg text-white text-xs mt-1">
+          <button type="button" onClick={onClose} className="px-3 py-1 bg-white/10 rounded-lg text-white text-xs mt-1 cursor-pointer">
             Back to Manual Entry
           </button>
         </div>
       )}
+
       <button
         type="button"
         onClick={onClose}
@@ -86,4 +105,5 @@ export const LiveBarcodeScanner: React.FC<LiveBarcodeScannerProps> = ({ onDetect
     </div>
   );
 };
+
 export default LiveBarcodeScanner;

@@ -3,6 +3,8 @@
  * Strict File Ceiling: < 140 lines
  */
 
+export type VbtMotionStatus = 'Awaiting Barbell Motion' | 'Tracking Barbell Motion' | 'Hardware Unavailable';
+
 export interface MotionEngineStatus {
   isSupported: boolean;
   isActive: boolean;
@@ -11,6 +13,7 @@ export interface MotionEngineStatus {
   stepsToday: number;
   estimatedVelocityMs: number;
   isPeakDetected: boolean;
+  vbtStatus: VbtMotionStatus;
 }
 
 export type MotionCallback = (status: MotionEngineStatus) => void;

@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { useWorkoutStore } from '../features/workout/store/useWorkoutStore';
 import { useFuelStore } from '../features/fuel/store/useFuelStore';
+import { motionPedometerService } from '../services/motionPedometerService';
 
 export interface JointSentinelStatus {
   joint: string;
@@ -41,7 +42,8 @@ export interface SportsScienceAnalysis {
   isRestDay: boolean;
 
   // Neuromuscular & VBT Kinematics
-  meanConcentricVelocityMs: number; // e.g. 0.68 m/s
+  meanConcentricVelocityMs: number; // 0.0 m/s if stationary or awaiting barbell motion
+  velocityStatus: string;           // "Awaiting Barbell Motion" | "Tracking Barbell Motion" | "Hardware Unavailable"
   velocityFatigueLossPct: number;   // e.g. 12%
   neuromuscularRecruitmentPct: number; // e.g. 94%
 
@@ -154,11 +156,17 @@ export function useIntelSportsScience(): SportsScienceAnalysis {
     else if (computedAcwr <= 1.45) acwrStatus = 'High Strain';
     else acwrStatus = 'Deload Recommended';
 
-    // Neuromuscular & VBT Kinematics based on actual RPE & Sets
-    // Higher RPE lowers concentric velocity; higher sets increase velocity fatigue loss
-    const meanVelocity = Math.max(0.42, Number((0.88 - (avgRpe - 6) * 0.065).toFixed(2)));
-    const velocityFatigue = Math.min(28, Math.max(6, Math.round(completedSets * 1.8 + (avgRpe > 8.5 ? 4 : 0))));
-    const recruitmentPct = Math.min(99, Math.max(82, Math.round(75 + avgRpe * 2.4)));
+    // Neuromuscular & VBT Kinematics based strictly on genuine hardware motion telemetry
+    // Zero synthetic velocity curves. If stationary or hardware unavailable, report 0.0 m/s with status "Awaiting Barbell Motion"
+    const motionStatus = motionPedometerService.getStatus();
+    const meanVelocity = motionStatus.estimatedVelocityMs; // 0.0 when stationary or unavailable
+    const velocityStatus = motionStatus.vbtStatus || 'Awaiting Barbell Motion';
+    const velocityFatigue = completedSets > 0 && meanVelocity > 0
+      ? Math.min(28, Math.max(0, Math.round(completedSets * 1.5)))
+      : 0;
+    const recruitmentPct = completedSets > 0
+      ? Math.min(99, Math.max(82, Math.round(75 + avgRpe * 2.4)))
+      : 80;
 
     // Glycogen resynthesis calculation
     // Volume depletes glycogen; hydration & rest resynthesizes it
@@ -327,7 +335,8 @@ export function useIntelSportsScience(): SportsScienceAnalysis {
       totalRepsCount: totalReps,
       averageRpe: avgRpe,
       isRestDay: isRest,
-      meanConcentricVelocityMs: isUncalibrated ? 0.70 : meanVelocity,
+      meanConcentricVelocityMs: isUncalibrated ? 0.0 : meanVelocity,
+      velocityStatus: isUncalibrated ? 'Awaiting Barbell Motion' : velocityStatus,
       velocityFatigueLossPct: isUncalibrated ? 0 : velocityFatigue,
       neuromuscularRecruitmentPct: isUncalibrated ? 90 : recruitmentPct,
       hydrationLiters: currentHydration,

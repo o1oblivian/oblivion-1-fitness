@@ -37,15 +37,22 @@ export function processMotionSample(
     isAbove = false;
   }
 
-  // VBT linear velocity integration
+  // VBT linear velocity integration: genuine motion only
   let velocity = state.currentVerticalVelocity;
   if (dt > 0 && dt < 0.2) {
     const linearY = acc.y - GRAVITY_NORMAL;
-    if (Math.abs(linearY) > 0.4) {
+    // Disregard stationary noise: require genuine physical displacement (>0.5 m/s^2)
+    if (Math.abs(linearY) > 0.5) {
       velocity += linearY * dt;
     } else {
-      velocity *= 0.85;
+      // Rapid decay to true 0.0 when stationary
+      velocity *= 0.5;
+      if (Math.abs(velocity) < 0.05) {
+        velocity = 0;
+      }
     }
+  } else {
+    velocity = 0;
   }
 
   return {

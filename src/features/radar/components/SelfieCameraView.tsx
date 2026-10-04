@@ -41,8 +41,16 @@ export const SelfieCameraView: React.FC<SelfieCameraViewProps> = ({
       <div className="relative aspect-[3/4] w-full rounded-2xl overflow-hidden bg-black border border-neutral-800 shadow-inner flex items-center justify-center">
         {capturedImage ? (
           <img src={capturedImage} alt="Captured pose" className="w-full h-full object-cover -scale-x-100" />
-        ) : (
+        ) : streamActive ? (
           <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover -scale-x-100" />
+        ) : (
+          <div className="flex flex-col items-center justify-center p-6 text-center space-y-2">
+            <div className="w-10 h-10 rounded-2xl bg-neutral-900 border border-neutral-800 flex items-center justify-center text-neutral-400">
+              <Camera className="w-5 h-5" />
+            </div>
+            <span className="text-xs font-mono font-bold tracking-widest uppercase text-neutral-400">Sensor Standby</span>
+            <p className="text-[11px] text-neutral-500">Camera inactive • Awaiting biometric activation</p>
+          </div>
         )}
 
         {isVerifying && (

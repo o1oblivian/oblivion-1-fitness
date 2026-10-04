@@ -70,12 +70,17 @@ export const MealMacroScannerModal: React.FC<MealMacroScannerModalProps> = (prop
             onFileUpload={handleFileUpload}
           />
 
-          {selectedImage && (
+          {selectedImage ? (
             <div className="relative rounded-2xl overflow-hidden bg-black aspect-video flex items-center justify-center">
               <img src={selectedImage} alt="Scanned item" className="w-full h-full object-contain" />
               {(isLoading || isScanning) && <MealScanLoadingBadge scanMode={scanMode} />}
             </div>
-          )}
+          ) : scanMode !== 'barcode' && !scannedMeal ? (
+            <div className="rounded-2xl border border-neutral-800 bg-[#09090b] p-6 text-center space-y-1">
+              <span className="text-xs font-mono font-bold uppercase tracking-widest text-neutral-400">Sensor Standby</span>
+              <p className="text-[11px] text-neutral-500">Optical vision models in standby mode. Awaiting camera capture.</p>
+            </div>
+          ) : null}
 
           {error && (
             <div className="p-3 rounded-2xl bg-red-950/40 text-red-300 text-xs flex items-center gap-2">

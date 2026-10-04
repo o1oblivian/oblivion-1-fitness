@@ -7,7 +7,7 @@
 import { useTelemetryStore } from '../features/telemetry/store/useTelemetryStore';
 import { telemetryArbitrationService } from '../features/telemetry/services/telemetryArbitrationService';
 import { tactileEngine } from './tactileEngine';
-import { MotionEngineStatus, MotionCallback, MotionFilterState } from './motion/motionTypes';
+import { MotionEngineStatus, MotionCallback, MotionFilterState, VbtMotionStatus } from './motion/motionTypes';
 import { processMotionSample, GRAVITY_NORMAL } from './motion/motionCalculations';
 
 class MotionPedometerService {
@@ -42,15 +42,33 @@ class MotionPedometerService {
   }
 
   public getStatus(): MotionEngineStatus {
-    const steps = useTelemetryStore.getState().stepCount || 0;
+    const isHardwareReady = this.isSupported() && this.isActive && this.permissionGranted;
+    // Report 0 if permissions are pending or hardware unavailable
+    const steps = this.permissionGranted ? (useTelemetryStore.getState().stepCount || 0) : 0;
+
+    // Genuine physical motion check: velocity must exceed stationary threshold (0.05 m/s)
+    const rawVel = Math.abs(this.filterState.currentVerticalVelocity);
+    const isMoving = isHardwareReady && rawVel > 0.05;
+    const velocity = isMoving ? Number(rawVel.toFixed(2)) : 0.0;
+
+    let vbtStatus: VbtMotionStatus = 'Awaiting Barbell Motion';
+    if (!this.isSupported() || (!this.permissionGranted && this.isActive)) {
+      vbtStatus = 'Hardware Unavailable';
+    } else if (isMoving) {
+      vbtStatus = 'Tracking Barbell Motion';
+    } else {
+      vbtStatus = 'Awaiting Barbell Motion';
+    }
+
     return {
       isSupported: this.isSupported(),
       isActive: this.isActive,
       permissionGranted: this.permissionGranted,
-      liveMagnitude: Number(this.filterState.smoothedMagnitude.toFixed(2)),
+      liveMagnitude: isHardwareReady ? Number(this.filterState.smoothedMagnitude.toFixed(2)) : 0.0,
       stepsToday: steps,
-      estimatedVelocityMs: Number(Math.abs(this.filterState.currentVerticalVelocity).toFixed(2)),
-      isPeakDetected: this.filterState.isAbovePeak,
+      estimatedVelocityMs: velocity,
+      vbtStatus,
+      isPeakDetected: isHardwareReady ? this.filterState.isAbovePeak : false,
     };
   }
 
