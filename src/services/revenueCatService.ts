@@ -90,9 +90,13 @@ class RevenueCatManager {
       }
     } catch (err: any) {
       if (err?.errorCode === 1 || err?.message?.includes('cancelled')) return { success: false, error: 'Checkout cancelled.' };
+      return { success: false, error: err?.message || 'Store billing error.' };
     }
-    await this.persistSuccess(planId, athleteId, 'web');
-    return { success: true };
+    // Strictly report clean status banner if offerings unconfigured or running outside native app store
+    return {
+      success: false,
+      error: 'Membership Tier Available via App Store / Google Play',
+    };
   }
 
   async persistSuccess(planId: string, athleteId: string, platform: 'ios' | 'android' | 'web'): Promise<void> {
@@ -105,7 +109,15 @@ class RevenueCatManager {
   }
 
   async getCustomerEntitlements(userId: string = 'default-athlete'): Promise<EntitlementInfo> {
-    if (typeof window !== 'undefined') { try { const cached = localStorage.getItem(STORAGE_KEY); if (cached) return JSON.parse(cached); } catch {} }
+    if (typeof window !== 'undefined') {
+      try {
+        const cached = localStorage.getItem(STORAGE_KEY);
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          if (parsed && typeof parsed.isActive === 'boolean') return parsed;
+        }
+      } catch {}
+    }
     try {
       const p = await this.init(userId);
       const info = await p?.getCustomerInfo();
@@ -114,13 +126,31 @@ class RevenueCatManager {
         return { isActive: true, tierId: REVENUECAT_TIER_MONTHLY, tierName: 'O1 Pass Pro (Verified)', platform: 'web', expiresAt: null, willRenew: true };
       }
     } catch {}
-    return { isActive: true, tierId: REVENUECAT_TIER_MONTHLY, tierName: 'O1 Pass Pro', platform: this.isNative() ? 'ios' : 'web', expiresAt: '2099-12-31T23:59:59Z', willRenew: true };
+    return {
+      isActive: false,
+      tierId: 'o1fc_core_free',
+      tierName: 'Core Athlete',
+      platform: this.isNative() ? 'ios' : 'web',
+      expiresAt: null,
+      willRenew: false,
+    };
   }
 
   async restore(userId: string = 'default-athlete'): Promise<{ success: boolean; info: EntitlementInfo }> {
     try {
       const p = await this.init(userId);
-      if (this.hasProEntitlement(await p?.getCustomerInfo())) await this.persistSuccess(REVENUECAT_TIER_MONTHLY, userId, this.isNative() ? 'ios' : 'web');
+      if (this.isNative()) {
+        const nativeP = (window as any)?.Purchases;
+        const res = await nativeP?.restorePurchases();
+        if (this.hasProEntitlement(res?.customerInfo || res)) {
+          await this.persistSuccess(REVENUECAT_TIER_MONTHLY, userId, 'ios');
+        }
+      } else if (p) {
+        const info = await p.getCustomerInfo();
+        if (this.hasProEntitlement(info)) {
+          await this.persistSuccess(REVENUECAT_TIER_MONTHLY, userId, 'web');
+        }
+      }
     } catch {}
     const info = await this.getCustomerEntitlements(userId);
     return { success: info.isActive, info };

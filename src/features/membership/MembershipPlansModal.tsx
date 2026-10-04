@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { X, Shield, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { X, Shield, ArrowRight, CheckCircle2, Loader2, AlertCircle } from 'lucide-react';
 import { IAP_PRODUCTS, IAPProductInfo } from '../../types/iap';
 import { AthleteProfile } from '../../types/athlete';
 import { tactileEngine } from '../../services/tactileEngine';
+import { revenueCatService } from '../../services/revenueCatService';
 import { useSubscription } from '../../context/SubscriptionContext';
 import { MembershipPlanCard } from './components/MembershipPlanCard';
 import { MembershipPlanFeatures } from './components/MembershipPlanFeatures';
@@ -31,10 +32,13 @@ export const MembershipPlansModal: React.FC<MembershipPlansModalProps> = ({
   onOpenHealth,
   onOpenDisclaimer,
   onShowToast,
+  athleteProfile,
 }) => {
   const [userType, setUserType] = useState<'athletes' | 'coaches'>('athletes');
   const [selectedProductId, setSelectedProductId] = useState<string>(IAP_PRODUCTS.premium.productId);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+  const [isPurchasing, setIsPurchasing] = useState(false);
+  const [storeStatusBanner, setStoreStatusBanner] = useState<string | null>(null);
   const { purchasePro, restorePurchases } = useSubscription();
 
   if (!isOpen) return null;
@@ -62,10 +66,13 @@ export const MembershipPlansModal: React.FC<MembershipPlansModalProps> = ({
     tactileEngine.triggerSelectionBuzz();
     setUserType(t);
     setSelectedProductId(t === 'athletes' ? IAP_PRODUCTS.premium.productId : IAP_PRODUCTS.coach_pro.productId);
+    setStoreStatusBanner(null);
   };
 
-  const handleMainAction = () => {
+  const handleMainAction = async () => {
     tactileEngine.triggerSelectionBuzz();
+    setStoreStatusBanner(null);
+
     if (isFreePlanSelected) {
       tactileEngine.playPRCelebration();
       const message =
@@ -76,7 +83,24 @@ export const MembershipPlansModal: React.FC<MembershipPlansModalProps> = ({
       if (onSelectPlan) onSelectPlan(selectedProductId);
       onClose();
     } else {
-      setIsCheckoutOpen(true);
+      setIsPurchasing(true);
+      try {
+        const res = await revenueCatService.purchasePackage(selectedProductId, (athleteProfile as any)?.id || 'default-athlete');
+        if (res.success) {
+          tactileEngine.playPRCelebration();
+          await purchasePro(selectedProductId);
+          if (onCheckout) onCheckout(selectedProductId);
+          if (onSelectPlan) onSelectPlan(selectedProductId);
+          onShowToast?.(`Subscribed to ${currentSelected.name}`);
+          onClose();
+        } else {
+          setStoreStatusBanner(res.error || 'Membership Tier Available via App Store / Google Play');
+        }
+      } catch (err: any) {
+        setStoreStatusBanner('Membership Tier Available via App Store / Google Play');
+      } finally {
+        setIsPurchasing(false);
+      }
     }
   };
 
@@ -204,21 +228,34 @@ export const MembershipPlansModal: React.FC<MembershipPlansModalProps> = ({
               </span>
             </div>
 
+            {storeStatusBanner && (
+              <div className="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-600 dark:text-amber-400 text-xs font-mono text-center flex items-center justify-center gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0" />
+                <span>{storeStatusBanner}</span>
+              </div>
+            )}
+
             {/* Main Action Button */}
             <button
               type="button"
               id="btn-subscribe-master"
               onClick={handleMainAction}
-              className="w-full bg-[#C4121A] hover:bg-[#A30F16] active:bg-[#800C11] text-white font-tactical font-black text-xs uppercase py-3.5 px-4 rounded-2xl transition-all active:scale-[0.98] flex items-center justify-center gap-2 shadow-md cursor-pointer"
+              disabled={isPurchasing}
+              className="w-full bg-[#C4121A] hover:bg-[#A30F16] active:bg-[#800C11] text-white font-tactical font-black text-xs uppercase py-3.5 px-4 rounded-2xl transition-all active:scale-[0.98] flex items-center justify-center gap-2 shadow-md cursor-pointer disabled:opacity-50"
             >
-              {isFreePlanSelected ? (
+              {isPurchasing ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin text-white" />
+                  <span>CONNECTING TO STORE BILLING...</span>
+                </>
+              ) : isFreePlanSelected ? (
                 <>
                   <CheckCircle2 className="w-4 h-4" />
                   <span>CONTINUE WITH FREE</span>
                 </>
               ) : (
                 <>
-                  <span>SUBSCRIBE WITH GOOGLE PLAY</span>
+                  <span>SUBSCRIBE WITH APP STORE / GOOGLE PLAY</span>
                   <ArrowRight className="w-4 h-4" />
                 </>
               )}

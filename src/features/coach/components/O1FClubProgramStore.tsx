@@ -54,16 +54,6 @@ export const O1FClubProgramStore: React.FC<O1FClubProgramStoreProps> = ({
               className="p-3.5 rounded-2xl bg-white dark:bg-[#121214] border border-neutral-200 dark:border-neutral-800 hover:border-[#C4121A]/50 transition-all cursor-pointer shadow-xs flex flex-col justify-between space-y-3 group"
             >
               <div className="space-y-2">
-                {prog.coverImage && (
-                  <div className="w-full h-32 rounded-xl overflow-hidden bg-neutral-100 dark:bg-neutral-900 border border-neutral-200/60 dark:border-neutral-800">
-                    <img
-                      src={prog.coverImage}
-                      alt={prog.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      loading="lazy"
-                    />
-                  </div>
-                )}
                 <div className="flex items-start justify-between gap-2">
                   <span className="px-2 py-0.5 rounded-md bg-neutral-100 dark:bg-neutral-800 text-[9.5px] font-mono font-bold text-[#C4121A] uppercase tracking-wider">
                     {prog.difficulty || 'VERIFIED'}

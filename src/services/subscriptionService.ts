@@ -1,3 +1,5 @@
+import { revenueCatService } from './revenueCatService';
+
 export const PLUS_ENTITLEMENT = 'com.o1fc.fitness.plus_monthly';
 export type MembershipTierId = 'com.o1fc.fitness.plus_monthly' | 'coach_pro_monthly' | 'coach_pro_annual' | 'coach_pro_unlimited';
 
@@ -25,51 +27,56 @@ export function checkSubscriptionStatus(): SubscriptionStatus {
       if (stored) return JSON.parse(stored);
     } catch {}
   }
-  // Web / AI Studio fallback: Default isPro to true in dev/preview mode
   return {
-    isActive: true,
-    tierId: PLUS_ENTITLEMENT,
-    tierName: 'O1 Club Pass Pro',
+    isActive: false,
+    tierId: 'o1fc_core_free',
+    tierName: 'Core Athlete',
     platform: isNative ? 'ios' : 'web',
-    expirationDate: '2099-12-31T23:59:59Z',
-    willRenew: true,
+    expirationDate: null,
+    willRenew: false,
   };
 }
 
 export async function initializeIAP(userId?: string): Promise<void> {
-  const isNative = isNativePlatform();
-  if (isNative && typeof window !== 'undefined') {
-    const Purchases = (window as any)?.Purchases;
-    if (Purchases?.configure) {
-      Purchases.configure({ apiKey: 'appl_revcat_o1fc_prod', appUserID: userId });
-    }
-  }
+  await revenueCatService.init(userId || 'default-athlete');
 }
 
 export async function purchasePro(
   tierId: string = PLUS_ENTITLEMENT
 ): Promise<{ success: boolean; isPro: boolean; status: SubscriptionStatus }> {
-  await new Promise((res) => setTimeout(res, 400));
-  const newStatus: SubscriptionStatus = {
-    isActive: true,
-    tierId,
-    tierName: tierId === PLUS_ENTITLEMENT ? 'O1 Club Pass Pro' : tierId.replace(/_/g, ' ').toUpperCase(),
-    platform: isNativePlatform() ? 'ios' : 'web',
-    expirationDate: '2099-12-31T23:59:59Z',
-    willRenew: true,
-  };
-  if (typeof window !== 'undefined') {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(newStatus));
-    } catch {}
+  const res = await revenueCatService.purchasePackage(tierId);
+  const isNative = isNativePlatform();
+  if (res.success) {
+    const newStatus: SubscriptionStatus = {
+      isActive: true,
+      tierId,
+      tierName: tierId === PLUS_ENTITLEMENT ? 'O1 Club Pass Pro' : tierId.replace(/_/g, ' ').toUpperCase(),
+      platform: isNative ? 'ios' : 'web',
+      expirationDate: null,
+      willRenew: true,
+    };
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(newStatus));
+      } catch {}
+    }
+    return { success: true, isPro: true, status: newStatus };
   }
-  return { success: true, isPro: true, status: newStatus };
+  const current = checkSubscriptionStatus();
+  return { success: false, isPro: current.isActive, status: current };
 }
 
 export async function restorePurchases(): Promise<{ success: boolean; isPro: boolean; status: SubscriptionStatus }> {
-  await new Promise((res) => setTimeout(res, 400));
-  const current = checkSubscriptionStatus();
-  return { success: true, isPro: current.isActive, status: current };
+  const res = await revenueCatService.restore();
+  const current: SubscriptionStatus = {
+    isActive: res.success,
+    tierId: res.info.tierId,
+    tierName: res.info.tierName,
+    platform: res.info.platform,
+    expirationDate: res.info.expiresAt,
+    willRenew: res.info.willRenew,
+  };
+  return { success: res.success, isPro: res.success, status: current };
 }
 
 export const purchaseMembershipTier = purchasePro;
