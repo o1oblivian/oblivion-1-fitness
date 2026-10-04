@@ -45,7 +45,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   user: null,
   session: null,
   profile: { role: getStoredRole() },
-  isAuthenticated: false,
+  isAuthenticated: Boolean(safeStorage.getItem('o1fc_user_id')),
   isLoading: true,
   error: null,
   clearError: () => set({ error: null }),
@@ -57,24 +57,60 @@ export const useAuthStore = create<AuthState>((set) => ({
   initialize: async () => {
     try {
       const { data } = await supabase.auth.getSession();
-      if (data?.session) {
-        set({ user: data.session.user, session: data.session, isAuthenticated: true, isLoading: false });
+      if (data?.session?.user) {
+        set({
+          user: data.session.user,
+          session: data.session,
+          isAuthenticated: true,
+          isLoading: false,
+          error: null,
+        });
         safeStorage.setItem('o1fc_user_id', data.session.user.id);
         if (data.session.user.email) safeStorage.setItem('o1fc_user_email', data.session.user.email);
       } else {
-        set({ user: null, session: null, isAuthenticated: false, isLoading: false });
+        const storedUserId = safeStorage.getItem('o1fc_user_id');
+        if (!storedUserId) {
+          set({ user: null, session: null, isAuthenticated: false, isLoading: false });
+        } else {
+          set({ isLoading: false });
+        }
       }
 
-      supabase.auth.onAuthStateChange((_event, session) => {
-        if (session?.user) {
-          set({ user: session.user, session, isAuthenticated: true, isLoading: false });
+      supabase.auth.onAuthStateChange((event, session) => {
+        if ((event === 'INITIAL_SESSION' || event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') && session?.user) {
+          set({
+            user: session.user,
+            session,
+            isAuthenticated: true,
+            isLoading: false,
+            error: null,
+          });
           safeStorage.setItem('o1fc_user_id', session.user.id);
           if (session.user.email) safeStorage.setItem('o1fc_user_email', session.user.email);
-        } else {
-          set({ user: null, session: null, isAuthenticated: false, isLoading: false });
+        } else if (event === 'SIGNED_OUT') {
+          safeStorage.removeItem('o1fc_auth_token');
+          safeStorage.removeItem('o1fc_user_id');
+          safeStorage.removeItem('o1fc_user_email');
+          set({ user: null, session: null, isAuthenticated: false, isLoading: false, error: null });
+        } else if (session?.user) {
+          set({
+            user: session.user,
+            session,
+            isAuthenticated: true,
+            isLoading: false,
+            error: null,
+          });
+          safeStorage.setItem('o1fc_user_id', session.user.id);
+          if (session.user.email) safeStorage.setItem('o1fc_user_email', session.user.email);
+        } else if (event === 'INITIAL_SESSION' && !session) {
+          const storedUserId = safeStorage.getItem('o1fc_user_id');
+          if (!storedUserId) {
+            set({ user: null, session: null, isAuthenticated: false, isLoading: false });
+          }
         }
       });
-    } catch {
+    } catch (err) {
+      console.warn('[useAuthStore] initialize error:', err);
       set({ isLoading: false });
     }
   },

@@ -38,18 +38,33 @@ type ExtendedSupabaseClient = SupabaseClient & {
   selectOne: (table: string, queryParam: string) => Promise<{ data: any; error: any }>;
 };
 
+export const supabaseAuthOptions = {
+  persistSession: true,
+  autoRefreshToken: true,
+  detectSessionInUrl: true,
+  storage: window.localStorage,
+};
+
 let rawClient: SupabaseClient;
 try {
   rawClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     auth: {
-      persistSession: typeof window !== 'undefined',
+      persistSession: true,
       autoRefreshToken: true,
       detectSessionInUrl: true,
+      storage: window.localStorage,
     },
   });
 } catch (e) {
   console.warn('[Supabase Safe Guard] Initialization notice:', e);
-  rawClient = createClient(PROD_SUPABASE_URL, PROD_SUPABASE_ANON_KEY);
+  rawClient = createClient(PROD_SUPABASE_URL, PROD_SUPABASE_ANON_KEY, {
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
+      detectSessionInUrl: true,
+      storage: typeof window !== 'undefined' ? window.localStorage : undefined,
+    },
+  });
 }
 
 export const supabase: ExtendedSupabaseClient = Object.assign(rawClient, {
