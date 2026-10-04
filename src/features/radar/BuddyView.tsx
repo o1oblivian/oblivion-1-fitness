@@ -1,11 +1,11 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useRadarStore } from '../../stores/useRadarStore';
 import { DemoAthlete } from './types';
 import { AthleteGridCard } from './components/AthleteGridCard';
 import { DiscoverHeader } from './components/DiscoverHeader';
 import { RadarModalsContainer } from './components/RadarModalsContainer';
 import { tactileEngine } from '../../services/tactileEngine';
-import { CheckCircle2, Radar, RotateCcw, Users } from 'lucide-react';
+import { CheckCircle2, Radar, RotateCcw, Users, AlertCircle } from 'lucide-react';
 import { useSubscription } from '../../context/SubscriptionContext';
 import { searchAthletesWithSupabase } from './services/buddyService';
 import { useBuddyRealtime } from './hooks/useBuddyRealtime';
@@ -29,6 +29,7 @@ export const BuddyView: React.FC = () => {
   const [radiusKm, setRadiusKm] = useState(travelRadiusKm || 25);
   const [dismissedIds, setDismissedIds] = useState<string[]>([]);
   const [likedAthletes, setLikedAthletes] = useState<Record<string, boolean>>({});
+  const [supabaseError, setSupabaseError] = useState<string | null>(null);
 
   // Keep radius in sync with travelRadiusKm if changed in modal
   useEffect(() => {
@@ -41,45 +42,41 @@ export const BuddyView: React.FC = () => {
   const [searchResults, setSearchResults] = useState<DemoAthlete[]>(buddies);
   const [isSearchingSupabase, setIsSearchingSupabase] = useState(false);
 
+  // Initial and reactive live Supabase buddy_profiles sync
   useEffect(() => {
     let isCancelled = false;
-    // Query either the search input or destination city if active
-    const activeQuery = searchQuery.trim() || travelCity || '';
 
-    if (!activeQuery) {
-      setSearchResults(buddies);
-      setIsSearchingSupabase(false);
-      return;
-    }
-
-    setIsSearchingSupabase(true);
-    const timer = setTimeout(async () => {
+    const loadLiveBuddies = async () => {
+      setIsSearchingSupabase(true);
+      setSupabaseError(null);
       try {
-        const { results, fromSupabase } = await searchAthletesWithSupabase(
+        const activeQuery = searchQuery.trim() || travelCity || '';
+        const { results } = await searchAthletesWithSupabase(
           activeQuery,
-          buddies,
+          [],
           { latitude: -33.8688, longitude: 151.2093 },
           radiusKm
         );
         if (!isCancelled) {
+          useRadarStore.getState().setBuddies(results);
           setSearchResults(results);
           setIsSearchingSupabase(false);
-          if (fromSupabase) {
-            console.info(`[Radar Search] Live Supabase query yielded ${results.length} athletes`);
-          }
         }
-      } catch (err) {
+      } catch (err: any) {
         if (!isCancelled) {
+          console.error('[Radar] Live buddy_profiles query error:', err);
+          setSupabaseError(err?.message || 'Database network error reading buddy_profiles');
           setIsSearchingSupabase(false);
         }
       }
-    }, 100);
+    };
+
+    loadLiveBuddies();
 
     return () => {
       isCancelled = true;
-      clearTimeout(timer);
     };
-  }, [searchQuery, travelCity, buddies, radiusKm]);
+  }, [searchQuery, travelCity, radiusKm]);
 
   const [selectedProfileAthlete, setSelectedProfileAthlete] = useState<DemoAthlete | null>(null);
   const [selectedMessageAthlete, setSelectedMessageAthlete] = useState<DemoAthlete | null>(null);
@@ -122,7 +119,7 @@ export const BuddyView: React.FC = () => {
 
   const { isPro, openPaywall } = useSubscription();
 
-  const handleScan = () => {
+  const handleScan = async () => {
     if (!isPro) {
       openPaywall('Buddy Match Radar');
       return;
@@ -130,11 +127,26 @@ export const BuddyView: React.FC = () => {
     tactileEngine.triggerSelectionBuzz();
     setIsScanning(true);
     setDismissedIds([]);
+    setSupabaseError(null);
 
-    setTimeout(() => {
+    try {
+      const activeQuery = searchQuery.trim() || travelCity || '';
+      const { results } = await searchAthletesWithSupabase(
+        activeQuery,
+        [],
+        { latitude: -33.8688, longitude: 151.2093 },
+        radiusKm
+      );
+      useRadarStore.getState().setBuddies(results);
+      setSearchResults(results);
+      showToast(`Scan complete: ${results.length} athletes nearby`);
+    } catch (err: any) {
+      console.error('[Radar Scan] Live Supabase query error:', err);
+      setSupabaseError(err?.message || 'Database network error');
+      showToast('Scan complete: 0 athletes detected');
+    } finally {
       setIsScanning(false);
-      showToast(`Scan complete: ${buddies.length} athletes nearby`);
-    }, 600);
+    }
   };
 
   const handleTabChange = (tab: 'DISCOVER' | 'MATCHED') => {
@@ -199,6 +211,16 @@ export const BuddyView: React.FC = () => {
           showToast('Switched back to local radar');
         }}
       />
+
+      {supabaseError && (
+        <div className="mx-3 my-2 p-3.5 rounded-2xl bg-red-500/10 border border-red-500/30 text-red-500 text-xs font-mono font-bold flex items-start gap-2.5">
+          <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-red-500" />
+          <div className="space-y-0.5">
+            <span className="block font-tactical tracking-wide uppercase">RADAR SUPABASE QUERY ERROR</span>
+            <span className="text-[11px] font-mono text-red-400 font-normal">{supabaseError}</span>
+          </div>
+        </div>
+      )}
 
       <div className="px-3 pt-1">
         {buddies.length === 0 ? (

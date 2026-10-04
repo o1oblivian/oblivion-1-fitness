@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { CheckCircle2 } from 'lucide-react';
+import { CheckCircle2, AlertCircle } from 'lucide-react';
 import { supabase } from '../../services/supabaseClient';
 import { O1FCoachHeader } from './components/O1FCoachHeader';
 import { O1FCoachStatusCard } from './components/O1FCoachStatusCard';
@@ -9,7 +9,6 @@ import { DailyCheckInProgress } from './components/DailyCheckInProgress';
 import { CoachInboxView } from './components/CoachInboxView';
 import { CoachFullProfileModal } from './components/CoachFullProfileModal';
 import { CoachMarketplaceProgram, AthleteCheckInSubmission, CoachProfile } from './types/coachPlatformTypes';
-import { VERIFIED_COACHES_CATALOG, COACH_MARKETPLACE_PROGRAMS } from './data/coachMarketplaceData';
 import { tactileEngine } from '../../services/tactileEngine';
 
 export interface O1FCoachAthletePortalProps {
@@ -25,22 +24,35 @@ export const O1FCoachAthletePortal: React.FC<O1FCoachAthletePortalProps> = ({
 }) => {
   const [portalTab, setPortalTab] = useState<'roster' | 'store' | 'checkins' | 'messages'>('roster');
   const [toastMsg, setToastMsg] = useState<string | null>(null);
-  const [coachesList, setCoachesList] = useState<CoachProfile[]>(VERIFIED_COACHES_CATALOG);
-  const [programsList, setProgramsList] = useState<CoachMarketplaceProgram[]>(COACH_MARKETPLACE_PROGRAMS);
+  const [coachesList, setCoachesList] = useState<CoachProfile[]>([]);
+  const [programsList, setProgramsList] = useState<CoachMarketplaceProgram[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [supabaseError, setSupabaseError] = useState<string | null>(null);
   const [selectedCoach, setSelectedCoach] = useState<CoachProfile | null>(null);
   const [checkinsList, setCheckinsList] = useState<AthleteCheckInSubmission[]>([]);
 
   const showToast = useCallback((msg: string) => { setToastMsg(msg); setTimeout(() => setToastMsg(null), 3000); }, []);
 
-  // Fetch real verified coach profiles & published digital protocols from Supabase with verified fallback
+  // Fetch real verified coach profiles & published digital protocols directly from Supabase
   useEffect(() => {
+    let isCancelled = false;
+
     const fetchData = async () => {
+      setIsLoading(true);
+      setSupabaseError(null);
       try {
-        const [{ data: cData }, { data: pData }] = await Promise.all([
+        const [{ data: cData, error: cError }, { data: pData, error: pError }] = await Promise.all([
           supabase.from('coach_profiles').select('*'),
           supabase.from('coach_programs').select('*').eq('status', 'published'),
         ]);
-        if (Array.isArray(cData) && cData.length > 0) {
+
+        if (isCancelled) return;
+
+        if (cError) {
+          console.error('[01FCoach] Live Supabase coach_profiles query error:', cError);
+          setSupabaseError(cError.message || 'Database query error reading coach_profiles.');
+          setCoachesList([]);
+        } else if (Array.isArray(cData) && cData.length > 0) {
           const mappedCoaches: CoachProfile[] = cData.map((c: any, idx: number) => ({
             id: c.id || `coach-${idx}`,
             name: c.display_name || c.name || 'Verified Coach',
@@ -50,28 +62,49 @@ export const O1FCoachAthletePortal: React.FC<O1FCoachAthletePortalProps> = ({
             bannerImage: c.banner_image || 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&auto=format&fit=crop&q=80',
             bio: c.bio || 'Oblivion 1 Certified Coach',
             rating: Number(c.rating || 5.0),
-            reviewsCount: Number(c.reviews_count || 48),
-            activeClientsCount: Number(c.active_clients_count || 18),
+            reviewsCount: Number(c.reviews_count || 0),
+            activeClientsCount: Number(c.active_clients_count || 0),
             specialties: Array.isArray(c.specialties) ? c.specialties : ['Strength & Conditioning', 'Telemetry Programming'],
             certifications: Array.isArray(c.certifications) ? c.certifications : ['CSCS*D', 'USAW L3'],
-            slotsRemaining: Number(c.slots_remaining || 2),
+            slotsRemaining: Number(c.slots_remaining || 0),
             pricing: { monthlyOneOnOneUsd: 189, teamSubscriptionUsd: 49 },
           }));
           setCoachesList(mappedCoaches);
         } else {
-          setCoachesList(VERIFIED_COACHES_CATALOG);
+          // Live Supabase query returned 0 rows - genuine empty state
+          setCoachesList([]);
         }
-        if (Array.isArray(pData) && pData.length > 0) {
+
+        if (pError) {
+          console.error('[01FCoach] Live Supabase coach_programs query error:', pError);
+          if (!cError) {
+            setSupabaseError(pError.message || 'Database query error reading coach_programs.');
+          }
+          setProgramsList([]);
+        } else if (Array.isArray(pData) && pData.length > 0) {
           setProgramsList(pData as CoachMarketplaceProgram[]);
         } else {
-          setProgramsList(COACH_MARKETPLACE_PROGRAMS);
+          // Live Supabase query returned 0 rows - genuine empty state
+          setProgramsList([]);
         }
-      } catch {
-        setCoachesList(VERIFIED_COACHES_CATALOG);
-        setProgramsList(COACH_MARKETPLACE_PROGRAMS);
+      } catch (err: any) {
+        if (isCancelled) return;
+        console.error('[01FCoach] Critical Supabase connection failure:', err);
+        setSupabaseError(err?.message || 'Network exception communicating with live Supabase database.');
+        setCoachesList([]);
+        setProgramsList([]);
+      } finally {
+        if (!isCancelled) {
+          setIsLoading(false);
+        }
       }
     };
+
     fetchData();
+
+    return () => {
+      isCancelled = true;
+    };
   }, []);
 
   return (
@@ -80,7 +113,22 @@ export const O1FCoachAthletePortal: React.FC<O1FCoachAthletePortalProps> = ({
         <O1FCoachHeader activePerspective={activePerspective} onChangePerspective={onChangePerspective} isCoach={isCoach} />
       </div>
 
-      {toastMsg && <div className="p-3 rounded-2xl bg-green-500/10 border border-green-500/30 text-green-500 text-xs font-mono font-bold flex items-center gap-2"><CheckCircle2 className="w-4 h-4 shrink-0" /><span>{toastMsg}</span></div>}
+      {toastMsg && (
+        <div className="p-3 rounded-2xl bg-green-500/10 border border-green-500/30 text-green-500 text-xs font-mono font-bold flex items-center gap-2">
+          <CheckCircle2 className="w-4 h-4 shrink-0" />
+          <span>{toastMsg}</span>
+        </div>
+      )}
+
+      {supabaseError && (
+        <div className="p-3.5 rounded-2xl bg-red-500/10 border border-red-500/30 text-red-500 text-xs font-mono font-bold flex items-start gap-2.5">
+          <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-red-500" />
+          <div className="space-y-0.5">
+            <span className="block font-tactical tracking-wide uppercase">SUPABASE DATABASE RESPONSE</span>
+            <span className="text-[11px] font-mono text-red-400 font-normal">{supabaseError}</span>
+          </div>
+        </div>
+      )}
 
       <O1FCoachStatusCard linkedCoach={null} onBrowseRoster={() => setPortalTab('roster')} onOpenMessage={() => setPortalTab('messages')} onSubmitCheckin={() => setPortalTab('checkins')} />
 
@@ -92,8 +140,28 @@ export const O1FCoachAthletePortal: React.FC<O1FCoachAthletePortalProps> = ({
         ))}
       </div>
 
-      {portalTab === 'roster' && <O1FVerifiedRoster coaches={coachesList} onSelectCoach={(c) => setSelectedCoach(c as CoachProfile)} onBookCoaching={(c) => { showToast(`Application initiated for Coach ${c?.name ?? 'Coach'}`); setPortalTab('messages'); }} />}
-      {portalTab === 'store' && <O1FClubProgramStore programs={programsList} />}
+      {portalTab === 'roster' && (
+        isLoading ? (
+          <div className="border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-[#121214] rounded-2xl p-6 text-center space-y-2.5 shadow-xs">
+            <p className="text-xs font-mono font-bold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider animate-pulse">
+              QUERYING LIVE SUPABASE ROSTER...
+            </p>
+          </div>
+        ) : (
+          <O1FVerifiedRoster coaches={coachesList} onSelectCoach={(c) => setSelectedCoach(c as CoachProfile)} onBookCoaching={(c) => { showToast(`Application initiated for Coach ${c?.name ?? 'Coach'}`); setPortalTab('messages'); }} />
+        )
+      )}
+      {portalTab === 'store' && (
+        isLoading ? (
+          <div className="border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-[#121214] rounded-2xl p-6 text-center space-y-2.5 shadow-xs">
+            <p className="text-xs font-mono font-bold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider animate-pulse">
+              QUERYING LIVE SUPABASE STORE...
+            </p>
+          </div>
+        ) : (
+          <O1FClubProgramStore programs={programsList} />
+        )
+      )}
       {portalTab === 'checkins' && <DailyCheckInProgress checkins={checkinsList ?? []} onReplyFeedback={(id, fb) => { setCheckinsList((prev) => (prev ?? []).map((c) => c.id === id ? { ...c, coachFeedback: { feedbackText: fb, givenAt: 'Just now', status: 'reviewed' } } : c)); showToast('Feedback noted!'); }} onSubmitNewCheckin={(c) => { setCheckinsList((prev) => [{ ...c, id: `chk-${Date.now()}`, coachFeedback: { feedbackText: '', givenAt: 'Pending', status: 'pending' } }, ...(prev ?? [])]); showToast('Check-in submitted to your coach!'); }} />}
       {portalTab === 'messages' && <CoachInboxView />}
 

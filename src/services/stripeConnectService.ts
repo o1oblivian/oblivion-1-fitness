@@ -48,17 +48,18 @@ export const stripeConnectService = {
           };
         }
       }
-    } catch {}
+    } catch (err) {
+      console.warn('[StripeConnectService] Supabase coach profile retrieval error:', err);
+    }
 
-    const storedVerified = typeof window !== 'undefined' ? localStorage.getItem('o1fc_coach_id_verified') === 'true' : false;
     return {
-      id: coachId,
+      id: coachId || '',
       stripe_connect_account_id: null,
       stripe_payouts_enabled: false,
       currency: 'AUD',
-      is_id_verified: storedVerified,
-      identity_status: storedVerified ? 'verified' : 'unverified',
-      accepting_new_athletes: storedVerified,
+      is_id_verified: false,
+      identity_status: 'unverified',
+      accepting_new_athletes: false,
     };
   },
 

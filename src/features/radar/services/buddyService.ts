@@ -14,13 +14,17 @@ export async function fetchNearbyBuddies(
   let candidates: BuddyProfile[] = [];
 
   try {
-    const { data, error } = await supabase.selectOne('buddy_profiles', 'is_ghost_mode=eq.false');
+    const { data, error } = await supabase
+      .from('buddy_profiles')
+      .select('*')
+      .eq('is_ghost_mode', false);
     if (!error && Array.isArray(data) && data.length > 0) {
       candidates = data as BuddyProfile[];
     } else {
       candidates = [];
     }
-  } catch {
+  } catch (err) {
+    console.error('[BuddyService] Live Supabase query failed:', err);
     candidates = [];
   }
 
@@ -100,7 +104,7 @@ export async function syncUserBuddyLocation(
  */
 export async function searchAthletesWithSupabase(
   query: string,
-  baseAthletes: DemoAthlete[] = DEMO_BUDDY_ATHLETES,
+  baseAthletes: DemoAthlete[] = [],
   userCoords: Coordinates = { latitude: -37.8136, longitude: 144.9631 },
   radiusKm: number = 25
 ): Promise<{ results: DemoAthlete[]; fromSupabase: boolean }> {
@@ -108,58 +112,56 @@ export async function searchAthletesWithSupabase(
   let supabaseCandidates: DemoAthlete[] = [];
   let fetchedFromSupabase = false;
 
-  if (cleanQuery) {
-    try {
-      // Query Supabase buddy_profiles using PostgREST ilike pattern
-      const ilikeFilter = `%${cleanQuery}%`;
-      const { data, error } = await supabase
-        .from('buddy_profiles')
-        .select('*')
-        .or(
-          `athlete_name.ilike.${ilikeFilter},home_gym.ilike.${ilikeFilter},discipline.ilike.${ilikeFilter},handle.ilike.${ilikeFilter},current_split.ilike.${ilikeFilter}`
-        )
-        .limit(20);
+  try {
+    const queryBuilder = cleanQuery
+      ? supabase
+          .from('buddy_profiles')
+          .select('*')
+          .eq('is_ghost_mode', false)
+          .or(
+            `athlete_name.ilike.%${cleanQuery}%,home_gym.ilike.%${cleanQuery}%,discipline.ilike.%${cleanQuery}%,handle.ilike.%${cleanQuery}%,current_split.ilike.%${cleanQuery}%`
+          )
+          .limit(30)
+      : supabase
+          .from('buddy_profiles')
+          .select('*')
+          .eq('is_ghost_mode', false)
+          .limit(50);
 
-      if (!error && Array.isArray(data) && data.length > 0) {
-        fetchedFromSupabase = true;
-        supabaseCandidates = data.map((item: any) => {
-          const lat = Number(item.latitude) || userCoords.latitude;
-          const lon = Number(item.longitude) || userCoords.longitude;
-          const dist = Number(calculateDistance(userCoords.latitude, userCoords.longitude, lat, lon).toFixed(1));
-          return {
-            id: String(item.id || `sp-${Math.random()}`),
-            name: item.athlete_name || item.name || 'Athletic Member',
-            handle: item.handle || '@athlete',
-            age: Number(item.age) || 25,
-            home_gym: item.home_gym || 'Oblivion 1 Partner Gym',
-            distance_km: dist,
-            match_score: Number(item.match_score) || 88,
-            image_url: item.avatar_url || item.image_url || 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=800&q=80',
-            photos: item.photos || [item.avatar_url || 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=800&q=80'],
-            discipline: item.discipline || 'Fitness',
-            training_discipline: item.discipline?.toUpperCase() || 'GENERAL ATHLETICS',
-            current_split: item.current_split || 'Standard Split',
-            bio: item.bio || 'Oblivion 1 athlete active in corridor.',
-            is_online: !item.is_ghost_mode,
-          };
-        });
-      }
-    } catch (err) {
-      console.info('[Supabase Search] PostgREST query bypassed, using fast local radar graph:', err);
+    const { data, error } = await queryBuilder;
+
+    if (!error && Array.isArray(data)) {
+      fetchedFromSupabase = true;
+      supabaseCandidates = data.map((item: any) => {
+        const lat = Number(item.latitude) || userCoords.latitude;
+        const lon = Number(item.longitude) || userCoords.longitude;
+        const dist = Number(calculateDistance(userCoords.latitude, userCoords.longitude, lat, lon).toFixed(1));
+        return {
+          id: String(item.id || `sp-${Math.random()}`),
+          name: item.athlete_name || item.name || 'Athletic Member',
+          handle: item.handle || '@athlete',
+          age: Number(item.age) || 25,
+          home_gym: item.home_gym || 'Oblivion 1 Partner Gym',
+          distance_km: dist,
+          match_score: Number(item.match_score) || 88,
+          image_url: item.avatar_url || item.image_url || 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=800&q=80',
+          photos: item.photos || [item.avatar_url || 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=800&q=80'],
+          discipline: item.discipline || 'Fitness',
+          training_discipline: item.discipline?.toUpperCase() || 'GENERAL ATHLETICS',
+          current_split: item.current_split || 'Standard Split',
+          bio: item.bio || 'Oblivion 1 athlete active in corridor.',
+          is_online: !item.is_ghost_mode,
+        };
+      });
+    } else if (error) {
+      console.error('[Supabase Search] PostgREST query error:', error);
     }
+  } catch (err) {
+    console.error('[Supabase Search] Live query failure:', err);
   }
 
-  // Merge Supabase candidates with base athletes, deduplicating by ID and name
-  const seenIds = new Set<string>();
-  const allCandidates: DemoAthlete[] = [];
-
-  for (const c of [...supabaseCandidates, ...baseAthletes]) {
-    const key = `${c.id}__${c.name.toLowerCase()}`;
-    if (!seenIds.has(key)) {
-      seenIds.add(key);
-      allCandidates.push(c);
-    }
-  }
+  // Bind exclusively to live Supabase candidates
+  const allCandidates: DemoAthlete[] = supabaseCandidates;
 
   // If no query string, filter by radius and sort by match score
   if (!cleanQuery) {
