@@ -98,7 +98,7 @@ export const CardioTelemetryModal: React.FC<Props> = ({ isOpen, onClose, onPostC
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 bg-black/85 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="w-full max-w-lg bg-white dark:bg-[#121214] rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[92vh] border border-neutral-200 dark:border-neutral-800">
+      <div className="w-full max-w-[480px] bg-white dark:bg-[#121214] rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[92dvh] h-auto border border-neutral-200 dark:border-neutral-800">
         <div className="flex items-center justify-between px-5 py-3.5 bg-neutral-100 dark:bg-[#09090b] border-b border-neutral-200 dark:border-neutral-800">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-xl bg-red-500/10 border border-[#C4121A]/20 flex items-center justify-center text-[#C4121A]"><Activity className="w-4 h-4" /></div>
@@ -109,7 +109,7 @@ export const CardioTelemetryModal: React.FC<Props> = ({ isOpen, onClose, onPostC
           </div>
           <button onClick={onClose} className="p-1.5 text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white rounded-full cursor-pointer"><X className="w-4 h-4" /></button>
         </div>
-        <div className="p-4 overflow-y-auto space-y-3 flex-1">
+        <div className="p-4 overflow-y-auto space-y-3 flex-1 min-h-0">
           <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={handleFile} />
           <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFile} />
           <div className="grid grid-cols-2 gap-2.5">

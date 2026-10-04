@@ -72,7 +72,7 @@ export const FuelView: React.FC = () => {
   return (
     <div
       id="fuel-view-container"
-      className="w-full min-h-screen bg-[#F4F4F7] dark:bg-[#09090b] text-neutral-900 dark:text-white px-4 pt-2 sm:pt-4 pb-36 select-none max-w-md mx-auto space-y-3.5 transition-colors"
+      className="w-full h-auto min-h-full bg-[#F4F4F7] dark:bg-[#09090b] text-neutral-900 dark:text-white px-3.5 pt-1 pb-10 select-none space-y-3.5 transition-colors"
     >
       {/* Consolidated Top Command Bar */}
       <FuelTopStatusBar

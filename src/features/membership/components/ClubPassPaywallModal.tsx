@@ -53,7 +53,7 @@ export const ClubPassPaywallModal: React.FC = () => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 bg-black/90 select-none animate-in fade-in duration-150 backdrop-blur-md">
-      <div className="w-full max-w-sm bg-[#080808] border border-[#D4AF37]/30 rounded-3xl overflow-hidden shadow-[0_0_35px_-5px_rgba(212,175,55,0.2)] flex flex-col max-h-[92vh]">
+      <div className="w-full max-w-[440px] bg-[#080808] border border-[#D4AF37]/30 rounded-3xl overflow-hidden shadow-[0_0_35px_-5px_rgba(212,175,55,0.2)] flex flex-col max-h-[92dvh] h-auto">
         <div className="flex items-center justify-between px-5 py-4 border-b border-[#D4AF37]/15 bg-[#050505]">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-xl bg-[#D4AF37]/10 border border-[#D4AF37]/30 flex items-center justify-center text-[#F5D061]"><Sparkles className="w-4 h-4" /></div>
@@ -65,7 +65,7 @@ export const ClubPassPaywallModal: React.FC = () => {
           <button onClick={closePaywall} className="p-1.5 text-neutral-400 hover:text-white rounded-full cursor-pointer transition"><X className="w-5 h-5" /></button>
         </div>
 
-        <div className="p-4 overflow-y-auto space-y-3 bg-gradient-to-b from-[#0A0A0A] to-[#050505]">
+        <div className="p-4 overflow-y-auto space-y-3 bg-gradient-to-b from-[#0A0A0A] to-[#050505] flex-1 min-h-0">
           {gatedFeature && (
             <div className="p-2.5 rounded-xl bg-[#D4AF37]/10 border border-[#D4AF37]/30 text-[#F5D061] text-xs font-mono flex items-center gap-2">
               <Zap className="w-4 h-4 text-[#F5D061] shrink-0" />

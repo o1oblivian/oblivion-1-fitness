@@ -155,7 +155,7 @@ export const BuddyView: React.FC = () => {
   }, [searchResults, dismissedIds, activeTab, likedAthletes, verifiedOnly]);
 
   return (
-    <div className="w-full max-w-md mx-auto bg-[#F4F4F7] dark:bg-[#09090b] min-h-screen text-neutral-900 dark:text-white pb-32 transition-colors">
+    <div className="w-full h-auto min-h-full bg-[#F4F4F7] dark:bg-[#09090b] text-neutral-900 dark:text-white pb-10 px-3.5 pt-1 transition-colors">
       <DiscoverHeader
         activeTab={activeTab}
         onTabChange={handleTabChange}

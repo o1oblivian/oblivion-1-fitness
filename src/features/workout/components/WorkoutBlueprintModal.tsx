@@ -124,7 +124,7 @@ export const WorkoutBlueprintModal: React.FC<WorkoutBlueprintModalProps> = ({
       <div
         id="workout-blueprint-modal-card"
         onClick={(e) => e.stopPropagation()}
-        className="bg-white dark:bg-[#121214] border border-neutral-200 dark:border-white/10 rounded-t-3xl sm:rounded-3xl w-full max-w-lg max-h-[92vh] flex flex-col shadow-2xl dark:shadow-[0_20px_60px_rgba(0,0,0,0.9)] overflow-hidden text-neutral-900 dark:text-neutral-100 animate-in slide-in-from-bottom-6 sm:slide-in-from-bottom-2 duration-300"
+        className="bg-white dark:bg-[#121214] border border-neutral-200 dark:border-white/10 rounded-t-3xl sm:rounded-3xl w-full max-w-[480px] max-h-[92dvh] h-auto flex flex-col shadow-2xl dark:shadow-[0_20px_60px_rgba(0,0,0,0.9)] overflow-hidden text-neutral-900 dark:text-neutral-100 animate-in slide-in-from-bottom-6 sm:slide-in-from-bottom-2 duration-300"
       >
         {/* HERO IMAGE & BACKDROP HEADER */}
         <div className="relative h-44 sm:h-52 w-full shrink-0 overflow-hidden bg-neutral-900">
@@ -234,7 +234,7 @@ export const WorkoutBlueprintModal: React.FC<WorkoutBlueprintModalProps> = ({
         </div>
 
         {/* EXERCISES LIST SCROLLER */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-3 min-h-[220px] bg-neutral-50/40 dark:bg-transparent">
+        <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-3 bg-neutral-50/40 dark:bg-transparent">
           {filteredExercises.length === 0 ? (
             <div className="py-12 text-center text-neutral-400 dark:text-neutral-500 font-mono text-xs">
               No exercises found in this category.

@@ -84,7 +84,7 @@ export const HydrationIntelligenceModal: React.FC<HydrationIntelligenceModalProp
       onClick={onClose}
     >
       <div
-        className="bg-[#09090b] text-white w-full max-w-md rounded-t-3xl md:rounded-3xl border border-white/10 flex flex-col overflow-hidden shadow-2xl p-5 space-y-4 max-h-[88vh]"
+        className="bg-[#09090b] text-white w-full max-w-[480px] rounded-t-3xl md:rounded-3xl border border-white/10 flex flex-col overflow-y-auto shadow-2xl p-5 space-y-4 max-h-[88dvh] h-auto"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}

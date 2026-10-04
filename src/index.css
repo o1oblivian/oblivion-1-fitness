@@ -12,8 +12,8 @@
   --o1-crimson-hover: #A30F16;
   --o1-crimson-active: #800C11;
   --o1-border-active: rgba(196, 18, 26, 0.4);
-  --sat: env(safe-area-inset-top, 0px);
-  --sab: env(safe-area-inset-bottom, 0px);
+  --sat: max(16px, env(safe-area-inset-top, 0px));
+  --sab: max(16px, env(safe-area-inset-bottom, 0px));
   --sal: env(safe-area-inset-left, 0px);
   --sar: env(safe-area-inset-right, 0px);
 }
@@ -81,18 +81,13 @@
   font-feature-settings: "tnum";
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
+  box-sizing: border-box;
 }
 
 html {
-  font-size: 15px;
+  font-size: clamp(0.875rem, 0.8rem + 0.4vw, 1.0625rem);
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
-}
-
-@media (max-width: 400px) {
-  html {
-    font-size: 14px;
-  }
 }
 
 html, body, button, input, optgroup, select, textarea {
@@ -122,11 +117,11 @@ html, body {
   margin: 0;
   padding: 0;
   width: 100%;
-  min-height: 100vh;
+  min-height: 100dvh;
 }
 
 #root {
-  min-height: 100vh;
+  min-height: 100dvh;
   width: 100%;
   background-color: #F4F4F7;
   margin: 0;

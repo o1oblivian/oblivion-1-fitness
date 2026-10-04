@@ -55,7 +55,7 @@ class RootErrorBoundary extends Component<RootBoundaryProps, RootBoundaryState> 
   override render(): ReactNode {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen w-full bg-[#09090b] text-white flex flex-col items-center justify-center p-6 text-center select-none font-sans">
+        <div className="min-h-dvh w-full bg-[#09090b] text-white flex flex-col items-center justify-center p-6 text-center select-none font-sans">
           <div className="w-16 h-16 rounded-2xl bg-[#C4121A]/10 border border-[#C4121A]/40 flex items-center justify-center mb-4 shadow-[0_0_25px_rgba(196,18,26,0.3)]">
             <span className="text-2xl font-black text-[#C4121A]">O1</span>
           </div>
@@ -95,7 +95,7 @@ try {
   const el = document.getElementById('root');
   if (el) {
     el.innerHTML = `
-      <div style="min-height:100vh;width:100%;background:#09090b;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:sans-serif;text-align:center;padding:24px;">
+      <div style="min-height:100dvh;width:100%;background:#09090b;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:sans-serif;text-align:center;padding:24px;">
         <div style="width:64px;height:64px;border-radius:16px;background:rgba(196,18,26,0.1);border:1px solid rgba(196,18,26,0.4);display:flex;align-items:center;justify-content:center;margin-bottom:16px;">
           <span style="font-size:24px;font-weight:900;color:#C4121A;">O1</span>
         </div>

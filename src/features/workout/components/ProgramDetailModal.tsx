@@ -21,7 +21,7 @@ export const ProgramDetailModal: React.FC<ProgramDetailModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex flex-col justify-end md:justify-center items-center p-0 md:p-4 animate-in fade-in duration-200">
-      <div className="bg-white dark:bg-[#0D0D10] border border-neutral-200 dark:border-[#1F1F23] w-full max-w-md h-[95vh] md:h-[88vh] rounded-t-3xl md:rounded-3xl flex flex-col overflow-hidden shadow-2xl transition-colors">
+      <div className="bg-white dark:bg-[#0D0D10] border border-neutral-200 dark:border-[#1F1F23] w-full max-w-[480px] max-h-[90dvh] h-auto rounded-t-3xl md:rounded-3xl flex flex-col overflow-hidden shadow-2xl transition-colors">
         {/* Banner with Title and Close */}
         <div className="relative h-44 w-full bg-zinc-950 shrink-0">
           <img
@@ -61,7 +61,7 @@ export const ProgramDetailModal: React.FC<ProgramDetailModalProps> = ({
         </div>
 
         {/* Content Area */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-4">
           {/* Tags */}
           <div className="grid grid-cols-2 gap-2">
             <div className="bg-neutral-50 dark:bg-[#121214] border border-neutral-200 dark:border-[#1F1F23] p-3 rounded-2xl">

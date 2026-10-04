@@ -32,19 +32,29 @@ export const MainAppLayout: React.FC = () => {
   }, [handleTabSelect]);
 
   return (
-    <div className="relative min-h-screen w-full bg-[#F4F4F7] dark:bg-[#09090b] text-neutral-900 dark:text-neutral-100 overflow-x-hidden selection:bg-[#C4121A] selection:text-white transition-colors duration-200">
-      {/* Responsive Bezel-less Viewport Wrapper with conditional sheet scale */}
+    <div className="relative min-h-dvh w-full bg-[#F4F4F7] dark:bg-[#09090b] text-neutral-900 dark:text-neutral-100 overflow-x-hidden selection:bg-[#C4121A] selection:text-white transition-colors duration-200">
+      {/* Global Tablet & Foldable Guardrail: Constrained to max-w-[480px] mx-auto min-h-dvh with clean centering */}
       <div
-        className={`min-h-screen w-full bg-[#F4F4F7] dark:bg-[#09090b] text-neutral-900 dark:text-neutral-100 flex flex-col justify-between font-sans origin-top transition-all duration-300 ease-out ${
+        className={`min-h-dvh w-full max-w-[480px] mx-auto bg-[#F4F4F7] dark:bg-[#09090b] text-neutral-900 dark:text-neutral-100 flex flex-col justify-between font-sans origin-top transition-all duration-300 ease-out relative shadow-2xl ${
           isTravelPassOpen
-            ? 'scale-[0.94] rounded-3xl brightness-75 overflow-hidden shadow-2xl pointer-events-none select-none'
+            ? 'scale-[0.94] rounded-3xl brightness-75 overflow-hidden pointer-events-none select-none'
             : ''
         }`}
       >
         <BasementOfflineBanner />
 
-        {/* Main Content Area: bezel-less edge-to-edge layout, standardized mobile container */}
-        <main className="flex-1 w-full max-w-md mx-auto pt-[env(safe-area-inset-top,0px)] pb-20 px-0">
+        {/* Main Content Area: flexbox layout where scrollable container explicitly sets flex: 1 1 0%, min-height: 0, and overflow-y: auto */}
+        <main
+          className="w-full overflow-y-auto"
+          style={{
+            flex: '1 1 0%',
+            minHeight: 0,
+            paddingTop: 'max(16px, env(safe-area-inset-top, 0px))',
+            paddingBottom: 'calc(4rem + max(16px, env(safe-area-inset-bottom, 0px)))',
+            paddingLeft: 'env(safe-area-inset-left, 0px)',
+            paddingRight: 'env(safe-area-inset-right, 0px)',
+          }}
+        >
           <FeatureErrorBoundary key={activeTab} featureName={`${activeTab} View`}>
             {(activeTab === 'tracker' || activeTab === 'workout') && <WorkoutHub />}
             {activeTab === 'fuel' && <FuelHub />}

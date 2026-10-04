@@ -24,7 +24,7 @@ export const ProAccessModal: React.FC<ProAccessModalProps> = ({ isOpen, onClose 
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 select-none animate-in fade-in duration-200">
-      <div className="w-full max-w-sm bg-[#121214] border border-white/10 rounded-3xl overflow-hidden shadow-2xl flex flex-col">
+      <div className="w-full max-w-[440px] bg-[#121214] border border-white/10 rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[92dvh] h-auto">
         <div className="flex items-center justify-between px-5 py-4 border-b border-white/10 bg-[#09090b]">
           <div className="flex items-center gap-2 font-mono text-xs font-bold text-red-500">
             <span className="w-2 h-2 rounded-full bg-[#C4121A] animate-ping" />
@@ -33,7 +33,7 @@ export const ProAccessModal: React.FC<ProAccessModalProps> = ({ isOpen, onClose 
           <button onClick={onClose} className="p-1.5 text-neutral-400 hover:text-white rounded-full cursor-pointer"><X className="w-4 h-4" /></button>
         </div>
 
-        <div className="p-5 space-y-4">
+        <div className="p-5 space-y-4 overflow-y-auto flex-1 min-h-0">
           <div className="text-center space-y-1">
             <div className="inline-flex p-2.5 rounded-full bg-[#C4121A]/10 text-[#C4121A] mb-1"><Sparkles className="w-6 h-6" /></div>
             <h3 className="text-lg font-black tracking-tight text-white uppercase font-display">Premium Unlocked</h3>

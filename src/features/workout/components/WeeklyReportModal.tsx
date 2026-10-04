@@ -77,7 +77,7 @@ export const WeeklyReportModal: React.FC<WeeklyReportModalProps> = ({ isOpen, on
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="bg-white dark:bg-[#121217] text-neutral-900 dark:text-neutral-100 rounded-3xl w-full max-w-md max-h-[92vh] flex flex-col shadow-2xl overflow-hidden border border-neutral-200/80 dark:border-white/10 transition-colors"
+        className="bg-white dark:bg-[#121217] text-neutral-900 dark:text-neutral-100 rounded-3xl w-full max-w-[480px] max-h-[92dvh] h-auto flex flex-col shadow-2xl overflow-hidden border border-neutral-200/80 dark:border-white/10 transition-colors"
       >
         {/* Header */}
         <div className="p-4 sm:p-5 pb-3 border-b border-neutral-100 dark:border-white/10 flex items-start justify-between">
@@ -136,7 +136,7 @@ export const WeeklyReportModal: React.FC<WeeklyReportModalProps> = ({ isOpen, on
         </div>
 
         {/* Scrollable Body - Dynamic per Active Tab */}
-        <div className="p-4 sm:p-5 overflow-y-auto space-y-4 text-xs">
+        <div className="p-4 sm:p-5 overflow-y-auto space-y-4 text-xs flex-1 min-h-0">
           {/* TAB 1: OVERVIEW */}
           {activeTab === 'overview' && (
             <div className="space-y-4 animate-in fade-in duration-150">

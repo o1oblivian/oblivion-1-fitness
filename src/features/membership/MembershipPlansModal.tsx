@@ -100,7 +100,7 @@ export const MembershipPlansModal: React.FC<MembershipPlansModalProps> = ({
         onClick={onClose}
       >
         <div
-          className="bg-white dark:bg-[#0c0c0e] border border-neutral-200 dark:border-neutral-800 rounded-3xl text-neutral-900 dark:text-white w-full max-w-lg max-h-[94vh] flex flex-col shadow-2xl overflow-hidden"
+          className="bg-white dark:bg-[#0c0c0e] border border-neutral-200 dark:border-neutral-800 rounded-3xl text-neutral-900 dark:text-white w-full max-w-[480px] max-h-[92dvh] h-auto flex flex-col shadow-2xl overflow-hidden"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
@@ -124,7 +124,7 @@ export const MembershipPlansModal: React.FC<MembershipPlansModalProps> = ({
           </div>
 
           {/* Scrollable Content */}
-          <div className="overflow-y-auto px-4 sm:px-5 py-4 space-y-4 text-left">
+          <div className="overflow-y-auto px-4 sm:px-5 py-4 space-y-4 text-left flex-1 min-h-0">
             {/* Tab Switcher: Athletes | Coaches */}
             <div className="grid grid-cols-2 gap-1.5 p-1 bg-neutral-100 dark:bg-[#18181b] rounded-2xl border border-neutral-200 dark:border-neutral-800">
               {(['athletes', 'coaches'] as const).map((t) => (

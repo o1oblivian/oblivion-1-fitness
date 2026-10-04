@@ -29,8 +29,8 @@ export const DrawerSheet: React.FC<DrawerSheetProps> = ({
   headerRight,
   showSwipeHandle = true,
   showCloseButton = true,
-  maxWidth = 'max-w-md',
-  maxHeight = 'max-h-[85vh]',
+  maxWidth = 'max-w-[480px]',
+  maxHeight = 'max-h-[88dvh]',
   className = '',
   bodyClassName = 'p-4 space-y-4 overflow-y-auto',
   children,
@@ -59,6 +59,9 @@ export const DrawerSheet: React.FC<DrawerSheetProps> = ({
       }}
     >
       <div
+        style={{
+          paddingBottom: 'max(12px, env(safe-area-inset-bottom, 0px))',
+        }}
         className={`bg-[#0D0D10] border border-neutral-800 w-full ${maxWidth} rounded-t-3xl md:rounded-3xl flex flex-col overflow-hidden shadow-2xl animate-in slide-in-from-bottom-8 duration-300 ${className}`}
       >
         {/* Optional Swipe Handle for tactile mobile affordance */}

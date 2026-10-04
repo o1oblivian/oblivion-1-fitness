@@ -36,7 +36,12 @@ export const NavigationDock: React.FC<NavigationDockProps> = ({ currentMode, onS
       id="navigation-dock-floating"
       role="navigation"
       aria-label="Main Navigation"
-      className="fixed bottom-2 sm:bottom-3 mb-[env(safe-area-inset-bottom,0px)] inset-x-0 mx-auto w-[calc(100%-1.5rem)] max-w-[390px] z-40 h-[46px] rounded-full bg-white/30 backdrop-blur-xl border border-black/10 shadow-[0_8px_28px_rgba(0,0,0,0.1)] dark:bg-neutral-950/35 dark:backdrop-blur-xl dark:border-white/10 dark:shadow-[0_8px_28px_rgba(0,0,0,0.6)] px-2.5 flex items-center justify-between select-none transition-colors"
+      style={{
+        bottom: 'max(10px, env(safe-area-inset-bottom, 0px))',
+        paddingLeft: 'max(10px, env(safe-area-inset-left, 0px))',
+        paddingRight: 'max(10px, env(safe-area-inset-right, 0px))',
+      }}
+      className="fixed inset-x-0 mx-auto w-[calc(100%-1.5rem)] max-w-[440px] z-40 h-[48px] rounded-full bg-white/30 backdrop-blur-xl border border-black/10 shadow-[0_8px_28px_rgba(0,0,0,0.1)] dark:bg-neutral-950/35 dark:backdrop-blur-xl dark:border-white/10 dark:shadow-[0_8px_28px_rgba(0,0,0,0.6)] flex items-center justify-between select-none transition-colors"
     >
       <div className="w-full flex items-center justify-around h-full">
         {TABS.map((tab) => {

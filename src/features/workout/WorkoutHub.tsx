@@ -184,7 +184,7 @@ export const WorkoutHub: React.FC = () => {
   return (
     <div
       id="workout-hub-page"
-      className="w-full max-w-md mx-auto bg-[#F4F4F7] dark:bg-[#09090b] min-h-screen text-neutral-900 dark:text-white pb-20 px-3.5 pt-2 select-none transition-colors"
+      className="w-full h-auto min-h-full bg-[#F4F4F7] dark:bg-[#09090b] text-neutral-900 dark:text-white pb-8 px-3.5 pt-1 select-none transition-colors"
     >
       {/* 1. TOP HERO CARD CONTAINER (Nude, No Atmospheric Fog Depth) */}
       <div id="hero-card-container" className="relative w-full max-w-md mx-auto">

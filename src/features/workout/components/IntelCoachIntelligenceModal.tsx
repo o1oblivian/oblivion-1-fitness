@@ -88,7 +88,7 @@ export const IntelCoachIntelligenceModal: React.FC<IntelCoachIntelligenceModalPr
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="bg-white dark:bg-[#121214] border border-neutral-200 dark:border-neutral-800 rounded-3xl p-5 sm:p-6 w-full max-w-lg max-h-[92vh] overflow-y-auto shadow-2xl transition-colors space-y-4 text-neutral-900 dark:text-white"
+        className="bg-white dark:bg-[#121214] border border-neutral-200 dark:border-neutral-800 rounded-3xl p-5 sm:p-6 w-full max-w-[480px] max-h-[92dvh] h-auto overflow-y-auto shadow-2xl transition-colors space-y-4 text-neutral-900 dark:text-white"
       >
         {/* ============================================================== */}
         {/* HEADER: Surgical Swiss-Athletic Brand Identity                 */}

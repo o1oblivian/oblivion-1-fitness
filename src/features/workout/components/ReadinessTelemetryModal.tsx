@@ -24,7 +24,7 @@ export const ReadinessTelemetryModal: React.FC<Props> = ({
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-md bg-[#0C0C10] border border-white/10 rounded-3xl p-6 shadow-2xl text-white space-y-4 max-h-[92vh] overflow-y-auto relative"
+        className="w-full max-w-[480px] bg-[#0C0C10] border border-white/10 rounded-3xl p-6 shadow-2xl text-white space-y-4 max-h-[92dvh] h-auto overflow-y-auto relative"
       >
         {/* Specular hairline highlight */}
         <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-cyan-400/40 to-transparent pointer-events-none" />

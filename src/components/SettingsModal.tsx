@@ -61,7 +61,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
       id="settings-slide-over-modal"
       className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex flex-col justify-end md:justify-center items-center p-0 md:p-4 animate-in fade-in duration-200 select-none"
     >
-      <div className="bg-neutral-50 dark:bg-[#09090b] text-neutral-900 dark:text-neutral-100 w-full max-w-md h-[95vh] md:h-[90vh] rounded-t-3xl md:rounded-3xl flex flex-col overflow-hidden shadow-2xl transition-all border border-neutral-200 dark:border-neutral-800">
+      <div className="bg-neutral-50 dark:bg-[#09090b] text-neutral-900 dark:text-neutral-100 w-full max-w-[480px] max-h-[92dvh] h-auto rounded-t-3xl md:rounded-3xl flex flex-col overflow-hidden shadow-2xl transition-all border border-neutral-200 dark:border-neutral-800">
         <div className="sticky top-0 z-20 flex items-center justify-between px-4 py-3 border-b border-neutral-200 dark:border-neutral-800 bg-white/95 dark:bg-[#121214]/95 backdrop-blur-md shrink-0">
           <button
             type="button"
@@ -86,7 +86,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto no-scrollbar bg-neutral-50 dark:bg-[#09090b] p-4 space-y-4">
+        <div className="flex-1 min-h-0 overflow-y-auto no-scrollbar bg-neutral-50 dark:bg-[#09090b] p-4 space-y-4">
           <SettingsErrorBoundary>
             <SettingsContent
               s={s}

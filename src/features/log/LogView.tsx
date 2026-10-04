@@ -54,7 +54,7 @@ export const LogView: React.FC = () => {
   return (
     <div
       id="log-view"
-      className="space-y-4 pb-12 px-2 sm:px-4 pt-2 sm:pt-4 max-w-md mx-auto relative select-none min-h-screen text-neutral-900 dark:text-neutral-100 transition-colors duration-200"
+      className="space-y-4 pb-10 px-2 sm:px-3.5 pt-1 relative select-none min-h-full h-auto text-neutral-900 dark:text-neutral-100 transition-colors duration-200"
     >
       {/* ============================================================== */}
       {/* 1. SINGLE UNIFIED TOP BOARD CARD                               */}

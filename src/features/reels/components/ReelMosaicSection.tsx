@@ -91,7 +91,7 @@ export const ReelMosaicSection: React.FC<ReelMosaicSectionProps> = ({ reels, onS
                     {trio[0] && (
                       <div
                         onClick={() => handleItemClick(trio[0])}
-                        className="group relative h-[270px] rounded-2xl overflow-hidden bg-neutral-900 cursor-pointer border border-white/5 active:scale-[0.98] transition-transform duration-200 shadow-md"
+                        className="group relative w-full aspect-[4/5] rounded-2xl overflow-hidden bg-neutral-900 cursor-pointer border border-white/5 active:scale-[0.98] transition-transform duration-200 shadow-md"
                       >
                         <img
                           src={trio[0].thumbnail}
@@ -106,11 +106,11 @@ export const ReelMosaicSection: React.FC<ReelMosaicSectionProps> = ({ reels, onS
                       </div>
                     )}
 
-                    <div className="flex flex-col gap-2">
+                    <div className="flex flex-col gap-2 justify-between">
                       {trio[1] && (
                         <div
                           onClick={() => handleItemClick(trio[1])}
-                          className="group relative h-[131px] rounded-2xl overflow-hidden bg-neutral-900 cursor-pointer border border-white/5 active:scale-[0.98] transition-transform duration-200 shadow-md"
+                          className="group relative w-full aspect-[16/10] rounded-2xl overflow-hidden bg-neutral-900 cursor-pointer border border-white/5 active:scale-[0.98] transition-transform duration-200 shadow-md"
                         >
                           <img
                             src={trio[1].thumbnail}
@@ -128,7 +128,7 @@ export const ReelMosaicSection: React.FC<ReelMosaicSectionProps> = ({ reels, onS
                       {trio[2] && (
                         <div
                           onClick={() => handleItemClick(trio[2])}
-                          className="group relative h-[131px] rounded-2xl overflow-hidden bg-neutral-900 cursor-pointer border border-white/5 active:scale-[0.98] transition-transform duration-200 shadow-md"
+                          className="group relative w-full aspect-[16/10] rounded-2xl overflow-hidden bg-neutral-900 cursor-pointer border border-white/5 active:scale-[0.98] transition-transform duration-200 shadow-md"
                         >
                           <img
                             src={trio[2].thumbnail}
@@ -147,11 +147,11 @@ export const ReelMosaicSection: React.FC<ReelMosaicSectionProps> = ({ reels, onS
                 ) : (
                   // Left 2 stacked cards | Right tall 4:5 vertical
                   <>
-                    <div className="flex flex-col gap-2">
+                    <div className="flex flex-col gap-2 justify-between">
                       {trio[0] && (
                         <div
                           onClick={() => handleItemClick(trio[0])}
-                          className="group relative h-[131px] rounded-2xl overflow-hidden bg-neutral-900 cursor-pointer border border-white/5 active:scale-[0.98] transition-transform duration-200 shadow-md"
+                          className="group relative w-full aspect-[16/10] rounded-2xl overflow-hidden bg-neutral-900 cursor-pointer border border-white/5 active:scale-[0.98] transition-transform duration-200 shadow-md"
                         >
                           <img
                             src={trio[0].thumbnail}
@@ -169,7 +169,7 @@ export const ReelMosaicSection: React.FC<ReelMosaicSectionProps> = ({ reels, onS
                       {trio[1] && (
                         <div
                           onClick={() => handleItemClick(trio[1])}
-                          className="group relative h-[131px] rounded-2xl overflow-hidden bg-neutral-900 cursor-pointer border border-white/5 active:scale-[0.98] transition-transform duration-200 shadow-md"
+                          className="group relative w-full aspect-[16/10] rounded-2xl overflow-hidden bg-neutral-900 cursor-pointer border border-white/5 active:scale-[0.98] transition-transform duration-200 shadow-md"
                         >
                           <img
                             src={trio[1].thumbnail}
@@ -188,7 +188,7 @@ export const ReelMosaicSection: React.FC<ReelMosaicSectionProps> = ({ reels, onS
                     {trio[2] && (
                       <div
                         onClick={() => handleItemClick(trio[2])}
-                        className="group relative h-[270px] rounded-2xl overflow-hidden bg-neutral-900 cursor-pointer border border-white/5 active:scale-[0.98] transition-transform duration-200 shadow-md"
+                        className="group relative w-full aspect-[4/5] rounded-2xl overflow-hidden bg-neutral-900 cursor-pointer border border-white/5 active:scale-[0.98] transition-transform duration-200 shadow-md"
                       >
                         <img
                           src={trio[2].thumbnail}
@@ -211,7 +211,7 @@ export const ReelMosaicSection: React.FC<ReelMosaicSectionProps> = ({ reels, onS
             {duoOrSingle.length === 1 && (
               <div
                 onClick={() => handleItemClick(duoOrSingle[0])}
-                className="group relative h-[150px] w-full rounded-2xl overflow-hidden bg-neutral-900 cursor-pointer border border-white/5 active:scale-[0.99] transition-transform duration-200 shadow-md"
+                className="group relative w-full aspect-[16/9] rounded-2xl overflow-hidden bg-neutral-900 cursor-pointer border border-white/5 active:scale-[0.99] transition-transform duration-200 shadow-md"
               >
                 <img
                   src={duoOrSingle[0].thumbnail}
@@ -230,7 +230,7 @@ export const ReelMosaicSection: React.FC<ReelMosaicSectionProps> = ({ reels, onS
               <div className="grid grid-cols-12 gap-2">
                 <div
                   onClick={() => handleItemClick(duoOrSingle[0])}
-                  className="col-span-7 group relative h-[150px] rounded-2xl overflow-hidden bg-neutral-900 cursor-pointer border border-white/5 active:scale-[0.98] transition-transform duration-200 shadow-md"
+                  className="col-span-7 group relative w-full aspect-[16/11] rounded-2xl overflow-hidden bg-neutral-900 cursor-pointer border border-white/5 active:scale-[0.98] transition-transform duration-200 shadow-md"
                 >
                   <img
                     src={duoOrSingle[0].thumbnail}
@@ -246,7 +246,7 @@ export const ReelMosaicSection: React.FC<ReelMosaicSectionProps> = ({ reels, onS
 
                 <div
                   onClick={() => handleItemClick(duoOrSingle[1])}
-                  className="col-span-5 group relative h-[150px] rounded-2xl overflow-hidden bg-neutral-900 cursor-pointer border border-white/5 active:scale-[0.98] transition-transform duration-200 shadow-md"
+                  className="col-span-5 group relative w-full aspect-[4/3] rounded-2xl overflow-hidden bg-neutral-900 cursor-pointer border border-white/5 active:scale-[0.98] transition-transform duration-200 shadow-md"
                 >
                   <img
                     src={duoOrSingle[1].thumbnail}

@@ -71,7 +71,7 @@ export const RoutineSwapperModal: React.FC<RoutineSwapperModalProps> = ({
       }}
       className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex flex-col justify-end md:justify-center items-center p-0 md:p-4 animate-in fade-in duration-200"
     >
-      <div className="bg-white dark:bg-[#0D0D10] border border-neutral-200 dark:border-[#1F1F23] w-full max-w-md rounded-t-3xl md:rounded-3xl flex flex-col overflow-hidden shadow-2xl max-h-[90vh]">
+      <div className="bg-white dark:bg-[#0D0D10] border border-neutral-200 dark:border-[#1F1F23] w-full max-w-[480px] rounded-t-3xl md:rounded-3xl flex flex-col overflow-hidden shadow-2xl max-h-[90dvh] h-auto">
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-3.5 border-b border-neutral-200 dark:border-[#1F1F23] bg-neutral-50 dark:bg-[#121214]">
           <div className="flex items-center gap-2">
@@ -133,7 +133,7 @@ export const RoutineSwapperModal: React.FC<RoutineSwapperModalProps> = ({
         </div>
 
         {/* Content */}
-        <div className="p-4 space-y-3 overflow-y-auto">
+        <div className="p-4 space-y-3 overflow-y-auto flex-1 min-h-0">
           {tab === 'EXERCISE' ? (
             <div className="space-y-3">
               {targetExercise ? (

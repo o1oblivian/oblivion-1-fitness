@@ -49,7 +49,7 @@ export const MembershipCheckoutModal: React.FC<Props> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 bg-black/90 select-none animate-in fade-in duration-150 backdrop-blur-md">
-      <div className="w-full max-w-sm bg-[#0a0a0c] border border-[#D4AF37]/30 rounded-3xl p-5 sm:p-6 shadow-2xl flex flex-col max-h-[92vh] overflow-y-auto">
+      <div className="w-full max-w-[440px] bg-[#0a0a0c] border border-[#D4AF37]/30 rounded-3xl p-5 sm:p-6 shadow-2xl flex flex-col max-h-[92dvh] h-auto overflow-y-auto">
         <div className="flex items-center justify-between pb-3 border-b border-[#D4AF37]/15">
           <div className="flex items-center gap-2">
             <ShieldCheck className="w-5 h-5 text-[#F5D061]" />
