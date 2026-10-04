@@ -148,8 +148,8 @@ export const ProgramReelsScroller: React.FC<ProgramReelsScrollerProps> = ({
                 <div
                   className={`w-full h-full rounded-full p-[2.5px] transition-all duration-300 ${
                     isActive
-                      ? 'ring-2 ring-[#C4121A] ring-offset-2 ring-offset-[#F4F4F7] dark:ring-offset-[#09090b] shadow-[0_0_12px_rgba(196,18,26,0.45)]'
-                      : 'ring-1.5 ring-neutral-300 dark:ring-neutral-700/80 ring-offset-2 ring-offset-[#F4F4F7] dark:ring-offset-[#09090b] group-hover:ring-neutral-400 dark:group-hover:ring-neutral-500'
+                      ? 'ring-2 ring-[#C4121A] ring-offset-2 ring-offset-[#F4F4F7] dark:ring-offset-[#09090b] shadow-none'
+                      : 'ring-1.5 ring-neutral-300 dark:ring-neutral-700/80 ring-offset-2 ring-offset-[#F4F4F7] dark:ring-offset-[#09090b] group-hover:ring-neutral-400 dark:group-hover:ring-neutral-500 shadow-none'
                   }`}
                 >
                   {/* Photo Lens Container */}
@@ -172,7 +172,7 @@ export const ProgramReelsScroller: React.FC<ProgramReelsScrollerProps> = ({
 
                 {/* Active Crimson Indicator Pip at 12 o'clock */}
                 {isActive && (
-                  <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-[#C4121A] ring-1 ring-white dark:ring-[#09090b] shadow-[0_0_6px_rgba(196,18,26,0.8)]" />
+                  <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-[#C4121A] ring-1 ring-white dark:ring-[#09090b]" />
                 )}
               </div>
 

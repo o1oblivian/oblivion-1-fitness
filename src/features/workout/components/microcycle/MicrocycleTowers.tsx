@@ -61,7 +61,7 @@ export const MicrocycleTowers: React.FC<MicrocycleTowersProps> = ({ activeDays, 
 
               {/* Capsule Pill Track: exactly 7 slabs with tight 1px hairline gaps */}
               <div className={`w-9 sm:w-10 h-[142px] rounded-2xl relative overflow-hidden flex flex-col-reverse justify-start p-[3px] gap-[1px] transition-all duration-200 ${
-                isSelected ? 'border-2 border-[#C4121A] shadow-[0_0_14px_rgba(196,18,26,0.45)] bg-neutral-100 dark:bg-[#18181b]' : 'bg-neutral-100 dark:bg-[#18181b] border border-neutral-200 dark:border-neutral-800'
+                isSelected ? 'border-2 border-[#C4121A] shadow-none bg-neutral-100 dark:bg-[#18181b]' : 'bg-neutral-100 dark:bg-[#18181b] border border-neutral-200 dark:border-neutral-800'
               }`}>
                 {[0, 1, 2, 3, 4, 5, 6].map((slabIdx) => {
                   const isFilled = slabIdx < slabCount;
