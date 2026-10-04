@@ -72,7 +72,6 @@ export const OnboardingCoordinator: React.FC<{ onComplete: () => void }> = ({ on
 
       {/* Ambient Depth & Vignette to protect legibility */}
       <div className="fixed inset-0 pointer-events-none bg-gradient-to-t from-black/90 via-black/30 to-black/10 z-0" />
-      <div className="fixed inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_50%_0%,rgba(196,18,26,0.14),transparent_65%)] z-0" />
 
       <div
         className="w-full max-w-[480px] mx-auto min-h-dvh flex flex-col justify-between p-4 sm:p-6 relative z-10"

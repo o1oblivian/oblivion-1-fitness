@@ -71,7 +71,7 @@ export const LaunchProtocolModal: React.FC<LaunchProtocolModalProps> = ({
             <button
               type="button"
               onClick={handleLaunch}
-              className="w-full py-4 rounded-full bg-[#C4121A] hover:bg-[#A30F16] active:scale-[0.98] text-white font-tactical font-bold text-xs uppercase tracking-[0.2em] transition-all shadow-[0_4px_30px_rgba(196,18,26,0.55)] border border-rose-500/30 flex items-center justify-center gap-2 cursor-pointer"
+              className="w-full py-4 rounded-full bg-[#C4121A] hover:bg-[#A30F16] active:scale-[0.98] text-white font-tactical font-bold text-xs uppercase tracking-[0.2em] transition-all shadow-md border border-white/10 flex items-center justify-center gap-2 cursor-pointer"
             >
               <span>ENTER TRAINING OS PRO</span>
               <ArrowRight className="w-4 h-4" />

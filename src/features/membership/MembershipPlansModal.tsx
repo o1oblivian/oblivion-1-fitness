@@ -209,7 +209,7 @@ export const MembershipPlansModal: React.FC<MembershipPlansModalProps> = ({
               type="button"
               id="btn-subscribe-master"
               onClick={handleMainAction}
-              className="w-full bg-[#C4121A] hover:bg-[#A30F16] active:bg-[#800C11] text-white font-tactical font-black text-xs uppercase py-3.5 px-4 rounded-2xl transition-all active:scale-[0.98] flex items-center justify-center gap-2 shadow-lg shadow-[#C4121A]/20 cursor-pointer"
+              className="w-full bg-[#C4121A] hover:bg-[#A30F16] active:bg-[#800C11] text-white font-tactical font-black text-xs uppercase py-3.5 px-4 rounded-2xl transition-all active:scale-[0.98] flex items-center justify-center gap-2 shadow-md cursor-pointer"
             >
               {isFreePlanSelected ? (
                 <>

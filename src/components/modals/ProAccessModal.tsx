@@ -55,7 +55,7 @@ export const ProAccessModal: React.FC<ProAccessModalProps> = ({ isOpen, onClose 
             })}
           </div>
 
-          <button onClick={handleEnter} className="w-full py-4 rounded-full bg-[#C4121A] text-white hover:bg-[#A30F16] active:scale-[0.98] font-bold text-xs uppercase tracking-[0.15em] transition-all shadow-[0_8px_24px_rgba(196,18,26,0.35)] cursor-pointer">
+          <button onClick={handleEnter} className="w-full py-4 rounded-full bg-[#C4121A] text-white hover:bg-[#A30F16] active:scale-[0.98] font-bold text-xs uppercase tracking-[0.15em] transition-all shadow-md cursor-pointer">
             ENTER TRAINING OS
           </button>
         </div>

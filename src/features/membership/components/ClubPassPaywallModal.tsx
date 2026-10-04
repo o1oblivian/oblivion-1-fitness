@@ -3,6 +3,7 @@ import { X, ShieldCheck, Zap, RotateCcw, Check, Sparkles, Loader2 } from 'lucide
 import { useSubscription } from '../../../context/SubscriptionContext';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { revenueCatService } from '../../../services/revenueCatService';
+import { MembershipCheckoutModal } from './MembershipCheckoutModal';
 
 const TIERS = [
   { id: 'com.o1fc.fitness.plus_monthly', name: 'Monthly Access', price: '$9.99', period: '/ month', cadence: 'Billed monthly until cancelled', badge: 'STANDARD' },
@@ -20,23 +21,17 @@ const PERKS = [
 export const ClubPassPaywallModal: React.FC = () => {
   const { isPaywallOpen, closePaywall, gatedFeature } = useSubscription();
   const [selectedTier, setSelectedTier] = useState(TIERS[1].id);
-  const [isPurchasing, setIsPurchasing] = useState(false);
+  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [isRestoring, setIsRestoring] = useState(false);
   const [statusMsg, setStatusMsg] = useState<string | null>(null);
 
   if (!isPaywallOpen) return null;
   const currentTier = TIERS.find((t) => t.id === selectedTier) || TIERS[1];
 
-  const handleSubscribe = async () => {
-    setIsPurchasing(true); setStatusMsg(null); tactileEngine.triggerSelectionBuzz();
-    const res = await revenueCatService.purchasePackage(selectedTier);
-    setIsPurchasing(false);
-    if (res.success) {
-      tactileEngine.playPRCelebration();
-      closePaywall();
-    } else {
-      setStatusMsg(res.error || 'Subscription could not be completed.');
-    }
+  const handleOpenPaymentWindow = () => {
+    tactileEngine.triggerSelectionBuzz();
+    setStatusMsg(null);
+    setIsCheckoutOpen(true);
   };
 
   const handleRestore = async () => {
@@ -104,11 +99,11 @@ export const ClubPassPaywallModal: React.FC = () => {
 
         <div className="p-4 border-t border-[#D4AF37]/15 bg-[#050505] space-y-2">
           <button
-            onClick={handleSubscribe} disabled={isPurchasing}
-            className="w-full py-3.5 rounded-xl bg-gradient-to-r from-[#D4AF37] via-[#F5D061] to-[#C69B3C] text-black font-tactical font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer shadow-lg active:scale-98 transition disabled:opacity-50"
+            onClick={handleOpenPaymentWindow}
+            className="w-full py-3.5 rounded-xl bg-gradient-to-r from-[#D4AF37] via-[#F5D061] to-[#C69B3C] text-black font-tactical font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer shadow-md active:scale-98 transition"
           >
-            {isPurchasing ? <Loader2 className="w-4 h-4 animate-spin text-black" /> : <ShieldCheck className="w-4 h-4 fill-black" />}
-            <span>{isPurchasing ? 'CONNECTING TO STORE...' : `SUBSCRIBE • ${currentTier.price} ${currentTier.period}`}</span>
+            <ShieldCheck className="w-4 h-4 fill-black" />
+            <span>OPEN PAYMENT OPTIONS • {currentTier.price} {currentTier.period}</span>
           </button>
 
           <div className="flex items-center justify-center gap-3 text-[10px] font-sans text-neutral-400">
@@ -126,10 +121,22 @@ export const ClubPassPaywallModal: React.FC = () => {
           </div>
 
           <p className="text-[8.5px] font-mono text-neutral-500 text-center leading-tight">
-            Subscription auto-renews unless cancelled 24h before period end. Billed via Apple App Store or Google Play.
+            Subscription auto-renews unless cancelled 24h before period end. Billed via Apple App Store, Google Play, or Secure Card.
           </p>
         </div>
       </div>
+
+      <MembershipCheckoutModal
+        isOpen={isCheckoutOpen}
+        onClose={() => setIsCheckoutOpen(false)}
+        planId={currentTier.id}
+        planName={currentTier.name}
+        price={`${currentTier.price} ${currentTier.period}`}
+        onSuccess={async () => {
+          tactileEngine.playPRCelebration();
+          closePaywall();
+        }}
+      />
     </div>
   );
 };

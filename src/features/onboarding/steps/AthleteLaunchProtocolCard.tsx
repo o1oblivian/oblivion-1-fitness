@@ -138,7 +138,7 @@ export const AthleteLaunchProtocolCard: React.FC<AthleteLaunchProtocolCardProps>
       {/* 3. Three Core Pillars (Nude Frameless Row Integration) */}
       <div className="space-y-2 pt-1">
         <div className="py-2.5 px-3 rounded-2xl bg-white/[0.03] border-b border-white/10 flex items-start gap-3 backdrop-blur-xs">
-          <div className="w-2 h-2 rounded-full bg-[#C4121A] shrink-0 mt-1 shadow-[0_0_8px_rgba(196,18,26,0.8)]" />
+          <div className="w-2 h-2 rounded-full bg-[#C4121A] shrink-0 mt-1" />
           <div>
             <h4 className="text-[11px] font-tactical font-bold text-white tracking-[0.12em] uppercase">
               Training OS &bull; Rotary Dial
@@ -325,7 +325,7 @@ export const AthleteLaunchProtocolCard: React.FC<AthleteLaunchProtocolCardProps>
                 }}
                 className={`py-2 px-3.5 rounded-full text-xs font-sans font-bold uppercase tracking-wider transition-all cursor-pointer flex items-center gap-1.5 ${
                   isSel
-                    ? 'bg-[#C4121A] text-white shadow-[0_2px_16px_rgba(196,18,26,0.6)] border border-rose-500/40'
+                    ? 'bg-[#C4121A] text-white shadow-xs border border-white/20'
                     : 'bg-white/[0.04] text-neutral-300 border border-white/10 hover:border-white/20'
                 }`}
               >
@@ -345,7 +345,7 @@ export const AthleteLaunchProtocolCard: React.FC<AthleteLaunchProtocolCardProps>
             tactileEngine.triggerDialHaptic();
             onLaunch();
           }}
-          className="w-full py-3.5 rounded-full bg-[#C4121A] hover:bg-[#A30F16] active:scale-[0.98] text-white font-tactical font-bold text-xs uppercase tracking-[0.2em] transition-all shadow-[0_4px_30px_rgba(196,18,26,0.55)] border border-rose-500/30 flex items-center justify-center gap-2 cursor-pointer"
+          className="w-full py-3.5 rounded-full bg-[#C4121A] hover:bg-[#A30F16] active:scale-[0.98] text-white font-tactical font-bold text-xs uppercase tracking-[0.2em] transition-all shadow-md border border-white/10 flex items-center justify-center gap-2 cursor-pointer"
         >
           <span>ENTER TRAINING OS PRO</span>
           <ArrowRight className="w-4 h-4" />

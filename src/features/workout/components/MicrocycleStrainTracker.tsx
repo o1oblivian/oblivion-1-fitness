@@ -40,13 +40,13 @@ export const MicrocycleStrainTracker: React.FC = () => {
       {/* Header with Title and ACWR Pill Badge */}
       <div className="flex items-center justify-between gap-2 flex-wrap">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-red-950/15 dark:bg-red-950/40 border border-[#C4121A]/30 flex items-center justify-center text-[#C4121A]">
+          <div className="w-8 h-8 rounded-xl bg-neutral-100 dark:bg-[#18181b] border border-neutral-200 dark:border-neutral-800 flex items-center justify-center text-[#C4121A]">
             <Activity className="w-4 h-4" />
           </div>
           <div>
             <div className="flex items-center gap-2">
               <h3 className="font-tactical font-black text-xs uppercase tracking-wider text-neutral-900 dark:text-white">MICROCYCLE STRAIN TRACKER</h3>
-              <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-[#C4121A]/10 text-[#C4121A] border border-[#C4121A]/25">ACWR 1.12</span>
+              <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-neutral-100 dark:bg-[#18181b] text-[#C4121A] border border-neutral-200 dark:border-neutral-800">ACWR 1.12</span>
             </div>
             <span className="text-[10px] text-neutral-500 dark:text-neutral-400 font-mono block">Weekly Periodization &amp; Olympic Plate Tonnage</span>
           </div>

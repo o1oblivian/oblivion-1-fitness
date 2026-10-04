@@ -11,13 +11,13 @@ interface MicrocycleTowersProps {
 }
 
 const DAY_SLAB_PALETTES: Record<string, string[]> = {
-  Mon: ['#dc2626', '#ea580c', '#f97316', '#fbbf24', '#fef08a', '#f59e0b', '#b91c1c'],
-  Tue: ['#b45309', '#d97706', '#f59e0b', '#fbbf24', '#fef08a', '#ea580c', '#78350f'],
-  Wed: ['#881337', '#ef4444', '#fca5a5', '#fecdd3', '#ef4444', '#991b1b', '#4c0519'],
-  Thu: ['#0284c7', '#0ea5e9', '#38bdf8', '#7dd3fc', '#bae6fd', '#0369a1', '#075985'],
-  Fri: ['#c2410c', '#ea580c', '#f97316', '#fdba74', '#fb923c', '#fed7aa', '#9a3412'],
-  Sat: ['#047857', '#059669', '#10b981', '#4ade80', '#34d399', '#86efac', '#064e3b'],
-  Sun: ['#0284c7', '#0ea5e9', '#38bdf8', '#7dd3fc', '#bae6fd', '#0369a1', '#075985'],
+  Mon: ['#dc2626', '#ea580c', '#f97316', '#fbbf24', '#f59e0b', '#d97706', '#b91c1c'],
+  Tue: ['#b45309', '#d97706', '#f59e0b', '#fbbf24', '#f59e0b', '#ea580c', '#78350f'],
+  Wed: ['#881337', '#991b1b', '#b91c1c', '#C4121A', '#b91c1c', '#991b1b', '#7f1d1d'],
+  Thu: ['#0284c7', '#0ea5e9', '#38bdf8', '#0284c7', '#0369a1', '#0369a1', '#075985'],
+  Fri: ['#c2410c', '#ea580c', '#f97316', '#ea580c', '#c2410c', '#9a3412', '#7c2d12'],
+  Sat: ['#047857', '#059669', '#10b981', '#059669', '#047857', '#065f46', '#064e3b'],
+  Sun: ['#0284c7', '#0ea5e9', '#38bdf8', '#0284c7', '#0369a1', '#0369a1', '#075985'],
 };
 
 const calculateSlabCount = (volume: number): number => {
@@ -69,7 +69,7 @@ export const MicrocycleTowers: React.FC<MicrocycleTowersProps> = ({ activeDays, 
                     const slabColor = palette[slabIdx] || '#ea580c';
                     const rounded = slabIdx === 0 && slabIdx === slabCount - 1 ? 'rounded-xl' : slabIdx === 0 ? 'rounded-b-xl' : slabIdx === slabCount - 1 ? 'rounded-t-xl' : '';
                     return (
-                      <div key={slabIdx} style={{ backgroundColor: slabColor }} className={`w-full h-[18px] shrink-0 border-b border-black/25 last:border-b-0 transition-all shadow-2xs ${rounded}`} />
+                      <div key={slabIdx} style={{ backgroundColor: slabColor }} className={`w-full h-[18px] shrink-0 border-b border-black/25 last:border-b-0 transition-all ${rounded}`} />
                     );
                   }
                   return (

@@ -311,7 +311,7 @@ export const ProgramCheckoutModal: React.FC<ProgramCheckoutModalProps> = ({
             type="button"
             disabled={isProcessing}
             onClick={handleConfirmEnrollment}
-            className="flex-1 py-3 px-4 rounded-xl bg-[#C4121A] hover:bg-[#A30F16] active:scale-[0.98] text-white text-xs font-tactical font-black tracking-wider uppercase transition-all shadow-[0_4px_20px_rgba(196,18,26,0.4)] cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50"
+            className="flex-1 py-3 px-4 rounded-xl bg-[#C4121A] hover:bg-[#A30F16] active:scale-[0.98] text-white text-xs font-tactical font-black tracking-wider uppercase transition-all shadow-md cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50"
           >
             {isProcessing ? (
               <span>ENROLLING IN PROTOCOL...</span>

@@ -34,7 +34,7 @@ export const MicrocycleAnatomy: React.FC<MicrocycleAnatomyProps> = ({
               }}
               className={`p-2.5 rounded-2xl border transition-all cursor-pointer text-left w-full ${
                 isSelected
-                  ? 'border-[#C4121A] bg-red-950/10 dark:bg-red-950/20 shadow-xs'
+                  ? 'border-[#C4121A] bg-neutral-100 dark:bg-[#1f1f23]'
                   : 'border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-[#18181b] hover:border-neutral-300 dark:hover:border-neutral-700'
               }`}
             >

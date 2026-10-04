@@ -404,7 +404,7 @@ export const ProgramReelsModal: React.FC<ProgramReelsModalProps> = ({
           type="button"
           id="btn-adopt-blueprint"
           onClick={handleAdoptBlueprint}
-          className="w-full py-4 rounded-2xl bg-[#C4121A] hover:bg-red-600 active:scale-98 text-white font-mono font-black text-sm uppercase tracking-widest shadow-[0_0_25px_rgba(196,18,26,0.6)] transition-all flex items-center justify-center gap-2"
+          className="w-full py-4 rounded-2xl bg-[#C4121A] hover:bg-red-600 active:scale-98 text-white font-mono font-black text-sm uppercase tracking-widest shadow-md transition-all flex items-center justify-center gap-2"
         >
           <span>[ ADOPT THIS BLUEPRINT ]</span>
           <ChevronRight className="w-4 h-4" />

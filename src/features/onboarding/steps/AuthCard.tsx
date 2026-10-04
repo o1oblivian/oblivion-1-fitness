@@ -126,7 +126,7 @@ export const AuthCard: React.FC<AuthCardProps> = ({ data, onUpdate, onNext, onOp
         >
           SIGN IN
           {authMode === 'signin' && (
-            <span className="absolute bottom-0 inset-x-0 h-[2px] bg-[#C4121A] rounded-full shadow-[0_0_12px_rgba(196,18,26,0.9)]" />
+            <span className="absolute bottom-0 inset-x-0 h-[2px] bg-[#C4121A] rounded-full" />
           )}
         </button>
 
@@ -145,7 +145,7 @@ export const AuthCard: React.FC<AuthCardProps> = ({ data, onUpdate, onNext, onOp
         >
           SIGN UP
           {authMode === 'signup' && (
-            <span className="absolute bottom-0 inset-x-0 h-[2px] bg-[#C4121A] rounded-full shadow-[0_0_12px_rgba(196,18,26,0.9)]" />
+            <span className="absolute bottom-0 inset-x-0 h-[2px] bg-[#C4121A] rounded-full" />
           )}
         </button>
       </div>
@@ -229,7 +229,7 @@ export const AuthCard: React.FC<AuthCardProps> = ({ data, onUpdate, onNext, onOp
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full py-3.5 rounded-full bg-[#C4121A] hover:bg-[#A30F16] active:scale-[0.98] text-white font-tactical font-bold text-xs uppercase tracking-[0.2em] transition-all shadow-[0_4px_30px_rgba(196,18,26,0.55)] border border-rose-500/30 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 mt-2"
+          className="w-full py-3.5 rounded-full bg-[#C4121A] hover:bg-[#A30F16] active:scale-[0.98] text-white font-tactical font-bold text-xs uppercase tracking-[0.2em] transition-all shadow-md border border-white/10 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 mt-2"
         >
           {isSubmitting ? (
             <Loader2 className="w-4 h-4 animate-spin text-white" />

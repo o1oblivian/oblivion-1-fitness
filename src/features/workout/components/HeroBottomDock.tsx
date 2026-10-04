@@ -46,7 +46,7 @@ export const HeroBottomDock: React.FC<HeroBottomDockProps> = ({
       </button>
 
       {/* 2. Middle Pill: DAY | SPLIT */}
-      <div className="h-8 px-3.5 rounded-full bg-black/35 backdrop-blur-md border border-[#C4121A]/60 font-mono text-xs flex items-center justify-center gap-1.5 shrink-0 shadow-xs">
+      <div className="h-8 px-3.5 rounded-full bg-black/60 border border-white/20 font-mono text-xs flex items-center justify-center gap-1.5 shrink-0 shadow-none">
         <button
           type="button"
           id="hero-cycle-day-btn"
