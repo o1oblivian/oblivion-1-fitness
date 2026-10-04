@@ -29,8 +29,10 @@ export interface O1FCoachCommandCenterProps {
 export const O1FCoachCommandCenter: React.FC<O1FCoachCommandCenterProps> = ({
   activePerspective = 'coach',
   onChangePerspective = () => {},
+  isCoach = false,
 }) => {
   const userRole = useAuthStore((s) => s.profile?.role);
+  const isVerifiedCoach = Boolean(isCoach || userRole === 'coach');
   const { isPro, openPaywall } = useSubscription();
   const { selectedSubTab, setSelectedSubTab } = useCoachStore();
   useCoachRealtime('coach_alpha');
@@ -57,16 +59,16 @@ export const O1FCoachCommandCenter: React.FC<O1FCoachCommandCenterProps> = ({
   }, []);
 
   useEffect(() => {
-    if (userRole !== 'coach') return;
+    if (!isVerifiedCoach) return;
     loadData();
     const ch = supabase.channel('coach-live-db-sync').on('postgres_changes', { event: '*', schema: 'public', table: 'coach_clients' }, loadData).subscribe();
     return () => {
       supabase.removeChannel(ch);
     };
-  }, [loadData, userRole]);
+  }, [loadData, isVerifiedCoach]);
 
   // Strict route security: non-coach users or unauthenticated tokens can never render internal coach telemetry
-  if (userRole !== 'coach') {
+  if (!isVerifiedCoach) {
     return null;
   }
 
