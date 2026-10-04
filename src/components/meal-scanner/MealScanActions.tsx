@@ -85,10 +85,29 @@ export const MealScanActions: React.FC<MealScanActionsProps> = ({
         </div>
       )}
 
-      <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" className="hidden"
-        onChange={(e) => { const f = e.target.files?.[0]; if (f) onFileUpload(f); }} />
-      <input ref={fileInputRef} type="file" accept="image/*" className="hidden"
-        onChange={(e) => { const f = e.target.files?.[0]; if (f) onFileUpload(f); }} />
+      <input
+        ref={cameraInputRef}
+        type="file"
+        accept="image/*"
+        capture="environment"
+        className="hidden"
+        onChange={(e) => {
+          const f = e.target.files?.[0];
+          if (f) onFileUpload(f);
+          e.target.value = '';
+        }}
+      />
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={(e) => {
+          const f = e.target.files?.[0];
+          if (f) onFileUpload(f);
+          e.target.value = '';
+        }}
+      />
 
       <div className="grid grid-cols-2 gap-3">
         <button

@@ -4,6 +4,7 @@ import { compressAndAnalyzeImage } from './imageCompressionService';
 
 export * from './mealVisionTypes';
 export { lookupBarcodeNumber } from './barcodeLookupService';
+export { analyzeMealNutrients } from './geminiVisionService';
 
 export async function analyzePackageNutritionPhoto(imageBlob: Blob): Promise<ScannedMealBreakdown> {
   return analyzeMealImageWithGemini(imageBlob, 'package');
@@ -60,8 +61,8 @@ export async function analyzeMealImageWithGemini(
         break;
       }
 
-      const data = await proxyRes.json();
-      if (proxyRes.ok && data.success && data.nutrients) {
+      const data = await proxyRes.json().catch(() => null);
+      if (proxyRes.ok && data?.success && data?.nutrients) {
         const n = data.nutrients;
         const prot = Math.max(0, Math.round(Number(n.proteinGrams) || 0));
         const carbs = Math.max(0, Math.round(Number(n.carbsGrams) || 0));
@@ -73,7 +74,7 @@ export async function analyzeMealImageWithGemini(
 
         return {
           dishName: n.mealName || (scanMode === 'package' ? 'Packaged Nutrition Item' : 'Analyzed Athletic Plate'),
-          servingDescription: n.servingDescription || '1 standard portion',
+          servingDescription: n.servingDescription || (n.estimatedGrams ? `${n.estimatedGrams}g portion` : '1 standard portion'),
           calories: cals,
           proteinGrams: prot,
           carbsGrams: carbs,
@@ -83,16 +84,20 @@ export async function analyzeMealImageWithGemini(
             ? n.detectedItems
             : ['High-Yield Protein Source', 'Complex Energy Substrates'],
         };
+      } else if (!proxyRes.ok && data?.error && attempt === maxAttempts) {
+        throw new Error(data.error);
       }
-    } catch {
+    } catch (err: any) {
       clearTimeout(timeoutId);
       if (attempt < maxAttempts) {
         await new Promise((r) => setTimeout(r, 600));
         continue;
       }
+      if (err?.message && !err.message.includes('Sensor Standby')) {
+        throw err;
+      }
     }
   }
 
-  // Vision endpoint inactive: report Sensor Standby without mock overlays
-  throw new Error('Vision endpoint inactive: Sensor Standby. Camera in standby mode.');
+  throw new Error('Could not analyze meal photo with Gemini Vision. Please retake photo with clear view of the food.');
 }

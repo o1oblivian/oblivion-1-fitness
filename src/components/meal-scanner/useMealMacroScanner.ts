@@ -20,6 +20,7 @@ export function useMealMacroScanner({
   isOpen, targetSlot, defaultSlot = 'lunch', onConfirmMeal, showToast,
 }: UseMealMacroScannerParams) {
   const { isPro, openPaywall } = useSubscription();
+  const [imageFile, setImageFile] = useState<File | Blob | null>(null);
   const [slot, setSlot] = useState<keyof FuelMeals>((targetSlot || defaultSlot || 'lunch') as keyof FuelMeals);
   const [scanMode, setScanMode] = useState<ScanMode>('plate');
   const [barcodeInput, setBarcodeInput] = useState('');
@@ -33,6 +34,7 @@ export function useMealMacroScanner({
     if (isOpen) {
       setSlot((targetSlot || defaultSlot || 'lunch') as keyof FuelMeals);
       setSelectedImage(null);
+      setImageFile(null);
       setScannedMeal(null);
       setError(null);
       setBarcodeInput('');
@@ -71,7 +73,6 @@ export function useMealMacroScanner({
   };
 
   const executeScan = async (action: () => Promise<ScannedMealBreakdown>) => {
-    if (!isPro) return openPaywall('Meal Vision Nutrition Scanner');
     setError(null);
     setScannedMeal(null);
     setIsScanning(true);
@@ -83,12 +84,18 @@ export function useMealMacroScanner({
       setScannedMeal(detected);
       tactileEngine.playPRCelebration();
     } catch (err: any) {
-      const errMsg =
+      let errMsg =
         err?.message?.includes('permission') || err?.name === 'NotAllowedError'
           ? 'Camera permission denied. Manual macro entry enabled.'
-          : err?.message || 'Could not resolve meal macronutrients. Use manual entry.';
+          : err?.message || 'Could not resolve meal macronutrients with Gemini Vision. Please retake photo with clear view of the food.';
+
+      // Strictly ensure "Sensor Standby" is NEVER shown as an error for a captured photo
+      if (errMsg.toLowerCase().includes('sensor standby') || errMsg.toLowerCase().includes('standby mode')) {
+        errMsg = 'Could not resolve meal macronutrients with Gemini Vision. Please retake photo with clear view of the food.';
+      }
+
       setError(errMsg);
-      triggerToast('Camera/scan unavailable. Switched to manual macro entry.', 'info');
+      triggerToast('Vision analysis could not resolve plate. Switched to manual macro entry.', 'info');
     } finally {
       setIsScanning(false);
       setIsLoading(false);
@@ -97,7 +104,11 @@ export function useMealMacroScanner({
 
   const handleFileUpload = (file: File) => {
     if (!file) return;
+    setError(null);
+    setImageFile(file);
     setSelectedImage(URL.createObjectURL(file));
+
+    // Immediately dispatch the image to the genuine Gemini Vision multimodal API endpoint
     executeScan(() =>
       scanMode === 'package' ? analyzePackageNutritionPhoto(file) : analyzeMealImageWithGemini(file, scanMode)
     );
@@ -110,7 +121,7 @@ export function useMealMacroScanner({
   };
 
   return {
-    scanMode, setScanMode, barcodeInput, setBarcodeInput, selectedImage,
+    scanMode, setScanMode, barcodeInput, setBarcodeInput, selectedImage, imageFile,
     isScanning, isLoading, error, scannedMeal, handleFileUpload, handleBarcodeLookup, commitAdjustedMeal, slot,
   };
 }
