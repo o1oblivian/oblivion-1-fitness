@@ -29,16 +29,16 @@ export const O1FClubProgramStore: React.FC<O1FClubProgramStoreProps> = ({
       </div>
 
       {safePrograms.length === 0 ? (
-        <div className="border border-white/10 bg-neutral-950/60 rounded-2xl p-6 text-center space-y-2.5 shadow-sm">
-          <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center mx-auto text-neutral-400">
+        <div className="border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-[#121214] rounded-2xl p-6 text-center space-y-2.5 shadow-xs">
+          <div className="w-10 h-10 rounded-xl bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 flex items-center justify-center mx-auto text-neutral-400">
             <Sparkles className="w-5 h-5 text-amber-500/80 stroke-[1.8]" />
           </div>
           <div className="space-y-1">
-            <h4 className="font-tactical font-black text-xs uppercase tracking-wider text-neutral-200">
-              NO PROTOCOLS CURRENTLY PUBLISHED
+            <h4 className="font-tactical font-black text-xs uppercase tracking-wider text-neutral-900 dark:text-neutral-200">
+              No coaching programs currently published
             </h4>
-            <p className="text-[11px] text-neutral-400 font-sans max-w-xs mx-auto leading-relaxed">
-              Verified coach blueprints will appear here once released to the club.
+            <p className="text-[11px] text-neutral-500 dark:text-neutral-400 font-sans max-w-xs mx-auto leading-relaxed">
+              Verified coach blueprints and training protocols will appear here once released to the club.
             </p>
           </div>
         </div>

@@ -43,7 +43,7 @@ export const O1FCoachAthletePortal: React.FC<O1FCoachAthletePortalProps> = ({
       try {
         const [{ data: cData, error: cError }, { data: pData, error: pError }] = await Promise.all([
           supabase.from('coach_profiles').select('*'),
-          supabase.from('coach_programs').select('*').eq('status', 'published'),
+          supabase.from('coach_programs').select('*'),
         ]);
 
         if (isCancelled) return;
@@ -82,7 +82,28 @@ export const O1FCoachAthletePortal: React.FC<O1FCoachAthletePortalProps> = ({
           }
           setProgramsList([]);
         } else if (Array.isArray(pData) && pData.length > 0) {
-          setProgramsList(pData as CoachMarketplaceProgram[]);
+          const mappedPrograms: CoachMarketplaceProgram[] = pData.map((p: any, idx: number) => ({
+            id: p.id || `program-${idx}`,
+            coachId: p.coach_id || p.coachId || '',
+            coachName: p.coach_name || p.coachName || 'Verified Coach',
+            coachAvatar: p.coach_avatar || p.coachAvatar || '',
+            coachTitle: p.coach_title || p.coachTitle || 'Performance Coach',
+            title: p.title || 'Athletic Protocol',
+            tagline: p.tagline || p.description || '',
+            category: p.category || 'Strength & Hypertrophy',
+            difficulty: p.difficulty || 'Intermediate',
+            durationWeeks: Number(p.duration_weeks || p.durationWeeks || 8),
+            daysPerWeek: Number(p.days_per_week || p.daysPerWeek || 4),
+            priceUsd: Number(p.price_usd || p.priceUsd || 0),
+            rating: Number(p.rating || 5.0),
+            enrolledCount: Number(p.enrolled_count || p.enrolledCount || 0),
+            coverImage: p.cover_image || p.coverImage || 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=800&auto=format&fit=crop&q=80',
+            videoPreviewUrl: p.video_preview_url || p.videoPreviewUrl,
+            description: p.description || '',
+            highlights: Array.isArray(p.highlights) ? p.highlights : [],
+            sampleWeek: Array.isArray(p.sample_week) ? p.sample_week : Array.isArray(p.sampleWeek) ? p.sampleWeek : [],
+          }));
+          setProgramsList(mappedPrograms);
         } else {
           // Live Supabase query returned 0 rows - genuine empty state
           setProgramsList([]);
