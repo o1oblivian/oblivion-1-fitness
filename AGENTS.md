@@ -45,3 +45,11 @@ All future agents and contributors MUST adhere strictly to these rules:
 
 6. **Permanent Rule (Optical Vision Engine)**:
    - Optical Vision Engine must return `null` for non-visible metrics on watches and gym consoles. Never apply zero or estimated fallbacks. Unread metrics must render as '--'.
+
+7. **Locked / Frozen Files Directive (Strict Do Not Touch)**:
+   - The following production modules are permanently locked and frozen. Never modify, rewrite, or touch these files without explicit instruction from the user:
+     * `src/features/fuel/MealMacroScannerModal.tsx` (and `src/components/MealMacroScannerModal.tsx`)
+     * `src/services/geminiVisionService.ts`
+     * `src/services/mealVisionService.ts`
+     * `src/features/coach/01FCoachAthletePortal.tsx`
+     * `src/services/supabaseClient.ts`
