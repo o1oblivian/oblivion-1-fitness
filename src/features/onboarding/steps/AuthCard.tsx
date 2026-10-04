@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Eye, EyeOff, KeyRound, Loader2, AlertCircle } from 'lucide-react';
+import { Eye, EyeOff, Loader2, AlertCircle } from 'lucide-react';
 import { supabase } from '../../../services/supabaseClient';
 import { useAuthStore } from '../../../stores/useAuthStore';
 import { tactileEngine } from '../../../services/tactileEngine';
@@ -21,38 +21,29 @@ export const AuthCard: React.FC<AuthCardProps> = ({ data, onUpdate, onNext, onOp
   const [authError, setAuthError] = useState<string | null>(null);
   const [authMode, setAuthMode] = useState<'signin' | 'signup'>(data.isSignUp ? 'signup' : 'signin');
 
-  const handleReviewerBypass = () => {
-    tactileEngine.triggerDialHaptic();
-    setAuthError(null);
-    onUpdate({ email: 'athlete@oblivion1.club', isReviewerBypass: true, weightKg: 82.5, dailyStepTarget: 10000 });
-    localStorage.setItem('o1fc_auth_token', 'reviewer-jwt-bypass-token');
-    localStorage.setItem('o1fc_user_id', 'reviewer-c1');
-    localStorage.setItem('o1fc_user_email', 'athlete@oblivion1.club');
-    onNext();
-  };
-
   const handleSocialAuth = async (provider: 'apple' | 'google') => {
     setAuthError(null);
     setIsSubmitting(true);
     tactileEngine.triggerDialHaptic();
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
+      const { data: authData, error } = await supabase.auth.signInWithOAuth({
         provider,
-        options: { redirectTo: window.location.origin },
+        options: {
+          redirectTo: typeof window !== 'undefined' ? `${window.location.origin}` : undefined,
+        },
       });
       if (error) {
-        console.warn(`${provider} OAuth returned notice:`, error.message);
+        setAuthError(error.message);
+        setIsSubmitting(false);
+        return;
       }
-    } catch (err) {
-      console.warn(`${provider} OAuth exception handled:`, err);
+      if (authData?.url) {
+        window.location.assign(authData.url);
+      }
+    } catch (err: any) {
+      setAuthError(err?.message || `Failed to initiate ${provider} authentication.`);
+      setIsSubmitting(false);
     }
-    const socialEmail = provider === 'apple' ? 'apple.reviewer@apple.com' : 'google.reviewer@google.com';
-    onUpdate({ email: socialEmail });
-    localStorage.setItem('o1fc_auth_token', `${provider}-oauth-${Date.now()}`);
-    localStorage.setItem('o1fc_user_email', socialEmail);
-    localStorage.setItem('o1fc_user_id', `${provider}-reviewer-01`);
-    setIsSubmitting(false);
-    onNext();
   };
 
   const handleEmailAuth = async (e: React.FormEvent) => {
@@ -66,11 +57,6 @@ export const AuthCard: React.FC<AuthCardProps> = ({ data, onUpdate, onNext, onOp
     tactileEngine.triggerDialHaptic();
 
     const cleanEmail = email.trim().toLowerCase();
-    if (cleanEmail === 'reviewer@o1fc.club' && password === 'ReviewerPass2026!') {
-      handleReviewerBypass();
-      setIsSubmitting(false);
-      return;
-    }
 
     const res =
       authMode === 'signup'
@@ -290,17 +276,7 @@ export const AuthCard: React.FC<AuthCardProps> = ({ data, onUpdate, onNext, onOp
         </button>
       </div>
 
-      {/* 8. NUDE REVIEWER VIP PASS (ZERO BOX) */}
-      <button
-        type="button"
-        onClick={handleReviewerBypass}
-        className="w-full text-center text-[10px] font-tactical font-semibold text-neutral-400 hover:text-white uppercase tracking-[0.16em] flex items-center justify-center gap-2 py-1 transition cursor-pointer"
-      >
-        <KeyRound className="w-3.5 h-3.5 text-[#C4121A]" />
-        <span>[ REVIEWER VIP BYPASS ]</span>
-      </button>
-
-      {/* 9. LEGAL DISCLAIMER */}
+      {/* 8. LEGAL DISCLAIMER */}
       <p className="text-center text-[9px] font-mono text-neutral-500 tracking-wider">
         By continuing, you accept our{' '}
         <button

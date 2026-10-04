@@ -13,6 +13,10 @@ export interface AthleteProfile {
   id: string; handle?: string; full_name?: string; bio?: string; avatar_url?: string; settings?: Record<string, any>; updated_at?: string;
 }
 
+export const PROD_SUPABASE_URL = 'https://qkfvepjeyreicqomatyt.supabase.co';
+export const PROD_SUPABASE_ANON_KEY =
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFrZnZlcGpleXJlaWNxb21hdHl0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc3MTgxMTUsImV4cCI6MjEwMzI5NDExNX0.mHwZdAANv_Ii4t-oKyz--EeQR64A0lVhUgqtuOfNXpA';
+
 function getSafeEnv(key: string): string {
   try {
     if (typeof import.meta !== 'undefined' && (import.meta as any)?.env?.[key]) return (import.meta as any).env[key];
@@ -23,14 +27,11 @@ function getSafeEnv(key: string): string {
 
 const envUrl = getSafeEnv('VITE_SUPABASE_URL');
 const envKey = getSafeEnv('VITE_SUPABASE_ANON_KEY');
-const hasValidConfig = Boolean(envUrl && envUrl.startsWith('http') && envKey);
 
-if (!hasValidConfig && typeof window !== 'undefined') {
-  console.warn('[Supabase Config] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY. Safe fallback active.');
-}
-
-const SUPABASE_URL = hasValidConfig ? envUrl : 'https://placeholder.supabase.co';
-const SUPABASE_ANON_KEY = hasValidConfig ? envKey : 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.placeholder';
+// Hardwire production Supabase credentials as default fallbacks
+export const SUPABASE_URL = (envUrl && envUrl.startsWith('http') && !envUrl.includes('placeholder')) ? envUrl : PROD_SUPABASE_URL;
+export const SUPABASE_ANON_KEY = (envKey && !envKey.includes('placeholder')) ? envKey : PROD_SUPABASE_ANON_KEY;
+export const SUPABASE_AUTH_URL = `${SUPABASE_URL}/auth/v1`;
 
 type ExtendedSupabaseClient = SupabaseClient & {
   insert: (table: string, payload: any) => Promise<{ data: any; error: any }>;
@@ -40,18 +41,15 @@ type ExtendedSupabaseClient = SupabaseClient & {
 let rawClient: SupabaseClient;
 try {
   rawClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-    auth: { persistSession: typeof window !== 'undefined', autoRefreshToken: true },
+    auth: {
+      persistSession: typeof window !== 'undefined',
+      autoRefreshToken: true,
+      detectSessionInUrl: true,
+    },
   });
 } catch (e) {
-  console.warn('[Supabase Safe Guard] Fallback client active:', e);
-  rawClient = {
-    from: () => ({
-      select: () => ({ eq: () => ({ maybeSingle: async () => ({ data: null, error: null }) }), limit: async () => ({ data: [], error: null }) }),
-      insert: async () => ({ data: null, error: null }),
-      upsert: async () => ({ data: null, error: null }),
-      update: () => ({ eq: async () => ({ data: null, error: null }) }),
-    }),
-  } as unknown as SupabaseClient;
+  console.warn('[Supabase Safe Guard] Initialization notice:', e);
+  rawClient = createClient(PROD_SUPABASE_URL, PROD_SUPABASE_ANON_KEY);
 }
 
 export const supabase: ExtendedSupabaseClient = Object.assign(rawClient, {

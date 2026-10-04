@@ -17,7 +17,6 @@ export interface DevicePermissions {
 export interface OnboardingData {
   email: string;
   isSignUp: boolean;
-  isReviewerBypass: boolean;
   rememberMe: boolean;
   heightCm: number;
   weightKg: number;
@@ -35,7 +34,6 @@ export interface OnboardingData {
 export const INITIAL_ONBOARDING_DATA: OnboardingData = {
   email: '',
   isSignUp: false,
-  isReviewerBypass: false,
   rememberMe: true,
   heightCm: 180,
   weightKg: 82.5,

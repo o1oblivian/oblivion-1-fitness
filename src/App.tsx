@@ -16,7 +16,7 @@ import { safeStorage } from './utils/safeStorage';
 export default function App() {
   const [showOnboarding, setShowOnboarding] = useState(() => {
     const isCompleted = safeStorage.getItem('o1fc_onboarding_completed') === 'true' || safeStorage.getItem('olfc_onboarding_completed') === 'true';
-    const hasAuth = Boolean(safeStorage.getItem('o1fc_auth_token') || safeStorage.getItem('o1fc_user_id'));
+    const hasAuth = Boolean(safeStorage.getItem('o1fc_user_id'));
     return !isCompleted || !hasAuth;
   });
   const [showProAccess, setShowProAccess] = useState(false);

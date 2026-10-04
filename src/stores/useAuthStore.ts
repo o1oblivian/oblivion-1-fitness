@@ -59,11 +59,10 @@ export const useAuthStore = create<AuthState>((set) => ({
       const { data } = await supabase.auth.getSession();
       if (data?.session) {
         set({ user: data.session.user, session: data.session, isAuthenticated: true, isLoading: false });
+        safeStorage.setItem('o1fc_user_id', data.session.user.id);
+        if (data.session.user.email) safeStorage.setItem('o1fc_user_email', data.session.user.email);
       } else {
-        const storedBypass = safeStorage.getItem('o1fc_auth_token');
-        const storedEmail = safeStorage.getItem('o1fc_user_email');
-        const fakeUser = storedBypass && storedEmail ? ({ id: safeStorage.getItem('o1fc_user_id') || 'reviewer-c1', email: storedEmail } as User) : null;
-        set({ user: fakeUser, isAuthenticated: Boolean(fakeUser), isLoading: false });
+        set({ user: null, session: null, isAuthenticated: false, isLoading: false });
       }
 
       supabase.auth.onAuthStateChange((_event, session) => {
@@ -71,7 +70,7 @@ export const useAuthStore = create<AuthState>((set) => ({
           set({ user: session.user, session, isAuthenticated: true, isLoading: false });
           safeStorage.setItem('o1fc_user_id', session.user.id);
           if (session.user.email) safeStorage.setItem('o1fc_user_email', session.user.email);
-        } else if (!safeStorage.getItem('o1fc_auth_token')) {
+        } else {
           set({ user: null, session: null, isAuthenticated: false, isLoading: false });
         }
       });
@@ -83,16 +82,6 @@ export const useAuthStore = create<AuthState>((set) => ({
   signIn: async (email, password) => {
     set({ isLoading: true, error: null });
     const cleanEmail = email.trim().toLowerCase();
-
-    if (cleanEmail === 'reviewer@o1fc.club' && password === 'ReviewerPass2026!') {
-      const reviewerUser = { id: 'reviewer-c1', email: 'reviewer@o1fc.club' } as unknown as User;
-      safeStorage.setItem('o1fc_auth_token', 'reviewer-jwt-bypass-token');
-      safeStorage.setItem('o1fc_user_id', 'reviewer-c1');
-      safeStorage.setItem('o1fc_user_email', 'reviewer@o1fc.club');
-      safeStorage.setItem('o1fc_onboarding_completed', 'true');
-      set({ user: reviewerUser, isAuthenticated: true, isLoading: false, error: null });
-      return { success: true };
-    }
 
     try {
       const { data, error } = await supabase.auth.signInWithPassword({ email: cleanEmail, password });
