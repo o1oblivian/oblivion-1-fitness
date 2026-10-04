@@ -1,0 +1,62 @@
+import React, { useState } from 'react';
+import { Award, ChevronRight } from 'lucide-react';
+import { tactileEngine } from '../../../services/tactileEngine';
+import { WeeklyReportModal } from './WeeklyReportModal';
+
+interface WeeklyReportCardProps {
+  onViewFullReport?: () => void;
+  onClick?: () => void;
+}
+
+export const WeeklyReportCard: React.FC<WeeklyReportCardProps> = ({ onViewFullReport, onClick }) => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const handleClick = () => {
+    tactileEngine.triggerSelectionBuzz();
+    if (onClick) {
+      onClick();
+    } else {
+      setIsOpen(true);
+      onViewFullReport?.();
+    }
+  };
+
+  return (
+    <>
+      <div
+        id="card-weekly-report"
+        onClick={handleClick}
+        role="button"
+        tabIndex={0}
+        aria-label="Open Weekly Report Card"
+        className="group bg-white dark:bg-[#121214] border border-black/5 dark:border-white/10 hover:border-neutral-300 dark:hover:border-neutral-700 rounded-2xl px-3.5 py-2.5 shadow-sm transition-all mb-2 cursor-pointer select-none flex items-center justify-between gap-3 active:scale-[0.99]"
+      >
+        <div className="flex items-center gap-3 min-w-0 flex-1">
+          {/* Blue-ish icon container */}
+          <div className="w-9 h-9 rounded-xl bg-blue-100 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
+            <Award className="w-4 h-4 stroke-[2.2]" />
+          </div>
+
+          {/* Title & Subtitle */}
+          <div className="min-w-0 flex-1">
+            <h4 className="text-xs font-tactical font-black text-neutral-900 dark:text-white tracking-wider uppercase leading-snug truncate">
+              Weekly Report Card
+            </h4>
+            <p className="text-[11px] text-neutral-500 dark:text-neutral-400 leading-tight truncate mt-0.5">
+              Grade your week — training, nutrition, sleep &amp; steps
+            </p>
+          </div>
+        </div>
+
+        {/* Right Action Chevron */}
+        <div className="w-6 h-6 rounded-full flex items-center justify-center text-neutral-400 group-hover:text-neutral-900 dark:group-hover:text-white group-hover:translate-x-0.5 transition-all shrink-0">
+          <ChevronRight className="w-4 h-4" />
+        </div>
+      </div>
+
+      <WeeklyReportModal isOpen={isOpen} onClose={() => setIsOpen(false)} />
+    </>
+  );
+};
+
+export default WeeklyReportCard;

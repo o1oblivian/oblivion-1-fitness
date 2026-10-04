@@ -1,0 +1,100 @@
+import React from 'react';
+import { Dumbbell, Utensils, Heart, Users, FileText } from 'lucide-react';
+import { tactileEngine } from '../services/tactileEngine';
+import { useBuddyMessageStore } from '../stores/useBuddyMessageStore';
+
+export type TabMode = 'tracker' | 'fuel' | 'radar' | 'coach' | 'client' | 'workout';
+export type NavTab = TabMode;
+
+export interface NavigationDockProps {
+  currentMode: TabMode;
+  onSelectTab: (mode: TabMode) => void;
+}
+
+export type BottomNavigationProps = NavigationDockProps;
+
+interface TabConfig {
+  id: TabMode;
+  label: string;
+  icon: React.ComponentType<{ className?: string }>;
+  isBuddy?: boolean;
+}
+
+const TABS: TabConfig[] = [
+  { id: 'tracker', label: 'Workout', icon: Dumbbell },
+  { id: 'fuel', label: 'Fuel', icon: Utensils },
+  { id: 'radar', label: 'Buddy', icon: Heart, isBuddy: true },
+  { id: 'coach', label: 'Coach', icon: Users },
+  { id: 'client', label: 'Log', icon: FileText },
+];
+
+export const NavigationDock: React.FC<NavigationDockProps> = ({ currentMode, onSelectTab }) => {
+  const buddyUnreadCount = useBuddyMessageStore((s) => s.unreadCount);
+
+  return (
+    <nav
+      id="navigation-dock-floating"
+      role="navigation"
+      aria-label="Main Navigation"
+      className="fixed bottom-2 sm:bottom-3 mb-[env(safe-area-inset-bottom,0px)] inset-x-0 mx-auto w-[calc(100%-1.5rem)] max-w-[390px] z-40 h-[46px] rounded-full bg-white/30 backdrop-blur-xl border border-black/10 shadow-[0_8px_28px_rgba(0,0,0,0.1)] dark:bg-neutral-950/35 dark:backdrop-blur-xl dark:border-white/10 dark:shadow-[0_8px_28px_rgba(0,0,0,0.6)] px-2.5 flex items-center justify-between select-none transition-colors"
+    >
+      <div className="w-full flex items-center justify-around h-full">
+        {TABS.map((tab) => {
+          const Icon = tab.icon;
+          const isActive = currentMode === tab.id || (tab.id === 'tracker' && currentMode === 'workout');
+          const isBuddy = tab.isBuddy;
+
+          return (
+            <button
+              key={tab.id}
+              id={`nav-tab-${tab.id}`}
+              data-dock-tab={tab.id}
+              type="button"
+              onClick={() => {
+                if (currentMode !== tab.id && !(tab.id === 'tracker' && currentMode === 'workout')) {
+                  tactileEngine.triggerSelectionBuzz();
+                  onSelectTab(tab.id);
+                }
+              }}
+              className="flex-1 h-full py-0.5 flex flex-col items-center justify-center cursor-pointer active:scale-95 transition-transform duration-100 select-none group"
+            >
+              {/* Tab Icon */}
+              <div className="relative flex items-center justify-center">
+                <Icon
+                  className={`${isBuddy ? 'w-[21px] h-[21px]' : 'w-[18px] h-[18px]'} transition-colors ${
+                    isBuddy
+                      ? isActive
+                        ? 'text-[#C4121A] fill-[#C4121A] stroke-[2.2]'
+                        : 'text-[#C4121A] fill-[#C4121A] opacity-90 stroke-[2]'
+                      : isActive
+                        ? 'text-[#C4121A] stroke-[2.4]'
+                        : 'text-neutral-500 dark:text-neutral-400 stroke-[1.9] group-hover:text-neutral-900 dark:group-hover:text-neutral-100'
+                  }`}
+                />
+                {isBuddy && buddyUnreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1.5 min-w-[13px] h-[13px] px-0.5 rounded-full bg-[#C4121A] text-white text-[8.5px] font-bold font-mono flex items-center justify-center border border-white dark:border-[#09090b]">
+                    {buddyUnreadCount > 9 ? '9+' : buddyUnreadCount}
+                  </span>
+                )}
+              </div>
+
+              {/* Tab Label */}
+              <span
+                className={`text-[9.5px] mt-0.5 tracking-tight leading-none select-none transition-colors ${
+                  isActive
+                    ? 'text-[#C4121A] dark:text-[#C4121A] font-bold'
+                    : 'text-neutral-600 dark:text-neutral-400 font-medium group-hover:text-neutral-900 dark:group-hover:text-neutral-100'
+                }`}
+              >
+                {tab.label}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+    </nav>
+  );
+};
+
+export const BottomNavigation = NavigationDock;
+export default NavigationDock;

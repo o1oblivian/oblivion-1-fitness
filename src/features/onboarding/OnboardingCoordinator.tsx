@@ -1,0 +1,116 @@
+import React, { useState } from 'react';
+import { OnboardingData, INITIAL_ONBOARDING_DATA } from './types/onboardingTypes';
+import { AuthCard } from './steps/AuthCard';
+import { AthleteLaunchProtocolCard } from './steps/AthleteLaunchProtocolCard';
+import { LegalSheet } from './components/LegalSheet';
+import { useUserStore } from '../../stores/useUserStore';
+import { supabase } from '../../services/supabaseClient';
+import { tactileEngine } from '../../services/tactileEngine';
+import signupBg from '../../assets/images/signup_bg_1790312578259.jpg';
+
+export const OnboardingCoordinator: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
+  const [phase, setPhase] = useState<'auth' | 'protocol'>('auth');
+  const [data, setData] = useState<OnboardingData>(INITIAL_ONBOARDING_DATA);
+  const [legalSheet, setLegalSheet] = useState<'privacy' | 'terms' | null>(null);
+
+  const handleUpdate = (partial: Partial<OnboardingData>) => {
+    setData((p) => ({ ...p, ...partial }));
+  };
+
+  const handleFinish = async () => {
+    tactileEngine.playPRCelebration();
+    useUserStore.getState().setWeightKg(data.weightKg || 80);
+
+    try {
+      const { data: userData } = await supabase.auth.getUser();
+      const user = userData?.user;
+      const targetId = user?.id || localStorage.getItem('o1fc_user_id') || 'athlete-c1';
+
+      await supabase.from('profiles').upsert({
+        id: targetId,
+        body_mass_kg: data.weightKg || 80,
+        stature_cm: data.heightCm || 180,
+        primary_goal: data.primaryFocus || 'HYROX & RACING',
+        daily_step_target: data.dailyStepTarget || 10000,
+        permissions: data.permissions,
+        onboarding_completed: true,
+        updated_at: new Date().toISOString(),
+      });
+    } catch (e) {
+      console.warn('[Onboarding] Profile dossier upsert fallback:', e);
+    }
+
+    localStorage.setItem('olfc_onboarding_completed', 'true');
+    localStorage.setItem('o1fc_onboarding_completed', 'true');
+    localStorage.setItem('o1fc_step_goal', String(data.dailyStepTarget || 10000));
+    localStorage.setItem('o1fc_primary_focus', data.primaryFocus || 'HYROX & RACING');
+    onComplete();
+  };
+
+  const handleWipeAccount = () => {
+    tactileEngine.triggerDialHaptic();
+    if (window.confirm('Wipe all local athletic data and reset admission?')) {
+      localStorage.clear();
+      sessionStorage.clear();
+      setData(INITIAL_ONBOARDING_DATA);
+      setPhase('auth');
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 bg-[#040406] text-white flex flex-col justify-between overflow-y-auto no-scrollbar select-none">
+      {/* Exact High-Definition Dark Celestial Background from reference image */}
+      <img
+        src={signupBg}
+        alt="Celestial space background"
+        className="fixed inset-0 w-full h-full object-cover pointer-events-none select-none z-0"
+        referrerPolicy="no-referrer"
+      />
+
+      {/* Ambient Depth & Vignette to protect legibility */}
+      <div className="fixed inset-0 pointer-events-none bg-gradient-to-t from-black/90 via-black/30 to-black/10 z-0" />
+      <div className="fixed inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_50%_0%,rgba(196,18,26,0.14),transparent_65%)] z-0" />
+
+      <div className="w-full max-w-md mx-auto min-h-screen flex flex-col justify-between p-4 sm:p-6 relative z-10">
+        <div className="pt-2" />
+
+        {/* Dynamic Card based on phase */}
+        <div className="py-4 my-auto">
+          {phase === 'auth' ? (
+            <AuthCard
+              data={data}
+              onUpdate={handleUpdate}
+              onNext={() => setPhase('protocol')}
+              onOpenLegal={(type) => setLegalSheet(type)}
+            />
+          ) : (
+            <AthleteLaunchProtocolCard
+              data={data}
+              onUpdate={handleUpdate}
+              onLaunch={handleFinish}
+            />
+          )}
+        </div>
+
+        {/* Footer Hardware Info */}
+        <div className="pb-3 border-t border-white/[0.08] pt-3 flex items-center justify-between text-[10px] font-mono text-neutral-500">
+          <span className="flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
+            ATHLETE OS v2.6 // GENUINE
+          </span>
+          <button
+            type="button"
+            onClick={handleWipeAccount}
+            className="hover:text-red-400 transition cursor-pointer font-sans"
+          >
+            Reset All Data
+          </button>
+        </div>
+      </div>
+
+      <LegalSheet type={legalSheet} onClose={() => setLegalSheet(null)} />
+    </div>
+  );
+};
+
+export default OnboardingCoordinator;

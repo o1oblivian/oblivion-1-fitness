@@ -1,0 +1,6 @@
+{
+  "name": "Oblivion 1 Fitness Club",
+  "description": "Tactical mobile fitness operating system with workout telemetry, fuel OS, buddy radar, coach command dock, and microcycle strain tracking.",
+  "requestFramePermissions": ["camera"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

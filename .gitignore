@@ -1,0 +1,27 @@
+# Dependencies
+node_modules/
+
+# Production and intermediate builds
+dist/
+.dist/
+.vite/
+build/
+coverage/
+
+# Logs and runtime caches
+*.log
+*.tmp
+.DS_Store
+Thumbs.db
+
+# Environment variables
+.env*
+!.env.example
+
+# Native platform build caches (preserving project configs & synced assets)
+.gradle/
+android/app/build/
+ios/App/Pods/
+ios/App/build/
+ios/App/.symlinks/
+*.traineddata
