@@ -188,7 +188,6 @@ workflows:
       google_play:
         credentials: $GCLOUD_SERVICE_ACCOUNT_CREDENTIALS
         track: internal
-        changes_not_sent_for_review: true
       email:
         recipients:
           - o1oblivianfitness@gmail.com
