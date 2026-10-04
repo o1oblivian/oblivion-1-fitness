@@ -112,3 +112,58 @@ export function subscribeToCoachDirectives(
     supabase.removeChannel(channel);
   };
 }
+
+export interface FounderCoachRecord {
+  display_name: string;
+  bio: string;
+  avatar_url: string;
+  is_active: boolean;
+}
+
+export const FOUNDER_COACH_DATA: FounderCoachRecord = {
+  display_name: 'Founder & Head Coach',
+  bio: 'Head Coach & Founder at Oblivion 1 Fitness Club. Leading strength, conditioning, and telemetry programming.',
+  avatar_url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb',
+  is_active: true,
+};
+
+export async function seedFounderCoachProfile(): Promise<{ success: boolean; data?: any; error?: any }> {
+  try {
+    // 1. Direct write attempt with full payload to live Supabase coach_profiles table
+    const { data, error } = await supabase
+      .from('coach_profiles')
+      .upsert(
+        {
+          display_name: FOUNDER_COACH_DATA.display_name,
+          bio: FOUNDER_COACH_DATA.bio,
+          avatar_url: FOUNDER_COACH_DATA.avatar_url,
+        },
+        { onConflict: 'display_name' }
+      )
+      .select();
+
+    if (!error && data) {
+      return { success: true, data };
+    }
+
+    // 2. Also execute insert with full parameters including is_active
+    const fullRes = await supabase.from('coach_profiles').insert(FOUNDER_COACH_DATA).select();
+    if (!fullRes.error && fullRes.data) {
+      return { success: true, data: fullRes.data };
+    }
+
+    return { success: false, error: error || fullRes.error };
+  } catch (err) {
+    return { success: false, error: err };
+  }
+}
+
+export async function fetchLiveCoachProfiles(): Promise<any[]> {
+  try {
+    const { data, error } = await supabase.from('coach_profiles').select('*');
+    if (!error && Array.isArray(data) && data.length > 0) {
+      return data;
+    }
+  } catch {}
+  return [];
+}

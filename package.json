@@ -13,6 +13,7 @@
     "clean": "rm -rf dist server.js",
     "cap:sync": "cap sync",
     "cap:build": "vite build && cap sync",
+    "seed:coach": "tsx scripts/seed-founder-coach.ts",
     "lint": "tsc --noEmit"
   },
   "dependencies": {

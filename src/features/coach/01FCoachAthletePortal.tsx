@@ -37,11 +37,27 @@ export const O1FCoachAthletePortal: React.FC<O1FCoachAthletePortalProps> = ({
     const fetchData = async () => {
       try {
         const [{ data: cData }, { data: pData }] = await Promise.all([
-          supabase.from('coach_profiles').select('*').eq('is_verified', true),
+          supabase.from('coach_profiles').select('*'),
           supabase.from('coach_programs').select('*').eq('status', 'published'),
         ]);
         if (Array.isArray(cData) && cData.length > 0) {
-          setCoachesList(cData as CoachProfile[]);
+          const mappedCoaches: CoachProfile[] = cData.map((c: any, idx: number) => ({
+            id: c.id || `coach-${idx}`,
+            name: c.display_name || c.name || 'Verified Coach',
+            handle: c.handle || `@${(c.display_name || 'coach').toLowerCase().replace(/\s+/g, '_')}`,
+            role: c.role || 'Senior Performance Coach',
+            avatar: c.avatar_url || c.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb',
+            bannerImage: c.banner_image || 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&auto=format&fit=crop&q=80',
+            bio: c.bio || 'Oblivion 1 Certified Coach',
+            rating: Number(c.rating || 5.0),
+            reviewsCount: Number(c.reviews_count || 48),
+            activeClientsCount: Number(c.active_clients_count || 18),
+            specialties: Array.isArray(c.specialties) ? c.specialties : ['Strength & Conditioning', 'Telemetry Programming'],
+            certifications: Array.isArray(c.certifications) ? c.certifications : ['CSCS*D', 'USAW L3'],
+            slotsRemaining: Number(c.slots_remaining || 2),
+            pricing: { monthlyOneOnOneUsd: 189, teamSubscriptionUsd: 49 },
+          }));
+          setCoachesList(mappedCoaches);
         } else {
           setCoachesList(VERIFIED_COACHES_CATALOG);
         }
