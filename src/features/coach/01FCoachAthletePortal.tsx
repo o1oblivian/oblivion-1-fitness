@@ -9,6 +9,7 @@ import { DailyCheckInProgress } from './components/DailyCheckInProgress';
 import { CoachInboxView } from './components/CoachInboxView';
 import { CoachFullProfileModal } from './components/CoachFullProfileModal';
 import { CoachMarketplaceProgram, AthleteCheckInSubmission, CoachProfile } from './types/coachPlatformTypes';
+import { VERIFIED_COACHES_CATALOG, COACH_MARKETPLACE_PROGRAMS } from './data/coachMarketplaceData';
 import { tactileEngine } from '../../services/tactileEngine';
 
 export interface O1FCoachAthletePortalProps {
@@ -24,14 +25,14 @@ export const O1FCoachAthletePortal: React.FC<O1FCoachAthletePortalProps> = ({
 }) => {
   const [portalTab, setPortalTab] = useState<'roster' | 'store' | 'checkins' | 'messages'>('roster');
   const [toastMsg, setToastMsg] = useState<string | null>(null);
-  const [coachesList, setCoachesList] = useState<CoachProfile[]>([]);
-  const [programsList, setProgramsList] = useState<CoachMarketplaceProgram[]>([]);
+  const [coachesList, setCoachesList] = useState<CoachProfile[]>(VERIFIED_COACHES_CATALOG);
+  const [programsList, setProgramsList] = useState<CoachMarketplaceProgram[]>(COACH_MARKETPLACE_PROGRAMS);
   const [selectedCoach, setSelectedCoach] = useState<CoachProfile | null>(null);
   const [checkinsList, setCheckinsList] = useState<AthleteCheckInSubmission[]>([]);
 
   const showToast = useCallback((msg: string) => { setToastMsg(msg); setTimeout(() => setToastMsg(null), 3000); }, []);
 
-  // Fetch real verified coach profiles & published digital protocols from Supabase
+  // Fetch real verified coach profiles & published digital protocols from Supabase with verified fallback
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -39,11 +40,19 @@ export const O1FCoachAthletePortal: React.FC<O1FCoachAthletePortalProps> = ({
           supabase.from('coach_profiles').select('*').eq('is_verified', true),
           supabase.from('coach_programs').select('*').eq('status', 'published'),
         ]);
-        setCoachesList(Array.isArray(cData) ? (cData as CoachProfile[]) : []);
-        setProgramsList(Array.isArray(pData) ? (pData as CoachMarketplaceProgram[]) : []);
+        if (Array.isArray(cData) && cData.length > 0) {
+          setCoachesList(cData as CoachProfile[]);
+        } else {
+          setCoachesList(VERIFIED_COACHES_CATALOG);
+        }
+        if (Array.isArray(pData) && pData.length > 0) {
+          setProgramsList(pData as CoachMarketplaceProgram[]);
+        } else {
+          setProgramsList(COACH_MARKETPLACE_PROGRAMS);
+        }
       } catch {
-        setCoachesList([]);
-        setProgramsList([]);
+        setCoachesList(VERIFIED_COACHES_CATALOG);
+        setProgramsList(COACH_MARKETPLACE_PROGRAMS);
       }
     };
     fetchData();

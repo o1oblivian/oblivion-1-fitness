@@ -6,6 +6,7 @@ import { LegalSheet } from './components/LegalSheet';
 import { useUserStore } from '../../stores/useUserStore';
 import { supabase } from '../../services/supabaseClient';
 import { tactileEngine } from '../../services/tactileEngine';
+import { safeStorage } from '../../utils/safeStorage';
 import signupBg from '../../assets/images/signup_bg_1790312578259.jpg';
 
 export const OnboardingCoordinator: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
@@ -40,6 +41,8 @@ export const OnboardingCoordinator: React.FC<{ onComplete: () => void }> = ({ on
       console.warn('[Onboarding] Profile dossier upsert fallback:', e);
     }
 
+    safeStorage.setItem('olfc_onboarding_completed', 'true');
+    safeStorage.setItem('o1fc_onboarding_completed', 'true');
     localStorage.setItem('olfc_onboarding_completed', 'true');
     localStorage.setItem('o1fc_onboarding_completed', 'true');
     localStorage.setItem('o1fc_step_goal', String(data.dailyStepTarget || 10000));

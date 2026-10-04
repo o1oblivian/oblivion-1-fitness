@@ -78,7 +78,21 @@
 
 /* Universal Top Font Enforcement across all pages, cards, lines, words, buttons, inputs */
 *, *::before, *::after {
-  font-feature-settings: "cv02", "cv03", "cv04", "cv11", "tnum";
+  font-feature-settings: "tnum";
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+html {
+  font-size: 15px;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+@media (max-width: 400px) {
+  html {
+    font-size: 14px;
+  }
 }
 
 html, body, button, input, optgroup, select, textarea {

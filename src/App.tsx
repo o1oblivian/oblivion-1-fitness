@@ -14,7 +14,11 @@ import { tactileEngine } from './services/tactileEngine';
 import { safeStorage } from './utils/safeStorage';
 
 export default function App() {
-  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(() => {
+    const isCompleted = safeStorage.getItem('o1fc_onboarding_completed') === 'true' || safeStorage.getItem('olfc_onboarding_completed') === 'true';
+    const hasAuth = Boolean(safeStorage.getItem('o1fc_auth_token') || safeStorage.getItem('o1fc_user_id'));
+    return !isCompleted || !hasAuth;
+  });
   const [showProAccess, setShowProAccess] = useState(false);
   const [membershipSuccessBanner, setMembershipSuccessBanner] = useState(false);
 
@@ -64,9 +68,6 @@ export default function App() {
       };
       window.addEventListener('popstate', handlePopState);
       window.addEventListener('hashchange', handlePopState);
-
-      const isCompleted = safeStorage.getItem('o1fc_onboarding_completed') === 'true' || safeStorage.getItem('olfc_onboarding_completed') === 'true';
-      if (!isCompleted) safeStorage.setItem('o1fc_onboarding_completed', 'true');
 
       const handleRelaunch = () => setShowOnboarding(true);
       window.addEventListener('o1fc_relaunch_onboarding', handleRelaunch);

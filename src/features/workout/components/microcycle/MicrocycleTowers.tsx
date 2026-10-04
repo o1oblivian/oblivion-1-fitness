@@ -43,7 +43,7 @@ export const MicrocycleTowers: React.FC<MicrocycleTowersProps> = ({ activeDays, 
       <div className="flex items-end justify-between px-1.5 pt-4 pb-2 relative h-[196px]">
         {activeDays.map((d, idx) => {
           const isSelected = selectedDayIdx === idx;
-          const tonnageLabel = d.volume > 0 ? `${(d.volume / 1000).toFixed(1)}k` : '0k';
+          const tonnageLabel = d.volume > 0 ? `${(d.volume / 1000).toFixed(1)}k` : '--';
           const slabCount = calculateSlabCount(d.volume);
           const palette = DAY_SLAB_PALETTES[d.day] || DAY_SLAB_PALETTES.Mon;
 

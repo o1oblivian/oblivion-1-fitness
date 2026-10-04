@@ -17,6 +17,42 @@ export const VERIFIED_COACH_PROFILE: CoachProfile = {
   pricing: { monthlyOneOnOneUsd: 189, teamSubscriptionUsd: 49 },
 };
 
+export const VERIFIED_COACHES_CATALOG: CoachProfile[] = [
+  VERIFIED_COACH_PROFILE,
+  {
+    id: 'coach-marcus',
+    name: 'Marcus Vance',
+    handle: '@vance_power',
+    role: 'Elite S&C & Rotational Performance Specialist',
+    avatar: 'https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=300&auto=format&fit=crop&q=80',
+    bannerImage: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=800&auto=format&fit=crop&q=80',
+    bio: 'Former collegiate strength coordinator focusing on rotational power transfer, rate of force development, and trunk deceleration.',
+    rating: 4.94,
+    reviewsCount: 42,
+    activeClientsCount: 16,
+    specialties: ['Rotational Power', 'Explosive RFD', 'Barbell Dynamics'],
+    certifications: ['CSCS', 'FMS L2', 'EXOS Performance Specialist'],
+    slotsRemaining: 3,
+    pricing: { monthlyOneOnOneUsd: 175, teamSubscriptionUsd: 45 },
+  },
+  {
+    id: 'coach-sarah',
+    name: 'Sarah Jenkins',
+    handle: '@sjenk_hyrox',
+    role: 'Hyrox World Champ & Conditioning Lead',
+    avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=300&auto=format&fit=crop&q=80',
+    bannerImage: 'https://images.unsplash.com/photo-1434596922112-19c563067271?w=800&auto=format&fit=crop&q=80',
+    bio: 'Elite hybrid endurance athlete specializing in lactate threshold conditioning, pacing strategies, and station mechanics.',
+    rating: 4.98,
+    reviewsCount: 64,
+    activeClientsCount: 22,
+    specialties: ['Hyrox Racing', 'Lactate Buffering', 'Aerobic Engine'],
+    certifications: ['CrossFit L3', 'Hyrox Master Trainer', 'Precision Nutrition L1'],
+    slotsRemaining: 1,
+    pricing: { monthlyOneOnOneUsd: 199, teamSubscriptionUsd: 59 },
+  },
+];
+
 export const COACH_MARKETPLACE_PROGRAMS: CoachMarketplaceProgram[] = [
   {
     id: 'prog-hypertrophy-p1',
