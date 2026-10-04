@@ -142,16 +142,20 @@ workflows:
       - name: Verify Google Play Publishing Credentials
         script: |
           set -e
-          if [ -z "$GCLOUD_SERVICE_ACCOUNT_CREDENTIALS" ] && [ -n "$GOOGLE_PLAY_SERVICE_ACCOUNT_CREDENTIALS" ]; then
-            echo "Mapping GOOGLE_PLAY_SERVICE_ACCOUNT_CREDENTIALS to GCLOUD_SERVICE_ACCOUNT_CREDENTIALS..."
-            echo "GCLOUD_SERVICE_ACCOUNT_CREDENTIALS=$GOOGLE_PLAY_SERVICE_ACCOUNT_CREDENTIALS" >> $CM_ENV
-            export GCLOUD_SERVICE_ACCOUNT_CREDENTIALS="$GOOGLE_PLAY_SERVICE_ACCOUNT_CREDENTIALS"
+          if [ -z "$GPC_SERVICE_ACCOUNT_CREDENTIALS" ] && [ -n "$GCLOUD_SERVICE_ACCOUNT_CREDENTIALS" ]; then
+            echo "Mapping GCLOUD_SERVICE_ACCOUNT_CREDENTIALS to GPC_SERVICE_ACCOUNT_CREDENTIALS..."
+            echo "GPC_SERVICE_ACCOUNT_CREDENTIALS=$GCLOUD_SERVICE_ACCOUNT_CREDENTIALS" >> $CM_ENV
+            export GPC_SERVICE_ACCOUNT_CREDENTIALS="$GCLOUD_SERVICE_ACCOUNT_CREDENTIALS"
+          elif [ -z "$GPC_SERVICE_ACCOUNT_CREDENTIALS" ] && [ -n "$GOOGLE_PLAY_SERVICE_ACCOUNT_CREDENTIALS" ]; then
+            echo "Mapping GOOGLE_PLAY_SERVICE_ACCOUNT_CREDENTIALS to GPC_SERVICE_ACCOUNT_CREDENTIALS..."
+            echo "GPC_SERVICE_ACCOUNT_CREDENTIALS=$GOOGLE_PLAY_SERVICE_ACCOUNT_CREDENTIALS" >> $CM_ENV
+            export GPC_SERVICE_ACCOUNT_CREDENTIALS="$GOOGLE_PLAY_SERVICE_ACCOUNT_CREDENTIALS"
           fi
-          if [ -n "$GCLOUD_SERVICE_ACCOUNT_CREDENTIALS" ]; then
+          if [ -n "$GPC_SERVICE_ACCOUNT_CREDENTIALS" ]; then
             echo "✅ Google Play service account credentials loaded for automated deployment."
           else
-            echo "⚠️ WARNING: GCLOUD_SERVICE_ACCOUNT_CREDENTIALS is not set in Codemagic environment variables."
-            echo "Ensure 'google_play_credentials' group in Codemagic has GCLOUD_SERVICE_ACCOUNT_CREDENTIALS."
+            echo "⚠️ WARNING: GPC_SERVICE_ACCOUNT_CREDENTIALS is not set in Codemagic environment variables."
+            echo "Ensure 'google_play_credentials' group in Codemagic has GPC_SERVICE_ACCOUNT_CREDENTIALS."
           fi
       - name: Set up keystore and sign
         script: |
@@ -182,8 +186,9 @@ workflows:
       - android/app/upload_certificate.pem
     publishing:
       google_play:
-        credentials: $GCLOUD_SERVICE_ACCOUNT_CREDENTIALS
+        credentials: $GPC_SERVICE_ACCOUNT_CREDENTIALS
         track: internal
+        changes_not_sent_for_review: true
       email:
         recipients:
           - o1oblivianfitness@gmail.com
