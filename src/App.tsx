@@ -12,6 +12,8 @@ import { OnboardingCoordinator } from './features/onboarding/OnboardingCoordinat
 import { revenueCatService } from './services/revenueCatService';
 import { tactileEngine } from './services/tactileEngine';
 import { safeStorage } from './utils/safeStorage';
+import { App as CapApp } from '@capacitor/app';
+import { supabase } from './services/supabaseClient';
 
 export default function App() {
   const [showOnboarding, setShowOnboarding] = useState(() => {
@@ -73,8 +75,55 @@ export default function App() {
       window.addEventListener('o1fc_relaunch_onboarding', handleRelaunch);
       window.addEventListener('o1fc_account_deleted', handleRelaunch);
 
+      // Capacitor native deep link OAuth listener
+      const handleAuthUrl = async (url: string) => {
+        if (!url) return;
+        try {
+          if (url.includes('access_token')) {
+            const hash = url.split('#')[1] || url.split('?')[1];
+            if (hash) {
+              const params = new URLSearchParams(hash);
+              const access_token = params.get('access_token');
+              const refresh_token = params.get('refresh_token');
+              if (access_token) {
+                const { data, error } = await supabase.auth.setSession({
+                  access_token,
+                  refresh_token: refresh_token || '',
+                });
+
+                if (!error && data?.session?.user) {
+                  safeStorage.setItem('o1fc_user_id', data.session.user.id);
+                  if (data.session.user.email) safeStorage.setItem('o1fc_user_email', data.session.user.email);
+                  safeStorage.setItem('o1fc_onboarding_completed', 'true');
+                  setShowOnboarding(false);
+                  tactileEngine.playPRCelebration();
+                }
+              }
+            }
+          }
+        } catch (err) {
+          console.warn('[App] Error handling OAuth deep link session:', err);
+        }
+      };
+
+      let appUrlListenerHandle: { remove: () => void } | null = null;
+      CapApp.addListener('appUrlOpen', async ({ url }) => {
+        if (url) {
+          await handleAuthUrl(url);
+        }
+      }).then((handle) => {
+        appUrlListenerHandle = handle;
+      }).catch(() => null);
+
+      CapApp.getLaunchUrl().then((launch) => {
+        if (launch?.url) {
+          handleAuthUrl(launch.url);
+        }
+      }).catch(() => null);
+
       return () => {
         cleanupRollover();
+        appUrlListenerHandle?.remove();
         window.removeEventListener('click', handleGlobalLinkClicks);
         window.removeEventListener('popstate', handlePopState);
         window.removeEventListener('hashchange', handlePopState);

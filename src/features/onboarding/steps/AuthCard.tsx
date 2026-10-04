@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Eye, EyeOff, Loader2, AlertCircle } from 'lucide-react';
+import { Capacitor } from '@capacitor/core';
 import { supabase } from '../../../services/supabaseClient';
 import { useAuthStore } from '../../../stores/useAuthStore';
 import { tactileEngine } from '../../../services/tactileEngine';
@@ -26,10 +27,15 @@ export const AuthCard: React.FC<AuthCardProps> = ({ data, onUpdate, onNext, onOp
     setIsSubmitting(true);
     tactileEngine.triggerDialHaptic();
     try {
+      const isNative = Capacitor.isNativePlatform();
+      const redirectTo = isNative
+        ? 'com.o1fc.fitness://auth/callback'
+        : (typeof window !== 'undefined' ? `${window.location.origin}` : undefined);
+
       const { data: authData, error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
-          redirectTo: typeof window !== 'undefined' ? `${window.location.origin}` : undefined,
+          redirectTo,
         },
       });
       if (error) {
