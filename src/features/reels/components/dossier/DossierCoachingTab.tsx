@@ -21,7 +21,7 @@ export const DossierCoachingTab: React.FC<DossierCoachingTabProps> = ({ coach, o
         </p>
       </div>
 
-      <div className="space-y-1.5 py-2 border-y border-white/5 text-[10.5px] text-neutral-300">
+      <div className="space-y-1.5 py-2 border-y border-white/[0.05] text-[10.5px] text-neutral-300">
         <div className="flex items-center gap-2">
           <Check className="w-3 h-3 text-emerald-400 shrink-0 stroke-[2]" />
           <span>Personalized mesocycles synced to Workout tab</span>
@@ -47,7 +47,7 @@ export const DossierCoachingTab: React.FC<DossierCoachingTabProps> = ({ coach, o
             tactileEngine.triggerLightTick();
             onApply();
           }}
-          className="w-full py-2 px-3 rounded-lg bg-[#C4121A] hover:bg-[#a30f16] active:scale-98 text-white text-[11px] font-medium tracking-wide transition cursor-pointer text-center"
+          className="w-full py-2 px-3 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover active:scale-98 text-white text-[11px] font-medium tracking-wide transition cursor-pointer text-center"
         >
           Apply for 1:1 Coaching ({coach.rate})
         </button>

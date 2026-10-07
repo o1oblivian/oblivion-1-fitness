@@ -43,17 +43,17 @@ export const CoachProtocolAccordionPanel: React.FC<CoachProtocolAccordionPanelPr
   };
 
   return (
-    <div className="bg-white dark:bg-[#121214] border border-neutral-200 dark:border-neutral-800 rounded-3xl p-4 sm:p-5 shadow-sm space-y-4 text-neutral-900 dark:text-white">
-      <div className="flex items-center justify-between border-b border-neutral-100 dark:border-neutral-800/80 pb-3">
+    <div className="bg-o1-card border border-white/[0.07] rounded-2xl p-2.5 shadow-sm space-y-2.5 text-white">
+      <div className="flex items-center justify-between border-b border-white/[0.05] pb-3">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-neutral-100 dark:bg-[#18181b] border border-neutral-200 dark:border-neutral-800 flex items-center justify-center text-neutral-700 dark:text-neutral-300">
+          <div className="w-8 h-8 rounded-xl bg-o1-well border border-white/[0.07] flex items-center justify-center text-neutral-300">
             <User className="w-4 h-4 stroke-[2]" />
           </div>
           <div>
-            <h3 className="font-mono text-xs font-bold uppercase tracking-wider text-neutral-900 dark:text-white leading-tight">
+            <h3 className="font-mono text-xs font-bold uppercase tracking-wider text-white leading-tight">
               COACH TRAINING PROTOCOL
             </h3>
-            <p className="text-[11px] text-neutral-500 dark:text-neutral-400 leading-tight mt-0.5">
+            <p className="text-[11px] text-neutral-400 leading-tight mt-0.5">
               Assigned workouts &amp; active programs
             </p>
           </div>
@@ -61,32 +61,32 @@ export const CoachProtocolAccordionPanel: React.FC<CoachProtocolAccordionPanelPr
         <button
           type="button"
           onClick={handleOpenCoachHub}
-          className="text-[10px] font-mono font-bold text-[#C4121A] bg-[#C4121A]/10 border border-[#C4121A]/30 hover:bg-[#C4121A]/20 px-2.5 py-1 rounded-lg uppercase tracking-wider transition-colors cursor-pointer"
+          className="text-[10px] font-mono font-bold text-o1-crimson bg-o1-crimson/10 border border-o1-crimson/30 hover:bg-o1-crimson/20 px-2.5 py-1 rounded-xl uppercase tracking-wider transition-colors cursor-pointer"
         >
           COACH HUB
         </button>
       </div>
 
       <div className="space-y-2.5">
-        <div className="flex items-center justify-between text-neutral-600 dark:text-neutral-400">
+        <div className="flex items-center justify-between text-neutral-400">
           <div className="flex items-center gap-1.5">
-            <Sparkles className="w-3.5 h-3.5 text-[#C4121A] fill-[#C4121A]" />
+            <Sparkles className="w-3.5 h-3.5 text-o1-crimson fill-o1-crimson" />
             <span className="font-mono text-xs font-bold uppercase tracking-wider">
               TODAY'S DISPATCHED WORKOUT
             </span>
           </div>
-          <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded border text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border-emerald-500/20">
+          <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded border text-emerald-400 bg-emerald-500/10 border-emerald-500/20">
             ● READY TO LOAD
           </span>
         </div>
 
-        <div className="p-4 rounded-2xl bg-neutral-50 dark:bg-[#18181b] border border-neutral-200 dark:border-neutral-800 space-y-3">
+        <div className="p-4 rounded-2xl bg-o1-well border border-white/[0.07] space-y-3">
           <div className="flex items-start justify-between gap-3">
             <div>
-              <h4 className="text-xs sm:text-sm font-bold text-neutral-900 dark:text-white leading-snug">
+              <h4 className="text-xs sm:text-sm font-bold text-white leading-snug">
                 Push Day • Chest &amp; Shoulder Overload
               </h4>
-              <p className="text-[11px] text-neutral-500 dark:text-neutral-400 mt-0.5 font-medium">
+              <p className="text-[11px] text-neutral-400 mt-0.5 font-medium">
                 Head Coach • 4 exercises
               </p>
             </div>
@@ -94,7 +94,7 @@ export const CoachProtocolAccordionPanel: React.FC<CoachProtocolAccordionPanelPr
               type="button"
               disabled={isLoading}
               onClick={handleLoadProtocol}
-              className="px-4 py-1.5 rounded-full bg-neutral-950 text-white hover:bg-black dark:bg-white dark:text-neutral-950 dark:hover:bg-neutral-100 active:scale-95 font-bold text-xs flex items-center gap-1.5 shadow-xs transition-all cursor-pointer shrink-0 disabled:opacity-50"
+              className="px-4 py-1.5 rounded-full bg-white text-neutral-950 hover:bg-neutral-100 active:scale-95 font-bold text-xs flex items-center gap-1.5 shadow-xs transition-all cursor-pointer shrink-0 disabled:opacity-50"
             >
               <Play className="w-3 h-3 fill-current" />
               <span>Load</span>
@@ -102,21 +102,21 @@ export const CoachProtocolAccordionPanel: React.FC<CoachProtocolAccordionPanelPr
           </div>
 
           <div className="space-y-1.5">
-            <div className="px-3 py-1.5 rounded-xl bg-neutral-200/70 dark:bg-[#242429] text-neutral-800 dark:text-neutral-200 text-xs font-mono font-medium border border-neutral-300/40 dark:border-neutral-700/40">
+            <div className="px-3 py-1.5 rounded-xl bg-white/[0.08] text-neutral-200 text-xs font-mono font-medium border border-white/[0.07]">
               Incline Barbell Press (4×8 reps)
             </div>
-            <div className="px-3 py-1.5 rounded-xl bg-neutral-200/70 dark:bg-[#242429] text-neutral-800 dark:text-neutral-200 text-xs font-mono font-medium border border-neutral-300/40 dark:border-neutral-700/40">
+            <div className="px-3 py-1.5 rounded-xl bg-white/[0.08] text-neutral-200 text-xs font-mono font-medium border border-white/[0.07]">
               Seated DB Shoulder Press (3×10 reps)
             </div>
-            <div className="px-3 py-1.5 rounded-xl bg-neutral-200/70 dark:bg-[#242429] text-neutral-800 dark:text-neutral-200 text-xs font-mono font-medium border border-neutral-300/40 dark:border-neutral-700/40">
+            <div className="px-3 py-1.5 rounded-xl bg-white/[0.08] text-neutral-200 text-xs font-mono font-medium border border-white/[0.07]">
               Cable Lateral Raise (4×12 reps)
             </div>
-            <div className="px-3 py-1.5 rounded-xl bg-neutral-200/70 dark:bg-[#242429] text-neutral-800 dark:text-neutral-200 text-xs font-mono font-medium border border-neutral-300/40 dark:border-neutral-700/40">
+            <div className="px-3 py-1.5 rounded-xl bg-white/[0.08] text-neutral-200 text-xs font-mono font-medium border border-white/[0.07]">
               Incline Cable Flye (3×12 reps)
             </div>
           </div>
 
-          <p className="text-xs text-neutral-600 dark:text-neutral-400 italic font-mono pt-1.5 border-t border-neutral-200/50 dark:border-neutral-800/60 leading-relaxed">
+          <p className="text-xs text-neutral-400 italic font-mono pt-1.5 border-t border-white/[0.05] leading-relaxed">
             "[Hypertrophy Focus] Controlled 3s eccentric tempo. Full stretch on each repetition."
           </p>
         </div>

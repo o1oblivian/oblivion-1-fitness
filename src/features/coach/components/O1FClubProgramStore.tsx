@@ -18,8 +18,8 @@ export const O1FClubProgramStore: React.FC<O1FClubProgramStoreProps> = ({
     <div className="space-y-3 select-none">
       <div className="flex items-center justify-between px-1">
         <div className="flex items-center gap-1.5">
-          <ShoppingBag className="w-4 h-4 text-[#C4121A]" />
-          <h3 className="font-tactical font-black text-xs uppercase tracking-wider text-neutral-900 dark:text-white">
+          <ShoppingBag className="w-4 h-4 text-o1-crimson" />
+          <h3 className="font-tactical font-black text-xs uppercase tracking-wider text-white">
             PROGRAM STORE // DIGITAL PROTOCOLS
           </h3>
         </div>
@@ -29,15 +29,15 @@ export const O1FClubProgramStore: React.FC<O1FClubProgramStoreProps> = ({
       </div>
 
       {safePrograms.length === 0 ? (
-        <div className="border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-[#121214] rounded-2xl p-6 text-center space-y-2.5 shadow-xs">
-          <div className="w-10 h-10 rounded-xl bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 flex items-center justify-center mx-auto text-neutral-400">
+        <div className="border border-white/[0.07] bg-o1-card rounded-2xl p-6 text-center space-y-2.5 shadow-xs">
+          <div className="w-10 h-10 rounded-xl bg-o1-well border border-white/[0.07] flex items-center justify-center mx-auto text-neutral-400">
             <Sparkles className="w-5 h-5 text-amber-500/80 stroke-[1.8]" />
           </div>
           <div className="space-y-1">
-            <h4 className="font-tactical font-black text-xs uppercase tracking-wider text-neutral-900 dark:text-neutral-200">
+            <h4 className="font-tactical font-black text-xs uppercase tracking-wider text-neutral-200">
               No coaching programs currently published
             </h4>
-            <p className="text-[11px] text-neutral-500 dark:text-neutral-400 font-sans max-w-xs mx-auto leading-relaxed">
+            <p className="text-[11px] text-neutral-400 font-sans max-w-xs mx-auto leading-relaxed">
               Verified coach blueprints and training protocols will appear here once released to the club.
             </p>
           </div>
@@ -51,11 +51,11 @@ export const O1FClubProgramStore: React.FC<O1FClubProgramStoreProps> = ({
                 tactileEngine.triggerSelectionBuzz();
                 if (onSelectProgram) onSelectProgram(prog);
               }}
-              className="p-3.5 rounded-2xl bg-white dark:bg-[#121214] border border-neutral-200 dark:border-neutral-800 hover:border-[#C4121A]/50 transition-all cursor-pointer shadow-xs flex flex-col justify-between space-y-3 group"
+              className="p-3.5 rounded-2xl bg-o1-card border border-white/[0.07] hover:border-o1-crimson/50 transition-all cursor-pointer shadow-xs flex flex-col justify-between space-y-3 group"
             >
               <div className="space-y-2">
                 {prog.coverImage && (
-                  <div className="w-full h-32 rounded-xl overflow-hidden bg-neutral-100 dark:bg-neutral-900 border border-neutral-200/60 dark:border-neutral-800">
+                  <div className="w-full h-32 rounded-xl overflow-hidden bg-o1-well border border-white/[0.07]">
                     <img
                       src={prog.coverImage}
                       alt={prog.title}
@@ -65,22 +65,22 @@ export const O1FClubProgramStore: React.FC<O1FClubProgramStoreProps> = ({
                   </div>
                 )}
                 <div className="flex items-start justify-between gap-2">
-                  <span className="px-2 py-0.5 rounded-md bg-neutral-100 dark:bg-neutral-800 text-[9.5px] font-mono font-bold text-[#C4121A] uppercase tracking-wider">
+                  <span className="px-2 py-0.5 rounded-md bg-white/[0.08] text-[9.5px] font-mono font-bold text-o1-crimson uppercase tracking-wider">
                     {prog.difficulty || 'VERIFIED'}
                   </span>
                   {typeof prog.priceUsd === 'number' && (
-                    <span className="text-xs font-mono font-bold text-neutral-900 dark:text-white">
+                    <span className="text-xs font-mono font-bold text-white">
                       ${prog.priceUsd}
                     </span>
                   )}
                 </div>
 
                 <div>
-                  <h4 className="font-tactical font-black text-sm text-neutral-900 dark:text-white group-hover:text-[#C4121A] transition-colors line-clamp-1">
+                  <h4 className="font-tactical font-black text-sm text-white group-hover:text-o1-crimson transition-colors line-clamp-1">
                     {prog.title}
                   </h4>
                   {prog.description && (
-                    <p className="text-[11px] text-neutral-500 dark:text-neutral-400 font-sans line-clamp-2 mt-1">
+                    <p className="text-[11px] text-neutral-400 font-sans line-clamp-2 mt-1">
                       {prog.description}
                     </p>
                   )}

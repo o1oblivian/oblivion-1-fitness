@@ -24,11 +24,11 @@ export const ReelExploreHeader: React.FC<ReelExploreHeaderProps> = ({
   onClose,
 }) => {
   return (
-    <div className="sticky top-0 z-30 bg-[#09090b] border-b border-neutral-800 px-4 pt-3 pb-3 flex flex-col gap-3 select-none">
+    <div className="sticky top-0 z-30 bg-black border-b border-white/[0.05] px-4 pt-3 pb-3 flex flex-col gap-3 select-none">
       {/* Top Bar: Center Segmented Control Pill + Absolute Right Close Button */}
       <div className="relative flex items-center justify-center w-full min-h-[36px]">
         {/* Tab 1: ELITE REELS | Tab 2: COACHES - Horizontally Centered */}
-        <div className="p-1 rounded-full bg-[#18181b] border border-neutral-800 flex items-center shadow-inner mx-auto">
+        <div className="p-1 rounded-full bg-o1-well border border-white/[0.07] flex items-center shadow-inner mx-auto">
           <button
             type="button"
             onClick={() => {
@@ -36,7 +36,7 @@ export const ReelExploreHeader: React.FC<ReelExploreHeaderProps> = ({
               setTabMode('reels');
             }}
             className={`px-4 py-1 rounded-full text-xs font-semibold tracking-tight transition-all cursor-pointer font-tactical ${
-              tabMode === 'reels' ? 'bg-[#C4121A] text-white font-bold shadow-xs' : 'text-neutral-400 hover:text-white'
+              tabMode === 'reels' ? 'bg-o1-crimson text-white font-bold shadow-xs' : 'text-neutral-400 hover:text-white'
             }`}
           >
             Elite Reels
@@ -48,7 +48,7 @@ export const ReelExploreHeader: React.FC<ReelExploreHeaderProps> = ({
               setTabMode('coaches');
             }}
             className={`px-4 py-1 rounded-full text-xs font-semibold tracking-tight transition-all cursor-pointer font-tactical ${
-              tabMode === 'coaches' ? 'bg-[#C4121A] text-white font-bold shadow-xs' : 'text-neutral-400 hover:text-white'
+              tabMode === 'coaches' ? 'bg-o1-crimson text-white font-bold shadow-xs' : 'text-neutral-400 hover:text-white'
             }`}
           >
             Coaches
@@ -59,7 +59,7 @@ export const ReelExploreHeader: React.FC<ReelExploreHeaderProps> = ({
         <button
           type="button"
           onClick={onClose}
-          className="absolute right-0 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-neutral-800/80 hover:bg-neutral-700 flex items-center justify-center text-neutral-300 hover:text-white transition-all cursor-pointer"
+          className="absolute right-0 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/[0.08] hover:bg-neutral-700 flex items-center justify-center text-neutral-300 hover:text-white transition-all cursor-pointer"
           aria-label="Close Explore Hub"
         >
           <X className="w-4 h-4" />
@@ -73,7 +73,7 @@ export const ReelExploreHeader: React.FC<ReelExploreHeaderProps> = ({
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder={tabMode === 'reels' ? "Search exercises, cues, coaches..." : "Search verified trainers, specialties..."}
-          className="w-full bg-[#18181b] border border-neutral-800 rounded-full pl-9 pr-8 py-2 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-[#C4121A] transition-colors"
+          className="w-full bg-o1-well border border-white/[0.07] rounded-full pl-9 pr-8 py-2 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-o1-crimson transition-colors"
         />
         {searchQuery && (
           <button
@@ -100,8 +100,8 @@ export const ReelExploreHeader: React.FC<ReelExploreHeaderProps> = ({
                 }}
                 className={`px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider whitespace-nowrap transition-all cursor-pointer font-tactical ${
                   isSelected
-                    ? 'bg-[#C4121A] text-white shadow-xs'
-                    : 'bg-[#18181b] text-neutral-400 border border-neutral-800 hover:text-white'
+                    ? 'bg-o1-crimson text-white shadow-xs'
+                    : 'bg-o1-well text-neutral-400 border border-white/[0.07] hover:text-white'
                 }`}
               >
                 {tag}

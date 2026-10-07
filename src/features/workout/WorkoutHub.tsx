@@ -6,7 +6,6 @@ import { subscribeToCoachDirectives } from '../../services/coachSync';
 import { useAthleteRealtime } from './hooks/useAthleteRealtime';
 import { useWorkoutStore } from './store/useWorkoutStore';
 import { useLogStore } from '../../stores/useLogStore';
-import { useUserStore } from '../../stores/useUserStore';
 import { useCoachStore } from '../../stores/useCoachStore';
 import { modalActions } from '../../components/modals/useModalStore';
 import { WorkoutHeroBanner } from './components/WorkoutHeroBanner';
@@ -23,6 +22,8 @@ import { IntelCoachIntelligenceCard } from './components/IntelCoachIntelligenceC
 import { WorkoutBlueprintModal } from './components/WorkoutBlueprintModal';
 import { EliteReelsHub } from '../reels/EliteReelsHub';
 import { WORKOUT_BLUEPRINTS, WorkoutBlueprint } from '../../data/workoutBlueprints';
+import { readAthleteSettingsSnapshot } from '../../utils/athleteSettingsSnapshot';
+import { getAuthenticatedUserId } from '../../services/authUser';
 
 export const WorkoutHub: React.FC = () => {
   const showToast = useWorkoutStore((s) => s.showToast);
@@ -31,7 +32,9 @@ export const WorkoutHub: React.FC = () => {
   const setActiveRoutine = useWorkoutStore((s) => s.setActiveRoutine);
 
   const [expandedHubTab, setExpandedHubTab] = useState<'intel' | 'coach' | null>(null);
-  const [selectedDiscipline, setSelectedDiscipline] = useState<'lift' | 'sports' | 'recovery' | null>(null);
+  const [selectedDiscipline, setSelectedDiscipline] = useState<'lift' | 'sports' | 'recovery' | null>(() =>
+    readAthleteSettingsSnapshot().restRecoveryMode ? 'recovery' : null
+  );
   const [activeBlueprint, setActiveBlueprint] = useState<WorkoutBlueprint | null>(null);
   const [isEliteReelsOpen, setIsEliteReelsOpen] = useState(false);
   const [selectedReelId, setSelectedReelId] = useState<string | undefined>(undefined);
@@ -39,6 +42,7 @@ export const WorkoutHub: React.FC = () => {
   const [reelsCategory, setReelsCategory] = useState<'ALL' | 'TUTORIAL' | 'MOBILITY' | 'BIOMECHANICS' | 'HYPERTROPHY' | 'STRENGTH' | 'REHAB'>('ALL');
   const [reelsFilter, setReelsFilter] = useState<string>('ALL');
   const [isWeeklyReportOpen, setIsWeeklyReportOpen] = useState(false);
+  const [athleteUid, setAthleteUid] = useState('');
 
   const handleToggleHubTab = (tab: 'intel' | 'coach') => {
     setExpandedHubTab((prev) => (prev === tab ? null : tab));
@@ -52,6 +56,10 @@ export const WorkoutHub: React.FC = () => {
    */
   const handleLoadAssignedProtocol = React.useCallback(async (protocol: any) => {
     if (!protocol || protocol.status === 'active') return;
+    if (!readAthleteSettingsSnapshot().autoDispatch) {
+      showToast(`Coach protocol "${protocol.title || 'Protocol'}" is waiting in My Coach (auto-dispatch off).`);
+      return;
+    }
     if (protocol.id && loadedProtocolIdsRef.current.has(protocol.id)) return;
     if (protocol.id) {
       loadedProtocolIdsRef.current.add(protocol.id);
@@ -110,16 +118,19 @@ export const WorkoutHub: React.FC = () => {
     }, 150);
   }, [setActiveLogs, setActiveSession, setActiveRoutine, showToast]);
 
-  // Realtime Supabase CDC Listener for dispatched_routines
+  useEffect(() => {
+    void getAuthenticatedUserId().then((id) => setAthleteUid(id || ''));
+  }, []);
+
   useAthleteRealtime({
-    athleteId: 'default-athlete',
+    athleteId: athleteUid,
     onProtocolDispatched: handleLoadAssignedProtocol,
   });
 
-  // Query completed_sessions on Workout screen mount
   useEffect(() => {
-    const currentUserId = useUserStore.getState().userId || 'default-athlete';
     async function loadCloudSessions() {
+      const currentUserId = athleteUid || (await getAuthenticatedUserId());
+      if (!currentUserId) return;
       try {
         // Query completed_sessions supporting both client_id and user_id schema conventions
         let res = await supabase
@@ -163,11 +174,12 @@ export const WorkoutHub: React.FC = () => {
         console.warn('[WorkoutHub] Cloud sessions lookup note:', err);
       }
     }
-    loadCloudSessions();
-  }, []);
+    void loadCloudSessions();
+  }, [athleteUid]);
 
   useEffect(() => {
-    const unsubscribe = subscribeToCoachDirectives('default-athlete', (payload) => {
+    if (!athleteUid) return;
+    const unsubscribe = subscribeToCoachDirectives(athleteUid, (payload) => {
       if (
         payload.new &&
         (payload.new.exercises || payload.new.workout_data) &&
@@ -179,15 +191,15 @@ export const WorkoutHub: React.FC = () => {
       }
     });
     return () => unsubscribe();
-  }, [handleLoadAssignedProtocol, showToast]);
+  }, [athleteUid, handleLoadAssignedProtocol, showToast]);
 
   return (
     <div
       id="workout-hub-page"
-      className="w-full h-auto min-h-full bg-[#F4F4F7] dark:bg-[#09090b] text-neutral-900 dark:text-white pb-8 px-3.5 pt-1 select-none transition-colors"
+      className="w-full h-auto min-h-full bg-transparent text-white pb-8 pt-1 select-none transition-colors"
     >
       {/* 1. TOP HERO CARD CONTAINER (Nude, No Atmospheric Fog Depth) */}
-      <div id="hero-card-container" className="relative w-full max-w-md mx-auto">
+      <div id="hero-card-container" className="relative w-full">
         <WorkoutHeroBanner
           onOpenCardioModal={() => modalActions.openCardioScanner()}
           onOptionsClick={() => modalActions.openSettings()}
@@ -275,7 +287,10 @@ export const WorkoutHub: React.FC = () => {
       {/* 4. EXERCISE HUB TOGGLE & DISCIPLINE SELECTOR (Default Closed) */}
       <ExerciseHubDrawer
         selectedDiscipline={selectedDiscipline}
-        onSelectDiscipline={setSelectedDiscipline}
+        onSelectDiscipline={(d) => {
+          setSelectedDiscipline(d);
+          if (d) setExpandedHubTab(null);
+        }}
         onShowToast={(msg: string) => showToast(msg)}
       />
 

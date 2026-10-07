@@ -25,14 +25,14 @@ export const DrawerSheet: React.FC<DrawerSheetProps> = ({
   title,
   subtitle,
   icon,
-  iconContainerClassName = 'p-1.5 rounded-lg bg-[#00E5FF]/10 text-[#00E5FF]',
+  iconContainerClassName = 'p-1.5 rounded-lg bg-[#0EA5E9]/10 text-[#0EA5E9]',
   headerRight,
   showSwipeHandle = true,
   showCloseButton = true,
-  maxWidth = 'max-w-[480px]',
-  maxHeight = 'max-h-[88dvh]',
+  maxWidth = 'max-w-[420px]',
+  maxHeight = 'max-h-[70dvh]',
   className = '',
-  bodyClassName = 'p-4 space-y-4 overflow-y-auto',
+  bodyClassName = 'p-2.5 space-y-2.5 overflow-y-auto',
   children,
   id,
 }) => {
@@ -51,7 +51,7 @@ export const DrawerSheet: React.FC<DrawerSheetProps> = ({
   return (
     <div
       id={id}
-      className="fixed inset-0 z-50 bg-black/85 flex flex-col justify-end md:justify-center items-center p-0 md:p-4 animate-in fade-in duration-200 select-none"
+      className="fixed inset-0 z-50 bg-black/70 o1-sheet-scrim flex flex-col justify-center items-center animate-in fade-in duration-200 select-none"
       onClick={(e) => {
         if (e.target === e.currentTarget) {
           onClose();
@@ -62,12 +62,12 @@ export const DrawerSheet: React.FC<DrawerSheetProps> = ({
         style={{
           paddingBottom: 'max(12px, env(safe-area-inset-bottom, 0px))',
         }}
-        className={`bg-[#0D0D10] border border-neutral-800 w-full ${maxWidth} rounded-t-3xl md:rounded-3xl flex flex-col overflow-hidden shadow-2xl animate-in slide-in-from-bottom-8 duration-300 ${className}`}
+        className={`o1-sheet-card bg-o1-card border border-white/[0.07] w-full ${maxWidth} flex flex-col overflow-hidden shadow-xl ${className}`}
       >
         {/* Optional Swipe Handle for tactile mobile affordance */}
         {showSwipeHandle && (
           <div
-            className="flex justify-center pt-2.5 pb-1 bg-[#121214] select-none cursor-grab active:cursor-grabbing"
+            className="flex justify-center pt-2.5 pb-1 bg-o1-card select-none cursor-grab active:cursor-grabbing"
             onClick={onClose}
           >
             <div className="w-12 h-1 bg-neutral-700 rounded-full hover:bg-neutral-600 transition-colors" />
@@ -76,7 +76,7 @@ export const DrawerSheet: React.FC<DrawerSheetProps> = ({
 
         {/* Modal Header */}
         {(title || showCloseButton) && (
-          <div className="flex items-center justify-between px-4 py-3.5 border-b border-neutral-800 bg-[#121214]">
+          <div className="flex items-center justify-between px-2.5 py-2 border-b border-white/[0.05] bg-o1-card">
             <div className="flex items-center gap-2">
               {icon && (
                 <div className={`shrink-0 ${iconContainerClassName}`}>
@@ -114,7 +114,7 @@ export const DrawerSheet: React.FC<DrawerSheetProps> = ({
         )}
 
         {/* Content Body */}
-        <div className={`${maxHeight} ${bodyClassName} bg-[#0D0D10] text-neutral-100`}>
+        <div className={`${maxHeight} ${bodyClassName} bg-transparent text-neutral-100`}>
           {children}
         </div>
       </div>

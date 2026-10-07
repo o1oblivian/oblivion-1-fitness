@@ -50,24 +50,24 @@ export const ScheduleTrainingModal: React.FC<Props> = ({
       role="dialog"
       aria-modal="true"
       onClick={onClose}
-      className="fixed inset-0 z-50 bg-black/85 flex items-end sm:items-center justify-center p-3 animate-in fade-in duration-200 select-none"
+      className="fixed inset-0 z-50 bg-black/70 o1-sheet-scrim flex items-center justify-center animate-in fade-in duration-200 select-none"
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-md bg-[#121214] border border-neutral-800 rounded-3xl p-6 shadow-2xl text-white space-y-4 max-h-[92vh] overflow-y-auto relative"
+        className="o1-sheet-card w-full bg-o1-card border border-white/[0.07] p-4 shadow-xl text-white space-y-3 overflow-y-auto relative"
       >
         {/* Concierge Pass Header */}
-        <div className="flex items-center justify-between pb-3 border-b border-neutral-800">
+        <div className="flex items-center justify-between pb-2.5 border-b border-white/[0.05]">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-[#C4121A]/10 border border-[#C4121A]/30 flex items-center justify-center text-[#C4121A]">
+            <div className="w-8 h-8 rounded-xl bg-o1-crimson/10 border border-o1-crimson/30 flex items-center justify-center text-o1-crimson">
               <Sparkles className="w-4 h-4" />
             </div>
             <div>
-              <span className="text-[10px] font-mono uppercase tracking-widest text-[#06b6d4] font-bold block">CONCIERGE PASS</span>
+              <span className="text-[10px] font-mono uppercase tracking-widest text-[#0EA5E9] font-bold block">CONCIERGE PASS</span>
               <h3 className="text-sm font-bold text-white tracking-tight font-tactical">Schedule with {athlete.name}</h3>
             </div>
           </div>
-          <button type="button" onClick={onClose} className="w-8 h-8 rounded-full bg-[#18181b] border border-neutral-800 flex items-center justify-center text-neutral-400 hover:text-white cursor-pointer">
+          <button type="button" onClick={onClose} className="w-8 h-8 rounded-full bg-o1-well border border-white/[0.07] flex items-center justify-center text-neutral-400 hover:text-white cursor-pointer">
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -82,7 +82,7 @@ export const ScheduleTrainingModal: React.FC<Props> = ({
                 type="button"
                 onClick={() => { tactileEngine.triggerDialHaptic(); setSelectedDateIdx(idx); }}
                 className={`flex-1 min-w-[54px] py-2.5 px-2 rounded-2xl flex flex-col items-center transition cursor-pointer border ${
-                  selectedDateIdx === idx ? 'bg-[#C4121A] border-[#C4121A] text-white shadow-md' : 'bg-[#09090b] border-neutral-800 text-neutral-400 hover:text-white'
+                  selectedDateIdx === idx ? 'bg-o1-crimson border-o1-crimson text-white shadow-md' : 'bg-black border-white/[0.07] text-neutral-400 hover:text-white'
                 }`}
               >
                 <span className="text-[9px] font-mono font-bold tracking-wider">{item.day}</span>
@@ -95,14 +95,14 @@ export const ScheduleTrainingModal: React.FC<Props> = ({
         {/* Time Slot Segmented Controls */}
         <div className="space-y-1.5">
           <span className="text-[10px] font-mono uppercase tracking-wider text-neutral-400 font-bold block">Session Window</span>
-          <div className="grid grid-cols-3 gap-1.5 p-1 rounded-2xl bg-[#09090b] border border-neutral-800">
+          <div className="grid grid-cols-3 gap-1.5 p-1 rounded-2xl bg-black border border-white/[0.07]">
             {TIME_SLOTS.map((slot) => (
               <button
                 key={slot}
                 type="button"
                 onClick={() => { tactileEngine.triggerDialHaptic(); setSelectedSlot(slot); }}
                 className={`py-2 px-1 rounded-xl text-[11px] font-mono font-bold transition text-center truncate cursor-pointer ${
-                  selectedSlot === slot ? 'bg-[#C4121A] text-white shadow-sm font-tactical' : 'text-neutral-400 hover:text-white'
+                  selectedSlot === slot ? 'bg-o1-crimson text-white shadow-sm font-tactical' : 'text-neutral-400 hover:text-white'
                 }`}
               >
                 {slot.replace('Morning ', '').replace('Midday ', '').replace('Evening ', '')}
@@ -120,17 +120,17 @@ export const ScheduleTrainingModal: React.FC<Props> = ({
                 key={g.id}
                 onClick={() => { tactileEngine.triggerDialHaptic(); setSelectedGymId(g.id); }}
                 className={`p-3 rounded-2xl border transition flex items-center justify-between cursor-pointer ${
-                  selectedGymId === g.id ? 'bg-[#18181b] border-[#C4121A] text-white shadow-sm' : 'bg-[#09090b] border-neutral-800 text-neutral-400 hover:text-neutral-200'
+                  selectedGymId === g.id ? 'bg-o1-well border-white/[0.07] text-white' : 'bg-black border-white/[0.07] text-neutral-400 hover:text-neutral-200'
                 }`}
               >
                 <div className="flex items-center gap-2.5">
-                  <MapPin className={`w-4 h-4 shrink-0 ${selectedGymId === g.id ? 'text-[#C4121A]' : 'text-neutral-500'}`} />
+                  <MapPin className={`w-4 h-4 shrink-0 ${selectedGymId === g.id ? 'text-white' : 'text-neutral-500'}`} />
                   <div>
                     <p className="text-xs font-bold text-white">{g.name}</p>
                     <p className="text-[10px] font-mono text-neutral-400">{g.dist} • Verified Oblivion Facility</p>
                   </div>
                 </div>
-                {selectedGymId === g.id && <Check className="w-4 h-4 text-[#C4121A] shrink-0" />}
+                {selectedGymId === g.id && <Check className="w-4 h-4 text-white/80 shrink-0" />}
               </div>
             ))}
           </div>
@@ -140,7 +140,7 @@ export const ScheduleTrainingModal: React.FC<Props> = ({
         <button
           type="button"
           onClick={handleConfirm}
-          className="w-full py-3.5 rounded-2xl bg-[#C4121A] hover:bg-[#a50f16] text-white text-xs font-tactical font-bold uppercase tracking-wider shadow-xl shadow-red-950/40 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer"
+          className="w-full py-2.5 rounded-xl bg-zinc-100 hover:bg-white text-neutral-950 text-xs font-semibold tracking-wide active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer"
         >
           <Calendar className="w-4 h-4" />
           <span>Confirm Joint Session</span>

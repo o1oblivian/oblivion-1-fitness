@@ -34,15 +34,15 @@ export const AthletePolygonRadar: React.FC<AthletePolygonRadarProps> = ({
     .join(' ');
 
   return (
-    <div className="bg-neutral-50 dark:bg-white/5 border border-neutral-200/80 dark:border-white/10 rounded-2xl p-3 space-y-2 transition-colors">
+    <div className="bg-white/5 border border-white/[0.07] rounded-2xl p-3 space-y-2 transition-colors">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-1.5">
-          <span className="w-2 h-2 rounded-full bg-[#C4121A]" />
-          <span className="font-mono font-bold text-[10px] uppercase text-neutral-900 dark:text-white">
+          <span className="w-2 h-2 rounded-full bg-o1-crimson" />
+          <span className="font-mono font-bold text-[10px] uppercase text-white">
             5-AXIS ATHLETE POLYGON
           </span>
         </div>
-        <span className="text-[10px] font-mono text-neutral-400 dark:text-neutral-500">
+        <span className="text-[10px] font-mono text-neutral-500">
           {isCalibrating ? 'Calibrating Baseline' : 'Holistic Equilibrium'}
         </span>
       </div>
@@ -56,46 +56,46 @@ export const AthletePolygonRadar: React.FC<AthletePolygonRadarProps> = ({
               transform={`scale(${scale}) translate(${(60 * (1 - scale)) / scale}, ${(60 * (1 - scale)) / scale})`}
               fill="none"
               stroke="currentColor"
-              className="text-neutral-200 dark:text-neutral-700/80"
+              className="text-neutral-700/80"
               strokeWidth="1"
             />
           ))}
           {/* 5 Axis lines */}
-          <line x1="60" y1="60" x2="60" y2="18" stroke="currentColor" className="text-neutral-200 dark:text-neutral-700/80" strokeWidth="1" />
-          <line x1="60" y1="60" x2="100" y2="47" stroke="currentColor" className="text-neutral-200 dark:text-neutral-700/80" strokeWidth="1" />
-          <line x1="60" y1="60" x2="85" y2="94" stroke="currentColor" className="text-neutral-200 dark:text-neutral-700/80" strokeWidth="1" />
-          <line x1="60" y1="60" x2="35" y2="94" stroke="currentColor" className="text-neutral-200 dark:text-neutral-700/80" strokeWidth="1" />
-          <line x1="60" y1="60" x2="20" y2="47" stroke="currentColor" className="text-neutral-200 dark:text-neutral-700/80" strokeWidth="1" />
+          <line x1="60" y1="60" x2="60" y2="18" stroke="currentColor" className="text-neutral-700/80" strokeWidth="1" />
+          <line x1="60" y1="60" x2="100" y2="47" stroke="currentColor" className="text-neutral-700/80" strokeWidth="1" />
+          <line x1="60" y1="60" x2="85" y2="94" stroke="currentColor" className="text-neutral-700/80" strokeWidth="1" />
+          <line x1="60" y1="60" x2="35" y2="94" stroke="currentColor" className="text-neutral-700/80" strokeWidth="1" />
+          <line x1="60" y1="60" x2="20" y2="47" stroke="currentColor" className="text-neutral-700/80" strokeWidth="1" />
           
           {/* Dynamic Polygon Data */}
           <polygon
             points={pointsString}
-            className="fill-[#C4121A]/20 stroke-[#C4121A] stroke-2 transition-all duration-300"
+            className="fill-o1-crimson/20 stroke-o1-crimson stroke-2 transition-all duration-300"
           />
         </svg>
       </div>
 
       {/* 5 Axis Readouts */}
-      <div className="grid grid-cols-5 gap-1 text-center font-mono text-[9px] pt-1 border-t border-neutral-200/80 dark:border-white/10">
+      <div className="grid grid-cols-5 gap-1 text-center font-mono text-[9px] pt-1 border-t border-white/[0.05]">
         <div>
-          <span className="text-neutral-400 dark:text-neutral-500 block">VOL</span>
-          <span className="font-bold text-neutral-900 dark:text-white">{isCalibrating ? '--' : `${vol}%`}</span>
+          <span className="text-neutral-500 block">VOL</span>
+          <span className="font-bold text-white">{isCalibrating ? '--' : `${vol}%`}</span>
         </div>
         <div>
-          <span className="text-neutral-400 dark:text-neutral-500 block">LOAD</span>
-          <span className="font-bold text-neutral-900 dark:text-white">{isCalibrating ? '--' : `${load}%`}</span>
+          <span className="text-neutral-500 block">LOAD</span>
+          <span className="font-bold text-white">{isCalibrating ? '--' : `${load}%`}</span>
         </div>
         <div>
-          <span className="text-neutral-400 dark:text-neutral-500 block">FUEL</span>
-          <span className="font-bold text-neutral-900 dark:text-white">{isCalibrating ? '--' : `${fuel}%`}</span>
+          <span className="text-neutral-500 block">FUEL</span>
+          <span className="font-bold text-white">{isCalibrating ? '--' : `${fuel}%`}</span>
         </div>
         <div>
-          <span className="text-neutral-400 dark:text-neutral-500 block">REC</span>
-          <span className="font-bold text-neutral-900 dark:text-white">{isCalibrating ? '--' : `${rec}%`}</span>
+          <span className="text-neutral-500 block">REC</span>
+          <span className="font-bold text-white">{isCalibrating ? '--' : `${rec}%`}</span>
         </div>
         <div>
-          <span className="text-neutral-400 dark:text-neutral-500 block">FLUX</span>
-          <span className="font-bold text-neutral-900 dark:text-white">{isCalibrating ? '--' : `${flux}%`}</span>
+          <span className="text-neutral-500 block">FLUX</span>
+          <span className="font-bold text-white">{isCalibrating ? '--' : `${flux}%`}</span>
         </div>
       </div>
     </div>

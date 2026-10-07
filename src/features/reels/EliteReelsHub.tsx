@@ -54,7 +54,7 @@ export const EliteReelsHub: React.FC<EliteReelsHubProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div id="elite-reels-hub-modal" className="fixed inset-0 z-50 bg-[#09090b] text-neutral-100 flex flex-col font-sans select-none overflow-hidden">
+    <div id="elite-reels-hub-modal" className="fixed inset-0 z-50 bg-black text-neutral-100 flex flex-col font-sans select-none overflow-hidden">
       {viewMode === 'player' && activeReel ? (
         <ReelPlayerView
           activeReel={activeReel}
@@ -78,7 +78,10 @@ export const EliteReelsHub: React.FC<EliteReelsHubProps> = ({
           onShare={handleShare}
           onAddExercise={handleAddExerciseToWorkout}
           onSelectClip={setActiveClip}
-          onBookCoach={(coach) => setBookingCoach(coach)}
+          onBookCoach={(coach) => {
+            const live = coachesList.find((c) => c.id === coach.id || c.name === coach.name) || coach;
+            setBookingCoach(live);
+          }}
           onMessageCoach={(coach) => setMessageCoach(coach)}
         />
       ) : (
@@ -100,7 +103,10 @@ export const EliteReelsHub: React.FC<EliteReelsHubProps> = ({
             setViewMode('player');
           }}
           onToggleFollow={handleToggleFollow}
-          onBookCoach={(coach) => setBookingCoach(coach)}
+          onBookCoach={(coach) => {
+            const live = coachesList.find((c) => c.id === coach.id || c.name === coach.name) || coach;
+            setBookingCoach(live);
+          }}
           onMessageCoach={(coach) => setMessageCoach(coach)}
         />
       )}
@@ -121,7 +127,7 @@ export const EliteReelsHub: React.FC<EliteReelsHubProps> = ({
       <CoachDirectMessageModal coach={messageCoach} onClose={() => setMessageCoach(null)} />
 
       {shareToast && (
-        <div className="absolute top-14 inset-x-0 mx-auto w-fit z-50 px-4 py-2 rounded-full bg-neutral-900/90 border border-white/15 backdrop-blur-md text-xs font-mono text-white shadow-xl animate-in fade-in duration-200">
+        <div className="absolute top-14 inset-x-0 mx-auto w-fit z-50 px-4 py-2 rounded-full bg-o1-well border border-white/[0.07] backdrop-blur-md text-xs font-mono text-white shadow-xl animate-in fade-in duration-200">
           {shareToast}
         </div>
       )}

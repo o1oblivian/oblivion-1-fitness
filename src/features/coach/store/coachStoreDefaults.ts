@@ -11,7 +11,7 @@ export const INITIAL_DIRECTIVES: DirectiveItem[] = [
       'Prescribe 15 min box breathing & cold immersion to 3 athletes with elevated CNS fatigue score.',
     affectedCount: 3,
     priority: 'HIGH',
-    badgeStyle: 'bg-purple-950/50 text-purple-400 border-purple-800/60',
+    badgeStyle: 'bg-sky-950/50 text-sky-400 border-sky-800/60',
   },
   {
     id: 'dir-2',
@@ -41,7 +41,7 @@ export const INITIAL_DIRECTIVES: DirectiveItem[] = [
       'Rotate to lateral cable raise drop-sets with 30s rest periods to accelerate deltoid density.',
     affectedCount: 4,
     priority: 'NORMAL',
-    badgeStyle: 'bg-blue-950/50 text-blue-400 border-blue-800/60',
+    badgeStyle: 'bg-sky-950/50 text-sky-400 border-sky-800/60',
   },
 ];
 

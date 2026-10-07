@@ -47,7 +47,7 @@ export const MealScanActions: React.FC<MealScanActionsProps> = ({
             </div>
           )}
 
-          <div className="flex items-center gap-2 bg-[#18181b] border border-neutral-800 rounded-xl px-3 py-1.5">
+          <div className="flex items-center gap-2 bg-o1-well border border-white/[0.07] rounded-xl px-3 py-1.5">
             <Scan className="w-4 h-4 text-neutral-400 shrink-0" />
             <input
               type="text"
@@ -61,7 +61,7 @@ export const MealScanActions: React.FC<MealScanActionsProps> = ({
               type="button"
               onClick={() => onBarcodeLookup()}
               disabled={!barcodeInput.trim() || isLoading}
-              className="px-3 py-1 bg-[#C4121A] hover:bg-[#a50f16] text-white text-[11px] font-bold rounded-lg transition-colors disabled:opacity-40 cursor-pointer shrink-0"
+              className="px-3 py-1 bg-o1-crimson hover:bg-o1-crimson-hover text-white text-[11px] font-bold rounded-xl transition-colors disabled:opacity-40 cursor-pointer shrink-0"
             >
               Lookup
             </button>
@@ -79,7 +79,7 @@ export const MealScanActions: React.FC<MealScanActionsProps> = ({
 
       {/* Tab 3: Plate Interactive Estimate Guide */}
       {scanMode === 'plate' && (
-        <div className="p-3 rounded-2xl bg-neutral-900 border border-neutral-800 text-center space-y-1">
+        <div className="p-3 rounded-2xl bg-o1-well border border-white/[0.07] text-center space-y-1">
           <p className="text-xs font-mono font-bold text-neutral-200">Plate Nutrition Vision Engine</p>
           <p className="text-[10px] text-neutral-400">Visual portion mass estimation with real-time Atwater adjustment</p>
         </div>
@@ -114,7 +114,7 @@ export const MealScanActions: React.FC<MealScanActionsProps> = ({
           type="button"
           onClick={() => cameraInputRef.current?.click()}
           disabled={isLoading}
-          className="flex items-center justify-center gap-2 py-3 px-4 rounded-2xl bg-[#C4121A] hover:bg-[#a50f16] text-white text-xs font-bold cursor-pointer active:scale-95 transition-transform disabled:opacity-50"
+          className="flex items-center justify-center gap-2 py-3 px-4 rounded-2xl bg-white text-neutral-950 text-xs font-semibold cursor-pointer active:scale-95 transition-transform disabled:opacity-50"
         >
           <Camera className="w-4 h-4" />
           <span>Take Photo</span>
@@ -123,7 +123,7 @@ export const MealScanActions: React.FC<MealScanActionsProps> = ({
           type="button"
           onClick={() => fileInputRef.current?.click()}
           disabled={isLoading}
-          className="flex items-center justify-center gap-2 py-3 px-4 rounded-2xl bg-[#18181b] hover:bg-[#222227] text-neutral-200 text-xs font-bold cursor-pointer active:scale-95 transition-transform disabled:opacity-50"
+          className="flex items-center justify-center gap-2 py-3 px-4 rounded-2xl bg-o1-well hover:bg-white/[0.06] text-neutral-200 text-xs font-bold cursor-pointer active:scale-95 transition-transform disabled:opacity-50"
         >
           <Upload className="w-4 h-4" />
           <span>Upload Photo</span>

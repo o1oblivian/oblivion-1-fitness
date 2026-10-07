@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../../../../services/supabaseClient';
+import { getAuthenticatedUserId } from '../../../../services/authUser';
 
 export interface VaultUploadItem {
   id: string;
@@ -18,8 +19,11 @@ export function useLiveCoachVault() {
     async function loadCoachVault() {
       setLoading(true);
       try {
-        const { data: authData } = await supabase.auth.getUser();
-        const coachId = authData?.user?.id || localStorage.getItem('o1fc_user_id') || 'default-athlete';
+        const coachId = await getAuthenticatedUserId();
+        if (!coachId) {
+          if (isMounted) setLoading(false);
+          return;
+        }
 
         const { data: supabaseItems } = await supabase
           .from('media_vault')
@@ -67,8 +71,8 @@ export function useLiveCoachVault() {
     setVaultItems((prev) => [newItem, ...prev]);
 
     try {
-      const { data: authData } = await supabase.auth.getUser();
-      const coachId = authData?.user?.id || localStorage.getItem('o1fc_user_id') || 'default-athlete';
+      const coachId = await getAuthenticatedUserId();
+      if (!coachId) return;
       await supabase.from('media_vault').insert([{
         id: newItem.id,
         user_id: coachId,

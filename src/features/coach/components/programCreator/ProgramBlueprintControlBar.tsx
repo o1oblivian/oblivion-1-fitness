@@ -35,13 +35,13 @@ export const ProgramBlueprintControlBar: React.FC<Props> = ({
   }, [category]);
 
   return (
-    <div className="p-3.5 rounded-2xl bg-white dark:bg-[#141416] border border-neutral-200 dark:border-neutral-800 space-y-3 shadow-2xs">
+    <div className="p-3.5 rounded-2xl bg-o1-card border border-white/[0.07] space-y-3 shadow-2xs">
       {/* Header bar: Discipline indicator & Quick actions */}
       <div className="flex items-center justify-between text-xs">
         <div className="flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-[#C4121A]" />
-          <span className="text-neutral-500 dark:text-neutral-400 text-xs font-semibold">
-            Discipline: <span className="text-neutral-900 dark:text-white font-bold">{selectedMuscleTag || category}</span>
+          <span className="w-2 h-2 rounded-full bg-o1-crimson" />
+          <span className="text-neutral-400 text-xs font-semibold">
+            Discipline: <span className="text-white font-bold">{selectedMuscleTag || category}</span>
           </span>
         </div>
 
@@ -50,7 +50,7 @@ export const ProgramBlueprintControlBar: React.FC<Props> = ({
             <button
               type="button"
               onClick={onAutoProgramWeek}
-              className="text-[11px] text-amber-600 dark:text-amber-400 hover:text-amber-700 dark:hover:text-amber-300 flex items-center gap-1 font-semibold cursor-pointer"
+              className="text-[11px] text-amber-400 hover:text-amber-300 flex items-center gap-1 font-semibold cursor-pointer"
               title="Auto-generate database workouts for all days of the current week"
             >
               <Zap className="w-3.5 h-3.5" />
@@ -62,7 +62,7 @@ export const ProgramBlueprintControlBar: React.FC<Props> = ({
             <button
               type="button"
               onClick={onSyncSplit}
-              className="text-[11px] text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white flex items-center gap-1 font-semibold cursor-pointer"
+              className="text-[11px] text-slate-400 hover:text-white flex items-center gap-1 font-semibold cursor-pointer"
               title={`Sync schedule focus to ${selectedMuscleTag || category}`}
             >
               <Sliders className="w-3.5 h-3.5" />
@@ -86,8 +86,8 @@ export const ProgramBlueprintControlBar: React.FC<Props> = ({
               }}
               className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
                 isSelected
-                  ? 'bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 shadow-2xs font-bold'
-                  : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-200 dark:hover:bg-neutral-700'
+                  ? 'bg-white text-neutral-900 shadow-2xs font-bold'
+                  : 'bg-white/[0.08] text-neutral-400 hover:text-white hover:bg-neutral-700'
               }`}
             >
               {t}
@@ -97,11 +97,11 @@ export const ProgramBlueprintControlBar: React.FC<Props> = ({
       </div>
 
       {/* Action Bar: Dynamic Blueprint Trigger & Exercise Quick Adds */}
-      <div className="flex flex-wrap items-center gap-1.5 pt-2 border-t border-neutral-100 dark:border-neutral-800/80">
+      <div className="flex flex-wrap items-center gap-1.5 pt-2 border-t border-white/[0.05]">
         <button
           type="button"
           onClick={onApplyBlueprint}
-          className="px-3 py-1.5 rounded-xl bg-[#C4121A] hover:bg-[#a80f16] active:scale-95 text-white text-xs font-bold flex items-center gap-1.5 shadow-2xs transition-all cursor-pointer"
+          className="px-3 py-1.5 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover active:scale-95 text-white text-xs font-bold flex items-center gap-1.5 shadow-2xs transition-all cursor-pointer"
         >
           <Sparkles className="w-3.5 h-3.5" />
           <span>Apply {selectedMuscleTag} Blueprint</span>
@@ -112,7 +112,7 @@ export const ProgramBlueprintControlBar: React.FC<Props> = ({
             key={qa}
             type="button"
             onClick={() => onQuickAdd(qa)}
-            className="px-2.5 py-1.5 rounded-xl bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 text-neutral-700 dark:text-neutral-300 text-[11px] font-medium truncate max-w-[170px] active:scale-95 transition-all cursor-pointer border border-neutral-200/80 dark:border-neutral-700/60"
+            className="px-2.5 py-1.5 rounded-xl bg-white/[0.08] hover:bg-neutral-700 text-neutral-300 text-[11px] font-medium truncate max-w-[170px] active:scale-95 transition-all cursor-pointer border border-white/[0.07]"
             title={`Quick add ${qa}`}
           >
             + {qa}

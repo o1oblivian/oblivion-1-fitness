@@ -11,7 +11,7 @@ interface AuthContextType {
 }
 
 const AuthContext = createContext<AuthContextType>({
-  userId: 'default-athlete',
+  userId: '',
   email: null,
   isAuthenticated: false,
   isLoading: true,
@@ -20,7 +20,9 @@ const AuthContext = createContext<AuthContextType>({
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [userId, setUserId] = useState<string>(() => {
-    return (typeof window !== 'undefined' && localStorage.getItem('o1fc_user_id')) || 'default-athlete';
+    const stored = typeof window !== 'undefined' ? localStorage.getItem('o1fc_user_id') : null;
+    if (!stored || stored === 'default-athlete' || stored === 'athlete-c1') return '';
+    return stored;
   });
   const [email, setEmail] = useState<string | null>(() => {
     return (typeof window !== 'undefined' && localStorage.getItem('o1fc_user_email')) || null;
@@ -84,9 +86,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (uEmail) localStorage.setItem('o1fc_user_email', uEmail);
         await syncProfile(uid, uEmail);
       } else if (event === 'SIGNED_OUT') {
-        setUserId('default-athlete');
+        setUserId('');
         setEmail(null);
-        useUserStore.getState().setUserId('default-athlete');
+        useUserStore.getState().setUserId('');
         localStorage.removeItem('o1fc_user_id');
         localStorage.removeItem('o1fc_user_email');
       }
@@ -102,9 +104,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       await supabase.auth.signOut();
     } catch {}
-    setUserId('default-athlete');
+    setUserId('');
     setEmail(null);
-    useUserStore.getState().setUserId('default-athlete');
+    useUserStore.getState().setUserId('');
     localStorage.removeItem('o1fc_user_id');
     localStorage.removeItem('o1fc_user_email');
   };
@@ -114,7 +116,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       value={{
         userId,
         email,
-        isAuthenticated: userId !== 'default-athlete',
+        isAuthenticated: Boolean(userId),
         isLoading,
         signOut,
       }}

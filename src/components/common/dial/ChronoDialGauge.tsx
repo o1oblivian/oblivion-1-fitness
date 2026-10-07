@@ -52,13 +52,13 @@ export const ChronoDialGauge: React.FC<ChronoDialGaugeProps> = ({
         onPointerDown={onPointerDown}
         className="w-full h-full cursor-grab active:cursor-grabbing select-none"
       >
-        <circle cx={cx} cy={cy} r="126" className="fill-neutral-100 dark:fill-[#141417]" />
-        <circle cx={cx} cy={cy} r="122" className="fill-neutral-200/50 dark:fill-[#1a1a1f]" />
+        <circle cx={cx} cy={cy} r="126" className="fill-o1-card" />
+        <circle cx={cx} cy={cy} r="122" className="fill-o1-well" />
         <circle
           cx={cx}
           cy={cy}
           r="118"
-          className="fill-white dark:fill-[#0c0c0e] stroke-neutral-200/80 dark:stroke-neutral-800"
+          className="fill-[#000000] stroke-neutral-800"
           strokeWidth="1.5"
         />
 
@@ -77,7 +77,7 @@ export const ChronoDialGauge: React.FC<ChronoDialGaugeProps> = ({
               x2={cx + r2 * Math.cos(a)}
               y2={cy + r2 * Math.sin(a)}
               stroke={isPassed ? accentColor : 'currentColor'}
-              className={isPassed ? '' : 'text-neutral-300 dark:text-neutral-700/80'}
+              className={isPassed ? '' : 'text-neutral-700/80'}
               strokeWidth={isMajor ? 2 : 1}
               strokeLinecap="round"
             />
@@ -88,7 +88,7 @@ export const ChronoDialGauge: React.FC<ChronoDialGaugeProps> = ({
           d={bgPath}
           fill="none"
           stroke="currentColor"
-          className="text-neutral-200 dark:text-neutral-800"
+          className="text-neutral-800"
           strokeWidth="8"
           strokeLinecap="round"
         />
@@ -106,7 +106,7 @@ export const ChronoDialGauge: React.FC<ChronoDialGaugeProps> = ({
               y={cy + 88 * Math.sin(a)}
               textAnchor="middle"
               dominantBaseline="central"
-              className="text-[9px] font-mono font-semibold fill-neutral-400 dark:fill-neutral-500 pointer-events-none"
+              className="text-[9px] font-mono font-semibold fill-neutral-500 pointer-events-none"
             >
               {m.label}
             </text>
@@ -121,11 +121,11 @@ export const ChronoDialGauge: React.FC<ChronoDialGaugeProps> = ({
         <button
           type="button"
           onClick={onCenterClick}
-          className="w-28 h-28 rounded-full flex flex-col items-center justify-center text-center cursor-pointer pointer-events-auto hover:bg-black/5 dark:hover:bg-white/5 active:scale-95 transition-all"
+          className="w-28 h-28 rounded-full flex flex-col items-center justify-center text-center cursor-pointer pointer-events-auto hover:bg-white/5 active:scale-95 transition-all"
         >
-          <span className="text-[10px] font-tactical font-bold tracking-[0.16em] text-neutral-400 dark:text-neutral-500 uppercase">{unit}</span>
-          <span className="text-4xl sm:text-5xl font-mono font-black text-neutral-900 dark:text-white tracking-tight leading-none my-1">{value}</span>
-          <span className="text-[9px] font-sans font-medium text-neutral-400 dark:text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300">tap for numpad</span>
+          <span className="text-[10px] font-tactical font-bold tracking-[0.16em] text-neutral-500 uppercase">{unit}</span>
+          <span className="text-4xl sm:text-5xl font-mono font-black text-white tracking-tight leading-none my-1">{value}</span>
+          <span className="text-[9px] font-sans font-medium text-neutral-500 hover:text-neutral-300">tap for numpad</span>
         </button>
       </div>
     </div>

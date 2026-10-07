@@ -44,22 +44,22 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ onClose, onLogout, o
 
   return (
     <div className="w-full max-w-lg mx-auto p-4 space-y-4 text-white select-none pb-12">
-      <div className="flex items-center justify-between py-2 border-b border-neutral-800">
+      <div className="flex items-center justify-between py-2 border-b border-white/[0.05]">
         <button type="button" onClick={handleSafeClose} className="flex items-center gap-1.5 text-neutral-400 hover:text-white text-xs font-mono uppercase transition active:scale-95 cursor-pointer">
-          <ChevronLeft className="w-4 h-4 text-[#C4121A]" />
+          <ChevronLeft className="w-4 h-4 text-o1-crimson" />
           <span>Dashboard</span>
         </button>
-        <button type="button" onClick={handleSafeClose} className="text-xs font-mono font-bold text-[#C4121A] hover:text-[#A30F16] flex items-center gap-1 uppercase transition active:scale-95 cursor-pointer">
+        <button type="button" onClick={handleSafeClose} className="text-xs font-mono font-bold text-o1-crimson hover:text-o1-crimson-hover flex items-center gap-1 uppercase transition active:scale-95 cursor-pointer">
           <Check className="w-3.5 h-3.5" />
           <span>Done</span>
         </button>
       </div>
 
       {/* Header Profile Section */}
-      <div className="bg-[#121214] border border-neutral-800 rounded-3xl p-5 shadow-2xl space-y-3">
+      <div className="bg-o1-card border border-white/[0.07] rounded-2xl p-5 shadow-2xl space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-red-950/40 border border-red-900/60 text-[#C4121A] flex items-center justify-center font-bold font-mono">
+            <div className="w-10 h-10 rounded-2xl bg-red-950/40 border border-red-900/60 text-o1-crimson flex items-center justify-center font-bold font-mono">
               O1
             </div>
             <div>
@@ -72,18 +72,18 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ onClose, onLogout, o
 
         {/* Vault Export & Explicit Sign Out */}
         <div className="grid grid-cols-2 gap-2 pt-2">
-          <button type="button" onClick={settings.handleExportVault} className="py-2.5 px-3 rounded-xl border border-neutral-800 bg-[#16161a] hover:bg-neutral-800 text-neutral-200 text-xs font-mono font-semibold uppercase flex items-center justify-center gap-1.5 transition-all active:scale-95 cursor-pointer">
-            <Download className="w-3.5 h-3.5 text-[#C4121A]" />
+          <button type="button" onClick={settings.handleExportVault} className="py-2.5 px-3 rounded-xl border border-white/[0.07] bg-o1-well hover:bg-white/[0.06] text-neutral-200 text-xs font-mono font-semibold uppercase flex items-center justify-center gap-1.5 transition-all active:scale-95 cursor-pointer">
+            <Download className="w-3.5 h-3.5 text-o1-crimson" />
             <span>Vault Backup</span>
           </button>
-          <button type="button" onClick={handleExplicitSignOut} className="py-2.5 px-3 rounded-xl border border-neutral-800 bg-[#16161a] hover:bg-neutral-800 text-neutral-200 text-xs font-mono font-semibold uppercase flex items-center justify-center gap-1.5 transition-all active:scale-95 cursor-pointer">
+          <button type="button" onClick={handleExplicitSignOut} className="py-2.5 px-3 rounded-xl border border-white/[0.07] bg-o1-well hover:bg-white/[0.06] text-neutral-200 text-xs font-mono font-semibold uppercase flex items-center justify-center gap-1.5 transition-all active:scale-95 cursor-pointer">
             <LogOut className="w-3.5 h-3.5 text-neutral-400" />
             <span>Sign Out</span>
           </button>
         </div>
 
         {/* Dedicated Erase Account Button */}
-        <div className="pt-2 border-t border-neutral-800">
+        <div className="pt-2 border-t border-white/[0.05]">
           <button type="button" onClick={() => { tactileEngine.triggerSelectionBuzz(); settings.setShowDeleteConfirm(true); }} className="w-full py-2.5 px-3 rounded-xl border border-red-500/30 bg-red-950/20 hover:bg-red-950/40 text-red-500 hover:text-red-400 text-xs font-mono font-bold uppercase flex items-center justify-center gap-2 transition-all active:scale-98 cursor-pointer">
             <Trash2 className="w-3.5 h-3.5 text-red-500" />
             <span>Delete Account &amp; Erase All Data</span>
@@ -92,15 +92,15 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ onClose, onLogout, o
       </div>
 
       {/* Legal & Governance */}
-      <div className="bg-[#121214] border border-neutral-800 rounded-3xl p-4 space-y-2">
+      <div className="bg-o1-card border border-white/[0.07] rounded-2xl p-4 space-y-2">
         <span className="text-[10px] font-mono uppercase text-neutral-500 font-bold tracking-wider px-1">Legal &amp; Data Governance</span>
         <div className="grid grid-cols-2 gap-2">
-          <button type="button" onClick={() => { tactileEngine.triggerSelectionBuzz(); setShowTerms(true); }} className="py-2.5 px-3 rounded-xl border border-neutral-800 bg-[#18181b] hover:bg-neutral-800 text-neutral-300 text-xs font-mono flex items-center gap-2 transition cursor-pointer">
+          <button type="button" onClick={() => { tactileEngine.triggerSelectionBuzz(); setShowTerms(true); }} className="py-2.5 px-3 rounded-xl border border-white/[0.07] bg-o1-well hover:bg-white/[0.06] text-neutral-300 text-xs font-mono flex items-center gap-2 transition cursor-pointer">
             <FileText className="w-3.5 h-3.5 text-neutral-400" />
             <span>Terms of Service</span>
           </button>
-          <button type="button" onClick={() => { tactileEngine.triggerSelectionBuzz(); setShowPrivacy(true); }} className="py-2.5 px-3 rounded-xl border border-neutral-800 bg-[#18181b] hover:bg-neutral-800 text-neutral-300 text-xs font-mono flex items-center gap-2 transition cursor-pointer">
-            <Lock className="w-3.5 h-3.5 text-[#06b6d4]" />
+          <button type="button" onClick={() => { tactileEngine.triggerSelectionBuzz(); setShowPrivacy(true); }} className="py-2.5 px-3 rounded-xl border border-white/[0.07] bg-o1-well hover:bg-white/[0.06] text-neutral-300 text-xs font-mono flex items-center gap-2 transition cursor-pointer">
+            <Lock className="w-3.5 h-3.5 text-[#0EA5E9]" />
             <span>Privacy Policy</span>
           </button>
         </div>

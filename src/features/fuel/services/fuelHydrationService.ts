@@ -1,4 +1,5 @@
 import { supabase } from '../../../services/supabaseClient';
+import { getAuthenticatedUserId } from '../../../services/authUser';
 import { FuelMeals, MealItem } from '../store/useFuelStore';
 import { safeStorage } from '../../../utils/sanitizers';
 
@@ -8,8 +9,8 @@ export async function hydrateFuelFromSupabase(
   onHydrate: (meals: FuelMeals, calorieTarget?: number) => void
 ): Promise<void> {
   try {
-    const { data: authData } = await supabase.auth.getUser();
-    const userId = authData?.user?.id || (typeof window !== 'undefined' && localStorage.getItem('o1fc_user_id')) || 'default-athlete';
+    const userId = await getAuthenticatedUserId();
+    if (!userId) return;
     const now = new Date();
     const todayDateKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
     const startIso = `${todayDateKey}T00:00:00.000Z`;

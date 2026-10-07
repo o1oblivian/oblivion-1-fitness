@@ -1,8 +1,7 @@
 import React from 'react';
 import { useFuelStore } from './store/useFuelStore';
-import { DailyEnergyCard } from './components/DailyEnergyCard';
+import { FuelHeroDashboard } from './components/FuelHeroDashboard';
 import { SupplementsElectrolytesAccordion } from './components/SupplementsElectrolytesAccordion';
-import { FuelTopStatusBar } from './components/FuelTopStatusBar';
 import { FuelHydrationCard } from './components/FuelHydrationCard';
 import { O1FCIntelMealSuggestionsSection } from './components/O1FCIntelMealSuggestionsSection';
 import { FuelCustomMacroDrawer } from './components/FuelCustomMacroDrawer';
@@ -21,7 +20,7 @@ export const FuelView: React.FC = () => {
     calorieTarget,
     burnedKcal,
     weightKg,
-    countryMarket = 'US',
+    countryMarket = 'AU',
     setCountryMarket,
     targetProteinG,
     targetCarbsG,
@@ -72,33 +71,12 @@ export const FuelView: React.FC = () => {
   return (
     <div
       id="fuel-view-container"
-      className="w-full h-auto min-h-full bg-[#F4F4F7] dark:bg-[#09090b] text-neutral-900 dark:text-white px-3.5 pt-1 pb-10 select-none space-y-3.5 transition-colors"
+      className="w-full h-auto min-h-full bg-transparent text-white pt-1 pb-10 select-none space-y-2.5 transition-colors"
     >
-      {/* Consolidated Top Command Bar */}
-      <FuelTopStatusBar
+      <FuelHeroDashboard
         countryMarket={countryMarket}
         dietPreference={dietPreference}
         weightKg={weightKg}
-        remainingKcal={totals.remainingCalories}
-        dailyTargetKcal={calorieTarget}
-        onOpenCountryModal={() => modals.setIsCountryModalOpen(true)}
-        isDietOpen={modals.isDietModalOpen}
-        onToggleDiet={() => modals.setIsDietModalOpen(!modals.isDietModalOpen)}
-        onSelectDiet={(diet) => {
-          setDietPreference(diet);
-          modals.setIsDietModalOpen(false);
-          showToast(`Diet set to ${diet}`);
-        }}
-        onCloseDiet={() => modals.setIsDietModalOpen(false)}
-        onOpenDietModal={() => modals.setIsDietModalOpen(true)}
-        onSaveWeight={(w) => {
-          setWeightKg(w);
-          showToast(`Weight updated to ${w} kg`);
-        }}
-      />
-
-      {/* Master Energy & Macro Kinetic Ring HUD */}
-      <DailyEnergyCard
         remainingKcal={totals.remainingCalories}
         eatenKcal={totals.totalCalories}
         burnedKcal={burnedKcal}
@@ -109,18 +87,15 @@ export const FuelView: React.FC = () => {
         carbsTarget={targetCarbsG}
         fatsG={totals.totalFats}
         fatsTarget={targetFatsG}
-        weightKg={weightKg}
-        activeTab={modals.energyTab === 'targets' ? 'Adjust Targets' : 'Today'}
-        onViewChange={(tab) => {
-          modals.setEnergyTab(tab === 'Adjust Targets' ? 'targets' : 'today');
-        }}
-        onApplyTargets={(cal, p, c, f, weight) => {
-          setEnergyTargets(cal, p, c, f, weight);
-          showToast(`Energy Engine Targets Updated: ${cal} kcal (${p}g P, ${c}g C, ${f}g F)`);
-        }}
+        onOpenCountry={() => modals.setIsCountryModalOpen(true)}
+        onOpenDiet={() => modals.setIsDietModalOpen(true)}
         onSaveWeight={(w) => {
           setWeightKg(w);
           showToast(`Weight updated to ${w} kg`);
+        }}
+        onApplyTargets={(cal, p, c, f, weight) => {
+          setEnergyTargets(cal, p, c, f, weight);
+          showToast(`Energy Engine: ${cal} kcal · ${p}g P · ${c}g C · ${f}g F`);
         }}
       />
 
@@ -140,6 +115,7 @@ export const FuelView: React.FC = () => {
         remainingFats={remainingFats}
         targetProteinG={targetProteinG}
         dietPreference={dietPreference}
+        countryMarket={countryMarket}
         onOpenDietModal={() => modals.setIsDietModalOpen(true)}
         onAddMealItem={addMealItem}
         showToast={showToast}
@@ -158,6 +134,7 @@ export const FuelView: React.FC = () => {
         isIntakeExpanded={modals.isIntakeExpanded}
         onToggleIntake={() => modals.setIsIntakeExpanded(!modals.isIntakeExpanded)}
         meals={meals}
+        dietPreference={dietPreference}
         onDeleteItem={handleDeleteItem}
         onOpenAddFoodModal={(catLabel) => {
           modals.setAddFoodCategory(catLabel);

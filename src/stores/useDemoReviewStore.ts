@@ -249,7 +249,7 @@ export const DEMO_REVIEW_DIRECTIVES: DirectiveItem[] = [
     summary: '2 athletes flagged HRV drop > 15% following heavy deadlift microcycle.',
     affectedCount: 2,
     priority: 'HIGH',
-    badgeStyle: 'bg-rose-950/60 text-rose-400 border-rose-800/60',
+    badgeStyle: 'bg-red-950/60 text-red-400 border-red-800/60',
   },
   {
     id: 'demo-dir-2',
@@ -267,7 +267,7 @@ export const DEMO_REVIEW_DIRECTIVES: DirectiveItem[] = [
     summary: 'Carbohydrate timing optimization active across endurance cohort.',
     affectedCount: 6,
     priority: 'NORMAL',
-    badgeStyle: 'bg-green-950/60 text-green-400 border-green-800/60',
+    badgeStyle: 'bg-emerald-950/60 text-emerald-400 border-emerald-800/60',
   },
 ];
 

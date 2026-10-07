@@ -96,17 +96,17 @@ export const DailyEnergyCard: React.FC<DailyEnergyCardProps> = ({
   return (
     <div
       id="daily-energy-dashboard"
-      className="bg-white dark:bg-[#121214] border border-black/5 dark:border-white/10 rounded-3xl p-4 sm:p-5 space-y-4 transition-colors shadow-sm dark:shadow-xl select-none"
+      className="bg-o1-card border border-white/[0.07] rounded-2xl p-3 space-y-2.5 transition-colors shadow-sm select-none"
     >
       {/* Segmented 2-Tab Native Controller (Top of Card) */}
-      <div className="flex items-center bg-neutral-100 dark:bg-[#18181b] p-1 rounded-2xl border border-neutral-200/90 dark:border-neutral-800/80 text-xs font-semibold text-neutral-400 shadow-inner">
+      <div className="flex items-center bg-o1-well p-1 rounded-2xl border border-white/[0.07] text-xs font-semibold text-neutral-400 shadow-inner">
         <button
           type="button"
           onClick={() => handleTabClick('Today')}
-          className={`relative flex-1 py-1.5 px-3 rounded-xl text-xs font-bold transition-all text-center flex items-center justify-center gap-1.5 cursor-pointer ${
+          className={`relative flex-1 py-1.5 px-3 rounded-xl text-xs font-semibold transition-all text-center flex items-center justify-center gap-1.5 cursor-pointer ${
             activeTab === 'Today'
-              ? 'bg-[#C4121A] text-white shadow-xs'
-              : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white'
+              ? 'bg-o1-card text-white shadow-xs border border-white/[0.07]'
+              : 'text-neutral-400 hover:text-white'
           }`}
         >
           <PieChart className="w-3.5 h-3.5" />
@@ -116,10 +116,10 @@ export const DailyEnergyCard: React.FC<DailyEnergyCardProps> = ({
         <button
           type="button"
           onClick={() => handleTabClick('Adjust Targets')}
-          className={`relative flex-1 py-1.5 px-3 rounded-xl text-xs font-bold transition-all text-center flex items-center justify-center gap-1.5 cursor-pointer ${
+          className={`relative flex-1 py-1.5 px-3 rounded-xl text-xs font-semibold transition-all text-center flex items-center justify-center gap-1.5 cursor-pointer ${
             activeTab === 'Adjust Targets'
-              ? 'bg-[#C4121A] text-white shadow-xs'
-              : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white'
+              ? 'bg-o1-card text-white shadow-xs border border-white/[0.07]'
+              : 'text-neutral-400 hover:text-white'
           }`}
         >
           <Sliders className="w-3.5 h-3.5" />

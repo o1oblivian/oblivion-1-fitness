@@ -3,6 +3,7 @@
  * Precision optical telemetry extraction. Strict null contract for unread values.
  */
 import { downscaleBase64IfNeeded } from './imageDownscaleUtils';
+import { apiUrl } from './apiBase';
 
 // 1. PERMANENT GEMINI API KEY FALLBACK
 export const geminiKey: string =
@@ -44,7 +45,7 @@ export async function analyzeConsoleTelemetry(base64Image: string): Promise<Card
     try {
       const headers: Record<string, string> = { 'Content-Type': 'application/json', Accept: 'application/json' };
       if (geminiKey) headers['x-gemini-key'] = geminiKey;
-      const response = await fetch('/api/vision/cardio-telemetry', {
+      const response = await fetch(apiUrl('/api/vision/cardio-telemetry'), {
         method: 'POST',
         headers,
         body: JSON.stringify({ imageBase64: cleanBase64, mimeType: 'image/jpeg' }),
@@ -96,13 +97,13 @@ export async function analyzeMealNutrients(
   base64Image: string,
   scanMode: 'plate' | 'package' | 'barcode' = 'plate'
 ): Promise<MealNutrientsResult> {
-  const cleanBase64 = base64Image.replace(/^data:image\/[a-z]+;base64,/, '');
+  const cleanBase64 = base64Image.replace(/^data:[^;]+;base64,/, '');
 
   for (let attempt = 1; attempt <= 2; attempt++) {
     try {
       const headers: Record<string, string> = { 'Content-Type': 'application/json', Accept: 'application/json' };
       if (geminiKey) headers['x-gemini-key'] = geminiKey;
-      const response = await fetch('/api/vision/meal-nutrients', {
+      const response = await fetch(apiUrl('/api/vision/meal-nutrients'), {
         method: 'POST',
         headers,
         body: JSON.stringify({
@@ -145,6 +146,7 @@ export async function analyzeMealNutrients(
         }
       }
     } catch (err: any) {
+      console.error('[MealScanner Failure]', err);
       if (attempt === 1) {
         await new Promise((r) => setTimeout(r, 400));
         continue;

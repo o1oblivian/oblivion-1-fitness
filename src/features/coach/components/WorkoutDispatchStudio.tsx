@@ -18,11 +18,12 @@ import {
 } from 'lucide-react';
 import { supabase } from '../../../services/supabaseClient';
 import { Athlete, fetchCoachClients } from '../services/coachService';
+import { getAuthenticatedUserId } from '../../../services/authUser';
 import { tactileEngine } from '../../../services/tactileEngine';
 import {
-  DISPATCH_EXERCISE_CATALOG,
-  DispatchCatalogExercise,
-} from '../data/dispatchExerciseCatalog';
+  UNIFIED_DISPATCH_CATALOG,
+} from '../data/unifiedDispatchCatalog';
+import type { DispatchCatalogExercise } from '../data/dispatchExerciseCatalog';
 import {
   synthesizeDailyBlueprint,
   AthleticVector,
@@ -150,11 +151,15 @@ const MUSCLE_FILTER_CHIPS = [
   'All',
   'Chest',
   'Back',
-  'Legs',
   'Shoulders',
   'Arms',
-  'Hyrox',
+  'Quads',
+  'Hamstrings',
+  'Glutes',
   'Core',
+  'Calves',
+  'Olympic',
+  'Hyrox',
   'Sports',
   'Recovery',
 ] as const;
@@ -298,17 +303,13 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
 
   // Catalog filtered items
   const filteredCatalog = useMemo(() => {
-    return DISPATCH_EXERCISE_CATALOG.filter((ex) => {
-      const matchSearch =
-        !searchQuery ||
-        ex.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        ex.muscleTarget.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        ex.equipment.toLowerCase().includes(searchQuery.toLowerCase());
+    return UNIFIED_DISPATCH_CATALOG.filter((ex) => {
+      const hay = `${ex.name} ${ex.muscleTarget} ${ex.equipment} ${ex.category}`.toLowerCase();
+      const matchSearch = !searchQuery || hay.includes(searchQuery.toLowerCase());
       const matchType = selectedTypeFilter === 'All' || ex.type === selectedTypeFilter;
       const matchCat =
         selectedCategory === 'All' ||
-        ex.category.toLowerCase().includes(selectedCategory.toLowerCase()) ||
-        ex.muscleTarget.toLowerCase().includes(selectedCategory.toLowerCase());
+        hay.includes(selectedCategory.toLowerCase());
       return matchSearch && matchType && matchCat;
     });
   }, [searchQuery, selectedTypeFilter, selectedCategory]);
@@ -380,7 +381,7 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
     setStack((prev) =>
       prev.map((e) => {
         if (e.id !== exerciseId) return e;
-        const catalogMatch = DISPATCH_EXERCISE_CATALOG.find((c) => c.name === e.name);
+        const catalogMatch = UNIFIED_DISPATCH_CATALOG.find((c) => c.name === e.name);
         return {
           ...e,
           cue: catalogMatch?.cue || 'Maintain strict biomechanical stability and controlled eccentric tempo.',
@@ -480,9 +481,17 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
       const targetAthletes = athletes.filter((a) => selectedAthleteIds.includes(a.id));
       const targetNames = targetAthletes.map((a) => a.name).join(', ');
 
+      const coachId = await getAuthenticatedUserId();
+      if (!coachId) {
+        setIsSubmitting(false);
+        setDispatchSuccessToast('Sign in required to dispatch.');
+        setTimeout(() => setDispatchSuccessToast(null), 2500);
+        return;
+      }
       const payloads = targetAthletes.map((athlete) => ({
-        coach_id: 'coach_alpha',
+        coach_id: coachId,
         client_id: athlete.id || athlete.client_id,
+        athlete_id: athlete.client_id || athlete.id,
         title: workoutTitle,
         parameters: {
           date: workoutDate,
@@ -502,7 +511,8 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
         assigned_date: new Date().toISOString(),
       }));
 
-      await supabase.from('assigned_workouts').insert(payloads);
+      const { error } = await supabase.from('assigned_workouts').insert(payloads);
+      if (error) throw new Error(error.message);
 
       const toastMsg =
         targetAthletes.length > 1
@@ -518,12 +528,8 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
       }, 1500);
     } catch (e) {
       setIsSubmitting(false);
-      const count = selectedAthleteIds.length;
-      setDispatchSuccessToast(`Dispatched to ${count} ${count > 1 ? 'athletes' : 'athlete'}!`);
-      setTimeout(() => {
-        setDispatchSuccessToast(null);
-        onClose();
-      }, 1500);
+      setDispatchSuccessToast(e instanceof Error ? e.message : 'Dispatch failed');
+      setTimeout(() => setDispatchSuccessToast(null), 2500);
     }
   };
 
@@ -531,17 +537,17 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md select-none p-0 sm:p-4 animate-fadeIn">
-      <div className="w-full max-w-lg h-full sm:h-[94vh] bg-white dark:bg-[#09090b] text-neutral-900 dark:text-neutral-100 sm:rounded-3xl flex flex-col shadow-2xl overflow-hidden border border-neutral-200 dark:border-neutral-800">
+      <div className="w-full max-w-lg h-full sm:h-[94vh] bg-black text-neutral-100 sm:rounded-2xl flex flex-col shadow-2xl overflow-hidden border border-white/[0.07]">
         
         {/* ============================================================== */}
         {/* 1. TOP HEADER & TELEMETRY (Matches Screenshot_20260924_203753_Brave.jpg) */}
         {/* ============================================================== */}
-        <div className="p-3 sm:p-4 border-b border-neutral-200 dark:border-neutral-800/80 bg-white dark:bg-[#121214] shrink-0 space-y-3">
+        <div className="p-3 border-b border-white/[0.05] bg-o1-card shrink-0 space-y-2">
           {/* Header Row */}
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-[#C4121A] shrink-0" />
-              <h2 className="text-sm sm:text-base font-bold text-neutral-900 dark:text-white">
+              <span className="w-2.5 h-2.5 rounded-full bg-o1-crimson shrink-0" />
+              <h2 className="text-sm sm:text-base font-bold text-white">
                 Workout Dispatch Studio ({stack.length})
               </h2>
             </div>
@@ -554,11 +560,11 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
                   tactileEngine.triggerSelectionBuzz();
                   setIsAthletePickerOpen(true);
                 }}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-neutral-100 dark:bg-[#18181b] border border-neutral-200 dark:border-neutral-700 text-xs font-semibold text-neutral-800 dark:text-neutral-200 hover:border-neutral-300 dark:hover:border-neutral-600 transition-colors cursor-pointer"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-o1-well border border-white/[0.07] text-xs font-semibold text-neutral-200 hover:border-white/[0.14] transition-colors cursor-pointer"
                 title="Select target athlete(s)"
               >
-                <Users size={13} className="text-[#C4121A] shrink-0" />
-                <span className="max-w-[120px] truncate text-[11px] font-semibold text-neutral-900 dark:text-white">
+                <Users size={13} className="text-o1-crimson shrink-0" />
+                <span className="max-w-[120px] truncate text-[11px] font-semibold text-white">
                   {selectedAthletes.length === 1
                     ? selectedAthletes[0].name
                     : selectedAthletes.length > 1
@@ -575,7 +581,7 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
                   tactileEngine.triggerSelectionBuzz();
                   onClose();
                 }}
-                className="w-8 h-8 rounded-full bg-neutral-100 dark:bg-[#18181b] border border-neutral-200 dark:border-neutral-700 flex items-center justify-center text-neutral-600 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white transition-colors cursor-pointer"
+                className="w-8 h-8 rounded-full bg-o1-well border border-white/[0.07] flex items-center justify-center text-neutral-300 hover:text-white transition-colors cursor-pointer"
                 title="Close Studio"
                 aria-label="Close"
               >
@@ -585,20 +591,20 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
           </div>
 
           {/* Telemetry Strip (Sets, Est. Time, Volume, Chest/Shoulder percentages) */}
-          <div className="flex flex-wrap items-center justify-between gap-2 text-xs py-1.5 px-3 rounded-2xl bg-neutral-50 dark:bg-[#161618] border border-neutral-200/80 dark:border-neutral-800/80">
-            <div className="flex items-center gap-3.5 text-neutral-600 dark:text-neutral-400 text-xs">
-              <span>Sets: <strong className="text-neutral-900 dark:text-white font-bold">{telemetry.sets}</strong></span>
-              <span>Est. Time: <strong className="text-neutral-900 dark:text-white font-bold">{telemetry.estTime}m</strong></span>
-              <span>Volume: <strong className="text-[#C4121A] font-bold">{telemetry.volumeTons}k kg</strong></span>
+          <div className="flex flex-wrap items-center justify-between gap-2 text-xs py-1.5 px-3 rounded-2xl bg-o1-card border border-white/[0.07]">
+            <div className="flex items-center gap-3.5 text-neutral-400 text-xs">
+              <span>Sets: <strong className="text-white font-bold">{telemetry.sets}</strong></span>
+              <span>Est. Time: <strong className="text-white font-bold">{telemetry.estTime}m</strong></span>
+              <span>Volume: <strong className="text-o1-crimson font-bold">{telemetry.volumeTons}k kg</strong></span>
             </div>
 
             <div className="flex items-center gap-1.5">
               {telemetry.muscleDistribution.slice(0, 2).map((m) => (
                 <span
                   key={m.muscle}
-                  className="px-2 py-0.5 rounded-md bg-white dark:bg-[#1f1f23] border border-neutral-200 dark:border-neutral-700 text-[10px] font-semibold text-neutral-700 dark:text-neutral-300"
+                  className="px-2 py-0.5 rounded-md bg-o1-well border border-white/[0.07] text-[10px] font-semibold text-neutral-300"
                 >
-                  {m.muscle} <span className="text-[#C4121A] font-bold">{m.percentage}%</span>
+                  {m.muscle} <span className="text-o1-crimson font-bold">{m.percentage}%</span>
                 </span>
               ))}
             </div>
@@ -614,8 +620,8 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
               }}
               className={`py-2 px-3 rounded-full text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
                 activeTab === 'stack'
-                  ? 'bg-[#C4121A] text-white shadow-xs'
-                  : 'bg-white dark:bg-[#18181b] border border-neutral-200 dark:border-neutral-800 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800'
+                  ? 'bg-o1-crimson text-white shadow-xs'
+                  : 'bg-o1-well border border-white/[0.07] text-neutral-300 hover:bg-white/[0.06]'
               }`}
             >
               <Dumbbell size={14} />
@@ -630,8 +636,8 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
               }}
               className={`py-2 px-3 rounded-full text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
                 activeTab === 'library'
-                  ? 'bg-[#C4121A] text-white shadow-xs'
-                  : 'bg-white dark:bg-[#18181b] border border-neutral-200 dark:border-neutral-800 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800'
+                  ? 'bg-o1-crimson text-white shadow-xs'
+                  : 'bg-o1-well border border-white/[0.07] text-neutral-300 hover:bg-white/[0.06]'
               }`}
             >
               <Search size={14} />
@@ -646,8 +652,8 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
               }}
               className={`py-2 px-3 rounded-full text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
                 activeTab === 'blueprints'
-                  ? 'bg-[#C4121A] text-white shadow-xs'
-                  : 'bg-white dark:bg-[#18181b] border border-neutral-200 dark:border-neutral-800 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800'
+                  ? 'bg-o1-crimson text-white shadow-xs'
+                  : 'bg-o1-well border border-white/[0.07] text-neutral-300 hover:bg-white/[0.06]'
               }`}
             >
               <Sparkles size={14} />
@@ -658,7 +664,7 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
 
         {/* Toast */}
         {dispatchSuccessToast && (
-          <div className="p-3 bg-green-500/10 border-b border-green-500/30 text-green-700 dark:text-green-400 text-xs font-bold flex items-center justify-center gap-2">
+          <div className="p-3 bg-emerald-500/10 border-b border-emerald-500/30 text-emerald-400 text-xs font-bold flex items-center justify-center gap-2">
             <CheckCircle2 size={16} />
             <span>{dispatchSuccessToast}</span>
           </div>
@@ -673,16 +679,16 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
           {activeTab === 'stack' && (
             <div className="space-y-4">
               {/* WORKOUT PARAMETERS Card */}
-              <div className="p-3.5 rounded-2xl bg-neutral-50 dark:bg-[#141416] border border-neutral-200 dark:border-neutral-800 space-y-2">
+              <div className="p-3.5 rounded-2xl bg-o1-card border border-white/[0.07] space-y-2">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-neutral-700 dark:text-neutral-300">
+                  <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-neutral-300">
                     <SlidersHorizontal size={14} className="text-neutral-500" />
                     <span>WORKOUT PARAMETERS</span>
                   </div>
                   <button
                     type="button"
                     onClick={() => setIsEditingSetup((v) => !v)}
-                    className="text-xs font-medium text-neutral-500 hover:text-neutral-900 dark:hover:text-white flex items-center gap-1 cursor-pointer"
+                    className="text-xs font-medium text-neutral-500 hover:text-white flex items-center gap-1 cursor-pointer"
                   >
                     <span>{isEditingSetup ? 'Done' : 'Edit Setup'}</span>
                     <ChevronDown size={13} />
@@ -696,13 +702,13 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
                       value={workoutTitle}
                       onChange={(e) => setWorkoutTitle(e.target.value)}
                       placeholder="Protocol Title"
-                      className="w-full px-3 py-2 rounded-xl bg-white dark:bg-[#1c1c1f] border border-neutral-300 dark:border-neutral-700 text-xs font-semibold text-neutral-900 dark:text-white outline-none focus:border-[#C4121A]"
+                      className="w-full px-3 py-2 rounded-xl bg-o1-well border border-white/[0.07] text-xs font-semibold text-white outline-none focus:border-o1-crimson"
                     />
                     <div className="grid grid-cols-2 gap-2">
                       <select
                         value={workoutDate}
                         onChange={(e) => setWorkoutDate(e.target.value)}
-                        className="px-3 py-2 rounded-xl bg-white dark:bg-[#1c1c1f] border border-neutral-300 dark:border-neutral-700 text-xs text-neutral-900 dark:text-white outline-none"
+                        className="px-3 py-2 rounded-xl bg-o1-well border border-white/[0.07] text-xs text-white outline-none"
                       >
                         <option value="Today">Today</option>
                         <option value="Tomorrow">Tomorrow</option>
@@ -711,7 +717,7 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
                       <select
                         value={workoutFocus}
                         onChange={(e) => setWorkoutFocus(e.target.value)}
-                        className="px-3 py-2 rounded-xl bg-white dark:bg-[#1c1c1f] border border-neutral-300 dark:border-neutral-700 text-xs text-neutral-900 dark:text-white outline-none"
+                        className="px-3 py-2 rounded-xl bg-o1-well border border-white/[0.07] text-xs text-white outline-none"
                       >
                         <option value="Hypertrophy (8-12)">Hypertrophy (8-12)</option>
                         <option value="Max Strength (3-5)">Max Strength (3-5)</option>
@@ -722,14 +728,14 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
                   </div>
                 ) : (
                   <div className="flex flex-wrap items-center gap-2 text-xs">
-                    <span className="font-bold text-neutral-900 dark:text-white">
+                    <span className="font-bold text-white">
                       {workoutTitle}
                     </span>
                     <span className="text-neutral-400">•</span>
-                    <span className="text-neutral-600 dark:text-neutral-400">
+                    <span className="text-neutral-400">
                       {workoutDate}
                     </span>
-                    <span className="px-2 py-0.5 rounded-md bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 text-[11px] font-semibold">
+                    <span className="px-2 py-0.5 rounded-md bg-red-500/10 text-red-400 border border-red-500/20 text-[11px] font-semibold">
                       {workoutFocus}
                     </span>
                   </div>
@@ -738,7 +744,7 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
 
               {/* PROGRAMMED EXERCISES Header */}
               <div className="flex items-center justify-between pt-1">
-                <span className="text-xs font-bold uppercase tracking-wider text-neutral-700 dark:text-neutral-300">
+                <span className="text-xs font-bold uppercase tracking-wider text-neutral-300">
                   PROGRAMMED EXERCISES ({stack.length})
                 </span>
 
@@ -750,7 +756,7 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
                       setDispatchSuccessToast('Blueprint saved to Playbook!');
                       setTimeout(() => setDispatchSuccessToast(null), 2500);
                     }}
-                    className="px-2.5 py-1.5 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-[#161618] hover:bg-neutral-50 dark:hover:bg-neutral-800 text-neutral-700 dark:text-neutral-300 text-xs font-semibold flex items-center gap-1.5 cursor-pointer shadow-2xs"
+                    className="px-2.5 py-1.5 rounded-xl border border-white/[0.07] bg-o1-card hover:bg-white/[0.06] text-neutral-300 text-xs font-semibold flex items-center gap-1.5 cursor-pointer shadow-2xs"
                   >
                     <Bookmark size={13} />
                     <span>Save</span>
@@ -762,7 +768,7 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
                       tactileEngine.triggerSelectionBuzz();
                       setActiveTab('library');
                     }}
-                    className="px-3 py-1.5 rounded-xl bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 text-xs font-bold flex items-center gap-1.5 shadow-xs cursor-pointer hover:opacity-90 transition-opacity"
+                    className="px-3 py-1.5 rounded-xl bg-white text-neutral-900 text-xs font-bold flex items-center gap-1.5 shadow-xs cursor-pointer hover:opacity-90 transition-opacity"
                   >
                     <Plus size={14} />
                     <span>Add Exercise</span>
@@ -773,7 +779,7 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
               {/* Exercise Cards */}
               <div className="space-y-2.5">
                 {stack.length === 0 ? (
-                  <div className="p-8 rounded-3xl border border-dashed border-neutral-200 dark:border-neutral-800 text-center space-y-2">
+                  <div className="p-8 rounded-2xl border border-dashed border-white/[0.07] text-center space-y-2">
                     <p className="text-xs text-neutral-500">
                       No exercises in stack. Tap Add Exercise or choose a Blueprint.
                     </p>
@@ -782,19 +788,19 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
                   stack.map((exercise) => (
                     <div
                       key={exercise.id}
-                      className="rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-[#141416] overflow-hidden shadow-2xs transition-all"
+                      className="rounded-2xl border border-white/[0.07] bg-o1-card overflow-hidden shadow-2xs transition-all"
                     >
                       {/* Exercise Row Header */}
                       <div className="p-3.5 flex items-center justify-between gap-3">
                         <div className="flex items-center gap-3 min-w-0">
-                          <div className="w-8 h-8 rounded-full bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center text-neutral-600 dark:text-neutral-300 shrink-0">
+                          <div className="w-8 h-8 rounded-full bg-white/[0.08] flex items-center justify-center text-neutral-300 shrink-0">
                             <Dumbbell size={15} />
                           </div>
                           <div className="min-w-0">
-                            <h4 className="text-xs sm:text-sm font-bold text-neutral-900 dark:text-white truncate">
+                            <h4 className="text-xs sm:text-sm font-bold text-white truncate">
                               {exercise.name}
                             </h4>
-                            <p className="text-[11px] text-neutral-500 dark:text-neutral-400 truncate">
+                            <p className="text-[11px] text-neutral-400 truncate">
                               {exercise.muscle}
                             </p>
                           </div>
@@ -805,7 +811,7 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
                           <button
                             type="button"
                             onClick={() => handleToggleExpandExercise(exercise.id)}
-                            className="flex items-center gap-1 px-2.5 py-1 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 text-xs font-bold text-rose-600 dark:text-rose-400 cursor-pointer transition-colors"
+                            className="flex items-center gap-1 px-2.5 py-1 rounded-xl hover:bg-white/[0.06] text-xs font-bold text-red-400 cursor-pointer transition-colors"
                           >
                             <span>{exercise.sets.length} sets</span>
                             {exercise.expanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
@@ -814,7 +820,7 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
                           <button
                             type="button"
                             onClick={() => handleRemoveExercise(exercise.id)}
-                            className="p-1.5 rounded-lg text-neutral-400 hover:text-rose-500 hover:bg-rose-500/10 cursor-pointer transition-colors"
+                            className="p-1.5 rounded-lg text-neutral-400 hover:text-red-500 hover:bg-red-500/10 cursor-pointer transition-colors"
                             title="Remove exercise"
                           >
                             <Trash2 size={14} />
@@ -824,7 +830,7 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
 
                       {/* Expandable Sets Table */}
                       {exercise.expanded && (
-                        <div className="p-3 pt-0 border-t border-neutral-100 dark:border-neutral-800/80 bg-neutral-50/50 dark:bg-[#121927] space-y-2.5 animate-in slide-in-from-top-1 duration-150">
+                        <div className="p-3 pt-0 border-t border-white/[0.05] bg-o1-card space-y-2.5 animate-in slide-in-from-top-1 duration-150">
                           <div className="space-y-1.5 pt-2">
                             <div className="grid grid-cols-12 gap-1.5 text-[10px] font-semibold text-neutral-400 uppercase text-center items-center">
                               <span className="col-span-2">SET</span>
@@ -848,7 +854,7 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
                                   onChange={(e) =>
                                     handleUpdateSet(exercise.id, set.id, 'weightKg', Number(e.target.value))
                                   }
-                                  className="col-span-3 h-7 text-center rounded-lg bg-white dark:bg-[#18181b] border border-neutral-200 dark:border-neutral-700 text-neutral-900 dark:text-white font-bold"
+                                  className="col-span-3 h-7 text-center rounded-lg bg-o1-well border border-white/[0.07] text-white font-bold"
                                 />
                                 <input
                                   type="number"
@@ -856,7 +862,7 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
                                   onChange={(e) =>
                                     handleUpdateSet(exercise.id, set.id, 'reps', Number(e.target.value))
                                   }
-                                  className="col-span-3 h-7 text-center rounded-lg bg-white dark:bg-[#18181b] border border-neutral-200 dark:border-neutral-700 text-neutral-900 dark:text-white font-bold"
+                                  className="col-span-3 h-7 text-center rounded-lg bg-o1-well border border-white/[0.07] text-white font-bold"
                                 />
                                 <input
                                   type="number"
@@ -865,12 +871,12 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
                                   onChange={(e) =>
                                     handleUpdateSet(exercise.id, set.id, 'rpe', Number(e.target.value))
                                   }
-                                  className="col-span-3 h-7 text-center rounded-lg bg-white dark:bg-[#18181b] border border-neutral-200 dark:border-neutral-700 text-[#C4121A] font-bold"
+                                  className="col-span-3 h-7 text-center rounded-lg bg-o1-well border border-white/[0.07] text-o1-crimson font-bold"
                                 />
                                 <button
                                   type="button"
                                   onClick={() => handleRemoveSet(exercise.id, set.id)}
-                                  className="col-span-1 flex items-center justify-center h-7 text-neutral-400 hover:text-rose-600 dark:hover:text-rose-400 active:scale-90 transition-all cursor-pointer bg-transparent border-none p-0 focus:outline-none"
+                                  className="col-span-1 flex items-center justify-center h-7 text-neutral-400 hover:text-red-400 active:scale-90 transition-all cursor-pointer bg-transparent border-none p-0 focus:outline-none"
                                   title={`Delete set #${sIdx + 1}`}
                                 >
                                   <Trash2 size={13} />
@@ -880,16 +886,16 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
                           </div>
 
                           {/* Editable Coach Form Cue with Pre-recommendations */}
-                          <div className="p-3 rounded-xl bg-white dark:bg-[#18181b] border border-neutral-200/80 dark:border-neutral-800 space-y-2">
+                          <div className="p-3 rounded-xl bg-o1-well border border-white/[0.07] space-y-2">
                             <div className="flex items-center justify-between">
-                              <span className="font-bold text-[10px] uppercase tracking-wider text-[#C4121A] flex items-center gap-1.5">
+                              <span className="font-bold text-[10px] uppercase tracking-wider text-o1-crimson flex items-center gap-1.5">
                                 <Sparkles size={11} />
                                 <span>COACH FORM CUE & DIRECTIVES</span>
                               </span>
                               <button
                                 type="button"
                                 onClick={() => handleResetCue(exercise.id)}
-                                className="text-[10px] text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 flex items-center gap-1 cursor-pointer transition-colors"
+                                className="text-[10px] text-neutral-400 hover:text-neutral-200 flex items-center gap-1 cursor-pointer transition-colors"
                                 title="Reset to default recommendation"
                               >
                                 <RotateCcw size={10} />
@@ -902,7 +908,7 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
                               onChange={(e) => handleUpdateExerciseCue(exercise.id, e.target.value)}
                               placeholder="Enter coaching form cues, tempo instructions, or athlete directives..."
                               rows={2}
-                              className="w-full p-2 text-xs text-neutral-900 dark:text-neutral-100 bg-neutral-50 dark:bg-[#121214] rounded-lg border border-neutral-200 dark:border-neutral-700 focus:border-[#C4121A] focus:outline-none resize-none leading-relaxed transition-colors font-sans"
+                              className="w-full p-2 text-xs text-neutral-100 bg-o1-card rounded-lg border border-white/[0.07] focus:border-o1-crimson focus:outline-none resize-none leading-relaxed transition-colors font-sans"
                             />
 
                             <div className="space-y-1">
@@ -915,7 +921,7 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
                                     key={chip}
                                     type="button"
                                     onClick={() => handleAppendCueRecommendation(exercise.id, chip)}
-                                    className="px-2 py-0.5 rounded-md bg-neutral-100 dark:bg-neutral-800 hover:bg-[#C4121A]/10 hover:text-[#C4121A] dark:hover:text-[#ff4d58] text-[10px] font-medium text-neutral-600 dark:text-neutral-300 border border-neutral-200/80 dark:border-neutral-700/60 transition-colors cursor-pointer"
+                                    className="px-2 py-0.5 rounded-md bg-white/[0.08] hover:bg-o1-crimson/10 hover:text-o1-crimson text-[10px] font-medium text-neutral-300 border border-white/[0.07] transition-colors cursor-pointer"
                                   >
                                     + {chip}
                                   </button>
@@ -928,7 +934,7 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
                             <button
                               type="button"
                               onClick={() => handleAddSet(exercise.id)}
-                              className="text-xs font-bold text-[#C4121A] flex items-center gap-1 cursor-pointer hover:underline"
+                              className="text-xs font-bold text-o1-crimson flex items-center gap-1 cursor-pointer hover:underline"
                             >
                               <Plus size={14} />
                               <span>Add Set</span>
@@ -953,7 +959,7 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search movement, muscle or equipment..."
-                  className="w-full h-10 pl-9 pr-3 rounded-2xl bg-neutral-100 dark:bg-[#18181b] border border-neutral-200 dark:border-neutral-800 text-xs text-neutral-900 dark:text-white placeholder:text-neutral-500 focus:outline-none focus:border-[#C4121A]"
+                  className="w-full h-10 pl-9 pr-3 rounded-2xl bg-o1-well border border-white/[0.07] text-xs text-white placeholder:text-neutral-500 focus:outline-none focus:border-o1-crimson"
                 />
               </div>
 
@@ -969,8 +975,8 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
                     }}
                     className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
                       selectedCategory === cat
-                        ? 'bg-[#C4121A] text-white shadow-2xs'
-                        : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white'
+                        ? 'bg-o1-crimson text-white shadow-2xs'
+                        : 'bg-white/[0.08] text-neutral-400 hover:text-white'
                     }`}
                   >
                     {cat}
@@ -988,10 +994,10 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
                       tactileEngine.triggerSelectionBuzz();
                       setSelectedTypeFilter(type);
                     }}
-                    className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all cursor-pointer ${
+                    className={`px-2.5 py-1 rounded-xl text-[11px] font-semibold transition-all cursor-pointer ${
                       selectedTypeFilter === type
-                        ? 'bg-neutral-900 dark:bg-white text-white dark:text-neutral-900'
-                        : 'bg-neutral-100/80 dark:bg-neutral-800/80 text-neutral-600 dark:text-neutral-400 hover:text-white'
+                        ? 'bg-white text-neutral-900'
+                        : 'bg-white/[0.08] text-neutral-400 hover:text-white'
                     }`}
                   >
                     {type}
@@ -1006,21 +1012,21 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
                   return (
                     <div
                       key={catEx.id}
-                      className="p-3 rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-[#141416] flex items-center justify-between gap-3 shadow-2xs hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors"
+                      className="p-3 rounded-2xl border border-white/[0.07] bg-o1-card flex items-center justify-between gap-3 shadow-2xs hover:border-white/[0.14] transition-colors"
                     >
                       <div className="min-w-0 space-y-0.5">
                         <div className="flex items-center gap-2">
-                          <h4 className="text-xs font-bold text-neutral-900 dark:text-white truncate">
+                          <h4 className="text-xs font-bold text-white truncate">
                             {catEx.name}
                           </h4>
-                          <span className="px-1.5 py-0.5 rounded text-[9px] font-semibold bg-neutral-100 dark:bg-neutral-800 text-neutral-500 uppercase shrink-0">
+                          <span className="px-1.5 py-0.5 rounded text-[9px] font-semibold bg-white/[0.08] text-neutral-500 uppercase shrink-0">
                             {catEx.type}
                           </span>
                         </div>
-                        <p className="text-[11px] text-neutral-500 dark:text-neutral-400 truncate">
+                        <p className="text-[11px] text-neutral-400 truncate">
                           {catEx.muscleTarget} • {catEx.equipment}
                         </p>
-                        <p className="text-[10px] text-neutral-400 dark:text-neutral-500 font-mono">
+                        <p className="text-[10px] text-neutral-500 font-mono">
                           Default: {catEx.defaultSets} sets • {catEx.defaultReps} reps • {catEx.defaultWeightKg > 0 ? `${catEx.defaultWeightKg}kg` : 'BW'}
                         </p>
                       </div>
@@ -1030,8 +1036,8 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
                         onClick={() => handleAddExerciseFromCatalog(catEx)}
                         className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1 cursor-pointer shrink-0 ${
                           alreadyInStack
-                            ? 'bg-neutral-100 dark:bg-neutral-800 text-neutral-400 border border-neutral-200 dark:border-neutral-700'
-                            : 'bg-[#C4121A] text-white hover:bg-[#a80f16] shadow-xs'
+                            ? 'bg-white/[0.08] text-neutral-400 border border-white/[0.07]'
+                            : 'bg-o1-crimson text-white hover:bg-o1-crimson-hover shadow-xs'
                         }`}
                       >
                         {alreadyInStack ? <Check size={13} /> : <Plus size={13} />}
@@ -1048,17 +1054,17 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
           {activeTab === 'blueprints' && (
             <div className="space-y-4">
               <div>
-                <h3 className="text-sm font-bold text-neutral-900 dark:text-white">
+                <h3 className="text-sm font-bold text-white">
                   Blueprint Synthesizer
                 </h3>
-                <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                <p className="text-xs text-neutral-400">
                   Select athletic parameters to generate calibrated daily protocols
                 </p>
               </div>
 
               {/* Athletic Vector Selector */}
               <div>
-                <label className="text-xs font-semibold text-neutral-700 dark:text-neutral-300 block mb-1.5">
+                <label className="text-xs font-semibold text-neutral-300 block mb-1.5">
                   Target Vector ({VECTOR_PILLS.length} Available)
                 </label>
                 <div className="flex gap-1.5 overflow-x-auto no-scrollbar pb-1">
@@ -1072,8 +1078,8 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
                       }}
                       className={`px-3 py-1.5 rounded-xl text-xs font-medium whitespace-nowrap transition-all cursor-pointer ${
                         selectedVector === v
-                          ? 'bg-[#C4121A] text-white font-bold shadow-2xs'
-                          : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white'
+                          ? 'bg-o1-crimson text-white font-bold shadow-2xs'
+                          : 'bg-white/[0.08] text-neutral-400 hover:text-white'
                       }`}
                     >
                       {v}
@@ -1085,18 +1091,18 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
               {/* Duration, Gear & Intensity Tracks */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                 <div>
-                  <label className="text-[11px] font-semibold text-neutral-700 dark:text-neutral-300 block mb-1">
+                  <label className="text-[11px] font-semibold text-neutral-300 block mb-1">
                     Duration
                   </label>
-                  <div className="flex p-1 rounded-xl bg-neutral-100 dark:bg-neutral-800 gap-1">
-                    {(['30m', '45m', '60m'] as const).map((d) => (
+                  <div className="flex p-1 rounded-xl bg-white/[0.08] gap-0.5 overflow-x-auto">
+                    {(['20m', '30m', '45m', '60m', '75m'] as const).map((d) => (
                       <button
                         key={d}
                         type="button"
                         onClick={() => setSelectedDuration(d)}
-                        className={`flex-1 py-1 rounded-lg text-xs font-semibold transition-all ${
+                        className={`flex-1 py-1 rounded-xl text-xs font-semibold transition-all ${
                           selectedDuration === d
-                            ? 'bg-white dark:bg-[#141416] text-neutral-900 dark:text-white shadow-2xs'
+                            ? 'bg-o1-card text-white shadow-2xs'
                             : 'text-neutral-500'
                         }`}
                       >
@@ -1107,18 +1113,18 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
                 </div>
 
                 <div>
-                  <label className="text-[11px] font-semibold text-neutral-700 dark:text-neutral-300 block mb-1">
+                  <label className="text-[11px] font-semibold text-neutral-300 block mb-1">
                     Facility Gear
                   </label>
-                  <div className="flex p-1 rounded-xl bg-neutral-100 dark:bg-neutral-800 gap-1">
+                  <div className="flex p-1 rounded-xl bg-white/[0.08] gap-1">
                     {(['Full Gym', 'DB & Bench', 'Bodyweight'] as const).map((g) => (
                       <button
                         key={g}
                         type="button"
                         onClick={() => setSelectedGear(g)}
-                        className={`flex-1 py-1 rounded-lg text-[10px] font-semibold transition-all truncate ${
+                        className={`flex-1 py-1 rounded-xl text-[10px] font-semibold transition-all truncate ${
                           selectedGear === g
-                            ? 'bg-white dark:bg-[#141416] text-neutral-900 dark:text-white shadow-2xs'
+                            ? 'bg-o1-card text-white shadow-2xs'
                             : 'text-neutral-500'
                         }`}
                       >
@@ -1129,18 +1135,18 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
                 </div>
 
                 <div>
-                  <label className="text-[11px] font-semibold text-neutral-700 dark:text-neutral-300 block mb-1">
+                  <label className="text-[11px] font-semibold text-neutral-300 block mb-1">
                     Intensity Scheme
                   </label>
-                  <div className="flex p-1 rounded-xl bg-neutral-100 dark:bg-neutral-800 gap-1">
+                  <div className="flex p-1 rounded-xl bg-white/[0.08] gap-1">
                     {(['Progressive RPE', 'Failure Dropset'] as const).map((mode) => (
                       <button
                         key={mode}
                         type="button"
                         onClick={() => setSelectedIntensity(mode)}
-                        className={`flex-1 py-1 rounded-lg text-[10px] font-semibold transition-all truncate ${
+                        className={`flex-1 py-1 rounded-xl text-[10px] font-semibold transition-all truncate ${
                           selectedIntensity === mode
-                            ? 'bg-white dark:bg-[#141416] text-neutral-900 dark:text-white shadow-2xs'
+                            ? 'bg-o1-card text-white shadow-2xs'
                             : 'text-neutral-500'
                         }`}
                       >
@@ -1152,17 +1158,17 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
               </div>
 
               {/* Synthesized Blueprint Card */}
-              <div className="p-4 rounded-3xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50/70 dark:bg-[#141416] space-y-3">
+              <div className="p-4 rounded-2xl border border-white/[0.07] bg-o1-card space-y-3">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h4 className="text-xs font-bold text-neutral-900 dark:text-white">
+                    <h4 className="text-xs font-bold text-white">
                       {synthesizedBlueprint.title}
                     </h4>
-                    <p className="text-[11px] text-neutral-500 dark:text-neutral-400">
+                    <p className="text-[11px] text-neutral-400">
                       {synthesizedBlueprint.durationMins}m • {synthesizedBlueprint.exercises.length} Movements • {synthesizedBlueprint.tagline}
                     </p>
                   </div>
-                  <span className="px-2 py-0.5 rounded-md bg-green-500/10 text-green-700 dark:text-green-400 text-[10px] font-bold">
+                  <span className="px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-400 text-[10px] font-bold">
                     Calibrated
                   </span>
                 </div>
@@ -1171,13 +1177,13 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
                   {synthesizedBlueprint.exercises.map((ex, i) => (
                     <div
                       key={i}
-                      className="p-2.5 rounded-xl bg-white dark:bg-[#1c1c1f] border border-neutral-200 dark:border-neutral-800/80 space-y-1 text-xs"
+                      className="p-2.5 rounded-xl bg-o1-well border border-white/[0.07] space-y-1 text-xs"
                     >
                       <div className="flex items-center justify-between">
-                        <span className="font-bold text-neutral-900 dark:text-white truncate">
+                        <span className="font-bold text-white truncate">
                           {ex.name}
                         </span>
-                        <span className="font-mono text-neutral-500 dark:text-neutral-400 font-bold shrink-0 ml-2">
+                        <span className="font-mono text-neutral-400 font-bold shrink-0 ml-2">
                           {ex.sets}x • {ex.reps} @ {ex.targetWeightKg > 0 ? `${ex.targetWeightKg}kg` : 'BW'}
                         </span>
                       </div>
@@ -1195,7 +1201,7 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
                 <button
                   type="button"
                   onClick={() => handleLoadBlueprintToStack(synthesizedBlueprint)}
-                  className="w-full py-2.5 rounded-2xl bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 font-bold text-xs shadow-xs cursor-pointer hover:opacity-90 transition-opacity flex items-center justify-center gap-1.5"
+                  className="w-full py-2.5 rounded-2xl bg-white text-neutral-900 font-bold text-xs shadow-xs cursor-pointer hover:opacity-90 transition-opacity flex items-center justify-center gap-1.5"
                 >
                   <Plus size={14} />
                   <span>Load Into Stack</span>
@@ -1212,13 +1218,13 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
         {/* ============================================================== */}
         {/* 3. PINNED STICKY BOTTOM ACTION BAR (Matches Screenshot 2) */}
         {/* ============================================================== */}
-        <div className="p-3.5 sm:p-4 border-t border-neutral-200 dark:border-neutral-800 bg-white dark:bg-[#121214] shrink-0 flex items-center justify-between gap-3">
+        <div className="p-3.5 sm:p-4 border-t border-white/[0.05] bg-o1-card shrink-0 flex items-center justify-between gap-3">
           {/* Left Column: Summary Text */}
           <div className="min-w-0">
-            <h4 className="text-xs font-bold text-neutral-900 dark:text-white truncate">
+            <h4 className="text-xs font-bold text-white truncate">
               {workoutTitle} ({workoutDate})
             </h4>
-            <p className="text-[11px] text-neutral-500 dark:text-neutral-400 font-medium truncate">
+            <p className="text-[11px] text-neutral-400 font-medium truncate">
               {stack.length} Movements • {telemetry.sets} Sets • Target:{' '}
               {selectedAthletes.length === 1
                 ? selectedAthletes[0].name
@@ -1236,7 +1242,7 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
                 tactileEngine.triggerSelectionBuzz();
                 setIsAthletePickerOpen(true);
               }}
-              className="px-3 py-2 rounded-full border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-[#18181b] hover:bg-neutral-50 dark:hover:bg-neutral-800 text-xs font-semibold text-neutral-800 dark:text-neutral-200 transition-colors cursor-pointer flex items-center gap-1.5"
+              className="px-3 py-2 rounded-full border border-white/[0.07] bg-o1-well hover:bg-white/[0.06] text-xs font-semibold text-neutral-200 transition-colors cursor-pointer flex items-center gap-1.5"
             >
               <Users size={12} className="text-neutral-500" />
               <span>Athletes ({selectedAthleteIds.length})</span>
@@ -1246,7 +1252,7 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
               type="button"
               disabled={isSubmitting || stack.length === 0 || selectedAthleteIds.length === 0}
               onClick={handleDispatchWorkout}
-              className="px-4 py-2 rounded-full bg-[#C4121A] hover:bg-[#a80f16] active:scale-95 disabled:opacity-50 text-white text-xs font-bold shadow-xs transition-all cursor-pointer flex items-center gap-1.5"
+              className="px-4 py-2 rounded-full bg-o1-crimson hover:bg-o1-crimson-hover active:scale-95 disabled:opacity-50 text-white text-xs font-bold shadow-xs transition-all cursor-pointer flex items-center gap-1.5"
             >
               <Send size={13} />
               <span>
@@ -1265,15 +1271,15 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
         {/* ============================================================== */}
         {isAthletePickerOpen && (
           <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/60 backdrop-blur-xs p-3 sm:p-4 animate-in fade-in duration-150">
-            <div className="w-full max-w-md bg-white dark:bg-[#121214] rounded-3xl border border-neutral-200 dark:border-neutral-800 shadow-2xl overflow-hidden flex flex-col max-h-[85vh] animate-in zoom-in-95 duration-150">
+            <div className="w-full max-w-md bg-o1-card rounded-2xl border border-white/[0.07] shadow-2xl overflow-hidden flex flex-col max-h-[85vh] animate-in zoom-in-95 duration-150">
               {/* Header */}
-              <div className="p-4 border-b border-neutral-200 dark:border-neutral-800 flex items-center justify-between">
+              <div className="p-4 border-b border-white/[0.05] flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-full bg-[#C4121A]/10 text-[#C4121A] flex items-center justify-center">
+                  <div className="w-8 h-8 rounded-full bg-o1-crimson/10 text-o1-crimson flex items-center justify-center">
                     <Users size={16} />
                   </div>
                   <div>
-                    <h3 className="text-sm font-bold text-neutral-900 dark:text-white">
+                    <h3 className="text-sm font-bold text-white">
                       Target Athletes ({selectedAthleteIds.length})
                     </h3>
                     <p className="text-[11px] text-neutral-500">
@@ -1284,14 +1290,14 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
                 <button
                   type="button"
                   onClick={() => setIsAthletePickerOpen(false)}
-                  className="w-8 h-8 rounded-full bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center text-neutral-500 hover:text-neutral-900 dark:hover:text-white cursor-pointer transition-colors"
+                  className="w-8 h-8 rounded-full bg-white/[0.08] flex items-center justify-center text-neutral-500 hover:text-white cursor-pointer transition-colors"
                 >
                   <X size={15} />
                 </button>
               </div>
 
               {/* Search & Bulk Select Actions */}
-              <div className="p-3 border-b border-neutral-200 dark:border-neutral-800 bg-neutral-50/50 dark:bg-[#161618] space-y-2">
+              <div className="p-3 border-b border-white/[0.05] bg-o1-card space-y-2">
                 <div className="relative">
                   <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" />
                   <input
@@ -1299,7 +1305,7 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
                     value={athleteSearchQuery}
                     onChange={(e) => setAthleteSearchQuery(e.target.value)}
                     placeholder="Search athlete by name, handle, or status..."
-                    className="w-full pl-8 pr-3 py-1.5 rounded-xl bg-white dark:bg-[#1a1a1e] border border-neutral-200 dark:border-neutral-700 text-xs text-neutral-900 dark:text-white placeholder-neutral-400 focus:outline-none focus:border-[#C4121A]"
+                    className="w-full pl-8 pr-3 py-1.5 rounded-xl bg-o1-well border border-white/[0.07] text-xs text-white placeholder-neutral-400 focus:outline-none focus:border-o1-crimson"
                   />
                 </div>
                 <div className="flex items-center justify-between text-xs px-0.5">
@@ -1307,15 +1313,15 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
                     <button
                       type="button"
                       onClick={handleSelectAllAthletes}
-                      className="text-[11px] font-bold text-[#C4121A] hover:underline cursor-pointer"
+                      className="text-[11px] font-bold text-o1-crimson hover:underline cursor-pointer"
                     >
                       Select All ({athletes.length})
                     </button>
-                    <span className="text-neutral-300 dark:text-neutral-700">•</span>
+                    <span className="text-neutral-700">•</span>
                     <button
                       type="button"
                       onClick={handleClearAthleteSelection}
-                      className="text-[11px] font-medium text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300 cursor-pointer"
+                      className="text-[11px] font-medium text-neutral-500 hover:text-neutral-300 cursor-pointer"
                     >
                       Clear
                     </button>
@@ -1330,10 +1336,10 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
               <div className="p-3 overflow-y-auto space-y-1.5 max-h-[50vh]">
                 {filteredAthletes.length === 0 ? (
                   <div className="p-8 text-center space-y-2">
-                    <p className="text-xs font-semibold text-neutral-500 dark:text-neutral-400">
+                    <p className="text-xs font-semibold text-neutral-400">
                       No connected athletes in roster.
                     </p>
-                    <p className="text-[11px] text-neutral-400 dark:text-neutral-500">
+                    <p className="text-[11px] text-neutral-500">
                       Connect client athletes via the Coach tab or share your athlete invite link.
                     </p>
                   </div>
@@ -1346,22 +1352,22 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
                       onClick={() => toggleSelectAthlete(ath.id)}
                       className={`p-2.5 rounded-2xl border transition-all cursor-pointer flex items-center justify-between gap-3 ${
                         isSelected
-                          ? 'border-[#C4121A] bg-[#C4121A]/5 dark:bg-[#C4121A]/10'
-                          : 'border-neutral-200 dark:border-neutral-800 bg-white dark:bg-[#161619] hover:border-neutral-300 dark:hover:border-neutral-700'
+                          ? 'border-o1-crimson bg-o1-crimson/10'
+                          : 'border-white/[0.07] bg-o1-well hover:border-white/[0.14]'
                       }`}
                     >
                       <div className="flex items-center gap-2.5 min-w-0">
                         <div
                           className={`w-5 h-5 rounded-md border flex items-center justify-center shrink-0 transition-colors ${
                             isSelected
-                              ? 'bg-[#C4121A] border-[#C4121A] text-white'
-                              : 'border-neutral-300 dark:border-neutral-600 bg-transparent'
+                              ? 'bg-o1-crimson border-o1-crimson text-white'
+                              : 'border-white/[0.07] bg-transparent'
                           }`}
                         >
                           {isSelected && <Check size={12} strokeWidth={3} />}
                         </div>
 
-                        <div className="w-8 h-8 rounded-full bg-neutral-200 dark:bg-neutral-700 overflow-hidden shrink-0 flex items-center justify-center text-xs font-bold text-neutral-600 dark:text-neutral-300">
+                        <div className="w-8 h-8 rounded-full bg-neutral-700 overflow-hidden shrink-0 flex items-center justify-center text-xs font-bold text-neutral-300">
                           {ath.avatar ? (
                             <img src={ath.avatar} alt={ath.name} className="w-full h-full object-cover" />
                           ) : (
@@ -1371,7 +1377,7 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
 
                         <div className="min-w-0">
                           <div className="flex items-center gap-1.5">
-                            <span className="text-xs font-bold text-neutral-900 dark:text-white truncate">
+                            <span className="text-xs font-bold text-white truncate">
                               {ath.name}
                             </span>
                             <span className="text-[10px] text-neutral-400 font-mono truncate">
@@ -1379,7 +1385,7 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
                             </span>
                           </div>
                           <div className="flex items-center gap-2 text-[10px] text-neutral-500">
-                            <span className="text-green-700 dark:text-green-400 font-semibold">
+                            <span className="text-emerald-400 font-semibold">
                               {ath.readiness}% CNS
                             </span>
                             <span>•</span>
@@ -1391,10 +1397,10 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
                       <span
                         className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase shrink-0 ${
                           ath.status === 'Active'
-                            ? 'bg-green-500/10 text-green-700 dark:text-green-400'
+                            ? 'bg-emerald-500/10 text-emerald-400'
                             : ath.status === 'Need Routine'
-                            ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400'
-                            : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-500'
+                            ? 'bg-amber-500/10 text-amber-400'
+                            : 'bg-white/[0.08] text-neutral-500'
                         }`}
                       >
                         {ath.status}
@@ -1405,8 +1411,8 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
               </div>
 
               {/* Done Footer */}
-              <div className="p-3.5 border-t border-neutral-200 dark:border-neutral-800 bg-white dark:bg-[#121214] flex items-center justify-between">
-                <span className="text-xs font-semibold text-neutral-600 dark:text-neutral-400">
+              <div className="p-3.5 border-t border-white/[0.05] bg-o1-card flex items-center justify-between">
+                <span className="text-xs font-semibold text-neutral-400">
                   {selectedAthleteIds.length === 0
                     ? 'No athletes selected'
                     : `${selectedAthleteIds.length} athletes will receive this workout`}
@@ -1417,7 +1423,7 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
                     tactileEngine.triggerSelectionBuzz();
                     setIsAthletePickerOpen(false);
                   }}
-                  className="px-4 py-2 rounded-xl bg-[#C4121A] text-white text-xs font-bold hover:bg-[#a80f16] transition-colors cursor-pointer shadow-xs"
+                  className="px-4 py-2 rounded-xl bg-o1-crimson text-white text-xs font-bold hover:bg-o1-crimson-hover transition-colors cursor-pointer shadow-xs"
                 >
                   Confirm ({selectedAthleteIds.length})
                 </button>

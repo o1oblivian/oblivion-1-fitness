@@ -1,4 +1,5 @@
 import { supabase } from '../../../services/supabaseClient';
+import { getAuthenticatedUserId } from '../../../services/authUser';
 import { safeStorage } from '../../../utils/sanitizers';
 import { useTelemetryHistoryStore } from '../store/useTelemetryHistoryStore';
 import { useLogStore } from '../../../stores/useLogStore';
@@ -32,11 +33,8 @@ export async function persistCardioLog(entry: {
   steps?: number;
   dateKey?: string;
 }): Promise<void> {
-  const { data: authData } = await supabase.auth.getUser();
-  const userId =
-    authData?.user?.id ||
-    (typeof window !== 'undefined' && localStorage.getItem('o1fc_user_id')) ||
-    'default-athlete';
+  const userId = await getAuthenticatedUserId();
+  if (!userId) return;
 
   const nowIso = new Date().toISOString();
   const dateKey =

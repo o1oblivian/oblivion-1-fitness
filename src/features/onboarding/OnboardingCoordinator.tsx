@@ -9,8 +9,15 @@ import { tactileEngine } from '../../services/tactileEngine';
 import { safeStorage } from '../../utils/safeStorage';
 import signupBg from '../../assets/images/signup_bg_1790312578259.jpg';
 
-export const OnboardingCoordinator: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
-  const [phase, setPhase] = useState<'auth' | 'protocol'>('auth');
+export const OnboardingCoordinator: React.FC<{ onComplete: () => void; replay?: boolean }> = ({
+  onComplete,
+  replay = false,
+}) => {
+  const hasSession =
+    typeof window !== 'undefined' &&
+    Boolean(localStorage.getItem('o1fc_user_id') || safeStorage.getItem('o1fc_user_id'));
+  const tutorialOnly = replay || hasSession;
+  const [phase, setPhase] = useState<'auth' | 'protocol'>(tutorialOnly ? 'protocol' : 'auth');
   const [data, setData] = useState<OnboardingData>(INITIAL_ONBOARDING_DATA);
   const [legalSheet, setLegalSheet] = useState<'privacy' | 'terms' | null>(null);
 
@@ -25,20 +32,22 @@ export const OnboardingCoordinator: React.FC<{ onComplete: () => void }> = ({ on
     try {
       const { data: userData } = await supabase.auth.getUser();
       const user = userData?.user;
-      const targetId = user?.id || localStorage.getItem('o1fc_user_id') || 'athlete-c1';
-
-      await supabase.from('profiles').upsert({
-        id: targetId,
-        body_mass_kg: data.weightKg || 80,
-        stature_cm: data.heightCm || 180,
-        primary_goal: data.primaryFocus || 'HYROX & RACING',
-        daily_step_target: data.dailyStepTarget || 10000,
-        permissions: data.permissions,
-        onboarding_completed: true,
-        updated_at: new Date().toISOString(),
-      });
+      const targetId = user?.id || localStorage.getItem('o1fc_user_id') || '';
+      if (targetId && targetId !== 'athlete-c1' && targetId !== 'default-athlete') {
+        const { error } = await supabase.from('profiles').upsert({
+          id: targetId,
+          body_mass_kg: data.weightKg || 80,
+          stature_cm: data.heightCm || 180,
+          primary_goal: data.primaryFocus || 'HYROX & RACING',
+          daily_step_target: data.dailyStepTarget || 10000,
+          permissions: data.permissions,
+          onboarding_completed: true,
+          updated_at: new Date().toISOString(),
+        });
+        if (error) console.error('[Onboarding] Profile upsert failed:', error.message);
+      }
     } catch (e) {
-      console.warn('[Onboarding] Profile dossier upsert fallback:', e);
+      console.error('[Onboarding] Profile dossier upsert failed:', e);
     }
 
     safeStorage.setItem('olfc_onboarding_completed', 'true');
@@ -51,7 +60,7 @@ export const OnboardingCoordinator: React.FC<{ onComplete: () => void }> = ({ on
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-[#040406] text-white flex flex-col justify-between overflow-y-auto no-scrollbar select-none">
+    <div className="fixed inset-0 z-50 bg-black text-white flex flex-col justify-between overflow-y-auto no-scrollbar select-none">
       {/* Exact High-Definition Dark Celestial Background from reference image */}
       <img
         src={signupBg}
@@ -88,6 +97,7 @@ export const OnboardingCoordinator: React.FC<{ onComplete: () => void }> = ({ on
               data={data}
               onUpdate={handleUpdate}
               onLaunch={handleFinish}
+              onSkip={tutorialOnly ? onComplete : undefined}
             />
           )}
         </div>

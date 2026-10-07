@@ -3,13 +3,43 @@ import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
 
+(function installNativeApiBaseFetch() {
+  if (typeof window === 'undefined') return;
+  const base = String(import.meta.env.VITE_API_BASE_URL || 'https://oblivion-1-fitness.onrender.com').replace(
+    /\/$/,
+    ''
+  );
+  if (!base) return;
+  const orig = window.fetch.bind(window);
+  const rewrite = (input: RequestInfo | URL): RequestInfo | URL => {
+    if (typeof input === 'string' && input.startsWith('/api/')) {
+      return `${base}${input}`;
+    }
+    if (input instanceof URL && input.pathname.startsWith('/api/')) {
+      return new URL(`${base}${input.pathname}${input.search}${input.hash}`);
+    }
+    if (typeof Request !== 'undefined' && input instanceof Request) {
+      try {
+        const parsed = new URL(input.url, window.location.origin);
+        if (parsed.origin === window.location.origin && parsed.pathname.startsWith('/api/')) {
+          return new Request(`${base}${parsed.pathname}${parsed.search}${parsed.hash}`, input);
+        }
+      } catch {
+        /* keep original request */
+      }
+    }
+    return input;
+  };
+  window.fetch = (input: RequestInfo | URL, init?: RequestInit) => orig(rewrite(input), init);
+})();
+
 if (typeof window !== 'undefined') {
   window.addEventListener('unhandledrejection', (event) => {
     const reason = event?.reason;
     const msg = typeof reason === 'string' ? reason : reason?.message || '';
     if (
       msg.includes('NotAllowedError') || msg.includes('Permission') || msg.includes('audio') ||
-      msg.includes('media') || msg.includes('SecurityError') || msg.includes('key') || msg.includes('plugin')
+      msg.includes('media') || msg.includes('SecurityError') || msg.includes('key')
     ) {
       console.warn('[O1 FC Global Guard] Handled unhandled rejection:', reason);
       event.preventDefault();
@@ -17,7 +47,7 @@ if (typeof window !== 'undefined') {
   });
 
   window.addEventListener('error', (event) => {
-    if (event?.message?.includes('SecurityError') || event?.message?.includes('localStorage') || event?.message?.includes('plugin')) {
+    if (event?.message?.includes('SecurityError') || event?.message?.includes('localStorage')) {
       console.warn('[O1 FC Global Guard] Handled startup error:', event.message);
       event.preventDefault();
     }
@@ -54,21 +84,22 @@ class RootErrorBoundary extends Component<RootBoundaryProps, RootBoundaryState> 
 
   override render(): ReactNode {
     if (this.state.hasError) {
+      const err = this.state.error;
+      const details = err
+        ? [err.name, err.message, err.stack].filter(Boolean).join('\n\n')
+        : 'Unknown render error';
       return (
-        <div className="min-h-dvh w-full bg-[#09090b] text-white flex flex-col items-center justify-center p-6 text-center select-none font-sans">
-          <div className="w-16 h-16 rounded-2xl bg-[#C4121A]/10 border border-[#C4121A]/40 flex items-center justify-center mb-4 shadow-[0_0_25px_rgba(196,18,26,0.3)]">
-            <span className="text-2xl font-black text-[#C4121A]">O1</span>
-          </div>
-          <h1 className="text-base font-bold uppercase tracking-wider mb-2 text-neutral-100 font-mono">
-            Starting O1 FC...
+        <div className="min-h-dvh w-full bg-black text-white flex flex-col items-stretch justify-start p-6 select-text font-sans">
+          <h1 className="text-base font-bold uppercase tracking-wider mb-2 text-neutral-100">
+            Launch error
           </h1>
-          <p className="text-xs text-neutral-400 max-w-sm mb-6 leading-relaxed">
-            Initializing tactical performance engine and offline storage.
-          </p>
+          <pre className="text-[11px] leading-relaxed whitespace-pre-wrap break-words text-amber-200 bg-black/60 border border-white/[0.07] rounded-xl p-3 overflow-auto mb-6">
+            {details}
+          </pre>
           <button
             type="button"
             onClick={this.handleReload}
-            className="px-6 py-2.5 rounded-xl bg-[#C4121A] hover:bg-[#A30F16] text-white text-xs font-bold uppercase tracking-wider shadow-lg transition-all cursor-pointer active:scale-95"
+            className="px-6 py-2.5 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover text-white text-xs font-bold uppercase tracking-wider shadow-lg transition-all cursor-pointer active:scale-95"
           >
             Retry Launch
           </button>
@@ -89,19 +120,20 @@ try {
         </RootErrorBoundary>
       </StrictMode>
     );
+    rootElement.setAttribute('data-o1-mounted', '1');
   }
 } catch (startupError) {
   console.error('[O1 FC Cold Boot Exception Caught]:', startupError);
   const el = document.getElementById('root');
+  const message = startupError instanceof Error
+    ? `${startupError.name}: ${startupError.message}\n\n${startupError.stack || ''}`
+    : String(startupError);
   if (el) {
     el.innerHTML = `
-      <div style="min-height:100dvh;width:100%;background:#09090b;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:sans-serif;text-align:center;padding:24px;">
-        <div style="width:64px;height:64px;border-radius:16px;background:rgba(196,18,26,0.1);border:1px solid rgba(196,18,26,0.4);display:flex;align-items:center;justify-content:center;margin-bottom:16px;">
-          <span style="font-size:24px;font-weight:900;color:#C4121A;">O1</span>
-        </div>
-        <h1 style="font-size:16px;font-weight:700;letter-spacing:1px;margin:0 0 8px 0;text-transform:uppercase;">Starting O1 FC...</h1>
-        <p style="font-size:12px;color:#a3a3a3;margin:0 0 24px 0;">Initializing performance system</p>
-        <button onclick="window.location.reload()" style="padding:10px 24px;border-radius:12px;background:#C4121A;color:#fff;border:none;font-size:12px;font-weight:700;cursor:pointer;text-transform:uppercase;">Retry Launch</button>
+      <div style="min-height:100dvh;width:100%;background:#000000;color:#fff;display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;font-family:sans-serif;padding:24px;box-sizing:border-box;">
+        <h1 style="font-size:16px;font-weight:700;letter-spacing:1px;margin:0 0 12px 0;text-transform:uppercase;">Launch error</h1>
+        <pre style="font-size:11px;color:#F59E0B;white-space:pre-wrap;word-break:break-word;background:#000;border:1px solid #333;border-radius:12px;padding:12px;overflow:auto;">${message.replace(/</g, '&lt;')}</pre>
+        <button onclick="window.location.reload()" style="margin-top:16px;padding:10px 24px;border-radius:12px;background:#C4121A;color:#fff;border:none;font-size:12px;font-weight:700;cursor:pointer;text-transform:uppercase;">Retry Launch</button>
       </div>`;
   }
 }

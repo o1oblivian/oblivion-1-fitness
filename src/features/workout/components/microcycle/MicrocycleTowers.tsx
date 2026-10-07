@@ -6,86 +6,155 @@ interface MicrocycleTowersProps {
   activeDays: DayStrainDetail[];
   selectedDayIdx: number;
   onSelectDay: (idx: number) => void;
-  maxVolume?: number;
-  avgTargetVolume?: number;
 }
 
-const DAY_SLAB_PALETTES: Record<string, string[]> = {
-  Mon: ['#dc2626', '#ea580c', '#f97316', '#fbbf24', '#f59e0b', '#d97706', '#b91c1c'],
-  Tue: ['#b45309', '#d97706', '#f59e0b', '#fbbf24', '#f59e0b', '#ea580c', '#78350f'],
-  Wed: ['#881337', '#991b1b', '#b91c1c', '#C4121A', '#b91c1c', '#991b1b', '#7f1d1d'],
-  Thu: ['#0284c7', '#0ea5e9', '#38bdf8', '#0284c7', '#0369a1', '#0369a1', '#075985'],
-  Fri: ['#c2410c', '#ea580c', '#f97316', '#ea580c', '#c2410c', '#9a3412', '#7c2d12'],
-  Sat: ['#047857', '#059669', '#10b981', '#059669', '#047857', '#065f46', '#064e3b'],
-  Sun: ['#0284c7', '#0ea5e9', '#38bdf8', '#0284c7', '#0369a1', '#0369a1', '#075985'],
+const TUBE_H = 112;
+const TUBE_PAD = 2;
+const INNER_H = TUBE_H - TUBE_PAD * 2;
+const MAX_SLABS = 10;
+
+function hexToRgb(hex: string): [number, number, number] {
+  const n = parseInt(hex.slice(1), 16);
+  return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+}
+
+function rgbToHex(r: number, g: number, b: number): string {
+  return `#${[r, g, b].map((v) => v.toString(16).padStart(2, '0')).join('')}`;
+}
+
+/** Stretch reference slab stops to 10 bands without inventing a new hue family. */
+function expandStops(stops: string[], count: number): string[] {
+  if (stops.length === 1) return Array.from({ length: count }, () => stops[0]);
+  if (stops.length >= count) return stops.slice(0, count);
+  const out: string[] = [];
+  for (let i = 0; i < count; i++) {
+    const pos = (i / (count - 1)) * (stops.length - 1);
+    const i0 = Math.floor(pos);
+    const i1 = Math.min(stops.length - 1, i0 + 1);
+    const f = pos - i0;
+    const a = hexToRgb(stops[i0]);
+    const b = hexToRgb(stops[i1]);
+    out.push(rgbToHex(
+      Math.round(a[0] + (b[0] - a[0]) * f),
+      Math.round(a[1] + (b[1] - a[1]) * f),
+      Math.round(a[2] + (b[2] - a[2]) * f),
+    ));
+  }
+  return out;
+}
+
+/** Bottom → top. Sampled from the reference towers image. */
+const DAY_SLAB_STOPS: Record<string, string[]> = {
+  Mon: ['#9A2418', '#C8321C', '#E09414', '#F0C338'],
+  Tue: ['#7A4A0C', '#A86A10', '#C88814', '#E0A81C', '#F0C430'],
+  Wed: ['#7A1420', '#C43040', '#8B1A28', '#E07080', '#A82432', '#D84858', '#9A2030', '#E88894', '#B42838', '#F0A8B0'],
+  Thu: ['#2B7AE0'],
+  Fri: ['#E05610', '#F07818', '#F59A32'],
+  Sat: ['#157A38', '#1F9A48', '#2DB85A', '#5ED078'],
+  Sun: ['#2F86E8'],
 };
 
-const calculateSlabCount = (volume: number): number => {
+const DAY_SLAB_PALETTES: Record<string, string[]> = Object.fromEntries(
+  Object.entries(DAY_SLAB_STOPS).map(([day, stops]) => [day, expandStops(stops, MAX_SLABS)]),
+);
+
+function slabCountForVolume(volume: number): number {
+  return volume > 0 ? MAX_SLABS : 0;
+}
+
+function fillHeightPx(volume: number, cap: number): number {
   if (volume <= 0) return 0;
-  if (volume < 1500) return 1;
-  if (volume < 3000) return 2;
-  if (volume < 4500) return 3;
-  if (volume < 6000) return 4;
-  if (volume < 7500) return 5;
-  if (volume < 9000) return 6;
-  return 7;
-};
+  const ratio = Math.min(1, volume / cap);
+  return Math.max(8, Math.round(INNER_H * ratio));
+}
 
-export const MicrocycleTowers: React.FC<MicrocycleTowersProps> = ({ activeDays, selectedDayIdx, onSelectDay }) => {
+export const MicrocycleTowers: React.FC<MicrocycleTowersProps> = ({
+  activeDays,
+  selectedDayIdx,
+  onSelectDay,
+}) => {
+  const weekPeak = activeDays.reduce((m, d) => (d.volume > m ? d.volume : m), 0);
+  const cap = Math.max(weekPeak, 1);
+  const peakIdx = activeDays.reduce((best, d, idx) => {
+    if (d.volume <= 0) return best;
+    if (best < 0) return idx;
+    return d.volume > activeDays[best].volume ? idx : best;
+  }, -1);
+
   return (
-    <div className="relative pt-2 pb-1 select-none">
-      {/* Dashed Baseline Target Line across towers at 5.5k kg mark */}
-      <div className="absolute left-0 right-0 border-b border-dashed border-neutral-400/70 dark:border-neutral-600/70 pointer-events-none z-10 flex items-center justify-end pr-1" style={{ bottom: '120px' }}>
-        <span className="text-[8px] font-mono uppercase tracking-widest font-semibold text-neutral-500 dark:text-neutral-400 select-none pb-0.5">BASELINE TARGET</span>
-      </div>
-
-      {/* 7-Day Genuine Tower Row */}
-      <div className="flex items-end justify-between px-1.5 pt-4 pb-2 relative h-[196px]">
+    <div className="relative pb-0 select-none">
+      <div className="flex items-end justify-between px-0.5 pt-0 pb-0 relative h-[152px]">
         {activeDays.map((d, idx) => {
           const isSelected = selectedDayIdx === idx;
-          const tonnageLabel = d.volume > 0 ? `${(d.volume / 1000).toFixed(1)}k` : '--';
-          const slabCount = calculateSlabCount(d.volume);
+          const isPeak = idx === peakIdx;
+          const hasVolume = d.volume > 0;
+          const tonnageLabel = hasVolume ? `${(d.volume / 1000).toFixed(1)}k` : '--';
+          const slabCount = slabCountForVolume(d.volume);
           const palette = DAY_SLAB_PALETTES[d.day] || DAY_SLAB_PALETTES.Mon;
+          const fillH = fillHeightPx(d.volume, cap);
+          const nearlyFull = fillH >= INNER_H * 0.9;
+          const bottomR = Math.min(14, Math.max(3, Math.round(fillH * 0.22)));
+          const topR = nearlyFull ? 14 : 2;
 
           return (
             <button
               key={d.day}
               type="button"
-              onClick={() => { tactileEngine.triggerSelectionBuzz(); onSelectDay(idx); }}
-              className="flex flex-col items-center justify-end h-full group cursor-pointer relative bg-transparent border-0 p-0 m-0 focus:outline-hidden"
+              onClick={() => {
+                tactileEngine.triggerSelectionBuzz();
+                onSelectDay(idx);
+              }}
+              className="flex flex-col items-center justify-end h-full group cursor-pointer relative bg-transparent border-0 p-0 m-0 focus:outline-hidden min-w-0 flex-1"
             >
-              {/* Genuine Top Metric Label */}
-              <span className={`text-[12px] font-mono mb-1.5 transition-all ${isSelected ? 'text-neutral-900 dark:text-white font-bold' : 'text-neutral-500 dark:text-neutral-400 font-medium'}`}>
+              <span
+                className={`text-[11px] font-mono mb-1 tabular-nums leading-none ${
+                  isSelected || isPeak
+                    ? 'text-white font-semibold'
+                    : 'text-neutral-400 font-medium'
+                }`}
+              >
                 {tonnageLabel}
               </span>
 
-              {/* Capsule Pill Track: exactly 7 slabs with tight 1px hairline gaps */}
-              <div className={`w-9 sm:w-10 h-[142px] rounded-2xl relative overflow-hidden flex flex-col-reverse justify-start p-[3px] gap-[1px] transition-all duration-200 ${
-                isSelected ? 'border-2 border-[#C4121A] shadow-none bg-neutral-100 dark:bg-[#18181b]' : 'bg-neutral-100 dark:bg-[#18181b] border border-neutral-200 dark:border-neutral-800'
-              }`}>
-                {[0, 1, 2, 3, 4, 5, 6].map((slabIdx) => {
-                  const isFilled = slabIdx < slabCount;
-                  if (isFilled) {
-                    const slabColor = palette[slabIdx] || '#ea580c';
-                    const rounded = slabIdx === 0 && slabIdx === slabCount - 1 ? 'rounded-xl' : slabIdx === 0 ? 'rounded-b-xl' : slabIdx === slabCount - 1 ? 'rounded-t-xl' : '';
-                    return (
-                      <div key={slabIdx} style={{ backgroundColor: slabColor }} className={`w-full h-[18px] shrink-0 border-b border-black/25 last:border-b-0 transition-all ${rounded}`} />
-                    );
-                  }
-                  return (
-                    <div key={slabIdx} className="w-full h-[18px] shrink-0 flex items-center justify-center pointer-events-none">
-                      <div className="w-3.5 h-[1.5px] bg-neutral-300 dark:bg-neutral-700/60 rounded-full" />
-                    </div>
-                  );
-                })}
+              <div
+                className="relative w-9 overflow-hidden flex flex-col justify-end bg-black border border-white/[0.07]"
+                style={{
+                  height: TUBE_H,
+                  padding: TUBE_PAD,
+                  borderRadius: 999,
+                }}
+              >
+                <div
+                  className="w-full overflow-hidden flex flex-col-reverse"
+                  style={{
+                    height: fillH,
+                    borderBottomLeftRadius: bottomR,
+                    borderBottomRightRadius: bottomR,
+                    borderTopLeftRadius: topR,
+                    borderTopRightRadius: topR,
+                  }}
+                >
+                  {Array.from({ length: slabCount }, (_, slabIdx) => (
+                    <div
+                      key={slabIdx}
+                      className="w-full flex-1 min-h-0"
+                      style={{ backgroundColor: palette[slabIdx] || palette[palette.length - 1] }}
+                    />
+                  ))}
+                </div>
               </div>
 
-              {/* Day Label with Underline for Active Selection */}
-              <div className="mt-1.5 flex flex-col items-center min-h-[22px]">
-                <span className={`text-xs uppercase tracking-wider transition-colors ${isSelected ? 'text-[#C4121A] font-bold' : 'text-neutral-500 dark:text-neutral-400 font-medium'}`}>
+              <div className="mt-1 flex flex-col items-center min-h-[16px]">
+                <span
+                  className={`text-[10px] uppercase tracking-wider ${
+                    isSelected
+                      ? 'text-o1-crimson font-semibold'
+                      : 'text-neutral-400 font-medium'
+                  }`}
+                >
                   {d.day}
                 </span>
-                {isSelected && <div className="w-5 h-[2px] bg-[#C4121A] rounded-full mt-0.5" />}
+                {isSelected && <div className="w-4 h-[2px] bg-o1-crimson rounded-full mt-px" />}
               </div>
             </button>
           );

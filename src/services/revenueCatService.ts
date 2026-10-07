@@ -1,116 +1,297 @@
 import { Capacitor } from '@capacitor/core';
-import { Purchases, type Package, type CustomerInfo } from '@revenuecat/purchases-js';
+import { Purchases } from '@revenuecat/purchases-capacitor';
+import { type CustomerInfo } from '@revenuecat/purchases-js';
 import { supabase } from './supabaseClient';
-import { appleKey, googleKey } from './purchasesService';
+import { getAuthenticatedUserId } from './authUser';
+import { appleKey, googleKey, webBillingKey, isNativeStorePlatform, resolveNativeStoreKey } from './purchasesService';
 
-export { appleKey, googleKey };
-export const REVENUECAT_WEB_BILLING_KEY = 'rcb_FyTrwaYRNbRxDuYZuEeksYMwXwam', REVENUECAT_ENTITLEMENT_PRO = 'pro', REVENUECAT_TIER_MONTHLY = 'o1fc_pro_monthly', REVENUECAT_TIER_ANNUAL = 'o1fc_pro_annual';
+export { appleKey, googleKey, webBillingKey };
+export const REVENUECAT_WEB_BILLING_KEY = webBillingKey;
+export const REVENUECAT_ENTITLEMENT_PRO = 'o1fc_pro';
+export const REVENUECAT_TIER_MONTHLY = 'o1fc_pro_monthly';
+export const REVENUECAT_TIER_TRAVEL = 'o1fc_pro_travel_monthly';
+export const REVENUECAT_TIER_FOUNDER = 'o1fc_founder_pass';
 const STORAGE_KEY = 'o1fc_revenuecat_entitlements';
 
+export const REVENUECAT_FALLBACK_MONTHLY_PACKAGE = {
+  identifier: '$rc_monthly',
+  packageType: 'MONTHLY',
+  isFallback: true,
+  product: {
+    identifier: 'o1fc_monthly_pro',
+    title: 'Monthly Pro Access',
+    priceString: '$9.99',
+    price: 9.99,
+  },
+  webCheckoutProduct: {
+    identifier: 'o1fc_monthly_pro',
+    title: 'Monthly Pro Access',
+    priceString: '$9.99',
+    price: 9.99,
+  },
+};
+
+function isWebOrLocalPreview(): boolean {
+  if (typeof window === 'undefined') return true;
+  const host = window.location.hostname;
+  const isLocal =
+    host === 'localhost' ||
+    host === '127.0.0.1' ||
+    host === '0.0.0.0' ||
+    host.startsWith('192.168.') ||
+    host.startsWith('10.') ||
+    host.endsWith('.local');
+  try {
+    return isLocal || !Capacitor.isNativePlatform();
+  } catch {
+    return true;
+  }
+}
+
 export interface EntitlementInfo {
-  isActive: boolean; tierId: string; tierName: string; platform: 'ios' | 'android' | 'web'; expiresAt: string | null; willRenew: boolean;
+  isActive: boolean;
+  tierId: string;
+  tierName: string;
+  platform: 'ios' | 'android' | 'web';
+  expiresAt: string | null;
+  willRenew: boolean;
+}
+
+async function resolveAppUserId(preferred?: string): Promise<string | null> {
+  if (preferred && preferred !== 'default-athlete' && preferred !== 'athlete-c1') return preferred;
+  return getAuthenticatedUserId();
 }
 
 class RevenueCatManager {
-  private purchasesInstance: Purchases | null = null;
+  private purchasesInstance: any | null = null;
+  private configuredUserId: string | null = null;
+
   isNative = (): boolean => {
     if (typeof window === 'undefined') return false;
-    const platform = Capacitor.getPlatform();
-    return platform === 'ios' || platform === 'android';
+    try {
+      return Capacitor.isNativePlatform();
+    } catch {
+      return false;
+    }
   };
 
-  async init(appUserId: string = 'default-athlete'): Promise<Purchases | null> {
+  async init(appUserId: string = ''): Promise<any | null> {
     if (typeof window === 'undefined') return null;
-    const platform = Capacitor.getPlatform();
+    const userId = await resolveAppUserId(appUserId);
+    if (!userId) return null;
 
-    if (platform !== 'ios' && platform !== 'android') {
-      console.warn(`[RevenueCat] Non-native platform (${platform}). Skipping Purchases.configure() gracefully to prevent preview crash.`);
-      return null;
+    if (this.isNative()) {
+      try {
+        const apiKey = resolveNativeStoreKey();
+        if (!apiKey) {
+          console.warn('[RevenueCat] Native store key missing for', Capacitor.getPlatform());
+          return null;
+        }
+        await Purchases.configure({ apiKey, appUserID: userId });
+        this.purchasesInstance = Purchases;
+        this.configuredUserId = userId;
+        return Purchases;
+      } catch (e) {
+        console.warn('[RevenueCat] Native initialization fallback:', e);
+        return null;
+      }
     }
 
-    try {
-      const nativePurchases = (window as any)?.Purchases;
-      const apiKey = platform === 'ios' ? appleKey : googleKey;
-      if (apiKey && nativePurchases?.configure) {
-        await nativePurchases.configure({ apiKey, appUserId });
-        return nativePurchases;
-      }
-      return nativePurchases || null;
-    } catch (e) {
-      console.warn('[RevenueCat Safe Guard] Initialization fallback:', e);
-      return null;
-    }
-  }
-
-  private async handleStripeRedirectReturn(userId: string): Promise<void> {
-    try {
-      if (typeof window === 'undefined') return;
-      const url = new URL(window.location.href);
-      if (url.searchParams.has('session_id') || url.searchParams.get('rc_status') === 'success') {
-        const info = await this.purchasesInstance?.getCustomerInfo();
-        if (this.hasProEntitlement(info)) await this.persistSuccess(REVENUECAT_TIER_MONTHLY, userId, 'web');
-      }
-    } catch {}
+    // Web / localhost / browser: never call purchases-js with store keys (credentials errors).
+    return null;
   }
 
   hasProEntitlement = (info?: CustomerInfo | null): boolean => {
-    const a = info?.entitlements?.active;
-    return Boolean(a && (a[REVENUECAT_ENTITLEMENT_PRO] || a[REVENUECAT_TIER_MONTHLY] || a['o1fc_pro']));
+    const a = info?.entitlements?.active as Record<string, unknown> | undefined;
+    return Boolean(
+      a &&
+        (a[REVENUECAT_ENTITLEMENT_PRO] ||
+          a[REVENUECAT_TIER_MONTHLY] ||
+          a[REVENUECAT_TIER_TRAVEL] ||
+          a[REVENUECAT_TIER_FOUNDER])
+    );
   };
+
+  private collectRawPackages(offerings: any): any[] {
+    const fromCurrent = offerings?.current?.availablePackages;
+    if (Array.isArray(fromCurrent) && fromCurrent.length) return fromCurrent;
+    const all = offerings?.all && typeof offerings.all === 'object' ? Object.values(offerings.all) : [];
+    const nested = all.flatMap((offering: any) =>
+      Array.isArray(offering?.availablePackages) ? offering.availablePackages : []
+    );
+    return nested;
+  }
+
+  private collectPackages(offerings: any): any[] {
+    return this.collectRawPackages(this.withFallbackOfferings(offerings));
+  }
+
+  withFallbackOfferings(offerings: any) {
+    const existing = this.collectRawPackages(offerings);
+    const packages =
+      existing.length === 0 || isWebOrLocalPreview()
+        ? existing.length > 0
+          ? existing
+          : [REVENUECAT_FALLBACK_MONTHLY_PACKAGE]
+        : existing;
+
+    return {
+      ...(offerings || {}),
+      current: {
+        ...(offerings?.current || {}),
+        identifier: offerings?.current?.identifier || 'default',
+        availablePackages: packages,
+      },
+      all: {
+        ...(offerings?.all || {}),
+        default: {
+          ...(offerings?.all?.default || offerings?.current || {}),
+          availablePackages: packages,
+        },
+      },
+    };
+  }
+
+  listPackages(offerings?: any): any[] {
+    return this.collectPackages(offerings);
+  }
+
+  private pickPackage(offerings: any, planId: string): any | null {
+    const packages: any[] = this.collectPackages(offerings);
+    if (!packages.length) return REVENUECAT_FALLBACK_MONTHLY_PACKAGE;
+    const aliases = [
+      planId,
+      REVENUECAT_TIER_MONTHLY,
+      REVENUECAT_TIER_TRAVEL,
+      REVENUECAT_TIER_FOUNDER,
+      '$rc_monthly',
+      '$rc_lifetime',
+      'o1fc_pro_monthly',
+      'o1fc_pro_travel_monthly',
+      'o1fc_founder_pass',
+    ];
+    const found = packages.find((pkg) => {
+      const id = String(pkg?.identifier || pkg?.packageType || '');
+      const productId = String(pkg?.webCheckoutProduct?.identifier || pkg?.product?.identifier || '');
+      return aliases.some((alias) => id === alias || productId === alias || id.includes(alias) || productId.includes(alias));
+    });
+    if (found) return found;
+    return packages.find((pkg) => String(pkg?.packageType || pkg?.identifier || '').toLowerCase().includes('month')) || packages[0];
+  }
 
   async getOfferings(appUserId?: string) {
     try {
       const p = await this.init(appUserId);
-      return p ? await p.getOfferings() : null;
-    } catch { return null; }
+      const offerings = p ? await p.getOfferings() : null;
+      return this.withFallbackOfferings(offerings?.offerings || offerings);
+    } catch {
+      return this.withFallbackOfferings(null);
+    }
   }
 
-  async purchasePackage(planId: string = REVENUECAT_TIER_MONTHLY, athleteId: string = 'default-athlete'): Promise<{ success: boolean; error?: string }> {
+  async purchasePackage(
+    planId: string = REVENUECAT_TIER_MONTHLY,
+    athleteId: string = ''
+  ): Promise<{ success: boolean; error?: string }> {
     try {
-      const p = await this.init(athleteId);
-      if (this.isNative()) {
-        const nativeP = (window as any)?.Purchases;
-        const offerings = await nativeP?.getOfferings();
-        const pkg = offerings?.current?.availablePackages?.find((i: any) => i.identifier === planId) || offerings?.current?.availablePackages?.[0];
-        if (pkg) {
-          const { customerInfo } = await nativeP.purchasePackage(pkg);
-          const isPro = this.hasProEntitlement(customerInfo);
-          if (isPro) await this.persistSuccess(planId, athleteId, 'ios');
-          return { success: isPro };
-        }
+      const userId = await resolveAppUserId(athleteId);
+      if (!userId) {
+        return { success: false, error: 'Sign in to subscribe.' };
       }
-      if (p) {
-        const offerings = await p.getOfferings();
-        const offering = offerings?.current || Object.values(offerings?.all || {})[0];
-        const pkg = offering?.availablePackages?.find((i: Package) => i.identifier === planId || i.identifier.includes('monthly')) || offering?.availablePackages?.[0];
-        if (pkg) {
-          const res = await p.purchasePackage(pkg);
-          const isPro = this.hasProEntitlement(res.customerInfo);
-          if (isPro) await this.persistSuccess(planId, athleteId, 'web');
-          return { success: isPro };
-        }
+
+      if (!isNativeStorePlatform()) {
+        return {
+          success: false,
+          error: 'Subscribe in the iOS or Android app to complete checkout.',
+        };
       }
-    } catch (err: any) {
-      if (err?.errorCode === 1 || err?.message?.includes('cancelled')) return { success: false, error: 'Checkout cancelled.' };
-      return { success: false, error: err?.message || 'Store billing error.' };
+
+      const client = await this.init(userId);
+      if (!client) {
+        return { success: false, error: 'Store billing is unavailable on this device.' };
+      }
+
+      const offeringsResult = await client.getOfferings?.();
+      const offerings = this.withFallbackOfferings(offeringsResult?.offerings || offeringsResult);
+      const pkg = this.pickPackage(offerings, planId);
+      if (!pkg || pkg.isFallback) {
+        return { success: false, error: 'No store product is available for this plan yet.' };
+      }
+
+      let customerInfo: CustomerInfo | null = null;
+      if (typeof client.purchasePackage === 'function') {
+        const result = await client.purchasePackage({ aPackage: pkg });
+        customerInfo = result?.customerInfo || result || null;
+      } else {
+        return { success: false, error: 'Store billing is unavailable on this device.' };
+      }
+
+      const isPro = this.hasProEntitlement(customerInfo);
+      if (isPro) {
+        const platform = Capacitor.getPlatform() === 'android' ? 'android' : 'ios';
+        await this.persistSuccess(planId, userId, platform);
+      }
+      return isPro
+        ? { success: true }
+        : { success: false, error: 'Purchase completed but Pro entitlement was not found on this offering.' };
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      console.warn('[RevenueCat] Store billing error:', err);
+      if (
+        message.toLowerCase().includes('cancel') ||
+        (err as { errorCode?: number })?.errorCode === 1
+      ) {
+        return { success: false, error: 'Checkout cancelled.' };
+      }
+      if (/credential|invalid api key/i.test(message)) {
+        return { success: false, error: 'Store billing is unavailable on this device.' };
+      }
+      return { success: false, error: message || 'Store billing error.' };
     }
-    // Strictly report clean status banner if offerings unconfigured or running outside native app store
-    return {
-      success: false,
-      error: 'Membership Tier Available via App Store / Google Play',
-    };
   }
 
   async persistSuccess(planId: string, athleteId: string, platform: 'ios' | 'android' | 'web'): Promise<void> {
-    const info: EntitlementInfo = { isActive: true, tierId: planId, tierName: planId.includes('annual') ? 'O1 Pass Pro (Annual)' : 'O1 Pass Pro (Monthly)', platform, expiresAt: '2099-12-31T23:59:59Z', willRenew: true };
-    if (typeof window !== 'undefined') { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(info)); } catch {} }
+    if (!athleteId) return;
+    const info: EntitlementInfo = {
+      isActive: true,
+      tierId: planId,
+      tierName: planId.includes('coach_pro') ? 'O1 Coach Pro (Monthly)' : 'O1 Pass Pro (Monthly)',
+      platform,
+      expiresAt: '2099-12-31T23:59:59Z',
+      willRenew: true,
+    };
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(info));
+        localStorage.setItem(
+          'o1fc_subscription_status',
+          JSON.stringify({
+            isActive: true,
+            tierId: planId,
+            tierName: info.tierName,
+            platform,
+            expirationDate: null,
+            willRenew: true,
+          })
+        );
+      } catch {}
+    }
     try {
-      await supabase.from('user_entitlements').upsert({ user_id: athleteId, tier: planId, status: 'active', platform, updated_at: new Date().toISOString() });
-      await supabase.from('athlete_profiles').update({ membership_tier: planId, status: 'active', updated_at: new Date().toISOString() }).eq('id', athleteId);
+      await supabase.from('user_entitlements').upsert({
+        user_id: athleteId,
+        tier: planId,
+        status: 'active',
+        platform,
+        updated_at: new Date().toISOString(),
+      });
+      await supabase
+        .from('athlete_profiles')
+        .update({ membership_tier: planId, status: 'active', updated_at: new Date().toISOString() })
+        .eq('id', athleteId);
     } catch {}
   }
 
-  async getCustomerEntitlements(userId: string = 'default-athlete'): Promise<EntitlementInfo> {
+  async getCustomerEntitlements(userId: string = ''): Promise<EntitlementInfo> {
     if (typeof window !== 'undefined') {
       try {
         const cached = localStorage.getItem(STORAGE_KEY);
@@ -122,10 +303,18 @@ class RevenueCatManager {
     }
     try {
       const p = await this.init(userId);
-      const info = await p?.getCustomerInfo();
+      const info = await p?.getCustomerInfo?.();
       if (this.hasProEntitlement(info)) {
-        await this.persistSuccess(REVENUECAT_TIER_MONTHLY, userId, 'web');
-        return { isActive: true, tierId: REVENUECAT_TIER_MONTHLY, tierName: 'O1 Pass Pro (Verified)', platform: 'web', expiresAt: null, willRenew: true };
+        const platform = this.isNative() ? (Capacitor.getPlatform() === 'android' ? 'android' : 'ios') : 'web';
+        await this.persistSuccess(REVENUECAT_TIER_MONTHLY, (await resolveAppUserId(userId)) || '', platform);
+        return {
+          isActive: true,
+          tierId: REVENUECAT_TIER_MONTHLY,
+          tierName: 'O1 Pass Pro (Verified)',
+          platform,
+          expiresAt: null,
+          willRenew: true,
+        };
       }
     } catch {}
     return {
@@ -138,30 +327,34 @@ class RevenueCatManager {
     };
   }
 
-  async restore(userId: string = 'default-athlete'): Promise<{ success: boolean; info: EntitlementInfo }> {
+  async restore(userId: string = ''): Promise<{ success: boolean; info: EntitlementInfo }> {
     try {
-      const p = await this.init(userId);
-      if (this.isNative()) {
-        const nativeP = (window as any)?.Purchases;
-        const res = await nativeP?.restorePurchases();
+      await this.init(userId);
+      const nativeP = (window as any)?.Purchases;
+      if (this.isNative() && nativeP?.restorePurchases) {
+        const res = await nativeP.restorePurchases();
         if (this.hasProEntitlement(res?.customerInfo || res)) {
-          await this.persistSuccess(REVENUECAT_TIER_MONTHLY, userId, 'ios');
+          const platform = Capacitor.getPlatform() === 'android' ? 'android' : 'ios';
+          await this.persistSuccess(REVENUECAT_TIER_MONTHLY, await resolveAppUserId(userId) || '', platform);
         }
-      } else if (p) {
-        const info = await p.getCustomerInfo();
+      } else {
+        const info = await this.purchasesInstance?.getCustomerInfo?.();
         if (this.hasProEntitlement(info)) {
-          await this.persistSuccess(REVENUECAT_TIER_MONTHLY, userId, 'web');
+          await this.persistSuccess(REVENUECAT_TIER_MONTHLY, await resolveAppUserId(userId) || '', 'web');
         }
       }
-    } catch {}
+    } catch (err) {
+      console.warn('[RevenueCat] Restore failed:', err);
+    }
     const info = await this.getCustomerEntitlements(userId);
     return { success: info.isActive, info };
   }
 }
 
 export const revenueCatService = new RevenueCatManager();
-export const executeMembershipPurchase = (p: string, a: string = 'default-athlete') => revenueCatService.purchasePackage(p, a);
-export const restorePurchases = async (a: string = 'default-athlete') => {
+export const executeMembershipPurchase = (p: string, a: string = '') =>
+  revenueCatService.purchasePackage(p, a);
+export const restorePurchases = async (a: string = '') => {
   const r = await revenueCatService.restore(a);
   return { success: r.success, isPro: r.info.isActive };
 };

@@ -1,107 +1,188 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { ArrowDownRight, RefreshCw, DollarSign } from 'lucide-react';
-import { stripeConnectService, CoachProfileData, CoachBalanceTelemetry } from '../../../services/stripeConnectService';
-import { CoachPayoutLedgerRecord } from '../../../types/database';
+import { stripeConnectService, CoachProfileData, StripeBalance } from '../../../services/stripeConnectService';
 import { PayoutAccountBanner } from './PayoutAccountBanner';
 import { WithdrawModal } from './WithdrawModal';
 import { tactileEngine } from '../../../services/tactileEngine';
+import { COACH_PLANS, formatFeePercent } from '../../../../shared/coachPlans';
 
 interface CoachEarningsDeckProps {
   coachId?: string;
   onShowToast: (msg: string) => void;
 }
 
-export const CoachEarningsDeck: React.FC<CoachEarningsDeckProps> = ({ coachId = 'coach_alpha', onShowToast }) => {
-  const [profile, setProfile] = useState<CoachProfileData | null>(null);
-  const [balance, setBalance] = useState<CoachBalanceTelemetry | null>(null);
-  const [ledger, setLedger] = useState<CoachPayoutLedgerRecord[]>([]);
+interface LedgerLine {
+  id: string;
+  kind: 'sale' | 'payout';
+  title: string;
+  status: string;
+  createdAt: string;
+  currency: string;
+  /** Signed cents: positive = earned, negative = withdrawn. */
+  amountCents: number;
+}
+
+const money = (cents: number) =>
+  (cents / 100).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+export const CoachEarningsDeck: React.FC<CoachEarningsDeckProps> = ({ coachId = '', onShowToast }) => {
+  const [balance, setBalance] = useState<StripeBalance | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [isWithdrawOpen, setIsWithdrawOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   const loadData = useCallback(async () => {
     setIsLoading(true);
-    const prof = await stripeConnectService.getCoachProfile(coachId);
-    setProfile(prof);
-
-    if (prof.stripe_payouts_enabled) {
-      const data = await stripeConnectService.getLedgerAndBalance(prof.id);
-      setBalance(data.balance);
-      setLedger(data.ledger);
+    const res = await stripeConnectService.getBalance();
+    if (res.data) {
+      setBalance(res.data);
+      setLoadError(null);
     } else {
-      setBalance(null);
-      setLedger([]);
+      setLoadError(res.error || 'Could not load your balance.');
     }
     setIsLoading(false);
-  }, [coachId]);
+  }, []);
 
-  useEffect(() => { loadData(); }, [loadData]);
-  const available = balance?.availableNet || 0;
-  const isOnboarded = Boolean(profile?.stripe_payouts_enabled);
+  useEffect(() => { void loadData(); }, [loadData]);
+
+  // Onboarding opens in another tab/browser; refresh the moment the coach comes back.
+  useEffect(() => {
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') void loadData();
+    };
+    window.addEventListener('focus', onVisible);
+    document.addEventListener('visibilitychange', onVisible);
+    return () => {
+      window.removeEventListener('focus', onVisible);
+      document.removeEventListener('visibilitychange', onVisible);
+    };
+  }, [loadData]);
+
+  const profile: CoachProfileData | null = useMemo(
+    () =>
+      balance
+        ? {
+            id: coachId,
+            stripe_connect_account_id: balance.accountId,
+            stripe_payouts_enabled: balance.payoutsEnabled,
+            currency: balance.currency.toUpperCase(),
+          }
+        : null,
+    [balance, coachId],
+  );
+
+  const ledger: LedgerLine[] = useMemo(() => {
+    if (!balance) return [];
+    const sales: LedgerLine[] = balance.transactions
+      .filter((t) => String(t.status).toUpperCase() !== 'REFUNDED')
+      .map((t) => ({
+        id: `sale-${t.id}`,
+        kind: 'sale',
+        title: t.program_title || 'Program sale',
+        status: String(t.status).toUpperCase() === 'PENDING' ? 'pending' : 'available',
+        createdAt: t.created_at,
+        currency: t.currency || balance.currency,
+        amountCents: Math.round(Number(t.coach_net || 0) * 100),
+      }));
+    const payouts: LedgerLine[] = balance.payouts.map((p) => ({
+      id: `payout-${p.id}`,
+      kind: 'payout',
+      title: p.stripe_transfer_id ? `Payout • ${p.stripe_transfer_id.slice(-8)}` : 'Bank Transfer',
+      status: String(p.status).toLowerCase(),
+      createdAt: p.created_at,
+      currency: p.currency,
+      amountCents: -Math.abs(Number(p.amount_cents || 0)),
+    }));
+    return [...sales, ...payouts].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  }, [balance]);
+
+  const availableCents = Math.max(0, balance?.availableCents ?? 0);
+  const isOnboarded = Boolean(balance?.payoutsEnabled);
+  const planLabel = balance ? COACH_PLANS[balance.plan].label : '';
+  const feeLabel = balance ? formatFeePercent(balance.platformFeeRate) : '--';
 
   return (
-    <div className="bg-neutral-950 border border-white/10 text-white rounded-3xl p-4 space-y-4 select-none">
+    <div className="bg-black border border-white/[0.07] text-white rounded-2xl p-2.5 space-y-2.5 select-none">
       <PayoutAccountBanner profile={profile} onRefresh={loadData} onShowToast={onShowToast} />
 
-      <div className="bg-[#0e0e11] border border-white/10 rounded-2xl p-5 space-y-3">
+      {loadError && (
+        <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-400 text-[11px] font-mono flex items-center justify-between gap-2">
+          <span>{loadError}</span>
+          <button type="button" onClick={() => void loadData()} className="underline shrink-0 cursor-pointer">Retry</button>
+        </div>
+      )}
+
+      <div className="bg-o1-card border border-white/[0.07] rounded-2xl p-3 space-y-2">
         <div className="flex items-center justify-between">
-          <span className="text-xs font-tactical font-black text-[#D4AF37] uppercase tracking-wider block">NET AVAILABLE BALANCE</span>
-          <button onClick={loadData} disabled={isLoading} className="text-[#997D2B] hover:text-[#F5D061] transition cursor-pointer">
+          <span className="text-xs font-tactical font-black text-[#F59E0B] uppercase tracking-wider block">NET AVAILABLE BALANCE</span>
+          <button onClick={() => void loadData()} disabled={isLoading} className="text-[#D97706] hover:text-[#F59E0B] transition cursor-pointer" aria-label="Refresh balance">
             <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`} />
           </button>
         </div>
-        <div className="text-3xl font-mono font-black text-[#F5D061] tracking-tight">
-          ${available.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+        <div className="text-3xl font-mono font-black text-[#F59E0B] tracking-tight">
+          {balance ? `$${money(availableCents)}` : '--'}
         </div>
-        <div className="grid grid-cols-2 gap-2 pt-2 border-t border-[#D4AF37]/15">
+        <div className="grid grid-cols-3 gap-2 pt-2 border-t border-[#F59E0B]/15">
           <div>
-            <span className="text-[10px] font-tactical font-bold text-[#997D2B] uppercase tracking-wider block">Pending Settlement</span>
-            <span className="text-neutral-200 font-mono font-bold text-sm">${balance?.pendingNet?.toFixed(2) || '0.00'}</span>
+            <span className="text-[10px] font-tactical font-bold text-[#D97706] uppercase tracking-wider block">Pending</span>
+            <span className="text-neutral-200 font-mono font-bold text-sm">{balance ? `$${money(balance.pendingCents)}` : '--'}</span>
           </div>
           <div>
-            <span className="text-[10px] font-tactical font-bold text-[#997D2B] uppercase tracking-wider block">Platform Fee (10%)</span>
-            <span className="text-neutral-200 font-mono font-bold text-sm">${balance?.platformFee10Pct?.toFixed(2) || '0.00'}</span>
+            <span className="text-[10px] font-tactical font-bold text-[#D97706] uppercase tracking-wider block">Paid Out</span>
+            <span className="text-neutral-200 font-mono font-bold text-sm">{balance ? `$${money(balance.paidCents)}` : '--'}</span>
+          </div>
+          <div>
+            <span className="text-[10px] font-tactical font-bold text-[#D97706] uppercase tracking-wider block">Fees ({feeLabel})</span>
+            <span className="text-neutral-200 font-mono font-bold text-sm">{balance ? `$${money(balance.platformFeeCents)}` : '--'}</span>
           </div>
         </div>
+        {balance && (
+          <p className="text-[10px] font-mono text-neutral-500">
+            {planLabel} • {feeLabel} platform fee on program sales
+          </p>
+        )}
         <button
           onClick={() => { tactileEngine.triggerSelectionBuzz(); setIsWithdrawOpen(true); }}
-          disabled={!isOnboarded || available <= 0}
-          className="w-full py-3.5 rounded-xl bg-gradient-to-r from-[#D4AF37] via-[#F5D061] to-[#C69B3C] text-black font-tactical font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer shadow-lg active:scale-98 transition disabled:opacity-40"
+          disabled={!isOnboarded || availableCents <= 0}
+          className="w-full py-2.5 rounded-xl bg-[#F59E0B] text-black font-tactical font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer shadow-lg active:scale-98 transition disabled:opacity-40"
         >
           <ArrowDownRight className="w-4 h-4 stroke-[3]" />
-          <span>{isOnboarded ? 'WITHDRAW TO BANK' : 'CONNECT STRIPE TO WITHDRAW'}</span>
+          <span>{isOnboarded ? 'WITHDRAW TO BANK' : 'ONBOARD WITH STRIPE TO WITHDRAW'}</span>
         </button>
       </div>
 
       <div className="space-y-2 pt-1">
-        <span className="text-xs font-tactical font-black uppercase tracking-wider text-[#D4AF37] block px-1">
-          PAYOUT LEDGER &amp; TRANSFERS ({ledger.length})
+        <span className="text-xs font-tactical font-black uppercase tracking-wider text-[#F59E0B] block px-1">
+          EARNINGS LEDGER ({ledger.length})
         </span>
         {ledger.length === 0 ? (
-          <div className="p-6 rounded-2xl bg-[#0A0A0A] border border-dashed border-[#D4AF37]/20 text-center space-y-1">
-            <DollarSign className="w-5 h-5 text-[#997D2B] mx-auto" />
+          <div className="p-4 rounded-2xl bg-black border border-dashed border-[#F59E0B]/20 text-center space-y-1">
+            <DollarSign className="w-5 h-5 text-[#D97706] mx-auto" />
             <p className="text-xs font-sans text-neutral-300 font-semibold uppercase">NO TRANSACTIONS RECORDED</p>
             <p className="text-[11px] font-sans text-neutral-500">Earnings from client coaching &amp; verified program sales will appear here.</p>
           </div>
         ) : (
           <div className="space-y-1.5">
             {ledger.map((item) => {
-              const isPositive = Number(item.amount_cents) > 0;
-              const formattedAmt = (Math.abs(item.amount_cents) / 100).toFixed(2);
+              const isPositive = item.amountCents > 0;
+              const settled = item.status === 'paid' || item.status === 'available';
               return (
-                <div key={item.id} className="p-3.5 bg-[#0A0A0A] border-b border-[#D4AF37]/15 rounded-xl flex items-center justify-between">
-                  <div>
+                <div key={item.id} className="p-3.5 bg-black border-b border-[#F59E0B]/15 rounded-xl flex items-center justify-between gap-3">
+                  <div className="min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="font-tactical font-black text-white uppercase text-xs tracking-wider">
-                        {item.stripe_transfer_id ? `Payout • ${item.stripe_transfer_id.slice(-8)}` : 'Bank Transfer'}
-                      </span>
-                      <span className={`text-[9px] font-tactical font-black px-1.5 py-0.5 rounded-full border tracking-wider uppercase ${
-                        item.status?.toLowerCase() === 'paid' ? 'bg-emerald-950/40 text-emerald-400 border-emerald-500/30' : 'bg-[#D4AF37]/15 text-[#F5D061] border-[#D4AF37]/30'
+                      <span className="font-tactical font-black text-white uppercase text-xs tracking-wider truncate">{item.title}</span>
+                      <span className={`text-[9px] font-tactical font-black px-1.5 py-0.5 rounded-full border tracking-wider uppercase shrink-0 ${
+                        settled ? 'bg-emerald-950/40 text-emerald-400 border-emerald-500/30'
+                          : item.status === 'failed' ? 'bg-red-950/40 text-red-400 border-red-500/30'
+                          : 'bg-[#F59E0B]/15 text-[#F59E0B] border-[#F59E0B]/30'
                       }`}>{item.status}</span>
                     </div>
-                    <span className="text-[11px] font-sans text-neutral-400 block mt-0.5">{new Date(item.created_at).toLocaleDateString()} • {item.currency.toUpperCase()}</span>
+                    <span className="text-[11px] font-sans text-neutral-400 block mt-0.5">
+                      {new Date(item.createdAt).toLocaleDateString()} • {item.currency.toUpperCase()}
+                    </span>
                   </div>
-                  <span className={`font-mono font-bold text-sm ${isPositive ? 'text-[#F5D061]' : 'text-neutral-400'}`}>
-                    {isPositive ? `+$${formattedAmt}` : `-$${formattedAmt}`}
+                  <span className={`font-mono font-bold text-sm shrink-0 ${isPositive ? 'text-[#F59E0B]' : 'text-neutral-400'}`}>
+                    {isPositive ? '+' : '-'}${money(Math.abs(item.amountCents))}
                   </span>
                 </div>
               );
@@ -113,11 +194,11 @@ export const CoachEarningsDeck: React.FC<CoachEarningsDeckProps> = ({ coachId = 
       <WithdrawModal
         isOpen={isWithdrawOpen}
         onClose={() => setIsWithdrawOpen(false)}
-        availableBalance={available}
+        availableBalance={availableCents / 100}
         profile={profile}
         onSuccess={(amt) => {
           onShowToast(`Withdrawal of $${amt.toFixed(2)} dispatched via Stripe Express.`);
-          loadData();
+          void loadData();
         }}
       />
     </div>

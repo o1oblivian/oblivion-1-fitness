@@ -11,6 +11,7 @@ import {
   Wheat,
   Loader2,
   Database,
+  Utensils,
 } from 'lucide-react';
 import { MealCategory, MealFoodItem } from '../../../types';
 import { ExtendedMealCategory } from './MealCategoryCards';
@@ -19,7 +20,9 @@ import { tactileEngine } from '../../../services/tactileEngine';
 import { FoodPortionDialModal } from './FoodPortionDialModal';
 import { ClientCountryMarketModal, COUNTRIES } from './ClientCountryMarketModal';
 import { queryFoodCatalog, FoodItemRecord, getRegionalDatabaseInfo } from '../../../services/foodCatalogService';
+import { FoodCategoryType } from '../../../services/foodData/types';
 import { ManualFoodEntryModal } from './ManualFoodEntryModal';
+import { foodMatchesDietSafe } from '../utils/dietFoodFilter';
 
 interface AddFoodModalProps {
   category: ExtendedMealCategory | MealCategory;
@@ -29,13 +32,11 @@ interface AddFoodModalProps {
   onOpenCustomFood?: () => void;
 }
 
-type FoodCategoryType = 'protein' | 'carbs' | 'fats' | 'drinks';
-
-// Strict Category List: NO "All Foods" tab, NO special "Fast Food" tab
 const CATEGORIES: { id: FoodCategoryType; label: string }[] = [
   { id: 'protein', label: 'Protein' },
   { id: 'carbs', label: 'Carbs' },
   { id: 'fats', label: 'Fats' },
+  { id: 'fastfood', label: 'Fast Food' },
   { id: 'drinks', label: 'Drinks' },
 ];
 
@@ -48,6 +49,7 @@ export const AddFoodModal: React.FC<AddFoodModalProps> = ({
 }) => {
   const store = useFuelStore();
   const countryMarket = store.countryMarket || 'AU';
+  const dietPreference = store.dietPreference || 'Omnivore';
 
   const [activeCategory, setActiveCategory] = useState<FoodCategoryType>('protein');
   const [searchQuery, setSearchQuery] = useState('');
@@ -72,7 +74,7 @@ export const AddFoodModal: React.FC<AddFoodModalProps> = ({
     }
   }, [isOpen]);
 
-  // Asynchronously query Supabase backend table public.food_catalog & live Australian catalog
+  // Curated catalog on browse; live OpenFoodFacts only after the athlete types a search
   useEffect(() => {
     if (!isOpen) return;
 
@@ -122,6 +124,16 @@ export const AddFoodModal: React.FC<AddFoodModalProps> = ({
   const regionalDbInfo = useMemo(() => {
     return getRegionalDatabaseInfo(countryMarket);
   }, [countryMarket]);
+
+  const visibleFoods = useMemo(() => {
+    const filtered = dbFoods.filter((f) => foodMatchesDietSafe(f.name, f.brand || '', dietPreference));
+    if (activeCategory !== 'fastfood') return filtered;
+    return [...filtered].sort((a, b) => {
+      const brand = (a.brand || '').localeCompare(b.brand || '');
+      if (brand !== 0) return brand;
+      return a.name.localeCompare(b.name);
+    });
+  }, [dbFoods, dietPreference, activeCategory]);
 
   if (!isOpen) return null;
 
@@ -181,7 +193,9 @@ export const AddFoodModal: React.FC<AddFoodModalProps> = ({
       case 'carbs':
         return <Wheat className="w-4 h-4 text-amber-500" />;
       case 'fats':
-        return <Apple className="w-4 h-4 text-green-500" />;
+        return <Apple className="w-4 h-4 text-emerald-500" />;
+      case 'fastfood':
+        return <Utensils className="w-4 h-4 text-amber-400" />;
       case 'drinks':
         return <Coffee className="w-4 h-4 text-sky-500" />;
       default:
@@ -190,21 +204,26 @@ export const AddFoodModal: React.FC<AddFoodModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-150 select-none">
-      <div className="w-full max-w-lg bg-white dark:bg-[#121214] border border-neutral-200 dark:border-neutral-800 rounded-t-3xl sm:rounded-3xl p-5 shadow-2xl flex flex-col h-[90vh] sm:h-[86vh] overflow-hidden space-y-3.5">
+    <div className="fixed inset-0 z-50 bg-black/70 o1-sheet-scrim flex items-center justify-center animate-in fade-in duration-150 select-none">
+      <div className="o1-sheet-card bg-o1-card border border-white/[0.07] p-3.5 shadow-xl flex flex-col overflow-hidden space-y-2.5">
         {/* Top Header: Flame Icon, Title, Country Pill, Close Button */}
         <div className="flex items-center justify-between shrink-0 gap-2 pb-0.5">
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-10 h-10 rounded-2xl bg-red-50 dark:bg-red-950/30 text-[#C4121A] flex items-center justify-center shrink-0 border border-red-200/60 dark:border-red-900/40 shadow-2xs">
-              <Flame className="w-5 h-5 fill-[#C4121A]/20 text-[#C4121A]" />
+            <div className="w-10 h-10 rounded-2xl bg-red-950/30 text-o1-crimson flex items-center justify-center shrink-0 border border-red-900/40 shadow-2xs">
+              <Flame className="w-5 h-5 fill-o1-crimson/20 text-o1-crimson" />
             </div>
             <div className="min-w-0">
-              <h3 className="font-bold text-base text-neutral-900 dark:text-neutral-100 leading-tight truncate">
+              <h3 className="font-bold text-base text-neutral-100 leading-tight truncate">
                 Add To {category}
               </h3>
-              <p className="text-[11px] text-neutral-500 dark:text-neutral-400 font-sans flex items-center gap-1.5 truncate mt-0.5">
-                <Database className="w-3 h-3 text-[#C4121A] shrink-0" />
-                <span className="truncate">{regionalDbInfo.fullName}</span>
+              <p className="text-[11px] text-neutral-400 font-sans flex items-center gap-1.5 truncate mt-0.5">
+                <span className="truncate">
+                  {searchQuery.trim()
+                    ? 'Live OpenFoodFacts · plus your catalog'
+                    : regionalDbInfo.fullName}
+                </span>
+                <span className="text-neutral-700">·</span>
+                <span className="truncate">{dietPreference}</span>
               </p>
             </div>
           </div>
@@ -218,7 +237,7 @@ export const AddFoodModal: React.FC<AddFoodModalProps> = ({
                 setIsCountryModalOpen(true);
               }}
               title="Select Regional Market Database"
-              className="flex items-center gap-1 px-2.5 py-1.5 rounded-full bg-white dark:bg-[#18181b] border border-neutral-200 dark:border-neutral-800 text-xs font-mono font-bold text-neutral-800 dark:text-neutral-200 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors cursor-pointer shadow-2xs active:scale-95"
+              className="flex items-center gap-1 px-2.5 py-1.5 rounded-full bg-o1-well border border-white/[0.07] text-xs font-mono font-bold text-neutral-200 hover:border-white/[0.14] transition-colors cursor-pointer shadow-2xs active:scale-95"
             >
               <span>{currentCountry.flag}</span>
               <span>{currentCountry.code}</span>
@@ -230,7 +249,7 @@ export const AddFoodModal: React.FC<AddFoodModalProps> = ({
               type="button"
               onClick={onClose}
               aria-label="Close food modal"
-              className="w-8 h-8 rounded-full bg-neutral-100 hover:bg-neutral-200 dark:bg-[#18181b] dark:hover:bg-neutral-800 border border-neutral-200 dark:border-neutral-800 flex items-center justify-center text-neutral-500 hover:text-neutral-900 dark:text-neutral-300 dark:hover:text-white transition-all cursor-pointer shadow-2xs active:scale-95"
+              className="w-8 h-8 rounded-full bg-o1-well hover:bg-white/[0.06] border border-white/[0.07] flex items-center justify-center text-neutral-300 hover:text-white transition-all cursor-pointer shadow-2xs active:scale-95"
             >
               <X className="w-4 h-4" />
             </button>
@@ -238,7 +257,7 @@ export const AddFoodModal: React.FC<AddFoodModalProps> = ({
         </div>
 
         {/* 5 Category Pills: Protein, Carbs, Fats, Fast Food, Drinks (STRICT ZERO "All Foods" tab) */}
-        <div className="flex items-center justify-between border-b border-neutral-100 dark:border-neutral-800/80 pb-2 px-1 text-xs font-semibold shrink-0">
+        <div className="flex items-center gap-0.5 overflow-x-auto no-scrollbar border-b border-white/[0.05] pb-2 text-[11px] font-semibold shrink-0">
           {CATEGORIES.map((cat) => (
             <button
               key={cat.id}
@@ -247,10 +266,10 @@ export const AddFoodModal: React.FC<AddFoodModalProps> = ({
                 tactileEngine.triggerSelectionBuzz();
                 setActiveCategory(cat.id);
               }}
-              className={`px-3 py-1.5 rounded-full transition-all cursor-pointer ${
+              className={`px-2.5 py-1.5 rounded-full whitespace-nowrap transition-all cursor-pointer ${
                 activeCategory === cat.id
-                  ? 'border border-[#C4121A] bg-red-500/10 text-[#C4121A] dark:text-red-400 font-bold shadow-xs'
-                  : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white'
+                  ? 'border border-o1-crimson bg-red-500/10 text-red-400 font-bold shadow-xs'
+                  : 'text-neutral-400 hover:text-white'
               }`}
             >
               {cat.label}
@@ -267,10 +286,10 @@ export const AddFoodModal: React.FC<AddFoodModalProps> = ({
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder={regionalDbInfo.searchPlaceholder}
-              className="w-full h-11 pl-10 pr-10 rounded-2xl bg-neutral-100/70 dark:bg-[#18181b] border border-neutral-200/80 dark:border-neutral-800 text-xs font-sans text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 focus:outline-none focus:border-[#C4121A]"
+              className="w-full h-11 pl-10 pr-10 rounded-2xl bg-o1-well border border-white/[0.07] text-xs font-sans text-neutral-100 placeholder-neutral-400 focus:outline-none focus:border-o1-crimson"
             />
             {isLoading && (
-              <Loader2 className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 animate-spin text-[#C4121A]" />
+              <Loader2 className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 animate-spin text-o1-crimson" />
             )}
           </div>
 
@@ -283,88 +302,92 @@ export const AddFoodModal: React.FC<AddFoodModalProps> = ({
             }}
             title="Manually Add Food with Weight & Save to Database"
             aria-label="Add custom food with weight"
-            className="w-11 h-11 rounded-2xl bg-red-50 hover:bg-red-100 dark:bg-red-950/40 dark:hover:bg-red-900/60 border border-red-200 dark:border-red-900/60 text-[#C4121A] flex items-center justify-center shrink-0 transition-all active:scale-95 cursor-pointer shadow-2xs"
+            className="w-11 h-11 rounded-2xl bg-red-950/40 hover:bg-red-900/60 border border-red-900/60 text-o1-crimson flex items-center justify-center shrink-0 transition-all active:scale-95 cursor-pointer shadow-2xs"
           >
             <Plus className="w-5 h-5 stroke-[2.5]" />
           </button>
         </div>
 
         {/* Foods Catalog List — Pure Real Database */}
-        <div className="overflow-y-auto space-y-1 pr-1 flex-1">
-          {isLoading && dbFoods.length === 0 ? (
+        <div className="overflow-y-auto space-y-2 pr-1 flex-1">
+          {isLoading && visibleFoods.length === 0 ? (
             <div className="py-16 text-center text-neutral-400 font-sans text-xs flex flex-col items-center justify-center gap-2">
-              <Loader2 className="w-5 h-5 animate-spin text-[#C4121A]" />
-              <span>Querying {regionalDbInfo.name} database ({regionalDbInfo.shortName})...</span>
+              <Loader2 className="w-5 h-5 animate-spin text-o1-crimson" />
+              <span>{searchQuery.trim() ? 'Searching OpenFoodFacts…' : 'Loading catalog…'}</span>
             </div>
-          ) : dbFoods.length === 0 ? (
+          ) : visibleFoods.length === 0 ? (
             <div className="py-16 text-center text-neutral-400 font-sans text-xs flex flex-col items-center justify-center gap-2">
               <Database className="w-6 h-6 text-neutral-500/50" />
-              <span>No foods found in {regionalDbInfo.name} database for &quot;{searchQuery || activeCategory}&quot;.</span>
+              <span>No {dietPreference} match for &quot;{searchQuery || activeCategory}&quot;. Try another name or add a custom food.</span>
               <span className="text-[10px] text-neutral-500">Tap below to log a custom food item with exact macros.</span>
             </div>
           ) : (
-            dbFoods.map((food) => (
-              <div
+            visibleFoods.map((food) => (
+              <button
                 key={food.id}
+                type="button"
                 onClick={() => handleOpenDial(food)}
-                className="p-3 bg-transparent hover:bg-neutral-50 dark:hover:bg-[#18181b]/70 border-b border-neutral-100 dark:border-neutral-800/60 flex items-center justify-between gap-3 transition-colors cursor-pointer active:scale-[0.99]"
+                className="w-full text-left p-3 rounded-2xl bg-o1-well border border-white/[0.07] flex items-center justify-between gap-3 transition-colors cursor-pointer active:scale-[0.99]"
               >
-                {/* Left Icon */}
-                <div className="w-8 h-8 rounded-xl bg-neutral-100 dark:bg-[#18181b] flex items-center justify-center shrink-0">
+                <div className="w-10 h-10 rounded-2xl bg-o1-card border border-white/[0.07] flex items-center justify-center shrink-0">
                   {renderCategoryIcon(food.category)}
                 </div>
 
-                {/* Center / Details */}
                 <div className="min-w-0 flex-1">
                   <div className="flex items-baseline justify-between gap-2">
                     <div className="flex items-center gap-1.5 min-w-0">
-                      <span className="text-xs sm:text-sm font-bold text-neutral-900 dark:text-neutral-100 truncate">
+                      <span className="text-xs sm:text-sm font-semibold text-neutral-100 truncate">
                         {food.name}
                       </span>
-                      {food.is_custom && (
-                        <span className="px-1.5 py-0.2 rounded-md bg-red-100 dark:bg-red-950/50 text-[#C4121A] text-[9px] font-mono font-bold shrink-0 border border-red-200/60 dark:border-red-900/60">
+                      {(food.is_custom || food.source === 'custom') && (
+                        <span className="px-1.5 py-0.5 rounded-md bg-white/[0.08] text-neutral-300 text-[9px] font-mono font-bold shrink-0 border border-white/[0.07]">
                           MY FOOD
                         </span>
                       )}
+                      {food.source === 'openfoodfacts' && (
+                        <span className="px-1.5 py-0.5 rounded-md bg-sky-950/40 text-sky-400 text-[9px] font-mono font-bold shrink-0 border border-sky-900/50">
+                          LIVE
+                        </span>
+                      )}
+                      {food.source === 'usda' && (
+                        <span className="px-1.5 py-0.5 rounded-md bg-amber-950/40 text-amber-400 text-[9px] font-mono font-bold shrink-0 border border-amber-900/50">
+                          USDA
+                        </span>
+                      )}
                     </div>
-                    <span className="text-[11px] text-neutral-400 font-sans truncate shrink-0 max-w-[130px]">
+                    <span className="text-[11px] text-neutral-400 font-sans truncate shrink-0 max-w-[110px]">
                       {food.brand}
                     </span>
                   </div>
 
                   <div className="flex items-center justify-between text-xs mt-1">
-                    <div className="flex items-center gap-1.5 text-neutral-500 dark:text-neutral-400 font-sans">
-                      <Flame className="w-3 h-3 text-[#C4121A] shrink-0 fill-[#C4121A]/20" />
-                      <span className="font-bold text-neutral-800 dark:text-neutral-200">{food.calories} kcal</span>
-                      <span>•</span>
+                    <div className="flex items-center gap-1.5 text-neutral-400">
+                      <Flame className="w-3 h-3 text-o1-crimson shrink-0" />
+                      <span className="font-semibold text-neutral-200">{food.calories} kcal</span>
+                      <span className="text-neutral-700">·</span>
                       <span>{food.serving_size || `${food.serving_grams || 100}g`}</span>
                     </div>
-
-                    {/* Macro pill: P (red), C (amber), F (green) */}
-                    <div className="flex items-center gap-1 text-[11px] font-sans">
-                      <span className="font-bold text-red-500">{food.protein}</span>
-                      <span className="text-neutral-400 mr-1.5">p</span>
-                      <span className="font-bold text-amber-500">{food.carbs}</span>
-                      <span className="text-neutral-400 mr-1.5">c</span>
-                      <span className="font-bold text-green-500">{food.fats}</span>
-                      <span className="text-neutral-400">f</span>
+                    <div className="flex items-center gap-2 text-[11px] font-mono">
+                      <span className="text-o1-crimson font-bold">{food.protein}p</span>
+                      <span className="text-amber-400 font-bold">{food.carbs}c</span>
+                      <span className="text-emerald-400 font-bold">{food.fats}f</span>
                     </div>
                   </div>
                 </div>
-              </div>
+              </button>
             ))
           )}
         </div>
 
         {/* Bottom Bar: + Custom Food Item (Left) & Done Button (Right) */}
-        <div className="pt-2 border-t border-neutral-100 dark:border-neutral-800 flex items-center justify-between shrink-0">
+        <div className="pt-2 border-t border-white/[0.05] flex items-center justify-between shrink-0">
           <button
             type="button"
             onClick={() => {
               tactileEngine.triggerSelectionBuzz();
               setIsManualModalOpen(true);
             }}
-            className="flex items-center gap-1.5 text-xs font-bold text-[#C4121A] hover:underline cursor-pointer transition-colors"
+            className="flex items-center gap-1.5 text-xs font-bold text-o1-crimson hover:underline cursor-pointer transition-colors"
           >
             <Plus className="w-4 h-4 stroke-[3]" />
             <span>Custom Food Item</span>
@@ -376,7 +399,7 @@ export const AddFoodModal: React.FC<AddFoodModalProps> = ({
               tactileEngine.triggerSelectionBuzz();
               onClose();
             }}
-            className="px-6 py-2.5 rounded-xl bg-neutral-900 hover:bg-neutral-800 dark:bg-white dark:hover:bg-neutral-200 text-white dark:text-neutral-900 font-bold text-xs shadow-xs active:scale-95 transition-all cursor-pointer"
+            className="px-6 py-2.5 rounded-xl bg-white hover:bg-neutral-200 text-neutral-900 font-bold text-xs shadow-xs active:scale-95 transition-all cursor-pointer"
           >
             Done
           </button>

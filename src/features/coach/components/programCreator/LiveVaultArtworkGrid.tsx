@@ -36,7 +36,7 @@ export const LiveVaultArtworkGrid: React.FC<Props> = ({ coverImage, onSelectImag
 
   if (vaultItems.length === 0) {
     return (
-      <div className="p-4 rounded-xl bg-neutral-900/60 border border-dashed border-neutral-700 text-center space-y-2.5">
+      <div className="p-4 rounded-xl bg-o1-well border border-dashed border-white/[0.07] text-center space-y-2.5">
         <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileUpload} className="hidden" />
         <FolderOpen className="w-6 h-6 text-neutral-400 mx-auto" />
         <div className="text-xs text-neutral-300 font-medium">
@@ -45,7 +45,7 @@ export const LiveVaultArtworkGrid: React.FC<Props> = ({ coverImage, onSelectImag
         <button
           type="button"
           onClick={() => fileInputRef.current?.click()}
-          className="px-4 py-2 rounded-xl bg-[#C4121A] hover:bg-[#A30F16] text-white text-xs font-tactical font-bold uppercase tracking-wider flex items-center gap-1.5 mx-auto cursor-pointer transition-all shadow-md"
+          className="px-4 py-2 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover text-white text-xs font-tactical font-bold uppercase tracking-wider flex items-center gap-1.5 mx-auto cursor-pointer transition-all shadow-md"
         >
           <Upload className="w-3.5 h-3.5" />
           <span>+ Upload Artwork</span>
@@ -65,9 +65,9 @@ export const LiveVaultArtworkGrid: React.FC<Props> = ({ coverImage, onSelectImag
         <button
           type="button"
           onClick={() => fileInputRef.current?.click()}
-          className="aspect-video rounded-xl border border-dashed border-[#C4121A]/60 bg-[#C4121A]/10 hover:bg-[#C4121A]/20 flex flex-col items-center justify-center gap-1 cursor-pointer transition-all group"
+          className="aspect-video rounded-xl border border-dashed border-o1-crimson/60 bg-o1-crimson/10 hover:bg-o1-crimson/20 flex flex-col items-center justify-center gap-1 cursor-pointer transition-all group"
         >
-          <div className="w-6 h-6 rounded-full bg-[#C4121A] flex items-center justify-center shadow-xs">
+          <div className="w-6 h-6 rounded-full bg-o1-crimson flex items-center justify-center shadow-xs">
             <Plus className="w-3.5 h-3.5 text-white stroke-[3]" />
           </div>
           <span className="text-[9px] font-tactical font-bold text-neutral-200 uppercase tracking-wider">+ Upload</span>
@@ -84,7 +84,7 @@ export const LiveVaultArtworkGrid: React.FC<Props> = ({ coverImage, onSelectImag
                 tactileEngine.triggerSelectionBuzz();
                 onSelectImage(item.url);
               }}
-              className={`relative aspect-video rounded-xl overflow-hidden border border-neutral-700/60 transition-all cursor-pointer group ${
+              className={`relative aspect-video rounded-xl overflow-hidden border border-white/[0.07] transition-all cursor-pointer group ${
                 isSelected ? 'opacity-100 shadow-md' : 'opacity-85 hover:opacity-100'
               }`}
             >
@@ -94,7 +94,7 @@ export const LiveVaultArtworkGrid: React.FC<Props> = ({ coverImage, onSelectImag
               </div>
               {isSelected && (
                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                  <div className="w-5 h-5 rounded-full bg-[#C4121A] flex items-center justify-center shadow-md">
+                  <div className="w-5 h-5 rounded-full bg-o1-crimson flex items-center justify-center shadow-md">
                     <Check className="w-3 h-3 text-white stroke-[3]" />
                   </div>
                 </div>

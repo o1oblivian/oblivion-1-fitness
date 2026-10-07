@@ -24,10 +24,10 @@ export const ReelAssetGalleryDrawer: React.FC<ReelAssetGalleryDrawerProps> = ({
 
   return (
     <div
-      className="absolute inset-x-0 bottom-0 z-40 bg-[#121214]/95 backdrop-blur-xl border-t border-white/10 rounded-t-3xl p-4 shadow-2xl animate-in slide-in-from-bottom duration-200 select-none"
+      className="absolute inset-x-0 bottom-0 z-40 bg-o1-card/95 backdrop-blur-xl border-t border-white/[0.05] rounded-t-2xl p-4 shadow-2xl animate-in slide-in-from-bottom duration-200 select-none"
       onClick={(e) => e.stopPropagation()}
     >
-      <div className="flex items-center justify-between pb-3 border-b border-white/10">
+      <div className="flex items-center justify-between pb-3 border-b border-white/[0.05]">
         <div className="flex items-center gap-2">
           <span className="text-xs font-tactical font-black text-white uppercase tracking-wider">
             Reel Assets & Directives
@@ -65,8 +65,8 @@ export const ReelAssetGalleryDrawer: React.FC<ReelAssetGalleryDrawerProps> = ({
                     }}
                     className={`p-2 rounded-xl border text-left flex items-center gap-2 transition-all cursor-pointer ${
                       isCurrent
-                        ? 'bg-[#C4121A]/20 border-[#C4121A] text-white'
-                        : 'bg-[#18181b] border-white/10 text-neutral-300 hover:border-white/30'
+                        ? 'bg-o1-crimson/20 border-o1-crimson text-white'
+                        : 'bg-o1-well border-white/[0.07] text-neutral-300 hover:border-white/[0.14]'
                     }`}
                   >
                     <div className="w-8 h-8 rounded-lg bg-black/60 flex items-center justify-center shrink-0 text-white">
@@ -92,7 +92,7 @@ export const ReelAssetGalleryDrawer: React.FC<ReelAssetGalleryDrawerProps> = ({
               {photos.map((photoUrl, idx) => (
                 <div
                   key={idx}
-                  className="relative aspect-square rounded-xl overflow-hidden border border-white/10 bg-black group"
+                  className="relative aspect-square rounded-xl overflow-hidden border border-white/[0.07] bg-black group"
                 >
                   <img
                     src={photoUrl}

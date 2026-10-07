@@ -632,6 +632,32 @@ export const AMERICAS_FOODS: RegionalFoodMap = {
         "serving_grams": 180,
         "category": "fastfood",
         "country": "US"
+      },
+      {
+        "id": "us-fast-11",
+        "name": "KFC Original Recipe Chicken Breast",
+        "brand": "KFC US",
+        "calories": 390,
+        "protein": 39.0,
+        "carbs": 11.0,
+        "fats": 21.0,
+        "serving_size": "1 piece (161g)",
+        "serving_grams": 161,
+        "category": "fastfood",
+        "country": "US"
+      },
+      {
+        "id": "us-fast-12",
+        "name": "McDonald's US Big Mac",
+        "brand": "McDonald's US",
+        "calories": 590,
+        "protein": 25.0,
+        "carbs": 46.0,
+        "fats": 34.0,
+        "serving_size": "1 burger (219g)",
+        "serving_grams": 219,
+        "category": "fastfood",
+        "country": "US"
       }
     ],
     "drinks": [

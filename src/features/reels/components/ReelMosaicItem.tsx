@@ -16,7 +16,7 @@ export const ReelMosaicItem: React.FC<ReelMosaicItemProps> = ({ reel, className 
         tactileEngine.triggerSelectionBuzz();
         onSelectReel(reel);
       }}
-      className={`group relative rounded-2xl overflow-hidden bg-neutral-900 cursor-pointer active:scale-[0.98] transition-transform border border-white/5 shadow-md ${className}`}
+      className={`group relative rounded-2xl overflow-hidden bg-o1-well cursor-pointer active:scale-[0.98] transition-transform border border-white/[0.07] shadow-md ${className}`}
     >
       <img
         src={reel.thumbnail}

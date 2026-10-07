@@ -8,6 +8,7 @@ interface FuelIntakeSectionProps {
   isIntakeExpanded: boolean;
   onToggleIntake: () => void;
   meals: FuelMeals;
+  dietPreference?: string;
   onDeleteItem: (slot: SlotKey, itemId: string, itemName: string) => void;
   onOpenAddFoodModal: (categoryLabel: string) => void;
   onOpenVoiceModal: (slot: SlotKey) => void;
@@ -19,6 +20,7 @@ export const FuelIntakeSection: React.FC<FuelIntakeSectionProps> = ({
   isIntakeExpanded,
   onToggleIntake,
   meals,
+  dietPreference,
   onDeleteItem,
   onOpenAddFoodModal,
   onOpenVoiceModal,
@@ -39,10 +41,10 @@ export const FuelIntakeSection: React.FC<FuelIntakeSectionProps> = ({
         className="flex items-center justify-between px-1 cursor-pointer"
       >
         <div className="flex items-center gap-2">
-          <h2 className="text-base font-bold text-neutral-900 dark:text-neutral-100 tracking-tight">
+          <h2 className="text-base font-bold text-neutral-100 tracking-tight">
             Intake
           </h2>
-          <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-neutral-200/80 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300">
+          <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-white/[0.08] text-neutral-300">
             {totalLoggedCalories.toLocaleString()} kcal logged
           </span>
         </div>
@@ -50,7 +52,7 @@ export const FuelIntakeSection: React.FC<FuelIntakeSectionProps> = ({
         <button
           type="button"
           aria-label="Toggle intake slots"
-          className="w-7 h-7 rounded-full bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 flex items-center justify-center text-neutral-500 dark:text-neutral-400 transition-colors shadow-2xs cursor-pointer"
+          className="w-7 h-7 rounded-full bg-white/[0.08] hover:bg-neutral-700 flex items-center justify-center text-neutral-400 transition-colors shadow-2xs cursor-pointer"
         >
           <ChevronUp
             className={`w-4 h-4 transition-transform duration-200 ${
@@ -66,6 +68,7 @@ export const FuelIntakeSection: React.FC<FuelIntakeSectionProps> = ({
             key={slot.key}
             slot={slot}
             items={meals[slot.key] || []}
+            dietPreference={dietPreference}
             onDeleteItem={onDeleteItem}
             onOpenAddFoodModal={onOpenAddFoodModal}
             onOpenVoiceModal={onOpenVoiceModal}

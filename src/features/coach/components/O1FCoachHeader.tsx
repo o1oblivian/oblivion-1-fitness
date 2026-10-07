@@ -37,8 +37,8 @@ export const O1FCoachHeader: React.FC<O1FCoachHeaderProps> = ({
   if (!isCoach) {
     return (
       <div className="flex items-center justify-center px-0.5 w-full min-h-[38px]">
-        <div className="px-4 py-1.5 rounded-full bg-neutral-100 dark:bg-[#18181B] border border-neutral-200/90 dark:border-neutral-800 shadow-xs flex items-center gap-2 select-none">
-          <span className="text-xs font-mono font-bold tracking-wider text-neutral-900 dark:text-white uppercase">
+        <div className="px-4 py-1.5 rounded-full bg-o1-well border border-white/[0.07] shadow-xs flex items-center gap-2 select-none">
+          <span className="text-xs font-mono font-bold tracking-wider text-white uppercase">
             O1FCoach Hub
           </span>
         </div>
@@ -55,14 +55,14 @@ export const O1FCoachHeader: React.FC<O1FCoachHeaderProps> = ({
           tactileEngine.triggerSelectionBuzz();
           setIsOpen((prev) => !prev);
         }}
-        className="px-3.5 py-1.5 rounded-full bg-neutral-100 hover:bg-neutral-200 dark:bg-[#18181B] dark:hover:bg-[#202025] border border-neutral-200/90 dark:border-neutral-800 shadow-xs flex items-center gap-1.5 select-none transition-all cursor-pointer active:scale-95 group"
+        className="px-3.5 py-1.5 rounded-full bg-o1-well hover:bg-white/[0.06] border border-white/[0.07] shadow-xs flex items-center gap-1.5 select-none transition-all cursor-pointer active:scale-95 group"
         title="Toggle perspective: Command Center or Athlete Store"
       >
-        <span className="text-xs font-mono font-bold tracking-wider text-neutral-900 dark:text-white">
+        <span className="text-xs font-mono font-bold tracking-wider text-white">
           O1FCoach
         </span>
         <ChevronDown
-          className={`w-3.5 h-3.5 text-neutral-500 group-hover:text-neutral-900 dark:group-hover:text-white transition-transform duration-200 ${
+          className={`w-3.5 h-3.5 text-neutral-500 group-hover:text-white transition-transform duration-200 ${
             isOpen ? 'rotate-180 text-white' : ''
           }`}
         />
@@ -71,9 +71,9 @@ export const O1FCoachHeader: React.FC<O1FCoachHeaderProps> = ({
       {isOpen && (
         <div
           ref={dropdownRef}
-          className="absolute top-11 bg-black/95 backdrop-blur-xl border border-white/20 rounded-2xl shadow-2xl p-1.5 z-50 min-w-[210px] space-y-1 animate-in fade-in zoom-in-95 duration-150"
+          className="absolute top-11 bg-black/95 backdrop-blur-xl border border-white/[0.07] rounded-2xl shadow-2xl p-1.5 z-50 min-w-[210px] space-y-1 animate-in fade-in zoom-in-95 duration-150"
         >
-          <div className="px-2.5 py-1 text-[9px] font-mono font-bold tracking-wider text-neutral-400 uppercase border-b border-white/10">
+          <div className="px-2.5 py-1 text-[9px] font-mono font-bold tracking-wider text-neutral-400 uppercase border-b border-white/[0.05]">
             CREATOR PERSPECTIVE
           </div>
 
@@ -82,7 +82,7 @@ export const O1FCoachHeader: React.FC<O1FCoachHeaderProps> = ({
             onClick={() => handleSelect('coach')}
             className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-left text-xs font-mono font-bold transition-all cursor-pointer ${
               activePerspective === 'coach'
-                ? 'bg-[#C4121A] text-white shadow-xs'
+                ? 'bg-o1-crimson text-white shadow-xs'
                 : 'text-neutral-300 hover:bg-white/10 hover:text-white'
             }`}
           >
@@ -98,7 +98,7 @@ export const O1FCoachHeader: React.FC<O1FCoachHeaderProps> = ({
             onClick={() => handleSelect('athlete')}
             className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-left text-xs font-mono font-bold transition-all cursor-pointer ${
               activePerspective === 'athlete'
-                ? 'bg-[#C4121A] text-white shadow-xs'
+                ? 'bg-o1-crimson text-white shadow-xs'
                 : 'text-neutral-300 hover:bg-white/10 hover:text-white'
             }`}
           >

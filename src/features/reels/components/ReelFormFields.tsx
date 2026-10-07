@@ -35,7 +35,7 @@ export const ReelFormFields: React.FC<ReelFormFieldsProps> = ({
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="e.g. Low-Bar Squat Scapular Depress Cue"
-            className="w-full px-3.5 py-2.5 bg-[#18181b] border border-neutral-800 rounded-xl text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-[#C4121A]"
+            className="w-full px-3.5 py-2.5 bg-o1-well border border-white/[0.07] rounded-xl text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-o1-crimson"
           />
         </div>
         <div className="space-y-1">
@@ -47,14 +47,14 @@ export const ReelFormFields: React.FC<ReelFormFieldsProps> = ({
             onChange={(e) => setCues(e.target.value)}
             rows={2}
             placeholder="Direct cues for athletes: elbow angle, breathing cadence, stretch pause..."
-            className="w-full px-3.5 py-2 bg-[#18181b] border border-neutral-800 rounded-xl text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-[#C4121A] resize-none"
+            className="w-full px-3.5 py-2 bg-o1-well border border-white/[0.07] rounded-xl text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-o1-crimson resize-none"
           />
         </div>
       </div>
 
-      <div className="p-3 rounded-2xl bg-[#18181b] border border-neutral-800 flex items-center justify-between">
+      <div className="p-3 rounded-2xl bg-o1-well border border-white/[0.07] flex items-center justify-between">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-[#C4121A]/20 flex items-center justify-center text-[#C4121A]">
+          <div className="w-8 h-8 rounded-xl bg-o1-crimson/20 flex items-center justify-center text-o1-crimson">
             <Radio className="w-4 h-4 animate-pulse" />
           </div>
           <div>
@@ -70,7 +70,7 @@ export const ReelFormFields: React.FC<ReelFormFieldsProps> = ({
           type="checkbox"
           checked={showOnBuddy}
           onChange={(e) => setShowOnBuddy(e.target.checked)}
-          className="accent-[#C4121A] w-4 h-4 cursor-pointer"
+          className="accent-o1-crimson w-4 h-4 cursor-pointer"
         />
       </div>
     </>

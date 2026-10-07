@@ -6,6 +6,7 @@ import { safeStorage } from '../../../utils/sanitizers';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { syncEngine } from '../../../services/syncEngine';
 import { supabase } from '../../../services/supabaseClient';
+import { getAuthenticatedUserId } from '../../../services/authUser';
 import { dispatchAthleteTelemetry } from '../../../services/coachSync';
 import { getTelemetryHistoryState } from '../../log/store/useTelemetryHistoryStore';
 
@@ -33,7 +34,7 @@ export interface FuelState {
   calorieTarget: number;       // default user target (e.g., 2000, 2500 or custom)
   burnedKcal: number;          // active burn (default: 0)
   weightKg: number;            // current weight in kg
-  countryMarket: string;       // default: "US"
+  countryMarket: string;       // default: "AU"
   dietPreference: string;      // default: "Omnivore"
   targetProteinG: number;      // target protein grams
   targetCarbsG: number;        // target carbs grams
@@ -138,7 +139,7 @@ const loadSavedState = () => {
       calorieTarget: 2200,
       burnedKcal: 0,
       weightKg: 78.5,
-      countryMarket: 'US',
+      countryMarket: 'AU',
       dietPreference: 'Omnivore',
       targetProteinG: 165,
       targetCarbsG: 250,
@@ -156,7 +157,7 @@ const loadSavedState = () => {
       calorieTarget: (saved.calorieTarget && saved.calorieTarget > 0) ? saved.calorieTarget : 2200,
       burnedKcal: savedBurned,
       weightKg: (saved.weightKg && saved.weightKg > 0) ? saved.weightKg : 78.5,
-      countryMarket: saved.countryMarket ?? 'US',
+      countryMarket: saved.countryMarket ?? 'AU',
       dietPreference: saved.dietPreference ?? 'Omnivore',
       targetProteinG: (saved.targetProteinG && saved.targetProteinG > 0) ? saved.targetProteinG : 165,
       targetCarbsG: (saved.targetCarbsG && saved.targetCarbsG > 0) ? saved.targetCarbsG : 250,
@@ -178,7 +179,7 @@ const loadSavedState = () => {
     calorieTarget: 2200,
     burnedKcal: 0,
     weightKg: 78.5,
-    countryMarket: 'US',
+    countryMarket: 'AU',
     dietPreference: 'Omnivore',
     targetProteinG: 165,
     targetCarbsG: 250,
@@ -345,12 +346,13 @@ export const useFuelStore = create<FuelState>((set, get) => {
       }
 
       // Persist to Supabase public.meal_logs & public.daily_macros
-      try {
-        const userId = (typeof window !== 'undefined' && localStorage.getItem('o1fc_user_id')) || 'default-athlete';
+      void (async () => {
+        const userId = await getAuthenticatedUserId();
+        if (!userId) return;
         const now = new Date();
         const todayDateKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
 
-        supabase.from('meal_logs').insert([{
+        const { error: mealErr } = await supabase.from('meal_logs').insert([{
           id: item.id || `meal-${Date.now()}`,
           user_id: userId,
           food_name: item.name,
@@ -360,9 +362,8 @@ export const useFuelStore = create<FuelState>((set, get) => {
           carbs: item.carbs,
           fat: item.fats,
           created_at: now.toISOString(),
-        }]).then(({ error }) => {
-          if (error) console.warn('[FuelStore] meal_logs insert note:', error.message);
-        });
+        }]);
+        if (mealErr) console.warn('[FuelStore] meal_logs insert note:', mealErr.message);
 
         const allItems = Object.values(updatedMeals).flat();
         const totCals = Math.round(allItems.reduce((acc, m) => acc + (m.calories || 0), 0));
@@ -370,7 +371,7 @@ export const useFuelStore = create<FuelState>((set, get) => {
         const totC = Math.round(allItems.reduce((acc, m) => acc + (m.carbs || 0), 0) * 10) / 10;
         const totF = Math.round(allItems.reduce((acc, m) => acc + (m.fats || 0), 0) * 10) / 10;
 
-        supabase.from('daily_macros').upsert([{
+        const { error: macroErr } = await supabase.from('daily_macros').upsert([{
           user_id: userId,
           date: todayDateKey,
           calories: totCals,
@@ -379,32 +380,29 @@ export const useFuelStore = create<FuelState>((set, get) => {
           fat: totF,
           calorie_target: get().calorieTarget || 2200,
           updated_at: now.toISOString(),
-        }], { onConflict: 'user_id,date' }).then(({ error }) => {
-          if (error) console.warn('[FuelStore] daily_macros upsert note:', error.message);
+        }], { onConflict: 'user_id,date' });
+        if (macroErr) console.warn('[FuelStore] daily_macros upsert note:', macroErr.message);
+
+        syncEngine.dispatchMutation({
+          table: 'food_logs',
+          operation: 'UPSERT',
+          payload: {
+            id: item.id || `food-${Date.now()}`,
+            athlete_id: userId,
+            meal_type: slot,
+            name: item.name,
+            calories: item.calories,
+            protein: item.protein,
+            carbs: item.carbs,
+            fat: item.fats,
+            logged_at: now.toISOString(),
+          },
         });
-      } catch (dbErr) {
-        console.warn('[FuelStore] Supabase meal log exception:', dbErr);
-      }
 
-      syncEngine.dispatchMutation({
-        table: 'food_logs',
-        operation: 'UPSERT',
-        payload: {
-          id: item.id || `food-${Date.now()}`,
-          athlete_id: 'default-athlete',
-          meal_type: slot,
-          name: item.name,
-          calories: item.calories,
-          protein: item.protein,
-          carbs: item.carbs,
-          fat: item.fats,
-          logged_at: new Date().toISOString(),
-        },
-      });
-
-      dispatchAthleteTelemetry('default-athlete', {
-        activeCals: item.calories,
-      });
+        dispatchAthleteTelemetry(userId, {
+          activeCals: item.calories,
+        });
+      })();
     },
 
     removeMealItem: (slot: keyof FuelMeals, itemId: string) => {
@@ -420,14 +418,12 @@ export const useFuelStore = create<FuelState>((set, get) => {
       });
       persist();
 
-      try {
-        const userId = (typeof window !== 'undefined' && localStorage.getItem('o1fc_user_id')) || 'default-athlete';
+      void getAuthenticatedUserId().then((userId) => {
+        if (!userId) return;
         supabase.from('meal_logs').delete().match({ id: itemId, user_id: userId }).then(({ error }) => {
           if (error) console.warn('[FuelStore] meal_logs delete note:', error.message);
         });
-      } catch (delErr) {
-        console.warn('[FuelStore] Supabase delete error:', delErr);
-      }
+      });
 
       try {
         const allItems = Object.values(updatedMeals).flat();

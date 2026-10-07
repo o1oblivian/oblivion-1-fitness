@@ -60,43 +60,43 @@ export const IntakeCategoryCard: React.FC<IntakeCategoryCardProps> = ({
     switch (category) {
       case 'Breakfast':
         return (
-          <div className="w-9 h-9 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-800/60 text-amber-700 dark:text-amber-400 flex items-center justify-center shrink-0 shadow-xs">
+          <div className="w-9 h-9 rounded-2xl bg-amber-950/40 border border-amber-800/60 text-amber-400 flex items-center justify-center shrink-0 shadow-xs">
             <Sun className="w-4 h-4 stroke-[2.2]" />
           </div>
         );
       case 'Lunch':
         return (
-          <div className="w-9 h-9 rounded-2xl bg-sky-50 dark:bg-sky-950/40 border border-sky-300 dark:border-sky-800/60 text-sky-700 dark:text-sky-400 flex items-center justify-center shrink-0 shadow-xs">
+          <div className="w-9 h-9 rounded-2xl bg-sky-950/40 border border-sky-800/60 text-sky-400 flex items-center justify-center shrink-0 shadow-xs">
             <Utensils className="w-4 h-4 stroke-[2.2]" />
           </div>
         );
       case 'Dinner':
         return (
-          <div className="w-9 h-9 rounded-2xl bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-300 dark:border-indigo-800/60 text-indigo-700 dark:text-indigo-400 flex items-center justify-center shrink-0 shadow-xs">
+          <div className="w-9 h-9 rounded-2xl bg-sky-950/40 border border-sky-800/60 text-sky-400 flex items-center justify-center shrink-0 shadow-xs">
             <Moon className="w-4 h-4 stroke-[2.2]" />
           </div>
         );
       case 'Snack':
         return (
-          <div className="w-9 h-9 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-300 dark:border-rose-800/60 text-[#C4121A] dark:text-rose-400 flex items-center justify-center shrink-0 shadow-xs">
+          <div className="w-9 h-9 rounded-2xl bg-red-950/40 border border-red-800/60 text-red-400 flex items-center justify-center shrink-0 shadow-xs">
             <Box className="w-4 h-4 stroke-[2.2]" />
           </div>
         );
       case 'Drinks':
         return (
-          <div className="w-9 h-9 rounded-2xl bg-teal-50 dark:bg-teal-950/40 border border-teal-300 dark:border-teal-800/60 text-teal-700 dark:text-teal-400 flex items-center justify-center shrink-0 shadow-xs">
+          <div className="w-9 h-9 rounded-2xl bg-emerald-950/40 border border-emerald-800/60 text-emerald-400 flex items-center justify-center shrink-0 shadow-xs">
             <Coffee className="w-4 h-4 stroke-[2.2]" />
           </div>
         );
       case 'Supplements & Electrolytes':
         return (
-          <div className="w-9 h-9 rounded-2xl bg-green-50 dark:bg-green-950/40 border border-green-300 dark:border-green-800/60 text-green-700 dark:text-green-400 flex items-center justify-center shrink-0 shadow-xs">
+          <div className="w-9 h-9 rounded-2xl bg-emerald-950/40 border border-emerald-800/60 text-emerald-400 flex items-center justify-center shrink-0 shadow-xs">
             <Zap className="w-4 h-4 stroke-[2.2]" />
           </div>
         );
       default:
         return (
-          <div className="w-9 h-9 rounded-2xl bg-neutral-100 dark:bg-[#18181b] border border-neutral-300 dark:border-neutral-800 text-neutral-700 dark:text-neutral-300 flex items-center justify-center shrink-0 shadow-xs">
+          <div className="w-9 h-9 rounded-2xl bg-o1-well border border-white/[0.07] text-neutral-300 flex items-center justify-center shrink-0 shadow-xs">
             <Utensils className="w-4 h-4 stroke-[2.2]" />
           </div>
         );
@@ -106,7 +106,7 @@ export const IntakeCategoryCard: React.FC<IntakeCategoryCardProps> = ({
   return (
     <div
       id={`intake-category-${category.toLowerCase().replace(/[^a-z0-9]/g, '-')}`}
-      className="bg-white dark:bg-[#121214] border border-neutral-200 dark:border-neutral-800 rounded-3xl p-4 space-y-3 shadow-md dark:shadow-2xl transition-all"
+      className="bg-o1-card border border-white/[0.07] rounded-2xl p-2.5 space-y-2 transition-all"
     >
       {/* Category Header Row with Collapsible Toggle */}
       <div className="flex items-center justify-between gap-2">
@@ -121,7 +121,7 @@ export const IntakeCategoryCard: React.FC<IntakeCategoryCardProps> = ({
           {renderIconBox()}
           <div>
             <div className="flex items-center gap-1.5">
-              <h4 className="font-tactical font-black text-xs uppercase tracking-wider text-neutral-900 dark:text-white">
+              <h4 className="font-tactical font-black text-xs uppercase tracking-wider text-white">
                 {category}
               </h4>
               {isExpanded ? (
@@ -130,7 +130,7 @@ export const IntakeCategoryCard: React.FC<IntakeCategoryCardProps> = ({
                 <ChevronDown className="w-3.5 h-3.5 text-neutral-400" />
               )}
             </div>
-            <span className="font-telemetry font-mono text-[11px] text-neutral-500 dark:text-neutral-400 font-medium">
+            <span className="font-telemetry font-mono text-[11px] text-neutral-400 font-medium">
               {totalCalories} kcal
             </span>
           </div>
@@ -144,9 +144,9 @@ export const IntakeCategoryCard: React.FC<IntakeCategoryCardProps> = ({
               tactileEngine.triggerSelectionBuzz();
               onAddFood(category);
             }}
-            className="py-1 px-2.5 rounded-xl bg-neutral-100 hover:bg-neutral-200 dark:bg-[#18181c] dark:hover:bg-[#222228] text-neutral-800 dark:text-neutral-200 hover:text-neutral-900 dark:hover:text-white border border-neutral-200 dark:border-neutral-800 text-[10px] font-tactical font-black uppercase tracking-wider flex items-center gap-1 transition-all active:scale-95 shadow-xs cursor-pointer"
+            className="py-1 px-2.5 rounded-xl bg-o1-well hover:bg-white/[0.06] text-neutral-200 hover:text-white border border-white/[0.07] text-[10px] font-tactical font-black uppercase tracking-wider flex items-center gap-1 transition-all active:scale-95 shadow-xs cursor-pointer"
           >
-            <Plus className="w-3.5 h-3.5 text-[#C4121A]" />
+            <Plus className="w-3.5 h-3.5 text-o1-crimson" />
             <span>+ Add</span>
           </button>
 
@@ -156,7 +156,7 @@ export const IntakeCategoryCard: React.FC<IntakeCategoryCardProps> = ({
               tactileEngine.triggerSelectionBuzz();
               onVoiceScan(category);
             }}
-            className="p-1.5 rounded-xl bg-neutral-100 hover:bg-neutral-200 dark:bg-[#18181c] dark:hover:bg-[#222228] text-sky-600 dark:text-sky-400 border border-neutral-200 dark:border-neutral-800 transition-all active:scale-95 cursor-pointer shadow-xs"
+            className="p-1.5 rounded-xl bg-o1-well hover:bg-white/[0.06] text-sky-400 border border-white/[0.07] transition-all active:scale-95 cursor-pointer shadow-xs"
             title="Voice Log"
           >
             <Mic className="w-3.5 h-3.5" />
@@ -168,7 +168,7 @@ export const IntakeCategoryCard: React.FC<IntakeCategoryCardProps> = ({
               tactileEngine.triggerSelectionBuzz();
               onCameraScan(category);
             }}
-            className="p-1.5 rounded-xl bg-neutral-100 hover:bg-neutral-200 dark:bg-[#18181c] dark:hover:bg-[#222228] text-[#C4121A] dark:text-rose-400 border border-neutral-200 dark:border-neutral-800 transition-all active:scale-95 cursor-pointer shadow-xs"
+            className="p-1.5 rounded-xl bg-o1-well hover:bg-white/[0.06] text-red-400 border border-white/[0.07] transition-all active:scale-95 cursor-pointer shadow-xs"
             title="Photo Meal Log"
           >
             <Camera className="w-3.5 h-3.5" />
@@ -180,7 +180,7 @@ export const IntakeCategoryCard: React.FC<IntakeCategoryCardProps> = ({
       {isExpanded && (
         <div className="pt-1 animate-in fade-in duration-150">
           {items.length === 0 ? (
-            <div className="py-2.5 px-3 rounded-xl bg-neutral-50 dark:bg-[#08080a] border border-neutral-200/80 dark:border-neutral-800/50 text-center">
+            <div className="py-2.5 px-3 rounded-xl bg-white/[0.03] text-center">
               <span className="text-xs font-telemetry text-neutral-500 tracking-wider">
                 No items logged • 0 kcal
               </span>

@@ -21,7 +21,7 @@ const isValidUuid = (val?: string | null): boolean =>
   Boolean(val && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(val));
 
 // 1. Genuine athlete roster query (custom coach clients + Supabase coach_clients)
-export async function fetchCoachClients(coachId: string = 'coach_alpha'): Promise<Athlete[]> {
+export async function fetchCoachClients(coachId: string = ''): Promise<Athlete[]> {
   const localClients = safeStorage.getItem<Athlete[]>(STORAGE_COACH_CLIENTS, []) || [];
 
   if (!isValidUuid(coachId)) {
@@ -29,12 +29,24 @@ export async function fetchCoachClients(coachId: string = 'coach_alpha'): Promis
   }
 
   try {
-    const { data, error } = await supabase
-      .from('coach_clients')
+    const rosterRes = await supabase
+      .from('athlete_roster')
       .select('client_id, id, client_name, name, handle, status, readiness, volume, avatar, last_active_at')
       .eq('coach_id', coachId);
+    const clientsRes = (!rosterRes.data || rosterRes.data.length === 0)
+      ? await supabase
+          .from('coach_clients')
+          .select('client_id, id, client_name, name, handle, status, readiness, volume, avatar, last_active_at')
+          .eq('coach_id', coachId)
+      : rosterRes;
+    const data = clientsRes.data;
+    const error = clientsRes.error;
 
-    if (error || !data || data.length === 0) {
+    if (error) {
+      console.error('[coachService] roster query failed:', error.message);
+      return localClients;
+    }
+    if (!data || data.length === 0) {
       return localClients;
     }
 
@@ -66,7 +78,7 @@ export async function fetchCoachClients(coachId: string = 'coach_alpha'): Promis
 }
 
 // 2. Direct Supabase directive signals query (coach_directives / coach_broadcasts)
-export async function fetchCoachDirectives(coachId: string = 'coach_alpha'): Promise<DirectiveItem[]> {
+export async function fetchCoachDirectives(coachId: string = ''): Promise<DirectiveItem[]> {
   if (!isValidUuid(coachId)) return [];
 
   try {
@@ -90,7 +102,7 @@ export async function fetchCoachDirectives(coachId: string = 'coach_alpha'): Pro
           summary: b.message || b.summary || '',
           affectedCount: Number(b.affected_count || 1),
           priority: b.priority || 'HIGH',
-          badgeStyle: 'bg-rose-950/60 text-rose-400 border-rose-800/60',
+          badgeStyle: 'bg-red-950/60 text-red-400 border-red-800/60',
         }));
       }
 
@@ -104,7 +116,7 @@ export async function fetchCoachDirectives(coachId: string = 'coach_alpha'): Pro
       summary: d.summary || '',
       affectedCount: Number(d.affected_count || 0),
       priority: d.priority || 'HIGH',
-      badgeStyle: d.badge_style || 'bg-rose-950/60 text-rose-400 border-rose-800/60',
+      badgeStyle: d.badge_style || 'bg-red-950/60 text-red-400 border-red-800/60',
     }));
   } catch (err) {
     console.debug('[coachService] fetchCoachDirectives query caught:', err);
@@ -113,7 +125,7 @@ export async function fetchCoachDirectives(coachId: string = 'coach_alpha'): Pro
 }
 
 // 3. Direct Supabase earnings & transactions query (coach_earnings / transactions)
-export async function fetchCoachEarnings(coachId: string = 'coach_alpha'): Promise<CoachEarningsTransaction[]> {
+export async function fetchCoachEarnings(coachId: string = ''): Promise<CoachEarningsTransaction[]> {
   if (!isValidUuid(coachId)) return [];
 
   try {
@@ -142,7 +154,7 @@ export async function fetchCoachEarnings(coachId: string = 'coach_alpha'): Promi
 }
 
 // 4. Direct Supabase inbox messages query (coach_messages)
-export async function fetchCoachMessages(coachId: string = 'coach_alpha'): Promise<Array<{ id: string; sender: string; time: string; message: string }>> {
+export async function fetchCoachMessages(coachId: string = ''): Promise<Array<{ id: string; sender: string; time: string; message: string }>> {
   if (!isValidUuid(coachId)) return [];
 
   try {
@@ -171,7 +183,7 @@ export async function fetchCoachMessages(coachId: string = 'coach_alpha'): Promi
 export type { CoachEarningsTransaction } from '../../../types';
 
 // 5. Direct Squad Review query built from actual coach clients
-export async function fetchReviewSquad(coachId: string = 'coach_alpha'): Promise<SquadAthlete[]> {
+export async function fetchReviewSquad(coachId: string = ''): Promise<SquadAthlete[]> {
   const clients = await fetchCoachClients(coachId);
   return clients.map((c) => ({
     id: c.id,
@@ -198,9 +210,13 @@ export async function dispatchWorkoutsToAthletes(
   workoutTitle: string,
   exercises: any[]
 ): Promise<any> {
+  if (!coachId || !isValidUuid(coachId)) {
+    throw new Error('Sign in as coach to dispatch.');
+  }
   const payload = selectedAthleteIds.map((targetClientId) => ({
-    coach_id: coachId || 'default_coach',
+    coach_id: coachId,
     client_id: targetClientId,
+    athlete_id: targetClientId,
     title: workoutTitle,
     exercises: exercises,
     workout_data: { title: workoutTitle, exercises: exercises },
@@ -210,12 +226,32 @@ export async function dispatchWorkoutsToAthletes(
 
   try {
     const { data, error } = await supabase.from('assigned_workouts').insert(payload);
-    if (error) {
-      console.warn('[coachService] Supabase insert warning (offline or table pending):', error);
-    }
+    if (error) throw new Error(error.message);
     return data || payload;
   } catch (err) {
-    console.warn('[coachService] dispatchWorkoutsToAthletes handled fallback:', err);
-    return payload;
+    throw err instanceof Error ? err : new Error('Dispatch failed');
   }
+}
+
+export async function enrollCoachClient(coachId: string, athlete: Athlete): Promise<Athlete> {
+  if (!isValidUuid(coachId)) {
+    throw new Error('Sign in as coach to enroll athletes.');
+  }
+  const row = {
+    coach_id: coachId,
+    client_id: athlete.client_id || athlete.id,
+    client_name: athlete.name,
+    name: athlete.name,
+    handle: athlete.handle,
+    status: athlete.status,
+    readiness: athlete.readiness,
+    volume: athlete.volume,
+    last_active_at: new Date().toISOString(),
+  };
+  const roster = await supabase.from('athlete_roster').insert([row]).select();
+  if (roster.error) {
+    const clients = await supabase.from('coach_clients').insert([row]).select();
+    if (clients.error) throw new Error(clients.error.message);
+  }
+  return athlete;
 }

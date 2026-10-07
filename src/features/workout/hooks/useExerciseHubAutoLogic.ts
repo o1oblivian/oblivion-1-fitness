@@ -8,6 +8,30 @@ import {
 } from '../../../utils/physiologyEngine';
 import { LIFT_CHIPS, SPORTS_CHIPS, RECOVERY_CHIPS } from '../components/hub/hubConstants';
 import { filterEffectivePool } from '../utils/exerciseFilterUtils';
+import { readAthleteSettingsSnapshot } from '../../../utils/athleteSettingsSnapshot';
+import { defaultEmptyLoadKg } from '../../../utils/defaultEmptyLoad';
+
+const LAST_FOCUS_KEY = 'o1fc_hub_last_focus';
+
+function readLastFocus(): Record<string, string> {
+  try {
+    const raw = localStorage.getItem(LAST_FOCUS_KEY);
+    if (!raw) return {};
+    const parsed = JSON.parse(raw);
+    return parsed && typeof parsed === 'object' ? parsed : {};
+  } catch {
+    return {};
+  }
+}
+
+function writeLastFocus(discipline: string, category: string) {
+  try {
+    const next = { ...readLastFocus(), [discipline]: category };
+    localStorage.setItem(LAST_FOCUS_KEY, JSON.stringify(next));
+  } catch {
+    /* ignore */
+  }
+}
 
 interface UseExerciseHubAutoLogicProps {
   discipline: DisciplineType;
@@ -33,6 +57,7 @@ export function useExerciseHubAutoLogic({
   const [selectedCategory, setSelectedCategory] = useState<string>(LIFT_CHIPS[0]);
   const [selectedEquipment, setSelectedEquipment] = useState<string>('All Equipment');
   const [targetVolume, setTargetVolume] = useState<number>(5);
+  const [isChangeOpen, setIsChangeOpen] = useState(false);
 
   const [isEquipOpen, setIsEquipOpen] = useState(false);
   const [isVolOpen, setIsVolOpen] = useState(false);
@@ -44,13 +69,27 @@ export function useExerciseHubAutoLogic({
   const athleteWeightKg = getAthleteWeightKg();
 
   useEffect(() => {
-    if (selectedDiscipline) {
-      setSelectedCategory((prev) => (prev !== currentChips[0] ? currentChips[0] : prev));
-      setSlotOverrides({});
-      setSlotSets({});
-      setActiveSetsSlot(null);
+    if (!selectedDiscipline) {
+      setIsChangeOpen(false);
+      return;
     }
+    const remembered = readLastFocus()[selectedDiscipline];
+    const nextCat =
+      remembered && currentChips.some((c) => c.toLowerCase() === remembered.toLowerCase())
+        ? remembered
+        : currentChips[0];
+    setSelectedCategory(nextCat);
+    setSlotOverrides({});
+    setSlotSets({});
+    setActiveSetsSlot(null);
+    setIsChangeOpen(false);
   }, [selectedDiscipline, currentChips]);
+
+  useEffect(() => {
+    if (selectedDiscipline && selectedCategory) {
+      writeLastFocus(selectedDiscipline, selectedCategory);
+    }
+  }, [selectedDiscipline, selectedCategory]);
 
   const effectivePool = useMemo(() => {
     return filterEffectivePool(discipline, selectedCategory, selectedEquipment);
@@ -94,21 +133,13 @@ export function useExerciseHubAutoLogic({
     tactileEngine.playPRCelebration();
     const formatted: ExerciseItem[] = routineItems.map((def, idx) => {
       const countSets = slotSets[idx] !== undefined ? slotSets[idx] : def.defaultSets || 3;
-      const defReps = def.defaultReps || (def.discipline === 'sports' ? 12 : 8);
-      const defWeight =
-        def.defaultWeightKg !== undefined
-          ? def.defaultWeightKg
-          : def.equipment === 'barbell'
-          ? 60
-          : def.equipment === 'dumbbell'
-          ? 20
-          : 0;
+      const seedKg = defaultEmptyLoadKg(String(def.equipment || ''));
 
       return {
         id: `hub-${Date.now()}-${idx}-${Math.random().toString(36).slice(2, 6)}`,
         name: def.name,
         targetMuscle: def.primaryMuscleGroup || def.category || 'Compound',
-        restSecs: def.defaultRestSeconds || def.restSecs || 90,
+        restSecs: def.defaultRestSeconds || def.restSecs || readAthleteSettingsSnapshot().defaultRestSeconds || 90,
         equipment: def.equipment as any,
         tier: def.tier as any,
         baseMET: def.baseMET,
@@ -117,9 +148,10 @@ export function useExerciseHubAutoLogic({
         sets: Array.from({ length: countSets }, (_, s) => ({
           id: `set-${Date.now()}-${s + 1}-${Math.random().toString(36).slice(2, 6)}`,
           setNumber: s + 1,
-          weightKg: defWeight,
-          reps: defReps,
-          rpe: 8,
+          weightKg: seedKg,
+          weight: seedKg,
+          reps: 0,
+          rpe: 0,
           completed: false,
         })),
       };
@@ -141,6 +173,8 @@ export function useExerciseHubAutoLogic({
     setSelectedEquipment,
     targetVolume,
     setTargetVolume,
+    isChangeOpen,
+    setIsChangeOpen,
     isEquipOpen,
     setIsEquipOpen,
     isVolOpen,

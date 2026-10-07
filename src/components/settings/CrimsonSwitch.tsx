@@ -22,7 +22,7 @@ export const CrimsonSwitch: React.FC<CrimsonSwitchProps> = ({
       disabled={disabled}
       onClick={() => onChange(!checked)}
       className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full p-0.5 transition-colors duration-200 ease-in-out focus:outline-none ${
-        checked ? 'bg-red-600' : 'bg-neutral-300 dark:bg-neutral-700'
+        checked ? 'bg-red-600' : 'bg-neutral-700'
       } ${disabled ? 'opacity-50 cursor-not-allowed' : 'active:scale-95'}`}
     >
       <span

@@ -66,16 +66,16 @@ export const ScheduledRemindersModal: React.FC<ScheduledRemindersModalProps> = (
 
   return (
     <div
-      className="fixed inset-0 z-50 bg-black/85 flex items-end sm:items-center justify-center p-0 sm:p-4 select-none animate-in fade-in duration-200"
+      className="fixed inset-0 z-50 bg-black/70 o1-sheet-scrim flex items-center justify-center select-none animate-in fade-in duration-200"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div className="bg-[#09090b] border border-neutral-800 rounded-t-[32px] sm:rounded-3xl max-w-sm w-full p-5 shadow-2xl relative space-y-4 max-h-[90vh] overflow-y-auto text-white">
+      <div className="o1-sheet-card bg-black border border-white/[0.07] w-full p-5 shadow-xl relative space-y-4 overflow-y-auto text-white">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-red-950/40 border border-red-900/50 flex items-center justify-center text-[#C4121A]">
+            <div className="w-8 h-8 rounded-xl bg-red-950/40 border border-red-900/50 flex items-center justify-center text-o1-crimson">
               <Bell className="w-4 h-4" />
             </div>
             <div>
@@ -91,7 +91,7 @@ export const ScheduledRemindersModal: React.FC<ScheduledRemindersModalProps> = (
           <button
             type="button"
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-neutral-800 hover:bg-neutral-700 text-neutral-400 hover:text-white flex items-center justify-center cursor-pointer transition-colors"
+            className="w-8 h-8 rounded-full bg-white/[0.08] hover:bg-neutral-700 text-neutral-400 hover:text-white flex items-center justify-center cursor-pointer transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
@@ -110,10 +110,10 @@ export const ScheduledRemindersModal: React.FC<ScheduledRemindersModalProps> = (
                   key={day}
                   type="button"
                   onClick={() => toggleDay(day)}
-                  className={`py-1.5 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer ${
+                  className={`py-1.5 rounded-xl text-xs font-mono font-bold transition-all cursor-pointer ${
                     active
-                      ? 'bg-[#C4121A] text-white'
-                      : 'bg-neutral-900 text-neutral-400 hover:bg-neutral-800 border border-neutral-800'
+                      ? 'bg-o1-crimson text-white'
+                      : 'bg-o1-well text-neutral-400 hover:bg-white/[0.06] border border-white/[0.07]'
                   }`}
                 >
                   {day.slice(0, 2)}
@@ -125,7 +125,7 @@ export const ScheduledRemindersModal: React.FC<ScheduledRemindersModalProps> = (
 
         {/* Time settings */}
         <div className="space-y-3 pt-1">
-          <div className="bg-neutral-900/60 border border-neutral-800 rounded-xl p-3 flex items-center justify-between">
+          <div className="bg-o1-well border border-white/[0.07] rounded-xl p-3 flex items-center justify-between">
             <div className="space-y-0.5">
               <span className="text-xs font-tactical font-bold text-white block">Pre-Workout Call</span>
               <span className="text-[10px] text-neutral-400 block">30m prior to training</span>
@@ -134,11 +134,11 @@ export const ScheduledRemindersModal: React.FC<ScheduledRemindersModalProps> = (
               type="time"
               value={workoutTime}
               onChange={(e) => setWorkoutTime(e.target.value)}
-              className="bg-black border border-neutral-700 rounded-lg px-2.5 py-1 text-xs font-mono text-white focus:outline-none focus:border-[#C4121A]"
+              className="bg-black border border-white/[0.07] rounded-xl px-2.5 py-1 text-xs font-mono text-white focus:outline-none focus:border-o1-crimson"
             />
           </div>
 
-          <div className="bg-neutral-900/60 border border-neutral-800 rounded-xl p-3 flex items-center justify-between">
+          <div className="bg-o1-well border border-white/[0.07] rounded-xl p-3 flex items-center justify-between">
             <div className="space-y-0.5">
               <span className="text-xs font-tactical font-bold text-white block">Recovery Check-in</span>
               <span className="text-[10px] text-neutral-400 block">Post-workout HRV &amp; sleep cue</span>
@@ -147,11 +147,11 @@ export const ScheduledRemindersModal: React.FC<ScheduledRemindersModalProps> = (
               type="time"
               value={recoveryTime}
               onChange={(e) => setRecoveryTime(e.target.value)}
-              className="bg-black border border-neutral-700 rounded-lg px-2.5 py-1 text-xs font-mono text-white focus:outline-none focus:border-[#C4121A]"
+              className="bg-black border border-white/[0.07] rounded-xl px-2.5 py-1 text-xs font-mono text-white focus:outline-none focus:border-o1-crimson"
             />
           </div>
 
-          <div className="bg-neutral-900/60 border border-neutral-800 rounded-xl p-3 flex items-center justify-between">
+          <div className="bg-o1-well border border-white/[0.07] rounded-xl p-3 flex items-center justify-between">
             <div className="space-y-0.5">
               <span className="text-xs font-tactical font-bold text-white block">Hydration Interval</span>
               <span className="text-[10px] text-neutral-400 block">Drink reminder frequency</span>
@@ -159,7 +159,7 @@ export const ScheduledRemindersModal: React.FC<ScheduledRemindersModalProps> = (
             <select
               value={hydrationHours}
               onChange={(e) => setHydrationHours(e.target.value)}
-              className="bg-black border border-neutral-700 rounded-lg px-2.5 py-1 text-xs font-mono text-white focus:outline-none focus:border-[#C4121A]"
+              className="bg-black border border-white/[0.07] rounded-xl px-2.5 py-1 text-xs font-mono text-white focus:outline-none focus:border-o1-crimson"
             >
               <option value="1">Every 1 hr</option>
               <option value="2">Every 2 hrs</option>
@@ -173,7 +173,7 @@ export const ScheduledRemindersModal: React.FC<ScheduledRemindersModalProps> = (
         <button
           type="button"
           onClick={handleSave}
-          className="w-full py-3 px-4 rounded-xl bg-[#C4121A] hover:bg-[#a50f16] active:scale-95 text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer shadow-md shadow-red-500/20"
+          className="w-full py-2.5 px-4 rounded-xl bg-zinc-100 hover:bg-white text-neutral-950 font-semibold text-xs tracking-wide flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-[0.98]"
         >
           <Check className="w-4 h-4 stroke-[3]" />
           <span>Save Alert Schedule</span>

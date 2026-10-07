@@ -386,16 +386,16 @@ export const LogDayTelemetryModal: React.FC<LogDayTelemetryModalProps> = ({
       case 'workout':
         return {
           title: 'LOG WORKOUT RECORD',
-          color: 'text-[#C4121A]',
-          bg: 'bg-[#C4121A]',
-          icon: <Dumbbell className="w-5 h-5 text-[#C4121A]" />,
+          color: 'text-o1-crimson',
+          bg: 'bg-o1-crimson',
+          icon: <Dumbbell className="w-5 h-5 text-o1-crimson" />,
         };
       case 'cardio':
         return {
           title: 'LOG CARDIO TELEMETRY',
-          color: 'text-cyan-400',
-          bg: 'bg-cyan-500',
-          icon: <Activity className="w-5 h-5 text-cyan-400" />,
+          color: 'text-sky-400',
+          bg: 'bg-sky-500',
+          icon: <Activity className="w-5 h-5 text-sky-400" />,
         };
       case 'nutrition':
         return {
@@ -407,16 +407,16 @@ export const LogDayTelemetryModal: React.FC<LogDayTelemetryModalProps> = ({
       case 'sleep':
         return {
           title: 'LOG CIRCADIAN SLEEP',
-          color: 'text-purple-400',
-          bg: 'bg-purple-500',
-          icon: <Moon className="w-5 h-5 text-purple-400" />,
+          color: 'text-sky-400',
+          bg: 'bg-sky-500',
+          icon: <Moon className="w-5 h-5 text-sky-400" />,
         };
       case 'meditation':
         return {
           title: 'LOG MINDFUL COHERENCE',
-          color: 'text-green-500',
-          bg: 'bg-green-600',
-          icon: <Sparkles className="w-5 h-5 text-green-500" />,
+          color: 'text-emerald-500',
+          bg: 'bg-emerald-600',
+          icon: <Sparkles className="w-5 h-5 text-emerald-500" />,
         };
     }
   };
@@ -424,20 +424,20 @@ export const LogDayTelemetryModal: React.FC<LogDayTelemetryModalProps> = ({
   const theme = getCategoryTheme();
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/80 backdrop-blur-sm transition-opacity">
-      <div className="w-full max-w-md bg-white dark:bg-[#121214] border border-neutral-200 dark:border-neutral-800 rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden text-neutral-900 dark:text-neutral-100 flex flex-col max-h-[90vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 o1-sheet-scrim transition-opacity">
+      <div className="o1-sheet-card bg-o1-card border border-white/[0.07] shadow-xl overflow-hidden text-neutral-100 flex flex-col">
         {/* Header */}
-        <div className="p-4 sm:p-5 border-b border-neutral-200 dark:border-neutral-800 flex items-center justify-between shrink-0">
+        <div className="p-4 sm:p-5 border-b border-white/[0.05] flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-2xl bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 flex items-center justify-center">
+            <div className="w-9 h-9 rounded-2xl bg-o1-well border border-white/[0.07] flex items-center justify-center">
               {theme.icon}
             </div>
             <div>
-              <h3 className="font-tactical font-black text-xs uppercase tracking-wider text-neutral-900 dark:text-white">
+              <h3 className="font-tactical font-black text-xs uppercase tracking-wider text-white">
                 {theme.title}
               </h3>
-              <p className="text-[10px] font-mono text-neutral-500 dark:text-neutral-400">
-                DATE: <span className="text-neutral-900 dark:text-white font-bold">{dayMeta.dayLabel}</span> · {dayMeta.dateFormatted}
+              <p className="text-[10px] font-mono text-neutral-400">
+                DATE: <span className="text-white font-bold">{dayMeta.dayLabel}</span> · {dayMeta.dateFormatted}
               </p>
             </div>
           </div>
@@ -445,7 +445,7 @@ export const LogDayTelemetryModal: React.FC<LogDayTelemetryModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white flex items-center justify-center cursor-pointer transition-colors active:scale-95"
+            className="w-8 h-8 rounded-full bg-o1-well border border-white/[0.07] text-neutral-400 hover:text-white flex items-center justify-center cursor-pointer transition-colors active:scale-95"
           >
             <X className="w-4 h-4" />
           </button>
@@ -457,7 +457,7 @@ export const LogDayTelemetryModal: React.FC<LogDayTelemetryModalProps> = ({
           {category === 'workout' && (
             <div className="space-y-3.5">
               <div>
-                <label className="text-[10px] text-neutral-500 dark:text-neutral-400 uppercase font-bold block mb-1">
+                <label className="text-[10px] text-neutral-400 uppercase font-bold block mb-1">
                   Routine Split
                 </label>
                 <div className="grid grid-cols-3 gap-1.5">
@@ -468,8 +468,8 @@ export const LogDayTelemetryModal: React.FC<LogDayTelemetryModalProps> = ({
                       onClick={() => setWorkoutRoutine(r)}
                       className={`py-2 px-1 text-[10px] rounded-xl font-bold transition-all ${
                         workoutRoutine === r
-                          ? 'bg-[#C4121A] text-white'
-                          : 'bg-neutral-100 dark:bg-[#18181c] border border-neutral-200 dark:border-neutral-800 text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white'
+                          ? 'bg-o1-crimson text-white'
+                          : 'bg-o1-well border border-white/[0.07] text-neutral-400 hover:text-white'
                       }`}
                     >
                       {r.split(' ')[0]}
@@ -480,7 +480,7 @@ export const LogDayTelemetryModal: React.FC<LogDayTelemetryModalProps> = ({
 
               <div className="grid grid-cols-3 gap-2">
                 <div>
-                  <label className="text-[10px] text-neutral-500 dark:text-neutral-400 uppercase font-bold block mb-1">
+                  <label className="text-[10px] text-neutral-400 uppercase font-bold block mb-1">
                     Volume (KG)
                   </label>
                   <input
@@ -488,12 +488,12 @@ export const LogDayTelemetryModal: React.FC<LogDayTelemetryModalProps> = ({
                     value={workoutTonnage}
                     onFocus={(e) => e.target.select()}
                     onChange={(e) => setWorkoutTonnage(sanitizeNumericInput(e.target.value))}
-                    className="w-full bg-neutral-100 dark:bg-[#18181c] border border-neutral-200 dark:border-neutral-800 rounded-xl px-2.5 py-2 text-neutral-900 dark:text-white font-bold focus:border-[#C4121A] focus:outline-none"
+                    className="w-full bg-o1-well border border-white/[0.07] rounded-xl px-2.5 py-2 text-white font-bold focus:border-o1-crimson focus:outline-none"
                     placeholder="14200"
                   />
                 </div>
                 <div>
-                  <label className="text-[10px] text-neutral-500 dark:text-neutral-400 uppercase font-bold block mb-1">
+                  <label className="text-[10px] text-neutral-400 uppercase font-bold block mb-1">
                     Total Sets
                   </label>
                   <input
@@ -501,12 +501,12 @@ export const LogDayTelemetryModal: React.FC<LogDayTelemetryModalProps> = ({
                     value={workoutSets}
                     onFocus={(e) => e.target.select()}
                     onChange={(e) => setWorkoutSets(sanitizeNumericInput(e.target.value))}
-                    className="w-full bg-neutral-100 dark:bg-[#18181c] border border-neutral-200 dark:border-neutral-800 rounded-xl px-2.5 py-2 text-neutral-900 dark:text-white font-bold focus:border-[#C4121A] focus:outline-none"
+                    className="w-full bg-o1-well border border-white/[0.07] rounded-xl px-2.5 py-2 text-white font-bold focus:border-o1-crimson focus:outline-none"
                     placeholder="16"
                   />
                 </div>
                 <div>
-                  <label className="text-[10px] text-neutral-500 dark:text-neutral-400 uppercase font-bold block mb-1">
+                  <label className="text-[10px] text-neutral-400 uppercase font-bold block mb-1">
                     Duration (MIN)
                   </label>
                   <input
@@ -514,21 +514,21 @@ export const LogDayTelemetryModal: React.FC<LogDayTelemetryModalProps> = ({
                     value={workoutDuration}
                     onFocus={(e) => e.target.select()}
                     onChange={(e) => setWorkoutDuration(sanitizeNumericInput(e.target.value))}
-                    className="w-full bg-neutral-100 dark:bg-[#18181c] border border-neutral-200 dark:border-neutral-800 rounded-xl px-2.5 py-2 text-neutral-900 dark:text-white font-bold focus:border-[#C4121A] focus:outline-none"
+                    className="w-full bg-o1-well border border-white/[0.07] rounded-xl px-2.5 py-2 text-white font-bold focus:border-o1-crimson focus:outline-none"
                     placeholder="55"
                   />
                 </div>
               </div>
 
-              <div className="p-3 rounded-2xl bg-neutral-50 dark:bg-[#18181c] border border-neutral-200 dark:border-neutral-800 space-y-2">
-                <span className="text-[10px] text-neutral-500 dark:text-neutral-400 font-bold uppercase tracking-wider block">
+              <div className="p-3 rounded-xl bg-white/[0.03] space-y-2">
+                <span className="text-[10px] text-neutral-400 font-bold uppercase tracking-wider block">
                   Primary Exercise Anchor
                 </span>
                 <input
                   type="text"
                   value={exerciseName}
                   onChange={(e) => setExerciseName(e.target.value)}
-                  className="w-full bg-white dark:bg-[#121214] border border-neutral-200 dark:border-neutral-800 rounded-xl px-2.5 py-1.5 text-neutral-900 dark:text-white font-medium focus:border-[#C4121A] focus:outline-none text-xs"
+                  className="w-full bg-o1-card border border-white/[0.07] rounded-xl px-2.5 py-1.5 text-white font-medium focus:border-o1-crimson focus:outline-none text-xs"
                   placeholder="e.g. Barbell Bench Press"
                 />
                 <div className="grid grid-cols-2 gap-2 pt-1">
@@ -539,7 +539,7 @@ export const LogDayTelemetryModal: React.FC<LogDayTelemetryModalProps> = ({
                       value={exerciseWeight}
                       onFocus={(e) => e.target.select()}
                       onChange={(e) => setExerciseWeight(sanitizeNumericInput(e.target.value))}
-                      className="w-full bg-white dark:bg-[#121214] border border-neutral-200 dark:border-neutral-800 rounded-lg px-2 py-1 text-neutral-900 dark:text-white text-xs"
+                      className="w-full bg-o1-card border border-white/[0.07] rounded-xl px-2 py-1 text-white text-xs"
                     />
                   </div>
                   <div>
@@ -549,7 +549,7 @@ export const LogDayTelemetryModal: React.FC<LogDayTelemetryModalProps> = ({
                       value={exerciseReps}
                       onFocus={(e) => e.target.select()}
                       onChange={(e) => setExerciseReps(sanitizeNumericInput(e.target.value))}
-                      className="w-full bg-white dark:bg-[#121214] border border-neutral-200 dark:border-neutral-800 rounded-lg px-2 py-1 text-neutral-900 dark:text-white text-xs"
+                      className="w-full bg-o1-card border border-white/[0.07] rounded-xl px-2 py-1 text-white text-xs"
                     />
                   </div>
                 </div>
@@ -561,7 +561,7 @@ export const LogDayTelemetryModal: React.FC<LogDayTelemetryModalProps> = ({
           {category === 'cardio' && (
             <div className="space-y-3.5">
               <div>
-                <label className="text-[10px] text-neutral-500 dark:text-neutral-400 uppercase font-bold block mb-1">
+                <label className="text-[10px] text-neutral-400 uppercase font-bold block mb-1">
                   Activity Modality
                 </label>
                 <div className="grid grid-cols-3 gap-1.5">
@@ -572,8 +572,8 @@ export const LogDayTelemetryModal: React.FC<LogDayTelemetryModalProps> = ({
                       onClick={() => setCardioType(m)}
                       className={`py-2 px-1 text-[10px] rounded-xl font-bold transition-all ${
                         cardioType === m
-                          ? 'bg-cyan-500 text-black'
-                          : 'bg-neutral-100 dark:bg-[#18181c] border border-neutral-200 dark:border-neutral-800 text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white'
+                          ? 'bg-sky-500 text-black'
+                          : 'bg-o1-well border border-white/[0.07] text-neutral-400 hover:text-white'
                       }`}
                     >
                       {m.split(' ')[0]}
@@ -584,7 +584,7 @@ export const LogDayTelemetryModal: React.FC<LogDayTelemetryModalProps> = ({
 
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="text-[10px] text-neutral-500 dark:text-neutral-400 uppercase font-bold block mb-1">
+                  <label className="text-[10px] text-neutral-400 uppercase font-bold block mb-1">
                     Distance (KM)
                   </label>
                   <input
@@ -593,12 +593,12 @@ export const LogDayTelemetryModal: React.FC<LogDayTelemetryModalProps> = ({
                     value={cardioDistance}
                     onFocus={(e) => e.target.select()}
                     onChange={(e) => setCardioDistance(sanitizeNumericInput(e.target.value))}
-                    className="w-full bg-neutral-100 dark:bg-[#18181c] border border-neutral-200 dark:border-neutral-800 rounded-xl px-2.5 py-2 text-neutral-900 dark:text-white font-bold focus:border-cyan-500 focus:outline-none"
+                    className="w-full bg-o1-well border border-white/[0.07] rounded-xl px-2.5 py-2 text-white font-bold focus:border-sky-500 focus:outline-none"
                     placeholder="5.0"
                   />
                 </div>
                 <div>
-                  <label className="text-[10px] text-neutral-500 dark:text-neutral-400 uppercase font-bold block mb-1">
+                  <label className="text-[10px] text-neutral-400 uppercase font-bold block mb-1">
                     Duration (MIN)
                   </label>
                   <input
@@ -606,7 +606,7 @@ export const LogDayTelemetryModal: React.FC<LogDayTelemetryModalProps> = ({
                     value={cardioDuration}
                     onFocus={(e) => e.target.select()}
                     onChange={(e) => setCardioDuration(sanitizeNumericInput(e.target.value))}
-                    className="w-full bg-neutral-100 dark:bg-[#18181c] border border-neutral-200 dark:border-neutral-800 rounded-xl px-2.5 py-2 text-neutral-900 dark:text-white font-bold focus:border-cyan-500 focus:outline-none"
+                    className="w-full bg-o1-well border border-white/[0.07] rounded-xl px-2.5 py-2 text-white font-bold focus:border-sky-500 focus:outline-none"
                     placeholder="35"
                   />
                 </div>
@@ -614,7 +614,7 @@ export const LogDayTelemetryModal: React.FC<LogDayTelemetryModalProps> = ({
 
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="text-[10px] text-neutral-500 dark:text-neutral-400 uppercase font-bold block mb-1">
+                  <label className="text-[10px] text-neutral-400 uppercase font-bold block mb-1">
                     Burned Energy (KCAL)
                   </label>
                   <input
@@ -622,12 +622,12 @@ export const LogDayTelemetryModal: React.FC<LogDayTelemetryModalProps> = ({
                     value={cardioBurn}
                     onFocus={(e) => e.target.select()}
                     onChange={(e) => setCardioBurn(sanitizeNumericInput(e.target.value))}
-                    className="w-full bg-neutral-100 dark:bg-[#18181c] border border-neutral-200 dark:border-neutral-800 rounded-xl px-2.5 py-2 text-amber-500 dark:text-amber-400 font-bold focus:border-cyan-500 focus:outline-none"
+                    className="w-full bg-o1-well border border-white/[0.07] rounded-xl px-2.5 py-2 text-amber-400 font-bold focus:border-sky-500 focus:outline-none"
                     placeholder="380"
                   />
                 </div>
                 <div>
-                  <label className="text-[10px] text-neutral-500 dark:text-neutral-400 uppercase font-bold block mb-1">
+                  <label className="text-[10px] text-neutral-400 uppercase font-bold block mb-1">
                     Avg Heart Rate (BPM)
                   </label>
                   <input
@@ -635,7 +635,7 @@ export const LogDayTelemetryModal: React.FC<LogDayTelemetryModalProps> = ({
                     value={cardioHeartRate}
                     onFocus={(e) => e.target.select()}
                     onChange={(e) => setCardioHeartRate(sanitizeNumericInput(e.target.value))}
-                    className="w-full bg-neutral-100 dark:bg-[#18181c] border border-neutral-200 dark:border-neutral-800 rounded-xl px-2.5 py-2 text-neutral-900 dark:text-white font-bold focus:border-cyan-500 focus:outline-none"
+                    className="w-full bg-o1-well border border-white/[0.07] rounded-xl px-2.5 py-2 text-white font-bold focus:border-sky-500 focus:outline-none"
                     placeholder="142"
                   />
                 </div>
@@ -647,9 +647,9 @@ export const LogDayTelemetryModal: React.FC<LogDayTelemetryModalProps> = ({
           {category === 'nutrition' && (
             <div className="space-y-3.5">
               {/* Client Daily Calorie Target Adjustment */}
-              <div className="p-3 rounded-2xl bg-amber-50/50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800/40 space-y-1.5">
+              <div className="p-3 rounded-2xl bg-amber-950/20 border border-amber-800/40 space-y-1.5">
                 <div className="flex items-center justify-between">
-                  <label className="text-[10px] text-amber-700 dark:text-amber-400 uppercase font-bold tracking-wider block">
+                  <label className="text-[10px] text-amber-400 uppercase font-bold tracking-wider block">
                     Daily Calorie Target (KCAL)
                   </label>
                   <span className="text-[9px] text-neutral-500 font-mono">Client Goal</span>
@@ -659,17 +659,17 @@ export const LogDayTelemetryModal: React.FC<LogDayTelemetryModalProps> = ({
                   value={nutritionCalorieTarget}
                   onFocus={(e) => e.target.select()}
                   onChange={(e) => setNutritionCalorieTarget(sanitizeNumericInput(e.target.value))}
-                  className="w-full bg-white dark:bg-[#121214] border border-amber-300/80 dark:border-amber-800/80 rounded-xl px-3 py-2 text-neutral-900 dark:text-white font-mono font-bold focus:border-[#C4121A] focus:outline-none text-sm placeholder:text-neutral-400"
+                  className="w-full bg-o1-card border border-amber-800/80 rounded-xl px-3 py-2 text-white font-mono font-bold focus:border-o1-crimson focus:outline-none text-sm placeholder:text-neutral-400"
                   placeholder="Set custom daily goal (e.g. 2200, 2500)..."
                 />
-                <p className="text-[9px] text-neutral-500 dark:text-neutral-400 font-sans">
+                <p className="text-[9px] text-neutral-400 font-sans">
                   Adjustable by client at any time. Saved across all nutrition and telemetry views.
                 </p>
               </div>
 
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="text-[10px] text-neutral-500 dark:text-neutral-400 uppercase font-bold block mb-1">
+                  <label className="text-[10px] text-neutral-400 uppercase font-bold block mb-1">
                     Meal / Logged (KCAL)
                   </label>
                   <input
@@ -677,12 +677,12 @@ export const LogDayTelemetryModal: React.FC<LogDayTelemetryModalProps> = ({
                     value={nutritionCalories}
                     onFocus={(e) => e.target.select()}
                     onChange={(e) => setNutritionCalories(sanitizeNumericInput(e.target.value))}
-                    className="w-full bg-neutral-100 dark:bg-[#18181c] border border-neutral-200 dark:border-neutral-800 rounded-xl px-2.5 py-2 text-amber-500 dark:text-amber-400 font-bold focus:border-amber-500 focus:outline-none text-sm"
+                    className="w-full bg-o1-well border border-white/[0.07] rounded-xl px-2.5 py-2 text-amber-400 font-bold focus:border-amber-500 focus:outline-none text-sm"
                     placeholder="e.g. 750"
                   />
                 </div>
                 <div>
-                  <label className="text-[10px] text-neutral-500 dark:text-neutral-400 uppercase font-bold block mb-1">
+                  <label className="text-[10px] text-neutral-400 uppercase font-bold block mb-1">
                     Protein (G)
                   </label>
                   <input
@@ -690,7 +690,7 @@ export const LogDayTelemetryModal: React.FC<LogDayTelemetryModalProps> = ({
                     value={nutritionProtein}
                     onFocus={(e) => e.target.select()}
                     onChange={(e) => setNutritionProtein(sanitizeNumericInput(e.target.value))}
-                    className="w-full bg-neutral-100 dark:bg-[#18181c] border border-neutral-200 dark:border-neutral-800 rounded-xl px-2.5 py-2 text-cyan-600 dark:text-cyan-400 font-bold focus:border-amber-500 focus:outline-none text-sm"
+                    className="w-full bg-o1-well border border-white/[0.07] rounded-xl px-2.5 py-2 text-sky-400 font-bold focus:border-amber-500 focus:outline-none text-sm"
                     placeholder="e.g. 45"
                   />
                 </div>
@@ -698,7 +698,7 @@ export const LogDayTelemetryModal: React.FC<LogDayTelemetryModalProps> = ({
 
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="text-[10px] text-neutral-500 dark:text-neutral-400 uppercase font-bold block mb-1">
+                  <label className="text-[10px] text-neutral-400 uppercase font-bold block mb-1">
                     Carbohydrates (G)
                   </label>
                   <input
@@ -706,12 +706,12 @@ export const LogDayTelemetryModal: React.FC<LogDayTelemetryModalProps> = ({
                     value={nutritionCarbs}
                     onFocus={(e) => e.target.select()}
                     onChange={(e) => setNutritionCarbs(sanitizeNumericInput(e.target.value))}
-                    className="w-full bg-neutral-100 dark:bg-[#18181c] border border-neutral-200 dark:border-neutral-800 rounded-xl px-2.5 py-2 text-neutral-900 dark:text-white font-bold focus:border-amber-500 focus:outline-none"
+                    className="w-full bg-o1-well border border-white/[0.07] rounded-xl px-2.5 py-2 text-white font-bold focus:border-amber-500 focus:outline-none"
                     placeholder="e.g. 80"
                   />
                 </div>
                 <div>
-                  <label className="text-[10px] text-neutral-500 dark:text-neutral-400 uppercase font-bold block mb-1">
+                  <label className="text-[10px] text-neutral-400 uppercase font-bold block mb-1">
                     Lipids &amp; Fats (G)
                   </label>
                   <input
@@ -719,21 +719,21 @@ export const LogDayTelemetryModal: React.FC<LogDayTelemetryModalProps> = ({
                     value={nutritionFats}
                     onFocus={(e) => e.target.select()}
                     onChange={(e) => setNutritionFats(sanitizeNumericInput(e.target.value))}
-                    className="w-full bg-neutral-100 dark:bg-[#18181c] border border-neutral-200 dark:border-neutral-800 rounded-xl px-2.5 py-2 text-neutral-900 dark:text-white font-bold focus:border-amber-500 focus:outline-none"
+                    className="w-full bg-o1-well border border-white/[0.07] rounded-xl px-2.5 py-2 text-white font-bold focus:border-amber-500 focus:outline-none"
                     placeholder="e.g. 20"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="text-[10px] text-neutral-500 dark:text-neutral-400 uppercase font-bold block mb-1">
+                <label className="text-[10px] text-neutral-400 uppercase font-bold block mb-1">
                   Itemized Meal Summary
                 </label>
                 <input
                   type="text"
                   value={mealName}
                   onChange={(e) => setMealName(e.target.value)}
-                  className="w-full bg-neutral-100 dark:bg-[#18181c] border border-neutral-200 dark:border-neutral-800 rounded-xl px-3 py-2 text-neutral-900 dark:text-white focus:border-amber-500 focus:outline-none text-xs font-mono"
+                  className="w-full bg-o1-well border border-white/[0.07] rounded-xl px-3 py-2 text-white focus:border-amber-500 focus:outline-none text-xs font-mono"
                   placeholder="e.g. Grilled Chicken, Jasmine Rice & Avocado"
                 />
               </div>
@@ -745,7 +745,7 @@ export const LogDayTelemetryModal: React.FC<LogDayTelemetryModalProps> = ({
             <div className="space-y-3.5">
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="text-[10px] text-neutral-500 dark:text-neutral-400 uppercase font-bold block mb-1">
+                  <label className="text-[10px] text-neutral-400 uppercase font-bold block mb-1">
                     Sleep Duration (HOURS)
                   </label>
                   <input
@@ -754,12 +754,12 @@ export const LogDayTelemetryModal: React.FC<LogDayTelemetryModalProps> = ({
                     value={sleepHours}
                     onFocus={(e) => e.target.select()}
                     onChange={(e) => setSleepHours(sanitizeNumericInput(e.target.value))}
-                    className="w-full bg-neutral-100 dark:bg-[#18181c] border border-neutral-200 dark:border-neutral-800 rounded-xl px-2.5 py-2 text-purple-600 dark:text-purple-400 font-bold focus:border-purple-500 focus:outline-none text-sm"
+                    className="w-full bg-o1-well border border-white/[0.07] rounded-xl px-2.5 py-2 text-sky-400 font-bold focus:border-sky-500 focus:outline-none text-sm"
                     placeholder="7.8"
                   />
                 </div>
                 <div>
-                  <label className="text-[10px] text-neutral-500 dark:text-neutral-400 uppercase font-bold block mb-1">
+                  <label className="text-[10px] text-neutral-400 uppercase font-bold block mb-1">
                     Recovery Score (%)
                   </label>
                   <input
@@ -767,7 +767,7 @@ export const LogDayTelemetryModal: React.FC<LogDayTelemetryModalProps> = ({
                     value={sleepRecovery}
                     onFocus={(e) => e.target.select()}
                     onChange={(e) => setSleepRecovery(sanitizeNumericInput(e.target.value))}
-                    className="w-full bg-neutral-100 dark:bg-[#18181c] border border-neutral-200 dark:border-neutral-800 rounded-xl px-2.5 py-2 text-neutral-900 dark:text-white font-bold focus:border-purple-500 focus:outline-none text-sm"
+                    className="w-full bg-o1-well border border-white/[0.07] rounded-xl px-2.5 py-2 text-white font-bold focus:border-sky-500 focus:outline-none text-sm"
                     placeholder="92"
                   />
                 </div>
@@ -775,7 +775,7 @@ export const LogDayTelemetryModal: React.FC<LogDayTelemetryModalProps> = ({
 
               <div className="grid grid-cols-3 gap-2">
                 <div>
-                  <label className="text-[10px] text-neutral-500 dark:text-neutral-400 uppercase font-bold block mb-1">
+                  <label className="text-[10px] text-neutral-400 uppercase font-bold block mb-1">
                     Deep (MIN)
                   </label>
                   <input
@@ -783,12 +783,12 @@ export const LogDayTelemetryModal: React.FC<LogDayTelemetryModalProps> = ({
                     value={sleepDeep}
                     onFocus={(e) => e.target.select()}
                     onChange={(e) => setSleepDeep(sanitizeNumericInput(e.target.value))}
-                    className="w-full bg-neutral-100 dark:bg-[#18181c] border border-neutral-200 dark:border-neutral-800 rounded-xl px-2 py-2 text-neutral-900 dark:text-white font-bold text-xs"
+                    className="w-full bg-o1-well border border-white/[0.07] rounded-xl px-2 py-2 text-white font-bold text-xs"
                     placeholder="95"
                   />
                 </div>
                 <div>
-                  <label className="text-[10px] text-neutral-500 dark:text-neutral-400 uppercase font-bold block mb-1">
+                  <label className="text-[10px] text-neutral-400 uppercase font-bold block mb-1">
                     REM (MIN)
                   </label>
                   <input
@@ -796,12 +796,12 @@ export const LogDayTelemetryModal: React.FC<LogDayTelemetryModalProps> = ({
                     value={sleepRem}
                     onFocus={(e) => e.target.select()}
                     onChange={(e) => setSleepRem(sanitizeNumericInput(e.target.value))}
-                    className="w-full bg-neutral-100 dark:bg-[#18181c] border border-neutral-200 dark:border-neutral-800 rounded-xl px-2 py-2 text-neutral-900 dark:text-white font-bold text-xs"
+                    className="w-full bg-o1-well border border-white/[0.07] rounded-xl px-2 py-2 text-white font-bold text-xs"
                     placeholder="110"
                   />
                 </div>
                 <div>
-                  <label className="text-[10px] text-neutral-500 dark:text-neutral-400 uppercase font-bold block mb-1">
+                  <label className="text-[10px] text-neutral-400 uppercase font-bold block mb-1">
                     RHR (BPM)
                   </label>
                   <input
@@ -809,7 +809,7 @@ export const LogDayTelemetryModal: React.FC<LogDayTelemetryModalProps> = ({
                     value={sleepHeartRate}
                     onFocus={(e) => e.target.select()}
                     onChange={(e) => setSleepHeartRate(sanitizeNumericInput(e.target.value))}
-                    className="w-full bg-neutral-100 dark:bg-[#18181c] border border-neutral-200 dark:border-neutral-800 rounded-xl px-2 py-2 text-neutral-900 dark:text-white font-bold text-xs"
+                    className="w-full bg-o1-well border border-white/[0.07] rounded-xl px-2 py-2 text-white font-bold text-xs"
                     placeholder="52"
                   />
                 </div>
@@ -822,7 +822,7 @@ export const LogDayTelemetryModal: React.FC<LogDayTelemetryModalProps> = ({
             <div className="space-y-3.5">
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="text-[10px] text-neutral-500 dark:text-neutral-400 uppercase font-bold block mb-1">
+                  <label className="text-[10px] text-neutral-400 uppercase font-bold block mb-1">
                     Mindful Time (MIN)
                   </label>
                   <input
@@ -830,18 +830,18 @@ export const LogDayTelemetryModal: React.FC<LogDayTelemetryModalProps> = ({
                     value={meditationMinutes}
                     onFocus={(e) => e.target.select()}
                     onChange={(e) => setMeditationMinutes(sanitizeNumericInput(e.target.value))}
-                    className="w-full bg-neutral-100 dark:bg-[#18181c] border border-neutral-200 dark:border-neutral-800 rounded-xl px-2.5 py-2 text-green-700 dark:text-green-400 font-bold focus:border-green-600 focus:outline-none text-sm"
+                    className="w-full bg-o1-well border border-white/[0.07] rounded-xl px-2.5 py-2 text-emerald-400 font-bold focus:border-emerald-600 focus:outline-none text-sm"
                     placeholder="15"
                   />
                 </div>
                 <div>
-                  <label className="text-[10px] text-neutral-500 dark:text-neutral-400 uppercase font-bold block mb-1">
+                  <label className="text-[10px] text-neutral-400 uppercase font-bold block mb-1">
                     Brainwave Coherence
                   </label>
                   <select
                     value={meditationCoherence}
                     onChange={(e) => setMeditationCoherence(e.target.value)}
-                    className="w-full bg-neutral-100 dark:bg-[#18181c] border border-neutral-200 dark:border-neutral-800 rounded-xl px-2 py-2 text-neutral-900 dark:text-white font-bold focus:border-green-600 focus:outline-none text-xs"
+                    className="w-full bg-o1-well border border-white/[0.07] rounded-xl px-2 py-2 text-white font-bold focus:border-emerald-600 focus:outline-none text-xs"
                   >
                     <option value="Alpha Wave">Alpha Wave (Coherence)</option>
                     <option value="Theta Wave">Theta Wave (Deep Calm)</option>
@@ -851,7 +851,7 @@ export const LogDayTelemetryModal: React.FC<LogDayTelemetryModalProps> = ({
               </div>
 
               <div>
-                <label className="text-[10px] text-neutral-500 dark:text-neutral-400 uppercase font-bold block mb-1">
+                <label className="text-[10px] text-neutral-400 uppercase font-bold block mb-1">
                   Resonance Protocol
                 </label>
                 <div className="space-y-1.5">
@@ -866,8 +866,8 @@ export const LogDayTelemetryModal: React.FC<LogDayTelemetryModalProps> = ({
                       onClick={() => setMeditationProtocol(p)}
                       className={`w-full py-2 px-3 text-left rounded-xl text-xs font-bold transition-all ${
                         meditationProtocol === p
-                          ? 'bg-green-600 text-white'
-                          : 'bg-neutral-100 dark:bg-[#18181c] border border-neutral-200 dark:border-neutral-800 text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white'
+                          ? 'bg-emerald-600 text-white'
+                          : 'bg-o1-well border border-white/[0.07] text-neutral-400 hover:text-white'
                       }`}
                     >
                       {p}
@@ -880,11 +880,11 @@ export const LogDayTelemetryModal: React.FC<LogDayTelemetryModalProps> = ({
         </div>
 
         {/* Footer Actions */}
-        <div className="p-4 sm:p-5 border-t border-neutral-200 dark:border-neutral-800 flex items-center gap-2.5 shrink-0 bg-neutral-50 dark:bg-[#101012]">
+        <div className="p-4 sm:p-5 border-t border-white/[0.05] flex items-center gap-2.5 shrink-0 bg-o1-card">
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 py-3 px-4 rounded-xl bg-neutral-200 dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-800 hover:bg-neutral-300 dark:hover:bg-neutral-800 text-neutral-700 dark:text-neutral-300 font-bold text-xs uppercase tracking-wider transition-all cursor-pointer active:scale-95"
+            className="flex-1 py-3 px-4 rounded-xl bg-o1-well border border-white/[0.07] hover:bg-white/[0.06] text-neutral-300 font-bold text-xs uppercase tracking-wider transition-all cursor-pointer active:scale-95"
           >
             Cancel
           </button>
@@ -893,14 +893,14 @@ export const LogDayTelemetryModal: React.FC<LogDayTelemetryModalProps> = ({
             onClick={handleSave}
             className={`flex-1 py-3 px-4 rounded-xl text-white font-black text-xs uppercase tracking-wider transition-all cursor-pointer active:scale-95 flex items-center justify-center gap-1.5 shadow-lg ${
               category === 'workout'
-                ? 'bg-[#C4121A] hover:bg-[#a50f16] shadow-red-900/30'
+                ? 'bg-o1-crimson hover:bg-o1-crimson-hover shadow-red-900/30'
                 : category === 'cardio'
-                ? 'bg-cyan-600 hover:bg-cyan-500 shadow-cyan-900/30'
+                ? 'bg-sky-600 hover:bg-sky-500 shadow-sky-900/30'
                 : category === 'nutrition'
                 ? 'bg-amber-600 hover:bg-amber-500 shadow-amber-900/30'
                 : category === 'sleep'
-                ? 'bg-purple-600 hover:bg-purple-500 shadow-purple-900/30'
-                : 'bg-green-600 hover:bg-green-500 shadow-green-900/30'
+                ? 'bg-sky-600 hover:bg-sky-500 shadow-sky-900/30'
+                : 'bg-emerald-600 hover:bg-emerald-500 shadow-emerald-900/30'
             }`}
           >
             <Check className="w-4 h-4" />

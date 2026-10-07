@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import {
-  Layers,
   Clock,
   Dumbbell,
   ChevronDown,
@@ -24,12 +23,23 @@ interface BlueprintModeViewProps {
 }
 
 // Distributed category filter tags (Removed 'ALL' to eliminate infinite scroll)
-const FILTER_TAGS = ['HYPERTROPHY', 'STRENGTH', 'HYBRID', 'MOBILITY', 'PLYOMETRICS', 'GLUTE LAB'];
+const FILTER_TAGS = [
+  'HYPERTROPHY',
+  'STRENGTH',
+  'HYBRID',
+  'MOBILITY',
+  'PLYOMETRICS',
+  'GLUTE LAB',
+  'CALISTHENICS',
+  'OLYMPIC',
+  'CORE',
+];
 
 export const BlueprintModeView: React.FC<BlueprintModeViewProps> = ({ onShowToast, onLoaded }) => {
   const [selectedTag, setSelectedTag] = useState<string>('HYPERTROPHY');
   const [expandedBlueprintId, setExpandedBlueprintId] = useState<string | null>(null);
   const [selectedTiers, setSelectedTiers] = useState<Record<string, BlueprintTier>>({});
+  const [isStyleOpen, setIsStyleOpen] = useState(false);
   const [showSwapperUtility, setShowSwapperUtility] = useState<boolean>(false);
   const [selectedExToSwap, setSelectedExToSwap] = useState<string | null>(null);
 
@@ -98,6 +108,36 @@ export const BlueprintModeView: React.FC<BlueprintModeViewProps> = ({ onShowToas
         focus.includes('GLUTE') ||
         title.includes('BOOTY') ||
         title.includes('GLUTE')
+      );
+    }
+    if (tag === 'CALISTHENICS') {
+      return (
+        badge.includes('CALISTHENICS') ||
+        focus.includes('CALISTHENICS') ||
+        title.includes('CALISTHENICS') ||
+        title.includes('RING') ||
+        title.includes('WEIGHTED PUSH')
+      );
+    }
+    if (tag === 'OLYMPIC') {
+      return (
+        badge.includes('OLYMPIC') ||
+        focus.includes('OLYMPIC') ||
+        title.includes('OLYMPIC') ||
+        title.includes('SNATCH') ||
+        title.includes('CLEAN')
+      );
+    }
+    if (tag === 'CORE') {
+      const muscles = (bp.targetMuscles || []).join(' ').toUpperCase();
+      return (
+        badge.includes('CORE') ||
+        focus.includes('CORE') ||
+        title.includes('CORE') ||
+        title.includes('ABS') ||
+        muscles.includes('CORE') ||
+        muscles.includes('ABS') ||
+        muscles.includes('OBLIQUE')
       );
     }
     return badge.includes(tag) || focus.includes(tag) || title.includes(tag);
@@ -247,11 +287,41 @@ export const BlueprintModeView: React.FC<BlueprintModeViewProps> = ({ onShowToas
       {/* 1. Header & Distributed Category Tabs (No 'ALL') */}
       <div className="space-y-2">
         <div className="flex items-center justify-between px-1">
-          <div className="flex items-center gap-1.5">
-            <Layers className="w-3.5 h-3.5 text-[#C4121A]" />
-            <span className="text-[11px] uppercase tracking-wider font-bold text-neutral-800 dark:text-neutral-200">
-              {selectedTag} Protocols ({filteredBlueprints.length})
-            </span>
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => {
+                tactileEngine.triggerLightTick();
+                setIsStyleOpen((v) => !v);
+              }}
+              className="h-8 px-3 rounded-full bg-black border border-white/[0.07] text-xs font-semibold text-neutral-200 flex items-center gap-1.5 cursor-pointer"
+            >
+              {selectedTag}
+              <span className="text-neutral-400 font-medium">{filteredBlueprints.length}</span>
+              <ChevronDown className="w-3 h-3 text-neutral-400" />
+            </button>
+            {isStyleOpen && (
+              <div className="absolute left-0 top-full mt-1 z-30 min-w-[160px] bg-o1-card border border-white/[0.07] shadow-lg rounded-2xl p-1">
+                {FILTER_TAGS.map((tag) => (
+                  <button
+                    key={tag}
+                    type="button"
+                    onClick={() => {
+                      tactileEngine.triggerLightTick();
+                      setSelectedTag(tag);
+                      setIsStyleOpen(false);
+                    }}
+                    className={`w-full text-left px-3 py-1.5 text-xs rounded-xl cursor-pointer ${
+                      selectedTag === tag
+                        ? 'bg-o1-well font-semibold text-white'
+                        : 'text-neutral-400 hover:bg-white/5'
+                    }`}
+                  >
+                    {tag}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
           {exercises.length > 0 && (
             <button
@@ -260,42 +330,18 @@ export const BlueprintModeView: React.FC<BlueprintModeViewProps> = ({ onShowToas
                 tactileEngine.triggerLightTick();
                 setShowSwapperUtility((prev) => !prev);
               }}
-              className="text-[10px] font-mono text-neutral-500 hover:text-[#C4121A] dark:hover:text-neutral-300 flex items-center gap-1 transition-colors cursor-pointer"
+              className="text-[10px] font-mono text-neutral-500 hover:text-neutral-300 flex items-center gap-1 transition-colors cursor-pointer"
             >
               <ArrowLeftRight className="w-3 h-3" />
               <span>{showSwapperUtility ? 'Hide Swapper' : 'Exercise Swapper'}</span>
             </button>
           )}
         </div>
-
-        {/* Distributed Category Tabs (No 'ALL' to keep viewport compact) */}
-        <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none py-0.5">
-          {FILTER_TAGS.map((tag) => {
-            const isActive = selectedTag === tag;
-            return (
-              <button
-                key={tag}
-                type="button"
-                onClick={() => {
-                  tactileEngine.triggerLightTick();
-                  setSelectedTag(tag);
-                }}
-                className={`px-3 py-1 rounded-full text-[10px] font-mono font-bold tracking-tight whitespace-nowrap transition-all cursor-pointer ${
-                  isActive
-                    ? 'bg-[#C4121A] text-white shadow-xs'
-                    : 'bg-neutral-100 dark:bg-[#18181b] text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white border border-neutral-200 dark:border-neutral-800'
-                }`}
-              >
-                {tag}
-              </button>
-            );
-          })}
-        </div>
       </div>
 
       {/* 2. Optional Integrated Swapper Drawer (when active session running) */}
       {showSwapperUtility && exercises.length > 0 && (
-        <div className="p-3 rounded-2xl bg-neutral-100 dark:bg-[#18181b] border border-neutral-200 dark:border-neutral-800 space-y-2.5">
+        <div className="p-3 rounded-2xl bg-o1-well border border-white/[0.07] space-y-2.5">
           <div className="flex items-center justify-between">
             <span className="text-[10px] uppercase font-bold text-neutral-500 tracking-wider">
               Biomechanic Swapper
@@ -318,8 +364,8 @@ export const BlueprintModeView: React.FC<BlueprintModeViewProps> = ({ onShowToas
                   }}
                   className={`px-2.5 py-1 rounded-xl text-[10px] font-mono font-bold uppercase whitespace-nowrap transition-all border cursor-pointer ${
                     isSelected
-                      ? 'bg-neutral-900 dark:bg-white text-white dark:text-black border-transparent'
-                      : 'bg-white dark:bg-[#121214] text-neutral-600 dark:text-neutral-400 border-neutral-200 dark:border-neutral-800'
+                      ? 'bg-white text-black border-transparent'
+                      : 'bg-o1-card text-neutral-400 border-white/[0.07]'
                   }`}
                 >
                   {ex.name.slice(0, 20)}
@@ -333,10 +379,10 @@ export const BlueprintModeView: React.FC<BlueprintModeViewProps> = ({ onShowToas
               {alternatives.map((alt) => (
                 <div
                   key={alt.id}
-                  className="flex items-center justify-between p-2 rounded-xl bg-white dark:bg-[#121214] border border-neutral-200 dark:border-neutral-800"
+                  className="flex items-center justify-between p-2 rounded-xl bg-o1-card border border-white/[0.07]"
                 >
                   <div>
-                    <div className="text-xs font-bold text-neutral-900 dark:text-white">
+                    <div className="text-xs font-bold text-white">
                       {alt.name}
                     </div>
                     <div className="text-[10px] text-neutral-500 font-mono">
@@ -346,7 +392,7 @@ export const BlueprintModeView: React.FC<BlueprintModeViewProps> = ({ onShowToas
                   <button
                     type="button"
                     onClick={() => handleApplySwap(alt)}
-                    className="px-2.5 py-1 rounded-lg bg-[#C4121A] text-white text-[10px] font-bold uppercase tracking-wider hover:bg-[#A30F16] cursor-pointer"
+                    className="px-2.5 py-1 rounded-xl bg-o1-crimson text-white text-[10px] font-bold uppercase tracking-wider hover:bg-o1-crimson-hover cursor-pointer"
                   >
                     Swap
                   </button>
@@ -371,17 +417,17 @@ export const BlueprintModeView: React.FC<BlueprintModeViewProps> = ({ onShowToas
           return (
             <div
               key={bp.id}
-              className={`rounded-2xl border transition-all overflow-hidden bg-white dark:bg-[#121214] ${
+              className={`rounded-2xl border transition-all overflow-hidden bg-o1-card ${
                 isCurrentActive
-                  ? 'border-[#C4121A]/60 shadow-xs'
-                  : 'border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700'
+                  ? 'border-o1-crimson/60 shadow-xs'
+                  : 'border-white/[0.07] hover:border-white/[0.14]'
               }`}
             >
               {/* Card Banner & Summary */}
               <div className="p-3 space-y-2.5">
                 <div className="flex items-start gap-3">
                   {/* Thumbnail */}
-                  <div className="w-15 h-15 rounded-xl overflow-hidden shrink-0 bg-neutral-200 dark:bg-neutral-800 relative">
+                  <div className="w-15 h-15 rounded-xl overflow-hidden shrink-0 bg-white/[0.08] relative">
                     <img
                       src={bp.image}
                       alt={bp.title}
@@ -396,20 +442,20 @@ export const BlueprintModeView: React.FC<BlueprintModeViewProps> = ({ onShowToas
                   {/* Title & Metadata */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between gap-1">
-                      <h4 className="text-xs font-bold text-neutral-900 dark:text-white truncate">
+                      <h4 className="text-xs font-bold text-white truncate">
                         {bp.title}
                       </h4>
                       {isCurrentActive && (
-                        <span className="px-1.5 py-0.5 rounded text-[8px] font-mono font-bold bg-[#C4121A]/10 text-[#C4121A] shrink-0">
+                        <span className="px-1.5 py-0.5 rounded text-[8px] font-mono font-bold bg-o1-crimson/10 text-o1-crimson shrink-0">
                           ACTIVE
                         </span>
                       )}
                     </div>
-                    <p className="text-[10px] text-neutral-500 dark:text-neutral-400 truncate mt-0.5">
+                    <p className="text-[10px] text-neutral-400 truncate mt-0.5">
                       {bp.subtitle}
                     </p>
 
-                    <div className="flex items-center gap-3 mt-1.5 text-[10px] font-mono text-neutral-500 dark:text-neutral-400">
+                    <div className="flex items-center gap-3 mt-1.5 text-[10px] font-mono text-neutral-400">
                       <span className="flex items-center gap-1">
                         <Clock className="w-3 h-3 text-neutral-400" />
                         {bp.estimatedTime}
@@ -427,7 +473,7 @@ export const BlueprintModeView: React.FC<BlueprintModeViewProps> = ({ onShowToas
                   {bp.targetMuscles.slice(0, 4).map((muscle) => (
                     <span
                       key={muscle}
-                      className="px-2 py-0.5 rounded-md text-[9px] font-medium bg-neutral-100 dark:bg-[#18181b] text-neutral-600 dark:text-neutral-400"
+                      className="px-2 py-0.5 rounded-md text-[9px] font-medium bg-o1-well text-neutral-400"
                     >
                       {muscle}
                     </span>
@@ -445,7 +491,7 @@ export const BlueprintModeView: React.FC<BlueprintModeViewProps> = ({ onShowToas
                     + Discrete Expand Preview Chevron */}
                 <div className="flex items-center gap-2 pt-0.5">
                   {/* Capsule 1: Level / Tier Dropdown */}
-                  <div className="relative shrink-0 w-36 sm:w-40 h-8 rounded-full bg-neutral-100 dark:bg-[#18181b] border border-neutral-200 dark:border-neutral-800 flex items-center justify-between px-3 transition-colors">
+                  <div className="relative shrink-0 w-36 sm:w-40 h-8 rounded-full bg-o1-well border border-white/[0.07] flex items-center justify-between px-3 transition-colors">
                     <div className="flex items-center gap-1.5 min-w-0 pointer-events-none">
                       <span
                         className={`w-1.5 h-1.5 rounded-full shrink-0 ${
@@ -453,10 +499,10 @@ export const BlueprintModeView: React.FC<BlueprintModeViewProps> = ({ onShowToas
                             ? 'bg-emerald-500'
                             : currentTier === 'INTERMEDIATE'
                             ? 'bg-amber-400'
-                            : 'bg-[#C4121A]'
+                            : 'bg-o1-crimson'
                         }`}
                       />
-                      <span className="text-[11px] font-mono font-bold text-neutral-800 dark:text-neutral-200 truncate">
+                      <span className="text-[11px] font-mono font-bold text-neutral-200 truncate">
                         {currentTier === 'BEGINNER'
                           ? 'Beginner'
                           : currentTier === 'INTERMEDIATE'
@@ -487,7 +533,7 @@ export const BlueprintModeView: React.FC<BlueprintModeViewProps> = ({ onShowToas
                   <button
                     type="button"
                     onClick={() => handleLoadBlueprint(bp, currentTier)}
-                    className="flex-1 h-8 px-3 rounded-full bg-[#C4121A] hover:bg-[#A30F16] active:bg-[#800C11] text-white text-[11px] font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all shadow-xs active:scale-[0.98] cursor-pointer"
+                    className="flex-1 h-8 px-3 rounded-full bg-o1-crimson hover:bg-o1-crimson-hover active:bg-o1-crimson-press text-white text-[11px] font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all shadow-xs active:scale-[0.98] cursor-pointer"
                   >
                     <Zap className="w-3 h-3 fill-current" />
                     <span className="truncate">Load Blueprint</span>
@@ -500,7 +546,7 @@ export const BlueprintModeView: React.FC<BlueprintModeViewProps> = ({ onShowToas
                       tactileEngine.triggerLightTick();
                       setExpandedBlueprintId(isExpanded ? null : bp.id);
                     }}
-                    className="h-8 w-8 shrink-0 rounded-full bg-neutral-100 dark:bg-[#18181b] hover:bg-neutral-200 dark:hover:bg-neutral-800 text-neutral-700 dark:text-neutral-300 border border-neutral-200 dark:border-neutral-800 flex items-center justify-center transition-colors cursor-pointer"
+                    className="h-8 w-8 shrink-0 rounded-full bg-o1-well hover:bg-white/[0.06] text-neutral-300 border border-white/[0.07] flex items-center justify-center transition-colors cursor-pointer"
                     title={isExpanded ? 'Collapse exercises' : 'Preview exercises'}
                   >
                     {isExpanded ? (
@@ -514,8 +560,8 @@ export const BlueprintModeView: React.FC<BlueprintModeViewProps> = ({ onShowToas
 
               {/* 4. Expanded Exercise Breakdown (Dynamically Formatted to Current Tier) */}
               {isExpanded && (
-                <div className="border-t border-neutral-100 dark:border-neutral-800/80 bg-neutral-50/50 dark:bg-[#0c0c0e] p-3 space-y-2.5">
-                  <div className="flex items-center justify-between pb-1 px-0.5 border-b border-neutral-200/60 dark:border-neutral-800">
+                <div className="border-t border-white/[0.05] bg-black p-3 space-y-2.5">
+                  <div className="flex items-center justify-between pb-1 px-0.5 border-b border-white/[0.05]">
                     <div className="flex items-center gap-1.5">
                       <span
                         className={`w-1.5 h-1.5 rounded-full shrink-0 ${
@@ -523,10 +569,10 @@ export const BlueprintModeView: React.FC<BlueprintModeViewProps> = ({ onShowToas
                             ? 'bg-emerald-500'
                             : currentTier === 'INTERMEDIATE'
                             ? 'bg-amber-400'
-                            : 'bg-[#C4121A]'
+                            : 'bg-o1-crimson'
                         }`}
                       />
-                      <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-neutral-800 dark:text-neutral-200">
+                      <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-neutral-200">
                         {currentTier} Calibration
                       </span>
                     </div>
@@ -539,7 +585,7 @@ export const BlueprintModeView: React.FC<BlueprintModeViewProps> = ({ onShowToas
                     </span>
                   </div>
 
-                  <div className="text-[10px] text-neutral-500 dark:text-neutral-400 leading-relaxed px-0.5">
+                  <div className="text-[10px] text-neutral-400 leading-relaxed px-0.5">
                     {bp.description}
                   </div>
 
@@ -552,18 +598,18 @@ export const BlueprintModeView: React.FC<BlueprintModeViewProps> = ({ onShowToas
                       return (
                         <div
                           key={ex.id}
-                          className="flex items-center justify-between p-2 rounded-xl bg-white dark:bg-[#141416] border border-neutral-200/80 dark:border-neutral-800"
+                          className="flex items-center justify-between p-2 rounded-xl bg-o1-card border border-white/[0.07]"
                         >
                           <div className="min-w-0 pr-2">
                             <div className="flex items-center gap-1.5">
-                              <span className="w-4 h-4 rounded-full bg-neutral-100 dark:bg-[#1f1f23] text-[9px] font-mono font-bold text-neutral-600 dark:text-neutral-400 flex items-center justify-center shrink-0">
+                              <span className="w-4 h-4 rounded-full bg-o1-well text-[9px] font-mono font-bold text-neutral-400 flex items-center justify-center shrink-0">
                                 {idx + 1}
                               </span>
-                              <span className="text-xs font-bold text-neutral-900 dark:text-white truncate">
+                              <span className="text-xs font-bold text-white truncate">
                                 {ex.name}
                               </span>
                             </div>
-                            <div className="text-[10px] font-mono text-neutral-500 dark:text-neutral-400 mt-0.5 pl-5.5">
+                            <div className="text-[10px] font-mono text-neutral-400 mt-0.5 pl-5.5">
                               {specs.sets} Sets × {specs.reps}
                               {specs.weightKg > 0 ? ` • ${specs.weightKg}kg` : ''} • {ex.category}
                             </div>
@@ -572,7 +618,7 @@ export const BlueprintModeView: React.FC<BlueprintModeViewProps> = ({ onShowToas
                           <button
                             type="button"
                             onClick={(e) => handleAddSingleExercise(ex, bp.id, currentTier, e)}
-                            className="p-1.5 rounded-lg bg-neutral-100 dark:bg-[#18181b] hover:bg-[#C4121A] hover:text-white text-neutral-600 dark:text-neutral-300 transition-colors shrink-0 cursor-pointer"
+                            className="p-1.5 rounded-lg bg-o1-well hover:bg-o1-crimson hover:text-white text-neutral-300 transition-colors shrink-0 cursor-pointer"
                             title={`Add ${currentTier} version to active session`}
                           >
                             <Plus className="w-3.5 h-3.5" />

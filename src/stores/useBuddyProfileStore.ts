@@ -130,6 +130,9 @@ const buddyStore = createStore<BuddyProfileState, BuddyProfileActions>(
       const nextGhost = active !== undefined ? active : !get().ghostMode;
       set({ ghostMode: nextGhost });
       persistState(get());
+      void import('../services/buddyPresenceSync').then(({ syncBuddyGhostMode }) => {
+        void syncBuddyGhostMode(nextGhost);
+      });
     },
 
     setDisplayName: (displayName) => {

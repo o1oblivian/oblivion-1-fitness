@@ -56,21 +56,21 @@ export const AthleteCoachPortalView: React.FC = () => {
   return (
     <div id="athlete-coach-portal" className="w-full max-w-md mx-auto px-3.5 sm:px-4 space-y-3.5 pb-28 select-none">
       {toastMsg && (
-        <div className="p-3 rounded-2xl bg-green-500/10 border border-green-500/30 text-green-500 text-xs font-mono font-bold flex items-center gap-2">
+        <div className="p-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-500 text-xs font-mono font-bold flex items-center gap-2">
           <CheckCircle2 className="w-4 h-4 shrink-0" />
           <span>{toastMsg}</span>
         </div>
       )}
 
       {/* Sub navigation bar */}
-      <div className="w-full bg-white dark:bg-[#121214] border border-neutral-200 dark:border-neutral-800 p-1 rounded-2xl flex items-center gap-1 shadow-xs">
+      <div className="w-full bg-o1-card border border-white/[0.07] p-1 rounded-2xl flex items-center gap-1 shadow-xs">
         {(['coaches', 'programs', 'checkins', 'messages'] as const).map((tab) => (
           <button
             key={tab}
             type="button"
             onClick={() => { tactileEngine.triggerSelectionBuzz(); setSubTab(tab); }}
             className={`flex-1 py-1.5 text-center text-[10px] font-tactical font-black tracking-wider uppercase rounded-xl transition cursor-pointer ${
-              subTab === tab ? 'bg-[#C4121A] text-white' : 'text-neutral-500 hover:text-neutral-900 dark:hover:text-white'
+              subTab === tab ? 'bg-o1-crimson text-white' : 'text-neutral-500 hover:text-white'
             }`}
           >
             {tab}

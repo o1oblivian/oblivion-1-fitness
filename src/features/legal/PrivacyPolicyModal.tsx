@@ -12,12 +12,12 @@ export const PrivacyPolicyModal: React.FC<Props> = ({ isOpen, onClose, onDeleteR
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/85 select-none animate-in fade-in duration-150">
-      <div className="w-full max-w-lg bg-[#09090b] border border-neutral-800 rounded-3xl p-5 shadow-2xl flex flex-col max-h-[85vh] text-white">
-        <div className="flex items-center justify-between border-b border-neutral-800 pb-3">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 o1-sheet-scrim select-none animate-in fade-in duration-150">
+      <div className="o1-sheet-card w-full bg-black border border-white/[0.07] p-5 shadow-xl flex flex-col text-white overflow-y-auto">
+        <div className="flex items-center justify-between border-b border-white/[0.05] pb-3">
           <div className="flex items-center gap-2">
-            <div className="p-1.5 rounded-lg bg-[#06b6d4]/10 border border-[#06b6d4]/30">
-              <Lock className="w-4 h-4 text-[#06b6d4]" />
+            <div className="p-1.5 rounded-lg bg-[#0EA5E9]/10 border border-[#0EA5E9]/30">
+              <Lock className="w-4 h-4 text-[#0EA5E9]" />
             </div>
             <div>
               <h2 className="text-sm font-black uppercase tracking-wider text-neutral-100">Privacy &amp; Data Sanctuary Policy</h2>
@@ -27,16 +27,16 @@ export const PrivacyPolicyModal: React.FC<Props> = ({ isOpen, onClose, onDeleteR
           <button
             type="button"
             onClick={() => { tactileEngine.triggerSelectionBuzz(); onClose(); }}
-            className="p-1.5 text-neutral-400 hover:text-white rounded-full bg-[#121214] border border-neutral-800 cursor-pointer"
+            className="p-1.5 text-neutral-400 hover:text-white rounded-full bg-o1-card border border-white/[0.07] cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
-        <div className="overflow-y-auto no-scrollbar py-4 space-y-4 text-xs font-mono text-neutral-300 leading-relaxed">
+        <div className="overflow-y-auto no-scrollbar py-3 space-y-0 text-xs font-mono text-neutral-300 leading-relaxed">
           {/* Section 1: Zero-Cloud Sovereign Device Architecture */}
-          <div className="p-3 rounded-2xl bg-[#121214] border border-neutral-800 space-y-1.5">
-            <div className="flex items-center gap-1.5 text-cyan-400 font-bold uppercase text-[11px]">
+          <div className="py-3 border-b border-white/[0.05] space-y-1.5 last:border-0">
+            <div className="flex items-center gap-1.5 text-sky-400 font-bold uppercase text-[11px]">
               <Lock className="w-3.5 h-3.5" />
               <span>1. Zero-Cloud Sovereign Sanctuary (On-Device Storage)</span>
             </div>
@@ -46,8 +46,8 @@ export const PrivacyPolicyModal: React.FC<Props> = ({ isOpen, onClose, onDeleteR
           </div>
 
           {/* Section 2: Zero Outbound Analytics & No Ad Tracking */}
-          <div className="p-3 rounded-2xl bg-[#121214] border border-neutral-800 space-y-1.5">
-            <div className="flex items-center gap-1.5 text-green-400 font-bold uppercase text-[11px]">
+          <div className="py-3 border-b border-white/[0.05] space-y-1.5 last:border-0">
+            <div className="flex items-center gap-1.5 text-emerald-400 font-bold uppercase text-[11px]">
               <Activity className="w-3.5 h-3.5" />
               <span>2. Zero Third-Party Trackers, Pixels, or Data Brokers</span>
             </div>
@@ -57,7 +57,7 @@ export const PrivacyPolicyModal: React.FC<Props> = ({ isOpen, onClose, onDeleteR
           </div>
 
           {/* Section 3: Camera, Vision & On-Device Processing */}
-          <div className="p-3 rounded-2xl bg-[#121214] border border-neutral-800 space-y-1.5">
+          <div className="py-3 border-b border-white/[0.05] space-y-1.5 last:border-0">
             <div className="flex items-center gap-1.5 text-amber-400 font-bold uppercase text-[11px]">
               <Camera className="w-3.5 h-3.5" />
               <span>3. Camera &amp; Vision Scanner Ephemeral Processing</span>
@@ -68,8 +68,8 @@ export const PrivacyPolicyModal: React.FC<Props> = ({ isOpen, onClose, onDeleteR
           </div>
 
           {/* Section 4: User-Owned Air-Gapped Backups */}
-          <div className="p-3 rounded-2xl bg-[#121214] border border-neutral-800 space-y-1.5">
-            <div className="flex items-center gap-1.5 text-blue-400 font-bold uppercase text-[11px]">
+          <div className="py-3 border-b border-white/[0.05] space-y-1.5 last:border-0">
+            <div className="flex items-center gap-1.5 text-sky-400 font-bold uppercase text-[11px]">
               <Lock className="w-3.5 h-3.5" />
               <span>4. Air-Gapped User-Owned Data Vaults (.o1fc)</span>
             </div>
@@ -79,8 +79,8 @@ export const PrivacyPolicyModal: React.FC<Props> = ({ isOpen, onClose, onDeleteR
           </div>
 
           {/* Section 5: GDPR / CCPA Irrevocable Account Purge */}
-          <div className="p-3 rounded-2xl bg-[#121214] border border-neutral-800 space-y-1.5">
-            <div className="flex items-center gap-1.5 text-[#C4121A] font-bold uppercase text-[11px]">
+          <div className="py-3 border-b border-white/[0.05] space-y-1.5 last:border-0">
+            <div className="flex items-center gap-1.5 text-o1-crimson font-bold uppercase text-[11px]">
               <Trash2 className="w-3.5 h-3.5" />
               <span>5. Unconditional Account &amp; Telemetry Erasure (GDPR / CCPA)</span>
             </div>
@@ -91,7 +91,7 @@ export const PrivacyPolicyModal: React.FC<Props> = ({ isOpen, onClose, onDeleteR
               <button
                 type="button"
                 onClick={() => { onClose(); onDeleteRequest(); }}
-                className="mt-1 text-[10px] text-[#C4121A] underline font-bold uppercase hover:text-red-400 cursor-pointer"
+                className="mt-1 text-[10px] text-o1-crimson underline font-bold uppercase hover:text-red-400 cursor-pointer"
               >
                 Initiate Account Deletion Protocol &rarr;
               </button>
@@ -99,11 +99,11 @@ export const PrivacyPolicyModal: React.FC<Props> = ({ isOpen, onClose, onDeleteR
           </div>
         </div>
 
-        <div className="pt-3 border-t border-neutral-800">
+        <div className="pt-3 border-t border-white/[0.05]">
           <button
             type="button"
             onClick={() => { tactileEngine.triggerSelectionBuzz(); onClose(); }}
-            className="w-full py-3 rounded-2xl bg-[#121214] hover:bg-neutral-800 border border-neutral-700 text-white font-mono text-xs font-black uppercase tracking-wider cursor-pointer transition active:scale-95"
+            className="w-full py-3 rounded-2xl bg-o1-card hover:bg-white/[0.06] border border-white/[0.07] text-white font-mono text-xs font-black uppercase tracking-wider cursor-pointer transition active:scale-95"
           >
             Understood &amp; Close
           </button>

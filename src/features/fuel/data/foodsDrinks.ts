@@ -112,4 +112,13 @@ export const DRINKS_FOODS: FoodCatalogItem[] = [
   { id: 'd-98', name: 'Chamomile Honey Herbal Sleep Tea', brand: 'Traditional Medicinals', serving: '240ml brewed', calories: 2, protein: 0, carbs: 0.5, fats: 0, category: 'DRINKS' },
   { id: 'd-99', name: 'Electrolyte Replenishment Gel (Berry)', brand: 'Maurten Gel 100', serving: '1 pouch (40g)', calories: 100, protein: 0, carbs: 25, fats: 0, category: 'DRINKS' },
   { id: 'd-100', name: 'O1 Tactical Hydration Matrix (Amino + Pink Himalayan Salt)', brand: 'Oblivion 1', serving: '1 scoop in 500ml', calories: 10, protein: 2, carbs: 1, fats: 0, category: 'DRINKS' },
+
+  { id: 'd-101', name: 'Black Coffee (Brewed, no milk)', brand: 'Cafe', serving: '240ml', calories: 2, protein: 0.3, carbs: 0, fats: 0, category: 'DRINKS' },
+  { id: 'd-102', name: 'Skim Milk', brand: 'Dairy Farmers / Fairlife', serving: '250ml', calories: 90, protein: 9, carbs: 13, fats: 0.2, category: 'DRINKS' },
+  { id: 'd-103', name: 'Unsweetened Almond Milk', brand: 'Almond Breeze', serving: '250ml', calories: 30, protein: 1, carbs: 1, fats: 2.5, category: 'DRINKS' },
+  { id: 'd-104', name: 'Coca-Cola Zero Sugar', brand: 'Coca-Cola', serving: '1 can (375ml)', calories: 1, protein: 0, carbs: 0, fats: 0, category: 'DRINKS' },
+  { id: 'd-105', name: 'Up&Go Protein Energize (Vanilla)', brand: 'Sanitarium', serving: '250ml', calories: 207, protein: 16.4, carbs: 26, fats: 4.4, category: 'DRINKS' },
+  { id: 'd-106', name: 'Hydralyte Electrolyte Ice Block / Drink', brand: 'Hydralyte', serving: '250ml', calories: 25, protein: 0, carbs: 6, fats: 0, category: 'DRINKS' },
+  { id: 'd-107', name: 'Prime Hydration (Ice Pop)', brand: 'Prime', serving: '500ml', calories: 25, protein: 0, carbs: 6, fats: 0, category: 'DRINKS' },
+  { id: 'd-108', name: 'Muscle Milk Protein Shake (Vanilla)', brand: 'CytoSport', serving: '330ml', calories: 160, protein: 25, carbs: 7, fats: 4.5, category: 'DRINKS' },
 ];

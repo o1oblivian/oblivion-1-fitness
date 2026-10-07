@@ -20,7 +20,17 @@ export interface TrialState {
  * Initializes or returns the 90-day freemium trial state for an athlete.
  * Automatically synchronizes with local storage and Supabase if connected.
  */
-export function getAthleteTrialState(userId: string = 'default-athlete'): TrialState {
+const EMPTY_TRIAL: TrialState = {
+  startDate: '',
+  expiresDate: '',
+  daysRemaining: 0,
+  isTrialActive: false,
+  isTrialExpired: true,
+  hasSubscribedPro: false,
+};
+
+export function getAthleteTrialState(userId: string = ''): TrialState {
+  if (!userId) return EMPTY_TRIAL;
   const now = Date.now();
   
   // 1. Check local storage
@@ -60,9 +70,10 @@ export function getAthleteTrialState(userId: string = 'default-athlete'): TrialS
 }
 
 /**
- * Marks the athlete as having upgraded/subscribed to Pro (Lifetime, Monthly, or Annual)
+ * Marks the athlete as having upgraded/subscribed to Pro (Lifetime or Monthly)
  */
-export function activateProSubscription(userId: string = 'default-athlete', planId: string): void {
+export function activateProSubscription(userId: string = '', planId: string): void {
+  if (!userId) return;
   const current = getAthleteTrialState(userId);
   const updated = {
     ...current,
@@ -76,7 +87,8 @@ export function activateProSubscription(userId: string = 'default-athlete', plan
 /**
  * Helper to simulate or test trial expiration for testing/admin purposes
  */
-export function simulateTrialExpired(userId: string = 'default-athlete'): void {
+export function simulateTrialExpired(userId: string = ''): void {
+  if (!userId) return;
   const expiredStart = new Date(Date.now() - (TRIAL_DURATION_MS + 86400000)).toISOString();
   safeStorage.setItem(`${TRIAL_STORAGE_KEY}_${userId}`, {
     startDate: expiredStart,
@@ -87,7 +99,8 @@ export function simulateTrialExpired(userId: string = 'default-athlete'): void {
 /**
  * Resets trial to fresh 90 days (for testing or customer care)
  */
-export function resetTrial90Days(userId: string = 'default-athlete'): void {
+export function resetTrial90Days(userId: string = ''): void {
+  if (!userId) return;
   const freshStart = new Date().toISOString();
   safeStorage.setItem(`${TRIAL_STORAGE_KEY}_${userId}`, {
     startDate: freshStart,
@@ -113,14 +126,14 @@ async function syncTrialToSupabase(
       trial_started_at: startDate,
       trial_expires_at: expiresAt,
       is_trial_active: true,
-      membership_tier: isPro ? planId || 'pro' : 'core_free',
+      membership_tier: isPro ? planId || 'o1fc_pro' : 'core_free',
       updated_at: new Date().toISOString(),
     });
 
     if (isPro) {
       await supabase.from('user_entitlements').upsert({
         user_id: userId,
-        tier: planId || 'pro',
+        tier: planId || 'o1fc_pro',
         status: 'active',
         platform: isNativePlatform() ? 'ios' : 'web',
         expires_at: '2099-12-31T23:59:59Z',

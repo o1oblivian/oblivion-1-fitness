@@ -1,6 +1,7 @@
 import express from 'express';
 import path from 'path';
 import { createServer as createViteServer } from 'vite';
+import { createClient } from '@supabase/supabase-js';
 import { GoogleGenAI } from '@google/genai';
 import dotenv from 'dotenv';
 import { recognizeTelemetryFromBuffer, parseTelemetryFromOcrText } from './src/services/ocrTelemetryParser';
@@ -9,18 +10,25 @@ import {
   handleSyncEntitlements,
 } from './server/routes/billingWebhookHandler';
 import { handleVerifyPose } from './server/routes/poseVerificationRoute';
-import {
-  handleCreateIdentitySession,
-  handleStripeIdentityWebhook,
-} from './server/routes/stripeIdentityRoutes';
+import { registerStripeRoutes } from './server/routes/stripeRoutes';
 
 dotenv.config();
+dotenv.config({ path: '.env.local', override: true });
+
+function readImportMetaGeminiKey(): string {
+  try {
+    return String((import.meta as ImportMeta & { env?: Record<string, string> }).env?.VITE_GEMINI_API_KEY || '');
+  } catch {
+    return '';
+  }
+}
 
 function getGeminiApiKey(explicitKey?: string): string {
   return (
     explicitKey ||
     process.env.GEMINI_API_KEY ||
-    (process.env as any).VITE_GEMINI_API_KEY ||
+    process.env.VITE_GEMINI_API_KEY ||
+    readImportMetaGeminiKey() ||
     (process.env as any).GEMINI_API_KEY_2 ||
     (process.env as any).VITE_GEMINI_API_KEY_2 ||
     ''
@@ -51,7 +59,7 @@ function getGenAI(overrideKey?: string): GoogleGenAI | null {
 
 // Resilient Gemini generateContent caller with model fallback & exponential retry for 503/429 spikes
 async function generateContentWithFallback(genAI: GoogleGenAI, contents: any[], config?: any): Promise<any> {
-  const modelsToTry = ['gemini-3.8-flash', 'gemini-3.1-flash-lite', 'gemini-flash-latest'];
+  const modelsToTry = ['gemini-1.5-flash', 'gemini-flash-latest', 'gemini-3.1-flash-lite'];
   let lastError: any = null;
 
   for (const model of modelsToTry) {
@@ -82,6 +90,12 @@ async function generateContentWithFallback(genAI: GoogleGenAI, contents: any[], 
   }
 
   throw lastError || new Error('All model attempts failed');
+}
+
+function parseGeminiJson(responseText: string): any {
+  const cleaned = String(responseText || '').replace(/```json\n?|```/g, '').trim();
+  const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
+  return JSON.parse(jsonMatch ? jsonMatch[0] : cleaned);
 }
 
 // Built-in verified barcode database for popular athletic foods & supplements
@@ -275,7 +289,7 @@ const SUPPLEMENT_KNOWLEDGE_BASE: Array<{
 
 async function startServer() {
   const app = express();
-  const PORT = 3000;
+  const PORT = Number(process.env.PORT) || 3000;
 
   // Configure JSON parser with larger limit and rawBody verification for Stripe webhooks
   app.use(
@@ -340,7 +354,7 @@ Respond ONLY in valid JSON matching this exact schema:
 }`;
 
           const response = await genAI.models.generateContent({
-            model: 'gemini-3.8-flash',
+            model: 'gemini-1.5-flash',
             contents: [
               {
                 role: 'user',
@@ -358,26 +372,22 @@ Respond ONLY in valid JSON matching this exact schema:
           });
 
           const text = response.text || '';
-          const jsonMatch = text.match(/\{[\s\S]*\}/);
-
-          if (jsonMatch) {
-            const parsed = JSON.parse(jsonMatch[0]);
-            return res.json({
-              success: true,
-              scan: {
-                mealName: parsed.mealName || 'High-Protein Athletic Plate',
-                description: parsed.description || 'Optical volumetric macronutrient analysis',
-                estimatedKcal: Math.round(Number(parsed.estimatedKcal) || 550),
-                proteinG: Math.round(Number(parsed.proteinG) || 45),
-                carbsG: Math.round(Number(parsed.carbsG) || 50),
-                fatsG: Math.round(Number(parsed.fatsG) || 15),
-                confidence: Math.round(Number(parsed.confidence) || 94),
-                aliveAiNote: parsed.aliveAiNote || 'Bioenergetic balance aligned with post-training muscle protein synthesis.',
-                items: Array.isArray(parsed.items) ? parsed.items : [],
-              },
-              provider: 'alive-ai-vision',
-            });
-          }
+          const parsed = parseGeminiJson(text);
+          return res.json({
+            success: true,
+            scan: {
+              mealName: parsed.mealName || 'High-Protein Athletic Plate',
+              description: parsed.description || 'Optical volumetric macronutrient analysis',
+              estimatedKcal: Math.round(Number(parsed.estimatedKcal) || 550),
+              proteinG: Math.round(Number(parsed.proteinG) || 45),
+              carbsG: Math.round(Number(parsed.carbsG) || 50),
+              fatsG: Math.round(Number(parsed.fatsG) || 15),
+              confidence: Math.round(Number(parsed.confidence) || 94),
+              aliveAiNote: parsed.aliveAiNote || 'Bioenergetic balance aligned with post-training muscle protein synthesis.',
+              items: Array.isArray(parsed.items) ? parsed.items : [],
+            },
+            provider: 'alive-ai-vision',
+          });
         } catch (aiErr) {
           console.warn('Gemini vision scan encountered error, switching to robust vision fallback:', aiErr);
         }
@@ -454,11 +464,8 @@ Respond ONLY in valid JSON matching this exact schema:
           ]);
 
           const text = response.text || '';
-          const jsonMatch = text.match(/\{[\s\S]*\}/);
-
-          if (jsonMatch) {
-            const parsed = JSON.parse(jsonMatch[0]);
-            return res.json({
+          const parsed = parseGeminiJson(text);
+          return res.json({
               success: true,
               scan: {
                 type: parsed.type || 'Treadmill',
@@ -473,7 +480,6 @@ Respond ONLY in valid JSON matching this exact schema:
               },
               provider: 'alive-ai-vision',
             });
-          }
         } catch (aiErr) {
           console.warn('Gemini cardio OCR scan error, deploying backup telemetry calibration:', aiErr);
         }
@@ -601,9 +607,7 @@ Return STRICT JSON matching this schema:
           ]);
 
           const text = response?.text || '';
-          const jsonMatch = text.match(/\{[\s\S]*\}/);
-          if (jsonMatch) {
-            const parsed = JSON.parse(jsonMatch[0]);
+          const parsed = parseGeminiJson(text);
 
             // Normalize elapsed time
             let normalizedElapsed: string | null = null;
@@ -654,7 +658,6 @@ Return STRICT JSON matching this schema:
                 calibrationNote: stepsVal ? `Optical OCR read ${stepsVal.toLocaleString()} steps directly.` : 'Optical OCR calibrated.',
               });
             }
-          }
         } catch (genErr: any) {
           console.warn('Gemini vision API unavailable or interrupted, falling back to pure Tesseract OCR pass:', genErr?.message || genErr);
         }
@@ -802,10 +805,8 @@ Return valid JSON only matching:
           );
 
           const text = response.text || '';
-          const jsonMatch = text.match(/\{[\s\S]*\}/);
-          if (jsonMatch) {
-            const parsed = JSON.parse(jsonMatch[0]);
-            const proteinG = Math.max(0, Math.round(Number(parsed.proteinGrams) || 0));
+          const parsed = parseGeminiJson(text);
+          const proteinG = Math.max(0, Math.round(Number(parsed.proteinGrams) || 0));
             const carbsG = Math.max(0, Math.round(Number(parsed.carbsGrams) || 0));
             const fatG = Math.max(0, Math.round(Number(parsed.fatGrams) || 0));
             
@@ -829,7 +830,6 @@ Return valid JSON only matching:
                 confidenceScore: Math.min(99, Math.max(70, Number(parsed.confidenceScore) || 94)),
               },
             });
-          }
         } catch (aiErr: any) {
           console.warn('Gemini vision API error during meal analysis:', aiErr?.message || aiErr);
         }
@@ -918,11 +918,12 @@ Return valid JSON only matching:
   // 3. AI INTEL MEAL SUGGESTIONS (Macro Target Adaptive)
   app.post('/api/fuel/ai-suggestions', async (req, res) => {
     try {
-      const remainingKcal = Math.max(100, Math.round(Number(req.body.remainingKcal ?? req.body.targetCalories ?? 650)));
-      const remainingProtein = Math.max(10, Math.round(Number(req.body.remainingProtein ?? req.body.targetProtein ?? 40)));
-      const remainingCarbs = Math.max(5, Math.round(Number(req.body.remainingCarbs ?? req.body.targetCarbs ?? 50)));
-      const remainingFats = Math.max(5, Math.round(Number(req.body.remainingFats ?? req.body.targetFats ?? 15)));
-      const slot = (req.body.slot ?? req.body.mealSlot ?? 'lunch').toLowerCase();
+      const remainingKcal = Math.max(100, Math.round(Number(req.body.targetCalories ?? req.body.remainingKcal ?? 650)));
+      const remainingProtein = Math.max(8, Math.round(Number(req.body.targetProtein ?? req.body.remainingProtein ?? 40)));
+      const remainingCarbs = Math.max(0, Math.round(Number(req.body.targetCarbs ?? req.body.remainingCarbs ?? 50)));
+      const remainingFats = Math.max(0, Math.round(Number(req.body.targetFats ?? req.body.remainingFats ?? 15)));
+      const slot = String(req.body.slot ?? req.body.mealSlot ?? 'lunch').toLowerCase();
+      const rotation = Math.max(0, Math.round(Number(req.body.rotation ?? 0)));
       const dietPreference = req.body.dietPreference ?? req.body.diet ?? 'Omnivore';
 
       const genAI = getGenAI();
@@ -941,7 +942,7 @@ ATHLETE CURRENT DEFICIT GAP:
 - Dietary Protocol: ${dietPreference}
 
 Generate 3 distinct, high-performance, real whole-food athlete meal recommendations tailored strictly to the "${dietPreference}" protocol.
-Each meal must hit approximately ${remainingKcal} kcal, ${remainingProtein}g protein, ${remainingCarbs}g carbs, and ${remainingFats}g fats.
+Each meal is ONE ${slot} portion (~${remainingKcal} kcal), not the whole remaining day.
 Specify exact measured ingredients with gram portions.
 
 Respond ONLY with valid JSON in this exact structure:
@@ -964,13 +965,10 @@ Respond ONLY with valid JSON in this exact structure:
           const response = await generateContentWithFallback(genAI, [prompt]);
 
           const text = response.text || '';
-          const jsonMatch = text.match(/\{[\s\S]*\}/);
-          if (jsonMatch) {
-            const parsed = JSON.parse(jsonMatch[0]);
-            if (Array.isArray(parsed.suggestions) && parsed.suggestions.length > 0) {
-              return res.json({ success: true, suggestions: parsed.suggestions, provider: 'gemini-3.8-flash' });
+          const parsed = parseGeminiJson(text);
+          if (Array.isArray(parsed.suggestions) && parsed.suggestions.length > 0) {
+              return res.json({ success: true, suggestions: parsed.suggestions, provider: 'gemini-1.5-flash' });
             }
-          }
         } catch (aiErr) {
           console.warn('Gemini meal suggestions error, calculating live dynamic macros:', aiErr);
         }
@@ -1022,11 +1020,15 @@ Respond ONLY with valid JSON in this exact structure:
       };
 
       const dietOptions = getDietProteins(dietPreference);
+      const start = dietOptions.length ? rotation % dietOptions.length : 0;
+      const rotated = dietOptions.length
+        ? [0, 1, 2].map((i) => dietOptions[(start + i) % dietOptions.length])
+        : dietOptions;
 
-      const dynamicSuggestions = dietOptions.map((opt, idx) => ({
+      const dynamicSuggestions = rotated.map((opt, idx) => ({
         id: `live-sug-${Date.now()}-${idx}`,
         name: opt.proteinName,
-        description: `Calibrated for ${dietPreference} to hit ${remainingProtein}g protein and fill ${remainingKcal} kcal deficit.`,
+        description: `One ${slot} plate for ${dietPreference}: ~${remainingProtein}g protein, ${remainingKcal} kcal — not the full remaining day.`,
         prepTime: idx === 0 ? '12 min' : idx === 1 ? '16 min' : '10 min',
         calories: remainingKcal,
         protein: remainingProtein,
@@ -1047,7 +1049,7 @@ Respond ONLY with valid JSON in this exact structure:
     }
   });
 
-  // 4. REAL-TIME AUSTRALIAN & REGIONAL FOOD DATABASE SEARCH (OpenFoodFacts AU / Global)
+  // Live branded search: OpenFoodFacts. Optional USDA FDC overlay for US when USDA_FDC_API_KEY is set.
   app.get('/api/fuel/live-food-search', async (req, res) => {
     try {
       const q = String(req.query.q || '').trim();
@@ -1055,41 +1057,11 @@ Respond ONLY with valid JSON in this exact structure:
       const category = String(req.query.category || 'protein').toLowerCase();
       const limit = Math.min(Number(req.query.limit) || 40, 100);
 
-      let searchTerm = q;
-      if (!searchTerm) {
-        if (country === 'US') {
-          if (category === 'protein') searchTerm = 'optimum nutrition whey fairlife chicken breast ground beef salmon';
-          else if (category === 'carbs') searchTerm = 'quaker oats brown rice russet potato sweet potato penne bread';
-          else if (category === 'fats') searchTerm = 'olive oil avocado peanut butter almonds walnuts chia seeds';
-          else if (category === 'fastfood') searchTerm = 'chipotle in-n-out chick-fil-a mcdonalds subway panda express';
-          else if (category === 'drinks') searchTerm = 'fairlife milk gatorade celsius cold brew prime hydration';
-          else searchTerm = 'healthy protein meal';
-        } else if (country === 'GB') {
-          if (category === 'protein') searchTerm = 'myprotein chicken breast grenade carb killa arla protein';
-          else if (category === 'carbs') searchTerm = 'quaker oats wholemeal bread brown rice sweet potato';
-          else if (category === 'fats') searchTerm = 'olive oil peanut butter almonds walnuts';
-          else if (category === 'fastfood') searchTerm = 'greggs nandos wagamama subway lean burger';
-          else if (category === 'drinks') searchTerm = 'innocent smoothie costa americano high protein shake';
-          else searchTerm = 'healthy protein meal';
-        } else if (country === 'IN') {
-          if (category === 'protein') searchTerm = 'amul paneer dahi chicken tikka moong dal muscleblaze';
-          else if (category === 'carbs') searchTerm = 'basmati rice roti idli poha oats sweet potato';
-          else if (category === 'fats') searchTerm = 'amul ghee mustard oil almonds cashews coconut';
-          else if (category === 'fastfood') searchTerm = 'biryani paneer tikka momos tandoori subway';
-          else if (category === 'drinks') searchTerm = 'coconut water lassi buttermilk chaas amul kool';
-          else searchTerm = 'indian healthy food';
-        } else {
-          // Default AU / International
-          if (category === 'protein') searchTerm = 'bulk nutrients aussie bodies chicken kangaroo salmon whey';
-          else if (category === 'carbs') searchTerm = 'sunrice oats spud lite sourdough barley quinoa banana';
-          else if (category === 'fats') searchTerm = 'cobram estate olive oil macadamias mayvers peanut butter avocado';
-          else if (category === 'fastfood') searchTerm = 'guzman y gomez mcdonalds parmigiana subway kfc burger schnitzel';
-          else if (category === 'drinks') searchTerm = 'oak milk up & go bundaberg flat white daily juice hydralyte';
-          else searchTerm = 'protein meal';
-        }
+      if (!q) {
+        return res.json({ success: true, items: [], source: 'none', live: false });
       }
 
-      let items: any[] = [];
+      const items: any[] = [];
       const domainMap: Record<string, string> = {
         AU: 'au', US: 'us', GB: 'uk', DE: 'de', FR: 'fr',
         IT: 'it', ES: 'es', NL: 'nl', CA: 'ca', JP: 'jp',
@@ -1099,7 +1071,7 @@ Respond ONLY with valid JSON in this exact structure:
 
       try {
         const offUrl = `https://${offDomain}.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(
-          searchTerm
+          q
         )}&search_simple=1&action=process&json=1&page_size=${Math.min(limit * 2, 40)}`;
 
         const offRes = await fetch(offUrl, {
@@ -1115,7 +1087,7 @@ Respond ONLY with valid JSON in this exact structure:
             for (const p of offData.products) {
               if (!p || (!p.product_name && !p.product_name_en)) continue;
               const name = (p.product_name || p.product_name_en || 'Food Item').trim();
-              const brand = (p.brands || p.brand_owner || (country === 'AU' ? 'Australian Verified Food' : 'Verified Nutrition')).split(',')[0].trim();
+              const brand = (p.brands || p.brand_owner || 'OpenFoodFacts').split(',')[0].trim();
 
               const rawKcal =
                 p.nutriments?.['energy-kcal_100g'] ??
@@ -1149,7 +1121,7 @@ Respond ONLY with valid JSON in this exact structure:
                 servingGrams,
                 category,
                 country,
-                source: country === 'AU' ? 'Australian Verified Food Database' : 'Verified Nutrition Database',
+                source: 'openfoodfacts',
               });
 
               if (items.length >= limit) break;
@@ -1160,7 +1132,58 @@ Respond ONLY with valid JSON in this exact structure:
         console.warn('OpenFoodFacts proxy search failed:', offErr);
       }
 
-      res.json({ success: true, items, source: country === 'AU' ? 'Australian Food Database' : 'Verified Nutrition Database' });
+      const fdcKey = String(process.env.USDA_FDC_API_KEY || '').trim();
+      if (fdcKey && country === 'US' && items.length < limit) {
+        try {
+          const fdcUrl = `https://api.nal.usda.gov/fdc/v1/foods/search?api_key=${encodeURIComponent(fdcKey)}&query=${encodeURIComponent(q)}&pageSize=${Math.min(20, limit)}&dataType=Foundation,SR Legacy,Branded`;
+          const fdcRes = await fetch(fdcUrl, { headers: { Accept: 'application/json' } });
+          if (fdcRes.ok) {
+            const fdcData = await fdcRes.json();
+            const seen = new Set(items.map((it) => String(it.name).toLowerCase()));
+            for (const food of fdcData.foods || []) {
+              const name = String(food.description || '').trim();
+              if (!name) continue;
+              const nutrients = Array.isArray(food.foodNutrients) ? food.foodNutrients : [];
+              const pick = (names: string[]) => {
+                const row = nutrients.find((n: any) => names.includes(String(n.nutrientName || n.nutrient?.name || '')));
+                return Number(row?.value ?? row?.amount ?? 0) || 0;
+              };
+              const calories = Math.round(pick(['Energy', 'Energy (Atwater General Factors)', 'Calories']));
+              const protein = Math.round(pick(['Protein']) * 10) / 10;
+              const carbs = Math.round(pick(['Carbohydrate, by difference', 'Carbohydrate']) * 10) / 10;
+              const fats = Math.round(pick(['Total lipid (fat)', 'Total fat (NLEA)', 'Fat']) * 10) / 10;
+              if (calories <= 0 && protein <= 0 && carbs <= 0 && fats <= 0) continue;
+              if (seen.has(name.toLowerCase())) continue;
+              seen.add(name.toLowerCase());
+              items.push({
+                id: `usda-${food.fdcId}`,
+                name,
+                brand: food.brandOwner || food.brandName || 'USDA FDC',
+                calories,
+                protein,
+                carbs,
+                fats,
+                servingSize: '100g',
+                servingGrams: 100,
+                category,
+                country: 'US',
+                source: 'usda',
+              });
+              if (items.length >= limit) break;
+            }
+          }
+        } catch (fdcErr) {
+          console.warn('USDA FDC overlay failed:', fdcErr);
+        }
+      }
+
+      const sources = Array.from(new Set(items.map((it) => it.source).filter(Boolean)));
+      res.json({
+        success: true,
+        items,
+        source: sources.includes('usda') ? 'openfoodfacts+usda' : 'openfoodfacts',
+        live: true,
+      });
     } catch (err: any) {
       console.error('Error in /api/fuel/live-food-search:', err);
       res.status(500).json({ error: err.message || 'Error searching live food database' });
@@ -1203,16 +1226,13 @@ Respond ONLY with a valid JSON object matching this schema:
 }`;
 
             const response = await genAI.models.generateContent({
-              model: 'gemini-3.8-flash',
+              model: 'gemini-1.5-flash',
               contents: prompt,
             });
 
             const text = response.text || '';
-            const jsonMatch = text.match(/\{[\s\S]*\}/);
-            if (jsonMatch) {
-              const parsed = JSON.parse(jsonMatch[0]);
-              return res.json({ success: true, supplements: [parsed], provider: 'gemini-clinical-search' });
-            }
+            const parsed = parseGeminiJson(text);
+            return res.json({ success: true, supplements: [parsed], provider: 'gemini-clinical-search' });
           } catch (aiErr) {
             console.warn('Gemini supplement lookup fallback:', aiErr);
           }
@@ -1232,84 +1252,74 @@ Respond ONLY with a valid JSON object matching this schema:
   app.post('/api/revenuecat/webhook', handleRevenueCatWebhook);
   app.get('/api/billing/sync-entitlements', handleSyncEntitlements);
 
-  // =========================================================================
-  // STRIPE CONNECT & COACH PAYOUT ENGINE (Express Backend Routes)
-  // =========================================================================
-  app.post('/api/stripe/create-connect-account', async (req, res) => {
+  app.post('/api/account/delete', async (req, res) => {
     try {
-      const origin = req.body?.returnUrl || req.headers.origin || 'http://localhost:3000';
-      const stripeKey = process.env.STRIPE_SECRET_KEY;
-
-      if (stripeKey) {
-        try {
-          const StripeModule = await import('stripe');
-          const Stripe = StripeModule.default;
-          const stripe = new Stripe(stripeKey);
-
-          const account = await stripe.accounts.create({
-            type: 'express',
-            country: 'AU',
-            capabilities: {
-              card_payments: { requested: true },
-              transfers: { requested: true },
-            },
-          });
-
-          const refreshUrl = origin.includes('?') ? `${origin}&stripe=refresh` : `${origin}?stripe=refresh`;
-          const successUrl = origin.includes('?') ? `${origin}&stripe=success` : `${origin}?stripe=success`;
-
-          const accountLink = await stripe.accountLinks.create({
-            account: account.id,
-            refresh_url: refreshUrl,
-            return_url: successUrl,
-            type: 'account_onboarding',
-          });
-
-          return res.json({ url: accountLink.url, accountId: account.id });
-        } catch (stripeErr: any) {
-          console.warn('[Stripe Connect] Notice:', stripeErr.message);
-          const portalUrl = stripeErr.message?.toLowerCase().includes('connect')
-            ? 'https://dashboard.stripe.com/connect/accounts/overview'
-            : `https://connect.stripe.com/express/oauth/authorize?response_type=code&client_id=ca_live&scope=read_write&redirect_uri=${encodeURIComponent(origin + '/coach?tab=earnings&stripe=success')}`;
-          return res.json({ url: portalUrl, warning: stripeErr.message });
-        }
+      const authHeader = String(req.headers.authorization || '');
+      const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7).trim() : '';
+      const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '';
+      const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+      if (!token) {
+        return res.status(401).json({ error: 'Not authenticated.' });
+      }
+      if (!supabaseUrl || !serviceKey) {
+        return res.status(503).json({ error: 'Account deletion is not configured.' });
+      }
+      const admin = createClient(supabaseUrl, serviceKey);
+      const { data: userData, error: userErr } = await admin.auth.getUser(token);
+      const uid = userData?.user?.id;
+      if (userErr || !uid) {
+        return res.status(401).json({ error: 'Not authenticated.' });
       }
 
-      const fallbackUrl = `https://connect.stripe.com/express/oauth/authorize?response_type=code&client_id=ca_live&scope=read_write&redirect_uri=${encodeURIComponent(origin + '/coach?tab=earnings&stripe=success')}`;
-      return res.json({ url: fallbackUrl, accountId: 'acct_express_dev' });
+      const userIdTables = [
+        'workout_logs',
+        'nutrition_logs',
+        'meal_logs',
+        'daily_macros',
+        'completed_sessions',
+        'workout_sessions',
+        'user_telemetry',
+        'user_entitlements',
+        'telemetry_records',
+        'buddy_messages',
+      ];
+      for (const table of userIdTables) {
+        try {
+          await admin.from(table).delete().eq('user_id', uid);
+        } catch {
+          /* table may not exist */
+        }
+      }
+      try {
+        await admin.from('completed_sessions').delete().eq('client_id', uid);
+      } catch {
+        /* ignore */
+      }
+      try {
+        await admin.from('profiles').delete().eq('id', uid);
+      } catch {
+        /* ignore */
+      }
+      try {
+        await admin.from('coach_profiles').delete().eq('id', uid);
+      } catch {
+        /* ignore */
+      }
+
+      const { error: delErr } = await admin.auth.admin.deleteUser(uid);
+      if (delErr) {
+        return res.status(500).json({ error: delErr.message || 'Failed to delete auth user.' });
+      }
+      return res.json({ success: true });
     } catch (err: any) {
-      console.error('Error in /api/stripe/create-connect-account:', err);
-      const origin = req.body?.returnUrl || req.headers.origin || 'http://localhost:3000';
-      return res.json({
-        url: `${origin}?stripe=success`,
-        error: err.message,
-      });
+      return res.status(500).json({ error: err.message || 'Account deletion failed.' });
     }
   });
 
-  app.post('/api/stripe/create-payout', async (req, res) => {
-    try {
-      const { amountCents } = req.body;
-      const payoutId = `po_${Date.now().toString(36)}`;
-      return res.json({ success: true, payoutId, transferId: payoutId, amountCents });
-    } catch (err: any) {
-      return res.status(500).json({ error: err.message || 'Payout failed' });
-    }
-  });
-
-  app.post('/api/stripe/create-login-link', async (_req, res) => {
-    try {
-      return res.json({ url: 'https://dashboard.stripe.com/express' });
-    } catch (err: any) {
-      return res.status(500).json({ error: err.message || 'Failed to generate login link' });
-    }
-  });
-
-  // Stripe Identity Verification Session Route
-  app.post('/api/stripe/create-identity-session', handleCreateIdentitySession);
-
-  // Stripe Identity Webhook Handler
-  app.post('/api/stripe/webhook', handleStripeIdentityWebhook);
+  // =========================================================================
+  // STRIPE CONNECT & COACH PAYOUTS (every /api/stripe/* needs a Supabase Bearer JWT; webhook uses signature)
+  // =========================================================================
+  registerStripeRoutes(app);
 
   // =========================================================================
   // PUBLIC COMPLIANCE & LEGAL ROUTES (Google Play & Apple Review Standards)
@@ -1340,7 +1350,14 @@ Respond ONLY with a valid JSON object matching this schema:
   // =========================================================================
   if (process.env.NODE_ENV !== 'production') {
     const vite = await createViteServer({
-      server: { middlewareMode: true },
+      server: {
+        middlewareMode: true,
+        host: true,
+        allowedHosts: true as const,
+        hmr: process.env.DISABLE_HMR === 'true'
+          ? false
+          : { protocol: 'ws', clientPort: PORT },
+      },
       appType: 'spa',
     });
     app.use(vite.middlewares);

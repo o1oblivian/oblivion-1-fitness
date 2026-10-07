@@ -140,17 +140,16 @@ export const MifflinStJeorModal: React.FC<MifflinStJeorModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-150 select-none">
-      <div className="w-full max-w-lg bg-[#121214] border border-neutral-800 rounded-t-3xl sm:rounded-3xl p-5 shadow-2xl flex flex-col max-h-[92vh] overflow-hidden text-neutral-100">
-        {/* Header */}
-        <div className="flex items-center justify-between pb-3 border-b border-neutral-800 shrink-0">
+    <div className="fixed inset-0 z-50 bg-black/70 o1-sheet-scrim flex items-center justify-center animate-in fade-in duration-150 select-none">
+      <div className="o1-sheet-card bg-o1-card border border-white/[0.07] p-3.5 shadow-xl flex flex-col overflow-hidden text-neutral-100">
+        <div className="flex items-center justify-between pb-3 border-b border-white/[0.05] shrink-0">
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-8 h-8 rounded-xl bg-[#C4121A]/10 border border-[#C4121A]/30 flex items-center justify-center text-[#C4121A] shrink-0">
-              <Flame className="w-4 h-4 text-[#C4121A]" />
+            <div className="w-8 h-8 rounded-xl bg-o1-crimson/10 border border-o1-crimson/30 flex items-center justify-center text-o1-crimson shrink-0">
+              <Flame className="w-4 h-4 text-o1-crimson" />
             </div>
             <div className="min-w-0">
               <h3 className="font-bold text-sm text-white leading-tight truncate">
-                Energy Engine (Mifflin &amp; Lean Mass)
+                Energy Engine
               </h3>
               <p className="text-[10px] text-neutral-400 truncate">
                 Personalized Calories, Mass Goals &amp; Evidence-Based Macros
@@ -163,7 +162,7 @@ export const MifflinStJeorModal: React.FC<MifflinStJeorModalProps> = ({
               tactileEngine.triggerSelectionBuzz();
               onClose();
             }}
-            className="w-8 h-8 rounded-full bg-[#18181b] hover:bg-[#27272a] border border-neutral-800 flex items-center justify-center text-neutral-400 hover:text-white cursor-pointer transition-colors shrink-0 ml-2"
+            className="w-8 h-8 rounded-full bg-o1-well hover:bg-white/[0.06] border border-white/[0.07] flex items-center justify-center text-neutral-400 hover:text-white cursor-pointer transition-colors shrink-0 ml-2"
             aria-label="Close"
           >
             <X className="w-4 h-4" />
@@ -211,15 +210,42 @@ export const MifflinStJeorModal: React.FC<MifflinStJeorModalProps> = ({
             setMacroKey={setMacroKey}
             proteinPerKg={proteinPerKg}
             setProteinPerKg={setProteinPerKg}
-            netTargetCalories={netTargetCalories}
-            bmr={bmr}
-            tdee={tdee}
-            macroBreakdown={macroBreakdown}
           />
         </div>
 
-        {/* Sticky Apply Button */}
-        <div className="pt-3 border-t border-neutral-800 shrink-0">
+        <div className="pt-3 border-t border-white/[0.05] shrink-0 space-y-2.5">
+          <div className="bg-o1-well border border-white/[0.07] rounded-2xl p-3">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[10px] font-mono uppercase font-bold text-neutral-400">Blueprint</span>
+              <span className="text-[10px] font-mono font-bold text-o1-crimson">
+                {netTargetCalories.toLocaleString()} kcal/day
+              </span>
+            </div>
+            <div className="grid grid-cols-3 gap-1.5 text-center font-mono mb-2">
+              <div>
+                <span className="text-[9px] text-neutral-400 block">BMR</span>
+                <span className="text-xs font-bold">{bmr.toLocaleString()}</span>
+              </div>
+              <div>
+                <span className="text-[9px] text-neutral-400 block">TDEE</span>
+                <span className="text-xs font-bold">{tdee.toLocaleString()}</span>
+              </div>
+              <div>
+                <span className="text-[9px] text-o1-crimson block">Target</span>
+                <span className="text-xs font-bold text-o1-crimson">{netTargetCalories.toLocaleString()}</span>
+              </div>
+            </div>
+            <div className="h-1.5 w-full bg-o1-card rounded-full overflow-hidden flex">
+              <div style={{ width: `${macroBreakdown.pPct}%` }} className="bg-o1-crimson h-full" />
+              <div style={{ width: `${macroBreakdown.cPct}%` }} className="bg-amber-500 h-full" />
+              <div style={{ width: `${macroBreakdown.fPct}%` }} className="bg-emerald-600 h-full" />
+            </div>
+            <div className="grid grid-cols-3 gap-1 text-center font-mono mt-2">
+              <span className="text-[10px] text-o1-crimson">{macroBreakdown.proteinG}g P</span>
+              <span className="text-[10px] text-amber-400">{macroBreakdown.carbsG}g C</span>
+              <span className="text-[10px] text-emerald-400">{macroBreakdown.fatsG}g F</span>
+            </div>
+          </div>
           <button
             type="button"
             onClick={() => {
@@ -233,7 +259,7 @@ export const MifflinStJeorModal: React.FC<MifflinStJeorModalProps> = ({
               );
               onClose();
             }}
-            className="w-full py-3.5 rounded-2xl bg-[#C4121A] hover:bg-[#a60f16] active:scale-98 text-white font-mono text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg transition-all cursor-pointer"
+            className="w-full py-2.5 rounded-xl bg-zinc-100 hover:bg-white text-neutral-950 font-semibold text-xs tracking-wide flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer"
           >
             <Check className="w-4 h-4 stroke-[3]" />
             <span>Apply Blueprint ({netTargetCalories.toLocaleString()} kcal)</span>

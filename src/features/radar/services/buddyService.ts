@@ -105,7 +105,7 @@ export async function syncUserBuddyLocation(
 export async function searchAthletesWithSupabase(
   query: string,
   baseAthletes: DemoAthlete[] = [],
-  userCoords: Coordinates = { latitude: -37.8136, longitude: 144.9631 },
+  userCoords: Coordinates,
   radiusKm: number = 25
 ): Promise<{ results: DemoAthlete[]; fromSupabase: boolean }> {
   const cleanQuery = query.trim().toLowerCase();

@@ -8,6 +8,7 @@ interface CardioScanUploaderProps {
   isScanning: boolean;
   cameraInputRef: RefObject<HTMLInputElement | null>;
   fileInputRef: RefObject<HTMLInputElement | null>;
+  onCameraCapture?: () => void;
 }
 
 export const CardioScanUploader: React.FC<CardioScanUploaderProps> = ({
@@ -17,18 +18,19 @@ export const CardioScanUploader: React.FC<CardioScanUploaderProps> = ({
   isScanning,
   cameraInputRef,
   fileInputRef,
+  onCameraCapture,
 }) => {
   return (
     <div className="space-y-3">
       {/* Mode Switcher */}
-      <div className="grid grid-cols-2 p-1 rounded-2xl bg-neutral-100 dark:bg-[#18181c] border border-neutral-200 dark:border-neutral-800 text-xs font-mono">
+      <div className="grid grid-cols-2 p-1 rounded-2xl bg-o1-well border border-white/[0.07] text-xs font-mono">
         <button
           type="button"
           onClick={() => setScanMode('console')}
           className={`py-2 px-3 rounded-xl flex items-center justify-center gap-1.5 transition-all font-bold cursor-pointer ${
             scanMode === 'console'
-              ? 'bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 shadow-sm'
-              : 'text-neutral-500 hover:text-neutral-900 dark:hover:text-white'
+              ? 'bg-white text-neutral-900 shadow-sm'
+              : 'text-neutral-500 hover:text-white'
           }`}
         >
           <Gauge className="w-3.5 h-3.5" />
@@ -40,8 +42,8 @@ export const CardioScanUploader: React.FC<CardioScanUploaderProps> = ({
           onClick={() => setScanMode('watch')}
           className={`py-2 px-3 rounded-xl flex items-center justify-center gap-1.5 transition-all font-bold cursor-pointer ${
             scanMode === 'watch'
-              ? 'bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 shadow-sm'
-              : 'text-neutral-500 hover:text-neutral-900 dark:hover:text-white'
+              ? 'bg-white text-neutral-900 shadow-sm'
+              : 'text-neutral-500 hover:text-white'
           }`}
         >
           <Watch className="w-3.5 h-3.5" />
@@ -50,13 +52,13 @@ export const CardioScanUploader: React.FC<CardioScanUploaderProps> = ({
       </div>
 
       {/* Upload Zone */}
-      <div className="relative border-2 border-dashed border-neutral-300 dark:border-neutral-700 hover:border-cyan-500/60 rounded-3xl p-4 transition-all text-center bg-neutral-50/50 dark:bg-[#141416]/50">
+      <div className="relative border border-dashed border-white/[0.07] hover:border-sky-500/60 rounded-2xl p-4 transition-all text-center bg-o1-card/50">
         {imagePreview ? (
           <div className="relative w-full aspect-video rounded-2xl overflow-hidden bg-black mb-3">
             <img src={imagePreview} alt="OCR Scan Preview" className="w-full h-full object-contain" />
             {isScanning && (
               <div className="absolute inset-0 bg-black/70 backdrop-blur-xs flex flex-col items-center justify-center gap-2">
-                <Loader2 className="w-7 h-7 text-cyan-500 animate-spin" />
+                <Loader2 className="w-7 h-7 text-sky-500 animate-spin" />
                 <span className="text-xs font-tactical font-black tracking-wider uppercase text-white">
                   Extracting Telemetry & Steps...
                 </span>
@@ -65,13 +67,13 @@ export const CardioScanUploader: React.FC<CardioScanUploaderProps> = ({
           </div>
         ) : (
           <div className="py-4 space-y-2">
-            <div className="w-12 h-12 rounded-2xl bg-neutral-100 dark:bg-neutral-800/60 border border-neutral-200 dark:border-neutral-700/60 text-neutral-500 dark:text-neutral-400 flex items-center justify-center mx-auto">
+            <div className="w-12 h-12 rounded-2xl bg-white/[0.08] border border-white/[0.07] text-neutral-400 flex items-center justify-center mx-auto">
               <Camera className="w-6 h-6" />
             </div>
-            <p className="text-xs font-mono font-bold uppercase tracking-wider text-neutral-700 dark:text-neutral-300">
+            <p className="text-xs font-mono font-bold uppercase tracking-wider text-neutral-300">
               Sensor Standby
             </p>
-            <p className="text-[10px] text-neutral-500 dark:text-neutral-400 max-w-xs mx-auto">
+            <p className="text-[10px] text-neutral-400 max-w-xs mx-auto">
               {scanMode === 'watch'
                 ? 'Optical sensors standby. Capture watch face or pedometer step count display.'
                 : 'Optical sensors standby. Capture treadmill, bike, or rower console output.'}
@@ -82,8 +84,8 @@ export const CardioScanUploader: React.FC<CardioScanUploaderProps> = ({
         <div className="grid grid-cols-2 gap-2 mt-2">
           <button
             type="button"
-            onClick={() => cameraInputRef.current?.click()}
-            className="py-2.5 px-3 rounded-2xl bg-cyan-500 hover:bg-cyan-400 text-black font-black text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-95 shadow-xs"
+            onClick={() => (onCameraCapture ? onCameraCapture() : cameraInputRef.current?.click())}
+            className="py-2.5 px-3 rounded-2xl bg-sky-500 hover:bg-sky-400 text-black font-black text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-95 shadow-xs"
           >
             <Camera className="w-4 h-4" />
             <span>Camera</span>
@@ -92,7 +94,7 @@ export const CardioScanUploader: React.FC<CardioScanUploaderProps> = ({
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
-            className="py-2.5 px-3 rounded-2xl bg-neutral-100 dark:bg-[#18181c] border border-neutral-300 dark:border-neutral-700 hover:bg-neutral-200 dark:hover:bg-neutral-800 text-neutral-900 dark:text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-95"
+            className="py-2.5 px-3 rounded-2xl bg-o1-well border border-white/[0.07] hover:bg-white/[0.06] text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-95"
           >
             <Upload className="w-4 h-4" />
             <span>Upload</span>

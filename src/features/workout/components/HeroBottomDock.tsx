@@ -6,7 +6,6 @@ export interface HeroBottomDockProps {
   activeDay: string;
   activeSplitLabel: string;
   isPresentDay: boolean;
-  isWorkoutLoaded?: boolean;
   onOpenCardio?: () => void;
   onCycleDayDial: () => void;
   onLoadWorkout: () => void;
@@ -17,7 +16,6 @@ export const HeroBottomDock: React.FC<HeroBottomDockProps> = ({
   activeDay,
   activeSplitLabel,
   isPresentDay,
-  isWorkoutLoaded = false,
   onOpenCardio,
   onCycleDayDial,
   onLoadWorkout,
@@ -46,21 +44,21 @@ export const HeroBottomDock: React.FC<HeroBottomDockProps> = ({
       </button>
 
       {/* 2. Middle Pill: DAY | SPLIT */}
-      <div className="h-8 px-3.5 rounded-full bg-black/60 border border-white/20 font-mono text-xs flex items-center justify-center gap-1.5 shrink-0 shadow-none">
+      <div className="h-8 px-3.5 rounded-full bg-black/60 border border-white/[0.07] font-mono text-xs flex items-center justify-center gap-1.5 shrink-0 shadow-none">
         <button
           type="button"
           id="hero-cycle-day-btn"
-          title={isPresentDay && !isWorkoutLoaded ? "Load Workout for Today" : "Cycle to Next Day"}
+          title={isPresentDay ? "Load today's saved workout" : "Browse day"}
           onClick={(e) => {
             e.stopPropagation();
             tactileEngine.triggerSelectionBuzz();
-            if (isPresentDay && !isWorkoutLoaded) {
+            if (isPresentDay) {
               onLoadWorkout();
             } else {
               onCycleDayDial();
             }
           }}
-          className="text-[#C4121A] font-black uppercase tracking-wider hover:opacity-80 active:scale-90 transition cursor-pointer"
+          className="text-o1-crimson font-black uppercase tracking-wider hover:opacity-80 active:scale-90 transition cursor-pointer"
         >
           {activeDay || 'THU'}
         </button>
@@ -68,15 +66,11 @@ export const HeroBottomDock: React.FC<HeroBottomDockProps> = ({
         <button
           type="button"
           id="hero-load-workout-btn"
-          title={isPresentDay && !isWorkoutLoaded ? "Load Active Routine" : "Cycle to Next Day"}
+          title="Browse day dials"
           onClick={(e) => {
             e.stopPropagation();
             tactileEngine.triggerSelectionBuzz();
-            if (isPresentDay && !isWorkoutLoaded) {
-              onLoadWorkout();
-            } else {
-              onCycleDayDial();
-            }
+            onCycleDayDial();
           }}
           className="text-white font-extrabold uppercase tracking-wider hover:opacity-80 active:scale-95 transition cursor-pointer"
         >

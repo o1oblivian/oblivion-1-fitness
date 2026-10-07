@@ -73,28 +73,28 @@ export const WeeklyReportModal: React.FC<WeeklyReportModalProps> = ({ isOpen, on
   return (
     <div
       onClick={onClose}
-      className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-3 select-none animate-in fade-in duration-150"
+      className="fixed inset-0 z-50 bg-black/70 o1-sheet-scrim flex items-center justify-center select-none animate-in fade-in duration-150"
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="bg-white dark:bg-[#121217] text-neutral-900 dark:text-neutral-100 rounded-3xl w-full max-w-[480px] max-h-[92dvh] h-auto flex flex-col shadow-2xl overflow-hidden border border-neutral-200/80 dark:border-white/10 transition-colors"
+        className="o1-sheet-card bg-o1-card text-neutral-100 w-full flex flex-col shadow-xl overflow-hidden border border-white/[0.07] transition-colors"
       >
         {/* Header */}
-        <div className="p-4 sm:p-5 pb-3 border-b border-neutral-100 dark:border-white/10 flex items-start justify-between">
+        <div className="p-4 sm:p-5 pb-3 border-b border-white/[0.05] flex items-start justify-between">
           <div className="space-y-1">
             <div className="flex items-center gap-1.5">
-              <span className="font-tactical text-[10px] font-black uppercase text-neutral-400 dark:text-neutral-500 tracking-wider">
+              <span className="font-tactical text-[10px] font-black uppercase text-neutral-500 tracking-wider">
                 MICROCYCLE TELEMETRY
               </span>
             </div>
-            <h3 className="text-sm font-tactical font-black uppercase tracking-wider text-neutral-900 dark:text-white">
+            <h3 className="text-sm font-tactical font-black uppercase tracking-wider text-white">
               Performance Intelligence Card
             </h3>
             <div className="flex items-center gap-1.5 pt-0.5">
-              <span className="bg-neutral-100 dark:bg-white/5 text-neutral-700 dark:text-neutral-300 font-tactical text-[10px] font-bold px-2.5 py-0.5 rounded-full tracking-wide">
+              <span className="bg-white/5 text-neutral-300 font-tactical text-[10px] font-bold px-2.5 py-0.5 rounded-full tracking-wide">
                 Current Microcycle
               </span>
-              <span className="bg-[#C4121A]/10 text-[#C4121A] font-tactical text-[10px] font-black px-2.5 py-0.5 rounded-full tracking-wider uppercase">
+              <span className="bg-o1-crimson/10 text-o1-crimson font-tactical text-[10px] font-black px-2.5 py-0.5 rounded-full tracking-wider uppercase">
                 {isGenuineEmpty ? 'INITIALIZING CYCLE' : 'ACTIVE MICROCYCLE'}
               </span>
             </div>
@@ -102,7 +102,7 @@ export const WeeklyReportModal: React.FC<WeeklyReportModalProps> = ({ isOpen, on
           <button
             type="button"
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-neutral-100 dark:bg-white/10 hover:bg-neutral-200 dark:hover:bg-white/20 text-neutral-600 dark:text-neutral-300 flex items-center justify-center transition-colors cursor-pointer"
+            className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-neutral-300 flex items-center justify-center transition-colors cursor-pointer"
             aria-label="Close"
           >
             <X className="w-4 h-4" />
@@ -110,7 +110,7 @@ export const WeeklyReportModal: React.FC<WeeklyReportModalProps> = ({ isOpen, on
         </div>
 
         {/* Sub-Navigation Tabs */}
-        <div className="px-4 sm:px-5 py-2.5 bg-neutral-50/80 dark:bg-white/[0.02] border-b border-neutral-100 dark:border-white/10 flex items-center gap-1.5 overflow-x-auto no-scrollbar">
+        <div className="px-4 sm:px-5 py-2.5 bg-white/[0.02] border-b border-white/[0.05] flex items-center gap-1.5 overflow-x-auto no-scrollbar">
           {[
             { id: 'overview', label: 'Overview' },
             { id: 'volume', label: 'Volume & Kinetic' },
@@ -126,8 +126,8 @@ export const WeeklyReportModal: React.FC<WeeklyReportModalProps> = ({ isOpen, on
               }}
               className={`text-xs font-tactical font-bold uppercase tracking-wider px-3.5 py-1.5 rounded-full shrink-0 transition-all cursor-pointer ${
                 activeTab === tab.id
-                  ? 'bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 shadow-xs'
-                  : 'bg-white dark:bg-white/5 text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white border border-neutral-200/80 dark:border-white/10'
+                  ? 'bg-white text-neutral-900 shadow-xs'
+                  : 'bg-white/5 text-neutral-400 hover:text-white border border-white/[0.07]'
               }`}
             >
               {tab.label}
@@ -142,25 +142,25 @@ export const WeeklyReportModal: React.FC<WeeklyReportModalProps> = ({ isOpen, on
             <div className="space-y-4 animate-in fade-in duration-150">
               {/* Scoreboard & Sweet-Spot Metrics */}
               <div className="grid grid-cols-2 gap-2.5">
-                <div className="bg-neutral-50 dark:bg-white/5 border border-neutral-200/80 dark:border-white/10 rounded-2xl p-3">
-                  <span className="font-tactical text-[10px] uppercase text-neutral-400 dark:text-neutral-500 font-black tracking-wider block">
+                <div className="bg-white/5 border border-white/[0.07] rounded-2xl p-3">
+                  <span className="font-tactical text-[10px] uppercase text-neutral-500 font-black tracking-wider block">
                     DELOAD BASELINE
                   </span>
                   <div className="flex items-baseline gap-1 mt-1">
-                    <span className="text-xl sm:text-2xl font-tactical font-black text-neutral-900 dark:text-white">
+                    <span className="text-lg font-tactical font-semibold text-white">
                       {deloadGrade}
                     </span>
                   </div>
                 </div>
-                <div className="bg-neutral-50 dark:bg-white/5 border border-neutral-200/80 dark:border-white/10 rounded-2xl p-3">
-                  <span className="font-tactical text-[10px] uppercase text-neutral-400 dark:text-neutral-500 font-black tracking-wider block">
+                <div className="bg-white/5 border border-white/[0.07] rounded-2xl p-3">
+                  <span className="font-tactical text-[10px] uppercase text-neutral-500 font-black tracking-wider block">
                     MICROCYCLE SCORE
                   </span>
                   <div className="flex items-baseline gap-1 mt-1">
-                    <span className="text-2xl font-tactical font-black text-[#C4121A]">
+                    <span className="text-lg font-tactical font-semibold text-o1-crimson">
                       {microcycleScore}
                     </span>
-                    <span className="text-xs font-tactical font-bold text-neutral-400 dark:text-neutral-500">
+                    <span className="text-xs font-tactical font-bold text-neutral-500">
                       / 100
                     </span>
                   </div>
@@ -169,20 +169,20 @@ export const WeeklyReportModal: React.FC<WeeklyReportModalProps> = ({ isOpen, on
 
               {/* Telemetry Chips */}
               <div className="flex items-center gap-2">
-                <div className="flex-1 bg-neutral-50 dark:bg-white/5 border border-neutral-200/80 dark:border-white/10 rounded-xl p-2.5 flex items-center justify-between">
-                  <span className="font-tactical text-xs font-bold text-neutral-600 dark:text-neutral-400 tracking-wide uppercase">ACWR Ratio</span>
+                <div className="flex-1 bg-white/5 border border-white/[0.07] rounded-xl p-2.5 flex items-center justify-between">
+                  <span className="font-tactical text-xs font-bold text-neutral-400 tracking-wide uppercase">ACWR Ratio</span>
                   <div className="flex items-center gap-1.5">
-                    <span className="font-tactical font-black text-neutral-900 dark:text-white">{acwrRatio}</span>
-                    <span className="bg-cyan-100 dark:bg-cyan-950/60 text-cyan-800 dark:text-cyan-300 font-tactical text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded">
+                    <span className="font-tactical font-black text-white">{acwrRatio}</span>
+                    <span className="bg-sky-950/60 text-sky-300 font-tactical text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded">
                       {isGenuineEmpty ? 'Calibrating' : 'Sweet Spot'}
                     </span>
                   </div>
                 </div>
-                <div className="flex-1 bg-neutral-50 dark:bg-white/5 border border-neutral-200/80 dark:border-white/10 rounded-xl p-2.5 flex items-center justify-between">
-                  <span className="font-tactical text-xs font-bold text-neutral-600 dark:text-neutral-400 tracking-wide uppercase">CNS Readiness</span>
+                <div className="flex-1 bg-white/5 border border-white/[0.07] rounded-xl p-2.5 flex items-center justify-between">
+                  <span className="font-tactical text-xs font-bold text-neutral-400 tracking-wide uppercase">CNS Readiness</span>
                   <div className="flex items-center gap-1.5">
-                    <span className="font-tactical font-black text-neutral-900 dark:text-white">{cnsReadiness}</span>
-                    <span className="bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 font-tactical text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded">
+                    <span className="font-tactical font-black text-white">{cnsReadiness}</span>
+                    <span className="bg-emerald-950/60 text-emerald-300 font-tactical text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded">
                       {isGenuineEmpty ? 'Baseline' : 'Optimal'}
                     </span>
                   </div>
@@ -205,7 +205,7 @@ export const WeeklyReportModal: React.FC<WeeklyReportModalProps> = ({ isOpen, on
                   {
                     label: 'MECHANICAL WORK',
                     pct: isGenuineEmpty ? 0 : Math.min(100, Math.round((microcycleTonnage / 25000) * 100)),
-                    color: 'bg-[#C4121A]',
+                    color: 'bg-o1-crimson',
                     meta: isGenuineEmpty ? '0 sessions • 0 kg' : `${totalLoggedSessions} sessions • ${(microcycleTonnage / 1000).toFixed(1)}k kg`,
                   },
                   {
@@ -217,7 +217,7 @@ export const WeeklyReportModal: React.FC<WeeklyReportModalProps> = ({ isOpen, on
                   {
                     label: 'AUTONOMIC RESET',
                     pct: 80,
-                    color: 'bg-cyan-500',
+                    color: 'bg-sky-500',
                     meta: '8.0h target sleep',
                   },
                   {
@@ -229,10 +229,10 @@ export const WeeklyReportModal: React.FC<WeeklyReportModalProps> = ({ isOpen, on
                 ].map((bar) => (
                   <div key={bar.label} className="space-y-1">
                     <div className="flex justify-between font-tactical text-[11px]">
-                      <span className="font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wide">{bar.label}</span>
-                      <span className="text-neutral-500 dark:text-neutral-400 font-sans">{bar.meta}</span>
+                      <span className="font-bold text-neutral-200 uppercase tracking-wide">{bar.label}</span>
+                      <span className="text-neutral-400 font-sans">{bar.meta}</span>
                     </div>
-                    <div className="w-full bg-neutral-100 dark:bg-white/10 rounded-full h-2 overflow-hidden">
+                    <div className="w-full bg-white/10 rounded-full h-2 overflow-hidden">
                       <div style={{ width: `${bar.pct}%` }} className={`h-full rounded-full ${bar.color} transition-all duration-500`} />
                     </div>
                   </div>
@@ -244,20 +244,20 @@ export const WeeklyReportModal: React.FC<WeeklyReportModalProps> = ({ isOpen, on
           {/* TAB 2: VOLUME & KINETIC */}
           {activeTab === 'volume' && (
             <div className="space-y-3.5 animate-in fade-in duration-150">
-              <div className="p-3.5 rounded-2xl bg-neutral-50 dark:bg-white/5 border border-neutral-200/80 dark:border-white/10 space-y-2">
+              <div className="p-3.5 rounded-2xl bg-white/5 border border-white/[0.07] space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="font-tactical text-[10px] uppercase font-black tracking-wider text-neutral-400 dark:text-neutral-500">
+                  <span className="font-tactical text-[10px] uppercase font-black tracking-wider text-neutral-500">
                     MECHANICAL WORK &amp; KINETIC STAMP
                   </span>
-                  <BarChart2 className="w-4 h-4 text-[#C4121A]" />
+                  <BarChart2 className="w-4 h-4 text-o1-crimson" />
                 </div>
                 <div className="flex items-baseline gap-2">
-                  <span className="text-2xl font-black font-tactical text-neutral-900 dark:text-white">
+                  <span className="text-2xl font-black font-tactical text-white">
                     {microcycleTonnage.toLocaleString()}
                   </span>
                   <span className="text-xs font-tactical font-bold text-neutral-500 uppercase tracking-wider">KG TOTAL TONNAGE</span>
                 </div>
-                <p className="text-[11px] text-neutral-600 dark:text-neutral-400 leading-relaxed font-sans">
+                <p className="text-[11px] text-neutral-400 leading-relaxed font-sans">
                   {isGenuineEmpty
                     ? 'No recorded mechanical work yet. Complete a training session in the Active Log to plot Olympic bar velocity and tonnage.'
                     : 'Reactive microcycle mechanical work synthesized directly from your logged sets and reps.'}
@@ -266,11 +266,11 @@ export const WeeklyReportModal: React.FC<WeeklyReportModalProps> = ({ isOpen, on
 
               {/* Kinetic metrics grid */}
               <div className="grid grid-cols-2 gap-2.5">
-                <div className="p-3 rounded-2xl bg-neutral-50 dark:bg-white/5 border border-neutral-200/80 dark:border-white/10 space-y-1">
+                <div className="p-3 rounded-2xl bg-white/5 border border-white/[0.07] space-y-1">
                   <span className="text-[10px] font-tactical uppercase text-neutral-400 font-bold tracking-wider block">
                     MEAN CONCENTRIC VELOCITY
                   </span>
-                  <span className="text-lg font-black font-tactical text-neutral-900 dark:text-white">
+                  <span className="text-lg font-black font-tactical text-white">
                     {isGenuineEmpty ? '-- m/s' : '0.68 m/s'}
                   </span>
                   <span className="text-[9px] text-neutral-500 block font-sans">
@@ -278,23 +278,23 @@ export const WeeklyReportModal: React.FC<WeeklyReportModalProps> = ({ isOpen, on
                   </span>
                 </div>
 
-                <div className="p-3 rounded-2xl bg-neutral-50 dark:bg-white/5 border border-neutral-200/80 dark:border-white/10 space-y-1">
+                <div className="p-3 rounded-2xl bg-white/5 border border-white/[0.07] space-y-1">
                   <span className="text-[10px] font-tactical uppercase text-neutral-400 font-bold tracking-wider block">
                     VELOCITY FATIGUE DROP
                   </span>
-                  <span className="text-lg font-black font-tactical text-[#C4121A]">
+                  <span className="text-lg font-black font-tactical text-o1-crimson">
                     {isGenuineEmpty ? '--%' : '8.5%'}
                   </span>
-                  <span className="text-[9px] text-emerald-600 dark:text-emerald-400 block font-sans font-semibold">
+                  <span className="text-[9px] text-emerald-400 block font-sans font-semibold">
                     Normal fatigue rate
                   </span>
                 </div>
 
-                <div className="p-3 rounded-2xl bg-neutral-50 dark:bg-white/5 border border-neutral-200/80 dark:border-white/10 space-y-1">
+                <div className="p-3 rounded-2xl bg-white/5 border border-white/[0.07] space-y-1">
                   <span className="text-[10px] font-tactical uppercase text-neutral-400 font-bold tracking-wider block">
                     COMPLETED SETS
                   </span>
-                  <span className="text-lg font-black font-tactical text-neutral-900 dark:text-white">
+                  <span className="text-lg font-black font-tactical text-white">
                     {microcycleSets} Sets
                   </span>
                   <span className="text-[9px] text-neutral-500 block font-sans">
@@ -302,11 +302,11 @@ export const WeeklyReportModal: React.FC<WeeklyReportModalProps> = ({ isOpen, on
                   </span>
                 </div>
 
-                <div className="p-3 rounded-2xl bg-neutral-50 dark:bg-white/5 border border-neutral-200/80 dark:border-white/10 space-y-1">
+                <div className="p-3 rounded-2xl bg-white/5 border border-white/[0.07] space-y-1">
                   <span className="text-[10px] font-tactical uppercase text-neutral-400 font-bold tracking-wider block">
                     STRIKE RATE
                   </span>
-                  <span className="text-lg font-black font-tactical text-neutral-900 dark:text-white">
+                  <span className="text-lg font-black font-tactical text-white">
                     {isGenuineEmpty ? '0%' : '100%'}
                   </span>
                   <span className="text-[9px] text-neutral-500 block font-sans">
@@ -320,45 +320,45 @@ export const WeeklyReportModal: React.FC<WeeklyReportModalProps> = ({ isOpen, on
           {/* TAB 3: ENERGY FLUX */}
           {activeTab === 'energy' && (
             <div className="space-y-3.5 animate-in fade-in duration-150">
-              <div className="p-3.5 rounded-2xl bg-neutral-50 dark:bg-white/5 border border-neutral-200/80 dark:border-white/10 space-y-2">
+              <div className="p-3.5 rounded-2xl bg-white/5 border border-white/[0.07] space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="font-tactical text-[10px] uppercase font-black tracking-wider text-neutral-400 dark:text-neutral-500">
+                  <span className="font-tactical text-[10px] uppercase font-black tracking-wider text-neutral-500">
                     METABOLIC &amp; SUBSTRATE FLUX
                   </span>
                   <Flame className="w-4 h-4 text-amber-500" />
                 </div>
                 <div className="flex items-baseline gap-2">
-                  <span className="text-2xl font-black font-tactical text-neutral-900 dark:text-white">
+                  <span className="text-2xl font-black font-tactical text-white">
                     {consumedCalories > 0 ? consumedCalories.toLocaleString() : (fuel.calorieTarget || 2200).toLocaleString()}
                   </span>
                   <span className="text-xs font-tactical font-bold text-neutral-500 uppercase tracking-wider">KCAL / DAY MEAN FLUX</span>
                 </div>
-                <p className="text-[11px] text-neutral-600 dark:text-neutral-400 leading-relaxed font-sans">
+                <p className="text-[11px] text-neutral-400 leading-relaxed font-sans">
                   Real-time metabolic flux synthesized with the Fuel tracker.
                 </p>
               </div>
 
               {/* Substrate partitions */}
               <div className="grid grid-cols-2 gap-2.5">
-                <div className="p-3 rounded-2xl bg-neutral-50 dark:bg-white/5 border border-neutral-200/80 dark:border-white/10 space-y-1">
+                <div className="p-3 rounded-2xl bg-white/5 border border-white/[0.07] space-y-1">
                   <div className="flex items-center gap-1.5 text-neutral-500">
-                    <Droplets className="w-3.5 h-3.5 text-cyan-500" />
+                    <Droplets className="w-3.5 h-3.5 text-sky-500" />
                     <span className="text-[10px] font-tactical uppercase font-black tracking-wider">HYDRATION BALANCE</span>
                   </div>
-                  <span className="text-lg font-black font-tactical text-neutral-900 dark:text-white block">
+                  <span className="text-lg font-black font-tactical text-white block">
                     {`${fuel.hydrationCurrentL || 2.5} L / day`}
                   </span>
-                  <span className="text-[9px] text-cyan-600 dark:text-cyan-400 font-sans font-semibold block">
+                  <span className="text-[9px] text-sky-400 font-sans font-semibold block">
                     Electrolyte parity maintained
                   </span>
                 </div>
 
-                <div className="p-3 rounded-2xl bg-neutral-50 dark:bg-white/5 border border-neutral-200/80 dark:border-white/10 space-y-1">
+                <div className="p-3 rounded-2xl bg-white/5 border border-white/[0.07] space-y-1">
                   <div className="flex items-center gap-1.5 text-neutral-500">
-                    <Moon className="w-3.5 h-3.5 text-blue-500" />
+                    <Moon className="w-3.5 h-3.5 text-sky-500" />
                     <span className="text-[10px] font-tactical uppercase font-black tracking-wider">AUTONOMIC REST</span>
                   </div>
-                  <span className="text-lg font-black font-tactical text-neutral-900 dark:text-white block">
+                  <span className="text-lg font-black font-tactical text-white block">
                     8.0 hrs target
                   </span>
                   <span className="text-[9px] text-neutral-500 font-sans block">
@@ -372,19 +372,19 @@ export const WeeklyReportModal: React.FC<WeeklyReportModalProps> = ({ isOpen, on
           {/* TAB 4: VERDICT & CIFC */}
           {activeTab === 'verdict' && (
             <div className="space-y-3.5 animate-in fade-in duration-150">
-              <div className="p-4 rounded-2xl bg-neutral-50 dark:bg-white/5 border border-neutral-200/80 dark:border-white/10 space-y-2.5">
+              <div className="p-4 rounded-2xl bg-white/5 border border-white/[0.07] space-y-2.5">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1.5">
-                    <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                    <span className="font-tactical text-[11px] uppercase font-black tracking-wider text-neutral-900 dark:text-white">
+                    <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                    <span className="font-tactical text-[11px] uppercase font-black tracking-wider text-white">
                       CIFC SCIENTIFIC VERDICT
                     </span>
                   </div>
-                  <span className="text-[10px] font-tactical font-black uppercase tracking-wider px-2.5 py-0.5 rounded bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20">
+                  <span className="text-[10px] font-tactical font-black uppercase tracking-wider px-2.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
                     {isGenuineEmpty ? 'AWAITING LOG' : 'OPTIMAL ADAPTATION'}
                   </span>
                 </div>
-                <p className="text-xs text-neutral-700 dark:text-neutral-300 leading-relaxed font-sans">
+                <p className="text-xs text-neutral-300 leading-relaxed font-sans">
                   {isGenuineEmpty
                     ? 'The CIFC algorithm requires at least one completed training session to calculate mechanical fatigue thresholds and acute-to-chronic workload.'
                     : 'Systemic strain is well balanced. Continue current progressive overload protocol with standard micro-increments.'}
@@ -393,24 +393,24 @@ export const WeeklyReportModal: React.FC<WeeklyReportModalProps> = ({ isOpen, on
 
               {/* Action Directives */}
               <div className="space-y-2">
-                <span className="text-[10px] font-tactical uppercase font-black tracking-wider text-neutral-400 dark:text-neutral-500 block">
+                <span className="text-[10px] font-tactical uppercase font-black tracking-wider text-neutral-500 block">
                   COACHING &amp; PERIODIZATION DIRECTIVES
                 </span>
-                <div className="p-3 rounded-2xl bg-neutral-100/70 dark:bg-[#18181c] border border-neutral-200 dark:border-neutral-800 space-y-1">
-                  <div className="flex items-center gap-1.5 text-xs font-tactical font-bold text-neutral-900 dark:text-white uppercase tracking-wide">
+                <div className="p-3 rounded-2xl bg-o1-well border border-white/[0.07] space-y-1">
+                  <div className="flex items-center gap-1.5 text-xs font-tactical font-bold text-white uppercase tracking-wide">
                     <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
                     <span>Micro-Overload Threshold</span>
                   </div>
-                  <p className="text-[11px] text-neutral-600 dark:text-neutral-400 leading-normal pl-5 font-sans">
+                  <p className="text-[11px] text-neutral-400 leading-normal pl-5 font-sans">
                     Establish baseline 1RM sets before stepping up load progression.
                   </p>
                 </div>
-                <div className="p-3 rounded-2xl bg-neutral-100/70 dark:bg-[#18181c] border border-neutral-200 dark:border-neutral-800 space-y-1">
-                  <div className="flex items-center gap-1.5 text-xs font-tactical font-bold text-neutral-900 dark:text-white uppercase tracking-wide">
+                <div className="p-3 rounded-2xl bg-o1-well border border-white/[0.07] space-y-1">
+                  <div className="flex items-center gap-1.5 text-xs font-tactical font-bold text-white uppercase tracking-wide">
                     <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
                     <span>Deload Scheduling</span>
                   </div>
-                  <p className="text-[11px] text-neutral-600 dark:text-neutral-400 leading-normal pl-5 font-sans">
+                  <p className="text-[11px] text-neutral-400 leading-normal pl-5 font-sans">
                     Next scheduled reactive deload microcycle in 12 days. ACWR monitoring active.
                   </p>
                 </div>
@@ -420,12 +420,12 @@ export const WeeklyReportModal: React.FC<WeeklyReportModalProps> = ({ isOpen, on
         </div>
 
         {/* Footer Button: Cleaned up single refresh icon & OLED dark mode surface */}
-        <div className="p-4 border-t border-neutral-200/80 dark:border-white/10 bg-neutral-50 dark:bg-[#121217] transition-colors">
+        <div className="p-4 border-t border-white/[0.05] bg-o1-card transition-colors">
           <button
             type="button"
             onClick={handleRecalculate}
             disabled={isRecalculating}
-            className="w-full py-3.5 rounded-2xl bg-neutral-950 hover:bg-black text-white dark:bg-white dark:text-neutral-950 dark:hover:bg-neutral-100 font-tactical text-xs font-black uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer transition-all active:scale-[0.99] disabled:opacity-50"
+            className="w-full py-3.5 rounded-2xl bg-white text-neutral-950 hover:bg-neutral-100 font-tactical text-xs font-black uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer transition-all active:scale-[0.99] disabled:opacity-50"
           >
             <RotateCcw className={`w-3.5 h-3.5 ${isRecalculating ? 'animate-spin' : ''}`} />
             <span>{isRecalculating ? 'Calculating Matrix...' : 'Recalculate Microcycle Matrix'}</span>

@@ -3,6 +3,7 @@ import { Plus, Trash2, Mic, Camera, Zap } from 'lucide-react';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { MealItem } from '../store/useFuelStore';
 import { MealSlotConfig, SlotKey } from '../constants/fuelConstants';
+import { foodMatchesDietSafe } from '../utils/dietFoodFilter';
 
 interface QuickPreset {
   name: string;
@@ -72,6 +73,7 @@ const SLOT_CONTEXT_DATA: Record<
 interface FuelIntakeSlotCardProps {
   slot: MealSlotConfig;
   items: MealItem[];
+  dietPreference?: string;
   onDeleteItem: (slot: SlotKey, itemId: string, itemName: string) => void;
   onOpenAddFoodModal: (categoryLabel: string) => void;
   onOpenVoiceModal: (slot: SlotKey) => void;
@@ -82,6 +84,7 @@ interface FuelIntakeSlotCardProps {
 export const FuelIntakeSlotCard: React.FC<FuelIntakeSlotCardProps> = ({
   slot,
   items,
+  dietPreference = 'Omnivore',
   onDeleteItem,
   onOpenAddFoodModal,
   onOpenVoiceModal,
@@ -98,6 +101,8 @@ export const FuelIntakeSlotCard: React.FC<FuelIntakeSlotCardProps> = ({
     subtitle: 'Daily Nutrition Slot',
     presets: [],
   };
+
+  const presets = context.presets.filter((p) => foodMatchesDietSafe(p.name, '', dietPreference));
 
   const handleQuickAdd = (preset: QuickPreset) => {
     tactileEngine.triggerImpactPulse();
@@ -118,7 +123,7 @@ export const FuelIntakeSlotCard: React.FC<FuelIntakeSlotCardProps> = ({
   return (
     <div
       id={`intake-slot-${slot.key}`}
-      className="bg-white dark:bg-[#121214] border border-neutral-200/80 dark:border-neutral-800 rounded-2xl transition-all overflow-hidden shadow-2xs hover:border-neutral-300 dark:hover:border-neutral-700"
+      className="bg-o1-card border border-white/[0.07] rounded-2xl transition-all overflow-hidden shadow-2xs hover:border-white/[0.14]"
     >
       {/* Top Header: Icon + Meal Name + Subtitle on Left, Calories & Macro Badges on Right */}
       <div className="flex items-center justify-between px-3.5 sm:px-4 py-3">
@@ -127,61 +132,61 @@ export const FuelIntakeSlotCard: React.FC<FuelIntakeSlotCardProps> = ({
             {slot.icon}
           </div>
           <div>
-            <h3 className="font-bold text-sm text-neutral-900 dark:text-neutral-100 tracking-tight">
+            <h3 className="font-bold text-sm text-neutral-100 tracking-tight">
               {slot.label}
             </h3>
-            <p className="text-[11px] text-neutral-400 dark:text-neutral-500 font-mono">
+            <p className="text-[11px] text-neutral-500 font-mono">
               {context.subtitle}
             </p>
           </div>
         </div>
 
         <div className="text-right">
-          <span className="text-sm font-black font-mono text-neutral-900 dark:text-white block">
+          <span className="text-sm font-black font-mono text-white block">
             {slotCalories} <span className="text-[10px] text-neutral-400 font-normal">kcal</span>
           </span>
           {hasItems && (
             <div className="flex items-center gap-1.5 text-[10px] font-mono text-neutral-400 justify-end">
-              <span className="text-[#C4121A] font-bold">{Math.round(slotProtein)}P</span>
+              <span className="text-o1-crimson font-bold">{Math.round(slotProtein)}P</span>
               <span>·</span>
               <span className="text-amber-500 font-bold">{Math.round(slotCarbs)}C</span>
               <span>·</span>
-              <span className="text-sky-500 font-bold">{Math.round(slotFats)}F</span>
+              <span className="text-emerald-400 font-bold">{Math.round(slotFats)}F</span>
             </div>
           )}
         </div>
       </div>
 
       {/* Middle Area: Items List OR Interactive 1-Tap Quick Suggestions */}
-      <div className="border-t border-b border-neutral-100 dark:border-neutral-800/80 bg-neutral-50/50 dark:bg-[#151518]/50">
+      <div className="border-t border-b border-white/[0.05] bg-o1-card/50">
         {hasItems ? (
           <div className="p-3 space-y-2">
             {items.map((item) => (
               <div
                 key={item.id}
-                className="flex items-center justify-between p-2.5 rounded-xl bg-white dark:bg-[#18181b] border border-neutral-200/80 dark:border-neutral-800 text-xs shadow-2xs"
+                className="flex items-center justify-between p-2.5 rounded-xl bg-white/[0.03] text-xs shadow-2xs"
               >
                 <div className="min-w-0 flex-1 pr-2">
-                  <span className="font-bold text-neutral-900 dark:text-neutral-100 truncate block">
+                  <span className="font-bold text-neutral-100 truncate block">
                     {item.name}
                   </span>
-                  <div className="flex items-center gap-2 text-[11px] text-neutral-500 dark:text-neutral-400 mt-0.5 font-mono">
-                    <span className="text-neutral-900 dark:text-white font-bold">
+                  <div className="flex items-center gap-2 text-[11px] text-neutral-400 mt-0.5 font-mono">
+                    <span className="text-white font-bold">
                       {item.calories} kcal
                     </span>
                     <span>•</span>
-                    <span className="text-[#C4121A] font-semibold">{item.protein}g P</span>
+                    <span className="text-o1-crimson font-semibold">{item.protein}g P</span>
                     <span>•</span>
-                    <span className="text-amber-600 dark:text-amber-400 font-semibold">{item.carbs}g C</span>
+                    <span className="text-amber-400 font-semibold">{item.carbs}g C</span>
                     <span>•</span>
-                    <span className="text-sky-600 dark:text-sky-400 font-semibold">{item.fats}g F</span>
+                    <span className="text-emerald-400 font-semibold">{item.fats}g F</span>
                   </div>
                 </div>
 
                 <button
                   type="button"
                   onClick={() => onDeleteItem(slot.key, item.id, item.name)}
-                  className="p-1.5 rounded-lg text-neutral-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors cursor-pointer"
+                  className="p-1.5 rounded-lg text-neutral-400 hover:text-red-500 hover:bg-red-950/30 transition-colors cursor-pointer"
                   title="Delete item"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
@@ -195,28 +200,32 @@ export const FuelIntakeSlotCard: React.FC<FuelIntakeSlotCardProps> = ({
               <Zap className="w-3 h-3 text-amber-500" />
               <span>1-Tap Quick Suggestions:</span>
             </div>
+            {presets.length === 0 ? (
+              <p className="text-[11px] text-neutral-400 px-0.5">No 1-tap items for this diet. Add from catalog.</p>
+            ) : (
             <div className="flex flex-wrap gap-1.5">
-              {context.presets.map((preset, idx) => (
+              {presets.map((preset, idx) => (
                 <button
                   key={idx}
                   type="button"
                   onClick={() => handleQuickAdd(preset)}
-                  className="px-2.5 py-1.5 rounded-lg bg-white dark:bg-[#18181b] hover:bg-neutral-100 dark:hover:bg-[#202026] border border-neutral-200/90 dark:border-neutral-800 text-[11px] font-medium text-neutral-700 dark:text-neutral-300 flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer shadow-2xs group"
+                  className="px-2.5 py-1.5 rounded-xl bg-o1-well hover:bg-white/[0.06] border border-white/[0.07] text-[11px] font-medium text-neutral-300 flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer shadow-2xs group"
                 >
-                  <Plus className="w-3 h-3 text-neutral-400 group-hover:text-[#C4121A] transition-colors" />
+                  <Plus className="w-3 h-3 text-neutral-400 group-hover:text-o1-crimson transition-colors" />
                   <span>{preset.name}</span>
-                  <span className="font-mono text-[10px] text-neutral-400 group-hover:text-neutral-600 dark:group-hover:text-neutral-200 font-semibold">
+                  <span className="font-mono text-[10px] text-neutral-400 group-hover:text-neutral-200 font-semibold">
                     {preset.calories} kcal
                   </span>
                 </button>
               ))}
             </div>
+            )}
           </div>
         )}
       </div>
 
       {/* Bottom Action Bar: [+ Add Item] & [Mic] on Left, [Camera] on Right */}
-      <div className="flex items-center justify-between px-3.5 sm:px-4 py-2.5 bg-white dark:bg-[#121214]">
+      <div className="flex items-center justify-between px-3.5 sm:px-4 py-2.5 bg-o1-card">
         <div className="flex items-center gap-2">
           <button
             id={`btn-add-${slot.key}`}
@@ -225,7 +234,7 @@ export const FuelIntakeSlotCard: React.FC<FuelIntakeSlotCardProps> = ({
               tactileEngine.triggerSelectionBuzz();
               onOpenAddFoodModal(slot.label);
             }}
-            className="px-3 py-1.5 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-[#18181b] hover:bg-neutral-50 dark:hover:bg-[#222228] text-xs font-bold text-neutral-800 dark:text-neutral-100 flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer shadow-2xs"
+            className="px-3 py-1.5 rounded-xl border border-white/[0.07] bg-o1-well hover:bg-white/[0.06] text-xs font-bold text-neutral-100 flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer shadow-2xs"
           >
             <Plus className={`w-3.5 h-3.5 stroke-[2.5] ${slot.plusColor}`} />
             <span>Add Item</span>
@@ -237,7 +246,7 @@ export const FuelIntakeSlotCard: React.FC<FuelIntakeSlotCardProps> = ({
               tactileEngine.triggerSelectionBuzz();
               onOpenVoiceModal(slot.key);
             }}
-            className="w-8 h-8 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-[#18181b] hover:bg-neutral-50 dark:hover:bg-[#222228] text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white flex items-center justify-center transition-all active:scale-95 cursor-pointer shadow-2xs"
+            className="w-8 h-8 rounded-xl border border-white/[0.07] bg-o1-well hover:bg-white/[0.06] text-neutral-400 hover:text-white flex items-center justify-center transition-all active:scale-95 cursor-pointer shadow-2xs"
             title="Voice Log"
           >
             <Mic className="w-4 h-4" />
@@ -250,7 +259,7 @@ export const FuelIntakeSlotCard: React.FC<FuelIntakeSlotCardProps> = ({
             tactileEngine.triggerSelectionBuzz();
             onOpenScanModal(slot.key);
           }}
-          className="w-8 h-8 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-[#18181b] hover:bg-neutral-50 dark:hover:bg-[#222228] text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white flex items-center justify-center transition-all active:scale-95 cursor-pointer shadow-2xs"
+          className="w-8 h-8 rounded-xl border border-white/[0.07] bg-o1-well hover:bg-white/[0.06] text-neutral-400 hover:text-white flex items-center justify-center transition-all active:scale-95 cursor-pointer shadow-2xs"
           title="Camera & Barcode Scan"
         >
           <Camera className="w-4 h-4" />

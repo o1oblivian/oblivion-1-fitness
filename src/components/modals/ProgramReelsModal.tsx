@@ -287,7 +287,7 @@ export const ProgramReelsModal: React.FC<ProgramReelsModalProps> = ({
                   {activeStory.archetypeTitle}
                 </span>
                 {activeStory.verified && (
-                  <CheckCircle2 className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+                  <CheckCircle2 className="w-3.5 h-3.5 text-sky-400 shrink-0" />
                 )}
               </div>
               <div className="flex items-center gap-2">
@@ -309,7 +309,7 @@ export const ProgramReelsModal: React.FC<ProgramReelsModalProps> = ({
               tactileEngine.triggerSelectionBuzz();
               onClose();
             }}
-            className="p-2 rounded-full bg-[#18181b] hover:bg-[#27272a] text-neutral-300 hover:text-white transition-colors border border-neutral-700 cursor-pointer"
+            className="p-2 rounded-full bg-o1-well hover:bg-white/[0.06] text-neutral-300 hover:text-white transition-colors border border-white/[0.07] cursor-pointer"
             aria-label="Close stories"
           >
             <X className="w-5 h-5" />
@@ -343,7 +343,7 @@ export const ProgramReelsModal: React.FC<ProgramReelsModalProps> = ({
         {/* Focus Muscle Vector Highlight */}
         <div className="space-y-2">
           <div className="flex items-center gap-2">
-            <Flame className="w-4 h-4 text-[#C4121A] animate-pulse" />
+            <Flame className="w-4 h-4 text-o1-crimson animate-pulse" />
             <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-neutral-300">
               FOCUS MUSCLE VECTOR HIGHLIGHT
             </span>
@@ -353,7 +353,7 @@ export const ProgramReelsModal: React.FC<ProgramReelsModalProps> = ({
             {activeStory.focusMuscles.map((muscle) => (
               <span
                 key={muscle}
-                className="px-3 py-1.5 rounded-xl bg-[#C4121A]/20 border border-[#C4121A]/40 text-red-200 text-xs font-mono font-bold tracking-wider"
+                className="px-3 py-1.5 rounded-xl bg-o1-crimson/20 border border-o1-crimson/40 text-red-200 text-xs font-mono font-bold tracking-wider"
               >
                 {muscle}
               </span>
@@ -362,15 +362,15 @@ export const ProgramReelsModal: React.FC<ProgramReelsModalProps> = ({
         </div>
 
         {/* Split Overview Details Card */}
-        <div className="bg-[#121214] border border-neutral-800 rounded-2xl p-4 space-y-3 shadow-2xl">
-          <div className="flex items-center justify-between border-b border-white/10 pb-2">
+        <div className="bg-o1-card border border-white/[0.07] rounded-2xl p-4 space-y-3 shadow-2xl">
+          <div className="flex items-center justify-between border-b border-white/[0.05] pb-2">
             <div className="flex items-center gap-2">
               <Shield className="w-4 h-4 text-red-500" />
               <span className="font-mono font-bold text-xs uppercase tracking-wider text-white">
                 {activeStory.splitOverview.daysPerWeek}
               </span>
             </div>
-            <span className="text-[10px] font-mono font-bold text-cyan-400 bg-cyan-950/60 border border-cyan-800/60 px-2 py-0.5 rounded-full">
+            <span className="text-[10px] font-mono font-bold text-sky-400 bg-sky-950/60 border border-sky-800/60 px-2 py-0.5 rounded-full">
               {activeStory.splitOverview.intensity}
             </span>
           </div>
@@ -387,7 +387,7 @@ export const ProgramReelsModal: React.FC<ProgramReelsModalProps> = ({
               {activeStory.splitOverview.keyLifts.map((lift) => (
                 <div
                   key={lift}
-                  className="flex items-center gap-1.5 text-[11px] font-mono text-neutral-200 bg-white/5 border border-white/5 rounded-lg px-2.5 py-1.5"
+                  className="flex items-center gap-1.5 text-[11px] font-mono text-neutral-200 bg-white/5 border border-white/[0.07] rounded-xl px-2.5 py-1.5"
                 >
                   <Zap className="w-3 h-3 text-red-400 shrink-0" />
                   <span className="truncate">{lift}</span>
@@ -404,7 +404,7 @@ export const ProgramReelsModal: React.FC<ProgramReelsModalProps> = ({
           type="button"
           id="btn-adopt-blueprint"
           onClick={handleAdoptBlueprint}
-          className="w-full py-4 rounded-2xl bg-[#C4121A] hover:bg-red-600 active:scale-98 text-white font-mono font-black text-sm uppercase tracking-widest shadow-md transition-all flex items-center justify-center gap-2"
+          className="w-full py-2.5 rounded-xl bg-zinc-100 hover:bg-white text-neutral-950 text-xs font-semibold tracking-wide active:scale-[0.98] transition-all flex items-center justify-center gap-2"
         >
           <span>[ ADOPT THIS BLUEPRINT ]</span>
           <ChevronRight className="w-4 h-4" />

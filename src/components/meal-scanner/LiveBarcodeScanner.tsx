@@ -59,13 +59,13 @@ export const LiveBarcodeScanner: React.FC<LiveBarcodeScannerProps> = ({ onDetect
   }, [onDetected]);
 
   return (
-    <div className="relative rounded-2xl overflow-hidden bg-black aspect-video flex flex-col items-center justify-center border border-neutral-800">
+    <div className="relative rounded-2xl overflow-hidden bg-black aspect-video flex flex-col items-center justify-center border border-white/[0.07]">
       <video ref={videoRef} className="w-full h-full object-cover" playsInline muted />
 
       {/* Sensor Standby State when camera is inactive */}
       {!isStreaming && !error && (
-        <div className="absolute inset-0 bg-[#09090b] flex flex-col items-center justify-center p-4 text-center space-y-1">
-          <div className="w-8 h-8 rounded-xl bg-neutral-800/60 border border-neutral-700/60 flex items-center justify-center text-neutral-400">
+        <div className="absolute inset-0 bg-black flex flex-col items-center justify-center p-4 text-center space-y-1">
+          <div className="w-8 h-8 rounded-xl bg-white/[0.08] border border-white/[0.07] flex items-center justify-center text-neutral-400">
             <Camera className="w-4 h-4" />
           </div>
           <span className="text-xs font-mono font-bold tracking-widest uppercase text-neutral-400">
@@ -78,7 +78,7 @@ export const LiveBarcodeScanner: React.FC<LiveBarcodeScannerProps> = ({ onDetect
       {/* Clean Optical Alignment Frame (Zero fake pulsing simulated inference) */}
       {isStreaming && !error && (
         <div className="absolute inset-0 pointer-events-none flex flex-col items-center justify-center p-4">
-          <div className="w-48 h-28 border border-neutral-400/40 rounded-xl" />
+          <div className="w-48 h-28 border border-white/[0.07] rounded-xl" />
           <span className="text-[10px] font-mono text-neutral-300 bg-black/60 px-2 py-0.5 rounded mt-2">
             Align Barcode In Sensor Field
           </span>
@@ -89,7 +89,7 @@ export const LiveBarcodeScanner: React.FC<LiveBarcodeScannerProps> = ({ onDetect
         <div className="absolute inset-0 bg-black/90 p-4 flex flex-col items-center justify-center text-center text-red-300 text-xs gap-2">
           <AlertCircle className="w-5 h-5 text-red-400" />
           <span>{error}</span>
-          <button type="button" onClick={onClose} className="px-3 py-1 bg-white/10 rounded-lg text-white text-xs mt-1 cursor-pointer">
+          <button type="button" onClick={onClose} className="px-3 py-1 bg-white/10 rounded-xl text-white text-xs mt-1 cursor-pointer">
             Back to Manual Entry
           </button>
         </div>

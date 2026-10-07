@@ -1,6 +1,8 @@
 import React, { useState, useRef } from 'react';
 import { X, Camera, Upload, Activity, Zap, CheckCircle2 } from 'lucide-react';
 import { analyzeConsoleTelemetry, CardioTelemetryResult } from '../../../../services/geminiVisionService';
+import { processCardioScanImage } from '../../../log/services/cardioScanService';
+import { captureNativeStill } from '../../../../services/nativeCameraService';
 import { useLogStore } from '../../../../stores/useLogStore';
 import { useFuelStore } from '../../../fuel/store/useFuelStore';
 import { useTelemetryHistoryStore } from '../../../log/store/useTelemetryHistoryStore';
@@ -31,11 +33,36 @@ export const CardioTelemetryModal: React.FC<Props> = ({ isOpen, onClose, onPostC
     tactileEngine.triggerSelectionBuzz();
     try {
       const res = await analyzeConsoleTelemetry(base64);
-      setTelemetry(res);
       const hasAny = res.steps != null || res.distanceKm != null || res.caloriesBurned != null || res.elapsedMinutes != null;
-      setStatusMessage(res.steps != null && res.steps > 0
-        ? `Optical OCR extracted ${res.steps.toLocaleString()} steps directly from display.`
-        : hasAny ? 'Display parsed. Review telemetry or tap any tile to fine-tune.'
+      if (hasAny) {
+        setTelemetry(res);
+        setStatusMessage(res.steps != null && res.steps > 0
+          ? `Optical OCR extracted ${res.steps.toLocaleString()} steps directly from display.`
+          : 'Display parsed. Review telemetry or tap any tile to fine-tune.');
+        tactileEngine.playPRCelebration();
+        setIsAnalyzing(false);
+        return;
+      }
+    } catch {
+      /* fall through to on-device OCR */
+    }
+    try {
+      const ocr = await processCardioScanImage(base64, 'console');
+      const mapped: CardioTelemetryResult = {
+        deviceType: ocr.activityType?.toLowerCase().includes('watch') ? 'watch' : 'console',
+        elapsedDisplay: ocr.durationMinutes || null,
+        elapsedMinutes: ocr.durationMinutes || null,
+        distanceKm: ocr.distanceKm || null,
+        caloriesBurned: ocr.burnedKcal || null,
+        speedKmh: null,
+        inclinePct: null,
+        avgHeartRateBpm: ocr.avgHeartRateBpm || null,
+        steps: ocr.steps || null,
+      };
+      setTelemetry(mapped);
+      const hasOcr = mapped.steps != null || mapped.distanceKm != null || mapped.caloriesBurned != null || mapped.elapsedMinutes != null;
+      setStatusMessage(hasOcr
+        ? (mapped.steps ? `Optical OCR extracted ${mapped.steps.toLocaleString()} steps directly from display.` : 'Display parsed. Review telemetry or tap any tile to fine-tune.')
         : 'No readable numbers detected on image. Tap any metric to enter manually or retake photo.');
       tactileEngine.playPRCelebration();
     } catch {
@@ -96,41 +123,59 @@ export const CardioTelemetryModal: React.FC<Props> = ({ isOpen, onClose, onPostC
     { id: 'incline', label: 'INCLINE', num: telemetry?.inclinePct != null ? telemetry.inclinePct : '--', unit: '%' },
   ];
 
+  const handleTakePhoto = async () => {
+    if (!isPro) return openPaywall('Cardio & Wearable OCR Scanner');
+    try {
+      const blob = await captureNativeStill();
+      if (blob) {
+        const reader = new FileReader();
+        reader.onload = () => {
+          if (typeof reader.result === 'string') handleProcessImage(reader.result);
+        };
+        reader.readAsDataURL(blob);
+        return;
+      }
+    } catch {
+      /* web file input fallback */
+    }
+    cameraInputRef.current?.click();
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 bg-black/85 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="w-full max-w-[480px] bg-white dark:bg-[#121214] rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[92dvh] h-auto border border-neutral-200 dark:border-neutral-800">
-        <div className="flex items-center justify-between px-5 py-3.5 bg-neutral-100 dark:bg-[#09090b] border-b border-neutral-200 dark:border-neutral-800">
+      <div className="o1-sheet-card bg-o1-card overflow-hidden shadow-xl flex flex-col border border-white/[0.07]">
+        <div className="flex items-center justify-between px-5 py-3.5 bg-black border-b border-white/[0.05]">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-red-500/10 border border-[#C4121A]/20 flex items-center justify-center text-[#C4121A]"><Activity className="w-4 h-4" /></div>
+            <div className="w-8 h-8 rounded-xl bg-red-500/10 border border-o1-crimson/20 flex items-center justify-center text-o1-crimson"><Activity className="w-4 h-4" /></div>
             <div>
-              <h2 className="text-xs font-tactical font-black text-neutral-900 dark:text-white uppercase tracking-wider">Cardio & Wearable OCR</h2>
-              <p className="text-[10px] font-sans font-medium text-neutral-500 dark:text-neutral-400">Direct Multimodal Console & Watch Telemetry</p>
+              <h2 className="text-xs font-tactical font-black text-white uppercase tracking-wider">Cardio & Wearable OCR</h2>
+              <p className="text-[10px] font-sans font-medium text-neutral-400">Direct Multimodal Console & Watch Telemetry</p>
             </div>
           </div>
-          <button onClick={onClose} className="p-1.5 text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white rounded-full cursor-pointer"><X className="w-4 h-4" /></button>
+          <button onClick={onClose} className="p-1.5 text-neutral-400 hover:text-white rounded-full cursor-pointer"><X className="w-4 h-4" /></button>
         </div>
         <div className="p-4 overflow-y-auto space-y-3 flex-1 min-h-0">
           <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={handleFile} />
           <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFile} />
           <div className="grid grid-cols-2 gap-2.5">
-            <button onClick={() => cameraInputRef.current?.click()} className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-[#C4121A] hover:bg-[#A30F16] text-white text-[11px] font-tactical font-black uppercase tracking-wider cursor-pointer active:scale-95 transition shadow-md"><Camera className="w-3.5 h-3.5" /> Take Photo</button>
-            <button onClick={() => fileInputRef.current?.click()} className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-neutral-100 dark:bg-[#18181b] hover:bg-neutral-200 dark:hover:bg-[#202024] text-neutral-800 dark:text-neutral-200 text-[11px] font-tactical font-bold uppercase tracking-wider cursor-pointer border border-neutral-300 dark:border-neutral-700 active:scale-95 transition"><Upload className="w-3.5 h-3.5" /> Upload Photo</button>
+            <button type="button" onClick={() => void handleTakePhoto()} className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover text-white text-[11px] font-tactical font-black uppercase tracking-wider cursor-pointer active:scale-95 transition shadow-md"><Camera className="w-3.5 h-3.5" /> Take Photo</button>
+            <button onClick={() => fileInputRef.current?.click()} className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-o1-well hover:bg-white/[0.06] text-neutral-200 text-[11px] font-tactical font-bold uppercase tracking-wider cursor-pointer border border-white/[0.07] active:scale-95 transition"><Upload className="w-3.5 h-3.5" /> Upload Photo</button>
           </div>
           {selectedImage && (
-            <div className="relative rounded-2xl overflow-hidden bg-black max-h-48 flex items-center justify-center border border-neutral-200 dark:border-neutral-800">
+            <div className="relative rounded-2xl overflow-hidden bg-black max-h-48 flex items-center justify-center border border-white/[0.07]">
               <img src={selectedImage} alt="Cardio display" className="max-h-48 object-contain" />
-              {isAnalyzing && <div className="absolute inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center gap-2 text-white font-tactical text-xs tracking-wider uppercase font-bold"><Zap className="w-4 h-4 animate-spin text-[#C4121A]" /> Reading Display...</div>}
+              {isAnalyzing && <div className="absolute inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center gap-2 text-white font-tactical text-xs tracking-wider uppercase font-bold"><Zap className="w-4 h-4 animate-spin text-o1-crimson" /> Reading Display...</div>}
             </div>
           )}
           {statusMessage && (
-            <div className="p-2.5 rounded-xl text-xs flex items-center gap-2 border bg-emerald-500/10 border-emerald-500/20 text-emerald-700 dark:text-emerald-400">
+            <div className="p-2.5 rounded-xl text-xs flex items-center gap-2 border bg-emerald-500/10 border-emerald-500/20 text-emerald-400">
               <CheckCircle2 className="w-3.5 h-3.5 shrink-0" /><span className="font-sans font-medium text-[11px] leading-tight">{statusMessage}</span>
             </div>
           )}
           <CardioMetricsGrid metrics={metrics} onUpdateMetric={handleUpdateMetric} />
         </div>
-        <div className="p-4 bg-neutral-100 dark:bg-[#09090b] border-t border-neutral-200 dark:border-neutral-800">
-          <button onClick={handlePost} disabled={!telemetry || isAnalyzing} className="w-full py-3 rounded-2xl bg-[#C4121A] hover:bg-[#A30F16] active:bg-[#800C11] disabled:opacity-40 text-white font-tactical font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer shadow-lg active:scale-[0.99] transition"><Zap className="w-4 h-4 fill-white" /> Save Telemetry to Session</button>
+        <div className="p-4 bg-black border-t border-white/[0.05]">
+          <button onClick={handlePost} disabled={!telemetry || isAnalyzing} className="w-full py-2.5 rounded-xl bg-zinc-100 hover:bg-white disabled:opacity-40 text-neutral-950 font-semibold text-xs tracking-wide flex items-center justify-center gap-2 cursor-pointer active:scale-[0.99] transition"><Zap className="w-4 h-4" /> Save Telemetry to Session</button>
         </div>
       </div>
     </div>

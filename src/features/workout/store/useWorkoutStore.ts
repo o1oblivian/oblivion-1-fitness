@@ -28,9 +28,18 @@ export type { NormalizedWorkoutMode, NormalizedWorkoutSubMode, WorkoutStoreState
 const STORAGE_WORKOUT_KEY = 'o1fc_active_workout_session';
 const savedExercisesRaw = safeStorage.getItem<any[]>(STORAGE_WORKOUT_KEY, []);
 // Clean out any misclassified cardio items from resistance workout sessions
-const savedExercises = (savedExercisesRaw || []).filter(
-  (e) => !e.name?.toLowerCase().startsWith('cardio:') && !e.name?.toLowerCase().includes('telemetry')
-);
+const savedExercises = (savedExercisesRaw || [])
+  .filter(
+    (e) => !e.name?.toLowerCase().startsWith('cardio:') && !e.name?.toLowerCase().includes('telemetry')
+  )
+  .map((e) => ({
+    ...e,
+    sets: (e.sets || []).map((s: any) =>
+      s.completed
+        ? s
+        : { ...s, weightKg: 0, weight: 0, reps: 0, rpe: 0 }
+    ),
+  }));
 const hydratedState: WorkoutStoreState = {
   ...initialWorkoutState,
   ...(savedExercises && savedExercises.length > 0
@@ -43,6 +52,9 @@ const hydratedState: WorkoutStoreState = {
       }
     : {}),
 };
+if (savedExercises.length > 0) {
+  safeStorage.setItem(STORAGE_WORKOUT_KEY, savedExercises);
+}
 
 const workoutStore = createStore<WorkoutStoreState, WorkoutStoreActions>(
   hydratedState,

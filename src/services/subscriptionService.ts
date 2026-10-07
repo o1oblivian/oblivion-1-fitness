@@ -1,7 +1,7 @@
 import { revenueCatService } from './revenueCatService';
 
 export const PLUS_ENTITLEMENT = 'com.o1fc.fitness.plus_monthly';
-export type MembershipTierId = 'com.o1fc.fitness.plus_monthly' | 'coach_pro_monthly' | 'coach_pro_annual' | 'coach_pro_unlimited';
+export type MembershipTierId = 'com.o1fc.fitness.plus_monthly' | 'o1fc_coach_free' | 'o1fc_coach_pro_monthly';
 
 export interface SubscriptionStatus {
   isActive: boolean;
@@ -38,7 +38,7 @@ export function checkSubscriptionStatus(): SubscriptionStatus {
 }
 
 export async function initializeIAP(userId?: string): Promise<void> {
-  await revenueCatService.init(userId || 'default-athlete');
+  await revenueCatService.init(userId || '');
 }
 
 export async function purchasePro(

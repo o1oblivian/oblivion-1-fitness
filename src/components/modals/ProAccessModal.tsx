@@ -23,11 +23,11 @@ export const ProAccessModal: React.FC<ProAccessModalProps> = ({ isOpen, onClose 
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 select-none animate-in fade-in duration-200">
-      <div className="w-full max-w-[440px] bg-[#121214] border border-white/10 rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[92dvh] h-auto">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-white/10 bg-[#09090b]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 o1-sheet-scrim select-none animate-in fade-in duration-200">
+      <div className="o1-sheet-card w-full bg-o1-card border border-white/[0.07] overflow-hidden shadow-xl flex flex-col">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.05] bg-black">
           <div className="flex items-center gap-2 font-mono text-xs font-bold text-red-500">
-            <span className="w-2 h-2 rounded-full bg-[#C4121A] animate-ping" />
+            <span className="w-2 h-2 rounded-full bg-o1-crimson animate-ping" />
             <span>O1FC PRO ACCESS</span>
           </div>
           <button onClick={onClose} className="p-1.5 text-neutral-400 hover:text-white rounded-full cursor-pointer"><X className="w-4 h-4" /></button>
@@ -35,7 +35,7 @@ export const ProAccessModal: React.FC<ProAccessModalProps> = ({ isOpen, onClose 
 
         <div className="p-5 space-y-4 overflow-y-auto flex-1 min-h-0">
           <div className="text-center space-y-1">
-            <div className="inline-flex p-2.5 rounded-full bg-[#C4121A]/10 text-[#C4121A] mb-1"><Sparkles className="w-6 h-6" /></div>
+            <div className="inline-flex p-2.5 rounded-full bg-o1-crimson/10 text-o1-crimson mb-1"><Sparkles className="w-6 h-6" /></div>
             <h3 className="text-lg font-black tracking-tight text-white uppercase font-display">Premium Unlocked</h3>
             <p className="text-[11px] font-mono text-neutral-400">90 days complimentary tier — no payment method required</p>
           </div>
@@ -44,10 +44,10 @@ export const ProAccessModal: React.FC<ProAccessModalProps> = ({ isOpen, onClose 
             {PERKS.map((p) => {
               const Icon = p.icon;
               return (
-                <div key={p.title} className="p-3 rounded-2xl bg-white/[0.04] border border-white/10 flex items-start gap-3">
-                  <div className="w-7 h-7 rounded-xl bg-white/[0.06] text-[#C4121A] flex items-center justify-center shrink-0 mt-0.5"><Icon className="w-4 h-4" /></div>
+                <div key={p.title} className="p-3 rounded-2xl bg-white/[0.04] border border-white/[0.07] flex items-start gap-3">
+                  <div className="w-7 h-7 rounded-xl bg-white/[0.06] text-o1-crimson flex items-center justify-center shrink-0 mt-0.5"><Icon className="w-4 h-4" /></div>
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between"><h4 className="text-xs font-bold font-mono text-white truncate">{p.title}</h4><span className="text-[9px] font-mono font-bold text-[#C4121A] bg-[#C4121A]/10 px-2 py-0.5 rounded-full">{p.badge}</span></div>
+                    <div className="flex items-center justify-between"><h4 className="text-xs font-bold font-mono text-white truncate">{p.title}</h4><span className="text-[9px] font-mono font-bold text-o1-crimson bg-o1-crimson/10 px-2 py-0.5 rounded-full">{p.badge}</span></div>
                     <p className="text-[10px] font-mono text-neutral-400 mt-0.5 leading-snug">{p.desc}</p>
                   </div>
                 </div>
@@ -55,7 +55,7 @@ export const ProAccessModal: React.FC<ProAccessModalProps> = ({ isOpen, onClose 
             })}
           </div>
 
-          <button onClick={handleEnter} className="w-full py-4 rounded-full bg-[#C4121A] text-white hover:bg-[#A30F16] active:scale-[0.98] font-bold text-xs uppercase tracking-[0.15em] transition-all shadow-md cursor-pointer">
+          <button onClick={handleEnter} className="w-full py-4 rounded-full bg-o1-crimson text-white hover:bg-o1-crimson-hover active:scale-[0.98] font-bold text-xs uppercase tracking-[0.15em] transition-all shadow-md cursor-pointer">
             ENTER TRAINING OS
           </button>
         </div>

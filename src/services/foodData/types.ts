@@ -13,6 +13,7 @@ export interface FoodItemRecord {
   category: FoodCategoryType;
   country: string;
   is_custom?: boolean;
+  source?: 'catalog' | 'openfoodfacts' | 'custom' | 'regional' | 'usda';
 }
 
 export type RegionalFoodMap = Record<string, Record<FoodCategoryType, FoodItemRecord[]>>;

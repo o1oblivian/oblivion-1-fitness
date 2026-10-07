@@ -12,7 +12,7 @@ export type AthleticVector =
   | 'Strength S&C'
   | 'Bio-Recovery';
 
-export type SessionDuration = '30m' | '45m' | '60m';
+export type SessionDuration = '20m' | '30m' | '45m' | '60m' | '75m';
 export type FacilityGear = 'Full Gym' | 'DB & Bench' | 'Bodyweight';
 export type IntensityMode = 'Progressive RPE' | 'Failure Dropset';
 
@@ -49,9 +49,11 @@ export function synthesizeDailyBlueprint(
   seedIndex: number = 0
 ): SynthesizedBlueprint {
   const durationMap = {
+    '20m': { mins: 20, moves: 3, setsPerMove: 3 },
     '30m': { mins: 30, moves: 3, setsPerMove: 3 },
     '45m': { mins: 45, moves: 5, setsPerMove: 4 },
     '60m': { mins: 60, moves: 6, setsPerMove: 4 },
+    '75m': { mins: 75, moves: 7, setsPerMove: 4 },
   };
   const config = durationMap[duration] || durationMap['45m'];
 

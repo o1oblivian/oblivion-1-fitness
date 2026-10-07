@@ -43,14 +43,14 @@ export const CardioMetricsGrid: React.FC<Props> = ({ metrics, onUpdateMetric }) 
             <div
               key={m.id}
               onClick={() => !isEditing && startEdit(m)}
-              className={`p-2 rounded-xl bg-neutral-100 dark:bg-[#18181b] border transition-all text-center flex flex-col justify-center relative group cursor-pointer ${
+              className={`p-2 rounded-xl bg-o1-well border transition-all text-center flex flex-col justify-center relative group cursor-pointer ${
                 isEditing
-                  ? 'border-[#C4121A] ring-1 ring-[#C4121A]'
-                  : 'border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700'
+                  ? 'border-o1-crimson ring-1 ring-o1-crimson'
+                  : 'border-white/[0.07] hover:border-white/[0.14]'
               }`}
             >
               <div className="flex items-center justify-between gap-1 mb-0.5">
-                <span className="text-[8px] font-tactical font-black uppercase tracking-wider text-neutral-500 dark:text-neutral-400 block truncate">
+                <span className="text-[8px] font-tactical font-black uppercase tracking-wider text-neutral-400 block truncate">
                   {m.label}
                 </span>
                 {onUpdateMetric && !isEditing && (
@@ -70,21 +70,21 @@ export const CardioMetricsGrid: React.FC<Props> = ({ metrics, onUpdateMetric }) 
                       if (e.key === 'Enter') saveEdit(m.id);
                       if (e.key === 'Escape') setEditingId(null);
                     }}
-                    className="w-full text-xs font-mono font-bold text-neutral-900 dark:text-white bg-white dark:bg-[#121214] border border-[#C4121A] rounded px-1 py-0.5 outline-none text-center"
+                    className="w-full text-xs font-mono font-bold text-white bg-o1-card border border-o1-crimson rounded px-1 py-0.5 outline-none text-center"
                   />
                   <button
                     type="button"
                     onClick={() => saveEdit(m.id)}
-                    className="p-1 rounded bg-[#C4121A] text-white hover:bg-[#A30F16]"
+                    className="p-1 rounded bg-o1-crimson text-white hover:bg-o1-crimson-hover"
                   >
                     <Check className="w-2.5 h-2.5" />
                   </button>
                 </div>
               ) : (
-                <span className="text-xs sm:text-sm font-mono font-bold text-neutral-900 dark:text-white truncate block tracking-tight">
+                <span className="text-xs sm:text-sm font-mono font-bold text-white truncate block tracking-tight">
                   {displayText}{' '}
                   {!isMissing && (
-                    <span className="text-[8.5px] text-neutral-500 dark:text-neutral-400 font-normal">
+                    <span className="text-[8.5px] text-neutral-400 font-normal">
                       {m.unit}
                     </span>
                   )}
@@ -95,7 +95,7 @@ export const CardioMetricsGrid: React.FC<Props> = ({ metrics, onUpdateMetric }) 
         })}
       </div>
       {onUpdateMetric && (
-        <p className="text-[9.5px] font-sans text-neutral-500 dark:text-neutral-400 text-center">
+        <p className="text-[9.5px] font-sans text-neutral-400 text-center">
           Optical vision calibrated. Tap any metric to fine-tune before saving.
         </p>
       )}

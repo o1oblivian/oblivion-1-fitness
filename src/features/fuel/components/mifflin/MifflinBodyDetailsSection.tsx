@@ -48,7 +48,7 @@ export const MifflinBodyDetailsSection: React.FC<MifflinBodyDetailsSectionProps>
           className={`text-[10px] font-mono font-bold px-2.5 py-1 rounded-xl border transition-colors cursor-pointer ${
             useBodyFat
               ? 'bg-sky-950/60 border-sky-600 text-sky-300'
-              : 'bg-[#18181b] border-neutral-800 text-neutral-400 hover:text-white'
+              : 'bg-o1-well border-white/[0.07] text-neutral-400 hover:text-white'
           }`}
         >
           {useBodyFat ? 'Body Fat Active' : '+ Add Body Fat %'}
@@ -56,7 +56,7 @@ export const MifflinBodyDetailsSection: React.FC<MifflinBodyDetailsSectionProps>
       </div>
 
       <div className="grid grid-cols-3 gap-2">
-        <div className="bg-[#18181b] border border-neutral-800 rounded-2xl p-2.5">
+        <div className="bg-o1-well border border-white/[0.07] rounded-2xl p-2.5">
           <label className="text-[9px] font-mono uppercase text-neutral-400 block font-bold">
             Weight (kg)
           </label>
@@ -71,7 +71,7 @@ export const MifflinBodyDetailsSection: React.FC<MifflinBodyDetailsSectionProps>
           />
         </div>
 
-        <div className="bg-[#18181b] border border-neutral-800 rounded-2xl p-2.5">
+        <div className="bg-o1-well border border-white/[0.07] rounded-2xl p-2.5">
           <label className="text-[9px] font-mono uppercase text-neutral-400 block font-bold">
             Height (cm)
           </label>
@@ -85,7 +85,7 @@ export const MifflinBodyDetailsSection: React.FC<MifflinBodyDetailsSectionProps>
           />
         </div>
 
-        <div className="bg-[#18181b] border border-neutral-800 rounded-2xl p-2.5">
+        <div className="bg-o1-well border border-white/[0.07] rounded-2xl p-2.5">
           <label className="text-[9px] font-mono uppercase text-neutral-400 block font-bold">
             Age (yrs)
           </label>
@@ -114,7 +114,7 @@ export const MifflinBodyDetailsSection: React.FC<MifflinBodyDetailsSectionProps>
               value={bodyFatPct === 0 ? '' : bodyFatPct}
               onFocus={(e) => e.target.select()}
               onChange={(e) => setBodyFatPct(parseCleanNumber(e.target.value))}
-              className="w-full bg-[#121214] border border-sky-800/60 rounded-xl px-2 py-1 text-xs font-mono font-bold text-white focus:outline-none"
+              className="w-full bg-o1-card border border-sky-800/60 rounded-xl px-2 py-1 text-xs font-mono font-bold text-white focus:outline-none"
             />
           </div>
           <div>
@@ -137,7 +137,7 @@ export const MifflinBodyDetailsSection: React.FC<MifflinBodyDetailsSectionProps>
           <select
             value={gender}
             onChange={(e) => setGender(e.target.value as 'male' | 'female')}
-            className="w-full h-9 px-2 rounded-xl bg-[#18181b] border border-neutral-800 text-xs font-mono font-bold text-neutral-200 focus:outline-none"
+            className="w-full h-9 px-2 rounded-xl bg-o1-well border border-white/[0.07] text-xs font-mono font-bold text-neutral-200 focus:outline-none"
           >
             <option value="male">Male</option>
             <option value="female">Female</option>
@@ -151,7 +151,7 @@ export const MifflinBodyDetailsSection: React.FC<MifflinBodyDetailsSectionProps>
           <select
             value={activityFactor}
             onChange={(e) => setActivityFactor(parseFloat(e.target.value))}
-            className="w-full h-9 px-2 rounded-xl bg-[#18181b] border border-neutral-800 text-xs font-mono font-bold text-neutral-200 focus:outline-none"
+            className="w-full h-9 px-2 rounded-xl bg-o1-well border border-white/[0.07] text-xs font-mono font-bold text-neutral-200 focus:outline-none"
           >
             <option value={1.2}>Sedentary (Desk work, little exercise)</option>
             <option value={1.375}>Light (1-3 days training / week)</option>

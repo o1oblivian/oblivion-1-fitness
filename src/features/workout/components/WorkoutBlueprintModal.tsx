@@ -119,70 +119,70 @@ export const WorkoutBlueprintModal: React.FC<WorkoutBlueprintModalProps> = ({
     <div
       id="workout-blueprint-modal-overlay"
       onClick={onClose}
-      className="fixed inset-0 z-[70000] bg-black/60 dark:bg-black/85 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-200 select-none"
+      className="fixed inset-0 z-[70000] bg-black/85 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-200 select-none"
     >
       <div
         id="workout-blueprint-modal-card"
         onClick={(e) => e.stopPropagation()}
-        className="bg-white dark:bg-[#121214] border border-neutral-200 dark:border-white/10 rounded-t-3xl sm:rounded-3xl w-full max-w-[480px] max-h-[92dvh] h-auto flex flex-col shadow-2xl dark:shadow-[0_20px_60px_rgba(0,0,0,0.9)] overflow-hidden text-neutral-900 dark:text-neutral-100 animate-in slide-in-from-bottom-6 sm:slide-in-from-bottom-2 duration-300"
+        className="bg-o1-card border border-white/[0.07] rounded-t-2xl sm:rounded-2xl w-full max-w-[480px] max-h-[92dvh] h-auto flex flex-col shadow-[0_20px_60px_rgba(0,0,0,0.9)] overflow-hidden text-neutral-100 animate-in slide-in-from-bottom-6 sm:slide-in-from-bottom-2 duration-300"
       >
         {/* HERO IMAGE & BACKDROP HEADER */}
-        <div className="relative h-44 sm:h-52 w-full shrink-0 overflow-hidden bg-neutral-900">
+        <div className="relative h-44 sm:h-52 w-full shrink-0 overflow-hidden bg-o1-well">
           <img
             src={blueprint.image}
             alt={blueprint.title}
             referrerPolicy="no-referrer"
             className="w-full h-full object-cover object-center filter brightness-95 contrast-105"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-white dark:from-[#121214] via-white/80 dark:via-[#121214]/60 to-black/30" />
+          <div className="absolute inset-0 bg-gradient-to-t from-o1-card via-o1-card/60 to-black/30" />
 
           {/* Close button */}
           <button
             type="button"
             onClick={onClose}
             title="Close modal"
-            className="absolute top-4 right-4 z-10 w-9 h-9 rounded-full bg-black/60 hover:bg-black/80 border border-white/20 flex items-center justify-center text-white cursor-pointer active:scale-95 transition backdrop-blur-sm"
+            className="absolute top-4 right-4 z-10 w-9 h-9 rounded-full bg-black/60 hover:bg-black/80 border border-white/[0.07] flex items-center justify-center text-white cursor-pointer active:scale-95 transition backdrop-blur-sm"
           >
             <X className="w-5 h-5" />
           </button>
 
           {/* Badge & Timing pills in top left */}
           <div className="absolute top-4 left-4 z-10 flex items-center gap-2 flex-wrap">
-            <span className="px-2.5 py-1 rounded-full bg-[#C4121A] text-white font-mono text-[9px] font-black tracking-wider uppercase border border-red-500/40 shadow-sm backdrop-blur-xs">
+            <span className="px-2.5 py-1 rounded-full bg-o1-crimson text-white font-mono text-[9px] font-black tracking-wider uppercase border border-red-500/40 shadow-sm backdrop-blur-xs">
               {blueprint.badge}
             </span>
-            <span className="px-2.5 py-1 rounded-full bg-black/60 text-white font-mono text-[9px] font-bold tracking-wider uppercase border border-white/15 flex items-center gap-1 backdrop-blur-xs">
-              <Clock className="w-3 h-3 text-cyan-400" />
+            <span className="px-2.5 py-1 rounded-full bg-black/60 text-white font-mono text-[9px] font-bold tracking-wider uppercase border border-white/[0.07] flex items-center gap-1 backdrop-blur-xs">
+              <Clock className="w-3 h-3 text-sky-400" />
               {blueprint.estimatedTime}
             </span>
           </div>
 
           {/* Title & Subtitle at bottom of header */}
           <div className="absolute bottom-3 left-4 right-4 z-10">
-            <h2 className="text-xl sm:text-2xl font-extrabold tracking-tight text-neutral-900 dark:text-white uppercase font-sans">
+            <h2 className="text-xl sm:text-2xl font-extrabold tracking-tight text-white uppercase font-sans">
               {blueprint.title}
             </h2>
-            <p className="text-xs text-neutral-600 dark:text-neutral-300 font-mono tracking-wide mt-0.5 truncate">
+            <p className="text-xs text-neutral-300 font-mono tracking-wide mt-0.5 truncate">
               {blueprint.subtitle}
             </p>
           </div>
         </div>
 
         {/* OVERVIEW & METADATA BAR */}
-        <div className="px-4 py-3 border-b border-neutral-200 dark:border-white/10 bg-neutral-50 dark:bg-[#0E0E11] space-y-2 shrink-0">
-          <p className="text-xs text-neutral-600 dark:text-neutral-400 leading-relaxed font-sans">
+        <div className="px-4 py-3 border-b border-white/[0.05] bg-o1-card space-y-2 shrink-0">
+          <p className="text-xs text-neutral-400 leading-relaxed font-sans">
             {blueprint.description}
           </p>
 
           <div className="flex items-center gap-1.5 flex-wrap pt-1">
-            <div className="flex items-center gap-1 text-[10px] font-mono font-bold text-neutral-500 dark:text-neutral-400 uppercase mr-1">
+            <div className="flex items-center gap-1 text-[10px] font-mono font-bold text-neutral-400 uppercase mr-1">
               <Target className="w-3 h-3 text-red-500" />
               <span>Target:</span>
             </div>
             {blueprint.targetMuscles.map((muscle) => (
               <span
                 key={muscle}
-                className="px-2 py-0.5 rounded-md bg-white dark:bg-white/5 border border-neutral-200/80 dark:border-white/10 text-[10px] font-mono text-neutral-700 dark:text-neutral-300 font-medium"
+                className="px-2 py-0.5 rounded-md bg-white/5 border border-white/[0.07] text-[10px] font-mono text-neutral-300 font-medium"
               >
                 {muscle}
               </span>
@@ -191,7 +191,7 @@ export const WorkoutBlueprintModal: React.FC<WorkoutBlueprintModalProps> = ({
         </div>
 
         {/* CATEGORY FILTER TABS */}
-        <div className="px-4 py-2 bg-white dark:bg-[#121214] border-b border-neutral-200 dark:border-white/10 shrink-0">
+        <div className="px-4 py-2 bg-o1-card border-b border-white/[0.05] shrink-0">
           <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none py-1">
             {CATEGORY_TABS.map((cat) => {
               const count =
@@ -214,7 +214,7 @@ export const WorkoutBlueprintModal: React.FC<WorkoutBlueprintModalProps> = ({
                   className={`px-3 py-1 rounded-full text-[11px] font-mono font-bold uppercase tracking-wider whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 active:scale-95 ${
                     isSelected
                       ? 'bg-red-600 text-white shadow-md shadow-red-950/30 border border-red-500'
-                      : 'bg-neutral-100 dark:bg-neutral-900/80 text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white border border-neutral-200 dark:border-neutral-800'
+                      : 'bg-o1-well text-neutral-400 hover:text-white border border-white/[0.07]'
                   }`}
                 >
                   <span>{cat}</span>
@@ -222,7 +222,7 @@ export const WorkoutBlueprintModal: React.FC<WorkoutBlueprintModalProps> = ({
                     className={`text-[9px] px-1.5 py-0.2 rounded-full font-sans ${
                       isSelected
                         ? 'bg-red-800 text-white'
-                        : 'bg-neutral-200 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-400'
+                        : 'bg-white/[0.08] text-neutral-400'
                     }`}
                   >
                     {count}
@@ -234,47 +234,47 @@ export const WorkoutBlueprintModal: React.FC<WorkoutBlueprintModalProps> = ({
         </div>
 
         {/* EXERCISES LIST SCROLLER */}
-        <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-3 bg-neutral-50/40 dark:bg-transparent">
+        <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-3 bg-transparent">
           {filteredExercises.length === 0 ? (
-            <div className="py-12 text-center text-neutral-400 dark:text-neutral-500 font-mono text-xs">
+            <div className="py-12 text-center text-neutral-500 font-mono text-xs">
               No exercises found in this category.
             </div>
           ) : (
             filteredExercises.map((ex, index) => (
               <div
                 key={ex.id}
-                className="bg-white dark:bg-[#18181B] border border-neutral-200/80 dark:border-white/10 rounded-2xl p-3.5 space-y-2 shadow-xs dark:shadow-none hover:border-neutral-300 dark:hover:border-white/20 transition"
+                className="bg-o1-well border border-white/[0.07] rounded-2xl p-3.5 space-y-2 shadow-none hover:border-white/[0.14] transition"
               >
                 {/* Top Row: Category tag, index, and name */}
                 <div className="flex items-start justify-between gap-2">
                   <div>
                     <div className="flex items-center gap-2 mb-1">
-                      <span className="w-5 h-5 rounded-full bg-red-50 dark:bg-red-950/60 border border-red-200 dark:border-red-800/60 text-red-600 dark:text-red-400 font-mono text-[10px] font-bold flex items-center justify-center">
+                      <span className="w-5 h-5 rounded-full bg-red-950/60 border border-red-800/60 text-red-400 font-mono text-[10px] font-bold flex items-center justify-center">
                         {index + 1}
                       </span>
-                      <span className="px-2 py-0.5 rounded-md bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 font-mono text-[9px] font-bold uppercase tracking-wider">
+                      <span className="px-2 py-0.5 rounded-md bg-white/[0.08] text-neutral-300 font-mono text-[9px] font-bold uppercase tracking-wider">
                         {ex.category}
                       </span>
                     </div>
-                    <h4 className="font-bold text-sm text-neutral-900 dark:text-white font-sans tracking-tight">
+                    <h4 className="font-bold text-sm text-white font-sans tracking-tight">
                       {ex.name}
                     </h4>
-                    <p className="text-[11px] font-mono text-cyan-600 dark:text-cyan-400 font-medium">
+                    <p className="text-[11px] font-mono text-sky-400 font-medium">
                       {ex.targetMuscle}
                     </p>
                   </div>
 
                   {/* Volume Summary Pill */}
                   <div className="text-right shrink-0">
-                    <span className="inline-block px-2.5 py-1 rounded-lg bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-white/10 text-neutral-900 dark:text-white font-mono text-xs font-bold">
+                    <span className="inline-block px-2.5 py-1 rounded-xl bg-o1-well border border-white/[0.07] text-white font-mono text-xs font-bold">
                       {ex.sets} × {ex.reps}
                     </span>
                     {ex.defaultWeightKg && ex.defaultWeightKg > 0 ? (
-                      <p className="text-[10px] font-mono text-neutral-500 dark:text-neutral-400 mt-0.5">
+                      <p className="text-[10px] font-mono text-neutral-400 mt-0.5">
                         {ex.defaultWeightKg} kg target
                       </p>
                     ) : (
-                      <p className="text-[10px] font-mono text-neutral-400 dark:text-neutral-500 mt-0.5">
+                      <p className="text-[10px] font-mono text-neutral-500 mt-0.5">
                         Bodyweight
                       </p>
                     )}
@@ -282,20 +282,20 @@ export const WorkoutBlueprintModal: React.FC<WorkoutBlueprintModalProps> = ({
                 </div>
 
                 {/* Specs Chips: Rest, Tempo */}
-                <div className="flex items-center gap-2 pt-1 border-t border-neutral-100 dark:border-white/5 flex-wrap text-[10px] font-mono text-neutral-500 dark:text-neutral-400">
-                  <div className="flex items-center gap-1 bg-neutral-100/70 dark:bg-black/40 px-2 py-0.5 rounded-md border border-neutral-200/60 dark:border-white/5">
-                    <Timer className="w-3 h-3 text-amber-500 dark:text-amber-400" />
+                <div className="flex items-center gap-2 pt-1 border-t border-white/[0.05] flex-wrap text-[10px] font-mono text-neutral-400">
+                  <div className="flex items-center gap-1 bg-black/40 px-2 py-0.5 rounded-md border border-white/[0.07]">
+                    <Timer className="w-3 h-3 text-amber-400" />
                     <span>Rest: {ex.rest}</span>
                   </div>
-                  <div className="flex items-center gap-1 bg-neutral-100/70 dark:bg-black/40 px-2 py-0.5 rounded-md border border-neutral-200/60 dark:border-white/5">
-                    <Layers className="w-3 h-3 text-blue-500 dark:text-blue-400" />
+                  <div className="flex items-center gap-1 bg-black/40 px-2 py-0.5 rounded-md border border-white/[0.07]">
+                    <Layers className="w-3 h-3 text-sky-400" />
                     <span>Tempo: {ex.tempo}</span>
                   </div>
                 </div>
 
                 {/* Coaching Cues */}
                 {ex.cues && (
-                  <div className="bg-neutral-50 dark:bg-black/30 rounded-lg p-2 text-[11px] font-mono text-neutral-600 dark:text-neutral-300 leading-snug flex items-start gap-1.5 border border-neutral-200/60 dark:border-white/5">
+                  <div className="bg-black/30 rounded-lg p-2 text-[11px] font-mono text-neutral-300 leading-snug flex items-start gap-1.5 border border-white/[0.07]">
                     <Info className="w-3.5 h-3.5 text-neutral-400 shrink-0 mt-0.5" />
                     <span>{ex.cues}</span>
                   </div>
@@ -306,7 +306,7 @@ export const WorkoutBlueprintModal: React.FC<WorkoutBlueprintModalProps> = ({
         </div>
 
         {/* BOTTOM ACTION BAR */}
-        <div className="p-4 bg-white dark:bg-[#0E0E11] border-t border-neutral-200 dark:border-white/10 shrink-0">
+        <div className="p-4 bg-o1-card border-t border-white/[0.05] shrink-0">
           <button
             type="button"
             id="blueprint-load-btn"

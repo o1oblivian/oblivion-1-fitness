@@ -15,6 +15,7 @@ export function getCustomFoods(): FoodItemRecord[] {
       return parsed.map((item) => ({
         ...item,
         is_custom: true,
+        source: 'custom',
       }));
     }
   } catch (err) {
@@ -43,6 +44,7 @@ export function saveCustomFood(food: Omit<FoodItemRecord, 'id' | 'is_custom'> & 
     category: food.category || 'protein',
     country: food.country || 'AU',
     is_custom: true,
+    source: 'custom',
   };
 
   const existingIdx = current.findIndex((item) => item.id === id);

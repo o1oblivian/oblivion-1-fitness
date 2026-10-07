@@ -1,6 +1,7 @@
 import React from 'react';
 import { RotateCw, Droplet, Activity, Pill, Moon } from 'lucide-react';
 import { tactileEngine } from '../../../services/tactileEngine';
+import { useWallpaperStore } from '../../../stores/useWallpaperStore';
 import { modalActions } from '../../../components/modals/useModalStore';
 
 export interface HeroBackFaceProps {
@@ -42,17 +43,21 @@ export const HeroBackFace: React.FC<HeroBackFaceProps> = ({
         transform: 'rotateY(180deg)',
         pointerEvents: isFlipped ? 'auto' : 'none',
       }}
-      className={`absolute inset-0 w-full h-full rounded-2xl sm:rounded-3xl overflow-hidden bg-transparent transition-opacity duration-300 ${
+      className={`absolute inset-0 w-full h-full rounded-2xl sm:rounded-2xl overflow-hidden bg-transparent transition-opacity duration-300 ${
         isFlipped ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
       }`}
     >
       {activeWallpaper && (
         <img
+          key={activeWallpaper}
           src={activeWallpaper}
           alt=""
           aria-hidden="true"
           className="absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-1000 select-none pointer-events-none"
-          onError={(e) => { (e.currentTarget as HTMLElement).style.display = 'none'; }}
+          onError={(e) => {
+            (e.currentTarget as HTMLElement).style.display = 'none';
+            useWallpaperStore.getState().reportBroken(activeWallpaper);
+          }}
         />
       )}
 
@@ -73,9 +78,9 @@ export const HeroBackFace: React.FC<HeroBackFaceProps> = ({
             }}
             className="p-1 flex flex-col items-center justify-center gap-1 bg-transparent border-0 cursor-pointer active:scale-90 transition-transform"
           >
-            <span className="w-1.5 h-1.5 rounded-full bg-[#C4121A]" />
+            <span className="w-1.5 h-1.5 rounded-full bg-o1-crimson" />
             <span className="w-1.5 h-1.5 rounded-full bg-[#F59E0B]" />
-            <span className="w-1.5 h-1.5 rounded-full bg-[#16a34a]" />
+            <span className="w-1.5 h-1.5 rounded-full bg-[#059669]" />
           </button>
 
           <button
@@ -98,7 +103,7 @@ export const HeroBackFace: React.FC<HeroBackFaceProps> = ({
           <div className="text-6xl sm:text-7xl font-mono font-black text-white tracking-tight">
             {restorationScore}%
           </div>
-          <div className="text-[#C4121A] font-mono font-extrabold text-[12px] sm:text-[13px] tracking-widest uppercase mt-1">
+          <div className="text-o1-crimson font-mono font-extrabold text-[12px] sm:text-[13px] tracking-widest uppercase mt-1">
             RESTORATION READINESS
           </div>
           <div className="text-white/85 font-mono text-[11px] font-bold tracking-wider mt-1.5">
@@ -184,8 +189,8 @@ export const HeroBackFace: React.FC<HeroBackFaceProps> = ({
             }}
             className="flex flex-col text-left cursor-pointer active:scale-95 transition-all p-1 bg-transparent border-0"
           >
-            <div className="text-[10px] font-mono font-extrabold tracking-widest text-indigo-400 flex items-center gap-1.5 uppercase">
-              <Moon className="w-3.5 h-3.5 text-indigo-400 stroke-[2.8]" />
+            <div className="text-[10px] font-mono font-extrabold tracking-widest text-sky-400 flex items-center gap-1.5 uppercase">
+              <Moon className="w-3.5 h-3.5 text-sky-400 stroke-[2.8]" />
               SLEEP
             </div>
             <div className="text-sm sm:text-base font-mono font-black text-white tracking-tight mt-0.5">

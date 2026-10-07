@@ -61,9 +61,9 @@ export const AthleteCoachPortalModals: React.FC<AthleteCoachPortalModalsProps> =
       <CoachDirectMessageModal coach={messageCoach} onClose={onCloseMessage} />
 
       {isCheckinModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-[#121214] border border-neutral-200 dark:border-neutral-800 rounded-3xl p-5 max-w-sm w-full space-y-4">
-            <h3 className="font-mono font-bold text-sm text-neutral-900 dark:text-white uppercase">
+        <div className="fixed inset-0 z-50 bg-black/70 o1-sheet-scrim flex items-center justify-center">
+          <div className="o1-sheet-card bg-o1-card border border-white/[0.07] p-5 w-full space-y-4 overflow-y-auto">
+            <h3 className="font-mono font-bold text-sm text-white uppercase">
               WEEKLY ATHLETE CHECK-IN
             </h3>
             <p className="text-xs text-neutral-500">
@@ -77,7 +77,7 @@ export const AthleteCoachPortalModals: React.FC<AthleteCoachPortalModalsProps> =
             <button
               type="button"
               onClick={onCloseCheckin}
-              className="w-full py-2 rounded-xl bg-neutral-100 dark:bg-neutral-800 text-xs font-mono font-bold uppercase cursor-pointer"
+              className="w-full py-2 rounded-xl bg-white/[0.08] text-xs font-mono font-bold uppercase cursor-pointer"
             >
               CLOSE
             </button>

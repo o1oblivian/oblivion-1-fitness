@@ -1,10 +1,16 @@
 import React from 'react';
 import { DialComponentProps } from './dialTypes';
+import {
+  CRIMSON,
+  AMBER,
+  SKY,
+  HAIR_SOFT,
+  fmtInt,
+  fmtKm,
+  heroShadow,
+  pct,
+} from './luxuryDialShared';
 
-/**
- * Monday - Aerospace Split Cockpit (Screenshot 1 Style)
- * Asymmetrical HUD with thick lines and bold visual substance.
- */
 export const MondaySplitDial: React.FC<DialComponentProps> = ({
   steps,
   stepTarget = 10000,
@@ -14,65 +20,44 @@ export const MondaySplitDial: React.FC<DialComponentProps> = ({
   goalDist = 8,
   intakeKcal,
 }) => {
-  const stepsPct = Math.min(100, Math.round((steps / Math.max(1, stepTarget)) * 100));
-  const burnPct = Math.min(100, Math.round((burnKcal / Math.max(1, goalMove)) * 100));
-  const distPct = Math.min(100, Math.round((distKm / Math.max(1, goalDist)) * 100));
-  const intakePct = Math.min(100, Math.round((intakeKcal / 2200) * 100));
+  const rails = [
+    { label: 'Burn', value: fmtInt(burnKcal), fill: pct(burnKcal, goalMove), color: CRIMSON },
+    { label: 'Intake', value: fmtInt(intakeKcal), fill: pct(intakeKcal, 2200), color: AMBER },
+    { label: 'Dist', value: fmtKm(distKm), fill: pct(distKm, goalDist), color: SKY },
+  ];
 
   return (
-    <div className="relative w-full h-[230px] max-w-[320px] mx-auto flex items-center justify-between px-3 select-none pointer-events-none">
-      {/* Left Flank: Giant Steps Count + Thicker Vertical Hairline Rail */}
-      <div className="flex items-center gap-3">
-        <div className="w-[3.5px] h-28 bg-white/20 rounded-full relative overflow-hidden">
+    <div className="relative w-[280px] h-[220px] mx-auto flex items-center justify-between px-1 select-none pointer-events-none">
+      <div className="flex items-end gap-3">
+        <div className="relative w-[2px] h-[118px] rounded-full overflow-hidden" style={{ background: HAIR_SOFT }}>
           <div
-            className="w-full bg-[#C4121A] transition-all duration-500 absolute bottom-0 rounded-full"
-            style={{ height: `${stepsPct}%` }}
+            className="absolute bottom-0 left-0 right-0 rounded-full transition-all duration-700"
+            style={{ height: `${pct(steps, stepTarget)}%`, background: CRIMSON }}
           />
         </div>
-        <div className="flex flex-col text-left">
-          <span className="font-sans font-black text-5xl text-white tracking-tight leading-none tabular-nums drop-shadow-md">
-            {steps.toLocaleString()}
+        <div>
+          <span className="block text-[48px] leading-none font-semibold tracking-tight text-white tabular-nums" style={heroShadow}>
+            {fmtInt(steps)}
           </span>
-          <span className="text-[11px] font-mono font-bold tracking-[0.2em] text-neutral-300 uppercase mt-1.5">
-            STEPS
-          </span>
+          <span className="mt-2 block text-[9px] font-medium tracking-[0.28em] uppercase text-white/55">Steps</span>
         </div>
       </div>
 
-      {/* Right Flank: 3 Stacked Micro-Meters with Thicker Gauges */}
-      <div className="flex flex-col gap-3.5 min-w-[115px] text-right">
-        {/* Burn */}
-        <div className="flex flex-col items-end">
-          <div className="flex items-baseline gap-1 text-white font-mono">
-            <span className="text-base font-black tabular-nums">{burnKcal}</span>
-            <span className="text-[10px] font-black text-[#C4121A] tracking-wider">BURN</span>
+      <div className="flex flex-col gap-4 w-[108px]">
+        {rails.map((row) => (
+          <div key={row.label}>
+            <div className="flex items-baseline justify-between mb-1">
+              <span className="text-[8px] tracking-[0.18em] uppercase text-white/45">{row.label}</span>
+              <span className="text-[12px] font-medium tabular-nums text-white">{row.value}</span>
+            </div>
+            <div className="h-[1.5px] w-full rounded-full overflow-hidden" style={{ background: HAIR_SOFT }}>
+              <div
+                className="h-full rounded-full transition-all duration-700"
+                style={{ width: `${row.fill}%`, background: row.color }}
+              />
+            </div>
           </div>
-          <div className="w-24 h-[4px] bg-white/20 rounded-full mt-1 overflow-hidden">
-            <div className="h-full bg-[#C4121A] transition-all rounded-full" style={{ width: `${burnPct}%` }} />
-          </div>
-        </div>
-
-        {/* Intake */}
-        <div className="flex flex-col items-end">
-          <div className="flex items-baseline gap-1 text-white font-mono">
-            <span className="text-base font-black tabular-nums">{intakeKcal}</span>
-            <span className="text-[10px] font-black text-[#f59e0b] tracking-wider">INTAKE</span>
-          </div>
-          <div className="w-24 h-[4px] bg-white/20 rounded-full mt-1 overflow-hidden">
-            <div className="h-full bg-[#f59e0b] transition-all rounded-full" style={{ width: `${intakePct}%` }} />
-          </div>
-        </div>
-
-        {/* Distance */}
-        <div className="flex flex-col items-end">
-          <div className="flex items-baseline gap-1 text-white font-mono">
-            <span className="text-base font-black tabular-nums">{distKm.toFixed(1)} km</span>
-            <span className="text-[10px] font-black text-[#0284c7] tracking-wider">DIST</span>
-          </div>
-          <div className="w-24 h-[4px] bg-white/20 rounded-full mt-1 overflow-hidden">
-            <div className="h-full bg-[#0284c7] transition-all rounded-full" style={{ width: `${distPct}%` }} />
-          </div>
-        </div>
+        ))}
       </div>
     </div>
   );

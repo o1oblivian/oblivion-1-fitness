@@ -1,5 +1,5 @@
 import React from 'react';
-import { ChevronDown } from 'lucide-react';
+import { SlidersHorizontal } from 'lucide-react';
 import { tactileEngine } from '../../../../services/tactileEngine';
 import { EQUIPMENT_OPTIONS } from './hubConstants';
 
@@ -11,6 +11,8 @@ interface AutoModeFiltersRowProps {
   onSelectEquipment: (eq: string) => void;
   targetVolume: number;
   onSelectTargetVolume: (vol: number) => void;
+  isChangeOpen: boolean;
+  setIsChangeOpen: (open: boolean) => void;
   isEquipOpen: boolean;
   setIsEquipOpen: (open: boolean) => void;
   isVolOpen: boolean;
@@ -25,113 +27,136 @@ export const AutoModeFiltersRow: React.FC<AutoModeFiltersRowProps> = ({
   onSelectEquipment,
   targetVolume,
   onSelectTargetVolume,
+  isChangeOpen,
+  setIsChangeOpen,
   isEquipOpen,
   setIsEquipOpen,
   isVolOpen,
   setIsVolOpen,
 }) => {
   return (
-    <>
-      {/* Row 1: Discipline Category & Equipment */}
-      <div className="flex items-center justify-between py-1 relative">
-        <div className="flex items-center gap-1.5 text-xs font-bold text-neutral-900 dark:text-white tracking-wide">
-          <span className="w-2 h-2 rounded-full bg-red-600" />
-          <span className="uppercase">{selectedCategory}</span>
+    <div className="mb-2">
+      <div className="flex items-center justify-between py-1">
+        <div className="min-w-0">
+          <p className="text-[10px] font-medium uppercase tracking-wider text-neutral-400">
+            Today
+          </p>
+          <p className="text-sm font-semibold text-white truncate">
+            {selectedCategory} · {targetVolume} moves
+          </p>
         </div>
-        <div className="relative">
-          <button
-            type="button"
-            onClick={() => setIsEquipOpen(!isEquipOpen)}
-            className="text-xs text-neutral-600 dark:text-neutral-300 font-medium hover:text-neutral-900 dark:hover:text-white cursor-pointer flex items-center gap-1"
-          >
-            <span>{selectedEquipment}</span>
-            <ChevronDown className="w-3 h-3 text-neutral-400" />
-          </button>
-          {isEquipOpen && (
-            <div className="absolute right-0 top-full mt-1 bg-white dark:bg-[#18181F] border border-neutral-200 dark:border-white/10 shadow-lg rounded-2xl p-1 z-30 min-w-[140px]">
-              {EQUIPMENT_OPTIONS.map((eq) => (
+        <button
+          type="button"
+          onClick={() => {
+            tactileEngine.triggerSelectionBuzz();
+            setIsChangeOpen(!isChangeOpen);
+            setIsEquipOpen(false);
+            setIsVolOpen(false);
+          }}
+          className="shrink-0 ml-2 h-8 px-3 rounded-full bg-o1-well border border-white/[0.07] text-xs font-medium text-zinc-400 hover:text-white flex items-center gap-1.5 cursor-pointer"
+        >
+          <SlidersHorizontal className="w-3 h-3" />
+          Change
+        </button>
+      </div>
+
+      {isChangeOpen && (
+        <div className="mt-2 rounded-2xl border border-white/[0.07] bg-black p-2.5 space-y-2">
+          <div className="flex items-center gap-1.5 overflow-x-auto py-0.5 scrollbar-none">
+            {currentChips.map((chip) => {
+              const isSelected = selectedCategory.toLowerCase() === chip.toLowerCase();
+              return (
                 <button
-                  key={eq}
+                  key={chip}
                   type="button"
                   onClick={() => {
                     tactileEngine.triggerSelectionBuzz();
-                    onSelectEquipment(eq);
-                    setIsEquipOpen(false);
+                    onSelectCategory(chip);
                   }}
-                  className={`w-full text-left px-3 py-1.5 text-xs font-medium rounded-xl transition-colors cursor-pointer ${
-                    selectedEquipment === eq
-                      ? 'bg-red-50 dark:bg-red-950/50 text-red-600 dark:text-red-400 font-semibold'
-                      : 'text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-white/5'
-                  }`}
+                  className={
+                    isSelected
+                      ? 'bg-white text-neutral-950 text-xs font-semibold px-3 py-1 rounded-full whitespace-nowrap cursor-pointer'
+                      : 'bg-o1-well text-zinc-400 hover:text-white text-xs font-medium px-3 py-1 rounded-full whitespace-nowrap cursor-pointer border border-white/[0.07]'
+                  }
                 >
-                  {eq}
+                  {chip}
                 </button>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
+              );
+            })}
+          </div>
 
-      {/* Row 2: Muscle Group Chips */}
-      <div className="flex items-center gap-2 overflow-x-auto py-2 scrollbar-none my-1">
-        {currentChips.map((chip) => {
-          const isSelected = selectedCategory.toLowerCase() === chip.toLowerCase();
-          return (
-            <button
-              key={chip}
-              type="button"
-              onClick={() => {
-                tactileEngine.triggerSelectionBuzz();
-                onSelectCategory(chip);
-              }}
-              className={
-                isSelected
-                  ? 'bg-red-600 text-white text-xs font-semibold px-3.5 py-1 rounded-full shadow-sm whitespace-nowrap cursor-pointer'
-                  : 'bg-neutral-100 dark:bg-[#0E0E11] text-neutral-600 dark:text-neutral-400 hover:bg-neutral-200 dark:hover:bg-white/10 text-xs font-medium px-3.5 py-1 rounded-full transition-colors whitespace-nowrap cursor-pointer border border-transparent dark:border-white/5'
-              }
-            >
-              {chip}
-            </button>
-          );
-        })}
-      </div>
-
-      {/* Row 3: Target Volume & Exercise Count */}
-      <div className="flex items-center justify-between py-1 mb-2 relative">
-        <span className="text-xs text-neutral-400 font-medium">Target Volume</span>
-        <div className="relative">
-          <button
-            type="button"
-            onClick={() => setIsVolOpen(!isVolOpen)}
-            className="text-xs text-neutral-600 dark:text-neutral-300 font-medium hover:text-neutral-900 dark:hover:text-white cursor-pointer flex items-center gap-1"
-          >
-            <span>{targetVolume} Exercises</span>
-            <ChevronDown className="w-3 h-3 text-neutral-400" />
-          </button>
-          {isVolOpen && (
-            <div className="absolute right-0 top-full mt-1 bg-white dark:bg-[#18181F] border border-neutral-200 dark:border-white/10 shadow-lg rounded-2xl p-1 z-30 min-w-[130px]">
-              {[3, 4, 5, 6, 7, 8].map((vol) => (
-                <button
-                  key={vol}
-                  type="button"
-                  onClick={() => {
-                    tactileEngine.triggerSelectionBuzz();
-                    onSelectTargetVolume(vol);
-                    setIsVolOpen(false);
-                  }}
-                  className={`w-full text-left px-3 py-1.5 text-xs font-medium rounded-xl transition-colors cursor-pointer ${
-                    targetVolume === vol
-                      ? 'bg-red-50 dark:bg-red-950/50 text-red-600 dark:text-red-400 font-semibold'
-                      : 'text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-white/5'
-                  }`}
-                >
-                  {vol} Exercises
-                </button>
-              ))}
+          <div className="flex items-center justify-between relative">
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => {
+                  setIsEquipOpen(!isEquipOpen);
+                  setIsVolOpen(false);
+                }}
+                className="text-xs text-neutral-300 font-medium hover:text-white cursor-pointer"
+              >
+                {selectedEquipment}
+              </button>
+              {isEquipOpen && (
+                <div className="absolute left-0 top-full mt-1 bg-o1-card border border-white/[0.07] shadow-lg rounded-2xl p-1 z-30 min-w-[140px]">
+                  {EQUIPMENT_OPTIONS.map((eq) => (
+                    <button
+                      key={eq}
+                      type="button"
+                      onClick={() => {
+                        tactileEngine.triggerSelectionBuzz();
+                        onSelectEquipment(eq);
+                        setIsEquipOpen(false);
+                      }}
+                      className={`w-full text-left px-3 py-1.5 text-xs font-medium rounded-xl transition-colors cursor-pointer ${
+                        selectedEquipment === eq
+                          ? 'bg-o1-well text-white font-semibold'
+                          : 'text-neutral-300 hover:bg-white/5'
+                      }`}
+                    >
+                      {eq}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
-          )}
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => {
+                  setIsVolOpen(!isVolOpen);
+                  setIsEquipOpen(false);
+                }}
+                className="text-xs text-neutral-300 font-medium hover:text-white cursor-pointer"
+              >
+                {targetVolume} exercises
+              </button>
+              {isVolOpen && (
+                <div className="absolute right-0 top-full mt-1 bg-o1-card border border-white/[0.07] shadow-lg rounded-2xl p-1 z-30 min-w-[130px]">
+                  {[2, 3, 4, 5, 6, 7, 8, 10, 12].map((vol) => (
+                    <button
+                      key={vol}
+                      type="button"
+                      onClick={() => {
+                        tactileEngine.triggerSelectionBuzz();
+                        onSelectTargetVolume(vol);
+                        setIsVolOpen(false);
+                      }}
+                      className={`w-full text-left px-3 py-1.5 text-xs font-medium rounded-xl transition-colors cursor-pointer ${
+                        targetVolume === vol
+                          ? 'bg-o1-well text-white font-semibold'
+                          : 'text-neutral-300 hover:bg-white/5'
+                      }`}
+                    >
+                      {vol} Exercises
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
         </div>
-      </div>
-    </>
+      )}
+    </div>
   );
 };

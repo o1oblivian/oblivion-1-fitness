@@ -27,14 +27,6 @@ export const getSystemToday = (): string => {
   return days[new Date().getDay()] || 'Thu';
 };
 
-export const WALLPAPERS = [
-  'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=1200&q=80',
-  'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=1200&q=80',
-  'https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?auto=format&fit=crop&w=1200&q=80',
-  'https://images.unsplash.com/photo-1526506118085-60ce8714f8c5?auto=format&fit=crop&w=1200&q=80',
-  'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?auto=format&fit=crop&w=1200&q=80',
-];
-
 export interface HeroVitalsContainerProps {
   stepCount?: number;
   activeKcal?: number;
@@ -63,7 +55,6 @@ export const HeroVitalsContainer: React.FC<HeroVitalsContainerProps> = ({
   const [isFlipped, setIsFlipped] = useState(false);
   const [activeModal, setActiveModal] = useState<'hydration' | 'biosync' | 'supplements' | 'sleep' | null>(null);
   const [isReadinessOpen, setIsReadinessOpen] = useState(false);
-  const [wallpaperIndex, setWallpaperIndex] = useState(0);
 
   // Active day auto-initializes to today's real-time calendar day
   const [activeDay, setActiveDay] = useState<string>(() => {
@@ -174,25 +165,34 @@ export const HeroVitalsContainer: React.FC<HeroVitalsContainerProps> = ({
   const splitName = DAY_SPLIT_MAP[activeDay] || 'REST DAY';
   const waterPct = Math.min(100, Math.round((hydrationCurrentL / 3.0) * 100));
 
-  const {
-    intervalSeconds,
-    isPaused,
-    isEnabled,
-    nextWallpaper,
-    getActiveWallpaper,
-  } = useWallpaperStore();
-
+  const { isEnabled, isPaused, intervalSeconds, nextWallpaper, getActiveWallpaper, refreshLive, reportBroken, activeIndex, pool, customUrl } =
+    useWallpaperStore();
   const currentWallpaper = getActiveWallpaper();
   const activeWallpaper = isEnabled ? currentWallpaper?.url : undefined;
 
-  // Auto-rotate effect with user configured interval (10s, 15s, 30s) and pause / battery saver support
+  useEffect(() => {
+    if (!isEnabled || pool.length === 0) return;
+    const total = pool.length + (customUrl ? 1 : 0);
+    const nextIdx = (activeIndex + 1) % total;
+    const liveIdx = customUrl ? nextIdx - 1 : nextIdx;
+    if (liveIdx < 0) return;
+    const url = pool[liveIdx]?.url;
+    if (!url) return;
+    const pre = new Image();
+    pre.onerror = () => reportBroken(url);
+    pre.src = url;
+  }, [isEnabled, activeIndex, pool, customUrl, reportBroken]);
+
+  useEffect(() => {
+    if (!isEnabled) return;
+    void refreshLive(true);
+  }, [isEnabled, refreshLive]);
+
   useEffect(() => {
     if (!isEnabled || isPaused) return;
-
     const timer = setInterval(() => {
       nextWallpaper();
     }, intervalSeconds * 1000);
-
     return () => clearInterval(timer);
   }, [isEnabled, isPaused, intervalSeconds, nextWallpaper]);
 
@@ -201,11 +201,6 @@ export const HeroVitalsContainer: React.FC<HeroVitalsContainerProps> = ({
     const nextIdx = (DAYS_LIST.indexOf(activeDay) + 1) % DAYS_LIST.length;
     const nextDay = DAYS_LIST[nextIdx];
     setActiveDay(nextDay);
-    const routine = DAY_SPLIT_MAP[nextDay] || 'REST DAY';
-    const isToday = nextDay.toLowerCase() === systemToday.toLowerCase();
-    if (isToday) {
-      onShowToast?.(`⚡ Active Today: ${nextDay} • ${routine}`);
-    }
   };
 
   return (

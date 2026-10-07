@@ -114,4 +114,14 @@ export const FATS_FOODS: FoodCatalogItem[] = [
   { id: 'f-98', name: 'Avocado Salsa Verde', brand: 'Herdez', serving: '30g (2 tbsp)', calories: 50, protein: 0.5, carbs: 2, fats: 4.5, category: 'FATS' },
   { id: 'f-99', name: 'Artisan Smoked Salmon Pate / Dip', brand: 'Ducktrap River', serving: '30g (2 tbsp)', calories: 90, protein: 4, carbs: 2, fats: 7.5, category: 'FATS' },
   { id: 'f-100', name: 'Bone Marrow (Roasted Herb Butter style)', brand: 'Culinary Heritage', serving: '50g', calories: 240, protein: 3, carbs: 0, fats: 26, category: 'FATS' },
+
+  { id: 'f-101', name: 'Avocado (100g flesh)', brand: 'Produce', serving: '100g', calories: 160, protein: 2, carbs: 9, fats: 15, category: 'FATS' },
+  { id: 'f-102', name: 'Extra Virgin Olive Oil (10ml)', brand: 'Cobram Estate', serving: '10ml', calories: 82, protein: 0, carbs: 0, fats: 9.1, category: 'FATS' },
+  { id: 'f-103', name: 'Natural Peanut Butter (32g)', brand: 'Mayver\'s / Skippy Natural', serving: '32g (2 tbsp)', calories: 190, protein: 8, carbs: 6, fats: 16, category: 'FATS' },
+  { id: 'f-104', name: 'Raw Almonds (28g handful)', brand: 'Whole Food', serving: '28g', calories: 164, protein: 6, carbs: 6, fats: 14, category: 'FATS' },
+  { id: 'f-105', name: 'Cheddar Cheese (30g slice)', brand: 'Bega / Tillamook', serving: '30g', calories: 120, protein: 7, carbs: 0.4, fats: 10, category: 'FATS' },
+  { id: 'f-106', name: 'Macadamia Nuts (Roasted)', brand: 'Whole Food', serving: '28g', calories: 204, protein: 2.2, carbs: 4, fats: 21.5, category: 'FATS' },
+  { id: 'f-107', name: 'Light Mayonnaise (15g)', brand: 'Hellmann\'s', serving: '15g (1 tbsp)', calories: 35, protein: 0, carbs: 1, fats: 3, category: 'FATS' },
+  { id: 'f-108', name: 'Mixed Nuts Unsalted', brand: 'Whole Food', serving: '30g', calories: 180, protein: 5, carbs: 6, fats: 16, category: 'FATS' },
+  { id: 'f-109', name: 'Egg Yolk (from 1 large egg)', brand: 'Farm Fresh', serving: '17g', calories: 55, protein: 2.7, carbs: 0.6, fats: 4.5, category: 'FATS' },
 ];

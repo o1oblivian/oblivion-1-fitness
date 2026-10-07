@@ -19,8 +19,8 @@ export const O1FVerifiedRoster: React.FC<O1FVerifiedRosterProps> = ({
     <div className="space-y-3 select-none">
       <div className="flex items-center justify-between px-1">
         <div className="flex items-center gap-1.5">
-          <ShieldCheck className="w-4 h-4 text-[#C4121A]" />
-          <h3 className="font-tactical font-black text-xs uppercase tracking-wider text-neutral-900 dark:text-white">
+          <ShieldCheck className="w-4 h-4 text-o1-crimson" />
+          <h3 className="font-tactical font-black text-xs uppercase tracking-wider text-white">
             VERIFIED 01FCOACH DIRECTORY
           </h3>
         </div>
@@ -30,8 +30,8 @@ export const O1FVerifiedRoster: React.FC<O1FVerifiedRosterProps> = ({
       </div>
 
       {safeCoaches.length === 0 ? (
-        <div className="border border-white/10 bg-neutral-950/60 rounded-2xl p-6 text-center space-y-2.5 shadow-sm">
-          <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center mx-auto text-neutral-400">
+        <div className="border border-white/[0.07] bg-black rounded-2xl p-6 text-center space-y-2.5 shadow-sm">
+          <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/[0.07] flex items-center justify-center mx-auto text-neutral-400">
             <Users className="w-5 h-5 text-neutral-400 stroke-[1.8]" />
           </div>
           <div className="space-y-1">
@@ -56,11 +56,11 @@ export const O1FVerifiedRoster: React.FC<O1FVerifiedRosterProps> = ({
                   tactileEngine.triggerSelectionBuzz();
                   if (onSelectCoach) onSelectCoach(coach);
                 }}
-                className="p-3.5 rounded-2xl bg-white dark:bg-[#121214] border border-neutral-200 dark:border-neutral-800 hover:border-[#C4121A]/50 transition-all cursor-pointer shadow-xs space-y-2.5"
+                className="p-3.5 rounded-2xl bg-o1-card border border-white/[0.07] hover:border-o1-crimson/50 transition-all cursor-pointer shadow-xs space-y-2.5"
               >
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-12 h-12 rounded-xl overflow-hidden bg-neutral-800 border border-neutral-200 dark:border-neutral-700 shrink-0">
+                    <div className="w-12 h-12 rounded-xl overflow-hidden bg-white/[0.08] border border-white/[0.07] shrink-0">
                       <img
                         src={coach?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200'}
                         alt={coach?.name || 'Coach'}
@@ -68,10 +68,10 @@ export const O1FVerifiedRoster: React.FC<O1FVerifiedRosterProps> = ({
                       />
                     </div>
                     <div className="min-w-0">
-                      <h4 className="font-tactical font-black text-sm text-neutral-900 dark:text-white truncate">
+                      <h4 className="font-tactical font-black text-sm text-white truncate">
                         {coach?.name}
                       </h4>
-                      <p className="text-[11px] font-mono text-[#C4121A] font-bold truncate">
+                      <p className="text-[11px] font-mono text-o1-crimson font-bold truncate">
                         {specialty}
                       </p>
                     </div>
@@ -79,7 +79,7 @@ export const O1FVerifiedRoster: React.FC<O1FVerifiedRosterProps> = ({
 
                   {coach?.rate && (
                     <div className="text-right shrink-0">
-                      <span className="text-xs font-mono font-bold text-neutral-900 dark:text-white block">
+                      <span className="text-xs font-mono font-bold text-white block">
                         {coach.rate}
                       </span>
                       {coach?.rating && (
@@ -97,7 +97,7 @@ export const O1FVerifiedRoster: React.FC<O1FVerifiedRosterProps> = ({
                     {specialtiesList.slice(0, 3).map((s: string) => (
                       <span
                         key={s}
-                        className="px-2 py-0.5 rounded-md bg-neutral-100 dark:bg-neutral-800 text-[9.5px] font-mono text-neutral-600 dark:text-neutral-400"
+                        className="px-2 py-0.5 rounded-md bg-white/[0.08] text-[9.5px] font-mono text-neutral-400"
                       >
                         {s}
                       </span>

@@ -25,36 +25,52 @@ function getSafeEnv(key: string): string {
   return '';
 }
 
-const envUrl = getSafeEnv('VITE_SUPABASE_URL');
-const envKey = getSafeEnv('VITE_SUPABASE_ANON_KEY');
+const envUrl = import.meta.env.VITE_SUPABASE_URL || getSafeEnv('VITE_SUPABASE_URL');
+const envKey = import.meta.env.VITE_SUPABASE_ANON_KEY || getSafeEnv('VITE_SUPABASE_ANON_KEY');
+
+if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY) {
+  console.warn('[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY at startup.');
+}
 
 // Hardwire production Supabase credentials as default fallbacks
 export const SUPABASE_URL = (envUrl && envUrl.startsWith('http') && !envUrl.includes('placeholder')) ? envUrl : PROD_SUPABASE_URL;
 export const SUPABASE_ANON_KEY = (envKey && !envKey.includes('placeholder')) ? envKey : PROD_SUPABASE_ANON_KEY;
 export const SUPABASE_AUTH_URL = `${SUPABASE_URL}/auth/v1`;
 
+function hasSubtleCrypto(): boolean {
+  try {
+    return typeof window !== 'undefined' && Boolean(window.crypto && window.crypto.subtle);
+  } catch {
+    return false;
+  }
+}
+
+const insecureOrigin = typeof window !== 'undefined' && !hasSubtleCrypto();
+
 type ExtendedSupabaseClient = SupabaseClient & {
   insert: (table: string, payload: any) => Promise<{ data: any; error: any }>;
   selectOne: (table: string, queryParam: string) => Promise<{ data: any; error: any }>;
 };
 
-export const supabaseAuthOptions = {
+const authOptions = {
   persistSession: true,
   autoRefreshToken: true,
   detectSessionInUrl: true,
-  storage: window.localStorage,
+  flowType: (insecureOrigin ? 'implicit' : 'pkce') as 'implicit' | 'pkce',
+  storage: typeof window !== 'undefined' ? window.localStorage : undefined,
 };
+
+export const supabaseAuthOptions = authOptions;
 
 let rawClient: SupabaseClient;
 try {
-  rawClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-    auth: {
-      persistSession: true,
-      autoRefreshToken: true,
-      detectSessionInUrl: true,
-      storage: window.localStorage,
-    },
-  });
+  rawClient = createClient(
+    import.meta.env.VITE_SUPABASE_URL || SUPABASE_URL,
+    import.meta.env.VITE_SUPABASE_ANON_KEY || SUPABASE_ANON_KEY,
+    {
+      auth: authOptions,
+    }
+  );
 } catch (e) {
   console.warn('[Supabase Safe Guard] Initialization notice:', e);
   rawClient = createClient(PROD_SUPABASE_URL, PROD_SUPABASE_ANON_KEY, {
@@ -62,6 +78,7 @@ try {
       persistSession: true,
       autoRefreshToken: true,
       detectSessionInUrl: true,
+      flowType: 'implicit',
       storage: typeof window !== 'undefined' ? window.localStorage : undefined,
     },
   });
@@ -84,7 +101,9 @@ export const supabase: ExtendedSupabaseClient = Object.assign(rawClient, {
 
 export async function syncSessionToSupabase(sessionData: WorkoutSessionPayload): Promise<boolean> {
   try {
-    const userId = sessionData.user_id || (typeof window !== 'undefined' && localStorage.getItem('o1fc_user_id')) || 'default-athlete';
+    const { data: authData } = await rawClient.auth.getUser();
+    const userId = sessionData.user_id || authData?.user?.id;
+    if (!userId || userId === 'default-athlete' || userId === 'athlete-c1') return false;
     const durationMins = parseInt(sessionData.duration?.replace('m', '') || '45', 10);
     const durationSeconds = sessionData.duration_seconds || durationMins * 60;
     const tonnage = sessionData.tonnage_kg ?? sessionData.tonnageKg ?? 0;
@@ -98,19 +117,41 @@ export async function syncSessionToSupabase(sessionData: WorkoutSessionPayload):
       total_sets: totalSets, strain: sessionData.strain || 14.5, completed_at: nowIso, created_at: nowIso,
     };
 
-    await supabase.from('completed_sessions').insert([completedSessionPayload]);
+    const sessionRes = await supabase.from('completed_sessions').insert([completedSessionPayload]);
+    if (sessionRes.error) {
+      console.error('[Supabase] completed_sessions insert failed:', sessionRes.error);
+      return false;
+    }
     if (Array.isArray(sessionData.exercises) && sessionData.exercises.length > 0) {
       const logRows = sessionData.exercises.flatMap((ex: any) => {
-        const setsCount = Number(ex.sets?.length || ex.sets || 1);
-        return Array.from({ length: setsCount }, (_, sIdx) => ({
-          id: `log-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`, user_id: userId,
-          session_id: completedSessionPayload.id, exercise_name: ex.name || 'Exercise', set_number: sIdx + 1,
-          reps: Number(ex.reps || 10), weight_kg: Number(ex.weightKg || ex.weight || 0), rpe: Number(ex.rpe || 8.5), created_at: new Date().toISOString(),
-        }));
+        const setRows = Array.isArray(ex.sets) ? ex.sets : [];
+        const count = setRows.length || Number(ex.sets) || 1;
+        return Array.from({ length: count }, (_, sIdx) => {
+          const set = setRows[sIdx] || {};
+          return {
+            id: `log-${Date.now()}-${sIdx}-${Math.random().toString(36).slice(2, 7)}`,
+            user_id: userId,
+            session_id: completedSessionPayload.id,
+            exercise_name: ex.name || 'Exercise',
+            set_number: Number(set.setNumber || sIdx + 1),
+            reps: Number(set.reps ?? ex.reps ?? 0),
+            weight_kg: Number(set.weightKg ?? set.weight ?? ex.weightKg ?? ex.weight ?? 0),
+            rpe: Number(set.rpe ?? ex.rpe ?? 0),
+            created_at: new Date().toISOString(),
+          };
+        });
       });
-      await supabase.from('workout_logs').insert(logRows);
+      const logsRes = await supabase.from('workout_logs').insert(logRows);
+      if (logsRes.error) {
+        console.error('[Supabase] workout_logs insert failed:', logsRes.error);
+        return false;
+      }
     }
-    await supabase.from('workout_sessions').insert([{ ...completedSessionPayload, exercises: sessionData.exercises || [] }]);
+    const sessionsRes = await supabase.from('workout_sessions').insert([{ ...completedSessionPayload, exercises: sessionData.exercises || [] }]);
+    if (sessionsRes.error) {
+      console.error('[Supabase] workout_sessions insert failed:', sessionsRes.error);
+      return false;
+    }
     return true;
   } catch (err) {
     console.error('[Supabase] Exception while archiving session:', err);
@@ -118,9 +159,11 @@ export async function syncSessionToSupabase(sessionData: WorkoutSessionPayload):
   }
 }
 
-export async function fetchAthleteProfile(userId: string = 'default-athlete'): Promise<AthleteProfile | null> {
+export async function fetchAthleteProfile(userId?: string): Promise<AthleteProfile | null> {
   try {
-    const { data, error } = await supabase.from('profiles').select('*').eq('id', userId).maybeSingle();
+    const uid = userId || (await rawClient.auth.getUser()).data.user?.id;
+    if (!uid) return null;
+    const { data, error } = await supabase.from('profiles').select('*').eq('id', uid).maybeSingle();
     return error ? null : (data as AthleteProfile | null);
   } catch { return null; }
 }

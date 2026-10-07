@@ -82,11 +82,11 @@ export const AthleteMessageModal: React.FC<Props> = ({
   const liveMessages = useBuddyMessageStore((s) => s.liveMessages);
   const setActiveMatchId = useBuddyMessageStore((s) => s.setActiveMatchId);
   const clearUnread = useBuddyMessageStore((s) => s.clearUnread);
-  const currentUserId = useUserStore((s) => s.userId) || 'default-athlete';
+  const currentUserId = useUserStore((s) => s.userId);
 
   // Fetch messages from Supabase on mount
   React.useEffect(() => {
-    if (isOpen && athlete) {
+    if (isOpen && athlete && currentUserId) {
       setActiveMatchId(athlete.id);
       clearUnread();
 
@@ -169,6 +169,7 @@ export const AthleteMessageModal: React.FC<Props> = ({
 
     // Dispatch icebreaker to Supabase
     try {
+      if (!currentUserId) return;
       supabase.from('buddy_messages').insert({
         match_id: athlete.id,
         sender_id: currentUserId,
@@ -208,6 +209,7 @@ export const AthleteMessageModal: React.FC<Props> = ({
 
     // Dispatch to Supabase Realtime table buddy_messages
     try {
+      if (!currentUserId) return;
       supabase.from('buddy_messages').insert({
         match_id: athlete.id,
         sender_id: currentUserId,
@@ -261,11 +263,11 @@ export const AthleteMessageModal: React.FC<Props> = ({
   });
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-0 sm:p-3 animate-in fade-in duration-200 select-none">
-      <div className="relative w-full max-w-md h-full sm:h-[94vh] sm:rounded-3xl bg-[#09090b] flex flex-col overflow-hidden text-neutral-900 dark:text-white shadow-2xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 o1-sheet-scrim animate-in fade-in duration-200 select-none">
+      <div className="o1-sheet-card relative bg-o1-card flex flex-col overflow-hidden text-white shadow-xl border border-white/[0.07]">
         
         {/* Top Chat Bar Header */}
-        <div className="flex items-center justify-between px-3 py-2.5 bg-[#09090b] border-b border-neutral-800 text-white shrink-0">
+        <div className="flex items-center justify-between px-3 py-2.5 bg-black border-b border-white/[0.05] text-white shrink-0">
           <div className="flex items-center gap-2">
             <button
               type="button"
@@ -281,7 +283,7 @@ export const AthleteMessageModal: React.FC<Props> = ({
             <img
               src={photo}
               alt={athlete.name}
-              className="w-9 h-9 rounded-full object-cover border border-[#C4121A] shadow-xs"
+              className="w-9 h-9 rounded-full object-cover border border-o1-crimson shadow-xs"
             />
 
             <div>
@@ -302,7 +304,7 @@ export const AthleteMessageModal: React.FC<Props> = ({
                 tactileEngine.triggerSelectionBuzz();
                 setIsScheduleOpen((prev) => !prev);
               }}
-              className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-[#C4121A] hover:bg-[#a50f16] text-white text-[11px] font-bold font-mono uppercase tracking-wider active:scale-95 transition cursor-pointer shadow-xs"
+              className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-o1-crimson hover:bg-o1-crimson-hover text-white text-[11px] font-bold font-mono uppercase tracking-wider active:scale-95 transition cursor-pointer shadow-xs"
             >
               <Calendar className="w-3.5 h-3.5 text-white" />
               <span>Book</span>
@@ -320,10 +322,10 @@ export const AthleteMessageModal: React.FC<Props> = ({
 
         {/* Schedule Training Session Drawer Dropdown */}
         {isScheduleOpen && (
-          <div className="bg-[#121214] border-b border-neutral-800 p-4 space-y-3 z-30 max-h-[82vh] overflow-y-auto animate-in slide-in-from-top-4 duration-200">
-            <div className="flex items-center justify-between pb-2 border-b border-neutral-800">
+          <div className="bg-o1-card border-b border-white/[0.05] p-4 space-y-3 z-30 max-h-[80vh] overflow-y-auto animate-in slide-in-from-top-4 duration-200">
+            <div className="flex items-center justify-between pb-2 border-b border-white/[0.05]">
               <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-xl bg-[#C4121A] flex items-center justify-center text-white">
+                <div className="w-7 h-7 rounded-xl bg-o1-crimson flex items-center justify-center text-white">
                   <Calendar className="w-4 h-4" />
                 </div>
                 <div>
@@ -344,26 +346,26 @@ export const AthleteMessageModal: React.FC<Props> = ({
             <div className="grid grid-cols-2 gap-2">
               <div className="space-y-1">
                 <label className="text-[10px] font-mono uppercase font-bold text-neutral-400 flex items-center gap-1">
-                  <Calendar className="w-3 h-3 text-[#C4121A]" />
+                  <Calendar className="w-3 h-3 text-o1-crimson" />
                   <span>DATE</span>
                 </label>
                 <input
                   type="date"
                   value="2026-09-26"
                   onChange={(e) => setSchedDate(e.target.value)}
-                  className="w-full bg-[#18181b] border border-neutral-700 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-[#C4121A] cursor-pointer"
+                  className="w-full bg-o1-well border border-white/[0.07] rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-o1-crimson cursor-pointer"
                 />
               </div>
 
               <div className="space-y-1">
                 <label className="text-[10px] font-mono uppercase font-bold text-neutral-400 flex items-center gap-1">
-                  <Clock className="w-3 h-3 text-[#C4121A]" />
+                  <Clock className="w-3 h-3 text-o1-crimson" />
                   <span>TIME</span>
                 </label>
                 <select
                   value={schedTime}
                   onChange={(e) => setSchedTime(e.target.value)}
-                  className="w-full bg-[#18181b] border border-neutral-700 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-[#C4121A] cursor-pointer"
+                  className="w-full bg-o1-well border border-white/[0.07] rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-o1-crimson cursor-pointer"
                 >
                   <option value="6:00 AM">6:00 AM</option>
                   <option value="7:00 AM">7:00 AM</option>
@@ -377,7 +379,7 @@ export const AthleteMessageModal: React.FC<Props> = ({
             {/* Search Gym Worldwide */}
             <div className="space-y-1.5 pt-1">
               <span className="text-[10px] font-mono uppercase font-bold text-neutral-400 flex items-center gap-1">
-                <Search className="w-3 h-3 text-[#C4121A]" />
+                <Search className="w-3 h-3 text-o1-crimson" />
                 <span>SEARCH GYM WORLDWIDE</span>
               </span>
 
@@ -387,21 +389,21 @@ export const AthleteMessageModal: React.FC<Props> = ({
                   value={gymSearch}
                   onChange={(e) => setGymSearch(e.target.value)}
                   placeholder="Gym name / brand (e.g"
-                  className="bg-[#18181b] border border-neutral-700 rounded-lg px-2 py-1.5 text-[10px] text-white placeholder-neutral-500 focus:outline-none focus:border-[#C4121A]"
+                  className="bg-o1-well border border-white/[0.07] rounded-xl px-2 py-1.5 text-[10px] text-white placeholder-neutral-500 focus:outline-none focus:border-o1-crimson"
                 />
                 <input
                   type="text"
                   value={suburbSearch}
                   onChange={(e) => setSuburbSearch(e.target.value)}
                   placeholder="Suburb / City ("
-                  className="bg-[#18181b] border border-neutral-700 rounded-lg px-2 py-1.5 text-[10px] text-white placeholder-neutral-500 focus:outline-none focus:border-[#C4121A]"
+                  className="bg-o1-well border border-white/[0.07] rounded-xl px-2 py-1.5 text-[10px] text-white placeholder-neutral-500 focus:outline-none focus:border-o1-crimson"
                 />
                 <input
                   type="text"
                   value={postcodeSearch}
                   onChange={(e) => setPostcodeSearch(e.target.value)}
                   placeholder="Post /"
-                  className="bg-[#18181b] border border-neutral-700 rounded-lg px-2 py-1.5 text-[10px] text-white placeholder-neutral-500 focus:outline-none focus:border-[#C4121A]"
+                  className="bg-o1-well border border-white/[0.07] rounded-xl px-2 py-1.5 text-[10px] text-white placeholder-neutral-500 focus:outline-none focus:border-o1-crimson"
                 />
               </div>
 
@@ -419,8 +421,8 @@ export const AthleteMessageModal: React.FC<Props> = ({
                       }}
                       className={`w-full p-2.5 rounded-xl border text-left flex items-center justify-between transition cursor-pointer ${
                         isSelected
-                          ? 'bg-[#18181b] border-[#C4121A] text-white'
-                          : 'bg-[#09090b] border-neutral-800 text-neutral-300 hover:bg-[#18181b]'
+                          ? 'bg-o1-well border-o1-crimson text-white'
+                          : 'bg-black border-white/[0.07] text-neutral-300 hover:bg-o1-well'
                       }`}
                     >
                       <div>
@@ -428,7 +430,7 @@ export const AthleteMessageModal: React.FC<Props> = ({
                         <div className="text-[10px] font-mono text-neutral-400 mt-0.5">{v.address}</div>
                       </div>
                       <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${
-                        isSelected ? 'border-[#C4121A] bg-[#C4121A]' : 'border-neutral-600'
+                        isSelected ? 'border-o1-crimson bg-o1-crimson' : 'border-white/[0.07]'
                       }`}>
                         {isSelected && <Check className="w-2.5 h-2.5 text-white" />}
                       </div>
@@ -439,7 +441,7 @@ export const AthleteMessageModal: React.FC<Props> = ({
             </div>
 
             {/* Commute Parity Split */}
-            <div className="p-2.5 rounded-xl bg-[#18181b] border border-neutral-800 flex items-center justify-between text-xs">
+            <div className="p-2.5 rounded-xl bg-o1-well border border-white/[0.07] flex items-center justify-between text-xs">
               <span className="text-[11px] font-mono text-neutral-300">
                 ⚖ Check Commute Split (You & {athlete.name})
               </span>
@@ -449,7 +451,7 @@ export const AthleteMessageModal: React.FC<Props> = ({
             </div>
 
             {/* Selected Gym Summary Box */}
-            <div className="p-3 rounded-xl bg-white dark:bg-[#18181b] border border-neutral-200 dark:border-neutral-700 flex items-center justify-between">
+            <div className="p-3 rounded-xl bg-o1-well border border-white/[0.07] flex items-center justify-between">
               <div>
                 <span className="text-[9px] font-mono uppercase text-neutral-400 font-bold block">
                   SELECTED GYM:
@@ -470,7 +472,7 @@ export const AthleteMessageModal: React.FC<Props> = ({
             <button
               type="button"
               onClick={handleSendSessionInvite}
-              className="w-full py-3 rounded-full bg-[#C4121A] hover:bg-[#a50f16] text-white text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-red-950/30 active:scale-95"
+              className="w-full py-2.5 rounded-xl bg-zinc-100 hover:bg-white text-neutral-950 text-xs font-semibold tracking-wide flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]"
             >
               <Send className="w-3.5 h-3.5 text-white" />
               <span>Send Session Invite</span>
@@ -486,7 +488,7 @@ export const AthleteMessageModal: React.FC<Props> = ({
               <img
                 src={photo}
                 alt={athlete.name}
-                className="w-20 h-20 rounded-full object-cover border-2 border-white/10 shadow-lg"
+                className="w-20 h-20 rounded-full object-cover border border-white/[0.07] shadow-lg"
               />
 
               <div className="space-y-1 max-w-xs">
@@ -505,9 +507,9 @@ export const AthleteMessageModal: React.FC<Props> = ({
                     key={idx}
                     type="button"
                     onClick={() => handleSelectIcebreaker(text)}
-                    className="w-full p-3 rounded-full bg-white dark:bg-[#121214] border border-neutral-200 dark:border-neutral-800 hover:border-[#C4121A] text-left text-xs font-medium text-neutral-800 dark:text-neutral-200 transition active:scale-98 flex items-center gap-2 cursor-pointer shadow-xs group"
+                    className="w-full p-3 rounded-full bg-o1-card border border-white/[0.07] hover:border-o1-crimson text-left text-xs font-medium text-neutral-200 transition active:scale-98 flex items-center gap-2 cursor-pointer shadow-xs group"
                   >
-                    <ChevronRight className="w-4 h-4 text-[#C4121A] shrink-0 group-hover:translate-x-0.5 transition-transform" />
+                    <ChevronRight className="w-4 h-4 text-o1-crimson shrink-0 group-hover:translate-x-0.5 transition-transform" />
                     <span className="truncate">{text}</span>
                   </button>
                 ))}
@@ -527,8 +529,8 @@ export const AthleteMessageModal: React.FC<Props> = ({
                     <div
                       className={`max-w-[80%] px-4 py-2.5 rounded-2xl text-xs leading-relaxed shadow-sm ${
                         m.sender === 'user'
-                          ? 'bg-[#C4121A] text-white rounded-br-xs'
-                          : 'bg-neutral-800 text-neutral-100 rounded-bl-xs'
+                          ? 'bg-o1-crimson text-white rounded-br-xs'
+                          : 'bg-white/[0.08] text-neutral-100 rounded-bl-xs'
                       }`}
                     >
                       <p>{m.text}</p>
@@ -540,7 +542,7 @@ export const AthleteMessageModal: React.FC<Props> = ({
 
                   {/* Interactive GYM SESSION INVITE Card */}
                   {m.invite && (
-                    <div className="w-full max-w-[85%] rounded-3xl overflow-hidden bg-white dark:bg-[#121214] border border-neutral-200 dark:border-neutral-800 shadow-xl mt-1 text-neutral-900 dark:text-white">
+                    <div className="w-full max-w-[85%] rounded-2xl overflow-hidden bg-o1-card border border-white/[0.07] shadow-xl mt-1 text-white">
                       {/* Emerald Header */}
                       <div className="bg-[#059669] text-white px-4 py-2 flex items-center gap-1.5 text-xs font-mono font-bold uppercase tracking-wider">
                         <Calendar className="w-4 h-4" />
@@ -562,7 +564,7 @@ export const AthleteMessageModal: React.FC<Props> = ({
                             <MapPin className="w-3.5 h-3.5 text-[#059669] shrink-0 mt-0.5" />
                             <div>
                               <div className="font-bold">{m.invite.gym}</div>
-                              <div className="text-[10px] text-neutral-500 dark:text-neutral-400 font-mono">
+                              <div className="text-[10px] text-neutral-400 font-mono">
                                 {m.invite.address}
                               </div>
                             </div>
@@ -570,19 +572,19 @@ export const AthleteMessageModal: React.FC<Props> = ({
                         </div>
 
                         {/* Commute Parity Breakdown Box */}
-                        <div className="p-2.5 rounded-xl bg-neutral-100 dark:bg-[#18181b] border border-neutral-200 dark:border-neutral-800 space-y-1">
+                        <div className="p-2.5 rounded-xl bg-o1-well border border-white/[0.07] space-y-1">
                           <div className="flex items-center justify-between text-[11px] font-mono">
-                            <span className="text-neutral-600 dark:text-neutral-400">⚖ Commute Parity:</span>
-                            <span className="font-bold text-emerald-600 dark:text-emerald-400">{m.invite.parity}</span>
+                            <span className="text-neutral-400">⚖ Commute Parity:</span>
+                            <span className="font-bold text-emerald-400">{m.invite.parity}</span>
                           </div>
-                          <div className="text-[10px] font-mono text-neutral-500 dark:text-neutral-400">
+                          <div className="text-[10px] font-mono text-neutral-400">
                             🚗 You: {m.invite.userCommute} 🚗 {athlete.name}: {m.invite.peerCommute}
                           </div>
                         </div>
 
                         {/* Status & Directions Footer */}
                         <div className="flex items-center justify-between pt-1">
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 text-[10px] font-mono font-bold">
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20 text-[10px] font-mono font-bold">
                             <Clock className="w-3 h-3" />
                             <span>{m.invite.status} ●</span>
                           </span>
@@ -590,7 +592,7 @@ export const AthleteMessageModal: React.FC<Props> = ({
                           <button
                             type="button"
                             onClick={() => tactileEngine.triggerSelectionBuzz()}
-                            className="inline-flex items-center gap-1 text-[11px] font-mono text-emerald-600 dark:text-emerald-400 hover:underline cursor-pointer"
+                            className="inline-flex items-center gap-1 text-[11px] font-mono text-emerald-400 hover:underline cursor-pointer"
                           >
                             <Navigation className="w-3 h-3" />
                             <span>Directions</span>
@@ -610,7 +612,7 @@ export const AthleteMessageModal: React.FC<Props> = ({
         </div>
 
         {/* Bottom Chat Input Bar: Only unlocked when peer replies */}
-        <div className="p-3 bg-[#09090b] border-t border-neutral-800 flex items-center gap-2">
+        <div className="p-3 bg-black border-t border-white/[0.05] flex items-center gap-2">
           {hasReplied ? (
             <>
               <input
@@ -621,7 +623,7 @@ export const AthleteMessageModal: React.FC<Props> = ({
                   if (e.key === 'Enter') handleSendCustomMessage();
                 }}
                 placeholder="Type a message..."
-                className="flex-1 bg-white dark:bg-[#18181b] border border-neutral-200 dark:border-neutral-700 rounded-full px-4 py-2.5 text-xs text-neutral-900 dark:text-white placeholder-neutral-500 focus:outline-none focus:border-[#C4121A] transition"
+                className="flex-1 bg-o1-well border border-white/[0.07] rounded-full px-4 py-2.5 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-o1-crimson transition"
               />
               <button
                 type="button"
@@ -629,15 +631,15 @@ export const AthleteMessageModal: React.FC<Props> = ({
                 disabled={!inputText.trim()}
                 className={`w-10 h-10 rounded-full flex items-center justify-center transition active:scale-90 cursor-pointer shadow-md ${
                   inputText.trim()
-                    ? 'bg-[#C4121A] text-white'
-                    : 'bg-neutral-800 text-neutral-500 opacity-60'
+                    ? 'bg-o1-crimson text-white'
+                    : 'bg-white/[0.08] text-neutral-500 opacity-60'
                 }`}
               >
                 <Send className="w-4 h-4 ml-0.5" />
               </button>
             </>
           ) : (
-            <div className="w-full py-2.5 px-4 rounded-full bg-[#18181b] border border-neutral-800 text-center">
+            <div className="w-full py-2.5 px-4 rounded-full bg-o1-well border border-white/[0.07] text-center">
               <span className="text-[11px] font-mono text-neutral-400">
                 {messages.length === 0
                   ? 'Pick an athletic icebreaker above to initiate request'

@@ -20,6 +20,7 @@ export const FOOD_CATEGORY_OPTIONS = [
   'PROTEIN',
   'CARBS',
   'FATS',
+  'FASTFOOD',
   'DRINKS',
 ] as const;
 

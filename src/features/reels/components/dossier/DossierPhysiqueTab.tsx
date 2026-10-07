@@ -26,7 +26,7 @@ export const DossierPhysiqueTab: React.FC<DossierPhysiqueTabProps> = ({
             <span className="text-emerald-400">In-Season</span>
           </div>
 
-          <div className="grid grid-cols-3 gap-2 py-1.5 border-y border-white/5">
+          <div className="grid grid-cols-3 gap-2 py-1.5 border-y border-white/[0.05]">
             <div className="text-center">
               <span className="text-[9px] text-neutral-500 block">Height</span>
               <span className="text-[11px] font-mono text-white/90 font-medium">
@@ -67,7 +67,7 @@ export const DossierPhysiqueTab: React.FC<DossierPhysiqueTabProps> = ({
           <span>{displayReels.length} Reels</span>
         </div>
 
-        <div className="divide-y divide-white/5">
+        <div className="divide-y divide-white/[0.05]">
           {displayReels.map((reel) => (
             <div
               key={reel.id}
@@ -78,7 +78,7 @@ export const DossierPhysiqueTab: React.FC<DossierPhysiqueTabProps> = ({
               }}
               className="py-2 flex items-center gap-3 cursor-pointer group hover:opacity-90 active:scale-[0.99] transition-all"
             >
-              <div className="w-10 h-12 rounded-md overflow-hidden relative shrink-0 bg-neutral-900">
+              <div className="w-10 h-12 rounded-md overflow-hidden relative shrink-0 bg-o1-well">
                 <img src={reel.thumbnail} alt={reel.title} className="w-full h-full object-cover" />
                 <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
                   <Play className="w-2.5 h-2.5 fill-white text-white translate-x-0.5" />

@@ -28,7 +28,7 @@ export const ReelExploreGrid: React.FC<ReelExploreGridProps> = ({
   onToggleFollow, onBookCoach, onMessageCoach,
 }) => {
   return (
-    <div className="flex-1 w-full h-full flex flex-col bg-[#09090b] overflow-y-auto pb-8 select-none">
+    <div className="flex-1 w-full h-full flex flex-col bg-black overflow-y-auto pb-8 select-none">
       <ReelExploreHeader
         tabMode={tabMode}
         setTabMode={setTabMode}
@@ -59,7 +59,7 @@ export const ReelExploreGrid: React.FC<ReelExploreGridProps> = ({
             ))
           ) : (
             <div className="flex flex-col items-center justify-center py-20 px-4 text-center">
-              <div className="w-12 h-12 rounded-2xl bg-[#121214] border border-neutral-800 flex items-center justify-center text-neutral-500 mb-3 shadow-sm">
+              <div className="w-12 h-12 rounded-2xl bg-o1-card border border-white/[0.07] flex items-center justify-center text-neutral-500 mb-3 shadow-sm">
                 <span className="font-mono text-xs font-bold">O1</span>
               </div>
               <h4 className="text-xs font-tactical font-black text-neutral-300 uppercase tracking-widest">

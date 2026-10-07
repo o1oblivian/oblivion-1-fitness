@@ -1,5 +1,7 @@
 import { supabase } from './supabaseClient';
+import { apiUrl } from './apiBase';
 import { CoachPayoutLedgerRecord } from '../types/database';
+import type { CoachPlanId } from '../../shared/coachPlans';
 
 export interface CoachProfileData {
   id: string;
@@ -12,19 +14,48 @@ export interface CoachProfileData {
   accepting_new_athletes?: boolean;
 }
 
-export interface CoachBalanceTelemetry {
-  availableNet: number;
-  pendingNet: number;
-  grossVolume: number;
-  platformFee10Pct: number;
+export interface CoachSaleRecord {
+  id: string;
+  athlete_name?: string | null;
+  program_title?: string | null;
+  gross_amount: number;
+  platform_fee: number;
+  coach_net: number;
+  status: string;
+  currency?: string | null;
+  created_at: string;
+}
+
+/** Response of the authenticated GET /api/stripe/balance. All money is integer cents. */
+export interface StripeBalance {
+  accountLinked: boolean;
+  accountId: string | null;
+  payoutsEnabled: boolean;
+  plan: CoachPlanId;
+  platformFeeRate: number;
   currency: string;
+  availableCents: number;
+  pendingCents: number;
+  paidCents: number;
+  grossCents: number;
+  platformFeeCents: number;
+  payouts: CoachPayoutLedgerRecord[];
+  transactions: CoachSaleRecord[];
+}
+
+async function authHeaders(): Promise<Record<string, string>> {
+  const { data: { session } } = await supabase.auth.getSession();
+  return {
+    'Content-Type': 'application/json',
+    ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
+  };
 }
 
 const isValidUuid = (val?: string | null): boolean =>
   Boolean(val && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(val));
 
 export const stripeConnectService = {
-  async getCoachProfile(coachId = 'coach_alpha'): Promise<CoachProfileData> {
+  async getCoachProfile(coachId = ''): Promise<CoachProfileData> {
     try {
       const { data: authData } = await supabase.auth.getUser();
       const targetId = authData?.user?.id || (isValidUuid(coachId) ? coachId : null);
@@ -63,33 +94,34 @@ export const stripeConnectService = {
     };
   },
 
+  /** Starts (or resumes) Stripe Express onboarding. Auth comes from the Supabase session token. */
   async createConnectAccount(returnUrl?: string): Promise<{ url?: string; error?: string }> {
     try {
       const origin = returnUrl || (typeof window !== 'undefined' ? window.location.origin : '');
-      const { data: { session } } = await supabase.auth.getSession();
-      const res = await fetch('/api/stripe/create-connect-account', {
+      const res = await fetch(apiUrl('/api/stripe/create-connect-account'), {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}) },
+        headers: await authHeaders(),
         body: JSON.stringify({ returnUrl: origin }),
       });
-      const data = await res.json();
-      if (!res.ok || (data.error && !data.url)) return { error: data.error || 'Failed to initialize Stripe onboarding.' };
-      return { url: data?.url };
+      const data = await res.json().catch(() => ({}));
+      const url = typeof data?.url === 'string' ? data.url : undefined;
+      if (!res.ok || !url) return { error: data?.error || 'Failed to initialize Stripe onboarding.' };
+      return { url };
     } catch (err: any) {
-      return { error: err.message || 'Network error reaching onboarding service.' };
+      return { error: err.message || 'Network error communicating with Stripe Connect.' };
     }
   },
 
+  /** The server decides the destination account and validates the amount against the real balance. */
   async createPayout(amountCents: number): Promise<{ success: boolean; payoutId?: string; error?: string }> {
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      const res = await fetch('/api/stripe/create-payout', {
+      const res = await fetch(apiUrl('/api/stripe/create-payout'), {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}) },
+        headers: await authHeaders(),
         body: JSON.stringify({ amountCents }),
       });
-      const data = await res.json();
-      if (!res.ok || data.error) return { success: false, error: data.error || 'Failed to process withdrawal.' };
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || data?.error) return { success: false, error: data?.error || 'Failed to process withdrawal.' };
       return { success: true, payoutId: data?.payoutId || data?.transferId };
     } catch (err: any) {
       return { success: false, error: err.message || 'Network error communicating with payout service.' };
@@ -98,39 +130,28 @@ export const stripeConnectService = {
 
   async createStripeLoginLink(): Promise<{ url?: string; error?: string }> {
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      const res = await fetch('/api/stripe/create-login-link', {
+      const res = await fetch(apiUrl('/api/stripe/create-login-link'), {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}) },
+        headers: await authHeaders(),
       });
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) return { error: data?.error || 'Could not open the Stripe dashboard.' };
       return { url: data?.url };
     } catch (err: any) {
       return { error: err.message || 'Network error reaching Stripe portal service.' };
     }
   },
 
-  async getLedgerAndBalance(coachId: string): Promise<{ balance: CoachBalanceTelemetry; ledger: CoachPayoutLedgerRecord[] }> {
-    const emptyBal = { availableNet: 0, pendingNet: 0, grossVolume: 0, platformFee10Pct: 0, currency: 'AUD' };
-    if (!isValidUuid(coachId)) return { balance: emptyBal, ledger: [] };
+  /** Real pending / available / paid balance, computed on the server from the payout ledger. */
+  async getBalance(): Promise<{ data?: StripeBalance; error?: string }> {
     try {
-      const { data, error } = await supabase.from('coach_payout_ledger').select('*').eq('coach_id', coachId).order('created_at', { ascending: false });
-      if (!error && data && data.length > 0) {
-        const ledger = data as CoachPayoutLedgerRecord[];
-        const paidOut = ledger.filter((l) => l.status?.toLowerCase() === 'paid').reduce((s, l) => s + Number(l.amount_cents || 0), 0);
-        const inFlight = ledger.filter((l) => ['pending', 'processing'].includes(l.status?.toLowerCase() || '')).reduce((s, l) => s + Number(l.amount_cents || 0), 0);
-        const total = ledger.filter((l) => l.status?.toLowerCase() !== 'failed').reduce((s, l) => s + Number(l.amount_cents || 0), 0);
-        return {
-          balance: {
-            availableNet: Math.max(0, (total - paidOut - inFlight) / 100),
-            pendingNet: inFlight / 100, grossVolume: total / 100,
-            platformFee10Pct: (total / 100) * 0.1, currency: (ledger[0]?.currency || 'aud').toUpperCase(),
-          },
-          ledger,
-        };
-      }
-    } catch {}
-    return { balance: emptyBal, ledger: [] };
+      const res = await fetch(apiUrl('/api/stripe/balance'), { method: 'GET', headers: await authHeaders() });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) return { error: data?.error || 'Could not load your balance.' };
+      return { data: data as StripeBalance };
+    } catch (err: any) {
+      return { error: err.message || 'Network error loading your balance.' };
+    }
   },
 };
 

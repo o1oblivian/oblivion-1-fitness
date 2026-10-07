@@ -14,44 +14,44 @@ export const MealFoodItemRow: React.FC<MealFoodItemRowProps> = ({
   onDelete,
 }) => {
   return (
-    <div className="bg-neutral-50 dark:bg-[#08080A] p-2.5 rounded-2xl border border-neutral-200 dark:border-neutral-800 flex items-center justify-between gap-2 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors">
+    <div className="bg-white/[0.03] min-h-[44px] px-2.5 py-1.5 rounded-xl flex items-center justify-between gap-2 hover:bg-white/[0.05] transition-colors">
       <div className="flex items-center gap-2.5 flex-1 min-w-0">
         <button
           type="button"
           onClick={onToggleLogged}
           className={`w-5 h-5 rounded-lg flex items-center justify-center transition-colors shrink-0 cursor-pointer ${
             food.logged
-              ? 'bg-[#C4121A] text-white shadow-xs'
-              : 'bg-white dark:bg-[#18181b] border border-neutral-300 dark:border-neutral-700 text-transparent'
+              ? 'bg-o1-crimson text-white shadow-xs'
+              : 'bg-o1-well border border-white/[0.07] text-transparent'
           }`}
         >
           <CheckCircle2 className="w-3.5 h-3.5" />
         </button>
 
         <div className="truncate">
-          <h5 className="text-xs font-semibold text-neutral-900 dark:text-zinc-200 truncate">
+          <h5 className="text-xs font-semibold text-zinc-200 truncate">
             {food.name}
           </h5>
-          <div className="flex items-center gap-2 text-[10px] font-telemetry text-neutral-500 dark:text-zinc-500 mt-0.5">
+          <div className="flex items-center gap-2 text-[10px] font-telemetry text-zinc-500 mt-0.5">
             <span>{food.portion}</span>
             <span>•</span>
-            <span className="text-red-500">{food.protein}g P</span>
+            <span className="text-o1-crimson">{food.protein}g P</span>
             <span>•</span>
-            <span className="text-amber-500">{food.carbs}g C</span>
+            <span className="text-amber-400">{food.carbs}g C</span>
             <span>•</span>
-            <span className="text-cyan-400">{food.fats}g F</span>
+            <span className="text-emerald-400">{food.fats}g F</span>
           </div>
         </div>
       </div>
 
       <div className="flex items-center gap-2 shrink-0">
-        <span className="font-telemetry text-xs font-bold text-neutral-900 dark:text-zinc-200">
+        <span className="font-telemetry text-xs font-bold text-zinc-200">
           {food.calories} kcal
         </span>
         <button
           type="button"
           onClick={onDelete}
-          className="p-1 text-neutral-400 dark:text-zinc-500 hover:text-red-500 dark:hover:text-[#FF3B30] transition-colors cursor-pointer"
+          className="p-1 text-zinc-500 hover:text-[#EF4444] transition-colors cursor-pointer"
           title="Remove"
         >
           <Trash2 className="w-3.5 h-3.5" />

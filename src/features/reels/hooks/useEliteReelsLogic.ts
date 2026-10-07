@@ -23,13 +23,35 @@ export function useEliteReelsLogic(
     let isMounted = true;
     async function loadVerifiedCoaches() {
       try {
-        const { data, error } = await supabase
-          .from('coaches')
-          .select('*')
-          .eq('verified', true);
-        if (!error && data && data.length > 0 && isMounted) {
-          setRemoteCoaches(data as ExploreCoach[]);
-        }
+        const [coachesRes, profilesRes] = await Promise.all([
+          supabase.from('coaches').select('*'),
+          supabase.from('coach_profiles').select('*'),
+        ]);
+        const rows = [...(coachesRes.data || []), ...(profilesRes.data || [])];
+        const mapped: ExploreCoach[] = rows.map((row: any, idx: number) => ({
+          id: String(row.id || row.coach_id || `coach-${idx}`),
+          name: row.name || row.display_name || 'Coach',
+          handle: row.handle || `@${String(row.name || 'coach').toLowerCase().replace(/\s+/g, '')}`,
+          avatar: row.avatar || row.avatar_url || '',
+          verified: Boolean(row.verified),
+          specialtyTitle: row.specialtyTitle || row.specialty || row.discipline || 'Coach',
+          specialty: row.specialty,
+          rating: Number(row.rating || 0),
+          reviewCount: Number(row.review_count || row.reviewCount || 0),
+          certificationPill: row.certificationPill || row.certification || '',
+          rate: row.rate || row.price || '',
+          slotsRemaining: Number(row.slotsRemaining || row.slots || 0),
+          bio: row.bio || '',
+          disciplines: Array.isArray(row.disciplines) ? row.disciplines : [],
+          physiquePhotos: row.physiquePhotos || row.photos || [],
+        }));
+        const seen = new Set<string>();
+        const unique = mapped.filter((c) => {
+          if (seen.has(c.id)) return false;
+          seen.add(c.id);
+          return true;
+        });
+        if (isMounted) setRemoteCoaches(unique);
       } catch {
         // Fallback: remote coaches remains empty, triggering the clean verified directory state
       }

@@ -166,16 +166,16 @@ export const FoodPortionDialModal: React.FC<FoodPortionDialModalProps> = ({
   ];
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-150 select-none">
-      <div className="w-full max-w-sm bg-white dark:bg-[#121214] border border-neutral-200 dark:border-neutral-800 rounded-t-3xl sm:rounded-3xl p-4 sm:p-5 shadow-2xl flex flex-col space-y-3.5 max-h-[92vh] overflow-y-auto">
+    <div className="fixed inset-0 z-50 bg-black/70 o1-sheet-scrim flex items-center justify-center animate-in fade-in duration-150 select-none">
+      <div className="o1-sheet-card w-full bg-o1-card border border-white/[0.07] p-4 shadow-xl flex flex-col space-y-3.5 overflow-y-auto">
         {/* Header with Title and Mode Switcher */}
-        <div className="flex items-center justify-between pb-2 border-b border-neutral-100 dark:border-neutral-800">
+        <div className="flex items-center justify-between pb-2 border-b border-white/[0.05]">
           <div className="min-w-0 pr-2">
             <h3 className="text-[11px] font-mono font-bold uppercase tracking-wider text-neutral-400">
               Select Weight
             </h3>
             {foodName && (
-              <p className="text-xs sm:text-sm font-bold text-neutral-900 dark:text-neutral-100 truncate">
+              <p className="text-xs sm:text-sm font-bold text-neutral-100 truncate">
                 {foodName}
               </p>
             )}
@@ -183,17 +183,17 @@ export const FoodPortionDialModal: React.FC<FoodPortionDialModalProps> = ({
 
           <div className="flex items-center gap-1.5 shrink-0">
             {/* Mode Switcher: Dial vs Numpad */}
-            <div className="flex items-center p-0.5 rounded-xl bg-neutral-100 dark:bg-[#18181b] border border-neutral-200 dark:border-neutral-800">
+            <div className="flex items-center p-0.5 rounded-xl bg-o1-well border border-white/[0.07]">
               <button
                 type="button"
                 onClick={() => {
                   tactileEngine.triggerSelectionBuzz();
                   setMode('dial');
                 }}
-                className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                className={`flex items-center gap-1 px-2.5 py-1 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                   mode === 'dial'
-                    ? 'bg-white dark:bg-[#27272a] text-neutral-900 dark:text-white shadow-xs'
-                    : 'text-neutral-500 hover:text-neutral-900 dark:hover:text-white'
+                    ? 'bg-white/[0.08] text-white shadow-xs'
+                    : 'text-neutral-500 hover:text-white'
                 }`}
                 title="Dial Gauge"
               >
@@ -206,10 +206,10 @@ export const FoodPortionDialModal: React.FC<FoodPortionDialModalProps> = ({
                   tactileEngine.triggerSelectionBuzz();
                   setMode('numpad');
                 }}
-                className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                className={`flex items-center gap-1 px-2.5 py-1 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                   mode === 'numpad'
-                    ? 'bg-white dark:bg-[#27272a] text-neutral-900 dark:text-white shadow-xs'
-                    : 'text-neutral-500 hover:text-neutral-900 dark:hover:text-white'
+                    ? 'bg-white/[0.08] text-white shadow-xs'
+                    : 'text-neutral-500 hover:text-white'
                 }`}
                 title="Numpad Keypad"
               >
@@ -225,7 +225,7 @@ export const FoodPortionDialModal: React.FC<FoodPortionDialModalProps> = ({
                 tactileEngine.triggerSelectionBuzz();
                 onClose();
               }}
-              className="w-7 h-7 rounded-full bg-neutral-100 dark:bg-[#18181b] hover:bg-neutral-200 dark:hover:bg-neutral-800 flex items-center justify-center text-neutral-400 hover:text-neutral-900 dark:hover:text-white cursor-pointer"
+              className="w-7 h-7 rounded-full bg-o1-well hover:bg-white/[0.06] flex items-center justify-center text-neutral-400 hover:text-white cursor-pointer"
             >
               <X className="w-4 h-4" />
             </button>
@@ -246,7 +246,7 @@ export const FoodPortionDialModal: React.FC<FoodPortionDialModalProps> = ({
                 d={bgPath}
                 fill="none"
                 stroke="currentColor"
-                className="text-neutral-200 dark:text-white/10"
+                className="text-white/10"
                 strokeWidth="10"
                 strokeLinecap="round"
               />
@@ -337,7 +337,7 @@ export const FoodPortionDialModal: React.FC<FoodPortionDialModalProps> = ({
               <span className="text-[10px] font-mono font-bold text-neutral-400 block tracking-widest uppercase">
                 GRAMS
               </span>
-              <span className="text-3xl sm:text-4xl font-black font-mono tracking-tight text-neutral-900 dark:text-neutral-100 block leading-tight">
+              <span className="text-3xl sm:text-4xl font-black font-mono tracking-tight text-neutral-100 block leading-tight">
                 {grams}
               </span>
               <span className="text-[10px] text-amber-500 font-semibold block">tap for numpad</span>
@@ -349,10 +349,10 @@ export const FoodPortionDialModal: React.FC<FoodPortionDialModalProps> = ({
         {mode === 'numpad' && (
           <div className="space-y-2.5 py-1">
             {/* Digital Readout */}
-            <div className="p-3 rounded-2xl bg-neutral-50 dark:bg-[#18181c] border border-neutral-200 dark:border-neutral-800 flex items-center justify-between">
+            <div className="p-3 rounded-2xl bg-o1-well border border-white/[0.07] flex items-center justify-between">
               <span className="text-xs font-mono font-bold uppercase text-neutral-400">Weight:</span>
               <div className="flex items-baseline gap-1">
-                <span className="text-3xl font-black font-mono text-neutral-900 dark:text-white tracking-tight">
+                <span className="text-3xl font-black font-mono text-white tracking-tight">
                   {grams}
                 </span>
                 <span className="text-sm font-mono font-bold text-amber-500">g</span>
@@ -364,28 +364,28 @@ export const FoodPortionDialModal: React.FC<FoodPortionDialModalProps> = ({
               <button
                 type="button"
                 onClick={() => handleQuickDelta(-25)}
-                className="flex-1 py-1 rounded-lg bg-neutral-100 dark:bg-[#18181b] hover:bg-neutral-200 dark:hover:bg-neutral-800 text-[11px] font-mono font-bold text-neutral-700 dark:text-neutral-300 active:scale-95 transition-all"
+                className="flex-1 py-1 rounded-xl bg-o1-well hover:bg-white/[0.06] text-[11px] font-mono font-bold text-neutral-300 active:scale-95 transition-all"
               >
                 -25g
               </button>
               <button
                 type="button"
                 onClick={() => handleQuickDelta(25)}
-                className="flex-1 py-1 rounded-lg bg-neutral-100 dark:bg-[#18181b] hover:bg-neutral-200 dark:hover:bg-neutral-800 text-[11px] font-mono font-bold text-neutral-700 dark:text-neutral-300 active:scale-95 transition-all"
+                className="flex-1 py-1 rounded-xl bg-o1-well hover:bg-white/[0.06] text-[11px] font-mono font-bold text-neutral-300 active:scale-95 transition-all"
               >
                 +25g
               </button>
               <button
                 type="button"
                 onClick={() => handleQuickDelta(50)}
-                className="flex-1 py-1 rounded-lg bg-neutral-100 dark:bg-[#18181b] hover:bg-neutral-200 dark:hover:bg-neutral-800 text-[11px] font-mono font-bold text-neutral-700 dark:text-neutral-300 active:scale-95 transition-all"
+                className="flex-1 py-1 rounded-xl bg-o1-well hover:bg-white/[0.06] text-[11px] font-mono font-bold text-neutral-300 active:scale-95 transition-all"
               >
                 +50g
               </button>
               <button
                 type="button"
                 onClick={() => handleQuickDelta(100)}
-                className="flex-1 py-1 rounded-lg bg-neutral-100 dark:bg-[#18181b] hover:bg-neutral-200 dark:hover:bg-neutral-800 text-[11px] font-mono font-bold text-neutral-700 dark:text-neutral-300 active:scale-95 transition-all"
+                className="flex-1 py-1 rounded-xl bg-o1-well hover:bg-white/[0.06] text-[11px] font-mono font-bold text-neutral-300 active:scale-95 transition-all"
               >
                 +100g
               </button>
@@ -398,7 +398,7 @@ export const FoodPortionDialModal: React.FC<FoodPortionDialModalProps> = ({
                   key={digit}
                   type="button"
                   onClick={() => handleNumpadDigit(digit)}
-                  className="py-2.5 rounded-xl bg-neutral-100 dark:bg-[#18181b] hover:bg-neutral-200 dark:hover:bg-neutral-800 active:bg-amber-500 active:text-white text-base font-mono font-bold text-neutral-900 dark:text-neutral-100 transition-all active:scale-95 cursor-pointer"
+                  className="py-2.5 rounded-xl bg-o1-well hover:bg-white/[0.06] active:bg-amber-500 active:text-white text-base font-mono font-bold text-neutral-100 transition-all active:scale-95 cursor-pointer"
                 >
                   {digit}
                 </button>
@@ -406,7 +406,7 @@ export const FoodPortionDialModal: React.FC<FoodPortionDialModalProps> = ({
               <button
                 type="button"
                 onClick={handleNumpadClear}
-                className="py-2.5 rounded-xl bg-neutral-100 dark:bg-[#18181b] hover:bg-red-100 dark:hover:bg-red-950/40 text-xs font-mono font-bold text-neutral-600 dark:text-neutral-400 hover:text-red-600 transition-all active:scale-95 cursor-pointer flex items-center justify-center gap-1"
+                className="py-2.5 rounded-xl bg-o1-well hover:bg-red-950/40 text-xs font-mono font-bold text-neutral-400 hover:text-red-600 transition-all active:scale-95 cursor-pointer flex items-center justify-center gap-1"
                 title="Clear"
               >
                 <RotateCcw className="w-3.5 h-3.5" />
@@ -415,14 +415,14 @@ export const FoodPortionDialModal: React.FC<FoodPortionDialModalProps> = ({
               <button
                 type="button"
                 onClick={() => handleNumpadDigit('0')}
-                className="py-2.5 rounded-xl bg-neutral-100 dark:bg-[#18181b] hover:bg-neutral-200 dark:hover:bg-neutral-800 active:bg-amber-500 active:text-white text-base font-mono font-bold text-neutral-900 dark:text-neutral-100 transition-all active:scale-95 cursor-pointer"
+                className="py-2.5 rounded-xl bg-o1-well hover:bg-white/[0.06] active:bg-amber-500 active:text-white text-base font-mono font-bold text-neutral-100 transition-all active:scale-95 cursor-pointer"
               >
                 0
               </button>
               <button
                 type="button"
                 onClick={handleNumpadBackspace}
-                className="py-2.5 rounded-xl bg-neutral-100 dark:bg-[#18181b] hover:bg-neutral-200 dark:hover:bg-neutral-800 text-neutral-700 dark:text-neutral-300 transition-all active:scale-95 cursor-pointer flex items-center justify-center"
+                className="py-2.5 rounded-xl bg-o1-well hover:bg-white/[0.06] text-neutral-300 transition-all active:scale-95 cursor-pointer flex items-center justify-center"
                 title="Backspace"
               >
                 <Delete className="w-4 h-4" />
@@ -444,7 +444,7 @@ export const FoodPortionDialModal: React.FC<FoodPortionDialModalProps> = ({
               className={`px-2.5 py-1 rounded-xl text-xs font-mono font-bold transition-all cursor-pointer ${
                 grams === p
                   ? 'bg-amber-500 text-white shadow-xs'
-                  : 'bg-neutral-100 dark:bg-[#18181b] text-neutral-600 dark:text-neutral-400 hover:bg-neutral-200 dark:hover:bg-neutral-800'
+                  : 'bg-o1-well text-neutral-400 hover:bg-white/[0.06]'
               }`}
             >
               {p}g
@@ -454,15 +454,15 @@ export const FoodPortionDialModal: React.FC<FoodPortionDialModalProps> = ({
 
         {/* Live Macro Preview HUD */}
         {food && liveKcal !== null && (
-          <div className="p-2.5 rounded-xl bg-neutral-50 dark:bg-[#18181c] border border-neutral-200/80 dark:border-neutral-800/80 flex items-center justify-between text-xs font-sans">
-            <div className="flex items-center gap-1 font-bold text-neutral-800 dark:text-neutral-200">
-              <Flame className="w-3.5 h-3.5 text-[#C4121A] fill-[#C4121A]/20" />
+          <div className="p-2.5 rounded-xl bg-o1-well border border-white/[0.07] flex items-center justify-between text-xs font-sans">
+            <div className="flex items-center gap-1 font-bold text-neutral-200">
+              <Flame className="w-3.5 h-3.5 text-o1-crimson fill-o1-crimson/20" />
               <span>{liveKcal} kcal</span>
             </div>
             <div className="flex items-center gap-2 text-[11px] font-mono font-bold">
-              <span className="text-red-500">{liveP}g P</span>
-              <span className="text-amber-500">{liveC}g C</span>
-              <span className="text-green-500">{liveF}g F</span>
+              <span className="text-o1-crimson">{liveP}g P</span>
+              <span className="text-amber-400">{liveC}g C</span>
+              <span className="text-emerald-400">{liveF}g F</span>
             </div>
           </div>
         )}
@@ -478,7 +478,7 @@ export const FoodPortionDialModal: React.FC<FoodPortionDialModalProps> = ({
               onClose();
             }
           }}
-          className="w-full py-3 rounded-2xl bg-[#C4121A] hover:bg-[#A30F16] active:scale-98 disabled:opacity-50 text-white font-mono text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer"
+          className="w-full py-2.5 rounded-xl bg-zinc-100 hover:bg-white active:scale-[0.98] disabled:opacity-50 text-neutral-950 font-semibold text-xs tracking-wide flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer"
         >
           <Check className="w-4 h-4 stroke-[3]" />
           <span>Log {grams}g {liveKcal !== null ? `(${liveKcal} kcal)` : ''}</span>

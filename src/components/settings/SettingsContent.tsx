@@ -105,9 +105,7 @@ export const SettingsContent: React.FC<SettingsContentProps> = ({
 
       {/* 5. Atmosphere & Input Style Controls */}
       <SettingsAppearanceSection
-        theme={s.theme}
         inputStyle={s.inputStyle}
-        onSetTheme={s.setTheme}
         onSetInputStyle={s.setInputStyle}
         onShowToast={onShowToast}
       />
@@ -119,7 +117,7 @@ export const SettingsContent: React.FC<SettingsContentProps> = ({
         coachUpdates={s.coachUpdates}
         hapticVibration={s.hapticVibration}
         soundEffects={s.soundEffects}
-        publicTelemetry={s.publicTelemetry}
+        crashReports={s.crashReports}
         onAllowPush={() => {
           s.setOsPushEnabled(true);
           onShowToast?.('Lock-screen notifications activated.');
@@ -129,7 +127,7 @@ export const SettingsContent: React.FC<SettingsContentProps> = ({
         onToggleCoachUpdates={s.setCoachUpdates}
         onToggleHaptic={s.setHapticVibration}
         onToggleSound={s.setSoundEffects}
-        onToggleTelemetry={s.setPublicTelemetry}
+        onToggleCrashReports={s.setCrashReports}
       />
 
       {/* 7. Connected Devices & Hardware Sensors */}

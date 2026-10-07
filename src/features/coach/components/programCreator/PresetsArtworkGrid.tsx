@@ -35,8 +35,8 @@ export const PresetsArtworkGrid: React.FC<Props> = ({ coverImage, onSelectImage 
                 tactileEngine.triggerSelectionBuzz();
                 onSelectImage(p.url);
               }}
-              className={`relative aspect-video rounded-xl overflow-hidden border border-neutral-700/60 transition-all cursor-pointer group ${
-                isSelected ? 'opacity-100 shadow-md' : 'opacity-85 hover:opacity-100 hover:border-neutral-500'
+              className={`relative aspect-video rounded-xl overflow-hidden border border-white/[0.07] transition-all cursor-pointer group ${
+                isSelected ? 'opacity-100 shadow-md' : 'opacity-85 hover:opacity-100 hover:border-white/[0.14]'
               }`}
             >
               <img src={p.url} alt={p.title} className="w-full h-full object-cover" />
@@ -45,7 +45,7 @@ export const PresetsArtworkGrid: React.FC<Props> = ({ coverImage, onSelectImage 
               </div>
               {isSelected && (
                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                  <div className="w-5 h-5 rounded-full bg-[#C4121A] flex items-center justify-center shadow-md">
+                  <div className="w-5 h-5 rounded-full bg-o1-crimson flex items-center justify-center shadow-md">
                     <Check className="w-3 h-3 text-white stroke-[3]" />
                   </div>
                 </div>

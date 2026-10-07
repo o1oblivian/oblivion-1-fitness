@@ -11,14 +11,7 @@ interface Props {
 
 export const PayoutAccountBanner: React.FC<Props> = ({ profile, onShowToast }) => {
   const [isLoading, setIsLoading] = useState(false);
-  const isConnected = Boolean(
-    (profile?.stripe_connect_account_id && profile?.stripe_payouts_enabled) ||
-    (typeof window !== 'undefined' && (
-      localStorage.getItem('stripe_connected') === 'true' ||
-      new URLSearchParams(window.location.search).get('stripe') === 'success' ||
-      new URLSearchParams(window.location.search).get('stripe_connected') === 'true'
-    ))
-  );
+  const isConnected = Boolean(profile?.stripe_connect_account_id && profile?.stripe_payouts_enabled);
 
   const handleStartOnboarding = async () => {
     setIsLoading(true);
@@ -27,10 +20,9 @@ export const PayoutAccountBanner: React.FC<Props> = ({ profile, onShowToast }) =
       const returnUrl = typeof window !== 'undefined' ? `${window.location.origin}${window.location.pathname}?stripe_connected=true` : undefined;
       const res = await stripeConnectService.createConnectAccount(returnUrl);
       if (res?.url) {
-        window.open(res.url, '_blank');
+        window.open(res.url, '_blank', 'noopener,noreferrer');
       } else {
-        console.error('No onboarding URL returned');
-        onShowToast('Unable to initiate onboarding. Please try again.');
+        onShowToast(res?.error || 'Unable to initiate onboarding. Please try again.');
       }
     } catch (err) {
       console.error('Onboarding exception:', err);
@@ -58,7 +50,7 @@ export const PayoutAccountBanner: React.FC<Props> = ({ profile, onShowToast }) =
   };
 
   return isConnected ? (
-    <div className="bg-neutral-950 border border-white/10 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+    <div className="bg-black border border-white/[0.07] rounded-2xl p-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
       <div className="flex items-center gap-3">
         <div className="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shrink-0">
           <CheckCircle2 className="w-5 h-5 text-emerald-400" />
@@ -79,20 +71,20 @@ export const PayoutAccountBanner: React.FC<Props> = ({ profile, onShowToast }) =
         type="button"
         disabled={isLoading}
         onClick={handleOpenDashboard}
-        className="text-xs font-tactical font-bold text-neutral-200 hover:text-white flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#141416] border border-white/10 hover:border-white/20 transition cursor-pointer disabled:opacity-50"
+        className="text-xs font-tactical font-bold text-neutral-200 hover:text-white flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-o1-card border border-white/[0.07] hover:border-white/[0.14] transition cursor-pointer disabled:opacity-50"
       >
         {isLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin text-emerald-400" /> : <ExternalLink className="w-3.5 h-3.5 text-emerald-400" />}
         <span>Open Stripe Express Dashboard</span>
       </button>
     </div>
   ) : (
-    <div className="bg-neutral-950 border border-white/10 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+    <div className="bg-black border border-white/[0.07] rounded-2xl p-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
       <div className="flex items-start gap-3">
-        <div className="w-9 h-9 rounded-xl bg-[#D4AF37]/10 border border-[#D4AF37]/30 flex items-center justify-center text-[#F5D061] shrink-0">
-          <AlertCircle className="w-5 h-5 text-[#F5D061]" />
+        <div className="w-9 h-9 rounded-xl bg-[#F59E0B]/10 border border-[#F59E0B]/30 flex items-center justify-center text-[#F59E0B] shrink-0">
+          <AlertCircle className="w-5 h-5 text-[#F59E0B]" />
         </div>
         <div>
-          <span className="text-xs font-tactical font-black uppercase tracking-wider text-[#F5D061] block">SETUP BANK PAYOUTS (STRIPE EXPRESS)</span>
+          <span className="text-xs font-tactical font-black uppercase tracking-wider text-[#F59E0B] block">SETUP BANK PAYOUTS (STRIPE EXPRESS)</span>
           <p className="text-xs font-sans text-neutral-300 mt-0.5 font-medium">Link your bank account via Stripe Express to receive direct coaching disbursements.</p>
         </div>
       </div>
@@ -100,10 +92,10 @@ export const PayoutAccountBanner: React.FC<Props> = ({ profile, onShowToast }) =
         type="button"
         disabled={isLoading}
         onClick={handleStartOnboarding}
-        className="shrink-0 px-4 py-2.5 rounded-xl bg-[#C4121A] hover:bg-[#A30F16] text-white text-xs font-tactical font-bold uppercase tracking-wider transition-all cursor-pointer active:scale-95 shadow-md flex items-center justify-center gap-2 disabled:opacity-50"
+        className="shrink-0 px-4 py-2.5 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover text-white text-xs font-tactical font-bold uppercase tracking-wider transition-all cursor-pointer active:scale-95 shadow-md flex items-center justify-center gap-2 disabled:opacity-50"
       >
         {isLoading ? <Loader2 className="w-4 h-4 animate-spin text-white" /> : <ShieldCheck className="w-4 h-4 text-white" />}
-        <span>CONNECT DIRECT PAYOUTS (STRIPE EXPRESS)</span>
+        <span>ONBOARD WITH STRIPE</span>
       </button>
     </div>
   );

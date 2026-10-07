@@ -7,6 +7,7 @@ import { useLogStore } from '../../stores/useLogStore';
 import { tactileEngine } from '../../services/tactileEngine';
 import { useSubscription } from '../../context/SubscriptionContext';
 import { supabase } from '../../services/supabaseClient';
+import { getAuthenticatedUserId } from '../../services/authUser';
 
 interface UseMealMacroScannerParams {
   isOpen: boolean;
@@ -60,8 +61,8 @@ export function useMealMacroScanner({
         carbsG: (n?.carbsG || 0) + c,
         fatsG: (n?.fatsG || 0) + f,
       });
-      const { data: authData } = await supabase.auth.getUser();
-      const userId = authData?.user?.id || (typeof window !== 'undefined' && localStorage.getItem('o1fc_user_id')) || 'default-athlete';
+      const userId = await getAuthenticatedUserId();
+      if (!userId) return;
       await supabase.from('nutrition_logs').insert([{
         user_id: userId, meal_slot: effectiveSlot, food_name: name, calories: kcal,
         protein: p, carbs: c, fats: f, serving_grams: weight, created_at: new Date().toISOString(),

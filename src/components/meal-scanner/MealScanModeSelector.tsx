@@ -18,14 +18,16 @@ export const MealScanModeSelector: React.FC<MealScanModeSelectorProps> = ({
   ];
 
   return (
-    <div className="grid grid-cols-3 p-1 rounded-2xl bg-[#18181b] border border-neutral-800">
+    <div className="grid grid-cols-3 p-1 rounded-2xl bg-o1-well border border-white/[0.07]">
       {tabs.map(({ mode, label, icon: Icon }) => (
         <button
           key={mode}
           type="button"
           onClick={() => onSelectMode(mode)}
           className={`flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-            scanMode === mode ? 'bg-[#C4121A] text-white shadow-sm' : 'text-neutral-400 hover:text-white'
+            scanMode === mode
+              ? 'bg-white/10 text-white shadow-sm border border-white/[0.07]'
+              : 'text-neutral-400 hover:text-white'
           }`}
         >
           <Icon className="w-3.5 h-3.5" />

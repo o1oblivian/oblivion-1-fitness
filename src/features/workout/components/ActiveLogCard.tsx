@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronDown, ChevronUp, X, Sparkles, Dumbbell } from 'lucide-react';
+import { ChevronDown, ChevronUp, X, Sparkles } from 'lucide-react';
 import { CommitWorkoutModal } from './modals/CommitWorkoutModal';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { useWorkoutStore } from '../store/useWorkoutStore';
@@ -12,6 +12,9 @@ import { useLogStore } from '../../../stores/useLogStore';
 import { useUserStore } from '../../../stores/useUserStore';
 import { useTelemetryHistoryStore, getTelemetryHistoryState } from '../../log/store/useTelemetryHistoryStore';
 import { syncSessionToSupabase } from '../../../services/supabaseClient';
+import { getAuthenticatedUserId } from '../../../services/authUser';
+import { readAthleteSettingsSnapshot } from '../../../utils/athleteSettingsSnapshot';
+import { displayToKg, kgToDisplay, loadUnitLabel } from '../../../utils/weightUnits';
 
 export interface ActiveLogCardProps {
   onShowToast?: (msg: string) => void;
@@ -35,6 +38,7 @@ export const ActiveLogCard: React.FC<ActiveLogCardProps> = ({ onShowToast }) => 
 
   const [expandedExerciseId, setExpandedExerciseId] = useState<string | null>(null);
   const [isCommitOpen, setIsCommitOpen] = useState(false);
+  const [showQuickStart, setShowQuickStart] = useState(false);
 
   const BEGINNER_STARTERS = [
     {
@@ -231,14 +235,19 @@ export const ActiveLogCard: React.FC<ActiveLogCardProps> = ({ onShowToast }) => 
       setId,
       setIndex,
       type,
-      initialValue: currentVal ?? (type === 'reps' ? 10 : type === 'rpe' ? 8 : 0),
+      initialValue:
+        type === 'weight'
+          ? kgToDisplay(currentVal ?? 0, readAthleteSettingsSnapshot().weightUnit)
+          : currentVal ?? (type === 'reps' ? 10 : 8),
     });
   };
 
   const handleConfirmDial = (val: number) => {
     if (!dialConfig.exerciseId) return;
     tactileEngine.playPRCelebration();
-    const numVal = Number(val);
+    const unit = readAthleteSettingsSnapshot().weightUnit;
+    const numVal =
+      dialConfig.type === 'weight' ? displayToKg(Number(val), unit) : Number(val);
     const fieldKey = dialConfig.type === 'weight' ? 'weightKg' : dialConfig.type;
 
     // Direct reactive state update matching setId, setNumber, or index
@@ -345,29 +354,31 @@ export const ActiveLogCard: React.FC<ActiveLogCardProps> = ({ onShowToast }) => 
     });
 
     // 4. Persist to live Supabase tables completed_sessions and workout_logs
-    syncSessionToSupabase({
-      id: `session-${Date.now()}`,
-      user_id: athleteUser.userId || 'default-athlete',
-      title: activeTitle,
-      duration: '45m',
-      duration_seconds: 45 * 60,
-      tonnage_kg: totalVolume,
-      total_sets: totalSets,
-      strain: Math.min(18.5, +(8.5 + (totalVolume / 1500)).toFixed(1)),
-      exercises: exercises.map((e) => ({
-        name: e.name || e.exerciseName || 'Exercise',
-        sets: (e.sets || []).length,
-        reps: e.sets?.[0]?.reps || 10,
-        weightKg: e.sets?.[0]?.weightKg || e.sets?.[0]?.weight || 0,
-        rpe: e.sets?.[0]?.rpe || 8.5,
-      })),
-    }).then((ok) => {
-      if (ok) {
-        notify('Cloud Sync: Session & sets archived to Supabase.');
-      } else {
-        notify('Offline Cache: Session saved locally and queued for Supabase.');
+    void (async () => {
+      const uid = await getAuthenticatedUserId();
+      if (!uid) {
+        notify('Session saved on this device. Sign in to archive to the cloud.');
+        return;
       }
-    });
+      const ok = await syncSessionToSupabase({
+        id: `session-${Date.now()}`,
+        user_id: uid,
+        title: activeTitle,
+        duration: '45m',
+        duration_seconds: 45 * 60,
+        tonnage_kg: totalVolume,
+        total_sets: totalSets,
+        strain: Math.min(18.5, +(8.5 + (totalVolume / 1500)).toFixed(1)),
+        exercises: exercises.map((e) => ({
+          name: e.name || e.exerciseName || 'Exercise',
+          sets: e.sets || [],
+          reps: e.sets?.[0]?.reps || 0,
+          weightKg: e.sets?.[0]?.weightKg || e.sets?.[0]?.weight || 0,
+          rpe: e.sets?.[0]?.rpe || 0,
+        })),
+      });
+      notify(ok ? 'Cloud Sync: Session archived.' : 'Cloud archive failed. Session is still saved on this device.');
+    })();
 
     clearActiveLog();
     setIsCommitOpen(false);
@@ -396,102 +407,88 @@ export const ActiveLogCard: React.FC<ActiveLogCardProps> = ({ onShowToast }) => 
 
   return (
     <>
-      <div className="w-full bg-white dark:bg-[#121214] rounded-3xl p-4 sm:p-5 border border-black/5 dark:border-white/10 shadow-sm space-y-4 text-neutral-900 dark:text-white select-none transition-colors">
+      <div className="w-full bg-o1-card rounded-2xl p-2.5 border border-white/[0.07] shadow-sm space-y-2.5 text-white select-none transition-colors">
         {/* Header Telemetry */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="text-sm font-black text-neutral-900 dark:text-neutral-100 uppercase tracking-wide">
+            <span className="text-xs font-semibold text-neutral-100 uppercase tracking-wide">
               Active Log
             </span>
-            <span className="text-[11px] font-mono text-neutral-500 dark:text-neutral-400">
+            <span className="text-[11px] font-mono text-neutral-400">
               {exercises.length} {exercises.length === 1 ? 'exercise' : 'exercises'}
             </span>
           </div>
-          <div className="flex items-center gap-3 text-[11px] font-mono text-neutral-500 dark:text-neutral-400">
+          <div className="flex items-center gap-3 text-[11px] font-mono text-neutral-400">
             <span>
-              V: <strong className="text-[#C4121A]">{totalVolume.toLocaleString()} KG</strong>
+              V:{' '}
+              <strong className="text-o1-crimson">
+                {kgToDisplay(totalVolume, readAthleteSettingsSnapshot().weightUnit).toLocaleString()}{' '}
+                {loadUnitLabel(readAthleteSettingsSnapshot().weightUnit)}
+              </strong>
             </span>
             <span>
-              S: <strong className="text-neutral-900 dark:text-neutral-100">{totalSets}</strong>
+              S: <strong className="text-neutral-100">{totalSets}</strong>
             </span>
             <span>
-              R: <strong className="text-neutral-900 dark:text-neutral-100">{totalReps}</strong>
+              R: <strong className="text-neutral-100">{totalReps}</strong>
             </span>
           </div>
         </div>
 
         {/* Exercise Rows or Empty State */}
         {exercises.length === 0 ? (
-          <div className="space-y-3">
-            {/* Beginner Quick-Start Hub */}
-            <div className="rounded-2xl bg-neutral-50 dark:bg-[#18181b]/60 border border-neutral-200 dark:border-neutral-800 p-4 space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-xl bg-[#C4121A]/10 border border-[#C4121A]/30 flex items-center justify-center text-[#C4121A]">
-                    <Sparkles className="w-4 h-4 text-[#C4121A]" />
-                  </div>
-                  <div>
-                    <h4 className="text-xs font-bold uppercase tracking-wider text-neutral-900 dark:text-white">
-                      Beginner Quick Start • 1-Tap Workouts
-                    </h4>
-                    <p className="text-[10px] text-neutral-500 dark:text-neutral-400 font-mono">
-                      New to lifting? Tap a proven blueprint to start immediately:
-                    </p>
-                  </div>
-                </div>
+          <div className="rounded-2xl bg-black border border-white/[0.07] px-3 py-3 space-y-2">
+            <p className="text-xs text-neutral-400">
+              Nothing logged yet. Start a session above.
+            </p>
+            <button
+              type="button"
+              onClick={() => {
+                tactileEngine.triggerSelectionBuzz();
+                setShowQuickStart((v) => !v);
+              }}
+              className="text-[11px] font-medium text-neutral-300 hover:text-white cursor-pointer"
+            >
+              {showQuickStart ? 'Hide quick start' : '1-tap beginner starters'}
+            </button>
+            {showQuickStart && (
+            <div className="rounded-2xl bg-o1-card border border-white/[0.07] p-3 space-y-2">
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-o1-crimson" />
+                <h4 className="text-xs font-semibold text-white">
+                  Beginner quick start
+                </h4>
               </div>
-
-              {/* Starter Routine Cards */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {BEGINNER_STARTERS.map((starter, sIdx) => (
                   <div
                     key={sIdx}
                     onClick={() => handleLoadBeginnerStarter(starter)}
-                    className="p-3 rounded-xl bg-white dark:bg-[#121214] border border-neutral-200 dark:border-neutral-800 hover:border-[#C4121A] transition-all cursor-pointer flex flex-col justify-between group active:scale-[0.99] shadow-xs"
+                    className="p-3 rounded-xl bg-o1-well border border-white/[0.07] hover:border-white/[0.14] transition-all cursor-pointer flex flex-col justify-between group active:scale-[0.99]"
                   >
                     <div>
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="text-[9px] font-bold font-mono px-1.5 py-0.5 rounded-full bg-[#C4121A]/10 text-[#C4121A] border border-[#C4121A]/30 uppercase">
-                          {starter.badge}
-                        </span>
-                        <span className="text-[10px] text-neutral-400 group-hover:text-[#C4121A] transition font-bold font-mono">
-                          TAP TO LOAD ➔
-                        </span>
-                      </div>
-                      <h5 className="font-bold text-xs text-neutral-900 dark:text-white leading-tight">
+                      <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full bg-white/10 text-neutral-300 uppercase">
+                        {starter.badge}
+                      </span>
+                      <h5 className="font-semibold text-xs text-white leading-tight mt-1">
                         {starter.title}
                       </h5>
-                      <p className="text-[10px] text-neutral-500 dark:text-neutral-400 mt-0.5">
+                      <p className="text-[10px] text-neutral-400 mt-0.5">
                         {starter.subtitle}
                       </p>
                     </div>
-
-                    <div className="mt-2 pt-1.5 border-t border-neutral-100 dark:border-neutral-800 text-[9px] font-mono text-neutral-400 flex items-center justify-between">
-                      <span>{starter.exercises.length} Exercises Queued</span>
-                      <span className="text-[#C4121A] font-bold">Safe &amp; Effective</span>
+                    <div className="mt-2 pt-1.5 border-t border-white/[0.05] text-[9px] text-neutral-400 flex items-center justify-between">
+                      <span>{starter.exercises.length} exercises</span>
+                      <span>Tap to load</span>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
-
-            {/* Hub prompt */}
-            <div className="rounded-2xl bg-white dark:bg-[#121214] border border-neutral-200 dark:border-neutral-800 p-4 text-center text-neutral-500 dark:text-neutral-400 flex flex-col items-center justify-center gap-2">
-              <div className="w-9 h-9 rounded-xl bg-neutral-100 dark:bg-[#18181b] flex items-center justify-center text-neutral-400 border border-neutral-200 dark:border-neutral-700">
-                <Dumbbell className="w-4 h-4 text-[#C4121A]" />
-              </div>
-              <div className="space-y-0.5">
-                <p className="font-bold text-neutral-800 dark:text-neutral-200 text-xs">
-                  Or pick individual movements
-                </p>
-                <p className="text-[10px] text-neutral-500 font-mono">
-                  Select any exercise from the Exercise Hub above to custom build your session.
-                </p>
-              </div>
-            </div>
+            )}
           </div>
         ) : (
-          <div className="space-y-2.5">
+          <div className="space-y-1.5">
             {exercises.map((exercise) => {
               const isExpanded = expandedExerciseId === exercise.id;
 
@@ -521,7 +518,7 @@ export const ActiveLogCard: React.FC<ActiveLogCardProps> = ({ onShowToast }) => 
           <button
             type="button"
             onClick={handleFinishAndSave}
-            className="w-full py-3.5 rounded-2xl bg-[#C4121A] hover:bg-[#a50f16] active:scale-[0.99] text-white font-mono font-bold text-xs uppercase tracking-wider shadow-md shadow-[#C4121A]/20 flex items-center justify-center gap-2 transition cursor-pointer"
+            className="w-full py-3.5 rounded-2xl bg-o1-crimson hover:bg-o1-crimson-hover active:scale-[0.99] text-white font-mono font-bold text-xs uppercase tracking-wider shadow-md shadow-o1-crimson/20 flex items-center justify-center gap-2 transition cursor-pointer"
           >
             <span>⚡ Finish &amp; Save Session</span>
           </button>
@@ -532,7 +529,13 @@ export const ActiveLogCard: React.FC<ActiveLogCardProps> = ({ onShowToast }) => 
       <DialInputModal
         isOpen={dialConfig.isOpen}
         onClose={() => setDialConfig((prev) => ({ ...prev, isOpen: false }))}
-        unit={dialConfig.type === 'weight' ? 'KG' : dialConfig.type === 'reps' ? 'REPS' : 'RPE'}
+        unit={
+          dialConfig.type === 'weight'
+            ? loadUnitLabel(readAthleteSettingsSnapshot().weightUnit)
+            : dialConfig.type === 'reps'
+              ? 'REPS'
+              : 'RPE'
+        }
         initialValue={dialConfig.initialValue}
         onConfirm={handleConfirmDial}
       />

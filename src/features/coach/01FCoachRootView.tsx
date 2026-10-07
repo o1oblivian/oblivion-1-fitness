@@ -94,8 +94,8 @@ export const O1FCoachRootView: React.FC = () => {
   return (
     <div className="w-full flex flex-col min-h-screen">
       {/* Top Switcher Controls (verified coaches only) */}
-      <div className="sticky top-0 z-40 w-full max-w-md mx-auto px-3.5 sm:px-4 pt-2 pb-1.5 bg-[#F4F4F7]/95 dark:bg-[#09090b]/95 backdrop-blur-md">
-        <div className="bg-white dark:bg-[#121214] p-1 rounded-2xl border border-neutral-200 dark:border-neutral-800 flex items-center justify-between shadow-xs">
+      <div className="sticky top-0 z-40 w-full max-w-md mx-auto px-3.5 sm:px-4 pt-2 pb-1.5 bg-black/95 backdrop-blur-md">
+        <div className="bg-o1-card p-1 rounded-2xl border border-white/[0.07] flex items-center justify-between shadow-xs">
           <button
             type="button"
             id="coach-view-toggle-directory"
@@ -105,8 +105,8 @@ export const O1FCoachRootView: React.FC = () => {
             }}
             className={`flex-1 py-2 px-3 rounded-xl text-xs font-mono font-bold tracking-wider transition-all duration-150 flex items-center justify-center gap-1.5 cursor-pointer select-none active:scale-95 ${
               activeView === 'directory'
-                ? 'bg-[#C4121A] text-white shadow-md'
-                : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white'
+                ? 'bg-o1-crimson text-white shadow-md'
+                : 'text-neutral-400 hover:text-white'
             }`}
           >
             <Users className="w-3.5 h-3.5" />
@@ -121,8 +121,8 @@ export const O1FCoachRootView: React.FC = () => {
             }}
             className={`flex-1 py-2 px-3 rounded-xl text-xs font-mono font-bold tracking-wider transition-all duration-150 flex items-center justify-center gap-1.5 cursor-pointer select-none active:scale-95 ${
               activeView === 'console'
-                ? 'bg-[#C4121A] text-white shadow-md'
-                : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white'
+                ? 'bg-o1-crimson text-white shadow-md'
+                : 'text-neutral-400 hover:text-white'
             }`}
           >
             <Shield className="w-3.5 h-3.5" />

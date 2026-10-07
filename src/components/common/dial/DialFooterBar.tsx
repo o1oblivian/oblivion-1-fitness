@@ -48,7 +48,7 @@ export const DialFooterBar: React.FC<DialFooterBarProps> = ({
                   className={`text-xs font-mono transition-colors ${
                     isActive
                       ? 'font-bold'
-                      : 'text-neutral-500 hover:text-neutral-900 dark:hover:text-white font-medium'
+                      : 'text-neutral-500 hover:text-white font-medium'
                   }`}
                 >
                   {preset}

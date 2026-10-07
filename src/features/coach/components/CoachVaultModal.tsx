@@ -9,7 +9,6 @@ import {
   Film,
   UserCheck,
   Check,
-  ArrowLeft,
 } from 'lucide-react';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { useBuddyProfileStore } from '../../../stores/useBuddyProfileStore';
@@ -282,9 +281,9 @@ export const CoachVaultView: React.FC<CoachVaultViewProps> = ({
   };
 
   return (
-    <div className={`w-full text-neutral-900 dark:text-neutral-100 select-none ${
+    <div className={`w-full text-neutral-100 select-none ${
       embedded
-        ? 'bg-white dark:bg-[#121214] border border-neutral-200 dark:border-neutral-800 rounded-3xl p-3.5 sm:p-5 shadow-xs space-y-4'
+        ? 'bg-o1-card border border-white/[0.07] rounded-2xl p-3.5 sm:p-5 shadow-xs space-y-4'
         : 'p-3 sm:p-4 space-y-4'
     }`}>
       {/* Hidden File Input for Native Picker */}
@@ -298,20 +297,20 @@ export const CoachVaultView: React.FC<CoachVaultViewProps> = ({
 
       {/* 1. TOP STATUS STRIP: Buddy Profile Broadcast (Matching Screenshot 1) */}
       <div className="flex items-center justify-between px-1 py-1">
-        <div className="flex items-center gap-2 text-xs font-mono text-neutral-600 dark:text-neutral-400">
-          <Radio className="w-3.5 h-3.5 text-[#C4121A] animate-pulse" />
+        <div className="flex items-center gap-2 text-xs font-mono text-neutral-400">
+          <Radio className="w-3.5 h-3.5 text-o1-crimson animate-pulse" />
           <span>
-            Buddy Profile Broadcast: <strong className="text-neutral-900 dark:text-white">{buddy.buddyPhotos.length}/6</strong> active
+            Buddy Profile Broadcast: <strong className="text-white">{buddy.buddyPhotos.length}/6</strong> active
           </span>
         </div>
-        <span className="px-2.5 py-0.5 rounded-full bg-[#C4121A]/10 border border-[#C4121A]/30 text-[#C4121A] text-[9px] font-mono font-bold">
+        <span className="px-2.5 py-0.5 rounded-full bg-o1-crimson/10 border border-o1-crimson/30 text-o1-crimson text-[9px] font-mono font-bold">
           {buddy.buddyPhotos.length > 0 ? `${buddy.buddyPhotos.length} ON RADAR` : '4 ON RADAR'}
         </span>
       </div>
 
       {/* Success Notification Banner */}
       {avatarSuccessMsg && (
-        <div className="p-2.5 rounded-xl bg-green-500/10 border border-green-500/30 text-green-600 dark:text-green-400 text-xs font-mono font-bold flex items-center gap-2 animate-in fade-in duration-200">
+        <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-mono font-bold flex items-center gap-2 animate-in fade-in duration-200">
           <Check className="w-4 h-4 shrink-0" />
           <span>{avatarSuccessMsg}</span>
         </div>
@@ -319,7 +318,7 @@ export const CoachVaultView: React.FC<CoachVaultViewProps> = ({
 
       {/* 2. CONTROL ROW: Filter Tabs + ADD Button on Right (Matching Screenshot 1) */}
       <div className="flex items-center justify-between gap-2">
-        <div className="inline-flex items-center bg-neutral-100 dark:bg-[#18181c] border border-neutral-200 dark:border-neutral-800 p-1 rounded-2xl gap-1">
+        <div className="inline-flex items-center bg-o1-well border border-white/[0.07] p-1 rounded-2xl gap-1">
           <button
             type="button"
             onClick={() => {
@@ -328,8 +327,8 @@ export const CoachVaultView: React.FC<CoachVaultViewProps> = ({
             }}
             className={`py-1.5 px-3 rounded-xl text-xs font-bold transition-all text-center whitespace-nowrap cursor-pointer ${
               activeTab === 'all'
-                ? 'bg-white dark:bg-[#121214] text-neutral-900 dark:text-white shadow-xs'
-                : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white'
+                ? 'bg-o1-card text-white shadow-xs'
+                : 'text-neutral-400 hover:text-white'
             }`}
           >
             ALL ({items.length})
@@ -343,8 +342,8 @@ export const CoachVaultView: React.FC<CoachVaultViewProps> = ({
             }}
             className={`py-1.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 whitespace-nowrap cursor-pointer ${
               activeTab === 'photo'
-                ? 'bg-white dark:bg-[#121214] text-neutral-900 dark:text-white shadow-xs'
-                : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white'
+                ? 'bg-o1-card text-white shadow-xs'
+                : 'text-neutral-400 hover:text-white'
             }`}
           >
             <Camera size={13} />
@@ -359,8 +358,8 @@ export const CoachVaultView: React.FC<CoachVaultViewProps> = ({
             }}
             className={`py-1.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 whitespace-nowrap cursor-pointer ${
               activeTab === 'reels'
-                ? 'bg-white dark:bg-[#121214] text-[#C4121A] shadow-xs'
-                : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white'
+                ? 'bg-o1-card text-o1-crimson shadow-xs'
+                : 'text-neutral-400 hover:text-white'
             }`}
           >
             <Film size={13} />
@@ -378,7 +377,7 @@ export const CoachVaultView: React.FC<CoachVaultViewProps> = ({
               fileInputRef.current?.click();
             }
           }}
-          className="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-[#C4121A] hover:bg-[#a80f16] active:scale-95 text-white text-xs font-bold font-mono tracking-wider uppercase cursor-pointer shadow-xs"
+          className="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-o1-crimson hover:bg-o1-crimson-hover active:scale-95 text-white text-xs font-bold font-mono tracking-wider uppercase cursor-pointer shadow-xs"
         >
           {activeTab === 'reels' ? <Film size={14} /> : <Camera size={14} />}
           <span>+ ADD</span>
@@ -398,14 +397,14 @@ export const CoachVaultView: React.FC<CoachVaultViewProps> = ({
             }}
             className="py-24 px-4 flex flex-col items-center justify-center text-center space-y-3 cursor-pointer"
           >
-            <div className="w-16 h-16 rounded-full bg-neutral-100 dark:bg-[#18181c] border border-neutral-200 dark:border-neutral-800 flex items-center justify-center text-neutral-400 dark:text-neutral-500">
+            <div className="w-16 h-16 rounded-full bg-o1-well border border-white/[0.07] flex items-center justify-center text-neutral-500">
               <Camera size={26} />
             </div>
             <div className="space-y-1">
-              <h3 className="text-sm font-bold text-neutral-900 dark:text-white">
+              <h3 className="text-sm font-bold text-white">
                 No media in this category.
               </h3>
-              <p className="text-xs text-neutral-500 dark:text-neutral-400 max-w-xs font-mono">
+              <p className="text-xs text-neutral-400 max-w-xs font-mono">
                 Tap Add to import athlete transformation photos or kinetic reels.
               </p>
             </div>
@@ -420,10 +419,10 @@ export const CoachVaultView: React.FC<CoachVaultViewProps> = ({
                   tactileEngine.triggerSelectionBuzz();
                   setSelectedPreviewItem(item);
                 }}
-                className="group relative rounded-2xl overflow-hidden border border-neutral-200 dark:border-neutral-800 bg-neutral-100 dark:bg-[#18181b] aspect-square flex flex-col justify-between cursor-pointer hover:shadow-md transition-all"
+                className="group relative rounded-2xl overflow-hidden border border-white/[0.07] bg-o1-well aspect-square flex flex-col justify-between cursor-pointer hover:shadow-md transition-all"
               >
                 {item.type === 'video' ? (
-                  <div className="w-full h-full relative bg-neutral-900">
+                  <div className="w-full h-full relative bg-o1-well">
                     {item.thumbnailUrl ? (
                       <img
                         src={item.thumbnailUrl}
@@ -439,7 +438,7 @@ export const CoachVaultView: React.FC<CoachVaultViewProps> = ({
                     )}
                     {/* Play Button Overlay */}
                     <div className="absolute inset-0 bg-black/30 flex items-center justify-center group-hover:bg-black/40 transition-colors">
-                      <div className="w-10 h-10 rounded-full bg-white/90 text-[#C4121A] flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                      <div className="w-10 h-10 rounded-full bg-white/90 text-o1-crimson flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
                         <Play size={18} fill="#C4121A" className="ml-0.5" />
                       </div>
                     </div>
@@ -456,7 +455,7 @@ export const CoachVaultView: React.FC<CoachVaultViewProps> = ({
                 <div className="absolute top-2 left-2 right-2 flex items-center justify-between pointer-events-none">
                   <div className="flex items-center gap-1">
                     {(item.type === 'video' || item.id.includes('reel') || publishedReelIds.includes(item.id)) && (
-                      <span className="px-1.5 py-0.5 rounded-md text-[9px] font-bold bg-[#C4121A] text-white shadow-xs flex items-center gap-1">
+                      <span className="px-1.5 py-0.5 rounded-md text-[9px] font-bold bg-o1-crimson text-white shadow-xs flex items-center gap-1">
                         <Film size={10} />
                         REEL
                       </span>
@@ -489,11 +488,11 @@ export const CoachVaultView: React.FC<CoachVaultViewProps> = ({
       {/* 5. FULL-SCREEN LIGHTBOX / PREVIEW VIEWER */}
       {selectedPreviewItem && (
         <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/90 backdrop-blur-md p-3 sm:p-4 animate-in fade-in duration-150">
-          <div className="w-full max-w-2xl bg-neutral-900 border border-neutral-800 rounded-3xl overflow-hidden flex flex-col text-white shadow-2xl">
+          <div className="w-full max-w-2xl bg-o1-well border border-white/[0.07] rounded-2xl overflow-hidden flex flex-col text-white shadow-2xl">
             {/* Header */}
-            <div className="p-3.5 border-b border-neutral-800 flex items-center justify-between bg-black/50">
+            <div className="p-3.5 border-b border-white/[0.05] flex items-center justify-between bg-black/50">
               <div className="flex items-center gap-2">
-                <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-[#C4121A] text-white uppercase">
+                <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-o1-crimson text-white uppercase">
                   {selectedPreviewItem.category}
                 </span>
                 <h3 className="text-xs font-bold truncate max-w-xs sm:max-w-md">
@@ -539,7 +538,7 @@ export const CoachVaultView: React.FC<CoachVaultViewProps> = ({
             </div>
 
             {/* Footer Metadata & Action Bar */}
-            <div className="p-4 bg-neutral-950 border-t border-neutral-800 space-y-3">
+            <div className="p-4 bg-black border-t border-white/[0.05] space-y-3">
               <div className="flex items-center justify-between text-xs">
                 <div>
                   <span className="font-semibold text-white block">
@@ -550,14 +549,14 @@ export const CoachVaultView: React.FC<CoachVaultViewProps> = ({
                   </span>
                 </div>
                 {selectedPreviewItem.fileSize && (
-                  <span className="px-2 py-0.5 rounded bg-neutral-800 text-[10px] font-mono text-neutral-300">
+                  <span className="px-2 py-0.5 rounded bg-white/[0.08] text-[10px] font-mono text-neutral-300">
                     {selectedPreviewItem.fileSize}
                   </span>
                 )}
               </div>
 
               {selectedPreviewItem.notes && (
-                <div className="p-2.5 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-neutral-300">
+                <div className="p-2.5 rounded-xl bg-o1-well border border-white/[0.07] text-xs text-neutral-300">
                   <span className="text-[10px] font-bold text-amber-500 uppercase block font-mono mb-0.5">
                     Biomechanical Notes
                   </span>
@@ -574,9 +573,9 @@ export const CoachVaultView: React.FC<CoachVaultViewProps> = ({
 
                 return (
                   <div className="space-y-2 pt-1">
-                    <div className="p-2 rounded-xl bg-neutral-900 border border-neutral-800 flex items-center justify-between">
+                    <div className="p-2 rounded-xl bg-o1-well border border-white/[0.07] flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <Radio className="w-3.5 h-3.5 text-[#C4121A] animate-pulse" />
+                        <Radio className="w-3.5 h-3.5 text-o1-crimson animate-pulse" />
                         <span className="text-[11px] text-neutral-300">
                           Buddy Profile Broadcast: {onBuddy ? 'Active on Radar' : 'Vault Only'}
                         </span>
@@ -584,10 +583,10 @@ export const CoachVaultView: React.FC<CoachVaultViewProps> = ({
                       <button
                         type="button"
                         onClick={() => buddy.toggleVaultPhotoOnBuddy(targetUrl)}
-                        className={`px-3 py-1 rounded-lg text-[10px] font-bold transition cursor-pointer ${
+                        className={`px-3 py-1 rounded-xl text-[10px] font-bold transition cursor-pointer ${
                           onBuddy
-                            ? 'bg-[#C4121A] text-white shadow-xs'
-                            : 'bg-neutral-800 text-neutral-300 hover:text-white'
+                            ? 'bg-o1-crimson text-white shadow-xs'
+                            : 'bg-white/[0.08] text-neutral-300 hover:text-white'
                         }`}
                       >
                         {onBuddy ? 'ON RADAR' : 'SET ON'}
@@ -598,9 +597,9 @@ export const CoachVaultView: React.FC<CoachVaultViewProps> = ({
                       <button
                         type="button"
                         onClick={() => handleSetAsAvatar(selectedPreviewItem)}
-                        className="py-2 px-3 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-white text-[11px] font-bold flex items-center justify-center gap-1.5 transition cursor-pointer"
+                        className="py-2 px-3 rounded-xl bg-white/[0.08] hover:bg-neutral-700 text-white text-[11px] font-bold flex items-center justify-center gap-1.5 transition cursor-pointer"
                       >
-                        <UserCheck className="w-3.5 h-3.5 text-cyan-400" />
+                        <UserCheck className="w-3.5 h-3.5 text-sky-400" />
                         <span>Set as Avatar</span>
                       </button>
 
@@ -611,8 +610,8 @@ export const CoachVaultView: React.FC<CoachVaultViewProps> = ({
                           onClick={() => handlePublishToReels(selectedPreviewItem)}
                           className={`py-2 px-3 rounded-xl text-[11px] font-bold flex items-center justify-center gap-1.5 transition cursor-pointer ${
                             isPublished
-                              ? 'bg-green-950/60 border border-green-700 text-green-400'
-                              : 'bg-[#C4121A] hover:bg-[#a50f16] text-white shadow-xs'
+                              ? 'bg-emerald-950/60 border border-emerald-700 text-emerald-400'
+                              : 'bg-o1-crimson hover:bg-o1-crimson-hover text-white shadow-xs'
                           }`}
                         >
                           <Film className="w-3.5 h-3.5" />
@@ -622,7 +621,7 @@ export const CoachVaultView: React.FC<CoachVaultViewProps> = ({
                         <button
                           type="button"
                           onClick={() => setSelectedPreviewItem(null)}
-                          className="py-2 px-3 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-neutral-300 text-[11px] font-bold flex items-center justify-center cursor-pointer"
+                          className="py-2 px-3 rounded-xl bg-white/[0.08] hover:bg-neutral-700 text-neutral-300 text-[11px] font-bold flex items-center justify-center cursor-pointer"
                         >
                           Done
                         </button>
@@ -658,22 +657,10 @@ export const CoachVaultModal: React.FC<CoachVaultModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex flex-col bg-[#F4F4F7] dark:bg-[#09090b] text-neutral-900 dark:text-neutral-100 overflow-y-auto animate-in fade-in duration-150">
+    <div className="fixed inset-0 z-[100] flex flex-col bg-black text-neutral-100 overflow-y-auto animate-in fade-in duration-150">
       {/* Top Mobile Bar with Back to Coach Navigation */}
-      <div className="sticky top-0 z-20 bg-white/90 dark:bg-[#121214]/90 backdrop-blur-md border-b border-neutral-200 dark:border-neutral-800 px-4 py-3 flex items-center justify-between">
-        <button
-          type="button"
-          onClick={() => {
-            tactileEngine.triggerSelectionBuzz();
-            if (onClose) onClose();
-          }}
-          className="flex items-center gap-1.5 text-xs font-bold text-neutral-700 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white cursor-pointer"
-        >
-          <ArrowLeft size={16} />
-          <span>Back to Coach</span>
-        </button>
-
-        <span className="text-xs font-bold uppercase tracking-wider text-neutral-900 dark:text-white">
+      <div className="sticky top-0 z-20 bg-o1-card/90 backdrop-blur-md border-b border-white/[0.05] px-4 py-2 flex items-center justify-between min-h-[44px]">
+        <span className="text-xs font-bold uppercase tracking-wider text-white">
           Biomechanical Vault
         </span>
 
@@ -683,13 +670,14 @@ export const CoachVaultModal: React.FC<CoachVaultModalProps> = ({
             tactileEngine.triggerSelectionBuzz();
             if (onClose) onClose();
           }}
-          className="w-7 h-7 rounded-full bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center text-neutral-500 hover:text-neutral-900 dark:hover:text-white cursor-pointer"
+          className="w-8 h-8 rounded-full bg-white/[0.08] flex items-center justify-center text-neutral-500 hover:text-white cursor-pointer"
+          aria-label="Close vault"
         >
           <X size={15} />
         </button>
       </div>
 
-      <div className="w-full max-w-xl mx-auto p-3 sm:p-5 flex-1 pb-16">
+      <div className="w-full max-w-xl mx-auto p-3 flex-1 pb-16">
         <CoachVaultView onClose={onClose} initialOpenAdd={initialOpenAdd} embedded />
       </div>
     </div>

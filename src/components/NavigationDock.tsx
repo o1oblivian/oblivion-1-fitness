@@ -41,7 +41,7 @@ export const NavigationDock: React.FC<NavigationDockProps> = ({ currentMode, onS
         paddingLeft: 'max(10px, env(safe-area-inset-left, 0px))',
         paddingRight: 'max(10px, env(safe-area-inset-right, 0px))',
       }}
-      className="fixed inset-x-0 mx-auto w-[calc(100%-1.5rem)] max-w-[440px] z-40 h-[48px] rounded-full bg-white/30 backdrop-blur-xl border border-black/10 shadow-[0_8px_28px_rgba(0,0,0,0.1)] dark:bg-neutral-950/35 dark:backdrop-blur-xl dark:border-white/10 dark:shadow-[0_8px_28px_rgba(0,0,0,0.6)] flex items-center justify-between select-none transition-colors"
+      className="fixed inset-x-0 mx-auto w-[calc(100%-1.5rem)] max-w-[440px] z-40 h-[48px] rounded-full border bg-black backdrop-blur-xl border-white/[0.07] shadow-[0_8px_28px_rgba(0,0,0,0.6)] flex items-center justify-between select-none transition-colors"
     >
       <div className="w-full flex items-center justify-around h-full">
         {TABS.map((tab) => {
@@ -69,15 +69,15 @@ export const NavigationDock: React.FC<NavigationDockProps> = ({ currentMode, onS
                   className={`${isBuddy ? 'w-[21px] h-[21px]' : 'w-[18px] h-[18px]'} transition-colors ${
                     isBuddy
                       ? isActive
-                        ? 'text-[#C4121A] fill-[#C4121A] stroke-[2.2]'
-                        : 'text-[#C4121A] fill-[#C4121A] opacity-90 stroke-[2]'
+                        ? 'text-o1-crimson fill-o1-crimson stroke-[2.2]'
+                        : 'text-o1-crimson fill-o1-crimson opacity-90 stroke-[2]'
                       : isActive
-                        ? 'text-[#C4121A] stroke-[2.4]'
-                        : 'text-neutral-500 dark:text-neutral-400 stroke-[1.9] group-hover:text-neutral-900 dark:group-hover:text-neutral-100'
+                        ? 'text-o1-crimson stroke-[2.4]'
+                        : 'text-neutral-400 stroke-[1.9] group-hover:text-neutral-100'
                   }`}
                 />
                 {isBuddy && buddyUnreadCount > 0 && (
-                  <span className="absolute -top-1 -right-1.5 min-w-[13px] h-[13px] px-0.5 rounded-full bg-[#C4121A] text-white text-[8.5px] font-bold font-mono flex items-center justify-center border border-white dark:border-[#09090b]">
+                  <span className="absolute -top-1 -right-1.5 min-w-[13px] h-[13px] px-0.5 rounded-full bg-o1-crimson text-white text-[8.5px] font-bold font-mono flex items-center justify-center border border-white/[0.07]">
                     {buddyUnreadCount > 9 ? '9+' : buddyUnreadCount}
                   </span>
                 )}
@@ -87,8 +87,8 @@ export const NavigationDock: React.FC<NavigationDockProps> = ({ currentMode, onS
               <span
                 className={`text-[9.5px] mt-0.5 tracking-tight leading-none select-none transition-colors ${
                   isActive
-                    ? 'text-[#C4121A] dark:text-[#C4121A] font-bold'
-                    : 'text-neutral-600 dark:text-neutral-400 font-medium group-hover:text-neutral-900 dark:group-hover:text-neutral-100'
+                    ? 'text-o1-crimson font-bold'
+                    : 'text-neutral-400 font-medium group-hover:text-neutral-100'
                 }`}
               >
                 {tab.label}

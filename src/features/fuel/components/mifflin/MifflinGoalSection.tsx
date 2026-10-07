@@ -32,7 +32,7 @@ export const MifflinGoalSection: React.FC<MifflinGoalSectionProps> = ({
   targetDateStr,
 }) => {
   return (
-    <div className="space-y-3 pt-2 border-t border-neutral-800">
+    <div className="space-y-3 pt-2 border-t border-white/[0.05]">
       <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-neutral-400 block">
         2. Choose Your Goal
       </span>
@@ -50,7 +50,7 @@ export const MifflinGoalSection: React.FC<MifflinGoalSectionProps> = ({
           className={`p-2.5 rounded-2xl border text-center transition-all cursor-pointer ${
             goal === 'fat_loss'
               ? 'border-red-600 bg-red-950/40 text-red-300 font-bold shadow-xs'
-              : 'border-neutral-800 bg-[#18181b] text-neutral-400 hover:text-white'
+              : 'border-white/[0.07] bg-o1-well text-neutral-400 hover:text-white'
           }`}
         >
           <Flame className="w-4 h-4 mx-auto mb-1 text-red-500" />
@@ -69,7 +69,7 @@ export const MifflinGoalSection: React.FC<MifflinGoalSectionProps> = ({
           className={`p-2.5 rounded-2xl border text-center transition-all cursor-pointer ${
             goal === 'maintain'
               ? 'border-sky-600 bg-sky-950/40 text-sky-300 font-bold shadow-xs'
-              : 'border-neutral-800 bg-[#18181b] text-neutral-400 hover:text-white'
+              : 'border-white/[0.07] bg-o1-well text-neutral-400 hover:text-white'
           }`}
         >
           <Scale className="w-4 h-4 mx-auto mb-1 text-sky-400" />
@@ -88,7 +88,7 @@ export const MifflinGoalSection: React.FC<MifflinGoalSectionProps> = ({
           className={`p-2.5 rounded-2xl border text-center transition-all cursor-pointer ${
             goal === 'lean_mass'
               ? 'border-amber-600 bg-amber-950/40 text-amber-300 font-bold shadow-xs'
-              : 'border-neutral-800 bg-[#18181b] text-neutral-400 hover:text-white'
+              : 'border-white/[0.07] bg-o1-well text-neutral-400 hover:text-white'
           }`}
         >
           <TrendingUp className="w-4 h-4 mx-auto mb-1 text-amber-500" />
@@ -107,7 +107,7 @@ export const MifflinGoalSection: React.FC<MifflinGoalSectionProps> = ({
           className={`p-2.5 rounded-2xl border text-center transition-all cursor-pointer ${
             goal === 'muscle_bulk'
               ? 'border-amber-500 bg-amber-950/40 text-amber-200 font-bold shadow-xs'
-              : 'border-neutral-800 bg-[#18181b] text-neutral-400 hover:text-white'
+              : 'border-white/[0.07] bg-o1-well text-neutral-400 hover:text-white'
           }`}
         >
           <Zap className="w-4 h-4 mx-auto mb-1 text-amber-400" />
@@ -125,11 +125,11 @@ export const MifflinGoalSection: React.FC<MifflinGoalSectionProps> = ({
           }}
           className={`p-2.5 rounded-2xl border text-center transition-all cursor-pointer col-span-2 sm:col-span-1 ${
             goal === 'heavy_mass'
-              ? 'border-[#C4121A] bg-red-950/50 text-red-200 font-bold shadow-xs'
-              : 'border-neutral-800 bg-[#18181b] text-neutral-400 hover:text-white'
+              ? 'border-o1-crimson bg-red-950/50 text-red-200 font-bold shadow-xs'
+              : 'border-white/[0.07] bg-o1-well text-neutral-400 hover:text-white'
           }`}
         >
-          <Flame className="w-4 h-4 mx-auto mb-1 text-[#C4121A]" />
+          <Flame className="w-4 h-4 mx-auto mb-1 text-o1-crimson" />
           <span className="text-xs block font-bold">Heavy Mass Gain</span>
           <span className="text-[9px] font-mono opacity-70 block">+700 kcal</span>
         </button>
@@ -137,7 +137,7 @@ export const MifflinGoalSection: React.FC<MifflinGoalSectionProps> = ({
 
       {/* Target Weight & Delta */}
       <div className="grid grid-cols-2 gap-2">
-        <div className="bg-[#18181b] border border-neutral-800 rounded-2xl p-2.5">
+        <div className="bg-o1-well border border-white/[0.07] rounded-2xl p-2.5">
           <label className="text-[9px] font-mono uppercase text-neutral-400 block font-bold">
             Target Goal Weight
           </label>
@@ -155,11 +155,11 @@ export const MifflinGoalSection: React.FC<MifflinGoalSectionProps> = ({
           </div>
         </div>
 
-        <div className="bg-[#18181b] border border-neutral-800 rounded-2xl p-2.5">
+        <div className="bg-o1-well border border-white/[0.07] rounded-2xl p-2.5">
           <label className="text-[9px] font-mono uppercase text-neutral-400 block font-bold">
             Target Difference
           </label>
-          <div className="font-mono font-bold text-sm text-[#C4121A] pt-0.5">
+          <div className="font-mono font-bold text-sm text-o1-crimson pt-0.5">
             {targetDeltaKg > 0 ? `+${targetDeltaKg} kg` : `${targetDeltaKg} kg`}
           </div>
         </div>
@@ -185,8 +185,8 @@ export const MifflinGoalSection: React.FC<MifflinGoalSectionProps> = ({
               }}
               className={`p-2 rounded-xl border text-center transition-all cursor-pointer ${
                 paceRate === p.rate
-                  ? 'border-neutral-600 bg-neutral-800 text-white font-bold shadow-xs'
-                  : 'border-neutral-800 bg-[#18181b] text-neutral-400 hover:text-white'
+                  ? 'border-white/[0.07] bg-white/[0.08] text-white font-bold shadow-xs'
+                  : 'border-white/[0.07] bg-o1-well text-neutral-400 hover:text-white'
               }`}
             >
               <span className="text-[11px] block font-bold">{p.label}</span>
@@ -197,9 +197,9 @@ export const MifflinGoalSection: React.FC<MifflinGoalSectionProps> = ({
       </div>
 
       {/* Timeline Banner */}
-      <div className="p-2.5 rounded-2xl bg-[#18181b] border border-neutral-800 flex items-center justify-between text-xs font-mono">
+      <div className="p-2.5 rounded-2xl bg-o1-well border border-white/[0.07] flex items-center justify-between text-xs font-mono">
         <div className="flex items-center gap-1.5 text-neutral-200">
-          <Calendar className="w-3.5 h-3.5 text-[#C4121A]" />
+          <Calendar className="w-3.5 h-3.5 text-o1-crimson" />
           <span>
             Est. Timeline: <strong className="text-white">{timelineWeeks} wks</strong>
           </span>

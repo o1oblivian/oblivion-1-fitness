@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ExploreCoach, ExploreReelItem, EXPLORE_REELS_CATALOG } from '../../../data/reelsExploreCatalog';
-import { COACH_MARKETPLACE_PROGRAMS } from '../../coach/data/coachMarketplaceData';
+import { supabase } from '../../../services/supabaseClient';
 import { ProgramCheckoutModal } from '../../coach/components/ProgramCheckoutModal';
 import { CoachMarketplaceProgram } from '../../coach/types/coachPlatformTypes';
 import { DossierHeader } from './dossier/DossierHeader';
@@ -27,6 +27,36 @@ export const CoachBookingDrawer: React.FC<CoachBookingDrawerProps> = ({
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [selectedProgram, setSelectedProgram] = useState<CoachMarketplaceProgram | null>(null);
   const [selectedPhotoModal, setSelectedPhotoModal] = useState<string | null>(null);
+  const [livePrograms, setLivePrograms] = useState<CoachMarketplaceProgram[]>([]);
+
+  useEffect(() => {
+    if (!coach?.id) {
+      setLivePrograms([]);
+      return;
+    }
+    let cancelled = false;
+    void (async () => {
+      const { data, error } = await supabase
+        .from('coach_programs')
+        .select('*')
+        .or(`coach_id.eq.${coach.id},id.eq.${coach.id}`);
+      if (cancelled || error || !Array.isArray(data)) return;
+      setLivePrograms(
+        data.map((row: any) => ({
+          id: String(row.id),
+          title: row.title || row.name || 'Program',
+          coachId: row.coach_id || coach.id,
+          price: row.price || row.rate || '',
+          duration: row.duration || row.length || '',
+          description: row.description || row.summary || '',
+          ...row,
+        })),
+      );
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [coach?.id]);
 
   if (!coach) return null;
 
@@ -53,10 +83,11 @@ export const CoachBookingDrawer: React.FC<CoachBookingDrawerProps> = ({
   return (
     <div
       id="coach-athletic-dossier-modal"
-      className="fixed inset-0 z-50 bg-[#09090b] text-neutral-100 flex flex-col font-sans select-none overflow-hidden animate-in fade-in duration-200"
+      className="fixed inset-0 z-50 bg-black/70 o1-sheet-scrim text-neutral-100 font-sans select-none animate-in fade-in duration-200"
     >
+      <div className="o1-sheet-card relative bg-o1-card border border-white/[0.07] text-neutral-100 flex flex-col overflow-hidden shadow-xl">
       {toastMessage && (
-        <div className="absolute top-12 left-1/2 -translate-x-1/2 z-50 px-3 py-1 rounded-full bg-neutral-900/90 border border-white/10 text-[11px] font-mono text-white shadow-xl">
+        <div className="absolute top-12 left-1/2 -translate-x-1/2 z-50 px-3 py-1 rounded-full bg-o1-well border border-white/[0.07] text-[11px] font-mono text-white shadow-xl">
           {toastMessage}
         </div>
       )}
@@ -78,7 +109,7 @@ export const CoachBookingDrawer: React.FC<CoachBookingDrawerProps> = ({
           coach={coach}
           activeTab={activeTab}
           setActiveTab={setActiveTab}
-          programs={COACH_MARKETPLACE_PROGRAMS}
+          programs={livePrograms}
           displayReels={displayReels}
           onSelectReel={onSelectReel}
           onSelectProgram={setSelectedProgram}
@@ -97,6 +128,7 @@ export const CoachBookingDrawer: React.FC<CoachBookingDrawerProps> = ({
       />
 
       <DossierPhotoModal photo={selectedPhotoModal} onClose={() => setSelectedPhotoModal(null)} />
+      </div>
     </div>
   );
 };

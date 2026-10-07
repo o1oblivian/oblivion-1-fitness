@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { tactileEngine } from '../../../services/tactileEngine';
+import { readAthleteSettingsSnapshot } from '../../../utils/athleteSettingsSnapshot';
 import o1fcTutorialLensImg from '../../../assets/images/o1fc_tutorial_lens_1790743700478.jpg';
 
 export interface StoryProgram {
@@ -128,9 +129,11 @@ export const ProgramReelsScroller: React.FC<ProgramReelsScrollerProps> = ({
   };
 
   return (
-    <div className="w-full select-none pt-2 pb-1.5">
-      <div className="flex items-start gap-4 overflow-x-auto py-1.5 px-1 scrollbar-none">
-        {PROGRAM_STORIES.map((story) => {
+    <div className="w-full select-none pt-1 pb-1">
+      <div className="flex items-start gap-3 overflow-x-auto py-1 px-1 scrollbar-none">
+        {PROGRAM_STORIES.filter((story) =>
+          story.id === 'elite-reels' ? readAthleteSettingsSnapshot().eliteReelsPresence : true
+        ).map((story) => {
           const isActive = selectedId === story.id;
 
           return (
@@ -140,49 +143,34 @@ export const ProgramReelsScroller: React.FC<ProgramReelsScrollerProps> = ({
               id={`reel-story-${story.id}`}
               onClick={() => handleClick(story)}
               className="group flex flex-col items-center shrink-0 focus:outline-none cursor-pointer active:scale-95 transition-transform duration-200"
-              style={{ width: '68px' }}
+              style={{ width: '80px' }}
             >
-              {/* Story Lens Ring with Real Cinematic Photography */}
-              <div className="relative w-[58px] h-[58px] flex items-center justify-center">
-                {/* Concentric Precision Bezel Ring */}
+              <div className="relative w-[76px] h-[76px] flex items-center justify-center">
                 <div
-                  className={`w-full h-full rounded-full p-[2.5px] transition-all duration-300 ${
+                  className={`w-full h-full rounded-full p-[1.5px] transition-all duration-300 ${
                     isActive
-                      ? 'ring-2 ring-[#C4121A] ring-offset-2 ring-offset-[#F4F4F7] dark:ring-offset-[#09090b] shadow-none'
-                      : 'ring-1.5 ring-neutral-300 dark:ring-neutral-700/80 ring-offset-2 ring-offset-[#F4F4F7] dark:ring-offset-[#09090b] group-hover:ring-neutral-400 dark:group-hover:ring-neutral-500 shadow-none'
+                      ? 'ring-1 ring-white/40'
+                      : 'ring-1 ring-white/15 group-hover:ring-white/30'
                   }`}
                 >
-                  {/* Photo Lens Container */}
-                  <div className="w-full h-full rounded-full overflow-hidden relative bg-neutral-900 shadow-inner">
-                    {/* Real Athletic Photography */}
+                  <div className="w-full h-full rounded-full overflow-hidden relative bg-o1-well">
                     <img
                       src={story.photoUrl}
                       alt={story.name}
-                      className="w-full h-full object-cover object-center transform transition-transform duration-300 group-hover:scale-110"
+                      className="w-full h-full object-cover object-center transform transition-transform duration-300 group-hover:scale-105"
                       loading="lazy"
                     />
-
-                    {/* Subtle Cinematic Vignette Overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/15 pointer-events-none" />
-
-                    {/* Specular Top Arch Glass Reflection */}
-                    <div className="absolute inset-x-1 top-0 h-1/2 bg-gradient-to-b from-white/30 to-transparent rounded-t-full pointer-events-none" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/10 pointer-events-none" />
                   </div>
                 </div>
-
-                {/* Active Crimson Indicator Pip at 12 o'clock */}
-                {isActive && (
-                  <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-[#C4121A] ring-1 ring-white dark:ring-[#09090b]" />
-                )}
               </div>
 
-              {/* Clean Typography Underneath (Zero Squishing, 100% Readable) */}
-              <div className="mt-2 w-full text-center px-0.5">
+              <div className="mt-1 w-full text-center px-0.5">
                 <span
                   className={`block font-mono text-[9px] font-bold tracking-wider uppercase truncate transition-colors duration-200 ${
                     isActive
-                      ? 'text-[#C4121A] dark:text-[#E02630] font-black'
-                      : 'text-neutral-800 dark:text-neutral-300 group-hover:text-black dark:group-hover:text-white'
+                      ? 'text-white'
+                      : 'text-neutral-400 group-hover:text-white'
                   }`}
                 >
                   {story.name}

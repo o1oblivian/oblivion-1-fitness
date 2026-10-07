@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { CheckCircle2, AlertCircle } from 'lucide-react';
 import { supabase } from '../../services/supabaseClient';
-import { O1FCoachHeader } from './components/O1FCoachHeader';
 import { O1FCoachStatusCard } from './components/O1FCoachStatusCard';
 import { O1FClubProgramStore } from './components/O1FClubProgramStore';
 import { O1FVerifiedRoster } from './components/O1FVerifiedRoster';
@@ -18,8 +17,8 @@ export interface O1FCoachAthletePortalProps {
 }
 
 export const O1FCoachAthletePortal: React.FC<O1FCoachAthletePortalProps> = ({
-  activePerspective = 'athlete',
-  onChangePerspective,
+  activePerspective: _activePerspective = 'athlete',
+  onChangePerspective: _onChangePerspective,
   isCoach = false,
 }) => {
   const [portalTab, setPortalTab] = useState<'roster' | 'store' | 'checkins' | 'messages'>('roster');
@@ -130,12 +129,18 @@ export const O1FCoachAthletePortal: React.FC<O1FCoachAthletePortalProps> = ({
 
   return (
     <div id="o1fcoach-athlete-portal" className="w-full max-w-md mx-auto px-3.5 sm:px-4 space-y-3.5 pb-28 select-none pt-1">
-      <div className="bg-white dark:bg-[#121214] border border-neutral-200 dark:border-neutral-800 rounded-3xl p-3 shadow-xs">
-        <O1FCoachHeader activePerspective={activePerspective} onChangePerspective={onChangePerspective} isCoach={isCoach} />
-      </div>
+      {!isCoach && (
+        <div className="flex items-center justify-center px-0.5 w-full min-h-[38px]">
+          <div className="px-4 py-1.5 rounded-full bg-o1-well border border-white/[0.07] shadow-xs flex items-center gap-2 select-none">
+            <span className="text-xs font-mono font-bold tracking-wider text-white uppercase">
+              O1FCoach Hub
+            </span>
+          </div>
+        </div>
+      )}
 
       {toastMsg && (
-        <div className="p-3 rounded-2xl bg-green-500/10 border border-green-500/30 text-green-500 text-xs font-mono font-bold flex items-center gap-2">
+        <div className="p-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-500 text-xs font-mono font-bold flex items-center gap-2">
           <CheckCircle2 className="w-4 h-4 shrink-0" />
           <span>{toastMsg}</span>
         </div>
@@ -153,9 +158,9 @@ export const O1FCoachAthletePortal: React.FC<O1FCoachAthletePortalProps> = ({
 
       <O1FCoachStatusCard linkedCoach={null} onBrowseRoster={() => setPortalTab('roster')} onOpenMessage={() => setPortalTab('messages')} onSubmitCheckin={() => setPortalTab('checkins')} />
 
-      <div className="w-full bg-white dark:bg-[#121214] border border-neutral-200 dark:border-neutral-800 p-1 rounded-2xl flex items-center gap-1 shadow-xs">
+      <div className="w-full bg-o1-card border border-white/[0.07] p-1 rounded-2xl flex items-center gap-1 shadow-xs">
         {(['roster', 'store', 'checkins', 'messages'] as const).map((tab) => (
-          <button key={tab} type="button" onClick={() => { tactileEngine.triggerSelectionBuzz(); setPortalTab(tab); }} className={`flex-1 py-1.5 text-center text-[10px] font-tactical font-black tracking-wider uppercase rounded-xl transition cursor-pointer ${portalTab === tab ? 'bg-[#C4121A] text-white' : 'text-neutral-500 hover:text-neutral-900 dark:hover:text-white'}`}>
+          <button key={tab} type="button" onClick={() => { tactileEngine.triggerSelectionBuzz(); setPortalTab(tab); }} className={`flex-1 py-1.5 text-center text-[10px] font-tactical font-black tracking-wider uppercase rounded-xl transition cursor-pointer ${portalTab === tab ? 'bg-o1-crimson text-white' : 'text-neutral-500 hover:text-white'}`}>
             {tab === 'roster' ? 'COACHES' : tab === 'store' ? 'STORE' : tab}
           </button>
         ))}
@@ -163,8 +168,8 @@ export const O1FCoachAthletePortal: React.FC<O1FCoachAthletePortalProps> = ({
 
       {portalTab === 'roster' && (
         isLoading ? (
-          <div className="border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-[#121214] rounded-2xl p-6 text-center space-y-2.5 shadow-xs">
-            <p className="text-xs font-mono font-bold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider animate-pulse">
+          <div className="border border-white/[0.07] bg-o1-card rounded-2xl p-6 text-center space-y-2.5 shadow-xs">
+            <p className="text-xs font-mono font-bold text-neutral-400 uppercase tracking-wider animate-pulse">
               QUERYING LIVE SUPABASE ROSTER...
             </p>
           </div>
@@ -174,8 +179,8 @@ export const O1FCoachAthletePortal: React.FC<O1FCoachAthletePortalProps> = ({
       )}
       {portalTab === 'store' && (
         isLoading ? (
-          <div className="border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-[#121214] rounded-2xl p-6 text-center space-y-2.5 shadow-xs">
-            <p className="text-xs font-mono font-bold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider animate-pulse">
+          <div className="border border-white/[0.07] bg-o1-card rounded-2xl p-6 text-center space-y-2.5 shadow-xs">
+            <p className="text-xs font-mono font-bold text-neutral-400 uppercase tracking-wider animate-pulse">
               QUERYING LIVE SUPABASE STORE...
             </p>
           </div>

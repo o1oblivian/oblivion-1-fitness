@@ -68,13 +68,13 @@ export const CoachFullProfileModal: React.FC<CoachFullProfileModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/85 backdrop-blur-md select-none animate-in fade-in duration-200">
-      <div className="w-full max-w-lg bg-[#09090b] border-t sm:border border-white/10 text-white rounded-t-3xl sm:rounded-3xl flex flex-col max-h-[94vh] shadow-2xl overflow-hidden animate-in slide-in-from-bottom duration-300">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 o1-sheet-scrim select-none animate-in fade-in duration-200">
+      <div className="o1-sheet-card bg-o1-card border border-white/[0.07] text-white flex flex-col shadow-xl overflow-hidden">
         
         {/* Top Floating Glass Header */}
-        <div className="p-3.5 px-4 border-b border-white/10 bg-[#09090b]/90 backdrop-blur-md flex items-center justify-between z-10 shrink-0">
+        <div className="p-3.5 px-4 border-b border-white/[0.05] bg-black/90 backdrop-blur-md flex items-center justify-between z-10 shrink-0">
           <div className="flex items-center gap-2 min-w-0">
-            <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse shrink-0" />
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
             <span className="font-tactical font-black text-xs uppercase tracking-[0.16em] text-neutral-200 truncate">
               COACH DOSSIER // {coach.name}
             </span>
@@ -89,7 +89,7 @@ export const CoachFullProfileModal: React.FC<CoachFullProfileModalProps> = ({
                   navigator.share({ title: coach.name, text: coach.bio, url: window.location.href }).catch(() => {});
                 }
               }}
-              className="p-1.5 rounded-xl bg-white/5 border border-white/10 text-neutral-300 hover:text-white transition cursor-pointer"
+              className="p-1.5 rounded-xl bg-white/5 border border-white/[0.07] text-neutral-300 hover:text-white transition cursor-pointer"
               title="Share Coach"
             >
               <Share2 className="w-4 h-4" />
@@ -100,7 +100,7 @@ export const CoachFullProfileModal: React.FC<CoachFullProfileModalProps> = ({
                 tactileEngine.triggerSelectionBuzz();
                 onClose();
               }}
-              className="p-1.5 rounded-xl bg-white/5 border border-white/10 text-neutral-400 hover:text-white transition cursor-pointer"
+              className="p-1.5 rounded-xl bg-white/5 border border-white/[0.07] text-neutral-400 hover:text-white transition cursor-pointer"
             >
               <X className="w-4 h-4" />
             </button>
@@ -111,13 +111,13 @@ export const CoachFullProfileModal: React.FC<CoachFullProfileModalProps> = ({
         <div className="overflow-y-auto overflow-x-hidden flex-1 no-scrollbar space-y-4 pb-6">
 
           {/* 1. Full-Bleed Specular Physique Gallery */}
-          <div className="relative aspect-[4/3] sm:aspect-[16/10] w-full bg-neutral-950 overflow-hidden group">
+          <div className="relative aspect-[4/3] sm:aspect-[16/10] w-full bg-black overflow-hidden group">
             <img
               src={photoList[activePhotoIdx]}
               alt={`${coach.name} physique`}
               className="w-full h-full object-cover transition-all duration-300 brightness-95 contrast-105"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#09090b] via-transparent to-black/40" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#000000] via-transparent to-black/40" />
 
             {/* Left / Right Nav Touch Targets */}
             {photoList.length > 1 && (
@@ -125,14 +125,14 @@ export const CoachFullProfileModal: React.FC<CoachFullProfileModalProps> = ({
                 <button
                   type="button"
                   onClick={handlePrevPhoto}
-                  className="absolute left-2.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/60 backdrop-blur-md border border-white/15 flex items-center justify-center text-white opacity-80 hover:opacity-100 transition cursor-pointer"
+                  className="absolute left-2.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/60 backdrop-blur-md border border-white/[0.07] flex items-center justify-center text-white opacity-80 hover:opacity-100 transition cursor-pointer"
                 >
                   <ChevronLeft className="w-4 h-4" />
                 </button>
                 <button
                   type="button"
                   onClick={handleNextPhoto}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/60 backdrop-blur-md border border-white/15 flex items-center justify-center text-white opacity-80 hover:opacity-100 transition cursor-pointer"
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/60 backdrop-blur-md border border-white/[0.07] flex items-center justify-center text-white opacity-80 hover:opacity-100 transition cursor-pointer"
                 >
                   <ChevronRight className="w-4 h-4" />
                 </button>
@@ -141,11 +141,11 @@ export const CoachFullProfileModal: React.FC<CoachFullProfileModalProps> = ({
 
             {/* Top Badges */}
             <div className="absolute top-3 left-3 flex items-center gap-1.5">
-              <span className="px-2.5 py-0.5 rounded-full bg-black/70 backdrop-blur-md border border-white/15 text-[10px] font-mono font-bold text-white uppercase flex items-center gap-1">
-                <ShieldCheck className="w-3 h-3 text-green-500" />
+              <span className="px-2.5 py-0.5 rounded-full bg-black/70 backdrop-blur-md border border-white/[0.07] text-[10px] font-mono font-bold text-white uppercase flex items-center gap-1">
+                <ShieldCheck className="w-3 h-3 text-emerald-500" />
                 VERIFIED PRO COACH
               </span>
-              <span className="px-2 py-0.5 rounded-full bg-[#C4121A] text-[9.5px] font-mono font-bold text-white uppercase">
+              <span className="px-2 py-0.5 rounded-full bg-o1-crimson text-[9.5px] font-mono font-bold text-white uppercase">
                 O1 10% PARTNER
               </span>
             </div>
@@ -162,12 +162,12 @@ export const CoachFullProfileModal: React.FC<CoachFullProfileModalProps> = ({
                       setActivePhotoIdx(idx);
                     }}
                     className={`h-1.5 rounded-full transition-all cursor-pointer ${
-                      activePhotoIdx === idx ? 'w-6 bg-[#C4121A]' : 'w-1.5 bg-white/40'
+                      activePhotoIdx === idx ? 'w-6 bg-o1-crimson' : 'w-1.5 bg-white/40'
                     }`}
                   />
                 ))}
               </div>
-              <span className="text-[10px] font-mono text-neutral-300 bg-black/60 backdrop-blur-md px-2 py-0.5 rounded-full border border-white/10">
+              <span className="text-[10px] font-mono text-neutral-300 bg-black/60 backdrop-blur-md px-2 py-0.5 rounded-full border border-white/[0.07]">
                 PHYSIQUE {activePhotoIdx + 1} / {photoList.length}
               </span>
             </div>
@@ -181,12 +181,12 @@ export const CoachFullProfileModal: React.FC<CoachFullProfileModalProps> = ({
                   <h1 className="text-xl sm:text-2xl font-tactical font-black text-white tracking-wide">
                     {coach.name}
                   </h1>
-                  <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-[#C4121A] text-white">
+                  <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-o1-crimson text-white">
                     <Check className="w-2.5 h-2.5 stroke-[3]" />
                   </span>
                 </div>
                 <div className="flex items-center gap-2 text-xs font-mono text-neutral-400 flex-wrap">
-                  <span className="text-[#C4121A] font-bold">{coach.handle}</span>
+                  <span className="text-o1-crimson font-bold">{coach.handle}</span>
                   <span>•</span>
                   <span>{coach.role}</span>
                 </div>
@@ -213,7 +213,7 @@ export const CoachFullProfileModal: React.FC<CoachFullProfileModalProps> = ({
               {(coach?.certifications ?? []).map((c) => (
                 <span
                   key={c}
-                  className="px-2.5 py-0.5 rounded-lg bg-white/5 border border-white/10 text-[10px] font-mono font-bold text-neutral-200"
+                  className="px-2.5 py-0.5 rounded-xl bg-white/5 border border-white/[0.07] text-[10px] font-mono font-bold text-neutral-200"
                 >
                   ✓ {c}
                 </span>
@@ -221,7 +221,7 @@ export const CoachFullProfileModal: React.FC<CoachFullProfileModalProps> = ({
               {(coach?.specialties ?? []).map((s) => (
                 <span
                   key={s}
-                  className="px-2.5 py-0.5 rounded-lg bg-neutral-900 border border-neutral-800 text-[10px] font-mono text-neutral-400"
+                  className="px-2.5 py-0.5 rounded-xl bg-o1-well border border-white/[0.07] text-[10px] font-mono text-neutral-400"
                 >
                   #{s.replace(/\s+/g, '')}
                 </span>
@@ -230,10 +230,10 @@ export const CoachFullProfileModal: React.FC<CoachFullProfileModalProps> = ({
 
             {/* 3. Physical & Kinematic Benchmarks Telemetry HUD */}
             {coach.physiqueStats && (
-              <div className="p-3.5 rounded-2xl bg-[#121214] border border-white/10 space-y-2.5">
+              <div className="p-3.5 rounded-2xl bg-o1-card border border-white/[0.07] space-y-2.5">
                 <div className="flex items-center justify-between text-[10px] font-tactical font-black text-neutral-400 uppercase tracking-wider">
                   <span className="flex items-center gap-1.5">
-                    <Dumbbell className="w-3.5 h-3.5 text-[#C4121A]" />
+                    <Dumbbell className="w-3.5 h-3.5 text-o1-crimson" />
                     VERIFIED ATHLETIC & PHYSIQUE TELEMETRY
                   </span>
                   <span className="text-neutral-400 font-tactical font-bold uppercase tracking-wider">
@@ -242,19 +242,19 @@ export const CoachFullProfileModal: React.FC<CoachFullProfileModalProps> = ({
                 </div>
 
                 <div className="grid grid-cols-3 gap-2 text-center">
-                  <div className="p-2 rounded-xl bg-black/40 border border-white/5">
+                  <div className="p-2 rounded-xl bg-black/40 border border-white/[0.07]">
                     <span className="text-[9px] font-tactical text-neutral-400 uppercase tracking-wider block font-bold">Height</span>
                     <span className="text-xs font-tactical font-black text-white block mt-0.5 tracking-tight">
                       {coach.physiqueStats.height || "185 cm"}
                     </span>
                   </div>
-                  <div className="p-2 rounded-xl bg-black/40 border border-white/5">
+                  <div className="p-2 rounded-xl bg-black/40 border border-white/[0.07]">
                     <span className="text-[9px] font-tactical text-neutral-400 uppercase tracking-wider block font-bold">Weight / Comp</span>
                     <span className="text-xs font-tactical font-black text-white block mt-0.5 tracking-tight">
                       {coach.physiqueStats.weight || "94 kg"}
                     </span>
                   </div>
-                  <div className="p-2 rounded-xl bg-black/40 border border-white/5">
+                  <div className="p-2 rounded-xl bg-black/40 border border-white/[0.07]">
                     <span className="text-[9px] font-tactical text-neutral-400 uppercase tracking-wider block font-bold">Body Fat Est.</span>
                     <span className="text-xs font-tactical font-black text-emerald-400 block mt-0.5 tracking-tight">
                       {coach.physiqueStats.bodyFatEst || "7.2% Stage"}
@@ -264,9 +264,9 @@ export const CoachFullProfileModal: React.FC<CoachFullProfileModalProps> = ({
 
                 {/* Competition Lifts Bar */}
                 {coach.physiqueStats.competitionLifts && (
-                  <div className="pt-2 border-t border-white/5 grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  <div className="pt-2 border-t border-white/[0.05] grid grid-cols-2 sm:grid-cols-4 gap-2">
                     {(coach.physiqueStats.competitionLifts ?? []).map((lift) => (
-                      <div key={lift.label} className="p-1.5 rounded-lg bg-neutral-900/60 border border-white/5">
+                      <div key={lift.label} className="p-1.5 rounded-lg bg-o1-well border border-white/[0.07]">
                         <span className="text-[8.5px] font-tactical text-neutral-400 block truncate uppercase font-bold tracking-wider">
                           {lift.label}
                         </span>
@@ -281,7 +281,7 @@ export const CoachFullProfileModal: React.FC<CoachFullProfileModalProps> = ({
             )}
 
             {/* Navigation Tabs for Modal Section */}
-            <div className="grid grid-cols-3 gap-1 bg-[#121214] p-1 rounded-2xl border border-white/10">
+            <div className="grid grid-cols-3 gap-1 bg-o1-card p-1 rounded-2xl border border-white/[0.07]">
               <button
                 type="button"
                 onClick={() => {
@@ -290,7 +290,7 @@ export const CoachFullProfileModal: React.FC<CoachFullProfileModalProps> = ({
                 }}
                 className={`py-2 rounded-xl text-xs font-tactical font-bold uppercase tracking-wider transition-all cursor-pointer ${
                   activeSection === 'programs'
-                    ? 'bg-[#C4121A] text-white shadow-sm'
+                    ? 'bg-o1-crimson text-white shadow-sm'
                     : 'text-neutral-400 hover:text-white'
                 }`}
               >
@@ -304,7 +304,7 @@ export const CoachFullProfileModal: React.FC<CoachFullProfileModalProps> = ({
                 }}
                 className={`py-2 rounded-xl text-xs font-tactical font-bold uppercase tracking-wider transition-all cursor-pointer ${
                   activeSection === 'reels'
-                    ? 'bg-[#C4121A] text-white shadow-sm'
+                    ? 'bg-o1-crimson text-white shadow-sm'
                     : 'text-neutral-400 hover:text-white'
                 }`}
               >
@@ -318,7 +318,7 @@ export const CoachFullProfileModal: React.FC<CoachFullProfileModalProps> = ({
                 }}
                 className={`py-2 rounded-xl text-xs font-tactical font-bold uppercase tracking-wider transition-all cursor-pointer ${
                   activeSection === 'reviews'
-                    ? 'bg-[#C4121A] text-white shadow-sm'
+                    ? 'bg-o1-crimson text-white shadow-sm'
                     : 'text-neutral-400 hover:text-white'
                 }`}
               >
@@ -331,11 +331,11 @@ export const CoachFullProfileModal: React.FC<CoachFullProfileModalProps> = ({
               <div className="space-y-3 pt-1">
                 <div className="flex items-center justify-between text-[11px] font-mono text-neutral-400">
                   <span>PUBLISHED PROTOCOLS</span>
-                  <span className="text-[#C4121A] font-bold">10% Platform Guarantee</span>
+                  <span className="text-o1-crimson font-bold">10% Platform Guarantee</span>
                 </div>
 
                 {displayPrograms.length === 0 ? (
-                  <div className="p-8 rounded-2xl bg-[#121214] border border-white/10 text-center space-y-2">
+                  <div className="p-8 rounded-2xl bg-o1-card border border-white/[0.07] text-center space-y-2">
                     <Dumbbell className="w-6 h-6 text-neutral-500 mx-auto" />
                     <h4 className="font-tactical font-black text-xs uppercase tracking-wider text-white">
                       NO COACH PROTOCOLS CURRENTLY PUBLISHED
@@ -355,9 +355,9 @@ export const CoachFullProfileModal: React.FC<CoachFullProfileModalProps> = ({
                         onSelectProgram(prog);
                       }
                     }}
-                    className="group rounded-2xl bg-[#121214] border border-white/10 hover:border-[#C4121A]/60 overflow-hidden transition-all shadow-md cursor-pointer"
+                    className="group rounded-2xl bg-o1-card border border-white/[0.07] hover:border-o1-crimson/60 overflow-hidden transition-all shadow-md cursor-pointer"
                   >
-                    <div className="relative aspect-[16/8] w-full overflow-hidden bg-neutral-900">
+                    <div className="relative aspect-[16/8] w-full overflow-hidden bg-o1-well">
                       <img
                         src={prog.coverImage}
                         alt={prog.title}
@@ -366,10 +366,10 @@ export const CoachFullProfileModal: React.FC<CoachFullProfileModalProps> = ({
                       <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
                       
                       <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5">
-                        <span className="px-2 py-0.5 rounded-full bg-black/75 backdrop-blur-md border border-white/10 text-[9.5px] font-mono font-bold text-white uppercase">
+                        <span className="px-2 py-0.5 rounded-full bg-black/75 backdrop-blur-md border border-white/[0.07] text-[9.5px] font-mono font-bold text-white uppercase">
                           {prog.category}
                         </span>
-                        <span className="px-2 py-0.5 rounded-full bg-[#C4121A] text-[9.5px] font-mono font-bold text-white uppercase">
+                        <span className="px-2 py-0.5 rounded-full bg-o1-crimson text-[9.5px] font-mono font-bold text-white uppercase">
                           {prog.difficulty}
                         </span>
                       </div>
@@ -386,7 +386,7 @@ export const CoachFullProfileModal: React.FC<CoachFullProfileModalProps> = ({
                     <div className="p-3.5 space-y-2">
                       <div className="flex items-start justify-between gap-2">
                         <div>
-                          <h3 className="text-sm font-bold font-tactical text-white group-hover:text-[#C4121A] transition-colors leading-snug">
+                          <h3 className="text-sm font-bold font-tactical text-white group-hover:text-o1-crimson transition-colors leading-snug">
                             {prog.title}
                           </h3>
                           <p className="text-[11px] text-neutral-400 font-sans line-clamp-1 mt-0.5">
@@ -401,14 +401,14 @@ export const CoachFullProfileModal: React.FC<CoachFullProfileModalProps> = ({
                         </div>
                       </div>
 
-                      <div className="pt-2 border-t border-white/5 flex items-center justify-between">
+                      <div className="pt-2 border-t border-white/[0.05] flex items-center justify-between">
                         <span className="text-[10px] font-tactical font-bold text-emerald-400 flex items-center gap-1 uppercase tracking-wider">
                           <Check className="w-3 h-3" />
                           Instant Workout Tab Sync
                         </span>
                         <button
                           type="button"
-                          className="px-3 py-1.5 rounded-xl bg-[#C4121A] text-white text-[10px] font-tactical font-black uppercase tracking-wider flex items-center gap-1 group-hover:bg-[#a50e15] transition"
+                          className="px-3 py-1.5 rounded-xl bg-o1-crimson text-white text-[10px] font-tactical font-black uppercase tracking-wider flex items-center gap-1 group-hover:bg-o1-crimson-hover transition"
                         >
                           <span>ENROLL NOW</span>
                           <ArrowRight className="w-3 h-3" />
@@ -420,9 +420,9 @@ export const CoachFullProfileModal: React.FC<CoachFullProfileModalProps> = ({
                 )}
 
                 {/* 1-on-1 VIP Retainer Card */}
-                <div className="p-4 rounded-2xl bg-gradient-to-br from-neutral-900 via-[#18181b] to-black border border-[#C4121A]/40 space-y-3">
+                <div className="p-4 rounded-2xl bg-gradient-to-br from-neutral-900 via-o1-well to-black border border-o1-crimson/40 space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="px-2.5 py-0.5 rounded-full bg-[#C4121A]/20 border border-[#C4121A]/40 text-[9.5px] font-tactical font-black tracking-widest text-[#C4121A] uppercase">
+                    <span className="px-2.5 py-0.5 rounded-full bg-o1-crimson/20 border border-o1-crimson/40 text-[9.5px] font-tactical font-black tracking-widest text-o1-crimson uppercase">
                       VIP 1-ON-1 CO-PILOT
                     </span>
                     <span className="text-sm font-tactical font-black text-white tracking-tight">
@@ -446,7 +446,7 @@ export const CoachFullProfileModal: React.FC<CoachFullProfileModalProps> = ({
                         onBookCoaching(coach);
                       }
                     }}
-                    className="w-full py-2.5 rounded-xl bg-[#C4121A] hover:bg-[#a50e15] text-white text-xs font-tactical font-black tracking-wider uppercase transition flex items-center justify-center gap-2 cursor-pointer shadow-md"
+                    className="w-full py-2.5 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover text-white text-xs font-tactical font-black tracking-wider uppercase transition flex items-center justify-center gap-2 cursor-pointer shadow-md"
                   >
                     <span>APPLY FOR DIRECT 1-ON-1 ROSTER</span>
                     <ArrowRight className="w-3.5 h-3.5" />
@@ -464,7 +464,7 @@ export const CoachFullProfileModal: React.FC<CoachFullProfileModalProps> = ({
                 </div>
 
                 {playingReelUrl && (
-                  <div className="relative aspect-video rounded-2xl overflow-hidden bg-black border border-white/10 mb-3">
+                  <div className="relative aspect-video rounded-2xl overflow-hidden bg-black border border-white/[0.07] mb-3">
                     <video
                       src={playingReelUrl}
                       controls
@@ -493,7 +493,7 @@ export const CoachFullProfileModal: React.FC<CoachFullProfileModalProps> = ({
                             'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4'
                         );
                       }}
-                      className="group relative rounded-xl overflow-hidden aspect-[9/14] bg-neutral-900 border border-white/5 cursor-pointer active:scale-[0.98] transition-all"
+                      className="group relative rounded-xl overflow-hidden aspect-[9/14] bg-o1-well border border-white/[0.07] cursor-pointer active:scale-[0.98] transition-all"
                     >
                       <img
                         src={reel.thumbnail}
@@ -507,7 +507,7 @@ export const CoachFullProfileModal: React.FC<CoachFullProfileModalProps> = ({
                       </div>
 
                       <div className="absolute bottom-2 left-2 right-2 space-y-1">
-                        <span className="text-[8.5px] font-mono text-[#C4121A] font-bold uppercase block">
+                        <span className="text-[8.5px] font-mono text-o1-crimson font-bold uppercase block">
                           {reel.exerciseFocus || 'Movement Cue'}
                         </span>
                         <h4 className="text-[11px] font-tactical font-bold text-white line-clamp-2 leading-tight">
@@ -555,11 +555,11 @@ export const CoachFullProfileModal: React.FC<CoachFullProfileModalProps> = ({
                 ]).map((rev) => (
                   <div
                     key={rev.id}
-                    className="p-3.5 rounded-2xl bg-[#121214] border border-white/10 space-y-2 shadow-sm text-white"
+                    className="p-3.5 rounded-2xl bg-o1-card border border-white/[0.07] space-y-2 shadow-sm text-white"
                   >
                     <div className="flex items-start justify-between">
                       <div className="flex items-center gap-2.5">
-                        <div className="w-8 h-8 rounded-full overflow-hidden bg-neutral-800">
+                        <div className="w-8 h-8 rounded-full overflow-hidden bg-white/[0.08]">
                           <img src={rev.avatar} alt={rev.athleteName} className="w-full h-full object-cover" />
                         </div>
                         <div>
@@ -578,7 +578,7 @@ export const CoachFullProfileModal: React.FC<CoachFullProfileModalProps> = ({
                       </div>
                     </div>
 
-                    <div className="inline-block px-2 py-0.5 rounded-md bg-green-950/60 border border-green-800/80 text-[10px] font-mono font-bold text-green-400">
+                    <div className="inline-block px-2 py-0.5 rounded-md bg-emerald-950/60 border border-emerald-800/80 text-[10px] font-mono font-bold text-emerald-400">
                       Verified Enrollment: {rev.verifiedProgram}
                     </div>
 
@@ -593,7 +593,7 @@ export const CoachFullProfileModal: React.FC<CoachFullProfileModalProps> = ({
         </div>
 
         {/* Footer Fixed Action Strip */}
-        <div className="p-3.5 px-4 border-t border-white/10 bg-[#09090b] flex items-center justify-between gap-3 shrink-0">
+        <div className="p-3.5 px-4 border-t border-white/[0.05] bg-black flex items-center justify-between gap-3 shrink-0">
           <div>
             <span className="text-[9.5px] font-mono uppercase text-neutral-400 block">
               10% CLUB SHARE PLATFORM
@@ -615,7 +615,7 @@ export const CoachFullProfileModal: React.FC<CoachFullProfileModalProps> = ({
                 onBookCoaching(coach);
               }
             }}
-            className="py-2.5 px-4 rounded-xl bg-[#C4121A] hover:bg-[#a50e15] active:scale-95 text-white text-xs font-tactical font-black tracking-wider uppercase transition flex items-center gap-2 cursor-pointer shadow-md"
+            className="py-2.5 px-4 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover active:scale-95 text-white text-xs font-tactical font-black tracking-wider uppercase transition flex items-center gap-2 cursor-pointer shadow-md"
           >
             <span>VIEW TOP PROTOCOL</span>
             <ArrowRight className="w-4 h-4" />

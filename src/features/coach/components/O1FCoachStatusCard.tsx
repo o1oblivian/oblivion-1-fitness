@@ -18,7 +18,7 @@ export const O1FCoachStatusCard: React.FC<O1FCoachStatusCardProps> = ({
 }) => {
   if (!linkedCoach) {
     return (
-      <section className="bg-white dark:bg-[#121214] border border-neutral-200 dark:border-neutral-800 rounded-3xl p-4 sm:p-5 shadow-xs space-y-3.5 select-none">
+      <section className="bg-o1-card border border-white/[0.07] rounded-2xl p-4 sm:p-5 shadow-xs space-y-3.5 select-none">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
@@ -32,14 +32,14 @@ export const O1FCoachStatusCard: React.FC<O1FCoachStatusCardProps> = ({
         </div>
 
         <div className="flex items-start gap-3.5 pt-0.5">
-          <div className="w-12 h-12 rounded-2xl bg-neutral-100 dark:bg-[#18181b] border border-neutral-200 dark:border-neutral-800 flex items-center justify-center text-neutral-400 shrink-0">
+          <div className="w-12 h-12 rounded-2xl bg-o1-well border border-white/[0.07] flex items-center justify-center text-neutral-400 shrink-0">
             <ShieldAlert className="w-6 h-6 stroke-[1.8]" />
           </div>
           <div className="space-y-1">
-            <h3 className="text-sm font-tactical font-black text-neutral-900 dark:text-white tracking-tight uppercase">
+            <h3 className="text-sm font-tactical font-black text-white tracking-tight uppercase">
               NO DIRECT COACH // BROWSE VERIFIED 01F ROSTER
             </h3>
-            <p className="text-xs text-neutral-500 dark:text-neutral-400 leading-relaxed font-sans">
+            <p className="text-xs text-neutral-400 leading-relaxed font-sans">
               Pair with a verified 01FCoach for custom programming, form audits, and direct weekly telemetry check-ins.
             </p>
           </div>
@@ -51,7 +51,7 @@ export const O1FCoachStatusCard: React.FC<O1FCoachStatusCardProps> = ({
             tactileEngine.triggerSelectionBuzz();
             onBrowseRoster();
           }}
-          className="w-full py-2.5 px-4 rounded-2xl bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 font-bold text-xs flex items-center justify-center gap-2 shadow-xs hover:opacity-95 active:scale-[0.98] transition-all cursor-pointer uppercase tracking-wider font-mono"
+          className="w-full py-2.5 px-4 rounded-2xl bg-white text-neutral-900 font-bold text-xs flex items-center justify-center gap-2 shadow-xs hover:opacity-95 active:scale-[0.98] transition-all cursor-pointer uppercase tracking-wider font-mono"
         >
           <UserPlus className="w-4 h-4 stroke-[2.2]" />
           <span>BROWSE VERIFIED 01F ROSTER</span>
@@ -64,7 +64,7 @@ export const O1FCoachStatusCard: React.FC<O1FCoachStatusCardProps> = ({
   const primaryCert = (linkedCoach?.certifications?.[0]) ?? '01F Certified';
 
   return (
-    <section className="bg-white dark:bg-[#121214] border border-neutral-200 dark:border-neutral-800 rounded-3xl p-4 sm:p-5 shadow-xs space-y-4 select-none">
+    <section className="bg-o1-card border border-white/[0.07] rounded-2xl p-4 sm:p-5 shadow-xs space-y-4 select-none">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <span className="w-2 h-2 rounded-full bg-emerald-500" />
@@ -83,20 +83,20 @@ export const O1FCoachStatusCard: React.FC<O1FCoachStatusCardProps> = ({
           <img
             src={linkedCoach?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200'}
             alt={linkedCoach?.name || 'Coach'}
-            className="w-14 h-14 rounded-2xl object-cover border border-neutral-200 dark:border-white/10"
+            className="w-14 h-14 rounded-2xl object-cover border border-white/[0.07]"
           />
-          <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-[#C4121A] text-white flex items-center justify-center text-[10px] shadow-xs">
+          <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-o1-crimson text-white flex items-center justify-center text-[10px] shadow-xs">
             <Sparkles className="w-2.5 h-2.5 fill-current" />
           </div>
         </div>
         <div className="min-w-0 flex-1">
-          <h3 className="text-sm sm:text-base font-tactical font-black text-neutral-900 dark:text-white truncate">
+          <h3 className="text-sm sm:text-base font-tactical font-black text-white truncate">
             {linkedCoach?.name || 'Club Coach'}
           </h3>
-          <p className="text-xs text-neutral-500 dark:text-neutral-400 truncate">
+          <p className="text-xs text-neutral-400 truncate">
             {primarySpecialty}
           </p>
-          <p className="text-[10px] font-mono font-semibold text-[#C4121A] mt-0.5">
+          <p className="text-[10px] font-mono font-semibold text-o1-crimson mt-0.5">
             {(linkedCoach?.rating ?? 5.0).toFixed(2)} ★ • {primaryCert}
           </p>
         </div>
@@ -109,7 +109,7 @@ export const O1FCoachStatusCard: React.FC<O1FCoachStatusCardProps> = ({
             tactileEngine.triggerSelectionBuzz();
             onOpenMessage(linkedCoach);
           }}
-          className="py-2.5 px-3 rounded-2xl bg-neutral-100 hover:bg-neutral-200 dark:bg-[#18181b] dark:hover:bg-[#222226] border border-neutral-200 dark:border-neutral-800 text-neutral-900 dark:text-white text-xs font-bold flex items-center justify-center gap-1.5 active:scale-[0.98] transition-all cursor-pointer uppercase tracking-wider font-mono"
+          className="py-2.5 px-3 rounded-2xl bg-o1-well hover:bg-white/[0.06] border border-white/[0.07] text-white text-xs font-bold flex items-center justify-center gap-1.5 active:scale-[0.98] transition-all cursor-pointer uppercase tracking-wider font-mono"
         >
           <MessageSquare className="w-3.5 h-3.5 text-neutral-500" />
           <span>MESSAGE</span>
@@ -121,7 +121,7 @@ export const O1FCoachStatusCard: React.FC<O1FCoachStatusCardProps> = ({
             tactileEngine.triggerSelectionBuzz();
             onSubmitCheckin(linkedCoach);
           }}
-          className="py-2.5 px-3 rounded-2xl bg-[#C4121A] hover:bg-[#a30f16] text-white text-xs font-bold flex items-center justify-center gap-1.5 active:scale-[0.98] shadow-xs transition-all cursor-pointer uppercase tracking-wider font-mono"
+          className="py-2.5 px-3 rounded-2xl bg-o1-crimson hover:bg-o1-crimson-hover text-white text-xs font-bold flex items-center justify-center gap-1.5 active:scale-[0.98] shadow-xs transition-all cursor-pointer uppercase tracking-wider font-mono"
         >
           <Send className="w-3.5 h-3.5" />
           <span>SUBMIT CHECK-IN</span>

@@ -150,20 +150,20 @@ export const CoachRoutineDispatchModal: React.FC<CoachRoutineDispatchModalProps>
 
   return (
     <div
-      className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4 select-none animate-in fade-in duration-200"
+      className="fixed inset-0 z-50 bg-black/70 o1-sheet-scrim flex items-center justify-center select-none animate-in fade-in duration-200"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div className="bg-white dark:bg-[#121214] border border-neutral-200 dark:border-neutral-800 rounded-t-[32px] sm:rounded-3xl max-w-sm w-full p-5 shadow-2xl relative space-y-4">
+      <div className="o1-sheet-card bg-o1-card border border-white/[0.07] w-full p-5 shadow-xl relative space-y-4 overflow-y-auto">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/50 flex items-center justify-center text-[#C4121A]">
+            <div className="w-8 h-8 rounded-xl bg-red-950/40 border border-red-900/50 flex items-center justify-center text-o1-crimson">
               <Award className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="font-bold text-sm text-neutral-900 dark:text-white uppercase tracking-wider">
+              <h3 className="font-bold text-sm text-white uppercase tracking-wider">
                 Coach Workout Dispatch
               </h3>
               <span className="text-[10px] text-neutral-400 font-mono block">
@@ -175,7 +175,7 @@ export const CoachRoutineDispatchModal: React.FC<CoachRoutineDispatchModalProps>
           <button
             type="button"
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white flex items-center justify-center cursor-pointer transition-colors"
+            className="w-8 h-8 rounded-full bg-white/[0.08] hover:bg-neutral-700 text-neutral-400 hover:text-white flex items-center justify-center cursor-pointer transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
@@ -183,9 +183,9 @@ export const CoachRoutineDispatchModal: React.FC<CoachRoutineDispatchModalProps>
 
         {/* Coach Dispatched Workout or No-Coach State */}
         {hasDispatchedWorkout && activeDispatch ? (
-          <div className="bg-neutral-50 dark:bg-[#16161a] border border-neutral-200 dark:border-neutral-800 rounded-2xl p-4 space-y-3">
+          <div className="bg-o1-well border border-white/[0.07] rounded-2xl p-4 space-y-3">
             <div className="flex items-center justify-between">
-              <span className="px-2 py-0.5 rounded-full bg-green-500/10 text-green-700 dark:text-green-400 border border-green-500/20 text-[10px] font-bold uppercase tracking-wider">
+              <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-bold uppercase tracking-wider">
                 ● Dispatched by Coach
               </span>
               <span className="text-[10px] font-mono text-neutral-400">
@@ -194,10 +194,10 @@ export const CoachRoutineDispatchModal: React.FC<CoachRoutineDispatchModalProps>
             </div>
 
             <div className="space-y-1">
-              <h4 className="font-bold text-sm text-neutral-900 dark:text-white">
+              <h4 className="font-bold text-sm text-white">
                 {activeDispatch.title || 'Clavicular Hypertrophy Protocol'}
               </h4>
-              <p className="text-xs text-neutral-500 dark:text-neutral-400">
+              <p className="text-xs text-neutral-400">
                 {activeDispatch.exercises?.length || 4} Prescribed exercises calibrated to your progression.
               </p>
             </div>
@@ -205,7 +205,7 @@ export const CoachRoutineDispatchModal: React.FC<CoachRoutineDispatchModalProps>
             <button
               type="button"
               onClick={handleLoadCoachWorkout}
-              className="w-full py-3 px-4 rounded-xl bg-[#C4121A] hover:bg-[#a50f16] active:scale-95 text-white font-bold text-xs uppercase tracking-wider flex items-center justify-between transition-all cursor-pointer shadow-md shadow-red-500/20"
+              className="w-full py-2.5 px-4 rounded-xl bg-zinc-100 hover:opacity-90 active:scale-[0.98] text-neutral-950 font-semibold text-xs tracking-wide flex items-center justify-between transition-all cursor-pointer"
             >
               <div className="flex items-center gap-2">
                 <Play className="w-3.5 h-3.5 fill-white" />
@@ -216,14 +216,14 @@ export const CoachRoutineDispatchModal: React.FC<CoachRoutineDispatchModalProps>
           </div>
         ) : (
           <div className="space-y-3">
-            <div className="p-4 rounded-2xl bg-neutral-50 dark:bg-[#16161a] border border-neutral-200 dark:border-neutral-800 space-y-2">
-              <div className="flex items-center gap-2 text-neutral-800 dark:text-neutral-200">
-                <UserCheck className="w-4 h-4 text-[#C4121A]" />
+            <div className="p-4 rounded-2xl bg-o1-well border border-white/[0.07] space-y-2">
+              <div className="flex items-center gap-2 text-neutral-200">
+                <UserCheck className="w-4 h-4 text-o1-crimson" />
                 <span className="text-xs font-bold uppercase tracking-wider">
                   No Active Coach Workout Dispatched
                 </span>
               </div>
-              <p className="text-xs text-neutral-500 dark:text-neutral-400 leading-relaxed">
+              <p className="text-xs text-neutral-400 leading-relaxed">
                 You haven&apos;t been assigned a live workout by a coach yet. You can hire a certified coach on the platform or start your chosen split ({selectedSplit}) directly.
               </p>
             </div>
@@ -232,7 +232,7 @@ export const CoachRoutineDispatchModal: React.FC<CoachRoutineDispatchModalProps>
               <button
                 type="button"
                 onClick={() => loadFallbackSplit(selectedSplit)}
-                className="w-full py-3 px-4 rounded-xl bg-[#C4121A] hover:bg-[#a50f16] active:scale-95 text-white font-bold text-xs uppercase tracking-wider flex items-center justify-between transition-all cursor-pointer shadow-md shadow-red-500/20"
+                className="w-full py-2.5 px-4 rounded-xl bg-zinc-100 hover:opacity-90 active:scale-[0.98] text-neutral-950 font-semibold text-xs tracking-wide flex items-center justify-between transition-all cursor-pointer"
               >
                 <div className="flex items-center gap-2">
                   <Play className="w-3.5 h-3.5 fill-white" />
@@ -248,9 +248,9 @@ export const CoachRoutineDispatchModal: React.FC<CoachRoutineDispatchModalProps>
                   onClose();
                   onNavigateToCoach();
                 }}
-                className="w-full py-2.5 px-4 rounded-xl bg-neutral-100 dark:bg-neutral-800/80 hover:bg-neutral-200 dark:hover:bg-neutral-700 text-neutral-800 dark:text-neutral-200 font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer border border-neutral-200 dark:border-neutral-700"
+                className="w-full py-2.5 px-4 rounded-xl bg-white/[0.08] hover:bg-neutral-700 text-neutral-200 font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer border border-white/[0.07]"
               >
-                <Compass className="w-3.5 h-3.5 text-cyan-500" />
+                <Compass className="w-3.5 h-3.5 text-sky-500" />
                 <span>Browse &amp; Hire Coach in Coach Hub</span>
               </button>
             </div>

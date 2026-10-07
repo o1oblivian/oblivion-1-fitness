@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { Utensils, ChevronDown, Scale, Flame } from 'lucide-react';
+import { ChevronDown, Scale } from 'lucide-react';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { COUNTRIES } from './ClientCountryMarketModal';
 import { sanitizeNumericInput } from '../../../utils/numberInputUtils';
+import { getDietProtocol } from '../data/dietProtocols';
 
 export interface FuelTopStatusBarProps {
   countryMarket?: string;
@@ -55,77 +56,86 @@ export const FuelTopStatusBar: React.FC<FuelTopStatusBarProps> = ({
   const code = (countryCode || countryMarket || 'AU').toUpperCase();
   const countryObj = COUNTRIES.find((c) => c.code === code) || { flag: '🇦🇺', name: 'Australia', code: 'AU' };
   const displayDiet = selectedDiet || dietPreference || 'Omnivore';
+  const diet = getDietProtocol(displayDiet);
 
   return (
     <div id="fuel-top-status-bar" className="space-y-2 select-none">
-      <div className="flex items-center justify-between gap-2 px-0.5 py-1">
-        {/* Left: FUEL OS Title (aligned in single straight row) */}
-        <div className="flex items-center gap-1.5 shrink-0">
-          <Flame className="w-4 h-4 text-[#C4121A] fill-[#C4121A]/20 shrink-0" />
-          <h1 className="font-telemetry font-black text-base sm:text-lg text-neutral-900 dark:text-white tracking-tight uppercase leading-none">
-            Fuel OS
+      <div className="flex items-end justify-between gap-2">
+        <div className="min-w-0">
+          <p className="text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">
+            Fuel
+          </p>
+          <h1 className="font-semibold text-[17px] text-white tracking-tight leading-tight">
+            Today&apos;s desk
           </h1>
         </div>
 
-        {/* Right: Dropdowns cluster (Country, Diet, Weight) */}
         <div className="flex items-center gap-1.5 shrink-0">
-          {/* 1. Country Flag Selector */}
           <button
             type="button"
-            id="fuel-country-selector-btn"
-            onClick={() => {
-              tactileEngine.triggerSelectionBuzz();
-              onOpenCountryModal?.();
-            }}
-            title={`Country Database: ${countryObj.name} (Tap to change)`}
-            className="h-8 flex items-center gap-1 px-2.5 rounded-full bg-white dark:bg-[#121214] border border-neutral-200/80 dark:border-neutral-800 text-xs font-semibold text-neutral-800 dark:text-neutral-200 hover:border-neutral-300 dark:hover:border-neutral-700 transition-all shadow-2xs active:scale-95 cursor-pointer shrink-0"
-          >
-            <span className="text-sm leading-none shrink-0">{countryObj.flag}</span>
-            <ChevronDown className="w-3 h-3 text-neutral-400 shrink-0" />
-          </button>
-
-          {/* 2. Diet Selector */}
-          <button
-            type="button"
-            id="fuel-diet-selector-btn"
-            onClick={() => {
-              tactileEngine.triggerSelectionBuzz();
-              if (onOpenDietModal) {
-                onOpenDietModal();
-              } else if (onToggleDiet) {
-                onToggleDiet();
-              }
-            }}
-            title="Select Diet Protocol"
-            className="h-8 flex items-center gap-1 px-2.5 rounded-full bg-white dark:bg-[#121214] border border-black/5 dark:border-white/10 text-xs font-semibold text-neutral-800 dark:text-neutral-200 hover:border-neutral-300 dark:hover:border-neutral-700 transition-all shadow-xs active:scale-95 cursor-pointer shrink-0"
-          >
-            <div className="w-3.5 h-3.5 rounded-full bg-red-100 dark:bg-red-950/40 flex items-center justify-center shrink-0">
-              <Utensils className="w-2 h-2 text-[#C4121A]" />
-            </div>
-            <span className="font-bold tracking-tight text-[11px] max-w-[64px] truncate">{displayDiet}</span>
-            <ChevronDown className="w-2.5 h-2.5 text-neutral-400 shrink-0" />
-          </button>
-
-          {/* 3. Set Weight Button */}
-          <button
-            type="button"
-            id="fuel-weight-selector-btn"
             onClick={() => {
               tactileEngine.triggerSelectionBuzz();
               setIsEditingWeight(!isEditingWeight);
             }}
-            title="Update Current Bodyweight"
-            className="h-8 flex items-center gap-1 px-2.5 rounded-full bg-white dark:bg-[#121214] border border-black/5 dark:border-white/10 text-xs font-semibold text-neutral-800 dark:text-neutral-200 hover:border-neutral-300 dark:hover:border-neutral-700 transition-all shadow-xs active:scale-95 cursor-pointer shrink-0"
+            title="Bodyweight"
+            className="h-9 px-2.5 rounded-2xl bg-o1-card border border-white/[0.07] flex items-center gap-1.5 text-neutral-200 active:scale-95 transition-all cursor-pointer"
           >
-            <Scale className="w-3 h-3 text-[#C4121A] shrink-0" />
-            <span className="font-mono font-bold text-[11px]">{weightKg ? `${weightKg}kg` : 'Weight'}</span>
+            <Scale className="w-3.5 h-3.5 text-neutral-400" />
+            <span className="text-[11px] font-semibold tabular-nums">{weightKg ? `${weightKg}` : '—'}</span>
+            <span className="text-[9px] text-neutral-400 font-medium">kg</span>
           </button>
         </div>
       </div>
 
-      {/* Inline Weight Quick-Edit Drawer */}
+      <div className="grid grid-cols-2 gap-2">
+        <button
+          type="button"
+          id="fuel-country-selector-btn"
+          onClick={() => {
+            tactileEngine.triggerSelectionBuzz();
+            onOpenCountryModal?.();
+          }}
+          title={`Market catalog: ${countryObj.name}`}
+          className="h-[52px] px-3 rounded-2xl bg-o1-card border border-white/[0.07] flex items-center gap-2.5 text-left active:scale-[0.99] transition-all cursor-pointer shadow-xs"
+        >
+          <span className="text-[22px] leading-none shrink-0" aria-hidden>
+            {countryObj.flag}
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block text-[9px] uppercase tracking-wider text-neutral-400 font-medium">Market</span>
+            <span className="block text-[12px] font-semibold text-white truncate leading-tight">
+              {countryObj.code === 'GLOBAL' ? 'All markets' : countryObj.name}
+            </span>
+          </span>
+          <ChevronDown className="w-3.5 h-3.5 text-neutral-400 shrink-0" />
+        </button>
+
+        <button
+          type="button"
+          id="fuel-diet-selector-btn"
+          onClick={() => {
+            tactileEngine.triggerSelectionBuzz();
+            if (onOpenDietModal) onOpenDietModal();
+            else onToggleDiet?.();
+          }}
+          title="Diet protocol"
+          className={`h-[52px] px-3 rounded-2xl bg-o1-card border ${diet.accentBorder} flex items-center gap-2.5 text-left active:scale-[0.99] transition-all cursor-pointer shadow-xs`}
+        >
+          <span className={`w-8 h-8 rounded-xl ${diet.accentSoft} border ${diet.accentBorder} flex items-center justify-center text-base shrink-0`}>
+            {diet.icon}
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block text-[9px] uppercase tracking-wider text-neutral-400 font-medium">Diet</span>
+            <span className={`block text-[12px] font-semibold truncate leading-tight ${diet.accentDark}`}>
+              {diet.label}
+            </span>
+          </span>
+          <ChevronDown className="w-3.5 h-3.5 text-neutral-400 shrink-0" />
+        </button>
+      </div>
+
       {isEditingWeight && (
-        <div className="p-2.5 bg-white dark:bg-[#121214] border border-neutral-200 dark:border-neutral-800 rounded-2xl flex items-center gap-2 animate-in fade-in duration-150 shadow-sm">
+        <div className="p-2 bg-o1-card border border-white/[0.07] rounded-2xl flex items-center gap-2 shadow-sm">
           <input
             type="number"
             step="0.1"
@@ -133,13 +143,12 @@ export const FuelTopStatusBar: React.FC<FuelTopStatusBarProps> = ({
             autoFocus
             onFocus={(e) => e.target.select()}
             onChange={(e) => setInputWeight(sanitizeNumericInput(e.target.value))}
-            placeholder={`Enter weight in kg (current: ${weightKg || 'none'})...`}
-            className="flex-1 h-9 px-3 rounded-xl bg-neutral-100 dark:bg-[#18181b] border border-neutral-200 dark:border-neutral-800 text-xs text-neutral-900 dark:text-neutral-100 focus:outline-none font-mono"
+            className="flex-1 h-9 px-3 rounded-xl bg-o1-well border border-white/[0.07] text-xs text-neutral-100 focus:outline-none font-mono"
           />
           <button
             type="button"
             onClick={handleSaveWeightInline}
-            className="px-4 h-9 rounded-xl bg-[#C4121A] hover:bg-[#a50f16] active:bg-[#800C11] text-white text-xs font-bold transition-all shadow-xs cursor-pointer shrink-0 active:scale-95"
+            className="px-4 h-9 rounded-xl bg-white text-neutral-900 text-xs font-semibold transition-all cursor-pointer shrink-0 active:scale-95"
           >
             Save
           </button>

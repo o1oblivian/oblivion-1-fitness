@@ -19,7 +19,7 @@ export const DossierHeroPhoto: React.FC<DossierHeroPhotoProps> = ({
 }) => {
   return (
     <div
-      className="relative aspect-[4/3] sm:aspect-[16/9] w-full bg-neutral-950 overflow-hidden select-none cursor-pointer"
+      className="relative aspect-[4/3] sm:aspect-[16/9] w-full bg-black overflow-hidden select-none cursor-pointer"
       onClick={() => onOpenPhotoModal(photoList[activePhotoIdx])}
     >
       <img

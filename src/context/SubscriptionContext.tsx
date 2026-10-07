@@ -4,7 +4,6 @@ import {
   checkSubscriptionStatus,
   purchasePro as svcPurchasePro,
   restorePurchases as svcRestorePurchases,
-  isNativePlatform,
   PLUS_ENTITLEMENT,
 } from '../services/subscriptionService';
 import {
@@ -12,6 +11,7 @@ import {
   activateProSubscription,
   TrialState,
 } from '../services/trialService';
+import { getAuthenticatedUserId } from '../services/authUser';
 
 export interface SubscriptionContextType {
   isPro: boolean;
@@ -28,10 +28,12 @@ export interface SubscriptionContextType {
 
 const SubscriptionContext = createContext<SubscriptionContextType | undefined>(undefined);
 
+const EMPTY_TRIAL = getAthleteTrialState('');
+
 export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [trial, setTrial] = useState<TrialState>(() => getAthleteTrialState('default-athlete'));
-  const [isPro, setIsPro] = useState<boolean>(true);
-  const [currentPlan, setCurrentPlan] = useState<string>(PLUS_ENTITLEMENT);
+  const [trial, setTrial] = useState<TrialState>(EMPTY_TRIAL);
+  const [isPro, setIsPro] = useState<boolean>(false);
+  const [currentPlan, setCurrentPlan] = useState<string>('o1fc_core_free');
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isPaywallOpen, setIsPaywallOpen] = useState<boolean>(false);
   const [gatedFeature, setGatedFeature] = useState<string | null>(null);
@@ -39,20 +41,16 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
   useEffect(() => {
     let mounted = true;
     const init = async () => {
-      await initializeIAP('default-athlete');
+      const uid = await getAuthenticatedUserId();
+      if (uid) await initializeIAP(uid);
       const status = checkSubscriptionStatus();
-      const trialInfo = getAthleteTrialState('default-athlete');
+      const trialInfo = getAthleteTrialState(uid || '');
       if (!mounted) return;
 
       setTrial(trialInfo);
 
-      // Feature Gating Rule:
-      // If user has purchased Pro OR is currently within their 90-day trial period, isPro = true
-      // Once the 90 days expire and no Pro pass was purchased, isPro becomes false -> triggers gating paywalls
       const hasProEntitlement = trialInfo.hasSubscribedPro || (status.isActive && status.tierId !== 'o1fc_core_free');
-      const active = hasProEntitlement || trialInfo.isTrialActive;
-
-      setIsPro(active);
+      setIsPro(Boolean(uid) && hasProEntitlement);
       setCurrentPlan(status.tierId || (hasProEntitlement ? PLUS_ENTITLEMENT : 'o1fc_core_free'));
       setIsLoading(false);
     };
@@ -63,12 +61,13 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
   const purchasePro = useCallback(async (planId?: string) => {
     setIsLoading(true);
+    const uid = await getAuthenticatedUserId();
     const chosenPlan = planId || PLUS_ENTITLEMENT;
     const res = await svcPurchasePro(chosenPlan);
 
-    if (res.success) {
-      activateProSubscription('default-athlete', chosenPlan);
-      const updatedTrial = getAthleteTrialState('default-athlete');
+    if (res.success && uid) {
+      activateProSubscription(uid, chosenPlan);
+      const updatedTrial = getAthleteTrialState(uid);
       setTrial(updatedTrial);
       setIsPro(true);
       setCurrentPlan(chosenPlan);
@@ -81,10 +80,11 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
   const restorePurchases = useCallback(async () => {
     setIsLoading(true);
+    const uid = await getAuthenticatedUserId();
     const res = await svcRestorePurchases();
-    if (res.isPro) {
-      activateProSubscription('default-athlete', res.status.tierId || PLUS_ENTITLEMENT);
-      const updatedTrial = getAthleteTrialState('default-athlete');
+    if (res.isPro && uid) {
+      activateProSubscription(uid, res.status.tierId || PLUS_ENTITLEMENT);
+      const updatedTrial = getAthleteTrialState(uid);
       setTrial(updatedTrial);
       setIsPro(true);
       setIsPaywallOpen(false);
@@ -97,6 +97,15 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
     setGatedFeature(featureName || 'Club Pass Pro Feature');
     setIsPaywallOpen(true);
   }, []);
+
+  useEffect(() => {
+    const open = (e: Event) => {
+      const detail = (e as CustomEvent<string>).detail;
+      openPaywall(typeof detail === 'string' ? detail : 'Club Pass Pro');
+    };
+    window.addEventListener('o1fc_open_paywall', open as EventListener);
+    return () => window.removeEventListener('o1fc_open_paywall', open as EventListener);
+  }, [openPaywall]);
 
   const closePaywall = useCallback(() => {
     setIsPaywallOpen(false);
@@ -127,11 +136,11 @@ export const useSubscription = (): SubscriptionContextType => {
   const ctx = useContext(SubscriptionContext);
   if (!ctx) {
     return {
-      isPro: true,
-      currentPlan: PLUS_ENTITLEMENT,
-      trialState: getAthleteTrialState('default-athlete'),
-      purchasePro: async () => true,
-      restorePurchases: async () => true,
+      isPro: false,
+      currentPlan: 'o1fc_core_free',
+      trialState: getAthleteTrialState(''),
+      purchasePro: async () => false,
+      restorePurchases: async () => false,
       isLoading: false,
       isPaywallOpen: false,
       gatedFeature: null,

@@ -1,4 +1,5 @@
 import { supabase } from '../../../services/supabaseClient';
+import { apiUrl } from '../../../services/apiBase';
 import { useBuddyProfileStore } from '../../../stores/useBuddyProfileStore';
 
 export interface PoseChallenge {
@@ -52,10 +53,10 @@ export async function verifyAthletePose(
   avatarBase64: string,
   selfieBase64: string,
   challenge: PoseChallenge,
-  athleteId = 'current-athlete'
+  athleteId = ''
 ): Promise<PoseVerificationResult> {
   try {
-    const res = await fetch('/api/vision/verify-pose', {
+    const res = await fetch(apiUrl('/api/vision/verify-pose'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -82,13 +83,12 @@ export async function verifyAthletePose(
 
     if (isVerified) {
       useBuddyProfileStore.getState().updateBuddyProfile({ isVerifiedBadge: true });
-      try {
-        await supabase
+      if (athleteId) {
+        const { error } = await supabase
           .from('buddy_profiles')
           .update({ is_verified: true, verified_at: new Date().toISOString() })
           .eq('id', athleteId);
-      } catch (dbErr) {
-        console.warn('[PoseVerification] Supabase profile sync fallback:', dbErr);
+        if (error) console.error('[PoseVerification] profile update failed:', error.message);
       }
     }
 

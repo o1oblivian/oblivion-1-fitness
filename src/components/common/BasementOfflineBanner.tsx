@@ -24,7 +24,7 @@ export const BasementOfflineBanner: React.FC = () => {
     return (
       <aside
         aria-label="Basement safe offline mode status"
-        className="w-full bg-[#18181b] border-b border-amber-500/30 px-3 py-1.5 flex items-center justify-between text-[11px] font-mono select-none animate-in fade-in slide-in-from-top-2 duration-200 z-40"
+        className="w-full bg-o1-well border-b border-amber-500/30 px-3 py-1.5 flex items-center justify-between text-[11px] font-mono select-none animate-in fade-in slide-in-from-top-2 duration-200 z-40"
       >
         <div className="flex items-center gap-2 text-amber-400">
           <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />

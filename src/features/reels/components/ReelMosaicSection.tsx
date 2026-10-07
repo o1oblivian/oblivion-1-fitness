@@ -63,7 +63,7 @@ export const ReelMosaicSection: React.FC<ReelMosaicSectionProps> = ({ reels, onS
   if (postItems.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-20 px-4 text-center">
-        <div className="w-12 h-12 rounded-2xl bg-[#121214] border border-neutral-800 flex items-center justify-center text-neutral-500 mb-3 shadow-sm">
+        <div className="w-12 h-12 rounded-2xl bg-o1-card border border-white/[0.07] flex items-center justify-center text-neutral-500 mb-3 shadow-sm">
           <Play className="w-5 h-5 opacity-40" />
         </div>
         <h4 className="text-xs font-mono font-bold text-neutral-400 uppercase tracking-widest">
@@ -91,7 +91,7 @@ export const ReelMosaicSection: React.FC<ReelMosaicSectionProps> = ({ reels, onS
                     {trio[0] && (
                       <div
                         onClick={() => handleItemClick(trio[0])}
-                        className="group relative w-full aspect-[4/5] rounded-2xl overflow-hidden bg-neutral-900 cursor-pointer border border-white/5 active:scale-[0.98] transition-transform duration-200 shadow-md"
+                        className="group relative w-full aspect-[4/5] rounded-2xl overflow-hidden bg-o1-well cursor-pointer border border-white/[0.07] active:scale-[0.98] transition-transform duration-200 shadow-md"
                       >
                         <img
                           src={trio[0].thumbnail}
@@ -100,7 +100,7 @@ export const ReelMosaicSection: React.FC<ReelMosaicSectionProps> = ({ reels, onS
                           loading="lazy"
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
-                        <div className="absolute top-2.5 right-2.5 w-6 h-6 rounded-full bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center text-white/90 pointer-events-none shadow-sm">
+                        <div className="absolute top-2.5 right-2.5 w-6 h-6 rounded-full bg-black/40 backdrop-blur-md border border-white/[0.07] flex items-center justify-center text-white/90 pointer-events-none shadow-sm">
                           <Play className="w-2.5 h-2.5 fill-white/90 translate-x-[0.5px]" />
                         </div>
                       </div>
@@ -110,7 +110,7 @@ export const ReelMosaicSection: React.FC<ReelMosaicSectionProps> = ({ reels, onS
                       {trio[1] && (
                         <div
                           onClick={() => handleItemClick(trio[1])}
-                          className="group relative w-full aspect-[16/10] rounded-2xl overflow-hidden bg-neutral-900 cursor-pointer border border-white/5 active:scale-[0.98] transition-transform duration-200 shadow-md"
+                          className="group relative w-full aspect-[16/10] rounded-2xl overflow-hidden bg-o1-well cursor-pointer border border-white/[0.07] active:scale-[0.98] transition-transform duration-200 shadow-md"
                         >
                           <img
                             src={trio[1].thumbnail}
@@ -119,7 +119,7 @@ export const ReelMosaicSection: React.FC<ReelMosaicSectionProps> = ({ reels, onS
                             loading="lazy"
                           />
                           <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
-                          <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center text-white/90 pointer-events-none shadow-sm">
+                          <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-black/40 backdrop-blur-md border border-white/[0.07] flex items-center justify-center text-white/90 pointer-events-none shadow-sm">
                             <Play className="w-2 h-2 fill-white/90 translate-x-[0.5px]" />
                           </div>
                         </div>
@@ -128,7 +128,7 @@ export const ReelMosaicSection: React.FC<ReelMosaicSectionProps> = ({ reels, onS
                       {trio[2] && (
                         <div
                           onClick={() => handleItemClick(trio[2])}
-                          className="group relative w-full aspect-[16/10] rounded-2xl overflow-hidden bg-neutral-900 cursor-pointer border border-white/5 active:scale-[0.98] transition-transform duration-200 shadow-md"
+                          className="group relative w-full aspect-[16/10] rounded-2xl overflow-hidden bg-o1-well cursor-pointer border border-white/[0.07] active:scale-[0.98] transition-transform duration-200 shadow-md"
                         >
                           <img
                             src={trio[2].thumbnail}
@@ -137,7 +137,7 @@ export const ReelMosaicSection: React.FC<ReelMosaicSectionProps> = ({ reels, onS
                             loading="lazy"
                           />
                           <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
-                          <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center text-white/90 pointer-events-none shadow-sm">
+                          <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-black/40 backdrop-blur-md border border-white/[0.07] flex items-center justify-center text-white/90 pointer-events-none shadow-sm">
                             <Play className="w-2 h-2 fill-white/90 translate-x-[0.5px]" />
                           </div>
                         </div>
@@ -151,7 +151,7 @@ export const ReelMosaicSection: React.FC<ReelMosaicSectionProps> = ({ reels, onS
                       {trio[0] && (
                         <div
                           onClick={() => handleItemClick(trio[0])}
-                          className="group relative w-full aspect-[16/10] rounded-2xl overflow-hidden bg-neutral-900 cursor-pointer border border-white/5 active:scale-[0.98] transition-transform duration-200 shadow-md"
+                          className="group relative w-full aspect-[16/10] rounded-2xl overflow-hidden bg-o1-well cursor-pointer border border-white/[0.07] active:scale-[0.98] transition-transform duration-200 shadow-md"
                         >
                           <img
                             src={trio[0].thumbnail}
@@ -160,7 +160,7 @@ export const ReelMosaicSection: React.FC<ReelMosaicSectionProps> = ({ reels, onS
                             loading="lazy"
                           />
                           <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
-                          <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center text-white/90 pointer-events-none shadow-sm">
+                          <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-black/40 backdrop-blur-md border border-white/[0.07] flex items-center justify-center text-white/90 pointer-events-none shadow-sm">
                             <Play className="w-2 h-2 fill-white/90 translate-x-[0.5px]" />
                           </div>
                         </div>
@@ -169,7 +169,7 @@ export const ReelMosaicSection: React.FC<ReelMosaicSectionProps> = ({ reels, onS
                       {trio[1] && (
                         <div
                           onClick={() => handleItemClick(trio[1])}
-                          className="group relative w-full aspect-[16/10] rounded-2xl overflow-hidden bg-neutral-900 cursor-pointer border border-white/5 active:scale-[0.98] transition-transform duration-200 shadow-md"
+                          className="group relative w-full aspect-[16/10] rounded-2xl overflow-hidden bg-o1-well cursor-pointer border border-white/[0.07] active:scale-[0.98] transition-transform duration-200 shadow-md"
                         >
                           <img
                             src={trio[1].thumbnail}
@@ -178,7 +178,7 @@ export const ReelMosaicSection: React.FC<ReelMosaicSectionProps> = ({ reels, onS
                             loading="lazy"
                           />
                           <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
-                          <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center text-white/90 pointer-events-none shadow-sm">
+                          <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-black/40 backdrop-blur-md border border-white/[0.07] flex items-center justify-center text-white/90 pointer-events-none shadow-sm">
                             <Play className="w-2 h-2 fill-white/90 translate-x-[0.5px]" />
                           </div>
                         </div>
@@ -188,7 +188,7 @@ export const ReelMosaicSection: React.FC<ReelMosaicSectionProps> = ({ reels, onS
                     {trio[2] && (
                       <div
                         onClick={() => handleItemClick(trio[2])}
-                        className="group relative w-full aspect-[4/5] rounded-2xl overflow-hidden bg-neutral-900 cursor-pointer border border-white/5 active:scale-[0.98] transition-transform duration-200 shadow-md"
+                        className="group relative w-full aspect-[4/5] rounded-2xl overflow-hidden bg-o1-well cursor-pointer border border-white/[0.07] active:scale-[0.98] transition-transform duration-200 shadow-md"
                       >
                         <img
                           src={trio[2].thumbnail}
@@ -197,7 +197,7 @@ export const ReelMosaicSection: React.FC<ReelMosaicSectionProps> = ({ reels, onS
                           loading="lazy"
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
-                        <div className="absolute top-2.5 right-2.5 w-6 h-6 rounded-full bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center text-white/90 pointer-events-none shadow-sm">
+                        <div className="absolute top-2.5 right-2.5 w-6 h-6 rounded-full bg-black/40 backdrop-blur-md border border-white/[0.07] flex items-center justify-center text-white/90 pointer-events-none shadow-sm">
                           <Play className="w-2.5 h-2.5 fill-white/90 translate-x-[0.5px]" />
                         </div>
                       </div>
@@ -211,7 +211,7 @@ export const ReelMosaicSection: React.FC<ReelMosaicSectionProps> = ({ reels, onS
             {duoOrSingle.length === 1 && (
               <div
                 onClick={() => handleItemClick(duoOrSingle[0])}
-                className="group relative w-full aspect-[16/9] rounded-2xl overflow-hidden bg-neutral-900 cursor-pointer border border-white/5 active:scale-[0.99] transition-transform duration-200 shadow-md"
+                className="group relative w-full aspect-[16/9] rounded-2xl overflow-hidden bg-o1-well cursor-pointer border border-white/[0.07] active:scale-[0.99] transition-transform duration-200 shadow-md"
               >
                 <img
                   src={duoOrSingle[0].thumbnail}
@@ -220,7 +220,7 @@ export const ReelMosaicSection: React.FC<ReelMosaicSectionProps> = ({ reels, onS
                   loading="lazy"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
-                <div className="absolute top-2.5 right-2.5 w-6 h-6 rounded-full bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center text-white/90 pointer-events-none shadow-sm">
+                <div className="absolute top-2.5 right-2.5 w-6 h-6 rounded-full bg-black/40 backdrop-blur-md border border-white/[0.07] flex items-center justify-center text-white/90 pointer-events-none shadow-sm">
                   <Play className="w-2.5 h-2.5 fill-white/90 translate-x-[0.5px]" />
                 </div>
               </div>
@@ -230,7 +230,7 @@ export const ReelMosaicSection: React.FC<ReelMosaicSectionProps> = ({ reels, onS
               <div className="grid grid-cols-12 gap-2">
                 <div
                   onClick={() => handleItemClick(duoOrSingle[0])}
-                  className="col-span-7 group relative w-full aspect-[16/11] rounded-2xl overflow-hidden bg-neutral-900 cursor-pointer border border-white/5 active:scale-[0.98] transition-transform duration-200 shadow-md"
+                  className="col-span-7 group relative w-full aspect-[16/11] rounded-2xl overflow-hidden bg-o1-well cursor-pointer border border-white/[0.07] active:scale-[0.98] transition-transform duration-200 shadow-md"
                 >
                   <img
                     src={duoOrSingle[0].thumbnail}
@@ -239,14 +239,14 @@ export const ReelMosaicSection: React.FC<ReelMosaicSectionProps> = ({ reels, onS
                     loading="lazy"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
-                  <div className="absolute top-2.5 right-2.5 w-6 h-6 rounded-full bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center text-white/90 pointer-events-none shadow-sm">
+                  <div className="absolute top-2.5 right-2.5 w-6 h-6 rounded-full bg-black/40 backdrop-blur-md border border-white/[0.07] flex items-center justify-center text-white/90 pointer-events-none shadow-sm">
                     <Play className="w-2.5 h-2.5 fill-white/90 translate-x-[0.5px]" />
                   </div>
                 </div>
 
                 <div
                   onClick={() => handleItemClick(duoOrSingle[1])}
-                  className="col-span-5 group relative w-full aspect-[4/3] rounded-2xl overflow-hidden bg-neutral-900 cursor-pointer border border-white/5 active:scale-[0.98] transition-transform duration-200 shadow-md"
+                  className="col-span-5 group relative w-full aspect-[4/3] rounded-2xl overflow-hidden bg-o1-well cursor-pointer border border-white/[0.07] active:scale-[0.98] transition-transform duration-200 shadow-md"
                 >
                   <img
                     src={duoOrSingle[1].thumbnail}
@@ -255,7 +255,7 @@ export const ReelMosaicSection: React.FC<ReelMosaicSectionProps> = ({ reels, onS
                     loading="lazy"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
-                  <div className="absolute top-2.5 right-2.5 w-6 h-6 rounded-full bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center text-white/90 pointer-events-none shadow-sm">
+                  <div className="absolute top-2.5 right-2.5 w-6 h-6 rounded-full bg-black/40 backdrop-blur-md border border-white/[0.07] flex items-center justify-center text-white/90 pointer-events-none shadow-sm">
                     <Play className="w-2.5 h-2.5 fill-white/90 translate-x-[0.5px]" />
                   </div>
                 </div>

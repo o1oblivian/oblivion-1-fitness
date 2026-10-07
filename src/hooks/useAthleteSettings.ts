@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { safeStorage } from '../utils/sanitizers';
-import { useThemeStore } from '../stores/useThemeStore';
 import { useTelemetryStore } from '../features/telemetry/store/useTelemetryStore';
 import { tactileEngine } from '../services/tactileEngine';
 import { supabase } from '../services/supabaseClient';
+import { apiUrl } from '../services/apiBase';
+import { clearLocalCrash } from '../utils/crashLog';
 
 export const O1_SETTINGS_KEY = 'o1fc_production_settings_v3';
 
@@ -80,11 +81,13 @@ export interface SettingsStoreState {
   isPairingDevice: boolean;
 }
 
+const persistSettingsPatch = (partial: Record<string, unknown>) => {
+  const existing = safeStorage.getItem<Record<string, unknown>>(O1_SETTINGS_KEY, {});
+  safeStorage.setItem(O1_SETTINGS_KEY, { ...existing, ...partial });
+};
+
 export const useProductionSettings = (onShowToast?: (msg: string) => void) => {
   const cached = safeStorage.getItem<Record<string, unknown>>(O1_SETTINGS_KEY, {});
-  const storeTheme = useThemeStore((s) => s.theme);
-  const storeSetTheme = useThemeStore((s) => s.setTheme);
-
   // Profile
   const [name, setName] = useState<string>(typeof cached.name === 'string' ? cached.name : 'o1oblivionfitness');
   const [handle, setHandle] = useState<string>(typeof cached.handle === 'string' ? cached.handle : '@o1oblivionfitness');
@@ -92,17 +95,25 @@ export const useProductionSettings = (onShowToast?: (msg: string) => void) => {
   const [heightCm, setHeightCm] = useState<number>(typeof cached.heightCm === 'number' ? cached.heightCm : 180);
   const [weightKg, setWeightKg] = useState<number>(typeof cached.weightKg === 'number' ? cached.weightKg : 82);
   const [bio, setBio] = useState<string>(typeof cached.bio === 'string' ? cached.bio : '');
-  const [eliteReelsPresence, setEliteReelsPresence] = useState<boolean>(
+  const [eliteReelsPresence, setEliteReelsPresenceState] = useState<boolean>(
     typeof cached.eliteReelsPresence === 'boolean' ? cached.eliteReelsPresence : true
   );
+  const setEliteReelsPresence = (val: boolean) => {
+    setEliteReelsPresenceState(val);
+    persistSettingsPatch({ eliteReelsPresence: val });
+  };
 
   // Training
   const [discipline, setDiscipline] = useState<DisciplineType>(
     (cached.discipline as DisciplineType) || 'Hypertrophy'
   );
-  const [autoDispatch, setAutoDispatch] = useState<boolean>(
+  const [autoDispatch, setAutoDispatchState] = useState<boolean>(
     typeof cached.autoDispatch === 'boolean' ? cached.autoDispatch : true
   );
+  const setAutoDispatch = (val: boolean) => {
+    setAutoDispatchState(val);
+    persistSettingsPatch({ autoDispatch: val });
+  };
   const [activeDays, setActiveDays] = useState<string[]>(
     Array.isArray(cached.activeDays) ? (cached.activeDays as string[]) : ['Mo', 'Tu', 'We', 'Th', 'Fr']
   );
@@ -169,10 +180,10 @@ export const useProductionSettings = (onShowToast?: (msg: string) => void) => {
   );
 
   // Audio & Tactile
-  const [hapticVibration, setHapticVibration] = useState<boolean>(
+  const [hapticVibration, setHapticVibrationState] = useState<boolean>(
     typeof cached.hapticVibration === 'boolean' ? cached.hapticVibration : true
   );
-  const [soundEffects, setSoundEffects] = useState<boolean>(
+  const [soundEffects, setSoundEffectsState] = useState<boolean>(
     typeof cached.soundEffects === 'boolean' ? cached.soundEffects : true
   );
   const [dialClicks, setDialClicks] = useState<boolean>(
@@ -185,13 +196,30 @@ export const useProductionSettings = (onShowToast?: (msg: string) => void) => {
     typeof cached.prChime === 'boolean' ? cached.prChime : true
   );
 
+  const setHapticVibration = (val: boolean) => {
+    setHapticVibrationState(val);
+    tactileEngine.configureSettings({ hapticEnabled: val });
+  };
+  const setSoundEffects = (val: boolean) => {
+    setSoundEffectsState(val);
+    tactileEngine.configureSettings({ soundEnabled: val });
+  };
+
   // Notifications
-  const [osPushEnabled, setOsPushEnabled] = useState<boolean>(
+  const [osPushEnabled, setOsPushEnabledState] = useState<boolean>(
     typeof cached.osPushEnabled === 'boolean' ? cached.osPushEnabled : false
   );
-  const [preWorkoutReminder, setPreWorkoutReminder] = useState<boolean>(
+  const setOsPushEnabled = (val: boolean) => {
+    setOsPushEnabledState(val);
+    persistSettingsPatch({ osPushEnabled: val });
+  };
+  const [preWorkoutReminder, setPreWorkoutReminderState] = useState<boolean>(
     typeof cached.preWorkoutReminder === 'boolean' ? cached.preWorkoutReminder : true
   );
+  const setPreWorkoutReminder = (val: boolean) => {
+    setPreWorkoutReminderState(val);
+    persistSettingsPatch({ preWorkoutReminder: val });
+  };
   const [coachUpdates, setCoachUpdates] = useState<boolean>(
     typeof cached.coachUpdates === 'boolean' ? cached.coachUpdates : true
   );
@@ -206,18 +234,33 @@ export const useProductionSettings = (onShowToast?: (msg: string) => void) => {
   );
 
   // Privacy & Social
-  const [buddyRadarDiscovery, setBuddyRadarDiscovery] = useState<boolean>(
+  const [buddyRadarDiscovery, setBuddyRadarDiscoveryState] = useState<boolean>(
     typeof cached.buddyRadarDiscovery === 'boolean' ? cached.buddyRadarDiscovery : true
   );
-  const [ghostMode, setGhostMode] = useState<boolean>(
+  const setBuddyRadarDiscovery = (val: boolean) => {
+    setBuddyRadarDiscoveryState(val);
+    persistSettingsPatch({ buddyRadarDiscovery: val });
+  };
+  const [ghostMode, setGhostModeState] = useState<boolean>(
     typeof cached.ghostMode === 'boolean' ? cached.ghostMode : false
   );
+  const setGhostMode = (val: boolean) => {
+    setGhostModeState(val);
+    persistSettingsPatch({ ghostMode: val });
+  };
   const [publicTelemetry, setPublicTelemetry] = useState<boolean>(
     typeof cached.publicTelemetry === 'boolean' ? cached.publicTelemetry : true
   );
-  const [crashReports, setCrashReports] = useState<boolean>(
+  const [crashReports, setCrashReportsState] = useState<boolean>(
     typeof cached.crashReports === 'boolean' ? cached.crashReports : true
   );
+
+  const setCrashReports = (val: boolean) => {
+    setCrashReportsState(val);
+    const existing = safeStorage.getItem<Record<string, unknown>>(O1_SETTINGS_KEY, {});
+    safeStorage.setItem(O1_SETTINGS_KEY, { ...existing, crashReports: val });
+    if (!val) clearLocalCrash();
+  };
 
   // Connected Devices
   const [liveIngestionStream, setLiveIngestionStream] = useState<boolean>(
@@ -306,41 +349,71 @@ export const useProductionSettings = (onShowToast?: (msg: string) => void) => {
   const handleConfirmDelete = async (onLogoutCallback?: () => void) => {
     setIsDeleting(true);
     tactileEngine.playPRCelebration();
-    const activeId = typeof window !== 'undefined' ? window.localStorage.getItem('o1fc_user_id') || 'athlete-c1' : 'athlete-c1';
     try {
-      await supabase.rpc('delete_user_account', { target_user_id: activeId });
-    } catch {}
-    try {
-      await supabase.from('workout_logs').delete().eq('user_id', activeId);
-    } catch {}
-    try {
-      await supabase.from('nutrition_logs').delete().eq('user_id', activeId);
-    } catch {}
-    try {
-      await supabase.from('telemetry_records').delete().eq('user_id', activeId);
-    } catch {}
-    try {
-      await supabase.from('profiles').delete().eq('id', activeId);
-    } catch (e) {
-      console.warn('[Settings] Supabase delete profile fallback:', e);
-    }
-    try {
-      await supabase.auth.signOut();
-    } catch (e) {
-      console.warn('[Settings] Supabase auth signOut fallback:', e);
-    }
-    setTimeout(() => {
-      if (typeof window !== 'undefined') {
-        window.localStorage.clear();
-        window.sessionStorage.clear();
-        window.dispatchEvent(new CustomEvent('o1fc_account_deleted'));
-        window.dispatchEvent(new CustomEvent('o1fc_relaunch_onboarding'));
+      const { data: userData, error: userErr } = await supabase.auth.getUser();
+      const uid = userData?.user?.id;
+      if (userErr || !uid) {
+        setIsDeleting(false);
+        if (onShowToast) onShowToast('Sign in to delete this account.');
+        return;
       }
+      const { data: sessionData } = await supabase.auth.getSession();
+      const accessToken = sessionData?.session?.access_token;
+      if (accessToken) {
+        const res = await fetch(apiUrl('/api/account/delete'), {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+          },
+        });
+        if (!res.ok) {
+          const payload = await res.json().catch(() => ({}));
+          try {
+            await supabase.rpc('delete_user_account', { target_user_id: uid });
+          } catch {}
+          if (res.status === 503) {
+            setIsDeleting(false);
+            if (onShowToast) onShowToast(payload.error || 'Account deletion is not configured on the server.');
+            return;
+          }
+        }
+      }
+      try {
+        await supabase.from('workout_logs').delete().eq('user_id', uid);
+      } catch {}
+      try {
+        await supabase.from('nutrition_logs').delete().eq('user_id', uid);
+      } catch {}
+      try {
+        await supabase.from('telemetry_records').delete().eq('user_id', uid);
+      } catch {}
+      try {
+        await supabase.from('profiles').delete().eq('id', uid);
+      } catch (e) {
+        console.warn('[Settings] Supabase delete profile fallback:', e);
+      }
+      try {
+        await supabase.auth.signOut();
+      } catch (e) {
+        console.warn('[Settings] Supabase auth signOut fallback:', e);
+      }
+      setTimeout(() => {
+        if (typeof window !== 'undefined') {
+          window.localStorage.clear();
+          window.sessionStorage.clear();
+          window.dispatchEvent(new CustomEvent('o1fc_account_deleted'));
+          window.dispatchEvent(new CustomEvent('o1fc_relaunch_onboarding'));
+        }
+        setIsDeleting(false);
+        setShowDeleteConfirm(false);
+        if (onShowToast) onShowToast('Account and telemetry permanently erased.');
+        if (onLogoutCallback) onLogoutCallback();
+      }, 500);
+    } catch {
       setIsDeleting(false);
-      setShowDeleteConfirm(false);
-      if (onShowToast) onShowToast('Account and telemetry permanently erased.');
-      if (onLogoutCallback) onLogoutCallback();
-    }, 500);
+      if (onShowToast) onShowToast('Account deletion failed. Try again.');
+    }
   };
 
   const handleExportVault = () => {
@@ -437,8 +510,6 @@ export const useProductionSettings = (onShowToast?: (msg: string) => void) => {
     setAutoLocation,
     homeGym,
     setHomeGym,
-    theme: storeTheme,
-    setTheme: storeSetTheme,
     inputStyle,
     setInputStyle,
     hapticVibration,

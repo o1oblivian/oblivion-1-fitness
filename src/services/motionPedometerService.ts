@@ -10,6 +10,11 @@ import { tactileEngine } from './tactileEngine';
 import { MotionEngineStatus, MotionCallback, MotionFilterState, VbtMotionStatus } from './motion/motionTypes';
 import { processMotionSample, GRAVITY_NORMAL } from './motion/motionCalculations';
 
+function getDeviceMotionCtor(): { requestPermission?: () => Promise<string> } | null {
+  if (typeof window === 'undefined' || !('DeviceMotionEvent' in window)) return null;
+  return (window as Window & { DeviceMotionEvent?: { requestPermission?: () => Promise<string> } }).DeviceMotionEvent ?? null;
+}
+
 class MotionPedometerService {
   private isActive = false;
   private permissionGranted = false;
@@ -24,10 +29,9 @@ class MotionPedometerService {
   };
 
   constructor() {
-    if (typeof window !== 'undefined') {
-      if (typeof (DeviceMotionEvent as any)?.requestPermission !== 'function') {
-        this.permissionGranted = true;
-      }
+    const MotionCtor = getDeviceMotionCtor();
+    if (MotionCtor && typeof MotionCtor.requestPermission !== 'function') {
+      this.permissionGranted = true;
     }
   }
 
@@ -82,10 +86,19 @@ class MotionPedometerService {
       return { success: false, error: 'DeviceMotion sensors unavailable.' };
     }
     try {
-      if (typeof (DeviceMotionEvent as any)?.requestPermission === 'function') {
-        const res = await (DeviceMotionEvent as any).requestPermission();
+      const MotionCtor = getDeviceMotionCtor();
+      if (!MotionCtor) {
+        this.permissionGranted = false;
+        this.isActive = false;
+        this.notify();
+        return { success: false, error: 'DeviceMotion sensors unavailable.' };
+      }
+      if (typeof MotionCtor.requestPermission === 'function') {
+        const res = await MotionCtor.requestPermission();
         if (res !== 'granted') {
           this.permissionGranted = false;
+          this.isActive = false;
+          this.notify();
           return { success: false, error: 'Sensor permission was denied.' };
         }
       }
@@ -93,13 +106,22 @@ class MotionPedometerService {
       this.startTracking();
       tactileEngine.triggerSelectionBuzz();
       return { success: true };
-    } catch (err: any) {
-      return { success: false, error: err?.message || 'Sensor access failed' };
+    } catch (err: unknown) {
+      this.permissionGranted = false;
+      this.isActive = false;
+      this.notify();
+      const message = err instanceof Error ? err.message : 'Sensor access failed';
+      return { success: false, error: message };
     }
   }
 
   public startTracking() {
-    if (this.isActive || typeof window === 'undefined') return;
+    if (!this.isSupported() || typeof window === 'undefined') {
+      this.isActive = false;
+      this.notify();
+      return;
+    }
+    if (this.isActive) return;
     this.isActive = true;
     this.lastSampleTime = performance.now();
     window.addEventListener('devicemotion', this.handleMotion, { passive: true });

@@ -33,7 +33,7 @@ export const AthleteGridCard: React.FC<AthleteGridCardProps> = ({
   return (
     <div
       onClick={() => onOpenProfile(athlete)}
-      className="group relative aspect-[3/4.25] w-full rounded-2xl overflow-hidden bg-[#0A0A0C] cursor-pointer select-none border border-neutral-200/50 dark:border-white/10 hover:border-[#C4121A]/50 transition-all duration-300 shadow-sm hover:shadow-lg"
+      className="group relative aspect-[3/4.25] w-full rounded-2xl overflow-hidden bg-black cursor-pointer select-none border border-white/[0.07] hover:border-o1-crimson/50 transition-all duration-300 shadow-sm hover:shadow-lg"
     >
       <img
         src={photo}
@@ -67,8 +67,8 @@ export const AthleteGridCard: React.FC<AthleteGridCardProps> = ({
       <div className="absolute inset-x-0 bottom-0 z-20 p-2.5 space-y-1">
         {isVerified && (
           <div className="flex items-center gap-1">
-            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-cyan-950/90 border border-cyan-400/60 text-cyan-300 font-mono text-[8.5px] font-bold shadow-[0_0_10px_rgba(6,182,212,0.45)]">
-              <CheckCircle2 className="w-2.5 h-2.5 text-cyan-300 stroke-[2.5]" />
+            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-sky-950/90 border border-sky-400/60 text-sky-300 font-mono text-[8.5px] font-bold ">
+              <CheckCircle2 className="w-2.5 h-2.5 text-sky-300 stroke-[2.5]" />
               <span>VERIFIED ATHLETE</span>
             </span>
           </div>
@@ -86,7 +86,7 @@ export const AthleteGridCard: React.FC<AthleteGridCardProps> = ({
               {athlete.name}{athlete.age ? `, ${athlete.age}` : ''}
             </h3>
             <div className="flex items-center gap-1 text-[9.5px] font-normal text-neutral-300 truncate mt-0.5">
-              <TacticalPlaceBeaconIcon className="w-2.5 h-2.5 text-[#C4121A] shrink-0" />
+              <TacticalPlaceBeaconIcon className="w-2.5 h-2.5 text-o1-crimson shrink-0" />
               <span className="truncate">{gym}</span>
               <span className="text-white/40">·</span>
               <span className="font-mono text-[9px] text-neutral-400 shrink-0">{dist} km</span>
@@ -121,7 +121,7 @@ export const AthleteGridCard: React.FC<AthleteGridCardProps> = ({
             >
               <Heart
                 className={`w-3.5 h-3.5 transition-colors ${
-                  isLiked ? 'text-[#C4121A] fill-[#C4121A]' : 'text-white/80 hover:text-white'
+                  isLiked ? 'text-o1-crimson fill-o1-crimson' : 'text-white/80 hover:text-white'
                 }`}
               />
             </button>

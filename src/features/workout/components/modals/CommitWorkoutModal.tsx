@@ -44,11 +44,11 @@ export const CommitWorkoutModal: React.FC<CommitWorkoutModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-xs select-none animate-in fade-in duration-150">
-      <div className="bg-[#121214] text-neutral-100 rounded-3xl border border-neutral-800 shadow-2xl max-w-sm w-full p-5 space-y-4">
+      <div className="bg-o1-card text-neutral-100 rounded-2xl border border-white/[0.07] shadow-2xl max-w-sm w-full p-5 space-y-4">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-neutral-800 pb-3">
+        <div className="flex items-center justify-between border-b border-white/[0.05] pb-3">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-[#C4121A]/20 text-[#C4121A] flex items-center justify-center border border-[#C4121A]/40">
+            <div className="w-8 h-8 rounded-xl bg-o1-crimson/20 text-o1-crimson flex items-center justify-center border border-o1-crimson/40">
               <Flame className="w-4 h-4" />
             </div>
             <div>
@@ -64,7 +64,7 @@ export const CommitWorkoutModal: React.FC<CommitWorkoutModalProps> = ({
               tactileEngine.triggerSelectionBuzz();
               onClose();
             }}
-            className="p-1.5 rounded-xl text-neutral-400 hover:text-white hover:bg-neutral-800 transition-colors cursor-pointer"
+            className="p-1.5 rounded-xl text-neutral-400 hover:text-white hover:bg-white/[0.06] transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -72,15 +72,15 @@ export const CommitWorkoutModal: React.FC<CommitWorkoutModalProps> = ({
 
         {/* Telemetry Metrics */}
         <div className="grid grid-cols-3 gap-2 text-center">
-          <div className="bg-[#09090b] rounded-2xl p-2.5 border border-neutral-800">
+          <div className="bg-black rounded-2xl p-2.5 border border-white/[0.07]">
             <span className="text-[9px] font-mono text-neutral-400 uppercase font-bold block">Volume</span>
             <span className="font-mono font-black text-sm text-neutral-100">{totalKg.toLocaleString()} kg</span>
           </div>
-          <div className="bg-[#09090b] rounded-2xl p-2.5 border border-neutral-800">
+          <div className="bg-black rounded-2xl p-2.5 border border-white/[0.07]">
             <span className="text-[9px] font-mono text-neutral-400 uppercase font-bold block">Sets</span>
             <span className="font-mono font-black text-sm text-neutral-100">{totalSets}</span>
           </div>
-          <div className="bg-[#09090b] rounded-2xl p-2.5 border border-neutral-800">
+          <div className="bg-black rounded-2xl p-2.5 border border-white/[0.07]">
             <span className="text-[9px] font-mono text-neutral-400 uppercase font-bold block">Reps</span>
             <span className="font-mono font-black text-sm text-neutral-100">{totalReps}</span>
           </div>
@@ -88,9 +88,9 @@ export const CommitWorkoutModal: React.FC<CommitWorkoutModalProps> = ({
 
         {/* Option 2 Expandable Day Assignment Drawer */}
         {showDaySelector ? (
-          <div className="p-3 rounded-2xl bg-neutral-900 border border-[#C4121A]/40 space-y-2.5 animate-in fade-in duration-200">
+          <div className="p-3 rounded-2xl bg-o1-well border border-o1-crimson/40 space-y-2.5 animate-in fade-in duration-200">
             <div className="flex items-center justify-between text-xs font-tactical font-bold text-white">
-              <span className="flex items-center gap-1.5 text-[#C4121A]">
+              <span className="flex items-center gap-1.5 text-o1-crimson">
                 <Calendar className="w-3.5 h-3.5" />
                 <span>Assign to Recurring Day:</span>
               </span>
@@ -117,10 +117,10 @@ export const CommitWorkoutModal: React.FC<CommitWorkoutModalProps> = ({
                     }}
                     className={`py-2 rounded-xl text-center font-mono text-[11px] font-bold uppercase transition-all cursor-pointer border ${
                       isSelected
-                        ? 'bg-[#C4121A] text-white border-red-500 shadow-sm'
+                        ? 'bg-o1-crimson text-white border-red-500 shadow-sm'
                         : isToday
-                        ? 'bg-neutral-800 text-white border-neutral-700'
-                        : 'bg-neutral-950 text-neutral-400 border-neutral-800/80 hover:text-white'
+                        ? 'bg-white/[0.08] text-white border-white/[0.07]'
+                        : 'bg-black text-neutral-400 border-white/[0.07] hover:text-white'
                     }`}
                   >
                     <span>{d.label}</span>
@@ -140,7 +140,7 @@ export const CommitWorkoutModal: React.FC<CommitWorkoutModalProps> = ({
                 tactileEngine.playPRCelebration();
                 onSaveRoutineToDay(selectedDayToAssign);
               }}
-              className="w-full py-2.5 px-3 rounded-xl bg-[#C4121A] hover:bg-[#a50f16] active:scale-[0.98] text-white font-mono font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-sm transition-all cursor-pointer"
+              className="w-full py-2.5 px-3 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover active:scale-[0.98] text-white font-mono font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-sm transition-all cursor-pointer"
             >
               <BookmarkPlus className="w-3.5 h-3.5" />
               <span>Confirm &amp; Save for {selectedDayToAssign}</span>
@@ -162,7 +162,7 @@ export const CommitWorkoutModal: React.FC<CommitWorkoutModalProps> = ({
                 tactileEngine.playPRCelebration();
                 onRegisterLog();
               }}
-              className="w-full py-3 px-4 rounded-2xl bg-[#C4121A] hover:bg-[#a50f16] active:scale-[0.98] text-white font-mono font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-xs transition-all cursor-pointer"
+              className="w-full py-2.5 px-4 rounded-xl bg-zinc-100 hover:opacity-90 active:scale-[0.98] text-neutral-950 font-semibold text-xs tracking-wide flex items-center justify-center gap-2 transition-all cursor-pointer"
             >
               <CheckCircle2 className="w-4 h-4" />
               <span>Finish &amp; Register Session Log</span>
@@ -175,7 +175,7 @@ export const CommitWorkoutModal: React.FC<CommitWorkoutModalProps> = ({
                 tactileEngine.triggerSelectionBuzz();
                 setShowDaySelector(true);
               }}
-              className="w-full py-3 px-4 rounded-2xl bg-[#18181b] hover:bg-neutral-800 active:scale-[0.98] text-white font-mono font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-xs border border-neutral-700 transition-all cursor-pointer"
+              className="w-full py-3 px-4 rounded-2xl bg-o1-well hover:bg-white/[0.06] active:scale-[0.98] text-white font-mono font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-xs border border-white/[0.07] transition-all cursor-pointer"
             >
               <BookmarkPlus className="w-4 h-4 text-amber-400" />
               <span>Save &amp; Assign to Repeating Day</span>

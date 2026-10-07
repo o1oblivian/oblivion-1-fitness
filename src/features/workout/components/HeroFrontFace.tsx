@@ -5,6 +5,7 @@ import { HeroBottomDock } from './HeroBottomDock';
 import { getSystemTodayCode, getAthleteDayRoutine, formatConciseSplitName } from '../services/dayRoutineService';
 import { useWorkoutStore } from '../store/useWorkoutStore';
 import { tactileEngine } from '../../../services/tactileEngine';
+import { useWallpaperStore } from '../../../stores/useWallpaperStore';
 
 export interface HeroFrontFaceProps {
   isFlipped: boolean; activeWallpaper?: string; activeDay: string; splitName: string;
@@ -32,23 +33,34 @@ export const HeroFrontFace: React.FC<HeroFrontFaceProps> = ({
   const isWorkoutLoaded = activeSession && (activeLogs?.length ?? 0) > 0;
 
   const handleShortcutLoadWorkout = () => {
-    if (!isPresentDay || isWorkoutLoaded) {
+    if (!isPresentDay) return;
+
+    if (isWorkoutLoaded) {
       tactileEngine.triggerSelectionBuzz();
-      onCycleDayDial();
+      onShowToast?.(`Today's session is already in Active Log.`);
       return;
     }
+
+    if (!dayRoutine.isCustom || !dayRoutine.exercises?.length) {
+      tactileEngine.triggerSelectionBuzz();
+      onShowToast?.(`No saved ${activeDay} workout yet. Finish a session and save it to this day.`);
+      return;
+    }
+
     tactileEngine.playPRCelebration();
-    const cleanExercises = (dayRoutine.exercises || []).map((ex: any, i: number) => ({
+    const cleanExercises = dayRoutine.exercises.map((ex: any, i: number) => ({
       ...ex,
       id: `live-${activeDay.toLowerCase()}-${Date.now()}-${i}`,
       sets: (ex.sets || []).map((s: any, sIdx: number) => ({
-        ...s, id: `s-${Date.now()}-${i}-${sIdx}`, completed: false,
+        ...s,
+        id: `s-${Date.now()}-${i}-${sIdx}`,
+        completed: false,
       })),
     }));
     setActiveLogs(cleanExercises);
     setActiveSession(true);
     setActiveRoutine(activeSplitLabel);
-    onShowToast?.(`⚡ ${activeDay} Workout Loaded: ${cleanExercises.length} movements deployed to Active Log!`);
+    onShowToast?.(`${activeDay} routine loaded · ${cleanExercises.length} movements`);
   };
 
   return (
@@ -59,17 +71,21 @@ export const HeroFrontFace: React.FC<HeroFrontFaceProps> = ({
         WebkitBackfaceVisibility: 'hidden',
         pointerEvents: isFlipped ? 'none' : 'auto',
       }}
-      className={`absolute inset-0 w-full h-full rounded-2xl sm:rounded-3xl overflow-hidden bg-transparent text-white transition-opacity duration-300 ${
+      className={`absolute inset-0 w-full h-full rounded-2xl sm:rounded-2xl overflow-hidden bg-transparent text-white transition-opacity duration-300 ${
         isFlipped ? 'opacity-0 pointer-events-none' : 'opacity-100'
       }`}
     >
       {activeWallpaper && (
         <img
+          key={activeWallpaper}
           src={activeWallpaper}
           alt=""
           aria-hidden="true"
           className="absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700 select-none pointer-events-none"
-          onError={(e) => { (e.currentTarget as HTMLElement).style.display = 'none'; }}
+          onError={(e) => {
+            (e.currentTarget as HTMLElement).style.display = 'none';
+            useWallpaperStore.getState().reportBroken(activeWallpaper);
+          }}
         />
       )}
 
@@ -87,7 +103,7 @@ export const HeroFrontFace: React.FC<HeroFrontFaceProps> = ({
         <div
           role="button"
           tabIndex={0}
-          title="Tap to cycle day dial"
+          title="Browse day dials"
           onClick={() => onCycleDayDial()}
           className="relative flex-1 flex flex-col items-center justify-center my-auto w-full cursor-pointer select-none active:scale-[0.99] transition-transform"
         >
@@ -108,7 +124,6 @@ export const HeroFrontFace: React.FC<HeroFrontFaceProps> = ({
           activeDay={activeDay}
           activeSplitLabel={activeSplitLabel}
           isPresentDay={isPresentDay}
-          isWorkoutLoaded={isWorkoutLoaded}
           onOpenCardio={onOpenCardio}
           onCycleDayDial={onCycleDayDial}
           onLoadWorkout={handleShortcutLoadWorkout}

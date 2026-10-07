@@ -4,16 +4,42 @@
  */
 import { Capacitor } from '@capacitor/core';
 
-// 1. REVENUECAT PLATFORM KEY RESOLUTION
+export const NATIVE_APPLE_SDK_KEY = 'appl_bVAQIwbQxZzifRbzmyBjdZohETH';
+export const NATIVE_GOOGLE_SDK_KEY = 'goog_WUkUOSxwelTEdPbjhkcgeIQzqEW';
+
 export const appleKey =
   import.meta.env.VITE_REVENUECAT_APPLE_KEY ||
   (import.meta.env as any).REVENUECAT_APPLE_KEY ||
-  '';
+  NATIVE_APPLE_SDK_KEY;
 
 export const googleKey =
   import.meta.env.VITE_REVENUECAT_GOOGLE_KEY ||
   (import.meta.env as any).REVENUECAT_GOOGLE_KEY ||
+  NATIVE_GOOGLE_SDK_KEY;
+
+export const webBillingKey =
+  import.meta.env.VITE_REVENUECAT_WEB_KEY ||
+  import.meta.env.VITE_REVENUECAT_API_KEY ||
+  (import.meta.env as any).REVENUECAT_WEB_KEY ||
   '';
+
+export function isNativeStorePlatform(): boolean {
+  if (typeof window === 'undefined') return false;
+  try {
+    const platform = Capacitor.getPlatform();
+    return Capacitor.isNativePlatform() && (platform === 'ios' || platform === 'android');
+  } catch {
+    return false;
+  }
+}
+
+export function resolveNativeStoreKey(): string {
+  try {
+    return Capacitor.getPlatform() === 'ios' ? appleKey || NATIVE_APPLE_SDK_KEY : googleKey || NATIVE_GOOGLE_SDK_KEY;
+  } catch {
+    return googleKey || NATIVE_GOOGLE_SDK_KEY;
+  }
+}
 
 export interface PurchasesInitResult {
   configured: boolean;
@@ -30,11 +56,11 @@ export interface PurchasesInitResult {
  * - On web / non-native: skips Purchases.configure() gracefully with a console warning
  *   so the browser preview does not crash.
  */
-export async function configurePurchases(appUserId: string = 'default-athlete'): Promise<PurchasesInitResult> {
+export async function configurePurchases(appUserId: string = ''): Promise<PurchasesInitResult> {
   const platform = Capacitor.getPlatform() as 'ios' | 'android' | 'web';
 
-  // 2. NATIVE PLATFORM VERIFICATION
-  if (platform !== 'ios' && platform !== 'android') {
+  // Web / LAN / desktop preview: never block the UI on native IAP.
+  if (!isNativeStorePlatform()) {
     console.warn(
       `[Purchases] Running on ${platform} (non-native preview). Skipping Purchases.configure() gracefully.`
     );
@@ -44,7 +70,12 @@ export async function configurePurchases(appUserId: string = 'default-athlete'):
     };
   }
 
-  const apiKey = platform === 'ios' ? appleKey : googleKey;
+  const apiKey = resolveNativeStoreKey();
+
+  if (!appUserId) {
+    console.warn('[Purchases] Skipping configure until an authenticated user ID is available.');
+    return { configured: false, platform, apiKey };
+  }
 
   if (!apiKey) {
     console.warn(
@@ -57,16 +88,14 @@ export async function configurePurchases(appUserId: string = 'default-athlete'):
   }
 
   try {
-    const nativePurchases = (window as any)?.Purchases;
-    if (nativePurchases && typeof nativePurchases.configure === 'function') {
-      await nativePurchases.configure({ apiKey, appUserId });
-      return {
-        configured: true,
-        platform,
-        apiKey,
-        nativeInstance: nativePurchases,
-      };
-    }
+    const { Purchases } = await import('@revenuecat/purchases-capacitor');
+    await Purchases.configure({ apiKey, appUserID: appUserId });
+    return {
+      configured: true,
+      platform,
+      apiKey,
+      nativeInstance: Purchases,
+    };
   } catch (err) {
     console.warn('[Purchases] Native Purchases.configure error:', err);
   }
@@ -81,6 +110,7 @@ export async function configurePurchases(appUserId: string = 'default-athlete'):
 export const purchasesService = {
   appleKey,
   googleKey,
+  webBillingKey,
   configure: configurePurchases,
 };
 

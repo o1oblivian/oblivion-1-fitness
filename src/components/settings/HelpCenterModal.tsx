@@ -37,12 +37,12 @@ export const HelpCenterModal: React.FC<HelpCenterModalProps> = ({ isOpen, onClos
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/85 select-none animate-in fade-in duration-150">
-      <div className="w-full max-w-md bg-white dark:bg-[#121214] border border-neutral-200 dark:border-neutral-800 rounded-3xl p-5 shadow-2xl flex flex-col max-h-[85vh] text-neutral-900 dark:text-white">
-        <div className="flex items-center justify-between border-b border-neutral-200 dark:border-neutral-800 pb-3">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 o1-sheet-scrim select-none animate-in fade-in duration-150">
+      <div className="o1-sheet-card w-full bg-o1-card border border-white/[0.07] p-5 shadow-xl flex flex-col overflow-y-auto text-white">
+        <div className="flex items-center justify-between border-b border-white/[0.05] pb-3">
           <div className="flex items-center gap-2">
-            <div className="p-1.5 rounded-lg bg-[#C4121A]/10 border border-[#C4121A]/30">
-              <BookOpen className="w-4 h-4 text-[#C4121A]" />
+            <div className="p-1.5 rounded-lg bg-o1-crimson/10 border border-o1-crimson/30">
+              <BookOpen className="w-4 h-4 text-o1-crimson" />
             </div>
             <div>
               <h2 className="text-sm font-bold uppercase tracking-wider font-tactical">Help &amp; Telemetry Manual</h2>
@@ -52,7 +52,7 @@ export const HelpCenterModal: React.FC<HelpCenterModalProps> = ({ isOpen, onClos
           <button
             type="button"
             onClick={() => { tactileEngine.triggerSelectionBuzz(); onClose(); }}
-            className="p-1.5 text-neutral-400 hover:text-neutral-900 dark:hover:text-white rounded-full bg-neutral-100 dark:bg-[#18181b] border border-neutral-200 dark:border-neutral-800 cursor-pointer"
+            className="p-1.5 text-neutral-400 hover:text-white rounded-full bg-o1-well border border-white/[0.07] cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -65,7 +65,7 @@ export const HelpCenterModal: React.FC<HelpCenterModalProps> = ({ isOpen, onClos
             return (
               <div
                 key={t.id}
-                className="rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-[#18181b] overflow-hidden transition-all"
+                className="rounded-2xl border border-white/[0.07] bg-o1-well overflow-hidden transition-all"
               >
                 <button
                   type="button"
@@ -76,7 +76,7 @@ export const HelpCenterModal: React.FC<HelpCenterModalProps> = ({ isOpen, onClos
                   className="w-full p-3.5 flex items-center justify-between gap-3 text-left cursor-pointer"
                 >
                   <div className="flex items-center gap-2.5 min-w-0">
-                    <Icon className="w-4 h-4 text-[#C4121A] shrink-0" />
+                    <Icon className="w-4 h-4 text-o1-crimson shrink-0" />
                     <div>
                       <h4 className="font-bold text-xs font-tactical">{t.title}</h4>
                       <p className="text-[10px] text-neutral-500 font-mono">{t.summary}</p>
@@ -85,7 +85,7 @@ export const HelpCenterModal: React.FC<HelpCenterModalProps> = ({ isOpen, onClos
                   {isExp ? <ChevronUp className="w-4 h-4 text-neutral-400 shrink-0" /> : <ChevronDown className="w-4 h-4 text-neutral-400 shrink-0" />}
                 </button>
                 {isExp && (
-                  <div className="px-3.5 pb-3.5 pt-1 text-[11px] font-mono text-neutral-600 dark:text-neutral-300 leading-relaxed border-t border-neutral-200 dark:border-neutral-800/80">
+                  <div className="px-3.5 pb-3.5 pt-1 text-[11px] font-mono text-neutral-300 leading-relaxed border-t border-white/[0.05]">
                     {t.desc}
                   </div>
                 )}
@@ -97,7 +97,7 @@ export const HelpCenterModal: React.FC<HelpCenterModalProps> = ({ isOpen, onClos
         <button
           type="button"
           onClick={() => { tactileEngine.triggerSelectionBuzz(); onClose(); }}
-          className="w-full py-2.5 rounded-xl bg-[#C4121A] hover:bg-[#a30f16] text-white text-xs font-tactical font-semibold uppercase tracking-wider transition cursor-pointer"
+          className="w-full py-2.5 rounded-xl bg-zinc-100 hover:bg-white text-neutral-950 text-xs font-semibold tracking-wide transition cursor-pointer"
         >
           Close Manual
         </button>

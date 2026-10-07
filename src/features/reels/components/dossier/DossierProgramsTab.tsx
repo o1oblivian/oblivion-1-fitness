@@ -25,7 +25,7 @@ export const DossierProgramsTab: React.FC<DossierProgramsTabProps> = ({
         Available Protocols
       </div>
 
-      <div className="divide-y divide-white/5">
+      <div className="divide-y divide-white/[0.05]">
         {programs.map((prog) => (
           <div
             key={prog.id}

@@ -10,6 +10,8 @@ export interface TactileEngineSettings {
   dialClicks: boolean;
   restChime: boolean;
   prChime: boolean;
+  hapticEnabled: boolean;
+  soundEnabled: boolean;
 }
 
 const STORAGE_KEY = 'o1fc_tactile_settings';
@@ -18,6 +20,8 @@ const DEFAULT_SETTINGS: TactileEngineSettings = {
   dialClicks: true,
   restChime: true,
   prChime: true,
+  hapticEnabled: true,
+  soundEnabled: true,
 };
 
 class TactileEngineService {
@@ -29,10 +33,24 @@ class TactileEngineService {
   }
 
   private loadSettings(): void {
-    this.settings = safeStorage.getItem<TactileEngineSettings>(
-      STORAGE_KEY,
-      DEFAULT_SETTINGS
-    );
+    const stored = safeStorage.getItem<Partial<TactileEngineSettings>>(STORAGE_KEY, {});
+    const production = safeStorage.getItem<Record<string, unknown>>('o1fc_production_settings_v3', {});
+    this.settings = {
+      ...DEFAULT_SETTINGS,
+      ...stored,
+      hapticEnabled:
+        typeof stored.hapticEnabled === 'boolean'
+          ? stored.hapticEnabled
+          : typeof production.hapticVibration === 'boolean'
+            ? production.hapticVibration
+            : true,
+      soundEnabled:
+        typeof stored.soundEnabled === 'boolean'
+          ? stored.soundEnabled
+          : typeof production.soundEffects === 'boolean'
+            ? production.soundEffects
+            : true,
+    };
   }
 
   public getSettings(): TactileEngineSettings {
@@ -70,13 +88,8 @@ class TactileEngineService {
 
   public triggerDialHaptic(): void {
     if (!this.settings.dialClicks) return;
-
-    if (typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function') {
-      try {
-        navigator.vibrate(8);
-      } catch {}
-    }
-
+    this.pulse(8);
+    if (!this.settings.soundEnabled) return;
     const ctx = this.getAudioContext();
     if (!ctx) return;
     playDialClickAudio(ctx);
@@ -88,13 +101,8 @@ class TactileEngineService {
 
   public playTimerChime(): void {
     if (!this.settings.restChime) return;
-
-    if (typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function') {
-      try {
-        navigator.vibrate([40, 60, 40]);
-      } catch {}
-    }
-
+    this.pulse(40, 60, 40);
+    if (!this.settings.soundEnabled) return;
     const ctx = this.getAudioContext();
     if (!ctx) return;
     playTimerChimeAudio(ctx);
@@ -102,13 +110,8 @@ class TactileEngineService {
 
   public playPRCelebration(): void {
     if (!this.settings.prChime) return;
-
-    if (typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function') {
-      try {
-        navigator.vibrate([50, 40, 60, 40, 100]);
-      } catch {}
-    }
-
+    this.pulse(50, 40, 60, 40, 100);
+    if (!this.settings.soundEnabled) return;
     const ctx = this.getAudioContext();
     if (!ctx) return;
     playPRCelebrationAudio(ctx);
@@ -116,16 +119,20 @@ class TactileEngineService {
 
   public triggerSelectionBuzz(): void {
     if (!this.settings.dialClicks) return;
-
-    if (typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function') {
-      try {
-        navigator.vibrate(12);
-      } catch {}
-    }
-
+    this.pulse(12);
+    if (!this.settings.soundEnabled) return;
     const ctx = this.getAudioContext();
     if (!ctx) return;
     playSelectionBuzzAudio(ctx);
+  }
+
+  private pulse(...pattern: number[]): void {
+    if (!this.settings.hapticEnabled) return;
+    if (typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function') {
+      try {
+        navigator.vibrate(pattern.length === 1 ? pattern[0] : pattern);
+      } catch {}
+    }
   }
 
   public selection(): void {

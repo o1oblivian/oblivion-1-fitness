@@ -19,6 +19,7 @@ import { AthleteCheckInSubmission } from './types/coachPlatformTypes';
 import { useSubscription } from '../../context/SubscriptionContext';
 import { tactileEngine } from '../../services/tactileEngine';
 import { HealthDisclaimerBanner } from '../legal';
+import { getAuthenticatedUserId } from '../../services/authUser';
 
 export interface O1FCoachCommandCenterProps {
   activePerspective?: 'coach' | 'athlete';
@@ -35,7 +36,8 @@ export const O1FCoachCommandCenter: React.FC<O1FCoachCommandCenterProps> = ({
   const isVerifiedCoach = Boolean(isCoach || userRole === 'coach');
   const { isPro, openPaywall } = useSubscription();
   const { selectedSubTab, setSelectedSubTab } = useCoachStore();
-  useCoachRealtime('coach_alpha');
+  const [liveCoachId, setLiveCoachId] = useState('');
+  useCoachRealtime(liveCoachId);
 
   const [athletes, setAthletes] = useState<Athlete[]>([]);
   const [directives, setDirectives] = useState<DirectiveItem[]>([]);
@@ -51,11 +53,22 @@ export const O1FCoachCommandCenter: React.FC<O1FCoachCommandCenterProps> = ({
   const showToast = useCallback((msg: string) => { setToastMsg(msg); setTimeout(() => setToastMsg(null), 3500); }, []);
 
   const loadData = useCallback(async () => {
-    const coachId = typeof window !== 'undefined' ? localStorage.getItem('o1fc_coach_id') || 'coach_alpha' : 'coach_alpha';
+    const coachId = liveCoachId || (await getAuthenticatedUserId()) || '';
+    if (!coachId) {
+      setAthletes([]);
+      setDirectives([]);
+      setEarnings([]);
+      setSquad([]);
+      return;
+    }
     try {
       const [c, d, e, s] = await Promise.all([fetchCoachClients(coachId), fetchCoachDirectives(coachId), fetchCoachEarnings(coachId), fetchReviewSquad(coachId)]);
       setAthletes(c); setDirectives(d); setEarnings(e); setSquad(s);
-    } catch (err) { console.debug('[01FCoach] sync error:', err); }
+    } catch (err) { console.error('[01FCoach] sync error:', err); }
+  }, [liveCoachId]);
+
+  useEffect(() => {
+    void getAuthenticatedUserId().then((id) => setLiveCoachId(id || ''));
   }, []);
 
   useEffect(() => {
@@ -73,8 +86,8 @@ export const O1FCoachCommandCenter: React.FC<O1FCoachCommandCenterProps> = ({
   }
 
   return (
-    <div id="o1fcoach-command-center" className="w-full max-w-md mx-auto px-3.5 sm:px-4 space-y-3.5 pb-28 select-none pt-1">
-      {toastMsg && <div className="p-3 rounded-2xl bg-green-500/10 border border-green-500/30 text-green-500 text-xs font-mono font-bold flex items-center gap-2"><CheckCircle2 className="w-4 h-4 shrink-0" /><span>{toastMsg}</span></div>}
+    <div id="o1fcoach-command-center" className="w-full max-w-md mx-auto px-4 space-y-3.5 pb-28 select-none pt-1">
+      {toastMsg && <div className="p-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-500 text-xs font-mono font-bold flex items-center gap-2"><CheckCircle2 className="w-4 h-4 shrink-0" /><span>{toastMsg}</span></div>}
 
       <CoachHeaderDeck
         currentSubTab={selectedSubTab}

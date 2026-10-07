@@ -69,7 +69,7 @@ export const ReelPlayerView: React.FC<ReelPlayerViewProps> = ({
     >
       <ReelPlayerTopBar isMuted={isMuted} onClose={onClose} onToggleMute={onToggleMute} />
 
-      <div className="relative flex-1 w-full h-full flex items-center justify-center cursor-pointer overflow-hidden bg-neutral-950" onClick={onTogglePlay}>
+      <div className="relative flex-1 w-full h-full flex items-center justify-center cursor-pointer overflow-hidden bg-black" onClick={onTogglePlay}>
         <video
           ref={videoRef}
           src={activeClip ? activeClip.videoUrl : activeReel.videoUrl}

@@ -68,12 +68,7 @@ export const useAuthStore = create<AuthState>((set) => ({
         safeStorage.setItem('o1fc_user_id', data.session.user.id);
         if (data.session.user.email) safeStorage.setItem('o1fc_user_email', data.session.user.email);
       } else {
-        const storedUserId = safeStorage.getItem('o1fc_user_id');
-        if (!storedUserId) {
-          set({ user: null, session: null, isAuthenticated: false, isLoading: false });
-        } else {
-          set({ isLoading: false });
-        }
+        set({ user: null, session: null, isAuthenticated: false, isLoading: false });
       }
 
       supabase.auth.onAuthStateChange((event, session) => {
@@ -103,10 +98,7 @@ export const useAuthStore = create<AuthState>((set) => ({
           safeStorage.setItem('o1fc_user_id', session.user.id);
           if (session.user.email) safeStorage.setItem('o1fc_user_email', session.user.email);
         } else if (event === 'INITIAL_SESSION' && !session) {
-          const storedUserId = safeStorage.getItem('o1fc_user_id');
-          if (!storedUserId) {
-            set({ user: null, session: null, isAuthenticated: false, isLoading: false });
-          }
+          set({ user: null, session: null, isAuthenticated: false, isLoading: false });
         }
       });
     } catch (err) {

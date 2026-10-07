@@ -7,6 +7,7 @@ import { persistCardioLog } from '../services/cardioLogService';
 import { processCardioScanImage } from '../services/cardioScanService';
 import { CardioScanUploader } from './scan/CardioScanUploader';
 import { CardioScanMetricFields, ExtractedCardioData } from './scan/CardioScanMetricFields';
+import { captureNativeStill } from '../../../services/nativeCameraService';
 
 interface CardioConsoleScanModalProps {
   isOpen: boolean;
@@ -87,24 +88,39 @@ export const CardioConsoleScanModal: React.FC<CardioConsoleScanModalProps> = ({
     }
   };
 
+  const handleCameraCapture = async () => {
+    try {
+      const blob = await captureNativeStill();
+      if (blob) {
+        const r = new FileReader();
+        r.onload = () => handleProcessImage(r.result as string);
+        r.readAsDataURL(blob);
+        return;
+      }
+    } catch {
+      /* web file input fallback */
+    }
+    cameraInputRef.current?.click();
+  };
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="w-full max-w-md bg-white dark:bg-[#121214] border border-neutral-200 dark:border-neutral-800 rounded-3xl p-5 shadow-2xl space-y-4 max-h-[92vh] overflow-y-auto">
-        <div className="flex items-center justify-between border-b border-neutral-200 dark:border-neutral-800 pb-3">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 o1-sheet-scrim animate-in fade-in duration-200">
+      <div className="o1-sheet-card w-full bg-o1-card border border-white/[0.07] p-5 shadow-xl space-y-4 overflow-y-auto">
+        <div className="flex items-center justify-between border-b border-white/[0.05] pb-3">
           <div className="flex items-center gap-2">
-            <div className="p-1.5 rounded-xl bg-cyan-500/10 text-cyan-600 dark:text-cyan-400">
+            <div className="p-1.5 rounded-xl bg-sky-500/10 text-sky-400">
               <Sparkles className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-sm font-tactical font-black tracking-wider uppercase text-neutral-900 dark:text-white">
+              <h3 className="text-sm font-tactical font-black tracking-wider uppercase text-white">
                 Optical Telemetry Scanner
               </h3>
-              <p className="text-[10px] font-mono text-neutral-500 dark:text-neutral-400">
+              <p className="text-[10px] font-mono text-neutral-400">
                 OCR Screen & Watch Ingestion
               </p>
             </div>
           </div>
-          <button onClick={onClose} className="p-1.5 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-400">
+          <button onClick={onClose} className="p-1.5 rounded-full hover:bg-white/[0.06] text-neutral-400">
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -115,6 +131,7 @@ export const CardioConsoleScanModal: React.FC<CardioConsoleScanModalProps> = ({
         <CardioScanUploader
           scanMode={scanMode} setScanMode={setScanMode} imagePreview={imagePreview}
           isScanning={isScanning} cameraInputRef={cameraInputRef} fileInputRef={fileInputRef}
+          onCameraCapture={() => void handleCameraCapture()}
         />
 
         {extractedData && (
@@ -123,7 +140,7 @@ export const CardioConsoleScanModal: React.FC<CardioConsoleScanModalProps> = ({
             <button
               type="button"
               onClick={handleSaveTelemetry}
-              className="w-full py-3 px-4 rounded-2xl bg-cyan-500 hover:bg-cyan-400 text-black font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-95 shadow-md"
+              className="w-full py-3 px-4 rounded-2xl bg-sky-500 hover:bg-sky-400 text-black font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-95 shadow-md"
             >
               <CheckCircle2 className="w-4 h-4" />
               <span>SAVE TELEMETRY TO SESSION</span>

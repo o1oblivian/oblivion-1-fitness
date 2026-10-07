@@ -39,31 +39,31 @@ export const LogWeekStrip: React.FC<LogWeekStripProps> = ({
                 tactileEngine.triggerSelectionBuzz();
                 onSelectDate(item.dateStr, item.dayName, item.dayNum);
               }}
-              className={`flex flex-col items-center py-2 px-1 rounded-2xl transition-all cursor-pointer active:scale-95 ${
+              className={`flex flex-col items-center py-1 px-1 rounded-xl transition-all cursor-pointer active:scale-95 ${
                 isSelected
-                  ? 'bg-neutral-900 dark:bg-white text-white dark:text-neutral-950 shadow-md font-bold'
-                  : 'bg-neutral-100 dark:bg-[#18181c] border border-neutral-200 dark:border-neutral-800 text-neutral-700 dark:text-neutral-300 hover:border-neutral-400 dark:hover:border-neutral-700'
+                  ? 'bg-white text-neutral-950 shadow-md font-bold'
+                  : 'bg-o1-well border border-white/[0.07] text-neutral-300 hover:border-white/[0.14]'
               }`}
             >
               <span
                 className={`text-[9px] font-mono font-semibold tracking-wider ${
-                  isSelected ? 'text-neutral-300 dark:text-neutral-600' : 'text-neutral-500'
+                  isSelected ? 'text-neutral-600' : 'text-neutral-500'
                 }`}
               >
                 {item.dayName}
               </span>
 
-              <span className="text-sm sm:text-base font-black my-0.5">
+              <span className="text-xs sm:text-sm font-black my-0.5">
                 {item.dayNum}
               </span>
 
               <div className="h-2 flex items-center justify-center">
                 {isSelected ? (
-                  <span className="w-1.5 h-1.5 rounded-full bg-white dark:bg-neutral-950" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-black" />
                 ) : item.hasActivity ? (
-                  <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                 ) : item.isToday ? (
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#C4121A]" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-o1-crimson" />
                 ) : (
                   <span className="w-1.5 h-1.5 rounded-full bg-transparent" />
                 )}
@@ -74,9 +74,9 @@ export const LogWeekStrip: React.FC<LogWeekStripProps> = ({
       </div>
 
       {/* Balanced bottom label row with redundant browse link removed */}
-      <div className="flex items-center justify-between text-[10px] text-neutral-500 dark:text-neutral-400 pt-2 pb-0.5 border-t border-neutral-100 dark:border-neutral-800/80">
+      <div className="flex items-center justify-between text-[10px] text-neutral-400 pt-1.5 pb-0.5 border-t border-white/[0.05]">
         <span className="truncate">
-          Viewing: <strong className="text-neutral-900 dark:text-white font-bold">{selectedDayMeta.dayLabel}</strong> ({selectedDayMeta.dateFormatted})
+          Viewing: <strong className="text-white font-bold">{selectedDayMeta.dayLabel}</strong> ({selectedDayMeta.dateFormatted})
         </span>
       </div>
     </div>

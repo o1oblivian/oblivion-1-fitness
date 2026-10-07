@@ -23,19 +23,19 @@ interface CardioScanMetricFieldsProps {
 export const CardioScanMetricFields: React.FC<CardioScanMetricFieldsProps> = ({ data, onChange }) => {
   return (
     <div className="grid grid-cols-2 gap-2 text-xs">
-      <div className="p-2.5 rounded-2xl bg-neutral-100 dark:bg-[#18181c] border border-neutral-200 dark:border-neutral-800 space-y-1">
+      <div className="p-2.5 rounded-2xl bg-o1-well border border-white/[0.07] space-y-1">
         <span className="text-[9px] uppercase text-neutral-500 flex items-center gap-1 font-bold">
-          <Activity className="w-3 h-3 text-cyan-500" /> Equipment / Watch
+          <Activity className="w-3 h-3 text-sky-500" /> Equipment / Watch
         </span>
         <input
           type="text"
           value={data.activityType}
           onChange={(e) => onChange({ ...data, activityType: e.target.value })}
-          className="w-full bg-transparent font-bold text-neutral-900 dark:text-white focus:outline-none"
+          className="w-full bg-transparent font-bold text-white focus:outline-none"
         />
       </div>
 
-      <div className="p-2.5 rounded-2xl bg-neutral-100 dark:bg-[#18181c] border border-neutral-200 dark:border-neutral-800 space-y-1">
+      <div className="p-2.5 rounded-2xl bg-o1-well border border-white/[0.07] space-y-1">
         <span className="text-[9px] uppercase text-neutral-500 flex items-center gap-1 font-bold">
           <Footprints className="w-3 h-3 text-emerald-500" /> Steps
         </span>
@@ -45,13 +45,13 @@ export const CardioScanMetricFields: React.FC<CardioScanMetricFieldsProps> = ({ 
           value={data.steps === 0 ? '' : data.steps}
           onFocus={(e) => e.target.select()}
           onChange={(e) => onChange({ ...data, steps: Math.max(0, parseCleanInt(e.target.value)) })}
-          className="w-full bg-transparent font-bold text-emerald-600 dark:text-emerald-400 focus:outline-none"
+          className="w-full bg-transparent font-bold text-emerald-400 focus:outline-none"
         />
       </div>
 
-      <div className="p-2.5 rounded-2xl bg-neutral-100 dark:bg-[#18181c] border border-neutral-200 dark:border-neutral-800 space-y-1">
+      <div className="p-2.5 rounded-2xl bg-o1-well border border-white/[0.07] space-y-1">
         <span className="text-[9px] uppercase text-neutral-500 flex items-center gap-1 font-bold">
-          <Clock className="w-3 h-3 text-cyan-500" /> Duration (Min)
+          <Clock className="w-3 h-3 text-sky-500" /> Duration (Min)
         </span>
         <input
           type="number"
@@ -59,13 +59,13 @@ export const CardioScanMetricFields: React.FC<CardioScanMetricFieldsProps> = ({ 
           value={data.durationMinutes === 0 ? '' : data.durationMinutes}
           onFocus={(e) => e.target.select()}
           onChange={(e) => onChange({ ...data, durationMinutes: Math.max(0, parseCleanInt(e.target.value)) })}
-          className="w-full bg-transparent font-bold text-neutral-900 dark:text-white focus:outline-none"
+          className="w-full bg-transparent font-bold text-white focus:outline-none"
         />
       </div>
 
-      <div className="p-2.5 rounded-2xl bg-neutral-100 dark:bg-[#18181c] border border-neutral-200 dark:border-neutral-800 space-y-1">
+      <div className="p-2.5 rounded-2xl bg-o1-well border border-white/[0.07] space-y-1">
         <span className="text-[9px] uppercase text-neutral-500 flex items-center gap-1 font-bold">
-          <TrendingUp className="w-3 h-3 text-cyan-500" /> Distance (km)
+          <TrendingUp className="w-3 h-3 text-sky-500" /> Distance (km)
         </span>
         <input
           type="number"
@@ -74,11 +74,11 @@ export const CardioScanMetricFields: React.FC<CardioScanMetricFieldsProps> = ({ 
           value={data.distanceKm === 0 ? '' : data.distanceKm}
           onFocus={(e) => e.target.select()}
           onChange={(e) => onChange({ ...data, distanceKm: Math.max(0, parseCleanNumber(e.target.value)) })}
-          className="w-full bg-transparent font-bold text-neutral-900 dark:text-white focus:outline-none"
+          className="w-full bg-transparent font-bold text-white focus:outline-none"
         />
       </div>
 
-      <div className="p-2.5 rounded-2xl bg-neutral-100 dark:bg-[#18181c] border border-neutral-200 dark:border-neutral-800 space-y-1">
+      <div className="p-2.5 rounded-2xl bg-o1-well border border-white/[0.07] space-y-1">
         <span className="text-[9px] uppercase text-neutral-500 flex items-center gap-1 font-bold">
           <Flame className="w-3 h-3 text-amber-500" /> Burn (kcal)
         </span>
@@ -88,13 +88,13 @@ export const CardioScanMetricFields: React.FC<CardioScanMetricFieldsProps> = ({ 
           value={data.burnedKcal === 0 ? '' : data.burnedKcal}
           onFocus={(e) => e.target.select()}
           onChange={(e) => onChange({ ...data, burnedKcal: Math.max(0, parseCleanInt(e.target.value)) })}
-          className="w-full bg-transparent font-bold text-neutral-900 dark:text-white focus:outline-none"
+          className="w-full bg-transparent font-bold text-white focus:outline-none"
         />
       </div>
 
-      <div className="p-2.5 rounded-2xl bg-neutral-100 dark:bg-[#18181c] border border-neutral-200 dark:border-neutral-800 space-y-1">
+      <div className="p-2.5 rounded-2xl bg-o1-well border border-white/[0.07] space-y-1">
         <span className="text-[9px] uppercase text-neutral-500 flex items-center gap-1 font-bold">
-          <Heart className="w-3 h-3 text-rose-500" /> Avg Heart Rate
+          <Heart className="w-3 h-3 text-red-500" /> Avg Heart Rate
         </span>
         <input
           type="number"
@@ -102,7 +102,7 @@ export const CardioScanMetricFields: React.FC<CardioScanMetricFieldsProps> = ({ 
           value={data.avgHeartRateBpm === 0 ? '' : data.avgHeartRateBpm}
           onFocus={(e) => e.target.select()}
           onChange={(e) => onChange({ ...data, avgHeartRateBpm: Math.max(0, parseCleanInt(e.target.value)) })}
-          className="w-full bg-transparent font-bold text-neutral-900 dark:text-white focus:outline-none"
+          className="w-full bg-transparent font-bold text-white focus:outline-none"
         />
       </div>
     </div>

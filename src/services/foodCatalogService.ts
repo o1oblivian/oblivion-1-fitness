@@ -1,4 +1,3 @@
-import { supabase } from './supabaseClient';
 import {
   FoodItemRecord,
   FoodCatalogQueryParams,
@@ -9,9 +8,28 @@ import {
 } from './theFoodDatabase';
 import { filterCustomFoods } from './customFoodDatabase';
 import { FOOD_CATALOG } from '../features/fuel/data/foodCatalog';
+import { matchesFoodQuery } from '../features/fuel/utils/foodSearchMatch';
+import { apiUrl } from './apiBase';
 
 export type { FoodItemRecord, FoodCatalogQueryParams, FoodCategoryType, RegionalDatabaseInfo };
 export { getRegionalDatabaseInfo, getRegionalFallbackFoods };
+
+function inferCatalogCountry(brand: string, name: string, fallback?: string): string {
+  if (fallback) return fallback.toUpperCase();
+  const hay = `${brand} ${name}`.toLowerCase();
+  if (/gyg|guzman|grill.?d|oporto|red rooster|zambrero|mad mex|schnitz|hungry jack/.test(hay)) return 'AU';
+  if (/chipotle|chick-fil-a|wendy|taco bell|in-n-out|five guys|panda express/.test(hay)) return 'US';
+  if (/greggs|wagamama/.test(hay)) return 'GB';
+  if (/fergburger|hell pizza/.test(hay)) return 'NZ';
+  return 'GLOBAL';
+}
+
+function itemFitsMarket(itemCountry: string, market: string, searching: boolean): boolean {
+  if (searching) return true;
+  const c = (itemCountry || 'GLOBAL').toUpperCase();
+  const m = (market || 'AU').toUpperCase();
+  return c === 'GLOBAL' || c === m;
+}
 
 const MAPPED_APP_CATALOG: FoodItemRecord[] = FOOD_CATALOG.map((item) => {
   let servingGrams = 100;
@@ -31,7 +49,8 @@ const MAPPED_APP_CATALOG: FoodItemRecord[] = FOOD_CATALOG.map((item) => {
     serving_size: item.serving,
     serving_grams: servingGrams,
     category: cat,
-    country: 'GLOBAL',
+    country: inferCatalogCountry(item.brand, item.name, item.country),
+    source: 'catalog',
   };
 });
 
@@ -86,6 +105,7 @@ function normalizeOffProduct(
     serving_grams: servingGrams,
     category,
     country,
+    source: 'openfoodfacts',
   };
 }
 
@@ -115,9 +135,8 @@ const REGIONAL_CATEGORY_KEYWORDS: Record<string, Record<FoodCategoryType, string
 };
 
 /**
- * Queries the authentic multi-market food catalog.
- * Combines comprehensive in-memory multi-country databases with live backend proxy
- * and Supabase fallback, ensuring thousands of verified athletic and culinary items.
+ * Browse: custom + athletic catalog + regional staples (offline).
+ * Typed search: same, then live OpenFoodFacts (and USDA FDC when the server has a key).
  */
 export async function queryFoodCatalog({
   query = '',
@@ -133,17 +152,26 @@ export async function queryFoodCatalog({
   // Retrieve user's permanently saved custom foods matching the criteria
   const customMatches = filterCustomFoods(targetCategory, trimmed);
 
-  // Instant local verified matches across the multi-country dataset
-  const localMatches = getRegionalFallbackFoods(normCountry, targetCategory, trimmed);
+  const allCats: FoodCategoryType[] = ['protein', 'carbs', 'fats', 'fastfood', 'drinks'];
+  const searching = Boolean(trimmed);
 
-  // Matches from internal athletic & meal catalog mapped strictly into their respective macronutrient categories
+  const localMatches = trimmed
+    ? Array.from(
+        new Map(
+          allCats
+            .flatMap((cat) => getRegionalFallbackFoods(normCountry, cat, trimmed))
+            .map((it) => [it.id, it])
+        ).values()
+      )
+    : getRegionalFallbackFoods(normCountry, targetCategory, trimmed);
+
   const appCatalogMatches = MAPPED_APP_CATALOG.filter((it) => {
-    if (it.category !== targetCategory) return false;
-    if (!trimmed) return true;
-    const searchSpace = `${it.name} ${it.brand}`.toLowerCase();
-    const queryTokens = trimmed.toLowerCase().split(/\s+/).filter(Boolean);
-    return queryTokens.every((token) => searchSpace.includes(token));
-  });
+    if (!itemFitsMarket(it.country, normCountry, searching)) return false;
+    if (!trimmed) return it.category === targetCategory;
+    return matchesFoodQuery(it.name, it.brand, trimmed);
+  }).sort(
+    (a, b) => Number(b.category === targetCategory) - Number(a.category === targetCategory)
+  );
 
   // If no search query, return custom foods + app catalog + rich verified database immediately
   if (!trimmed) {
@@ -164,58 +192,62 @@ export async function queryFoodCatalog({
 
   // Attempt live query to proxy endpoint to enrich with OpenFoodFacts/USDA records
   try {
-    const params = new URLSearchParams({
-      q: trimmed,
-      country: normCountry,
-      category: targetCategory,
-      limit: String(limit),
-    });
+    const liveController = new AbortController();
+    const onParentAbort = () => liveController.abort();
+    signal?.addEventListener('abort', onParentAbort);
+    const hangWatch = setTimeout(() => liveController.abort(), 3000);
 
-    const res = await fetch(`/api/fuel/live-food-search?${params.toString()}`, {
-      signal,
-      headers: { Accept: 'application/json' },
-    });
+    try {
+      const params = new URLSearchParams({
+        q: trimmed,
+        country: normCountry,
+        category: targetCategory,
+        limit: String(limit),
+      });
 
-    if (res.ok) {
-      const json = await res.json();
-      if (Array.isArray(json.items) && json.items.length > 0) {
-        const liveItems: FoodItemRecord[] = json.items.map((it: any) => ({
-          id: it.id,
-          name: it.name,
-          brand: it.brand || 'Verified Food',
-          calories: Number(it.calories) || 0,
-          protein: Number(it.protein) || 0,
-          carbs: Number(it.carbs) || 0,
-          fats: Number(it.fats) || 0,
-          serving_size: it.servingSize || it.serving_size || `${it.servingGrams || 100}g`,
-          serving_grams: Number(it.servingGrams || it.serving_grams) || 100,
-          category: targetCategory,
-          country: it.country || normCountry,
-        }));
+      const res = await fetch(apiUrl(`/api/fuel/live-food-search?${params.toString()}`), {
+        signal: liveController.signal,
+        headers: { Accept: 'application/json' },
+      });
 
-        // Merge custom foods, app catalog, local matches, and live results, deduplicating by lowercase name
-        const map = new Map<string, FoodItemRecord>();
-        customMatches.forEach((it) => map.set(it.name.toLowerCase(), it));
-        appCatalogMatches.forEach((it) => {
-          if (!map.has(it.name.toLowerCase())) {
-            map.set(it.name.toLowerCase(), it);
-          }
-        });
-        localMatches.forEach((it) => {
-          if (!map.has(it.name.toLowerCase())) {
-            map.set(it.name.toLowerCase(), it);
-          }
-        });
-        liveItems.forEach((it) => {
-          if (!map.has(it.name.toLowerCase())) {
-            map.set(it.name.toLowerCase(), it);
-          }
-        });
-        return Array.from(map.values()).slice(0, limit);
+      if (res.ok) {
+        const json = await res.json();
+        if (Array.isArray(json.items) && json.items.length > 0) {
+          const liveItems: FoodItemRecord[] = json.items.map((it: any) => ({
+            id: it.id,
+            name: it.name,
+            brand: it.brand || 'Verified Food',
+            calories: Number(it.calories) || 0,
+            protein: Number(it.protein) || 0,
+            carbs: Number(it.carbs) || 0,
+            fats: Number(it.fats) || 0,
+            serving_size: it.servingSize || it.serving_size || `${it.servingGrams || 100}g`,
+            serving_grams: Number(it.servingGrams || it.serving_grams) || 100,
+            category: targetCategory,
+            country: it.country || normCountry,
+            source: it.source === 'usda' ? 'usda' : 'openfoodfacts',
+          }));
+
+          const map = new Map<string, FoodItemRecord>();
+          customMatches.forEach((it) => map.set(it.name.toLowerCase(), it));
+          appCatalogMatches.forEach((it) => {
+            if (!map.has(it.name.toLowerCase())) map.set(it.name.toLowerCase(), it);
+          });
+          localMatches.forEach((it) => {
+            if (!map.has(it.name.toLowerCase())) map.set(it.name.toLowerCase(), it);
+          });
+          liveItems.forEach((it) => {
+            if (!map.has(it.name.toLowerCase())) map.set(it.name.toLowerCase(), it);
+          });
+          return Array.from(map.values()).slice(0, limit);
+        }
       }
+    } finally {
+      clearTimeout(hangWatch);
+      signal?.removeEventListener('abort', onParentAbort);
     }
   } catch (proxyErr: any) {
-    if (proxyErr?.name === 'AbortError') throw proxyErr;
+    if (proxyErr?.name === 'AbortError' && signal?.aborted) throw proxyErr;
     console.debug('[queryFoodCatalog] Live search proxy note:', proxyErr?.message);
   }
 

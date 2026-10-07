@@ -8,8 +8,8 @@ import { LogView } from './features/log/LogView';
 import { FeatureErrorBoundary } from './components/common/FeatureErrorBoundary';
 import { ModalRegistry } from './components/modals/ModalRegistry';
 import { useModalStore } from './components/modals/useModalStore';
-import { useRoleStore } from './stores/useRoleStore';
 import { BasementOfflineBanner } from './components/common/BasementOfflineBanner';
+import { armAthleteReminders } from './services/athleteReminderScheduler';
 
 export const MainAppLayout: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabMode>('tracker');
@@ -19,6 +19,10 @@ export const MainAppLayout: React.FC = () => {
 
   const handleTabSelect = React.useCallback((tab: TabMode) => {
     setActiveTab((prev) => (prev === tab ? prev : tab));
+  }, []);
+
+  React.useEffect(() => {
+    return armAthleteReminders();
   }, []);
 
   React.useEffect(() => {
@@ -32,18 +36,16 @@ export const MainAppLayout: React.FC = () => {
   }, [handleTabSelect]);
 
   return (
-    <div className="relative min-h-dvh w-full bg-[#F4F4F7] dark:bg-[#09090b] text-neutral-900 dark:text-neutral-100 overflow-x-hidden selection:bg-[#C4121A] selection:text-white transition-colors duration-200">
-      {/* Global Tablet & Foldable Guardrail: Constrained to max-w-[480px] mx-auto min-h-dvh with clean centering */}
+    <div className="relative min-h-dvh w-full bg-black text-neutral-100 overflow-x-hidden selection:bg-o1-crimson selection:text-white transition-colors duration-200">
       <div
-        className={`min-h-dvh w-full max-w-[480px] mx-auto bg-[#F4F4F7] dark:bg-[#09090b] text-neutral-900 dark:text-neutral-100 flex flex-col justify-between font-sans origin-top transition-all duration-300 ease-out relative shadow-2xl ${
+        className={`min-h-dvh w-full bg-transparent text-neutral-100 flex flex-col justify-between font-sans origin-top transition-all duration-300 ease-out relative ${
           isTravelPassOpen
-            ? 'scale-[0.94] rounded-3xl brightness-75 overflow-hidden pointer-events-none select-none'
+            ? 'scale-[0.94] rounded-2xl brightness-75 overflow-hidden pointer-events-none select-none'
             : ''
         }`}
       >
         <BasementOfflineBanner />
 
-        {/* Main Content Area: flexbox layout where scrollable container explicitly sets flex: 1 1 0%, min-height: 0, and overflow-y: auto */}
         <main
           className="w-full overflow-y-auto"
           style={{
@@ -51,17 +53,17 @@ export const MainAppLayout: React.FC = () => {
             minHeight: 0,
             paddingTop: 'max(16px, env(safe-area-inset-top, 0px))',
             paddingBottom: 'calc(4rem + max(16px, env(safe-area-inset-bottom, 0px)))',
-            paddingLeft: 'env(safe-area-inset-left, 0px)',
-            paddingRight: 'env(safe-area-inset-right, 0px)',
           }}
         >
-          <FeatureErrorBoundary key={activeTab} featureName={`${activeTab} View`}>
-            {(activeTab === 'tracker' || activeTab === 'workout') && <WorkoutHub />}
-            {activeTab === 'fuel' && <FuelHub />}
-            {activeTab === 'radar' && <BuddyHub />}
-            {activeTab === 'coach' && <CoachHub />}
-            {(activeTab === 'client' || (activeTab as string) === 'log') && <LogView />}
-          </FeatureErrorBoundary>
+          <div className="o1-shell">
+            <FeatureErrorBoundary key={activeTab} featureName={`${activeTab} View`}>
+              {(activeTab === 'tracker' || activeTab === 'workout') && <WorkoutHub />}
+              {activeTab === 'fuel' && <FuelHub />}
+              {activeTab === 'radar' && <BuddyHub />}
+              {activeTab === 'coach' && <CoachHub />}
+              {(activeTab === 'client' || (activeTab as string) === 'log') && <LogView />}
+            </FeatureErrorBoundary>
+          </div>
         </main>
 
         {/* Floating Bottom Navigation Bar */}

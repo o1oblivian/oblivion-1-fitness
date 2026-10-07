@@ -5,12 +5,17 @@ import { AthleteGridCard } from './components/AthleteGridCard';
 import { DiscoverHeader } from './components/DiscoverHeader';
 import { RadarModalsContainer } from './components/RadarModalsContainer';
 import { tactileEngine } from '../../services/tactileEngine';
-import { CheckCircle2, Radar, RotateCcw, Users, AlertCircle } from 'lucide-react';
+import { CheckCircle2, Radar, RotateCcw, Users } from 'lucide-react';
 import { useSubscription } from '../../context/SubscriptionContext';
 import { searchAthletesWithSupabase } from './services/buddyService';
 import { useBuddyRealtime } from './hooks/useBuddyRealtime';
 import { useBuddyMessageStore } from '../../stores/useBuddyMessageStore';
 import { TacticalRadarScanner } from './components/TacticalRadarScanner';
+import { getDeviceCoordinates } from '../../services/deviceLocation';
+import { upsertBuddyLocation } from '../../services/buddyPresenceSync';
+import { getAuthenticatedUserId } from '../../services/authUser';
+import { readAthleteSettingsSnapshot } from '../../utils/athleteSettingsSnapshot';
+import { useBuddyProfileStore } from '../../stores/useBuddyProfileStore';
 
 export const BuddyView: React.FC = () => {
   const storeBuddies = useRadarStore((s) => s.buddies);
@@ -30,6 +35,8 @@ export const BuddyView: React.FC = () => {
   const [dismissedIds, setDismissedIds] = useState<string[]>([]);
   const [likedAthletes, setLikedAthletes] = useState<Record<string, boolean>>({});
   const [supabaseError, setSupabaseError] = useState<string | null>(null);
+  const [locationRequired, setLocationRequired] = useState(false);
+  const [locationRequesting, setLocationRequesting] = useState(false);
 
   // Keep radius in sync with travelRadiusKm if changed in modal
   useEffect(() => {
@@ -41,12 +48,35 @@ export const BuddyView: React.FC = () => {
   // Genuine Wired Search State & Supabase Integration
   const [searchResults, setSearchResults] = useState<DemoAthlete[]>(buddies);
   const [isSearchingSupabase, setIsSearchingSupabase] = useState(false);
+  const [userCoords, setUserCoords] = useState<{ latitude: number; longitude: number } | null>(null);
+  const [radarUid, setRadarUid] = useState('');
+  const ghostMode = useBuddyProfileStore((s) => s.ghostMode);
+  const isBuddyProfileActive = useBuddyProfileStore((s) => s.isBuddyProfileActive);
 
-  // Initial and reactive live Supabase buddy_profiles sync
+  useEffect(() => {
+    void getAuthenticatedUserId().then((id) => setRadarUid(id || ''));
+    void getDeviceCoordinates().then((coords) => {
+      if (!coords) {
+        setLocationRequired(true);
+        return;
+      }
+      setLocationRequired(false);
+      setUserCoords(coords);
+      void upsertBuddyLocation(coords);
+    });
+  }, []);
+
   useEffect(() => {
     let isCancelled = false;
 
     const loadLiveBuddies = async () => {
+      const snap = readAthleteSettingsSnapshot();
+      if (!snap.buddyRadarDiscovery || ghostMode || !isBuddyProfileActive) {
+        setSearchResults([]);
+        useRadarStore.getState().setBuddies([]);
+        return;
+      }
+      if (!userCoords) return;
       setIsSearchingSupabase(true);
       setSupabaseError(null);
       try {
@@ -54,7 +84,7 @@ export const BuddyView: React.FC = () => {
         const { results } = await searchAthletesWithSupabase(
           activeQuery,
           [],
-          { latitude: -33.8688, longitude: 151.2093 },
+          userCoords,
           radiusKm
         );
         if (!isCancelled) {
@@ -71,12 +101,12 @@ export const BuddyView: React.FC = () => {
       }
     };
 
-    loadLiveBuddies();
+    void loadLiveBuddies();
 
     return () => {
       isCancelled = true;
     };
-  }, [searchQuery, travelCity, radiusKm]);
+  }, [searchQuery, travelCity, radiusKm, userCoords, ghostMode, isBuddyProfileActive]);
 
   const [selectedProfileAthlete, setSelectedProfileAthlete] = useState<DemoAthlete | null>(null);
   const [selectedMessageAthlete, setSelectedMessageAthlete] = useState<DemoAthlete | null>(null);
@@ -86,7 +116,7 @@ export const BuddyView: React.FC = () => {
 
   // Realtime Supabase CDC Listener for buddy_messages
   useBuddyRealtime({
-    currentUserId: 'current-athlete',
+    currentUserId: radarUid,
     onMessageReceived: (msg) => {
       tactileEngine.triggerSelectionBuzz();
       setToastMessage(`💬 New message received`);
@@ -119,6 +149,21 @@ export const BuddyView: React.FC = () => {
 
   const { isPro, openPaywall } = useSubscription();
 
+  const handleEnableLocation = async () => {
+    tactileEngine.triggerSelectionBuzz();
+    setLocationRequesting(true);
+    const coords = await getDeviceCoordinates();
+    setLocationRequesting(false);
+    if (!coords) {
+      setLocationRequired(true);
+      showToast('Location permission is still pending');
+      return;
+    }
+    setLocationRequired(false);
+    setUserCoords(coords);
+    void upsertBuddyLocation(coords);
+  };
+
   const handleScan = async () => {
     if (!isPro) {
       openPaywall('Buddy Match Radar');
@@ -131,10 +176,15 @@ export const BuddyView: React.FC = () => {
 
     try {
       const activeQuery = searchQuery.trim() || travelCity || '';
+      if (!userCoords) {
+        setLocationRequired(true);
+        setIsScanning(false);
+        return;
+      }
       const { results } = await searchAthletesWithSupabase(
         activeQuery,
         [],
-        { latitude: -33.8688, longitude: 151.2093 },
+        userCoords,
         radiusKm
       );
       useRadarStore.getState().setBuddies(results);
@@ -167,7 +217,7 @@ export const BuddyView: React.FC = () => {
   }, [searchResults, dismissedIds, activeTab, likedAthletes, verifiedOnly]);
 
   return (
-    <div className="w-full h-auto min-h-full bg-[#F4F4F7] dark:bg-[#09090b] text-neutral-900 dark:text-white pb-10 px-3.5 pt-1 transition-colors">
+    <div className="w-full h-auto min-h-full bg-transparent text-white pb-10 pt-1 transition-colors">
       <DiscoverHeader
         activeTab={activeTab}
         onTabChange={handleTabChange}
@@ -212,24 +262,40 @@ export const BuddyView: React.FC = () => {
         }}
       />
 
-      {supabaseError && (
-        <div className="mx-3 my-2 p-3.5 rounded-2xl bg-red-500/10 border border-red-500/30 text-red-500 text-xs font-mono font-bold flex items-start gap-2.5">
-          <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-red-500" />
-          <div className="space-y-0.5">
-            <span className="block font-tactical tracking-wide uppercase">RADAR SUPABASE QUERY ERROR</span>
-            <span className="text-[11px] font-mono text-red-400 font-normal">{supabaseError}</span>
+      {locationRequired && (
+        <div className="my-2 p-3 rounded-2xl bg-o1-card border border-white/[0.07] text-zinc-400 text-xs flex flex-col gap-2.5">
+          <div>
+            <p className="font-semibold text-neutral-200">Location Access Required</p>
+            <p className="text-[11px] text-zinc-400 mt-0.5 leading-relaxed">
+              Enable GPS to discover athletes within your radius
+            </p>
           </div>
+          <button
+            type="button"
+            onClick={() => { void handleEnableLocation(); }}
+            disabled={locationRequesting}
+            className="h-11 w-full rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover text-white text-xs font-semibold cursor-pointer disabled:opacity-50"
+          >
+            {locationRequesting ? 'Requesting…' : 'Enable Location'}
+          </button>
+        </div>
+      )}
+
+      {supabaseError && !locationRequired && (
+        <div className="my-2 p-3 rounded-2xl bg-o1-well border border-white/[0.07] text-zinc-400 text-xs">
+          <p className="font-semibold text-zinc-300">Radar unavailable</p>
+          <p className="text-[11px] mt-0.5">{supabaseError}</p>
         </div>
       )}
 
       <div className="px-3 pt-1">
         {buddies.length === 0 ? (
-          <div id="radar-empty-state" className="mt-4 flex flex-col items-center justify-center p-6 sm:p-8 rounded-3xl bg-white dark:bg-[#121214] border border-black/5 dark:border-white/10 text-center space-y-5 shadow-md dark:shadow-xl">
+          <div id="radar-empty-state" className="mt-4 flex flex-col items-center justify-center p-6 sm:p-8 rounded-2xl bg-o1-card border border-white/[0.07] text-center space-y-5 shadow-xl">
             <div className="space-y-1.5 max-w-xs">
-              <h3 className="text-sm font-tactical font-black uppercase tracking-wider text-neutral-900 dark:text-white">
+              <h3 className="text-sm font-tactical font-black uppercase tracking-wider text-white">
                 NO ATHLETES IN PROXIMITY • RADIUS SEARCH ACTIVE
               </h3>
-              <p className="text-xs text-neutral-500 dark:text-neutral-400 font-mono leading-relaxed">
+              <p className="text-xs text-neutral-400 font-mono leading-relaxed">
                 Scanning {travelCity ? `${travelCity} athletes` : 'nearby athletes'} · Awaiting peer beacon signal.
               </p>
             </div>
@@ -242,7 +308,7 @@ export const BuddyView: React.FC = () => {
                 id="rescan-radar-corridor-btn"
                 type="button"
                 onClick={handleScan}
-                className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#E50914] hover:bg-[#c40812] text-white text-xs font-mono font-bold uppercase tracking-wider shadow-xs active:scale-95 transition-all cursor-pointer"
+                className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover text-white text-xs font-mono font-bold uppercase tracking-wider shadow-xs active:scale-95 transition-all cursor-pointer"
               >
                 <RotateCcw className={`w-4 h-4 ${isScanning ? 'animate-spin' : ''}`} />
                 <span>RESCAN NEARBY</span>
@@ -264,17 +330,17 @@ export const BuddyView: React.FC = () => {
                 }}
                 className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-mono font-bold transition-all active:scale-95 cursor-pointer border ${
                   verifiedOnly
-                    ? 'bg-cyan-950/80 border-cyan-400 text-cyan-300 shadow-[0_0_12px_rgba(6,182,212,0.4)]'
-                    : 'bg-white dark:bg-[#121214] border-neutral-300 dark:border-neutral-800 text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white'
+                    ? 'bg-sky-950/80 border-sky-400 text-sky-300 '
+                    : 'bg-o1-card border-white/[0.07] text-neutral-400 hover:text-white'
                 }`}
               >
-                <CheckCircle2 className={`w-3 h-3 ${verifiedOnly ? 'text-cyan-300' : 'text-neutral-400'}`} />
+                <CheckCircle2 className={`w-3 h-3 ${verifiedOnly ? 'text-sky-300' : 'text-neutral-400'}`} />
                 <span>VERIFIED ATHLETES ONLY</span>
               </button>
             </div>
 
             {filteredAthletes.length === 0 ? (
-              <div className="p-8 rounded-2xl bg-white dark:bg-[#121214] border border-neutral-200 dark:border-neutral-800 text-center space-y-2">
+              <div className="p-8 rounded-2xl bg-o1-card border border-white/[0.07] text-center space-y-2">
                 <p className="text-xs font-mono font-bold uppercase text-neutral-400">NO VERIFIED ATHLETES IN THIS CORRIDOR</p>
                 <p className="text-[11px] text-neutral-500">Toggle "VERIFIED ATHLETES ONLY" off or verify your own athlete profile.</p>
               </div>
@@ -311,12 +377,12 @@ export const BuddyView: React.FC = () => {
           <div className="py-16 text-center space-y-3 px-4">
             {activeTab === 'MATCHED' ? (
               <div className="flex flex-col items-center justify-center space-y-3">
-                <div className="w-12 h-12 rounded-full bg-neutral-100 dark:bg-[#18181c] border border-neutral-200 dark:border-neutral-800 flex items-center justify-center text-neutral-400">
+                <div className="w-12 h-12 rounded-full bg-o1-well border border-white/[0.07] flex items-center justify-center text-neutral-400">
                   <Users className="w-6 h-6" />
                 </div>
                 <div className="space-y-1">
-                  <h4 className="text-sm font-tactical font-bold text-neutral-900 dark:text-white uppercase">NO SAVED ATHLETES YET</h4>
-                  <p className="text-xs text-neutral-500 dark:text-neutral-400 font-mono">Heart athletes in Discover to add them to your active chats & training syncs.</p>
+                  <h4 className="text-sm font-tactical font-bold text-white uppercase">NO SAVED ATHLETES YET</h4>
+                  <p className="text-xs text-neutral-400 font-mono">Heart athletes in Discover to add them to your active chats & training syncs.</p>
                 </div>
               </div>
             ) : (
@@ -331,7 +397,7 @@ export const BuddyView: React.FC = () => {
                     setSearchQuery('');
                     if (travelCity) setTravelDetails({ travelCity: '' });
                   }}
-                  className="px-4 py-2 rounded-xl bg-neutral-900 dark:bg-[#141418] border border-neutral-300 dark:border-white/10 text-white text-xs font-mono font-bold shadow-xs hover:bg-neutral-800 dark:hover:bg-[#1a1a20] cursor-pointer"
+                  className="px-4 py-2 rounded-xl bg-o1-card border border-white/[0.07] text-white text-xs font-mono font-bold shadow-xs hover:bg-o1-well cursor-pointer"
                 >
                   Reset Radar Corridor
                 </button>
@@ -387,8 +453,8 @@ export const BuddyView: React.FC = () => {
       />
 
       {toastMessage && (
-        <div className="fixed bottom-24 left-1/2 -translate-x-1/2 z-50 bg-neutral-900 dark:bg-[#18181c] border border-neutral-700 dark:border-white/15 text-white px-4 py-2.5 rounded-full text-xs font-mono font-medium shadow-2xl flex items-center gap-2">
-          <CheckCircle2 className="w-4 h-4 text-cyan-400 shrink-0" />
+        <div className="fixed bottom-24 left-1/2 -translate-x-1/2 z-50 bg-o1-well border border-white/[0.07] text-white px-4 py-2.5 rounded-full text-xs font-mono font-medium shadow-2xl flex items-center gap-2">
+          <CheckCircle2 className="w-4 h-4 text-sky-400 shrink-0" />
           <span>{toastMessage}</span>
         </div>
       )}

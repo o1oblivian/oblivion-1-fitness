@@ -18,13 +18,17 @@ const getInitialRole = (): UserRole => {
 };
 
 const getInitialUserId = (): string => {
-  if (typeof window === 'undefined') return 'c1';
-  return localStorage.getItem('o1fc_user_id') || 'c1';
+  if (typeof window === 'undefined') return '';
+  const id = localStorage.getItem('o1fc_user_id') || '';
+  if (!id || id === 'c1' || id === 'default-athlete' || id === 'athlete-c1') return '';
+  return id;
 };
 
 const getInitialCoachId = (): string => {
-  if (typeof window === 'undefined') return 'coach_alpha';
-  return localStorage.getItem('o1fc_coach_id') || 'coach_alpha';
+  if (typeof window === 'undefined') return '';
+  const id = localStorage.getItem('o1fc_coach_id') || localStorage.getItem('o1fc_user_id') || '';
+  if (!id || id === 'coach_alpha') return '';
+  return id;
 };
 
 export const useRoleStore = create<RoleState>((set, get) => ({
@@ -35,9 +39,9 @@ export const useRoleStore = create<RoleState>((set, get) => ({
     try {
       localStorage.setItem('o1fc_active_role', role);
       if (role === 'athlete') {
-        localStorage.setItem('o1fc_user_id', get().userId || 'c1');
-      } else {
-        localStorage.setItem('o1fc_coach_id', get().coachId || 'coach_alpha');
+        if (get().userId) localStorage.setItem('o1fc_user_id', get().userId);
+      } else if (get().coachId) {
+        localStorage.setItem('o1fc_coach_id', get().coachId);
       }
     } catch (err) {
       console.warn('[useRoleStore] localStorage error:', err);

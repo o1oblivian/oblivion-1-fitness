@@ -21,7 +21,11 @@ export async function handleRevenueCatWebhook(req: Request, res: Response): Prom
     res.status(400).json({ error: 'Missing event payload' });
     return;
   }
-  const athleteId = event.app_user_id || 'default-athlete';
+  const athleteId = event.app_user_id;
+  if (!athleteId || athleteId === 'default-athlete') {
+    res.status(400).json({ error: 'Missing app_user_id' });
+    return;
+  }
   const planId = event.product_id || 'com.o1fc.membership.premium';
   if (event.type === 'INITIAL_PURCHASE' || event.type === 'RENEWAL') {
     await persistEntitlement(athleteId, planId, 'active');
@@ -51,9 +55,13 @@ async function persistEntitlement(athleteId: string, tier: string, status: 'acti
 }
 
 export async function handleSyncEntitlements(req: Request, res: Response): Promise<void> {
-  const athleteId = (req.query.athleteId as string) || 'default-athlete';
+  const athleteId = (req.query.athleteId as string) || '';
+  if (!athleteId || athleteId === 'default-athlete') {
+    res.status(400).json({ error: 'athleteId is required' });
+    return;
+  }
   if (!supabaseAdmin) {
-    res.json({ isPro: true, tier: 'com.o1fc.fitness.plus_monthly' });
+    res.status(503).json({ error: 'Entitlement sync is not configured.' });
     return;
   }
   const { data } = await supabaseAdmin

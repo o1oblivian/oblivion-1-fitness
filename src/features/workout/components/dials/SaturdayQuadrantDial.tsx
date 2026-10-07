@@ -1,10 +1,7 @@
 import React from 'react';
 import { DialComponentProps } from './dialTypes';
+import { fmtInt, fmtKm, heroShadow, HAIR_SOFT } from './luxuryDialShared';
 
-/**
- * Saturday - Modular Quad-Quadrant HUD
- * 4 balanced telemetry sectors with bold crosshairs and zero foggy patches.
- */
 export const SaturdayQuadrantDial: React.FC<DialComponentProps> = ({
   steps,
   burnKcal,
@@ -13,60 +10,35 @@ export const SaturdayQuadrantDial: React.FC<DialComponentProps> = ({
   activeDay,
   splitLabel,
 }) => {
+  const cells = [
+    { id: '01', label: 'Steps', value: fmtInt(steps), align: 'text-left' },
+    { id: '02', label: 'Burn', value: fmtInt(burnKcal), align: 'text-right' },
+    { id: '03', label: 'Distance', value: fmtKm(distKm), align: 'text-left' },
+    { id: '04', label: 'Intake', value: fmtInt(intakeKcal), align: 'text-right' },
+  ];
+
   return (
-    <div className="relative w-[270px] h-[230px] mx-auto select-none pointer-events-none p-2 flex flex-col justify-between bg-transparent">
-      {/* Hairline Crosshair Reticle - Pure Crisp Lines */}
-      <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 270 230" fill="none">
-        <line x1="135" y1="12" x2="135" y2="218" stroke="rgba(255,255,255,0.3)" strokeWidth="1.8" strokeDasharray="4 4" />
-        <line x1="15" y1="115" x2="255" y2="115" stroke="rgba(255,255,255,0.3)" strokeWidth="1.8" strokeDasharray="4 4" />
-        {/* Corner framing brackets */}
-        <path d="M 22 36 L 22 22 L 36 22" stroke="rgba(255,255,255,0.5)" strokeWidth="2" strokeLinecap="round" />
-        <path d="M 248 36 L 248 22 L 234 22" stroke="rgba(255,255,255,0.5)" strokeWidth="2" strokeLinecap="round" />
-        <path d="M 22 194 L 22 208 L 36 208" stroke="rgba(255,255,255,0.5)" strokeWidth="2" strokeLinecap="round" />
-        <path d="M 248 194 L 248 208 L 234 208" stroke="rgba(255,255,255,0.5)" strokeWidth="2" strokeLinecap="round" />
+    <div className="relative w-[260px] h-[220px] mx-auto select-none pointer-events-none">
+      <svg className="absolute inset-0 w-full h-full" viewBox="0 0 260 220" fill="none">
+        <line x1="130" y1="18" x2="130" y2="202" stroke={HAIR_SOFT} strokeWidth="1" />
+        <line x1="18" y1="110" x2="242" y2="110" stroke={HAIR_SOFT} strokeWidth="1" />
       </svg>
-
-      {/* Center Tactical Badge - Transparent, zero dark fog */}
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-        <div className="px-3 py-1 rounded-md bg-transparent border border-white/40 text-[10px] font-mono font-black text-white uppercase tracking-wider z-20">
-          <span className="text-[#C4121A]">{activeDay}</span> | {splitLabel || 'LEGS B'}
-        </div>
+      <div className="absolute top-3 left-0 right-0 text-center pointer-events-none z-10">
+        <span className="text-[9px] tracking-[0.22em] uppercase text-white/55">
+          {activeDay} · {splitLabel || 'Session'}
+        </span>
       </div>
-
-      {/* Top 2 Quadrants */}
-      <div className="flex items-center justify-between px-3 z-10">
-        {/* Q1: Steps */}
-        <div className="flex flex-col text-left">
-          <span className="text-[10px] font-mono font-black text-neutral-300">01 / STEPS</span>
-          <span className="font-sans font-black text-2xl text-white tabular-nums leading-tight">
-            {steps.toLocaleString()}
-          </span>
-        </div>
-        {/* Q2: Burn */}
-        <div className="flex flex-col text-right">
-          <span className="text-[10px] font-mono font-black text-[#C4121A]">02 / BURN</span>
-          <span className="font-sans font-black text-2xl text-white tabular-nums leading-tight">
-            {burnKcal} <span className="text-xs font-normal text-neutral-200">kcal</span>
-          </span>
-        </div>
-      </div>
-
-      {/* Bottom 2 Quadrants */}
-      <div className="flex items-center justify-between px-3 z-10">
-        {/* Q3: Distance */}
-        <div className="flex flex-col text-left">
-          <span className="text-[10px] font-mono font-black text-[#0284c7]">03 / DISTANCE</span>
-          <span className="font-sans font-black text-2xl text-white tabular-nums leading-tight">
-            {distKm.toFixed(1)} <span className="text-xs font-normal text-neutral-200">km</span>
-          </span>
-        </div>
-        {/* Q4: Intake */}
-        <div className="flex flex-col text-right">
-          <span className="text-[10px] font-mono font-black text-[#f59e0b]">04 / INTAKE</span>
-          <span className="font-sans font-black text-2xl text-white tabular-nums leading-tight">
-            {intakeKcal} <span className="text-xs font-normal text-neutral-200">kcal</span>
-          </span>
-        </div>
+      <div className="absolute inset-0 grid grid-cols-2 grid-rows-2 p-6 pt-9">
+        {cells.map((cell) => (
+          <div key={cell.id} className={`flex flex-col justify-center ${cell.align} px-3`}>
+            <span className="text-[8px] tracking-[0.2em] uppercase text-white/40">
+              {cell.id} {cell.label}
+            </span>
+            <span className="mt-1 text-[22px] font-semibold tracking-tight text-white tabular-nums" style={heroShadow}>
+              {cell.value}
+            </span>
+          </div>
+        ))}
       </div>
     </div>
   );

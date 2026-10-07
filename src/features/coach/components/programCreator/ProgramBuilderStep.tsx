@@ -88,16 +88,16 @@ export const ProgramBuilderStep: React.FC<{
   const quickAdds = getQuickAddExercises(selectedMuscleTag);
 
   return (
-    <div className="space-y-4 text-neutral-900 dark:text-neutral-100 select-none">
+    <div className="space-y-4 text-neutral-100 select-none">
       {/* Curriculum Summary Header */}
-      <div className="flex items-center justify-between pb-2 border-b border-neutral-200 dark:border-neutral-800">
+      <div className="flex items-center justify-between pb-2 border-b border-white/[0.05]">
         <div className="flex items-center gap-2">
-          <Layers className="w-4 h-4 text-neutral-700 dark:text-neutral-300" />
-          <h3 className="text-sm font-bold text-neutral-900 dark:text-white">
+          <Layers className="w-4 h-4 text-neutral-300" />
+          <h3 className="text-sm font-bold text-white">
             Curriculum Builder
           </h3>
         </div>
-        <span className="text-xs font-mono font-medium text-neutral-500 dark:text-neutral-400">
+        <span className="text-xs font-mono font-medium text-neutral-400">
           {data.weeks.length}w · {totalDays}d · {totalExercises} exercises
         </span>
       </div>
@@ -105,7 +105,7 @@ export const ProgramBuilderStep: React.FC<{
       {/* Week Selector Bar */}
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <span className="text-xs font-semibold text-neutral-700 dark:text-neutral-300">
+          <span className="text-xs font-semibold text-neutral-300">
             Training Weeks
           </span>
           <div className="flex items-center gap-2 text-neutral-400">
@@ -120,7 +120,7 @@ export const ProgramBuilderStep: React.FC<{
                 };
                 onChange({ weeks: [...data.weeks, newWeek] });
               }}
-              className="p-1 hover:text-neutral-900 dark:hover:text-white transition-colors cursor-pointer"
+              className="p-1 hover:text-white transition-colors cursor-pointer"
             >
               <Copy className="w-3.5 h-3.5" />
             </button>
@@ -157,8 +157,8 @@ export const ProgramBuilderStep: React.FC<{
                 }}
                 className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
                   isActive
-                    ? 'bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 shadow-2xs font-bold'
-                    : 'bg-white dark:bg-[#141416] border border-neutral-200 dark:border-neutral-800 text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white'
+                    ? 'bg-white text-neutral-900 shadow-2xs font-bold'
+                    : 'bg-o1-card border border-white/[0.07] text-neutral-400 hover:text-white'
                 }`}
               >
                 <span>Week {w.weekNumber}</span>
@@ -184,7 +184,7 @@ export const ProgramBuilderStep: React.FC<{
                 ],
               });
             }}
-            className="px-2.5 py-1.5 rounded-xl border border-dashed border-neutral-300 dark:border-neutral-700 text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white text-xs font-semibold flex items-center gap-1 transition-colors cursor-pointer"
+            className="px-2.5 py-1.5 rounded-xl border border-dashed border-white/[0.07] text-neutral-400 hover:text-white text-xs font-semibold flex items-center gap-1 transition-colors cursor-pointer"
           >
             <Plus className="w-3 h-3" />
             <span>Week</span>
@@ -206,19 +206,19 @@ export const ProgramBuilderStep: React.FC<{
               }}
               className={`p-3 rounded-2xl text-left transition-all cursor-pointer border ${
                 isActive
-                  ? 'bg-white dark:bg-[#18181B] border-neutral-900 dark:border-white shadow-xs ring-1 ring-neutral-900/10 dark:ring-white/10'
-                  : 'bg-white dark:bg-[#141416] border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 text-neutral-700 dark:text-neutral-300'
+                  ? 'bg-o1-well border-white shadow-xs ring-1 ring-white/10'
+                  : 'bg-o1-card border-white/[0.07] hover:border-white/[0.14] text-neutral-300'
               }`}
             >
               <div className="flex items-center justify-between">
-                <span className="font-bold text-xs text-neutral-900 dark:text-white">
+                <span className="font-bold text-xs text-white">
                   {d.dayName}
                 </span>
                 <span className="text-[10px] font-mono text-neutral-400">
                   {d.exercises.length} ex
                 </span>
               </div>
-              <div className="text-[11px] font-medium text-neutral-500 dark:text-neutral-400 truncate mt-0.5">
+              <div className="text-[11px] font-medium text-neutral-400 truncate mt-0.5">
                 {d.splitFocus || 'Rest'}
               </div>
             </button>
@@ -242,7 +242,7 @@ export const ProgramBuilderStep: React.FC<{
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <div>
-            <h4 className="text-xs font-bold text-neutral-900 dark:text-white">
+            <h4 className="text-xs font-bold text-white">
               {currentDay?.dayName} — {currentDay?.splitFocus}
             </h4>
             <span className="text-[10px] font-mono text-neutral-400">
@@ -254,10 +254,10 @@ export const ProgramBuilderStep: React.FC<{
             <button
               type="button"
               onClick={handleApplyBlueprint}
-              className="px-2.5 py-1.5 rounded-xl bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 text-neutral-700 dark:text-neutral-300 text-[11px] font-semibold flex items-center gap-1 transition-colors cursor-pointer border border-neutral-200 dark:border-neutral-700"
+              className="px-2.5 py-1.5 rounded-xl bg-white/[0.08] hover:bg-neutral-700 text-neutral-300 text-[11px] font-semibold flex items-center gap-1 transition-colors cursor-pointer border border-white/[0.07]"
               title="Apply real-time blueprint to this day"
             >
-              <Sparkles className="w-3 h-3 text-[#C4121A]" />
+              <Sparkles className="w-3 h-3 text-o1-crimson" />
               <span>Auto-Fill</span>
             </button>
             <button
@@ -276,7 +276,7 @@ export const ProgramBuilderStep: React.FC<{
                   },
                 ]);
               }}
-              className="px-3 py-1.5 rounded-xl bg-[#C4121A] hover:bg-[#a80f16] active:scale-95 text-white text-xs font-bold flex items-center gap-1 transition-colors cursor-pointer shadow-2xs"
+              className="px-3 py-1.5 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover active:scale-95 text-white text-xs font-bold flex items-center gap-1 transition-colors cursor-pointer shadow-2xs"
             >
               <Plus className="w-3.5 h-3.5" />
               <span>Add Exercise</span>
@@ -286,8 +286,8 @@ export const ProgramBuilderStep: React.FC<{
 
         {/* List of programmed exercises */}
         {currentDay?.exercises.length === 0 ? (
-          <div className="p-8 rounded-2xl border-2 border-dashed border-neutral-200 dark:border-neutral-800 text-center space-y-2 bg-white/50 dark:bg-[#141416]/50">
-            <p className="text-xs font-semibold text-neutral-500 dark:text-neutral-400">
+          <div className="p-8 rounded-2xl border border-dashed border-white/[0.07] text-center space-y-2 bg-o1-card/50">
+            <p className="text-xs font-semibold text-neutral-400">
               No exercises programmed for {currentDay?.dayName}
             </p>
             <p className="text-[11px] text-neutral-400">
@@ -297,7 +297,7 @@ export const ProgramBuilderStep: React.FC<{
               <button
                 type="button"
                 onClick={handleApplyBlueprint}
-                className="px-3 py-1.5 rounded-xl bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 text-xs font-bold transition-all cursor-pointer"
+                className="px-3 py-1.5 rounded-xl bg-white text-neutral-900 text-xs font-bold transition-all cursor-pointer"
               >
                 Auto-Fill Blueprint
               </button>
@@ -316,7 +316,7 @@ export const ProgramBuilderStep: React.FC<{
                     },
                   ]);
                 }}
-                className="px-3 py-1.5 rounded-xl bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 text-xs font-semibold transition-all cursor-pointer flex items-center gap-1"
+                className="px-3 py-1.5 rounded-xl bg-white/[0.08] text-neutral-300 text-xs font-semibold transition-all cursor-pointer flex items-center gap-1"
               >
                 <PlusCircle size={13} />
                 <span>Add Blank</span>

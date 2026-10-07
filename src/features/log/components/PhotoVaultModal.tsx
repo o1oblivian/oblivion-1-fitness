@@ -12,7 +12,6 @@ import {
   Film,
   UserCheck,
   Play,
-  ArrowLeft,
 } from 'lucide-react';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { useUserStore } from '../../../stores/useUserStore';
@@ -281,27 +280,14 @@ export const PhotoVaultModal: React.FC<PhotoVaultModalProps> = ({
   });
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-[#F4F4F7] dark:bg-[#09090b] text-neutral-900 dark:text-neutral-100 overflow-y-auto animate-in fade-in duration-150 select-none">
+    <div className="fixed inset-0 z-50 flex flex-col bg-black text-neutral-100 overflow-y-auto animate-in fade-in duration-150 select-none">
       {/* 1. TOP STICKY APP BAR (Matches Coach Page Vault Navigation) */}
-      <div className="sticky top-0 z-20 bg-white/90 dark:bg-[#121214]/90 backdrop-blur-md border-b border-neutral-200 dark:border-neutral-800 px-3.5 sm:px-5 py-3 flex items-center justify-between">
-        <button
-          type="button"
-          onClick={() => {
-            tactileEngine.triggerSelectionBuzz();
-            onClose();
-          }}
-          className="flex items-center gap-1.5 text-xs font-bold text-neutral-700 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white cursor-pointer transition-colors"
-        >
-          <ArrowLeft size={16} />
-          <span>Back to Athlete Log</span>
-        </button>
-
+      <div className="sticky top-0 z-20 bg-o1-card/90 backdrop-blur-md border-b border-white/[0.05] px-3.5 sm:px-5 py-2 flex items-center justify-between min-h-[44px]">
         <div className="flex items-center gap-1.5">
-          <Lock className="w-3.5 h-3.5 text-green-600" />
-          <span className="text-xs font-bold uppercase tracking-wider text-neutral-900 dark:text-white">
+          <span className="text-xs font-bold uppercase tracking-wider text-white">
             Athlete Vault
           </span>
-          <span className="px-2 py-0.5 rounded-full bg-neutral-100 dark:bg-neutral-800 text-[10px] font-mono font-bold text-neutral-600 dark:text-neutral-300 border border-neutral-200 dark:border-neutral-700">
+          <span className="px-2 py-0.5 rounded-full bg-white/[0.08] text-[10px] font-mono font-bold text-neutral-300 border border-white/[0.07]">
             {photos.length}
           </span>
         </div>
@@ -312,8 +298,8 @@ export const PhotoVaultModal: React.FC<PhotoVaultModalProps> = ({
             tactileEngine.triggerSelectionBuzz();
             onClose();
           }}
-          className="w-7 h-7 rounded-full bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 flex items-center justify-center text-neutral-500 hover:text-neutral-900 dark:hover:text-white cursor-pointer transition-colors"
-          title="Close Vault"
+          className="w-8 h-8 rounded-full bg-white/[0.08] hover:bg-neutral-700 flex items-center justify-center text-neutral-500 hover:text-white cursor-pointer transition-colors"
+          aria-label="Close vault"
         >
           <X size={15} />
         </button>
@@ -336,25 +322,25 @@ export const PhotoVaultModal: React.FC<PhotoVaultModalProps> = ({
       />
 
       {/* 2. MAIN ATHLETE VAULT FEED (Full-width expansive view) */}
-      <div className="w-full max-w-md mx-auto p-3.5 sm:p-4 space-y-3.5 flex-1 pb-24">
+      <div className="w-full max-w-md mx-auto p-3 space-y-2.5 flex-1 pb-24">
         {/* Main Card Container */}
-        <div className="bg-white dark:bg-[#121214] border border-neutral-200 dark:border-neutral-800 rounded-3xl p-4 sm:p-5 shadow-xs space-y-4">
+        <div className="bg-o1-card border border-white/[0.07] rounded-2xl p-3.5 shadow-xs space-y-3">
           {/* Top Status Strip: Buddy Profile Broadcast (Matching Screenshot 1) */}
           <div className="flex items-center justify-between px-1 py-0.5">
-            <div className="flex items-center gap-2 text-xs font-mono text-neutral-600 dark:text-neutral-400">
-              <Radio className="w-3.5 h-3.5 text-[#C4121A] animate-pulse" />
+            <div className="flex items-center gap-2 text-xs font-mono text-neutral-400">
+              <Radio className="w-3.5 h-3.5 text-o1-crimson animate-pulse" />
               <span>
-                Buddy Profile Broadcast: <strong className="text-neutral-900 dark:text-white">{buddy.buddyPhotos.length}/6</strong> active
+                Buddy Profile Broadcast: <strong className="text-white">{buddy.buddyPhotos.length}/6</strong> active
               </span>
             </div>
-            <span className="px-2.5 py-0.5 rounded-full bg-[#C4121A]/10 border border-[#C4121A]/30 text-[#C4121A] text-[9px] font-mono font-bold">
+            <span className="px-2.5 py-0.5 rounded-full bg-o1-crimson/10 border border-o1-crimson/30 text-o1-crimson text-[9px] font-mono font-bold">
               {buddy.buddyPhotos.length > 0 ? `${buddy.buddyPhotos.length} ON RADAR` : '4 ON RADAR'}
             </span>
           </div>
 
           {/* Success Banner */}
           {avatarSuccessMsg && (
-            <div className="p-2.5 rounded-xl bg-green-500/10 border border-green-500/30 text-green-600 dark:text-green-400 text-xs font-mono font-bold flex items-center gap-2 animate-in fade-in duration-200">
+            <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-mono font-bold flex items-center gap-2 animate-in fade-in duration-200">
               <Check className="w-4 h-4 shrink-0" />
               <span>{avatarSuccessMsg}</span>
             </div>
@@ -362,7 +348,7 @@ export const PhotoVaultModal: React.FC<PhotoVaultModalProps> = ({
 
           {/* Control Row: Filter Tabs + ADD Button on Right (Matching Screenshot 1) */}
           <div className="flex items-center justify-between gap-2">
-            <div className="inline-flex items-center bg-neutral-100 dark:bg-[#18181c] border border-neutral-200 dark:border-neutral-800 p-1 rounded-2xl gap-1">
+            <div className="inline-flex items-center bg-o1-well border border-white/[0.07] p-1 rounded-2xl gap-1">
               <button
                 type="button"
                 onClick={() => {
@@ -371,8 +357,8 @@ export const PhotoVaultModal: React.FC<PhotoVaultModalProps> = ({
                 }}
                 className={`py-1.5 px-3 rounded-xl text-xs font-bold transition-all text-center whitespace-nowrap cursor-pointer ${
                   activeTab === 'all'
-                    ? 'bg-white dark:bg-[#121214] text-neutral-900 dark:text-white shadow-xs'
-                    : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white'
+                    ? 'bg-o1-card text-white shadow-xs'
+                    : 'text-neutral-400 hover:text-white'
                 }`}
               >
                 ALL ({photos.length})
@@ -385,8 +371,8 @@ export const PhotoVaultModal: React.FC<PhotoVaultModalProps> = ({
                 }}
                 className={`py-1.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 whitespace-nowrap cursor-pointer ${
                   activeTab === 'photos'
-                    ? 'bg-white dark:bg-[#121214] text-neutral-900 dark:text-white shadow-xs'
-                    : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white'
+                    ? 'bg-o1-card text-white shadow-xs'
+                    : 'text-neutral-400 hover:text-white'
                 }`}
               >
                 <Camera size={13} />
@@ -400,8 +386,8 @@ export const PhotoVaultModal: React.FC<PhotoVaultModalProps> = ({
                 }}
                 className={`py-1.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 whitespace-nowrap cursor-pointer ${
                   activeTab === 'reels'
-                    ? 'bg-white dark:bg-[#121214] text-[#C4121A] shadow-xs'
-                    : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white'
+                    ? 'bg-o1-card text-o1-crimson shadow-xs'
+                    : 'text-neutral-400 hover:text-white'
                 }`}
               >
                 <Film size={13} />
@@ -415,7 +401,7 @@ export const PhotoVaultModal: React.FC<PhotoVaultModalProps> = ({
                 tactileEngine.triggerSelectionBuzz();
                 fileInputRef.current?.click();
               }}
-              className="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-[#C4121A] hover:bg-[#a80f16] active:scale-95 text-white text-xs font-bold font-mono tracking-wider uppercase cursor-pointer shadow-xs"
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-o1-crimson hover:bg-o1-crimson-hover active:scale-95 text-white text-xs font-bold font-mono tracking-wider uppercase cursor-pointer shadow-xs"
             >
               <Camera size={14} />
               <span>ADD</span>
@@ -428,14 +414,14 @@ export const PhotoVaultModal: React.FC<PhotoVaultModalProps> = ({
               onClick={() => fileInputRef.current?.click()}
               className="py-24 px-4 flex flex-col items-center justify-center text-center space-y-3 cursor-pointer"
             >
-              <div className="w-16 h-16 rounded-full bg-neutral-100 dark:bg-[#18181c] border border-neutral-200 dark:border-neutral-800 flex items-center justify-center text-neutral-400 dark:text-neutral-500">
+              <div className="w-16 h-16 rounded-full bg-o1-well border border-white/[0.07] flex items-center justify-center text-neutral-500">
                 <Camera size={26} />
               </div>
               <div className="space-y-1">
-                <h3 className="text-sm font-bold text-neutral-900 dark:text-white">
+                <h3 className="text-sm font-bold text-white">
                   No media in this category.
                 </h3>
-                <p className="text-xs text-neutral-500 dark:text-neutral-400 max-w-xs font-mono">
+                <p className="text-xs text-neutral-400 max-w-xs font-mono">
                   Tap Add to import athlete transformation photos or kinetic reels.
                 </p>
               </div>
@@ -454,21 +440,21 @@ export const PhotoVaultModal: React.FC<PhotoVaultModalProps> = ({
                       tactileEngine.triggerSelectionBuzz();
                       setActivePhoto(item);
                     }}
-                    className={`aspect-[3/4] rounded-2xl bg-neutral-100 dark:bg-[#18181b] border overflow-hidden relative group cursor-pointer transition-all hover:shadow-md ${
+                    className={`aspect-[3/4] rounded-2xl bg-o1-well border overflow-hidden relative group cursor-pointer transition-all hover:shadow-md ${
                       onBuddy
-                        ? 'border-[#C4121A] ring-1 ring-[#C4121A]'
-                        : 'border-neutral-200 dark:border-neutral-800'
+                        ? 'border-o1-crimson ring-1 ring-o1-crimson'
+                        : 'border-white/[0.07]'
                     }`}
                   >
                     {isVid ? (
-                      <div className="w-full h-full relative bg-neutral-900">
+                      <div className="w-full h-full relative bg-o1-well">
                         <img
                           src={item.thumbnailUrl || item.dataUrl}
                           alt={item.note || 'Video Reel'}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                         />
                         <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
-                          <div className="w-10 h-10 rounded-full bg-white/90 text-[#C4121A] flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                          <div className="w-10 h-10 rounded-full bg-white/90 text-o1-crimson flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
                             <Play size={18} fill="#C4121A" className="ml-0.5" />
                           </div>
                         </div>
@@ -485,7 +471,7 @@ export const PhotoVaultModal: React.FC<PhotoVaultModalProps> = ({
                     <div className="absolute top-2 left-2 right-2 flex items-center justify-between z-10 pointer-events-none">
                       <div className="flex items-center gap-1">
                         {isVid && (
-                          <span className="px-1.5 py-0.5 rounded-md text-[9px] font-bold bg-[#C4121A] text-white shadow-xs flex items-center gap-1">
+                          <span className="px-1.5 py-0.5 rounded-md text-[9px] font-bold bg-o1-crimson text-white shadow-xs flex items-center gap-1">
                             <Film size={10} />
                             REEL
                           </span>
@@ -506,7 +492,7 @@ export const PhotoVaultModal: React.FC<PhotoVaultModalProps> = ({
                         }}
                         className={`pointer-events-auto px-2 py-0.5 rounded-full flex items-center gap-1 font-mono text-[9px] font-bold shadow-md cursor-pointer transition-all ${
                           onBuddy
-                            ? 'bg-[#C4121A] text-white hover:bg-[#a80f16]'
+                            ? 'bg-o1-crimson text-white hover:bg-o1-crimson-hover'
                             : 'bg-black/60 hover:bg-black/85 text-neutral-300 backdrop-blur-xs'
                         }`}
                       >
@@ -565,11 +551,11 @@ export const PhotoVaultModal: React.FC<PhotoVaultModalProps> = ({
             onClick={() => setActivePhoto(null)}
           >
             <div
-              className="relative max-w-xl w-full bg-neutral-950 border border-neutral-800 rounded-3xl overflow-hidden flex flex-col text-white shadow-2xl"
+              className="relative max-w-xl w-full bg-black border border-white/[0.07] rounded-2xl overflow-hidden flex flex-col text-white shadow-2xl"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Top Bar */}
-              <div className="p-3.5 border-b border-neutral-800 flex justify-between items-center bg-black/50">
+              <div className="p-3.5 border-b border-white/[0.05] flex justify-between items-center bg-black/50">
                 <div>
                   <span className="font-mono text-xs font-bold block">{activePhoto.dateStr}</span>
                   <span className="text-[11px] text-neutral-400 truncate max-w-xs block">
@@ -616,13 +602,13 @@ export const PhotoVaultModal: React.FC<PhotoVaultModalProps> = ({
               </div>
 
               {/* Action Controls Strip */}
-              <div className="p-4 bg-neutral-900 border-t border-neutral-800 space-y-2.5">
+              <div className="p-4 bg-o1-well border-t border-white/[0.05] space-y-2.5">
                 {/* Buddy Profile Broadcast Toggle */}
-                <div className="p-2.5 rounded-2xl bg-neutral-950 border border-neutral-800 flex items-center justify-between">
+                <div className="p-2.5 rounded-2xl bg-black border border-white/[0.07] flex items-center justify-between">
                   <div className="flex items-center gap-2.5">
                     <div
                       className={`w-8 h-8 rounded-xl flex items-center justify-center ${
-                        onBuddy ? 'bg-[#C4121A]/20 text-[#C4121A]' : 'bg-neutral-800 text-neutral-400'
+                        onBuddy ? 'bg-o1-crimson/20 text-o1-crimson' : 'bg-white/[0.08] text-neutral-400'
                       }`}
                     >
                       <Radio className={`w-4 h-4 ${onBuddy ? 'animate-pulse' : ''}`} />
@@ -646,8 +632,8 @@ export const PhotoVaultModal: React.FC<PhotoVaultModalProps> = ({
                     }}
                     className={`px-3 py-1.5 rounded-xl font-mono text-xs font-bold transition-all cursor-pointer ${
                       onBuddy
-                        ? 'bg-[#C4121A] text-white shadow-xs'
-                        : 'bg-neutral-800 text-neutral-400 hover:text-white'
+                        ? 'bg-o1-crimson text-white shadow-xs'
+                        : 'bg-white/[0.08] text-neutral-400 hover:text-white'
                     }`}
                   >
                     {onBuddy ? 'ON RADAR' : 'SET ON'}
@@ -659,9 +645,9 @@ export const PhotoVaultModal: React.FC<PhotoVaultModalProps> = ({
                   <button
                     type="button"
                     onClick={() => handleSetAsAvatar(activePhoto)}
-                    className="py-2.5 px-3 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-white text-xs font-bold flex items-center justify-center gap-1.5 transition cursor-pointer"
+                    className="py-2.5 px-3 rounded-xl bg-white/[0.08] hover:bg-neutral-700 text-white text-xs font-bold flex items-center justify-center gap-1.5 transition cursor-pointer"
                   >
-                    <UserCheck className="w-3.5 h-3.5 text-cyan-400" />
+                    <UserCheck className="w-3.5 h-3.5 text-sky-400" />
                     <span>Set as Avatar</span>
                   </button>
 
@@ -672,8 +658,8 @@ export const PhotoVaultModal: React.FC<PhotoVaultModalProps> = ({
                       onClick={() => handlePublishToReels(activePhoto)}
                       className={`py-2.5 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition cursor-pointer ${
                         isPublishedReel
-                          ? 'bg-green-950/60 border border-green-700 text-green-400'
-                          : 'bg-[#C4121A] hover:bg-[#a50f16] text-white shadow-xs'
+                          ? 'bg-emerald-950/60 border border-emerald-700 text-emerald-400'
+                          : 'bg-o1-crimson hover:bg-o1-crimson-hover text-white shadow-xs'
                       }`}
                     >
                       <Film className="w-3.5 h-3.5" />
@@ -683,7 +669,7 @@ export const PhotoVaultModal: React.FC<PhotoVaultModalProps> = ({
                     <button
                       type="button"
                       onClick={() => setActivePhoto(null)}
-                      className="py-2.5 px-3 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-neutral-300 text-xs font-bold flex items-center justify-center cursor-pointer"
+                      className="py-2.5 px-3 rounded-xl bg-white/[0.08] hover:bg-neutral-700 text-neutral-300 text-xs font-bold flex items-center justify-center cursor-pointer"
                     >
                       Done
                     </button>

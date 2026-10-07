@@ -81,7 +81,7 @@ export const ExerciseHubDrawer: React.FC<ExerciseHubDrawerProps> = ({
     <div className="relative my-2">
       <div
         id="exercise-hub-drawer"
-        className="bg-white dark:bg-[#121214] border border-black/5 dark:border-white/10 rounded-2xl p-1.5 sm:p-2 shadow-md dark:shadow-xl select-none relative transition-colors"
+        className="bg-o1-card border border-white/[0.07] rounded-2xl p-1.5 sm:p-2 shadow-xl select-none relative transition-colors"
       >
         {/* 1. Discipline Selector Track (Always Visible & Tightened) */}
         <DisciplineSelectorTrack
@@ -124,6 +124,8 @@ export const ExerciseHubDrawer: React.FC<ExerciseHubDrawerProps> = ({
                   }}
                   targetVolume={autoLogic.targetVolume}
                   onSelectTargetVolume={autoLogic.setTargetVolume}
+                  isChangeOpen={autoLogic.isChangeOpen}
+                  setIsChangeOpen={autoLogic.setIsChangeOpen}
                   isEquipOpen={autoLogic.isEquipOpen}
                   setIsEquipOpen={autoLogic.setIsEquipOpen}
                   isVolOpen={autoLogic.isVolOpen}

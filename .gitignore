@@ -17,6 +17,7 @@ Thumbs.db
 # Environment variables
 .env*
 !.env.example
+!.env.production
 
 # Native platform build caches (preserving project configs & synced assets)
 .gradle/
@@ -25,3 +26,5 @@ ios/App/Pods/
 ios/App/build/
 ios/App/.symlinks/
 *.traineddata
+*.jks
+*.keystore

@@ -1,19 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import { CheckCircle2, X } from 'lucide-react';
 import { MainAppLayout } from './MainAppLayout';
-import { useThemeStore } from './stores/useThemeStore';
+import { lockDarkTheme } from './utils/lockDarkTheme';
 import { useAuthStore } from './stores/useAuthStore';
 import { initMidnightRolloverListener } from './utils/midnightRollover';
 import { SubscriptionProvider } from './context/SubscriptionContext';
 import { AuthProvider } from './context/AuthContext';
 import { ClubPassPaywallModal } from './features/membership/components/ClubPassPaywallModal';
-import { ProAccessModal } from './components/modals/ProAccessModal';
 import { OnboardingCoordinator } from './features/onboarding/OnboardingCoordinator';
 import { revenueCatService } from './services/revenueCatService';
 import { tactileEngine } from './services/tactileEngine';
 import { safeStorage } from './utils/safeStorage';
-import { App as CapApp } from '@capacitor/app';
-import { supabase } from './services/supabaseClient';
+import { Capacitor } from '@capacitor/core';
+import { applyAuthCallbackUrl } from './services/oauthDeepLink';
+import { AppErrorBoundary } from './components/common/AppErrorBoundary';
 
 export default function App() {
   const [showOnboarding, setShowOnboarding] = useState(() => {
@@ -21,13 +21,17 @@ export default function App() {
     const hasAuth = Boolean(safeStorage.getItem('o1fc_user_id'));
     return !isCompleted || !hasAuth;
   });
-  const [showProAccess, setShowProAccess] = useState(false);
+  const [onboardingReplay, setOnboardingReplay] = useState(false);
   const [membershipSuccessBanner, setMembershipSuccessBanner] = useState(false);
 
   useEffect(() => {
-    useThemeStore.getState().initTheme();
+    lockDarkTheme();
     useAuthStore.getState().initialize();
     const cleanupRollover = initMidnightRolloverListener();
+    const storedUserId = safeStorage.getItem('o1fc_user_id');
+    if (typeof storedUserId === 'string' && storedUserId) {
+      revenueCatService.init(storedUserId).catch(() => null);
+    }
 
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
@@ -71,59 +75,71 @@ export default function App() {
       window.addEventListener('popstate', handlePopState);
       window.addEventListener('hashchange', handlePopState);
 
-      const handleRelaunch = () => setShowOnboarding(true);
+      const handleRelaunch = () => {
+        const hasAuth = Boolean(safeStorage.getItem('o1fc_user_id'));
+        setOnboardingReplay(hasAuth);
+        setShowOnboarding(true);
+      };
       window.addEventListener('o1fc_relaunch_onboarding', handleRelaunch);
       window.addEventListener('o1fc_account_deleted', handleRelaunch);
 
-      // Capacitor native deep link OAuth listener
       const handleAuthUrl = async (url: string) => {
         if (!url) return;
         try {
-          if (url.includes('access_token')) {
-            const hash = url.split('#')[1] || url.split('?')[1];
-            if (hash) {
-              const params = new URLSearchParams(hash);
-              const access_token = params.get('access_token');
-              const refresh_token = params.get('refresh_token');
-              if (access_token) {
-                const { data, error } = await supabase.auth.setSession({
-                  access_token,
-                  refresh_token: refresh_token || '',
-                });
-
-                if (!error && data?.session?.user) {
-                  safeStorage.setItem('o1fc_user_id', data.session.user.id);
-                  if (data.session.user.email) safeStorage.setItem('o1fc_user_email', data.session.user.email);
-                  safeStorage.setItem('o1fc_onboarding_completed', 'true');
-                  setShowOnboarding(false);
-                  tactileEngine.playPRCelebration();
-                }
-              }
+          const ok = await applyAuthCallbackUrl(url);
+          if (ok) {
+            if (safeStorage.getItem('o1fc_onboarding_completed') === 'true' || safeStorage.getItem('olfc_onboarding_completed') === 'true') {
+              setShowOnboarding(false);
             }
+            tactileEngine.playPRCelebration();
           }
         } catch (err) {
           console.warn('[App] Error handling OAuth deep link session:', err);
         }
       };
 
-      let appUrlListenerHandle: { remove: () => void } | null = null;
-      CapApp.addListener('appUrlOpen', async ({ url }) => {
-        if (url) {
-          await handleAuthUrl(url);
-        }
-      }).then((handle) => {
-        appUrlListenerHandle = handle;
-      }).catch(() => null);
+      const webHref = window.location.href;
+      if (webHref.includes('access_token') || webHref.includes('code=')) {
+        handleAuthUrl(webHref).then(() => {
+          try {
+            window.history.replaceState({}, document.title, window.location.pathname);
+          } catch {
+            /* ignore */
+          }
+        });
+      }
 
-      CapApp.getLaunchUrl().then((launch) => {
-        if (launch?.url) {
-          handleAuthUrl(launch.url);
-        }
-      }).catch(() => null);
+      let appUrlListenerHandle: { remove: () => Promise<void> } | null = null;
+      if (Capacitor.isNativePlatform()) {
+        import('@capacitor/app')
+          .then(({ App: CapApp }) => {
+            CapApp.addListener('appUrlOpen', async ({ url }) => {
+              if (url) await handleAuthUrl(url);
+            }).then((handle) => {
+              appUrlListenerHandle = handle;
+            }).catch((err) => {
+              console.warn('[App] appUrlOpen listener unavailable:', err);
+            });
+            CapApp.getLaunchUrl().then((launch) => {
+              if (launch?.url) handleAuthUrl(launch.url);
+            }).catch((err) => {
+              console.warn('[App] getLaunchUrl unavailable:', err);
+            });
+          })
+          .catch((err) => {
+            console.warn('[App] @capacitor/app skipped on web:', err);
+          });
+      }
 
       return () => {
         cleanupRollover();
-        appUrlListenerHandle?.remove();
+        if (Capacitor.isNativePlatform()) {
+          try {
+            appUrlListenerHandle?.remove();
+          } catch (err) {
+            console.warn('[App] appUrlOpen listener cleanup skipped:', err);
+          }
+        }
         window.removeEventListener('click', handleGlobalLinkClicks);
         window.removeEventListener('popstate', handlePopState);
         window.removeEventListener('hashchange', handlePopState);
@@ -135,26 +151,31 @@ export default function App() {
   }, []);
 
   return (
+    <AppErrorBoundary>
+    <div className="min-h-screen w-full overflow-x-hidden relative bg-black">
     <AuthProvider>
       <SubscriptionProvider>
         <MainAppLayout />
         <ClubPassPaywallModal />
-        <ProAccessModal isOpen={showProAccess} onClose={() => setShowProAccess(false)} />
         {showOnboarding && (
           <OnboardingCoordinator
+            replay={onboardingReplay}
             onComplete={() => {
               setShowOnboarding(false);
-              setShowProAccess(true);
+              if (!onboardingReplay) {
+                window.dispatchEvent(new CustomEvent('o1fc_open_paywall', { detail: 'Club Pass Pro' }));
+              }
+              setOnboardingReplay(false);
             }}
           />
         )}
         {membershipSuccessBanner && (
-          <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 w-[92%] max-w-sm bg-[#080808] border border-[#D4AF37] rounded-2xl p-4 shadow-[0_0_30px_-5px_rgba(212,175,55,0.4)] flex items-center justify-between gap-3 animate-in fade-in slide-in-from-top-4 duration-200">
+          <div className="fixed top-[max(1rem,env(safe-area-inset-top))] left-1/2 -translate-x-1/2 z-50 w-full max-w-[420px] px-4 bg-o1-card border border-white/[0.07] rounded-2xl p-4 shadow-lg flex items-center justify-between gap-3 animate-in fade-in slide-in-from-top-4 duration-200">
             <div className="flex items-center gap-2.5">
-              <CheckCircle2 className="w-5 h-5 text-[#F5D061] shrink-0" />
+              <CheckCircle2 className="w-5 h-5 text-zinc-300 shrink-0" />
               <div>
                 <p className="text-xs font-tactical font-black text-white uppercase tracking-wider">MEMBERSHIP ACTIVATED</p>
-                <p className="text-[10px] font-mono text-[#D4AF37]">REVENUECAT IN-APP PURCHASE VERIFIED</p>
+                <p className="text-[10px] font-mono text-zinc-400">REVENUECAT IN-APP PURCHASE VERIFIED</p>
               </div>
             </div>
             <button onClick={() => setMembershipSuccessBanner(false)} className="p-1 text-neutral-400 hover:text-white rounded-full cursor-pointer">
@@ -164,5 +185,7 @@ export default function App() {
         )}
       </SubscriptionProvider>
     </AuthProvider>
+    </div>
+    </AppErrorBoundary>
   );
 }

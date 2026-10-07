@@ -40,23 +40,23 @@ export const AddClientModal: React.FC<AddClientModalProps> = ({ isOpen, onClose,
 
   return (
     <div
-      className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-150"
+      className="fixed inset-0 z-50 bg-black/70 o1-sheet-scrim flex items-center justify-center animate-in fade-in duration-150"
       onClick={onClose}
     >
       <div
-        className="w-full max-w-sm bg-white dark:bg-[#121214] border border-neutral-200 dark:border-neutral-800 rounded-3xl p-5 shadow-2xl space-y-4"
+        className="o1-sheet-card w-full bg-o1-card border border-white/[0.07] p-5 shadow-xl space-y-4 overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between pb-3 border-b border-neutral-200 dark:border-neutral-800">
+        <div className="flex items-center justify-between pb-3 border-b border-white/[0.05]">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-[#C4121A]/10 border border-[#C4121A]/30 flex items-center justify-center text-[#C4121A]">
+            <div className="w-8 h-8 rounded-full bg-o1-crimson/10 border border-o1-crimson/30 flex items-center justify-center text-o1-crimson">
               <UserPlus className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="text-xs font-bold uppercase tracking-wider text-neutral-900 dark:text-white">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-white">
                 Add Client to Roster
               </h3>
-              <p className="text-[10px] text-neutral-500 dark:text-neutral-400 font-mono">
+              <p className="text-[10px] text-neutral-400 font-mono">
                 Direct athlete roster enrollment
               </p>
             </div>
@@ -64,7 +64,7 @@ export const AddClientModal: React.FC<AddClientModalProps> = ({ isOpen, onClose,
           <button
             type="button"
             onClick={onClose}
-            className="w-7 h-7 rounded-full bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center text-neutral-500 hover:text-neutral-900 dark:hover:text-white cursor-pointer"
+            className="w-7 h-7 rounded-full bg-white/[0.08] flex items-center justify-center text-neutral-500 hover:text-white cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -72,7 +72,7 @@ export const AddClientModal: React.FC<AddClientModalProps> = ({ isOpen, onClose,
 
         <form onSubmit={handleSubmit} className="space-y-3">
           <div>
-            <label className="block text-[11px] font-mono text-neutral-600 dark:text-neutral-400 mb-1">
+            <label className="block text-[11px] font-mono text-neutral-400 mb-1">
               Athlete Full Name *
             </label>
             <input
@@ -81,12 +81,12 @@ export const AddClientModal: React.FC<AddClientModalProps> = ({ isOpen, onClose,
               placeholder="e.g. Jordan Hayes"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full px-3 py-2 rounded-xl bg-neutral-100 dark:bg-[#18181b] border border-neutral-200 dark:border-neutral-800 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-[#C4121A]"
+              className="w-full px-3 py-2 rounded-xl bg-o1-well border border-white/[0.07] text-xs text-white focus:outline-none focus:border-o1-crimson"
             />
           </div>
 
           <div>
-            <label className="block text-[11px] font-mono text-neutral-600 dark:text-neutral-400 mb-1">
+            <label className="block text-[11px] font-mono text-neutral-400 mb-1">
               Athlete Handle (Optional)
             </label>
             <input
@@ -94,14 +94,14 @@ export const AddClientModal: React.FC<AddClientModalProps> = ({ isOpen, onClose,
               placeholder="@jordanhayes"
               value={handle}
               onChange={(e) => setHandle(e.target.value)}
-              className="w-full px-3 py-2 rounded-xl bg-neutral-100 dark:bg-[#18181b] border border-neutral-200 dark:border-neutral-800 text-xs text-neutral-900 dark:text-white focus:outline-none focus:border-[#C4121A]"
+              className="w-full px-3 py-2 rounded-xl bg-o1-well border border-white/[0.07] text-xs text-white focus:outline-none focus:border-o1-crimson"
             />
           </div>
 
           <div className="pt-2">
             <button
               type="submit"
-              className="w-full py-3 rounded-xl bg-[#C4121A] text-white text-xs font-bold uppercase tracking-wider hover:bg-[#A30F16] active:scale-95 transition flex items-center justify-center gap-1.5 cursor-pointer"
+              className="w-full py-2.5 rounded-xl bg-zinc-100 text-neutral-950 text-xs font-semibold tracking-wide hover:opacity-90 active:scale-[0.98] transition flex items-center justify-center gap-1.5 cursor-pointer"
             >
               <Plus className="w-4 h-4 stroke-[2.5]" />
               <span>Enroll in Roster</span>

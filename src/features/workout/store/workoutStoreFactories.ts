@@ -1,7 +1,9 @@
 import { ExerciseItem } from '../../../types';
 import { MobilityExercise } from '../../../data/recoveryRoutines';
+import { defaultEmptyLoadKg } from '../../../utils/defaultEmptyLoad';
 
 export const createSevenWorkouts = (programTitle: string): ExerciseItem[] => {
+  const bar = defaultEmptyLoadKg('barbell');
   return [
     {
       id: `prog-${Date.now()}-1`,
@@ -9,9 +11,9 @@ export const createSevenWorkouts = (programTitle: string): ExerciseItem[] => {
       targetMuscle: 'Target Chain',
       restSecs: 90,
       sets: [
-        { setNumber: 1, weightKg: 0, reps: 0, rpe: 8.0, completed: false },
-        { setNumber: 2, weightKg: 0, reps: 0, rpe: 8.5, completed: false },
-        { setNumber: 3, weightKg: 0, reps: 0, rpe: 9.0, completed: false },
+        { setNumber: 1, weightKg: bar, reps: 0, rpe: 8.0, completed: false },
+        { setNumber: 2, weightKg: bar, reps: 0, rpe: 8.5, completed: false },
+        { setNumber: 3, weightKg: bar, reps: 0, rpe: 9.0, completed: false },
       ],
     },
     {
@@ -20,8 +22,8 @@ export const createSevenWorkouts = (programTitle: string): ExerciseItem[] => {
       targetMuscle: 'Eccentric & Stabilizers',
       restSecs: 75,
       sets: [
-        { setNumber: 1, weightKg: 0, reps: 0, rpe: 8.0, completed: false },
-        { setNumber: 2, weightKg: 0, reps: 0, rpe: 8.5, completed: false },
+        { setNumber: 1, weightKg: bar, reps: 0, rpe: 8.0, completed: false },
+        { setNumber: 2, weightKg: bar, reps: 0, rpe: 8.5, completed: false },
       ],
     },
     {
@@ -30,8 +32,8 @@ export const createSevenWorkouts = (programTitle: string): ExerciseItem[] => {
       targetMuscle: 'Peak Tension',
       restSecs: 60,
       sets: [
-        { setNumber: 1, weightKg: 0, reps: 0, rpe: 8.5, completed: false },
-        { setNumber: 2, weightKg: 0, reps: 0, rpe: 9.0, completed: false },
+        { setNumber: 1, weightKg: bar, reps: 0, rpe: 8.5, completed: false },
+        { setNumber: 2, weightKg: bar, reps: 0, rpe: 9.0, completed: false },
       ],
     },
     {
@@ -40,7 +42,7 @@ export const createSevenWorkouts = (programTitle: string): ExerciseItem[] => {
       targetMuscle: 'Metabolic Flush',
       restSecs: 60,
       sets: [
-        { setNumber: 1, weightKg: 0, reps: 0, rpe: 9.5, completed: false },
+        { setNumber: 1, weightKg: bar, reps: 0, rpe: 9.5, completed: false },
       ],
     },
   ];

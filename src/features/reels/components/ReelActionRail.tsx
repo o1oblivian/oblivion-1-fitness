@@ -108,7 +108,7 @@ export const ReelActionRail: React.FC<ReelActionRailProps> = ({
           {addedExercises[activeReel.id] ? (
             <Check className="w-5.5 h-5.5 text-emerald-400/90 stroke-[1.6]" />
           ) : (
-            <Plus className="w-5.5 h-5.5 text-[#C4121A]/90 stroke-[1.6]" />
+            <Plus className="w-5.5 h-5.5 text-o1-crimson/90 stroke-[1.6]" />
           )}
         </div>
         <span className="text-[10px] font-sans font-normal text-white/75 drop-shadow-[0_1px_2px_rgba(0,0,0,0.85)]">

@@ -2,11 +2,14 @@ import { create } from 'zustand';
 import { supabase } from '../../../services/supabaseClient';
 import { useTelemetryHistoryStore } from '../../log/store/useTelemetryHistoryStore';
 import { DayStrainDetail, EMPTY_MICROCYCLE_DAYS } from '../components/microcycle/microcycleTypes';
+import { computeAcwr, weekCompletionPct, AcwrSnapshot } from '../../../utils/acwrMath';
+import { getAuthenticatedUserId } from '../../../services/authUser';
 
 export interface MicrocycleStoreState {
   activeDays: DayStrainDetail[];
   isLoading: boolean;
   activeIsoWeekDates: { dayLabel: string; dateKey: string; dayIndex: number }[];
+  acwr: AcwrSnapshot;
   refreshFromSupabase: () => Promise<void>;
   updateDayVolumeOptimistic: (dateKey: string, tonnage: number, setsCount: number, title?: string) => void;
 }
@@ -28,10 +31,20 @@ export function computeIsoWeekDates(): { dayLabel: string; dateKey: string; dayI
   });
 }
 
+const EMPTY_ACWR: AcwrSnapshot = { acuteKg: 0, chronicKg: 0, ratio: null, label: '--', completionPct: null, calibrating: true, historyDays: 0 };
+
+function dateKeyOffset(daysBack: number): string {
+  const d = new Date();
+  d.setHours(0, 0, 0, 0);
+  d.setDate(d.getDate() - daysBack);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
 export const useMicrocycleStore = create<MicrocycleStoreState>((set, get) => ({
   activeDays: EMPTY_MICROCYCLE_DAYS.map((d) => ({ ...d })),
   isLoading: false,
   activeIsoWeekDates: computeIsoWeekDates(),
+  acwr: EMPTY_ACWR,
 
   updateDayVolumeOptimistic: (dateKey: string, tonnage: number, setsCount: number, title?: string) => {
     const dates = get().activeIsoWeekDates;
@@ -59,14 +72,22 @@ export const useMicrocycleStore = create<MicrocycleStoreState>((set, get) => ({
   refreshFromSupabase: async () => {
     set({ isLoading: true });
     try {
+      const uid = await getAuthenticatedUserId();
       const dates = computeIsoWeekDates();
       const startIso = `${dates[0].dateKey}T00:00:00.000Z`;
       const endIso = `${dates[6].dateKey}T23:59:59.999Z`;
+      const chronicStart = `${dateKeyOffset(27)}T00:00:00.000Z`;
 
-      const [{ data: logRows }, { data: sessionRows }] = await Promise.all([
-        supabase.from('workout_logs').select('weight_kg, reps, created_at').gte('created_at', startIso).lte('created_at', endIso),
-        supabase.from('completed_sessions').select('tonnage_kg, total_sets, title, completed_at, created_at').gte('created_at', startIso).lte('created_at', endIso),
-      ]);
+      let logRows: any[] = [];
+      let sessionRows: any[] = [];
+      if (uid) {
+        const [logsRes, sessRes] = await Promise.all([
+          supabase.from('workout_logs').select('weight_kg, reps, created_at, user_id').eq('user_id', uid).gte('created_at', startIso).lte('created_at', endIso),
+          supabase.from('completed_sessions').select('tonnage_kg, total_sets, title, completed_at, created_at, user_id').eq('user_id', uid).gte('created_at', chronicStart).lte('created_at', endIso),
+        ]);
+        logRows = Array.isArray(logsRes.data) ? logsRes.data : [];
+        sessionRows = Array.isArray(sessRes.data) ? sessRes.data : [];
+      }
 
       const historyByDate = useTelemetryHistoryStore.getState().historyByDate;
       const computed = EMPTY_MICROCYCLE_DAYS.map((baseDay, idx) => {
@@ -97,7 +118,25 @@ export const useMicrocycleStore = create<MicrocycleStoreState>((set, get) => ({
         };
       });
 
-      set({ activeDays: computed, activeIsoWeekDates: dates, isLoading: false });
+      const historyByDateAll = useTelemetryHistoryStore.getState().historyByDate;
+      const daily28 = Array.from({ length: 28 }, (_, i) => {
+        const key = dateKeyOffset(27 - i);
+        const hist = historyByDateAll[key]?.workout;
+        const histVol = hist?.hasData ? Number(hist.tonnageKg || 0) : 0;
+        const sessVol = Array.isArray(sessionRows)
+          ? sessionRows
+              .filter((s: any) => (s.completed_at || s.created_at)?.startsWith(key))
+              .reduce((acc: number, s: any) => acc + (Number(s.tonnage_kg) || 0), 0)
+          : 0;
+        return Math.max(histVol, sessVol);
+      });
+      const isoDay = new Date().getDay() === 0 ? 7 : new Date().getDay();
+      const acwr = {
+        ...computeAcwr(daily28),
+        completionPct: weekCompletionPct(computed.map((d) => d.volume), isoDay),
+      };
+
+      set({ activeDays: computed, activeIsoWeekDates: dates, acwr, isLoading: false });
     } catch (err) {
       console.warn('[MicrocycleStore] Sync notice:', err);
       set({ isLoading: false });

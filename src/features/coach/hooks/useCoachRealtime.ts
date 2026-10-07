@@ -12,7 +12,7 @@ import { tactileEngine } from '../../../services/tactileEngine';
 const isValidUuid = (val?: string | null): boolean =>
   Boolean(val && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(val));
 
-export function useCoachRealtime(coachId: string = 'coach_alpha') {
+export function useCoachRealtime(coachId: string = '') {
   const athletes = useCoachStore((s) => s.athletes);
   const finishNotifications = useCoachStore((s) => s.finishNotifications);
   const finishedWorkouts = useCoachStore((s) => s.finishedWorkouts);

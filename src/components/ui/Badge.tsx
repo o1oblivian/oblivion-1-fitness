@@ -48,82 +48,23 @@ export const Badge: React.FC<BadgeProps> = ({
     lg: 'text-[11.5px] px-3.5 py-1.5 tracking-wider gap-2',
   }[size];
 
+  const quietChip = 'bg-o1-well text-zinc-400 border-white/[0.07]';
   const variantClasses: Record<BadgeVariant, { container: string; beacon: string; ping: string }> = {
-    ruby: {
-      container: 'bg-[#C4121A] text-white border-transparent shadow-xs',
-      beacon: 'bg-white',
-      ping: 'bg-white',
-    },
-    'neon-ruby': {
-      container: 'bg-red-950/60 text-red-400 border-red-800/60 shadow-xs',
-      beacon: 'bg-red-500',
-      ping: 'bg-red-400',
-    },
-    cyan: {
-      container: 'bg-cyan-950/60 text-cyan-400 border-cyan-800/60 shadow-xs',
-      beacon: 'bg-cyan-400',
-      ping: 'bg-cyan-300',
-    },
-    'cyber-cyan': {
-      container: 'bg-[#06b6d4] text-black font-black border-transparent shadow-xs',
-      beacon: 'bg-black',
-      ping: 'bg-cyan-200',
-    },
-    'natural-green': {
-      container: 'bg-green-950/60 text-green-400 border-green-800/60 shadow-xs',
-      beacon: 'bg-green-500',
-      ping: 'bg-green-400',
-    },
-    green: {
-      container: 'bg-green-950/60 text-green-400 border-green-800/60 shadow-xs',
-      beacon: 'bg-green-500',
-      ping: 'bg-green-400',
-    },
-    jade: {
-      container: 'bg-[#16a34a] text-white font-black border-transparent shadow-xs',
-      beacon: 'bg-black',
-      ping: 'bg-green-300',
-    },
-    amber: {
-      container: 'bg-amber-950/60 text-amber-400 border-amber-800/60 shadow-xs',
-      beacon: 'bg-amber-400',
-      ping: 'bg-amber-300',
-    },
-    'amber-warn': {
-      container: 'bg-[#f59e0b] text-black font-black border-transparent shadow-xs',
-      beacon: 'bg-black',
-      ping: 'bg-amber-300',
-    },
-    gold: {
-      container: 'bg-amber-400 text-black font-black border-amber-300 shadow-xs',
-      beacon: 'bg-black',
-      ping: 'bg-yellow-300',
-    },
-    amethyst: {
-      container: 'bg-purple-950/60 text-purple-400 border-purple-800/60 shadow-xs',
-      beacon: 'bg-purple-400',
-      ping: 'bg-purple-300',
-    },
-    violet: {
-      container: 'bg-[#8b5cf6] text-white border-transparent shadow-xs',
-      beacon: 'bg-white',
-      ping: 'bg-violet-300',
-    },
-    titanium: {
-      container: 'bg-neutral-800 text-neutral-300 border-neutral-700 shadow-xs',
-      beacon: 'bg-neutral-400',
-      ping: 'bg-neutral-300',
-    },
-    'stealth-gray': {
-      container: 'bg-neutral-900/80 text-neutral-400 border-neutral-800 shadow-xs',
-      beacon: 'bg-neutral-500',
-      ping: 'bg-neutral-400',
-    },
-    'live-pulse': {
-      container: 'bg-red-950/80 text-red-400 border-red-800/80 shadow-xs',
-      beacon: 'bg-red-500',
-      ping: 'bg-red-500',
-    },
+    ruby: { container: quietChip, beacon: 'bg-zinc-400', ping: 'bg-zinc-500' },
+    'neon-ruby': { container: quietChip, beacon: 'bg-zinc-400', ping: 'bg-zinc-500' },
+    cyan: { container: quietChip, beacon: 'bg-zinc-400', ping: 'bg-zinc-500' },
+    'cyber-cyan': { container: quietChip, beacon: 'bg-zinc-400', ping: 'bg-zinc-500' },
+    'natural-green': { container: quietChip, beacon: 'bg-zinc-400', ping: 'bg-zinc-500' },
+    green: { container: quietChip, beacon: 'bg-zinc-400', ping: 'bg-zinc-500' },
+    jade: { container: quietChip, beacon: 'bg-zinc-400', ping: 'bg-zinc-500' },
+    amber: { container: quietChip, beacon: 'bg-zinc-400', ping: 'bg-zinc-500' },
+    'amber-warn': { container: quietChip, beacon: 'bg-zinc-400', ping: 'bg-zinc-500' },
+    gold: { container: quietChip, beacon: 'bg-zinc-400', ping: 'bg-zinc-500' },
+    amethyst: { container: quietChip, beacon: 'bg-zinc-400', ping: 'bg-zinc-500' },
+    violet: { container: quietChip, beacon: 'bg-zinc-400', ping: 'bg-zinc-500' },
+    titanium: { container: quietChip, beacon: 'bg-zinc-400', ping: 'bg-zinc-500' },
+    'stealth-gray': { container: quietChip, beacon: 'bg-zinc-400', ping: 'bg-zinc-500' },
+    'live-pulse': { container: quietChip, beacon: 'bg-zinc-400', ping: 'bg-zinc-500' },
   };
 
   const selected = variantClasses[variant] || variantClasses.cyan;

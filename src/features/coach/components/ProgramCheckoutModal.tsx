@@ -62,13 +62,13 @@ export const ProgramCheckoutModal: React.FC<ProgramCheckoutModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/85 backdrop-blur-md select-none animate-in fade-in duration-200">
-      <div className="w-full max-w-lg bg-[#09090b] border-t sm:border border-white/10 text-white rounded-t-3xl sm:rounded-3xl flex flex-col max-h-[94vh] shadow-2xl overflow-hidden animate-in slide-in-from-bottom duration-300">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 o1-sheet-scrim select-none animate-in fade-in duration-200">
+      <div className="o1-sheet-card w-full bg-black border border-white/[0.07] text-white flex flex-col shadow-xl overflow-hidden">
         
         {/* Top Header */}
-        <div className="p-3.5 px-4 border-b border-white/10 bg-[#09090b]/90 backdrop-blur-md flex items-center justify-between shrink-0">
+        <div className="p-3.5 px-4 border-b border-white/[0.05] bg-black/90 backdrop-blur-md flex items-center justify-between shrink-0">
           <div className="flex items-center gap-2">
-            <ShoppingBag className="w-4 h-4 text-[#C4121A]" />
+            <ShoppingBag className="w-4 h-4 text-o1-crimson" />
             <span className="font-tactical font-black text-xs uppercase tracking-[0.16em] text-white">
               COACH PROGRAM ENROLLMENT
             </span>
@@ -79,7 +79,7 @@ export const ProgramCheckoutModal: React.FC<ProgramCheckoutModalProps> = ({
               tactileEngine.triggerSelectionBuzz();
               onClose();
             }}
-            className="p-1.5 rounded-xl bg-white/5 border border-white/10 text-neutral-400 hover:text-white transition cursor-pointer"
+            className="p-1.5 rounded-xl bg-white/5 border border-white/[0.07] text-neutral-400 hover:text-white transition cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -89,7 +89,7 @@ export const ProgramCheckoutModal: React.FC<ProgramCheckoutModalProps> = ({
         <div className="p-4 sm:p-5 overflow-y-auto overflow-x-hidden space-y-4 flex-1 no-scrollbar">
 
           {/* 1. Masterclass Program Specular Header */}
-          <div className="relative rounded-2xl overflow-hidden aspect-[16/9] w-full bg-neutral-900 border border-white/10 group">
+          <div className="relative rounded-2xl overflow-hidden aspect-[16/9] w-full bg-o1-well border border-white/[0.07] group">
             {isPlayingVideoTeaser ? (
               <video
                 src={
@@ -112,15 +112,15 @@ export const ProgramCheckoutModal: React.FC<ProgramCheckoutModalProps> = ({
 
                 {/* Badges Overlay */}
                 <div className="absolute top-3 left-3 flex items-center gap-1.5">
-                  <span className="px-2.5 py-0.5 rounded-full bg-black/70 backdrop-blur-md border border-white/15 text-[10px] font-mono font-bold text-white uppercase">
+                  <span className="px-2.5 py-0.5 rounded-full bg-black/70 backdrop-blur-md border border-white/[0.07] text-[10px] font-mono font-bold text-white uppercase">
                     {program.category}
                   </span>
-                  <span className="px-2 py-0.5 rounded-full bg-[#C4121A] text-[9.5px] font-mono font-bold text-white uppercase">
+                  <span className="px-2 py-0.5 rounded-full bg-o1-crimson text-[9.5px] font-mono font-bold text-white uppercase">
                     {program.difficulty}
                   </span>
                 </div>
 
-                <div className="absolute top-3 right-3 flex items-center gap-1 px-2.5 py-1 rounded-full bg-black/70 backdrop-blur-md border border-white/15 text-amber-400 text-xs font-mono font-bold">
+                <div className="absolute top-3 right-3 flex items-center gap-1 px-2.5 py-1 rounded-full bg-black/70 backdrop-blur-md border border-white/[0.07] text-amber-400 text-xs font-mono font-bold">
                   <Star className="w-3.5 h-3.5 fill-current" />
                   <span>{program.rating.toFixed(2)}</span>
                   <span className="text-neutral-400 text-[10px]">({program.enrolledCount})</span>
@@ -133,7 +133,7 @@ export const ProgramCheckoutModal: React.FC<ProgramCheckoutModalProps> = ({
                     tactileEngine.triggerImpactPulse();
                     setIsPlayingVideoTeaser(true);
                   }}
-                  className="absolute bottom-3 left-3 flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/75 backdrop-blur-md border border-white/20 text-white text-[10px] font-tactical font-bold uppercase tracking-wider hover:bg-[#C4121A] transition-all cursor-pointer shadow-lg active:scale-95"
+                  className="absolute bottom-3 left-3 flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/75 backdrop-blur-md border border-white/[0.07] text-white text-[10px] font-tactical font-bold uppercase tracking-wider hover:bg-o1-crimson transition-all cursor-pointer shadow-lg active:scale-95"
                 >
                   <Play className="w-3 h-3 fill-white translate-x-[0.5px]" />
                   <span>WATCH MOVEMENT TEASER</span>
@@ -155,11 +155,11 @@ export const ProgramCheckoutModal: React.FC<ProgramCheckoutModalProps> = ({
           {/* 2. THE TRUST ANCHOR: INTERACTIVE COACH IDENTITY STRIP (TAPS TO FULL PROFILE IN REELS) */}
           <div
             onClick={handleCoachClick}
-            className="group p-3 rounded-2xl bg-[#121214] border border-white/10 hover:border-[#C4121A]/60 flex items-center justify-between gap-3 transition-all cursor-pointer shadow-sm active:scale-[0.99]"
+            className="group p-3 rounded-2xl bg-o1-card border border-white/[0.07] hover:border-o1-crimson/60 flex items-center justify-between gap-3 transition-all cursor-pointer shadow-sm active:scale-[0.99]"
           >
             <div className="flex items-center gap-3 min-w-0">
               <div className="relative">
-                <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-[#C4121A] shrink-0 bg-neutral-800">
+                <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-o1-crimson shrink-0 bg-white/[0.08]">
                   <img
                     src={
                       program.coachAvatar ||
@@ -169,18 +169,18 @@ export const ProgramCheckoutModal: React.FC<ProgramCheckoutModalProps> = ({
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                   />
                 </div>
-                <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-cyan-500 border-2 border-[#121214] flex items-center justify-center text-white">
+                <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-sky-500 border-2 border-white/[0.07] flex items-center justify-center text-white">
                   <Check className="w-2.5 h-2.5 stroke-[3]" />
                 </div>
               </div>
 
               <div className="min-w-0">
                 <div className="flex items-center gap-1.5">
-                  <span className="text-[9.5px] font-mono font-bold text-[#C4121A] uppercase tracking-wider">
+                  <span className="text-[9.5px] font-mono font-bold text-o1-crimson uppercase tracking-wider">
                     HEAD PROTOCOL DESIGNER
                   </span>
                 </div>
-                <h4 className="text-sm font-tactical font-bold text-white group-hover:text-[#C4121A] transition-colors truncate">
+                <h4 className="text-sm font-tactical font-bold text-white group-hover:text-o1-crimson transition-colors truncate">
                   Coach {program.coachName}
                 </h4>
                 <span className="text-[10px] font-mono text-neutral-400 block truncate">
@@ -191,21 +191,21 @@ export const ProgramCheckoutModal: React.FC<ProgramCheckoutModalProps> = ({
 
             <button
               type="button"
-              className="px-2.5 py-1.5 rounded-xl bg-white/5 border border-white/10 group-hover:border-[#C4121A]/40 text-neutral-300 group-hover:text-white text-[10px] font-mono font-bold uppercase shrink-0 transition"
+              className="px-2.5 py-1.5 rounded-xl bg-white/5 border border-white/[0.07] group-hover:border-o1-crimson/40 text-neutral-300 group-hover:text-white text-[10px] font-mono font-bold uppercase shrink-0 transition"
             >
               PROFILE ↗
             </button>
           </div>
 
           {/* 3. Program Specifications Checklist */}
-          <div className="p-3.5 rounded-2xl bg-[#121214] border border-white/10 space-y-2">
+          <div className="p-3.5 rounded-2xl bg-o1-card border border-white/[0.07] space-y-2">
             <span className="text-[10px] font-tactical font-bold text-neutral-400 uppercase tracking-wider block">
               PROTOCOL SPECIFICATIONS
             </span>
             <div className="space-y-1.5">
               {program.highlights.map((h, i) => (
                 <div key={i} className="flex items-start gap-2 text-xs font-sans text-neutral-300">
-                  <Check className="w-3.5 h-3.5 text-green-400 shrink-0 mt-0.5" />
+                  <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
                   <span>{h}</span>
                 </div>
               ))}
@@ -236,8 +236,8 @@ export const ProgramCheckoutModal: React.FC<ProgramCheckoutModalProps> = ({
                     }}
                     className={`px-3 py-1.5 rounded-xl text-xs font-mono font-bold tracking-tight whitespace-nowrap border transition-all cursor-pointer ${
                       selectedDayPreview === idx
-                        ? 'bg-[#C4121A] text-white border-[#C4121A]'
-                        : 'bg-white/5 text-neutral-400 border-white/10 hover:text-white'
+                        ? 'bg-o1-crimson text-white border-o1-crimson'
+                        : 'bg-white/5 text-neutral-400 border-white/[0.07] hover:text-white'
                     }`}
                   >
                     {day.dayName}
@@ -247,7 +247,7 @@ export const ProgramCheckoutModal: React.FC<ProgramCheckoutModalProps> = ({
 
               {/* Day Detail Box */}
               {program.sampleWeek[selectedDayPreview] && (
-                <div className="p-3 rounded-2xl bg-[#121214] border border-white/10 space-y-2">
+                <div className="p-3 rounded-2xl bg-o1-card border border-white/[0.07] space-y-2">
                   <div className="flex items-center justify-between text-xs font-mono">
                     <span className="font-bold text-white">
                       {program.sampleWeek[selectedDayPreview].focus}
@@ -261,7 +261,7 @@ export const ProgramCheckoutModal: React.FC<ProgramCheckoutModalProps> = ({
                     {program.sampleWeek[selectedDayPreview].exercises.map((ex, exIdx) => (
                       <div
                         key={exIdx}
-                        className="p-2 rounded-xl bg-black/40 border border-white/5 flex items-center justify-between text-xs"
+                        className="p-2 rounded-xl bg-black/40 border border-white/[0.07] flex items-center justify-between text-xs"
                       >
                         <div className="font-medium text-neutral-200">
                           {ex.name}
@@ -271,7 +271,7 @@ export const ProgramCheckoutModal: React.FC<ProgramCheckoutModalProps> = ({
                             </span>
                           )}
                         </div>
-                        <div className="text-[11px] font-mono text-[#C4121A] font-bold shrink-0 ml-2">
+                        <div className="text-[11px] font-mono text-o1-crimson font-bold shrink-0 ml-2">
                           {ex.sets} × {ex.reps}
                         </div>
                       </div>
@@ -283,13 +283,13 @@ export const ProgramCheckoutModal: React.FC<ProgramCheckoutModalProps> = ({
           )}
 
           {/* 5. Instant Dispatch & 10% Platform Trust Guarantee */}
-          <div className="p-3 rounded-2xl bg-green-950/40 border border-green-800/60 flex items-center gap-3">
-            <ShieldCheck className="w-5 h-5 text-green-400 shrink-0" />
+          <div className="p-3 rounded-2xl bg-emerald-950/40 border border-emerald-800/60 flex items-center gap-3">
+            <ShieldCheck className="w-5 h-5 text-emerald-400 shrink-0" />
             <div className="text-xs">
-              <span className="font-bold text-green-300 block">
+              <span className="font-bold text-emerald-300 block">
                 Instant Workout Tab Sync & 10% Club Guarantee
               </span>
-              <span className="text-[10px] text-green-400/80">
+              <span className="text-[10px] text-emerald-400/80">
                 Immediately unlocks all {program.durationWeeks} weeks and loads Day 1 into your Daily Active Log. Verified kinematic form cues included.
               </span>
             </div>
@@ -297,7 +297,7 @@ export const ProgramCheckoutModal: React.FC<ProgramCheckoutModalProps> = ({
         </div>
 
         {/* Footer Checkout Action */}
-        <div className="p-3.5 px-4 border-t border-white/10 bg-[#09090b] flex items-center justify-between gap-3 shrink-0">
+        <div className="p-3.5 px-4 border-t border-white/[0.05] bg-black flex items-center justify-between gap-3 shrink-0">
           <div>
             <span className="text-[9.5px] font-mono uppercase text-neutral-400 block">
               TOTAL ONE-TIME INVESTMENT
@@ -311,7 +311,7 @@ export const ProgramCheckoutModal: React.FC<ProgramCheckoutModalProps> = ({
             type="button"
             disabled={isProcessing}
             onClick={handleConfirmEnrollment}
-            className="flex-1 py-3 px-4 rounded-xl bg-[#C4121A] hover:bg-[#A30F16] active:scale-[0.98] text-white text-xs font-tactical font-black tracking-wider uppercase transition-all shadow-md cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50"
+            className="flex-1 py-3 px-4 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover active:scale-[0.98] text-white text-xs font-tactical font-black tracking-wider uppercase transition-all shadow-md cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50"
           >
             {isProcessing ? (
               <span>ENROLLING IN PROTOCOL...</span>

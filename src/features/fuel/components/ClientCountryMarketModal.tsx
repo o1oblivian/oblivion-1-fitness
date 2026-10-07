@@ -8,6 +8,10 @@ export interface CountryOption {
   flag: string;
 }
 
+export const FEATURED_MARKET_CODES = [
+  'AU', 'US', 'GB', 'CA', 'NZ', 'IN', 'JP', 'DE', 'FR', 'AE', 'BR', 'MX', 'ZA', 'SG', 'KR', 'IT',
+];
+
 export const COUNTRIES: CountryOption[] = [
   { code: 'GLOBAL', name: 'Global / All Markets', flag: '🌐' },
   { code: 'AF', name: 'Afghanistan', flag: '🇦🇫' },
@@ -196,14 +200,14 @@ export const ClientCountryMarketModal: React.FC<ClientCountryMarketModalProps> =
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-150 select-none">
-      <div className="w-full max-w-sm sm:max-w-md bg-white dark:bg-[#121214] border border-neutral-200/90 dark:border-neutral-800 rounded-3xl p-4 sm:p-5 shadow-2xl flex flex-col max-h-[82vh] space-y-3">
+    <div className="fixed inset-0 z-50 bg-black/70 o1-sheet-scrim flex items-center justify-center animate-in fade-in duration-150 select-none">
+      <div className="o1-sheet-card w-full bg-o1-card border border-white/[0.07] p-4 shadow-xl flex flex-col overflow-y-auto space-y-3">
         {/* Header */}
-        <div className="flex items-center justify-between pb-2 border-b border-neutral-100 dark:border-neutral-800/80">
+        <div className="flex items-center justify-between pb-2 border-b border-white/[0.05]">
           <div className="flex items-center gap-2">
-            <Globe className="w-5 h-5 text-[#C4121A] shrink-0" />
-            <h3 className="font-bold text-base text-neutral-900 dark:text-neutral-100">
-              Select Country Market
+            <Globe className="w-5 h-5 text-sky-400 shrink-0" />
+            <h3 className="font-semibold text-sm text-neutral-100">
+              Food market
             </h3>
           </div>
           <button
@@ -212,7 +216,7 @@ export const ClientCountryMarketModal: React.FC<ClientCountryMarketModalProps> =
               tactileEngine.triggerSelectionBuzz();
               onClose();
             }}
-            className="w-8 h-8 rounded-full bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 flex items-center justify-center text-neutral-700 dark:text-neutral-300 transition-colors cursor-pointer"
+            className="w-8 h-8 rounded-full bg-white/[0.08] hover:bg-neutral-700 flex items-center justify-center text-neutral-300 transition-colors cursor-pointer"
             aria-label="Close"
           >
             <X className="w-4 h-4 stroke-[2.5]" />
@@ -228,19 +232,48 @@ export const ClientCountryMarketModal: React.FC<ClientCountryMarketModalProps> =
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search country or code..."
             autoFocus
-            className="w-full h-8.5 pl-8.5 pr-8 rounded-xl bg-neutral-100 dark:bg-[#18181b] border border-neutral-200/80 dark:border-neutral-800 text-xs text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 focus:outline-none focus:border-[#C4121A] font-mono transition-colors"
+            className="w-full h-8.5 pl-8.5 pr-8 rounded-xl bg-o1-well border border-white/[0.07] text-xs text-neutral-100 placeholder-neutral-400 focus:outline-none focus:border-o1-crimson font-mono transition-colors"
           />
           {searchQuery && (
             <button
               type="button"
               onClick={() => setSearchQuery('')}
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-neutral-200 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-300 flex items-center justify-center cursor-pointer hover:bg-neutral-300"
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-neutral-700 text-neutral-300 flex items-center justify-center cursor-pointer hover:bg-neutral-300"
               title="Clear search"
             >
               <X className="w-2.5 h-2.5 stroke-[2.5]" />
             </button>
           )}
         </div>
+
+        {!searchQuery && (
+          <div className="grid grid-cols-8 gap-1.5">
+            {FEATURED_MARKET_CODES.map((code) => {
+              const c = COUNTRIES.find((x) => x.code === code);
+              if (!c) return null;
+              const isSelected = selectedCode.toUpperCase() === c.code;
+              return (
+                <button
+                  key={c.code}
+                  type="button"
+                  title={c.name}
+                  onClick={() => {
+                    tactileEngine.triggerSelectionBuzz();
+                    onSelect(c.code);
+                    onClose();
+                  }}
+                  className={`h-10 rounded-xl text-lg flex items-center justify-center border transition-all cursor-pointer ${
+                    isSelected
+                      ? 'border-sky-400/70 bg-sky-950/40'
+                      : 'border-white/[0.07] bg-o1-well'
+                  }`}
+                >
+                  {c.flag}
+                </button>
+              );
+            })}
+          </div>
+        )}
 
         {/* Country List */}
         <div className="overflow-y-auto space-y-1 pr-1 flex-1 my-1 max-h-[50vh]">
@@ -262,19 +295,19 @@ export const ClientCountryMarketModal: React.FC<ClientCountryMarketModalProps> =
                   }}
                   className={`w-full flex items-center justify-between px-3.5 py-2 rounded-xl transition-all text-left cursor-pointer active:scale-98 ${
                     isSelected
-                      ? 'bg-red-50 dark:bg-red-950/30 text-neutral-900 dark:text-neutral-100 font-semibold border border-red-200 dark:border-red-900/50'
-                      : 'text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800/60 font-medium'
+                      ? 'bg-sky-950/30 text-neutral-100 font-semibold border border-sky-900/50'
+                      : 'text-neutral-300 hover:bg-white/[0.06] font-medium'
                   }`}
                 >
                   <div className="flex items-center gap-2.5 min-w-0">
                     <span className="text-lg leading-none shrink-0">{c.flag}</span>
                     <span className="text-xs sm:text-sm font-medium truncate">{c.name}</span>
-                    <span className="text-[10px] font-mono text-neutral-400 dark:text-neutral-500 uppercase shrink-0">
+                    <span className="text-[10px] font-mono text-neutral-500 uppercase shrink-0">
                       {c.code}
                     </span>
                   </div>
                   {isSelected && (
-                    <div className="w-5 h-5 rounded-full bg-[#C4121A] flex items-center justify-center text-white shrink-0 ml-2">
+                    <div className="w-5 h-5 rounded-full bg-sky-600 flex items-center justify-center text-white shrink-0 ml-2">
                       <Check className="w-3 h-3 stroke-[3]" />
                     </div>
                   )}
@@ -285,9 +318,9 @@ export const ClientCountryMarketModal: React.FC<ClientCountryMarketModalProps> =
         </div>
 
         {/* Footer Note */}
-        <div className="pt-2.5 border-t border-neutral-100 dark:border-neutral-800/80">
-          <p className="text-[11px] text-neutral-500 dark:text-neutral-400 leading-normal text-left font-mono">
-            Calibrates regional nutritional databases, barcodes, and local grocery items.
+        <div className="pt-2.5 border-t border-white/[0.05]">
+          <p className="text-[11px] text-neutral-400 leading-normal text-left font-mono">
+            Brands and barcodes follow this flag. Search still uses live OpenFoodFacts.
           </p>
         </div>
       </div>

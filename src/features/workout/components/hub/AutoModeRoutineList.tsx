@@ -42,7 +42,7 @@ export const AutoModeRoutineList: React.FC<AutoModeRoutineListProps> = ({
         return (
           <div
             key={`${exercise.id}-${index}`}
-            className="bg-[#18181b] rounded-xl p-3 text-white flex items-center justify-between transition-colors"
+            className="bg-o1-well rounded-xl p-2.5 text-white flex items-center justify-between transition-colors border border-white/[0.07]"
           >
             {/* Left: Index, Title & Subtitle */}
             <div>
@@ -66,12 +66,12 @@ export const AutoModeRoutineList: React.FC<AutoModeRoutineListProps> = ({
                 onClick={() =>
                   setActiveSetsSlot(activeSetsSlot === index ? null : index)
                 }
-                className="bg-[#121214] hover:bg-[#202025] text-neutral-200 text-xs font-medium px-2.5 py-1 rounded-lg flex items-center gap-1 cursor-pointer transition-colors"
+                className="bg-o1-card hover:bg-white/[0.06] text-neutral-200 text-xs font-medium px-2.5 py-1 rounded-xl flex items-center gap-1 cursor-pointer transition-colors border border-white/[0.07]"
               >
                 {sets} sets ▾
               </button>
               {activeSetsSlot === index && (
-                <div className="absolute right-8 top-full mt-1 bg-[#121214] border border-white/10 shadow-lg rounded-xl py-1 z-30 min-w-[75px]">
+                <div className="absolute right-8 top-full mt-1 bg-o1-card border border-white/[0.07] shadow-lg rounded-xl py-1 z-30 min-w-[75px]">
                   {[2, 3, 4, 5, 6].map((num) => (
                     <button
                       key={num}
@@ -83,7 +83,7 @@ export const AutoModeRoutineList: React.FC<AutoModeRoutineListProps> = ({
                       }}
                       className={`w-full text-center px-2 py-1 text-xs font-semibold hover:bg-white/5 transition-colors cursor-pointer ${
                         sets === num
-                          ? 'text-[#C4121A] bg-red-950/40'
+                          ? 'text-o1-crimson bg-red-950/40'
                           : 'text-neutral-300'
                       }`}
                     >

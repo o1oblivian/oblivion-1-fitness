@@ -1,13 +1,13 @@
 /**
  * Oblivion 1 Fitness Club - Athlete Realtime Hook
- * Realtime PostgreSQL CDC for dispatched_routines
- * Strict File Ceiling: < 110 lines
+ * Live assigned_workouts CDC for the signed-in athlete.
  */
 
 import { useEffect } from 'react';
 import { supabase } from '../../../services/supabaseClient';
 import { useWorkoutStore } from '../store/useWorkoutStore';
 import { tactileEngine } from '../../../services/tactileEngine';
+import { readAthleteSettingsSnapshot } from '../../../utils/athleteSettingsSnapshot';
 
 interface UseAthleteRealtimeOptions {
   athleteId?: string;
@@ -15,7 +15,7 @@ interface UseAthleteRealtimeOptions {
 }
 
 export function useAthleteRealtime({
-  athleteId = 'default-athlete',
+  athleteId = '',
   onProtocolDispatched,
 }: UseAthleteRealtimeOptions = {}) {
   const showToast = useWorkoutStore((s) => s.showToast);
@@ -23,42 +23,32 @@ export function useAthleteRealtime({
   useEffect(() => {
     if (!athleteId) return;
 
+    const handleRow = (payload: any) => {
+      const routine: any = payload.new;
+      if (!routine) return;
+      if (readAthleteSettingsSnapshot().coachUpdates) {
+        tactileEngine.playPRCelebration();
+        showToast?.(`Coach dispatched: ${routine.title || routine.routine_data?.title || 'New protocol'}`);
+      }
+      if (onProtocolDispatched) {
+        onProtocolDispatched({
+          ...routine,
+          exercises: routine.exercises || routine.workout_data?.exercises || [],
+        });
+      }
+    };
+
     const channel = supabase
-      .channel(`athlete-realtime-${athleteId}`)
+      .channel(`athlete-assigned-${athleteId}`)
       .on(
         'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'dispatched_routines',
-          filter: `athlete_id=eq.${athleteId}`,
-        },
-        (payload) => {
-          const routine: any = payload.new;
-          if (routine) {
-            tactileEngine.playPRCelebration();
-            showToast?.(`⚡ Coach dispatched routine: ${routine.routine_data?.title || 'New Protocol'}`);
-            if (onProtocolDispatched) {
-              onProtocolDispatched(routine.routine_data || routine);
-            }
-          }
-        }
+        { event: 'INSERT', schema: 'public', table: 'assigned_workouts', filter: `client_id=eq.${athleteId}` },
+        handleRow,
       )
       .on(
         'postgres_changes',
-        {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'dispatched_routines',
-          filter: `athlete_id=eq.${athleteId}`,
-        },
-        (payload) => {
-          const routine: any = payload.new;
-          if (routine?.status) {
-            tactileEngine.triggerSelectionBuzz();
-            showToast?.(`⚡ Routine status updated: ${routine.status}`);
-          }
-        }
+        { event: 'INSERT', schema: 'public', table: 'assigned_workouts', filter: `athlete_id=eq.${athleteId}` },
+        handleRow,
       )
       .subscribe();
 

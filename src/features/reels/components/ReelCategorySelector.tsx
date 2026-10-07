@@ -47,8 +47,8 @@ export const ReelCategorySelector: React.FC<ReelCategorySelectorProps> = ({
                 onClick={() => onSelectCategory(cat.id)}
                 className={`p-2.5 rounded-2xl border text-left flex flex-col justify-between transition-all cursor-pointer ${
                   isSelected
-                    ? 'bg-[#C4121A]/10 border-[#C4121A] text-white shadow-xs'
-                    : 'bg-[#18181b] border-neutral-800 text-neutral-400 hover:text-white'
+                    ? 'bg-o1-crimson/10 border-o1-crimson text-white shadow-xs'
+                    : 'bg-o1-well border-white/[0.07] text-neutral-400 hover:text-white'
                 }`}
               >
                 <span className="text-xs font-bold">{cat.label}</span>
@@ -73,8 +73,8 @@ export const ReelCategorySelector: React.FC<ReelCategorySelectorProps> = ({
                 onClick={() => onSelectFilterTag(tag)}
                 className={`px-2.5 py-1 rounded-xl text-[10px] font-bold uppercase transition-all cursor-pointer font-mono ${
                   isSelected
-                    ? 'bg-[#C4121A] text-white shadow-xs'
-                    : 'bg-[#18181b] border border-neutral-800 text-neutral-400 hover:text-white'
+                    ? 'bg-o1-crimson text-white shadow-xs'
+                    : 'bg-o1-well border border-white/[0.07] text-neutral-400 hover:text-white'
                 }`}
               >
                 {tag}

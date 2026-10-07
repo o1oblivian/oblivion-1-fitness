@@ -24,7 +24,7 @@ const CITATIONS: CitationItem[] = [
       'Mifflin, M. D., et al. (1990). A new predictive equation for resting energy expenditure in healthy individuals. Am J Clin Nutr, 51(2), 241-247.',
     application: 'Drives Fuel OS BMR and maintenance TDEE baselines.',
     icon: Flame,
-    accentColor: 'text-[#C4121A]',
+    accentColor: 'text-o1-crimson',
   },
   {
     id: 'compendium-met',
@@ -33,7 +33,7 @@ const CITATIONS: CitationItem[] = [
       'Ainsworth, B. E., et al. (2011). Compendium of Physical Activities: a second update of codes and MET values. Med Sci Sports Exerc, 43(8), 1575-1581.',
     application: 'Used for exercise caloric burn and metabolic flux calculations.',
     icon: Activity,
-    accentColor: 'text-cyan-600',
+    accentColor: 'text-sky-600',
   },
   {
     id: 'brzycki-formula',
@@ -70,18 +70,18 @@ export const ScientificCitationsModal: React.FC<ScientificCitationsModalProps> =
   return (
     <div
       id="scientific-citations-modal"
-      className="fixed inset-0 z-50 bg-black/85 flex items-center justify-center p-3 animate-in fade-in duration-200"
+      className="fixed inset-0 z-50 bg-black/70 o1-sheet-scrim flex items-center justify-center animate-in fade-in duration-200"
       onClick={handleClose}
     >
       <div
-        className="bg-[#121214] text-neutral-100 border border-neutral-800 rounded-3xl w-full max-w-lg max-h-[90vh] overflow-y-auto p-6 shadow-2xl relative select-none"
+        className="o1-sheet-card bg-o1-card text-neutral-100 border border-white/[0.07] w-full overflow-y-auto p-4 shadow-xl relative select-none"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-start justify-between pb-4 border-b border-neutral-800">
+        <div className="flex items-start justify-between pb-4 border-b border-white/[0.05]">
           <div>
             <div className="flex items-center gap-2">
-              <BookOpen className="w-5 h-5 text-[#C4121A]" />
+              <BookOpen className="w-5 h-5 text-o1-crimson" />
               <h3 className="text-base font-bold text-white leading-tight font-tactical">
                 Scientific Sources &amp; Medical Citations
               </h3>
@@ -93,7 +93,7 @@ export const ScientificCitationsModal: React.FC<ScientificCitationsModalProps> =
           <button
             type="button"
             onClick={handleClose}
-            className="w-8 h-8 rounded-full bg-[#18181b] hover:bg-neutral-800 text-neutral-400 hover:text-white flex items-center justify-center transition-colors -mr-1 -mt-1 cursor-pointer border border-neutral-800"
+            className="w-8 h-8 rounded-full bg-o1-well hover:bg-white/[0.06] text-neutral-400 hover:text-white flex items-center justify-center transition-colors -mr-1 -mt-1 cursor-pointer border border-white/[0.07]"
             aria-label="Close"
           >
             <X className="w-4 h-4" />
@@ -107,7 +107,7 @@ export const ScientificCitationsModal: React.FC<ScientificCitationsModalProps> =
             return (
               <div
                 key={c.id}
-                className="bg-[#18181b] border border-neutral-800 rounded-2xl p-4 transition-all hover:border-neutral-700"
+                className="bg-o1-well border border-white/[0.07] rounded-2xl p-4 transition-all hover:border-white/[0.14]"
               >
                 <div className="flex items-center gap-2 mb-1.5">
                   <Icon className={`w-4 h-4 ${c.accentColor} shrink-0`} />
@@ -116,7 +116,7 @@ export const ScientificCitationsModal: React.FC<ScientificCitationsModalProps> =
                   </h4>
                 </div>
 
-                <div className="text-[11px] text-neutral-300 font-mono bg-[#09090b] border border-neutral-800 rounded-xl p-2.5 my-2">
+                <div className="text-[11px] text-neutral-300 font-mono bg-black border border-white/[0.07] rounded-xl p-2.5 my-2">
                   <span className="font-semibold text-neutral-100">Citation: </span>
                   {c.citation}
                 </div>
@@ -133,11 +133,11 @@ export const ScientificCitationsModal: React.FC<ScientificCitationsModalProps> =
         </div>
 
         {/* Footer */}
-        <div className="pt-2 border-t border-neutral-800 flex flex-col items-center">
+        <div className="pt-2 border-t border-white/[0.05] flex flex-col items-center">
           <button
             type="button"
             onClick={handleClose}
-            className="w-full bg-[#C4121A] hover:bg-[#a50f16] active:scale-95 text-white font-bold text-xs py-3 rounded-full uppercase tracking-wider shadow-md transition-all cursor-pointer font-tactical"
+            className="w-full bg-o1-crimson hover:bg-o1-crimson-hover active:scale-95 text-white font-bold text-xs py-3 rounded-full uppercase tracking-wider shadow-md transition-all cursor-pointer font-tactical"
           >
             [ CLOSE CITATIONS ]
           </button>

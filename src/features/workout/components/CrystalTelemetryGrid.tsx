@@ -51,8 +51,8 @@ export const CrystalTelemetryGrid: React.FC<CrystalTelemetryGridProps> = ({
       value: `${sleepHours}H`,
       sub: `${sleepQuality}% RESTFUL`,
       icon: Moon,
-      color: 'text-indigo-400',
-      border: 'hover:border-indigo-500/40',
+      color: 'text-sky-400',
+      border: 'hover:border-sky-500/40',
     },
   ];
 
@@ -69,7 +69,7 @@ export const CrystalTelemetryGrid: React.FC<CrystalTelemetryGridProps> = ({
               tactileEngine.triggerSelectionBuzz();
               onOpenTile(t.id);
             }}
-            className={`p-2.5 rounded-2xl bg-black/30 hover:bg-black/50 border border-white/10 ${t.border} text-left transition-all active:scale-98 cursor-pointer flex flex-col justify-between`}
+            className={`p-2.5 rounded-2xl bg-black/30 hover:bg-black/50 border border-white/[0.07] ${t.border} text-left transition-all active:scale-98 cursor-pointer flex flex-col justify-between`}
           >
             <div className="flex items-center justify-between w-full">
               <span className="text-[9px] font-mono tracking-wider text-neutral-400 uppercase">{t.label}</span>

@@ -10,14 +10,14 @@ interface AlertsFeedbackSectionProps {
   coachUpdates: boolean;
   hapticVibration: boolean;
   soundEffects: boolean;
-  publicTelemetry: boolean;
+  crashReports: boolean;
   onAllowPush: () => void;
   onOpenScheduledReminders: () => void;
   onTogglePreWorkout: (val: boolean) => void;
   onToggleCoachUpdates: (val: boolean) => void;
   onToggleHaptic: (val: boolean) => void;
   onToggleSound: (val: boolean) => void;
-  onToggleTelemetry: (val: boolean) => void;
+  onToggleCrashReports: (val: boolean) => void;
 }
 
 export const SettingsAlertsFeedbackSection: React.FC<AlertsFeedbackSectionProps> = ({
@@ -26,14 +26,14 @@ export const SettingsAlertsFeedbackSection: React.FC<AlertsFeedbackSectionProps>
   coachUpdates,
   hapticVibration,
   soundEffects,
-  publicTelemetry,
+  crashReports,
   onAllowPush,
   onOpenScheduledReminders,
   onTogglePreWorkout,
   onToggleCoachUpdates,
   onToggleHaptic,
   onToggleSound,
-  onToggleTelemetry,
+  onToggleCrashReports,
 }) => {
   const [isScheduleOpen, setIsScheduleOpen] = useState(false);
 
@@ -65,7 +65,7 @@ export const SettingsAlertsFeedbackSection: React.FC<AlertsFeedbackSectionProps>
         Alerts, Audio &amp; Haptics
       </h3>
 
-      <div className="bg-[#121214] rounded-2xl border border-neutral-800 shadow-sm p-4 space-y-4 text-white transition-colors">
+      <div className="bg-o1-card rounded-2xl border border-white/[0.07] shadow-sm p-3 space-y-2.5 text-white transition-colors">
         {/* OS Push Alerts Master Banner */}
         {!osPushEnabled ? (
           <div className="bg-red-950/30 border border-red-800/40 rounded-xl p-3 flex items-center justify-between gap-3">
@@ -80,16 +80,16 @@ export const SettingsAlertsFeedbackSection: React.FC<AlertsFeedbackSectionProps>
             <button
               type="button"
               onClick={handlePushClick}
-              className="shrink-0 px-3 py-1.5 rounded-full bg-[#C4121A] hover:bg-[#a50f16] text-white text-xs font-tactical font-semibold uppercase shadow-xs active:scale-95 transition-all cursor-pointer"
+              className="shrink-0 px-3 py-1.5 rounded-full bg-o1-crimson hover:bg-o1-crimson-hover text-white text-xs font-tactical font-semibold uppercase shadow-xs active:scale-95 transition-all cursor-pointer"
             >
               Allow
             </button>
           </div>
         ) : (
-          <div className="p-2.5 rounded-xl bg-green-950/20 border border-green-800/30 flex items-center justify-between">
+          <div className="p-2.5 rounded-xl bg-emerald-950/20 border border-emerald-800/30 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-              <span className="text-xs font-tactical font-bold text-green-400">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="text-xs font-tactical font-bold text-emerald-400">
                 OS Push Alerts Active
               </span>
             </div>
@@ -104,10 +104,10 @@ export const SettingsAlertsFeedbackSection: React.FC<AlertsFeedbackSectionProps>
             setIsScheduleOpen(true);
             onOpenScheduledReminders();
           }}
-          className="flex items-center justify-between gap-3 cursor-pointer group py-1 hover:text-[#C4121A] transition-colors"
+          className="flex items-center justify-between gap-3 cursor-pointer group py-1 hover:text-o1-crimson transition-colors"
         >
           <div className="flex items-center gap-2">
-            <Bell className="w-4 h-4 text-neutral-400 group-hover:text-[#C4121A]" />
+            <Bell className="w-4 h-4 text-neutral-400 group-hover:text-o1-crimson" />
             <div className="min-w-0">
               <span className="text-xs font-tactical font-semibold text-neutral-100 group-hover:text-white block">
                 Scheduled Session Reminders
@@ -121,7 +121,7 @@ export const SettingsAlertsFeedbackSection: React.FC<AlertsFeedbackSectionProps>
         </div>
 
         {/* Workout Alert Channels */}
-        <div className="pt-3 border-t border-neutral-800 space-y-3">
+        <div className="pt-3 border-t border-white/[0.05] space-y-3">
           <div className="flex items-center justify-between gap-3">
             <div>
               <span className="text-xs font-sans font-medium text-neutral-200 block">
@@ -160,7 +160,7 @@ export const SettingsAlertsFeedbackSection: React.FC<AlertsFeedbackSectionProps>
         </div>
 
         {/* Tactile & Audio Sensory Feedback */}
-        <div className="pt-3 border-t border-neutral-800 space-y-3">
+        <div className="pt-3 border-t border-white/[0.05] space-y-3">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-2">
               <Vibrate className="w-4 h-4 text-neutral-400" />
@@ -204,24 +204,23 @@ export const SettingsAlertsFeedbackSection: React.FC<AlertsFeedbackSectionProps>
           </div>
         </div>
 
-        {/* Telemetry Privacy */}
-        <div className="pt-3 border-t border-neutral-800 flex items-center justify-between gap-3">
+        <div className="pt-3 border-t border-white/[0.05] flex items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <ShieldCheck className="w-4 h-4 text-neutral-400" />
             <div>
               <span className="text-xs font-sans font-medium text-neutral-200 block">
-                Anonymous Crash Diagnostics
+                On-device crash log
               </span>
               <span className="text-[10px] text-neutral-400 block">
-                Help maintain 99.9% uptime and low-latency metrics
+                Store the last render crash on this device. Nothing is sent remotely.
               </span>
             </div>
           </div>
           <CrimsonSwitch
-            checked={publicTelemetry}
+            checked={crashReports}
             onChange={(val) => {
               tactileEngine.triggerSelectionBuzz();
-              onToggleTelemetry(val);
+              onToggleCrashReports(val);
             }}
           />
         </div>

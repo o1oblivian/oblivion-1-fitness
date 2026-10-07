@@ -37,11 +37,11 @@ export const LaunchProtocolModal: React.FC<LaunchProtocolModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm select-none animate-in fade-in duration-200">
-      <div className="w-full max-w-sm bg-[#121214] border border-white/10 rounded-3xl overflow-hidden shadow-2xl flex flex-col">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-white/10 bg-[#09090b]">
-          <div className="flex items-center gap-2 font-mono text-xs font-bold text-[#C4121A]">
-            <span className="w-2 h-2 rounded-full bg-[#C4121A] animate-ping" />
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 o1-sheet-scrim select-none animate-in fade-in duration-200">
+      <div className="o1-sheet-card w-full bg-o1-card border border-white/[0.07] overflow-hidden shadow-xl flex flex-col">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.05] bg-black">
+          <div className="flex items-center gap-2 font-mono text-xs font-bold text-o1-crimson">
+            <span className="w-2 h-2 rounded-full bg-o1-crimson animate-ping" />
             <span>O1FC PROTOCOL IGNITION</span>
           </div>
           <button
@@ -56,7 +56,7 @@ export const LaunchProtocolModal: React.FC<LaunchProtocolModalProps> = ({
 
         <div className="p-5 space-y-5">
           <div className="text-center space-y-1.5">
-            <div className="inline-flex p-3 rounded-2xl bg-[#C4121A]/10 text-[#C4121A] border border-[#C4121A]/30 mb-1">
+            <div className="inline-flex p-3 rounded-2xl bg-o1-crimson/10 text-o1-crimson border border-o1-crimson/30 mb-1">
               <Sparkles className="w-6 h-6" />
             </div>
             <h3 className="text-base font-black tracking-tight text-white uppercase font-tactical">
@@ -71,7 +71,7 @@ export const LaunchProtocolModal: React.FC<LaunchProtocolModalProps> = ({
             <button
               type="button"
               onClick={handleLaunch}
-              className="w-full py-4 rounded-full bg-[#C4121A] hover:bg-[#A30F16] active:scale-[0.98] text-white font-tactical font-bold text-xs uppercase tracking-[0.2em] transition-all shadow-md border border-white/10 flex items-center justify-center gap-2 cursor-pointer"
+              className="w-full py-4 rounded-full bg-o1-crimson hover:bg-o1-crimson-hover active:scale-[0.98] text-white font-tactical font-bold text-xs uppercase tracking-[0.2em] transition-all shadow-md border border-white/[0.07] flex items-center justify-center gap-2 cursor-pointer"
             >
               <span>ENTER TRAINING OS PRO</span>
               <ArrowRight className="w-4 h-4" />

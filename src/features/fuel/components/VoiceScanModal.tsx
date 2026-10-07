@@ -417,8 +417,8 @@ export const VoiceScanModal: React.FC<VoiceScanModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/70 sm:bg-black/85 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-200">
-      <div className="bg-white dark:bg-[#121214] border border-neutral-200 dark:border-neutral-800 rounded-3xl max-w-sm sm:max-w-md w-full p-5 sm:p-6 shadow-2xl relative space-y-4 text-center">
+    <div className="fixed inset-0 z-50 bg-black/70 o1-sheet-scrim flex items-center justify-center animate-in fade-in duration-200">
+      <div className="o1-sheet-card bg-o1-card border border-white/[0.07] w-full p-4 shadow-xl relative space-y-3 text-center overflow-y-auto">
         {/* Close Button */}
         <button
           type="button"
@@ -427,7 +427,7 @@ export const VoiceScanModal: React.FC<VoiceScanModalProps> = ({
             stopListening();
             onClose();
           }}
-          className="absolute top-4 right-4 p-2 rounded-full bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:text-white transition-colors cursor-pointer"
+          className="absolute top-4 right-4 p-2 rounded-full bg-white/[0.08] hover:bg-neutral-700 text-neutral-400 hover:text-white text-white transition-colors cursor-pointer"
           title="Close"
         >
           <X className="w-4 h-4" />
@@ -436,15 +436,15 @@ export const VoiceScanModal: React.FC<VoiceScanModalProps> = ({
         {/* Header Metadata */}
         <div className="space-y-1">
           <div className="flex items-center justify-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-[#C4121A] animate-ping" />
-            <span className="text-[10px] font-mono text-[#C4121A] uppercase font-bold tracking-widest">
+            <span className="w-2 h-2 rounded-full bg-o1-crimson animate-ping" />
+            <span className="text-[10px] font-mono text-o1-crimson uppercase font-bold tracking-widest">
               Live Phone Microphone • {category.toUpperCase()}
             </span>
           </div>
-          <h3 className="font-bold text-lg text-neutral-900 dark:text-white tracking-tight">
+          <h3 className="font-bold text-lg text-white tracking-tight">
             {isListening ? 'Listening to your voice...' : 'Speak or Type Your Meal'}
           </h3>
-          <p className="text-xs text-neutral-500 dark:text-neutral-400">
+          <p className="text-xs text-neutral-400">
             {isListening
               ? 'Speak clearly into your phone microphone'
               : 'Tap microphone to speak your meal details'}
@@ -456,8 +456,8 @@ export const VoiceScanModal: React.FC<VoiceScanModalProps> = ({
           <div className="relative flex items-center justify-center">
             {isListening && (
               <>
-                <span className="absolute w-24 h-24 rounded-full bg-[#C4121A]/20 animate-ping duration-1000" />
-                <span className="absolute w-20 h-20 rounded-full bg-[#C4121A]/30 animate-pulse duration-700" />
+                <span className="absolute w-24 h-24 rounded-full bg-o1-crimson/20 animate-ping duration-1000" />
+                <span className="absolute w-20 h-20 rounded-full bg-o1-crimson/30 animate-pulse duration-700" />
               </>
             )}
             <button
@@ -475,14 +475,14 @@ export const VoiceScanModal: React.FC<VoiceScanModalProps> = ({
               title={isListening ? 'Tap to finish speaking' : 'Tap to start speaking'}
               className={`relative z-10 w-16 h-16 rounded-full flex items-center justify-center transition-all cursor-pointer shadow-lg active:scale-95 ${
                 isListening
-                  ? 'bg-[#C4121A] text-white shadow-red-600/40 ring-4 ring-red-400/40'
-                  : 'bg-neutral-100 dark:bg-neutral-900 border-2 border-neutral-300 dark:border-neutral-700 text-neutral-800 dark:text-neutral-200 hover:border-[#C4121A] dark:hover:border-[#C4121A]'
+                  ? 'bg-o1-crimson text-white shadow-red-600/40 ring-4 ring-red-400/40'
+                  : 'bg-o1-well border border-white/[0.07] text-neutral-200 hover:border-o1-crimson'
               }`}
             >
               {isListening ? (
                 <Mic className="w-7 h-7 animate-bounce" />
               ) : (
-                <Mic className="w-7 h-7 text-[#C4121A]" />
+                <Mic className="w-7 h-7 text-o1-crimson" />
               )}
             </button>
           </div>
@@ -490,12 +490,12 @@ export const VoiceScanModal: React.FC<VoiceScanModalProps> = ({
           {/* Status Label below mic */}
           <div className="mt-3 flex items-center gap-1.5 text-xs font-mono font-medium">
             {isListening ? (
-              <span className="text-[#C4121A] font-bold flex items-center gap-1">
+              <span className="text-o1-crimson font-bold flex items-center gap-1">
                 <Volume2 className="w-3.5 h-3.5 animate-pulse" />
                 Recording voice... Tap when done
               </span>
             ) : (
-              <span className="text-neutral-500 dark:text-neutral-400">
+              <span className="text-neutral-400">
                 Tap mic icon to talk
               </span>
             )}
@@ -504,7 +504,7 @@ export const VoiceScanModal: React.FC<VoiceScanModalProps> = ({
 
         {/* Permission / Support Notice */}
         {permissionError && (
-          <div className="p-2.5 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-800/60 text-amber-800 dark:text-amber-200 text-xs flex items-center gap-2 text-left">
+          <div className="p-2.5 rounded-xl bg-amber-950/40 border border-amber-800/60 text-amber-200 text-xs flex items-center gap-2 text-left">
             <AlertCircle className="w-4 h-4 shrink-0 text-amber-600" />
             <span className="leading-snug">{permissionError}</span>
           </div>
@@ -512,7 +512,7 @@ export const VoiceScanModal: React.FC<VoiceScanModalProps> = ({
 
         {/* Live Spoken Transcript / Text input */}
         <div className="space-y-2 text-left">
-          <label className="text-[11px] font-bold uppercase tracking-wider text-neutral-500 dark:text-neutral-400 flex items-center justify-between">
+          <label className="text-[11px] font-bold uppercase tracking-wider text-neutral-400 flex items-center justify-between">
             <span>Voice Transcript</span>
             {transcript && (
               <button
@@ -521,7 +521,7 @@ export const VoiceScanModal: React.FC<VoiceScanModalProps> = ({
                   setTranscript('');
                   setParsedItem(null);
                 }}
-                className="text-[10px] text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-200 underline cursor-pointer"
+                className="text-[10px] text-neutral-400 hover:text-neutral-200 underline cursor-pointer"
               >
                 Clear
               </button>
@@ -541,14 +541,14 @@ export const VoiceScanModal: React.FC<VoiceScanModalProps> = ({
                 }
               }}
               placeholder={isListening ? 'Speaking...' : 'e.g. 200g chicken breast and 1 cup rice'}
-              className="w-full h-11 px-3.5 pr-10 rounded-xl bg-neutral-50 dark:bg-[#09090b] border border-neutral-200 dark:border-neutral-800 text-xs sm:text-sm font-medium text-neutral-900 dark:text-white placeholder-neutral-400 dark:placeholder-neutral-500 focus:outline-none focus:border-[#C4121A] transition-colors"
+              className="w-full h-11 px-3.5 pr-10 rounded-xl bg-black border border-white/[0.07] text-xs sm:text-sm font-medium text-white placeholder-neutral-500 focus:outline-none focus:border-o1-crimson transition-colors"
             />
             {transcript && (
               <button
                 type="button"
                 onClick={() => handleAnalyzeText(transcript)}
                 disabled={isProcessing}
-                className="absolute right-2 top-2 p-1.5 rounded-lg bg-neutral-900 dark:bg-neutral-800 text-white hover:bg-black transition-colors cursor-pointer"
+                className="absolute right-2 top-2 p-1.5 rounded-lg bg-white/[0.08] text-white hover:bg-black transition-colors cursor-pointer"
                 title="Analyze meal"
               >
                 {isProcessing ? (
@@ -581,7 +581,7 @@ export const VoiceScanModal: React.FC<VoiceScanModalProps> = ({
                       setTranscript(phrase);
                       handleAnalyzeText(phrase);
                     }}
-                    className="text-[11px] px-2 py-1 rounded-lg bg-neutral-100 dark:bg-neutral-900 hover:bg-neutral-200 dark:hover:bg-neutral-800 border border-neutral-200/80 dark:border-neutral-800 text-neutral-700 dark:text-neutral-300 transition-colors cursor-pointer text-left"
+                    className="text-[11px] px-2 py-1 rounded-xl bg-o1-well hover:bg-white/[0.06] border border-white/[0.07] text-neutral-300 transition-colors cursor-pointer text-left"
                   >
                     &ldquo;{phrase}&rdquo;
                   </button>
@@ -593,24 +593,24 @@ export const VoiceScanModal: React.FC<VoiceScanModalProps> = ({
 
         {/* Parsed Nutrition Preview & Editable Result */}
         {parsedItem && (
-          <div className="p-4 rounded-2xl bg-neutral-50 dark:bg-[#18181b] border border-neutral-200 dark:border-neutral-800 text-left space-y-3 animate-in fade-in duration-200">
+          <div className="p-4 rounded-2xl bg-o1-well border border-white/[0.07] text-left space-y-3 animate-in fade-in duration-200">
             <div className="flex items-center justify-between gap-2">
               {isEditing ? (
                 <input
                   type="text"
                   value={editName}
                   onChange={(e) => setEditName(e.target.value)}
-                  className="font-bold text-xs text-neutral-900 dark:text-white bg-white dark:bg-black/50 border border-neutral-300 dark:border-neutral-700 rounded-lg px-2 py-1 w-full"
+                  className="font-bold text-xs text-white bg-black/50 border border-white/[0.07] rounded-xl px-2 py-1 w-full"
                 />
               ) : (
                 <div className="flex items-center gap-1.5 min-w-0">
-                  <span className="font-bold text-xs sm:text-sm text-neutral-900 dark:text-white truncate">
+                  <span className="font-bold text-xs sm:text-sm text-white truncate">
                     {editName}
                   </span>
                   <button
                     type="button"
                     onClick={() => setIsEditing(true)}
-                    className="text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 p-0.5 cursor-pointer"
+                    className="text-neutral-400 hover:text-neutral-200 p-0.5 cursor-pointer"
                     title="Edit name"
                   >
                     <Edit3 className="w-3 h-3" />
@@ -618,13 +618,13 @@ export const VoiceScanModal: React.FC<VoiceScanModalProps> = ({
                 </div>
               )}
 
-              <span className="font-mono text-sm font-black text-[#C4121A] shrink-0">
+              <span className="font-mono text-sm font-black text-o1-crimson shrink-0">
                 {editCalories} kcal
               </span>
             </div>
 
             {/* Macro Partitioning */}
-            <div className="grid grid-cols-3 gap-2 text-center text-xs font-mono bg-white dark:bg-black/40 p-2.5 rounded-xl border border-neutral-200/70 dark:border-neutral-800">
+            <div className="grid grid-cols-3 gap-2 text-center text-xs font-mono bg-black/40 p-2.5 rounded-xl border border-white/[0.07]">
               <div className="space-y-0.5">
                 <span className="text-[10px] text-neutral-400 uppercase font-bold block">Protein</span>
                 {isEditing ? (
@@ -632,26 +632,26 @@ export const VoiceScanModal: React.FC<VoiceScanModalProps> = ({
                     type="number"
                     value={editProtein}
                     onChange={(e) => setEditProtein(parseFloat(e.target.value) || 0)}
-                    className="w-14 text-center font-bold text-xs text-[#C4121A] bg-neutral-100 dark:bg-neutral-800 rounded px-1"
+                    className="w-14 text-center font-bold text-xs text-o1-crimson bg-white/[0.08] rounded px-1"
                   />
                 ) : (
-                  <span className="font-bold text-neutral-900 dark:text-white text-xs">
+                  <span className="font-bold text-white text-xs">
                     {editProtein}g
                   </span>
                 )}
               </div>
 
-              <div className="space-y-0.5 border-x border-neutral-200 dark:border-neutral-800">
+              <div className="space-y-0.5 border-x border-white/[0.05]">
                 <span className="text-[10px] text-neutral-400 uppercase font-bold block">Carbs</span>
                 {isEditing ? (
                   <input
                     type="number"
                     value={editCarbs}
                     onChange={(e) => setEditCarbs(parseFloat(e.target.value) || 0)}
-                    className="w-14 text-center font-bold text-xs text-amber-600 bg-neutral-100 dark:bg-neutral-800 rounded px-1"
+                    className="w-14 text-center font-bold text-xs text-amber-600 bg-white/[0.08] rounded px-1"
                   />
                 ) : (
-                  <span className="font-bold text-neutral-900 dark:text-white text-xs">
+                  <span className="font-bold text-white text-xs">
                     {editCarbs}g
                   </span>
                 )}
@@ -664,10 +664,10 @@ export const VoiceScanModal: React.FC<VoiceScanModalProps> = ({
                     type="number"
                     value={editFats}
                     onChange={(e) => setEditFats(parseFloat(e.target.value) || 0)}
-                    className="w-14 text-center font-bold text-xs text-sky-600 bg-neutral-100 dark:bg-neutral-800 rounded px-1"
+                    className="w-14 text-center font-bold text-xs text-sky-600 bg-white/[0.08] rounded px-1"
                   />
                 ) : (
-                  <span className="font-bold text-neutral-900 dark:text-white text-xs">
+                  <span className="font-bold text-white text-xs">
                     {editFats}g
                   </span>
                 )}
@@ -689,7 +689,7 @@ export const VoiceScanModal: React.FC<VoiceScanModalProps> = ({
                 stopListening();
                 onClose();
               }}
-              className="w-full h-11 rounded-xl bg-[#C4121A] hover:bg-[#A30F16] text-white font-mono text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 shadow-md active:scale-95 transition-all cursor-pointer"
+              className="w-full h-11 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover text-white font-mono text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 shadow-md active:scale-95 transition-all cursor-pointer"
             >
               <Check className="w-4 h-4 stroke-[3]" />
               <span>Log to {category}</span>

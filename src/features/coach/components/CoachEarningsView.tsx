@@ -12,7 +12,7 @@ interface CoachEarningsViewProps {
 
 export const CoachEarningsView: React.FC<CoachEarningsViewProps> = ({
   onShowToast,
-  coachId = 'coach_alpha',
+  coachId = '',
 }) => {
   return (
     <div className="space-y-4">

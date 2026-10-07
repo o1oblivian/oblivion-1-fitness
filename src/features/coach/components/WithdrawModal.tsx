@@ -48,11 +48,11 @@ export const WithdrawModal: React.FC<WithdrawModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 select-none animate-in fade-in duration-150 backdrop-blur-md">
-      <div className="w-full max-w-sm bg-neutral-950 border border-white/10 rounded-3xl overflow-hidden shadow-2xl flex flex-col">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-white/10 bg-[#0e0e11]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 o1-sheet-scrim select-none animate-in fade-in duration-150">
+      <div className="o1-sheet-card w-full bg-black border border-white/[0.07] overflow-hidden shadow-xl flex flex-col">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.05] bg-o1-card">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-[#C4121A]">
+            <div className="w-9 h-9 rounded-xl bg-white/5 border border-white/[0.07] flex items-center justify-center text-o1-crimson">
               <ArrowDownRight className="w-5 h-5" />
             </div>
             <div>
@@ -63,8 +63,8 @@ export const WithdrawModal: React.FC<WithdrawModalProps> = ({
           <button onClick={onClose} className="p-1.5 text-neutral-400 hover:text-white rounded-full cursor-pointer"><X className="w-5 h-5" /></button>
         </div>
 
-        <div className="p-5 space-y-4 bg-neutral-950">
-          <div className="bg-[#121214] border border-white/10 rounded-2xl p-4 text-center space-y-1">
+        <div className="p-5 space-y-4 bg-black">
+          <div className="bg-o1-card border border-white/[0.07] rounded-2xl p-4 text-center space-y-1">
             <span className="text-xs font-tactical uppercase text-neutral-400 tracking-wider font-bold block">AVAILABLE FOR PAYOUT</span>
             <div className="text-3xl font-mono font-black text-white tracking-tight">
               ${availableBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
@@ -80,14 +80,14 @@ export const WithdrawModal: React.FC<WithdrawModalProps> = ({
                 value={amountStr}
                 onFocus={(e) => e.target.select()}
                 onChange={(e) => setAmountStr(sanitizeNumericInput(e.target.value))}
-                className="w-full pl-8 pr-4 py-3 bg-[#121214] border border-[#D4AF37]/35 rounded-xl text-white font-mono font-bold text-base focus:outline-none focus:border-[#F5D061]"
+                className="w-full pl-8 pr-4 py-3 bg-o1-card border border-[#F59E0B]/35 rounded-xl text-white font-mono font-bold text-base focus:outline-none focus:border-[#F59E0B]"
               />
             </div>
             <div className="grid grid-cols-3 gap-2 pt-1">
               {[0.25, 0.5, 1.0].map((pct) => (
                 <button
                   key={pct} type="button" onClick={() => setAmountStr((availableBalance * pct).toFixed(2))}
-                  className="py-1.5 rounded-xl bg-[#121214] border border-[#D4AF37]/25 hover:border-[#D4AF37]/50 text-xs font-tactical font-black text-[#D4AF37] hover:text-[#F5D061] cursor-pointer"
+                  className="py-1.5 rounded-xl bg-o1-card border border-[#F59E0B]/25 hover:border-[#F59E0B]/50 text-xs font-tactical font-black text-[#F59E0B] hover:text-[#F59E0B] cursor-pointer"
                 >
                   {pct === 1 ? 'MAX (100%)' : `${pct * 100}%`}
                 </button>
@@ -95,16 +95,16 @@ export const WithdrawModal: React.FC<WithdrawModalProps> = ({
             </div>
           </div>
 
-          <div className="bg-[#121214] border border-[#D4AF37]/20 rounded-2xl p-3.5 flex items-center justify-between text-xs font-sans">
+          <div className="bg-o1-card border border-[#F59E0B]/20 rounded-2xl p-3.5 flex items-center justify-between text-xs font-sans">
             <div className="flex items-center gap-2.5 text-neutral-200 min-w-0">
-              <Building2 className="w-4 h-4 text-[#F5D061] shrink-0" />
+              <Building2 className="w-4 h-4 text-[#F59E0B] shrink-0" />
               <span className="truncate font-medium">To: {destinationLabel}</span>
             </div>
-            <span className="text-[#F5D061] font-mono font-bold shrink-0 ml-2">STANDARD ACH</span>
+            <span className="text-[#F59E0B] font-mono font-bold shrink-0 ml-2">STANDARD ACH</span>
           </div>
 
           {error && (
-            <div className="p-2.5 rounded-xl bg-rose-950/40 border border-rose-500/30 text-rose-300 text-xs font-sans flex items-center gap-2">
+            <div className="p-2.5 rounded-xl bg-red-950/40 border border-red-500/30 text-red-300 text-xs font-sans flex items-center gap-2">
               <ShieldAlert className="w-4 h-4 shrink-0" /><span>{error}</span>
             </div>
           )}
@@ -112,7 +112,7 @@ export const WithdrawModal: React.FC<WithdrawModalProps> = ({
           <button
             onClick={handleWithdraw}
             disabled={isProcessing || withdrawAmount <= 0}
-            className="w-full py-3.5 rounded-xl bg-gradient-to-r from-[#D4AF37] via-[#F5D061] to-[#C69B3C] text-black font-tactical font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer shadow-lg active:scale-98 transition disabled:opacity-50"
+            className="w-full py-3.5 rounded-xl bg-gradient-to-r from-[#F59E0B] via-[#F59E0B] to-[#F59E0B] text-black font-tactical font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer shadow-lg active:scale-98 transition disabled:opacity-50"
           >
             {isProcessing ? <Loader2 className="w-4 h-4 animate-spin text-black" /> : <ArrowDownRight className="w-4 h-4 text-black stroke-[3]" />}
             <span>{isProcessing ? 'DISPATCHING PAYOUT...' : `WITHDRAW $${withdrawAmount.toFixed(2)}`}</span>

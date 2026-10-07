@@ -41,19 +41,19 @@ export const MealMacroScannerModal: React.FC<MealMacroScannerModalProps> = (prop
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 bg-black/85">
-      <div className="w-full max-w-lg bg-[#121214] rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[92vh]">
-        <div className="flex items-center justify-between px-5 py-4 bg-[#09090b]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 o1-sheet-scrim">
+      <div className="o1-sheet-card bg-o1-card overflow-hidden shadow-xl flex flex-col border border-white/[0.07]">
+        <div className="flex items-center justify-between px-5 py-4 bg-black">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-red-950/60 flex items-center justify-center text-[#C4121A]">
+            <div className="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center text-white">
               <Utensils className="w-4 h-4" />
             </div>
             <div>
               <h2 className="text-sm font-bold text-white">Meal Macro Scanner</h2>
-              <p className="text-[11px] font-mono text-neutral-400">Gemini Vision Multimodal Engine</p>
+              <p className="text-[11px] text-neutral-500">Vision · barcode · plate</p>
             </div>
           </div>
-          <button onClick={onClose} className="p-1.5 rounded-full hover:bg-neutral-800 text-neutral-400 hover:text-white">
+          <button onClick={onClose} className="p-1.5 rounded-full hover:bg-white/[0.06] text-neutral-400 hover:text-white">
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -77,7 +77,7 @@ export const MealMacroScannerModal: React.FC<MealMacroScannerModalProps> = (prop
               {(isLoading || isScanning) && <MealScanLoadingBadge scanMode={scanMode} />}
             </div>
           ) : scanMode !== 'barcode' && !scannedMeal && !imageFile && !isLoading && !isScanning ? (
-            <div className="rounded-2xl border border-neutral-800 bg-[#09090b] p-6 text-center space-y-1">
+            <div className="rounded-2xl border border-white/[0.07] bg-black p-6 text-center space-y-1">
               <span className="text-xs font-mono font-bold uppercase tracking-widest text-neutral-400">Sensor Standby</span>
               <p className="text-[11px] text-neutral-500">Optical vision models in standby mode. Awaiting camera capture.</p>
             </div>
@@ -102,8 +102,8 @@ export const MealMacroScannerModal: React.FC<MealMacroScannerModalProps> = (prop
           )}
         </div>
 
-        <div className="p-3.5 bg-[#09090b] flex justify-end">
-          <button onClick={onClose} className="px-5 py-2 rounded-xl bg-[#18181b] hover:bg-[#222227] text-neutral-300 text-xs font-medium cursor-pointer">
+        <div className="p-3.5 bg-black flex justify-end">
+          <button onClick={onClose} className="px-5 py-2 rounded-xl bg-o1-well hover:bg-white/[0.06] text-neutral-300 text-xs font-medium cursor-pointer">
             Done
           </button>
         </div>

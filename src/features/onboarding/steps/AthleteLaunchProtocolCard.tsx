@@ -7,6 +7,7 @@ interface AthleteLaunchProtocolCardProps {
   data: OnboardingData;
   onUpdate: (partial: Partial<OnboardingData>) => void;
   onLaunch: () => void;
+  onSkip?: () => void;
 }
 
 const ATHLETIC_FOCUSES: AthleticFocusType[] = [
@@ -21,6 +22,7 @@ export const AthleteLaunchProtocolCard: React.FC<AthleteLaunchProtocolCardProps>
   data,
   onUpdate,
   onLaunch,
+  onSkip,
 }) => {
   const [perms, setPerms] = useState<DevicePermissions>(
     data.permissions || {
@@ -116,7 +118,7 @@ export const AthleteLaunchProtocolCard: React.FC<AthleteLaunchProtocolCardProps>
         <span className="font-mono text-[8px] tracking-[0.35em] text-neutral-400 uppercase">
           ||||||||||||||||
         </span>
-        <span className="text-[10px] text-[#C4121A] leading-none">▾</span>
+        <span className="text-[10px] text-o1-crimson leading-none">▾</span>
         <span className="font-mono text-[8px] tracking-[0.35em] text-neutral-400 uppercase">
           ||||||||||||||||
         </span>
@@ -124,7 +126,7 @@ export const AthleteLaunchProtocolCard: React.FC<AthleteLaunchProtocolCardProps>
 
       {/* 2. Header: Premium Industrial Athletic Typography */}
       <div className="text-center space-y-1.5">
-        <span className="text-xs font-tactical font-bold tracking-[0.24em] text-[#C4121A] block uppercase">
+        <span className="text-xs font-tactical font-bold tracking-[0.24em] text-o1-crimson block uppercase">
           OBLIVION 1FC
         </span>
         <h2 className="text-2xl sm:text-3xl font-display font-black uppercase tracking-[0.2em] bg-gradient-to-b from-white via-[#E2E8F0] to-[#94A3B8] bg-clip-text text-transparent drop-shadow-[0_2px_18px_rgba(255,255,255,0.2)]">
@@ -137,8 +139,8 @@ export const AthleteLaunchProtocolCard: React.FC<AthleteLaunchProtocolCardProps>
 
       {/* 3. Three Core Pillars (Nude Frameless Row Integration) */}
       <div className="space-y-2 pt-1">
-        <div className="py-2.5 px-3 rounded-2xl bg-white/[0.03] border-b border-white/10 flex items-start gap-3 backdrop-blur-xs">
-          <div className="w-2 h-2 rounded-full bg-[#C4121A] shrink-0 mt-1" />
+        <div className="py-2.5 px-3 rounded-2xl bg-white/[0.03] border-b border-white/[0.05] flex items-start gap-3 backdrop-blur-xs">
+          <div className="w-2 h-2 rounded-full bg-o1-crimson shrink-0 mt-1" />
           <div>
             <h4 className="text-[11px] font-tactical font-bold text-white tracking-[0.12em] uppercase">
               Training OS &bull; Rotary Dial
@@ -149,8 +151,8 @@ export const AthleteLaunchProtocolCard: React.FC<AthleteLaunchProtocolCardProps>
           </div>
         </div>
 
-        <div className="py-2.5 px-3 rounded-2xl bg-white/[0.03] border-b border-white/10 flex items-start gap-3 backdrop-blur-xs">
-          <div className="w-2 h-2 rounded-full bg-amber-400 shrink-0 mt-1 shadow-[0_0_8px_rgba(251,191,36,0.8)]" />
+        <div className="py-2.5 px-3 rounded-2xl bg-white/[0.03] border-b border-white/[0.05] flex items-start gap-3 backdrop-blur-xs">
+          <div className="w-2 h-2 rounded-full bg-amber-400 shrink-0 mt-1 " />
           <div>
             <h4 className="text-[11px] font-tactical font-bold text-white tracking-[0.12em] uppercase">
               Fuel OS &bull; Vision Scanner
@@ -161,8 +163,8 @@ export const AthleteLaunchProtocolCard: React.FC<AthleteLaunchProtocolCardProps>
           </div>
         </div>
 
-        <div className="py-2.5 px-3 rounded-2xl bg-white/[0.03] border-b border-white/10 flex items-start gap-3 backdrop-blur-xs">
-          <div className="w-2 h-2 rounded-full bg-sky-400 shrink-0 mt-1 shadow-[0_0_8px_rgba(56,189,248,0.8)]" />
+        <div className="py-2.5 px-3 rounded-2xl bg-white/[0.03] border-b border-white/[0.05] flex items-start gap-3 backdrop-blur-xs">
+          <div className="w-2 h-2 rounded-full bg-sky-400 shrink-0 mt-1 " />
           <div>
             <h4 className="text-[11px] font-tactical font-bold text-white tracking-[0.12em] uppercase">
               Coach Hub &bull; Tandem Sync
@@ -178,7 +180,7 @@ export const AthleteLaunchProtocolCard: React.FC<AthleteLaunchProtocolCardProps>
       <div className="space-y-2.5 pt-1">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#C4121A]" />
+            <span className="w-1.5 h-1.5 rounded-full bg-o1-crimson" />
             <span className="text-[9.5px] font-tactical font-bold uppercase tracking-[0.16em] text-neutral-300">
               DEVICE INTEGRATIONS (OPTIONAL)
             </span>
@@ -188,7 +190,7 @@ export const AthleteLaunchProtocolCard: React.FC<AthleteLaunchProtocolCardProps>
             onClick={handleEnableAll}
             className="text-[9px] font-mono text-neutral-400 hover:text-white uppercase tracking-wider underline cursor-pointer transition flex items-center gap-1"
           >
-            <Sparkles className="w-3 h-3 text-[#C4121A]" />
+            <Sparkles className="w-3 h-3 text-o1-crimson" />
             <span>Enable All</span>
           </button>
         </div>
@@ -204,8 +206,8 @@ export const AthleteLaunchProtocolCard: React.FC<AthleteLaunchProtocolCardProps>
             onClick={requestLocation}
             className={`p-2.5 rounded-2xl border transition-all cursor-pointer flex items-center justify-between text-left ${
               perms.location
-                ? 'bg-green-950/40 border-green-600/40'
-                : 'bg-white/[0.03] border-white/10 hover:border-white/25'
+                ? 'bg-emerald-950/40 border-emerald-600/40'
+                : 'bg-white/[0.03] border-white/[0.07] hover:border-white/[0.14]'
             }`}
           >
             <div>
@@ -213,12 +215,12 @@ export const AthleteLaunchProtocolCard: React.FC<AthleteLaunchProtocolCardProps>
               <span className="text-[10px] font-sans text-neutral-400">Gym &amp; Radar</span>
             </div>
             {perms.location ? (
-              <span className="flex items-center gap-1 text-[10px] font-mono font-bold text-green-400">
+              <span className="flex items-center gap-1 text-[10px] font-mono font-bold text-emerald-400">
                 <Check className="w-3.5 h-3.5 stroke-[3]" />
                 <span>Active</span>
               </span>
             ) : (
-              <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded-full bg-white/10 text-white border border-white/15">
+              <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded-full bg-white/10 text-white border border-white/[0.07]">
                 Enable
               </span>
             )}
@@ -230,8 +232,8 @@ export const AthleteLaunchProtocolCard: React.FC<AthleteLaunchProtocolCardProps>
             onClick={requestCamera}
             className={`p-2.5 rounded-2xl border transition-all cursor-pointer flex items-center justify-between text-left ${
               perms.camera
-                ? 'bg-green-950/40 border-green-600/40'
-                : 'bg-white/[0.03] border-white/10 hover:border-white/25'
+                ? 'bg-emerald-950/40 border-emerald-600/40'
+                : 'bg-white/[0.03] border-white/[0.07] hover:border-white/[0.14]'
             }`}
           >
             <div>
@@ -239,12 +241,12 @@ export const AthleteLaunchProtocolCard: React.FC<AthleteLaunchProtocolCardProps>
               <span className="text-[10px] font-sans text-neutral-400">Meal Vision</span>
             </div>
             {perms.camera ? (
-              <span className="flex items-center gap-1 text-[10px] font-mono font-bold text-green-400">
+              <span className="flex items-center gap-1 text-[10px] font-mono font-bold text-emerald-400">
                 <Check className="w-3.5 h-3.5 stroke-[3]" />
                 <span>Active</span>
               </span>
             ) : (
-              <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded-full bg-white/10 text-white border border-white/15">
+              <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded-full bg-white/10 text-white border border-white/[0.07]">
                 Enable
               </span>
             )}
@@ -256,8 +258,8 @@ export const AthleteLaunchProtocolCard: React.FC<AthleteLaunchProtocolCardProps>
             onClick={requestMic}
             className={`p-2.5 rounded-2xl border transition-all cursor-pointer flex items-center justify-between text-left ${
               perms.microphone
-                ? 'bg-green-950/40 border-green-600/40'
-                : 'bg-white/[0.03] border-white/10 hover:border-white/25'
+                ? 'bg-emerald-950/40 border-emerald-600/40'
+                : 'bg-white/[0.03] border-white/[0.07] hover:border-white/[0.14]'
             }`}
           >
             <div>
@@ -265,12 +267,12 @@ export const AthleteLaunchProtocolCard: React.FC<AthleteLaunchProtocolCardProps>
               <span className="text-[10px] font-sans text-neutral-400">Voice Fuel Log</span>
             </div>
             {perms.microphone ? (
-              <span className="flex items-center gap-1 text-[10px] font-mono font-bold text-green-400">
+              <span className="flex items-center gap-1 text-[10px] font-mono font-bold text-emerald-400">
                 <Check className="w-3.5 h-3.5 stroke-[3]" />
                 <span>Active</span>
               </span>
             ) : (
-              <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded-full bg-white/10 text-white border border-white/15">
+              <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded-full bg-white/10 text-white border border-white/[0.07]">
                 Enable
               </span>
             )}
@@ -282,8 +284,8 @@ export const AthleteLaunchProtocolCard: React.FC<AthleteLaunchProtocolCardProps>
             onClick={requestNotifications}
             className={`p-2.5 rounded-2xl border transition-all cursor-pointer flex items-center justify-between text-left ${
               perms.notifications
-                ? 'bg-green-950/40 border-green-600/40'
-                : 'bg-white/[0.03] border-white/10 hover:border-white/25'
+                ? 'bg-emerald-950/40 border-emerald-600/40'
+                : 'bg-white/[0.03] border-white/[0.07] hover:border-white/[0.14]'
             }`}
           >
             <div>
@@ -291,12 +293,12 @@ export const AthleteLaunchProtocolCard: React.FC<AthleteLaunchProtocolCardProps>
               <span className="text-[10px] font-sans text-neutral-400">Sync &amp; Targets</span>
             </div>
             {perms.notifications ? (
-              <span className="flex items-center gap-1 text-[10px] font-mono font-bold text-green-400">
+              <span className="flex items-center gap-1 text-[10px] font-mono font-bold text-emerald-400">
                 <Check className="w-3.5 h-3.5 stroke-[3]" />
                 <span>Active</span>
               </span>
             ) : (
-              <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded-full bg-white/10 text-white border border-white/15">
+              <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded-full bg-white/10 text-white border border-white/[0.07]">
                 Enable
               </span>
             )}
@@ -325,8 +327,8 @@ export const AthleteLaunchProtocolCard: React.FC<AthleteLaunchProtocolCardProps>
                 }}
                 className={`py-2 px-3.5 rounded-full text-xs font-sans font-bold uppercase tracking-wider transition-all cursor-pointer flex items-center gap-1.5 ${
                   isSel
-                    ? 'bg-[#C4121A] text-white shadow-xs border border-white/20'
-                    : 'bg-white/[0.04] text-neutral-300 border border-white/10 hover:border-white/20'
+                    ? 'bg-o1-crimson text-white shadow-xs border border-white/[0.07]'
+                    : 'bg-white/[0.04] text-neutral-300 border border-white/[0.07] hover:border-white/[0.14]'
                 }`}
               >
                 {isSel && <Check className="w-3.5 h-3.5" />}
@@ -345,11 +347,23 @@ export const AthleteLaunchProtocolCard: React.FC<AthleteLaunchProtocolCardProps>
             tactileEngine.triggerDialHaptic();
             onLaunch();
           }}
-          className="w-full py-3.5 rounded-full bg-[#C4121A] hover:bg-[#A30F16] active:scale-[0.98] text-white font-tactical font-bold text-xs uppercase tracking-[0.2em] transition-all shadow-md border border-white/10 flex items-center justify-center gap-2 cursor-pointer"
+          className="w-full py-3.5 rounded-full bg-o1-crimson hover:bg-o1-crimson-hover active:scale-[0.98] text-white font-tactical font-bold text-xs uppercase tracking-[0.2em] transition-all shadow-md border border-white/[0.07] flex items-center justify-center gap-2 cursor-pointer"
         >
           <span>ENTER TRAINING OS PRO</span>
           <ArrowRight className="w-4 h-4" />
         </button>
+        {onSkip && (
+          <button
+            type="button"
+            onClick={() => {
+              tactileEngine.triggerSelectionBuzz();
+              onSkip();
+            }}
+            className="w-full py-2.5 rounded-full bg-white/5 hover:bg-white/10 text-neutral-300 text-xs font-tactical font-semibold uppercase tracking-wider cursor-pointer"
+          >
+            Close tutorial — stay signed in
+          </button>
+        )}
         <p className="text-center text-[10px] font-sans text-neutral-500 flex items-center justify-center gap-1.5">
           <ShieldCheck className="w-3.5 h-3.5 text-neutral-400" />
           <span>Biometric telemetry is encrypted on device. Configurable anytime in Settings.</span>

@@ -78,12 +78,12 @@ export const SettingsHardwareSection: React.FC<ConnectedDevicesProps> = ({
   };
 
   return (
-    <div className="space-y-3 select-none">
-      <h3 className="text-xs font-tactical tracking-wider text-neutral-500 dark:text-neutral-400 font-bold uppercase px-1">
+    <div className="space-y-2 select-none">
+      <h3 className="text-xs font-tactical tracking-wider text-neutral-400 font-bold uppercase px-1">
         Connected Devices &amp; Hardware Sensors
       </h3>
 
-      <div className="bg-white dark:bg-[#121214] rounded-2xl border border-neutral-200/80 dark:border-neutral-800 shadow-xs p-4 space-y-4 transition-colors">
+      <div className="bg-o1-card rounded-2xl border border-white/[0.07] shadow-xs p-3 space-y-2.5 transition-colors">
         <BleDeviceRow
           device={bleDevice}
           error={bleError}

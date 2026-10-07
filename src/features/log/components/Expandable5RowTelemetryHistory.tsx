@@ -104,46 +104,46 @@ export const Expandable5RowTelemetryHistory: React.FC<Expandable5RowTelemetryHis
         return {
           title: 'WORKOUT ADHERENCE',
           icon: <Dumbbell className="w-3.5 h-3.5" />,
-          activeColor: 'text-[#C4121A]',
-          activeBg: 'bg-[#C4121A]',
-          pillBg: 'bg-red-50 dark:bg-red-950/30 border-red-200 dark:border-red-900/40 text-[#C4121A] dark:text-red-400',
-          accentBorder: 'border-red-200 dark:border-red-900/40',
+          activeColor: 'text-o1-crimson',
+          activeBg: 'bg-o1-crimson',
+          pillBg: 'bg-red-950/30 border-red-900/40 text-red-400',
+          accentBorder: 'border-red-900/40',
         };
       case 'cardio':
         return {
           title: 'AEROBIC CONSISTENCY',
           icon: <Activity className="w-3.5 h-3.5" />,
-          activeColor: 'text-sky-600 dark:text-sky-400',
+          activeColor: 'text-sky-400',
           activeBg: 'bg-sky-600',
-          pillBg: 'bg-sky-50 dark:bg-sky-950/30 border-sky-200 dark:border-sky-900/40 text-sky-700 dark:text-sky-300',
-          accentBorder: 'border-sky-200 dark:border-sky-900/40',
+          pillBg: 'bg-sky-950/30 border-sky-900/40 text-sky-300',
+          accentBorder: 'border-sky-900/40',
         };
       case 'nutrition':
         return {
           title: 'NUTRITION CONSISTENCY',
           icon: <Apple className="w-3.5 h-3.5" />,
-          activeColor: 'text-amber-600 dark:text-amber-400',
+          activeColor: 'text-amber-400',
           activeBg: 'bg-amber-600',
-          pillBg: 'bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-900/40 text-amber-700 dark:text-amber-300',
-          accentBorder: 'border-amber-200 dark:border-amber-900/40',
+          pillBg: 'bg-amber-950/30 border-amber-900/40 text-amber-300',
+          accentBorder: 'border-amber-900/40',
         };
       case 'sleep':
         return {
           title: 'CIRCADIAN RECOVERY',
           icon: <Moon className="w-3.5 h-3.5" />,
-          activeColor: 'text-indigo-600 dark:text-indigo-400',
-          activeBg: 'bg-indigo-600',
-          pillBg: 'bg-indigo-50 dark:bg-indigo-950/30 border-indigo-200 dark:border-indigo-900/40 text-indigo-700 dark:text-indigo-300',
-          accentBorder: 'border-indigo-200 dark:border-indigo-900/40',
+          activeColor: 'text-sky-400',
+          activeBg: 'bg-sky-600',
+          pillBg: 'bg-sky-950/30 border-sky-900/40 text-sky-300',
+          accentBorder: 'border-sky-900/40',
         };
       case 'meditation':
         return {
           title: 'MINDFUL COHERENCE',
           icon: <Sparkles className="w-3.5 h-3.5" />,
-          activeColor: 'text-green-700 dark:text-green-400',
-          activeBg: 'bg-green-600',
-          pillBg: 'bg-green-50 dark:bg-green-950/30 border-green-200 dark:border-green-900/40 text-green-800 dark:text-green-300',
-          accentBorder: 'border-green-200 dark:border-green-900/40',
+          activeColor: 'text-emerald-400',
+          activeBg: 'bg-emerald-600',
+          pillBg: 'bg-emerald-950/30 border-emerald-900/40 text-emerald-300',
+          accentBorder: 'border-emerald-900/40',
         };
     }
   };
@@ -288,13 +288,13 @@ export const Expandable5RowTelemetryHistory: React.FC<Expandable5RowTelemetryHis
   };
 
   return (
-    <div className="rounded-3xl bg-white dark:bg-[#121214] border border-neutral-200 dark:border-neutral-800 p-4 sm:p-5 shadow-sm space-y-4 text-neutral-900 dark:text-white font-mono select-none">
+    <div className="rounded-2xl bg-o1-card border border-white/[0.07] p-2.5 shadow-sm space-y-2.5 text-white font-mono select-none">
       {/* 1. CONSISTENCY HEADER & INDICATOR TRACK */}
       <div className="space-y-2.5">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="text-neutral-400">◎</span>
-            <span className="font-bold text-xs uppercase tracking-wider text-neutral-700 dark:text-neutral-300">
+            <span className="font-bold text-xs uppercase tracking-wider text-neutral-300">
               {is30D ? `${meta.title} (30-DAY LOG HISTORY)` : meta.title}
             </span>
           </div>
@@ -319,14 +319,14 @@ export const Expandable5RowTelemetryHistory: React.FC<Expandable5RowTelemetryHis
             <span className="text-[10px] text-neutral-500 font-sans">
               Showing {displayedDays.length} dates &amp; sessions:
             </span>
-            <div className="inline-flex items-center bg-neutral-100 dark:bg-[#18181c] border border-neutral-200 dark:border-neutral-800 p-0.5 rounded-xl text-[10px]">
+            <div className="inline-flex items-center bg-o1-well border border-white/[0.07] p-0.5 rounded-xl text-[10px]">
               <button
                 type="button"
                 onClick={() => setFilterMode('withData')}
-                className={`px-2 py-0.5 rounded-lg transition-colors cursor-pointer ${
+                className={`px-2 py-0.5 rounded-xl transition-colors cursor-pointer ${
                   filterMode === 'withData'
-                    ? 'bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 font-bold'
-                    : 'text-neutral-500 hover:text-black dark:hover:text-white'
+                    ? 'bg-white text-neutral-900 font-bold'
+                    : 'text-neutral-500 hover:text-white'
                 }`}
               >
                 Logged ({completedDaysCount})
@@ -334,10 +334,10 @@ export const Expandable5RowTelemetryHistory: React.FC<Expandable5RowTelemetryHis
               <button
                 type="button"
                 onClick={() => setFilterMode('all')}
-                className={`px-2 py-0.5 rounded-lg transition-colors cursor-pointer ${
+                className={`px-2 py-0.5 rounded-xl transition-colors cursor-pointer ${
                   filterMode === 'all'
-                    ? 'bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 font-bold'
-                    : 'text-neutral-500 hover:text-black dark:hover:text-white'
+                    ? 'bg-white text-neutral-900 font-bold'
+                    : 'text-neutral-500 hover:text-white'
                 }`}
               >
                 All 30 Days
@@ -359,10 +359,10 @@ export const Expandable5RowTelemetryHistory: React.FC<Expandable5RowTelemetryHis
                   className={`w-full h-2 rounded-full transition-all duration-300 ${
                     hasData
                       ? `${meta.activeBg} shadow-xs`
-                      : 'bg-neutral-200 dark:bg-neutral-800/80'
+                      : 'bg-white/[0.08]'
                   }`}
                 />
-                <span className="text-[9px] font-bold text-neutral-500 dark:text-neutral-400 tracking-wider">
+                <span className="text-[9px] font-bold text-neutral-400 tracking-wider">
                   {d.dayPillLabel}
                 </span>
               </div>
@@ -372,7 +372,7 @@ export const Expandable5RowTelemetryHistory: React.FC<Expandable5RowTelemetryHis
       </div>
 
       {/* 2. THE CLEAN EXPANDABLE HISTORY LIST */}
-      <div className="divide-y divide-neutral-200 dark:divide-neutral-800/70 border-t border-neutral-200 dark:border-neutral-800/70 pt-1">
+      <div className="divide-y divide-white/[0.05] border-t border-white/[0.05] pt-1">
         {displayedDays.map((dayMeta: DayMeta) => {
           const isExpanded = Boolean(expandedDateKeys[dayMeta.dateKey]);
           const record = getEffectiveRecord(dayMeta);
@@ -385,20 +385,20 @@ export const Expandable5RowTelemetryHistory: React.FC<Expandable5RowTelemetryHis
               <button
                 type="button"
                 onClick={() => toggleRow(dayMeta.dateKey)}
-                className="w-full flex items-center justify-between text-left group cursor-pointer hover:bg-neutral-100 dark:hover:bg-neutral-800/20 rounded-xl px-2 py-1.5 -mx-2 transition-colors active:scale-[0.99]"
+                className="w-full flex items-center justify-between text-left group cursor-pointer hover:bg-white/[0.06] rounded-xl px-2 py-1.5 -mx-2 transition-colors active:scale-[0.99]"
               >
                 {/* Left Side: Category Icon + Day Label */}
                 <div className="flex items-center gap-3">
                   <span
                     className={`transition-colors ${
-                      hasData ? meta.activeColor : 'text-neutral-400 dark:text-neutral-500 group-hover:text-neutral-600 dark:group-hover:text-neutral-400'
+                      hasData ? meta.activeColor : 'text-neutral-500 group-hover:text-neutral-400'
                     }`}
                   >
                     {meta.icon}
                   </span>
 
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-bold uppercase tracking-wider text-neutral-800 dark:text-neutral-200 group-hover:text-black dark:group-hover:text-white">
+                    <span className="text-xs font-bold uppercase tracking-wider text-neutral-200 group-hover:text-white">
                       {dayMeta.dayLabel}
                     </span>
 
@@ -411,15 +411,15 @@ export const Expandable5RowTelemetryHistory: React.FC<Expandable5RowTelemetryHis
                 {/* Right Side: Key Values + Chevron */}
                 <div className="flex items-center gap-2.5">
                   <div className="text-right flex items-center gap-2">
-                    <span className="text-xs font-bold text-neutral-900 dark:text-neutral-200">
+                    <span className="text-xs font-bold text-neutral-200">
                       {summary.primary}
                     </span>
-                    <span className="text-xs text-neutral-500 dark:text-neutral-400 font-normal">
+                    <span className="text-xs text-neutral-400 font-normal">
                       {summary.secondary}
                     </span>
                   </div>
 
-                  <div className="text-neutral-400 dark:text-neutral-500 group-hover:text-neutral-600 dark:group-hover:text-neutral-300 transition-colors">
+                  <div className="text-neutral-500 group-hover:text-neutral-300 transition-colors">
                     {isExpanded ? (
                       <ChevronUp className="w-4 h-4" />
                     ) : (
@@ -431,37 +431,37 @@ export const Expandable5RowTelemetryHistory: React.FC<Expandable5RowTelemetryHis
 
               {/* Expandable Content for this Day */}
               {isExpanded && (
-                <div className="mt-2.5 p-3 sm:p-4 rounded-2xl bg-neutral-50 dark:bg-[#16161a] border border-neutral-200 dark:border-neutral-800/90 space-y-3 animate-in fade-in slide-in-from-top-1 duration-200">
+                <div className="mt-2.5 p-3 sm:p-4 rounded-xl bg-white/[0.03] space-y-3 animate-in fade-in slide-in-from-top-1 duration-200">
                   {/* Category-Specific Detailed Metrics */}
                   {category === 'workout' && (
                     <div className="space-y-2.5">
                       {hasData ? (
                         <>
                           <div className="flex items-center justify-between text-xs">
-                            <span className="text-neutral-900 dark:text-white font-bold">
+                            <span className="text-white font-bold">
                               {(record as WorkoutDayRecord).routineName || 'Resistance Session'}
                             </span>
-                            <span className="text-[10px] text-neutral-500 dark:text-neutral-400">
+                            <span className="text-[10px] text-neutral-400">
                               {(record as WorkoutDayRecord).durationMinutes || 45} min duration
                             </span>
                           </div>
 
                           <div className="grid grid-cols-3 gap-2 text-center text-xs">
-                            <div className="p-2 rounded-xl bg-white dark:bg-[#121214] border border-neutral-200 dark:border-neutral-800">
+                            <div className="p-2 rounded-xl bg-white/[0.03]">
                               <span className="text-[9px] text-neutral-500 uppercase block">Tonnage</span>
-                              <span className="font-bold text-[#C4121A]">
+                              <span className="font-bold text-o1-crimson">
                                 {((record as WorkoutDayRecord).tonnageKg || 0).toLocaleString()} kg
                               </span>
                             </div>
-                            <div className="p-2 rounded-xl bg-white dark:bg-[#121214] border border-neutral-200 dark:border-neutral-800">
+                            <div className="p-2 rounded-xl bg-white/[0.03]">
                               <span className="text-[9px] text-neutral-500 uppercase block">Sets Done</span>
-                              <span className="font-bold text-neutral-900 dark:text-white">
+                              <span className="font-bold text-white">
                                 {(record as WorkoutDayRecord).completedSets || 0}
                               </span>
                             </div>
-                            <div className="p-2 rounded-xl bg-white dark:bg-[#121214] border border-neutral-200 dark:border-neutral-800">
+                            <div className="p-2 rounded-xl bg-white/[0.03]">
                               <span className="text-[9px] text-neutral-500 uppercase block">RPE</span>
-                              <span className="font-bold text-amber-500 dark:text-amber-400">
+                              <span className="font-bold text-amber-400">
                                 {(record as WorkoutDayRecord).intensityRpe || 8.5}
                               </span>
                             </div>
@@ -473,13 +473,13 @@ export const Expandable5RowTelemetryHistory: React.FC<Expandable5RowTelemetryHis
                               {(record as WorkoutDayRecord).exercises.map((ex, i) => (
                                 <div
                                   key={i}
-                                  className="p-2 rounded-lg bg-white dark:bg-[#121214] border border-neutral-200 dark:border-neutral-800/80 flex items-center justify-between text-xs"
+                                  className="p-2 rounded-xl bg-white/[0.03] flex items-center justify-between text-xs"
                                 >
                                   <div className="flex items-center gap-2">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-[#C4121A]" />
-                                    <span className="text-neutral-800 dark:text-neutral-200 font-semibold">{ex.name}</span>
+                                    <span className="w-1.5 h-1.5 rounded-full bg-o1-crimson" />
+                                    <span className="text-neutral-200 font-semibold">{ex.name}</span>
                                   </div>
-                                  <span className="text-[10px] text-neutral-500 dark:text-neutral-400">
+                                  <span className="text-[10px] text-neutral-400">
                                     {ex.sets} sets × {ex.reps} reps ({ex.weightKg}kg)
                                   </span>
                                 </div>
@@ -489,14 +489,14 @@ export const Expandable5RowTelemetryHistory: React.FC<Expandable5RowTelemetryHis
                         </>
                       ) : (
                         <div className="py-3 text-center space-y-2">
-                          <p className="text-xs font-tactical font-black uppercase tracking-wider text-neutral-900 dark:text-white">
+                          <p className="text-xs font-tactical font-black uppercase tracking-wider text-white">
                             NO SESSIONS REGISTERED • SELECT A ROUTINE TO BEGIN RECORDING
                           </p>
                           <div className="flex items-center justify-center">
                             <button
                               type="button"
                               onClick={() => setModalDay(dayMeta)}
-                              className="inline-flex items-center gap-1.5 py-1.5 px-3 rounded-xl bg-[#C4121A] hover:bg-[#a50f16] text-white text-xs font-bold uppercase tracking-wider transition-all cursor-pointer active:scale-95 shadow-sm"
+                              className="inline-flex items-center gap-1.5 py-1.5 px-3 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover text-white text-xs font-bold uppercase tracking-wider transition-all cursor-pointer active:scale-95 shadow-sm"
                             >
                               <Plus className="w-3.5 h-3.5" />
                               <span>Log for {dayMeta.dayLabel}</span>
@@ -512,30 +512,30 @@ export const Expandable5RowTelemetryHistory: React.FC<Expandable5RowTelemetryHis
                       {hasData ? (
                         <>
                           <div className="flex items-center justify-between text-xs">
-                            <span className="text-cyan-600 dark:text-cyan-400 font-bold">
+                            <span className="text-sky-400 font-bold">
                               {(record as CardioDayRecord).activityType || 'Cardio Console'}
                             </span>
-                            <span className="text-[10px] text-neutral-500 dark:text-neutral-400">
+                            <span className="text-[10px] text-neutral-400">
                               {(record as CardioDayRecord).durationMinutes || 0} min duration
                             </span>
                           </div>
 
                           <div className="grid grid-cols-3 gap-2 text-center text-xs">
-                            <div className="p-2 rounded-xl bg-white dark:bg-[#121214] border border-neutral-200 dark:border-neutral-800">
+                            <div className="p-2 rounded-xl bg-white/[0.03]">
                               <span className="text-[9px] text-neutral-500 uppercase block">Distance</span>
-                              <span className="font-bold text-cyan-600 dark:text-cyan-400">
+                              <span className="font-bold text-sky-400">
                                 {(record as CardioDayRecord).distanceKm || 0} km
                               </span>
                             </div>
-                            <div className="p-2 rounded-xl bg-white dark:bg-[#121214] border border-neutral-200 dark:border-neutral-800">
+                            <div className="p-2 rounded-xl bg-white/[0.03]">
                               <span className="text-[9px] text-neutral-500 uppercase block">Burned</span>
-                              <span className="font-bold text-amber-500 dark:text-amber-400">
+                              <span className="font-bold text-amber-400">
                                 {(record as CardioDayRecord).burnedKcal || 0} kcal
                               </span>
                             </div>
-                            <div className="p-2 rounded-xl bg-white dark:bg-[#121214] border border-neutral-200 dark:border-neutral-800">
+                            <div className="p-2 rounded-xl bg-white/[0.03]">
                               <span className="text-[9px] text-neutral-500 uppercase block">Avg HR</span>
-                              <span className="font-bold text-neutral-900 dark:text-white">
+                              <span className="font-bold text-white">
                                 {(record as CardioDayRecord).avgHeartRateBpm || 135} bpm
                               </span>
                             </div>
@@ -543,7 +543,7 @@ export const Expandable5RowTelemetryHistory: React.FC<Expandable5RowTelemetryHis
                         </>
                       ) : (
                         <div className="py-2 text-center space-y-2">
-                          <p className="text-xs text-neutral-600 dark:text-neutral-500">
+                          <p className="text-xs text-neutral-500">
                             No cardio telemetry recorded for {dayMeta.dayLabel.toLowerCase()}.
                           </p>
                           <div className="flex items-center justify-center gap-2">
@@ -553,7 +553,7 @@ export const Expandable5RowTelemetryHistory: React.FC<Expandable5RowTelemetryHis
                                 tactileEngine.triggerSelectionBuzz();
                                 setScanConsoleDay(dayMeta);
                               }}
-                              className="inline-flex items-center gap-1.5 py-1.5 px-3 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-black text-xs font-black uppercase tracking-wider transition-all cursor-pointer active:scale-95 shadow-xs"
+                              className="inline-flex items-center gap-1.5 py-1.5 px-3 rounded-xl bg-sky-500 hover:bg-sky-400 text-black text-xs font-black uppercase tracking-wider transition-all cursor-pointer active:scale-95 shadow-xs"
                             >
                               <Camera className="w-3.5 h-3.5 text-black" />
                               <span>Scan Console</span>
@@ -561,7 +561,7 @@ export const Expandable5RowTelemetryHistory: React.FC<Expandable5RowTelemetryHis
                             <button
                               type="button"
                               onClick={() => setModalDay(dayMeta)}
-                              className="inline-flex items-center gap-1.5 py-1.5 px-3 rounded-xl bg-neutral-200 dark:bg-neutral-800 hover:bg-neutral-300 dark:hover:bg-neutral-700 text-neutral-900 dark:text-white text-xs font-bold uppercase tracking-wider transition-all cursor-pointer active:scale-95"
+                              className="inline-flex items-center gap-1.5 py-1.5 px-3 rounded-xl bg-white/[0.08] hover:bg-neutral-700 text-white text-xs font-bold uppercase tracking-wider transition-all cursor-pointer active:scale-95"
                             >
                               <Plus className="w-3.5 h-3.5" />
                               <span>Manual Log</span>
@@ -577,27 +577,27 @@ export const Expandable5RowTelemetryHistory: React.FC<Expandable5RowTelemetryHis
                       {hasData ? (
                         <>
                           <div className="grid grid-cols-4 gap-1.5 text-center text-xs">
-                            <div className="p-1.5 rounded-xl bg-white dark:bg-[#121214] border border-neutral-200 dark:border-neutral-800">
+                            <div className="p-1.5 rounded-xl bg-white/[0.03]">
                               <span className="text-[8px] text-neutral-500 uppercase block">Calories</span>
-                              <span className="font-bold text-amber-500 dark:text-amber-400">
+                              <span className="font-bold text-amber-400">
                                 {Math.round((record as NutritionDayRecord).calories || 0)}
                               </span>
                             </div>
-                            <div className="p-1.5 rounded-xl bg-white dark:bg-[#121214] border border-neutral-200 dark:border-neutral-800">
+                            <div className="p-1.5 rounded-xl bg-white/[0.03]">
                               <span className="text-[8px] text-neutral-500 uppercase block">Protein</span>
-                              <span className="font-bold text-sky-600 dark:text-sky-400">
+                              <span className="font-bold text-sky-400">
                                 {formatMacro((record as NutritionDayRecord).proteinG)}g
                               </span>
                             </div>
-                            <div className="p-1.5 rounded-xl bg-white dark:bg-[#121214] border border-neutral-200 dark:border-neutral-800">
+                            <div className="p-1.5 rounded-xl bg-white/[0.03]">
                               <span className="text-[8px] text-neutral-500 uppercase block">Carbs</span>
-                              <span className="font-bold text-neutral-900 dark:text-white">
+                              <span className="font-bold text-white">
                                 {formatMacro((record as NutritionDayRecord).carbsG)}g
                               </span>
                             </div>
-                            <div className="p-1.5 rounded-xl bg-white dark:bg-[#121214] border border-neutral-200 dark:border-neutral-800">
+                            <div className="p-1.5 rounded-xl bg-white/[0.03]">
                               <span className="text-[8px] text-neutral-500 uppercase block">Fats</span>
-                              <span className="font-bold text-neutral-900 dark:text-white">
+                              <span className="font-bold text-white">
                                 {formatMacro((record as NutritionDayRecord).fatsG)}g
                               </span>
                             </div>
@@ -608,10 +608,10 @@ export const Expandable5RowTelemetryHistory: React.FC<Expandable5RowTelemetryHis
                               {(record as NutritionDayRecord).meals.map((m, idx) => (
                                 <div
                                   key={idx}
-                                  className="p-2 rounded-lg bg-white dark:bg-[#121214] border border-neutral-200 dark:border-neutral-800/80 flex items-center justify-between text-xs"
+                                  className="p-2 rounded-xl bg-white/[0.03] flex items-center justify-between text-xs"
                                 >
-                                  <span className="text-neutral-800 dark:text-neutral-200 font-semibold">{m.name}</span>
-                                  <span className="text-[10px] text-amber-500 dark:text-amber-400">
+                                  <span className="text-neutral-200 font-semibold">{m.name}</span>
+                                  <span className="text-[10px] text-amber-400">
                                     {m.calories} kcal · {formatMacro(m.proteinG)}g P
                                   </span>
                                 </div>
@@ -621,14 +621,14 @@ export const Expandable5RowTelemetryHistory: React.FC<Expandable5RowTelemetryHis
                         </>
                       ) : (
                         <div className="py-2 text-center space-y-2">
-                          <p className="text-xs text-neutral-600 dark:text-neutral-500">
+                          <p className="text-xs text-neutral-500">
                             No itemized meals recorded for {dayMeta.dayLabel.toLowerCase()}.
                           </p>
                           <div className="flex items-center justify-center">
                             <button
                               type="button"
                               onClick={() => setModalDay(dayMeta)}
-                              className="inline-flex items-center gap-1.5 py-1.5 px-3 rounded-xl bg-neutral-200 dark:bg-neutral-800 hover:bg-neutral-300 dark:hover:bg-neutral-700 text-neutral-900 dark:text-white text-xs font-bold uppercase tracking-wider transition-all cursor-pointer active:scale-95"
+                              className="inline-flex items-center gap-1.5 py-1.5 px-3 rounded-xl bg-white/[0.08] hover:bg-neutral-700 text-white text-xs font-bold uppercase tracking-wider transition-all cursor-pointer active:scale-95"
                             >
                               <Plus className="w-3.5 h-3.5" />
                               <span>Log for {dayMeta.dayLabel}</span>
@@ -644,27 +644,27 @@ export const Expandable5RowTelemetryHistory: React.FC<Expandable5RowTelemetryHis
                       {hasData ? (
                         <>
                           <div className="grid grid-cols-3 gap-2 text-center text-xs">
-                            <div className="p-2 rounded-xl bg-white dark:bg-[#121214] border border-neutral-200 dark:border-neutral-800">
+                            <div className="p-2 rounded-xl bg-white/[0.03]">
                               <span className="text-[9px] text-neutral-500 uppercase block">Duration</span>
-                              <span className="font-bold text-purple-600 dark:text-purple-400">
+                              <span className="font-bold text-sky-400">
                                 {(record as SleepDayRecord).durationHours || 0}h
                               </span>
                             </div>
-                            <div className="p-2 rounded-xl bg-white dark:bg-[#121214] border border-neutral-200 dark:border-neutral-800">
+                            <div className="p-2 rounded-xl bg-white/[0.03]">
                               <span className="text-[9px] text-neutral-500 uppercase block">Recovery</span>
-                              <span className="font-bold text-green-700 dark:text-green-400">
+                              <span className="font-bold text-emerald-400">
                                 {(record as SleepDayRecord).recoveryPercent || 0}%
                               </span>
                             </div>
-                            <div className="p-2 rounded-xl bg-white dark:bg-[#121214] border border-neutral-200 dark:border-neutral-800">
+                            <div className="p-2 rounded-xl bg-white/[0.03]">
                               <span className="text-[9px] text-neutral-500 uppercase block">Resting HR</span>
-                              <span className="font-bold text-neutral-900 dark:text-white">
+                              <span className="font-bold text-white">
                                 {(record as SleepDayRecord).restingHeartRate || 52} bpm
                               </span>
                             </div>
                           </div>
 
-                          <div className="p-2 rounded-xl bg-white dark:bg-[#121214] border border-neutral-200 dark:border-neutral-800 flex justify-between text-[11px] text-neutral-600 dark:text-neutral-400">
+                          <div className="p-2 rounded-xl bg-white/[0.03] flex justify-between text-[11px] text-neutral-400">
                             <span>Deep Sleep: {(record as SleepDayRecord).deepSleepMinutes || 90}m</span>
                             <span>REM Sleep: {(record as SleepDayRecord).remSleepMinutes || 105}m</span>
                             <span>Efficiency: {(record as SleepDayRecord).sleepEfficiencyPercent || 94}%</span>
@@ -672,13 +672,13 @@ export const Expandable5RowTelemetryHistory: React.FC<Expandable5RowTelemetryHis
                         </>
                       ) : (
                         <div className="py-2 text-center space-y-2">
-                          <p className="text-xs text-neutral-600 dark:text-neutral-500">
+                          <p className="text-xs text-neutral-500">
                             No sleep data logged for {dayMeta.dayLabel.toLowerCase()}.
                           </p>
                           <button
                             type="button"
                             onClick={() => setModalDay(dayMeta)}
-                            className="inline-flex items-center gap-1.5 py-1.5 px-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold uppercase tracking-wider transition-all cursor-pointer active:scale-95"
+                            className="inline-flex items-center gap-1.5 py-1.5 px-3 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold uppercase tracking-wider transition-all cursor-pointer active:scale-95"
                           >
                             <Plus className="w-3.5 h-3.5" />
                             <span>Log Sleep for {dayMeta.dayLabel}</span>
@@ -693,33 +693,33 @@ export const Expandable5RowTelemetryHistory: React.FC<Expandable5RowTelemetryHis
                       {hasData ? (
                         <>
                           <div className="grid grid-cols-2 gap-2 text-center text-xs">
-                            <div className="p-2 rounded-xl bg-white dark:bg-[#121214] border border-neutral-200 dark:border-neutral-800">
+                            <div className="p-2 rounded-xl bg-white/[0.03]">
                               <span className="text-[9px] text-neutral-500 uppercase block">Mindful Time</span>
-                              <span className="font-bold text-green-700 dark:text-green-400">
+                              <span className="font-bold text-emerald-400">
                                 {(record as MeditationDayRecord).minutes || 0} min
                               </span>
                             </div>
-                            <div className="p-2 rounded-xl bg-white dark:bg-[#121214] border border-neutral-200 dark:border-neutral-800">
+                            <div className="p-2 rounded-xl bg-white/[0.03]">
                               <span className="text-[9px] text-neutral-500 uppercase block">Coherence</span>
-                              <span className="font-bold text-neutral-900 dark:text-white">
+                              <span className="font-bold text-white">
                                 {(record as MeditationDayRecord).coherence || 'Alpha Wave'}
                               </span>
                             </div>
                           </div>
 
-                          <div className="p-2 rounded-xl bg-white dark:bg-[#121214] border border-neutral-200 dark:border-neutral-800 text-[11px] text-neutral-700 dark:text-neutral-300">
+                          <div className="p-2 rounded-xl bg-white/[0.03] text-[11px] text-neutral-300">
                             Protocol: {(record as MeditationDayRecord).protocol || 'Tactical Box Breathing 4-4-4-4'}
                           </div>
                         </>
                       ) : (
                         <div className="py-2 text-center space-y-2">
-                          <p className="text-xs text-neutral-600 dark:text-neutral-500">
+                          <p className="text-xs text-neutral-500">
                             No meditation session recorded for {dayMeta.dayLabel.toLowerCase()}.
                           </p>
                           <button
                             type="button"
                             onClick={() => setModalDay(dayMeta)}
-                            className="inline-flex items-center gap-1.5 py-1.5 px-3 rounded-xl bg-green-600 hover:bg-green-500 text-white text-xs font-bold uppercase tracking-wider transition-all cursor-pointer active:scale-95"
+                            className="inline-flex items-center gap-1.5 py-1.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold uppercase tracking-wider transition-all cursor-pointer active:scale-95"
                           >
                             <Plus className="w-3.5 h-3.5 text-white" />
                             <span>Log Meditation for {dayMeta.dayLabel}</span>
@@ -731,11 +731,11 @@ export const Expandable5RowTelemetryHistory: React.FC<Expandable5RowTelemetryHis
 
                   {/* Actions Bar for Logged Rows: Edit & Clear */}
                   {hasData && (
-                    <div className="pt-1 flex items-center justify-end gap-2 border-t border-neutral-200 dark:border-neutral-800/80 text-[10px]">
+                    <div className="pt-1 flex items-center justify-end gap-2 border-t border-white/[0.05] text-[10px]">
                       <button
                         type="button"
                         onClick={() => setModalDay(dayMeta)}
-                        className="py-1 px-2.5 rounded-lg bg-neutral-200 dark:bg-neutral-800 hover:bg-neutral-300 dark:hover:bg-neutral-700 text-neutral-800 dark:text-neutral-300 hover:text-black dark:hover:text-white flex items-center gap-1 cursor-pointer transition-colors active:scale-95"
+                        className="py-1 px-2.5 rounded-xl bg-white/[0.08] hover:bg-neutral-700 text-neutral-300 hover:text-white flex items-center gap-1 cursor-pointer transition-colors active:scale-95"
                       >
                         <Edit2 className="w-3 h-3" />
                         <span>Edit</span>
@@ -747,7 +747,7 @@ export const Expandable5RowTelemetryHistory: React.FC<Expandable5RowTelemetryHis
                           clearDayRecord(dayMeta.dateKey, category);
                           showToast?.(`Cleared ${dayMeta.dayLabel} record`);
                         }}
-                        className="py-1 px-2.5 rounded-lg bg-red-100 dark:bg-red-950/40 hover:bg-red-200 dark:hover:bg-red-900/60 text-red-700 dark:text-red-400 border border-red-300 dark:border-red-900/50 flex items-center gap-1 cursor-pointer transition-colors active:scale-95"
+                        className="py-1 px-2.5 rounded-xl bg-red-950/40 hover:bg-red-900/60 text-red-400 border border-red-900/50 flex items-center gap-1 cursor-pointer transition-colors active:scale-95"
                       >
                         <Trash2 className="w-3 h-3" />
                         <span>Clear</span>

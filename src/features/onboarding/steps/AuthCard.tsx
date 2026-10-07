@@ -87,7 +87,7 @@ export const AuthCard: React.FC<AuthCardProps> = ({ data, onUpdate, onNext, onOp
         <span className="font-mono text-[8px] tracking-[0.35em] text-neutral-400 uppercase">
           ||||||||||||||||
         </span>
-        <span className="text-[10px] text-[#C4121A] leading-none">▾</span>
+        <span className="text-[10px] text-o1-crimson leading-none">▾</span>
         <span className="font-mono text-[8px] tracking-[0.35em] text-neutral-400 uppercase">
           ||||||||||||||||
         </span>
@@ -118,7 +118,7 @@ export const AuthCard: React.FC<AuthCardProps> = ({ data, onUpdate, onNext, onOp
         >
           SIGN IN
           {authMode === 'signin' && (
-            <span className="absolute bottom-0 inset-x-0 h-[2px] bg-[#C4121A] rounded-full" />
+            <span className="absolute bottom-0 inset-x-0 h-[2px] bg-o1-crimson rounded-full" />
           )}
         </button>
 
@@ -137,7 +137,7 @@ export const AuthCard: React.FC<AuthCardProps> = ({ data, onUpdate, onNext, onOp
         >
           SIGN UP
           {authMode === 'signup' && (
-            <span className="absolute bottom-0 inset-x-0 h-[2px] bg-[#C4121A] rounded-full" />
+            <span className="absolute bottom-0 inset-x-0 h-[2px] bg-o1-crimson rounded-full" />
           )}
         </button>
       </div>
@@ -158,7 +158,7 @@ export const AuthCard: React.FC<AuthCardProps> = ({ data, onUpdate, onNext, onOp
               setAuthError(null);
             }}
             placeholder="athlete@oblivion1.club"
-            className="w-full bg-transparent border-b border-white/20 focus:border-[#C4121A] py-2.5 px-0 text-sm font-sans text-white placeholder-neutral-600 focus:outline-none transition-colors"
+            className="w-full bg-transparent border-b border-white/[0.05] focus:border-o1-crimson py-2.5 px-0 text-sm font-sans text-white placeholder-neutral-600 focus:outline-none transition-colors"
           />
         </div>
 
@@ -177,7 +177,7 @@ export const AuthCard: React.FC<AuthCardProps> = ({ data, onUpdate, onNext, onOp
                 setAuthError(null);
               }}
               placeholder="••••••••••••"
-              className="w-full bg-transparent border-b border-white/20 focus:border-[#C4121A] py-2.5 pr-8 pl-0 text-sm font-sans text-white placeholder-neutral-600 focus:outline-none transition-colors"
+              className="w-full bg-transparent border-b border-white/[0.05] focus:border-o1-crimson py-2.5 pr-8 pl-0 text-sm font-sans text-white placeholder-neutral-600 focus:outline-none transition-colors"
             />
             <button
               type="button"
@@ -196,14 +196,14 @@ export const AuthCard: React.FC<AuthCardProps> = ({ data, onUpdate, onNext, onOp
               type="checkbox"
               checked={rememberMe}
               onChange={(e) => setRememberMe(e.target.checked)}
-              className="accent-[#C4121A] rounded cursor-pointer w-3.5 h-3.5 bg-transparent border-white/30"
+              className="accent-o1-crimson rounded cursor-pointer w-3.5 h-3.5 bg-transparent border-white/[0.07]"
             />
             <span className="text-[11px]">Remember credentials</span>
           </label>
           <button
             type="button"
             onClick={() => alert('Password reset link sent to your email.')}
-            className="text-[#C4121A] hover:text-[#e01923] font-tactical font-semibold tracking-wider cursor-pointer transition text-[10px] uppercase"
+            className="text-o1-crimson hover:text-[#e01923] font-tactical font-semibold tracking-wider cursor-pointer transition text-[10px] uppercase"
           >
             FORGOT?
           </button>
@@ -221,7 +221,7 @@ export const AuthCard: React.FC<AuthCardProps> = ({ data, onUpdate, onNext, onOp
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full py-3.5 rounded-full bg-[#C4121A] hover:bg-[#A30F16] active:scale-[0.98] text-white font-tactical font-bold text-xs uppercase tracking-[0.2em] transition-all shadow-md border border-white/10 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 mt-2"
+          className="w-full py-3.5 rounded-full bg-o1-crimson hover:bg-o1-crimson-hover active:scale-[0.98] text-white font-tactical font-bold text-xs uppercase tracking-[0.2em] transition-all shadow-md border border-white/[0.07] flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 mt-2"
         >
           {isSubmitting ? (
             <Loader2 className="w-4 h-4 animate-spin text-white" />
@@ -246,7 +246,7 @@ export const AuthCard: React.FC<AuthCardProps> = ({ data, onUpdate, onNext, onOp
         <button
           type="button"
           onClick={() => handleSocialAuth('apple')}
-          className="flex-1 py-3 px-4 rounded-full bg-black/80 hover:bg-black text-white border border-white/20 font-sans text-xs font-medium flex items-center justify-center gap-2.5 transition active:scale-95 cursor-pointer shadow-sm backdrop-blur-md"
+          className="flex-1 py-3 px-4 rounded-full bg-black/80 hover:bg-black text-white border border-white/[0.07] font-sans text-xs font-medium flex items-center justify-center gap-2.5 transition active:scale-95 cursor-pointer shadow-sm backdrop-blur-md"
         >
           <svg className="w-4 h-4 fill-white shrink-0" viewBox="0 0 24 24" aria-hidden="true">
             <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.37c.61-.75 1.04-1.8 0.92-2.85-.92.04-2.02.62-2.67 1.38-.58.67-.99 1.73-.87 2.76 1.02.08 2.01-.54 2.62-1.29z" />
@@ -258,7 +258,7 @@ export const AuthCard: React.FC<AuthCardProps> = ({ data, onUpdate, onNext, onOp
         <button
           type="button"
           onClick={() => handleSocialAuth('google')}
-          className="flex-1 py-3 px-4 rounded-full bg-white hover:bg-neutral-100 text-[#3c4043] border border-neutral-300 font-sans text-xs font-semibold flex items-center justify-center gap-2.5 transition active:scale-95 cursor-pointer shadow-sm"
+          className="flex-1 py-3 px-4 rounded-full bg-white hover:bg-neutral-100 text-[#3c4043] border border-white/[0.07] font-sans text-xs font-semibold flex items-center justify-center gap-2.5 transition active:scale-95 cursor-pointer shadow-sm"
         >
           <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" aria-hidden="true">
             <path

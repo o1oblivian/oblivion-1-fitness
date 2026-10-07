@@ -23,17 +23,19 @@ export function resolveDialConfig(
 ): DialConfig {
   const upper = unit.toUpperCase();
   const isKg = upper === 'KG';
+  const isLbs = upper === 'LBS';
+  const isWeight = isKg || isLbs;
   const isReps = upper === 'REPS';
   const isSteps = upper === 'STEPS';
   const isRpe = upper === 'RPE';
 
   const resolvedMin = min ?? (isRpe ? 6 : 0);
-  const resolvedMax = max ?? (isKg ? 400 : isSteps ? 40000 : isRpe ? 10 : 60);
-  const resolvedStep = step ?? (isKg ? 2.5 : isSteps ? 250 : isRpe ? 0.5 : 1);
+  const resolvedMax = max ?? (isKg ? 400 : isLbs ? 880 : isSteps ? 40000 : isRpe ? 10 : 60);
+  const resolvedStep = step ?? (isKg ? 2.5 : isLbs ? 5 : isSteps ? 250 : isRpe ? 0.5 : 1);
 
   const resolvedTitle =
     title ||
-    (isKg
+    (isWeight
       ? 'WEIGHT LOAD'
       : isReps
       ? 'REPETITIONS'
@@ -47,6 +49,8 @@ export function resolveDialConfig(
     presets ||
     (isKg
       ? [20, 40, 60, 80, 100, 140, 180, 220]
+      : isLbs
+      ? [45, 95, 135, 185, 225, 315, 405, 495]
       : isReps
       ? [5, 8, 10, 12, 15, 20, 25, 30]
       : isSteps
@@ -56,7 +60,7 @@ export function resolveDialConfig(
       : [10, 20, 30, 40, 50]);
 
   // Oblivion 1 Crimson for Weights/Sets, Amber for Reps/Fuel, Cyan for Steps, Emerald for RPE
-  const accentColor = isKg
+  const accentColor = isWeight
     ? '#C4121A'
     : isReps
     ? '#d97706'
@@ -86,7 +90,7 @@ export function generateScaleMarkers(config: DialConfig): DialScaleMarker[] {
   const { min, max, unit } = config;
   const range = max - min;
 
-  if (unit === 'KG') {
+  if (unit === 'KG' || unit === 'LBS') {
     return [
       { fraction: 0, label: '0' },
       { fraction: 0.25, label: `${Math.round(min + range * 0.25)}` },

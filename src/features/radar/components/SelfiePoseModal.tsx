@@ -28,9 +28,9 @@ export const SelfiePoseModal: React.FC<SelfiePoseModalProps> = ({ isOpen, onClos
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 bg-black/85 backdrop-blur-xs select-none">
-      <div className="w-full max-w-sm bg-[#09090b] border border-neutral-800 rounded-3xl p-4 shadow-2xl space-y-4 text-white">
-        <div className="flex items-center justify-between border-b border-neutral-800 pb-3">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 o1-sheet-scrim select-none">
+      <div className="o1-sheet-card w-full bg-black border border-white/[0.07] p-4 shadow-xl space-y-4 text-white overflow-y-auto">
+        <div className="flex items-center justify-between border-b border-white/[0.05] pb-3">
           <div className="flex items-center gap-2 text-emerald-400">
             <ShieldCheck className="w-5 h-5 stroke-[2.5]" />
             <h3 className="font-mono text-xs font-bold uppercase tracking-wider text-white">ATHLETE BIOMETRIC AUDIT</h3>

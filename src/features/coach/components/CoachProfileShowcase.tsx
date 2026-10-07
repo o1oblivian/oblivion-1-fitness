@@ -26,15 +26,15 @@ export const CoachProfileShowcase: React.FC<CoachProfileShowcaseProps> = ({
 
   if (!coach) {
     return (
-      <div className="w-full p-8 rounded-3xl bg-white dark:bg-[#121214] border border-neutral-200 dark:border-neutral-800 text-center space-y-3 shadow-xs select-none">
-        <div className="w-12 h-12 rounded-2xl bg-neutral-100 dark:bg-[#18181b] border border-neutral-200 dark:border-neutral-800 flex items-center justify-center mx-auto text-neutral-400 dark:text-neutral-500">
+      <div className="w-full p-8 rounded-2xl bg-o1-card border border-white/[0.07] text-center space-y-3 shadow-xs select-none">
+        <div className="w-12 h-12 rounded-2xl bg-o1-well border border-white/[0.07] flex items-center justify-center mx-auto text-neutral-500">
           <Dumbbell className="w-6 h-6 stroke-[1.8]" />
         </div>
         <div className="space-y-1">
-          <h4 className="font-tactical font-black text-xs uppercase tracking-wider text-neutral-900 dark:text-white">
+          <h4 className="font-tactical font-black text-xs uppercase tracking-wider text-white">
             NO COACH PROTOCOLS CURRENTLY PUBLISHED
           </h4>
-          <p className="text-[11px] text-neutral-500 dark:text-neutral-400 max-w-xs mx-auto leading-relaxed">
+          <p className="text-[11px] text-neutral-400 max-w-xs mx-auto leading-relaxed">
             There are no verified coach blueprints or protocols currently published in the database.
           </p>
         </div>
@@ -53,7 +53,7 @@ export const CoachProfileShowcase: React.FC<CoachProfileShowcaseProps> = ({
   return (
     <div className="w-full space-y-4 select-none">
       {/* 1. Coach Hero Banner & Identity Header */}
-      <div className="relative rounded-3xl overflow-hidden bg-white dark:bg-[#121214] border border-neutral-200 dark:border-neutral-800 shadow-sm transition-colors">
+      <div className="relative rounded-2xl overflow-hidden bg-o1-card border border-white/[0.07] shadow-sm transition-colors">
         {/* Banner Cover */}
         <div className="h-28 sm:h-36 w-full relative overflow-hidden">
           <img
@@ -62,7 +62,7 @@ export const CoachProfileShowcase: React.FC<CoachProfileShowcaseProps> = ({
             className="w-full h-full object-cover brightness-75 contrast-105"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
-          <div className="absolute top-3 right-3 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/10 text-white text-[10px] font-tactical font-black tracking-wider uppercase">
+          <div className="absolute top-3 right-3 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/[0.07] text-white text-[10px] font-tactical font-black tracking-wider uppercase">
             <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
             <span>VERIFIED MASTER COACH</span>
           </div>
@@ -76,10 +76,10 @@ export const CoachProfileShowcase: React.FC<CoachProfileShowcaseProps> = ({
               className="relative cursor-pointer group/avatar"
               title="Click to view coach physique & reels"
             >
-              <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full border-4 border-white dark:border-[#121214] overflow-hidden shadow-xl bg-neutral-900 group-hover/avatar:border-[#C4121A] transition-colors">
+              <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full border-4 border-white/[0.07] overflow-hidden shadow-xl bg-o1-well group-hover/avatar:border-o1-crimson transition-colors">
                 <img src={coach.avatar} alt={coach.name} className="w-full h-full object-cover group-hover/avatar:scale-105 transition-transform" />
               </div>
-              <div className="absolute bottom-1 right-1 w-4 h-4 rounded-full bg-green-500 border-2 border-white dark:border-[#121214]" />
+              <div className="absolute bottom-1 right-1 w-4 h-4 rounded-full bg-emerald-500 border-2 border-white/[0.07]" />
             </div>
 
             <div className="flex items-center gap-2">
@@ -91,7 +91,7 @@ export const CoachProfileShowcase: React.FC<CoachProfileShowcaseProps> = ({
                     navigator.share({ title: coach.name, text: coach.bio, url: window.location.href }).catch(() => {});
                   }
                 }}
-                className="p-2 rounded-xl bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 text-neutral-600 dark:text-neutral-300 hover:text-[#C4121A] transition-colors cursor-pointer"
+                className="p-2 rounded-xl bg-white/[0.08] border border-white/[0.07] text-neutral-300 hover:text-o1-crimson transition-colors cursor-pointer"
                 title="Share Coach"
               >
                 <Share2 className="w-4 h-4" />
@@ -106,7 +106,7 @@ export const CoachProfileShowcase: React.FC<CoachProfileShowcaseProps> = ({
                     onBookCoaching('1-on-1');
                   }
                 }}
-                className="px-4 py-2 rounded-xl bg-[#C4121A] hover:bg-[#A30F16] active:scale-95 text-white text-xs font-tactical font-black tracking-wider uppercase transition-all shadow-md cursor-pointer flex items-center gap-1.5"
+                className="px-4 py-2 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover active:scale-95 text-white text-xs font-tactical font-black tracking-wider uppercase transition-all shadow-md cursor-pointer flex items-center gap-1.5"
               >
                 <span>HIRE COACH</span>
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -120,22 +120,22 @@ export const CoachProfileShowcase: React.FC<CoachProfileShowcaseProps> = ({
               className="group/name inline-flex items-center gap-2 cursor-pointer"
               title="Click to view coach physique & reels"
             >
-              <h2 className="text-lg sm:text-xl font-tactical font-black text-neutral-900 dark:text-white tracking-wide group-hover/name:text-[#C4121A] transition-colors">
+              <h2 className="text-lg sm:text-xl font-tactical font-black text-white tracking-wide group-hover/name:text-o1-crimson transition-colors">
                 {coach.name}
               </h2>
             </div>
 
             <div className="flex flex-wrap items-center gap-2 mt-1">
-              <span className="text-xs font-tactical text-[#C4121A] font-black tracking-wide">{coach.handle}</span>
-              <span className="text-neutral-300 dark:text-neutral-700">•</span>
-              <span className="text-xs text-neutral-500 dark:text-neutral-400 font-sans font-medium">{coach.role}</span>
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gradient-to-r from-[#D4AF37]/20 to-[#C4121A]/20 border border-[#D4AF37]/50 text-[#F5D061] text-[9.5px] font-mono font-bold shadow-[0_0_10px_rgba(212,175,55,0.3)]">
-                <ShieldCheck className="w-2.5 h-2.5 text-[#F5D061] stroke-[2.5]" />
+              <span className="text-xs font-tactical text-o1-crimson font-black tracking-wide">{coach.handle}</span>
+              <span className="text-neutral-700">•</span>
+              <span className="text-xs text-neutral-400 font-sans font-medium">{coach.role}</span>
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gradient-to-r from-[#F59E0B]/20 to-o1-crimson/20 border border-[#F59E0B]/50 text-[#F59E0B] text-[9.5px] font-mono font-bold ">
+                <ShieldCheck className="w-2.5 h-2.5 text-[#F59E0B] stroke-[2.5]" />
                 <span>GOV ID VERIFIED MASTER COACH</span>
               </span>
             </div>
 
-            <p className="text-xs text-neutral-600 dark:text-neutral-300 mt-2.5 leading-relaxed font-sans">
+            <p className="text-xs text-neutral-300 mt-2.5 leading-relaxed font-sans">
               {coach.bio}
             </p>
 
@@ -143,21 +143,21 @@ export const CoachProfileShowcase: React.FC<CoachProfileShowcaseProps> = ({
             <button
               type="button"
               onClick={handleOpenCoachDossier}
-              className="mt-3 w-full py-2.5 px-4 rounded-2xl bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-800/80 dark:hover:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 text-xs font-tactical font-black uppercase tracking-wider text-neutral-900 dark:text-white flex items-center justify-between transition cursor-pointer"
+              className="mt-3 w-full py-2.5 px-4 rounded-2xl bg-white/[0.08] hover:bg-white/[0.06] border border-white/[0.07] text-xs font-tactical font-black uppercase tracking-wider text-white flex items-center justify-between transition cursor-pointer"
             >
               <span className="flex items-center gap-2">
-                <Dumbbell className="w-4 h-4 text-[#C4121A]" />
+                <Dumbbell className="w-4 h-4 text-o1-crimson" />
                 <span>INSPECT PHYSIQUE, REELS & PRs</span>
               </span>
-              <span className="text-xs font-tactical text-[#C4121A] font-black uppercase tracking-wider">
+              <span className="text-xs font-tactical text-o1-crimson font-black uppercase tracking-wider">
                 DOSSIER ↗
               </span>
             </button>
           </div>
 
           {/* Social Proof & Key Stats HUD */}
-          <div className="grid grid-cols-3 gap-2 mt-4 pt-3 border-t border-neutral-100 dark:border-neutral-800">
-            <div className="text-center p-2 rounded-2xl bg-neutral-50 dark:bg-[#18181B] border border-neutral-200/60 dark:border-neutral-800/80">
+          <div className="grid grid-cols-3 gap-2 mt-4 pt-3 border-t border-white/[0.05]">
+            <div className="text-center p-2 rounded-2xl bg-o1-well border border-white/[0.07]">
               <div className="flex items-center justify-center gap-1 text-amber-500 font-tactical font-black text-sm">
                 <Star className="w-3.5 h-3.5 fill-current" />
                 <span>{coach.rating.toFixed(2)}</span>
@@ -167,16 +167,16 @@ export const CoachProfileShowcase: React.FC<CoachProfileShowcaseProps> = ({
               </span>
             </div>
 
-            <div className="text-center p-2 rounded-2xl bg-neutral-50 dark:bg-[#18181B] border border-neutral-200/60 dark:border-neutral-800/80">
-              <div className="flex items-center justify-center gap-1 text-sky-600 dark:text-sky-400 font-tactical font-black text-sm">
+            <div className="text-center p-2 rounded-2xl bg-o1-well border border-white/[0.07]">
+              <div className="flex items-center justify-center gap-1 text-sky-400 font-tactical font-black text-sm">
                 <Users className="w-3.5 h-3.5" />
                 <span>{coach.activeClientsCount}</span>
               </div>
               <span className="text-[10px] text-neutral-500 font-tactical font-bold uppercase tracking-wider">Active Roster</span>
             </div>
 
-            <div className="text-center p-2 rounded-2xl bg-neutral-50 dark:bg-[#18181B] border border-neutral-200/60 dark:border-neutral-800/80">
-              <div className="flex items-center justify-center gap-1 text-emerald-600 dark:text-emerald-400 font-tactical font-black text-sm">
+            <div className="text-center p-2 rounded-2xl bg-o1-well border border-white/[0.07]">
+              <div className="flex items-center justify-center gap-1 text-emerald-400 font-tactical font-black text-sm">
                 <Award className="w-3.5 h-3.5" />
                 <span>{(coach?.certifications ?? []).length}</span>
               </div>
@@ -187,7 +187,7 @@ export const CoachProfileShowcase: React.FC<CoachProfileShowcaseProps> = ({
       </div>
 
       {/* 2. Navigation Sub-Tabs */}
-      <div className="w-full bg-white dark:bg-[#121214] border border-neutral-200 dark:border-neutral-800 p-1.5 rounded-2xl flex items-center gap-1 shadow-xs">
+      <div className="w-full bg-o1-card border border-white/[0.07] p-1.5 rounded-2xl flex items-center gap-1 shadow-xs">
         <button
           type="button"
           onClick={() => {
@@ -196,8 +196,8 @@ export const CoachProfileShowcase: React.FC<CoachProfileShowcaseProps> = ({
           }}
           className={`flex-1 py-1.5 text-center text-xs font-tactical font-bold tracking-wider uppercase rounded-xl transition-all cursor-pointer ${
             activeTab === 'programs'
-              ? 'bg-[#C4121A] text-white shadow-xs'
-              : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white'
+              ? 'bg-o1-crimson text-white shadow-xs'
+              : 'text-neutral-400 hover:text-white'
           }`}
         >
           PROGRAMS ({programs.length})
@@ -210,8 +210,8 @@ export const CoachProfileShowcase: React.FC<CoachProfileShowcaseProps> = ({
           }}
           className={`flex-1 py-1.5 text-center text-xs font-tactical font-bold tracking-wider uppercase rounded-xl transition-all cursor-pointer ${
             activeTab === 'about'
-              ? 'bg-[#C4121A] text-white shadow-xs'
-              : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white'
+              ? 'bg-o1-crimson text-white shadow-xs'
+              : 'text-neutral-400 hover:text-white'
           }`}
         >
           METHODOLOGY
@@ -224,8 +224,8 @@ export const CoachProfileShowcase: React.FC<CoachProfileShowcaseProps> = ({
           }}
           className={`flex-1 py-1.5 text-center text-xs font-tactical font-bold tracking-wider uppercase rounded-xl transition-all cursor-pointer ${
             activeTab === 'reviews'
-              ? 'bg-[#C4121A] text-white shadow-xs'
-              : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white'
+              ? 'bg-o1-crimson text-white shadow-xs'
+              : 'text-neutral-400 hover:text-white'
           }`}
         >
           REVIEWS ({reviews.length})
@@ -238,15 +238,15 @@ export const CoachProfileShowcase: React.FC<CoachProfileShowcaseProps> = ({
       {activeTab === 'programs' && (
         <div className="space-y-3.5">
           {programs.length === 0 ? (
-            <div className="p-8 rounded-3xl bg-white dark:bg-[#121214] border border-neutral-200 dark:border-neutral-800 text-center space-y-3 shadow-xs">
-              <div className="w-12 h-12 rounded-2xl bg-neutral-100 dark:bg-[#18181b] border border-neutral-200 dark:border-neutral-800 flex items-center justify-center mx-auto text-neutral-400 dark:text-neutral-500">
+            <div className="p-8 rounded-2xl bg-o1-card border border-white/[0.07] text-center space-y-3 shadow-xs">
+              <div className="w-12 h-12 rounded-2xl bg-o1-well border border-white/[0.07] flex items-center justify-center mx-auto text-neutral-500">
                 <Dumbbell className="w-6 h-6 stroke-[1.8]" />
               </div>
               <div className="space-y-1">
-                <h4 className="font-tactical font-black text-xs uppercase tracking-wider text-neutral-900 dark:text-white">
+                <h4 className="font-tactical font-black text-xs uppercase tracking-wider text-white">
                   NO COACH PROTOCOLS CURRENTLY PUBLISHED
                 </h4>
-                <p className="text-[11px] text-neutral-500 dark:text-neutral-400 max-w-xs mx-auto leading-relaxed">
+                <p className="text-[11px] text-neutral-400 max-w-xs mx-auto leading-relaxed">
                   There are no verified coach blueprints or protocols currently published in the database.
                 </p>
               </div>
@@ -259,10 +259,10 @@ export const CoachProfileShowcase: React.FC<CoachProfileShowcaseProps> = ({
                 tactileEngine.triggerSelectionBuzz();
                 onSelectProgram(prog);
               }}
-              className="group rounded-3xl bg-white dark:bg-[#121214] border border-neutral-200 dark:border-neutral-800 hover:border-[#C4121A]/60 overflow-hidden shadow-sm transition-all cursor-pointer hover:shadow-xl active:scale-[0.99]"
+              className="group rounded-2xl bg-o1-card border border-white/[0.07] hover:border-o1-crimson/60 overflow-hidden shadow-sm transition-all cursor-pointer hover:shadow-xl active:scale-[0.99]"
             >
               {/* Cinematic Specular Visual Header */}
-              <div className="relative aspect-[16/9] w-full overflow-hidden bg-neutral-900">
+              <div className="relative aspect-[16/9] w-full overflow-hidden bg-o1-well">
                 <img
                   src={prog.coverImage}
                   alt={prog.title}
@@ -272,15 +272,15 @@ export const CoachProfileShowcase: React.FC<CoachProfileShowcaseProps> = ({
 
                 {/* Top Badges */}
                 <div className="absolute top-3 left-3 flex items-center gap-1.5">
-                  <span className="px-2.5 py-0.5 rounded-full bg-black/70 backdrop-blur-md border border-white/15 text-[10px] font-mono font-bold text-white uppercase">
+                  <span className="px-2.5 py-0.5 rounded-full bg-black/70 backdrop-blur-md border border-white/[0.07] text-[10px] font-mono font-bold text-white uppercase">
                     {prog.category}
                   </span>
-                  <span className="px-2 py-0.5 rounded-full bg-[#C4121A] text-[9.5px] font-mono font-bold text-white uppercase">
+                  <span className="px-2 py-0.5 rounded-full bg-o1-crimson text-[9.5px] font-mono font-bold text-white uppercase">
                     {prog.difficulty}
                   </span>
                 </div>
 
-                <div className="absolute top-3 right-3 flex items-center gap-1 px-2.5 py-1 rounded-full bg-black/70 backdrop-blur-md border border-white/15 text-amber-400 text-xs font-mono font-bold">
+                <div className="absolute top-3 right-3 flex items-center gap-1 px-2.5 py-1 rounded-full bg-black/70 backdrop-blur-md border border-white/[0.07] text-amber-400 text-xs font-mono font-bold">
                   <Star className="w-3.5 h-3.5 fill-current" />
                   <span>{prog.rating.toFixed(2)}</span>
                   <span className="text-neutral-400 text-[10px]">({prog.enrolledCount})</span>
@@ -288,11 +288,11 @@ export const CoachProfileShowcase: React.FC<CoachProfileShowcaseProps> = ({
 
                 {/* Floating Preview Video Pill & Duration */}
                 <div className="absolute bottom-2.5 left-3 right-3 flex items-center justify-between">
-                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/15 text-white text-[9.5px] font-mono font-bold uppercase tracking-wider">
-                    <span className="w-2 h-2 rounded-full bg-[#C4121A] animate-pulse" />
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/[0.07] text-white text-[9.5px] font-mono font-bold uppercase tracking-wider">
+                    <span className="w-2 h-2 rounded-full bg-o1-crimson animate-pulse" />
                     Preview Video Cues ▷
                   </span>
-                  <span className="text-[10px] font-mono text-neutral-300 bg-black/60 backdrop-blur-md px-2 py-0.5 rounded-md border border-white/10">
+                  <span className="text-[10px] font-mono text-neutral-300 bg-black/60 backdrop-blur-md px-2 py-0.5 rounded-md border border-white/[0.07]">
                     {prog.durationWeeks} WEEKS • {prog.daysPerWeek} DAYS/WK
                   </span>
                 </div>
@@ -302,15 +302,15 @@ export const CoachProfileShowcase: React.FC<CoachProfileShowcaseProps> = ({
               <div className="p-4 space-y-3">
                 <div className="flex items-start justify-between gap-3">
                   <div className="space-y-1">
-                    <h3 className="text-base font-bold text-neutral-900 dark:text-white group-hover:text-[#C4121A] transition-colors font-tactical leading-snug">
+                    <h3 className="text-base font-bold text-white group-hover:text-o1-crimson transition-colors font-tactical leading-snug">
                       {prog.title}
                     </h3>
-                    <p className="text-xs text-neutral-500 dark:text-neutral-400 font-sans line-clamp-1">
+                    <p className="text-xs text-neutral-400 font-sans line-clamp-1">
                       {prog.tagline}
                     </p>
                   </div>
                   <div className="text-right shrink-0">
-                    <span className="text-lg font-mono font-black text-neutral-900 dark:text-white block">
+                    <span className="text-lg font-mono font-black text-white block">
                       ${prog.priceUsd}.00
                     </span>
                     <span className="text-[9px] font-mono text-neutral-400 uppercase">ONE-TIME</span>
@@ -319,13 +319,13 @@ export const CoachProfileShowcase: React.FC<CoachProfileShowcaseProps> = ({
 
                 {/* Program Curriculum Highlights Micro-Bar */}
                 <div className="flex items-center gap-1.5 flex-wrap">
-                  <span className="px-2 py-0.5 rounded-md bg-neutral-100 dark:bg-neutral-800 text-[10px] font-mono text-neutral-600 dark:text-neutral-400">
+                  <span className="px-2 py-0.5 rounded-md bg-white/[0.08] text-[10px] font-mono text-neutral-400">
                     ⚡ Auto-Regulated RPE
                   </span>
-                  <span className="px-2 py-0.5 rounded-md bg-neutral-100 dark:bg-neutral-800 text-[10px] font-mono text-neutral-600 dark:text-neutral-400">
+                  <span className="px-2 py-0.5 rounded-md bg-white/[0.08] text-[10px] font-mono text-neutral-400">
                     📹 Kinematic Video Setup
                   </span>
-                  <span className="px-2 py-0.5 rounded-md bg-neutral-100 dark:bg-neutral-800 text-[10px] font-mono text-neutral-600 dark:text-neutral-400">
+                  <span className="px-2 py-0.5 rounded-md bg-white/[0.08] text-[10px] font-mono text-neutral-400">
                     🔄 Instant Tab Sync
                   </span>
                 </div>
@@ -339,10 +339,10 @@ export const CoachProfileShowcase: React.FC<CoachProfileShowcaseProps> = ({
                       onOpenCoachProfile(prog.coachId);
                     }
                   }}
-                  className="p-2.5 rounded-2xl bg-neutral-50 hover:bg-neutral-100 dark:bg-[#18181b] dark:hover:bg-[#202025] border border-neutral-200/80 dark:border-neutral-800 flex items-center justify-between gap-2 transition cursor-pointer"
+                  className="p-2.5 rounded-2xl bg-o1-well hover:bg-white/[0.06] border border-white/[0.07] flex items-center justify-between gap-2 transition cursor-pointer"
                 >
                   <div className="flex items-center gap-2.5 min-w-0">
-                    <div className="w-8 h-8 rounded-full overflow-hidden border border-[#C4121A] shrink-0 bg-neutral-800">
+                    <div className="w-8 h-8 rounded-full overflow-hidden border border-o1-crimson shrink-0 bg-white/[0.08]">
                       <img
                         src={
                           prog.coachAvatar ||
@@ -354,23 +354,23 @@ export const CoachProfileShowcase: React.FC<CoachProfileShowcaseProps> = ({
                       />
                     </div>
                     <div className="min-w-0">
-                      <div className="text-xs font-tactical font-bold text-neutral-900 dark:text-white truncate">
+                      <div className="text-xs font-tactical font-bold text-white truncate">
                         Coach {prog.coachName}
                       </div>
-                      <div className="text-[10px] font-mono text-[#C4121A] truncate">
+                      <div className="text-[10px] font-mono text-o1-crimson truncate">
                         {prog.coachTitle || 'IFBB Pro • CSCS Coach'}
                       </div>
                     </div>
                   </div>
 
-                  <span className="text-[10px] font-mono font-bold text-neutral-600 dark:text-neutral-300 bg-white dark:bg-neutral-800 px-2.5 py-1 rounded-lg border border-neutral-200 dark:border-neutral-700 shrink-0 hover:text-[#C4121A] transition">
+                  <span className="text-[10px] font-mono font-bold text-neutral-300 bg-white/[0.08] px-2.5 py-1 rounded-xl border border-white/[0.07] shrink-0 hover:text-o1-crimson transition">
                     View Physique & Reels ↗
                   </span>
                 </div>
 
                 {/* Bottom Action Footer */}
-                <div className="pt-2 flex items-center justify-between border-t border-neutral-100 dark:border-neutral-800 text-[10px] font-mono text-neutral-500 dark:text-neutral-400">
-                  <span className="text-green-600 dark:text-green-400 font-bold flex items-center gap-1">
+                <div className="pt-2 flex items-center justify-between border-t border-white/[0.05] text-[10px] font-mono text-neutral-400">
+                  <span className="text-emerald-400 font-bold flex items-center gap-1">
                     <ShieldCheck className="w-3.5 h-3.5" />
                     10% Club Guarantee • {prog.enrolledCount} Active
                   </span>
@@ -381,7 +381,7 @@ export const CoachProfileShowcase: React.FC<CoachProfileShowcaseProps> = ({
                       tactileEngine.triggerImpactPulse();
                       onSelectProgram(prog);
                     }}
-                    className="px-3.5 py-1.5 rounded-xl bg-[#C4121A] text-white font-tactical font-black text-xs uppercase tracking-wider flex items-center gap-1 hover:bg-[#a50e15] transition shadow-sm cursor-pointer"
+                    className="px-3.5 py-1.5 rounded-xl bg-o1-crimson text-white font-tactical font-black text-xs uppercase tracking-wider flex items-center gap-1 hover:bg-o1-crimson-hover transition shadow-sm cursor-pointer"
                   >
                     <span>EXPLORE PROTOCOL</span>
                     <ArrowRight className="w-3.5 h-3.5" />
@@ -393,9 +393,9 @@ export const CoachProfileShowcase: React.FC<CoachProfileShowcaseProps> = ({
           )}
 
           {/* 1-on-1 Monthly Retainer Banner */}
-          <div className="p-4 rounded-3xl bg-gradient-to-br from-neutral-900 via-[#18181B] to-[#121214] border border-[#C4121A]/30 text-white space-y-3 shadow-md">
+          <div className="p-4 rounded-2xl bg-gradient-to-br from-neutral-900 via-o1-well to-o1-card border border-o1-crimson/30 text-white space-y-3 shadow-md">
             <div className="flex items-center justify-between">
-              <span className="px-2.5 py-0.5 rounded-full bg-[#C4121A]/30 border border-[#C4121A]/50 text-[10px] font-tactical font-black tracking-widest text-[#C4121A] uppercase">
+              <span className="px-2.5 py-0.5 rounded-full bg-o1-crimson/30 border border-o1-crimson/50 text-[10px] font-tactical font-black tracking-widest text-o1-crimson uppercase">
                 VIP DIRECT CO-PILOT
               </span>
               <span className="text-sm font-mono font-black text-white">
@@ -420,7 +420,7 @@ export const CoachProfileShowcase: React.FC<CoachProfileShowcaseProps> = ({
                   onBookCoaching('1-on-1');
                 }
               }}
-              className="w-full py-2.5 rounded-2xl bg-[#C4121A] hover:bg-[#A30F16] active:scale-[0.98] text-white text-xs font-tactical font-black tracking-wider uppercase transition-all shadow-md cursor-pointer flex items-center justify-center gap-2"
+              className="w-full py-2.5 rounded-2xl bg-o1-crimson hover:bg-o1-crimson-hover active:scale-[0.98] text-white text-xs font-tactical font-black tracking-wider uppercase transition-all shadow-md cursor-pointer flex items-center justify-center gap-2"
             >
               <span>APPLY FOR 1-ON-1 ROSTER SPOT</span>
               <ArrowRight className="w-3.5 h-3.5" />
@@ -431,7 +431,7 @@ export const CoachProfileShowcase: React.FC<CoachProfileShowcaseProps> = ({
 
       {/* METHODOLOGY & CREDENTIALS */}
       {activeTab === 'about' && (
-        <div className="p-4 rounded-3xl bg-white dark:bg-[#121214] border border-neutral-200 dark:border-neutral-800 space-y-4 shadow-sm text-neutral-900 dark:text-white">
+        <div className="p-4 rounded-2xl bg-o1-card border border-white/[0.07] space-y-4 shadow-sm text-white">
           <div>
             <span className="text-[10px] font-tactical font-bold text-neutral-500 uppercase tracking-wider block mb-1">
               COACH SPECIALTIES
@@ -440,7 +440,7 @@ export const CoachProfileShowcase: React.FC<CoachProfileShowcaseProps> = ({
               {(coach?.specialties ?? []).map((spec) => (
                 <span
                   key={spec}
-                  className="px-2.5 py-1 rounded-xl bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 text-xs font-mono font-semibold text-neutral-700 dark:text-neutral-300"
+                  className="px-2.5 py-1 rounded-xl bg-white/[0.08] border border-white/[0.07] text-xs font-mono font-semibold text-neutral-300"
                 >
                   {spec}
                 </span>
@@ -448,25 +448,25 @@ export const CoachProfileShowcase: React.FC<CoachProfileShowcaseProps> = ({
             </div>
           </div>
 
-          <div className="pt-3 border-t border-neutral-100 dark:border-neutral-800">
+          <div className="pt-3 border-t border-white/[0.05]">
             <span className="text-[10px] font-tactical font-bold text-neutral-500 uppercase tracking-wider block mb-1">
               ACCREDITATIONS & CREDENTIALS
             </span>
             <div className="space-y-1.5">
               {(coach?.certifications ?? []).map((cert) => (
-                <div key={cert} className="flex items-center gap-2 text-xs font-mono text-neutral-700 dark:text-neutral-300">
-                  <Check className="w-3.5 h-3.5 text-green-500 shrink-0" />
+                <div key={cert} className="flex items-center gap-2 text-xs font-mono text-neutral-300">
+                  <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
                   <span>{cert}</span>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="pt-3 border-t border-neutral-100 dark:border-neutral-800 space-y-2">
+          <div className="pt-3 border-t border-white/[0.05] space-y-2">
             <span className="text-[10px] font-tactical font-bold text-neutral-500 uppercase tracking-wider block">
               COACHING PHILOSOPHY
             </span>
-            <p className="text-xs text-neutral-600 dark:text-neutral-300 leading-relaxed font-sans">
+            <p className="text-xs text-neutral-300 leading-relaxed font-sans">
               "Every working set is an empirical kinematic assessment. We prioritize strict mechanical tension, length-tension curves, and autoregulation over mindless volume. Through daily dispatch synchronization, you receive exactly what your nervous system and muscle groups need each training day."
             </p>
           </div>
@@ -479,15 +479,15 @@ export const CoachProfileShowcase: React.FC<CoachProfileShowcaseProps> = ({
           {reviews.map((rev) => (
             <div
               key={rev.id}
-              className="p-3.5 rounded-2xl bg-white dark:bg-[#121214] border border-neutral-200 dark:border-neutral-800 space-y-2 shadow-sm text-neutral-900 dark:text-white"
+              className="p-3.5 rounded-2xl bg-o1-card border border-white/[0.07] space-y-2 shadow-sm text-white"
             >
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-full overflow-hidden bg-neutral-800">
+                  <div className="w-8 h-8 rounded-full overflow-hidden bg-white/[0.08]">
                     <img src={rev.avatar} alt={rev.athleteName} className="w-full h-full object-cover" />
                   </div>
                   <div>
-                    <h5 className="text-xs font-bold font-sans text-neutral-900 dark:text-white">
+                    <h5 className="text-xs font-bold font-sans text-white">
                       {rev.athleteName}
                     </h5>
                     <span className="text-[10px] font-mono text-neutral-400">
@@ -502,11 +502,11 @@ export const CoachProfileShowcase: React.FC<CoachProfileShowcaseProps> = ({
                 </div>
               </div>
 
-              <div className="inline-block px-2 py-0.5 rounded-md bg-green-50 dark:bg-green-950/40 border border-green-200 dark:border-green-800/60 text-[10px] font-mono font-bold text-green-600 dark:text-green-400">
+              <div className="inline-block px-2 py-0.5 rounded-md bg-emerald-950/40 border border-emerald-800/60 text-[10px] font-mono font-bold text-emerald-400">
                 Verified Enrollment: {rev.verifiedProgram}
               </div>
 
-              <p className="text-xs text-neutral-600 dark:text-neutral-300 font-sans leading-relaxed">
+              <p className="text-xs text-neutral-300 font-sans leading-relaxed">
                 "{rev.comment}"
               </p>
             </div>

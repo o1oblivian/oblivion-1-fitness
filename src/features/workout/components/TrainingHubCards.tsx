@@ -43,19 +43,19 @@ export const TrainingHubCards: React.FC<TrainingHubCardsProps> = ({
           onClick={() => handleSelect('intel')}
           className={`relative rounded-full p-2.5 sm:px-3.5 transition-all active:scale-[0.98] cursor-pointer flex items-center justify-between border ${
             isIntelActive
-              ? 'bg-neutral-950 text-white dark:bg-white dark:text-neutral-950 border-transparent shadow-md'
-              : 'bg-white dark:bg-[#121214] text-neutral-800 dark:text-white border-neutral-200 dark:border-white/10 hover:border-neutral-300 dark:hover:border-white/20 shadow-xs'
+              ? 'bg-white text-neutral-950 border-transparent shadow-md'
+              : 'bg-o1-card text-white border-white/[0.07] hover:border-white/[0.14] shadow-xs'
           }`}
         >
           <div className="flex items-center gap-2.5 min-w-0">
             <div className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 ${
-              isIntelActive ? 'bg-neutral-800 text-blue-400 dark:bg-neutral-900 dark:text-blue-400' : 'bg-neutral-100 dark:bg-[#18181b] text-blue-500'
+              isIntelActive ? 'bg-o1-well text-sky-400' : 'bg-o1-well text-sky-500'
             }`}>
               <Cpu className="w-4 h-4 stroke-[2.2]" />
             </div>
             <div className="min-w-0 text-left">
               <h4 className="font-bold text-xs sm:text-sm tracking-tight truncate leading-tight">Intel Coach</h4>
-              <p className={`text-[10px] sm:text-[11px] truncate leading-tight mt-0.5 ${isIntelActive ? 'text-neutral-300 dark:text-neutral-600' : 'text-neutral-500'}`}>
+              <p className={`text-[10px] sm:text-[11px] truncate leading-tight mt-0.5 ${isIntelActive ? 'text-neutral-600' : 'text-neutral-500'}`}>
                 Load &amp; Recovery Insights
               </p>
             </div>
@@ -71,19 +71,19 @@ export const TrainingHubCards: React.FC<TrainingHubCardsProps> = ({
           onClick={() => handleSelect('coach')}
           className={`relative rounded-full p-2.5 sm:px-3.5 transition-all active:scale-[0.98] cursor-pointer flex items-center justify-between border ${
             isCoachActive
-              ? 'bg-neutral-950 text-white dark:bg-white dark:text-neutral-950 border-transparent shadow-md'
-              : 'bg-white dark:bg-[#121214] text-neutral-800 dark:text-white border-neutral-200 dark:border-white/10 hover:border-neutral-300 dark:hover:border-white/20 shadow-xs'
+              ? 'bg-white text-neutral-950 border-transparent shadow-md'
+              : 'bg-o1-card text-white border-white/[0.07] hover:border-white/[0.14] shadow-xs'
           }`}
         >
           <div className="flex items-center gap-2.5 min-w-0">
             <div className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 ${
-              isCoachActive ? 'bg-neutral-800 text-red-500 dark:bg-neutral-900 dark:text-red-500' : 'bg-neutral-100 dark:bg-[#18181b] text-red-500'
+              isCoachActive ? 'bg-o1-well text-red-500' : 'bg-o1-well text-red-500'
             }`}>
               <User className="w-4 h-4 stroke-[2.2]" />
             </div>
             <div className="min-w-0 text-left">
               <h4 className="font-bold text-xs sm:text-sm tracking-tight truncate leading-tight">My Coach</h4>
-              <p className={`text-[10px] sm:text-[11px] truncate leading-tight mt-0.5 ${isCoachActive ? 'text-neutral-300 dark:text-neutral-600' : 'text-neutral-500'}`}>
+              <p className={`text-[10px] sm:text-[11px] truncate leading-tight mt-0.5 ${isCoachActive ? 'text-neutral-600' : 'text-neutral-500'}`}>
                 Assigned workouts
               </p>
             </div>

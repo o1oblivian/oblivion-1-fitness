@@ -1,4 +1,5 @@
 import { supabase } from '../../../services/supabaseClient';
+import { getAuthenticatedUserId } from '../../../services/authUser';
 import { useTelemetryHistoryStore } from '../store/useTelemetryHistoryStore';
 import { useLogStore } from '../../../stores/useLogStore';
 import { useFuelStore, FuelMeals } from '../../fuel/store/useFuelStore';
@@ -9,11 +10,8 @@ import { useFuelStore, FuelMeals } from '../../fuel/store/useFuelStore';
  */
 export async function hydrateMacrosFromSupabase(): Promise<void> {
   try {
-    const { data: authData } = await supabase.auth.getUser();
-    const userId =
-      authData?.user?.id ||
-      (typeof window !== 'undefined' && localStorage.getItem('o1fc_user_id')) ||
-      'default-athlete';
+    const userId = await getAuthenticatedUserId();
+    if (!userId) return;
 
     const minDate = new Date();
     minDate.setDate(minDate.getDate() - 14);

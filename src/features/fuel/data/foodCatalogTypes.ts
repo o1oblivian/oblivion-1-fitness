@@ -7,5 +7,6 @@ export interface FoodCatalogItem {
   protein: number;
   carbs: number;
   fats: number;
-  category: 'PROTEIN' | 'CARBS' | 'FATS' | 'DRINKS';
+  category: 'PROTEIN' | 'CARBS' | 'FATS' | 'FASTFOOD' | 'DRINKS';
+  country?: string;
 }

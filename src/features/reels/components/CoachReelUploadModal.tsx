@@ -86,22 +86,22 @@ export const CoachReelUploadModal: React.FC<CoachReelUploadModalProps> = ({ isOp
   };
 
   return (
-    <div id="coach-reel-upload-modal" className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 select-none animate-in fade-in duration-200" onClick={onClose}>
-      <div className="relative w-full max-w-lg max-h-[92vh] bg-[#121214] border border-neutral-800 rounded-3xl overflow-hidden flex flex-col shadow-2xl" onClick={(e) => e.stopPropagation()}>
-        <div className="flex items-center justify-between px-5 py-4 border-b border-neutral-800 bg-[#09090b]/90">
+    <div id="coach-reel-upload-modal" className="fixed inset-0 z-50 bg-black/70 o1-sheet-scrim flex items-center justify-center select-none animate-in fade-in duration-200" onClick={onClose}>
+      <div className="o1-sheet-card relative w-full bg-o1-card border border-white/[0.07] overflow-hidden flex flex-col shadow-xl" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.05] bg-black/90">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-[#C4121A]/20 border border-[#C4121A]/40 flex items-center justify-center text-[#C4121A]">
+            <div className="w-8 h-8 rounded-full bg-o1-crimson/20 border border-o1-crimson/40 flex items-center justify-center text-o1-crimson">
               <Film className="w-4 h-4" />
             </div>
             <div>
               <div className="flex items-center gap-1.5 text-xs font-bold font-tactical uppercase tracking-wider text-white">
                 <span>Upload Vault Directive Reel</span>
-                <ShieldCheck className="w-3.5 h-3.5 text-[#C4121A]" />
+                <ShieldCheck className="w-3.5 h-3.5 text-o1-crimson" />
               </div>
               <p className="text-[10px] text-neutral-400 font-mono">Silent session binding • Auto-compression</p>
             </div>
           </div>
-          <button type="button" onClick={onClose} className="w-8 h-8 rounded-full bg-[#18181b] border border-neutral-800 flex items-center justify-center text-neutral-400 hover:text-white transition-colors cursor-pointer">
+          <button type="button" onClick={onClose} className="w-8 h-8 rounded-full bg-o1-well border border-white/[0.07] flex items-center justify-center text-neutral-400 hover:text-white transition-colors cursor-pointer">
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -111,7 +111,7 @@ export const CoachReelUploadModal: React.FC<CoachReelUploadModalProps> = ({ isOp
           <ReelCategorySelector selectedCategory={selectedCategory} onSelectCategory={setSelectedCategory} selectedFilterTag={selectedFilterTag} onSelectFilterTag={setSelectedFilterTag} />
           <ReelFormFields title={title} setTitle={setTitle} cues={cues} setCues={setCues} showOnBuddy={showOnBuddy} setShowOnBuddy={setShowOnBuddy} disabled={!previewUrl || !title.trim() || isCompressing} selectedCategory={selectedCategory} />
           <div className="pt-1">
-            <button type="submit" disabled={!previewUrl || !title.trim() || isCompressing} className="w-full py-3.5 rounded-2xl bg-[#C4121A] hover:bg-[#a30f16] disabled:opacity-50 disabled:cursor-not-allowed text-white text-xs font-bold font-tactical uppercase tracking-wider shadow-lg shadow-red-950/40 active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer">
+            <button type="submit" disabled={!previewUrl || !title.trim() || isCompressing} className="w-full py-2.5 rounded-xl bg-zinc-100 hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed text-neutral-950 text-xs font-semibold tracking-wide active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer">
               <CheckCircle2 className="w-4 h-4" />
               <span>Publish Reel to Train Ring ({selectedCategory})</span>
             </button>

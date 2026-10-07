@@ -57,77 +57,76 @@ export const calculateDynamicLoad = (
   return Math.max(10, Math.round(rawLoad / 2.5) * 2.5);
 };
 
+const muscleHaystack = (ex: ExerciseDefinition): string =>
+  [
+    ex.primaryMuscleGroup,
+    ex.primaryMuscle,
+    ex.category,
+    ex.name,
+    ex.subLabel,
+    ...(ex.secondaryMuscles || []),
+  ]
+    .filter(Boolean)
+    .join(' ')
+    .toLowerCase();
+
 /**
  * Helper to match movement focus against primary/secondary muscles or movement pattern
  */
 const matchesMovementFocus = (ex: ExerciseDefinition, focus: string): boolean => {
   const f = focus.toLowerCase();
-  const primary = (ex.primaryMuscleGroup || '').toLowerCase();
+  if (!f || f.includes('full body') || f.includes('total power')) return true;
+
+  const primary = (ex.primaryMuscleGroup || ex.primaryMuscle || '').toLowerCase();
   const secondary = (ex.secondaryMuscles || []).map((m) => m.toLowerCase());
   const pattern = (ex.movementPattern || '').toLowerCase();
-  const name = ex.name.toLowerCase();
+  const hay = muscleHaystack(ex);
+  const hit = (...keys: string[]) => keys.some((k) => hay.includes(k));
 
-  if (f.includes('upper')) {
-    return (
-      ['chest', 'back', 'shoulders', 'biceps', 'triceps', 'upper chest', 'lats'].some((m) =>
-        primary.includes(m) || secondary.some((s) => s.includes(m))
-      ) || ['push', 'pull'].includes(pattern)
-    );
+  if (f.includes('chest')) return hit('chest', 'pec', 'bench', 'fly');
+  if (f.includes('bicep')) return hit('bicep', 'curl');
+  if (f.includes('tricep')) return hit('tricep', 'pushdown', 'skull', 'extension');
+  if (f.includes('forearm') || f.includes('grip')) return hit('forearm', 'grip', 'wrist', 'hang', 'pinch');
+  if (f.includes('trap')) return hit('trap', 'face pull', 'shrug', 'rear delt');
+  if (f.includes('hamstring')) return hit('hamstring', 'rdl', 'deadlift', 'nordic');
+  if (f.includes('quad')) return hit('quad', 'squat', 'lunge', 'leg press', 'extension');
+  if (f.includes('hip') || f.includes('adductor')) return hit('hip', 'adductor', 'abduct', 'copenhagen', 'sumo');
+  if (f.includes('glute')) return hit('glute', 'hip thrust', 'bridge', 'kickback');
+  if ((f.includes('calf') || f.includes('calves')) && !f.includes('legs')) {
+    return hit('calf', 'calves', 'tibialis', 'soleus');
   }
-
-  if (f.includes('lower')) {
-    return (
-      ['quads', 'hamstrings', 'glutes', 'calves', 'legs', 'adductors'].some((m) =>
-        primary.includes(m) || secondary.some((s) => s.includes(m))
-      ) || ['squat', 'hinge', 'lunge'].includes(pattern)
-    );
+  if (f.includes('abs') || f.includes('core')) return hit('abs', 'core', 'oblique', 'plank', 'raise');
+  if (f.includes('olympic')) return hit('olympic', 'snatch', 'clean', 'jerk', 'hang');
+  if (f.includes('back') || f.includes('lat')) return hit('back', 'lat', 'row', 'pull', 'chin');
+  if (f.includes('shoulder') || f.includes('delt')) {
+    return hit('shoulder', 'delt', 'overhead', 'lateral raise', 'press');
   }
 
   if (f.includes('push')) {
-    return (
-      pattern === 'push' ||
-      ['chest', 'shoulder', 'deltoid', 'tricep', 'press'].some(
-        (m) => primary.includes(m) || name.includes(m)
-      )
-    );
+    return pattern === 'push' || hit('chest', 'shoulder', 'deltoid', 'tricep', 'press');
   }
-
   if (f.includes('pull')) {
+    return pattern === 'pull' || hit('back', 'lat', 'bicep', 'row', 'chin', 'pull');
+  }
+  if (f.includes('upper')) {
     return (
-      pattern === 'pull' ||
-      ['back', 'lat', 'bicep', 'row', 'chin', 'pull'].some(
-        (m) => primary.includes(m) || name.includes(m)
-      )
+      ['chest', 'back', 'shoulders', 'biceps', 'triceps', 'lats', 'traps'].some(
+        (m) => primary.includes(m) || secondary.some((s) => s.includes(m)) || hay.includes(m)
+      ) || ['push', 'pull'].includes(pattern)
     );
   }
-
-  if (f.includes('legs') || f.includes('calves')) {
+  if (f.includes('lower') || f.includes('legs')) {
     return (
-      ['quads', 'hamstrings', 'calves', 'adductors'].some((m) =>
-        primary.includes(m) || secondary.some((s) => s.includes(m))
+      ['quads', 'hamstrings', 'glutes', 'calves', 'legs', 'adductors', 'hips'].some(
+        (m) => primary.includes(m) || secondary.some((s) => s.includes(m)) || hay.includes(m)
       ) || ['squat', 'hinge', 'lunge'].includes(pattern)
     );
   }
-
-  if (f.includes('arms') || f.includes('shoulders')) {
-    return (
-      ['biceps', 'triceps', 'shoulders', 'deltoids'].some((m) =>
-        primary.includes(m) || secondary.some((s) => s.includes(m))
-      ) || name.includes('curl') || name.includes('tricep') || name.includes('lateral raise')
-    );
+  if (f.includes('arms')) {
+    return hit('bicep', 'tricep', 'curl', 'shoulder', 'delt', 'forearm');
   }
 
-  if (f.includes('glute')) {
-    return (
-      primary.includes('glute') ||
-      secondary.some((s) => s.includes('glute')) ||
-      name.includes('hip thrust') ||
-      name.includes('rdl') ||
-      name.includes('deadlift')
-    );
-  }
-
-  return true;
+  return hit(...f.split(/[^a-z]+/).filter((t) => t.length > 2));
 };
 
 /**
@@ -216,24 +215,37 @@ export const generateIntelPrescription = (
   goal: TrainingGoal,
   energyLevel: EnergyLevel = 'STEADY',
   durationMinutes: number = 45,
-  movementFocus: string = 'Upper Body'
+  movementFocus: string = 'Full Body'
 ): ExerciseItem[] => {
   const athleteWeightKg = getAthleteWeightKg();
   const user = useUserStore.getState?.();
   const calibration = user?.calibrationProgress || 78;
 
   const targetRpe = energyLevel === 'PRIME' ? 9.0 : energyLevel === 'LOW' ? 6.5 : 8.0;
-  const setsCount = durationMinutes >= 60 ? 4 : durationMinutes >= 30 ? 3 : 2;
+  const setsCount =
+    durationMinutes >= 75 ? 5 : durationMinutes >= 60 ? 4 : durationMinutes >= 30 ? 3 : 2;
 
-  // Determine target exercise count based on duration
   const targetExerciseCount =
-    durationMinutes <= 10 ? 2 : durationMinutes <= 20 ? 3 : durationMinutes <= 30 ? 4 : durationMinutes <= 45 ? 5 : 6;
+    durationMinutes <= 10
+      ? 2
+      : durationMinutes <= 15
+        ? 3
+        : durationMinutes <= 20
+          ? 3
+          : durationMinutes <= 30
+            ? 4
+            : durationMinutes <= 45
+              ? 5
+              : durationMinutes <= 60
+                ? 6
+                : durationMinutes <= 75
+                  ? 7
+                  : 8;
 
-  // Query genuine exercise candidates from live EXERCISE_DATABASE
   const candidatePool = queryExercisesForGoal(goal, movementFocus);
-
-  // If pool is somehow smaller than needed, fallback to general pool
-  const effectivePool = candidatePool.length >= targetExerciseCount ? candidatePool : EXERCISE_DATABASE;
+  const basePool = candidatePool.length >= targetExerciseCount ? candidatePool : EXERCISE_DATABASE;
+  const rotateBy = Date.now() % Math.max(1, basePool.length);
+  const effectivePool = [...basePool.slice(rotateBy), ...basePool.slice(0, rotateBy)];
 
   // Pick unique balanced exercises
   const selectedDefs: ExerciseDefinition[] = [];

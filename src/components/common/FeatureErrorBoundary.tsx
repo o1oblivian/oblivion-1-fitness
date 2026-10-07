@@ -57,7 +57,7 @@ export class FeatureErrorBoundary extends Component<Props, State> {
       const name = this.props.featureName || 'Application View';
       return (
         <div id="feature-error-boundary-card" className="p-4 max-w-md mx-auto my-6 animate-in fade-in duration-200">
-          <div className="bg-zinc-900 border border-zinc-800 text-white rounded-2xl p-5 shadow-2xl space-y-4">
+          <div className="bg-o1-well border border-white/[0.07] text-white rounded-2xl p-5 shadow-2xl space-y-4">
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-xl bg-red-500/15 border border-red-500/30 flex items-center justify-center text-red-400 shrink-0">
                 <AlertTriangle className="w-5 h-5" />
@@ -77,7 +77,7 @@ export class FeatureErrorBoundary extends Component<Props, State> {
               to prevent whole-application disruption.
             </p>
 
-            <div className="bg-zinc-950 rounded-xl p-3 border border-zinc-800 flex items-start gap-2">
+            <div className="bg-black rounded-xl p-3 border border-white/[0.07] flex items-start gap-2">
               <Terminal className="w-3.5 h-3.5 text-zinc-500 shrink-0 mt-0.5" />
               <code className="text-[11px] font-mono text-red-300/90 break-all leading-tight">
                 {this.state.errorMessage}

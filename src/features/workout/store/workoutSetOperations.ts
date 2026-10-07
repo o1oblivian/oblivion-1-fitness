@@ -5,6 +5,7 @@ import {
   getAthleteWeightKg,
   calculateFatigueScore,
 } from '../../../utils/physiologyEngine';
+import { buildNextSet } from '../utils/lastLoggedSet';
 
 export interface SessionMetrics {
   sessionTonnageKg: number;
@@ -24,7 +25,7 @@ export const computeSessionMetrics = (
   let totalRepsCount = 0;
 
   for (const ex of exercises) {
-    for (const s of ex.sets) {
+    for (const s of ex.sets || []) {
       totalRepsCount += s.reps || 0;
       if (s.completed) {
         completedSetsCount += 1;
@@ -77,20 +78,13 @@ export const addSetToExercises = (
 ): ExerciseItem[] => {
   return exercises.map((ex) => {
     if (ex.id !== exerciseId) return ex;
-    const lastSet = ex.sets[ex.sets.length - 1];
-    const newSetNumber = ex.sets.length + 1;
-    const newSet: ExerciseSet = {
-      id: `set-${Date.now()}-${newSetNumber}-${Math.random().toString(36).slice(2, 6)}`,
-      setNumber: newSetNumber,
-      weightKg: lastSet ? (lastSet.weightKg ?? lastSet.weight ?? 60) : 60,
-      weight: lastSet ? (lastSet.weightKg ?? lastSet.weight ?? 60) : 60,
-      reps: lastSet ? (lastSet.reps ?? 10) : 10,
-      rpe: lastSet ? (lastSet.rpe ?? 8.0) : 8.0,
-      completed: false,
-    };
+    const sets = ex.sets || [];
+    const lastSet = sets[sets.length - 1];
+    const newSetNumber = sets.length + 1;
+    const newSet: ExerciseSet = buildNextSet(newSetNumber, lastSet, String(ex.equipment || ''));
     return {
       ...ex,
-      sets: [...ex.sets, newSet],
+      sets: [...sets, newSet],
     };
   });
 };
@@ -103,7 +97,7 @@ export const removeSetFromExercises = (
   return exercises
     .map((ex) => {
       if (ex.id !== exerciseId) return ex;
-      const filtered = ex.sets.filter(
+      const filtered = (ex.sets || []).filter(
         (s) => s.setNumber !== setNumber && Number(s.setNumber) !== Number(setNumber)
       );
       return {
@@ -124,7 +118,7 @@ export const toggleSetInExercises = (
     if (ex.id !== exerciseId) return ex;
     return {
       ...ex,
-      sets: ex.sets.map((s) =>
+      sets: (ex.sets || []).map((s) =>
         s.setNumber === setNumber || Number(s.setNumber) === Number(setNumber)
           ? { ...s, completed: willComplete }
           : s
@@ -151,7 +145,7 @@ export const updateSetInExercises = (
     if (ex.id !== exerciseId) return ex;
     return {
       ...ex,
-      sets: ex.sets.map((s) =>
+      sets: (ex.sets || []).map((s) =>
         s.setNumber === setNumber || Number(s.setNumber) === Number(setNumber)
           ? { ...s, ...normalizedUpdates }
           : s

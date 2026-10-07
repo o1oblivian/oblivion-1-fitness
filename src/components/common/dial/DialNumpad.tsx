@@ -56,11 +56,11 @@ export const DialNumpad: React.FC<DialNumpadProps> = ({ value, unit, max, onChan
   return (
     <div className="w-full max-w-[270px] mx-auto py-2 flex flex-col items-center select-none">
       {/* Big Digital Display */}
-      <div className="w-full p-3 rounded-2xl bg-neutral-100 dark:bg-[#18181b] border border-neutral-200/80 dark:border-neutral-800 text-center mb-3">
+      <div className="w-full p-3 rounded-2xl bg-o1-well border border-white/[0.07] text-center mb-3">
         <span className="text-[10px] font-mono uppercase tracking-wider text-neutral-400 block">
           TARGET {unit}
         </span>
-        <span className="text-3xl font-mono font-black text-neutral-900 dark:text-white">
+        <span className="text-3xl font-mono font-black text-white">
           {value} <span className="text-sm font-sans text-neutral-400">{unit}</span>
         </span>
       </div>
@@ -72,7 +72,7 @@ export const DialNumpad: React.FC<DialNumpadProps> = ({ value, unit, max, onChan
             key={d}
             type="button"
             onClick={() => handleDigit(d)}
-            className="h-11 rounded-xl bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1a1a1f] dark:hover:bg-[#24242b] border border-neutral-200 dark:border-neutral-800 font-mono text-lg font-bold text-neutral-900 dark:text-white active:scale-95 transition-all cursor-pointer"
+            className="h-11 rounded-xl bg-o1-well hover:bg-white/[0.06] border border-white/[0.07] font-mono text-lg font-bold text-white active:scale-95 transition-all cursor-pointer"
           >
             {d}
           </button>
@@ -81,7 +81,7 @@ export const DialNumpad: React.FC<DialNumpadProps> = ({ value, unit, max, onChan
         <button
           type="button"
           onClick={handleDecimal}
-          className="h-11 rounded-xl bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1a1a1f] dark:hover:bg-[#24242b] border border-neutral-200 dark:border-neutral-800 font-mono text-base font-bold text-neutral-900 dark:text-white active:scale-95 transition-all cursor-pointer flex items-center justify-center"
+          className="h-11 rounded-xl bg-o1-well hover:bg-white/[0.06] border border-white/[0.07] font-mono text-base font-bold text-white active:scale-95 transition-all cursor-pointer flex items-center justify-center"
         >
           .5
         </button>
@@ -89,7 +89,7 @@ export const DialNumpad: React.FC<DialNumpadProps> = ({ value, unit, max, onChan
         <button
           type="button"
           onClick={() => handleDigit('0')}
-          className="h-11 rounded-xl bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1a1a1f] dark:hover:bg-[#24242b] border border-neutral-200 dark:border-neutral-800 font-mono text-lg font-bold text-neutral-900 dark:text-white active:scale-95 transition-all cursor-pointer"
+          className="h-11 rounded-xl bg-o1-well hover:bg-white/[0.06] border border-white/[0.07] font-mono text-lg font-bold text-white active:scale-95 transition-all cursor-pointer"
         >
           0
         </button>
@@ -97,7 +97,7 @@ export const DialNumpad: React.FC<DialNumpadProps> = ({ value, unit, max, onChan
         <button
           type="button"
           onClick={handleBackspace}
-          className="h-11 rounded-xl bg-neutral-100 hover:bg-neutral-200 dark:bg-[#1a1a1f] dark:hover:bg-[#24242b] border border-neutral-200 dark:border-neutral-800 font-mono text-base font-bold text-neutral-700 dark:text-neutral-300 active:scale-95 transition-all cursor-pointer flex items-center justify-center"
+          className="h-11 rounded-xl bg-o1-well hover:bg-white/[0.06] border border-white/[0.07] font-mono text-base font-bold text-neutral-300 active:scale-95 transition-all cursor-pointer flex items-center justify-center"
         >
           <Delete className="w-5 h-5" />
         </button>
@@ -107,7 +107,7 @@ export const DialNumpad: React.FC<DialNumpadProps> = ({ value, unit, max, onChan
       <button
         type="button"
         onClick={handleClear}
-        className="w-full mt-2 py-1.5 rounded-lg bg-neutral-100 hover:bg-neutral-200 dark:bg-[#18181b] text-neutral-500 hover:text-neutral-900 dark:hover:text-white text-xs font-mono font-medium flex items-center justify-center gap-1.5 transition cursor-pointer"
+        className="w-full mt-2 py-1.5 rounded-xl hover:bg-white/[0.06] bg-o1-well text-neutral-500 hover:text-white text-xs font-mono font-medium flex items-center justify-center gap-1.5 transition cursor-pointer"
       >
         <RotateCcw className="w-3.5 h-3.5" />
         <span>Reset to 0</span>

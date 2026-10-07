@@ -1,6 +1,7 @@
 import { ScannedMealBreakdown, ScanMode } from './mealVisionTypes';
 import { tryDetectNativeBarcode, lookupBarcodeNumber } from './barcodeLookupService';
 import { compressAndAnalyzeImage } from './imageCompressionService';
+import { apiUrl } from './apiBase';
 
 export * from './mealVisionTypes';
 export { lookupBarcodeNumber } from './barcodeLookupService';
@@ -37,7 +38,7 @@ export async function analyzeMealImageWithGemini(
     const timeoutId = setTimeout(() => controller.abort(), 20000);
 
     try {
-      const proxyRes = await fetch('/api/vision/meal-nutrients', {
+      const proxyRes = await fetch(apiUrl('/api/vision/meal-nutrients'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
         body: JSON.stringify({

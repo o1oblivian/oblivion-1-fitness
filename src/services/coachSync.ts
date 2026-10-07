@@ -1,6 +1,7 @@
 import { supabase } from './supabaseClient';
 import { syncEngine } from './syncEngine';
 import { AthleteTelemetryRecord, CoachClientRecord, AthleteProfileRecord } from '../types/database';
+import { peekStoredUserId } from './authUser';
 
 export async function dispatchAthleteTelemetry(
   athleteId: string,
@@ -20,16 +21,19 @@ export async function dispatchAthleteTelemetry(
     payload,
   });
 
-  await syncEngine.dispatchMutation({
-    table: 'coach_clients',
-    operation: 'UPSERT',
-    payload: {
-      coach_id: 'coach_alpha',
-      athlete_id: athleteId,
-      status: 'Active',
-      last_active_at: new Date().toISOString(),
-    },
-  });
+  const coachId = peekStoredUserId();
+  if (coachId) {
+    await syncEngine.dispatchMutation({
+      table: 'coach_clients',
+      operation: 'UPSERT',
+      payload: {
+        coach_id: coachId,
+        athlete_id: athleteId,
+        status: 'Active',
+        last_active_at: new Date().toISOString(),
+      },
+    });
+  }
 }
 
 export async function dispatchCoachClientStatus(
@@ -89,6 +93,18 @@ export function subscribeToCoachDirectives(
         schema: 'public',
         table: 'assigned_workouts',
         filter: `athlete_id=eq.${athleteId}`,
+      },
+      (payload) => {
+        onDirectiveOrRoutineChanged(payload);
+      }
+    )
+    .on(
+      'postgres_changes',
+      {
+        event: '*',
+        schema: 'public',
+        table: 'assigned_workouts',
+        filter: `client_id=eq.${athleteId}`,
       },
       (payload) => {
         onDirectiveOrRoutineChanged(payload);

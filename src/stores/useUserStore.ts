@@ -25,11 +25,13 @@ export interface UserActions {
 }
 
 const getStoredUserId = (): string => {
-  if (typeof window === 'undefined') return 'default-athlete';
+  if (typeof window === 'undefined') return '';
   try {
-    return localStorage.getItem('o1fc_user_id') || 'default-athlete';
+    const id = localStorage.getItem('o1fc_user_id');
+    if (!id || id === 'default-athlete' || id === 'athlete-c1') return '';
+    return id;
   } catch {
-    return 'default-athlete';
+    return '';
   }
 };
 

@@ -684,26 +684,26 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({
   }, [historyByDate, sleepTimeframe, sleepTimeframeDays, selectedSleepRecord]);
 
   return (
-    <div className="space-y-4 select-none font-mono">
+      <div className="space-y-2.5 select-none font-mono">
       {/* ============================================================== */}
       {/* 1. ACTIVITY MATRIX & 30-DAY LOG FEED CARD                      */}
       {/* ============================================================== */}
-      <div className="rounded-3xl bg-white dark:bg-[#121214] border border-neutral-200 dark:border-neutral-800 p-4 sm:p-5 shadow-sm space-y-3.5 text-neutral-900 dark:text-neutral-100 transition-colors">
+      <div className="rounded-2xl bg-o1-card border border-white/[0.07] p-3 shadow-sm space-y-2.5 text-neutral-100 transition-colors">
         {/* Header with Mode Toggle & Navigation */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
           <div className="flex items-center gap-2">
-            <Calendar className="w-4 h-4 text-[#C4121A]" />
-            <div className="inline-flex items-center bg-neutral-100 dark:bg-[#18181c] border border-neutral-200 dark:border-neutral-800 p-0.5 rounded-xl text-[10px]">
+            <Calendar className="w-4 h-4 text-o1-crimson" />
+            <div className="inline-flex items-center bg-o1-well border border-white/[0.07] p-0.5 rounded-xl text-[10px]">
               <button
                 type="button"
                 onClick={() => {
                   tactileEngine.triggerSelectionBuzz();
                   setViewMode('matrix');
                 }}
-                className={`px-2.5 py-1 rounded-lg font-bold tracking-wider uppercase transition-colors cursor-pointer ${
+                className={`px-2.5 py-1 rounded-xl font-bold tracking-wider uppercase transition-colors cursor-pointer ${
                   viewMode === 'matrix'
-                    ? 'bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 shadow-xs'
-                    : 'text-neutral-500 hover:text-black dark:hover:text-white'
+                    ? 'bg-white text-neutral-900 shadow-xs'
+                    : 'text-neutral-500 hover:text-white'
                 }`}
               >
                 Week Matrix
@@ -714,10 +714,10 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({
                   tactileEngine.triggerSelectionBuzz();
                   setViewMode('30d_feed');
                 }}
-                className={`px-2.5 py-1 rounded-lg font-bold tracking-wider uppercase transition-colors cursor-pointer flex items-center gap-1 ${
+                className={`px-2.5 py-1 rounded-xl font-bold tracking-wider uppercase transition-colors cursor-pointer flex items-center gap-1 ${
                   viewMode === '30d_feed'
-                    ? 'bg-[#C4121A] text-white shadow-xs'
-                    : 'text-neutral-500 hover:text-black dark:hover:text-white'
+                    ? 'bg-o1-well border border-white/[0.07] text-zinc-300 shadow-xs'
+                    : 'text-neutral-500 hover:text-white'
                 }`}
               >
                 <History className="w-3 h-3" />
@@ -729,7 +729,7 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({
           {/* Week Navigation Controls when in Matrix view */}
           {viewMode === 'matrix' ? (
             <div className="flex items-center justify-between sm:justify-end gap-2">
-              <span className="text-[10px] font-mono uppercase font-semibold text-neutral-500 dark:text-neutral-400 tracking-wider">
+              <span className="text-[10px] font-mono uppercase font-semibold text-neutral-400 tracking-wider">
                 {weekRangeLabel}
               </span>
               <div className="flex items-center gap-1">
@@ -739,7 +739,7 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({
                     tactileEngine.triggerSelectionBuzz();
                     setWeekOffset((w) => w - 1);
                   }}
-                  className="p-1 rounded-lg bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 hover:text-black dark:hover:text-white transition-colors cursor-pointer active:scale-95"
+                  className="p-1 rounded-lg bg-white/[0.08] text-neutral-300 hover:text-white transition-colors cursor-pointer active:scale-95"
                   title="Previous Week"
                 >
                   <ChevronLeft className="w-3.5 h-3.5" />
@@ -751,10 +751,10 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({
                     setWeekOffset(0);
                     setSelectedDateStr(today.toDateString());
                   }}
-                  className={`px-2 py-0.5 rounded-lg text-[9px] font-bold font-mono uppercase tracking-wider transition-colors cursor-pointer active:scale-95 ${
+                  className={`px-2 py-0.5 rounded-xl text-[9px] font-bold font-mono uppercase tracking-wider transition-colors cursor-pointer active:scale-95 ${
                     weekOffset === 0
-                      ? 'bg-neutral-900 dark:bg-white text-white dark:text-neutral-900'
-                      : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 hover:text-black dark:hover:text-white'
+                      ? 'bg-white text-neutral-900'
+                      : 'bg-white/[0.08] text-neutral-400 hover:text-white'
                   }`}
                 >
                   Today
@@ -768,8 +768,8 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({
                   disabled={weekOffset >= 0}
                   className={`p-1 rounded-lg transition-colors cursor-pointer active:scale-95 ${
                     weekOffset >= 0
-                      ? 'opacity-30 cursor-not-allowed bg-neutral-100 dark:bg-neutral-800 text-neutral-400'
-                      : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 hover:text-black dark:hover:text-white'
+                      ? 'opacity-30 cursor-not-allowed bg-white/[0.08] text-neutral-400'
+                      : 'bg-white/[0.08] text-neutral-300 hover:text-white'
                   }`}
                   title="Next Week"
                 >
@@ -778,7 +778,7 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({
               </div>
             </div>
           ) : (
-            <span className="text-[10px] font-mono uppercase font-semibold text-neutral-500 dark:text-neutral-400 tracking-wider">
+            <span className="text-[10px] font-mono uppercase font-semibold text-neutral-400 tracking-wider">
               Past 30 Days Activity Log
             </span>
           )}
@@ -836,22 +836,22 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({
                   }}
                   className={`p-3 rounded-2xl border transition-all cursor-pointer text-left space-y-2 ${
                     isSelected
-                      ? 'bg-neutral-100 dark:bg-[#1a1a20] border-[#C4121A] shadow-xs'
+                      ? 'bg-o1-well border-o1-crimson shadow-xs'
                       : hasAnyActivity
-                      ? 'bg-neutral-50 dark:bg-[#16161a] border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700'
-                      : 'bg-neutral-50/50 dark:bg-[#121214]/60 border-neutral-200/60 dark:border-neutral-800/40 opacity-70 hover:opacity-100'
+                      ? 'bg-o1-well border-white/[0.07] hover:border-white/[0.14]'
+                      : 'bg-o1-card/60 border-white/[0.07] opacity-70 hover:opacity-100'
                   }`}
                 >
                   <div className="flex items-center justify-between text-xs">
                     <div className="flex items-center gap-2">
-                      <span className="font-bold text-neutral-900 dark:text-white uppercase tracking-wider">
+                      <span className="font-bold text-white uppercase tracking-wider">
                         {dm.dayLabel}
                       </span>
                       <span className="text-[10px] text-neutral-500 font-mono">
                         {dm.dateFormatted}
                       </span>
                       {isToday && (
-                        <span className="px-1.5 py-0.5 rounded-md bg-[#C4121A] text-white text-[8px] font-bold uppercase tracking-wider">
+                        <span className="px-1.5 py-0.5 rounded-md bg-o1-crimson text-white text-[8px] font-bold uppercase tracking-wider">
                           Today
                         </span>
                       )}
@@ -862,21 +862,21 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({
                   {hasAnyActivity ? (
                     <div className="flex flex-wrap gap-1.5 text-[10px]">
                       {hasWorkout && (
-                        <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-neutral-100 dark:bg-[#18181b] border border-neutral-200 dark:border-neutral-800 text-neutral-800 dark:text-neutral-200 font-semibold">
-                          <Dumbbell className="w-3 h-3 text-[#C4121A]" />
+                        <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-xl bg-o1-well border border-white/[0.07] text-neutral-200 font-semibold">
+                          <Dumbbell className="w-3 h-3 text-o1-crimson" />
                           <span>{wTonnage.toLocaleString()} kg · {wSets} sets ({wRoutine})</span>
                         </span>
                       )}
 
                       {hasCardio && (
-                        <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-neutral-100 dark:bg-[#18181b] border border-neutral-200 dark:border-neutral-800 text-neutral-800 dark:text-neutral-200 font-semibold">
-                          <Activity className="w-3 h-3 text-cyan-600 dark:text-cyan-400" />
+                        <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-xl bg-o1-well border border-white/[0.07] text-neutral-200 font-semibold">
+                          <Activity className="w-3 h-3 text-sky-400" />
                           <span>{cDist} km · {cBurn} kcal</span>
                         </span>
                       )}
 
                       {hasNutrition && (
-                        <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-neutral-100 dark:bg-[#18181b] border border-neutral-200 dark:border-neutral-800 text-neutral-800 dark:text-neutral-200 font-semibold">
+                        <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-xl bg-o1-well border border-white/[0.07] text-neutral-200 font-semibold">
                           <Apple className="w-3 h-3 text-amber-500" />
                           <span>{nCals} kcal · {nProtein}g P ({nMealsCount} meals)</span>
                         </span>
@@ -893,7 +893,7 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({
                           setSelectedDateStr(new Date(dm.dateKey + 'T12:00:00').toDateString());
                           setActiveModalCategory('workout');
                         }}
-                        className="text-[#C4121A] hover:underline font-bold"
+                        className="text-o1-crimson hover:underline font-bold"
                       >
                         + Log Entry
                       </button>
@@ -909,26 +909,26 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({
       {/* ============================================================== */}
       {/* 2. THE 5 GENUINE LOG HISTORY CHANNELS                          */}
       {/* ============================================================== */}
-      <div className="space-y-3">
+      <div className="space-y-2">
         {/* ============================================================== */}
         {/* CHANNEL 1: WORKOUT HISTORY (Red Accent)                        */}
         {/* ============================================================== */}
-        <div className="rounded-3xl bg-white dark:bg-[#121214] border border-neutral-200 dark:border-neutral-800 overflow-hidden shadow-sm transition-all">
+        <div className="rounded-2xl bg-o1-card border border-white/[0.07] overflow-hidden shadow-sm transition-all">
           <button
             type="button"
             onClick={() => toggle('workout')}
-            className="w-full p-4 flex items-center justify-between text-left cursor-pointer hover:bg-neutral-50 dark:hover:bg-neutral-800/30 transition-colors"
+            className="w-full min-h-[44px] px-3 py-2 flex items-center justify-between text-left cursor-pointer hover:bg-white/[0.06] transition-colors"
           >
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-neutral-100 dark:bg-[#18181b] border border-neutral-200 dark:border-neutral-800 flex items-center justify-center text-[#C4121A] shrink-0 shadow-xs">
-                <Dumbbell className="w-5 h-5 stroke-[2.2]" />
+            <div className="flex items-center gap-2">
+              <div className="w-7 h-7 rounded-xl bg-o1-well border border-white/[0.07] flex items-center justify-center text-o1-crimson shrink-0 shadow-xs">
+                <Dumbbell className="w-3.5 h-3.5 stroke-[2.2]" />
               </div>
 
               <div className="flex flex-col">
-                <span className="font-bold text-xs uppercase tracking-wider text-neutral-900 dark:text-white">
+                <span className="font-semibold text-[10px] uppercase tracking-wider text-white">
                   WORKOUT HISTORY
                 </span>
-                <span className="text-xs text-neutral-500 dark:text-neutral-400 font-medium">
+                <span className="text-[10px] text-neutral-400 font-medium">
                   {selectedWorkoutRecord?.hasData || (isViewingToday && hasActiveLiftingSession)
                     ? `${((selectedWorkoutRecord?.tonnageKg || totalVolumeMoved)).toLocaleString()} kg moved · ${(selectedWorkoutRecord?.completedSets || completedSetsCount)} sets completed`
                     : '0 kg moved · No session recorded'}
@@ -942,11 +942,11 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({
           </button>
 
           {expanded.workout && (
-            <div className="px-4 pb-4 pt-2 space-y-4 border-t border-neutral-200 dark:border-neutral-800/80">
+            <div className="px-3 pb-2.5 pt-1.5 space-y-2.5 border-t border-white/[0.05]">
               {/* Controls Bar: [7D] [30D] [1Y] Timeframe + [Volume (kg)] [Sets] [Intensity] Filters */}
               <div className="flex flex-wrap items-center justify-between gap-2">
                 {/* Timeframe Filter: [7D] [30D] [1Y] */}
-                <div className="inline-flex items-center bg-neutral-100 dark:bg-[#18181c] border border-neutral-200 dark:border-neutral-800 p-1 rounded-2xl gap-1">
+                <div className="inline-flex items-center bg-o1-well border border-white/[0.07] p-1 rounded-2xl gap-1">
                   {(['7D', '30D', '1Y'] as const).map((tf) => (
                     <button
                       key={tf}
@@ -957,8 +957,8 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({
                       }}
                       className={`py-1.5 px-3 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                         workoutTimeframe === tf
-                          ? 'bg-white dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 text-neutral-900 dark:text-white shadow-xs'
-                          : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white'
+                          ? 'bg-o1-well border border-white/[0.07] text-white shadow-xs'
+                          : 'text-neutral-400 hover:text-white'
                       }`}
                     >
                       {tf}
@@ -967,7 +967,7 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({
                 </div>
 
                 {/* Segmented Filter: [Volume (kg)] [Sets] [Intensity] */}
-                <div className="inline-flex items-center bg-neutral-100 dark:bg-[#18181c] border border-neutral-200 dark:border-neutral-800 p-1 rounded-2xl gap-1">
+                <div className="inline-flex items-center bg-o1-well border border-white/[0.07] p-1 rounded-2xl gap-1">
                   {(['Volume (kg)', 'Sets', 'Intensity'] as const).map((filter) => (
                     <button
                       key={filter}
@@ -978,8 +978,8 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({
                       }}
                       className={`py-1.5 px-3 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                         workoutFilter === filter
-                          ? 'bg-[#C4121A] text-white shadow-xs'
-                          : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white'
+                          ? 'bg-o1-well border border-white/[0.07] text-zinc-300 shadow-xs'
+                          : 'text-zinc-400 hover:text-white'
                       }`}
                     >
                       {filter}
@@ -991,15 +991,15 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({
               {/* 3 Metric Cards with Real Calculated Timeframe Metrics */}
               <div className="grid grid-cols-3 gap-2 text-xs">
                 {/* SESSIONS */}
-                <div className="p-3 rounded-2xl bg-neutral-50 dark:bg-[#18181c] border border-neutral-200/90 dark:border-neutral-800/90 flex flex-col justify-between">
+                <div className="p-2 rounded-xl bg-white/[0.03] flex flex-col justify-between">
                   <div className="flex items-center justify-between">
-                    <span className="text-[10px] text-neutral-500 dark:text-neutral-400 uppercase font-bold tracking-wider">
+                    <span className="text-[10px] text-neutral-400 uppercase font-bold tracking-wider">
                       SESSIONS
                     </span>
-                    <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                   </div>
                   <div className="my-1.5">
-                    <span className="text-xl sm:text-2xl font-black text-neutral-900 dark:text-white">
+                    <span className="text-[15px] font-bold text-white">
                       {workoutAggregated.totalSessions}
                     </span>
                   </div>
@@ -1009,12 +1009,12 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({
                 </div>
 
                 {/* TONNAGE / SETS / INTENSITY */}
-                <div className="p-3 rounded-2xl bg-neutral-50 dark:bg-[#18181c] border border-neutral-200/90 dark:border-neutral-800/90 flex flex-col justify-between">
-                  <span className="text-[10px] text-neutral-500 dark:text-neutral-400 uppercase font-bold tracking-wider">
+                <div className="p-2 rounded-xl bg-white/[0.03] flex flex-col justify-between">
+                  <span className="text-[10px] text-neutral-400 uppercase font-bold tracking-wider">
                     {workoutFilter === 'Sets' ? 'SETS' : workoutFilter === 'Intensity' ? 'AVG RPE' : 'TONNAGE'}
                   </span>
                   <div className="my-1.5">
-                    <span className="text-xl sm:text-2xl font-black text-neutral-900 dark:text-white">
+                    <span className="text-[15px] font-bold text-white">
                       {workoutFilter === 'Sets'
                         ? workoutAggregated.totalSets
                         : workoutFilter === 'Intensity'
@@ -1030,15 +1030,15 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({
                 </div>
 
                 {/* TIME */}
-                <div className="p-3 rounded-2xl bg-neutral-50 dark:bg-[#18181c] border border-neutral-200/90 dark:border-neutral-800/90 flex flex-col justify-between">
+                <div className="p-2 rounded-xl bg-white/[0.03] flex flex-col justify-between">
                   <div className="flex items-center justify-between">
-                    <span className="text-[10px] text-neutral-500 dark:text-neutral-400 uppercase font-bold tracking-wider">
+                    <span className="text-[10px] text-neutral-400 uppercase font-bold tracking-wider">
                       TIME
                     </span>
                     <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
                   </div>
                   <div className="my-1.5">
-                    <span className="text-xl sm:text-2xl font-black text-neutral-900 dark:text-white">
+                    <span className="text-[15px] font-bold text-white">
                       {workoutAggregated.totalMinutes >= 180
                         ? `${Math.round(workoutAggregated.totalMinutes / 60)} hrs`
                         : `${workoutAggregated.totalMinutes} min`}
@@ -1051,7 +1051,7 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({
               </div>
 
               {/* Dynamic Chart Container with Proportional Volume / Sets Bars */}
-              <div className="p-4 rounded-2xl bg-neutral-50 dark:bg-[#18181c] border border-neutral-200/90 dark:border-neutral-800/90 space-y-4">
+              <div className="p-4 rounded-xl bg-white/[0.03] space-y-4">
                 {/* Proportional Volume Bars */}
                 <div className="flex items-end justify-between gap-2 h-28 pt-2 pb-1 border-b border-dashed border-red-500/30">
                   {workoutAggregated.chartBars.map((b, idx) => {
@@ -1061,7 +1061,7 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({
 
                     return (
                       <div key={idx} className="flex-1 flex flex-col items-center justify-end h-full gap-1.5">
-                        <span className="text-[9px] font-mono font-semibold text-neutral-400 dark:text-neutral-500 truncate h-3">
+                        <span className="text-[9px] font-mono font-semibold text-neutral-500 truncate h-3">
                           {b.hasData && b.value > 0
                             ? workoutFilter === 'Sets'
                               ? b.value
@@ -1073,10 +1073,10 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({
                             : ''}
                         </span>
 
-                        <div className="w-full max-w-[28px] h-16 bg-neutral-200 dark:bg-neutral-800/70 rounded-t-lg overflow-hidden flex items-end">
+                        <div className="w-full max-w-[28px] h-16 bg-white/[0.08] rounded-t-lg overflow-hidden flex items-end">
                           <div
                             className={`w-full rounded-t-lg transition-all duration-300 ${
-                              b.hasData ? 'bg-[#C4121A] shadow-xs' : 'bg-transparent'
+                              b.hasData ? 'bg-o1-crimson shadow-xs' : 'bg-transparent'
                             }`}
                             style={{ height: `${heightPercent}%` }}
                           />
@@ -1085,8 +1085,8 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({
                         <span
                           className={`text-xs font-bold ${
                             b.isToday
-                              ? 'text-[#C4121A]'
-                              : 'text-neutral-600 dark:text-neutral-400'
+                              ? 'text-o1-crimson'
+                              : 'text-neutral-400'
                           }`}
                         >
                           {b.label}
@@ -1106,13 +1106,13 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({
               </div>
 
               {/* Workout active/completed/empty status card */}
-              <div className="p-4 rounded-2xl bg-neutral-50 dark:bg-[#18181c] border border-neutral-200 dark:border-neutral-800 text-left space-y-3">
+              <div className="p-4 rounded-xl bg-white/[0.03] text-left space-y-3">
                 {isViewingToday && hasActiveLiftingSession ? (
                   <div className="space-y-2.5">
                     <div className="flex items-center text-xs">
                       <div className="flex items-center gap-2">
-                        <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                        <span className="font-bold text-neutral-900 dark:text-white uppercase tracking-wider">
+                        <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                        <span className="font-bold text-white uppercase tracking-wider">
                           Active Training Session (In Progress)
                         </span>
                       </div>
@@ -1122,13 +1122,13 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({
                       {workoutExercises.map((ex) => (
                         <div
                           key={ex.id}
-                          className="p-2 rounded-xl bg-white dark:bg-[#121214] border border-neutral-200 dark:border-neutral-800 flex items-center justify-between text-xs"
+                          className="p-2 rounded-xl bg-white/[0.03] flex items-center justify-between text-xs"
                         >
                           <div className="flex items-center gap-2">
-                            <span className="w-2 h-2 rounded-full bg-[#C4121A]" />
-                            <span className="text-neutral-800 dark:text-neutral-200 font-semibold">{ex.name || ex.exerciseName}</span>
+                            <span className="w-2 h-2 rounded-full bg-o1-crimson" />
+                            <span className="text-neutral-200 font-semibold">{ex.name || ex.exerciseName}</span>
                           </div>
-                          <span className="text-neutral-500 dark:text-neutral-400 font-mono text-[10px]">
+                          <span className="text-neutral-400 font-mono text-[10px]">
                             {ex.sets.length} sets
                           </span>
                         </div>
@@ -1139,19 +1139,19 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2.5">
-                        <div className="w-8 h-8 rounded-xl bg-neutral-100 dark:bg-[#18181b] border border-neutral-200 dark:border-neutral-800 flex items-center justify-center text-[#C4121A] shrink-0">
-                          <CheckCircle2 className="w-4 h-4 text-[#C4121A]" />
+                        <div className="w-8 h-8 rounded-xl bg-o1-well border border-white/[0.07] flex items-center justify-center text-o1-crimson shrink-0">
+                          <CheckCircle2 className="w-4 h-4 text-o1-crimson" />
                         </div>
                         <div>
-                          <h4 className="text-xs font-bold text-neutral-900 dark:text-white uppercase tracking-wider">
+                          <h4 className="text-xs font-bold text-white uppercase tracking-wider">
                             {selectedWorkoutRecord.routineName || 'Resistance Session'}
                           </h4>
-                          <span className="text-[10px] text-neutral-500 dark:text-neutral-400 font-sans">
+                          <span className="text-[10px] text-neutral-400 font-sans">
                             Completed Session · {selectedWorkoutRecord.durationMinutes || 45} mins duration
                           </span>
                         </div>
                       </div>
-                      <span className="px-2.5 py-1 rounded-xl bg-neutral-100 dark:bg-[#18181b] border border-neutral-200 dark:border-neutral-800 text-neutral-900 dark:text-white font-mono text-[10px] font-bold uppercase tracking-wider">
+                      <span className="px-2.5 py-1 rounded-xl bg-o1-well border border-white/[0.07] text-white font-mono text-[10px] font-bold uppercase tracking-wider">
                         {selectedWorkoutRecord.tonnageKg.toLocaleString()} kg moved
                       </span>
                     </div>
@@ -1161,13 +1161,13 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({
                         {selectedWorkoutRecord.exercises.map((ex, idx) => (
                           <div
                             key={idx}
-                            className="p-2 rounded-xl bg-white dark:bg-[#121214] border border-neutral-200 dark:border-neutral-800 flex items-center justify-between text-xs"
+                            className="p-2 rounded-xl bg-white/[0.03] flex items-center justify-between text-xs"
                           >
                             <div className="flex items-center gap-2">
-                              <Check className="w-3.5 h-3.5 text-green-500" />
-                              <span className="text-neutral-800 dark:text-neutral-200 font-semibold">{ex.name}</span>
+                              <Check className="w-3.5 h-3.5 text-emerald-500" />
+                              <span className="text-neutral-200 font-semibold">{ex.name}</span>
                             </div>
-                            <span className="text-neutral-500 dark:text-neutral-400 font-mono text-[10px]">
+                            <span className="text-neutral-400 font-mono text-[10px]">
                               {ex.sets} sets × {ex.reps} reps ({ex.weightKg} kg)
                             </span>
                           </div>
@@ -1178,12 +1178,12 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({
                 ) : (
                   <div className="py-4 text-center space-y-2">
                     <div className="flex items-center justify-center">
-                      <Dumbbell className="w-7 h-7 text-neutral-400 dark:text-neutral-600" />
+                      <Dumbbell className="w-7 h-7 text-neutral-600" />
                     </div>
-                    <h4 className="text-xs font-tactical font-black uppercase tracking-wider text-neutral-900 dark:text-white">
+                    <h4 className="text-xs font-tactical font-black uppercase tracking-wider text-white">
                       NO SESSIONS REGISTERED • SELECT A ROUTINE TO BEGIN RECORDING
                     </h4>
-                    <p className="text-[11px] text-neutral-600 dark:text-neutral-400 max-w-xs mx-auto">
+                    <p className="text-[11px] text-neutral-400 max-w-xs mx-auto">
                       No lifting volume, sets, or reps recorded for this date
                     </p>
                   </div>
@@ -1204,22 +1204,22 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({
         {/* ============================================================== */}
         {/* CHANNEL 2: CARDIO (Cyan Accent)                                */}
         {/* ============================================================== */}
-        <div className="rounded-3xl bg-white dark:bg-[#121214] border border-neutral-200 dark:border-neutral-800 overflow-hidden shadow-sm transition-all">
+        <div className="rounded-2xl bg-o1-card border border-white/[0.07] overflow-hidden shadow-sm transition-all">
           <button
             type="button"
             onClick={() => toggle('cardio')}
-            className="w-full p-4 flex items-center justify-between text-left cursor-pointer hover:bg-neutral-50 dark:hover:bg-neutral-800/30 transition-colors"
+            className="w-full min-h-[44px] px-3 py-2 flex items-center justify-between text-left cursor-pointer hover:bg-white/[0.06] transition-colors"
           >
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-neutral-100 dark:bg-[#18181b] border border-neutral-200 dark:border-neutral-800 flex items-center justify-center text-cyan-600 dark:text-cyan-400 shrink-0 shadow-xs">
-                <Activity className="w-5 h-5 stroke-[2.2]" />
+            <div className="flex items-center gap-2">
+              <div className="w-7 h-7 rounded-xl bg-o1-well border border-white/[0.07] flex items-center justify-center text-sky-400 shrink-0 shadow-xs">
+                <Activity className="w-3.5 h-3.5 stroke-[2.2]" />
               </div>
 
               <div className="flex flex-col">
-                <span className="font-bold text-xs uppercase tracking-wider text-neutral-900 dark:text-white">
+                <span className="font-semibold text-[10px] uppercase tracking-wider text-white">
                   CARDIO
                 </span>
-                <span className="text-xs text-neutral-500 dark:text-neutral-400 font-medium">
+                <span className="text-[10px] text-neutral-400 font-medium">
                   {selectedCardioRecord?.hasData
                     ? `${selectedCardioRecord.distanceKm} km · ${selectedCardioRecord.burnedKcal} kcal burned`
                     : isViewingToday && stepCount > 0
@@ -1235,9 +1235,9 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({
           </button>
 
           {expanded.cardio && (
-            <div className="px-4 pb-4 pt-2 space-y-4 border-t border-neutral-200 dark:border-neutral-800/80">
+            <div className="px-3 pb-2.5 pt-1.5 space-y-2.5 border-t border-white/[0.05]">
               {/* Segmented Filter: [7D] [30D] [1Y] */}
-              <div className="inline-flex items-center bg-neutral-100 dark:bg-[#18181c] border border-neutral-200 dark:border-neutral-800 p-1 rounded-2xl gap-1">
+              <div className="inline-flex items-center bg-o1-well border border-white/[0.07] p-1 rounded-2xl gap-1">
                 {(['7D', '30D', '1Y'] as const).map((tf) => (
                   <button
                     key={tf}
@@ -1248,8 +1248,8 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({
                     }}
                     className={`py-1.5 px-3 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                       cardioTimeframe === tf
-                        ? 'bg-white dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 text-neutral-900 dark:text-white shadow-xs'
-                        : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white'
+                        ? 'bg-o1-well border border-white/[0.07] text-white shadow-xs'
+                        : 'text-neutral-400 hover:text-white'
                     }`}
                   >
                     {tf}
@@ -1260,12 +1260,12 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({
               {/* 3 Metric Cards with Real Calculated Timeframe Metrics */}
               <div className="grid grid-cols-3 gap-2 text-xs">
                 {/* DURATION */}
-                <div className="p-3 rounded-2xl bg-neutral-50 dark:bg-[#18181c] border border-neutral-200/90 dark:border-neutral-800/90 flex flex-col justify-between">
-                  <span className="text-[10px] text-neutral-500 dark:text-neutral-400 uppercase font-bold tracking-wider">
+                <div className="p-2 rounded-xl bg-white/[0.03] flex flex-col justify-between">
+                  <span className="text-[10px] text-neutral-400 uppercase font-bold tracking-wider">
                     {cardioTimeframe} DURATION
                   </span>
                   <div className="my-1.5">
-                    <span className="text-xl sm:text-2xl font-black text-neutral-900 dark:text-white">
+                    <span className="text-[15px] font-bold text-white">
                       {cardioAggregated.totalMinutes} min
                     </span>
                   </div>
@@ -1275,12 +1275,12 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({
                 </div>
 
                 {/* BURN */}
-                <div className="p-3 rounded-2xl bg-neutral-50 dark:bg-[#18181c] border border-neutral-200/90 dark:border-neutral-800/90 flex flex-col justify-between">
-                  <span className="text-[10px] text-neutral-500 dark:text-neutral-400 uppercase font-bold tracking-wider">
+                <div className="p-2 rounded-xl bg-white/[0.03] flex flex-col justify-between">
+                  <span className="text-[10px] text-neutral-400 uppercase font-bold tracking-wider">
                     {cardioTimeframe} BURN
                   </span>
                   <div className="my-1.5">
-                    <span className="text-xl sm:text-2xl font-black text-amber-500 dark:text-amber-400">
+                    <span className="text-[15px] font-bold text-amber-400">
                       {cardioAggregated.totalBurned} kcal
                     </span>
                   </div>
@@ -1290,12 +1290,12 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({
                 </div>
 
                 {/* SESSIONS */}
-                <div className="p-3 rounded-2xl bg-neutral-50 dark:bg-[#18181c] border border-neutral-200/90 dark:border-neutral-800/90 flex flex-col justify-between">
-                  <span className="text-[10px] text-neutral-500 dark:text-neutral-400 uppercase font-bold tracking-wider">
+                <div className="p-2 rounded-xl bg-white/[0.03] flex flex-col justify-between">
+                  <span className="text-[10px] text-neutral-400 uppercase font-bold tracking-wider">
                     SESSIONS
                   </span>
                   <div className="my-1.5">
-                    <span className="text-xl sm:text-2xl font-black text-neutral-900 dark:text-white">
+                    <span className="text-[15px] font-bold text-white">
                       {cardioAggregated.totalSessions}
                     </span>
                   </div>
@@ -1313,7 +1313,7 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({
                     tactileEngine.triggerSelectionBuzz();
                     setIsConsoleScanOpen(true);
                   }}
-                  className="py-2.5 px-3 rounded-2xl bg-cyan-500 hover:bg-cyan-400 text-black font-black text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-95 shadow-sm"
+                  className="py-2.5 px-3 rounded-2xl bg-sky-500 hover:bg-sky-400 text-black font-black text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-95 shadow-sm"
                 >
                   <Camera className="w-4 h-4 text-black" />
                   <span>SCAN CONSOLE PHOTO</span>
@@ -1322,65 +1322,65 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({
                 <button
                   type="button"
                   onClick={() => setActiveModalCategory('cardio')}
-                  className="py-2.5 px-3 rounded-2xl bg-neutral-100 dark:bg-[#18181c] border border-neutral-300 dark:border-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-800 text-neutral-900 dark:text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-95"
+                  className="py-2.5 px-3 rounded-2xl bg-o1-well border border-white/[0.07] hover:bg-white/[0.06] text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-95"
                 >
-                  <Plus className="w-4 h-4 text-neutral-500 dark:text-neutral-400" />
+                  <Plus className="w-4 h-4 text-neutral-400" />
                   <span>+ MANUAL</span>
                 </button>
               </div>
 
               {/* Status Card: Synced Cardio Session or Empty */}
               {selectedCardioRecord?.hasData ? (
-                <div className="p-4 rounded-2xl bg-neutral-50 dark:bg-[#16161a] border border-neutral-200 dark:border-neutral-800 text-left space-y-3">
+                <div className="p-4 rounded-xl bg-white/[0.03] text-left space-y-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2.5">
-                      <div className="w-8 h-8 rounded-xl bg-neutral-100 dark:bg-[#18181b] border border-neutral-200 dark:border-neutral-800 flex items-center justify-center text-cyan-600 dark:text-cyan-400 shrink-0">
+                      <div className="w-8 h-8 rounded-xl bg-o1-well border border-white/[0.07] flex items-center justify-center text-sky-400 shrink-0">
                         <Activity className="w-4 h-4" />
                       </div>
                       <div>
-                        <h4 className="text-xs font-bold text-neutral-900 dark:text-white uppercase tracking-wider">
+                        <h4 className="text-xs font-bold text-white uppercase tracking-wider">
                           {selectedCardioRecord.activityType || 'Cardio Console Session'}
                         </h4>
-                        <span className="text-[10px] text-cyan-600 dark:text-cyan-400 font-sans flex items-center gap-1">
-                          <CheckCircle2 className="w-3 h-3 text-cyan-500" /> Synced Cardio Session
+                        <span className="text-[10px] text-sky-400 font-sans flex items-center gap-1">
+                          <CheckCircle2 className="w-3 h-3 text-sky-500" /> Synced Cardio Session
                         </span>
                       </div>
                     </div>
                     <button
                       type="button"
                       onClick={() => setIsConsoleScanOpen(true)}
-                      className="px-2.5 py-1 rounded-xl bg-neutral-200 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200 text-[10px] font-bold uppercase tracking-wider hover:bg-neutral-300 dark:hover:bg-neutral-700 cursor-pointer transition-colors active:scale-95"
+                      className="px-2.5 py-1 rounded-xl bg-white/[0.08] text-neutral-200 text-[10px] font-bold uppercase tracking-wider hover:bg-neutral-700 cursor-pointer transition-colors active:scale-95"
                     >
                       Rescan
                     </button>
                   </div>
 
                   <div className="grid grid-cols-4 gap-1.5 sm:gap-2 text-center text-xs">
-                    <div className="p-2 rounded-xl bg-white dark:bg-[#121214] border border-neutral-200 dark:border-neutral-800">
+                    <div className="p-2 rounded-xl bg-white/[0.03]">
                       <span className="text-[9px] text-neutral-400 uppercase font-bold block">Distance</span>
-                      <span className="font-bold text-neutral-900 dark:text-white">{selectedCardioRecord.distanceKm} km</span>
+                      <span className="font-bold text-white">{selectedCardioRecord.distanceKm} km</span>
                     </div>
-                    <div className="p-2 rounded-xl bg-white dark:bg-[#121214] border border-neutral-200 dark:border-neutral-800">
+                    <div className="p-2 rounded-xl bg-white/[0.03]">
                       <span className="text-[9px] text-neutral-400 uppercase font-bold block">Duration</span>
-                      <span className="font-bold text-neutral-900 dark:text-white">{selectedCardioRecord.durationMinutes}m</span>
+                      <span className="font-bold text-white">{selectedCardioRecord.durationMinutes}m</span>
                     </div>
-                    <div className="p-2 rounded-xl bg-white dark:bg-[#121214] border border-neutral-200 dark:border-neutral-800">
+                    <div className="p-2 rounded-xl bg-white/[0.03]">
                       <span className="text-[9px] text-neutral-400 uppercase font-bold block">Burn</span>
                       <span className="font-bold text-amber-500">{selectedCardioRecord.burnedKcal} kcal</span>
                     </div>
-                    <div className="p-2 rounded-xl bg-white dark:bg-[#121214] border border-neutral-200 dark:border-neutral-800">
+                    <div className="p-2 rounded-xl bg-white/[0.03]">
                       <span className="text-[9px] text-neutral-400 uppercase font-bold block">Avg HR</span>
-                      <span className="font-bold text-rose-500">{selectedCardioRecord.avgHeartRateBpm || 142} bpm</span>
+                      <span className="font-bold text-red-500">{selectedCardioRecord.avgHeartRateBpm || 142} bpm</span>
                     </div>
                   </div>
                 </div>
               ) : (
-                <div className="p-5 rounded-2xl bg-neutral-50 dark:bg-[#18181c] border border-neutral-200 dark:border-neutral-800 text-center space-y-2">
+                <div className="p-5 rounded-xl bg-white/[0.03] text-center space-y-2">
                   <div className="flex items-center justify-center">
-                    <Activity className="w-7 h-7 text-neutral-400 dark:text-neutral-600" />
+                    <Activity className="w-7 h-7 text-neutral-600" />
                   </div>
-                  <h4 className="text-xs font-bold text-neutral-900 dark:text-white">No Cardio Sessions Logged</h4>
-                  <p className="text-[11px] text-neutral-600 dark:text-neutral-400 max-w-xs mx-auto">
+                  <h4 className="text-xs font-bold text-white">No Cardio Sessions Logged</h4>
+                  <p className="text-[11px] text-neutral-400 max-w-xs mx-auto">
                     Scan an exercise console photo with OCR or log manual duration &amp; calories
                   </p>
                 </div>
@@ -1399,22 +1399,22 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({
         {/* ============================================================== */}
         {/* CHANNEL 3: FOOD & NUTRITION (Amber Accent)                     */}
         {/* ============================================================== */}
-        <div className="rounded-3xl bg-white dark:bg-[#121214] border border-neutral-200 dark:border-neutral-800 overflow-hidden shadow-sm transition-all">
+        <div className="rounded-2xl bg-o1-card border border-white/[0.07] overflow-hidden shadow-sm transition-all">
           <button
             type="button"
             onClick={() => toggle('nutrition')}
-            className="w-full p-4 flex items-center justify-between text-left cursor-pointer hover:bg-neutral-50 dark:hover:bg-neutral-800/30 transition-colors"
+            className="w-full min-h-[44px] px-3 py-2 flex items-center justify-between text-left cursor-pointer hover:bg-white/[0.06] transition-colors"
           >
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-neutral-100 dark:bg-[#18181b] border border-neutral-200 dark:border-neutral-800 flex items-center justify-center text-amber-600 dark:text-amber-400 shrink-0 shadow-xs">
-                <Apple className="w-5 h-5 stroke-[2.2]" />
+            <div className="flex items-center gap-2">
+              <div className="w-7 h-7 rounded-xl bg-o1-well border border-white/[0.07] flex items-center justify-center text-amber-400 shrink-0 shadow-xs">
+                <Apple className="w-3.5 h-3.5 stroke-[2.2]" />
               </div>
 
               <div className="flex flex-col">
-                <span className="font-bold text-xs uppercase tracking-wider text-neutral-900 dark:text-white">
+                <span className="font-semibold text-[10px] uppercase tracking-wider text-white">
                   FOOD &amp; NUTRITION
                 </span>
-                <span className="text-xs text-neutral-500 dark:text-neutral-400 font-medium">
+                <span className="text-[10px] text-neutral-400 font-medium">
                   {selectedNutritionRecord?.hasData
                     ? `${selectedNutritionRecord.calories} kcal · Logged for ${selectedDayMeta.dayLabel}`
                     : isViewingToday && currentCalories > 0
@@ -1430,10 +1430,10 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({
           </button>
 
           {expanded.nutrition && (
-            <div className="px-4 pb-4 pt-2 space-y-4 border-t border-neutral-200 dark:border-neutral-800/80">
+            <div className="px-3 pb-2.5 pt-1.5 space-y-2.5 border-t border-white/[0.05]">
               {/* Header Row: Filter Pills + Target Indicator and Adjust Button */}
               <div className="flex items-center justify-between gap-2 flex-wrap">
-                <div className="inline-flex items-center bg-neutral-100 dark:bg-[#18181c] border border-neutral-200 dark:border-neutral-800 p-1 rounded-2xl gap-1">
+                <div className="inline-flex items-center bg-o1-well border border-white/[0.07] p-1 rounded-2xl gap-1">
                   {(['7D', '30D', '1Y'] as const).map((tf) => (
                     <button
                       key={tf}
@@ -1444,8 +1444,8 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({
                       }}
                       className={`py-1.5 px-3 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                         nutritionTimeframe === tf
-                          ? 'bg-white dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 text-neutral-900 dark:text-white shadow-xs'
-                          : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white'
+                          ? 'bg-o1-well border border-white/[0.07] text-white shadow-xs'
+                          : 'text-neutral-400 hover:text-white'
                       }`}
                     >
                       {tf}
@@ -1455,11 +1455,11 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({
 
                 <div className="flex items-center gap-2">
                   {targetCalories > 0 ? (
-                    <div className="px-3 py-1 rounded-full bg-neutral-100 dark:bg-[#18181b] border border-neutral-200 dark:border-neutral-800 text-neutral-900 dark:text-white text-xs font-bold uppercase tracking-wider">
+                    <div className="px-3 py-1 rounded-full bg-o1-well border border-white/[0.07] text-white text-xs font-bold uppercase tracking-wider">
                       {targetPercentage}% TARGET
                     </div>
                   ) : (
-                    <span className="px-2.5 py-1 rounded-full bg-neutral-100 dark:bg-neutral-800/90 border border-neutral-200 dark:border-neutral-700 text-neutral-500 dark:text-neutral-400 text-[10px] font-bold uppercase tracking-wider">
+                    <span className="px-2.5 py-1 rounded-full bg-white/[0.08] border border-white/[0.07] text-neutral-400 text-[10px] font-bold uppercase tracking-wider">
                       No Target Set
                     </span>
                   )}
@@ -1469,15 +1469,15 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({
               {/* 3 Metric Cards for Nutrition */}
               <div className="grid grid-cols-3 gap-2 text-xs">
                 {/* CONSUMED */}
-                <div className="p-3 rounded-2xl bg-neutral-50 dark:bg-[#18181c] border border-neutral-200/90 dark:border-neutral-800/90 flex flex-col justify-between">
+                <div className="p-2 rounded-xl bg-white/[0.03] flex flex-col justify-between">
                   <div className="flex items-center justify-between">
-                    <span className="text-[10px] text-neutral-500 dark:text-neutral-400 uppercase font-bold tracking-wider">
+                    <span className="text-[10px] text-neutral-400 uppercase font-bold tracking-wider">
                       CONSUMED
                     </span>
                     <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
                   </div>
                   <div className="my-1.5">
-                    <span className="text-xl sm:text-2xl font-black text-neutral-900 dark:text-white">
+                    <span className="text-[15px] font-bold text-white">
                       {selectedNutritionRecord?.hasData
                         ? selectedNutritionRecord.calories
                         : isViewingToday
@@ -1492,12 +1492,12 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({
                 </div>
 
                 {/* BUDGET / AVERAGE */}
-                <div className="p-3 rounded-2xl bg-neutral-50 dark:bg-[#18181c] border border-neutral-200/90 dark:border-neutral-800/90 flex flex-col justify-between">
-                  <span className="text-[10px] text-neutral-500 dark:text-neutral-400 uppercase font-bold tracking-wider">
+                <div className="p-2 rounded-xl bg-white/[0.03] flex flex-col justify-between">
+                  <span className="text-[10px] text-neutral-400 uppercase font-bold tracking-wider">
                     {nutritionTimeframe} AVG
                   </span>
                   <div className="my-1.5">
-                    <span className="text-xl sm:text-2xl font-black text-neutral-900 dark:text-white">
+                    <span className="text-[15px] font-bold text-white">
                       {nutritionAggregated.avgCals > 0 ? `${nutritionAggregated.avgCals} kcal` : '—'}
                     </span>
                   </div>
@@ -1507,12 +1507,12 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({
                 </div>
 
                 {/* PROTEIN */}
-                <div className="p-3 rounded-2xl bg-neutral-50 dark:bg-[#18181c] border border-neutral-200/90 dark:border-neutral-800/90 flex flex-col justify-between">
-                  <span className="text-[10px] text-neutral-500 dark:text-neutral-400 uppercase font-bold tracking-wider">
+                <div className="p-2 rounded-xl bg-white/[0.03] flex flex-col justify-between">
+                  <span className="text-[10px] text-neutral-400 uppercase font-bold tracking-wider">
                     PROTEIN
                   </span>
                   <div className="my-1.5">
-                    <span className="text-xl sm:text-2xl font-black text-neutral-900 dark:text-white">
+                    <span className="text-[15px] font-bold text-white">
                       {selectedNutritionRecord?.hasData
                         ? `${formatMacro(selectedNutritionRecord.proteinG)}g`
                         : isViewingToday
@@ -1527,20 +1527,20 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({
               </div>
 
               {/* Macro Bars Card */}
-              <div className="p-4 rounded-2xl bg-neutral-50 dark:bg-[#18181c] border border-neutral-200/90 dark:border-neutral-800/90 space-y-3.5 text-xs">
+              <div className="p-4 rounded-xl bg-white/[0.03] space-y-3.5 text-xs">
                 {/* PROTEIN */}
                 <div className="space-y-1">
                   <div className="flex justify-between items-center text-[11px]">
-                    <span className="font-bold text-neutral-700 dark:text-neutral-300 uppercase">PROTEIN</span>
-                    <span className="text-cyan-600 dark:text-cyan-400 font-bold">
+                    <span className="font-bold text-neutral-300 uppercase">PROTEIN</span>
+                    <span className="text-sky-400 font-bold">
                       {targetProteinG > 0
                         ? `${formatMacro(selectedNutritionRecord?.hasData ? selectedNutritionRecord.proteinG : currentProtein)}g / ${targetProteinG}g`
                         : `${formatMacro(selectedNutritionRecord?.hasData ? selectedNutritionRecord.proteinG : currentProtein)}g`}
                     </span>
                   </div>
-                  <div className="w-full h-2 rounded-full bg-neutral-200 dark:bg-neutral-800 overflow-hidden">
+                  <div className="w-full h-2 rounded-full bg-white/[0.08] overflow-hidden">
                     <div
-                      className="h-full bg-cyan-500 rounded-full transition-all duration-300"
+                      className="h-full bg-sky-500 rounded-full transition-all duration-300"
                       style={{
                         width: `${
                           targetProteinG > 0
@@ -1562,14 +1562,14 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({
                 {/* CARBOHYDRATES */}
                 <div className="space-y-1">
                   <div className="flex justify-between items-center text-[11px]">
-                    <span className="font-bold text-neutral-700 dark:text-neutral-300 uppercase">CARBOHYDRATES</span>
-                    <span className="text-amber-600 dark:text-amber-400 font-bold">
+                    <span className="font-bold text-neutral-300 uppercase">CARBOHYDRATES</span>
+                    <span className="text-amber-400 font-bold">
                       {targetCarbsG > 0
                         ? `${formatMacro(selectedNutritionRecord?.hasData ? selectedNutritionRecord.carbsG : currentCarbs)}g / ${targetCarbsG}g`
                         : `${formatMacro(selectedNutritionRecord?.hasData ? selectedNutritionRecord.carbsG : currentCarbs)}g`}
                     </span>
                   </div>
-                  <div className="w-full h-2 rounded-full bg-neutral-200 dark:bg-neutral-800 overflow-hidden">
+                  <div className="w-full h-2 rounded-full bg-white/[0.08] overflow-hidden">
                     <div
                       className="h-full bg-amber-500 rounded-full transition-all duration-300"
                       style={{
@@ -1593,14 +1593,14 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({
                 {/* LIPIDS & FATS */}
                 <div className="space-y-1">
                   <div className="flex justify-between items-center text-[11px]">
-                    <span className="font-bold text-neutral-700 dark:text-neutral-300 uppercase">LIPIDS &amp; FATS</span>
-                    <span className="text-red-600 dark:text-red-400 font-bold">
+                    <span className="font-bold text-neutral-300 uppercase">LIPIDS &amp; FATS</span>
+                    <span className="text-red-400 font-bold">
                       {targetFatsG > 0
                         ? `${formatMacro(selectedNutritionRecord?.hasData ? selectedNutritionRecord.fatsG : currentFats)}g / ${targetFatsG}g`
                         : `${formatMacro(selectedNutritionRecord?.hasData ? selectedNutritionRecord.fatsG : currentFats)}g`}
                     </span>
                   </div>
-                  <div className="w-full h-2 rounded-full bg-neutral-200 dark:bg-neutral-800 overflow-hidden">
+                  <div className="w-full h-2 rounded-full bg-white/[0.08] overflow-hidden">
                     <div
                       className="h-full bg-red-500 rounded-full transition-all duration-300"
                       style={{
@@ -1636,22 +1636,22 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({
         {/* ============================================================== */}
         {/* CHANNEL 4: SLEEP (Circadian Architecture)                      */}
         {/* ============================================================== */}
-        <div className="rounded-3xl bg-white dark:bg-[#121214] border border-neutral-200 dark:border-neutral-800 overflow-hidden shadow-sm transition-all">
+        <div className="rounded-2xl bg-o1-card border border-white/[0.07] overflow-hidden shadow-sm transition-all">
           <button
             type="button"
             onClick={() => toggle('sleep')}
-            className="w-full p-4 flex items-center justify-between text-left cursor-pointer hover:bg-neutral-50 dark:hover:bg-neutral-800/30 transition-colors"
+            className="w-full min-h-[44px] px-3 py-2 flex items-center justify-between text-left cursor-pointer hover:bg-white/[0.06] transition-colors"
           >
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-purple-50 dark:bg-purple-950/40 border border-purple-300 dark:border-purple-800/60 flex items-center justify-center text-purple-600 dark:text-purple-400 shrink-0 shadow-xs">
-                <Moon className="w-5 h-5 stroke-[2.2]" />
+            <div className="flex items-center gap-2">
+              <div className="w-7 h-7 rounded-xl bg-sky-950/40 border border-sky-800/60 flex items-center justify-center text-sky-400 shrink-0 shadow-xs">
+                <Moon className="w-3.5 h-3.5 stroke-[2.2]" />
               </div>
 
               <div className="flex flex-col">
-                <span className="font-bold text-xs uppercase tracking-wider text-neutral-900 dark:text-white">
+                <span className="font-semibold text-[10px] uppercase tracking-wider text-white">
                   CIRCADIAN ARCHITECTURE
                 </span>
-                <span className="text-xs text-neutral-500 dark:text-neutral-400 font-medium">
+                <span className="text-[10px] text-neutral-400 font-medium">
                   {selectedSleepRecord?.hasData
                     ? `${selectedSleepRecord.durationHours}h Rest · ${selectedSleepRecord.recoveryPercent}% Recovery`
                     : 'NO REST DATA RECORDED'}
@@ -1665,10 +1665,10 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({
           </button>
 
           {expanded.sleep && (
-            <div className="px-4 pb-4 pt-2 space-y-4 border-t border-neutral-200 dark:border-neutral-800/80">
+            <div className="px-3 pb-2.5 pt-1.5 space-y-2.5 border-t border-white/[0.05]">
               {/* Header Row: Filter Pills + [RECOVERY %] */}
               <div className="flex items-center justify-between">
-                <div className="inline-flex items-center bg-neutral-100 dark:bg-[#18181c] border border-neutral-200 dark:border-neutral-800 p-1 rounded-2xl gap-1">
+                <div className="inline-flex items-center bg-o1-well border border-white/[0.07] p-1 rounded-2xl gap-1">
                   {(['7D', '30D', '1Y'] as const).map((tf) => (
                     <button
                       key={tf}
@@ -1679,8 +1679,8 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({
                       }}
                       className={`py-1.5 px-3 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                         sleepTimeframe === tf
-                          ? 'bg-white dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 text-neutral-900 dark:text-white shadow-xs'
-                          : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white'
+                          ? 'bg-o1-well border border-white/[0.07] text-white shadow-xs'
+                          : 'text-neutral-400 hover:text-white'
                       }`}
                     >
                       {tf}
@@ -1688,7 +1688,7 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({
                   ))}
                 </div>
 
-                <div className="px-3 py-1 rounded-full bg-neutral-100 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 text-neutral-700 dark:text-neutral-400 text-xs font-bold uppercase tracking-wider">
+                <div className="px-3 py-1 rounded-full bg-white/[0.08] border border-white/[0.07] text-neutral-400 text-xs font-bold uppercase tracking-wider">
                   {selectedSleepRecord?.hasData
                     ? `${selectedSleepRecord.recoveryPercent}% RECOVERY`
                     : `${sleepAggregated.avgRecovery}% AVG RECOVERY`}
@@ -1698,15 +1698,15 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({
               {/* 3 Metric Cards for Sleep */}
               <div className="grid grid-cols-3 gap-2 text-xs">
                 {/* AVG SLEEP */}
-                <div className="p-3 rounded-2xl bg-neutral-50 dark:bg-[#18181c] border border-neutral-200/90 dark:border-neutral-800/90 flex flex-col justify-between">
+                <div className="p-2 rounded-xl bg-white/[0.03] flex flex-col justify-between">
                   <div className="flex items-center justify-between">
-                    <span className="text-[10px] text-neutral-500 dark:text-neutral-400 uppercase font-bold tracking-wider">
+                    <span className="text-[10px] text-neutral-400 uppercase font-bold tracking-wider">
                       AVG SLEEP
                     </span>
-                    <span className="w-1.5 h-1.5 rounded-full bg-indigo-400" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-sky-400" />
                   </div>
                   <div className="my-1.5">
-                    <span className="text-xl sm:text-2xl font-black text-neutral-900 dark:text-white">
+                    <span className="text-[15px] font-bold text-white">
                       {sleepAggregated.avgHours}h
                     </span>
                   </div>
@@ -1714,12 +1714,12 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({
                 </div>
 
                 {/* RECOVERY */}
-                <div className="p-3 rounded-2xl bg-neutral-50 dark:bg-[#18181c] border border-neutral-200/90 dark:border-neutral-800/90 flex flex-col justify-between">
-                  <span className="text-[10px] text-neutral-500 dark:text-neutral-400 uppercase font-bold tracking-wider">
+                <div className="p-2 rounded-xl bg-white/[0.03] flex flex-col justify-between">
+                  <span className="text-[10px] text-neutral-400 uppercase font-bold tracking-wider">
                     RECOVERY
                   </span>
                   <div className="my-1.5">
-                    <span className="text-xl sm:text-2xl font-black text-purple-600 dark:text-purple-400">
+                    <span className="text-[15px] font-bold text-sky-400">
                       {selectedSleepRecord?.hasData
                         ? `${selectedSleepRecord.recoveryPercent}%`
                         : `${sleepAggregated.avgRecovery}%`}
@@ -1729,12 +1729,12 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({
                 </div>
 
                 {/* TOTAL */}
-                <div className="p-3 rounded-2xl bg-neutral-50 dark:bg-[#18181c] border border-neutral-200/90 dark:border-neutral-800/90 flex flex-col justify-between">
-                  <span className="text-[10px] text-neutral-500 dark:text-neutral-400 uppercase font-bold tracking-wider">
+                <div className="p-2 rounded-xl bg-white/[0.03] flex flex-col justify-between">
+                  <span className="text-[10px] text-neutral-400 uppercase font-bold tracking-wider">
                     {sleepTimeframe} TOTAL
                   </span>
                   <div className="my-1.5">
-                    <span className="text-xl sm:text-2xl font-black text-neutral-900 dark:text-white">
+                    <span className="text-[15px] font-bold text-white">
                       {sleepAggregated.totalHours}h
                     </span>
                   </div>
@@ -1743,9 +1743,9 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({
               </div>
 
               {/* Action Button: Log Sleep */}
-              <div className="flex items-center justify-between p-4 rounded-2xl bg-neutral-50 dark:bg-[#18181c] border border-neutral-200 dark:border-neutral-800">
+              <div className="flex items-center justify-between p-2.5 rounded-xl bg-white/[0.03]">
                 <div>
-                  <span className="text-xs font-bold text-neutral-900 dark:text-white block">
+                  <span className="text-xs font-bold text-white block">
                     {selectedSleepRecord?.hasData ? 'Rest Data Recorded' : 'No rest data for selected day'}
                   </span>
                   <span className="text-[10px] text-neutral-500">
@@ -1757,7 +1757,7 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({
                 <button
                   type="button"
                   onClick={() => setActiveModalCategory('sleep')}
-                  className="py-2 px-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs uppercase tracking-wider flex items-center gap-1.5 transition-all cursor-pointer active:scale-95"
+                  className="py-2 px-3 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs uppercase tracking-wider flex items-center gap-1.5 transition-all cursor-pointer active:scale-95"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   <span>Log Sleep</span>
@@ -1777,22 +1777,22 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({
         {/* ============================================================== */}
         {/* CHANNEL 5: MEDITATION (Pure Natural Green Accent)             */}
         {/* ============================================================== */}
-        <div className="rounded-3xl bg-white dark:bg-[#121214] border border-neutral-200 dark:border-neutral-800 overflow-hidden shadow-sm transition-all">
+        <div className="rounded-2xl bg-o1-card border border-white/[0.07] overflow-hidden shadow-sm transition-all">
           <button
             type="button"
             onClick={() => toggle('meditation')}
-            className="w-full p-4 flex items-center justify-between text-left cursor-pointer hover:bg-neutral-50 dark:hover:bg-neutral-800/30 transition-colors"
+            className="w-full min-h-[44px] px-3 py-2 flex items-center justify-between text-left cursor-pointer hover:bg-white/[0.06] transition-colors"
           >
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-green-50 dark:bg-green-950/40 border border-green-300 dark:border-green-800/60 flex items-center justify-center text-green-700 dark:text-green-400 shrink-0 shadow-xs">
-                <Sparkles className="w-5 h-5 stroke-[2.2]" />
+            <div className="flex items-center gap-2">
+              <div className="w-7 h-7 rounded-xl bg-emerald-950/40 border border-emerald-800/60 flex items-center justify-center text-emerald-400 shrink-0 shadow-xs">
+                <Sparkles className="w-3.5 h-3.5 stroke-[2.2]" />
               </div>
 
               <div className="flex flex-col">
-                <span className="font-bold text-xs uppercase tracking-wider text-neutral-900 dark:text-white">
+                <span className="font-semibold text-[10px] uppercase tracking-wider text-white">
                   MINDFUL RESONANCE
                 </span>
-                <span className="text-xs text-neutral-500 dark:text-neutral-400 font-medium">
+                <span className="text-[10px] text-neutral-400 font-medium">
                   {selectedMeditationRecord?.hasData
                     ? `${selectedMeditationRecord.minutes} min · ${selectedMeditationRecord.coherence}`
                     : '0 MIN TOTAL'}
@@ -1806,10 +1806,10 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({
           </button>
 
           {expanded.meditation && (
-            <div className="px-4 pb-4 pt-2 space-y-4 border-t border-neutral-200 dark:border-neutral-800/80">
+            <div className="px-3 pb-2.5 pt-1.5 space-y-2.5 border-t border-white/[0.05]">
               {/* Header Row: Filter Pills + Action */}
               <div className="flex items-center justify-between">
-                <div className="inline-flex items-center bg-neutral-100 dark:bg-[#18181c] border border-neutral-200 dark:border-neutral-800 p-1 rounded-2xl gap-1">
+                <div className="inline-flex items-center bg-o1-well border border-white/[0.07] p-1 rounded-2xl gap-1">
                   {(['7D', '30D', '1Y'] as const).map((tf) => (
                     <button
                       key={tf}
@@ -1820,8 +1820,8 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({
                       }}
                       className={`py-1.5 px-3 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                         meditationTimeframe === tf
-                          ? 'bg-white dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 text-neutral-900 dark:text-white shadow-xs'
-                          : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white'
+                          ? 'bg-o1-well border border-white/[0.07] text-white shadow-xs'
+                          : 'text-neutral-400 hover:text-white'
                       }`}
                     >
                       {tf}
@@ -1832,7 +1832,7 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({
                 <button
                   type="button"
                   onClick={() => setActiveModalCategory('meditation')}
-                  className="py-1 px-3 rounded-xl bg-green-600 hover:bg-green-500 text-white font-bold text-xs uppercase tracking-wider flex items-center gap-1 cursor-pointer transition-all active:scale-95"
+                  className="py-1 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs uppercase tracking-wider flex items-center gap-1 cursor-pointer transition-all active:scale-95"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   <span>Log Session</span>
@@ -1840,16 +1840,16 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({
               </div>
 
               {/* Status Card */}
-              <div className="p-4 rounded-2xl bg-neutral-50 dark:bg-[#18181c] border border-neutral-200 dark:border-neutral-800 text-center space-y-2">
+              <div className="p-4 rounded-xl bg-white/[0.03] text-center space-y-2">
                 <div className="flex items-center justify-center">
-                  <Sparkles className="w-7 h-7 text-green-600 dark:text-green-400" />
+                  <Sparkles className="w-7 h-7 text-emerald-400" />
                 </div>
-                <h4 className="text-xs font-bold text-neutral-900 dark:text-white">
+                <h4 className="text-xs font-bold text-white">
                   {selectedMeditationRecord?.hasData
                     ? `${selectedMeditationRecord.minutes}m — ${selectedMeditationRecord.protocol || 'Tactical Box Breathing'}`
                     : 'Tactical Box Breathing Protocol (4-4-4-4)'}
                 </h4>
-                <p className="text-[11px] text-neutral-600 dark:text-neutral-400 max-w-xs mx-auto">
+                <p className="text-[11px] text-neutral-400 max-w-xs mx-auto">
                   {selectedMeditationRecord?.hasData
                     ? `Coherence: ${selectedMeditationRecord.coherence}`
                     : 'Alpha wave parasympathetic recovery exercise'}

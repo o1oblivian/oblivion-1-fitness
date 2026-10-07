@@ -48,14 +48,14 @@ export const CoachProgramsHubModal: React.FC<CoachProgramsHubModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-[95] bg-black/80 backdrop-blur-md flex items-center justify-center p-3 select-none animate-fadeIn">
-      <div className="w-full max-w-md bg-white dark:bg-[#121214] border border-neutral-200 dark:border-neutral-800 rounded-3xl p-4 sm:p-5 shadow-2xl space-y-4 max-h-[85vh] flex flex-col">
-        <div className="flex items-center justify-between border-b border-neutral-100 dark:border-neutral-800 pb-3">
+      <div className="w-full max-w-md bg-o1-card border border-white/[0.07] rounded-2xl p-3.5 shadow-2xl space-y-2.5 max-h-[85vh] flex flex-col">
+        <div className="flex items-center justify-between border-b border-white/[0.05] pb-2 min-h-[44px]">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-[#C4121A]/10 text-[#C4121A] flex items-center justify-center">
+            <div className="w-8 h-8 rounded-xl bg-o1-crimson/10 text-o1-crimson flex items-center justify-center">
               <Layers className="w-4 h-4 stroke-[2.2]" />
             </div>
             <div>
-              <h3 className="font-tactical font-black text-sm uppercase tracking-wider text-neutral-900 dark:text-white">
+              <h3 className="font-tactical font-black text-sm uppercase tracking-wider text-white">
                 PROGRAMS HUB
               </h3>
               <p className="text-[10px] font-mono text-neutral-500">
@@ -66,7 +66,7 @@ export const CoachProgramsHubModal: React.FC<CoachProgramsHubModalProps> = ({
           <button
             type="button"
             onClick={() => { tactileEngine.triggerSelectionBuzz(); onClose(); }}
-            className="p-1.5 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition cursor-pointer"
+            className="p-1.5 rounded-full hover:bg-white/[0.06] text-neutral-400 hover:text-white transition cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -74,14 +74,14 @@ export const CoachProgramsHubModal: React.FC<CoachProgramsHubModalProps> = ({
 
         <div className="overflow-y-auto no-scrollbar flex-1 space-y-2.5">
           {customPrograms.length === 0 ? (
-            <div className="p-8 rounded-2xl bg-neutral-50 dark:bg-[#18181B] border border-dashed border-neutral-200 dark:border-neutral-800 text-center space-y-2.5">
-              <div className="w-10 h-10 rounded-xl bg-neutral-200 dark:bg-neutral-800 flex items-center justify-center mx-auto text-neutral-400">
+            <div className="p-5 rounded-2xl bg-o1-well border border-dashed border-white/[0.07] text-center space-y-2">
+              <div className="w-10 h-10 rounded-xl bg-white/[0.08] flex items-center justify-center mx-auto text-neutral-400">
                 <Dumbbell className="w-5 h-5" />
               </div>
-              <h4 className="font-tactical font-black text-xs uppercase tracking-wider text-neutral-900 dark:text-white">
+              <h4 className="font-tactical font-black text-xs uppercase tracking-wider text-white">
                 NO BLUEPRINTS PUBLISHED // DRAFT YOUR FIRST ROUTINE
               </h4>
-              <p className="text-[11px] text-neutral-500 dark:text-neutral-400 font-sans max-w-xs mx-auto">
+              <p className="text-[11px] text-neutral-400 font-sans max-w-xs mx-auto">
                 Create structured multi-week periodized regimens to assign directly to athletes or sell in the store.
               </p>
             </div>
@@ -89,14 +89,14 @@ export const CoachProgramsHubModal: React.FC<CoachProgramsHubModalProps> = ({
             customPrograms.map((prog, idx) => (
               <div
                 key={prog.id || idx}
-                className="p-3 rounded-2xl bg-neutral-50 dark:bg-[#18181B] border border-neutral-200 dark:border-neutral-800 flex items-center justify-between gap-3"
+                className="p-3 rounded-2xl bg-o1-well border border-white/[0.07] flex items-center justify-between gap-3"
               >
                 <div className="min-w-0">
-                  <h4 className="font-tactical font-black text-xs text-neutral-900 dark:text-white truncate">
+                  <h4 className="font-tactical font-black text-xs text-white truncate">
                     {prog.title || 'Untitled Blueprint'}
                   </h4>
                   <div className="flex items-center gap-2 text-[10px] font-mono text-neutral-500 mt-0.5">
-                    <span className="text-[#C4121A] font-bold">{prog.difficulty || 'Custom'}</span>
+                    <span className="text-o1-crimson font-bold">{prog.difficulty || 'Custom'}</span>
                     <span>•</span>
                     <span className="flex items-center gap-1">
                       <Calendar className="w-3 h-3" />
@@ -120,7 +120,7 @@ export const CoachProgramsHubModal: React.FC<CoachProgramsHubModalProps> = ({
         <button
           type="button"
           onClick={() => { tactileEngine.triggerSelectionBuzz(); setIsCreatorOpen(true); }}
-          className="w-full py-2.5 px-4 rounded-2xl bg-[#C4121A] hover:bg-[#a30f16] text-white font-tactical font-black text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-md active:scale-95 transition cursor-pointer"
+          className="w-full py-2.5 px-4 rounded-2xl bg-o1-crimson hover:bg-o1-crimson-hover text-white font-tactical font-black text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-md active:scale-95 transition cursor-pointer"
         >
           <Plus className="w-4 h-4 stroke-[3]" />
           <span>DRAFT NEW BLUEPRINT</span>

@@ -4,25 +4,10 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-  --o1-canvas: #F4F4F7;
-  --o1-panel: #FFFFFF;
-  --o1-card: #FFFFFF;
-  --o1-surface: #F1F2F4;
-  --o1-crimson: #C4121A;
-  --o1-crimson-hover: #A30F16;
-  --o1-crimson-active: #800C11;
-  --o1-border-active: rgba(196, 18, 26, 0.4);
   --sat: max(16px, env(safe-area-inset-top, 0px));
   --sab: max(16px, env(safe-area-inset-bottom, 0px));
-  --sal: env(safe-area-inset-left, 0px);
-  --sar: env(safe-area-inset-right, 0px);
-}
-
-.dark {
-  --o1-canvas: #09090B;
-  --o1-panel: #0E0E11;
-  --o1-card: #121214;
-  --o1-surface: #18181B;
+  --sal: max(16px, env(safe-area-inset-left, 0px));
+  --sar: max(16px, env(safe-area-inset-right, 0px));
 }
 
 @theme {
@@ -32,44 +17,31 @@
   --font-mono: 'Outfit', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
   --font-telemetry: 'Outfit', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
 
-  --color-canvas: #F4F4F7;
-  --color-canvas-deep: #EBEBEF;
-  --color-canvas-elevated: #FFFFFF;
-  --color-canvas-card: #FFFFFF;
-  --color-canvas-surface: #F1F2F4;
+  /* ── Oblivion 1 palette: single source of truth ─────────────────────
+     Surfaces (OLED): canvas → card → well. Hairline = white @ 7%.
+     Use these tokens (bg-o1-card, text-o1-crimson …) — no raw hex in components. */
+  --color-o1-canvas: #000000;
+  --color-o1-card: #111113;
+  --color-o1-well: #161618;
+  --color-o1-line: rgb(255 255 255 / 0.07);
 
-  --color-crimson-50: #FEF2F2;
-  --color-crimson-100: #FEE2E2;
-  --color-crimson-200: #FECACA;
-  --color-crimson-300: #FCA5A5;
-  --color-crimson-400: #F87171;
-  --color-crimson-500: #EF4444;
-  --color-crimson-600: #DC2626;
-  --color-crimson-700: #C4121A;
-  --color-crimson-800: #A30F16;
-  --color-crimson-900: #800C11;
-  --color-crimson-dark: #520609;
+  /* Brand crimson: primary, hover, pressed */
+  --color-o1-crimson: #C4121A;
+  --color-o1-crimson-hover: #A30F16;
+  --color-o1-crimson-press: #800C11;
 
-  --color-tactical-black: #09090b;
-  --color-tactical-panel: #0E0E11;
-  --color-tactical-card: #121214;
-  --color-tactical-border: transparent;
-  --color-tactical-border-active: rgba(196, 18, 26, 0.4);
-  --color-tactical-zinc: #18181b;
-  --color-tactical-muted: #71717A;
-  --color-tactical-amber: #D97706;
-  --color-tactical-cyan: #0284C7;
-  --color-tactical-indigo: #4F46E5;
-  --color-tactical-purple: #9333EA;
+  /* Semantic: on-target / caution / error / info */
+  --color-o1-ok: #10B981;
+  --color-o1-caution: #F59E0B;
+  --color-o1-error: #EF4444;
+  --color-o1-info: #0EA5E9;
 
-  --color-brand-red: #C4121A;
-  --color-brand-red-hover: #A30F16;
-  --color-brand-red-active: #800C11;
-  --color-brand-red-dark: #7F1D1D;
-  --color-brand-red-light: #EF4444;
+  /* Fixed macro colours */
+  --color-o1-protein: #C4121A;
+  --color-o1-carbs: #F59E0B;
+  --color-o1-fat: #10B981;
 
-  --color-red-400: #F87171;
-  --color-red-500: #EF4444;
+  /* Tailwind red-600…900 resolve to the brand crimson ramp */
   --color-red-600: #C4121A;
   --color-red-700: #A30F16;
   --color-red-800: #800C11;
@@ -85,7 +57,7 @@
 }
 
 html {
-  font-size: clamp(0.875rem, 0.8rem + 0.4vw, 1.0625rem);
+  font-size: clamp(0.8125rem, 0.78rem + 0.28vw, 1rem);
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
 }
@@ -104,10 +76,15 @@ html, body, button, input, optgroup, select, textarea {
   letter-spacing: -0.01em;
 }
 
-/* Base Light Mode Setup */
+/* Permanent Pure OLED Dark — the only supported appearance */
+html {
+  background-color: #000000;
+  color-scheme: dark;
+}
+
 html, body {
-  background-color: #F4F4F7;
-  color: #171717;
+  background-color: #000000;
+  color: #f5f5f5;
   font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -123,19 +100,45 @@ html, body {
 #root {
   min-height: 100dvh;
   width: 100%;
-  background-color: #F4F4F7;
+  background-color: #000000;
   margin: 0;
   padding: 0;
 }
 
-/* Explicit Dark Mode Setup */
-html.dark, html.dark body {
-  background-color: #09090b;
-  color: #f5f5f5;
+/* Unified inner content column (canvas remains edge-to-edge) */
+.o1-shell {
+  width: 100%;
+  max-width: 420px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
 }
 
-html.dark #root {
-  background-color: #09090b;
+.o1-chip {
+  background-color: rgb(24 24 27 / 0.6);
+  border: 1px solid rgb(255 255 255 / 0.06);
+  color: #a1a1aa;
+}
+
+/* Unified internal sheets — never full-bleed page clones */
+.o1-sheet-scrim {
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 12px max(16px, env(safe-area-inset-left, 0px)) 12px max(16px, env(safe-area-inset-right, 0px)) !important;
+}
+
+.o1-sheet-card {
+  width: 100% !important;
+  max-width: 420px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  max-height: min(70dvh, 620px) !important;
+  height: auto !important;
+  border-radius: 16px !important;
+  overflow: hidden !important;
+  display: flex !important;
+  flex-direction: column !important;
 }
 
 svg.lucide, .lucide {
@@ -144,32 +147,25 @@ svg.lucide, .lucide {
 
 /* Surface Classes */
 .tactical-glass {
-  background: #FFFFFF;
-}
-.dark .tactical-glass {
-  background: #121214;
+  background: #111113;
 }
 
 .glass-panel {
-  background: #FFFFFF;
-}
-.dark .glass-panel {
-  background: #121214;
+  background: #111113;
 }
 
 /* Natural Zero-Neon Elevation Styles */
 .card-elevation {
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.06), 0 1px 2px -1px rgba(0, 0, 0, 0.04);
-}
-.dark .card-elevation {
   box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.5);
 }
 
 /* No Scrollbar Utility */
-.no-scrollbar::-webkit-scrollbar {
+.no-scrollbar::-webkit-scrollbar,
+.scrollbar-none::-webkit-scrollbar {
   display: none;
 }
-.no-scrollbar {
+.no-scrollbar,
+.scrollbar-none {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
@@ -242,15 +238,10 @@ svg.lucide, .lucide {
   height: 22px;
   border-radius: 9999px;
   background-color: #C4121A;
-  border: 2.5px solid #FFFFFF;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+  border: 2.5px solid #111113;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.7);
   cursor: grab;
   transition: transform 0.1s ease;
-}
-
-.dark .dual-range-input::-webkit-slider-thumb {
-  border-color: #121214;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.7);
 }
 
 .dual-range-input::-webkit-slider-thumb:active {
@@ -264,18 +255,77 @@ svg.lucide, .lucide {
   height: 22px;
   border-radius: 9999px;
   background-color: #C4121A;
-  border: 2.5px solid #FFFFFF;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+  border: 2.5px solid #111113;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.7);
   cursor: grab;
   transition: transform 0.1s ease;
-}
-
-.dark .dual-range-input::-moz-range-thumb {
-  border-color: #121214;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.7);
 }
 
 .dual-range-input::-moz-range-thumb:active {
   cursor: grabbing;
   transform: scale(1.18);
+}
+
+/* Luxury density — one pad scale for pages, cards, rows, sheets, popups.
+   Font families unchanged; weight/size only. Dials keep large numerals. */
+#root {
+  --o1-pad-card: 0.625rem;
+  --o1-pad-tile: 0.5rem;
+}
+
+#root .p-3 { padding: 0.5rem !important; }
+#root .p-3\.5 { padding: 0.5rem !important; }
+#root .p-4 { padding: 0.625rem !important; }
+#root .p-5 { padding: 0.625rem !important; }
+#root .p-6 { padding: 0.75rem !important; }
+
+#root .px-4 { padding-left: 0.625rem !important; padding-right: 0.625rem !important; }
+#root .px-5 { padding-left: 0.625rem !important; padding-right: 0.625rem !important; }
+#root .px-6 { padding-left: 0.75rem !important; padding-right: 0.75rem !important; }
+#root .px-3\.5 { padding-left: 0.75rem !important; padding-right: 0.75rem !important; }
+
+#root .py-3 { padding-top: 0.5rem !important; padding-bottom: 0.5rem !important; }
+#root .py-3\.5 { padding-top: 0.5rem !important; padding-bottom: 0.5rem !important; }
+#root .py-4 { padding-top: 0.5rem !important; padding-bottom: 0.5rem !important; }
+#root .py-5 { padding-top: 0.625rem !important; padding-bottom: 0.625rem !important; }
+#root .py-6 { padding-top: 0.625rem !important; padding-bottom: 0.625rem !important; }
+
+#root .space-y-4 > :not([hidden]) ~ :not([hidden]) { margin-top: 0.5rem !important; }
+#root .space-y-5 > :not([hidden]) ~ :not([hidden]) { margin-top: 0.5rem !important; }
+#root .space-y-6 > :not([hidden]) ~ :not([hidden]) { margin-top: 0.625rem !important; }
+#root .gap-4 { gap: 0.5rem !important; }
+#root .gap-5 { gap: 0.5rem !important; }
+#root .gap-6 { gap: 0.625rem !important; }
+
+#root .max-h-\[92dvh\],
+#root .max-h-\[90vh\],
+#root .max-h-\[88dvh\] {
+  max-height: 80vh !important;
+}
+
+#root .font-black {
+  font-weight: 600 !important;
+}
+
+#root .text-4xl.font-black,
+#root .text-5xl.font-black,
+#root .text-6xl.font-black {
+  font-weight: 700 !important;
+}
+
+#root .tracking-wider {
+  letter-spacing: 0.06em !important;
+}
+
+#root button.py-3,
+#root button.py-3\.5,
+#root button.py-4 {
+  min-height: 2.5rem;
+}
+
+@media (min-width: 640px) {
+  #root .sm\:p-5 { padding: 0.625rem !important; }
+  #root .sm\:p-6 { padding: 0.75rem !important; }
+  #root .sm\:px-5 { padding-left: 0.625rem !important; padding-right: 0.625rem !important; }
+  #root .sm\:py-5 { padding-top: 0.625rem !important; padding-bottom: 0.625rem !important; }
 }

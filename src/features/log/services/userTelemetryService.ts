@@ -1,4 +1,5 @@
 import { supabase } from '../../../services/supabaseClient';
+import { getAuthenticatedUserId } from '../../../services/authUser';
 import { useTelemetryStore } from '../../telemetry/store/useTelemetryStore';
 
 /**
@@ -13,11 +14,8 @@ export async function syncDailyStepsToSupabase(steps: number): Promise<void> {
 
   // 2. Persist to Supabase
   try {
-    const { data: authData } = await supabase.auth.getUser();
-    const userId =
-      authData?.user?.id ||
-      (typeof window !== 'undefined' && localStorage.getItem('o1fc_user_id')) ||
-      'default-athlete';
+    const userId = await getAuthenticatedUserId();
+    if (!userId) return;
 
     const now = new Date();
     const dateKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(
@@ -65,11 +63,8 @@ export async function syncDailyStepsToSupabase(steps: number): Promise<void> {
  */
 export async function hydrateDailyStepsFromSupabase(): Promise<number> {
   try {
-    const { data: authData } = await supabase.auth.getUser();
-    const userId =
-      authData?.user?.id ||
-      (typeof window !== 'undefined' && localStorage.getItem('o1fc_user_id')) ||
-      'default-athlete';
+    const userId = await getAuthenticatedUserId();
+    if (!userId) return 0;
 
     const now = new Date();
     const dateKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(

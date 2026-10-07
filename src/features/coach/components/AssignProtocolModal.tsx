@@ -38,44 +38,44 @@ export const AssignProtocolModal: React.FC<AssignProtocolModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-150">
-      <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-zinc-100 rounded-2xl max-w-sm w-full p-5 shadow-2xl space-y-4">
+    <div className="fixed inset-0 z-50 bg-black/70 o1-sheet-scrim flex items-center justify-center animate-in fade-in duration-150">
+      <div className="o1-sheet-card bg-o1-well border border-white/[0.07] text-zinc-100 w-full p-5 shadow-xl space-y-4 overflow-y-auto">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-zinc-200 dark:border-zinc-800 pb-3">
+        <div className="flex items-center justify-between border-b border-white/[0.05] pb-3">
           <div>
-            <span className="text-[9px] font-telemetry text-red-600 dark:text-[#FF3B30] uppercase block font-bold">
+            <span className="text-[9px] font-telemetry text-[#EF4444] uppercase block font-bold">
               TACTICAL WORKOUT DISPATCH
             </span>
-            <h3 className="font-tactical text-sm font-bold text-zinc-900 dark:text-zinc-100 uppercase tracking-wider">
+            <h3 className="font-tactical text-sm font-bold text-zinc-100 uppercase tracking-wider">
               Assign Protocol // {athlete.callsign}
             </h3>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+            className="p-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-white/[0.06] transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* Athlete Overview */}
-        <div className="bg-zinc-50 dark:bg-zinc-950 p-2.5 rounded-xl border border-zinc-200 dark:border-zinc-800 flex items-center justify-between text-xs">
+        <div className="bg-black p-2.5 rounded-xl border border-white/[0.07] flex items-center justify-between text-xs">
           <div>
-            <span className="font-bold text-zinc-900 dark:text-white uppercase font-tactical">
+            <span className="font-bold text-white uppercase font-tactical">
               {athlete.callsign} ({athlete.name})
             </span>
-            <span className="text-[10px] font-telemetry text-zinc-500 dark:text-zinc-400 block mt-0.5">
+            <span className="text-[10px] font-telemetry text-zinc-400 block mt-0.5">
               CNS Strain: {athStrain(athlete.cnsStrain)} // Recovery: {athlete.recoveryScore}%
             </span>
           </div>
-          <span className="text-[9px] font-telemetry px-2 py-0.5 rounded bg-zinc-200 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 font-semibold">
+          <span className="text-[9px] font-telemetry px-2 py-0.5 rounded bg-white/[0.08] text-zinc-300 font-semibold">
             {athlete.tier}
           </span>
         </div>
 
         {/* Protocols List */}
         <div>
-          <label className="text-[10px] font-tactical uppercase tracking-wider text-zinc-500 dark:text-zinc-400 block mb-1.5 font-bold">
+          <label className="text-[10px] font-tactical uppercase tracking-wider text-zinc-400 block mb-1.5 font-bold">
             Prescribed Training Protocol
           </label>
           <div className="space-y-1.5">
@@ -86,14 +86,14 @@ export const AssignProtocolModal: React.FC<AssignProtocolModalProps> = ({
                 onClick={() => setSelectedProtocol(p.title)}
                 className={`w-full p-2.5 rounded-xl text-left border transition-all ${
                   selectedProtocol === p.title
-                    ? 'bg-red-50 dark:bg-zinc-800 border-red-500 text-zinc-900 dark:text-white shadow-sm'
-                    : 'bg-zinc-50 dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:border-zinc-300 dark:hover:border-zinc-700'
+                    ? 'bg-white/[0.08] border-red-500 text-white shadow-sm'
+                    : 'bg-black border-white/[0.07] text-zinc-400 hover:border-white/[0.14]'
                 }`}
               >
-                <div className="font-tactical text-xs font-bold uppercase text-zinc-900 dark:text-zinc-100">
+                <div className="font-tactical text-xs font-bold uppercase text-zinc-100">
                   {p.title}
                 </div>
-                <div className="text-[9px] font-telemetry text-zinc-500 dark:text-zinc-400 mt-0.5">
+                <div className="text-[9px] font-telemetry text-zinc-400 mt-0.5">
                   {p.desc}
                 </div>
               </button>
@@ -103,7 +103,7 @@ export const AssignProtocolModal: React.FC<AssignProtocolModalProps> = ({
 
         {/* Volume / Intensity Modifier */}
         <div>
-          <label className="text-[10px] font-tactical uppercase tracking-wider text-zinc-500 dark:text-zinc-400 block mb-1.5 font-bold">
+          <label className="text-[10px] font-tactical uppercase tracking-wider text-zinc-400 block mb-1.5 font-bold">
             Load & Volume Modifier
           </label>
           <div className="grid grid-cols-3 gap-1.5">
@@ -112,10 +112,10 @@ export const AssignProtocolModal: React.FC<AssignProtocolModalProps> = ({
                 key={mod}
                 type="button"
                 onClick={() => setVolumeModifier(mod)}
-                className={`py-1.5 px-2 rounded-lg text-center font-telemetry text-[9px] border transition-all ${
+                className={`py-1.5 px-2 rounded-xl text-center font-telemetry text-[9px] border transition-all ${
                   volumeModifier === mod
                     ? 'bg-red-600 text-white font-bold border-red-600'
-                    : 'bg-zinc-50 dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400'
+                    : 'bg-black border-white/[0.07] text-zinc-400'
                 }`}
               >
                 {mod}
@@ -127,14 +127,14 @@ export const AssignProtocolModal: React.FC<AssignProtocolModalProps> = ({
         {/* Action Button */}
         <div className="pt-1">
           {isAssigned ? (
-            <div className="w-full py-2.5 rounded-xl bg-[#06b6d4] text-black font-tactical text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1.5">
+            <div className="w-full py-2.5 rounded-xl bg-[#0EA5E9] text-black font-tactical text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1.5">
               <CheckCircle2 className="w-4 h-4" />
               <span>Protocol Synced to Athlete HUD!</span>
             </div>
           ) : (
             <button
               onClick={handleAssign}
-              className="w-full py-2.5 px-4 rounded-xl bg-[#FF3B30] text-white font-tactical text-xs font-bold uppercase tracking-wider shadow-[0_0_14px_rgba(255,59,48,0.4)] active:scale-95 transition-all flex items-center justify-center gap-2"
+              className="w-full py-2.5 px-4 rounded-xl bg-[#EF4444] text-white font-tactical text-xs font-bold uppercase tracking-wider active:scale-95 transition-all flex items-center justify-center gap-2"
             >
               <Send className="w-3.5 h-3.5" />
               <span>Deploy Protocol to Athlete HUD</span>

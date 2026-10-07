@@ -5,8 +5,8 @@ import { tactileEngine } from '../../../services/tactileEngine';
 import { revenueCatService } from '../../../services/revenueCatService';
 
 const TIERS = [
-  { id: 'com.o1fc.fitness.plus_monthly', name: 'Monthly Access', price: '$9.99', period: '/ month', cadence: 'Billed monthly until cancelled', badge: 'STANDARD' },
-  { id: 'com.o1fc.fitness.plus_annual', name: 'Annual Pass', price: '$79.99', period: '/ year', cadence: 'Billed $79.99 annually ($6.67/mo)', badge: 'SAVE 40% • BLACK TIER' },
+  { id: 'com.o1fc.fitness.plus_monthly', name: 'Monthly Access', price: '$9.99', period: '/ month', cadence: 'Billed monthly until cancelled', badge: 'MONTHLY' },
+  { id: 'o1fc_founder_pass', name: 'Founder Pass', price: '$24.00', period: ' lifetime', cadence: 'One-time lifetime access', badge: 'FOUNDER' },
 ];
 
 const PERKS = [
@@ -19,13 +19,13 @@ const PERKS = [
 
 export const ClubPassPaywallModal: React.FC = () => {
   const { isPaywallOpen, closePaywall, gatedFeature } = useSubscription();
-  const [selectedTier, setSelectedTier] = useState(TIERS[1].id);
+  const [selectedTier, setSelectedTier] = useState(TIERS[0].id);
   const [isPurchasing, setIsPurchasing] = useState(false);
   const [isRestoring, setIsRestoring] = useState(false);
   const [statusMsg, setStatusMsg] = useState<string | null>(null);
 
   if (!isPaywallOpen) return null;
-  const currentTier = TIERS.find((t) => t.id === selectedTier) || TIERS[1];
+  const currentTier = TIERS.find((t) => t.id === selectedTier) || TIERS[0];
 
   const handleNativePurchase = async () => {
     setIsPurchasing(true);
@@ -56,30 +56,30 @@ export const ClubPassPaywallModal: React.FC = () => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 bg-black/90 select-none animate-in fade-in duration-150 backdrop-blur-md">
-      <div className="w-full max-w-[440px] bg-[#080808] border border-[#D4AF37]/30 rounded-3xl overflow-hidden shadow-[0_0_35px_-5px_rgba(212,175,55,0.2)] flex flex-col max-h-[92dvh] h-auto">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-[#D4AF37]/15 bg-[#050505]">
+    <div className="fixed inset-0 z-50 bg-black/70 o1-sheet-scrim flex items-center justify-center select-none animate-in fade-in duration-150">
+      <div className="o1-sheet-card bg-o1-card border border-white/[0.07] overflow-hidden flex flex-col">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.05] bg-o1-card">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-[#D4AF37]/10 border border-[#D4AF37]/30 flex items-center justify-center text-[#F5D061]"><Sparkles className="w-4 h-4" /></div>
+            <div className="w-8 h-8 rounded-xl bg-o1-well border border-white/[0.07] flex items-center justify-center text-zinc-400"><Sparkles className="w-4 h-4" /></div>
             <div>
               <h2 className="text-sm font-tactical font-black uppercase text-white tracking-wider">O1 CLUB PASS PRO</h2>
-              <p className="text-[10px] font-mono text-[#D4AF37]">REVENUECAT IN-APP PURCHASES</p>
+              <p className="text-[10px] font-mono text-zinc-400">REVENUECAT IN-APP PURCHASES</p>
             </div>
           </div>
           <button onClick={closePaywall} className="p-1.5 text-neutral-400 hover:text-white rounded-full cursor-pointer transition"><X className="w-5 h-5" /></button>
         </div>
 
-        <div className="p-4 overflow-y-auto space-y-3 bg-gradient-to-b from-[#0A0A0A] to-[#050505] flex-1 min-h-0">
+        <div className="p-4 overflow-y-auto space-y-3 bg-o1-card flex-1 min-h-0">
           {gatedFeature && (
-            <div className="p-2.5 rounded-xl bg-[#D4AF37]/10 border border-[#D4AF37]/30 text-[#F5D061] text-xs font-mono flex items-center gap-2">
-              <Zap className="w-4 h-4 text-[#F5D061] shrink-0" />
+            <div className="p-2.5 rounded-xl bg-o1-well border border-white/[0.07] text-zinc-400 text-xs font-mono flex items-center gap-2">
+              <Zap className="w-4 h-4 text-zinc-400 shrink-0" />
               <span>Unlock <strong className="text-white">{gatedFeature}</strong> with Pro</span>
             </div>
           )}
           <div className="space-y-1.5 py-0.5">
             {PERKS.map((p, i) => (
               <div key={i} className="flex items-center gap-2 text-xs font-mono text-neutral-200">
-                <Check className="w-3.5 h-3.5 text-[#D4AF37] shrink-0" /><span>{p}</span>
+                <Check className="w-3.5 h-3.5 text-zinc-400 shrink-0" /><span>{p}</span>
               </div>
             ))}
           </div>
@@ -89,17 +89,17 @@ export const ClubPassPaywallModal: React.FC = () => {
               <button
                 key={tier.id} type="button" onClick={() => { tactileEngine.triggerSelectionBuzz(); setSelectedTier(tier.id); }}
                 className={`w-full p-3 rounded-2xl border text-left flex items-center justify-between cursor-pointer transition-all ${
-                  selectedTier === tier.id ? 'bg-[#141416] border-[#D4AF37] shadow-[0_0_15px_-3px_rgba(212,175,55,0.25)]' : 'bg-[#0E0E10] border-neutral-800 hover:border-[#D4AF37]/40'
+                  selectedTier === tier.id ? 'bg-o1-well border-white/[0.07]' : 'bg-o1-card border-white/[0.07] hover:border-white/[0.14]'
                 }`}
               >
                 <div>
                   <div className="flex items-center gap-2">
                     <span className="text-xs font-bold font-mono text-white">{tier.name}</span>
-                    {tier.badge && <span className="text-[9px] font-mono px-2 py-0.5 rounded-full bg-[#D4AF37]/15 text-[#F5D061] border border-[#D4AF37]/40 font-bold">{tier.badge}</span>}
+                    {tier.badge && <span className="text-[9px] font-mono px-2 py-0.5 rounded-full bg-o1-well text-zinc-400 border border-white/[0.07] font-bold">{tier.badge}</span>}
                   </div>
                   <span className="text-[10px] font-mono text-neutral-400 block mt-0.5">{tier.cadence}</span>
                 </div>
-                <span className="text-sm font-black font-mono text-[#F5D061]">{tier.price}</span>
+                <span className="text-sm font-black font-mono text-white">{tier.price}</span>
               </button>
             ))}
           </div>
@@ -111,20 +111,20 @@ export const ClubPassPaywallModal: React.FC = () => {
           )}
         </div>
 
-        <div className="p-4 border-t border-[#D4AF37]/15 bg-[#050505] space-y-2">
+        <div className="p-4 border-t border-white/[0.05] bg-o1-card space-y-2">
           <button
             onClick={handleNativePurchase}
             disabled={isPurchasing}
-            className="w-full py-3.5 rounded-xl bg-gradient-to-r from-[#D4AF37] via-[#F5D061] to-[#C69B3C] text-black font-tactical font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer shadow-md active:scale-98 transition disabled:opacity-50"
+            className="w-full py-3.5 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover text-white font-tactical font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer shadow-md active:scale-98 transition disabled:opacity-50"
           >
             {isPurchasing ? (
               <>
-                <Loader2 className="w-4 h-4 animate-spin text-black" />
+                <Loader2 className="w-4 h-4 animate-spin text-white" />
                 <span>CONNECTING TO STORE BILLING...</span>
               </>
             ) : (
               <>
-                <ShieldCheck className="w-4 h-4 fill-black" />
+                <ShieldCheck className="w-4 h-4" />
                 <span>SUBSCRIBE VIA STORE • {currentTier.price} {currentTier.period}</span>
               </>
             )}
@@ -137,8 +137,8 @@ export const ClubPassPaywallModal: React.FC = () => {
           </div>
 
           <div className="flex items-center justify-between text-[10px] font-mono text-neutral-400 px-1">
-            <button onClick={handleRestore} disabled={isRestoring} className="text-[#D4AF37] hover:underline flex items-center gap-1 cursor-pointer disabled:opacity-50">
-              <RotateCcw className={`w-3 h-3 text-[#D4AF37] ${isRestoring ? 'animate-spin' : ''}`} />
+            <button onClick={handleRestore} disabled={isRestoring} className="text-zinc-400 hover:underline flex items-center gap-1 cursor-pointer disabled:opacity-50">
+              <RotateCcw className={`w-3 h-3 text-zinc-400 ${isRestoring ? 'animate-spin' : ''}`} />
               <span>{isRestoring ? 'Restoring...' : 'Restore Purchases'}</span>
             </button>
             <span>Cancel anytime in Store</span>

@@ -32,7 +32,7 @@ export const DossierTabContent: React.FC<DossierTabContentProps> = ({
       <DossierBioMetrics coach={coach} />
 
       {/* Hairline Understated Segmented Navigation with Small Fonts */}
-      <div className="pt-1 border-b border-white/5 grid grid-cols-3 text-center">
+      <div className="pt-1 border-b border-white/[0.05] grid grid-cols-3 text-center">
         <button
           type="button"
           onClick={() => setActiveTab('physique')}
@@ -41,7 +41,7 @@ export const DossierTabContent: React.FC<DossierTabContentProps> = ({
           }`}
         >
           Physique & Cues
-          {activeTab === 'physique' && <span className="absolute bottom-0 inset-x-0 h-0.5 bg-[#C4121A]" />}
+          {activeTab === 'physique' && <span className="absolute bottom-0 inset-x-0 h-0.5 bg-o1-crimson" />}
         </button>
         <button
           type="button"
@@ -51,7 +51,7 @@ export const DossierTabContent: React.FC<DossierTabContentProps> = ({
           }`}
         >
           Programs ({programs.length})
-          {activeTab === 'programs' && <span className="absolute bottom-0 inset-x-0 h-0.5 bg-[#C4121A]" />}
+          {activeTab === 'programs' && <span className="absolute bottom-0 inset-x-0 h-0.5 bg-o1-crimson" />}
         </button>
         <button
           type="button"
@@ -61,7 +61,7 @@ export const DossierTabContent: React.FC<DossierTabContentProps> = ({
           }`}
         >
           1:1 Co-Pilot
-          {activeTab === 'coaching' && <span className="absolute bottom-0 inset-x-0 h-0.5 bg-[#C4121A]" />}
+          {activeTab === 'coaching' && <span className="absolute bottom-0 inset-x-0 h-0.5 bg-o1-crimson" />}
         </button>
       </div>
 

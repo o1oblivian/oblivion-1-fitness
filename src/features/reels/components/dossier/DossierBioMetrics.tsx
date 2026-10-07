@@ -23,7 +23,7 @@ export const DossierBioMetrics: React.FC<DossierBioMetricsProps> = ({ coach }) =
       </div>
 
       {/* Lightweight, Open Stat Strip (Small font, no boxes, hairline dividers) */}
-      <div className="grid grid-cols-4 py-1.5 border-y border-white/5 divide-x divide-white/5 text-center">
+      <div className="grid grid-cols-4 py-1.5 border-y border-white/[0.05] divide-x divide-white/[0.05] text-center">
         <div className="px-1">
           <span className="font-mono text-xs font-semibold text-emerald-400 block">
             98.4%

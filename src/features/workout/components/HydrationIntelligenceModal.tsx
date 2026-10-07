@@ -73,24 +73,24 @@ export const HydrationIntelligenceModal: React.FC<HydrationIntelligenceModalProp
       ? 'text-[#38bdf8]'
       : pct >= 33
       ? 'text-amber-400'
-      : 'text-rose-400';
+      : 'text-red-400';
 
   return (
     <div
       id="hydration-intelligence-modal"
       role="dialog"
       aria-modal="true"
-      className="fixed inset-0 z-[60000] bg-black/80 flex flex-col justify-end md:justify-center items-center p-0 md:p-4 animate-in fade-in duration-200 select-none"
+      className="fixed inset-0 z-[60000] bg-black/70 o1-sheet-scrim flex items-center justify-center animate-in fade-in duration-200 select-none"
       onClick={onClose}
     >
       <div
-        className="bg-[#09090b] text-white w-full max-w-[480px] rounded-t-3xl md:rounded-3xl border border-white/10 flex flex-col overflow-y-auto shadow-2xl p-5 space-y-4 max-h-[88dvh] h-auto"
+        className="o1-sheet-card bg-o1-card text-white w-full border border-white/[0.07] flex flex-col overflow-y-auto shadow-xl p-3.5 space-y-3"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-white/10 pb-3.5">
+        <div className="flex items-center justify-between border-b border-white/[0.05] pb-3.5">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400">
+            <div className="w-9 h-9 rounded-xl bg-sky-500/10 border border-sky-500/30 flex items-center justify-center text-sky-400">
               <Droplets className="w-4 h-4" />
             </div>
             <div>
@@ -98,7 +98,7 @@ export const HydrationIntelligenceModal: React.FC<HydrationIntelligenceModalProp
                 <h3 className="font-tactical font-bold text-sm tracking-wider uppercase text-white">
                   Hydration Intelligence
                 </h3>
-                <span className="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-white/10 text-cyan-400">
+                <span className="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-white/10 text-sky-400">
                   OSMOTIC
                 </span>
               </div>
@@ -109,14 +109,14 @@ export const HydrationIntelligenceModal: React.FC<HydrationIntelligenceModalProp
             type="button"
             onClick={onClose}
             aria-label="Close dialog"
-            className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 flex items-center justify-center text-neutral-400 hover:text-white transition-colors cursor-pointer"
+            className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 border border-white/[0.07] flex items-center justify-center text-neutral-400 hover:text-white transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* Dynamic Graduated Fluid Reservoir & Osmotic HUD (Zero Dark Fog) */}
-        <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-4 space-y-3">
+        <div className="bg-white/[0.03] border border-white/[0.07] rounded-2xl p-4 space-y-3">
           <div className="flex items-start justify-between">
             <div className="space-y-1">
               <span className="text-[10px] font-mono uppercase tracking-wider text-neutral-400 font-bold block">
@@ -134,17 +134,17 @@ export const HydrationIntelligenceModal: React.FC<HydrationIntelligenceModalProp
             </div>
 
             {/* Percentage Badge */}
-            <div className="px-3 py-1.5 rounded-xl bg-cyan-500/10 border border-cyan-500/30 text-right">
-              <span className="text-lg font-mono font-black text-cyan-400 leading-none block">{pct}%</span>
+            <div className="px-3 py-1.5 rounded-xl bg-sky-500/10 border border-sky-500/30 text-right">
+              <span className="text-lg font-mono font-black text-sky-400 leading-none block">{pct}%</span>
               <span className="text-[9px] font-mono text-neutral-400 block mt-0.5">TARGET</span>
             </div>
           </div>
 
           {/* Graduated Fluid Level Bar with Tick Marks */}
           <div className="space-y-1.5 pt-1">
-            <div className="relative w-full h-4 rounded-full bg-black/60 border border-white/10 overflow-hidden p-0.5">
+            <div className="relative w-full h-4 rounded-full bg-black/60 border border-white/[0.07] overflow-hidden p-0.5">
               <div
-                className="h-full rounded-full bg-gradient-to-r from-sky-500 to-cyan-400 transition-all duration-500 relative"
+                className="h-full rounded-full bg-gradient-to-r from-sky-500 to-sky-400 transition-all duration-500 relative"
                 style={{ width: `${pct}%` }}
               >
                 <div className="absolute inset-0 bg-white/20 animate-pulse" />
@@ -162,11 +162,11 @@ export const HydrationIntelligenceModal: React.FC<HydrationIntelligenceModalProp
         <div className="space-y-1.5">
           <div className="flex items-center justify-between text-[10px] font-mono uppercase tracking-wider text-neutral-400">
             <span>Beverage Hydration Coefficient</span>
-            <span className="text-cyan-400 font-mono">
+            <span className="text-sky-400 font-mono">
               Factor: {getMultiplier()}x
             </span>
           </div>
-          <div className="grid grid-cols-3 gap-1.5 p-1 rounded-xl bg-white/[0.03] border border-white/10">
+          <div className="grid grid-cols-3 gap-1.5 p-1 rounded-xl bg-white/[0.03] border border-white/[0.07]">
             {(
               [
                 { id: 'water', label: 'Pure Water', mult: '100%' },
@@ -181,9 +181,9 @@ export const HydrationIntelligenceModal: React.FC<HydrationIntelligenceModalProp
                   tactileEngine.triggerSelectionBuzz();
                   setBeverageType(b.id);
                 }}
-                className={`py-2 px-2 rounded-lg text-center transition-all cursor-pointer ${
+                className={`py-2 px-2 rounded-xl text-center transition-all cursor-pointer ${
                   beverageType === b.id
-                    ? 'bg-white/10 text-cyan-400 border border-cyan-500/40 shadow-xs'
+                    ? 'bg-white/10 text-sky-400 border border-sky-500/40 shadow-xs'
                     : 'text-neutral-400 hover:text-white'
                 }`}
               >
@@ -207,17 +207,17 @@ export const HydrationIntelligenceModal: React.FC<HydrationIntelligenceModalProp
                   key={item.label}
                   type="button"
                   onClick={() => handleLog(item.volume, item.label)}
-                  className="p-3 rounded-2xl bg-white/[0.03] hover:bg-white/[0.07] border border-white/10 hover:border-cyan-500/40 text-left active:scale-[0.98] transition-all cursor-pointer group shadow-2xs"
+                  className="p-3 rounded-2xl bg-white/[0.03] hover:bg-white/[0.07] border border-white/[0.07] hover:border-sky-500/40 text-left active:scale-[0.98] transition-all cursor-pointer group shadow-2xs"
                 >
                   <div className="flex items-center justify-between">
                     <span className="text-lg">{item.icon}</span>
-                    <div className="w-6 h-6 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-cyan-400 group-hover:bg-cyan-500 group-hover:text-black transition-colors">
+                    <div className="w-6 h-6 rounded-lg bg-white/5 border border-white/[0.07] flex items-center justify-center text-sky-400 group-hover:bg-sky-500 group-hover:text-black transition-colors">
                       <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
                     </div>
                   </div>
                   <div className="mt-2">
                     <span className="text-xs font-mono font-bold text-white block">{item.label}</span>
-                    <span className="text-[10px] font-mono text-cyan-400 block mt-0.5">
+                    <span className="text-[10px] font-mono text-sky-400 block mt-0.5">
                       +{effectiveMl}mL effective
                     </span>
                   </div>
@@ -228,11 +228,11 @@ export const HydrationIntelligenceModal: React.FC<HydrationIntelligenceModalProp
         </div>
 
         {/* Footer Actions */}
-        <div className="flex items-center gap-2 pt-1 border-t border-white/10">
+        <div className="flex items-center gap-2 pt-1 border-t border-white/[0.05]">
           <button
             type="button"
             onClick={handleReset}
-            className="flex-1 py-2.5 px-3 rounded-xl bg-white/[0.03] border border-white/10 hover:bg-white/[0.07] text-xs font-mono font-bold text-neutral-400 hover:text-white flex items-center justify-center gap-1.5 active:scale-95 transition-all cursor-pointer"
+            className="flex-1 py-2.5 px-3 rounded-xl bg-white/[0.03] border border-white/[0.07] hover:bg-white/[0.07] text-xs font-mono font-bold text-neutral-400 hover:text-white flex items-center justify-center gap-1.5 active:scale-95 transition-all cursor-pointer"
           >
             <RotateCcw className="w-3.5 h-3.5" />
             <span>RESET</span>
@@ -244,7 +244,7 @@ export const HydrationIntelligenceModal: React.FC<HydrationIntelligenceModalProp
               onClose();
               onShowToast?.(`Hydration updated: ${currentLiters.toFixed(2)}L logged.`);
             }}
-            className="flex-2 py-2.5 px-5 rounded-xl bg-[#C4121A] hover:bg-[#a30f16] active:bg-[#800C11] text-white text-xs font-tactical font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 active:scale-95 transition-all cursor-pointer shadow-sm"
+            className="flex-2 py-2.5 px-5 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover active:bg-o1-crimson-press text-white text-xs font-tactical font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 active:scale-95 transition-all cursor-pointer shadow-sm"
           >
             <span>CONFIRM ({pct}%)</span>
             <ArrowRight className="w-3.5 h-3.5" />

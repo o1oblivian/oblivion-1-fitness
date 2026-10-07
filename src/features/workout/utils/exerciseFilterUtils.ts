@@ -47,6 +47,20 @@ export function filterEffectivePool(
         (e.name.toLowerCase().includes('thrust') ||
           e.name.toLowerCase().includes('bridge') ||
           e.name.toLowerCase().includes('kickback'))) ||
+      (catLower.includes('forearm') &&
+        (e.name.toLowerCase().includes('wrist') ||
+          e.name.toLowerCase().includes('grip') ||
+          e.name.toLowerCase().includes('hang') ||
+          e.name.toLowerCase().includes('pinch'))) ||
+      (catLower.includes('adductor') &&
+        (e.name.toLowerCase().includes('adductor') ||
+          e.name.toLowerCase().includes('copenhagen') ||
+          e.name.toLowerCase().includes('sumo') ||
+          e.name.toLowerCase().includes('abduct'))) ||
+      (catLower.includes('trap') &&
+        (e.name.toLowerCase().includes('shrug') ||
+          e.name.toLowerCase().includes('face pull') ||
+          e.name.toLowerCase().includes('upright'))) ||
       (catLower.includes('calv') &&
         (e.name.toLowerCase().includes('calf') || e.name.toLowerCase().includes('raise')));
 

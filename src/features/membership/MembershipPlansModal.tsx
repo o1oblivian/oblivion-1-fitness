@@ -1,12 +1,14 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { X, Shield, ArrowRight, CheckCircle2, Loader2, AlertCircle } from 'lucide-react';
 import { IAP_PRODUCTS, IAPProductInfo } from '../../types/iap';
 import { AthleteProfile } from '../../types/athlete';
 import { tactileEngine } from '../../services/tactileEngine';
-import { revenueCatService } from '../../services/revenueCatService';
+import { REVENUECAT_FALLBACK_MONTHLY_PACKAGE, revenueCatService } from '../../services/revenueCatService';
+import { isNativeStorePlatform } from '../../services/purchasesService';
 import { useSubscription } from '../../context/SubscriptionContext';
 import { MembershipPlanCard } from './components/MembershipPlanCard';
 import { MembershipPlanFeatures } from './components/MembershipPlanFeatures';
+import { getAuthenticatedUserId } from '../../services/authUser';
 import { MembershipCheckoutModal } from './components/MembershipCheckoutModal';
 
 export interface MembershipPlansModalProps {
@@ -35,25 +37,75 @@ export const MembershipPlansModal: React.FC<MembershipPlansModalProps> = ({
   athleteProfile,
 }) => {
   const [userType, setUserType] = useState<'athletes' | 'coaches'>('athletes');
-  const [selectedProductId, setSelectedProductId] = useState<string>(IAP_PRODUCTS.premium.productId);
+  const [selectedProductId, setSelectedProductId] = useState<string>(
+    REVENUECAT_FALLBACK_MONTHLY_PACKAGE.product.identifier
+  );
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [isPurchasing, setIsPurchasing] = useState(false);
   const [storeStatusBanner, setStoreStatusBanner] = useState<string | null>(null);
+  const [monthlyStoreProduct, setMonthlyStoreProduct] = useState<IAPProductInfo>({
+    productId: REVENUECAT_FALLBACK_MONTHLY_PACKAGE.product.identifier,
+    name: REVENUECAT_FALLBACK_MONTHLY_PACKAGE.product.title,
+    price: REVENUECAT_FALLBACK_MONTHLY_PACKAGE.product.priceString,
+    periodText: '/mo',
+    description: 'Full training & fuel OS',
+    badge: 'PRO',
+    recommended: true,
+    isFree: false,
+    userType: 'athlete',
+  });
   const { purchasePro, restorePurchases } = useSubscription();
 
-  if (!isOpen) return null;
+  useEffect(() => {
+    if (!isOpen) return;
+    let cancelled = false;
+    revenueCatService
+      .getOfferings()
+      .then((offerings) => {
+        if (cancelled) return;
+        const pkgs = revenueCatService.listPackages(offerings);
+        const pkg =
+          pkgs.find((p) => p.identifier === '$rc_monthly' || p.product?.identifier === 'o1fc_monthly_pro') ||
+          pkgs[0] ||
+          REVENUECAT_FALLBACK_MONTHLY_PACKAGE;
+        const product = pkg.product || pkg.webCheckoutProduct || REVENUECAT_FALLBACK_MONTHLY_PACKAGE.product;
+        const next: IAPProductInfo = {
+          productId: String(product.identifier || pkg.identifier || REVENUECAT_FALLBACK_MONTHLY_PACKAGE.product.identifier),
+          name: String(product.title || 'Monthly Pro Access'),
+          price: String(product.priceString || '$9.99'),
+          periodText: '/mo',
+          description: 'Full training & fuel OS',
+          badge: 'PRO',
+          recommended: true,
+          isFree: false,
+          userType: 'athlete',
+        };
+        setMonthlyStoreProduct(next);
+        setSelectedProductId((current) =>
+          current === IAP_PRODUCTS.premium.productId || current === REVENUECAT_FALLBACK_MONTHLY_PACKAGE.product.identifier
+            ? next.productId
+            : current
+        );
+      })
+      .catch(() => {
+        /* fallback card already seeded */
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [isOpen]);
 
-  const athleteProducts: readonly IAPProductInfo[] = [
-    IAP_PRODUCTS.founder_pass,
-    IAP_PRODUCTS.core_free,
-    IAP_PRODUCTS.premium,
-    IAP_PRODUCTS.premium_travel,
-  ];
+  const athleteProducts: readonly IAPProductInfo[] = useMemo(
+    () => [IAP_PRODUCTS.founder_pass, IAP_PRODUCTS.core_free, monthlyStoreProduct, IAP_PRODUCTS.premium_travel],
+    [monthlyStoreProduct]
+  );
 
   const coachProducts: readonly IAPProductInfo[] = [
     IAP_PRODUCTS.coach_free,
     IAP_PRODUCTS.coach_pro,
   ];
+
+  const nativeStore = isNativeStorePlatform();
 
   const currentProducts = userType === 'athletes' ? athleteProducts : coachProducts;
   const currentSelected =
@@ -65,7 +117,7 @@ export const MembershipPlansModal: React.FC<MembershipPlansModalProps> = ({
   const handleSelectTab = (t: 'athletes' | 'coaches') => {
     tactileEngine.triggerSelectionBuzz();
     setUserType(t);
-    setSelectedProductId(t === 'athletes' ? IAP_PRODUCTS.premium.productId : IAP_PRODUCTS.coach_pro.productId);
+    setSelectedProductId(t === 'athletes' ? monthlyStoreProduct.productId : IAP_PRODUCTS.coach_pro.productId);
     setStoreStatusBanner(null);
   };
 
@@ -78,14 +130,19 @@ export const MembershipPlansModal: React.FC<MembershipPlansModalProps> = ({
       const message =
         userType === 'athletes'
           ? 'Core Free tier active • 90-day full access included!'
-          : 'Coach tier active • Full coaching command center ready!';
+          : 'Coach Starter active • Up to 5 athletes, 15% fee on program sales.';
       onShowToast?.(message);
       if (onSelectPlan) onSelectPlan(selectedProductId);
       onClose();
     } else {
       setIsPurchasing(true);
       try {
-        const res = await revenueCatService.purchasePackage(selectedProductId, (athleteProfile as any)?.id || 'default-athlete');
+        const uid = await getAuthenticatedUserId();
+        if (!uid) {
+          setStoreStatusBanner('Sign in to subscribe.');
+          return;
+        }
+        const res = await revenueCatService.purchasePackage(selectedProductId, uid);
         if (res.success) {
           tactileEngine.playPRCelebration();
           await purchasePro(selectedProductId);
@@ -94,10 +151,10 @@ export const MembershipPlansModal: React.FC<MembershipPlansModalProps> = ({
           onShowToast?.(`Subscribed to ${currentSelected.name}`);
           onClose();
         } else {
-          setStoreStatusBanner(res.error || 'Membership Tier Available via App Store / Google Play');
+          setStoreStatusBanner(res.error || (nativeStore ? 'Store billing is unavailable.' : null));
         }
       } catch (err: any) {
-        setStoreStatusBanner('Membership Tier Available via App Store / Google Play');
+        setStoreStatusBanner(nativeStore ? 'Store billing is unavailable on this device.' : null);
       } finally {
         setIsPurchasing(false);
       }
@@ -106,41 +163,48 @@ export const MembershipPlansModal: React.FC<MembershipPlansModalProps> = ({
 
   const handleRestore = async () => {
     tactileEngine.triggerSelectionBuzz();
-    const success = await restorePurchases();
-    if (success) {
-      tactileEngine.playPRCelebration();
-      onShowToast?.('Entitlements restored successfully.');
-      onClose();
-    } else {
+    try {
+      const success = await restorePurchases();
+      if (success) {
+        tactileEngine.playPRCelebration();
+        onShowToast?.('Entitlements restored successfully.');
+        onClose();
+      } else {
+        onShowToast?.('No prior active subscription found.');
+      }
+    } catch (err) {
+      console.warn('[Membership] Restore failed:', err);
       onShowToast?.('No prior active subscription found.');
     }
   };
+
+  if (!isOpen) return null;
 
   return (
     <>
       <div
         id="membership-plans-modal"
-        className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 select-none animate-in fade-in duration-150"
+        className="fixed inset-0 z-50 w-full bg-black/70 o1-sheet-scrim flex items-center justify-center select-none animate-in fade-in duration-150 overflow-x-hidden"
         onClick={onClose}
       >
         <div
-          className="bg-white dark:bg-[#0c0c0e] border border-neutral-200 dark:border-neutral-800 rounded-3xl text-neutral-900 dark:text-white w-full max-w-[480px] max-h-[92dvh] h-auto flex flex-col shadow-2xl overflow-hidden"
+          className="o1-sheet-card bg-o1-card border border-white/[0.07] text-white w-full flex flex-col shadow-xl overflow-hidden"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
-          <div className="flex items-center justify-between px-5 pt-4 pb-3 shrink-0 border-b border-neutral-200 dark:border-neutral-800 bg-white dark:bg-[#121214]">
+          <div className="flex items-center justify-between px-5 pt-4 pb-3 shrink-0 border-b border-white/[0.05] bg-o1-card">
             <div>
-              <h2 className="text-sm font-bold uppercase text-neutral-900 dark:text-white tracking-wide">
+              <h2 className="text-sm font-bold uppercase text-white tracking-wide">
                 Choose Your Plan
               </h2>
-              <p className="text-[11px] text-neutral-500 dark:text-neutral-400 font-mono">
+              <p className="text-[11px] text-neutral-400 font-mono">
                 O1FC Official Membership
               </p>
             </div>
             <button
               type="button"
               onClick={onClose}
-              className="w-8 h-8 rounded-full bg-neutral-100 dark:bg-neutral-800/80 hover:bg-neutral-200 dark:hover:bg-neutral-700 flex items-center justify-center text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition cursor-pointer"
+              className="w-8 h-8 rounded-full bg-white/[0.08] hover:bg-neutral-700 flex items-center justify-center text-neutral-400 hover:text-white transition cursor-pointer"
               aria-label="Close"
             >
               <X className="w-4 h-4" />
@@ -150,7 +214,7 @@ export const MembershipPlansModal: React.FC<MembershipPlansModalProps> = ({
           {/* Scrollable Content */}
           <div className="overflow-y-auto px-4 sm:px-5 py-4 space-y-4 text-left flex-1 min-h-0">
             {/* Tab Switcher: Athletes | Coaches */}
-            <div className="grid grid-cols-2 gap-1.5 p-1 bg-neutral-100 dark:bg-[#18181b] rounded-2xl border border-neutral-200 dark:border-neutral-800">
+            <div className="grid grid-cols-2 gap-1.5 p-1 bg-o1-well rounded-2xl border border-white/[0.07]">
               {(['athletes', 'coaches'] as const).map((t) => (
                 <button
                   key={t}
@@ -158,8 +222,8 @@ export const MembershipPlansModal: React.FC<MembershipPlansModalProps> = ({
                   onClick={() => handleSelectTab(t)}
                   className={`py-2 rounded-xl text-xs font-bold capitalize tracking-wider transition-all cursor-pointer ${
                     userType === t
-                      ? 'bg-white dark:bg-[#27272a] text-neutral-900 dark:text-white shadow-xs font-black'
-                      : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white'
+                      ? 'bg-white/[0.08] text-white shadow-xs font-black'
+                      : 'text-neutral-400 hover:text-white'
                   }`}
                 >
                   {t}
@@ -174,20 +238,20 @@ export const MembershipPlansModal: React.FC<MembershipPlansModalProps> = ({
                   tactileEngine.triggerSelectionBuzz();
                   setSelectedProductId(IAP_PRODUCTS.founder_pass.productId);
                 }}
-                className="p-3 rounded-2xl bg-neutral-100 dark:bg-[#18181b] border border-neutral-200 dark:border-neutral-800 flex items-center justify-between cursor-pointer hover:border-[#C4121A]/50 transition-colors"
+                className="p-3 rounded-2xl bg-o1-well border border-white/[0.07] flex items-center justify-between cursor-pointer hover:border-o1-crimson/50 transition-colors"
               >
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-mono font-bold tracking-wider uppercase text-neutral-700 dark:text-neutral-300">
+                    <span className="text-[10px] font-mono font-bold tracking-wider uppercase text-neutral-300">
                       LAUNCH SPECIAL • FIRST 5,000
                     </span>
-                    <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-mono font-bold bg-[#C4121A]/10 text-[#C4121A] border border-[#C4121A]/30">
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#C4121A] animate-pulse" />
+                    <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-mono font-bold bg-o1-crimson/10 text-o1-crimson border border-o1-crimson/30">
+                      <span className="w-1.5 h-1.5 rounded-full bg-o1-crimson animate-pulse" />
                       5,000 Remaining
                     </span>
                   </div>
-                  <p className="text-[11px] text-neutral-600 dark:text-neutral-400 mt-0.5 leading-snug">
-                    <strong className="text-neutral-900 dark:text-white">$24.00 Lifetime Founder Pass</strong> — Training OS Pro + Global Radar forever.
+                  <p className="text-[11px] text-neutral-400 mt-0.5 leading-snug">
+                    <strong className="text-white">$24.00 Lifetime Founder Pass</strong> — Training OS Pro + Global Radar forever.
                   </p>
                 </div>
               </div>
@@ -217,19 +281,21 @@ export const MembershipPlansModal: React.FC<MembershipPlansModalProps> = ({
             />
 
             {/* Billing Notice */}
-            <div className="flex items-start gap-2 pt-1 text-[11px] text-neutral-500 dark:text-neutral-400 leading-snug">
-              <Shield className="w-4 h-4 text-[#C4121A] shrink-0 mt-0.5" />
+            <div className="flex items-start gap-2 pt-1 text-[11px] text-neutral-400 leading-snug">
+              <Shield className="w-4 h-4 text-o1-crimson shrink-0 mt-0.5" />
               <span>
                 {isFreePlanSelected
                   ? userType === 'athletes'
                     ? 'Core Free includes 90 days full access + permanent workout logger & hydration tracking. No credit card required.'
-                    : 'Coach tier includes full client roster, direct workout dispatch, and athlete review studio.'
-                  : 'In-App Subscription: Billed via Google Play or Apple App Store. Your Oblivion 1 Club Pass unlocks across all your devices.'}
+                    : 'Coach Starter includes up to 5 roster athletes, workout dispatch and the review studio. Program sales carry a 15% platform fee.'
+                  : nativeStore
+                    ? 'In-App Subscription: Billed via Google Play or Apple App Store. Your Oblivion 1 Club Pass unlocks across all your devices.'
+                    : 'Browser preview checkout unlocks Pro on this device for local testing. Native builds use App Store / Play Billing.'}
               </span>
             </div>
 
             {storeStatusBanner && (
-              <div className="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-600 dark:text-amber-400 text-xs font-mono text-center flex items-center justify-center gap-2">
+              <div className="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-mono text-center flex items-center justify-center gap-2">
                 <AlertCircle className="w-4 h-4 shrink-0" />
                 <span>{storeStatusBanner}</span>
               </div>
@@ -241,12 +307,12 @@ export const MembershipPlansModal: React.FC<MembershipPlansModalProps> = ({
               id="btn-subscribe-master"
               onClick={handleMainAction}
               disabled={isPurchasing}
-              className="w-full bg-[#C4121A] hover:bg-[#A30F16] active:bg-[#800C11] text-white font-tactical font-black text-xs uppercase py-3.5 px-4 rounded-2xl transition-all active:scale-[0.98] flex items-center justify-center gap-2 shadow-md cursor-pointer disabled:opacity-50"
+              className="w-full bg-o1-crimson hover:bg-o1-crimson-hover active:bg-o1-crimson-press text-white font-tactical font-black text-xs uppercase py-3.5 px-4 rounded-2xl transition-all active:scale-[0.98] flex items-center justify-center gap-2 shadow-md cursor-pointer disabled:opacity-50"
             >
               {isPurchasing ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin text-white" />
-                  <span>CONNECTING TO STORE BILLING...</span>
+                  <span>{nativeStore ? 'CONNECTING TO STORE BILLING...' : 'UNLOCKING PRO ACCESS...'}</span>
                 </>
               ) : isFreePlanSelected ? (
                 <>
@@ -255,22 +321,22 @@ export const MembershipPlansModal: React.FC<MembershipPlansModalProps> = ({
                 </>
               ) : (
                 <>
-                  <span>SUBSCRIBE WITH APP STORE / GOOGLE PLAY</span>
+                  <span>{nativeStore ? 'SUBSCRIBE WITH APP STORE / GOOGLE PLAY' : 'SUBSCRIBE'}</span>
                   <ArrowRight className="w-4 h-4" />
                 </>
               )}
             </button>
 
             {/* Footer Links & Restore */}
-            <div className="flex items-center justify-center gap-2.5 text-[10px] font-mono text-neutral-500 dark:text-neutral-400 flex-wrap">
-              <span>Google Play / Apple</span>
+            <div className="flex items-center justify-center gap-2.5 text-[10px] font-mono text-neutral-400 flex-wrap">
+              <span>{nativeStore ? 'Google Play / Apple' : 'Local preview'}</span>
               <span>•</span>
               <span>Cancel Anytime</span>
               <span>•</span>
               <button
                 type="button"
                 onClick={handleRestore}
-                className="hover:text-neutral-900 dark:hover:text-white underline cursor-pointer"
+                className="hover:text-white underline cursor-pointer"
               >
                 Restore Purchases
               </button>

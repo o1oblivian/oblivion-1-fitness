@@ -15,7 +15,7 @@ interface UseBuddyRealtimeOptions {
 }
 
 export function useBuddyRealtime({
-  currentUserId = 'current-athlete',
+  currentUserId = '',
   onMessageReceived,
 }: UseBuddyRealtimeOptions = {}) {
   const incrementUnread = useBuddyMessageStore((s) => s.incrementUnread);

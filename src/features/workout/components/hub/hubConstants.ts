@@ -10,6 +10,7 @@ export const EQUIPMENT_OPTIONS = [
   'All Equipment',
   'Barbell',
   'Dumbbell',
+  'Kettlebell',
   'Machine',
   'Cable',
   'Turf',

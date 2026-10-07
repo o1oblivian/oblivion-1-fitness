@@ -64,29 +64,29 @@ export const FuelCustomMacroDrawer: React.FC<FuelCustomMacroDrawerProps> = ({
   return (
     <form
       onSubmit={handleAddCustomEntry}
-      className="bg-white dark:bg-[#121214] border border-neutral-200/80 dark:border-neutral-800 rounded-3xl p-4 shadow-xs space-y-3 animate-in fade-in duration-150"
+      className="bg-o1-card border border-white/[0.07] rounded-2xl p-2.5 shadow-xs space-y-2 animate-in fade-in duration-150"
     >
-      <div className="flex items-center justify-between pb-2 border-b border-neutral-100 dark:border-neutral-800">
-        <span className="text-xs font-bold uppercase text-neutral-900 dark:text-neutral-100">
+      <div className="flex items-center justify-between pb-2 border-b border-white/[0.05]">
+        <span className="text-xs font-bold uppercase text-neutral-100">
           Custom Macro Entry
         </span>
         <button
           type="button"
           onClick={onClose}
-          className="text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200"
+          className="text-neutral-400 hover:text-neutral-200"
         >
           <X className="w-4 h-4" />
         </button>
       </div>
 
       <div>
-        <label className="block text-[10px] font-mono font-bold uppercase text-neutral-500 dark:text-neutral-400 mb-1">
+        <label className="block text-[10px] font-mono font-bold uppercase text-neutral-400 mb-1">
           Target Slot
         </label>
         <select
           value={customSlot}
           onChange={(e) => setCustomSlot(e.target.value as SlotKey)}
-          className="w-full h-9 px-3 rounded-xl bg-neutral-50 dark:bg-[#18181b] border border-neutral-200 dark:border-neutral-800 text-xs font-mono font-bold text-neutral-800 dark:text-neutral-200 focus:outline-none focus:border-red-600"
+          className="w-full h-9 px-3 rounded-xl bg-o1-well border border-white/[0.07] text-xs font-mono font-bold text-neutral-200 focus:outline-none focus:border-red-600"
         >
           {CATEGORIES.map((cat) => (
             <option key={cat.key} value={cat.key}>
@@ -97,7 +97,7 @@ export const FuelCustomMacroDrawer: React.FC<FuelCustomMacroDrawerProps> = ({
       </div>
 
       <div>
-        <label className="block text-[10px] font-mono font-bold uppercase text-neutral-500 dark:text-neutral-400 mb-1">
+        <label className="block text-[10px] font-mono font-bold uppercase text-neutral-400 mb-1">
           Item Name
         </label>
         <input
@@ -105,13 +105,13 @@ export const FuelCustomMacroDrawer: React.FC<FuelCustomMacroDrawerProps> = ({
           value={customName}
           onChange={(e) => setCustomName(e.target.value)}
           placeholder="e.g. Sourdough French Toast"
-          className="w-full h-9 px-3 rounded-xl bg-neutral-50 dark:bg-[#18181b] border border-neutral-200 dark:border-neutral-800 text-xs font-mono text-neutral-800 dark:text-neutral-200 focus:outline-none focus:border-red-600"
+          className="w-full h-9 px-3 rounded-xl bg-o1-well border border-white/[0.07] text-xs font-mono text-neutral-200 focus:outline-none focus:border-red-600"
         />
       </div>
 
       <div className="grid grid-cols-4 gap-2">
         <div>
-          <label className="block text-[9px] font-mono font-bold uppercase text-neutral-600 dark:text-neutral-400 mb-0.5">
+          <label className="block text-[9px] font-mono font-bold uppercase text-neutral-400 mb-0.5">
             Calories
           </label>
           <input
@@ -120,11 +120,11 @@ export const FuelCustomMacroDrawer: React.FC<FuelCustomMacroDrawerProps> = ({
             onFocus={(e) => e.target.select()}
             onChange={(e) => setCustomCalories(sanitizeNumericInput(e.target.value))}
             placeholder="kcal"
-            className="w-full h-8 px-2 rounded-xl bg-neutral-50 dark:bg-[#18181b] border border-neutral-200 dark:border-neutral-800 text-xs font-mono font-bold text-neutral-900 dark:text-neutral-100 focus:outline-none focus:border-red-600"
+            className="w-full h-8 px-2 rounded-xl bg-o1-well border border-white/[0.07] text-xs font-mono font-bold text-neutral-100 focus:outline-none focus:border-red-600"
           />
         </div>
         <div>
-          <label className="block text-[9px] font-mono font-bold uppercase text-red-600 dark:text-red-400 mb-0.5">
+          <label className="block text-[9px] font-mono font-bold uppercase text-red-400 mb-0.5">
             Protein (g)
           </label>
           <input
@@ -134,11 +134,11 @@ export const FuelCustomMacroDrawer: React.FC<FuelCustomMacroDrawerProps> = ({
             onFocus={(e) => e.target.select()}
             onChange={(e) => setCustomProtein(sanitizeNumericInput(e.target.value))}
             placeholder="P (g)"
-            className="w-full h-8 px-2 rounded-xl bg-neutral-50 dark:bg-[#18181b] border border-neutral-200 dark:border-neutral-800 text-xs font-mono font-bold text-neutral-900 dark:text-neutral-100 focus:outline-none focus:border-red-600"
+            className="w-full h-8 px-2 rounded-xl bg-o1-well border border-white/[0.07] text-xs font-mono font-bold text-neutral-100 focus:outline-none focus:border-red-600"
           />
         </div>
         <div>
-          <label className="block text-[9px] font-mono font-bold uppercase text-amber-600 dark:text-amber-400 mb-0.5">
+          <label className="block text-[9px] font-mono font-bold uppercase text-amber-400 mb-0.5">
             Carbs (g)
           </label>
           <input
@@ -148,11 +148,11 @@ export const FuelCustomMacroDrawer: React.FC<FuelCustomMacroDrawerProps> = ({
             onFocus={(e) => e.target.select()}
             onChange={(e) => setCustomCarbs(sanitizeNumericInput(e.target.value))}
             placeholder="C (g)"
-            className="w-full h-8 px-2 rounded-xl bg-neutral-50 dark:bg-[#18181b] border border-neutral-200 dark:border-neutral-800 text-xs font-mono font-bold text-neutral-900 dark:text-neutral-100 focus:outline-none focus:border-amber-500"
+            className="w-full h-8 px-2 rounded-xl bg-o1-well border border-white/[0.07] text-xs font-mono font-bold text-neutral-100 focus:outline-none focus:border-amber-500"
           />
         </div>
         <div>
-          <label className="block text-[9px] font-mono font-bold uppercase text-sky-600 dark:text-sky-400 mb-0.5">
+          <label className="block text-[9px] font-mono font-bold uppercase text-sky-400 mb-0.5">
             Fats (g)
           </label>
           <input
@@ -162,14 +162,14 @@ export const FuelCustomMacroDrawer: React.FC<FuelCustomMacroDrawerProps> = ({
             onFocus={(e) => e.target.select()}
             onChange={(e) => setCustomFats(sanitizeNumericInput(e.target.value))}
             placeholder="F (g)"
-            className="w-full h-8 px-2 rounded-xl bg-neutral-50 dark:bg-[#18181b] border border-neutral-200 dark:border-neutral-800 text-xs font-mono font-bold text-neutral-900 dark:text-neutral-100 focus:outline-none focus:border-sky-500"
+            className="w-full h-8 px-2 rounded-xl bg-o1-well border border-white/[0.07] text-xs font-mono font-bold text-neutral-100 focus:outline-none focus:border-sky-500"
           />
         </div>
       </div>
 
       <button
         type="submit"
-        className="w-full h-9 rounded-xl bg-[#C4121A] hover:opacity-90 text-white font-mono text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-sm active:scale-95 transition-all cursor-pointer"
+        className="w-full py-2.5 rounded-xl bg-zinc-100 hover:opacity-90 text-neutral-950 font-semibold text-xs tracking-wide flex items-center justify-center gap-1.5 active:scale-[0.98] transition-all cursor-pointer"
       >
         <Plus className="w-4 h-4 stroke-[3]" />
         <span>Commit Custom Item</span>
