@@ -8,23 +8,23 @@ export const SettingsPrivacyPledgeSection: React.FC = () => {
   return (
     <div className="space-y-2 select-none">
       <div className="flex items-center justify-between px-1">
-        <h3 className="text-xs font-tactical tracking-wider text-emerald-400 font-bold uppercase flex items-center gap-1.5">
-          <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
-          The Oblivion 1 Athlete Trust &amp; Privacy Pledge
+        <h3 className="text-xs font-sans font-semibold text-neutral-400 flex items-center gap-1.5">
+          <ShieldCheck className="w-3.5 h-3.5 text-neutral-400" />
+          Privacy pledge
         </h3>
       </div>
 
-      <div className="bg-o1-card rounded-2xl border border-emerald-500/20 p-3 space-y-2 shadow-xs">
+      <div className="bg-o1-card rounded-2xl border border-white/[0.07] p-3 space-y-2 shadow-xs">
         {/* Top Highlight Badge */}
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shrink-0">
+            <div className="w-8 h-8 rounded-xl bg-o1-well border border-white/[0.07] flex items-center justify-center text-neutral-300 shrink-0">
               <Lock className="w-4 h-4" />
             </div>
             <div>
               <div className="flex items-center gap-1.5">
-                <span className="text-xs font-tactical font-black uppercase text-white">
-                  PRIVATE ENCRYPTED VAULT • ZERO AD BLOAT
+                <span className="text-xs font-tactical font-black text-white">
+                  Private encrypted vault • zero ad bloat
                 </span>
               </div>
               <p className="text-[11px] text-neutral-400 mt-0.5 font-sans">
@@ -49,37 +49,37 @@ export const SettingsPrivacyPledgeSection: React.FC = () => {
         {/* 3 Core Trust Badges */}
         <div className="grid grid-cols-3 gap-2 pt-1">
           <div className="p-2.5 rounded-xl bg-o1-well border border-white/[0.07] text-center space-y-1">
-            <div className="w-6 h-6 mx-auto rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-400">
+            <div className="w-6 h-6 mx-auto rounded-full bg-o1-card flex items-center justify-center text-neutral-300">
               <Ban className="w-3 h-3" />
             </div>
-            <div className="text-[10px] font-tactical font-bold uppercase text-white">
+            <div className="text-[10px] font-tactical font-bold text-white">
               Zero Ads
             </div>
-            <p className="text-[9px] text-neutral-500 font-mono leading-tight">
+            <p className="text-[11px] text-neutral-400 font-sans leading-tight">
               No trackers, banners, or popups
             </p>
           </div>
 
           <div className="p-2.5 rounded-xl bg-o1-well border border-white/[0.07] text-center space-y-1">
-            <div className="w-6 h-6 mx-auto rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-400">
+            <div className="w-6 h-6 mx-auto rounded-full bg-o1-card flex items-center justify-center text-neutral-300">
               <EyeOff className="w-3 h-3" />
             </div>
-            <div className="text-[10px] font-tactical font-bold uppercase text-white">
+            <div className="text-[10px] font-tactical font-bold text-white">
               Never Sold
             </div>
-            <p className="text-[9px] text-neutral-500 font-mono leading-tight">
+            <p className="text-[11px] text-neutral-400 font-sans leading-tight">
               No 3rd-party data brokerage
             </p>
           </div>
 
           <div className="p-2.5 rounded-xl bg-o1-well border border-white/[0.07] text-center space-y-1">
-            <div className="w-6 h-6 mx-auto rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-400">
+            <div className="w-6 h-6 mx-auto rounded-full bg-o1-card flex items-center justify-center text-neutral-300">
               <HardDrive className="w-3 h-3" />
             </div>
-            <div className="text-[10px] font-tactical font-bold uppercase text-white">
+            <div className="text-[10px] font-tactical font-bold text-white">
               Local Vault
             </div>
-            <p className="text-[9px] text-neutral-500 font-mono leading-tight">
+            <p className="text-[11px] text-neutral-400 font-sans leading-tight">
               Stored in secure sandbox storage
             </p>
           </div>

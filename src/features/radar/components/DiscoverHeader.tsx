@@ -1,5 +1,5 @@
 import React from 'react';
-import { ChevronLeft, Compass, Users, Shield, User, Search, RotateCcw, X, MapPin } from 'lucide-react';
+import { ChevronLeft, Compass, Shield, User, Search, X, SlidersHorizontal } from 'lucide-react';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { PremiumPlaneIcon } from './RadarIcons';
 import { useBuddyProfileStore } from '../../../stores/useBuddyProfileStore';
@@ -48,33 +48,39 @@ export const DiscoverHeader: React.FC<Props> = ({
   const isBuddyProfileActive = useBuddyProfileStore((s) => s.isBuddyProfileActive);
   const ghostMode = useBuddyProfileStore((s) => s.ghostMode);
   const primaryPhoto = buddyPhotos[0];
-  const canGoBack = Boolean(searchQuery || activeTab === 'MATCHED');
+  const canGoBack = Boolean(searchQuery && activeTab === 'DISCOVER');
 
   const handleOpenStudio = () => {
     tactileEngine.triggerSelectionBuzz();
-    if (onOpenProfile) {
-      onOpenProfile();
-    } else if (onOpenFilters) {
-      onOpenFilters();
-    }
+    onOpenProfile?.();
   };
   return (
     <div className="bg-black pb-2 select-none transition-colors border-b border-white/[0.05]">
       {/* Top Row: Circular Back Chevron (dynamic) | Centered Buddy & Chats Pills | Right Shield & Sliders */}
       <div className="flex items-center justify-between px-3 pt-3 pb-2">
         {/* Left: Round circular back button (revealed only in sub-views / search) */}
-        {canGoBack ? (
-          <button
-            type="button"
-            onClick={() => { tactileEngine.triggerSelectionBuzz(); onBack?.(); }}
-            aria-label="Back"
-            className="w-10 h-10 rounded-full bg-o1-well border border-white/[0.07] flex items-center justify-center text-white/90 hover:text-white transition active:scale-90 cursor-pointer shadow-xs animate-in fade-in zoom-in-95 duration-150"
-          >
-            <ChevronLeft className="w-5 h-5 stroke-[2.5]" />
-          </button>
-        ) : (
-          <div className="w-10 h-10" />
-        )}
+        <div className="flex items-center gap-1">
+          {canGoBack && (
+            <button
+              type="button"
+              onClick={() => { tactileEngine.triggerSelectionBuzz(); onBack?.(); }}
+              aria-label="Back"
+              className="w-10 h-10 rounded-full bg-o1-well border border-white/[0.07] flex items-center justify-center text-white/90 hover:text-white transition active:scale-90 cursor-pointer shadow-xs animate-in fade-in zoom-in-95 duration-150"
+            >
+              <ChevronLeft className="w-5 h-5 stroke-[2.5]" />
+            </button>
+          )}
+          {activeTab === 'DISCOVER' && (
+            <button
+              type="button"
+              onClick={() => { tactileEngine.triggerSelectionBuzz(); onOpenFilters?.(); }}
+              aria-label="Filters"
+              className="text-neutral-300 hover:text-white transition active:scale-95 cursor-pointer p-1"
+            >
+              <SlidersHorizontal className="w-5 h-5 stroke-[1.8]" />
+            </button>
+          )}
+        </div>
 
         {/* Center: Buddy (pill) and Chats */}
         <div className="flex items-center gap-4">
@@ -128,7 +134,6 @@ export const DiscoverHeader: React.FC<Props> = ({
             type="button"
             onClick={handleOpenStudio}
             aria-label="Profile"
-            title="Profile & Settings"
             className="text-neutral-300 hover:text-white transition active:scale-95 cursor-pointer p-1"
           >
             <User className="w-5 h-5 stroke-[1.8]" />
@@ -137,7 +142,7 @@ export const DiscoverHeader: React.FC<Props> = ({
       </div>
 
       {/* Active Destination Corridor Banner if travel destination is set */}
-      {travelCity && (
+      {activeTab === 'DISCOVER' && travelCity && (
         <div className="px-3 pt-1 pb-1">
           <div className="flex items-center justify-between px-3 py-1.5 rounded-xl bg-o1-card border border-o1-crimson/30 text-xs font-mono shadow-xs">
             <button
@@ -178,6 +183,7 @@ export const DiscoverHeader: React.FC<Props> = ({
       )}
 
       {/* Search Input and Separate Dedicated Flight/Plane Travel Trigger: (search         ) ( 🛫 ) */}
+      {activeTab === 'DISCOVER' && (
       <div className="flex items-center gap-2 px-3 mt-1.5">
         {/* Dedicated Search Bar (search         ) */}
         <div className="relative flex-1 flex items-center">
@@ -215,27 +221,7 @@ export const DiscoverHeader: React.FC<Props> = ({
           <PremiumPlaneIcon className="w-3.5 h-3.5 text-neutral-200 group-hover:text-o1-crimson transition-colors" />
         </button>
       </div>
-
-      {/* Sub-Bar Telemetry & Scan: "● 0 athletes within 25 km" and "⟲ Scan" */}
-      <div className="flex items-center justify-between px-4 mt-2 text-[10.5px] font-mono">
-        <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1.5 text-neutral-300">
-            <span className="w-1.5 h-1.5 rounded-full bg-o1-crimson shrink-0" />
-            <span className="font-sans font-medium text-[10.5px] text-neutral-300">
-              {count} athletes {travelCity ? `in ${travelCity}` : `within ${radiusKm} km`}
-            </span>
-          </div>
-        </div>
-
-        <button
-          type="button"
-          onClick={onScan}
-          className="flex items-center gap-1 text-o1-crimson hover:text-red-400 font-sans font-medium text-[10.5px] active:scale-95 transition cursor-pointer"
-        >
-          <RotateCcw className={`w-3 h-3 ${isScanning ? 'animate-spin' : ''}`} />
-          <span>Scan</span>
-        </button>
-      </div>
+      )}
     </div>
   );
 };

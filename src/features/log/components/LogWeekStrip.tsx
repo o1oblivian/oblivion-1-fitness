@@ -59,11 +59,11 @@ export const LogWeekStrip: React.FC<LogWeekStripProps> = ({
 
               <div className="h-2 flex items-center justify-center">
                 {isSelected ? (
-                  <span className="w-1.5 h-1.5 rounded-full bg-black" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-neutral-950" />
                 ) : item.hasActivity ? (
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                 ) : item.isToday ? (
-                  <span className="w-1.5 h-1.5 rounded-full bg-o1-crimson" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-white/70" />
                 ) : (
                   <span className="w-1.5 h-1.5 rounded-full bg-transparent" />
                 )}

@@ -1,7 +1,7 @@
 import { createStore } from '../../../utils/createStore';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { safeStorage } from '../../../utils/sanitizers';
-import { getTelemetryHistoryState } from '../../log/store/useTelemetryHistoryStore';
+import { noteDailySteps } from '../../log/services/dayLogService';
 import {
   OperatorProfileMetrics,
   HistoryWorkoutSession,
@@ -138,20 +138,7 @@ const telemetryStore = createStore<TelemetryStoreState, TelemetryStoreActions>(
       persistTargets(current);
 
       try {
-        const now = new Date();
-        const todayKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-        const dist = Number((next / 1300).toFixed(1));
-        const burn = Math.round(next * 0.04);
-        const duration = Math.max(1, Math.round(next / 100));
-        getTelemetryHistoryState().updateDayRecord(todayKey, 'cardio', {
-          hasData: next > 0,
-          distanceKm: dist,
-          burnedKcal: burn,
-          durationMinutes: duration,
-          avgHeartRateBpm: 135,
-          zone2Minutes: Math.round(duration * 0.75),
-          activityType: 'Daily Steps / Cardio',
-        });
+        noteDailySteps(next);
       } catch (err) {
         console.warn('[TelemetryStore] History sync warning:', err);
       }
@@ -180,20 +167,7 @@ const telemetryStore = createStore<TelemetryStoreState, TelemetryStoreActions>(
         persistTargets({ ...prev, stepCount: next });
 
         try {
-          const now = new Date();
-          const todayKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-          const dist = Number((next / 1300).toFixed(1));
-          const burn = Math.round(next * 0.04);
-          const duration = Math.max(1, Math.round(next / 100));
-          getTelemetryHistoryState().updateDayRecord(todayKey, 'cardio', {
-            hasData: next > 0,
-            distanceKm: dist,
-            burnedKcal: burn,
-            durationMinutes: duration,
-            avgHeartRateBpm: 135,
-            zone2Minutes: Math.round(duration * 0.75),
-            activityType: 'Daily Steps / Cardio',
-          });
+          noteDailySteps(next);
         } catch (err) {
           console.warn('[TelemetryStore] History sync warning:', err);
         }

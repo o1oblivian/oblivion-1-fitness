@@ -37,9 +37,9 @@ export const NavigationDock: React.FC<NavigationDockProps> = ({ currentMode, onS
       role="navigation"
       aria-label="Main Navigation"
       style={{
-        bottom: 'max(10px, env(safe-area-inset-bottom, 0px))',
-        paddingLeft: 'max(10px, env(safe-area-inset-left, 0px))',
-        paddingRight: 'max(10px, env(safe-area-inset-right, 0px))',
+        bottom: 'max(16px, env(safe-area-inset-bottom, 0px))',
+        paddingLeft: 'max(16px, env(safe-area-inset-left, 0px))',
+        paddingRight: 'max(16px, env(safe-area-inset-right, 0px))',
       }}
       className="fixed inset-x-0 mx-auto w-[calc(100%-1.5rem)] max-w-[440px] z-40 h-[48px] rounded-full border bg-black backdrop-blur-xl border-white/[0.07] shadow-[0_8px_28px_rgba(0,0,0,0.6)] flex items-center justify-between select-none transition-colors"
     >

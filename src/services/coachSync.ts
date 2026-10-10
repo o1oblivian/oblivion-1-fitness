@@ -132,14 +132,12 @@ export function subscribeToCoachDirectives(
 export interface FounderCoachRecord {
   display_name: string;
   bio: string;
-  avatar_url: string;
   is_active: boolean;
 }
 
 export const FOUNDER_COACH_DATA: FounderCoachRecord = {
   display_name: 'Founder & Head Coach',
   bio: 'Head Coach & Founder at Oblivion 1 Fitness Club. Leading strength, conditioning, and telemetry programming.',
-  avatar_url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb',
   is_active: true,
 };
 
@@ -152,7 +150,6 @@ export async function seedFounderCoachProfile(): Promise<{ success: boolean; dat
         {
           display_name: FOUNDER_COACH_DATA.display_name,
           bio: FOUNDER_COACH_DATA.bio,
-          avatar_url: FOUNDER_COACH_DATA.avatar_url,
         },
         { onConflict: 'display_name' }
       )

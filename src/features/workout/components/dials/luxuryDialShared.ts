@@ -1,9 +1,9 @@
 import { describeArc } from './dialTypes';
 
 export const CRIMSON = '#C4121A';
-export const AMBER = '#d97706';
-export const SKY = '#0284c7';
-export const EMERALD = '#059669';
+export const AMBER = '#D4A017';
+export const SKY = '#4F8F9A';
+export const EMERALD = '#6B8F5E';
 export const HAIR = 'rgba(255,255,255,0.32)';
 export const HAIR_SOFT = 'rgba(255,255,255,0.14)';
 

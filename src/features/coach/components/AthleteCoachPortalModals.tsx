@@ -1,6 +1,6 @@
 import React from 'react';
 import { CoachMarketplaceProgram, CoachProfile, AthleteCheckInSubmission } from '../types/coachPlatformTypes';
-import { ExploreCoach } from '../../../data/reelsExploreCatalog';
+import { ExploreCoach } from '../../reels/reelTypes';
 import { COACH_MARKETPLACE_PROGRAMS } from '../data/coachMarketplaceData';
 import { ProgramCheckoutModal } from './ProgramCheckoutModal';
 import { CoachFullProfileModal } from './CoachFullProfileModal';
@@ -63,8 +63,8 @@ export const AthleteCoachPortalModals: React.FC<AthleteCoachPortalModalsProps> =
       {isCheckinModalOpen && (
         <div className="fixed inset-0 z-50 bg-black/70 o1-sheet-scrim flex items-center justify-center">
           <div className="o1-sheet-card bg-o1-card border border-white/[0.07] p-5 w-full space-y-4 overflow-y-auto">
-            <h3 className="font-mono font-bold text-sm text-white uppercase">
-              WEEKLY ATHLETE CHECK-IN
+            <h3 className="font-mono font-bold text-sm text-white">
+              Weekly Athlete CHECK-IN
             </h3>
             <p className="text-xs text-neutral-500">
               Submit your weekly strain telemetry, recovery notes, and video audit.
@@ -77,9 +77,9 @@ export const AthleteCoachPortalModals: React.FC<AthleteCoachPortalModalsProps> =
             <button
               type="button"
               onClick={onCloseCheckin}
-              className="w-full py-2 rounded-xl bg-white/[0.08] text-xs font-mono font-bold uppercase cursor-pointer"
+              className="w-full py-2 rounded-xl bg-white/[0.08] text-xs font-mono font-bold cursor-pointer"
             >
-              CLOSE
+              Close
             </button>
           </div>
         </div>

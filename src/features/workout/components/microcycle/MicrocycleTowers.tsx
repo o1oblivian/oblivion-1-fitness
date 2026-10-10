@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { DayStrainDetail } from './microcycleTypes';
 import { tactileEngine } from '../../../../services/tactileEngine';
 
@@ -6,60 +6,31 @@ interface MicrocycleTowersProps {
   activeDays: DayStrainDetail[];
   selectedDayIdx: number;
   onSelectDay: (idx: number) => void;
+  baselineVolume?: number;
 }
 
 const TUBE_H = 112;
 const TUBE_PAD = 2;
 const INNER_H = TUBE_H - TUBE_PAD * 2;
-const MAX_SLABS = 10;
+const DAY_LABEL_H = 20;
+const BAND_PX = 8;
 
-function hexToRgb(hex: string): [number, number, number] {
-  const n = parseInt(hex.slice(1), 16);
-  return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
-}
-
-function rgbToHex(r: number, g: number, b: number): string {
-  return `#${[r, g, b].map((v) => v.toString(16).padStart(2, '0')).join('')}`;
-}
-
-/** Stretch reference slab stops to 10 bands without inventing a new hue family. */
-function expandStops(stops: string[], count: number): string[] {
-  if (stops.length === 1) return Array.from({ length: count }, () => stops[0]);
-  if (stops.length >= count) return stops.slice(0, count);
-  const out: string[] = [];
-  for (let i = 0; i < count; i++) {
-    const pos = (i / (count - 1)) * (stops.length - 1);
-    const i0 = Math.floor(pos);
-    const i1 = Math.min(stops.length - 1, i0 + 1);
-    const f = pos - i0;
-    const a = hexToRgb(stops[i0]);
-    const b = hexToRgb(stops[i1]);
-    out.push(rgbToHex(
-      Math.round(a[0] + (b[0] - a[0]) * f),
-      Math.round(a[1] + (b[1] - a[1]) * f),
-      Math.round(a[2] + (b[2] - a[2]) * f),
-    ));
-  }
-  return out;
-}
-
-/** Bottom → top. Sampled from the reference towers image. */
-const DAY_SLAB_STOPS: Record<string, string[]> = {
-  Mon: ['#9A2418', '#C8321C', '#E09414', '#F0C338'],
-  Tue: ['#7A4A0C', '#A86A10', '#C88814', '#E0A81C', '#F0C430'],
-  Wed: ['#7A1420', '#C43040', '#8B1A28', '#E07080', '#A82432', '#D84858', '#9A2030', '#E88894', '#B42838', '#F0A8B0'],
-  Thu: ['#2B7AE0'],
-  Fri: ['#E05610', '#F07818', '#F59A32'],
-  Sat: ['#157A38', '#1F9A48', '#2DB85A', '#5ED078'],
-  Sun: ['#2F86E8'],
+/** Bottom → top. Distinct plates, flush, one hue family per day. */
+const DAY_BANDS: Record<string, string[]> = {
+  Mon: ['#9B1C1C', '#C2410C', '#E85D04', '#F4A261', '#F4D35E'],
+  Tue: ['#7C4A12', '#A16207', '#CA8A04', '#EAB308', '#FDE047'],
+  Wed: ['#7F1D1D', '#9F1239', '#E11D48', '#FB7185', '#BE123C', '#F43F5E', '#FDA4AF', '#9F1239', '#FB7185', '#FECDD3'],
+  Thu: ['#38BDF8'],
+  Fri: ['#C2410C', '#EA580C', '#FB923C'],
+  Sat: ['#14532D', '#166534', '#22C55E', '#4ADE80'],
+  Sun: ['#0284C7'],
 };
 
-const DAY_SLAB_PALETTES: Record<string, string[]> = Object.fromEntries(
-  Object.entries(DAY_SLAB_STOPS).map(([day, stops]) => [day, expandStops(stops, MAX_SLABS)]),
-);
-
-function slabCountForVolume(volume: number): number {
-  return volume > 0 ? MAX_SLABS : 0;
+function bandsForFill(day: string, fillH: number): string[] {
+  const palette = DAY_BANDS[day] || DAY_BANDS.Mon;
+  if (fillH <= 0) return [];
+  const count = Math.max(1, Math.min(palette.length, Math.floor(fillH / BAND_PX)));
+  return palette.slice(0, count);
 }
 
 function fillHeightPx(volume: number, cap: number): number {
@@ -72,7 +43,16 @@ export const MicrocycleTowers: React.FC<MicrocycleTowersProps> = ({
   activeDays,
   selectedDayIdx,
   onSelectDay,
+  baselineVolume = 0,
 }) => {
+  const [baselineOpen, setBaselineOpen] = useState(false);
+  const revertTimer = useRef<number | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (revertTimer.current !== null) window.clearTimeout(revertTimer.current);
+    };
+  }, []);
   const weekPeak = activeDays.reduce((m, d) => (d.volume > m ? d.volume : m), 0);
   const cap = Math.max(weekPeak, 1);
   const peakIdx = activeDays.reduce((best, d, idx) => {
@@ -80,6 +60,19 @@ export const MicrocycleTowers: React.FC<MicrocycleTowersProps> = ({
     if (best < 0) return idx;
     return d.volume > activeDays[best].volume ? idx : best;
   }, -1);
+
+  const baselineRatio = baselineVolume > 0 ? Math.min(1, baselineVolume / cap) : 0;
+  const lineBottom = DAY_LABEL_H + TUBE_PAD + baselineRatio * INNER_H;
+
+  const revealBaseline = () => {
+    tactileEngine.triggerSelectionBuzz();
+    setBaselineOpen(true);
+    if (revertTimer.current !== null) window.clearTimeout(revertTimer.current);
+    revertTimer.current = window.setTimeout(() => {
+      setBaselineOpen(false);
+      revertTimer.current = null;
+    }, 2200);
+  };
 
   return (
     <div className="relative pb-0 select-none">
@@ -89,9 +82,8 @@ export const MicrocycleTowers: React.FC<MicrocycleTowersProps> = ({
           const isPeak = idx === peakIdx;
           const hasVolume = d.volume > 0;
           const tonnageLabel = hasVolume ? `${(d.volume / 1000).toFixed(1)}k` : '--';
-          const slabCount = slabCountForVolume(d.volume);
-          const palette = DAY_SLAB_PALETTES[d.day] || DAY_SLAB_PALETTES.Mon;
           const fillH = fillHeightPx(d.volume, cap);
+          const bands = bandsForFill(d.day, fillH);
           const nearlyFull = fillH >= INNER_H * 0.9;
           const bottomR = Math.min(14, Math.max(3, Math.round(fillH * 0.22)));
           const topR = nearlyFull ? 14 : 2;
@@ -134,11 +126,11 @@ export const MicrocycleTowers: React.FC<MicrocycleTowersProps> = ({
                     borderTopRightRadius: topR,
                   }}
                 >
-                  {Array.from({ length: slabCount }, (_, slabIdx) => (
+                  {bands.map((color, bandIdx) => (
                     <div
-                      key={slabIdx}
+                      key={bandIdx}
                       className="w-full flex-1 min-h-0"
-                      style={{ backgroundColor: palette[slabIdx] || palette[palette.length - 1] }}
+                      style={{ backgroundColor: color }}
                     />
                   ))}
                 </div>
@@ -146,19 +138,52 @@ export const MicrocycleTowers: React.FC<MicrocycleTowersProps> = ({
 
               <div className="mt-1 flex flex-col items-center min-h-[16px]">
                 <span
-                  className={`text-[10px] uppercase tracking-wider ${
+                  className={`text-[10px] tracking-wider ${
                     isSelected
-                      ? 'text-o1-crimson font-semibold'
+                      ? 'text-white font-semibold'
                       : 'text-neutral-400 font-medium'
                   }`}
                 >
                   {d.day}
                 </span>
-                {isSelected && <div className="w-4 h-[2px] bg-o1-crimson rounded-full mt-px" />}
+                {isSelected && <div className="w-4 h-[2px] bg-white/80 rounded-full mt-px" />}
               </div>
             </button>
           );
         })}
+
+        {baselineRatio > 0 && (
+          <>
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute left-0 right-8 z-10"
+              style={{
+                bottom: lineBottom,
+                height: 1,
+                backgroundImage: baselineOpen
+                  ? 'linear-gradient(to right, rgba(242,239,230,0.85) 50%, transparent 50%)'
+                  : 'linear-gradient(to right, rgba(163,158,146,0.45) 40%, transparent 40%)',
+                backgroundSize: baselineOpen ? '7px 1px' : '5px 1px',
+              }}
+            />
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                revealBaseline();
+              }}
+              aria-label={baselineOpen ? 'Baseline target' : 'Baseline'}
+              className={`absolute right-0 z-20 max-w-[46%] truncate rounded-md border px-1 py-px text-[9px] font-sans font-semibold leading-none cursor-pointer transition-all ${
+                baselineOpen
+                  ? 'border-white/20 bg-black/80 text-[#F2EFE6]'
+                  : 'border-transparent bg-transparent text-neutral-500'
+              }`}
+              style={{ bottom: lineBottom - 7 }}
+            >
+              {baselineOpen ? 'Baseline target' : 'BS'}
+            </button>
+          </>
+        )}
       </div>
     </div>
   );

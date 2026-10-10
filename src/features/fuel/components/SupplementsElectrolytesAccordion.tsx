@@ -76,8 +76,8 @@ const DEFAULT_STACK: SupplementProtocolItem[] = [
 ];
 
 const ELECTROLYTE_TARGETS = [
-  { key: 'sodium' as const, name: 'Sodium', target: 3000, step: 250, unit: 'mg', color: '#0284c7' },
-  { key: 'potassium' as const, name: 'Potassium', target: 3500, step: 250, unit: 'mg', color: '#0284c7' },
+  { key: 'sodium' as const, name: 'Sodium', target: 3000, step: 250, unit: 'mg', color: '#4F8F9A' },
+  { key: 'potassium' as const, name: 'Potassium', target: 3500, step: 250, unit: 'mg', color: '#4F8F9A' },
   { key: 'magnesium' as const, name: 'Magnesium', target: 400, step: 50, unit: 'mg', color: '#d97706' },
 ];
 
@@ -303,7 +303,7 @@ export const SupplementsElectrolytesAccordion: React.FC<SupplementsElectrolytesA
                       key={el.key}
                       className="bg-white/[0.03] p-2.5 rounded-xl text-center space-y-1.5"
                     >
-                      <span className="text-[9px] font-mono uppercase text-neutral-500 block font-bold">{el.name}</span>
+                      <span className="text-[9px] font-mono text-neutral-500 block font-bold">{el.name}</span>
                       <span className="font-mono text-xs font-bold block">
                         {current}
                         {el.unit}
@@ -345,7 +345,7 @@ export const SupplementsElectrolytesAccordion: React.FC<SupplementsElectrolytesA
                   key={f}
                   type="button"
                   onClick={() => setFilter(f)}
-                  className={`px-2.5 py-1 rounded-full uppercase transition-all ${
+                  className={`px-2.5 py-1 rounded-full transition-all ${
                     filter === f ? 'bg-o1-card text-neutral-100 shadow-xs' : 'text-neutral-500 hover:text-neutral-200'
                   }`}
                 >
@@ -419,7 +419,7 @@ export const SupplementsElectrolytesAccordion: React.FC<SupplementsElectrolytesA
                               synergy: item.synergyStack,
                             })
                           }
-                          className="px-2.5 py-1 bg-o1-crimson hover:opacity-90 text-white rounded-xl font-mono text-[10px] font-bold uppercase shrink-0 active:scale-95 transition-all"
+                          className="px-2.5 py-1 bg-o1-crimson hover:opacity-90 text-white rounded-xl font-mono text-[10px] font-bold shrink-0 active:scale-95 transition-all"
                         >
                           + Add
                         </button>
@@ -446,7 +446,7 @@ export const SupplementsElectrolytesAccordion: React.FC<SupplementsElectrolytesA
 
               {/* Quick Custom Input Form */}
               <form onSubmit={handleAddCustom} className="pt-2 border-t border-white/[0.05] space-y-2">
-                <span className="text-[10px] font-mono font-bold uppercase text-neutral-400 block">
+                <span className="text-[10px] font-mono font-bold text-neutral-400 block">
                   Or Add Custom Compound:
                 </span>
                 <div className="grid grid-cols-3 gap-1.5">
@@ -466,7 +466,7 @@ export const SupplementsElectrolytesAccordion: React.FC<SupplementsElectrolytesA
                   />
                   <button
                     type="submit"
-                    className="col-span-1 h-8 bg-white/[0.08] hover:bg-neutral-700 text-white rounded-lg text-[10px] font-mono font-bold uppercase transition-colors"
+                    className="col-span-1 h-8 bg-white/[0.08] hover:bg-neutral-700 text-white rounded-lg text-[10px] font-mono font-bold transition-colors"
                   >
                     Commit
                   </button>

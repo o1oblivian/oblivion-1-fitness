@@ -80,16 +80,16 @@ export const MembershipPlanFeatures: React.FC<Props> = ({
   const headingText =
     userType === 'athletes'
       ? isFreeAthlete
-        ? 'INCLUDED IN CORE FREE'
-        : 'INCLUDED IN PREMIUM PRO'
+        ? 'Included in core free'
+        : 'included in premium pro'
       : isFreeCoach
       ? 'INCLUDED IN COACH STARTER (UP TO 5 ATHLETES)'
-      : 'INCLUDED IN COACH PRO';
+      : 'Included in coach pro';
 
   return (
     <div className="space-y-3 pt-2 text-neutral-200">
       <div className="flex items-center justify-between pb-2 border-b border-white/[0.05]">
-        <span className="text-[11px] font-bold font-mono uppercase tracking-wider text-white">
+        <span className="text-[11px] font-bold font-mono tracking-wider text-white">
           {headingText}
         </span>
         <span className="text-[10px] font-mono text-neutral-400">Compare Plans</span>
@@ -127,7 +127,7 @@ export const MembershipPlanFeatures: React.FC<Props> = ({
           <p className="text-xs font-bold text-white">O1FC Intelligence Insights</p>
           <p className="text-[10px] text-neutral-400">Smart recovery, nutrition &amp; volume periodization</p>
         </div>
-        <span className="text-[11px] font-mono font-bold text-o1-crimson">
+        <span className="text-[11px] font-sans font-semibold text-neutral-400">
           Included with Pro
         </span>
       </div>

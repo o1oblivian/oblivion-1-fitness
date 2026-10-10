@@ -38,6 +38,8 @@ export interface RadarState {
   travelArrivalDate: string;
   travelDepartureDate: string;
   travelRadiusKm: number;
+  travelLat: number;
+  travelLng: number;
 }
 
 export interface RadarActions {
@@ -66,6 +68,8 @@ export interface RadarActions {
     travelArrivalDate: string;
     travelDepartureDate: string;
     travelRadiusKm: number;
+    travelLat: number;
+    travelLng: number;
     city: string;
     arrivalDate: string;
     departureDate: string;

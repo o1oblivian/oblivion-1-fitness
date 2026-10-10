@@ -114,7 +114,8 @@ export interface CoachActions {
   completeAudit: (athleteId: string, verdict: string) => void;
   confirmAssign: (athleteId: string, protocolName: string) => void;
   dispatchWorkout: (workout: CoachDispatchedWorkout) => void;
-  generateSampleWorkout: () => CoachDispatchedWorkout;
+  ingestAssigned: (workout: CoachDispatchedWorkout) => void;
+  completeAssigned: (id: string) => void;
 }
 
 export type CoachStore = CoachState & CoachActions;

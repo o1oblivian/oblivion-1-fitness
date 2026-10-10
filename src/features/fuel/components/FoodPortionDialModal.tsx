@@ -171,7 +171,7 @@ export const FoodPortionDialModal: React.FC<FoodPortionDialModalProps> = ({
         {/* Header with Title and Mode Switcher */}
         <div className="flex items-center justify-between pb-2 border-b border-white/[0.05]">
           <div className="min-w-0 pr-2">
-            <h3 className="text-[11px] font-mono font-bold uppercase tracking-wider text-neutral-400">
+            <h3 className="text-[11px] font-mono font-bold tracking-wider text-neutral-400">
               Select Weight
             </h3>
             {foodName && (
@@ -256,7 +256,7 @@ export const FoodPortionDialModal: React.FC<FoodPortionDialModalProps> = ({
                 <path
                   d={filledPath}
                   fill="none"
-                  stroke="#F59E0B"
+                  stroke="#D4A017"
                   strokeWidth="10"
                   strokeLinecap="round"
                 />
@@ -303,8 +303,8 @@ export const FoodPortionDialModal: React.FC<FoodPortionDialModalProps> = ({
                     textAnchor="middle"
                     dominantBaseline="central"
                     fontSize="9"
-                    fontFamily="'Outfit', sans-serif"
-                    fill="#9CA3AF"
+                    fontFamily="'IBM Plex Mono', ui-monospace, monospace"
+                    fill="#A39E92"
                     fontWeight="bold"
                   >
                     {t.label}
@@ -317,7 +317,7 @@ export const FoodPortionDialModal: React.FC<FoodPortionDialModalProps> = ({
                 cx={needleX}
                 cy={needleY}
                 r="9"
-                fill="#F59E0B"
+                fill="#D4A017"
                 stroke="#FFFFFF"
                 strokeWidth="2.5"
                 className="filter drop-shadow-md"
@@ -334,8 +334,8 @@ export const FoodPortionDialModal: React.FC<FoodPortionDialModalProps> = ({
               className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center cursor-pointer hover:scale-105 transition-transform"
               title="Tap to use Numpad"
             >
-              <span className="text-[10px] font-mono font-bold text-neutral-400 block tracking-widest uppercase">
-                GRAMS
+              <span className="text-[10px] font-mono font-bold text-neutral-400 block tracking-widest">
+                Grams
               </span>
               <span className="text-3xl sm:text-4xl font-black font-mono tracking-tight text-neutral-100 block leading-tight">
                 {grams}
@@ -350,7 +350,7 @@ export const FoodPortionDialModal: React.FC<FoodPortionDialModalProps> = ({
           <div className="space-y-2.5 py-1">
             {/* Digital Readout */}
             <div className="p-3 rounded-2xl bg-o1-well border border-white/[0.07] flex items-center justify-between">
-              <span className="text-xs font-mono font-bold uppercase text-neutral-400">Weight:</span>
+              <span className="text-xs font-mono font-bold text-neutral-400">Weight:</span>
               <div className="flex items-baseline gap-1">
                 <span className="text-3xl font-black font-mono text-white tracking-tight">
                   {grams}

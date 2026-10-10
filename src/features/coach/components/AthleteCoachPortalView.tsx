@@ -8,8 +8,8 @@ import { ProgramCheckoutModal } from './ProgramCheckoutModal';
 import { CoachFullProfileModal } from './CoachFullProfileModal';
 import { VERIFIED_COACH_PROFILE, COACH_MARKETPLACE_PROGRAMS, COACH_VERIFIED_REVIEWS } from '../data/coachMarketplaceData';
 import { CoachMarketplaceProgram, AthleteCheckInSubmission, CoachProfile } from '../types/coachPlatformTypes';
-import { useWorkoutStore } from '../../workout/store/useWorkoutStore';
 import { tactileEngine } from '../../../services/tactileEngine';
+import { useActiveProgramStore } from '../../../stores/useActiveProgramStore';
 
 export const AthleteCoachPortalView: React.FC = () => {
   const [subTab, setSubTab] = useState<'coaches' | 'programs' | 'checkins' | 'messages'>('coaches');
@@ -24,37 +24,37 @@ export const AthleteCoachPortalView: React.FC = () => {
   }, []);
 
   const handleProgramEnrolled = useCallback((prog: CoachMarketplaceProgram) => {
-    if (prog?.sampleWeek && prog.sampleWeek.length > 0) {
-      const d1 = prog.sampleWeek[0];
-      const logs = (d1?.exercises ?? []).map((ex, idx) => ({
-        id: `prog-${prog.id}-${idx}`,
-        name: ex?.name || 'Movement',
-        exerciseName: ex?.name || 'Movement',
-        targetMuscle: d1?.focus || 'Hypertrophy',
-        equipment: 'barbell',
-        tier: `${prog.title} • Day 1`,
-        restSecs: 90,
-        sets: Array.from({ length: ex?.sets || 3 }, (_, sIdx) => ({
-          id: `set-${Date.now()}-${sIdx}`,
-          setNumber: sIdx + 1,
-          reps: parseInt(ex?.reps || '10', 10) || 10,
-          weightKg: 60,
-          rpe: 8.5,
-          completed: false,
-        })),
-        notes: ex?.notes || `Prescribed in ${prog.title}`,
-      }));
-      useWorkoutStore.getState().setActiveLogs(logs);
-      useWorkoutStore.getState().setActiveSession(true);
-      useWorkoutStore.getState().setActiveRoutine(`${prog.title} - ${d1.dayName}`);
-      showToast(`🎉 Enrolled! ${d1.dayName} loaded to Workout tab.`);
+    const schedule = (prog?.sampleWeek || []).map((day, index) => ({
+      dayIndex: index,
+      dayName: day.dayName || `Day ${index + 1}`,
+      title: day.dayName || `Day ${index + 1}`,
+      focus: day.focus || prog.title,
+      isRestDay: !day.exercises || day.exercises.length === 0,
+      exercises: (day.exercises || []).map((exercise) => ({
+        name: exercise.name || 'Exercise',
+        sets: exercise.sets || 3,
+        reps: parseInt(exercise.reps || '8', 10) || 8,
+        weightKg: 0,
+        rpe: 8,
+        targetMuscle: day.focus,
+      })),
+    }));
+    if (schedule.length > 0) {
+      useActiveProgramStore.getState().enrollProgram({
+        id: prog.id,
+        title: prog.title,
+        coachName: prog.coachName,
+        coachAvatar: prog.coachAvatar,
+        schedule,
+      });
+      showToast(`${prog.title} is on your log. Start day 1 when you are ready.`);
     } else {
-      showToast(`🎉 Successfully enrolled in ${prog?.title || 'Program'}!`);
+      showToast(`${prog.title} is saved. The coach has not designed the days yet.`);
     }
   }, [showToast]);
 
   return (
-    <div id="athlete-coach-portal" className="w-full max-w-md mx-auto px-3.5 sm:px-4 space-y-3.5 pb-28 select-none">
+    <div id="athlete-coach-portal" className="w-full space-y-3.5 select-none">
       {toastMsg && (
         <div className="p-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-500 text-xs font-mono font-bold flex items-center gap-2">
           <CheckCircle2 className="w-4 h-4 shrink-0" />
@@ -69,7 +69,7 @@ export const AthleteCoachPortalView: React.FC = () => {
             key={tab}
             type="button"
             onClick={() => { tactileEngine.triggerSelectionBuzz(); setSubTab(tab); }}
-            className={`flex-1 py-1.5 text-center text-[10px] font-tactical font-black tracking-wider uppercase rounded-xl transition cursor-pointer ${
+            className={`flex-1 py-1.5 text-center text-[10px] font-tactical font-black tracking-wider rounded-xl transition cursor-pointer ${
               subTab === tab ? 'bg-o1-crimson text-white' : 'text-neutral-500 hover:text-white'
             }`}
           >

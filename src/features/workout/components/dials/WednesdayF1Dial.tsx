@@ -33,11 +33,11 @@ export const WednesdayF1Dial: React.FC<DialComponentProps> = ({
       <span className="text-[52px] leading-none font-semibold tracking-tight text-white tabular-nums" style={heroShadow}>
         {fmtInt(steps)}
       </span>
-      <span className="mt-1.5 mb-5 text-[9px] font-medium tracking-[0.28em] uppercase text-white/55">Steps today</span>
+      <span className="mt-1.5 mb-5 text-[9px] font-medium tracking-[0.28em] text-white/55">Steps today</span>
       <div className="w-full space-y-2.5 px-2">
         {rows.map((row) => (
           <div key={row.label} className="flex items-center gap-3">
-            <span className="w-14 text-[8px] tracking-[0.16em] uppercase text-white/45">{row.label}</span>
+            <span className="w-14 text-[8px] tracking-[0.16em] text-white/45">{row.label}</span>
             <div className="flex-1 h-[1.5px] rounded-full overflow-hidden" style={{ background: HAIR_SOFT }}>
               <div
                 className="h-full rounded-full transition-all duration-700"

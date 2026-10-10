@@ -1,9 +1,7 @@
 import { Browser } from '@capacitor/browser';
 import { Capacitor } from '@capacitor/core';
 
-export const API_ORIGIN = String(
-  import.meta.env.VITE_API_BASE_URL || 'https://oblivion-1-fitness.onrender.com'
-).replace(/\/$/, '');
+export const API_ORIGIN = String(import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '');
 
 export function apiUrl(path: string): string {
   const p = path.startsWith('/') ? path : `/${path}`;
@@ -16,8 +14,9 @@ export function apiUrl(path: string): string {
       /^10\./.test(host) ||
       /^192\.168\./.test(host) ||
       /^172\.(1[6-9]|2\d|3[0-1])\./.test(host);
-    if (isLan) return p;
+    if (isLan || !API_ORIGIN) return p;
   }
+  if (!API_ORIGIN) return p;
   return `${API_ORIGIN}${p}`;
 }
 

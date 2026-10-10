@@ -60,10 +60,10 @@ export const IntakeCategories: React.FC<IntakeCategoriesProps> = ({
     <div id="intake-categories-section" className="space-y-3">
       {/* Header: Intake with right-aligned caloric summary */}
       <div className="flex items-center justify-between px-1">
-        <h3 className="font-tactical font-black text-sm uppercase tracking-wider text-white">
+        <h3 className="font-tactical font-black text-sm tracking-wider text-white">
           Intake Meal Slots
         </h3>
-        <span className="text-[11px] font-telemetry font-bold text-neutral-400 uppercase tracking-wider">
+        <span className="text-[11px] font-telemetry font-bold text-neutral-400 tracking-wider">
           {totalEaten.toLocaleString()} / {totalTarget.toLocaleString()} kcal
         </span>
       </div>

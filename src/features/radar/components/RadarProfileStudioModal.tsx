@@ -9,17 +9,13 @@ import {
   Shield,
   MapPin,
   Check,
-  CheckCircle2,
   Plus,
-  Eye,
   Star,
 } from 'lucide-react';
 import {
   useBuddyProfileStore,
   BuddyIntent,
   LookingFor,
-  ExperienceLevel,
-  DEFAULT_BUDDY_PHOTOS,
 } from '../../../stores/useBuddyProfileStore';
 import { useRadarStore } from '../../../stores/useRadarStore';
 import { useRoleStore } from '../../../stores/useRoleStore';
@@ -35,14 +31,26 @@ interface Props {
 }
 
 const DISCIPLINES_LIST = [
+  'Strength',
   'Hypertrophy',
-  'Hyrox',
   'Powerlifting',
-  'CrossFit',
+  'Olympic',
+  'Conditioning',
   'Running',
+  'Run club',
+  'Walking',
+  'Cycling',
+  'Swimming',
+  'Hyrox',
+  'Mobility',
+  'Yoga',
+  'Pilates',
+  'Sauna',
+  'CrossFit',
   'Calisthenics',
-  'Olympic Lifting',
-  'Endurance',
+  'Boxing',
+  'Climbing',
+  'Rowing',
 ];
 
 const TIME_WINDOWS = [
@@ -65,17 +73,8 @@ export const RadarProfileStudioModal: React.FC<Props> = ({
   const role = useRoleStore((s) => s.role);
 
   // Top Section: 'PROFILE' (Edit Profile) vs 'FILTERS'
-  const [topTab, setTopTab] = useState<'PROFILE' | 'FILTERS'>(
-    initialTab === 'FILTERS' ? 'FILTERS' : 'PROFILE'
-  );
-
-  // Profile View Mode: 'EDIT' vs 'PREVIEW' (toggled from bottom Preview capsule)
-  const [profileViewMode, setProfileViewMode] = useState<'EDIT' | 'PREVIEW'>(
-    initialTab === 'PREVIEW' ? 'PREVIEW' : 'EDIT'
-  );
-
+  const [topTab, setTopTab] = useState<'PROFILE' | 'FILTERS'>('PROFILE');
   const [isVaultOpen, setIsVaultOpen] = useState(false);
-  const [previewPhotoIndex, setPreviewPhotoIndex] = useState(0);
 
   // Pointer Hold & Drag State
   const [activeDragIdx, setActiveDragIdx] = useState<number | null>(null);
@@ -238,18 +237,6 @@ export const RadarProfileStudioModal: React.FC<Props> = ({
     }
   };
 
-  // Toggle Preview / Edit from Bottom Capsule
-  const handleTogglePreview = () => {
-    tactileEngine.triggerSelectionBuzz();
-    if (profileViewMode === 'PREVIEW') {
-      setProfileViewMode('EDIT');
-    } else {
-      setTopTab('PROFILE');
-      setProfileViewMode('PREVIEW');
-    }
-  };
-
-  // Done action from Bottom Capsule
   const handleDone = () => {
     tactileEngine.playPRCelebration();
     radar.setRadius(buddy.maxDistanceKm);
@@ -294,13 +281,11 @@ export const RadarProfileStudioModal: React.FC<Props> = ({
   const distancePresets = [5, 10, 25, 50, 100];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 o1-sheet-scrim animate-in fade-in duration-200 select-none">
-      <div className="o1-sheet-card bg-o1-card border border-white/[0.07] shadow-xl flex flex-col overflow-hidden">
+    <div className="fixed inset-0 z-50 flex o1-sheet-scrim o1-page-scrim animate-in fade-in duration-200 select-none">
+      <div className="o1-sheet-card o1-page flex flex-col overflow-hidden bg-black">
         {/* HEADER */}
         <div className="px-4 py-3 border-b border-white/[0.05] bg-o1-card/95 backdrop-blur-sm flex items-center justify-between shrink-0">
-          <h2 className="text-sm font-tactical font-black uppercase tracking-wider text-white">
-            {topTab === 'PROFILE' ? 'Edit Profile' : 'Filters'}
-          </h2>
+          <h2 className="text-[15px] font-semibold text-white">Your profile</h2>
 
           <button
             type="button"
@@ -315,56 +300,17 @@ export const RadarProfileStudioModal: React.FC<Props> = ({
           </button>
         </div>
 
-        {/* TOP SEGMENTED CONTROL: [ Edit Profile | Filters ] */}
-        <div className="px-4 pt-3 pb-2.5 bg-o1-card border-b border-white/[0.05] shrink-0">
-          <div className="grid grid-cols-2 gap-1 p-1 rounded-2xl bg-o1-well border border-white/[0.07]">
-            <button
-              type="button"
-              onClick={() => {
-                tactileEngine.triggerSelectionBuzz();
-                setTopTab('PROFILE');
-                setProfileViewMode('EDIT');
-              }}
-              className={`py-2 rounded-xl text-xs font-tactical font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
-                topTab === 'PROFILE'
-                  ? 'bg-white/[0.08] text-white shadow-sm'
-                  : 'text-neutral-500 hover:text-white'
-              }`}
-            >
-              <User className="w-3.5 h-3.5 text-o1-crimson" />
-              <span>Edit Profile</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => {
-                tactileEngine.triggerSelectionBuzz();
-                setTopTab('FILTERS');
-              }}
-              className={`py-2 rounded-xl text-xs font-tactical font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
-                topTab === 'FILTERS'
-                  ? 'bg-white/[0.08] text-white shadow-sm'
-                  : 'text-neutral-500 hover:text-white'
-              }`}
-            >
-              <SlidersHorizontal className="w-3.5 h-3.5 text-o1-crimson" />
-              <span>Filters</span>
-            </button>
-          </div>
-        </div>
-
-        {/* SCROLLABLE BODY */}
         <div className="flex-1 overflow-y-auto p-4 space-y-4 text-white">
           {/* ========================================================================= */}
           {/* TAB: EDIT PROFILE (When View Mode is EDIT)                                */}
           {/* ========================================================================= */}
-          {topTab === 'PROFILE' && profileViewMode === 'EDIT' && (
+          {topTab === 'PROFILE' && (
             <div className="space-y-4 animate-in fade-in duration-150">
               {/* Profile Photos Grid */}
               <div className="bg-o1-card p-4 rounded-2xl border border-white/[0.07] space-y-3 shadow-xs">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="text-xs font-tactical font-bold uppercase tracking-wider text-white">
+                    <h3 className="text-xs font-tactical font-bold tracking-wider text-white">
                       Profile Photos ({currentPhotos.length}/6)
                     </h3>
                     <p className="text-[10px] text-neutral-400 font-sans">
@@ -476,34 +422,42 @@ export const RadarProfileStudioModal: React.FC<Props> = ({
               </div>
 
               {/* About Me (Bio) */}
-              <div className="bg-o1-card p-4 rounded-2xl border border-white/[0.07] space-y-2.5 shadow-xs">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-xs font-tactical font-bold uppercase tracking-wider text-white">
-                    About Me
-                  </h3>
-                  <span className="text-[10px] font-mono text-neutral-400">
-                    {buddy.partnerBio.length}/300
-                  </span>
-                </div>
-
-                <textarea
-                  value={buddy.partnerBio}
-                  onChange={(e) => buddy.setPartnerBio(e.target.value.slice(0, 300))}
-                  rows={3}
-                  placeholder="Share a little about your fitness routine, lifestyle, and what kind of partner or workout buddy you're looking for..."
-                  className="w-full bg-o1-well border border-white/[0.07] rounded-xl p-3 text-xs text-white placeholder:text-neutral-400 focus:outline-none focus:border-o1-crimson transition leading-relaxed resize-none"
-                />
+              <div className="space-y-3 rounded-2xl border border-white/[0.07] bg-[#121214] p-4">
+                <h3 className="text-[15px] font-semibold text-white">Prompts</h3>
+                {[
+                  { label: 'I train', placeholder: 'Push three mornings a week' },
+                  { label: "I'm looking for", placeholder: 'A spotter who shows up' },
+                  { label: 'A good session is', placeholder: 'Heavy, short, and done' },
+                ].map((prompt, index) => {
+                  const parts = buddy.partnerBio.includes('\n') ? buddy.partnerBio.split('\n') : [buddy.partnerBio, '', ''];
+                  return (
+                    <label key={prompt.label} className="block">
+                      <span className="text-[12px] text-neutral-400">{prompt.label}</span>
+                      <input
+                        value={index === 0 && !buddy.partnerBio.includes('\n') ? buddy.partnerBio : (parts[index] || '')}
+                        onChange={(event) => {
+                          const next = buddy.partnerBio.includes('\n')
+                            ? buddy.partnerBio.split('\n')
+                            : [buddy.partnerBio, '', ''];
+                          while (next.length < 3) next.push('');
+                          next[index] = event.target.value.slice(0, 120);
+                          buddy.setPartnerBio(next.join('\n').slice(0, 300));
+                        }}
+                        placeholder={prompt.placeholder}
+                        className="mt-1 h-11 w-full rounded-xl border border-white/[0.07] bg-[#161616] px-3 text-[13px] text-white placeholder:text-neutral-500 focus:outline-none"
+                      />
+                    </label>
+                  );
+                })}
               </div>
 
               {/* Basic Info */}
               <div className="bg-o1-card p-4 rounded-2xl border border-white/[0.07] space-y-3 shadow-xs">
-                <h3 className="text-xs font-tactical font-bold uppercase tracking-wider text-white">
-                  Basic Info
-                </h3>
+                <h3 className="text-[15px] font-semibold text-white">You</h3>
 
                 <div className="grid grid-cols-3 gap-2">
                   <div className="col-span-2 space-y-1">
-                    <label className="text-[10px] font-mono uppercase text-neutral-400 font-bold">
+                    <label className="text-[10px] font-mono text-neutral-400 font-bold">
                       Name
                     </label>
                     <input
@@ -514,7 +468,7 @@ export const RadarProfileStudioModal: React.FC<Props> = ({
                     />
                   </div>
                   <div className="space-y-1">
-                    <label className="text-[10px] font-mono uppercase text-neutral-400 font-bold">
+                    <label className="text-[10px] font-mono text-neutral-400 font-bold">
                       Age
                     </label>
                     <input
@@ -527,7 +481,7 @@ export const RadarProfileStudioModal: React.FC<Props> = ({
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-[10px] font-mono uppercase text-neutral-400 font-bold flex items-center gap-1">
+                  <label className="text-[10px] font-mono text-neutral-400 font-bold flex items-center gap-1">
                     <MapPin className="w-3 h-3 text-o1-crimson" />
                     <span>Home Gym</span>
                   </label>
@@ -535,29 +489,45 @@ export const RadarProfileStudioModal: React.FC<Props> = ({
                     type="text"
                     value={buddy.homeGym}
                     onChange={(e) => buddy.setHomeGym(e.target.value)}
-                    placeholder="e.g. Oblivion 1 • Downtown, Equinox..."
+                    placeholder="Gym name"
                     className="w-full bg-o1-well border border-white/[0.07] rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-o1-crimson"
                   />
                 </div>
 
-                {/* Experience Level */}
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-mono uppercase text-neutral-400 font-bold block">
-                    Experience Level
-                  </label>
-                  <div className="grid grid-cols-4 gap-1.5">
-                    {(['Beginner', 'Intermediate', 'Advanced', 'Elite'] as ExperienceLevel[]).map((lvl) => (
+                  <label className="text-[10px] font-mono text-neutral-400 font-bold block">I am</label>
+                  <div className="flex flex-wrap gap-1.5">
+                    {([
+                      ['women', 'Woman'],
+                      ['men', 'Man'],
+                    ] as const).map(([id, label]) => (
                       <button
-                        key={lvl}
+                        key={id}
                         type="button"
-                        onClick={() => buddy.setExperienceLevel(lvl)}
-                        className={`py-1.5 rounded-xl font-mono text-[10.5px] font-bold transition cursor-pointer ${
-                          buddy.experienceLevel === lvl
-                            ? 'bg-white text-neutral-900 shadow-sm'
-                            : 'bg-o1-well text-neutral-400 hover:text-white border border-white/[0.07]'
-                        }`}
+                        onClick={() => buddy.setGender(buddy.gender === id ? '' : id)}
+                        className={`rounded-full px-3 py-1.5 text-[12px] font-semibold ${buddy.gender === id ? 'bg-white text-neutral-950' : 'border border-white/[0.07] bg-[#161616] text-neutral-300'}`}
                       >
-                        {lvl}
+                        {label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-mono text-neutral-400 font-bold block">Where I train</label>
+                  <div className="flex flex-wrap gap-1.5">
+                    {([
+                      ['gym', 'Gym'],
+                      ['home', 'Home'],
+                      ['outdoors', 'Outdoors'],
+                    ] as const).map(([id, label]) => (
+                      <button
+                        key={id}
+                        type="button"
+                        onClick={() => buddy.setTrainingPlace(buddy.trainingPlace === id ? '' : id)}
+                        className={`rounded-full px-3 py-1.5 text-[12px] font-semibold ${buddy.trainingPlace === id ? 'bg-white text-neutral-950' : 'border border-white/[0.07] bg-[#161616] text-neutral-300'}`}
+                      >
+                        {label}
                       </button>
                     ))}
                   </div>
@@ -565,7 +535,7 @@ export const RadarProfileStudioModal: React.FC<Props> = ({
 
                 {/* Fitness Disciplines */}
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-mono uppercase text-neutral-400 font-bold block">
+                  <label className="text-[10px] font-mono text-neutral-400 font-bold block">
                     Fitness Interests
                   </label>
                   <div className="flex flex-wrap gap-1.5">
@@ -583,10 +553,10 @@ export const RadarProfileStudioModal: React.FC<Props> = ({
                               : [...current, d];
                             buddy.setSelectedDisciplines(next);
                           }}
-                          className={`px-3 py-1.5 rounded-xl font-mono text-[11px] font-bold transition cursor-pointer ${
+                          className={`rounded-full px-3 py-1.5 text-[12px] font-semibold transition cursor-pointer ${
                             isSelected
-                              ? 'bg-o1-crimson text-white shadow-xs'
-                              : 'bg-o1-well text-neutral-400 border border-white/[0.07] hover:text-white'
+                              ? 'bg-white text-neutral-950'
+                              : 'border border-white/[0.07] bg-[#161616] text-neutral-300'
                           }`}
                         >
                           {d}
@@ -597,150 +567,18 @@ export const RadarProfileStudioModal: React.FC<Props> = ({
                 </div>
               </div>
 
-              {/* Display Preferences */}
-              <div className="bg-o1-card p-4 rounded-2xl border border-white/[0.07] space-y-3 shadow-xs">
-                <h3 className="text-xs font-tactical font-bold uppercase tracking-wider text-white">
-                  Display Preferences
-                </h3>
-
-                <div className="space-y-2">
-                  <label className="flex items-center justify-between p-2.5 rounded-xl bg-o1-well border border-white/[0.07] cursor-pointer">
-                    <span className="text-xs font-medium text-neutral-200">
-                      Show Lift PRs (Squat, Bench, Deadlift)
-                    </span>
-                    <input
-                      type="checkbox"
-                      checked={buddy.showLiftsOnRadar}
-                      onChange={() => buddy.toggleShowLifts()}
-                      className="accent-o1-crimson w-4 h-4 rounded"
-                    />
-                  </label>
-
-                  <label className="flex items-center justify-between p-2.5 rounded-xl bg-o1-well border border-white/[0.07] cursor-pointer">
-                    <span className="text-xs font-medium text-neutral-200">
-                      Show Weekly Training Volume
-                    </span>
-                    <input
-                      type="checkbox"
-                      checked={buddy.showVolumeOnRadar}
-                      onChange={() => buddy.toggleShowVolume()}
-                      className="accent-o1-crimson w-4 h-4 rounded"
-                    />
-                  </label>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* ========================================================================= */}
-          {/* TAB: PREVIEW PROFILE (When View Mode is PREVIEW)                           */}
-          {/* ========================================================================= */}
-          {topTab === 'PROFILE' && profileViewMode === 'PREVIEW' && (
-            <div className="space-y-4 animate-in fade-in duration-150 pb-2">
-              <div className="relative overflow-hidden rounded-2xl bg-black aspect-[3/4.6] w-72 mx-auto shadow-2xl border border-white/[0.07] select-none">
-                <img
-                  src={currentPhotos[previewPhotoIndex] || currentPhotos[0] || DEFAULT_BUDDY_PHOTOS[0]}
-                  alt="Profile preview"
-                  className="w-full h-full object-cover transition-all duration-300"
-                />
-
-                {/* Photo Pagination Dots at Top */}
-                <div className="absolute top-2.5 inset-x-3 flex gap-1 z-20">
-                  {currentPhotos.map((_, dotIdx) => (
-                    <button
-                      key={`dot-${dotIdx}`}
-                      type="button"
-                      onClick={() => setPreviewPhotoIndex(dotIdx)}
-                      className={`h-1 flex-1 rounded-full transition-all cursor-pointer ${
-                        previewPhotoIndex === dotIdx ? 'bg-white shadow-xs' : 'bg-white/35'
-                      }`}
-                    />
-                  ))}
-                </div>
-
-                {/* Compatibility Beacon Badge */}
-                <div className="absolute top-6 left-3 z-10">
-                  <div className="bg-black/80 backdrop-blur-md border border-white/[0.07] px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold text-white flex items-center gap-1.5 shadow-lg">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                    <span>99% MATCH</span>
-                  </div>
-                </div>
-
-                {/* Bottom Shadow Gradient & Details */}
-                <div className="absolute bottom-0 inset-x-0 h-48 bg-gradient-to-t from-black via-black/60 to-transparent pointer-events-none" />
-
-                <div className="absolute bottom-3 inset-x-3 z-10 text-left space-y-1.5">
-                  <div className="flex items-center gap-1.5">
-                    <h4 className="text-sm font-tactical font-black text-white uppercase tracking-tight">
-                      {buddy.displayName || 'Jordan Vance'}, {buddy.age || 27}
-                    </h4>
-                    {buddy.isVerifiedBadge && (
-                      <CheckCircle2 className="w-4 h-4 text-emerald-400 fill-emerald-400/20" />
-                    )}
-                  </div>
-
-                  <div className="text-[10px] text-neutral-300 flex items-center gap-1 font-mono">
-                    <MapPin className="w-3 h-3 text-o1-crimson shrink-0" />
-                    <span>{buddy.homeGym || 'Oblivion 1 • Downtown'} • 0.8 km away</span>
-                  </div>
-
-                  {/* Badges */}
-                  <div className="flex flex-wrap gap-1 pt-0.5">
-                    <span className="px-2 py-0.5 rounded-full bg-o1-crimson text-white text-[9px] font-tactical font-bold uppercase">
-                      {buddy.intent === 'both'
-                        ? 'Workout & Dating'
-                        : buddy.intent === 'partner'
-                        ? 'Training Partner'
-                        : buddy.intent === 'dating'
-                        ? 'Fitness Dating'
-                        : 'Race Team'}
-                    </span>
-                    {buddy.selectedDisciplines.slice(0, 2).map((d) => (
-                      <span
-                        key={d}
-                        className="px-2 py-0.5 rounded-full bg-white/20 backdrop-blur-xs text-white text-[9px] font-mono font-semibold"
-                      >
-                        {d}
-                      </span>
-                    ))}
-                  </div>
-
-                  {/* Bio */}
-                  <p className="text-[10.5px] text-neutral-300 font-sans line-clamp-2 leading-tight pt-0.5">
-                    "{buddy.partnerBio}"
-                  </p>
-
-                  {/* PR Telemetry Box */}
-                  {buddy.showLiftsOnRadar && (
-                    <div className="p-2 rounded-xl bg-black/60 backdrop-blur-md border border-white/[0.07] grid grid-cols-3 gap-1 text-center font-mono">
-                      <div>
-                        <span className="text-[8px] text-neutral-400 uppercase block">Squat</span>
-                        <span className="text-[10px] font-bold text-white">180 KG</span>
-                      </div>
-                      <div>
-                        <span className="text-[8px] text-neutral-400 uppercase block">Bench</span>
-                        <span className="text-[10px] font-bold text-white">140 KG</span>
-                      </div>
-                      <div>
-                        <span className="text-[8px] text-neutral-400 uppercase block">Deadlift</span>
-                        <span className="text-[10px] font-bold text-white">225 KG</span>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
             </div>
           )}
 
           {/* ========================================================================= */}
           {/* TAB: FILTERS                                                              */}
           {/* ========================================================================= */}
-          {topTab === 'FILTERS' && (
+          {false && topTab === 'FILTERS' && (
             <div className="space-y-4 animate-in fade-in duration-150">
               {/* Intent */}
               <div className="bg-o1-card p-4 rounded-2xl border border-white/[0.07] space-y-3 shadow-xs">
                 <div>
-                  <h3 className="text-xs font-tactical font-bold uppercase tracking-wider text-white">
+                  <h3 className="text-xs font-tactical font-bold tracking-wider text-white">
                     Relationship &amp; Partner Intent
                   </h3>
                   <p className="text-[10px] text-neutral-400 font-sans">
@@ -792,7 +630,7 @@ export const RadarProfileStudioModal: React.FC<Props> = ({
 
               {/* Looking For */}
               <div className="bg-o1-card p-4 rounded-2xl border border-white/[0.07] space-y-2.5 shadow-xs">
-                <h3 className="text-xs font-tactical font-bold uppercase tracking-wider text-white">
+                <h3 className="text-xs font-tactical font-bold tracking-wider text-white">
                   Looking For
                 </h3>
                 <div className="grid grid-cols-3 gap-2 bg-o1-well p-1 rounded-2xl border border-white/[0.07]">
@@ -822,7 +660,7 @@ export const RadarProfileStudioModal: React.FC<Props> = ({
               {/* Maximum Distance */}
               <div className="bg-o1-card p-4 rounded-2xl border border-white/[0.07] space-y-3 shadow-xs">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-xs font-tactical font-bold uppercase tracking-wider text-white">
+                  <h3 className="text-xs font-tactical font-bold tracking-wider text-white">
                     Maximum Distance
                   </h3>
                   <span className="text-xs font-mono font-bold text-o1-crimson">
@@ -870,7 +708,7 @@ export const RadarProfileStudioModal: React.FC<Props> = ({
                 return (
                   <div className="bg-o1-card p-4 rounded-2xl border border-white/[0.07] space-y-3 shadow-xs">
                     <div className="flex items-center justify-between">
-                      <h3 className="text-xs font-tactical font-bold uppercase tracking-wider text-white">
+                      <h3 className="text-xs font-tactical font-bold tracking-wider text-white">
                         Age Range
                       </h3>
                       <span className="text-xs font-mono font-bold text-o1-crimson">
@@ -937,7 +775,7 @@ export const RadarProfileStudioModal: React.FC<Props> = ({
 
               {/* Workout Schedule */}
               <div className="bg-o1-card p-4 rounded-2xl border border-white/[0.07] space-y-2.5 shadow-xs">
-                <h3 className="text-xs font-tactical font-bold uppercase tracking-wider text-white">
+                <h3 className="text-xs font-tactical font-bold tracking-wider text-white">
                   Workout Schedule
                 </h3>
                 <div className="flex flex-wrap gap-1.5">
@@ -964,27 +802,13 @@ export const RadarProfileStudioModal: React.FC<Props> = ({
           )}
         </div>
 
-        {/* BOTTOM FIXED ACTION FOOTER: SPLIT INTO 2 CAPSULES [ PREVIEW ] and [ DONE ] */}
-        <div className="p-3 bg-o1-card border-t border-white/[0.05] shrink-0 grid grid-cols-2 gap-2.5">
-          <button
-            type="button"
-            onClick={handleTogglePreview}
-            className={`py-3 rounded-full text-xs font-tactical font-bold uppercase tracking-wider transition active:scale-95 cursor-pointer flex items-center justify-center gap-1.5 ${
-              profileViewMode === 'PREVIEW'
-                ? 'bg-white text-neutral-900 shadow-sm'
-                : 'bg-o1-well hover:bg-white/[0.06] border border-white/[0.07] text-white'
-            }`}
-          >
-            <Eye className="w-3.5 h-3.5 text-o1-crimson" />
-            <span>{profileViewMode === 'PREVIEW' ? 'Edit' : 'Preview'}</span>
-          </button>
-
+        <div className="shrink-0 border-t border-white/[0.05] bg-o1-card p-3">
           <button
             type="button"
             onClick={handleDone}
-            className="py-3 rounded-full bg-o1-crimson hover:bg-o1-crimson-hover text-white text-xs font-tactical font-bold uppercase tracking-wider shadow-md shadow-red-950/30 active:scale-95 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+            className="flex w-full items-center justify-center rounded-full bg-o1-crimson py-3 text-[13px] font-semibold text-white"
           >
-            <span>Done</span>
+            Done
           </button>
         </div>
       </div>

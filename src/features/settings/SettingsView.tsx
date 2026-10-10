@@ -45,11 +45,11 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ onClose, onLogout, o
   return (
     <div className="w-full max-w-lg mx-auto p-4 space-y-4 text-white select-none pb-12">
       <div className="flex items-center justify-between py-2 border-b border-white/[0.05]">
-        <button type="button" onClick={handleSafeClose} className="flex items-center gap-1.5 text-neutral-400 hover:text-white text-xs font-mono uppercase transition active:scale-95 cursor-pointer">
+        <button type="button" onClick={handleSafeClose} className="flex items-center gap-1.5 text-neutral-400 hover:text-white text-xs font-mono transition active:scale-95 cursor-pointer">
           <ChevronLeft className="w-4 h-4 text-o1-crimson" />
           <span>Dashboard</span>
         </button>
-        <button type="button" onClick={handleSafeClose} className="text-xs font-mono font-bold text-o1-crimson hover:text-o1-crimson-hover flex items-center gap-1 uppercase transition active:scale-95 cursor-pointer">
+        <button type="button" onClick={handleSafeClose} className="text-xs font-mono font-bold text-o1-crimson hover:text-o1-crimson-hover flex items-center gap-1 transition active:scale-95 cursor-pointer">
           <Check className="w-3.5 h-3.5" />
           <span>Done</span>
         </button>
@@ -59,49 +59,48 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ onClose, onLogout, o
       <div className="bg-o1-card border border-white/[0.07] rounded-2xl p-5 shadow-2xl space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-red-950/40 border border-red-900/60 text-o1-crimson flex items-center justify-center font-bold font-mono">
+            <div className="w-10 h-10 rounded-2xl bg-o1-well border border-white/[0.07] text-white flex items-center justify-center font-sans font-semibold">
               O1
             </div>
             <div>
-              <h3 className="text-sm font-bold font-mono uppercase text-white">Athlete Sanctuary</h3>
-              <p className="text-[11px] font-mono text-neutral-400 truncate max-w-[200px]">{activeEmail}</p>
+              <h3 className="text-sm font-sans font-semibold text-white">Athlete Sanctuary</h3>
+              <p className="text-[11px] font-sans text-neutral-400 truncate max-w-[200px]">{activeEmail}</p>
             </div>
           </div>
-          <span className="text-[9px] font-mono uppercase bg-emerald-950/60 border border-emerald-800/60 text-emerald-400 px-2 py-0.5 rounded-full font-bold">Verified</span>
+          <span className="inline-flex items-center gap-1.5 text-[11px] font-sans text-neutral-400 shrink-0">
+            <span className="w-1.5 h-1.5 rounded-full bg-o1-ok" />
+            Verified
+          </span>
         </div>
 
         {/* Vault Export & Explicit Sign Out */}
-        <div className="grid grid-cols-2 gap-2 pt-2">
-          <button type="button" onClick={settings.handleExportVault} className="py-2.5 px-3 rounded-xl border border-white/[0.07] bg-o1-well hover:bg-white/[0.06] text-neutral-200 text-xs font-mono font-semibold uppercase flex items-center justify-center gap-1.5 transition-all active:scale-95 cursor-pointer">
+        <div className="flex flex-wrap justify-center gap-2 pt-2">
+          <button type="button" onClick={settings.handleExportVault} className="o1-pill border border-white/[0.07] bg-o1-well hover:bg-white/[0.06] text-neutral-200 text-xs font-sans font-semibold transition-all active:scale-95 cursor-pointer">
             <Download className="w-3.5 h-3.5 text-o1-crimson" />
-            <span>Vault Backup</span>
+            <span>Vault backup</span>
           </button>
-          <button type="button" onClick={handleExplicitSignOut} className="py-2.5 px-3 rounded-xl border border-white/[0.07] bg-o1-well hover:bg-white/[0.06] text-neutral-200 text-xs font-mono font-semibold uppercase flex items-center justify-center gap-1.5 transition-all active:scale-95 cursor-pointer">
+          <button type="button" onClick={handleExplicitSignOut} className="o1-pill border border-white/[0.07] bg-o1-well hover:bg-white/[0.06] text-neutral-200 text-xs font-sans font-semibold transition-all active:scale-95 cursor-pointer">
             <LogOut className="w-3.5 h-3.5 text-neutral-400" />
-            <span>Sign Out</span>
+            <span>Sign out</span>
           </button>
-        </div>
-
-        {/* Dedicated Erase Account Button */}
-        <div className="pt-2 border-t border-white/[0.05]">
-          <button type="button" onClick={() => { tactileEngine.triggerSelectionBuzz(); settings.setShowDeleteConfirm(true); }} className="w-full py-2.5 px-3 rounded-xl border border-red-500/30 bg-red-950/20 hover:bg-red-950/40 text-red-500 hover:text-red-400 text-xs font-mono font-bold uppercase flex items-center justify-center gap-2 transition-all active:scale-98 cursor-pointer">
-            <Trash2 className="w-3.5 h-3.5 text-red-500" />
-            <span>Delete Account &amp; Erase All Data</span>
+          <button type="button" onClick={() => { tactileEngine.triggerSelectionBuzz(); settings.setShowDeleteConfirm(true); }} className="o1-pill border border-o1-crimson/40 bg-transparent hover:bg-o1-crimson/10 text-o1-crimson text-xs font-sans font-semibold transition-all active:scale-95 cursor-pointer">
+            <Trash2 className="w-3.5 h-3.5" />
+            <span>Delete account</span>
           </button>
         </div>
       </div>
 
       {/* Legal & Governance */}
       <div className="bg-o1-card border border-white/[0.07] rounded-2xl p-4 space-y-2">
-        <span className="text-[10px] font-mono uppercase text-neutral-500 font-bold tracking-wider px-1">Legal &amp; Data Governance</span>
-        <div className="grid grid-cols-2 gap-2">
-          <button type="button" onClick={() => { tactileEngine.triggerSelectionBuzz(); setShowTerms(true); }} className="py-2.5 px-3 rounded-xl border border-white/[0.07] bg-o1-well hover:bg-white/[0.06] text-neutral-300 text-xs font-mono flex items-center gap-2 transition cursor-pointer">
+        <span className="text-[10px] font-mono text-neutral-500 font-bold tracking-wider px-1">Legal &amp; Data Governance</span>
+        <div className="flex flex-wrap justify-center gap-2">
+          <button type="button" onClick={() => { tactileEngine.triggerSelectionBuzz(); setShowTerms(true); }} className="o1-pill border border-white/[0.07] bg-o1-well hover:bg-white/[0.06] text-neutral-300 text-xs font-sans cursor-pointer">
             <FileText className="w-3.5 h-3.5 text-neutral-400" />
-            <span>Terms of Service</span>
+            <span>Terms</span>
           </button>
-          <button type="button" onClick={() => { tactileEngine.triggerSelectionBuzz(); setShowPrivacy(true); }} className="py-2.5 px-3 rounded-xl border border-white/[0.07] bg-o1-well hover:bg-white/[0.06] text-neutral-300 text-xs font-mono flex items-center gap-2 transition cursor-pointer">
-            <Lock className="w-3.5 h-3.5 text-[#0EA5E9]" />
-            <span>Privacy Policy</span>
+          <button type="button" onClick={() => { tactileEngine.triggerSelectionBuzz(); setShowPrivacy(true); }} className="o1-pill border border-white/[0.07] bg-o1-well hover:bg-white/[0.06] text-neutral-300 text-xs font-sans cursor-pointer">
+            <Lock className="w-3.5 h-3.5 text-[#4F8F9A]" />
+            <span>Privacy</span>
           </button>
         </div>
       </div>

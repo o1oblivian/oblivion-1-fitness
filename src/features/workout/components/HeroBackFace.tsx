@@ -9,8 +9,12 @@ export interface HeroBackFaceProps {
   activeWallpaper?: string;
   hydrationCurrentL: number;
   waterPct: number;
-  sleepHours?: number;
-  sleepQuality?: number;
+  /** null = nothing logged; rendered as -- */
+  sleepHours?: number | null;
+  sleepQuality?: number | null;
+  restingHr?: number | null;
+  supplementsTaken?: number;
+  supplementsTotal?: number;
   onCycleWallpaper: () => void;
   onFlipBack: () => void;
   onOpenTile: (type: 'hydration' | 'biosync' | 'supplements' | 'sleep') => void;
@@ -22,17 +26,26 @@ export const HeroBackFace: React.FC<HeroBackFaceProps> = ({
   activeWallpaper,
   hydrationCurrentL,
   waterPct,
-  sleepHours = 7.8,
-  sleepQuality = 92,
+  sleepHours = null,
+  sleepQuality = null,
+  restingHr = null,
+  supplementsTaken = 0,
+  supplementsTotal = 0,
   onFlipBack,
   onOpenTile,
   onOpenSettings,
 }) => {
-  // Compute unified restoration / readiness metric
-  const restorationScore = Math.min(
-    100,
-    Math.round((sleepQuality * 0.6) + (Math.min(hydrationCurrentL / 3.0, 1) * 40))
-  );
+  // Restoration needs a logged sleep quality; without it there is nothing honest to score.
+  const restorationScore =
+    sleepQuality === null
+      ? null
+      : Math.min(100, Math.round(sleepQuality * 0.6 + Math.min(hydrationCurrentL / 3.0, 1) * 40));
+  const supplementSub =
+    supplementsTotal === 0
+      ? 'Add your stack'
+      : supplementsTaken >= supplementsTotal
+        ? 'All taken'
+        : `${supplementsTotal - supplementsTaken} pending`;
 
   return (
     <div
@@ -79,8 +92,8 @@ export const HeroBackFace: React.FC<HeroBackFaceProps> = ({
             className="p-1 flex flex-col items-center justify-center gap-1 bg-transparent border-0 cursor-pointer active:scale-90 transition-transform"
           >
             <span className="w-1.5 h-1.5 rounded-full bg-o1-crimson" />
-            <span className="w-1.5 h-1.5 rounded-full bg-[#F59E0B]" />
-            <span className="w-1.5 h-1.5 rounded-full bg-[#059669]" />
+            <span className="w-1.5 h-1.5 rounded-full bg-o1-caution" />
+            <span className="w-1.5 h-1.5 rounded-full bg-o1-ok" />
           </button>
 
           <button
@@ -101,14 +114,16 @@ export const HeroBackFace: React.FC<HeroBackFaceProps> = ({
         {/* Center: Hero Readiness Score & HRV Telemetry (Pure Crisp Nude on Wallpaper) */}
         <div className="flex-1 flex flex-col items-center justify-center my-auto z-10 text-center pointer-events-none">
           <div className="text-6xl sm:text-7xl font-mono font-black text-white tracking-tight">
-            {restorationScore}%
+            {restorationScore === null ? '--' : `${restorationScore}%`}
           </div>
-          <div className="text-o1-crimson font-mono font-extrabold text-[12px] sm:text-[13px] tracking-widest uppercase mt-1">
-            RESTORATION READINESS
+          <div className="text-o1-crimson font-sans font-semibold text-[12px] sm:text-[13px] tracking-normal mt-1">
+            Restoration readiness
           </div>
-          <div className="text-white/85 font-mono text-[11px] font-bold tracking-wider mt-1.5">
-            HRV 74MS <span className="text-white/40 mx-1">•</span> RESTING HR 52BPM
-          </div>
+          {restorationScore === null && (
+            <div className="text-white/70 font-sans text-[11px] font-semibold tracking-normal mt-1.5">
+              Log sleep to unlock
+            </div>
+          )}
         </div>
 
         {/* Bottom: Nude 4-Column Telemetry Matrix (Zero Frames, Zero Fog, Direct on OLED) */}
@@ -123,15 +138,15 @@ export const HeroBackFace: React.FC<HeroBackFaceProps> = ({
             }}
             className="flex flex-col text-left cursor-pointer active:scale-95 transition-all p-1 bg-transparent border-0"
           >
-            <div className="text-[10px] font-mono font-extrabold tracking-widest text-sky-400 flex items-center gap-1.5 uppercase">
+            <div className="text-[10px] font-sans font-semibold tracking-normal text-sky-400 flex items-center gap-1.5">
               <Droplet className="w-3.5 h-3.5 text-sky-400 stroke-[2.8]" />
-              HYDRATION
+              Hydration
             </div>
             <div className="text-sm sm:text-base font-mono font-black text-white tracking-tight mt-0.5">
               {hydrationCurrentL.toFixed(1)}L
             </div>
-            <div className="text-[10px] font-mono font-bold text-white/75 uppercase">
-              {Math.round(waterPct)}% TARGET
+            <div className="text-[10px] font-sans font-medium text-white/75">
+              {Math.round(waterPct)}% target
             </div>
           </button>
 
@@ -145,15 +160,15 @@ export const HeroBackFace: React.FC<HeroBackFaceProps> = ({
             }}
             className="flex flex-col text-left cursor-pointer active:scale-95 transition-all p-1 bg-transparent border-0"
           >
-            <div className="text-[10px] font-mono font-extrabold tracking-widest text-emerald-400 flex items-center gap-1.5 uppercase">
+            <div className="text-[10px] font-sans font-semibold tracking-normal text-emerald-400 flex items-center gap-1.5">
               <Activity className="w-3.5 h-3.5 text-emerald-400 stroke-[2.8]" />
-              BIOSYNC
+              Biosync
             </div>
             <div className="text-sm sm:text-base font-mono font-black text-white tracking-tight mt-0.5">
-              98% OPTIMAL
+              {restingHr === null ? '--' : `${restingHr} BPM`}
             </div>
-            <div className="text-[10px] font-mono font-bold text-white/75 uppercase">
-              HRV 74MS
+            <div className="text-[10px] font-sans font-medium text-white/75">
+              {restingHr === null ? 'No wearable data' : 'Resting HR'}
             </div>
           </button>
 
@@ -167,15 +182,15 @@ export const HeroBackFace: React.FC<HeroBackFaceProps> = ({
             }}
             className="flex flex-col text-left cursor-pointer active:scale-95 transition-all p-1 bg-transparent border-0"
           >
-            <div className="text-[10px] font-mono font-extrabold tracking-widest text-amber-400 flex items-center gap-1.5 uppercase">
+            <div className="text-[10px] font-sans font-semibold tracking-normal text-amber-400 flex items-center gap-1.5">
               <Pill className="w-3.5 h-3.5 text-amber-400 stroke-[2.8]" />
-              SUPPLEMENTS
+              Supplements
             </div>
             <div className="text-sm sm:text-base font-mono font-black text-white tracking-tight mt-0.5">
-              AM STACK
+              {supplementsTotal === 0 ? '--' : `${supplementsTaken}/${supplementsTotal}`}
             </div>
-            <div className="text-[10px] font-mono font-bold text-white/75 uppercase">
-              TAKEN // ON-TRACK
+            <div className="text-[10px] font-sans font-medium text-white/75">
+              {supplementSub}
             </div>
           </button>
 
@@ -189,15 +204,15 @@ export const HeroBackFace: React.FC<HeroBackFaceProps> = ({
             }}
             className="flex flex-col text-left cursor-pointer active:scale-95 transition-all p-1 bg-transparent border-0"
           >
-            <div className="text-[10px] font-mono font-extrabold tracking-widest text-sky-400 flex items-center gap-1.5 uppercase">
+            <div className="text-[10px] font-sans font-semibold tracking-normal text-sky-400 flex items-center gap-1.5">
               <Moon className="w-3.5 h-3.5 text-sky-400 stroke-[2.8]" />
-              SLEEP
+              Sleep
             </div>
             <div className="text-sm sm:text-base font-mono font-black text-white tracking-tight mt-0.5">
-              {sleepHours}H
+              {sleepHours === null ? '--' : `${sleepHours}H`}
             </div>
-            <div className="text-[10px] font-mono font-bold text-white/75 uppercase">
-              {sleepQuality}% RESTFUL
+            <div className="text-[10px] font-sans font-medium text-white/75">
+              {sleepQuality === null ? 'Not logged' : `${sleepQuality}% restful`}
             </div>
           </button>
         </div>

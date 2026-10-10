@@ -81,8 +81,8 @@ export const FuelHeroDashboard: React.FC<FuelHeroDashboardProps> = ({
 
   const macros = [
     { label: 'P', grams: proteinG, target: proteinTarget, color: '#C4121A' },
-    { label: 'C', grams: carbsG, target: carbsTarget, color: '#d97706' },
-    { label: 'F', grams: fatsG, target: fatsTarget, color: '#059669' },
+    { label: 'C', grams: carbsG, target: carbsTarget, color: '#D4A017' },
+    { label: 'F', grams: fatsG, target: fatsTarget, color: '#6B8F5E' },
   ];
 
   return (
@@ -92,7 +92,7 @@ export const FuelHeroDashboard: React.FC<FuelHeroDashboardProps> = ({
     >
       <div className="px-3.5 pt-3.5 pb-3">
         <div className="flex items-center gap-1.5 mb-3">
-          <h1 className="text-[10px] font-medium uppercase tracking-[0.2em] text-neutral-400 mr-1">Fuel</h1>
+          <h1 className="text-[10px] font-medium tracking-[0.2em] text-neutral-400 mr-1">Fuel</h1>
           <button
             type="button"
             onClick={() => {
@@ -194,21 +194,21 @@ export const FuelHeroDashboard: React.FC<FuelHeroDashboardProps> = ({
                 <span className="text-[20px] font-semibold tabular-nums leading-none text-white">
                   {Math.round(remainingKcal).toLocaleString()}
                 </span>
-                <span className="text-[9px] uppercase tracking-wider text-neutral-400 mt-0.5">kcal left</span>
+                <span className="text-[9px] tracking-wider text-neutral-400 mt-0.5">kcal left</span>
               </div>
             </div>
             <div className="flex-1 min-w-0 space-y-2">
               <div className="grid grid-cols-3 gap-1">
                 <div className="text-center">
-                  <p className="text-[9px] uppercase tracking-wide text-neutral-400">Eaten</p>
+                  <p className="text-[9px] tracking-wide text-neutral-400">Eaten</p>
                   <p className="text-[13px] font-semibold tabular-nums">{Math.round(eatenKcal)}</p>
                 </div>
                 <div className="text-center">
-                  <p className="text-[9px] uppercase tracking-wide text-o1-crimson">Burn</p>
+                  <p className="text-[9px] tracking-wide text-o1-crimson">Burn</p>
                   <p className="text-[13px] font-semibold tabular-nums text-o1-crimson">+{Math.round(burnedKcal)}</p>
                 </div>
                 <div className="text-center">
-                  <p className="text-[9px] uppercase tracking-wide text-neutral-400">Goal</p>
+                  <p className="text-[9px] tracking-wide text-neutral-400">Goal</p>
                   <p className="text-[13px] font-semibold tabular-nums">{Math.round(goal)}</p>
                 </div>
               </div>

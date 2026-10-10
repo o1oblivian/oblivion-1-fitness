@@ -1,8 +1,10 @@
 import React from 'react';
-import { X, Award, Dumbbell, Play, ChevronRight, UserCheck, Sparkles, Compass } from 'lucide-react';
+import { X, Award, Play, ChevronRight, Compass } from 'lucide-react';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { useCoachStore } from '../../../stores/useCoachStore';
 import { useWorkoutStore } from '../../workout/store/useWorkoutStore';
+import { getSystemTodayCode, saveAthleteDayRoutine } from '../../workout/services/dayRoutineService';
+import { rememberSession } from '../todaySession';
 import { SplitOption } from '../types';
 
 interface CoachRoutineDispatchModalProps {
@@ -141,9 +143,22 @@ export const CoachRoutineDispatchModal: React.FC<CoachRoutineDispatchModalProps>
       ],
     };
 
-    deployProtocol(fallbackExMap[split]);
+    const exercises = fallbackExMap[split].map((exercise) => ({
+      ...exercise,
+      sets: (exercise.sets || []).map((set: any, index: number) => ({
+        ...set,
+        reps: set.reps || set.targetReps || 0,
+        weightKg: set.weightKg || set.targetWeightKg || 0,
+        weight: set.weightKg || set.targetWeightKg || 0,
+        setNumber: set.setNumber || index + 1,
+        completed: false,
+      })),
+    }));
+    saveAthleteDayRoutine(getSystemTodayCode(), split, exercises);
+    deployProtocol(exercises);
     setActiveSession(true);
-    showToast(`⚡ Initiated ${split} Protocol in Workout Tracker`);
+    rememberSession('saved');
+    showToast(`${split} is stored for today.`);
     onClose();
     onNavigateToWorkout();
   };
@@ -163,11 +178,11 @@ export const CoachRoutineDispatchModal: React.FC<CoachRoutineDispatchModalProps>
               <Award className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="font-bold text-sm text-white uppercase tracking-wider">
-                Coach Workout Dispatch
+              <h3 className="font-bold text-sm text-white tracking-wider">
+                Choose a workout
               </h3>
-              <span className="text-[10px] text-neutral-400 font-mono block">
-                Prescribed Performance Protocol
+              <span className="text-[10px] text-neutral-400 block">
+                Stored on this weekday
               </span>
             </div>
           </div>
@@ -185,7 +200,7 @@ export const CoachRoutineDispatchModal: React.FC<CoachRoutineDispatchModalProps>
         {hasDispatchedWorkout && activeDispatch ? (
           <div className="bg-o1-well border border-white/[0.07] rounded-2xl p-4 space-y-3">
             <div className="flex items-center justify-between">
-              <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-bold uppercase tracking-wider">
+              <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-bold tracking-wider">
                 ● Dispatched by Coach
               </span>
               <span className="text-[10px] font-mono text-neutral-400">
@@ -215,45 +230,30 @@ export const CoachRoutineDispatchModal: React.FC<CoachRoutineDispatchModalProps>
             </button>
           </div>
         ) : (
-          <div className="space-y-3">
-            <div className="p-4 rounded-2xl bg-o1-well border border-white/[0.07] space-y-2">
-              <div className="flex items-center gap-2 text-neutral-200">
-                <UserCheck className="w-4 h-4 text-o1-crimson" />
-                <span className="text-xs font-bold uppercase tracking-wider">
-                  No Active Coach Workout Dispatched
-                </span>
-              </div>
-              <p className="text-xs text-neutral-400 leading-relaxed">
-                You haven&apos;t been assigned a live workout by a coach yet. You can hire a certified coach on the platform or start your chosen split ({selectedSplit}) directly.
-              </p>
-            </div>
-
-            <div className="space-y-2">
+          <div className="space-y-2">
+            {(['Push', 'Pull', 'Legs'] as SplitOption[]).map((split) => (
               <button
+                key={split}
                 type="button"
-                onClick={() => loadFallbackSplit(selectedSplit)}
-                className="w-full py-2.5 px-4 rounded-xl bg-zinc-100 hover:opacity-90 active:scale-[0.98] text-neutral-950 font-semibold text-xs tracking-wide flex items-center justify-between transition-all cursor-pointer"
+                onClick={() => loadFallbackSplit(split)}
+                className="w-full py-2.5 px-4 rounded-xl bg-o1-well hover:bg-white/[0.06] border border-white/[0.07] text-white font-semibold text-xs flex items-center justify-between transition-all cursor-pointer"
               >
-                <div className="flex items-center gap-2">
-                  <Play className="w-3.5 h-3.5 fill-white" />
-                  <span>START {selectedSplit.toUpperCase()} SPLIT NOW</span>
-                </div>
-                <ChevronRight className="w-4 h-4" />
+                <span>{split}</span>
+                <ChevronRight className="w-4 h-4 text-neutral-400" />
               </button>
-
-              <button
-                type="button"
-                onClick={() => {
-                  tactileEngine.triggerSelectionBuzz();
-                  onClose();
-                  onNavigateToCoach();
-                }}
-                className="w-full py-2.5 px-4 rounded-xl bg-white/[0.08] hover:bg-neutral-700 text-neutral-200 font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer border border-white/[0.07]"
-              >
-                <Compass className="w-3.5 h-3.5 text-sky-500" />
-                <span>Browse &amp; Hire Coach in Coach Hub</span>
-              </button>
-            </div>
+            ))}
+            <button
+              type="button"
+              onClick={() => {
+                tactileEngine.triggerSelectionBuzz();
+                onClose();
+                onNavigateToCoach();
+              }}
+              className="w-full py-2.5 px-4 rounded-xl bg-transparent text-neutral-300 font-semibold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer"
+            >
+              <Compass className="w-3.5 h-3.5 text-neutral-400" />
+              <span>Browse programs</span>
+            </button>
           </div>
         )}
       </div>

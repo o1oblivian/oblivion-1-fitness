@@ -66,9 +66,9 @@ export const CoachReelUploadModal: React.FC<CoachReelUploadModalProps> = ({ isOp
     if (!previewUrl || !title.trim()) return;
     tactileEngine.playPRCelebration();
 
-    const authorName = profile?.name || (user?.name ? user.name : 'Verified Coach');
-    const authorHandle = user?.handle ? (user.handle.startsWith('@') ? user.handle : `@${user.handle}`) : '@verified.coach';
-    const authorAvatar = user?.avatarUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80';
+    const authorName = profile?.name || user?.name || 'Coach';
+    const authorHandle = user?.handle ? (user.handle.startsWith('@') ? user.handle : `@${user.handle}`) : '';
+    const authorAvatar = user?.avatarUrl || '';
     const authorId = profile?.id || user?.userId || 'coach_current';
 
     await publishCoachReel({
@@ -94,7 +94,7 @@ export const CoachReelUploadModal: React.FC<CoachReelUploadModalProps> = ({ isOp
               <Film className="w-4 h-4" />
             </div>
             <div>
-              <div className="flex items-center gap-1.5 text-xs font-bold font-tactical uppercase tracking-wider text-white">
+              <div className="flex items-center gap-1.5 text-xs font-bold font-tactical tracking-wider text-white">
                 <span>Upload Vault Directive Reel</span>
                 <ShieldCheck className="w-3.5 h-3.5 text-o1-crimson" />
               </div>

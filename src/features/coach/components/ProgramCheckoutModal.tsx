@@ -69,8 +69,8 @@ export const ProgramCheckoutModal: React.FC<ProgramCheckoutModalProps> = ({
         <div className="p-3.5 px-4 border-b border-white/[0.05] bg-black/90 backdrop-blur-md flex items-center justify-between shrink-0">
           <div className="flex items-center gap-2">
             <ShoppingBag className="w-4 h-4 text-o1-crimson" />
-            <span className="font-tactical font-black text-xs uppercase tracking-[0.16em] text-white">
-              COACH PROGRAM ENROLLMENT
+            <span className="font-tactical font-black text-xs tracking-[0.16em] text-white">
+              Coach Program Enrollment
             </span>
           </div>
           <button
@@ -112,10 +112,10 @@ export const ProgramCheckoutModal: React.FC<ProgramCheckoutModalProps> = ({
 
                 {/* Badges Overlay */}
                 <div className="absolute top-3 left-3 flex items-center gap-1.5">
-                  <span className="px-2.5 py-0.5 rounded-full bg-black/70 backdrop-blur-md border border-white/[0.07] text-[10px] font-mono font-bold text-white uppercase">
+                  <span className="px-2.5 py-0.5 rounded-full bg-black/70 backdrop-blur-md border border-white/[0.07] text-[10px] font-mono font-bold text-white">
                     {program.category}
                   </span>
-                  <span className="px-2 py-0.5 rounded-full bg-o1-crimson text-[9.5px] font-mono font-bold text-white uppercase">
+                  <span className="px-2 py-0.5 rounded-full bg-o1-crimson text-[9.5px] font-mono font-bold text-white">
                     {program.difficulty}
                   </span>
                 </div>
@@ -133,10 +133,10 @@ export const ProgramCheckoutModal: React.FC<ProgramCheckoutModalProps> = ({
                     tactileEngine.triggerImpactPulse();
                     setIsPlayingVideoTeaser(true);
                   }}
-                  className="absolute bottom-3 left-3 flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/75 backdrop-blur-md border border-white/[0.07] text-white text-[10px] font-tactical font-bold uppercase tracking-wider hover:bg-o1-crimson transition-all cursor-pointer shadow-lg active:scale-95"
+                  className="absolute bottom-3 left-3 flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/75 backdrop-blur-md border border-white/[0.07] text-white text-[10px] font-tactical font-bold tracking-wider hover:bg-o1-crimson transition-all cursor-pointer shadow-lg active:scale-95"
                 >
                   <Play className="w-3 h-3 fill-white translate-x-[0.5px]" />
-                  <span>WATCH MOVEMENT TEASER</span>
+                  <span>Watch Movement Teaser</span>
                 </button>
               </>
             )}
@@ -176,8 +176,8 @@ export const ProgramCheckoutModal: React.FC<ProgramCheckoutModalProps> = ({
 
               <div className="min-w-0">
                 <div className="flex items-center gap-1.5">
-                  <span className="text-[9.5px] font-mono font-bold text-o1-crimson uppercase tracking-wider">
-                    HEAD PROTOCOL DESIGNER
+                  <span className="text-[9.5px] font-mono font-bold text-o1-crimson tracking-wider">
+                    Head Protocol Designer
                   </span>
                 </div>
                 <h4 className="text-sm font-tactical font-bold text-white group-hover:text-o1-crimson transition-colors truncate">
@@ -191,16 +191,16 @@ export const ProgramCheckoutModal: React.FC<ProgramCheckoutModalProps> = ({
 
             <button
               type="button"
-              className="px-2.5 py-1.5 rounded-xl bg-white/5 border border-white/[0.07] group-hover:border-o1-crimson/40 text-neutral-300 group-hover:text-white text-[10px] font-mono font-bold uppercase shrink-0 transition"
+              className="px-2.5 py-1.5 rounded-xl bg-white/5 border border-white/[0.07] group-hover:border-o1-crimson/40 text-neutral-300 group-hover:text-white text-[10px] font-mono font-bold shrink-0 transition"
             >
-              PROFILE ↗
+              Profile ↗
             </button>
           </div>
 
           {/* 3. Program Specifications Checklist */}
           <div className="p-3.5 rounded-2xl bg-o1-card border border-white/[0.07] space-y-2">
-            <span className="text-[10px] font-tactical font-bold text-neutral-400 uppercase tracking-wider block">
-              PROTOCOL SPECIFICATIONS
+            <span className="text-[10px] font-tactical font-bold text-neutral-400 tracking-wider block">
+              Protocol Specifications
             </span>
             <div className="space-y-1.5">
               {program.highlights.map((h, i) => (
@@ -216,8 +216,8 @@ export const ProgramCheckoutModal: React.FC<ProgramCheckoutModalProps> = ({
           {program.sampleWeek && program.sampleWeek.length > 0 && (
             <div className="space-y-2.5">
               <div className="flex items-center justify-between">
-                <span className="text-[10px] font-tactical font-bold text-neutral-400 uppercase tracking-wider">
-                  SAMPLE WEEK BLUEPRINT
+                <span className="text-[10px] font-tactical font-bold text-neutral-400 tracking-wider">
+                  Sample Week Blueprint
                 </span>
                 <span className="text-[10px] font-mono text-neutral-400">
                   {program.durationWeeks} Weeks Total Curriculum
@@ -299,8 +299,8 @@ export const ProgramCheckoutModal: React.FC<ProgramCheckoutModalProps> = ({
         {/* Footer Checkout Action */}
         <div className="p-3.5 px-4 border-t border-white/[0.05] bg-black flex items-center justify-between gap-3 shrink-0">
           <div>
-            <span className="text-[9.5px] font-mono uppercase text-neutral-400 block">
-              TOTAL ONE-TIME INVESTMENT
+            <span className="text-[9.5px] font-mono text-neutral-400 block">
+              Total ONE-TIME Investment
             </span>
             <span className="text-xl font-mono font-black text-white">
               ${program.priceUsd}.00
@@ -311,13 +311,13 @@ export const ProgramCheckoutModal: React.FC<ProgramCheckoutModalProps> = ({
             type="button"
             disabled={isProcessing}
             onClick={handleConfirmEnrollment}
-            className="flex-1 py-3 px-4 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover active:scale-[0.98] text-white text-xs font-tactical font-black tracking-wider uppercase transition-all shadow-md cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50"
+            className="flex-1 py-3 px-4 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover active:scale-[0.98] text-white text-xs font-tactical font-black tracking-wider transition-all shadow-md cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50"
           >
             {isProcessing ? (
-              <span>ENROLLING IN PROTOCOL...</span>
+              <span>Enrolling in protocol...</span>
             ) : (
               <>
-                <span>ENROLL IN PROTOCOL</span>
+                <span>Enroll in Protocol</span>
                 <ArrowRight className="w-4 h-4" />
               </>
             )}

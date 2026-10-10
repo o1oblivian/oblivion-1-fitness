@@ -72,6 +72,16 @@ const getStoredWeight = (): number => {
   }
 };
 
+const getStoredTargetWeight = (): number => {
+  if (typeof window === 'undefined') return 0;
+  try {
+    const saved = localStorage.getItem('o1_profile_target_weight');
+    return saved ? Number(saved) : 0;
+  } catch {
+    return 0;
+  }
+};
+
 const getStoredCoachId = (): string | null => {
   if (typeof window === 'undefined') return null;
   try {
@@ -87,7 +97,7 @@ const initialUserState: UserState = {
   name: getStoredName(),
   avatarUrl: getStoredAvatar(),
   weightKg: getStoredWeight(),
-  targetWeightKg: 0,
+  targetWeightKg: getStoredTargetWeight(),
   calibrationProgress: 0,
   readinessScore: 0,
   status: 'Ready',
@@ -123,7 +133,12 @@ const userStore = createStore<UserState, UserActions>(initialUserState, (set) =>
     } catch {}
     set({ weightKg });
   },
-  setTargetWeightKg: (targetWeightKg) => set({ targetWeightKg }),
+  setTargetWeightKg: (targetWeightKg) => {
+    try {
+      localStorage.setItem('o1_profile_target_weight', String(targetWeightKg));
+    } catch {}
+    set({ targetWeightKg });
+  },
   setCalibrationProgress: (calibrationProgress) => set({ calibrationProgress }),
   setReadinessScore: (readinessScore) => set({ readinessScore }),
   updateProfile: (updates) => {
@@ -150,6 +165,11 @@ const userStore = createStore<UserState, UserActions>(initialUserState, (set) =>
     if (updates.weightKg !== undefined) {
       try {
         localStorage.setItem('o1_profile_weight', String(updates.weightKg));
+      } catch {}
+    }
+    if (updates.targetWeightKg !== undefined) {
+      try {
+        localStorage.setItem('o1_profile_target_weight', String(updates.targetWeightKg));
       } catch {}
     }
     set((prev) => ({ ...prev, ...updates }));

@@ -37,10 +37,10 @@ export const BiomechanicsAuditModal: React.FC<BiomechanicsAuditModalProps> = ({
         {/* Header */}
         <div className="flex items-center justify-between border-b border-white/[0.05] pb-3">
           <div>
-            <span className="text-[9px] font-telemetry text-[#0EA5E9] uppercase block font-bold">
-              TACTICAL KINEMATIC AUDIT
+            <span className="text-[9px] font-telemetry text-[#4F8F9A] block font-bold">
+              Tactical Kinematic Audit
             </span>
-            <h3 className="font-tactical text-sm font-bold text-zinc-100 uppercase tracking-wider">
+            <h3 className="font-tactical text-sm font-bold text-zinc-100 tracking-wider">
               Biomechanics // {athlete.callsign}
             </h3>
           </div>
@@ -55,10 +55,10 @@ export const BiomechanicsAuditModal: React.FC<BiomechanicsAuditModalProps> = ({
         {/* Kinematic Wireframe / Joint Angle HUD Simulation */}
         <div className="bg-black border border-white/[0.07] rounded-xl p-3 relative overflow-hidden text-center">
           <div className="flex items-center justify-between text-[9px] font-telemetry text-zinc-400 mb-2">
-            <span>OPTICAL SENSOR: RIG-04</span>
-            <span className="text-[#0EA5E9] flex items-center gap-1 font-semibold">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#0EA5E9] animate-pulse" />
-              120 FPS TRACKING
+            <span>Optical Sensor: RIG-04</span>
+            <span className="text-[#4F8F9A] flex items-center gap-1 font-semibold">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#4F8F9A] animate-pulse" />
+              120 Fps Tracking
             </span>
           </div>
 
@@ -66,24 +66,24 @@ export const BiomechanicsAuditModal: React.FC<BiomechanicsAuditModalProps> = ({
           <div className="w-full h-32 flex items-center justify-center relative">
             <svg className="w-36 h-32" viewBox="0 0 100 100">
               {/* Head */}
-              <circle cx="50" cy="15" r="7" fill="none" stroke="#0EA5E9" strokeWidth="1.5" />
+              <circle cx="50" cy="15" r="7" fill="none" stroke="#4F8F9A" strokeWidth="1.5" />
               {/* Spine */}
-              <line x1="50" y1="22" x2="50" y2="52" stroke="#0EA5E9" strokeWidth="2" />
+              <line x1="50" y1="22" x2="50" y2="52" stroke="#4F8F9A" strokeWidth="2" />
               {/* Barbell Across Shoulders */}
-              <line x1="20" y1="24" x2="80" y2="24" stroke="#EF4444" strokeWidth="2.5" />
-              <circle cx="20" cy="24" r="3" fill="#EF4444" />
-              <circle cx="80" cy="24" r="3" fill="#EF4444" />
+              <line x1="20" y1="24" x2="80" y2="24" stroke="#C4121A" strokeWidth="2.5" />
+              <circle cx="20" cy="24" r="3" fill="#C4121A" />
+              <circle cx="80" cy="24" r="3" fill="#C4121A" />
               {/* Pelvis & Hips */}
-              <circle cx="50" cy="52" r="3" fill="#0EA5E9" />
+              <circle cx="50" cy="52" r="3" fill="#4F8F9A" />
               {/* Femurs / Thighs (Squat Angle) */}
-              <line x1="50" y1="52" x2="35" y2="68" stroke="#0EA5E9" strokeWidth="2" />
-              <line x1="50" y1="52" x2="65" y2="68" stroke="#0EA5E9" strokeWidth="2" />
+              <line x1="50" y1="52" x2="35" y2="68" stroke="#4F8F9A" strokeWidth="2" />
+              <line x1="50" y1="52" x2="65" y2="68" stroke="#4F8F9A" strokeWidth="2" />
               {/* Knees */}
-              <circle cx="35" cy="68" r="3" fill="#0EA5E9" />
-              <circle cx="65" cy="68" r="3" fill="#0EA5E9" />
+              <circle cx="35" cy="68" r="3" fill="#4F8F9A" />
+              <circle cx="65" cy="68" r="3" fill="#4F8F9A" />
               {/* Tibias / Shins */}
-              <line x1="35" y1="68" x2="33" y2="90" stroke="#0EA5E9" strokeWidth="2" />
-              <line x1="65" y1="68" x2="67" y2="90" stroke="#0EA5E9" strokeWidth="2" />
+              <line x1="35" y1="68" x2="33" y2="90" stroke="#4F8F9A" strokeWidth="2" />
+              <line x1="65" y1="68" x2="67" y2="90" stroke="#4F8F9A" strokeWidth="2" />
               {/* Feet Anchors */}
               <line x1="26" y1="90" x2="38" y2="90" stroke="#A1A1AA" strokeWidth="2" />
               <line x1="62" y1="90" x2="74" y2="90" stroke="#A1A1AA" strokeWidth="2" />
@@ -91,10 +91,10 @@ export const BiomechanicsAuditModal: React.FC<BiomechanicsAuditModalProps> = ({
 
             {/* Floating Telemetry Badges */}
             <div className="absolute top-2 left-2 text-[8px] font-telemetry text-left text-zinc-400">
-              HIP ANGLE: <span className="text-white font-bold">118°</span>
+              Hip Angle: <span className="text-white font-bold">118°</span>
             </div>
             <div className="absolute top-2 right-2 text-[8px] font-telemetry text-right text-zinc-400">
-              BAR PATH: <span className="text-[#0EA5E9] font-bold">98.2% TRUE</span>
+              Bar Path: <span className="text-[#4F8F9A] font-bold">98.2% True</span>
             </div>
           </div>
         </div>
@@ -102,37 +102,37 @@ export const BiomechanicsAuditModal: React.FC<BiomechanicsAuditModalProps> = ({
         {/* Joint Angle Telemetry Matrix */}
         <div className="grid grid-cols-2 gap-2 text-left">
           <div className="bg-black p-2.5 rounded-xl border border-white/[0.07]">
-            <span className="text-[8px] font-telemetry text-zinc-400 uppercase block">
+            <span className="text-[8px] font-telemetry text-zinc-400 block">
               Knee Valgus Deviation
             </span>
-            <span className="font-telemetry font-bold text-xs text-[#0EA5E9]">
-              1.8° // NOMINAL
+            <span className="font-telemetry font-bold text-xs text-[#4F8F9A]">
+              1.8° // Nominal
             </span>
           </div>
 
           <div className="bg-black p-2.5 rounded-xl border border-white/[0.07]">
-            <span className="text-[8px] font-telemetry text-zinc-400 uppercase block">
+            <span className="text-[8px] font-telemetry text-zinc-400 block">
               Bar Path Drift
             </span>
-            <span className="font-telemetry font-bold text-xs text-[#0EA5E9]">
+            <span className="font-telemetry font-bold text-xs text-[#4F8F9A]">
               8mm LATERAL
             </span>
           </div>
 
           <div className="bg-black p-2.5 rounded-xl border border-white/[0.07]">
-            <span className="text-[8px] font-telemetry text-zinc-400 uppercase block">
+            <span className="text-[8px] font-telemetry text-zinc-400 block">
               Hip Hinge Depth
             </span>
             <span className="font-telemetry font-bold text-xs text-zinc-200">
-              PARALLEL (118°)
+              Parallel (118°)
             </span>
           </div>
 
           <div className="bg-black p-2.5 rounded-xl border border-white/[0.07]">
-            <span className="text-[8px] font-telemetry text-zinc-400 uppercase block">
+            <span className="text-[8px] font-telemetry text-zinc-400 block">
               Tempo Adherence
             </span>
-            <span className="font-telemetry font-bold text-xs text-[#EF4444]">
+            <span className="font-telemetry font-bold text-xs text-[#C4121A]">
               {athlete.tempoScore}% COMPLIANT
             </span>
           </div>
@@ -140,7 +140,7 @@ export const BiomechanicsAuditModal: React.FC<BiomechanicsAuditModalProps> = ({
 
         {/* Tactical Directive / Coach Feedback Note */}
         <div>
-          <label className="text-[10px] font-tactical uppercase tracking-wider text-zinc-400 block mb-1 font-bold">
+          <label className="text-[10px] font-tactical tracking-wider text-zinc-400 block mb-1 font-bold">
             Coach Tactical Directive & Correction
           </label>
           <textarea
@@ -154,14 +154,14 @@ export const BiomechanicsAuditModal: React.FC<BiomechanicsAuditModalProps> = ({
         {/* Action Button */}
         <div className="pt-1">
           {isAudited ? (
-            <div className="w-full py-2.5 rounded-xl bg-[#0EA5E9] text-black font-tactical text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1.5">
+            <div className="w-full py-2.5 rounded-xl bg-[#4F8F9A] text-black font-tactical text-xs font-bold tracking-wider flex items-center justify-center gap-1.5">
               <CheckCircle2 className="w-4 h-4" />
               <span>Biomechanics Verdict Transmitted!</span>
             </div>
           ) : (
             <button
               onClick={handleDispatch}
-              className="w-full py-2.5 px-4 rounded-xl bg-[#0EA5E9] text-black font-tactical text-xs font-bold uppercase tracking-wider active:scale-95 transition-all flex items-center justify-center gap-2"
+              className="w-full py-2.5 px-4 rounded-xl bg-[#4F8F9A] text-black font-tactical text-xs font-bold tracking-wider active:scale-95 transition-all flex items-center justify-center gap-2"
             >
               <Send className="w-3.5 h-3.5" />
               <span>Dispatch Biomechanics Correction</span>

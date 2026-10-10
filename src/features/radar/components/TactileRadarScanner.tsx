@@ -66,7 +66,7 @@ export const TacticalRadarScanner: React.FC<TacticalRadarScannerProps> = ({
 
       {/* Tactical Status Text Beneath Scanner */}
       <div className="mt-4 px-3 py-1.5 rounded-full bg-o1-well border border-white/[0.07] text-center shadow-xs">
-        <p className="font-mono text-[9.5px] sm:text-[10px] font-bold tracking-wider text-neutral-300 uppercase whitespace-nowrap">
+        <p className="font-mono text-[9.5px] sm:text-[10px] font-bold tracking-wider text-neutral-300 whitespace-nowrap">
           BEACON SEARCH FREQUENCY: ACTIVE // {radiusKm}KM RADIUS
         </p>
       </div>

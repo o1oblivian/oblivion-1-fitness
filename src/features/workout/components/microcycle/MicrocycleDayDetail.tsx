@@ -35,21 +35,21 @@ export const MicrocycleDayDetail: React.FC<MicrocycleDayDetailProps> = ({
       <div className="grid grid-cols-2 gap-2.5">
         {/* 1. TOTAL TONNAGE */}
         <div className="bg-o1-well border border-white/[0.07] rounded-2xl p-3 space-y-1">
-          <span className="text-[10px] text-neutral-400 block font-tactical uppercase tracking-wider font-bold">
-            TOTAL TONNAGE
+          <span className="text-[10px] text-neutral-400 block font-tactical tracking-wider font-bold">
+            Total Tonnage
           </span>
           <span className="font-tactical font-black text-sm text-white block tracking-tight">
             {displayTonnage}
           </span>
-          <span className="text-[11px] font-sans font-medium text-emerald-400 block">
+          <span className="text-[11px] font-sans font-medium text-neutral-400 block">
             Volume target tracked
           </span>
         </div>
 
         {/* 2. MICROCYCLE SETS */}
         <div className="bg-o1-well border border-white/[0.07] rounded-2xl p-3 space-y-1">
-          <span className="text-[10px] text-neutral-400 block font-tactical uppercase tracking-wider font-bold">
-            MICROCYCLE SETS
+          <span className="text-[10px] text-neutral-400 block font-tactical tracking-wider font-bold">
+            Microcycle Sets
           </span>
           <span className="font-tactical font-black text-sm text-white block tracking-tight">
             {displaySets}
@@ -61,10 +61,10 @@ export const MicrocycleDayDetail: React.FC<MicrocycleDayDetailProps> = ({
 
         {/* 3. PEAK STRAIN DAY */}
         <div className="bg-o1-well border border-white/[0.07] rounded-2xl p-3 space-y-1">
-          <span className="text-[10px] text-neutral-400 block font-tactical uppercase tracking-wider font-bold">
-            PEAK STRAIN DAY
+          <span className="text-[10px] text-neutral-400 block font-tactical tracking-wider font-bold">
+            Peak Strain Day
           </span>
-          <span className="font-tactical font-black text-sm text-o1-crimson block tracking-tight">
+          <span className="font-tactical font-black text-sm text-white block tracking-tight">
             {displayPeak}
           </span>
           <span className="text-[11px] font-sans font-medium text-neutral-400 block truncate">
@@ -74,12 +74,12 @@ export const MicrocycleDayDetail: React.FC<MicrocycleDayDetailProps> = ({
 
         {/* 4. ADAPTATION STATUS */}
         <div className="bg-o1-well border border-white/[0.07] rounded-2xl p-3 space-y-1">
-          <span className="text-[10px] text-neutral-400 block font-tactical uppercase tracking-wider font-bold">
-            ADAPTATION STATUS
+          <span className="text-[10px] text-neutral-400 block font-tactical tracking-wider font-bold">
+            Adaptation Status
           </span>
           <div className="flex items-center gap-1.5">
             <ShieldCheck className={`w-4 h-4 ${adaptationLabel === 'Calibrating' ? 'text-zinc-400' : 'text-emerald-400'}`} />
-            <span className={`font-tactical font-semibold text-sm tracking-wide uppercase ${adaptationLabel === 'Calibrating' ? 'text-zinc-400' : 'text-emerald-400'}`}>
+            <span className={`font-tactical font-semibold text-sm tracking-wide ${adaptationLabel === 'Calibrating' ? 'text-zinc-400' : 'text-emerald-400'}`}>
               {adaptationLabel}
             </span>
           </div>
@@ -95,7 +95,7 @@ export const MicrocycleDayDetail: React.FC<MicrocycleDayDetailProps> = ({
           <div className="flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: selectedDay.accentHex }} />
             <div>
-              <span className="text-xs font-tactical font-black text-white uppercase tracking-wider block">
+              <span className="text-xs font-tactical font-black text-white tracking-wider block">
                 {selectedDay.full} • {selectedDay.title}
               </span>
               <span className="text-[10px] font-sans font-medium text-neutral-400">

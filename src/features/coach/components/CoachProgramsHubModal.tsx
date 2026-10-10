@@ -34,6 +34,29 @@ export const CoachProgramsHubModal: React.FC<CoachProgramsHubModalProps> = ({
     } catch {}
     setIsCreatorOpen(false);
     onPublished?.(prog);
+    const id = prog?.id || `prog-${Date.now()}`;
+    const weekOne = Array.isArray(prog?.weeks?.[0]?.days)
+      ? prog.weeks[0].days.map((day: { dayName?: string; splitFocus?: string }) => [day.dayName, day.splitFocus].filter(Boolean).join(' ')).filter(Boolean)
+      : [];
+    void (async () => {
+      const { getAuthenticatedUserId } = await import('../../../services/authUser');
+      const { publishProgram } = await import('../services/coachBridge');
+      const coachId = await getAuthenticatedUserId();
+      if (coachId) {
+        await publishProgram(coachId, {
+          id,
+          title: prog?.title,
+          description: prog?.shortOverview || prog?.description,
+          priceUsd: prog?.priceUsd,
+          trainingDaysPerWeek: prog?.trainingDaysPerWeek,
+          durationWeeks: prog?.durationWeeks,
+          category: prog?.category,
+          coverImage: prog?.coverImage,
+          isFreeCommunity: prog?.isFreeCommunity,
+          weekOne,
+        });
+      }
+    })();
   };
 
   const handleDelete = (id: string, e: React.MouseEvent) => {
@@ -47,7 +70,7 @@ export const CoachProgramsHubModal: React.FC<CoachProgramsHubModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-[95] bg-black/80 backdrop-blur-md flex items-center justify-center p-3 select-none animate-fadeIn">
+    <div className="fixed inset-0 z-[95] bg-black/80 backdrop-blur-sm flex items-center justify-center p-3 select-none animate-fadeIn">
       <div className="w-full max-w-md bg-o1-card border border-white/[0.07] rounded-2xl p-3.5 shadow-2xl space-y-2.5 max-h-[85vh] flex flex-col">
         <div className="flex items-center justify-between border-b border-white/[0.05] pb-2 min-h-[44px]">
           <div className="flex items-center gap-2">
@@ -55,8 +78,8 @@ export const CoachProgramsHubModal: React.FC<CoachProgramsHubModalProps> = ({
               <Layers className="w-4 h-4 stroke-[2.2]" />
             </div>
             <div>
-              <h3 className="font-tactical font-black text-sm uppercase tracking-wider text-white">
-                PROGRAMS HUB
+              <h3 className="font-tactical font-black text-sm tracking-wider text-white">
+                Programs Hub
               </h3>
               <p className="text-[10px] font-mono text-neutral-500">
                 {customPrograms.length} active custom blueprints
@@ -78,7 +101,7 @@ export const CoachProgramsHubModal: React.FC<CoachProgramsHubModalProps> = ({
               <div className="w-10 h-10 rounded-xl bg-white/[0.08] flex items-center justify-center mx-auto text-neutral-400">
                 <Dumbbell className="w-5 h-5" />
               </div>
-              <h4 className="font-tactical font-black text-xs uppercase tracking-wider text-white">
+              <h4 className="font-tactical font-black text-xs tracking-wider text-white">
                 NO BLUEPRINTS PUBLISHED // DRAFT YOUR FIRST ROUTINE
               </h4>
               <p className="text-[11px] text-neutral-400 font-sans max-w-xs mx-auto">
@@ -104,14 +127,16 @@ export const CoachProgramsHubModal: React.FC<CoachProgramsHubModalProps> = ({
                     </span>
                   </div>
                 </div>
-                <button
-                  type="button"
-                  onClick={(e) => handleDelete(prog.id, e)}
-                  className="p-1.5 rounded-lg text-neutral-400 hover:text-red-500 transition cursor-pointer"
-                  title="Delete Draft"
-                >
-                  <Trash2 className="w-3.5 h-3.5" />
-                </button>
+                <div className="flex items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={(e) => handleDelete(prog.id, e)}
+                    className="p-1.5 rounded-lg text-neutral-400 hover:text-red-500 transition cursor-pointer"
+                    title="Delete Draft"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
               </div>
             ))
           )}
@@ -120,10 +145,10 @@ export const CoachProgramsHubModal: React.FC<CoachProgramsHubModalProps> = ({
         <button
           type="button"
           onClick={() => { tactileEngine.triggerSelectionBuzz(); setIsCreatorOpen(true); }}
-          className="w-full py-2.5 px-4 rounded-2xl bg-o1-crimson hover:bg-o1-crimson-hover text-white font-tactical font-black text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-md active:scale-95 transition cursor-pointer"
+          className="w-full py-2.5 px-4 rounded-2xl bg-o1-crimson hover:bg-o1-crimson-hover text-white font-tactical font-black text-xs tracking-wider flex items-center justify-center gap-1.5 shadow-md active:scale-95 transition cursor-pointer"
         >
           <Plus className="w-4 h-4 stroke-[3]" />
-          <span>DRAFT NEW BLUEPRINT</span>
+          <span>Draft New Blueprint</span>
         </button>
       </div>
 

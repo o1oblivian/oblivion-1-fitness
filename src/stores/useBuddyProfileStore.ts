@@ -14,6 +14,8 @@ export interface BuddyProfileState {
   selectedDisciplines: string[];
   intent: BuddyIntent;
   lookingFor: LookingFor;
+  gender: '' | 'women' | 'men';
+  trainingPlace: '' | 'gym' | 'home' | 'outdoors';
   preferredTimes: string[];
   experienceLevel: ExperienceLevel;
   partnerBio: string;
@@ -36,6 +38,8 @@ export interface BuddyProfileActions {
   setSelectedDisciplines: (disciplines: string[]) => void;
   setIntent: (intent: BuddyIntent) => void;
   setLookingFor: (lookingFor: LookingFor) => void;
+  setGender: (gender: '' | 'women' | 'men') => void;
+  setTrainingPlace: (place: '' | 'gym' | 'home' | 'outdoors') => void;
   togglePreferredTime: (time: string) => void;
   setExperienceLevel: (level: ExperienceLevel) => void;
   setPartnerBio: (bio: string) => void;
@@ -64,23 +68,25 @@ const loadSavedBuddyProfile = (): BuddyProfileState => {
   const defaultState: BuddyProfileState = {
     isBuddyProfileActive: true, // Default active on athlete radar
     ghostMode: false,
-    displayName: 'Jordan Vance',
-    age: 27,
-    homeGym: 'Oblivion 1 • Downtown',
-    selectedDisciplines: ['Hypertrophy', 'Hyrox', 'Powerlifting'],
-    intent: 'both',
+    displayName: '',
+    age: 0,
+    homeGym: '',
+    selectedDisciplines: [],
+    intent: 'partner',
     lookingFor: 'all',
-    preferredTimes: ['Morning (5-8 AM)', 'Evening (5-9 PM)'],
-    experienceLevel: 'Advanced',
-    partnerBio: 'High-intensity lifting and tactical conditioning. Looking for a partner or fitness date to push PRs, share spots, and stay accountable.',
+    gender: '',
+    trainingPlace: '',
+    preferredTimes: [],
+    experienceLevel: 'Intermediate',
+    partnerBio: '',
     buddyPhotos: [],
-    favoriteWorkouts: ['Heavy Barbell Squats', 'Incline Dumbbell Press', 'Hyrox Sled Push', 'Deadlifts'],
-    showLiftsOnRadar: true,
-    showVolumeOnRadar: true,
+    favoriteWorkouts: [],
+    showLiftsOnRadar: false,
+    showVolumeOnRadar: false,
     maxDistanceKm: 25,
-    ageRangeMin: 20,
-    ageRangeMax: 38,
-    isVerifiedBadge: true,
+    ageRangeMin: 18,
+    ageRangeMax: 45,
+    isVerifiedBadge: false,
   };
 
   if (typeof window === 'undefined') return defaultState;
@@ -89,6 +95,9 @@ const loadSavedBuddyProfile = (): BuddyProfileState => {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (!saved) return defaultState;
     const parsed = JSON.parse(saved);
+    const stockName = parsed.displayName === 'Jordan Vance';
+    const stockBio = typeof parsed.partnerBio === 'string' && parsed.partnerBio.startsWith('High-intensity lifting');
+    if (stockName || stockBio) return defaultState;
     const loadedPhotos =
       Array.isArray(parsed.buddyPhotos)
         ? parsed.buddyPhotos.filter(
@@ -98,6 +107,8 @@ const loadSavedBuddyProfile = (): BuddyProfileState => {
     return {
       ...defaultState,
       ...parsed,
+      gender: parsed.gender === 'women' || parsed.gender === 'men' ? parsed.gender : '',
+      trainingPlace: parsed.trainingPlace === 'gym' || parsed.trainingPlace === 'home' || parsed.trainingPlace === 'outdoors' ? parsed.trainingPlace : '',
       buddyPhotos: loadedPhotos,
     };
   } catch (err) {
@@ -164,6 +175,18 @@ const buddyStore = createStore<BuddyProfileState, BuddyProfileActions>(
     setLookingFor: (lookingFor) => {
       tactileEngine.triggerSelectionBuzz();
       set({ lookingFor });
+      persistState(get());
+    },
+
+    setGender: (gender) => {
+      tactileEngine.triggerSelectionBuzz();
+      set({ gender });
+      persistState(get());
+    },
+
+    setTrainingPlace: (trainingPlace) => {
+      tactileEngine.triggerSelectionBuzz();
+      set({ trainingPlace });
       persistState(get());
     },
 

@@ -112,7 +112,7 @@ export const CardioConsoleScanModal: React.FC<CardioConsoleScanModalProps> = ({
               <Sparkles className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-sm font-tactical font-black tracking-wider uppercase text-white">
+              <h3 className="text-sm font-tactical font-black tracking-wider text-white">
                 Optical Telemetry Scanner
               </h3>
               <p className="text-[10px] font-mono text-neutral-400">
@@ -140,10 +140,10 @@ export const CardioConsoleScanModal: React.FC<CardioConsoleScanModalProps> = ({
             <button
               type="button"
               onClick={handleSaveTelemetry}
-              className="w-full py-3 px-4 rounded-2xl bg-sky-500 hover:bg-sky-400 text-black font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-95 shadow-md"
+              className="w-full py-3 px-4 rounded-2xl bg-sky-500 hover:bg-sky-400 text-black font-black text-xs tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-95 shadow-md"
             >
               <CheckCircle2 className="w-4 h-4" />
-              <span>SAVE TELEMETRY TO SESSION</span>
+              <span>Save telemetry to session</span>
             </button>
           </div>
         )}

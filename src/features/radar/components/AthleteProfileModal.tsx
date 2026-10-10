@@ -1,5 +1,5 @@
-import React from 'react';
-import { ChevronLeft, MoreVertical, Dumbbell, Star, Clock, Ruler, Scale, MapPin, X, Check } from 'lucide-react';
+import React, { useState } from 'react';
+import { ChevronLeft, MoreVertical, MapPin, X, Check, MessageCircle, Calendar } from 'lucide-react';
 import { Athlete } from '../types';
 import { tactileEngine } from '../../../services/tactileEngine';
 
@@ -8,6 +8,8 @@ interface AthleteProfileModalProps {
   onClose: () => void;
   onPass: (athlete: Athlete) => void;
   onAccept: (athlete: Athlete) => void;
+  onMessage: (athlete: Athlete) => void;
+  onBook: (athlete: Athlete) => void;
 }
 
 export const AthleteProfileModal: React.FC<AthleteProfileModalProps> = ({
@@ -15,25 +17,38 @@ export const AthleteProfileModal: React.FC<AthleteProfileModalProps> = ({
   onClose,
   onPass,
   onAccept,
+  onMessage,
+  onBook,
 }) => {
+  const [menuOpen, setMenuOpen] = useState(false);
   if (!athlete) return null;
 
   const photo = athlete.image_url || athlete.avatar || athlete.photos?.[0] || '';
-  const matchPct = athlete.match_score ?? athlete.matchPercentage ?? 65;
-  const gym = athlete.home_gym || athlete.homeGym || 'Iron Works';
-  const dist = athlete.distance_km ?? athlete.distanceKm ?? 239.1;
-  const discipline = athlete.discipline || athlete.training_discipline || 'Hypertrophy';
-  const level = athlete.experience_level || 'Elite';
-  const timeSlot = athlete.preferred_time || 'Afternoon';
-  const height = (athlete as any).height || '185 cm';
-  const weight = (athlete as any).weight || '90 kg';
-  const age = athlete.age || 33;
+  const matchPct = Number(athlete.match_score ?? athlete.matchPercentage) || 0;
+  const gym = athlete.home_gym || athlete.homeGym || '';
+  const dist = Number(athlete.distance_km ?? athlete.distanceKm);
+  const discipline = athlete.discipline || athlete.training_discipline || '';
+  const level = athlete.experience_level || '';
+  const timeSlot = athlete.preferred_time || '';
+  const age = Number(athlete.age) || 0;
+  const rows = [
+    discipline ? { label: 'Trains', value: discipline } : null,
+    athlete.current_split ? { label: 'Session', value: athlete.current_split } : null,
+    timeSlot ? { label: 'When', value: timeSlot } : null,
+    level ? { label: 'Level', value: level } : null,
+    gym ? { label: 'Gym', value: gym } : null,
+    athlete.looking_for ? { label: 'Looking for', value: athlete.looking_for } : null,
+  ].filter((row): row is { label: string; value: string } => Boolean(row));
+
+  const menu = [
+    { label: 'Message', icon: MessageCircle, run: () => onMessage(athlete) },
+    { label: 'Book a session', icon: Calendar, run: () => onBook(athlete) },
+    { label: 'Pass', icon: X, run: () => onPass(athlete) },
+  ];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 o1-sheet-scrim animate-in fade-in duration-200 select-none">
-      <div className="o1-sheet-card relative bg-o1-card flex flex-col overflow-hidden text-white shadow-xl border border-white/[0.07]">
-        
-        {/* Top App Bar Header */}
+    <div className="fixed inset-0 z-50 flex o1-sheet-scrim o1-page-scrim animate-in fade-in duration-200 select-none">
+      <div className="o1-sheet-card o1-page relative bg-black flex flex-col overflow-hidden text-white">
         <div className="flex items-center justify-between px-4 py-3 bg-black text-white shrink-0 border-b border-white/[0.05]">
           <button
             type="button"
@@ -47,156 +62,102 @@ export const AthleteProfileModal: React.FC<AthleteProfileModalProps> = ({
             <span className="text-xs font-semibold">Back</span>
           </button>
 
-          <span className="text-xs font-mono font-bold uppercase tracking-wider text-neutral-200">
-            ATHLETE PROFILE
-          </span>
+          <span className="text-xs font-semibold text-neutral-200">Athlete Profile</span>
 
           <button
             type="button"
-            onClick={() => tactileEngine.triggerSelectionBuzz()}
-            className="text-neutral-400 hover:text-white p-1 cursor-pointer"
+            aria-label="Profile actions"
+            onClick={() => {
+              tactileEngine.triggerSelectionBuzz();
+              setMenuOpen((open) => !open);
+            }}
+            className="text-neutral-300 hover:text-white p-1 cursor-pointer"
           >
             <MoreVertical className="w-5 h-5" />
           </button>
         </div>
 
-        {/* Scrollable Content */}
-        <div className="flex-1 overflow-y-auto px-4 pt-3 pb-24 space-y-4">
-          {/* Edge-to-Edge Hero Image Card */}
-          <div className="relative aspect-[3/3.8] w-full rounded-2xl overflow-hidden bg-o1-card shadow-md border border-white/[0.07]">
-            <img
-              src={photo}
-              alt={athlete.name}
-              className="w-full h-full object-cover"
-            />
-
-            {/* Gradient Overlays for smooth text readability */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent pointer-events-none" />
-
-            {/* Top-Left: Match Pill (Zero Background, Nude Minimalist) */}
-            <div className="absolute top-4 left-4 z-10">
-              <span
-                className={`inline-flex items-center text-[11px] font-mono font-bold ${
-                  (athlete.is_online ?? true) ? 'text-emerald-500' : 'text-amber-400'
-                }`}
+        {menuOpen && (
+          <div className="absolute right-3 top-14 z-20 w-48 rounded-2xl border border-white/[0.07] bg-[#121214] p-1 shadow-xl">
+            {menu.map((item) => (
+              <button
+                key={item.label}
+                type="button"
+                onClick={() => {
+                  tactileEngine.triggerSelectionBuzz();
+                  setMenuOpen(false);
+                  item.run();
+                }}
+                className="flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-left text-[13px] text-white hover:bg-white/[0.06]"
               >
-                {matchPct}% Match
-              </span>
-            </div>
-
-            {/* Bottom Overlay: Name, Age, Distance, Home Gym */}
-            <div className="absolute bottom-4 left-4 right-4 z-10 text-white space-y-1">
-              <div className="flex flex-wrap items-center gap-2">
-                <h2 className="text-xl font-bold tracking-tight drop-shadow-md">
-                  {athlete.name}, {age}
-                </h2>
-                {Boolean(athlete.is_verified) && (
-                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-950/80 border border-emerald-500/50 text-emerald-400 font-mono text-[9px] font-bold">
-                    <Check className="w-2.5 h-2.5 text-emerald-400 stroke-[3]" />
-                    <span>VERIFIED ATHLETE</span>
-                  </span>
-                )}
-              </div>
-              <div className="flex items-center gap-1.5 text-xs text-neutral-300 drop-shadow-sm font-medium">
-                <MapPin className="w-3.5 h-3.5 text-o1-crimson shrink-0" />
-                <span>{dist} km away · {gym}</span>
-              </div>
-            </div>
+                <item.icon className="h-4 w-4 text-neutral-300" />
+                {item.label}
+              </button>
+            ))}
           </div>
+        )}
 
-          {/* 6-Grid Telemetry Metric Matrix */}
-          <div className="grid grid-cols-3 gap-2.5">
-            {/* 1. Discipline */}
-            <div className="p-3 rounded-2xl bg-o1-card border border-white/[0.07] flex flex-col items-center justify-center text-center shadow-xs">
-              <Dumbbell className="w-4 h-4 text-o1-crimson mb-1 stroke-[2]" />
-              <div className="text-xs font-bold text-white leading-tight">
-                {discipline}
+        <div className="min-h-0 flex-1 px-4 pt-3">
+          <div className="relative h-full overflow-hidden rounded-2xl bg-[#161616]">
+            {photo ? <img src={photo} alt={athlete.name} className="h-full w-full object-cover" /> : null}
+            {matchPct > 0 && (athlete.match_reasons || []).length > 0 ? (
+              <div className="absolute top-4 left-4 z-10">
+                <span className="text-[11px] font-semibold text-white">{matchPct}% match</span>
               </div>
-              <div className="text-[10px] text-neutral-400 font-mono mt-0.5">
-                Discipline
-              </div>
-            </div>
-
-            {/* 2. Level */}
-            <div className="p-3 rounded-2xl bg-o1-card border border-white/[0.07] flex flex-col items-center justify-center text-center shadow-xs">
-              <Star className="w-4 h-4 text-o1-crimson mb-1 stroke-[2]" />
-              <div className="text-xs font-bold text-white leading-tight">
-                {level}
-              </div>
-              <div className="text-[10px] text-neutral-400 font-mono mt-0.5">
-                Level
-              </div>
-            </div>
-
-            {/* 3. Time */}
-            <div className="p-3 rounded-2xl bg-o1-card border border-white/[0.07] flex flex-col items-center justify-center text-center shadow-xs">
-              <Clock className="w-4 h-4 text-o1-crimson mb-1 stroke-[2]" />
-              <div className="text-xs font-bold text-white leading-tight">
-                {timeSlot}
-              </div>
-              <div className="text-[10px] text-neutral-400 font-mono mt-0.5">
-                Time
-              </div>
-            </div>
-
-            {/* 4. Height */}
-            <div className="p-3 rounded-2xl bg-o1-card border border-white/[0.07] flex flex-col items-center justify-center text-center shadow-xs">
-              <Ruler className="w-4 h-4 text-o1-crimson mb-1 stroke-[2]" />
-              <div className="text-xs font-bold text-white leading-tight">
-                {height}
-              </div>
-              <div className="text-[10px] text-neutral-400 font-mono mt-0.5">
-                Height
-              </div>
-            </div>
-
-            {/* 5. Weight */}
-            <div className="p-3 rounded-2xl bg-o1-card border border-white/[0.07] flex flex-col items-center justify-center text-center shadow-xs">
-              <Scale className="w-4 h-4 text-o1-crimson mb-1 stroke-[2]" />
-              <div className="text-xs font-bold text-white leading-tight">
-                {weight}
-              </div>
-              <div className="text-[10px] text-neutral-400 font-mono mt-0.5">
-                Weight
-              </div>
-            </div>
-
-            {/* 6. Gym */}
-            <div className="p-3 rounded-2xl bg-o1-card border border-white/[0.07] flex flex-col items-center justify-center text-center shadow-xs">
-              <MapPin className="w-4 h-4 text-o1-crimson mb-1 stroke-[2]" />
-              <div className="text-xs font-bold text-white leading-tight truncate max-w-[90px]">
-                {gym}
-              </div>
-              <div className="text-[10px] text-neutral-400 font-mono mt-0.5">
-                Gym
-              </div>
-            </div>
+            ) : null}
           </div>
         </div>
 
-        {/* Bottom Floating Dual Pill Actions: Pass & Accept */}
-        <div className="absolute bottom-0 inset-x-0 p-4 bg-gradient-to-t from-[#000000] via-[#000000]/95 to-transparent flex items-center gap-3">
-          {/* Pass Pill Button */}
+        <div className="max-h-[46%] shrink-0 space-y-3 overflow-y-auto px-4 pt-3">
+          <div className="space-y-1">
+            <h2 className="text-xl font-bold tracking-tight text-white">
+              {age >= 18 ? `${athlete.name}, ${age}` : athlete.name}
+            </h2>
+            <div className="flex items-center gap-1.5 text-xs text-neutral-300">
+              <MapPin className="w-3.5 h-3.5 shrink-0 text-o1-crimson" />
+              <span>{Number.isFinite(dist) ? `${dist} km` : 'Distance unknown'}{gym ? ` · ${gym}` : ''}</span>
+            </div>
+            {(athlete.match_reasons || []).length > 0 && (
+              <p className="text-[13px] text-white">{athlete.match_reasons?.join(' · ')}</p>
+            )}
+          </div>
+          {athlete.bio ? (
+            <div className="rounded-2xl border border-white/[0.07] bg-[#121214] p-3">
+              <p className="text-[11px] text-neutral-500">About training</p>
+              <p className="mt-1 text-[14px] leading-relaxed text-white">{athlete.bio}</p>
+            </div>
+          ) : null}
+          {rows.length > 0 && (
+            <div className="divide-y divide-white/[0.06] overflow-hidden rounded-2xl border border-white/[0.07] bg-[#121214]">
+              {rows.map((row) => (
+                <div key={row.label} className="flex items-center justify-between gap-3 px-3 py-2.5">
+                  <span className="text-[12px] text-neutral-400">{row.label}</span>
+                  <span className="text-right text-[13px] font-semibold text-white">{row.value}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="shrink-0 border-t border-white/[0.05] bg-black px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] flex items-center gap-3">
           <button
             type="button"
             onClick={() => {
               tactileEngine.triggerSelectionBuzz();
               onPass(athlete);
             }}
-            className="flex-1 py-3.5 px-4 rounded-full bg-o1-well hover:bg-white/[0.06] text-white border border-white/[0.07] text-xs font-bold uppercase tracking-wider transition active:scale-95 flex items-center justify-center gap-2 cursor-pointer shadow-md"
+            className="flex-1 py-3.5 px-4 rounded-full bg-[#161616] text-white border border-white/[0.07] text-xs font-bold tracking-wider transition active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
           >
             <X className="w-4 h-4 stroke-[2.5]" />
             <span>Pass</span>
           </button>
-
-          {/* Accept / Like Pill Button */}
           <button
             type="button"
             onClick={() => {
               tactileEngine.playPRCelebration();
               onAccept(athlete);
             }}
-            className="flex-1 py-3.5 px-4 rounded-full bg-o1-crimson hover:bg-o1-crimson-hover text-white text-xs font-bold uppercase tracking-wider transition active:scale-95 flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-red-950/40"
+            className="flex-1 py-3.5 px-4 rounded-full bg-o1-crimson hover:bg-o1-crimson-hover text-white text-xs font-bold tracking-wider transition active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
           >
             <Check className="w-4 h-4 stroke-[3]" />
             <span>Accept</span>

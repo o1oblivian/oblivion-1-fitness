@@ -17,12 +17,12 @@ export const AthleteFeaturedProtocols: React.FC<AthleteFeaturedProtocolsProps> =
       <div className="flex items-center justify-between px-0.5">
         <div className="flex items-center gap-2">
           <Flame className="w-4 h-4 text-o1-crimson" />
-          <h3 className="text-xs font-mono font-bold tracking-wider text-white uppercase">
-            FEATURED PROTOCOLS
+          <h3 className="text-xs font-mono font-bold tracking-wider text-white">
+            Featured Protocols
           </h3>
         </div>
-        <span className="text-[10px] font-mono text-neutral-500 uppercase">
-          CLUB PROGRAM STORE
+        <span className="text-[10px] font-mono text-neutral-500">
+          Club Program Store
         </span>
       </div>
 
@@ -45,7 +45,7 @@ export const AthleteFeaturedProtocols: React.FC<AthleteFeaturedProtocolsProps> =
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
                 <div className="absolute top-2 left-2 flex items-center gap-1.5">
-                  <span className="px-2 py-0.5 rounded-full text-[9px] font-mono font-bold bg-o1-crimson text-white uppercase shadow-sm">
+                  <span className="px-2 py-0.5 rounded-full text-[9px] font-mono font-bold bg-o1-crimson text-white shadow-sm">
                     {prog.difficulty}
                   </span>
                 </div>
@@ -71,7 +71,7 @@ export const AthleteFeaturedProtocols: React.FC<AthleteFeaturedProtocolsProps> =
                 <span>By {prog.coachName}</span>
               </div>
               <span className="font-bold text-o1-crimson flex items-center gap-1 group-hover:translate-x-0.5 transition-transform">
-                <span>VIEW</span>
+                <span>View</span>
                 <ArrowRight className="w-3 h-3" />
               </span>
             </div>

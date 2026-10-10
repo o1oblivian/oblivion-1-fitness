@@ -74,19 +74,16 @@ export const SettingsTrainingSection: React.FC<TrainingSectionProps> = ({
 
   return (
     <div className="space-y-2 select-none">
-      <h3 className="text-xs font-tactical tracking-wider text-neutral-400 font-bold uppercase px-1">
+      <h3 className="text-xs font-tactical tracking-wider text-neutral-400 font-bold px-1">
         Training, Schedule &amp; Facility
       </h3>
 
       <div className="bg-o1-card rounded-2xl border border-white/[0.07] shadow-sm p-3 space-y-2.5 text-white transition-colors">
         {/* Primary Discipline */}
         <div>
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-tactical font-semibold text-neutral-100">
+          <div className="mb-2">
+            <span className="text-xs font-sans font-semibold text-neutral-100">
               Primary Discipline
-            </span>
-            <span className="text-[10px] font-tactical font-bold text-o1-crimson uppercase bg-red-950/40 px-2 py-0.5 rounded-full border border-red-900/40">
-              {discipline}
             </span>
           </div>
 
@@ -164,7 +161,7 @@ export const SettingsTrainingSection: React.FC<TrainingSectionProps> = ({
               </span>
             </div>
             <div className="flex items-center gap-1 text-neutral-400 group-hover:text-white shrink-0">
-              <MapPin className="w-3.5 h-3.5 text-o1-crimson" />
+              <MapPin className="w-3.5 h-3.5 text-[#4F8F9A]" />
               <ChevronRight className="w-4 h-4 text-neutral-400" />
             </div>
           </div>
@@ -242,11 +239,11 @@ export const SettingsTrainingSection: React.FC<TrainingSectionProps> = ({
           <div className="o1-sheet-card bg-black border border-white/[0.07] w-full p-5 shadow-xl relative space-y-4 overflow-y-auto text-white">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-red-950/40 border border-red-900/50 flex items-center justify-center text-o1-crimson">
+                <div className="w-8 h-8 rounded-xl bg-o1-well border border-white/[0.07] flex items-center justify-center text-[#4F8F9A]">
                   <MapPin className="w-4 h-4" />
                 </div>
                 <div>
-                  <h3 className="font-tactical font-bold text-sm text-neutral-100 uppercase tracking-wider">
+                  <h3 className="font-tactical font-bold text-sm text-neutral-100 tracking-wider">
                     Select Home Gym Base
                   </h3>
                   <span className="text-[10px] text-neutral-400 font-mono block">
@@ -274,7 +271,7 @@ export const SettingsTrainingSection: React.FC<TrainingSectionProps> = ({
                     onClick={() => handleSelectGym(gym)}
                     className={`w-full p-3 rounded-xl border flex items-center justify-between transition-all cursor-pointer text-left ${
                       isSelected
-                        ? 'border-o1-crimson bg-red-950/20 text-white font-bold'
+                        ? 'border-o1-crimson bg-o1-crimson text-white font-bold'
                         : 'border-white/[0.07] bg-o1-well hover:bg-white/[0.06] text-neutral-300'
                     }`}
                   >
@@ -290,7 +287,7 @@ export const SettingsTrainingSection: React.FC<TrainingSectionProps> = ({
             </div>
 
             <form onSubmit={handleCustomSubmit} className="pt-2 border-t border-white/[0.05] space-y-2">
-              <span className="text-[10px] font-tactical uppercase font-bold text-neutral-400 block tracking-wider">
+              <span className="text-[10px] font-tactical font-bold text-neutral-400 block tracking-wider">
                 Or Enter Custom Location
               </span>
               <div className="flex gap-2">
@@ -303,7 +300,7 @@ export const SettingsTrainingSection: React.FC<TrainingSectionProps> = ({
                 />
                 <button
                   type="submit"
-                  className="px-3.5 py-2 rounded-xl bg-o1-crimson text-white text-xs font-tactical font-bold uppercase cursor-pointer active:scale-95"
+                  className="px-3.5 py-2 rounded-xl bg-o1-crimson text-white text-xs font-tactical font-bold cursor-pointer active:scale-95"
                 >
                   Set
                 </button>

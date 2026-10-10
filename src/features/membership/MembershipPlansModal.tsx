@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { X, Shield, ArrowRight, CheckCircle2, Loader2, AlertCircle } from 'lucide-react';
 import { IAP_PRODUCTS, IAPProductInfo } from '../../types/iap';
 import { AthleteProfile } from '../../types/athlete';
@@ -180,21 +181,21 @@ export const MembershipPlansModal: React.FC<MembershipPlansModalProps> = ({
 
   if (!isOpen) return null;
 
-  return (
+  return createPortal(
     <>
       <div
         id="membership-plans-modal"
-        className="fixed inset-0 z-50 w-full bg-black/70 o1-sheet-scrim flex items-center justify-center select-none animate-in fade-in duration-150 overflow-x-hidden"
+        className="fixed inset-0 z-[80] w-full bg-black o1-sheet-scrim o1-sheet-cover flex items-end justify-center select-none overflow-x-hidden"
         onClick={onClose}
       >
         <div
-          className="o1-sheet-card bg-o1-card border border-white/[0.07] text-white w-full flex flex-col shadow-xl overflow-hidden"
+          className="o1-sheet-card o1-sheet-tall bg-o1-card border border-white/[0.07] text-white w-full flex flex-col shadow-xl overflow-hidden"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
           <div className="flex items-center justify-between px-5 pt-4 pb-3 shrink-0 border-b border-white/[0.05] bg-o1-card">
             <div>
-              <h2 className="text-sm font-bold uppercase text-white tracking-wide">
+              <h2 className="text-sm font-bold text-white tracking-wide">
                 Choose Your Plan
               </h2>
               <p className="text-[11px] text-neutral-400 font-mono">
@@ -242,12 +243,11 @@ export const MembershipPlansModal: React.FC<MembershipPlansModalProps> = ({
               >
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-mono font-bold tracking-wider uppercase text-neutral-300">
-                      LAUNCH SPECIAL • FIRST 5,000
+                    <span className="text-[10px] font-mono font-bold tracking-wider text-neutral-300">
+                      Launch special • first 5,000
                     </span>
-                    <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-mono font-bold bg-o1-crimson/10 text-o1-crimson border border-o1-crimson/30">
-                      <span className="w-1.5 h-1.5 rounded-full bg-o1-crimson animate-pulse" />
-                      5,000 Remaining
+                    <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-sans font-semibold text-[#D4A017] border border-[#D4A017]/40 bg-o1-card">
+                      5,000 remaining
                     </span>
                   </div>
                   <p className="text-[11px] text-neutral-400 mt-0.5 leading-snug">
@@ -282,7 +282,7 @@ export const MembershipPlansModal: React.FC<MembershipPlansModalProps> = ({
 
             {/* Billing Notice */}
             <div className="flex items-start gap-2 pt-1 text-[11px] text-neutral-400 leading-snug">
-              <Shield className="w-4 h-4 text-o1-crimson shrink-0 mt-0.5" />
+              <Shield className="w-4 h-4 text-[#6B8F5E] shrink-0 mt-0.5" />
               <span>
                 {isFreePlanSelected
                   ? userType === 'athletes'
@@ -290,7 +290,7 @@ export const MembershipPlansModal: React.FC<MembershipPlansModalProps> = ({
                     : 'Coach Starter includes up to 5 roster athletes, workout dispatch and the review studio. Program sales carry a 15% platform fee.'
                   : nativeStore
                     ? 'In-App Subscription: Billed via Google Play or Apple App Store. Your Oblivion 1 Club Pass unlocks across all your devices.'
-                    : 'Browser preview checkout unlocks Pro on this device for local testing. Native builds use App Store / Play Billing.'}
+                    : 'Billed by the App Store or Google Play.'}
               </span>
             </div>
 
@@ -307,21 +307,21 @@ export const MembershipPlansModal: React.FC<MembershipPlansModalProps> = ({
               id="btn-subscribe-master"
               onClick={handleMainAction}
               disabled={isPurchasing}
-              className="w-full bg-o1-crimson hover:bg-o1-crimson-hover active:bg-o1-crimson-press text-white font-tactical font-black text-xs uppercase py-3.5 px-4 rounded-2xl transition-all active:scale-[0.98] flex items-center justify-center gap-2 shadow-md cursor-pointer disabled:opacity-50"
+              className="w-full bg-o1-crimson hover:bg-o1-crimson-hover active:bg-o1-crimson-press text-white font-tactical font-black text-xs py-3.5 px-4 rounded-2xl transition-all active:scale-[0.98] flex items-center justify-center gap-2 shadow-md cursor-pointer disabled:opacity-50"
             >
               {isPurchasing ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin text-white" />
-                  <span>{nativeStore ? 'CONNECTING TO STORE BILLING...' : 'UNLOCKING PRO ACCESS...'}</span>
+                  <span>{nativeStore ? 'Connecting to store BILLING...' : 'unlocking pro access...'}</span>
                 </>
               ) : isFreePlanSelected ? (
                 <>
                   <CheckCircle2 className="w-4 h-4" />
-                  <span>CONTINUE WITH FREE</span>
+                  <span>Continue with Free</span>
                 </>
               ) : (
                 <>
-                  <span>{nativeStore ? 'SUBSCRIBE WITH APP STORE / GOOGLE PLAY' : 'SUBSCRIBE'}</span>
+                  <span>{nativeStore ? 'Subscribe with app store / google play' : 'subscribe'}</span>
                   <ArrowRight className="w-4 h-4" />
                 </>
               )}
@@ -329,7 +329,7 @@ export const MembershipPlansModal: React.FC<MembershipPlansModalProps> = ({
 
             {/* Footer Links & Restore */}
             <div className="flex items-center justify-center gap-2.5 text-[10px] font-mono text-neutral-400 flex-wrap">
-              <span>{nativeStore ? 'Google Play / Apple' : 'Local preview'}</span>
+              <span>App Store or Google Play</span>
               <span>•</span>
               <span>Cancel Anytime</span>
               <span>•</span>
@@ -359,7 +359,8 @@ export const MembershipPlansModal: React.FC<MembershipPlansModalProps> = ({
         }}
         onShowToast={onShowToast}
       />
-    </>
+    </>,
+    document.body,
   );
 };
 export default MembershipPlansModal;

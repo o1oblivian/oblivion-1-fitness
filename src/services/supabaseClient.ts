@@ -104,50 +104,85 @@ export async function syncSessionToSupabase(sessionData: WorkoutSessionPayload):
     const { data: authData } = await rawClient.auth.getUser();
     const userId = sessionData.user_id || authData?.user?.id;
     if (!userId || userId === 'default-athlete' || userId === 'athlete-c1') return false;
-    const durationMins = parseInt(sessionData.duration?.replace('m', '') || '45', 10);
-    const durationSeconds = sessionData.duration_seconds || durationMins * 60;
+    const parsedDuration = sessionData.duration
+      ? parseInt(String(sessionData.duration).replace(/[^\d]/g, ''), 10)
+      : NaN;
+    const durationMins = Number.isFinite(parsedDuration) && parsedDuration > 0 ? parsedDuration : 0;
+    const durationSeconds = sessionData.duration_seconds && sessionData.duration_seconds > 0
+      ? sessionData.duration_seconds
+      : durationMins > 0
+        ? durationMins * 60
+        : 0;
     const tonnage = sessionData.tonnage_kg ?? sessionData.tonnageKg ?? 0;
     const totalSets = sessionData.total_sets ?? sessionData.totalSets ?? 0;
     const nowIso = new Date().toISOString();
-    const sessionTitle = sessionData.title || 'Gym Protocol';
+    const sessionTitle = sessionData.title || 'Workout';
 
-    const completedSessionPayload = {
+    const completedSessionPayload: Record<string, unknown> = {
       id: sessionData.id || `session-${Date.now()}`, user_id: userId, client_id: userId, title: sessionTitle,
-      session_name: sessionTitle, duration_seconds: durationSeconds, tonnage_kg: tonnage, volume_kg: tonnage,
-      total_sets: totalSets, strain: sessionData.strain || 14.5, completed_at: nowIso, created_at: nowIso,
+      session_name: sessionTitle, tonnage_kg: tonnage, volume_kg: tonnage,
+      total_sets: totalSets, completed_at: nowIso, created_at: nowIso,
     };
+    if (durationSeconds > 0) completedSessionPayload.duration_seconds = durationSeconds;
+    if (sessionData.strain != null && sessionData.strain > 0) completedSessionPayload.strain = sessionData.strain;
 
-    const sessionRes = await supabase.from('completed_sessions').insert([completedSessionPayload]);
+    const exercises = Array.isArray(sessionData.exercises)
+      ? sessionData.exercises as Array<{
+        name?: string;
+        sets?: Array<{ setNumber?: number; reps?: number; weightKg?: number; weight?: number; rpe?: number; is_pr?: boolean }> | number;
+        reps?: number;
+        weightKg?: number;
+        weight?: number;
+        rpe?: number;
+      }>
+      : [];
+    const logRows = exercises.flatMap((ex, exIdx) => {
+      const setRows = Array.isArray(ex.sets) ? ex.sets : [];
+      const count = setRows.length || Number(ex.sets) || 0;
+      return Array.from({ length: count }, (_, sIdx) => {
+        const set = setRows[sIdx] || {};
+        const reps = Number(set.reps ?? ex.reps ?? 0);
+        const weight = Number(set.weightKg ?? set.weight ?? ex.weightKg ?? ex.weight ?? 0);
+        return {
+          id: `log-${Date.now()}-${exIdx}-${sIdx}-${Math.random().toString(36).slice(2, 7)}`,
+          user_id: userId,
+          session_id: completedSessionPayload.id,
+          exercise_name: ex.name || 'Exercise',
+          set_number: Number(set.setNumber || sIdx + 1),
+          reps: Number.isFinite(reps) ? reps : 0,
+          weight_kg: Number.isFinite(weight) ? weight : 0,
+          rpe: Number(set.rpe ?? ex.rpe ?? 0) || 0,
+          is_pr: Boolean(set.is_pr),
+          created_at: nowIso,
+        };
+      });
+    });
+    const prCount = logRows.filter((row) => row.is_pr).length;
+    if (prCount > 0) completedSessionPayload.pr_count = prCount;
+
+    let sessionRes = await supabase.from('completed_sessions').insert([completedSessionPayload]);
+    if (sessionRes.error && /pr_count/i.test(sessionRes.error.message)) {
+      const { pr_count: _count, ...withoutPr } = completedSessionPayload;
+      void _count;
+      sessionRes = await supabase.from('completed_sessions').insert([withoutPr]);
+    }
     if (sessionRes.error) {
       console.error('[Supabase] completed_sessions insert failed:', sessionRes.error);
       return false;
     }
-    if (Array.isArray(sessionData.exercises) && sessionData.exercises.length > 0) {
-      const logRows = sessionData.exercises.flatMap((ex: any) => {
-        const setRows = Array.isArray(ex.sets) ? ex.sets : [];
-        const count = setRows.length || Number(ex.sets) || 1;
-        return Array.from({ length: count }, (_, sIdx) => {
-          const set = setRows[sIdx] || {};
-          return {
-            id: `log-${Date.now()}-${sIdx}-${Math.random().toString(36).slice(2, 7)}`,
-            user_id: userId,
-            session_id: completedSessionPayload.id,
-            exercise_name: ex.name || 'Exercise',
-            set_number: Number(set.setNumber || sIdx + 1),
-            reps: Number(set.reps ?? ex.reps ?? 0),
-            weight_kg: Number(set.weightKg ?? set.weight ?? ex.weightKg ?? ex.weight ?? 0),
-            rpe: Number(set.rpe ?? ex.rpe ?? 0),
-            created_at: new Date().toISOString(),
-          };
-        });
-      });
-      const logsRes = await supabase.from('workout_logs').insert(logRows);
+    if (logRows.length > 0) {
+      let logsRes = await supabase.from('workout_logs').insert(logRows);
+      if (logsRes.error && /is_pr/i.test(logsRes.error.message)) {
+        logsRes = await supabase.from('workout_logs').insert(logRows.map(({ is_pr: _flag, ...row }) => row));
+      }
       if (logsRes.error) {
         console.error('[Supabase] workout_logs insert failed:', logsRes.error);
         return false;
       }
     }
-    const sessionsRes = await supabase.from('workout_sessions').insert([{ ...completedSessionPayload, exercises: sessionData.exercises || [] }]);
+    const { pr_count: omittedPrCount, ...sessionRow } = completedSessionPayload;
+    void omittedPrCount;
+    const sessionsRes = await supabase.from('workout_sessions').insert([{ ...sessionRow, exercises: sessionData.exercises || [] }]);
     if (sessionsRes.error) {
       console.error('[Supabase] workout_sessions insert failed:', sessionsRes.error);
       return false;

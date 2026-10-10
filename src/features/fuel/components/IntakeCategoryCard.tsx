@@ -121,7 +121,7 @@ export const IntakeCategoryCard: React.FC<IntakeCategoryCardProps> = ({
           {renderIconBox()}
           <div>
             <div className="flex items-center gap-1.5">
-              <h4 className="font-tactical font-black text-xs uppercase tracking-wider text-white">
+              <h4 className="font-tactical font-black text-xs tracking-wider text-white">
                 {category}
               </h4>
               {isExpanded ? (
@@ -144,7 +144,7 @@ export const IntakeCategoryCard: React.FC<IntakeCategoryCardProps> = ({
               tactileEngine.triggerSelectionBuzz();
               onAddFood(category);
             }}
-            className="py-1 px-2.5 rounded-xl bg-o1-well hover:bg-white/[0.06] text-neutral-200 hover:text-white border border-white/[0.07] text-[10px] font-tactical font-black uppercase tracking-wider flex items-center gap-1 transition-all active:scale-95 shadow-xs cursor-pointer"
+            className="py-1 px-2.5 rounded-xl bg-o1-well hover:bg-white/[0.06] text-neutral-200 hover:text-white border border-white/[0.07] text-[10px] font-tactical font-black tracking-wider flex items-center gap-1 transition-all active:scale-95 shadow-xs cursor-pointer"
           >
             <Plus className="w-3.5 h-3.5 text-o1-crimson" />
             <span>+ Add</span>

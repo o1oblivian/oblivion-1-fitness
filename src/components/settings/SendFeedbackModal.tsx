@@ -43,7 +43,7 @@ export const SendFeedbackModal: React.FC<SendFeedbackModalProps> = ({
               <MessageSquare className="w-4 h-4 text-emerald-500" />
             </div>
             <div>
-              <h2 className="text-sm font-bold uppercase tracking-wider font-tactical">Athlete Feedback Desk</h2>
+              <h2 className="text-sm font-bold tracking-wider font-tactical">Athlete Feedback Desk</h2>
               <p className="text-[10px] font-mono text-neutral-500">Shape the Next Oblivion 1 Release</p>
             </div>
           </div>
@@ -58,7 +58,7 @@ export const SendFeedbackModal: React.FC<SendFeedbackModalProps> = ({
 
         <form onSubmit={handleSubmit} className="py-4 space-y-3 flex-1 overflow-y-auto no-scrollbar">
           <div className="space-y-1 text-center">
-            <label className="text-[10px] font-tactical uppercase font-bold text-neutral-500">Rate Athlete Experience</label>
+            <label className="text-[10px] font-tactical font-bold text-neutral-500">Rate Athlete Experience</label>
             <div className="flex justify-center gap-2 pt-1">
               {[1, 2, 3, 4, 5].map((s) => (
                 <button
@@ -74,7 +74,7 @@ export const SendFeedbackModal: React.FC<SendFeedbackModalProps> = ({
           </div>
 
           <div className="space-y-1">
-            <label className="text-[10px] font-tactical uppercase font-bold text-neutral-500">Feature Focus</label>
+            <label className="text-[10px] font-tactical font-bold text-neutral-500">Feature Focus</label>
             <div className="flex flex-wrap gap-1.5">
               {CATEGORIES.map((cat) => (
                 <button
@@ -94,7 +94,7 @@ export const SendFeedbackModal: React.FC<SendFeedbackModalProps> = ({
           </div>
 
           <div className="space-y-1">
-            <label className="text-[10px] font-tactical uppercase font-bold text-neutral-500">Feedback or Feature Request</label>
+            <label className="text-[10px] font-tactical font-bold text-neutral-500">Feedback or Feature Request</label>
             <textarea
               required
               rows={4}
@@ -108,7 +108,7 @@ export const SendFeedbackModal: React.FC<SendFeedbackModalProps> = ({
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-tactical font-semibold uppercase tracking-wider transition flex items-center justify-center gap-2 cursor-pointer active:scale-95 disabled:opacity-50"
+            className="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-tactical font-semibold tracking-wider transition flex items-center justify-center gap-2 cursor-pointer active:scale-95 disabled:opacity-50"
           >
             <Send className="w-3.5 h-3.5" />
             <span>{isSubmitting ? 'Submitting...' : 'Submit Feedback'}</span>

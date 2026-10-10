@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import type { User, Session, AuthError } from '@supabase/supabase-js';
 import { supabase } from '../services/supabaseClient';
 import { safeStorage } from '../utils/safeStorage';
+import { useUserStore } from './useUserStore';
 
 export interface AuthProfile {
   id?: string;
@@ -66,6 +67,7 @@ export const useAuthStore = create<AuthState>((set) => ({
           error: null,
         });
         safeStorage.setItem('o1fc_user_id', data.session.user.id);
+        useUserStore.getState().setUserId(data.session.user.id);
         if (data.session.user.email) safeStorage.setItem('o1fc_user_email', data.session.user.email);
       } else {
         set({ user: null, session: null, isAuthenticated: false, isLoading: false });
@@ -81,6 +83,7 @@ export const useAuthStore = create<AuthState>((set) => ({
             error: null,
           });
           safeStorage.setItem('o1fc_user_id', session.user.id);
+          useUserStore.getState().setUserId(session.user.id);
           if (session.user.email) safeStorage.setItem('o1fc_user_email', session.user.email);
         } else if (event === 'SIGNED_OUT') {
           safeStorage.removeItem('o1fc_auth_token');
@@ -96,6 +99,7 @@ export const useAuthStore = create<AuthState>((set) => ({
             error: null,
           });
           safeStorage.setItem('o1fc_user_id', session.user.id);
+          useUserStore.getState().setUserId(session.user.id);
           if (session.user.email) safeStorage.setItem('o1fc_user_email', session.user.email);
         } else if (event === 'INITIAL_SESSION' && !session) {
           set({ user: null, session: null, isAuthenticated: false, isLoading: false });
@@ -120,6 +124,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       }
       if (data?.user) {
         safeStorage.setItem('o1fc_user_id', data.user.id);
+        useUserStore.getState().setUserId(data.user.id);
         if (data.user.email) safeStorage.setItem('o1fc_user_email', data.user.email);
         safeStorage.setItem('o1fc_onboarding_completed', 'true');
         set({ user: data.user, session: data.session, isAuthenticated: true, isLoading: false, error: null });
@@ -149,6 +154,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       }
       if (data?.session && data.user) {
         safeStorage.setItem('o1fc_user_id', data.user.id);
+        useUserStore.getState().setUserId(data.user.id);
         if (data.user.email) safeStorage.setItem('o1fc_user_email', data.user.email);
         safeStorage.setItem('o1fc_onboarding_completed', 'true');
         set({ user: data.user, session: data.session, isAuthenticated: true, isLoading: false, error: null });

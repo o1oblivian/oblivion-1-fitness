@@ -3,13 +3,6 @@ import {
   X,
   Search,
   Calendar,
-  MapPin,
-  Clock,
-  Dumbbell,
-  ShieldCheck,
-  CheckCircle2,
-  Users,
-  Compass,
   ArrowRight,
   Globe2,
   Navigation,
@@ -19,7 +12,6 @@ import {
 import { tactileEngine } from '../../../services/tactileEngine';
 import { PremiumPlaneIcon, TacticalPlaceBeaconIcon } from './RadarIcons';
 import { useRadarStore } from '../../../stores/useRadarStore';
-import { supabase } from '../../../services/supabaseClient';
 
 interface Props {
   isOpen: boolean;
@@ -240,12 +232,7 @@ export const TravelHubModal: React.FC<Props> = ({ isOpen, onClose, onSelectDesti
   const [arrivalDate, setArrivalDate] = useState(storeArrivalDate);
   const [departureDate, setDepartureDate] = useState(storeDepartureDate);
 
-  // Willing to travel to meet radius in destination city
   const [radiusKm, setRadiusKm] = useState<number>(storeTravelRadius);
-
-  // Live Supabase query state
-  const [isQueryingSupabase, setIsQueryingSupabase] = useState(false);
-  const [remoteAthletesCount, setRemoteAthletesCount] = useState<number | null>(null);
 
   // Codes derived dynamically
   const originCode = useMemo(() => deriveCityCode(originCity), [originCity]);
@@ -260,9 +247,9 @@ export const TravelHubModal: React.FC<Props> = ({ isOpen, onClose, onSelectDesti
         country: destinationCountry,
         code: destinationCode,
         flag: '🌍',
-        partnerGyms: [`${destinationCity} Athletics Hub`, 'Central Strength Facility', 'World Gym Pro'],
-        athletesCount: 32,
-        featuredGym: `${destinationCity} High-Performance Center`,
+        partnerGyms: [],
+        athletesCount: 0,
+        featuredGym: '',
         lat: -33.8688,
         lng: 151.2093,
         timezone: 'Local Time (Destination)',
@@ -278,9 +265,9 @@ export const TravelHubModal: React.FC<Props> = ({ isOpen, onClose, onSelectDesti
         country: originCountry,
         code: originCode,
         flag: '📍',
-        partnerGyms: [`${originCity} Base Club`],
-        athletesCount: 38,
-        featuredGym: `${originCity} Origin Base`,
+        partnerGyms: [],
+        athletesCount: 0,
+        featuredGym: '',
         lat: -37.8136,
         lng: 144.9631,
         timezone: 'Local Time (Origin)',
@@ -290,6 +277,7 @@ export const TravelHubModal: React.FC<Props> = ({ isOpen, onClose, onSelectDesti
 
   // Compute calculated flight distance
   const routeDistanceKm = useMemo(() => {
+    if (!originCity.trim() || !destinationCity.trim()) return null;
     if (originCity.toLowerCase() === destinationCity.toLowerCase()) return 0;
     return computeDistanceKm(
       currentOriginHub.lat,
@@ -308,41 +296,6 @@ export const TravelHubModal: React.FC<Props> = ({ isOpen, onClose, onSelectDesti
     end.setDate(start.getDate() + days);
     setDepartureDate(end.toISOString().split('T')[0]);
   }, [tripPreset, arrivalDate]);
-
-  // Genuine Supabase live query for destination athletes
-  useEffect(() => {
-    if (!isOpen) return;
-    let isCancelled = false;
-    setIsQueryingSupabase(true);
-
-    const queryDestination = async () => {
-      try {
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('id, handle, settings')
-          .limit(20);
-
-        if (!isCancelled) {
-          setIsQueryingSupabase(false);
-          if (!error && data && data.length > 0) {
-            setRemoteAthletesCount(currentDestinationHub.athletesCount + data.length);
-          } else {
-            setRemoteAthletesCount(currentDestinationHub.athletesCount);
-          }
-        }
-      } catch {
-        if (!isCancelled) {
-          setIsQueryingSupabase(false);
-          setRemoteAthletesCount(currentDestinationHub.athletesCount);
-        }
-      }
-    };
-
-    queryDestination();
-    return () => {
-      isCancelled = true;
-    };
-  }, [currentDestinationHub, isOpen]);
 
   // Filtered featured hubs based on dedicated search bar
   const filteredHubs = useMemo(() => {
@@ -376,6 +329,7 @@ export const TravelHubModal: React.FC<Props> = ({ isOpen, onClose, onSelectDesti
   };
 
   const handleActivate = () => {
+    if (!destinationCity.trim()) return;
     tactileEngine.playPRCelebration();
     setTravelDetails({
       travelOrigin: originCity,
@@ -386,6 +340,8 @@ export const TravelHubModal: React.FC<Props> = ({ isOpen, onClose, onSelectDesti
       travelDepartureDate: departureDate,
       travelRadiusKm: radiusKm,
       radiusKm: radiusKm,
+      travelLat: currentDestinationHub.lat,
+      travelLng: currentDestinationHub.lng,
     });
     onSelectDestination?.(destinationCity, radiusKm, originCity);
     onClose();
@@ -405,11 +361,11 @@ export const TravelHubModal: React.FC<Props> = ({ isOpen, onClose, onSelectDesti
             </div>
             <div>
               <div className="flex items-center gap-1.5">
-                <span className="text-[11px] font-mono font-black tracking-wider uppercase text-white">
-                  TRAVEL RADAR CORRIDOR
+                <span className="text-[11px] font-mono font-black tracking-wider text-white">
+                  Travel Radar Corridor
                 </span>
                 <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-o1-crimson/10 text-o1-crimson font-bold border border-o1-crimson/20">
-                  EDITABLE CORRIDOR
+                  Editable Corridor
                 </span>
               </div>
               <p className="text-[11px] text-neutral-400 font-mono">
@@ -445,8 +401,8 @@ export const TravelHubModal: React.FC<Props> = ({ isOpen, onClose, onSelectDesti
               <div className="flex-1 space-y-1">
                 <div className="flex items-center gap-1">
                   <TacticalPlaceBeaconIcon className="w-3 h-3 text-o1-crimson" />
-                  <span className="text-[9px] font-mono uppercase tracking-wider text-neutral-400 font-bold">
-                    ORIGIN (TAP TO EDIT)
+                  <span className="text-[9px] font-mono tracking-wider text-neutral-400 font-bold">
+                    Origin (tap to edit)
                   </span>
                 </div>
 
@@ -475,12 +431,14 @@ export const TravelHubModal: React.FC<Props> = ({ isOpen, onClose, onSelectDesti
                     className="text-left group cursor-pointer block w-full hover:opacity-85 transition"
                   >
                     <div className="text-xl font-black font-mono tracking-tight text-white flex items-center gap-1.5">
-                      <span>{originCode}</span>
+                      <span>{originCity.trim() ? originCode : 'Set origin'}</span>
                       <Edit2 className="w-3 h-3 opacity-40 group-hover:opacity-100 text-o1-crimson" />
                     </div>
-                    <div className="text-xs text-neutral-400 font-medium truncate">
-                      {originCity}, {originCountry}
-                    </div>
+                    {originCity.trim() && (
+                      <div className="text-xs text-neutral-400 font-medium truncate">
+                        {originCity}{originCountry ? `, ${originCountry}` : ''}
+                      </div>
+                    )}
                   </button>
                 )}
               </div>
@@ -488,7 +446,7 @@ export const TravelHubModal: React.FC<Props> = ({ isOpen, onClose, onSelectDesti
               {/* Center Supersonic Flight Vector */}
               <div className="px-2 flex flex-col items-center shrink-0">
                 <div className="flex items-center gap-1 text-[10px] font-mono text-neutral-400 mb-0.5">
-                  <span>{routeDistanceKm === 0 ? 'SAME CITY' : `${routeDistanceKm.toLocaleString()} KM`}</span>
+                  <span>{routeDistanceKm == null ? '' : routeDistanceKm === 0 ? 'Same city' : `${routeDistanceKm.toLocaleString()} km`}</span>
                 </div>
                 <div className="w-24 flex items-center gap-1">
                   <div className="h-[2px] flex-1 bg-neutral-700" />
@@ -497,16 +455,16 @@ export const TravelHubModal: React.FC<Props> = ({ isOpen, onClose, onSelectDesti
                   </div>
                   <div className="h-[2px] flex-1 border-t-2 border-dashed border-white/[0.07]" />
                 </div>
-                <span className="text-[8px] font-mono text-o1-crimson font-bold mt-1 tracking-wider uppercase">
-                  ACTIVE RADAR
+                <span className="text-[8px] font-mono text-o1-crimson font-bold mt-1 tracking-wider">
+                  Active Radar
                 </span>
               </div>
 
               {/* EDITABLE DESTINATION */}
               <div className="flex-1 space-y-1 text-right">
                 <div className="flex items-center justify-end gap-1">
-                  <span className="text-[9px] font-mono uppercase tracking-wider text-neutral-400 font-bold">
-                    DESTINATION (TAP TO EDIT)
+                  <span className="text-[9px] font-mono tracking-wider text-neutral-400 font-bold">
+                    Destination (tap to edit)
                   </span>
                   <Globe2 className="w-3 h-3 text-o1-crimson" />
                 </div>
@@ -537,28 +495,22 @@ export const TravelHubModal: React.FC<Props> = ({ isOpen, onClose, onSelectDesti
                   >
                     <div className="text-xl font-black font-mono tracking-tight text-white flex items-center justify-end gap-1.5">
                       <Edit2 className="w-3 h-3 opacity-40 group-hover:opacity-100 text-o1-crimson" />
-                      <span>{currentDestinationHub.flag}</span>
-                      <span>{destinationCode}</span>
+                      {destinationCity.trim() ? (
+                        <>
+                          <span>{currentDestinationHub.flag}</span>
+                          <span>{destinationCode}</span>
+                        </>
+                      ) : (
+                        <span>Set city</span>
+                      )}
                     </div>
-                    <div className="text-xs text-neutral-400 font-medium truncate">
-                      {destinationCity}, {destinationCountry}
-                    </div>
+                    {destinationCity.trim() && (
+                      <div className="text-xs text-neutral-400 font-medium truncate">
+                        {destinationCity}{destinationCountry ? `, ${destinationCountry}` : ''}
+                      </div>
+                    )}
                   </button>
                 )}
-              </div>
-            </div>
-
-            {/* Reciprocity Highlights Row */}
-            <div className="mt-3 pt-3 border-t border-white/[0.05] flex items-center justify-between text-xs font-mono">
-              <div className="flex items-center gap-1.5 text-neutral-300">
-                <ShieldCheck className="w-4 h-4 text-emerald-400" />
-                <span className="font-sans font-semibold text-[11px]">Free Partner Gym Reciprocity</span>
-              </div>
-              <div className="flex items-center gap-1.5 text-neutral-300">
-                <Users className="w-3.5 h-3.5 text-o1-crimson" />
-                <span className="font-mono text-[11px] font-bold">
-                  {remoteAthletesCount ?? currentDestinationHub.athletesCount} Athletes in {destinationCity}
-                </span>
               </div>
             </div>
           </div>
@@ -566,7 +518,7 @@ export const TravelHubModal: React.FC<Props> = ({ isOpen, onClose, onSelectDesti
           {/* WILLING TO TRAVEL TO MEET RADIUS (KMs SLIDER & PRESETS) */}
           <div className="rounded-2xl bg-o1-well border border-white/[0.07] p-4 space-y-2.5">
             <div className="flex items-center justify-between">
-              <label className="text-[10px] font-mono uppercase font-bold text-neutral-400 tracking-wider flex items-center gap-1.5">
+              <label className="text-[10px] font-mono font-bold text-neutral-400 tracking-wider flex items-center gap-1.5">
                 <Navigation className="w-3.5 h-3.5 text-o1-crimson" />
                 <span>WILLING TO TRAVEL TO MEET IN {destinationCity.toUpperCase()}</span>
               </label>
@@ -614,12 +566,12 @@ export const TravelHubModal: React.FC<Props> = ({ isOpen, onClose, onSelectDesti
           {/* Interactive Travel Dates & Stay Length Matrix */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <label className="text-[10px] font-mono uppercase font-bold text-neutral-400 tracking-wider flex items-center gap-1">
+              <label className="text-[10px] font-mono font-bold text-neutral-400 tracking-wider flex items-center gap-1">
                 <Calendar className="w-3 h-3 text-o1-crimson" />
-                <span>TRIP TIMELINE & STAY DURATION</span>
+                <span>Trip timeline & stay duration</span>
               </label>
               <span className="text-[10px] font-mono font-bold text-o1-crimson">
-                {daysCount} {daysCount === 1 ? 'DAY' : 'DAYS'} IN {destinationCity.toUpperCase()}
+                {daysCount} {daysCount === 1 ? 'Day' : 'days'} IN {destinationCity.toUpperCase()}
               </span>
             </div>
 
@@ -652,8 +604,8 @@ export const TravelHubModal: React.FC<Props> = ({ isOpen, onClose, onSelectDesti
             {/* Calendar Inputs */}
             <div className="grid grid-cols-2 gap-2.5 pt-1">
               <div className="space-y-1">
-                <span className="text-[9px] font-mono uppercase font-semibold text-neutral-400">
-                  ARRIVAL DATE
+                <span className="text-[9px] font-mono font-semibold text-neutral-400">
+                  Arrival Date
                 </span>
                 <input
                   type="date"
@@ -667,8 +619,8 @@ export const TravelHubModal: React.FC<Props> = ({ isOpen, onClose, onSelectDesti
               </div>
 
               <div className="space-y-1">
-                <span className="text-[9px] font-mono uppercase font-semibold text-neutral-400">
-                  DEPARTURE DATE
+                <span className="text-[9px] font-mono font-semibold text-neutral-400">
+                  Departure Date
                 </span>
                 <input
                   type="date"
@@ -686,8 +638,8 @@ export const TravelHubModal: React.FC<Props> = ({ isOpen, onClose, onSelectDesti
           {/* Quick Hub Grid / Presets */}
           <div className="space-y-1.5">
             <div className="flex items-center justify-between">
-              <label className="text-[10px] font-mono uppercase font-bold text-neutral-400 tracking-wider">
-                OR SELECT POPULAR DESTINATION CORRIDORS
+              <label className="text-[10px] font-mono font-bold text-neutral-400 tracking-wider">
+                Or select popular destination corridors
               </label>
               <span className="text-[10px] font-mono text-neutral-400">
                 {filteredHubs.length} hubs
@@ -743,61 +695,13 @@ export const TravelHubModal: React.FC<Props> = ({ isOpen, onClose, onSelectDesti
                       <div className="text-xs font-bold truncate leading-tight font-sans">
                         {hub.name}
                       </div>
-                      <div
-                        className={`text-[10px] font-mono truncate mt-0.5 ${
-                          isSelected ? 'text-white/80' : 'text-neutral-400'
-                        }`}
-                      >
-                        {hub.athletesCount} athletes
+                      <div className={`text-[10px] truncate mt-0.5 ${isSelected ? 'text-white/80' : 'text-neutral-400'}`}>
+                        {hub.country}
                       </div>
                     </div>
                   </button>
                 );
               })}
-            </div>
-          </div>
-
-          {/* Selected Destination Partner Gym & Facility Preview */}
-          <div className="rounded-2xl bg-o1-well border border-white/[0.07] p-3.5 space-y-2">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-1.5 text-[10px] font-mono font-bold uppercase text-neutral-400">
-                <Dumbbell className="w-3.5 h-3.5 text-o1-crimson" />
-                <span>AFFILIATED CLUBS IN {destinationCity.toUpperCase()}</span>
-              </div>
-              <span className="text-[10px] font-mono text-emerald-400 font-bold flex items-center gap-1">
-                <CheckCircle2 className="w-3 h-3" />
-                <span>$0 DAY PASSES</span>
-              </span>
-            </div>
-
-            <div className="space-y-1.5">
-              <div className="p-2.5 rounded-xl bg-o1-card border border-white/[0.07] flex items-center justify-between">
-                <div>
-                  <div className="text-xs font-bold text-white">
-                    {currentDestinationHub.featuredGym}
-                  </div>
-                  <div className="text-[10px] text-neutral-400 font-mono mt-0.5 flex items-center gap-1">
-                    <Clock className="w-3 h-3 text-neutral-400" />
-                    <span>Timezone: {currentDestinationHub.timezone}</span>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                    INCLUDED
-                  </span>
-                </div>
-              </div>
-
-              <div className="flex flex-wrap gap-1.5 pt-0.5">
-                {currentDestinationHub.partnerGyms.map((gym) => (
-                  <span
-                    key={gym}
-                    className="text-[10px] font-mono px-2 py-0.8 rounded-md bg-o1-card border border-white/[0.07] text-neutral-300"
-                  >
-                    • {gym}
-                  </span>
-                ))}
-              </div>
             </div>
           </div>
         </div>
@@ -807,13 +711,16 @@ export const TravelHubModal: React.FC<Props> = ({ isOpen, onClose, onSelectDesti
           <button
             type="button"
             onClick={handleActivate}
-            className="w-full py-2.5 px-4 rounded-xl bg-zinc-100 hover:bg-white text-neutral-950 text-xs font-semibold tracking-wide active:scale-[0.98] transition flex items-center justify-center gap-2 cursor-pointer"
+            disabled={!destinationCity.trim()}
+            className="w-full py-2.5 px-4 rounded-xl bg-zinc-100 hover:bg-white text-neutral-950 text-xs font-semibold tracking-wide active:scale-[0.98] transition flex items-center justify-center gap-2 cursor-pointer disabled:opacity-40"
           >
-            <PremiumPlaneIcon className="w-4 h-4 text-white" />
+            <PremiumPlaneIcon className="w-4 h-4" />
             <span>
-              LOCK DESTINATION: {originCode} ➔ {destinationCode} ({destinationCity.toUpperCase()}) • {radiusKm} KM RADIUS
+              {destinationCity.trim()
+                ? `${originCity.trim() || 'Here'} to ${destinationCity}, ${radiusKm} km`
+                : 'Choose a city'}
             </span>
-            <ArrowRight className="w-4 h-4 text-white" />
+            <ArrowRight className="w-4 h-4" />
           </button>
         </div>
       </div>

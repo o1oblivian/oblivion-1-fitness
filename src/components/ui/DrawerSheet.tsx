@@ -25,7 +25,7 @@ export const DrawerSheet: React.FC<DrawerSheetProps> = ({
   title,
   subtitle,
   icon,
-  iconContainerClassName = 'p-1.5 rounded-lg bg-[#0EA5E9]/10 text-[#0EA5E9]',
+  iconContainerClassName = 'p-1.5 rounded-lg bg-[#4F8F9A]/10 text-[#4F8F9A]',
   headerRight,
   showSwipeHandle = true,
   showCloseButton = true,
@@ -85,7 +85,7 @@ export const DrawerSheet: React.FC<DrawerSheetProps> = ({
               )}
               <div>
                 {title && (
-                  <h3 className="font-tactical font-black text-sm uppercase tracking-wider text-white">
+                  <h3 className="font-tactical font-black text-sm tracking-wider text-white">
                     {title}
                   </h3>
                 )}

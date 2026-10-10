@@ -75,7 +75,7 @@ export const CoachFullProfileModal: React.FC<CoachFullProfileModalProps> = ({
         <div className="p-3.5 px-4 border-b border-white/[0.05] bg-black/90 backdrop-blur-md flex items-center justify-between z-10 shrink-0">
           <div className="flex items-center gap-2 min-w-0">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
-            <span className="font-tactical font-black text-xs uppercase tracking-[0.16em] text-neutral-200 truncate">
+            <span className="font-tactical font-black text-xs tracking-[0.16em] text-neutral-200 truncate">
               COACH DOSSIER // {coach.name}
             </span>
           </div>
@@ -141,12 +141,12 @@ export const CoachFullProfileModal: React.FC<CoachFullProfileModalProps> = ({
 
             {/* Top Badges */}
             <div className="absolute top-3 left-3 flex items-center gap-1.5">
-              <span className="px-2.5 py-0.5 rounded-full bg-black/70 backdrop-blur-md border border-white/[0.07] text-[10px] font-mono font-bold text-white uppercase flex items-center gap-1">
+              <span className="px-2.5 py-0.5 rounded-full bg-black/70 backdrop-blur-md border border-white/[0.07] text-[10px] font-mono font-bold text-white flex items-center gap-1">
                 <ShieldCheck className="w-3 h-3 text-emerald-500" />
-                VERIFIED PRO COACH
+                Verified Pro Coach
               </span>
-              <span className="px-2 py-0.5 rounded-full bg-o1-crimson text-[9.5px] font-mono font-bold text-white uppercase">
-                O1 10% PARTNER
+              <span className="px-2 py-0.5 rounded-full bg-o1-crimson text-[9.5px] font-mono font-bold text-white">
+                O1 10% Partner
               </span>
             </div>
 
@@ -231,31 +231,31 @@ export const CoachFullProfileModal: React.FC<CoachFullProfileModalProps> = ({
             {/* 3. Physical & Kinematic Benchmarks Telemetry HUD */}
             {coach.physiqueStats && (
               <div className="p-3.5 rounded-2xl bg-o1-card border border-white/[0.07] space-y-2.5">
-                <div className="flex items-center justify-between text-[10px] font-tactical font-black text-neutral-400 uppercase tracking-wider">
+                <div className="flex items-center justify-between text-[10px] font-tactical font-black text-neutral-400 tracking-wider">
                   <span className="flex items-center gap-1.5">
                     <Dumbbell className="w-3.5 h-3.5 text-o1-crimson" />
-                    VERIFIED ATHLETIC & PHYSIQUE TELEMETRY
+                    Verified athletic & physique telemetry
                   </span>
-                  <span className="text-neutral-400 font-tactical font-bold uppercase tracking-wider">
+                  <span className="text-neutral-400 font-tactical font-bold tracking-wider">
                     {coach.physiqueStats.experienceYears} Yrs Coaching
                   </span>
                 </div>
 
                 <div className="grid grid-cols-3 gap-2 text-center">
                   <div className="p-2 rounded-xl bg-black/40 border border-white/[0.07]">
-                    <span className="text-[9px] font-tactical text-neutral-400 uppercase tracking-wider block font-bold">Height</span>
+                    <span className="text-[9px] font-tactical text-neutral-400 tracking-wider block font-bold">Height</span>
                     <span className="text-xs font-tactical font-black text-white block mt-0.5 tracking-tight">
                       {coach.physiqueStats.height || "185 cm"}
                     </span>
                   </div>
                   <div className="p-2 rounded-xl bg-black/40 border border-white/[0.07]">
-                    <span className="text-[9px] font-tactical text-neutral-400 uppercase tracking-wider block font-bold">Weight / Comp</span>
+                    <span className="text-[9px] font-tactical text-neutral-400 tracking-wider block font-bold">Weight / Comp</span>
                     <span className="text-xs font-tactical font-black text-white block mt-0.5 tracking-tight">
                       {coach.physiqueStats.weight || "94 kg"}
                     </span>
                   </div>
                   <div className="p-2 rounded-xl bg-black/40 border border-white/[0.07]">
-                    <span className="text-[9px] font-tactical text-neutral-400 uppercase tracking-wider block font-bold">Body Fat Est.</span>
+                    <span className="text-[9px] font-tactical text-neutral-400 tracking-wider block font-bold">Body Fat Est.</span>
                     <span className="text-xs font-tactical font-black text-emerald-400 block mt-0.5 tracking-tight">
                       {coach.physiqueStats.bodyFatEst || "7.2% Stage"}
                     </span>
@@ -267,7 +267,7 @@ export const CoachFullProfileModal: React.FC<CoachFullProfileModalProps> = ({
                   <div className="pt-2 border-t border-white/[0.05] grid grid-cols-2 sm:grid-cols-4 gap-2">
                     {(coach.physiqueStats.competitionLifts ?? []).map((lift) => (
                       <div key={lift.label} className="p-1.5 rounded-lg bg-o1-well border border-white/[0.07]">
-                        <span className="text-[8.5px] font-tactical text-neutral-400 block truncate uppercase font-bold tracking-wider">
+                        <span className="text-[8.5px] font-tactical text-neutral-400 block truncate font-bold tracking-wider">
                           {lift.label}
                         </span>
                         <span className="text-xs font-tactical font-black text-amber-400 block tracking-tight">
@@ -288,7 +288,7 @@ export const CoachFullProfileModal: React.FC<CoachFullProfileModalProps> = ({
                   tactileEngine.triggerSelectionBuzz();
                   setActiveSection('programs');
                 }}
-                className={`py-2 rounded-xl text-xs font-tactical font-bold uppercase tracking-wider transition-all cursor-pointer ${
+                className={`py-2 rounded-xl text-xs font-tactical font-bold tracking-wider transition-all cursor-pointer ${
                   activeSection === 'programs'
                     ? 'bg-o1-crimson text-white shadow-sm'
                     : 'text-neutral-400 hover:text-white'
@@ -302,7 +302,7 @@ export const CoachFullProfileModal: React.FC<CoachFullProfileModalProps> = ({
                   tactileEngine.triggerSelectionBuzz();
                   setActiveSection('reels');
                 }}
-                className={`py-2 rounded-xl text-xs font-tactical font-bold uppercase tracking-wider transition-all cursor-pointer ${
+                className={`py-2 rounded-xl text-xs font-tactical font-bold tracking-wider transition-all cursor-pointer ${
                   activeSection === 'reels'
                     ? 'bg-o1-crimson text-white shadow-sm'
                     : 'text-neutral-400 hover:text-white'
@@ -316,7 +316,7 @@ export const CoachFullProfileModal: React.FC<CoachFullProfileModalProps> = ({
                   tactileEngine.triggerSelectionBuzz();
                   setActiveSection('reviews');
                 }}
-                className={`py-2 rounded-xl text-xs font-tactical font-bold uppercase tracking-wider transition-all cursor-pointer ${
+                className={`py-2 rounded-xl text-xs font-tactical font-bold tracking-wider transition-all cursor-pointer ${
                   activeSection === 'reviews'
                     ? 'bg-o1-crimson text-white shadow-sm'
                     : 'text-neutral-400 hover:text-white'
@@ -330,14 +330,14 @@ export const CoachFullProfileModal: React.FC<CoachFullProfileModalProps> = ({
             {activeSection === 'programs' && (
               <div className="space-y-3 pt-1">
                 <div className="flex items-center justify-between text-[11px] font-mono text-neutral-400">
-                  <span>PUBLISHED PROTOCOLS</span>
+                  <span>Published Protocols</span>
                   <span className="text-o1-crimson font-bold">10% Platform Guarantee</span>
                 </div>
 
                 {displayPrograms.length === 0 ? (
                   <div className="p-8 rounded-2xl bg-o1-card border border-white/[0.07] text-center space-y-2">
                     <Dumbbell className="w-6 h-6 text-neutral-500 mx-auto" />
-                    <h4 className="font-tactical font-black text-xs uppercase tracking-wider text-white">
+                    <h4 className="font-tactical font-black text-xs tracking-wider text-white">
                       NO COACH PROTOCOLS CURRENTLY PUBLISHED
                     </h4>
                     <p className="text-[11px] text-neutral-400">
@@ -366,10 +366,10 @@ export const CoachFullProfileModal: React.FC<CoachFullProfileModalProps> = ({
                       <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
                       
                       <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5">
-                        <span className="px-2 py-0.5 rounded-full bg-black/75 backdrop-blur-md border border-white/[0.07] text-[9.5px] font-mono font-bold text-white uppercase">
+                        <span className="px-2 py-0.5 rounded-full bg-black/75 backdrop-blur-md border border-white/[0.07] text-[9.5px] font-mono font-bold text-white">
                           {prog.category}
                         </span>
-                        <span className="px-2 py-0.5 rounded-full bg-o1-crimson text-[9.5px] font-mono font-bold text-white uppercase">
+                        <span className="px-2 py-0.5 rounded-full bg-o1-crimson text-[9.5px] font-mono font-bold text-white">
                           {prog.difficulty}
                         </span>
                       </div>
@@ -397,20 +397,20 @@ export const CoachFullProfileModal: React.FC<CoachFullProfileModalProps> = ({
                           <span className="text-base font-tactical font-black text-white block tracking-tight">
                             ${prog.priceUsd}.00
                           </span>
-                          <span className="text-[9px] font-tactical font-bold text-neutral-400 uppercase tracking-wider">ONE-TIME</span>
+                          <span className="text-[9px] font-tactical font-bold text-neutral-400 tracking-wider">ONE-TIME</span>
                         </div>
                       </div>
 
                       <div className="pt-2 border-t border-white/[0.05] flex items-center justify-between">
-                        <span className="text-[10px] font-tactical font-bold text-emerald-400 flex items-center gap-1 uppercase tracking-wider">
+                        <span className="text-[10px] font-tactical font-bold text-emerald-400 flex items-center gap-1 tracking-wider">
                           <Check className="w-3 h-3" />
                           Instant Workout Tab Sync
                         </span>
                         <button
                           type="button"
-                          className="px-3 py-1.5 rounded-xl bg-o1-crimson text-white text-[10px] font-tactical font-black uppercase tracking-wider flex items-center gap-1 group-hover:bg-o1-crimson-hover transition"
+                          className="px-3 py-1.5 rounded-xl bg-o1-crimson text-white text-[10px] font-tactical font-black tracking-wider flex items-center gap-1 group-hover:bg-o1-crimson-hover transition"
                         >
-                          <span>ENROLL NOW</span>
+                          <span>Enroll Now</span>
                           <ArrowRight className="w-3 h-3" />
                         </button>
                       </div>
@@ -422,8 +422,8 @@ export const CoachFullProfileModal: React.FC<CoachFullProfileModalProps> = ({
                 {/* 1-on-1 VIP Retainer Card */}
                 <div className="p-4 rounded-2xl bg-gradient-to-br from-neutral-900 via-o1-well to-black border border-o1-crimson/40 space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="px-2.5 py-0.5 rounded-full bg-o1-crimson/20 border border-o1-crimson/40 text-[9.5px] font-tactical font-black tracking-widest text-o1-crimson uppercase">
-                      VIP 1-ON-1 CO-PILOT
+                    <span className="px-2.5 py-0.5 rounded-full bg-o1-crimson/20 border border-o1-crimson/40 text-[9.5px] font-tactical font-black tracking-widest text-o1-crimson">
+                      Vip 1-ON-1 CO-PILOT
                     </span>
                     <span className="text-sm font-tactical font-black text-white tracking-tight">
                       ${coach.pricing.monthlyOneOnOneUsd}/mo
@@ -446,9 +446,9 @@ export const CoachFullProfileModal: React.FC<CoachFullProfileModalProps> = ({
                         onBookCoaching(coach);
                       }
                     }}
-                    className="w-full py-2.5 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover text-white text-xs font-tactical font-black tracking-wider uppercase transition flex items-center justify-center gap-2 cursor-pointer shadow-md"
+                    className="w-full py-2.5 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover text-white text-xs font-tactical font-black tracking-wider transition flex items-center justify-center gap-2 cursor-pointer shadow-md"
                   >
-                    <span>APPLY FOR DIRECT 1-ON-1 ROSTER</span>
+                    <span>Apply for direct 1-ON-1 roster</span>
                     <ArrowRight className="w-3.5 h-3.5" />
                   </button>
                 </div>
@@ -459,7 +459,7 @@ export const CoachFullProfileModal: React.FC<CoachFullProfileModalProps> = ({
             {activeSection === 'reels' && (
               <div className="space-y-3 pt-1">
                 <div className="flex items-center justify-between text-[11px] font-mono text-neutral-400">
-                  <span>COACH WORKOUT & MOVEMENT REELS</span>
+                  <span>Coach workout & movement reels</span>
                   <span className="text-neutral-400">Tap to Watch Video</span>
                 </div>
 
@@ -507,14 +507,14 @@ export const CoachFullProfileModal: React.FC<CoachFullProfileModalProps> = ({
                       </div>
 
                       <div className="absolute bottom-2 left-2 right-2 space-y-1">
-                        <span className="text-[8.5px] font-mono text-o1-crimson font-bold uppercase block">
+                        <span className="text-[8.5px] font-mono text-o1-crimson font-bold block">
                           {reel.exerciseFocus || 'Movement Cue'}
                         </span>
                         <h4 className="text-[11px] font-tactical font-bold text-white line-clamp-2 leading-tight">
                           {reel.title}
                         </h4>
                         <div className="flex items-center justify-between text-[9px] font-mono text-neutral-400 pt-0.5">
-                          <span>{reel.views}</span>
+                          <span>{reel.views && !/[kmb]$/i.test(String(reel.views).trim()) ? reel.views : '--'}</span>
                           <span>{reel.duration || '0:45'}</span>
                         </div>
                       </div>
@@ -527,32 +527,12 @@ export const CoachFullProfileModal: React.FC<CoachFullProfileModalProps> = ({
             {/* SECTION 3: VERIFIED CLIENT REVIEWS */}
             {activeSection === 'reviews' && (
               <div className="space-y-2.5 pt-1">
-                {(reviews.length > 0 ? reviews : [
-                  {
-                    id: 'rev-def-1',
-                    coachId: coach.id,
-                    athleteName: 'Alexander Hayes',
-                    athleteHandle: '@alexhayes_lift',
-                    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80',
-                    rating: 5,
-                    verifiedProgram: 'Hypertrophy Meso A',
-                    date: '2 days ago',
-                    comment: "Marcus’s programming is on another level. The eccentric tempos on bench press immediately broke through my 135kg plateau within week 4. The daily dispatches arrive seamlessly.",
-                    helpfulCount: 28,
-                  },
-                  {
-                    id: 'rev-def-2',
-                    coachId: coach.id,
-                    athleteName: 'Elena Rostova',
-                    athleteHandle: '@rostova_tactical',
-                    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
-                    rating: 5,
-                    verifiedProgram: '1-on-1 VIP Coaching Retainer',
-                    date: '1 week ago',
-                    comment: "The check-in feedback loop is unmatched. When my lower back tightened up during deadlifts, he audited my setup within an hour and replaced the movement with safety squat bar good mornings on my next dispatch.",
-                    helpfulCount: 19,
-                  }
-                ]).map((rev) => (
+                {reviews.length === 0 ? (
+                  <p className="rounded-2xl border border-white/[0.07] bg-black px-3 py-3 text-xs text-[#F2EFE6]">
+                    No reviews yet.
+                  </p>
+                ) : null}
+                {reviews.map((rev) => (
                   <div
                     key={rev.id}
                     className="p-3.5 rounded-2xl bg-o1-card border border-white/[0.07] space-y-2 shadow-sm text-white"
@@ -595,8 +575,8 @@ export const CoachFullProfileModal: React.FC<CoachFullProfileModalProps> = ({
         {/* Footer Fixed Action Strip */}
         <div className="p-3.5 px-4 border-t border-white/[0.05] bg-black flex items-center justify-between gap-3 shrink-0">
           <div>
-            <span className="text-[9.5px] font-mono uppercase text-neutral-400 block">
-              10% CLUB SHARE PLATFORM
+            <span className="text-[9.5px] font-mono text-neutral-400 block">
+              10% club share platform
             </span>
             <span className="text-xs font-mono font-bold text-white">
               Verified Trainer Vault
@@ -615,9 +595,9 @@ export const CoachFullProfileModal: React.FC<CoachFullProfileModalProps> = ({
                 onBookCoaching(coach);
               }
             }}
-            className="py-2.5 px-4 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover active:scale-95 text-white text-xs font-tactical font-black tracking-wider uppercase transition flex items-center gap-2 cursor-pointer shadow-md"
+            className="py-2.5 px-4 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover active:scale-95 text-white text-xs font-tactical font-black tracking-wider transition flex items-center gap-2 cursor-pointer shadow-md"
           >
-            <span>VIEW TOP PROTOCOL</span>
+            <span>View Top Protocol</span>
             <ArrowRight className="w-4 h-4" />
           </button>
         </div>

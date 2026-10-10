@@ -72,7 +72,7 @@ export const Badge: React.FC<BadgeProps> = ({
   return (
     <span
       id={id}
-      className={`inline-flex items-center font-tactical font-bold uppercase rounded-full border select-none transition-all ${selected.container} ${sizeClasses} ${className}`}
+      className={`inline-flex items-center font-tactical font-bold rounded-full border select-none transition-all ${selected.container} ${sizeClasses} ${className}`}
       {...rest}
     >
       {isPulse && (

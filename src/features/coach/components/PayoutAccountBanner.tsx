@@ -57,7 +57,7 @@ export const PayoutAccountBanner: React.FC<Props> = ({ profile, onShowToast }) =
         </div>
         <div>
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-xs font-tactical font-black uppercase tracking-wider text-white">DIRECT PAYOUTS</span>
+            <span className="text-xs font-tactical font-black tracking-wider text-white">Direct Payouts</span>
             <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/40 tracking-wider">
               Payouts Active
             </span>
@@ -80,11 +80,11 @@ export const PayoutAccountBanner: React.FC<Props> = ({ profile, onShowToast }) =
   ) : (
     <div className="bg-black border border-white/[0.07] rounded-2xl p-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
       <div className="flex items-start gap-3">
-        <div className="w-9 h-9 rounded-xl bg-[#F59E0B]/10 border border-[#F59E0B]/30 flex items-center justify-center text-[#F59E0B] shrink-0">
-          <AlertCircle className="w-5 h-5 text-[#F59E0B]" />
+        <div className="w-9 h-9 rounded-xl bg-[#D4A017]/10 border border-[#D4A017]/30 flex items-center justify-center text-[#D4A017] shrink-0">
+          <AlertCircle className="w-5 h-5 text-[#D4A017]" />
         </div>
         <div>
-          <span className="text-xs font-tactical font-black uppercase tracking-wider text-[#F59E0B] block">SETUP BANK PAYOUTS (STRIPE EXPRESS)</span>
+          <span className="text-xs font-tactical font-black tracking-wider text-[#D4A017] block">Setup bank payouts (stripe express)</span>
           <p className="text-xs font-sans text-neutral-300 mt-0.5 font-medium">Link your bank account via Stripe Express to receive direct coaching disbursements.</p>
         </div>
       </div>
@@ -92,10 +92,10 @@ export const PayoutAccountBanner: React.FC<Props> = ({ profile, onShowToast }) =
         type="button"
         disabled={isLoading}
         onClick={handleStartOnboarding}
-        className="shrink-0 px-4 py-2.5 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover text-white text-xs font-tactical font-bold uppercase tracking-wider transition-all cursor-pointer active:scale-95 shadow-md flex items-center justify-center gap-2 disabled:opacity-50"
+        className="shrink-0 px-4 py-2.5 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover text-white text-xs font-tactical font-bold tracking-wider transition-all cursor-pointer active:scale-95 shadow-md flex items-center justify-center gap-2 disabled:opacity-50"
       >
         {isLoading ? <Loader2 className="w-4 h-4 animate-spin text-white" /> : <ShieldCheck className="w-4 h-4 text-white" />}
-        <span>ONBOARD WITH STRIPE</span>
+        <span>Onboard with Stripe</span>
       </button>
     </div>
   );

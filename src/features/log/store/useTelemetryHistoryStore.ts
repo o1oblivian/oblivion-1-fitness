@@ -4,12 +4,21 @@ import { tactileEngine } from '../../../services/tactileEngine';
 
 export type TelemetryCategory = 'workout' | 'cardio' | 'nutrition' | 'sleep' | 'meditation';
 
+export interface LoggedSet {
+  reps: number;
+  weightKg: number;
+}
+
 export interface ExerciseEntry {
   name: string;
   sets: number;
   reps: number;
   weightKg: number;
+  /** Sum of load × reps. Session tonnage can differ when bodyweight is included. */
+  volumeKg?: number;
   completed?: boolean;
+  /** One entry per logged set. Absent on older days that only stored the first set. */
+  setLog?: LoggedSet[];
 }
 
 export interface MealEntry {
@@ -20,6 +29,7 @@ export interface MealEntry {
   carbsG: number;
   fatsG: number;
   time?: string;
+  slot?: 'breakfast' | 'lunch' | 'dinner' | 'snack' | 'drinks' | 'supplements';
 }
 
 export interface WorkoutDayRecord {
@@ -40,6 +50,7 @@ export interface CardioDayRecord {
   avgHeartRateBpm: number;
   zone2Minutes: number;
   activityType: string;
+  steps?: number;
 }
 
 export interface NutritionDayRecord {
@@ -171,20 +182,17 @@ const sanitizeAndMigrateHistory = (
         modified = true;
         const cEx = cardioExs[0];
         const match = cEx.name.match(/\((\d+)m\)/);
-        const duration = match ? parseInt(match[1], 10) : 33;
-        const dist = Number((duration * 0.13).toFixed(1)) || 4.2;
-        const cals = Math.round(duration * 7.5) || 240;
+        const duration = match ? parseInt(match[1], 10) : 0;
 
-        // Populate cardio record if missing or empty
-        if (!day.cardio || !day.cardio.hasData || day.cardio.durationMinutes === 0 || day.cardio.distanceKm === 0) {
+        if (!day.cardio || !day.cardio.hasData) {
           day.cardio = {
             hasData: true,
-            distanceKm: dist,
+            distanceKm: 0,
             durationMinutes: duration,
-            burnedKcal: cals,
-            avgHeartRateBpm: 142,
-            zone2Minutes: Math.round(duration * 0.75),
-            activityType: cEx.name.replace(/^Cardio:\s*/i, '').replace(/\s*\(\d+m\)$/, '') || 'Watch Telemetry',
+            burnedKcal: 0,
+            avgHeartRateBpm: 0,
+            zone2Minutes: 0,
+            activityType: cEx.name.replace(/^Cardio:\s*/i, '').replace(/\s*\(\d+m\)$/, '') || 'Cardio',
           };
         }
 
@@ -228,8 +236,8 @@ const defaultWorkout: WorkoutDayRecord = {
   tonnageKg: 0,
   completedSets: 0,
   durationMinutes: 0,
-  routineName: 'Push Hypertrophy',
-  intensityRpe: 8,
+  routineName: '',
+  intensityRpe: 0,
   exercises: [],
 };
 
@@ -240,7 +248,7 @@ const defaultCardio: CardioDayRecord = {
   burnedKcal: 0,
   avgHeartRateBpm: 0,
   zone2Minutes: 0,
-  activityType: 'Treadmill Incline',
+  activityType: '',
 };
 
 const defaultNutrition: NutritionDayRecord = {
@@ -265,15 +273,15 @@ const defaultSleep: SleepDayRecord = {
   remSleepMinutes: 0,
   sleepEfficiencyPercent: 0,
   restingHeartRate: 0,
-  bedtime: '23:00',
-  wakeTime: '07:00',
+  bedtime: '',
+  wakeTime: '',
 };
 
 const defaultMeditation: MeditationDayRecord = {
   hasData: false,
   minutes: 0,
-  coherence: 'Alpha Wave',
-  protocol: 'Tactical Box Breathing 4-4-4-4',
+  coherence: '',
+  protocol: '',
   sessions: 0,
   hrvScore: 0,
 };
@@ -341,22 +349,28 @@ const telemetryHistoryStore = createStore<TelemetryHistoryState, TelemetryHistor
 
         if (category === 'workout' && (sanitizedRecord as any).exercises) {
           const wr = sanitizedRecord as Partial<WorkoutDayRecord>;
+          const currentLifts = ((currentCategory as WorkoutDayRecord).exercises) || [];
+          const currentHasSets = currentLifts.some((lift) => (lift.setLog?.length || 0) > 0);
+          const incomingHasSets = (wr.exercises || []).some((lift) => (lift.setLog?.length || 0) > 0);
+          if (currentHasSets && !incomingHasSets) wr.exercises = currentLifts;
           const cardioExs = (wr.exercises || []).filter((e) =>
             e.name.toLowerCase().startsWith('cardio:') || e.name.toLowerCase().includes('telemetry')
           );
           if (cardioExs.length > 0) {
             const cEx = cardioExs[0];
             const match = cEx.name.match(/\((\d+)m\)/);
-            const duration = match ? parseInt(match[1], 10) : 33;
-            currentDay.cardio = {
-              hasData: true,
-              distanceKm: Number((duration * 0.13).toFixed(1)) || 4.2,
-              durationMinutes: duration,
-              burnedKcal: Math.round(duration * 7.5) || 240,
-              avgHeartRateBpm: 142,
-              zone2Minutes: Math.round(duration * 0.75),
-              activityType: cEx.name.replace(/^Cardio:\s*/i, '').replace(/\s*\(\d+m\)$/, '') || 'Watch Telemetry',
-            };
+            const duration = match ? parseInt(match[1], 10) : 0;
+            if (!currentDay.cardio?.hasData) {
+              currentDay.cardio = {
+                hasData: true,
+                distanceKm: 0,
+                durationMinutes: duration,
+                burnedKcal: 0,
+                avgHeartRateBpm: 0,
+                zone2Minutes: 0,
+                activityType: cEx.name.replace(/^Cardio:\s*/i, '').replace(/\s*\(\d+m\)$/, '') || 'Cardio',
+              };
+            }
             wr.exercises = (wr.exercises || []).filter(
               (e) => !e.name.toLowerCase().startsWith('cardio:') && !e.name.toLowerCase().includes('telemetry')
             );

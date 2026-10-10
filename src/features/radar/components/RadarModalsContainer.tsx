@@ -12,10 +12,19 @@ interface Props {
   onCloseProfile: () => void;
   onPassProfile: (ath: DemoAthlete) => void;
   onAcceptProfile: (ath: DemoAthlete) => void;
+  onMessageProfile: (ath: DemoAthlete) => void;
+  onBookProfile: (ath: DemoAthlete) => void;
 
   messageTarget: DemoAthlete | null;
+  sessionUserId?: string;
   onCloseMessage: () => void;
   onSendInvite?: (invite: { gym: string; dateTime: string; parity: string }) => void;
+  allowCompose?: boolean;
+  scheduleOpen?: boolean;
+  onUnmatch?: () => void;
+  onBlock?: () => void;
+  onReport?: (reason: string) => void;
+  onLine?: (text: string) => void;
 
   scheduleTarget: DemoAthlete | null;
   onCloseSchedule: () => void;
@@ -50,9 +59,18 @@ export const RadarModalsContainer: React.FC<Props> = ({
   onCloseProfile,
   onPassProfile,
   onAcceptProfile,
+  onMessageProfile,
+  onBookProfile,
   messageTarget,
+  sessionUserId = '',
   onCloseMessage,
   onSendInvite,
+  allowCompose = false,
+  scheduleOpen = false,
+  onUnmatch,
+  onBlock,
+  onReport,
+  onLine,
   scheduleTarget,
   onCloseSchedule,
   onInviteSent,
@@ -92,13 +110,22 @@ export const RadarModalsContainer: React.FC<Props> = ({
         onClose={onCloseProfile}
         onPass={onPassProfile}
         onAccept={onAcceptProfile}
+        onMessage={onMessageProfile}
+        onBook={onBookProfile}
       />
 
       <AthleteMessageModal
         isOpen={Boolean(messageTarget)}
         onClose={onCloseMessage}
         athlete={messageTarget}
+        sessionUserId={sessionUserId}
         onSendInvite={onSendInvite}
+        allowCompose={allowCompose}
+        scheduleOpen={scheduleOpen}
+        onUnmatch={onUnmatch}
+        onBlock={onBlock}
+        onReport={onReport}
+        onLine={onLine}
       />
 
       <ScheduleTrainingModal

@@ -118,7 +118,7 @@ export const WallpaperSelectorModal: React.FC<WallpaperSelectorModalProps> = ({
           <div>
             <h2
               id="wallpaper-settings-title"
-              className="font-tactical font-bold text-sm tracking-wider uppercase text-white leading-tight"
+              className="font-tactical font-bold text-sm tracking-wider text-white leading-tight"
             >
               Workout wallpaper
             </h2>
@@ -146,7 +146,7 @@ export const WallpaperSelectorModal: React.FC<WallpaperSelectorModalProps> = ({
                 <BatteryCharging className="w-4 h-4" />
               </div>
               <div className="min-w-0">
-                <span className="font-tactical font-bold text-xs uppercase tracking-wider text-white block">
+                <span className="font-tactical font-bold text-xs tracking-wider text-white block">
                   Show on console
                 </span>
                 <p className="text-[11px] text-neutral-400">
@@ -165,7 +165,7 @@ export const WallpaperSelectorModal: React.FC<WallpaperSelectorModalProps> = ({
                   key={id}
                   type="button"
                   onClick={() => setTopic(id)}
-                  className={`min-w-0 py-2 rounded-xl text-[9px] font-bold uppercase tracking-wide flex flex-col items-center gap-1 cursor-pointer ${
+                  className={`min-w-0 py-2 rounded-xl text-[9px] font-bold tracking-wide flex flex-col items-center gap-1 cursor-pointer ${
                     active
                       ? 'bg-zinc-100 text-neutral-950'
                       : 'bg-o1-well border border-white/[0.07] text-neutral-400'
@@ -257,7 +257,7 @@ export const WallpaperSelectorModal: React.FC<WallpaperSelectorModalProps> = ({
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Clock className="w-4 h-4 text-neutral-500" />
-                <span className="font-tactical font-bold text-xs uppercase tracking-wider">Auto-rotate</span>
+                <span className="font-tactical font-bold text-xs tracking-wider">Auto-rotate</span>
               </div>
               <span className="text-[10px] font-mono text-neutral-500">
                 {isPaused ? 'Paused' : `${intervalSeconds}s`}

@@ -61,39 +61,42 @@ export const SettingsAlertsFeedbackSection: React.FC<AlertsFeedbackSectionProps>
 
   return (
     <div className="space-y-2 select-none">
-      <h3 className="text-xs font-tactical tracking-wider text-neutral-400 font-bold uppercase px-1">
+      <h3 className="text-xs font-tactical tracking-wider text-neutral-400 font-bold px-1">
         Alerts, Audio &amp; Haptics
       </h3>
 
       <div className="bg-o1-card rounded-2xl border border-white/[0.07] shadow-sm p-3 space-y-2.5 text-white transition-colors">
         {/* OS Push Alerts Master Banner */}
         {!osPushEnabled ? (
-          <div className="bg-red-950/30 border border-red-800/40 rounded-xl p-3 flex items-center justify-between gap-3">
-            <div className="min-w-0">
-              <span className="text-xs font-tactical font-bold uppercase text-red-400 block">
-                Enable OS Push Alerts
-              </span>
-              <span className="text-[11px] font-sans text-neutral-400 block leading-tight">
-                Instant workout reminders on your lock screen
-              </span>
+          <div className="bg-o1-well border border-white/[0.07] rounded-xl p-3 flex items-center justify-between gap-3">
+            <div className="min-w-0 flex items-start gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-o1-crimson mt-1.5 shrink-0" />
+              <div>
+                <span className="text-xs font-sans font-semibold text-white block">
+                  Enable OS Push Alerts
+                </span>
+                <span className="text-[11px] font-sans text-neutral-400 block leading-tight">
+                  Instant workout reminders on your lock screen
+                </span>
+              </div>
             </div>
             <button
               type="button"
               onClick={handlePushClick}
-              className="shrink-0 px-3 py-1.5 rounded-full bg-o1-crimson hover:bg-o1-crimson-hover text-white text-xs font-tactical font-semibold uppercase shadow-xs active:scale-95 transition-all cursor-pointer"
+              className="o1-pill bg-o1-crimson hover:bg-o1-crimson-hover text-white text-xs font-sans font-semibold active:scale-95 cursor-pointer"
             >
-              Allow
+              Enable
             </button>
           </div>
         ) : (
-          <div className="p-2.5 rounded-xl bg-emerald-950/20 border border-emerald-800/30 flex items-center justify-between">
+          <div className="p-2.5 rounded-xl bg-o1-well border border-white/[0.07] flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="text-xs font-tactical font-bold text-emerald-400">
-                OS Push Alerts Active
+              <span className="w-1.5 h-1.5 rounded-full bg-o1-ok" />
+              <span className="text-xs font-sans font-semibold text-white">
+                OS push alerts on
               </span>
             </div>
-            <span className="text-[10px] font-mono text-neutral-400">Lock Screen Enabled</span>
+            <span className="text-[10px] font-sans text-neutral-400">Lock screen</span>
           </div>
         )}
 

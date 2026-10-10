@@ -39,7 +39,7 @@ export const MicrocycleAnatomy: React.FC<MicrocycleAnatomyProps> = ({
               }`}
             >
               <div className="flex items-center justify-between text-xs mb-1">
-                <span className="font-tactical font-black uppercase tracking-wider text-white">
+                <span className="font-tactical font-black tracking-wider text-white">
                   {d.day} • {d.split}
                 </span>
                 <span className="font-mono font-bold text-[11px] text-neutral-400">

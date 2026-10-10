@@ -161,7 +161,7 @@ export const ManualFoodEntryModal: React.FC<ManualFoodEntryModalProps> = ({
         {/* Food Name & Brand */}
         <div className="space-y-3">
           <div>
-            <label className="block text-[11px] font-mono font-bold uppercase text-neutral-400 mb-1">
+            <label className="block text-[11px] font-mono font-bold text-neutral-400 mb-1">
               Food Item Name <span className="text-o1-crimson">*</span>
             </label>
             <input
@@ -178,7 +178,7 @@ export const ManualFoodEntryModal: React.FC<ManualFoodEntryModalProps> = ({
           </div>
 
           <div>
-            <label className="block text-[11px] font-mono font-bold uppercase text-neutral-400 mb-1">
+            <label className="block text-[11px] font-mono font-bold text-neutral-400 mb-1">
               Brand / Source <span className="text-[10px] text-neutral-400 font-normal">(Optional)</span>
             </label>
             <input
@@ -193,7 +193,7 @@ export const ManualFoodEntryModal: React.FC<ManualFoodEntryModalProps> = ({
 
         {/* Category Pill Selector */}
         <div>
-          <label className="block text-[11px] font-mono font-bold uppercase text-neutral-400 mb-1.5">
+          <label className="block text-[11px] font-mono font-bold text-neutral-400 mb-1.5">
             Category
           </label>
           <div className="grid grid-cols-5 gap-1.5">
@@ -221,7 +221,7 @@ export const ManualFoodEntryModal: React.FC<ManualFoodEntryModalProps> = ({
         {/* Weight & Portion Size */}
         <div className="grid grid-cols-2 gap-2.5">
           <div>
-            <label className="block text-[11px] font-mono font-bold uppercase text-neutral-400 mb-1">
+            <label className="block text-[11px] font-mono font-bold text-neutral-400 mb-1">
               Serving Weight (g / ml) <span className="text-o1-crimson">*</span>
             </label>
             <div className="relative">
@@ -241,7 +241,7 @@ export const ManualFoodEntryModal: React.FC<ManualFoodEntryModalProps> = ({
           </div>
 
           <div>
-            <label className="block text-[11px] font-mono font-bold uppercase text-neutral-400 mb-1">
+            <label className="block text-[11px] font-mono font-bold text-neutral-400 mb-1">
               Portion Desc <span className="text-[10px] text-neutral-400 font-normal">(e.g. 1 scoop)</span>
             </label>
             <input
@@ -256,7 +256,7 @@ export const ManualFoodEntryModal: React.FC<ManualFoodEntryModalProps> = ({
 
         {/* Nutritional Facts Grid */}
         <div className="space-y-1.5 p-3 rounded-2xl bg-o1-well/70 border border-white/[0.07]">
-          <div className="flex items-center justify-between text-[11px] font-mono font-bold uppercase text-neutral-400 mb-1">
+          <div className="flex items-center justify-between text-[11px] font-mono font-bold text-neutral-400 mb-1">
             <span>Nutritional Profile (Per Serving)</span>
             <span className="text-[10px] text-neutral-400 lowercase">for {servingGrams || 100}g</span>
           </div>
@@ -264,7 +264,7 @@ export const ManualFoodEntryModal: React.FC<ManualFoodEntryModalProps> = ({
           <div className="grid grid-cols-4 gap-2">
             {/* Calories */}
             <div>
-              <label className="block text-[10px] font-mono font-bold uppercase text-neutral-400 mb-1 flex items-center gap-1">
+              <label className="block text-[10px] font-mono font-bold text-neutral-400 mb-1 flex items-center gap-1">
                 <Flame className="w-3 h-3 text-o1-crimson" />
                 <span>Kcal</span>
               </label>
@@ -282,7 +282,7 @@ export const ManualFoodEntryModal: React.FC<ManualFoodEntryModalProps> = ({
 
             {/* Protein */}
             <div>
-              <label className="block text-[10px] font-mono font-bold uppercase text-red-400 mb-1 text-center">
+              <label className="block text-[10px] font-mono font-bold text-red-400 mb-1 text-center">
                 Protein (g)
               </label>
               <input
@@ -299,7 +299,7 @@ export const ManualFoodEntryModal: React.FC<ManualFoodEntryModalProps> = ({
 
             {/* Carbs */}
             <div>
-              <label className="block text-[10px] font-mono font-bold uppercase text-amber-400 mb-1 text-center">
+              <label className="block text-[10px] font-mono font-bold text-amber-400 mb-1 text-center">
                 Carbs (g)
               </label>
               <input
@@ -316,7 +316,7 @@ export const ManualFoodEntryModal: React.FC<ManualFoodEntryModalProps> = ({
 
             {/* Fats */}
             <div>
-              <label className="block text-[10px] font-mono font-bold uppercase text-sky-400 mb-1 text-center">
+              <label className="block text-[10px] font-mono font-bold text-sky-400 mb-1 text-center">
                 Fats (g)
               </label>
               <input

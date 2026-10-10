@@ -22,29 +22,30 @@ export const SettingsFooterSection: React.FC<FooterActionsProps> = ({
       <div className="bg-o1-card rounded-2xl border border-white/[0.07] shadow-sm p-3 space-y-2.5">
         <div className="flex items-center justify-between">
           <div className="min-w-0">
-            <span className="text-[10px] font-tactical uppercase font-bold text-neutral-400 block tracking-wider">
-              Active Session
+            <span className="text-xs font-sans font-semibold text-white block">
+              Active session
             </span>
-            <span className="text-xs font-mono text-neutral-200 font-semibold block truncate">
+            <span className="text-[11px] font-sans text-neutral-400 block truncate">
               {activeEmail}
             </span>
           </div>
-          <span className="text-[9px] font-mono uppercase bg-emerald-950/60 border border-emerald-800/60 text-emerald-400 px-2 py-0.5 rounded-full font-bold">
+          <span className="inline-flex items-center gap-1.5 text-[11px] font-sans text-neutral-400 shrink-0">
+            <span className="w-1.5 h-1.5 rounded-full bg-o1-ok" />
             Secured
           </span>
         </div>
 
-        <div className="grid grid-cols-2 gap-2 pt-1">
+        <div className="flex flex-wrap justify-center gap-2 pt-1">
           <button
             type="button"
             onClick={() => {
               tactileEngine.triggerSelectionBuzz();
               onExportData();
             }}
-            className="py-2.5 px-3 rounded-xl border border-white/[0.07] bg-o1-well hover:bg-white/[0.06] text-neutral-200 text-xs font-tactical font-semibold uppercase flex items-center justify-center gap-1.5 transition-all active:scale-95 cursor-pointer"
+            className="o1-pill border border-white/[0.07] bg-o1-well hover:bg-white/[0.06] text-neutral-200 text-xs font-sans font-semibold transition-all active:scale-95 cursor-pointer"
           >
-            <Download className="w-3.5 h-3.5 text-o1-crimson" />
-            <span>Vault Backup (.o1fc)</span>
+            <Download className="w-3.5 h-3.5 text-neutral-400" />
+            <span>Vault backup</span>
           </button>
 
           <button
@@ -53,25 +54,22 @@ export const SettingsFooterSection: React.FC<FooterActionsProps> = ({
               tactileEngine.triggerSelectionBuzz();
               onLogout();
             }}
-            className="py-2.5 px-3 rounded-xl border border-white/[0.07] bg-o1-well hover:bg-white/[0.06] text-neutral-200 text-xs font-tactical font-semibold uppercase flex items-center justify-center gap-1.5 transition-all active:scale-95 cursor-pointer"
+            className="o1-pill border border-white/[0.07] bg-o1-well hover:bg-white/[0.06] text-neutral-200 text-xs font-sans font-semibold transition-all active:scale-95 cursor-pointer"
           >
             <LogOut className="w-3.5 h-3.5 text-neutral-400" />
-            <span>Sign Out</span>
+            <span>Sign out</span>
           </button>
-        </div>
 
-        {/* Dedicated Red-Accented Delete Account Button Below Sign Out */}
-        <div className="pt-2 border-t border-white/[0.05]">
           <button
             type="button"
             onClick={() => {
               tactileEngine.triggerSelectionBuzz();
               onDeleteAccount();
             }}
-            className="w-full py-2.5 px-3 rounded-xl border border-red-500/30 bg-red-950/20 hover:bg-red-950/40 text-red-500 hover:text-red-400 text-xs font-tactical font-bold uppercase flex items-center justify-center gap-2 transition-all active:scale-98 cursor-pointer shadow-xs"
+            className="o1-pill border border-o1-crimson/40 bg-transparent hover:bg-o1-crimson/10 text-o1-crimson text-xs font-sans font-semibold transition-all active:scale-95 cursor-pointer"
           >
-            <Trash2 className="w-3.5 h-3.5 text-red-500" />
-            <span>Delete Account &amp; Erase All Data</span>
+            <Trash2 className="w-3.5 h-3.5" />
+            <span>Delete account</span>
           </button>
         </div>
       </div>

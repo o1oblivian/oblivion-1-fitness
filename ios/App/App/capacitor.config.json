@@ -14,6 +14,10 @@
 	},
 	"packageClassList": [
 		"BluetoothLe",
-		"PreferencesPlugin"
+		"AppPlugin",
+		"CAPBrowserPlugin",
+		"CAPCameraPlugin",
+		"PreferencesPlugin",
+		"PurchasesPlugin"
 	]
 }

@@ -66,7 +66,7 @@ export const CoachPayoutSettingsModal: React.FC<Props> = ({ isOpen, onClose, coa
         <div className="flex items-center justify-between border-b border-white/[0.05] pb-3">
           <div className="flex items-center gap-2">
             <ShieldCheck className="w-5 h-5 text-o1-crimson" />
-            <h3 className="font-tactical text-xs font-bold uppercase tracking-wider text-white">COACH PAYOUT SETTINGS</h3>
+            <h3 className="font-tactical text-xs font-bold tracking-wider text-white">Coach Payout Settings</h3>
           </div>
           <button onClick={onClose} className="p-1 rounded-full text-neutral-400 hover:text-white cursor-pointer transition">
             <X className="w-4 h-4" />
@@ -82,7 +82,7 @@ export const CoachPayoutSettingsModal: React.FC<Props> = ({ isOpen, onClose, coa
           <div className="space-y-4">
             <div className="p-4 rounded-2xl bg-o1-card border border-white/[0.07] space-y-2">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-tactical font-semibold text-neutral-400 uppercase">Payout Gateway</span>
+                <span className="text-xs font-tactical font-semibold text-neutral-400">Payout Gateway</span>
                 {isConnected ? (
                   <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-mono text-[10px] font-bold">
                     <CheckCircle2 className="w-3 h-3 text-emerald-400" />
@@ -98,7 +98,7 @@ export const CoachPayoutSettingsModal: React.FC<Props> = ({ isOpen, onClose, coa
             </div>
             {errorMsg && <div className="p-3 rounded-xl bg-red-950/40 border border-red-500/40 text-red-200 text-xs font-mono">{errorMsg}</div>}
             {isConnected ? (
-              <button type="button" disabled={actionLoading} onClick={handleOpenDashboard} className="w-full py-3.5 px-4 rounded-2xl bg-o1-well hover:bg-white/[0.06] border border-white/[0.07] text-white font-tactical text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition cursor-pointer active:scale-95 shadow-md">
+              <button type="button" disabled={actionLoading} onClick={handleOpenDashboard} className="w-full py-3.5 px-4 rounded-2xl bg-o1-well hover:bg-white/[0.06] border border-white/[0.07] text-white font-tactical text-xs font-bold tracking-wider flex items-center justify-center gap-2 transition cursor-pointer active:scale-95 shadow-md">
                 {actionLoading ? <Loader2 className="w-4 h-4 animate-spin text-white" /> : <ExternalLink className="w-4 h-4 text-emerald-400" />}
                 <span>Open Stripe Express Dashboard</span>
               </button>

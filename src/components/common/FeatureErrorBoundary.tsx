@@ -63,10 +63,10 @@ export class FeatureErrorBoundary extends Component<Props, State> {
                 <AlertTriangle className="w-5 h-5" />
               </div>
               <div>
-                <span className="text-[9px] font-telemetry font-bold uppercase tracking-wider text-red-400 block">
-                  MODULE FAULT ISOLATION // CRASH SHIELD
+                <span className="text-[9px] font-telemetry font-bold tracking-wider text-red-400 block">
+                  Module fault isolation // crash shield
                 </span>
-                <h3 className="font-tactical font-black text-sm uppercase text-white tracking-wide">
+                <h3 className="font-tactical font-black text-sm text-white tracking-wide">
                   {name} Suspended
                 </h3>
               </div>
@@ -88,7 +88,7 @@ export class FeatureErrorBoundary extends Component<Props, State> {
               type="button"
               id="error-boundary-reload-btn"
               onClick={this.handleReset}
-              className="w-full py-2.5 px-4 rounded-xl bg-red-600 hover:bg-red-500 active:scale-95 text-white text-xs font-tactical font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-md cursor-pointer"
+              className="w-full py-2.5 px-4 rounded-xl bg-red-600 hover:bg-red-500 active:scale-95 text-white text-xs font-tactical font-bold tracking-wider flex items-center justify-center gap-2 transition-all shadow-md cursor-pointer"
             >
               <RefreshCw className="w-3.5 h-3.5" />
               <span>Reload Application View</span>

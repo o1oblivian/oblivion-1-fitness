@@ -2,15 +2,33 @@ import React, { useState } from 'react';
 import { ShieldAlert, X, ChevronRight } from 'lucide-react';
 import { tactileEngine } from '../../services/tactileEngine';
 
+const DISMISS_KEY = 'o1fc_health_disclaimer_dismissed';
+
 interface Props {
   onLearnMore?: () => void;
   compact?: boolean;
 }
 
 export const HealthDisclaimerBanner: React.FC<Props> = ({ onLearnMore, compact = false }) => {
-  const [dismissed, setDismissed] = useState(false);
+  const [dismissed, setDismissed] = useState(() => {
+    try {
+      return localStorage.getItem(DISMISS_KEY) === '1';
+    } catch {
+      return false;
+    }
+  });
 
   if (dismissed) return null;
+
+  const dismiss = () => {
+    tactileEngine.triggerSelectionBuzz();
+    try {
+      localStorage.setItem(DISMISS_KEY, '1');
+    } catch {
+      // storage unavailable: stays hidden for this session only
+    }
+    setDismissed(true);
+  };
 
   return (
     <div className="w-full bg-o1-card border border-amber-500/30 rounded-2xl p-3 shadow-sm flex items-start gap-2.5 transition-colors">
@@ -20,15 +38,12 @@ export const HealthDisclaimerBanner: React.FC<Props> = ({ onLearnMore, compact =
 
       <div className="flex-1 min-w-0 space-y-1">
         <div className="flex items-center justify-between">
-          <span className="text-[10px] font-mono font-black uppercase tracking-wider text-amber-400">
+          <span className="text-[10px] font-mono font-black tracking-wider text-amber-400">
             Medical &amp; Biomechanical Disclaimer
           </span>
           <button
             type="button"
-            onClick={() => {
-              tactileEngine.triggerSelectionBuzz();
-              setDismissed(true);
-            }}
+            onClick={dismiss}
             className="text-neutral-400 hover:text-white p-0.5 rounded cursor-pointer"
             aria-label="Dismiss disclaimer"
           >
@@ -49,7 +64,7 @@ export const HealthDisclaimerBanner: React.FC<Props> = ({ onLearnMore, compact =
               tactileEngine.triggerSelectionBuzz();
               onLearnMore();
             }}
-            className="text-[9px] font-mono font-bold text-[#0EA5E9] hover:underline flex items-center gap-0.5 cursor-pointer pt-0.5"
+            className="text-[9px] font-mono font-bold text-o1-ok hover:underline flex items-center gap-0.5 cursor-pointer pt-0.5"
           >
             <span>Review Full Protocol Terms</span>
             <ChevronRight className="w-2.5 h-2.5" />

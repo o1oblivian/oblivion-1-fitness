@@ -43,10 +43,10 @@ export const AssignProtocolModal: React.FC<AssignProtocolModalProps> = ({
         {/* Header */}
         <div className="flex items-center justify-between border-b border-white/[0.05] pb-3">
           <div>
-            <span className="text-[9px] font-telemetry text-[#EF4444] uppercase block font-bold">
-              TACTICAL WORKOUT DISPATCH
+            <span className="text-[9px] font-telemetry text-[#C4121A] block font-bold">
+              Tactical Workout Dispatch
             </span>
-            <h3 className="font-tactical text-sm font-bold text-zinc-100 uppercase tracking-wider">
+            <h3 className="font-tactical text-sm font-bold text-zinc-100 tracking-wider">
               Assign Protocol // {athlete.callsign}
             </h3>
           </div>
@@ -61,7 +61,7 @@ export const AssignProtocolModal: React.FC<AssignProtocolModalProps> = ({
         {/* Athlete Overview */}
         <div className="bg-black p-2.5 rounded-xl border border-white/[0.07] flex items-center justify-between text-xs">
           <div>
-            <span className="font-bold text-white uppercase font-tactical">
+            <span className="font-bold text-white font-tactical">
               {athlete.callsign} ({athlete.name})
             </span>
             <span className="text-[10px] font-telemetry text-zinc-400 block mt-0.5">
@@ -75,7 +75,7 @@ export const AssignProtocolModal: React.FC<AssignProtocolModalProps> = ({
 
         {/* Protocols List */}
         <div>
-          <label className="text-[10px] font-tactical uppercase tracking-wider text-zinc-400 block mb-1.5 font-bold">
+          <label className="text-[10px] font-tactical tracking-wider text-zinc-400 block mb-1.5 font-bold">
             Prescribed Training Protocol
           </label>
           <div className="space-y-1.5">
@@ -90,7 +90,7 @@ export const AssignProtocolModal: React.FC<AssignProtocolModalProps> = ({
                     : 'bg-black border-white/[0.07] text-zinc-400 hover:border-white/[0.14]'
                 }`}
               >
-                <div className="font-tactical text-xs font-bold uppercase text-zinc-100">
+                <div className="font-tactical text-xs font-bold text-zinc-100">
                   {p.title}
                 </div>
                 <div className="text-[9px] font-telemetry text-zinc-400 mt-0.5">
@@ -103,7 +103,7 @@ export const AssignProtocolModal: React.FC<AssignProtocolModalProps> = ({
 
         {/* Volume / Intensity Modifier */}
         <div>
-          <label className="text-[10px] font-tactical uppercase tracking-wider text-zinc-400 block mb-1.5 font-bold">
+          <label className="text-[10px] font-tactical tracking-wider text-zinc-400 block mb-1.5 font-bold">
             Load & Volume Modifier
           </label>
           <div className="grid grid-cols-3 gap-1.5">
@@ -127,14 +127,14 @@ export const AssignProtocolModal: React.FC<AssignProtocolModalProps> = ({
         {/* Action Button */}
         <div className="pt-1">
           {isAssigned ? (
-            <div className="w-full py-2.5 rounded-xl bg-[#0EA5E9] text-black font-tactical text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1.5">
+            <div className="w-full py-2.5 rounded-xl bg-[#4F8F9A] text-black font-tactical text-xs font-bold tracking-wider flex items-center justify-center gap-1.5">
               <CheckCircle2 className="w-4 h-4" />
               <span>Protocol Synced to Athlete HUD!</span>
             </div>
           ) : (
             <button
               onClick={handleAssign}
-              className="w-full py-2.5 px-4 rounded-xl bg-[#EF4444] text-white font-tactical text-xs font-bold uppercase tracking-wider active:scale-95 transition-all flex items-center justify-center gap-2"
+              className="w-full py-2.5 px-4 rounded-xl bg-[#C4121A] text-white font-tactical text-xs font-bold tracking-wider active:scale-95 transition-all flex items-center justify-center gap-2"
             >
               <Send className="w-3.5 h-3.5" />
               <span>Deploy Protocol to Athlete HUD</span>

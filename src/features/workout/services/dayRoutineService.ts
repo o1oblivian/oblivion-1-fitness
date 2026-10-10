@@ -1,5 +1,27 @@
+import { useEffect, useState } from 'react';
 import { BlueprintExercise, WORKOUT_BLUEPRINTS } from '../../../data/workoutBlueprints';
 import { WorkoutExercise, WorkoutSet } from '../store/workoutStoreTypes';
+
+let dayRoutineRevision = 0;
+const dayRoutineListeners = new Set<() => void>();
+
+function bumpDayRoutines() {
+  dayRoutineRevision += 1;
+  dayRoutineListeners.forEach((listener) => listener());
+}
+
+/** Re-render when a weekday workout is stored. */
+export function useDayRoutineRevision(): number {
+  const [revision, setRevision] = useState(dayRoutineRevision);
+  useEffect(() => {
+    const listener = () => setRevision(dayRoutineRevision);
+    dayRoutineListeners.add(listener);
+    return () => {
+      dayRoutineListeners.delete(listener);
+    };
+  }, []);
+  return revision;
+}
 
 export const USER_SAVED_WORKOUTS_KEY = 'o1fc_athlete_saved_day_routines';
 
@@ -24,34 +46,29 @@ export const getSystemTodayCode = (): 'Mon' | 'Tue' | 'Wed' | 'Thu' | 'Fri' | 'S
 };
 
 /**
- * Format split name into clean, short label (e.g. "PUSH A", "PULL A", "HYPER", "PUSH B", "LEGS")
- * without verbose long subtitles or truncated parentheses.
+ * Format split name into a short title-case pill (e.g. "Push A", "Hyper", "Legs").
  */
 export const formatConciseSplitName = (name: string): string => {
-  if (!name) return 'REST';
-  // Strip parentheses and anything inside them: "PUSH B (INCLINE & ARMS)" -> "PUSH B"
+  if (!name) return 'Rest';
   const clean = name.replace(/\s*\(.*?\)/g, '').trim();
-
-  // Standard short tokens
   const upper = clean.toUpperCase();
-  if (upper.includes('HYROX') || upper.includes('HYPER')) return 'HYPER';
-  if (upper.includes('REST') || upper.includes('RECOVERY') || upper.includes('RESTORATION')) return 'REST';
-  if (upper.includes('PUSH A')) return 'PUSH A';
-  if (upper.includes('PULL A')) return 'PULL A';
-  if (upper.includes('LEGS A')) return 'LEGS A';
-  if (upper.includes('PUSH B')) return 'PUSH B';
-  if (upper.includes('PULL B')) return 'PULL B';
-  if (upper.includes('LEGS B')) return 'LEGS B';
-  if (upper === 'PUSH') return 'PUSH';
-  if (upper === 'PULL') return 'PULL';
-  if (upper === 'LEGS') return 'LEGS';
-
-  // For other names, keep max 8-9 characters so it never overflows the tactile OLED pill
+  if (upper.includes('HYROX') || upper.includes('HYPER')) return 'Hyper';
+  if (upper.includes('REST') || upper.includes('RECOVERY') || upper.includes('RESTORATION')) return 'Rest';
+  if (upper.includes('PUSH A')) return 'Push A';
+  if (upper.includes('PULL A')) return 'Pull A';
+  if (upper.includes('LEGS A')) return 'Legs A';
+  if (upper.includes('PUSH B')) return 'Push B';
+  if (upper.includes('PULL B')) return 'Pull B';
+  if (upper.includes('LEGS B')) return 'Legs B';
+  if (upper === 'PUSH') return 'Push';
+  if (upper === 'PULL') return 'Pull';
+  if (upper === 'LEGS') return 'Legs';
   if (clean.length > 8) {
     const firstWord = clean.split(' ')[0];
-    return (firstWord.length <= 8 ? firstWord : firstWord.substring(0, 8)).toUpperCase();
+    const clipped = firstWord.length <= 8 ? firstWord : firstWord.substring(0, 8);
+    return clipped.charAt(0).toUpperCase() + clipped.slice(1).toLowerCase();
   }
-  return clean.toUpperCase();
+  return clean.charAt(0).toUpperCase() + clean.slice(1).toLowerCase();
 };
 
 /**
@@ -342,6 +359,7 @@ export const saveAthleteDayRoutine = (
     };
 
     localStorage.setItem(USER_SAVED_WORKOUTS_KEY, JSON.stringify(saved));
+    bumpDayRoutines();
     return true;
   } catch (e) {
     console.error('Error saving routine to day', e);

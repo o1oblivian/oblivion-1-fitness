@@ -44,7 +44,7 @@ function CenterStack({
       >
         {fmtInt(steps)}
       </span>
-      <span className="mt-1.5 text-[9px] font-medium tracking-[0.28em] uppercase text-white/55">
+      <span className="mt-1.5 text-[9px] font-medium tracking-[0.28em] text-white/55">
         {caption}
       </span>
     </div>
@@ -61,7 +61,7 @@ function FooterTrio({
   km: number;
 }) {
   return (
-    <div className="absolute bottom-5 left-0 right-0 flex items-center justify-center gap-4 text-[9px] font-medium tracking-[0.16em] uppercase">
+    <div className="absolute bottom-5 left-0 right-0 flex items-center justify-center gap-4 text-[9px] font-medium tracking-[0.16em]">
       <span className="text-white/80">
         <span className="text-o1-crimson">{fmtInt(burn)}</span> kcal
       </span>
@@ -71,7 +71,7 @@ function FooterTrio({
       </span>
       <span className="text-white/25">·</span>
       <span className="text-white/80">
-        <span className="text-[#0284c7]">{fmtKm(km)}</span> km
+        <span className="text-[#4F8F9A]">{fmtKm(km)}</span> km
       </span>
     </div>
   );

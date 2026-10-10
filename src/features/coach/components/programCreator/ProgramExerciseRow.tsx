@@ -42,7 +42,7 @@ export const ProgramExerciseRow: React.FC<ProgramExerciseRowProps> = ({
       {/* Numerical Matrix: Sets, Reps, Rest */}
       <div className="grid grid-cols-3 gap-2">
         <div className="bg-o1-well border border-white/[0.07] rounded-xl p-1.5 text-center">
-          <label className="text-[9px] font-bold uppercase tracking-wider text-neutral-400 block mb-0.5">
+          <label className="text-[9px] font-bold tracking-wider text-neutral-400 block mb-0.5">
             Sets
           </label>
           <input
@@ -54,7 +54,7 @@ export const ProgramExerciseRow: React.FC<ProgramExerciseRowProps> = ({
           />
         </div>
         <div className="bg-o1-well border border-white/[0.07] rounded-xl p-1.5 text-center">
-          <label className="text-[9px] font-bold uppercase tracking-wider text-neutral-400 block mb-0.5">
+          <label className="text-[9px] font-bold tracking-wider text-neutral-400 block mb-0.5">
             Reps
           </label>
           <input
@@ -66,7 +66,7 @@ export const ProgramExerciseRow: React.FC<ProgramExerciseRowProps> = ({
           />
         </div>
         <div className="bg-o1-well border border-white/[0.07] rounded-xl p-1.5 text-center">
-          <label className="text-[9px] font-bold uppercase tracking-wider text-neutral-400 block mb-0.5">
+          <label className="text-[9px] font-bold tracking-wider text-neutral-400 block mb-0.5">
             Rest (sec)
           </label>
           <input

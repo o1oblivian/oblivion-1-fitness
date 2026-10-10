@@ -21,10 +21,10 @@ export const DailyCheckInProgress: React.FC<DailyCheckInProgressProps> = ({
   const [replyText, setReplyText] = useState('');
 
   // Athlete Form State
-  const [weightKg, setWeightKg] = useState('84.5');
-  const [sleepHours, setSleepHours] = useState('7.5');
-  const [sorenessRating, setSorenessRating] = useState(4);
-  const [stressRating, setStressRating] = useState(3);
+  const [weightKg, setWeightKg] = useState('');
+  const [sleepHours, setSleepHours] = useState('');
+  const [sorenessRating, setSorenessRating] = useState(0);
+  const [stressRating, setStressRating] = useState(0);
   const [notes, setNotes] = useState('');
 
   // Coach Live Telemetry & Workout Finish Records
@@ -48,15 +48,15 @@ export const DailyCheckInProgress: React.FC<DailyCheckInProgressProps> = ({
       athleteId: localStorage.getItem('o1fc_user_id') || '',
       athleteName: 'You',
       coachId: localStorage.getItem('o1fc_user_id') || '',
-      date: 'Just now',
-      weightKg: parseFloat(weightKg) || 84.0,
-      sleepHours: parseFloat(sleepHours) || 8.0,
+      date: new Date().toLocaleDateString(undefined, { day: 'numeric', month: 'short' }),
+      weightKg: parseFloat(weightKg) || 0,
+      sleepHours: parseFloat(sleepHours) || 0,
       sorenessRating,
       stressRating,
-      nutritionAdherence: 95,
-      completedSessionsCount: 4,
-      targetSessionsCount: 4,
-      notes: notes || 'Daily check-in completed. Feeling ready for upcoming sessions.',
+      nutritionAdherence: 0,
+      completedSessionsCount: 0,
+      targetSessionsCount: 0,
+      notes: notes.trim(),
     });
     setNotes('');
     setIsSubmitOpen(false);
@@ -71,11 +71,11 @@ export const DailyCheckInProgress: React.FC<DailyCheckInProgressProps> = ({
             <ClipboardCheck className="w-4 h-4" />
           </div>
           <div>
-            <h4 className="font-tactical font-black text-xs uppercase tracking-wider text-white">
-              DAILY PROGRESS & COACH AUDIT
+            <h4 className="text-xs font-semibold text-white">
+              Check-in
             </h4>
-            <p className="text-[10px] font-mono text-neutral-500">
-              Biometric check-ins, soreness ratings & feedback loop
+            <p className="text-[10px] text-neutral-500">
+              Weight, sleep, and how the day felt
             </p>
           </div>
         </div>
@@ -86,9 +86,9 @@ export const DailyCheckInProgress: React.FC<DailyCheckInProgressProps> = ({
             tactileEngine.triggerSelectionBuzz();
             setIsSubmitOpen((v) => !v);
           }}
-          className="px-3 py-1.5 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover active:scale-95 text-white text-[11px] font-tactical font-black uppercase tracking-wider transition-all shadow-xs cursor-pointer flex items-center gap-1"
+          className="px-3 py-1.5 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover active:scale-95 text-white text-[11px] font-tactical font-black tracking-wider transition-all shadow-xs cursor-pointer flex items-center gap-1"
         >
-          <span>{isSubmitOpen ? 'CLOSE FORM' : 'LOG CHECK-IN'}</span>
+          <span>{isSubmitOpen ? 'Close' : 'Check-in'}</span>
           <ChevronDown className={`w-3.5 h-3.5 transition-transform ${isSubmitOpen ? 'rotate-180' : ''}`} />
         </button>
       </div>
@@ -99,12 +99,12 @@ export const DailyCheckInProgress: React.FC<DailyCheckInProgressProps> = ({
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping" />
-              <span className="font-mono text-xs font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
+              <span className="font-mono text-xs font-bold text-emerald-400 tracking-wider flex items-center gap-1.5">
                 <Activity className="w-3.5 h-3.5" />
-                LIVE ATHLETE TELEMETRY IN PROGRESS
+                Live athlete telemetry in progress
               </span>
             </div>
-            <span className="text-[10px] font-mono font-bold text-neutral-400">REALTIME</span>
+            <span className="text-[10px] font-mono font-bold text-neutral-400">Realtime</span>
           </div>
 
           {Object.values(liveTelemetry)
@@ -114,14 +114,14 @@ export const DailyCheckInProgress: React.FC<DailyCheckInProgressProps> = ({
                 <div>
                   <h5 className="font-bold text-xs text-white tracking-wide">{t.athleteName}</h5>
                   <p className="text-[11px] font-mono text-emerald-400 mt-0.5">
-                    Executing: {t.activeExercise || 'Prescribed Protocol'}
+                    {t.activeExercise || 'In session'}
                   </p>
                 </div>
                 <div className="text-right">
                   <span className="text-xs font-mono font-black text-o1-crimson">
                     {t.sessionTonnageKg.toLocaleString()} KG
                   </span>
-                  <span className="block text-[9px] font-mono text-neutral-500">SESSION VOLUME</span>
+                  <span className="block text-[9px] font-mono text-neutral-500">Session Volume</span>
                 </div>
               </div>
             ))}
@@ -134,12 +134,12 @@ export const DailyCheckInProgress: React.FC<DailyCheckInProgressProps> = ({
           <div className="flex items-center justify-between px-1">
             <div className="flex items-center gap-2">
               <Bell className="w-4 h-4 text-o1-crimson" />
-              <span className="text-xs font-tactical font-black uppercase tracking-wider text-white">
-                CLIENT WORKOUT LOGS &amp; NOTIFICATIONS ({finishedWorkouts.length})
+              <span className="text-xs font-tactical font-black tracking-wider text-white">
+                Finished workouts ({finishedWorkouts.length})
               </span>
             </div>
             <span className="text-[10px] font-mono text-emerald-400 font-bold bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
-              ● READY FOR FEEDBACK
+              ● Ready for feedback
             </span>
           </div>
 
@@ -187,7 +187,7 @@ export const DailyCheckInProgress: React.FC<DailyCheckInProgressProps> = ({
                     <div className="flex items-center justify-between text-[10px] font-mono font-bold text-sky-400">
                       <span className="flex items-center gap-1">
                         <Sparkles className="w-3.5 h-3.5" />
-                        COACH FEEDBACK DISPATCHED
+                        Reply
                       </span>
                       <span>{w.feedbackGivenAt || 'Just now'}</span>
                     </div>
@@ -220,7 +220,7 @@ export const DailyCheckInProgress: React.FC<DailyCheckInProgressProps> = ({
                           submitCoachFeedback(w.id, text);
                           setWorkoutFeedbackText((prev) => ({ ...prev, [w.id]: '' }));
                         }}
-                        className="px-3 py-2 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover active:scale-95 text-white text-xs font-mono font-bold uppercase transition cursor-pointer flex items-center gap-1 shrink-0"
+                        className="px-3 py-2 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover active:scale-95 text-white text-xs font-mono font-bold transition cursor-pointer flex items-center gap-1 shrink-0"
                       >
                         <Send className="w-3.5 h-3.5" />
                         <span>Send</span>
@@ -241,15 +241,14 @@ export const DailyCheckInProgress: React.FC<DailyCheckInProgressProps> = ({
           className="p-2.5 rounded-2xl bg-o1-card border border-white/[0.07] space-y-2.5 shadow-sm animate-in slide-in-from-top-2 duration-200"
         >
           <div className="flex items-center justify-between pb-2 border-b border-white/[0.05]">
-            <span className="text-xs font-tactical font-bold text-white uppercase">
-              Submit Today's Readiness Check-In
+            <span className="text-xs font-tactical font-bold text-white">
+              Today
             </span>
-            <span className="text-[10px] font-mono text-neutral-400">Direct Sync to Coach</span>
           </div>
 
           <div className="grid grid-cols-2 gap-2.5">
             <div>
-              <label className="text-[10px] font-mono font-bold uppercase text-neutral-500 block mb-1">
+              <label className="text-[10px] font-mono font-bold text-neutral-500 block mb-1">
                 Bodyweight (KG)
               </label>
               <input
@@ -263,7 +262,7 @@ export const DailyCheckInProgress: React.FC<DailyCheckInProgressProps> = ({
               />
             </div>
             <div>
-              <label className="text-[10px] font-mono font-bold uppercase text-neutral-500 block mb-1">
+              <label className="text-[10px] font-mono font-bold text-neutral-500 block mb-1">
                 Sleep Duration (HRS)
               </label>
               <input
@@ -281,14 +280,14 @@ export const DailyCheckInProgress: React.FC<DailyCheckInProgressProps> = ({
           <div className="grid grid-cols-2 gap-2.5">
             <div>
               <div className="flex items-center justify-between mb-1">
-                <label className="text-[10px] font-mono font-bold uppercase text-neutral-500">
+                <label className="text-[10px] font-mono font-bold text-neutral-500">
                   Muscle Soreness
                 </label>
-                <span className="text-xs font-mono font-bold text-o1-crimson">{sorenessRating}/10</span>
+                <span className="text-xs font-mono font-bold text-o1-crimson">{sorenessRating || '--'}</span>
               </div>
               <input
                 type="range"
-                min="1"
+                min="0"
                 max="10"
                 value={sorenessRating}
                 onChange={(e) => setSorenessRating(Number(e.target.value))}
@@ -298,14 +297,14 @@ export const DailyCheckInProgress: React.FC<DailyCheckInProgressProps> = ({
 
             <div>
               <div className="flex items-center justify-between mb-1">
-                <label className="text-[10px] font-mono font-bold uppercase text-neutral-500">
+                <label className="text-[10px] font-mono font-bold text-neutral-500">
                   Life Stress Level
                 </label>
-                <span className="text-xs font-mono font-bold text-sky-500">{stressRating}/10</span>
+                <span className="text-xs font-mono font-bold text-neutral-200">{stressRating || '--'}</span>
               </div>
               <input
                 type="range"
-                min="1"
+                min="0"
                 max="10"
                 value={stressRating}
                 onChange={(e) => setStressRating(Number(e.target.value))}
@@ -315,7 +314,7 @@ export const DailyCheckInProgress: React.FC<DailyCheckInProgressProps> = ({
           </div>
 
           <div>
-            <label className="text-[10px] font-mono font-bold uppercase text-neutral-500 block mb-1">
+            <label className="text-[10px] font-mono font-bold text-neutral-500 block mb-1">
               Workout Notes & Sensation
             </label>
             <textarea
@@ -329,10 +328,10 @@ export const DailyCheckInProgress: React.FC<DailyCheckInProgressProps> = ({
 
           <button
             type="submit"
-            className="w-full py-2.5 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover active:scale-[0.98] text-white text-xs font-tactical font-black uppercase tracking-wider transition-all shadow-sm cursor-pointer flex items-center justify-center gap-1.5"
+            className="w-full py-2.5 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover active:scale-[0.98] text-white text-xs font-tactical font-black tracking-wider transition-all shadow-sm cursor-pointer flex items-center justify-center gap-1.5"
           >
             <Send className="w-3.5 h-3.5" />
-            <span>DISPATCH CHECK-IN TO COACH</span>
+            <span>Send</span>
           </button>
         </form>
       )}
@@ -346,7 +345,7 @@ export const DailyCheckInProgress: React.FC<DailyCheckInProgressProps> = ({
               No daily check-ins submitted yet.
             </p>
             <p className="text-[11px] text-neutral-400">
-              Tap "LOG CHECK-IN" above to submit your first readiness audit to your coach.
+              A check-in shows here after it is sent.
             </p>
           </div>
         ) : (
@@ -362,43 +361,47 @@ export const DailyCheckInProgress: React.FC<DailyCheckInProgressProps> = ({
                 </span>
                 <span className="text-[10px] font-mono text-neutral-400">• {chk.date}</span>
               </div>
-              <span className="px-2 py-0.5 rounded-full bg-emerald-950/40 border border-emerald-800/60 text-[10px] font-mono font-bold text-emerald-400">
-                {chk.nutritionAdherence}% Diet Adherence
-              </span>
+              {chk.nutritionAdherence > 0 && (
+                <span className="px-2 py-0.5 rounded-full bg-o1-well border border-white/[0.07] text-[10px] text-neutral-300">
+                  {chk.nutritionAdherence}% food
+                </span>
+              )}
             </div>
 
             {/* Quick Metrics Bar */}
             <div className="grid grid-cols-4 gap-2 text-center">
               <div className="p-2 rounded-xl bg-o1-well border border-white/[0.07]">
-                <span className="text-[9px] font-mono text-neutral-400 block">WEIGHT</span>
+                <span className="text-[9px] font-mono text-neutral-400 block">Weight</span>
                 <span className="text-xs font-mono font-bold text-white">
-                  {chk.weightKg} kg
+                  {chk.weightKg > 0 ? `${chk.weightKg} kg` : '--'}
                 </span>
               </div>
               <div className="p-2 rounded-xl bg-o1-well border border-white/[0.07]">
-                <span className="text-[9px] font-mono text-neutral-400 block">SLEEP</span>
+                <span className="text-[9px] font-mono text-neutral-400 block">Sleep</span>
                 <span className="text-xs font-mono font-bold text-white">
-                  {chk.sleepHours} hrs
+                  {chk.sleepHours > 0 ? `${chk.sleepHours} h` : '--'}
                 </span>
               </div>
               <div className="p-2 rounded-xl bg-o1-well border border-white/[0.07]">
-                <span className="text-[9px] font-mono text-neutral-400 block">SORENESS</span>
-                <span className="text-xs font-mono font-bold text-o1-crimson">
-                  {chk.sorenessRating}/10
+                <span className="text-[9px] font-mono text-neutral-400 block">Soreness</span>
+                <span className="text-xs font-mono font-bold text-white">
+                  {chk.sorenessRating > 0 ? `${chk.sorenessRating}/10` : '--'}
                 </span>
               </div>
               <div className="p-2 rounded-xl bg-o1-well border border-white/[0.07]">
-                <span className="text-[9px] font-mono text-neutral-400 block">SESSIONS</span>
-                <span className="text-xs font-mono font-bold text-sky-500">
-                  {chk.completedSessionsCount}/{chk.targetSessionsCount}
+                <span className="text-[9px] font-mono text-neutral-400 block">Stress</span>
+                <span className="text-xs font-mono font-bold text-white">
+                  {chk.stressRating > 0 ? `${chk.stressRating}/10` : '--'}
                 </span>
               </div>
             </div>
 
             {/* Athlete Notes */}
-            <p className="text-xs text-neutral-300 font-sans leading-relaxed bg-o1-well p-2.5 rounded-xl border border-white/[0.07]">
-              "{chk.notes}"
-            </p>
+            {chk.notes ? (
+              <p className="text-xs text-neutral-300 leading-relaxed bg-o1-well p-2.5 rounded-xl border border-white/[0.07]">
+                {chk.notes}
+              </p>
+            ) : null}
 
             {/* Coach Feedback Section */}
             {chk.coachFeedback?.feedbackText ? (
@@ -406,7 +409,7 @@ export const DailyCheckInProgress: React.FC<DailyCheckInProgressProps> = ({
                 <div className="flex items-center justify-between text-[10px] font-mono">
                   <span className="font-bold text-sky-300 flex items-center gap-1">
                     <Sparkles className="w-3.5 h-3.5" />
-                    COACH MARCUS VANCE AUDIT
+                    Reply
                   </span>
                   <span className="text-neutral-400">{chk.coachFeedback.givenAt}</span>
                 </div>
@@ -440,9 +443,9 @@ export const DailyCheckInProgress: React.FC<DailyCheckInProgressProps> = ({
                     tactileEngine.triggerSelectionBuzz();
                     setActiveReplyId(activeReplyId === chk.id ? null : chk.id);
                   }}
-                  className="px-2.5 py-1 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-[10px] font-tactical font-black uppercase tracking-wider cursor-pointer"
+                  className="px-2.5 py-1 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-[10px] font-tactical font-black tracking-wider cursor-pointer"
                 >
-                  ADD FEEDBACK
+                  Add Feedback
                 </button>
               </div>
             )}
@@ -468,9 +471,9 @@ export const DailyCheckInProgress: React.FC<DailyCheckInProgressProps> = ({
                   <button
                     type="button"
                     onClick={() => handleSendFeedback(chk.id)}
-                    className="px-3.5 py-1 rounded-xl bg-o1-crimson text-white text-xs font-tactical font-bold uppercase tracking-wider"
+                    className="px-3.5 py-1 rounded-xl bg-o1-crimson text-white text-xs font-tactical font-bold tracking-wider"
                   >
-                    SUBMIT FEEDBACK
+                    Submit Feedback
                   </button>
                 </div>
               </div>

@@ -54,10 +54,9 @@ export const DialNumpad: React.FC<DialNumpadProps> = ({ value, unit, max, onChan
   const digits = ['1', '2', '3', '4', '5', '6', '7', '8', '9'];
 
   return (
-    <div className="w-full max-w-[270px] mx-auto py-2 flex flex-col items-center select-none">
-      {/* Big Digital Display */}
-      <div className="w-full p-3 rounded-2xl bg-o1-well border border-white/[0.07] text-center mb-3">
-        <span className="text-[10px] font-mono uppercase tracking-wider text-neutral-400 block">
+    <div className="o1-instrument o1-dial-stack w-full max-w-[270px] mx-auto flex flex-col items-center select-none">
+      <div className="o1-dial-well w-full rounded-2xl bg-o1-well border border-white/[0.07] text-center">
+        <span className="text-[10px] font-mono tracking-wider text-neutral-400 block">
           TARGET {unit}
         </span>
         <span className="text-3xl font-mono font-black text-white">
@@ -66,7 +65,7 @@ export const DialNumpad: React.FC<DialNumpadProps> = ({ value, unit, max, onChan
       </div>
 
       {/* 3x4 Grid Keypad */}
-      <div className="grid grid-cols-3 gap-2 w-full">
+      <div className="o1-dial-keys grid grid-cols-3 w-full">
         {digits.map((d) => (
           <button
             key={d}

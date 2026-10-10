@@ -60,23 +60,23 @@ export const DispatchDrawer: React.FC<DispatchDrawerProps> = ({ isOpen = true, o
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 o1-sheet-scrim select-none">
       <div className="o1-sheet-card w-full bg-o1-card border border-white/[0.07] flex flex-col overflow-hidden text-neutral-100 shadow-xl">
         <div className="p-4 border-b border-white/[0.05] flex items-center justify-between">
-          <div className="flex items-center gap-2"><Layers className="w-4 h-4 text-o1-crimson" /><h2 className="text-sm font-bold uppercase tracking-wider text-white">Batch Protocol Dispatch</h2></div>
+          <div className="flex items-center gap-2"><Layers className="w-4 h-4 text-o1-crimson" /><h2 className="text-sm font-bold tracking-wider text-white">Batch Protocol Dispatch</h2></div>
           <button onClick={() => { tactileEngine.triggerSelectionBuzz(); onClose(); }} className="p-1 rounded-lg hover:bg-white/[0.06] text-neutral-400"><X className="w-5 h-5" /></button>
         </div>
 
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
           <div>
-            <label className="text-xs font-bold uppercase text-neutral-400 block mb-1.5">Select Protocol</label>
+            <label className="text-xs font-bold text-neutral-400 block mb-1.5">Select Protocol</label>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
               {ROUTINE_PROTOCOLS.slice(0, 4).map((proto) => (
-                <button key={proto} type="button" onClick={() => { tactileEngine.triggerSelectionBuzz(); setSelectedProtocol(proto); }} className={`p-2 rounded-xl border text-left text-xs font-semibold truncate transition-all ${selectedProtocol === proto ? 'border-o1-crimson bg-red-500/10 text-red-400 font-bold' : 'border-white/[0.07] bg-black text-neutral-300'}`}>{proto}</button>
+                <button key={proto} type="button" onClick={() => { tactileEngine.triggerSelectionBuzz(); setSelectedProtocol(proto); }} className={`p-2 rounded-xl border text-left text-xs font-semibold truncate transition-all ${selectedProtocol === proto ? 'border-o1-crimson bg-o1-crimson text-white font-bold' : 'border-white/[0.07] bg-black text-neutral-300'}`}>{proto}</button>
               ))}
             </div>
           </div>
 
           <div>
             <div className="flex items-center justify-between mb-1.5">
-              <label className="text-xs font-bold uppercase text-neutral-400">Athletes ({selectedIds.length}/{athletes.length})</label>
+              <label className="text-xs font-bold text-neutral-400">Athletes ({selectedIds.length}/{athletes.length})</label>
               {athletes.length > 0 && <button type="button" onClick={toggleSelectAll} className="text-xs font-bold text-o1-crimson hover:underline">{allSelected ? 'Deselect All' : 'Select All'}</button>}
             </div>
             {athletes.length === 0 ? (

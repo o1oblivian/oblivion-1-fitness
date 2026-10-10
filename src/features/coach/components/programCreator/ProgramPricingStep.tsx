@@ -141,7 +141,7 @@ export const ProgramPricingStep: React.FC<{
                 {/* 3 Metric Pills */}
                 <div className="grid grid-cols-3 gap-2 text-center">
                   <div className="p-2.5 rounded-xl bg-o1-well border border-white/[0.07]">
-                    <span className="text-[9px] uppercase text-neutral-400 block font-semibold">
+                    <span className="text-[9px] text-neutral-400 block font-semibold">
                       Sale Price
                     </span>
                     <span className="text-xs font-bold font-mono text-white">
@@ -149,7 +149,7 @@ export const ProgramPricingStep: React.FC<{
                     </span>
                   </div>
                   <div className="p-2.5 rounded-xl bg-o1-well border border-white/[0.07]">
-                    <span className="text-[9px] uppercase text-neutral-400 block font-semibold">
+                    <span className="text-[9px] text-neutral-400 block font-semibold">
                       Platform ({feePct})
                     </span>
                     <span className="text-xs font-bold font-mono text-neutral-400">
@@ -157,7 +157,7 @@ export const ProgramPricingStep: React.FC<{
                     </span>
                   </div>
                   <div className="p-2.5 rounded-xl bg-emerald-950/20 border border-emerald-800/40">
-                    <span className="text-[9px] uppercase text-emerald-400 block font-semibold">
+                    <span className="text-[9px] text-emerald-400 block font-semibold">
                       Your Payout ({payoutPct})
                     </span>
                     <span className="text-xs font-bold font-mono text-emerald-400">

@@ -51,8 +51,9 @@ export const CoachHeaderDeck: React.FC<CoachHeaderDeckProps> = ({
   })();
 
   return (
-    <div id="coach-master-header-deck" className="w-full bg-o1-card border border-white/[0.07] text-neutral-100 rounded-2xl p-4 shadow-xl space-y-4 select-none transition-colors relative">
-      <div className="grid grid-cols-3 gap-3 sm:gap-4 items-center justify-center max-w-[360px] mx-auto">
+    <div className="w-full space-y-2.5">
+    <div id="coach-master-header-deck" className="w-full bg-o1-card border border-white/[0.07] text-neutral-100 rounded-2xl p-3 shadow-xl space-y-2.5 select-none transition-colors relative overflow-x-hidden">
+      <div className="grid grid-cols-3 gap-2 items-center justify-center max-w-[360px] mx-auto">
         <div className="flex flex-col items-center gap-1">
           <button
             type="button"
@@ -61,7 +62,7 @@ export const CoachHeaderDeck: React.FC<CoachHeaderDeckProps> = ({
           >
             <Layers size={26} className="text-o1-crimson group-hover:text-o1-crimson-hover transition-colors stroke-[2.2]" />
           </button>
-          <span className="text-[9px] sm:text-[10px] font-bold text-neutral-100 uppercase font-tactical tracking-wider text-center">PROGRAMS</span>
+          <span className="text-[9px] sm:text-[10px] font-bold text-neutral-100 font-tactical tracking-wider text-center">Programs</span>
           <span className="text-[8px] sm:text-[9px] text-neutral-400 font-telemetry font-semibold">
             {genuineProgramsCount} ACTIVE
           </span>
@@ -74,9 +75,9 @@ export const CoachHeaderDeck: React.FC<CoachHeaderDeckProps> = ({
           >
             <Dumbbell size={26} className="text-sky-400 group-hover:text-sky-500 transition-colors stroke-[2.2]" />
           </button>
-          <span className="text-[9px] sm:text-[10px] font-bold text-neutral-100 uppercase font-tactical tracking-wider text-center">WORKOUT</span>
+          <span className="text-[9px] sm:text-[10px] font-bold text-neutral-100 font-tactical tracking-wider text-center">Workout</span>
           <span className="text-[8px] sm:text-[9px] font-telemetry font-bold text-neutral-400">
-            {activeSession ? 'IN PROGRESS' : 'READY'}
+            {activeSession ? 'In progress' : 'ready'}
           </span>
         </div>
         <div className="flex flex-col items-center gap-1">
@@ -87,14 +88,15 @@ export const CoachHeaderDeck: React.FC<CoachHeaderDeckProps> = ({
           >
             <Film size={26} className="text-amber-400 group-hover:text-amber-500 transition-colors stroke-[2.2]" />
           </button>
-          <span className="text-[9px] sm:text-[10px] font-bold text-neutral-100 uppercase font-tactical tracking-wider text-center">VAULT</span>
+          <span className="text-[9px] sm:text-[10px] font-bold text-neutral-100 font-tactical tracking-wider text-center">Vault</span>
           <span className="text-[8px] sm:text-[9px] text-neutral-400 font-telemetry font-semibold">
             {genuineVaultCount} ASSETS
           </span>
         </div>
       </div>
 
-      <CoachSubNavBar currentSubTab={currentSubTab} onSelectSubTab={onSelectSubTab} />
+    </div>
+    <CoachSubNavBar currentSubTab={currentSubTab} onSelectSubTab={onSelectSubTab} />
     </div>
   );
 };

@@ -3,6 +3,11 @@ import { tactileEngine } from '../../../services/tactileEngine';
 import { FuelMeals, MealItem } from '../store/useFuelStore';
 import { SlotKey } from '../constants/fuelConstants';
 
+function finite(value: unknown): number {
+  const n = Number(value);
+  return Number.isFinite(n) ? n : 0;
+}
+
 export interface VerifiedFoodItem {
   id?: string;
   name: string;
@@ -39,17 +44,19 @@ export function useFuelTotals({
     (Object.keys(meals) as SlotKey[]).forEach((slot) => {
       const items = meals[slot] || [];
       items.forEach((item) => {
-        totalCalories += Number(item.calories) || 0;
-        totalProtein += Number(item.protein) || 0;
-        totalCarbs += Number(item.carbs) || 0;
-        totalFats += Number(item.fats) || 0;
+        totalCalories += finite(item.calories);
+        totalProtein += finite(item.protein);
+        totalCarbs += finite(item.carbs);
+        totalFats += finite(item.fats);
       });
     });
 
-    const netCalories = totalCalories;
-    const remainingCalories = Math.max(0, calorieTarget - netCalories + burnedKcal);
+    const netCalories = finite(totalCalories);
+    const target = finite(calorieTarget);
+    const burned = finite(burnedKcal);
+    const remainingCalories = Math.max(0, target - netCalories + burned);
     const progressPercent =
-      calorieTarget > 0 ? Math.min(100, Math.round((netCalories / calorieTarget) * 100)) : 0;
+      target > 0 ? Math.min(100, Math.round((netCalories / target) * 100)) : 0;
 
     return {
       totalCalories,

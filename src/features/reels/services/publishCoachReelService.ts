@@ -1,7 +1,7 @@
 import { CompressedMediaResult } from '../../../utils/mediaCompressor';
 import { supabase } from '../../../services/supabaseClient';
 import { useReelsStore } from '../../../stores/useReelsStore';
-import { ExploreCoach, ExploreReelItem } from '../../../data/reelsExploreCatalog';
+import { ExploreCoach, ExploreReelItem } from '../reelTypes';
 import { REEL_CATEGORIES, SUB_FILTER_TAGS } from '../components/ReelCategorySelector';
 
 interface PublishReelParams {
@@ -36,8 +36,8 @@ export async function publishCoachReel({
     avatar: authorAvatar,
     verified: true,
     specialtyTitle: `${authorName} • Performance Coach`,
-    rating: 5.0,
-    reviewCount: 1,
+    rating: 0,
+    reviewCount: 0,
     certificationPill: 'O1 CERTIFIED',
     rate: 'Club Coach',
     slotsRemaining: 1,
@@ -57,7 +57,7 @@ export async function publishCoachReel({
         : selectedFilterTag,
     videoUrl: previewUrl,
     thumbnail: compressedResult?.thumbnailUrl || previewUrl,
-    views: '1.0K',
+    views: '--',
     duration: compressedResult?.durationSecs ? `0:${compressedResult.durationSecs.toString().padStart(2, '0')}` : '0:30',
     cues: cues.trim() || 'Focus on controlled eccentric tension and standardized biomechanics.',
     coach: coachMeta,

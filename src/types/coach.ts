@@ -71,6 +71,7 @@ export interface DispatchedExercise {
   readonly targetMuscle?: string;
   readonly restSecs?: number;
   readonly notes?: string;
+  readonly weightKg?: number;
 }
 
 export interface CoachDispatchedWorkout {

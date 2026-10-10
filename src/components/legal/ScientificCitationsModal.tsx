@@ -137,9 +137,9 @@ export const ScientificCitationsModal: React.FC<ScientificCitationsModalProps> =
           <button
             type="button"
             onClick={handleClose}
-            className="w-full bg-o1-crimson hover:bg-o1-crimson-hover active:scale-95 text-white font-bold text-xs py-3 rounded-full uppercase tracking-wider shadow-md transition-all cursor-pointer font-tactical"
+            className="w-full bg-o1-crimson hover:bg-o1-crimson-hover active:scale-95 text-white font-bold text-xs py-3 rounded-full tracking-wider shadow-md transition-all cursor-pointer font-tactical"
           >
-            [ CLOSE CITATIONS ]
+            [ Close citations ]
           </button>
         </div>
       </div>

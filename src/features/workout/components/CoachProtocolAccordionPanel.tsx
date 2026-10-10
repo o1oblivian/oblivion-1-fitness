@@ -1,21 +1,18 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { User, Sparkles, Play } from 'lucide-react';
-import { ExerciseItem } from '../../../types';
-import { useWorkoutStore } from '../store/useWorkoutStore';
 import { useCoachStore } from '../../../stores/useCoachStore';
 import { tactileEngine } from '../../../services/tactileEngine';
-import { DEFAULT_DISPATCHED_EXERCISES } from '../data/dispatchedWorkoutsData';
+import { mockAssignedWorkouts } from '../../../services/devMocks';
+import { resolveTodaySession, startTodaySession } from '../../log/todaySession';
 
 interface CoachProtocolAccordionPanelProps {
   onClose: () => void;
-  onDeployProtocol?: (exercises: ExerciseItem[]) => void;
+  onLoaded?: (title: string) => void;
 }
 
-export const CoachProtocolAccordionPanel: React.FC<CoachProtocolAccordionPanelProps> = ({
-  onClose,
-  onDeployProtocol,
-}) => {
-  const [isLoading, setIsLoading] = useState(false);
+export const CoachProtocolAccordionPanel: React.FC<CoachProtocolAccordionPanelProps> = ({ onClose, onLoaded }) => {
+  const assigned = useCoachStore((s) => s.assignedWorkouts);
+  const workout = assigned.find((row) => row.status !== 'completed') ?? mockAssignedWorkouts()[0] ?? null;
 
   const handleOpenCoachHub = () => {
     tactileEngine.triggerSelectionBuzz();
@@ -24,16 +21,14 @@ export const CoachProtocolAccordionPanel: React.FC<CoachProtocolAccordionPanelPr
     if (coachTab) coachTab.click();
   };
 
-  const handleLoadProtocol = () => {
-    setIsLoading(true);
-    tactileEngine.playPRCelebration();
-    const { setExercises, setActiveSession, setActiveRoutine, setMode } = useWorkoutStore.getState();
-    setExercises(DEFAULT_DISPATCHED_EXERCISES);
-    setActiveRoutine('Push Day • Chest & Shoulder Overload');
-    setActiveSession(true);
-    setMode('Lift');
-
-    onDeployProtocol?.(DEFAULT_DISPATCHED_EXERCISES);
+  const handleLoad = () => {
+    if (!workout) return;
+    tactileEngine.triggerSelectionBuzz();
+    useCoachStore.getState().ingestAssigned(workout);
+    const session = resolveTodaySession();
+    if (session.origin !== 'coach') return;
+    startTodaySession(session);
+    onLoaded?.(session.title);
     onClose();
 
     setTimeout(() => {
@@ -50,8 +45,8 @@ export const CoachProtocolAccordionPanel: React.FC<CoachProtocolAccordionPanelPr
             <User className="w-4 h-4 stroke-[2]" />
           </div>
           <div>
-            <h3 className="font-mono text-xs font-bold uppercase tracking-wider text-white leading-tight">
-              COACH TRAINING PROTOCOL
+            <h3 className="font-mono text-xs font-bold tracking-wider text-white leading-tight">
+              Coach Training Protocol
             </h3>
             <p className="text-[11px] text-neutral-400 leading-tight mt-0.5">
               Assigned workouts &amp; active programs
@@ -61,66 +56,65 @@ export const CoachProtocolAccordionPanel: React.FC<CoachProtocolAccordionPanelPr
         <button
           type="button"
           onClick={handleOpenCoachHub}
-          className="text-[10px] font-mono font-bold text-o1-crimson bg-o1-crimson/10 border border-o1-crimson/30 hover:bg-o1-crimson/20 px-2.5 py-1 rounded-xl uppercase tracking-wider transition-colors cursor-pointer"
+          className="text-[10px] font-mono font-bold text-o1-crimson bg-o1-crimson/10 border border-o1-crimson/30 hover:bg-o1-crimson/20 px-2.5 py-1 rounded-xl tracking-wider transition-colors cursor-pointer"
         >
-          COACH HUB
+          Coach Hub
         </button>
       </div>
 
-      <div className="space-y-2.5">
-        <div className="flex items-center justify-between text-neutral-400">
-          <div className="flex items-center gap-1.5">
-            <Sparkles className="w-3.5 h-3.5 text-o1-crimson fill-o1-crimson" />
-            <span className="font-mono text-xs font-bold uppercase tracking-wider">
-              TODAY'S DISPATCHED WORKOUT
+      {workout ? (
+        <div className="space-y-2.5">
+          <div className="flex items-center justify-between text-neutral-400">
+            <div className="flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5 text-o1-crimson fill-o1-crimson" />
+              <span className="font-mono text-xs font-bold tracking-wider">From your coach</span>
+            </div>
+            <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded border text-emerald-400 bg-emerald-500/10 border-emerald-500/20">
+              ● Ready to load
             </span>
           </div>
-          <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded border text-emerald-400 bg-emerald-500/10 border-emerald-500/20">
-            ● READY TO LOAD
-          </span>
-        </div>
 
-        <div className="p-4 rounded-2xl bg-o1-well border border-white/[0.07] space-y-3">
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <h4 className="text-xs sm:text-sm font-bold text-white leading-snug">
-                Push Day • Chest &amp; Shoulder Overload
-              </h4>
-              <p className="text-[11px] text-neutral-400 mt-0.5 font-medium">
-                Head Coach • 4 exercises
+          <div className="p-4 rounded-2xl bg-o1-well border border-white/[0.07] space-y-3">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <h4 className="text-xs sm:text-sm font-bold text-white leading-snug">{workout.title}</h4>
+                <p className="text-[11px] text-neutral-400 mt-0.5 font-medium">
+                  {workout.coachName} · {workout.exercises.length} exercises
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={handleLoad}
+                className="min-h-[44px] px-4 rounded-full bg-white text-neutral-950 hover:bg-neutral-100 active:scale-95 font-bold text-xs flex items-center gap-1.5 shadow-xs transition-all cursor-pointer shrink-0"
+              >
+                <Play className="w-3 h-3 fill-current" />
+                <span>Load</span>
+              </button>
+            </div>
+
+            <div className="space-y-1.5">
+              {workout.exercises.map((exercise) => (
+                <div
+                  key={exercise.id}
+                  className="px-3 py-1.5 rounded-xl bg-white/[0.08] text-neutral-200 text-xs font-mono font-medium border border-white/[0.07]"
+                >
+                  {exercise.name} ({exercise.sets}×{exercise.reps} reps)
+                </div>
+              ))}
+            </div>
+
+            {workout.notes && (
+              <p className="text-xs text-neutral-400 italic font-mono pt-1.5 border-t border-white/[0.05] leading-relaxed">
+                “{workout.notes}”
               </p>
-            </div>
-            <button
-              type="button"
-              disabled={isLoading}
-              onClick={handleLoadProtocol}
-              className="px-4 py-1.5 rounded-full bg-white text-neutral-950 hover:bg-neutral-100 active:scale-95 font-bold text-xs flex items-center gap-1.5 shadow-xs transition-all cursor-pointer shrink-0 disabled:opacity-50"
-            >
-              <Play className="w-3 h-3 fill-current" />
-              <span>Load</span>
-            </button>
+            )}
           </div>
-
-          <div className="space-y-1.5">
-            <div className="px-3 py-1.5 rounded-xl bg-white/[0.08] text-neutral-200 text-xs font-mono font-medium border border-white/[0.07]">
-              Incline Barbell Press (4×8 reps)
-            </div>
-            <div className="px-3 py-1.5 rounded-xl bg-white/[0.08] text-neutral-200 text-xs font-mono font-medium border border-white/[0.07]">
-              Seated DB Shoulder Press (3×10 reps)
-            </div>
-            <div className="px-3 py-1.5 rounded-xl bg-white/[0.08] text-neutral-200 text-xs font-mono font-medium border border-white/[0.07]">
-              Cable Lateral Raise (4×12 reps)
-            </div>
-            <div className="px-3 py-1.5 rounded-xl bg-white/[0.08] text-neutral-200 text-xs font-mono font-medium border border-white/[0.07]">
-              Incline Cable Flye (3×12 reps)
-            </div>
-          </div>
-
-          <p className="text-xs text-neutral-400 italic font-mono pt-1.5 border-t border-white/[0.05] leading-relaxed">
-            "[Hypertrophy Focus] Controlled 3s eccentric tempo. Full stretch on each repetition."
-          </p>
         </div>
-      </div>
+      ) : (
+        <p className="px-1 py-3 text-[13px] text-neutral-400">
+          No workout from your coach yet. When your coach sends one, it shows up here.
+        </p>
+      )}
     </div>
   );
 };

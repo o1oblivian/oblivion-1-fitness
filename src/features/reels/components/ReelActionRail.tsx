@@ -1,11 +1,12 @@
 import React from 'react';
 import { Heart, MessageCircle, Bookmark, Share2, Plus, Check } from 'lucide-react';
-import { ExploreReelItem, FilmstripClip, ExploreCoach } from '../../../data/reelsExploreCatalog';
+import { ExploreReelItem, FilmstripClip, ExploreCoach } from '../reelTypes';
 
 interface ReelActionRailProps {
   activeReel: ExploreReelItem;
   activeClip: FilmstripClip | null;
   likedReels: Record<string, boolean>;
+  likeCount: number | null;
   savedReels: Record<string, boolean>;
   addedExercises: Record<string, boolean>;
   onToggleLike: (reelId: string, e?: React.MouseEvent) => void;
@@ -15,10 +16,22 @@ interface ReelActionRailProps {
   onMessageCoach: (coach: ExploreCoach) => void;
 }
 
+function compact(value: number): string {
+  if (value >= 1_000_000) return `${(value / 1_000_000).toFixed(1).replace(/\.0$/, '')}M`;
+  if (value >= 1_000) return `${(value / 1_000).toFixed(1).replace(/\.0$/, '')}k`;
+  return String(value);
+}
+
+const BUTTON = 'flex min-h-[44px] min-w-[44px] flex-col items-center justify-center gap-0.5 group cursor-pointer active:scale-90 transition-transform';
+const ICON = 'w-6 h-6 drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)] transition-all stroke-[1.4]';
+const IDLE = 'text-white/85 group-hover:text-white group-hover:scale-105';
+const LABEL = 'text-[10px] font-sans font-medium text-white/85 drop-shadow-[0_1px_2px_rgba(0,0,0,0.85)]';
+
 export const ReelActionRail: React.FC<ReelActionRailProps> = ({
   activeReel,
   activeClip,
   likedReels,
+  likeCount,
   savedReels,
   addedExercises,
   onToggleLike,
@@ -27,93 +40,68 @@ export const ReelActionRail: React.FC<ReelActionRailProps> = ({
   onAddExercise,
   onMessageCoach,
 }) => {
+  const liked = Boolean(likedReels[activeReel.id]);
+  const saved = Boolean(savedReels[activeReel.id]);
+  const logged = Boolean(addedExercises[activeReel.id]);
+
   return (
     <div
-      className="absolute right-3.5 bottom-16 sm:bottom-20 z-30 flex flex-col items-center gap-3.5 select-none pointer-events-auto"
+      className="absolute right-2 bottom-20 sm:bottom-24 z-30 flex flex-col items-center gap-1.5 select-none pointer-events-auto"
       onClick={(e) => e.stopPropagation()}
     >
-      {/* Like Button (Thinner stroke 1.2, translucent white/75) */}
       <button
         type="button"
         onClick={(e) => onToggleLike(activeReel.id, e)}
-        className="flex flex-col items-center gap-0.5 group cursor-pointer active:scale-90 transition-transform"
-        aria-label="Like Reel"
+        className={BUTTON}
+        aria-label={liked ? 'Unlike reel' : 'Like reel'}
+        aria-pressed={liked}
       >
-        <Heart
-          className={`w-5.5 h-5.5 drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)] transition-all ${
-            likedReels[activeReel.id]
-              ? 'fill-red-500 text-red-500 scale-105 stroke-[1.2]'
-              : 'text-white/75 group-hover:text-white stroke-[1.2] group-hover:scale-105'
-          }`}
-        />
-        <span className="text-[10px] font-sans font-normal text-white/75 drop-shadow-[0_1px_2px_rgba(0,0,0,0.85)]">
-          {likedReels[activeReel.id] ? '713' : '712'}
-        </span>
+        <Heart className={`${ICON} ${liked ? 'fill-[#C4121A] text-[#C4121A] scale-105' : IDLE}`} />
+        <span className={LABEL}>{likeCount != null ? compact(likeCount) : 'Like'}</span>
       </button>
 
-      {/* Comment / Message Coach */}
-      <button
-        type="button"
-        onClick={() => onMessageCoach(activeReel.coach)}
-        className="flex flex-col items-center gap-0.5 group cursor-pointer active:scale-90 transition-transform"
-        aria-label="Message Coach"
-      >
-        <MessageCircle className="w-5.5 h-5.5 text-white/75 group-hover:text-white stroke-[1.2] drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)] group-hover:scale-105 transition-transform" />
-        <span className="text-[10px] font-sans font-normal text-white/75 drop-shadow-[0_1px_2px_rgba(0,0,0,0.85)]">
-          173
-        </span>
-      </button>
+      {activeReel.coach ? (
+        <button
+          type="button"
+          onClick={() => onMessageCoach(activeReel.coach)}
+          className={BUTTON}
+          aria-label={`Message ${activeReel.coach.name}`}
+        >
+          <MessageCircle className={`${ICON} ${IDLE}`} />
+          <span className={LABEL}>Message</span>
+        </button>
+      ) : null}
 
-      {/* Save Button */}
       <button
         type="button"
         onClick={(e) => onToggleSave(activeReel.id, e)}
-        className="flex flex-col items-center gap-0.5 group cursor-pointer active:scale-90 transition-transform"
-        aria-label="Save Reel"
+        className={BUTTON}
+        aria-label={saved ? 'Remove from vault' : 'Save to vault'}
+        aria-pressed={saved}
       >
-        <Bookmark
-          className={`w-5.5 h-5.5 drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)] transition-all ${
-            savedReels[activeReel.id]
-              ? 'fill-amber-400 text-amber-400 scale-105 stroke-[1.2]'
-              : 'text-white/75 group-hover:text-white stroke-[1.2] group-hover:scale-105'
-          }`}
-        />
-        <span className="text-[10px] font-sans font-normal text-white/75 drop-shadow-[0_1px_2px_rgba(0,0,0,0.85)]">
-          Save
-        </span>
+        <Bookmark className={`${ICON} ${saved ? 'fill-[#f59e0b] text-[#f59e0b] scale-105' : IDLE}`} />
+        <span className={LABEL}>{saved ? 'Saved' : 'Save'}</span>
       </button>
 
-      {/* Share Button (Fully functional with lighter, translucent stroke) */}
-      <button
-        type="button"
-        onClick={onShare}
-        className="flex flex-col items-center gap-0.5 group cursor-pointer active:scale-90 transition-transform"
-        aria-label="Share Reel"
-      >
-        <Share2 className="w-5.5 h-5.5 text-white/75 group-hover:text-white stroke-[1.2] drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)] group-hover:scale-105 transition-transform" />
-        <span className="text-[10px] font-sans font-normal text-white/75 drop-shadow-[0_1px_2px_rgba(0,0,0,0.85)]">
-          Share
-        </span>
+      <button type="button" onClick={onShare} className={BUTTON} aria-label="Share reel">
+        <Share2 className={`${ICON} ${IDLE}`} />
+        <span className={LABEL}>Share</span>
       </button>
 
-      {/* Add To Workout Log */}
       <button
         type="button"
         onClick={() => onAddExercise(activeReel, activeClip)}
-        className="flex flex-col items-center gap-0.5 group cursor-pointer active:scale-90 transition-transform"
-        title="Add Exercise to Active Log"
-        aria-label="Log Movement"
+        className={BUTTON}
+        title={logged ? 'Already in today\u2019s log' : 'Add this movement to today\u2019s log'}
+        aria-label={logged ? 'Movement logged' : 'Log movement'}
+        aria-pressed={logged}
       >
-        <div className="w-5.5 h-5.5 flex items-center justify-center drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]">
-          {addedExercises[activeReel.id] ? (
-            <Check className="w-5.5 h-5.5 text-emerald-400/90 stroke-[1.6]" />
-          ) : (
-            <Plus className="w-5.5 h-5.5 text-o1-crimson/90 stroke-[1.6]" />
-          )}
-        </div>
-        <span className="text-[10px] font-sans font-normal text-white/75 drop-shadow-[0_1px_2px_rgba(0,0,0,0.85)]">
-          {addedExercises[activeReel.id] ? 'Logged' : 'Log'}
-        </span>
+        {logged ? (
+          <Check className={`${ICON} text-[#10b981]`} />
+        ) : (
+          <Plus className={`${ICON} text-white/85 group-hover:text-white`} />
+        )}
+        <span className={LABEL}>{logged ? 'Logged' : 'Log'}</span>
       </button>
     </div>
   );

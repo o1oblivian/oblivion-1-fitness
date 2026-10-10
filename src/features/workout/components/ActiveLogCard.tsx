@@ -1,20 +1,25 @@
 import React, { useState } from 'react';
-import { ChevronDown, ChevronUp, X, Sparkles } from 'lucide-react';
+import { ChevronDown, ChevronUp, X, Flag } from 'lucide-react';
 import { CommitWorkoutModal } from './modals/CommitWorkoutModal';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { useWorkoutStore } from '../store/useWorkoutStore';
-import { useActiveProgramStore } from '../../../stores/useActiveProgramStore';
 import { useCoachStore } from '../../../stores/useCoachStore';
+import { settleFinishedSession } from '../../log/todaySession';
 import { DialInputModal } from '../../../components/common/DialInputModal';
 import { ActiveLogExerciseAccordion } from './ActiveLogExerciseAccordion';
 import { saveAthleteDayRoutine } from '../services/dayRoutineService';
 import { useLogStore } from '../../../stores/useLogStore';
 import { useUserStore } from '../../../stores/useUserStore';
 import { useTelemetryHistoryStore, getTelemetryHistoryState } from '../../log/store/useTelemetryHistoryStore';
+import { exerciseFromSets, setsFromExercise } from '../../log/liftLedger';
+import { releaseForgotten } from '../../log/services/dayLogService';
 import { syncSessionToSupabase } from '../../../services/supabaseClient';
 import { getAuthenticatedUserId } from '../../../services/authUser';
+import { readLinkedCoach } from '../../coach/services/coachLink';
+import { publishFinishedWorkout } from '../../coach/services/coachBridge';
 import { readAthleteSettingsSnapshot } from '../../../utils/athleteSettingsSnapshot';
 import { displayToKg, kgToDisplay, loadUnitLabel } from '../../../utils/weightUnits';
+import { priorBestKg, setIsPr } from '../services/sessionPr';
 
 export interface ActiveLogCardProps {
   onShowToast?: (msg: string) => void;
@@ -44,7 +49,7 @@ export const ActiveLogCard: React.FC<ActiveLogCardProps> = ({ onShowToast }) => 
     {
       title: 'Full Body Foundation',
       subtitle: '35 mins • 4 classic movements',
-      badge: 'BEGINNER BEST',
+      badge: 'Beginner Best',
       routineName: 'Full Body Foundation (Beginner)',
       exercises: [
         {
@@ -100,7 +105,7 @@ export const ActiveLogCard: React.FC<ActiveLogCardProps> = ({ onShowToast }) => 
     {
       title: 'Upper Push & Pull Starter',
       subtitle: '30 mins • Arms & Upper Body',
-      badge: 'EASY START',
+      badge: 'Easy Start',
       routineName: 'Upper Body Starter (Beginner)',
       exercises: [
         {
@@ -176,11 +181,15 @@ export const ActiveLogCard: React.FC<ActiveLogCardProps> = ({ onShowToast }) => 
 
   exercises.forEach((ex) => {
     (ex.sets || []).forEach((s) => {
+      const done = Boolean(s.completed) || (Number(s.reps) > 0 && Number(s.weightKg ?? s.weight) > 0);
+      if (!done) return;
       totalSets += 1;
-      const w = s.weightKg || s.weight || 0;
-      const r = s.reps || 0;
-      totalVolume += w * r;
-      totalReps += r;
+      const w = Number(s.weightKg ?? s.weight);
+      const r = Number(s.reps);
+      const weight = Number.isFinite(w) && w > 0 ? w : 0;
+      const reps = Number.isFinite(r) && r > 0 ? r : 0;
+      totalVolume += weight * reps;
+      totalReps += reps;
     });
   });
 
@@ -289,18 +298,18 @@ export const ActiveLogCard: React.FC<ActiveLogCardProps> = ({ onShowToast }) => 
     const mappedPastExercises = exercises.map((ex) => ({
       name: ex.name,
       sets: ex.sets.length,
-      reps: `${ex.sets[0]?.reps || 10} reps`,
-      load: `${ex.sets[0]?.weightKg || 60} KG`,
+      reps: ex.sets[0]?.reps > 0 ? `${ex.sets[0].reps} reps` : '--',
+      load: (ex.sets[0]?.weightKg || ex.sets[0]?.weight || 0) > 0 ? `${ex.sets[0]?.weightKg || ex.sets[0]?.weight} kg` : '--',
     }));
 
     useLogStore.getState().addRecentSession({
       id: `session-${Date.now()}`,
       title: activeTitle,
       timestamp: 'Today, ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      duration: '45m',
+      duration: '--',
       tonnageKg: totalVolume,
       totalSets,
-      strain: Math.min(18.5, +(8.5 + (totalVolume / 1500)).toFixed(1)),
+      strain: 0,
       exercises: mappedPastExercises,
     });
 
@@ -313,44 +322,48 @@ export const ActiveLogCard: React.FC<ActiveLogCardProps> = ({ onShowToast }) => 
 
     // 2. Dispatch finish notification & workout history log to Coach Store for daily feedback
     const athleteUser = useUserStore.getState();
-    useCoachStore.getState().recordFinishedWorkout({
+    const linkedCoach = readLinkedCoach();
+    const finished = {
       id: `wlog-${Date.now()}`,
-      athleteId: 'ath-current',
-      athleteName: athleteUser.name || 'Vance Sterling',
+      athleteId: athleteUser.userId || 'ath-current',
+      athleteName: athleteUser.name || 'Athlete',
       athleteAvatar: athleteUser.avatarUrl,
       title: activeTitle,
       tonnageKg: totalVolume,
       totalSets,
       totalReps,
-      avgRpe: 8.5,
-      durationMinutes: 45,
-      completedAt: 'Just now',
+      avgRpe: 0,
+      durationMinutes: 0,
+      completedAt: new Date().toISOString(),
       exercises: exercises.map((e) => ({
         name: e.name,
         sets: e.sets.length,
-        reps: e.sets[0]?.reps || 10,
-        weightKg: e.sets[0]?.weightKg || 60,
-        rpe: e.sets[0]?.rpe || 8.5,
+        reps: e.sets[0]?.reps || 0,
+        weightKg: e.sets[0]?.weightKg || e.sets[0]?.weight || 0,
+        rpe: e.sets[0]?.rpe || 0,
       })),
-    });
+    };
+    useCoachStore.getState().recordFinishedWorkout(finished);
+    if (linkedCoach?.id) void publishFinishedWorkout(finished, linkedCoach.id);
 
     // 3. Register accurately and straight into useTelemetryHistoryStore for Workout History & 7-Day Matrix
     const now = new Date();
     const todayDateKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+    releaseForgotten(todayDateKey, 'workout');
     useTelemetryHistoryStore.getState().updateDayRecord(todayDateKey, 'workout', {
       hasData: true,
       tonnageKg: totalVolume,
       completedSets: totalSets,
-      durationMinutes: 45,
+      durationMinutes: 0,
       routineName: activeTitle,
-      intensityRpe: 8.5,
-      exercises: exercises.map((e) => ({
-        name: e.name || e.exerciseName || 'Exercise',
-        sets: (e.sets || []).length,
-        reps: e.sets?.[0]?.reps || 10,
-        weightKg: e.sets?.[0]?.weightKg || e.sets?.[0]?.weight || 0,
-        completed: true,
-      })),
+      intensityRpe: 0,
+      exercises: exercises
+        .map((e) => exerciseFromSets(
+          e.name || e.exerciseName || 'Exercise',
+          setsFromExercise(e),
+          true,
+        ))
+        .filter((entry) => (entry.setLog?.length || 0) > 0),
     });
 
     // 4. Persist to live Supabase tables completed_sessions and workout_logs
@@ -364,18 +377,31 @@ export const ActiveLogCard: React.FC<ActiveLogCardProps> = ({ onShowToast }) => 
         id: `session-${Date.now()}`,
         user_id: uid,
         title: activeTitle,
-        duration: '45m',
-        duration_seconds: 45 * 60,
+        duration: '',
+        duration_seconds: 0,
         tonnage_kg: totalVolume,
         total_sets: totalSets,
-        strain: Math.min(18.5, +(8.5 + (totalVolume / 1500)).toFixed(1)),
-        exercises: exercises.map((e) => ({
-          name: e.name || e.exerciseName || 'Exercise',
-          sets: e.sets || [],
-          reps: e.sets?.[0]?.reps || 0,
-          weightKg: e.sets?.[0]?.weightKg || e.sets?.[0]?.weight || 0,
-          rpe: e.sets?.[0]?.rpe || 0,
-        })),
+        strain: 0,
+        exercises: exercises.map((e) => {
+          const name = e.name || e.exerciseName || 'Exercise';
+          const prior = priorBestKg(name);
+          return {
+            name,
+            sets: (e.sets || []).map((set) => {
+              const weightKg = Number(set.weightKg ?? set.weight) || 0;
+              const reps = Number(set.reps) || 0;
+              return {
+                ...set,
+                weightKg,
+                reps,
+                is_pr: setIsPr(name, weightKg, reps, prior),
+              };
+            }),
+            reps: e.sets?.[0]?.reps || 0,
+            weightKg: e.sets?.[0]?.weightKg || e.sets?.[0]?.weight || 0,
+            rpe: e.sets?.[0]?.rpe || 0,
+          };
+        }),
       });
       notify(ok ? 'Cloud Sync: Session archived.' : 'Cloud archive failed. Session is still saved on this device.');
     })();
@@ -384,15 +410,11 @@ export const ActiveLogCard: React.FC<ActiveLogCardProps> = ({ onShowToast }) => 
     setIsCommitOpen(false);
     tactileEngine.playPRCelebration();
 
-    // 3. Advance active program day so tomorrow's workout or rest day becomes visible in both My Coach and Log dashboard
-    const advanceResult = useActiveProgramStore.getState().completeTodayAndAdvance();
-
-    if (advanceResult?.isRestDay) {
-      notify(`Session Log Registered! Tomorrow is a Scheduled Rest Day: "${advanceResult?.nextDay?.title || 'Active Recovery'}".`);
-    } else if (advanceResult?.nextDay?.title) {
-      notify(`Session Log Registered! Next Day Loaded: "${advanceResult.nextDay.title}". Prepare ahead!`);
+    const settled = settleFinishedSession();
+    if (settled.nextTitle) {
+      notify(`Saved. Next up: ${settled.nextTitle}.`);
     } else {
-      notify('Session Log Registered! Excellent performance.');
+      notify('Session saved for today.');
     }
   };
 
@@ -411,17 +433,17 @@ export const ActiveLogCard: React.FC<ActiveLogCardProps> = ({ onShowToast }) => 
         {/* Header Telemetry */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold text-neutral-100 uppercase tracking-wide">
+            <span className="text-xs font-semibold text-neutral-100 tracking-wide">
               Active Log
             </span>
             <span className="text-[11px] font-mono text-neutral-400">
               {exercises.length} {exercises.length === 1 ? 'exercise' : 'exercises'}
             </span>
           </div>
-          <div className="flex items-center gap-3 text-[11px] font-mono text-neutral-400">
+          <div className="o1-num flex items-center gap-3 text-[11px] text-neutral-400">
             <span>
               V:{' '}
-              <strong className="text-o1-crimson">
+              <strong className="text-white">
                 {kgToDisplay(totalVolume, readAthleteSettingsSnapshot().weightUnit).toLocaleString()}{' '}
                 {loadUnitLabel(readAthleteSettingsSnapshot().weightUnit)}
               </strong>
@@ -438,7 +460,7 @@ export const ActiveLogCard: React.FC<ActiveLogCardProps> = ({ onShowToast }) => 
         {/* Exercise Rows or Empty State */}
         {exercises.length === 0 ? (
           <div className="rounded-2xl bg-black border border-white/[0.07] px-3 py-3 space-y-2">
-            <p className="text-xs text-neutral-400">
+            <p className="text-xs text-[#F2EFE6]">
               Nothing logged yet. Start a session above.
             </p>
             <button
@@ -454,7 +476,7 @@ export const ActiveLogCard: React.FC<ActiveLogCardProps> = ({ onShowToast }) => 
             {showQuickStart && (
             <div className="rounded-2xl bg-o1-card border border-white/[0.07] p-3 space-y-2">
               <div className="flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-o1-crimson" />
+                <Flag className="w-4 h-4 text-neutral-400" strokeWidth={1.75} />
                 <h4 className="text-xs font-semibold text-white">
                   Beginner quick start
                 </h4>
@@ -467,7 +489,7 @@ export const ActiveLogCard: React.FC<ActiveLogCardProps> = ({ onShowToast }) => 
                     className="p-3 rounded-xl bg-o1-well border border-white/[0.07] hover:border-white/[0.14] transition-all cursor-pointer flex flex-col justify-between group active:scale-[0.99]"
                   >
                     <div>
-                      <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full bg-white/10 text-neutral-300 uppercase">
+                      <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full bg-white/10 text-neutral-300">
                         {starter.badge}
                       </span>
                       <h5 className="font-semibold text-xs text-white leading-tight mt-1">
@@ -518,7 +540,7 @@ export const ActiveLogCard: React.FC<ActiveLogCardProps> = ({ onShowToast }) => 
           <button
             type="button"
             onClick={handleFinishAndSave}
-            className="w-full py-3.5 rounded-2xl bg-o1-crimson hover:bg-o1-crimson-hover active:scale-[0.99] text-white font-mono font-bold text-xs uppercase tracking-wider shadow-md shadow-o1-crimson/20 flex items-center justify-center gap-2 transition cursor-pointer"
+            className="w-full py-3.5 rounded-2xl bg-o1-crimson hover:bg-o1-crimson-hover active:scale-[0.99] text-white font-mono font-bold text-xs tracking-wider shadow-md shadow-o1-crimson/20 flex items-center justify-center gap-2 transition cursor-pointer"
           >
             <span>⚡ Finish &amp; Save Session</span>
           </button>
@@ -533,8 +555,8 @@ export const ActiveLogCard: React.FC<ActiveLogCardProps> = ({ onShowToast }) => 
           dialConfig.type === 'weight'
             ? loadUnitLabel(readAthleteSettingsSnapshot().weightUnit)
             : dialConfig.type === 'reps'
-              ? 'REPS'
-              : 'RPE'
+              ? 'Reps'
+              : 'rpe'
         }
         initialValue={dialConfig.initialValue}
         onConfirm={handleConfirmDial}

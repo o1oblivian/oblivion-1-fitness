@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700&family=IBM+Plex+Mono:wght@500;600;700&display=swap');
 @import "tailwindcss";
 
 @custom-variant dark (&:where(.dark, .dark *));
@@ -11,41 +11,84 @@
 }
 
 @theme {
-  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', system-ui, sans-serif;
-  --font-display: 'Outfit', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
-  --font-tactical: 'Outfit', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
-  --font-mono: 'Outfit', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
-  --font-telemetry: 'Outfit', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
+  --font-sans: 'Manrope', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --font-display: 'Manrope', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --font-tactical: 'Manrope', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+  --font-telemetry: 'IBM Plex Mono', ui-monospace, monospace;
 
-  /* ── Oblivion 1 palette: single source of truth ─────────────────────
-     Surfaces (OLED): canvas → card → well. Hairline = white @ 7%.
-     Use these tokens (bg-o1-card, text-o1-crimson …) — no raw hex in components. */
+  /* Organic vivid — OLED canvas, bone ink, crimson accent, earth pigments */
   --color-o1-canvas: #000000;
-  --color-o1-card: #111113;
-  --color-o1-well: #161618;
+  --color-o1-card: #0E0E0E;
+  --color-o1-well: #161616;
   --color-o1-line: rgb(255 255 255 / 0.07);
+  --color-o1-bone: #F2EFE6;
+  --color-o1-stone: #A39E92;
 
-  /* Brand crimson: primary, hover, pressed */
   --color-o1-crimson: #C4121A;
   --color-o1-crimson-hover: #A30F16;
   --color-o1-crimson-press: #800C11;
 
-  /* Semantic: on-target / caution / error / info */
-  --color-o1-ok: #10B981;
-  --color-o1-caution: #F59E0B;
-  --color-o1-error: #EF4444;
-  --color-o1-info: #0EA5E9;
+  --color-o1-ok: #4F8F9A;
+  --color-o1-caution: #D4A017;
+  --color-o1-error: #C4121A;
+  --color-o1-info: #4F8F9A;
+  --color-o1-olive: #6B8F5E;
+  --color-o1-gold: #D4A017;
+  --color-o1-copper: #C4784A;
+  --color-o1-teal: #4F8F9A;
+  --color-o1-slate: #6A8CA8;
+  --color-o1-iris: #8E7CA8;
+  --color-o1-rose: #C9A3A8;
 
-  /* Fixed macro colours */
   --color-o1-protein: #C4121A;
-  --color-o1-carbs: #F59E0B;
-  --color-o1-fat: #10B981;
+  --color-o1-carbs: #D4A017;
+  --color-o1-fat: #6B8F5E;
 
-  /* Tailwind red-600…900 resolve to the brand crimson ramp */
+  --color-red-400: #C4121A;
+  --color-red-500: #C4121A;
   --color-red-600: #C4121A;
   --color-red-700: #A30F16;
   --color-red-800: #800C11;
   --color-red-900: #520609;
+
+  --color-white: #F2EFE6;
+  --color-neutral-50: #F2EFE6;
+  --color-neutral-100: #F2EFE6;
+  --color-neutral-200: #D4D0C4;
+  --color-neutral-300: #B8B3A6;
+  --color-neutral-400: #A39E92;
+  --color-neutral-500: #7A756A;
+  --color-neutral-600: #524F48;
+  --color-neutral-700: #3A3833;
+  --color-neutral-800: #1C1C1C;
+  --color-neutral-900: #0E0E0E;
+  --color-neutral-950: #000000;
+
+  --color-emerald-400: #6B8F5E;
+  --color-emerald-500: #6B8F5E;
+  --color-emerald-600: #6B8F5E;
+  --color-green-400: #6B8F5E;
+  --color-green-500: #6B8F5E;
+  --color-sky-400: #4F8F9A;
+  --color-sky-500: #4F8F9A;
+  --color-amber-400: #D4A017;
+  --color-amber-500: #D4A017;
+  --color-amber-600: #D4A017;
+  --color-cyan-400: #4F8F9A;
+  --color-cyan-500: #4F8F9A;
+  --color-cyan-950: #16363A;
+  --color-blue-400: #4F8F9A;
+  --color-blue-500: #4F8F9A;
+  --color-indigo-400: #4F8F9A;
+  --color-indigo-500: #4F8F9A;
+  --color-violet-400: #7A756A;
+  --color-purple-400: #7A756A;
+  --color-orange-400: #D4A017;
+  --color-orange-500: #D4A017;
+  --color-rose-300: #C4121A;
+  --color-rose-400: #C4121A;
+  --color-rose-500: #C4121A;
 }
 
 /* Universal Top Font Enforcement across all pages, cards, lines, words, buttons, inputs */
@@ -63,17 +106,47 @@ html {
 }
 
 html, body, button, input, optgroup, select, textarea {
-  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
+  font-family: 'Manrope', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  font-weight: 500;
 }
 
-/* Enforce Outfit / Plus Jakarta Sans across all tactical, display, and legacy monospace utility tags */
-.font-tactical, .font-display, [class*="font-tactical"], [class*="font-display"] {
-  font-family: 'Outfit', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif !important;
+.font-tactical, .font-display, .font-sans,
+[class*="font-tactical"], [class*="font-display"] {
+  font-family: 'Manrope', -apple-system, BlinkMacSystemFont, system-ui, sans-serif !important;
 }
 
-.font-mono, .font-telemetry, [class*="font-mono"], [class*="font-telemetry"] {
-  font-family: 'Outfit', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif !important;
-  letter-spacing: -0.01em;
+/* Words and everyday figures: Manrope, tabular so prices and stats align. */
+.font-mono, .font-telemetry, [class*="font-mono"], [class*="font-telemetry"],
+.tabular-nums {
+  font-family: 'Manrope', -apple-system, BlinkMacSystemFont, system-ui, sans-serif !important;
+  font-variant-numeric: tabular-nums lining-nums;
+  font-feature-settings: "tnum", "lnum", "cv11";
+  letter-spacing: 0;
+}
+
+/* Instrument figures only: dial, set log, history values. */
+#root .o1-num,
+#root .o1-instrument,
+#root .o1-instrument .font-mono,
+#root .o1-instrument [class*="font-mono"],
+#root .o1-log .font-mono,
+#root .o1-log [class*="font-mono"] {
+  font-family: 'IBM Plex Mono', ui-monospace, monospace !important;
+  font-variant-numeric: tabular-nums lining-nums;
+  font-feature-settings: "tnum", "lnum";
+  letter-spacing: -0.02em;
+}
+
+/* Never force caps. Chrome is title case in copy; CSS must not shout. */
+#root .uppercase {
+  text-transform: none !important;
+  letter-spacing: 0.01em !important;
+}
+
+h1, h2, h3, h4 {
+  font-family: 'Manrope', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  font-weight: 600;
+  letter-spacing: 0.01em;
 }
 
 /* Permanent Pure OLED Dark — the only supported appearance */
@@ -84,8 +157,8 @@ html {
 
 html, body {
   background-color: #000000;
-  color: #f5f5f5;
-  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+  color: #F2EFE6;
+  font-family: 'Manrope', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
@@ -111,14 +184,14 @@ html, body {
   max-width: 420px;
   margin-left: auto;
   margin-right: auto;
-  padding-left: max(16px, env(safe-area-inset-left, 0px));
-  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-left: max(16px, env(safe-area-inset-left, 0px)) !important;
+  padding-right: max(16px, env(safe-area-inset-right, 0px)) !important;
 }
 
 .o1-chip {
-  background-color: rgb(24 24 27 / 0.6);
-  border: 1px solid rgb(255 255 255 / 0.06);
-  color: #a1a1aa;
+  background-color: #161616;
+  border: 1px solid rgb(255 255 255 / 0.07);
+  color: #A39E92;
 }
 
 /* Unified internal sheets — never full-bleed page clones */
@@ -141,17 +214,79 @@ html, body {
   flex-direction: column !important;
 }
 
+.o1-sheet-scrim.o1-sheet-cover {
+  align-items: flex-end !important;
+  padding: 0 !important;
+  background: #000 !important;
+}
+
+.o1-dual-range {
+  position: relative;
+  height: 28px;
+}
+.o1-dual-range input[type='range'] {
+  position: absolute;
+  left: 0;
+  top: 8px;
+  width: 100%;
+  margin: 0;
+  background: transparent;
+  pointer-events: none;
+  appearance: none;
+  -webkit-appearance: none;
+}
+.o1-dual-range input[type='range']::-webkit-slider-runnable-track {
+  height: 4px;
+  background: transparent;
+}
+.o1-dual-range input[type='range']::-webkit-slider-thumb {
+  pointer-events: auto;
+  appearance: none;
+  -webkit-appearance: none;
+  width: 22px;
+  height: 22px;
+  margin-top: -9px;
+  border-radius: 999px;
+  background: #fff;
+  border: 2px solid #121214;
+}
+.o1-dual-range input[type='range']::-moz-range-thumb {
+  pointer-events: auto;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  background: #fff;
+  border: 2px solid #121214;
+}
+
+.o1-sheet-card.o1-sheet-tall {
+  max-height: min(92dvh, 760px) !important;
+  border-bottom-left-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+}
+
+.o1-sheet-scrim.o1-page-scrim {
+  align-items: stretch !important;
+  justify-content: center !important;
+  padding: 0 !important;
+  background: #000 !important;
+}
+
+.o1-sheet-card.o1-page {
+  max-height: 100dvh !important;
+  height: 100dvh !important;
+  border-radius: 0 !important;
+  border: 0 !important;
+}
+
 svg.lucide, .lucide {
   stroke-width: 2.2px !important;
 }
 
 /* Surface Classes */
-.tactical-glass {
-  background: #111113;
-}
-
+.tactical-glass,
 .glass-panel {
-  background: #111113;
+  background: #0E0E0E;
 }
 
 /* Natural Zero-Neon Elevation Styles */
@@ -172,10 +307,10 @@ svg.lucide, .lucide {
 
 /* Safe Area Inset Helpers */
 .pt-safe {
-  padding-top: env(safe-area-inset-top, 0px);
+  padding-top: max(16px, env(safe-area-inset-top, 0px));
 }
 .pb-safe {
-  padding-bottom: env(safe-area-inset-bottom, 0px);
+  padding-bottom: max(16px, env(safe-area-inset-bottom, 0px));
 }
 
 /* 3D Hardware-Accelerated Flip Card System */
@@ -238,7 +373,7 @@ svg.lucide, .lucide {
   height: 22px;
   border-radius: 9999px;
   background-color: #C4121A;
-  border: 2.5px solid #111113;
+  border: 2.5px solid #0E0E0E;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.7);
   cursor: grab;
   transition: transform 0.1s ease;
@@ -255,7 +390,7 @@ svg.lucide, .lucide {
   height: 22px;
   border-radius: 9999px;
   background-color: #C4121A;
-  border: 2.5px solid #111113;
+  border: 2.5px solid #0E0E0E;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.7);
   cursor: grab;
   transition: transform 0.1s ease;
@@ -273,16 +408,48 @@ svg.lucide, .lucide {
   --o1-pad-tile: 0.5rem;
 }
 
+#root .o1-dial-shell {
+  padding: var(--o1-pad-card) !important;
+  gap: var(--o1-pad-tile);
+  row-gap: var(--o1-pad-tile);
+}
+#root .o1-dial-stack {
+  gap: var(--o1-pad-tile);
+  row-gap: var(--o1-pad-tile);
+}
+#root .o1-dial-well {
+  padding: var(--o1-pad-tile) !important;
+}
+#root .o1-dial-keys {
+  gap: var(--o1-pad-tile) !important;
+}
+
+#root .o1-log {
+  font-family: 'Manrope', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+}
+#root .o1-log .text-\[8px\],
+#root .o1-log .text-\[9px\],
+#root .o1-log .text-\[9\.5px\] {
+  font-size: 11px !important;
+  letter-spacing: 0.01em !important;
+}
+#root .o1-log-row {
+  min-height: 2.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--o1-pad-tile);
+  padding: 0 var(--o1-pad-tile);
+  border-radius: 0.75rem;
+  background: #161616;
+  font-size: 12px;
+}
+
 #root .p-3 { padding: 0.5rem !important; }
 #root .p-3\.5 { padding: 0.5rem !important; }
 #root .p-4 { padding: 0.625rem !important; }
 #root .p-5 { padding: 0.625rem !important; }
 #root .p-6 { padding: 0.75rem !important; }
-
-#root .px-4 { padding-left: 0.625rem !important; padding-right: 0.625rem !important; }
-#root .px-5 { padding-left: 0.625rem !important; padding-right: 0.625rem !important; }
-#root .px-6 { padding-left: 0.75rem !important; padding-right: 0.75rem !important; }
-#root .px-3\.5 { padding-left: 0.75rem !important; padding-right: 0.75rem !important; }
 
 #root .py-3 { padding-top: 0.5rem !important; padding-bottom: 0.5rem !important; }
 #root .py-3\.5 { padding-top: 0.5rem !important; padding-bottom: 0.5rem !important; }
@@ -303,6 +470,7 @@ svg.lucide, .lucide {
   max-height: 80vh !important;
 }
 
+#root .font-extrabold,
 #root .font-black {
   font-weight: 600 !important;
 }
@@ -313,8 +481,12 @@ svg.lucide, .lucide {
   font-weight: 700 !important;
 }
 
-#root .tracking-wider {
-  letter-spacing: 0.06em !important;
+#root .tracking-wider,
+#root .tracking-widest {
+  letter-spacing: 0.01em !important;
+}
+#root .uppercase[class*="tracking-["] {
+  letter-spacing: 0.01em !important;
 }
 
 #root button.py-3,
@@ -323,9 +495,61 @@ svg.lucide, .lucide {
   min-height: 2.5rem;
 }
 
+/* Short in-card actions hug their label. Sheet CTAs stay full width. */
+#root button.o1-pill {
+  width: fit-content !important;
+  max-width: 100%;
+  height: 2rem !important;
+  min-height: 2rem !important;
+  padding: 0 0.75rem !important;
+  border-radius: 9999px !important;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  flex: 0 0 auto !important;
+  white-space: nowrap;
+}
+
+/* Translucent colour washes read as fog. Cards stay black. */
+#root [class*="bg-red-950/"],
+#root [class*="bg-red-900/"],
+#root [class*="bg-red-800/"],
+#root [class*="bg-red-500/"],
+#root [class*="bg-red-600/"],
+#root [class*="bg-rose-950/"],
+#root [class*="bg-emerald-950/"],
+#root [class*="bg-amber-950/"],
+#root [class*="bg-sky-950/"],
+#root .o1-mark {
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 0.7rem;
+  background: #161616;
+  border: 1px solid rgb(255 255 255 / 0.07);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+#root .o1-mark svg.lucide {
+  width: 0.875rem !important;
+  height: 0.875rem !important;
+  stroke-width: 1.75px !important;
+}
+
+#root [class*="bg-o1-crimson/"] {
+  background-color: #161616 !important;
+}
+#root [class*="shadow-o1-crimson"],
+#root [class*="shadow-red-"] {
+  --tw-shadow: 0 0 #0000 !important;
+  --tw-shadow-colored: 0 0 #0000 !important;
+  box-shadow: none !important;
+}
+
 @media (min-width: 640px) {
   #root .sm\:p-5 { padding: 0.625rem !important; }
   #root .sm\:p-6 { padding: 0.75rem !important; }
-  #root .sm\:px-5 { padding-left: 0.625rem !important; padding-right: 0.625rem !important; }
   #root .sm\:py-5 { padding-top: 0.625rem !important; padding-bottom: 0.625rem !important; }
 }

@@ -54,18 +54,15 @@ export const SleepLogModal: React.FC<SleepLogModalProps> = ({
     tactileEngine.playPRCelebration();
 
     // 1. Update active session in useLogStore
-    const deepMinutes = Math.round(hours * 60 * 0.24);
-    const remMinutes = Math.round(hours * 60 * 0.26);
-
     useLogStore.getState().updateSubModule('sleep', {
       durationHours: hours,
-      deepSleepMinutes: deepMinutes,
-      remSleepMinutes: remMinutes,
-      deepPercentage: 24,
-      remPercentage: 26,
+      deepSleepMinutes: 0,
+      remSleepMinutes: 0,
+      deepPercentage: 0,
+      remPercentage: 0,
       sleepPerformancePercent: qualityScore,
       restingHeartRate: restingHr,
-      hrvMs: 68,
+      hrvMs: 0,
     });
 
     // 2. Persist to telemetry history store for today
@@ -74,12 +71,12 @@ export const SleepLogModal: React.FC<SleepLogModalProps> = ({
       const todayKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
       useTelemetryHistoryStore.getState().updateDayRecord(todayKey, 'sleep', {
         hasData: true,
-        durationHours: Math.floor(hours),
-        durationMinutes: Math.round((hours % 1) * 60),
+        durationHours: hours,
+        durationMinutes: Math.round(hours * 60),
         recoveryPercent: qualityScore,
-        deepSleepMinutes: deepMinutes,
-        remSleepMinutes: remMinutes,
-        sleepEfficiencyPercent: qualityScore,
+        deepSleepMinutes: 0,
+        remSleepMinutes: 0,
+        sleepEfficiencyPercent: 0,
         restingHeartRate: restingHr,
         bedtime,
         wakeTime,
@@ -116,11 +113,11 @@ export const SleepLogModal: React.FC<SleepLogModalProps> = ({
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="font-tactical font-bold text-sm tracking-wider uppercase text-white">
+                <h3 className="font-tactical font-bold text-sm tracking-wider text-white">
                   Sleep Architecture Log
                 </h3>
                 <span className="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-white/10 text-sky-400">
-                  CIRCADIAN
+                  Circadian
                 </span>
               </div>
               <p className="text-[11px] font-mono text-neutral-400">Nocturnal Restoration &amp; REM Depth</p>
@@ -140,8 +137,8 @@ export const SleepLogModal: React.FC<SleepLogModalProps> = ({
         <div className="bg-white/[0.03] border border-white/[0.07] rounded-2xl p-4 space-y-3">
           <div className="flex items-start justify-between">
             <div className="space-y-0.5">
-              <span className="text-[10px] font-mono uppercase tracking-wider text-neutral-400 font-bold block">
-                TOTAL DURATION RECORDED
+              <span className="text-[10px] font-mono tracking-wider text-neutral-400 font-bold block">
+                Total Duration Recorded
               </span>
               <div className="flex items-baseline gap-2">
                 <span className="text-3xl font-mono font-black text-white tracking-tight">
@@ -149,15 +146,15 @@ export const SleepLogModal: React.FC<SleepLogModalProps> = ({
                 </span>
                 <span className="text-xs font-mono text-neutral-400">({hours}h total)</span>
               </div>
-              <span className="text-[10px] font-mono font-bold text-sky-400 uppercase tracking-wider block">
-                {hours >= 8 ? 'OPTIMAL ANABOLIC RESTORATION' : hours >= 7 ? 'SUFFICIENT NEURAL CLEARANCE' : 'SLEEP DEFICIT RECOVERY NEEDED'}
+              <span className="text-[10px] font-mono font-bold text-sky-400 tracking-wider block">
+                {hours >= 8 ? 'Optimal Anabolic Restoration' : hours >= 7 ? 'Sufficient neural clearance' : 'sleep deficit recovery needed'}
               </span>
             </div>
 
             {/* Quality Score Badge */}
             <div className="px-3 py-1.5 rounded-xl bg-sky-500/10 border border-sky-500/30 text-right">
               <span className="text-lg font-mono font-black text-sky-400 leading-none block">{qualityScore}%</span>
-              <span className="text-[9px] font-mono text-neutral-400 block mt-0.5">QUALITY</span>
+              <span className="text-[9px] font-mono text-neutral-400 block mt-0.5">Quality</span>
             </div>
           </div>
 
@@ -196,7 +193,7 @@ export const SleepLogModal: React.FC<SleepLogModalProps> = ({
 
         {/* 4 Fast Athletic Presets */}
         <div className="space-y-1.5">
-          <span className="text-[10px] font-mono uppercase tracking-wider text-neutral-400">
+          <span className="text-[10px] font-mono tracking-wider text-neutral-400">
             Athletic Sleep Protocols
           </span>
           <div className="grid grid-cols-2 gap-2">
@@ -215,10 +212,10 @@ export const SleepLogModal: React.FC<SleepLogModalProps> = ({
                 >
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-mono font-bold text-white">{p.label}</span>
-                    <span className={`text-[9px] font-mono uppercase font-bold px-1.5 py-0.5 rounded ${
+                    <span className={`text-[9px] font-mono font-bold px-1.5 py-0.5 rounded ${
                       isSelected ? 'bg-sky-500/20 text-sky-400' : 'bg-white/5 text-neutral-400'
                     }`}>
-                      {isSelected ? 'ACTIVE' : 'SELECT'}
+                      {isSelected ? 'Active' : 'select'}
                     </span>
                   </div>
                   <span className="text-[10px] font-mono text-neutral-400 block mt-1">
@@ -233,7 +230,7 @@ export const SleepLogModal: React.FC<SleepLogModalProps> = ({
         {/* Circadian Timestamps & Resting Heart Rate */}
         <div className="grid grid-cols-3 gap-2">
           <div className="bg-white/[0.03] border border-white/[0.07] rounded-2xl p-2.5 space-y-1">
-            <span className="text-[9px] font-mono uppercase text-neutral-400 block font-bold">BEDTIME</span>
+            <span className="text-[9px] font-mono text-neutral-400 block font-bold">Bedtime</span>
             <input
               type="time"
               value={bedtime}
@@ -243,7 +240,7 @@ export const SleepLogModal: React.FC<SleepLogModalProps> = ({
           </div>
 
           <div className="bg-white/[0.03] border border-white/[0.07] rounded-2xl p-2.5 space-y-1">
-            <span className="text-[9px] font-mono uppercase text-neutral-400 block font-bold">WAKE TIME</span>
+            <span className="text-[9px] font-mono text-neutral-400 block font-bold">Wake Time</span>
             <input
               type="time"
               value={wakeTime}
@@ -253,7 +250,7 @@ export const SleepLogModal: React.FC<SleepLogModalProps> = ({
           </div>
 
           <div className="bg-white/[0.03] border border-white/[0.07] rounded-2xl p-2.5 space-y-1">
-            <span className="text-[9px] font-mono uppercase text-neutral-400 block font-bold">RESTING HR</span>
+            <span className="text-[9px] font-mono text-neutral-400 block font-bold">Resting Hr</span>
             <div className="flex items-baseline gap-1">
               <input
                 type="number"
@@ -270,7 +267,7 @@ export const SleepLogModal: React.FC<SleepLogModalProps> = ({
 
         {/* Physiological Nocturnal Restoration Card */}
         <div className="p-3 rounded-2xl bg-white/[0.03] border border-white/[0.07] space-y-1">
-          <div className="flex items-center justify-between text-[10px] font-mono font-bold uppercase tracking-wider text-sky-400">
+          <div className="flex items-center justify-between text-[10px] font-mono font-bold tracking-wider text-sky-400">
             <span className="flex items-center gap-1.5">
               <Sparkles className="w-3.5 h-3.5" />
               <span>ENDOCRINE &amp; GH RESTORATION</span>
@@ -295,12 +292,12 @@ export const SleepLogModal: React.FC<SleepLogModalProps> = ({
             className="flex-1 py-2.5 px-3 rounded-xl bg-white/[0.03] border border-white/[0.07] hover:bg-white/[0.07] text-xs font-mono font-bold text-neutral-400 hover:text-white flex items-center justify-center gap-1.5 active:scale-95 transition-all cursor-pointer"
           >
             <RotateCcw className="w-3.5 h-3.5" />
-            <span>RESET</span>
+            <span>Reset</span>
           </button>
           <button
             type="button"
             onClick={handleSave}
-            className="flex-2 py-2.5 px-5 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover active:bg-o1-crimson-press text-white text-xs font-tactical font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 active:scale-95 transition-all cursor-pointer shadow-sm"
+            className="flex-2 py-2.5 px-5 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover active:bg-o1-crimson-press text-white text-xs font-tactical font-bold tracking-wider flex items-center justify-center gap-1.5 active:scale-95 transition-all cursor-pointer shadow-sm"
           >
             <Check className="w-4 h-4 stroke-[2.5]" />
             <span>CONFIRM &amp; LOG SLEEP</span>

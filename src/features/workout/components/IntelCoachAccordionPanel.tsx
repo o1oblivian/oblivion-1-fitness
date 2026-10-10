@@ -144,24 +144,24 @@ export const IntelCoachAccordionPanel: React.FC<IntelCoachAccordionPanelProps> =
             <SlidersHorizontal className="w-4 h-4 stroke-[2]" />
           </div>
           <div>
-            <h3 className="font-mono text-xs font-bold uppercase tracking-wider text-white leading-tight">
-              INTEL SESSION ENGINE
+            <h3 className="font-mono text-xs font-bold tracking-wider text-white leading-tight">
+              Intel Session Engine
             </h3>
             <p className="text-[11px] text-neutral-400 leading-tight mt-0.5">
               Autoregulated training prescription
             </p>
           </div>
         </div>
-        <span className="text-[10px] font-mono font-bold text-o1-crimson bg-o1-crimson/10 border border-o1-crimson/30 px-2.5 py-1 rounded-xl uppercase tracking-wider">
-          INTEL ADAPTIVE
+        <span className="text-[10px] font-mono font-bold text-o1-crimson bg-o1-crimson/10 border border-o1-crimson/30 px-2.5 py-1 rounded-xl tracking-wider">
+          Intel Adaptive
         </span>
       </div>
 
       {/* 1. ENERGY CHECK-IN */}
       <div className="space-y-1.5">
         <div className="flex items-center justify-between">
-          <span className="text-[11px] font-bold text-neutral-300 tracking-wider uppercase font-mono">
-            1. ENERGY CHECK-IN
+          <span className="text-[11px] font-bold text-neutral-300 tracking-wider font-mono">
+            1. Energy CHECK-IN
           </span>
           <span className="text-[11px] font-mono font-medium text-neutral-400">
             {energyLevel === 'LOW'
@@ -224,8 +224,8 @@ export const IntelCoachAccordionPanel: React.FC<IntelCoachAccordionPanelProps> =
 
       {/* 2. TRAINING GOAL MODE */}
       <div className="space-y-1.5">
-        <span className="text-[11px] font-bold text-neutral-300 tracking-wider uppercase font-mono">
-          2. TRAINING GOAL MODE
+        <span className="text-[11px] font-bold text-neutral-300 tracking-wider font-mono">
+          2. training goal mode
         </span>
         <div className="grid grid-cols-2 gap-2">
           {/* Card 1: Burn kcal */}
@@ -352,8 +352,8 @@ export const IntelCoachAccordionPanel: React.FC<IntelCoachAccordionPanelProps> =
       {/* 3. AVAILABLE DURATION */}
       <div className="space-y-1.5">
         <div className="flex items-center justify-between">
-          <span className="text-[11px] font-bold text-neutral-300 tracking-wider uppercase font-mono">
-            3. AVAILABLE DURATION
+          <span className="text-[11px] font-bold text-neutral-300 tracking-wider font-mono">
+            3. Available Duration
           </span>
           <span className="text-[11px] font-mono font-medium text-neutral-400">
             {selectedDuration} Minutes Selected
@@ -381,8 +381,8 @@ export const IntelCoachAccordionPanel: React.FC<IntelCoachAccordionPanelProps> =
       <div className="space-y-1.5">
         <div className="flex items-center gap-1.5">
           <Compass className="w-3.5 h-3.5 text-neutral-400" />
-          <span className="text-[11px] font-bold text-neutral-300 tracking-wider uppercase font-mono">
-            4. MOVEMENT FOCUS
+          <span className="text-[11px] font-bold text-neutral-300 tracking-wider font-mono">
+            4. Movement Focus
           </span>
         </div>
         <div className="flex flex-wrap gap-1.5">
@@ -425,7 +425,7 @@ export const IntelCoachAccordionPanel: React.FC<IntelCoachAccordionPanelProps> =
           type="button"
           disabled={isDesigning}
           onClick={handleDesignSession}
-          className="px-5 py-2.5 rounded-full bg-white text-neutral-950 hover:bg-neutral-100 active:scale-95 font-mono text-xs font-bold uppercase tracking-wider shadow-sm flex items-center gap-2 cursor-pointer transition-all shrink-0"
+          className="px-5 py-2.5 rounded-full bg-white text-neutral-950 hover:bg-neutral-100 active:scale-95 font-mono text-xs font-bold tracking-wider shadow-sm flex items-center gap-2 cursor-pointer transition-all shrink-0"
         >
           <Zap className="w-3.5 h-3.5 text-o1-crimson fill-o1-crimson" />
           <span>{isDesigning ? 'Synthesizing...' : 'Design Session'}</span>

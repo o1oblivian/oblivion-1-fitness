@@ -42,10 +42,10 @@ export const FridayHorizonDial: React.FC<DialComponentProps> = ({
         <span className="text-[46px] leading-none font-semibold tracking-tight text-white tabular-nums" style={heroShadow}>
           {fmtInt(steps)}
         </span>
-        <span className="mt-1.5 text-[9px] font-medium tracking-[0.28em] uppercase text-white/55">
+        <span className="mt-1.5 text-[9px] font-medium tracking-[0.28em] text-white/55">
           {splitLabel || 'Horizon'}
         </span>
-        <div className="mt-4 flex items-center gap-5 text-[9px] tracking-[0.14em] uppercase text-white/75">
+        <div className="mt-4 flex items-center gap-5 text-[9px] tracking-[0.14em] text-white/75">
           <span>
             <span className="text-o1-crimson">{fmtInt(burnKcal)}</span> kcal
           </span>
@@ -53,7 +53,7 @@ export const FridayHorizonDial: React.FC<DialComponentProps> = ({
             <span className="text-[#d97706]">{fmtInt(intakeKcal)}</span> in
           </span>
           <span>
-            <span className="text-[#0284c7]">{fmtKm(distKm)}</span> km
+            <span className="text-[#4F8F9A]">{fmtKm(distKm)}</span> km
           </span>
         </div>
       </div>

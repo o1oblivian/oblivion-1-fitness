@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500" role="img" aria-label="Gym">
+  <rect width="400" height="500" fill="#0E0E0E"/>
+  <rect x="36" y="228" width="36" height="44" rx="3" fill="#1F1F1F"/>
+  <rect x="328" y="228" width="36" height="44" rx="3" fill="#1F1F1F"/>
+  <rect x="78" y="214" width="22" height="72" rx="2" fill="#8A887F"/>
+  <rect x="300" y="214" width="22" height="72" rx="2" fill="#8A887F"/>
+  <rect x="96" y="242" width="208" height="16" rx="2" fill="#EAE8DF"/>
+</svg>

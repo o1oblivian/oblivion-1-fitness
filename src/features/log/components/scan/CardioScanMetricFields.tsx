@@ -24,7 +24,7 @@ export const CardioScanMetricFields: React.FC<CardioScanMetricFieldsProps> = ({ 
   return (
     <div className="grid grid-cols-2 gap-2 text-xs">
       <div className="p-2.5 rounded-2xl bg-o1-well border border-white/[0.07] space-y-1">
-        <span className="text-[9px] uppercase text-neutral-500 flex items-center gap-1 font-bold">
+        <span className="text-[9px] text-neutral-500 flex items-center gap-1 font-bold">
           <Activity className="w-3 h-3 text-sky-500" /> Equipment / Watch
         </span>
         <input
@@ -36,7 +36,7 @@ export const CardioScanMetricFields: React.FC<CardioScanMetricFieldsProps> = ({ 
       </div>
 
       <div className="p-2.5 rounded-2xl bg-o1-well border border-white/[0.07] space-y-1">
-        <span className="text-[9px] uppercase text-neutral-500 flex items-center gap-1 font-bold">
+        <span className="text-[9px] text-neutral-500 flex items-center gap-1 font-bold">
           <Footprints className="w-3 h-3 text-emerald-500" /> Steps
         </span>
         <input
@@ -50,7 +50,7 @@ export const CardioScanMetricFields: React.FC<CardioScanMetricFieldsProps> = ({ 
       </div>
 
       <div className="p-2.5 rounded-2xl bg-o1-well border border-white/[0.07] space-y-1">
-        <span className="text-[9px] uppercase text-neutral-500 flex items-center gap-1 font-bold">
+        <span className="text-[9px] text-neutral-500 flex items-center gap-1 font-bold">
           <Clock className="w-3 h-3 text-sky-500" /> Duration (Min)
         </span>
         <input
@@ -64,7 +64,7 @@ export const CardioScanMetricFields: React.FC<CardioScanMetricFieldsProps> = ({ 
       </div>
 
       <div className="p-2.5 rounded-2xl bg-o1-well border border-white/[0.07] space-y-1">
-        <span className="text-[9px] uppercase text-neutral-500 flex items-center gap-1 font-bold">
+        <span className="text-[9px] text-neutral-500 flex items-center gap-1 font-bold">
           <TrendingUp className="w-3 h-3 text-sky-500" /> Distance (km)
         </span>
         <input
@@ -79,7 +79,7 @@ export const CardioScanMetricFields: React.FC<CardioScanMetricFieldsProps> = ({ 
       </div>
 
       <div className="p-2.5 rounded-2xl bg-o1-well border border-white/[0.07] space-y-1">
-        <span className="text-[9px] uppercase text-neutral-500 flex items-center gap-1 font-bold">
+        <span className="text-[9px] text-neutral-500 flex items-center gap-1 font-bold">
           <Flame className="w-3 h-3 text-amber-500" /> Burn (kcal)
         </span>
         <input
@@ -93,7 +93,7 @@ export const CardioScanMetricFields: React.FC<CardioScanMetricFieldsProps> = ({ 
       </div>
 
       <div className="p-2.5 rounded-2xl bg-o1-well border border-white/[0.07] space-y-1">
-        <span className="text-[9px] uppercase text-neutral-500 flex items-center gap-1 font-bold">
+        <span className="text-[9px] text-neutral-500 flex items-center gap-1 font-bold">
           <Heart className="w-3 h-3 text-red-500" /> Avg Heart Rate
         </span>
         <input

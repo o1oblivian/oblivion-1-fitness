@@ -38,7 +38,7 @@ export const O1FCoachHeader: React.FC<O1FCoachHeaderProps> = ({
     return (
       <div className="flex items-center justify-center px-0.5 w-full min-h-[38px]">
         <div className="px-4 py-1.5 rounded-full bg-o1-well border border-white/[0.07] shadow-xs flex items-center gap-2 select-none">
-          <span className="text-xs font-mono font-bold tracking-wider text-white uppercase">
+          <span className="text-xs font-mono font-bold tracking-wider text-white">
             O1FCoach Hub
           </span>
         </div>
@@ -73,8 +73,8 @@ export const O1FCoachHeader: React.FC<O1FCoachHeaderProps> = ({
           ref={dropdownRef}
           className="absolute top-11 bg-black/95 backdrop-blur-xl border border-white/[0.07] rounded-2xl shadow-2xl p-1.5 z-50 min-w-[210px] space-y-1 animate-in fade-in zoom-in-95 duration-150"
         >
-          <div className="px-2.5 py-1 text-[9px] font-mono font-bold tracking-wider text-neutral-400 uppercase border-b border-white/[0.05]">
-            CREATOR PERSPECTIVE
+          <div className="px-2.5 py-1 text-[9px] font-mono font-bold tracking-wider text-neutral-400 border-b border-white/[0.05]">
+            Creator Perspective
           </div>
 
           <button
@@ -88,7 +88,7 @@ export const O1FCoachHeader: React.FC<O1FCoachHeaderProps> = ({
           >
             <div className="flex items-center gap-2">
               <Shield className="w-3.5 h-3.5" />
-              <span>COMMAND CENTER</span>
+              <span>Command Center</span>
             </div>
             {activePerspective === 'coach' && <Check className="w-3.5 h-3.5" />}
           </button>
@@ -104,7 +104,7 @@ export const O1FCoachHeader: React.FC<O1FCoachHeaderProps> = ({
           >
             <div className="flex items-center gap-2">
               <ShoppingBag className="w-3.5 h-3.5" />
-              <span>ATHLETE STORE</span>
+              <span>Athlete Store</span>
             </div>
             {activePerspective === 'athlete' && <Check className="w-3.5 h-3.5" />}
           </button>

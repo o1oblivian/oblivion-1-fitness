@@ -32,7 +32,7 @@ export const SignUp: React.FC<SignUpProps> = ({ onSuccess, onSwitchToSignIn }) =
           <ShieldCheck className="w-4 h-4" />
         </div>
         <div>
-          <h2 className="text-sm font-bold uppercase tracking-wider font-mono text-white">Create Athlete Profile</h2>
+          <h2 className="text-sm font-bold tracking-wider font-mono text-white">Create Athlete Profile</h2>
           <p className="text-[10px] font-mono text-neutral-400">Tactical Telemetry &amp; Local Vault</p>
         </div>
       </div>
@@ -79,10 +79,10 @@ export const SignUp: React.FC<SignUpProps> = ({ onSuccess, onSwitchToSignIn }) =
         <button
           type="submit"
           disabled={isLoading}
-          className="w-full py-3 bg-o1-crimson hover:bg-o1-crimson-hover active:scale-98 text-white text-xs font-bold uppercase tracking-wider rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 mt-1"
+          className="w-full py-3 bg-o1-crimson hover:bg-o1-crimson-hover active:scale-98 text-white text-xs font-bold tracking-wider rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 mt-1"
         >
           {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
-          <span>INITIALIZE ATHLETE ACCOUNT</span>
+          <span>Initialize Athlete Account</span>
         </button>
       </form>
 

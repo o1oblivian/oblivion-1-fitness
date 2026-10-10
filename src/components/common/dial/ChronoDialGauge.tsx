@@ -45,7 +45,7 @@ export const ChronoDialGauge: React.FC<ChronoDialGaugeProps> = ({
   const bgPath = `M ${startX} ${startY} A ${radius} ${radius} 0 1 1 ${endX} ${endY}`;
 
   return (
-    <div className="relative w-full aspect-square max-w-[260px] mx-auto flex items-center justify-center select-none touch-none">
+    <div className="o1-instrument relative w-full aspect-square max-w-[260px] mx-auto flex items-center justify-center select-none touch-none">
       <svg
         ref={svgRef}
         viewBox="0 0 280 280"
@@ -123,7 +123,7 @@ export const ChronoDialGauge: React.FC<ChronoDialGaugeProps> = ({
           onClick={onCenterClick}
           className="w-28 h-28 rounded-full flex flex-col items-center justify-center text-center cursor-pointer pointer-events-auto hover:bg-white/5 active:scale-95 transition-all"
         >
-          <span className="text-[10px] font-tactical font-bold tracking-[0.16em] text-neutral-500 uppercase">{unit}</span>
+          <span className="text-[10px] font-tactical font-bold tracking-[0.16em] text-neutral-500">{unit}</span>
           <span className="text-4xl sm:text-5xl font-mono font-black text-white tracking-tight leading-none my-1">{value}</span>
           <span className="text-[9px] font-sans font-medium text-neutral-500 hover:text-neutral-300">tap for numpad</span>
         </button>

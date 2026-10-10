@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { supabase } from '../../services/supabaseClient';
-import { tactileEngine } from '../../services/tactileEngine';
+import { mapAssignedRow } from '../log/todaySession';
 import { subscribeToCoachDirectives } from '../../services/coachSync';
 import { useAthleteRealtime } from './hooks/useAthleteRealtime';
 import { useWorkoutStore } from './store/useWorkoutStore';
@@ -27,9 +27,6 @@ import { getAuthenticatedUserId } from '../../services/authUser';
 
 export const WorkoutHub: React.FC = () => {
   const showToast = useWorkoutStore((s) => s.showToast);
-  const setActiveLogs = useWorkoutStore((s) => s.setActiveLogs);
-  const setActiveSession = useWorkoutStore((s) => s.setActiveSession);
-  const setActiveRoutine = useWorkoutStore((s) => s.setActiveRoutine);
 
   const [expandedHubTab, setExpandedHubTab] = useState<'intel' | 'coach' | null>(null);
   const [selectedDiscipline, setSelectedDiscipline] = useState<'lift' | 'sports' | 'recovery' | null>(() =>
@@ -54,69 +51,16 @@ export const WorkoutHub: React.FC = () => {
   /**
    * Ingest coach assigned protocol into the app's activeLogs schema
    */
-  const handleLoadAssignedProtocol = React.useCallback(async (protocol: any) => {
-    if (!protocol || protocol.status === 'active') return;
-    if (!readAthleteSettingsSnapshot().autoDispatch) {
-      showToast(`Coach protocol "${protocol.title || 'Protocol'}" is waiting in My Coach (auto-dispatch off).`);
-      return;
-    }
+  const handleLoadAssignedProtocol = React.useCallback((protocol: any) => {
+    if (!protocol || protocol.status === 'completed') return;
     if (protocol.id && loadedProtocolIdsRef.current.has(protocol.id)) return;
-    if (protocol.id) {
-      loadedProtocolIdsRef.current.add(protocol.id);
+    if (protocol.id) loadedProtocolIdsRef.current.add(protocol.id);
+    const mapped = mapAssignedRow(protocol);
+    useCoachStore.getState().ingestAssigned(mapped);
+    if (readAthleteSettingsSnapshot().coachUpdates) {
+      showToast(`Coach sent "${mapped.title}". Start it from Log.`);
     }
-
-    tactileEngine.playPRCelebration();
-
-    const rawExercises = protocol.exercises || protocol.workout_data?.exercises || [];
-    const newActiveExercises = rawExercises.map((ex: any, idx: number) => {
-      const uniqueExId = `assigned-${Date.now()}-${idx}-${Math.random().toString(36).slice(2, 7)}`;
-      return {
-        id: uniqueExId,
-        exerciseName: ex.name || 'Prescribed Exercise',
-        name: ex.name || 'Prescribed Exercise',
-        targetMuscle: ex.targetMuscle || 'Full Body',
-        equipment: 'barbell',
-        tier: 'Coach Directive',
-        restSecs: Number(ex.restSecs || 90),
-        sets: Array.from({ length: Number(ex.sets) || 3 }, (_, sIdx) => ({
-          id: `set-${Date.now()}-${sIdx}-${Math.random().toString(36).slice(2, 6)}`,
-          setNumber: sIdx + 1,
-          reps: parseInt(ex.reps, 10) || 10,
-          weight: Number(ex.weightKg || ex.weight || 0),
-          weightKg: Number(ex.weightKg || ex.weight || 0),
-          rpe: ex.rpe || 8,
-          completed: false,
-        })),
-        notes: ex.notes || `Assigned by Coach • Target: ${ex.reps} reps @ RPE ${ex.rpe || 8}`,
-      };
-    });
-
-    setActiveLogs((prev: any[]) => [...prev, ...newActiveExercises]);
-    setActiveSession(true);
-    setActiveRoutine(protocol.title || 'Coach Assigned Routine');
-
-    // Trigger confirmation toast
-    showToast(`⚡ Assigned protocol "${protocol.title || 'Protocol'}" loaded into Active Log!`);
-
-    // Mark protocol status in Supabase table assigned_workouts from 'pending' to 'active'
-    if (protocol.id) {
-      try {
-        await supabase
-          .from('assigned_workouts')
-          .update({ status: 'active' })
-          .eq('id', protocol.id);
-      } catch (err) {
-        console.warn('[WorkoutHub] Failed to update protocol status in Supabase:', err);
-      }
-    }
-
-    // Automatically collapse the My Coach drawer and scroll smoothly down to Active Log
-    setExpandedHubTab(null);
-    setTimeout(() => {
-      const activeLogEl = document.getElementById('active-log-section') || document.getElementById('active-log-card');
-      activeLogEl?.scrollIntoView({ behavior: 'smooth' });
-    }, 150);
-  }, [setActiveLogs, setActiveSession, setActiveRoutine, showToast]);
+  }, [showToast]);
 
   useEffect(() => {
     void getAuthenticatedUserId().then((id) => setAthleteUid(id || ''));
@@ -251,14 +195,7 @@ export const WorkoutHub: React.FC = () => {
           >
             <CoachProtocolAccordionPanel
               onClose={() => setExpandedHubTab(null)}
-              onDeployProtocol={(exs) => {
-                handleLoadAssignedProtocol({
-                  title: 'Push Day • Chest & Shoulder Overload',
-                  exercises: exs,
-                });
-                showToast('Protocol successfully loaded into Active Session!');
-                setExpandedHubTab(null);
-              }}
+              onLoaded={(title) => showToast(`Started ${title}`)}
             />
           </motion.div>
         )}

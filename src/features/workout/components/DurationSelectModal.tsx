@@ -44,7 +44,7 @@ export const DurationSelectModal: React.FC<DurationSelectModalProps> = ({
       <div className="o1-sheet-card relative w-full bg-o1-card border border-white/[0.07] shadow-xl p-5 z-10 space-y-4 overflow-y-auto text-white">
         <div className="flex items-center justify-between border-b border-white/[0.05] pb-3">
           <div>
-            <h3 className="text-sm font-tactical font-black text-white uppercase tracking-wider">
+            <h3 className="text-sm font-tactical font-black text-white tracking-wider">
               Select Available Duration
             </h3>
             <p className="text-[11px] font-sans text-neutral-400">
@@ -74,14 +74,14 @@ export const DurationSelectModal: React.FC<DurationSelectModalProps> = ({
                 }}
                 className={`w-full p-3 rounded-2xl flex items-center justify-between border transition-all text-left cursor-pointer ${
                   isSelected
-                    ? 'bg-red-950/40 border-red-500/60 shadow-xs'
+                    ? 'bg-o1-crimson border-o1-crimson shadow-xs'
                     : 'bg-o1-card border-white/[0.07] hover:bg-white/5'
                 }`}
               >
                 <div className="flex items-center gap-2">
                   <span
-                    className={`text-xs font-tactical font-bold uppercase tracking-wider ${
-                      isSelected ? 'text-red-400' : 'text-white'
+                    className={`text-xs font-tactical font-bold tracking-wider ${
+                      isSelected ? 'text-white' : 'text-white'
                     }`}
                   >
                     {opt.label}
@@ -89,7 +89,7 @@ export const DurationSelectModal: React.FC<DurationSelectModalProps> = ({
                   <span className="text-neutral-400 text-xs">•</span>
                   <span
                     className={`text-xs font-sans font-medium ${
-                      isSelected ? 'text-red-300' : 'text-neutral-400'
+                      isSelected ? 'text-white/80' : 'text-neutral-400'
                     }`}
                   >
                     {opt.sub}

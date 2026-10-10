@@ -23,7 +23,7 @@ export const ReelUploadMediaZone: React.FC<ReelUploadMediaZoneProps> = ({
 }) => {
   return (
     <div className="space-y-2">
-      <label className="text-[11px] font-bold font-mono tracking-wider text-neutral-300 uppercase flex items-center justify-between">
+      <label className="text-[11px] font-bold font-mono tracking-wider text-neutral-300 flex items-center justify-between">
         <span>1. Reel Video File</span>
         <span className="text-[10px] text-o1-crimson font-semibold">Automatic MB → KB Compression</span>
       </label>

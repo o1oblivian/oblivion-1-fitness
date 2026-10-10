@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { tactileEngine } from '../services/tactileEngine';
-import { createSampleDispatchedWorkout } from '../features/coach/store/coachStoreDefaults';
+import { persistFinishedLocal } from '../features/coach/services/coachBridge';
 import { CoachStore, CoachState, CoachAthleteRecord } from './coachTypes';
 
 export * from './coachTypes';
@@ -123,12 +123,16 @@ export const useCoachStore = create<CoachStore>((set, get) => ({
   },
   dispatchWorkout: (workout) => {
     tactileEngine.triggerSelectionBuzz();
-    set((s) => ({ assignedWorkouts: [workout, ...s.assignedWorkouts] }));
+    set((s) => ({ assignedWorkouts: [workout, ...s.assignedWorkouts.filter((row) => row.id !== workout.id)] }));
   },
-  generateSampleWorkout: () => {
-    const sample = createSampleDispatchedWorkout();
-    set((s) => ({ assignedWorkouts: [sample, ...s.assignedWorkouts] }));
-    return sample;
+  ingestAssigned: (workout) => {
+    set((s) => {
+      if (s.assignedWorkouts.some((row) => row.id === workout.id)) return s;
+      return { assignedWorkouts: [workout, ...s.assignedWorkouts] };
+    });
+  },
+  completeAssigned: (id) => {
+    set((s) => ({ assignedWorkouts: s.assignedWorkouts.filter((row) => row.id !== id) }));
   },
   updateLiveTelemetry: (telemetry) => {
     set((s) => ({
@@ -140,6 +144,11 @@ export const useCoachStore = create<CoachStore>((set, get) => ({
   },
   recordFinishedWorkout: (log) => {
     tactileEngine.playPRCelebration();
+    const completedAt = log.completedAt && !Number.isNaN(new Date(log.completedAt).getTime())
+      ? log.completedAt
+      : new Date().toISOString();
+    const stored = { ...log, completedAt };
+    persistFinishedLocal(stored);
     const notification = {
       id: `notif-${Date.now()}`,
       athleteId: log.athleteId,
@@ -150,7 +159,7 @@ export const useCoachStore = create<CoachStore>((set, get) => ({
       read: false,
     };
     set((s) => ({
-      finishedWorkouts: [log, ...s.finishedWorkouts],
+      finishedWorkouts: [stored, ...s.finishedWorkouts.filter((row) => row.id !== stored.id)],
       finishNotifications: [notification, ...s.finishNotifications],
       liveTelemetry: {
         ...s.liveTelemetry,

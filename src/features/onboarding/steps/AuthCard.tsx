@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { Eye, EyeOff, Loader2, AlertCircle } from 'lucide-react';
+import { Eye, EyeOff, Loader2, AlertCircle, Check } from 'lucide-react';
 import { Capacitor } from '@capacitor/core';
 import { supabase } from '../../../services/supabaseClient';
 import { useAuthStore } from '../../../stores/useAuthStore';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { OnboardingData } from '../types/onboardingTypes';
+import { applyRememberPreference, loadRememberedCredentials } from '../../../utils/rememberCredentials';
 
 interface AuthCardProps {
   data: OnboardingData;
@@ -14,13 +15,20 @@ interface AuthCardProps {
 }
 
 export const AuthCard: React.FC<AuthCardProps> = ({ data, onUpdate, onNext, onOpenLegal }) => {
-  const [email, setEmail] = useState(data.email || '');
-  const [password, setPassword] = useState('');
+  const [remembered] = useState(loadRememberedCredentials);
+  const [email, setEmail] = useState(remembered.email || data.email || '');
+  const [password, setPassword] = useState(remembered.password || '');
   const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(data.rememberMe ?? true);
+  const [rememberMe, setRememberMe] = useState(remembered.rememberMe);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
   const [authMode, setAuthMode] = useState<'signin' | 'signup'>(data.isSignUp ? 'signup' : 'signin');
+
+  const commitRemember = (next: boolean, nextEmail = email, nextPassword = password) => {
+    setRememberMe(next);
+    onUpdate({ rememberMe: next, email: nextEmail });
+    applyRememberPreference(next, nextEmail, nextPassword);
+  };
 
   const handleSocialAuth = async (provider: 'apple' | 'google') => {
     setAuthError(null);
@@ -75,6 +83,7 @@ export const AuthCard: React.FC<AuthCardProps> = ({ data, onUpdate, onNext, onOp
       return;
     }
 
+    applyRememberPreference(rememberMe, cleanEmail, password);
     onUpdate({ email: cleanEmail, isSignUp: authMode === 'signup', rememberMe });
     setIsSubmitting(false);
     onNext();
@@ -84,22 +93,22 @@ export const AuthCard: React.FC<AuthCardProps> = ({ data, onUpdate, onNext, onOp
     <div className="relative w-full max-w-sm mx-auto select-none text-white space-y-6 animate-in fade-in duration-500">
       {/* 1. TOP HOROLOGY PRECISION INDEX GAUGE (IMAGE 1 STYLE) */}
       <div className="flex items-center justify-center gap-2 opacity-50 select-none pt-2">
-        <span className="font-mono text-[8px] tracking-[0.35em] text-neutral-400 uppercase">
+        <span className="font-mono text-[8px] tracking-[0.35em] text-neutral-400">
           ||||||||||||||||
         </span>
         <span className="text-[10px] text-o1-crimson leading-none">▾</span>
-        <span className="font-mono text-[8px] tracking-[0.35em] text-neutral-400 uppercase">
+        <span className="font-mono text-[8px] tracking-[0.35em] text-neutral-400">
           ||||||||||||||||
         </span>
       </div>
 
       {/* 2. MONUMENTAL BRAND TYPOGRAPHY: OBLIVION 1FC (PREMIUM INDUSTRIAL ATHLETIC LUXURY) */}
       <div className="text-center space-y-1.5 py-4">
-        <h1 className="text-3xl sm:text-4xl font-display font-black uppercase tracking-[0.22em] bg-gradient-to-b from-white via-neutral-100 to-neutral-400 bg-clip-text text-transparent drop-shadow-[0_4px_24px_rgba(255,255,255,0.22)]">
-          OBLIVION 1FC
+        <h1 className="text-3xl sm:text-4xl font-display font-bold tracking-wide bg-gradient-to-b from-white via-neutral-100 to-neutral-400 bg-clip-text text-transparent drop-shadow-[0_4px_24px_rgba(255,255,255,0.22)]">
+          Oblivion 1FC
         </h1>
-        <p className="text-[10px] font-tactical font-semibold tracking-[0.28em] text-neutral-400 uppercase">
-          TRAINING OS PRO &bull; FUEL OS &bull; COACH HUB
+        <p className="text-[10px] font-sans font-semibold tracking-wide text-neutral-400">
+          Training OS Pro · Fuel OS · Coach Hub
         </p>
       </div>
 
@@ -112,11 +121,11 @@ export const AuthCard: React.FC<AuthCardProps> = ({ data, onUpdate, onNext, onOp
             setAuthMode('signin');
             setAuthError(null);
           }}
-          className={`relative pb-2 text-[11px] font-tactical font-bold tracking-[0.2em] uppercase transition-all cursor-pointer ${
+          className={`relative pb-2 text-[11px] font-sans font-semibold tracking-wide transition-all cursor-pointer ${
             authMode === 'signin' ? 'text-white' : 'text-neutral-500 hover:text-neutral-300'
           }`}
         >
-          SIGN IN
+          Sign in
           {authMode === 'signin' && (
             <span className="absolute bottom-0 inset-x-0 h-[2px] bg-o1-crimson rounded-full" />
           )}
@@ -131,11 +140,11 @@ export const AuthCard: React.FC<AuthCardProps> = ({ data, onUpdate, onNext, onOp
             setAuthMode('signup');
             setAuthError(null);
           }}
-          className={`relative pb-2 text-[11px] font-tactical font-bold tracking-[0.2em] uppercase transition-all cursor-pointer ${
+          className={`relative pb-2 text-[11px] font-sans font-semibold tracking-wide transition-all cursor-pointer ${
             authMode === 'signup' ? 'text-white' : 'text-neutral-500 hover:text-neutral-300'
           }`}
         >
-          SIGN UP
+          Sign up
           {authMode === 'signup' && (
             <span className="absolute bottom-0 inset-x-0 h-[2px] bg-o1-crimson rounded-full" />
           )}
@@ -144,37 +153,37 @@ export const AuthCard: React.FC<AuthCardProps> = ({ data, onUpdate, onNext, onOp
 
       {/* 5. NUDE FLOATING FORM (ZERO GREY BOXES / PURE HAIRLINE UNDERLINES) */}
       <form onSubmit={handleEmailAuth} className="space-y-4 pt-1">
-        {/* Email Field */}
         <div className="group relative">
-          <label className="block text-[10px] font-tactical font-semibold uppercase tracking-[0.18em] text-neutral-400 mb-1">
-            ATHLETE EMAIL
-          </label>
           <input
             type="email"
             required
+            autoComplete="email"
+            aria-label="Email"
             value={email}
             onChange={(e) => {
-              setEmail(e.target.value);
+              const next = e.target.value;
+              setEmail(next);
               setAuthError(null);
+              if (rememberMe) applyRememberPreference(true, next, password);
             }}
             placeholder="athlete@oblivion1.club"
             className="w-full bg-transparent border-b border-white/[0.05] focus:border-o1-crimson py-2.5 px-0 text-sm font-sans text-white placeholder-neutral-600 focus:outline-none transition-colors"
           />
         </div>
 
-        {/* Password Field */}
         <div className="group relative">
-          <label className="block text-[10px] font-tactical font-semibold uppercase tracking-[0.18em] text-neutral-400 mb-1">
-            PASSWORD
-          </label>
           <div className="relative flex items-center">
             <input
               type={showPassword ? 'text' : 'password'}
               required
+              autoComplete={authMode === 'signup' ? 'new-password' : 'current-password'}
+              aria-label="Password"
               value={password}
               onChange={(e) => {
-                setPassword(e.target.value);
+                const next = e.target.value;
+                setPassword(next);
                 setAuthError(null);
+                if (rememberMe) applyRememberPreference(true, email, next);
               }}
               placeholder="••••••••••••"
               className="w-full bg-transparent border-b border-white/[0.05] focus:border-o1-crimson py-2.5 pr-8 pl-0 text-sm font-sans text-white placeholder-neutral-600 focus:outline-none transition-colors"
@@ -183,29 +192,38 @@ export const AuthCard: React.FC<AuthCardProps> = ({ data, onUpdate, onNext, onOp
               type="button"
               onClick={() => setShowPassword(!showPassword)}
               className="absolute right-0 text-neutral-500 hover:text-white cursor-pointer p-1 transition"
+              aria-label={showPassword ? 'Hide password' : 'Show password'}
             >
               {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
             </button>
           </div>
         </div>
 
-        {/* Remember & Forgot Row */}
-        <div className="flex items-center justify-between text-[11px] font-mono text-neutral-400 pt-1">
-          <label className="flex items-center gap-2 cursor-pointer hover:text-white select-none">
-            <input
-              type="checkbox"
-              checked={rememberMe}
-              onChange={(e) => setRememberMe(e.target.checked)}
-              className="accent-o1-crimson rounded cursor-pointer w-3.5 h-3.5 bg-transparent border-white/[0.07]"
-            />
-            <span className="text-[11px]">Remember credentials</span>
-          </label>
+        <div className="flex items-center justify-between pt-1">
+          <button
+            type="button"
+            role="checkbox"
+            aria-checked={rememberMe}
+            aria-label="Remember me"
+            title="Remember me"
+            onClick={() => {
+              tactileEngine.triggerSelectionBuzz();
+              commitRemember(!rememberMe);
+            }}
+            className={`w-5 h-5 rounded-[5px] flex items-center justify-center border transition-all cursor-pointer ${
+              rememberMe
+                ? 'bg-o1-crimson border-o1-crimson text-[#F2EFE6]'
+                : 'bg-transparent border-white/25 text-transparent hover:border-white/50'
+            }`}
+          >
+            <Check className={`w-3.5 h-3.5 stroke-[3] ${rememberMe ? 'opacity-100' : 'opacity-0'}`} />
+          </button>
           <button
             type="button"
             onClick={() => alert('Password reset link sent to your email.')}
-            className="text-o1-crimson hover:text-[#e01923] font-tactical font-semibold tracking-wider cursor-pointer transition text-[10px] uppercase"
+            className="text-o1-crimson hover:text-o1-crimson-hover font-sans font-semibold tracking-wide cursor-pointer transition text-[10px]"
           >
-            FORGOT?
+            Forgot?
           </button>
         </div>
 
@@ -221,12 +239,12 @@ export const AuthCard: React.FC<AuthCardProps> = ({ data, onUpdate, onNext, onOp
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full py-3.5 rounded-full bg-o1-crimson hover:bg-o1-crimson-hover active:scale-[0.98] text-white font-tactical font-bold text-xs uppercase tracking-[0.2em] transition-all shadow-md border border-white/[0.07] flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 mt-2"
+          className="w-full py-3.5 rounded-full bg-o1-crimson hover:bg-o1-crimson-hover active:scale-[0.98] text-white font-sans font-semibold text-xs tracking-wide transition-all shadow-md border border-white/[0.07] flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 mt-2"
         >
           {isSubmitting ? (
             <Loader2 className="w-4 h-4 animate-spin text-white" />
           ) : (
-            <span>{authMode === 'signin' ? 'SIGN IN' : 'INITIALIZE PROFILE'}</span>
+            <span>{authMode === 'signin' ? 'Sign in' : 'Create profile'}</span>
           )}
         </button>
       </form>
@@ -234,8 +252,8 @@ export const AuthCard: React.FC<AuthCardProps> = ({ data, onUpdate, onNext, onOp
       {/* 6. NUDE DIVIDER */}
       <div className="flex items-center gap-3 pt-2">
         <div className="flex-1 h-px bg-white/10" />
-        <span className="text-[9px] font-tactical font-semibold text-neutral-400 uppercase tracking-[0.2em]">
-          OR CONTINUE WITH
+        <span className="text-[9px] font-sans font-semibold text-neutral-400 tracking-wide">
+          Or continue with
         </span>
         <div className="flex-1 h-px bg-white/10" />
       </div>

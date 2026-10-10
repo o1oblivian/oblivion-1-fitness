@@ -227,23 +227,23 @@ export const PhotoVaultModal: React.FC<PhotoVaultModalProps> = ({
     const thumb = item.thumbnailUrl || item.dataUrl;
     addCoachReel({
       id: `reel-${Date.now()}`,
-      title: item.note || 'Athlete Kinetic PR',
+      title: item.note || 'Checkpoint',
       category: 'STRENGTH',
       filterTag: 'CHEST & TRICEPS',
       videoUrl: item.dataUrl,
       thumbnail: thumb,
-      views: '1.4K',
+      views: '--',
       duration: item.durationSecs ? `${Math.round(item.durationSecs)}s` : '0:15',
       coach: {
         id: 'user_athlete',
-        name: user.name || 'Jordan Vance',
-        handle: user.handle || '@jordan.vance',
+        name: user.name || buddy.displayName || 'Set your name',
+        handle: user.handle || '',
         avatar: user.avatarUrl || thumb,
-        verified: true,
-        specialtyTitle: 'Athlete • Member',
-        rating: 5.0,
-        reviewCount: 48,
-        certificationPill: 'ATHLETE PR',
+        verified: false,
+        specialtyTitle: 'Member',
+        rating: 0,
+        reviewCount: 0,
+        certificationPill: 'Athlete PR',
         rate: '$0',
         slotsRemaining: 1,
         bio: 'Kinetic PR uploaded from Athlete Vault',
@@ -258,7 +258,7 @@ export const PhotoVaultModal: React.FC<PhotoVaultModalProps> = ({
           thumbnail: thumb,
           videoUrl: item.dataUrl,
           tag: 'STRENGTH',
-          badge: 'KEY CUE',
+          badge: 'Key Cue',
         },
       ],
     });
@@ -284,7 +284,7 @@ export const PhotoVaultModal: React.FC<PhotoVaultModalProps> = ({
       {/* 1. TOP STICKY APP BAR (Matches Coach Page Vault Navigation) */}
       <div className="sticky top-0 z-20 bg-o1-card/90 backdrop-blur-md border-b border-white/[0.05] px-3.5 sm:px-5 py-2 flex items-center justify-between min-h-[44px]">
         <div className="flex items-center gap-1.5">
-          <span className="text-xs font-bold uppercase tracking-wider text-white">
+          <span className="text-xs font-bold tracking-wider text-white">
             Athlete Vault
           </span>
           <span className="px-2 py-0.5 rounded-full bg-white/[0.08] text-[10px] font-mono font-bold text-neutral-300 border border-white/[0.07]">
@@ -401,10 +401,10 @@ export const PhotoVaultModal: React.FC<PhotoVaultModalProps> = ({
                 tactileEngine.triggerSelectionBuzz();
                 fileInputRef.current?.click();
               }}
-              className="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-o1-crimson hover:bg-o1-crimson-hover active:scale-95 text-white text-xs font-bold font-mono tracking-wider uppercase cursor-pointer shadow-xs"
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-o1-crimson hover:bg-o1-crimson-hover active:scale-95 text-white text-xs font-bold font-mono tracking-wider cursor-pointer shadow-xs"
             >
               <Camera size={14} />
-              <span>ADD</span>
+              <span>Add</span>
             </button>
           </div>
 
@@ -473,7 +473,7 @@ export const PhotoVaultModal: React.FC<PhotoVaultModalProps> = ({
                         {isVid && (
                           <span className="px-1.5 py-0.5 rounded-md text-[9px] font-bold bg-o1-crimson text-white shadow-xs flex items-center gap-1">
                             <Film size={10} />
-                            REEL
+                            Reel
                           </span>
                         )}
                         {item.weightKg && (
@@ -499,12 +499,12 @@ export const PhotoVaultModal: React.FC<PhotoVaultModalProps> = ({
                         {onBuddy ? (
                           <>
                             <Radio className="w-2.5 h-2.5 animate-pulse" />
-                            <span>ON RADAR</span>
+                            <span>On Radar</span>
                           </>
                         ) : (
                           <>
                             <Lock className="w-2.5 h-2.5 text-neutral-400" />
-                            <span>PRIVATE</span>
+                            <span>Private</span>
                           </>
                         )}
                       </button>
@@ -636,7 +636,7 @@ export const PhotoVaultModal: React.FC<PhotoVaultModalProps> = ({
                         : 'bg-white/[0.08] text-neutral-400 hover:text-white'
                     }`}
                   >
-                    {onBuddy ? 'ON RADAR' : 'SET ON'}
+                    {onBuddy ? 'On radar' : 'set on'}
                   </button>
                 </div>
 

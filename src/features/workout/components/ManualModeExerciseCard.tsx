@@ -25,7 +25,7 @@ export const ManualModeExerciseCard: React.FC<ManualModeExerciseCardProps> = ({
     <div className="p-3 bg-o1-card border border-white/[0.07] rounded-xl text-white shadow-xs flex items-center justify-between gap-3 select-none transition-colors">
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-1.5 flex-wrap">
-          <span className="text-[9px] font-mono text-neutral-400 uppercase font-bold tracking-wider">
+          <span className="text-[9px] font-mono text-neutral-400 font-bold tracking-wider">
             {exercise.category || exercise.primaryMuscleGroup}
           </span>
           <span className="text-neutral-600">•</span>

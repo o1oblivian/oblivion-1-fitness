@@ -1,6 +1,64 @@
 import { Coordinates, BuddyProfile, MatchFilter, BuddyMatchResult, DemoAthlete } from '../types';
 import { calculateDistance, calculateMatchScore } from './matchingEngine';
 import { supabase } from '../../../services/supabaseClient';
+import { safeStorage } from '../../../utils/safeStorage';
+import { radiusBox } from './buddyLaunch';
+
+interface RemoteBuddyRow {
+  id?: string;
+  user_id?: string;
+  athlete_name?: string;
+  name?: string;
+  handle?: string;
+  age?: number | string;
+  home_gym?: string;
+  latitude?: number | string;
+  longitude?: number | string;
+  avatar_url?: string;
+  image_url?: string;
+  avatar?: string;
+  discipline?: string;
+  current_split?: string;
+  training_time?: string;
+  preferred_time?: string;
+  gender?: string;
+  looking_for?: string;
+  training_place?: string;
+  where?: string;
+  experience_level?: string;
+  bio?: string;
+  last_active?: string;
+  is_ghost_mode?: boolean;
+  verified?: boolean;
+  is_verified?: boolean;
+}
+
+const LOCAL_BUDDIES_KEY = 'o1_buddy_local';
+
+export function localBuddyCards(): DemoAthlete[] {
+  const rows = safeStorage.getItem<Array<Record<string, string>>>(LOCAL_BUDDIES_KEY, []) || [];
+  return rows.map((item) => ({
+    id: String(item.id || ''),
+    name: item.name || 'Athlete',
+    handle: item.handle || '',
+    age: Number(item.age) || 0,
+    home_gym: item.home_gym || '',
+    distance_km: 1,
+    match_score: 0,
+    image_url: item.avatar || '',
+    photos: item.avatar ? [item.avatar] : [],
+    discipline: item.discipline || 'Strength',
+    training_discipline: item.discipline || 'Strength',
+    current_split: item.current_split || '',
+    preferred_time: item.time || '',
+    gender: item.gender || '',
+    looking_for: item.looking_for || '',
+    training_place: item.where || item.training_place || '',
+    experience_level: item.level || '',
+    bio: item.bio || '',
+    is_online: false,
+  }));
+}
 
 export const DEMO_BUDDY_ATHLETES: DemoAthlete[] = [];
 
@@ -108,60 +166,125 @@ export async function searchAthletesWithSupabase(
   userCoords: Coordinates,
   radiusKm: number = 25
 ): Promise<{ results: DemoAthlete[]; fromSupabase: boolean }> {
-  const cleanQuery = query.trim().toLowerCase();
+  const cleanQuery = query.trim().toLowerCase().replace(/[%_,()]/g, ' ').replace(/\s+/g, ' ').trim();
   let supabaseCandidates: DemoAthlete[] = [];
   let fetchedFromSupabase = false;
 
   try {
-    const queryBuilder = cleanQuery
-      ? supabase
-          .from('buddy_profiles')
-          .select('*')
-          .eq('is_ghost_mode', false)
-          .or(
-            `athlete_name.ilike.%${cleanQuery}%,home_gym.ilike.%${cleanQuery}%,discipline.ilike.%${cleanQuery}%,handle.ilike.%${cleanQuery}%,current_split.ilike.%${cleanQuery}%`
-          )
-          .limit(30)
-      : supabase
-          .from('buddy_profiles')
-          .select('*')
-          .eq('is_ghost_mode', false)
-          .limit(50);
-
-    const { data, error } = await queryBuilder;
+    const remoteDeck = await supabase.rpc('buddy_within_radius', {
+      origin_lat: userCoords.latitude,
+      origin_lng: userCoords.longitude,
+      radius_km: radiusKm,
+    });
+    if (!remoteDeck.error && Array.isArray(remoteDeck.data)) {
+      fetchedFromSupabase = true;
+      supabaseCandidates = remoteDeck.data.flatMap((raw) => {
+        const item = raw as RemoteBuddyRow & { distance_km?: number };
+        const lat = Number(item.latitude);
+        const lon = Number(item.longitude);
+        if (item.is_ghost_mode) return [];
+        if (!Number.isFinite(lat) || !Number.isFinite(lon) || (lat === 0 && lon === 0)) return [];
+        const dist = Number(item.distance_km);
+        const photo = String(item.avatar_url || item.image_url || item.avatar || '');
+        const safePhoto = photo.includes('images.unsplash.com') ? '' : photo;
+        const recent = item.last_active ? Date.now() - new Date(item.last_active).getTime() < 15 * 60 * 1000 : false;
+        return [{
+          id: String(item.id || item.user_id || ''),
+          name: String(item.athlete_name || item.name || '').trim(),
+          handle: item.handle || '',
+          age: Number(item.age) || 0,
+          home_gym: item.home_gym || '',
+          distance_km: Number.isFinite(dist) ? dist : Number(calculateDistance(userCoords.latitude, userCoords.longitude, lat, lon).toFixed(1)),
+          match_score: 0,
+          image_url: safePhoto,
+          photos: safePhoto ? [safePhoto] : [],
+          discipline: item.discipline || '',
+          training_discipline: item.discipline || '',
+          current_split: item.current_split || '',
+          preferred_time: item.training_time || item.preferred_time || '',
+          gender: item.gender || '',
+          looking_for: item.looking_for || '',
+          training_place: item.training_place || item.where || '',
+          experience_level: item.experience_level || '',
+          bio: item.bio || '',
+          is_online: recent,
+          is_verified: Boolean(item.verified || item.is_verified),
+        }];
+      }).filter((row) => row.name);
+    }
+    const textMatch = `athlete_name.ilike.%${cleanQuery}%,home_gym.ilike.%${cleanQuery}%,current_split.ilike.%${cleanQuery}%`;
+    const box = radiusBox(userCoords.latitude, userCoords.longitude, radiusKm);
+    if (remoteDeck.error || !Array.isArray(remoteDeck.data)) {
+    const columns = 'id,user_id,athlete_name,age,home_gym,latitude,longitude,avatar_url,image_url,discipline,current_split,training_time,gender,looking_for,training_place,experience_level,bio,last_active,is_ghost_mode,verified,is_verified,handle';
+    const bounded = (withGhost: boolean) => {
+      let query = supabase.from('buddy_profiles').select(columns).gte('latitude', box.minLat).lte('latitude', box.maxLat);
+      if (box.minLng >= -180 && box.maxLng <= 180) {
+        query = query.gte('longitude', box.minLng).lte('longitude', box.maxLng);
+      }
+      if (withGhost) query = query.eq('is_ghost_mode', false);
+      if (cleanQuery) query = query.or(textMatch);
+      return query.limit(200);
+    };
+    let { data, error } = await bounded(true);
+    if (error) {
+      const open = await bounded(false);
+      data = open.data;
+      error = open.error;
+    }
+    if (error) throw new Error(error.message);
 
     if (!error && Array.isArray(data)) {
       fetchedFromSupabase = true;
-      supabaseCandidates = data.map((item: any) => {
-        const lat = Number(item.latitude) || userCoords.latitude;
-        const lon = Number(item.longitude) || userCoords.longitude;
+      supabaseCandidates = data.flatMap((raw) => {
+        const item = raw as RemoteBuddyRow;
+        const lat = Number(item.latitude);
+        const lon = Number(item.longitude);
+        if (item.is_ghost_mode) return [];
+        if (!Number.isFinite(lat) || !Number.isFinite(lon) || (lat === 0 && lon === 0)) return [];
         const dist = Number(calculateDistance(userCoords.latitude, userCoords.longitude, lat, lon).toFixed(1));
-        return {
-          id: String(item.id || `sp-${Math.random()}`),
-          name: item.athlete_name || item.name || 'Athletic Member',
-          handle: item.handle || '@athlete',
-          age: Number(item.age) || 25,
-          home_gym: item.home_gym || 'Oblivion 1 Partner Gym',
+        const photo = String(item.avatar_url || item.image_url || item.avatar || '');
+        const safePhoto = photo.includes('images.unsplash.com') ? '' : photo;
+        const recent = item.last_active ? Date.now() - new Date(item.last_active).getTime() < 15 * 60 * 1000 : false;
+        return [{
+          id: String(item.id || item.user_id || ''),
+          name: String(item.athlete_name || item.name || '').trim(),
+          handle: item.handle || '',
+          age: Number(item.age) || 0,
+          home_gym: item.home_gym || '',
           distance_km: dist,
-          match_score: Number(item.match_score) || 88,
-          image_url: item.avatar_url || item.image_url || 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=800&q=80',
-          photos: item.photos || [item.avatar_url || 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=800&q=80'],
-          discipline: item.discipline || 'Fitness',
-          training_discipline: item.discipline?.toUpperCase() || 'GENERAL ATHLETICS',
-          current_split: item.current_split || 'Standard Split',
-          bio: item.bio || 'Oblivion 1 athlete active in corridor.',
-          is_online: !item.is_ghost_mode,
-        };
-      });
+          match_score: 0,
+          image_url: safePhoto,
+          photos: safePhoto ? [safePhoto] : [],
+          discipline: item.discipline || '',
+          training_discipline: item.discipline || '',
+          current_split: item.current_split || '',
+          preferred_time: item.training_time || item.preferred_time || '',
+          gender: item.gender || '',
+          looking_for: item.looking_for || '',
+          training_place: item.training_place || item.where || '',
+          experience_level: item.experience_level || '',
+          bio: item.bio || '',
+          is_online: recent,
+          is_verified: Boolean(item.verified || item.is_verified),
+        }];
+      }).filter((row) => row.name);
     } else if (error) {
       console.error('[Supabase Search] PostgREST query error:', error);
     }
+    }
   } catch (err) {
     console.error('[Supabase Search] Live query failure:', err);
+    throw err;
   }
 
   // Bind exclusively to live Supabase candidates
   const allCandidates: DemoAthlete[] = supabaseCandidates;
+  const seen = new Set(allCandidates.map((row) => row.id));
+  if (import.meta.env.DEV) {
+    for (const local of localBuddyCards()) {
+      if (!seen.has(local.id)) allCandidates.push(local);
+    }
+  }
 
   // If no query string, filter by radius and sort by match score
   if (!cleanQuery) {
@@ -209,9 +332,6 @@ export async function searchAthletesWithSupabase(
     if (matchedCity) {
       if (gymLower.includes(matchedCity) || bioLower.includes(matchedCity)) {
         relevanceScore += 100;
-      } else {
-        // Boost verified athletes into active travel corridor
-        relevanceScore += 40;
       }
     }
 
@@ -228,7 +348,7 @@ export async function searchAthletesWithSupabase(
     relevanceScore -= dist * 1.1;
 
     // Match score weighting
-    const match = ath.match_score ?? ath.matchPercentage ?? 80;
+    const match = ath.match_score ?? ath.matchPercentage ?? 0;
     relevanceScore += match * 0.25;
 
     return { athlete: ath, score: relevanceScore };

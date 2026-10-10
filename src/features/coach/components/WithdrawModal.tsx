@@ -56,7 +56,7 @@ export const WithdrawModal: React.FC<WithdrawModalProps> = ({
               <ArrowDownRight className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-sm font-tactical font-black uppercase text-white tracking-wider">WITHDRAW EARNINGS</h2>
+              <h2 className="text-sm font-tactical font-black text-white tracking-wider">Withdraw Earnings</h2>
               <p className="text-xs font-sans text-neutral-400 font-semibold mt-0.5">Automated Stripe Express Transfer</p>
             </div>
           </div>
@@ -65,14 +65,14 @@ export const WithdrawModal: React.FC<WithdrawModalProps> = ({
 
         <div className="p-5 space-y-4 bg-black">
           <div className="bg-o1-card border border-white/[0.07] rounded-2xl p-4 text-center space-y-1">
-            <span className="text-xs font-tactical uppercase text-neutral-400 tracking-wider font-bold block">AVAILABLE FOR PAYOUT</span>
+            <span className="text-xs font-tactical text-neutral-400 tracking-wider font-bold block">Available for Payout</span>
             <div className="text-3xl font-mono font-black text-white tracking-tight">
               ${availableBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </div>
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-xs font-sans font-semibold text-neutral-300 uppercase block px-1">Withdrawal Amount ($ USD)</label>
+            <label className="text-xs font-sans font-semibold text-neutral-300 block px-1">Withdrawal Amount ($ USD)</label>
             <div className="relative">
               <span className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400 font-mono text-sm">$</span>
               <input
@@ -80,14 +80,14 @@ export const WithdrawModal: React.FC<WithdrawModalProps> = ({
                 value={amountStr}
                 onFocus={(e) => e.target.select()}
                 onChange={(e) => setAmountStr(sanitizeNumericInput(e.target.value))}
-                className="w-full pl-8 pr-4 py-3 bg-o1-card border border-[#F59E0B]/35 rounded-xl text-white font-mono font-bold text-base focus:outline-none focus:border-[#F59E0B]"
+                className="w-full pl-8 pr-4 py-3 bg-o1-card border border-[#D4A017]/35 rounded-xl text-white font-mono font-bold text-base focus:outline-none focus:border-[#D4A017]"
               />
             </div>
             <div className="grid grid-cols-3 gap-2 pt-1">
               {[0.25, 0.5, 1.0].map((pct) => (
                 <button
                   key={pct} type="button" onClick={() => setAmountStr((availableBalance * pct).toFixed(2))}
-                  className="py-1.5 rounded-xl bg-o1-card border border-[#F59E0B]/25 hover:border-[#F59E0B]/50 text-xs font-tactical font-black text-[#F59E0B] hover:text-[#F59E0B] cursor-pointer"
+                  className="py-1.5 rounded-xl bg-o1-card border border-[#D4A017]/25 hover:border-[#D4A017]/50 text-xs font-tactical font-black text-[#D4A017] hover:text-[#D4A017] cursor-pointer"
                 >
                   {pct === 1 ? 'MAX (100%)' : `${pct * 100}%`}
                 </button>
@@ -95,12 +95,12 @@ export const WithdrawModal: React.FC<WithdrawModalProps> = ({
             </div>
           </div>
 
-          <div className="bg-o1-card border border-[#F59E0B]/20 rounded-2xl p-3.5 flex items-center justify-between text-xs font-sans">
+          <div className="bg-o1-card border border-[#D4A017]/20 rounded-2xl p-3.5 flex items-center justify-between text-xs font-sans">
             <div className="flex items-center gap-2.5 text-neutral-200 min-w-0">
-              <Building2 className="w-4 h-4 text-[#F59E0B] shrink-0" />
+              <Building2 className="w-4 h-4 text-[#D4A017] shrink-0" />
               <span className="truncate font-medium">To: {destinationLabel}</span>
             </div>
-            <span className="text-[#F59E0B] font-mono font-bold shrink-0 ml-2">STANDARD ACH</span>
+            <span className="text-[#D4A017] font-mono font-bold shrink-0 ml-2">Standard ACH</span>
           </div>
 
           {error && (
@@ -112,10 +112,10 @@ export const WithdrawModal: React.FC<WithdrawModalProps> = ({
           <button
             onClick={handleWithdraw}
             disabled={isProcessing || withdrawAmount <= 0}
-            className="w-full py-3.5 rounded-xl bg-gradient-to-r from-[#F59E0B] via-[#F59E0B] to-[#F59E0B] text-black font-tactical font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer shadow-lg active:scale-98 transition disabled:opacity-50"
+            className="w-full py-3.5 rounded-xl bg-gradient-to-r from-[#D4A017] via-[#D4A017] to-[#D4A017] text-black font-tactical font-black text-xs tracking-wider flex items-center justify-center gap-2 cursor-pointer shadow-lg active:scale-98 transition disabled:opacity-50"
           >
             {isProcessing ? <Loader2 className="w-4 h-4 animate-spin text-black" /> : <ArrowDownRight className="w-4 h-4 text-black stroke-[3]" />}
-            <span>{isProcessing ? 'DISPATCHING PAYOUT...' : `WITHDRAW $${withdrawAmount.toFixed(2)}`}</span>
+            <span>{isProcessing ? 'Dispatching payout...' : `WITHDRAW $${withdrawAmount.toFixed(2)}`}</span>
           </button>
         </div>
       </div>

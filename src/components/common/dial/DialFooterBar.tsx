@@ -27,7 +27,7 @@ export const DialFooterBar: React.FC<DialFooterBarProps> = ({
   const isKg = unit.toUpperCase() === 'KG';
 
   return (
-    <div className="w-full space-y-3 pt-2">
+    <div className="o1-dial-stack w-full flex flex-col">
       {/* Presets Strip */}
       {presets.length > 0 && (
         <div className="w-full flex items-center justify-between gap-1 overflow-x-auto py-1 px-1 no-scrollbar select-none">
@@ -76,7 +76,7 @@ export const DialFooterBar: React.FC<DialFooterBarProps> = ({
           onConfirm();
         }}
         style={{ backgroundColor: accentColor }}
-        className="w-full py-3.5 rounded-full hover:brightness-110 active:scale-[0.98] text-white font-tactical font-bold text-xs uppercase tracking-wider shadow-lg flex items-center justify-center gap-2 transition-all cursor-pointer"
+        className="w-full py-3.5 rounded-full hover:brightness-110 active:scale-[0.98] text-white font-tactical font-bold text-xs tracking-wider shadow-lg flex items-center justify-center gap-2 transition-all cursor-pointer"
       >
         <Check className="w-4 h-4 stroke-[3]" />
         <span>

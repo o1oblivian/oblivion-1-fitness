@@ -1,5 +1,5 @@
 import React from 'react';
-import { Users, ChevronRight, Activity } from 'lucide-react';
+import { ChevronRight, Activity } from 'lucide-react';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { SquadAthlete } from '../../../types';
 
@@ -25,7 +25,7 @@ export const AthleteReviewSection: React.FC<AthleteReviewSectionProps> = ({
             <Activity className="w-4 h-4 text-o1-crimson" />
           </div>
           <div>
-            <h3 className="font-tactical font-black text-xs uppercase tracking-wider text-white">
+            <h3 className="font-tactical font-black text-xs tracking-wider text-white">
               Athlete Roster Audit
             </h3>
             <p className="text-[10px] font-mono text-neutral-500">
@@ -40,15 +40,7 @@ export const AthleteReviewSection: React.FC<AthleteReviewSectionProps> = ({
       </div>
 
       {athletes.length === 0 ? (
-        <div className="p-6 rounded-2xl bg-o1-well border border-dashed border-white/[0.07] text-center space-y-2">
-          <Users className="w-5 h-5 text-neutral-500 mx-auto" />
-          <h4 className="text-xs font-bold text-neutral-300 font-tactical uppercase tracking-wider">
-            NO RECORDS FOUND // SYNCHRONIZING...
-          </h4>
-          <p className="text-xs text-neutral-500 font-sans max-w-xs mx-auto leading-relaxed">
-            All athlete biometrics, CNS strain levels, and assigned microcycles are within optimal thresholds
-          </p>
-        </div>
+        <p className="py-3 text-center text-xs text-neutral-500">No athletes on this roster yet.</p>
       ) : (
         <div className="divide-y divide-white/[0.05]">
           {athletes.map((athlete) => (

@@ -53,7 +53,7 @@ export const DailyEnergyTargetsTab: React.FC<DailyEnergyTargetsTabProps> = ({
     <div className="space-y-4 animate-in fade-in duration-150 select-none">
       {/* Quick Goal Presets: 6 clear options with expanded Mass Gain presets */}
       <div>
-        <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-neutral-400 block mb-2">
+        <span className="text-[10px] font-mono font-bold tracking-wider text-neutral-400 block mb-2">
           Quick Goal Presets
         </span>
         <div className="grid grid-cols-3 gap-2">
@@ -141,13 +141,13 @@ export const DailyEnergyTargetsTab: React.FC<DailyEnergyTargetsTabProps> = ({
 
       {/* Target Input Grid */}
       <div className="space-y-2">
-        <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-neutral-400 block">
+        <span className="text-[10px] font-mono font-bold tracking-wider text-neutral-400 block">
           Custom Macro Targets
         </span>
         <div className="grid grid-cols-4 gap-2">
           {/* Daily Calories */}
           <div>
-            <label className="text-[9px] font-mono uppercase text-neutral-400 font-bold block mb-1">
+            <label className="text-[9px] font-mono text-neutral-400 font-bold block mb-1">
               Calories
             </label>
             <input
@@ -162,7 +162,7 @@ export const DailyEnergyTargetsTab: React.FC<DailyEnergyTargetsTabProps> = ({
 
           {/* Protein */}
           <div>
-            <label className="text-[9px] font-mono uppercase text-red-400 font-bold block mb-1">
+            <label className="text-[9px] font-mono text-red-400 font-bold block mb-1">
               Protein (g)
             </label>
             <input
@@ -177,7 +177,7 @@ export const DailyEnergyTargetsTab: React.FC<DailyEnergyTargetsTabProps> = ({
 
           {/* Carbs */}
           <div>
-            <label className="text-[9px] font-mono uppercase text-amber-400 font-bold block mb-1">
+            <label className="text-[9px] font-mono text-amber-400 font-bold block mb-1">
               Carbs (g)
             </label>
             <input
@@ -192,7 +192,7 @@ export const DailyEnergyTargetsTab: React.FC<DailyEnergyTargetsTabProps> = ({
 
           {/* Fats */}
           <div>
-            <label className="text-[9px] font-mono uppercase text-emerald-400 font-bold block mb-1">
+            <label className="text-[9px] font-mono text-emerald-400 font-bold block mb-1">
               Fats (g)
             </label>
             <input
@@ -255,7 +255,7 @@ export const DailyEnergyTargetsTab: React.FC<DailyEnergyTargetsTabProps> = ({
         <button
           type="button"
           onClick={onSaveTargets}
-          className="py-3 px-3 rounded-2xl bg-o1-crimson hover:bg-o1-crimson-hover active:scale-98 text-white font-mono text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-md"
+          className="py-3 px-3 rounded-2xl bg-o1-crimson hover:bg-o1-crimson-hover active:scale-98 text-white font-mono text-xs font-bold tracking-wider flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-md"
         >
           <Check className="w-4 h-4 stroke-[3]" />
           <span>Save Targets</span>

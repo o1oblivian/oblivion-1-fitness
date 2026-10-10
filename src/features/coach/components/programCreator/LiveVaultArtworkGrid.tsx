@@ -45,7 +45,7 @@ export const LiveVaultArtworkGrid: React.FC<Props> = ({ coverImage, onSelectImag
         <button
           type="button"
           onClick={() => fileInputRef.current?.click()}
-          className="px-4 py-2 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover text-white text-xs font-tactical font-bold uppercase tracking-wider flex items-center gap-1.5 mx-auto cursor-pointer transition-all shadow-md"
+          className="px-4 py-2 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover text-white text-xs font-tactical font-bold tracking-wider flex items-center gap-1.5 mx-auto cursor-pointer transition-all shadow-md"
         >
           <Upload className="w-3.5 h-3.5" />
           <span>+ Upload Artwork</span>
@@ -57,7 +57,7 @@ export const LiveVaultArtworkGrid: React.FC<Props> = ({ coverImage, onSelectImag
   return (
     <div className="space-y-1.5">
       <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileUpload} className="hidden" />
-      <div className="text-[10px] font-mono text-neutral-400 uppercase tracking-wider px-0.5">
+      <div className="text-[10px] font-mono text-neutral-400 tracking-wider px-0.5">
         Coach Media Vault ({vaultItems.length})
       </div>
       <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 max-h-48 overflow-y-auto pr-1">
@@ -70,7 +70,7 @@ export const LiveVaultArtworkGrid: React.FC<Props> = ({ coverImage, onSelectImag
           <div className="w-6 h-6 rounded-full bg-o1-crimson flex items-center justify-center shadow-xs">
             <Plus className="w-3.5 h-3.5 text-white stroke-[3]" />
           </div>
-          <span className="text-[9px] font-tactical font-bold text-neutral-200 uppercase tracking-wider">+ Upload</span>
+          <span className="text-[9px] font-tactical font-bold text-neutral-200 tracking-wider">+ Upload</span>
         </button>
 
         {/* Coach's uploaded vault images */}

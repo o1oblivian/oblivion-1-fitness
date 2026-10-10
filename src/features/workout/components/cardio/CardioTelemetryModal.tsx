@@ -101,7 +101,7 @@ export const CardioTelemetryModal: React.FC<Props> = ({ isOpen, onClose, onPostC
     if (!telemetry) return;
     const today = new Date().toISOString().slice(0, 10);
     const steps = telemetry.steps || 0, dist = telemetry.distanceKm || 0, dur = telemetry.elapsedMinutes || 0, cal = telemetry.caloriesBurned || 0, hr = telemetry.avgHeartRateBpm || 0;
-    useTelemetryHistoryStore.getState().updateDayRecord(today, 'cardio', { hasData: true, distanceKm: dist, durationMinutes: dur, burnedKcal: cal, avgHeartRateBpm: hr, zone2Minutes: Math.round(dur * 0.7), activityType: telemetry.deviceType === 'watch' ? 'Watch Telemetry' : 'Console Telemetry' });
+    useTelemetryHistoryStore.getState().updateDayRecord(today, 'cardio', { hasData: true, distanceKm: dist, durationMinutes: dur, burnedKcal: cal, avgHeartRateBpm: hr, zone2Minutes: 0, steps: steps > 0 ? steps : undefined, activityType: telemetry.deviceType === 'watch' ? 'Watch' : 'Console' });
     try {
       useLogStore.getState().updateSubModule('cardio', { burnedKcal: cal, durationMinutes: dur, avgHeartRateBpm: hr, distanceKm: dist });
       if (cal > 0) useFuelStore.getState().logBurned(cal);
@@ -118,7 +118,7 @@ export const CardioTelemetryModal: React.FC<Props> = ({ isOpen, onClose, onPostC
     { id: 'elapsed', label: 'ELAPSED', num: telemetry?.elapsedDisplay || (telemetry?.elapsedMinutes != null ? `${telemetry.elapsedMinutes} min` : '--'), unit: 'min' },
     { id: 'calories', label: 'CALORIES', num: telemetry?.caloriesBurned != null ? telemetry.caloriesBurned : '--', unit: 'kcal' },
     { id: 'distance', label: 'DISTANCE', num: telemetry?.distanceKm != null ? telemetry.distanceKm : '--', unit: 'km' },
-    { id: 'heartRate', label: 'HEART RATE', num: telemetry?.avgHeartRateBpm != null ? telemetry.avgHeartRateBpm : '--', unit: 'bpm' },
+    { id: 'heartRate', label: 'Heart Rate', num: telemetry?.avgHeartRateBpm != null ? telemetry.avgHeartRateBpm : '--', unit: 'bpm' },
     { id: 'speed', label: 'SPEED', num: telemetry?.speedKmh != null ? telemetry.speedKmh : '--', unit: 'km/h' },
     { id: 'incline', label: 'INCLINE', num: telemetry?.inclinePct != null ? telemetry.inclinePct : '--', unit: '%' },
   ];
@@ -148,7 +148,7 @@ export const CardioTelemetryModal: React.FC<Props> = ({ isOpen, onClose, onPostC
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-xl bg-red-500/10 border border-o1-crimson/20 flex items-center justify-center text-o1-crimson"><Activity className="w-4 h-4" /></div>
             <div>
-              <h2 className="text-xs font-tactical font-black text-white uppercase tracking-wider">Cardio & Wearable OCR</h2>
+              <h2 className="text-xs font-tactical font-black text-white tracking-wider">Cardio & Wearable OCR</h2>
               <p className="text-[10px] font-sans font-medium text-neutral-400">Direct Multimodal Console & Watch Telemetry</p>
             </div>
           </div>
@@ -158,13 +158,13 @@ export const CardioTelemetryModal: React.FC<Props> = ({ isOpen, onClose, onPostC
           <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={handleFile} />
           <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFile} />
           <div className="grid grid-cols-2 gap-2.5">
-            <button type="button" onClick={() => void handleTakePhoto()} className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover text-white text-[11px] font-tactical font-black uppercase tracking-wider cursor-pointer active:scale-95 transition shadow-md"><Camera className="w-3.5 h-3.5" /> Take Photo</button>
-            <button onClick={() => fileInputRef.current?.click()} className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-o1-well hover:bg-white/[0.06] text-neutral-200 text-[11px] font-tactical font-bold uppercase tracking-wider cursor-pointer border border-white/[0.07] active:scale-95 transition"><Upload className="w-3.5 h-3.5" /> Upload Photo</button>
+            <button type="button" onClick={() => void handleTakePhoto()} className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover text-white text-[11px] font-tactical font-black tracking-wider cursor-pointer active:scale-95 transition shadow-md"><Camera className="w-3.5 h-3.5" /> Take Photo</button>
+            <button onClick={() => fileInputRef.current?.click()} className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-o1-well hover:bg-white/[0.06] text-neutral-200 text-[11px] font-tactical font-bold tracking-wider cursor-pointer border border-white/[0.07] active:scale-95 transition"><Upload className="w-3.5 h-3.5" /> Upload Photo</button>
           </div>
           {selectedImage && (
             <div className="relative rounded-2xl overflow-hidden bg-black max-h-48 flex items-center justify-center border border-white/[0.07]">
               <img src={selectedImage} alt="Cardio display" className="max-h-48 object-contain" />
-              {isAnalyzing && <div className="absolute inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center gap-2 text-white font-tactical text-xs tracking-wider uppercase font-bold"><Zap className="w-4 h-4 animate-spin text-o1-crimson" /> Reading Display...</div>}
+              {isAnalyzing && <div className="absolute inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center gap-2 text-white font-tactical text-xs tracking-wider font-bold"><Zap className="w-4 h-4 animate-spin text-o1-crimson" /> Reading Display...</div>}
             </div>
           )}
           {statusMessage && (

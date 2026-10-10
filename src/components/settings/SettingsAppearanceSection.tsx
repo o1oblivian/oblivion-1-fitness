@@ -22,7 +22,7 @@ export const SettingsAppearanceSection: React.FC<AppearanceSectionProps> = ({
 
   return (
     <div className="space-y-2 select-none">
-      <h3 className="text-xs font-tactical tracking-wider text-neutral-400 font-bold uppercase px-1">
+      <h3 className="text-xs font-tactical tracking-wider text-neutral-400 font-bold px-1">
         Controls
       </h3>
 
@@ -78,7 +78,7 @@ export const SettingsAppearanceSection: React.FC<AppearanceSectionProps> = ({
                 tactileEngine.triggerSelectionBuzz();
                 setShowWallpaperModal(true);
               }}
-              className="px-3.5 py-1.5 rounded-full bg-white/[0.04] hover:bg-o1-crimson text-neutral-200 hover:text-white border border-white/[0.07] text-xs font-tactical font-bold uppercase tracking-wider transition-all cursor-pointer active:scale-95 shrink-0 flex items-center gap-1.5"
+              className="o1-pill bg-o1-well hover:bg-o1-crimson text-neutral-200 hover:text-white border border-white/[0.07] text-xs font-sans font-semibold cursor-pointer active:scale-95"
             >
               <Images className="w-3.5 h-3.5" />
               <span>Change</span>

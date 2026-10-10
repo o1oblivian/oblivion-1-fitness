@@ -22,12 +22,12 @@ export const O1FCoachStatusCard: React.FC<O1FCoachStatusCardProps> = ({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
-            <span className="text-[10px] font-mono font-bold tracking-widest text-neutral-500 uppercase">
-              STATUS // DIRECT ROSTER
+            <span className="text-[10px] text-neutral-500">
+              Your coach
             </span>
           </div>
-          <span className="px-2 py-0.5 rounded text-[9px] font-mono font-bold bg-amber-500/10 text-amber-500 border border-amber-500/20 uppercase">
-            STANDALONE
+          <span className="px-2 py-0.5 rounded text-[9px] font-mono font-bold bg-amber-500/10 text-amber-500 border border-amber-500/20">
+            Standalone
           </span>
         </div>
 
@@ -36,11 +36,11 @@ export const O1FCoachStatusCard: React.FC<O1FCoachStatusCardProps> = ({
             <ShieldAlert className="w-6 h-6 stroke-[1.8]" />
           </div>
           <div className="space-y-1">
-            <h3 className="text-sm font-tactical font-black text-white tracking-tight uppercase">
-              NO DIRECT COACH // BROWSE VERIFIED 01F ROSTER
+            <h3 className="text-sm font-semibold text-white">
+              No coach yet
             </h3>
-            <p className="text-xs text-neutral-400 leading-relaxed font-sans">
-              Pair with a verified 01FCoach for custom programming, form audits, and direct weekly telemetry check-ins.
+            <p className="text-xs text-neutral-400 leading-relaxed">
+              Browse coaches and the programs they list.
             </p>
           </div>
         </div>
@@ -51,10 +51,10 @@ export const O1FCoachStatusCard: React.FC<O1FCoachStatusCardProps> = ({
             tactileEngine.triggerSelectionBuzz();
             onBrowseRoster();
           }}
-          className="w-full py-2.5 px-4 rounded-2xl bg-white text-neutral-900 font-bold text-xs flex items-center justify-center gap-2 shadow-xs hover:opacity-95 active:scale-[0.98] transition-all cursor-pointer uppercase tracking-wider font-mono"
+          className="o1-pill mx-auto bg-white text-neutral-900 font-semibold text-xs hover:opacity-95 active:scale-[0.98] cursor-pointer"
         >
           <UserPlus className="w-4 h-4 stroke-[2.2]" />
-          <span>BROWSE VERIFIED 01F ROSTER</span>
+          <span>See coaches</span>
         </button>
       </section>
     );
@@ -68,13 +68,13 @@ export const O1FCoachStatusCard: React.FC<O1FCoachStatusCardProps> = ({
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <span className="w-2 h-2 rounded-full bg-emerald-500" />
-          <span className="text-[10px] font-mono font-bold tracking-widest text-neutral-500 uppercase">
-            ACTIVE 01FCOACH MENTORSHIP
+          <span className="text-[10px] font-mono font-bold tracking-widest text-neutral-500">
+            Active 01fcoach Mentorship
           </span>
         </div>
-        <span className="px-2 py-0.5 rounded text-[9px] font-mono font-bold bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 uppercase flex items-center gap-1">
+        <span className="px-2 py-0.5 rounded text-[9px] font-mono font-bold bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 flex items-center gap-1">
           <UserCheck className="w-3 h-3 stroke-[2.2]" />
-          <span>LINKED</span>
+          <span>Linked</span>
         </span>
       </div>
 
@@ -97,7 +97,7 @@ export const O1FCoachStatusCard: React.FC<O1FCoachStatusCardProps> = ({
             {primarySpecialty}
           </p>
           <p className="text-[10px] font-mono font-semibold text-o1-crimson mt-0.5">
-            {(linkedCoach?.rating ?? 5.0).toFixed(2)} ★ • {primaryCert}
+            {linkedCoach?.rating && linkedCoach.rating > 0 ? linkedCoach.rating.toFixed(2) : '--'} ★ • {primaryCert}
           </p>
         </div>
       </div>
@@ -109,10 +109,10 @@ export const O1FCoachStatusCard: React.FC<O1FCoachStatusCardProps> = ({
             tactileEngine.triggerSelectionBuzz();
             onOpenMessage(linkedCoach);
           }}
-          className="py-2.5 px-3 rounded-2xl bg-o1-well hover:bg-white/[0.06] border border-white/[0.07] text-white text-xs font-bold flex items-center justify-center gap-1.5 active:scale-[0.98] transition-all cursor-pointer uppercase tracking-wider font-mono"
+          className="py-2.5 px-3 rounded-2xl bg-o1-well hover:bg-white/[0.06] border border-white/[0.07] text-white text-xs font-bold flex items-center justify-center gap-1.5 active:scale-[0.98] transition-all cursor-pointer tracking-wider font-mono"
         >
           <MessageSquare className="w-3.5 h-3.5 text-neutral-500" />
-          <span>MESSAGE</span>
+          <span>Message</span>
         </button>
 
         <button
@@ -121,10 +121,10 @@ export const O1FCoachStatusCard: React.FC<O1FCoachStatusCardProps> = ({
             tactileEngine.triggerSelectionBuzz();
             onSubmitCheckin(linkedCoach);
           }}
-          className="py-2.5 px-3 rounded-2xl bg-o1-crimson hover:bg-o1-crimson-hover text-white text-xs font-bold flex items-center justify-center gap-1.5 active:scale-[0.98] shadow-xs transition-all cursor-pointer uppercase tracking-wider font-mono"
+          className="py-2.5 px-3 rounded-2xl bg-o1-crimson hover:bg-o1-crimson-hover text-white text-xs font-bold flex items-center justify-center gap-1.5 active:scale-[0.98] shadow-xs transition-all cursor-pointer tracking-wider font-mono"
         >
           <Send className="w-3.5 h-3.5" />
-          <span>SUBMIT CHECK-IN</span>
+          <span>Submit CHECK-IN</span>
         </button>
       </div>
     </section>

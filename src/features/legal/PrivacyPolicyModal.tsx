@@ -16,11 +16,11 @@ export const PrivacyPolicyModal: React.FC<Props> = ({ isOpen, onClose, onDeleteR
       <div className="o1-sheet-card w-full bg-black border border-white/[0.07] p-5 shadow-xl flex flex-col text-white overflow-y-auto">
         <div className="flex items-center justify-between border-b border-white/[0.05] pb-3">
           <div className="flex items-center gap-2">
-            <div className="p-1.5 rounded-lg bg-[#0EA5E9]/10 border border-[#0EA5E9]/30">
-              <Lock className="w-4 h-4 text-[#0EA5E9]" />
+            <div className="p-1.5 rounded-lg bg-[#4F8F9A]/10 border border-[#4F8F9A]/30">
+              <Lock className="w-4 h-4 text-[#4F8F9A]" />
             </div>
             <div>
-              <h2 className="text-sm font-black uppercase tracking-wider text-neutral-100">Privacy &amp; Data Sanctuary Policy</h2>
+              <h2 className="text-sm font-black tracking-wider text-neutral-100">Privacy &amp; Data Sanctuary Policy</h2>
               <p className="text-[10px] font-mono text-neutral-400">100% Local-First · Zero-Cloud Architecture</p>
             </div>
           </div>
@@ -36,7 +36,7 @@ export const PrivacyPolicyModal: React.FC<Props> = ({ isOpen, onClose, onDeleteR
         <div className="overflow-y-auto no-scrollbar py-3 space-y-0 text-xs font-mono text-neutral-300 leading-relaxed">
           {/* Section 1: Zero-Cloud Sovereign Device Architecture */}
           <div className="py-3 border-b border-white/[0.05] space-y-1.5 last:border-0">
-            <div className="flex items-center gap-1.5 text-sky-400 font-bold uppercase text-[11px]">
+            <div className="flex items-center gap-1.5 text-sky-400 font-bold text-[11px]">
               <Lock className="w-3.5 h-3.5" />
               <span>1. Zero-Cloud Sovereign Sanctuary (On-Device Storage)</span>
             </div>
@@ -47,7 +47,7 @@ export const PrivacyPolicyModal: React.FC<Props> = ({ isOpen, onClose, onDeleteR
 
           {/* Section 2: Zero Outbound Analytics & No Ad Tracking */}
           <div className="py-3 border-b border-white/[0.05] space-y-1.5 last:border-0">
-            <div className="flex items-center gap-1.5 text-emerald-400 font-bold uppercase text-[11px]">
+            <div className="flex items-center gap-1.5 text-emerald-400 font-bold text-[11px]">
               <Activity className="w-3.5 h-3.5" />
               <span>2. Zero Third-Party Trackers, Pixels, or Data Brokers</span>
             </div>
@@ -58,7 +58,7 @@ export const PrivacyPolicyModal: React.FC<Props> = ({ isOpen, onClose, onDeleteR
 
           {/* Section 3: Camera, Vision & On-Device Processing */}
           <div className="py-3 border-b border-white/[0.05] space-y-1.5 last:border-0">
-            <div className="flex items-center gap-1.5 text-amber-400 font-bold uppercase text-[11px]">
+            <div className="flex items-center gap-1.5 text-amber-400 font-bold text-[11px]">
               <Camera className="w-3.5 h-3.5" />
               <span>3. Camera &amp; Vision Scanner Ephemeral Processing</span>
             </div>
@@ -69,7 +69,7 @@ export const PrivacyPolicyModal: React.FC<Props> = ({ isOpen, onClose, onDeleteR
 
           {/* Section 4: User-Owned Air-Gapped Backups */}
           <div className="py-3 border-b border-white/[0.05] space-y-1.5 last:border-0">
-            <div className="flex items-center gap-1.5 text-sky-400 font-bold uppercase text-[11px]">
+            <div className="flex items-center gap-1.5 text-sky-400 font-bold text-[11px]">
               <Lock className="w-3.5 h-3.5" />
               <span>4. Air-Gapped User-Owned Data Vaults (.o1fc)</span>
             </div>
@@ -80,7 +80,7 @@ export const PrivacyPolicyModal: React.FC<Props> = ({ isOpen, onClose, onDeleteR
 
           {/* Section 5: GDPR / CCPA Irrevocable Account Purge */}
           <div className="py-3 border-b border-white/[0.05] space-y-1.5 last:border-0">
-            <div className="flex items-center gap-1.5 text-o1-crimson font-bold uppercase text-[11px]">
+            <div className="flex items-center gap-1.5 text-o1-crimson font-bold text-[11px]">
               <Trash2 className="w-3.5 h-3.5" />
               <span>5. Unconditional Account &amp; Telemetry Erasure (GDPR / CCPA)</span>
             </div>
@@ -91,7 +91,7 @@ export const PrivacyPolicyModal: React.FC<Props> = ({ isOpen, onClose, onDeleteR
               <button
                 type="button"
                 onClick={() => { onClose(); onDeleteRequest(); }}
-                className="mt-1 text-[10px] text-o1-crimson underline font-bold uppercase hover:text-red-400 cursor-pointer"
+                className="mt-1 text-[10px] text-o1-crimson underline font-bold hover:text-red-400 cursor-pointer"
               >
                 Initiate Account Deletion Protocol &rarr;
               </button>
@@ -103,7 +103,7 @@ export const PrivacyPolicyModal: React.FC<Props> = ({ isOpen, onClose, onDeleteR
           <button
             type="button"
             onClick={() => { tactileEngine.triggerSelectionBuzz(); onClose(); }}
-            className="w-full py-3 rounded-2xl bg-o1-card hover:bg-white/[0.06] border border-white/[0.07] text-white font-mono text-xs font-black uppercase tracking-wider cursor-pointer transition active:scale-95"
+            className="w-full py-3 rounded-2xl bg-o1-card hover:bg-white/[0.06] border border-white/[0.07] text-white font-mono text-xs font-black tracking-wider cursor-pointer transition active:scale-95"
           >
             Understood &amp; Close
           </button>

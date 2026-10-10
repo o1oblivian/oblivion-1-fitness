@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useModalStore } from './useModalStore';
 
 // Modal component imports
@@ -23,7 +23,9 @@ import {
   BioSyncPayload,
   GenericToastPayload,
   ProgramReelsStoryPayload,
+  EliteReelsPayload,
 } from './types';
+import { REEL_LINK_EVENT, consumeReelLink } from '../../features/reels/services/reelLinks';
 
 /**
  * Unified Modal Registry
@@ -31,7 +33,22 @@ import {
  * Eliminates prop drilling and bloated layout states while preserving 100% visual parity and animations.
  */
 export const ModalRegistry: React.FC = () => {
-  const { activeModal, payload, closeModal } = useModalStore();
+  const { activeModal, payload, closeModal, openFullEliteReels } = useModalStore();
+
+  useEffect(() => {
+    const openPending = () => {
+      const link = consumeReelLink();
+      if (!link) return;
+      openFullEliteReels({
+        initialMode: link.reelId ? 'player' : 'grid',
+        initialReelId: link.reelId,
+        initialCoachId: link.reelId ? undefined : link.coachId,
+      });
+    };
+    openPending();
+    window.addEventListener(REEL_LINK_EVENT, openPending);
+    return () => window.removeEventListener(REEL_LINK_EVENT, openPending);
+  }, [openFullEliteReels]);
 
   if (!activeModal) return null;
 
@@ -55,6 +72,10 @@ export const ModalRegistry: React.FC = () => {
       <EliteReelsHub
         isOpen={activeModal === 'FULL_ELITE_REELS'}
         onClose={closeModal}
+        initialMode={(payload as EliteReelsPayload | null)?.initialMode}
+        initialReelId={(payload as EliteReelsPayload | null)?.initialReelId}
+        initialCoachId={(payload as EliteReelsPayload | null)?.initialCoachId}
+        initialProfileTab={(payload as EliteReelsPayload | null)?.initialProfileTab}
       />
 
       {/* 4. Cardio Scanner Modal (CardioTelemetryModal) */}
@@ -93,7 +114,7 @@ export const ModalRegistry: React.FC = () => {
       <ProgramDetailModal
         isOpen={activeModal === 'TRAVEL_PASS'}
         onClose={closeModal}
-        programTitle={(payload as TravelPassPayload)?.programTitle || 'BOOTY BUILDER'}
+        programTitle={(payload as TravelPassPayload)?.programTitle ?? ''}
         onLoadWorkouts={(title) => {
           const cb = (payload as TravelPassPayload)?.onLoadWorkouts;
           if (cb) cb(title);

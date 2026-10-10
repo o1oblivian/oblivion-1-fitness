@@ -11,6 +11,13 @@ export type ModalType =
   | 'SUPPLEMENTS'
   | 'PROGRAM_REELS_STORY';
 
+export interface EliteReelsPayload {
+  initialMode?: 'grid' | 'player';
+  initialReelId?: string;
+  initialCoachId?: string;
+  initialProfileTab?: 'reels' | 'programs' | 'coaching';
+}
+
 export interface MealScannerPayload {
   defaultSlot?: 'breakfast' | 'lunch' | 'dinner' | 'snack' | 'drinks' | 'supplements';
   onConfirmMeal?: (mealName: string, kcal: number, p: number, c: number, f: number) => void;
@@ -57,7 +64,7 @@ export interface GenericToastPayload {
 export type ModalPayloadMap = {
   SETTINGS: GenericToastPayload;
   BIOMETRIC_SHEET: GenericToastPayload;
-  FULL_ELITE_REELS: Record<string, never>;
+  FULL_ELITE_REELS: EliteReelsPayload;
   CARDIO_SCANNER: CardioScannerPayload;
   MEAL_SCANNER: MealScannerPayload;
   TRAVEL_PASS: TravelPassPayload;

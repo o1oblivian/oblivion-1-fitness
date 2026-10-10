@@ -8,11 +8,15 @@ import { SubscriptionProvider } from './context/SubscriptionContext';
 import { AuthProvider } from './context/AuthContext';
 import { ClubPassPaywallModal } from './features/membership/components/ClubPassPaywallModal';
 import { OnboardingCoordinator } from './features/onboarding/OnboardingCoordinator';
+import { InductionProtocol } from './features/induction/InductionProtocol';
+import { useConsultationStore } from './features/induction/useConsultationStore';
 import { revenueCatService } from './services/revenueCatService';
 import { tactileEngine } from './services/tactileEngine';
 import { safeStorage } from './utils/safeStorage';
 import { Capacitor } from '@capacitor/core';
 import { applyAuthCallbackUrl } from './services/oauthDeepLink';
+import { captureInviteFromUrl } from './features/log/publicShare';
+import { captureReelLink } from './features/reels/services/reelLinks';
 import { AppErrorBoundary } from './components/common/AppErrorBoundary';
 
 export default function App() {
@@ -23,6 +27,7 @@ export default function App() {
   });
   const [onboardingReplay, setOnboardingReplay] = useState(false);
   const [membershipSuccessBanner, setMembershipSuccessBanner] = useState(false);
+  const consultationLocked = useConsultationStore((state) => state.locked);
 
   useEffect(() => {
     lockDarkTheme();
@@ -99,6 +104,26 @@ export default function App() {
       };
 
       const webHref = window.location.href;
+      if (captureInviteFromUrl(webHref)) {
+        void import('./features/coach/services/coachBridge').then(({ acceptCoachInvite }) => acceptCoachInvite());
+        try {
+          const cleaned = new URL(webHref);
+          cleaned.searchParams.delete('invite');
+          window.history.replaceState({}, document.title, cleaned.pathname + cleaned.search + cleaned.hash);
+        } catch {
+          /* ignore */
+        }
+      }
+      if (captureReelLink(webHref)) {
+        try {
+          const cleaned = new URL(window.location.href);
+          cleaned.searchParams.delete('reel');
+          cleaned.searchParams.delete('coach');
+          window.history.replaceState({}, document.title, cleaned.pathname + cleaned.search + cleaned.hash);
+        } catch {
+          /* ignore */
+        }
+      }
       if (webHref.includes('access_token') || webHref.includes('code=')) {
         handleAuthUrl(webHref).then(() => {
           try {
@@ -114,14 +139,22 @@ export default function App() {
         import('@capacitor/app')
           .then(({ App: CapApp }) => {
             CapApp.addListener('appUrlOpen', async ({ url }) => {
-              if (url) await handleAuthUrl(url);
+              if (!url) return;
+              captureInviteFromUrl(url);
+              captureReelLink(url);
+              void import('./features/coach/services/coachBridge').then(({ acceptCoachInvite }) => acceptCoachInvite());
+              await handleAuthUrl(url);
             }).then((handle) => {
               appUrlListenerHandle = handle;
             }).catch((err) => {
               console.warn('[App] appUrlOpen listener unavailable:', err);
             });
             CapApp.getLaunchUrl().then((launch) => {
-              if (launch?.url) handleAuthUrl(launch.url);
+              if (!launch?.url) return;
+              captureInviteFromUrl(launch.url);
+              captureReelLink(launch.url);
+              void import('./features/coach/services/coachBridge').then(({ acceptCoachInvite }) => acceptCoachInvite());
+              void handleAuthUrl(launch.url);
             }).catch((err) => {
               console.warn('[App] getLaunchUrl unavailable:', err);
             });
@@ -157,12 +190,13 @@ export default function App() {
       <SubscriptionProvider>
         <MainAppLayout />
         <ClubPassPaywallModal />
+        {!showOnboarding && !consultationLocked && <InductionProtocol onEnter={() => undefined} />}
         {showOnboarding && (
           <OnboardingCoordinator
             replay={onboardingReplay}
             onComplete={() => {
               setShowOnboarding(false);
-              if (!onboardingReplay) {
+              if (!onboardingReplay && useConsultationStore.getState().locked) {
                 window.dispatchEvent(new CustomEvent('o1fc_open_paywall', { detail: 'Club Pass Pro' }));
               }
               setOnboardingReplay(false);
@@ -174,8 +208,8 @@ export default function App() {
             <div className="flex items-center gap-2.5">
               <CheckCircle2 className="w-5 h-5 text-zinc-300 shrink-0" />
               <div>
-                <p className="text-xs font-tactical font-black text-white uppercase tracking-wider">MEMBERSHIP ACTIVATED</p>
-                <p className="text-[10px] font-mono text-zinc-400">REVENUECAT IN-APP PURCHASE VERIFIED</p>
+                <p className="text-xs font-tactical font-black text-white tracking-wider">Membership Activated</p>
+                <p className="text-[10px] font-mono text-zinc-400">Revenuecat IN-APP purchase verified</p>
               </div>
             </div>
             <button onClick={() => setMembershipSuccessBanner(false)} className="p-1 text-neutral-400 hover:text-white rounded-full cursor-pointer">

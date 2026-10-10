@@ -5,7 +5,6 @@ import { SettingsBuddyDatingSection } from './SettingsBuddyDatingSection';
 import { SettingsTrainingSection } from './SettingsTrainingSection';
 import { SettingsUnitsDefaultsSection } from './SettingsUnitsDefaultsSection';
 import { SettingsMembershipSection } from './SettingsMembershipSection';
-import { SettingsPrivacyPledgeSection } from './SettingsPrivacyPledgeSection';
 import { SettingsAppearanceSection } from './SettingsAppearanceSection';
 import { SettingsAlertsFeedbackSection } from './SettingsAlertsFeedbackSection';
 import { SettingsHardwareSection } from './SettingsHardwareSection';
@@ -150,9 +149,6 @@ export const SettingsContent: React.FC<SettingsContentProps> = ({
         }}
         onShowToast={onShowToast}
       />
-
-      {/* 9. Athlete Trust & Privacy Pledge (Zero Cloud Leak • Zero Ads) */}
-      <SettingsPrivacyPledgeSection />
 
       {/* 10. Help, Guidance & Legal Specifications */}
       <SettingsHelpSupportSection

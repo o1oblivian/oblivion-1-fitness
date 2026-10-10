@@ -12,6 +12,19 @@ import {
   TrialState,
 } from '../services/trialService';
 import { getAuthenticatedUserId } from '../services/authUser';
+import { useAuthStore } from '../stores/useAuthStore';
+
+const CREATOR_EMAIL = 'o1oblivianfitness@gmail.com';
+
+function creatorSignedIn(): boolean {
+  try {
+    const stored = (localStorage.getItem('o1fc_user_email') || '').trim().toLowerCase();
+    const live = (useAuthStore.getState().user?.email || useAuthStore.getState().profile?.email || '').trim().toLowerCase();
+    return stored === CREATOR_EMAIL || live === CREATOR_EMAIL;
+  } catch {
+    return false;
+  }
+}
 
 export interface SubscriptionContextType {
   isPro: boolean;
@@ -22,6 +35,7 @@ export interface SubscriptionContextType {
   isLoading: boolean;
   isPaywallOpen: boolean;
   gatedFeature: string | null;
+  isCreator: boolean;
   openPaywall: (featureName?: string) => void;
   closePaywall: () => void;
 }
@@ -32,7 +46,8 @@ const EMPTY_TRIAL = getAthleteTrialState('');
 
 export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [trial, setTrial] = useState<TrialState>(EMPTY_TRIAL);
-  const [isPro, setIsPro] = useState<boolean>(false);
+  const [isPro, setIsPro] = useState<boolean>(() => creatorSignedIn() || import.meta.env.DEV);
+  const [isCreator, setIsCreator] = useState<boolean>(() => creatorSignedIn() || import.meta.env.DEV);
   const [currentPlan, setCurrentPlan] = useState<string>('o1fc_core_free');
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isPaywallOpen, setIsPaywallOpen] = useState<boolean>(false);
@@ -49,8 +64,10 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
       setTrial(trialInfo);
 
-      const hasProEntitlement = trialInfo.hasSubscribedPro || (status.isActive && status.tierId !== 'o1fc_core_free');
-      setIsPro(Boolean(uid) && hasProEntitlement);
+      const creator = creatorSignedIn() || import.meta.env.DEV;
+      setIsCreator(creator);
+      const hasProEntitlement = trialInfo.hasSubscribedPro || (status.isActive && status.tierId !== 'o1fc_core_free') || creator;
+      setIsPro((Boolean(uid) && hasProEntitlement) || creator);
       setCurrentPlan(status.tierId || (hasProEntitlement ? PLUS_ENTITLEMENT : 'o1fc_core_free'));
       setIsLoading(false);
     };
@@ -94,6 +111,7 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
   }, []);
 
   const openPaywall = useCallback((featureName?: string) => {
+    if (creatorSignedIn() || import.meta.env.DEV) return;
     setGatedFeature(featureName || 'Club Pass Pro Feature');
     setIsPaywallOpen(true);
   }, []);
@@ -116,6 +134,7 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
     <SubscriptionContext.Provider
       value={{
         isPro,
+        isCreator,
         currentPlan,
         trialState: trial,
         purchasePro,
@@ -137,6 +156,7 @@ export const useSubscription = (): SubscriptionContextType => {
   if (!ctx) {
     return {
       isPro: false,
+      isCreator: false,
       currentPlan: 'o1fc_core_free',
       trialState: getAthleteTrialState(''),
       purchasePro: async () => false,

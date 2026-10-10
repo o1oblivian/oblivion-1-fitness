@@ -1,5 +1,5 @@
 import React from 'react';
-import { ShieldCheck, Star, Users } from 'lucide-react';
+import { Star, Users } from 'lucide-react';
 import { tactileEngine } from '../../../services/tactileEngine';
 
 export interface O1FVerifiedRosterProps {
@@ -17,31 +17,15 @@ export const O1FVerifiedRoster: React.FC<O1FVerifiedRosterProps> = ({
 
   return (
     <div className="space-y-3 select-none">
-      <div className="flex items-center justify-between px-1">
-        <div className="flex items-center gap-1.5">
-          <ShieldCheck className="w-4 h-4 text-o1-crimson" />
-          <h3 className="font-tactical font-black text-xs uppercase tracking-wider text-white">
-            VERIFIED 01FCOACH DIRECTORY
-          </h3>
-        </div>
-        <span className="text-[10px] font-mono font-bold text-neutral-500 uppercase">
-          {safeCoaches.length} Available
-        </span>
-      </div>
-
       {safeCoaches.length === 0 ? (
-        <div className="border border-white/[0.07] bg-black rounded-2xl p-6 text-center space-y-2.5 shadow-sm">
-          <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/[0.07] flex items-center justify-center mx-auto text-neutral-400">
-            <Users className="w-5 h-5 text-neutral-400 stroke-[1.8]" />
+        <div className="border border-white/[0.07] bg-o1-card rounded-2xl p-6 text-center space-y-2 shadow-sm">
+          <div className="w-10 h-10 rounded-xl bg-o1-well border border-white/[0.07] flex items-center justify-center mx-auto text-neutral-400">
+            <Users className="w-5 h-5 stroke-[1.8]" />
           </div>
-          <div className="space-y-1">
-            <h4 className="font-tactical font-black text-xs uppercase tracking-wider text-neutral-200">
-              NO COACHES CURRENTLY ACCEPTING CLIENTS
-            </h4>
-            <p className="text-[11px] text-neutral-400 font-sans max-w-xs mx-auto leading-relaxed">
-              Certified 01F trainers will appear here when coaching slots open. Check back during club enrollment windows.
-            </p>
-          </div>
+          <h4 className="text-xs font-semibold text-neutral-200">No coaches yet</h4>
+          <p className="text-[11px] text-neutral-400 max-w-xs mx-auto leading-relaxed">
+            Coaches and their programs show up here.
+          </p>
         </div>
       ) : (
         <div className="space-y-2.5">
@@ -60,12 +44,16 @@ export const O1FVerifiedRoster: React.FC<O1FVerifiedRosterProps> = ({
               >
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-12 h-12 rounded-xl overflow-hidden bg-white/[0.08] border border-white/[0.07] shrink-0">
-                      <img
-                        src={coach?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200'}
-                        alt={coach?.name || 'Coach'}
-                        className="w-full h-full object-cover"
-                      />
+                    <div className="w-12 h-12 rounded-xl overflow-hidden bg-white/[0.08] border border-white/[0.07] shrink-0 flex items-center justify-center text-sm font-semibold text-neutral-200">
+                      {coach?.avatar ? (
+                        <img
+                          src={coach.avatar}
+                          alt={coach?.name || 'Coach'}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        (coach?.name || 'C').charAt(0)
+                      )}
                     </div>
                     <div className="min-w-0">
                       <h4 className="font-tactical font-black text-sm text-white truncate">

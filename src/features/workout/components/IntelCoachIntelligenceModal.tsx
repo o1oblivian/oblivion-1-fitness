@@ -1,23 +1,13 @@
-import React, { useState } from 'react';
-import {
-  X,
-  Activity,
-  Layers,
-  Target,
-  CheckCircle2,
-  ChevronDown,
-  ChevronUp,
-  ShieldAlert,
-  ShieldCheck,
-  Zap,
-  ArrowRightLeft,
-  Clock,
-  Sparkles,
-  Flame,
-} from 'lucide-react';
+import React, { useMemo, useState } from 'react';
+import { X, Zap, FileBarChart } from 'lucide-react';
+import { OblivionReportModal } from '../../report/components/OblivionReportModal';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { useWorkoutStore } from '../store/useWorkoutStore';
-import { useIntelSportsScience } from '../../../hooks/useIntelSportsScience';
+import { useOblivionReport } from '../../report/useOblivionReport';
+import { buildTodayIntel, type Decision } from '../../report/todayIntel';
+import { TONE_HEX, type Tone } from '../../report/palette';
+import { titleCase } from '../../../utils/displayCase';
+import { SectionCard, ToneChip, ZoneGauge } from '../../report/components/IntelParts';
 
 interface IntelCoachIntelligenceModalProps {
   isOpen: boolean;
@@ -25,446 +15,254 @@ interface IntelCoachIntelligenceModalProps {
   onApplyPrescription?: () => void;
 }
 
+const DECISION_TONE: Record<Decision, Tone> = {
+  PUSH: 'good',
+  MAINTAIN: 'watch',
+  'EASE OFF': 'watch',
+  DELOAD: 'alert',
+  'NO SIGNAL': 'idle',
+};
+
+const shortDay = (key: string) => {
+  const [y, m, d] = key.split('-').map(Number);
+  return new Date(y, (m || 1) - 1, d || 1).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+};
+
+const kg = (v: number) => `${Math.round(v * 100) / 100}`;
+
 export const IntelCoachIntelligenceModal: React.FC<IntelCoachIntelligenceModalProps> = ({
   isOpen,
   onClose,
   onApplyPrescription,
 }) => {
-  const [isApplying, setIsApplying] = useState<boolean>(false);
-  const [showDeepScience, setShowDeepScience] = useState<boolean>(false);
-  const [isSwapped, setIsSwapped] = useState<boolean>(false);
+  const { report, sets, sleep } = useOblivionReport(isOpen);
+  const exercises = useWorkoutStore((s) => s.exercises);
+  const setExercises = useWorkoutStore((s) => s.setExercises);
   const showToast = useWorkoutStore((s) => s.showToast);
-  const workout = useWorkoutStore();
-  const science = useIntelSportsScience();
+  const [showReport, setShowReport] = useState(false);
+  const intel = useMemo(() => buildTodayIntel(report, sets, sleep, Date.now()), [report, sets, sleep]);
 
   if (!isOpen) return null;
 
-  const handleAutoCalibrateWeights = () => {
+  const tone = DECISION_TONE[intel.decision];
+
+  const handleApply = () => {
+    const wanted = new Map(intel.prescriptions.map((p) => [p.name.toLowerCase(), p]));
+    let touched = 0;
+    const next = (exercises ?? []).map((ex) => {
+      const key = String(ex.name ?? '').toLowerCase();
+      const rx = wanted.get(key);
+      if (!rx) return ex;
+      return {
+        ...ex,
+        sets: ex.sets.map((s) => {
+          if (s.completed) return s;
+          touched += 1;
+          return { ...s, weightKg: rx.targetWeightKg };
+        }),
+      };
+    });
+
+    if (touched === 0) {
+      tactileEngine.triggerSelectionBuzz();
+      showToast('No open sets in today\'s session match these lifts.');
+      return;
+    }
     tactileEngine.playPRCelebration();
-    setIsApplying(true);
-    setTimeout(() => {
-      setIsApplying(false);
-      const exercises = workout.exercises;
-      const deltaFactor = 1 + science.loadRegulation.loadDeltaPct / 100;
-
-      if (exercises && exercises.length > 0) {
-        workout.setExercises((current) =>
-          current.map((ex) => ({
-            ...ex,
-            sets: ex.sets.map((s) => {
-              if (!s.completed && s.weightKg > 0) {
-                const newWeight = Math.round((s.weightKg * deltaFactor) / 0.5) * 0.5;
-                return { ...s, weightKg: newWeight };
-              }
-              return s;
-            }),
-          }))
-        );
-        showToast(
-          `Auto-Calibrated: ${science.loadRegulation.loadDeltaPct >= 0 ? '+' : ''}${science.loadRegulation.loadDeltaPct}% load applied to active sets!`
-        );
-      } else {
-        showToast(
-          `Prescription Armed: ${science.loadRegulation.calibratedTopKg} kg target queued for primary compound lift.`
-        );
-      }
-      if (onApplyPrescription) onApplyPrescription();
-      onClose();
-    }, 450);
+    setExercises(() => next);
+    showToast(`Applied ${touched} prescribed set${touched === 1 ? '' : 's'} to today's session.`);
+    onApplyPrescription?.();
+    onClose();
   };
 
-  const handleSwapExercise = () => {
+  const goToWorkout = () => {
     tactileEngine.triggerSelectionBuzz();
-    setIsSwapped(true);
-    showToast(
-      `Biomechanical Swap Deployed: Chest-Supported Incline Row loaded (-85% lumbar shear).`
-    );
+    window.dispatchEvent(new CustomEvent('app_navigate_tab', { detail: 'tracker' }));
+    onClose();
   };
+
+  const ratio = report.stats.acwr;
+  const sleepNights = sleep.filter((s) => s.hours > 0).length;
 
   return (
     <div
-      onClick={onClose}
-      className="fixed inset-0 z-[60000] bg-black/70 o1-sheet-scrim flex items-center justify-center select-none overflow-y-auto animate-in fade-in duration-150"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Intel Coach"
+      className="fixed inset-0 z-[60000] bg-black select-none flex flex-col animate-in fade-in duration-150"
     >
-      <div
-        onClick={(e) => e.stopPropagation()}
-        className="o1-sheet-card bg-o1-card border border-white/[0.07] p-2.5 w-full overflow-y-auto shadow-xl transition-colors space-y-2.5 text-white"
-      >
-        {/* ============================================================== */}
-        {/* HEADER: Surgical Swiss-Athletic Brand Identity                 */}
-        {/* ============================================================== */}
-        <div className="flex items-start justify-between border-b border-white/[0.05] pb-3.5">
-          <div className="space-y-1">
-            <div className="flex items-center gap-2">
-              <span className="text-[10px] font-tactical uppercase tracking-wider px-2 py-0.5 rounded-md bg-o1-well text-neutral-400 font-bold border border-white/[0.07]">
-                PRO INTEL
-              </span>
-              <span className="text-[10px] font-tactical text-red-400 font-black uppercase tracking-wider">
-                PREDICTIVE INTEL ENGINE
-              </span>
-            </div>
-            <h3 className="text-sm font-tactical font-semibold uppercase tracking-wider text-white">
-              Intel Coach
-            </h3>
-            <p className="text-xs text-neutral-400 font-sans">
-              Auto-Regulated Load Prescription, Biomechanical Sentinel &amp; PR Predictor
-            </p>
+      <div className="w-full max-w-[420px] mx-auto h-full flex flex-col px-4 text-white">
+        <div className="shrink-0 pt-[max(env(safe-area-inset-top),12px)] pb-2 flex items-start justify-between">
+          <div className="space-y-0.5">
+            <div className="text-[10px] font-mono font-bold tracking-[0.22em] text-neutral-500">Pro intel</div>
+            <h3 className="text-base font-black tracking-wide text-white">Intel Coach</h3>
           </div>
-
           <button
             type="button"
             onClick={onClose}
-            className="p-2 rounded-xl text-neutral-400 hover:text-white hover:bg-white/[0.06] transition-colors cursor-pointer"
+            className="w-11 h-11 -mr-2 -mt-1 rounded-xl flex items-center justify-center text-neutral-300 hover:text-white hover:bg-white/[0.06] transition-colors cursor-pointer"
             aria-label="Close"
           >
-            <X className="w-4 h-4" />
+            <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* ============================================================== */}
-        {/* CORE FEATURE 1: REAL-TIME AUTO-REGULATED LOAD PRESCRIPTION     */}
-        {/* ============================================================== */}
-        <div className="p-4 rounded-2xl bg-o1-well border-2 border-o1-crimson/40 space-y-3 relative overflow-hidden">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-lg bg-o1-crimson/10 text-o1-crimson flex items-center justify-center">
-                <Zap className="w-4 h-4" />
-              </div>
-              <div>
-                <span className="text-xs font-tactical font-black uppercase tracking-wider text-white block">
-                  Auto-Regulated Load Prescription
+        <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain py-3 space-y-3">
+        {/* Decision */}
+        <section className="w-full rounded-2xl bg-black border border-white/[0.07] p-4 space-y-3">
+          <div className="flex items-center gap-4">
+            <div className="relative w-[84px] h-[84px] shrink-0">
+              <svg viewBox="0 0 84 84" className="w-full h-full -rotate-90" aria-hidden="true">
+                <circle cx="42" cy="42" r="35" fill="none" stroke="#161618" strokeWidth="7" />
+                <circle
+                  cx="42"
+                  cy="42"
+                  r="35"
+                  fill="none"
+                  stroke={TONE_HEX[tone]}
+                  strokeWidth="7"
+                  strokeLinecap="round"
+                  strokeDasharray={2 * Math.PI * 35}
+                  strokeDashoffset={2 * Math.PI * 35 * (1 - (intel.readiness ?? 0) / 100)}
+                  className="transition-[stroke-dashoffset] duration-700"
+                />
+              </svg>
+              <div className="absolute inset-0 flex flex-col items-center justify-center">
+                <span className="text-2xl font-black font-mono tabular-nums leading-none">
+                  {intel.readiness === null ? '--' : intel.readiness}
                 </span>
-                <span className="text-[10px] font-sans font-medium text-neutral-400">
-                  Real-time VBT &amp; CNS Fatigue Modulation
-                </span>
+                <span className="text-[8px] font-mono tracking-wider text-neutral-500 mt-1">Readiness</span>
               </div>
             </div>
-            <span
-              className={`text-[10px] font-tactical font-black tracking-wider uppercase px-2.5 py-0.5 rounded-full ${
-                science.loadRegulation.loadDeltaPct >= 0
-                  ? 'bg-emerald-950/50 text-emerald-400 border border-emerald-800'
-                  : 'bg-amber-950/50 text-amber-400 border border-amber-800'
-              }`}
-            >
-              {science.loadRegulation.loadDeltaPct >= 0
-                ? `+${science.loadRegulation.loadDeltaPct}% OVERLOAD`
-                : `${science.loadRegulation.loadDeltaPct}% DELOAD`}
-            </span>
+            <div className="space-y-1.5 min-w-0">
+              <ToneChip tone={tone}>{titleCase(intel.decision)}</ToneChip>
+              <div className="text-sm font-bold text-white leading-snug">{intel.headline}</div>
+              <p className="text-[11px] text-neutral-400 leading-snug">{intel.detail}</p>
+            </div>
           </div>
 
-          {/* Calibrated Working Load Readout */}
-          <div className="bg-o1-card rounded-2xl border border-white/[0.07] p-3.5 space-y-2.5">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-tactical uppercase tracking-wider text-neutral-400 font-bold">
-                Target Movement
-              </span>
-              <span className="text-xs font-tactical font-black text-white uppercase tracking-wide">
-                {science.prescription.primaryMovement}
-              </span>
-            </div>
-
-            <div className="grid grid-cols-3 gap-1.5 py-1 border-y border-white/[0.05] text-center">
-              <div className="p-1.5 rounded-xl bg-o1-well">
-                <span className="text-[9px] font-tactical uppercase font-semibold text-neutral-400 block tracking-wider">
-                  Prescribed Load
-                </span>
-                <span className="text-sm font-tactical font-semibold text-red-400 block mt-0.5 tracking-tight">
-                  {science.loadRegulation.calibratedTopKg} <span className="text-[11px]">kg</span>
-                </span>
-              </div>
-
-              <div className="p-1.5 rounded-xl bg-o1-well">
-                <span className="text-[9px] font-tactical uppercase font-semibold text-neutral-400 block tracking-wider">
-                  Rep Bracket
-                </span>
-                <span className="text-sm font-tactical font-semibold text-white block mt-0.5 tracking-tight">
-                  {science.loadRegulation.recommendedReps}
-                </span>
-              </div>
-
-              <div className="p-1.5 rounded-xl bg-o1-well">
-                <span className="text-[9px] font-tactical uppercase font-semibold text-neutral-400 block tracking-wider">
-                  RPE Ceiling
-                </span>
-                <span className="text-sm font-tactical font-semibold text-white block mt-0.5 tracking-tight">
-                  ≤ {science.loadRegulation.rpeCeiling}
-                </span>
-              </div>
-            </div>
-
-            <p className="text-[11px] text-neutral-400 leading-relaxed font-sans">
-              <strong className="text-white font-semibold">Directive: </strong>
-              {science.loadRegulation.directiveNote}
-            </p>
-          </div>
-
-          {/* 1-Tap Auto-Calibration Button */}
-          <button
-            type="button"
-            onClick={handleAutoCalibrateWeights}
-            disabled={isApplying}
-            className="w-full bg-o1-crimson hover:bg-o1-crimson-hover active:scale-[0.98] text-white font-tactical font-black text-xs uppercase tracking-wider py-3 rounded-xl shadow-xs transition-all cursor-pointer flex items-center justify-center gap-2 disabled:opacity-60"
-          >
-            {isApplying ? (
-              <>
-                <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                <span>Applying Calibrated Weights...</span>
-              </>
-            ) : (
-              <>
-                <Zap className="w-4 h-4 fill-white" />
-                <span>Auto-Calibrate Today's Weights</span>
-              </>
-            )}
-          </button>
-        </div>
-
-        {/* ============================================================== */}
-        {/* CORE FEATURE 2: BIOMECHANICAL SENTINEL & STRAIN COLLISION      */}
-        {/* ============================================================== */}
-        <div className="p-4 rounded-2xl bg-o1-well border border-white/[0.07] space-y-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-lg bg-sky-500/10 text-sky-400 flex items-center justify-center">
-                <ShieldCheck className="w-4 h-4" />
-              </div>
-              <div>
-                <span className="text-xs font-tactical font-black uppercase tracking-wider text-white block">
-                  Biomechanical Sentinel
-                </span>
-                <span className="text-[10px] font-sans font-medium text-neutral-400">
-                  Joint Stress &amp; Strain Collision Early-Warning
-                </span>
-              </div>
-            </div>
-            <span className="text-[10px] font-tactical font-black uppercase tracking-wider text-sky-400 bg-sky-950/40 px-2.5 py-0.5 rounded-full border border-sky-800">
-              ACTIVE SHIELD
-            </span>
-          </div>
-
-          {/* 3 Joint Vectors Grid */}
-          <div className="grid grid-cols-3 gap-2">
-            {science.biomechanicalSentinel.joints.map((j) => (
-              <div
-                key={j.joint}
-                className="p-1.5 rounded-xl bg-o1-card border border-white/[0.07] text-center"
-              >
-                <span className="text-[9px] font-tactical uppercase font-bold text-neutral-400 block truncate tracking-wider">
-                  {j.joint}
-                </span>
+          <ul className="divide-y divide-white/[0.05] border-t border-white/[0.05]">
+            {intel.signals.map((sig) => (
+              <li key={sig.id} className="min-h-[44px] py-2 flex items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <div className="text-xs font-bold text-white">{sig.label}</div>
+                  <div className="text-[10px] font-mono text-neutral-500 truncate">{sig.note}</div>
+                </div>
                 <span
-                  className={`text-sm font-tactical font-semibold block mt-0.5 tracking-tight ${
-                    j.status === 'CAUTION'
-                      ? 'text-amber-400'
-                      : 'text-white'
-                  }`}
+                  className="text-sm font-black font-mono shrink-0"
+                  style={{ color: sig.value === null ? '#737373' : TONE_HEX[sig.tone] }}
                 >
-                  {j.loadPct}%
+                  {sig.display}
                 </span>
-                <span
-                  className={`text-[9px] font-tactical font-black uppercase tracking-wider px-2 py-0.5 rounded mt-1 inline-block ${
-                    j.status === 'CAUTION'
-                      ? 'bg-amber-950/60 text-amber-400'
-                      : 'bg-emerald-950/60 text-emerald-400'
-                  }`}
-                >
-                  {j.status}
-                </span>
-              </div>
+              </li>
             ))}
-          </div>
+          </ul>
+        </section>
 
-          {/* Strain Collision Alert Banner */}
-          <div
-            className={`p-3 rounded-xl border text-xs space-y-2 ${
-              isSwapped || !science.biomechanicalSentinel.collision.isCollisionActive
-                ? 'bg-emerald-950/20 border-emerald-800/60'
-                : 'bg-amber-950/20 border-amber-800/60'
-            }`}
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-1.5">
-                {isSwapped || !science.biomechanicalSentinel.collision.isCollisionActive ? (
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                ) : (
-                  <ShieldAlert className="w-4 h-4 text-amber-400 shrink-0" />
-                )}
-                <span className="font-tactical font-bold uppercase tracking-wider text-white text-[11px]">
-                  {isSwapped
-                    ? 'Strain Collision Mitigated'
-                    : science.biomechanicalSentinel.collision.isCollisionActive
-                    ? 'Biomechanical Collision Detected'
-                    : 'All Kinetic Vectors Cleared'}
-                </span>
-              </div>
-              <span className="font-tactical font-black uppercase tracking-wider text-[10px] text-neutral-500">
-                {science.biomechanicalSentinel.collision.reliefFactor}
-              </span>
-            </div>
-
-            <p className="text-[11px] text-neutral-400 leading-relaxed font-sans">
-              {isSwapped
-                ? 'Chest-Supported Incline Row substituted for Barbell Bent-Over Row. Lumbar shear reduced by 85% with 100% lat stimulus retained.'
-                : science.biomechanicalSentinel.collision.rationale}
+        {/* Prescription */}
+        <SectionCard title="Today's prescription" subtitle="From your last top set of each lift">
+          {intel.prescriptions.length === 0 ? (
+            <p className="text-xs text-neutral-500 leading-relaxed">
+              Log two sessions of a lift (1–12 reps with load) and a load target for it appears here.
             </p>
+          ) : (
+            <>
+              <ul className="divide-y divide-white/[0.05]">
+                {intel.prescriptions.map((rx) => (
+                  <li key={rx.name} className="py-3 first:pt-0 last:pb-0 space-y-1.5">
+                    <div className="flex items-baseline justify-between gap-3">
+                      <span className="text-sm font-bold text-white truncate">{rx.name}</span>
+                      <span className="text-sm font-black font-mono text-white shrink-0">
+                        {kg(rx.targetWeightKg)} kg × {rx.targetReps}
+                      </span>
+                    </div>
+                    <div className="flex items-baseline justify-between gap-3 text-[10px] font-mono text-neutral-500">
+                      <span>
+                        Last {kg(rx.lastWeightKg)} × {rx.lastReps} · {shortDay(rx.lastDay)} · e1RM {kg(rx.e1rm)}
+                      </span>
+                      <span className="shrink-0">RPE ≤ {rx.rpeCap}</span>
+                    </div>
+                    <p className="text-[11px] text-neutral-400">{rx.rationale}</p>
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
+        </SectionCard>
 
-            {science.biomechanicalSentinel.collision.isCollisionActive && !isSwapped && (
-              <button
-                type="button"
-                onClick={handleSwapExercise}
-                className="w-full mt-1 bg-white hover:bg-neutral-100 text-neutral-900 font-tactical font-bold text-xs uppercase tracking-wider py-2 rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-xs"
-              >
-                <ArrowRightLeft className="w-3.5 h-3.5" />
-                <span>Swap to Chest-Supported Incline Row</span>
-              </button>
-            )}
-          </div>
-        </div>
-
-        {/* ============================================================== */}
-        {/* CORE FEATURE 3: SUPERCOMPENSATION & DELOAD PREDICTOR           */}
-        {/* ============================================================== */}
-        <div className="p-4 rounded-2xl bg-o1-well border border-white/[0.07] space-y-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
-                <Target className="w-4 h-4" />
-              </div>
-              <div>
-                <span className="text-xs font-tactical font-black uppercase tracking-wider text-white block">
-                  Supercompensation &amp; Deload
-                </span>
-                <span className="text-[10px] font-sans font-medium text-neutral-400">
-                  Predictive PR Peak &amp; Fatigue Horizon
-                </span>
-              </div>
+        {/* Load management */}
+        <SectionCard title="Load management" subtitle="Last 7 days against your 28-day baseline">
+          <div className="flex items-baseline justify-between gap-3">
+            <div className="flex items-baseline gap-2">
+              <span className="text-3xl font-black font-mono tabular-nums text-white">
+                {ratio === null ? '--' : ratio.toFixed(2)}
+              </span>
+              <span className="text-[10px] font-mono tracking-wider text-neutral-500">Acute : chronic</span>
             </div>
-            <span className="text-[10px] font-tactical font-black uppercase tracking-wider text-emerald-400 bg-emerald-950/40 px-2.5 py-0.5 rounded-full border border-emerald-800">
-              PR WINDOW ACTIVE
+            <span className="text-[11px] font-mono text-neutral-400 text-right">
+              {ratio === null ? 'Calibrating' : report.stats.acwrLabel}
             </span>
           </div>
+          <ZoneGauge value={ratio} min={0} max={2} bandFrom={0.8} bandTo={1.3} ticks={['0', '0.8', '1.3', '1.5', '2.0']} />
+        </SectionCard>
 
-          <div className="grid grid-cols-3 gap-2 text-center">
-            <div className="p-2.5 rounded-xl bg-o1-card border border-white/[0.07]">
-              <span className="text-[9px] font-tactical uppercase font-bold text-neutral-400 block truncate tracking-wider">
-                PR Peak Window
-              </span>
-              <span className="text-sm font-tactical font-black text-red-400 block mt-0.5 tracking-tight">
-                {science.supercompensation.supercompCountdownHours}h
-              </span>
-              <span className="text-[9px] font-sans font-medium text-neutral-500 block truncate mt-0.5">
-                High Force Vector
-              </span>
-            </div>
-
-            <div className="p-2.5 rounded-xl bg-o1-card border border-white/[0.07]">
-              <span className="text-[9px] font-tactical uppercase font-bold text-neutral-400 block truncate tracking-wider">
-                Cycle Capacity
-              </span>
-              <span className="text-sm font-tactical font-black text-white block mt-0.5 tracking-tight">
-                {science.supercompensation.workloadCapacityRemainingPct}%
-              </span>
-              <span className="text-[9px] font-sans font-medium text-neutral-500 block truncate mt-0.5">
-                ACWR Safety Buffer
-              </span>
-            </div>
-
-            <div className="p-2.5 rounded-xl bg-o1-card border border-white/[0.07]">
-              <span className="text-[9px] font-tactical uppercase font-bold text-neutral-400 block truncate tracking-wider">
-                Deload Horizon
-              </span>
-              <span className="text-sm font-tactical font-black text-white block mt-0.5 tracking-tight">
-                {science.supercompensation.daysUntilDeload}d
-              </span>
-              <span className="text-[9px] font-sans font-medium text-neutral-500 block truncate mt-0.5">
-                Reactive Scheduling
-              </span>
-            </div>
+        {/* Muscle readiness */}
+        <SectionCard title="Muscle readiness" subtitle="Large groups need 48h, small groups 24h">
+          <div className="grid grid-cols-2 gap-2">
+            {intel.muscles.map((m) => {
+              const t: Tone = m.state === 'recovering' ? 'watch' : m.state === 'ready' ? 'good' : 'idle';
+              return (
+                <div
+                  key={m.id}
+                  className="rounded-xl bg-[#111113] border border-white/[0.07] px-3 py-1.5 min-h-[40px] flex items-center justify-between gap-2"
+                >
+                  <div className="min-w-0">
+                    <div className="text-xs font-bold text-white truncate">{m.label}</div>
+                    <div className="text-[10px] font-mono text-neutral-500">
+                      {m.daysAgo === null ? 'Not trained' : m.daysAgo === 0 ? 'Today' : `${m.daysAgo}d ago`}
+                    </div>
+                  </div>
+                  <span className="w-2 h-2 rounded-full shrink-0" style={{ background: TONE_HEX[t] }} />
+                </div>
+              );
+            })}
           </div>
+          <div className="flex items-center gap-4 text-[10px] font-mono tracking-wider text-neutral-500">
+            <span className="flex items-center gap-1.5"><i className="w-2 h-2 rounded-full" style={{ background: TONE_HEX.watch }} />Recovering</span>
+            <span className="flex items-center gap-1.5"><i className="w-2 h-2 rounded-full" style={{ background: TONE_HEX.good }} />Ready</span>
+            <span className="flex items-center gap-1.5"><i className="w-2 h-2 rounded-full" style={{ background: TONE_HEX.idle }} />Cold</span>
+          </div>
+        </SectionCard>
+
+        <p className="text-[10px] font-mono text-neutral-600 text-center leading-relaxed">
+          {report.stats.sessions28d} sessions (28d) · {sleepNights} sleep logs · computed on this device, no AI.
+        </p>
         </div>
 
-        {/* ============================================================== */}
-        {/* COLLAPSIBLE DEEP NEUROMUSCULAR & METABOLIC TELEMETRY           */}
-        {/* ============================================================== */}
-        <div className="border border-white/[0.07] rounded-2xl overflow-hidden bg-o1-card">
+        <div className="shrink-0 pt-2 pb-[max(env(safe-area-inset-bottom),16px)] bg-black border-t border-white/[0.07] space-y-2">
           <button
             type="button"
             onClick={() => {
-              tactileEngine.triggerLightTick();
-              setShowDeepScience(!showDeepScience);
+              tactileEngine.triggerSelectionBuzz();
+              setShowReport(true);
             }}
-            className="w-full p-3.5 flex items-center justify-between text-xs font-bold text-neutral-200 hover:bg-white/[0.06] transition-colors cursor-pointer"
+            className="w-full min-h-[44px] rounded-2xl bg-transparent border border-white/[0.14] text-o1-bone text-[11px] font-sans font-semibold tracking-wide flex items-center justify-center gap-2 cursor-pointer"
           >
-            <div className="flex items-center gap-2">
-              <Layers className="w-3.5 h-3.5 text-neutral-500" />
-              <span className="font-tactical font-bold uppercase tracking-wider text-xs">
-                Deep Kinematic &amp; Metabolic Telemetry
-              </span>
-            </div>
-            {showDeepScience ? (
-              <ChevronUp className="w-4 h-4 text-neutral-400" />
-            ) : (
-              <ChevronDown className="w-4 h-4 text-neutral-400" />
-            )}
+            <FileBarChart className="w-4 h-4 text-o1-crimson" />
+            <span>Open The Oblivion Report (Deep Biomechanical Audit)</span>
           </button>
-
-          {showDeepScience && (
-            <div className="p-3.5 pt-0 space-y-3 text-xs border-t border-white/[0.05] bg-o1-card">
-              {/* Velocity & Tension */}
-              <div className="grid grid-cols-2 gap-2 pt-2">
-                <div className="p-2.5 rounded-xl bg-o1-well border border-white/[0.07]">
-                  <span className="text-[10px] text-neutral-400 block font-tactical uppercase font-bold tracking-wider">
-                    Mean Concentric Velocity
-                  </span>
-                  <span className="text-sm font-black font-tactical text-white block mt-0.5 tracking-tight">
-                    {science.meanConcentricVelocityMs} m/s
-                  </span>
-                  <span className="text-[10px] text-neutral-500 font-sans">Threshold: &gt;0.55 m/s</span>
-                </div>
-
-                <div className="p-2.5 rounded-xl bg-o1-well border border-white/[0.07]">
-                  <span className="text-[10px] text-neutral-400 block font-tactical uppercase font-bold tracking-wider">
-                    Velocity Decay (Fatigue)
-                  </span>
-                  <span className="text-sm font-black font-tactical text-white block mt-0.5 tracking-tight">
-                    {science.velocityFatigueLossPct}%
-                  </span>
-                  <span className="text-[10px] text-neutral-500 font-sans">Target: Capped under 20%</span>
-                </div>
-              </div>
-
-              {/* Motor Unit & Glycogen */}
-              <div className="p-2.5 rounded-xl bg-o1-well border border-white/[0.07] space-y-1.5">
-                <div className="flex items-center justify-between">
-                  <span className="text-[11px] text-neutral-500 font-sans">
-                    Type IIx Motor Unit Recruitment:
-                  </span>
-                  <span className="font-tactical font-black text-white tracking-tight">
-                    {science.neuromuscularRecruitmentPct}%
-                  </span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-[11px] text-neutral-500 font-sans">Glycogen Resynthesis Clock:</span>
-                  <span className="font-tactical font-black text-white tracking-tight">
-                    {science.glycogenResynthesisPct}% (~{science.glycogenBurnedGrams}g burned)
-                  </span>
-                </div>
-              </div>
-
-              <p className="text-[10px] text-neutral-400 leading-normal italic">
-                *Calculated via Session-RPE mathematical models, concentric speed decay curves, and
-                intra-cellular hydration ratios.
-              </p>
-            </div>
-          )}
+          <button
+            type="button"
+            onClick={intel.prescriptions.length > 0 ? handleApply : goToWorkout}
+            className="w-full min-h-[48px] rounded-2xl bg-o1-crimson hover:bg-o1-crimson-hover active:scale-[0.99] text-white font-bold text-xs tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer"
+          >
+            <Zap className="w-4 h-4" />
+            <span>{intel.prescriptions.length > 0 ? "Apply Today's Load Target" : 'Back to Workout'}</span>
+          </button>
         </div>
-
-        {/* Legal / Health Transparency Disclaimer */}
-        <p className="text-[10px] text-center text-neutral-400 leading-normal">
-          Oblivion 1 Intel Coach Engine • Non-diagnostic performance telemetry for athletic load
-          management
-        </p>
       </div>
+
+      <OblivionReportModal isOpen={showReport} onClose={() => setShowReport(false)} />
     </div>
   );
 };

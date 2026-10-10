@@ -83,7 +83,7 @@ export const AutoModeRoutineList: React.FC<AutoModeRoutineListProps> = ({
                       }}
                       className={`w-full text-center px-2 py-1 text-xs font-semibold hover:bg-white/5 transition-colors cursor-pointer ${
                         sets === num
-                          ? 'text-o1-crimson bg-red-950/40'
+                          ? 'text-white bg-o1-crimson'
                           : 'text-neutral-300'
                       }`}
                     >

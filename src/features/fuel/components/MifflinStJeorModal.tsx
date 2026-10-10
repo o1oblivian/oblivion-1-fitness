@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { X, Check, Flame } from 'lucide-react';
 import { tactileEngine } from '../../../services/tactileEngine';
+import { useUserStore } from '../../../stores/useUserStore';
 import { MifflinBodyDetailsSection } from './mifflin/MifflinBodyDetailsSection';
 import {
   MifflinGoalSection,
@@ -105,14 +106,15 @@ export const MifflinStJeorModal: React.FC<MifflinStJeorModalProps> = ({
 
   // Macro Breakdown
   const macroBreakdown = useMemo(() => {
-    const proteinG = Math.round(weightKg * proteinPerKg);
+    const weight = Number.isFinite(weightKg) && weightKg > 0 ? weightKg : 0;
+    const proteinG = Math.round(weight * proteinPerKg);
     const pKcal = proteinG * 4;
 
     let fRatio = 0.8;
     if (macroKey === 'low_carb') fRatio = 1.3;
     if (macroKey === 'clean_bulk') fRatio = 0.75;
 
-    const fatsG = Math.round(weightKg * fRatio);
+    const fatsG = Math.round(weight * fRatio);
     const fKcal = fatsG * 9;
 
     const remainingKcal = Math.max(0, netTargetCalories - pKcal - fKcal);
@@ -120,8 +122,8 @@ export const MifflinStJeorModal: React.FC<MifflinStJeorModalProps> = ({
     const cKcal = carbsG * 4;
 
     const totalKcal = pKcal + fKcal + cKcal;
-    const pPct = totalKcal > 0 ? Math.round((pKcal / totalKcal) * 100) : 30;
-    const cPct = totalKcal > 0 ? Math.round((cKcal / totalKcal) * 100) : 45;
+    const pPct = totalKcal > 0 ? Math.round((pKcal / totalKcal) * 100) : 0;
+    const cPct = totalKcal > 0 ? Math.round((cKcal / totalKcal) * 100) : 0;
     const fPct = Math.max(0, 100 - pPct - cPct);
 
     return {
@@ -216,18 +218,18 @@ export const MifflinStJeorModal: React.FC<MifflinStJeorModalProps> = ({
         <div className="pt-3 border-t border-white/[0.05] shrink-0 space-y-2.5">
           <div className="bg-o1-well border border-white/[0.07] rounded-2xl p-3">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-[10px] font-mono uppercase font-bold text-neutral-400">Blueprint</span>
+              <span className="text-[10px] font-mono font-bold text-neutral-400">Blueprint</span>
               <span className="text-[10px] font-mono font-bold text-o1-crimson">
                 {netTargetCalories.toLocaleString()} kcal/day
               </span>
             </div>
             <div className="grid grid-cols-3 gap-1.5 text-center font-mono mb-2">
               <div>
-                <span className="text-[9px] text-neutral-400 block">BMR</span>
+                <span className="text-[9px] text-neutral-400 block">Bmr</span>
                 <span className="text-xs font-bold">{bmr.toLocaleString()}</span>
               </div>
               <div>
-                <span className="text-[9px] text-neutral-400 block">TDEE</span>
+                <span className="text-[9px] text-neutral-400 block">Tdee</span>
                 <span className="text-xs font-bold">{tdee.toLocaleString()}</span>
               </div>
               <div>
@@ -250,6 +252,8 @@ export const MifflinStJeorModal: React.FC<MifflinStJeorModalProps> = ({
             type="button"
             onClick={() => {
               tactileEngine.playPRCelebration();
+              useUserStore.getState().setWeightKg(weightKg);
+              if (targetWeightKg > 0) useUserStore.getState().setTargetWeightKg(targetWeightKg);
               onApplyTargets(
                 netTargetCalories,
                 macroBreakdown.proteinG,

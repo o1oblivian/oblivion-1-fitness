@@ -29,7 +29,7 @@ const FILTER_TAGS = [
   'HYBRID',
   'MOBILITY',
   'PLYOMETRICS',
-  'GLUTE LAB',
+  'Glute Lab',
   'CALISTHENICS',
   'OLYMPIC',
   'CORE',
@@ -102,7 +102,7 @@ export const BlueprintModeView: React.FC<BlueprintModeViewProps> = ({ onShowToas
         title.includes('CHIPPER')
       );
     }
-    if (tag === 'GLUTE LAB') {
+    if (tag === 'Glute Lab') {
       return (
         badge.includes('GLUTE') ||
         focus.includes('GLUTE') ||
@@ -116,7 +116,7 @@ export const BlueprintModeView: React.FC<BlueprintModeViewProps> = ({ onShowToas
         focus.includes('CALISTHENICS') ||
         title.includes('CALISTHENICS') ||
         title.includes('RING') ||
-        title.includes('WEIGHTED PUSH')
+        title.includes('Weighted Push')
       );
     }
     if (tag === 'OLYMPIC') {
@@ -218,7 +218,7 @@ export const BlueprintModeView: React.FC<BlueprintModeViewProps> = ({ onShowToas
       notes: `[${tier}] ${be.category} • Tempo ${be.tempo} • ${be.cues}`,
       restSecs: specs.restSecs,
       equipment: specs.weightKg > 0 ? 'Barbell / Cable / DB' : 'Bodyweight',
-      tier: tier === 'BEGINNER' ? 'T3' : tier === 'INTERMEDIATE' ? 'T2' : 'T1',
+      tier: tier === 'BEGINNER' ? 'T3' : tier === 'INTERMEDIATE' ? 'T2' : 't1',
     };
   };
 
@@ -343,7 +343,7 @@ export const BlueprintModeView: React.FC<BlueprintModeViewProps> = ({ onShowToas
       {showSwapperUtility && exercises.length > 0 && (
         <div className="p-3 rounded-2xl bg-o1-well border border-white/[0.07] space-y-2.5">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] uppercase font-bold text-neutral-500 tracking-wider">
+            <span className="text-[10px] font-bold text-neutral-500 tracking-wider">
               Biomechanic Swapper
             </span>
             <span className="text-[10px] text-neutral-400 truncate max-w-[180px]">
@@ -362,7 +362,7 @@ export const BlueprintModeView: React.FC<BlueprintModeViewProps> = ({ onShowToas
                     tactileEngine.triggerSelectionBuzz();
                     setSelectedExToSwap(ex.id);
                   }}
-                  className={`px-2.5 py-1 rounded-xl text-[10px] font-mono font-bold uppercase whitespace-nowrap transition-all border cursor-pointer ${
+                  className={`px-2.5 py-1 rounded-xl text-[10px] font-mono font-bold whitespace-nowrap transition-all border cursor-pointer ${
                     isSelected
                       ? 'bg-white text-black border-transparent'
                       : 'bg-o1-card text-neutral-400 border-white/[0.07]'
@@ -392,7 +392,7 @@ export const BlueprintModeView: React.FC<BlueprintModeViewProps> = ({ onShowToas
                   <button
                     type="button"
                     onClick={() => handleApplySwap(alt)}
-                    className="px-2.5 py-1 rounded-xl bg-o1-crimson text-white text-[10px] font-bold uppercase tracking-wider hover:bg-o1-crimson-hover cursor-pointer"
+                    className="px-2.5 py-1 rounded-xl bg-o1-crimson text-white text-[10px] font-bold tracking-wider hover:bg-o1-crimson-hover cursor-pointer"
                   >
                     Swap
                   </button>
@@ -434,7 +434,7 @@ export const BlueprintModeView: React.FC<BlueprintModeViewProps> = ({ onShowToas
                       className="w-full h-full object-cover"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                    <span className="absolute bottom-1 left-1 right-1 text-[8px] font-bold text-white uppercase text-center truncate">
+                    <span className="absolute bottom-1 left-1 right-1 text-[8px] font-bold text-white text-center truncate">
                       {bp.badge}
                     </span>
                   </div>
@@ -447,7 +447,7 @@ export const BlueprintModeView: React.FC<BlueprintModeViewProps> = ({ onShowToas
                       </h4>
                       {isCurrentActive && (
                         <span className="px-1.5 py-0.5 rounded text-[8px] font-mono font-bold bg-o1-crimson/10 text-o1-crimson shrink-0">
-                          ACTIVE
+                          Active
                         </span>
                       )}
                     </div>
@@ -533,7 +533,7 @@ export const BlueprintModeView: React.FC<BlueprintModeViewProps> = ({ onShowToas
                   <button
                     type="button"
                     onClick={() => handleLoadBlueprint(bp, currentTier)}
-                    className="flex-1 h-8 px-3 rounded-full bg-o1-crimson hover:bg-o1-crimson-hover active:bg-o1-crimson-press text-white text-[11px] font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all shadow-xs active:scale-[0.98] cursor-pointer"
+                    className="flex-1 h-8 px-3 rounded-full bg-o1-crimson hover:bg-o1-crimson-hover active:bg-o1-crimson-press text-white text-[11px] font-bold tracking-wider flex items-center justify-center gap-1.5 transition-all shadow-xs active:scale-[0.98] cursor-pointer"
                   >
                     <Zap className="w-3 h-3 fill-current" />
                     <span className="truncate">Load Blueprint</span>
@@ -572,7 +572,7 @@ export const BlueprintModeView: React.FC<BlueprintModeViewProps> = ({ onShowToas
                             : 'bg-o1-crimson'
                         }`}
                       />
-                      <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-neutral-200">
+                      <span className="text-[10px] font-mono font-bold tracking-wider text-neutral-200">
                         {currentTier} Calibration
                       </span>
                     </div>

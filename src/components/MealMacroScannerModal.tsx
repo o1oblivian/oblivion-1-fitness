@@ -78,7 +78,7 @@ export const MealMacroScannerModal: React.FC<MealMacroScannerModalProps> = (prop
             </div>
           ) : scanMode !== 'barcode' && !scannedMeal && !imageFile && !isLoading && !isScanning ? (
             <div className="rounded-2xl border border-white/[0.07] bg-black p-6 text-center space-y-1">
-              <span className="text-xs font-mono font-bold uppercase tracking-widest text-neutral-400">Sensor Standby</span>
+              <span className="text-xs font-mono font-bold tracking-widest text-neutral-400">Sensor Standby</span>
               <p className="text-[11px] text-neutral-500">Optical vision models in standby mode. Awaiting camera capture.</p>
             </div>
           ) : null}

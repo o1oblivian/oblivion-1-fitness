@@ -1,4 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { useTelemetryHistoryStore } from '../../log/store/useTelemetryHistoryStore';
+import { latestSleepRecord } from '../../report/vitals';
+import { supplementStatus } from '../supplementStack';
 import { useTelemetryStore } from '../../telemetry/store/useTelemetryStore';
 import { useFuelStore } from '../../fuel/store/useFuelStore';
 import { useWorkoutStore } from '../store/useWorkoutStore';
@@ -13,13 +16,13 @@ import { HeroModals } from './HeroModals';
 
 export const DAYS_LIST = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 export const DAY_SPLIT_MAP: Record<string, string> = {
-  Mon: 'PUSH A',
-  Tue: 'PULL A',
-  Wed: 'LEGS A',
-  Thu: 'HYPER',
-  Fri: 'PUSH B',
-  Sat: 'PULL B',
-  Sun: 'REST',
+  Mon: 'Push A',
+  Tue: 'Pull A',
+  Wed: 'Legs A',
+  Thu: 'Hyper',
+  Fri: 'Push B',
+  Sat: 'Pull B',
+  Sun: 'Rest',
 };
 
 export const getSystemToday = (): string => {
@@ -137,8 +140,24 @@ export const HeroVitalsContainer: React.FC<HeroVitalsContainerProps> = ({
   const setHydrationLiters = useFuelStore((s) => s.setHydrationLiters);
   const fuelBurnedKcal = useFuelStore((s) => s.burnedKcal);
   const currentSleep = useLogStore((s) => s.subModules?.sleep);
-  const sleepHours = currentSleep?.durationHours && currentSleep.durationHours > 0 ? currentSleep.durationHours : 7.8;
-  const sleepQuality = currentSleep?.sleepPerformancePercent && currentSleep.sleepPerformancePercent > 0 ? currentSleep.sleepPerformancePercent : 92;
+  const historyByDate = useTelemetryHistoryStore((s) => s.historyByDate);
+  const loggedSleep = latestSleepRecord(historyByDate);
+  // Only real logged values; null renders as "--" on the card.
+  const sleepHours =
+    currentSleep?.durationHours && currentSleep.durationHours > 0
+      ? currentSleep.durationHours
+      : loggedSleep
+        ? Math.round(loggedSleep.durationHours * 10) / 10
+        : null;
+  const sleepQuality =
+    currentSleep?.sleepPerformancePercent && currentSleep.sleepPerformancePercent > 0
+      ? currentSleep.sleepPerformancePercent
+      : loggedSleep && loggedSleep.recoveryPercent > 0
+        ? loggedSleep.recoveryPercent
+        : null;
+  const restingHr = loggedSleep && loggedSleep.restingHeartRate > 0 ? loggedSleep.restingHeartRate : null;
+  // Re-read the persisted stack whenever a hero modal closes (activeModal changes).
+  const supplements = useMemo(() => supplementStatus(), [activeModal]);
 
   // Pure genuine telemetry values from actual user activity - zero mock/fake values
   const isPresentDay = activeDay.toLowerCase() === systemToday.toLowerCase();
@@ -162,7 +181,7 @@ export const HeroVitalsContainer: React.FC<HeroVitalsContainerProps> = ({
   const goalDist =
     storeDistTarget && storeDistTarget > 0 ? storeDistTarget : 8.0;
   const currentReadiness = recoveryEnergyScore || 0;
-  const splitName = DAY_SPLIT_MAP[activeDay] || 'REST DAY';
+  const splitName = DAY_SPLIT_MAP[activeDay] || 'Rest Day';
   const waterPct = Math.min(100, Math.round((hydrationCurrentL / 3.0) * 100));
 
   const { isEnabled, isPaused, intervalSeconds, nextWallpaper, getActiveWallpaper, refreshLive, reportBroken, activeIndex, pool, customUrl } =
@@ -246,6 +265,9 @@ export const HeroVitalsContainer: React.FC<HeroVitalsContainerProps> = ({
             waterPct={waterPct}
             sleepHours={sleepHours}
             sleepQuality={sleepQuality}
+            restingHr={restingHr}
+            supplementsTaken={supplements.taken}
+            supplementsTotal={supplements.total}
             onCycleWallpaper={nextWallpaper}
             onFlipBack={() => setIsFlipped(false)}
             onOpenTile={(tile) => {

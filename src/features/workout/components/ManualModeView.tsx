@@ -118,7 +118,7 @@ export const ManualModeView: React.FC<ManualModeViewProps> = ({
               tactileEngine.triggerSelectionBuzz();
               setSelectedCategory(cat);
             }}
-            className={`px-3 py-1 rounded-full text-[10px] font-semibold uppercase tracking-wider whitespace-nowrap transition-all border cursor-pointer ${
+            className={`px-3 py-1 rounded-full text-[10px] font-semibold tracking-wider whitespace-nowrap transition-all border cursor-pointer ${
               selectedCategory === cat
                 ? 'bg-white text-neutral-950 border-transparent'
                 : 'bg-black text-neutral-400 border-white/[0.07] hover:text-white'
@@ -167,7 +167,7 @@ export const ManualModeView: React.FC<ManualModeViewProps> = ({
                 tactileEngine.triggerSelectionBuzz();
                 setSelectedEquip(eq);
               }}
-              className={`px-2.5 py-1 rounded-xl text-[10px] font-semibold uppercase tracking-wider whitespace-nowrap transition-all cursor-pointer border ${
+              className={`px-2.5 py-1 rounded-xl text-[10px] font-semibold tracking-wider whitespace-nowrap transition-all cursor-pointer border ${
                 selectedEquip === eq
                   ? 'bg-white text-neutral-950 border-transparent'
                   : 'bg-o1-card text-neutral-400 border-white/[0.07]'

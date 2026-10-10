@@ -29,7 +29,7 @@ export class SettingsErrorBoundary extends Component<Props, State> {
       return (
         <div className="p-6 bg-red-950/20 border border-red-500/30 rounded-2xl text-center space-y-3 m-4">
           <AlertTriangle className="w-8 h-8 text-red-500 mx-auto" />
-          <h3 className="text-sm font-mono font-bold text-white uppercase">
+          <h3 className="text-sm font-mono font-bold text-white">
             Settings Diagnostics Alert
           </h3>
           <p className="text-xs font-mono text-neutral-400">
@@ -38,7 +38,7 @@ export class SettingsErrorBoundary extends Component<Props, State> {
           <button
             type="button"
             onClick={() => this.setState({ hasError: false, error: null })}
-            className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-xl text-xs font-mono font-bold uppercase flex items-center justify-center gap-1.5 mx-auto active:scale-95 transition-all"
+            className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-xl text-xs font-mono font-bold flex items-center justify-center gap-1.5 mx-auto active:scale-95 transition-all"
           >
             <RefreshCw className="w-3.5 h-3.5" />
             <span>Reset Settings View</span>

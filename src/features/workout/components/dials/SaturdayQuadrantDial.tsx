@@ -24,14 +24,14 @@ export const SaturdayQuadrantDial: React.FC<DialComponentProps> = ({
         <line x1="18" y1="110" x2="242" y2="110" stroke={HAIR_SOFT} strokeWidth="1" />
       </svg>
       <div className="absolute top-3 left-0 right-0 text-center pointer-events-none z-10">
-        <span className="text-[9px] tracking-[0.22em] uppercase text-white/55">
+        <span className="text-[9px] tracking-[0.22em] text-white/55">
           {activeDay} · {splitLabel || 'Session'}
         </span>
       </div>
       <div className="absolute inset-0 grid grid-cols-2 grid-rows-2 p-6 pt-9">
         {cells.map((cell) => (
           <div key={cell.id} className={`flex flex-col justify-center ${cell.align} px-3`}>
-            <span className="text-[8px] tracking-[0.2em] uppercase text-white/40">
+            <span className="text-[8px] tracking-[0.2em] text-white/40">
               {cell.id} {cell.label}
             </span>
             <span className="mt-1 text-[22px] font-semibold tracking-tight text-white tabular-nums" style={heroShadow}>

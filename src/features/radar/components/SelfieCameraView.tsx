@@ -29,9 +29,9 @@ export const SelfieCameraView: React.FC<SelfieCameraViewProps> = ({
     <div className="space-y-3 select-none">
       {/* Tactical Challenge Pose Banner */}
       <div className="p-3.5 rounded-2xl bg-sky-950/40 border border-sky-400/40 text-sky-200 space-y-1 ">
-        <div className="flex items-center gap-1.5 text-xs font-mono font-bold uppercase tracking-wider text-sky-400">
+        <div className="flex items-center gap-1.5 text-xs font-mono font-bold tracking-wider text-sky-400">
           <Sparkles className="w-3.5 h-3.5 text-sky-400 animate-pulse" />
-          <span>RANDOMIZED POSE CHALLENGE</span>
+          <span>Randomized Pose Challenge</span>
         </div>
         <p className="text-sm font-bold text-white leading-snug">"{challenge.prompt}"</p>
         <p className="text-[11px] text-sky-200/80 leading-relaxed font-sans">{challenge.instruction}</p>
@@ -48,7 +48,7 @@ export const SelfieCameraView: React.FC<SelfieCameraViewProps> = ({
             <div className="w-10 h-10 rounded-2xl bg-o1-well border border-white/[0.07] flex items-center justify-center text-neutral-400">
               <Camera className="w-5 h-5" />
             </div>
-            <span className="text-xs font-mono font-bold tracking-widest uppercase text-neutral-400">Sensor Standby</span>
+            <span className="text-xs font-mono font-bold tracking-widest text-neutral-400">Sensor Standby</span>
             <p className="text-[11px] text-neutral-500">Camera inactive • Awaiting biometric activation</p>
           </div>
         )}
@@ -56,8 +56,8 @@ export const SelfieCameraView: React.FC<SelfieCameraViewProps> = ({
         {isVerifying && (
           <div className="absolute inset-0 bg-black/75 backdrop-blur-xs flex flex-col items-center justify-center space-y-2.5 p-4 text-center">
             <div className="w-12 h-12 rounded-full border-2 border-sky-400 border-t-transparent animate-spin flex items-center justify-center " />
-            <p className="text-xs font-mono font-bold uppercase tracking-widest text-sky-300">
-              GEMINI BIOMETRIC AUDIT IN PROGRESS...
+            <p className="text-xs font-mono font-bold tracking-widest text-sky-300">
+              Gemini biometric audit in progress...
             </p>
             <p className="text-[10px] text-neutral-400 font-sans">Matching facial landmarks &amp; pose alignment</p>
           </div>
@@ -72,17 +72,17 @@ export const SelfieCameraView: React.FC<SelfieCameraViewProps> = ({
             type="button"
             onClick={onCapture}
             disabled={isVerifying}
-            className="flex-1 py-3 rounded-xl bg-sky-500 hover:bg-sky-400 text-neutral-950 font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 active:scale-95 transition-all cursor-pointer"
+            className="flex-1 py-3 rounded-xl bg-sky-500 hover:bg-sky-400 text-neutral-950 font-bold text-xs tracking-wider flex items-center justify-center gap-2 active:scale-95 transition-all cursor-pointer"
           >
             <Camera className="w-4 h-4 stroke-[2.5]" />
-            <span>CAPTURE POSE SELFIE</span>
+            <span>Capture Pose Selfie</span>
           </button>
         ) : (
           <button
             type="button"
             onClick={onRetake}
             disabled={isVerifying}
-            className="flex-1 py-2.5 rounded-xl bg-o1-well hover:bg-white/[0.06] text-neutral-300 text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer"
+            className="flex-1 py-2.5 rounded-xl bg-o1-well hover:bg-white/[0.06] text-neutral-300 text-xs font-semibold tracking-wider transition-all cursor-pointer"
           >
             Retake Photo
           </button>

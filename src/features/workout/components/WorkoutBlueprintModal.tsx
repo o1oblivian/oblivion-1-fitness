@@ -148,10 +148,10 @@ export const WorkoutBlueprintModal: React.FC<WorkoutBlueprintModalProps> = ({
 
           {/* Badge & Timing pills in top left */}
           <div className="absolute top-4 left-4 z-10 flex items-center gap-2 flex-wrap">
-            <span className="px-2.5 py-1 rounded-full bg-o1-crimson text-white font-mono text-[9px] font-black tracking-wider uppercase border border-red-500/40 shadow-sm backdrop-blur-xs">
+            <span className="px-2.5 py-1 rounded-full bg-o1-crimson text-white font-mono text-[9px] font-black tracking-wider border border-red-500/40 shadow-sm backdrop-blur-xs">
               {blueprint.badge}
             </span>
-            <span className="px-2.5 py-1 rounded-full bg-black/60 text-white font-mono text-[9px] font-bold tracking-wider uppercase border border-white/[0.07] flex items-center gap-1 backdrop-blur-xs">
+            <span className="px-2.5 py-1 rounded-full bg-black/60 text-white font-mono text-[9px] font-bold tracking-wider border border-white/[0.07] flex items-center gap-1 backdrop-blur-xs">
               <Clock className="w-3 h-3 text-sky-400" />
               {blueprint.estimatedTime}
             </span>
@@ -159,7 +159,7 @@ export const WorkoutBlueprintModal: React.FC<WorkoutBlueprintModalProps> = ({
 
           {/* Title & Subtitle at bottom of header */}
           <div className="absolute bottom-3 left-4 right-4 z-10">
-            <h2 className="text-xl sm:text-2xl font-extrabold tracking-tight text-white uppercase font-sans">
+            <h2 className="text-xl sm:text-2xl font-extrabold tracking-tight text-white font-sans">
               {blueprint.title}
             </h2>
             <p className="text-xs text-neutral-300 font-mono tracking-wide mt-0.5 truncate">
@@ -175,7 +175,7 @@ export const WorkoutBlueprintModal: React.FC<WorkoutBlueprintModalProps> = ({
           </p>
 
           <div className="flex items-center gap-1.5 flex-wrap pt-1">
-            <div className="flex items-center gap-1 text-[10px] font-mono font-bold text-neutral-400 uppercase mr-1">
+            <div className="flex items-center gap-1 text-[10px] font-mono font-bold text-neutral-400 mr-1">
               <Target className="w-3 h-3 text-red-500" />
               <span>Target:</span>
             </div>
@@ -211,7 +211,7 @@ export const WorkoutBlueprintModal: React.FC<WorkoutBlueprintModalProps> = ({
                     tactileEngine.triggerSelectionBuzz();
                     setSelectedCategory(cat);
                   }}
-                  className={`px-3 py-1 rounded-full text-[11px] font-mono font-bold uppercase tracking-wider whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 active:scale-95 ${
+                  className={`px-3 py-1 rounded-full text-[11px] font-mono font-bold tracking-wider whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 active:scale-95 ${
                     isSelected
                       ? 'bg-red-600 text-white shadow-md shadow-red-950/30 border border-red-500'
                       : 'bg-o1-well text-neutral-400 hover:text-white border border-white/[0.07]'
@@ -252,7 +252,7 @@ export const WorkoutBlueprintModal: React.FC<WorkoutBlueprintModalProps> = ({
                       <span className="w-5 h-5 rounded-full bg-red-950/60 border border-red-800/60 text-red-400 font-mono text-[10px] font-bold flex items-center justify-center">
                         {index + 1}
                       </span>
-                      <span className="px-2 py-0.5 rounded-md bg-white/[0.08] text-neutral-300 font-mono text-[9px] font-bold uppercase tracking-wider">
+                      <span className="px-2 py-0.5 rounded-md bg-white/[0.08] text-neutral-300 font-mono text-[9px] font-bold tracking-wider">
                         {ex.category}
                       </span>
                     </div>
@@ -311,7 +311,7 @@ export const WorkoutBlueprintModal: React.FC<WorkoutBlueprintModalProps> = ({
             type="button"
             id="blueprint-load-btn"
             onClick={handleLoadBlueprint}
-            className="w-full py-3.5 rounded-2xl bg-red-600 hover:bg-red-500 active:scale-[0.98] text-white font-mono text-xs font-black uppercase tracking-wider shadow-lg shadow-red-950/40 border border-red-500 flex items-center justify-center gap-2 cursor-pointer transition-all"
+            className="w-full py-3.5 rounded-2xl bg-red-600 hover:bg-red-500 active:scale-[0.98] text-white font-mono text-xs font-black tracking-wider shadow-lg shadow-red-950/40 border border-red-500 flex items-center justify-center gap-2 cursor-pointer transition-all"
           >
             <Zap className="w-4 h-4 fill-white" />
             <span>LOAD BLUEPRINT ({blueprint.exercises.length} EXERCISES)</span>

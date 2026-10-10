@@ -20,7 +20,7 @@ export const MifflinMacroSection: React.FC<MifflinMacroSectionProps> = ({
   return (
     <div className="space-y-3 pt-2 border-t border-white/[0.05]">
       <div className="flex items-center justify-between">
-        <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-neutral-400">
+        <span className="text-[11px] font-mono font-bold tracking-wider text-neutral-400">
           3. Macro Split
         </span>
         <span className="text-[10px] font-mono text-neutral-500 font-semibold">{proteinPerKg}g protein/kg</span>
@@ -63,7 +63,7 @@ export const MifflinMacroSection: React.FC<MifflinMacroSectionProps> = ({
             }}
             className={`p-2.5 rounded-2xl border text-left transition-all cursor-pointer ${
               macroKey === m.key
-                ? 'border-o1-crimson bg-red-950/40 text-white font-bold shadow-xs'
+                ? 'border-o1-crimson bg-o1-crimson text-white font-bold shadow-xs'
                 : 'border-white/[0.07] bg-o1-well text-neutral-400 hover:text-white'
             }`}
           >

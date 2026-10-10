@@ -67,7 +67,7 @@ export const FuelCustomMacroDrawer: React.FC<FuelCustomMacroDrawerProps> = ({
       className="bg-o1-card border border-white/[0.07] rounded-2xl p-2.5 shadow-xs space-y-2 animate-in fade-in duration-150"
     >
       <div className="flex items-center justify-between pb-2 border-b border-white/[0.05]">
-        <span className="text-xs font-bold uppercase text-neutral-100">
+        <span className="text-xs font-bold text-neutral-100">
           Custom Macro Entry
         </span>
         <button
@@ -80,7 +80,7 @@ export const FuelCustomMacroDrawer: React.FC<FuelCustomMacroDrawerProps> = ({
       </div>
 
       <div>
-        <label className="block text-[10px] font-mono font-bold uppercase text-neutral-400 mb-1">
+        <label className="block text-[10px] font-mono font-bold text-neutral-400 mb-1">
           Target Slot
         </label>
         <select
@@ -97,7 +97,7 @@ export const FuelCustomMacroDrawer: React.FC<FuelCustomMacroDrawerProps> = ({
       </div>
 
       <div>
-        <label className="block text-[10px] font-mono font-bold uppercase text-neutral-400 mb-1">
+        <label className="block text-[10px] font-mono font-bold text-neutral-400 mb-1">
           Item Name
         </label>
         <input
@@ -111,7 +111,7 @@ export const FuelCustomMacroDrawer: React.FC<FuelCustomMacroDrawerProps> = ({
 
       <div className="grid grid-cols-4 gap-2">
         <div>
-          <label className="block text-[9px] font-mono font-bold uppercase text-neutral-400 mb-0.5">
+          <label className="block text-[9px] font-mono font-bold text-neutral-400 mb-0.5">
             Calories
           </label>
           <input
@@ -124,7 +124,7 @@ export const FuelCustomMacroDrawer: React.FC<FuelCustomMacroDrawerProps> = ({
           />
         </div>
         <div>
-          <label className="block text-[9px] font-mono font-bold uppercase text-red-400 mb-0.5">
+          <label className="block text-[9px] font-mono font-bold text-red-400 mb-0.5">
             Protein (g)
           </label>
           <input
@@ -138,7 +138,7 @@ export const FuelCustomMacroDrawer: React.FC<FuelCustomMacroDrawerProps> = ({
           />
         </div>
         <div>
-          <label className="block text-[9px] font-mono font-bold uppercase text-amber-400 mb-0.5">
+          <label className="block text-[9px] font-mono font-bold text-amber-400 mb-0.5">
             Carbs (g)
           </label>
           <input
@@ -152,7 +152,7 @@ export const FuelCustomMacroDrawer: React.FC<FuelCustomMacroDrawerProps> = ({
           />
         </div>
         <div>
-          <label className="block text-[9px] font-mono font-bold uppercase text-sky-400 mb-0.5">
+          <label className="block text-[9px] font-mono font-bold text-sky-400 mb-0.5">
             Fats (g)
           </label>
           <input

@@ -21,6 +21,19 @@ export interface MealItem {
   fats: number;
 }
 
+function historyMeals(source: FuelMeals) {
+  const slots = ['breakfast', 'lunch', 'dinner', 'snack', 'drinks', 'supplements'] as const;
+  return slots.flatMap((slot) => (source[slot] || []).map((meal) => ({
+    name: meal.name,
+    category: slot === 'breakfast' ? 'Breakfast' as const : slot === 'dinner' ? 'Dinner' as const : slot === 'snack' ? 'Snacks' as const : 'Lunch' as const,
+    slot,
+    calories: meal.calories,
+    proteinG: meal.protein,
+    carbsG: meal.carbs,
+    fatsG: meal.fats,
+  })));
+}
+
 export interface FuelMeals {
   breakfast: MealItem[];
   lunch: MealItem[];
@@ -133,12 +146,22 @@ const normalizeCategoryToSlot = (cat: string): keyof FuelMeals => {
   return 'breakfast';
 };
 
+function readProfileWeight(): number {
+  if (typeof window === 'undefined') return 0;
+  try {
+    const saved = Number(localStorage.getItem('o1_profile_weight'));
+    return Number.isFinite(saved) && saved > 0 ? saved : 0;
+  } catch {
+    return 0;
+  }
+}
+
 const loadSavedState = () => {
   if (typeof window === 'undefined') {
     return {
       calorieTarget: 2200,
       burnedKcal: 0,
-      weightKg: 78.5,
+      weightKg: 0,
       countryMarket: 'AU',
       dietPreference: 'Omnivore',
       targetProteinG: 165,
@@ -156,7 +179,7 @@ const loadSavedState = () => {
     return {
       calorieTarget: (saved.calorieTarget && saved.calorieTarget > 0) ? saved.calorieTarget : 2200,
       burnedKcal: savedBurned,
-      weightKg: (saved.weightKg && saved.weightKg > 0) ? saved.weightKg : 78.5,
+      weightKg: readProfileWeight() || ((saved.weightKg && saved.weightKg > 0 && saved.weightKg !== 78.5) ? saved.weightKg : 0),
       countryMarket: saved.countryMarket ?? 'AU',
       dietPreference: saved.dietPreference ?? 'Omnivore',
       targetProteinG: (saved.targetProteinG && saved.targetProteinG > 0) ? saved.targetProteinG : 165,
@@ -178,7 +201,7 @@ const loadSavedState = () => {
   return {
     calorieTarget: 2200,
     burnedKcal: 0,
-    weightKg: 78.5,
+    weightKg: 0,
     countryMarket: 'AU',
     dietPreference: 'Omnivore',
     targetProteinG: 165,
@@ -316,7 +339,7 @@ export const useFuelStore = create<FuelState>((set, get) => {
       // Mirror to persistent telemetry history
       try {
         const allItems = Object.values(updatedMeals).flat();
-        const totCals = Math.round(allItems.reduce((acc, m) => acc + (m.calories || 0), 0));
+        const totCals = Math.round(allItems.reduce((acc, m) => acc + finiteFuel(m.calories), 0));
         const totP = Math.round(allItems.reduce((acc, m) => acc + (m.protein || 0), 0) * 10) / 10;
         const totC = Math.round(allItems.reduce((acc, m) => acc + (m.carbs || 0), 0) * 10) / 10;
         const totF = Math.round(allItems.reduce((acc, m) => acc + (m.fats || 0), 0) * 10) / 10;
@@ -325,21 +348,14 @@ export const useFuelStore = create<FuelState>((set, get) => {
         getTelemetryHistoryState().updateDayRecord(todayKey, 'nutrition', {
           hasData: true,
           calories: totCals,
-          calorieTarget: get().calorieTarget || 2200,
+          calorieTarget: get().calorieTarget || 0,
           proteinG: totP,
-          proteinTargetG: get().targetProteinG || 165,
+          proteinTargetG: get().targetProteinG || 0,
           carbsG: totC,
-          carbsTargetG: get().targetCarbsG || 250,
+          carbsTargetG: get().targetCarbsG || 0,
           fatsG: totF,
-          fatsTargetG: get().targetFatsG || 60,
-          meals: allItems.map((m) => ({
-            name: m.name,
-            category: 'Lunch',
-            calories: m.calories,
-            proteinG: m.protein,
-            carbsG: m.carbs,
-            fatsG: m.fats,
-          })),
+          fatsTargetG: get().targetFatsG || 0,
+          meals: historyMeals(updatedMeals),
         });
       } catch (err) {
         console.warn('[FuelStore] History sync warning:', err);
@@ -366,7 +382,7 @@ export const useFuelStore = create<FuelState>((set, get) => {
         if (mealErr) console.warn('[FuelStore] meal_logs insert note:', mealErr.message);
 
         const allItems = Object.values(updatedMeals).flat();
-        const totCals = Math.round(allItems.reduce((acc, m) => acc + (m.calories || 0), 0));
+        const totCals = Math.round(allItems.reduce((acc, m) => acc + finiteFuel(m.calories), 0));
         const totP = Math.round(allItems.reduce((acc, m) => acc + (m.protein || 0), 0) * 10) / 10;
         const totC = Math.round(allItems.reduce((acc, m) => acc + (m.carbs || 0), 0) * 10) / 10;
         const totF = Math.round(allItems.reduce((acc, m) => acc + (m.fats || 0), 0) * 10) / 10;
@@ -378,7 +394,7 @@ export const useFuelStore = create<FuelState>((set, get) => {
           protein: totP,
           carbs: totC,
           fat: totF,
-          calorie_target: get().calorieTarget || 2200,
+          calorie_target: finiteFuel(get().calorieTarget),
           updated_at: now.toISOString(),
         }], { onConflict: 'user_id,date' });
         if (macroErr) console.warn('[FuelStore] daily_macros upsert note:', macroErr.message);
@@ -427,7 +443,7 @@ export const useFuelStore = create<FuelState>((set, get) => {
 
       try {
         const allItems = Object.values(updatedMeals).flat();
-        const totCals = Math.round(allItems.reduce((acc, m) => acc + (m.calories || 0), 0));
+        const totCals = Math.round(allItems.reduce((acc, m) => acc + finiteFuel(m.calories), 0));
         const totP = Math.round(allItems.reduce((acc, m) => acc + (m.protein || 0), 0) * 10) / 10;
         const totC = Math.round(allItems.reduce((acc, m) => acc + (m.carbs || 0), 0) * 10) / 10;
         const totF = Math.round(allItems.reduce((acc, m) => acc + (m.fats || 0), 0) * 10) / 10;
@@ -436,21 +452,14 @@ export const useFuelStore = create<FuelState>((set, get) => {
         getTelemetryHistoryState().updateDayRecord(todayKey, 'nutrition', {
           hasData: allItems.length > 0,
           calories: totCals,
-          calorieTarget: get().calorieTarget || 2200,
+          calorieTarget: get().calorieTarget || 0,
           proteinG: totP,
-          proteinTargetG: get().targetProteinG || 165,
+          proteinTargetG: get().targetProteinG || 0,
           carbsG: totC,
-          carbsTargetG: get().targetCarbsG || 250,
+          carbsTargetG: get().targetCarbsG || 0,
           fatsG: totF,
-          fatsTargetG: get().targetFatsG || 60,
-          meals: allItems.map((m) => ({
-            name: m.name,
-            category: 'Lunch',
-            calories: m.calories,
-            proteinG: m.protein,
-            carbsG: m.carbs,
-            fatsG: m.fats,
-          })),
+          fatsTargetG: get().targetFatsG || 0,
+          meals: historyMeals(updatedMeals),
         });
       } catch (err) {
         console.warn('[FuelStore] History sync warning:', err);
@@ -564,14 +573,19 @@ export const useFuelStore = create<FuelState>((set, get) => {
   };
 });
 
+function finiteFuel(value: unknown): number {
+  const n = Number(value);
+  return Number.isFinite(n) ? n : 0;
+}
+
 export const getFuelCalculations = (state: Pick<FuelState, 'meals' | 'calorieTarget' | 'burnedKcal'>) => {
   const allItems: MealItem[] = Object.values(state.meals || {}).flat();
-  const eatenKcal = allItems.reduce((acc, item) => acc + (Number(item.calories) || 0), 0);
-  const consumedProtein = allItems.reduce((acc, item) => acc + (Number(item.protein) || 0), 0);
-  const consumedCarbs = allItems.reduce((acc, item) => acc + (Number(item.carbs) || 0), 0);
-  const consumedFats = allItems.reduce((acc, item) => acc + (Number(item.fats) || 0), 0);
-  const calorieTarget = Number(state.calorieTarget) || 0;
-  const burnedKcal = Number(state.burnedKcal) || 0;
+  const eatenKcal = allItems.reduce((acc, item) => acc + finiteFuel(item.calories), 0);
+  const consumedProtein = allItems.reduce((acc, item) => acc + finiteFuel(item.protein), 0);
+  const consumedCarbs = allItems.reduce((acc, item) => acc + finiteFuel(item.carbs), 0);
+  const consumedFats = allItems.reduce((acc, item) => acc + finiteFuel(item.fats), 0);
+  const calorieTarget = finiteFuel(state.calorieTarget);
+  const burnedKcal = finiteFuel(state.burnedKcal);
   const remainingKcal = Math.max(0, calorieTarget - eatenKcal + burnedKcal);
   const budgetPercent = calorieTarget > 0 ? Math.min(100, Math.round((eatenKcal / calorieTarget) * 100)) : 0;
 

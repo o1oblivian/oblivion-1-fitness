@@ -4,6 +4,7 @@ import { useTelemetryHistoryStore } from '../../log/store/useTelemetryHistorySto
 import { DayStrainDetail, EMPTY_MICROCYCLE_DAYS } from '../components/microcycle/microcycleTypes';
 import { computeAcwr, weekCompletionPct, AcwrSnapshot } from '../../../utils/acwrMath';
 import { getAuthenticatedUserId } from '../../../services/authUser';
+import { useConsultationStore } from '../../induction/useConsultationStore';
 
 export interface MicrocycleStoreState {
   activeDays: DayStrainDetail[];
@@ -133,7 +134,7 @@ export const useMicrocycleStore = create<MicrocycleStoreState>((set, get) => ({
       const isoDay = new Date().getDay() === 0 ? 7 : new Date().getDay();
       const acwr = {
         ...computeAcwr(daily28),
-        completionPct: weekCompletionPct(computed.map((d) => d.volume), isoDay),
+        completionPct: weekCompletionPct(computed.map((d) => d.volume), isoDay, useConsultationStore.getState().frequencyDays || 4),
       };
 
       set({ activeDays: computed, activeIsoWeekDates: dates, acwr, isLoading: false });

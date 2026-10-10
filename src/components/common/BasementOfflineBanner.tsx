@@ -28,8 +28,8 @@ export const BasementOfflineBanner: React.FC = () => {
       >
         <div className="flex items-center gap-2 text-amber-400">
           <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-          <span className="font-bold uppercase tracking-wider text-amber-300">
-            BASEMENT SAFE • OFFLINE ACTIVE
+          <span className="font-bold tracking-wider text-amber-300">
+            Basement safe • offline active
           </span>
         </div>
         <div className="flex items-center gap-1.5 text-neutral-400 text-[10px]">
@@ -49,7 +49,7 @@ export const BasementOfflineBanner: React.FC = () => {
       >
         <div className="flex items-center gap-2 text-emerald-300 font-bold">
           <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-          <span className="uppercase tracking-wider">CONNECTED • GYM LOGS SYNCED</span>
+          <span className="tracking-wider">Connected • gym logs synced</span>
         </div>
         <span className="text-[10px] text-emerald-200/80 font-normal">Cloud sync complete</span>
       </aside>

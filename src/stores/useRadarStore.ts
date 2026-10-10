@@ -33,9 +33,12 @@ const getInitialTravelDetails = () => {
     const raw = typeof window !== 'undefined' ? localStorage.getItem('o1fc_travel_corridor') : null;
     if (raw) {
       const parsed = JSON.parse(raw);
-      // Ignore legacy hardcoded Sydney default if present
-      if (parsed && parsed.travelCity && parsed.travelCity.toLowerCase() !== 'sydney') {
-        return parsed;
+      if (parsed && parsed.travelCity) {
+        const lat = Number(parsed.travelLat);
+        const lng = Number(parsed.travelLng);
+        const hasPoint = Number.isFinite(lat) && Number.isFinite(lng) && (lat !== 0 || lng !== 0);
+        const bareSydney = String(parsed.travelCity).toLowerCase() === 'sydney' && !hasPoint;
+        if (!bareSydney) return parsed;
       }
     }
   } catch (e) {
@@ -49,6 +52,8 @@ const getInitialTravelDetails = () => {
     travelArrivalDate: '',
     travelDepartureDate: '',
     travelRadiusKm: 25,
+    travelLat: 0,
+    travelLng: 0,
   };
 };
 
@@ -170,6 +175,8 @@ export const useRadarStore = create<RadarStore>((set, get) => ({
             travelArrivalDate: updated.travelArrivalDate,
             travelDepartureDate: updated.travelDepartureDate,
             travelRadiusKm: updated.travelRadiusKm,
+            travelLat: updated.travelLat,
+            travelLng: updated.travelLng,
           }));
         }
       } catch (e) {

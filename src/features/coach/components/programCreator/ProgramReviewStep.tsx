@@ -47,11 +47,11 @@ export const ProgramReviewStep: React.FC<{ data: ProgramFormData }> = ({ data })
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-black/20 p-3.5 flex flex-col justify-between">
             <div className="flex items-center justify-between">
-              <span className="px-2.5 py-1 rounded-xl bg-black/60 backdrop-blur-md text-white text-[10px] font-bold uppercase tracking-wider border border-white/[0.07]">
+              <span className="px-2.5 py-1 rounded-xl bg-black/60 backdrop-blur-md text-white text-[10px] font-bold tracking-wider border border-white/[0.07]">
                 {data.category}
               </span>
               <span className="px-3 py-1 rounded-xl bg-o1-crimson text-white text-xs font-mono font-bold shadow-xs">
-                {data.isFreeCommunity ? 'FREE ACCESS' : `$${data.priceUsd.toFixed(2)}`}
+                {data.isFreeCommunity ? 'Free Access' : `$${data.priceUsd.toFixed(2)}`}
               </span>
             </div>
             <div>
@@ -66,7 +66,7 @@ export const ProgramReviewStep: React.FC<{ data: ProgramFormData }> = ({ data })
         {/* Metrics Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center">
           <div className="p-2.5 rounded-xl bg-o1-well border border-white/[0.07]">
-            <span className="text-[9px] uppercase tracking-wider text-neutral-400 block font-semibold">
+            <span className="text-[9px] tracking-wider text-neutral-400 block font-semibold">
               Duration
             </span>
             <span className="text-xs font-bold text-white">
@@ -74,7 +74,7 @@ export const ProgramReviewStep: React.FC<{ data: ProgramFormData }> = ({ data })
             </span>
           </div>
           <div className="p-2.5 rounded-xl bg-o1-well border border-white/[0.07]">
-            <span className="text-[9px] uppercase tracking-wider text-neutral-400 block font-semibold">
+            <span className="text-[9px] tracking-wider text-neutral-400 block font-semibold">
               Frequency
             </span>
             <span className="text-xs font-bold text-white">
@@ -82,7 +82,7 @@ export const ProgramReviewStep: React.FC<{ data: ProgramFormData }> = ({ data })
             </span>
           </div>
           <div className="p-2.5 rounded-xl bg-o1-well border border-white/[0.07]">
-            <span className="text-[9px] uppercase tracking-wider text-neutral-400 block font-semibold">
+            <span className="text-[9px] tracking-wider text-neutral-400 block font-semibold">
               Tier
             </span>
             <span className="text-xs font-bold text-white">
@@ -90,7 +90,7 @@ export const ProgramReviewStep: React.FC<{ data: ProgramFormData }> = ({ data })
             </span>
           </div>
           <div className="p-2.5 rounded-xl bg-o1-well border border-white/[0.07]">
-            <span className="text-[9px] uppercase tracking-wider text-neutral-400 block font-semibold">
+            <span className="text-[9px] tracking-wider text-neutral-400 block font-semibold">
               Volume
             </span>
             <span className="text-xs font-bold text-white font-mono">

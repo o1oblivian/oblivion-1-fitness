@@ -1,13 +1,12 @@
 import React from 'react';
-import { X, Play, Image as ImageIcon } from 'lucide-react';
-import { FilmstripClip } from '../../../data/reelsExploreCatalog';
+import { X, Play } from 'lucide-react';
+import { FilmstripClip } from '../reelTypes';
 import { tactileEngine } from '../../../services/tactileEngine';
 
 interface ReelAssetGalleryDrawerProps {
   isOpen: boolean;
   onClose: () => void;
   clips: FilmstripClip[];
-  photos: string[];
   activeClip: FilmstripClip | null;
   onSelectClip: (clip: FilmstripClip) => void;
 }
@@ -16,98 +15,72 @@ export const ReelAssetGalleryDrawer: React.FC<ReelAssetGalleryDrawerProps> = ({
   isOpen,
   onClose,
   clips,
-  photos,
   activeClip,
   onSelectClip,
 }) => {
   if (!isOpen) return null;
 
   return (
-    <div
-      className="absolute inset-x-0 bottom-0 z-40 bg-o1-card/95 backdrop-blur-xl border-t border-white/[0.05] rounded-t-2xl p-4 shadow-2xl animate-in slide-in-from-bottom duration-200 select-none"
-      onClick={(e) => e.stopPropagation()}
-    >
-      <div className="flex items-center justify-between pb-3 border-b border-white/[0.05]">
-        <div className="flex items-center gap-2">
-          <span className="text-xs font-tactical font-black text-white uppercase tracking-wider">
-            Reel Assets & Directives
-          </span>
-          <span className="px-2 py-0.5 rounded-full bg-white/10 text-[10px] font-mono text-neutral-300">
-            {clips.length} Clips • {photos.length} Photos
-          </span>
+    <>
+      <button
+        type="button"
+        aria-label="Close clips"
+        className="absolute inset-0 z-40 cursor-default bg-black/40"
+        onClick={(e) => {
+          e.stopPropagation();
+          onClose();
+        }}
+      />
+      <div
+        role="dialog"
+        aria-label="Clips in this reel"
+        className="absolute inset-x-0 bottom-0 z-50 rounded-t-2xl border-t border-[#1F1F1F] bg-[#0E0E0E] p-4 pb-safe shadow-2xl animate-in slide-in-from-bottom duration-200 select-none"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between border-b border-[#1F1F1F] pb-2">
+          <div className="flex items-center gap-2">
+            <span className="text-[14px] font-semibold text-[#EAE8DF]">Clips in this reel</span>
+            <span className="rounded-full bg-white/10 px-2 py-0.5 text-[11px] text-[#8A887F]">{clips.length}</span>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex h-11 w-11 items-center justify-center text-[#8A887F] hover:text-white"
+            aria-label="Close clips"
+          >
+            <X className="w-5 h-5" />
+          </button>
         </div>
-        <button
-          type="button"
-          onClick={onClose}
-          className="p-1 text-neutral-400 hover:text-white transition-colors cursor-pointer"
-        >
-          <X className="w-4 h-4" />
-        </button>
-      </div>
 
-      <div className="pt-3 space-y-3 max-h-[48vh] overflow-y-auto">
-        {clips.length > 0 && (
-          <div className="space-y-2">
-            <span className="text-[10px] font-mono text-neutral-400 uppercase tracking-widest block">
-              Movement Clips & Form Cues
-            </span>
-            <div className="grid grid-cols-2 gap-2">
-              {clips.map((clip) => {
-                const isCurrent = activeClip?.id === clip.id;
-                return (
-                  <button
-                    key={clip.id}
-                    type="button"
-                    onClick={() => {
-                      tactileEngine.triggerSelectionBuzz();
-                      onSelectClip(clip);
-                      onClose();
-                    }}
-                    className={`p-2 rounded-xl border text-left flex items-center gap-2 transition-all cursor-pointer ${
-                      isCurrent
-                        ? 'bg-o1-crimson/20 border-o1-crimson text-white'
-                        : 'bg-o1-well border-white/[0.07] text-neutral-300 hover:border-white/[0.14]'
-                    }`}
-                  >
-                    <div className="w-8 h-8 rounded-lg bg-black/60 flex items-center justify-center shrink-0 text-white">
-                      <Play className="w-3.5 h-3.5 fill-white" />
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-xs font-bold truncate text-white">{clip.title}</p>
-                      <span className="text-[9px] text-neutral-400 font-mono">{clip.duration}</span>
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        )}
-
-        {photos.length > 0 && (
-          <div className="space-y-2">
-            <span className="text-[10px] font-mono text-neutral-400 uppercase tracking-widest block">
-              Clinical & Biomechanics Photos
-            </span>
-            <div className="grid grid-cols-3 gap-2">
-              {photos.map((photoUrl, idx) => (
-                <div
-                  key={idx}
-                  className="relative aspect-square rounded-xl overflow-hidden border border-white/[0.07] bg-black group"
-                >
-                  <img
-                    src={photoUrl}
-                    alt={`Asset ${idx + 1}`}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                  />
-                  <div className="absolute bottom-1 right-1 px-1 rounded bg-black/70 text-[9px] font-mono text-white flex items-center gap-0.5">
-                    <ImageIcon className="w-2.5 h-2.5" />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+        <div className="grid max-h-[48vh] grid-cols-2 gap-2 overflow-y-auto pt-3">
+          {clips.map((clip) => {
+            const isCurrent = activeClip?.id === clip.id;
+            return (
+              <button
+                key={clip.id}
+                type="button"
+                onClick={() => {
+                  tactileEngine.triggerSelectionBuzz();
+                  onSelectClip(clip);
+                  onClose();
+                }}
+                aria-pressed={isCurrent}
+                className={`flex min-h-[52px] items-center gap-2 rounded-xl border p-2 text-left transition-all ${
+                  isCurrent ? 'border-white bg-white text-neutral-950' : 'border-[#1F1F1F] bg-black text-[#EAE8DF] hover:border-white/20'
+                }`}
+              >
+                <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${isCurrent ? 'bg-neutral-950 text-white' : 'bg-[#1F1F1F] text-white'}`}>
+                  <Play className="w-3.5 h-3.5 fill-current" />
+                </span>
+                <span className="min-w-0">
+                  <span className="block truncate text-[13px] font-semibold">{clip.title}</span>
+                  {clip.duration ? <span className={`text-[11px] ${isCurrent ? 'text-neutral-600' : 'text-[#8A887F]'}`}>{clip.duration}</span> : null}
+                </span>
+              </button>
+            );
+          })}
+        </div>
       </div>
-    </div>
+    </>
   );
 };

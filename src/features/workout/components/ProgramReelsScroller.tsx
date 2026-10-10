@@ -8,7 +8,6 @@ export interface StoryProgram {
   name: string;
   category?: 'ALL' | 'TUTORIAL' | 'MOBILITY' | 'BIOMECHANICS' | 'HYPERTROPHY' | 'STRENGTH' | 'REHAB';
   filterTag?: string;
-  coachName?: string;
   duration?: string;
   photoUrl: string;
 }
@@ -16,66 +15,58 @@ export interface StoryProgram {
 export const PROGRAM_STORIES: StoryProgram[] = [
   {
     id: 'elite-reels',
-    name: 'ALL',
+    name: 'All',
     category: 'ALL',
     filterTag: 'ALL',
-    coachName: 'Oblivion 1 Directives',
     photoUrl: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=400&auto=format&fit=crop&crop=center&q=80',
   },
   {
     id: 'o1fc-tutorial',
-    name: 'O1FC TUTORIAL',
+    name: 'O1FC Tutorial',
     category: 'TUTORIAL',
     filterTag: 'TUTORIAL',
-    coachName: 'App Guide',
     photoUrl: o1fcTutorialLensImg,
   },
   {
     id: 'hypertrophy',
-    name: 'HYPERTROPHY',
+    name: 'Hypertrophy',
     category: 'HYPERTROPHY',
     filterTag: 'HYPERTROPHY',
-    coachName: 'Coach Jaxson',
     photoUrl: 'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=400&auto=format&fit=crop&crop=center&q=80',
   },
   {
     id: 'biomechanics',
-    name: 'BIOMECHANICS',
+    name: 'Biomechanics',
     category: 'BIOMECHANICS',
     filterTag: 'BIOMECHANICS',
-    coachName: 'Coach Tariq',
     photoUrl: 'https://images.unsplash.com/photo-1574680096145-d05b474e2155?w=400&auto=format&fit=crop&crop=center&q=80',
   },
   {
     id: 'strength',
-    name: 'STRENGTH',
+    name: 'Strength',
     category: 'STRENGTH',
     filterTag: 'STRENGTH',
-    coachName: 'Coach Marcus',
     photoUrl: 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?w=400&auto=format&fit=crop&crop=center&q=80',
   },
   {
     id: 'mobility',
-    name: 'MOBILITY',
+    name: 'Mobility',
     category: 'MOBILITY',
     filterTag: 'MOBILITY',
-    coachName: 'Coach Elena',
     photoUrl: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?w=400&auto=format&fit=crop&crop=center&q=80',
   },
   {
     id: 'hyrox',
-    name: 'HYROX',
+    name: 'Hyrox',
     category: 'ALL',
     filterTag: 'HYROX',
-    coachName: 'Coach Anya',
     photoUrl: 'https://images.unsplash.com/photo-1526506118085-60ce8714f8c5?w=400&auto=format&fit=crop&crop=center&q=80',
   },
   {
     id: 'rehab',
-    name: 'REHAB',
+    name: 'Rehab',
     category: 'REHAB',
     filterTag: 'REHAB',
-    coachName: 'Coach Elena',
     photoUrl: 'https://images.unsplash.com/photo-1584735935682-2f2b69dff9d2?w=400&auto=format&fit=crop&crop=center&q=80',
   },
 ];
@@ -167,7 +158,7 @@ export const ProgramReelsScroller: React.FC<ProgramReelsScrollerProps> = ({
 
               <div className="mt-1 w-full text-center px-0.5">
                 <span
-                  className={`block font-mono text-[9px] font-bold tracking-wider uppercase truncate transition-colors duration-200 ${
+                  className={`block font-sans text-[9px] font-semibold tracking-normal truncate transition-colors duration-200 ${
                     isActive
                       ? 'text-white'
                       : 'text-neutral-400 group-hover:text-white'

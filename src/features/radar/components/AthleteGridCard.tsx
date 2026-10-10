@@ -35,20 +35,24 @@ export const AthleteGridCard: React.FC<AthleteGridCardProps> = ({
       onClick={() => onOpenProfile(athlete)}
       className="group relative aspect-[3/4.25] w-full rounded-2xl overflow-hidden bg-black cursor-pointer select-none border border-white/[0.07] hover:border-o1-crimson/50 transition-all duration-300 shadow-sm hover:shadow-lg"
     >
-      <img
-        src={photo}
-        alt={athlete.name}
-        className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-        loading="lazy"
-      />
+      {photo ? (
+        <img
+          src={photo}
+          alt={athlete.name}
+          className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+          loading="lazy"
+        />
+      ) : null}
       <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/35 to-transparent pointer-events-none" />
       <div className="absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-black/60 to-transparent pointer-events-none" />
 
       <div className="absolute top-2 left-2 z-20 flex items-center pointer-events-none">
-        <span className={`font-mono tracking-tight select-none ${isOnline ? 'text-emerald-500' : 'text-amber-400'}`}>
-          <span className="text-[9.5px] font-semibold">{matchPct}</span>
-          <span className="text-[7.5px] font-normal opacity-85 ml-px">%</span>
-        </span>
+        {matchPct > 0 ? (
+          <span className={`font-mono tracking-tight select-none ${isOnline ? 'text-emerald-500' : 'text-amber-400'}`}>
+            <span className="text-[9.5px] font-semibold">{matchPct}</span>
+            <span className="text-[7.5px] font-normal opacity-85 ml-px">%</span>
+          </span>
+        ) : null}
       </div>
 
       <button
@@ -69,13 +73,13 @@ export const AthleteGridCard: React.FC<AthleteGridCardProps> = ({
           <div className="flex items-center gap-1">
             <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-sky-950/90 border border-sky-400/60 text-sky-300 font-mono text-[8.5px] font-bold ">
               <CheckCircle2 className="w-2.5 h-2.5 text-sky-300 stroke-[2.5]" />
-              <span>VERIFIED ATHLETE</span>
+              <span>Verified Athlete</span>
             </span>
           </div>
         )}
 
         <div className="flex items-center gap-1">
-          <span className="text-[8.5px] font-mono font-bold tracking-wider text-neutral-300 uppercase truncate max-w-[120px]">
+          <span className="text-[8.5px] font-mono font-bold tracking-wider text-neutral-300 truncate max-w-[120px]">
             {discipline}
           </span>
         </div>

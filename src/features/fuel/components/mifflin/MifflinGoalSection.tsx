@@ -33,7 +33,7 @@ export const MifflinGoalSection: React.FC<MifflinGoalSectionProps> = ({
 }) => {
   return (
     <div className="space-y-3 pt-2 border-t border-white/[0.05]">
-      <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-neutral-400 block">
+      <span className="text-[11px] font-mono font-bold tracking-wider text-neutral-400 block">
         2. Choose Your Goal
       </span>
 
@@ -49,7 +49,7 @@ export const MifflinGoalSection: React.FC<MifflinGoalSectionProps> = ({
           }}
           className={`p-2.5 rounded-2xl border text-center transition-all cursor-pointer ${
             goal === 'fat_loss'
-              ? 'border-red-600 bg-red-950/40 text-red-300 font-bold shadow-xs'
+              ? 'border-o1-crimson bg-o1-crimson text-white font-bold shadow-xs'
               : 'border-white/[0.07] bg-o1-well text-neutral-400 hover:text-white'
           }`}
         >
@@ -68,7 +68,7 @@ export const MifflinGoalSection: React.FC<MifflinGoalSectionProps> = ({
           }}
           className={`p-2.5 rounded-2xl border text-center transition-all cursor-pointer ${
             goal === 'maintain'
-              ? 'border-sky-600 bg-sky-950/40 text-sky-300 font-bold shadow-xs'
+              ? 'border-o1-crimson bg-o1-crimson text-white font-bold shadow-xs'
               : 'border-white/[0.07] bg-o1-well text-neutral-400 hover:text-white'
           }`}
         >
@@ -87,7 +87,7 @@ export const MifflinGoalSection: React.FC<MifflinGoalSectionProps> = ({
           }}
           className={`p-2.5 rounded-2xl border text-center transition-all cursor-pointer ${
             goal === 'lean_mass'
-              ? 'border-amber-600 bg-amber-950/40 text-amber-300 font-bold shadow-xs'
+              ? 'border-o1-crimson bg-o1-crimson text-white font-bold shadow-xs'
               : 'border-white/[0.07] bg-o1-well text-neutral-400 hover:text-white'
           }`}
         >
@@ -106,7 +106,7 @@ export const MifflinGoalSection: React.FC<MifflinGoalSectionProps> = ({
           }}
           className={`p-2.5 rounded-2xl border text-center transition-all cursor-pointer ${
             goal === 'muscle_bulk'
-              ? 'border-amber-500 bg-amber-950/40 text-amber-200 font-bold shadow-xs'
+              ? 'border-o1-crimson bg-o1-crimson text-white font-bold shadow-xs'
               : 'border-white/[0.07] bg-o1-well text-neutral-400 hover:text-white'
           }`}
         >
@@ -125,7 +125,7 @@ export const MifflinGoalSection: React.FC<MifflinGoalSectionProps> = ({
           }}
           className={`p-2.5 rounded-2xl border text-center transition-all cursor-pointer col-span-2 sm:col-span-1 ${
             goal === 'heavy_mass'
-              ? 'border-o1-crimson bg-red-950/50 text-red-200 font-bold shadow-xs'
+              ? 'border-o1-crimson bg-o1-crimson text-white font-bold shadow-xs'
               : 'border-white/[0.07] bg-o1-well text-neutral-400 hover:text-white'
           }`}
         >
@@ -138,7 +138,7 @@ export const MifflinGoalSection: React.FC<MifflinGoalSectionProps> = ({
       {/* Target Weight & Delta */}
       <div className="grid grid-cols-2 gap-2">
         <div className="bg-o1-well border border-white/[0.07] rounded-2xl p-2.5">
-          <label className="text-[9px] font-mono uppercase text-neutral-400 block font-bold">
+          <label className="text-[9px] font-mono text-neutral-400 block font-bold">
             Target Goal Weight
           </label>
           <div className="flex items-center gap-1">
@@ -156,7 +156,7 @@ export const MifflinGoalSection: React.FC<MifflinGoalSectionProps> = ({
         </div>
 
         <div className="bg-o1-well border border-white/[0.07] rounded-2xl p-2.5">
-          <label className="text-[9px] font-mono uppercase text-neutral-400 block font-bold">
+          <label className="text-[9px] font-mono text-neutral-400 block font-bold">
             Target Difference
           </label>
           <div className="font-mono font-bold text-sm text-o1-crimson pt-0.5">
@@ -167,7 +167,7 @@ export const MifflinGoalSection: React.FC<MifflinGoalSectionProps> = ({
 
       {/* Target Pace (Weekly Rate) */}
       <div>
-        <label className="text-[9px] font-mono uppercase text-neutral-400 block font-bold mb-1">
+        <label className="text-[9px] font-mono text-neutral-400 block font-bold mb-1">
           Target Pace
         </label>
         <div className="grid grid-cols-3 gap-1.5">

@@ -73,7 +73,7 @@ export const PrivacyStealthModal: React.FC<Props> = ({ isOpen, onClose, onSaved 
               <Shield className="w-4 h-4 text-o1-crimson" />
             </div>
             <div>
-              <h3 className="text-xs font-mono font-bold tracking-wider text-white uppercase font-tactical leading-tight">
+              <h3 className="text-xs font-mono font-bold tracking-wider text-white font-tactical leading-tight">
                 PRIVACY &amp; STEALTH
               </h3>
               <p className="text-[10px] text-neutral-400 font-mono">Radar telemetry &amp; profile visibility</p>
@@ -141,7 +141,7 @@ export const PrivacyStealthModal: React.FC<Props> = ({ isOpen, onClose, onSaved 
           className="w-full py-2.5 rounded-xl bg-zinc-100 hover:bg-white text-neutral-950 text-xs font-semibold tracking-wide shadow-sm active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer"
         >
           <Check className="w-4 h-4" />
-          <span>SAVE PREFERENCES</span>
+          <span>Save Preferences</span>
         </button>
       </div>
     </div>

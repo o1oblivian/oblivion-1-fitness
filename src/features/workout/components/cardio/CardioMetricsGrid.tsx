@@ -50,7 +50,7 @@ export const CardioMetricsGrid: React.FC<Props> = ({ metrics, onUpdateMetric }) 
               }`}
             >
               <div className="flex items-center justify-between gap-1 mb-0.5">
-                <span className="text-[8px] font-tactical font-black uppercase tracking-wider text-neutral-400 block truncate">
+                <span className="text-[8px] font-tactical font-black tracking-wider text-neutral-400 block truncate">
                   {m.label}
                 </span>
                 {onUpdateMetric && !isEditing && (

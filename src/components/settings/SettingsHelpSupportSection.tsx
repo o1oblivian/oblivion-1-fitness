@@ -23,7 +23,7 @@ export const SettingsHelpSupportSection: React.FC<HelpSupportSectionProps> = ({
 }) => {
   return (
     <div className="space-y-2">
-      <h3 className="text-xs font-tactical tracking-wider text-neutral-400 font-bold uppercase px-1">
+      <h3 className="text-xs font-tactical tracking-wider text-neutral-400 font-bold px-1">
         Help, Support &amp; Legal Compliance
       </h3>
 
@@ -58,34 +58,29 @@ export const SettingsHelpSupportSection: React.FC<HelpSupportSectionProps> = ({
           <ChevronRight className="w-4 h-4 text-neutral-400 group-hover:text-white shrink-0" />
         </div>
 
-        <div className="pt-2 border-t border-white/[0.05]">
+        <div className="pt-2 border-t border-white/[0.05] flex flex-wrap justify-center gap-2">
           <button
             type="button"
             onClick={() => { tactileEngine.triggerSelectionBuzz(); onSendFeedback(); }}
-            className="w-full py-2.5 rounded-xl border border-white/[0.07] bg-black hover:bg-white/[0.06] text-neutral-300 hover:text-white text-xs font-tactical font-semibold uppercase transition-all cursor-pointer active:scale-[0.99]"
+            className="o1-pill border border-white/[0.07] bg-o1-well hover:bg-white/[0.06] text-neutral-200 text-xs font-sans font-semibold transition-all cursor-pointer active:scale-95"
           >
-            Send Feedback
+            Send feedback
           </button>
-        </div>
-
-        {/* Legal & App Store Compliance Links */}
-        <div className="pt-3 border-t border-white/[0.05] grid grid-cols-2 gap-2">
           <button
             type="button"
             onClick={() => { tactileEngine.triggerSelectionBuzz(); onOpenTerms(); }}
-            className="p-2.5 rounded-xl bg-black hover:bg-white/[0.06] border border-white/[0.07] text-neutral-300 hover:text-white text-xs font-sans flex items-center justify-center gap-1.5 transition cursor-pointer"
+            className="o1-pill border border-white/[0.07] bg-o1-well hover:bg-white/[0.06] text-neutral-200 text-xs font-sans font-semibold cursor-pointer"
           >
-            <FileText className="w-3.5 h-3.5 text-o1-crimson" />
-            <span>Terms of Service</span>
+            <FileText className="w-3.5 h-3.5 text-neutral-400" />
+            <span>Terms</span>
           </button>
-
           <button
             type="button"
             onClick={() => { tactileEngine.triggerSelectionBuzz(); if (onOpenPrivacy) onOpenPrivacy(); else onOpenTerms(); }}
-            className="p-2.5 rounded-xl bg-black hover:bg-white/[0.06] border border-white/[0.07] text-neutral-300 hover:text-white text-xs font-sans flex items-center justify-center gap-1.5 transition cursor-pointer"
+            className="o1-pill border border-white/[0.07] bg-o1-well hover:bg-white/[0.06] text-neutral-200 text-xs font-sans font-semibold cursor-pointer"
           >
-            <Lock className="w-3.5 h-3.5 text-[#0EA5E9]" />
-            <span>Privacy Policy</span>
+            <Lock className="w-3.5 h-3.5 text-[#4F8F9A]" />
+            <span>Privacy</span>
           </button>
         </div>
 

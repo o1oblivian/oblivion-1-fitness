@@ -27,7 +27,7 @@ export const ReelFormFields: React.FC<ReelFormFieldsProps> = ({
     <>
       <div className="space-y-3">
         <div className="space-y-1">
-          <label className="text-[11px] font-bold font-mono tracking-wider text-neutral-300 uppercase">
+          <label className="text-[11px] font-bold font-mono tracking-wider text-neutral-300">
             4. Reel Title
           </label>
           <input
@@ -39,7 +39,7 @@ export const ReelFormFields: React.FC<ReelFormFieldsProps> = ({
           />
         </div>
         <div className="space-y-1">
-          <label className="text-[11px] font-bold font-mono tracking-wider text-neutral-300 uppercase">
+          <label className="text-[11px] font-bold font-mono tracking-wider text-neutral-300">
             5. Biomechanical Directives / Cues
           </label>
           <textarea

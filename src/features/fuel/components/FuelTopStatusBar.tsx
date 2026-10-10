@@ -62,7 +62,7 @@ export const FuelTopStatusBar: React.FC<FuelTopStatusBarProps> = ({
     <div id="fuel-top-status-bar" className="space-y-2 select-none">
       <div className="flex items-end justify-between gap-2">
         <div className="min-w-0">
-          <p className="text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">
+          <p className="text-[10px] font-medium tracking-[0.18em] text-neutral-500">
             Fuel
           </p>
           <h1 className="font-semibold text-[17px] text-white tracking-tight leading-tight">
@@ -102,7 +102,7 @@ export const FuelTopStatusBar: React.FC<FuelTopStatusBarProps> = ({
             {countryObj.flag}
           </span>
           <span className="min-w-0 flex-1">
-            <span className="block text-[9px] uppercase tracking-wider text-neutral-400 font-medium">Market</span>
+            <span className="block text-[9px] tracking-wider text-neutral-400 font-medium">Market</span>
             <span className="block text-[12px] font-semibold text-white truncate leading-tight">
               {countryObj.code === 'GLOBAL' ? 'All markets' : countryObj.name}
             </span>
@@ -125,7 +125,7 @@ export const FuelTopStatusBar: React.FC<FuelTopStatusBarProps> = ({
             {diet.icon}
           </span>
           <span className="min-w-0 flex-1">
-            <span className="block text-[9px] uppercase tracking-wider text-neutral-400 font-medium">Diet</span>
+            <span className="block text-[9px] tracking-wider text-neutral-400 font-medium">Diet</span>
             <span className={`block text-[12px] font-semibold truncate leading-tight ${diet.accentDark}`}>
               {diet.label}
             </span>

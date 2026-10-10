@@ -24,13 +24,13 @@ export const SolidarityTrackerModal: React.FC<SolidarityTrackerModalProps> = ({
         title="Biometric Solidarity & Vitals"
         subtitle="Real-time Autonomic & Systemic Readiness"
         icon={<Heart className="w-4 h-4" />}
-        iconContainerClassName="p-1.5 rounded-lg bg-[#EF4444]/10 text-[#EF4444]"
+        iconContainerClassName="p-1.5 rounded-lg bg-[#C4121A]/10 text-[#C4121A]"
       >
         {/* Top Vitals Grid */}
         <div className="grid grid-cols-2 gap-2">
           <div className="bg-o1-card border border-white/[0.07] p-3 rounded-2xl transition-colors">
-            <span className="text-[9px] font-telemetry text-zinc-400 uppercase">
-              HEART RATE VARIABILITY
+            <span className="text-[9px] font-telemetry text-zinc-400">
+              Heart Rate Variability
             </span>
             <div className="flex items-baseline gap-1 mt-1">
               <span className="font-telemetry font-black text-2xl text-sky-400">
@@ -44,8 +44,8 @@ export const SolidarityTrackerModal: React.FC<SolidarityTrackerModalProps> = ({
           </div>
 
           <div className="bg-o1-card border border-white/[0.07] p-3 rounded-2xl transition-colors">
-            <span className="text-[9px] font-telemetry text-zinc-400 uppercase">
-              RESTING HEART RATE
+            <span className="text-[9px] font-telemetry text-zinc-400">
+              Resting Heart Rate
             </span>
             <div className="flex items-baseline gap-1 mt-1">
               <span className="font-telemetry font-black text-2xl text-white">
@@ -54,27 +54,27 @@ export const SolidarityTrackerModal: React.FC<SolidarityTrackerModalProps> = ({
               <span className="text-xs font-telemetry text-zinc-400">bpm</span>
             </div>
             <span className="text-[9px] font-telemetry text-zinc-400">
-              OPTIMAL RECOVERY
+              Optimal Recovery
             </span>
           </div>
 
           <div className="bg-o1-card border border-white/[0.07] p-3 rounded-2xl transition-colors">
-            <span className="text-[9px] font-telemetry text-zinc-400 uppercase">
-              CNS READINESS SCORE
+            <span className="text-[9px] font-telemetry text-zinc-400">
+              CNS Readiness Score
             </span>
             <div className="flex items-baseline gap-1 mt-1">
-              <span className="font-telemetry font-black text-2xl text-[#0EA5E9]">
+              <span className="font-telemetry font-black text-2xl text-[#4F8F9A]">
                 98%
               </span>
             </div>
-            <span className="text-[9px] font-telemetry text-[#0EA5E9] font-bold">
-              GRADE-A PRIMED
+            <span className="text-[9px] font-telemetry text-[#4F8F9A] font-bold">
+              GRADE-A Primed
             </span>
           </div>
 
           <div className="bg-o1-card border border-white/[0.07] p-3 rounded-2xl transition-colors">
-            <span className="text-[9px] font-telemetry text-zinc-400 uppercase">
-              CORE BODY TEMP
+            <span className="text-[9px] font-telemetry text-zinc-400">
+              Core Body Temp
             </span>
             <div className="flex items-baseline gap-1 mt-1">
               <span className="font-telemetry font-black text-2xl text-white">
@@ -83,7 +83,7 @@ export const SolidarityTrackerModal: React.FC<SolidarityTrackerModalProps> = ({
               <span className="text-xs font-telemetry text-zinc-400">°C</span>
             </div>
             <span className="text-[9px] font-telemetry text-zinc-400">
-              HOMEOSTATIC
+              Homeostatic
             </span>
           </div>
         </div>
@@ -95,7 +95,7 @@ export const SolidarityTrackerModal: React.FC<SolidarityTrackerModalProps> = ({
               <Pill className="w-4 h-4" />
             </div>
             <div>
-              <h4 className="font-tactical font-bold text-xs uppercase text-white">
+              <h4 className="font-tactical font-bold text-xs text-white">
                 Daily Supplement Timing
               </h4>
               <p className="text-[10px] font-telemetry text-zinc-400">
@@ -105,7 +105,7 @@ export const SolidarityTrackerModal: React.FC<SolidarityTrackerModalProps> = ({
           </div>
           <button
             onClick={() => setShowSupplements(true)}
-            className="py-1.5 px-3 rounded-xl bg-white/[0.08] hover:bg-zinc-700 text-white font-tactical text-xs font-bold uppercase tracking-wider border border-white/[0.07] active:scale-95 transition-all cursor-pointer"
+            className="py-1.5 px-3 rounded-xl bg-white/[0.08] hover:bg-zinc-700 text-white font-tactical text-xs font-bold tracking-wider border border-white/[0.07] active:scale-95 transition-all cursor-pointer"
           >
             Open
           </button>

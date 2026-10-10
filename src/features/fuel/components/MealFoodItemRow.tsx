@@ -51,7 +51,7 @@ export const MealFoodItemRow: React.FC<MealFoodItemRowProps> = ({
         <button
           type="button"
           onClick={onDelete}
-          className="p-1 text-zinc-500 hover:text-[#EF4444] transition-colors cursor-pointer"
+          className="p-1 text-zinc-500 hover:text-[#C4121A] transition-colors cursor-pointer"
           title="Remove"
         >
           <Trash2 className="w-3.5 h-3.5" />

@@ -196,7 +196,7 @@ export const FuelIntakeSlotCard: React.FC<FuelIntakeSlotCardProps> = ({
           </div>
         ) : (
           <div className="p-3 space-y-2">
-            <div className="flex items-center gap-1.5 text-[10px] font-mono font-bold text-neutral-400 uppercase tracking-wider">
+            <div className="flex items-center gap-1.5 text-[10px] font-mono font-bold text-neutral-400 tracking-wider">
               <Zap className="w-3 h-3 text-amber-500" />
               <span>1-Tap Quick Suggestions:</span>
             </div>

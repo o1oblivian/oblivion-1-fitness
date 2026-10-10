@@ -17,7 +17,7 @@ import {
   X,
 } from 'lucide-react';
 import { supabase } from '../../../services/supabaseClient';
-import { Athlete, fetchCoachClients } from '../services/coachService';
+import { Athlete, fetchCoachClients, isValidUuid } from '../services/coachService';
 import { getAuthenticatedUserId } from '../../../services/authUser';
 import { tactileEngine } from '../../../services/tactileEngine';
 import {
@@ -38,66 +38,22 @@ export interface WorkoutDispatchStudioProps {
   isOpen?: boolean;
   onClose: () => void;
   athleteId?: string;
+  targetAthlete?: Athlete | null;
+  roster?: Athlete[];
   onDispatched?: (title: string, athleteName: string) => void;
 }
 
-const DEFAULT_FALLBACK_ATHLETES: Athlete[] = [
-  {
-    id: 'ath-alex-rivers',
-    client_id: 'ath-alex-rivers',
-    name: 'Alex Rivers',
-    handle: '@alex_rivers',
-    status: 'Active',
-    readiness: 94,
-    volume: 46200,
-    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
-    lastActive: 'Today, 08:30 AM',
-  },
-  {
-    id: 'ath-marcus-cole',
-    client_id: 'ath-marcus-cole',
-    name: 'Marcus Cole',
-    handle: '@marcus_cole',
-    status: 'Active',
-    readiness: 89,
-    volume: 58300,
-    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=200&q=80',
-    lastActive: 'Today, 07:15 AM',
-  },
-  {
-    id: 'ath-elena-rostova',
-    client_id: 'ath-elena-rostova',
-    name: 'Elena Rostova',
-    handle: '@rostova_tactical',
-    status: 'Check-in',
-    readiness: 88,
-    volume: 38400,
-    avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=200&q=80',
-    lastActive: 'Yesterday',
-  },
-  {
-    id: 'ath-chloe-kim',
-    client_id: 'ath-chloe-kim',
-    name: 'Chloe Kim',
-    handle: '@chloekim_fit',
-    status: 'Active',
-    readiness: 91,
-    volume: 42100,
-    avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=200&q=80',
-    lastActive: 'Today, 09:40 AM',
-  },
-  {
-    id: 'ath-jordan-miller',
-    client_id: 'ath-jordan-miller',
-    name: 'Jordan Miller',
-    handle: '@jmiller_power',
-    status: 'Need Routine',
-    readiness: 78,
-    volume: 52100,
-    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80',
-    lastActive: '2 days ago',
-  },
-];
+const NO_ROSTER: Athlete[] = [];
+
+function mergeRoster(...groups: Athlete[][]): Athlete[] {
+  const seen = new Set<string>();
+  return groups.flat().filter((row) => {
+    const key = row.client_id || row.id;
+    if (!key || seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
 
 const RECOMMENDED_CUE_CHIPS = [
   'Retract scapulae',
@@ -168,15 +124,19 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
   isOpen = true,
   onClose,
   athleteId,
+  targetAthlete = null,
+  roster = NO_ROSTER,
   onDispatched,
 }) => {
   const [activeTab, setActiveTab] = useState<'stack' | 'library' | 'blueprints'>('stack');
 
   // Client Selection (Supports Single & Multiple Athletes)
-  const [athletes, setAthletes] = useState<Athlete[]>([]);
+  const lockedId = targetAthlete?.id || athleteId || '';
+  const [athletes, setAthletes] = useState<Athlete[]>(() => mergeRoster(targetAthlete ? [targetAthlete] : [], roster));
   const [selectedAthleteIds, setSelectedAthleteIds] = useState<string[]>(
-    athleteId ? [athleteId] : []
+    lockedId ? [lockedId] : roster.map((row) => row.id)
   );
+  const [coachCue, setCoachCue] = useState('');
   const [isAthletePickerOpen, setIsAthletePickerOpen] = useState(false);
   const [athleteSearchQuery, setAthleteSearchQuery] = useState('');
 
@@ -208,18 +168,22 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
   // Fetch athletes
   useEffect(() => {
     if (!isOpen) return;
+    let live = true;
     fetchCoachClients().then((res) => {
-      if (res && res.length > 0) {
-        setAthletes(res);
-        if (athleteId) {
-          const match = res.find((a) => a.id === athleteId || a.client_id === athleteId);
-          if (match) setSelectedAthleteIds([match.id]);
-        }
+      if (!live) return;
+      const merged = mergeRoster(targetAthlete ? [targetAthlete] : [], roster, res || []);
+      setAthletes(merged);
+      if (lockedId) {
+        const match = merged.find((row) => row.id === lockedId || row.client_id === lockedId);
+        if (match) setSelectedAthleteIds([match.id]);
       } else {
-        setAthletes([]);
+        setSelectedAthleteIds((prev) => (prev.length ? prev : merged.map((row) => row.id)));
       }
     });
-  }, [isOpen, athleteId]);
+    return () => {
+      live = false;
+    };
+  }, [isOpen, lockedId, targetAthlete, roster]);
 
   // Selected athletes objects
   const selectedAthletes = useMemo(() => {
@@ -481,38 +445,57 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
       const targetAthletes = athletes.filter((a) => selectedAthleteIds.includes(a.id));
       const targetNames = targetAthletes.map((a) => a.name).join(', ');
 
-      const coachId = await getAuthenticatedUserId();
-      if (!coachId) {
-        setIsSubmitting(false);
-        setDispatchSuccessToast('Sign in required to dispatch.');
-        setTimeout(() => setDispatchSuccessToast(null), 2500);
-        return;
-      }
-      const payloads = targetAthletes.map((athlete) => ({
-        coach_id: coachId,
-        client_id: athlete.id || athlete.client_id,
-        athlete_id: athlete.client_id || athlete.id,
-        title: workoutTitle,
-        parameters: {
-          date: workoutDate,
-          focus: workoutFocus,
-          totalSets: telemetry.sets,
-          estTime: telemetry.estTime,
-          volumeTons: telemetry.volumeTons,
-        },
-        exercises: stack.map((ex) => ({
-          name: ex.name,
-          muscle: ex.muscle,
-          cue: ex.cue,
-          setsCount: ex.sets.length,
-          sets: ex.sets,
-        })),
-        status: 'pending',
-        assigned_date: new Date().toISOString(),
+      const coachId = (await getAuthenticatedUserId()) || '';
+      const cue = coachCue.trim();
+      const exercises = stack.map((ex) => ({
+        name: ex.name,
+        muscle: ex.muscle,
+        cue: ex.cue,
+        setsCount: ex.sets.length,
+        sets: ex.sets,
       }));
-
-      const { error } = await supabase.from('assigned_workouts').insert(payloads);
-      if (error) throw new Error(error.message);
+      const linked = targetAthletes.filter((athlete) => isValidUuid(athlete.client_id || athlete.id));
+      if (linked.length) {
+        if (!isValidUuid(coachId)) {
+          setIsSubmitting(false);
+          setDispatchSuccessToast('Sign in required to dispatch.');
+          setTimeout(() => setDispatchSuccessToast(null), 2500);
+          return;
+        }
+        const payloads = linked.map((athlete) => {
+          const personId = athlete.client_id || athlete.id;
+          return {
+            coach_id: coachId,
+            client_id: personId,
+            athlete_id: personId,
+            title: workoutTitle,
+            parameters: {
+              date: workoutDate,
+              focus: workoutFocus,
+              coachCue: cue,
+              totalSets: telemetry.sets,
+              estTime: telemetry.estTime,
+              volumeTons: telemetry.volumeTons,
+            },
+            exercises,
+            status: 'pending',
+            assigned_date: new Date().toISOString(),
+          };
+        });
+        const { error } = await supabase.from('assigned_workouts').insert(payloads);
+        if (error) throw new Error(error.message);
+      }
+      try {
+        localStorage.setItem('o1_assigned_local', JSON.stringify({
+          title: workoutTitle,
+          coachId,
+          cue,
+          exercises,
+          at: new Date().toISOString(),
+        }));
+      } catch {
+        /* private mode */
+      }
 
       const toastMsg =
         targetAthletes.length > 1
@@ -545,36 +528,14 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
         <div className="p-3 border-b border-white/[0.05] bg-o1-card shrink-0 space-y-2">
           {/* Header Row */}
           <div className="flex items-center justify-between gap-2">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 min-w-0">
               <span className="w-2.5 h-2.5 rounded-full bg-o1-crimson shrink-0" />
-              <h2 className="text-sm sm:text-base font-bold text-white">
-                Workout Dispatch Studio ({stack.length})
+              <h2 className="text-sm font-semibold text-white truncate">
+                Workout
               </h2>
             </div>
 
-            <div className="flex items-center gap-2">
-              {/* Athlete Selector Trigger */}
-              <button
-                type="button"
-                onClick={() => {
-                  tactileEngine.triggerSelectionBuzz();
-                  setIsAthletePickerOpen(true);
-                }}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-o1-well border border-white/[0.07] text-xs font-semibold text-neutral-200 hover:border-white/[0.14] transition-colors cursor-pointer"
-                title="Select target athlete(s)"
-              >
-                <Users size={13} className="text-o1-crimson shrink-0" />
-                <span className="max-w-[120px] truncate text-[11px] font-semibold text-white">
-                  {selectedAthletes.length === 1
-                    ? selectedAthletes[0].name
-                    : selectedAthletes.length > 1
-                    ? `${selectedAthletes.length} Athletes`
-                    : 'Select Athletes'}
-                </span>
-                <ChevronDown size={13} className="text-neutral-400 shrink-0" />
-              </button>
-
-              {/* Circular Close Button */}
+            <div className="flex items-center gap-2 shrink-0">
               <button
                 type="button"
                 onClick={() => {
@@ -595,7 +556,7 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
             <div className="flex items-center gap-3.5 text-neutral-400 text-xs">
               <span>Sets: <strong className="text-white font-bold">{telemetry.sets}</strong></span>
               <span>Est. Time: <strong className="text-white font-bold">{telemetry.estTime}m</strong></span>
-              <span>Volume: <strong className="text-o1-crimson font-bold">{telemetry.volumeTons}k kg</strong></span>
+              <span>Volume: <strong className="text-white font-bold">{Number(telemetry.volumeTons) > 0 ? `${telemetry.volumeTons}k kg` : '--'}</strong></span>
             </div>
 
             <div className="flex items-center gap-1.5">
@@ -681,9 +642,9 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
               {/* WORKOUT PARAMETERS Card */}
               <div className="p-3.5 rounded-2xl bg-o1-card border border-white/[0.07] space-y-2">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-neutral-300">
+                  <div className="flex items-center gap-1.5 text-xs font-bold tracking-wider text-neutral-300">
                     <SlidersHorizontal size={14} className="text-neutral-500" />
-                    <span>WORKOUT PARAMETERS</span>
+                    <span>Workout Parameters</span>
                   </div>
                   <button
                     type="button"
@@ -727,24 +688,16 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
                     </div>
                   </div>
                 ) : (
-                  <div className="flex flex-wrap items-center gap-2 text-xs">
-                    <span className="font-bold text-white">
-                      {workoutTitle}
-                    </span>
-                    <span className="text-neutral-400">•</span>
-                    <span className="text-neutral-400">
-                      {workoutDate}
-                    </span>
-                    <span className="px-2 py-0.5 rounded-md bg-red-500/10 text-red-400 border border-red-500/20 text-[11px] font-semibold">
-                      {workoutFocus}
-                    </span>
+                  <div className="space-y-0.5 min-w-0">
+                    <p className="text-xs font-semibold text-white truncate">{workoutTitle}</p>
+                    <p className="text-[11px] text-neutral-400 truncate">{workoutDate} · {workoutFocus}</p>
                   </div>
                 )}
               </div>
 
               {/* PROGRAMMED EXERCISES Header */}
               <div className="flex items-center justify-between pt-1">
-                <span className="text-xs font-bold uppercase tracking-wider text-neutral-300">
+                <span className="text-xs font-bold tracking-wider text-neutral-300">
                   PROGRAMMED EXERCISES ({stack.length})
                 </span>
 
@@ -832,10 +785,10 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
                       {exercise.expanded && (
                         <div className="p-3 pt-0 border-t border-white/[0.05] bg-o1-card space-y-2.5 animate-in slide-in-from-top-1 duration-150">
                           <div className="space-y-1.5 pt-2">
-                            <div className="grid grid-cols-12 gap-1.5 text-[10px] font-semibold text-neutral-400 uppercase text-center items-center">
-                              <span className="col-span-2">SET</span>
+                            <div className="grid grid-cols-12 gap-1.5 text-[10px] font-semibold text-neutral-400 text-center items-center">
+                              <span className="col-span-2">Set</span>
                               <span className="col-span-3">KG</span>
-                              <span className="col-span-3">REPS</span>
+                              <span className="col-span-3">Reps</span>
                               <span className="col-span-3">RPE</span>
                               <span className="col-span-1"></span>
                             </div>
@@ -888,9 +841,9 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
                           {/* Editable Coach Form Cue with Pre-recommendations */}
                           <div className="p-3 rounded-xl bg-o1-well border border-white/[0.07] space-y-2">
                             <div className="flex items-center justify-between">
-                              <span className="font-bold text-[10px] uppercase tracking-wider text-o1-crimson flex items-center gap-1.5">
+                              <span className="font-bold text-[10px] tracking-wider text-o1-crimson flex items-center gap-1.5">
                                 <Sparkles size={11} />
-                                <span>COACH FORM CUE & DIRECTIVES</span>
+                                <span>Coach form cue & directives</span>
                               </span>
                               <button
                                 type="button"
@@ -1019,7 +972,7 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
                           <h4 className="text-xs font-bold text-white truncate">
                             {catEx.name}
                           </h4>
-                          <span className="px-1.5 py-0.5 rounded text-[9px] font-semibold bg-white/[0.08] text-neutral-500 uppercase shrink-0">
+                          <span className="px-1.5 py-0.5 rounded text-[9px] font-semibold bg-white/[0.08] text-neutral-500 shrink-0">
                             {catEx.type}
                           </span>
                         </div>
@@ -1128,7 +1081,7 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
                             : 'text-neutral-500'
                         }`}
                       >
-                        {g === 'Full Gym' ? 'Gym' : g === 'DB & Bench' ? 'DB' : 'BW'}
+                        {g === 'Full Gym' ? 'Gym' : g === 'DB & Bench' ? 'Db' : 'bw'}
                       </button>
                     ))}
                   </div>
@@ -1218,8 +1171,7 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
         {/* ============================================================== */}
         {/* 3. PINNED STICKY BOTTOM ACTION BAR (Matches Screenshot 2) */}
         {/* ============================================================== */}
-        <div className="p-3.5 sm:p-4 border-t border-white/[0.05] bg-o1-card shrink-0 flex items-center justify-between gap-3">
-          {/* Left Column: Summary Text */}
+        <div className="p-3 border-t border-white/[0.05] bg-o1-card shrink-0 space-y-2">
           <div className="min-w-0">
             <h4 className="text-xs font-bold text-white truncate">
               {workoutTitle} ({workoutDate})
@@ -1230,19 +1182,26 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
                 ? selectedAthletes[0].name
                 : selectedAthletes.length > 1
                 ? `${selectedAthletes.length} Athletes`
-                : 'No Athlete Selected'}
+                : targetAthlete?.name || 'No Athlete Selected'}
             </p>
           </div>
 
-          {/* Right Column: Actions */}
-          <div className="flex items-center gap-2 shrink-0">
+          <input
+            type="text"
+            value={coachCue}
+            onChange={(e) => setCoachCue(e.target.value)}
+            placeholder="Coach cue / target RPE (optional)"
+            className="h-[44px] w-full rounded-xl border border-white/[0.07] bg-o1-well px-3 text-[13px] text-white placeholder:text-neutral-500 outline-none focus:border-o1-crimson"
+          />
+
+          <div className="flex items-center gap-2">
             <button
               type="button"
               onClick={() => {
                 tactileEngine.triggerSelectionBuzz();
                 setIsAthletePickerOpen(true);
               }}
-              className="px-3 py-2 rounded-full border border-white/[0.07] bg-o1-well hover:bg-white/[0.06] text-xs font-semibold text-neutral-200 transition-colors cursor-pointer flex items-center gap-1.5"
+              className="h-[44px] shrink-0 px-3 rounded-full border border-white/[0.07] bg-o1-well hover:bg-white/[0.06] text-xs font-semibold text-neutral-200 transition-colors cursor-pointer flex items-center gap-1.5"
             >
               <Users size={12} className="text-neutral-500" />
               <span>Athletes ({selectedAthleteIds.length})</span>
@@ -1252,16 +1211,10 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
               type="button"
               disabled={isSubmitting || stack.length === 0 || selectedAthleteIds.length === 0}
               onClick={handleDispatchWorkout}
-              className="px-4 py-2 rounded-full bg-o1-crimson hover:bg-o1-crimson-hover active:scale-95 disabled:opacity-50 text-white text-xs font-bold shadow-xs transition-all cursor-pointer flex items-center gap-1.5"
+              className="h-[44px] flex-1 px-4 rounded-full bg-o1-crimson hover:bg-o1-crimson-hover active:scale-95 disabled:opacity-50 text-white text-[13px] font-semibold shadow-xs transition-all cursor-pointer flex items-center justify-center gap-1.5"
             >
               <Send size={13} />
-              <span>
-                {selectedAthleteIds.length > 1
-                  ? `Dispatch to ${selectedAthleteIds.length}`
-                  : selectedAthleteIds.length === 1
-                  ? 'Dispatch'
-                  : 'Select Athletes'}
-              </span>
+              <span>Dispatch Workout to Floor</span>
             </button>
           </div>
         </div>
@@ -1386,7 +1339,7 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
                           </div>
                           <div className="flex items-center gap-2 text-[10px] text-neutral-500">
                             <span className="text-emerald-400 font-semibold">
-                              {ath.readiness}% CNS
+                              {ath.readiness ? `${ath.readiness}%` : '--'}
                             </span>
                             <span>•</span>
                             <span>{ath.status}</span>
@@ -1395,7 +1348,7 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
                       </div>
 
                       <span
-                        className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase shrink-0 ${
+                        className={`text-[10px] px-2 py-0.5 rounded-full font-bold shrink-0 ${
                           ath.status === 'Active'
                             ? 'bg-emerald-500/10 text-emerald-400'
                             : ath.status === 'Need Routine'

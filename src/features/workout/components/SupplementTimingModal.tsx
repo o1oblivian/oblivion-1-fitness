@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
-import { X, Pill, Plus, Check, Sun, Moon, Sparkles, CheckCheck } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { X, Pill, Plus, Check, Sun, Moon, Sparkles } from 'lucide-react';
 import { tactileEngine } from '../../../services/tactileEngine';
+import { loadSupplementStack, saveSupplementStack, type SupplementItem } from '../supplementStack';
 
 interface SupplementTimingModalProps {
   isOpen: boolean;
@@ -8,26 +9,17 @@ interface SupplementTimingModalProps {
   onShowToast?: (msg: string) => void;
 }
 
-interface SupplementItem {
-  id: string;
-  name: string;
-  dose: string;
-  timing: 'Morning' | 'Evening';
-  taken: boolean;
-}
-
 export const SupplementTimingModal: React.FC<SupplementTimingModalProps> = ({
   isOpen,
   onClose,
   onShowToast,
 }) => {
-  const [supplements, setSupplements] = useState<SupplementItem[]>([
-    { id: '1', name: 'Creatine Monohydrate', dose: '5g', timing: 'Morning', taken: false },
-    { id: '2', name: 'Vitamin D3 + K2', dose: '5000 IU', timing: 'Morning', taken: false },
-    { id: '3', name: 'Omega-3 High EPA/DHA', dose: '2000mg', timing: 'Morning', taken: false },
-    { id: '4', name: 'Magnesium Bisglycinate', dose: '400mg', timing: 'Evening', taken: false },
-    { id: '5', name: 'Zinc Picolinate', dose: '25mg', timing: 'Evening', taken: false },
-  ]);
+  // The stack is the user's own: empty until they add supplements, persisted on this device.
+  const [supplements, setSupplements] = useState<SupplementItem[]>(() => loadSupplementStack());
+
+  useEffect(() => {
+    saveSupplementStack(supplements);
+  }, [supplements]);
 
   const [activeTimingFilter, setActiveTimingFilter] = useState<'ALL' | 'Morning' | 'Evening'>('ALL');
   const [isAddingCustom, setIsAddingCustom] = useState(false);
@@ -110,7 +102,7 @@ export const SupplementTimingModal: React.FC<SupplementTimingModalProps> = ({
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="font-tactical font-bold text-sm tracking-wider uppercase text-white">
+                <h3 className="font-tactical font-bold text-sm tracking-wider text-white">
                   Supplement Chronograph
                 </h3>
                 <span className="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-white/10 text-neutral-300">
@@ -133,9 +125,9 @@ export const SupplementTimingModal: React.FC<SupplementTimingModalProps> = ({
         {/* Master Adherence Gauge Card - Crystal Clear (Zero Dark Fog) */}
         <div className="bg-white/[0.03] border border-white/[0.07] rounded-2xl p-4 flex items-center justify-between">
           <div className="space-y-1">
-            <div className="flex items-center gap-1.5 text-[10px] font-mono uppercase tracking-wider text-neutral-400 font-bold">
+            <div className="flex items-center gap-1.5 text-[10px] font-mono tracking-wider text-neutral-400 font-bold">
               <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-              <span>STACK OPTIMIZATION</span>
+              <span>Stack Optimization</span>
             </div>
             <div className="text-2xl font-mono font-black text-white tracking-tight">
               {takenCount} <span className="text-sm font-normal text-neutral-500">/ {totalCount} Taken</span>
@@ -162,7 +154,7 @@ export const SupplementTimingModal: React.FC<SupplementTimingModalProps> = ({
                 cx="28"
                 cy="28"
                 r={radius}
-                stroke="#f59e0b"
+                stroke="#D4A017"
                 strokeWidth="4"
                 strokeDasharray={circumference}
                 strokeDashoffset={strokeDashoffset}
@@ -222,6 +214,11 @@ export const SupplementTimingModal: React.FC<SupplementTimingModalProps> = ({
 
         {/* Pill Cartridge Rack List */}
         <div className="space-y-2 overflow-y-auto max-h-[36vh] no-scrollbar pr-0.5">
+          {supplements.length === 0 && (
+            <p className="py-6 text-center text-xs font-mono text-neutral-500">
+              No supplements yet. Add the ones you actually take and your daily adherence is tracked here.
+            </p>
+          )}
           {filteredSupplements.map((item) => {
             const isMorning = item.timing === 'Morning';
             return (
@@ -252,7 +249,7 @@ export const SupplementTimingModal: React.FC<SupplementTimingModalProps> = ({
                       <span className="text-[10px] font-mono text-neutral-400">{item.dose}</span>
                       <span className="text-neutral-600">•</span>
                       <span
-                        className={`text-[9px] font-mono font-bold uppercase tracking-wider flex items-center gap-1 ${
+                        className={`text-[9px] font-mono font-bold tracking-wider flex items-center gap-1 ${
                           isMorning ? 'text-amber-400' : 'text-sky-400'
                         }`}
                       >
@@ -265,13 +262,13 @@ export const SupplementTimingModal: React.FC<SupplementTimingModalProps> = ({
 
                 {/* State Tag */}
                 <span
-                  className={`text-[10px] font-mono uppercase font-bold px-2 py-0.5 rounded-full border shrink-0 ${
+                  className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full border shrink-0 ${
                     item.taken
                       ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
                       : 'bg-white/5 text-neutral-400 border-white/[0.07]'
                   }`}
                 >
-                  {item.taken ? 'LOGGED' : 'PENDING'}
+                  {item.taken ? 'Logged' : 'pending'}
                 </span>
               </div>
             );
@@ -337,7 +334,7 @@ export const SupplementTimingModal: React.FC<SupplementTimingModalProps> = ({
               className="flex-1 py-2.5 px-3 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.07] text-xs font-mono font-bold text-neutral-300 hover:text-white flex items-center justify-center gap-1.5 active:scale-95 transition-all cursor-pointer"
             >
               <Plus className="w-3.5 h-3.5 text-amber-500" />
-              <span>+ ADD CUSTOM / SEARCH</span>
+              <span>+ Add custom / search</span>
             </button>
             <button
               type="button"
@@ -346,9 +343,9 @@ export const SupplementTimingModal: React.FC<SupplementTimingModalProps> = ({
                 onClose();
                 onShowToast?.(`Stack Adherence confirmed: ${takenCount}/${totalCount} taken today.`);
               }}
-              className="py-2.5 px-5 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover active:bg-o1-crimson-press text-white text-xs font-tactical font-bold uppercase tracking-wider active:scale-95 transition-all cursor-pointer shadow-sm"
+              className="py-2.5 px-5 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover active:bg-o1-crimson-press text-white text-xs font-tactical font-bold tracking-wider active:scale-95 transition-all cursor-pointer shadow-sm"
             >
-              CONFIRM
+              Confirm
             </button>
           </div>
         )}

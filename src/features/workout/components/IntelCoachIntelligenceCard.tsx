@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Sparkles, ChevronRight } from 'lucide-react';
+import { Cpu, ChevronRight } from 'lucide-react';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { IntelCoachIntelligenceModal } from './IntelCoachIntelligenceModal';
 
@@ -30,18 +30,18 @@ export const IntelCoachIntelligenceCard: React.FC<IntelCoachIntelligenceCardProp
       >
         <div className="flex items-center gap-3 min-w-0 flex-1">
           {/* Subtle tactical icon container */}
-          <div className="w-9 h-9 rounded-xl bg-o1-well text-neutral-200 border border-white/[0.07] flex items-center justify-center shrink-0">
-            <Sparkles className="w-4 h-4 text-o1-crimson" />
-          </div>
+          <span className="o1-mark text-o1-gold">
+            <Cpu />
+          </span>
 
           {/* Title & Subtitle */}
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
-              <h4 className="text-xs font-tactical font-black text-white tracking-wider uppercase leading-snug truncate">
+              <h4 className="text-xs font-tactical font-black text-white tracking-wider leading-snug truncate">
                 Intel Coach
               </h4>
-              <span className="text-[9px] font-tactical font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-white/[0.08] text-neutral-400 border border-white/[0.07]">
-                PRO INTEL
+              <span className="text-[9px] font-sans font-semibold tracking-wide px-1.5 py-0.5 rounded-full bg-o1-card text-o1-gold border border-o1-gold/40">
+                Pro Intel
               </span>
             </div>
             <p className="text-[11px] text-neutral-400 leading-tight truncate mt-0.5">

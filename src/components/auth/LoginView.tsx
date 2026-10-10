@@ -30,7 +30,7 @@ export const LoginView: React.FC<LoginViewProps> = ({ onSuccess, onClose }) => {
   return (
     <div className="w-full max-w-sm mx-auto p-5 bg-o1-card border border-white/[0.07] rounded-2xl shadow-2xl text-white select-none">
       <div className="mb-3">
-        <h2 className="text-sm font-bold uppercase tracking-wider font-mono">
+        <h2 className="text-sm font-bold tracking-wider font-mono">
           {mode === 'signin' ? 'Athletic ID Access' : 'Create Profile'}
         </h2>
         <p className="text-[10px] text-neutral-400 font-mono">Supabase Cloud Vault · Live Session</p>
@@ -39,11 +39,11 @@ export const LoginView: React.FC<LoginViewProps> = ({ onSuccess, onClose }) => {
       <div className="grid grid-cols-2 p-1 bg-o1-well rounded-xl mb-3 text-xs font-bold font-mono">
         <button type="button" onClick={() => { setMode('signin'); clearError(); }}
           className={`py-1.5 rounded-xl transition-all ${mode === 'signin' ? 'bg-o1-crimson text-white shadow' : 'text-neutral-500'}`}>
-          SIGN IN
+          Sign In
         </button>
         <button type="button" onClick={() => { setMode('signup'); clearError(); }}
           className={`py-1.5 rounded-xl transition-all ${mode === 'signup' ? 'bg-o1-crimson text-white shadow' : 'text-neutral-500'}`}>
-          SIGN UP
+          Sign Up
         </button>
       </div>
 
@@ -74,7 +74,7 @@ export const LoginView: React.FC<LoginViewProps> = ({ onSuccess, onClose }) => {
         </div>
 
         <button type="submit" disabled={isLoading}
-          className="w-full mt-1 py-2.5 bg-o1-crimson hover:bg-o1-crimson-hover text-white text-xs font-bold uppercase tracking-wider rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50">
+          className="w-full mt-1 py-2.5 bg-o1-crimson hover:bg-o1-crimson-hover text-white text-xs font-bold tracking-wider rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50">
           {isLoading && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
           <span>{mode === 'signin' ? 'Sign In To Terminal' : 'Register Account'}</span>
         </button>

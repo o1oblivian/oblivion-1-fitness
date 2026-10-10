@@ -79,7 +79,7 @@ export const ScheduledRemindersModal: React.FC<ScheduledRemindersModalProps> = (
               <Bell className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="font-tactical font-bold text-sm text-neutral-100 uppercase tracking-wider">
+              <h3 className="font-tactical font-bold text-sm text-neutral-100 tracking-wider">
                 Scheduled Reminders
               </h3>
               <span className="text-[10px] text-neutral-400 font-mono block">
@@ -99,7 +99,7 @@ export const ScheduledRemindersModal: React.FC<ScheduledRemindersModalProps> = (
 
         {/* Days selector */}
         <div className="space-y-1.5">
-          <span className="text-[11px] font-tactical uppercase font-bold text-neutral-400 block tracking-wider">
+          <span className="text-[11px] font-tactical font-bold text-neutral-400 block tracking-wider">
             Active Training Days
           </span>
           <div className="grid grid-cols-7 gap-1">

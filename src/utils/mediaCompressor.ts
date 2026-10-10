@@ -202,7 +202,7 @@ export async function extractVideoPoster(
 
       if (typeof videoFileOrUrl !== 'string') URL.revokeObjectURL(url);
       resolve({
-        thumbnailUrl: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=800&q=80',
+        thumbnailUrl: '',
         width: 720,
         height: 1280,
         duration: video.duration || 15,

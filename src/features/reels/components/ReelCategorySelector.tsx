@@ -1,4 +1,5 @@
 import React from 'react';
+import { titleCase } from '../../../utils/displayCase';
 
 export const REEL_CATEGORIES = [
   { id: 'HYPERTROPHY', label: 'Hypertrophy', desc: 'Muscle Growth & Tension' },
@@ -34,7 +35,7 @@ export const ReelCategorySelector: React.FC<ReelCategorySelectorProps> = ({
   return (
     <div className="space-y-4">
       <div className="space-y-2">
-        <label className="text-[11px] font-bold font-mono tracking-wider text-neutral-300 uppercase block">
+        <label className="text-[11px] font-bold font-mono tracking-wider text-neutral-300 block">
           2. Train Ring Category
         </label>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
@@ -60,7 +61,7 @@ export const ReelCategorySelector: React.FC<ReelCategorySelectorProps> = ({
       </div>
 
       <div className="space-y-2">
-        <label className="text-[11px] font-bold font-mono tracking-wider text-neutral-300 uppercase block">
+        <label className="text-[11px] font-bold font-mono tracking-wider text-neutral-300 block">
           3. Sub-Discipline Tag
         </label>
         <div className="flex flex-wrap gap-1.5">
@@ -71,13 +72,13 @@ export const ReelCategorySelector: React.FC<ReelCategorySelectorProps> = ({
                 key={tag}
                 type="button"
                 onClick={() => onSelectFilterTag(tag)}
-                className={`px-2.5 py-1 rounded-xl text-[10px] font-bold uppercase transition-all cursor-pointer font-mono ${
+                className={`px-2.5 py-1 rounded-xl text-[10px] font-bold transition-all cursor-pointer font-mono ${
                   isSelected
                     ? 'bg-o1-crimson text-white shadow-xs'
                     : 'bg-o1-well border border-white/[0.07] text-neutral-400 hover:text-white'
                 }`}
               >
-                {tag}
+                {titleCase(tag)}
               </button>
             );
           })}

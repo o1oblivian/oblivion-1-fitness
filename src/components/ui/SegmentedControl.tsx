@@ -45,20 +45,20 @@ export function SegmentedControl<T extends string>({
 
   const itemBaseVariants = {
     primary:
-      'flex-1 py-2 px-3 rounded-xl text-xs font-tactical font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all duration-200 active:scale-95 cursor-pointer',
+      'flex-1 py-2 px-3 rounded-xl text-xs font-tactical font-semibold tracking-normal flex items-center justify-center gap-2 transition-all duration-200 active:scale-95 cursor-pointer',
     sub:
-      'flex-1 py-1.5 px-3 rounded-xl text-[10px] font-tactical font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all duration-200 active:scale-95 cursor-pointer',
+      'flex-1 py-1.5 px-3 rounded-xl text-[10px] font-tactical font-semibold tracking-normal flex items-center justify-center gap-1.5 transition-all duration-200 active:scale-95 cursor-pointer',
     light:
-      'flex-1 py-1.5 px-2 rounded-xl text-xs font-tactical font-bold uppercase tracking-wider transition-all duration-150 active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer',
+      'flex-1 py-1.5 px-2 rounded-xl text-xs font-tactical font-semibold tracking-normal transition-all duration-150 active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer',
     tactical:
-      'flex-1 py-1 px-2.5 rounded-xl text-[10px] font-telemetry font-bold uppercase tracking-wider transition-all duration-150 active:scale-95 flex items-center justify-center gap-1 cursor-pointer',
+      'flex-1 py-1 px-2.5 rounded-xl text-[10px] font-sans font-semibold tracking-normal transition-all duration-150 active:scale-95 flex items-center justify-center gap-1 cursor-pointer',
   }[variant];
 
   const itemActiveVariants = {
     primary: 'bg-o1-crimson text-white shadow-sm font-bold',
     sub: 'bg-o1-well text-white border border-white/[0.07] shadow-sm font-black',
     light: 'bg-o1-crimson text-white shadow-sm',
-    tactical: 'bg-[#0EA5E9]/20 text-[#0EA5E9] border border-[#0EA5E9]/40 ',
+    tactical: 'bg-[#4F8F9A]/20 text-[#4F8F9A] border border-[#4F8F9A]/40 ',
   }[variant];
 
   const itemInactiveVariants = {

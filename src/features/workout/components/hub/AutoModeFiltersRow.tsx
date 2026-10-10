@@ -38,7 +38,7 @@ export const AutoModeFiltersRow: React.FC<AutoModeFiltersRowProps> = ({
     <div className="mb-2">
       <div className="flex items-center justify-between py-1">
         <div className="min-w-0">
-          <p className="text-[10px] font-medium uppercase tracking-wider text-neutral-400">
+          <p className="text-[10px] font-medium tracking-wider text-neutral-400">
             Today
           </p>
           <p className="text-sm font-semibold text-white truncate">

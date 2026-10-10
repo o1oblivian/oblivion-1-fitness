@@ -6,6 +6,7 @@ import { ProgramBuilderStep } from './ProgramBuilderStep';
 import { ProgramPricingStep } from './ProgramPricingStep';
 import { ProgramReviewStep } from './ProgramReviewStep';
 import { tactileEngine } from '../../../../services/tactileEngine';
+import { O1_PRESETS } from './artworkPresets';
 
 const STEPS = ['Details', 'Builder', 'Pricing', 'Review'] as const;
 
@@ -40,7 +41,7 @@ export const ProgramCreatorModal: React.FC<{
     difficulty: 'Intermediate',
     durationWeeks: 4,
     trainingDaysPerWeek: 4,
-    coverImage: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=1200&q=80',
+    coverImage: O1_PRESETS[0]?.url ?? '',
     coverSource: 'presets',
     weeks: createDefaultWeeks(4, 4),
     isFreeCommunity: false,

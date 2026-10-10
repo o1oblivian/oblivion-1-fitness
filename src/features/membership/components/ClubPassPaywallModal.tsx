@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, ShieldCheck, Zap, RotateCcw, Check, Sparkles, Loader2 } from 'lucide-react';
+import { X, ShieldCheck, RotateCcw, Check, Sparkles, Loader2 } from 'lucide-react';
 import { useSubscription } from '../../../context/SubscriptionContext';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { revenueCatService } from '../../../services/revenueCatService';
@@ -10,15 +10,13 @@ const TIERS = [
 ];
 
 const PERKS = [
-  'Cardio Console & G-Shock Optical OCR Scanner',
-  'Optical Vision Macro & Nutrition Biometrics',
-  'Coach Direct Broadcasts & Biomechanical Vault',
-  '250km Radar Vector & Athlete Pro Network',
-  'Private Cloud Sync • Zero 3rd-Party Trackers • Zero Ad Bloat',
+  'Meal scan and the cardio console',
+  'Coach programs and the video vault',
+  'Radar and the rest of Club Pass',
 ];
 
 export const ClubPassPaywallModal: React.FC = () => {
-  const { isPaywallOpen, closePaywall, gatedFeature } = useSubscription();
+  const { isPaywallOpen, closePaywall } = useSubscription();
   const [selectedTier, setSelectedTier] = useState(TIERS[0].id);
   const [isPurchasing, setIsPurchasing] = useState(false);
   const [isRestoring, setIsRestoring] = useState(false);
@@ -56,26 +54,19 @@ export const ClubPassPaywallModal: React.FC = () => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/70 o1-sheet-scrim flex items-center justify-center select-none animate-in fade-in duration-150">
-      <div className="o1-sheet-card bg-o1-card border border-white/[0.07] overflow-hidden flex flex-col">
+    <div className="fixed inset-0 z-[80] bg-black o1-sheet-scrim o1-sheet-cover flex items-end justify-center select-none">
+      <div className="o1-sheet-card o1-sheet-tall bg-o1-card border border-white/[0.07] overflow-hidden flex flex-col">
         <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.05] bg-o1-card">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-xl bg-o1-well border border-white/[0.07] flex items-center justify-center text-zinc-400"><Sparkles className="w-4 h-4" /></div>
             <div>
-              <h2 className="text-sm font-tactical font-black uppercase text-white tracking-wider">O1 CLUB PASS PRO</h2>
-              <p className="text-[10px] font-mono text-zinc-400">REVENUECAT IN-APP PURCHASES</p>
+              <h2 className="text-sm font-sans font-semibold text-white">Club Pass</h2>
             </div>
           </div>
           <button onClick={closePaywall} className="p-1.5 text-neutral-400 hover:text-white rounded-full cursor-pointer transition"><X className="w-5 h-5" /></button>
         </div>
 
         <div className="p-4 overflow-y-auto space-y-3 bg-o1-card flex-1 min-h-0">
-          {gatedFeature && (
-            <div className="p-2.5 rounded-xl bg-o1-well border border-white/[0.07] text-zinc-400 text-xs font-mono flex items-center gap-2">
-              <Zap className="w-4 h-4 text-zinc-400 shrink-0" />
-              <span>Unlock <strong className="text-white">{gatedFeature}</strong> with Pro</span>
-            </div>
-          )}
           <div className="space-y-1.5 py-0.5">
             {PERKS.map((p, i) => (
               <div key={i} className="flex items-center gap-2 text-xs font-mono text-neutral-200">
@@ -115,12 +106,12 @@ export const ClubPassPaywallModal: React.FC = () => {
           <button
             onClick={handleNativePurchase}
             disabled={isPurchasing}
-            className="w-full py-3.5 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover text-white font-tactical font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer shadow-md active:scale-98 transition disabled:opacity-50"
+            className="w-full py-3.5 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover text-white font-tactical font-black text-xs tracking-wider flex items-center justify-center gap-2 cursor-pointer shadow-md active:scale-98 transition disabled:opacity-50"
           >
             {isPurchasing ? (
               <>
                 <Loader2 className="w-4 h-4 animate-spin text-white" />
-                <span>CONNECTING TO STORE BILLING...</span>
+                <span>Connecting to store billing...</span>
               </>
             ) : (
               <>

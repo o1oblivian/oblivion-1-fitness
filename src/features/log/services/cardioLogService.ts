@@ -50,7 +50,7 @@ export async function persistCardioLog(entry: {
     distanceKm: entry.distanceKm,
     durationMinutes: entry.durationMinutes,
     burnedKcal: entry.burnedKcal,
-    avgHeartRateBpm: entry.avgHeartRateBpm || 135,
+    avgHeartRateBpm: entry.avgHeartRateBpm && entry.avgHeartRateBpm > 0 ? entry.avgHeartRateBpm : undefined,
     steps: entry.steps,
     dateKey,
     timestamp: nowIso,
@@ -73,8 +73,8 @@ export async function persistCardioLog(entry: {
       distanceKm: entry.distanceKm,
       durationMinutes: entry.durationMinutes,
       burnedKcal: entry.burnedKcal,
-      avgHeartRateBpm: entry.avgHeartRateBpm || 135,
-      zone2Minutes: Math.round(entry.durationMinutes * 0.75),
+      avgHeartRateBpm: entry.avgHeartRateBpm && entry.avgHeartRateBpm > 0 ? entry.avgHeartRateBpm : 0,
+      zone2Minutes: 0,
     });
 
     useLogStore.getState().updateSubModule('cardio', {
@@ -82,8 +82,8 @@ export async function persistCardioLog(entry: {
       distanceKm: entry.distanceKm,
       durationMinutes: entry.durationMinutes,
       burnedKcal: entry.burnedKcal,
-      avgHeartRateBpm: entry.avgHeartRateBpm || 135,
-      zone2Minutes: Math.round(entry.durationMinutes * 0.75),
+      avgHeartRateBpm: entry.avgHeartRateBpm && entry.avgHeartRateBpm > 0 ? entry.avgHeartRateBpm : 0,
+      zone2Minutes: 0,
     });
 
     if (entry.steps && entry.steps > 0) {
@@ -95,21 +95,21 @@ export async function persistCardioLog(entry: {
 
   // 3. Map properly into completed_sessions on Supabase
   try {
-    const sessionPayload = {
+    const sessionPayload: Record<string, unknown> = {
       id: cardioRecord.id,
       user_id: userId,
       client_id: userId,
-      title: `Cardio: ${entry.activityType} (${entry.distanceKm} km · ${entry.burnedKcal} kcal)`,
-      session_name: `Cardio: ${entry.activityType} (${entry.distanceKm} km · ${entry.burnedKcal} kcal)`,
-      duration_seconds: Math.round(entry.durationMinutes * 60),
+      title: `Cardio: ${entry.activityType}`,
+      session_name: `Cardio: ${entry.activityType}`,
       tonnage_kg: 0,
       volume_kg: 0,
       total_sets: 1,
-      strain: +(8.0 + (entry.burnedKcal / 250)).toFixed(1),
       completed_at: nowIso,
       created_at: nowIso,
     };
+    if (entry.durationMinutes > 0) sessionPayload.duration_seconds = Math.round(entry.durationMinutes * 60);
 
+    const heartRate = entry.avgHeartRateBpm && entry.avgHeartRateBpm > 0 ? entry.avgHeartRateBpm : null;
     await Promise.allSettled([
       supabase.from('completed_sessions').insert([sessionPayload]),
       supabase.from('cardio_logs').insert([{
@@ -119,7 +119,7 @@ export async function persistCardioLog(entry: {
         distance_km: entry.distanceKm,
         duration_minutes: entry.durationMinutes,
         burned_kcal: entry.burnedKcal,
-        avg_heart_rate_bpm: entry.avgHeartRateBpm || 135,
+        avg_heart_rate_bpm: heartRate,
         steps: entry.steps || 0,
         created_at: nowIso,
       }]),

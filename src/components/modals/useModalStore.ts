@@ -10,6 +10,7 @@ import {
   BioSyncPayload,
   GenericToastPayload,
   ProgramReelsStoryPayload,
+  EliteReelsPayload,
 } from './types';
 import { tactileEngine } from '../../services/tactileEngine';
 
@@ -26,7 +27,7 @@ export interface ModalStoreActions {
   closeModal: () => void;
   openSettings: (payload?: GenericToastPayload) => void;
   openBiometricSheet: (payload?: GenericToastPayload) => void;
-  openFullEliteReels: () => void;
+  openFullEliteReels: (options?: 'grid' | 'player' | EliteReelsPayload) => void;
   openCardioScanner: (payload?: CardioScannerPayload) => void;
   openMealScanner: (payload?: MealScannerPayload) => void;
   openTravelPass: (payload?: TravelPassPayload) => void;
@@ -68,8 +69,9 @@ const modalStore = createStore<ModalStoreState, ModalStoreActions>(
       modalStore.actions.openModal('BIOMETRIC_SHEET', payload || {});
     },
 
-    openFullEliteReels: () => {
-      modalStore.actions.openModal('FULL_ELITE_REELS', {});
+    openFullEliteReels: (options?: 'grid' | 'player' | EliteReelsPayload) => {
+      const payload = typeof options === 'string' ? { initialMode: options } : (options || { initialMode: 'player' as const });
+      modalStore.actions.openModal('FULL_ELITE_REELS', payload);
     },
 
     openCardioScanner: (payload) => {

@@ -20,11 +20,24 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,500;1,600&display=swap" rel="stylesheet">
-    <style>html,body,#root{-webkit-tap-highlight-color:transparent;touch-action:manipulation;border:none;width:100%;min-height:100%;margin:0;padding:0;overflow-x:hidden;background-color:#09090b!important}</style>
-    <script type="module" crossorigin src="/assets/index-okkUme65.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-BHJKd5Ip.css">
+    <style>:root{--sat:env(safe-area-inset-top,0px);--sab:env(safe-area-inset-bottom,0px)}html,body{-webkit-tap-highlight-color:transparent;touch-action:manipulation;-webkit-overflow-scrolling:touch;width:100%;max-width:100%;min-height:100dvh;margin:0;padding:0;overflow-x:hidden}#root{color:#171717;-webkit-font-smoothing:antialiased;-webkit-user-select:none;user-select:none;background-color:#f4f4f7;flex-direction:column;width:100%;max-width:28rem;min-height:100dvh;max-height:100dvh;margin:0 auto;display:flex;overflow-x:hidden}html.dark #root{color:#fafafa;background-color:#09090b}</style>
+    <script type="module" crossorigin src="/assets/index-ggW4-4ry.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-DwIYFv4m.css">
   </head>
   <body class="bg-[#09090b] text-neutral-100 antialiased select-none overflow-x-hidden m-0 p-0 border-0">
-    <div id="root"></div>
+    <div id="root" class="w-full max-w-md mx-auto min-h-[100dvh] max-h-[100dvh] overflow-x-hidden flex flex-col bg-[#F4F4F7] dark:bg-neutral-950 text-neutral-900 dark:text-white antialiased select-none">
+      <p style="color:#a3a3a3;font-family:system-ui,sans-serif;font-size:13px;padding:24px;text-align:center;margin:0;">Loading Oblivion 1…</p>
+    </div>
+    <script>
+      window.addEventListener('error', function (event) {
+        var root = document.getElementById('root');
+        if (!root || root.getAttribute('data-o1-mounted') === '1') return;
+        var msg = (event && event.message) ? event.message : 'Unknown script error';
+        var file = event.filename || '';
+        var line = event.lineno || '';
+        root.innerHTML = '<div style="color:#fcd34d;font-family:monospace;font-size:12px;padding:20px;white-space:pre-wrap;word-break:break-word;">' +
+          msg.replace(/</g, '&lt;') + '\n' + file + (line ? (':' + line) : '') + '</div>';
+      });
+    </script>
   </body>
 </html>

@@ -60,11 +60,11 @@ export const DialInputModal: React.FC<DialInputModalProps> = ({
       onClick={onClose}
     >
       <div
-        className="relative w-full max-w-[340px] bg-o1-card text-neutral-100 rounded-2xl p-5 shadow-2xl border border-white/[0.07] flex flex-col items-center space-y-3"
+        className="o1-dial-shell relative w-full max-w-[340px] bg-o1-card text-neutral-100 rounded-2xl shadow-2xl border border-white/[0.07] flex flex-col items-center"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="w-full flex items-center justify-between">
-          <span className="text-[11px] font-tactical font-bold tracking-[0.14em] uppercase text-neutral-400">
+          <span className="text-[11px] font-tactical font-bold tracking-[0.14em] text-neutral-400">
             {config.title}
           </span>
           <div className="flex items-center gap-1.5">

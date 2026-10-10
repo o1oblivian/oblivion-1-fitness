@@ -1,109 +1,92 @@
 import React, { useState } from 'react';
-import { Send, Radio } from 'lucide-react';
 import { DIRECTIVES_LIST, DirectiveItem } from '../types/coachDirectives';
 import { tactileEngine } from '../../../services/tactileEngine';
 
 export { DIRECTIVES_LIST };
 export type { DirectiveItem };
 
+export interface NoteDraft {
+  tag: DirectiveItem['tag'];
+  title: string;
+  summary: string;
+}
+
 export interface DirectiveSignalsSectionProps {
   directives?: DirectiveItem[];
-  onDeployDirective: (dir: DirectiveItem) => void;
+  onSendNote: (draft: NoteDraft) => void;
 }
+
+const SIGNAL_FILTERS = ['RECOVERY', 'TRAINING', 'NUTRITION', 'PERFORMANCE'] as const;
 
 export const DirectiveSignalsSection: React.FC<DirectiveSignalsSectionProps> = ({
   directives = [],
-  onDeployDirective,
+  onSendNote,
 }) => {
-  const [selectedTag, setSelectedTag] = useState<string>('ALL');
-  const activeList = directives;
-  const filtered = activeList.filter((d) => (selectedTag === 'ALL' ? true : d.tag === selectedTag));
+  const [text, setText] = useState('');
+  const [filter, setFilter] = useState<(typeof SIGNAL_FILTERS)[number]>('TRAINING');
+  const visible = directives.filter((dir) => dir.tag === filter);
+
+  const send = () => {
+    const clean = text.trim();
+    if (!clean) return;
+    tactileEngine.triggerImpactPulse();
+    onSendNote({
+      tag: filter,
+      title: clean.slice(0, 80),
+      summary: clean,
+    });
+    setText('');
+  };
 
   return (
-    <div className="p-4 rounded-2xl bg-o1-card border border-white/[0.07] text-neutral-100 space-y-3 shadow-md select-none transition-colors">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Radio className="w-4 h-4 text-o1-crimson animate-pulse" />
-          <div>
-            <span className="text-[10px] font-tactical uppercase text-neutral-500 font-semibold tracking-wide block">
-              Broadcast Channel
-            </span>
-            <h3 className="text-xs font-bold uppercase tracking-wider text-white font-tactical">
-              Directive Signals
-            </h3>
-          </div>
-        </div>
-        <span className="text-[10px] font-tactical text-neutral-400 font-medium tabular-nums">
-          {filtered.length} Directives
-        </span>
-      </div>
-
-      <div className="-mx-4 px-4 flex items-center gap-2 overflow-x-auto overscroll-x-contain no-scrollbar scrollbar-none after:w-2 after:shrink-0 after:content-['']">
-        {(['ALL', 'RECOVERY', 'TRAINING', 'NUTRITION', 'PERFORMANCE'] as const).map((tag) => (
+    <div className="space-y-2">
+      <p className="px-1 text-[11px] font-semibold tracking-wide text-[#8A887F]">BROADCAST CHANNEL // DIRECTIVE SIGNALS</p>
+      <div className="flex gap-1.5 overflow-x-auto px-1">
+        {SIGNAL_FILTERS.map((pill) => (
           <button
-            key={tag}
+            key={pill}
+            type="button"
             onClick={() => {
               tactileEngine.triggerSelectionBuzz();
-              setSelectedTag(tag);
+              setFilter(pill);
             }}
-            className={`px-2.5 py-1 rounded-xl text-[10px] font-tactical font-semibold uppercase whitespace-nowrap shrink-0 transition-all border cursor-pointer ${
-              selectedTag === tag
-                ? 'bg-o1-crimson text-white border-o1-crimson'
-                : 'bg-o1-well text-neutral-400 border-white/[0.07] hover:text-white'
+            className={`o1-pill shrink-0 text-[11px] font-semibold active:scale-[0.98] ${
+              filter === pill ? 'bg-white text-neutral-950' : 'border border-[#1F1F1F] bg-[#0E0E0E] text-[#EAE8DF]'
             }`}
           >
-            {tag}
+            {pill}
           </button>
         ))}
       </div>
-
-      {filtered.length === 0 ? (
-        <div className="p-6 rounded-2xl bg-o1-well border border-dashed border-white/[0.07] text-center space-y-2">
-          <Radio className="w-5 h-5 text-neutral-500 mx-auto" />
-          <h4 className="text-xs font-bold text-neutral-300 font-tactical uppercase tracking-wider">
-            NO RECORDS FOUND // SYNCHRONIZING...
-          </h4>
-          <p className="text-xs text-neutral-500 font-sans max-w-xs mx-auto leading-relaxed">
-            Broadcast channel idle · Directives stream directly from database
-          </p>
+      <form
+        className="flex gap-2"
+        onSubmit={(event) => {
+          event.preventDefault();
+          send();
+        }}
+      >
+        <input
+          value={text}
+          onChange={(event) => setText(event.target.value)}
+          placeholder="Note for the roster"
+          className="h-[44px] min-w-0 flex-1 rounded-xl border border-white/[0.07] bg-[#161616] px-3 text-[13px] text-white outline-none"
+        />
+        <button
+          type="submit"
+          disabled={!text.trim()}
+          className="h-[44px] rounded-xl bg-white px-4 text-[13px] font-semibold text-neutral-950 disabled:opacity-40"
+        >
+          Send
+        </button>
+      </form>
+      {visible.map((dir) => (
+        <div key={dir.id} className="rounded-2xl border border-white/[0.07] bg-o1-card px-3 py-3">
+          <p className="text-[13px] font-semibold text-white">{dir.title}</p>
+          {dir.summary && dir.summary !== dir.title ? (
+            <p className="mt-1 text-[12px] text-neutral-400">{dir.summary}</p>
+          ) : null}
         </div>
-      ) : (
-        <div className="space-y-2 pt-1">
-          {filtered.map((dir) => (
-            <div
-              key={dir.id}
-              className="p-3 rounded-2xl bg-o1-well border border-white/[0.07] space-y-2"
-            >
-              <div className="flex items-center justify-between">
-                <span
-                  className={`text-[10px] font-tactical font-semibold px-2 py-0.5 rounded-md border uppercase ${dir.badgeStyle}`}
-                >
-                  {dir.tag}
-                </span>
-                <span className="text-[10px] font-tactical text-neutral-400 tabular-nums">
-                  Affects {dir.affectedCount} Athletes
-                </span>
-              </div>
-              <h4 className="font-tactical font-bold text-xs uppercase text-white">
-                {dir.title}
-              </h4>
-              <p className="text-xs text-neutral-400 leading-relaxed font-sans">
-                {dir.summary}
-              </p>
-              <button
-                onClick={() => {
-                  tactileEngine.triggerImpactPulse();
-                  onDeployDirective(dir);
-                }}
-                className="w-full py-2 px-3 rounded-xl bg-o1-card hover:bg-o1-well border border-white/[0.07] text-neutral-200 text-[10px] font-tactical font-semibold uppercase tracking-wider flex items-center justify-center gap-1.5 active:scale-95 transition-all cursor-pointer shadow-xs"
-              >
-                <Send className="w-3 h-3 text-o1-crimson" />
-                <span>DEPLOY DIRECTIVE</span>
-              </button>
-            </div>
-          ))}
-        </div>
-      )}
+      ))}
     </div>
   );
 };

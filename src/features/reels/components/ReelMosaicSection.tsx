@@ -1,7 +1,9 @@
 import React from 'react';
 import { Play } from 'lucide-react';
-import { ExploreReelItem, FilmstripClip } from '../../../data/reelsExploreCatalog';
+import { ExploreReelItem, FilmstripClip } from '../reelTypes';
 import { tactileEngine } from '../../../services/tactileEngine';
+import { nextReelCover, reelCover } from '../coverPresets';
+import { isPlayableClip } from '../reelClips';
 
 export interface ReelPostItem {
   id: string;
@@ -16,45 +18,75 @@ interface ReelMosaicSectionProps {
   onSelectReel: (reel: ExploreReelItem, clip?: FilmstripClip) => void;
 }
 
+function ReelTile({
+  item,
+  shape,
+  onSelect,
+}: {
+  item: ReelPostItem;
+  shape: string;
+  onSelect: (item: ReelPostItem) => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={() => onSelect(item)}
+      aria-label={item.clip ? `Play ${item.reel.title}, ${item.clip.title}` : `Play ${item.reel.title}`}
+      className={`group relative block w-full ${shape} cursor-pointer overflow-hidden rounded-2xl border border-white/[0.07] bg-[#0E0E0E] shadow-md transition-transform duration-200 active:scale-[0.98] focus-visible:outline focus-visible:outline-2 focus-visible:outline-white`}
+    >
+      <img
+        src={item.thumbnail}
+        alt=""
+        className="h-full w-full rounded-2xl object-cover object-center transition-transform duration-500 group-hover:scale-105"
+        loading="lazy"
+        onError={(event) => {
+          const img = event.currentTarget;
+          if (img.dataset.cover === '1') return;
+          img.dataset.cover = '1';
+          img.src = nextReelCover(img.src);
+        }}
+      />
+      <span className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-transparent" />
+      <span className="pointer-events-none absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded-full border border-white/[0.07] bg-black/40 text-white/90 backdrop-blur-md">
+        <Play className="h-2.5 w-2.5 translate-x-[0.5px] fill-white/90" />
+      </span>
+    </button>
+  );
+}
+
 export const ReelMosaicSection: React.FC<ReelMosaicSectionProps> = ({ reels, onSelectReel }) => {
-  // Flatten reels and their filmstrip clips into rich individual post items
   const postItems = React.useMemo(() => {
     const items: ReelPostItem[] = [];
-
     reels.forEach((reel) => {
-      // Primary reel post
       items.push({
         id: `${reel.id}-main`,
         reel,
-        thumbnail: reel.thumbnail,
+        thumbnail: reelCover(reel.id, reel.thumbnail),
         videoUrl: reel.videoUrl,
       });
-
-      // Individual filmstrip clips
-      if (reel.filmstripClips && reel.filmstripClips.length > 0) {
-        reel.filmstripClips.forEach((clip, idx) => {
-          if (clip.thumbnail !== reel.thumbnail || idx > 0) {
-            items.push({
-              id: `${reel.id}-clip-${clip.id}`,
-              reel,
-              clip,
-              thumbnail: clip.thumbnail,
-              videoUrl: clip.videoUrl,
-            });
-          }
-        });
-      }
+      reel.filmstripClips?.forEach((clip, idx) => {
+        if (isPlayableClip(clip) && (clip.thumbnail !== reel.thumbnail || idx > 0)) {
+          items.push({
+            id: `${reel.id}-clip-${clip.id}`,
+            reel,
+            clip,
+            thumbnail: reelCover(`${reel.id}-${clip.id}`, clip.thumbnail),
+            videoUrl: clip.videoUrl,
+          });
+        }
+      });
     });
-
     return items;
   }, [reels]);
 
-  const handleItemClick = (item: ReelPostItem) => {
+  const select = (item: ReelPostItem) => {
     tactileEngine.triggerSelectionBuzz();
     onSelectReel(item.reel, item.clip);
   };
 
-  // Group into chunks of 5 for dynamic asymmetrical layout with varied shapes
+  const tile = (item: ReelPostItem | undefined, shape: string) =>
+    item ? <ReelTile key={item.id} item={item} shape={shape} onSelect={select} /> : null;
+
   const chunks: ReelPostItem[][] = [];
   for (let i = 0; i < postItems.length; i += 5) {
     chunks.push(postItems.slice(i, i + 5));
@@ -62,205 +94,50 @@ export const ReelMosaicSection: React.FC<ReelMosaicSectionProps> = ({ reels, onS
 
   if (postItems.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-20 px-4 text-center">
-        <div className="w-12 h-12 rounded-2xl bg-o1-card border border-white/[0.07] flex items-center justify-center text-neutral-500 mb-3 shadow-sm">
-          <Play className="w-5 h-5 opacity-40" />
+      <div className="flex flex-col items-center justify-center px-4 py-20 text-center">
+        <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl border border-white/[0.07] bg-o1-card text-neutral-500 shadow-sm">
+          <Play className="h-5 w-5 opacity-40" />
         </div>
-        <h4 className="text-xs font-mono font-bold text-neutral-400 uppercase tracking-widest">
-          NO POSTS FOUND IN THIS CATEGORY
+        <h4 className="font-mono text-xs font-bold tracking-widest text-neutral-400">
+          No posts found in this category
         </h4>
       </div>
     );
   }
 
   return (
-    <div className="w-full space-y-2 pb-6 select-none">
+    <div className="w-full select-none space-y-2 pb-6">
       {chunks.map((chunk, chunkIdx) => {
-        const isAlternate = chunkIdx % 2 === 1;
-        const trio = chunk.slice(0, 3);
-        const duoOrSingle = chunk.slice(3, 5);
-
+        const alternate = chunkIdx % 2 === 1;
+        const [a, b, c, d, e] = chunk;
         return (
           <div key={`mosaic-chunk-${chunkIdx}`} className="space-y-2">
-            {/* Pattern 1: Asymmetrical Pillar & Stack Duo (Varied Shapes) */}
-            {trio.length > 0 && (
-              <div className="grid grid-cols-2 gap-2">
-                {!isAlternate ? (
-                  // Left tall 4:5 vertical | Right 2 stacked cards
-                  <>
-                    {trio[0] && (
-                      <div
-                        onClick={() => handleItemClick(trio[0])}
-                        className="group relative w-full aspect-[4/5] rounded-2xl overflow-hidden bg-o1-well cursor-pointer border border-white/[0.07] active:scale-[0.98] transition-transform duration-200 shadow-md"
-                      >
-                        <img
-                          src={trio[0].thumbnail}
-                          alt=""
-                          className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500 rounded-2xl"
-                          loading="lazy"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
-                        <div className="absolute top-2.5 right-2.5 w-6 h-6 rounded-full bg-black/40 backdrop-blur-md border border-white/[0.07] flex items-center justify-center text-white/90 pointer-events-none shadow-sm">
-                          <Play className="w-2.5 h-2.5 fill-white/90 translate-x-[0.5px]" />
-                        </div>
-                      </div>
-                    )}
-
-                    <div className="flex flex-col gap-2 justify-between">
-                      {trio[1] && (
-                        <div
-                          onClick={() => handleItemClick(trio[1])}
-                          className="group relative w-full aspect-[16/10] rounded-2xl overflow-hidden bg-o1-well cursor-pointer border border-white/[0.07] active:scale-[0.98] transition-transform duration-200 shadow-md"
-                        >
-                          <img
-                            src={trio[1].thumbnail}
-                            alt=""
-                            className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500 rounded-2xl"
-                            loading="lazy"
-                          />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
-                          <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-black/40 backdrop-blur-md border border-white/[0.07] flex items-center justify-center text-white/90 pointer-events-none shadow-sm">
-                            <Play className="w-2 h-2 fill-white/90 translate-x-[0.5px]" />
-                          </div>
-                        </div>
-                      )}
-
-                      {trio[2] && (
-                        <div
-                          onClick={() => handleItemClick(trio[2])}
-                          className="group relative w-full aspect-[16/10] rounded-2xl overflow-hidden bg-o1-well cursor-pointer border border-white/[0.07] active:scale-[0.98] transition-transform duration-200 shadow-md"
-                        >
-                          <img
-                            src={trio[2].thumbnail}
-                            alt=""
-                            className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500 rounded-2xl"
-                            loading="lazy"
-                          />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
-                          <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-black/40 backdrop-blur-md border border-white/[0.07] flex items-center justify-center text-white/90 pointer-events-none shadow-sm">
-                            <Play className="w-2 h-2 fill-white/90 translate-x-[0.5px]" />
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </>
-                ) : (
-                  // Left 2 stacked cards | Right tall 4:5 vertical
-                  <>
-                    <div className="flex flex-col gap-2 justify-between">
-                      {trio[0] && (
-                        <div
-                          onClick={() => handleItemClick(trio[0])}
-                          className="group relative w-full aspect-[16/10] rounded-2xl overflow-hidden bg-o1-well cursor-pointer border border-white/[0.07] active:scale-[0.98] transition-transform duration-200 shadow-md"
-                        >
-                          <img
-                            src={trio[0].thumbnail}
-                            alt=""
-                            className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500 rounded-2xl"
-                            loading="lazy"
-                          />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
-                          <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-black/40 backdrop-blur-md border border-white/[0.07] flex items-center justify-center text-white/90 pointer-events-none shadow-sm">
-                            <Play className="w-2 h-2 fill-white/90 translate-x-[0.5px]" />
-                          </div>
-                        </div>
-                      )}
-
-                      {trio[1] && (
-                        <div
-                          onClick={() => handleItemClick(trio[1])}
-                          className="group relative w-full aspect-[16/10] rounded-2xl overflow-hidden bg-o1-well cursor-pointer border border-white/[0.07] active:scale-[0.98] transition-transform duration-200 shadow-md"
-                        >
-                          <img
-                            src={trio[1].thumbnail}
-                            alt=""
-                            className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500 rounded-2xl"
-                            loading="lazy"
-                          />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
-                          <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-black/40 backdrop-blur-md border border-white/[0.07] flex items-center justify-center text-white/90 pointer-events-none shadow-sm">
-                            <Play className="w-2 h-2 fill-white/90 translate-x-[0.5px]" />
-                          </div>
-                        </div>
-                      )}
-                    </div>
-
-                    {trio[2] && (
-                      <div
-                        onClick={() => handleItemClick(trio[2])}
-                        className="group relative w-full aspect-[4/5] rounded-2xl overflow-hidden bg-o1-well cursor-pointer border border-white/[0.07] active:scale-[0.98] transition-transform duration-200 shadow-md"
-                      >
-                        <img
-                          src={trio[2].thumbnail}
-                          alt=""
-                          className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500 rounded-2xl"
-                          loading="lazy"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
-                        <div className="absolute top-2.5 right-2.5 w-6 h-6 rounded-full bg-black/40 backdrop-blur-md border border-white/[0.07] flex items-center justify-center text-white/90 pointer-events-none shadow-sm">
-                          <Play className="w-2.5 h-2.5 fill-white/90 translate-x-[0.5px]" />
-                        </div>
-                      </div>
-                    )}
-                  </>
-                )}
-              </div>
-            )}
-
-            {/* Pattern 2: Cinematic Horizon or Asymmetric Duo */}
-            {duoOrSingle.length === 1 && (
-              <div
-                onClick={() => handleItemClick(duoOrSingle[0])}
-                className="group relative w-full aspect-[16/9] rounded-2xl overflow-hidden bg-o1-well cursor-pointer border border-white/[0.07] active:scale-[0.99] transition-transform duration-200 shadow-md"
-              >
-                <img
-                  src={duoOrSingle[0].thumbnail}
-                  alt=""
-                  className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500 rounded-2xl"
-                  loading="lazy"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
-                <div className="absolute top-2.5 right-2.5 w-6 h-6 rounded-full bg-black/40 backdrop-blur-md border border-white/[0.07] flex items-center justify-center text-white/90 pointer-events-none shadow-sm">
-                  <Play className="w-2.5 h-2.5 fill-white/90 translate-x-[0.5px]" />
-                </div>
-              </div>
-            )}
-
-            {duoOrSingle.length === 2 && (
+            <div className="grid grid-cols-2 gap-2">
+              {alternate ? (
+                <>
+                  <div className="flex flex-col justify-between gap-2">
+                    {tile(a, 'aspect-[16/10]')}
+                    {tile(b, 'aspect-[16/10]')}
+                  </div>
+                  {tile(c, 'aspect-[4/5]')}
+                </>
+              ) : (
+                <>
+                  {tile(a, 'aspect-[4/5]')}
+                  <div className="flex flex-col justify-between gap-2">
+                    {tile(b, 'aspect-[16/10]')}
+                    {tile(c, 'aspect-[16/10]')}
+                  </div>
+                </>
+              )}
+            </div>
+            {d && !e ? tile(d, 'aspect-[16/9]') : null}
+            {d && e ? (
               <div className="grid grid-cols-12 gap-2">
-                <div
-                  onClick={() => handleItemClick(duoOrSingle[0])}
-                  className="col-span-7 group relative w-full aspect-[16/11] rounded-2xl overflow-hidden bg-o1-well cursor-pointer border border-white/[0.07] active:scale-[0.98] transition-transform duration-200 shadow-md"
-                >
-                  <img
-                    src={duoOrSingle[0].thumbnail}
-                    alt=""
-                    className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500 rounded-2xl"
-                    loading="lazy"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
-                  <div className="absolute top-2.5 right-2.5 w-6 h-6 rounded-full bg-black/40 backdrop-blur-md border border-white/[0.07] flex items-center justify-center text-white/90 pointer-events-none shadow-sm">
-                    <Play className="w-2.5 h-2.5 fill-white/90 translate-x-[0.5px]" />
-                  </div>
-                </div>
-
-                <div
-                  onClick={() => handleItemClick(duoOrSingle[1])}
-                  className="col-span-5 group relative w-full aspect-[4/3] rounded-2xl overflow-hidden bg-o1-well cursor-pointer border border-white/[0.07] active:scale-[0.98] transition-transform duration-200 shadow-md"
-                >
-                  <img
-                    src={duoOrSingle[1].thumbnail}
-                    alt=""
-                    className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500 rounded-2xl"
-                    loading="lazy"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
-                  <div className="absolute top-2.5 right-2.5 w-6 h-6 rounded-full bg-black/40 backdrop-blur-md border border-white/[0.07] flex items-center justify-center text-white/90 pointer-events-none shadow-sm">
-                    <Play className="w-2.5 h-2.5 fill-white/90 translate-x-[0.5px]" />
-                  </div>
-                </div>
+                <div className="col-span-7">{tile(d, 'aspect-[16/11]')}</div>
+                <div className="col-span-5">{tile(e, 'aspect-[4/3]')}</div>
               </div>
-            )}
+            ) : null}
           </div>
         );
       })}

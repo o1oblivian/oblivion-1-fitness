@@ -39,7 +39,7 @@ export const MondaySplitDial: React.FC<DialComponentProps> = ({
           <span className="block text-[48px] leading-none font-semibold tracking-tight text-white tabular-nums" style={heroShadow}>
             {fmtInt(steps)}
           </span>
-          <span className="mt-2 block text-[9px] font-medium tracking-[0.28em] uppercase text-white/55">Steps</span>
+          <span className="mt-2 block text-[9px] font-medium tracking-[0.28em] text-white/55">Steps</span>
         </div>
       </div>
 
@@ -47,7 +47,7 @@ export const MondaySplitDial: React.FC<DialComponentProps> = ({
         {rails.map((row) => (
           <div key={row.label}>
             <div className="flex items-baseline justify-between mb-1">
-              <span className="text-[8px] tracking-[0.18em] uppercase text-white/45">{row.label}</span>
+              <span className="text-[8px] tracking-[0.18em] text-white/45">{row.label}</span>
               <span className="text-[12px] font-medium tabular-nums text-white">{row.value}</span>
             </div>
             <div className="h-[1.5px] w-full rounded-full overflow-hidden" style={{ background: HAIR_SOFT }}>

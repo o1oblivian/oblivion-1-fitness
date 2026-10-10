@@ -1,5 +1,7 @@
 import express from 'express';
+import os from 'os';
 import path from 'path';
+import { createRequire } from 'module';
 import { createServer as createViteServer } from 'vite';
 import { createClient } from '@supabase/supabase-js';
 import { GoogleGenAI } from '@google/genai';
@@ -1348,7 +1350,51 @@ Respond ONLY with a valid JSON object matching this schema:
   // =========================================================================
   // VITE MIDDLEWARE / STATIC ASSETS
   // =========================================================================
+  const phoneHost = lanIPv4();
   if (process.env.NODE_ENV !== 'production') {
+    const require = createRequire(import.meta.url);
+    app.get('/preview-look', (_req, res) => {
+      const clearing = _req.query.clear === '1';
+      const previewPath = require.resolve('./scripts/preview.cjs');
+      delete require.cache[previewPath];
+      const pack = clearing ? null : require('./scripts/preview.cjs').bundle();
+      const payload = JSON.stringify(pack || {}).replace(/</g, '\\u003c');
+      res.type('html').send(`<!doctype html><meta name="viewport" content="width=device-width,initial-scale=1"><title>Preview</title><body style="background:#000;color:#fff;font-family:sans-serif;padding:24px"><p>${clearing ? 'Preview rows removed. Returning to the app.' : 'Preview rows saved on this phone. Returning to the app.'}</p><script>
+        const pack = ${payload};
+        const drop = (key) => {
+          const prev = JSON.parse(localStorage.getItem(key) || '[]');
+          const list = Array.isArray(prev) ? prev.filter((row) => !String(row && row.id || '').startsWith('preview-')) : [];
+          if (list.length) localStorage.setItem(key, JSON.stringify(list));
+          else localStorage.removeItem(key);
+        };
+        if (${clearing ? 'true' : 'false'}) {
+          ['o1fc_custom_coach_clients','o1fc_day_checkins_v1','o1_finished_workouts_v1','o1_coach_custom_programs','o1_coach_notes_local','o1_coach_messages_local','o1_buddy_local'].forEach(drop);
+          localStorage.removeItem('o1_assigned_local');
+          const backup = localStorage.getItem('o1_preview_link_backup');
+          if (backup) localStorage.setItem('o1_my_coach', backup); else localStorage.removeItem('o1_my_coach');
+          localStorage.removeItem('o1_preview_link_backup');
+        } else {
+          const keep = (key, rows) => {
+            const prev = JSON.parse(localStorage.getItem(key) || '[]');
+            const list = Array.isArray(prev) ? prev.filter((row) => !String(row && row.id || '').startsWith('preview-')) : [];
+            localStorage.setItem(key, JSON.stringify(rows.concat(list)));
+          };
+          keep('o1fc_custom_coach_clients', pack.athletes);
+          const day = new Date().toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
+          keep('o1fc_day_checkins_v1', pack.checkins.map((row) => Object.assign({}, row, { date: day })));
+          keep('o1_finished_workouts_v1', pack.finished);
+          keep('o1_coach_custom_programs', pack.programs);
+          keep('o1_coach_notes_local', pack.notes);
+          keep('o1_coach_messages_local', pack.messages);
+          keep('o1_buddy_local', pack.buddies);
+          if (localStorage.getItem('o1_preview_link_backup') == null) localStorage.setItem('o1_preview_link_backup', localStorage.getItem('o1_my_coach') || '');
+          const photo = localStorage.getItem('o1_profile_avatar_url') || '';
+          localStorage.setItem('o1_my_coach', JSON.stringify(Object.assign({}, pack.coach, { avatar: photo })));
+          localStorage.setItem('o1_assigned_local', JSON.stringify(pack.assigned));
+        }
+        location.replace('/');
+      </script></body>`);
+    });
     const vite = await createViteServer({
       server: {
         middlewareMode: true,
@@ -1356,7 +1402,7 @@ Respond ONLY with a valid JSON object matching this schema:
         allowedHosts: true as const,
         hmr: process.env.DISABLE_HMR === 'true'
           ? false
-          : { protocol: 'ws', clientPort: PORT },
+          : { protocol: 'ws', host: phoneHost || undefined, clientPort: PORT },
       },
       appType: 'spa',
     });
@@ -1371,7 +1417,22 @@ Respond ONLY with a valid JSON object matching this schema:
 
   app.listen(PORT, '0.0.0.0', () => {
     console.log(`[O1 Fuel OS] Full-stack server active on http://0.0.0.0:${PORT}`);
+    if (phoneHost) console.log(`[O1 Fuel OS] Phone: http://${phoneHost}:${PORT}/`);
   });
+}
+
+function lanIPv4(): string | null {
+  const nets = os.networkInterfaces();
+  const addresses: string[] = [];
+  for (const list of Object.values(nets)) {
+    for (const net of list || []) {
+      const family = String(net.family);
+      if ((family === 'IPv4' || family === '4') && !net.internal) addresses.push(net.address);
+    }
+  }
+  return addresses.find((address) => address.startsWith('10.') || address.startsWith('192.168.'))
+    || addresses.find((address) => !address.startsWith('169.254.'))
+    || null;
 }
 
 startServer().catch((err) => {

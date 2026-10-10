@@ -59,18 +59,18 @@ export const HydrationIntelligenceModal: React.FC<HydrationIntelligenceModalProp
 
   const hydrationStateLabel =
     pct >= 100
-      ? 'PEAK CELLULAR HYDRATION'
+      ? 'Peak Cellular Hydration'
       : pct >= 66
-      ? 'OPTIMAL INTRA-CELLULAR EQUILIBRIUM'
+      ? 'Optimal INTRA-CELLULAR Equilibrium'
       : pct >= 33
-      ? 'MODERATE OSMOTIC RESERVE'
-      : 'DEHYDRATION DEFICIT';
+      ? 'Moderate osmotic reserve'
+      : 'dehydration deficit';
 
   const hydrationStateColor =
     pct >= 100
       ? 'text-emerald-400'
       : pct >= 66
-      ? 'text-[#38bdf8]'
+      ? 'text-[#4F8F9A]'
       : pct >= 33
       ? 'text-amber-400'
       : 'text-red-400';
@@ -95,11 +95,11 @@ export const HydrationIntelligenceModal: React.FC<HydrationIntelligenceModalProp
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="font-tactical font-bold text-sm tracking-wider uppercase text-white">
+                <h3 className="font-tactical font-bold text-sm tracking-wider text-white">
                   Hydration Intelligence
                 </h3>
                 <span className="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-white/10 text-sky-400">
-                  OSMOTIC
+                  Osmotic
                 </span>
               </div>
               <p className="text-[11px] font-mono text-neutral-400">Cellular Fluid Retention &amp; Electrolytes</p>
@@ -119,8 +119,8 @@ export const HydrationIntelligenceModal: React.FC<HydrationIntelligenceModalProp
         <div className="bg-white/[0.03] border border-white/[0.07] rounded-2xl p-4 space-y-3">
           <div className="flex items-start justify-between">
             <div className="space-y-1">
-              <span className="text-[10px] font-mono uppercase tracking-wider text-neutral-400 font-bold block">
-                OSMOTIC FLUID EQUILIBRIUM
+              <span className="text-[10px] font-mono tracking-wider text-neutral-400 font-bold block">
+                Osmotic Fluid Equilibrium
               </span>
               <div className="flex items-baseline gap-2">
                 <span className="text-3xl font-mono font-black text-white tracking-tight">
@@ -128,7 +128,7 @@ export const HydrationIntelligenceModal: React.FC<HydrationIntelligenceModalProp
                 </span>
                 <span className="text-sm font-mono text-neutral-400">/ {targetLiters.toFixed(2)} L</span>
               </div>
-              <span className={`text-[10px] font-mono font-bold uppercase tracking-wider block ${hydrationStateColor}`}>
+              <span className={`text-[10px] font-mono font-bold tracking-wider block ${hydrationStateColor}`}>
                 {hydrationStateLabel}
               </span>
             </div>
@@ -136,7 +136,7 @@ export const HydrationIntelligenceModal: React.FC<HydrationIntelligenceModalProp
             {/* Percentage Badge */}
             <div className="px-3 py-1.5 rounded-xl bg-sky-500/10 border border-sky-500/30 text-right">
               <span className="text-lg font-mono font-black text-sky-400 leading-none block">{pct}%</span>
-              <span className="text-[9px] font-mono text-neutral-400 block mt-0.5">TARGET</span>
+              <span className="text-[9px] font-mono text-neutral-400 block mt-0.5">Target</span>
             </div>
           </div>
 
@@ -160,7 +160,7 @@ export const HydrationIntelligenceModal: React.FC<HydrationIntelligenceModalProp
 
         {/* Beverage Coefficient Segment Selector */}
         <div className="space-y-1.5">
-          <div className="flex items-center justify-between text-[10px] font-mono uppercase tracking-wider text-neutral-400">
+          <div className="flex items-center justify-between text-[10px] font-mono tracking-wider text-neutral-400">
             <span>Beverage Hydration Coefficient</span>
             <span className="text-sky-400 font-mono">
               Factor: {getMultiplier()}x
@@ -196,7 +196,7 @@ export const HydrationIntelligenceModal: React.FC<HydrationIntelligenceModalProp
 
         {/* 1-Tap Fast Dispenser Tiles */}
         <div className="space-y-1.5">
-          <span className="text-[10px] font-mono uppercase tracking-wider text-neutral-400">
+          <span className="text-[10px] font-mono tracking-wider text-neutral-400">
             Tactile Volume Dispenser
           </span>
           <div className="grid grid-cols-2 gap-2">
@@ -235,7 +235,7 @@ export const HydrationIntelligenceModal: React.FC<HydrationIntelligenceModalProp
             className="flex-1 py-2.5 px-3 rounded-xl bg-white/[0.03] border border-white/[0.07] hover:bg-white/[0.07] text-xs font-mono font-bold text-neutral-400 hover:text-white flex items-center justify-center gap-1.5 active:scale-95 transition-all cursor-pointer"
           >
             <RotateCcw className="w-3.5 h-3.5" />
-            <span>RESET</span>
+            <span>Reset</span>
           </button>
           <button
             type="button"
@@ -244,7 +244,7 @@ export const HydrationIntelligenceModal: React.FC<HydrationIntelligenceModalProp
               onClose();
               onShowToast?.(`Hydration updated: ${currentLiters.toFixed(2)}L logged.`);
             }}
-            className="flex-2 py-2.5 px-5 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover active:bg-o1-crimson-press text-white text-xs font-tactical font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 active:scale-95 transition-all cursor-pointer shadow-sm"
+            className="flex-2 py-2.5 px-5 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover active:bg-o1-crimson-press text-white text-xs font-tactical font-bold tracking-wider flex items-center justify-center gap-1.5 active:scale-95 transition-all cursor-pointer shadow-sm"
           >
             <span>CONFIRM ({pct}%)</span>
             <ArrowRight className="w-3.5 h-3.5" />

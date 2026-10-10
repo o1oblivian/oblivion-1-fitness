@@ -3,6 +3,7 @@ import { getAuthenticatedUserId } from '../../../services/authUser';
 import { useTelemetryHistoryStore } from '../store/useTelemetryHistoryStore';
 import { useLogStore } from '../../../stores/useLogStore';
 import { useFuelStore, FuelMeals } from '../../fuel/store/useFuelStore';
+import { isForgotten } from './dayLogService';
 
 /**
  * Hydrates past 7 days nutritional telemetry from public.daily_macros
@@ -28,34 +29,34 @@ export async function hydrateMacrosFromSupabase(): Promise<void> {
 
     if (Array.isArray(macroRows) && macroRows.length > 0) {
       for (const m of macroRows) {
-        if (!m.date) continue;
+        if (!m.date || isForgotten(String(m.date).slice(0, 10), 'nutrition')) continue;
         const cal = Number(m.calories) || 0;
         const p = Number(m.protein) || 0;
         const c = Number(m.carbs) || 0;
-        const f = Number(m.fat ?? m.fats ?? 60);
+        const f = Number(m.fat ?? m.fats ?? 0);
 
         useTelemetryHistoryStore.getState().updateDayRecord(m.date, 'nutrition', {
-          hasData: cal > 0 || p > 0,
+          hasData: cal > 0 || p > 0 || c > 0 || f > 0,
           calories: cal,
-          calorieTarget: Number(m.calorie_target) || 2200,
+          calorieTarget: Number(m.calorie_target) || 0,
           proteinG: p,
-          proteinTargetG: Number(m.protein_target) || 165,
+          proteinTargetG: Number(m.protein_target) || 0,
           carbsG: c,
-          carbsTargetG: Number(m.carbs_target) || 250,
+          carbsTargetG: Number(m.carbs_target) || 0,
           fatsG: f,
-          fatsTargetG: Number(m.fat_target ?? m.fats_target ?? 60),
+          fatsTargetG: Number(m.fat_target ?? m.fats_target ?? 0),
         });
 
         if (m.date === todayKey) {
           useLogStore.getState().updateSubModule('nutrition', {
             caloriesConsumed: cal,
-            caloriesTarget: Number(m.calorie_target) || 2200,
+            caloriesTarget: Number(m.calorie_target) || 0,
             proteinG: p,
-            proteinTargetG: Number(m.protein_target) || 165,
+            proteinTargetG: Number(m.protein_target) || 0,
             carbsG: c,
-            carbsTargetG: Number(m.carbs_target) || 250,
+            carbsTargetG: Number(m.carbs_target) || 0,
             fatsG: f,
-            fatsTargetG: Number(m.fat_target ?? m.fats_target ?? 60),
+            fatsTargetG: Number(m.fat_target ?? m.fats_target ?? 0),
           });
         }
       }
@@ -95,7 +96,7 @@ export async function hydrateMacrosFromSupabase(): Promise<void> {
       const currentMeals = useFuelStore.getState().meals;
       const curCount = Object.values(currentMeals).reduce((acc, arr) => acc + arr.length, 0);
       const todayCount = Object.values(todayMeals).reduce((acc, arr) => acc + arr.length, 0);
-      if (curCount === 0 && todayCount > 0) {
+      if (curCount === 0 && todayCount > 0 && !isForgotten(todayKey, 'nutrition')) {
         useFuelStore.setState((prev) => ({ ...prev, meals: todayMeals }));
       }
     }

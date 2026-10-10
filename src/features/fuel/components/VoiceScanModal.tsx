@@ -437,7 +437,7 @@ export const VoiceScanModal: React.FC<VoiceScanModalProps> = ({
         <div className="space-y-1">
           <div className="flex items-center justify-center gap-1.5">
             <span className="w-2 h-2 rounded-full bg-o1-crimson animate-ping" />
-            <span className="text-[10px] font-mono text-o1-crimson uppercase font-bold tracking-widest">
+            <span className="text-[10px] font-mono text-o1-crimson font-bold tracking-widest">
               Live Phone Microphone • {category.toUpperCase()}
             </span>
           </div>
@@ -512,7 +512,7 @@ export const VoiceScanModal: React.FC<VoiceScanModalProps> = ({
 
         {/* Live Spoken Transcript / Text input */}
         <div className="space-y-2 text-left">
-          <label className="text-[11px] font-bold uppercase tracking-wider text-neutral-400 flex items-center justify-between">
+          <label className="text-[11px] font-bold tracking-wider text-neutral-400 flex items-center justify-between">
             <span>Voice Transcript</span>
             {transcript && (
               <button
@@ -563,7 +563,7 @@ export const VoiceScanModal: React.FC<VoiceScanModalProps> = ({
           {/* Quick Voice Suggestions */}
           {!parsedItem && (
             <div className="pt-1">
-              <span className="text-[10px] font-mono text-neutral-400 uppercase tracking-wider block mb-1.5">
+              <span className="text-[10px] font-mono text-neutral-400 tracking-wider block mb-1.5">
                 Quick Voice Prompts (tap to log):
               </span>
               <div className="flex flex-wrap gap-1.5">
@@ -626,7 +626,7 @@ export const VoiceScanModal: React.FC<VoiceScanModalProps> = ({
             {/* Macro Partitioning */}
             <div className="grid grid-cols-3 gap-2 text-center text-xs font-mono bg-black/40 p-2.5 rounded-xl border border-white/[0.07]">
               <div className="space-y-0.5">
-                <span className="text-[10px] text-neutral-400 uppercase font-bold block">Protein</span>
+                <span className="text-[10px] text-neutral-400 font-bold block">Protein</span>
                 {isEditing ? (
                   <input
                     type="number"
@@ -642,7 +642,7 @@ export const VoiceScanModal: React.FC<VoiceScanModalProps> = ({
               </div>
 
               <div className="space-y-0.5 border-x border-white/[0.05]">
-                <span className="text-[10px] text-neutral-400 uppercase font-bold block">Carbs</span>
+                <span className="text-[10px] text-neutral-400 font-bold block">Carbs</span>
                 {isEditing ? (
                   <input
                     type="number"
@@ -658,7 +658,7 @@ export const VoiceScanModal: React.FC<VoiceScanModalProps> = ({
               </div>
 
               <div className="space-y-0.5">
-                <span className="text-[10px] text-neutral-400 uppercase font-bold block">Fats</span>
+                <span className="text-[10px] text-neutral-400 font-bold block">Fats</span>
                 {isEditing ? (
                   <input
                     type="number"
@@ -689,7 +689,7 @@ export const VoiceScanModal: React.FC<VoiceScanModalProps> = ({
                 stopListening();
                 onClose();
               }}
-              className="w-full h-11 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover text-white font-mono text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 shadow-md active:scale-95 transition-all cursor-pointer"
+              className="w-full h-11 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover text-white font-mono text-xs font-bold tracking-wider flex items-center justify-center gap-2 shadow-md active:scale-95 transition-all cursor-pointer"
             >
               <Check className="w-4 h-4 stroke-[3]" />
               <span>Log to {category}</span>

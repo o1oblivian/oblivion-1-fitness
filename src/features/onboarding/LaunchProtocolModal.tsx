@@ -42,7 +42,7 @@ export const LaunchProtocolModal: React.FC<LaunchProtocolModalProps> = ({
         <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.05] bg-black">
           <div className="flex items-center gap-2 font-mono text-xs font-bold text-o1-crimson">
             <span className="w-2 h-2 rounded-full bg-o1-crimson animate-ping" />
-            <span>O1FC PROTOCOL IGNITION</span>
+            <span>O1FC Protocol Ignition</span>
           </div>
           <button
             type="button"
@@ -59,7 +59,7 @@ export const LaunchProtocolModal: React.FC<LaunchProtocolModalProps> = ({
             <div className="inline-flex p-3 rounded-2xl bg-o1-crimson/10 text-o1-crimson border border-o1-crimson/30 mb-1">
               <Sparkles className="w-6 h-6" />
             </div>
-            <h3 className="text-base font-black tracking-tight text-white uppercase font-tactical">
+            <h3 className="text-base font-black tracking-tight text-white font-tactical">
               Training OS Pro Calibrated
             </h3>
             <p className="text-xs font-mono text-neutral-400">
@@ -71,9 +71,9 @@ export const LaunchProtocolModal: React.FC<LaunchProtocolModalProps> = ({
             <button
               type="button"
               onClick={handleLaunch}
-              className="w-full py-4 rounded-full bg-o1-crimson hover:bg-o1-crimson-hover active:scale-[0.98] text-white font-tactical font-bold text-xs uppercase tracking-[0.2em] transition-all shadow-md border border-white/[0.07] flex items-center justify-center gap-2 cursor-pointer"
+              className="w-full py-4 rounded-full bg-o1-crimson hover:bg-o1-crimson-hover active:scale-[0.98] text-white font-tactical font-bold text-xs tracking-[0.2em] transition-all shadow-md border border-white/[0.07] flex items-center justify-center gap-2 cursor-pointer"
             >
-              <span>ENTER TRAINING OS PRO</span>
+              <span>Enter training os pro</span>
               <ArrowRight className="w-4 h-4" />
             </button>
             <p className="text-center text-[10px] font-sans text-neutral-500 flex items-center justify-center gap-1.5 pt-1">

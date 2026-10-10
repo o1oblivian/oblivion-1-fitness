@@ -19,7 +19,7 @@ export const TermsOfServiceModal: React.FC<Props> = ({ isOpen, onClose }) => {
               <FileText className="w-4 h-4 text-o1-crimson" />
             </div>
             <div>
-              <h2 className="text-sm font-black uppercase tracking-wider text-neutral-100">Terms of Service</h2>
+              <h2 className="text-sm font-black tracking-wider text-neutral-100">Terms of Service</h2>
               <p className="text-[10px] font-mono text-neutral-400">Apple &amp; Google Distribution Compliance</p>
             </div>
           </div>
@@ -34,7 +34,7 @@ export const TermsOfServiceModal: React.FC<Props> = ({ isOpen, onClose }) => {
 
         <div className="overflow-y-auto no-scrollbar py-4 space-y-4 text-xs font-mono text-neutral-300 leading-relaxed">
           <div className="py-3 border-b border-white/[0.05] space-y-1.5 last:border-0">
-            <div className="flex items-center gap-1.5 text-[#0EA5E9] font-bold uppercase text-[11px]">
+            <div className="flex items-center gap-1.5 text-[#4F8F9A] font-bold text-[11px]">
               <ShieldCheck className="w-3.5 h-3.5" />
               <span>1. Subscription Billing &amp; Auto-Renewal</span>
             </div>
@@ -44,7 +44,7 @@ export const TermsOfServiceModal: React.FC<Props> = ({ isOpen, onClose }) => {
           </div>
 
           <div className="py-3 border-b border-white/[0.05] space-y-1.5 last:border-0">
-            <div className="flex items-center gap-1.5 text-o1-crimson font-bold uppercase text-[11px]">
+            <div className="flex items-center gap-1.5 text-o1-crimson font-bold text-[11px]">
               <AlertTriangle className="w-3.5 h-3.5" />
               <span>2. Biomechanical &amp; Physical Liability Release</span>
             </div>
@@ -54,7 +54,7 @@ export const TermsOfServiceModal: React.FC<Props> = ({ isOpen, onClose }) => {
           </div>
 
           <div className="py-3 border-b border-white/[0.05] space-y-1.5 last:border-0">
-            <div className="flex items-center gap-1.5 text-emerald-400 font-bold uppercase text-[11px]">
+            <div className="flex items-center gap-1.5 text-emerald-400 font-bold text-[11px]">
               <span>3. Community &amp; Spotter Code of Conduct</span>
             </div>
             <p className="text-[11px] text-neutral-400">
@@ -63,7 +63,7 @@ export const TermsOfServiceModal: React.FC<Props> = ({ isOpen, onClose }) => {
           </div>
 
           <div className="py-3 border-b border-white/[0.05] space-y-1.5 last:border-0">
-            <div className="flex items-center gap-1.5 text-sky-400 font-bold uppercase text-[11px]">
+            <div className="flex items-center gap-1.5 text-sky-400 font-bold text-[11px]">
               <ShieldCheck className="w-3.5 h-3.5" />
               <span>4. Local-First Architecture &amp; Data Ownership</span>
             </div>
@@ -73,7 +73,7 @@ export const TermsOfServiceModal: React.FC<Props> = ({ isOpen, onClose }) => {
           </div>
 
           <div className="py-3 border-b border-white/[0.05] space-y-1.5 last:border-0">
-            <div className="text-[11px] text-neutral-200 font-bold uppercase">5. Governing Law</div>
+            <div className="text-[11px] text-neutral-200 font-bold">5. Governing Law</div>
             <p className="text-[11px] text-neutral-400">
               Governed by commercial digital distribution standards of Apple Inc. and Google LLC. Contact: legal@oblivion1.club.
             </p>

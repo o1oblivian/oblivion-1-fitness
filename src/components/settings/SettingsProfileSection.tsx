@@ -1,5 +1,5 @@
 import React, { useRef, useState, useMemo } from 'react';
-import { Camera, Trash2, Edit2, Check, X, Radio, Lock, Plus, Sparkles, Film, UserCheck, Upload } from 'lucide-react';
+import { Camera, Trash2, Check, X, Radio, Lock, Plus, Sparkles, Film, UserCheck, Upload } from 'lucide-react';
 import { CrimsonSwitch } from './CrimsonSwitch';
 import { useUserStore } from '../../stores/useUserStore';
 import { useRoleStore } from '../../stores/useRoleStore';
@@ -212,7 +212,7 @@ export const SettingsProfileSection: React.FC<ProfileSectionProps> = ({
 
   return (
     <div className="space-y-2 select-none">
-      <h3 className="text-xs font-tactical tracking-wider text-neutral-400 font-bold uppercase px-1">
+      <h3 className="text-xs font-tactical tracking-wider text-neutral-400 font-bold px-1">
         Profile &amp; Visibility
       </h3>
 
@@ -265,11 +265,10 @@ export const SettingsProfileSection: React.FC<ProfileSectionProps> = ({
                 </button>
               </div>
             ) : (
-              <div className="flex items-center gap-1.5 group cursor-pointer" onClick={() => setIsEditingName(true)}>
-                <h4 className="font-tactical font-bold text-sm text-white truncate group-hover:text-o1-crimson transition-colors">
+              <div className="flex items-center gap-1.5 cursor-pointer" onClick={() => setIsEditingName(true)}>
+                <h4 className="font-sans font-semibold text-sm text-white truncate">
                   {localName}
                 </h4>
-                <Edit2 className="w-3 h-3 text-neutral-400 group-hover:text-neutral-200" />
               </div>
             )}
 
@@ -291,23 +290,11 @@ export const SettingsProfileSection: React.FC<ProfileSectionProps> = ({
                 </button>
               </div>
             ) : (
-              <div className="flex items-center gap-1.5 group cursor-pointer" onClick={() => setIsEditingHandle(true)}>
-                <p className="font-sans text-xs text-neutral-400 truncate group-hover:text-neutral-200 transition-colors">
+              <div className="cursor-pointer" onClick={() => setIsEditingHandle(true)}>
+                <p className="font-sans text-xs text-neutral-400 truncate">
                   {localHandle}
                 </p>
-                <Edit2 className="w-2.5 h-2.5 text-neutral-400 group-hover:text-neutral-200" />
               </div>
-            )}
-
-            {user.avatarUrl && (
-              <button
-                type="button"
-                onClick={handleRemovePhoto}
-                className="w-8 h-8 rounded-lg text-neutral-400 hover:text-red-400 flex items-center justify-center cursor-pointer"
-                aria-label="Remove photo"
-              >
-                <Trash2 className="w-3.5 h-3.5" />
-              </button>
             )}
           </div>
         </div>
@@ -324,7 +311,7 @@ export const SettingsProfileSection: React.FC<ProfileSectionProps> = ({
         {/* Metrics 3-column row with interactive input */}
         <div className="grid grid-cols-3 divide-x divide-white/[0.05] bg-o1-well rounded-xl py-1.5 px-1 text-center border border-white/[0.07]">
           <div className="px-1 flex flex-col items-center justify-center">
-            <span className="text-[10px] font-tactical uppercase text-neutral-400 font-semibold leading-none">
+            <span className="text-[10px] font-tactical text-neutral-400 font-semibold leading-none">
               Age
             </span>
             <div className="flex items-center justify-center h-5 mt-0.5">
@@ -340,7 +327,7 @@ export const SettingsProfileSection: React.FC<ProfileSectionProps> = ({
           </div>
 
           <div className="px-1 flex flex-col items-center justify-center">
-            <span className="text-[10px] font-tactical uppercase text-neutral-400 font-semibold leading-none">
+            <span className="text-[10px] font-tactical text-neutral-400 font-semibold leading-none">
               Height
             </span>
             <div className="flex items-center justify-center h-5 mt-0.5">
@@ -357,7 +344,7 @@ export const SettingsProfileSection: React.FC<ProfileSectionProps> = ({
           </div>
 
           <div className="px-1 flex flex-col items-center justify-center">
-            <span className="text-[10px] font-tactical uppercase text-neutral-400 font-semibold leading-none">
+            <span className="text-[10px] font-tactical text-neutral-400 font-semibold leading-none">
               Weight
             </span>
             <div className="flex items-center justify-center h-5 mt-0.5">
@@ -377,7 +364,7 @@ export const SettingsProfileSection: React.FC<ProfileSectionProps> = ({
 
         {/* Athlete Bio Field */}
         <div>
-          <label className="text-[11px] font-tactical uppercase text-neutral-400 font-bold block mb-1 tracking-wide">
+          <label className="text-[11px] font-tactical text-neutral-400 font-bold block mb-1 tracking-wide">
             Athlete Bio
           </label>
           <textarea
@@ -415,8 +402,8 @@ export const SettingsProfileSection: React.FC<ProfileSectionProps> = ({
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Camera className="w-4 h-4 text-o1-crimson" />
-                <h4 className="text-xs font-bold font-tactical uppercase tracking-wider text-white">
+                <Camera className="w-4 h-4 text-neutral-400" />
+                <h4 className="text-xs font-bold font-tactical tracking-wider text-white">
                   Select Profile Avatar
                 </h4>
               </div>
@@ -437,7 +424,7 @@ export const SettingsProfileSection: React.FC<ProfileSectionProps> = ({
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="w-full py-2.5 px-3 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover active:bg-o1-crimson-press text-white text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer shadow-xs active:scale-95"
+              className="w-full py-2.5 px-3 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover active:bg-o1-crimson-press text-white text-xs font-bold tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer shadow-xs active:scale-95"
             >
               <Upload className="w-4 h-4" />
               <span>Upload Photo from Gallery</span>
@@ -445,7 +432,7 @@ export const SettingsProfileSection: React.FC<ProfileSectionProps> = ({
 
             {availableVaultPhotos.length > 0 && (
               <div className="space-y-2">
-                <span className="text-[10px] font-mono uppercase font-bold text-neutral-400 block">
+                <span className="text-[10px] font-mono font-bold text-neutral-400 block">
                   Photos in Your Vault ({availableVaultPhotos.length})
                 </span>
                 <div className="grid grid-cols-4 gap-2 max-h-48 overflow-y-auto pr-1">
@@ -458,13 +445,13 @@ export const SettingsProfileSection: React.FC<ProfileSectionProps> = ({
                         onClick={() => handleSelectAvatarFromVault(item.url)}
                         className={`aspect-square rounded-xl overflow-hidden relative border transition-all cursor-pointer group ${
                           isCurrent
-                            ? 'border-o1-crimson ring-2 ring-o1-crimson'
+                            ? 'border-white/40'
                             : 'border-white/[0.07] hover:border-white/[0.14]'
                         }`}
                       >
                         <img src={item.url} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
                         {isCurrent && (
-                          <span className="absolute top-1 right-1 w-4 h-4 rounded-full bg-o1-crimson text-white flex items-center justify-center text-[9px] shadow-xs">
+                          <span className="absolute top-1 right-1 w-4 h-4 rounded-full bg-white text-neutral-950 flex items-center justify-center text-[9px]">
                             <Check className="w-2.5 h-2.5" />
                           </span>
                         )}
@@ -483,7 +470,7 @@ export const SettingsProfileSection: React.FC<ProfileSectionProps> = ({
                   setIsAvatarPickerOpen(false);
                   setIsVaultOpen(true);
                 }}
-                className="w-full py-2 px-3 rounded-xl bg-white/[0.08] hover:bg-neutral-700 text-white text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                className="w-full py-2 px-3 rounded-xl bg-white/[0.08] hover:bg-neutral-700 text-white text-xs font-bold tracking-wider flex items-center justify-center gap-1.5 transition-all cursor-pointer"
               >
                 <Plus className="w-3.5 h-3.5" />
                 <span>Open {role === 'coach' ? 'Coach' : 'Athlete'} Vault</span>

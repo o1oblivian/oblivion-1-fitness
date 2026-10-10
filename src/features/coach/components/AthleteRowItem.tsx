@@ -33,7 +33,7 @@ export const AthleteRowItem: React.FC<AthleteRowItemProps> = ({ athlete, onSelec
           <div className="text-[10px] text-neutral-400 flex items-center gap-2 mt-0.5 font-mono">
             <span className="flex items-center gap-1">
               <Flame className="w-3 h-3 text-o1-crimson" />
-              {(athlete.volume / 1000).toFixed(1)}k kg
+              {athlete.volume ? `${(athlete.volume / 1000).toFixed(1)}k kg` : '--'}
             </span>
             <span>•</span>
             <span>{athlete.status}</span>
@@ -43,7 +43,7 @@ export const AthleteRowItem: React.FC<AthleteRowItemProps> = ({ athlete, onSelec
       <div className="flex items-center gap-2">
         <div className="px-2 py-1 rounded-xl border text-xs font-mono font-bold flex items-center gap-1 text-emerald-400 bg-emerald-500/10 border-emerald-500/20">
           <Activity className="w-3 h-3" />
-          <span>{athlete.readiness}%</span>
+          <span>{athlete.readiness ? `${athlete.readiness}%` : '--'}</span>
         </div>
         <ChevronRight className="w-4 h-4 text-neutral-500" />
       </div>

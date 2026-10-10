@@ -2,7 +2,6 @@ import React from 'react';
 import { Athlete } from '../services/coachService';
 import { SquadAthlete } from '../../../types';
 import { CoachProgramsHubModal } from './CoachProgramsHubModal';
-import { DispatchDrawer } from './DispatchDrawer';
 import { WorkoutDispatchStudio } from './WorkoutDispatchStudio';
 import { CoachVaultModal } from './CoachVaultModal';
 import { CoachReelUploadModal } from '../../reels/components/CoachReelUploadModal';
@@ -17,6 +16,7 @@ export interface CoachCommandCenterModalsProps {
     dispatch: boolean;
     workout: boolean;
     vault: boolean;
+    vaultAdd: boolean;
     reelUpload: boolean;
     payoutSettings: boolean;
   };
@@ -25,6 +25,7 @@ export interface CoachCommandCenterModalsProps {
     dispatch: boolean;
     workout: boolean;
     vault: boolean;
+    vaultAdd: boolean;
     reelUpload: boolean;
     payoutSettings: boolean;
   }>>;
@@ -37,12 +38,14 @@ export interface CoachCommandCenterModalsProps {
   assignAthlete: SquadAthlete | null;
   setAssignAthlete: (ath: SquadAthlete | null) => void;
   showToast: (msg: string) => void;
+  dispatchAthlete?: Athlete | null;
+  setDispatchAthlete?: (athlete: Athlete | null) => void;
+  floorRoster?: Athlete[];
 }
 
 export const CoachCommandCenterModals: React.FC<CoachCommandCenterModalsProps> = ({
   modals,
   setModals,
-  athletes = [],
   dossierAthlete,
   setDossierAthlete,
   auditAthlete,
@@ -50,9 +53,10 @@ export const CoachCommandCenterModals: React.FC<CoachCommandCenterModalsProps> =
   assignAthlete,
   setAssignAthlete,
   showToast,
+  dispatchAthlete = null,
+  setDispatchAthlete,
+  floorRoster = [],
 }) => {
-  const safeAthletes = athletes ?? [];
-
   return (
     <>
       <CoachProgramsHubModal
@@ -60,20 +64,23 @@ export const CoachCommandCenterModals: React.FC<CoachCommandCenterModalsProps> =
         onClose={() => setModals((m) => ({ ...m, programs: false }))}
         onPublished={(p) => showToast(`Published: ${p?.title || 'Protocol'}`)}
       />
-      <DispatchDrawer
-        isOpen={modals.dispatch}
-        onClose={() => setModals((m) => ({ ...m, dispatch: false }))}
-        athletes={safeAthletes}
-        onDispatch={() => showToast('Dispatched to selected athletes!')}
-      />
-      <WorkoutDispatchStudio
-        isOpen={modals.workout}
-        onClose={() => setModals((m) => ({ ...m, workout: false }))}
-        onDispatched={(t, n) => showToast(`Dispatched "${t}" to ${n}`)}
-      />
+      {modals.workout && (
+        <WorkoutDispatchStudio
+          isOpen
+          onClose={() => {
+            setModals((m) => ({ ...m, workout: false }));
+            setDispatchAthlete?.(null);
+          }}
+          athleteId={dispatchAthlete?.id}
+          targetAthlete={dispatchAthlete}
+          roster={floorRoster}
+          onDispatched={(t, n) => showToast(`Dispatched "${t}" to ${n}`)}
+        />
+      )}
       <CoachVaultModal
         isOpen={modals.vault}
-        onClose={() => setModals((m) => ({ ...m, vault: false }))}
+        initialOpenAdd={modals.vaultAdd}
+        onClose={() => setModals((m) => ({ ...m, vault: false, vaultAdd: false }))}
       />
       <CoachReelUploadModal
         isOpen={modals.reelUpload}
@@ -85,6 +92,7 @@ export const CoachCommandCenterModals: React.FC<CoachCommandCenterModalsProps> =
         isOpen={!!dossierAthlete}
         onClose={() => setDossierAthlete(null)}
         onOpenDispatchStudio={() => {
+          setDispatchAthlete?.(dossierAthlete);
           setDossierAthlete(null);
           setModals((m) => ({ ...m, workout: true }));
         }}

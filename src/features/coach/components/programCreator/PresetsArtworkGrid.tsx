@@ -2,7 +2,7 @@ import React from 'react';
 import { Check } from 'lucide-react';
 import { tactileEngine } from '../../../../services/tactileEngine';
 import { O1_PRESETS } from './artworkPresets';
-import { VAULT_ASSETS } from '../vaultAssetsData';
+import { mockCoverArt } from '../../../../services/devMocks';
 
 interface Props {
   coverImage: string;
@@ -11,17 +11,13 @@ interface Props {
 
 const STOCK_ASSETS = [
   ...O1_PRESETS.map((p) => ({ id: p.id, title: p.label, url: p.url })),
-  ...VAULT_ASSETS.slice(0, 6).map((v) => ({
-    id: `stock-${v.id}`,
-    title: v.title,
-    url: v.thumbnail || v.thumbnailUrl || '',
-  })).filter((v) => Boolean(v.url)),
+  ...mockCoverArt(),
 ];
 
 export const PresetsArtworkGrid: React.FC<Props> = ({ coverImage, onSelectImage }) => {
   return (
     <div className="space-y-1.5">
-      <div className="text-[10px] font-mono text-neutral-400 uppercase tracking-wider px-0.5">
+      <div className="text-[10px] font-mono text-neutral-400 tracking-wider px-0.5">
         Curated Stock Photography &amp; Presets
       </div>
       <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 max-h-48 overflow-y-auto pr-1">

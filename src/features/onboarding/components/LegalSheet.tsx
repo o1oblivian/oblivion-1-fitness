@@ -20,7 +20,7 @@ export const LegalSheet: React.FC<LegalSheetProps> = ({ type, onClose }) => {
         <div className="flex items-center justify-between border-b border-white/[0.05] pb-3 mb-3">
           <div className="flex items-center gap-2">
             <ShieldCheck className="w-5 h-5 text-o1-crimson" />
-            <h3 className="font-mono text-xs font-bold uppercase tracking-wider">
+            <h3 className="font-mono text-xs font-bold tracking-wider">
               {isPrivacy ? 'Privacy & Data Protection Policy' : 'Terms of Athletic Membership'}
             </h3>
           </div>
@@ -58,7 +58,7 @@ export const LegalSheet: React.FC<LegalSheetProps> = ({ type, onClose }) => {
         <button
           type="button"
           onClick={onClose}
-          className="mt-4 w-full py-2.5 rounded-full bg-white text-neutral-950 font-mono text-xs font-bold uppercase tracking-wider cursor-pointer"
+          className="mt-4 w-full py-2.5 rounded-full bg-white text-neutral-950 font-mono text-xs font-bold tracking-wider cursor-pointer"
         >
           Acknowledge &amp; Return
         </button>

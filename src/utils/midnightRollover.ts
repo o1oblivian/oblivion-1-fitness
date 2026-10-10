@@ -69,13 +69,13 @@ export async function performMidnightRollover(previousDate: string, currentDate:
       histStore.updateDayRecord(previousDate, 'nutrition', {
         hasData: true,
         calories: totalConsumedKcal,
-        calorieTarget: Number(fuelState.calorieTarget) || 2200,
+        calorieTarget: Number(fuelState.calorieTarget) || 0,
         proteinG: totalProteinG,
-        proteinTargetG: Number(fuelState.targetProteinG) || 165,
+        proteinTargetG: Number(fuelState.targetProteinG) || 0,
         carbsG: totalCarbsG,
-        carbsTargetG: Number(fuelState.targetCarbsG) || 250,
+        carbsTargetG: Number(fuelState.targetCarbsG) || 0,
         fatsG: totalFatsG,
-        fatsTargetG: Number(fuelState.targetFatsG) || 60,
+        fatsTargetG: Number(fuelState.targetFatsG) || 0,
         meals: allMealItems.map((m) => ({
           name: m.name,
           category: 'Lunch',
@@ -87,19 +87,26 @@ export async function performMidnightRollover(previousDate: string, currentDate:
       });
     }
 
-    const effectiveDist = Math.max(cardioKm, Number((dailySteps / 1300).toFixed(1)));
-    const effectiveBurn = Math.max(cardioKcal, Math.round(dailySteps * 0.04));
-    const effectiveDur = Math.max(cardioMins, Math.round(dailySteps / 100));
-
-    if (dailySteps > 0 || effectiveDist > 0 || effectiveBurn > 0) {
+    if (cardioMins > 0 || cardioKm > 0 || cardioKcal > 0) {
       histStore.updateDayRecord(previousDate, 'cardio', {
         hasData: true,
-        distanceKm: effectiveDist,
-        durationMinutes: effectiveDur || 30,
-        burnedKcal: effectiveBurn,
-        avgHeartRateBpm: 142,
-        zone2Minutes: Math.round((effectiveDur || 30) * 0.75),
-        activityType: 'Cardio & Steps',
+        distanceKm: cardioKm,
+        durationMinutes: cardioMins,
+        burnedKcal: cardioKcal,
+        avgHeartRateBpm: cardioSubModule?.avgHeartRateBpm || 0,
+        zone2Minutes: 0,
+        activityType: cardioSubModule?.activityType || 'Cardio',
+      });
+    } else if (dailySteps > 0) {
+      histStore.updateDayRecord(previousDate, 'cardio', {
+        hasData: true,
+        steps: dailySteps,
+        distanceKm: 0,
+        durationMinutes: 0,
+        burnedKcal: 0,
+        avgHeartRateBpm: 0,
+        zone2Minutes: 0,
+        activityType: 'Steps',
       });
     }
 
@@ -108,13 +115,13 @@ export async function performMidnightRollover(previousDate: string, currentDate:
         hasData: true,
         tonnageKg: sessionTonnageKg,
         completedSets: completedSetsCount,
-        durationMinutes: Math.max(30, completedSetsCount * 3),
-        routineName: workoutState.activeRoutine || 'Resistance Session',
-        intensityRpe: 8.5,
+        durationMinutes: 0,
+        routineName: workoutState.activeRoutine || '',
+        intensityRpe: 0,
         exercises: exercises.map((e) => ({
           name: e.name || 'Exercise',
-          sets: e.sets?.length || 3,
-          reps: e.sets?.[0]?.reps || 8,
+          sets: e.sets?.length || 0,
+          reps: e.sets?.[0]?.reps || 0,
           weightKg: e.sets?.[0]?.weightKg || 0,
           completed: true,
         })),
@@ -124,10 +131,10 @@ export async function performMidnightRollover(previousDate: string, currentDate:
         id: `archive-${previousDate}-${Date.now()}`,
         title: `Daily Protocol Archive (${previousDate})`,
         timestamp: `${previousDate} • Midnight Rollover`,
-        duration: `${Math.max(30, completedSetsCount * 3)}m`,
+        duration: '--',
         tonnageKg: sessionTonnageKg,
         totalSets: completedSetsCount,
-        strain: Number(Math.min(21, 14.0 + (sessionTonnageKg / 3000)).toFixed(1)),
+        strain: 0,
         exercises: exercises.map((e) => ({
           name: e.name,
           sets: e.sets?.length || 3,

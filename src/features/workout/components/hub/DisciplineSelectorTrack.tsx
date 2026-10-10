@@ -1,5 +1,5 @@
 import React from 'react';
-import { Dumbbell, Trophy, Heart } from 'lucide-react';
+import { Weight, Trophy, Leaf } from 'lucide-react';
 
 interface DisciplineSelectorTrackProps {
   selectedDiscipline: 'lift' | 'sports' | 'recovery' | null;
@@ -18,12 +18,13 @@ export const DisciplineSelectorTrack: React.FC<DisciplineSelectorTrackProps> = (
         onClick={() => onPillClick('lift')}
         className={
           selectedDiscipline === 'lift'
-            ? 'bg-o1-well shadow-xs text-o1-crimson rounded-full px-3.5 py-1.5 text-xs font-bold flex items-center justify-center gap-1.5 flex-1 transition-all cursor-pointer'
+            ? 'bg-o1-well shadow-xs text-white rounded-full px-3.5 py-1.5 text-xs font-bold flex items-center justify-center gap-1.5 flex-1 transition-all cursor-pointer'
             : 'text-neutral-400 hover:text-white rounded-full px-3.5 py-1.5 text-xs font-semibold flex items-center justify-center gap-1.5 flex-1 transition-all cursor-pointer'
         }
       >
-        <Dumbbell
-          className={`w-3.5 h-3.5 ${selectedDiscipline === 'lift' ? 'text-o1-crimson' : 'text-neutral-400'}`}
+        <Weight
+          className="w-3.5 h-3.5 text-neutral-400"
+          strokeWidth={1.75}
         />
         <span>Lift</span>
       </button>
@@ -33,12 +34,13 @@ export const DisciplineSelectorTrack: React.FC<DisciplineSelectorTrackProps> = (
         onClick={() => onPillClick('sports')}
         className={
           selectedDiscipline === 'sports'
-            ? 'bg-o1-well shadow-xs text-o1-crimson rounded-full px-3.5 py-1.5 text-xs font-bold flex items-center justify-center gap-1.5 flex-1 transition-all cursor-pointer'
+            ? 'bg-o1-well shadow-xs text-white rounded-full px-3.5 py-1.5 text-xs font-bold flex items-center justify-center gap-1.5 flex-1 transition-all cursor-pointer'
             : 'text-neutral-400 hover:text-white rounded-full px-3.5 py-1.5 text-xs font-semibold flex items-center justify-center gap-1.5 flex-1 transition-all cursor-pointer'
         }
       >
         <Trophy
-          className={`w-3.5 h-3.5 ${selectedDiscipline === 'sports' ? 'text-o1-crimson' : 'text-neutral-400'}`}
+          className="w-3.5 h-3.5 text-neutral-400"
+          strokeWidth={1.75}
         />
         <span>Sports</span>
       </button>
@@ -48,12 +50,13 @@ export const DisciplineSelectorTrack: React.FC<DisciplineSelectorTrackProps> = (
         onClick={() => onPillClick('recovery')}
         className={
           selectedDiscipline === 'recovery'
-            ? 'bg-o1-well shadow-xs text-sky-400 rounded-full px-3.5 py-1.5 text-xs font-bold flex items-center justify-center gap-1.5 flex-1 transition-all cursor-pointer'
+            ? 'bg-o1-well shadow-xs text-white rounded-full px-3.5 py-1.5 text-xs font-bold flex items-center justify-center gap-1.5 flex-1 transition-all cursor-pointer'
             : 'text-neutral-400 hover:text-white rounded-full px-3.5 py-1.5 text-xs font-semibold flex items-center justify-center gap-1.5 flex-1 transition-all cursor-pointer'
         }
       >
-        <Heart
-          className={`w-3.5 h-3.5 ${selectedDiscipline === 'recovery' ? 'text-sky-400' : 'text-neutral-400'}`}
+        <Leaf
+          className="w-3.5 h-3.5 text-neutral-400"
+          strokeWidth={1.75}
         />
         <span>Recovery</span>
       </button>

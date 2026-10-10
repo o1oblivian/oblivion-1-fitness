@@ -1,7 +1,7 @@
 import React from 'react';
 import { Star, ShieldCheck, Dumbbell, ArrowRight } from 'lucide-react';
-import { EXPLORE_COACHES } from '../../../data/reelsExploreCatalog';
 import { tactileEngine } from '../../../services/tactileEngine';
+import { mockCoaches } from '../../../services/devMocks';
 
 export interface AthleteVerifiedCoachesProps {
   coaches?: any[];
@@ -10,22 +10,22 @@ export interface AthleteVerifiedCoachesProps {
 }
 
 export const AthleteVerifiedCoaches: React.FC<AthleteVerifiedCoachesProps> = ({
-  coaches = Object.values(EXPLORE_COACHES),
+  coaches,
   onSelectCoach,
   onBookCoaching,
 }) => {
-  const coachList = coaches && coaches.length > 0 ? coaches : Object.values(EXPLORE_COACHES);
+  const coachList = coaches?.length ? coaches : mockCoaches();
 
   return (
     <div className="space-y-3 select-none">
       <div className="flex items-center justify-between px-1">
         <div className="flex items-center gap-1.5">
           <ShieldCheck className="w-4 h-4 text-o1-crimson" />
-          <h3 className="font-tactical font-black text-xs uppercase tracking-wider text-white">
-            VERIFIED O1 CLUB COACHES
+          <h3 className="font-tactical font-black text-xs tracking-wider text-white">
+            Verified o1 club coaches
           </h3>
         </div>
-        <span className="text-[10px] font-mono font-bold text-neutral-500 uppercase">
+        <span className="text-[10px] font-mono font-bold text-neutral-500">
           {(coachList ?? []).length} Available
         </span>
       </div>
@@ -65,11 +65,11 @@ export const AthleteVerifiedCoaches: React.FC<AthleteVerifiedCoachesProps> = ({
 
                 <div className="text-right shrink-0">
                   <span className="text-xs font-mono font-bold text-white block">
-                    {coach?.rate ?? '$150/mo'}
+                    {coach?.rate || '--'}
                   </span>
                   <div className="flex items-center gap-0.5 text-amber-500 text-[10px] font-bold justify-end mt-0.5">
                     <Star className="w-3 h-3 fill-current" />
-                    <span>{(coach?.rating ?? 5.0).toFixed(1)}</span>
+                    <span>{coach?.rating && coach.rating > 0 ? coach.rating.toFixed(1) : '--'}</span>
                   </div>
                 </div>
               </div>
@@ -98,7 +98,7 @@ export const AthleteVerifiedCoaches: React.FC<AthleteVerifiedCoachesProps> = ({
                     tactileEngine.triggerImpactPulse();
                     if (coach && onBookCoaching) onBookCoaching(coach);
                   }}
-                  className="px-2.5 py-1 rounded-xl bg-o1-crimson text-white text-[10px] font-tactical font-black uppercase tracking-wider flex items-center gap-1 hover:bg-o1-crimson-hover transition"
+                  className="px-2.5 py-1 rounded-xl bg-o1-crimson text-white text-[10px] font-tactical font-black tracking-wider flex items-center gap-1 hover:bg-o1-crimson-hover transition"
                 >
                   <span>Hire Coach</span>
                   <ArrowRight className="w-3 h-3" />

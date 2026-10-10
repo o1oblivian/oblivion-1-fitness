@@ -5,11 +5,11 @@ import { CoachSubTab } from '../../../stores/useCoachStore';
 export const SUB_TABS: CoachSubTab[] = ['INTEL', 'CLIENTS', 'CHECKINS', 'INBOX', 'EARNINGS'];
 
 export const SUB_TAB_LABELS: Record<string, string> = {
-  INTEL: 'INTEL',
-  CLIENTS: 'ROSTER',
-  CHECKINS: 'CHECK-INS',
-  INBOX: 'INBOX',
-  EARNINGS: 'EARNINGS',
+  INTEL: 'Notes',
+  CLIENTS: 'Roster',
+  CHECKINS: 'Check-in',
+  INBOX: 'Inbox',
+  EARNINGS: 'Earnings',
 };
 
 interface CoachSubNavBarProps {
@@ -23,7 +23,7 @@ export const CoachSubNavBar: React.FC<CoachSubNavBarProps> = ({ currentSubTab, o
       id="coach-sub-navigation-track"
       role="tablist"
       aria-label="Coach Sub-navigation"
-      className="-mx-4 px-4 flex items-center gap-2 overflow-x-auto overscroll-x-contain no-scrollbar scrollbar-none py-0.5 select-none after:w-2 after:shrink-0 after:content-['']"
+      className="w-full flex flex-wrap items-center justify-center gap-1.5 select-none"
     >
       {SUB_TABS.map((tab) => {
         const isActive = currentSubTab === tab;
@@ -38,10 +38,10 @@ export const CoachSubNavBar: React.FC<CoachSubNavBarProps> = ({ currentSubTab, o
               tactileEngine.triggerSelectionBuzz();
               onSelectSubTab(tab);
             }}
-            className={`min-h-[40px] px-2.5 py-2 rounded-full text-[11px] font-mono font-bold tracking-wider uppercase whitespace-nowrap transition-all duration-150 flex items-center justify-center shrink-0 cursor-pointer ${
+            className={`o1-pill text-[11px] font-semibold cursor-pointer transition-all duration-150 ${
               isActive
-                ? 'bg-o1-crimson text-white shadow-sm border border-o1-crimson'
-                : 'border bg-o1-well text-neutral-400 border-white/[0.07] active:bg-white/[0.06] hover:text-white'
+                ? 'bg-white text-neutral-950 border-white'
+                : 'border bg-o1-well text-neutral-200 border-white/[0.07] active:bg-white/[0.06]'
             }`}
           >
             {label}

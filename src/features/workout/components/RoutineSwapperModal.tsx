@@ -75,11 +75,11 @@ export const RoutineSwapperModal: React.FC<RoutineSwapperModalProps> = ({
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-3.5 border-b border-white/[0.05] bg-o1-card">
           <div className="flex items-center gap-2">
-            <div className="p-1.5 rounded-lg bg-[#0EA5E9]/10 text-[#0EA5E9]">
+            <div className="p-1.5 rounded-lg bg-[#4F8F9A]/10 text-[#4F8F9A]">
               <Layers className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="font-tactical font-black text-sm uppercase tracking-wider text-white">
+              <h3 className="font-tactical font-black text-sm tracking-wider text-white">
                 Routine Swapper
               </h3>
               <p className="text-[10px] font-telemetry text-zinc-400">
@@ -99,9 +99,9 @@ export const RoutineSwapperModal: React.FC<RoutineSwapperModalProps> = ({
         <div className="flex border-b border-white/[0.05] bg-black">
           <button
             onClick={() => setTab('PRESETS')}
-            className={`flex-1 py-2.5 text-xs font-tactical uppercase tracking-wider flex items-center justify-center gap-1.5 transition-colors ${
+            className={`flex-1 py-2.5 text-xs font-tactical tracking-wider flex items-center justify-center gap-1.5 transition-colors ${
               tab === 'PRESETS'
-                ? 'text-[#0EA5E9] border-b-2 border-[#0EA5E9] font-bold bg-o1-card'
+                ? 'text-[#4F8F9A] border-b-2 border-[#4F8F9A] font-bold bg-o1-card'
                 : 'text-zinc-400 hover:text-zinc-200'
             }`}
           >
@@ -110,9 +110,9 @@ export const RoutineSwapperModal: React.FC<RoutineSwapperModalProps> = ({
           </button>
           <button
             onClick={() => setTab('MUSCLE_SWAP')}
-            className={`flex-1 py-2.5 text-xs font-tactical uppercase tracking-wider flex items-center justify-center gap-1.5 transition-colors ${
+            className={`flex-1 py-2.5 text-xs font-tactical tracking-wider flex items-center justify-center gap-1.5 transition-colors ${
               tab === 'MUSCLE_SWAP'
-                ? 'text-[#EF4444] border-b-2 border-[#EF4444] font-bold bg-o1-card'
+                ? 'text-[#C4121A] border-b-2 border-[#C4121A] font-bold bg-o1-card'
                 : 'text-zinc-400 hover:text-zinc-200'
             }`}
           >
@@ -121,7 +121,7 @@ export const RoutineSwapperModal: React.FC<RoutineSwapperModalProps> = ({
           </button>
           <button
             onClick={() => setTab('EXERCISE')}
-            className={`flex-1 py-2.5 text-xs font-tactical uppercase tracking-wider flex items-center justify-center gap-1.5 transition-colors ${
+            className={`flex-1 py-2.5 text-xs font-tactical tracking-wider flex items-center justify-center gap-1.5 transition-colors ${
               tab === 'EXERCISE'
                 ? 'text-amber-400 border-b-2 border-amber-400 font-bold bg-o1-card'
                 : 'text-zinc-400 hover:text-zinc-200'
@@ -138,10 +138,10 @@ export const RoutineSwapperModal: React.FC<RoutineSwapperModalProps> = ({
             <div className="space-y-3">
               {targetExercise ? (
                 <div className="p-3 bg-o1-card rounded-xl border border-white/[0.07]">
-                  <span className="text-[10px] font-tactical font-bold text-zinc-500 uppercase tracking-wider block">
-                    REPLACING ACTIVE EXERCISE:
+                  <span className="text-[10px] font-tactical font-bold text-zinc-500 tracking-wider block">
+                    Replacing Active Exercise:
                   </span>
-                  <div className="font-tactical font-black text-sm text-white uppercase mt-0.5">
+                  <div className="font-tactical font-black text-sm text-white mt-0.5">
                     {targetExercise.name}
                   </div>
                   <div className="text-[11px] font-sans font-medium text-amber-400">
@@ -151,8 +151,8 @@ export const RoutineSwapperModal: React.FC<RoutineSwapperModalProps> = ({
               ) : null}
 
               <div className="space-y-2">
-                <span className="text-[10px] font-tactical font-bold text-zinc-400 uppercase tracking-wider block">
-                  SELECT ALTERNATIVE STIMULUS:
+                <span className="text-[10px] font-tactical font-bold text-zinc-400 tracking-wider block">
+                  Select Alternative Stimulus:
                 </span>
                 {EXERCISE_DATABASE.slice(0, 10).map((drill) => (
                   <div
@@ -162,10 +162,10 @@ export const RoutineSwapperModal: React.FC<RoutineSwapperModalProps> = ({
                   >
                     <div className="min-w-0 flex-1 pr-2">
                       <div className="flex items-center gap-2">
-                        <span className="font-tactical font-bold text-xs text-white uppercase group-hover:text-amber-400 transition-colors">
+                        <span className="font-tactical font-bold text-xs text-white group-hover:text-amber-400 transition-colors">
                           {drill.name}
                         </span>
-                        <span className="text-[9px] font-sans font-bold text-zinc-400 bg-white/[0.08] px-1.5 py-0.5 rounded uppercase">
+                        <span className="text-[9px] font-sans font-bold text-zinc-400 bg-white/[0.08] px-1.5 py-0.5 rounded">
                           {drill.equipment}
                         </span>
                       </div>
@@ -175,9 +175,9 @@ export const RoutineSwapperModal: React.FC<RoutineSwapperModalProps> = ({
                     </div>
                     <button
                       type="button"
-                      className="px-2.5 py-1 rounded-xl bg-amber-500/10 text-amber-400 group-hover:bg-amber-500 group-hover:text-black font-tactical text-[10px] font-black uppercase tracking-wider transition-all"
+                      className="px-2.5 py-1 rounded-xl bg-amber-500/10 text-amber-400 group-hover:bg-amber-500 group-hover:text-black font-tactical text-[10px] font-black tracking-wider transition-all"
                     >
-                      SWAP
+                      Swap
                     </button>
                   </div>
                 ))}
@@ -192,15 +192,15 @@ export const RoutineSwapperModal: React.FC<RoutineSwapperModalProps> = ({
                   onClick={() => handleSelectSplit(item.title)}
                   className={`p-3.5 rounded-2xl border cursor-pointer transition-all space-y-2 ${
                     isSelected
-                      ? 'bg-o1-card border-[#0EA5E9] '
+                      ? 'bg-o1-card border-[#4F8F9A] '
                       : 'bg-o1-card border-white/[0.07] hover:border-white/[0.14]'
                   }`}
                 >
                   <div className="flex items-center justify-between">
-                    <span className="font-tactical font-black text-sm uppercase text-white">
+                    <span className="font-tactical font-black text-sm text-white">
                       {item.title}
                     </span>
-                    <span className="text-[9px] font-tactical font-bold text-zinc-400 bg-white/[0.08] px-2 py-0.5 rounded-full border border-white/[0.07] uppercase tracking-wider">
+                    <span className="text-[9px] font-tactical font-bold text-zinc-400 bg-white/[0.08] px-2 py-0.5 rounded-full border border-white/[0.07] tracking-wider">
                       {item.tier}
                     </span>
                   </div>
@@ -212,9 +212,9 @@ export const RoutineSwapperModal: React.FC<RoutineSwapperModalProps> = ({
                   </p>
                   <div className="flex items-center justify-between pt-1.5 border-t border-white/[0.05] text-[10px] text-zinc-500 font-sans">
                     <span>{item.volume}</span>
-                    <span className="text-white flex items-center gap-1 font-tactical font-bold uppercase tracking-wider">
+                    <span className="text-white flex items-center gap-1 font-tactical font-bold tracking-wider">
                       <span>Activate Protocol</span>
-                      <ArrowRight className="w-3 h-3 text-[#0EA5E9]" />
+                      <ArrowRight className="w-3 h-3 text-[#4F8F9A]" />
                     </span>
                   </div>
                 </div>
@@ -225,13 +225,13 @@ export const RoutineSwapperModal: React.FC<RoutineSwapperModalProps> = ({
               <div
                 key={item.muscle}
                 onClick={() => handleSubstituteMuscle(item)}
-                className="p-3.5 rounded-2xl border border-white/[0.07] bg-o1-card hover:border-[#EF4444] cursor-pointer transition-all space-y-2"
+                className="p-3.5 rounded-2xl border border-white/[0.07] bg-o1-card hover:border-[#C4121A] cursor-pointer transition-all space-y-2"
               >
                 <div className="flex items-center justify-between">
-                  <span className="font-tactical font-black text-sm uppercase text-white">
+                  <span className="font-tactical font-black text-sm text-white">
                     {item.muscle}
                   </span>
-                  <span className="text-[9px] font-tactical font-bold text-[#EF4444] bg-[#EF4444]/10 px-2 py-0.5 rounded-full border border-[#EF4444]/30 uppercase tracking-wider">
+                  <span className="text-[9px] font-tactical font-bold text-[#C4121A] bg-[#C4121A]/10 px-2 py-0.5 rounded-full border border-[#C4121A]/30 tracking-wider">
                     {item.tag}
                   </span>
                 </div>
@@ -248,7 +248,7 @@ export const RoutineSwapperModal: React.FC<RoutineSwapperModalProps> = ({
                     </div>
                   ))}
                 </div>
-                <div className="flex items-center justify-between pt-1.5 border-t border-white/[0.05] text-[10px] text-[#EF4444] font-tactical font-bold uppercase tracking-wider">
+                <div className="flex items-center justify-between pt-1.5 border-t border-white/[0.05] text-[10px] text-[#C4121A] font-tactical font-bold tracking-wider">
                   <span>Substitute Active Sets</span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </div>

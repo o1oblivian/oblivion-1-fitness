@@ -15,8 +15,9 @@ export const FuelHydrationCard: React.FC<FuelHydrationCardProps> = ({
   logHydration,
   showToast,
 }) => {
-  const target = hydrationTargetL > 0 ? hydrationTargetL : 3.0;
-  const progressPercent = Math.min(100, Math.max(0, (hydrationCurrentL / target) * 100));
+  const current = Number.isFinite(hydrationCurrentL) ? Math.max(0, hydrationCurrentL) : 0;
+  const target = Number.isFinite(hydrationTargetL) && hydrationTargetL > 0 ? hydrationTargetL : 0;
+  const progressPercent = target > 0 ? Math.min(100, Math.max(0, (current / target) * 100)) : 0;
 
   return (
     <div
@@ -30,7 +31,7 @@ export const FuelHydrationCard: React.FC<FuelHydrationCardProps> = ({
         <div className="flex items-baseline justify-between gap-2">
           <span className="text-[12px] font-semibold text-white">Water</span>
           <span className="text-[11px] font-mono tabular-nums text-sky-400">
-            {hydrationCurrentL.toFixed(2)} / {target.toFixed(1)} L
+            {current.toFixed(2)} / {target > 0 ? target.toFixed(1) : '--'} L
           </span>
         </div>
         <div className="mt-1 h-1.5 rounded-full bg-o1-well overflow-hidden">

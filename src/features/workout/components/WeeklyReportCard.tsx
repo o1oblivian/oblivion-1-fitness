@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Award, ChevronRight } from 'lucide-react';
+import { ClipboardCheck, ChevronRight } from 'lucide-react';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { WeeklyReportModal } from './WeeklyReportModal';
 
@@ -33,13 +33,13 @@ export const WeeklyReportCard: React.FC<WeeklyReportCardProps> = ({ onViewFullRe
       >
         <div className="flex items-center gap-3 min-w-0 flex-1">
           {/* Blue-ish icon container */}
-          <div className="w-9 h-9 rounded-xl bg-sky-950/60 text-sky-400 flex items-center justify-center shrink-0">
-            <Award className="w-4 h-4 stroke-[2.2]" />
-          </div>
+          <span className="o1-mark text-o1-teal">
+            <ClipboardCheck />
+          </span>
 
           {/* Title & Subtitle */}
           <div className="min-w-0 flex-1">
-            <h4 className="text-xs font-tactical font-black text-white tracking-wider uppercase leading-snug truncate">
+            <h4 className="text-xs font-tactical font-black text-white tracking-wider leading-snug truncate">
               Weekly Report Card
             </h4>
             <p className="text-[11px] text-neutral-400 leading-tight truncate mt-0.5">

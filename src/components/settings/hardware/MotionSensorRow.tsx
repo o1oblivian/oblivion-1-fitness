@@ -46,7 +46,7 @@ export const MotionSensorRow: React.FC<MotionSensorRowProps> = ({
       {status.isActive && (
         <div className="grid grid-cols-2 gap-2 pt-1">
           <div className="p-2.5 rounded-xl bg-o1-well border border-white/[0.07] text-center font-mono">
-            <span className="text-[9px] text-neutral-400 uppercase block font-tactical">
+            <span className="text-[9px] text-neutral-400 block font-tactical">
               Acceleration Vector
             </span>
             <span className="text-sm font-bold text-white">
@@ -54,7 +54,7 @@ export const MotionSensorRow: React.FC<MotionSensorRowProps> = ({
             </span>
           </div>
           <div className="p-2.5 rounded-xl bg-o1-well border border-white/[0.07] text-center font-mono">
-            <span className="text-[9px] text-neutral-400 uppercase block font-tactical">
+            <span className="text-[9px] text-neutral-400 block font-tactical">
               Barbell Velocity (VBT)
             </span>
             <span className="text-sm font-bold text-o1-crimson block">

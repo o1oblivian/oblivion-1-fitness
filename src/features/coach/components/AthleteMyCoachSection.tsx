@@ -22,12 +22,12 @@ export const AthleteMyCoachSection: React.FC<AthleteMyCoachSectionProps> = ({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
-            <span className="text-[10px] font-mono font-bold tracking-widest text-neutral-500 uppercase">
-              STATUS // DIRECT ROSTER
+            <span className="text-[10px] font-mono font-bold tracking-widest text-neutral-500">
+              Status // direct roster
             </span>
           </div>
-          <span className="px-2 py-0.5 rounded text-[9px] font-mono font-bold bg-amber-500/10 text-amber-500 border border-amber-500/20 uppercase">
-            STANDALONE
+          <span className="px-2 py-0.5 rounded text-[9px] font-mono font-bold bg-amber-500/10 text-amber-500 border border-amber-500/20">
+            Standalone
           </span>
         </div>
 
@@ -37,7 +37,7 @@ export const AthleteMyCoachSection: React.FC<AthleteMyCoachSectionProps> = ({
           </div>
           <div className="space-y-1">
             <h3 className="text-sm font-bold text-white tracking-tight">
-              UNASSIGNED TO DIRECT COACH
+              Unassigned to direct coach
             </h3>
             <p className="text-xs text-neutral-400 leading-relaxed font-sans">
               Pair with an Oblivion 1 certified coach for custom programming, form audits, and direct weekly telemetry check-ins.
@@ -51,10 +51,10 @@ export const AthleteMyCoachSection: React.FC<AthleteMyCoachSectionProps> = ({
             tactileEngine.triggerSelectionBuzz();
             onFindCoach();
           }}
-          className="w-full py-2.5 px-4 rounded-2xl bg-white text-neutral-900 font-bold text-xs flex items-center justify-center gap-2 shadow-sm hover:opacity-95 active:scale-[0.98] transition-all cursor-pointer uppercase tracking-wider"
+          className="o1-pill mx-auto bg-white text-neutral-900 font-semibold text-xs hover:opacity-95 active:scale-[0.98] cursor-pointer"
         >
           <UserPlus className="w-4 h-4 stroke-[2.2]" />
-          <span>FIND A COACH</span>
+          <span>Find a Coach</span>
         </button>
       </section>
     );
@@ -68,13 +68,13 @@ export const AthleteMyCoachSection: React.FC<AthleteMyCoachSectionProps> = ({
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <span className="w-2 h-2 rounded-full bg-emerald-500" />
-          <span className="text-[10px] font-mono font-bold tracking-widest text-neutral-500 uppercase">
-            ACTIVE MENTORSHIP
+          <span className="text-[10px] font-mono font-bold tracking-widest text-neutral-500">
+            Active Mentorship
           </span>
         </div>
-        <span className="px-2 py-0.5 rounded text-[9px] font-mono font-bold bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 uppercase flex items-center gap-1">
+        <span className="px-2 py-0.5 rounded text-[9px] font-mono font-bold bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 flex items-center gap-1">
           <UserCheck className="w-3 h-3 stroke-[2.2]" />
-          <span>LINKED</span>
+          <span>Linked</span>
         </span>
       </div>
 
@@ -109,10 +109,10 @@ export const AthleteMyCoachSection: React.FC<AthleteMyCoachSectionProps> = ({
             tactileEngine.triggerSelectionBuzz();
             onOpenMessage(linkedCoach);
           }}
-          className="py-2.5 px-3 rounded-2xl bg-o1-well hover:bg-white/[0.06] border border-white/[0.07] text-white text-xs font-bold flex items-center justify-center gap-1.5 active:scale-[0.98] transition-all cursor-pointer uppercase tracking-wider"
+          className="py-2.5 px-3 rounded-2xl bg-o1-well hover:bg-white/[0.06] border border-white/[0.07] text-white text-xs font-bold flex items-center justify-center gap-1.5 active:scale-[0.98] transition-all cursor-pointer tracking-wider"
         >
           <MessageSquare className="w-3.5 h-3.5 text-neutral-500" />
-          <span>MESSAGE</span>
+          <span>Message</span>
         </button>
 
         <button
@@ -121,10 +121,10 @@ export const AthleteMyCoachSection: React.FC<AthleteMyCoachSectionProps> = ({
             tactileEngine.triggerSelectionBuzz();
             onSubmitCheckin(linkedCoach);
           }}
-          className="py-2.5 px-3 rounded-2xl bg-o1-crimson hover:bg-o1-crimson-hover text-white text-xs font-bold flex items-center justify-center gap-1.5 active:scale-[0.98] shadow-sm transition-all cursor-pointer uppercase tracking-wider"
+          className="py-2.5 px-3 rounded-2xl bg-o1-crimson hover:bg-o1-crimson-hover text-white text-xs font-bold flex items-center justify-center gap-1.5 active:scale-[0.98] shadow-sm transition-all cursor-pointer tracking-wider"
         >
           <Send className="w-3.5 h-3.5" />
-          <span>SUBMIT CHECK-IN</span>
+          <span>Submit CHECK-IN</span>
         </button>
       </div>
     </section>

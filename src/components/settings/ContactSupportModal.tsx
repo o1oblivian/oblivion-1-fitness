@@ -45,11 +45,11 @@ export const ContactSupportModal: React.FC<ContactSupportModalProps> = ({
       <div className="o1-sheet-card w-full bg-o1-card border border-white/[0.07] p-5 shadow-xl flex flex-col overflow-y-auto text-white">
         <div className="flex items-center justify-between border-b border-white/[0.05] pb-3">
           <div className="flex items-center gap-2">
-            <div className="p-1.5 rounded-lg bg-[#0284c7]/10 border border-[#0284c7]/30">
-              <Headphones className="w-4 h-4 text-[#0284c7]" />
+            <div className="p-1.5 rounded-lg bg-[#4F8F9A]/10 border border-[#4F8F9A]/30">
+              <Headphones className="w-4 h-4 text-[#4F8F9A]" />
             </div>
             <div>
-              <h2 className="text-sm font-bold uppercase tracking-wider font-tactical">Contact Support &amp; Club HQ</h2>
+              <h2 className="text-sm font-bold tracking-wider font-tactical">Contact Support &amp; Club HQ</h2>
               <p className="text-[10px] font-mono text-neutral-500">24/7 Tactical Concierge Desk</p>
             </div>
           </div>
@@ -79,7 +79,7 @@ export const ContactSupportModal: React.FC<ContactSupportModalProps> = ({
           </div>
 
           <div className="space-y-1">
-            <label className="text-[10px] font-tactical uppercase font-bold text-neutral-500">Inquiry Topic</label>
+            <label className="text-[10px] font-tactical font-bold text-neutral-500">Inquiry Topic</label>
             <select
               value={topic}
               onChange={(e) => setTopic(e.target.value)}
@@ -93,7 +93,7 @@ export const ContactSupportModal: React.FC<ContactSupportModalProps> = ({
           </div>
 
           <div className="space-y-1">
-            <label className="text-[10px] font-tactical uppercase font-bold text-neutral-500">Message</label>
+            <label className="text-[10px] font-tactical font-bold text-neutral-500">Message</label>
             <textarea
               required
               rows={4}
@@ -107,7 +107,7 @@ export const ContactSupportModal: React.FC<ContactSupportModalProps> = ({
           <button
             type="submit"
             disabled={isSending}
-            className="w-full py-2.5 rounded-xl bg-[#0284c7] hover:bg-[#0284C7] text-white text-xs font-tactical font-semibold uppercase tracking-wider transition flex items-center justify-center gap-2 cursor-pointer active:scale-95 disabled:opacity-50"
+            className="w-full py-2.5 rounded-xl bg-[#4F8F9A] hover:bg-[#4F8F9A] text-white text-xs font-tactical font-semibold tracking-wider transition flex items-center justify-center gap-2 cursor-pointer active:scale-95 disabled:opacity-50"
           >
             <Send className="w-3.5 h-3.5" />
             <span>{isSending ? 'Transmitting...' : 'Dispatch Ticket'}</span>

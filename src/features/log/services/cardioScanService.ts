@@ -29,7 +29,7 @@ function toExtracted(
     durationMinutes: Math.round(dur),
     burnedKcal: Math.round(burn),
     avgHeartRateBpm: Math.round(hr),
-    zone2Minutes: Math.round(dur * 0.75),
+    zone2Minutes: 0,
     steps,
     confidenceScore: fields.confidenceScore,
     rawReadings: fields.rawReadings,

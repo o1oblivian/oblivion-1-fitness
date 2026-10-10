@@ -3,6 +3,7 @@ import { tactileEngine } from '../../../services/tactileEngine';
 import { safeStorage } from '../../../utils/safeStorage';
 import { queueOfflineAction, isDeviceOnline } from '../../../services/offlineSyncService';
 import { useTelemetryHistoryStore, getTelemetryHistoryState } from '../../log/store/useTelemetryHistoryStore';
+import { exerciseFromSets, setsFromExercise } from '../../log/liftLedger';
 import {
   NormalizedWorkoutMode,
   NormalizedWorkoutSubMode,
@@ -32,14 +33,16 @@ const savedExercises = (savedExercisesRaw || [])
   .filter(
     (e) => !e.name?.toLowerCase().startsWith('cardio:') && !e.name?.toLowerCase().includes('telemetry')
   )
-  .map((e) => ({
-    ...e,
-    sets: (e.sets || []).map((s: any) =>
-      s.completed
-        ? s
-        : { ...s, weightKg: 0, weight: 0, reps: 0, rpe: 0 }
-    ),
-  }));
+    .map((e) => ({
+      ...e,
+      sets: (e.sets || []).map((s: any) => {
+        if (s.completed) return s;
+        const reps = Number(s.reps) || 0;
+        const weight = Number(s.weightKg ?? s.weight) || 0;
+        if (reps > 0 || weight > 0) return s;
+        return { ...s, weightKg: 0, weight: 0, reps: 0, rpe: 0 };
+      }),
+    }));
 const hydratedState: WorkoutStoreState = {
   ...initialWorkoutState,
   ...(savedExercises && savedExercises.length > 0
@@ -97,16 +100,16 @@ const workoutStore = createStore<WorkoutStoreState, WorkoutStoreActions>(
             hasData: true,
             tonnageKg: metrics.sessionTonnageKg,
             completedSets: metrics.completedSetsCount,
-            durationMinutes: Math.max(30, metrics.completedSetsCount * 3),
-            routineName: get().activeRoutine || 'Resistance Session',
-            intensityRpe: 8.5,
-            exercises: genuineExercises.map((e) => ({
-              name: e.name || e.exerciseName || 'Exercise',
-              sets: e.sets?.length || 3,
-              reps: e.sets?.[0]?.reps || 8,
-              weightKg: e.sets?.[0]?.weightKg || e.sets?.[0]?.weight || 0,
-              completed: (e.sets || []).some((s: any) => s.completed),
-            })),
+            durationMinutes: 0,
+            routineName: get().activeRoutine || '',
+            intensityRpe: 0,
+            exercises: genuineExercises
+              .map((e) => exerciseFromSets(
+                e.name || e.exerciseName || 'Exercise',
+                setsFromExercise(e),
+                (e.sets || []).some((s: { completed?: boolean }) => s.completed),
+              ))
+              .filter((entry) => (entry.setLog?.length || 0) > 0),
           });
         }
       } catch (err) {
@@ -183,9 +186,11 @@ const workoutStore = createStore<WorkoutStoreState, WorkoutStoreActions>(
             hasData: true,
             durationMinutes: cardioData.durationMins,
             burnedKcal: cardioData.calories,
-            distanceKm: Number(((cardioData.steps || cardioData.durationMins * 100) / 1300).toFixed(2)),
-            avgHeartRateBpm: cardioData.avgHr || 135,
-            activityType: cardioData.type || 'Watch Telemetry',
+            distanceKm: 0,
+            steps: cardioData.steps > 0 ? cardioData.steps : 0,
+            avgHeartRateBpm: cardioData.avgHr > 0 ? cardioData.avgHr : 0,
+            zone2Minutes: 0,
+            activityType: cardioData.type || 'Cardio',
           });
         } catch {}
         tactileEngine.triggerSelectionBuzz();

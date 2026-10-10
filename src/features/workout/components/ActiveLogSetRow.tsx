@@ -4,10 +4,12 @@ import { ExerciseSet } from '../../../types';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { readAthleteSettingsSnapshot } from '../../../utils/athleteSettingsSnapshot';
 import { displayToKg, formatLoad, kgToDisplay, loadUnitLabel } from '../../../utils/weightUnits';
+import { estimatedMaxKg, priorBestKg, setIsPr } from '../services/sessionPr';
 
 export interface ActiveLogSetRowProps {
   exerciseId: string;
   set: ExerciseSet;
+  exerciseName?: string;
   isDone?: boolean;
   onOpenDial: (type: 'weight' | 'reps' | 'rpe', currentVal: number) => void;
   onOpenPlateVisualizer?: (weight: number) => void;
@@ -18,6 +20,7 @@ export interface ActiveLogSetRowProps {
 
 export const ActiveLogSetRow: React.FC<ActiveLogSetRowProps> = ({
   set,
+  exerciseName = '',
   isDone,
   onOpenDial,
   onRemoveSet,
@@ -38,6 +41,9 @@ export const ActiveLogSetRow: React.FC<ActiveLogSetRowProps> = ({
   const unitLabel = loadUnitLabel(weightUnit);
   const displayLoad = kgToDisplay(weightKg, weightUnit);
   const oneRepMaxKg = hasWeight && hasReps ? Math.round(weightKg * (1 + reps / 30)) : 0;
+  const prior = exerciseName ? priorBestKg(exerciseName) : 0;
+  const ceiling = Boolean(isDone && setIsPr(exerciseName, weightKg, reps, prior));
+  const ceilingDelta = ceiling ? Math.max(1, Math.round(estimatedMaxKg(weightKg, reps) - prior)) : 0;
   const oneRepMaxShow = kgToDisplay(oneRepMaxKg, weightUnit);
   const pbText = hasWeight ? `+${formatLoad(weightKg, weightUnit)} ${unitLabel.toLowerCase()} PB` : '--';
   const bumpSmall = weightUnit === 'lbs' ? 5 : 2.5;
@@ -65,11 +71,7 @@ export const ActiveLogSetRow: React.FC<ActiveLogSetRowProps> = ({
 
   return (
     <div
-      className={`space-y-0.5 select-none py-1 px-1 rounded-xl transition-colors ${
-        isDone
-          ? 'bg-emerald-950/20 border border-emerald-600/30'
-          : 'bg-o1-well/60 border border-white/[0.07]'
-      }`}
+      className={`o1-instrument space-y-0.5 select-none py-1 px-1 rounded-xl transition-colors bg-o1-well border ${ceiling ? 'border-[#C4121A]' : 'border-white/[0.07]'}`}
     >
       <div className="flex items-center gap-1.5">
         {/* SET Number or Done Check */}
@@ -79,10 +81,10 @@ export const ActiveLogSetRow: React.FC<ActiveLogSetRowProps> = ({
             tactileEngine.triggerSelectionBuzz();
             onToggleDone?.();
           }}
-          className={`w-7 h-7 rounded-xl flex items-center justify-center shrink-0 font-mono font-bold text-xs cursor-pointer transition-all ${
+          className={`w-7 h-7 rounded-xl flex items-center justify-center shrink-0 font-mono font-bold text-xs cursor-pointer transition-all border ${
             isDone
-              ? 'bg-emerald-600 text-white shadow-xs'
-              : 'bg-o1-well border border-white/[0.07] text-neutral-300 hover:border-o1-crimson'
+              ? 'bg-o1-card border-o1-olive text-o1-olive'
+              : 'bg-o1-card border-white/[0.07] text-neutral-300 hover:border-o1-crimson'
           }`}
           title={isDone ? 'Mark Incomplete' : 'Mark Completed (auto-starts rest)'}
         >
@@ -98,7 +100,7 @@ export const ActiveLogSetRow: React.FC<ActiveLogSetRowProps> = ({
           }}
           className={`flex-1 h-8 rounded-xl font-mono font-semibold text-xs flex items-center justify-center cursor-pointer transition-all active:scale-[0.98] border ${
             isDone
-              ? 'bg-emerald-950/40 border-emerald-600/30 text-emerald-200'
+              ? 'bg-o1-card border-white/[0.07] text-white'
               : 'bg-o1-card border-white/[0.07] hover:border-o1-crimson text-white'
           }`}
           title="Adjust Repetitions"
@@ -115,7 +117,7 @@ export const ActiveLogSetRow: React.FC<ActiveLogSetRowProps> = ({
           }}
           className={`flex-1 h-8 rounded-xl font-mono font-semibold text-xs flex items-center justify-center cursor-pointer transition-all active:scale-[0.98] border ${
             isDone
-              ? 'bg-emerald-950/40 border-emerald-600/30 text-emerald-200'
+              ? 'bg-o1-card border-white/[0.07] text-white'
               : 'bg-o1-card border-white/[0.07] hover:border-o1-crimson text-white'
           }`}
           title={`Adjust Weight Load (${unitLabel})`}
@@ -132,7 +134,7 @@ export const ActiveLogSetRow: React.FC<ActiveLogSetRowProps> = ({
           }}
           className={`flex-1 h-8 rounded-xl font-mono font-semibold text-xs flex items-center justify-center cursor-pointer transition-all active:scale-[0.98] border ${
             isDone
-              ? 'bg-emerald-950/40 border-emerald-600/30 text-emerald-200'
+              ? 'bg-o1-card border-white/[0.07] text-white'
               : 'bg-o1-card border-white/[0.07] hover:border-o1-crimson text-white'
           }`}
           title="Adjust RPE (Rate of Perceived Exertion)"
@@ -160,6 +162,9 @@ export const ActiveLogSetRow: React.FC<ActiveLogSetRowProps> = ({
           )}
         </div>
       </div>
+      {ceiling ? (
+        <p className="px-1 text-[10px] font-semibold text-[#EAE8DF]">NEW CEILING // +{ceilingDelta} KG OVER HISTORICAL BEST</p>
+      ) : null}
 
       {/* Sub-Row: PB & 1RM + Beginner Quick Bumper Toggle */}
       <div className="flex items-center justify-between px-0.5 text-[8px] font-sans font-normal leading-none tracking-normal">
@@ -186,7 +191,7 @@ export const ActiveLogSetRow: React.FC<ActiveLogSetRowProps> = ({
       {showQuickAdjust && (
         <div className="pt-1 px-1 flex items-center justify-between gap-1 text-[10px] font-mono bg-o1-card p-1.5 rounded-xl border border-white/[0.07] animate-in fade-in duration-100">
           <div className="flex items-center gap-1">
-            <span className="text-neutral-500 text-[9px] uppercase font-bold">{unitLabel}:</span>
+            <span className="text-neutral-500 text-[9px] font-bold">{unitLabel}:</span>
             <button
               type="button"
               onClick={() => handleQuickWeight(-bumpSmall)}
@@ -211,7 +216,7 @@ export const ActiveLogSetRow: React.FC<ActiveLogSetRowProps> = ({
           </div>
 
           <div className="flex items-center gap-1">
-            <span className="text-neutral-500 text-[9px] uppercase font-bold">Reps:</span>
+            <span className="text-neutral-500 text-[9px] font-bold">Reps:</span>
             <button
               type="button"
               onClick={() => handleQuickReps(-1)}

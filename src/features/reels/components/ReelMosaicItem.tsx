@@ -1,6 +1,6 @@
 import React from 'react';
 import { Play } from 'lucide-react';
-import { ExploreReelItem } from '../../../data/reelsExploreCatalog';
+import { ExploreReelItem } from '../reelTypes';
 import { tactileEngine } from '../../../services/tactileEngine';
 
 interface ReelMosaicItemProps {

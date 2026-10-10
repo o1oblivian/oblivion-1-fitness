@@ -33,7 +33,7 @@ export const SelfiePoseModal: React.FC<SelfiePoseModalProps> = ({ isOpen, onClos
         <div className="flex items-center justify-between border-b border-white/[0.05] pb-3">
           <div className="flex items-center gap-2 text-emerald-400">
             <ShieldCheck className="w-5 h-5 stroke-[2.5]" />
-            <h3 className="font-mono text-xs font-bold uppercase tracking-wider text-white">ATHLETE BIOMETRIC AUDIT</h3>
+            <h3 className="font-mono text-xs font-bold tracking-wider text-white">Athlete Biometric Audit</h3>
           </div>
           <button onClick={onClose} className="p-1 rounded-full text-neutral-400 hover:text-white transition cursor-pointer">
             <X className="w-4 h-4" />
@@ -46,14 +46,14 @@ export const SelfiePoseModal: React.FC<SelfiePoseModalProps> = ({ isOpen, onClos
               <CheckCircle2 className="w-8 h-8 stroke-[3]" />
             </div>
             <div className="space-y-1">
-              <h4 className="text-sm font-tactical font-black uppercase text-white tracking-wider">ATHLETE IDENTITY VERIFIED</h4>
+              <h4 className="text-sm font-tactical font-black text-white tracking-wider">Athlete Identity Verified</h4>
               <p className="text-xs text-neutral-300 font-mono">Biometric match &amp; live challenge confirmed.</p>
             </div>
             <button
               onClick={onClose}
-              className="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs uppercase tracking-wider cursor-pointer shadow-lg active:scale-95 transition"
+              className="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs tracking-wider cursor-pointer shadow-lg active:scale-95 transition"
             >
-              DONE • RETURN TO RADAR
+              Done • return to radar
             </button>
           </div>
         ) : (

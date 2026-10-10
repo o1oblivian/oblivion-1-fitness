@@ -1,13 +1,8 @@
-/**
- * Oblivion 1 Fitness Club - Buddy Realtime Hook
- * Realtime PostgreSQL CDC for buddy_messages
- * Strict File Ceiling: < 110 lines
- */
-
 import { useEffect } from 'react';
 import { supabase } from '../../../services/supabaseClient';
 import { useBuddyMessageStore, RealtimeBuddyMessage } from '../../../stores/useBuddyMessageStore';
 import { tactileEngine } from '../../../services/tactileEngine';
+import { unpackLine } from '../services/buddyMatch';
 
 interface UseBuddyRealtimeOptions {
   currentUserId?: string;
@@ -26,45 +21,37 @@ export function useBuddyRealtime({
     if (!currentUserId) return;
 
     const channel = supabase
-      .channel(`buddy-messages-${currentUserId}`)
+      .channel(`buddy-lines-${currentUserId}`)
       .on(
         'postgres_changes',
         {
           event: 'INSERT',
           schema: 'public',
-          table: 'buddy_messages',
-          filter: `recipient_id=eq.${currentUserId}`,
+          table: 'buddy_likes',
+          filter: `to_id=eq.${currentUserId}`,
         },
         (payload) => {
-          const msgData: any = payload.new;
-          if (msgData) {
-            tactileEngine.triggerSelectionBuzz();
-            const message: RealtimeBuddyMessage = {
-              id: msgData.id,
-              match_id: msgData.match_id,
-              sender_id: msgData.sender_id,
-              recipient_id: msgData.recipient_id,
-              content: msgData.content || msgData.text || '',
-              created_at: msgData.created_at || new Date().toISOString(),
-            };
-
-            addLiveMessage(message);
-
-            // Increment dock unread count if message is not for currently open conversation
-            if (!activeMatchId || activeMatchId !== message.match_id) {
-              incrementUnread();
-            }
-
-            if (onMessageReceived) {
-              onMessageReceived(message);
-            }
-          }
-        }
+          const row = payload.new as { id?: string; created_at?: string };
+          const line = unpackLine(String(row.id || ''), String(row.created_at || ''));
+          if (!line) return;
+          tactileEngine.triggerSelectionBuzz();
+          const message: RealtimeBuddyMessage = {
+            id: line.id,
+            match_id: line.senderId,
+            sender_id: line.senderId,
+            recipient_id: currentUserId,
+            content: line.body,
+            created_at: line.at || new Date().toISOString(),
+          };
+          addLiveMessage(message);
+          if (!activeMatchId || activeMatchId !== line.senderId) incrementUnread();
+          onMessageReceived?.(message);
+        },
       )
       .subscribe();
 
     return () => {
-      supabase.removeChannel(channel);
+      void supabase.removeChannel(channel);
     };
   }, [currentUserId, activeMatchId, incrementUnread, addLiveMessage, onMessageReceived]);
 

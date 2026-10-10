@@ -47,6 +47,9 @@ export interface DemoAthlete {
   match_score: number;
   image_url: string;
   discipline: string;
+  gender?: string;
+  looking_for?: string;
+  training_place?: string;
   current_split?: string;
   handle?: string;
   photos?: string[];
@@ -58,6 +61,7 @@ export interface DemoAthlete {
   deadlift_kg?: number;
   avatar?: string;
   matchPercentage?: number;
+  match_reasons?: string[];
   homeGym?: string;
   distanceKm?: number;
   training_discipline?: string;

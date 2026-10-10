@@ -9,6 +9,14 @@ interface Props {
   onSelect: (productId: string) => void;
 }
 
+function badgeTone(badge: string): string {
+  const key = badge.toUpperCase();
+  if (key.includes('POPULAR') || key.includes('FOUNDER')) return 'text-[#D4A017] border-[#D4A017]/40';
+  if (key.includes('PRO')) return 'text-[#4F8F9A] border-[#4F8F9A]/40';
+  if (key.includes('ALL')) return 'text-[#6B8F5E] border-[#6B8F5E]/40';
+  return 'text-neutral-300 border-white/[0.14]';
+}
+
 export const MembershipPlanCard: React.FC<Props> = ({ product, isSelected, onSelect }) => {
   return (
     <div
@@ -18,7 +26,7 @@ export const MembershipPlanCard: React.FC<Props> = ({ product, isSelected, onSel
       }}
       className={`rounded-2xl p-3 sm:p-3.5 transition-all cursor-pointer relative flex flex-col justify-between border ${
         isSelected
-          ? 'bg-o1-well border-o1-crimson ring-1 ring-o1-crimson shadow-md shadow-o1-crimson/10'
+          ? 'bg-o1-well border-white/30'
           : 'bg-o1-card border-white/[0.07] hover:border-white/[0.14]'
       }`}
     >
@@ -26,7 +34,7 @@ export const MembershipPlanCard: React.FC<Props> = ({ product, isSelected, onSel
         {/* Top: Badge + Radio Check */}
         <div className="flex items-center justify-between gap-1 mb-1.5 min-h-[22px]">
           {product.badge ? (
-            <span className="bg-o1-crimson text-white text-[9px] font-bold font-mono px-2 py-0.5 rounded-full uppercase tracking-wider">
+            <span className={`text-[9px] font-sans font-semibold px-2 py-0.5 rounded-full border bg-o1-card ${badgeTone(product.badge)}`}>
               {product.badge}
             </span>
           ) : (
@@ -37,8 +45,8 @@ export const MembershipPlanCard: React.FC<Props> = ({ product, isSelected, onSel
           <div
             className={`w-5 h-5 rounded-full border flex items-center justify-center shrink-0 transition-colors ${
               isSelected
-                ? 'border-o1-crimson bg-o1-crimson text-white'
-                : 'border-white/[0.07] bg-o1-well'
+                ? 'border-white/40 bg-white text-neutral-950'
+                : 'border-white/[0.07] bg-o1-card'
             }`}
           >
             {isSelected && <Check className="w-3 h-3 stroke-[3]" />}

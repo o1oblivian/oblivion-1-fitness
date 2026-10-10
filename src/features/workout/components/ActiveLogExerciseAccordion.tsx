@@ -89,9 +89,9 @@ export const ActiveLogExerciseAccordion: React.FC<ActiveLogExerciseAccordionProp
       {isExpanded && (
         <div className="space-y-2 pt-1">
           {/* Column Headers: SET | REPS | KG | RPE/RIR */}
-          <div className="flex items-center gap-2 text-[11px] font-tactical font-bold text-neutral-400 uppercase tracking-wider px-1">
-            <span className="w-7 text-left pl-1 shrink-0">SET</span>
-            <span className="flex-1 text-center">REPS</span>
+          <div className="flex items-center gap-2 text-[11px] font-tactical font-bold text-neutral-400 tracking-wider px-1">
+            <span className="w-7 text-left pl-1 shrink-0">Set</span>
+            <span className="flex-1 text-center">Reps</span>
             <span className="flex-1 text-center">KG</span>
             <span className="flex-1 text-center">RPE/RIR</span>
             <span className="w-6 shrink-0" />
@@ -104,6 +104,7 @@ export const ActiveLogExerciseAccordion: React.FC<ActiveLogExerciseAccordionProp
                 key={set.id || set.setNumber || setIndex}
                 exerciseId={exercise.id}
                 set={set}
+                exerciseName={exercise.name}
                 isDone={Boolean(set.completed)}
                 onOpenDial={(type, currentVal) =>
                   onOpenDial(exercise.id, set.setNumber, type, currentVal, set.id, setIndex)
@@ -125,7 +126,7 @@ export const ActiveLogExerciseAccordion: React.FC<ActiveLogExerciseAccordionProp
                 tactileEngine.triggerSelectionBuzz();
                 onAddSet(exercise.id);
               }}
-              className="flex-1 h-8 border border-dashed border-o1-crimson/50 hover:border-o1-crimson text-o1-crimson hover:bg-o1-crimson/10 font-tactical text-[11px] font-semibold uppercase tracking-wider rounded-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+              className="flex-1 h-8 border border-dashed border-o1-crimson/50 hover:border-o1-crimson text-o1-crimson hover:bg-o1-crimson/10 font-tactical text-[11px] font-semibold tracking-wider rounded-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer"
             >
               <Plus className="w-3.5 h-3.5" />
               <span>Add Set</span>

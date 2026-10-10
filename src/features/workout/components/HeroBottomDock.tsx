@@ -37,10 +37,10 @@ export const HeroBottomDock: React.FC<HeroBottomDockProps> = ({
           if (onOpenCardio) onOpenCardio();
           else onCycleDayDial();
         }}
-        className="h-8 px-3.5 rounded-full bg-black/35 backdrop-blur-md border border-[#0284c7]/50 text-[#0284c7] flex items-center gap-1.5 cursor-pointer active:scale-95 transition-all text-xs font-mono font-bold tracking-wider shrink-0 shadow-xs hover:border-[#0284c7]/80 hover:bg-black/50"
+        className="h-8 px-3.5 rounded-full bg-black/35 backdrop-blur-md border border-white/15 text-neutral-300 flex items-center gap-1.5 cursor-pointer active:scale-95 transition-all text-xs font-sans font-semibold tracking-wide shrink-0 hover:border-white/25 hover:bg-black/50"
       >
-        <Gauge className="w-3.5 h-3.5 stroke-[2.5]" />
-        <span>CARDIO</span>
+        <Gauge className="w-3.5 h-3.5" strokeWidth={1.75} />
+        <span>Cardio</span>
       </button>
 
       {/* 2. Middle Pill: DAY | SPLIT */}
@@ -58,9 +58,9 @@ export const HeroBottomDock: React.FC<HeroBottomDockProps> = ({
               onCycleDayDial();
             }
           }}
-          className="text-o1-crimson font-black uppercase tracking-wider hover:opacity-80 active:scale-90 transition cursor-pointer"
+          className="text-white font-semibold tracking-normal hover:opacity-80 active:scale-90 transition cursor-pointer"
         >
-          {activeDay || 'THU'}
+          {activeDay || 'Thu'}
         </button>
         <span className="text-neutral-500/80 text-[11px] font-normal select-none">|</span>
         <button
@@ -72,9 +72,9 @@ export const HeroBottomDock: React.FC<HeroBottomDockProps> = ({
             tactileEngine.triggerSelectionBuzz();
             onCycleDayDial();
           }}
-          className="text-white font-extrabold uppercase tracking-wider hover:opacity-80 active:scale-95 transition cursor-pointer"
+          className="text-white font-extrabold tracking-normal hover:opacity-80 active:scale-95 transition cursor-pointer"
         >
-          {activeSplitLabel || 'HYPER'}
+          {activeSplitLabel || 'Hyper'}
         </button>
       </div>
 
@@ -88,10 +88,10 @@ export const HeroBottomDock: React.FC<HeroBottomDockProps> = ({
           tactileEngine.triggerSelectionBuzz();
           onFlipToVitals();
         }}
-        className="h-8 px-3.5 rounded-full bg-black/35 backdrop-blur-md border border-[#f59e0b]/50 text-[#f59e0b] flex items-center gap-1.5 cursor-pointer active:scale-95 transition-all text-xs font-mono font-bold tracking-wider shrink-0 shadow-xs hover:border-[#f59e0b]/80 hover:bg-black/50"
+        className="h-8 px-3.5 rounded-full bg-black/35 backdrop-blur-md border border-white/15 text-neutral-300 flex items-center gap-1.5 cursor-pointer active:scale-95 transition-all text-xs font-sans font-semibold tracking-wide shrink-0 hover:border-white/25 hover:bg-black/50"
       >
-        <RotateCw className="w-3.5 h-3.5 stroke-[2.5]" />
-        <span>VITALS</span>
+        <RotateCw className="w-3.5 h-3.5" strokeWidth={1.75} />
+        <span>Vitals</span>
       </button>
     </div>
   );

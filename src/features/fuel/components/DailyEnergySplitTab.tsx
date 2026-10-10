@@ -30,7 +30,7 @@ function MacroWell({
   return (
     <div className={`rounded-2xl p-2.5 ${track}`}>
       <div className="flex items-center justify-between mb-1">
-        <span className="text-[10px] font-semibold uppercase tracking-wide text-neutral-400">
+        <span className="text-[10px] font-semibold tracking-wide text-neutral-400">
           {label}
         </span>
         <span className="text-[10px] font-mono font-semibold" style={{ color }}>
@@ -102,23 +102,23 @@ export const DailyEnergySplitTab: React.FC<DailyEnergySplitTabProps> = ({
             <span className="text-xl font-semibold tabular-nums text-white leading-none">
               {Math.round(remainingKcal).toLocaleString()}
             </span>
-            <span className="text-[9px] uppercase tracking-wider text-neutral-400 mt-0.5">left</span>
+            <span className="text-[9px] tracking-wider text-neutral-400 mt-0.5">left</span>
           </div>
         </div>
 
         <div className="flex-1 grid grid-cols-3 gap-1.5">
           <div className="rounded-xl bg-o1-well border border-white/[0.07] px-1.5 py-2 text-center">
-            <p className="text-[9px] uppercase tracking-wide text-neutral-400">Eaten</p>
+            <p className="text-[9px] tracking-wide text-neutral-400">Eaten</p>
             <p className="text-[13px] font-semibold tabular-nums text-white">
               {Math.round(consumedKcal)}
             </p>
           </div>
           <div className="rounded-xl bg-red-950/20 border border-red-900/30 px-1.5 py-2 text-center">
-            <p className="text-[9px] uppercase tracking-wide text-o1-crimson">Burn</p>
+            <p className="text-[9px] tracking-wide text-o1-crimson">Burn</p>
             <p className="text-[13px] font-semibold tabular-nums text-o1-crimson">+{Math.round(burnedKcal)}</p>
           </div>
           <div className="rounded-xl bg-o1-well border border-white/[0.07] px-1.5 py-2 text-center">
-            <p className="text-[9px] uppercase tracking-wide text-neutral-400">Goal</p>
+            <p className="text-[9px] tracking-wide text-neutral-400">Goal</p>
             <p className="text-[13px] font-semibold tabular-nums text-white">
               {dailyTargetKcal > 0 ? Math.round(dailyTargetKcal) : '—'}
             </p>
@@ -145,7 +145,7 @@ export const DailyEnergySplitTab: React.FC<DailyEnergySplitTabProps> = ({
           label="Fats"
           grams={fatsG}
           target={fatsTarget}
-          color="#059669"
+          color="#6B8F5E"
           track="bg-emerald-950/20 border border-emerald-900/30"
         />
       </div>

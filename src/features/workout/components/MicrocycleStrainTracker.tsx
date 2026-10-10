@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Activity, Layers, TrendingUp, Dumbbell, Award } from 'lucide-react';
+import { Orbit, Layers, TrendingUp, PersonStanding } from 'lucide-react';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { useMicrocycleStore } from '../store/useMicrocycleStore';
 import { DayStrainDetail, getLocalSystemDayIdx } from './microcycle/microcycleTypes';
@@ -47,19 +47,19 @@ export const MicrocycleStrainTracker: React.FC = () => {
       {/* Header with Title and ACWR Pill Badge */}
       <div className="flex items-center justify-between gap-2 flex-wrap">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-o1-well border border-white/[0.07] flex items-center justify-center text-o1-crimson">
-            <Activity className="w-4 h-4" />
-          </div>
+          <span className="o1-mark text-o1-olive">
+            <Orbit />
+          </span>
           <div>
             <div className="flex items-center gap-2">
-              <h3 className="font-tactical font-semibold text-xs uppercase tracking-wider text-white">MICROCYCLE STRAIN TRACKER</h3>
+              <h3 className="font-tactical font-semibold text-xs tracking-normal text-white">Microcycle Strain Tracker</h3>
               <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full border ${
                 acwr.calibrating
                   ? 'bg-o1-well border-white/[0.07] text-zinc-400'
                   : 'bg-o1-well text-zinc-400 border-white/[0.07]'
               }`}>
                 {acwr.calibrating
-                  ? 'CALIBRATING'
+                  ? 'Calibrating'
                   : acwr.ratio !== null
                     ? `ACWR ${acwr.ratio.toFixed(2)}`
                     : 'ACWR --'}
@@ -68,7 +68,7 @@ export const MicrocycleStrainTracker: React.FC = () => {
             <span className="text-[10px] text-zinc-400 font-mono block">
               {acwr.calibrating
                 ? `Establishing 7-day chronic baseline (Day ${Math.min(7, acwr.historyDays)}/7)`
-                : 'Weekly Periodization & Olympic Plate Tonnage'}
+                : 'Weekly periodization and Olympic plate tonnage'}
             </span>
           </div>
         </div>
@@ -76,8 +76,8 @@ export const MicrocycleStrainTracker: React.FC = () => {
         {/* Pill Tabs: [ TOWERS ], [ RECHARTS CURVE ], [ ANATOMY ] */}
         <div className="flex items-center bg-o1-well p-1 rounded-xl border border-white/[0.07] shrink-0 gap-1">
           {(['towers', 'trend', 'anatomy'] as const).map((mode) => {
-            const label = mode === 'towers' ? 'TOWERS' : mode === 'trend' ? 'RECHARTS CURVE' : 'ANATOMY';
-            const Icon = mode === 'towers' ? Layers : mode === 'trend' ? TrendingUp : Dumbbell;
+            const label = mode === 'towers' ? 'Towers' : mode === 'trend' ? 'Recharts Curve' : 'Anatomy';
+            const Icon = mode === 'towers' ? Layers : mode === 'trend' ? TrendingUp : PersonStanding;
             return (
               <button
                 key={mode}
@@ -100,15 +100,19 @@ export const MicrocycleStrainTracker: React.FC = () => {
         <div className="flex items-center gap-1.5 text-neutral-400 font-medium">
           <span>Typical load: {typicalLabel}</span>
         </div>
-        <div className="flex items-center gap-1 text-o1-crimson font-semibold">
-          <Award className="w-3.5 h-3.5" />
-          <span>Peak Overload: {peakOverloadText}</span>
+        <div className="flex items-center gap-1 text-neutral-300 font-semibold">
+          <span>Peak overload: {peakOverloadText}</span>
         </div>
       </div>
 
       {/* View Modes */}
       {viewMode === 'towers' && (
-        <MicrocycleTowers activeDays={activeDays} selectedDayIdx={selectedDayIdx} onSelectDay={setSelectedDayIdx} />
+        <MicrocycleTowers
+          activeDays={activeDays}
+          selectedDayIdx={selectedDayIdx}
+          onSelectDay={setSelectedDayIdx}
+          baselineVolume={typicalLoad}
+        />
       )}
       {viewMode === 'trend' && (
         <MicrocycleTrendChart activeDays={activeDays} onSelectDay={setSelectedDayIdx} />

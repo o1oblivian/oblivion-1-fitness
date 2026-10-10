@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { DemoAthlete } from '../types';
 import {
   ChevronLeft,
@@ -9,21 +9,28 @@ import {
   ChevronRight,
   MapPin,
   Clock,
-  Sparkles,
   Search,
   X,
   Navigation,
 } from 'lucide-react';
 import { tactileEngine } from '../../../services/tactileEngine';
-import { supabase } from '../../../services/supabaseClient';
 import { useBuddyMessageStore } from '../../../stores/useBuddyMessageStore';
 import { useUserStore } from '../../../stores/useUserStore';
+import { searchVenues, VenueHit } from '../services/venueSearch';
+import { rememberLine, postLine, readThread } from '../services/buddyMatch';
 
 interface Props {
   isOpen: boolean;
   onClose: () => void;
   athlete: DemoAthlete | null;
   onSendInvite?: (invite: { gym: string; dateTime: string; parity: string }) => void;
+  allowCompose?: boolean;
+  scheduleOpen?: boolean;
+  onUnmatch?: () => void;
+  onBlock?: () => void;
+  onReport?: (reason: string) => void;
+  onLine?: (text: string) => void;
+  sessionUserId?: string;
 }
 
 const CURATED_ICEBREAKERS = [
@@ -35,54 +42,98 @@ const CURATED_ICEBREAKERS = [
   'Let us link up for a joint hypertrophy session this week!',
 ];
 
+const INVITE_MARK = 'o1invite:';
+const ACCEPT_MARK = 'o1accept:';
+
+function encodeInvite(invite: NonNullable<ChatMessage['invite']>): string {
+  return `${INVITE_MARK}${JSON.stringify(invite)}`;
+}
+
+function applyAccepts(rows: ChatMessage[]): ChatMessage[] {
+  const accepted = new Set(rows.map((row) => row.acceptId).filter(Boolean));
+  return rows
+    .filter((row) => !row.acceptId)
+    .map((row) => (
+      row.invite && accepted.has(row.id)
+        ? { ...row, invite: { ...row.invite, status: 'Accepted' as const } }
+        : row
+    ));
+}
+
+function readStoredMessage(row: { id?: string; sender_id?: string; content?: string; text?: string; created_at?: string }, myId: string): ChatMessage {
+  const raw = String(row.content || row.text || '');
+  const time = row.created_at
+    ? new Date(row.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    : 'Just now';
+  const sender: ChatMessage['sender'] = row.sender_id === myId ? 'user' : 'peer';
+  if (raw.startsWith(INVITE_MARK)) {
+    try {
+      return { id: String(row.id || `msg-${Date.now()}`), sender, time, invite: JSON.parse(raw.slice(INVITE_MARK.length)) };
+    } catch {
+      /* Fall through to plain text. */
+    }
+  }
+  if (raw.startsWith(ACCEPT_MARK)) {
+    return { id: String(row.id || `msg-${Date.now()}`), sender, time, text: 'Accepted the session', acceptId: raw.slice(ACCEPT_MARK.length) };
+  }
+  return { id: String(row.id || `msg-${Date.now()}`), sender, time, text: raw };
+}
+
 interface ChatMessage {
   id: string;
   sender: 'user' | 'peer';
   text?: string;
   time: string;
+  acceptId?: string;
   invite?: {
     date: string;
     time: string;
     gym: string;
     address: string;
     parity: string;
-    userCommute: string;
-    peerCommute: string;
     status: 'Pending Response' | 'Accepted';
+    lat?: number;
+    lng?: number;
   };
 }
-
-const VENUES_WORLDWIDE = [
-  { id: 'v1', name: 'Iron Works Barbell HQ', address: '15 Bridge Road, Inner West', distKm: 2.4 },
-  { id: 'v2', name: 'FitLab Central Metro', address: '240 George St, CBD', distKm: 3.1 },
-  { id: 'v3', name: 'PowerHouse Strength & Conditioning', address: '88 Campbell Ave', distKm: 4.5 },
-  { id: 'v4', name: 'Anytime Fitness', address: '42 Oxford Street', distKm: 1.2 },
-];
 
 export const AthleteMessageModal: React.FC<Props> = ({
   isOpen,
   onClose,
   athlete,
   onSendInvite,
+  allowCompose = false,
+  scheduleOpen = false,
+  onUnmatch,
+  onBlock,
+  onReport,
+  onLine,
+  sessionUserId = '',
 }) => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [hasReplied, setHasReplied] = useState(false);
   const [inputText, setInputText] = useState('');
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [reportOpen, setReportOpen] = useState(false);
+  const [reportReason, setReportReason] = useState('');
 
-  // Schedule drawer state
-  const [isScheduleOpen, setIsScheduleOpen] = useState(false);
-  const [schedDate, setSchedDate] = useState('09/26/2026');
+  const [isScheduleOpen, setIsScheduleOpen] = useState(scheduleOpen);
+  const [schedDate, setSchedDate] = useState(() => new Date().toISOString().slice(0, 10));
   const [schedTime, setSchedTime] = useState('6:00 AM');
   const [gymSearch, setGymSearch] = useState('');
   const [suburbSearch, setSuburbSearch] = useState('');
   const [postcodeSearch, setPostcodeSearch] = useState('');
-  const [selectedVenue, setSelectedVenue] = useState(VENUES_WORLDWIDE[0]);
+  const [venues, setVenues] = useState<VenueHit[]>([]);
+  const [venueNote, setVenueNote] = useState('');
+  const [selectedVenue, setSelectedVenue] = useState<VenueHit | null>(null);
+  const [sendNote, setSendNote] = useState('');
 
   // Synchronize incoming realtime messages for this athlete match
   const liveMessages = useBuddyMessageStore((s) => s.liveMessages);
   const setActiveMatchId = useBuddyMessageStore((s) => s.setActiveMatchId);
   const clearUnread = useBuddyMessageStore((s) => s.clearUnread);
-  const currentUserId = useUserStore((s) => s.userId);
+  const storedUserId = useUserStore((s) => s.userId);
+  const currentUserId = sessionUserId || storedUserId;
 
   // Fetch messages from Supabase on mount
   React.useEffect(() => {
@@ -93,21 +144,14 @@ export const AthleteMessageModal: React.FC<Props> = ({
       const targetAthleteId = athlete.id;
       async function fetchMatchMessages() {
         try {
-          const { data, error } = await supabase
-            .from('buddy_messages')
-            .select('*')
-            .or(`match_id.eq.${targetAthleteId},and(sender_id.eq.${currentUserId},recipient_id.eq.${targetAthleteId}),and(sender_id.eq.${targetAthleteId},recipient_id.eq.${currentUserId})`)
-            .order('created_at', { ascending: true });
-
-          if (!error && Array.isArray(data) && data.length > 0) {
-            const mapped: ChatMessage[] = data.map((row: any) => ({
-              id: row.id,
-              sender: row.sender_id === currentUserId ? 'user' : 'peer',
-              text: row.content || row.text || '',
-              time: row.created_at
-                ? new Date(row.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-                : 'Just now',
-            }));
+          const lines = await readThread(currentUserId, targetAthleteId);
+          const mapped = applyAccepts(lines.map((line) => readStoredMessage({
+            id: line.id,
+            sender_id: line.senderId,
+            content: line.body,
+            created_at: line.at,
+          }, currentUserId)));
+          if (mapped.length > 0) {
             setMessages(mapped);
             setHasReplied(mapped.some((m) => m.sender === 'peer'));
           }
@@ -116,7 +160,12 @@ export const AthleteMessageModal: React.FC<Props> = ({
         }
       }
 
-      fetchMatchMessages();
+      void fetchMatchMessages();
+      const timer = window.setInterval(() => { void fetchMatchMessages(); }, 8000);
+      return () => {
+        window.clearInterval(timer);
+        setActiveMatchId(null);
+      };
     }
     return () => {
       setActiveMatchId(null);
@@ -130,28 +179,73 @@ export const AthleteMessageModal: React.FC<Props> = ({
     if (latest.sender_id === athlete.id || latest.match_id === athlete.id) {
       setMessages((prev) => {
         if (prev.some((m) => m.id === latest.id)) return prev;
-        return [
-          ...prev,
-          {
-            id: latest.id,
-            sender: 'peer',
-            text: latest.content,
-            time: new Date(latest.created_at).toLocaleTimeString([], {
-              hour: '2-digit',
-              minute: '2-digit',
-            }),
-          },
-        ];
+        const incoming = readStoredMessage({
+          id: latest.id,
+          sender_id: latest.sender_id,
+          content: latest.content,
+          created_at: latest.created_at,
+        }, currentUserId || '');
+        return applyAccepts([...prev, incoming]);
       });
       setHasReplied(true);
     }
   }, [liveMessages, athlete]);
 
+  useEffect(() => {
+    if (scheduleOpen) setIsScheduleOpen(true);
+  }, [scheduleOpen, athlete?.id]);
+
+  useEffect(() => {
+    const query = `${gymSearch} ${suburbSearch} ${postcodeSearch}`.trim();
+    if (query.length < 2) {
+      setVenues([]);
+      setVenueNote('');
+      return;
+    }
+    let cancelled = false;
+    setVenueNote('Searching');
+    const timer = window.setTimeout(() => {
+      void searchVenues(gymSearch, suburbSearch, postcodeSearch)
+        .then((hits) => {
+          if (cancelled) return;
+          setVenues(hits);
+          setVenueNote(hits.length ? '' : 'No venues for that search');
+        })
+        .catch(() => {
+          if (cancelled) return;
+          setVenues([]);
+          setVenueNote('Search did not respond');
+        });
+    }, 350);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+    };
+  }, [gymSearch, suburbSearch, postcodeSearch]);
+
   if (!isOpen || !athlete) return null;
 
   const photo = athlete.image_url || athlete.avatar || '';
-  const discipline = athlete.discipline || athlete.training_discipline || 'Hypertrophy';
-  const gym = athlete.home_gym || athlete.homeGym || 'Iron Works';
+  const discipline = athlete.discipline || athlete.training_discipline || '';
+  const gym = athlete.home_gym || athlete.homeGym || '';
+
+  const deliverLine = async (text: string, optimisticId: string): Promise<boolean> => {
+    if (!currentUserId) {
+      setMessages((prev) => prev.filter((row) => row.id !== optimisticId));
+      setSendNote('Sign in to send');
+      return false;
+    }
+    const saved = await postLine(currentUserId, athlete.id, text);
+    if (!saved.ok) {
+      setMessages((prev) => prev.filter((row) => row.id !== optimisticId));
+      setSendNote(saved.error || 'Message did not send');
+      return false;
+    }
+    setSendNote('');
+    rememberLine(athlete.id, text);
+    onLine?.(text);
+    return true;
+  };
 
   // Send an icebreaker (initial handshake)
   const handleSelectIcebreaker = (text: string) => {
@@ -165,36 +259,16 @@ export const AthleteMessageModal: React.FC<Props> = ({
       text,
       time: timeStr,
     };
-    setMessages([newMsg]);
-
-    // Dispatch icebreaker to Supabase
-    try {
-      if (!currentUserId) return;
-      supabase.from('buddy_messages').insert({
-        match_id: athlete.id,
-        sender_id: currentUserId,
-        recipient_id: athlete.id,
-        content: text,
-      }).then(() => {});
-    } catch (err) {}
-
-    // Simulate peer replying shortly after to unlock direct typing
-    setTimeout(() => {
-      tactileEngine.triggerSelectionBuzz();
-      const replyMsg: ChatMessage = {
-        id: `reply-${Date.now()}`,
-        sender: 'peer',
-        text: `Hey! Absolutely, I usually hit squats and compounds on weekends. Let's lock in a gym slot!`,
-        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      };
-      setMessages((prev) => [...prev, replyMsg]);
-      setHasReplied(true);
-    }, 1500);
+    setMessages((prev) => [...prev, newMsg]);
+    void deliverLine(text, newMsg.id).then((ok) => {
+      if (ok) setHasReplied(true);
+    });
   };
 
   // Send custom typed message (only once unlocked after peer reply)
   const handleSendCustomMessage = () => {
-    if (!inputText.trim()) return;
+    const text = inputText.trim();
+    if (!text) return;
     tactileEngine.triggerSelectionBuzz();
     const now = new Date();
     const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -202,69 +276,71 @@ export const AthleteMessageModal: React.FC<Props> = ({
     const newMsg: ChatMessage = {
       id: `msg-${Date.now()}`,
       sender: 'user',
-      text: inputText.trim(),
+      text,
       time: timeStr,
     };
     setMessages((prev) => [...prev, newMsg]);
-
-    // Dispatch to Supabase Realtime table buddy_messages
-    try {
-      if (!currentUserId) return;
-      supabase.from('buddy_messages').insert({
-        match_id: athlete.id,
-        sender_id: currentUserId,
-        recipient_id: athlete.id,
-        content: inputText.trim(),
-      }).then(() => {});
-    } catch (err) {
-      console.warn('[AthleteMessageModal] Supabase dispatch warning:', err);
-    }
-
     setInputText('');
+    void deliverLine(text, newMsg.id).then((ok) => {
+      if (!ok) setInputText(text);
+    });
   };
 
   // Confirm and send Gym Session Invite
   const handleSendSessionInvite = () => {
+    if (!selectedVenue) {
+      setVenueNote('Pick a venue from the search');
+      return;
+    }
     tactileEngine.playPRCelebration();
     const now = new Date();
     const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
     const invitePayload = {
-      date: 'Sat, Sep 26',
+      date: schedDate,
       time: schedTime,
       gym: selectedVenue.name,
       address: selectedVenue.address,
-      parity: '30% Fair Split',
-      userCommute: '3 min (0.4 km)',
-      peerCommute: `576 min (${athlete.distance_km || 239.1} km)`,
+      parity: Number.isFinite(Number(athlete.distance_km)) ? `${athlete.distance_km} km` : '',
       status: 'Pending Response' as const,
+      lat: selectedVenue.lat,
+      lng: selectedVenue.lng,
     };
-
     const inviteMsg: ChatMessage = {
       id: `invite-${Date.now()}`,
-      sender: 'user',
+      sender: 'user' as const,
       time: timeStr,
       invite: invitePayload,
     };
-
     setMessages((prev) => [...prev, inviteMsg]);
     setIsScheduleOpen(false);
-    onSendInvite?.({
-      gym: selectedVenue.name,
-      dateTime: `${schedDate} @ ${schedTime}`,
-      parity: '30% Fair Split',
-    });
+    const venueName = selectedVenue.name;
+    void (async () => {
+      if (!currentUserId) {
+        setMessages((prev) => prev.filter((row) => row.id !== inviteMsg.id));
+        setSendNote('Sign in to send');
+        return;
+      }
+      const saved = await postLine(currentUserId, athlete.id, encodeInvite(invitePayload));
+      if (!saved.ok) {
+        setMessages((prev) => prev.filter((row) => row.id !== inviteMsg.id));
+        setSendNote(saved.error || 'Invite did not send');
+        return;
+      }
+      setHasReplied(true);
+      setSendNote('');
+      rememberLine(athlete.id, `Session at ${venueName}`);
+      onLine?.(`Session at ${venueName}`);
+      onSendInvite?.({
+        gym: venueName,
+        dateTime: `${schedDate} @ ${schedTime}`,
+        parity: invitePayload.parity,
+      });
+    })();
   };
 
-  const filteredVenues = VENUES_WORLDWIDE.filter((v) => {
-    const q1 = gymSearch.toLowerCase();
-    const q2 = suburbSearch.toLowerCase();
-    return v.name.toLowerCase().includes(q1) && v.address.toLowerCase().includes(q2);
-  });
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 o1-sheet-scrim animate-in fade-in duration-200 select-none">
-      <div className="o1-sheet-card relative bg-o1-card flex flex-col overflow-hidden text-white shadow-xl border border-white/[0.07]">
+    <div className="fixed inset-0 z-50 flex o1-sheet-scrim o1-page-scrim animate-in fade-in duration-200 select-none">
+      <div className="o1-sheet-card o1-page relative bg-black flex flex-col overflow-hidden text-white">
         
         {/* Top Chat Bar Header */}
         <div className="flex items-center justify-between px-3 py-2.5 bg-black border-b border-white/[0.05] text-white shrink-0">
@@ -291,7 +367,7 @@ export const AthleteMessageModal: React.FC<Props> = ({
                 {athlete.name}
               </h3>
               <p className="text-[10px] text-neutral-400 font-mono mt-0.5">
-                {discipline} · {gym}
+                {[discipline, gym].filter(Boolean).join(' · ')}
               </p>
             </div>
           </div>
@@ -304,7 +380,7 @@ export const AthleteMessageModal: React.FC<Props> = ({
                 tactileEngine.triggerSelectionBuzz();
                 setIsScheduleOpen((prev) => !prev);
               }}
-              className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-o1-crimson hover:bg-o1-crimson-hover text-white text-[11px] font-bold font-mono uppercase tracking-wider active:scale-95 transition cursor-pointer shadow-xs"
+              className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-o1-crimson hover:bg-o1-crimson-hover text-white text-[11px] font-bold font-mono tracking-wider active:scale-95 transition cursor-pointer shadow-xs"
             >
               <Calendar className="w-3.5 h-3.5 text-white" />
               <span>Book</span>
@@ -312,13 +388,48 @@ export const AthleteMessageModal: React.FC<Props> = ({
 
             <button
               type="button"
-              onClick={() => tactileEngine.triggerSelectionBuzz()}
+              aria-label="Chat actions"
+              onClick={() => {
+                tactileEngine.triggerSelectionBuzz();
+                setMenuOpen((open) => !open);
+              }}
               className="p-1 text-neutral-400 hover:text-white cursor-pointer"
             >
               <MoreVertical className="w-4 h-4" />
             </button>
           </div>
         </div>
+        {menuOpen && (
+          <div className="absolute right-3 top-14 z-20 w-48 rounded-2xl border border-white/[0.07] bg-[#121214] p-1 shadow-xl">
+            <button type="button" onClick={() => { setMenuOpen(false); onUnmatch?.(); }} className="flex w-full rounded-xl px-3 py-2.5 text-left text-[13px] text-white">Unmatch</button>
+            <button type="button" onClick={() => { setMenuOpen(false); onBlock?.(); }} className="flex w-full rounded-xl px-3 py-2.5 text-left text-[13px] text-white">Block</button>
+            <button type="button" onClick={() => { setMenuOpen(false); setReportOpen(true); }} className="flex w-full rounded-xl px-3 py-2.5 text-left text-[13px] text-white">Report</button>
+          </div>
+        )}
+        {reportOpen && (
+          <div className="border-b border-white/[0.07] bg-[#121214] px-4 py-3">
+            <p className="text-[13px] font-semibold text-white">Report behaviour</p>
+            <textarea
+              value={reportReason}
+              onChange={(event) => setReportReason(event.target.value.slice(0, 240))}
+              placeholder="What happened"
+              className="mt-2 h-20 w-full rounded-xl border border-white/[0.07] bg-[#161616] px-3 py-2 text-[13px] text-white outline-none"
+            />
+            <button
+              type="button"
+              onClick={() => {
+                const reason = reportReason.trim();
+                if (!reason) return;
+                onReport?.(reason);
+                setReportReason('');
+                setReportOpen(false);
+              }}
+              className="mt-2 h-9 rounded-full bg-white px-4 text-[12px] font-semibold text-neutral-950"
+            >
+              Send report
+            </button>
+          </div>
+        )}
 
         {/* Schedule Training Session Drawer Dropdown */}
         {isScheduleOpen && (
@@ -345,22 +456,22 @@ export const AthleteMessageModal: React.FC<Props> = ({
             {/* Date and Time Selectors */}
             <div className="grid grid-cols-2 gap-2">
               <div className="space-y-1">
-                <label className="text-[10px] font-mono uppercase font-bold text-neutral-400 flex items-center gap-1">
+                <label className="text-[10px] font-mono font-bold text-neutral-400 flex items-center gap-1">
                   <Calendar className="w-3 h-3 text-o1-crimson" />
-                  <span>DATE</span>
+                  <span>Date</span>
                 </label>
                 <input
                   type="date"
-                  value="2026-09-26"
+                  value={schedDate}
                   onChange={(e) => setSchedDate(e.target.value)}
                   className="w-full bg-o1-well border border-white/[0.07] rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-o1-crimson cursor-pointer"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="text-[10px] font-mono uppercase font-bold text-neutral-400 flex items-center gap-1">
+                <label className="text-[10px] font-mono font-bold text-neutral-400 flex items-center gap-1">
                   <Clock className="w-3 h-3 text-o1-crimson" />
-                  <span>TIME</span>
+                  <span>Time</span>
                 </label>
                 <select
                   value={schedTime}
@@ -378,9 +489,9 @@ export const AthleteMessageModal: React.FC<Props> = ({
 
             {/* Search Gym Worldwide */}
             <div className="space-y-1.5 pt-1">
-              <span className="text-[10px] font-mono uppercase font-bold text-neutral-400 flex items-center gap-1">
+              <span className="text-[10px] font-mono font-bold text-neutral-400 flex items-center gap-1">
                 <Search className="w-3 h-3 text-o1-crimson" />
-                <span>SEARCH GYM WORLDWIDE</span>
+                <span>Search Gym Worldwide</span>
               </span>
 
               <div className="grid grid-cols-3 gap-1.5">
@@ -388,29 +499,30 @@ export const AthleteMessageModal: React.FC<Props> = ({
                   type="text"
                   value={gymSearch}
                   onChange={(e) => setGymSearch(e.target.value)}
-                  placeholder="Gym name / brand (e.g"
+                  placeholder="Gym name"
                   className="bg-o1-well border border-white/[0.07] rounded-xl px-2 py-1.5 text-[10px] text-white placeholder-neutral-500 focus:outline-none focus:border-o1-crimson"
                 />
                 <input
                   type="text"
                   value={suburbSearch}
                   onChange={(e) => setSuburbSearch(e.target.value)}
-                  placeholder="Suburb / City ("
+                  placeholder="Suburb or city"
                   className="bg-o1-well border border-white/[0.07] rounded-xl px-2 py-1.5 text-[10px] text-white placeholder-neutral-500 focus:outline-none focus:border-o1-crimson"
                 />
                 <input
                   type="text"
                   value={postcodeSearch}
                   onChange={(e) => setPostcodeSearch(e.target.value)}
-                  placeholder="Post /"
+                  placeholder="Postcode"
                   className="bg-o1-well border border-white/[0.07] rounded-xl px-2 py-1.5 text-[10px] text-white placeholder-neutral-500 focus:outline-none focus:border-o1-crimson"
                 />
               </div>
 
               {/* Gym Venue Selection List */}
               <div className="space-y-1 pt-1 max-h-36 overflow-y-auto">
-                {filteredVenues.map((v) => {
-                  const isSelected = selectedVenue.id === v.id;
+                {venueNote ? <p className="px-1 text-[11px] text-neutral-400">{venueNote}</p> : null}
+                {venues.map((v) => {
+                  const isSelected = selectedVenue?.id === v.id;
                   return (
                     <button
                       key={v.id}
@@ -442,29 +554,29 @@ export const AthleteMessageModal: React.FC<Props> = ({
 
             {/* Commute Parity Split */}
             <div className="p-2.5 rounded-xl bg-o1-well border border-white/[0.07] flex items-center justify-between text-xs">
-              <span className="text-[11px] font-mono text-neutral-300">
-                ⚖ Check Commute Split (You & {athlete.name})
+              <span className="text-[11px] text-neutral-300">
+                {athlete.name}
               </span>
-              <span className="text-[11px] font-mono font-bold text-emerald-400">
-                30% Fair Split
+              <span className="text-[11px] font-semibold text-white">
+                {Number.isFinite(Number(athlete.distance_km)) ? `${athlete.distance_km} km` : 'Distance unknown'}
               </span>
             </div>
 
             {/* Selected Gym Summary Box */}
             <div className="p-3 rounded-xl bg-o1-well border border-white/[0.07] flex items-center justify-between">
               <div>
-                <span className="text-[9px] font-mono uppercase text-neutral-400 font-bold block">
-                  SELECTED GYM:
+                <span className="text-[9px] font-mono text-neutral-400 font-bold block">
+                  Selected Gym:
                 </span>
                 <span className="text-xs font-bold text-white block">
-                  {selectedVenue.name}
+                  {selectedVenue ? selectedVenue.name : 'None yet'}
                 </span>
                 <span className="text-[10px] font-mono text-neutral-400">
-                  {selectedVenue.address}
+                  {selectedVenue?.address || 'Search a gym, suburb, or postcode'}
                 </span>
               </div>
               <span className="text-[10px] font-mono text-neutral-400 bg-black/40 px-2 py-1 rounded">
-                2026-09-26 @ {schedTime}
+                {schedDate} @ {schedTime}
               </span>
             </div>
 
@@ -474,7 +586,7 @@ export const AthleteMessageModal: React.FC<Props> = ({
               onClick={handleSendSessionInvite}
               className="w-full py-2.5 rounded-xl bg-zinc-100 hover:bg-white text-neutral-950 text-xs font-semibold tracking-wide flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]"
             >
-              <Send className="w-3.5 h-3.5 text-white" />
+              <Send className="w-3.5 h-3.5" />
               <span>Send Session Invite</span>
             </button>
           </div>
@@ -544,24 +656,24 @@ export const AthleteMessageModal: React.FC<Props> = ({
                   {m.invite && (
                     <div className="w-full max-w-[85%] rounded-2xl overflow-hidden bg-o1-card border border-white/[0.07] shadow-xl mt-1 text-white">
                       {/* Emerald Header */}
-                      <div className="bg-[#059669] text-white px-4 py-2 flex items-center gap-1.5 text-xs font-mono font-bold uppercase tracking-wider">
+                      <div className="bg-[#4F8F9A] text-white px-4 py-2 flex items-center gap-1.5 text-xs font-mono font-bold tracking-wider">
                         <Calendar className="w-4 h-4" />
-                        <span>GYM SESSION INVITE</span>
+                        <span>Gym Session Invite</span>
                       </div>
 
                       {/* Invite Content */}
                       <div className="p-3.5 space-y-2.5">
                         <div className="space-y-1 text-xs">
                           <div className="flex items-center gap-2 font-medium">
-                            <Calendar className="w-3.5 h-3.5 text-[#059669]" />
+                            <Calendar className="w-3.5 h-3.5 text-[#4F8F9A]" />
                             <span>{m.invite.date}</span>
                           </div>
                           <div className="flex items-center gap-2 font-medium">
-                            <Clock className="w-3.5 h-3.5 text-[#059669]" />
+                            <Clock className="w-3.5 h-3.5 text-[#4F8F9A]" />
                             <span>{m.invite.time}</span>
                           </div>
                           <div className="flex items-start gap-2 font-medium">
-                            <MapPin className="w-3.5 h-3.5 text-[#059669] shrink-0 mt-0.5" />
+                            <MapPin className="w-3.5 h-3.5 text-[#4F8F9A] shrink-0 mt-0.5" />
                             <div>
                               <div className="font-bold">{m.invite.gym}</div>
                               <div className="text-[10px] text-neutral-400 font-mono">
@@ -572,27 +684,56 @@ export const AthleteMessageModal: React.FC<Props> = ({
                         </div>
 
                         {/* Commute Parity Breakdown Box */}
-                        <div className="p-2.5 rounded-xl bg-o1-well border border-white/[0.07] space-y-1">
-                          <div className="flex items-center justify-between text-[11px] font-mono">
-                            <span className="text-neutral-400">⚖ Commute Parity:</span>
-                            <span className="font-bold text-emerald-400">{m.invite.parity}</span>
-                          </div>
-                          <div className="text-[10px] font-mono text-neutral-400">
-                            🚗 You: {m.invite.userCommute} 🚗 {athlete.name}: {m.invite.peerCommute}
-                          </div>
-                        </div>
+                        {m.invite.parity ? (
+                          <p className="text-[11px] text-neutral-400">{m.invite.parity} away</p>
+                        ) : null}
 
                         {/* Status & Directions Footer */}
                         <div className="flex items-center justify-between pt-1">
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20 text-[10px] font-mono font-bold">
-                            <Clock className="w-3 h-3" />
-                            <span>{m.invite.status} ●</span>
-                          </span>
+                          <span className="text-[11px] text-neutral-300">{m.invite.status}</span>
+                          {m.sender === 'peer' && m.invite.status === 'Pending Response' && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                tactileEngine.triggerSelectionBuzz();
+                                const gymName = m.invite?.gym || 'session';
+                                setMessages((prev) => prev.map((row) => row.id === m.id && row.invite
+                                  ? { ...row, invite: { ...row.invite, status: 'Accepted' } }
+                                  : row));
+                                void (async () => {
+                                  if (!currentUserId) {
+                                    setMessages((prev) => prev.map((row) => row.id === m.id && row.invite
+                                      ? { ...row, invite: { ...row.invite, status: 'Pending Response' } }
+                                      : row));
+                                    setSendNote('Sign in to send');
+                                    return;
+                                  }
+                                  const saved = await postLine(currentUserId, athlete.id, `${ACCEPT_MARK}${m.id}`);
+                                  if (!saved.ok) {
+                                    setMessages((prev) => prev.map((row) => row.id === m.id && row.invite
+                                      ? { ...row, invite: { ...row.invite, status: 'Pending Response' } }
+                                      : row));
+                                    setSendNote(saved.error || 'Accept did not send');
+                                    return;
+                                  }
+                                  rememberLine(athlete.id, `Accepted ${gymName}`);
+                                  onLine?.(`Accepted ${gymName}`);
+                                })();
+                              }}
+                              className="rounded-full bg-white px-3 py-1 text-[11px] font-semibold text-neutral-950"
+                            >
+                              Accept
+                            </button>
+                          )}
 
                           <button
                             type="button"
-                            onClick={() => tactileEngine.triggerSelectionBuzz()}
-                            className="inline-flex items-center gap-1 text-[11px] font-mono text-emerald-400 hover:underline cursor-pointer"
+                            onClick={() => {
+                              tactileEngine.triggerSelectionBuzz();
+                              if (m.invite?.lat == null || m.invite.lng == null) return;
+                              window.open(`https://www.openstreetmap.org/?mlat=${m.invite.lat}&mlon=${m.invite.lng}#map=16/${m.invite.lat}/${m.invite.lng}`, '_blank', 'noopener');
+                            }}
+                            className="inline-flex items-center gap-1 text-[11px] font-mono text-neutral-200 hover:underline cursor-pointer"
                           >
                             <Navigation className="w-3 h-3" />
                             <span>Directions</span>
@@ -612,8 +753,10 @@ export const AthleteMessageModal: React.FC<Props> = ({
         </div>
 
         {/* Bottom Chat Input Bar: Only unlocked when peer replies */}
-        <div className="p-3 bg-black border-t border-white/[0.05] flex items-center gap-2">
-          {hasReplied ? (
+        <div className="p-3 bg-black border-t border-white/[0.05]">
+          {sendNote ? <p className="mb-2 text-center text-[11px] text-neutral-400">{sendNote}</p> : null}
+          <div className="flex items-center gap-2">
+          {hasReplied || allowCompose ? (
             <>
               <input
                 type="text"
@@ -647,6 +790,7 @@ export const AthleteMessageModal: React.FC<Props> = ({
               </span>
             </div>
           )}
+          </div>
         </div>
       </div>
     </div>

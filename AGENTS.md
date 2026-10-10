@@ -42,6 +42,7 @@ All future agents and contributors MUST adhere strictly to these rules:
      * `android.permission.INTERNET`
      * `android.permission.CAMERA`
      * `android.permission.BLUETOOTH`, `BLUETOOTH_ADMIN`, `BLUETOOTH_SCAN` (`neverForLocation`), `BLUETOOTH_CONNECT`
+ * `com.android.vending.BILLING` (RevenueCat / Google Play subscriptions)
 
 6. **Permanent Rule (Optical Vision Engine)**:
    - Optical Vision Engine must return `null` for non-visible metrics on watches and gym consoles. Never apply zero or estimated fallbacks. Unread metrics must render as '--'.

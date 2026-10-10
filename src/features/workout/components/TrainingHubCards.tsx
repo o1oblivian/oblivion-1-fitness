@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Cpu, User, ChevronDown, ChevronUp } from 'lucide-react';
+import { Cpu, UserRound, ChevronDown, ChevronUp } from 'lucide-react';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { ExerciseItem } from '../../../types';
 import { IntelCoachAccordionPanel } from './IntelCoachAccordionPanel';
@@ -48,10 +48,8 @@ export const TrainingHubCards: React.FC<TrainingHubCardsProps> = ({
           }`}
         >
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 ${
-              isIntelActive ? 'bg-o1-well text-sky-400' : 'bg-o1-well text-sky-500'
-            }`}>
-              <Cpu className="w-4 h-4 stroke-[2.2]" />
+            <div className="w-9 h-9 rounded-full bg-o1-well flex items-center justify-center shrink-0 text-o1-gold">
+              <Cpu className="w-4 h-4" strokeWidth={1.75} />
             </div>
             <div className="min-w-0 text-left">
               <h4 className="font-bold text-xs sm:text-sm tracking-tight truncate leading-tight">Intel Coach</h4>
@@ -76,10 +74,8 @@ export const TrainingHubCards: React.FC<TrainingHubCardsProps> = ({
           }`}
         >
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 ${
-              isCoachActive ? 'bg-o1-well text-red-500' : 'bg-o1-well text-red-500'
-            }`}>
-              <User className="w-4 h-4 stroke-[2.2]" />
+            <div className="w-9 h-9 rounded-full bg-o1-well flex items-center justify-center shrink-0 text-o1-copper">
+              <UserRound className="w-4 h-4" strokeWidth={1.75} />
             </div>
             <div className="min-w-0 text-left">
               <h4 className="font-bold text-xs sm:text-sm tracking-tight truncate leading-tight">My Coach</h4>
@@ -109,12 +105,7 @@ export const TrainingHubCards: React.FC<TrainingHubCardsProps> = ({
       {renderAccordionsInline && activeSegment === 'coach' && (
         <CoachProtocolAccordionPanel
           onClose={() => (isControlled && onToggleTab ? onToggleTab('coach') : setInternalSegment(null))}
-          onDeployProtocol={(exs) => {
-            onDeployProtocol?.(exs);
-            onShowToast?.(`Coach Protocol Deployed: ${exs.length} exercises scheduled.`);
-            if (isControlled && onToggleTab) onToggleTab('coach');
-            else setInternalSegment(null);
-          }}
+          onLoaded={(title) => onShowToast?.(`Started ${title}`)}
         />
       )}
     </div>

@@ -268,7 +268,7 @@ export const AddFoodModal: React.FC<AddFoodModalProps> = ({
               }}
               className={`px-2.5 py-1.5 rounded-full whitespace-nowrap transition-all cursor-pointer ${
                 activeCategory === cat.id
-                  ? 'border border-o1-crimson bg-red-500/10 text-red-400 font-bold shadow-xs'
+                  ? 'border border-o1-crimson bg-o1-crimson text-white font-bold shadow-xs'
                   : 'text-neutral-400 hover:text-white'
               }`}
             >
@@ -341,17 +341,17 @@ export const AddFoodModal: React.FC<AddFoodModalProps> = ({
                       </span>
                       {(food.is_custom || food.source === 'custom') && (
                         <span className="px-1.5 py-0.5 rounded-md bg-white/[0.08] text-neutral-300 text-[9px] font-mono font-bold shrink-0 border border-white/[0.07]">
-                          MY FOOD
+                          My Food
                         </span>
                       )}
                       {food.source === 'openfoodfacts' && (
                         <span className="px-1.5 py-0.5 rounded-md bg-sky-950/40 text-sky-400 text-[9px] font-mono font-bold shrink-0 border border-sky-900/50">
-                          LIVE
+                          Live
                         </span>
                       )}
                       {food.source === 'usda' && (
                         <span className="px-1.5 py-0.5 rounded-md bg-amber-950/40 text-amber-400 text-[9px] font-mono font-bold shrink-0 border border-amber-900/50">
-                          USDA
+                          Usda
                         </span>
                       )}
                     </div>

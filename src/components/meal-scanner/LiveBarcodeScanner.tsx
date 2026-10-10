@@ -68,7 +68,7 @@ export const LiveBarcodeScanner: React.FC<LiveBarcodeScannerProps> = ({ onDetect
           <div className="w-8 h-8 rounded-xl bg-white/[0.08] border border-white/[0.07] flex items-center justify-center text-neutral-400">
             <Camera className="w-4 h-4" />
           </div>
-          <span className="text-xs font-mono font-bold tracking-widest uppercase text-neutral-400">
+          <span className="text-xs font-mono font-bold tracking-widest text-neutral-400">
             Sensor Standby
           </span>
           <p className="text-[11px] text-neutral-600">Initializing optical barcode sensor stream...</p>

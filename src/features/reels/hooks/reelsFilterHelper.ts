@@ -1,4 +1,5 @@
-import { ExploreReelItem } from '../../../data/reelsExploreCatalog';
+import { ExploreReelItem } from '../reelTypes';
+import { chipHit } from '../../induction/consultationTypes';
 
 export const CATEGORIES: Array<ExploreReelItem['category']> = [
   'ALL',
@@ -33,7 +34,7 @@ export const filterReelsCatalog = (
 ): ExploreReelItem[] => {
   return reels.filter((reel) => {
     let matchFilter = true;
-    if (selectedFilter !== 'ALL') {
+    if (selectedFilter !== 'ALL' && selectedFilter !== 'All') {
       const sf = selectedFilter.toUpperCase();
       if (sf === 'TUTORIAL') {
         matchFilter = reel.category === 'TUTORIAL' || reel.filterTag === 'TUTORIAL';
@@ -47,12 +48,15 @@ export const filterReelsCatalog = (
         matchFilter = reel.category === 'HYPERTROPHY';
       } else if (sf === 'BIOMECHANICS') {
         matchFilter = reel.category === 'BIOMECHANICS';
-      } else if (sf === 'STRENGTH') {
-        matchFilter = reel.category === 'STRENGTH';
+      } else if (sf === 'STRENGTH' || sf === 'HEAVY COMPOUND') {
+        matchFilter = reel.category === 'STRENGTH' || chipHit(`${reel.title} ${reel.cues || ''}`, 'Heavy Compound');
+      } else if (sf === 'RUNNING' || sf === 'NUTRITION') {
+        matchFilter = chipHit(`${reel.title} ${reel.cues || ''} ${reel.filterTag || ''}`, selectedFilter);
       } else if (sf === 'REHAB') {
         matchFilter = reel.category === 'REHAB' || reel.filterTag === 'MOBILITY & REHAB';
       } else {
-        matchFilter = reel.filterTag === selectedFilter || reel.category === selectedFilter;
+        const blob = `${reel.title} ${reel.cues || ''} ${reel.filterTag || ''} ${reel.category}`;
+        matchFilter = chipHit(blob, selectedFilter) || reel.filterTag === selectedFilter || reel.category === selectedFilter;
       }
     }
 

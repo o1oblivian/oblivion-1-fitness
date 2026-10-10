@@ -1,41 +1,41 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
-  Calendar,
-  Dumbbell,
-  Activity,
+  CalendarDays,
+  Weight,
+  HeartPulse,
   Apple,
   Moon,
-  Sparkles,
+  Brain,
   ChevronDown,
   ChevronUp,
   ChevronLeft,
   ChevronRight,
   Plus,
   Camera,
-  Brain,
-  Check,
-  CheckCircle2,
-  History,
-  RotateCcw,
-  Flame,
+  Pencil,
+  Trash2,
 } from 'lucide-react';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { useWorkoutStore } from '../../workout/store/useWorkoutStore';
 import { useFuelStore } from '../../fuel/store/useFuelStore';
 import { useTelemetryStore } from '../../telemetry/store/useTelemetryStore';
-import { useLogStore } from '../../../stores/useLogStore';
 import {
-  TelemetryCategory,
+  CardioDayRecord,
   DayMeta,
-  getPast5Days,
-  getPastDays,
+  MeditationDayRecord,
+  NutritionDayRecord,
+  SleepDayRecord,
+  TelemetryCategory,
+  WorkoutDayRecord,
   useTelemetryHistoryStore,
 } from '../store/useTelemetryHistoryStore';
-import { Expandable5RowTelemetryHistory } from './Expandable5RowTelemetryHistory';
 import { LogDayTelemetryModal } from './LogDayTelemetryModal';
 import { CardioConsoleScanModal } from './CardioConsoleScanModal';
-import { getCachedCardioLogs } from '../services/cardioLogService';
 import { LogWeekStrip } from './LogWeekStrip';
+import { LogProgressTowers, TowerPoint } from './LogProgressTowers';
+import { LogLedger } from './LogLedger';
+import { deleteDayLog, markForgotten, purgeArchivedDay } from '../services/dayLogService';
+import { collapsedReps, collapsedWeight, exerciseFromSets, formatLoad, knownSets, setWorkKg, setsFromExercise } from '../liftLedger';
 
 interface GenuineLogHistoryViewProps {
   onNavigateToWorkout?: () => void;
@@ -43,12 +43,104 @@ interface GenuineLogHistoryViewProps {
   showToast: (msg: string) => void;
 }
 
-// Helper to format numbers cleanly without floating point artifacts
-const formatMacro = (val: number | undefined | null): string => {
-  if (val === undefined || val === null || isNaN(val)) return '0';
-  const rounded = Math.round(val * 10) / 10;
-  return rounded % 1 === 0 ? rounded.toFixed(0) : rounded.toFixed(1);
-};
+const WEEKDAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+function dateKeyOf(date: Date): string {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+}
+
+function part(value: number | null | undefined, suffix: string, digits = 0): string | null {
+  if (value == null || !Number.isFinite(value) || value <= 0) return null;
+  const shown = digits > 0
+    ? String(Math.round(value * 10 ** digits) / 10 ** digits)
+    : Math.round(value).toLocaleString();
+  return `${shown}${suffix}`;
+}
+
+function line(parts: Array<string | null>): string {
+  const real = parts.filter((item): item is string => Boolean(item));
+  return real.length > 0 ? real.join(' · ') : '--';
+}
+
+function cleanWorkout(rec?: WorkoutDayRecord): WorkoutDayRecord | undefined {
+  if (!rec?.hasData) return undefined;
+  const poisoned = rec.durationMinutes === 45 && rec.intensityRpe === 8.5;
+  return {
+    ...rec,
+    durationMinutes: poisoned ? 0 : rec.durationMinutes || 0,
+    intensityRpe: poisoned ? 0 : rec.intensityRpe || 0,
+  };
+}
+
+function cleanCardio(rec?: CardioDayRecord): CardioDayRecord | undefined {
+  if (!rec?.hasData) return undefined;
+  const stepShadow = /step/i.test(rec.activityType || '') && (rec.avgHeartRateBpm === 135 || rec.avgHeartRateBpm === 142);
+  if (stepShadow) {
+    return {
+      ...rec,
+      distanceKm: 0,
+      burnedKcal: 0,
+      durationMinutes: 0,
+      avgHeartRateBpm: 0,
+      zone2Minutes: 0,
+      activityType: 'Steps',
+    };
+  }
+  const guessedZone = Math.round((rec.durationMinutes || 0) * 0.75);
+  const fillerHr = [135, 138, 142].includes(rec.avgHeartRateBpm) && rec.zone2Minutes === guessedZone && guessedZone > 0;
+  return {
+    ...rec,
+    avgHeartRateBpm: fillerHr ? 0 : rec.avgHeartRateBpm || 0,
+    zone2Minutes: fillerHr ? 0 : rec.zone2Minutes || 0,
+  };
+}
+
+function cleanNutrition(rec?: NutritionDayRecord): NutritionDayRecord | undefined {
+  if (!rec?.hasData) return undefined;
+  const poison = rec.calorieTarget === 2200 && rec.proteinTargetG === 165 && rec.carbsTargetG === 250 && rec.fatsTargetG === 60;
+  if (!poison) return rec;
+  return { ...rec, calorieTarget: 0, proteinTargetG: 0, carbsTargetG: 0, fatsTargetG: 0 };
+}
+
+function sessionKg(rec?: WorkoutDayRecord): number {
+  const fromSets = (rec?.exercises || []).reduce((sum, lift) => sum + setWorkKg(knownSets(lift)), 0);
+  if (fromSets > 0) return fromSets;
+  return rec?.tonnageKg || 0;
+}
+
+function workoutLine(rec?: WorkoutDayRecord): string {
+  if (!rec?.hasData) return '--';
+  return line([
+    part(sessionKg(rec), ' kg'),
+    part(rec.completedSets, ' sets'),
+    part(rec.durationMinutes, ' min'),
+  ]);
+}
+
+function cardioLine(rec?: CardioDayRecord, steps = 0): string {
+  const logged = line([
+    part(rec?.distanceKm, ' km', 1),
+    part(rec?.durationMinutes, ' min'),
+    part(rec?.burnedKcal, ' kcal'),
+  ]);
+  if (logged !== '--') return logged;
+  return part(rec?.steps || steps, ' steps') || '--';
+}
+
+function foodLine(rec?: NutritionDayRecord): string {
+  return part(rec?.calories, ' kcal') || '--';
+}
+
+function sleepLine(rec?: SleepDayRecord): string {
+  return line([
+    part(rec?.durationHours, ' h', 1),
+    part(rec?.recoveryPercent, '% recovery'),
+  ]);
+}
+
+function mindfulLine(rec?: MeditationDayRecord): string {
+  return part(rec?.minutes, ' min') || '--';
+}
 
 export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({
   onNavigateToWorkout,
@@ -59,1826 +151,514 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({
   const sessionTonnageKg = useWorkoutStore((s) => s.sessionTonnageKg);
   const completedSetsCount = useWorkoutStore((s) => s.completedSetsCount);
   const activeRoutineTitle = useWorkoutStore((s) => s.activeRoutine);
-  const fuelState = useFuelStore();
-  const telemetry = useTelemetryStore();
-  const cardioSub = useLogStore((s) => s.subModules.cardio);
-
-  const past5Days = getPast5Days();
-  const todayKey = past5Days[0].dateKey;
+  const meals = useFuelStore((s) => s.meals);
+  const calorieTarget = useFuelStore((s) => s.calorieTarget);
+  const stepCount = useTelemetryStore((s) => s.stepCount);
   const historyByDate = useTelemetryHistoryStore((s) => s.historyByDate);
-  const updateDayRecord = useTelemetryHistoryStore((s) => s.updateDayRecord);
-
-  // Dynamic 7-day matrix for week (Mon - Sun) with navigation offset
-  const [weekOffset, setWeekOffset] = useState<number>(0);
-  const [viewMode, setViewMode] = useState<'matrix' | '30d_feed'>('matrix');
 
   const today = useMemo(() => new Date(), []);
-  const currentDayOfWeek = today.getDay(); // 0 is Sun, 1 is Mon...
-  const mondayOffset = currentDayOfWeek === 0 ? -6 : 1 - currentDayOfWeek;
-  const mondayDate = useMemo(() => {
-    const d = new Date(today);
-    d.setDate(today.getDate() + mondayOffset + (weekOffset * 7));
-    return d;
-  }, [today, mondayOffset, weekOffset]);
-
-  const past30Days = useMemo(() => getPastDays(30), []);
-
-  const [selectedDateStr, setSelectedDateStr] = useState<string>(today.toDateString());
-
-  // Derive selected date key (YYYY-MM-DD)
-  const selectedDateObj = useMemo(() => new Date(selectedDateStr), [selectedDateStr]);
-  const selectedDateKey = useMemo(() => {
-    const y = selectedDateObj.getFullYear();
-    const m = String(selectedDateObj.getMonth() + 1).padStart(2, '0');
-    const d = String(selectedDateObj.getDate()).padStart(2, '0');
-    return `${y}-${m}-${d}`;
-  }, [selectedDateObj]);
-
-  const isViewingToday = selectedDateKey === todayKey;
-
-  // Selected day record from history
-  const activeDayRecord = historyByDate[selectedDateKey];
-  const rawWorkoutRecord = activeDayRecord?.workout;
-  const rawCardioRecord = activeDayRecord?.cardio;
-  const rawNutritionRecord = activeDayRecord?.nutrition;
-  const selectedSleepRecord = activeDayRecord?.sleep;
-  const selectedMeditationRecord = activeDayRecord?.meditation;
-
-  // Compute active logged exercises for today
-  const hasActiveLiftingSession = isViewingToday && (workoutExercises.length > 0 || sessionTonnageKg > 0);
-  const totalVolumeMoved = isViewingToday ? sessionTonnageKg : 0;
-
-  // Compute nutrition totals from meals
-  const allMeals = useMemo(() => {
-    return fuelState?.meals ? Object.values(fuelState.meals).flat() : [];
-  }, [fuelState?.meals]);
-
-  const currentCalories = useMemo(
-    () => Math.round(allMeals.reduce((acc, m) => acc + (m.calories || 0), 0)),
-    [allMeals]
-  );
-  const currentProtein = useMemo(
-    () => Math.round(allMeals.reduce((acc, m) => acc + (m.protein || 0), 0) * 10) / 10,
-    [allMeals]
-  );
-  const currentCarbs = useMemo(
-    () => Math.round(allMeals.reduce((acc, m) => acc + (m.carbs || 0), 0) * 10) / 10,
-    [allMeals]
-  );
-  const currentFats = useMemo(
-    () => Math.round(allMeals.reduce((acc, m) => acc + (m.fats || 0), 0) * 10) / 10,
-    [allMeals]
-  );
-
-  const targetCalories = Number(fuelState?.calorieTarget) || 0;
-  const targetProteinG = Number(fuelState?.targetProteinG) || 0;
-  const targetCarbsG = Number(fuelState?.targetCarbsG) || 0;
-  const targetFatsG = Number(fuelState?.targetFatsG) || 0;
-
-  const remainingBudget = targetCalories > 0 ? Math.max(0, targetCalories - currentCalories) : 0;
-  const targetPercentage = targetCalories > 0 ? Math.round((currentCalories / targetCalories) * 100) : 0;
-
-  const stepCount = telemetry?.stepCount || 0;
-
-  // Real-time effective records guaranteeing live and historical data seamless display
-  const selectedWorkoutRecord = useMemo(() => {
-    if (rawWorkoutRecord?.hasData) return rawWorkoutRecord;
-    if (isViewingToday && (sessionTonnageKg > 0 || completedSetsCount > 0 || workoutExercises.length > 0)) {
-      return {
-        hasData: true,
-        tonnageKg: sessionTonnageKg,
-        completedSets: completedSetsCount,
-        durationMinutes: 45,
-        routineName: activeRoutineTitle || 'Resistance Session',
-        intensityRpe: 8.5,
-        exercises: workoutExercises.map((e) => ({
-          name: e.name || e.exerciseName || 'Exercise',
-          sets: e.sets?.length || 3,
-          reps: e.sets?.[0]?.reps || 8,
-          weightKg: e.sets?.[0]?.weightKg || 0,
-          completed: (e.sets || []).some((s: any) => s.completed),
-        })),
-      };
-    }
-    return rawWorkoutRecord;
-  }, [rawWorkoutRecord, isViewingToday, sessionTonnageKg, completedSetsCount, workoutExercises, activeRoutineTitle]);
-
-  const selectedCardioRecord = useMemo(() => {
-    if (rawCardioRecord?.hasData) return rawCardioRecord;
-
-    // Check cached cardio logs for the selected date
-    const cachedCardio = getCachedCardioLogs();
-    const matchingLog = cachedCardio.find((c) => c.dateKey === selectedDateKey);
-    if (matchingLog) {
-      return {
-        hasData: true,
-        distanceKm: matchingLog.distanceKm,
-        durationMinutes: matchingLog.durationMinutes,
-        burnedKcal: matchingLog.burnedKcal,
-        avgHeartRateBpm: matchingLog.avgHeartRateBpm || 135,
-        zone2Minutes: Math.round(matchingLog.durationMinutes * 0.75),
-        activityType: matchingLog.activityType,
-      };
-    }
-
-    if (isViewingToday && (stepCount > 0 || (cardioSub && cardioSub.durationMinutes > 0))) {
-      const stepDist = Number((stepCount / 1300).toFixed(1));
-      const stepCal = Math.round(stepCount * 0.04);
-      return {
-        hasData: true,
-        distanceKm: Math.max(stepDist, cardioSub?.distanceKm || 0),
-        durationMinutes: cardioSub?.durationMinutes || Math.max(1, Math.round(stepCount / 100)),
-        burnedKcal: Math.max(stepCal, cardioSub?.burnedKcal || 0),
-        avgHeartRateBpm: cardioSub?.avgHeartRateBpm || 135,
-        zone2Minutes: Math.round((cardioSub?.durationMinutes || Math.max(1, Math.round(stepCount / 100))) * 0.75),
-        activityType: cardioSub?.activityType || (stepCount > 0 ? 'Daily Steps & Walking' : 'Cardio Session'),
-      };
-    }
-    return rawCardioRecord;
-  }, [rawCardioRecord, selectedDateKey, isViewingToday, stepCount, cardioSub]);
-
-  const selectedNutritionRecord = useMemo(() => {
-    if (rawNutritionRecord?.hasData) return rawNutritionRecord;
-    if (isViewingToday && (currentCalories > 0 || allMeals.length > 0)) {
-      return {
-        hasData: true,
-        calories: currentCalories,
-        calorieTarget: targetCalories || 2200,
-        proteinG: currentProtein,
-        proteinTargetG: targetProteinG || 165,
-        carbsG: currentCarbs,
-        carbsTargetG: targetCarbsG || 250,
-        fatsG: currentFats,
-        fatsTargetG: targetFatsG || 60,
-        meals: allMeals.map((m) => ({
-          name: m.name,
-          category: (m.category as any) || 'Dinner',
-          calories: Math.round(m.calories || 0),
-          proteinG: Math.round((m.protein || 0) * 10) / 10,
-          carbsG: Math.round((m.carbs || 0) * 10) / 10,
-          fatsG: Math.round((m.fats || 0) * 10) / 10,
-          time: m.timestamp,
-        })),
-      };
-    }
-    return rawNutritionRecord;
-  }, [rawNutritionRecord, isViewingToday, currentCalories, currentProtein, currentCarbs, currentFats, allMeals, targetCalories, targetProteinG, targetCarbsG, targetFatsG]);
-
-  // Build 7-day week row items
-  const daysOfWeek = useMemo(() => ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'], []);
-  const weekDays = useMemo(() => {
-    return daysOfWeek.map((dayName, idx) => {
-      const d = new Date(mondayDate);
-      d.setDate(mondayDate.getDate() + idx);
-      const isDayToday = d.toDateString() === today.toDateString();
-      const dy = d.getFullYear();
-      const dm = String(d.getMonth() + 1).padStart(2, '0');
-      const dd = String(d.getDate()).padStart(2, '0');
-      const dayDateKey = `${dy}-${dm}-${dd}`;
-
-      const rec = historyByDate[dayDateKey];
-      const hasHistoryRecord = Boolean(
-        rec && (
-          rec.workout?.hasData ||
-          rec.cardio?.hasData ||
-          rec.nutrition?.hasData ||
-          rec.sleep?.hasData
-        )
-      );
-      const hasActiveSession = isDayToday && (
-        workoutExercises.length > 0 ||
-        completedSetsCount > 0 ||
-        sessionTonnageKg > 0 ||
-        currentCalories > 0
-      );
-
-      return {
-        dayName,
-        dayNum: d.getDate(),
-        dateStr: d.toDateString(),
-        dateKey: dayDateKey,
-        isToday: isDayToday,
-        hasActivity: hasHistoryRecord || hasActiveSession,
-      };
-    });
-  }, [mondayDate, daysOfWeek, today, historyByDate, workoutExercises.length, completedSetsCount, sessionTonnageKg, currentCalories]);
-
-  // Selected DayMeta object for quick logging modal
-  const selectedDayMeta: DayMeta = useMemo(() => {
-    const isDayToday = selectedDateKey === todayKey;
-    const yestObj = new Date();
-    yestObj.setDate(yestObj.getDate() - 1);
-    const yKey = `${yestObj.getFullYear()}-${String(yestObj.getMonth() + 1).padStart(2, '0')}-${String(yestObj.getDate()).padStart(2, '0')}`;
-    const isYesterday = selectedDateKey === yKey;
-    const dayOfWeekIdx = selectedDateObj.getDay();
-    const dayNamesShort = ['SU', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA'];
-    const dayNamesFull = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
-
-    return {
-      offset: Math.round((today.getTime() - selectedDateObj.getTime()) / (1000 * 60 * 60 * 24)),
-      dateKey: selectedDateKey,
-      dayLabel: isDayToday ? 'TODAY' : isYesterday ? 'YESTERDAY' : dayNamesFull[dayOfWeekIdx],
-      dayPillLabel: isDayToday ? 'TO' : isYesterday ? 'YE' : dayNamesShort[dayOfWeekIdx],
-      dateFormatted: selectedDateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-      isToday: isDayToday,
-      isYesterday,
-    };
-  }, [selectedDateKey, todayKey, selectedDateObj, today]);
-
-  // Accordion state for the 5 channels
-  const [expanded, setExpanded] = useState<Record<string, boolean>>({
-    workout: false,
-    cardio: false,
-    nutrition: false,
-    sleep: false,
-    meditation: false,
-  });
-
-  // Timeframe filter state per channel
-  const [workoutFilter, setWorkoutFilter] = useState<'Volume (kg)' | 'Sets' | 'Intensity'>('Volume (kg)');
-  const [workoutTimeframe, setWorkoutTimeframe] = useState<'7D' | '30D' | '1Y'>('7D');
-  const [cardioTimeframe, setCardioTimeframe] = useState<'7D' | '30D' | '1Y'>('30D');
-  const [nutritionTimeframe, setNutritionTimeframe] = useState<'7D' | '30D' | '1Y'>('7D');
-  const [sleepTimeframe, setSleepTimeframe] = useState<'7D' | '30D' | '1Y'>('7D');
-  const [meditationTimeframe, setMeditationTimeframe] = useState<'7D' | '30D' | '1Y'>('7D');
-
-  // Quick log modal state
-  const [activeModalCategory, setActiveModalCategory] = useState<TelemetryCategory | null>(null);
+  const todayKey = dateKeyOf(today);
+  const [weekOffset, setWeekOffset] = useState(0);
+  const [selectedDateStr, setSelectedDateStr] = useState(today.toDateString());
+  const [openChannel, setOpenChannel] = useState<TelemetryCategory | null>(null);
+  const [chartChannel, setChartChannel] = useState<TelemetryCategory | null>(null);
+  const [chartSpan, setChartSpan] = useState<'week' | 'month' | 'year'>('week');
+  const [editor, setEditor] = useState<{ category: TelemetryCategory; mode: 'create' | 'edit' } | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<TelemetryCategory | null>(null);
   const [isConsoleScanOpen, setIsConsoleScanOpen] = useState(false);
 
-  const toggle = (channel: string) => {
-    tactileEngine.triggerSelectionBuzz();
-    setExpanded((prev) => ({ ...prev, [channel]: !prev[channel] }));
-  };
+  const mondayDate = useMemo(() => {
+    const day = today.getDay();
+    const mondayOffset = day === 0 ? -6 : 1 - day;
+    const date = new Date(today);
+    date.setDate(today.getDate() + mondayOffset + weekOffset * 7);
+    return date;
+  }, [today, weekOffset]);
 
-  // Sync today's active workout into history store reactively with identity guards
-  useEffect(() => {
-    const genuineResistanceExercises = workoutExercises.filter(
-      (e) => !e.name?.toLowerCase().startsWith('cardio:') && !e.name?.toLowerCase().includes('telemetry')
-    );
+  const selectedDate = useMemo(() => new Date(selectedDateStr), [selectedDateStr]);
+  const selectedDateKey = dateKeyOf(selectedDate);
+  const isViewingToday = selectedDateKey === todayKey;
 
-    if (sessionTonnageKg > 0 || completedSetsCount > 0 || genuineResistanceExercises.length > 0) {
-      const existingWorkout = historyByDate[todayKey]?.workout;
-      if (
-        existingWorkout &&
-        existingWorkout.hasData &&
-        existingWorkout.tonnageKg === sessionTonnageKg &&
-        existingWorkout.completedSets === completedSetsCount &&
-        existingWorkout.exercises?.length === genuineResistanceExercises.length
-      ) {
-        return;
-      }
+  const allMeals = useMemo(() => (meals ? Object.values(meals).flat() : []), [meals]);
+  const currentCalories = Math.round(allMeals.reduce((sum, meal) => sum + (meal.calories || 0), 0));
 
-      updateDayRecord(todayKey, 'workout', {
-        hasData: true,
-        tonnageKg: sessionTonnageKg,
-        completedSets: completedSetsCount,
-        durationMinutes: 45,
-        routineName: activeRoutineTitle || 'Resistance Session',
-        intensityRpe: 8.5,
-        exercises: genuineResistanceExercises.map((e) => ({
-          name: e.name || e.exerciseName || 'Exercise',
-          sets: e.sets.length,
-          reps: e.sets[0]?.reps || 8,
-          weightKg: e.sets[0]?.weightKg || e.sets[0]?.weight || 0,
-          completed: e.sets.some((s) => s.completed),
-        })),
-      });
-    }
-  }, [sessionTonnageKg, completedSetsCount, workoutExercises, todayKey, updateDayRecord, historyByDate, activeRoutineTitle]);
-
-  // Sync today's cardio & step telemetry into history store reactively
-  useEffect(() => {
-    const hasCardio = stepCount > 0 || (cardioSub && (cardioSub.durationMinutes > 0 || (cardioSub.burnedKcal || 0) > 0));
-    if (!hasCardio) return;
-
-    const stepDist = Number((stepCount / 1300).toFixed(1));
-    const stepCal = Math.round(stepCount * 0.04);
-    const distanceKm = Math.max(stepDist, cardioSub?.distanceKm || 0);
-    const burnedKcal = Math.max(stepCal, cardioSub?.burnedKcal || 0);
-    const durationMinutes = cardioSub?.durationMinutes || Math.max(1, Math.round(stepCount / 100));
-    const avgHeartRateBpm = cardioSub?.avgHeartRateBpm || 135;
-
-    const existingCardio = historyByDate[todayKey]?.cardio;
-    if (
-      existingCardio &&
-      existingCardio.hasData &&
-      existingCardio.distanceKm === distanceKm &&
-      existingCardio.burnedKcal === burnedKcal &&
-      existingCardio.durationMinutes === durationMinutes
-    ) {
-      return;
-    }
-
-    updateDayRecord(todayKey, 'cardio', {
-      hasData: true,
-      distanceKm,
-      burnedKcal,
-      durationMinutes,
-      avgHeartRateBpm,
-      activityType: cardioSub?.activityType || (stepCount > 0 ? 'Daily Steps & Walking' : 'Cardio Session'),
+  const liveWorkout = useMemo<WorkoutDayRecord | undefined>(() => {
+    if (!isViewingToday) return undefined;
+    const lifts = workoutExercises.filter((exercise) => {
+      const name = (exercise.name || exercise.exerciseName || '').toLowerCase();
+      return !name.startsWith('cardio:') && !name.includes('telemetry');
     });
-  }, [stepCount, cardioSub, todayKey, updateDayRecord, historyByDate]);
+    if (lifts.length === 0 && sessionTonnageKg <= 0 && completedSetsCount <= 0) return undefined;
+    return {
+      hasData: true,
+      tonnageKg: sessionTonnageKg,
+      completedSets: completedSetsCount,
+      durationMinutes: 0,
+      routineName: activeRoutineTitle || '',
+      intensityRpe: 0,
+      exercises: lifts
+        .map((exercise) => exerciseFromSets(
+          exercise.name || exercise.exerciseName || 'Exercise',
+          setsFromExercise(exercise),
+          (exercise.sets || []).some((set) => set.completed),
+        ))
+        .filter((entry) => (entry.setLog?.length || 0) > 0),
+    };
+  }, [isViewingToday, workoutExercises, sessionTonnageKg, completedSetsCount, activeRoutineTitle]);
 
-  // Sync today's fuel intake into history store reactively with identity guards
-  useEffect(() => {
-    if (currentCalories > 0 || currentProtein > 0 || currentCarbs > 0 || currentFats > 0) {
-      const existingNutrition = historyByDate[todayKey]?.nutrition;
-      if (
-        existingNutrition &&
-        existingNutrition.hasData &&
-        existingNutrition.calories === currentCalories &&
-        existingNutrition.proteinG === currentProtein &&
-        existingNutrition.carbsG === currentCarbs &&
-        existingNutrition.fatsG === currentFats &&
-        existingNutrition.meals?.length === allMeals.length
-      ) {
-        return;
-      }
-
-      updateDayRecord(todayKey, 'nutrition', {
-        hasData: true,
-        calories: currentCalories,
-        calorieTarget: targetCalories,
-        proteinG: currentProtein,
-        proteinTargetG: targetProteinG,
-        carbsG: currentCarbs,
-        carbsTargetG: targetCarbsG,
-        fatsG: currentFats,
-        fatsTargetG: targetFatsG,
-        meals: allMeals.map((m) => ({
-          name: m.name,
-          category: (m.category as any) || 'Dinner',
-          calories: Math.round(m.calories || 0),
-          proteinG: Math.round((m.protein || 0) * 10) / 10,
-          carbsG: Math.round((m.carbs || 0) * 10) / 10,
-          fatsG: Math.round((m.fats || 0) * 10) / 10,
-          time: m.timestamp,
+  const liveFood = useMemo<NutritionDayRecord | undefined>(() => {
+    if (!isViewingToday || (currentCalories <= 0 && allMeals.length === 0)) return undefined;
+    return {
+      hasData: true,
+      calories: currentCalories,
+      calorieTarget: calorieTarget || 0,
+      proteinG: Math.round(allMeals.reduce((sum, meal) => sum + (meal.protein || 0), 0) * 10) / 10,
+      proteinTargetG: 0,
+      carbsG: Math.round(allMeals.reduce((sum, meal) => sum + (meal.carbs || 0), 0) * 10) / 10,
+      carbsTargetG: 0,
+      fatsG: Math.round(allMeals.reduce((sum, meal) => sum + (meal.fats || 0), 0) * 10) / 10,
+      fatsTargetG: 0,
+      meals: (['breakfast', 'lunch', 'dinner', 'snack', 'drinks', 'supplements'] as const).flatMap((slot) =>
+        (meals?.[slot] || []).map((meal) => ({
+          name: meal.name,
+          category: slot === 'breakfast' ? 'Breakfast' as const : slot === 'dinner' ? 'Dinner' as const : slot === 'snack' ? 'Snacks' as const : 'Lunch' as const,
+          slot,
+          calories: Math.round(meal.calories || 0),
+          proteinG: meal.protein || 0,
+          carbsG: meal.carbs || 0,
+          fatsG: meal.fats || 0,
         })),
-      });
-    }
-  }, [currentCalories, currentProtein, currentCarbs, currentFats, todayKey, targetCalories, targetProteinG, targetCarbsG, targetFatsG, updateDayRecord, allMeals, historyByDate]);
+      ),
+    };
+  }, [isViewingToday, currentCalories, allMeals, calorieTarget, meals]);
 
-  // Week range label
-  const sundayDate = useMemo(() => {
-    const s = new Date(mondayDate);
-    s.setDate(mondayDate.getDate() + 6);
-    return s;
-  }, [mondayDate]);
+  const day = historyByDate[selectedDateKey];
+  const workout = liveWorkout || cleanWorkout(day?.workout);
+  const cardio = cleanCardio(day?.cardio);
+  const food = liveFood || cleanNutrition(day?.nutrition);
+  const sleep = day?.sleep?.hasData ? day.sleep : undefined;
+  const mindful = day?.meditation?.hasData && (day.meditation.minutes || 0) > 0 ? day.meditation : undefined;
 
-  const weekRangeLabel = `${mondayDate.toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-  })} – ${sundayDate.toLocaleDateString('en-US', {
-    day: 'numeric',
-  })}`.toUpperCase();
-
-  // Helper to extract past N days
-  const getTimeframeDates = (daysCount: number) => {
-    const dates: { dateKey: string; dateObj: Date; dayName: string; dayShort: string }[] = [];
-    for (let i = daysCount - 1; i >= 0; i--) {
-      const d = new Date();
-      d.setDate(d.getDate() - i);
-      const y = d.getFullYear();
-      const m = String(d.getMonth() + 1).padStart(2, '0');
-      const day = String(d.getDate()).padStart(2, '0');
-      const dayIdx = d.getDay();
-      dates.push({
-        dateKey: `${y}-${m}-${day}`,
-        dateObj: d,
-        dayName: ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'][dayIdx],
-        dayShort: ['S', 'M', 'T', 'W', 'T', 'F', 'S'][dayIdx],
-      });
-    }
-    return dates;
-  };
-
-  // =========================================================================
-  // 1. WORKOUT ACCURATE TIMEFRAME AGGREGATION (7D, 30D, 1Y)
-  // =========================================================================
-  const workoutTimeframeDays = workoutTimeframe === '7D' ? 7 : workoutTimeframe === '30D' ? 30 : 365;
-  const workoutAggregated = useMemo(() => {
-    const dates = getTimeframeDates(workoutTimeframeDays);
-    let totalSessions = 0;
-    let totalTonnage = 0;
-    let totalSets = 0;
-    let totalMinutes = 0;
-    let rpeSum = 0;
-    let rpeCount = 0;
-
-    const dailyPoints = dates.map(({ dateKey, dayShort, dateObj }) => {
-      const rec = historyByDate[dateKey]?.workout;
-      const isDayToday = dateKey === todayKey;
-
-      let tonnage = rec?.hasData ? (rec.tonnageKg || 0) : 0;
-      let sets = rec?.hasData ? (rec.completedSets || 0) : 0;
-      let rpe = rec?.hasData ? (rec.intensityRpe || 8.5) : 0;
-      let hasData = Boolean(rec?.hasData);
-
-      // Merge active session if today
-      if (isDayToday && (sessionTonnageKg > 0 || completedSetsCount > 0)) {
-        tonnage = Math.max(tonnage, sessionTonnageKg);
-        sets = Math.max(sets, completedSetsCount);
-        rpe = rpe || 8.5;
-        hasData = true;
-      }
-
-      if (hasData && (tonnage > 0 || sets > 0)) {
-        totalSessions += 1;
-        totalTonnage += tonnage;
-        totalSets += sets;
-        totalMinutes += rec?.durationMinutes || 45;
-        if (rpe > 0) {
-          rpeSum += rpe;
-          rpeCount += 1;
-        }
-      }
-
+  const weekDays = useMemo(() => {
+    return WEEKDAYS.map((dayName, index) => {
+      const date = new Date(mondayDate);
+      date.setDate(mondayDate.getDate() + index);
+      const key = dateKeyOf(date);
+      const record = historyByDate[key];
+      const isToday = key === todayKey;
+      const hasActivity = Boolean(
+        record?.workout?.hasData ||
+        record?.cardio?.hasData ||
+        record?.nutrition?.hasData ||
+        record?.sleep?.hasData ||
+        (record?.meditation?.minutes || 0) > 0 ||
+        (isToday && (liveWorkout || liveFood || stepCount > 0)),
+      );
       return {
-        dateKey,
-        dayShort,
-        dateObj,
-        tonnage,
-        sets,
-        rpe,
-        hasData,
-        isToday: isDayToday,
+        dayName,
+        dayNum: date.getDate(),
+        dateStr: date.toDateString(),
+        dateKey: key,
+        isToday,
+        hasActivity,
       };
     });
+  }, [mondayDate, historyByDate, todayKey, liveWorkout, liveFood, stepCount]);
 
-    const avgRpe = rpeCount > 0 ? (rpeSum / rpeCount).toFixed(1) : (totalSessions > 0 ? '8.5' : '0.0');
-    const avgBaseline = totalSessions > 0 ? Math.round(totalTonnage / totalSessions) : 0;
+  const sunday = new Date(mondayDate);
+  sunday.setDate(mondayDate.getDate() + 6);
+  const weekRangeLabel = `${mondayDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} – ${sunday.toLocaleDateString('en-US', { day: 'numeric' })}`;
 
-    let chartBars: { label: string; value: number; hasData: boolean; isToday?: boolean }[] = [];
+  const selectedDayMeta: DayMeta = useMemo(() => {
+    const yesterday = new Date(today);
+    yesterday.setDate(today.getDate() - 1);
+    const isYesterday = selectedDateKey === dateKeyOf(yesterday);
+    return {
+      offset: Math.round((today.getTime() - selectedDate.getTime()) / 86_400_000),
+      dateKey: selectedDateKey,
+      dayLabel: isViewingToday ? 'Today' : isYesterday ? 'Yesterday' : selectedDate.toLocaleDateString('en-US', { weekday: 'long' }),
+      dayPillLabel: isViewingToday ? 'Today' : isYesterday ? 'Yest' : WEEKDAYS[(selectedDate.getDay() + 6) % 7],
+      dateFormatted: selectedDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+      isToday: isViewingToday,
+      isYesterday,
+    };
+  }, [selectedDate, selectedDateKey, today, isViewingToday]);
 
-    if (workoutTimeframe === '7D') {
-      chartBars = dailyPoints.map((p) => {
-        const val = workoutFilter === 'Sets' ? p.sets : workoutFilter === 'Intensity' ? p.rpe : p.tonnage;
-        return {
-          label: p.dayShort,
-          value: val,
-          hasData: p.hasData,
-          isToday: p.isToday,
-        };
-      });
-    } else if (workoutTimeframe === '30D') {
-      const weekBuckets = [
-        { label: 'W1', points: dailyPoints.slice(0, 7) },
-        { label: 'W2', points: dailyPoints.slice(7, 14) },
-        { label: 'W3', points: dailyPoints.slice(14, 21) },
-        { label: 'W4', points: dailyPoints.slice(21) },
-      ];
-      chartBars = weekBuckets.map((wb) => {
-        const sumVal = wb.points.reduce((acc, p) => {
-          const val = workoutFilter === 'Sets' ? p.sets : workoutFilter === 'Intensity' ? (p.hasData ? p.rpe : 0) : p.tonnage;
-          return acc + val;
-        }, 0);
-        const hasData = wb.points.some((p) => p.hasData);
-        return { label: wb.label, value: sumVal, hasData };
-      });
-    } else {
-      const qSize = Math.floor(dailyPoints.length / 4);
-      const qBuckets = [
-        { label: 'Q1', points: dailyPoints.slice(0, qSize) },
-        { label: 'Q2', points: dailyPoints.slice(qSize, qSize * 2) },
-        { label: 'Q3', points: dailyPoints.slice(qSize * 2, qSize * 3) },
-        { label: 'Q4', points: dailyPoints.slice(qSize * 3) },
-      ];
-      chartBars = qBuckets.map((qb) => {
-        const sumVal = qb.points.reduce((acc, p) => {
-          const val = workoutFilter === 'Sets' ? p.sets : workoutFilter === 'Intensity' ? (p.hasData ? p.rpe : 0) : p.tonnage;
-          return acc + val;
-        }, 0);
-        const hasData = qb.points.some((p) => p.hasData);
-        return { label: qb.label, value: sumVal, hasData };
+  const openEditor = (category: TelemetryCategory, mode: 'create' | 'edit') => {
+    tactileEngine.triggerSelectionBuzz();
+    setEditor({ category, mode });
+  };
+
+  const hasEntry = (category: TelemetryCategory): boolean => {
+    if (category === 'workout') return workoutLine(workout) !== '--';
+    if (category === 'cardio') {
+      const logged = line([part(cardio?.distanceKm, ' km', 1), part(cardio?.durationMinutes, ' min'), part(cardio?.burnedKcal, ' kcal')]);
+      return logged !== '--';
+    }
+    if (category === 'nutrition') return foodLine(food) !== '--';
+    if (category === 'sleep') return sleepLine(sleep) !== '--';
+    return mindfulLine(mindful) !== '--';
+  };
+
+  const removeEntry = (category: TelemetryCategory) => {
+    if (pendingDelete !== category) {
+      tactileEngine.triggerSelectionBuzz();
+      setPendingDelete(category);
+      return;
+    }
+    tactileEngine.triggerSelectionBuzz();
+    if (category === 'nutrition' && isViewingToday) {
+      const fuel = useFuelStore.getState();
+      (Object.keys(fuel.meals) as Array<keyof typeof fuel.meals>).forEach((slot) => {
+        [...fuel.meals[slot]].forEach((item) => useFuelStore.getState().removeMealItem(slot, item.id));
       });
     }
+    if (category === 'workout' && isViewingToday) {
+      useWorkoutStore.getState().clearActiveLog();
+      useWorkoutStore.getState().setActiveSession(false);
+    }
+    markForgotten(selectedDateKey, category);
+    useTelemetryHistoryStore.getState().clearDayRecord(selectedDateKey, category);
+    void deleteDayLog(selectedDateKey, category);
+    void purgeArchivedDay(selectedDateKey, category);
+    setPendingDelete(null);
+    showToast('Removed');
+  };
 
-    const maxBarValue = Math.max(...chartBars.map((b) => b.value), 1);
+  const formatTower = (category: TelemetryCategory, value: number) => {
+    if (value <= 0) return '';
+    if (category === 'sleep') return String(Math.round(value * 10) / 10);
+    if (value >= 1000) return `${(value / 1000).toFixed(1)}k`;
+    return String(Math.round(value));
+  };
 
-    return {
-      totalSessions,
-      totalTonnage,
-      totalSets,
-      totalMinutes,
-      avgRpe,
-      avgBaseline,
-      chartBars,
-      maxBarValue,
+  const towerPoints = (category: TelemetryCategory): { points: TowerPoint[]; unit: string; selectedKey: string } => {
+    const readDay = (date: Date) => {
+      const key = dateKeyOf(date);
+      const record = historyByDate[key];
+      const isToday = key === todayKey;
+      if (category === 'workout') {
+        const session = (isToday && liveWorkout) || cleanWorkout(record?.workout);
+        return sessionKg(session);
+      }
+      if (category === 'cardio') {
+        const session = cleanCardio(record?.cardio);
+        return { minutes: session?.durationMinutes || 0, kcal: session?.burnedKcal || 0 };
+      }
+      if (category === 'nutrition') {
+        const session = (isToday && liveFood) || cleanNutrition(record?.nutrition);
+        return session?.calories || 0;
+      }
+      if (category === 'sleep') return record?.sleep?.hasData ? record.sleep.durationHours || 0 : 0;
+      return record?.meditation?.minutes || 0;
     };
-  }, [historyByDate, workoutTimeframe, workoutTimeframeDays, workoutFilter, todayKey, sessionTonnageKg, completedSetsCount]);
 
-  // =========================================================================
-  // 2. CARDIO ACCURATE TIMEFRAME AGGREGATION (7D, 30D, 1Y)
-  // =========================================================================
-  const cardioTimeframeDays = cardioTimeframe === '7D' ? 7 : cardioTimeframe === '30D' ? 30 : 365;
-  const cardioAggregated = useMemo(() => {
-    const dates = getTimeframeDates(cardioTimeframeDays);
-    let totalSessions = 0;
-    let totalBurned = 0;
-    let totalDist = 0;
-    let totalMinutes = 0;
+    if (chartSpan === 'year') {
+      const months = Array.from({ length: 12 }, (_, index) => {
+        const start = new Date(today.getFullYear(), today.getMonth() - (11 - index), 1);
+        const daysInMonth = new Date(start.getFullYear(), start.getMonth() + 1, 0).getDate();
+        let value = 0;
+        let minutes = 0;
+        let kcal = 0;
+        for (let dayIndex = 0; dayIndex < daysInMonth; dayIndex += 1) {
+          const date = new Date(start);
+          date.setDate(start.getDate() + dayIndex);
+          const raw = readDay(date);
+          if (typeof raw === 'number') value += raw;
+          else {
+            minutes += raw.minutes;
+            kcal += raw.kcal;
+          }
+        }
+        return {
+          key: start.toDateString(),
+          label: start.toLocaleDateString('en-US', { month: 'short' }),
+          value,
+          minutes,
+          kcal,
+        };
+      });
+      const unit = category === 'workout' ? 'kg' : category === 'nutrition' ? 'kcal' : category === 'sleep' ? 'h' : category === 'meditation' ? 'min' : (months.some((month) => month.minutes > 0) ? 'min' : 'kcal');
+      return {
+        selectedKey: new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1).toDateString(),
+        unit,
+        points: months.map((month) => ({
+          key: month.key,
+          label: month.label,
+          value: category === 'cardio' ? (unit === 'min' ? month.minutes : month.kcal) : month.value,
+        })),
+      };
+    }
 
-    dates.forEach(({ dateKey }) => {
-      const rec = historyByDate[dateKey]?.cardio;
-      const isDayToday = dateKey === todayKey;
-      let dur = rec?.hasData ? (rec.durationMinutes || 0) : 0;
-      let burn = rec?.hasData ? (rec.burnedKcal || 0) : 0;
-      let dist = rec?.hasData ? (rec.distanceKm || 0) : 0;
-      let hasData = Boolean(rec?.hasData);
+    if (chartSpan === 'month') {
+      const weeks = [3, 2, 1, 0].map((ago) => {
+        const start = new Date(mondayDate);
+        start.setDate(mondayDate.getDate() - ago * 7);
+        let value = 0;
+        let minutes = 0;
+        let kcal = 0;
+        for (let index = 0; index < 7; index += 1) {
+          const date = new Date(start);
+          date.setDate(start.getDate() + index);
+          const raw = readDay(date);
+          if (typeof raw === 'number') value += raw;
+          else {
+            minutes += raw.minutes;
+            kcal += raw.kcal;
+          }
+        }
+        return {
+          key: start.toDateString(),
+          label: start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+          value,
+          minutes,
+          kcal,
+        };
+      });
+      const unit = category === 'workout' ? 'kg' : category === 'nutrition' ? 'kcal' : category === 'sleep' ? 'h' : category === 'meditation' ? 'min' : (weeks.some((week) => week.minutes > 0) ? 'min' : 'kcal');
+      return {
+        selectedKey: mondayDate.toDateString(),
+        unit,
+        points: weeks.map((week) => ({
+          key: week.key,
+          label: week.label,
+          value: category === 'cardio' ? (unit === 'min' ? week.minutes : week.kcal) : week.value,
+        })),
+      };
+    }
 
-      if (isDayToday && (stepCount > 0 || (cardioSub && cardioSub.durationMinutes > 0))) {
-        const stepDist = Number((stepCount / 1300).toFixed(1));
-        const stepCal = Math.round(stepCount * 0.04);
-        dist = Math.max(dist, stepDist, cardioSub?.distanceKm || 0);
-        burn = Math.max(burn, stepCal, cardioSub?.burnedKcal || 0);
-        dur = Math.max(dur, cardioSub?.durationMinutes || 0);
-        hasData = true;
-      }
-
-      if (hasData && (dur > 0 || burn > 0 || dist > 0)) {
-        totalSessions += 1;
-        totalBurned += burn;
-        totalDist += dist;
-        totalMinutes += dur;
-      }
+    const days = WEEKDAYS.map((label, index) => {
+      const date = new Date(mondayDate);
+      date.setDate(mondayDate.getDate() + index);
+      const raw = readDay(date);
+      return { key: date.toDateString(), label, raw };
     });
-
+    const unit = category === 'workout' ? 'kg' : category === 'nutrition' ? 'kcal' : category === 'sleep' ? 'h' : category === 'meditation' ? 'min' : (days.some((day) => typeof day.raw === 'object' && day.raw.minutes > 0) ? 'min' : 'kcal');
     return {
-      totalSessions,
-      totalBurned,
-      totalDist: Number(totalDist.toFixed(1)),
-      totalMinutes,
+      selectedKey: selectedDateStr,
+      unit,
+      points: days.map((day) => ({
+        key: day.key,
+        label: day.label,
+        value: typeof day.raw === 'number' ? day.raw : (unit === 'min' ? day.raw.minutes : day.raw.kcal),
+      })),
     };
-  }, [historyByDate, cardioTimeframe, cardioTimeframeDays, todayKey, stepCount, cardioSub]);
+  };
 
-  // =========================================================================
-  // 3. NUTRITION ACCURATE TIMEFRAME AGGREGATION (7D, 30D, 1Y)
-  // =========================================================================
-  const nutritionTimeframeDays = nutritionTimeframe === '7D' ? 7 : nutritionTimeframe === '30D' ? 30 : 365;
-  const nutritionAggregated = useMemo(() => {
-    const dates = getTimeframeDates(nutritionTimeframeDays);
-    let daysWithData = 0;
-    let totalCals = 0;
-    let totalProtein = 0;
-
-    dates.forEach(({ dateKey }) => {
-      const rec = historyByDate[dateKey]?.nutrition;
-      const isDayToday = dateKey === todayKey;
-      let cals = rec?.hasData ? (rec.calories || 0) : 0;
-      let p = rec?.hasData ? (rec.proteinG || 0) : 0;
-      let hasData = Boolean(rec?.hasData);
-
-      if (isDayToday && currentCalories > 0) {
-        cals = currentCalories;
-        p = currentProtein;
-        hasData = true;
-      }
-
-      if (hasData && cals > 0) {
-        daysWithData += 1;
-        totalCals += cals;
-        totalProtein += p;
-      }
-    });
-
-    const avgCals = daysWithData > 0 ? Math.round(totalCals / daysWithData) : 0;
-    const avgProtein = daysWithData > 0 ? Math.round((totalProtein / daysWithData) * 10) / 10 : 0;
-
-    return {
-      daysWithData,
-      avgCals,
-      avgProtein,
-      totalCals,
-    };
-  }, [historyByDate, nutritionTimeframe, nutritionTimeframeDays, todayKey, currentCalories, currentProtein]);
-
-  // =========================================================================
-  // 4. SLEEP ACCURATE TIMEFRAME AGGREGATION (7D, 30D, 1Y)
-  // =========================================================================
-  const sleepTimeframeDays = sleepTimeframe === '7D' ? 7 : sleepTimeframe === '30D' ? 30 : 365;
-  const sleepAggregated = useMemo(() => {
-    const dates = getTimeframeDates(sleepTimeframeDays);
-    let daysWithData = 0;
-    let totalHours = 0;
-    let totalRecovery = 0;
-
-    dates.forEach(({ dateKey }) => {
-      const rec = historyByDate[dateKey]?.sleep;
-      if (rec?.hasData && (rec.durationHours > 0 || rec.recoveryPercent > 0)) {
-        daysWithData += 1;
-        totalHours += rec.durationHours || 0;
-        totalRecovery += rec.recoveryPercent || 0;
-      }
-    });
-
-    const avgHours = daysWithData > 0 ? (totalHours / daysWithData).toFixed(1) : (selectedSleepRecord?.durationHours ? String(selectedSleepRecord.durationHours) : '7.5');
-    const avgRecovery = daysWithData > 0 ? Math.round(totalRecovery / daysWithData) : (selectedSleepRecord?.recoveryPercent || 88);
-
-    return {
-      daysWithData,
-      avgHours,
-      avgRecovery,
-      totalHours: totalHours.toFixed(1),
-    };
-  }, [historyByDate, sleepTimeframe, sleepTimeframeDays, selectedSleepRecord]);
+  const channels: Array<{
+    id: TelemetryCategory;
+    title: string;
+    summary: string;
+    color: string;
+    icon: React.ReactNode;
+  }> = [
+    { id: 'workout', title: 'Workout', summary: workoutLine(workout), color: 'text-o1-olive', icon: <Weight /> },
+    { id: 'cardio', title: 'Cardio', summary: cardioLine(cardio, isViewingToday ? stepCount : 0), color: 'text-o1-teal', icon: <HeartPulse /> },
+    { id: 'nutrition', title: 'Food', summary: foodLine(food), color: 'text-o1-slate', icon: <Apple /> },
+    { id: 'sleep', title: 'Sleep', summary: sleepLine(sleep), color: 'text-o1-iris', icon: <Moon /> },
+    { id: 'meditation', title: 'Mindful', summary: mindfulLine(mindful), color: 'text-o1-rose', icon: <Brain /> },
+  ];
 
   return (
-      <div className="space-y-2.5 select-none font-mono">
-      {/* ============================================================== */}
-      {/* 1. ACTIVITY MATRIX & 30-DAY LOG FEED CARD                      */}
-      {/* ============================================================== */}
-      <div className="rounded-2xl bg-o1-card border border-white/[0.07] p-3 shadow-sm space-y-2.5 text-neutral-100 transition-colors">
-        {/* Header with Mode Toggle & Navigation */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
-          <div className="flex items-center gap-2">
-            <Calendar className="w-4 h-4 text-o1-crimson" />
-            <div className="inline-flex items-center bg-o1-well border border-white/[0.07] p-0.5 rounded-xl text-[10px]">
-              <button
-                type="button"
-                onClick={() => {
-                  tactileEngine.triggerSelectionBuzz();
-                  setViewMode('matrix');
-                }}
-                className={`px-2.5 py-1 rounded-xl font-bold tracking-wider uppercase transition-colors cursor-pointer ${
-                  viewMode === 'matrix'
-                    ? 'bg-white text-neutral-900 shadow-xs'
-                    : 'text-neutral-500 hover:text-white'
-                }`}
-              >
-                Week Matrix
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  tactileEngine.triggerSelectionBuzz();
-                  setViewMode('30d_feed');
-                }}
-                className={`px-2.5 py-1 rounded-xl font-bold tracking-wider uppercase transition-colors cursor-pointer flex items-center gap-1 ${
-                  viewMode === '30d_feed'
-                    ? 'bg-o1-well border border-white/[0.07] text-zinc-300 shadow-xs'
-                    : 'text-neutral-500 hover:text-white'
-                }`}
-              >
-                <History className="w-3 h-3" />
-                <span>30-Day Log Feed</span>
-              </button>
-            </div>
-          </div>
-
-          {/* Week Navigation Controls when in Matrix view */}
-          {viewMode === 'matrix' ? (
-            <div className="flex items-center justify-between sm:justify-end gap-2">
-              <span className="text-[10px] font-mono uppercase font-semibold text-neutral-400 tracking-wider">
-                {weekRangeLabel}
-              </span>
-              <div className="flex items-center gap-1">
-                <button
-                  type="button"
-                  onClick={() => {
-                    tactileEngine.triggerSelectionBuzz();
-                    setWeekOffset((w) => w - 1);
-                  }}
-                  className="p-1 rounded-lg bg-white/[0.08] text-neutral-300 hover:text-white transition-colors cursor-pointer active:scale-95"
-                  title="Previous Week"
-                >
-                  <ChevronLeft className="w-3.5 h-3.5" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    tactileEngine.triggerSelectionBuzz();
-                    setWeekOffset(0);
-                    setSelectedDateStr(today.toDateString());
-                  }}
-                  className={`px-2 py-0.5 rounded-xl text-[9px] font-bold font-mono uppercase tracking-wider transition-colors cursor-pointer active:scale-95 ${
-                    weekOffset === 0
-                      ? 'bg-white text-neutral-900'
-                      : 'bg-white/[0.08] text-neutral-400 hover:text-white'
-                  }`}
-                >
-                  Today
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    tactileEngine.triggerSelectionBuzz();
-                    setWeekOffset((w) => Math.min(0, w + 1));
-                  }}
-                  disabled={weekOffset >= 0}
-                  className={`p-1 rounded-lg transition-colors cursor-pointer active:scale-95 ${
-                    weekOffset >= 0
-                      ? 'opacity-30 cursor-not-allowed bg-white/[0.08] text-neutral-400'
-                      : 'bg-white/[0.08] text-neutral-300 hover:text-white'
-                  }`}
-                  title="Next Week"
-                >
-                  <ChevronRight className="w-3.5 h-3.5" />
-                </button>
-              </div>
-            </div>
-          ) : (
-            <span className="text-[10px] font-mono uppercase font-semibold text-neutral-400 tracking-wider">
-              Past 30 Days Activity Log
+    <div className="o1-log space-y-2.5 select-none font-sans">
+      <div className="rounded-2xl bg-o1-card border border-white/[0.07] p-3 shadow-sm space-y-2.5 text-neutral-100">
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 min-w-0">
+            <span className="o1-mark text-o1-copper">
+              <CalendarDays />
             </span>
-          )}
-        </div>
-
-        {/* VIEW 1: WEEK MATRIX */}
-        {viewMode === 'matrix' ? (
-          <LogWeekStrip
-            weekDays={weekDays}
-            selectedDateStr={selectedDateStr}
-            onSelectDate={(dateStr, dayName, dayNum) => {
-              setSelectedDateStr(dateStr);
-              showToast(`Selected ${dayName} ${dayNum} Log Record`);
-            }}
-            selectedDayMeta={selectedDayMeta}
-          />
-        ) : (
-          /* VIEW 2: 30-DAY LOG FEED */
-          <div className="space-y-2.5 max-h-80 overflow-y-auto pr-1">
-            {past30Days.map((dm) => {
-              const rec = historyByDate[dm.dateKey];
-              const isToday = dm.isToday;
-              const isSelected = selectedDateKey === dm.dateKey;
-
-              const hasWorkout = Boolean(
-                rec?.workout?.hasData || (isToday && (workoutExercises.length > 0 || sessionTonnageKg > 0))
-              );
-              const wTonnage = isToday ? (sessionTonnageKg || rec?.workout?.tonnageKg || 0) : (rec?.workout?.tonnageKg || 0);
-              const wSets = isToday ? (completedSetsCount || rec?.workout?.completedSets || 0) : (rec?.workout?.completedSets || 0);
-              const wRoutine = isToday ? (activeRoutineTitle || rec?.workout?.routineName || 'Resistance') : (rec?.workout?.routineName || 'Resistance');
-
-              const hasCardio = Boolean(
-                rec?.cardio?.hasData || (isToday && (stepCount > 0 || (cardioSub?.distanceKm || 0) > 0))
-              );
-              const cDist = isToday ? Math.max(Number((stepCount / 1300).toFixed(1)), rec?.cardio?.distanceKm || 0) : (rec?.cardio?.distanceKm || 0);
-              const cBurn = isToday ? Math.max(Math.round(stepCount * 0.04), rec?.cardio?.burnedKcal || 0) : (rec?.cardio?.burnedKcal || 0);
-
-              const hasNutrition = Boolean(
-                rec?.nutrition?.hasData || (isToday && (currentCalories > 0 || allMeals.length > 0))
-              );
-              const nCals = isToday ? (currentCalories || rec?.nutrition?.calories || 0) : (rec?.nutrition?.calories || 0);
-              const nProtein = isToday ? (currentProtein || rec?.nutrition?.proteinG || 0) : (rec?.nutrition?.proteinG || 0);
-              const nMealsCount = isToday ? (allMeals.length || rec?.nutrition?.meals?.length || 0) : (rec?.nutrition?.meals?.length || 0);
-
-              const hasAnyActivity = hasWorkout || hasCardio || hasNutrition || Boolean(rec?.sleep?.hasData);
-
-              return (
-                <div
-                  key={dm.dateKey}
-                  onClick={() => {
-                    tactileEngine.triggerSelectionBuzz();
-                    setSelectedDateStr(new Date(dm.dateKey + 'T12:00:00').toDateString());
-                    setViewMode('matrix');
-                    showToast(`Loaded ${dm.dayLabel} (${dm.dateFormatted}) Logs`);
-                  }}
-                  className={`p-3 rounded-2xl border transition-all cursor-pointer text-left space-y-2 ${
-                    isSelected
-                      ? 'bg-o1-well border-o1-crimson shadow-xs'
-                      : hasAnyActivity
-                      ? 'bg-o1-well border-white/[0.07] hover:border-white/[0.14]'
-                      : 'bg-o1-card/60 border-white/[0.07] opacity-70 hover:opacity-100'
-                  }`}
-                >
-                  <div className="flex items-center justify-between text-xs">
-                    <div className="flex items-center gap-2">
-                      <span className="font-bold text-white uppercase tracking-wider">
-                        {dm.dayLabel}
-                      </span>
-                      <span className="text-[10px] text-neutral-500 font-mono">
-                        {dm.dateFormatted}
-                      </span>
-                      {isToday && (
-                        <span className="px-1.5 py-0.5 rounded-md bg-o1-crimson text-white text-[8px] font-bold uppercase tracking-wider">
-                          Today
-                        </span>
-                      )}
-                    </div>
-
-                  </div>
-
-                  {hasAnyActivity ? (
-                    <div className="flex flex-wrap gap-1.5 text-[10px]">
-                      {hasWorkout && (
-                        <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-xl bg-o1-well border border-white/[0.07] text-neutral-200 font-semibold">
-                          <Dumbbell className="w-3 h-3 text-o1-crimson" />
-                          <span>{wTonnage.toLocaleString()} kg · {wSets} sets ({wRoutine})</span>
-                        </span>
-                      )}
-
-                      {hasCardio && (
-                        <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-xl bg-o1-well border border-white/[0.07] text-neutral-200 font-semibold">
-                          <Activity className="w-3 h-3 text-sky-400" />
-                          <span>{cDist} km · {cBurn} kcal</span>
-                        </span>
-                      )}
-
-                      {hasNutrition && (
-                        <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-xl bg-o1-well border border-white/[0.07] text-neutral-200 font-semibold">
-                          <Apple className="w-3 h-3 text-amber-500" />
-                          <span>{nCals} kcal · {nProtein}g P ({nMealsCount} meals)</span>
-                        </span>
-                      )}
-                    </div>
-                  ) : (
-                    <div className="flex items-center justify-between text-[10px] text-neutral-400">
-                      <span>No logged activity on this day</span>
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          tactileEngine.triggerSelectionBuzz();
-                          setSelectedDateStr(new Date(dm.dateKey + 'T12:00:00').toDateString());
-                          setActiveModalCategory('workout');
-                        }}
-                        className="text-o1-crimson hover:underline font-bold"
-                      >
-                        + Log Entry
-                      </button>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
+            <span className="text-sm font-semibold text-white">Week</span>
           </div>
-        )}
+          <div className="flex items-center gap-1">
+            <span className="text-[10px] font-semibold text-neutral-400 mr-1">{weekRangeLabel}</span>
+            <button
+              type="button"
+              onClick={() => {
+                tactileEngine.triggerSelectionBuzz();
+                setWeekOffset((offset) => offset - 1);
+              }}
+              className="p-1 rounded-lg bg-white/[0.08] text-neutral-300"
+              aria-label="Previous week"
+            >
+              <ChevronLeft className="w-3.5 h-3.5" />
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                tactileEngine.triggerSelectionBuzz();
+                setWeekOffset(0);
+                setSelectedDateStr(today.toDateString());
+              }}
+              className={`px-2 py-0.5 rounded-xl text-[10px] font-semibold ${weekOffset === 0 ? 'bg-white text-neutral-950' : 'bg-white/[0.08] text-neutral-400'}`}
+            >
+              Today
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                tactileEngine.triggerSelectionBuzz();
+                setWeekOffset((offset) => Math.min(0, offset + 1));
+              }}
+              disabled={weekOffset >= 0}
+              className="p-1 rounded-lg bg-white/[0.08] text-neutral-300 disabled:opacity-30"
+              aria-label="Next week"
+            >
+              <ChevronRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        </div>
+        <LogWeekStrip
+          weekDays={weekDays}
+          selectedDateStr={selectedDateStr}
+          onSelectDate={(dateStr) => setSelectedDateStr(dateStr)}
+          selectedDayMeta={selectedDayMeta}
+        />
       </div>
 
-      {/* ============================================================== */}
-      {/* 2. THE 5 GENUINE LOG HISTORY CHANNELS                          */}
-      {/* ============================================================== */}
       <div className="space-y-2">
-        {/* ============================================================== */}
-        {/* CHANNEL 1: WORKOUT HISTORY (Red Accent)                        */}
-        {/* ============================================================== */}
-        <div className="rounded-2xl bg-o1-card border border-white/[0.07] overflow-hidden shadow-sm transition-all">
-          <button
-            type="button"
-            onClick={() => toggle('workout')}
-            className="w-full min-h-[44px] px-3 py-2 flex items-center justify-between text-left cursor-pointer hover:bg-white/[0.06] transition-colors"
-          >
-            <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-xl bg-o1-well border border-white/[0.07] flex items-center justify-center text-o1-crimson shrink-0 shadow-xs">
-                <Dumbbell className="w-3.5 h-3.5 stroke-[2.2]" />
-              </div>
-
-              <div className="flex flex-col">
-                <span className="font-semibold text-[10px] uppercase tracking-wider text-white">
-                  WORKOUT HISTORY
-                </span>
-                <span className="text-[10px] text-neutral-400 font-medium">
-                  {selectedWorkoutRecord?.hasData || (isViewingToday && hasActiveLiftingSession)
-                    ? `${((selectedWorkoutRecord?.tonnageKg || totalVolumeMoved)).toLocaleString()} kg moved · ${(selectedWorkoutRecord?.completedSets || completedSetsCount)} sets completed`
-                    : '0 kg moved · No session recorded'}
-                </span>
-              </div>
-            </div>
-
-            <div className="text-neutral-400">
-              {expanded.workout ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
-            </div>
-          </button>
-
-          {expanded.workout && (
-            <div className="px-3 pb-2.5 pt-1.5 space-y-2.5 border-t border-white/[0.05]">
-              {/* Controls Bar: [7D] [30D] [1Y] Timeframe + [Volume (kg)] [Sets] [Intensity] Filters */}
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                {/* Timeframe Filter: [7D] [30D] [1Y] */}
-                <div className="inline-flex items-center bg-o1-well border border-white/[0.07] p-1 rounded-2xl gap-1">
-                  {(['7D', '30D', '1Y'] as const).map((tf) => (
-                    <button
-                      key={tf}
-                      type="button"
-                      onClick={() => {
-                        tactileEngine.triggerSelectionBuzz();
-                        setWorkoutTimeframe(tf);
-                      }}
-                      className={`py-1.5 px-3 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                        workoutTimeframe === tf
-                          ? 'bg-o1-well border border-white/[0.07] text-white shadow-xs'
-                          : 'text-neutral-400 hover:text-white'
-                      }`}
-                    >
-                      {tf}
-                    </button>
-                  ))}
-                </div>
-
-                {/* Segmented Filter: [Volume (kg)] [Sets] [Intensity] */}
-                <div className="inline-flex items-center bg-o1-well border border-white/[0.07] p-1 rounded-2xl gap-1">
-                  {(['Volume (kg)', 'Sets', 'Intensity'] as const).map((filter) => (
-                    <button
-                      key={filter}
-                      type="button"
-                      onClick={() => {
-                        tactileEngine.triggerSelectionBuzz();
-                        setWorkoutFilter(filter);
-                      }}
-                      className={`py-1.5 px-3 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                        workoutFilter === filter
-                          ? 'bg-o1-well border border-white/[0.07] text-zinc-300 shadow-xs'
-                          : 'text-zinc-400 hover:text-white'
-                      }`}
-                    >
-                      {filter}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* 3 Metric Cards with Real Calculated Timeframe Metrics */}
-              <div className="grid grid-cols-3 gap-2 text-xs">
-                {/* SESSIONS */}
-                <div className="p-2 rounded-xl bg-white/[0.03] flex flex-col justify-between">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[10px] text-neutral-400 uppercase font-bold tracking-wider">
-                      SESSIONS
-                    </span>
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+        {channels.map((channel) => {
+          const open = openChannel === channel.id;
+          return (
+            <div key={channel.id} className="rounded-2xl bg-o1-card border border-white/[0.07] overflow-hidden">
+              <div className="w-full min-h-[44px] px-3 py-2 flex items-center justify-between text-left gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    tactileEngine.triggerSelectionBuzz();
+                    setOpenChannel(open ? null : channel.id);
+                    setPendingDelete(null);
+                  }}
+                  className="flex items-center gap-2 min-w-0 flex-1 text-left bg-transparent border-0 p-0"
+                >
+                  <span className={`o1-mark ${channel.color}`}>{channel.icon}</span>
+                  <div className="min-w-0">
+                    <div className="text-[13px] font-semibold text-white">{channel.title}</div>
+                    <div className="text-[11px] text-neutral-400 truncate">{channel.summary}</div>
                   </div>
-                  <div className="my-1.5">
-                    <span className="text-[15px] font-bold text-white">
-                      {workoutAggregated.totalSessions}
-                    </span>
-                  </div>
-                  <span className="text-[10px] text-neutral-500">
-                    {workoutTimeframe === '7D' ? '7 Days Total' : workoutTimeframe === '30D' ? '30 Days Total' : '1 Year Total'}
-                  </span>
-                </div>
-
-                {/* TONNAGE / SETS / INTENSITY */}
-                <div className="p-2 rounded-xl bg-white/[0.03] flex flex-col justify-between">
-                  <span className="text-[10px] text-neutral-400 uppercase font-bold tracking-wider">
-                    {workoutFilter === 'Sets' ? 'SETS' : workoutFilter === 'Intensity' ? 'AVG RPE' : 'TONNAGE'}
-                  </span>
-                  <div className="my-1.5">
-                    <span className="text-[15px] font-bold text-white">
-                      {workoutFilter === 'Sets'
-                        ? workoutAggregated.totalSets
-                        : workoutFilter === 'Intensity'
-                        ? workoutAggregated.avgRpe
-                        : workoutAggregated.totalTonnage >= 1000
-                        ? `${(workoutAggregated.totalTonnage / 1000).toFixed(1)}k`
-                        : `${workoutAggregated.totalTonnage} kg`}
-                    </span>
-                  </div>
-                  <span className="text-[10px] text-neutral-500">
-                    {workoutTimeframe === '7D' ? '7 Days Cumul.' : workoutTimeframe === '30D' ? '30 Days Cumul.' : '1 Year Cumul.'}
-                  </span>
-                </div>
-
-                {/* TIME */}
-                <div className="p-2 rounded-xl bg-white/[0.03] flex flex-col justify-between">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[10px] text-neutral-400 uppercase font-bold tracking-wider">
-                      TIME
-                    </span>
-                    <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
-                  </div>
-                  <div className="my-1.5">
-                    <span className="text-[15px] font-bold text-white">
-                      {workoutAggregated.totalMinutes >= 180
-                        ? `${Math.round(workoutAggregated.totalMinutes / 60)} hrs`
-                        : `${workoutAggregated.totalMinutes} min`}
-                    </span>
-                  </div>
-                  <span className="text-[10px] text-neutral-500">
-                    {workoutTimeframe === '7D' ? '7 Days Total' : workoutTimeframe === '30D' ? '30 Days Total' : '1 Year Total'}
-                  </span>
-                </div>
-              </div>
-
-              {/* Dynamic Chart Container with Proportional Volume / Sets Bars */}
-              <div className="p-4 rounded-xl bg-white/[0.03] space-y-4">
-                {/* Proportional Volume Bars */}
-                <div className="flex items-end justify-between gap-2 h-28 pt-2 pb-1 border-b border-dashed border-red-500/30">
-                  {workoutAggregated.chartBars.map((b, idx) => {
-                    const heightPercent = b.hasData && b.value > 0
-                      ? Math.max(12, Math.min(100, Math.round((b.value / workoutAggregated.maxBarValue) * 100)))
-                      : 4;
-
-                    return (
-                      <div key={idx} className="flex-1 flex flex-col items-center justify-end h-full gap-1.5">
-                        <span className="text-[9px] font-mono font-semibold text-neutral-500 truncate h-3">
-                          {b.hasData && b.value > 0
-                            ? workoutFilter === 'Sets'
-                              ? b.value
-                              : workoutFilter === 'Intensity'
-                              ? b.value
-                              : b.value >= 1000
-                              ? `${(b.value / 1000).toFixed(1)}k`
-                              : `${b.value}`
-                            : ''}
-                        </span>
-
-                        <div className="w-full max-w-[28px] h-16 bg-white/[0.08] rounded-t-lg overflow-hidden flex items-end">
-                          <div
-                            className={`w-full rounded-t-lg transition-all duration-300 ${
-                              b.hasData ? 'bg-o1-crimson shadow-xs' : 'bg-transparent'
-                            }`}
-                            style={{ height: `${heightPercent}%` }}
-                          />
-                        </div>
-
-                        <span
-                          className={`text-xs font-bold ${
-                            b.isToday
-                              ? 'text-o1-crimson'
-                              : 'text-neutral-400'
-                          }`}
-                        >
-                          {b.label}
-                        </span>
-                      </div>
-                    );
-                  })}
-                </div>
-
-                {/* Footer labels */}
-                <div className="flex items-center justify-between text-[10px] text-neutral-500">
-                  <span>
-                    — Baseline Avg: {workoutAggregated.avgBaseline.toLocaleString()} kg
-                  </span>
-                  <span>{workoutFilter} Telemetry Curve</span>
-                </div>
-              </div>
-
-              {/* Workout active/completed/empty status card */}
-              <div className="p-4 rounded-xl bg-white/[0.03] text-left space-y-3">
-                {isViewingToday && hasActiveLiftingSession ? (
-                  <div className="space-y-2.5">
-                    <div className="flex items-center text-xs">
-                      <div className="flex items-center gap-2">
-                        <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                        <span className="font-bold text-white uppercase tracking-wider">
-                          Active Training Session (In Progress)
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="space-y-1.5">
-                      {workoutExercises.map((ex) => (
-                        <div
-                          key={ex.id}
-                          className="p-2 rounded-xl bg-white/[0.03] flex items-center justify-between text-xs"
-                        >
-                          <div className="flex items-center gap-2">
-                            <span className="w-2 h-2 rounded-full bg-o1-crimson" />
-                            <span className="text-neutral-200 font-semibold">{ex.name || ex.exerciseName}</span>
-                          </div>
-                          <span className="text-neutral-400 font-mono text-[10px]">
-                            {ex.sets.length} sets
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ) : selectedWorkoutRecord?.hasData ? (
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2.5">
-                        <div className="w-8 h-8 rounded-xl bg-o1-well border border-white/[0.07] flex items-center justify-center text-o1-crimson shrink-0">
-                          <CheckCircle2 className="w-4 h-4 text-o1-crimson" />
-                        </div>
-                        <div>
-                          <h4 className="text-xs font-bold text-white uppercase tracking-wider">
-                            {selectedWorkoutRecord.routineName || 'Resistance Session'}
-                          </h4>
-                          <span className="text-[10px] text-neutral-400 font-sans">
-                            Completed Session · {selectedWorkoutRecord.durationMinutes || 45} mins duration
-                          </span>
-                        </div>
-                      </div>
-                      <span className="px-2.5 py-1 rounded-xl bg-o1-well border border-white/[0.07] text-white font-mono text-[10px] font-bold uppercase tracking-wider">
-                        {selectedWorkoutRecord.tonnageKg.toLocaleString()} kg moved
-                      </span>
-                    </div>
-
-                    {selectedWorkoutRecord.exercises && selectedWorkoutRecord.exercises.length > 0 && (
-                      <div className="space-y-1.5">
-                        {selectedWorkoutRecord.exercises.map((ex, idx) => (
-                          <div
-                            key={idx}
-                            className="p-2 rounded-xl bg-white/[0.03] flex items-center justify-between text-xs"
-                          >
-                            <div className="flex items-center gap-2">
-                              <Check className="w-3.5 h-3.5 text-emerald-500" />
-                              <span className="text-neutral-200 font-semibold">{ex.name}</span>
-                            </div>
-                            <span className="text-neutral-400 font-mono text-[10px]">
-                              {ex.sets} sets × {ex.reps} reps ({ex.weightKg} kg)
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  <div className="py-4 text-center space-y-2">
-                    <div className="flex items-center justify-center">
-                      <Dumbbell className="w-7 h-7 text-neutral-600" />
-                    </div>
-                    <h4 className="text-xs font-tactical font-black uppercase tracking-wider text-white">
-                      NO SESSIONS REGISTERED • SELECT A ROUTINE TO BEGIN RECORDING
-                    </h4>
-                    <p className="text-[11px] text-neutral-400 max-w-xs mx-auto">
-                      No lifting volume, sets, or reps recorded for this date
-                    </p>
-                  </div>
-                )}
-              </div>
-
-              {/* CLEAN EXPANDABLE TELEMETRY HISTORY LIST FOR WORKOUT */}
-              <Expandable5RowTelemetryHistory
-                category="workout"
-                timeframe={workoutTimeframe}
-                onNavigateToWorkout={onNavigateToWorkout}
-                showToast={showToast}
-              />
-            </div>
-          )}
-        </div>
-
-        {/* ============================================================== */}
-        {/* CHANNEL 2: CARDIO (Cyan Accent)                                */}
-        {/* ============================================================== */}
-        <div className="rounded-2xl bg-o1-card border border-white/[0.07] overflow-hidden shadow-sm transition-all">
-          <button
-            type="button"
-            onClick={() => toggle('cardio')}
-            className="w-full min-h-[44px] px-3 py-2 flex items-center justify-between text-left cursor-pointer hover:bg-white/[0.06] transition-colors"
-          >
-            <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-xl bg-o1-well border border-white/[0.07] flex items-center justify-center text-sky-400 shrink-0 shadow-xs">
-                <Activity className="w-3.5 h-3.5 stroke-[2.2]" />
-              </div>
-
-              <div className="flex flex-col">
-                <span className="font-semibold text-[10px] uppercase tracking-wider text-white">
-                  CARDIO
-                </span>
-                <span className="text-[10px] text-neutral-400 font-medium">
-                  {selectedCardioRecord?.hasData
-                    ? `${selectedCardioRecord.distanceKm} km · ${selectedCardioRecord.burnedKcal} kcal burned`
-                    : isViewingToday && stepCount > 0
-                    ? `${(stepCount / 1300).toFixed(1)} km · Daily Steps: ${stepCount.toLocaleString()}`
-                    : '0.0 km · No cardio logged'}
-                </span>
-              </div>
-            </div>
-
-            <div className="text-neutral-400">
-              {expanded.cardio ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
-            </div>
-          </button>
-
-          {expanded.cardio && (
-            <div className="px-3 pb-2.5 pt-1.5 space-y-2.5 border-t border-white/[0.05]">
-              {/* Segmented Filter: [7D] [30D] [1Y] */}
-              <div className="inline-flex items-center bg-o1-well border border-white/[0.07] p-1 rounded-2xl gap-1">
-                {(['7D', '30D', '1Y'] as const).map((tf) => (
+                </button>
+                <span className="flex items-center gap-1.5 shrink-0">
                   <button
-                    key={tf}
                     type="button"
                     onClick={() => {
                       tactileEngine.triggerSelectionBuzz();
-                      setCardioTimeframe(tf);
+                      setChartChannel(chartChannel === channel.id ? null : channel.id);
                     }}
-                    className={`py-1.5 px-3 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                      cardioTimeframe === tf
-                        ? 'bg-o1-well border border-white/[0.07] text-white shadow-xs'
-                        : 'text-neutral-400 hover:text-white'
-                    }`}
+                    className={`o1-pill border text-[11px] font-semibold ${chartChannel === channel.id ? 'bg-white text-neutral-950 border-white' : 'bg-o1-well border-white/[0.07] text-neutral-200'}`}
                   >
-                    {tf}
+                    Chart
                   </button>
-                ))}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      tactileEngine.triggerSelectionBuzz();
+                      setOpenChannel(open ? null : channel.id);
+                      setPendingDelete(null);
+                    }}
+                    className="bg-transparent border-0 p-1 text-neutral-500"
+                    aria-label={open ? 'Close log' : 'Open log'}
+                  >
+                    {open ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                  </button>
+                </span>
               </div>
-
-              {/* 3 Metric Cards with Real Calculated Timeframe Metrics */}
-              <div className="grid grid-cols-3 gap-2 text-xs">
-                {/* DURATION */}
-                <div className="p-2 rounded-xl bg-white/[0.03] flex flex-col justify-between">
-                  <span className="text-[10px] text-neutral-400 uppercase font-bold tracking-wider">
-                    {cardioTimeframe} DURATION
-                  </span>
-                  <div className="my-1.5">
-                    <span className="text-[15px] font-bold text-white">
-                      {cardioAggregated.totalMinutes} min
-                    </span>
-                  </div>
-                  <span className="text-[10px] text-neutral-500">
-                    {(cardioAggregated.totalMinutes / 60).toFixed(1)} hours
-                  </span>
-                </div>
-
-                {/* BURN */}
-                <div className="p-2 rounded-xl bg-white/[0.03] flex flex-col justify-between">
-                  <span className="text-[10px] text-neutral-400 uppercase font-bold tracking-wider">
-                    {cardioTimeframe} BURN
-                  </span>
-                  <div className="my-1.5">
-                    <span className="text-[15px] font-bold text-amber-400">
-                      {cardioAggregated.totalBurned} kcal
-                    </span>
-                  </div>
-                  <span className="text-[10px] text-neutral-500">
-                    {cardioAggregated.totalDist} km distance
-                  </span>
-                </div>
-
-                {/* SESSIONS */}
-                <div className="p-2 rounded-xl bg-white/[0.03] flex flex-col justify-between">
-                  <span className="text-[10px] text-neutral-400 uppercase font-bold tracking-wider">
-                    SESSIONS
-                  </span>
-                  <div className="my-1.5">
-                    <span className="text-[15px] font-bold text-white">
-                      {cardioAggregated.totalSessions}
-                    </span>
-                  </div>
-                  <span className="text-[10px] text-neutral-500">
-                    {cardioAggregated.totalSessions} active days
-                  </span>
-                </div>
-              </div>
-
-              {/* Action Buttons: [📷 SCAN CONSOLE PHOTO] and [+ MANUAL] */}
-              <div className="grid grid-cols-2 gap-2">
-                <button
-                  type="button"
-                  onClick={() => {
-                    tactileEngine.triggerSelectionBuzz();
-                    setIsConsoleScanOpen(true);
-                  }}
-                  className="py-2.5 px-3 rounded-2xl bg-sky-500 hover:bg-sky-400 text-black font-black text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-95 shadow-sm"
-                >
-                  <Camera className="w-4 h-4 text-black" />
-                  <span>SCAN CONSOLE PHOTO</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setActiveModalCategory('cardio')}
-                  className="py-2.5 px-3 rounded-2xl bg-o1-well border border-white/[0.07] hover:bg-white/[0.06] text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-95"
-                >
-                  <Plus className="w-4 h-4 text-neutral-400" />
-                  <span>+ MANUAL</span>
-                </button>
-              </div>
-
-              {/* Status Card: Synced Cardio Session or Empty */}
-              {selectedCardioRecord?.hasData ? (
-                <div className="p-4 rounded-xl bg-white/[0.03] text-left space-y-3">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-8 h-8 rounded-xl bg-o1-well border border-white/[0.07] flex items-center justify-center text-sky-400 shrink-0">
-                        <Activity className="w-4 h-4" />
-                      </div>
-                      <div>
-                        <h4 className="text-xs font-bold text-white uppercase tracking-wider">
-                          {selectedCardioRecord.activityType || 'Cardio Console Session'}
-                        </h4>
-                        <span className="text-[10px] text-sky-400 font-sans flex items-center gap-1">
-                          <CheckCircle2 className="w-3 h-3 text-sky-500" /> Synced Cardio Session
-                        </span>
-                      </div>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => setIsConsoleScanOpen(true)}
-                      className="px-2.5 py-1 rounded-xl bg-white/[0.08] text-neutral-200 text-[10px] font-bold uppercase tracking-wider hover:bg-neutral-700 cursor-pointer transition-colors active:scale-95"
-                    >
-                      Rescan
-                    </button>
-                  </div>
-
-                  <div className="grid grid-cols-4 gap-1.5 sm:gap-2 text-center text-xs">
-                    <div className="p-2 rounded-xl bg-white/[0.03]">
-                      <span className="text-[9px] text-neutral-400 uppercase font-bold block">Distance</span>
-                      <span className="font-bold text-white">{selectedCardioRecord.distanceKm} km</span>
-                    </div>
-                    <div className="p-2 rounded-xl bg-white/[0.03]">
-                      <span className="text-[9px] text-neutral-400 uppercase font-bold block">Duration</span>
-                      <span className="font-bold text-white">{selectedCardioRecord.durationMinutes}m</span>
-                    </div>
-                    <div className="p-2 rounded-xl bg-white/[0.03]">
-                      <span className="text-[9px] text-neutral-400 uppercase font-bold block">Burn</span>
-                      <span className="font-bold text-amber-500">{selectedCardioRecord.burnedKcal} kcal</span>
-                    </div>
-                    <div className="p-2 rounded-xl bg-white/[0.03]">
-                      <span className="text-[9px] text-neutral-400 uppercase font-bold block">Avg HR</span>
-                      <span className="font-bold text-red-500">{selectedCardioRecord.avgHeartRateBpm || 142} bpm</span>
+              {chartChannel === channel.id && (
+                <div className="px-3 pb-3 border-t border-white/[0.05]">
+                  <div className="flex justify-center pt-2">
+                    <div className="inline-flex bg-o1-well border border-white/[0.07] p-0.5 rounded-full">
+                      {(['week', 'month', 'year'] as const).map((span) => (
+                        <button
+                          key={span}
+                          type="button"
+                          onClick={() => {
+                            tactileEngine.triggerSelectionBuzz();
+                            setChartSpan(span);
+                          }}
+                          className={`px-3 py-1 rounded-full text-[11px] font-semibold ${chartSpan === span ? 'bg-white text-neutral-950' : 'text-neutral-400'}`}
+                        >
+                          {span === 'week' ? 'Week' : span === 'month' ? 'Month' : 'Year'}
+                        </button>
+                      ))}
                     </div>
                   </div>
-                </div>
-              ) : (
-                <div className="p-5 rounded-xl bg-white/[0.03] text-center space-y-2">
-                  <div className="flex items-center justify-center">
-                    <Activity className="w-7 h-7 text-neutral-600" />
-                  </div>
-                  <h4 className="text-xs font-bold text-white">No Cardio Sessions Logged</h4>
-                  <p className="text-[11px] text-neutral-400 max-w-xs mx-auto">
-                    Scan an exercise console photo with OCR or log manual duration &amp; calories
-                  </p>
+                  <LogProgressTowers
+                    category={channel.id}
+                    points={towerPoints(channel.id).points}
+                    unit={towerPoints(channel.id).unit}
+                    selectedKey={towerPoints(channel.id).selectedKey}
+                    formatValue={(value) => formatTower(channel.id, value)}
+                    onSelect={(key) => {
+                      if (chartSpan === 'week') {
+                        setSelectedDateStr(key);
+                        return;
+                      }
+                      const target = new Date(key);
+                      const day = today.getDay();
+                      const mondayOffset = day === 0 ? -6 : 1 - day;
+                      const currentMonday = new Date(today);
+                      currentMonday.setDate(today.getDate() + mondayOffset);
+                      currentMonday.setHours(0, 0, 0, 0);
+                      target.setHours(0, 0, 0, 0);
+                      const diff = Math.round((target.getTime() - currentMonday.getTime()) / (7 * 86_400_000));
+                      setWeekOffset(Math.min(0, diff));
+                      setSelectedDateStr(key);
+                    }}
+                  />
                 </div>
               )}
-
-              {/* CLEAN EXPANDABLE TELEMETRY HISTORY LIST FOR CARDIO */}
-              <Expandable5RowTelemetryHistory
-                category="cardio"
-                timeframe={cardioTimeframe}
-                showToast={showToast}
-              />
+              {open && (
+                <div className="px-3 pb-3 space-y-2.5 border-t border-white/[0.05]">
+                  <ChannelDetail
+                    category={channel.id}
+                    workout={workout}
+                    cardio={cardio}
+                    food={food}
+                    sleep={sleep}
+                    mindful={mindful}
+                    steps={isViewingToday ? stepCount : cardio?.steps || 0}
+                  />
+                  <div className="flex flex-wrap justify-center gap-2">
+                    {(channel.id === 'sleep' || channel.id === 'meditation') && !hasEntry(channel.id) && (
+                      <button type="button" onClick={() => openEditor(channel.id, 'create')} className="o1-pill bg-o1-well border border-white/[0.07] text-neutral-200 text-xs font-semibold">
+                        <Plus className="w-3.5 h-3.5 text-neutral-400" />
+                        <span>Log</span>
+                      </button>
+                    )}
+                    {hasEntry(channel.id) && (
+                      <button type="button" onClick={() => openEditor(channel.id, 'edit')} className="o1-pill bg-o1-well border border-white/[0.07] text-neutral-200 text-xs font-semibold">
+                        <Pencil className="w-3.5 h-3.5 text-neutral-400" />
+                        <span>Edit</span>
+                      </button>
+                    )}
+                    {hasEntry(channel.id) && (
+                      <button type="button" onClick={() => removeEntry(channel.id)} className="o1-pill bg-o1-well border border-white/[0.07] text-neutral-200 text-xs font-semibold">
+                        <Trash2 className="w-3.5 h-3.5 text-neutral-400" />
+                        <span>{pendingDelete === channel.id ? 'Remove' : 'Delete'}</span>
+                      </button>
+                    )}
+                    {channel.id === 'cardio' && (
+                      <button type="button" onClick={() => setIsConsoleScanOpen(true)} className="o1-pill bg-o1-well border border-white/[0.07] text-neutral-200 text-xs font-semibold">
+                        <Camera className="w-3.5 h-3.5 text-neutral-400" />
+                        <span>Scan</span>
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
-          )}
-        </div>
-
-        {/* ============================================================== */}
-        {/* CHANNEL 3: FOOD & NUTRITION (Amber Accent)                     */}
-        {/* ============================================================== */}
-        <div className="rounded-2xl bg-o1-card border border-white/[0.07] overflow-hidden shadow-sm transition-all">
-          <button
-            type="button"
-            onClick={() => toggle('nutrition')}
-            className="w-full min-h-[44px] px-3 py-2 flex items-center justify-between text-left cursor-pointer hover:bg-white/[0.06] transition-colors"
-          >
-            <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-xl bg-o1-well border border-white/[0.07] flex items-center justify-center text-amber-400 shrink-0 shadow-xs">
-                <Apple className="w-3.5 h-3.5 stroke-[2.2]" />
-              </div>
-
-              <div className="flex flex-col">
-                <span className="font-semibold text-[10px] uppercase tracking-wider text-white">
-                  FOOD &amp; NUTRITION
-                </span>
-                <span className="text-[10px] text-neutral-400 font-medium">
-                  {selectedNutritionRecord?.hasData
-                    ? `${selectedNutritionRecord.calories} kcal · Logged for ${selectedDayMeta.dayLabel}`
-                    : isViewingToday && currentCalories > 0
-                    ? `${currentCalories} / ${targetCalories > 0 ? targetCalories : '—'} kcal · Logged Today`
-                    : '0 kcal · No food logged'}
-                </span>
-              </div>
-            </div>
-
-            <div className="text-neutral-400">
-              {expanded.nutrition ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
-            </div>
-          </button>
-
-          {expanded.nutrition && (
-            <div className="px-3 pb-2.5 pt-1.5 space-y-2.5 border-t border-white/[0.05]">
-              {/* Header Row: Filter Pills + Target Indicator and Adjust Button */}
-              <div className="flex items-center justify-between gap-2 flex-wrap">
-                <div className="inline-flex items-center bg-o1-well border border-white/[0.07] p-1 rounded-2xl gap-1">
-                  {(['7D', '30D', '1Y'] as const).map((tf) => (
-                    <button
-                      key={tf}
-                      type="button"
-                      onClick={() => {
-                        tactileEngine.triggerSelectionBuzz();
-                        setNutritionTimeframe(tf);
-                      }}
-                      className={`py-1.5 px-3 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                        nutritionTimeframe === tf
-                          ? 'bg-o1-well border border-white/[0.07] text-white shadow-xs'
-                          : 'text-neutral-400 hover:text-white'
-                      }`}
-                    >
-                      {tf}
-                    </button>
-                  ))}
-                </div>
-
-                <div className="flex items-center gap-2">
-                  {targetCalories > 0 ? (
-                    <div className="px-3 py-1 rounded-full bg-o1-well border border-white/[0.07] text-white text-xs font-bold uppercase tracking-wider">
-                      {targetPercentage}% TARGET
-                    </div>
-                  ) : (
-                    <span className="px-2.5 py-1 rounded-full bg-white/[0.08] border border-white/[0.07] text-neutral-400 text-[10px] font-bold uppercase tracking-wider">
-                      No Target Set
-                    </span>
-                  )}
-                </div>
-              </div>
-
-              {/* 3 Metric Cards for Nutrition */}
-              <div className="grid grid-cols-3 gap-2 text-xs">
-                {/* CONSUMED */}
-                <div className="p-2 rounded-xl bg-white/[0.03] flex flex-col justify-between">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[10px] text-neutral-400 uppercase font-bold tracking-wider">
-                      CONSUMED
-                    </span>
-                    <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
-                  </div>
-                  <div className="my-1.5">
-                    <span className="text-[15px] font-bold text-white">
-                      {selectedNutritionRecord?.hasData
-                        ? selectedNutritionRecord.calories
-                        : isViewingToday
-                        ? currentCalories
-                        : 0}{' '}
-                      kcal
-                    </span>
-                  </div>
-                  <span className="text-[10px] text-neutral-500">
-                    {targetCalories > 0 ? `Goal: ${targetCalories} kcal` : 'Goal: Not Set'}
-                  </span>
-                </div>
-
-                {/* BUDGET / AVERAGE */}
-                <div className="p-2 rounded-xl bg-white/[0.03] flex flex-col justify-between">
-                  <span className="text-[10px] text-neutral-400 uppercase font-bold tracking-wider">
-                    {nutritionTimeframe} AVG
-                  </span>
-                  <div className="my-1.5">
-                    <span className="text-[15px] font-bold text-white">
-                      {nutritionAggregated.avgCals > 0 ? `${nutritionAggregated.avgCals} kcal` : '—'}
-                    </span>
-                  </div>
-                  <span className="text-[10px] text-neutral-500">
-                    {nutritionAggregated.daysWithData} days tracked
-                  </span>
-                </div>
-
-                {/* PROTEIN */}
-                <div className="p-2 rounded-xl bg-white/[0.03] flex flex-col justify-between">
-                  <span className="text-[10px] text-neutral-400 uppercase font-bold tracking-wider">
-                    PROTEIN
-                  </span>
-                  <div className="my-1.5">
-                    <span className="text-[15px] font-bold text-white">
-                      {selectedNutritionRecord?.hasData
-                        ? `${formatMacro(selectedNutritionRecord.proteinG)}g`
-                        : isViewingToday
-                        ? `${currentProtein}g`
-                        : '0g'}
-                    </span>
-                  </div>
-                  <span className="text-[10px] text-neutral-500">
-                    {targetProteinG > 0 ? `Target: ${targetProteinG}g` : 'Target: Not Set'}
-                  </span>
-                </div>
-              </div>
-
-              {/* Macro Bars Card */}
-              <div className="p-4 rounded-xl bg-white/[0.03] space-y-3.5 text-xs">
-                {/* PROTEIN */}
-                <div className="space-y-1">
-                  <div className="flex justify-between items-center text-[11px]">
-                    <span className="font-bold text-neutral-300 uppercase">PROTEIN</span>
-                    <span className="text-sky-400 font-bold">
-                      {targetProteinG > 0
-                        ? `${formatMacro(selectedNutritionRecord?.hasData ? selectedNutritionRecord.proteinG : currentProtein)}g / ${targetProteinG}g`
-                        : `${formatMacro(selectedNutritionRecord?.hasData ? selectedNutritionRecord.proteinG : currentProtein)}g`}
-                    </span>
-                  </div>
-                  <div className="w-full h-2 rounded-full bg-white/[0.08] overflow-hidden">
-                    <div
-                      className="h-full bg-sky-500 rounded-full transition-all duration-300"
-                      style={{
-                        width: `${
-                          targetProteinG > 0
-                            ? Math.min(
-                                100,
-                                ((selectedNutritionRecord?.hasData
-                                  ? selectedNutritionRecord.proteinG
-                                  : currentProtein) /
-                                  targetProteinG) *
-                                  100
-                              )
-                            : 0
-                        }%`,
-                      }}
-                    />
-                  </div>
-                </div>
-
-                {/* CARBOHYDRATES */}
-                <div className="space-y-1">
-                  <div className="flex justify-between items-center text-[11px]">
-                    <span className="font-bold text-neutral-300 uppercase">CARBOHYDRATES</span>
-                    <span className="text-amber-400 font-bold">
-                      {targetCarbsG > 0
-                        ? `${formatMacro(selectedNutritionRecord?.hasData ? selectedNutritionRecord.carbsG : currentCarbs)}g / ${targetCarbsG}g`
-                        : `${formatMacro(selectedNutritionRecord?.hasData ? selectedNutritionRecord.carbsG : currentCarbs)}g`}
-                    </span>
-                  </div>
-                  <div className="w-full h-2 rounded-full bg-white/[0.08] overflow-hidden">
-                    <div
-                      className="h-full bg-amber-500 rounded-full transition-all duration-300"
-                      style={{
-                        width: `${
-                          targetCarbsG > 0
-                            ? Math.min(
-                                100,
-                                ((selectedNutritionRecord?.hasData
-                                  ? selectedNutritionRecord.carbsG
-                                  : currentCarbs) /
-                                  targetCarbsG) *
-                                  100
-                              )
-                            : 0
-                        }%`,
-                      }}
-                    />
-                  </div>
-                </div>
-
-                {/* LIPIDS & FATS */}
-                <div className="space-y-1">
-                  <div className="flex justify-between items-center text-[11px]">
-                    <span className="font-bold text-neutral-300 uppercase">LIPIDS &amp; FATS</span>
-                    <span className="text-red-400 font-bold">
-                      {targetFatsG > 0
-                        ? `${formatMacro(selectedNutritionRecord?.hasData ? selectedNutritionRecord.fatsG : currentFats)}g / ${targetFatsG}g`
-                        : `${formatMacro(selectedNutritionRecord?.hasData ? selectedNutritionRecord.fatsG : currentFats)}g`}
-                    </span>
-                  </div>
-                  <div className="w-full h-2 rounded-full bg-white/[0.08] overflow-hidden">
-                    <div
-                      className="h-full bg-red-500 rounded-full transition-all duration-300"
-                      style={{
-                        width: `${
-                          targetFatsG > 0
-                            ? Math.min(
-                                100,
-                                ((selectedNutritionRecord?.hasData
-                                  ? selectedNutritionRecord.fatsG
-                                  : currentFats) /
-                                  targetFatsG) *
-                                  100
-                              )
-                            : 0
-                        }%`,
-                      }}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* CLEAN EXPANDABLE TELEMETRY HISTORY LIST FOR NUTRITION */}
-              <Expandable5RowTelemetryHistory
-                category="nutrition"
-                timeframe={nutritionTimeframe}
-                onNavigateToFuel={onNavigateToFuel}
-                showToast={showToast}
-              />
-            </div>
-          )}
-        </div>
-
-        {/* ============================================================== */}
-        {/* CHANNEL 4: SLEEP (Circadian Architecture)                      */}
-        {/* ============================================================== */}
-        <div className="rounded-2xl bg-o1-card border border-white/[0.07] overflow-hidden shadow-sm transition-all">
-          <button
-            type="button"
-            onClick={() => toggle('sleep')}
-            className="w-full min-h-[44px] px-3 py-2 flex items-center justify-between text-left cursor-pointer hover:bg-white/[0.06] transition-colors"
-          >
-            <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-xl bg-sky-950/40 border border-sky-800/60 flex items-center justify-center text-sky-400 shrink-0 shadow-xs">
-                <Moon className="w-3.5 h-3.5 stroke-[2.2]" />
-              </div>
-
-              <div className="flex flex-col">
-                <span className="font-semibold text-[10px] uppercase tracking-wider text-white">
-                  CIRCADIAN ARCHITECTURE
-                </span>
-                <span className="text-[10px] text-neutral-400 font-medium">
-                  {selectedSleepRecord?.hasData
-                    ? `${selectedSleepRecord.durationHours}h Rest · ${selectedSleepRecord.recoveryPercent}% Recovery`
-                    : 'NO REST DATA RECORDED'}
-                </span>
-              </div>
-            </div>
-
-            <div className="text-neutral-400">
-              {expanded.sleep ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
-            </div>
-          </button>
-
-          {expanded.sleep && (
-            <div className="px-3 pb-2.5 pt-1.5 space-y-2.5 border-t border-white/[0.05]">
-              {/* Header Row: Filter Pills + [RECOVERY %] */}
-              <div className="flex items-center justify-between">
-                <div className="inline-flex items-center bg-o1-well border border-white/[0.07] p-1 rounded-2xl gap-1">
-                  {(['7D', '30D', '1Y'] as const).map((tf) => (
-                    <button
-                      key={tf}
-                      type="button"
-                      onClick={() => {
-                        tactileEngine.triggerSelectionBuzz();
-                        setSleepTimeframe(tf);
-                      }}
-                      className={`py-1.5 px-3 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                        sleepTimeframe === tf
-                          ? 'bg-o1-well border border-white/[0.07] text-white shadow-xs'
-                          : 'text-neutral-400 hover:text-white'
-                      }`}
-                    >
-                      {tf}
-                    </button>
-                  ))}
-                </div>
-
-                <div className="px-3 py-1 rounded-full bg-white/[0.08] border border-white/[0.07] text-neutral-400 text-xs font-bold uppercase tracking-wider">
-                  {selectedSleepRecord?.hasData
-                    ? `${selectedSleepRecord.recoveryPercent}% RECOVERY`
-                    : `${sleepAggregated.avgRecovery}% AVG RECOVERY`}
-                </div>
-              </div>
-
-              {/* 3 Metric Cards for Sleep */}
-              <div className="grid grid-cols-3 gap-2 text-xs">
-                {/* AVG SLEEP */}
-                <div className="p-2 rounded-xl bg-white/[0.03] flex flex-col justify-between">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[10px] text-neutral-400 uppercase font-bold tracking-wider">
-                      AVG SLEEP
-                    </span>
-                    <span className="w-1.5 h-1.5 rounded-full bg-sky-400" />
-                  </div>
-                  <div className="my-1.5">
-                    <span className="text-[15px] font-bold text-white">
-                      {sleepAggregated.avgHours}h
-                    </span>
-                  </div>
-                  <span className="text-[10px] text-neutral-500">{sleepTimeframe} Baseline</span>
-                </div>
-
-                {/* RECOVERY */}
-                <div className="p-2 rounded-xl bg-white/[0.03] flex flex-col justify-between">
-                  <span className="text-[10px] text-neutral-400 uppercase font-bold tracking-wider">
-                    RECOVERY
-                  </span>
-                  <div className="my-1.5">
-                    <span className="text-[15px] font-bold text-sky-400">
-                      {selectedSleepRecord?.hasData
-                        ? `${selectedSleepRecord.recoveryPercent}%`
-                        : `${sleepAggregated.avgRecovery}%`}
-                    </span>
-                  </div>
-                  <span className="text-[10px] text-neutral-500">Circadian Index</span>
-                </div>
-
-                {/* TOTAL */}
-                <div className="p-2 rounded-xl bg-white/[0.03] flex flex-col justify-between">
-                  <span className="text-[10px] text-neutral-400 uppercase font-bold tracking-wider">
-                    {sleepTimeframe} TOTAL
-                  </span>
-                  <div className="my-1.5">
-                    <span className="text-[15px] font-bold text-white">
-                      {sleepAggregated.totalHours}h
-                    </span>
-                  </div>
-                  <span className="text-[10px] text-neutral-500">Cumulative Rest</span>
-                </div>
-              </div>
-
-              {/* Action Button: Log Sleep */}
-              <div className="flex items-center justify-between p-2.5 rounded-xl bg-white/[0.03]">
-                <div>
-                  <span className="text-xs font-bold text-white block">
-                    {selectedSleepRecord?.hasData ? 'Rest Data Recorded' : 'No rest data for selected day'}
-                  </span>
-                  <span className="text-[10px] text-neutral-500">
-                    {selectedSleepRecord?.hasData
-                      ? `Deep sleep: ${selectedSleepRecord.deepSleepMinutes || 90}m · REM: ${selectedSleepRecord.remSleepMinutes || 100}m`
-                      : 'Record sleep duration, recovery score & resting HR'}
-                  </span>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setActiveModalCategory('sleep')}
-                  className="py-2 px-3 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs uppercase tracking-wider flex items-center gap-1.5 transition-all cursor-pointer active:scale-95"
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                  <span>Log Sleep</span>
-                </button>
-              </div>
-
-              {/* CLEAN EXPANDABLE TELEMETRY HISTORY LIST FOR SLEEP */}
-              <Expandable5RowTelemetryHistory
-                category="sleep"
-                timeframe={sleepTimeframe}
-                showToast={showToast}
-              />
-            </div>
-          )}
-        </div>
-
-        {/* ============================================================== */}
-        {/* CHANNEL 5: MEDITATION (Pure Natural Green Accent)             */}
-        {/* ============================================================== */}
-        <div className="rounded-2xl bg-o1-card border border-white/[0.07] overflow-hidden shadow-sm transition-all">
-          <button
-            type="button"
-            onClick={() => toggle('meditation')}
-            className="w-full min-h-[44px] px-3 py-2 flex items-center justify-between text-left cursor-pointer hover:bg-white/[0.06] transition-colors"
-          >
-            <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-xl bg-emerald-950/40 border border-emerald-800/60 flex items-center justify-center text-emerald-400 shrink-0 shadow-xs">
-                <Sparkles className="w-3.5 h-3.5 stroke-[2.2]" />
-              </div>
-
-              <div className="flex flex-col">
-                <span className="font-semibold text-[10px] uppercase tracking-wider text-white">
-                  MINDFUL RESONANCE
-                </span>
-                <span className="text-[10px] text-neutral-400 font-medium">
-                  {selectedMeditationRecord?.hasData
-                    ? `${selectedMeditationRecord.minutes} min · ${selectedMeditationRecord.coherence}`
-                    : '0 MIN TOTAL'}
-                </span>
-              </div>
-            </div>
-
-            <div className="text-neutral-400">
-              {expanded.meditation ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
-            </div>
-          </button>
-
-          {expanded.meditation && (
-            <div className="px-3 pb-2.5 pt-1.5 space-y-2.5 border-t border-white/[0.05]">
-              {/* Header Row: Filter Pills + Action */}
-              <div className="flex items-center justify-between">
-                <div className="inline-flex items-center bg-o1-well border border-white/[0.07] p-1 rounded-2xl gap-1">
-                  {(['7D', '30D', '1Y'] as const).map((tf) => (
-                    <button
-                      key={tf}
-                      type="button"
-                      onClick={() => {
-                        tactileEngine.triggerSelectionBuzz();
-                        setMeditationTimeframe(tf);
-                      }}
-                      className={`py-1.5 px-3 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                        meditationTimeframe === tf
-                          ? 'bg-o1-well border border-white/[0.07] text-white shadow-xs'
-                          : 'text-neutral-400 hover:text-white'
-                      }`}
-                    >
-                      {tf}
-                    </button>
-                  ))}
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => setActiveModalCategory('meditation')}
-                  className="py-1 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs uppercase tracking-wider flex items-center gap-1 cursor-pointer transition-all active:scale-95"
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                  <span>Log Session</span>
-                </button>
-              </div>
-
-              {/* Status Card */}
-              <div className="p-4 rounded-xl bg-white/[0.03] text-center space-y-2">
-                <div className="flex items-center justify-center">
-                  <Sparkles className="w-7 h-7 text-emerald-400" />
-                </div>
-                <h4 className="text-xs font-bold text-white">
-                  {selectedMeditationRecord?.hasData
-                    ? `${selectedMeditationRecord.minutes}m — ${selectedMeditationRecord.protocol || 'Tactical Box Breathing'}`
-                    : 'Tactical Box Breathing Protocol (4-4-4-4)'}
-                </h4>
-                <p className="text-[11px] text-neutral-400 max-w-xs mx-auto">
-                  {selectedMeditationRecord?.hasData
-                    ? `Coherence: ${selectedMeditationRecord.coherence}`
-                    : 'Alpha wave parasympathetic recovery exercise'}
-                </p>
-              </div>
-
-              {/* CLEAN EXPANDABLE TELEMETRY HISTORY LIST FOR MEDITATION */}
-              <Expandable5RowTelemetryHistory
-                category="meditation"
-                timeframe={meditationTimeframe}
-                showToast={showToast}
-              />
-            </div>
-          )}
-        </div>
+          );
+        })}
       </div>
 
-      {/* Quick Log Modal when user taps (+) on today or any day */}
-      {activeModalCategory && (
+      {editor && (
         <LogDayTelemetryModal
-          isOpen={Boolean(activeModalCategory)}
-          onClose={() => setActiveModalCategory(null)}
-          category={activeModalCategory}
+          isOpen
+          onClose={() => setEditor(null)}
+          category={editor.category}
+          mode={editor.mode}
           dayMeta={selectedDayMeta}
           onSaved={showToast}
         />
       )}
-
-      {/* Optical OCR Cardio Console Scanner Modal */}
       <CardioConsoleScanModal
         isOpen={isConsoleScanOpen}
         onClose={() => setIsConsoleScanOpen(false)}
@@ -1888,5 +668,152 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({
     </div>
   );
 };
+
+function sheetFig(value: number | null | undefined, digits = 0): string {
+  return part(value, '', digits) || '--';
+}
+
+function ChannelDetail({
+  category,
+  workout,
+  cardio,
+  food,
+  sleep,
+  mindful,
+  steps,
+}: {
+  category: TelemetryCategory;
+  workout?: WorkoutDayRecord;
+  cardio?: CardioDayRecord;
+  food?: NutritionDayRecord;
+  sleep?: SleepDayRecord;
+  mindful?: MeditationDayRecord;
+  steps: number;
+}) {
+  if (category === 'workout') {
+    if (!workout?.hasData) return <EmptyCopy>No workout logged for this day.</EmptyCopy>;
+    const exercises = workout.exercises || [];
+    const rows = exercises.length > 0
+      ? exercises.map((exercise, index) => {
+          const setLog = knownSets(exercise);
+          return {
+            id: `${exercise.name}-${index}`,
+            name: exercise.name || 'Lift',
+            cells: [
+              setLog.length > 0 ? String(setLog.length) : sheetFig(exercise.sets),
+              collapsedReps(setLog, exercise.reps),
+              collapsedWeight(setLog, exercise.weightKg),
+            ],
+            details: setLog.length > 1
+              ? setLog.map((set, setIndex) => ({
+                  id: `${exercise.name}-${index}-${setIndex}`,
+                  name: String(setIndex + 1),
+                  cells: ['', sheetFig(set.reps), formatLoad(set.weightKg)],
+                }))
+              : undefined,
+          };
+        })
+      : [{
+          id: 'session',
+          name: workout.routineName || 'Workout',
+          cells: [sheetFig(workout.completedSets), '--', sheetFig(workout.tonnageKg)],
+        }];
+    return (
+      <LogLedger
+        nameLabel="Lift"
+        columns={[{ label: 'Sets', width: '2.5rem' }, { label: 'Reps', width: '3.25rem' }, { label: 'kg', width: '4.75rem' }]}
+        rows={rows}
+      />
+    );
+  }
+
+  if (category === 'cardio') {
+    const logged = line([
+      part(cardio?.distanceKm, ' km', 1),
+      part(cardio?.durationMinutes, ' min'),
+      part(cardio?.burnedKcal, ' kcal'),
+    ]);
+    if (logged === '--' && steps > 0) {
+      return (
+        <LogLedger
+          nameLabel="Day"
+          columns={[{ label: 'steps', width: '4.5rem' }]}
+          rows={[{ id: 'steps', name: 'Steps', cells: [steps.toLocaleString()] }]}
+        />
+      );
+    }
+    const summary = cardioLine(cardio, steps);
+    if (summary === '--') return <EmptyCopy>No cardio logged for this day.</EmptyCopy>;
+    const name = cardio?.activityType && cardio.activityType !== 'Steps' ? cardio.activityType : 'Cardio';
+    return (
+      <LogLedger
+        nameLabel="Session"
+        columns={[{ label: 'km', width: '3rem' }, { label: 'min', width: '3rem' }, { label: 'kcal', width: '3.25rem' }]}
+        rows={[{
+          id: 'cardio',
+          name,
+          cells: [sheetFig(cardio?.distanceKm, 1), sheetFig(cardio?.durationMinutes), sheetFig(cardio?.burnedKcal)],
+        }]}
+      />
+    );
+  }
+
+  if (category === 'nutrition') {
+    if (!food?.hasData || (food.calories <= 0 && (food.meals || []).length === 0)) return <EmptyCopy>No food logged for this day.</EmptyCopy>;
+    const meals = food.meals || [];
+    const rows = meals.length > 0
+      ? meals.map((meal, index) => ({
+          id: `${meal.name}-${index}`,
+          name: meal.name || 'Meal',
+          cells: [sheetFig(meal.calories), sheetFig(meal.proteinG, 1), sheetFig(meal.carbsG, 1), sheetFig(meal.fatsG, 1)],
+        }))
+      : [{
+          id: 'day',
+          name: 'Day',
+          cells: [sheetFig(food.calories), sheetFig(food.proteinG, 1), sheetFig(food.carbsG, 1), sheetFig(food.fatsG, 1)],
+        }];
+    return (
+      <LogLedger
+        nameLabel="Meal"
+        columns={[
+          { label: 'kcal', width: '3.25rem' },
+          { label: 'P', width: '2.25rem' },
+          { label: 'C', width: '2.25rem' },
+          { label: 'F', width: '2.25rem' },
+        ]}
+        rows={rows}
+      />
+    );
+  }
+
+  if (category === 'sleep') {
+    if (sleepLine(sleep) === '--') return <EmptyCopy>No sleep logged for this day.</EmptyCopy>;
+    return (
+      <LogLedger
+        nameLabel="Rest"
+        columns={[{ label: 'h', width: '3rem' }, { label: '%', width: '3rem' }]}
+        rows={[{
+          id: 'sleep',
+          name: 'Sleep',
+          cells: [sheetFig(sleep?.durationHours, 1), sheetFig(sleep?.recoveryPercent)],
+        }]}
+      />
+    );
+  }
+
+  if (mindfulLine(mindful) === '--') return <EmptyCopy>No mindful session logged for this day.</EmptyCopy>;
+  const mindfulName = [mindful?.protocol, mindful?.coherence].filter(Boolean).join(' · ') || 'Mindful';
+  return (
+    <LogLedger
+      nameLabel="Session"
+      columns={[{ label: 'min', width: '3rem' }]}
+      rows={[{ id: 'mindful', name: mindfulName, cells: [sheetFig(mindful?.minutes)] }]}
+    />
+  );
+}
+
+function EmptyCopy({ children }: { children: React.ReactNode }) {
+  return <p className="pt-2 text-[11px] text-neutral-500">{children}</p>;
+}
 
 export default GenuineLogHistoryView;

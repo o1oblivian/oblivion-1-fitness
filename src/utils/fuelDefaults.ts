@@ -23,7 +23,7 @@ export const DEFAULT_MACROS: {
     current: 142,
     target: 190,
     unit: 'g',
-    color: '#EF4444',
+    color: '#C4121A',
     caloriesPerGram: 4,
   },
   carbs: {
@@ -31,7 +31,7 @@ export const DEFAULT_MACROS: {
     current: 185,
     target: 260,
     unit: 'g',
-    color: '#0EA5E9',
+    color: '#D4A017',
     caloriesPerGram: 4,
   },
   fats: {
@@ -39,7 +39,7 @@ export const DEFAULT_MACROS: {
     current: 48,
     target: 70,
     unit: 'g',
-    color: '#F59E0B',
+    color: '#6B8F5E',
     caloriesPerGram: 9,
   },
 };

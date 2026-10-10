@@ -25,19 +25,13 @@
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>NSCameraUsageDescription</key>
-	<string>Oblivion 1 uses camera for meal scanning and form telemetry.</string>
-	<key>NSMicrophoneUsageDescription</key>
-	<string>Oblivion 1 uses the microphone for hands-free voice coaching during workouts.</string>
-	<key>NSSpeechRecognitionUsageDescription</key>
-	<string>Oblivion 1 uses speech recognition to understand voice workout commands.</string>
+	<string>Oblivion 1 uses the camera to scan meals and capture training form so we can log nutrition and technique feedback.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Oblivion 1 accesses photos for progress tracking and log uploads.</string>
 	<key>NSBluetoothAlwaysUsageDescription</key>
 	<string>Oblivion 1 connects to heart rate monitors and gym sensors.</string>
 	<key>NSBluetoothPeripheralUsageDescription</key>
 	<string>Oblivion 1 pairs with external fitness wearables.</string>
-	<key>NSMotionUsageDescription</key>
-	<string>Oblivion 1 records movement and steps when external sensors disconnect.</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>UIApplicationSceneManifest</key>
@@ -61,6 +55,17 @@
 	</dict>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>com.o1fc.fitness</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.o1fc.fitness</string>
+			</array>
+		</dict>
+	</array>
 	<key>UIMainStoryboardFile</key>
 	<string>Main</string>
 	<key>UIRequiredDeviceCapabilities</key>

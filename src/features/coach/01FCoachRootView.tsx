@@ -85,17 +85,28 @@ export const O1FCoachRootView: React.FC = () => {
     };
   }, [user?.id, user?.email, profile?.role]);
 
-  // Non-coach users: standard athletes continue seeing only the Athlete Directory view without the toggle bar
+  const signedInEmail = user?.email || (typeof window !== 'undefined' ? localStorage.getItem('o1fc_user_email') : null);
+  const isFounder = Boolean(signedInEmail && signedInEmail.toLowerCase() === COACH_FOUNDER_EMAIL.toLowerCase());
+
+  // Athletes see the coach and program listing. Coaches see the console.
+  // The founder keeps both, so both sides can be designed.
   if (!isCoach) {
     return <O1FCoachAthletePortal isCoach={false} activePerspective="athlete" />;
   }
 
-  // Verified coach view: top switcher header + routed view
+  if (!isFounder) {
+    return (
+      <O1FCoachCommandCenter
+        activePerspective="coach"
+        isCoach
+      />
+    );
+  }
+
   return (
     <div className="w-full flex flex-col min-h-screen">
-      {/* Top Switcher Controls (verified coaches only) */}
-      <div className="sticky top-0 z-40 w-full max-w-md mx-auto px-3.5 sm:px-4 pt-2 pb-1.5 bg-black/95 backdrop-blur-md">
-        <div className="bg-o1-card p-1 rounded-2xl border border-white/[0.07] flex items-center justify-between shadow-xs">
+      <div className="sticky top-0 z-40 w-full pt-2 pb-1.5 bg-black/95 backdrop-blur-md">
+        <div className="flex items-center justify-center gap-1.5">
           <button
             type="button"
             id="coach-view-toggle-directory"
@@ -103,14 +114,14 @@ export const O1FCoachRootView: React.FC = () => {
               tactileEngine.triggerSelectionBuzz();
               setActiveView('directory');
             }}
-            className={`flex-1 py-2 px-3 rounded-xl text-xs font-mono font-bold tracking-wider transition-all duration-150 flex items-center justify-center gap-1.5 cursor-pointer select-none active:scale-95 ${
+            className={`o1-pill text-[11px] font-semibold cursor-pointer ${
               activeView === 'directory'
-                ? 'bg-o1-crimson text-white shadow-md'
-                : 'text-neutral-400 hover:text-white'
+                ? 'bg-white text-neutral-950 border-white'
+                : 'bg-o1-well text-neutral-200 border border-white/[0.07]'
             }`}
           >
             <Users className="w-3.5 h-3.5" />
-            <span>ATHLETE DIRECTORY</span>
+            <span>Athletes</span>
           </button>
           <button
             type="button"
@@ -119,14 +130,14 @@ export const O1FCoachRootView: React.FC = () => {
               tactileEngine.triggerSelectionBuzz();
               setActiveView('console');
             }}
-            className={`flex-1 py-2 px-3 rounded-xl text-xs font-mono font-bold tracking-wider transition-all duration-150 flex items-center justify-center gap-1.5 cursor-pointer select-none active:scale-95 ${
+            className={`o1-pill text-[11px] font-semibold cursor-pointer ${
               activeView === 'console'
-                ? 'bg-o1-crimson text-white shadow-md'
-                : 'text-neutral-400 hover:text-white'
+                ? 'bg-white text-neutral-950 border-white'
+                : 'bg-o1-well text-neutral-200 border border-white/[0.07]'
             }`}
           >
             <Shield className="w-3.5 h-3.5" />
-            <span>COACH CONSOLE</span>
+            <span>Coaching</span>
           </button>
         </div>
       </div>

@@ -67,19 +67,19 @@ export const ScannedMealResultCard: React.FC<ScannedMealResultCardProps> = ({
       {/* Universal Modifiers */}
       <div className="space-y-1.5 pt-1 border-t border-white/[0.05] text-[10px]">
         <div className="flex items-center gap-1.5 flex-wrap">
-          <span className="font-mono text-neutral-400 uppercase w-9">Prep:</span>
+          <span className="font-mono text-neutral-400 w-9">Prep:</span>
           {(['lean', 'oil'] as const).map((p) => (
             <button key={p} type="button" onClick={() => { tactileEngine.triggerSelectionBuzz(); setPrep(p); }}
-              className={`px-2 py-0.5 rounded-xl font-tactical font-bold uppercase transition cursor-pointer border ${
+              className={`px-2 py-0.5 rounded-xl font-tactical font-bold transition cursor-pointer border ${
                 prep === p ? 'bg-o1-crimson text-white border-o1-crimson' : 'bg-white/5 text-neutral-400 border-white/[0.07]'
               }`}>{p === 'lean' ? 'Lean / Air-Fried' : 'Cooked in Oil (+8g Fat)'}</button>
           ))}
         </div>
         <div className="flex items-center gap-1.5 flex-wrap">
-          <span className="font-mono text-neutral-400 uppercase w-9">Extra:</span>
+          <span className="font-mono text-neutral-400 w-9">Extra:</span>
           {(['plain', 'sauce'] as const).map((d) => (
             <button key={d} type="button" onClick={() => { tactileEngine.triggerSelectionBuzz(); setDressing(d); }}
-              className={`px-2 py-0.5 rounded-xl font-tactical font-bold uppercase transition cursor-pointer border ${
+              className={`px-2 py-0.5 rounded-xl font-tactical font-bold transition cursor-pointer border ${
                 dressing === d ? 'bg-amber-600 text-white border-amber-600' : 'bg-white/5 text-neutral-400 border-white/[0.07]'
               }`}>{d === 'plain' ? 'Plain' : 'Sauce (+6g C, +4g F)'}</button>
           ))}
@@ -88,7 +88,7 @@ export const ScannedMealResultCard: React.FC<ScannedMealResultCardProps> = ({
 
       {/* Stepper (+/- 10g & +/- 25g) */}
       <div className="p-2 rounded-2xl bg-o1-well border border-white/[0.07] space-y-1.5">
-        <div className="flex items-center justify-between text-xs font-tactical font-bold uppercase text-neutral-300">
+        <div className="flex items-center justify-between text-xs font-tactical font-bold text-neutral-300">
           <span>Portion Weight</span>
           <div className="flex items-center gap-1 bg-black px-2 py-0.5 rounded-xl border border-white/[0.07]">
             <input type="number" value={weight} onChange={(e) => setWeight(Math.max(10, parseInt(e.target.value || '0', 10)))}
@@ -115,17 +115,17 @@ export const ScannedMealResultCard: React.FC<ScannedMealResultCardProps> = ({
           { label: 'FAT', val: `${fat}g`, color: 'text-emerald-400' },
         ].map((m) => (
           <div key={m.label} className="p-1.5 rounded-xl bg-o1-well border border-white/[0.07]">
-            <span className="text-[9px] text-neutral-400 block font-mono">{m.label}</span>
-            <span className={`text-xs font-bold font-tactical ${m.color}`}>{m.val}</span>
+            <span className="text-[9px] text-neutral-400 block font-sans font-semibold">{m.label}</span>
+            <span className={`text-xs font-bold font-mono ${m.color}`}>{m.val}</span>
           </div>
         ))}
       </div>
 
       {/* Primary Save Action */}
       <button type="button" disabled={isLogging} onClick={handleSave}
-        className="w-full py-2.5 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover active:scale-98 text-white font-tactical font-black text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-lg transition cursor-pointer disabled:opacity-50">
+        className="o1-pill mx-auto bg-o1-crimson hover:bg-o1-crimson-hover active:scale-95 text-white font-sans font-semibold text-xs cursor-pointer disabled:opacity-50">
         <Check className="w-3.5 h-3.5 stroke-[3]" />
-        <span>{isLogging ? 'LOGGING...' : `LOG TO ${slotTitle.toUpperCase()}`}</span>
+        <span>{isLogging ? 'Saving' : 'Log meal'}</span>
       </button>
 
       {/* Apple 1.4.1 / Google Health Compliance Disclaimer Footer */}

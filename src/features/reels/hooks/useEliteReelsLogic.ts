@@ -1,19 +1,29 @@
 import { useState, useRef, useMemo, useEffect } from 'react';
-import { ExploreReelItem, ExploreCoach, FilmstripClip } from '../../../data/reelsExploreCatalog';
+import { ExploreReelItem, ExploreCoach, FilmstripClip } from '../reelTypes';
 import { useReelsStore } from '../../../stores/useReelsStore';
 import { useWorkoutStore } from '../../workout/store/useWorkoutStore';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { supabase } from '../../../services/supabaseClient';
 import { filterReelsCatalog } from './reelsFilterHelper';
+import { getAuthenticatedUserId } from '../../../services/authUser';
+import { loadVaultBookmarks, saveVaultBookmark } from '../services/vaultBookmarks';
+import { useConsultationStore } from '../../induction/useConsultationStore';
+import { chipHit, textHitsDiscipline } from '../../induction/consultationTypes';
+import { readAthleteSettingsSnapshot } from '../../../utils/athleteSettingsSnapshot';
+import { reelUrl, shareLink, shareMessage } from '../services/reelLinks';
+import { fetchLikeCount, loadMyLikes, setReelLike } from '../services/reelLikes';
 
 export { CATEGORIES, FILTER_TAGS } from './reelsFilterHelper';
+
+function titleCase(raw: string): string {
+  return raw.toLowerCase().replace(/(^|[\s/&-])([a-z])/g, (_, lead: string, ch: string) => lead + ch.toUpperCase());
+}
 
 export function useEliteReelsLogic(
   initialCategory: ExploreReelItem['category'] = 'ALL',
   initialFilter: string = 'ALL'
 ) {
   const allReels = useReelsStore((s) => s.reels);
-  const [tabMode, setTabMode] = useState<'reels' | 'coaches'>('reels');
   const [selectedFilter, setSelectedFilter] = useState(initialFilter);
   const [selectedCategory, setSelectedCategory] = useState<ExploreReelItem['category']>(initialCategory);
   const [searchQuery, setSearchQuery] = useState('');
@@ -60,7 +70,11 @@ export function useEliteReelsLogic(
     return () => { isMounted = false; };
   }, []);
 
-  const filteredReels = useMemo(() => filterReelsCatalog(allReels, selectedFilter, selectedCategory, searchQuery), [allReels, selectedFilter, selectedCategory, searchQuery]);
+  const discipline = useConsultationStore((state) => state.primaryDiscipline);
+  const filteredReels = useMemo(() => {
+    const rows = filterReelsCatalog(allReels, selectedFilter, selectedCategory, searchQuery);
+    return [...rows].sort((a, b) => Number(textHitsDiscipline(`${b.title} ${b.filterTag || ''}`, discipline)) - Number(textHitsDiscipline(`${a.title} ${a.filterTag || ''}`, discipline)));
+  }, [allReels, selectedFilter, selectedCategory, searchQuery, discipline]);
 
   const [activeReel, setActiveReel] = useState<ExploreReelItem | null>(null);
   const [activeClip, setActiveClip] = useState<FilmstripClip | null>(null);
@@ -70,105 +84,166 @@ export function useEliteReelsLogic(
     if (initialFilter) setSelectedFilter(initialFilter);
   }, [initialCategory, initialFilter]);
 
-  const [isPlaying, setIsPlaying] = useState(true);
+  const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [likedReels, setLikedReels] = useState<Record<string, boolean>>({});
+  const [likeCounts, setLikeCounts] = useState<Record<string, number | null>>({});
   const [savedReels, setSavedReels] = useState<Record<string, boolean>>({});
-  const [followedCoaches, setFollowedCoaches] = useState<Record<string, boolean>>({});
-  const [addedExercises, setAddedExercises] = useState<Record<string, boolean>>({});
+  const userRef = useRef('');
+
+  useEffect(() => {
+    let live = true;
+    void getAuthenticatedUserId().then(async (userId) => {
+      userRef.current = userId || '';
+      const [saved, liked] = await Promise.all([loadVaultBookmarks(userRef.current), loadMyLikes(userRef.current)]);
+      if (!live) return;
+      setSavedReels(saved);
+      setLikedReels(liked);
+    });
+    return () => { live = false; };
+  }, []);
+
+  const activeReelId = activeReel?.id || '';
+  useEffect(() => {
+    if (!activeReelId) return;
+    let live = true;
+    void fetchLikeCount(activeReelId).then((count) => {
+      if (live) setLikeCounts((prev) => ({ ...prev, [activeReelId]: count }));
+    });
+    return () => { live = false; };
+  }, [activeReelId]);
+
+  const [toast, setToast] = useState<string | null>(null);
+  const [linkSheet, setLinkSheet] = useState<{ title: string; url: string } | null>(null);
+  const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const flash = (message: string | null) => {
+    if (!message) return;
+    if (toastTimer.current) clearTimeout(toastTimer.current);
+    setToast(message);
+    toastTimer.current = setTimeout(() => setToast(null), 2200);
+  };
+  useEffect(() => () => {
+    if (toastTimer.current) clearTimeout(toastTimer.current);
+  }, []);
+
+  const exercises = useWorkoutStore((s) => s.exercises);
+  const addedExercises = useMemo(() => {
+    const map: Record<string, boolean> = {};
+    for (const ex of exercises) {
+      const match = /^reel-(.+)-\d+$/.exec(ex.id);
+      if (match) map[match[1]] = true;
+    }
+    return map;
+  }, [exercises]);
   const [bookingCoach, setBookingCoach] = useState<ExploreCoach | null>(null);
   const [messageCoach, setMessageCoach] = useState<ExploreCoach | null>(null);
+  const [playlist, setPlaylist] = useState<ExploreReelItem[] | null>(null);
   const addExerciseToActiveLog = useWorkoutStore((s) => s.addExerciseToActiveLog);
 
-  const handleNextReel = () => {
-    if (!activeReel || filteredReels.length === 0) return;
-    const nextIdx = (filteredReels.findIndex((r) => r.id === activeReel.id) + 1) % filteredReels.length;
-    const next = filteredReels[nextIdx];
+  const stepReel = (direction: 1 | -1) => {
+    const queue = playlist && playlist.length > 0 ? playlist : filteredReels;
+    if (!activeReel || queue.length < 2) return;
+    const idx = queue.findIndex((r) => r.id === activeReel.id);
+    const nextIdx = idx < 0 ? 0 : (idx + direction + queue.length) % queue.length;
+    const next = queue[nextIdx];
+    if (next.id === activeReel.id) return;
     setActiveReel(next);
     setActiveClip(next.filmstripClips?.[0] || null);
-    setIsPlaying(true);
   };
+  const handleNextReel = () => stepReel(1);
+  const handlePrevReel = () => stepReel(-1);
 
-  const handlePrevReel = () => {
-    if (!activeReel || filteredReels.length === 0) return;
-    const prevIdx = (filteredReels.findIndex((r) => r.id === activeReel.id) - 1 + filteredReels.length) % filteredReels.length;
-    const prev = filteredReels[prevIdx];
-    setActiveReel(prev);
-    setActiveClip(prev.filmstripClips?.[0] || null);
-    setIsPlaying(true);
+  const handleToggleLike = (id: string, e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    if (!userRef.current) {
+      flash('Sign in to like reels');
+      return;
+    }
+    tactileEngine.triggerSelectionBuzz();
+    const liked = !likedReels[id];
+    const bump = (delta: number) =>
+      setLikeCounts((prev) => (prev[id] == null ? prev : { ...prev, [id]: Math.max(0, (prev[id] as number) + delta) }));
+    setLikedReels((prev) => ({ ...prev, [id]: liked }));
+    bump(liked ? 1 : -1);
+    void setReelLike(userRef.current, id, liked).then((ok) => {
+      if (ok) return;
+      setLikedReels((prev) => ({ ...prev, [id]: !liked }));
+      bump(liked ? -1 : 1);
+      flash('Could not save your like');
+    });
   };
-
-  const handleToggleLike = (id: string, e?: React.MouseEvent) => { e?.stopPropagation(); tactileEngine.triggerSelectionBuzz(); setLikedReels((p) => ({ ...p, [id]: !p[id] })); };
-  const handleToggleSave = (id: string, e?: React.MouseEvent) => { e?.stopPropagation(); tactileEngine.triggerLightTick(); setSavedReels((p) => ({ ...p, [id]: !p[id] })); };
-  const handleToggleFollow = (id: string, e?: React.MouseEvent) => { e?.stopPropagation(); tactileEngine.triggerSelectionBuzz(); setFollowedCoaches((p) => ({ ...p, [id]: !p[id] })); };
-
-  const handleToggleMute = (e: React.MouseEvent) => {
-    e.stopPropagation();
+  const handleToggleSave = (id: string, e?: React.MouseEvent) => {
+    e?.stopPropagation();
     tactileEngine.triggerLightTick();
-    setIsMuted((prev) => !prev);
-    if (videoRef.current) videoRef.current.muted = !isMuted;
+    const saved = !savedReels[id];
+    setSavedReels((prev) => ({ ...prev, [id]: saved }));
+    void saveVaultBookmark(userRef.current, id, saved);
+    flash(saved ? 'Saved to your vault' : 'Removed from your vault');
+  };
+  const handleToggleMute = (e?: React.SyntheticEvent) => {
+    e?.stopPropagation();
+    tactileEngine.triggerLightTick();
+    const next = !isMuted;
+    setIsMuted(next);
+    if (videoRef.current) videoRef.current.muted = next;
   };
 
   const handleTogglePlay = () => {
-    if (!videoRef.current) return;
+    const video = videoRef.current;
+    if (!video) return;
     tactileEngine.triggerLightTick();
-    if (isPlaying) { videoRef.current.pause(); setIsPlaying(false); }
-    else { videoRef.current.play().catch(() => {}); setIsPlaying(true); }
+    if (video.paused) void video.play().catch(() => setIsPlaying(false));
+    else video.pause();
   };
-
-  const [shareToast, setShareToast] = useState<string | null>(null);
 
   const handleShare = async (e?: React.MouseEvent) => {
     e?.stopPropagation();
+    if (!activeReel) return;
     tactileEngine.triggerLightTick();
-    const shareData = {
-      title: activeReel?.title || 'Oblivion 1 Protocol',
-      text: `Check out ${activeReel?.coach?.name || 'Coach'}'s protocol: ${activeReel?.title}`,
-      url: window.location.href,
-    };
-    try {
-      if (navigator.share) {
-        await navigator.share(shareData);
-      } else if (navigator.clipboard) {
-        await navigator.clipboard.writeText(window.location.href);
-        setShareToast('Link copied to clipboard');
-        setTimeout(() => setShareToast(null), 2500);
-      }
-    } catch {
-      if (navigator.clipboard) {
-        await navigator.clipboard.writeText(window.location.href);
-        setShareToast('Link copied to clipboard');
-        setTimeout(() => setShareToast(null), 2500);
-      }
-    }
+    const url = reelUrl(activeReel.id);
+    const result = await shareLink({
+      title: activeReel.title,
+      text: activeReel.coach?.name ? `${activeReel.title} by ${activeReel.coach.name}` : activeReel.title,
+      url,
+    });
+    if (result === 'failed') setLinkSheet({ title: activeReel.title, url });
+    flash(shareMessage(result));
   };
 
   const handleAddExerciseToWorkout = (reel: ExploreReelItem, clip?: FilmstripClip | null) => {
+    if (addedExercises[reel.id]) {
+      flash('Already in today\u2019s log');
+      return;
+    }
     tactileEngine.playPRCelebration();
+    const stamp = Date.now();
     addExerciseToActiveLog({
-      id: `reel-${reel.id}-${Date.now()}`,
+      id: `reel-${reel.id}-${stamp}`,
       name: clip ? `${reel.title} (${clip.title})` : reel.title,
-      targetMuscle: 'Core',
-      restSecs: 60,
-      equipment: 'Bodyweight',
-      sets: [1, 2, 3].map((setNumber) => ({ setNumber, weightKg: 0, reps: 10, rpe: 7, completed: false })),
+      targetMuscle: titleCase(reel.filterTag || reel.category),
+      restSecs: readAthleteSettingsSnapshot().defaultRestSeconds || 90,
+      sets: [1, 2, 3].map((setNumber) => ({ id: `set-${stamp}-${setNumber}`, setNumber, weightKg: 0, reps: 0, rpe: 0, completed: false })),
     });
-    setAddedExercises((p) => ({ ...p, [reel.id]: true }));
+    flash('Added to today\u2019s log');
   };
 
   const coachesList = useMemo(() => {
     const q = searchQuery.toLowerCase().trim();
-    if (!q) return remoteCoaches;
-    return remoteCoaches.filter((c) => (c?.name ?? '').toLowerCase().includes(q) || (c?.specialtyTitle ?? c?.specialty ?? '').toLowerCase().includes(q));
-  }, [searchQuery, remoteCoaches]);
+    const rows = remoteCoaches.filter((coach) => {
+      const blob = `${coach?.name ?? ''} ${coach?.specialtyTitle ?? ''} ${coach?.specialty ?? ''}`;
+      const matchesQuery = !q || blob.toLowerCase().includes(q);
+      return matchesQuery && chipHit(blob, selectedFilter);
+    });
+    return [...rows].sort((a, b) => Number(textHitsDiscipline(`${b.specialtyTitle} ${b.specialty}`, discipline)) - Number(textHitsDiscipline(`${a.specialtyTitle} ${a.specialty}`, discipline)));
+  }, [searchQuery, remoteCoaches, selectedFilter, discipline]);
 
   return {
-    tabMode, setTabMode, selectedFilter, setSelectedFilter, selectedCategory, setSelectedCategory,
+    selectedFilter, setSelectedFilter, selectedCategory, setSelectedCategory,
     searchQuery, setSearchQuery, activeReel, setActiveReel, activeClip, setActiveClip,
-    isPlaying, isMuted, videoRef, likedReels, savedReels, followedCoaches, addedExercises,
-    bookingCoach, setBookingCoach, messageCoach, setMessageCoach, handleNextReel, handlePrevReel,
-    handleToggleLike, handleToggleSave, handleToggleFollow, handleToggleMute, handleTogglePlay,
-    handleShare, handleAddExerciseToWorkout, filteredReels, coachesList, shareToast,
+    isPlaying, setIsPlaying, isMuted, videoRef, likedReels, likeCounts, savedReels, addedExercises,
+    bookingCoach, setBookingCoach, messageCoach, setMessageCoach, setPlaylist, handleNextReel, handlePrevReel,
+    handleToggleLike, handleToggleSave, handleToggleMute, handleTogglePlay,
+    handleShare, handleAddExerciseToWorkout, filteredReels, coachesList, toast, flash, linkSheet, setLinkSheet,
   };
 }

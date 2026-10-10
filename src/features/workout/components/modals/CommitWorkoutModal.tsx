@@ -52,7 +52,7 @@ export const CommitWorkoutModal: React.FC<CommitWorkoutModalProps> = ({
               <Flame className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="font-tactical font-black text-sm text-neutral-100 uppercase tracking-wide">
+              <h3 className="font-tactical font-black text-sm text-neutral-100 tracking-wide">
                 Commit Workout
               </h3>
               <span className="text-[10px] font-mono text-neutral-400 block">Session Summary Audit</span>
@@ -73,15 +73,15 @@ export const CommitWorkoutModal: React.FC<CommitWorkoutModalProps> = ({
         {/* Telemetry Metrics */}
         <div className="grid grid-cols-3 gap-2 text-center">
           <div className="bg-black rounded-2xl p-2.5 border border-white/[0.07]">
-            <span className="text-[9px] font-mono text-neutral-400 uppercase font-bold block">Volume</span>
+            <span className="text-[9px] font-mono text-neutral-400 font-bold block">Volume</span>
             <span className="font-mono font-black text-sm text-neutral-100">{totalKg.toLocaleString()} kg</span>
           </div>
           <div className="bg-black rounded-2xl p-2.5 border border-white/[0.07]">
-            <span className="text-[9px] font-mono text-neutral-400 uppercase font-bold block">Sets</span>
+            <span className="text-[9px] font-mono text-neutral-400 font-bold block">Sets</span>
             <span className="font-mono font-black text-sm text-neutral-100">{totalSets}</span>
           </div>
           <div className="bg-black rounded-2xl p-2.5 border border-white/[0.07]">
-            <span className="text-[9px] font-mono text-neutral-400 uppercase font-bold block">Reps</span>
+            <span className="text-[9px] font-mono text-neutral-400 font-bold block">Reps</span>
             <span className="font-mono font-black text-sm text-neutral-100">{totalReps}</span>
           </div>
         </div>
@@ -115,7 +115,7 @@ export const CommitWorkoutModal: React.FC<CommitWorkoutModalProps> = ({
                       tactileEngine.triggerSelectionBuzz();
                       setSelectedDayToAssign(d.key);
                     }}
-                    className={`py-2 rounded-xl text-center font-mono text-[11px] font-bold uppercase transition-all cursor-pointer border ${
+                    className={`py-2 rounded-xl text-center font-mono text-[11px] font-bold transition-all cursor-pointer border ${
                       isSelected
                         ? 'bg-o1-crimson text-white border-red-500 shadow-sm'
                         : isToday
@@ -124,7 +124,7 @@ export const CommitWorkoutModal: React.FC<CommitWorkoutModalProps> = ({
                     }`}
                   >
                     <span>{d.label}</span>
-                    {isToday && <span className="block text-[7px] text-amber-400 leading-none mt-0.5">TODAY</span>}
+                    {isToday && <span className="block text-[7px] text-amber-400 leading-none mt-0.5">Today</span>}
                   </button>
                 );
               })}
@@ -140,7 +140,7 @@ export const CommitWorkoutModal: React.FC<CommitWorkoutModalProps> = ({
                 tactileEngine.playPRCelebration();
                 onSaveRoutineToDay(selectedDayToAssign);
               }}
-              className="w-full py-2.5 px-3 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover active:scale-[0.98] text-white font-mono font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-sm transition-all cursor-pointer"
+              className="w-full py-2.5 px-3 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover active:scale-[0.98] text-white font-mono font-bold text-xs tracking-wider flex items-center justify-center gap-1.5 shadow-sm transition-all cursor-pointer"
             >
               <BookmarkPlus className="w-3.5 h-3.5" />
               <span>Confirm &amp; Save for {selectedDayToAssign}</span>
@@ -175,7 +175,7 @@ export const CommitWorkoutModal: React.FC<CommitWorkoutModalProps> = ({
                 tactileEngine.triggerSelectionBuzz();
                 setShowDaySelector(true);
               }}
-              className="w-full py-3 px-4 rounded-2xl bg-o1-well hover:bg-white/[0.06] active:scale-[0.98] text-white font-mono font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-xs border border-white/[0.07] transition-all cursor-pointer"
+              className="w-full py-3 px-4 rounded-2xl bg-o1-well hover:bg-white/[0.06] active:scale-[0.98] text-white font-mono font-bold text-xs tracking-wider flex items-center justify-center gap-2 shadow-xs border border-white/[0.07] transition-all cursor-pointer"
             >
               <BookmarkPlus className="w-4 h-4 text-amber-400" />
               <span>Save &amp; Assign to Repeating Day</span>

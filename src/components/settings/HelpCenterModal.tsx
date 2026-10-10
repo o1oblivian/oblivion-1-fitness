@@ -45,7 +45,7 @@ export const HelpCenterModal: React.FC<HelpCenterModalProps> = ({ isOpen, onClos
               <BookOpen className="w-4 h-4 text-o1-crimson" />
             </div>
             <div>
-              <h2 className="text-sm font-bold uppercase tracking-wider font-tactical">Help &amp; Telemetry Manual</h2>
+              <h2 className="text-sm font-bold tracking-wider font-tactical">Help &amp; Telemetry Manual</h2>
               <p className="text-[10px] font-mono text-neutral-500">Oblivion 1 Athlete OS Knowledge Base</p>
             </div>
           </div>

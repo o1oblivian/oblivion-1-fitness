@@ -1,5 +1,6 @@
 import React from 'react';
 import { useFuelStore } from './store/useFuelStore';
+import { useUserStore } from '../../stores/useUserStore';
 import { FuelHeroDashboard } from './components/FuelHeroDashboard';
 import { SupplementsElectrolytesAccordion } from './components/SupplementsElectrolytesAccordion';
 import { FuelHydrationCard } from './components/FuelHydrationCard';
@@ -36,6 +37,16 @@ export const FuelView: React.FC = () => {
     setWeightKg,
     showToast,
   } = useFuelStore();
+  const profileWeight = useUserStore((s) => s.weightKg);
+  const setProfileWeight = useUserStore((s) => s.setWeightKg);
+
+  React.useEffect(() => {
+    if (profileWeight > 0 && profileWeight !== weightKg) {
+      setWeightKg(profileWeight);
+    } else if (profileWeight <= 0 && weightKg > 0) {
+      setProfileWeight(weightKg);
+    }
+  }, [profileWeight, weightKg, setWeightKg, setProfileWeight]);
 
   const modals = useFuelModals();
 
@@ -64,9 +75,14 @@ export const FuelView: React.FC = () => {
     showToast,
   });
 
-  const remainingProtein = Math.max(0, targetProteinG - totals.totalProtein);
-  const remainingCarbs = Math.max(0, targetCarbsG - totals.totalCarbs);
-  const remainingFats = Math.max(0, targetFatsG - totals.totalFats);
+  const gramsLeft = (target: number, eaten: number) => {
+    const a = Number.isFinite(target) ? target : 0;
+    const b = Number.isFinite(eaten) ? eaten : 0;
+    return Math.max(0, a - b);
+  };
+  const remainingProtein = gramsLeft(targetProteinG, totals.totalProtein);
+  const remainingCarbs = gramsLeft(targetCarbsG, totals.totalCarbs);
+  const remainingFats = gramsLeft(targetFatsG, totals.totalFats);
 
   return (
     <div
@@ -76,7 +92,7 @@ export const FuelView: React.FC = () => {
       <FuelHeroDashboard
         countryMarket={countryMarket}
         dietPreference={dietPreference}
-        weightKg={weightKg}
+        weightKg={profileWeight > 0 ? profileWeight : weightKg}
         remainingKcal={totals.remainingCalories}
         eatenKcal={totals.totalCalories}
         burnedKcal={burnedKcal}
@@ -90,6 +106,7 @@ export const FuelView: React.FC = () => {
         onOpenCountry={() => modals.setIsCountryModalOpen(true)}
         onOpenDiet={() => modals.setIsDietModalOpen(true)}
         onSaveWeight={(w) => {
+          setProfileWeight(w);
           setWeightKg(w);
           showToast(`Weight updated to ${w} kg`);
         }}

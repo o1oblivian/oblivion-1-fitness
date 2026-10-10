@@ -79,7 +79,7 @@ export const SettingsHardwareSection: React.FC<ConnectedDevicesProps> = ({
 
   return (
     <div className="space-y-2 select-none">
-      <h3 className="text-xs font-tactical tracking-wider text-neutral-400 font-bold uppercase px-1">
+      <h3 className="text-xs font-tactical tracking-wider text-neutral-400 font-bold px-1">
         Connected Devices &amp; Hardware Sensors
       </h3>
 

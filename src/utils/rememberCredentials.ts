@@ -26,9 +26,13 @@ function decodeSecret(encoded: string): string {
   }
 }
 
+function isRememberOn(raw: unknown): boolean {
+  if (raw === null || raw === undefined || raw === '') return true;
+  return raw === true || String(raw) === 'true' || String(raw) === '1';
+}
+
 export function loadRememberedCredentials(): RememberedCredentials {
-  const flag = String(safeStorage.getItem(FLAG_KEY, '') || '');
-  const rememberMe = flag === 'true' || flag === '1';
+  const rememberMe = isRememberOn(safeStorage.getItem(FLAG_KEY, null));
   const email = String(safeStorage.getItem(EMAIL_KEY, '') || '');
   const secret = String(safeStorage.getItem(SECRET_KEY, '') || '');
   return {

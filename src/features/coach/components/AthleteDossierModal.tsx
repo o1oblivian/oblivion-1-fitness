@@ -1,7 +1,8 @@
 import React from 'react';
-import { X, Activity, Flame, Calendar, Send, HeartPulse } from 'lucide-react';
+import { X, Activity, Flame, Calendar, Send } from 'lucide-react';
 import { Athlete } from '../services/coachService';
 import { tactileEngine } from '../../../services/tactileEngine';
+import { CoachAthleteReport } from '../../report/components/CoachAthleteReport';
 
 export interface AthleteDossierModalProps {
   athlete: Athlete | null;
@@ -17,6 +18,13 @@ export const AthleteDossierModal: React.FC<AthleteDossierModalProps> = ({
   onOpenDispatchStudio,
 }) => {
   if (!isOpen || !athlete) return null;
+
+  const dispatch = () => {
+    if (!onOpenDispatchStudio) return;
+    tactileEngine.selection();
+    onClose();
+    onOpenDispatchStudio(athlete.id);
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 o1-sheet-scrim select-none">
@@ -57,59 +65,70 @@ export const AthleteDossierModal: React.FC<AthleteDossierModalProps> = ({
           {/* Readiness & Volume Metrics */}
           <div className="grid grid-cols-2 gap-2.5">
             <div className="p-3 rounded-2xl bg-black border border-white/[0.07]">
-              <span className="text-[10px] font-mono uppercase text-neutral-400 block">Readiness Score</span>
+              <span className="text-[10px] font-mono text-neutral-400 block">Readiness Score</span>
               <div className="text-xl font-mono font-bold text-emerald-400 flex items-center gap-1 mt-0.5">
                 <Activity className="w-4 h-4" />
-                <span>{athlete.readiness}%</span>
+                <span>{athlete.readiness ? `${athlete.readiness}%` : '--'}</span>
               </div>
-              <span className="text-[10px] text-neutral-400 font-mono">CNS & HRV Telemetry</span>
+              <span className="text-[10px] text-neutral-400 font-mono">Check-in</span>
             </div>
 
             <div className="p-3 rounded-2xl bg-black border border-white/[0.07]">
-              <span className="text-[10px] font-mono uppercase text-neutral-400 block">7-Day Volume</span>
+              <span className="text-[10px] font-mono text-neutral-400 block">7-Day Volume</span>
               <div className="text-xl font-mono font-bold text-o1-crimson flex items-center gap-1 mt-0.5">
                 <Flame className="w-4 h-4" />
-                <span>{(athlete.volume / 1000).toFixed(1)}k kg</span>
+                <span>{athlete.volume ? `${(athlete.volume / 1000).toFixed(1)}k kg` : '--'}</span>
               </div>
               <span className="text-[10px] text-neutral-400 font-mono">Tonnage logged</span>
             </div>
           </div>
 
-          {/* Vitals Telemetry */}
-          <div className="p-3 rounded-2xl border border-white/[0.07] bg-black/60 space-y-2">
-            <span className="text-xs font-bold uppercase text-neutral-300 tracking-wider flex items-center gap-1.5 font-mono">
-              <HeartPulse className="w-3.5 h-3.5 text-sky-400" />
-              Biometric Telemetry
-            </span>
-            <div className="grid grid-cols-3 gap-2 text-center font-mono">
-              <div className="p-2 rounded-xl bg-o1-card border border-white/[0.07]">
-                <span className="text-[9px] text-neutral-400 block">RHR</span>
-                <span className="text-xs font-bold text-white">54 BPM</span>
+          {/* The Oblivion Report (athlete-consented snapshot) */}
+          {athlete.id.startsWith('sample-') ? (
+            <div className="grid grid-cols-2 gap-2.5">
+              <div className="rounded-2xl border border-[#1F1F1F] bg-black p-3">
+                <span className="text-[10px] text-[#8A887F]">Sleep</span>
+                <p className="o1-num mt-1 text-[18px] text-[#EAE8DF]">{athlete.sleepHours ?? '--'} h</p>
               </div>
-              <div className="p-2 rounded-xl bg-o1-card border border-white/[0.07]">
-                <span className="text-[9px] text-neutral-400 block">HRV</span>
-                <span className="text-xs font-bold text-white">88 ms</span>
+              <div className="rounded-2xl border border-[#1F1F1F] bg-black p-3">
+                <span className="text-[10px] text-[#8A887F]">Soreness</span>
+                <p className="mt-1 text-[15px] text-[#EAE8DF]">{athlete.soreness || '--'}</p>
               </div>
-              <div className="p-2 rounded-xl bg-o1-card border border-white/[0.07]">
-                <span className="text-[9px] text-neutral-400 block">Sleep</span>
-                <span className="text-xs font-bold text-white">8h 12m</span>
+              <div className="rounded-2xl border border-[#1F1F1F] bg-black p-3">
+                <span className="text-[10px] text-[#8A887F]">Fuel</span>
+                <p className="o1-num mt-1 text-[18px] text-[#EAE8DF]">{athlete.fuelPct ?? '--'}%</p>
+              </div>
+              <div className="rounded-2xl border border-[#1F1F1F] bg-black p-3">
+                <span className="text-[10px] text-[#8A887F]">Sets / PRs</span>
+                <p className="o1-num mt-1 text-[18px] text-[#EAE8DF]">{athlete.sets ?? '--'} / {athlete.prs ?? '--'}</p>
               </div>
             </div>
-          </div>
+          ) : !athlete.volume && !athlete.sets ? (
+            <div className="rounded-2xl border border-[#1F1F1F] bg-black p-4">
+              <p className="text-[13px] text-[#EAE8DF]">Onboarding // Day 0</p>
+              <p className="mt-1 text-[12px] text-[#8A887F]">Awaiting first logged session.</p>
+            </div>
+          ) : (
+            <CoachAthleteReport
+              athleteId={athlete.client_id}
+              athleteName={athlete.name}
+              onDispatch={dispatch}
+            />
+          )}
 
           {/* Activity Status */}
           <div className="space-y-2">
-            <span className="text-xs font-bold uppercase text-neutral-300 tracking-wider flex items-center gap-1.5 font-mono">
+            <span className="text-xs font-bold text-neutral-300 tracking-wider flex items-center gap-1.5 font-mono">
               <Calendar className="w-3.5 h-3.5 text-o1-crimson" />
               Telemetry Status
             </span>
             <div className="p-3 rounded-2xl border border-white/[0.07] bg-black/60 text-xs">
               <div className="flex items-center justify-between font-bold text-white">
                 <span>Active Cycle</span>
-                <span className="text-[10px] font-mono text-neutral-400">{athlete.lastActive || 'Syncing'}</span>
+                <span className="text-[10px] font-mono text-neutral-400">{athlete.cycle || athlete.lastActive || '--'}</span>
               </div>
               <p className="text-[11px] text-neutral-400 mt-1 font-mono">
-                Status flag: {athlete.status}. Volume load: {athlete.volume} kg total session output.
+                {athlete.status}{athlete.volume ? ` · ${athlete.volume.toLocaleString()} kg` : ''}
               </p>
             </div>
           </div>
@@ -120,15 +139,11 @@ export const AthleteDossierModal: React.FC<AthleteDossierModalProps> = ({
           <div className="p-3 border-t border-white/[0.05] bg-black">
             <button
               type="button"
-              onClick={() => {
-                tactileEngine.selection();
-                onClose();
-                onOpenDispatchStudio(athlete.id);
-              }}
-              className="w-full py-2.5 px-4 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover text-white text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 shadow-md active:scale-98 cursor-pointer transition-all font-mono"
+              onClick={dispatch}
+              className="w-full py-2.5 px-4 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover text-white text-xs font-bold tracking-wider flex items-center justify-center gap-2 shadow-md active:scale-98 cursor-pointer transition-all font-mono"
             >
               <Send className="w-4 h-4" />
-              <span>Create 1-on-1 Protocol in Studio</span>
+              <span>Send workout</span>
             </button>
           </div>
         )}

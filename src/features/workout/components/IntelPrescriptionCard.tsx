@@ -16,7 +16,7 @@ export const IntelPrescriptionCard: React.FC<IntelPrescriptionCardProps> = ({
     <div className="border-t border-white/[0.05] pt-3 space-y-2.5 animate-in fade-in duration-200">
       {/* 1. PRESCRIPTION CONTAINER & HEADER */}
       <div className="flex items-center justify-between pb-1">
-        <span className="text-xs font-bold text-neutral-400 tracking-wider uppercase">
+        <span className="text-xs font-bold text-neutral-400 tracking-wider">
           PRESCRIPTION — {prescription.length} MOVEMENTS
         </span>
         <span className="text-xs font-mono font-semibold text-red-400">
@@ -68,10 +68,10 @@ export const IntelPrescriptionCard: React.FC<IntelPrescriptionCardProps> = ({
         <button
           type="button"
           onClick={onLoadPrescription}
-          className="bg-white hover:bg-neutral-100 text-neutral-950 active:scale-95 text-xs font-bold px-7 py-3 rounded-full shadow-lg flex items-center gap-2 tracking-wide uppercase transition-all cursor-pointer"
+          className="bg-white hover:bg-neutral-100 text-neutral-950 active:scale-95 text-xs font-bold px-7 py-3 rounded-full shadow-lg flex items-center gap-2 tracking-wide transition-all cursor-pointer"
         >
           <span className="w-2 h-2 rounded-full bg-sky-400 animate-pulse"></span>
-          LOAD INTO ACTIVE LOG
+          Load into active log
         </button>
         {/* Standard Exercise Disclaimer */}
         <p className="text-[10px] font-mono text-neutral-500 text-center tracking-tight">

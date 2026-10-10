@@ -3,8 +3,6 @@ import { Search, X } from 'lucide-react';
 import { tactileEngine } from '../../../services/tactileEngine';
 
 interface ReelExploreHeaderProps {
-  tabMode: 'reels' | 'coaches';
-  setTabMode: (mode: 'reels' | 'coaches') => void;
   searchQuery: string;
   setSearchQuery: (query: string) => void;
   selectedFilter: string;
@@ -14,8 +12,6 @@ interface ReelExploreHeaderProps {
 }
 
 export const ReelExploreHeader: React.FC<ReelExploreHeaderProps> = ({
-  tabMode,
-  setTabMode,
   searchQuery,
   setSearchQuery,
   selectedFilter,
@@ -25,41 +21,12 @@ export const ReelExploreHeader: React.FC<ReelExploreHeaderProps> = ({
 }) => {
   return (
     <div className="sticky top-0 z-30 bg-black border-b border-white/[0.05] px-4 pt-3 pb-3 flex flex-col gap-3 select-none">
-      {/* Top Bar: Center Segmented Control Pill + Absolute Right Close Button */}
-      <div className="relative flex items-center justify-center w-full min-h-[36px]">
-        {/* Tab 1: ELITE REELS | Tab 2: COACHES - Horizontally Centered */}
-        <div className="p-1 rounded-full bg-o1-well border border-white/[0.07] flex items-center shadow-inner mx-auto">
-          <button
-            type="button"
-            onClick={() => {
-              tactileEngine.triggerLightTick();
-              setTabMode('reels');
-            }}
-            className={`px-4 py-1 rounded-full text-xs font-semibold tracking-tight transition-all cursor-pointer font-tactical ${
-              tabMode === 'reels' ? 'bg-o1-crimson text-white font-bold shadow-xs' : 'text-neutral-400 hover:text-white'
-            }`}
-          >
-            Elite Reels
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              tactileEngine.triggerLightTick();
-              setTabMode('coaches');
-            }}
-            className={`px-4 py-1 rounded-full text-xs font-semibold tracking-tight transition-all cursor-pointer font-tactical ${
-              tabMode === 'coaches' ? 'bg-o1-crimson text-white font-bold shadow-xs' : 'text-neutral-400 hover:text-white'
-            }`}
-          >
-            Coaches
-          </button>
-        </div>
-
-        {/* Absolute Right [X] Close Button */}
+      <div className="relative flex items-center justify-center w-full min-h-[44px]">
+        <h2 className="text-[15px] font-semibold text-[#EAE8DF]">Elite Reels</h2>
         <button
           type="button"
           onClick={onClose}
-          className="absolute right-0 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/[0.08] hover:bg-neutral-700 flex items-center justify-center text-neutral-300 hover:text-white transition-all cursor-pointer"
+          className="absolute right-0 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full flex items-center justify-center text-neutral-300 hover:text-white transition-all cursor-pointer"
           aria-label="Close Explore Hub"
         >
           <X className="w-4 h-4" />
@@ -72,7 +39,7 @@ export const ReelExploreHeader: React.FC<ReelExploreHeaderProps> = ({
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder={tabMode === 'reels' ? "Search exercises, cues, coaches..." : "Search verified trainers, specialties..."}
+          placeholder="Search exercises, cues, coaches..."
           className="w-full bg-o1-well border border-white/[0.07] rounded-full pl-9 pr-8 py-2 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-o1-crimson transition-colors"
         />
         {searchQuery && (
@@ -86,10 +53,9 @@ export const ReelExploreHeader: React.FC<ReelExploreHeaderProps> = ({
         )}
       </div>
 
-      {tabMode === 'reels' && (
-        <div className="flex items-center gap-2 overflow-x-auto scrollbar-none pb-0.5">
+      <div className="flex items-center gap-2 overflow-x-auto scrollbar-none pb-0.5">
           {filterTags.map((tag) => {
-            const isSelected = selectedFilter === tag;
+            const isSelected = selectedFilter === tag || (tag === 'All' && selectedFilter === 'ALL');
             return (
               <button
                 key={tag}
@@ -98,10 +64,10 @@ export const ReelExploreHeader: React.FC<ReelExploreHeaderProps> = ({
                   tactileEngine.triggerLightTick();
                   setSelectedFilter(tag);
                 }}
-                className={`px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider whitespace-nowrap transition-all cursor-pointer font-tactical ${
+                className={`px-3 py-1 rounded-full text-[11px] font-semibold whitespace-nowrap transition-all cursor-pointer ${
                   isSelected
-                    ? 'bg-o1-crimson text-white shadow-xs'
-                    : 'bg-o1-well text-neutral-400 border border-white/[0.07] hover:text-white'
+                    ? 'bg-white text-neutral-950'
+                    : 'bg-[#0E0E0E] text-[#8A887F] border border-[#1F1F1F]'
                 }`}
               >
                 {tag}
@@ -109,7 +75,6 @@ export const ReelExploreHeader: React.FC<ReelExploreHeaderProps> = ({
             );
           })}
         </div>
-      )}
     </div>
   );
 };

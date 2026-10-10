@@ -36,9 +36,9 @@ export const MainAppLayout: React.FC = () => {
   }, [handleTabSelect]);
 
   return (
-    <div className="relative min-h-dvh w-full bg-black text-neutral-100 overflow-x-hidden selection:bg-o1-crimson selection:text-white transition-colors duration-200">
+    <div className="relative min-h-dvh w-full bg-black text-o1-bone overflow-x-hidden selection:bg-o1-crimson selection:text-o1-bone transition-colors duration-200">
       <div
-        className={`min-h-dvh w-full bg-transparent text-neutral-100 flex flex-col justify-between font-sans origin-top transition-all duration-300 ease-out relative ${
+        className={`min-h-dvh w-full bg-transparent text-o1-bone flex flex-col justify-between font-sans origin-top transition-all duration-300 ease-out relative ${
           isTravelPassOpen
             ? 'scale-[0.94] rounded-2xl brightness-75 overflow-hidden pointer-events-none select-none'
             : ''

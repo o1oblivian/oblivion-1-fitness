@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { X, CheckCircle2, ChevronRight, ChevronLeft, Zap, Shield, Flame } from 'lucide-react';
 import { tactileEngine } from '../../services/tactileEngine';
 import { useWorkoutStore } from '../../features/workout/store/useWorkoutStore';
+import { mockArchetypeStories } from '../../services/devMocks';
 
 export interface StoryArchetype {
   id: string;
@@ -21,113 +22,7 @@ export interface StoryArchetype {
   };
 }
 
-export const ARCHETYPE_STORIES: StoryArchetype[] = [
-  {
-    id: 'story-1',
-    name: 'ELITE REELS',
-    archetypeTitle: 'ELITE TACTICAL REELS',
-    creatorHandle: '@elite.tactical',
-    verified: true,
-    backgroundAsset: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=900&q=80',
-    focusMuscles: ['Full-Body Kinetic Chain', 'CNS Potentiation', 'VO2 Max Conditioning'],
-    splitOverview: {
-      daysPerWeek: '7-Day Hybrid Microcycle',
-      targetFocus: 'Tactical Strength & Conditioning',
-      intensity: 'RPE 8.5-9.5 Peak Potentiation',
-      protocol: 'Dynamic athletic foundation combining compound lifting, high-intensity intervals, and metabolic conditioning.',
-      keyLifts: [
-        'Barbell Front Squat (3x6)',
-        'Heavy Trap Bar Deadlift (4x5)',
-        'Tactical Pull-Ups (4x8)',
-        'Echo Bike Sprints (10 Rounds)',
-      ],
-    },
-  },
-  {
-    id: 'story-2',
-    name: 'V-TAPER SCULPTOR',
-    archetypeTitle: 'V-TAPER SCULPTOR',
-    creatorHandle: '@apex.hypertrophy',
-    verified: true,
-    backgroundAsset: 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?auto=format&fit=crop&w=900&q=80',
-    focusMuscles: ['Clavicular Upper Pecs', 'Latissimus Flare', 'Lateral Deltoids'],
-    splitOverview: {
-      daysPerWeek: '5-Day Upper Bias Periodization',
-      targetFocus: 'Torso Width & Clavicular Expansion',
-      intensity: 'RPE 8.0-9.0 Hypertrophy Focus',
-      protocol: 'Clavicular bias pressing paired with mechanical tension pulldowns and high-frequency side delt volume.',
-      keyLifts: [
-        'Incline Barbell Press 30° (4x8)',
-        'Neutral-Grip Lat Pulldown (4x10)',
-        'Chest-Supported T-Bar Row (3x10)',
-        'Cable Lateral Raises (4x15)',
-      ],
-    },
-  },
-  {
-    id: 'story-3',
-    name: 'BOOTY BUILDER',
-    archetypeTitle: 'BOOTY BUILDER',
-    creatorHandle: '@biomechanic.lab',
-    verified: true,
-    backgroundAsset: 'https://images.unsplash.com/photo-1574680096145-d05b474e2155?auto=format&fit=crop&w=900&q=80',
-    focusMuscles: ['Gluteus Maximus', 'Pelvic Stabilizers', 'Hamstring Tie-In'],
-    splitOverview: {
-      daysPerWeek: '4-Day Lower Body Periodization',
-      targetFocus: 'Glute Hypertrophy & Pelvic Alignment',
-      intensity: 'RPE 8.5-9.5 Progressive Overload',
-      protocol: 'Heavy horizontal hip abduction and extension paired with unilateral eccentric loading.',
-      keyLifts: [
-        'Barbell Hip Thrust (4x10)',
-        'Kas Glute Bridge 3s Pause (3x12)',
-        'Romanian Deadlift RDL (4x8)',
-        'Bulgarian Split Squat (3x10/leg)',
-      ],
-    },
-  },
-  {
-    id: 'story-4',
-    name: 'GREEK GOD',
-    archetypeTitle: 'GREEK GOD ARCHETYPE',
-    creatorHandle: '@classical.ratio',
-    verified: true,
-    backgroundAsset: 'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?auto=format&fit=crop&w=900&q=80',
-    focusMuscles: ['Boulder Deltoids', 'Upper Chest Shelf', 'Quads & Core V-Line'],
-    splitOverview: {
-      daysPerWeek: '5-Day Push / Pull / Legs Split',
-      targetFocus: 'Golden Ratio 1.618 Symmetry',
-      intensity: 'RPE 8.5 Heavy Compound Potentiation',
-      protocol: 'Classical physique periodization prioritizing heavy overhead pressing, weighted calisthenics, and high-squat volume.',
-      keyLifts: [
-        'Standing Barbell OHP (5x5)',
-        'Weighted Neutral Pull-Ups (4x6)',
-        'Incline Dumbbell Press (4x8)',
-        'High-Bar Back Squat (4x6)',
-      ],
-    },
-  },
-  {
-    id: 'story-5',
-    name: 'HOURGLASS',
-    archetypeTitle: 'HOURGLASS TAPER',
-    creatorHandle: '@taper.physique',
-    verified: true,
-    backgroundAsset: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=900&q=80',
-    focusMuscles: ['Waist Taper & Core V-Line', 'Glute-Ham Extension', 'Lat Flare'],
-    splitOverview: {
-      daysPerWeek: '5-Day Silhouette Sculpt',
-      targetFocus: 'Waist Compression & Posterior Chain',
-      intensity: 'RPE 8.0-9.0 Metabolic Hypertrophy',
-      protocol: 'Strategic lat and glute development while utilizing isometric core compression to minimize waist circumference.',
-      keyLifts: [
-        'Barbell Hip Thrust Pyramid (4x12,10,8,6)',
-        'Deficit Reverse Lunges (3x12)',
-        'Wide-Grip Cable Rows (3x12)',
-        'Cable Pallof Hold (3x30s)',
-      ],
-    },
-  },
-];
+const STORIES = mockArchetypeStories();
 
 export interface ProgramReelsModalProps {
   isOpen: boolean;
@@ -154,7 +49,7 @@ export const ProgramReelsModal: React.FC<ProgramReelsModalProps> = ({
   useEffect(() => {
     if (isOpen) {
       if (initialStoryId) {
-        const found = ARCHETYPE_STORIES.findIndex(
+        const found = STORIES.findIndex(
           (s) =>
             s.id === initialStoryId ||
             s.name.toLowerCase() === initialStoryId.toLowerCase() ||
@@ -170,18 +65,18 @@ export const ProgramReelsModal: React.FC<ProgramReelsModalProps> = ({
     }
   }, [isOpen, initialStoryId]);
 
-  const activeStory = ARCHETYPE_STORIES[activeIndex] || ARCHETYPE_STORIES[0];
+  const activeStory = STORIES[activeIndex] || STORIES[0];
 
   const handleNextStory = useCallback(() => {
     tactileEngine.triggerDialHaptic();
     setProgress(0);
-    setActiveIndex((prev) => (prev + 1) % ARCHETYPE_STORIES.length);
+    setActiveIndex((prev) => (prev + 1) % STORIES.length);
   }, []);
 
   const handlePrevStory = useCallback(() => {
     tactileEngine.triggerDialHaptic();
     setProgress(0);
-    setActiveIndex((prev) => (prev === 0 ? ARCHETYPE_STORIES.length - 1 : prev - 1));
+    setActiveIndex((prev) => (prev === 0 ? STORIES.length - 1 : prev - 1));
   }, []);
 
   // Timer loop for auto-advancing story
@@ -218,7 +113,7 @@ export const ProgramReelsModal: React.FC<ProgramReelsModalProps> = ({
     onClose();
   };
 
-  if (!isOpen || typeof document === 'undefined') return null;
+  if (!isOpen || !activeStory || typeof document === 'undefined') return null;
 
   return createPortal(
     <div
@@ -245,7 +140,7 @@ export const ProgramReelsModal: React.FC<ProgramReelsModalProps> = ({
       <div className="relative z-20 space-y-3 pt-1">
         {/* Segmented Timer Bars */}
         <div className="flex items-center gap-1.5 w-full">
-          {ARCHETYPE_STORIES.map((story, idx) => {
+          {STORIES.map((story, idx) => {
             const isFilled = idx < activeIndex;
             const isCurrent = idx === activeIndex;
             const barWidth = isFilled ? 100 : isCurrent ? progress : 0;
@@ -283,7 +178,7 @@ export const ProgramReelsModal: React.FC<ProgramReelsModalProps> = ({
             </div>
             <div>
               <div className="flex items-center gap-1.5">
-                <span className="font-mono font-black text-sm uppercase tracking-wider text-white">
+                <span className="font-mono font-black text-sm tracking-wider text-white">
                   {activeStory.archetypeTitle}
                 </span>
                 {activeStory.verified && (
@@ -295,7 +190,7 @@ export const ProgramReelsModal: React.FC<ProgramReelsModalProps> = ({
                   {activeStory.creatorHandle}
                 </span>
                 <span className="text-[10px] font-mono text-red-400 bg-red-950/60 border border-red-800/60 px-1.5 py-0.2 rounded">
-                  VERIFIED BLUEPRINT
+                  Verified Blueprint
                 </span>
               </div>
             </div>
@@ -344,8 +239,8 @@ export const ProgramReelsModal: React.FC<ProgramReelsModalProps> = ({
         <div className="space-y-2">
           <div className="flex items-center gap-2">
             <Flame className="w-4 h-4 text-o1-crimson animate-pulse" />
-            <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-neutral-300">
-              FOCUS MUSCLE VECTOR HIGHLIGHT
+            <span className="text-[10px] font-mono font-bold tracking-widest text-neutral-300">
+              Focus muscle vector highlight
             </span>
           </div>
 
@@ -366,7 +261,7 @@ export const ProgramReelsModal: React.FC<ProgramReelsModalProps> = ({
           <div className="flex items-center justify-between border-b border-white/[0.05] pb-2">
             <div className="flex items-center gap-2">
               <Shield className="w-4 h-4 text-red-500" />
-              <span className="font-mono font-bold text-xs uppercase tracking-wider text-white">
+              <span className="font-mono font-bold text-xs tracking-wider text-white">
                 {activeStory.splitOverview.daysPerWeek}
               </span>
             </div>
@@ -380,8 +275,8 @@ export const ProgramReelsModal: React.FC<ProgramReelsModalProps> = ({
           </p>
 
           <div className="space-y-1.5 pt-1">
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-neutral-400 block">
-              TARGET EXERCISE VECTOR BLUEPRINTS:
+            <span className="text-[10px] font-mono font-bold tracking-wider text-neutral-400 block">
+              Target exercise vector blueprints:
             </span>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
               {activeStory.splitOverview.keyLifts.map((lift) => (
@@ -406,7 +301,7 @@ export const ProgramReelsModal: React.FC<ProgramReelsModalProps> = ({
           onClick={handleAdoptBlueprint}
           className="w-full py-2.5 rounded-xl bg-zinc-100 hover:bg-white text-neutral-950 text-xs font-semibold tracking-wide active:scale-[0.98] transition-all flex items-center justify-center gap-2"
         >
-          <span>[ ADOPT THIS BLUEPRINT ]</span>
+          <span>[ Adopt this blueprint ]</span>
           <ChevronRight className="w-4 h-4" />
         </button>
 

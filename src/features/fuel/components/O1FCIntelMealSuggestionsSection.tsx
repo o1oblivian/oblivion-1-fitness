@@ -207,7 +207,7 @@ export const O1FCIntelMealSuggestionsSection: React.FC<O1FCIntelMealSuggestionsS
             <div className="space-y-1">
               <div className="flex items-center gap-2">
                 <Target className="w-3.5 h-3.5 text-o1-crimson" />
-                <span className="text-xs font-bold text-white uppercase tracking-wider font-mono">
+                <span className="text-xs font-bold text-white tracking-wider font-mono">
                   Live Deficit Goal Target
                 </span>
               </div>

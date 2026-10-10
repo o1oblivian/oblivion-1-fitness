@@ -84,11 +84,11 @@ export const FuelPresetsModal: React.FC<FuelPresetsModalProps> = ({
         {/* Header */}
         <div className="flex items-center justify-between pb-2 border-b border-white/[0.05]">
           <div>
-            <span className="text-[10px] font-mono text-o1-crimson font-bold uppercase tracking-wider flex items-center gap-1.5 truncate">
+            <span className="text-[10px] font-mono text-o1-crimson font-bold tracking-wider flex items-center gap-1.5 truncate">
               <Database className="w-3 h-3 shrink-0" />
               <span className="truncate">{regionalDbInfo.fullName}</span>
             </span>
-            <h3 className="font-bold text-sm text-white uppercase tracking-wide">
+            <h3 className="font-bold text-sm text-white tracking-wide">
               {CATEGORIES.find((c) => c.key === activePresetCategory)?.label} Catalog
             </h3>
           </div>
@@ -171,7 +171,7 @@ export const FuelPresetsModal: React.FC<FuelPresetsModalProps> = ({
                     });
                     onClose();
                   }}
-                  className="px-3 py-2 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover text-white font-mono text-xs font-bold uppercase tracking-wider flex items-center gap-1 shadow-xs active:scale-95 transition-all shrink-0 cursor-pointer"
+                  className="px-3 py-2 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover text-white font-mono text-xs font-bold tracking-wider flex items-center gap-1 shadow-xs active:scale-95 transition-all shrink-0 cursor-pointer"
                 >
                   <Plus className="w-3.5 h-3.5 stroke-[3]" />
                   <span>Log</span>
@@ -185,7 +185,7 @@ export const FuelPresetsModal: React.FC<FuelPresetsModalProps> = ({
         <button
           type="button"
           onClick={onClose}
-          className="w-full py-2.5 rounded-2xl bg-white/[0.08] hover:bg-neutral-700 text-neutral-300 font-mono text-xs font-bold uppercase tracking-wider transition-all cursor-pointer"
+          className="w-full py-2.5 rounded-2xl bg-white/[0.08] hover:bg-neutral-700 text-neutral-300 font-mono text-xs font-bold tracking-wider transition-all cursor-pointer"
         >
           Done
         </button>

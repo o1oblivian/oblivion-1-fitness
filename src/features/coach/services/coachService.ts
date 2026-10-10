@@ -1,7 +1,9 @@
 import { supabase } from '../../../services/supabaseClient';
 import { DirectiveItem } from '../types/coachDirectives';
+import { AthleteCheckInSubmission } from '../types/coachPlatformTypes';
 import { CoachEarningsTransaction, SquadAthlete } from '../../../types';
 import { safeStorage } from '../../../utils/safeStorage';
+import { WORKOUT_BLUEPRINTS } from '../../../data/workoutBlueprints';
 
 export interface Athlete {
   id: string;
@@ -9,20 +11,34 @@ export interface Athlete {
   name: string;
   handle: string;
   status: 'Active' | 'Inactive' | 'Check-in' | 'Need Routine';
-  readiness: number;
-  volume: number;
+  readiness: number | null;
+  volume: number | null;
   avatar?: string;
   lastActive?: string;
+  sets?: number;
+  prs?: number;
+  sleepHours?: number;
+  soreness?: string;
+  fuelPct?: number | null;
+  cycle?: string;
 }
 
 const STORAGE_COACH_CLIENTS = 'o1fc_custom_coach_clients';
 
-const isValidUuid = (val?: string | null): boolean =>
+function finiteOrNull(value: unknown): number | null {
+  if (value == null || value === '') return null;
+  const n = Number(value);
+  return Number.isFinite(n) ? n : null;
+}
+
+export const isValidUuid = (val?: string | null): boolean =>
   Boolean(val && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(val));
 
 // 1. Genuine athlete roster query (custom coach clients + Supabase coach_clients)
 export async function fetchCoachClients(coachId: string = ''): Promise<Athlete[]> {
-  const localClients = safeStorage.getItem<Athlete[]>(STORAGE_COACH_CLIENTS, []) || [];
+  const localClients = (safeStorage.getItem<Athlete[]>(STORAGE_COACH_CLIENTS, []) || []).filter(
+    (athlete) => !String(athlete.id).startsWith('preview-'),
+  );
 
   if (!isValidUuid(coachId)) {
     return localClients;
@@ -53,13 +69,13 @@ export async function fetchCoachClients(coachId: string = ''): Promise<Athlete[]
     const remoteAthletes = data.map((row: any, idx: number) => ({
       id: row.id || row.client_id || `athlete-${idx}`,
       client_id: row.client_id || row.id || `athlete-${idx}`,
-      name: row.name || row.client_name || `Athlete ${idx + 1}`,
-      handle: row.handle || `@athlete_${idx + 1}`,
+      name: row.name || row.client_name || 'Unnamed client',
+      handle: row.handle || '',
       status: (row.status as Athlete['status']) || 'Active',
-      readiness: Number(row.readiness ?? 85),
-      volume: Number(row.volume ?? 12500),
+      readiness: finiteOrNull(row.readiness),
+      volume: finiteOrNull(row.volume),
       avatar: row.avatar,
-      lastActive: row.last_active_at ? new Date(row.last_active_at).toLocaleDateString() : 'Recently',
+      lastActive: row.last_active_at ? new Date(row.last_active_at).toLocaleDateString() : '--',
     }));
 
     // Merge without duplicates by id
@@ -78,8 +94,33 @@ export async function fetchCoachClients(coachId: string = ''): Promise<Athlete[]
 }
 
 // 2. Direct Supabase directive signals query (coach_directives / coach_broadcasts)
+const CANNED_NOTES = new Set(['thursday squat', 'sleep first', 'sharp knee', 'eat before', 'lighter week']);
+
+const BLUEPRINT_TITLES = new Set(WORKOUT_BLUEPRINTS.map((row) => row.title.trim().toLowerCase()));
+
+function programTitles(): Set<string> {
+  const stored = safeStorage.getItem<{ title?: string }[]>('o1_coach_custom_programs', []) || [];
+  return new Set(
+    (Array.isArray(stored) ? stored : [])
+      .map((row) => String(row?.title || '').trim().toLowerCase())
+      .filter(Boolean),
+  );
+}
+
+export function liveDirectives(rows: DirectiveItem[]): DirectiveItem[] {
+  const programs = programTitles();
+  return rows.filter((row) => {
+    const title = row.title.trim().toLowerCase();
+    return !String(row.id).startsWith('preview-')
+      && !CANNED_NOTES.has(title)
+      && !BLUEPRINT_TITLES.has(title)
+      && !programs.has(title);
+  });
+}
+
 export async function fetchCoachDirectives(coachId: string = ''): Promise<DirectiveItem[]> {
-  if (!isValidUuid(coachId)) return [];
+  const local = liveDirectives(safeStorage.getItem<DirectiveItem[]>(LOCAL_NOTES_KEY, []) || []);
+  if (!isValidUuid(coachId)) return local;
 
   try {
     const { data, error } = await supabase
@@ -106,10 +147,10 @@ export async function fetchCoachDirectives(coachId: string = ''): Promise<Direct
         }));
       }
 
-      return [];
+      return local;
     }
 
-    return data.map((d: any) => ({
+    const remote = data.map((d: any) => ({
       id: d.id,
       tag: d.tag || 'TRAINING',
       title: d.title || 'Directive Signal',
@@ -118,9 +159,11 @@ export async function fetchCoachDirectives(coachId: string = ''): Promise<Direct
       priority: d.priority || 'HIGH',
       badgeStyle: d.badge_style || 'bg-red-950/60 text-red-400 border-red-800/60',
     }));
+    const seen = new Set(remote.map((row) => row.id));
+    return liveDirectives([...local.filter((row) => !seen.has(row.id)), ...remote]);
   } catch (err) {
     console.debug('[coachService] fetchCoachDirectives query caught:', err);
-    return [];
+    return local;
   }
 }
 
@@ -154,29 +197,37 @@ export async function fetchCoachEarnings(coachId: string = ''): Promise<CoachEar
 }
 
 // 4. Direct Supabase inbox messages query (coach_messages)
-export async function fetchCoachMessages(coachId: string = ''): Promise<Array<{ id: string; sender: string; time: string; message: string }>> {
-  if (!isValidUuid(coachId)) return [];
+function liveMessages<T extends { id: string; athleteId?: string }>(rows: T[]): T[] {
+  return rows.filter((row) => !String(row.id).startsWith('preview-') && !String(row.athleteId || '').startsWith('preview-'));
+}
+
+export async function fetchCoachMessages(coachId: string = ''): Promise<Array<{ id: string; sender: string; time: string; message: string; athleteId: string }>> {
+  const local = liveMessages(safeStorage.getItem<Array<{ id: string; sender: string; time: string; message: string; athleteId: string }>>(LOCAL_MESSAGES_KEY, []) || []);
+  if (!isValidUuid(coachId)) return local;
 
   try {
     const { data, error } = await supabase
       .from('coach_messages')
-      .select('id, sender_name, message, created_at')
+      .select('id, sender_name, message, created_at, athlete_id')
       .eq('coach_id', coachId)
       .order('created_at', { ascending: false });
 
     if (error || !data || data.length === 0) {
-      return [];
+      return local;
     }
 
-    return data.map((m: any) => ({
+    const remote = data.map((m: any) => ({
       id: m.id,
       sender: m.sender_name || 'Athlete',
       time: m.created_at ? new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Recently',
       message: m.message || '',
+      athleteId: String(m.athlete_id || ''),
     }));
+    const seen = new Set(remote.map((row) => row.id));
+    return liveMessages([...local.filter((row) => !seen.has(row.id)), ...remote]);
   } catch (err) {
     console.debug('[coachService] fetchCoachMessages live query error, returning empty:', err);
-    return [];
+    return local;
   }
 }
 
@@ -191,13 +242,13 @@ export async function fetchReviewSquad(coachId: string = ''): Promise<SquadAthle
     name: c.name,
     tier: 'Tier 1 Operator' as const,
     status: c.status as any,
-    statusColor: (c.readiness < 60 ? 'crimson' : c.readiness < 80 ? 'amber' : 'cyan') as any,
-    heartRate: 72,
-    cnsStrain: 8.0,
-    recoveryScore: c.readiness,
-    lastCheckIn: c.lastActive || 'Recently',
-    currentProtocol: 'Active Coaching Protocol',
-    tempoScore: 90,
+    statusColor: ((c.readiness ?? 0) < 60 ? 'crimson' : (c.readiness ?? 0) < 80 ? 'amber' : 'cyan') as any,
+    heartRate: 0,
+    cnsStrain: 0,
+    recoveryScore: c.readiness ?? 0,
+    lastCheckIn: c.lastActive || '--',
+    currentProtocol: '',
+    tempoScore: 0,
   }));
 }
 
@@ -254,4 +305,52 @@ export async function enrollCoachClient(coachId: string, athlete: Athlete): Prom
     if (clients.error) throw new Error(clients.error.message);
   }
   return athlete;
+}
+
+const CHECKIN_STORAGE_KEY = 'o1fc_day_checkins_v1';
+const LOCAL_MESSAGES_KEY = 'o1_coach_messages_local';
+const LOCAL_NOTES_KEY = 'o1_coach_notes_local';
+
+export function readStoredCheckins(): AthleteCheckInSubmission[] {
+  return safeStorage.getItem<AthleteCheckInSubmission[]>(CHECKIN_STORAGE_KEY, []) || [];
+}
+
+export function writeStoredCheckins(rows: AthleteCheckInSubmission[]): void {
+  safeStorage.setItem(CHECKIN_STORAGE_KEY, rows);
+}
+
+export async function saveCheckinRemote(row: AthleteCheckInSubmission): Promise<void> {
+  try {
+    await supabase.from('athlete_checkins').upsert({
+      id: row.id,
+      athlete_id: row.athleteId || null,
+      athlete_name: row.athleteName,
+      coach_id: row.coachId || null,
+      weight_kg: row.weightKg || null,
+      sleep_hours: row.sleepHours || null,
+      soreness: row.sorenessRating || null,
+      stress: row.stressRating || null,
+      notes: row.notes || '',
+    });
+  } catch {
+    /* The phone copy is the record until this table exists. */
+  }
+}
+
+export async function publishCoachNote(coachId: string, note: DirectiveItem): Promise<boolean> {
+  if (!isValidUuid(coachId)) return false;
+  try {
+    const { error } = await supabase.from('coach_directives').insert({
+      id: note.id,
+      coach_id: coachId,
+      tag: note.tag,
+      title: note.title,
+      summary: note.summary,
+      affected_count: note.affectedCount,
+      priority: note.priority,
+    });
+    return !error;
+  } catch {
+    return false;
+  }
 }

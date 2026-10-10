@@ -42,10 +42,10 @@ export const AiMealSuggestionsModal: React.FC<AiMealSuggestionsModalProps> = ({
   isOpen,
   onClose,
   dietPreference = 'Omnivore',
-  remainingCalories = 850,
-  remainingProtein = 48,
-  remainingCarbs = 65,
-  remainingFats = 22,
+  remainingCalories = 0,
+  remainingProtein = 0,
+  remainingCarbs = 0,
+  remainingFats = 0,
   onLogMeal,
 }) => {
   const [selectedSlot, setSelectedSlot] = useState<'breakfast' | 'lunch' | 'dinner' | 'snack'>('lunch');
@@ -137,7 +137,7 @@ export const AiMealSuggestionsModal: React.FC<AiMealSuggestionsModalProps> = ({
               <Sparkles className="w-4 h-4" />
             </div>
             <div>
-              <span className="text-[10px] font-tactical text-o1-crimson uppercase font-bold tracking-wider block">
+              <span className="text-[10px] font-tactical text-o1-crimson font-bold tracking-wider block">
                 Target-Matched Nutrition
               </span>
               <h3 className="font-tactical font-bold text-sm text-white tracking-tight">
@@ -176,7 +176,7 @@ export const AiMealSuggestionsModal: React.FC<AiMealSuggestionsModalProps> = ({
         {/* Athlete Budget Header Strip */}
         <div className="bg-o1-well border border-white/[0.07] p-2.5 rounded-xl flex items-center justify-between text-xs">
           <div>
-            <span className="text-neutral-400 font-tactical uppercase text-[10px] block font-semibold tracking-wide">
+            <span className="text-neutral-400 font-tactical text-[10px] block font-semibold tracking-wide">
               Target Budget ({dietPreference})
             </span>
             <span className="font-mono font-bold text-white tabular-nums text-xs">
@@ -233,15 +233,15 @@ export const AiMealSuggestionsModal: React.FC<AiMealSuggestionsModalProps> = ({
               {/* Macro Bar */}
               <div className="grid grid-cols-3 gap-1.5 bg-black/50 p-2 rounded-xl border border-white/[0.07] text-center">
                 <div>
-                  <span className="text-[10px] text-o1-crimson font-tactical font-semibold uppercase block">Protein</span>
+                  <span className="text-[10px] text-o1-crimson font-tactical font-semibold block">Protein</span>
                   <span className="text-xs font-bold font-mono tabular-nums text-white">{meal.protein}g</span>
                 </div>
                 <div>
-                  <span className="text-[10px] text-amber-400 font-tactical font-semibold uppercase block">Carbs</span>
+                  <span className="text-[10px] text-amber-400 font-tactical font-semibold block">Carbs</span>
                   <span className="text-xs font-bold font-mono tabular-nums text-white">{meal.carbs}g</span>
                 </div>
                 <div>
-                  <span className="text-[10px] text-emerald-400 font-tactical font-semibold uppercase block">Fats</span>
+                  <span className="text-[10px] text-emerald-400 font-tactical font-semibold block">Fats</span>
                   <span className="text-xs font-bold font-mono tabular-nums text-white">{meal.fats}g</span>
                 </div>
               </div>

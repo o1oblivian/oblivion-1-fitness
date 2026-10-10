@@ -59,7 +59,7 @@ export const CardioScanUploader: React.FC<CardioScanUploaderProps> = ({
             {isScanning && (
               <div className="absolute inset-0 bg-black/70 backdrop-blur-xs flex flex-col items-center justify-center gap-2">
                 <Loader2 className="w-7 h-7 text-sky-500 animate-spin" />
-                <span className="text-xs font-tactical font-black tracking-wider uppercase text-white">
+                <span className="text-xs font-tactical font-black tracking-wider text-white">
                   Extracting Telemetry & Steps...
                 </span>
               </div>
@@ -70,7 +70,7 @@ export const CardioScanUploader: React.FC<CardioScanUploaderProps> = ({
             <div className="w-12 h-12 rounded-2xl bg-white/[0.08] border border-white/[0.07] text-neutral-400 flex items-center justify-center mx-auto">
               <Camera className="w-6 h-6" />
             </div>
-            <p className="text-xs font-mono font-bold uppercase tracking-wider text-neutral-300">
+            <p className="text-xs font-mono font-bold tracking-wider text-neutral-300">
               Sensor Standby
             </p>
             <p className="text-[10px] text-neutral-400 max-w-xs mx-auto">
@@ -85,7 +85,7 @@ export const CardioScanUploader: React.FC<CardioScanUploaderProps> = ({
           <button
             type="button"
             onClick={() => (onCameraCapture ? onCameraCapture() : cameraInputRef.current?.click())}
-            className="py-2.5 px-3 rounded-2xl bg-sky-500 hover:bg-sky-400 text-black font-black text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-95 shadow-xs"
+            className="py-2.5 px-3 rounded-2xl bg-sky-500 hover:bg-sky-400 text-black font-black text-xs tracking-wider flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-95 shadow-xs"
           >
             <Camera className="w-4 h-4" />
             <span>Camera</span>
@@ -94,7 +94,7 @@ export const CardioScanUploader: React.FC<CardioScanUploaderProps> = ({
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
-            className="py-2.5 px-3 rounded-2xl bg-o1-well border border-white/[0.07] hover:bg-white/[0.06] text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-95"
+            className="py-2.5 px-3 rounded-2xl bg-o1-well border border-white/[0.07] hover:bg-white/[0.06] text-white font-bold text-xs tracking-wider flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-95"
           >
             <Upload className="w-4 h-4" />
             <span>Upload</span>

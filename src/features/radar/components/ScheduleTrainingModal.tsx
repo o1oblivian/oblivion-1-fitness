@@ -63,7 +63,7 @@ export const ScheduleTrainingModal: React.FC<Props> = ({
               <Sparkles className="w-4 h-4" />
             </div>
             <div>
-              <span className="text-[10px] font-mono uppercase tracking-widest text-[#0EA5E9] font-bold block">CONCIERGE PASS</span>
+              <span className="text-[10px] font-mono tracking-widest text-[#4F8F9A] font-bold block">Concierge Pass</span>
               <h3 className="text-sm font-bold text-white tracking-tight font-tactical">Schedule with {athlete.name}</h3>
             </div>
           </div>
@@ -74,7 +74,7 @@ export const ScheduleTrainingModal: React.FC<Props> = ({
 
         {/* Visual Date Pills */}
         <div className="space-y-1.5">
-          <span className="text-[10px] font-mono uppercase tracking-wider text-neutral-400 font-bold block">Select Training Date</span>
+          <span className="text-[10px] font-mono tracking-wider text-neutral-400 font-bold block">Select Training Date</span>
           <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
             {DATES.map((item, idx) => (
               <button
@@ -94,7 +94,7 @@ export const ScheduleTrainingModal: React.FC<Props> = ({
 
         {/* Time Slot Segmented Controls */}
         <div className="space-y-1.5">
-          <span className="text-[10px] font-mono uppercase tracking-wider text-neutral-400 font-bold block">Session Window</span>
+          <span className="text-[10px] font-mono tracking-wider text-neutral-400 font-bold block">Session Window</span>
           <div className="grid grid-cols-3 gap-1.5 p-1 rounded-2xl bg-black border border-white/[0.07]">
             {TIME_SLOTS.map((slot) => (
               <button
@@ -113,7 +113,7 @@ export const ScheduleTrainingModal: React.FC<Props> = ({
 
         {/* Verified Partner Gym Selector */}
         <div className="space-y-1.5">
-          <span className="text-[10px] font-mono uppercase tracking-wider text-neutral-400 font-bold block">Select Verified Gym</span>
+          <span className="text-[10px] font-mono tracking-wider text-neutral-400 font-bold block">Select Verified Gym</span>
           <div className="space-y-2">
             {VERIFIED_GYMS.map((g) => (
               <div

@@ -16,6 +16,7 @@ import { useUserStore } from '../../../stores/useUserStore';
 import { useReelsStore } from '../../../stores/useReelsStore';
 import { compressPhoto, compressVideo } from '../../../utils/mediaCompressor';
 import { CoachReelUploadModal } from '../../reels/components/CoachReelUploadModal';
+import type { ExploreReelItem } from '../../reels/reelTypes';
 
 export interface VaultMediaItem {
   id: string;
@@ -29,41 +30,6 @@ export interface VaultMediaItem {
   fileSize?: string;
   notes?: string;
 }
-
-const INITIAL_VAULT_ITEMS: VaultMediaItem[] = [
-  {
-    id: 'vault-media-1',
-    type: 'video',
-    title: 'Low-Bar Squat Torso Angle & Lumbar Shearing',
-    category: 'Biomechanics Audit',
-    athleteName: 'Alex Rivers',
-    url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
-    thumbnailUrl: 'https://images.unsplash.com/photo-1574680096145-d05b474e2155?auto=format&fit=crop&w=800&q=80',
-    createdAt: 'Today, 08:30 AM',
-    notes: 'Scapular retraction maintained throughout ascent. Zero knee cave.',
-  },
-  {
-    id: 'vault-media-2',
-    type: 'photo',
-    title: '12-Week Posterior Chain Hypertrophy & Density',
-    category: 'Transformation',
-    athleteName: 'Alex Rivers',
-    url: 'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?auto=format&fit=crop&w=800&q=80',
-    createdAt: 'Yesterday',
-    notes: 'Latissimus width +1.8cm, hamstring-to-glute tie-in enhanced.',
-  },
-  {
-    id: 'vault-media-3',
-    type: 'video',
-    title: 'Incline DB Press Scapular Depress & Glide',
-    category: 'Form Check',
-    athleteName: 'Elena Rostova',
-    url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4',
-    thumbnailUrl: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=800&q=80',
-    createdAt: 'Sep 22, 2026',
-    notes: 'Elbow path calibrated at 45 degrees relative to ribcage.',
-  },
-];
 
 const STORAGE_KEY = 'o1_coach_exercise_vault_media';
 
@@ -81,6 +47,7 @@ export const CoachVaultView: React.FC<CoachVaultViewProps> = ({
   const buddy = useBuddyProfileStore();
   const user = useUserStore();
   const addCoachReel = useReelsStore((s) => s.addCoachReel);
+  const ownerName = buddy.displayName || user.name || '';
   const [activeTab, setActiveTab] = useState<'all' | 'photo' | 'reels'>('all');
   const [items, setItems] = useState<VaultMediaItem[]>(() => {
     try {
@@ -96,7 +63,7 @@ export const CoachVaultView: React.FC<CoachVaultViewProps> = ({
 
   const [selectedPreviewItem, setSelectedPreviewItem] = useState<VaultMediaItem | null>(null);
   const [showOnBuddyOnAdd] = useState(true);
-  const [isReelUploadOpen, setIsReelUploadOpen] = useState(false);
+  const [isReelUploadOpen, setIsReelUploadOpen] = useState(initialOpenAdd);
   const [publishedReelIds, setPublishedReelIds] = useState<string[]>([]);
   const [avatarSuccessMsg, setAvatarSuccessMsg] = useState<string | null>(null);
   const [isCompressing, setIsCompressing] = useState(false);
@@ -141,7 +108,7 @@ export const CoachVaultView: React.FC<CoachVaultViewProps> = ({
         type: isVid ? 'video' : 'photo',
         title,
         category: isVid ? 'Form Check' : 'Transformation',
-        athleteName: 'Alex Rivers',
+        athleteName: ownerName,
         url: result.url,
         thumbnailUrl: isVid ? result.thumbnailUrl || result.url : undefined,
         createdAt: 'Just now',
@@ -169,7 +136,7 @@ export const CoachVaultView: React.FC<CoachVaultViewProps> = ({
         type: isVid ? 'video' : 'photo',
         title,
         category: isVid ? 'Form Check' : 'Transformation',
-        athleteName: 'Alex Rivers',
+        athleteName: ownerName,
         url: localUrl,
         createdAt: 'Just now',
       };
@@ -198,7 +165,7 @@ export const CoachVaultView: React.FC<CoachVaultViewProps> = ({
   const handlePublishToReels = (item: VaultMediaItem) => {
     tactileEngine.playPRCelebration();
     const thumb = item.thumbnailUrl || item.url;
-    const filterTag: 'CHEST & TRICEPS' | 'BACK & BICEPS' | 'QUADS & GLUTES' | 'SHOULDERS & ARMS' | 'HYROX / CONDITIONING' | 'MOBILITY & REHAB' =
+    const filterTag: ExploreReelItem['filterTag'] =
       item.category === 'Biomechanics Audit'
         ? 'MOBILITY & REHAB'
         : item.category === 'Form Check'
@@ -214,22 +181,22 @@ export const CoachVaultView: React.FC<CoachVaultViewProps> = ({
       filterTag,
       videoUrl: item.url,
       thumbnail: thumb,
-      views: '1.2K',
+      views: '--',
       duration: '0:18',
       coach: {
-        id: 'coach_head_performance',
-        name: 'Head Performance Coach',
-        handle: '@head.performance',
-        avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
-        verified: true,
-        specialtyTitle: 'Head Performance Coach',
-        rating: 4.98,
-        reviewCount: 312,
-        certificationPill: 'CSCS • O1 ELITE',
-        rate: '$150/mo',
-        slotsRemaining: 2,
-        bio: 'Elite biomechanics audit published from Coach Vault',
-        disciplines: ['Biomechanics', 'Strength', 'Hypertrophy'],
+        id: user.userId || 'coach',
+        name: buddy.displayName || user.name || 'Coach',
+        handle: user.handle || '',
+        avatar: buddy.buddyPhotos?.[0] || user.avatarUrl || '',
+        verified: false,
+        specialtyTitle: 'Coach',
+        rating: 0,
+        reviewCount: 0,
+        certificationPill: '',
+        rate: '',
+        slotsRemaining: 0,
+        bio: '',
+        disciplines: [],
       },
       cues: item.notes || 'Biomechanical checkpoint synced from Coach Vault.',
       filmstripClips: [
@@ -240,7 +207,7 @@ export const CoachVaultView: React.FC<CoachVaultViewProps> = ({
           thumbnail: thumb,
           videoUrl: item.url,
           tag: 'BIOMECHANICS',
-          badge: '4K',
+          badge: 'CUE',
         },
       ],
     });
@@ -377,10 +344,10 @@ export const CoachVaultView: React.FC<CoachVaultViewProps> = ({
               fileInputRef.current?.click();
             }
           }}
-          className="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-o1-crimson hover:bg-o1-crimson-hover active:scale-95 text-white text-xs font-bold font-mono tracking-wider uppercase cursor-pointer shadow-xs"
+          className="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-o1-crimson hover:bg-o1-crimson-hover active:scale-95 text-white text-xs font-bold font-mono tracking-wider cursor-pointer shadow-xs"
         >
           {activeTab === 'reels' ? <Film size={14} /> : <Camera size={14} />}
-          <span>+ ADD</span>
+          <span>+ Add</span>
         </button>
       </div>
 
@@ -457,7 +424,7 @@ export const CoachVaultView: React.FC<CoachVaultViewProps> = ({
                     {(item.type === 'video' || item.id.includes('reel') || publishedReelIds.includes(item.id)) && (
                       <span className="px-1.5 py-0.5 rounded-md text-[9px] font-bold bg-o1-crimson text-white shadow-xs flex items-center gap-1">
                         <Film size={10} />
-                        REEL
+                        Reel
                       </span>
                     )}
                     <span className="px-1.5 py-0.5 rounded-md text-[9px] font-medium bg-black/60 text-white backdrop-blur-xs">
@@ -492,7 +459,7 @@ export const CoachVaultView: React.FC<CoachVaultViewProps> = ({
             {/* Header */}
             <div className="p-3.5 border-b border-white/[0.05] flex items-center justify-between bg-black/50">
               <div className="flex items-center gap-2">
-                <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-o1-crimson text-white uppercase">
+                <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-o1-crimson text-white">
                   {selectedPreviewItem.category}
                 </span>
                 <h3 className="text-xs font-bold truncate max-w-xs sm:max-w-md">
@@ -557,7 +524,7 @@ export const CoachVaultView: React.FC<CoachVaultViewProps> = ({
 
               {selectedPreviewItem.notes && (
                 <div className="p-2.5 rounded-xl bg-o1-well border border-white/[0.07] text-xs text-neutral-300">
-                  <span className="text-[10px] font-bold text-amber-500 uppercase block font-mono mb-0.5">
+                  <span className="text-[10px] font-bold text-amber-500 block font-mono mb-0.5">
                     Biomechanical Notes
                   </span>
                   {selectedPreviewItem.notes}
@@ -589,7 +556,7 @@ export const CoachVaultView: React.FC<CoachVaultViewProps> = ({
                             : 'bg-white/[0.08] text-neutral-300 hover:text-white'
                         }`}
                       >
-                        {onBuddy ? 'ON RADAR' : 'SET ON'}
+                        {onBuddy ? 'On radar' : 'set on'}
                       </button>
                     </div>
 
@@ -660,8 +627,8 @@ export const CoachVaultModal: React.FC<CoachVaultModalProps> = ({
     <div className="fixed inset-0 z-[100] flex flex-col bg-black text-neutral-100 overflow-y-auto animate-in fade-in duration-150">
       {/* Top Mobile Bar with Back to Coach Navigation */}
       <div className="sticky top-0 z-20 bg-o1-card/90 backdrop-blur-md border-b border-white/[0.05] px-4 py-2 flex items-center justify-between min-h-[44px]">
-        <span className="text-xs font-bold uppercase tracking-wider text-white">
-          Biomechanical Vault
+        <span className="text-xs font-bold tracking-wider text-white">
+          Vault
         </span>
 
         <button

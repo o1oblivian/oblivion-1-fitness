@@ -5,11 +5,8 @@ import './index.css';
 
 (function installNativeApiBaseFetch() {
   if (typeof window === 'undefined') return;
-  const base = String(import.meta.env.VITE_API_BASE_URL || 'https://oblivion-1-fitness.onrender.com').replace(
-    /\/$/,
-    ''
-  );
-  if (!base) return;
+  const base = String(import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '');
+  if (!base || /onrender\.com$/i.test(base)) return;
   const orig = window.fetch.bind(window);
   const rewrite = (input: RequestInfo | URL): RequestInfo | URL => {
     if (typeof input === 'string' && input.startsWith('/api/')) {
@@ -90,7 +87,7 @@ class RootErrorBoundary extends Component<RootBoundaryProps, RootBoundaryState> 
         : 'Unknown render error';
       return (
         <div className="min-h-dvh w-full bg-black text-white flex flex-col items-stretch justify-start p-6 select-text font-sans">
-          <h1 className="text-base font-bold uppercase tracking-wider mb-2 text-neutral-100">
+          <h1 className="text-base font-bold tracking-wider mb-2 text-neutral-100">
             Launch error
           </h1>
           <pre className="text-[11px] leading-relaxed whitespace-pre-wrap break-words text-amber-200 bg-black/60 border border-white/[0.07] rounded-xl p-3 overflow-auto mb-6">
@@ -99,7 +96,7 @@ class RootErrorBoundary extends Component<RootBoundaryProps, RootBoundaryState> 
           <button
             type="button"
             onClick={this.handleReload}
-            className="px-6 py-2.5 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover text-white text-xs font-bold uppercase tracking-wider shadow-lg transition-all cursor-pointer active:scale-95"
+            className="px-6 py-2.5 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover text-white text-xs font-bold tracking-wider shadow-lg transition-all cursor-pointer active:scale-95"
           >
             Retry Launch
           </button>
@@ -113,14 +110,24 @@ class RootErrorBoundary extends Component<RootBoundaryProps, RootBoundaryState> 
 try {
   const rootElement = document.getElementById('root');
   if (rootElement) {
-    createRoot(rootElement).render(
-      <StrictMode>
-        <RootErrorBoundary>
-          <App />
-        </RootErrorBoundary>
-      </StrictMode>
-    );
-    rootElement.setAttribute('data-o1-mounted', '1');
+    const mount = () => {
+      createRoot(rootElement).render(
+        <StrictMode>
+          <RootErrorBoundary>
+            <App />
+          </RootErrorBoundary>
+        </StrictMode>
+      );
+      rootElement.setAttribute('data-o1-mounted', '1');
+    };
+    if (import.meta.env.DEV) {
+      import('./devPreviewBoot')
+        .then((mod) => mod.applyDevPreview())
+        .catch(() => undefined)
+        .finally(mount);
+    } else {
+      mount();
+    }
   }
 } catch (startupError) {
   console.error('[O1 FC Cold Boot Exception Caught]:', startupError);
@@ -132,7 +139,7 @@ try {
     el.innerHTML = `
       <div style="min-height:100dvh;width:100%;background:#000000;color:#fff;display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;font-family:sans-serif;padding:24px;box-sizing:border-box;">
         <h1 style="font-size:16px;font-weight:700;letter-spacing:1px;margin:0 0 12px 0;text-transform:uppercase;">Launch error</h1>
-        <pre style="font-size:11px;color:#F59E0B;white-space:pre-wrap;word-break:break-word;background:#000;border:1px solid #333;border-radius:12px;padding:12px;overflow:auto;">${message.replace(/</g, '&lt;')}</pre>
+        <pre style="font-size:11px;color:#D4A017;white-space:pre-wrap;word-break:break-word;background:#000;border:1px solid #333;border-radius:12px;padding:12px;overflow:auto;">${message.replace(/</g, '&lt;')}</pre>
         <button onclick="window.location.reload()" style="margin-top:16px;padding:10px 24px;border-radius:12px;background:#C4121A;color:#fff;border:none;font-size:12px;font-weight:700;cursor:pointer;text-transform:uppercase;">Retry Launch</button>
       </div>`;
   }

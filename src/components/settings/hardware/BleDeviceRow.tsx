@@ -46,7 +46,7 @@ export const BleDeviceRow: React.FC<BleDeviceRowProps> = ({
           <button
             type="button"
             onClick={onDisconnect}
-            className="shrink-0 px-3 py-1.5 rounded-full bg-white/[0.08] hover:bg-neutral-700 text-neutral-200 text-xs font-tactical font-semibold uppercase shadow-xs active:scale-95 transition-all cursor-pointer"
+            className="o1-pill bg-o1-well hover:bg-white/[0.06] border border-white/[0.07] text-neutral-200 text-xs font-sans font-semibold active:scale-95 cursor-pointer"
           >
             Disconnect
           </button>
@@ -55,7 +55,7 @@ export const BleDeviceRow: React.FC<BleDeviceRowProps> = ({
             type="button"
             disabled={isScanning || isPairing}
             onClick={onPair}
-            className="shrink-0 px-3.5 py-1.5 rounded-full bg-o1-crimson hover:bg-o1-crimson-hover text-white text-xs font-tactical font-semibold uppercase shadow-xs active:scale-95 transition-all disabled:opacity-50 cursor-pointer flex items-center gap-1.5"
+            className="o1-pill bg-o1-crimson hover:bg-o1-crimson-hover text-white text-xs font-sans font-semibold active:scale-95 disabled:opacity-50 cursor-pointer"
           >
             {isScanning ? (
               <>

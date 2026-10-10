@@ -17,7 +17,7 @@ export const HeroHeader: React.FC<HeroHeaderProps> = ({
       id="hero-header-top-bar"
       className="relative z-10 flex items-center justify-between pt-1 px-1 w-full select-none"
     >
-      {/* Left: Bare 3 vertical dots (Crimson #C4121A, Amber #F59E0B, Pure Natural Green #059669) - Access Profile & Settings */}
+      {/* Left: Bare 3 vertical dots — crimson, ochre, slate */}
       <button
         type="button"
         id="hero-settings-trigger"
@@ -32,8 +32,8 @@ export const HeroHeader: React.FC<HeroHeaderProps> = ({
         className="p-1 flex flex-col items-center justify-center gap-1 bg-transparent border-0 cursor-pointer active:scale-90 transition-transform"
       >
         <span className="w-1.5 h-1.5 rounded-full bg-o1-crimson" />
-        <span className="w-1.5 h-1.5 rounded-full bg-[#F59E0B]" />
-        <span className="w-1.5 h-1.5 rounded-full bg-[#059669]" />
+        <span className="w-1.5 h-1.5 rounded-full bg-o1-caution" />
+        <span className="w-1.5 h-1.5 rounded-full bg-o1-ok" />
       </button>
 
       {/* Right spacer for symmetrical top-bar balance */}

@@ -302,7 +302,7 @@ export const ClientCountryMarketModal: React.FC<ClientCountryMarketModalProps> =
                   <div className="flex items-center gap-2.5 min-w-0">
                     <span className="text-lg leading-none shrink-0">{c.flag}</span>
                     <span className="text-xs sm:text-sm font-medium truncate">{c.name}</span>
-                    <span className="text-[10px] font-mono text-neutral-500 uppercase shrink-0">
+                    <span className="text-[10px] font-mono text-neutral-500 shrink-0">
                       {c.code}
                     </span>
                   </div>
