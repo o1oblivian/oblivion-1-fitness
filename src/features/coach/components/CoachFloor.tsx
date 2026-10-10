@@ -441,7 +441,7 @@ export const CoachFloor: React.FC<CoachFloorProps> = ({
                       { label: 'Sets', value: stat(log.totalSets) },
                       { label: 'Minutes', value: stat(log.durationMinutes) },
                     ]}
-                    lastFeedback={log.feedback || reviews[log.id]}
+                    lastFeedback={reviews[log.id] || log.feedback}
                     onOpenProfile={athlete ? () => onSelectAthlete(athlete) : undefined}
                     actions={athleteActions({ key: log.id, athleteId: athlete ? rosterId(athlete) : log.athleteId, name: log.athleteName, avatar, athlete, workoutId: log.id })}
                   />

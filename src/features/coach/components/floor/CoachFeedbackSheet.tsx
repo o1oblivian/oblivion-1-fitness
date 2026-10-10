@@ -2,17 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Dumbbell, User, X } from 'lucide-react';
 import { tactileEngine } from '../../../../services/tactileEngine';
 import { AthleteAvatar } from './FloorAthleteCard';
-
-const QUICK_REPLIES = [
-  'Great session',
-  'Form approved',
-  'Add 5 kg next time',
-  'Deload next session',
-  'Slow down the reps',
-  'Rest day tomorrow',
-  'Eat more protein',
-  'Get more sleep',
-] as const;
+import { QUICK_REPLIES } from './reviewBadges';
 
 interface CoachFeedbackSheetProps {
   target: { name: string; avatar?: string } | null;

@@ -6,7 +6,7 @@ const COVERS = O1_PRESETS.filter((preset) =>
 
 export function reelCover(id: string, thumb?: string): string {
   const raw = (thumb || '').trim();
-  const broken = !raw || /gym-tile|\.svg($|\?)/i.test(raw);
+  const broken = !raw || /gym-tile|\.svg($|\?)|^data:image\/svg/i.test(raw);
   if (!broken) return raw;
   let slot = 0;
   for (let i = 0; i < id.length; i += 1) slot = (slot + id.charCodeAt(i)) % COVERS.length;

@@ -164,6 +164,28 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
   // Status & Feedback
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [dispatchSuccessToast, setDispatchSuccessToast] = useState<string | null>(null);
+  const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const flash = (message: string, ms: number) => {
+    if (toastTimer.current) clearTimeout(toastTimer.current);
+    setDispatchSuccessToast(message);
+    toastTimer.current = setTimeout(() => setDispatchSuccessToast(null), ms);
+  };
+
+  useEffect(() => () => {
+    if (toastTimer.current) clearTimeout(toastTimer.current);
+    if (closeTimer.current) clearTimeout(closeTimer.current);
+  }, []);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [isOpen, onClose]);
 
   // Fetch athletes
   const seeded = useRef(false);
@@ -395,8 +417,7 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
       })),
     };
     setStack((prev) => [...prev, newEx]);
-    setDispatchSuccessToast(`Added ${catEx.name} to Stack`);
-    setTimeout(() => setDispatchSuccessToast(null), 1500);
+    flash(`Added ${catEx.name} to Stack`, 1500);
   };
 
   const handleLoadBlueprintToStack = (bp: SynthesizedBlueprint) => {
@@ -431,8 +452,7 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
   const handleDispatchWorkout = async () => {
     if (stack.length === 0 || isSubmitting) return;
     if (selectedAthleteIds.length === 0) {
-      setDispatchSuccessToast('Please select at least 1 athlete to dispatch.');
-      setTimeout(() => setDispatchSuccessToast(null), 2000);
+      flash('Please select at least 1 athlete to dispatch.', 2000);
       return;
     }
 
@@ -455,15 +475,13 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
       const linked = targetAthletes.filter((athlete) => isValidUuid(athlete.client_id || athlete.id));
       if (targetAthletes.every((athlete) => isSampleId(athlete.id))) {
         setIsSubmitting(false);
-        setDispatchSuccessToast('Sample clients only. Nothing was sent.');
-        setTimeout(() => setDispatchSuccessToast(null), 2500);
+        flash('Sample clients only. Nothing was sent.', 2500);
         return;
       }
       if (linked.length) {
         if (!isValidUuid(coachId)) {
           setIsSubmitting(false);
-          setDispatchSuccessToast('Sign in required to dispatch.');
-          setTimeout(() => setDispatchSuccessToast(null), 2500);
+          flash('Sign in required to dispatch.', 2500);
           return;
         }
         const payloads = linked.map((athlete) => {
@@ -508,15 +526,10 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
       setDispatchSuccessToast(toastMsg);
       if (onDispatched) onDispatched(workoutTitle, targetNames);
 
-      setTimeout(() => {
-        setIsSubmitting(false);
-        setDispatchSuccessToast(null);
-        onClose();
-      }, 1500);
+      closeTimer.current = setTimeout(onClose, 1500);
     } catch (e) {
       setIsSubmitting(false);
-      setDispatchSuccessToast(e instanceof Error ? e.message : 'Dispatch failed');
-      setTimeout(() => setDispatchSuccessToast(null), 2500);
+      flash(e instanceof Error ? e.message : 'Dispatch failed', 2500);
     }
   };
 
@@ -546,11 +559,10 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
                   tactileEngine.triggerSelectionBuzz();
                   onClose();
                 }}
-                className="w-8 h-8 rounded-full bg-o1-sheet border border-white/[0.07] flex items-center justify-center text-o1-text hover:text-o1-text transition-colors cursor-pointer"
-                title="Close Studio"
-                aria-label="Close"
+                className="w-11 h-11 rounded-full bg-o1-sheet border border-white/[0.07] flex items-center justify-center text-o1-text active:scale-95 cursor-pointer"
+                aria-label="Close workout studio"
               >
-                <X size={16} />
+                <X size={18} />
               </button>
             </div>
           </div>
@@ -710,8 +722,7 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
                     type="button"
                     onClick={() => {
                       tactileEngine.triggerSelectionBuzz();
-                      setDispatchSuccessToast('Blueprint saved to Playbook!');
-                      setTimeout(() => setDispatchSuccessToast(null), 2500);
+                      flash('Blueprint saved to Playbook!', 2500);
                     }}
                     className="px-2.5 py-1.5 rounded-xl border border-white/[0.07] bg-o1-surface hover:bg-white/[0.06] text-o1-text text-xs font-semibold flex items-center gap-1.5 cursor-pointer shadow-2xs"
                   >
