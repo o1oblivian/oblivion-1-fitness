@@ -25,7 +25,6 @@ interface FuelModalsLayerProps {
   isAddFoodModalOpen: boolean;
   onCloseAddFoodModal: () => void;
   addFoodCategory: string;
-  onOpenCustomFood?: () => void;
   isCountryModalOpen: boolean;
   onCloseCountryModal: () => void;
   countryMarket: string;
@@ -54,7 +53,6 @@ export const FuelModalsLayer: React.FC<FuelModalsLayerProps> = ({
   isAddFoodModalOpen,
   onCloseAddFoodModal,
   addFoodCategory,
-  onOpenCustomFood,
   isCountryModalOpen,
   onCloseCountryModal,
   countryMarket,
@@ -119,7 +117,6 @@ export const FuelModalsLayer: React.FC<FuelModalsLayerProps> = ({
         isOpen={isAddFoodModalOpen}
         category={addFoodCategory as any}
         onClose={onCloseAddFoodModal}
-        onOpenCustomFood={onOpenCustomFood}
         onAddFood={(_cat, item) => {
           showToast(`Logged ${item.name} (${item.calories} kcal)`);
         }}

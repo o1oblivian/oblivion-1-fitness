@@ -29,7 +29,6 @@ interface AddFoodModalProps {
   isOpen: boolean;
   onClose: () => void;
   onAddFood?: (category: ExtendedMealCategory | MealCategory, item: MealFoodItem) => void;
-  onOpenCustomFood?: () => void;
 }
 
 const CATEGORIES: { id: FoodCategoryType; label: string }[] = [

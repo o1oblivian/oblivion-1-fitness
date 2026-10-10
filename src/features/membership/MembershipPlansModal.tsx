@@ -2,7 +2,6 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { X, Shield, ArrowRight, CheckCircle2, Loader2, AlertCircle } from 'lucide-react';
 import { IAP_PRODUCTS, IAPProductInfo } from '../../types/iap';
-import { AthleteProfile } from '../../types/athlete';
 import { tactileEngine } from '../../services/tactileEngine';
 import { REVENUECAT_FALLBACK_MONTHLY_PACKAGE, revenueCatService } from '../../services/revenueCatService';
 import { isNativeStorePlatform } from '../../services/purchasesService';
@@ -17,12 +16,9 @@ export interface MembershipPlansModalProps {
   onClose: () => void;
   onSelectPlan?: (productId: string) => void;
   onCheckout?: (productId: string) => void;
-  onOpenTerms?: () => void;
-  onOpenPrivacy?: () => void;
   onOpenHealth?: () => void;
   onOpenDisclaimer?: () => void;
   onShowToast?: (msg: string) => void;
-  athleteProfile?: AthleteProfile;
 }
 
 export const MembershipPlansModal: React.FC<MembershipPlansModalProps> = ({
@@ -30,8 +26,6 @@ export const MembershipPlansModal: React.FC<MembershipPlansModalProps> = ({
   onClose,
   onSelectPlan,
   onCheckout,
-  onOpenTerms,
-  onOpenPrivacy,
   onOpenHealth,
   onOpenDisclaimer,
   onShowToast,
@@ -272,8 +266,6 @@ export const MembershipPlansModal: React.FC<MembershipPlansModalProps> = ({
             <MembershipPlanFeatures
               userType={userType}
               selectedProductId={selectedProductId}
-              onOpenTerms={onOpenTerms}
-              onOpenPrivacy={onOpenPrivacy}
               onOpenHealth={onOpenHealth}
               onOpenDisclaimer={onOpenDisclaimer}
               onShowToast={onShowToast}

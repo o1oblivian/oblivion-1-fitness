@@ -16,7 +16,6 @@ export function useFuelModals() {
   const [isFoodSearchOpen, setIsFoodSearchOpen] = useState(false);
   const [foodSearchSlot, setFoodSearchSlot] = useState<SlotKey>('breakfast');
   const [isIntakeExpanded, setIsIntakeExpanded] = useState(true);
-  const [isCustomEntryOpen, setIsCustomEntryOpen] = useState(false);
 
   return {
     isCountryModalOpen,
@@ -47,7 +46,5 @@ export function useFuelModals() {
     setFoodSearchSlot,
     isIntakeExpanded,
     setIsIntakeExpanded,
-    isCustomEntryOpen,
-    setIsCustomEntryOpen,
   };
 }

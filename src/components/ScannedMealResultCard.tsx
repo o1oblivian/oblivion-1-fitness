@@ -15,11 +15,13 @@ export const ScannedMealResultCard: React.FC<ScannedMealResultCardProps> = ({
   const parsedWeight = parseInt(scannedMeal.servingDescription?.match(/(\d+)\s*g/i)?.[1] || '100', 10);
   const baseWeight = parsedWeight > 0 ? parsedWeight : 100;
   const isBarcode = scannedMeal.confidenceScore === 100 || !!scannedMeal.barcode;
-  const isPackage = scannedMeal.confidenceScore === 95;
+  const confidence = scannedMeal.confidenceScore;
 
-  const baseProtPerG = (scannedMeal.proteinGrams || 20) / baseWeight;
-  const baseCarbPerG = (scannedMeal.carbsGrams || 25) / baseWeight;
-  const baseFatPerG = (scannedMeal.fatsGrams || 5) / baseWeight;
+  const perGram = (grams: number | null): number | null => (grams === null ? null : grams / baseWeight);
+  const baseProtPerG = perGram(scannedMeal.proteinGrams);
+  const baseCarbPerG = perGram(scannedMeal.carbsGrams);
+  const baseFatPerG = perGram(scannedMeal.fatsGrams);
+  const hasAllMacros = baseProtPerG !== null && baseCarbPerG !== null && baseFatPerG !== null;
 
   const [weight, setWeight] = useState(baseWeight);
   const [prep, setPrep] = useState<'lean' | 'oil'>('lean');
@@ -30,12 +32,14 @@ export const ScannedMealResultCard: React.FC<ScannedMealResultCardProps> = ({
   const sauceCarb = dressing === 'sauce' ? 6 : 0;
   const sauceFat = dressing === 'sauce' ? 4 : 0;
 
-  const protein = Math.max(0, Math.round(weight * baseProtPerG));
-  const carbs = Math.max(0, Math.round(weight * baseCarbPerG + sauceCarb));
-  const fat = Math.max(0, Math.round(weight * baseFatPerG + prepAddedFat + sauceFat));
-  const calories = Math.round((protein * 4) + (carbs * 4) + (fat * 9));
+  const protein = baseProtPerG === null ? null : Math.max(0, Math.round(weight * baseProtPerG));
+  const carbs = baseCarbPerG === null ? null : Math.max(0, Math.round(weight * baseCarbPerG + sauceCarb));
+  const fat = baseFatPerG === null ? null : Math.max(0, Math.round(weight * baseFatPerG + prepAddedFat + sauceFat));
+  const calories =
+    protein === null || carbs === null || fat === null ? null : Math.round(protein * 4 + carbs * 4 + fat * 9);
 
   const handleSave = () => {
+    if (protein === null || carbs === null || fat === null || calories === null) return;
     setIsLogging(true);
     tactileEngine.playPRCelebration();
     const tag = [prep === 'oil' ? 'Oil' : 'Lean', dressing === 'sauce' ? 'Sauce' : ''].filter(Boolean).join(', ');
@@ -55,11 +59,11 @@ export const ScannedMealResultCard: React.FC<ScannedMealResultCardProps> = ({
             <ShieldCheck className="w-3 h-3 text-emerald-400" />
             100% Match
           </span>
-        ) : (
+        ) : confidence !== null && confidence > 0 ? (
           <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-sky-500/15 text-sky-400 border border-sky-500/30">
-            {scannedMeal.confidenceScore || (isPackage ? 95 : 90)}% Match
+            {confidence}% Match
           </span>
-        )}
+        ) : null}
       </div>
 
       {/* Universal Modifiers */}
@@ -107,10 +111,10 @@ export const ScannedMealResultCard: React.FC<ScannedMealResultCardProps> = ({
       {/* Dynamic Macro Grid */}
       <div className="grid grid-cols-4 gap-1.5 text-center">
         {[
-          { label: 'CAL', val: calories, color: 'text-white' },
-          { label: 'PRO', val: `${protein}g`, color: 'text-o1-crimson' },
-          { label: 'CARB', val: `${carbs}g`, color: 'text-amber-400' },
-          { label: 'FAT', val: `${fat}g`, color: 'text-emerald-400' },
+          { label: 'CAL', val: calories ?? '--', color: 'text-white' },
+          { label: 'PRO', val: protein === null ? '--' : `${protein}g`, color: 'text-o1-crimson' },
+          { label: 'CARB', val: carbs === null ? '--' : `${carbs}g`, color: 'text-amber-400' },
+          { label: 'FAT', val: fat === null ? '--' : `${fat}g`, color: 'text-emerald-400' },
         ].map((m) => (
           <div key={m.label} className="p-1.5 rounded-xl bg-o1-well border border-white/[0.07]">
             <span className="text-[9px] text-neutral-400 block font-sans font-semibold">{m.label}</span>
@@ -119,8 +123,14 @@ export const ScannedMealResultCard: React.FC<ScannedMealResultCardProps> = ({
         ))}
       </div>
 
+      {!hasAllMacros && (
+        <p className="text-[10px] font-mono text-amber-400 text-center">
+          Some macros could not be read. Add this meal manually to log exact values.
+        </p>
+      )}
+
       {/* Primary Save Action */}
-      <button type="button" disabled={isLogging} onClick={handleSave}
+      <button type="button" disabled={isLogging || !hasAllMacros} onClick={handleSave}
         className="o1-pill mx-auto bg-o1-crimson hover:bg-o1-crimson-hover active:scale-95 text-white font-sans font-semibold text-xs cursor-pointer disabled:opacity-50">
         <Check className="w-3.5 h-3.5 stroke-[3]" />
         <span>{isLogging ? 'Saving' : 'Log meal'}</span>

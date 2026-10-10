@@ -6,8 +6,6 @@ import { LEGAL_URLS, openLegalUrl } from '../../../services/apiBase';
 interface Props {
   userType: 'athletes' | 'coaches';
   selectedProductId?: string;
-  onOpenTerms?: () => void;
-  onOpenPrivacy?: () => void;
   onOpenHealth?: () => void;
   onOpenDisclaimer?: () => void;
   onShowToast?: (msg: string) => void;

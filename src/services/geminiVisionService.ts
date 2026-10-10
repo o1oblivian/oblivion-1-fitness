@@ -4,6 +4,7 @@
  */
 import { downscaleBase64IfNeeded } from './imageDownscaleUtils';
 import { apiUrl } from './apiBase';
+import { readConfidence, readNutrient, resolveCalories } from './mealVisionTypes';
 
 // 1. PERMANENT GEMINI API KEY FALLBACK
 export const geminiKey: string =
@@ -30,12 +31,12 @@ export interface CardioTelemetryResult {
 export interface MealNutrientsResult {
   mealName: string;
   detectedItems: string[];
-  estimatedGrams: number;
-  calories: number;
-  proteinGrams: number;
-  carbsGrams: number;
-  fatGrams: number;
-  confidenceScore: number;
+  estimatedGrams: number | null;
+  calories: number | null;
+  proteinGrams: number | null;
+  carbsGrams: number | null;
+  fatGrams: number | null;
+  confidenceScore: number | null;
   servingDescription?: string;
 }
 
@@ -117,25 +118,20 @@ export async function analyzeMealNutrients(
         const json = await response.json().catch(() => null);
         if (json?.success && json?.nutrients) {
           const n = json.nutrients;
-          const prot = Math.max(0, Math.round(Number(n.proteinGrams) || 0));
-          const carbs = Math.max(0, Math.round(Number(n.carbsGrams) || 0));
-          const fats = Math.max(0, Math.round(Number(n.fatGrams) || 0));
-          let cals = Math.max(0, Math.round(Number(n.calories) || 0));
-          if (cals === 0 && (prot > 0 || carbs > 0 || fats > 0)) {
-            cals = Math.round(prot * 4 + carbs * 4 + fats * 9);
-          }
+          const prot = readNutrient(n.proteinGrams);
+          const carbs = readNutrient(n.carbsGrams);
+          const fats = readNutrient(n.fatGrams);
+          const cals = resolveCalories(readNutrient(n.calories), prot, carbs, fats);
 
           return {
             mealName: n.mealName || (scanMode === 'package' ? 'Packaged Nutrition Item' : 'Analyzed Athletic Plate'),
-            detectedItems: Array.isArray(n.detectedItems) && n.detectedItems.length > 0
-              ? n.detectedItems
-              : ['High-Yield Protein Source', 'Complex Energy Substrates'],
-            estimatedGrams: Number(n.estimatedGrams) || 350,
+            detectedItems: Array.isArray(n.detectedItems) ? n.detectedItems : [],
+            estimatedGrams: readNutrient(n.estimatedGrams),
             calories: cals,
             proteinGrams: prot,
             carbsGrams: carbs,
             fatGrams: fats,
-            confidenceScore: Math.min(99, Math.max(70, Number(n.confidenceScore) || 94)),
+            confidenceScore: readConfidence(n.confidenceScore),
             servingDescription: n.servingDescription || (n.estimatedGrams ? `${n.estimatedGrams}g portion` : '1 standard portion'),
           };
         }

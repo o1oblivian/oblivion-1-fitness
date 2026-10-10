@@ -6,6 +6,7 @@ import {
   Plus,
   RefreshCw,
   Check,
+  AlertCircle,
 } from 'lucide-react';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { apiUrl } from '../../../services/apiBase';
@@ -19,7 +20,7 @@ interface AiMeal {
   protein: number;
   carbs: number;
   fats: number;
-  prepTimeMinutes: number;
+  prepTimeMinutes: number | null;
   ingredients: string[];
   cookingInstructions?: string;
 }
@@ -48,7 +49,7 @@ export const AiMealSuggestionsModal: React.FC<AiMealSuggestionsModalProps> = ({
   const [selectedSlot, setSelectedSlot] = useState<'breakfast' | 'lunch' | 'dinner' | 'snack'>('lunch');
   const [loading, setLoading] = useState(false);
   const [suggestions, setSuggestions] = useState<AiMeal[]>([]);
-  const [, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [loggedMealId, setLoggedMealId] = useState<string | null>(null);
 
   const fetchSuggestions = async () => {
@@ -81,6 +82,7 @@ export const AiMealSuggestionsModal: React.FC<AiMealSuggestionsModalProps> = ({
         throw new Error('Invalid suggestions format');
       }
     } catch {
+      setError('Live suggestions are unavailable right now. Showing on-device picks matched to your targets.');
       const desk = buildDeskIntelMeals({
         diet: dietPreference,
         slot: selectedSlot,
@@ -98,7 +100,7 @@ export const AiMealSuggestionsModal: React.FC<AiMealSuggestionsModalProps> = ({
           protein: m.protein,
           carbs: m.carbs,
           fats: m.fats,
-          prepTimeMinutes: parseInt(m.prepTime, 10) || 12,
+          prepTimeMinutes: Number.parseInt(m.prepTime, 10) || null,
           ingredients: m.ingredients,
         }))
       );
@@ -192,6 +194,13 @@ export const AiMealSuggestionsModal: React.FC<AiMealSuggestionsModalProps> = ({
           </button>
         </div>
 
+        {error && !loading && (
+          <div className="flex items-start gap-2 p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-400 text-[11px] font-sans leading-snug">
+            <AlertCircle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+            <span>{error}</span>
+          </div>
+        )}
+
         {/* Suggestions List */}
         <div className="space-y-3 overflow-y-auto max-h-96 pr-1">
           {loading ? (
@@ -201,6 +210,10 @@ export const AiMealSuggestionsModal: React.FC<AiMealSuggestionsModalProps> = ({
                 Crafting macro-balanced culinary options...
               </p>
             </div>
+          ) : suggestions.length === 0 ? (
+            <p className="py-12 text-center text-xs font-sans text-neutral-400">
+              No meals match your remaining targets for {selectedSlot}. Try another slot or regenerate.
+            </p>
           ) : suggestions.map((meal) => (
             <div
               key={meal.id}
@@ -220,10 +233,12 @@ export const AiMealSuggestionsModal: React.FC<AiMealSuggestionsModalProps> = ({
                   <span className="font-mono font-bold text-sm text-white block tabular-nums">
                     {meal.calories} kcal
                   </span>
-                  <span className="text-[10px] text-neutral-500 flex items-center justify-end gap-1 mt-0.5 font-sans">
-                    <Clock className="w-2.5 h-2.5" />
-                    {meal.prepTimeMinutes}m prep
-                  </span>
+                  {meal.prepTimeMinutes !== null && (
+                    <span className="text-[10px] text-neutral-500 flex items-center justify-end gap-1 mt-0.5 font-sans">
+                      <Clock className="w-2.5 h-2.5" />
+                      {meal.prepTimeMinutes}m prep
+                    </span>
+                  )}
                 </div>
               </div>
 

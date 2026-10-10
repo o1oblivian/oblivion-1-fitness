@@ -78,7 +78,6 @@ export interface SettingsStoreState {
 
   // 10. Devices
   liveIngestionStream: boolean;
-  isPairingDevice: boolean;
 }
 
 const persistSettingsPatch = (partial: Record<string, unknown>) => {
@@ -266,8 +265,6 @@ export const useProductionSettings = (onShowToast?: (msg: string) => void) => {
   const [liveIngestionStream, setLiveIngestionStream] = useState<boolean>(
     typeof cached.liveIngestionStream === 'boolean' ? cached.liveIngestionStream : true
   );
-  const [isPairingDevice, setIsPairingDevice] = useState<boolean>(false);
-
   // Modals
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<boolean>(false);
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
@@ -544,8 +541,6 @@ export const useProductionSettings = (onShowToast?: (msg: string) => void) => {
     setCrashReports,
     liveIngestionStream,
     setLiveIngestionStream,
-    isPairingDevice,
-    setIsPairingDevice,
     showDeleteConfirm,
     setShowDeleteConfirm,
     isDeleting,

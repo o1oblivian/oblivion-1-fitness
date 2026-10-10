@@ -1,4 +1,4 @@
-import { ScannedMealBreakdown, ScanMode } from './mealVisionTypes';
+import { readConfidence, readNutrient, resolveCalories, ScannedMealBreakdown, ScanMode } from './mealVisionTypes';
 import { tryDetectNativeBarcode, lookupBarcodeNumber } from './barcodeLookupService';
 import { compressAndAnalyzeImage } from './imageCompressionService';
 import { apiUrl } from './apiBase';
@@ -16,7 +16,7 @@ export async function analyzePackageNutritionPhoto(imageBlob: Blob): Promise<Sca
  * 1. Rapid client-side compression (<50ms, 1024px max, 0.8 JPEG).
  * 2. Instant server-side Gemini Vision inference.
  * 3. Protected Content-Type parsing with auto-retry on network blips.
- * 4. High-fidelity volumetric fallback so it NEVER breaks or throws JSON syntax crashes.
+ * 4. Nutrients the model did not report come back as `null`; no estimated fallbacks.
  */
 export async function analyzeMealImageWithGemini(
   imageBlob: Blob,
@@ -65,13 +65,10 @@ export async function analyzeMealImageWithGemini(
       const data = await proxyRes.json().catch(() => null);
       if (proxyRes.ok && data?.success && data?.nutrients) {
         const n = data.nutrients;
-        const prot = Math.max(0, Math.round(Number(n.proteinGrams) || 0));
-        const carbs = Math.max(0, Math.round(Number(n.carbsGrams) || 0));
-        const fats = Math.max(0, Math.round(Number(n.fatGrams) || 0));
-        let cals = Math.max(0, Math.round(Number(n.calories) || 0));
-        if (cals === 0 && (prot > 0 || carbs > 0 || fats > 0)) {
-          cals = Math.round(prot * 4 + carbs * 4 + fats * 9);
-        }
+        const prot = readNutrient(n.proteinGrams);
+        const carbs = readNutrient(n.carbsGrams);
+        const fats = readNutrient(n.fatGrams);
+        const cals = resolveCalories(readNutrient(n.calories), prot, carbs, fats);
 
         return {
           dishName: n.mealName || (scanMode === 'package' ? 'Packaged Nutrition Item' : 'Analyzed Athletic Plate'),
@@ -80,10 +77,8 @@ export async function analyzeMealImageWithGemini(
           proteinGrams: prot,
           carbsGrams: carbs,
           fatsGrams: fats,
-          confidenceScore: Math.min(99, Math.max(75, Math.round(Number(n.confidenceScore) || 94))),
-          ingredientsDetected: Array.isArray(n.detectedItems) && n.detectedItems.length > 0
-            ? n.detectedItems
-            : ['High-Yield Protein Source', 'Complex Energy Substrates'],
+          confidenceScore: readConfidence(n.confidenceScore),
+          ingredientsDetected: Array.isArray(n.detectedItems) ? n.detectedItems : [],
         };
       } else if (!proxyRes.ok && data?.error && attempt === maxAttempts) {
         throw new Error(data.error);

@@ -11,8 +11,6 @@ import { HelpCenterModal } from './settings/HelpCenterModal';
 import { ContactSupportModal } from './settings/ContactSupportModal';
 import { SendFeedbackModal } from './settings/SendFeedbackModal';
 import { tactileEngine } from '../services/tactileEngine';
-import { bluetoothSensorService } from '../services/bluetoothSensorService';
-
 export interface SettingsModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -41,19 +39,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     tactileEngine.triggerSelectionBuzz();
     s.saveSettings();
     onClose();
-  };
-
-  const handlePairDevice = async () => {
-    tactileEngine.triggerSelectionBuzz();
-    s.setIsPairingDevice(true);
-    onShowToast?.('Scanning for nearby BLE sensors...');
-    const res = await bluetoothSensorService.requestAndConnect();
-    s.setIsPairingDevice(false);
-    if (res.success) {
-      onShowToast?.(`Bluetooth device paired: ${res.deviceName}`);
-    } else {
-      onShowToast?.(res.error || 'Bluetooth pairing cancelled or timed out.');
-    }
   };
 
   return (
@@ -93,7 +78,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               onShowToast={onShowToast}
               onLogout={onLogout}
               onClose={onClose}
-              onPairDevice={handlePairDevice}
               onOpenTutorial={() => {
                 onClose();
                 window.dispatchEvent(new CustomEvent('o1fc_relaunch_onboarding'));
@@ -156,8 +140,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
       <MembershipPlansModal
         isOpen={showMembershipModal}
         onClose={() => setShowMembershipModal(false)}
-        onOpenTerms={() => { setShowMembershipModal(false); setShowTermsModal(true); }}
-        onOpenPrivacy={() => { setShowMembershipModal(false); setShowPrivacyModal(true); }}
         onOpenDisclaimer={() => { setShowMembershipModal(false); setShowCitationsModal(true); }}
         onOpenHealth={() => { setShowMembershipModal(false); setShowCitationsModal(true); }}
         onShowToast={onShowToast}

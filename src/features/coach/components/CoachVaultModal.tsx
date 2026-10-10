@@ -8,6 +8,7 @@ import {
   Film,
   UserCheck,
   Check,
+  Loader2,
 } from 'lucide-react';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { useBuddyProfileStore } from '../../../stores/useBuddyProfileStore';
@@ -34,7 +35,6 @@ const STORAGE_KEY = 'o1_coach_exercise_vault_media';
 
 export interface CoachVaultViewProps {
   embedded?: boolean;
-  onClose?: () => void;
   initialOpenAdd?: boolean;
 }
 
@@ -64,6 +64,7 @@ export const CoachVaultView: React.FC<CoachVaultViewProps> = ({
   const [isReelUploadOpen, setIsReelUploadOpen] = useState(initialOpenAdd);
   const [publishedReelIds, setPublishedReelIds] = useState<string[]>([]);
   const [avatarSuccessMsg, setAvatarSuccessMsg] = useState<string | null>(null);
+  const [isCompressing, setIsCompressing] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   // Sync to localStorage
@@ -93,6 +94,7 @@ export const CoachVaultView: React.FC<CoachVaultViewProps> = ({
     if (!file) return;
 
     tactileEngine.triggerImpactPulse();
+    setIsCompressing(true);
     const isVid = file.type.startsWith('video');
 
     try {
@@ -139,6 +141,7 @@ export const CoachVaultView: React.FC<CoachVaultViewProps> = ({
       setAvatarSuccessMsg('Asset saved to Vault successfully!');
       setTimeout(() => setAvatarSuccessMsg(null), 2500);
     } finally {
+      setIsCompressing(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
     }
   };
@@ -265,7 +268,7 @@ export const CoachVaultView: React.FC<CoachVaultViewProps> = ({
           </span>
         </div>
         <span className="px-2.5 py-0.5 rounded-full bg-o1-crimson/10 border border-o1-crimson/30 text-o1-crimson text-[9px] font-mono font-bold">
-          {buddy.buddyPhotos.length > 0 ? `${buddy.buddyPhotos.length} ON RADAR` : '4 ON RADAR'}
+          {buddy.buddyPhotos.length} ON RADAR
         </span>
       </div>
 
@@ -330,6 +333,7 @@ export const CoachVaultView: React.FC<CoachVaultViewProps> = ({
 
         <button
           type="button"
+          disabled={isCompressing}
           onClick={() => {
             tactileEngine.triggerSelectionBuzz();
             if (activeTab === 'reels') {
@@ -338,10 +342,16 @@ export const CoachVaultView: React.FC<CoachVaultViewProps> = ({
               fileInputRef.current?.click();
             }
           }}
-          className="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-o1-crimson hover:bg-o1-crimson-hover active:scale-95 text-white text-xs font-bold font-mono tracking-wider cursor-pointer shadow-xs"
+          className="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-o1-crimson hover:bg-o1-crimson-hover active:scale-95 text-white text-xs font-bold font-mono tracking-wider cursor-pointer shadow-xs disabled:opacity-60 disabled:cursor-wait"
         >
-          {activeTab === 'reels' ? <Film size={14} /> : <Camera size={14} />}
-          <span>+ Add</span>
+          {isCompressing ? (
+            <Loader2 size={14} className="animate-spin" />
+          ) : activeTab === 'reels' ? (
+            <Film size={14} />
+          ) : (
+            <Camera size={14} />
+          )}
+          <span>{isCompressing ? 'Compressing…' : '+ Add'}</span>
         </button>
       </div>
 
@@ -606,8 +616,9 @@ export const CoachVaultView: React.FC<CoachVaultViewProps> = ({
   );
 };
 
-export interface CoachVaultModalProps extends CoachVaultViewProps {
+export interface CoachVaultModalProps extends Omit<CoachVaultViewProps, 'embedded'> {
   isOpen?: boolean;
+  onClose?: () => void;
 }
 
 export const CoachVaultModal: React.FC<CoachVaultModalProps> = ({
@@ -639,7 +650,7 @@ export const CoachVaultModal: React.FC<CoachVaultModalProps> = ({
       </div>
 
       <div className="w-full max-w-xl mx-auto p-3 flex-1 pb-16">
-        <CoachVaultView onClose={onClose} initialOpenAdd={initialOpenAdd} embedded />
+        <CoachVaultView initialOpenAdd={initialOpenAdd} embedded />
       </div>
     </div>
   );

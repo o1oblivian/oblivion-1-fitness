@@ -5,7 +5,6 @@ import { FuelHeroDashboard } from './components/FuelHeroDashboard';
 import { SupplementsElectrolytesAccordion } from './components/SupplementsElectrolytesAccordion';
 import { FuelHydrationCard } from './components/FuelHydrationCard';
 import { O1FCIntelMealSuggestionsSection } from './components/O1FCIntelMealSuggestionsSection';
-import { FuelCustomMacroDrawer } from './components/FuelCustomMacroDrawer';
 import { FuelIntakeSection } from './components/FuelIntakeSection';
 import { FuelPresetsModal } from './components/FuelPresetsModal';
 import { FuelModalsLayer } from './components/FuelModalsLayer';
@@ -138,14 +137,6 @@ export const FuelView: React.FC = () => {
         showToast={showToast}
       />
 
-      {/* Custom Macro Drawer */}
-      <FuelCustomMacroDrawer
-        isOpen={modals.isCustomEntryOpen}
-        onClose={() => modals.setIsCustomEntryOpen(false)}
-        onAddMealItem={addMealItem}
-        showToast={showToast}
-      />
-
       {/* Daily Meals Intake Breakdown */}
       <FuelIntakeSection
         isIntakeExpanded={modals.isIntakeExpanded}
@@ -203,7 +194,6 @@ export const FuelView: React.FC = () => {
         isAddFoodModalOpen={modals.isAddFoodModalOpen}
         onCloseAddFoodModal={() => modals.setIsAddFoodModalOpen(false)}
         addFoodCategory={modals.addFoodCategory}
-        onOpenCustomFood={() => modals.setIsCustomEntryOpen(true)}
         isCountryModalOpen={modals.isCountryModalOpen}
         onCloseCountryModal={() => modals.setIsCountryModalOpen(false)}
         countryMarket={countryMarket}

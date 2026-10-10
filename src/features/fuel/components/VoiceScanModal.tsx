@@ -247,7 +247,7 @@ export const VoiceScanModal: React.FC<VoiceScanModalProps> = ({
   const [transcript, setTranscript] = useState('');
   const [isListening, setIsListening] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [, setHasSpeechSupport] = useState(true);
+  const [hasSpeechSupport, setHasSpeechSupport] = useState(true);
   const [permissionError, setPermissionError] = useState<string | null>(null);
   const [isEditing, setIsEditing] = useState(false);
 
@@ -442,12 +442,14 @@ export const VoiceScanModal: React.FC<VoiceScanModalProps> = ({
             </span>
           </div>
           <h3 className="font-bold text-lg text-white tracking-tight">
-            {isListening ? 'Listening to your voice...' : 'Speak or Type Your Meal'}
+            {isListening ? 'Listening to your voice...' : hasSpeechSupport ? 'Speak or Type Your Meal' : 'Type Your Meal'}
           </h3>
           <p className="text-xs text-neutral-400">
             {isListening
               ? 'Speak clearly into your phone microphone'
-              : 'Tap microphone to speak your meal details'}
+              : hasSpeechSupport
+                ? 'Tap microphone to speak your meal details'
+                : 'Voice input is not available on this device. Describe your meal below.'}
           </p>
         </div>
 
@@ -462,6 +464,7 @@ export const VoiceScanModal: React.FC<VoiceScanModalProps> = ({
             )}
             <button
               type="button"
+              disabled={!hasSpeechSupport}
               onClick={() => {
                 if (isListening) {
                   stopListening();
@@ -472,8 +475,8 @@ export const VoiceScanModal: React.FC<VoiceScanModalProps> = ({
                   startListening();
                 }
               }}
-              title={isListening ? 'Tap to finish speaking' : 'Tap to start speaking'}
-              className={`relative z-10 w-16 h-16 rounded-full flex items-center justify-center transition-all cursor-pointer shadow-lg active:scale-95 ${
+              title={!hasSpeechSupport ? 'Voice input unavailable' : isListening ? 'Tap to finish speaking' : 'Tap to start speaking'}
+              className={`relative z-10 w-16 h-16 rounded-full flex items-center justify-center transition-all cursor-pointer shadow-lg active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed disabled:active:scale-100 ${
                 isListening
                   ? 'bg-o1-crimson text-white shadow-red-600/40 ring-4 ring-red-400/40'
                   : 'bg-o1-well border border-white/[0.07] text-neutral-200 hover:border-o1-crimson'
@@ -496,7 +499,7 @@ export const VoiceScanModal: React.FC<VoiceScanModalProps> = ({
               </span>
             ) : (
               <span className="text-neutral-400">
-                Tap mic icon to talk
+                {hasSpeechSupport ? 'Tap mic icon to talk' : 'Microphone unavailable'}
               </span>
             )}
           </div>

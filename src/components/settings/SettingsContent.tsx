@@ -16,7 +16,6 @@ export interface SettingsContentProps {
   onShowToast?: (msg: string) => void;
   onLogout?: () => void;
   onClose: () => void;
-  onPairDevice: () => void;
   onOpenTutorial?: () => void;
   onOpenHelpCenter?: () => void;
   onOpenContactSupport?: () => void;
@@ -32,7 +31,6 @@ export const SettingsContent: React.FC<SettingsContentProps> = ({
   onShowToast,
   onLogout,
   onClose,
-  onPairDevice,
   onOpenTutorial,
   onOpenHelpCenter,
   onOpenContactSupport,
@@ -130,13 +128,7 @@ export const SettingsContent: React.FC<SettingsContentProps> = ({
       />
 
       {/* 7. Connected Devices & Hardware Sensors */}
-      <SettingsHardwareSection
-        liveIngestionStream={s.liveIngestionStream}
-        isPairing={s.isPairingDevice}
-        onPairDevice={onPairDevice}
-        onToggleLiveStream={s.setLiveIngestionStream}
-        onShowToast={onShowToast}
-      />
+      <SettingsHardwareSection onShowToast={onShowToast} />
 
       {/* 8. Membership Tier & 90-Day Window */}
       <SettingsMembershipSection

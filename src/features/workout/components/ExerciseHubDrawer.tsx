@@ -19,7 +19,6 @@ export interface ExerciseHubDrawerProps {
   onToggle?: () => void;
   onAddExercise?: (exercise: ExerciseItem) => void;
   onAddBatch?: (exercises: ExerciseItem[]) => void;
-  onOpenSwapper?: () => void;
   onShowToast?: (msg: string) => void;
 }
 

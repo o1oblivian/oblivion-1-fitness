@@ -7,6 +7,7 @@ import { useLogStore } from '../../stores/useLogStore';
 import { tactileEngine } from '../../services/tactileEngine';
 import { supabase } from '../../services/supabaseClient';
 import { getAuthenticatedUserId } from '../../services/authUser';
+import { useSubscription } from '../../context/SubscriptionContext';
 
 interface UseMealMacroScannerParams {
   isOpen: boolean;
@@ -28,6 +29,7 @@ export function useMealMacroScanner({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [scannedMeal, setScannedMeal] = useState<ScannedMealBreakdown | null>(null);
+  const { isPro, openPaywall } = useSubscription();
 
   useEffect(() => {
     if (isOpen) {
@@ -72,6 +74,10 @@ export function useMealMacroScanner({
   };
 
   const executeScan = async (action: () => Promise<ScannedMealBreakdown>) => {
+    if (!isPro) {
+      openPaywall('Vision Macro & Nutrition Scanner');
+      return;
+    }
     setError(null);
     setScannedMeal(null);
     setIsScanning(true);

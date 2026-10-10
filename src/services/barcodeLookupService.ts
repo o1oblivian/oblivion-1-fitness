@@ -1,4 +1,4 @@
-import { ScannedMealBreakdown } from './mealVisionTypes';
+import { readNutrient, resolveCalories, ScannedMealBreakdown } from './mealVisionTypes';
 import { apiUrl } from './apiBase';
 
 export async function fetchOpenFoodFactsProduct(barcode: string): Promise<ScannedMealBreakdown | null> {
@@ -15,15 +15,14 @@ export async function fetchOpenFoodFactsProduct(barcode: string): Promise<Scanne
       const scale = grams > 0 ? grams / 100 : 1;
 
       const n = p.nutriments || {};
-      const kcal100 = Number(n['energy-kcal_100g'] ?? n['energy-kcal'] ?? 0);
-      const prot100 = Number(n.proteins_100g ?? n.proteins ?? 0);
-      const carb100 = Number(n.carbohydrates_100g ?? n.carbohydrates ?? 0);
-      const fat100 = Number(n.fat_100g ?? n.fat ?? 0);
-
-      const prot = Math.max(0, Math.round(prot100 * scale));
-      const carb = Math.max(0, Math.round(carb100 * scale));
-      const fat = Math.max(0, Math.round(fat100 * scale));
-      const cal = Math.max(0, Math.round(kcal100 * scale)) || Math.round(prot * 4 + carb * 4 + fat * 9);
+      const perServing = (per100g: unknown): number | null => {
+        const value = readNutrient(per100g);
+        return value === null ? null : readNutrient(Number(per100g) * scale);
+      };
+      const prot = perServing(n.proteins_100g ?? n.proteins);
+      const carb = perServing(n.carbohydrates_100g ?? n.carbohydrates);
+      const fat = perServing(n.fat_100g ?? n.fat);
+      const cal = resolveCalories(perServing(n['energy-kcal_100g'] ?? n['energy-kcal']), prot, carb, fat);
 
       return {
         dishName: p.brands ? `${p.brands} ${name}` : name,
@@ -80,13 +79,16 @@ export async function lookupBarcodeNumber(barcodeOrQuery: string): Promise<Scann
     const data = await res.json();
     if (data.found && data.item) {
       const it = data.item;
+      const prot = readNutrient(it.protein);
+      const carb = readNutrient(it.carbs);
+      const fat = readNutrient(it.fats);
       return {
         dishName: it.brand ? `${it.brand} ${it.name}` : it.name,
         servingDescription: it.portion || '1 serving',
-        calories: Math.round(Number(it.calories) || 0),
-        proteinGrams: Math.round(Number(it.protein) || 0),
-        carbsGrams: Math.round(Number(it.carbs) || 0),
-        fatsGrams: Math.round(Number(it.fats) || 0),
+        calories: resolveCalories(readNutrient(it.calories), prot, carb, fat),
+        proteinGrams: prot,
+        carbsGrams: carb,
+        fatsGrams: fat,
         confidenceScore: 100,
         ingredientsDetected: [it.category || 'Packaged Nutrition'],
         barcode: clean,

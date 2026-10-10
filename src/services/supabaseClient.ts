@@ -49,7 +49,6 @@ const insecureOrigin = typeof window !== 'undefined' && !hasSubtleCrypto();
 
 type ExtendedSupabaseClient = SupabaseClient & {
   insert: (table: string, payload: any) => Promise<{ data: any; error: any }>;
-  selectOne: (table: string, queryParam: string) => Promise<{ data: any; error: any }>;
 };
 
 const authOptions = {
@@ -89,12 +88,6 @@ export const supabase: ExtendedSupabaseClient = Object.assign(rawClient, {
     try {
       const { data, error } = await rawClient.from(table).insert(payload).select();
       return { data, error };
-    } catch (err) { return { data: null, error: err }; }
-  },
-  selectOne: async (table: string, _queryParam: string) => {
-    try {
-      const { data, error } = await rawClient.from(table).select('*').limit(1);
-      return { data: data?.[0] || null, error };
     } catch (err) { return { data: null, error: err }; }
   },
 });

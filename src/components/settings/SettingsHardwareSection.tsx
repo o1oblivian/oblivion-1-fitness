@@ -6,17 +6,10 @@ import { motionPedometerService, MotionEngineStatus } from '../../services/motio
 import { tactileEngine } from '../../services/tactileEngine';
 
 interface ConnectedDevicesProps {
-  liveIngestionStream: boolean;
-  isPairing: boolean;
-  onPairDevice: () => void;
-  onToggleLiveStream: (val: boolean) => void;
   onShowToast?: (msg: string, type?: 'success' | 'error' | 'info') => void;
 }
 
-export const SettingsHardwareSection: React.FC<ConnectedDevicesProps> = ({
-  isPairing,
-  onShowToast,
-}) => {
+export const SettingsHardwareSection: React.FC<ConnectedDevicesProps> = ({ onShowToast }) => {
   const [bleDevice, setBleDevice] = useState<BluetoothDeviceInfo | null>(
     bluetoothSensorService.getConnectedDevice()
   );
@@ -86,7 +79,7 @@ export const SettingsHardwareSection: React.FC<ConnectedDevicesProps> = ({
           device={bleDevice}
           error={bleError}
           isScanning={isScanning}
-          isPairing={isPairing || isScanning}
+          isPairing={isScanning}
           isSupported={bluetoothSensorService.isSupported()}
           onPair={handlePairBle}
           onDisconnect={() => {
