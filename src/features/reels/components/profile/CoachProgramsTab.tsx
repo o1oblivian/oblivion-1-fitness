@@ -8,6 +8,8 @@ interface CoachProgramsTabProps {
   enrolledIds?: ReadonlySet<string>;
   onEnroll?: (program: StorefrontProgram) => void;
   onApply?: (program: StorefrontProgram) => void;
+  /** Paid programs: opens Stripe Checkout. */
+  onBuy?: (program: StorefrontProgram) => Promise<void>;
   /** The coach viewing their own catalog: no enroll or apply actions. */
   isOwn?: boolean;
   onCreate?: () => void;
@@ -21,8 +23,9 @@ export function priceLabel(cents: number | null): string {
 
 const NONE: ReadonlySet<string> = new Set();
 
-export const CoachProgramsTab: React.FC<CoachProgramsTabProps> = ({ programs, enrolledIds = NONE, onEnroll, onApply, isOwn = false, onCreate }) => {
+export const CoachProgramsTab: React.FC<CoachProgramsTabProps> = ({ programs, enrolledIds = NONE, onEnroll, onApply, onBuy, isOwn = false, onCreate }) => {
   const [openId, setOpenId] = useState<string | null>(null);
+  const [buyingId, setBuyingId] = useState<string | null>(null);
 
   const createButton = onCreate ? (
     <button
@@ -113,7 +116,7 @@ export const CoachProgramsTab: React.FC<CoachProgramsTabProps> = ({ programs, en
                   <p className="flex h-[44px] items-center justify-center rounded-full border border-white/[0.07] text-[13px] font-semibold text-o1-muted">
                     In My programs on your Coach tab
                   </p>
-                ) : (
+                ) : free || !onBuy ? (
                   <button
                     type="button"
                     onClick={() => {
@@ -125,6 +128,34 @@ export const CoachProgramsTab: React.FC<CoachProgramsTabProps> = ({ programs, en
                   >
                     {free ? 'Enroll' : 'Apply for this program'}
                   </button>
+                ) : (
+                  <div className="space-y-1">
+                    <button
+                      type="button"
+                      disabled={buyingId === program.id}
+                      onClick={async () => {
+                        tactileEngine.triggerImpactPulse();
+                        setBuyingId(program.id);
+                        await onBuy(program);
+                        setBuyingId(null);
+                      }}
+                      className="h-[44px] w-full rounded-full bg-o1-crimson text-[13px] font-semibold text-white disabled:opacity-40 active:scale-[0.98]"
+                    >
+                      {buyingId === program.id ? 'Opening checkout…' : `Buy · ${price}`}
+                    </button>
+                    {onApply ? (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          tactileEngine.triggerSelectionBuzz();
+                          onApply(program);
+                        }}
+                        className="h-[44px] w-full text-[12px] font-semibold text-o1-muted"
+                      >
+                        Ask the coach first
+                      </button>
+                    ) : null}
+                  </div>
                 )}
               </div>
             )}

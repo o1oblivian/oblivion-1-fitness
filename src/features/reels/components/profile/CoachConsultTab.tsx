@@ -16,6 +16,8 @@ interface CoachConsultTabProps {
   onClearProgram: () => void;
   onMessage: () => void;
   onSubmit: (goal: string, intake: Record<string, string>) => Promise<void>;
+  /** Opens Stripe Checkout for the first month once the coach has accepted. */
+  onPay?: () => Promise<void>;
 }
 
 const STATUS_COPY: Record<CoachingApplication['status'], string> = {
@@ -33,6 +35,7 @@ export const CoachConsultTab: React.FC<CoachConsultTabProps> = ({
   onClearProgram,
   onMessage,
   onSubmit,
+  onPay,
 }) => {
   const taxonomy = useClubTaxonomy();
   const discipline = useConsultationStore((s) => s.primaryDiscipline);
@@ -43,6 +46,7 @@ export const CoachConsultTab: React.FC<CoachConsultTabProps> = ({
   const frequencyDays = useConsultationStore((s) => s.frequencyDays);
   const [goal, setGoal] = useState('');
   const [sending, setSending] = useState(false);
+  const [paying, setPaying] = useState(false);
 
   const intake = useMemo(() => {
     const label = (group: string, key: string) => optionsIn(taxonomy, group).find((row) => row.optionKey === key)?.label || '';
@@ -93,6 +97,22 @@ export const CoachConsultTab: React.FC<CoachConsultTabProps> = ({
         <p className="rounded-2xl border border-white/[0.07] bg-o1-surface px-4 py-3 text-[13px] text-o1-text">
           {STATUS_COPY[application.status]}
         </p>
+      ) : null}
+
+      {!isOwn && onPay && application?.status === 'accepted' && monthly && stats.monthlyPriceCents ? (
+        <button
+          type="button"
+          disabled={paying}
+          onClick={async () => {
+            tactileEngine.triggerImpactPulse();
+            setPaying(true);
+            await onPay();
+            setPaying(false);
+          }}
+          className="h-[48px] w-full rounded-full bg-o1-crimson text-[14px] font-semibold text-white disabled:opacity-40 active:scale-[0.98]"
+        >
+          {paying ? 'Opening checkout…' : `Pay first month · ${monthly}`}
+        </button>
       ) : null}
 
       {canApply && (

@@ -1,5 +1,12 @@
 import { Request, Response } from 'express';
-import { getStripe, getSupabaseAdmin, recordProgramSale } from '../lib/stripeLedger';
+import {
+  enrollPaidProgram,
+  getStripe,
+  getSupabaseAdmin,
+  recordProgramSale,
+  recordSaleRefund,
+  recordTransferReversal,
+} from '../lib/stripeLedger';
 
 /**
  * Identity session. The coach id is the verified Supabase user from requireSupabaseAuth,
@@ -108,20 +115,32 @@ export async function handleStripeWebhook(req: Request, res: Response) {
 
     // Program sale paid: write the platform/coach split to the ledger.
     if (type === 'checkout.session.completed' && object?.payment_status === 'paid') {
-      const coachId = object?.metadata?.coach_id;
+      const meta = object?.metadata ?? {};
+      const coachId = meta.coach_id;
       if (coachId) {
         const result = await recordProgramSale({
           coachId,
-          athleteId: object?.metadata?.athlete_id,
-          athleteName: object?.metadata?.athlete_name,
-          programTitle: object?.metadata?.program_title,
+          athleteId: meta.athlete_id,
+          athleteName: meta.athlete_name,
+          programTitle: meta.program_title,
           grossCents: Number(object?.amount_total || 0),
           currency: object?.currency,
           stripeSessionId: String(object.id),
         });
+        if (meta.kind === 'program' && meta.program_id && meta.athlete_id) {
+          await enrollPaidProgram(meta.athlete_id, coachId, meta.program_id);
+        }
         return res.json({ received: true, ...result });
       }
       return res.json({ received: true, ignored: 'no coach metadata' });
+    }
+
+    if (type === 'charge.refunded' && object) {
+      return res.json({ received: true, ...(await recordSaleRefund(object)) });
+    }
+
+    if (type === 'transfer.reversed' && object?.id) {
+      return res.json({ received: true, ...(await recordTransferReversal(object)) });
     }
 
     if (type === 'identity.verification_session.verified') {

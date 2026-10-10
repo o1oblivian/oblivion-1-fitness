@@ -43,6 +43,8 @@ export interface StripeBalance {
   transactions: CoachSaleRecord[];
 }
 
+export type BalanceFailure = 'offline' | 'unconfigured' | 'signed-out' | 'server';
+
 async function authHeaders(): Promise<Record<string, string>> {
   const { data: { session } } = await supabase.auth.getSession();
   return {
@@ -143,14 +145,34 @@ export const stripeConnectService = {
   },
 
   /** Real pending / available / paid balance, computed on the server from the payout ledger. */
-  async getBalance(): Promise<{ data?: StripeBalance; error?: string }> {
+  async getBalance(): Promise<{ data?: StripeBalance; error?: string; reason?: BalanceFailure }> {
     try {
       const res = await fetch(apiUrl('/api/stripe/balance'), { method: 'GET', headers: await authHeaders() });
       const data = await res.json().catch(() => ({}));
-      if (!res.ok) return { error: data?.error || 'Could not load your balance.' };
+      if (!res.ok) {
+        const reason: BalanceFailure = res.status === 401 ? 'signed-out' : res.status === 503 ? 'unconfigured' : 'server';
+        return { error: data?.error || 'Could not load your balance.', reason };
+      }
       return { data: data as StripeBalance };
     } catch (err: any) {
-      return { error: err.message || 'Network error loading your balance.' };
+      return { error: err.message || 'Network error loading your balance.', reason: 'offline' };
+    }
+  },
+
+  /** Hosted Stripe Checkout for a paid program or 1:1 coaching. Price and coach are resolved server-side. */
+  async createCheckout(input: { kind: 'program' | 'coaching'; coachId: string; programId?: string; athleteName?: string }): Promise<{ url?: string; error?: string }> {
+    try {
+      const returnUrl = typeof window !== 'undefined' ? `${window.location.origin}${window.location.pathname}` : '';
+      const res = await fetch(apiUrl('/api/stripe/create-checkout'), {
+        method: 'POST',
+        headers: await authHeaders(),
+        body: JSON.stringify({ ...input, returnUrl }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || typeof data?.url !== 'string') return { error: data?.error || 'Could not start checkout.' };
+      return { url: data.url };
+    } catch (err: any) {
+      return { error: err.message || 'Network error starting checkout.' };
     }
   },
 };

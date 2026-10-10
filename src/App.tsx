@@ -124,6 +124,19 @@ export default function App() {
           /* ignore */
         }
       }
+      const checkoutResult = new URL(webHref).searchParams.get('checkout');
+      if (checkoutResult) {
+        const cleaned = new URL(webHref);
+        cleaned.searchParams.delete('checkout');
+        cleaned.searchParams.delete('session_id');
+        window.history.replaceState({}, document.title, cleaned.pathname + cleaned.search + cleaned.hash);
+        if (checkoutResult === 'success') {
+          window.dispatchEvent(new CustomEvent('app_navigate_tab', { detail: 'coach' }));
+          void import('./features/reels/services/coachStorefront').then(({ PROGRAMS_EVENT }) => {
+            [2000, 6000].forEach((ms) => setTimeout(() => window.dispatchEvent(new CustomEvent(PROGRAMS_EVENT)), ms));
+          });
+        }
+      }
       if (webHref.includes('access_token') || webHref.includes('code=')) {
         handleAuthUrl(webHref).then(() => {
           try {

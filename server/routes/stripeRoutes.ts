@@ -7,6 +7,7 @@ import {
   getCoachConnectProfile,
   getStripe,
   getSupabaseAdmin,
+  resolveCheckoutItem,
   resolveCoachPlan,
   summariseBalance,
   loadCoachLedger,
@@ -262,6 +263,73 @@ export function registerStripeRoutes(app: Express) {
       return res.status(502).json({ error: err?.message || 'Payout failed.' });
     } finally {
       if (locked) inFlightPayouts.delete(coachId);
+    }
+  });
+
+  // -------------------------------------------------------------------------
+  // Checkout. The buyer is the verified token; the price and coach are read from the database.
+  // -------------------------------------------------------------------------
+  app.post('/api/stripe/create-checkout', async (req, res) => {
+    try {
+      const athleteId = res.locals.userId as string;
+      const kind = req.body?.kind === 'coaching' ? 'coaching' : req.body?.kind === 'program' ? 'program' : null;
+      const coachId = typeof req.body?.coachId === 'string' ? req.body.coachId : '';
+      if (!kind || !coachId) return res.status(400).json({ error: 'Missing what to buy.' });
+      if (coachId === athleteId) return res.status(400).json({ error: 'You can’t buy from yourself.' });
+
+      const stripe = await getStripe();
+      if (!stripe || !getSupabaseAdmin()) return res.status(503).json({ error: 'Payments are not configured.' });
+
+      const coach = await getCoachConnectProfile(coachId);
+      if (!coach?.stripe_connect_account_id) {
+        return res.status(409).json({ error: 'This coach is not taking payments yet.' });
+      }
+
+      const resolved = await resolveCheckoutItem({
+        kind,
+        coachId,
+        programId: typeof req.body?.programId === 'string' ? req.body.programId : null,
+        athleteId,
+      });
+      if (!resolved.item) {
+        const status = resolved.error === 'not_configured' ? 503 : 400;
+        return res.status(status).json({ error: resolved.error === 'not_configured' ? 'Payments are not configured.' : resolved.error });
+      }
+      const { item } = resolved;
+
+      const athleteName = String(req.body?.athleteName || '').slice(0, 80);
+      const metadata: Record<string, string> = {
+        kind: item.kind,
+        coach_id: item.coachId,
+        athlete_id: athleteId,
+        athlete_name: athleteName,
+        program_id: item.programId || '',
+        program_title: item.title.slice(0, 200),
+      };
+      const fallbackOrigin = String(req.headers.origin || 'http://localhost:3000');
+      const base = safeReturnBase(req.body?.returnUrl, fallbackOrigin);
+      const withParam = (param: string) => `${base}${base.includes('?') ? '&' : '?'}${param}`;
+
+      const session = await stripe.checkout.sessions.create({
+        mode: 'payment',
+        client_reference_id: athleteId,
+        customer_email: (res.locals.userEmail as string | undefined) || undefined,
+        line_items: [
+          {
+            quantity: 1,
+            price_data: { currency: PAYOUT_CURRENCY, unit_amount: item.priceCents, product_data: { name: item.title } },
+          },
+        ],
+        metadata,
+        payment_intent_data: { metadata, transfer_group: `coach_${item.coachId}` },
+        success_url: withParam('checkout=success&session_id={CHECKOUT_SESSION_ID}'),
+        cancel_url: withParam('checkout=cancel'),
+      });
+      if (!session.url) return res.status(502).json({ error: 'Stripe did not return a checkout page.' });
+      return res.json({ url: session.url });
+    } catch (err: any) {
+      console.error('[stripe] create-checkout failed:', err?.message);
+      return res.status(500).json({ error: 'Could not start checkout.' });
     }
   });
 

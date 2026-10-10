@@ -25,6 +25,7 @@ import { CoachConsultTab } from './profile/CoachConsultTab';
 import { CoachProfileHeader, ProfileActionButton, compactCount, ratingLabel } from '../../coach/components/profile/CoachProfileHeader';
 import { StorefrontEditor } from '../../coach/components/profile/StorefrontEditor';
 import type { CoachConsoleAction } from '../../coach/services/coachConsoleBus';
+import { stripeConnectService } from '../../../services/stripeConnectService';
 
 export interface CoachBookingDrawerProps {
   coach: ExploreCoach | null;
@@ -106,6 +107,15 @@ export const CoachBookingDrawer: React.FC<CoachBookingDrawerProps> = ({ coach, i
       setStats((prev) => ({ ...prev, following: !next, followers: prev.followers == null ? prev.followers : Math.max(0, prev.followers + (next ? -1 : 1)) }));
       flash('Sign in to follow coaches');
     }
+  };
+
+  const checkout = async (input: { kind: 'program' | 'coaching'; programId?: string }) => {
+    const res = await stripeConnectService.createCheckout({ ...input, coachId: coach.id, athleteName: athleteName() });
+    if (res.url) {
+      window.location.assign(res.url);
+      return;
+    }
+    flash(res.error || 'Could not start checkout');
   };
 
   const share = async () => {
@@ -268,6 +278,7 @@ export const CoachBookingDrawer: React.FC<CoachBookingDrawerProps> = ({ coach, i
                   setApplyProgram(program);
                   setTab('coaching');
                 }}
+                onBuy={isOwn ? undefined : (program) => checkout({ kind: 'program', programId: program.id })}
               />
             </div>
           )}
@@ -281,6 +292,7 @@ export const CoachBookingDrawer: React.FC<CoachBookingDrawerProps> = ({ coach, i
                 program={applyProgram}
                 isOwn={isOwn}
                 onClearProgram={() => setApplyProgram(null)}
+                onPay={() => checkout({ kind: 'coaching' })}
                 onMessage={() => onMessageCoach?.(coach)}
                 onSubmit={async (goal, intake) => {
                   const ok = await submitApplication({

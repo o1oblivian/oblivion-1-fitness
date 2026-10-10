@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { RefreshCw } from 'lucide-react';
-import { stripeConnectService, CoachProfileData, StripeBalance } from '../../../services/stripeConnectService';
+import { AlertTriangle, RefreshCw } from 'lucide-react';
+import { stripeConnectService, BalanceFailure, CoachProfileData, StripeBalance } from '../../../services/stripeConnectService';
 import { WithdrawModal } from './WithdrawModal';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { COACH_PLANS, formatFeePercent } from '../../../../shared/coachPlans';
@@ -29,11 +29,19 @@ function money(cents: number, currency: string): string {
   }
 }
 
+const FAILURE_COPY: Record<BalanceFailure, { title: string; detail: string }> = {
+  offline: { title: 'Can’t reach payments', detail: 'Check your connection, then try again.' },
+  unconfigured: { title: 'Payments are not switched on', detail: 'The payments server is not set up yet. Your earnings are safe.' },
+  'signed-out': { title: 'Sign in to see earnings', detail: 'Your session expired. Sign in again, then retry.' },
+  server: { title: 'Earnings didn’t load', detail: 'Something went wrong on our side. Try again in a moment.' },
+};
+
 const STATUS_LABEL: Record<string, string> = {
   available: 'Ready',
   pending: 'Pending',
   paid: 'Paid',
   failed: 'Failed',
+  reversed: 'Returned',
 };
 
 function statusTone(status: string): string {
@@ -47,12 +55,18 @@ export const CoachEarningsDeck: React.FC<CoachEarningsDeckProps> = ({ coachId = 
   const [isWithdrawOpen, setIsWithdrawOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [setupNote, setSetupNote] = useState('');
+  const [loadFailure, setLoadFailure] = useState<BalanceFailure | null>(null);
 
   const loadData = useCallback(async () => {
     setIsLoading(true);
     try {
       const res = await stripeConnectService.getBalance();
-      if (res.data) setBalance(res.data);
+      if (res.data) {
+        setBalance(res.data);
+        setLoadFailure(null);
+      } else {
+        setLoadFailure(res.reason ?? 'server');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -129,6 +143,33 @@ export const CoachEarningsDeck: React.FC<CoachEarningsDeckProps> = ({ coachId = 
   const planLabel = balance ? COACH_PLANS[balance.plan].label : '';
   const feeLabel = balance ? formatFeePercent(balance.platformFeeRate) : '--';
 
+  if (loadFailure && !balance) {
+    const copy = FAILURE_COPY[loadFailure];
+    return (
+      <section role="alert" className="space-y-3 rounded-2xl border border-[rgba(196,18,26,0.4)] bg-o1-bad-wash p-4 select-none">
+        <div className="flex items-start gap-3">
+          <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-o1-bad-ink" />
+          <div className="min-w-0">
+            <p className="text-[14px] font-semibold text-o1-bad-ink">{copy.title}</p>
+            <p className="mt-0.5 text-[12px] text-o1-text">{copy.detail}</p>
+          </div>
+        </div>
+        <button
+          type="button"
+          onClick={() => {
+            tactileEngine.triggerSelectionBuzz();
+            void loadData();
+          }}
+          disabled={isLoading}
+          className="flex h-[44px] w-full items-center justify-center gap-2 rounded-xl border border-white/[0.07] bg-o1-canvas text-[13px] font-semibold text-o1-text active:scale-[0.98] disabled:opacity-60"
+        >
+          <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+          {isLoading ? 'Retrying…' : 'Retry'}
+        </button>
+      </section>
+    );
+  }
+
   return (
     <div className="space-y-3 select-none">
       <section className="space-y-3 rounded-2xl border border-white/[0.07] bg-o1-surface p-4">
@@ -162,11 +203,12 @@ export const CoachEarningsDeck: React.FC<CoachEarningsDeckProps> = ({ coachId = 
             <p className="text-[11px] text-o1-muted">
               {planLabel} plan · we keep {feeLabel} of each program sale
             </p>
+            {!isOnboarded ? <p className="text-[13px] text-o1-muted">Connect a bank account to get paid for program sales.</p> : null}
           </>
         ) : (
-          <p className="text-[13px] text-o1-muted">Connect a bank account to get paid for program sales.</p>
+          <p className="text-[13px] text-o1-muted">Loading earnings…</p>
         )}
-        {isOnboarded && availableCents > 0 ? (
+        {!balance ? null : isOnboarded && availableCents > 0 ? (
           <button
             type="button"
             onClick={() => { tactileEngine.triggerSelectionBuzz(); setIsWithdrawOpen(true); }}
