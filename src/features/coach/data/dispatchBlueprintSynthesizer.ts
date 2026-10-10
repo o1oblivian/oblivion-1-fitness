@@ -46,7 +46,7 @@ export function synthesizeDailyBlueprint(
   duration: SessionDuration = '45m',
   gear: FacilityGear = 'Full Gym',
   intensity: IntensityMode = 'Progressive RPE',
-  seedIndex: number = 0
+  _seedIndex: number = 0
 ): SynthesizedBlueprint {
   const durationMap = {
     '20m': { mins: 20, moves: 3, setsPerMove: 3 },

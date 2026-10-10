@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ShieldCheck, Lock, EyeOff, Ban, HardDrive, Smartphone, ChevronDown, ChevronUp, Sparkles, Check } from 'lucide-react';
+import { ShieldCheck, Lock, EyeOff, Ban, HardDrive, ChevronDown, ChevronUp, Check } from 'lucide-react';
 import { tactileEngine } from '../../services/tactileEngine';
 
 export const SettingsPrivacyPledgeSection: React.FC = () => {

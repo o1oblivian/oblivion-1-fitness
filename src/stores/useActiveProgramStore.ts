@@ -1,6 +1,5 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { ExerciseItem } from '../types';
 
 export interface ProgramDaySchedule {
   dayIndex: number;

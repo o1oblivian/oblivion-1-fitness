@@ -4,15 +4,9 @@ import {
   Check,
   ShoppingBag,
   ShieldCheck,
-  Dumbbell,
-  Calendar,
   Star,
   ArrowRight,
   Play,
-  UserCheck,
-  ExternalLink,
-  Flame,
-  Award,
 } from 'lucide-react';
 import { CoachMarketplaceProgram } from '../types/coachPlatformTypes';
 import { tactileEngine } from '../../../services/tactileEngine';

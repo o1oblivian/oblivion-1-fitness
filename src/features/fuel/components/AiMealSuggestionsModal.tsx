@@ -2,13 +2,10 @@ import React, { useState, useEffect } from 'react';
 import {
   X,
   Sparkles,
-  ChefHat,
-  Flame,
   Clock,
   Plus,
   RefreshCw,
   Check,
-  Zap,
 } from 'lucide-react';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { apiUrl } from '../../../services/apiBase';
@@ -51,7 +48,7 @@ export const AiMealSuggestionsModal: React.FC<AiMealSuggestionsModalProps> = ({
   const [selectedSlot, setSelectedSlot] = useState<'breakfast' | 'lunch' | 'dinner' | 'snack'>('lunch');
   const [loading, setLoading] = useState(false);
   const [suggestions, setSuggestions] = useState<AiMeal[]>([]);
-  const [error, setError] = useState<string | null>(null);
+  const [, setError] = useState<string | null>(null);
   const [loggedMealId, setLoggedMealId] = useState<string | null>(null);
 
   const fetchSuggestions = async () => {

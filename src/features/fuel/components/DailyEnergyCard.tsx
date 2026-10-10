@@ -34,8 +34,6 @@ export interface DailyEnergyCardProps {
 }
 
 export const DailyEnergyCard: React.FC<DailyEnergyCardProps> = ({
-  remainingKcal: propRemainingKcal,
-  eatenKcal = 0,
   burnedKcal = 0,
   dailyTargetKcal = 0,
   proteinG = 0,
@@ -48,8 +46,6 @@ export const DailyEnergyCard: React.FC<DailyEnergyCardProps> = ({
   activeTab: controlledActiveTab,
   defaultTab = 'Today',
   onViewChange,
-  onUpdateWeight,
-  onSaveWeight,
   onApplyTargets,
 }) => {
   const [internalActiveTab, setInternalActiveTab] = useState<DailyEnergyCardTab>(defaultTab);
@@ -72,12 +68,6 @@ export const DailyEnergyCard: React.FC<DailyEnergyCardProps> = ({
   }, [dailyTargetKcal, proteinTarget, carbsTarget, fatsTarget]);
 
   const consumedKcal = proteinG * 4 + carbsG * 4 + fatsG * 9;
-  const remainingKcal =
-    typeof propRemainingKcal === 'number'
-      ? propRemainingKcal
-      : dailyTargetKcal > 0
-      ? Math.max(0, dailyTargetKcal + burnedKcal - consumedKcal)
-      : burnedKcal;
 
   const handleTabClick = (tab: DailyEnergyCardTab) => {
     tactileEngine.triggerSelectionBuzz();

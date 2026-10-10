@@ -10,7 +10,7 @@ interface ScannedMealResultCardProps {
 }
 
 export const ScannedMealResultCard: React.FC<ScannedMealResultCardProps> = ({
-  scannedMeal, slotName = 'lunch', onCommitMeal,
+  scannedMeal, onCommitMeal,
 }) => {
   const parsedWeight = parseInt(scannedMeal.servingDescription?.match(/(\d+)\s*g/i)?.[1] || '100', 10);
   const baseWeight = parsedWeight > 0 ? parsedWeight : 100;
@@ -42,8 +42,6 @@ export const ScannedMealResultCard: React.FC<ScannedMealResultCardProps> = ({
     const name = tag ? `${scannedMeal.dishName} (${tag})` : scannedMeal.dishName;
     onCommitMeal(name, calories, protein, carbs, fat, weight);
   };
-
-  const slotTitle = (slotName.charAt(0).toUpperCase() + slotName.slice(1)).replace(/_/g, ' ');
 
   return (
     <div className="p-4 rounded-2xl bg-black border border-white/[0.07] space-y-3 text-white select-none shadow-2xl">

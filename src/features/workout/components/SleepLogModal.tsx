@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Moon, Sparkles, Check, Clock, Heart, Zap, BedDouble, RotateCcw } from 'lucide-react';
+import { X, Moon, Sparkles, Check, RotateCcw } from 'lucide-react';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { useLogStore } from '../../../stores/useLogStore';
 import { useTelemetryHistoryStore } from '../../log/store/useTelemetryHistoryStore';

@@ -11,7 +11,6 @@ export interface O1FVerifiedRosterProps {
 export const O1FVerifiedRoster: React.FC<O1FVerifiedRosterProps> = ({
   coaches = [],
   onSelectCoach,
-  onBookCoaching,
 }) => {
   const safeCoaches = (coaches ?? []).filter((c) => Boolean(c && (c.id || c.name)));
 

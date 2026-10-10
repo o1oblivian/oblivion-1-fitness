@@ -5,7 +5,6 @@ import {
 import { useFuelStore, FuelMeals } from '../../features/fuel/store/useFuelStore';
 import { useLogStore } from '../../stores/useLogStore';
 import { tactileEngine } from '../../services/tactileEngine';
-import { useSubscription } from '../../context/SubscriptionContext';
 import { supabase } from '../../services/supabaseClient';
 import { getAuthenticatedUserId } from '../../services/authUser';
 
@@ -20,7 +19,6 @@ interface UseMealMacroScannerParams {
 export function useMealMacroScanner({
   isOpen, targetSlot, defaultSlot = 'lunch', onConfirmMeal, showToast,
 }: UseMealMacroScannerParams) {
-  const { isPro, openPaywall } = useSubscription();
   const [imageFile, setImageFile] = useState<File | Blob | null>(null);
   const [slot, setSlot] = useState<keyof FuelMeals>((targetSlot || defaultSlot || 'lunch') as keyof FuelMeals);
   const [scanMode, setScanMode] = useState<ScanMode>('plate');

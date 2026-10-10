@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, ShieldCheck, FileText, AlertTriangle, ExternalLink } from 'lucide-react';
+import { X, ShieldCheck, FileText, AlertTriangle } from 'lucide-react';
 import { tactileEngine } from '../../services/tactileEngine';
 
 interface Props {

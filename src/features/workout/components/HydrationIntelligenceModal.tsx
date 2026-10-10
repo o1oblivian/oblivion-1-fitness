@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Droplets, Plus, RotateCcw, ArrowRight, Sparkles, Waves } from 'lucide-react';
+import { X, Droplets, Plus, RotateCcw, ArrowRight } from 'lucide-react';
 import { tactileEngine } from '../../../services/tactileEngine';
 
 interface HydrationIntelligenceModalProps {

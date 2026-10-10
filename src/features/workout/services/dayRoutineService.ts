@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { BlueprintExercise, WORKOUT_BLUEPRINTS } from '../../../data/workoutBlueprints';
 import { WorkoutExercise, WorkoutSet } from '../store/workoutStoreTypes';
 
 let dayRoutineRevision = 0;

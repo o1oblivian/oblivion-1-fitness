@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronDown, ChevronUp, X, Flag } from 'lucide-react';
+import { Flag } from 'lucide-react';
 import { CommitWorkoutModal } from './modals/CommitWorkoutModal';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { useWorkoutStore } from '../store/useWorkoutStore';
@@ -10,7 +10,7 @@ import { ActiveLogExerciseAccordion } from './ActiveLogExerciseAccordion';
 import { saveAthleteDayRoutine } from '../services/dayRoutineService';
 import { useLogStore } from '../../../stores/useLogStore';
 import { useUserStore } from '../../../stores/useUserStore';
-import { useTelemetryHistoryStore, getTelemetryHistoryState } from '../../log/store/useTelemetryHistoryStore';
+import { useTelemetryHistoryStore } from '../../log/store/useTelemetryHistoryStore';
 import { exerciseFromSets, setsFromExercise } from '../../log/liftLedger';
 import { releaseForgotten } from '../../log/services/dayLogService';
 import { syncSessionToSupabase } from '../../../services/supabaseClient';

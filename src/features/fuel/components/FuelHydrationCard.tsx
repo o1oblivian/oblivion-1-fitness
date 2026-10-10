@@ -1,5 +1,5 @@
 import React from 'react';
-import { Droplet, Minus, Plus } from 'lucide-react';
+import { Droplet, Minus } from 'lucide-react';
 import { tactileEngine } from '../../../services/tactileEngine';
 
 interface FuelHydrationCardProps {

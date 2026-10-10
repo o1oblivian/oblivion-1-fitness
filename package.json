@@ -13,7 +13,7 @@
     "clean": "rm -rf dist server.js",
     "cap:sync": "cap sync",
     "cap:build": "vite build && cap sync",
-    "lint": "tsc --noEmit"
+    "lint": "oxlint src"
   },
   "dependencies": {
     "@capacitor-community/bluetooth-le": "^8.3.0",
@@ -52,6 +52,7 @@
     "@types/react-dom": "^19.3.0",
     "autoprefixer": "^10.4.21",
     "esbuild": "^0.25.0",
+    "oxlint": "^1.87.0",
     "tailwindcss": "^4.3.3",
     "tsx": "^4.21.0",
     "typescript": "^7.0.2"

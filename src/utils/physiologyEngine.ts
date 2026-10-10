@@ -1,6 +1,5 @@
 import { useUserStore } from '../stores/useUserStore';
 import { ExerciseItem } from '../types/workout';
-import { ExerciseDefinition } from '../types/exercise';
 
 /**
  * SPORTS SCIENCE & PHYSIOLOGY ENGINE (O1FC)

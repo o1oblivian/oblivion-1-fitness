@@ -247,7 +247,7 @@ export const VoiceScanModal: React.FC<VoiceScanModalProps> = ({
   const [transcript, setTranscript] = useState('');
   const [isListening, setIsListening] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [hasSpeechSupport, setHasSpeechSupport] = useState(true);
+  const [, setHasSpeechSupport] = useState(true);
   const [permissionError, setPermissionError] = useState<string | null>(null);
   const [isEditing, setIsEditing] = useState(false);
 

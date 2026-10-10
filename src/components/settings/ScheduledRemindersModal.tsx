@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Bell, Clock, Check, Calendar } from 'lucide-react';
+import { X, Bell, Check } from 'lucide-react';
 import { tactileEngine } from '../../services/tactileEngine';
 
 interface ScheduledRemindersModalProps {

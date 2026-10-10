@@ -14,9 +14,7 @@ interface ConnectedDevicesProps {
 }
 
 export const SettingsHardwareSection: React.FC<ConnectedDevicesProps> = ({
-  liveIngestionStream,
   isPairing,
-  onToggleLiveStream,
   onShowToast,
 }) => {
   const [bleDevice, setBleDevice] = useState<BluetoothDeviceInfo | null>(

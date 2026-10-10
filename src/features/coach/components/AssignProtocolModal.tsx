@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Send, CheckCircle2, Shield, Dumbbell } from 'lucide-react';
+import { X, Send, CheckCircle2 } from 'lucide-react';
 import { SquadAthlete } from '../../../types';
 
 interface AssignProtocolModalProps {

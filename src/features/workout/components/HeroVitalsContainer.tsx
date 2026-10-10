@@ -131,9 +131,6 @@ export const HeroVitalsContainer: React.FC<HeroVitalsContainerProps> = ({
   const storeStepTarget = useTelemetryStore((s) => s.stepTarget);
   const storeMoveTarget = useTelemetryStore((s) => s.moveTarget);
   const storeDistTarget = useTelemetryStore((s) => s.distTarget);
-  const drinksCount = useTelemetryStore((s) => s.drinksCount ?? 0);
-  const streakDays = useTelemetryStore((s) => s.cleanHabitStreakDays ?? 0);
-  const setDrinksCount = useTelemetryStore((s) => s.setDrinksCount);
   const recoveryEnergyScore = useWorkoutStore((s) => s.recoveryEnergyScore ?? 0);
   const hydrationCurrentL = useFuelStore((s) => s.hydrationCurrentL ?? 0.0);
   const addFuelHydration = useFuelStore((s) => s.addFuelHydration);

@@ -91,7 +91,7 @@ export const supabase: ExtendedSupabaseClient = Object.assign(rawClient, {
       return { data, error };
     } catch (err) { return { data: null, error: err }; }
   },
-  selectOne: async (table: string, queryParam: string) => {
+  selectOne: async (table: string, _queryParam: string) => {
     try {
       const { data, error } = await rawClient.from(table).select('*').limit(1);
       return { data: data?.[0] || null, error };

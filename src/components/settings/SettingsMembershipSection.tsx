@@ -10,7 +10,7 @@ interface MembershipSectionProps {
 
 export const SettingsMembershipSection: React.FC<MembershipSectionProps> = ({ onManage, onShowToast }) => {
   const [isRestoring, setIsRestoring] = useState(false);
-  const { isPro, trialState, restorePurchases, openPaywall } = useSubscription();
+  const { trialState, restorePurchases, openPaywall } = useSubscription();
 
   const handleRestore = async () => {
     tactileEngine.triggerSelectionBuzz();

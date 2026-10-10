@@ -4,16 +4,13 @@ import {
   Clock,
   Zap,
   Target,
-  Dumbbell,
   Timer,
   Info,
   Layers,
-  Check,
 } from 'lucide-react';
 import {
   WorkoutBlueprint,
   BlueprintCategory,
-  BlueprintExercise,
 } from '../../../data/workoutBlueprints';
 import { useWorkoutStore } from '../store/useWorkoutStore';
 import { tactileEngine } from '../../../services/tactileEngine';

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, CheckCircle2, ShieldCheck, Activity, Send, Play, Sparkles } from 'lucide-react';
+import { X, CheckCircle2, Send } from 'lucide-react';
 import { SquadAthlete } from '../../../types';
 
 interface BiomechanicsAuditModalProps {

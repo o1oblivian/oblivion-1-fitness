@@ -12,17 +12,13 @@ export interface QueuedSyncItem {
 const OFFLINE_QUEUE_KEY = 'o1fc_offline_sync_queue';
 const LISTENERS = new Set<(online: boolean) => void>();
 
-let currentOnlineStatus = typeof navigator !== 'undefined' ? navigator.onLine : true;
-
 if (typeof window !== 'undefined') {
   window.addEventListener('online', () => {
-    currentOnlineStatus = true;
     LISTENERS.forEach((cb) => cb(true));
     flushOfflineQueue();
   });
 
   window.addEventListener('offline', () => {
-    currentOnlineStatus = false;
     LISTENERS.forEach((cb) => cb(false));
   });
 }

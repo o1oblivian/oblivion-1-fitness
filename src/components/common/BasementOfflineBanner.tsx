@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { WifiOff, CheckCircle2, ShieldCheck } from 'lucide-react';
+import { CheckCircle2, ShieldCheck } from 'lucide-react';
 import { useOfflineStatus } from '../../services/offlineSyncService';
 
 export const BasementOfflineBanner: React.FC = () => {

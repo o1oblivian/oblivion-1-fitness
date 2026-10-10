@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { CheckCircle2, BookmarkPlus, X, Flame, Calendar, AlertCircle } from 'lucide-react';
+import { CheckCircle2, BookmarkPlus, X, Flame, Calendar } from 'lucide-react';
 import { tactileEngine } from '../../../../services/tactileEngine';
 import { getSystemTodayCode } from '../../services/dayRoutineService';
 

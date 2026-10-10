@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import {
   X,
   Camera,
-  Image as ImageIcon,
   Trash2,
   Play,
   Radio,
@@ -41,7 +40,6 @@ export interface CoachVaultViewProps {
 
 export const CoachVaultView: React.FC<CoachVaultViewProps> = ({
   embedded = false,
-  onClose,
   initialOpenAdd = false,
 }) => {
   const buddy = useBuddyProfileStore();
@@ -66,7 +64,6 @@ export const CoachVaultView: React.FC<CoachVaultViewProps> = ({
   const [isReelUploadOpen, setIsReelUploadOpen] = useState(initialOpenAdd);
   const [publishedReelIds, setPublishedReelIds] = useState<string[]>([]);
   const [avatarSuccessMsg, setAvatarSuccessMsg] = useState<string | null>(null);
-  const [isCompressing, setIsCompressing] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   // Sync to localStorage
@@ -96,8 +93,6 @@ export const CoachVaultView: React.FC<CoachVaultViewProps> = ({
     if (!file) return;
 
     tactileEngine.triggerImpactPulse();
-    setIsCompressing(true);
-
     const isVid = file.type.startsWith('video');
 
     try {
@@ -144,7 +139,6 @@ export const CoachVaultView: React.FC<CoachVaultViewProps> = ({
       setAvatarSuccessMsg('Asset saved to Vault successfully!');
       setTimeout(() => setAvatarSuccessMsg(null), 2500);
     } finally {
-      setIsCompressing(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
     }
   };
@@ -216,7 +210,7 @@ export const CoachVaultView: React.FC<CoachVaultViewProps> = ({
     setTimeout(() => setAvatarSuccessMsg(null), 2500);
   };
 
-  const handleReelPublished = (reelTitle: string, category: string) => {
+  const handleReelPublished = (reelTitle: string) => {
     tactileEngine.playPRCelebration();
     try {
       const stored = localStorage.getItem(STORAGE_KEY);

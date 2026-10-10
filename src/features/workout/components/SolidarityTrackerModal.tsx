@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Heart, Shield, Activity, Pill, Check, Clock } from 'lucide-react';
+import { Heart, Pill } from 'lucide-react';
 import { SupplementTimingModal } from './SupplementTimingModal';
 import { DrawerSheet } from '../../../components/ui';
 

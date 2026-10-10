@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Dna, Zap, Check, Activity, ShieldAlert, Sparkles, ArrowRight } from 'lucide-react';
+import { X, Dna, Zap, Check, Activity } from 'lucide-react';
 import { tactileEngine } from '../../../services/tactileEngine';
 
 interface BioSyncIntelligenceModalProps {

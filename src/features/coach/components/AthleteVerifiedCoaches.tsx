@@ -1,5 +1,5 @@
 import React from 'react';
-import { Star, ShieldCheck, Dumbbell, ArrowRight } from 'lucide-react';
+import { Star, ShieldCheck, ArrowRight } from 'lucide-react';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { mockCoaches } from '../../../services/devMocks';
 

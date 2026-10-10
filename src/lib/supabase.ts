@@ -2,7 +2,6 @@
  * Production Supabase Client Module
  * Hardwired to Oblivion 1 Production Supabase instance.
  */
-import { createClient } from '@supabase/supabase-js';
 import {
   supabase,
   SUPABASE_URL,

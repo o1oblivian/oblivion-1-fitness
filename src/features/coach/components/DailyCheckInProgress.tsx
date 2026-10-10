@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ClipboardCheck, Sparkles, Send, MessageCircle, AlertCircle, CheckCircle2, ChevronDown, Activity, Dumbbell, Bell } from 'lucide-react';
+import { ClipboardCheck, Sparkles, Send, AlertCircle, ChevronDown, Activity, Bell } from 'lucide-react';
 import { AthleteCheckInSubmission } from '../types/coachPlatformTypes';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { useCoachStore } from '../../../stores/useCoachStore';

@@ -16,8 +16,6 @@ interface Props {
 export const MembershipPlanFeatures: React.FC<Props> = ({
   userType,
   selectedProductId,
-  onOpenTerms,
-  onOpenPrivacy,
   onOpenHealth,
   onOpenDisclaimer,
   onShowToast,

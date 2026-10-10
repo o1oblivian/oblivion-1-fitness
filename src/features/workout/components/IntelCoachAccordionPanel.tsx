@@ -10,7 +10,6 @@ import {
   Check,
   ChevronDown,
   BatteryCharging,
-  Gauge,
   Droplets,
 } from 'lucide-react';
 import { tactileEngine } from '../../../services/tactileEngine';

@@ -28,7 +28,6 @@ export const ExerciseHubDrawer: React.FC<ExerciseHubDrawerProps> = ({
   onSelectDiscipline,
   onAddExercise,
   onAddBatch,
-  onOpenSwapper,
   onShowToast,
 }) => {
   const addExerciseToActiveLog = useWorkoutStore((s) => s.addExerciseToActiveLog);

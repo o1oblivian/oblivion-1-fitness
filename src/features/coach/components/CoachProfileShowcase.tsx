@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Star, ShieldCheck, Users, Award, Dumbbell, MessageSquare, Check, ArrowRight, Share2, Sparkles } from 'lucide-react';
+import { Star, ShieldCheck, Users, Award, Dumbbell, Check, ArrowRight, Share2 } from 'lucide-react';
 import { CoachProfile, CoachMarketplaceProgram, CoachReview } from '../types/coachPlatformTypes';
 import { tactileEngine } from '../../../services/tactileEngine';
 
@@ -19,7 +19,6 @@ export const CoachProfileShowcase: React.FC<CoachProfileShowcaseProps> = ({
   reviews = [],
   onSelectProgram,
   onBookCoaching,
-  onOpenReviews,
   onOpenCoachProfile,
 }) => {
   const [activeTab, setActiveTab] = useState<'programs' | 'about' | 'reviews'>('programs');

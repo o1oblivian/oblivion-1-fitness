@@ -3,7 +3,6 @@ import {
   Pill,
   ChevronDown,
   Check,
-  Plus,
   Search,
   Sparkles,
   Trash2,
@@ -123,7 +122,7 @@ export const SupplementsElectrolytesAccordion: React.FC<SupplementsElectrolytesA
   // Custom add state
   const [customName, setCustomName] = useState('');
   const [customDosage, setCustomDosage] = useState('');
-  const [customTiming, setCustomTiming] = useState<SupplementProtocolItem['timing']>('Morning');
+  const [customTiming] = useState<SupplementProtocolItem['timing']>('Morning');
 
   // Save to localStorage
   useEffect(() => {

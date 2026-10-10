@@ -35,7 +35,6 @@ export const MembershipPlansModal: React.FC<MembershipPlansModalProps> = ({
   onOpenHealth,
   onOpenDisclaimer,
   onShowToast,
-  athleteProfile,
 }) => {
   const [userType, setUserType] = useState<'athletes' | 'coaches'>('athletes');
   const [selectedProductId, setSelectedProductId] = useState<string>(

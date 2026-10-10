@@ -3,8 +3,6 @@ import {
   X,
   Star,
   ShieldCheck,
-  Award,
-  Users,
   Dumbbell,
   Play,
   Check,
@@ -13,9 +11,6 @@ import {
   ChevronLeft,
   ChevronRight,
   Flame,
-  Clock,
-  Sparkles,
-  Lock,
 } from 'lucide-react';
 import { CoachProfile, CoachMarketplaceProgram, CoachReview } from '../types/coachPlatformTypes';
 import { tactileEngine } from '../../../services/tactileEngine';

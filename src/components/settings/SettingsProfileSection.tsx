@@ -1,5 +1,5 @@
 import React, { useRef, useState, useMemo } from 'react';
-import { Camera, Trash2, Check, X, Radio, Lock, Plus, Sparkles, Film, UserCheck, Upload } from 'lucide-react';
+import { Camera, Trash2, Check, X, Plus, Upload } from 'lucide-react';
 import { CrimsonSwitch } from './CrimsonSwitch';
 import { useUserStore } from '../../stores/useUserStore';
 import { useRoleStore } from '../../stores/useRoleStore';

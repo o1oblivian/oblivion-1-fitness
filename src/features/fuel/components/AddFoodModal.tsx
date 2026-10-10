@@ -45,7 +45,6 @@ export const AddFoodModal: React.FC<AddFoodModalProps> = ({
   isOpen,
   onClose,
   onAddFood,
-  onOpenCustomFood,
 }) => {
   const store = useFuelStore();
   const countryMarket = store.countryMarket || 'AU';

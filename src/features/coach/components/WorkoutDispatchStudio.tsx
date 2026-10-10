@@ -32,7 +32,6 @@ import {
   IntensityMode,
   SynthesizedBlueprint,
 } from '../data/dispatchBlueprintSynthesizer';
-import { useWorkoutStore } from '../../workout/store/useWorkoutStore';
 
 export interface WorkoutDispatchStudioProps {
   isOpen?: boolean;
@@ -159,7 +158,7 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
   const [selectedDuration, setSelectedDuration] = useState<SessionDuration>('45m');
   const [selectedGear, setSelectedGear] = useState<FacilityGear>('Full Gym');
   const [selectedIntensity, setSelectedIntensity] = useState<IntensityMode>('Progressive RPE');
-  const [shuffleSeed, setShuffleSeed] = useState(0);
+  const [shuffleSeed] = useState(0);
 
   // Status & Feedback
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -189,8 +188,6 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
   const selectedAthletes = useMemo(() => {
     return athletes.filter((a) => selectedAthleteIds.includes(a.id));
   }, [athletes, selectedAthleteIds]);
-
-  const currentAthlete: Athlete | undefined = selectedAthletes[0] || athletes[0];
 
   const filteredAthletes = useMemo(() => {
     if (!athleteSearchQuery.trim()) return athletes;

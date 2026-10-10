@@ -1,6 +1,6 @@
 import React from 'react';
 import { create } from 'zustand';
-import { MealCategory, MealFoodItem } from '../../../types';
+import { MealCategory } from '../../../types';
 import { ExtendedMealCategory, CategoryCardData } from '../components/MealCategoryCards';
 import { safeStorage } from '../../../utils/sanitizers';
 import { tactileEngine } from '../../../services/tactileEngine';

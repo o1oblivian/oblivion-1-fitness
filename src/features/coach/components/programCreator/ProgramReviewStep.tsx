@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Target, ChevronDown, ChevronUp, AlignLeft, FileText, CheckCircle2 } from 'lucide-react';
+import { Target, ChevronDown, ChevronUp, AlignLeft, FileText } from 'lucide-react';
 import { ProgramFormData } from './types';
 import { tactileEngine } from '../../../../services/tactileEngine';
 
