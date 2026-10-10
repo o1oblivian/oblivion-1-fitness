@@ -2,8 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { CheckCircle2 } from 'lucide-react';
 import { supabase } from '../../services/supabaseClient';
 import { useAuthStore } from '../../stores/useAuthStore';
-import { useModalStore } from '../../components/modals/useModalStore';
-import { Athlete, enrollCoachClient, fetchCoachClients, fetchCoachDirectives, fetchCoachEarnings, fetchCoachMessages, liveDirectives, publishCoachNote, readStoredCheckins, writeStoredCheckins } from './services/coachService';
+import { Athlete, fetchCoachClients, fetchCoachDirectives, fetchCoachEarnings, liveDirectives, publishCoachNote, readStoredCheckins, writeStoredCheckins } from './services/coachService';
 import { DirectiveItem } from './types/coachDirectives';
 import { CoachEarnings, SquadAthlete } from '../../types';
 import { useCoachRealtime } from './hooks/useCoachRealtime';
@@ -14,9 +13,8 @@ import { AthleteCheckInSubmission } from './types/coachPlatformTypes';
 import { tactileEngine } from '../../services/tactileEngine';
 import { HealthDisclaimerBanner } from '../legal';
 import { getAuthenticatedUserId } from '../../services/authUser';
-import { safeStorage } from '../../utils/safeStorage';
 import { getOrCreateInviteCode } from '../log/publicShare';
-import { fetchFinishedForCoach, fetchRemoteCheckins, persistFinishedLocal, publishCoachInvite, readFinishedLocal } from './services/coachBridge';
+import { fetchFinishedForCoach, fetchRemoteCheckins, persistFinishedLocal, publishCoachInvite, readFinishedLocal, saveCheckinReplyRemote } from './services/coachBridge';
 import { useCoachStore } from '../../stores/useCoachStore';
 import { coachPeople } from './services/floorRoster';
 
@@ -45,39 +43,43 @@ export const O1FCoachCommandCenter: React.FC<O1FCoachCommandCenterProps> = ({
   const [assignAthlete, setAssignAthlete] = useState<SquadAthlete | null>(null);
   const [toastMsg, setToastMsg] = useState<string | null>(null);
   const [checkinsList, setCheckinsList] = useState<AthleteCheckInSubmission[]>(() => readStoredCheckins());
-  const [messageCount, setMessageCount] = useState(0);
-
   const floorRoster = useMemo(() => coachPeople(athletes).people, [athletes]);
 
   const showToast = useCallback((msg: string) => { setToastMsg(msg); setTimeout(() => setToastMsg(null), 3500); }, []);
 
+  const replyToCheckin = useCallback((checkinId: string, reply: string) => {
+    setCheckinsList((prev) => {
+      const next = prev.map((row) =>
+        row.id === checkinId
+          ? { ...row, coachFeedback: { ...row.coachFeedback, feedbackText: reply, givenAt: new Date().toISOString(), status: 'reviewed' as const } }
+          : row,
+      );
+      writeStoredCheckins(next);
+      return next;
+    });
+    void saveCheckinReplyRemote(checkinId, reply);
+  }, []);
+
   const loadData = useCallback(async () => {
     const coachId = liveCoachId || (await getAuthenticatedUserId()) || '';
     if (!coachId) {
-      const [localAthletes, localNotes, localMessages] = await Promise.all([
-        fetchCoachClients(''),
-        fetchCoachDirectives(''),
-        fetchCoachMessages(''),
-      ]);
+      const [localAthletes, localNotes] = await Promise.all([fetchCoachClients(''), fetchCoachDirectives('')]);
       setAthletes(localAthletes);
       setDirectives(localNotes);
       setEarnings([]);
-      setMessageCount(localMessages.length);
       return;
     }
     try {
-      const [c, d, e, messages, remoteCheckins, remoteFinished] = await Promise.all([
+      const [c, d, e, remoteCheckins, remoteFinished] = await Promise.all([
         fetchCoachClients(coachId),
         fetchCoachDirectives(coachId),
         fetchCoachEarnings(coachId),
-        fetchCoachMessages(coachId),
         fetchRemoteCheckins(coachId),
         fetchFinishedForCoach(coachId),
       ]);
       setAthletes(c);
       setDirectives(d);
       setEarnings(e);
-      setMessageCount(messages.length);
       if (remoteCheckins.length) {
         setCheckinsList((prev) => {
           const byId = new Map(prev.map((row) => [row.id, row]));
@@ -150,14 +152,13 @@ export const O1FCoachCommandCenter: React.FC<O1FCoachCommandCenterProps> = ({
 
   return (
     <div id="o1fcoach-command-center" className="w-full space-y-3.5 select-none pt-1">
-      {toastMsg && <div className="p-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-500 text-xs font-mono font-bold flex items-center gap-2"><CheckCircle2 className="w-4 h-4 shrink-0" /><span>{toastMsg}</span></div>}
+      {toastMsg && <div className="p-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-500 text-xs font-semibold flex items-center gap-2"><CheckCircle2 className="w-4 h-4 shrink-0" /><span>{toastMsg}</span></div>}
 
       <div className="space-y-4">
         <CoachFloor
           coachId={liveCoachId}
           athletes={athletes}
           checkins={checkinsList}
-          messageCount={messageCount}
           notes={liveDirectives(directives)}
           earnings={earnings}
           onShowToast={showToast}
@@ -178,11 +179,9 @@ export const O1FCoachCommandCenter: React.FC<O1FCoachCommandCenterProps> = ({
           }}
           onOpenPrograms={() => setModals((m) => ({ ...m, programs: true }))}
           onOpenWorkout={() => { setDispatchAthlete(null); setModals((m) => ({ ...m, workout: true })); }}
+          onDispatchAthlete={(athlete) => { setDispatchAthlete(athlete); setModals((m) => ({ ...m, workout: true })); }}
+          onReplyCheckin={replyToCheckin}
           onOpenVault={(addClip) => { tactileEngine.triggerSelectionBuzz(); setModals((m) => ({ ...m, vault: true, vaultAdd: Boolean(addClip) })); }}
-          onOpenMessages={() => undefined}
-          onOpenEarnings={() => undefined}
-          onOpenCheckins={() => undefined}
-          onOpenSettings={() => useModalStore.getState().openSettings()}
           onShareInvite={() => setShareOpen(true)}
           onSelectAthlete={setDossierAthlete}
         />
@@ -204,25 +203,7 @@ export const O1FCoachCommandCenter: React.FC<O1FCoachCommandCenterProps> = ({
         setDispatchAthlete={setDispatchAthlete}
         floorRoster={floorRoster}
       />
-      <AddClientModal
-        isOpen={shareOpen}
-        onClose={() => setShareOpen(false)}
-        onAddClient={(athlete) => {
-          const stored = safeStorage.getItem<Athlete[]>('o1fc_custom_coach_clients', []) || [];
-          safeStorage.setItem('o1fc_custom_coach_clients', [athlete, ...stored.filter((row) => row.id !== athlete.id)]);
-          setAthletes((prev) => [athlete, ...prev.filter((row) => row.id !== athlete.id)]);
-          void (async () => {
-            const coachId = liveCoachId || (await getAuthenticatedUserId()) || '';
-            if (!coachId) return;
-            try {
-              await enrollCoachClient(coachId, { ...athlete, client_id: athlete.id });
-            } catch (err) {
-              console.error('[Roster] enroll failed:', err);
-            }
-          })();
-          showToast('Client added');
-        }}
-      />
+      <AddClientModal isOpen={shareOpen} onClose={() => setShareOpen(false)} />
     </div>
   );
 };

@@ -88,7 +88,7 @@ export const AthleteDossierModal: React.FC<AthleteDossierModalProps> = ({
             <div className="grid grid-cols-2 gap-2.5">
               <div className="rounded-2xl border border-[#1F1F1F] bg-black p-3">
                 <span className="text-[10px] text-[#8A887F]">Sleep</span>
-                <p className="o1-num mt-1 text-[18px] text-[#EAE8DF]">{athlete.sleepHours ?? '--'} h</p>
+                <p className="tabular-nums mt-1 text-[18px] text-[#EAE8DF]">{athlete.sleepHours ?? '--'} h</p>
               </div>
               <div className="rounded-2xl border border-[#1F1F1F] bg-black p-3">
                 <span className="text-[10px] text-[#8A887F]">Soreness</span>
@@ -96,11 +96,11 @@ export const AthleteDossierModal: React.FC<AthleteDossierModalProps> = ({
               </div>
               <div className="rounded-2xl border border-[#1F1F1F] bg-black p-3">
                 <span className="text-[10px] text-[#8A887F]">Fuel</span>
-                <p className="o1-num mt-1 text-[18px] text-[#EAE8DF]">{athlete.fuelPct ?? '--'}%</p>
+                <p className="tabular-nums mt-1 text-[18px] text-[#EAE8DF]">{athlete.fuelPct ?? '--'}%</p>
               </div>
               <div className="rounded-2xl border border-[#1F1F1F] bg-black p-3">
                 <span className="text-[10px] text-[#8A887F]">Sets / PRs</span>
-                <p className="o1-num mt-1 text-[18px] text-[#EAE8DF]">{athlete.sets ?? '--'} / {athlete.prs ?? '--'}</p>
+                <p className="tabular-nums mt-1 text-[18px] text-[#EAE8DF]">{athlete.sets ?? '--'} / {athlete.prs ?? '--'}</p>
               </div>
             </div>
           ) : !athlete.volume && !athlete.sets ? (

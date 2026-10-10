@@ -18,7 +18,7 @@ import {
   setFollowing,
   submitApplication,
 } from '../services/coachStorefront';
-import { coachUrl, shareLink, shareMessage } from '../services/reelLinks';
+import { coachUrl, shareLink } from '../services/reelLinks';
 import { ShareLinkSheet, ShareLinkTarget } from './ShareLinkSheet';
 import { fetchMyPrograms } from '../../coach/services/myPrograms';
 import { CoachProgramsTab } from './profile/CoachProgramsTab';
@@ -119,15 +119,12 @@ export const CoachBookingDrawer: React.FC<CoachBookingDrawerProps> = ({ coach, i
 
   const share = async () => {
     tactileEngine.triggerLightTick();
-    const url = coachUrl(coach.id);
-    const result = await shareLink({
+    const target = {
       title: coach.name,
       text: [coach.name, coach.specialtyTitle].filter(Boolean).join(' \u00b7 '),
-      url,
-    });
-    if (result === 'failed') setLinkSheet({ title: coach.name, url });
-    const message = shareMessage(result);
-    if (message) flash(message);
+      url: coachUrl(coach.id),
+    };
+    if ((await shareLink(target)) === 'options') setLinkSheet(target);
   };
 
   const startEdit = () => {
@@ -173,7 +170,7 @@ export const CoachBookingDrawer: React.FC<CoachBookingDrawerProps> = ({ coach, i
       </div>
 
       {toast && (
-        <div className="absolute left-1/2 top-16 z-10 -translate-x-1/2 rounded-full bg-white px-4 py-2 text-[12px] font-semibold text-neutral-950">
+        <div className="absolute left-1/2 top-[calc(env(safe-area-inset-top)+4rem)] z-10 -translate-x-1/2 rounded-full bg-white px-4 py-2 text-[12px] font-semibold text-neutral-950">
           {toast}
         </div>
       )}
@@ -190,15 +187,15 @@ export const CoachBookingDrawer: React.FC<CoachBookingDrawerProps> = ({ coach, i
             </div>
             <div className="grid flex-1 grid-cols-3 text-center">
               <div>
-                <p className="o1-num text-[17px] font-semibold">{compact(stats.followers)}</p>
+                <p className="tabular-nums text-[17px] font-semibold">{compact(stats.followers)}</p>
                 <p className="text-[11px] text-[#8A887F]">Followers</p>
               </div>
               <div>
-                <p className="o1-num text-[17px] font-semibold">{stats.years != null ? `${stats.years}` : '--'}</p>
+                <p className="tabular-nums text-[17px] font-semibold">{stats.years != null ? `${stats.years}` : '--'}</p>
                 <p className="text-[11px] text-[#8A887F]">Years coaching</p>
               </div>
               <div>
-                <p className="o1-num text-[17px] font-semibold">{stats.rating != null ? `★ ${stats.rating.toFixed(1)}` : '--'}</p>
+                <p className="tabular-nums text-[17px] font-semibold">{stats.rating != null ? `★ ${stats.rating.toFixed(1)}` : '--'}</p>
                 <p className="text-[11px] text-[#8A887F]">{stats.reviewCount > 0 ? `${stats.reviewCount} reviews` : 'Rating'}</p>
               </div>
             </div>

@@ -363,15 +363,15 @@ export const O1FCoachAthletePortal: React.FC<{
           {handle ? <p className="truncate text-[12px] text-neutral-400">{handle}</p> : null}
           <div className="mt-2 grid grid-cols-3">
             <div className="text-center">
-              <span className="o1-num block text-[15px] text-white">{figureCount(films.length)}</span>
+              <span className="tabular-nums block text-[15px] text-white">{figureCount(films.length)}</span>
               <span className="text-[11px] text-neutral-400">Films</span>
             </div>
             <div className="text-center">
-              <span className="o1-num block text-[15px] text-white">{figureCount(clientCount || 0)}</span>
+              <span className="tabular-nums block text-[15px] text-white">{figureCount(clientCount || 0)}</span>
               <span className="text-[11px] text-neutral-400">Clients</span>
             </div>
             <div className="text-center">
-              <span className="o1-num block text-[15px] text-white">{figureCount(programs.length)}</span>
+              <span className="tabular-nums block text-[15px] text-white">{figureCount(programs.length)}</span>
               <span className="text-[11px] text-neutral-400">Programs</span>
             </div>
           </div>

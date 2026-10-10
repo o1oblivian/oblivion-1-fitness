@@ -1,11 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Check, Copy, X } from 'lucide-react';
+import { Check, Copy, Mail, MessageCircle, MessageSquare, Send, X } from 'lucide-react';
 import { copyText } from '../../log/publicShare';
 import { tactileEngine } from '../../../services/tactileEngine';
 
 export interface ShareLinkTarget {
   title: string;
   url: string;
+  text?: string;
 }
 
 interface ShareLinkSheetProps {
@@ -13,22 +14,47 @@ interface ShareLinkSheetProps {
   onClose: () => void;
 }
 
-/** Shown when the device has no share sheet and automatic copy was refused, so the link is never lost. */
+interface ShareChannel {
+  id: string;
+  label: string;
+  icon: React.ReactNode;
+  href: (url: string, text: string, title: string) => string;
+}
+
+const enc = encodeURIComponent;
+
+const CHANNELS: ShareChannel[] = [
+  { id: 'whatsapp', label: 'WhatsApp', icon: <MessageCircle size={20} />, href: (url, text) => `https://wa.me/?text=${enc(`${text} ${url}`)}` },
+  { id: 'sms', label: 'Messages', icon: <MessageSquare size={20} />, href: (url, text) => `sms:?&body=${enc(`${text} ${url}`)}` },
+  { id: 'email', label: 'Email', icon: <Mail size={20} />, href: (url, text, title) => `mailto:?subject=${enc(title)}&body=${enc(`${text}\n${url}`)}` },
+  { id: 'telegram', label: 'Telegram', icon: <Send size={20} />, href: (url, text) => `https://t.me/share/url?url=${enc(url)}&text=${enc(text)}` },
+  { id: 'x', label: 'X', icon: <span className="text-[17px] font-bold leading-none">𝕏</span>, href: (url, text) => `https://twitter.com/intent/tweet?text=${enc(text)}&url=${enc(url)}` },
+  { id: 'facebook', label: 'Facebook', icon: <span className="text-[18px] font-bold leading-none">f</span>, href: (url) => `https://www.facebook.com/sharer/sharer.php?u=${enc(url)}` },
+];
+
+function openChannel(href: string) {
+  if (href.startsWith('sms:') || href.startsWith('mailto:')) {
+    window.location.href = href;
+    return;
+  }
+  window.open(href, '_blank', 'noopener,noreferrer');
+}
+
+/** Share options for devices without a system share sheet (e.g. web over plain HTTP). */
 export const ShareLinkSheet: React.FC<ShareLinkSheetProps> = ({ link, onClose }) => {
   const fieldRef = useRef<HTMLInputElement>(null);
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     setCopied(false);
-    if (link) requestAnimationFrame(() => fieldRef.current?.select());
   }, [link]);
 
   if (!link) return null;
+  const text = link.text || link.title;
 
   const copy = async () => {
     tactileEngine.triggerLightTick();
-    const ok = await copyText(link.url);
-    if (ok) {
+    if (await copyText(link.url)) {
       setCopied(true);
       return;
     }
@@ -50,23 +76,39 @@ export const ShareLinkSheet: React.FC<ShareLinkSheetProps> = ({ link, onClose })
             <X size={20} />
           </button>
         </div>
+
+        <div className="mt-2 grid grid-cols-4 gap-2">
+          {CHANNELS.map((channel) => (
+            <button
+              key={channel.id}
+              type="button"
+              onClick={() => {
+                tactileEngine.triggerSelectionBuzz();
+                openChannel(channel.href(link.url, text, link.title));
+                onClose();
+              }}
+              className="flex flex-col items-center gap-1.5 rounded-xl py-2 active:scale-[0.97]"
+            >
+              <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[#1A1A1A] text-[#EAE8DF]">{channel.icon}</span>
+              <span className="text-[11px] text-[#8A887F]">{channel.label}</span>
+            </button>
+          ))}
+          <button type="button" onClick={() => void copy()} className="flex flex-col items-center gap-1.5 rounded-xl py-2 active:scale-[0.97]">
+            <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[#1A1A1A] text-[#EAE8DF]">
+              {copied ? <Check size={20} /> : <Copy size={20} />}
+            </span>
+            <span className="text-[11px] text-[#8A887F]">{copied ? 'Copied' : 'Copy link'}</span>
+          </button>
+        </div>
+
         <input
           ref={fieldRef}
           readOnly
           value={link.url}
           onFocus={(e) => e.currentTarget.select()}
-          className="mt-1 h-[44px] w-full rounded-xl border border-[#1F1F1F] bg-black px-3 text-[13px] outline-none focus:border-[#C4121A]"
+          className="mt-3 h-[44px] w-full rounded-xl border border-[#1F1F1F] bg-black px-3 text-[12px] text-[#8A887F] outline-none focus:border-[#C4121A]"
           aria-label="Link"
         />
-        <button
-          type="button"
-          onClick={() => void copy()}
-          className="mt-3 flex h-[44px] w-full items-center justify-center gap-2 rounded-xl bg-white text-[13px] font-semibold text-neutral-950 active:scale-[0.98]"
-        >
-          {copied ? <Check size={16} /> : <Copy size={16} />}
-          {copied ? 'Copied' : 'Copy link'}
-        </button>
-        {!copied ? <p className="mt-2 text-center text-[11px] text-[#8A887F]">If copy is blocked, press and hold the link to copy it.</p> : null}
       </div>
     </div>
   );

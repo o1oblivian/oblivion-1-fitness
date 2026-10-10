@@ -46,7 +46,7 @@ export const ReelActionRail: React.FC<ReelActionRailProps> = ({
 
   return (
     <div
-      className="absolute right-2 bottom-20 sm:bottom-24 z-30 flex flex-col items-center gap-1.5 select-none pointer-events-auto"
+      className="absolute right-2 bottom-[calc(env(safe-area-inset-bottom)+5rem)] sm:bottom-[calc(env(safe-area-inset-bottom)+6rem)] z-30 flex flex-col items-center gap-1.5 select-none pointer-events-auto"
       onClick={(e) => e.stopPropagation()}
     >
       <button

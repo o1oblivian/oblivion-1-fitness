@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Inbox, LayoutGrid, Plus, Radio, Users, Wallet } from 'lucide-react';
+import { Dumbbell, Inbox, LayoutGrid, MessageSquare, Plus, Radio, User, Users, Wallet } from 'lucide-react';
 import { useAuthStore } from '../../../stores/useAuthStore';
 import { useCoachStore } from '../../../stores/useCoachStore';
 import { useModalStore } from '../../../components/modals/useModalStore';
@@ -11,17 +11,14 @@ import { AthleteCheckInSubmission } from '../types/coachPlatformTypes';
 import { DirectiveItem } from '../types/coachDirectives';
 import { uploadedFilms } from '../services/coachFilms';
 import { coachPeople } from '../services/floorRoster';
+import { sendCoachMessage } from '../services/coachBridge';
 import { reelCover, nextReelCover } from '../../reels/coverPresets';
 import { DirectiveSignalsSection } from './DirectiveSignalsSection';
 import { CoachInboxView } from './CoachInboxView';
 import { CoachEarningsView } from './CoachEarningsView';
+import { FloorAthleteCard, type FloorCardAction } from './floor/FloorAthleteCard';
+import { CoachFeedbackSheet } from './floor/CoachFeedbackSheet';
 import { CoachEarnings } from '../../../types';
-
-const CUES = [
-  { title: 'Deload Next Session', summary: 'Next session is a deload. Same lifts, less load.' },
-  { title: 'Add 5kg', summary: 'Add 5 kg on the next working sets.' },
-  { title: 'Form Approved', summary: 'Form on the last session is approved.' },
-];
 
 type CreatorTab = 'films' | 'floor' | 'directives' | 'inbox' | 'earnings';
 
@@ -29,20 +26,39 @@ export interface CoachFloorProps {
   coachId: string;
   athletes: Athlete[];
   checkins: AthleteCheckInSubmission[];
-  messageCount: number;
   notes: DirectiveItem[];
   earnings?: CoachEarnings;
   onSendNote: (draft: { tag: DirectiveItem['tag']; title: string; summary: string }) => void;
+  onReplyCheckin: (checkinId: string, reply: string) => void;
   onOpenPrograms: () => void;
   onOpenWorkout: () => void;
+  onDispatchAthlete: (athlete: Athlete) => void;
   onOpenVault: (addClip?: boolean) => void;
-  onOpenMessages: () => void;
-  onOpenEarnings: () => void;
-  onOpenCheckins: () => void;
-  onOpenSettings: () => void;
   onShareInvite: () => void;
   onSelectAthlete: (athlete: Athlete) => void;
   onShowToast?: (msg: string) => void;
+}
+
+interface FeedbackTarget {
+  key: string;
+  name: string;
+  avatar?: string;
+  athlete?: Athlete;
+  workoutId?: string;
+  checkinId?: string;
+}
+
+function ago(iso: string | undefined): string {
+  const at = iso ? Date.parse(iso) : NaN;
+  if (!Number.isFinite(at)) return '';
+  const mins = Math.max(0, Math.round((Date.now() - at) / 60000));
+  if (mins < 60) return `${mins}m ago`;
+  const hours = Math.round(mins / 60);
+  return hours < 24 ? `${hours}h ago` : `${Math.round(hours / 24)}d ago`;
+}
+
+function stat(value: number | null | undefined, unit = ''): string {
+  return value == null || !Number.isFinite(value) || value <= 0 ? '--' : `${Math.round(value).toLocaleString()}${unit}`;
 }
 
 function kg(value: number | null | undefined): string {
@@ -94,19 +110,6 @@ function readReviews(): Record<string, string> {
   }
 }
 
-function reviewTone(title: string): string {
-  if (title === 'Form Approved') return 'bg-[#16301f] text-[#b7e0c2]';
-  if (title === 'Deload Next Session') return 'bg-[#3a2a10] text-[#f0d7a2]';
-  return 'bg-[#1c1c1c] text-[#EAE8DF]';
-}
-
-function reviewLabel(title: string): string {
-  if (title === 'Form Approved') return '✓ Form Approved';
-  if (title === 'Deload Next Session') return '⚡ Deload Assigned';
-  if (title === 'Add 5kg') return '✓ Add 5kg';
-  return title;
-}
-
 function profilePhoto(): string {
   try {
     return localStorage.getItem('o1_profile_avatar_url') || '';
@@ -122,8 +125,10 @@ export const CoachFloor: React.FC<CoachFloorProps> = ({
   notes,
   earnings = [],
   onSendNote,
+  onReplyCheckin,
   onOpenPrograms,
   onOpenWorkout,
+  onDispatchAthlete,
   onOpenVault,
   onShareInvite,
   onSelectAthlete,
@@ -132,11 +137,12 @@ export const CoachFloor: React.FC<CoachFloorProps> = ({
   const openFullEliteReels = useModalStore((s) => s.openFullEliteReels);
   const catalog = useReelsStore((s) => s.reels);
   const finishedWorkouts = useCoachStore((s) => s.finishedWorkouts);
+  const submitCoachFeedback = useCoachStore((s) => s.submitCoachFeedback);
   const bio = useBuddyProfileStore((s) => s.partnerBio);
   const profile = useAuthStore((s) => s.profile);
   const user = useAuthStore((s) => s.user);
   const [tab, setTab] = useState<CreatorTab>('films');
-  const [replyFor, setReplyFor] = useState<string | null>(null);
+  const [feedbackFor, setFeedbackFor] = useState<FeedbackTarget | null>(null);
   const [photo, setPhoto] = useState(profilePhoto);
   const [reviews, setReviews] = useState<Record<string, string>>(readReviews);
 
@@ -177,25 +183,56 @@ export const CoachFloor: React.FC<CoachFloorProps> = ({
     else openFullEliteReels('grid');
   };
 
-  const sendCue = (cueItem: (typeof CUES)[number]) => {
-    tactileEngine.triggerImpactPulse();
-    const key = replyFor || '';
-    const next = { ...reviews, ...(key ? { [key]: cueItem.title } : {}) };
+  const findAthlete = (id: string, athleteName: string) =>
+    people.find((athlete) => athlete.id === id || athlete.client_id === id) || people.find((athlete) => athlete.name === athleteName);
+
+  const deliverFeedback = (message: string) => {
+    const target = feedbackFor;
+    if (!target) return;
+    const next = { ...reviews, [target.key]: message };
     setReviews(next);
     try {
       localStorage.setItem(REVIEW_KEY, JSON.stringify(next));
     } catch {
       /* private mode */
     }
-    onSendNote({ tag: 'TRAINING', title: cueItem.title, summary: replyFor ? `${replyFor}: ${cueItem.summary}` : cueItem.summary });
-    onShowToast?.(`${cueItem.title} saved`);
-    setReplyFor(null);
+    if (target.workoutId) submitCoachFeedback(target.workoutId, message);
+    if (target.checkinId) onReplyCheckin(target.checkinId, message);
+    const athleteId = target.athlete?.client_id || target.athlete?.id || '';
+    void sendCoachMessage({ coachId, athleteId, senderName: name, message }).then((sent) => {
+      onShowToast?.(sent ? `Sent to ${target.name}` : `Saved for ${target.name} on this phone`);
+    });
+    setFeedbackFor(null);
+  };
+
+  const feedbackAthlete = feedbackFor?.athlete;
+
+  const athleteActions = (target: FeedbackTarget, feedbackLabel = 'Note'): FloorCardAction[] => {
+    const actions: FloorCardAction[] = [
+      {
+        label: feedbackLabel,
+        icon: MessageSquare,
+        primary: true,
+        onClick: () => {
+          tactileEngine.triggerSelectionBuzz();
+          setFeedbackFor(target);
+        },
+      },
+    ];
+    const { athlete } = target;
+    if (athlete) {
+      actions.push(
+        { label: 'Workout', icon: Dumbbell, onClick: () => { tactileEngine.triggerSelectionBuzz(); onDispatchAthlete(athlete); } },
+        { label: 'Profile', icon: User, onClick: () => { tactileEngine.triggerSelectionBuzz(); onSelectAthlete(athlete); } },
+      );
+    }
+    return actions;
   };
 
   const tabs: { id: CreatorTab; label: string; icon: typeof LayoutGrid }[] = [
     { id: 'films', label: 'Films', icon: LayoutGrid },
-    { id: 'floor', label: 'Floor', icon: Users },
-    { id: 'directives', label: 'Directives', icon: Radio },
+    { id: 'floor', label: 'Clients', icon: Users },
+    { id: 'directives', label: 'Notes', icon: Radio },
     { id: 'inbox', label: 'Inbox', icon: Inbox },
     { id: 'earnings', label: 'Earnings', icon: Wallet },
   ];
@@ -239,15 +276,15 @@ export const CoachFloor: React.FC<CoachFloorProps> = ({
           {bio ? <p className="mt-1 line-clamp-2 text-[12px] leading-snug text-[#EAE8DF]">{bio}</p> : null}
           <div className="mt-2 grid grid-cols-3 gap-1">
             <button type="button" onClick={() => openReel()} className="min-h-[44px] text-center active:scale-[0.98]">
-              <span className="o1-num block text-[15px] text-[#EAE8DF]">{films.length}</span>
+              <span className="tabular-nums block text-[15px] text-[#EAE8DF]">{films.length}</span>
               <span className="text-[11px] text-[#8A887F]">Reels</span>
             </button>
             <div className="min-h-[44px] text-center">
-              <span className="o1-num block text-[15px] text-[#EAE8DF]">{people.length}</span>
+              <span className="tabular-nums block text-[15px] text-[#EAE8DF]">{people.length}</span>
               <span className="text-[11px] text-[#8A887F]">Clients</span>
             </div>
             <button type="button" onClick={() => { tactileEngine.triggerSelectionBuzz(); onShareInvite(); }} className="min-h-[44px] text-center active:scale-[0.98]">
-              <span className="o1-num block text-[15px] text-[#EAE8DF]">{invites}</span>
+              <span className="tabular-nums block text-[15px] text-[#EAE8DF]">{invites}</span>
               <span className="text-[11px] text-[#8A887F]">Invite</span>
             </button>
           </div>
@@ -313,61 +350,95 @@ export const CoachFloor: React.FC<CoachFloorProps> = ({
       )}
 
       {tab === 'floor' && (
-        <div className="space-y-3">
-          <section className="space-y-2 rounded-2xl border border-[#1F1F1F] bg-[#0E0E0E] p-4">
-            <h3 className="text-[13px] font-semibold text-[#EAE8DF]">Who trained</h3>
+        <div className="space-y-4">
+          <section className="space-y-2">
+            <h3 className="px-1 text-[13px] font-semibold text-[#EAE8DF]">Who trained</h3>
             {sample ? (
               people.slice(0, 1).map((athlete) => (
-                <button key={athlete.id} type="button" onClick={() => onSelectAthlete(athlete)} className="w-full text-left active:scale-[0.98]">
-                  <p className="text-[15px] font-semibold text-[#EAE8DF]">{athlete.name}</p>
-                  {reviews[athlete.name] ? <span className={`mt-1 inline-flex rounded-full px-2 py-0.5 text-[11px] font-semibold ${reviewTone(reviews[athlete.name])}`}>{reviewLabel(reviews[athlete.name])}</span> : null}
-                  <p className="text-[12px] text-[#8A887F]">Lower strength</p>
-                  <p className="o1-num mt-1 text-[13px] text-[#EAE8DF]">{kg(athlete.volume)} · {athlete.sets ?? '--'} sets · {athlete.prs ?? 0} PRs</p>
-                </button>
+                <FloorAthleteCard
+                  key={athlete.id}
+                  name={athlete.name}
+                  avatar={athlete.avatar}
+                  subtitle={athlete.handle}
+                  meta={athlete.lastActive}
+                  stats={[
+                    { label: 'Volume', value: kg(athlete.volume) },
+                    { label: 'Sets', value: stat(athlete.sets) },
+                    { label: 'PRs', value: athlete.prs == null ? '--' : String(athlete.prs) },
+                  ]}
+                  lastFeedback={reviews[athlete.id]}
+                  onOpenProfile={() => onSelectAthlete(athlete)}
+                  actions={athleteActions({ key: athlete.id, name: athlete.name, avatar: athlete.avatar, athlete })}
+                />
               ))
             ) : trained.length === 0 ? (
-              <p className="text-[13px] text-[#8A887F]">No sessions finished</p>
+              <p className="rounded-2xl border border-[#1F1F1F] bg-[#0E0E0E] px-4 py-6 text-center text-[13px] text-[#8A887F]">No sessions finished yet.</p>
             ) : (
-              trained.slice(0, 6).map((log) => (
-                <button
-                  key={log.id}
-                  type="button"
-                  onClick={() => {
-                    const known = people.find((athlete) => athlete.id === log.athleteId) || people.find((athlete) => athlete.name === log.athleteName);
-                    if (known) onSelectAthlete(known);
-                  }}
-                  className="flex min-h-[44px] w-full items-center gap-2 text-left active:scale-[0.98]"
-                >
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate text-[14px] font-semibold text-[#EAE8DF]">{log.athleteName}</span>
-                    <span className="block truncate text-[12px] text-[#8A887F]">{log.title}</span>
-                  </span>
-                  <span className="o1-num text-[12px] text-[#EAE8DF]">{kg(log.tonnageKg)}</span>
-                </button>
-              ))
+              trained.slice(0, 6).map((log) => {
+                const athlete = findAthlete(log.athleteId, log.athleteName);
+                const avatar = log.athleteAvatar || athlete?.avatar;
+                return (
+                  <FloorAthleteCard
+                    key={log.id}
+                    name={log.athleteName}
+                    avatar={avatar}
+                    subtitle={log.title}
+                    meta={ago(log.completedAt)}
+                    stats={[
+                      { label: 'Volume', value: kg(log.tonnageKg) },
+                      { label: 'Sets', value: stat(log.totalSets) },
+                      { label: 'Minutes', value: stat(log.durationMinutes) },
+                    ]}
+                    lastFeedback={log.feedback || reviews[log.id]}
+                    onOpenProfile={athlete ? () => onSelectAthlete(athlete) : undefined}
+                    actions={athleteActions({ key: log.id, name: log.athleteName, avatar, athlete, workoutId: log.id })}
+                  />
+                );
+              })
             )}
           </section>
 
-          <section className="space-y-2 rounded-2xl border border-[#1F1F1F] bg-[#0E0E0E] p-4">
-            <h3 className="text-[13px] font-semibold text-[#EAE8DF]">Check-in</h3>
+          <section className="space-y-2">
+            <h3 className="px-1 text-[13px] font-semibold text-[#EAE8DF]">Check-ins waiting</h3>
             {sample && people[1] ? (
-              <>
-                <p className="text-[15px] font-semibold text-[#EAE8DF]">{people[1].name}</p>
-                {reviews[people[1].name] ? <span className={`inline-flex rounded-full px-2 py-0.5 text-[11px] font-semibold ${reviewTone(reviews[people[1].name])}`}>{reviewLabel(reviews[people[1].name])}</span> : null}
-                <p className="o1-num text-[13px] text-[#EAE8DF]">Sleep {people[1].sleepHours ?? '--'} h · {people[1].soreness || '--'} · Fuel {people[1].fuelPct ?? '--'}%</p>
-                <button type="button" onClick={() => setReplyFor(people[1].name)} className="h-[44px] w-full rounded-full bg-[#C4121A] text-[13px] font-semibold text-white active:scale-[0.98]">Reply</button>
-              </>
-            ) : pending[0] ? (
-              <>
-                <p className="text-[15px] font-semibold text-[#EAE8DF]">{pending[0].athleteName}</p>
-                <p className="text-[13px] text-[#8A887F]">{pending[0].notes || 'Check-in'}</p>
-                <button type="button" onClick={() => setReplyFor(pending[0].athleteName)} className="h-[44px] w-full rounded-full bg-[#C4121A] text-[13px] font-semibold text-white active:scale-[0.98]">Reply</button>
-              </>
+              <FloorAthleteCard
+                name={people[1].name}
+                avatar={people[1].avatar}
+                subtitle={people[1].handle}
+                stats={[
+                  { label: 'Sleep', value: stat(people[1].sleepHours, ' h') },
+                  { label: 'Soreness', value: people[1].soreness || '--' },
+                  { label: 'Food', value: stat(people[1].fuelPct, '%') },
+                ]}
+                lastFeedback={reviews[people[1].id]}
+                onOpenProfile={() => onSelectAthlete(people[1])}
+                actions={athleteActions({ key: people[1].id, name: people[1].name, avatar: people[1].avatar, athlete: people[1] })}
+              />
+            ) : pending.length === 0 ? (
+              <p className="rounded-2xl border border-[#1F1F1F] bg-[#0E0E0E] px-4 py-6 text-center text-[13px] text-[#8A887F]">No check-ins waiting.</p>
             ) : (
-              <p className="text-[13px] text-[#8A887F]">No check-in waiting.</p>
+              pending.slice(0, 6).map((row) => {
+                const athlete = findAthlete(row.athleteId, row.athleteName);
+                return (
+                  <FloorAthleteCard
+                    key={row.id}
+                    name={row.athleteName}
+                    avatar={athlete?.avatar}
+                    subtitle={row.notes || undefined}
+                    meta={ago(row.date) || row.date}
+                    stats={[
+                      { label: 'Sleep', value: stat(row.sleepHours, ' h') },
+                      { label: 'Soreness', value: stat(row.sorenessRating, '/10') },
+                      { label: 'Food', value: stat(row.nutritionAdherence, '%') },
+                    ]}
+                    lastFeedback={reviews[row.id]}
+                    onOpenProfile={athlete ? () => onSelectAthlete(athlete) : undefined}
+                    actions={athleteActions({ key: row.id, name: row.athleteName, avatar: athlete?.avatar, athlete, checkinId: row.id }, 'Reply')}
+                  />
+                );
+              })
             )}
           </section>
-
         </div>
       )}
 
@@ -377,20 +448,13 @@ export const CoachFloor: React.FC<CoachFloorProps> = ({
         <CoachEarningsView transactions={earnings} activeClientsCount={people.length} coachId={coachId} onShowToast={onShowToast ?? (() => undefined)} />
       )}
 
-      {replyFor && (
-        <div className="fixed inset-0 z-50 flex items-end bg-black/80 backdrop-blur-sm" onClick={() => setReplyFor(null)}>
-          <div className="w-full rounded-t-3xl border border-[#1F1F1F] bg-[#0E0E0E] p-4 pb-8" onClick={(event) => event.stopPropagation()}>
-            <p className="text-[15px] font-semibold text-[#EAE8DF]">Feedback for {replyFor}</p>
-            <div className="mt-3 space-y-2">
-              {CUES.map((cue) => (
-                <button key={cue.title} type="button" onClick={() => sendCue(cue)} className="h-[44px] w-full rounded-xl border border-[#1F1F1F] bg-black text-[13px] font-semibold text-[#EAE8DF] active:scale-[0.98]">
-                  {cue.title}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
+      <CoachFeedbackSheet
+        target={feedbackFor}
+        onClose={() => setFeedbackFor(null)}
+        onSend={deliverFeedback}
+        onSendWorkout={feedbackAthlete ? () => { setFeedbackFor(null); onDispatchAthlete(feedbackAthlete); } : undefined}
+        onViewProfile={feedbackAthlete ? () => { setFeedbackFor(null); onSelectAthlete(feedbackAthlete); } : undefined}
+      />
     </div>
   );
 };

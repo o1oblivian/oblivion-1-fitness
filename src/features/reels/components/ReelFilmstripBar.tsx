@@ -57,7 +57,7 @@ export const ReelFilmstripBar: React.FC<ReelFilmstripBarProps> = ({
 
   return (
     <div
-      className="absolute inset-x-0 bottom-0 z-20 flex max-w-xl flex-col gap-0.5 px-3 pb-4 pt-2 pr-16 pointer-events-auto select-none"
+      className="absolute inset-x-0 bottom-0 z-20 flex max-w-xl flex-col gap-0.5 px-3 pb-[calc(env(safe-area-inset-bottom)+1rem)] pt-2 pr-16 pointer-events-auto select-none"
       onClick={(e) => e.stopPropagation()}
     >
       <div className="flex items-center gap-2">

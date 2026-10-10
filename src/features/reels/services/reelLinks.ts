@@ -1,4 +1,6 @@
-import { PUBLIC_SITE, copyText } from '../../log/publicShare';
+import { Capacitor } from '@capacitor/core';
+import { Share } from '@capacitor/share';
+import { PUBLIC_SITE } from '../../log/publicShare';
 
 const PENDING_KEY = 'o1_pending_reel_link';
 export const REEL_LINK_EVENT = 'o1-reel-link';
@@ -8,7 +10,8 @@ export interface ReelLink {
   coachId?: string;
 }
 
-export type ShareResult = 'shared' | 'copied' | 'cancelled' | 'failed';
+/** `options` means no system share sheet exists here; the caller shows the in-app share options sheet. */
+export type ShareResult = 'shared' | 'cancelled' | 'options';
 
 export function reelUrl(reelId: string): string {
   return `${PUBLIC_SITE}/?reel=${encodeURIComponent(reelId)}`;
@@ -18,20 +21,29 @@ export function coachUrl(coachId: string): string {
   return `${PUBLIC_SITE}/?coach=${encodeURIComponent(coachId)}`;
 }
 
+function isCancel(error: unknown): boolean {
+  const { name, message } = (error ?? {}) as { name?: string; message?: string };
+  return name === 'AbortError' || /cancel/i.test(message ?? '');
+}
+
 export async function shareLink(data: { title: string; text: string; url: string }): Promise<ShareResult> {
+  if (Capacitor.isNativePlatform() && Capacitor.isPluginAvailable('Share')) {
+    try {
+      await Share.share({ title: data.title, text: data.text, url: data.url, dialogTitle: `Share ${data.title}` });
+      return 'shared';
+    } catch (error) {
+      if (isCancel(error)) return 'cancelled';
+    }
+  }
   if (typeof navigator.share === 'function') {
     try {
       await navigator.share(data);
       return 'shared';
     } catch (error) {
-      if ((error as { name?: string })?.name === 'AbortError') return 'cancelled';
+      if (isCancel(error)) return 'cancelled';
     }
   }
-  return (await copyText(data.url)) ? 'copied' : 'failed';
-}
-
-export function shareMessage(result: ShareResult): string | null {
-  return result === 'copied' ? 'Link copied' : null;
+  return 'options';
 }
 
 function parse(raw: string): ReelLink | null {

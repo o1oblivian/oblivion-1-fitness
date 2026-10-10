@@ -1,17 +1,18 @@
 import React, { useState } from 'react';
-import { Check, Copy, X } from 'lucide-react';
-import { Athlete } from '../services/coachService';
+import { Check, Copy, Share2, X } from 'lucide-react';
 import { tactileEngine } from '../../../services/tactileEngine';
-import { getOrCreateInviteCode } from '../../log/publicShare';
+import { copyText, getOrCreateInviteCode } from '../../log/publicShare';
+import { shareLink } from '../../reels/services/reelLinks';
+import { ShareLinkSheet, ShareLinkTarget } from '../../reels/components/ShareLinkSheet';
 
 interface AddClientModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onAddClient: (client: Athlete) => void;
 }
 
 export const AddClientModal: React.FC<AddClientModalProps> = ({ isOpen, onClose }) => {
   const [copied, setCopied] = useState(false);
+  const [sheet, setSheet] = useState<ShareLinkTarget | null>(null);
   const code = getOrCreateInviteCode(
     (typeof window !== 'undefined' ? localStorage.getItem('o1fc_user_email') : '') || 'coach',
   );
@@ -19,44 +20,64 @@ export const AddClientModal: React.FC<AddClientModalProps> = ({ isOpen, onClose 
 
   if (!isOpen) return null;
 
-  return (
-    <div
-      className="fixed inset-0 z-50 flex items-end bg-black/80 backdrop-blur-sm"
-      onClick={onClose}
-    >
-      <div
-        className="o1-sheet-card w-full bg-o1-card border border-white/[0.07] p-5 shadow-xl space-y-4 overflow-y-auto"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="flex items-start justify-between gap-3 border-b border-white/[0.05] pb-3">
-          <div>
-            <h3 className="text-sm font-semibold text-white">Share invite</h3>
-            <p className="text-[11px] text-[#8A887F]">Copy the invite and send it.</p>
-          </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="w-7 h-7 rounded-full bg-white/[0.08] flex items-center justify-center text-neutral-500 hover:text-white cursor-pointer"
-          >
-            <X className="w-4 h-4" />
-          </button>
-        </div>
+  const copy = async () => {
+    tactileEngine.triggerSelectionBuzz();
+    if (!(await copyText(invite))) return;
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
-        <button
-          type="button"
-          onClick={() => {
-            tactileEngine.triggerSelectionBuzz();
-            if (navigator?.clipboard) void navigator.clipboard.writeText(invite);
-            setCopied(true);
-            setTimeout(() => setCopied(false), 2000);
-          }}
-          className="flex min-h-[44px] w-full items-center justify-between gap-2 rounded-xl border border-white/[0.07] bg-[#161616] px-3 text-left"
+  const share = async () => {
+    tactileEngine.triggerSelectionBuzz();
+    const target = { title: 'Train with me on Oblivion 1', text: 'Join my coaching roster on Oblivion 1 Fitness Club', url: invite };
+    if ((await shareLink(target)) === 'options') setSheet(target);
+  };
+
+  return (
+    <>
+      <div className="fixed inset-0 z-50 flex items-end bg-black/80 backdrop-blur-sm" onClick={onClose}>
+        <div
+          className="o1-sheet-card w-full bg-o1-card border border-white/[0.07] p-5 shadow-xl space-y-4 overflow-y-auto"
+          onClick={(e) => e.stopPropagation()}
         >
-          <span className="truncate text-[12px] text-white">{invite}</span>
-          <span className="text-[12px] font-semibold text-white">{copied ? 'Copied' : 'Copy Link'}</span>
-          {copied ? <Check className="h-4 w-4 shrink-0 text-white" /> : <Copy className="h-4 w-4 shrink-0 text-neutral-300" />}
-        </button>
+          <div className="flex items-start justify-between gap-3 border-b border-white/[0.05] pb-3">
+            <div>
+              <h3 className="text-sm font-semibold text-white">Invite a client</h3>
+              <p className="text-[11px] text-[#8A887F]">Send this link. They join your roster when they sign up.</p>
+            </div>
+            <button
+              type="button"
+              onClick={onClose}
+              aria-label="Close"
+              className="w-7 h-7 rounded-full bg-white/[0.08] flex items-center justify-center text-neutral-500 hover:text-white cursor-pointer"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+
+          <p className="truncate rounded-xl border border-white/[0.07] bg-[#161616] px-3 py-3 text-[12px] text-neutral-300">{invite}</p>
+
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              onClick={() => void copy()}
+              className="flex min-h-[44px] items-center justify-center gap-2 rounded-xl border border-white/[0.07] bg-[#161616] text-[13px] font-semibold text-white active:scale-[0.98]"
+            >
+              {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+              {copied ? 'Copied' : 'Copy link'}
+            </button>
+            <button
+              type="button"
+              onClick={() => void share()}
+              className="flex min-h-[44px] items-center justify-center gap-2 rounded-xl bg-[#C4121A] text-[13px] font-semibold text-white active:scale-[0.98]"
+            >
+              <Share2 className="h-4 w-4" />
+              Share
+            </button>
+          </div>
+        </div>
       </div>
-    </div>
+      <ShareLinkSheet link={sheet} onClose={() => setSheet(null)} />
+    </>
   );
 };

@@ -81,7 +81,7 @@ export const CoachConsultTab: React.FC<CoachConsultTabProps> = ({
       <section className="space-y-1 rounded-2xl border border-[#1F1F1F] bg-[#0E0E0E] p-4">
         <div className="flex items-baseline justify-between gap-2">
           <h3 className="text-[15px] font-semibold text-[#EAE8DF]">1:1 coaching</h3>
-          {monthly ? <span className="o1-num text-[14px] font-semibold text-[#EAE8DF]">{monthly}/mo</span> : null}
+          {monthly ? <span className="tabular-nums text-[14px] font-semibold text-[#EAE8DF]">{monthly}/mo</span> : null}
         </div>
         <p className="text-[12px] text-[#8A887F]">
           Programming, form reviews, and check-ins from {firstName}.

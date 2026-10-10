@@ -190,7 +190,7 @@ export default function App() {
       <SubscriptionProvider>
         <MainAppLayout />
         <ClubPassPaywallModal />
-        {!showOnboarding && !consultationLocked && <InductionProtocol onEnter={() => undefined} />}
+        {!showOnboarding && !consultationLocked && <InductionProtocol />}
         {showOnboarding && (
           <OnboardingCoordinator
             replay={onboardingReplay}

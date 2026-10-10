@@ -4,7 +4,7 @@ import { useConsultationStore } from './useConsultationStore';
 import { MembershipTier } from './consultationTypes';
 import { INTAKE_GROUPS, INTAKE_TITLES, optionsIn, useClubTaxonomy } from './useClubTaxonomyStore';
 
-export function InductionProtocol({ onEnter }: { onEnter: () => void }) {
+export function InductionProtocol() {
   const options = useClubTaxonomy();
   const profile = useConsultationStore((state) => state);
   const patch = useConsultationStore((state) => state.patch);
@@ -38,7 +38,6 @@ export function InductionProtocol({ onEnter }: { onEnter: () => void }) {
     setTierOpen(false);
     await new Promise((resolve) => setTimeout(resolve, 1500));
     await lockIn(tier);
-    onEnter();
   };
 
   const next = () => {

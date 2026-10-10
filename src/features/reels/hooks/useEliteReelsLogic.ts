@@ -10,7 +10,8 @@ import { loadVaultBookmarks, saveVaultBookmark } from '../services/vaultBookmark
 import { useConsultationStore } from '../../induction/useConsultationStore';
 import { chipHit, textHitsDiscipline } from '../../induction/consultationTypes';
 import { readAthleteSettingsSnapshot } from '../../../utils/athleteSettingsSnapshot';
-import { reelUrl, shareLink, shareMessage } from '../services/reelLinks';
+import { reelUrl, shareLink } from '../services/reelLinks';
+import type { ShareLinkTarget } from '../components/ShareLinkSheet';
 import { fetchLikeCount, loadMyLikes, setReelLike } from '../services/reelLikes';
 
 export { CATEGORIES, FILTER_TAGS } from './reelsFilterHelper';
@@ -115,7 +116,7 @@ export function useEliteReelsLogic(
   }, [activeReelId]);
 
   const [toast, setToast] = useState<string | null>(null);
-  const [linkSheet, setLinkSheet] = useState<{ title: string; url: string } | null>(null);
+  const [linkSheet, setLinkSheet] = useState<ShareLinkTarget | null>(null);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const flash = (message: string | null) => {
     if (!message) return;
@@ -201,14 +202,12 @@ export function useEliteReelsLogic(
     e?.stopPropagation();
     if (!activeReel) return;
     tactileEngine.triggerLightTick();
-    const url = reelUrl(activeReel.id);
-    const result = await shareLink({
+    const target = {
       title: activeReel.title,
       text: activeReel.coach?.name ? `${activeReel.title} by ${activeReel.coach.name}` : activeReel.title,
-      url,
-    });
-    if (result === 'failed') setLinkSheet({ title: activeReel.title, url });
-    flash(shareMessage(result));
+      url: reelUrl(activeReel.id),
+    };
+    if ((await shareLink(target)) === 'options') setLinkSheet(target);
   };
 
   const handleAddExerciseToWorkout = (reel: ExploreReelItem, clip?: FilmstripClip | null) => {

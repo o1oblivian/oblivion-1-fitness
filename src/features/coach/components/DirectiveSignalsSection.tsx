@@ -16,45 +16,50 @@ export interface DirectiveSignalsSectionProps {
   onSendNote: (draft: NoteDraft) => void;
 }
 
-const SIGNAL_FILTERS = ['RECOVERY', 'TRAINING', 'NUTRITION', 'PERFORMANCE'] as const;
+const TOPICS: { tag: DirectiveItem['tag']; label: string }[] = [
+  { tag: 'TRAINING', label: 'Training' },
+  { tag: 'RECOVERY', label: 'Recovery' },
+  { tag: 'NUTRITION', label: 'Food' },
+  { tag: 'PERFORMANCE', label: 'Progress' },
+];
 
+/** Notes the coach sends to every client on the roster. */
 export const DirectiveSignalsSection: React.FC<DirectiveSignalsSectionProps> = ({
   directives = [],
   onSendNote,
 }) => {
   const [text, setText] = useState('');
-  const [filter, setFilter] = useState<(typeof SIGNAL_FILTERS)[number]>('TRAINING');
-  const visible = directives.filter((dir) => dir.tag === filter);
+  const [topic, setTopic] = useState<DirectiveItem['tag']>('TRAINING');
+  const visible = directives.filter((dir) => dir.tag === topic);
 
   const send = () => {
     const clean = text.trim();
     if (!clean) return;
     tactileEngine.triggerImpactPulse();
-    onSendNote({
-      tag: filter,
-      title: clean.slice(0, 80),
-      summary: clean,
-    });
+    onSendNote({ tag: topic, title: clean.slice(0, 80), summary: clean });
     setText('');
   };
 
   return (
     <div className="space-y-2">
-      <p className="px-1 text-[11px] font-semibold tracking-wide text-[#8A887F]">BROADCAST CHANNEL // DIRECTIVE SIGNALS</p>
+      <div className="px-1">
+        <p className="text-[13px] font-semibold text-[#EAE8DF]">Notes to all clients</p>
+        <p className="text-[12px] text-[#8A887F]">Everyone on your roster sees these.</p>
+      </div>
       <div className="flex gap-1.5 overflow-x-auto px-1">
-        {SIGNAL_FILTERS.map((pill) => (
+        {TOPICS.map((item) => (
           <button
-            key={pill}
+            key={item.tag}
             type="button"
             onClick={() => {
               tactileEngine.triggerSelectionBuzz();
-              setFilter(pill);
+              setTopic(item.tag);
             }}
-            className={`o1-pill shrink-0 text-[11px] font-semibold active:scale-[0.98] ${
-              filter === pill ? 'bg-white text-neutral-950' : 'border border-[#1F1F1F] bg-[#0E0E0E] text-[#EAE8DF]'
+            className={`o1-pill shrink-0 text-[12px] font-semibold active:scale-[0.98] ${
+              topic === item.tag ? 'bg-white text-neutral-950' : 'border border-[#1F1F1F] bg-[#0E0E0E] text-[#EAE8DF]'
             }`}
           >
-            {pill}
+            {item.label}
           </button>
         ))}
       </div>
@@ -68,7 +73,7 @@ export const DirectiveSignalsSection: React.FC<DirectiveSignalsSectionProps> = (
         <input
           value={text}
           onChange={(event) => setText(event.target.value)}
-          placeholder="Note for the roster"
+          placeholder="Write a note for everyone"
           className="h-[44px] min-w-0 flex-1 rounded-xl border border-white/[0.07] bg-[#161616] px-3 text-[13px] text-white outline-none"
         />
         <button
@@ -79,14 +84,18 @@ export const DirectiveSignalsSection: React.FC<DirectiveSignalsSectionProps> = (
           Send
         </button>
       </form>
-      {visible.map((dir) => (
-        <div key={dir.id} className="rounded-2xl border border-white/[0.07] bg-o1-card px-3 py-3">
-          <p className="text-[13px] font-semibold text-white">{dir.title}</p>
-          {dir.summary && dir.summary !== dir.title ? (
-            <p className="mt-1 text-[12px] text-neutral-400">{dir.summary}</p>
-          ) : null}
-        </div>
-      ))}
+      {visible.length === 0 ? (
+        <p className="px-1 py-4 text-center text-[12px] text-[#8A887F]">No notes yet.</p>
+      ) : (
+        visible.map((dir) => (
+          <div key={dir.id} className="rounded-2xl border border-white/[0.07] bg-o1-card px-3 py-3">
+            <p className="text-[13px] font-semibold text-white">{dir.title}</p>
+            {dir.summary && dir.summary !== dir.title ? (
+              <p className="mt-1 text-[12px] text-neutral-400">{dir.summary}</p>
+            ) : null}
+          </div>
+        ))
+      )}
     </div>
   );
 };
