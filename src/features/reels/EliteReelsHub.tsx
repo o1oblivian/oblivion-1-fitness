@@ -8,6 +8,7 @@ import { useEliteReelsLogic, CATEGORIES } from './hooks/useEliteReelsLogic';
 import { optionsIn, useClubTaxonomy } from '../induction/useClubTaxonomyStore';
 import { useReelsStore } from '../../stores/useReelsStore';
 import { ExploreCoach, ExploreReelItem } from './reelTypes';
+import { openCoachConsole } from '../coach/services/coachConsoleBus';
 
 export interface EliteReelsHubProps {
   isOpen: boolean;
@@ -164,6 +165,11 @@ export const EliteReelsHub: React.FC<EliteReelsHubProps> = ({
           playFrom(reel, coachReels);
         }}
         onMessageCoach={(coach) => setMessageCoach(coach)}
+        onOpenConsole={(action) => {
+          setBookingCoach(null);
+          onClose();
+          openCoachConsole(action);
+        }}
       />
       <CoachDirectMessageModal coach={messageCoach} onClose={() => setMessageCoach(null)} />
       <ShareLinkSheet link={linkSheet} onClose={() => setLinkSheet(null)} />

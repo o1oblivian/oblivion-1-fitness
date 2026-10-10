@@ -71,50 +71,50 @@ export const CoachConsultTab: React.FC<CoachConsultTabProps> = ({
             tactileEngine.triggerSelectionBuzz();
             onMessage();
           }}
-          className="flex h-[48px] w-full items-center justify-center gap-2 rounded-2xl border border-[#1F1F1F] bg-[#0E0E0E] text-[14px] font-semibold text-[#EAE8DF] active:scale-[0.98]"
+          className="flex h-[48px] w-full items-center justify-center gap-2 rounded-2xl border border-white/[0.07] bg-o1-surface text-[14px] font-semibold text-o1-text active:scale-[0.98]"
         >
           <MessageCircle size={16} />
           Chat with {firstName}
         </button>
       )}
 
-      <section className="space-y-1 rounded-2xl border border-[#1F1F1F] bg-[#0E0E0E] p-4">
+      <section className="space-y-1 rounded-2xl border border-white/[0.07] bg-o1-surface p-4">
         <div className="flex items-baseline justify-between gap-2">
-          <h3 className="text-[15px] font-semibold text-[#EAE8DF]">1:1 coaching</h3>
-          {monthly ? <span className="tabular-nums text-[14px] font-semibold text-[#EAE8DF]">{monthly}/mo</span> : null}
+          <h3 className="text-[15px] font-semibold text-o1-text">1:1 coaching</h3>
+          {monthly ? <span className="tabular-nums text-[14px] font-semibold text-o1-text">{monthly}/mo</span> : null}
         </div>
-        <p className="text-[12px] text-[#8A887F]">
+        <p className="text-[12px] text-o1-muted">
           Programming, form reviews, and check-ins from {firstName}.
           {spots != null ? ` ${spots} ${spots === 1 ? 'spot' : 'spots'} open.` : ''}
         </p>
       </section>
 
       {application && application.status !== 'declined' ? (
-        <p className="rounded-2xl border border-[#1F1F1F] bg-[#0E0E0E] px-4 py-3 text-[13px] text-[#EAE8DF]">
+        <p className="rounded-2xl border border-white/[0.07] bg-o1-surface px-4 py-3 text-[13px] text-o1-text">
           {STATUS_COPY[application.status]}
         </p>
       ) : null}
 
       {canApply && (
-        <section className="space-y-3 rounded-2xl border border-[#1F1F1F] bg-[#0E0E0E] p-4">
-          <h3 className="text-[15px] font-semibold text-[#EAE8DF]">Book a consultation</h3>
-          {application?.status === 'declined' ? <p className="text-[12px] text-[#8A887F]">{STATUS_COPY.declined}</p> : null}
+        <section className="space-y-3 rounded-2xl border border-white/[0.07] bg-o1-surface p-4">
+          <h3 className="text-[15px] font-semibold text-o1-text">Book a consultation</h3>
+          {application?.status === 'declined' ? <p className="text-[12px] text-o1-muted">{STATUS_COPY.declined}</p> : null}
           {Object.keys(intake).length > 0 ? (
             <dl className="grid grid-cols-2 gap-x-3 gap-y-2">
               {Object.entries(intake).map(([title, value]) => (
                 <div key={title} className="min-w-0">
-                  <dt className="text-[11px] text-[#8A887F]">{title}</dt>
-                  <dd className="truncate text-[13px] text-[#EAE8DF]">{value}</dd>
+                  <dt className="text-[11px] text-o1-muted">{title}</dt>
+                  <dd className="truncate text-[13px] text-o1-text">{value}</dd>
                 </div>
               ))}
             </dl>
           ) : (
-            <p className="text-[12px] text-[#8A887F]">Your intake answers will appear here once induction is done.</p>
+            <p className="text-[12px] text-o1-muted">Your intake answers will appear here once induction is done.</p>
           )}
           {program ? (
             <div className="flex items-center justify-between gap-2 rounded-xl bg-black px-3 py-2">
-              <span className="truncate text-[13px] text-[#EAE8DF]">Program: {program.title}</span>
-              <button type="button" onClick={onClearProgram} className="h-[44px] shrink-0 px-2 text-[12px] text-[#8A887F]">
+              <span className="truncate text-[13px] text-o1-text">Program: {program.title}</span>
+              <button type="button" onClick={onClearProgram} className="h-[44px] shrink-0 px-2 text-[12px] text-o1-muted">
                 Remove
               </button>
             </div>
@@ -124,7 +124,7 @@ export const CoachConsultTab: React.FC<CoachConsultTabProps> = ({
             onChange={(event) => setGoal(event.target.value)}
             rows={3}
             placeholder="What do you want from coaching?"
-            className="w-full resize-none rounded-xl border border-[#1F1F1F] bg-black p-3 text-[13px] text-[#EAE8DF] placeholder:text-[#8A887F] outline-none focus:border-[#C4121A]"
+            className="w-full resize-none rounded-xl border border-white/[0.07] bg-o1-canvas p-3 text-[13px] text-o1-text placeholder:text-o1-muted outline-none focus:border-o1-crimson"
           />
           <button
             type="button"
@@ -134,7 +134,7 @@ export const CoachConsultTab: React.FC<CoachConsultTabProps> = ({
               setSending(true);
               void onSubmit(goal, intake).finally(() => setSending(false));
             }}
-            className="h-[48px] w-full rounded-full bg-[#C4121A] text-[14px] font-semibold text-white disabled:opacity-40 active:scale-[0.98]"
+            className="h-[48px] w-full rounded-full bg-o1-crimson text-[14px] font-semibold text-white disabled:opacity-40 active:scale-[0.98]"
           >
             {sending ? 'Sending' : 'Send application'}
           </button>

@@ -5,9 +5,12 @@ import { StorefrontProgram } from '../../services/coachStorefront';
 
 interface CoachProgramsTabProps {
   programs: StorefrontProgram[] | null;
-  enrolledIds: Set<string>;
-  onEnroll: (program: StorefrontProgram) => void;
-  onApply: (program: StorefrontProgram) => void;
+  enrolledIds?: ReadonlySet<string>;
+  onEnroll?: (program: StorefrontProgram) => void;
+  onApply?: (program: StorefrontProgram) => void;
+  /** The coach viewing their own catalog: no enroll or apply actions. */
+  isOwn?: boolean;
+  onCreate?: () => void;
 }
 
 export function priceLabel(cents: number | null): string {
@@ -16,18 +19,39 @@ export function priceLabel(cents: number | null): string {
   return `$${(cents / 100).toFixed(cents % 100 === 0 ? 0 : 2)}`;
 }
 
-export const CoachProgramsTab: React.FC<CoachProgramsTabProps> = ({ programs, enrolledIds, onEnroll, onApply }) => {
+const NONE: ReadonlySet<string> = new Set();
+
+export const CoachProgramsTab: React.FC<CoachProgramsTabProps> = ({ programs, enrolledIds = NONE, onEnroll, onApply, isOwn = false, onCreate }) => {
   const [openId, setOpenId] = useState<string | null>(null);
 
+  const createButton = onCreate ? (
+    <button
+      type="button"
+      onClick={() => {
+        tactileEngine.triggerSelectionBuzz();
+        onCreate();
+      }}
+      className="h-[44px] w-full rounded-xl border border-white/[0.07] bg-o1-surface text-[13px] font-semibold text-o1-text active:scale-[0.98]"
+    >
+      Create a program
+    </button>
+  ) : null;
+
   if (programs === null) {
-    return <p className="py-10 text-center text-[13px] text-[#8A887F]">Loading programs</p>;
+    return <p className="py-10 text-center text-[13px] text-o1-muted">Loading programs</p>;
   }
   if (programs.length === 0) {
-    return <p className="py-10 text-center text-[13px] text-[#8A887F]">No programs published yet.</p>;
+    return (
+      <div className="space-y-3 py-6">
+        <p className="text-center text-[13px] text-o1-muted">{isOwn ? 'You have not published a program yet.' : 'No programs published yet.'}</p>
+        {createButton}
+      </div>
+    );
   }
 
   return (
     <div className="space-y-3 pt-3">
+      {createButton}
       {programs.map((program) => {
         const open = openId === program.id;
         const meta = [program.discipline, program.weeks, program.daysPerWeek ? `${program.daysPerWeek} days/wk` : '', program.level].filter(Boolean).join(' · ');
@@ -35,7 +59,7 @@ export const CoachProgramsTab: React.FC<CoachProgramsTabProps> = ({ programs, en
         const free = program.priceCents === 0;
         const enrolled = enrolledIds.has(program.id);
         return (
-          <div key={program.id} className="overflow-hidden rounded-2xl border border-[#1F1F1F] bg-[#0E0E0E]">
+          <div key={program.id} className="overflow-hidden rounded-2xl border border-white/[0.07] bg-o1-surface">
             <button
               type="button"
               onClick={() => {
@@ -44,7 +68,7 @@ export const CoachProgramsTab: React.FC<CoachProgramsTabProps> = ({ programs, en
               }}
               className="block w-full text-left active:scale-[0.99]"
             >
-              <div className="relative aspect-[16/9] w-full bg-black">
+              <div className="relative aspect-[16/9] w-full bg-o1-canvas">
                 <img
                   src={reelCover(program.id, program.coverUrl)}
                   alt=""
@@ -59,8 +83,8 @@ export const CoachProgramsTab: React.FC<CoachProgramsTabProps> = ({ programs, en
                 <span className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
                 <div className="absolute inset-x-3 bottom-2.5 flex items-end justify-between gap-2">
                   <div className="min-w-0">
-                    <p className="truncate text-[15px] font-semibold text-[#EAE8DF]">{program.title}</p>
-                    {meta ? <p className="truncate text-[12px] text-[#EAE8DF]/80">{meta}</p> : null}
+                    <p className="truncate text-[15px] font-semibold text-o1-text">{program.title}</p>
+                    {meta ? <p className="truncate text-[12px] text-white/80">{meta}</p> : null}
                   </div>
                   {enrolled ? (
                     <span className="shrink-0 rounded-full bg-white px-2.5 py-1 text-[12px] font-semibold text-neutral-950">Enrolled</span>
@@ -72,19 +96,21 @@ export const CoachProgramsTab: React.FC<CoachProgramsTabProps> = ({ programs, en
             </button>
             {open && (
               <div className="space-y-3 p-3">
-                {program.description ? <p className="text-[13px] leading-relaxed text-[#EAE8DF]">{program.description}</p> : null}
+                {program.description ? <p className="text-[13px] leading-relaxed text-o1-text">{program.description}</p> : null}
                 {program.weekOne.length > 0 && (
                   <div className="space-y-1">
-                    <p className="text-[12px] font-semibold text-[#8A887F]">Week 1</p>
+                    <p className="text-[12px] font-semibold text-o1-muted">Week 1</p>
                     {program.weekOne.map((day, index) => (
-                      <p key={`${program.id}-${index}`} className="text-[13px] text-[#EAE8DF]">
-                        <span className="text-[#8A887F]">Day {index + 1}</span> · {day}
+                      <p key={`${program.id}-${index}`} className="text-[13px] text-o1-text">
+                        <span className="text-o1-muted">Day {index + 1}</span> · {day}
                       </p>
                     ))}
                   </div>
                 )}
-                {enrolled ? (
-                  <p className="flex h-[44px] items-center justify-center rounded-full border border-[#1F1F1F] text-[13px] font-semibold text-[#8A887F]">
+                {isOwn ? (
+                  <p className="text-center text-[12px] text-o1-muted">Athletes see this on your profile.</p>
+                ) : enrolled ? (
+                  <p className="flex h-[44px] items-center justify-center rounded-full border border-white/[0.07] text-[13px] font-semibold text-o1-muted">
                     In My programs on your Coach tab
                   </p>
                 ) : (
@@ -92,10 +118,10 @@ export const CoachProgramsTab: React.FC<CoachProgramsTabProps> = ({ programs, en
                     type="button"
                     onClick={() => {
                       tactileEngine.triggerImpactPulse();
-                      if (free) onEnroll(program);
-                      else onApply(program);
+                      if (free) onEnroll?.(program);
+                      else onApply?.(program);
                     }}
-                    className="h-[44px] w-full rounded-full bg-[#C4121A] text-[13px] font-semibold text-white active:scale-[0.98]"
+                    className="h-[44px] w-full rounded-full bg-o1-crimson text-[13px] font-semibold text-white active:scale-[0.98]"
                   >
                     {free ? 'Enroll' : 'Apply for this program'}
                   </button>

@@ -16,6 +16,7 @@ import { getOrCreateInviteCode } from '../log/publicShare';
 import { fetchFinishedForCoach, fetchRemoteCheckins, persistFinishedLocal, publishCoachInvite, readFinishedLocal, saveCheckinReplyRemote } from './services/coachBridge';
 import { useCoachStore } from '../../stores/useCoachStore';
 import { coachPeople } from './services/floorRoster';
+import { onCoachConsoleAction } from './services/coachConsoleBus';
 
 export interface O1FCoachCommandCenterProps {
   isCoach?: boolean;
@@ -168,6 +169,14 @@ export const O1FCoachCommandCenter: React.FC<O1FCoachCommandCenterProps> = ({ is
     };
   }, [loadData, isVerifiedCoach, liveCoachId]);
 
+  useEffect(() => {
+    if (!isVerifiedCoach) return;
+    return onCoachConsoleAction((action) => {
+      if (action === 'dispatch') setDispatchAthlete(null);
+      setModals((m) => ({ ...m, [action === 'programs' ? 'programs' : 'workout']: true }));
+    });
+  }, [isVerifiedCoach]);
+
   if (!isVerifiedCoach) return null;
 
   return (
@@ -201,6 +210,7 @@ export const O1FCoachCommandCenter: React.FC<O1FCoachCommandCenterProps> = ({ is
           }}
           onShareInvite={() => setShareOpen(true)}
           onSelectAthlete={setDossierAthlete}
+          onRosterChanged={() => void loadData()}
         />
         <HealthDisclaimerBanner compact />
       </div>

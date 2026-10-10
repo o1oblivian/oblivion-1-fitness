@@ -1,5 +1,5 @@
-import React, { useMemo, useState } from 'react';
-import { Dumbbell, Inbox, LayoutGrid, MessageSquare, Plus, Radio, User, Users, Wallet } from 'lucide-react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Dumbbell, Inbox, Layers, LayoutGrid, MessageSquare, Radio, User, UserPlus, Users, Wallet } from 'lucide-react';
 import { useAuthStore } from '../../../stores/useAuthStore';
 import { useCoachStore } from '../../../stores/useCoachStore';
 import { useModalStore } from '../../../components/modals/useModalStore';
@@ -19,7 +19,19 @@ import { CoachInboxView, type InboxContact } from './CoachInboxView';
 import { CoachEarningsDeck } from './CoachEarningsDeck';
 import { FloorAthleteCard, type FloorCardAction } from './floor/FloorAthleteCard';
 import { CoachFeedbackSheet } from './floor/CoachFeedbackSheet';
-type CreatorTab = 'films' | 'floor' | 'directives' | 'inbox' | 'earnings';
+import { CoachingRequestCard, useCoachingRequests } from './CoachingRequests';
+import { CoachProfileHeader, ProfileActionButton, compactCount, ratingLabel } from './profile/CoachProfileHeader';
+import { StorefrontEditor } from './profile/StorefrontEditor';
+import { CoachProgramsTab } from '../../reels/components/profile/CoachProgramsTab';
+import {
+  EMPTY_STATS,
+  StorefrontProgram,
+  StorefrontStats,
+  fetchStorefrontPrograms,
+  fetchStorefrontStats,
+} from '../../reels/services/coachStorefront';
+
+type CreatorTab = 'films' | 'programs' | 'floor' | 'directives' | 'inbox' | 'earnings';
 
 export interface CoachFloorProps {
   coachId: string;
@@ -35,6 +47,8 @@ export interface CoachFloorProps {
   onShareInvite: () => void;
   onSelectAthlete: (athlete: Athlete) => void;
   onShowToast?: (msg: string) => void;
+  /** Called after a coaching request is accepted so the roster reloads. */
+  onRosterChanged?: () => void;
 }
 
 interface FeedbackTarget {
@@ -70,17 +84,6 @@ function kg(value: number | null | undefined): string {
 }
 
 const BROKEN_REEL_IDS = new Set(['reel-tut-vitals', 'reel-tut-activelog']);
-
-function inviteCount(): number {
-  try {
-    const book = JSON.parse(localStorage.getItem('o1_coach_invite_book') || '{}');
-    const saved = book && typeof book === 'object' ? Object.keys(book).length : 0;
-    if (saved > 0) return saved;
-    return localStorage.getItem('o1_invite_code') ? 1 : 0;
-  } catch {
-    return 0;
-  }
-}
 
 const REVIEW_KEY = 'o1_floor_reviews';
 
@@ -135,6 +138,7 @@ export const CoachFloor: React.FC<CoachFloorProps> = ({
   onShareInvite,
   onSelectAthlete,
   onShowToast,
+  onRosterChanged,
 }) => {
   const openFullEliteReels = useModalStore((s) => s.openFullEliteReels);
   const catalog = useReelsStore((s) => s.reels);
@@ -147,6 +151,28 @@ export const CoachFloor: React.FC<CoachFloorProps> = ({
   const [feedbackFor, setFeedbackFor] = useState<FeedbackTarget | null>(null);
   const [photo, setPhoto] = useState(profilePhoto);
   const [reviews, setReviews] = useState<Record<string, string>>(readReviews);
+  const [storefront, setStorefront] = useState<StorefrontStats>(EMPTY_STATS);
+  const [programs, setPrograms] = useState<StorefrontProgram[] | null>(null);
+  const [editing, setEditing] = useState(false);
+  const { requests, decide } = useCoachingRequests(coachId, onRosterChanged);
+
+  useEffect(() => {
+    if (!coachId) return;
+    let live = true;
+    void fetchStorefrontStats(coachId).then((next) => live && setStorefront(next)).catch(() => undefined);
+    return () => {
+      live = false;
+    };
+  }, [coachId]);
+
+  useEffect(() => {
+    if (!coachId || tab !== 'programs') return;
+    let live = true;
+    void fetchStorefrontPrograms(coachId).then((next) => live && setPrograms(next)).catch(() => live && setPrograms([]));
+    return () => {
+      live = false;
+    };
+  }, [coachId, tab]);
 
   const { people, sample } = useMemo(() => coachPeople(athletes), [athletes]);
   const films = useMemo(() => {
@@ -177,7 +203,6 @@ export const CoachFloor: React.FC<CoachFloorProps> = ({
     : rawHandle
       ? (rawHandle.startsWith('@') ? rawHandle : `@${rawHandle}`)
       : '';
-  const invites = inviteCount();
 
   const openReel = (reelId?: string) => {
     tactileEngine.triggerSelectionBuzz();
@@ -245,6 +270,7 @@ export const CoachFloor: React.FC<CoachFloorProps> = ({
 
   const tabs: { id: CreatorTab; label: string; icon: typeof LayoutGrid }[] = [
     { id: 'films', label: 'Films', icon: LayoutGrid },
+    { id: 'programs', label: 'Programs', icon: Layers },
     { id: 'floor', label: 'Clients', icon: Users },
     { id: 'directives', label: 'Notes', icon: Radio },
     { id: 'inbox', label: 'Inbox', icon: Inbox },
@@ -253,79 +279,49 @@ export const CoachFloor: React.FC<CoachFloorProps> = ({
 
   return (
     <div className="w-full space-y-3">
-      <div className="flex items-center gap-4 px-1">
-        <div className="relative shrink-0">
-          <button
-            type="button"
-            onClick={() => {
-              tactileEngine.triggerSelectionBuzz();
-              onOpenVault(false);
-              setPhoto(profilePhoto());
-            }}
-            className="flex h-[86px] w-[86px] items-center justify-center overflow-hidden rounded-full border border-white/[0.07] bg-o1-surface active:scale-[0.98]"
-            aria-label="Profile photo"
-          >
-            {photo ? (
-              <img src={photo} alt="" className="h-full w-full object-cover" />
-            ) : (
-              <span className="text-xl font-semibold text-o1-text">{name.slice(0, 1).toUpperCase()}</span>
-            )}
-          </button>
-          <button
-            type="button"
-            aria-label="Add a clip"
-            onClick={(event) => {
-              event.stopPropagation();
-              tactileEngine.triggerSelectionBuzz();
-              onOpenVault(true);
-            }}
-            className="absolute bottom-0 right-0 flex h-6 w-6 items-center justify-center rounded-full bg-white text-neutral-950 active:scale-[0.98]"
-          >
-            <Plus size={14} />
-          </button>
-        </div>
-        <div className="min-w-0 flex-1">
-          <h2 className="truncate text-[16px] font-semibold text-o1-text">{name}</h2>
-          {handle ? <p className="truncate text-[12px] text-o1-muted">{handle}</p> : null}
-          {bio ? <p className="mt-1 line-clamp-2 text-[12px] leading-snug text-o1-text">{bio}</p> : null}
-          <div className="mt-2 grid grid-cols-3 gap-1">
-            <button type="button" onClick={() => openReel()} className="min-h-[44px] text-center active:scale-[0.98]">
-              <span className="tabular-nums block text-[15px] text-o1-text">{films.length}</span>
-              <span className="text-[11px] text-o1-muted">Reels</span>
-            </button>
-            <div className="min-h-[44px] text-center">
-              <span className="tabular-nums block text-[15px] text-o1-text">{people.length}</span>
-              <span className="text-[11px] text-o1-muted">Clients</span>
-            </div>
-            <button type="button" onClick={() => { tactileEngine.triggerSelectionBuzz(); onShareInvite(); }} className="min-h-[44px] text-center active:scale-[0.98]">
-              <span className="tabular-nums block text-[15px] text-o1-text">{invites}</span>
-              <span className="text-[11px] text-o1-muted">Invite</span>
-            </button>
+      <div className="px-1">
+        <CoachProfileHeader
+          name={name}
+          handle={handle}
+          avatar={photo}
+          bio={bio}
+          hasStory={films.length > 0}
+          onAvatarPress={() => {
+            if (films.length > 0) {
+              openReel(films[0].id);
+              return;
+            }
+            onOpenVault(false);
+            setPhoto(profilePhoto());
+          }}
+          onAddClip={() => onOpenVault(true)}
+          onEdit={editing ? undefined : () => setEditing(true)}
+          stats={[
+            { label: 'Followers', value: compactCount(storefront.followers) },
+            { label: 'Clients', value: String(people.length), onPress: () => setTab('floor') },
+            { label: storefront.reviewCount > 0 ? `${storefront.reviewCount} reviews` : 'Rating', value: ratingLabel(storefront.rating) },
+          ]}
+          actions={
+            <>
+              <ProfileActionButton label="Program" onPress={onOpenPrograms} />
+              <ProfileActionButton label="Daily Dispatch" primary onPress={onOpenWorkout} />
+            </>
+          }
+        />
+        {editing ? (
+          <div className="mt-3">
+            <StorefrontEditor
+              stats={storefront}
+              onCancel={() => setEditing(false)}
+              onError={(msg) => onShowToast?.(msg)}
+              onSaved={(next) => {
+                setStorefront((prev) => ({ ...prev, ...next }));
+                setEditing(false);
+                onShowToast?.('Profile saved');
+              }}
+            />
           </div>
-        </div>
-      </div>
-
-      <div className="flex gap-2 px-1">
-        <button
-          type="button"
-          onClick={() => {
-            tactileEngine.triggerSelectionBuzz();
-            onOpenPrograms();
-          }}
-          className="h-[44px] flex-1 rounded-xl border border-white/[0.07] bg-o1-surface text-[13px] font-semibold text-o1-text active:scale-[0.98]"
-        >
-          Programs
-        </button>
-        <button
-          type="button"
-          onClick={() => {
-            tactileEngine.triggerSelectionBuzz();
-            onOpenWorkout();
-          }}
-          className="h-[44px] flex-1 rounded-xl bg-o1-crimson text-[13px] font-semibold text-o1-text active:scale-[0.98]"
-        >
-          Send workout
-        </button>
+        ) : null}
       </div>
 
       <div className="flex justify-around border-b border-white/[0.07]">
@@ -364,8 +360,31 @@ export const CoachFloor: React.FC<CoachFloorProps> = ({
         )
       )}
 
+      {tab === 'programs' && (
+        <CoachProgramsTab programs={programs} isOwn onCreate={onOpenPrograms} />
+      )}
+
       {tab === 'floor' && (
         <div className="space-y-4">
+          <button
+            type="button"
+            onClick={() => {
+              tactileEngine.triggerSelectionBuzz();
+              onShareInvite();
+            }}
+            className="flex h-[44px] w-full items-center justify-center gap-2 rounded-xl border border-white/[0.07] bg-o1-surface text-[13px] font-semibold text-o1-text active:scale-[0.98]"
+          >
+            <UserPlus size={16} />
+            Invite a client
+          </button>
+          {requests.length > 0 ? (
+            <section className="space-y-2">
+              <h3 className="px-1 text-[13px] font-semibold text-o1-text">Coaching requests</h3>
+              {requests.map((request) => (
+                <CoachingRequestCard key={request.id} request={request} onDecide={(row, accept) => void decide(row, accept)} />
+              ))}
+            </section>
+          ) : null}
           {sample ? (
             <p role="note" className="rounded-2xl border border-o1-gold/40 bg-o1-warn-wash px-3 py-2 text-[12px] font-semibold text-o1-warn-ink">
               Sample clients for testing. Nothing you send to them leaves this phone.
@@ -465,7 +484,7 @@ export const CoachFloor: React.FC<CoachFloorProps> = ({
       )}
 
       {tab === 'directives' && <DirectiveSignalsSection directives={notes} onSendNote={onSendNote} />}
-      {tab === 'inbox' && <CoachInboxView viewer="coach" coachId={coachId} contacts={contacts} coachName={name} />}
+      {tab === 'inbox' && <CoachInboxView viewer="coach" coachId={coachId} contacts={contacts} coachName={name} onRosterChanged={onRosterChanged} />}
       {tab === 'earnings' && <CoachEarningsDeck coachId={coachId} onShowToast={(msg) => onShowToast?.(msg)} />}
 
       <CoachFeedbackSheet

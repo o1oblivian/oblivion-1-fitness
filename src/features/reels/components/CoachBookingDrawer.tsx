@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { BadgeCheck, Grid3x3, Layers, MessageCircle, Play, Share2, X } from 'lucide-react';
+import { Grid3x3, Layers, MessageCircle, Play, Share2, X } from 'lucide-react';
 import { ExploreCoach, ExploreReelItem } from '../reelTypes';
 import { useReelsStore } from '../../../stores/useReelsStore';
 import { useAuthStore } from '../../../stores/useAuthStore';
@@ -14,7 +14,6 @@ import {
   fetchMyApplication,
   fetchStorefrontPrograms,
   fetchStorefrontStats,
-  saveStorefront,
   setFollowing,
   submitApplication,
 } from '../services/coachStorefront';
@@ -23,6 +22,9 @@ import { ShareLinkSheet, ShareLinkTarget } from './ShareLinkSheet';
 import { fetchMyPrograms } from '../../coach/services/myPrograms';
 import { CoachProgramsTab } from './profile/CoachProgramsTab';
 import { CoachConsultTab } from './profile/CoachConsultTab';
+import { CoachProfileHeader, ProfileActionButton, compactCount, ratingLabel } from '../../coach/components/profile/CoachProfileHeader';
+import { StorefrontEditor } from '../../coach/components/profile/StorefrontEditor';
+import type { CoachConsoleAction } from '../../coach/services/coachConsoleBus';
 
 export interface CoachBookingDrawerProps {
   coach: ExploreCoach | null;
@@ -30,23 +32,13 @@ export interface CoachBookingDrawerProps {
   onClose: () => void;
   onSelectReel?: (reel: ExploreReelItem, coachReels: ExploreReelItem[]) => void;
   onMessageCoach?: (coach: ExploreCoach) => void;
+  /** Own profile only: jump to the Coach console's program builder or workout dispatch. */
+  onOpenConsole?: (action: CoachConsoleAction) => void;
 }
 
 export type ProfileTab = 'reels' | 'programs' | 'coaching';
 
-function compact(value: number | null): string {
-  if (value == null) return '--';
-  if (value >= 1_000_000) return `${(value / 1_000_000).toFixed(1).replace(/\.0$/, '')}M`;
-  if (value >= 1_000) return `${(value / 1_000).toFixed(1).replace(/\.0$/, '')}k`;
-  return String(value);
-}
-
-function wholeOrNull(raw: string): number | null {
-  const n = Number(raw);
-  return raw.trim() && Number.isFinite(n) && n >= 0 ? Math.round(n) : null;
-}
-
-export const CoachBookingDrawer: React.FC<CoachBookingDrawerProps> = ({ coach, initialTab, onClose, onSelectReel, onMessageCoach }) => {
+export const CoachBookingDrawer: React.FC<CoachBookingDrawerProps> = ({ coach, initialTab, onClose, onSelectReel, onMessageCoach, onOpenConsole }) => {
   const reels = useReelsStore((s) => s.reels);
   const user = useAuthStore((s) => s.user);
   const profile = useAuthStore((s) => s.profile);
@@ -60,7 +52,6 @@ export const CoachBookingDrawer: React.FC<CoachBookingDrawerProps> = ({ coach, i
   const [linkSheet, setLinkSheet] = useState<ShareLinkTarget | null>(null);
   const [enrolledIds, setEnrolledIds] = useState<Set<string>>(() => new Set());
   const [editing, setEditing] = useState(false);
-  const [draft, setDraft] = useState({ years: '', capacity: '', monthly: '' });
 
   const coachId = coach?.id || '';
   const isOwn = Boolean(user?.id && user.id === coachId);
@@ -127,30 +118,6 @@ export const CoachBookingDrawer: React.FC<CoachBookingDrawerProps> = ({ coach, i
     if ((await shareLink(target)) === 'options') setLinkSheet(target);
   };
 
-  const startEdit = () => {
-    setDraft({
-      years: stats.years != null ? String(stats.years) : '',
-      capacity: stats.capacity != null ? String(stats.capacity) : '',
-      monthly: stats.monthlyPriceCents != null ? String(stats.monthlyPriceCents / 100) : '',
-    });
-    setEditing(true);
-  };
-
-  const saveEdit = async () => {
-    const years = wholeOrNull(draft.years);
-    const capacity = wholeOrNull(draft.capacity);
-    const monthlyRaw = Number(draft.monthly);
-    const monthlyPriceCents = draft.monthly.trim() && Number.isFinite(monthlyRaw) && monthlyRaw >= 0 ? Math.round(monthlyRaw * 100) : null;
-    const ok = await saveStorefront({ years, capacity, monthlyPriceCents });
-    if (!ok) {
-      flash('Could not save');
-      return;
-    }
-    setStats((prev) => ({ ...prev, years, capacity, monthlyPriceCents }));
-    setEditing(false);
-    flash('Profile saved');
-  };
-
   const tabs: { id: ProfileTab; label: string; icon: typeof Grid3x3 }[] = [
     { id: 'reels', label: 'Reels', icon: Grid3x3 },
     { id: 'programs', label: 'Programs', icon: Layers },
@@ -158,7 +125,7 @@ export const CoachBookingDrawer: React.FC<CoachBookingDrawerProps> = ({ coach, i
   ];
 
   return (
-    <div id="coach-athletic-dossier-modal" className="fixed inset-0 z-50 flex flex-col bg-black text-[#EAE8DF] select-none animate-in fade-in duration-200">
+    <div id="coach-athletic-dossier-modal" className="fixed inset-0 z-50 flex flex-col bg-o1-canvas text-o1-text select-none animate-in fade-in duration-200">
       <div className="flex h-14 shrink-0 items-center justify-between px-1 pt-safe">
         <button type="button" onClick={onClose} className="flex h-11 w-11 items-center justify-center" aria-label="Close profile">
           <X size={20} />
@@ -176,96 +143,53 @@ export const CoachBookingDrawer: React.FC<CoachBookingDrawerProps> = ({ coach, i
       )}
 
       <div className="flex-1 overflow-y-auto pb-10">
-        <div className="mx-auto w-full max-w-xl px-4">
-          <div className="flex items-center gap-5 pt-2">
-            <div className="flex h-[86px] w-[86px] shrink-0 items-center justify-center overflow-hidden rounded-full border border-[#1F1F1F] bg-[#0E0E0E]">
-              {coach.avatar ? (
-                <img src={coach.avatar} alt="" className="h-full w-full object-cover" />
+        <div className="mx-auto w-full max-w-xl space-y-3 px-4 pt-2">
+          <CoachProfileHeader
+            name={coach.name}
+            handle={coach.handle}
+            avatar={coach.avatar}
+            specialty={coach.specialtyTitle}
+            bio={coach.bio}
+            verified={coach.verified}
+            hasStory={coachReels.length > 0}
+            onAvatarPress={coachReels.length > 0 ? () => onSelectReel?.(coachReels[0], coachReels) : undefined}
+            onEdit={isOwn && !editing ? () => setEditing(true) : undefined}
+            stats={[
+              { label: 'Followers', value: compactCount(stats.followers) },
+              isOwn
+                ? { label: 'Clients', value: stats.athletes != null ? String(stats.athletes) : '--' }
+                : { label: 'Years coaching', value: stats.years != null ? String(stats.years) : '--' },
+              { label: stats.reviewCount > 0 ? `${stats.reviewCount} reviews` : 'Rating', value: ratingLabel(stats.rating) },
+            ]}
+            actions={
+              isOwn ? (
+                <>
+                  <ProfileActionButton label="Program" onPress={() => onOpenConsole?.('programs')} />
+                  <ProfileActionButton label="Daily Dispatch" primary onPress={() => onOpenConsole?.('dispatch')} />
+                </>
               ) : (
-                <span className="text-xl font-semibold">{coach.name.slice(0, 1).toUpperCase()}</span>
-              )}
-            </div>
-            <div className="grid flex-1 grid-cols-3 text-center">
-              <div>
-                <p className="tabular-nums text-[17px] font-semibold">{compact(stats.followers)}</p>
-                <p className="text-[11px] text-[#8A887F]">Followers</p>
-              </div>
-              <div>
-                <p className="tabular-nums text-[17px] font-semibold">{stats.years != null ? `${stats.years}` : '--'}</p>
-                <p className="text-[11px] text-[#8A887F]">Years coaching</p>
-              </div>
-              <div>
-                <p className="tabular-nums text-[17px] font-semibold">{stats.rating != null ? `★ ${stats.rating.toFixed(1)}` : '--'}</p>
-                <p className="text-[11px] text-[#8A887F]">{stats.reviewCount > 0 ? `${stats.reviewCount} reviews` : 'Rating'}</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-3 space-y-0.5">
-            <p className="flex items-center gap-1 text-[15px] font-semibold">
-              {coach.name}
-              {coach.verified ? <BadgeCheck size={16} className="text-[#0284c7]" aria-label="Verified" /> : null}
-            </p>
-            {coach.specialtyTitle ? <p className="text-[13px] text-[#8A887F]">{coach.specialtyTitle}</p> : null}
-            {coach.bio ? <p className="line-clamp-3 pt-1 text-[13px] leading-snug">{coach.bio}</p> : null}
-          </div>
-
-          {isOwn ? (
-            editing ? (
-              <div className="mt-3 space-y-2 rounded-2xl border border-[#1F1F1F] bg-[#0E0E0E] p-3">
-                {([
-                  ['years', 'Years coaching'],
-                  ['capacity', 'Athlete spots'],
-                  ['monthly', 'Monthly price (USD)'],
-                ] as const).map(([key, label]) => (
-                  <label key={key} className="flex items-center justify-between gap-3">
-                    <span className="text-[13px] text-[#8A887F]">{label}</span>
-                    <input
-                      inputMode="decimal"
-                      value={draft[key]}
-                      onChange={(event) => setDraft((prev) => ({ ...prev, [key]: event.target.value }))}
-                      className="h-[44px] w-28 rounded-xl border border-[#1F1F1F] bg-black px-3 text-right text-[13px] outline-none focus:border-[#C4121A]"
-                    />
-                  </label>
-                ))}
-                <div className="flex gap-2 pt-1">
-                  <button type="button" onClick={() => setEditing(false)} className="h-[44px] flex-1 rounded-xl border border-[#1F1F1F] text-[13px] font-semibold">
-                    Cancel
-                  </button>
-                  <button type="button" onClick={() => void saveEdit()} className="h-[44px] flex-1 rounded-xl bg-white text-[13px] font-semibold text-neutral-950">
-                    Save
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <button type="button" onClick={startEdit} className="mt-3 h-[44px] w-full rounded-xl border border-[#1F1F1F] bg-[#0E0E0E] text-[13px] font-semibold active:scale-[0.98]">
-                Edit profile
-              </button>
-            )
-          ) : (
-            <div className="mt-3 flex gap-2">
-              <button
-                type="button"
-                onClick={() => void toggleFollow()}
-                className={`h-[44px] flex-1 rounded-xl text-[13px] font-semibold active:scale-[0.98] ${stats.following ? 'border border-[#1F1F1F] bg-[#0E0E0E] text-[#EAE8DF]' : 'bg-white text-neutral-950'}`}
-              >
-                {stats.following ? 'Following' : 'Follow'}
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  tactileEngine.triggerSelectionBuzz();
-                  onMessageCoach?.(coach);
-                }}
-                className="h-[44px] flex-1 rounded-xl border border-[#1F1F1F] bg-[#0E0E0E] text-[13px] font-semibold active:scale-[0.98]"
-              >
-                Message
-              </button>
-            </div>
-          )}
+                <>
+                  <ProfileActionButton label={stats.following ? 'Following' : 'Follow'} primary={!stats.following} onPress={() => void toggleFollow()} />
+                  <ProfileActionButton label="Message" onPress={() => onMessageCoach?.(coach)} />
+                </>
+              )
+            }
+          />
+          {editing ? (
+            <StorefrontEditor
+              stats={stats}
+              onCancel={() => setEditing(false)}
+              onError={flash}
+              onSaved={(next) => {
+                setStats((prev) => ({ ...prev, ...next }));
+                setEditing(false);
+                flash('Profile saved');
+              }}
+            />
+          ) : null}
         </div>
 
-        <div className="mx-auto mt-4 flex w-full max-w-xl border-b border-[#1F1F1F]">
+        <div className="mx-auto mt-4 flex w-full max-w-xl border-b border-white/[0.07]">
           {tabs.map((item) => {
             const Icon = item.icon;
             const on = tab === item.id;
@@ -277,7 +201,7 @@ export const CoachBookingDrawer: React.FC<CoachBookingDrawerProps> = ({ coach, i
                   tactileEngine.triggerSelectionBuzz();
                   setTab(item.id);
                 }}
-                className={`flex h-11 flex-1 items-center justify-center gap-1.5 border-b-2 text-[12px] font-semibold ${on ? 'border-white text-white' : 'border-transparent text-[#8A887F]'}`}
+                className={`flex h-11 flex-1 items-center justify-center gap-1.5 border-b-2 text-[12px] font-semibold ${on ? 'border-white text-white' : 'border-transparent text-o1-muted'}`}
               >
                 <Icon size={15} />
                 {item.label}
@@ -289,7 +213,7 @@ export const CoachBookingDrawer: React.FC<CoachBookingDrawerProps> = ({ coach, i
         <div className="mx-auto w-full max-w-xl">
           {tab === 'reels' && (
             coachReels.length === 0 ? (
-              <p className="py-10 text-center text-[13px] text-[#8A887F]">No reels yet.</p>
+              <p className="py-10 text-center text-[13px] text-o1-muted">No reels yet.</p>
             ) : (
               <div className="grid grid-cols-3 gap-0.5 pt-0.5">
                 {coachReels.map((reel) => (
@@ -300,7 +224,7 @@ export const CoachBookingDrawer: React.FC<CoachBookingDrawerProps> = ({ coach, i
                       tactileEngine.triggerSelectionBuzz();
                       onSelectReel?.(reel, coachReels);
                     }}
-                    className="relative aspect-[3/4] overflow-hidden bg-[#0E0E0E] active:scale-[0.98]"
+                    className="relative aspect-[3/4] overflow-hidden bg-o1-surface active:scale-[0.98]"
                     aria-label={reel.title}
                   >
                     <img
@@ -327,6 +251,8 @@ export const CoachBookingDrawer: React.FC<CoachBookingDrawerProps> = ({ coach, i
               <CoachProgramsTab
                 programs={programs}
                 enrolledIds={enrolledIds}
+                isOwn={isOwn}
+                onCreate={isOwn ? () => onOpenConsole?.('programs') : undefined}
                 onEnroll={(program) => {
                   const owner = { id: coach.id, name: coach.name, handle: coach.handle, avatar: coach.avatar };
                   void enrollInProgram(owner, program).then((result) => {

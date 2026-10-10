@@ -6,8 +6,8 @@ import { getAuthenticatedUserId } from '../../../services/authUser';
 import { supabase } from '../../../services/supabaseClient';
 import { useAuthStore } from '../../../stores/useAuthStore';
 import { tactileEngine } from '../../../services/tactileEngine';
-import { CoachingApplication, decideApplication, fetchCoachApplications } from '../../reels/services/coachStorefront';
 import { AthleteAvatar } from './floor/FloorAthleteCard';
+import { CoachingRequestCard, useCoachingRequests } from './CoachingRequests';
 
 export interface InboxContact {
   name: string;
@@ -21,6 +21,7 @@ interface CoachInboxViewProps {
   contacts?: Record<string, InboxContact>;
   /** The coach's display name; also identifies coach-written rows saved before author markers existed. */
   coachName?: string;
+  onRosterChanged?: () => void;
 }
 
 interface Thread {
@@ -31,11 +32,10 @@ interface Thread {
   waiting: boolean;
 }
 
-export const CoachInboxView: React.FC<CoachInboxViewProps> = ({ coachId = '', viewer, contacts = {}, coachName = '' }) => {
+export const CoachInboxView: React.FC<CoachInboxViewProps> = ({ coachId = '', viewer, contacts = {}, coachName = '', onRosterChanged }) => {
   const myName = useAuthStore((s) => s.profile?.name || '');
   const [me, setMe] = useState('');
   const [messages, setMessages] = useState<CoachMessage[]>([]);
-  const [applications, setApplications] = useState<CoachingApplication[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [openId, setOpenId] = useState<string | null>(null);
   const [reply, setReply] = useState('');
@@ -46,14 +46,10 @@ export const CoachInboxView: React.FC<CoachInboxViewProps> = ({ coachId = '', vi
     void (async () => {
       const uid = (await getAuthenticatedUserId()) || '';
       const owner = viewer === 'coach' ? coachId || uid : coachId;
-      const [rows, pending] = await Promise.all([
-        owner ? fetchCoachMessages(owner, viewer === 'athlete' ? uid : '') : Promise.resolve([]),
-        viewer === 'coach' && owner ? fetchCoachApplications(owner) : Promise.resolve([]),
-      ]);
+      const rows = owner ? await fetchCoachMessages(owner, viewer === 'athlete' ? uid : '') : [];
       if (!live) return;
       setMe(uid);
       setMessages(viewer === 'athlete' && !uid ? [] : rows);
-      setApplications(pending);
       setIsLoading(false);
       if (viewer === 'athlete') setOpenId(uid);
     })().catch(() => live && setIsLoading(false));
@@ -63,6 +59,7 @@ export const CoachInboxView: React.FC<CoachInboxViewProps> = ({ coachId = '', vi
   }, [coachId, viewer]);
 
   const owner = viewer === 'coach' ? coachId || me : coachId;
+  const { requests, decide } = useCoachingRequests(viewer === 'coach' ? owner : '', onRosterChanged);
 
   useEffect(() => {
     if (!owner || (viewer === 'athlete' && !me)) return;
@@ -211,34 +208,8 @@ export const CoachInboxView: React.FC<CoachInboxViewProps> = ({ coachId = '', vi
         {waitingCount > 0 ? <span className="text-[12px] font-semibold tabular-nums text-o1-text">{waitingCount} to reply</span> : null}
       </div>
 
-      {applications.map((application) => (
-        <article key={application.id} className="space-y-2 rounded-2xl border border-white/[0.07] bg-o1-surface p-3">
-          <div className="flex items-baseline justify-between gap-2">
-            <span className="truncate text-[14px] font-semibold text-o1-text">{application.athleteName || 'Athlete'}</span>
-            <span className="shrink-0 text-[11px] text-o1-muted">Wants coaching</span>
-          </div>
-          <p className="text-[13px] text-o1-text">{application.goal}</p>
-          {Object.keys(application.intake).length > 0 ? (
-            <p className="text-[12px] text-o1-muted">{Object.values(application.intake).join(' · ')}</p>
-          ) : null}
-          <div className="flex gap-2">
-            {([false, true] as const).map((accept) => (
-              <button
-                key={String(accept)}
-                type="button"
-                onClick={() => {
-                  tactileEngine.triggerSelectionBuzz();
-                  void decideApplication(application, accept).then((ok) => {
-                    if (ok) setApplications((prev) => prev.filter((row) => row.id !== application.id));
-                  });
-                }}
-                className={`h-[44px] flex-1 rounded-xl text-[13px] font-semibold active:scale-[0.98] ${accept ? 'bg-o1-crimson text-o1-text' : 'border border-white/[0.07] bg-o1-canvas text-o1-text'}`}
-              >
-                {accept ? 'Accept' : 'Decline'}
-              </button>
-            ))}
-          </div>
-        </article>
+      {requests.map((request) => (
+        <CoachingRequestCard key={request.id} request={request} onDecide={(row, accept) => void decide(row, accept)} />
       ))}
 
       {isLoading ? (
