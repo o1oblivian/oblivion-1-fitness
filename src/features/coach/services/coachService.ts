@@ -98,6 +98,7 @@ export async function fetchCoachClients(coachId: string = ''): Promise<Athlete[]
 const CANNED_NOTES = new Set(['thursday squat', 'sleep first', 'sharp knee', 'eat before', 'lighter week']);
 
 const BLUEPRINT_TITLES = new Set(WORKOUT_BLUEPRINTS.map((row) => row.title.trim().toLowerCase()));
+const SYNTHESIZED_TITLE = /^o1fc .+ • /;
 
 function programTitles(): Set<string> {
   const stored = safeStorage.getItem<{ title?: string }[]>('o1_coach_custom_programs', []) || [];
@@ -115,6 +116,7 @@ export function liveDirectives(rows: DirectiveItem[]): DirectiveItem[] {
     return !String(row.id).startsWith('preview-')
       && !CANNED_NOTES.has(title)
       && !BLUEPRINT_TITLES.has(title)
+      && !SYNTHESIZED_TITLE.test(title)
       && !programs.has(title);
   });
 }
@@ -137,7 +139,7 @@ export async function fetchCoachDirectives(coachId: string = ''): Promise<Direct
         .eq('coach_id', coachId);
 
       if (!broadcastRes.error && Array.isArray(broadcastRes.data) && broadcastRes.data.length > 0) {
-        return broadcastRes.data.map((b: any) => ({
+        return liveDirectives(broadcastRes.data.map((b: any) => ({
           id: b.id,
           tag: b.tag || 'TRAINING',
           title: b.title || 'Broadcast Signal',
@@ -145,7 +147,7 @@ export async function fetchCoachDirectives(coachId: string = ''): Promise<Direct
           affectedCount: Number(b.affected_count || 1),
           priority: b.priority || 'HIGH',
           badgeStyle: 'bg-red-950/60 text-red-400 border-red-800/60',
-        }));
+        })));
       }
 
       return local;

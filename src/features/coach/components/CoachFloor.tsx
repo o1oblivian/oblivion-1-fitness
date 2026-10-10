@@ -78,6 +78,20 @@ function rosterId(athlete: Athlete): string {
   return athlete.client_id || athlete.id;
 }
 
+/** Roster row for the target, or a minimal one so athletes outside the roster can still get a workout. */
+function dispatchTarget(target: FeedbackTarget): Athlete {
+  return target.athlete ?? {
+    id: target.athleteId,
+    client_id: target.athleteId,
+    name: target.name,
+    handle: '',
+    avatar: target.avatar,
+    status: 'Active',
+    readiness: null,
+    volume: null,
+  };
+}
+
 function kg(value: number | null | undefined): string {
   if (value == null || !Number.isFinite(value) || value <= 0) return '--';
   return `${Math.round(value).toLocaleString()} kg`;
@@ -258,12 +272,10 @@ export const CoachFloor: React.FC<CoachFloorProps> = ({
         },
       },
     ];
+    actions.push({ label: 'Workout', icon: Dumbbell, onClick: () => { tactileEngine.triggerSelectionBuzz(); onDispatchAthlete(dispatchTarget(target)); } });
     const { athlete } = target;
     if (athlete) {
-      actions.push(
-        { label: 'Workout', icon: Dumbbell, onClick: () => { tactileEngine.triggerSelectionBuzz(); onDispatchAthlete(athlete); } },
-        { label: 'Profile', icon: User, onClick: () => { tactileEngine.triggerSelectionBuzz(); onSelectAthlete(athlete); } },
-      );
+      actions.push({ label: 'Profile', icon: User, onClick: () => { tactileEngine.triggerSelectionBuzz(); onSelectAthlete(athlete); } });
     }
     return actions;
   };
@@ -491,7 +503,7 @@ export const CoachFloor: React.FC<CoachFloorProps> = ({
         target={feedbackFor}
         onClose={() => setFeedbackFor(null)}
         onSend={deliverFeedback}
-        onSendWorkout={feedbackAthlete ? () => { setFeedbackFor(null); onDispatchAthlete(feedbackAthlete); } : undefined}
+        onSendWorkout={feedbackFor ? () => { setFeedbackFor(null); onDispatchAthlete(dispatchTarget(feedbackFor)); } : undefined}
         onViewProfile={feedbackAthlete ? () => { setFeedbackFor(null); onSelectAthlete(feedbackAthlete); } : undefined}
       />
     </div>

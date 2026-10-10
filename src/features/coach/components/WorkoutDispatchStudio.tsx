@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import {
   ChevronDown,
   ChevronUp,
@@ -166,19 +166,19 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
   const [dispatchSuccessToast, setDispatchSuccessToast] = useState<string | null>(null);
 
   // Fetch athletes
+  const seeded = useRef(false);
   useEffect(() => {
     if (!isOpen) return;
     let live = true;
-    fetchCoachClients().then((res) => {
+    void fetchCoachClients().then((res) => {
       if (!live) return;
       const merged = mergeRoster(targetAthlete ? [targetAthlete] : [], roster, res || []);
       setAthletes(merged);
-      if (lockedId) {
-        const match = merged.find((row) => row.id === lockedId || row.client_id === lockedId);
-        if (match) setSelectedAthleteIds([match.id]);
-      } else {
-        setSelectedAthleteIds((prev) => (prev.length ? prev : merged.map((row) => row.id)));
-      }
+      if (seeded.current) return;
+      seeded.current = true;
+      const match = lockedId ? merged.find((row) => row.id === lockedId || row.client_id === lockedId) : undefined;
+      if (match) setSelectedAthleteIds([match.id]);
+      else if (!lockedId) setSelectedAthleteIds((prev) => (prev.length ? prev : merged.map((row) => row.id)));
     });
     return () => {
       live = false;
@@ -1186,7 +1186,7 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
                 ? selectedAthletes[0].name
                 : selectedAthletes.length > 1
                 ? `${selectedAthletes.length} Athletes`
-                : targetAthlete?.name || 'No Athlete Selected'}
+                : 'pick an athlete'}
             </p>
           </div>
 
