@@ -43,8 +43,8 @@ export const DirectiveSignalsSection: React.FC<DirectiveSignalsSectionProps> = (
   return (
     <div className="space-y-2">
       <div className="px-1">
-        <p className="text-[13px] font-semibold text-[#EAE8DF]">Notes to all clients</p>
-        <p className="text-[12px] text-[#8A887F]">Everyone on your roster sees these.</p>
+        <p className="text-[13px] font-semibold text-o1-text">Notes to all clients</p>
+        <p className="text-[12px] text-o1-muted">Everyone on your roster sees these.</p>
       </div>
       <div className="flex gap-1.5 overflow-x-auto px-1">
         {TOPICS.map((item) => (
@@ -56,7 +56,7 @@ export const DirectiveSignalsSection: React.FC<DirectiveSignalsSectionProps> = (
               setTopic(item.tag);
             }}
             className={`o1-pill shrink-0 text-[12px] font-semibold active:scale-[0.98] ${
-              topic === item.tag ? 'bg-white text-neutral-950' : 'border border-[#1F1F1F] bg-[#0E0E0E] text-[#EAE8DF]'
+              topic === item.tag ? 'bg-white text-neutral-950' : 'border border-white/[0.07] bg-o1-surface text-o1-text'
             }`}
           >
             {item.label}
@@ -75,25 +75,25 @@ export const DirectiveSignalsSection: React.FC<DirectiveSignalsSectionProps> = (
           onChange={(event) => setText(event.target.value)}
           placeholder="Write a note for everyone"
           maxLength={500}
-          className="h-[44px] min-w-0 flex-1 rounded-xl border border-[#1F1F1F] bg-black px-3 text-[13px] text-[#EAE8DF] outline-none focus:border-[#C4121A]"
+          className="h-[44px] min-w-0 flex-1 rounded-xl border border-white/[0.07] bg-o1-canvas px-3 text-[13px] text-o1-text outline-none focus:border-o1-crimson"
         />
         <button
           type="submit"
           disabled={!text.trim()}
-          className="h-[44px] rounded-xl bg-[#C4121A] px-4 text-[13px] font-semibold text-white active:scale-[0.98] disabled:opacity-40"
+          className="h-[44px] rounded-xl bg-o1-crimson px-4 text-[13px] font-semibold text-o1-text active:scale-[0.98] disabled:opacity-40"
         >
           Send
         </button>
       </form>
       {directives.length === 0 ? (
-        <p className="px-1 py-4 text-center text-[12px] text-[#8A887F]">No notes yet.</p>
+        <p className="px-1 py-4 text-center text-[12px] text-o1-muted">No notes yet.</p>
       ) : (
         directives.map((dir) => (
-          <div key={dir.id} className="rounded-2xl border border-[#1F1F1F] bg-[#0E0E0E] px-3 py-3">
-            <span className="text-[11px] font-semibold text-[#8A887F]">{topicLabel(dir.tag)}</span>
-            <p className="text-[13px] font-semibold text-[#EAE8DF]">{dir.title}</p>
+          <div key={dir.id} className="rounded-2xl border border-white/[0.07] bg-o1-surface px-3 py-3">
+            <span className="text-[11px] font-semibold text-o1-muted">{topicLabel(dir.tag)}</span>
+            <p className="text-[13px] font-semibold text-o1-text">{dir.title}</p>
             {dir.summary && dir.summary !== dir.title ? (
-              <p className="mt-1 text-[12px] text-[#8A887F]">{dir.summary}</p>
+              <p className="mt-1 text-[12px] text-o1-muted">{dir.summary}</p>
             ) : null}
           </div>
         ))

@@ -3,6 +3,7 @@ import { ChevronLeft, Inbox } from 'lucide-react';
 import { CoachMessage, fetchCoachMessages } from '../services/coachService';
 import { sendCoachMessage } from '../services/coachBridge';
 import { getAuthenticatedUserId } from '../../../services/authUser';
+import { supabase } from '../../../services/supabaseClient';
 import { useAuthStore } from '../../../stores/useAuthStore';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { CoachingApplication, decideApplication, fetchCoachApplications } from '../../reels/services/coachStorefront';
@@ -61,6 +62,31 @@ export const CoachInboxView: React.FC<CoachInboxViewProps> = ({ coachId = '', vi
     };
   }, [coachId, viewer]);
 
+  const owner = viewer === 'coach' ? coachId || me : coachId;
+
+  useEffect(() => {
+    if (!owner || (viewer === 'athlete' && !me)) return;
+    const athleteId = viewer === 'athlete' ? me : '';
+    const channel = supabase
+      .channel(`coach-inbox-${owner}-${athleteId || 'all'}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'coach_messages',
+          filter: athleteId ? `athlete_id=eq.${athleteId}` : `coach_id=eq.${owner}`,
+        },
+        () => {
+          void fetchCoachMessages(owner, athleteId).then(setMessages);
+        },
+      )
+      .subscribe();
+    return () => {
+      void supabase.removeChannel(channel);
+    };
+  }, [owner, me, viewer]);
+
   const fromCoach = useCallback(
     (row: CoachMessage) => {
       if (row.from) return row.from === 'coach';
@@ -93,7 +119,6 @@ export const CoachInboxView: React.FC<CoachInboxViewProps> = ({ coachId = '', vi
   const send = async () => {
     const text = reply.trim();
     const athleteId = viewer === 'coach' ? openId : me;
-    const owner = viewer === 'coach' ? coachId || me : coachId;
     if (!text || !athleteId || !owner || sending) return;
     setSending(true);
     tactileEngine.triggerImpactPulse();
@@ -123,12 +148,12 @@ export const CoachInboxView: React.FC<CoachInboxViewProps> = ({ coachId = '', vi
         onChange={(event) => setReply(event.target.value)}
         placeholder={viewer === 'coach' ? `Reply to ${open?.name.split(' ')[0] || 'athlete'}` : `Message ${coachName || 'your coach'}`}
         maxLength={500}
-        className="h-[44px] min-w-0 flex-1 rounded-xl border border-[#1F1F1F] bg-black px-3 text-[13px] text-[#EAE8DF] outline-none focus:border-[#C4121A]"
+        className="h-[44px] min-w-0 flex-1 rounded-xl border border-white/[0.07] bg-o1-canvas px-3 text-[13px] text-o1-text outline-none focus:border-o1-crimson"
       />
       <button
         type="submit"
         disabled={!reply.trim() || sending}
-        className="h-[44px] rounded-xl bg-[#C4121A] px-4 text-[13px] font-semibold text-white active:scale-[0.98] disabled:opacity-40"
+        className="h-[44px] rounded-xl bg-o1-crimson px-4 text-[13px] font-semibold text-o1-text active:scale-[0.98] disabled:opacity-40"
       >
         Send
       </button>
@@ -138,31 +163,31 @@ export const CoachInboxView: React.FC<CoachInboxViewProps> = ({ coachId = '', vi
   if (open || viewer === 'athlete') {
     const rows = open?.messages || [];
     return (
-      <section className="space-y-3 rounded-2xl border border-[#1F1F1F] bg-[#0E0E0E] p-3">
+      <section className="space-y-3 rounded-2xl border border-white/[0.07] bg-o1-surface p-3">
         {viewer === 'coach' && open ? (
           <div className="flex items-center gap-2">
-            <button type="button" onClick={() => setOpenId(null)} aria-label="Back to inbox" className="flex h-11 w-11 items-center justify-center text-[#8A887F]">
+            <button type="button" onClick={() => setOpenId(null)} aria-label="Back to inbox" className="flex h-11 w-11 items-center justify-center text-o1-muted">
               <ChevronLeft size={20} />
             </button>
             <AthleteAvatar name={open.name} avatar={open.avatar} size={36} />
-            <p className="truncate text-[15px] font-semibold text-[#EAE8DF]">{open.name}</p>
+            <p className="truncate text-[15px] font-semibold text-o1-text">{open.name}</p>
           </div>
         ) : (
-          <p className="text-[13px] font-semibold text-[#EAE8DF]">Messages with {coachName || 'your coach'}</p>
+          <p className="text-[13px] font-semibold text-o1-text">Messages with {coachName || 'your coach'}</p>
         )}
         {isLoading ? (
-          <p className="py-6 text-center text-[13px] text-[#8A887F]">Loading messages…</p>
+          <p className="py-6 text-center text-[13px] text-o1-muted">Loading messages…</p>
         ) : rows.length === 0 ? (
-          <p className="py-6 text-center text-[13px] text-[#8A887F]">No messages yet.</p>
+          <p className="py-6 text-center text-[13px] text-o1-muted">No messages yet.</p>
         ) : (
           <ul className="space-y-2">
             {rows.map((row) => {
               const mine = fromCoach(row) === (viewer === 'coach');
               return (
                 <li key={row.id} className={`flex ${mine ? 'justify-end' : 'justify-start'}`}>
-                  <div className={`max-w-[80%] rounded-2xl px-3 py-2 ${mine ? 'bg-[#C4121A] text-white' : 'bg-black text-[#EAE8DF] border border-[#1F1F1F]'}`}>
+                  <div className={`max-w-[80%] rounded-2xl px-3 py-2 ${mine ? 'bg-o1-crimson text-o1-text' : 'bg-o1-canvas text-o1-text border border-white/[0.07]'}`}>
                     <p className="whitespace-pre-wrap text-[13px]">{row.message}</p>
-                    {row.time ? <p className={`mt-0.5 text-[10px] tabular-nums ${mine ? 'text-white/70' : 'text-[#8A887F]'}`}>{row.time}</p> : null}
+                    {row.time ? <p className={`mt-0.5 text-[10px] tabular-nums ${mine ? 'text-white/70' : 'text-o1-muted'}`}>{row.time}</p> : null}
                   </div>
                 </li>
               );
@@ -180,21 +205,21 @@ export const CoachInboxView: React.FC<CoachInboxViewProps> = ({ coachId = '', vi
     <section className="space-y-3">
       <div className="flex items-baseline justify-between px-1">
         <div>
-          <p className="text-[13px] font-semibold text-[#EAE8DF]">Inbox</p>
-          <p className="text-[12px] text-[#8A887F]">Messages and coaching requests from athletes.</p>
+          <p className="text-[13px] font-semibold text-o1-text">Inbox</p>
+          <p className="text-[12px] text-o1-muted">Messages and coaching requests from athletes.</p>
         </div>
-        {waitingCount > 0 ? <span className="text-[12px] font-semibold tabular-nums text-[#EAE8DF]">{waitingCount} to reply</span> : null}
+        {waitingCount > 0 ? <span className="text-[12px] font-semibold tabular-nums text-o1-text">{waitingCount} to reply</span> : null}
       </div>
 
       {applications.map((application) => (
-        <article key={application.id} className="space-y-2 rounded-2xl border border-[#1F1F1F] bg-[#0E0E0E] p-3">
+        <article key={application.id} className="space-y-2 rounded-2xl border border-white/[0.07] bg-o1-surface p-3">
           <div className="flex items-baseline justify-between gap-2">
-            <span className="truncate text-[14px] font-semibold text-[#EAE8DF]">{application.athleteName || 'Athlete'}</span>
-            <span className="shrink-0 text-[11px] text-[#8A887F]">Wants coaching</span>
+            <span className="truncate text-[14px] font-semibold text-o1-text">{application.athleteName || 'Athlete'}</span>
+            <span className="shrink-0 text-[11px] text-o1-muted">Wants coaching</span>
           </div>
-          <p className="text-[13px] text-[#EAE8DF]">{application.goal}</p>
+          <p className="text-[13px] text-o1-text">{application.goal}</p>
           {Object.keys(application.intake).length > 0 ? (
-            <p className="text-[12px] text-[#8A887F]">{Object.values(application.intake).join(' · ')}</p>
+            <p className="text-[12px] text-o1-muted">{Object.values(application.intake).join(' · ')}</p>
           ) : null}
           <div className="flex gap-2">
             {([false, true] as const).map((accept) => (
@@ -207,7 +232,7 @@ export const CoachInboxView: React.FC<CoachInboxViewProps> = ({ coachId = '', vi
                     if (ok) setApplications((prev) => prev.filter((row) => row.id !== application.id));
                   });
                 }}
-                className={`h-[44px] flex-1 rounded-xl text-[13px] font-semibold active:scale-[0.98] ${accept ? 'bg-[#C4121A] text-white' : 'border border-[#1F1F1F] bg-black text-[#EAE8DF]'}`}
+                className={`h-[44px] flex-1 rounded-xl text-[13px] font-semibold active:scale-[0.98] ${accept ? 'bg-o1-crimson text-o1-text' : 'border border-white/[0.07] bg-o1-canvas text-o1-text'}`}
               >
                 {accept ? 'Accept' : 'Decline'}
               </button>
@@ -217,12 +242,12 @@ export const CoachInboxView: React.FC<CoachInboxViewProps> = ({ coachId = '', vi
       ))}
 
       {isLoading ? (
-        <p className="rounded-2xl border border-[#1F1F1F] bg-[#0E0E0E] px-4 py-6 text-center text-[13px] text-[#8A887F]">Loading messages…</p>
+        <p className="rounded-2xl border border-white/[0.07] bg-o1-surface px-4 py-6 text-center text-[13px] text-o1-muted">Loading messages…</p>
       ) : threads.length === 0 ? (
-        <div className="space-y-1 rounded-2xl border border-[#1F1F1F] bg-[#0E0E0E] px-4 py-6 text-center">
-          <Inbox className="mx-auto h-6 w-6 text-[#8A887F]" />
-          <p className="text-[13px] font-semibold text-[#EAE8DF]">No messages yet</p>
-          <p className="text-[12px] text-[#8A887F]">When an athlete messages you, it shows up here.</p>
+        <div className="space-y-1 rounded-2xl border border-white/[0.07] bg-o1-surface px-4 py-6 text-center">
+          <Inbox className="mx-auto h-6 w-6 text-o1-muted" />
+          <p className="text-[13px] font-semibold text-o1-text">No messages yet</p>
+          <p className="text-[12px] text-o1-muted">When an athlete messages you, it shows up here.</p>
         </div>
       ) : (
         threads.map((thread) => {
@@ -235,20 +260,20 @@ export const CoachInboxView: React.FC<CoachInboxViewProps> = ({ coachId = '', vi
                 tactileEngine.triggerSelectionBuzz();
                 setOpenId(thread.athleteId);
               }}
-              className="flex w-full items-center gap-3 rounded-2xl border border-[#1F1F1F] bg-[#0E0E0E] p-3 text-left active:scale-[0.99]"
+              className="flex w-full items-center gap-3 rounded-2xl border border-white/[0.07] bg-o1-surface p-3 text-left active:scale-[0.99]"
             >
               <AthleteAvatar name={thread.name} avatar={thread.avatar} />
               <span className="min-w-0 flex-1">
                 <span className="flex items-baseline justify-between gap-2">
-                  <span className="truncate text-[14px] font-semibold text-[#EAE8DF]">{thread.name}</span>
-                  {last.time ? <span className="shrink-0 text-[11px] tabular-nums text-[#8A887F]">{last.time}</span> : null}
+                  <span className="truncate text-[14px] font-semibold text-o1-text">{thread.name}</span>
+                  {last.time ? <span className="shrink-0 text-[11px] tabular-nums text-o1-muted">{last.time}</span> : null}
                 </span>
-                <span className="block truncate text-[12px] text-[#8A887F]">
+                <span className="block truncate text-[12px] text-o1-muted">
                   {fromCoach(last) ? 'You: ' : ''}
                   {last.message}
                 </span>
               </span>
-              {thread.waiting ? <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-[#C4121A]" aria-label="Needs a reply" /> : null}
+              {thread.waiting ? <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-o1-crimson" aria-label="Needs a reply" /> : null}
             </button>
           );
         })

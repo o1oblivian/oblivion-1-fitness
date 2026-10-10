@@ -120,7 +120,7 @@ export const AthleteProgramsPanel: React.FC = () => {
     <section className="space-y-4" aria-label="Programs">
       {active.length > 0 && (
         <div className="space-y-2">
-          <p className="px-1 text-[13px] font-semibold text-[#EAE8DF]">My programs</p>
+          <p className="px-1 text-[13px] font-semibold text-o1-text">My programs</p>
           {active.map((program, index) => (
             <button
               key={program.id}
@@ -129,18 +129,18 @@ export const AthleteProgramsPanel: React.FC = () => {
                 tactileEngine.triggerSelectionBuzz();
                 setReadingId(program.id);
               }}
-              className="flex w-full items-center gap-3 rounded-2xl border border-[#1F1F1F] bg-[#0E0E0E] p-2.5 text-left active:scale-[0.99]"
+              className="flex w-full items-center gap-3 rounded-2xl border border-white/[0.07] bg-o1-surface p-2.5 text-left active:scale-[0.99]"
               aria-label={`Open program ${index + 1}, ${program.title}`}
             >
               <Cover id={program.id} url={program.coverUrl} className="h-14 w-14 shrink-0 rounded-xl object-cover" />
               <span className="min-w-0 flex-1">
-                <span className="block text-[11px] text-[#8A887F]">Program {index + 1}</span>
-                <span className="block truncate text-[14px] font-semibold text-[#EAE8DF]">{program.title}</span>
-                <span className="block truncate text-[12px] text-[#8A887F]">
+                <span className="block text-[11px] text-o1-muted">Program {index + 1}</span>
+                <span className="block truncate text-[14px] font-semibold text-o1-text">{program.title}</span>
+                <span className="block truncate text-[12px] text-o1-muted">
                   {[program.coach.name, meta(program)].filter(Boolean).join(' · ')}
                 </span>
               </span>
-              <ChevronRight size={18} className="shrink-0 text-[#8A887F]" />
+              <ChevronRight size={18} className="shrink-0 text-o1-muted" />
             </button>
           ))}
         </div>
@@ -151,7 +151,7 @@ export const AthleteProgramsPanel: React.FC = () => {
           <button
             type="button"
             onClick={() => setShowPast((v) => !v)}
-            className="flex min-h-[44px] w-full items-center justify-between px-1 text-[13px] font-semibold text-[#8A887F]"
+            className="flex min-h-[44px] w-full items-center justify-between px-1 text-[13px] font-semibold text-o1-muted"
             aria-expanded={showPast}
           >
             Past programs ({past.length})
@@ -163,12 +163,12 @@ export const AthleteProgramsPanel: React.FC = () => {
                 key={program.id}
                 type="button"
                 onClick={() => setReadingId(program.id)}
-                className="flex min-h-[44px] w-full items-center gap-3 rounded-2xl border border-[#1F1F1F] bg-[#0E0E0E] p-2.5 text-left opacity-80"
+                className="flex min-h-[44px] w-full items-center gap-3 rounded-2xl border border-white/[0.07] bg-o1-surface p-2.5 text-left opacity-80"
               >
                 <Cover id={program.id} url={program.coverUrl} className="h-10 w-10 shrink-0 rounded-lg object-cover" />
                 <span className="min-w-0 flex-1">
-                  <span className="block truncate text-[13px] font-semibold text-[#EAE8DF]">{program.title}</span>
-                  <span className="block truncate text-[12px] text-[#8A887F]">{program.coach.name}</span>
+                  <span className="block truncate text-[13px] font-semibold text-o1-text">{program.title}</span>
+                  <span className="block truncate text-[12px] text-o1-muted">{program.coach.name}</span>
                 </span>
               </button>
             ))}
@@ -176,7 +176,7 @@ export const AthleteProgramsPanel: React.FC = () => {
       )}
 
       <div className="space-y-2">
-        <p className="px-1 text-[13px] font-semibold text-[#EAE8DF]">Browse programs</p>
+        <p className="px-1 text-[13px] font-semibold text-o1-text">Browse programs</p>
         {disciplines.length > 2 && (
           <div className="-mx-1 flex gap-1.5 overflow-x-auto px-1 pb-1 [scrollbar-width:none]">
             {disciplines.map((name) => {
@@ -191,7 +191,7 @@ export const AthleteProgramsPanel: React.FC = () => {
                   }}
                   aria-pressed={on}
                   className={`h-[36px] shrink-0 rounded-full border px-3.5 text-[12px] font-semibold ${
-                    on ? 'border-white bg-white text-neutral-950' : 'border-[#1F1F1F] bg-[#0E0E0E] text-[#EAE8DF]'
+                    on ? 'border-white bg-white text-neutral-950' : 'border-white/[0.07] bg-o1-surface text-o1-text'
                   }`}
                 >
                   {name}
@@ -201,9 +201,9 @@ export const AthleteProgramsPanel: React.FC = () => {
           </div>
         )}
         {browse === null ? (
-          <p className="px-1 py-4 text-[13px] text-[#8A887F]">Loading programs</p>
+          <p className="px-1 py-4 text-[13px] text-o1-muted">Loading programs</p>
         ) : shown.length === 0 ? (
-          <p className="px-1 py-4 text-[13px] text-[#8A887F]">No programs published yet.</p>
+          <p className="px-1 py-4 text-[13px] text-o1-muted">No programs published yet.</p>
         ) : (
           <div className="-mx-1 flex snap-x gap-2 overflow-x-auto px-1 pb-1 [scrollbar-width:none]">
             {shown.map((program) => {
@@ -218,23 +218,23 @@ export const AthleteProgramsPanel: React.FC = () => {
                     if (owned) setReadingId(program.id);
                     else openCoach(program.coach.id, 'programs');
                   }}
-                  className="w-[168px] shrink-0 snap-start overflow-hidden rounded-2xl border border-[#1F1F1F] bg-[#0E0E0E] text-left active:scale-[0.98]"
+                  className="w-[168px] shrink-0 snap-start overflow-hidden rounded-2xl border border-white/[0.07] bg-o1-surface text-left active:scale-[0.98]"
                   aria-label={`${program.title} by ${program.coach.name}`}
                 >
-                  <span className="relative block aspect-[4/5] w-full bg-black">
+                  <span className="relative block aspect-[4/5] w-full bg-o1-canvas">
                     <Cover id={program.id} url={program.coverUrl} className="h-full w-full object-cover" />
                     <span className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-transparent" />
                     {owned ? (
                       <span className="absolute left-2 top-2 rounded-full bg-white px-2 py-0.5 text-[11px] font-semibold text-neutral-950">Enrolled</span>
                     ) : price ? (
-                      <span className="absolute left-2 top-2 rounded-full bg-black/70 px-2 py-0.5 text-[11px] font-semibold text-white">{price}</span>
+                      <span className="absolute left-2 top-2 rounded-full bg-black/70 px-2 py-0.5 text-[11px] font-semibold text-o1-text">{price}</span>
                     ) : null}
                     <span className="absolute inset-x-2 bottom-2">
-                      <span className="line-clamp-2 block text-[13px] font-semibold leading-tight text-white">{program.title}</span>
+                      <span className="line-clamp-2 block text-[13px] font-semibold leading-tight text-o1-text">{program.title}</span>
                       <span className="block truncate text-[11px] text-white/75">{program.coach.name}</span>
                     </span>
                   </span>
-                  {meta(program) ? <span className="block truncate px-2 py-1.5 text-[11px] text-[#8A887F]">{meta(program)}</span> : null}
+                  {meta(program) ? <span className="block truncate px-2 py-1.5 text-[11px] text-o1-muted">{meta(program)}</span> : null}
                 </button>
               );
             })}

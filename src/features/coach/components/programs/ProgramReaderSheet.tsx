@@ -46,7 +46,7 @@ export const ProgramReaderSheet: React.FC<ProgramReaderSheetProps> = ({
   const closed = program.status === 'closed';
 
   return (
-    <div role="dialog" aria-label={program.title} className="fixed inset-0 z-[60] flex flex-col bg-black text-[#EAE8DF] animate-in fade-in duration-200">
+    <div role="dialog" aria-label={program.title} className="fixed inset-0 z-[60] flex flex-col bg-o1-canvas text-o1-text animate-in fade-in duration-200">
       <div className="flex h-14 shrink-0 items-center gap-1 px-1 pt-safe">
         <button type="button" onClick={onClose} className="flex h-11 w-11 items-center justify-center" aria-label="Back to my programs">
           <ArrowLeft size={20} />
@@ -56,7 +56,7 @@ export const ProgramReaderSheet: React.FC<ProgramReaderSheetProps> = ({
 
       <div className="flex-1 overflow-y-auto pb-10">
         <div className="mx-auto w-full max-w-xl">
-          <div className="relative aspect-[16/9] w-full bg-[#0E0E0E]">
+          <div className="relative aspect-[16/9] w-full bg-o1-surface">
             <img
               src={reelCover(program.id, program.coverUrl)}
               alt=""
@@ -70,7 +70,7 @@ export const ProgramReaderSheet: React.FC<ProgramReaderSheetProps> = ({
             />
             <span className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
             <div className="absolute inset-x-4 bottom-3">
-              {program.discipline ? <p className="text-[12px] font-semibold text-[#EAE8DF]/80">{program.discipline}</p> : null}
+              {program.discipline ? <p className="text-[12px] font-semibold text-o1-text/80">{program.discipline}</p> : null}
               <h2 className="text-[20px] font-semibold leading-tight">{program.title}</h2>
             </div>
           </div>
@@ -88,13 +88,13 @@ export const ProgramReaderSheet: React.FC<ProgramReaderSheetProps> = ({
               {program.coach.avatar ? (
                 <img src={program.coach.avatar} alt="" className="h-9 w-9 shrink-0 rounded-full object-cover" />
               ) : (
-                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#1F1F1F] text-[13px] font-semibold">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/[0.07] text-[13px] font-semibold">
                   {(program.coach.name || '?').slice(0, 1).toUpperCase()}
                 </span>
               )}
               <span className="min-w-0">
                 <span className="block truncate text-[14px] font-semibold">{program.coach.name}</span>
-                <span className="block truncate text-[12px] text-[#8A887F]">
+                <span className="block truncate text-[12px] text-o1-muted">
                   {closed ? `Closed ${shortDate(program.closedAt)}` : enrolled ? `Enrolled ${enrolled}` : 'Enrolled'}
                 </span>
               </span>
@@ -103,8 +103,8 @@ export const ProgramReaderSheet: React.FC<ProgramReaderSheetProps> = ({
             {facts.length > 0 && (
               <div className="grid grid-cols-2 gap-2">
                 {facts.map(([name, value]) => (
-                  <div key={name} className="rounded-xl border border-[#1F1F1F] bg-[#0E0E0E] px-3 py-2">
-                    <p className="text-[11px] text-[#8A887F]">{name}</p>
+                  <div key={name} className="rounded-xl border border-white/[0.07] bg-o1-surface px-3 py-2">
+                    <p className="text-[11px] text-o1-muted">{name}</p>
                     <p className="text-[13px] font-semibold">{value}</p>
                   </div>
                 ))}
@@ -115,10 +115,10 @@ export const ProgramReaderSheet: React.FC<ProgramReaderSheetProps> = ({
 
             {program.weekOne.length > 0 && (
               <div className="space-y-2">
-                <p className="text-[13px] font-semibold text-[#8A887F]">Week 1</p>
+                <p className="text-[13px] font-semibold text-o1-muted">Week 1</p>
                 {program.weekOne.map((day, index) => (
-                  <div key={`${program.id}-${index}`} className="rounded-xl border border-[#1F1F1F] bg-[#0E0E0E] px-3 py-2.5">
-                    <p className="text-[11px] text-[#8A887F]">Day {index + 1}</p>
+                  <div key={`${program.id}-${index}`} className="rounded-xl border border-white/[0.07] bg-o1-surface px-3 py-2.5">
+                    <p className="text-[11px] text-o1-muted">Day {index + 1}</p>
                     <p className="text-[14px]">{day}</p>
                   </div>
                 ))}
@@ -131,7 +131,7 @@ export const ProgramReaderSheet: React.FC<ProgramReaderSheetProps> = ({
                 tactileEngine.triggerSelectionBuzz();
                 onMessageCoach(program);
               }}
-              className="flex h-[44px] w-full items-center justify-center gap-2 rounded-xl border border-[#1F1F1F] bg-[#0E0E0E] text-[13px] font-semibold"
+              className="flex h-[44px] w-full items-center justify-center gap-2 rounded-xl border border-white/[0.07] bg-o1-surface text-[13px] font-semibold"
             >
               <MessageCircle size={16} />
               Message {program.coach.name.split(' ')[0] || 'coach'}
@@ -147,17 +147,17 @@ export const ProgramReaderSheet: React.FC<ProgramReaderSheetProps> = ({
                 Restart program
               </button>
             ) : confirming ? (
-              <div className="space-y-2 rounded-2xl border border-[#1F1F1F] bg-[#0E0E0E] p-3">
+              <div className="space-y-2 rounded-2xl border border-white/[0.07] bg-o1-surface p-3">
                 <p className="text-[13px]">Close this program? It moves to Past programs and you can restart it anytime.</p>
                 <div className="flex gap-2">
-                  <button type="button" onClick={() => setConfirming(false)} className="h-[44px] flex-1 rounded-xl border border-[#1F1F1F] text-[13px] font-semibold">
+                  <button type="button" onClick={() => setConfirming(false)} className="h-[44px] flex-1 rounded-xl border border-white/[0.07] text-[13px] font-semibold">
                     Keep it
                   </button>
                   <button
                     type="button"
                     disabled={busy}
                     onClick={() => onSetStatus(program, 'closed')}
-                    className="h-[44px] flex-1 rounded-xl bg-[#C4121A] text-[13px] font-semibold text-white disabled:opacity-50"
+                    className="h-[44px] flex-1 rounded-xl bg-o1-crimson text-[13px] font-semibold text-o1-text disabled:opacity-50"
                   >
                     Close program
                   </button>
@@ -167,7 +167,7 @@ export const ProgramReaderSheet: React.FC<ProgramReaderSheetProps> = ({
               <button
                 type="button"
                 onClick={() => setConfirming(true)}
-                className="h-[44px] w-full rounded-xl text-[13px] font-semibold text-[#8A887F]"
+                className="h-[44px] w-full rounded-xl text-[13px] font-semibold text-o1-muted"
               >
                 Close program
               </button>

@@ -70,10 +70,10 @@ export const ProgramCreatorModal: React.FC<{
   return (
     <div className="fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm sm:flex sm:items-center sm:justify-center p-0 sm:p-4 select-none animate-fadeIn">
       {/* Container: Fullscreen on mobile, centered modal card on sm+ */}
-      <div className="w-full h-full sm:h-auto sm:max-h-[92vh] sm:max-w-2xl bg-black sm:rounded-2xl flex flex-col overflow-hidden text-neutral-100 shadow-2xl border-0 sm:border sm:border-white/[0.07]">
+      <div className="w-full h-full sm:h-auto sm:max-h-[92vh] sm:max-w-2xl bg-o1-canvas sm:rounded-2xl flex flex-col overflow-hidden text-o1-text shadow-2xl border-0 sm:border sm:border-white/[0.07]">
         
         {/* Top Header */}
-        <div className="px-4 py-2 border-b border-white/[0.05] flex items-center justify-between bg-o1-card shrink-0 min-h-[44px]">
+        <div className="px-4 py-2 border-b border-white/[0.07] flex items-center justify-between bg-o1-surface shrink-0 min-h-[44px]">
           <div className="flex items-center gap-2.5">
             {currentStep > 1 ? (
               <button
@@ -82,7 +82,7 @@ export const ProgramCreatorModal: React.FC<{
                   tactileEngine.triggerSelectionBuzz();
                   setCurrentStep((s) => s - 1);
                 }}
-                className="w-8 h-8 rounded-full bg-white/[0.08] border border-white/[0.07] flex items-center justify-center text-neutral-300 hover:text-white transition-colors cursor-pointer"
+                className="w-8 h-8 rounded-full bg-white/[0.08] border border-white/[0.07] flex items-center justify-center text-o1-text hover:text-o1-text transition-colors cursor-pointer"
                 title={`Back to Step ${currentStep - 1}`}
               >
                 <ChevronLeft size={16} />
@@ -93,13 +93,13 @@ export const ProgramCreatorModal: React.FC<{
               </div>
             )}
             
-            <h2 className="text-sm font-bold text-white leading-tight">
+            <h2 className="text-sm font-bold text-o1-text leading-tight">
               Program Creator
             </h2>
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="px-2.5 py-1 rounded-full bg-white/[0.08] border border-white/[0.07] text-xs font-mono font-semibold text-neutral-300">
+            <span className="px-2.5 py-1 rounded-full bg-white/[0.08] border border-white/[0.07] text-xs font-mono font-semibold text-o1-text">
               Step {currentStep} of 4
             </span>
             <button
@@ -108,7 +108,7 @@ export const ProgramCreatorModal: React.FC<{
                 tactileEngine.triggerSelectionBuzz();
                 onClose();
               }}
-              className="w-8 h-8 rounded-full bg-white/[0.08] border border-white/[0.07] flex items-center justify-center text-neutral-400 hover:text-white transition-colors cursor-pointer"
+              className="w-8 h-8 rounded-full bg-white/[0.08] border border-white/[0.07] flex items-center justify-center text-o1-muted hover:text-o1-text transition-colors cursor-pointer"
               title="Close creator"
             >
               <X size={15} />
@@ -117,7 +117,7 @@ export const ProgramCreatorModal: React.FC<{
         </div>
 
         {/* Stepper Tabs */}
-        <div className="grid grid-cols-4 border-b border-white/[0.05] bg-o1-card shrink-0">
+        <div className="grid grid-cols-4 border-b border-white/[0.07] bg-o1-surface shrink-0">
           {STEPS.map((s, idx) => {
             const stepNum = idx + 1;
             const isCompleted = stepNum < currentStep;
@@ -132,10 +132,10 @@ export const ProgramCreatorModal: React.FC<{
                 }}
                 className={`py-2 min-h-[44px] text-center text-xs font-semibold transition-all relative cursor-pointer ${
                   isActive
-                    ? 'text-white font-bold'
+                    ? 'text-o1-text font-bold'
                     : isCompleted
-                    ? 'text-neutral-300'
-                    : 'text-neutral-500'
+                    ? 'text-o1-text'
+                    : 'text-o1-muted'
                 }`}
               >
                 <span className="flex items-center justify-center gap-1">
@@ -159,7 +159,7 @@ export const ProgramCreatorModal: React.FC<{
         </div>
 
         {/* Pinned Bottom Sticky Dock with Safe Area padding */}
-        <div className="px-4 py-2 border-t border-white/[0.05] bg-o1-card/95 backdrop-blur-md flex items-center justify-between shrink-0 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
+        <div className="px-4 py-2 border-t border-white/[0.07] bg-o1-surface/95 backdrop-blur-md flex items-center justify-between shrink-0 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
           {currentStep > 1 ? (
             <button
               type="button"
@@ -167,7 +167,7 @@ export const ProgramCreatorModal: React.FC<{
                 tactileEngine.triggerSelectionBuzz();
                 setCurrentStep((s) => s - 1);
               }}
-              className="py-2.5 px-4 rounded-xl border border-white/[0.07] text-neutral-300 hover:text-white text-xs font-semibold cursor-pointer transition-colors"
+              className="py-2.5 px-4 rounded-xl border border-white/[0.07] text-o1-text hover:text-o1-text text-xs font-semibold cursor-pointer transition-colors"
             >
               Back
             </button>
@@ -175,7 +175,7 @@ export const ProgramCreatorModal: React.FC<{
             <button
               type="button"
               onClick={onClose}
-              className="py-2.5 px-4 rounded-xl border border-white/[0.07] text-neutral-500 hover:text-white text-xs font-semibold cursor-pointer transition-colors"
+              className="py-2.5 px-4 rounded-xl border border-white/[0.07] text-o1-muted hover:text-o1-text text-xs font-semibold cursor-pointer transition-colors"
             >
               Cancel
             </button>
@@ -196,7 +196,7 @@ export const ProgramCreatorModal: React.FC<{
             <button
               type="button"
               onClick={handlePublish}
-              className="py-2.5 px-6 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover active:scale-95 text-white text-xs font-bold flex items-center gap-1.5 shadow-xs transition-all cursor-pointer ml-auto"
+              className="py-2.5 px-6 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover active:scale-95 text-o1-text text-xs font-bold flex items-center gap-1.5 shadow-xs transition-all cursor-pointer ml-auto"
             >
               <Sparkles size={14} />
               <span>Publish Program</span>

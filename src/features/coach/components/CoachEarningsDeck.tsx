@@ -37,9 +37,9 @@ const STATUS_LABEL: Record<string, string> = {
 };
 
 function statusTone(status: string): string {
-  if (status === 'paid' || status === 'available') return 'bg-[#16301f] text-[#b7e0c2]';
-  if (status === 'failed') return 'bg-[#3a1214] text-[#f2b8bb]';
-  return 'bg-[#3a2a10] text-[#f0d7a2]';
+  if (status === 'paid' || status === 'available') return 'bg-o1-ok-wash text-o1-ok-ink';
+  if (status === 'failed') return 'bg-o1-bad-wash text-o1-bad-ink';
+  return 'bg-o1-warn-wash text-o1-warn-ink';
 }
 
 export const CoachEarningsDeck: React.FC<CoachEarningsDeckProps> = ({ coachId = '', onShowToast }) => {
@@ -131,14 +131,14 @@ export const CoachEarningsDeck: React.FC<CoachEarningsDeckProps> = ({ coachId = 
 
   return (
     <div className="space-y-3 select-none">
-      <section className="space-y-3 rounded-2xl border border-[#1F1F1F] bg-[#0E0E0E] p-4">
+      <section className="space-y-3 rounded-2xl border border-white/[0.07] bg-o1-surface p-4">
         <div className="flex items-center justify-between">
-          <p className="text-[13px] font-semibold text-[#EAE8DF]">{balance ? 'Ready to withdraw' : 'Earnings'}</p>
+          <p className="text-[13px] font-semibold text-o1-text">{balance ? 'Ready to withdraw' : 'Earnings'}</p>
           <button
             type="button"
             onClick={() => void loadData()}
             disabled={isLoading}
-            className="flex h-11 w-11 items-center justify-center text-[#8A887F] active:scale-95"
+            className="flex h-11 w-11 items-center justify-center text-o1-muted active:scale-95"
             aria-label="Refresh balance"
           >
             <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
@@ -146,31 +146,31 @@ export const CoachEarningsDeck: React.FC<CoachEarningsDeckProps> = ({ coachId = 
         </div>
         {balance ? (
           <>
-            <p className="text-[32px] font-semibold leading-none tabular-nums text-[#EAE8DF]">{money(availableCents, currency)}</p>
+            <p className="text-[32px] font-semibold leading-none tabular-nums text-o1-text">{money(availableCents, currency)}</p>
             <dl className="grid grid-cols-3 gap-1.5">
               {[
                 { label: 'On the way', value: balance.pendingCents },
                 { label: 'Paid out', value: balance.paidCents },
                 { label: `Fees (${feeLabel})`, value: balance.platformFeeCents },
               ].map((row) => (
-                <div key={row.label} className="rounded-xl bg-black px-2 py-1.5 text-center">
-                  <dt className="text-[10px] text-[#8A887F]">{row.label}</dt>
-                  <dd className="text-[13px] font-semibold tabular-nums text-[#EAE8DF]">{money(row.value, currency)}</dd>
+                <div key={row.label} className="rounded-xl bg-o1-canvas px-2 py-1.5 text-center">
+                  <dt className="text-[10px] text-o1-muted">{row.label}</dt>
+                  <dd className="text-[13px] font-semibold tabular-nums text-o1-text">{money(row.value, currency)}</dd>
                 </div>
               ))}
             </dl>
-            <p className="text-[11px] text-[#8A887F]">
+            <p className="text-[11px] text-o1-muted">
               {planLabel} plan · we keep {feeLabel} of each program sale
             </p>
           </>
         ) : (
-          <p className="text-[13px] text-[#8A887F]">Connect a bank account to get paid for program sales.</p>
+          <p className="text-[13px] text-o1-muted">Connect a bank account to get paid for program sales.</p>
         )}
         {isOnboarded && availableCents > 0 ? (
           <button
             type="button"
             onClick={() => { tactileEngine.triggerSelectionBuzz(); setIsWithdrawOpen(true); }}
-            className="h-[44px] w-full rounded-xl bg-[#C4121A] text-[13px] font-semibold text-white active:scale-[0.98]"
+            className="h-[44px] w-full rounded-xl bg-o1-crimson text-[13px] font-semibold text-o1-text active:scale-[0.98]"
           >
             Withdraw
           </button>
@@ -178,29 +178,29 @@ export const CoachEarningsDeck: React.FC<CoachEarningsDeckProps> = ({ coachId = 
           <button
             type="button"
             onClick={() => { void startPayoutSetup(); }}
-            className="h-[44px] w-full rounded-xl bg-[#C4121A] text-[13px] font-semibold text-white active:scale-[0.98]"
+            className="h-[44px] w-full rounded-xl bg-o1-crimson text-[13px] font-semibold text-o1-text active:scale-[0.98]"
           >
             Set up payouts
           </button>
         ) : null}
-        {setupNote ? <p className="text-center text-[12px] text-[#8A887F]">{setupNote}</p> : null}
+        {setupNote ? <p className="text-center text-[12px] text-o1-muted">{setupNote}</p> : null}
       </section>
 
       {ledger.length > 0 && (
         <section className="space-y-2">
-          <p className="px-1 text-[13px] font-semibold text-[#EAE8DF]">History</p>
+          <p className="px-1 text-[13px] font-semibold text-o1-text">History</p>
           {ledger.map((item) => (
-            <div key={item.id} className="flex items-center justify-between gap-3 rounded-2xl border border-[#1F1F1F] bg-[#0E0E0E] p-3">
+            <div key={item.id} className="flex items-center justify-between gap-3 rounded-2xl border border-white/[0.07] bg-o1-surface p-3">
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
-                  <span className="truncate text-[13px] font-semibold text-[#EAE8DF]">{item.title}</span>
+                  <span className="truncate text-[13px] font-semibold text-o1-text">{item.title}</span>
                   <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold ${statusTone(item.status)}`}>
                     {STATUS_LABEL[item.status] || item.status}
                   </span>
                 </div>
-                <span className="mt-0.5 block text-[11px] text-[#8A887F]">{new Date(item.createdAt).toLocaleDateString()}</span>
+                <span className="mt-0.5 block text-[11px] text-o1-muted">{new Date(item.createdAt).toLocaleDateString()}</span>
               </div>
-              <span className={`shrink-0 text-[13px] font-semibold tabular-nums ${item.amountCents > 0 ? 'text-[#EAE8DF]' : 'text-[#8A887F]'}`}>
+              <span className={`shrink-0 text-[13px] font-semibold tabular-nums ${item.amountCents > 0 ? 'text-o1-text' : 'text-o1-muted'}`}>
                 {item.amountCents > 0 ? '+' : '−'}{money(Math.abs(item.amountCents), item.currency)}
               </span>
             </div>

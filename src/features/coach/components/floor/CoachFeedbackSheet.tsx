@@ -43,48 +43,48 @@ export const CoachFeedbackSheet: React.FC<CoachFeedbackSheetProps> = ({ target, 
       <div
         role="dialog"
         aria-label={`Feedback for ${target.name}`}
-        className="w-full rounded-t-3xl border border-[#1F1F1F] bg-[#0E0E0E] p-4 pb-8"
+        className="w-full rounded-t-3xl border border-white/[0.07] bg-o1-sheet p-4 pb-8"
         onClick={(event) => event.stopPropagation()}
       >
         <div className="flex items-center gap-3">
           <AthleteAvatar name={target.name} avatar={target.avatar} size={40} />
           <div className="min-w-0 flex-1">
-            <p className="truncate text-[15px] font-semibold text-[#EAE8DF]">{target.name}</p>
-            <p className="text-[12px] text-[#8A887F]">Only {target.name.split(' ')[0]} sees this.</p>
+            <p className="truncate text-[15px] font-semibold text-o1-text">{target.name}</p>
+            <p className="text-[12px] text-o1-muted">Only {target.name.split(' ')[0]} sees this.</p>
           </div>
-          <button type="button" onClick={onClose} aria-label="Close" className="flex h-11 w-11 items-center justify-center text-[#8A887F]">
+          <button type="button" onClick={onClose} aria-label="Close" className="flex h-11 w-11 items-center justify-center text-o1-muted">
             <X size={20} />
           </button>
         </div>
 
-        <p className="mt-4 text-[12px] font-semibold text-[#8A887F]">Quick reply</p>
+        <p className="mt-4 text-[12px] font-semibold text-o1-muted">Quick reply</p>
         <div className="mt-2 flex flex-wrap gap-1.5">
           {QUICK_REPLIES.map((reply) => (
             <button
               key={reply}
               type="button"
               onClick={() => send(reply)}
-              className="o1-pill border border-[#1F1F1F] bg-black text-[12px] font-semibold text-[#EAE8DF] active:scale-[0.98]"
+              className="o1-pill border border-white/[0.07] bg-o1-canvas text-[12px] font-semibold text-o1-text active:scale-[0.98]"
             >
               {reply}
             </button>
           ))}
         </div>
 
-        <p className="mt-4 text-[12px] font-semibold text-[#8A887F]">Leave a note</p>
+        <p className="mt-4 text-[12px] font-semibold text-o1-muted">Leave a note</p>
         <textarea
           value={note}
           onChange={(event) => setNote(event.target.value)}
           rows={3}
           maxLength={500}
           placeholder={`Write something for ${target.name.split(' ')[0]}`}
-          className="mt-2 w-full resize-none rounded-xl border border-[#1F1F1F] bg-black px-3 py-2 text-[13px] text-[#EAE8DF] outline-none focus:border-[#C4121A]"
+          className="mt-2 w-full resize-none rounded-xl border border-white/[0.07] bg-o1-canvas px-3 py-2 text-[13px] text-o1-text outline-none focus:border-o1-crimson"
         />
         <button
           type="button"
           disabled={!note.trim()}
           onClick={() => send(note)}
-          className="mt-2 h-[44px] w-full rounded-xl bg-[#C4121A] text-[13px] font-semibold text-white active:scale-[0.98] disabled:opacity-40"
+          className="mt-2 h-[44px] w-full rounded-xl bg-o1-crimson text-[13px] font-semibold text-o1-text active:scale-[0.98] disabled:opacity-40"
         >
           Send note
         </button>
@@ -95,7 +95,7 @@ export const CoachFeedbackSheet: React.FC<CoachFeedbackSheetProps> = ({ target, 
               <button
                 type="button"
                 onClick={onSendWorkout}
-                className="flex h-[44px] items-center justify-center gap-1.5 rounded-xl border border-[#1F1F1F] bg-black text-[13px] font-semibold text-[#EAE8DF] active:scale-[0.98]"
+                className="flex h-[44px] items-center justify-center gap-1.5 rounded-xl border border-white/[0.07] bg-o1-canvas text-[13px] font-semibold text-o1-text active:scale-[0.98]"
               >
                 <Dumbbell size={15} />
                 Send a workout
@@ -105,7 +105,7 @@ export const CoachFeedbackSheet: React.FC<CoachFeedbackSheetProps> = ({ target, 
               <button
                 type="button"
                 onClick={onViewProfile}
-                className="flex h-[44px] items-center justify-center gap-1.5 rounded-xl border border-[#1F1F1F] bg-black text-[13px] font-semibold text-[#EAE8DF] active:scale-[0.98]"
+                className="flex h-[44px] items-center justify-center gap-1.5 rounded-xl border border-white/[0.07] bg-o1-canvas text-[13px] font-semibold text-o1-text active:scale-[0.98]"
               >
                 <User size={15} />
                 View profile

@@ -24,25 +24,25 @@ export const ProgramCoverArtworkPicker: React.FC<Props> = ({
   };
 
   return (
-    <div className="p-3.5 rounded-2xl bg-o1-card border border-white/[0.07] space-y-3 select-none">
+    <div className="p-3.5 rounded-2xl bg-o1-surface border border-white/[0.07] space-y-3 select-none">
       {/* Banner Preview */}
       <div className="relative h-32 rounded-xl overflow-hidden bg-black/60 border border-white/[0.07]">
         <img src={coverImage} alt="Program Artwork" className="w-full h-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-black/40 p-2.5 flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="px-2 py-0.5 rounded-md bg-black/60 text-[9px] font-mono font-bold text-neutral-300 border border-white/[0.07]">
+            <span className="px-2 py-0.5 rounded-md bg-black/60 text-[9px] font-mono font-bold text-o1-text border border-white/[0.07]">
               Program Artwork
             </span>
             <span className="px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-400 text-[9px] font-mono font-bold border border-emerald-500/30 flex items-center gap-1">
               <Check className="w-2.5 h-2.5" />Active
             </span>
           </div>
-          <span className="text-xs font-bold text-white tracking-wide">{category} · Official Cover</span>
+          <span className="text-xs font-bold text-o1-text tracking-wide">{category} · Official Cover</span>
         </div>
       </div>
 
       {/* Streamlined 2 Tabs: [ PRESETS / STOCK ] and [ VAULT ] */}
-      <div className="flex items-center gap-1.5 bg-o1-well p-1 rounded-xl border border-white/[0.07] text-[10.5px] font-tactical font-bold tracking-wider">
+      <div className="flex items-center gap-1.5 bg-o1-sheet p-1 rounded-xl border border-white/[0.07] text-[10.5px] font-tactical font-bold tracking-wider">
         <button
           type="button"
           onClick={() => {
@@ -51,8 +51,8 @@ export const ProgramCoverArtworkPicker: React.FC<Props> = ({
           }}
           className={`flex-1 py-1.5 rounded-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
             activeTab === 'presets'
-              ? 'bg-o1-crimson text-white shadow-sm'
-              : 'text-neutral-400 hover:text-white hover:bg-white/[0.06]'
+              ? 'bg-o1-crimson text-o1-text shadow-sm'
+              : 'text-o1-muted hover:text-o1-text hover:bg-white/[0.06]'
           }`}
         >
           <Sparkles className="w-3.5 h-3.5" />
@@ -67,8 +67,8 @@ export const ProgramCoverArtworkPicker: React.FC<Props> = ({
           }}
           className={`flex-1 py-1.5 rounded-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
             activeTab === 'vault'
-              ? 'bg-o1-crimson text-white shadow-sm'
-              : 'text-neutral-400 hover:text-white hover:bg-white/[0.06]'
+              ? 'bg-o1-crimson text-o1-text shadow-sm'
+              : 'text-o1-muted hover:text-o1-text hover:bg-white/[0.06]'
           }`}
         >
           <Folder className="w-3.5 h-3.5" />

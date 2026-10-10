@@ -12,6 +12,7 @@ import { DirectiveItem } from '../types/coachDirectives';
 import { uploadedFilms } from '../services/coachFilms';
 import { coachPeople } from '../services/floorRoster';
 import { sendCoachMessage } from '../services/coachBridge';
+import { isSampleId } from '../services/sampleIds';
 import { reelCover, nextReelCover } from '../../reels/coverPresets';
 import { DirectiveSignalsSection } from './DirectiveSignalsSection';
 import { CoachInboxView, type InboxContact } from './CoachInboxView';
@@ -89,7 +90,7 @@ function FilmTile({ title, thumb, onOpen }: { title: string; thumb: string; onOp
     <button
       type="button"
       onClick={onOpen}
-      className="relative aspect-[4/5] overflow-hidden bg-[#0E0E0E] active:scale-[0.98]"
+      className="relative aspect-[4/5] overflow-hidden bg-o1-surface active:scale-[0.98]"
       aria-label={title}
     >
       <img
@@ -206,12 +207,16 @@ export const CoachFloor: React.FC<CoachFloorProps> = ({
     } catch {
       /* private mode */
     }
+    setFeedbackFor(null);
+    if (isSampleId(target.athleteId)) {
+      onShowToast?.(`${target.name} is a sample client. Saved on this phone only.`);
+      return;
+    }
     if (target.workoutId) submitCoachFeedback(target.workoutId, message);
     if (target.checkinId) onReplyCheckin(target.checkinId, message);
     void sendCoachMessage({ coachId, athleteId: target.athleteId, senderName: name, message, from: 'coach' }).then((sent) => {
       onShowToast?.(sent ? `Sent to ${target.name}` : `Saved for ${target.name} on this phone`);
     });
-    setFeedbackFor(null);
   };
 
   const feedbackAthlete = feedbackFor?.athlete;
@@ -257,13 +262,13 @@ export const CoachFloor: React.FC<CoachFloorProps> = ({
               onOpenVault(false);
               setPhoto(profilePhoto());
             }}
-            className="flex h-[86px] w-[86px] items-center justify-center overflow-hidden rounded-full border border-[#1F1F1F] bg-[#0E0E0E] active:scale-[0.98]"
+            className="flex h-[86px] w-[86px] items-center justify-center overflow-hidden rounded-full border border-white/[0.07] bg-o1-surface active:scale-[0.98]"
             aria-label="Profile photo"
           >
             {photo ? (
               <img src={photo} alt="" className="h-full w-full object-cover" />
             ) : (
-              <span className="text-xl font-semibold text-[#EAE8DF]">{name.slice(0, 1).toUpperCase()}</span>
+              <span className="text-xl font-semibold text-o1-text">{name.slice(0, 1).toUpperCase()}</span>
             )}
           </button>
           <button
@@ -280,21 +285,21 @@ export const CoachFloor: React.FC<CoachFloorProps> = ({
           </button>
         </div>
         <div className="min-w-0 flex-1">
-          <h2 className="truncate text-[16px] font-semibold text-[#EAE8DF]">{name}</h2>
-          {handle ? <p className="truncate text-[12px] text-[#8A887F]">{handle}</p> : null}
-          {bio ? <p className="mt-1 line-clamp-2 text-[12px] leading-snug text-[#EAE8DF]">{bio}</p> : null}
+          <h2 className="truncate text-[16px] font-semibold text-o1-text">{name}</h2>
+          {handle ? <p className="truncate text-[12px] text-o1-muted">{handle}</p> : null}
+          {bio ? <p className="mt-1 line-clamp-2 text-[12px] leading-snug text-o1-text">{bio}</p> : null}
           <div className="mt-2 grid grid-cols-3 gap-1">
             <button type="button" onClick={() => openReel()} className="min-h-[44px] text-center active:scale-[0.98]">
-              <span className="tabular-nums block text-[15px] text-[#EAE8DF]">{films.length}</span>
-              <span className="text-[11px] text-[#8A887F]">Reels</span>
+              <span className="tabular-nums block text-[15px] text-o1-text">{films.length}</span>
+              <span className="text-[11px] text-o1-muted">Reels</span>
             </button>
             <div className="min-h-[44px] text-center">
-              <span className="tabular-nums block text-[15px] text-[#EAE8DF]">{people.length}</span>
-              <span className="text-[11px] text-[#8A887F]">Clients</span>
+              <span className="tabular-nums block text-[15px] text-o1-text">{people.length}</span>
+              <span className="text-[11px] text-o1-muted">Clients</span>
             </div>
             <button type="button" onClick={() => { tactileEngine.triggerSelectionBuzz(); onShareInvite(); }} className="min-h-[44px] text-center active:scale-[0.98]">
-              <span className="tabular-nums block text-[15px] text-[#EAE8DF]">{invites}</span>
-              <span className="text-[11px] text-[#8A887F]">Invite</span>
+              <span className="tabular-nums block text-[15px] text-o1-text">{invites}</span>
+              <span className="text-[11px] text-o1-muted">Invite</span>
             </button>
           </div>
         </div>
@@ -307,7 +312,7 @@ export const CoachFloor: React.FC<CoachFloorProps> = ({
             tactileEngine.triggerSelectionBuzz();
             onOpenPrograms();
           }}
-          className="h-[44px] flex-1 rounded-xl border border-[#1F1F1F] bg-[#0E0E0E] text-[13px] font-semibold text-[#EAE8DF] active:scale-[0.98]"
+          className="h-[44px] flex-1 rounded-xl border border-white/[0.07] bg-o1-surface text-[13px] font-semibold text-o1-text active:scale-[0.98]"
         >
           Programs
         </button>
@@ -317,13 +322,13 @@ export const CoachFloor: React.FC<CoachFloorProps> = ({
             tactileEngine.triggerSelectionBuzz();
             onOpenWorkout();
           }}
-          className="h-[44px] flex-1 rounded-xl bg-[#C4121A] text-[13px] font-semibold text-white active:scale-[0.98]"
+          className="h-[44px] flex-1 rounded-xl bg-o1-crimson text-[13px] font-semibold text-o1-text active:scale-[0.98]"
         >
           Send workout
         </button>
       </div>
 
-      <div className="flex justify-around border-b border-[#1F1F1F]">
+      <div className="flex justify-around border-b border-white/[0.07]">
         {tabs.map((item) => {
           const Icon = item.icon;
           const on = tab === item.id;
@@ -336,7 +341,7 @@ export const CoachFloor: React.FC<CoachFloorProps> = ({
                 tactileEngine.triggerSelectionBuzz();
                 setTab(item.id);
               }}
-              className={`flex min-h-[52px] flex-1 flex-col items-center justify-center gap-0.5 border-b-2 active:scale-[0.98] ${on ? 'border-white text-white' : 'border-transparent text-[#8A887F]'}`}
+              className={`flex min-h-[52px] flex-1 flex-col items-center justify-center gap-0.5 border-b-2 active:scale-[0.98] ${on ? 'border-white text-o1-text' : 'border-transparent text-o1-muted'}`}
             >
               <Icon size={18} />
               <span className="text-[10px] font-semibold">{item.label}</span>
@@ -347,7 +352,7 @@ export const CoachFloor: React.FC<CoachFloorProps> = ({
 
       {tab === 'films' && (
         films.length === 0 ? (
-          <p className="rounded-2xl border border-[#1F1F1F] bg-[#0E0E0E] px-4 py-8 text-center text-[13px] text-[#EAE8DF]">
+          <p className="rounded-2xl border border-white/[0.07] bg-o1-surface px-4 py-8 text-center text-[13px] text-o1-text">
             No films yet. Add a clip.
           </p>
         ) : (
@@ -361,12 +366,18 @@ export const CoachFloor: React.FC<CoachFloorProps> = ({
 
       {tab === 'floor' && (
         <div className="space-y-4">
+          {sample ? (
+            <p role="note" className="rounded-2xl border border-o1-gold/40 bg-o1-warn-wash px-3 py-2 text-[12px] font-semibold text-o1-warn-ink">
+              Sample clients for testing. Nothing you send to them leaves this phone.
+            </p>
+          ) : null}
           <section className="space-y-2">
-            <h3 className="px-1 text-[13px] font-semibold text-[#EAE8DF]">Who trained</h3>
+            <h3 className="px-1 text-[13px] font-semibold text-o1-text">Who trained</h3>
             {sample ? (
               people.slice(0, 1).map((athlete) => (
                 <FloorAthleteCard
                   key={athlete.id}
+                  sample
                   name={athlete.name}
                   avatar={athlete.avatar}
                   subtitle={athlete.handle}
@@ -382,7 +393,7 @@ export const CoachFloor: React.FC<CoachFloorProps> = ({
                 />
               ))
             ) : trained.length === 0 ? (
-              <p className="rounded-2xl border border-[#1F1F1F] bg-[#0E0E0E] px-4 py-6 text-center text-[13px] text-[#8A887F]">No sessions finished yet.</p>
+              <p className="rounded-2xl border border-white/[0.07] bg-o1-surface px-4 py-6 text-center text-[13px] text-o1-muted">No sessions finished yet.</p>
             ) : (
               trained.slice(0, 6).map((log) => {
                 const athlete = findAthlete(log.athleteId, log.athleteName);
@@ -409,9 +420,10 @@ export const CoachFloor: React.FC<CoachFloorProps> = ({
           </section>
 
           <section className="space-y-2">
-            <h3 className="px-1 text-[13px] font-semibold text-[#EAE8DF]">Check-ins waiting</h3>
+            <h3 className="px-1 text-[13px] font-semibold text-o1-text">Check-ins waiting</h3>
             {sample && people[1] ? (
               <FloorAthleteCard
+                sample
                 name={people[1].name}
                 avatar={people[1].avatar}
                 subtitle={people[1].handle}
@@ -425,7 +437,7 @@ export const CoachFloor: React.FC<CoachFloorProps> = ({
                 actions={athleteActions({ key: people[1].id, athleteId: rosterId(people[1]), name: people[1].name, avatar: people[1].avatar, athlete: people[1] }, 'Reply')}
               />
             ) : pending.length === 0 ? (
-              <p className="rounded-2xl border border-[#1F1F1F] bg-[#0E0E0E] px-4 py-6 text-center text-[13px] text-[#8A887F]">No check-ins waiting.</p>
+              <p className="rounded-2xl border border-white/[0.07] bg-o1-surface px-4 py-6 text-center text-[13px] text-o1-muted">No check-ins waiting.</p>
             ) : (
               pending.slice(0, 6).map((row) => {
                 const athlete = findAthlete(row.athleteId, row.athleteName);

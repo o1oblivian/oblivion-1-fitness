@@ -74,7 +74,7 @@ export const O1FCoachRootView: React.FC = () => {
                 setActiveView(id);
               }}
               className={`o1-pill text-[11px] font-semibold ${
-                activeView === id ? 'bg-white text-neutral-950 border-white' : 'bg-o1-well text-neutral-200 border border-white/[0.07]'
+                activeView === id ? 'bg-white text-neutral-950 border-white' : 'bg-o1-sheet text-o1-text border border-white/[0.07]'
               }`}
             >
               <Icon className="w-3.5 h-3.5" />

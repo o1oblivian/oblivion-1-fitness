@@ -17,19 +17,20 @@ interface FloorAthleteCardProps {
   lastFeedback?: string;
   actions: FloorCardAction[];
   onOpenProfile?: () => void;
+  sample?: boolean;
 }
 
 export function AthleteAvatar({ name, avatar, size = 44 }: { name: string; avatar?: string; size?: number }) {
   const initial = name.trim().slice(0, 1).toUpperCase() || '?';
   return (
     <span
-      className="flex shrink-0 items-center justify-center overflow-hidden rounded-full border border-[#1F1F1F] bg-[#161616]"
+      className="flex shrink-0 items-center justify-center overflow-hidden rounded-full border border-white/[0.07] bg-o1-sheet"
       style={{ width: size, height: size }}
     >
       {avatar ? (
         <img src={avatar} alt="" className="h-full w-full object-cover" />
       ) : (
-        <span className="text-[15px] font-semibold text-[#EAE8DF]">{initial}</span>
+        <span className="text-[15px] font-semibold text-o1-text">{initial}</span>
       )}
     </span>
   );
@@ -45,8 +46,9 @@ export const FloorAthleteCard: React.FC<FloorAthleteCardProps> = ({
   lastFeedback,
   actions,
   onOpenProfile,
+  sample = false,
 }) => (
-  <article className="rounded-2xl border border-[#1F1F1F] bg-black p-3">
+  <article className="rounded-2xl border border-white/[0.07] bg-o1-canvas p-3">
     <button
       type="button"
       onClick={onOpenProfile}
@@ -56,26 +58,29 @@ export const FloorAthleteCard: React.FC<FloorAthleteCardProps> = ({
       <AthleteAvatar name={name} avatar={avatar} />
       <span className="min-w-0 flex-1">
         <span className="flex items-baseline justify-between gap-2">
-          <span className="truncate text-[15px] font-semibold text-[#EAE8DF]">{name}</span>
-          {meta ? <span className="shrink-0 text-[11px] text-[#8A887F]">{meta}</span> : null}
+          <span className="flex min-w-0 items-center gap-1.5">
+            <span className="truncate text-[15px] font-semibold text-o1-text">{name}</span>
+            {sample ? <span className="shrink-0 rounded-full bg-o1-warn-wash px-1.5 py-0.5 text-[10px] font-semibold text-o1-warn-ink">Sample</span> : null}
+          </span>
+          {meta ? <span className="shrink-0 text-[11px] text-o1-muted">{meta}</span> : null}
         </span>
-        {subtitle ? <span className="block truncate text-[12px] text-[#8A887F]">{subtitle}</span> : null}
+        {subtitle ? <span className="block truncate text-[12px] text-o1-muted">{subtitle}</span> : null}
       </span>
     </button>
 
     {stats.length > 0 ? (
       <dl className="mt-3 grid grid-cols-3 gap-1.5">
         {stats.map((stat) => (
-          <div key={stat.label} className="rounded-xl bg-[#0E0E0E] px-2 py-1.5 text-center">
-            <dt className="text-[10px] text-[#8A887F]">{stat.label}</dt>
-            <dd className="text-[13px] font-semibold tabular-nums text-[#EAE8DF]">{stat.value}</dd>
+          <div key={stat.label} className="rounded-xl bg-o1-surface px-2 py-1.5 text-center">
+            <dt className="text-[10px] text-o1-muted">{stat.label}</dt>
+            <dd className="text-[13px] font-semibold tabular-nums text-o1-text">{stat.value}</dd>
           </div>
         ))}
       </dl>
     ) : null}
 
     {lastFeedback ? (
-      <p className="mt-2 truncate rounded-lg bg-[#16301f] px-2 py-1 text-[11px] font-semibold text-[#b7e0c2]">You said: {lastFeedback}</p>
+      <p className="mt-2 truncate rounded-lg bg-o1-ok-wash px-2 py-1 text-[11px] font-semibold text-o1-ok-ink">You said: {lastFeedback}</p>
     ) : null}
 
     <div className="mt-3 flex gap-1.5">
@@ -87,7 +92,7 @@ export const FloorAthleteCard: React.FC<FloorAthleteCardProps> = ({
             type="button"
             onClick={action.onClick}
             className={`flex h-[40px] flex-1 items-center justify-center gap-1.5 rounded-xl text-[12px] font-semibold active:scale-[0.98] ${
-              action.primary ? 'bg-[#C4121A] text-white' : 'border border-[#1F1F1F] bg-[#0E0E0E] text-[#EAE8DF]'
+              action.primary ? 'bg-o1-crimson text-o1-text' : 'border border-white/[0.07] bg-o1-surface text-o1-text'
             }`}
           >
             <Icon size={14} />

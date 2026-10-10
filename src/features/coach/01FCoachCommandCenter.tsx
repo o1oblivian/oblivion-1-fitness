@@ -80,7 +80,7 @@ export const O1FCoachCommandCenter: React.FC<O1FCoachCommandCenterProps> = ({ is
       summary: draft.summary,
       affectedCount: athletes.length,
       priority: 'NORMAL',
-      badgeStyle: 'bg-o1-well text-neutral-200 border-white/[0.07]',
+      badgeStyle: 'bg-o1-sheet text-o1-text border-white/[0.07]',
     };
     setDirectives((prev) => [note, ...prev]);
     void publishCoachNote(liveCoachId, note).then((saved) => {
@@ -157,11 +157,16 @@ export const O1FCoachCommandCenter: React.FC<O1FCoachCommandCenterProps> = ({ is
   useEffect(() => {
     if (!isVerifiedCoach) return;
     void loadData();
-    const ch = supabase.channel('coach-live-db-sync').on('postgres_changes', { event: '*', schema: 'public', table: 'coach_clients' }, loadData).subscribe();
+    const ch = supabase.channel(`coach-live-db-sync-${liveCoachId || 'local'}`)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'coach_clients' }, loadData);
+    if (liveCoachId) {
+      ch.on('postgres_changes', { event: '*', schema: 'public', table: 'athlete_checkins', filter: `coach_id=eq.${liveCoachId}` }, loadData);
+    }
+    ch.subscribe();
     return () => {
       supabase.removeChannel(ch);
     };
-  }, [loadData, isVerifiedCoach]);
+  }, [loadData, isVerifiedCoach, liveCoachId]);
 
   if (!isVerifiedCoach) return null;
 
@@ -171,7 +176,7 @@ export const O1FCoachCommandCenter: React.FC<O1FCoachCommandCenterProps> = ({ is
         <div
           role="status"
           aria-live="polite"
-          className="fixed inset-x-4 top-[calc(env(safe-area-inset-top)+0.75rem)] z-[60] mx-auto flex max-w-md items-center gap-2 rounded-2xl border border-emerald-500/30 bg-[#0E0E0E] p-3 text-[13px] font-semibold text-emerald-400 shadow-xl"
+          className="fixed inset-x-4 top-[calc(env(safe-area-inset-top)+0.75rem)] z-[60] mx-auto flex max-w-md items-center gap-2 rounded-2xl border border-emerald-500/30 bg-o1-surface p-3 text-[13px] font-semibold text-emerald-400 shadow-xl"
         >
           <CheckCircle2 className="h-4 w-4 shrink-0" />
           <span>{toastMsg}</span>

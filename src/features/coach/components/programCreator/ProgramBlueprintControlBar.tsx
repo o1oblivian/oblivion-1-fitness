@@ -35,13 +35,13 @@ export const ProgramBlueprintControlBar: React.FC<Props> = ({
   }, [category]);
 
   return (
-    <div className="p-3.5 rounded-2xl bg-o1-card border border-white/[0.07] space-y-3 shadow-2xs">
+    <div className="p-3.5 rounded-2xl bg-o1-surface border border-white/[0.07] space-y-3 shadow-2xs">
       {/* Header bar: Discipline indicator & Quick actions */}
       <div className="flex items-center justify-between text-xs">
         <div className="flex items-center gap-2">
           <span className="w-2 h-2 rounded-full bg-o1-crimson" />
-          <span className="text-neutral-400 text-xs font-semibold">
-            Discipline: <span className="text-white font-bold">{selectedMuscleTag || category}</span>
+          <span className="text-o1-muted text-xs font-semibold">
+            Discipline: <span className="text-o1-text font-bold">{selectedMuscleTag || category}</span>
           </span>
         </div>
 
@@ -62,7 +62,7 @@ export const ProgramBlueprintControlBar: React.FC<Props> = ({
             <button
               type="button"
               onClick={onSyncSplit}
-              className="text-[11px] text-slate-400 hover:text-white flex items-center gap-1 font-semibold cursor-pointer"
+              className="text-[11px] text-slate-400 hover:text-o1-text flex items-center gap-1 font-semibold cursor-pointer"
               title={`Sync schedule focus to ${selectedMuscleTag || category}`}
             >
               <Sliders className="w-3.5 h-3.5" />
@@ -87,7 +87,7 @@ export const ProgramBlueprintControlBar: React.FC<Props> = ({
               className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
                 isSelected
                   ? 'bg-white text-neutral-900 shadow-2xs font-bold'
-                  : 'bg-white/[0.08] text-neutral-400 hover:text-white hover:bg-neutral-700'
+                  : 'bg-white/[0.08] text-o1-muted hover:text-o1-text hover:bg-neutral-700'
               }`}
             >
               {t}
@@ -97,11 +97,11 @@ export const ProgramBlueprintControlBar: React.FC<Props> = ({
       </div>
 
       {/* Action Bar: Dynamic Blueprint Trigger & Exercise Quick Adds */}
-      <div className="flex flex-wrap items-center gap-1.5 pt-2 border-t border-white/[0.05]">
+      <div className="flex flex-wrap items-center gap-1.5 pt-2 border-t border-white/[0.07]">
         <button
           type="button"
           onClick={onApplyBlueprint}
-          className="px-3 py-1.5 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover active:scale-95 text-white text-xs font-bold flex items-center gap-1.5 shadow-2xs transition-all cursor-pointer"
+          className="px-3 py-1.5 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover active:scale-95 text-o1-text text-xs font-bold flex items-center gap-1.5 shadow-2xs transition-all cursor-pointer"
         >
           <Sparkles className="w-3.5 h-3.5" />
           <span>Apply {selectedMuscleTag} Blueprint</span>
@@ -112,7 +112,7 @@ export const ProgramBlueprintControlBar: React.FC<Props> = ({
             key={qa}
             type="button"
             onClick={() => onQuickAdd(qa)}
-            className="px-2.5 py-1.5 rounded-xl bg-white/[0.08] hover:bg-neutral-700 text-neutral-300 text-[11px] font-medium truncate max-w-[170px] active:scale-95 transition-all cursor-pointer border border-white/[0.07]"
+            className="px-2.5 py-1.5 rounded-xl bg-white/[0.08] hover:bg-neutral-700 text-o1-text text-[11px] font-medium truncate max-w-[170px] active:scale-95 transition-all cursor-pointer border border-white/[0.07]"
             title={`Quick add ${qa}`}
           >
             + {qa}

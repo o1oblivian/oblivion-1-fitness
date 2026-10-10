@@ -4,6 +4,7 @@ import { AthleteCheckInSubmission } from '../types/coachPlatformTypes';
 import { CoachEarningsTransaction, SquadAthlete } from '../../../types';
 import { safeStorage } from '../../../utils/safeStorage';
 import { WORKOUT_BLUEPRINTS } from '../../../data/workoutBlueprints';
+import { isSampleId } from './sampleIds';
 
 export interface Athlete {
   id: string;
@@ -198,7 +199,7 @@ export async function fetchCoachEarnings(coachId: string = ''): Promise<CoachEar
 
 // 4. Direct Supabase inbox messages query (coach_messages)
 function liveMessages<T extends { id: string; athleteId?: string }>(rows: T[]): T[] {
-  return rows.filter((row) => !String(row.id).startsWith('preview-') && !String(row.athleteId || '').startsWith('preview-'));
+  return rows.filter((row) => !isSampleId(row.id) && !isSampleId(row.athleteId));
 }
 
 export interface CoachMessage {
@@ -341,6 +342,7 @@ export function writeStoredCheckins(rows: AthleteCheckInSubmission[]): void {
 }
 
 export async function saveCheckinRemote(row: AthleteCheckInSubmission): Promise<void> {
+  if (isSampleId(row.id) || isSampleId(row.athleteId)) return;
   try {
     await supabase.from('athlete_checkins').upsert({
       id: row.id,

@@ -5,6 +5,7 @@ import { readPendingInvite } from '../../log/publicShare';
 import { LinkedCoach, readLinkedCoach, saveLinkedCoach } from './coachLink';
 import { AthleteCheckInSubmission } from '../types/coachPlatformTypes';
 import { CoachFinishedWorkoutLog } from '../../../stores/coachTypes';
+import { isSampleId } from './sampleIds';
 
 const INVITE_BOOK = 'o1_coach_invite_book';
 const FINISHED_KEY = 'o1_finished_workouts_v1';
@@ -261,6 +262,7 @@ function mapCheckin(row: Record<string, unknown>): AthleteCheckInSubmission {
 }
 
 export async function saveCheckinReplyRemote(id: string, feedback: string): Promise<void> {
+  if (isSampleId(id)) return;
   try {
     await supabase.from('athlete_checkins').update({
       feedback_text: feedback,
@@ -280,7 +282,7 @@ export async function sendCoachMessage(input: {
   from: 'coach' | 'athlete';
 }): Promise<boolean> {
   const message = input.message.trim();
-  if (!input.coachId || !message) return false;
+  if (!input.coachId || !message || isSampleId(input.athleteId)) return false;
   try {
     const { error } = await supabase.from('coach_messages').insert({
       id: `msg-${input.from}-${Date.now()}`,

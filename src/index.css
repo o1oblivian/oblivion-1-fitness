@@ -25,6 +25,18 @@
   --color-o1-bone: #F2EFE6;
   --color-o1-stone: #A39E92;
 
+  /* Coach Hub OLED surfaces */
+  --color-o1-surface: #111113;
+  --color-o1-sheet: #161618;
+  --color-o1-text: #EAE8DF;
+  --color-o1-muted: #8A887F;
+  --color-o1-ok-wash: #16301F;
+  --color-o1-ok-ink: #B7E0C2;
+  --color-o1-warn-wash: #3A2A10;
+  --color-o1-warn-ink: #F0D7A2;
+  --color-o1-bad-wash: #3A1214;
+  --color-o1-bad-ink: #F2B8BB;
+
   --color-o1-crimson: #C4121A;
   --color-o1-crimson-hover: #A30F16;
   --color-o1-crimson-press: #800C11;

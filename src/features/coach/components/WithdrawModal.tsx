@@ -49,45 +49,45 @@ export const WithdrawModal: React.FC<WithdrawModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 o1-sheet-scrim select-none animate-in fade-in duration-150">
-      <div className="o1-sheet-card w-full bg-black border border-white/[0.07] overflow-hidden shadow-xl flex flex-col">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.05] bg-o1-card">
+      <div className="o1-sheet-card w-full bg-o1-sheet border border-white/[0.07] overflow-hidden shadow-xl flex flex-col">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.07] bg-o1-surface">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-white/5 border border-white/[0.07] flex items-center justify-center text-o1-crimson">
               <ArrowDownRight className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-sm font-tactical font-black text-white tracking-wider">Withdraw Earnings</h2>
-              <p className="text-xs font-sans text-neutral-400 font-semibold mt-0.5">Automated Stripe Express Transfer</p>
+              <h2 className="text-sm font-tactical font-black text-o1-text tracking-wider">Withdraw Earnings</h2>
+              <p className="text-xs font-sans text-o1-muted font-semibold mt-0.5">Automated Stripe Express Transfer</p>
             </div>
           </div>
-          <button onClick={onClose} className="p-1.5 text-neutral-400 hover:text-white rounded-full cursor-pointer"><X className="w-5 h-5" /></button>
+          <button onClick={onClose} className="p-1.5 text-o1-muted hover:text-o1-text rounded-full cursor-pointer"><X className="w-5 h-5" /></button>
         </div>
 
-        <div className="p-5 space-y-4 bg-black">
-          <div className="bg-o1-card border border-white/[0.07] rounded-2xl p-4 text-center space-y-1">
-            <span className="text-xs font-tactical text-neutral-400 tracking-wider font-bold block">Available for Payout</span>
-            <div className="text-3xl font-mono font-black text-white tracking-tight">
+        <div className="p-5 space-y-4 bg-o1-canvas">
+          <div className="bg-o1-surface border border-white/[0.07] rounded-2xl p-4 text-center space-y-1">
+            <span className="text-xs font-tactical text-o1-muted tracking-wider font-bold block">Available for Payout</span>
+            <div className="text-3xl font-mono font-black text-o1-text tracking-tight">
               ${availableBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </div>
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-xs font-sans font-semibold text-neutral-300 block px-1">Withdrawal Amount ($ USD)</label>
+            <label className="text-xs font-sans font-semibold text-o1-text block px-1">Withdrawal Amount ($ USD)</label>
             <div className="relative">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400 font-mono text-sm">$</span>
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-o1-muted font-mono text-sm">$</span>
               <input
                 type="number" step="0.01" min="1" max={availableBalance}
                 value={amountStr}
                 onFocus={(e) => e.target.select()}
                 onChange={(e) => setAmountStr(sanitizeNumericInput(e.target.value))}
-                className="w-full pl-8 pr-4 py-3 bg-o1-card border border-[#D4A017]/35 rounded-xl text-white font-mono font-bold text-base focus:outline-none focus:border-[#D4A017]"
+                className="w-full pl-8 pr-4 py-3 bg-o1-surface border border-o1-gold/35 rounded-xl text-o1-text font-mono font-bold text-base focus:outline-none focus:border-o1-gold"
               />
             </div>
             <div className="grid grid-cols-3 gap-2 pt-1">
               {[0.25, 0.5, 1.0].map((pct) => (
                 <button
                   key={pct} type="button" onClick={() => setAmountStr((availableBalance * pct).toFixed(2))}
-                  className="py-1.5 rounded-xl bg-o1-card border border-[#D4A017]/25 hover:border-[#D4A017]/50 text-xs font-tactical font-black text-[#D4A017] hover:text-[#D4A017] cursor-pointer"
+                  className="py-1.5 rounded-xl bg-o1-surface border border-o1-gold/25 hover:border-o1-gold/50 text-xs font-tactical font-black text-o1-gold hover:text-o1-gold cursor-pointer"
                 >
                   {pct === 1 ? 'MAX (100%)' : `${pct * 100}%`}
                 </button>
@@ -95,12 +95,12 @@ export const WithdrawModal: React.FC<WithdrawModalProps> = ({
             </div>
           </div>
 
-          <div className="bg-o1-card border border-[#D4A017]/20 rounded-2xl p-3.5 flex items-center justify-between text-xs font-sans">
-            <div className="flex items-center gap-2.5 text-neutral-200 min-w-0">
-              <Building2 className="w-4 h-4 text-[#D4A017] shrink-0" />
+          <div className="bg-o1-surface border border-o1-gold/20 rounded-2xl p-3.5 flex items-center justify-between text-xs font-sans">
+            <div className="flex items-center gap-2.5 text-o1-text min-w-0">
+              <Building2 className="w-4 h-4 text-o1-gold shrink-0" />
               <span className="truncate font-medium">To: {destinationLabel}</span>
             </div>
-            <span className="text-[#D4A017] font-mono font-bold shrink-0 ml-2">Standard ACH</span>
+            <span className="text-o1-gold font-mono font-bold shrink-0 ml-2">Standard ACH</span>
           </div>
 
           {error && (
@@ -112,7 +112,7 @@ export const WithdrawModal: React.FC<WithdrawModalProps> = ({
           <button
             onClick={handleWithdraw}
             disabled={isProcessing || withdrawAmount <= 0}
-            className="w-full py-3.5 rounded-xl bg-gradient-to-r from-[#D4A017] via-[#D4A017] to-[#D4A017] text-black font-tactical font-black text-xs tracking-wider flex items-center justify-center gap-2 cursor-pointer shadow-lg active:scale-98 transition disabled:opacity-50"
+            className="w-full py-3.5 rounded-xl bg-gradient-to-r from-o1-gold via-o1-gold to-o1-gold text-black font-tactical font-black text-xs tracking-wider flex items-center justify-center gap-2 cursor-pointer shadow-lg active:scale-98 transition disabled:opacity-50"
           >
             {isProcessing ? <Loader2 className="w-4 h-4 animate-spin text-black" /> : <ArrowDownRight className="w-4 h-4 text-black stroke-[3]" />}
             <span>{isProcessing ? 'Dispatching payout...' : `WITHDRAW $${withdrawAmount.toFixed(2)}`}</span>
