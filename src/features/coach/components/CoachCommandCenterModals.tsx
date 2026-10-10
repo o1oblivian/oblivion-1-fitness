@@ -10,25 +10,18 @@ import { BiomechanicsAuditModal } from './BiomechanicsAuditModal';
 import { AssignProtocolModal } from './AssignProtocolModal';
 import { CoachPayoutSettingsModal } from './CoachPayoutSettingsModal';
 
+export interface CoachModalFlags {
+  programs: boolean;
+  workout: boolean;
+  vault: boolean;
+  vaultAdd: boolean;
+  reelUpload: boolean;
+  payoutSettings: boolean;
+}
+
 export interface CoachCommandCenterModalsProps {
-  modals: {
-    programs: boolean;
-    dispatch: boolean;
-    workout: boolean;
-    vault: boolean;
-    vaultAdd: boolean;
-    reelUpload: boolean;
-    payoutSettings: boolean;
-  };
-  setModals: React.Dispatch<React.SetStateAction<{
-    programs: boolean;
-    dispatch: boolean;
-    workout: boolean;
-    vault: boolean;
-    vaultAdd: boolean;
-    reelUpload: boolean;
-    payoutSettings: boolean;
-  }>>;
+  modals: CoachModalFlags;
+  setModals: React.Dispatch<React.SetStateAction<CoachModalFlags>>;
   athletes?: Athlete[];
   squad?: SquadAthlete[];
   dossierAthlete: Athlete | null;
@@ -91,9 +84,8 @@ export const CoachCommandCenterModals: React.FC<CoachCommandCenterModalsProps> =
         athlete={dossierAthlete}
         isOpen={!!dossierAthlete}
         onClose={() => setDossierAthlete(null)}
-        onOpenDispatchStudio={() => {
-          setDispatchAthlete?.(dossierAthlete);
-          setDossierAthlete(null);
+        onOpenDispatchStudio={(athlete) => {
+          setDispatchAthlete?.(athlete);
           setModals((m) => ({ ...m, workout: true }));
         }}
       />

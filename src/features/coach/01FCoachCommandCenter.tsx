@@ -9,7 +9,7 @@ import { CoachEarnings, SquadAthlete } from '../../types';
 import { useCoachRealtime } from './hooks/useCoachRealtime';
 import { CoachFloor } from './components/CoachFloor';
 import { AddClientModal } from './components/AddClientModal';
-import { CoachCommandCenterModals } from './components/CoachCommandCenterModals';
+import { CoachCommandCenterModals, type CoachModalFlags } from './components/CoachCommandCenterModals';
 import { AthleteCheckInSubmission } from './types/coachPlatformTypes';
 import { tactileEngine } from '../../services/tactileEngine';
 import { HealthDisclaimerBanner } from '../legal';
@@ -37,7 +37,7 @@ export const O1FCoachCommandCenter: React.FC<O1FCoachCommandCenterProps> = ({
   const [athletes, setAthletes] = useState<Athlete[]>([]);
   const [directives, setDirectives] = useState<DirectiveItem[]>([]);
   const [earnings, setEarnings] = useState<CoachEarnings>([]);
-  const [modals, setModals] = useState({ programs: false, dispatch: false, workout: false, vault: false, vaultAdd: false, reelUpload: false, payoutSettings: false });
+  const [modals, setModals] = useState<CoachModalFlags>({ programs: false, workout: false, vault: false, vaultAdd: false, reelUpload: false, payoutSettings: false });
   const [shareOpen, setShareOpen] = useState(false);
   const [dispatchAthlete, setDispatchAthlete] = useState<Athlete | null>(null);
   const [dossierAthlete, setDossierAthlete] = useState<Athlete | null>(null);

@@ -16,7 +16,7 @@ export const IAP_PRODUCTS = {
     name: 'Founder Pass',
     price: '$24.00',
     periodText: '/once',
-    description: 'Lifetime All-Access (First 5,000)',
+    description: 'Lifetime All-Access',
     badge: 'POPULAR',
     recommended: true,
     isFree: false,

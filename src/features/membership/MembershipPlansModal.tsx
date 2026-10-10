@@ -235,16 +235,11 @@ export const MembershipPlansModal: React.FC<MembershipPlansModalProps> = ({
                 className="p-3 rounded-2xl bg-o1-well border border-white/[0.07] flex items-center justify-between cursor-pointer hover:border-o1-crimson/50 transition-colors"
               >
                 <div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-mono font-bold tracking-wider text-neutral-300">
-                      Launch special • first 5,000
-                    </span>
-                    <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-sans font-semibold text-[#D4A017] border border-[#D4A017]/40 bg-o1-card">
-                      5,000 remaining
-                    </span>
-                  </div>
+                  <span className="text-[10px] font-mono font-bold tracking-wider text-neutral-300">
+                    Launch special
+                  </span>
                   <p className="text-[11px] text-neutral-400 mt-0.5 leading-snug">
-                    <strong className="text-white">$24.00 Lifetime Founder Pass</strong> — Training OS Pro + Global Radar forever.
+                    <strong className="text-white">{IAP_PRODUCTS.founder_pass.price} Lifetime Founder Pass</strong> — Training OS Pro + Global Radar forever.
                   </p>
                 </div>
               </div>

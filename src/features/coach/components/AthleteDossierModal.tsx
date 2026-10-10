@@ -8,7 +8,7 @@ export interface AthleteDossierModalProps {
   athlete: Athlete | null;
   isOpen?: boolean;
   onClose: () => void;
-  onOpenDispatchStudio?: (athleteId: string) => void;
+  onOpenDispatchStudio?: (athlete: Athlete) => void;
 }
 
 export const AthleteDossierModal: React.FC<AthleteDossierModalProps> = ({
@@ -22,8 +22,8 @@ export const AthleteDossierModal: React.FC<AthleteDossierModalProps> = ({
   const dispatch = () => {
     if (!onOpenDispatchStudio) return;
     tactileEngine.selection();
+    onOpenDispatchStudio(athlete);
     onClose();
-    onOpenDispatchStudio(athlete.id);
   };
 
   return (
