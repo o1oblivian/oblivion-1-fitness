@@ -30,7 +30,7 @@ export const DirectiveSignalsSection: React.FC<DirectiveSignalsSectionProps> = (
 }) => {
   const [text, setText] = useState('');
   const [topic, setTopic] = useState<DirectiveItem['tag']>('TRAINING');
-  const visible = directives.filter((dir) => dir.tag === topic);
+  const topicLabel = (tag: DirectiveItem['tag']) => TOPICS.find((item) => item.tag === tag)?.label || tag;
 
   const send = () => {
     const clean = text.trim();
@@ -74,24 +74,26 @@ export const DirectiveSignalsSection: React.FC<DirectiveSignalsSectionProps> = (
           value={text}
           onChange={(event) => setText(event.target.value)}
           placeholder="Write a note for everyone"
-          className="h-[44px] min-w-0 flex-1 rounded-xl border border-white/[0.07] bg-[#161616] px-3 text-[13px] text-white outline-none"
+          maxLength={500}
+          className="h-[44px] min-w-0 flex-1 rounded-xl border border-[#1F1F1F] bg-black px-3 text-[13px] text-[#EAE8DF] outline-none focus:border-[#C4121A]"
         />
         <button
           type="submit"
           disabled={!text.trim()}
-          className="h-[44px] rounded-xl bg-white px-4 text-[13px] font-semibold text-neutral-950 disabled:opacity-40"
+          className="h-[44px] rounded-xl bg-[#C4121A] px-4 text-[13px] font-semibold text-white active:scale-[0.98] disabled:opacity-40"
         >
           Send
         </button>
       </form>
-      {visible.length === 0 ? (
+      {directives.length === 0 ? (
         <p className="px-1 py-4 text-center text-[12px] text-[#8A887F]">No notes yet.</p>
       ) : (
-        visible.map((dir) => (
-          <div key={dir.id} className="rounded-2xl border border-white/[0.07] bg-o1-card px-3 py-3">
-            <p className="text-[13px] font-semibold text-white">{dir.title}</p>
+        directives.map((dir) => (
+          <div key={dir.id} className="rounded-2xl border border-[#1F1F1F] bg-[#0E0E0E] px-3 py-3">
+            <span className="text-[11px] font-semibold text-[#8A887F]">{topicLabel(dir.tag)}</span>
+            <p className="text-[13px] font-semibold text-[#EAE8DF]">{dir.title}</p>
             {dir.summary && dir.summary !== dir.title ? (
-              <p className="mt-1 text-[12px] text-neutral-400">{dir.summary}</p>
+              <p className="mt-1 text-[12px] text-[#8A887F]">{dir.summary}</p>
             ) : null}
           </div>
         ))

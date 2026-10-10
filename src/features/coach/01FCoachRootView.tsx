@@ -8,154 +8,83 @@ import { O1FCoachAthletePortal } from './01FCoachAthletePortal';
 
 const COACH_FOUNDER_EMAIL = 'o1oblivianfitness@gmail.com';
 
+function storedEmail(): string {
+  return typeof window !== 'undefined' ? localStorage.getItem('o1fc_user_email') || '' : '';
+}
+
+function isFounderEmail(email: string | null | undefined): boolean {
+  return Boolean(email && email.toLowerCase() === COACH_FOUNDER_EMAIL);
+}
+
+type View = 'directory' | 'console';
+
 export const O1FCoachRootView: React.FC = () => {
   const user = useAuthStore((s) => s.user);
   const profile = useAuthStore((s) => s.profile);
+  const signedInEmail = user?.email || storedEmail();
+  const isFounder = isFounderEmail(signedInEmail);
 
-  // Synchronously compute initial coach state from store / localStorage to prevent flicker
-  const [isCoach, setIsCoach] = useState<boolean>(() => {
-    const email = user?.email || (typeof window !== 'undefined' ? localStorage.getItem('o1fc_user_email') : null);
-    if (email && email.toLowerCase() === COACH_FOUNDER_EMAIL.toLowerCase()) return true;
-    if (profile?.role === 'coach') return true;
-    if (typeof window !== 'undefined' && localStorage.getItem('o1fc_user_role') === 'coach') return true;
-    return false;
-  });
-
-  // Top Switcher Controls state: defaults to [ COACH CONSOLE ] when logged in as a coach
-  const [activeView, setActiveView] = useState<'directory' | 'console'>('console');
+  const [isCoach, setIsCoach] = useState<boolean>(
+    () => isFounder || profile?.role === 'coach' || (typeof window !== 'undefined' && localStorage.getItem('o1fc_user_role') === 'coach'),
+  );
+  const [activeView, setActiveView] = useState<View>('console');
 
   useEffect(() => {
-    let isCancelled = false;
-
-    const detectCoachStatus = async () => {
-      // 1. Immediate email matching check
-      const email = user?.email || (typeof window !== 'undefined' ? localStorage.getItem('o1fc_user_email') : null);
-      if (email && email.toLowerCase() === COACH_FOUNDER_EMAIL.toLowerCase()) {
-        if (!isCancelled) setIsCoach(true);
+    if (isFounder || profile?.role === 'coach') {
+      setIsCoach(true);
+      return;
+    }
+    let cancelled = false;
+    void (async () => {
+      const { data: authData } = await supabase.auth.getUser();
+      const uid = authData?.user?.id || user?.id || '';
+      if (isFounderEmail(authData?.user?.email)) {
+        if (!cancelled) setIsCoach(true);
         return;
       }
-
-      // 2. Profile role check
-      if (profile?.role === 'coach') {
-        if (!isCancelled) setIsCoach(true);
-        return;
-      }
-
-      // 3. Supabase Auth session & coach_profiles table lookup
-      try {
-        const { data: authData } = await supabase.auth.getUser();
-        const authUser = authData?.user;
-        const currentUserId = authUser?.id || user?.id || (typeof window !== 'undefined' ? localStorage.getItem('o1fc_user_id') : null);
-        const currentUserEmail = authUser?.email || email;
-
-        if (currentUserEmail && currentUserEmail.toLowerCase() === COACH_FOUNDER_EMAIL.toLowerCase()) {
-          if (!isCancelled) setIsCoach(true);
-          return;
-        }
-
-        // Check if the authenticated user's ID exists in coach_profiles
-        if (currentUserId) {
-          const { data: coachProfiles, error } = await supabase
-            .from('coach_profiles')
-            .select('*');
-
-          if (!error && Array.isArray(coachProfiles)) {
-            const exists = coachProfiles.some(
-              (p: any) =>
-                p.id === currentUserId ||
-                p.user_id === currentUserId ||
-                (currentUserEmail && p.email && p.email.toLowerCase() === currentUserEmail.toLowerCase()) ||
-                (currentUserEmail && p.contact_email && p.contact_email.toLowerCase() === currentUserEmail.toLowerCase())
-            );
-            if (exists && !isCancelled) {
-              setIsCoach(true);
-              return;
-            }
-          }
-        }
-      } catch (err) {
-        console.debug('[CoachDetection] Error querying coach_profiles:', err);
-      }
-    };
-
-    detectCoachStatus();
-
+      if (!uid) return;
+      const { data } = await supabase.from('coach_profiles').select('id').eq('id', uid).maybeSingle();
+      if (data && !cancelled) setIsCoach(true);
+    })().catch(() => undefined);
     return () => {
-      isCancelled = true;
+      cancelled = true;
     };
-  }, [user?.id, user?.email, profile?.role]);
+  }, [isFounder, user?.id, profile?.role]);
 
-  const signedInEmail = user?.email || (typeof window !== 'undefined' ? localStorage.getItem('o1fc_user_email') : null);
-  const isFounder = Boolean(signedInEmail && signedInEmail.toLowerCase() === COACH_FOUNDER_EMAIL.toLowerCase());
+  if (!isCoach) return <O1FCoachAthletePortal isCoach={false} />;
+  if (!isFounder) return <O1FCoachCommandCenter isCoach />;
 
-  // Athletes see the coach and program listing. Coaches see the console.
-  // The founder keeps both, so both sides can be designed.
-  if (!isCoach) {
-    return <O1FCoachAthletePortal isCoach={false} activePerspective="athlete" />;
-  }
-
-  if (!isFounder) {
-    return (
-      <O1FCoachCommandCenter
-        activePerspective="coach"
-        isCoach
-      />
-    );
-  }
+  const toggles: { id: View; label: string; icon: typeof Users }[] = [
+    { id: 'directory', label: 'Athletes', icon: Users },
+    { id: 'console', label: 'Coaching', icon: Shield },
+  ];
 
   return (
     <div className="w-full flex flex-col min-h-screen">
       <div className="sticky top-0 z-40 w-full pt-2 pb-1.5 bg-black/95 backdrop-blur-md">
         <div className="flex items-center justify-center gap-1.5">
-          <button
-            type="button"
-            id="coach-view-toggle-directory"
-            onClick={() => {
-              tactileEngine.triggerSelectionBuzz();
-              setActiveView('directory');
-            }}
-            className={`o1-pill text-[11px] font-semibold cursor-pointer ${
-              activeView === 'directory'
-                ? 'bg-white text-neutral-950 border-white'
-                : 'bg-o1-well text-neutral-200 border border-white/[0.07]'
-            }`}
-          >
-            <Users className="w-3.5 h-3.5" />
-            <span>Athletes</span>
-          </button>
-          <button
-            type="button"
-            id="coach-view-toggle-console"
-            onClick={() => {
-              tactileEngine.triggerSelectionBuzz();
-              setActiveView('console');
-            }}
-            className={`o1-pill text-[11px] font-semibold cursor-pointer ${
-              activeView === 'console'
-                ? 'bg-white text-neutral-950 border-white'
-                : 'bg-o1-well text-neutral-200 border border-white/[0.07]'
-            }`}
-          >
-            <Shield className="w-3.5 h-3.5" />
-            <span>Coaching</span>
-          </button>
+          {toggles.map(({ id, label, icon: Icon }) => (
+            <button
+              key={id}
+              type="button"
+              id={`coach-view-toggle-${id}`}
+              aria-pressed={activeView === id}
+              onClick={() => {
+                tactileEngine.triggerSelectionBuzz();
+                setActiveView(id);
+              }}
+              className={`o1-pill text-[11px] font-semibold ${
+                activeView === id ? 'bg-white text-neutral-950 border-white' : 'bg-o1-well text-neutral-200 border border-white/[0.07]'
+              }`}
+            >
+              <Icon className="w-3.5 h-3.5" />
+              <span>{label}</span>
+            </button>
+          ))}
         </div>
       </div>
 
-      {/* View Routing */}
-      {activeView === 'console' ? (
-        <O1FCoachCommandCenter
-          activePerspective="coach"
-          onChangePerspective={(p) => setActiveView(p === 'athlete' ? 'directory' : 'console')}
-          isCoach={true}
-        />
-      ) : (
-        <O1FCoachAthletePortal
-          activePerspective="athlete"
-          onChangePerspective={(p) => setActiveView(p === 'coach' ? 'console' : 'directory')}
-          isCoach={true}
-        />
-      )}
+      {activeView === 'console' ? <O1FCoachCommandCenter isCoach /> : <O1FCoachAthletePortal isCoach />}
     </div>
   );
 };

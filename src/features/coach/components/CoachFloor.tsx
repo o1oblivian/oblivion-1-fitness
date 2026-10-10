@@ -14,12 +14,10 @@ import { coachPeople } from '../services/floorRoster';
 import { sendCoachMessage } from '../services/coachBridge';
 import { reelCover, nextReelCover } from '../../reels/coverPresets';
 import { DirectiveSignalsSection } from './DirectiveSignalsSection';
-import { CoachInboxView } from './CoachInboxView';
-import { CoachEarningsView } from './CoachEarningsView';
+import { CoachInboxView, type InboxContact } from './CoachInboxView';
+import { CoachEarningsDeck } from './CoachEarningsDeck';
 import { FloorAthleteCard, type FloorCardAction } from './floor/FloorAthleteCard';
 import { CoachFeedbackSheet } from './floor/CoachFeedbackSheet';
-import { CoachEarnings } from '../../../types';
-
 type CreatorTab = 'films' | 'floor' | 'directives' | 'inbox' | 'earnings';
 
 export interface CoachFloorProps {
@@ -27,7 +25,6 @@ export interface CoachFloorProps {
   athletes: Athlete[];
   checkins: AthleteCheckInSubmission[];
   notes: DirectiveItem[];
-  earnings?: CoachEarnings;
   onSendNote: (draft: { tag: DirectiveItem['tag']; title: string; summary: string }) => void;
   onReplyCheckin: (checkinId: string, reply: string) => void;
   onOpenPrograms: () => void;
@@ -41,6 +38,7 @@ export interface CoachFloorProps {
 
 interface FeedbackTarget {
   key: string;
+  athleteId: string;
   name: string;
   avatar?: string;
   athlete?: Athlete;
@@ -59,6 +57,10 @@ function ago(iso: string | undefined): string {
 
 function stat(value: number | null | undefined, unit = ''): string {
   return value == null || !Number.isFinite(value) || value <= 0 ? '--' : `${Math.round(value).toLocaleString()}${unit}`;
+}
+
+function rosterId(athlete: Athlete): string {
+  return athlete.client_id || athlete.id;
 }
 
 function kg(value: number | null | undefined): string {
@@ -123,7 +125,6 @@ export const CoachFloor: React.FC<CoachFloorProps> = ({
   athletes,
   checkins,
   notes,
-  earnings = [],
   onSendNote,
   onReplyCheckin,
   onOpenPrograms,
@@ -183,6 +184,15 @@ export const CoachFloor: React.FC<CoachFloorProps> = ({
     else openFullEliteReels('grid');
   };
 
+  const contacts = useMemo(() => {
+    const book: Record<string, InboxContact> = {};
+    people.forEach((athlete) => {
+      book[athlete.id] = { name: athlete.name, avatar: athlete.avatar };
+      if (athlete.client_id) book[athlete.client_id] = book[athlete.id];
+    });
+    return book;
+  }, [people]);
+
   const findAthlete = (id: string, athleteName: string) =>
     people.find((athlete) => athlete.id === id || athlete.client_id === id) || people.find((athlete) => athlete.name === athleteName);
 
@@ -198,8 +208,7 @@ export const CoachFloor: React.FC<CoachFloorProps> = ({
     }
     if (target.workoutId) submitCoachFeedback(target.workoutId, message);
     if (target.checkinId) onReplyCheckin(target.checkinId, message);
-    const athleteId = target.athlete?.client_id || target.athlete?.id || '';
-    void sendCoachMessage({ coachId, athleteId, senderName: name, message }).then((sent) => {
+    void sendCoachMessage({ coachId, athleteId: target.athleteId, senderName: name, message, from: 'coach' }).then((sent) => {
       onShowToast?.(sent ? `Sent to ${target.name}` : `Saved for ${target.name} on this phone`);
     });
     setFeedbackFor(null);
@@ -300,7 +309,7 @@ export const CoachFloor: React.FC<CoachFloorProps> = ({
           }}
           className="h-[44px] flex-1 rounded-xl border border-[#1F1F1F] bg-[#0E0E0E] text-[13px] font-semibold text-[#EAE8DF] active:scale-[0.98]"
         >
-          Program
+          Programs
         </button>
         <button
           type="button"
@@ -310,7 +319,7 @@ export const CoachFloor: React.FC<CoachFloorProps> = ({
           }}
           className="h-[44px] flex-1 rounded-xl bg-[#C4121A] text-[13px] font-semibold text-white active:scale-[0.98]"
         >
-          Daily Dispatch
+          Send workout
         </button>
       </div>
 
@@ -322,14 +331,15 @@ export const CoachFloor: React.FC<CoachFloorProps> = ({
             <button
               key={item.id}
               type="button"
-              aria-label={item.label}
+              aria-pressed={on}
               onClick={() => {
                 tactileEngine.triggerSelectionBuzz();
                 setTab(item.id);
               }}
-              className={`flex h-11 w-11 items-center justify-center border-b-2 active:scale-[0.98] ${on ? 'border-white text-white' : 'border-transparent text-[#8A887F]'}`}
+              className={`flex min-h-[52px] flex-1 flex-col items-center justify-center gap-0.5 border-b-2 active:scale-[0.98] ${on ? 'border-white text-white' : 'border-transparent text-[#8A887F]'}`}
             >
               <Icon size={18} />
+              <span className="text-[10px] font-semibold">{item.label}</span>
             </button>
           );
         })}
@@ -368,7 +378,7 @@ export const CoachFloor: React.FC<CoachFloorProps> = ({
                   ]}
                   lastFeedback={reviews[athlete.id]}
                   onOpenProfile={() => onSelectAthlete(athlete)}
-                  actions={athleteActions({ key: athlete.id, name: athlete.name, avatar: athlete.avatar, athlete })}
+                  actions={athleteActions({ key: athlete.id, athleteId: rosterId(athlete), name: athlete.name, avatar: athlete.avatar, athlete })}
                 />
               ))
             ) : trained.length === 0 ? (
@@ -391,7 +401,7 @@ export const CoachFloor: React.FC<CoachFloorProps> = ({
                     ]}
                     lastFeedback={log.feedback || reviews[log.id]}
                     onOpenProfile={athlete ? () => onSelectAthlete(athlete) : undefined}
-                    actions={athleteActions({ key: log.id, name: log.athleteName, avatar, athlete, workoutId: log.id })}
+                    actions={athleteActions({ key: log.id, athleteId: athlete ? rosterId(athlete) : log.athleteId, name: log.athleteName, avatar, athlete, workoutId: log.id })}
                   />
                 );
               })
@@ -412,7 +422,7 @@ export const CoachFloor: React.FC<CoachFloorProps> = ({
                 ]}
                 lastFeedback={reviews[people[1].id]}
                 onOpenProfile={() => onSelectAthlete(people[1])}
-                actions={athleteActions({ key: people[1].id, name: people[1].name, avatar: people[1].avatar, athlete: people[1] })}
+                actions={athleteActions({ key: people[1].id, athleteId: rosterId(people[1]), name: people[1].name, avatar: people[1].avatar, athlete: people[1] }, 'Reply')}
               />
             ) : pending.length === 0 ? (
               <p className="rounded-2xl border border-[#1F1F1F] bg-[#0E0E0E] px-4 py-6 text-center text-[13px] text-[#8A887F]">No check-ins waiting.</p>
@@ -433,7 +443,7 @@ export const CoachFloor: React.FC<CoachFloorProps> = ({
                     ]}
                     lastFeedback={reviews[row.id]}
                     onOpenProfile={athlete ? () => onSelectAthlete(athlete) : undefined}
-                    actions={athleteActions({ key: row.id, name: row.athleteName, avatar: athlete?.avatar, athlete, checkinId: row.id }, 'Reply')}
+                    actions={athleteActions({ key: row.id, athleteId: athlete ? rosterId(athlete) : row.athleteId, name: row.athleteName, avatar: athlete?.avatar, athlete, checkinId: row.id }, 'Reply')}
                   />
                 );
               })
@@ -443,10 +453,8 @@ export const CoachFloor: React.FC<CoachFloorProps> = ({
       )}
 
       {tab === 'directives' && <DirectiveSignalsSection directives={notes} onSendNote={onSendNote} />}
-      {tab === 'inbox' && <CoachInboxView coachId={coachId} />}
-      {tab === 'earnings' && (
-        <CoachEarningsView transactions={earnings} activeClientsCount={people.length} coachId={coachId} onShowToast={onShowToast ?? (() => undefined)} />
-      )}
+      {tab === 'inbox' && <CoachInboxView viewer="coach" coachId={coachId} contacts={contacts} coachName={name} />}
+      {tab === 'earnings' && <CoachEarningsDeck coachId={coachId} onShowToast={(msg) => onShowToast?.(msg)} />}
 
       <CoachFeedbackSheet
         target={feedbackFor}

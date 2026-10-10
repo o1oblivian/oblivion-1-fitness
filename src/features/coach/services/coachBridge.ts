@@ -277,15 +277,16 @@ export async function sendCoachMessage(input: {
   athleteId: string;
   senderName: string;
   message: string;
+  from: 'coach' | 'athlete';
 }): Promise<boolean> {
   const message = input.message.trim();
   if (!input.coachId || !message) return false;
   try {
     const { error } = await supabase.from('coach_messages').insert({
-      id: `msg-${Date.now()}`,
+      id: `msg-${input.from}-${Date.now()}`,
       coach_id: input.coachId,
       athlete_id: input.athleteId || null,
-      sender_name: input.senderName || 'Athlete',
+      sender_name: input.senderName,
       message,
     });
     return !error;

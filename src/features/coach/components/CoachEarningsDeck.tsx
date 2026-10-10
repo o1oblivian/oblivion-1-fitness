@@ -21,8 +21,26 @@ interface LedgerLine {
   amountCents: number;
 }
 
-const money = (cents: number) =>
-  (cents / 100).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+function money(cents: number, currency: string): string {
+  try {
+    return new Intl.NumberFormat(undefined, { style: 'currency', currency: currency.toUpperCase() }).format(cents / 100);
+  } catch {
+    return (cents / 100).toFixed(2);
+  }
+}
+
+const STATUS_LABEL: Record<string, string> = {
+  available: 'Ready',
+  pending: 'Pending',
+  paid: 'Paid',
+  failed: 'Failed',
+};
+
+function statusTone(status: string): string {
+  if (status === 'paid' || status === 'available') return 'bg-[#16301f] text-[#b7e0c2]';
+  if (status === 'failed') return 'bg-[#3a1214] text-[#f2b8bb]';
+  return 'bg-[#3a2a10] text-[#f0d7a2]';
+}
 
 export const CoachEarningsDeck: React.FC<CoachEarningsDeckProps> = ({ coachId = '', onShowToast }) => {
   const [balance, setBalance] = useState<StripeBalance | null>(null);
@@ -32,9 +50,12 @@ export const CoachEarningsDeck: React.FC<CoachEarningsDeckProps> = ({ coachId = 
 
   const loadData = useCallback(async () => {
     setIsLoading(true);
-    const res = await stripeConnectService.getBalance();
-    if (res.data) setBalance(res.data);
-    setIsLoading(false);
+    try {
+      const res = await stripeConnectService.getBalance();
+      if (res.data) setBalance(res.data);
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
 
   useEffect(() => { void loadData(); }, [loadData]);
@@ -81,7 +102,7 @@ export const CoachEarningsDeck: React.FC<CoachEarningsDeckProps> = ({ coachId = 
     const payouts: LedgerLine[] = balance.payouts.map((p) => ({
       id: `payout-${p.id}`,
       kind: 'payout',
-      title: p.stripe_transfer_id ? `Payout • ${p.stripe_transfer_id.slice(-8)}` : 'Bank Transfer',
+      title: 'Paid to your bank',
       status: String(p.status).toLowerCase(),
       createdAt: p.created_at,
       currency: p.currency,
@@ -92,6 +113,7 @@ export const CoachEarningsDeck: React.FC<CoachEarningsDeckProps> = ({ coachId = 
 
   const availableCents = Math.max(0, balance?.availableCents ?? 0);
   const isOnboarded = Boolean(balance?.payoutsEnabled);
+  const currency = balance?.currency || 'usd';
 
   const startPayoutSetup = async () => {
     setSetupNote('');
@@ -102,53 +124,53 @@ export const CoachEarningsDeck: React.FC<CoachEarningsDeckProps> = ({ coachId = 
       window.location.assign(res.url);
       return;
     }
-    setSetupNote('Payout setup needs a connection.');
+    setSetupNote('Could not reach payout setup. Check your connection and try again.');
   };
   const planLabel = balance ? COACH_PLANS[balance.plan].label : '';
   const feeLabel = balance ? formatFeePercent(balance.platformFeeRate) : '--';
 
   return (
-    <div className="bg-black border border-white/[0.07] text-white rounded-2xl p-2.5 space-y-2.5 select-none">
-      <div className="bg-o1-card border border-white/[0.07] rounded-2xl p-3 space-y-2">
+    <div className="space-y-3 select-none">
+      <section className="space-y-3 rounded-2xl border border-[#1F1F1F] bg-[#0E0E0E] p-4">
         <div className="flex items-center justify-between">
-          <span className="text-xs font-tactical font-black text-[#D4A017] tracking-wider block">Net Available Balance</span>
-          <button onClick={() => void loadData()} disabled={isLoading} className="text-[#D97706] hover:text-[#D4A017] transition cursor-pointer" aria-label="Refresh balance">
-            <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`} />
+          <p className="text-[13px] font-semibold text-[#EAE8DF]">{balance ? 'Ready to withdraw' : 'Earnings'}</p>
+          <button
+            type="button"
+            onClick={() => void loadData()}
+            disabled={isLoading}
+            className="flex h-11 w-11 items-center justify-center text-[#8A887F] active:scale-95"
+            aria-label="Refresh balance"
+          >
+            <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
           </button>
         </div>
         {balance ? (
           <>
-            <div className="text-3xl font-mono font-black text-[#D4A017] tracking-tight">
-              ${money(availableCents)}
-            </div>
-            <div className="grid grid-cols-3 gap-2 pt-2 border-t border-[#D4A017]/15">
-              <div>
-                <span className="text-[10px] font-tactical font-bold text-[#D97706] tracking-wider block">Pending</span>
-                <span className="text-neutral-200 font-mono font-bold text-sm">${money(balance.pendingCents)}</span>
-              </div>
-              <div>
-                <span className="text-[10px] font-tactical font-bold text-[#D97706] tracking-wider block">Paid Out</span>
-                <span className="text-neutral-200 font-mono font-bold text-sm">${money(balance.paidCents)}</span>
-              </div>
-              <div>
-                <span className="text-[10px] font-tactical font-bold text-[#D97706] tracking-wider block">Fees ({feeLabel})</span>
-                <span className="text-neutral-200 font-mono font-bold text-sm">${money(balance.platformFeeCents)}</span>
-              </div>
-            </div>
+            <p className="text-[32px] font-semibold leading-none tabular-nums text-[#EAE8DF]">{money(availableCents, currency)}</p>
+            <dl className="grid grid-cols-3 gap-1.5">
+              {[
+                { label: 'On the way', value: balance.pendingCents },
+                { label: 'Paid out', value: balance.paidCents },
+                { label: `Fees (${feeLabel})`, value: balance.platformFeeCents },
+              ].map((row) => (
+                <div key={row.label} className="rounded-xl bg-black px-2 py-1.5 text-center">
+                  <dt className="text-[10px] text-[#8A887F]">{row.label}</dt>
+                  <dd className="text-[13px] font-semibold tabular-nums text-[#EAE8DF]">{money(row.value, currency)}</dd>
+                </div>
+              ))}
+            </dl>
+            <p className="text-[11px] text-[#8A887F]">
+              {planLabel} plan · we keep {feeLabel} of each program sale
+            </p>
           </>
         ) : (
-          <p className="text-[13px] text-[#8A887F]">Payouts are not connected.</p>
-        )}
-        {balance && (
-          <p className="text-[10px] font-mono text-neutral-500">
-            {planLabel} • {feeLabel} platform fee on program sales
-          </p>
+          <p className="text-[13px] text-[#8A887F]">Connect a bank account to get paid for program sales.</p>
         )}
         {isOnboarded && availableCents > 0 ? (
           <button
             type="button"
             onClick={() => { tactileEngine.triggerSelectionBuzz(); setIsWithdrawOpen(true); }}
-            className="h-[44px] w-full rounded-full bg-[#D4A017] text-[13px] font-semibold text-black"
+            className="h-[44px] w-full rounded-xl bg-[#C4121A] text-[13px] font-semibold text-white active:scale-[0.98]"
           >
             Withdraw
           </button>
@@ -156,46 +178,34 @@ export const CoachEarningsDeck: React.FC<CoachEarningsDeckProps> = ({ coachId = 
           <button
             type="button"
             onClick={() => { void startPayoutSetup(); }}
-            className="h-[44px] w-full rounded-full bg-o1-crimson text-[13px] font-semibold text-white"
+            className="h-[44px] w-full rounded-xl bg-[#C4121A] text-[13px] font-semibold text-white active:scale-[0.98]"
           >
             Set up payouts
           </button>
         ) : null}
-        {setupNote ? <p className="text-center text-[12px] text-neutral-400">{setupNote}</p> : null}
-      </div>
+        {setupNote ? <p className="text-center text-[12px] text-[#8A887F]">{setupNote}</p> : null}
+      </section>
 
       {ledger.length > 0 && (
-      <div className="space-y-2 pt-1">
-        <span className="text-xs font-semibold text-white block px-1">
-          Ledger
-        </span>
-          <div className="space-y-1.5">
-            {ledger.map((item) => {
-              const isPositive = item.amountCents > 0;
-              const settled = item.status === 'paid' || item.status === 'available';
-              return (
-                <div key={item.id} className="p-3.5 bg-black border-b border-[#D4A017]/15 rounded-xl flex items-center justify-between gap-3">
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-2">
-                      <span className="font-tactical font-black text-white text-xs tracking-wider truncate">{item.title}</span>
-                      <span className={`text-[9px] font-tactical font-black px-1.5 py-0.5 rounded-full border tracking-wider shrink-0 ${
-                        settled ? 'bg-emerald-950/40 text-emerald-400 border-emerald-500/30'
-                          : item.status === 'failed' ? 'bg-red-950/40 text-red-400 border-red-500/30'
-                          : 'bg-[#D4A017]/15 text-[#D4A017] border-[#D4A017]/30'
-                      }`}>{item.status}</span>
-                    </div>
-                    <span className="text-[11px] font-sans text-neutral-400 block mt-0.5">
-                      {new Date(item.createdAt).toLocaleDateString()} • {item.currency.toUpperCase()}
-                    </span>
-                  </div>
-                  <span className={`font-mono font-bold text-sm shrink-0 ${isPositive ? 'text-[#D4A017]' : 'text-neutral-400'}`}>
-                    {isPositive ? '+' : '-'}${money(Math.abs(item.amountCents))}
+        <section className="space-y-2">
+          <p className="px-1 text-[13px] font-semibold text-[#EAE8DF]">History</p>
+          {ledger.map((item) => (
+            <div key={item.id} className="flex items-center justify-between gap-3 rounded-2xl border border-[#1F1F1F] bg-[#0E0E0E] p-3">
+              <div className="min-w-0">
+                <div className="flex items-center gap-2">
+                  <span className="truncate text-[13px] font-semibold text-[#EAE8DF]">{item.title}</span>
+                  <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold ${statusTone(item.status)}`}>
+                    {STATUS_LABEL[item.status] || item.status}
                   </span>
                 </div>
-              );
-            })}
-          </div>
-      </div>
+                <span className="mt-0.5 block text-[11px] text-[#8A887F]">{new Date(item.createdAt).toLocaleDateString()}</span>
+              </div>
+              <span className={`shrink-0 text-[13px] font-semibold tabular-nums ${item.amountCents > 0 ? 'text-[#EAE8DF]' : 'text-[#8A887F]'}`}>
+                {item.amountCents > 0 ? '+' : '−'}{money(Math.abs(item.amountCents), item.currency)}
+              </span>
+            </div>
+          ))}
+        </section>
       )}
 
       <WithdrawModal
@@ -204,7 +214,7 @@ export const CoachEarningsDeck: React.FC<CoachEarningsDeckProps> = ({ coachId = 
         availableBalance={availableCents / 100}
         profile={profile}
         onSuccess={(amt) => {
-          onShowToast(`Withdrawal of $${amt.toFixed(2)} dispatched via Stripe Express.`);
+          onShowToast(`Withdrawing ${money(Math.round(amt * 100), currency)} to your bank`);
           void loadData();
         }}
       />

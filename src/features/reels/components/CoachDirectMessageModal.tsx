@@ -92,7 +92,7 @@ export const CoachDirectMessageModal: React.FC<CoachDirectMessageModalProps> = (
                 void (async () => {
                   const athleteId = await getAuthenticatedUserId();
                   const ok = athleteId
-                    ? await sendCoachMessage({ coachId: coach.id, athleteId, senderName: senderName || 'Athlete', message: messageText })
+                    ? await sendCoachMessage({ coachId: coach.id, athleteId, senderName: senderName || 'Athlete', message: messageText, from: 'athlete' })
                     : false;
                   setSending(false);
                   if (!ok) {

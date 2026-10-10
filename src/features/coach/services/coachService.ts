@@ -201,27 +201,48 @@ function liveMessages<T extends { id: string; athleteId?: string }>(rows: T[]): 
   return rows.filter((row) => !String(row.id).startsWith('preview-') && !String(row.athleteId || '').startsWith('preview-'));
 }
 
-export async function fetchCoachMessages(coachId: string = ''): Promise<Array<{ id: string; sender: string; time: string; message: string; athleteId: string }>> {
-  const local = liveMessages(safeStorage.getItem<Array<{ id: string; sender: string; time: string; message: string; athleteId: string }>>(LOCAL_MESSAGES_KEY, []) || []);
+export interface CoachMessage {
+  id: string;
+  sender: string;
+  time: string;
+  message: string;
+  athleteId: string;
+  /** Older rows carry no author marker; callers resolve them by sender name. */
+  from: 'coach' | 'athlete' | null;
+}
+
+function messageAuthor(id: string): CoachMessage['from'] {
+  if (id.startsWith('msg-coach-')) return 'coach';
+  if (id.startsWith('msg-athlete-')) return 'athlete';
+  return null;
+}
+
+/** Newest first. Pass `athleteId` to load a single conversation. */
+export async function fetchCoachMessages(coachId: string = '', athleteId = ''): Promise<CoachMessage[]> {
+  const stored = safeStorage.getItem<Omit<CoachMessage, 'from'>[]>(LOCAL_MESSAGES_KEY, []) || [];
+  const local = liveMessages(stored.map((row) => ({ ...row, from: messageAuthor(row.id) })))
+    .filter((row) => !athleteId || row.athleteId === athleteId);
   if (!isValidUuid(coachId)) return local;
 
   try {
-    const { data, error } = await supabase
+    let query = supabase
       .from('coach_messages')
       .select('id, sender_name, message, created_at, athlete_id')
-      .eq('coach_id', coachId)
-      .order('created_at', { ascending: false });
+      .eq('coach_id', coachId);
+    if (athleteId) query = query.eq('athlete_id', athleteId);
+    const { data, error } = await query.order('created_at', { ascending: false });
 
     if (error || !data || data.length === 0) {
       return local;
     }
 
-    const remote = data.map((m: any) => ({
-      id: m.id,
-      sender: m.sender_name || 'Athlete',
-      time: m.created_at ? new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Recently',
+    const remote: CoachMessage[] = data.map((m: any) => ({
+      id: String(m.id),
+      sender: m.sender_name || '',
+      time: m.created_at ? new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '',
       message: m.message || '',
       athleteId: String(m.athlete_id || ''),
+      from: messageAuthor(String(m.id)),
     }));
     const seen = new Set(remote.map((row) => row.id));
     return liveMessages([...local.filter((row) => !seen.has(row.id)), ...remote]);

@@ -25,11 +25,7 @@ function todayLabel(): string {
   return new Date().toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
 }
 
-export const O1FCoachAthletePortal: React.FC<{
-  activePerspective?: 'coach' | 'athlete';
-  onChangePerspective?: (p: 'coach' | 'athlete') => void;
-  isCoach?: boolean;
-}> = ({ isCoach = false }) => {
+export const O1FCoachAthletePortal: React.FC<{ isCoach?: boolean }> = ({ isCoach = false }) => {
   const openFullEliteReels = useModalStore((s) => s.openFullEliteReels);
   const reels = useReelsStore((s) => s.reels);
   const [panel, setPanel] = useState<AthletePanel>('home');
@@ -305,7 +301,7 @@ export const O1FCoachAthletePortal: React.FC<{
             }}
           />
         )}
-        {panel === 'inbox' && <CoachInboxView coachId={coach?.id} />}
+        {panel === 'inbox' && <CoachInboxView viewer="athlete" coachId={coach?.id} coachName={coach?.name} />}
       </div>
     );
   }
@@ -471,6 +467,7 @@ export const O1FCoachAthletePortal: React.FC<{
               athleteId,
               senderName: profileName || 'Athlete',
               message: text,
+              from: 'athlete',
             });
             if (ok) {
               setMessage('');
