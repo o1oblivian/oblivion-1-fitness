@@ -90,6 +90,7 @@ export const CoachNearbySheet: React.FC<CoachNearbySheetProps> = ({ coach, viewe
             {coach.handle ? <p className="truncate text-[12px] text-o1-muted">{coach.handle.startsWith('@') ? coach.handle : `@${coach.handle}`}</p> : null}
             {coach.discipline ? <p className="text-[13px] text-o1-text">{coach.discipline}</p> : null}
             {where ? <p className="truncate text-[12px] text-o1-muted">{where}</p> : null}
+            {coach.sameGym && !isSelf ? <p className="text-[12px] font-semibold text-o1-crimson">Trains at your gym</p> : null}
           </div>
           <button type="button" onClick={onClose} aria-label="Close" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/[0.07] text-o1-muted active:scale-95">
             <X size={16} />

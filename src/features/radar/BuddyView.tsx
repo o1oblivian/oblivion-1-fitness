@@ -385,13 +385,13 @@ export const BuddyView: React.FC = () => {
 
   useEffect(() => {
     let live = true;
-    void findNearbyCoaches(nearbyPeople)
+    void findNearbyCoaches(nearbyPeople, buddyProfile.homeGym)
       .then((rows) => live && setCoaches(rows.filter((coach) => !blocks.includes(coach.id))))
       .catch(() => live && setCoaches([]));
     return () => {
       live = false;
     };
-  }, [nearbyPeople, blocks]);
+  }, [nearbyPeople, blocks, buddyProfile.homeGym]);
 
   const coachIds = useMemo(() => new Set(coaches.map((coach) => coach.id)), [coaches]);
 
@@ -591,11 +591,11 @@ export const BuddyView: React.FC = () => {
                   }
                   const cap = isPro ? 250 : 25;
                   const wider = Math.min(cap, deckFilters.distanceKm + 10);
-                  const strict = deckFilters.verifiedOnly || deckFilters.photoOnly || deckFilters.disciplines.length > 0 || deckFilters.times.length > 0 || deckFilters.levels.length > 0 || deckFilters.intents.length > 0 || deckFilters.show !== 'all' || deckFilters.place !== 'any';
+                  const strict = deckFilters.verifiedOnly || deckFilters.photoOnly || deckFilters.sameGymOnly || deckFilters.disciplines.length > 0 || deckFilters.times.length > 0 || deckFilters.levels.length > 0 || deckFilters.intents.length > 0 || deckFilters.show !== 'all' || deckFilters.place !== 'any';
                   const next: DeckFilters = wider > deckFilters.distanceKm
-                    ? { ...deckFilters, distanceKm: wider, stretchDistance: true, verifiedOnly: false, photoOnly: false }
+                    ? { ...deckFilters, distanceKm: wider, stretchDistance: true, verifiedOnly: false, photoOnly: false, sameGymOnly: false }
                     : strict
-                      ? { ...deckFilters, verifiedOnly: false, photoOnly: false, disciplines: [], times: [], levels: [], intents: [], show: 'all', place: 'any' }
+                      ? { ...deckFilters, verifiedOnly: false, photoOnly: false, sameGymOnly: false, disciplines: [], times: [], levels: [], intents: [], show: 'all', place: 'any' }
                       : deckFilters;
                   if (next === deckFilters && !hadPasses) {
                     if (deckFilters.distanceKm >= 25 && !isPro) openPaywall('Buddy radius past 25 km');

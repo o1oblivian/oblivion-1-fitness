@@ -1,5 +1,6 @@
 import { supabase } from '../../../services/supabaseClient';
 import type { DemoAthlete } from '../types';
+import { sameGym } from './gymMatch';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -10,6 +11,7 @@ export interface NearbyCoach {
   photo: string;
   discipline: string;
   gym: string;
+  sameGym: boolean;
   distanceKm: number | null;
   rating: number | null;
   reviewCount: number;
@@ -30,8 +32,8 @@ function firstSpecialty(value: unknown): string {
   return '';
 }
 
-/** People in `nearby` who have a coach profile, nearest first, with their public offer. */
-export async function findNearbyCoaches(nearby: DemoAthlete[]): Promise<NearbyCoach[]> {
+/** People in `nearby` who have a coach profile, with their public offer. Coaches at the viewer's gym come first, then nearest. */
+export async function findNearbyCoaches(nearby: DemoAthlete[], viewerGym = ''): Promise<NearbyCoach[]> {
   const people = new Map(nearby.filter((row) => UUID.test(row.id)).map((row) => [row.id, row]));
   if (people.size === 0) return [];
   const ids = [...people.keys()];
@@ -66,6 +68,7 @@ export async function findNearbyCoaches(nearby: DemoAthlete[]): Promise<NearbyCo
         photo: person.image_url || person.avatar || person.photos?.[0] || String(row.avatar_url || ''),
         discipline: firstSpecialty(row.specialties) || person.training_discipline || person.discipline || '',
         gym: person.home_gym || person.homeGym || '',
+        sameGym: sameGym(viewerGym, person.home_gym || person.homeGym),
         distanceKm: num(person.distance_km ?? person.distanceKm),
         rating: stars.length ? stars.reduce((sum, n) => sum + n, 0) / stars.length : null,
         reviewCount: stars.length,
@@ -77,7 +80,7 @@ export async function findNearbyCoaches(nearby: DemoAthlete[]): Promise<NearbyCo
       return coach;
     })
     .filter((coach): coach is NearbyCoach => Boolean(coach))
-    .sort((a, b) => (a.distanceKm ?? Infinity) - (b.distanceKm ?? Infinity));
+    .sort((a, b) => Number(b.sameGym) - Number(a.sameGym) || (a.distanceKm ?? Infinity) - (b.distanceKm ?? Infinity));
 }
 
 export function coachPriceLabel(cents: number | null): string {

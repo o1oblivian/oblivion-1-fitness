@@ -1,5 +1,8 @@
 import { supabase } from '../../../services/supabaseClient';
 import { DemoAthlete } from '../types';
+import { sameGym } from './gymMatch';
+
+export const SAME_GYM_REASON = 'Same gym';
 
 export const FREE_RADIUS_KM = 25;
 export const PREMIUM_RADIUS_KM = 250;
@@ -383,9 +386,9 @@ function scorePair(viewer: ViewerPrefs, athlete: DemoAthlete, distanceKm: number
     score += 20;
     reasons.push(athlete.preferred_time || '');
   }
-  if (overlap(viewer.gym, athlete.home_gym || athlete.homeGym || '')) {
-    score += 15;
-    reasons.push('Same gym');
+  if (sameGym(viewer.gym, athlete.home_gym || athlete.homeGym)) {
+    score += 25;
+    reasons.push(SAME_GYM_REASON);
   }
   if (distanceKm <= 5) score += 20;
   else if (distanceKm <= 10) score += 15;
@@ -409,6 +412,7 @@ export function rankAthletes(viewer: ViewerPrefs, rows: DemoAthlete[], radiusKm:
     const slack = filters?.stretchAge ? 4 : 0;
     if (age < 18 || age < viewer.ageMin - slack || age > viewer.ageMax + slack) continue;
     if (filters && !passesDeckFilters(row, filters)) continue;
+    if (filters?.sameGymOnly && !sameGym(viewer.gym, row.home_gym || row.homeGym)) continue;
     const scored = scorePair(viewer, row, dist);
     ranked.push({
       ...row,
@@ -433,6 +437,7 @@ export interface DeckFilters {
   place: 'any' | 'gym' | 'home' | 'outdoors';
   photoOnly: boolean;
   verifiedOnly: boolean;
+  sameGymOnly: boolean;
   stretchAge: boolean;
   stretchDistance: boolean;
 }
@@ -451,6 +456,7 @@ export const DEFAULT_DECK_FILTERS: DeckFilters = {
   place: 'any',
   photoOnly: false,
   verifiedOnly: false,
+  sameGymOnly: false,
   stretchAge: false,
   stretchDistance: false,
 };

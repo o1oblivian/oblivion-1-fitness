@@ -220,6 +220,10 @@ export const BuddyFilterSheet: React.FC<{
                   <p className="text-[13px] text-neutral-200">Verified only</p>
                   <Toggle on={draft.verifiedOnly} onClick={() => setDraft({ ...draft, verifiedOnly: !draft.verifiedOnly })} />
                 </div>
+                <div className="mt-3 flex items-center justify-between">
+                  <p className="text-[13px] text-neutral-200">My gym only</p>
+                  <Toggle on={draft.sameGymOnly} onClick={() => setDraft({ ...draft, sameGymOnly: !draft.sameGymOnly })} />
+                </div>
               </Card>
             </>
           ) : (

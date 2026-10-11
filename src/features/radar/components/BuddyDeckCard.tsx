@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { X, Check, MapPin } from 'lucide-react';
 import { DemoAthlete } from '../types';
 import { tactileEngine } from '../../../services/tactileEngine';
+import { SAME_GYM_REASON } from '../services/buddyMatch';
 
 function promptLine(athlete: DemoAthlete): string {
   const raw = (athlete.bio || '').split('\n').map((line) => line.trim()).filter(Boolean);
@@ -22,6 +23,7 @@ export const BuddyDeckCard: React.FC<{
   const age = Number(athlete.age) || 0;
   const discipline = athlete.discipline || athlete.training_discipline || '';
   const prompt = promptLine(athlete);
+  const atYourGym = Boolean(athlete.match_reasons?.includes(SAME_GYM_REASON));
 
   return (
     <div className="relative mx-auto h-[calc(100dvh-15rem)] w-full overflow-hidden rounded-[28px] bg-[#121214]">
@@ -47,6 +49,9 @@ export const BuddyDeckCard: React.FC<{
         </div>
       )}
       <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 space-y-3 p-4 pb-5">
+        {atYourGym ? (
+          <span className="inline-flex items-center rounded-full bg-o1-crimson px-2.5 py-1 text-[11px] font-semibold text-white">Trains at your gym</span>
+        ) : null}
         {discipline ? <p className="text-[12px] font-semibold text-white/80">{discipline}</p> : null}
         <button type="button" onClick={() => onOpen(athlete)} className="pointer-events-auto block text-left">
           <h2 className="text-[32px] font-semibold leading-none text-white">

@@ -13,7 +13,7 @@ export const CoachesNearbyStrip: React.FC<{ coaches: NearbyCoach[]; onOpen: (coa
   return (
     <section className="pt-3" aria-label="Coaches nearby">
       <div className="flex items-baseline justify-between px-4 pb-2">
-        <h3 className="text-[13px] font-semibold text-o1-text">Coaches nearby</h3>
+        <h3 className="text-[13px] font-semibold text-o1-text">{coaches.every((coach) => coach.sameGym) ? 'Coaches at your gym' : 'Coaches nearby'}</h3>
         <span className="text-[11px] text-o1-muted">{coaches.length}</span>
       </div>
       <div className="no-scrollbar flex gap-2 overflow-x-auto px-3 pb-1">
@@ -42,6 +42,7 @@ export const CoachesNearbyStrip: React.FC<{ coaches: NearbyCoach[]; onOpen: (coa
               </span>
               <span className="block space-y-0.5 p-2">
                 <span className="block truncate text-[13px] font-semibold text-o1-text">{coach.name}</span>
+                {coach.sameGym ? <span className="block truncate text-[11px] font-semibold text-o1-crimson">At your gym</span> : null}
                 {meta ? <span className="block truncate text-[11px] text-o1-muted">{meta}</span> : null}
                 <span className="flex items-center gap-1 truncate text-[11px] text-o1-text">
                   {coach.rating != null ? (
