@@ -28,3 +28,5 @@ ios/App/.symlinks/
 *.traineddata
 *.jks
 *.keystore
+
+.stripe-e2e-state.json
