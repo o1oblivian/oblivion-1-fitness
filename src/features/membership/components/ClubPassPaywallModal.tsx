@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { X, ShieldCheck, RotateCcw, Check, Sparkles, Loader2 } from 'lucide-react';
 import { useSubscription } from '../../../context/SubscriptionContext';
 import { tactileEngine } from '../../../services/tactileEngine';
@@ -21,9 +21,32 @@ export const ClubPassPaywallModal: React.FC = () => {
   const [isPurchasing, setIsPurchasing] = useState(false);
   const [isRestoring, setIsRestoring] = useState(false);
   const [statusMsg, setStatusMsg] = useState<string | null>(null);
+  const [storePrices, setStorePrices] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    if (!isPaywallOpen || !revenueCatService.isNative()) return;
+    let live = true;
+    revenueCatService
+      .getOfferings()
+      .then((offerings) => {
+        const packages = revenueCatService.listPackages(offerings).filter((pkg) => !pkg?.isFallback);
+        const label = (pkg: any) => `${pkg?.identifier || ''} ${pkg?.packageType || ''} ${pkg?.product?.identifier || ''}`;
+        const monthly = packages.find((pkg) => /month/i.test(label(pkg)))?.product?.priceString;
+        const lifetime = packages.find((pkg) => /founder|lifetime/i.test(label(pkg)))?.product?.priceString;
+        const next: Record<string, string> = {};
+        if (monthly) next[TIERS[0].id] = monthly;
+        if (lifetime) next[TIERS[1].id] = lifetime;
+        if (live) setStorePrices(next);
+      })
+      .catch(() => undefined);
+    return () => {
+      live = false;
+    };
+  }, [isPaywallOpen]);
 
   if (!isPaywallOpen) return null;
   const currentTier = TIERS.find((t) => t.id === selectedTier) || TIERS[0];
+  const priceOf = (tier: (typeof TIERS)[number]) => storePrices[tier.id] || tier.price;
 
   const handleNativePurchase = async () => {
     setIsPurchasing(true);
@@ -90,7 +113,7 @@ export const ClubPassPaywallModal: React.FC = () => {
                   </div>
                   <span className="text-[10px] font-mono text-neutral-400 block mt-0.5">{tier.cadence}</span>
                 </div>
-                <span className="text-sm font-black font-mono text-white">{tier.price}</span>
+                <span className="text-sm font-black font-mono text-white">{priceOf(tier)}</span>
               </button>
             ))}
           </div>
@@ -116,7 +139,7 @@ export const ClubPassPaywallModal: React.FC = () => {
             ) : (
               <>
                 <ShieldCheck className="w-4 h-4" />
-                <span>SUBSCRIBE VIA STORE • {currentTier.price} {currentTier.period}</span>
+                <span>SUBSCRIBE VIA STORE • {priceOf(currentTier)} {currentTier.period}</span>
               </>
             )}
           </button>

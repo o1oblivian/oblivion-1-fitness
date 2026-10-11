@@ -159,16 +159,19 @@ class RevenueCatManager {
   private pickPackage(offerings: any, planId: string): any | null {
     const packages: any[] = this.collectPackages(offerings);
     if (!packages.length) return REVENUECAT_FALLBACK_MONTHLY_PACKAGE;
+    const ids = (pkg: any) => [String(pkg?.identifier || pkg?.packageType || ''), String(pkg?.webCheckoutProduct?.identifier || pkg?.product?.identifier || '')];
+    const exact = packages.find((pkg) => ids(pkg).includes(planId));
+    if (exact) return exact;
+    if (/founder|lifetime/i.test(planId)) {
+      return packages.find((pkg) => /founder|lifetime/i.test(`${ids(pkg).join(' ')} ${pkg?.packageType || ''}`)) || null;
+    }
     const aliases = [
       planId,
       REVENUECAT_TIER_MONTHLY,
       REVENUECAT_TIER_TRAVEL,
-      REVENUECAT_TIER_FOUNDER,
       '$rc_monthly',
-      '$rc_lifetime',
       'o1fc_pro_monthly',
       'o1fc_pro_travel_monthly',
-      'o1fc_founder_pass',
     ];
     const found = packages.find((pkg) => {
       const id = String(pkg?.identifier || pkg?.packageType || '');
@@ -176,7 +179,7 @@ class RevenueCatManager {
       return aliases.some((alias) => id === alias || productId === alias || id.includes(alias) || productId.includes(alias));
     });
     if (found) return found;
-    return packages.find((pkg) => String(pkg?.packageType || pkg?.identifier || '').toLowerCase().includes('month')) || packages[0];
+    return packages.find((pkg) => String(pkg?.packageType || pkg?.identifier || '').toLowerCase().includes('month')) || null;
   }
 
   async getOfferings(appUserId?: string) {
