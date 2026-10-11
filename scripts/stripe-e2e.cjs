@@ -5,6 +5,7 @@
  *   node scripts/stripe-e2e.cjs setup     creates test users, Connect account, paid program, Checkout URL
  *   (pay the Checkout URL with 4242 4242 4242 4242)
  *   node scripts/stripe-e2e.cjs verify    webhooks, split, enrollment, hold, payout + reversal, refunds
+ *   node scripts/stripe-e2e.cjs payout    re-runs only payout + reversals for the same coach
  *   node scripts/stripe-e2e.cjs cleanup   deletes everything setup created
  * Refuses to run with a live Stripe key. Webhooks are signed locally with STRIPE_WEBHOOK_SECRET.
  */
@@ -246,6 +247,11 @@ async function payoutChecks(coachJwt, net) {
     description: 'O1FC e2e: fund test transfers',
   });
   check('platform test balance funded for transfer', topUp.status === 'succeeded', topUp.status);
+  for (let i = 0; i < 20; i += 1) {
+    const platform = await stripe.balance.retrieve();
+    if ((platform.available.find((x) => x.currency === 'aud')?.amount || 0) >= 1000) break;
+    await sleep(3000);
+  }
 
   const payout = await api('POST', '/api/stripe/create-payout', coachJwt, { amountCents: 1000 });
   if (!check('payout transfer created', payout.status === 200 && Boolean(payout.body.transferId), `${payout.status} ${payout.body.error || ''}`)) return;
@@ -264,9 +270,9 @@ async function payoutChecks(coachJwt, net) {
 
   await stripe.transfers.createReversal(payout.body.transferId);
   transfer = await stripe.transfers.retrieve(payout.body.transferId);
-  await webhook('transfer.reversed', transfer);
+  const fullHook = await webhook('transfer.reversed', transfer);
   reversed = await payoutRow(ledger.id);
-  check('full transfer reversal voids payout', reversed.status === 'reversed', reversed.status);
+  check('full transfer reversal voids payout', reversed.status === 'reversed', `${reversed.status}; webhook ${fullHook.status} ${JSON.stringify(fullHook.body)}; transfer reversed ${transfer.amount_reversed}/${transfer.amount}`);
   b = await balance(coachJwt);
   check('reversed funds return to available balance', b.availableCents === net && b.paidCents === 0, `available ${b.availableCents}`);
 }
@@ -292,6 +298,30 @@ async function refundChecks(s, session, coachJwt) {
   check('full refund marks sale REFUNDED', refunded.status === 'REFUNDED', refunded.status);
   b = await balance(coachJwt);
   check('refunded sale leaves no balance', b.availableCents === 0 && b.grossCents === 0, `available ${b.availableCents} gross ${b.grossCents}`);
+}
+
+/** Re-runs only the payout + reversal checks on the coach from setup, with a webhook-recorded sale already past the hold. */
+async function payoutOnly() {
+  const s = loadState();
+  if (!s.customAccountId) throw new Error('No test connected account in state. Run setup first.');
+  const coachJwt = await token(s.coachEmail, s.password);
+  const sessionId = `cs_e2e_payout_${Date.now()}`;
+  const recorded = await webhook('checkout.session.completed', {
+    id: sessionId,
+    object: 'checkout.session',
+    payment_status: 'paid',
+    amount_total: PRICE_CENTS,
+    currency: 'aud',
+    metadata: { kind: 'coaching', coach_id: s.coachId, athlete_id: s.athleteId, athlete_name: 'E2E Athlete', program_title: 'E2E payout check' },
+  });
+  check('sale recorded for payout run', recorded.body.recorded === true, JSON.stringify(recorded.body));
+  const eightDaysAgo = new Date(Date.now() - 8 * 86_400_000).toISOString();
+  await db.from('coach_transactions').update({ created_at: eightDaysAgo }).eq('stripe_session_id', sessionId);
+  const net = PRICE_CENTS - Math.round(PRICE_CENTS * 0.15);
+  const b = await balance(coachJwt);
+  check('released sale is withdrawable', b.availableCents === net, `available ${b.availableCents}`);
+  await payoutChecks(coachJwt, net);
+  summary();
 }
 
 function summary() {
@@ -329,9 +359,9 @@ async function cleanup() {
 }
 
 const phase = process.argv[2];
-const run = { setup: () => setup().then(summary), verify, cleanup }[phase];
+const run = { setup: () => setup().then(summary), verify, payout: payoutOnly, cleanup }[phase];
 if (!run) {
-  console.error('usage: node scripts/stripe-e2e.cjs setup | verify | cleanup');
+  console.error('usage: node scripts/stripe-e2e.cjs setup | verify | payout | cleanup');
   process.exit(1);
 }
 run().catch((err) => {
