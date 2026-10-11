@@ -1,7 +1,8 @@
 import { supabase } from '../../../services/supabaseClient';
 import { getAuthenticatedUserId } from '../../../services/authUser';
-import { enrollCoachClient, isValidUuid } from '../../coach/services/coachService';
+import { isValidUuid, linkCoachClient } from '../../coach/services/coachService';
 import { saveLinkedCoach } from '../../coach/services/coachLink';
+import { ProgramPlanData, parseProgramPlan } from '../../coach/services/programPlan';
 import { mockProgramRows } from '../../../services/devMocks';
 
 export interface StorefrontStats {
@@ -28,6 +29,8 @@ export interface StorefrontProgram {
   equipment: string;
   priceCents: number | null;
   weekOne: string[];
+  /** Full week-by-week plan from `coach_programs.program_data`; null for programs without one. */
+  plan: ProgramPlanData | null;
 }
 
 export interface ProgramCoach {
@@ -169,6 +172,7 @@ export function mapProgramRow(row: Record<string, unknown>): StorefrontProgram {
     equipment: String(row.equipment || ''),
     priceCents: numberOrNull(row.price_cents),
     weekOne: weekLines(row.week_one),
+    plan: parseProgramPlan(row.program_data),
   };
 }
 
@@ -280,21 +284,7 @@ export async function decideApplication(application: CoachingApplication, accept
     .update({ status: accept ? 'accepted' : 'declined', decided_at: new Date().toISOString() })
     .eq('id', application.id);
   if (error) return false;
-  if (accept) {
-    try {
-      await enrollCoachClient(application.coachId, {
-        id: application.athleteId,
-        client_id: application.athleteId,
-        name: application.athleteName || 'Athlete',
-        handle: '',
-        status: 'Need Routine',
-        readiness: null,
-        volume: null,
-      });
-    } catch {
-      /* The accepted application still links the athlete from their side. */
-    }
-  }
+  if (accept) await linkCoachClient(application.coachId, { id: application.athleteId, name: application.athleteName || 'Athlete' });
   return true;
 }
 
@@ -310,6 +300,7 @@ export async function adoptAcceptedCoach(): Promise<boolean> {
     .limit(1);
   const row = Array.isArray(data) && data[0] ? mapApplication(data[0]) : null;
   if (!row) return false;
+  if (!(await linkCoachClient(row.coachId, { id: me as string, name: row.athleteName }))) return false;
   saveLinkedCoach({ id: row.coachId, name: row.coachName, handle: row.coachHandle, avatar: row.coachAvatar });
   return true;
 }

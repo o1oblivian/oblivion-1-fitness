@@ -74,7 +74,7 @@ export const ProgramDetailsStep: React.FC<{
               }}
               className={`px-2.5 py-1 rounded-xl text-[10px] font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
                 data.descriptionMode === 'short'
-                  ? 'bg-white text-neutral-900 shadow-2xs'
+                  ? 'bg-o1-crimson text-white'
                   : 'text-o1-muted hover:text-o1-text'
               }`}
             >
@@ -89,7 +89,7 @@ export const ProgramDetailsStep: React.FC<{
               }}
               className={`px-2.5 py-1 rounded-xl text-[10px] font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
                 data.descriptionMode === 'methodology'
-                  ? 'bg-white text-neutral-900 shadow-2xs'
+                  ? 'bg-o1-crimson text-white'
                   : 'text-o1-muted hover:text-o1-text'
               }`}
             >
@@ -205,7 +205,7 @@ export const ProgramDetailsStep: React.FC<{
                 }}
                 className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-all cursor-pointer ${
                   isSelected
-                    ? 'bg-white text-neutral-900 font-bold shadow-2xs'
+                    ? 'bg-o1-crimson text-white font-bold'
                     : 'bg-white/[0.08] text-o1-text hover:bg-neutral-700'
                 }`}
               >
@@ -234,7 +234,7 @@ export const ProgramDetailsStep: React.FC<{
                 }}
                 className={`flex-1 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
                   isSelected
-                    ? 'bg-white text-neutral-900 shadow-2xs'
+                    ? 'bg-o1-crimson text-white'
                     : 'text-o1-muted hover:text-o1-text'
                 }`}
               >
@@ -263,7 +263,7 @@ export const ProgramDetailsStep: React.FC<{
                 }}
                 className={`w-8 h-8 rounded-xl text-xs font-bold transition-all flex items-center justify-center cursor-pointer shrink-0 ${
                   isSelected
-                    ? 'bg-white text-neutral-900 shadow-2xs'
+                    ? 'bg-o1-crimson text-white'
                     : 'text-o1-muted hover:bg-neutral-700'
                 }`}
               >
@@ -292,7 +292,7 @@ export const ProgramDetailsStep: React.FC<{
                 }}
                 className={`flex-1 h-8 rounded-xl text-xs font-bold transition-all flex items-center justify-center cursor-pointer ${
                   isSelected
-                    ? 'bg-white text-neutral-900 shadow-2xs'
+                    ? 'bg-o1-crimson text-white'
                     : 'text-o1-muted hover:bg-neutral-700'
                 }`}
               >

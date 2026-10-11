@@ -191,7 +191,7 @@ export const AthleteProgramsPanel: React.FC = () => {
                   }}
                   aria-pressed={on}
                   className={`h-[36px] shrink-0 rounded-full border px-3.5 text-[12px] font-semibold ${
-                    on ? 'border-white bg-white text-neutral-950' : 'border-white/[0.07] bg-o1-surface text-o1-text'
+                    on ? 'border-o1-crimson bg-o1-crimson text-white' : 'border-white/[0.07] bg-o1-surface text-o1-text'
                   }`}
                 >
                   {name}
@@ -225,7 +225,7 @@ export const AthleteProgramsPanel: React.FC = () => {
                     <Cover id={program.id} url={program.coverUrl} className="h-full w-full object-cover" />
                     <span className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-transparent" />
                     {owned ? (
-                      <span className="absolute left-2 top-2 rounded-full bg-white px-2 py-0.5 text-[11px] font-semibold text-neutral-950">Enrolled</span>
+                      <span className="absolute left-2 top-2 rounded-full bg-o1-crimson px-2 py-0.5 text-[11px] font-semibold text-white">Enrolled</span>
                     ) : price ? (
                       <span className="absolute left-2 top-2 rounded-full bg-black/70 px-2 py-0.5 text-[11px] font-semibold text-o1-text">{price}</span>
                     ) : null}
@@ -257,7 +257,7 @@ export const AthleteProgramsPanel: React.FC = () => {
       <CoachDirectMessageModal coach={messageCoach} onClose={() => setMessageCoach(null)} />
 
       {toast && (
-        <div role="status" aria-live="polite" className="pointer-events-none fixed inset-x-0 top-16 z-[70] mx-auto w-fit rounded-full bg-white px-4 py-2 text-[12px] font-semibold text-neutral-950 shadow-xl">
+        <div role="status" aria-live="polite" className="pointer-events-none fixed inset-x-0 top-16 z-[70] mx-auto w-fit rounded-full border border-white/[0.07] bg-o1-sheet px-4 py-2 text-[12px] font-semibold text-o1-text shadow-xl">
           {toast}
         </div>
       )}

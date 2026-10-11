@@ -94,8 +94,7 @@ export async function fetchMyPrograms(): Promise<EnrolledProgram[] | null> {
     if (error || !Array.isArray(data)) return null;
   }
   const rows = data as Record<string, unknown>[];
-  const missing = rows.filter((row) => !row.title).map((row) => String(row.program_id));
-  const fallback = await programRowsById(missing);
+  const fallback = await programRowsById(rows.map((row) => String(row.program_id)));
   return rows
     .map((row) => mapEnrollment(row, fallback.get(String(row.program_id))))
     .filter((program) => program.title);

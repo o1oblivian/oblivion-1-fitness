@@ -10,27 +10,32 @@ import { O1_PRESETS } from './artworkPresets';
 
 const STEPS = ['Details', 'Builder', 'Pricing', 'Review'] as const;
 
-function createDefaultWeeks(numWeeks: number, numDays: number): ProgramWeekPlan[] {
-  const dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-  const splitNames = ['Push', 'Pull', 'Legs', 'Upper Body', 'Lower Body', 'Conditioning', 'Mobility'];
-  
-  return Array.from({ length: numWeeks }, (_, wIdx) => ({
+const DAY_NAMES = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+const SPLIT_NAMES = ['Push', 'Pull', 'Legs', 'Upper Body', 'Lower Body', 'Conditioning', 'Mobility'];
+
+/** Grows or trims the plan to the chosen length, keeping every day the coach already filled in. */
+function resizeWeeks(current: ProgramWeekPlan[], numWeeks: number, numDays: number): ProgramWeekPlan[] {
+  const days = Math.min(Math.max(numDays, 1), 7);
+  return Array.from({ length: Math.max(numWeeks, 1) }, (_, wIdx) => ({
     weekNumber: wIdx + 1,
-    days: Array.from({ length: Math.min(numDays, 7) }, (_, dIdx) => ({
+    days: Array.from({ length: days }, (_, dIdx) => current[wIdx]?.days[dIdx] ?? {
       id: `d-${wIdx + 1}-${dIdx + 1}`,
-      dayName: dayNames[dIdx],
-      splitFocus: splitNames[dIdx % splitNames.length],
+      dayName: DAY_NAMES[dIdx],
+      splitFocus: SPLIT_NAMES[dIdx % SPLIT_NAMES.length],
       exercises: [],
-    })),
+    }),
   }));
 }
 
 export const ProgramCreatorModal: React.FC<{
   isOpen: boolean;
   onClose: () => void;
-  onPublished?: (p: ProgramFormData) => void;
+  /** Resolves true once the program is saved to the coach's account. */
+  onPublished?: (p: ProgramFormData) => Promise<boolean>;
 }> = ({ isOpen, onClose, onPublished }) => {
   const [currentStep, setCurrentStep] = useState<number>(1);
+  const [publishing, setPublishing] = useState(false);
+  const [publishError, setPublishError] = useState('');
   const [formData, setFormData] = useState<ProgramFormData>({
     title: '',
     description: '',
@@ -43,7 +48,7 @@ export const ProgramCreatorModal: React.FC<{
     trainingDaysPerWeek: 4,
     coverImage: O1_PRESETS[0]?.url ?? '',
     coverSource: 'presets',
-    weeks: createDefaultWeeks(4, 4),
+    weeks: resizeWeeks([], 4, 4),
     isFreeCommunity: false,
     priceUsd: 29.99,
     discountPercent: 0,
@@ -54,16 +59,28 @@ export const ProgramCreatorModal: React.FC<{
   const handleUpdate = (updates: Partial<ProgramFormData>) => {
     setFormData((prev) => {
       const next = { ...prev, ...updates };
-      if (updates.durationWeeks && updates.durationWeeks !== prev.durationWeeks) {
-        next.weeks = createDefaultWeeks(updates.durationWeeks, next.trainingDaysPerWeek);
+      if (next.durationWeeks !== prev.durationWeeks || next.trainingDaysPerWeek !== prev.trainingDaysPerWeek) {
+        next.weeks = resizeWeeks(next.weeks, next.durationWeeks, next.trainingDaysPerWeek);
       }
       return next;
     });
   };
 
-  const handlePublish = () => {
+  const handlePublish = async () => {
+    if (publishing) return;
+    if (!formData.title.trim()) {
+      setPublishError('Add a program title on the Details step.');
+      return;
+    }
+    setPublishing(true);
+    setPublishError('');
+    const ok = onPublished ? await onPublished(formData) : false;
+    setPublishing(false);
+    if (!ok) {
+      setPublishError('Could not publish. Check your connection and try again.');
+      return;
+    }
     tactileEngine.playPRCelebration();
-    if (onPublished) onPublished(formData);
     onClose();
   };
 
@@ -143,7 +160,7 @@ export const ProgramCreatorModal: React.FC<{
                   <span>{s}</span>
                 </span>
                 {isActive && (
-                  <span className="absolute bottom-0 inset-x-3 h-0.5 bg-white rounded-full" />
+                  <span className="absolute bottom-0 inset-x-3 h-0.5 bg-o1-crimson rounded-full" />
                 )}
               </button>
             );
@@ -157,6 +174,12 @@ export const ProgramCreatorModal: React.FC<{
           {currentStep === 3 && <ProgramPricingStep data={formData} onChange={handleUpdate} />}
           {currentStep === 4 && <ProgramReviewStep data={formData} />}
         </div>
+
+        {publishError ? (
+          <p role="alert" className="shrink-0 border-t border-white/[0.07] bg-o1-surface px-4 py-2 text-[12px] text-o1-text">
+            {publishError}
+          </p>
+        ) : null}
 
         {/* Pinned Bottom Sticky Dock with Safe Area padding */}
         <div className="px-4 py-2 border-t border-white/[0.07] bg-o1-surface/95 backdrop-blur-md flex items-center justify-between shrink-0 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
@@ -188,18 +211,19 @@ export const ProgramCreatorModal: React.FC<{
                 tactileEngine.triggerSelectionBuzz();
                 setCurrentStep((s) => s + 1);
               }}
-              className="py-2.5 px-6 rounded-xl bg-white text-neutral-900 text-xs font-bold shadow-xs hover:opacity-90 active:scale-95 transition-all cursor-pointer ml-auto"
+              className="min-h-[44px] py-2.5 px-6 rounded-xl border border-white/[0.07] bg-o1-sheet text-o1-text text-xs font-bold active:scale-95 transition-all cursor-pointer ml-auto"
             >
-              Next &gt;
+              Next
             </button>
           ) : (
             <button
               type="button"
-              onClick={handlePublish}
-              className="py-2.5 px-6 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover active:scale-95 text-o1-text text-xs font-bold flex items-center gap-1.5 shadow-xs transition-all cursor-pointer ml-auto"
+              disabled={publishing}
+              onClick={() => void handlePublish()}
+              className="min-h-[44px] py-2.5 px-6 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover active:scale-95 text-white text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ml-auto disabled:opacity-60"
             >
               <Sparkles size={14} />
-              <span>Publish Program</span>
+              <span>{publishing ? 'Publishing…' : 'Publish program'}</span>
             </button>
           )}
         </div>

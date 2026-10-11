@@ -1,637 +1,372 @@
-import React, { useState, useEffect, useRef } from 'react';
-import {
-  X,
-  Camera,
-  Trash2,
-  Play,
-  Radio,
-  Film,
-  UserCheck,
-  Check,
-  Loader2,
-} from 'lucide-react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { X, Camera, Trash2, Play, Film, UserCheck, Check, Loader2, Radio } from 'lucide-react';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { useBuddyProfileStore } from '../../../stores/useBuddyProfileStore';
 import { useUserStore } from '../../../stores/useUserStore';
 import { useReelsStore } from '../../../stores/useReelsStore';
+import { getAuthenticatedUserId } from '../../../services/authUser';
 import { compressPhoto, compressVideo } from '../../../utils/mediaCompressor';
-import { deleteVaultRow, fetchVaultRows, isSharedUrl, removeMedia, saveVaultRow, storeMedia } from '../../../services/mediaStorage';
+import { VaultRow, deleteVaultRow, fetchVaultRows, removeMedia, saveVaultRow, uploadMedia } from '../../../services/mediaStorage';
 import { CoachReelUploadModal } from '../../reels/components/CoachReelUploadModal';
 import { insertReelRow } from '../../reels/services/publishCoachReelService';
-import type { ExploreReelItem } from '../../reels/reelTypes';
+import { mapReelRow } from '../../reels/services/reelFeed';
+import { fetchCoachCard, toExploreCoach } from '../services/coachDirectory';
+import { saveMyCoachAvatar } from '../services/coachPublicProfile';
 
-export interface VaultMediaItem {
+interface VaultMediaItem {
   id: string;
   type: 'photo' | 'video';
   title: string;
-  category: 'Transformation' | 'Biomechanics Audit' | 'Form Check' | 'Body Composition' | 'Exercise Guide';
-  athleteName: string;
   url: string;
   thumbnailUrl?: string;
   createdAt: string;
-  fileSize?: string;
-  notes?: string;
-  /** Storage object paths, removed with the item. */
-  storagePaths?: string[];
+  storagePaths: string[];
 }
 
-const STORAGE_KEY = 'o1_coach_exercise_vault_media';
+type VaultTab = 'all' | 'photo' | 'video';
 
-export interface CoachVaultViewProps {
-  embedded?: boolean;
+function fromRow(row: VaultRow): VaultMediaItem {
+  return {
+    id: row.id,
+    type: row.type,
+    title: row.title || (row.type === 'video' ? 'Clip' : 'Photo'),
+    url: row.media_url,
+    thumbnailUrl: row.thumbnail_url || undefined,
+    createdAt: row.created_at ? new Date(row.created_at).toLocaleDateString() : '',
+    storagePaths: row.storage_path ? [row.storage_path] : [],
+  };
 }
 
-export const CoachVaultView: React.FC<CoachVaultViewProps> = ({ embedded = false }) => {
+export const CoachVaultView: React.FC = () => {
   const buddy = useBuddyProfileStore();
   const user = useUserStore();
+  const reels = useReelsStore((s) => s.reels);
   const addCoachReel = useReelsStore((s) => s.addCoachReel);
-  const ownerName = buddy.displayName || user.name || '';
-  const [activeTab, setActiveTab] = useState<'all' | 'photo' | 'reels'>('all');
-  const [items, setItems] = useState<VaultMediaItem[]>(() => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) {
-        return JSON.parse(stored);
-      }
-    } catch {
-      // fallback
-    }
-    return [];
-  });
-
-  const [selectedPreviewItem, setSelectedPreviewItem] = useState<VaultMediaItem | null>(null);
-  const [showOnBuddyOnAdd] = useState(true);
-  const [isReelUploadOpen, setIsReelUploadOpen] = useState(false);
-  const [publishedReelIds, setPublishedReelIds] = useState<string[]>([]);
-  const [avatarSuccessMsg, setAvatarSuccessMsg] = useState<string | null>(null);
-  const [isCompressing, setIsCompressing] = useState(false);
+  const [tab, setTab] = useState<VaultTab>('all');
+  const [items, setItems] = useState<VaultMediaItem[]>([]);
+  const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading');
+  const [preview, setPreview] = useState<VaultMediaItem | null>(null);
+  const [reelUploadOpen, setReelUploadOpen] = useState(false);
+  const [busy, setBusy] = useState<'upload' | 'publish' | 'avatar' | null>(null);
+  const [notice, setNotice] = useState<{ tone: 'ok' | 'error'; text: string } | null>(null);
+  const noticeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
+  const flash = useCallback((tone: 'ok' | 'error', text: string) => {
+    if (noticeTimer.current) clearTimeout(noticeTimer.current);
+    setNotice({ tone, text });
+    noticeTimer.current = setTimeout(() => setNotice(null), 3000);
+  }, []);
+
+  const reload = useCallback(async () => {
+    const uid = await getAuthenticatedUserId();
+    if (!uid) {
+      setStatus('error');
+      return;
+    }
+    const rows = await fetchVaultRows();
+    setItems(rows.map(fromRow));
+    setStatus('ready');
+  }, []);
+
   useEffect(() => {
-    let live = true;
-    void fetchVaultRows().then((rows) => {
-      if (!live || rows.length === 0) return;
-      setItems((prev) => {
-        const known = new Set(prev.map((item) => item.id));
-        const cloud: VaultMediaItem[] = rows
-          .filter((row) => !known.has(row.id))
-          .map((row) => ({
-            id: row.id,
-            type: row.type,
-            title: row.title || (row.type === 'video' ? 'Reel' : 'Photo'),
-            category: row.type === 'video' ? 'Form Check' : 'Transformation',
-            athleteName: ownerName,
-            url: row.media_url,
-            thumbnailUrl: row.thumbnail_url || undefined,
-            createdAt: row.created_at ? new Date(row.created_at).toLocaleDateString() : '',
-            storagePaths: row.storage_path ? [row.storage_path] : undefined,
-          }));
-        return cloud.length ? [...prev, ...cloud] : prev;
-      });
-    });
+    void reload();
     return () => {
-      live = false;
+      if (noticeTimer.current) clearTimeout(noticeTimer.current);
     };
-  }, [ownerName]);
+  }, [reload]);
 
-  // Sync to localStorage
-  useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
-    } catch (e) {
-      console.error(e);
-    }
-  }, [items]);
-
+  const isPublished = (item: VaultMediaItem) => reels.some((reel) => reel.videoUrl === item.url);
   const photoCount = items.filter((i) => i.type === 'photo').length;
-  const reelsCount = items.filter(
-    (i) => i.type === 'video' || i.id.includes('reel') || publishedReelIds.includes(i.id)
-  ).length;
-
-  const filteredItems = items.filter((item) => {
-    if (activeTab === 'photo') return item.type === 'photo';
-    if (activeTab === 'reels') {
-      return item.type === 'video' || item.id.includes('reel') || publishedReelIds.includes(item.id);
-    }
-    return true;
-  });
+  const videoCount = items.length - photoCount;
+  const visible = items.filter((item) => tab === 'all' || item.type === tab);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
+    e.target.value = '';
     if (!file) return;
-
     tactileEngine.triggerImpactPulse();
-    setIsCompressing(true);
-    const isVid = file.type.startsWith('video');
-
-    const title = file.name.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' ') || (isVid ? 'Training Reel Check-in' : 'Progress Audit Photo');
+    setBusy('upload');
+    const isVideo = file.type.startsWith('video');
+    const title = file.name.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' ') || (isVideo ? 'Clip' : 'Photo');
     try {
       let source: Blob = file;
       let poster: string | undefined;
-      let fileSize: string | undefined;
       try {
-        const result = isVid ? await compressVideo(file) : await compressPhoto(file);
+        const result = isVideo ? await compressVideo(file) : await compressPhoto(file);
         source = result.file;
         poster = result.thumbnailUrl;
-        fileSize = result.formattedCompressed;
       } catch (err) {
-        console.warn('[CoachVault] Compression fallback:', err);
+        console.warn('[CoachVault] compression skipped:', err);
       }
       const [media, cover] = await Promise.all([
-        storeMedia(source, 'vault'),
-        isVid && poster ? storeMedia(poster, 'vault') : Promise.resolve(null),
+        uploadMedia(source, 'vault'),
+        isVideo && poster ? uploadMedia(poster, 'vault') : Promise.resolve(null),
       ]);
-      const newItem: VaultMediaItem = {
+      if (!media) {
+        flash('error', 'Upload failed. Check your connection and try again.');
+        return;
+      }
+      const row: VaultRow = {
         id: `vault-media-${Date.now()}`,
-        type: isVid ? 'video' : 'photo',
+        type: isVideo ? 'video' : 'photo',
         title,
-        category: isVid ? 'Form Check' : 'Transformation',
-        athleteName: ownerName,
-        url: media.url,
-        thumbnailUrl: isVid ? cover?.url || undefined : undefined,
-        createdAt: 'Just now',
-        fileSize,
-        storagePaths: [media.path, cover?.path].filter((p): p is string => Boolean(p)),
-      };
-
-      setItems((prev) => [newItem, ...prev]);
-      void saveVaultRow({
-        id: newItem.id,
-        type: newItem.type,
-        title,
-        media_url: newItem.url,
-        thumbnail_url: newItem.thumbnailUrl,
+        media_url: media.url,
+        thumbnail_url: cover?.url ?? null,
         storage_path: media.path,
-      });
-
-      if (showOnBuddyOnAdd) {
-        const buddyUrl = newItem.thumbnailUrl || newItem.url;
-        if (!buddy.isPhotoOnBuddy(buddyUrl)) {
-          buddy.toggleVaultPhotoOnBuddy(buddyUrl);
-        }
+      };
+      if (!(await saveVaultRow(row))) {
+        void removeMedia([media.path, cover?.path]);
+        flash('error', 'Could not save to your Vault. Try again.');
+        return;
       }
-
+      setItems((prev) => [fromRow({ ...row, created_at: new Date().toISOString() }), ...prev]);
       tactileEngine.playPRCelebration();
-      setAvatarSuccessMsg(media.remote ? 'Saved to your Vault' : 'Saved on this phone only. Sign in to back it up.');
-      setTimeout(() => setAvatarSuccessMsg(null), 2500);
+      flash('ok', 'Saved to your Vault');
     } finally {
-      setIsCompressing(false);
-      if (fileInputRef.current) fileInputRef.current.value = '';
+      setBusy(null);
     }
   };
 
-  const handleSetAsAvatar = (item: VaultMediaItem) => {
-    tactileEngine.playPRCelebration();
+  const handleSetAsAvatar = async (item: VaultMediaItem) => {
     const avatarUrl = item.thumbnailUrl || item.url;
+    setBusy('avatar');
+    const ok = await saveMyCoachAvatar(avatarUrl);
+    setBusy(null);
+    if (!ok) {
+      flash('error', 'Could not update your profile photo. Save your coach profile first.');
+      return;
+    }
     user.updateProfile({ avatarUrl });
-    try {
-      localStorage.setItem('o1_profile_avatar_url', avatarUrl);
-    } catch (err) {
-      console.error(err);
-    }
-    setAvatarSuccessMsg('Profile Avatar Updated!');
-    setTimeout(() => setAvatarSuccessMsg(null), 2500);
+    tactileEngine.playPRCelebration();
+    flash('ok', 'Profile photo updated');
   };
 
-  const handlePublishToReels = (item: VaultMediaItem) => {
-    tactileEngine.playPRCelebration();
-    const thumb = item.thumbnailUrl || item.url;
-    const filterTag: ExploreReelItem['filterTag'] =
-      item.category === 'Biomechanics Audit'
-        ? 'MOBILITY & REHAB'
-        : item.category === 'Form Check'
-        ? 'BACK & BICEPS'
-        : item.category === 'Transformation' || item.category === 'Body Composition'
-        ? 'QUADS & GLUTES'
-        : 'CHEST & TRICEPS';
-
-    const reel: ExploreReelItem = {
-      id: `reel-${Date.now()}`,
-      title: item.title,
-      category: 'BIOMECHANICS',
-      filterTag,
-      videoUrl: item.url,
-      thumbnail: thumb,
-      views: '--',
-      duration: '0:18',
-      coach: {
-        id: user.userId || 'coach',
-        name: buddy.displayName || user.name || 'Coach',
-        handle: user.handle || '',
-        avatar: buddy.buddyPhotos?.[0] || user.avatarUrl || '',
-        verified: false,
-        specialtyTitle: 'Coach',
-        rating: 0,
-        reviewCount: 0,
-        certificationPill: '',
-        rate: '',
-        slotsRemaining: 0,
-        bio: '',
-        disciplines: [],
-      },
-      cues: item.notes || 'Biomechanical checkpoint synced from Coach Vault.',
-      filmstripClips: [
-        {
-          id: `clip-${Date.now()}-1`,
-          title: item.title,
-          duration: '0:18',
-          thumbnail: thumb,
-          videoUrl: item.url,
-          tag: 'BIOMECHANICS',
-          badge: 'CUE',
-        },
-      ],
-    };
+  const handlePublishToReels = async (item: VaultMediaItem) => {
+    const coachId = await getAuthenticatedUserId();
+    if (!coachId) {
+      flash('error', 'Sign in to publish reels.');
+      return;
+    }
+    setBusy('publish');
+    const card = await fetchCoachCard(coachId);
+    const coach = toExploreCoach(
+      card ?? { id: coachId, name: user.name || 'Coach', handle: '', avatar: '', bio: '', specialties: [], hourlyRate: null, monthlyRate: null, verified: false, accepting: true },
+    );
+    const reel = mapReelRow(
+      { id: `reel-${Date.now()}`, title: item.title, category: 'BIOMECHANICS', filter_tag: 'TUTORIAL', video_url: item.url, thumbnail_url: item.thumbnailUrl || '', cues: '' },
+      coach,
+    );
+    const ok = await insertReelRow(reel);
+    setBusy(null);
+    if (!ok) {
+      flash('error', 'Could not publish this clip. Try again.');
+      return;
+    }
     addCoachReel(reel);
-    void insertReelRow(reel);
-    setPublishedReelIds((prev) => [...prev, item.id]);
-    setAvatarSuccessMsg(isSharedUrl(item.url) ? 'Reel published' : 'Reel published on this phone only. Sign in and re-add it to share.');
-    setTimeout(() => setAvatarSuccessMsg(null), 2500);
-  };
-
-  const handleReelPublished = (reelTitle: string, _category: string, shared: boolean) => {
     tactileEngine.playPRCelebration();
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        if (Array.isArray(parsed)) setItems(parsed);
-      }
-    } catch {
-      // ignore
-    }
-    setAvatarSuccessMsg(shared ? `Reel "${reelTitle}" published` : `Reel "${reelTitle}" saved on this phone only. Sign in to share it.`);
-    setTimeout(() => setAvatarSuccessMsg(null), 3000);
+    flash('ok', 'Published to Reels');
   };
 
-  const handleDeleteItem = (id: string, e?: React.MouseEvent) => {
-    if (e) e.stopPropagation();
+  const handleDelete = (item: VaultMediaItem) => {
     tactileEngine.triggerSelectionBuzz();
-    const itemToDelete = items.find((i) => i.id === id);
-    if (itemToDelete) {
-      const url = itemToDelete.thumbnailUrl || itemToDelete.url;
-      if (buddy.isPhotoOnBuddy(url)) {
-        buddy.toggleVaultPhotoOnBuddy(url);
-      }
-      const urls = [itemToDelete.url, itemToDelete.thumbnailUrl].filter(Boolean);
-      const inUse =
-        urls.includes(user.avatarUrl) ||
-        useReelsStore.getState().reels.some((reel) => urls.includes(reel.videoUrl) || urls.includes(reel.thumbnail));
-      if (!inUse) void removeMedia(itemToDelete.storagePaths ?? []);
-      void deleteVaultRow(id);
-    }
-    setItems((prev) => prev.filter((i) => i.id !== id));
-    if (selectedPreviewItem?.id === id) {
-      setSelectedPreviewItem(null);
-    }
+    const cover = item.thumbnailUrl || item.url;
+    if (buddy.isPhotoOnBuddy(cover)) buddy.toggleVaultPhotoOnBuddy(cover);
+    const urls = [item.url, item.thumbnailUrl].filter(Boolean);
+    const inUse = urls.includes(user.avatarUrl) || reels.some((reel) => urls.includes(reel.videoUrl) || urls.includes(reel.thumbnail));
+    if (!inUse) void removeMedia(item.storagePaths);
+    void deleteVaultRow(item.id);
+    setItems((prev) => prev.filter((i) => i.id !== item.id));
+    setPreview(null);
   };
+
+  const tabs: { id: VaultTab; label: string; icon?: typeof Camera }[] = [
+    { id: 'all', label: `All (${items.length})` },
+    { id: 'photo', label: `Photos (${photoCount})`, icon: Camera },
+    { id: 'video', label: `Clips (${videoCount})`, icon: Film },
+  ];
 
   return (
-    <div className={`w-full text-o1-text select-none ${
-      embedded
-        ? 'bg-o1-surface border border-white/[0.07] rounded-2xl p-3.5 sm:p-5 shadow-xs space-y-4'
-        : 'p-3 sm:p-4 space-y-4'
-    }`}>
-      {/* Hidden File Input for Native Picker */}
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept="image/*,video/*"
-        onChange={handleFileChange}
-        className="hidden"
-      />
+    <div className="w-full space-y-4 rounded-2xl border border-white/[0.07] bg-o1-surface p-3.5 text-o1-text select-none">
+      <input ref={fileInputRef} type="file" accept="image/*,video/*" onChange={(e) => void handleFileChange(e)} className="hidden" />
 
-      {/* 1. TOP STATUS STRIP: Buddy Profile Broadcast (Matching Screenshot 1) */}
-      <div className="flex items-center justify-between px-1 py-1">
-        <div className="flex items-center gap-2 text-xs font-mono text-o1-muted">
-          <Radio className="w-3.5 h-3.5 text-o1-crimson animate-pulse" />
-          <span>
-            Buddy Profile Broadcast: <strong className="text-o1-text">{buddy.buddyPhotos.length}/6</strong> active
-          </span>
-        </div>
-        <span className="px-2.5 py-0.5 rounded-full bg-o1-crimson/10 border border-o1-crimson/30 text-o1-crimson text-[9px] font-mono font-bold">
-          {buddy.buddyPhotos.length} ON RADAR
+      <div className="flex items-center justify-between px-1">
+        <span className="flex items-center gap-2 text-[12px] text-o1-muted">
+          <Radio className="h-3.5 w-3.5 text-o1-crimson" />
+          On your Buddy card: <strong className="text-o1-text">{buddy.buddyPhotos.length}/6</strong>
         </span>
       </div>
 
-      {/* Success Notification Banner */}
-      {avatarSuccessMsg && (
-        <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-mono font-bold flex items-center gap-2 animate-in fade-in duration-200">
-          <Check className="w-4 h-4 shrink-0" />
-          <span>{avatarSuccessMsg}</span>
+      {notice && (
+        <div
+          role={notice.tone === 'error' ? 'alert' : 'status'}
+          className={`flex items-center gap-2 rounded-xl border p-2.5 text-[12px] font-semibold ${
+            notice.tone === 'error' ? 'border-o1-crimson/40 bg-o1-crimson/10 text-o1-text' : 'border-emerald-600/30 bg-emerald-600/10 text-emerald-500'
+          }`}
+        >
+          <Check className="h-4 w-4 shrink-0" />
+          <span>{notice.text}</span>
         </div>
       )}
 
-      {/* 2. CONTROL ROW: Filter Tabs + ADD Button on Right (Matching Screenshot 1) */}
       <div className="flex items-center justify-between gap-2">
-        <div className="inline-flex items-center bg-o1-sheet border border-white/[0.07] p-1 rounded-2xl gap-1">
-          <button
-            type="button"
-            onClick={() => {
-              tactileEngine.triggerSelectionBuzz();
-              setActiveTab('all');
-            }}
-            className={`py-1.5 px-3 rounded-xl text-xs font-bold transition-all text-center whitespace-nowrap cursor-pointer ${
-              activeTab === 'all'
-                ? 'bg-o1-surface text-o1-text shadow-xs'
-                : 'text-o1-muted hover:text-o1-text'
-            }`}
-          >
-            ALL ({items.length})
-          </button>
-
-          <button
-            type="button"
-            onClick={() => {
-              tactileEngine.triggerSelectionBuzz();
-              setActiveTab('photo');
-            }}
-            className={`py-1.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 whitespace-nowrap cursor-pointer ${
-              activeTab === 'photo'
-                ? 'bg-o1-surface text-o1-text shadow-xs'
-                : 'text-o1-muted hover:text-o1-text'
-            }`}
-          >
-            <Camera size={13} />
-            <span>PHOTOS ({photoCount})</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => {
-              tactileEngine.triggerSelectionBuzz();
-              setActiveTab('reels');
-            }}
-            className={`py-1.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 whitespace-nowrap cursor-pointer ${
-              activeTab === 'reels'
-                ? 'bg-o1-surface text-o1-crimson shadow-xs'
-                : 'text-o1-muted hover:text-o1-text'
-            }`}
-          >
-            <Film size={13} />
-            <span>REELS ({reelsCount})</span>
-          </button>
+        <div className="inline-flex items-center gap-1 rounded-2xl border border-white/[0.07] bg-o1-sheet p-1" role="tablist">
+          {tabs.map(({ id, label, icon: Icon }) => (
+            <button
+              key={id}
+              type="button"
+              role="tab"
+              aria-selected={tab === id}
+              onClick={() => {
+                tactileEngine.triggerSelectionBuzz();
+                setTab(id);
+              }}
+              className={`flex min-h-[36px] items-center gap-1.5 whitespace-nowrap rounded-xl px-3 text-[12px] font-semibold ${
+                tab === id ? 'bg-o1-surface text-o1-text' : 'text-o1-muted'
+              }`}
+            >
+              {Icon ? <Icon size={13} /> : null}
+              <span>{label}</span>
+            </button>
+          ))}
         </div>
 
         <button
           type="button"
-          disabled={isCompressing}
+          disabled={busy !== null || status !== 'ready'}
           onClick={() => {
             tactileEngine.triggerSelectionBuzz();
-            if (activeTab === 'reels') {
-              setIsReelUploadOpen(true);
-            } else {
-              fileInputRef.current?.click();
-            }
+            if (tab === 'video') setReelUploadOpen(true);
+            else fileInputRef.current?.click();
           }}
-          className="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-o1-crimson hover:bg-o1-crimson-hover active:scale-95 text-o1-text text-xs font-bold font-mono tracking-wider cursor-pointer shadow-xs disabled:opacity-60 disabled:cursor-wait"
+          className="flex min-h-[40px] items-center gap-1.5 rounded-2xl bg-o1-crimson px-3.5 text-[12px] font-semibold text-white active:scale-95 hover:bg-o1-crimson-hover disabled:opacity-60"
         >
-          {isCompressing ? (
-            <Loader2 size={14} className="animate-spin" />
-          ) : activeTab === 'reels' ? (
-            <Film size={14} />
-          ) : (
-            <Camera size={14} />
-          )}
-          <span>{isCompressing ? 'Compressing…' : '+ Add'}</span>
+          {busy === 'upload' ? <Loader2 size={14} className="animate-spin" /> : tab === 'video' ? <Film size={14} /> : <Camera size={14} />}
+          <span>{busy === 'upload' ? 'Uploading…' : 'Add'}</span>
         </button>
       </div>
 
-      {/* 3. MEDIA GALLERY BODY */}
-      <div>
-        {filteredItems.length === 0 ? (
-          <div className="py-24 px-4 flex flex-col items-center justify-center text-center space-y-3">
-            <div className="w-16 h-16 rounded-full bg-o1-sheet border border-white/[0.07] flex items-center justify-center text-o1-muted">
-              <Camera size={26} />
-            </div>
-            <div className="space-y-1">
-              <h3 className="text-sm font-bold text-o1-text">
-                No media in this category.
-              </h3>
-              <p className="text-xs text-o1-muted max-w-xs font-mono">
-                Tap Add to import athlete transformation photos or kinetic reels.
-              </p>
-            </div>
+      {status === 'loading' ? (
+        <p className="py-16 text-center text-[13px] text-o1-muted">Loading your Vault…</p>
+      ) : status === 'error' ? (
+        <p role="alert" className="py-16 text-center text-[13px] text-o1-text">Sign in to use your Vault.</p>
+      ) : visible.length === 0 ? (
+        <div className="flex flex-col items-center justify-center space-y-3 px-4 py-20 text-center">
+          <div className="flex h-16 w-16 items-center justify-center rounded-full border border-white/[0.07] bg-o1-sheet text-o1-muted">
+            <Camera size={26} />
           </div>
-        ) : (
-          /* Responsive 2-Col Grid (3-Col on sm+) */
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-            {filteredItems.map((item) => (
-              <div
-                key={item.id}
-                onClick={() => {
-                  tactileEngine.triggerSelectionBuzz();
-                  setSelectedPreviewItem(item);
-                }}
-                className="group relative rounded-2xl overflow-hidden border border-white/[0.07] bg-o1-sheet aspect-square flex flex-col justify-between cursor-pointer hover:shadow-md transition-all"
-              >
-                {item.type === 'video' ? (
-                  <div className="w-full h-full relative bg-o1-sheet">
-                    {item.thumbnailUrl ? (
-                      <img
-                        src={item.thumbnailUrl}
-                        alt={item.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
-                    ) : (
-                      <video
-                        src={item.url}
-                        className="w-full h-full object-cover"
-                        preload="metadata"
-                      />
-                    )}
-                    {/* Play Button Overlay */}
-                    <div className="absolute inset-0 bg-black/30 flex items-center justify-center group-hover:bg-black/40 transition-colors">
-                      <div className="w-10 h-10 rounded-full bg-white/90 text-o1-crimson flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                        <Play size={18} className="ml-0.5 fill-o1-crimson" />
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <img
-                    src={item.url}
-                    alt={item.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                )}
-
-                {/* Top Badges */}
-                <div className="absolute top-2 left-2 right-2 flex items-center justify-between pointer-events-none">
-                  <div className="flex items-center gap-1">
-                    {(item.type === 'video' || item.id.includes('reel') || publishedReelIds.includes(item.id)) && (
-                      <span className="px-1.5 py-0.5 rounded-md text-[9px] font-bold bg-o1-crimson text-o1-text shadow-xs flex items-center gap-1">
-                        <Film size={10} />
-                        Reel
-                      </span>
-                    )}
-                    <span className="px-1.5 py-0.5 rounded-md text-[9px] font-medium bg-black/60 text-o1-text backdrop-blur-xs">
-                      {item.athleteName}
-                    </span>
-                  </div>
-
-                  <span className="px-1.5 py-0.5 rounded-md text-[9px] font-mono font-bold bg-black/60 text-o1-text backdrop-blur-xs">
-                    {item.category === 'Biomechanics Audit' ? '4K AUDIT' : item.category.toUpperCase()}
+          <p className="text-[13px] font-semibold text-o1-text">Nothing here yet</p>
+          <p className="max-w-xs text-[12px] text-o1-muted">Tap Add to upload photos and training clips. They are backed up to your account.</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+          {visible.map((item) => (
+            <button
+              key={item.id}
+              type="button"
+              onClick={() => {
+                tactileEngine.triggerSelectionBuzz();
+                setPreview(item);
+              }}
+              aria-label={item.title}
+              className="group relative aspect-square overflow-hidden rounded-2xl border border-white/[0.07] bg-o1-sheet text-left"
+            >
+              {item.type === 'video' && !item.thumbnailUrl ? (
+                <video src={item.url} className="h-full w-full object-cover" preload="metadata" muted playsInline />
+              ) : (
+                <img src={item.thumbnailUrl || item.url} alt="" className="h-full w-full object-cover" />
+              )}
+              {item.type === 'video' ? (
+                <span className="absolute inset-0 flex items-center justify-center bg-black/30">
+                  <span className="flex h-10 w-10 items-center justify-center rounded-full bg-black/60 text-o1-text">
+                    <Play size={18} className="ml-0.5" />
                   </span>
-                </div>
-
-                {/* Bottom Overlay Title */}
-                <div className="absolute inset-x-0 bottom-0 p-2.5 bg-gradient-to-t from-black/80 via-black/40 to-transparent">
-                  <p className="text-xs font-bold text-o1-text truncate drop-shadow-sm">
-                    {item.title}
-                  </p>
-                  <p className="text-[10px] text-o1-text font-mono">
-                    {item.createdAt}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* 5. FULL-SCREEN LIGHTBOX / PREVIEW VIEWER */}
-      {selectedPreviewItem && (
-        <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/90 backdrop-blur-md p-3 sm:p-4 animate-in fade-in duration-150">
-          <div className="w-full max-w-2xl bg-o1-sheet border border-white/[0.07] rounded-2xl overflow-hidden flex flex-col text-o1-text shadow-2xl">
-            {/* Header */}
-            <div className="p-3.5 border-b border-white/[0.07] flex items-center justify-between bg-black/50">
-              <div className="flex items-center gap-2">
-                <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-o1-crimson text-o1-text">
-                  {selectedPreviewItem.category}
                 </span>
-                <h3 className="text-xs font-bold truncate max-w-xs sm:max-w-md">
-                  {selectedPreviewItem.title}
-                </h3>
-              </div>
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => handleDeleteItem(selectedPreviewItem.id)}
-                  className="p-1.5 text-o1-muted hover:text-red-400 transition cursor-pointer"
-                  title="Delete Item"
-                >
+              ) : null}
+              {isPublished(item) ? (
+                <span className="absolute left-2 top-2 flex items-center gap-1 rounded-md bg-o1-crimson px-1.5 py-0.5 text-[10px] font-semibold text-white">
+                  <Film size={10} />
+                  Reel
+                </span>
+              ) : null}
+              <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-2.5">
+                <span className="block truncate text-[12px] font-semibold text-o1-text">{item.title}</span>
+                <span className="block text-[10px] text-o1-muted">{item.createdAt}</span>
+              </span>
+            </button>
+          ))}
+        </div>
+      )}
+
+      {preview && (
+        <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/90 p-3" role="dialog" aria-modal="true" aria-label={preview.title}>
+          <div className="flex w-full max-w-2xl flex-col overflow-hidden rounded-2xl border border-white/[0.07] bg-o1-sheet text-o1-text">
+            <div className="flex items-center justify-between border-b border-white/[0.07] p-3">
+              <h3 className="max-w-xs truncate text-[13px] font-semibold sm:max-w-md">{preview.title}</h3>
+              <div className="flex items-center gap-1">
+                <button type="button" onClick={() => handleDelete(preview)} aria-label="Delete" className="flex h-10 w-10 items-center justify-center text-o1-muted">
                   <Trash2 size={16} />
                 </button>
-                <button
-                  type="button"
-                  onClick={() => setSelectedPreviewItem(null)}
-                  className="p-1.5 text-o1-muted hover:text-o1-text transition cursor-pointer"
-                >
+                <button type="button" onClick={() => setPreview(null)} aria-label="Close" className="flex h-10 w-10 items-center justify-center text-o1-muted">
                   <X size={18} />
                 </button>
               </div>
             </div>
 
-            {/* Media Presentation */}
-            <div className="relative bg-o1-canvas flex items-center justify-center min-h-[260px] max-h-[60vh] overflow-hidden">
-              {selectedPreviewItem.type === 'video' ? (
-                <video
-                  src={selectedPreviewItem.url}
-                  controls
-                  autoPlay
-                  playsInline
-                  className="max-h-[60vh] w-auto max-w-full object-contain"
-                />
+            <div className="flex max-h-[60vh] min-h-[260px] items-center justify-center overflow-hidden bg-o1-canvas">
+              {preview.type === 'video' ? (
+                <video src={preview.url} controls autoPlay playsInline className="max-h-[60vh] w-auto max-w-full object-contain" />
               ) : (
-                <img
-                  src={selectedPreviewItem.url}
-                  alt={selectedPreviewItem.title}
-                  className="max-h-[60vh] w-auto max-w-full object-contain"
-                />
+                <img src={preview.url} alt={preview.title} className="max-h-[60vh] w-auto max-w-full object-contain" />
               )}
             </div>
 
-            {/* Footer Metadata & Action Bar */}
-            <div className="p-4 bg-o1-canvas border-t border-white/[0.07] space-y-3">
-              <div className="flex items-center justify-between text-xs">
-                <div>
-                  <span className="font-semibold text-o1-text block">
-                    {selectedPreviewItem.athleteName}
-                  </span>
-                  <span className="text-[10px] text-o1-muted font-mono">
-                    {selectedPreviewItem.createdAt}
-                  </span>
-                </div>
-                {selectedPreviewItem.fileSize && (
-                  <span className="px-2 py-0.5 rounded bg-white/[0.08] text-[10px] font-mono text-o1-text">
-                    {selectedPreviewItem.fileSize}
-                  </span>
-                )}
-              </div>
-
-              {selectedPreviewItem.notes && (
-                <div className="p-2.5 rounded-xl bg-o1-sheet border border-white/[0.07] text-xs text-o1-text">
-                  <span className="text-[10px] font-bold text-amber-500 block font-mono mb-0.5">
-                    Biomechanical Notes
-                  </span>
-                  {selectedPreviewItem.notes}
-                </div>
-              )}
-
-              {/* Action Controls */}
+            <div className="space-y-2 border-t border-white/[0.07] bg-o1-canvas p-4">
               {(() => {
-                const targetUrl = selectedPreviewItem.thumbnailUrl || selectedPreviewItem.url;
-                const onBuddy = buddy.isPhotoOnBuddy(targetUrl);
-                const isVid = selectedPreviewItem.type === 'video';
-                const isPublished = publishedReelIds.includes(selectedPreviewItem.id);
-
+                const cover = preview.thumbnailUrl || preview.url;
+                const onBuddy = buddy.isPhotoOnBuddy(cover);
+                const published = isPublished(preview);
                 return (
-                  <div className="space-y-2 pt-1">
-                    <div className="p-2 rounded-xl bg-o1-sheet border border-white/[0.07] flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Radio className="w-3.5 h-3.5 text-o1-crimson animate-pulse" />
-                        <span className="text-[11px] text-o1-text">
-                          Buddy Profile Broadcast: {onBuddy ? 'Active on Radar' : 'Vault Only'}
-                        </span>
-                      </div>
+                  <>
+                    <div className="flex items-center justify-between rounded-xl border border-white/[0.07] bg-o1-sheet p-2">
+                      <span className="text-[12px] text-o1-text">{onBuddy ? 'Shown on your Buddy card' : 'Not on your Buddy card'}</span>
                       <button
                         type="button"
-                        onClick={() => buddy.toggleVaultPhotoOnBuddy(targetUrl)}
-                        className={`px-3 py-1 rounded-xl text-[10px] font-bold transition cursor-pointer ${
-                          onBuddy
-                            ? 'bg-o1-crimson text-o1-text shadow-xs'
-                            : 'bg-white/[0.08] text-o1-text hover:text-o1-text'
-                        }`}
+                        onClick={() => buddy.toggleVaultPhotoOnBuddy(cover)}
+                        className={`min-h-[36px] rounded-xl px-3 text-[12px] font-semibold ${onBuddy ? 'bg-o1-crimson text-white' : 'bg-white/[0.08] text-o1-text'}`}
                       >
-                        {onBuddy ? 'On radar' : 'set on'}
+                        {onBuddy ? 'Remove' : 'Show'}
                       </button>
                     </div>
-
                     <div className="grid grid-cols-2 gap-2">
                       <button
                         type="button"
-                        onClick={() => handleSetAsAvatar(selectedPreviewItem)}
-                        className="py-2 px-3 rounded-xl bg-white/[0.08] hover:bg-neutral-700 text-o1-text text-[11px] font-bold flex items-center justify-center gap-1.5 transition cursor-pointer"
+                        disabled={busy !== null}
+                        onClick={() => void handleSetAsAvatar(preview)}
+                        className="flex min-h-[44px] items-center justify-center gap-1.5 rounded-xl bg-white/[0.08] text-[12px] font-semibold text-o1-text disabled:opacity-50"
                       >
-                        <UserCheck className="w-3.5 h-3.5 text-sky-400" />
-                        <span>Set as Avatar</span>
+                        {busy === 'avatar' ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <UserCheck className="h-3.5 w-3.5" />}
+                        <span>Use as profile photo</span>
                       </button>
-
-                      {isVid ? (
+                      {preview.type === 'video' ? (
                         <button
                           type="button"
-                          disabled={isPublished}
-                          onClick={() => handlePublishToReels(selectedPreviewItem)}
-                          className={`py-2 px-3 rounded-xl text-[11px] font-bold flex items-center justify-center gap-1.5 transition cursor-pointer ${
-                            isPublished
-                              ? 'bg-emerald-950/60 border border-emerald-700 text-emerald-400'
-                              : 'bg-o1-crimson hover:bg-o1-crimson-hover text-o1-text shadow-xs'
+                          disabled={published || busy !== null}
+                          onClick={() => void handlePublishToReels(preview)}
+                          className={`flex min-h-[44px] items-center justify-center gap-1.5 rounded-xl text-[12px] font-semibold ${
+                            published ? 'border border-white/[0.07] text-o1-muted' : 'bg-o1-crimson text-white hover:bg-o1-crimson-hover disabled:opacity-50'
                           }`}
                         >
-                          <Film className="w-3.5 h-3.5" />
-                          <span>{isPublished ? 'Published to Reels' : 'Publish to Reels'}</span>
+                          {busy === 'publish' ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Film className="h-3.5 w-3.5" />}
+                          <span>{published ? 'On Reels' : 'Publish to Reels'}</span>
                         </button>
                       ) : (
-                        <button
-                          type="button"
-                          onClick={() => setSelectedPreviewItem(null)}
-                          className="py-2 px-3 rounded-xl bg-white/[0.08] hover:bg-neutral-700 text-o1-text text-[11px] font-bold flex items-center justify-center cursor-pointer"
-                        >
+                        <button type="button" onClick={() => setPreview(null)} className="min-h-[44px] rounded-xl bg-white/[0.08] text-[12px] font-semibold text-o1-text">
                           Done
                         </button>
                       )}
                     </div>
-                  </div>
+                  </>
                 );
               })()}
             </div>
@@ -639,11 +374,14 @@ export const CoachVaultView: React.FC<CoachVaultViewProps> = ({ embedded = false
         </div>
       )}
 
-      {/* 6. Integrated Coach Reel Studio Modal */}
       <CoachReelUploadModal
-        isOpen={isReelUploadOpen}
-        onClose={() => setIsReelUploadOpen(false)}
-        onReelPublished={handleReelPublished}
+        isOpen={reelUploadOpen}
+        onClose={() => setReelUploadOpen(false)}
+        onReelPublished={(reelTitle) => {
+          tactileEngine.playPRCelebration();
+          flash('ok', `"${reelTitle}" published`);
+          void reload();
+        }}
       />
     </div>
   );
@@ -656,30 +394,24 @@ export interface CoachVaultModalProps {
 
 export const CoachVaultModal: React.FC<CoachVaultModalProps> = ({ isOpen = true, onClose }) => {
   if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 z-[100] flex flex-col bg-o1-canvas text-o1-text overflow-y-auto animate-in fade-in duration-150">
-      {/* Top Mobile Bar with Back to Coach Navigation */}
-      <div className="sticky top-0 z-20 bg-o1-surface/90 backdrop-blur-md border-b border-white/[0.07] px-4 py-2 flex items-center justify-between min-h-[44px]">
-        <span className="text-xs font-bold tracking-wider text-o1-text">
-          Vault
-        </span>
-
+    <div className="fixed inset-0 z-[100] flex flex-col overflow-y-auto bg-o1-canvas text-o1-text animate-in fade-in duration-150" role="dialog" aria-modal="true" aria-label="Vault">
+      <div className="sticky top-0 z-20 flex min-h-[52px] items-center justify-between border-b border-white/[0.07] bg-o1-canvas/95 px-4 pt-[env(safe-area-inset-top)] backdrop-blur-md">
+        <span className="text-[14px] font-semibold text-o1-text">Vault</span>
         <button
           type="button"
           onClick={() => {
             tactileEngine.triggerSelectionBuzz();
-            if (onClose) onClose();
+            onClose?.();
           }}
-          className="w-8 h-8 rounded-full bg-white/[0.08] flex items-center justify-center text-o1-muted hover:text-o1-text cursor-pointer"
+          className="flex h-10 w-10 items-center justify-center rounded-full bg-white/[0.08] text-o1-muted"
           aria-label="Close vault"
         >
           <X size={15} />
         </button>
       </div>
-
-      <div className="w-full max-w-xl mx-auto p-3 flex-1 pb-16">
-        <CoachVaultView embedded />
+      <div className="mx-auto w-full max-w-xl flex-1 p-3 pb-16">
+        <CoachVaultView />
       </div>
     </div>
   );

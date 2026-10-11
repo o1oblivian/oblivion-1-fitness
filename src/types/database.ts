@@ -15,19 +15,9 @@ export interface AthleteTelemetryRecord {
   readiness_score: number; updated_at: string; is_pending_sync?: boolean;
 }
 
-export interface CoachClientRecord {
-  coach_id: string; athlete_id: string; status: string;
-  assigned_program_id?: string | null; last_active_at: string; is_pending_sync?: boolean;
-}
-
 export interface BuddyProfileRecord {
   athlete_id: string; display_name: string; gym_id: string;
   training_split: string; experience_level: string; bio: string; is_discoverable: boolean;
-}
-
-export interface AthleteProfileRecord {
-  athlete_id: string; display_name?: string; handle?: string;
-  is_coach_visible: boolean; is_buddy_visible: boolean; updated_at: string;
 }
 
 export interface CoachPayoutAccountRecord {

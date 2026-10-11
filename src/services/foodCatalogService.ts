@@ -168,7 +168,7 @@ export async function queryFoodCatalog({
     }
   } catch (proxyErr: any) {
     if (proxyErr?.name === 'AbortError' && signal?.aborted) throw proxyErr;
-    console.debug('[queryFoodCatalog] Live search proxy note:', proxyErr?.message);
+    console.warn('[queryFoodCatalog] Live search unavailable:', proxyErr?.message);
   }
 
   // Return verified local matches with app catalog and custom foods

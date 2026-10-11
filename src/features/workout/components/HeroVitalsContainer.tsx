@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTelemetryHistoryStore } from '../../log/store/useTelemetryHistoryStore';
 import { latestSleepRecord } from '../../report/vitals';
 import { supplementStatus } from '../supplementStack';
@@ -153,8 +153,10 @@ export const HeroVitalsContainer: React.FC<HeroVitalsContainerProps> = ({
         ? loggedSleep.recoveryPercent
         : null;
   const restingHr = loggedSleep && loggedSleep.restingHeartRate > 0 ? loggedSleep.restingHeartRate : null;
-  // Re-read the persisted stack whenever a hero modal closes (activeModal changes).
-  const supplements = useMemo(() => supplementStatus(), [activeModal]);
+  const [supplements, setSupplements] = useState(supplementStatus);
+  useEffect(() => {
+    if (activeModal === null) setSupplements(supplementStatus());
+  }, [activeModal]);
 
   // Pure genuine telemetry values from actual user activity - zero mock/fake values
   const isPresentDay = activeDay.toLowerCase() === systemToday.toLowerCase();

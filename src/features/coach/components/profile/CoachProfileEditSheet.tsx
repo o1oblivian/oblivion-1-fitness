@@ -1,20 +1,23 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Camera, Check, Loader2, X } from 'lucide-react';
 import { supabase } from '../../../../services/supabaseClient';
 import { tactileEngine } from '../../../../services/tactileEngine';
 import { useUserStore } from '../../../../stores/useUserStore';
 import { compressPhoto } from '../../../../utils/mediaCompressor';
-import { storeMedia } from '../../../../services/mediaStorage';
+import { fetchVaultRows, uploadMedia } from '../../../../services/mediaStorage';
 import { StorefrontStats, saveStorefront } from '../../../reels/services/coachStorefront';
-import { fetchMyPublicProfile, saveMyPublicProfile } from '../../services/coachPublicProfile';
+import { HANDLE_PATTERN, cleanHandle, saveMyPublicProfile } from '../../services/coachPublicProfile';
 
-const VAULT_KEY = 'o1_coach_exercise_vault_media';
 const BIO_LIMIT = 300;
+const SPECIALTY_LIMIT = 5;
 
 export interface CoachProfileDraft {
   name: string;
+  handle: string;
   bio: string;
   avatar: string;
+  specialties: string[];
+  accepting: boolean;
 }
 
 interface CoachProfileEditSheetProps {
@@ -31,41 +34,41 @@ function wholeOrNull(raw: string): number | null {
   return raw.trim() && Number.isFinite(n) && n >= 0 ? Math.round(n) : null;
 }
 
-function vaultPhotos(): string[] {
-  try {
-    const parsed = JSON.parse(localStorage.getItem(VAULT_KEY) || '[]');
-    if (!Array.isArray(parsed)) return [];
-    return parsed
-      .filter((item) => item && item.type === 'photo' && typeof item.url === 'string' && !item.url.startsWith('blob:'))
-      .map((item) => item.url as string)
-      .slice(0, 12);
-  } catch {
-    return [];
-  }
+function parseSpecialties(raw: string): string[] {
+  return [...new Set(raw.split(',').map((part) => part.trim()).filter(Boolean))].slice(0, SPECIALTY_LIMIT);
 }
 
-/** Name, photo and bio for the coach profile, plus the public offer numbers. */
+/** Name, handle, photo, bio and specialties for the coach card, plus the public offer numbers. */
 export const CoachProfileEditSheet: React.FC<CoachProfileEditSheetProps> = ({ open, initial, stats, onClose, onSaved, onError }) => {
   if (!open) return null;
   return <EditSheetBody initial={initial} stats={stats} onClose={onClose} onSaved={onSaved} onError={onError} />;
 };
 
+const inputClass =
+  'h-[44px] w-full rounded-xl border border-white/[0.07] bg-o1-canvas px-3 text-[14px] text-o1-text outline-none placeholder:text-o1-muted focus:border-o1-crimson';
+
 const EditSheetBody: React.FC<Omit<CoachProfileEditSheetProps, 'open'>> = ({ initial, stats, onClose, onSaved, onError }) => {
   const [name, setName] = useState(initial.name);
+  const [handle, setHandle] = useState(initial.handle);
   const [bio, setBio] = useState(initial.bio);
   const [avatar, setAvatar] = useState(initial.avatar);
+  const [specialties, setSpecialties] = useState(initial.specialties.join(', '));
+  const [accepting, setAccepting] = useState(initial.accepting);
   const [years, setYears] = useState(stats.years != null ? String(stats.years) : '');
   const [capacity, setCapacity] = useState(stats.capacity != null ? String(stats.capacity) : '');
   const [monthly, setMonthly] = useState(stats.monthlyPriceCents != null ? String(stats.monthlyPriceCents / 100) : '');
-  const [accepting, setAccepting] = useState(true);
   const [busy, setBusy] = useState<'photo' | 'save' | null>(null);
+  const [photos, setPhotos] = useState<string[]>([]);
   const fileRef = useRef<HTMLInputElement | null>(null);
-  const photos = useMemo(vaultPhotos, []);
+
+  const handleValue = cleanHandle(handle);
+  const handleError = handleValue && !HANDLE_PATTERN.test(handleValue) ? '3 to 30 letters, numbers, dots or underscores.' : '';
 
   useEffect(() => {
     let live = true;
-    void fetchMyPublicProfile().then((row) => {
-      if (live && row) setAccepting(row.acceptingNewAthletes);
+    void fetchVaultRows().then((rows) => {
+      if (!live) return;
+      setPhotos(rows.filter((row) => row.type === 'photo').map((row) => row.media_url).slice(0, 12));
     });
     return () => {
       live = false;
@@ -79,9 +82,9 @@ const EditSheetBody: React.FC<Omit<CoachProfileEditSheetProps, 'open'>> = ({ ini
     setBusy('photo');
     try {
       const result = await compressPhoto(file, { maxDimension: 512 });
-      const stored = await storeMedia(result.file, 'avatars');
-      setAvatar(stored.url);
-      if (!stored.remote) onError('Photo saved on this phone only. Sign in to share it.');
+      const stored = await uploadMedia(result.file, 'avatars');
+      if (stored) setAvatar(stored.url);
+      else onError('Photo upload failed. Check your connection and try again.');
     } catch {
       onError('Could not read that photo.');
     } finally {
@@ -95,6 +98,10 @@ const EditSheetBody: React.FC<Omit<CoachProfileEditSheetProps, 'open'>> = ({ ini
       onError('Add your name.');
       return;
     }
+    if (handleError) {
+      onError(handleError);
+      return;
+    }
     const cleanBio = bio.trim().slice(0, BIO_LIMIT);
     const monthlyRaw = Number(monthly);
     const storefront = {
@@ -102,16 +109,38 @@ const EditSheetBody: React.FC<Omit<CoachProfileEditSheetProps, 'open'>> = ({ ini
       capacity: wholeOrNull(capacity),
       monthlyPriceCents: monthly.trim() && Number.isFinite(monthlyRaw) && monthlyRaw >= 0 ? Math.round(monthlyRaw * 100) : null,
     };
+    const draft: CoachProfileDraft = {
+      name: cleanName,
+      handle: handleValue,
+      bio: cleanBio,
+      avatar,
+      specialties: parseSpecialties(specialties),
+      accepting,
+    };
     setBusy('save');
-    useUserStore.getState().updateProfile({ name: cleanName, avatarUrl: avatar });
-    const [authRes, frontOk, publicOk] = await Promise.all([
-      supabase.auth.updateUser({ data: { full_name: cleanName, coach_bio: cleanBio } }).catch(() => ({ error: true })),
-      saveStorefront(storefront),
-      saveMyPublicProfile({ displayName: cleanName, avatarUrl: avatar, bio: cleanBio, acceptingNewAthletes: accepting }).catch(() => false),
+    const [result, frontOk] = await Promise.all([
+      saveMyPublicProfile(
+        { displayName: cleanName, avatarUrl: avatar, bio: cleanBio, acceptingNewAthletes: accepting, handle: handleValue, specialties: draft.specialties },
+        initial.handle,
+      ).catch(() => ({ card: false, handle: 'failed' as const })),
+      saveStorefront(storefront).catch(() => false),
+      supabase.auth.updateUser({ data: { full_name: cleanName } }).catch(() => null),
     ]);
     setBusy(null);
-    if (authRes.error || !frontOk || !publicOk) onError('Saved on this phone. Sign in to sync your profile.');
-    onSaved({ name: cleanName, bio: cleanBio, avatar }, storefront);
+    if (!result.card || !frontOk) {
+      onError('Could not save your profile. Check your connection and try again.');
+      return;
+    }
+    if (result.handle === 'taken') {
+      onError(`@${handleValue} is taken. Pick another handle.`);
+      return;
+    }
+    if (result.handle === 'failed' || result.handle === 'invalid') {
+      onError('Profile saved, but the handle could not be updated.');
+      draft.handle = cleanHandle(initial.handle);
+    }
+    useUserStore.getState().updateProfile({ name: cleanName, avatarUrl: avatar });
+    onSaved(draft, storefront);
   };
 
   const numberField = (label: string, value: string, set: (next: string) => void) => (
@@ -177,7 +206,7 @@ const EditSheetBody: React.FC<Omit<CoachProfileEditSheetProps, 'open'>> = ({ ini
                 >
                   <img src={url} alt="" className="h-full w-full object-cover" />
                   {avatar === url ? (
-                    <span className="absolute right-0.5 top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-white text-neutral-950">
+                    <span className="absolute right-0.5 top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-o1-text text-o1-canvas">
                       <Check size={10} />
                     </span>
                   ) : null}
@@ -189,12 +218,26 @@ const EditSheetBody: React.FC<Omit<CoachProfileEditSheetProps, 'open'>> = ({ ini
 
         <label className="block space-y-1">
           <span className="text-[12px] font-semibold text-o1-muted">Name</span>
-          <input
-            value={name}
-            onChange={(event) => setName(event.target.value)}
-            maxLength={60}
-            className="h-[44px] w-full rounded-xl border border-white/[0.07] bg-o1-canvas px-3 text-[14px] text-o1-text outline-none focus:border-o1-crimson"
-          />
+          <input value={name} onChange={(event) => setName(event.target.value)} maxLength={60} className={inputClass} />
+        </label>
+
+        <label className="block space-y-1">
+          <span className="text-[12px] font-semibold text-o1-muted">Handle</span>
+          <div className="relative">
+            <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[14px] text-o1-muted">@</span>
+            <input
+              value={handle}
+              onChange={(event) => setHandle(event.target.value.replace(/^@+/, ''))}
+              maxLength={31}
+              autoCapitalize="none"
+              autoCorrect="off"
+              spellCheck={false}
+              placeholder="yourname"
+              aria-invalid={Boolean(handleError)}
+              className={`${inputClass} pl-7`}
+            />
+          </div>
+          {handleError ? <span className="block text-[12px] text-o1-text">{handleError}</span> : null}
         </label>
 
         <label className="block space-y-1">
@@ -209,6 +252,18 @@ const EditSheetBody: React.FC<Omit<CoachProfileEditSheetProps, 'open'>> = ({ ini
             placeholder="What you coach and who you coach"
             className="w-full resize-none rounded-xl border border-white/[0.07] bg-o1-canvas p-3 text-[13px] leading-snug text-o1-text outline-none placeholder:text-o1-muted focus:border-o1-crimson"
           />
+        </label>
+
+        <label className="block space-y-1">
+          <span className="text-[12px] font-semibold text-o1-muted">Specialties</span>
+          <input
+            value={specialties}
+            onChange={(event) => setSpecialties(event.target.value)}
+            maxLength={160}
+            placeholder="Powerlifting, Hypertrophy, HYROX"
+            className={inputClass}
+          />
+          <span className="block text-[11px] text-o1-muted">Separate with commas. Up to {SPECIALTY_LIMIT}.</span>
         </label>
 
         <div className="space-y-2 rounded-2xl border border-white/[0.07] bg-o1-surface p-3">
@@ -227,7 +282,7 @@ const EditSheetBody: React.FC<Omit<CoachProfileEditSheetProps, 'open'>> = ({ ini
               }}
               className={`relative h-7 w-12 rounded-full transition-colors ${accepting ? 'bg-o1-crimson' : 'bg-white/[0.12]'}`}
             >
-              <span className={`absolute top-0.5 h-6 w-6 rounded-full bg-white transition-transform ${accepting ? 'translate-x-[22px]' : 'translate-x-0.5'}`} />
+              <span className={`absolute top-0.5 h-6 w-6 rounded-full bg-o1-text transition-transform ${accepting ? 'translate-x-[22px]' : 'translate-x-0.5'}`} />
             </button>
           </label>
         </div>
@@ -238,7 +293,7 @@ const EditSheetBody: React.FC<Omit<CoachProfileEditSheetProps, 'open'>> = ({ ini
           </button>
           <button
             type="button"
-            disabled={busy !== null}
+            disabled={busy !== null || Boolean(handleError)}
             onClick={() => void save()}
             className="h-[44px] flex-1 rounded-xl bg-o1-crimson text-[13px] font-semibold text-white disabled:opacity-40 active:scale-[0.98]"
           >

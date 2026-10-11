@@ -324,8 +324,8 @@ export const ActiveLogCard: React.FC<ActiveLogCardProps> = ({ onShowToast }) => 
     const athleteUser = useUserStore.getState();
     const linkedCoach = readLinkedCoach();
     const finished = {
-      id: `wlog-${Date.now()}`,
-      athleteId: athleteUser.userId || 'ath-current',
+      id: crypto.randomUUID(),
+      athleteId: athleteUser.userId || '',
       athleteName: athleteUser.name || 'Athlete',
       athleteAvatar: athleteUser.avatarUrl,
       title: activeTitle,

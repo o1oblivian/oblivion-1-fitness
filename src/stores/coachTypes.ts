@@ -1,7 +1,4 @@
-import { CoachDirective, CoachDispatchedWorkout, CoachEarnings, SquadAthlete } from '../types';
-
-export type CoachSubTab = 'INTEL' | 'STORE' | 'CHECKINS' | 'INBOX' | 'CLIENTS' | 'EARNINGS' | 'CONSULTS';
-export type CoachRosterFilter = 'ALL' | 'NEEDS REVIEW' | 'PRs';
+import { CoachDispatchedWorkout } from '../types';
 
 export interface CoachAthleteRecord {
   id: string;
@@ -15,13 +12,6 @@ export interface CoachAthleteRecord {
   rpe?: number;
   needsReview?: boolean;
   hasPr?: boolean;
-}
-
-export interface DirectivePayload {
-  targetAthleteId: string;
-  split: 'Push' | 'Pull' | 'Legs' | 'Recovery';
-  intensityRpe: number;
-  coachMemo: string;
 }
 
 export interface CoachFinishedWorkoutLog {
@@ -59,60 +49,22 @@ export interface CoachLiveTelemetry {
   lastUpdated: string;
 }
 
-export interface CoachFinishNotification {
-  id: string;
-  athleteId: string;
-  athleteName: string;
-  workoutTitle: string;
-  tonnageKg: number;
-  timestamp: string;
-  read: boolean;
-}
-
 export interface CoachState {
-  selectedSubTab: CoachSubTab;
-  activeRosterCount: number;
-  rosterFilter: CoachRosterFilter;
-  isRosterOpen: boolean;
+  /** Read by the Log tab's dispatch modal; the coach roster itself lives in `coach_clients`. */
   athletes: CoachAthleteRecord[];
-  squadAthletes: SquadAthlete[];
-  isDispatcherOpen: boolean;
-  selectedAthleteForDirective: string | null;
-  toastMessage: string | null;
-  // Live Telemetry & Workout Logs
   liveTelemetry: Record<string, CoachLiveTelemetry>;
+  /** The coach's athletes' finished sessions, loaded from `workout_completions`. */
   finishedWorkouts: CoachFinishedWorkoutLog[];
-  finishNotifications: CoachFinishNotification[];
-  // Legacy / cross-feature compat
-  directives: CoachDirective[];
   assignedWorkouts: CoachDispatchedWorkout[];
-  earningsTransactions: CoachEarnings;
-  auditAthlete: SquadAthlete | null;
-  assignAthlete: SquadAthlete | null;
 }
 
 export interface CoachActions {
-  setSelectedSubTab: (tab: CoachSubTab) => void;
-  setRosterFilter: (filter: CoachRosterFilter) => void;
-  toggleRoster: (open?: boolean) => void;
-  toggleDispatcher: (open?: boolean, athleteId?: string) => void;
-  dispatchDirective: (directive: DirectivePayload) => void;
-  populateSampleRoster: () => void;
-  clearRoster: () => void;
-  showToast: (msg: string) => void;
-  clearToast: () => void;
-  // Live Telemetry & Workout Logs Actions
   updateLiveTelemetry: (telemetry: CoachLiveTelemetry) => void;
+  /** Athlete side: marks the session finished in live telemetry. */
   recordFinishedWorkout: (log: CoachFinishedWorkoutLog) => void;
-  submitCoachFeedback: (workoutId: string, feedback: string) => void;
-  clearNotifications: () => void;
-  // Legacy / cross-feature actions
-  setSquadAthletes: (ath: SquadAthlete[]) => void;
-  deployDirective: (dir: CoachDirective) => void;
-  setAuditAthlete: (ath: SquadAthlete | null) => void;
-  setAssignAthlete: (ath: SquadAthlete | null) => void;
-  completeAudit: (athleteId: string, verdict: string) => void;
-  confirmAssign: (athleteId: string, protocolName: string) => void;
+  setFinishedWorkouts: (rows: CoachFinishedWorkoutLog[]) => void;
+  upsertFinishedWorkout: (row: CoachFinishedWorkoutLog) => void;
+  applyWorkoutFeedback: (workoutId: string, feedback: string, givenAt: string) => void;
   dispatchWorkout: (workout: CoachDispatchedWorkout) => void;
   ingestAssigned: (workout: CoachDispatchedWorkout) => void;
   completeAssigned: (id: string) => void;

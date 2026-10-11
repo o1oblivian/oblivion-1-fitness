@@ -34,6 +34,7 @@ export interface CoachDirective {
   readonly affectedCount: number;
   readonly priority: 'HIGH' | 'MEDIUM' | 'NORMAL';
   readonly badgeStyle: string;
+  readonly createdAt?: string;
 }
 
 export interface AssignedRoutineRecord {

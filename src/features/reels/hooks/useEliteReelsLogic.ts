@@ -3,7 +3,7 @@ import { ExploreReelItem, ExploreCoach, FilmstripClip } from '../reelTypes';
 import { useReelsStore } from '../../../stores/useReelsStore';
 import { useWorkoutStore } from '../../workout/store/useWorkoutStore';
 import { tactileEngine } from '../../../services/tactileEngine';
-import { supabase } from '../../../services/supabaseClient';
+import { fetchCoachCards, toExploreCoach } from '../../coach/services/coachDirectory';
 import { filterReelsCatalog } from './reelsFilterHelper';
 import { getAuthenticatedUserId } from '../../../services/authUser';
 import { loadVaultBookmarks, saveVaultBookmark } from '../services/vaultBookmarks';
@@ -32,42 +32,9 @@ export function useEliteReelsLogic(
 
   useEffect(() => {
     let isMounted = true;
-    async function loadVerifiedCoaches() {
-      try {
-        const [coachesRes, profilesRes] = await Promise.all([
-          supabase.from('coaches').select('*'),
-          supabase.from('coach_profiles').select('id, display_name, avatar_url, specialties, bio, is_id_verified'),
-        ]);
-        const rows = [...(coachesRes.data || []), ...(profilesRes.data || [])];
-        const mapped: ExploreCoach[] = rows.map((row: any, idx: number) => ({
-          id: String(row.id || row.coach_id || `coach-${idx}`),
-          name: row.name || row.display_name || 'Coach',
-          handle: row.handle || `@${String(row.name || 'coach').toLowerCase().replace(/\s+/g, '')}`,
-          avatar: row.avatar || row.avatar_url || '',
-          verified: Boolean(row.verified ?? row.is_id_verified),
-          specialtyTitle: row.specialtyTitle || row.specialty || row.discipline || (Array.isArray(row.specialties) ? row.specialties[0] : row.specialties) || 'Coach',
-          specialty: row.specialty,
-          rating: Number(row.rating || 0),
-          reviewCount: Number(row.review_count || row.reviewCount || 0),
-          certificationPill: row.certificationPill || row.certification || '',
-          rate: row.rate || row.price || '',
-          slotsRemaining: Number(row.slotsRemaining || row.slots || 0),
-          bio: row.bio || '',
-          disciplines: Array.isArray(row.disciplines) ? row.disciplines : [],
-          physiquePhotos: row.physiquePhotos || row.photos || [],
-        }));
-        const seen = new Set<string>();
-        const unique = mapped.filter((c) => {
-          if (seen.has(c.id)) return false;
-          seen.add(c.id);
-          return true;
-        });
-        if (isMounted) setRemoteCoaches(unique);
-      } catch {
-        // Fallback: remote coaches remains empty, triggering the clean verified directory state
-      }
-    }
-    loadVerifiedCoaches();
+    void fetchCoachCards().then((cards) => {
+      if (isMounted) setRemoteCoaches(cards.map(toExploreCoach));
+    });
     return () => { isMounted = false; };
   }, []);
 

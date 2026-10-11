@@ -1,4 +1,4 @@
-import React, { useRef, useState, useMemo } from 'react';
+import React, { useRef, useState } from 'react';
 import { Camera, Trash2, Check, X, Plus, Upload } from 'lucide-react';
 import { CrimsonSwitch } from './CrimsonSwitch';
 import { useUserStore } from '../../stores/useUserStore';
@@ -106,7 +106,7 @@ export const SettingsProfileSection: React.FC<ProfileSectionProps> = ({
   };
 
   // Read available photos from Vault (single master source, zero fake mock photos)
-  const availableVaultPhotos = useMemo(() => {
+  const readVaultPhotos = () => {
     try {
       const athleteVault = localStorage.getItem('o1_athlete_physique_vault_v1');
       const coachVault = localStorage.getItem('o1_coach_exercise_vault_media');
@@ -160,7 +160,8 @@ export const SettingsProfileSection: React.FC<ProfileSectionProps> = ({
     } catch (e) {
       return [];
     }
-  }, [role, buddy.buddyPhotos, isVaultOpen, isAvatarPickerOpen]);
+  };
+  const availableVaultPhotos = isAvatarPickerOpen || isVaultOpen ? readVaultPhotos() : [];
 
   const handleSelectAvatarFromVault = (url: string) => {
     tactileEngine.playPRCelebration();

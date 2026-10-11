@@ -2,9 +2,17 @@ import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { CheckCircle2 } from 'lucide-react';
 import { supabase } from '../../services/supabaseClient';
 import { useAuthStore } from '../../stores/useAuthStore';
-import { Athlete, fetchCoachClients, fetchCoachDirectives, liveDirectives, publishCoachNote, readStoredCheckins, writeStoredCheckins } from './services/coachService';
+import {
+  Athlete,
+  deleteCoachNote,
+  fetchCoachClients,
+  fetchCoachDirectives,
+  isValidUuid,
+  publishCoachNote,
+  updateCoachNote,
+} from './services/coachService';
 import { DirectiveItem } from './types/coachDirectives';
-import { useCoachRealtime } from './hooks/useCoachRealtime';
+import type { NoteDraft } from './components/DirectiveSignalsSection';
 import { CoachFloor } from './components/CoachFloor';
 import { AddClientModal } from './components/AddClientModal';
 import { CoachCommandCenterModals, type CoachModalFlags } from './components/CoachCommandCenterModals';
@@ -13,7 +21,9 @@ import { tactileEngine } from '../../services/tactileEngine';
 import { HealthDisclaimerBanner } from '../legal';
 import { getAuthenticatedUserId } from '../../services/authUser';
 import { getOrCreateInviteCode } from '../log/publicShare';
-import { fetchFinishedForCoach, fetchRemoteCheckins, persistFinishedLocal, publishCoachInvite, readFinishedLocal, saveCheckinReplyRemote } from './services/coachBridge';
+import { fetchFinishedForCoach, fetchRemoteCheckins, mapCompletionRow, publishCoachInvite } from './services/coachBridge';
+import { CoachCard } from './services/coachDirectory';
+import { fetchMyCoachCard } from './services/coachPublicProfile';
 import { useCoachStore } from '../../stores/useCoachStore';
 import { coachPeople } from './services/floorRoster';
 import { onCoachConsoleAction } from './services/coachConsoleBus';
@@ -22,34 +32,31 @@ export interface O1FCoachCommandCenterProps {
   isCoach?: boolean;
 }
 
-function mergeFinishedLocal() {
-  const local = readFinishedLocal();
-  if (!local.length) return;
-  useCoachStore.setState((state) => {
-    const seen = new Set(state.finishedWorkouts.map((row) => row.id));
-    const incoming = local.filter((row) => !seen.has(row.id));
-    return incoming.length ? { finishedWorkouts: [...incoming, ...state.finishedWorkouts] } : state;
-  });
-}
+const NOTE_BADGE = 'bg-o1-sheet text-o1-text border-white/[0.07]';
 
 export const O1FCoachCommandCenter: React.FC<O1FCoachCommandCenterProps> = ({ isCoach = false }) => {
   const userRole = useAuthStore((s) => s.profile?.role);
+  const profileName = useAuthStore((s) => s.profile?.name || '');
   const isVerifiedCoach = Boolean(isCoach || userRole === 'coach');
-  const [liveCoachId, setLiveCoachId] = useState('');
-  useCoachRealtime(liveCoachId);
+  const [coachId, setCoachId] = useState('');
+  const [card, setCard] = useState<CoachCard | null>(null);
 
-  const [athletes, setAthletes] = useState<Athlete[]>([]);
-  const [directives, setDirectives] = useState<DirectiveItem[]>([]);
+  const [athletes, setAthletes] = useState<Athlete[] | null>(null);
+  const [rosterFailed, setRosterFailed] = useState(false);
+  const [notes, setNotes] = useState<DirectiveItem[] | null>(null);
+  const [notesFailed, setNotesFailed] = useState(false);
+  const [checkins, setCheckins] = useState<AthleteCheckInSubmission[] | null>(null);
   const [modals, setModals] = useState<CoachModalFlags>({ programs: false, programCreate: false, workout: false, vault: false });
   const [programsRevision, setProgramsRevision] = useState(0);
   const [shareOpen, setShareOpen] = useState(false);
+  const [inviteCode, setInviteCode] = useState<string | null>(null);
+  const [inviteFailed, setInviteFailed] = useState(false);
   const [dispatchAthlete, setDispatchAthlete] = useState<Athlete | null>(null);
   const [dossierAthlete, setDossierAthlete] = useState<Athlete | null>(null);
   const [toastMsg, setToastMsg] = useState<string | null>(null);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const [checkinsList, setCheckinsList] = useState<AthleteCheckInSubmission[]>(() => readStoredCheckins());
-  const floorRoster = useMemo(() => coachPeople(athletes).people, [athletes]);
-  const notes = useMemo(() => liveDirectives(directives), [directives]);
+  const roster = useMemo(() => athletes ?? [], [athletes]);
+  const floorRoster = useMemo(() => coachPeople(roster).people, [roster]);
 
   const showToast = useCallback((msg: string) => {
     if (toastTimer.current) clearTimeout(toastTimer.current);
@@ -61,114 +68,76 @@ export const O1FCoachCommandCenter: React.FC<O1FCoachCommandCenterProps> = ({ is
     if (toastTimer.current) clearTimeout(toastTimer.current);
   }, []);
 
-  const replyToCheckin = useCallback((checkinId: string, reply: string) => {
-    setCheckinsList((prev) => {
-      const next = prev.map((row) =>
-        row.id === checkinId
-          ? { ...row, coachFeedback: { ...row.coachFeedback, feedbackText: reply, givenAt: new Date().toISOString(), status: 'reviewed' as const } }
-          : row,
-      );
-      writeStoredCheckins(next);
-      return next;
-    });
-    void saveCheckinReplyRemote(checkinId, reply);
+  useEffect(() => {
+    void getAuthenticatedUserId().then((id) => setCoachId(isValidUuid(id) ? (id as string) : ''));
+    void fetchMyCoachCard().then(setCard);
   }, []);
 
-  const sendNoteToAll = (draft: { tag: DirectiveItem['tag']; title: string; summary: string }) => {
-    const note: DirectiveItem = {
-      id: `note-${Date.now()}`,
-      tag: draft.tag,
-      title: draft.title,
-      summary: draft.summary,
-      affectedCount: athletes.length,
-      priority: 'NORMAL',
-      badgeStyle: 'bg-o1-sheet text-o1-text border-white/[0.07]',
-    };
-    setDirectives((prev) => [note, ...prev]);
-    void publishCoachNote(liveCoachId, note).then((saved) => {
-      showToast(saved ? 'Sent to all clients' : 'Saved on this phone');
-    });
-  };
+  const loadRoster = useCallback(async () => {
+    if (!coachId) return;
+    const rows = await fetchCoachClients(coachId);
+    setRosterFailed(rows === null);
+    if (rows) setAthletes(rows);
+    else setAthletes((prev) => prev ?? []);
+  }, [coachId]);
 
-  const openWorkout = (athlete: Athlete | null) => {
-    setDispatchAthlete(athlete);
-    setModals((m) => ({ ...m, workout: true }));
-  };
+  const loadNotes = useCallback(async () => {
+    if (!coachId) return;
+    const rows = await fetchCoachDirectives(coachId);
+    setNotesFailed(rows === null);
+    if (rows) setNotes(rows);
+    else setNotes((prev) => prev ?? []);
+  }, [coachId]);
 
-  const loadData = useCallback(async () => {
-    const coachId = liveCoachId || (await getAuthenticatedUserId()) || '';
-    if (!coachId) {
-      const [localAthletes, localNotes] = await Promise.all([fetchCoachClients(''), fetchCoachDirectives('')]);
-      setAthletes(localAthletes);
-      setDirectives(localNotes);
-      return;
-    }
-    try {
-      const [clients, coachNotes, remoteCheckins, remoteFinished] = await Promise.all([
-        fetchCoachClients(coachId),
-        fetchCoachDirectives(coachId),
-        fetchRemoteCheckins(coachId),
-        fetchFinishedForCoach(coachId),
-      ]);
-      setAthletes(clients);
-      setDirectives(coachNotes);
-      if (remoteCheckins.length) {
-        setCheckinsList((prev) => {
-          const byId = new Map(prev.map((row) => [row.id, row]));
-          remoteCheckins.forEach((row) => {
-            const local = byId.get(row.id);
-            if (!local) byId.set(row.id, row);
-            else if (row.coachFeedback?.feedbackText) byId.set(row.id, { ...local, coachFeedback: row.coachFeedback });
-          });
-          const next = Array.from(byId.values());
-          writeStoredCheckins(next);
-          return next;
-        });
-      }
-      if (remoteFinished.length) {
-        remoteFinished.forEach(persistFinishedLocal);
-        mergeFinishedLocal();
-      }
-    } catch (err) {
-      console.error('[01FCoach] sync error:', err);
-    }
-  }, [liveCoachId]);
+  const loadCheckins = useCallback(async () => {
+    if (!coachId) return;
+    const rows = await fetchRemoteCheckins(coachId);
+    if (rows) setCheckins(rows);
+    else setCheckins((prev) => prev ?? []);
+  }, [coachId]);
 
-  useEffect(mergeFinishedLocal, []);
+  const loadWorkouts = useCallback(async () => {
+    if (!coachId) return;
+    const rows = await fetchFinishedForCoach(coachId);
+    if (rows) useCoachStore.getState().setFinishedWorkouts(rows);
+  }, [coachId]);
+
+  const registerInvite = useCallback(async () => {
+    if (!coachId) return;
+    setInviteFailed(false);
+    const name = card?.name || profileName || 'Coach';
+    const code = getOrCreateInviteCode(card?.handle || name);
+    const ok = await publishCoachInvite(code, { id: coachId, name, handle: card?.handle || '', avatar: card?.avatar || '' });
+    setInviteCode(ok ? code : null);
+    setInviteFailed(!ok);
+  }, [coachId, card, profileName]);
 
   useEffect(() => {
-    void getAuthenticatedUserId().then(async (id) => {
-      const coachId = id || '';
-      setLiveCoachId(coachId);
-      if (!coachId) return;
-      const email = localStorage.getItem('o1fc_user_email') || '';
-      const code = getOrCreateInviteCode(email || coachId);
-      const profile = useAuthStore.getState().profile;
-      const user = useAuthStore.getState().user;
-      const meta = (user?.user_metadata ?? {}) as Record<string, unknown>;
-      const metaName = typeof meta.full_name === 'string' ? meta.full_name : '';
-      await publishCoachInvite(code, {
-        id: coachId,
-        name: profile?.name || metaName || email.split('@')[0] || 'Coach',
-        handle: typeof meta.handle === 'string' ? meta.handle : '',
-        avatar: localStorage.getItem('o1_profile_avatar_url') || '',
-      });
-    });
-  }, []);
-
-  useEffect(() => {
-    if (!isVerifiedCoach) return;
-    void loadData();
-    const ch = supabase.channel(`coach-live-db-sync-${liveCoachId || 'local'}`)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'coach_clients' }, loadData);
-    if (liveCoachId) {
-      ch.on('postgres_changes', { event: '*', schema: 'public', table: 'athlete_checkins', filter: `coach_id=eq.${liveCoachId}` }, loadData);
-    }
-    ch.subscribe();
+    if (!isVerifiedCoach || !coachId) return;
+    void loadRoster();
+    void loadNotes();
+    void loadCheckins();
+    void loadWorkouts();
+    const filter = `coach_id=eq.${coachId}`;
+    const channel = supabase
+      .channel(`coach-console-${coachId}`)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'coach_clients', filter }, () => void loadRoster())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'athlete_checkins', filter }, () => void loadCheckins())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'coach_directives', filter }, () => void loadNotes())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'workout_completions', filter }, (payload) => {
+        const row = payload.new as Record<string, unknown> | null;
+        if (row && row.id) useCoachStore.getState().upsertFinishedWorkout(mapCompletionRow(row as { id: unknown }));
+        else void loadWorkouts();
+      })
+      .subscribe();
     return () => {
-      supabase.removeChannel(ch);
+      void supabase.removeChannel(channel);
     };
-  }, [loadData, isVerifiedCoach, liveCoachId]);
+  }, [isVerifiedCoach, coachId, loadRoster, loadNotes, loadCheckins, loadWorkouts]);
+
+  useEffect(() => {
+    if (isVerifiedCoach) void registerInvite();
+  }, [isVerifiedCoach, registerInvite]);
 
   useEffect(() => {
     if (!isVerifiedCoach) return;
@@ -182,6 +151,40 @@ export const O1FCoachCommandCenter: React.FC<O1FCoachCommandCenterProps> = ({ is
     });
   }, [isVerifiedCoach]);
 
+  const sendNoteToAll = async (draft: NoteDraft): Promise<boolean> => {
+    const saved = await publishCoachNote(coachId, {
+      id: crypto.randomUUID(),
+      tag: draft.tag,
+      title: draft.title,
+      summary: draft.summary,
+      affectedCount: roster.length,
+      priority: 'NORMAL',
+      badgeStyle: NOTE_BADGE,
+    });
+    if (!saved) return false;
+    setNotes((prev) => [saved, ...(prev ?? []).filter((n) => n.id !== saved.id)]);
+    showToast(roster.length === 1 ? 'Sent to your client' : `Sent to ${roster.length} clients`);
+    return true;
+  };
+
+  const editNote = async (id: string, draft: NoteDraft): Promise<boolean> => {
+    if (!(await updateCoachNote(coachId, id, draft))) return false;
+    setNotes((prev) => (prev ?? []).map((n) => (n.id === id ? { ...n, ...draft } : n)));
+    return true;
+  };
+
+  const removeNote = async (id: string): Promise<boolean> => {
+    if (!(await deleteCoachNote(coachId, id))) return false;
+    setNotes((prev) => (prev ?? []).filter((n) => n.id !== id));
+    showToast('Note deleted');
+    return true;
+  };
+
+  const openWorkout = (athlete: Athlete | null) => {
+    setDispatchAthlete(athlete);
+    setModals((m) => ({ ...m, workout: true }));
+  };
+
   if (!isVerifiedCoach) return null;
 
   return (
@@ -190,22 +193,30 @@ export const O1FCoachCommandCenter: React.FC<O1FCoachCommandCenterProps> = ({ is
         <div
           role="status"
           aria-live="polite"
-          className="fixed inset-x-4 top-[calc(env(safe-area-inset-top)+0.75rem)] z-[60] mx-auto flex max-w-md items-center gap-2 rounded-2xl border border-emerald-500/30 bg-o1-surface p-3 text-[13px] font-semibold text-emerald-400 shadow-xl"
+          className="fixed inset-x-4 top-[calc(env(safe-area-inset-top)+0.75rem)] z-[60] mx-auto flex max-w-md items-center gap-2 rounded-2xl border border-white/[0.07] bg-o1-sheet p-3 text-[13px] font-semibold text-o1-text shadow-xl"
         >
-          <CheckCircle2 className="h-4 w-4 shrink-0" />
+          <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-500" />
           <span>{toastMsg}</span>
         </div>
       )}
 
       <div className="space-y-4">
         <CoachFloor
-          coachId={liveCoachId}
+          coachId={coachId}
+          card={card}
+          onCardChange={setCard}
           athletes={athletes}
-          checkins={checkinsList}
+          rosterFailed={rosterFailed}
+          onRetryRoster={() => void loadRoster()}
+          checkins={checkins}
+          onCheckinsChange={setCheckins}
           notes={notes}
+          notesFailed={notesFailed}
+          onRetryNotes={() => void loadNotes()}
           onShowToast={showToast}
           onSendNote={sendNoteToAll}
-          onReplyCheckin={replyToCheckin}
+          onEditNote={editNote}
+          onDeleteNote={removeNote}
           programsRevision={programsRevision}
           onCreateProgram={() => setModals((m) => ({ ...m, programs: true, programCreate: true }))}
           onOpenWorkout={() => openWorkout(null)}
@@ -214,9 +225,12 @@ export const O1FCoachCommandCenter: React.FC<O1FCoachCommandCenterProps> = ({ is
             tactileEngine.triggerSelectionBuzz();
             setModals((m) => ({ ...m, vault: true }));
           }}
-          onShareInvite={() => setShareOpen(true)}
+          onShareInvite={() => {
+            setShareOpen(true);
+            if (!inviteCode) void registerInvite();
+          }}
           onSelectAthlete={setDossierAthlete}
-          onRosterChanged={() => void loadData()}
+          onRosterChanged={() => void loadRoster()}
         />
         <HealthDisclaimerBanner compact />
       </div>
@@ -232,7 +246,13 @@ export const O1FCoachCommandCenter: React.FC<O1FCoachCommandCenterProps> = ({ is
         floorRoster={floorRoster}
         onProgramsChanged={() => setProgramsRevision((n) => n + 1)}
       />
-      <AddClientModal isOpen={shareOpen} onClose={() => setShareOpen(false)} />
+      <AddClientModal
+        isOpen={shareOpen}
+        code={inviteCode}
+        failed={inviteFailed}
+        onRetry={() => void registerInvite()}
+        onClose={() => setShareOpen(false)}
+      />
     </div>
   );
 };

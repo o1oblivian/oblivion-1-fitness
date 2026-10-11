@@ -4,11 +4,10 @@ import { supabase } from '../../../services/supabaseClient';
 import { Athlete, fetchCoachClients, isValidUuid } from '../services/coachService';
 import { getAuthenticatedUserId } from '../../../services/authUser';
 import { tactileEngine } from '../../../services/tactileEngine';
-import { safeStorage } from '../../../utils/safeStorage';
 import { isSampleId } from '../services/sampleIds';
 import { mergeRoster, type DispatchTab } from './dispatch/dispatchTypes';
 import { useDispatchStack } from './dispatch/useDispatchStack';
-import { DispatchStackTab, type WorkoutSetup } from './dispatch/DispatchStackTab';
+import { DispatchStackTab, localDateKey, type WorkoutSetup } from './dispatch/DispatchStackTab';
 import { DispatchLibraryTab } from './dispatch/DispatchLibraryTab';
 import { DispatchBlueprintsTab } from './dispatch/DispatchBlueprintsTab';
 import { DispatchAthletePicker } from './dispatch/DispatchAthletePicker';
@@ -44,7 +43,7 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
   const [selectedIds, setSelectedIds] = useState<string[]>(lockedId ? [lockedId] : roster.map((row) => row.id));
   const [pickerOpen, setPickerOpen] = useState(false);
   const [coachCue, setCoachCue] = useState('');
-  const [setup, setSetup] = useState<WorkoutSetup>({ title: 'Custom workout', date: 'Today', focus: 'Hypertrophy (8-12)' });
+  const [setup, setSetup] = useState<WorkoutSetup>(() => ({ title: 'Custom workout', date: localDateKey(), focus: 'Hypertrophy (8-12)' }));
   const dispatch = useDispatchStack();
   const { stack, telemetry } = dispatch;
 
@@ -77,16 +76,18 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
   useEffect(() => {
     if (!isOpen) return;
     let live = true;
-    void fetchCoachClients().then((res) => {
-      if (!live) return;
-      const merged = mergeRoster(targetAthlete ? [targetAthlete] : [], roster, res || []);
-      setAthletes(merged);
-      if (seeded.current) return;
-      seeded.current = true;
-      const match = lockedId ? merged.find((row) => row.id === lockedId || row.client_id === lockedId) : undefined;
-      if (match) setSelectedIds([match.id]);
-      else if (!lockedId) setSelectedIds((prev) => (prev.length ? prev : merged.map((row) => row.id)));
-    });
+    void getAuthenticatedUserId()
+      .then((coachId) => (coachId ? fetchCoachClients(coachId) : null))
+      .then((res) => {
+        if (!live) return;
+        const merged = mergeRoster(targetAthlete ? [targetAthlete] : [], roster, res ?? []);
+        setAthletes(merged);
+        if (seeded.current) return;
+        seeded.current = true;
+        const match = lockedId ? merged.find((row) => row.id === lockedId || row.client_id === lockedId) : undefined;
+        if (match) setSelectedIds([match.id]);
+        else if (!lockedId) setSelectedIds((prev) => (prev.length ? prev : merged.map((row) => row.id)));
+      });
     return () => {
       live = false;
     };
@@ -112,6 +113,9 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
       const cue = coachCue.trim();
       const exercises = stack.map((ex) => ({ name: ex.name, muscle: ex.muscle, cue: ex.cue, setsCount: ex.sets.length, sets: ex.sets }));
       const linked = selectedAthletes.filter((athlete) => isValidUuid(athlete.client_id || athlete.id));
+      const [y, m, d] = setup.date.split('-').map(Number);
+      const day = new Date(y, (m || 1) - 1, d || 1, 6);
+      const assignedAt = setup.date === localDateKey() || Number.isNaN(day.getTime()) ? new Date().toISOString() : day.toISOString();
       if (linked.length) {
         if (!isValidUuid(coachId)) {
           setIsSubmitting(false);
@@ -135,13 +139,12 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
             },
             exercises,
             status: 'pending',
-            assigned_date: new Date().toISOString(),
+            assigned_date: assignedAt,
           };
         });
         const { error } = await supabase.from('assigned_workouts').insert(rows);
         if (error) throw new Error(error.message);
       }
-      safeStorage.setItem('o1_assigned_local', { title: setup.title, coachId, cue, exercises, at: new Date().toISOString() });
 
       setToast(selectedAthletes.length > 1 ? `Sent to ${selectedAthletes.length} athletes` : `Sent to ${selectedAthletes[0]?.name || 'athlete'}`);
       onDispatched?.(setup.title, selectedAthletes.map((a) => a.name).join(', '));

@@ -78,7 +78,7 @@ export const CoachBookingDrawer: React.FC<CoachBookingDrawerProps> = ({ coach, i
     return () => {
       live = false;
     };
-  }, [coachId]);
+  }, [coachId, initialTab]);
 
   useEffect(() => () => {
     if (toastTimer.current) clearTimeout(toastTimer.current);
@@ -147,7 +147,7 @@ export const CoachBookingDrawer: React.FC<CoachBookingDrawerProps> = ({ coach, i
       </div>
 
       {toast && (
-        <div className="absolute left-1/2 top-[calc(env(safe-area-inset-top)+4rem)] z-10 -translate-x-1/2 rounded-full bg-white px-4 py-2 text-[12px] font-semibold text-neutral-950">
+        <div className="absolute left-1/2 top-[calc(env(safe-area-inset-top)+4rem)] z-10 -translate-x-1/2 rounded-full border border-white/[0.07] bg-o1-sheet px-4 py-2 text-[12px] font-semibold text-o1-text">
           {toast}
         </div>
       )}

@@ -88,6 +88,7 @@ export interface AthleteCheckInSubmission {
   athleteName: string;
   coachId: string;
   date: string;
+  createdAt?: string;
   weightKg: number;
   sleepHours: number;
   sorenessRating: number; // 1-10

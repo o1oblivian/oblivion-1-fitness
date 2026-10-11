@@ -7,7 +7,6 @@ import { supabase } from '../../../services/supabaseClient';
 import { useAuthStore } from '../../../stores/useAuthStore';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { AthleteAvatar } from './floor/FloorAthleteCard';
-import { CoachingRequestCard, useCoachingRequests } from './CoachingRequests';
 
 export interface InboxContact {
   name: string;
@@ -21,7 +20,6 @@ interface CoachInboxViewProps {
   contacts?: Record<string, InboxContact>;
   /** The coach's display name; also identifies coach-written rows saved before author markers existed. */
   coachName?: string;
-  onRosterChanged?: () => void;
 }
 
 interface Thread {
@@ -32,34 +30,44 @@ interface Thread {
   waiting: boolean;
 }
 
-export const CoachInboxView: React.FC<CoachInboxViewProps> = ({ coachId = '', viewer, contacts = {}, coachName = '', onRosterChanged }) => {
+export const CoachInboxView: React.FC<CoachInboxViewProps> = ({ coachId = '', viewer, contacts = {}, coachName = '' }) => {
   const myName = useAuthStore((s) => s.profile?.name || '');
   const [me, setMe] = useState('');
   const [messages, setMessages] = useState<CoachMessage[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [loadFailed, setLoadFailed] = useState(false);
+  const [sendFailed, setSendFailed] = useState(false);
   const [openId, setOpenId] = useState<string | null>(null);
   const [reply, setReply] = useState('');
   const [sending, setSending] = useState(false);
+
+  const applyRows = useCallback((rows: CoachMessage[] | null) => {
+    setLoadFailed(rows === null);
+    if (rows) setMessages(rows);
+  }, []);
 
   useEffect(() => {
     let live = true;
     void (async () => {
       const uid = (await getAuthenticatedUserId()) || '';
       const owner = viewer === 'coach' ? coachId || uid : coachId;
-      const rows = owner ? await fetchCoachMessages(owner, viewer === 'athlete' ? uid : '') : [];
+      const rows = owner && (viewer === 'coach' || uid) ? await fetchCoachMessages(owner, viewer === 'athlete' ? uid : '') : [];
       if (!live) return;
       setMe(uid);
-      setMessages(viewer === 'athlete' && !uid ? [] : rows);
+      applyRows(rows);
       setIsLoading(false);
       if (viewer === 'athlete') setOpenId(uid);
-    })().catch(() => live && setIsLoading(false));
+    })().catch(() => {
+      if (!live) return;
+      setLoadFailed(true);
+      setIsLoading(false);
+    });
     return () => {
       live = false;
     };
-  }, [coachId, viewer]);
+  }, [coachId, viewer, applyRows]);
 
   const owner = viewer === 'coach' ? coachId || me : coachId;
-  const { requests, decide } = useCoachingRequests(viewer === 'coach' ? owner : '', onRosterChanged);
 
   useEffect(() => {
     if (!owner || (viewer === 'athlete' && !me)) return;
@@ -75,14 +83,14 @@ export const CoachInboxView: React.FC<CoachInboxViewProps> = ({ coachId = '', vi
           filter: athleteId ? `athlete_id=eq.${athleteId}` : `coach_id=eq.${owner}`,
         },
         () => {
-          void fetchCoachMessages(owner, athleteId).then(setMessages);
+          void fetchCoachMessages(owner, athleteId).then(applyRows);
         },
       )
       .subscribe();
     return () => {
       void supabase.removeChannel(channel);
     };
-  }, [owner, me, viewer]);
+  }, [owner, me, viewer, applyRows]);
 
   const fromCoach = useCallback(
     (row: CoachMessage) => {
@@ -127,10 +135,21 @@ export const CoachInboxView: React.FC<CoachInboxViewProps> = ({ coachId = '', vi
       from: viewer,
     });
     setSending(false);
+    setSendFailed(!ok);
     if (!ok) return;
     setReply('');
-    setMessages(await fetchCoachMessages(owner, viewer === 'athlete' ? athleteId : ''));
+    applyRows(await fetchCoachMessages(owner, viewer === 'athlete' ? athleteId : ''));
   };
+
+  const failureNote = loadFailed ? (
+    <p role="alert" className="rounded-xl border border-white/[0.07] bg-o1-canvas px-3 py-2 text-[12px] text-o1-text">
+      Could not load messages. Check your connection.
+    </p>
+  ) : sendFailed ? (
+    <p role="alert" className="rounded-xl border border-white/[0.07] bg-o1-canvas px-3 py-2 text-[12px] text-o1-text">
+      Message not sent. Check your connection and try again.
+    </p>
+  ) : null;
 
   const replyBox = (
     <form
@@ -191,6 +210,7 @@ export const CoachInboxView: React.FC<CoachInboxViewProps> = ({ coachId = '', vi
             })}
           </ul>
         )}
+        {failureNote}
         {replyBox}
       </section>
     );
@@ -203,14 +223,12 @@ export const CoachInboxView: React.FC<CoachInboxViewProps> = ({ coachId = '', vi
       <div className="flex items-baseline justify-between px-1">
         <div>
           <p className="text-[13px] font-semibold text-o1-text">Inbox</p>
-          <p className="text-[12px] text-o1-muted">Messages and coaching requests from athletes.</p>
+          <p className="text-[12px] text-o1-muted">Messages from your athletes.</p>
         </div>
         {waitingCount > 0 ? <span className="text-[12px] font-semibold tabular-nums text-o1-text">{waitingCount} to reply</span> : null}
       </div>
 
-      {requests.map((request) => (
-        <CoachingRequestCard key={request.id} request={request} onDecide={(row, accept) => void decide(row, accept)} />
-      ))}
+      {failureNote}
 
       {isLoading ? (
         <p className="rounded-2xl border border-white/[0.07] bg-o1-surface px-4 py-6 text-center text-[13px] text-o1-muted">Loading messages…</p>

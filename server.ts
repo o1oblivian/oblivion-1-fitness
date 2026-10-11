@@ -490,9 +490,6 @@ Respond ONLY in valid JSON matching this exact schema:
       // Execute REAL Optical Character Recognition on image buffer
       const imgBuffer = Buffer.from(cleanBase64, 'base64');
       const ocrCardio = await recognizeTelemetryFromBuffer(imgBuffer);
-      if (ocrCardio) {
-        console.log('[Optical OCR Engine] handleCardioScan recognized:', ocrCardio);
-      }
 
       if (ocrCardio && (ocrCardio.steps || ocrCardio.caloriesBurned || ocrCardio.distanceKm || ocrCardio.elapsedMinutes > 0)) {
         return res.json({
@@ -551,9 +548,6 @@ Respond ONLY in valid JSON matching this exact schema:
       // Execute REAL Optical Character Recognition on image buffer
       const imgBuffer = Buffer.from(cleanBase64, 'base64');
       const ocrExtracted = await recognizeTelemetryFromBuffer(imgBuffer);
-      if (ocrExtracted) {
-        console.log('[Optical OCR Engine] Recognized telemetry:', ocrExtracted);
-      }
 
       const genAI = getGenAI();
 
@@ -1416,8 +1410,8 @@ Respond ONLY with a valid JSON object matching this schema:
   }
 
   app.listen(PORT, '0.0.0.0', () => {
-    console.log(`[O1 Fuel OS] Full-stack server active on http://0.0.0.0:${PORT}`);
-    if (phoneHost) console.log(`[O1 Fuel OS] Phone: http://${phoneHost}:${PORT}/`);
+    process.stdout.write(`[O1 Fuel OS] Full-stack server active on http://0.0.0.0:${PORT}\n`);
+    if (phoneHost) process.stdout.write(`[O1 Fuel OS] Phone: http://${phoneHost}:${PORT}/\n`);
   });
 }
 

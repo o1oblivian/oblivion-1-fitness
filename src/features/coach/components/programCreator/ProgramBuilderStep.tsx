@@ -157,7 +157,7 @@ export const ProgramBuilderStep: React.FC<{
                 }}
                 className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
                   isActive
-                    ? 'bg-white text-neutral-900 shadow-2xs font-bold'
+                    ? 'bg-o1-crimson text-white font-bold'
                     : 'bg-o1-surface border border-white/[0.07] text-o1-muted hover:text-o1-text'
                 }`}
               >
@@ -297,7 +297,7 @@ export const ProgramBuilderStep: React.FC<{
               <button
                 type="button"
                 onClick={handleApplyBlueprint}
-                className="px-3 py-1.5 rounded-xl bg-white text-neutral-900 text-xs font-bold transition-all cursor-pointer"
+                className="px-3 py-1.5 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover text-white text-xs font-bold transition-all cursor-pointer"
               >
                 Auto-Fill Blueprint
               </button>

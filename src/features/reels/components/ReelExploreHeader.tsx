@@ -66,7 +66,7 @@ export const ReelExploreHeader: React.FC<ReelExploreHeaderProps> = ({
                 }}
                 className={`px-3 py-1 rounded-full text-[11px] font-semibold whitespace-nowrap transition-all cursor-pointer ${
                   isSelected
-                    ? 'bg-white text-neutral-950'
+                    ? 'bg-o1-crimson text-white'
                     : 'bg-[#0E0E0E] text-[#8A887F] border border-[#1F1F1F]'
                 }`}
               >

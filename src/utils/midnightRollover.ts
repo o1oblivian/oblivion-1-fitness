@@ -33,8 +33,6 @@ export function getTodayDateString(): string {
  * Executes a full midnight rollover and telemetry archiving cycle.
  */
 export async function performMidnightRollover(previousDate: string, currentDate: string): Promise<boolean> {
-  console.info(`[O1FC Midnight Rollover] Transitioning date from ${previousDate} to ${currentDate}`);
-
   try {
     // 1. Gather current day totals from all unified stores
     const workoutState = useWorkoutStore.getState();
@@ -176,7 +174,6 @@ export async function performMidnightRollover(previousDate: string, currentDate:
     if (typeof window !== 'undefined') {
       window.dispatchEvent(new CustomEvent('o1fc_day_changed', { detail: { date: currentDate } }));
     }
-    console.info(`[O1FC Midnight Rollover] Completed cleanly. New date marker: ${currentDate}`);
     return true;
   } catch (error) {
     console.error('[O1FC Midnight Rollover] Error during rollover cycle:', error);

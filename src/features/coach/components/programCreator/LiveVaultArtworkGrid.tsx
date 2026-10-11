@@ -13,6 +13,7 @@ export const LiveVaultArtworkGrid: React.FC<Props> = ({ coverImage, onSelectImag
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { vaultItems, loading, addVaultItem } = useLiveCoachVault();
   const [uploading, setUploading] = useState(false);
+  const [failed, setFailed] = useState(false);
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -21,17 +22,24 @@ export const LiveVaultArtworkGrid: React.FC<Props> = ({ coverImage, onSelectImag
 
     tactileEngine.triggerImpactPulse();
     setUploading(true);
+    setFailed(false);
     try {
       const compressed = await compressPhoto(file, { maxDimension: 1600 }).then((r) => r.file).catch(() => file);
       const title = file.name.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' ') || 'Program Artwork';
-      onSelectImage(await addVaultItem(compressed, title));
+      const url = await addVaultItem(compressed, title);
+      if (url) onSelectImage(url);
+      else setFailed(true);
     } finally {
       setUploading(false);
     }
   };
 
+  const failure = failed ? (
+    <p role="alert" className="text-[12px] text-o1-text">Upload failed. Check your connection and try again.</p>
+  ) : null;
+
   if (loading) {
-    return <div className="p-4 text-center text-xs text-o1-muted font-mono">Syncing Media Vault...</div>;
+    return <div className="p-4 text-center text-xs text-o1-muted">Loading your Vault…</div>;
   }
 
   if (vaultItems.length === 0) {
@@ -51,6 +59,7 @@ export const LiveVaultArtworkGrid: React.FC<Props> = ({ coverImage, onSelectImag
           <Upload className="w-3.5 h-3.5" />
           <span>{uploading ? 'Uploading…' : '+ Upload Artwork'}</span>
         </button>
+        {failure}
       </div>
     );
   }
@@ -61,6 +70,7 @@ export const LiveVaultArtworkGrid: React.FC<Props> = ({ coverImage, onSelectImag
       <div className="text-[10px] font-mono text-o1-muted tracking-wider px-0.5">
         Coach Media Vault ({vaultItems.length})
       </div>
+      {failure}
       <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 max-h-48 overflow-y-auto pr-1">
         {/* First slot: [ + Upload ] tile */}
         <button

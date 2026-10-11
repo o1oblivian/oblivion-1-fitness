@@ -7,25 +7,34 @@ import { QUICK_REPLIES } from './reviewBadges';
 interface CoachFeedbackSheetProps {
   target: { name: string; avatar?: string } | null;
   onClose: () => void;
-  onSend: (message: string) => void;
+  /** Resolves true once the athlete can see the note; the sheet stays open otherwise. */
+  onSend: (message: string) => Promise<boolean>;
   onSendWorkout?: () => void;
   onViewProfile?: () => void;
 }
 
 export const CoachFeedbackSheet: React.FC<CoachFeedbackSheetProps> = ({ target, onClose, onSend, onSendWorkout, onViewProfile }) => {
   const [note, setNote] = useState('');
+  const [sending, setSending] = useState(false);
+  const [failed, setFailed] = useState(false);
 
   useEffect(() => {
     setNote('');
+    setFailed(false);
+    setSending(false);
   }, [target]);
 
   if (!target) return null;
 
-  const send = (message: string) => {
+  const send = async (message: string) => {
     const clean = message.trim();
-    if (!clean) return;
+    if (!clean || sending) return;
     tactileEngine.triggerImpactPulse();
-    onSend(clean);
+    setSending(true);
+    setFailed(false);
+    const ok = await onSend(clean);
+    setSending(false);
+    if (!ok) setFailed(true);
   };
 
   return (
@@ -53,8 +62,9 @@ export const CoachFeedbackSheet: React.FC<CoachFeedbackSheetProps> = ({ target, 
             <button
               key={reply}
               type="button"
-              onClick={() => send(reply)}
-              className="o1-pill border border-white/[0.07] bg-o1-canvas text-[12px] font-semibold text-o1-text active:scale-[0.98]"
+              disabled={sending}
+              onClick={() => void send(reply)}
+              className="o1-pill border border-white/[0.07] bg-o1-canvas text-[12px] font-semibold text-o1-text active:scale-[0.98] disabled:opacity-50"
             >
               {reply}
             </button>
@@ -70,13 +80,16 @@ export const CoachFeedbackSheet: React.FC<CoachFeedbackSheetProps> = ({ target, 
           placeholder={`Write something for ${target.name.split(' ')[0]}`}
           className="mt-2 w-full resize-none rounded-xl border border-white/[0.07] bg-o1-canvas px-3 py-2 text-[13px] text-o1-text outline-none focus:border-o1-crimson"
         />
+        {failed ? (
+          <p role="alert" className="mt-2 text-[12px] text-o1-text">Could not send. Check your connection and try again.</p>
+        ) : null}
         <button
           type="button"
-          disabled={!note.trim()}
-          onClick={() => send(note)}
-          className="mt-2 h-[44px] w-full rounded-xl bg-o1-crimson text-[13px] font-semibold text-o1-text active:scale-[0.98] disabled:opacity-40"
+          disabled={!note.trim() || sending}
+          onClick={() => void send(note)}
+          className="mt-2 h-[44px] w-full rounded-xl bg-o1-crimson text-[13px] font-semibold text-white active:scale-[0.98] disabled:opacity-40"
         >
-          Send note
+          {sending ? 'Sending…' : 'Send note'}
         </button>
 
         {onSendWorkout || onViewProfile ? (

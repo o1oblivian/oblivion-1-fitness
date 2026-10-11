@@ -1,14 +1,16 @@
 import { supabase } from '../../../services/supabaseClient';
-import { safeStorage } from '../../../utils/safeStorage';
 import { getAuthenticatedUserId } from '../../../services/authUser';
 import { readPendingInvite } from '../../log/publicShare';
-import { LinkedCoach, readLinkedCoach, saveLinkedCoach } from './coachLink';
+import { LinkedCoach, clearLinkedCoach, readLinkedCoach, saveLinkedCoach } from './coachLink';
 import { AthleteCheckInSubmission } from '../types/coachPlatformTypes';
 import { CoachFinishedWorkoutLog } from '../../../stores/coachTypes';
 import { isSampleId } from './sampleIds';
-
-const INVITE_BOOK = 'o1_coach_invite_book';
-const FINISHED_KEY = 'o1_finished_workouts_v1';
+import { isValidUuid, linkCoachClient } from './coachService';
+import { ensureCoachCard } from './coachPublicProfile';
+import { fetchCoachCard } from './coachDirectory';
+import { buildProgramPlan, weekOneLines } from './programPlan';
+import type { ProgramFormData } from '../components/programCreator/types';
+import { StorefrontProgram, mapProgramRow } from '../../reels/services/coachStorefront';
 
 export interface CoachInviteIdentity {
   id: string;
@@ -17,246 +19,300 @@ export interface CoachInviteIdentity {
   avatar: string;
 }
 
-function readBook(): Record<string, CoachInviteIdentity> {
-  return safeStorage.getItem<Record<string, CoachInviteIdentity>>(INVITE_BOOK, {}) || {};
-}
-
-export async function publishCoachInvite(code: string, coach: CoachInviteIdentity): Promise<void> {
+/** Registers an invite code so any athlete who opens the link can resolve the coach. */
+export async function publishCoachInvite(code: string, coach: CoachInviteIdentity): Promise<boolean> {
   const clean = code.trim();
-  if (!clean || !coach.id || !coach.name) return;
-  const book = readBook();
-  book[clean] = coach;
-  safeStorage.setItem(INVITE_BOOK, book);
-  try {
-    await supabase.from('coach_invites').upsert({
-      code: clean,
-      coach_id: coach.id,
-      coach_name: coach.name,
-      coach_handle: coach.handle || '',
-      coach_avatar: coach.avatar || '',
-    });
-  } catch {
-    /* The phone book still resolves the link on this device. */
-  }
+  if (!clean || !isValidUuid(coach.id) || !coach.name) return false;
+  const { error } = await supabase.from('coach_invites').upsert({
+    code: clean,
+    coach_id: coach.id,
+    coach_name: coach.name,
+    coach_handle: coach.handle || '',
+    coach_avatar: coach.avatar || '',
+  });
+  if (error) console.warn('[coachBridge] invite publish failed:', error.message);
+  return !error;
 }
 
 export async function acceptCoachInvite(): Promise<LinkedCoach | null> {
   const code = readPendingInvite();
   if (!code) return readLinkedCoach();
-  let coach: CoachInviteIdentity | null = readBook()[code] ?? null;
-  if (!coach) {
-    try {
-      const { data } = await supabase.from('coach_invites').select('*').eq('code', code).maybeSingle();
-      if (data?.coach_id && data?.coach_name) {
-        coach = {
-          id: String(data.coach_id),
-          name: String(data.coach_name),
-          handle: String(data.coach_handle || ''),
-          avatar: String(data.coach_avatar || ''),
-        };
-      }
-    } catch {
-      coach = null;
-    }
+  const { data, error } = await supabase
+    .from('coach_invites')
+    .select('coach_id, coach_name, coach_handle, coach_avatar')
+    .eq('code', code)
+    .maybeSingle();
+  if (error || !data?.coach_id || !data?.coach_name) return readLinkedCoach();
+  const coach: LinkedCoach = {
+    id: String(data.coach_id),
+    name: String(data.coach_name),
+    handle: String(data.coach_handle || ''),
+    avatar: String(data.coach_avatar || ''),
+  };
+  const { data: auth } = await supabase.auth.getUser();
+  const user = auth.user;
+  if (!user?.id) return readLinkedCoach();
+  const meta = user.user_metadata ?? {};
+  const name = String(meta.full_name || meta.name || user.email?.split('@')[0] || 'Athlete');
+  const avatar = typeof meta.avatar_url === 'string' ? meta.avatar_url : '';
+  if (!(await linkCoachClient(coach.id, { id: user.id, name, avatar }))) return readLinkedCoach();
+  localStorage.removeItem('o1_pending_invite');
+  saveLinkedCoach(coach);
+  return coach;
+}
+
+/**
+ * The coach the signed-in athlete is linked to in `coach_clients`, newest link first.
+ * `{ coach: null }` means no link; null means the lookup failed.
+ */
+export async function fetchMyLinkedCoach(): Promise<{ coach: LinkedCoach | null } | null> {
+  const me = await getAuthenticatedUserId();
+  if (!isValidUuid(me)) return { coach: null };
+  const { data, error } = await supabase
+    .from('coach_clients')
+    .select('coach_id')
+    .eq('client_id', me as string)
+    .eq('status', 'active')
+    .order('created_at', { ascending: false })
+    .limit(1);
+  if (error || !Array.isArray(data)) return null;
+  const coachId = data[0]?.coach_id ? String(data[0].coach_id) : '';
+  if (!coachId) {
+    clearLinkedCoach();
+    return { coach: null };
   }
-  if (!coach) return readLinkedCoach();
-  const linked: LinkedCoach = coach;
-  saveLinkedCoach(linked);
-  try {
-    const { data } = await supabase.auth.getUser();
-    const user = data.user;
-    if (!user?.id) return linked;
-    const name = String(user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split('@')[0] || 'Athlete');
-    const { data: existing } = await supabase
-      .from('coach_clients')
-      .select('id')
-      .eq('coach_id', coach.id)
-      .eq('client_id', user.id)
-      .limit(1);
-    if (!existing?.length) {
-      await supabase.from('coach_clients').insert({
-        coach_id: coach.id,
-        client_id: user.id,
-        client_name: name,
-        name,
-        status: 'Active',
-      });
-    }
-    localStorage.removeItem('o1_pending_invite');
-  } catch {
-    /* The profile is saved. The roster row retries on the next open. */
-  }
-  return linked;
+  const card = await fetchCoachCard(coachId);
+  const linked = readLinkedCoach();
+  const coach: LinkedCoach = card
+    ? { id: coachId, name: card.name, handle: card.handle, avatar: card.avatar }
+    : { id: coachId, name: linked?.id === coachId ? linked.name : 'Your coach', handle: '', avatar: linked?.id === coachId ? linked.avatar : '' };
+  saveLinkedCoach(coach);
+  return { coach };
 }
 
-export function readFinishedLocal(): CoachFinishedWorkoutLog[] {
-  return safeStorage.getItem<CoachFinishedWorkoutLog[]>(FINISHED_KEY, []) || [];
+type Summary = Record<string, unknown>;
+
+function workoutSummary(log: CoachFinishedWorkoutLog): Summary {
+  return {
+    athleteName: log.athleteName,
+    athleteAvatar: log.athleteAvatar || '',
+    title: log.title,
+    tonnageKg: log.tonnageKg,
+    totalSets: log.totalSets,
+    totalReps: log.totalReps,
+    avgRpe: log.avgRpe,
+    durationMinutes: log.durationMinutes,
+    exercises: log.exercises || [],
+  };
 }
 
-export function persistFinishedLocal(log: CoachFinishedWorkoutLog): void {
-  const rows = readFinishedLocal().filter((row) => row.id !== log.id);
-  safeStorage.setItem(FINISHED_KEY, [log, ...rows].slice(0, 40));
+export function mapCompletionRow(row: { id: unknown; athlete_id?: unknown; submitted_at?: unknown; metrics_summary?: unknown }): CoachFinishedWorkoutLog {
+  const s = (row.metrics_summary && typeof row.metrics_summary === 'object' ? row.metrics_summary : {}) as Summary;
+  const num = (value: unknown) => (Number.isFinite(Number(value)) ? Number(value) : 0);
+  return {
+    id: String(row.id),
+    athleteId: String(row.athlete_id || ''),
+    athleteName: String(s.athleteName || 'Athlete'),
+    athleteAvatar: s.athleteAvatar ? String(s.athleteAvatar) : undefined,
+    title: String(s.title || 'Workout'),
+    tonnageKg: num(s.tonnageKg),
+    totalSets: num(s.totalSets),
+    totalReps: num(s.totalReps),
+    avgRpe: num(s.avgRpe),
+    durationMinutes: num(s.durationMinutes),
+    completedAt: String(row.submitted_at || ''),
+    feedback: s.coachFeedback ? String(s.coachFeedback) : undefined,
+    feedbackGivenAt: s.coachFeedbackAt ? String(s.coachFeedbackAt) : undefined,
+    exercises: Array.isArray(s.exercises) ? (s.exercises as CoachFinishedWorkoutLog['exercises']) : [],
+  };
 }
 
-export async function publishFinishedWorkout(log: CoachFinishedWorkoutLog, coachId: string): Promise<void> {
-  if (!coachId) return;
-  try {
-    await supabase.from('workout_completions').upsert({
-      id: log.id,
+const COMPLETION_COLUMNS = 'id, athlete_id, submitted_at, metrics_summary';
+
+/** Sends a finished session to the athlete's coach. The id must be a UUID. */
+export async function publishFinishedWorkout(log: CoachFinishedWorkoutLog, coachId: string): Promise<boolean> {
+  if (!isValidUuid(coachId) || !isValidUuid(log.id) || !isValidUuid(log.athleteId)) return false;
+  const { error } = await supabase.from('workout_completions').upsert({
+    id: log.id,
+    coach_id: coachId,
+    athlete_id: log.athleteId,
+    metrics_summary: workoutSummary(log),
+    submitted_at: log.completedAt,
+  });
+  if (error) console.warn('[coachBridge] workout publish failed:', error.message);
+  return !error;
+}
+
+/** Sessions the coach's athletes finished in the last week, newest first. Null when they could not be loaded. */
+export async function fetchFinishedForCoach(coachId: string): Promise<CoachFinishedWorkoutLog[] | null> {
+  if (!isValidUuid(coachId)) return [];
+  const since = new Date(Date.now() - 7 * 86_400_000).toISOString();
+  const { data, error } = await supabase
+    .from('workout_completions')
+    .select(COMPLETION_COLUMNS)
+    .eq('coach_id', coachId)
+    .gte('submitted_at', since)
+    .order('submitted_at', { ascending: false })
+    .limit(40);
+  if (error || !Array.isArray(data)) return null;
+  return data.map(mapCompletionRow);
+}
+
+/** The athlete's own recent sessions, with any coach reply. */
+export async function fetchMyFinishedWorkouts(athleteId: string): Promise<CoachFinishedWorkoutLog[] | null> {
+  if (!isValidUuid(athleteId)) return [];
+  const { data, error } = await supabase
+    .from('workout_completions')
+    .select(COMPLETION_COLUMNS)
+    .eq('athlete_id', athleteId)
+    .order('submitted_at', { ascending: false })
+    .limit(20);
+  if (error || !Array.isArray(data)) return null;
+  return data.map(mapCompletionRow);
+}
+
+/** Stores the coach's reply on the session so the athlete sees it with the workout. */
+export async function saveWorkoutFeedback(coachId: string, workoutId: string, feedback: string): Promise<boolean> {
+  if (!isValidUuid(coachId) || !isValidUuid(workoutId)) return false;
+  const { data, error } = await supabase
+    .from('workout_completions')
+    .select('metrics_summary')
+    .eq('id', workoutId)
+    .eq('coach_id', coachId)
+    .maybeSingle();
+  if (error || !data) return false;
+  const summary = (data.metrics_summary && typeof data.metrics_summary === 'object' ? data.metrics_summary : {}) as Summary;
+  const res = await supabase
+    .from('workout_completions')
+    .update({
+      metrics_summary: { ...summary, coachFeedback: feedback, coachFeedbackAt: new Date().toISOString() },
+      approval_status: 'approved',
+    })
+    .eq('id', workoutId)
+    .eq('coach_id', coachId);
+  return !res.error;
+}
+
+/** The coach's listed programs, newest first. Null when they could not be loaded. */
+export async function fetchOwnPrograms(coachId: string): Promise<StorefrontProgram[] | null> {
+  if (!isValidUuid(coachId)) return [];
+  const { data, error } = await supabase
+    .from('coach_programs')
+    .select('*')
+    .eq('coach_id', coachId)
+    .eq('listed', true)
+    .order('created_at', { ascending: false });
+  if (error || !Array.isArray(data)) return null;
+  return (data as Record<string, unknown>[]).map(mapProgramRow);
+}
+
+/** Saves the whole program, every week, day and exercise, so enrolled athletes receive the real plan. */
+export async function publishProgram(coachId: string, coachName: string, form: ProgramFormData): Promise<StorefrontProgram | null> {
+  const title = form.title.trim();
+  if (!isValidUuid(coachId) || !title) return null;
+  if (!(await ensureCoachCard(coachName))) return null;
+  const plan = buildProgramPlan(form);
+  const price = form.isFreeCommunity ? 0 : Math.round(Math.max(0, form.priceUsd) * (100 - form.discountPercent));
+  const { data, error } = await supabase
+    .from('coach_programs')
+    .insert({
+      id: crypto.randomUUID(),
       coach_id: coachId,
-      athlete_id: log.athleteId,
-      athlete_name: log.athleteName,
-      title: log.title,
-      tonnage_kg: log.tonnageKg > 0 ? log.tonnageKg : null,
-      total_sets: log.totalSets > 0 ? log.totalSets : null,
-      total_reps: log.totalReps > 0 ? log.totalReps : null,
-      completed_at: log.completedAt,
-      exercises: log.exercises || [],
-    });
-  } catch {
-    /* The phone copy remains. */
-  }
-}
-
-export async function fetchFinishedForCoach(coachId: string): Promise<CoachFinishedWorkoutLog[]> {
-  if (!coachId) return [];
-  try {
-    const since = new Date();
-    since.setHours(0, 0, 0, 0);
-    const { data, error } = await supabase
-      .from('workout_completions')
-      .select('*')
-      .eq('coach_id', coachId)
-      .gte('completed_at', since.toISOString());
-    if (error || !Array.isArray(data)) return [];
-    return data.map((row) => ({
-      id: String(row.id),
-      athleteId: String(row.athlete_id || ''),
-      athleteName: String(row.athlete_name || 'Athlete'),
-      title: String(row.title || 'Workout'),
-      tonnageKg: Number(row.tonnage_kg || 0),
-      totalSets: Number(row.total_sets || 0),
-      totalReps: Number(row.total_reps || 0),
-      avgRpe: 0,
-      durationMinutes: 0,
-      completedAt: String(row.completed_at || new Date().toISOString()),
-      exercises: Array.isArray(row.exercises) ? row.exercises : [],
-    }));
-  } catch {
-    return [];
-  }
-}
-
-export async function publishProgram(coachId: string, program: {
-  id?: string;
-  title?: string;
-  description?: string;
-  priceUsd?: number;
-  trainingDaysPerWeek?: number;
-  durationWeeks?: number;
-  category?: string;
-  coverImage?: string;
-  isFreeCommunity?: boolean;
-  weekOne?: string[];
-}): Promise<void> {
-  if (!coachId || !program.title) return;
-  const price = Number(program.priceUsd);
-  try {
-    const { error } = await supabase.from('coach_programs').upsert({
-      id: program.id || `prog-${Date.now()}`,
-      coach_id: coachId,
-      title: program.title,
-      description: program.description || '',
-      price_cents: Number.isFinite(price) ? Math.round(price * 100) : null,
-      days_per_week: program.trainingDaysPerWeek ?? null,
-      focus: program.category || '',
-      tier: program.isFreeCommunity ? 'core' : 'pro',
-      discipline: program.category || '',
-      cover_url: program.coverImage || '',
-      week_one: program.weekOne || [],
-      duration_label: program.durationWeeks ? `${program.durationWeeks} weeks` : '',
+      title,
+      description: plan.overview || form.description.trim(),
+      split_type: form.category,
+      weeks_duration: form.durationWeeks,
+      program_data: plan,
+      is_template: false,
+      price_cents: price,
+      days_per_week: form.trainingDaysPerWeek,
+      focus: form.category,
+      tier: form.difficulty,
+      discipline: form.category,
+      cover_url: form.coverImage || '',
+      week_one: weekOneLines(plan),
+      duration_label: `${form.durationWeeks} ${form.durationWeeks === 1 ? 'week' : 'weeks'}`,
+      split_label: plan.weeks[0]?.days.map((day) => day.splitFocus).filter(Boolean).join(' / ') || '',
       listed: true,
-    });
-    if (error) console.error('[coachBridge] publish failed:', error.message);
-  } catch {
-    /* The phone copy remains. */
+    })
+    .select('*')
+    .single();
+  if (error || !data) {
+    if (error) console.warn('[coachBridge] program publish failed:', error.message);
+    return null;
   }
+  return mapProgramRow(data as Record<string, unknown>);
 }
 
 /** Takes a program off the store. Athletes already enrolled keep it. */
 export async function unlistProgram(coachId: string, programId: string): Promise<boolean> {
-  if (!coachId || !programId) return false;
-  try {
-    const { error } = await supabase.from('coach_programs').update({ listed: false }).eq('id', programId).eq('coach_id', coachId);
-    return !error;
-  } catch {
-    return false;
-  }
+  if (!isValidUuid(coachId) || !programId) return false;
+  const { data, error } = await supabase
+    .from('coach_programs')
+    .update({ listed: false })
+    .eq('id', programId)
+    .eq('coach_id', coachId)
+    .select('id');
+  return !error && Array.isArray(data) && data.length > 0;
 }
 
-export async function fetchCoachNotes(coachId: string): Promise<Array<{ id: string; title: string; summary: string }>> {
-  const local = safeStorage.getItem<Array<{ id: string; title: string; summary: string }>>('o1_coach_notes_local', []) || [];
-  if (!coachId) return local;
-  try {
-    const { data, error } = await supabase
-      .from('coach_directives')
-      .select('id, title, summary')
-      .eq('coach_id', coachId)
-      .order('created_at', { ascending: false });
-    if (error || !Array.isArray(data)) return local;
-    const remote = data.map((row) => ({
-      id: String(row.id),
-      title: String(row.title || 'Note'),
-      summary: String(row.summary || ''),
-    }));
-    const seen = new Set(remote.map((row) => row.id));
-    return [...local.filter((row) => !seen.has(row.id)), ...remote];
-  } catch {
-    return local;
-  }
+/** Notes the linked coach sent to all clients, newest first. Null when they could not be loaded. */
+export async function fetchCoachNotes(coachId: string): Promise<Array<{ id: string; title: string; summary: string; createdAt: string }> | null> {
+  if (!isValidUuid(coachId)) return [];
+  const { data, error } = await supabase
+    .from('coach_directives')
+    .select('id, title, summary, created_at')
+    .eq('coach_id', coachId)
+    .order('created_at', { ascending: false })
+    .limit(20);
+  if (error || !Array.isArray(data)) return null;
+  return data.map((row) => ({
+    id: String(row.id),
+    title: String(row.title || 'Note'),
+    summary: String(row.summary || ''),
+    createdAt: String(row.created_at || ''),
+  }));
 }
 
-export async function fetchRemoteCheckins(coachId: string): Promise<AthleteCheckInSubmission[]> {
-  if (!coachId) return [];
-  try {
-    const { data, error } = await supabase
-      .from('athlete_checkins')
-      .select('*')
-      .eq('coach_id', coachId)
-      .order('created_at', { ascending: false });
-    if (error || !Array.isArray(data)) return [];
-    return data.map(mapCheckin);
-  } catch {
-    return [];
-  }
+/** Null when the check-ins could not be loaded. */
+export async function fetchRemoteCheckins(coachId: string): Promise<AthleteCheckInSubmission[] | null> {
+  if (!isValidUuid(coachId)) return [];
+  const { data, error } = await supabase
+    .from('athlete_checkins')
+    .select('*')
+    .eq('coach_id', coachId)
+    .order('created_at', { ascending: false })
+    .limit(60);
+  if (error || !Array.isArray(data)) return null;
+  return data.map(mapCheckin);
 }
 
-export async function fetchAthleteCheckins(athleteId: string): Promise<AthleteCheckInSubmission[]> {
-  if (!athleteId) return [];
-  try {
-    const { data, error } = await supabase
-      .from('athlete_checkins')
-      .select('*')
-      .eq('athlete_id', athleteId)
-      .order('created_at', { ascending: false });
-    if (error || !Array.isArray(data)) return [];
-    return data.map(mapCheckin);
-  } catch {
-    return [];
-  }
+/** Null when the check-ins could not be loaded. */
+export async function fetchAthleteCheckins(athleteId: string): Promise<AthleteCheckInSubmission[] | null> {
+  if (!isValidUuid(athleteId)) return [];
+  const { data, error } = await supabase
+    .from('athlete_checkins')
+    .select('*')
+    .eq('athlete_id', athleteId)
+    .order('created_at', { ascending: false })
+    .limit(30);
+  if (error || !Array.isArray(data)) return null;
+  return data.map(mapCheckin);
 }
 
-function mapCheckin(row: Record<string, unknown>): AthleteCheckInSubmission {
-  const created = row.created_at ? new Date(String(row.created_at)) : null;
-  const date = created && !Number.isNaN(created.getTime())
-    ? created.toLocaleDateString(undefined, { day: 'numeric', month: 'short' })
-    : 'Today';
+function shortDate(iso: unknown): string {
+  const date = iso ? new Date(String(iso)) : null;
+  return date && !Number.isNaN(date.getTime()) ? date.toLocaleDateString(undefined, { day: 'numeric', month: 'short' }) : '';
+}
+
+export function mapCheckin(row: Record<string, unknown>): AthleteCheckInSubmission {
   return {
     id: String(row.id),
     athleteId: String(row.athlete_id || ''),
     athleteName: String(row.athlete_name || 'Athlete'),
     coachId: String(row.coach_id || ''),
-    date,
+    date: shortDate(row.created_at),
+    createdAt: String(row.created_at || ''),
     weightKg: Number(row.weight_kg || 0),
     sleepHours: Number(row.sleep_hours || 0),
     sorenessRating: Number(row.soreness || 0),
@@ -267,23 +323,51 @@ function mapCheckin(row: Record<string, unknown>): AthleteCheckInSubmission {
     notes: String(row.notes || ''),
     coachFeedback: {
       feedbackText: String(row.feedback_text || ''),
-      givenAt: String(row.feedback_at || ''),
+      givenAt: shortDate(row.feedback_at),
       status: row.status === 'reviewed' ? 'reviewed' : 'pending',
     },
   };
 }
 
-export async function saveCheckinReplyRemote(id: string, feedback: string): Promise<void> {
-  if (isSampleId(id)) return;
-  try {
-    await supabase.from('athlete_checkins').update({
-      feedback_text: feedback,
-      feedback_at: 'Just now',
-      status: 'reviewed',
-    }).eq('id', id);
-  } catch {
-    /* The phone copy remains. */
-  }
+/** The athlete's own check-in for their coach. */
+export async function submitCheckin(row: {
+  athleteId: string;
+  athleteName: string;
+  coachId: string;
+  weightKg: number | null;
+  sleepHours: number | null;
+  soreness: number | null;
+  stress: number | null;
+  notes: string;
+}): Promise<AthleteCheckInSubmission | null> {
+  if (!isValidUuid(row.athleteId) || !isValidUuid(row.coachId)) return null;
+  const { data, error } = await supabase
+    .from('athlete_checkins')
+    .insert({
+      id: crypto.randomUUID(),
+      athlete_id: row.athleteId,
+      athlete_name: row.athleteName,
+      coach_id: row.coachId,
+      weight_kg: row.weightKg,
+      sleep_hours: row.sleepHours,
+      soreness: row.soreness,
+      stress: row.stress,
+      notes: row.notes.trim(),
+    })
+    .select('*')
+    .single();
+  if (error || !data) return null;
+  return mapCheckin(data as Record<string, unknown>);
+}
+
+export async function saveCheckinReplyRemote(id: string, feedback: string): Promise<boolean> {
+  if (!id || isSampleId(id)) return false;
+  const { data, error } = await supabase
+    .from('athlete_checkins')
+    .update({ feedback_text: feedback, feedback_at: new Date().toISOString(), status: 'reviewed' })
+    .eq('id', id)
+    .select('id');
+  return !error && Array.isArray(data) && data.length > 0;
 }
 
 export async function sendCoachMessage(input: {
@@ -294,19 +378,15 @@ export async function sendCoachMessage(input: {
   from: 'coach' | 'athlete';
 }): Promise<boolean> {
   const message = input.message.trim();
-  if (!input.coachId || !message || isSampleId(input.athleteId)) return false;
-  try {
-    const { error } = await supabase.from('coach_messages').insert({
-      id: `msg-${input.from}-${Date.now()}`,
-      coach_id: input.coachId,
-      athlete_id: input.athleteId || null,
-      sender_name: input.senderName,
-      message,
-    });
-    return !error;
-  } catch {
-    return false;
-  }
+  if (!isValidUuid(input.coachId) || !isValidUuid(input.athleteId) || !message) return false;
+  const { error } = await supabase.from('coach_messages').insert({
+    id: `msg-${input.from}-${crypto.randomUUID()}`,
+    coach_id: input.coachId,
+    athlete_id: input.athleteId,
+    sender_name: input.senderName,
+    message,
+  });
+  return !error;
 }
 
 export async function currentAthleteId(): Promise<string> {

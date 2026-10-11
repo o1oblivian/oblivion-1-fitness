@@ -16,7 +16,6 @@ export const CoachProtocolAccordionPanel: React.FC<CoachProtocolAccordionPanelPr
 
   const handleOpenCoachHub = () => {
     tactileEngine.triggerSelectionBuzz();
-    useCoachStore.getState().setSelectedSubTab('STORE');
     const coachTab = document.getElementById('nav-tab-coach') || document.getElementById('dock-tab-coach');
     if (coachTab) coachTab.click();
   };

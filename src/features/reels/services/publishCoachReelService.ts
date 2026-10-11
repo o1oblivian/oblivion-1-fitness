@@ -1,9 +1,12 @@
 import { CompressedMediaResult } from '../../../utils/mediaCompressor';
 import { supabase } from '../../../services/supabaseClient';
-import { isSharedUrl, saveVaultRow, storeMedia } from '../../../services/mediaStorage';
+import { getAuthenticatedUserId } from '../../../services/authUser';
+import { isSharedUrl, saveVaultRow, uploadMedia } from '../../../services/mediaStorage';
 import { useReelsStore } from '../../../stores/useReelsStore';
-import { ExploreCoach, ExploreReelItem } from '../reelTypes';
+import { fetchCoachCard, toExploreCoach } from '../../coach/services/coachDirectory';
+import { ExploreReelItem } from '../reelTypes';
 import { REEL_CATEGORIES, SUB_FILTER_TAGS } from '../components/ReelCategorySelector';
+import { mapReelRow } from './reelFeed';
 
 interface PublishReelParams {
   title: string;
@@ -12,17 +15,10 @@ interface PublishReelParams {
   selectedFilterTag: (typeof SUB_FILTER_TAGS)[number];
   previewUrl: string;
   compressedResult: CompressedMediaResult | null;
-  authorName: string;
-  authorHandle: string;
-  authorAvatar: string;
-  authorId: string;
+  fallbackName: string;
 }
 
-export interface PublishedReel {
-  reel: ExploreReelItem;
-  /** False when the clip could not be uploaded and only plays on this phone. */
-  shared: boolean;
-}
+export type PublishReelResult = { ok: true; reel: ExploreReelItem } | { ok: false; reason: 'signed-out' | 'upload' | 'save' };
 
 /** Writes the reel to the shared `reels` table. Only uploaded clips are written; phone-only links would not play for anyone else. */
 export async function insertReelRow(reel: ExploreReelItem, durationSecs?: number): Promise<boolean> {
@@ -42,6 +38,7 @@ export async function insertReelRow(reel: ExploreReelItem, durationSecs?: number
   return !error;
 }
 
+/** Uploads the clip and poster, writes the reel and its Vault copy. Nothing is kept when the upload fails. */
 export async function publishCoachReel({
   title,
   cues,
@@ -49,95 +46,51 @@ export async function publishCoachReel({
   selectedFilterTag,
   previewUrl,
   compressedResult,
-  authorName,
-  authorHandle,
-  authorAvatar,
-  authorId,
-}: PublishReelParams): Promise<PublishedReel> {
-  const [clip, poster] = await Promise.all([
-    storeMedia(compressedResult?.file || previewUrl, 'reels'),
-    compressedResult?.thumbnailUrl ? storeMedia(compressedResult.thumbnailUrl, 'reels') : Promise.resolve(null),
+  fallbackName,
+}: PublishReelParams): Promise<PublishReelResult> {
+  const coachId = await getAuthenticatedUserId();
+  if (!coachId) return { ok: false, reason: 'signed-out' };
+  const [clip, poster, card] = await Promise.all([
+    uploadMedia(compressedResult?.file || previewUrl, 'reels'),
+    compressedResult?.thumbnailUrl ? uploadMedia(compressedResult.thumbnailUrl, 'reels') : Promise.resolve(null),
+    fetchCoachCard(coachId),
   ]);
-  const videoUrl = clip.url;
-  const thumbnail = poster?.url || videoUrl;
+  if (!clip) return { ok: false, reason: 'upload' };
 
-  const coachMeta: ExploreCoach = {
-    id: authorId,
-    name: authorName,
-    handle: authorHandle,
-    avatar: authorAvatar,
-    verified: true,
-    specialtyTitle: `${authorName} • Performance Coach`,
-    rating: 0,
-    reviewCount: 0,
-    certificationPill: 'O1 CERTIFIED',
-    rate: 'Club Coach',
-    slotsRemaining: 1,
-    bio: 'Verified Coach Protocol',
-    disciplines: [selectedCategory],
-  };
+  const id = `coach-reel-${Date.now()}`;
+  const category = selectedCategory === 'HYROX' ? 'ALL' : selectedCategory;
+  const filterTag =
+    selectedCategory === 'HYROX'
+      ? 'HYROX / CONDITIONING'
+      : selectedCategory === 'MOBILITY' || selectedCategory === 'REHAB'
+      ? 'MOBILITY & REHAB'
+      : selectedFilterTag;
+  const coach = toExploreCoach(
+    card ?? { id: coachId, name: fallbackName || 'Coach', handle: '', avatar: '', bio: '', specialties: [], hourlyRate: null, monthlyRate: null, verified: false, accepting: true },
+  );
+  const reel = mapReelRow(
+    {
+      id,
+      title: title.trim(),
+      category,
+      filter_tag: filterTag,
+      video_url: clip.url,
+      thumbnail_url: poster?.url || '',
+      cues: cues.trim(),
+      duration_secs: compressedResult?.durationSecs ?? null,
+    },
+    coach,
+  );
 
-  const newReel: ExploreReelItem = {
-    id: `coach-reel-${Date.now()}`,
-    title: title.trim(),
-    category: (selectedCategory === 'HYROX' ? 'ALL' : selectedCategory) as ExploreReelItem['category'],
-    filterTag:
-      selectedCategory === 'HYROX'
-        ? 'HYROX / CONDITIONING'
-        : selectedCategory === 'MOBILITY' || selectedCategory === 'REHAB'
-        ? 'MOBILITY & REHAB'
-        : selectedFilterTag,
-    videoUrl,
-    thumbnail,
-    views: '--',
-    duration: compressedResult?.durationSecs ? `0:${compressedResult.durationSecs.toString().padStart(2, '0')}` : '0:30',
-    cues: cues.trim() || 'Focus on controlled eccentric tension and standardized biomechanics.',
-    coach: coachMeta,
-    filmstripClips: [
-      {
-        id: `clip-1-${Date.now()}`,
-        title: 'Prime Form Cue',
-        duration: '0:15',
-        thumbnail,
-        videoUrl,
-        tag: selectedCategory,
-        badge: 'KEY CUE',
-      },
-    ],
-  };
-
-  useReelsStore.getState().addCoachReel(newReel);
-  const shared = clip.remote && (await insertReelRow(newReel, compressedResult?.durationSecs));
-
-  const isVideo = compressedResult?.type !== 'photo';
-  const vaultItem = {
-    id: `vault-reel-${Date.now()}`,
-    type: isVideo ? ('video' as const) : ('photo' as const),
-    title: title.trim(),
-    category: 'Biomechanics Audit' as const,
-    athleteName: authorName,
-    url: videoUrl,
-    thumbnailUrl: thumbnail,
-    createdAt: 'Just now',
-    fileSize: compressedResult?.formattedCompressed,
-    notes: cues.trim() || undefined,
-    storagePaths: [clip.path, poster?.path].filter((p): p is string => Boolean(p)),
-  };
-  try {
-    const stored = localStorage.getItem('o1_coach_exercise_vault_media');
-    const existing = stored ? JSON.parse(stored) : [];
-    localStorage.setItem('o1_coach_exercise_vault_media', JSON.stringify([vaultItem, ...existing]));
-  } catch {
-    /* storage full or unavailable */
-  }
+  if (!(await insertReelRow(reel, compressedResult?.durationSecs))) return { ok: false, reason: 'save' };
+  useReelsStore.getState().addCoachReel(reel);
   void saveVaultRow({
-    id: vaultItem.id,
-    type: vaultItem.type,
-    title: vaultItem.title,
-    media_url: videoUrl,
-    thumbnail_url: thumbnail,
+    id: `vault-reel-${Date.now()}`,
+    type: compressedResult?.type === 'photo' ? 'photo' : 'video',
+    title: reel.title,
+    media_url: clip.url,
+    thumbnail_url: poster?.url || null,
     storage_path: clip.path,
   });
-
-  return { reel: newReel, shared };
+  return { ok: true, reel };
 }

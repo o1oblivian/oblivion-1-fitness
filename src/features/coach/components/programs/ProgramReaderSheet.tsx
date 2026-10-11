@@ -3,6 +3,7 @@ import { ArrowLeft, MessageCircle } from 'lucide-react';
 import { tactileEngine } from '../../../../services/tactileEngine';
 import { nextReelCover, reelCover } from '../../../reels/coverPresets';
 import { EnrolledProgram } from '../../services/myPrograms';
+import { ProgramPlanView } from './ProgramPlanView';
 
 interface ProgramReaderSheetProps {
   program: EnrolledProgram | null;
@@ -113,7 +114,9 @@ export const ProgramReaderSheet: React.FC<ProgramReaderSheetProps> = ({
 
             {program.description ? <p className="text-[14px] leading-relaxed">{program.description}</p> : null}
 
-            {program.weekOne.length > 0 && (
+            {program.plan && program.plan.weeks.length > 0 ? (
+              <ProgramPlanView plan={program.plan} />
+            ) : program.weekOne.length > 0 && (
               <div className="space-y-2">
                 <p className="text-[13px] font-semibold text-o1-muted">Week 1</p>
                 {program.weekOne.map((day, index) => (
@@ -142,7 +145,7 @@ export const ProgramReaderSheet: React.FC<ProgramReaderSheetProps> = ({
                 type="button"
                 disabled={busy}
                 onClick={() => onSetStatus(program, 'active')}
-                className="h-[44px] w-full rounded-xl bg-white text-[13px] font-semibold text-neutral-950 disabled:opacity-50"
+                className="h-[44px] w-full rounded-xl bg-o1-crimson text-[13px] font-semibold text-white disabled:opacity-50"
               >
                 Restart program
               </button>

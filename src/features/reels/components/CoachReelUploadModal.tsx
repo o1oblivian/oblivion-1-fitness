@@ -15,8 +15,7 @@ export { REEL_CATEGORIES, SUB_FILTER_TAGS } from './ReelCategorySelector';
 interface CoachReelUploadModalProps {
   isOpen: boolean;
   onClose: () => void;
-  /** `shared` is false when the clip could not be uploaded and only plays on this phone. */
-  onReelPublished?: (reelTitle: string, category: string, shared: boolean) => void;
+  onReelPublished?: (reelTitle: string, category: string) => void;
 }
 
 export const CoachReelUploadModal: React.FC<CoachReelUploadModalProps> = ({ isOpen, onClose, onReelPublished }) => {
@@ -34,6 +33,7 @@ export const CoachReelUploadModal: React.FC<CoachReelUploadModalProps> = ({ isOp
   const [compressionProgress, setCompressionProgress] = useState(0);
   const [compressedResult, setCompressedResult] = useState<CompressedMediaResult | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string>('');
+  const [publishError, setPublishError] = useState('');
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   if (!isOpen) return null;
@@ -67,20 +67,26 @@ export const CoachReelUploadModal: React.FC<CoachReelUploadModalProps> = ({ isOp
     e.preventDefault();
     if (!previewUrl || !title.trim() || isPublishing) return;
     setIsPublishing(true);
-
-    const authorName = profile?.name || user?.name || 'Coach';
-    const authorHandle = user?.handle ? (user.handle.startsWith('@') ? user.handle : `@${user.handle}`) : '';
-    const authorAvatar = user?.avatarUrl || '';
-    const authorId = profile?.id || user?.userId || 'coach_current';
-
+    setPublishError('');
     try {
-      const { reel, shared } = await publishCoachReel({
-        title, cues, selectedCategory, selectedFilterTag, previewUrl,
-        compressedResult, authorName, authorHandle, authorAvatar, authorId,
+      const result = await publishCoachReel({
+        title, cues, selectedCategory, selectedFilterTag, previewUrl, compressedResult,
+        fallbackName: profile?.name || user?.name || 'Coach',
       });
+      if (!result.ok) {
+        setPublishError(
+          result.reason === 'signed-out'
+            ? 'Sign in to publish reels.'
+            : result.reason === 'upload'
+            ? 'Upload failed. Check your connection and try again.'
+            : 'The reel uploaded but could not be published. Try again.',
+        );
+        return;
+      }
       tactileEngine.playPRCelebration();
-      if (showOnBuddy && !buddy.isPhotoOnBuddy(reel.thumbnail)) buddy.toggleVaultPhotoOnBuddy(reel.thumbnail);
-      onReelPublished?.(title, selectedCategory, shared);
+      const cover = result.reel.thumbnail;
+      if (showOnBuddy && cover && !buddy.isPhotoOnBuddy(cover)) buddy.toggleVaultPhotoOnBuddy(cover);
+      onReelPublished?.(title, selectedCategory);
       onClose();
     } finally {
       setIsPublishing(false);
@@ -96,14 +102,14 @@ export const CoachReelUploadModal: React.FC<CoachReelUploadModalProps> = ({ isOp
               <Film className="w-4 h-4" />
             </div>
             <div>
-              <div className="flex items-center gap-1.5 text-xs font-bold font-tactical tracking-wider text-white">
-                <span>Upload Vault Directive Reel</span>
+              <div className="flex items-center gap-1.5 text-[13px] font-semibold text-o1-text">
+                <span>Publish a reel</span>
                 <ShieldCheck className="w-3.5 h-3.5 text-o1-crimson" />
               </div>
-              <p className="text-[10px] text-neutral-400 font-mono">Silent session binding • Auto-compression</p>
+              <p className="text-[11px] text-o1-muted">Clips are compressed before upload.</p>
             </div>
           </div>
-          <button type="button" onClick={onClose} className="w-8 h-8 rounded-full bg-o1-well border border-white/[0.07] flex items-center justify-center text-neutral-400 hover:text-white transition-colors cursor-pointer">
+          <button type="button" onClick={onClose} aria-label="Close" className="w-10 h-10 rounded-full bg-o1-well border border-white/[0.07] flex items-center justify-center text-o1-muted hover:text-o1-text transition-colors cursor-pointer">
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -112,10 +118,15 @@ export const CoachReelUploadModal: React.FC<CoachReelUploadModalProps> = ({ isOp
           <ReelUploadMediaZone previewUrl={previewUrl} compressedResult={compressedResult} isCompressing={isCompressing} compressionProgress={compressionProgress} onSelectFile={() => fileInputRef.current?.click()} fileInputRef={fileInputRef} onFileChange={handleFileSelect} />
           <ReelCategorySelector selectedCategory={selectedCategory} onSelectCategory={setSelectedCategory} selectedFilterTag={selectedFilterTag} onSelectFilterTag={setSelectedFilterTag} />
           <ReelFormFields title={title} setTitle={setTitle} cues={cues} setCues={setCues} showOnBuddy={showOnBuddy} setShowOnBuddy={setShowOnBuddy} disabled={!previewUrl || !title.trim() || isCompressing} selectedCategory={selectedCategory} />
+          {publishError ? (
+            <p role="alert" className="rounded-xl border border-white/[0.07] bg-o1-surface px-3 py-2 text-[12px] text-o1-text">
+              {publishError}
+            </p>
+          ) : null}
           <div className="pt-1">
-            <button type="submit" disabled={!previewUrl || !title.trim() || isCompressing || isPublishing} className="w-full py-2.5 rounded-xl bg-zinc-100 hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed text-neutral-950 text-xs font-semibold tracking-wide active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer">
+            <button type="submit" disabled={!previewUrl || !title.trim() || isCompressing || isPublishing} className="w-full min-h-[44px] py-2.5 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover disabled:opacity-50 disabled:cursor-not-allowed text-white text-xs font-semibold tracking-wide active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer">
               <CheckCircle2 className="w-4 h-4" />
-              <span>{isPublishing ? 'Uploading…' : `Publish Reel to Train Ring (${selectedCategory})`}</span>
+              <span>{isPublishing ? 'Uploading…' : 'Publish reel'}</span>
             </button>
           </div>
         </form>

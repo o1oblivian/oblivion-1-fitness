@@ -1,485 +1,246 @@
 import React, { useState } from 'react';
-import { ClipboardCheck, Sparkles, Send, AlertCircle, ChevronDown, Activity, Bell } from 'lucide-react';
+import { ClipboardCheck, Send, ChevronDown } from 'lucide-react';
 import { AthleteCheckInSubmission } from '../types/coachPlatformTypes';
+import { CoachFinishedWorkoutLog } from '../../../stores/coachTypes';
 import { tactileEngine } from '../../../services/tactileEngine';
-import { useCoachStore } from '../../../stores/useCoachStore';
 import { sanitizeNumericInput } from '../../../utils/numberInputUtils';
 
-export interface DailyCheckInProgressProps {
-  checkins: AthleteCheckInSubmission[];
-  onReplyFeedback: (checkinId: string, feedback: string) => void;
-  onSubmitNewCheckin: (checkin: Omit<AthleteCheckInSubmission, 'id' | 'coachFeedback'>) => void;
+export interface CheckinDraft {
+  weightKg: number | null;
+  sleepHours: number | null;
+  soreness: number | null;
+  stress: number | null;
+  notes: string;
 }
 
-export const DailyCheckInProgress: React.FC<DailyCheckInProgressProps> = ({
-  checkins,
-  onReplyFeedback,
-  onSubmitNewCheckin,
-}) => {
-  const [isSubmitOpen, setIsSubmitOpen] = useState(false);
-  const [activeReplyId, setActiveReplyId] = useState<string | null>(null);
-  const [replyText, setReplyText] = useState('');
+export interface DailyCheckInProgressProps {
+  coachName: string;
+  /** Null while loading; the athlete's own check-ins, newest first. */
+  checkins: AthleteCheckInSubmission[] | null;
+  workouts: CoachFinishedWorkoutLog[] | null;
+  loadFailed: boolean;
+  onRetry: () => void;
+  /** Resolves true once the coach can see the check-in. */
+  onSubmit: (draft: CheckinDraft) => Promise<boolean>;
+}
 
-  // Athlete Form State
+function positive(raw: string): number | null {
+  const n = parseFloat(raw);
+  return Number.isFinite(n) && n > 0 ? n : null;
+}
+
+function sessionDate(iso: string): string {
+  const date = new Date(iso);
+  return Number.isNaN(date.getTime()) ? '' : date.toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
+}
+
+const Metric: React.FC<{ label: string; value: string }> = ({ label, value }) => (
+  <div className="rounded-xl border border-white/[0.07] bg-o1-sheet p-2 text-center">
+    <span className="block text-[10px] text-o1-muted">{label}</span>
+    <span className="text-[12px] font-semibold tabular-nums text-o1-text">{value}</span>
+  </div>
+);
+
+const CoachReply: React.FC<{ coachName: string; text: string; when: string }> = ({ coachName, text, when }) => (
+  <div className="space-y-1 rounded-xl border border-white/[0.07] bg-o1-sheet p-2.5">
+    <div className="flex items-center justify-between text-[11px] text-o1-muted">
+      <span className="font-semibold text-o1-text">{coachName}</span>
+      {when ? <span>{when}</span> : null}
+    </div>
+    <p className="text-[13px] leading-relaxed text-o1-text">{text}</p>
+  </div>
+);
+
+export const DailyCheckInProgress: React.FC<DailyCheckInProgressProps> = ({ coachName, checkins, workouts, loadFailed, onRetry, onSubmit }) => {
+  const [isSubmitOpen, setIsSubmitOpen] = useState(false);
   const [weightKg, setWeightKg] = useState('');
   const [sleepHours, setSleepHours] = useState('');
-  const [sorenessRating, setSorenessRating] = useState(0);
-  const [stressRating, setStressRating] = useState(0);
+  const [soreness, setSoreness] = useState(0);
+  const [stress, setStress] = useState(0);
   const [notes, setNotes] = useState('');
+  const [sending, setSending] = useState(false);
+  const [sendFailed, setSendFailed] = useState(false);
 
-  // Coach Live Telemetry & Workout Finish Records
-  const liveTelemetry = useCoachStore((s) => s.liveTelemetry);
-  const finishedWorkouts = useCoachStore((s) => s.finishedWorkouts);
-  const submitCoachFeedback = useCoachStore((s) => s.submitCoachFeedback);
-  const [workoutFeedbackText, setWorkoutFeedbackText] = useState<{ [id: string]: string }>({});
-
-  const handleSendFeedback = (id: string) => {
-    if (!replyText.trim()) return;
-    tactileEngine.triggerImpactPulse();
-    onReplyFeedback(id, replyText.trim());
-    setActiveReplyId(null);
-    setReplyText('');
-  };
-
-  const handleSubmitCheckin = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    tactileEngine.playPRCelebration();
-    onSubmitNewCheckin({
-      athleteId: localStorage.getItem('o1fc_user_id') || '',
-      athleteName: 'You',
-      coachId: localStorage.getItem('o1fc_user_id') || '',
-      date: new Date().toLocaleDateString(undefined, { day: 'numeric', month: 'short' }),
-      weightKg: parseFloat(weightKg) || 0,
-      sleepHours: parseFloat(sleepHours) || 0,
-      sorenessRating,
-      stressRating,
-      nutritionAdherence: 0,
-      completedSessionsCount: 0,
-      targetSessionsCount: 0,
-      notes: notes.trim(),
+    if (sending) return;
+    setSending(true);
+    setSendFailed(false);
+    const ok = await onSubmit({
+      weightKg: positive(weightKg),
+      sleepHours: positive(sleepHours),
+      soreness: soreness || null,
+      stress: stress || null,
+      notes,
     });
+    setSending(false);
+    if (!ok) {
+      setSendFailed(true);
+      return;
+    }
+    tactileEngine.playPRCelebration();
+    setWeightKg('');
+    setSleepHours('');
+    setSoreness(0);
+    setStress(0);
     setNotes('');
     setIsSubmitOpen(false);
   };
 
+  const reviewed = (workouts ?? []).filter((w) => w.feedback);
+
   return (
     <div className="w-full space-y-4 select-none">
-      {/* 1. Header with Quick Check-In CTA */}
-      <div className="p-2.5 rounded-2xl bg-o1-surface border border-white/[0.07] shadow-sm flex items-center justify-between transition-colors">
+      <div className="flex items-center justify-between rounded-2xl border border-white/[0.07] bg-o1-surface p-2.5">
         <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-2xl bg-o1-crimson/10 border border-o1-crimson/20 flex items-center justify-center text-o1-crimson">
-            <ClipboardCheck className="w-4 h-4" />
+          <div className="flex h-9 w-9 items-center justify-center rounded-2xl border border-o1-crimson/20 bg-o1-crimson/10 text-o1-crimson">
+            <ClipboardCheck className="h-4 w-4" />
           </div>
           <div>
-            <h4 className="text-xs font-semibold text-o1-text">
-              Check-in
-            </h4>
-            <p className="text-[10px] text-o1-muted">
-              Weight, sleep, and how the day felt
-            </p>
+            <h4 className="text-[13px] font-semibold text-o1-text">Check-in</h4>
+            <p className="text-[11px] text-o1-muted">Weight, sleep, and how the day felt</p>
           </div>
         </div>
-
         <button
           type="button"
           onClick={() => {
             tactileEngine.triggerSelectionBuzz();
             setIsSubmitOpen((v) => !v);
           }}
-          className="px-3 py-1.5 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover active:scale-95 text-o1-text text-[11px] font-tactical font-black tracking-wider transition-all shadow-xs cursor-pointer flex items-center gap-1"
+          className="flex min-h-[44px] items-center gap-1 rounded-xl bg-o1-crimson px-3 text-[12px] font-semibold text-white active:scale-95"
         >
-          <span>{isSubmitOpen ? 'Close' : 'Check-in'}</span>
-          <ChevronDown className={`w-3.5 h-3.5 transition-transform ${isSubmitOpen ? 'rotate-180' : ''}`} />
+          <span>{isSubmitOpen ? 'Close' : 'New check-in'}</span>
+          <ChevronDown className={`h-3.5 w-3.5 transition-transform ${isSubmitOpen ? 'rotate-180' : ''}`} />
         </button>
       </div>
 
-      {/* Real-time Client Live Telemetry stream */}
-      {Object.values(liveTelemetry).some((t) => t.isLive) && (
-        <div className="p-2.5 rounded-2xl bg-o1-sheet border border-white/[0.07] text-o1-text space-y-2 shadow-md animate-in fade-in duration-200">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping" />
-              <span className="font-mono text-xs font-bold text-emerald-400 tracking-wider flex items-center gap-1.5">
-                <Activity className="w-3.5 h-3.5" />
-                Live athlete telemetry in progress
-              </span>
-            </div>
-            <span className="text-[10px] font-mono font-bold text-o1-muted">Realtime</span>
-          </div>
-
-          {Object.values(liveTelemetry)
-            .filter((t) => t.isLive)
-            .map((t) => (
-              <div key={t.athleteId} className="p-3 rounded-2xl bg-o1-canvas border border-white/[0.07] flex items-center justify-between">
-                <div>
-                  <h5 className="font-bold text-xs text-o1-text tracking-wide">{t.athleteName}</h5>
-                  <p className="text-[11px] font-mono text-emerald-400 mt-0.5">
-                    {t.activeExercise || 'In session'}
-                  </p>
-                </div>
-                <div className="text-right">
-                  <span className="text-xs font-mono font-black text-o1-crimson">
-                    {t.sessionTonnageKg.toLocaleString()} KG
-                  </span>
-                  <span className="block text-[9px] font-mono text-o1-muted">Session Volume</span>
-                </div>
-              </div>
-            ))}
+      {loadFailed ? (
+        <div role="alert" className="flex items-center justify-between gap-2 rounded-xl border border-o1-crimson/30 bg-o1-crimson/10 px-3 py-2">
+          <p className="text-[12px] text-o1-text">Could not load your check-ins.</p>
+          <button type="button" onClick={onRetry} className="min-h-[36px] px-2 text-[12px] font-semibold text-o1-text">
+            Retry
+          </button>
         </div>
-      )}
+      ) : null}
 
-      {/* Finished Workout History & Daily Feedback Ledger */}
-      {finishedWorkouts.length > 0 && (
-        <div className="space-y-3">
-          <div className="flex items-center justify-between px-1">
-            <div className="flex items-center gap-2">
-              <Bell className="w-4 h-4 text-o1-crimson" />
-              <span className="text-xs font-tactical font-black tracking-wider text-o1-text">
-                Finished workouts ({finishedWorkouts.length})
-              </span>
-            </div>
-            <span className="text-[10px] font-mono text-emerald-400 font-bold bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
-              ● Ready for feedback
-            </span>
-          </div>
-
-          <div className="space-y-2.5">
-            {finishedWorkouts.map((w) => (
-              <div
-                key={w.id}
-                className="p-2.5 rounded-2xl bg-o1-surface border border-white/[0.07] space-y-2 shadow-sm transition-colors"
-              >
-                <div className="flex items-start justify-between">
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs font-bold text-o1-text font-tactical">
-                        {w.athleteName}
-                      </span>
-                      <span className="text-[10px] font-mono text-o1-muted">• {w.completedAt}</span>
-                    </div>
-                    <h5 className="text-xs sm:text-sm font-black text-o1-crimson mt-0.5">{w.title}</h5>
-                  </div>
-                  <div className="text-right">
-                    <span className="text-xs font-mono font-bold text-o1-text">
-                      {w.tonnageKg.toLocaleString()} KG
-                    </span>
-                    <span className="block text-[9px] font-mono text-o1-muted">
-                      {w.totalSets} sets • {w.totalReps} reps
-                    </span>
-                  </div>
-                </div>
-
-                {/* Exercises Summary */}
-                <div className="flex flex-wrap gap-1.5">
-                  {w.exercises.map((e, idx) => (
-                    <span
-                      key={idx}
-                      className="px-2 py-0.5 rounded-xl bg-white/[0.08] text-[10px] font-mono text-o1-text border border-white/[0.07]"
-                    >
-                      {e.name} ({e.sets}×{e.reps} @ {e.weightKg}kg)
-                    </span>
-                  ))}
-                </div>
-
-                {/* Coach Feedback Given or Input Form */}
-                {w.feedback ? (
-                  <div className="p-3 rounded-2xl bg-sky-500/10 border border-sky-500/20 space-y-1">
-                    <div className="flex items-center justify-between text-[10px] font-mono font-bold text-sky-400">
-                      <span className="flex items-center gap-1">
-                        <Sparkles className="w-3.5 h-3.5" />
-                        Reply
-                      </span>
-                      <span>{w.feedbackGivenAt || 'Just now'}</span>
-                    </div>
-                    <p className="text-xs text-o1-text font-sans italic">
-                      "{w.feedback}"
-                    </p>
-                  </div>
-                ) : (
-                  <div className="space-y-2 pt-1 border-t border-white/[0.07]">
-                    <div className="flex items-center justify-between text-[11px] font-mono text-o1-muted">
-                      <span className="font-bold text-o1-text">
-                        Give Daily Feedback to {w.athleteName}:
-                      </span>
-                    </div>
-                    <div className="flex gap-2">
-                      <input
-                        type="text"
-                        value={workoutFeedbackText[w.id] || ''}
-                        onChange={(e) =>
-                          setWorkoutFeedbackText((prev) => ({ ...prev, [w.id]: e.target.value }))
-                        }
-                        placeholder="Type coaching cues, recovery notes or volume adjustments..."
-                        className="flex-1 px-3 py-2 rounded-xl bg-o1-sheet border border-white/[0.07] text-xs text-o1-text placeholder:text-o1-muted focus:outline-none focus:border-o1-crimson"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const text = (workoutFeedbackText[w.id] || '').trim();
-                          if (!text) return;
-                          submitCoachFeedback(w.id, text);
-                          setWorkoutFeedbackText((prev) => ({ ...prev, [w.id]: '' }));
-                        }}
-                        className="px-3 py-2 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover active:scale-95 text-o1-text text-xs font-mono font-bold transition cursor-pointer flex items-center gap-1 shrink-0"
-                      >
-                        <Send className="w-3.5 h-3.5" />
-                        <span>Send</span>
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* 2. New Athlete Check-in Form Drawer */}
       {isSubmitOpen && (
-        <form
-          onSubmit={handleSubmitCheckin}
-          className="p-2.5 rounded-2xl bg-o1-surface border border-white/[0.07] space-y-2.5 shadow-sm animate-in slide-in-from-top-2 duration-200"
-        >
-          <div className="flex items-center justify-between pb-2 border-b border-white/[0.07]">
-            <span className="text-xs font-tactical font-bold text-o1-text">
-              Today
-            </span>
-          </div>
-
+        <form onSubmit={(e) => void handleSubmit(e)} className="space-y-3 rounded-2xl border border-white/[0.07] bg-o1-surface p-3">
           <div className="grid grid-cols-2 gap-2.5">
-            <div>
-              <label className="text-[10px] font-mono font-bold text-o1-muted block mb-1">
-                Bodyweight (KG)
-              </label>
+            <label className="block">
+              <span className="mb-1 block text-[11px] text-o1-muted">Bodyweight (kg)</span>
               <input
                 type="number"
                 step="0.1"
-                placeholder="0"
+                inputMode="decimal"
+                placeholder="--"
                 value={weightKg}
                 onFocus={(e) => e.target.select()}
                 onChange={(e) => setWeightKg(sanitizeNumericInput(e.target.value))}
-                className="w-full h-9 px-3 rounded-xl bg-o1-sheet border border-white/[0.07] text-xs font-mono font-bold text-o1-text focus:outline-none focus:border-o1-crimson"
+                className="h-10 w-full rounded-xl border border-white/[0.07] bg-o1-sheet px-3 text-[13px] tabular-nums text-o1-text focus:border-o1-crimson focus:outline-none"
               />
-            </div>
-            <div>
-              <label className="text-[10px] font-mono font-bold text-o1-muted block mb-1">
-                Sleep Duration (HRS)
-              </label>
+            </label>
+            <label className="block">
+              <span className="mb-1 block text-[11px] text-o1-muted">Sleep (hours)</span>
               <input
                 type="number"
                 step="0.1"
-                placeholder="0"
+                inputMode="decimal"
+                placeholder="--"
                 value={sleepHours}
                 onFocus={(e) => e.target.select()}
                 onChange={(e) => setSleepHours(sanitizeNumericInput(e.target.value))}
-                className="w-full h-9 px-3 rounded-xl bg-o1-sheet border border-white/[0.07] text-xs font-mono font-bold text-o1-text focus:outline-none focus:border-o1-crimson"
+                className="h-10 w-full rounded-xl border border-white/[0.07] bg-o1-sheet px-3 text-[13px] tabular-nums text-o1-text focus:border-o1-crimson focus:outline-none"
               />
-            </div>
+            </label>
           </div>
 
           <div className="grid grid-cols-2 gap-2.5">
-            <div>
-              <div className="flex items-center justify-between mb-1">
-                <label className="text-[10px] font-mono font-bold text-o1-muted">
-                  Muscle Soreness
-                </label>
-                <span className="text-xs font-mono font-bold text-o1-crimson">{sorenessRating || '--'}</span>
-              </div>
-              <input
-                type="range"
-                min="0"
-                max="10"
-                value={sorenessRating}
-                onChange={(e) => setSorenessRating(Number(e.target.value))}
-                className="w-full accent-o1-crimson"
-              />
-            </div>
-
-            <div>
-              <div className="flex items-center justify-between mb-1">
-                <label className="text-[10px] font-mono font-bold text-o1-muted">
-                  Life Stress Level
-                </label>
-                <span className="text-xs font-mono font-bold text-o1-text">{stressRating || '--'}</span>
-              </div>
-              <input
-                type="range"
-                min="0"
-                max="10"
-                value={stressRating}
-                onChange={(e) => setStressRating(Number(e.target.value))}
-                className="w-full accent-sky-500"
-              />
-            </div>
+            <label className="block">
+              <span className="mb-1 flex items-center justify-between text-[11px] text-o1-muted">
+                Soreness
+                <span className="font-semibold tabular-nums text-o1-text">{soreness || '--'}</span>
+              </span>
+              <input type="range" min="0" max="10" value={soreness} onChange={(e) => setSoreness(Number(e.target.value))} className="w-full accent-o1-crimson" />
+            </label>
+            <label className="block">
+              <span className="mb-1 flex items-center justify-between text-[11px] text-o1-muted">
+                Stress
+                <span className="font-semibold tabular-nums text-o1-text">{stress || '--'}</span>
+              </span>
+              <input type="range" min="0" max="10" value={stress} onChange={(e) => setStress(Number(e.target.value))} className="w-full accent-o1-crimson" />
+            </label>
           </div>
 
-          <div>
-            <label className="text-[10px] font-mono font-bold text-o1-muted block mb-1">
-              Workout Notes & Sensation
-            </label>
+          <label className="block">
+            <span className="mb-1 block text-[11px] text-o1-muted">Notes for {coachName}</span>
             <textarea
               rows={2}
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              placeholder="e.g., Felt great on squats, slight tightness on left shoulder during overhead press..."
-              className="w-full p-2.5 rounded-xl bg-o1-sheet border border-white/[0.07] text-xs text-o1-text placeholder:text-o1-muted focus:outline-none focus:border-o1-crimson"
+              placeholder="How training felt, anything sore or tight"
+              className="w-full rounded-xl border border-white/[0.07] bg-o1-sheet p-2.5 text-[13px] text-o1-text placeholder:text-o1-muted focus:border-o1-crimson focus:outline-none"
             />
-          </div>
+          </label>
+
+          {sendFailed ? (
+            <p role="alert" className="text-[12px] text-o1-text">Could not send. Check your connection and try again.</p>
+          ) : null}
 
           <button
             type="submit"
-            className="w-full py-2.5 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover active:scale-[0.98] text-o1-text text-xs font-tactical font-black tracking-wider transition-all shadow-sm cursor-pointer flex items-center justify-center gap-1.5"
+            disabled={sending}
+            className="flex h-[44px] w-full items-center justify-center gap-1.5 rounded-xl bg-o1-crimson text-[13px] font-semibold text-white active:scale-[0.98] disabled:opacity-60"
           >
-            <Send className="w-3.5 h-3.5" />
-            <span>Send</span>
+            <Send className="h-3.5 w-3.5" />
+            <span>{sending ? 'Sending…' : `Send to ${coachName}`}</span>
           </button>
         </form>
       )}
 
-      {/* 3. Check-in Timeline & Feedback Stream */}
-      <div className="space-y-3">
-        {checkins.length === 0 ? (
-          <div className="p-6 rounded-2xl bg-o1-surface border border-dashed border-white/[0.07] text-center space-y-2 shadow-xs">
-            <ClipboardCheck className="w-7 h-7 text-o1-muted mx-auto" />
-            <p className="text-xs font-semibold text-o1-text">
-              No daily check-ins submitted yet.
-            </p>
-            <p className="text-[11px] text-o1-muted">
-              A check-in shows here after it is sent.
-            </p>
+      {reviewed.length > 0 && (
+        <div className="space-y-2">
+          <p className="px-1 text-[13px] font-semibold text-o1-text">Session feedback</p>
+          {reviewed.map((w) => (
+            <div key={w.id} className="space-y-2 rounded-2xl border border-white/[0.07] bg-o1-surface p-3">
+              <div className="flex items-baseline justify-between gap-2">
+                <p className="truncate text-[13px] font-semibold text-o1-text">{w.title}</p>
+                <p className="shrink-0 text-[11px] tabular-nums text-o1-muted">
+                  {[sessionDate(w.completedAt), w.tonnageKg ? `${w.tonnageKg.toLocaleString()} kg` : ''].filter(Boolean).join(' · ')}
+                </p>
+              </div>
+              <CoachReply coachName={coachName} text={w.feedback || ''} when={w.feedbackGivenAt ? sessionDate(w.feedbackGivenAt) : ''} />
+            </div>
+          ))}
+        </div>
+      )}
+
+      <div className="space-y-2">
+        {checkins === null ? (
+          <p className="py-6 text-center text-[13px] text-o1-muted">Loading check-ins…</p>
+        ) : checkins.length === 0 ? (
+          <div className="space-y-1 rounded-2xl border border-dashed border-white/[0.07] bg-o1-surface p-6 text-center">
+            <p className="text-[13px] font-semibold text-o1-text">No check-ins yet</p>
+            <p className="text-[12px] text-o1-muted">Your check-ins and {coachName}'s replies show here.</p>
           </div>
         ) : (
           checkins.map((chk) => (
-          <div
-            key={chk.id}
-            className="p-2.5 rounded-2xl bg-o1-surface border border-white/[0.07] space-y-2 shadow-sm transition-colors"
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span className="font-bold text-xs font-tactical text-o1-text">
-                  {chk.athleteName}
-                </span>
-                <span className="text-[10px] font-mono text-o1-muted">• {chk.date}</span>
+            <div key={chk.id} className="space-y-2 rounded-2xl border border-white/[0.07] bg-o1-surface p-3">
+              <p className="text-[12px] text-o1-muted">{chk.date || 'Check-in'}</p>
+              <div className="grid grid-cols-4 gap-2">
+                <Metric label="Weight" value={chk.weightKg > 0 ? `${chk.weightKg} kg` : '--'} />
+                <Metric label="Sleep" value={chk.sleepHours > 0 ? `${chk.sleepHours} h` : '--'} />
+                <Metric label="Soreness" value={chk.sorenessRating > 0 ? `${chk.sorenessRating}/10` : '--'} />
+                <Metric label="Stress" value={chk.stressRating > 0 ? `${chk.stressRating}/10` : '--'} />
               </div>
-              {chk.nutritionAdherence > 0 && (
-                <span className="px-2 py-0.5 rounded-full bg-o1-sheet border border-white/[0.07] text-[10px] text-o1-text">
-                  {chk.nutritionAdherence}% food
-                </span>
+              {chk.notes ? <p className="text-[13px] leading-relaxed text-o1-text">{chk.notes}</p> : null}
+              {chk.coachFeedback?.feedbackText ? (
+                <CoachReply coachName={coachName} text={chk.coachFeedback.feedbackText} when={chk.coachFeedback.givenAt} />
+              ) : (
+                <p className="text-[12px] text-o1-muted">Waiting for {coachName} to reply</p>
               )}
             </div>
-
-            {/* Quick Metrics Bar */}
-            <div className="grid grid-cols-4 gap-2 text-center">
-              <div className="p-2 rounded-xl bg-o1-sheet border border-white/[0.07]">
-                <span className="text-[9px] font-mono text-o1-muted block">Weight</span>
-                <span className="text-xs font-mono font-bold text-o1-text">
-                  {chk.weightKg > 0 ? `${chk.weightKg} kg` : '--'}
-                </span>
-              </div>
-              <div className="p-2 rounded-xl bg-o1-sheet border border-white/[0.07]">
-                <span className="text-[9px] font-mono text-o1-muted block">Sleep</span>
-                <span className="text-xs font-mono font-bold text-o1-text">
-                  {chk.sleepHours > 0 ? `${chk.sleepHours} h` : '--'}
-                </span>
-              </div>
-              <div className="p-2 rounded-xl bg-o1-sheet border border-white/[0.07]">
-                <span className="text-[9px] font-mono text-o1-muted block">Soreness</span>
-                <span className="text-xs font-mono font-bold text-o1-text">
-                  {chk.sorenessRating > 0 ? `${chk.sorenessRating}/10` : '--'}
-                </span>
-              </div>
-              <div className="p-2 rounded-xl bg-o1-sheet border border-white/[0.07]">
-                <span className="text-[9px] font-mono text-o1-muted block">Stress</span>
-                <span className="text-xs font-mono font-bold text-o1-text">
-                  {chk.stressRating > 0 ? `${chk.stressRating}/10` : '--'}
-                </span>
-              </div>
-            </div>
-
-            {/* Athlete Notes */}
-            {chk.notes ? (
-              <p className="text-xs text-o1-text leading-relaxed bg-o1-sheet p-2.5 rounded-xl border border-white/[0.07]">
-                {chk.notes}
-              </p>
-            ) : null}
-
-            {/* Coach Feedback Section */}
-            {chk.coachFeedback?.feedbackText ? (
-              <div className="p-3 rounded-2xl bg-sky-950/20 border border-sky-800/40 space-y-2">
-                <div className="flex items-center justify-between text-[10px] font-mono">
-                  <span className="font-bold text-sky-300 flex items-center gap-1">
-                    <Sparkles className="w-3.5 h-3.5" />
-                    Reply
-                  </span>
-                  <span className="text-o1-muted">{chk.coachFeedback.givenAt}</span>
-                </div>
-                <p className="text-xs text-o1-text font-sans leading-relaxed">
-                  {chk.coachFeedback.feedbackText}
-                </p>
-
-                {chk.coachFeedback.suggestedAdjustments && chk.coachFeedback.suggestedAdjustments.length > 0 && (
-                  <div className="pt-1.5 border-t border-sky-800/40 flex flex-wrap gap-1.5">
-                    {chk.coachFeedback.suggestedAdjustments.map((adj, i) => (
-                      <span
-                        key={i}
-                        className="px-2 py-0.5 rounded-md bg-o1-surface border border-sky-700/60 text-[10px] font-mono font-semibold text-sky-400"
-                      >
-                        ⚡ {adj}
-                      </span>
-                    ))}
-                  </div>
-                )}
-              </div>
-            ) : (
-              <div className="p-2.5 rounded-xl bg-amber-950/20 border border-amber-800/40 flex items-center justify-between">
-                <span className="text-[11px] font-mono text-amber-400 flex items-center gap-1.5">
-                  <AlertCircle className="w-3.5 h-3.5" />
-                  Awaiting coach review & dispatch adjustment
-                </span>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    tactileEngine.triggerSelectionBuzz();
-                    setActiveReplyId(activeReplyId === chk.id ? null : chk.id);
-                  }}
-                  className="px-2.5 py-1 rounded-xl bg-amber-600 hover:bg-amber-700 text-o1-text text-[10px] font-tactical font-black tracking-wider cursor-pointer"
-                >
-                  Add Feedback
-                </button>
-              </div>
-            )}
-
-            {/* Coach Feedback Input Box (If reviewing as coach) */}
-            {activeReplyId === chk.id && (
-              <div className="pt-2 border-t border-white/[0.07] space-y-2 animate-in fade-in duration-150">
-                <textarea
-                  rows={2}
-                  value={replyText}
-                  onChange={(e) => setReplyText(e.target.value)}
-                  placeholder="Provide feedback or program adjustments..."
-                  className="w-full p-2.5 rounded-xl bg-o1-sheet border border-white/[0.07] text-xs text-o1-text placeholder:text-o1-muted focus:outline-none focus:border-o1-crimson"
-                />
-                <div className="flex justify-end gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setActiveReplyId(null)}
-                    className="px-3 py-1 rounded-xl text-xs font-mono text-o1-muted"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleSendFeedback(chk.id)}
-                    className="px-3.5 py-1 rounded-xl bg-o1-crimson text-o1-text text-xs font-tactical font-bold tracking-wider"
-                  >
-                    Submit Feedback
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-        )))}
+          ))
+        )}
       </div>
     </div>
   );

@@ -69,7 +69,7 @@ export const DispatchLibraryTab: React.FC<DispatchLibraryTabProps> = ({ stack, o
               tactileEngine.triggerSelectionBuzz();
               setType(t);
             }}
-            className={`h-8 px-2.5 rounded-xl text-[11px] font-semibold ${type === t ? 'bg-white text-neutral-950' : 'bg-white/[0.08] text-o1-muted'}`}
+            className={`h-8 px-2.5 rounded-xl text-[11px] font-semibold ${type === t ? 'bg-o1-crimson text-white' : 'bg-white/[0.08] text-o1-muted'}`}
           >
             {t}
           </button>

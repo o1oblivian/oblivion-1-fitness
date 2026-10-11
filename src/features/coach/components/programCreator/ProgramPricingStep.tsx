@@ -116,7 +116,7 @@ export const ProgramPricingStep: React.FC<{
                         }}
                         className={`py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
                           isSelected
-                            ? 'bg-white text-neutral-900 shadow-2xs font-bold'
+                            ? 'bg-o1-crimson text-white font-bold'
                             : 'text-o1-muted hover:text-o1-text'
                         }`}
                       >
@@ -209,7 +209,7 @@ export const ProgramPricingStep: React.FC<{
                           }}
                           className={`px-2 py-0.5 rounded-md text-[10px] font-mono font-semibold transition-all cursor-pointer ${
                             isSel
-                              ? 'bg-white text-neutral-900 font-bold'
+                              ? 'bg-o1-crimson text-white font-bold'
                               : 'bg-white/[0.08] text-o1-muted hover:text-o1-text'
                           }`}
                         >

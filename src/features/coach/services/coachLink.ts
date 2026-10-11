@@ -24,6 +24,10 @@ export function readLinkedCoach(): LinkedCoach | null {
   }
 }
 
+export function clearLinkedCoach(): void {
+  localStorage.removeItem(LINK_KEY);
+}
+
 export function saveLinkedCoach(coach: LinkedCoach): void {
   const next: LinkedCoach = {
     id: coach.id,

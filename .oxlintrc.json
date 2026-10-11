@@ -18,12 +18,19 @@
     "react-hooks/exhaustive-deps": "warn",
     "no-console": ["warn", { "allow": ["warn", "error"] }]
   },
+  "overrides": [
+    {
+      "files": ["scripts/**"],
+      "rules": { "no-console": "off" }
+    }
+  ],
   "ignorePatterns": [
     "android/**",
     "ios/**",
     "dist/**",
     "src/features/log/**",
     "src/features/radar/**",
+    "src/features/fuel/**",
     "src/stores/useLogStore.ts",
     "src/stores/useRadarStore.ts",
     "src/stores/radarTypes.ts",

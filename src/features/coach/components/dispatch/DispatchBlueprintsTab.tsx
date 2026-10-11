@@ -128,7 +128,7 @@ export const DispatchBlueprintsTab: React.FC<DispatchBlueprintsTabProps> = ({ on
         <button
           type="button"
           onClick={() => onLoad(blueprint)}
-          className="w-full h-11 rounded-2xl bg-white text-neutral-950 font-bold text-xs flex items-center justify-center gap-1.5 active:opacity-90"
+          className="w-full h-11 rounded-2xl bg-o1-crimson hover:bg-o1-crimson-hover active:bg-o1-crimson-press text-white font-bold text-xs flex items-center justify-center gap-1.5"
         >
           <Plus size={14} />
           Use this workout

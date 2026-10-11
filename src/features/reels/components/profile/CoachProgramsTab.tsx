@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { tactileEngine } from '../../../../services/tactileEngine';
 import { nextReelCover, reelCover } from '../../coverPresets';
 import { StorefrontProgram } from '../../services/coachStorefront';
+import { exerciseCount } from '../../../coach/services/programPlan';
 
 interface CoachProgramsTabProps {
   programs: StorefrontProgram[] | null;
@@ -90,9 +91,9 @@ export const CoachProgramsTab: React.FC<CoachProgramsTabProps> = ({ programs, en
                     {meta ? <p className="truncate text-[12px] text-white/80">{meta}</p> : null}
                   </div>
                   {enrolled ? (
-                    <span className="shrink-0 rounded-full bg-white px-2.5 py-1 text-[12px] font-semibold text-neutral-950">Enrolled</span>
+                    <span className="shrink-0 rounded-full border border-white/[0.07] bg-o1-sheet px-2.5 py-1 text-[12px] font-semibold text-o1-text">Enrolled</span>
                   ) : price ? (
-                    <span className="shrink-0 rounded-full bg-white px-2.5 py-1 text-[12px] font-semibold text-neutral-950">{price}</span>
+                    <span className="shrink-0 rounded-full border border-white/[0.07] bg-o1-sheet px-2.5 py-1 text-[12px] font-semibold text-o1-text">{price}</span>
                   ) : null}
                 </div>
               </div>
@@ -100,6 +101,11 @@ export const CoachProgramsTab: React.FC<CoachProgramsTabProps> = ({ programs, en
             {open && (
               <div className="space-y-3 p-3">
                 {program.description ? <p className="text-[13px] leading-relaxed text-o1-text">{program.description}</p> : null}
+                {program.plan && program.plan.weeks.length > 0 ? (
+                  <p className="text-[12px] text-o1-muted">
+                    {program.plan.weeks.length} {program.plan.weeks.length === 1 ? 'week' : 'weeks'} · {exerciseCount(program.plan)} exercises, set by set
+                  </p>
+                ) : null}
                 {program.weekOne.length > 0 && (
                   <div className="space-y-1">
                     <p className="text-[12px] font-semibold text-o1-muted">Week 1</p>

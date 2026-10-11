@@ -1,33 +1,35 @@
 import React, { useState } from 'react';
 import { Check, Copy, Share2, X } from 'lucide-react';
 import { tactileEngine } from '../../../services/tactileEngine';
-import { copyText, getOrCreateInviteCode } from '../../log/publicShare';
+import { copyText } from '../../log/publicShare';
 import { shareLink } from '../../reels/services/reelLinks';
 import { ShareLinkSheet, ShareLinkTarget } from '../../reels/components/ShareLinkSheet';
 
 interface AddClientModalProps {
   isOpen: boolean;
+  /** Registered invite code; null until it is saved to the coach's account. */
+  code: string | null;
+  failed: boolean;
+  onRetry: () => void;
   onClose: () => void;
 }
 
-export const AddClientModal: React.FC<AddClientModalProps> = ({ isOpen, onClose }) => {
+export const AddClientModal: React.FC<AddClientModalProps> = ({ isOpen, code, failed, onRetry, onClose }) => {
   const [copied, setCopied] = useState(false);
   const [sheet, setSheet] = useState<ShareLinkTarget | null>(null);
-  const code = getOrCreateInviteCode(
-    (typeof window !== 'undefined' ? localStorage.getItem('o1fc_user_email') : '') || 'coach',
-  );
-  const invite = `https://oblivion1.club/join?coach=${encodeURIComponent(code)}`;
+  const invite = code ? `https://oblivion1.club/join?coach=${encodeURIComponent(code)}` : '';
 
   if (!isOpen) return null;
 
   const copy = async () => {
     tactileEngine.triggerSelectionBuzz();
-    if (!(await copyText(invite))) return;
+    if (!invite || !(await copyText(invite))) return;
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
   const share = async () => {
+    if (!invite) return;
     tactileEngine.triggerSelectionBuzz();
     const target = { title: 'Train with me on Oblivion 1', text: 'Join my coaching roster on Oblivion 1 Fitness Club', url: invite };
     if ((await shareLink(target)) === 'options') setSheet(target);
@@ -49,27 +51,40 @@ export const AddClientModal: React.FC<AddClientModalProps> = ({ isOpen, onClose 
               type="button"
               onClick={onClose}
               aria-label="Close"
-              className="w-7 h-7 rounded-full bg-white/[0.08] flex items-center justify-center text-o1-muted hover:text-o1-text cursor-pointer"
+              className="w-10 h-10 rounded-full flex items-center justify-center text-o1-muted hover:text-o1-text cursor-pointer"
             >
               <X className="w-4 h-4" />
             </button>
           </div>
 
-          <p className="truncate rounded-xl border border-white/[0.07] bg-o1-sheet px-3 py-3 text-[12px] text-o1-text">{invite}</p>
+          {failed ? (
+            <div role="alert" className="flex items-center justify-between gap-2 rounded-xl border border-o1-crimson/30 bg-o1-crimson/10 px-3 py-2">
+              <p className="text-[12px] text-o1-text">Could not create your invite link.</p>
+              <button type="button" onClick={onRetry} className="min-h-[36px] px-2 text-[12px] font-semibold text-o1-text">
+                Retry
+              </button>
+            </div>
+          ) : (
+            <p className="truncate rounded-xl border border-white/[0.07] bg-o1-surface px-3 py-3 text-[12px] text-o1-text">
+              {invite || 'Preparing your link…'}
+            </p>
+          )}
 
           <div className="grid grid-cols-2 gap-2">
             <button
               type="button"
+              disabled={!invite}
               onClick={() => void copy()}
-              className="flex min-h-[44px] items-center justify-center gap-2 rounded-xl border border-white/[0.07] bg-o1-sheet text-[13px] font-semibold text-o1-text active:scale-[0.98]"
+              className="flex min-h-[44px] items-center justify-center gap-2 rounded-xl border border-white/[0.07] bg-o1-surface text-[13px] font-semibold text-o1-text active:scale-[0.98] disabled:opacity-40"
             >
               {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
               {copied ? 'Copied' : 'Copy link'}
             </button>
             <button
               type="button"
+              disabled={!invite}
               onClick={() => void share()}
-              className="flex min-h-[44px] items-center justify-center gap-2 rounded-xl bg-o1-crimson text-[13px] font-semibold text-o1-text active:scale-[0.98]"
+              className="flex min-h-[44px] items-center justify-center gap-2 rounded-xl bg-o1-crimson text-[13px] font-semibold text-white active:scale-[0.98] disabled:opacity-40"
             >
               <Share2 className="h-4 w-4" />
               Share

@@ -66,7 +66,7 @@ export const ReelAssetGalleryDrawer: React.FC<ReelAssetGalleryDrawerProps> = ({
                 }}
                 aria-pressed={isCurrent}
                 className={`flex min-h-[52px] items-center gap-2 rounded-xl border p-2 text-left transition-all ${
-                  isCurrent ? 'border-white bg-white text-neutral-950' : 'border-[#1F1F1F] bg-black text-[#EAE8DF] hover:border-white/20'
+                  isCurrent ? 'border-o1-crimson bg-o1-crimson text-white' : 'border-[#1F1F1F] bg-black text-[#EAE8DF] hover:border-white/20'
                 }`}
               >
                 <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${isCurrent ? 'bg-neutral-950 text-white' : 'bg-[#1F1F1F] text-white'}`}>

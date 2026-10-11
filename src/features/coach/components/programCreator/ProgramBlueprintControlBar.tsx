@@ -86,7 +86,7 @@ export const ProgramBlueprintControlBar: React.FC<Props> = ({
               }}
               className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
                 isSelected
-                  ? 'bg-white text-neutral-900 shadow-2xs font-bold'
+                  ? 'bg-o1-crimson text-white font-bold'
                   : 'bg-white/[0.08] text-o1-muted hover:text-o1-text hover:bg-neutral-700'
               }`}
             >

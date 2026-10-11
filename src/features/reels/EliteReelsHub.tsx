@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { ReelPlayerView } from './components/ReelPlayerView';
 import { ReelExploreGrid } from './components/ReelExploreGrid';
 import { CoachBookingDrawer, ProfileTab } from './components/CoachBookingDrawer';
@@ -36,6 +36,13 @@ export const EliteReelsHub: React.FC<EliteReelsHubProps> = ({
   const [viewMode, setViewMode] = useState<'grid' | 'player'>(initialMode);
   const [returnCoach, setReturnCoach] = useState<ExploreCoach | null>(null);
   const library = useReelsStore((s) => s.reels);
+  const feedStatus = useReelsStore((s) => s.status);
+  const loadFeed = useReelsStore((s) => s.loadFeed);
+  const feedSettled = feedStatus === 'ready' || feedStatus === 'error';
+
+  useEffect(() => {
+    if (isOpen) void loadFeed(true);
+  }, [isOpen, loadFeed]);
 
   const {
     selectedFilter, setSelectedFilter, searchQuery, setSearchQuery, activeReel, setActiveReel, activeClip, setActiveClip,
@@ -45,8 +52,14 @@ export const EliteReelsHub: React.FC<EliteReelsHubProps> = ({
     handleShare, handleAddExerciseToWorkout, filteredReels, coachesList, toast, flash, linkSheet, setLinkSheet,
   } = useEliteReelsLogic(initialCategory, initialFilter);
 
+  const openerDeps = useRef({ coachesList, flash, setBookingCoach, setActiveReel, setActiveClip, setPlaylist });
   useEffect(() => {
-    if (!isOpen) return;
+    openerDeps.current = { coachesList, flash, setBookingCoach, setActiveReel, setActiveClip, setPlaylist };
+  });
+
+  useEffect(() => {
+    if (!isOpen || ((initialCoachId || initialReelId) && !feedSettled)) return;
+    const { coachesList, flash, setBookingCoach, setActiveReel, setActiveClip, setPlaylist } = openerDeps.current;
     setPlaylist(null);
     setReturnCoach(null);
     if (initialCoachId) {
@@ -74,7 +87,7 @@ export const EliteReelsHub: React.FC<EliteReelsHubProps> = ({
     setActiveReel(library[0]);
     setActiveClip(library[0].filmstripClips?.[0] || null);
     // Re-running when coachesList refreshes would reset whatever the member is watching.
-  }, [isOpen, initialMode, initialReelId, initialCoachId, library]);
+  }, [isOpen, initialMode, initialReelId, initialCoachId, library, feedSettled]);
 
   const covered = Boolean(bookingCoach || messageCoach || linkSheet);
   useEffect(() => {

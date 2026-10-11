@@ -1,7 +1,6 @@
 import { supabase } from './supabaseClient';
 import { syncEngine } from './syncEngine';
-import { AthleteTelemetryRecord, CoachClientRecord, AthleteProfileRecord } from '../types/database';
-import { peekStoredUserId } from './authUser';
+import { AthleteTelemetryRecord } from '../types/database';
 
 export async function dispatchAthleteTelemetry(
   athleteId: string,
@@ -17,64 +16,6 @@ export async function dispatchAthleteTelemetry(
 
   await syncEngine.dispatchMutation({
     table: 'athlete_telemetry',
-    operation: 'UPSERT',
-    payload,
-  });
-
-  const coachId = peekStoredUserId();
-  if (coachId) {
-    await syncEngine.dispatchMutation({
-      table: 'coach_clients',
-      operation: 'UPSERT',
-      payload: {
-        coach_id: coachId,
-        athlete_id: athleteId,
-        status: 'Active',
-        last_active_at: new Date().toISOString(),
-      },
-    });
-  }
-}
-
-export async function dispatchCoachClientStatus(
-  coachId: string,
-  athleteId: string,
-  status: string,
-  assignedProgramId?: string | null
-): Promise<void> {
-  const payload: CoachClientRecord = {
-    coach_id: coachId,
-    athlete_id: athleteId,
-    status,
-    assigned_program_id: assignedProgramId ?? null,
-    last_active_at: new Date().toISOString(),
-  };
-
-  await syncEngine.dispatchMutation({
-    table: 'coach_clients',
-    operation: 'UPSERT',
-    payload,
-  });
-}
-
-export async function updateAthleteProfileVisibility(
-  athleteId: string,
-  isCoachVisible: boolean,
-  isBuddyVisible: boolean,
-  displayName?: string,
-  handle?: string
-): Promise<void> {
-  const payload: AthleteProfileRecord = {
-    athlete_id: athleteId,
-    display_name: displayName || 'Athlete',
-    handle: handle || '@athlete',
-    is_coach_visible: isCoachVisible,
-    is_buddy_visible: isBuddyVisible,
-    updated_at: new Date().toISOString(),
-  };
-
-  await syncEngine.dispatchMutation({
-    table: 'athlete_profiles',
     operation: 'UPSERT',
     payload,
   });
@@ -116,7 +57,7 @@ export function subscribeToCoachDirectives(
         event: '*',
         schema: 'public',
         table: 'coach_clients',
-        filter: `athlete_id=eq.${athleteId}`,
+        filter: `client_id=eq.${athleteId}`,
       },
       (payload) => {
         onDirectiveOrRoutineChanged(payload);
