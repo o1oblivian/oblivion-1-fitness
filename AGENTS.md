@@ -41,6 +41,7 @@ All future agents and contributors MUST adhere strictly to these rules:
    - ONLY PERMITTED PERMISSIONS:
      * `android.permission.INTERNET`
      * `android.permission.CAMERA`
+ * `android.permission.ACCESS_COARSE_LOCATION`, `ACCESS_FINE_LOCATION` (Buddy Radar, approved Oct 2026)
      * `android.permission.BLUETOOTH`, `BLUETOOTH_ADMIN`, `BLUETOOTH_SCAN` (`neverForLocation`), `BLUETOOTH_CONNECT`
  * `com.android.vending.BILLING` (RevenueCat / Google Play subscriptions)
 

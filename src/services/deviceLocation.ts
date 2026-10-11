@@ -5,6 +5,30 @@ export interface DeviceCoords {
   longitude: number;
 }
 
+export type LocationRequest =
+  | { status: 'granted'; coords: DeviceCoords }
+  | { status: 'blocked' | 'unavailable' };
+
+/** Asks for location permission (shows the system prompt when the user has not decided yet), then reads a position. */
+export async function requestDeviceLocation(): Promise<LocationRequest> {
+  try {
+    if (Capacitor.isNativePlatform()) {
+      const { Geolocation } = await import('@capacitor/geolocation');
+      const current = await Geolocation.checkPermissions();
+      const state = current.location === 'granted' ? current : await Geolocation.requestPermissions({ permissions: ['location'] });
+      if (state.location !== 'granted') return { status: 'blocked' };
+    } else if (typeof navigator !== 'undefined' && navigator.permissions?.query) {
+      const state = await navigator.permissions.query({ name: 'geolocation' }).catch(() => null);
+      if (state?.state === 'denied') return { status: 'blocked' };
+    }
+  } catch {
+    /* fall through to a direct read, which prompts on web */
+  }
+  if (typeof navigator !== 'undefined' && !navigator.geolocation && !Capacitor.isNativePlatform()) return { status: 'unavailable' };
+  const coords = await getDeviceCoordinates();
+  return coords ? { status: 'granted', coords } : { status: 'blocked' };
+}
+
 export async function getDeviceCoordinates(): Promise<DeviceCoords | null> {
   try {
     if (Capacitor.isNativePlatform()) {

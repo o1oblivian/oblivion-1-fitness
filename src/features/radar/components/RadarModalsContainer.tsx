@@ -44,7 +44,7 @@ interface Props {
 
   isSetupOpen?: boolean;
   onCloseSetup?: () => void;
-  onSetupActivated?: (profile: any) => void;
+  onSetupActivated?: (pass: { name?: string }) => void;
 
   isStudioOpen?: boolean;
   studioInitialTab?: 'PROFILE' | 'FILTERS' | 'PREVIEW';

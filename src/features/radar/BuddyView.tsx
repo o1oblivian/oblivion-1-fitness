@@ -13,7 +13,7 @@ import { BuddyFilterSheet } from './components/BuddyFilterSheet';
 import { publishBuddyCard } from '../../services/buddyPresenceSync';
 import { readBuddyGate, subscribeBuddyGate } from './services/buddyLaunch';
 import { FoundingLiftersQueue } from './components/FoundingLiftersQueue';
-import { getDeviceCoordinates } from '../../services/deviceLocation';
+import { getDeviceCoordinates, requestDeviceLocation } from '../../services/deviceLocation';
 import { useBuddyRealtime } from './hooks/useBuddyRealtime';
 import { getAuthenticatedUserId } from '../../services/authUser';
 import { readAthleteSettingsSnapshot } from '../../utils/athleteSettingsSnapshot';
@@ -51,6 +51,7 @@ export const BuddyView: React.FC = () => {
   const [isSearchingSupabase, setIsSearchingSupabase] = useState(false);
   const [userCoords, setUserCoords] = useState<{ latitude: number; longitude: number } | null>(null);
   const [locationOn, setLocationOn] = useState<boolean | null>(null);
+  const [locating, setLocating] = useState(false);
   const [radarUid, setRadarUid] = useState('');
   const [authReady, setAuthReady] = useState(false);
   const [buddyLive, setBuddyLive] = useState(false);
@@ -379,6 +380,21 @@ export const BuddyView: React.FC = () => {
     }
   };
 
+  const enableLocation = async () => {
+    if (locating) return;
+    setLocating(true);
+    const result = await requestDeviceLocation();
+    setLocating(false);
+    if (result.status === 'granted') {
+      setLocationOn(true);
+      setUserCoords(result.coords);
+      showToast('Location on');
+      return;
+    }
+    setLocationOn(false);
+    showToast(result.status === 'unavailable' ? 'This device cannot share location' : 'Location is blocked. Allow it in your phone or browser settings.');
+  };
+
   const handleTabChange = (tab: 'DISCOVER' | 'MATCHED') => {
     setActiveTab(tab);
   };
@@ -543,6 +559,8 @@ export const BuddyView: React.FC = () => {
             count={areaCount}
             threshold={areaThreshold}
             locationOn={locationOn}
+            locating={locating}
+            onEnableLocation={() => void enableLocation()}
             cardLive={Boolean(radarUid && buddyProfile.displayName.trim() && buddyProfile.age >= 18)}
             onOpenProfile={() => {
               setIsStudioOpen(true);
@@ -721,7 +739,10 @@ export const BuddyView: React.FC = () => {
         }}
         isSetupOpen={isSetupOpen}
         onCloseSetup={() => setIsSetupOpen(false)}
-        onSetupActivated={(p) => showToast(`Radar pass active: ${p.name}`)}
+        onSetupActivated={(p) => {
+          const name = typeof p?.name === 'string' ? p.name.trim() : '';
+          if (name) showToast(`Radar pass active: ${name}`);
+        }}
         isStudioOpen={isStudioOpen}
         studioInitialTab={studioTab}
         onCloseStudio={() => setIsStudioOpen(false)}

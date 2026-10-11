@@ -1,23 +1,29 @@
 import React from 'react';
+import { MapPin } from 'lucide-react';
 
 interface Props {
   count: number | null;
   threshold: number;
   locationOn: boolean | null;
+  locating: boolean;
   cardLive: boolean;
   onOpenProfile: () => void;
+  onEnableLocation: () => void;
 }
 
 export const FoundingLiftersQueue: React.FC<Props> = ({
   count,
   threshold,
   locationOn,
+  locating,
   cardLive,
   onOpenProfile,
+  onEnableLocation,
 }) => {
   const safeThreshold = threshold > 0 ? threshold : 250;
   const progress = count == null ? 0 : Math.max(0, Math.min(100, Math.round((count / safeThreshold) * 100)));
-  const detail = locationOn === false
+  const locationOff = locationOn === false;
+  const detail = locationOff
     ? 'Location is off, so this phone cannot join an area yet.'
     : cardLive
       ? 'Your profile is in the queue. The deck opens when Buddy is switched on.'
@@ -34,8 +40,30 @@ export const FoundingLiftersQueue: React.FC<Props> = ({
       <div className="mt-6 h-1.5 w-full max-w-sm overflow-hidden rounded-full bg-[#161616]">
         <div className="h-full bg-[#F2EFE6]" style={{ width: `${progress}%` }} />
       </div>
-      <p className="mt-6 max-w-[18rem] text-[14px] leading-relaxed text-neutral-400">{detail}</p>
-      {!cardLive && locationOn !== false && (
+      {locationOff ? (
+        <>
+          <button
+            type="button"
+            onClick={onEnableLocation}
+            disabled={locating}
+            className="mt-6 max-w-[18rem] text-[14px] leading-relaxed text-neutral-400 underline decoration-white/20 underline-offset-4"
+          >
+            {detail}
+          </button>
+          <button
+            type="button"
+            onClick={onEnableLocation}
+            disabled={locating}
+            className="mt-6 flex h-12 w-full max-w-sm items-center justify-center gap-2 rounded-full bg-o1-crimson text-[15px] font-semibold text-white disabled:opacity-60"
+          >
+            <MapPin className="h-4 w-4" />
+            {locating ? 'Finding you…' : 'Turn on location'}
+          </button>
+        </>
+      ) : (
+        <p className="mt-6 max-w-[18rem] text-[14px] leading-relaxed text-neutral-400">{detail}</p>
+      )}
+      {!cardLive && !locationOff && (
         <button
           type="button"
           onClick={onOpenProfile}
