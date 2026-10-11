@@ -19,6 +19,9 @@
     "no-console": ["warn", { "allow": ["warn", "error"] }]
   },
   "ignorePatterns": [
+    "android/**",
+    "ios/**",
+    "dist/**",
     "src/features/log/**",
     "src/features/radar/**",
     "src/stores/useLogStore.ts",

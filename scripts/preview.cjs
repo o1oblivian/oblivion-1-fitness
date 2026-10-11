@@ -49,7 +49,7 @@ function id(kind, index) {
 
 function bundle() {
   const now = Date.now();
-  const athletes = PEOPLE.map(([name, discipline], index) => ({
+  const athletes = PEOPLE.map(([name], index) => ({
     id: id('athlete', index),
     client_id: id('athlete', index),
     name,

@@ -13,6 +13,23 @@ export const REVENUECAT_TIER_TRAVEL = 'o1fc_pro_travel_monthly';
 export const REVENUECAT_TIER_FOUNDER = 'o1fc_founder_pass';
 const STORAGE_KEY = 'o1fc_revenuecat_entitlements';
 
+export type PlanKind = 'lifetime' | 'monthly' | 'travel' | 'coach';
+
+export function planKind(planId: string): PlanKind {
+  const id = planId.toLowerCase();
+  if (/founder|lifetime/.test(id)) return 'lifetime';
+  if (id.includes('coach')) return 'coach';
+  if (id.includes('travel')) return 'travel';
+  return 'monthly';
+}
+
+const PLAN_NAMES: Record<PlanKind, string> = {
+  lifetime: 'O1 Founder Pass (Lifetime)',
+  monthly: 'O1 Pass Pro (Monthly)',
+  travel: 'O1 Pass Pro + Travel (Monthly)',
+  coach: 'O1 Coach Pro (Monthly)',
+};
+
 export const REVENUECAT_FALLBACK_MONTHLY_PACKAGE = {
   identifier: '$rc_monthly',
   packageType: 'MONTHLY',
@@ -156,30 +173,34 @@ class RevenueCatManager {
     return this.collectPackages(offerings);
   }
 
-  private pickPackage(offerings: any, planId: string): any | null {
-    const packages: any[] = this.collectPackages(offerings);
-    if (!packages.length) return REVENUECAT_FALLBACK_MONTHLY_PACKAGE;
-    const ids = (pkg: any) => [String(pkg?.identifier || pkg?.packageType || ''), String(pkg?.webCheckoutProduct?.identifier || pkg?.product?.identifier || '')];
-    const exact = packages.find((pkg) => ids(pkg).includes(planId));
+  /** The store package for one plan. Each plan only ever resolves to its own kind of product, never a sibling plan. */
+  packageForPlan(offerings: any, planId: string): any | null {
+    const packages: any[] = this.collectPackages(offerings).filter((pkg) => !pkg?.isFallback);
+    const label = (pkg: any) =>
+      `${pkg?.identifier || ''} ${pkg?.packageType || ''} ${pkg?.product?.identifier || ''} ${pkg?.webCheckoutProduct?.identifier || ''}`.toLowerCase();
+    const exact = packages.find((pkg) =>
+      [pkg?.identifier, pkg?.product?.identifier, pkg?.webCheckoutProduct?.identifier].includes(planId),
+    );
     if (exact) return exact;
-    if (/founder|lifetime/i.test(planId)) {
-      return packages.find((pkg) => /founder|lifetime/i.test(`${ids(pkg).join(' ')} ${pkg?.packageType || ''}`)) || null;
-    }
-    const aliases = [
-      planId,
-      REVENUECAT_TIER_MONTHLY,
-      REVENUECAT_TIER_TRAVEL,
-      '$rc_monthly',
-      'o1fc_pro_monthly',
-      'o1fc_pro_travel_monthly',
-    ];
-    const found = packages.find((pkg) => {
-      const id = String(pkg?.identifier || pkg?.packageType || '');
-      const productId = String(pkg?.webCheckoutProduct?.identifier || pkg?.product?.identifier || '');
-      return aliases.some((alias) => id === alias || productId === alias || id.includes(alias) || productId.includes(alias));
-    });
-    if (found) return found;
-    return packages.find((pkg) => String(pkg?.packageType || pkg?.identifier || '').toLowerCase().includes('month')) || null;
+    const kind = planKind(planId);
+    return (
+      packages.find((pkg) => {
+        const l = label(pkg);
+        if (kind === 'lifetime') return /founder|lifetime/.test(l);
+        if (kind === 'coach') return l.includes('coach');
+        if (kind === 'travel') return l.includes('travel');
+        return /month/.test(l) && !/travel|coach/.test(l);
+      }) || null
+    );
+  }
+
+  /** True when the purchase result shows this specific plan as owned. */
+  ownsPlan(info: any, planId: string): boolean {
+    const active = Object.keys((info?.entitlements?.active as Record<string, unknown>) || {});
+    const products: string[] = [...(info?.activeSubscriptions || []), ...(info?.allPurchasedProductIdentifiers || [])];
+    if (products.some((id) => id === planId || id.startsWith(`${planId}:`))) return true;
+    if (planKind(planId) === 'coach') return active.some((id) => id.includes('coach'));
+    return this.hasProEntitlement(info);
   }
 
   async getOfferings(appUserId?: string) {
@@ -216,8 +237,8 @@ class RevenueCatManager {
 
       const offeringsResult = await client.getOfferings?.();
       const offerings = this.withFallbackOfferings(offeringsResult?.offerings || offeringsResult);
-      const pkg = this.pickPackage(offerings, planId);
-      if (!pkg || pkg.isFallback) {
+      const pkg = this.packageForPlan(offerings, planId);
+      if (!pkg) {
         return { success: false, error: 'No store product is available for this plan yet.' };
       }
 
@@ -229,14 +250,14 @@ class RevenueCatManager {
         return { success: false, error: 'Store billing is unavailable on this device.' };
       }
 
-      const isPro = this.hasProEntitlement(customerInfo);
-      if (isPro) {
+      const owned = this.ownsPlan(customerInfo, planId);
+      if (owned) {
         const platform = Capacitor.getPlatform() === 'android' ? 'android' : 'ios';
         await this.persistSuccess(planId, userId, platform);
       }
-      return isPro
+      return owned
         ? { success: true }
-        : { success: false, error: 'Purchase completed but Pro entitlement was not found on this offering.' };
+        : { success: false, error: 'Purchase completed but the plan was not found on this account yet. Try Restore Purchases.' };
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
       console.warn('[RevenueCat] Store billing error:', err);
@@ -258,10 +279,10 @@ class RevenueCatManager {
     const info: EntitlementInfo = {
       isActive: true,
       tierId: planId,
-      tierName: planId.includes('coach_pro') ? 'O1 Coach Pro (Monthly)' : 'O1 Pass Pro (Monthly)',
+      tierName: PLAN_NAMES[planKind(planId)],
       platform,
-      expiresAt: '2099-12-31T23:59:59Z',
-      willRenew: true,
+      expiresAt: planKind(planId) === 'lifetime' ? null : '2099-12-31T23:59:59Z',
+      willRenew: planKind(planId) !== 'lifetime',
     };
     if (typeof window !== 'undefined') {
       try {
@@ -274,7 +295,7 @@ class RevenueCatManager {
             tierName: info.tierName,
             platform,
             expirationDate: null,
-            willRenew: true,
+            willRenew: info.willRenew,
           })
         );
       } catch {}

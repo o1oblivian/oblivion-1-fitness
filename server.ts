@@ -6,7 +6,7 @@ import { createServer as createViteServer } from 'vite';
 import { createClient } from '@supabase/supabase-js';
 import { GoogleGenAI } from '@google/genai';
 import dotenv from 'dotenv';
-import { recognizeTelemetryFromBuffer, parseTelemetryFromOcrText } from './src/services/ocrTelemetryParser';
+import { recognizeTelemetryFromBuffer } from './src/services/ocrTelemetryParser';
 import {
   handleRevenueCatWebhook,
   handleSyncEntitlements,
