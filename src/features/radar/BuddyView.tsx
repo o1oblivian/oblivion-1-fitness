@@ -63,7 +63,7 @@ export const BuddyView: React.FC = () => {
   const ghostMode = useBuddyProfileStore((s) => s.ghostMode);
   const isBuddyProfileActive = useBuddyProfileStore((s) => s.isBuddyProfileActive);
   const buddyProfile = useBuddyProfileStore();
-  const { isPro, isCreator, openPaywall } = useSubscription();
+  const { isPro, canPreviewLaunch, openPaywall } = useSubscription();
   const [mutuals, setMutuals] = useState<Record<string, true>>(() => readMutuals());
   const [blocks, setBlocks] = useState<string[]>(() => readBlocks());
   const [remoteChats, setRemoteChats] = useState<DemoAthlete[]>([]);
@@ -138,7 +138,7 @@ export const BuddyView: React.FC = () => {
     const pull = async () => {
       const gate = await readBuddyGate(userCoords);
       if (stopped) return;
-      setBuddyLive(gate.active || isCreator);
+      setBuddyLive(gate.active || canPreviewLaunch);
       setAreaThreshold(gate.threshold);
       setAreaCount(gate.count);
       setBuddyReady(true);
@@ -151,7 +151,7 @@ export const BuddyView: React.FC = () => {
       window.clearInterval(timer);
       unsubscribe();
     };
-  }, [userCoords, queueRevision, isCreator]);
+  }, [userCoords, queueRevision, canPreviewLaunch]);
 
   useEffect(() => {
     let isCancelled = false;

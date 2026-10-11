@@ -15,16 +15,21 @@ import { getAuthenticatedUserId } from '../services/authUser';
 import { useAuthStore } from '../stores/useAuthStore';
 
 const CREATOR_EMAIL = 'o1oblivianfitness@gmail.com';
+// App Store / Play review account: sees launch-gated features, but still goes through the real paywall.
+const REVIEWER_EMAIL = 'o1oblivianfitness+review@gmail.com';
 
-function creatorSignedIn(): boolean {
+function signedInAs(email: string): boolean {
   try {
     const stored = (localStorage.getItem('o1fc_user_email') || '').trim().toLowerCase();
     const live = (useAuthStore.getState().user?.email || useAuthStore.getState().profile?.email || '').trim().toLowerCase();
-    return stored === CREATOR_EMAIL || live === CREATOR_EMAIL;
+    return stored === email || live === email;
   } catch {
     return false;
   }
 }
+
+const creatorSignedIn = (): boolean => signedInAs(CREATOR_EMAIL);
+const launchPreviewAllowed = (): boolean => creatorSignedIn() || signedInAs(REVIEWER_EMAIL) || import.meta.env.DEV;
 
 export interface SubscriptionContextType {
   isPro: boolean;
@@ -36,6 +41,8 @@ export interface SubscriptionContextType {
   isPaywallOpen: boolean;
   gatedFeature: string | null;
   isCreator: boolean;
+  /** Owner and store reviewers see features that are still behind the launch gate. */
+  canPreviewLaunch: boolean;
   openPaywall: (featureName?: string) => void;
   closePaywall: () => void;
 }
@@ -48,6 +55,11 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
   const [trial, setTrial] = useState<TrialState>(EMPTY_TRIAL);
   const [isPro, setIsPro] = useState<boolean>(() => creatorSignedIn() || import.meta.env.DEV);
   const [isCreator, setIsCreator] = useState<boolean>(() => creatorSignedIn() || import.meta.env.DEV);
+  const [canPreviewLaunch, setCanPreviewLaunch] = useState<boolean>(launchPreviewAllowed);
+  const authEmail = useAuthStore((s) => s.user?.email || s.profile?.email || '');
+  useEffect(() => {
+    setCanPreviewLaunch(launchPreviewAllowed());
+  }, [authEmail]);
   const [currentPlan, setCurrentPlan] = useState<string>('o1fc_core_free');
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isPaywallOpen, setIsPaywallOpen] = useState<boolean>(false);
@@ -66,6 +78,7 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
       const creator = creatorSignedIn() || import.meta.env.DEV;
       setIsCreator(creator);
+      setCanPreviewLaunch(launchPreviewAllowed());
       const hasProEntitlement = trialInfo.hasSubscribedPro || (status.isActive && status.tierId !== 'o1fc_core_free') || creator;
       setIsPro((Boolean(uid) && hasProEntitlement) || creator);
       setCurrentPlan(status.tierId || (hasProEntitlement ? PLUS_ENTITLEMENT : 'o1fc_core_free'));
@@ -135,6 +148,7 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
       value={{
         isPro,
         isCreator,
+        canPreviewLaunch,
         currentPlan,
         trialState: trial,
         purchasePro,
@@ -157,6 +171,7 @@ export const useSubscription = (): SubscriptionContextType => {
     return {
       isPro: false,
       isCreator: false,
+      canPreviewLaunch: false,
       currentPlan: 'o1fc_core_free',
       trialState: getAthleteTrialState(''),
       purchasePro: async () => false,
