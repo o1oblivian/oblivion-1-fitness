@@ -305,6 +305,11 @@ async function payoutOnly() {
   const s = loadState();
   if (!s.customAccountId) throw new Error('No test connected account in state. Run setup first.');
   const coachJwt = await token(s.coachEmail, s.password);
+  for (let i = 0; i < 30; i += 1) {
+    const acct = await stripe.accounts.retrieve(s.customAccountId);
+    if (acct.payouts_enabled && acct.capabilities?.transfers === 'active') break;
+    await sleep(3000);
+  }
   const sessionId = `cs_e2e_payout_${Date.now()}`;
   const recorded = await webhook('checkout.session.completed', {
     id: sessionId,
