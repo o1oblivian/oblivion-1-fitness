@@ -2,6 +2,7 @@ import { supabase } from './supabaseClient';
 import { getAuthenticatedUserId } from './authUser';
 import { patchAthleteSettingsSnapshot } from '../utils/athleteSettingsSnapshot';
 import { areaKey } from '../features/radar/services/buddyLaunch';
+import { BuddyProfileState, ExperienceLevel, useBuddyProfileStore } from '../stores/useBuddyProfileStore';
 
 export async function syncBuddyGhostMode(isGhost: boolean): Promise<{ ok: boolean; error?: string }> {
   patchAthleteSettingsSnapshot({ ghostMode: isGhost });
@@ -19,6 +20,42 @@ export async function syncBuddyGhostMode(isGhost: boolean): Promise<{ ok: boolea
     if (byId.error) return { ok: false, error: byId.error.message };
   }
   return { ok: true };
+}
+
+function leadWith(cloudValue: unknown, local: string[]): string[] {
+  const value = typeof cloudValue === 'string' ? cloudValue.trim() : '';
+  if (!value) return local;
+  return [value, ...local.filter((item) => item !== value)];
+}
+
+/** Pull the athlete's own radar card so a new device starts from the account, not a blank profile. */
+export async function hydrateOwnBuddyCard(): Promise<boolean> {
+  const uid = await getAuthenticatedUserId();
+  if (!uid) return false;
+  const { data, error } = await supabase.from('buddy_profiles').select('*').eq('id', uid).maybeSingle();
+  if (error || !data) return !error;
+  const local = useBuddyProfileStore.getState();
+  const updates: Partial<BuddyProfileState> = {
+    selectedDisciplines: leadWith(data.discipline, local.selectedDisciplines),
+    favoriteWorkouts: leadWith(data.current_split, local.favoriteWorkouts),
+    preferredTimes: leadWith(data.training_time, local.preferredTimes),
+    buddyPhotos: leadWith(data.avatar_url || data.image_url, local.buddyPhotos).slice(0, 6),
+    ghostMode: Boolean(data.is_ghost_mode),
+  };
+  const name = String(data.athlete_name || data.display_name || '').trim();
+  if (name) updates.displayName = name;
+  if (Number(data.age) >= 18) updates.age = Number(data.age);
+  if (typeof data.home_gym === 'string') updates.homeGym = data.home_gym;
+  if (typeof data.bio === 'string') updates.partnerBio = data.bio;
+  if (['Beginner', 'Intermediate', 'Advanced', 'Elite'].includes(data.experience_level)) {
+    updates.experienceLevel = data.experience_level as ExperienceLevel;
+  }
+  if (data.gender === 'women' || data.gender === 'men') updates.gender = data.gender;
+  if (['gym', 'home', 'outdoors'].includes(data.training_place)) {
+    updates.trainingPlace = data.training_place as BuddyProfileState['trainingPlace'];
+  }
+  local.updateBuddyProfile(updates);
+  return true;
 }
 
 export async function publishBuddyCard(

@@ -62,8 +62,6 @@ export interface BuddyProfileActions {
 
 const STORAGE_KEY = 'o1fc_buddy_profile_v3';
 
-export const DEFAULT_BUDDY_PHOTOS: string[] = [];
-
 const loadSavedBuddyProfile = (): BuddyProfileState => {
   const defaultState: BuddyProfileState = {
     isBuddyProfileActive: true, // Default active on athlete radar
@@ -220,21 +218,14 @@ const buddyStore = createStore<BuddyProfileState, BuddyProfileActions>(
 
     removeBuddyPhoto: (index) => {
       tactileEngine.triggerSelectionBuzz();
-      const current =
-        get().buddyPhotos && get().buddyPhotos.length > 0
-          ? get().buddyPhotos
-          : [...DEFAULT_BUDDY_PHOTOS];
-      const next = current.filter((_, i) => i !== index);
+      const next = get().buddyPhotos.filter((_, i) => i !== index);
       set({ buddyPhotos: next });
       persistState(get());
     },
 
     reorderBuddyPhotos: (startIndex: number, endIndex: number) => {
       tactileEngine.triggerDialHaptic();
-      const photos =
-        get().buddyPhotos && get().buddyPhotos.length > 0
-          ? [...get().buddyPhotos]
-          : [...DEFAULT_BUDDY_PHOTOS];
+      const photos = [...get().buddyPhotos];
       if (startIndex < 0 || startIndex >= photos.length || endIndex < 0 || endIndex >= photos.length) return;
       const [removed] = photos.splice(startIndex, 1);
       photos.splice(endIndex, 0, removed);
@@ -244,10 +235,7 @@ const buddyStore = createStore<BuddyProfileState, BuddyProfileActions>(
 
     setMainBuddyPhoto: (index: number) => {
       tactileEngine.playPRCelebration();
-      const photos =
-        get().buddyPhotos && get().buddyPhotos.length > 0
-          ? [...get().buddyPhotos]
-          : [...DEFAULT_BUDDY_PHOTOS];
+      const photos = [...get().buddyPhotos];
       if (index <= 0 || index >= photos.length) return;
       const [hero] = photos.splice(index, 1);
       photos.unshift(hero);

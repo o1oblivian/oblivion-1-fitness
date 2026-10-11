@@ -45,7 +45,7 @@ export async function hydrateMacrosFromSupabase(): Promise<void> {
           carbsTargetG: Number(m.carbs_target) || 0,
           fatsG: f,
           fatsTargetG: Number(m.fat_target ?? m.fats_target ?? 0),
-        });
+        }, { fromCloud: true });
 
         if (m.date === todayKey) {
           useLogStore.getState().updateSubModule('nutrition', {

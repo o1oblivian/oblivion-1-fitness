@@ -1,6 +1,7 @@
 import { createStore } from '../../../utils/createStore';
 import { safeStorage } from '../../../utils/sanitizers';
 import { tactileEngine } from '../../../services/tactileEngine';
+import { cancelDayLogSync, queueDayLogSync } from '../services/dayLogCloud';
 
 export type TelemetryCategory = 'workout' | 'cardio' | 'nutrition' | 'sleep' | 'meditation';
 
@@ -105,7 +106,8 @@ export interface TelemetryHistoryActions {
   updateDayRecord: <C extends TelemetryCategory>(
     dateKey: string,
     category: C,
-    record: Partial<DayTelemetryRecord[C]>
+    record: Partial<DayTelemetryRecord[C]>,
+    options?: { fromCloud?: boolean }
   ) => void;
   clearDayRecord: (dateKey: string, category: TelemetryCategory) => void;
   resetAllHistory: () => void;
@@ -330,9 +332,10 @@ const initialHistory = loadPersistedHistory();
 const telemetryHistoryStore = createStore<TelemetryHistoryState, TelemetryHistoryActions>(
   { historyByDate: initialHistory },
   (set) => ({
-    updateDayRecord: (dateKey, category, record) => {
+    updateDayRecord: (dateKey, category, record, options) => {
+      const toSync: Array<[TelemetryCategory, Record<string, unknown>]> = [];
       set((prev) => {
-        const currentDay = prev.historyByDate[dateKey] || {};
+        const currentDay = { ...(prev.historyByDate[dateKey] || {}) };
         const currentCategory = currentDay[category] || getDefaultCategoryRecord(category);
         
         let sanitizedRecord = { ...record };
@@ -368,6 +371,7 @@ const telemetryHistoryStore = createStore<TelemetryHistoryState, TelemetryHistor
                 zone2Minutes: 0,
                 activityType: cEx.name.replace(/^Cardio:\s*/i, '').replace(/\s*\(\d+m\)$/, '') || 'Cardio',
               };
+              toSync.push(['cardio', { ...currentDay.cardio }]);
             }
             wr.exercises = (wr.exercises || []).filter(
               (e) => !e.name.toLowerCase().startsWith('cardio:') && !e.name.toLowerCase().includes('telemetry')
@@ -390,6 +394,7 @@ const telemetryHistoryStore = createStore<TelemetryHistoryState, TelemetryHistor
           currentCategory.hasData &&
           JSON.stringify(currentCategory) === JSON.stringify(updatedCategory)
         ) {
+          toSync.length = 0;
           return prev;
         }
 
@@ -401,13 +406,19 @@ const telemetryHistoryStore = createStore<TelemetryHistoryState, TelemetryHistor
           },
         };
 
+        toSync.push([category, { ...updatedCategory }]);
         safeStorage.setItem(STORAGE_KEY, nextHistory);
         return { historyByDate: nextHistory };
       });
+      if (options?.fromCloud) return;
+      for (const [syncCategory, payload] of toSync) {
+        queueDayLogSync(dateKey, syncCategory, payload);
+      }
     },
 
     clearDayRecord: (dateKey, category) => {
       tactileEngine.triggerSelectionBuzz();
+      cancelDayLogSync(dateKey, category);
       set((prev) => {
         const currentDay = prev.historyByDate[dateKey];
         if (!currentDay) return prev;

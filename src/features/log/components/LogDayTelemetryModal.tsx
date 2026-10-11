@@ -23,7 +23,7 @@ import { useWorkoutStore } from '../../workout/store/useWorkoutStore';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { sanitizeNumericInput } from '../../../utils/numberInputUtils';
 import { persistCardioLog } from '../services/cardioLogService';
-import { persistDayLog, releaseForgotten } from '../services/dayLogService';
+import { releaseForgotten } from '../services/dayLogService';
 import { exerciseFromSets, knownSets, setsFromExercise } from '../liftLedger';
 import { FuelMeals } from '../../fuel/store/useFuelStore';
 import { syncSessionToSupabase } from '../../../services/supabaseClient';
@@ -321,7 +321,6 @@ export const LogDayTelemetryModal: React.FC<LogDayTelemetryModalProps> = ({
         exercises,
       };
       updateDayRecord(dayMeta.dateKey, 'workout', record);
-      void persistDayLog(dayMeta.dateKey, 'workout', record);
       onSaved?.('Workout updated');
       onClose();
       return;
@@ -356,7 +355,6 @@ export const LogDayTelemetryModal: React.FC<LogDayTelemetryModalProps> = ({
         exercises,
       };
       updateDayRecord(dayMeta.dateKey, 'workout', record);
-      void persistDayLog(dayMeta.dateKey, 'workout', record);
       if (mode === 'create') {
         void getAuthenticatedUserId().then((uid) => {
           if (!uid) return;
@@ -394,9 +392,7 @@ export const LogDayTelemetryModal: React.FC<LogDayTelemetryModalProps> = ({
         activityType: activity,
       };
       updateDayRecord(dayMeta.dateKey, 'cardio', cardioRecord);
-      if (mode === 'edit') {
-        void persistDayLog(dayMeta.dateKey, 'cardio', cardioRecord);
-      } else {
+      if (mode !== 'edit') {
         if (dayMeta.isToday && burnNum != null && burnNum > 0) {
           useFuelStore.getState().logBurned(burnNum);
         }
@@ -456,7 +452,6 @@ export const LogDayTelemetryModal: React.FC<LogDayTelemetryModalProps> = ({
           meals,
         };
         updateDayRecord(dayMeta.dateKey, 'nutrition', record);
-        void persistDayLog(dayMeta.dateKey, 'nutrition', record);
       }
       onSaved?.('Food updated');
       onClose();
@@ -517,7 +512,6 @@ export const LogDayTelemetryModal: React.FC<LogDayTelemetryModalProps> = ({
           meals,
         };
         updateDayRecord(dayMeta.dateKey, 'nutrition', record);
-        void persistDayLog(dayMeta.dateKey, 'nutrition', record);
       }
       onSaved?.(mode === 'edit' ? 'Food updated' : 'Food logged');
     } else if (category === 'sleep') {
@@ -543,7 +537,6 @@ export const LogDayTelemetryModal: React.FC<LogDayTelemetryModalProps> = ({
         wakeTime: '',
       };
       updateDayRecord(dayMeta.dateKey, 'sleep', record);
-      void persistDayLog(dayMeta.dateKey, 'sleep', record);
       onSaved?.(mode === 'edit' ? 'Sleep updated' : 'Sleep logged');
     } else if (category === 'meditation') {
       const minNum = readNum(meditationMinutes);
@@ -560,7 +553,6 @@ export const LogDayTelemetryModal: React.FC<LogDayTelemetryModalProps> = ({
         hrvScore: 0,
       };
       updateDayRecord(dayMeta.dateKey, 'meditation', record);
-      void persistDayLog(dayMeta.dateKey, 'meditation', record);
       onSaved?.(mode === 'edit' ? 'Mindful session updated' : 'Mindful session logged');
     }
 
@@ -581,21 +573,21 @@ export const LogDayTelemetryModal: React.FC<LogDayTelemetryModalProps> = ({
         return {
           title: 'Log cardio',
           color: 'text-sky-400',
-          bg: 'bg-sky-500',
+          bg: 'bg-sky-600',
           icon: <Activity className="w-5 h-5 text-sky-400" />,
         };
       case 'nutrition':
         return {
           title: 'Log food',
           color: 'text-amber-400',
-          bg: 'bg-amber-500',
+          bg: 'bg-amber-600',
           icon: <Apple className="w-5 h-5 text-amber-400" />,
         };
       case 'sleep':
         return {
           title: 'Log sleep',
           color: 'text-sky-400',
-          bg: 'bg-sky-500',
+          bg: 'bg-sky-600',
           icon: <Moon className="w-5 h-5 text-sky-400" />,
         };
       case 'meditation':

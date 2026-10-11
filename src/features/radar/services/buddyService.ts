@@ -1,5 +1,5 @@
-import { Coordinates, BuddyProfile, MatchFilter, BuddyMatchResult, DemoAthlete } from '../types';
-import { calculateDistance, calculateMatchScore } from './matchingEngine';
+import { Coordinates, DemoAthlete } from '../types';
+import { calculateDistance } from './matchingEngine';
 import { supabase } from '../../../services/supabaseClient';
 import { safeStorage } from '../../../utils/safeStorage';
 import { radiusBox } from './buddyLaunch';
@@ -35,7 +35,9 @@ interface RemoteBuddyRow {
 
 const LOCAL_BUDDIES_KEY = 'o1_buddy_local';
 
+/** Dev preview cards seeded by devPreviewBoot. Always empty in production builds. */
 export function localBuddyCards(): DemoAthlete[] {
+  if (!import.meta.env.DEV) return [];
   const rows = safeStorage.getItem<Array<Record<string, string>>>(LOCAL_BUDDIES_KEY, []) || [];
   return rows.map((item) => ({
     id: String(item.id || ''),
@@ -58,89 +60,6 @@ export function localBuddyCards(): DemoAthlete[] {
     bio: item.bio || '',
     is_online: false,
   }));
-}
-
-export const DEMO_BUDDY_ATHLETES: DemoAthlete[] = [];
-
-export const FALLBACK_BUDDY_PROFILES: BuddyProfile[] = [];
-
-export async function fetchNearbyBuddies(
-  userCoords: Coordinates,
-  filters: MatchFilter,
-  userProfile: Partial<BuddyProfile> = {}
-): Promise<BuddyMatchResult[]> {
-  let candidates: BuddyProfile[] = [];
-
-  try {
-    const { data, error } = await supabase
-      .from('buddy_profiles')
-      .select('*')
-      .eq('is_ghost_mode', false);
-    if (!error && Array.isArray(data) && data.length > 0) {
-      candidates = data as BuddyProfile[];
-    } else {
-      candidates = [];
-    }
-  } catch (err) {
-    console.error('[BuddyService] Live Supabase query failed:', err);
-    candidates = [];
-  }
-
-  const results: BuddyMatchResult[] = candidates
-    .filter((candidate) => !candidate.is_ghost_mode)
-    .map((candidate) => {
-      const distanceKm = calculateDistance(
-        userCoords.latitude,
-        userCoords.longitude,
-        candidate.latitude,
-        candidate.longitude
-      );
-      const { score, reasons } = calculateMatchScore(userProfile, candidate, distanceKm);
-      return {
-        profile: candidate,
-        distanceKm,
-        compatibilityScore: score,
-        matchReasons: reasons,
-      };
-    })
-    .filter((match) => {
-      if (filters.maxDistanceKm && match.distanceKm > filters.maxDistanceKm) return false;
-      if (
-        filters.discipline &&
-        filters.discipline !== 'All' &&
-        match.profile.discipline.toLowerCase() !== filters.discipline.toLowerCase()
-      ) {
-        return false;
-      }
-      if (filters.minCompatibility && match.compatibilityScore < filters.minCompatibility) return false;
-      return true;
-    })
-    .sort((a, b) => b.compatibilityScore - a.compatibilityScore);
-
-  return results;
-}
-
-export async function syncUserBuddyLocation(
-  profile: Partial<BuddyProfile>,
-  coords: Coordinates
-): Promise<boolean> {
-  try {
-    const payload = {
-      athlete_name: profile.athlete_name || 'Oblivion Athlete',
-      handle: profile.handle || '@o1_athlete',
-      latitude: coords.latitude,
-      longitude: coords.longitude,
-      discipline: profile.discipline || 'Hypertrophy',
-      current_split: profile.current_split || 'Push Focus',
-      is_ghost_mode: Boolean(profile.is_ghost_mode),
-      last_active: new Date().toISOString(),
-    };
-    const { error } = await supabase.insert('buddy_profiles', payload);
-    return !error;
-  } catch (err) {
-    console.warn('[BuddyService] Telemetry location sync deferred:', err);
-    return false;
-  }
 }
 
 /**
@@ -280,17 +199,15 @@ export async function searchAthletesWithSupabase(
   // Bind exclusively to live Supabase candidates
   const allCandidates: DemoAthlete[] = supabaseCandidates;
   const seen = new Set(allCandidates.map((row) => row.id));
-  if (import.meta.env.DEV) {
-    for (const local of localBuddyCards()) {
-      if (!seen.has(local.id)) allCandidates.push(local);
-    }
+  for (const local of localBuddyCards()) {
+    if (!seen.has(local.id)) allCandidates.push(local);
   }
 
   // If no query string, filter by radius and sort by match score
   if (!cleanQuery) {
     const results = allCandidates
       .filter((a) => (a.distance_km ?? a.distanceKm ?? 0) <= radiusKm)
-      .sort((a, b) => (b.match_score ?? 85) - (a.match_score ?? 85));
+      .sort((a, b) => (b.match_score ?? 0) - (a.match_score ?? 0));
     return { results, fromSupabase: fetchedFromSupabase };
   }
 

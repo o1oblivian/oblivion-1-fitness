@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   X,
   Sparkles,
@@ -52,7 +52,7 @@ export const AiMealSuggestionsModal: React.FC<AiMealSuggestionsModalProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [loggedMealId, setLoggedMealId] = useState<string | null>(null);
 
-  const fetchSuggestions = async () => {
+  const fetchSuggestions = useCallback(async () => {
     setLoading(true);
     setError(null);
     tactileEngine.triggerSelectionBuzz();
@@ -107,13 +107,13 @@ export const AiMealSuggestionsModal: React.FC<AiMealSuggestionsModalProps> = ({
     } finally {
       setLoading(false);
     }
-  };
+  }, [dietPreference, remainingCalories, remainingProtein, remainingCarbs, remainingFats, selectedSlot]);
 
   useEffect(() => {
     if (isOpen) {
-      fetchSuggestions();
+      void fetchSuggestions();
     }
-  }, [isOpen, selectedSlot]);
+  }, [isOpen, fetchSuggestions]);
 
   if (!isOpen) return null;
 

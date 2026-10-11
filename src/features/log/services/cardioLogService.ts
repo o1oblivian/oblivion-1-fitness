@@ -1,6 +1,5 @@
 import { supabase } from '../../../services/supabaseClient';
 import { getAuthenticatedUserId } from '../../../services/authUser';
-import { safeStorage } from '../../../utils/sanitizers';
 import { useTelemetryHistoryStore } from '../store/useTelemetryHistoryStore';
 import { useLogStore } from '../../../stores/useLogStore';
 import { syncDailyStepsToSupabase } from './userTelemetryService';
@@ -18,11 +17,9 @@ export interface CardioLogEntry {
   timestamp: string;
 }
 
-const CARDIO_STORAGE_KEY = 'o1_cardio_logs';
-
 /**
- * Persists a cardio log to localStorage ('o1_cardio_logs') and immediately
- * synchronizes to Supabase completed_sessions as a cardio activity.
+ * Records a cardio log in today's telemetry and syncs it to Supabase
+ * completed_sessions and cardio_logs.
  */
 export async function persistCardioLog(entry: {
   activityType: string;
@@ -56,16 +53,7 @@ export async function persistCardioLog(entry: {
     timestamp: nowIso,
   };
 
-  // 1. Persist to localStorage with key 'o1_cardio_logs'
-  try {
-    const existing = safeStorage.getItem<CardioLogEntry[]>(CARDIO_STORAGE_KEY, []) || [];
-    const updated = [cardioRecord, ...existing.filter((c) => c.id !== cardioRecord.id)].slice(0, 50);
-    safeStorage.setItem(CARDIO_STORAGE_KEY, updated);
-  } catch (err) {
-    console.warn('[CardioService] Local cache notice:', err);
-  }
-
-  // 2. Reactively update in-memory stores for immediate UI reflection
+  // 1. Reactively update in-memory stores for immediate UI reflection
   try {
     useTelemetryHistoryStore.getState().updateDayRecord(dateKey, 'cardio', {
       hasData: true,
@@ -93,7 +81,7 @@ export async function persistCardioLog(entry: {
     console.warn('[CardioService] Store update notice:', storeErr);
   }
 
-  // 3. Map properly into completed_sessions on Supabase
+  // 2. Map properly into completed_sessions on Supabase
   try {
     const sessionPayload: Record<string, unknown> = {
       id: cardioRecord.id,
@@ -127,11 +115,4 @@ export async function persistCardioLog(entry: {
   } catch (err) {
     console.warn('[CardioService] Supabase sync notice:', err);
   }
-}
-
-/**
- * Retrieves cached cardio logs from 'o1_cardio_logs'
- */
-export function getCachedCardioLogs(): CardioLogEntry[] {
-  return safeStorage.getItem<CardioLogEntry[]>(CARDIO_STORAGE_KEY, []) || [];
 }

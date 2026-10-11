@@ -10,7 +10,7 @@ import { useSubscription } from '../../context/SubscriptionContext';
 import { searchAthletesWithSupabase, localBuddyCards } from './services/buddyService';
 import { capRadius, rankAthletes, readDeckFilters, readMutuals, readOutgoing, readPasses, rememberLike, rememberPass, sendLike, writeDeckFilters, DeckFilters, FREE_RADIUS_KM, searchRadius, rememberMutual, readBlocks, readLastLines, syncMutuals, syncBlocks, publishBlock, publishReport, fetchBuddyCardsById, withdrawLike, clearPasses } from './services/buddyMatch';
 import { BuddyFilterSheet } from './components/BuddyFilterSheet';
-import { publishBuddyCard } from '../../services/buddyPresenceSync';
+import { hydrateOwnBuddyCard, publishBuddyCard } from '../../services/buddyPresenceSync';
 import { readBuddyGate, subscribeBuddyGate } from './services/buddyLaunch';
 import { FoundingLiftersQueue } from './components/FoundingLiftersQueue';
 import { getDeviceCoordinates, requestDeviceLocation } from '../../services/deviceLocation';
@@ -59,6 +59,7 @@ export const BuddyView: React.FC = () => {
   const [areaThreshold, setAreaThreshold] = useState(250);
   const [queueRevision, setQueueRevision] = useState(0);
   const photoWarningShown = useRef(false);
+  const [profileHydrated, setProfileHydrated] = useState(false);
   const ghostMode = useBuddyProfileStore((s) => s.ghostMode);
   const isBuddyProfileActive = useBuddyProfileStore((s) => s.isBuddyProfileActive);
   const buddyProfile = useBuddyProfileStore();
@@ -89,7 +90,16 @@ export const BuddyView: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (!userCoords || !buddyProfile.displayName.trim() || buddyProfile.age < 18) return;
+    if (!radarUid) return;
+    let cancelled = false;
+    void hydrateOwnBuddyCard()
+      .catch(() => false)
+      .then(() => { if (!cancelled) setProfileHydrated(true); });
+    return () => { cancelled = true; };
+  }, [radarUid]);
+
+  useEffect(() => {
+    if (!profileHydrated || !userCoords || !buddyProfile.displayName.trim() || buddyProfile.age < 18) return;
     let cancelled = false;
     const looking = buddyProfile.partnerBio.split('\n')[1]?.trim() || '';
     void publishBuddyCard(userCoords, {
@@ -121,7 +131,7 @@ export const BuddyView: React.FC = () => {
       setQueueRevision((n) => n + 1);
     });
     return () => { cancelled = true; };
-  }, [userCoords, buddyProfile.displayName, buddyProfile.age, buddyProfile.homeGym, buddyProfile.selectedDisciplines, buddyProfile.favoriteWorkouts, buddyProfile.preferredTimes, buddyProfile.partnerBio, buddyProfile.buddyPhotos, buddyProfile.experienceLevel, buddyProfile.ghostMode, buddyProfile.gender, buddyProfile.trainingPlace]);
+  }, [profileHydrated, userCoords, buddyProfile.displayName, buddyProfile.age, buddyProfile.homeGym, buddyProfile.selectedDisciplines, buddyProfile.favoriteWorkouts, buddyProfile.preferredTimes, buddyProfile.partnerBio, buddyProfile.buddyPhotos, buddyProfile.experienceLevel, buddyProfile.ghostMode, buddyProfile.gender, buddyProfile.trainingPlace]);
 
   useEffect(() => {
     let stopped = false;
@@ -171,7 +181,7 @@ export const BuddyView: React.FC = () => {
           return;
         }
         const profile = useBuddyProfileStore.getState();
-        const seeded = import.meta.env.DEV ? localBuddyCards() : [];
+        const seeded = localBuddyCards();
         const ranked = rankAthletes({
           discipline: profile.selectedDisciplines[0] || '',
           split: profile.favoriteWorkouts[0] || '',

@@ -25,9 +25,10 @@
     }
   ],
   "ignorePatterns": [
-    "android/**",
-    "ios/**",
     "dist/**",
-    "src/features/fuel/**"
+    "android/app/build/**",
+    "android/app/src/main/assets/public/**",
+    "ios/App/App/public/**",
+    "ios/App/build/**"
   ]
 }

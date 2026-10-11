@@ -1,9 +1,10 @@
 import { supabase } from '../../../services/supabaseClient';
 import { getAuthenticatedUserId } from '../../../services/authUser';
-import { safeStorage } from '../../../utils/sanitizers';
-import { TelemetryCategory, useTelemetryHistoryStore } from '../store/useTelemetryHistoryStore';
+import { useTelemetryHistoryStore } from '../store/useTelemetryHistoryStore';
+import { cancelDayLogSync, DayLogCategory, isForgotten } from './dayLogCloud';
 
-export type DayLogCategory = TelemetryCategory;
+export type { DayLogCategory };
+export { markForgotten, isForgotten, releaseForgotten } from './dayLogCloud';
 
 function todayKey(date = new Date()): string {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
@@ -28,63 +29,9 @@ export function noteDailySteps(steps: number, dateKey = todayKey()): void {
   });
 }
 
-/** Save a day log on this device and, when signed in, on the athlete's account. */
-export async function persistDayLog(
-  dateKey: string,
-  category: DayLogCategory,
-  payload: Record<string, unknown>,
-): Promise<void> {
-  try {
-    const userId = await getAuthenticatedUserId();
-    if (!userId) return;
-    const { error } = await supabase.from('athlete_day_logs').upsert(
-      [
-        {
-          user_id: userId,
-          date_key: dateKey,
-          category,
-          payload,
-          updated_at: new Date().toISOString(),
-        },
-      ],
-      { onConflict: 'user_id,date_key,category' },
-    );
-    if (error) console.warn('[DayLog] Cloud save notice:', error.message);
-  } catch (err) {
-    console.warn('[DayLog] Cloud save notice:', err);
-  }
-}
-
-const FORGOTTEN_KEY = 'o1fc_log_forgotten_v1';
-
-function forgottenMap(): Record<string, true> {
-  return safeStorage.getItem<Record<string, true>>(FORGOTTEN_KEY, {}) || {};
-}
-
-function forgottenId(dateKey: string, category: DayLogCategory): string {
-  return `${dateKey}:${category}`;
-}
-
-/** A deleted day must not come back from the cloud on the next sign-in. */
-export function markForgotten(dateKey: string, category: DayLogCategory): void {
-  const map = forgottenMap();
-  map[forgottenId(dateKey, category)] = true;
-  safeStorage.setItem(FORGOTTEN_KEY, map);
-}
-
-export function releaseForgotten(dateKey: string, category: DayLogCategory): void {
-  const map = forgottenMap();
-  if (!map[forgottenId(dateKey, category)]) return;
-  delete map[forgottenId(dateKey, category)];
-  safeStorage.setItem(FORGOTTEN_KEY, map);
-}
-
-export function isForgotten(dateKey: string, category: DayLogCategory): boolean {
-  return Boolean(forgottenMap()[forgottenId(dateKey, category)]);
-}
-
 /** Remove a cloud copy when the athlete deletes that day on Log. */
 export async function deleteDayLog(dateKey: string, category: DayLogCategory): Promise<void> {
+  cancelDayLogSync(dateKey, category);
   try {
     const userId = await getAuthenticatedUserId();
     if (!userId) return;
@@ -100,7 +47,7 @@ export async function deleteDayLog(dateKey: string, category: DayLogCategory): P
   }
 }
 
-/** Pull saved day logs back onto this device. Missing table or signed-out state leaves local logs as they are. */
+/** Pull saved day logs onto this device. Signed-out state leaves the local cache as it is. */
 export async function hydrateDayLogs(): Promise<void> {
   try {
     const userId = await getAuthenticatedUserId();
@@ -120,7 +67,7 @@ export async function hydrateDayLogs(): Promise<void> {
       useTelemetryHistoryStore.getState().updateDayRecord(dateKey, category, {
         ...(row.payload as Record<string, unknown>),
         hasData: true,
-      });
+      }, { fromCloud: true });
     }
   } catch (err) {
     console.warn('[DayLog] Hydration notice:', err);

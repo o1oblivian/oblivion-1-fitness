@@ -51,7 +51,7 @@ const initialTargets = loadSavedTargets();
 
 const initialState: TelemetryStoreState = {
   metrics: {
-    handle: '@o1oblivianfitness',
+    handle: '',
     strainValue: 0,
     streakDays: 0,
     avgVolumeKg: 0,
@@ -198,11 +198,11 @@ const telemetryStore = createStore<TelemetryStoreState, TelemetryStoreActions>(
         cleanHabitStreakDays: 0,
         historyLogs: [],
         metrics: {
-          handle: '@o1oblivianfitness',
+          handle: '',
           strainValue: 0,
           streakDays: 0,
           avgVolumeKg: 0,
-          readinessScore: 85,
+          readinessScore: 0,
           macroPrecision: 0,
         },
       }));
