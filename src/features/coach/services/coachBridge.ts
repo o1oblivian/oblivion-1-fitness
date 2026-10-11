@@ -183,6 +183,17 @@ export async function publishProgram(coachId: string, program: {
   }
 }
 
+/** Takes a program off the store. Athletes already enrolled keep it. */
+export async function unlistProgram(coachId: string, programId: string): Promise<boolean> {
+  if (!coachId || !programId) return false;
+  try {
+    const { error } = await supabase.from('coach_programs').update({ listed: false }).eq('id', programId).eq('coach_id', coachId);
+    return !error;
+  } catch {
+    return false;
+  }
+}
+
 export async function fetchCoachNotes(coachId: string): Promise<Array<{ id: string; title: string; summary: string }>> {
   const local = safeStorage.getItem<Array<{ id: string; title: string; summary: string }>>('o1_coach_notes_local', []) || [];
   if (!coachId) return local;

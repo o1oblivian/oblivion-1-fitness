@@ -18,7 +18,7 @@ export interface DispatchCatalogExercise {
   defaultReps: number | string;
   defaultRpe: number;
   defaultWeightKg: number;
-  equipment: 'Barbell' | 'Dumbbell' | 'Cable' | 'Machine' | 'Bodyweight' | 'Kettlebell';
+  equipment: 'Barbell' | 'Dumbbell' | 'Cable' | 'Machine' | 'Bodyweight' | 'Kettlebell' | 'Functional';
 }
 
 export const DISPATCH_EXERCISE_CATALOG: DispatchCatalogExercise[] = [
@@ -849,7 +849,7 @@ export const DISPATCH_EXERCISE_CATALOG: DispatchCatalogExercise[] = [
     defaultReps: 20,
     defaultRpe: 9.0,
     defaultWeightKg: 9,
-    equipment: 'Functional' as any,
+    equipment: 'Functional',
   },
   {
     id: 'hyrox-sandbag-lunges',
@@ -862,7 +862,7 @@ export const DISPATCH_EXERCISE_CATALOG: DispatchCatalogExercise[] = [
     defaultReps: '20m',
     defaultRpe: 9.0,
     defaultWeightKg: 45,
-    equipment: 'Functional' as any,
+    equipment: 'Functional',
   },
 
   // =========================================================================
@@ -987,7 +987,7 @@ export const DISPATCH_EXERCISE_CATALOG: DispatchCatalogExercise[] = [
     defaultReps: 8,
     defaultRpe: 8.0,
     defaultWeightKg: 8,
-    equipment: 'Functional' as any,
+    equipment: 'Functional',
   },
   {
     id: 'sports-nordic-curl',

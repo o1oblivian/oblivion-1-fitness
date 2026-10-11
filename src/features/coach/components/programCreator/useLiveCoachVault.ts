@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '../../../../services/supabaseClient';
-import { getAuthenticatedUserId } from '../../../../services/authUser';
-import { saveVaultRow, storeMedia } from '../../../../services/mediaStorage';
+import { fetchVaultRows, saveVaultRow, storeMedia } from '../../../../services/mediaStorage';
+import { safeStorage } from '../../../../utils/safeStorage';
 
 export interface VaultUploadItem {
   id: string;
@@ -9,7 +8,26 @@ export interface VaultUploadItem {
   title: string;
 }
 
+interface LocalVaultItem {
+  id?: string;
+  type?: 'photo' | 'video';
+  title?: string;
+  url?: string;
+  thumbnailUrl?: string;
+}
+
 const STORAGE_KEY = 'o1_coach_exercise_vault_media';
+
+function readLocal(): LocalVaultItem[] {
+  const stored = safeStorage.getItem<unknown>(STORAGE_KEY, []);
+  return Array.isArray(stored) ? (stored as LocalVaultItem[]) : [];
+}
+
+/** A still image for an item: the photo itself, or a video's poster. Session-only links are skipped. */
+function coverUrl(type: string | undefined, url?: string | null, poster?: string | null): string {
+  const pick = type === 'video' ? poster : url || poster;
+  return pick && !pick.startsWith('blob:') ? pick : '';
+}
 
 export function useLiveCoachVault() {
   const [vaultItems, setVaultItems] = useState<VaultUploadItem[]>([]);
@@ -17,54 +35,26 @@ export function useLiveCoachVault() {
 
   useEffect(() => {
     let isMounted = true;
-    async function loadCoachVault() {
-      setLoading(true);
-      try {
-        const coachId = await getAuthenticatedUserId();
-        if (!coachId) {
-          if (isMounted) setLoading(false);
-          return;
-        }
-
-        const { data: supabaseItems } = await supabase
-          .from('media_vault')
-          .select('id, media_url, thumbnail_url, url, title')
-          .eq('user_id', coachId)
-          .order('created_at', { ascending: false });
-
-        const mappedCloud: VaultUploadItem[] = (Array.isArray(supabaseItems) ? supabaseItems : [])
-          .map((item: any) => ({
-            id: item.id,
-            url: item.media_url || item.thumbnail_url || item.url,
-            title: item.title || 'Vault Upload',
-          }))
-          .filter((item) => Boolean(item.url));
-
-        const localRaw = localStorage.getItem(STORAGE_KEY);
-        const mappedLocal: VaultUploadItem[] = [];
-        if (localRaw) {
-          try {
-            const parsed = JSON.parse(localRaw);
-            if (Array.isArray(parsed)) {
-              parsed.forEach((item: any) => {
-                const u = item.url || item.thumbnailUrl;
-                if (u && !mappedCloud.some((c) => c.url === u)) {
-                  mappedLocal.push({ id: item.id || `loc-${Math.random()}`, url: u, title: item.title || 'Upload' });
-                }
-              });
-            }
-          } catch {}
-        }
-
-        if (isMounted) setVaultItems([...mappedCloud, ...mappedLocal]);
-      } catch (err) {
-        console.warn('[LiveVault] Query notice:', err);
-      } finally {
-        if (isMounted) setLoading(false);
+    void (async () => {
+      const cloud: VaultUploadItem[] = (await fetchVaultRows().catch(() => []))
+        .map((row) => ({ id: row.id, url: coverUrl(row.type, row.media_url, row.thumbnail_url), title: row.title || 'Vault' }))
+        .filter((item) => item.url);
+      const seen = new Set(cloud.map((item) => item.url));
+      const local: VaultUploadItem[] = [];
+      readLocal().forEach((item, idx) => {
+        const url = coverUrl(item.type, item.url, item.thumbnailUrl);
+        if (!url || seen.has(url)) return;
+        seen.add(url);
+        local.push({ id: item.id || `local-${idx}`, url, title: item.title || 'Vault' });
+      });
+      if (isMounted) {
+        setVaultItems([...cloud, ...local]);
+        setLoading(false);
       }
-    }
-    loadCoachVault();
-    return () => { isMounted = false; };
+    })();
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   /** Uploads the artwork and returns the link to use as the cover. */
@@ -74,9 +64,9 @@ export function useLiveCoachVault() {
     setVaultItems((prev) => [newItem, ...prev]);
     void saveVaultRow({ id: newItem.id, type: 'photo', title, media_url: stored.url, storage_path: stored.path });
 
-    try {
-      const prevLocal = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-      const localItem = {
+    const prevLocal = readLocal();
+    safeStorage.setItem(STORAGE_KEY, [
+      {
         id: newItem.id,
         type: 'photo',
         title,
@@ -85,9 +75,9 @@ export function useLiveCoachVault() {
         url: stored.url,
         createdAt: 'Just now',
         storagePaths: stored.path ? [stored.path] : undefined,
-      };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify([localItem, ...prevLocal]));
-    } catch {}
+      },
+      ...prevLocal,
+    ]);
     return stored.url;
   };
 

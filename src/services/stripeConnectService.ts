@@ -53,20 +53,22 @@ async function authHeaders(): Promise<Record<string, string>> {
   };
 }
 
-const isValidUuid = (val?: string | null): boolean =>
-  Boolean(val && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(val));
+interface CoachAccountRow {
+  id: string;
+  stripe_connect_account_id: string | null;
+  stripe_payouts_enabled: boolean;
+  is_id_verified: boolean;
+  identity_status: CoachProfileData['identity_status'] | null;
+  verified_at: string | null;
+  accepting_new_athletes: boolean | null;
+}
 
 export const stripeConnectService = {
   async getCoachProfile(coachId = ''): Promise<CoachProfileData> {
     try {
       const { data: authData } = await supabase.auth.getUser();
-      const targetId = authData?.user?.id || (isValidUuid(coachId) ? coachId : null);
-      if (targetId) {
-        const { data, error } = await supabase
-          .from('coach_profiles')
-          .select('id, stripe_connect_account_id, stripe_payouts_enabled, is_id_verified, identity_status, verified_at, accepting_new_athletes')
-          .eq('id', targetId)
-          .maybeSingle();
+      if (authData?.user?.id) {
+        const { data, error } = await supabase.rpc('my_coach_account').maybeSingle<CoachAccountRow>();
 
         if (!error && data) {
           return {
@@ -76,7 +78,7 @@ export const stripeConnectService = {
             currency: 'AUD',
             is_id_verified: Boolean(data.is_id_verified),
             identity_status: data.identity_status || (data.is_id_verified ? 'verified' : 'unverified'),
-            verified_at: data.verified_at,
+            verified_at: data.verified_at ?? undefined,
             accepting_new_athletes: data.accepting_new_athletes !== false,
           };
         }

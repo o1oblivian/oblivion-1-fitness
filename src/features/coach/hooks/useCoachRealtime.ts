@@ -1,16 +1,22 @@
-/**
- * Oblivion 1 Fitness Club - Coach Realtime Hook
- * Realtime PostgreSQL CDC for coach_clients and workout_completions
- * Strict File Ceiling: < 120 lines
- */
-
 import { useEffect, useMemo } from 'react';
 import { supabase } from '../../../services/supabaseClient';
 import { useCoachStore } from '../../../stores/useCoachStore';
 import { tactileEngine } from '../../../services/tactileEngine';
+import { isValidUuid } from '../services/coachService';
 
-const isValidUuid = (val?: string | null): boolean =>
-  Boolean(val && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(val));
+interface ClientChange {
+  athlete_id?: string;
+  status?: string;
+}
+
+interface CompletionRow {
+  id: string;
+  athlete_id: string;
+  submitted_at?: string;
+  metrics_summary?: Record<string, unknown> & {
+    exercises?: { name: string; sets: number; reps: number; weightKg: number; rpe: number }[];
+  };
+}
 
 export function useCoachRealtime(coachId: string = '') {
   const athletes = useCoachStore((s) => s.athletes);
@@ -33,7 +39,7 @@ export function useCoachRealtime(coachId: string = '') {
         },
         (payload) => {
           if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
-            const data: any = payload.new;
+            const data = payload.new as ClientChange;
             tactileEngine.triggerSelectionBuzz();
             useCoachStore.setState((state) => ({
               athletes: state.athletes.map((a) =>
@@ -54,15 +60,15 @@ export function useCoachRealtime(coachId: string = '') {
           filter: `coach_id=eq.${coachId}`,
         },
         (payload) => {
-          const comp: any = payload.new;
-          if (comp) {
+          const comp = payload.new as CompletionRow | null;
+          if (comp?.id) {
             tactileEngine.playPRCelebration();
             const summary = comp.metrics_summary || {};
             recordFinishedWorkout({
               id: comp.id,
               athleteId: comp.athlete_id,
-              athleteName: summary.athleteName || 'Athlete',
-              title: summary.title || 'Completed Protocol',
+              athleteName: String(summary.athleteName || 'Athlete'),
+              title: String(summary.title || 'Workout'),
               tonnageKg: Number(summary.tonnageKg || 0),
               totalSets: Number(summary.totalSets || 0),
               totalReps: Number(summary.totalReps || 0),

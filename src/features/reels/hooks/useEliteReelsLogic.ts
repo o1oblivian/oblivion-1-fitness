@@ -36,7 +36,7 @@ export function useEliteReelsLogic(
       try {
         const [coachesRes, profilesRes] = await Promise.all([
           supabase.from('coaches').select('*'),
-          supabase.from('coach_profiles').select('*'),
+          supabase.from('coach_profiles').select('id, display_name, avatar_url, specialties, bio, is_id_verified'),
         ]);
         const rows = [...(coachesRes.data || []), ...(profilesRes.data || [])];
         const mapped: ExploreCoach[] = rows.map((row: any, idx: number) => ({
@@ -44,8 +44,8 @@ export function useEliteReelsLogic(
           name: row.name || row.display_name || 'Coach',
           handle: row.handle || `@${String(row.name || 'coach').toLowerCase().replace(/\s+/g, '')}`,
           avatar: row.avatar || row.avatar_url || '',
-          verified: Boolean(row.verified),
-          specialtyTitle: row.specialtyTitle || row.specialty || row.discipline || 'Coach',
+          verified: Boolean(row.verified ?? row.is_id_verified),
+          specialtyTitle: row.specialtyTitle || row.specialty || row.discipline || (Array.isArray(row.specialties) ? row.specialties[0] : row.specialties) || 'Coach',
           specialty: row.specialty,
           rating: Number(row.rating || 0),
           reviewCount: Number(row.review_count || row.reviewCount || 0),

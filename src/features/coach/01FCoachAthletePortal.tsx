@@ -85,15 +85,15 @@ export const O1FCoachAthletePortal: React.FC<{ isCoach?: boolean }> = ({ isCoach
       if (!coachId || cancelled) return;
       const { data: profile } = await supabase
         .from('coach_profiles')
-        .select('id, display_name, name, handle, avatar_url, avatar')
+        .select('id, display_name, avatar_url')
         .eq('id', coachId)
         .maybeSingle();
       if (cancelled || !profile) return;
       const linked: LinkedCoach = {
         id: String(profile.id || coachId),
-        name: profile.display_name || profile.name || 'Coach',
-        handle: profile.handle || '',
-        avatar: profile.avatar_url || profile.avatar || '',
+        name: profile.display_name || 'Coach',
+        handle: '',
+        avatar: profile.avatar_url || '',
       };
       setCoach(linked);
     })();

@@ -36,7 +36,7 @@ export async function findNearbyCoaches(nearby: DemoAthlete[]): Promise<NearbyCo
   if (people.size === 0) return [];
   const ids = [...people.keys()];
   const [profiles, fronts, reviews] = await Promise.all([
-    supabase.from('coach_profiles').select('id, display_name, avatar_url, specialties').in('id', ids),
+    supabase.from('coach_profiles').select('id, display_name, avatar_url, specialties, accepting_new_athletes').in('id', ids),
     supabase.from('coach_storefronts').select('coach_id, years_coaching, capacity, monthly_price_cents').in('coach_id', ids),
     supabase.from('coach_reviews').select('coach_id, stars').in('coach_id', ids),
   ]);
@@ -72,7 +72,7 @@ export async function findNearbyCoaches(nearby: DemoAthlete[]): Promise<NearbyCo
         years: num(front?.years_coaching),
         capacity: num(front?.capacity),
         monthlyPriceCents: num(front?.monthly_price_cents),
-        accepting: true,
+        accepting: row.accepting_new_athletes !== false,
       };
       return coach;
     })

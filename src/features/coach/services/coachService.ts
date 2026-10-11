@@ -1,7 +1,7 @@
 import { supabase } from '../../../services/supabaseClient';
 import { DirectiveItem } from '../types/coachDirectives';
 import { AthleteCheckInSubmission } from '../types/coachPlatformTypes';
-import { CoachEarningsTransaction, SquadAthlete } from '../../../types';
+import { CoachEarningsTransaction } from '../../../types';
 import { safeStorage } from '../../../utils/safeStorage';
 import { WORKOUT_BLUEPRINTS } from '../../../data/workoutBlueprints';
 import { isSampleId } from './sampleIds';
@@ -25,6 +25,10 @@ export interface Athlete {
 }
 
 const STORAGE_COACH_CLIENTS = 'o1fc_custom_coach_clients';
+
+type Row = Record<string, unknown>;
+
+const text = (value: unknown, fallback = ''): string => (value == null || value === '' ? fallback : String(value));
 
 function finiteOrNull(value: unknown): number | null {
   if (value == null || value === '') return null;
@@ -67,16 +71,16 @@ export async function fetchCoachClients(coachId: string = ''): Promise<Athlete[]
       return localClients;
     }
 
-    const remoteAthletes = data.map((row: any, idx: number) => ({
-      id: row.id || row.client_id || `athlete-${idx}`,
-      client_id: row.client_id || row.id || `athlete-${idx}`,
-      name: row.name || row.client_name || 'Unnamed client',
-      handle: row.handle || '',
-      status: (row.status as Athlete['status']) || 'Active',
+    const remoteAthletes: Athlete[] = (data as Row[]).map((row, idx) => ({
+      id: text(row.id || row.client_id, `athlete-${idx}`),
+      client_id: text(row.client_id || row.id, `athlete-${idx}`),
+      name: text(row.name || row.client_name, 'Unnamed client'),
+      handle: text(row.handle),
+      status: (text(row.status) as Athlete['status']) || 'Active',
       readiness: finiteOrNull(row.readiness),
       volume: finiteOrNull(row.volume),
-      avatar: row.avatar,
-      lastActive: row.last_active_at ? new Date(row.last_active_at).toLocaleDateString() : '--',
+      avatar: row.avatar ? String(row.avatar) : undefined,
+      lastActive: row.last_active_at ? new Date(String(row.last_active_at)).toLocaleDateString() : '--',
     }));
 
     // Merge without duplicates by id
@@ -139,13 +143,13 @@ export async function fetchCoachDirectives(coachId: string = ''): Promise<Direct
         .eq('coach_id', coachId);
 
       if (!broadcastRes.error && Array.isArray(broadcastRes.data) && broadcastRes.data.length > 0) {
-        return liveDirectives(broadcastRes.data.map((b: any) => ({
-          id: b.id,
-          tag: b.tag || 'TRAINING',
-          title: b.title || 'Broadcast Signal',
-          summary: b.message || b.summary || '',
+        return liveDirectives((broadcastRes.data as Row[]).map((b) => ({
+          id: text(b.id),
+          tag: text(b.tag, 'TRAINING') as DirectiveItem['tag'],
+          title: text(b.title, 'Broadcast'),
+          summary: text(b.message || b.summary),
           affectedCount: Number(b.affected_count || 1),
-          priority: b.priority || 'HIGH',
+          priority: text(b.priority, 'HIGH') as DirectiveItem['priority'],
           badgeStyle: 'bg-red-950/60 text-red-400 border-red-800/60',
         })));
       }
@@ -153,14 +157,14 @@ export async function fetchCoachDirectives(coachId: string = ''): Promise<Direct
       return local;
     }
 
-    const remote = data.map((d: any) => ({
-      id: d.id,
-      tag: d.tag || 'TRAINING',
-      title: d.title || 'Directive Signal',
-      summary: d.summary || '',
+    const remote: DirectiveItem[] = (data as Row[]).map((d) => ({
+      id: text(d.id),
+      tag: text(d.tag, 'TRAINING') as DirectiveItem['tag'],
+      title: text(d.title, 'Note'),
+      summary: text(d.summary),
       affectedCount: Number(d.affected_count || 0),
-      priority: d.priority || 'HIGH',
-      badgeStyle: d.badge_style || 'bg-red-950/60 text-red-400 border-red-800/60',
+      priority: text(d.priority, 'HIGH') as DirectiveItem['priority'],
+      badgeStyle: text(d.badge_style, 'bg-red-950/60 text-red-400 border-red-800/60'),
     }));
     const seen = new Set(remote.map((row) => row.id));
     return liveDirectives([...local.filter((row) => !seen.has(row.id)), ...remote]);
@@ -185,14 +189,17 @@ export async function fetchCoachEarnings(coachId: string = ''): Promise<CoachEar
       return [];
     }
 
-    return data.map((t: any) => ({
-      id: t.id,
-      athleteName: t.athlete_name || 'Athlete Member',
-      plan: t.plan || 'Coaching Retainer',
-      amount: Number(t.amount || 0),
-      date: t.created_at ? new Date(t.created_at).toLocaleDateString() : 'Recent',
-      status: (t.status?.toUpperCase() === 'PENDING' || t.status?.toUpperCase() === 'REFUNDED') ? t.status.toUpperCase() : 'COMPLETED',
-    }));
+    return (data as Row[]).map((t) => {
+      const status = text(t.status).toUpperCase();
+      return {
+        id: text(t.id),
+        athleteName: text(t.athlete_name, 'Athlete'),
+        plan: text(t.plan, 'Coaching'),
+        amount: Number(t.amount || 0),
+        date: t.created_at ? new Date(String(t.created_at)).toLocaleDateString() : 'Recent',
+        status: status === 'PENDING' || status === 'REFUNDED' ? status : 'COMPLETED',
+      };
+    });
   } catch (err) {
     console.debug('[coachService] fetchCoachEarnings live query error, returning empty:', err);
     return [];
@@ -239,11 +246,11 @@ export async function fetchCoachMessages(coachId: string = '', athleteId = ''): 
       return local;
     }
 
-    const remote: CoachMessage[] = data.map((m: any) => ({
+    const remote: CoachMessage[] = (data as Row[]).map((m) => ({
       id: String(m.id),
-      sender: m.sender_name || '',
-      time: m.created_at ? new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '',
-      message: m.message || '',
+      sender: text(m.sender_name),
+      time: m.created_at ? new Date(String(m.created_at)).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '',
+      message: text(m.message),
       athleteId: String(m.athlete_id || ''),
       from: messageAuthor(String(m.id)),
     }));
@@ -256,57 +263,6 @@ export async function fetchCoachMessages(coachId: string = '', athleteId = ''): 
 }
 
 export type { CoachEarningsTransaction } from '../../../types';
-
-// 5. Direct Squad Review query built from actual coach clients
-export async function fetchReviewSquad(coachId: string = ''): Promise<SquadAthlete[]> {
-  const clients = await fetchCoachClients(coachId);
-  return clients.map((c) => ({
-    id: c.id,
-    callsign: c.handle.replace(/^@/, '').toUpperCase(),
-    name: c.name,
-    tier: 'Tier 1 Operator' as const,
-    status: c.status as any,
-    statusColor: ((c.readiness ?? 0) < 60 ? 'crimson' : (c.readiness ?? 0) < 80 ? 'amber' : 'cyan') as any,
-    heartRate: 0,
-    cnsStrain: 0,
-    recoveryScore: c.readiness ?? 0,
-    lastCheckIn: c.lastActive || '--',
-    currentProtocol: '',
-    tempoScore: 0,
-  }));
-}
-
-/**
- * Batch Protocol Dispatch: inserts assigned workouts into assigned_workouts table.
- */
-export async function dispatchWorkoutsToAthletes(
-  selectedAthleteIds: string[],
-  coachId: string,
-  workoutTitle: string,
-  exercises: any[]
-): Promise<any> {
-  if (!coachId || !isValidUuid(coachId)) {
-    throw new Error('Sign in as coach to dispatch.');
-  }
-  const payload = selectedAthleteIds.map((targetClientId) => ({
-    coach_id: coachId,
-    client_id: targetClientId,
-    athlete_id: targetClientId,
-    title: workoutTitle,
-    exercises: exercises,
-    workout_data: { title: workoutTitle, exercises: exercises },
-    status: 'pending',
-    assigned_date: new Date().toISOString(),
-  }));
-
-  try {
-    const { data, error } = await supabase.from('assigned_workouts').insert(payload);
-    if (error) throw new Error(error.message);
-    return data || payload;
-  } catch (err) {
-    throw err instanceof Error ? err : new Error('Dispatch failed');
-  }
-}
 
 export async function enrollCoachClient(coachId: string, athlete: Athlete): Promise<Athlete> {
   if (!isValidUuid(coachId)) {

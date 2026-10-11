@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Camera, Check, Loader2, X } from 'lucide-react';
 import { supabase } from '../../../../services/supabaseClient';
 import { tactileEngine } from '../../../../services/tactileEngine';
@@ -6,6 +6,7 @@ import { useUserStore } from '../../../../stores/useUserStore';
 import { compressPhoto } from '../../../../utils/mediaCompressor';
 import { storeMedia } from '../../../../services/mediaStorage';
 import { StorefrontStats, saveStorefront } from '../../../reels/services/coachStorefront';
+import { fetchMyPublicProfile, saveMyPublicProfile } from '../../services/coachPublicProfile';
 
 const VAULT_KEY = 'o1_coach_exercise_vault_media';
 const BIO_LIMIT = 300;
@@ -56,9 +57,20 @@ const EditSheetBody: React.FC<Omit<CoachProfileEditSheetProps, 'open'>> = ({ ini
   const [years, setYears] = useState(stats.years != null ? String(stats.years) : '');
   const [capacity, setCapacity] = useState(stats.capacity != null ? String(stats.capacity) : '');
   const [monthly, setMonthly] = useState(stats.monthlyPriceCents != null ? String(stats.monthlyPriceCents / 100) : '');
+  const [accepting, setAccepting] = useState(true);
   const [busy, setBusy] = useState<'photo' | 'save' | null>(null);
   const fileRef = useRef<HTMLInputElement | null>(null);
   const photos = useMemo(vaultPhotos, []);
+
+  useEffect(() => {
+    let live = true;
+    void fetchMyPublicProfile().then((row) => {
+      if (live && row) setAccepting(row.acceptingNewAthletes);
+    });
+    return () => {
+      live = false;
+    };
+  }, []);
 
   const pickFile = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -92,12 +104,13 @@ const EditSheetBody: React.FC<Omit<CoachProfileEditSheetProps, 'open'>> = ({ ini
     };
     setBusy('save');
     useUserStore.getState().updateProfile({ name: cleanName, avatarUrl: avatar });
-    const [authRes, frontOk] = await Promise.all([
+    const [authRes, frontOk, publicOk] = await Promise.all([
       supabase.auth.updateUser({ data: { full_name: cleanName, coach_bio: cleanBio } }).catch(() => ({ error: true })),
       saveStorefront(storefront),
+      saveMyPublicProfile({ displayName: cleanName, avatarUrl: avatar, bio: cleanBio, acceptingNewAthletes: accepting }).catch(() => false),
     ]);
     setBusy(null);
-    if (authRes.error || !frontOk) onError('Saved on this phone. Sign in to sync your profile.');
+    if (authRes.error || !frontOk || !publicOk) onError('Saved on this phone. Sign in to sync your profile.');
     onSaved({ name: cleanName, bio: cleanBio, avatar }, storefront);
   };
 
@@ -202,6 +215,21 @@ const EditSheetBody: React.FC<Omit<CoachProfileEditSheetProps, 'open'>> = ({ ini
           {numberField('Years coaching', years, setYears)}
           {numberField('Athlete spots', capacity, setCapacity)}
           {numberField('Monthly price (USD)', monthly, setMonthly)}
+          <label className="flex items-center justify-between gap-3">
+            <span className="text-[13px] text-o1-muted">Taking new athletes</span>
+            <button
+              type="button"
+              role="switch"
+              aria-checked={accepting}
+              onClick={() => {
+                tactileEngine.triggerSelectionBuzz();
+                setAccepting((on) => !on);
+              }}
+              className={`relative h-7 w-12 rounded-full transition-colors ${accepting ? 'bg-o1-crimson' : 'bg-white/[0.12]'}`}
+            >
+              <span className={`absolute top-0.5 h-6 w-6 rounded-full bg-white transition-transform ${accepting ? 'translate-x-[22px]' : 'translate-x-0.5'}`} />
+            </button>
+          </label>
         </div>
 
         <div className="flex gap-2">

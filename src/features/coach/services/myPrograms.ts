@@ -129,11 +129,11 @@ export async function fetchBrowsePrograms(): Promise<BrowseProgram[]> {
   }
   const unknown = [...new Set(rows.map(coachIdOf).filter((id) => id && !coaches.has(id)))];
   if (unknown.length) {
-    const { data } = await supabase.from('coach_profiles').select('id, display_name, name, handle, avatar_url, avatar').in('id', unknown);
+    const { data } = await supabase.from('coach_profiles').select('id, display_name, avatar_url').in('id', unknown);
     for (const p of (data ?? []) as Record<string, unknown>[]) {
-      const name = String(p.display_name || p.name || '');
+      const name = String(p.display_name || '');
       if (!p.id || !name) continue;
-      coaches.set(String(p.id), { id: String(p.id), name, handle: String(p.handle || ''), avatar: String(p.avatar_url || p.avatar || '') });
+      coaches.set(String(p.id), { id: String(p.id), name, handle: '', avatar: String(p.avatar_url || '') });
     }
   }
 
