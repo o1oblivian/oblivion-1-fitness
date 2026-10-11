@@ -1,20 +1,27 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { X, Plus, Layers, Dumbbell, Calendar, Trash2 } from 'lucide-react';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { ProgramCreatorModal } from './programCreator';
 
 export interface CoachProgramsHubModalProps {
   isOpen: boolean;
+  /** Open straight into the creator; closing it closes the hub too. */
+  startInCreator?: boolean;
   onClose: () => void;
   onPublished?: (p: any) => void;
 }
 
 export const CoachProgramsHubModal: React.FC<CoachProgramsHubModalProps> = ({
   isOpen,
+  startInCreator = false,
   onClose,
   onPublished,
 }) => {
   const [isCreatorOpen, setIsCreatorOpen] = useState(false);
+
+  useEffect(() => {
+    if (isOpen && startInCreator) setIsCreatorOpen(true);
+  }, [isOpen, startInCreator]);
   const [customPrograms, setCustomPrograms] = useState<any[]>(() => {
     try {
       const stored = localStorage.getItem('o1_coach_custom_programs');
@@ -33,7 +40,6 @@ export const CoachProgramsHubModal: React.FC<CoachProgramsHubModalProps> = ({
       localStorage.setItem('o1_coach_custom_programs', JSON.stringify(next));
     } catch {}
     setIsCreatorOpen(false);
-    onPublished?.(prog);
     const id = prog?.id || `prog-${Date.now()}`;
     const weekOne = Array.isArray(prog?.weeks?.[0]?.days)
       ? prog.weeks[0].days.map((day: { dayName?: string; splitFocus?: string }) => [day.dayName, day.splitFocus].filter(Boolean).join(' ')).filter(Boolean)
@@ -56,6 +62,7 @@ export const CoachProgramsHubModal: React.FC<CoachProgramsHubModalProps> = ({
           weekOne,
         });
       }
+      onPublished?.(prog);
     })();
   };
 
@@ -154,7 +161,10 @@ export const CoachProgramsHubModal: React.FC<CoachProgramsHubModalProps> = ({
 
       <ProgramCreatorModal
         isOpen={isCreatorOpen}
-        onClose={() => setIsCreatorOpen(false)}
+        onClose={() => {
+          setIsCreatorOpen(false);
+          if (startInCreator) onClose();
+        }}
         onPublished={handleProgramCreated}
       />
     </div>

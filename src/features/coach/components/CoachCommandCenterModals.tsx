@@ -8,8 +8,8 @@ import { AthleteDossierModal } from './AthleteDossierModal';
 export interface CoachModalFlags {
   programs: boolean;
   workout: boolean;
+  programCreate: boolean;
   vault: boolean;
-  vaultAdd: boolean;
 }
 
 export interface CoachCommandCenterModalsProps {
@@ -21,6 +21,7 @@ export interface CoachCommandCenterModalsProps {
   dispatchAthlete: Athlete | null;
   setDispatchAthlete: (athlete: Athlete | null) => void;
   floorRoster: Athlete[];
+  onProgramsChanged?: () => void;
 }
 
 export const CoachCommandCenterModals: React.FC<CoachCommandCenterModalsProps> = ({
@@ -32,12 +33,17 @@ export const CoachCommandCenterModals: React.FC<CoachCommandCenterModalsProps> =
   dispatchAthlete,
   setDispatchAthlete,
   floorRoster,
+  onProgramsChanged,
 }) => (
   <>
     <CoachProgramsHubModal
       isOpen={modals.programs}
-      onClose={() => setModals((m) => ({ ...m, programs: false }))}
-      onPublished={(p) => showToast(`Published ${p?.title || 'program'}`)}
+      startInCreator={modals.programCreate}
+      onClose={() => setModals((m) => ({ ...m, programs: false, programCreate: false }))}
+      onPublished={(p) => {
+        showToast(`Published ${p?.title || 'program'}`);
+        onProgramsChanged?.();
+      }}
     />
     {modals.workout && (
       <WorkoutDispatchStudio
@@ -54,8 +60,7 @@ export const CoachCommandCenterModals: React.FC<CoachCommandCenterModalsProps> =
     )}
     <CoachVaultModal
       isOpen={modals.vault}
-      initialOpenAdd={modals.vaultAdd}
-      onClose={() => setModals((m) => ({ ...m, vault: false, vaultAdd: false }))}
+      onClose={() => setModals((m) => ({ ...m, vault: false }))}
     />
     <AthleteDossierModal
       athlete={dossierAthlete}

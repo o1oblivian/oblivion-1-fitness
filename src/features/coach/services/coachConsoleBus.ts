@@ -10,6 +10,12 @@ export function openCoachConsole(action: CoachConsoleAction): void {
   window.dispatchEvent(new CustomEvent(ACTION_EVENT));
 }
 
+/** Notifies on every console request without consuming it. Returns the unsubscribe. */
+export function onCoachConsoleRequested(listener: () => void): () => void {
+  window.addEventListener(ACTION_EVENT, listener);
+  return () => window.removeEventListener(ACTION_EVENT, listener);
+}
+
 /** Runs `handler` for the pending action now and for every later request. Returns the unsubscribe. */
 export function onCoachConsoleAction(handler: (action: CoachConsoleAction) => void): () => void {
   const flush = () => {

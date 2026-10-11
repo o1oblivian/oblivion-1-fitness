@@ -40,7 +40,8 @@ export const O1FCoachCommandCenter: React.FC<O1FCoachCommandCenterProps> = ({ is
 
   const [athletes, setAthletes] = useState<Athlete[]>([]);
   const [directives, setDirectives] = useState<DirectiveItem[]>([]);
-  const [modals, setModals] = useState<CoachModalFlags>({ programs: false, workout: false, vault: false, vaultAdd: false });
+  const [modals, setModals] = useState<CoachModalFlags>({ programs: false, programCreate: false, workout: false, vault: false });
+  const [programsRevision, setProgramsRevision] = useState(0);
   const [shareOpen, setShareOpen] = useState(false);
   const [dispatchAthlete, setDispatchAthlete] = useState<Athlete | null>(null);
   const [dossierAthlete, setDossierAthlete] = useState<Athlete | null>(null);
@@ -172,8 +173,12 @@ export const O1FCoachCommandCenter: React.FC<O1FCoachCommandCenterProps> = ({ is
   useEffect(() => {
     if (!isVerifiedCoach) return;
     return onCoachConsoleAction((action) => {
-      if (action === 'dispatch') setDispatchAthlete(null);
-      setModals((m) => ({ ...m, [action === 'programs' ? 'programs' : 'workout']: true }));
+      if (action === 'programs') {
+        setModals((m) => ({ ...m, programs: true, programCreate: true }));
+        return;
+      }
+      setDispatchAthlete(null);
+      setModals((m) => ({ ...m, workout: true }));
     });
   }, [isVerifiedCoach]);
 
@@ -201,12 +206,13 @@ export const O1FCoachCommandCenter: React.FC<O1FCoachCommandCenterProps> = ({ is
           onShowToast={showToast}
           onSendNote={sendNoteToAll}
           onReplyCheckin={replyToCheckin}
-          onOpenPrograms={() => setModals((m) => ({ ...m, programs: true }))}
+          programsRevision={programsRevision}
+          onCreateProgram={() => setModals((m) => ({ ...m, programs: true, programCreate: true }))}
           onOpenWorkout={() => openWorkout(null)}
           onDispatchAthlete={openWorkout}
-          onOpenVault={(addClip) => {
+          onOpenVault={() => {
             tactileEngine.triggerSelectionBuzz();
-            setModals((m) => ({ ...m, vault: true, vaultAdd: Boolean(addClip) }));
+            setModals((m) => ({ ...m, vault: true }));
           }}
           onShareInvite={() => setShareOpen(true)}
           onSelectAthlete={setDossierAthlete}
@@ -224,6 +230,7 @@ export const O1FCoachCommandCenter: React.FC<O1FCoachCommandCenterProps> = ({ is
         dispatchAthlete={dispatchAthlete}
         setDispatchAthlete={setDispatchAthlete}
         floorRoster={floorRoster}
+        onProgramsChanged={() => setProgramsRevision((n) => n + 1)}
       />
       <AddClientModal isOpen={shareOpen} onClose={() => setShareOpen(false)} />
     </div>

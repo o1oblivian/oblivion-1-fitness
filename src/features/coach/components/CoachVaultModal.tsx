@@ -35,13 +35,9 @@ const STORAGE_KEY = 'o1_coach_exercise_vault_media';
 
 export interface CoachVaultViewProps {
   embedded?: boolean;
-  initialOpenAdd?: boolean;
 }
 
-export const CoachVaultView: React.FC<CoachVaultViewProps> = ({
-  embedded = false,
-  initialOpenAdd = false,
-}) => {
+export const CoachVaultView: React.FC<CoachVaultViewProps> = ({ embedded = false }) => {
   const buddy = useBuddyProfileStore();
   const user = useUserStore();
   const addCoachReel = useReelsStore((s) => s.addCoachReel);
@@ -61,7 +57,7 @@ export const CoachVaultView: React.FC<CoachVaultViewProps> = ({
 
   const [selectedPreviewItem, setSelectedPreviewItem] = useState<VaultMediaItem | null>(null);
   const [showOnBuddyOnAdd] = useState(true);
-  const [isReelUploadOpen, setIsReelUploadOpen] = useState(initialOpenAdd);
+  const [isReelUploadOpen, setIsReelUploadOpen] = useState(false);
   const [publishedReelIds, setPublishedReelIds] = useState<string[]>([]);
   const [avatarSuccessMsg, setAvatarSuccessMsg] = useState<string | null>(null);
   const [isCompressing, setIsCompressing] = useState(false);
@@ -358,16 +354,7 @@ export const CoachVaultView: React.FC<CoachVaultViewProps> = ({
       {/* 3. MEDIA GALLERY BODY */}
       <div>
         {filteredItems.length === 0 ? (
-          <div
-            onClick={() => {
-              if (activeTab === 'reels') {
-                setIsReelUploadOpen(true);
-              } else {
-                fileInputRef.current?.click();
-              }
-            }}
-            className="py-24 px-4 flex flex-col items-center justify-center text-center space-y-3 cursor-pointer"
-          >
+          <div className="py-24 px-4 flex flex-col items-center justify-center text-center space-y-3">
             <div className="w-16 h-16 rounded-full bg-o1-sheet border border-white/[0.07] flex items-center justify-center text-o1-muted">
               <Camera size={26} />
             </div>
@@ -616,16 +603,12 @@ export const CoachVaultView: React.FC<CoachVaultViewProps> = ({
   );
 };
 
-export interface CoachVaultModalProps extends Omit<CoachVaultViewProps, 'embedded'> {
+export interface CoachVaultModalProps {
   isOpen?: boolean;
   onClose?: () => void;
 }
 
-export const CoachVaultModal: React.FC<CoachVaultModalProps> = ({
-  isOpen = true,
-  onClose,
-  initialOpenAdd = false,
-}) => {
+export const CoachVaultModal: React.FC<CoachVaultModalProps> = ({ isOpen = true, onClose }) => {
   if (!isOpen) return null;
 
   return (
@@ -650,7 +633,7 @@ export const CoachVaultModal: React.FC<CoachVaultModalProps> = ({
       </div>
 
       <div className="w-full max-w-xl mx-auto p-3 flex-1 pb-16">
-        <CoachVaultView initialOpenAdd={initialOpenAdd} embedded />
+        <CoachVaultView embedded />
       </div>
     </div>
   );

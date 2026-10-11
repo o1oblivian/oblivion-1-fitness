@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Dumbbell, Inbox, Layers, LayoutGrid, MessageSquare, Radio, User, UserPlus, Users, Wallet } from 'lucide-react';
+import { Dumbbell, Inbox, Layers, LayoutGrid, MessageSquare, Plus, Radio, User, UserPlus, Users, Wallet } from 'lucide-react';
 import { useAuthStore } from '../../../stores/useAuthStore';
 import { useCoachStore } from '../../../stores/useCoachStore';
 import { useModalStore } from '../../../components/modals/useModalStore';
@@ -21,7 +21,7 @@ import { FloorAthleteCard, type FloorCardAction } from './floor/FloorAthleteCard
 import { CoachFeedbackSheet } from './floor/CoachFeedbackSheet';
 import { CoachingRequestCard, useCoachingRequests } from './CoachingRequests';
 import { CoachProfileHeader, ProfileActionButton, compactCount, ratingLabel } from './profile/CoachProfileHeader';
-import { StorefrontEditor } from './profile/StorefrontEditor';
+import { CoachProfileEditSheet, type CoachProfileDraft } from './profile/CoachProfileEditSheet';
 import { CoachProgramsTab } from '../../reels/components/profile/CoachProgramsTab';
 import {
   EMPTY_STATS,
@@ -40,10 +40,12 @@ export interface CoachFloorProps {
   notes: DirectiveItem[];
   onSendNote: (draft: { tag: DirectiveItem['tag']; title: string; summary: string }) => void;
   onReplyCheckin: (checkinId: string, reply: string) => void;
-  onOpenPrograms: () => void;
+  /** Bumped after a program is published so the Programs tab reloads. */
+  programsRevision?: number;
+  onCreateProgram: () => void;
   onOpenWorkout: () => void;
   onDispatchAthlete: (athlete: Athlete) => void;
-  onOpenVault: (addClip?: boolean) => void;
+  onOpenVault: () => void;
   onShareInvite: () => void;
   onSelectAthlete: (athlete: Athlete) => void;
   onShowToast?: (msg: string) => void;
@@ -121,6 +123,22 @@ function FilmTile({ title, thumb, onOpen }: { title: string; thumb: string; onOp
   );
 }
 
+function AddFilmTile({ onOpen }: { onOpen: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onOpen}
+      aria-label="Add a clip or open your Vault"
+      className="flex aspect-[4/5] flex-col items-center justify-center gap-2 border border-dashed border-white/[0.07] bg-o1-surface text-o1-text active:scale-[0.98]"
+    >
+      <span className="flex h-11 w-11 items-center justify-center rounded-full bg-o1-crimson text-white">
+        <Plus size={20} />
+      </span>
+      <span className="text-[12px] font-semibold">Add / Vault</span>
+    </button>
+  );
+}
+
 function readReviews(): Record<string, string> {
   try {
     const raw = JSON.parse(localStorage.getItem(REVIEW_KEY) || '{}');
@@ -145,7 +163,8 @@ export const CoachFloor: React.FC<CoachFloorProps> = ({
   notes,
   onSendNote,
   onReplyCheckin,
-  onOpenPrograms,
+  programsRevision = 0,
+  onCreateProgram,
   onOpenWorkout,
   onDispatchAthlete,
   onOpenVault,
@@ -168,6 +187,7 @@ export const CoachFloor: React.FC<CoachFloorProps> = ({
   const [storefront, setStorefront] = useState<StorefrontStats>(EMPTY_STATS);
   const [programs, setPrograms] = useState<StorefrontProgram[] | null>(null);
   const [editing, setEditing] = useState(false);
+  const [saved, setSaved] = useState<Partial<CoachProfileDraft>>({});
   const { requests, decide } = useCoachingRequests(coachId, onRosterChanged);
 
   useEffect(() => {
@@ -186,7 +206,7 @@ export const CoachFloor: React.FC<CoachFloorProps> = ({
     return () => {
       live = false;
     };
-  }, [coachId, tab]);
+  }, [coachId, tab, programsRevision]);
 
   const { people, sample } = useMemo(() => coachPeople(athletes), [athletes]);
   const films = useMemo(() => {
@@ -210,7 +230,9 @@ export const CoachFloor: React.FC<CoachFloorProps> = ({
   const meta = (user?.user_metadata ?? {}) as Record<string, unknown>;
   const email = profile?.email || user?.email || '';
   const metaName = typeof meta.full_name === 'string' ? meta.full_name : typeof meta.name === 'string' ? meta.name : '';
-  const name = (profile?.name || metaName || (email.includes('@') ? email.split('@')[0] : '') || 'Coach').trim();
+  const name = (saved.name || profile?.name || metaName || (email.includes('@') ? email.split('@')[0] : '') || 'Coach').trim();
+  const metaBio = typeof meta.coach_bio === 'string' ? meta.coach_bio : '';
+  const coachBio = saved.bio ?? (metaBio || bio);
   const rawHandle = typeof meta.handle === 'string' ? meta.handle.trim() : '';
   const handle = email.toLowerCase() === 'o1oblivianfitness@gmail.com'
     ? '@o1oblivianfitness'
@@ -296,18 +318,20 @@ export const CoachFloor: React.FC<CoachFloorProps> = ({
           name={name}
           handle={handle}
           avatar={photo}
-          bio={bio}
+          bio={coachBio}
           hasStory={films.length > 0}
           onAvatarPress={() => {
             if (films.length > 0) {
               openReel(films[0].id);
               return;
             }
-            onOpenVault(false);
-            setPhoto(profilePhoto());
+            onOpenVault();
           }}
-          onAddClip={() => onOpenVault(true)}
-          onEdit={editing ? undefined : () => setEditing(true)}
+          onAddClip={onOpenVault}
+          onEdit={() => {
+            tactileEngine.triggerSelectionBuzz();
+            setEditing(true);
+          }}
           stats={[
             { label: 'Followers', value: compactCount(storefront.followers) },
             { label: 'Clients', value: String(people.length), onPress: () => setTab('floor') },
@@ -315,26 +339,27 @@ export const CoachFloor: React.FC<CoachFloorProps> = ({
           ]}
           actions={
             <>
-              <ProfileActionButton label="Program" onPress={onOpenPrograms} />
+              <ProfileActionButton label="Program" onPress={onCreateProgram} />
               <ProfileActionButton label="Daily Dispatch" primary onPress={onOpenWorkout} />
             </>
           }
         />
-        {editing ? (
-          <div className="mt-3">
-            <StorefrontEditor
-              stats={storefront}
-              onCancel={() => setEditing(false)}
-              onError={(msg) => onShowToast?.(msg)}
-              onSaved={(next) => {
-                setStorefront((prev) => ({ ...prev, ...next }));
-                setEditing(false);
-                onShowToast?.('Profile saved');
-              }}
-            />
-          </div>
-        ) : null}
       </div>
+
+      <CoachProfileEditSheet
+        open={editing}
+        initial={{ name, bio: coachBio, avatar: photo }}
+        stats={storefront}
+        onClose={() => setEditing(false)}
+        onError={(msg) => onShowToast?.(msg)}
+        onSaved={(next, front) => {
+          setSaved(next);
+          setPhoto(next.avatar);
+          setStorefront((prev) => ({ ...prev, ...front }));
+          setEditing(false);
+          onShowToast?.('Profile saved');
+        }}
+      />
 
       <div className="flex justify-around border-b border-white/[0.07]">
         {tabs.map((item) => {
@@ -359,21 +384,21 @@ export const CoachFloor: React.FC<CoachFloorProps> = ({
       </div>
 
       {tab === 'films' && (
-        films.length === 0 ? (
-          <p className="rounded-2xl border border-white/[0.07] bg-o1-surface px-4 py-8 text-center text-[13px] text-o1-text">
-            No films yet. Add a clip.
-          </p>
-        ) : (
-          <div className="grid grid-cols-2 gap-0.5">
-            {films.map((film) => (
-              <FilmTile key={film.id} title={film.title} thumb={film.thumb} onOpen={() => openReel(film.id)} />
-            ))}
-          </div>
-        )
+        <div className="grid grid-cols-2 gap-0.5">
+          <AddFilmTile
+            onOpen={() => {
+              tactileEngine.triggerSelectionBuzz();
+              onOpenVault();
+            }}
+          />
+          {films.map((film) => (
+            <FilmTile key={film.id} title={film.title} thumb={film.thumb} onOpen={() => openReel(film.id)} />
+          ))}
+        </div>
       )}
 
       {tab === 'programs' && (
-        <CoachProgramsTab programs={programs} isOwn onCreate={onOpenPrograms} />
+        <CoachProgramsTab programs={programs} isOwn onCreate={onCreateProgram} />
       )}
 
       {tab === 'floor' && (
@@ -402,6 +427,31 @@ export const CoachFloor: React.FC<CoachFloorProps> = ({
               Sample clients for testing. Nothing you send to them leaves this phone.
             </p>
           ) : null}
+          <section className="space-y-2">
+            <h3 className="px-1 text-[13px] font-semibold text-o1-text">Clients ({people.length})</h3>
+            {people.length === 0 ? (
+              <p className="rounded-2xl border border-white/[0.07] bg-o1-surface px-4 py-6 text-center text-[13px] text-o1-muted">No clients yet. Invite one above.</p>
+            ) : (
+              people.map((athlete) => (
+                <FloorAthleteCard
+                  key={`roster-${athlete.id}`}
+                  sample={sample}
+                  name={athlete.name}
+                  avatar={athlete.avatar}
+                  subtitle={athlete.handle || athlete.status}
+                  meta={athlete.lastActive}
+                  stats={[
+                    { label: 'Readiness', value: stat(athlete.readiness, '%') },
+                    { label: 'Volume', value: kg(athlete.volume) },
+                    { label: 'Status', value: athlete.status },
+                  ]}
+                  lastFeedback={reviews[athlete.id]}
+                  onOpenProfile={() => onSelectAthlete(athlete)}
+                  actions={athleteActions({ key: athlete.id, athleteId: rosterId(athlete), name: athlete.name, avatar: athlete.avatar, athlete })}
+                />
+              ))
+            )}
+          </section>
           <section className="space-y-2">
             <h3 className="px-1 text-[13px] font-semibold text-o1-text">Who trained</h3>
             {sample ? (

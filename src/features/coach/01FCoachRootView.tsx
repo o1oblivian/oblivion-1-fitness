@@ -5,6 +5,7 @@ import { useAuthStore } from '../../stores/useAuthStore';
 import { tactileEngine } from '../../services/tactileEngine';
 import { O1FCoachCommandCenter } from './01FCoachCommandCenter';
 import { O1FCoachAthletePortal } from './01FCoachAthletePortal';
+import { onCoachConsoleRequested } from './services/coachConsoleBus';
 
 const COACH_FOUNDER_EMAIL = 'o1oblivianfitness@gmail.com';
 
@@ -28,6 +29,9 @@ export const O1FCoachRootView: React.FC = () => {
     () => isFounder || profile?.role === 'coach' || (typeof window !== 'undefined' && localStorage.getItem('o1fc_user_role') === 'coach'),
   );
   const [activeView, setActiveView] = useState<View>('console');
+  const [visited, setVisited] = useState<Record<View, boolean>>({ directory: false, console: true });
+
+  useEffect(() => onCoachConsoleRequested(() => setActiveView('console')), []);
 
   useEffect(() => {
     if (isFounder || profile?.role === 'coach') {
@@ -72,6 +76,7 @@ export const O1FCoachRootView: React.FC = () => {
               onClick={() => {
                 tactileEngine.triggerSelectionBuzz();
                 setActiveView(id);
+                setVisited((prev) => (prev[id] ? prev : { ...prev, [id]: true }));
               }}
               className={`o1-pill text-[11px] font-semibold ${
                 activeView === id ? 'bg-white text-neutral-950 border-white' : 'bg-o1-sheet text-o1-text border border-white/[0.07]'
@@ -84,7 +89,16 @@ export const O1FCoachRootView: React.FC = () => {
         </div>
       </div>
 
-      {activeView === 'console' ? <O1FCoachCommandCenter isCoach /> : <O1FCoachAthletePortal isCoach />}
+      {visited.console ? (
+        <div hidden={activeView !== 'console'}>
+          <O1FCoachCommandCenter isCoach />
+        </div>
+      ) : null}
+      {visited.directory ? (
+        <div hidden={activeView !== 'directory'}>
+          <O1FCoachAthletePortal isCoach />
+        </div>
+      ) : null}
     </div>
   );
 };
