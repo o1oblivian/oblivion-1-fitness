@@ -165,7 +165,6 @@ export function getPast5Days(): DayMeta[] {
 const sanitizeAndMigrateHistory = (
   saved: Record<string, Partial<DayTelemetryRecord>>
 ): Record<string, Partial<DayTelemetryRecord>> => {
-  let modified = false;
   const result: Record<string, Partial<DayTelemetryRecord>> = { ...saved };
 
   for (const dateKey of Object.keys(result)) {
@@ -179,7 +178,6 @@ const sanitizeAndMigrateHistory = (
       );
 
       if (cardioExs.length > 0) {
-        modified = true;
         const cEx = cardioExs[0];
         const match = cEx.name.match(/\((\d+)m\)/);
         const duration = match ? parseInt(match[1], 10) : 0;
@@ -331,7 +329,7 @@ const initialHistory = loadPersistedHistory();
 
 const telemetryHistoryStore = createStore<TelemetryHistoryState, TelemetryHistoryActions>(
   { historyByDate: initialHistory },
-  (set, get) => ({
+  (set) => ({
     updateDayRecord: (dateKey, category, record) => {
       set((prev) => {
         const currentDay = prev.historyByDate[dateKey] || {};

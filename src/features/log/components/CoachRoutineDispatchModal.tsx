@@ -25,7 +25,6 @@ export const CoachRoutineDispatchModal: React.FC<CoachRoutineDispatchModalProps>
   showToast,
 }) => {
   const assignedWorkouts = useCoachStore((s) => s.assignedWorkouts);
-  const athletes = useCoachStore((s) => s.athletes);
   const deployProtocol = useWorkoutStore((s) => s.deployProtocol);
   const setActiveSession = useWorkoutStore((s) => s.setActiveSession);
 
@@ -220,7 +219,7 @@ export const CoachRoutineDispatchModal: React.FC<CoachRoutineDispatchModalProps>
             <button
               type="button"
               onClick={handleLoadCoachWorkout}
-              className="w-full py-2.5 px-4 rounded-xl bg-zinc-100 hover:opacity-90 active:scale-[0.98] text-neutral-950 font-semibold text-xs tracking-wide flex items-center justify-between transition-all cursor-pointer"
+              className="w-full py-2.5 px-4 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover active:bg-o1-crimson-press active:scale-[0.98] text-white font-semibold text-xs tracking-wide flex items-center justify-between transition-all cursor-pointer"
             >
               <div className="flex items-center gap-2">
                 <Play className="w-3.5 h-3.5 fill-white" />

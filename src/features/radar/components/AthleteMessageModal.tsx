@@ -189,7 +189,7 @@ export const AthleteMessageModal: React.FC<Props> = ({
       });
       setHasReplied(true);
     }
-  }, [liveMessages, athlete]);
+  }, [liveMessages, athlete, currentUserId]);
 
   useEffect(() => {
     if (scheduleOpen) setIsScheduleOpen(true);
@@ -424,7 +424,7 @@ export const AthleteMessageModal: React.FC<Props> = ({
                 setReportReason('');
                 setReportOpen(false);
               }}
-              className="mt-2 h-9 rounded-full bg-white px-4 text-[12px] font-semibold text-neutral-950"
+              className="mt-2 h-9 rounded-full bg-o1-crimson px-4 text-[12px] font-semibold text-white"
             >
               Send report
             </button>
@@ -584,7 +584,7 @@ export const AthleteMessageModal: React.FC<Props> = ({
             <button
               type="button"
               onClick={handleSendSessionInvite}
-              className="w-full py-2.5 rounded-xl bg-zinc-100 hover:bg-white text-neutral-950 text-xs font-semibold tracking-wide flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]"
+              className="w-full py-2.5 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover active:bg-o1-crimson-press text-white text-xs font-semibold tracking-wide flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]"
             >
               <Send className="w-3.5 h-3.5" />
               <span>Send Session Invite</span>
@@ -720,7 +720,7 @@ export const AthleteMessageModal: React.FC<Props> = ({
                                   onLine?.(`Accepted ${gymName}`);
                                 })();
                               }}
-                              className="rounded-full bg-white px-3 py-1 text-[11px] font-semibold text-neutral-950"
+                              className="rounded-full bg-o1-crimson px-3 py-1 text-[11px] font-semibold text-white"
                             >
                               Accept
                             </button>

@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect, useRef } from 'react';
+import React, { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { useRadarStore } from '../../stores/useRadarStore';
 import { DemoAthlete } from './types';
 import { BuddyDeckCard } from './components/BuddyDeckCard';
@@ -48,7 +48,6 @@ export const BuddyView: React.FC = () => {
   const [nearbyPeople, setNearbyPeople] = useState<DemoAthlete[]>([]);
   const [coaches, setCoaches] = useState<NearbyCoach[]>([]);
   const [selectedCoach, setSelectedCoach] = useState<NearbyCoach | null>(null);
-  const [isSearchingSupabase, setIsSearchingSupabase] = useState(false);
   const [userCoords, setUserCoords] = useState<{ latitude: number; longitude: number } | null>(null);
   const [locationOn, setLocationOn] = useState<boolean | null>(null);
   const [locating, setLocating] = useState(false);
@@ -72,7 +71,7 @@ export const BuddyView: React.FC = () => {
   useEffect(() => {
     const cap = capRadius(isPro, travelRadiusKm || radiusKm);
     if (cap !== radiusKm) setRadiusKm(cap);
-  }, [isPro, travelRadiusKm]);
+  }, [isPro, travelRadiusKm, radiusKm]);
 
   useEffect(() => {
     void getAuthenticatedUserId().then((id) => {
@@ -188,7 +187,6 @@ export const BuddyView: React.FC = () => {
         }
         return;
       }
-      setIsSearchingSupabase(true);
       setSupabaseError(null);
       try {
         const activeQuery = flying ? '' : searchQuery.trim();
@@ -212,13 +210,11 @@ export const BuddyView: React.FC = () => {
           }, results, searchRadius(isPro, deckFilters), deckFilters).filter((row) => row.id !== radarUid && (import.meta.env.DEV || !String(row.id).startsWith('preview-')) && (!flying || !String(row.id).startsWith('preview-')));
           useRadarStore.getState().setBuddies(ranked);
           setSearchResults(ranked);
-          setIsSearchingSupabase(false);
         }
       } catch (err: any) {
         if (!isCancelled) {
           console.error('[Radar] Live buddy_profiles query error:', err);
           setSupabaseError(err?.message || 'Database network error reading buddy_profiles');
-          setIsSearchingSupabase(false);
         }
       }
     };
@@ -236,25 +232,29 @@ export const BuddyView: React.FC = () => {
   const [selectedBookingAthlete, setSelectedBookingAthlete] = useState<DemoAthlete | null>(null);
 
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const showToast = useCallback((msg: string) => {
+    if (toastTimer.current) clearTimeout(toastTimer.current);
+    setToastMessage(msg);
+    toastTimer.current = setTimeout(() => setToastMessage(null), 3000);
+  }, []);
+  useEffect(() => () => {
+    if (toastTimer.current) clearTimeout(toastTimer.current);
+  }, []);
 
-  // Realtime Supabase CDC Listener for buddy_messages
   useBuddyRealtime({
     currentUserId: radarUid,
-    onMessageReceived: (msg) => {
+    onMessageReceived: () => {
       tactileEngine.triggerSelectionBuzz();
-      setToastMessage(`💬 New message received`);
-      setTimeout(() => setToastMessage(null), 3000);
+      showToast('New message received');
     },
   });
-  const [isScanning, setIsScanning] = useState(false);
   const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
   const [isTravelHubOpen, setIsTravelHubOpen] = useState(false);
   const [isSetupOpen, setIsSetupOpen] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [isStudioOpen, setIsStudioOpen] = useState(false);
-  const [studioTab, setStudioTab] = useState<'PROFILE' | 'FILTERS' | 'PREVIEW'>('PROFILE');
-
   useEffect(() => {
     if (!radarUid) return;
     let stopped = false;
@@ -293,18 +293,12 @@ export const BuddyView: React.FC = () => {
   useEffect(() => {
     const handleOpenStudio = () => {
       setIsStudioOpen(true);
-      setStudioTab('PROFILE');
     };
     window.addEventListener('o1fc_open_radar_profile_studio', handleOpenStudio);
     return () => {
       window.removeEventListener('o1fc_open_radar_profile_studio', handleOpenStudio);
     };
   }, []);
-
-  const showToast = (msg: string) => {
-    setToastMessage(msg);
-    setTimeout(() => setToastMessage(null), 3000);
-  };
 
   const offerLike = async (athlete: DemoAthlete) => {
     if (!radarUid) {
@@ -337,47 +331,6 @@ export const BuddyView: React.FC = () => {
     setOpenSchedule(false);
     setSelectedMessageAthlete(athlete);
     showToast(result.mutual ? `${athlete.name} is in Chats` : `Liked ${athlete.name}`);
-  };
-
-  const handleScan = async () => {
-    tactileEngine.triggerSelectionBuzz();
-    if (!buddyLive) return;
-    setIsScanning(true);
-    setSupabaseError(null);
-
-    try {
-      const activeQuery = searchQuery.trim() || (isPro ? travelCity : '') || '';
-      if (!userCoords) {
-        setIsScanning(false);
-        return;
-      }
-      const allowed = capRadius(isPro, radiusKm);
-      const { results } = await searchAthletesWithSupabase(
-        activeQuery,
-        [],
-        userCoords,
-        allowed
-      );
-      const profile = useBuddyProfileStore.getState();
-      const ranked = rankAthletes({
-        discipline: profile.selectedDisciplines[0] || '',
-        split: profile.favoriteWorkouts[0] || '',
-        time: profile.preferredTimes[0] || '',
-        gym: profile.homeGym,
-        age: profile.age,
-            ageMin: deckFilters.ageMin,
-            ageMax: deckFilters.ageMax,
-          }, results, allowed, deckFilters);
-      useRadarStore.getState().setBuddies(ranked);
-      setSearchResults(ranked);
-      showToast(`${ranked.length} people inside ${allowed} km`);
-    } catch (err: any) {
-      console.error('[Radar Scan] Live Supabase query error:', err);
-      setSupabaseError(err?.message || 'Database network error');
-      showToast('Scan complete: 0 athletes detected');
-    } finally {
-      setIsScanning(false);
-    }
   };
 
   const enableLocation = async () => {
@@ -439,15 +392,11 @@ export const BuddyView: React.FC = () => {
         matchedCount={chatPeople.length}
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
-        count={activeTab === 'MATCHED' ? chatPeople.length : (deckCard ? 1 : 0)}
         radiusKm={radiusKm}
-        isScanning={isScanning || isSearchingSupabase}
-        onScan={handleScan}
         onBack={() => { if (searchQuery) setSearchQuery(''); else if (activeTab === 'MATCHED') setActiveTab('DISCOVER'); }}
         onOpenPrivacy={() => setIsPrivacyOpen(true)}
         onOpenProfile={() => {
           setIsStudioOpen(true);
-          setStudioTab('PROFILE');
         }}
         onOpenFilters={() => setFiltersOpen(true)}
         onOpenTravelHub={() => {
@@ -459,7 +408,6 @@ export const BuddyView: React.FC = () => {
         }}
         onOpenSetup={() => {
           setIsStudioOpen(true);
-          setStudioTab('PROFILE');
         }}
         travelCity={travelCity}
         travelOrigin={travelOrigin}
@@ -495,7 +443,6 @@ export const BuddyView: React.FC = () => {
           type="button"
           onClick={() => {
             setIsStudioOpen(true);
-            setStudioTab('PROFILE');
           }}
           className="mx-3 mt-3 w-[calc(100%-1.5rem)] rounded-2xl border border-white/[0.07] bg-[#121214] px-4 py-3 text-left"
         >
@@ -509,7 +456,6 @@ export const BuddyView: React.FC = () => {
           type="button"
           onClick={() => {
             setIsStudioOpen(true);
-            setStudioTab('PROFILE');
           }}
           className="mx-3 mt-3 w-[calc(100%-1.5rem)] rounded-2xl border border-white/[0.07] bg-[#121214] px-4 py-3 text-left"
         >
@@ -564,7 +510,6 @@ export const BuddyView: React.FC = () => {
             cardLive={Boolean(radarUid && buddyProfile.displayName.trim() && buddyProfile.age >= 18)}
             onOpenProfile={() => {
               setIsStudioOpen(true);
-              setStudioTab('PROFILE');
             }}
           />
         ) : deckCard ? (
@@ -628,7 +573,7 @@ export const BuddyView: React.FC = () => {
                   showToast(wider > deckFilters.distanceKm ? `Radius ${wider} km` : hadPasses ? 'Passed people are back' : 'Filters cleared');
                 })();
               }}
-              className="mt-6 h-12 w-full max-w-sm rounded-full bg-white text-[15px] font-semibold text-neutral-950"
+              className="mt-6 h-12 w-full max-w-sm rounded-full bg-o1-crimson text-[15px] font-semibold text-white active:bg-o1-crimson-press"
             >
               Widen search
             </button>
@@ -744,7 +689,6 @@ export const BuddyView: React.FC = () => {
           if (name) showToast(`Radar pass active: ${name}`);
         }}
         isStudioOpen={isStudioOpen}
-        studioInitialTab={studioTab}
         onCloseStudio={() => setIsStudioOpen(false)}
         destinationCity={travelCity || ''}
         travelRadiusKm={radiusKm}

@@ -140,7 +140,7 @@ export const CardioConsoleScanModal: React.FC<CardioConsoleScanModalProps> = ({
             <button
               type="button"
               onClick={handleSaveTelemetry}
-              className="w-full py-3 px-4 rounded-2xl bg-sky-500 hover:bg-sky-400 text-black font-black text-xs tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-95 shadow-md"
+              className="w-full py-3 px-4 rounded-2xl bg-sky-600 hover:bg-sky-700 text-white font-black text-xs tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-95"
             >
               <CheckCircle2 className="w-4 h-4" />
               <span>Save telemetry to session</span>

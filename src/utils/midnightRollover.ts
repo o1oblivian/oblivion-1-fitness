@@ -141,10 +141,6 @@ export async function performMidnightRollover(previousDate: string, currentDate:
         })),
       };
 
-      // Add to local historical sessions log
-      logState.addRecentSession(archivedSession);
-
-      // Sync to Supabase cloud table if configured
       syncSessionToSupabase(archivedSession).catch((err) => {
         console.warn('[O1FC Midnight Rollover] Cloud sync deferred:', err);
       });

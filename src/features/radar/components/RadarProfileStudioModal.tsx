@@ -1,22 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import {
-  X,
-  SlidersHorizontal,
-  User,
-  Heart,
-  Dumbbell,
-  Flame,
-  Shield,
-  MapPin,
-  Check,
-  Plus,
-  Star,
-} from 'lucide-react';
-import {
-  useBuddyProfileStore,
-  BuddyIntent,
-  LookingFor,
-} from '../../../stores/useBuddyProfileStore';
+import { X, MapPin, Plus } from 'lucide-react';
+import { useBuddyProfileStore } from '../../../stores/useBuddyProfileStore';
 import { useRadarStore } from '../../../stores/useRadarStore';
 import { useRoleStore } from '../../../stores/useRoleStore';
 import { PhotoVaultModal } from '../../log/components/PhotoVaultModal';
@@ -27,7 +11,6 @@ interface Props {
   isOpen: boolean;
   onClose: () => void;
   onApplyAndScan?: () => void;
-  initialTab?: 'PROFILE' | 'FILTERS' | 'PREVIEW';
 }
 
 const DISCIPLINES_LIST = [
@@ -53,27 +36,15 @@ const DISCIPLINES_LIST = [
   'Rowing',
 ];
 
-const TIME_WINDOWS = [
-  'Early Bird (5-7 AM)',
-  'Morning (7-9 AM)',
-  'Midday (11 AM-1 PM)',
-  'Evening (5-8 PM)',
-  'Late Night (8-11 PM)',
-  'Weekends Only',
-];
-
 export const RadarProfileStudioModal: React.FC<Props> = ({
   isOpen,
   onClose,
   onApplyAndScan,
-  initialTab = 'PROFILE',
 }) => {
   const buddy = useBuddyProfileStore();
   const radar = useRadarStore();
   const role = useRoleStore((s) => s.role);
 
-  // Top Section: 'PROFILE' (Edit Profile) vs 'FILTERS'
-  const [topTab, setTopTab] = useState<'PROFILE' | 'FILTERS'>('PROFILE');
   const [isVaultOpen, setIsVaultOpen] = useState(false);
 
   // Pointer Hold & Drag State
@@ -81,8 +52,6 @@ export const RadarProfileStudioModal: React.FC<Props> = ({
   const [hoverDropIdx, setHoverDropIdx] = useState<number | null>(null);
   const [dragOffset, setDragOffset] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [selectedSlotForSwap, setSelectedSlotForSwap] = useState<number | null>(null);
-  const [activeAgeThumb, setActiveAgeThumb] = useState<'min' | 'max'>('min');
-
   const dragSourceIdx = useRef<number | null>(null);
   const hoverDropIdxRef = useRef<number | null>(null);
   const pointerStartPos = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
@@ -90,14 +59,13 @@ export const RadarProfileStudioModal: React.FC<Props> = ({
   const cachedSlotRects = useRef<{ left: number; top: number; right: number; bottom: number }[]>([]);
   const slotRefs = useRef<(HTMLDivElement | null)[]>([]);
 
-  // Auto-repair corrupt age ranges (e.g. max < min)
+  const { ageRangeMin, ageRangeMax, setAgeRange } = buddy;
   useEffect(() => {
-    if (buddy.ageRangeMax < buddy.ageRangeMin || buddy.ageRangeMax < 18) {
-      const repairedMin = Math.max(18, Math.min(buddy.ageRangeMin || 20, 69));
-      const repairedMax = Math.max(repairedMin + 1, 38);
-      buddy.setAgeRange(repairedMin, repairedMax);
+    if (ageRangeMax < ageRangeMin || ageRangeMax < 18) {
+      const repairedMin = Math.max(18, Math.min(ageRangeMin || 20, 69));
+      setAgeRange(repairedMin, Math.max(repairedMin + 1, 38));
     }
-  }, [buddy.ageRangeMin, buddy.ageRangeMax]);
+  }, [ageRangeMin, ageRangeMax, setAgeRange]);
 
   if (!isOpen) return null;
 
@@ -245,41 +213,6 @@ export const RadarProfileStudioModal: React.FC<Props> = ({
     onClose();
   };
 
-  const intents: { id: BuddyIntent; label: string; desc: string; icon: any }[] = [
-    {
-      id: 'both',
-      label: 'Workout & Dating',
-      desc: 'Training accountability and romantic dating',
-      icon: Heart,
-    },
-    {
-      id: 'partner',
-      label: 'Workout Partner Only',
-      desc: 'Pure fitness spotter and gym training partner',
-      icon: Dumbbell,
-    },
-    {
-      id: 'dating',
-      label: 'Fitness Dating',
-      desc: 'Lifestyle dating with active athletes',
-      icon: Flame,
-    },
-    {
-      id: 'hyrox',
-      label: 'Hyrox / Race Team',
-      desc: 'Doubles competition pairs & endurance race training',
-      icon: Star,
-    },
-    {
-      id: 'spotter',
-      label: 'Heavy Barbell Spotter',
-      desc: 'Safety spots on heavy bench, squat & barbell sets',
-      icon: Shield,
-    },
-  ];
-
-  const distancePresets = [5, 10, 25, 50, 100];
-
   return (
     <div className="fixed inset-0 z-50 flex o1-sheet-scrim o1-page-scrim animate-in fade-in duration-200 select-none">
       <div className="o1-sheet-card o1-page flex flex-col overflow-hidden bg-black">
@@ -304,7 +237,7 @@ export const RadarProfileStudioModal: React.FC<Props> = ({
           {/* ========================================================================= */}
           {/* TAB: EDIT PROFILE (When View Mode is EDIT)                                */}
           {/* ========================================================================= */}
-          {topTab === 'PROFILE' && (
+          {(
             <div className="space-y-4 animate-in fade-in duration-150">
               {/* Profile Photos Grid */}
               <div className="bg-o1-card p-4 rounded-2xl border border-white/[0.07] space-y-3 shadow-xs">
@@ -505,7 +438,7 @@ export const RadarProfileStudioModal: React.FC<Props> = ({
                         key={id}
                         type="button"
                         onClick={() => buddy.setGender(buddy.gender === id ? '' : id)}
-                        className={`rounded-full px-3 py-1.5 text-[12px] font-semibold ${buddy.gender === id ? 'bg-white text-neutral-950' : 'border border-white/[0.07] bg-[#161616] text-neutral-300'}`}
+                        className={`rounded-full px-3 py-1.5 text-[12px] font-semibold ${buddy.gender === id ? 'bg-o1-crimson text-white' : 'border border-white/[0.07] bg-[#161616] text-neutral-300'}`}
                       >
                         {label}
                       </button>
@@ -525,7 +458,7 @@ export const RadarProfileStudioModal: React.FC<Props> = ({
                         key={id}
                         type="button"
                         onClick={() => buddy.setTrainingPlace(buddy.trainingPlace === id ? '' : id)}
-                        className={`rounded-full px-3 py-1.5 text-[12px] font-semibold ${buddy.trainingPlace === id ? 'bg-white text-neutral-950' : 'border border-white/[0.07] bg-[#161616] text-neutral-300'}`}
+                        className={`rounded-full px-3 py-1.5 text-[12px] font-semibold ${buddy.trainingPlace === id ? 'bg-o1-crimson text-white' : 'border border-white/[0.07] bg-[#161616] text-neutral-300'}`}
                       >
                         {label}
                       </button>
@@ -555,7 +488,7 @@ export const RadarProfileStudioModal: React.FC<Props> = ({
                           }}
                           className={`rounded-full px-3 py-1.5 text-[12px] font-semibold transition cursor-pointer ${
                             isSelected
-                              ? 'bg-white text-neutral-950'
+                              ? 'bg-o1-crimson text-white'
                               : 'border border-white/[0.07] bg-[#161616] text-neutral-300'
                           }`}
                         >
@@ -567,237 +500,6 @@ export const RadarProfileStudioModal: React.FC<Props> = ({
                 </div>
               </div>
 
-            </div>
-          )}
-
-          {/* ========================================================================= */}
-          {/* TAB: FILTERS                                                              */}
-          {/* ========================================================================= */}
-          {false && topTab === 'FILTERS' && (
-            <div className="space-y-4 animate-in fade-in duration-150">
-              {/* Intent */}
-              <div className="bg-o1-card p-4 rounded-2xl border border-white/[0.07] space-y-3 shadow-xs">
-                <div>
-                  <h3 className="text-xs font-tactical font-bold tracking-wider text-white">
-                    Relationship &amp; Partner Intent
-                  </h3>
-                  <p className="text-[10px] text-neutral-400 font-sans">
-                    Find athletes looking for the same thing
-                  </p>
-                </div>
-
-                <div className="space-y-2">
-                  {intents.map((item) => {
-                    const isSelected = buddy.intent === item.id;
-                    const Icon = item.icon;
-                    return (
-                      <button
-                        key={item.id}
-                        type="button"
-                        onClick={() => buddy.setIntent(item.id)}
-                        className={`w-full p-3 rounded-2xl border flex items-center justify-between transition-all cursor-pointer text-left bg-o1-well ${
-                          isSelected
-                            ? 'border-o1-crimson'
-                            : 'border-white/[0.07] hover:border-white/[0.14]'
-                        }`}
-                      >
-                        <div className="flex items-center gap-3">
-                          <div
-                            className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                              isSelected
-                                ? 'bg-o1-crimson text-white'
-                                : 'bg-white/[0.08] text-neutral-400'
-                            }`}
-                          >
-                            <Icon className="w-4 h-4" />
-                          </div>
-                          <div>
-                            <span className="text-xs font-tactical font-bold text-white block">
-                              {item.label}
-                            </span>
-                            <span className="text-[10px] text-neutral-400 font-sans block">
-                              {item.desc}
-                            </span>
-                          </div>
-                        </div>
-
-                        {isSelected && <Check className="w-4 h-4 text-o1-crimson" />}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Looking For */}
-              <div className="bg-o1-card p-4 rounded-2xl border border-white/[0.07] space-y-2.5 shadow-xs">
-                <h3 className="text-xs font-tactical font-bold tracking-wider text-white">
-                  Looking For
-                </h3>
-                <div className="grid grid-cols-3 gap-2 bg-o1-well p-1 rounded-2xl border border-white/[0.07]">
-                  {(
-                    [
-                      { id: 'all', label: 'Everyone' },
-                      { id: 'women', label: 'Women' },
-                      { id: 'men', label: 'Men' },
-                    ] as const
-                  ).map((opt) => (
-                    <button
-                      key={opt.id}
-                      type="button"
-                      onClick={() => buddy.setLookingFor(opt.id)}
-                      className={`py-2 rounded-xl text-xs font-tactical font-bold transition-all cursor-pointer ${
-                        buddy.lookingFor === opt.id
-                          ? 'bg-o1-crimson text-white shadow-xs'
-                          : 'text-neutral-400 hover:text-white'
-                      }`}
-                    >
-                      {opt.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Maximum Distance */}
-              <div className="bg-o1-card p-4 rounded-2xl border border-white/[0.07] space-y-3 shadow-xs">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-xs font-tactical font-bold tracking-wider text-white">
-                    Maximum Distance
-                  </h3>
-                  <span className="text-xs font-mono font-bold text-o1-crimson">
-                    {buddy.maxDistanceKm} km
-                  </span>
-                </div>
-
-                <input
-                  type="range"
-                  min="5"
-                  max="100"
-                  step="5"
-                  value={buddy.maxDistanceKm}
-                  onChange={(e) => buddy.setMaxDistanceKm(parseInt(e.target.value))}
-                  className="w-full accent-o1-crimson cursor-pointer"
-                />
-
-                <div className="flex justify-between gap-1">
-                  {distancePresets.map((dist) => (
-                    <button
-                      key={dist}
-                      type="button"
-                      onClick={() => buddy.setMaxDistanceKm(dist)}
-                      className={`px-2.5 py-1 rounded-xl text-[10px] font-mono font-bold transition cursor-pointer ${
-                        buddy.maxDistanceKm === dist
-                          ? 'bg-o1-crimson text-white'
-                          : 'bg-o1-well text-neutral-400 hover:text-white border border-white/[0.07]'
-                      }`}
-                    >
-                      {dist}km
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Age Range - Tinder & Bumble Style Dual-Handle Slider Bar */}
-              {(() => {
-                const MIN_AGE = 18;
-                const MAX_AGE = 70;
-                const rawMin = typeof buddy.ageRangeMin === 'number' && !isNaN(buddy.ageRangeMin) ? buddy.ageRangeMin : 20;
-                const rawMax = typeof buddy.ageRangeMax === 'number' && !isNaN(buddy.ageRangeMax) ? buddy.ageRangeMax : 38;
-                const safeMin = Math.max(MIN_AGE, Math.min(rawMin, MAX_AGE - 1));
-                const safeMax = Math.max(safeMin + 1, Math.min(Math.max(rawMax, safeMin + 1), MAX_AGE));
-
-                return (
-                  <div className="bg-o1-card p-4 rounded-2xl border border-white/[0.07] space-y-3 shadow-xs">
-                    <div className="flex items-center justify-between">
-                      <h3 className="text-xs font-tactical font-bold tracking-wider text-white">
-                        Age Range
-                      </h3>
-                      <span className="text-xs font-mono font-bold text-o1-crimson">
-                        Between {safeMin} and {safeMax}{safeMax >= MAX_AGE ? '+' : ''}
-                      </span>
-                    </div>
-
-                    <div className="relative w-full h-8 flex items-center select-none pt-1">
-                      {/* Inactive Base Track */}
-                      <div className="absolute left-0 right-0 h-1.5 bg-white/[0.08] rounded-full" />
-
-                      {/* Active Connecting Bar */}
-                      <div
-                        className="absolute h-1.5 bg-o1-crimson rounded-full pointer-events-none"
-                        style={{
-                          left: `${((safeMin - MIN_AGE) / (MAX_AGE - MIN_AGE)) * 100}%`,
-                          width: `${((safeMax - safeMin) / (MAX_AGE - MIN_AGE)) * 100}%`,
-                        }}
-                      />
-
-                      {/* Min Age Handle */}
-                      <input
-                        type="range"
-                        min={MIN_AGE}
-                        max={MAX_AGE}
-                        value={safeMin}
-                        onChange={(e) => {
-                          const nextMin = Math.min(Number(e.target.value), safeMax - 1);
-                          setActiveAgeThumb('min');
-                          buddy.setAgeRange(nextMin, safeMax);
-                        }}
-                        className="dual-range-input absolute w-full h-1.5 bg-transparent pointer-events-none appearance-none cursor-pointer"
-                        style={{ zIndex: activeAgeThumb === 'min' ? 5 : 3 }}
-                        aria-label="Minimum Age"
-                      />
-
-                      {/* Max Age Handle */}
-                      <input
-                        type="range"
-                        min={MIN_AGE}
-                        max={MAX_AGE}
-                        value={safeMax}
-                        onChange={(e) => {
-                          const nextMax = Math.max(Number(e.target.value), safeMin + 1);
-                          setActiveAgeThumb('max');
-                          buddy.setAgeRange(safeMin, nextMax);
-                        }}
-                        className="dual-range-input absolute w-full h-1.5 bg-transparent pointer-events-none appearance-none cursor-pointer"
-                        style={{ zIndex: activeAgeThumb === 'max' ? 5 : 4 }}
-                        aria-label="Maximum Age"
-                      />
-                    </div>
-
-                    <div className="flex justify-between text-[10px] font-mono text-neutral-500 pt-0.5">
-                      <span>18</span>
-                      <span>25</span>
-                      <span>35</span>
-                      <span>50</span>
-                      <span>70+</span>
-                    </div>
-                  </div>
-                );
-              })()}
-
-              {/* Workout Schedule */}
-              <div className="bg-o1-card p-4 rounded-2xl border border-white/[0.07] space-y-2.5 shadow-xs">
-                <h3 className="text-xs font-tactical font-bold tracking-wider text-white">
-                  Workout Schedule
-                </h3>
-                <div className="flex flex-wrap gap-1.5">
-                  {TIME_WINDOWS.map((window) => {
-                    const isSelected = buddy.preferredTimes.includes(window);
-                    return (
-                      <button
-                        key={window}
-                        type="button"
-                        onClick={() => buddy.togglePreferredTime(window)}
-                        className={`px-3 py-1.5 rounded-xl font-mono text-[11px] font-bold transition cursor-pointer ${
-                          isSelected
-                            ? 'bg-o1-crimson text-white'
-                            : 'bg-o1-well text-neutral-400 border border-white/[0.07] hover:text-white'
-                        }`}
-                      >
-                        {window}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
             </div>
           )}
         </div>

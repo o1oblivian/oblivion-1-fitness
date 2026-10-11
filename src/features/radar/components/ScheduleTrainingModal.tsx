@@ -140,7 +140,7 @@ export const ScheduleTrainingModal: React.FC<Props> = ({
         <button
           type="button"
           onClick={handleConfirm}
-          className="w-full py-2.5 rounded-xl bg-zinc-100 hover:bg-white text-neutral-950 text-xs font-semibold tracking-wide active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer"
+          className="w-full py-2.5 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover active:bg-o1-crimson-press text-white text-xs font-semibold tracking-wide active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer"
         >
           <Calendar className="w-4 h-4" />
           <span>Confirm Joint Session</span>

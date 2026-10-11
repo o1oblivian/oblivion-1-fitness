@@ -2,7 +2,6 @@ import React from 'react';
 import { ChevronLeft, Compass, Shield, User, Search, X, SlidersHorizontal } from 'lucide-react';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { PremiumPlaneIcon } from './RadarIcons';
-import { useBuddyProfileStore } from '../../../stores/useBuddyProfileStore';
 
 interface Props {
   activeTab: 'DISCOVER' | 'MATCHED';
@@ -10,10 +9,7 @@ interface Props {
   matchedCount: number;
   searchQuery: string;
   onSearchChange: (query: string) => void;
-  count: number;
   radiusKm?: number;
-  isScanning: boolean;
-  onScan: () => void;
   onBack?: () => void;
   onOpenPrivacy: () => void;
   onOpenFilters?: () => void;
@@ -31,10 +27,7 @@ export const DiscoverHeader: React.FC<Props> = ({
   matchedCount,
   searchQuery,
   onSearchChange,
-  count,
   radiusKm = 25,
-  isScanning,
-  onScan,
   onBack,
   onOpenPrivacy,
   onOpenFilters,
@@ -44,10 +37,6 @@ export const DiscoverHeader: React.FC<Props> = ({
   travelOrigin,
   onClearTravelCorridor,
 }) => {
-  const buddyPhotos = useBuddyProfileStore((s) => s.buddyPhotos);
-  const isBuddyProfileActive = useBuddyProfileStore((s) => s.isBuddyProfileActive);
-  const ghostMode = useBuddyProfileStore((s) => s.ghostMode);
-  const primaryPhoto = buddyPhotos[0];
   const canGoBack = Boolean(searchQuery && activeTab === 'DISCOVER');
 
   const handleOpenStudio = () => {

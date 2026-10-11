@@ -67,7 +67,7 @@ export const FoundingLiftersQueue: React.FC<Props> = ({
         <button
           type="button"
           onClick={onOpenProfile}
-          className="mt-6 h-12 w-full max-w-sm rounded-full bg-white text-[15px] font-semibold text-neutral-950"
+          className="mt-6 h-12 w-full max-w-sm rounded-full bg-o1-crimson text-[15px] font-semibold text-white active:bg-o1-crimson-press"
         >
           Build your profile
         </button>

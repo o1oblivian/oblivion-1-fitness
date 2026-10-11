@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ChevronRight, BarChart3 } from 'lucide-react';
 import { OblivionReportModal } from '../report/components/OblivionReportModal';
 import { useWeighInCapture } from '../report/weighInLog';
@@ -10,7 +10,6 @@ import { ShareBenchmarkModal } from './components/ShareBenchmarkModal';
 import { PhotoVaultModal } from './components/PhotoVaultModal';
 import { SplitOption } from './types';
 import { useLogHydration } from './hooks/useLogHydration';
-import { useLogStore } from '../../stores/useLogStore';
 import { useUserStore } from '../../stores/useUserStore';
 import { useTrainingSummary } from './useTrainingSummary';
 import { useModalStore } from '../../components/modals/useModalStore';
@@ -25,7 +24,16 @@ import { useBuddyProfileStore } from '../../stores/useBuddyProfileStore';
 export const LogView: React.FC = () => {
   useLogHydration();
   useWeighInCapture();
-  const showToast = useLogStore((s) => s.showToast);
+  const [toast, setToast] = useState<string | null>(null);
+  const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const showToast = useCallback((message: string) => {
+    if (toastTimer.current) clearTimeout(toastTimer.current);
+    setToast(message);
+    toastTimer.current = setTimeout(() => setToast(null), 2400);
+  }, []);
+  useEffect(() => () => {
+    if (toastTimer.current) clearTimeout(toastTimer.current);
+  }, []);
   const openSettings = useModalStore((s) => s.openSettings);
   const user = useUserStore();
   const buddyName = useBuddyProfileStore((s) => s.displayName);
@@ -62,11 +70,6 @@ export const LogView: React.FC = () => {
   const handleNavigateToCoach = () => {
     tactileEngine.triggerSelectionBuzz();
     window.dispatchEvent(new CustomEvent('app_navigate_tab', { detail: 'coach' }));
-  };
-
-  const handleNavigateToFuel = () => {
-    tactileEngine.triggerSelectionBuzz();
-    window.dispatchEvent(new CustomEvent('app_navigate_tab', { detail: 'fuel' }));
   };
 
   const handleChooseRoutine = (split: SplitOption) => {
@@ -112,11 +115,7 @@ export const LogView: React.FC = () => {
       {/* ============================================================== */}
       {/* 2. GENUINE LOG HISTORY TAB (ZERO MOCK / FAKE DATA)             */}
       {/* ============================================================== */}
-      <GenuineLogHistoryView
-        onNavigateToWorkout={handleNavigateToWorkout}
-        onNavigateToFuel={handleNavigateToFuel}
-        showToast={showToast}
-      />
+      <GenuineLogHistoryView showToast={showToast} />
 
       {/* ============================================================== */}
       {/* 3. MODALS & SLIDE-OVERS                                        */}
@@ -162,6 +161,16 @@ export const LogView: React.FC = () => {
         onClose={() => setIsPhotoVaultOpen(false)}
         onCapture={() => showToast('Physique checkpoint saved')}
       />
+
+      {toast ? (
+        <div
+          role="status"
+          aria-live="polite"
+          className="pointer-events-none fixed inset-x-0 top-[calc(env(safe-area-inset-top)+4rem)] z-[70] mx-auto w-fit max-w-[90vw] rounded-full border border-white/[0.07] bg-o1-sheet px-4 py-2 text-[12px] font-semibold text-o1-text shadow-xl"
+        >
+          {toast}
+        </div>
+      ) : null}
     </div>
   );
 };

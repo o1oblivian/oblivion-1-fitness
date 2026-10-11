@@ -20,7 +20,6 @@ import {
 } from '../store/useTelemetryHistoryStore';
 import { useFuelStore } from '../../fuel/store/useFuelStore';
 import { useWorkoutStore } from '../../workout/store/useWorkoutStore';
-import { useLogStore } from '../../../stores/useLogStore';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { sanitizeNumericInput } from '../../../utils/numberInputUtils';
 import { persistCardioLog } from '../services/cardioLogService';
@@ -358,23 +357,6 @@ export const LogDayTelemetryModal: React.FC<LogDayTelemetryModalProps> = ({
       };
       updateDayRecord(dayMeta.dateKey, 'workout', record);
       void persistDayLog(dayMeta.dateKey, 'workout', record);
-      if (mode === 'create' && dayMeta.isToday) {
-        useLogStore.getState().addRecentSession({
-          id: `session-${Date.now()}`,
-          title: rName || 'Workout',
-          timestamp: 'Today, ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          duration: durNum != null ? `${durNum}m` : '--',
-          tonnageKg: tonnageNum ?? 0,
-          totalSets: setsNum ?? 0,
-          strain: 0,
-          exercises: exercises.map((ex) => ({
-            name: ex.name,
-            sets: ex.sets,
-            reps: ex.reps > 0 ? `${ex.reps} reps` : '--',
-            load: ex.weightKg > 0 ? `${ex.weightKg} kg` : '--',
-          })),
-        });
-      }
       if (mode === 'create') {
         void getAuthenticatedUserId().then((uid) => {
           if (!uid) return;
@@ -834,7 +816,7 @@ export const LogDayTelemetryModal: React.FC<LogDayTelemetryModalProps> = ({
                       onClick={() => setCardioType(m)}
                       className={`py-2 px-1 text-[10px] rounded-xl font-bold transition-all ${
                         cardioType === m
-                          ? 'bg-sky-500 text-black'
+                          ? 'bg-sky-600 text-white'
                           : 'bg-o1-well border border-white/[0.07] text-neutral-400 hover:text-white'
                       }`}
                     >
@@ -1188,7 +1170,7 @@ export const LogDayTelemetryModal: React.FC<LogDayTelemetryModalProps> = ({
           <button
             type="button"
             onClick={handleSave}
-            className="flex-1 py-3 px-4 rounded-xl bg-white text-neutral-950 font-semibold text-xs transition-all cursor-pointer active:scale-95 flex items-center justify-center gap-1.5"
+            className="flex-1 py-3 px-4 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover active:bg-o1-crimson-press text-white font-semibold text-xs transition-all cursor-pointer active:scale-95 flex items-center justify-center gap-1.5"
           >
             <Check className="w-4 h-4" />
             <span>Save</span>

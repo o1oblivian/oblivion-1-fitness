@@ -9,20 +9,10 @@ import { hydrateDayLogs } from '../services/dayLogService';
  */
 export function useLogHydration(): void {
   useEffect(() => {
-    let isMounted = true;
-
-    async function hydrate() {
-      await Promise.allSettled([
-        hydrateSessionsFromSupabase(),
-        hydrateMacrosFromSupabase(),
-        hydrateDayLogs(),
-      ]);
-    }
-
-    hydrate();
-
-    return () => {
-      isMounted = false;
-    };
+    void Promise.allSettled([
+      hydrateSessionsFromSupabase(),
+      hydrateMacrosFromSupabase(),
+      hydrateDayLogs(),
+    ]);
   }, []);
 }

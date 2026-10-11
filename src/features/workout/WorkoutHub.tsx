@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { supabase } from '../../services/supabaseClient';
 import { mapAssignedRow } from '../log/todaySession';
 import { subscribeToCoachDirectives } from '../../services/coachSync';
 import { useAthleteRealtime } from './hooks/useAthleteRealtime';
 import { useWorkoutStore } from './store/useWorkoutStore';
-import { useLogStore } from '../../stores/useLogStore';
 import { useCoachStore } from '../../stores/useCoachStore';
 import { modalActions } from '../../components/modals/useModalStore';
 import { WorkoutHeroBanner } from './components/WorkoutHeroBanner';
@@ -72,56 +70,6 @@ export const WorkoutHub: React.FC = () => {
   });
 
   useEffect(() => {
-    async function loadCloudSessions() {
-      const currentUserId = athleteUid || (await getAuthenticatedUserId());
-      if (!currentUserId) return;
-      try {
-        // Query completed_sessions supporting both client_id and user_id schema conventions
-        let res = await supabase
-          .from('completed_sessions')
-          .select('*')
-          .or(`user_id.eq.${currentUserId},client_id.eq.${currentUserId}`)
-          .order('created_at', { ascending: false })
-          .limit(15);
-
-        if (res.error) {
-          // Fallback if specific or filter failed
-          res = await supabase
-            .from('completed_sessions')
-            .select('*')
-            .eq('user_id', currentUserId)
-            .limit(15);
-        }
-
-        const data = res.data;
-        if (Array.isArray(data) && data.length > 0) {
-          const formatted = data.map((row: any) => {
-            const rawTonnage = row.tonnage_kg ?? row.volume_kg ?? row.tonnage ?? 0;
-            const completedAt = row.completed_at || row.created_at;
-            const sessionName = row.session_name || row.title || 'Gym Protocol';
-            const durSeconds = row.duration_seconds || (row.duration_minutes ? row.duration_minutes * 60 : 2700);
-
-            return {
-              id: row.id || `session-${Date.now()}`,
-              title: sessionName,
-              timestamp: completedAt ? new Date(completedAt).toLocaleDateString([], { month: 'short', day: 'numeric' }) : 'Recent',
-              duration: `${Math.round(durSeconds / 60)}m`,
-              tonnageKg: Number(rawTonnage) || 0,
-              totalSets: Number(row.total_sets || row.sets_count) || 0,
-              strain: Number(row.strain) || 14.5,
-              exercises: [],
-            };
-          });
-          useLogStore.getState().setRecentSessions(formatted);
-        }
-      } catch (err) {
-        console.warn('[WorkoutHub] Cloud sessions lookup note:', err);
-      }
-    }
-    void loadCloudSessions();
-  }, [athleteUid]);
-
-  useEffect(() => {
     if (!athleteUid) return;
     const unsubscribe = subscribeToCoachDirectives(athleteUid, (payload) => {
       if (
@@ -131,7 +79,7 @@ export const WorkoutHub: React.FC = () => {
       ) {
         handleLoadAssignedProtocol(payload.new);
       } else if (payload.new && payload.new.status) {
-        showToast(`⚡ Coach updated protocol status: ${payload.new.status}`);
+        showToast(`Coach updated protocol status: ${payload.new.status}`);
       }
     });
     return () => unsubscribe();

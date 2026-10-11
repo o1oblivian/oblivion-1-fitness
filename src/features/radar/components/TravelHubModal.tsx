@@ -216,7 +216,7 @@ export const TravelHubModal: React.FC<Props> = ({ isOpen, onClose, onSelectDesti
 
   // Editable Origin City & Country
   const [originCity, setOriginCity] = useState(storeTravelOrigin);
-  const [originCountry, setOriginCountry] = useState('');
+  const [originCountry] = useState('');
   const [isEditingOrigin, setIsEditingOrigin] = useState(false);
 
   // Editable Destination City & Country
@@ -592,7 +592,7 @@ export const TravelHubModal: React.FC<Props> = ({ isOpen, onClose, onSelectDesti
                   }}
                   className={`py-1.5 px-1 rounded-xl text-[10px] font-mono font-bold text-center border transition-all cursor-pointer ${
                     tripPreset === p.id
-                      ? 'bg-white text-neutral-900 border-white shadow-xs'
+                      ? 'bg-o1-crimson text-white border-o1-crimson'
                       : 'bg-o1-well text-neutral-400 border-white/[0.07] hover:text-white'
                   }`}
                 >
@@ -712,7 +712,7 @@ export const TravelHubModal: React.FC<Props> = ({ isOpen, onClose, onSelectDesti
             type="button"
             onClick={handleActivate}
             disabled={!destinationCity.trim()}
-            className="w-full py-2.5 px-4 rounded-xl bg-zinc-100 hover:bg-white text-neutral-950 text-xs font-semibold tracking-wide active:scale-[0.98] transition flex items-center justify-center gap-2 cursor-pointer disabled:opacity-40"
+            className="w-full py-2.5 px-4 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover active:bg-o1-crimson-press text-white text-xs font-semibold tracking-wide active:scale-[0.98] transition flex items-center justify-center gap-2 cursor-pointer disabled:opacity-40"
           >
             <PremiumPlaneIcon className="w-4 h-4" />
             <span>

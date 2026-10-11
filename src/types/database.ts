@@ -11,8 +11,8 @@ export interface WorkoutLogRecord {
 }
 
 export interface AthleteTelemetryRecord {
-  athlete_id: string; steps: number; active_cals: number;
-  readiness_score: number; updated_at: string; is_pending_sync?: boolean;
+  athlete_id: string; steps?: number; active_cals?: number;
+  readiness_score?: number; updated_at: string; is_pending_sync?: boolean;
 }
 
 export interface BuddyProfileRecord {

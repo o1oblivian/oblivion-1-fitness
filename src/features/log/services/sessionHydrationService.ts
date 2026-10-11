@@ -1,7 +1,6 @@
 import { supabase } from '../../../services/supabaseClient';
 import { getAuthenticatedUserId } from '../../../services/authUser';
 import { useTelemetryHistoryStore } from '../store/useTelemetryHistoryStore';
-import { useLogStore, PastWorkoutSession } from '../../../stores/useLogStore';
 import { exerciseFromSets } from '../liftLedger';
 import { isForgotten, localDayKey } from './dayLogService';
 
@@ -33,7 +32,6 @@ export async function hydrateSessionsFromSupabase(): Promise<void> {
     const data = res.data;
     if (!Array.isArray(data) || data.length === 0) return;
 
-    const strengthSessions: PastWorkoutSession[] = [];
     const strengthDays: Array<{ id: string; dateKey: string }> = [];
 
     for (const row of data) {
@@ -81,17 +79,6 @@ export async function hydrateSessionsFromSupabase(): Promise<void> {
             intensityRpe: loggedRpe,
           });
         }
-
-        strengthSessions.push({
-          id: row.id || `session-${Date.now()}`,
-          title: sessionTitle,
-          timestamp: completedAt ? new Date(completedAt).toLocaleDateString([], { month: 'short', day: 'numeric' }) : 'Recent',
-          duration: durMinutes > 0 ? `${durMinutes}m` : '--',
-          tonnageKg: rawTonnage,
-          totalSets,
-          strain: Number(row.strain) || 0,
-          exercises: [],
-        });
       }
     }
 
@@ -134,10 +121,6 @@ export async function hydrateSessionsFromSupabase(): Promise<void> {
           });
         });
       }
-    }
-
-    if (strengthSessions.length > 0) {
-      useLogStore.getState().setRecentSessions(strengthSessions.slice(0, 15));
     }
   } catch (err) {
     console.warn('[SessionHydration] Query notice:', err);

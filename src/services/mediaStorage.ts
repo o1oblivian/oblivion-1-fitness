@@ -134,6 +134,19 @@ export async function fetchVaultRows(): Promise<VaultRow[]> {
   return data as VaultRow[];
 }
 
+/** Sets the signed-in member's profile photo. Only shared links are accepted. */
+export async function saveProfileAvatar(url: string): Promise<boolean> {
+  if (url && !isSharedUrl(url)) return false;
+  const uid = await getAuthenticatedUserId();
+  if (!uid) return false;
+  const { error } = await supabase
+    .from('profiles')
+    .update({ avatar_url: url, updated_at: new Date().toISOString() })
+    .eq('id', uid);
+  if (error) console.warn('[mediaStorage] avatar save failed:', error.message);
+  return !error;
+}
+
 export async function deleteVaultRow(id: string): Promise<void> {
   const { error } = await supabase.from('media_vault').delete().eq('id', id);
   if (error) console.warn('[mediaStorage] vault delete failed:', error.message);

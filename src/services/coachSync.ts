@@ -6,13 +6,14 @@ export async function dispatchAthleteTelemetry(
   athleteId: string,
   telemetry: { steps?: number; activeCals?: number; readinessScore?: number }
 ): Promise<void> {
+  // Only send measured fields so the upsert never overwrites real values with defaults.
   const payload: AthleteTelemetryRecord = {
     athlete_id: athleteId,
-    steps: telemetry.steps ?? 0,
-    active_cals: telemetry.activeCals ?? 0,
-    readiness_score: telemetry.readinessScore ?? 90,
     updated_at: new Date().toISOString(),
   };
+  if (telemetry.steps != null) payload.steps = telemetry.steps;
+  if (telemetry.activeCals != null) payload.active_cals = telemetry.activeCals;
+  if (telemetry.readinessScore != null) payload.readiness_score = telemetry.readinessScore;
 
   await syncEngine.dispatchMutation({
     table: 'athlete_telemetry',

@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React from 'react';
 import { Camera, Sparkles } from 'lucide-react';
 import { PoseChallenge } from '../services/poseVerificationService';
 
@@ -72,7 +72,7 @@ export const SelfieCameraView: React.FC<SelfieCameraViewProps> = ({
             type="button"
             onClick={onCapture}
             disabled={isVerifying}
-            className="flex-1 py-3 rounded-xl bg-sky-500 hover:bg-sky-400 text-neutral-950 font-bold text-xs tracking-wider flex items-center justify-center gap-2 active:scale-95 transition-all cursor-pointer"
+            className="flex-1 py-3 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs tracking-wider flex items-center justify-center gap-2 active:scale-95 transition-all cursor-pointer"
           >
             <Camera className="w-4 h-4 stroke-[2.5]" />
             <span>Capture Pose Selfie</span>

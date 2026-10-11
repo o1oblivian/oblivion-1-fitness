@@ -44,7 +44,7 @@ function Pill({ on, label, onClick }: { on: boolean; label: string; onClick: () 
         tactileEngine.triggerSelectionBuzz();
         onClick();
       }}
-      className={`h-9 rounded-full px-3 text-[13px] font-semibold ${on ? 'bg-white text-neutral-950' : 'border border-white/[0.07] bg-[#161616] text-neutral-300'}`}
+      className={`h-9 rounded-full px-3 text-[13px] font-semibold ${on ? 'bg-o1-crimson text-white' : 'border border-white/[0.07] bg-[#161616] text-neutral-300'}`}
     >
       {label}
     </button>
@@ -61,7 +61,7 @@ function Toggle({ on, onClick }: { on: boolean; onClick: () => void }) {
         tactileEngine.triggerSelectionBuzz();
         onClick();
       }}
-      className={`relative h-7 w-12 rounded-full ${on ? 'bg-white' : 'bg-[#2a2a2a]'}`}
+      className={`relative h-7 w-12 rounded-full ${on ? 'bg-o1-crimson' : 'bg-[#2a2a2a]'}`}
     >
       <span className={`absolute top-0.5 h-6 w-6 rounded-full ${on ? 'right-0.5 bg-neutral-950' : 'left-0.5 bg-neutral-400'}`} />
     </button>
@@ -132,7 +132,7 @@ export const BuddyFilterSheet: React.FC<{
                 }
                 setMode(item);
               }}
-              className={`h-9 rounded-full text-[13px] font-semibold ${mode === item ? 'bg-white text-neutral-950' : 'text-neutral-400'}`}
+              className={`h-9 rounded-full text-[13px] font-semibold ${mode === item ? 'bg-o1-crimson text-white' : 'text-neutral-400'}`}
             >
               {item === 'basic' ? 'Basic' : 'Advanced'}
             </button>
@@ -158,7 +158,7 @@ export const BuddyFilterSheet: React.FC<{
                 <div className="o1-dual-range">
                   <div className="absolute left-0 right-0 top-[17px] h-1 rounded-full bg-[#2a2a2a]" />
                   <div
-                    className="absolute top-[17px] h-1 rounded-full bg-white"
+                    className="absolute top-[17px] h-1 rounded-full bg-o1-crimson"
                     style={{
                       left: `${((draft.ageMin - 18) / 62) * 100}%`,
                       right: `${((80 - draft.ageMax) / 62) * 100}%`,
@@ -264,7 +264,7 @@ export const BuddyFilterSheet: React.FC<{
           <button
             type="button"
             onClick={() => onApply(draft)}
-            className="h-12 w-full rounded-full bg-white text-[15px] font-semibold text-neutral-950"
+            className="h-12 w-full rounded-full bg-o1-crimson text-[15px] font-semibold text-white active:bg-o1-crimson-press"
           >
             Show people
           </button>

@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { useTrainingSummary } from '../useTrainingSummary';
 import { UserPlus, Play, ChevronRight, Share2, Camera } from 'lucide-react';
 import { tactileEngine } from '../../../services/tactileEngine';
@@ -28,20 +28,18 @@ export const UnifiedTopBoard: React.FC<UnifiedTopBoardProps> = ({
 }) => {
   const user = useUserStore();
   const buddyName = useBuddyProfileStore((s) => s.displayName);
-  const assignedWorkouts = useCoachStore((s) => s.assignedWorkouts);
-  const hasActiveProgram = useActiveProgramStore((s) => s.hasActiveProgram);
-  const currentDayIndex = useActiveProgramStore((s) => s.currentDayIndex);
-  const programTitle = useActiveProgramStore((s) => s.programTitle);
-  const routineRevision = useDayRoutineRevision();
+  // Subscriptions re-render this board when any input to resolveTodaySession changes.
+  useCoachStore((s) => s.assignedWorkouts);
+  useActiveProgramStore((s) => s.hasActiveProgram);
+  useActiveProgramStore((s) => s.currentDayIndex);
+  useActiveProgramStore((s) => s.programTitle);
+  useDayRoutineRevision();
 
   const athleteName = athleteLabel(user.name, user.handle, buddyName);
   const athleteWeight = user.weightKg > 0 ? user.weightKg.toFixed(1) : '--';
   const targetWeight = user.targetWeightKg > 0 ? user.targetWeightKg.toFixed(1) : '--';
 
-  const session = useMemo(
-    () => resolveTodaySession(),
-    [assignedWorkouts, hasActiveProgram, currentDayIndex, programTitle, routineRevision],
-  );
+  const session = resolveTodaySession();
   const targetRpe = session.exercises[0]?.sets?.[0]?.rpe || null;
   const training = useTrainingSummary();
 

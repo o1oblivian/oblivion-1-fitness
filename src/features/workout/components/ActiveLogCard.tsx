@@ -8,7 +8,6 @@ import { settleFinishedSession } from '../../log/todaySession';
 import { DialInputModal } from '../../../components/common/DialInputModal';
 import { ActiveLogExerciseAccordion } from './ActiveLogExerciseAccordion';
 import { saveAthleteDayRoutine } from '../services/dayRoutineService';
-import { useLogStore } from '../../../stores/useLogStore';
 import { useUserStore } from '../../../stores/useUserStore';
 import { useTelemetryHistoryStore } from '../../log/store/useTelemetryHistoryStore';
 import { exerciseFromSets, setsFromExercise } from '../../log/liftLedger';
@@ -293,34 +292,9 @@ export const ActiveLogCard: React.FC<ActiveLogCardProps> = ({ onShowToast }) => 
   };
 
   const handleRegisterLog = () => {
-    // 1. Ingest session record into LogStore history
     const activeTitle = useWorkoutStore.getState().activeRoutine || 'Coach Dispatched Protocol';
-    const mappedPastExercises = exercises.map((ex) => ({
-      name: ex.name,
-      sets: ex.sets.length,
-      reps: ex.sets[0]?.reps > 0 ? `${ex.sets[0].reps} reps` : '--',
-      load: (ex.sets[0]?.weightKg || ex.sets[0]?.weight || 0) > 0 ? `${ex.sets[0]?.weightKg || ex.sets[0]?.weight} kg` : '--',
-    }));
 
-    useLogStore.getState().addRecentSession({
-      id: `session-${Date.now()}`,
-      title: activeTitle,
-      timestamp: 'Today, ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      duration: '--',
-      tonnageKg: totalVolume,
-      totalSets,
-      strain: 0,
-      exercises: mappedPastExercises,
-    });
-
-    const prevStats = useLogStore.getState().microcycleStats;
-    useLogStore.getState().updateMicrocycleStats({
-      totalVolumeKg: (prevStats.totalVolumeKg || 0) + totalVolume,
-      streakDays: Math.max(1, (prevStats.streakDays || 0) + 1),
-      strikeRate: `${Math.min(7, parseInt(prevStats.strikeRate?.split('/')[0] || '0', 10) + 1)} / 7`,
-    });
-
-    // 2. Dispatch finish notification & workout history log to Coach Store for daily feedback
+    // Dispatch finish notification & workout history log to Coach Store for daily feedback
     const athleteUser = useUserStore.getState();
     const linkedCoach = readLinkedCoach();
     const finished = {

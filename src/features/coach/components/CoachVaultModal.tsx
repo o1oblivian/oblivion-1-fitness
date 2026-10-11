@@ -6,7 +6,7 @@ import { useUserStore } from '../../../stores/useUserStore';
 import { useReelsStore } from '../../../stores/useReelsStore';
 import { getAuthenticatedUserId } from '../../../services/authUser';
 import { compressPhoto, compressVideo } from '../../../utils/mediaCompressor';
-import { VaultRow, deleteVaultRow, fetchVaultRows, removeMedia, saveVaultRow, uploadMedia } from '../../../services/mediaStorage';
+import { VaultRow, deleteVaultRow, fetchVaultRows, removeMedia, saveProfileAvatar, saveVaultRow, uploadMedia } from '../../../services/mediaStorage';
 import { CoachReelUploadModal } from '../../reels/components/CoachReelUploadModal';
 import { insertReelRow } from '../../reels/services/publishCoachReelService';
 import { mapReelRow } from '../../reels/services/reelFeed';
@@ -37,7 +37,14 @@ function fromRow(row: VaultRow): VaultMediaItem {
   };
 }
 
-export const CoachVaultView: React.FC = () => {
+export interface VaultViewProps {
+  /** Athletes get the same cloud library without coach-only reel publishing. */
+  audience?: 'coach' | 'athlete';
+  onSaved?: () => void;
+}
+
+export const VaultView: React.FC<VaultViewProps> = ({ audience = 'coach', onSaved }) => {
+  const isCoach = audience === 'coach';
   const buddy = useBuddyProfileStore();
   const user = useUserStore();
   const reels = useReelsStore((s) => s.reels);
@@ -123,6 +130,7 @@ export const CoachVaultView: React.FC = () => {
       setItems((prev) => [fromRow({ ...row, created_at: new Date().toISOString() }), ...prev]);
       tactileEngine.playPRCelebration();
       flash('ok', 'Saved to your Vault');
+      onSaved?.();
     } finally {
       setBusy(null);
     }
@@ -131,10 +139,10 @@ export const CoachVaultView: React.FC = () => {
   const handleSetAsAvatar = async (item: VaultMediaItem) => {
     const avatarUrl = item.thumbnailUrl || item.url;
     setBusy('avatar');
-    const ok = await saveMyCoachAvatar(avatarUrl);
+    const ok = isCoach ? await saveMyCoachAvatar(avatarUrl) : await saveProfileAvatar(avatarUrl);
     setBusy(null);
     if (!ok) {
-      flash('error', 'Could not update your profile photo. Save your coach profile first.');
+      flash('error', isCoach ? 'Could not update your profile photo. Save your coach profile first.' : 'Could not update your profile photo. Try again.');
       return;
     }
     user.updateProfile({ avatarUrl });
@@ -236,7 +244,7 @@ export const CoachVaultView: React.FC = () => {
           disabled={busy !== null || status !== 'ready'}
           onClick={() => {
             tactileEngine.triggerSelectionBuzz();
-            if (tab === 'video') setReelUploadOpen(true);
+            if (isCoach && tab === 'video') setReelUploadOpen(true);
             else fileInputRef.current?.click();
           }}
           className="flex min-h-[40px] items-center gap-1.5 rounded-2xl bg-o1-crimson px-3.5 text-[12px] font-semibold text-white active:scale-95 hover:bg-o1-crimson-hover disabled:opacity-60"
@@ -348,7 +356,7 @@ export const CoachVaultView: React.FC = () => {
                         {busy === 'avatar' ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <UserCheck className="h-3.5 w-3.5" />}
                         <span>Use as profile photo</span>
                       </button>
-                      {preview.type === 'video' ? (
+                      {isCoach && preview.type === 'video' ? (
                         <button
                           type="button"
                           disabled={published || busy !== null}
@@ -374,15 +382,17 @@ export const CoachVaultView: React.FC = () => {
         </div>
       )}
 
-      <CoachReelUploadModal
-        isOpen={reelUploadOpen}
-        onClose={() => setReelUploadOpen(false)}
-        onReelPublished={(reelTitle) => {
-          tactileEngine.playPRCelebration();
-          flash('ok', `"${reelTitle}" published`);
-          void reload();
-        }}
-      />
+      {isCoach ? (
+        <CoachReelUploadModal
+          isOpen={reelUploadOpen}
+          onClose={() => setReelUploadOpen(false)}
+          onReelPublished={(reelTitle) => {
+            tactileEngine.playPRCelebration();
+            flash('ok', `"${reelTitle}" published`);
+            void reload();
+          }}
+        />
+      ) : null}
     </div>
   );
 };
@@ -411,7 +421,7 @@ export const CoachVaultModal: React.FC<CoachVaultModalProps> = ({ isOpen = true,
         </button>
       </div>
       <div className="mx-auto w-full max-w-xl flex-1 p-3 pb-16">
-        <CoachVaultView />
+        <VaultView />
       </div>
     </div>
   );

@@ -41,7 +41,7 @@ export const LogWeekStrip: React.FC<LogWeekStripProps> = ({
               }}
               className={`flex flex-col items-center py-1 px-1 rounded-xl transition-all cursor-pointer active:scale-95 ${
                 isSelected
-                  ? 'bg-white text-neutral-950 shadow-md font-bold'
+                  ? 'bg-o1-crimson text-white font-bold'
                   : 'bg-o1-well border border-white/[0.07] text-neutral-300 hover:border-white/[0.14]'
               }`}
             >

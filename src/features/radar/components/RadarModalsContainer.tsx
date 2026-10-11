@@ -47,7 +47,6 @@ interface Props {
   onSetupActivated?: (pass: { name?: string }) => void;
 
   isStudioOpen?: boolean;
-  studioInitialTab?: 'PROFILE' | 'FILTERS' | 'PREVIEW';
   onCloseStudio?: () => void;
 
   destinationCity?: string;
@@ -87,7 +86,6 @@ export const RadarModalsContainer: React.FC<Props> = ({
   onCloseSetup,
   onSetupActivated,
   isStudioOpen = false,
-  studioInitialTab = 'PROFILE',
   onCloseStudio,
 }) => {
   const showStudio = isStudioOpen || isFiltersOpen || isSetupOpen;
@@ -152,7 +150,6 @@ export const RadarModalsContainer: React.FC<Props> = ({
         isOpen={showStudio}
         onClose={handleCloseStudio}
         onApplyAndScan={handleApplyStudio}
-        initialTab={isFiltersOpen ? 'FILTERS' : studioInitialTab}
       />
     </>
   );

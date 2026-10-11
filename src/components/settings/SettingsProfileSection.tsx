@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Camera, Trash2, Check, X, Plus, Upload } from 'lucide-react';
 import { CrimsonSwitch } from './CrimsonSwitch';
 import { useUserStore } from '../../stores/useUserStore';
@@ -9,7 +9,7 @@ import { CoachVaultModal } from '../../features/coach/components/CoachVaultModal
 import { tactileEngine } from '../../services/tactileEngine';
 import { parseCleanInt, parseCleanNumber } from '../../utils/numberInputUtils';
 import { compressPhoto } from '../../utils/mediaCompressor';
-import { saveVaultRow, storeMedia } from '../../services/mediaStorage';
+import { fetchVaultRows, removeMedia, saveProfileAvatar, saveVaultRow, uploadMedia } from '../../services/mediaStorage';
 
 interface ProfileSectionProps {
   name: string;
@@ -50,13 +50,15 @@ export const SettingsProfileSection: React.FC<ProfileSectionProps> = ({
 }) => {
   const user = useUserStore();
   const role = useRoleStore((s) => s.role);
-  const buddy = useBuddyProfileStore();
   const [isEditingName, setIsEditingName] = useState(false);
   const [isEditingHandle, setIsEditingHandle] = useState(false);
   const [localName, setLocalName] = useState(name || user.name);
   const [localHandle, setLocalHandle] = useState(handle || user.handle);
   const [isAvatarPickerOpen, setIsAvatarPickerOpen] = useState(false);
   const [isVaultOpen, setIsVaultOpen] = useState(false);
+  const [vaultPhotos, setVaultPhotos] = useState<{ id: string; url: string; title: string }[]>([]);
+  const [avatarBusy, setAvatarBusy] = useState(false);
+  const [avatarError, setAvatarError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -64,125 +66,65 @@ export const SettingsProfileSection: React.FC<ProfileSectionProps> = ({
     e.target.value = '';
     if (!file) return;
 
-    const compressed = await compressPhoto(file, { maxDimension: 1024 }).then((r) => r.file).catch(() => file);
-    const stored = await storeMedia(compressed, 'avatars');
-    const photoUrl = stored.url;
-    tactileEngine.playPRCelebration();
-    useUserStore.getState().updateProfile({ avatarUrl: photoUrl });
-
+    setAvatarError(null);
+    setAvatarBusy(true);
     try {
-      const vaultKey = role === 'coach' ? 'o1_coach_exercise_vault_media' : 'o1_athlete_physique_vault_v1';
-      const rawVault = localStorage.getItem(vaultKey);
-      const existing = rawVault ? JSON.parse(rawVault) : [];
-      const id = `${role === 'coach' ? 'coach' : 'athlete'}-vault-${Date.now()}`;
-      if (role === 'coach') {
-        existing.unshift({
-          id,
-          type: 'photo',
-          title: 'Profile Avatar',
-          category: 'Transformation',
-          athleteName: localName,
-          url: photoUrl,
-          createdAt: 'Just now',
-          storagePaths: stored.path ? [stored.path] : undefined,
-        });
-        void saveVaultRow({ id, type: 'photo', title: 'Profile Avatar', media_url: photoUrl, storage_path: stored.path });
-      } else {
-        existing.unshift({
-          id,
-          dataUrl: photoUrl,
-          note: 'Profile Avatar',
-          timestamp: new Date().toISOString(),
-          date: new Date().toISOString().split('T')[0],
-        });
+      const compressed = await compressPhoto(file, { maxDimension: 1024 }).then((r) => r.file).catch(() => file);
+      const stored = await uploadMedia(compressed, 'avatars');
+      if (!stored || !(await saveProfileAvatar(stored.url))) {
+        if (stored) void removeMedia([stored.path]);
+        setAvatarError('Upload failed. Check your connection and try again.');
+        return;
       }
-      localStorage.setItem(vaultKey, JSON.stringify(existing));
-    } catch (err) {
-      console.error('Failed to sync avatar to vault:', err);
-    }
-
-    useBuddyProfileStore.getState().addBuddyPhoto(photoUrl);
-    setIsAvatarPickerOpen(false);
-  };
-
-  // Read available photos from Vault (single master source, zero fake mock photos)
-  const readVaultPhotos = () => {
-    try {
-      const athleteVault = localStorage.getItem('o1_athlete_physique_vault_v1');
-      const coachVault = localStorage.getItem('o1_coach_exercise_vault_media');
-
-      const items: { id: string; url: string; title: string }[] = [];
-
-      if (role === 'coach' && coachVault) {
-        const parsed = JSON.parse(coachVault);
-        if (Array.isArray(parsed)) {
-          parsed.forEach((item: any) => {
-            if (item.url && !item.url.includes('images.unsplash.com')) {
-              items.push({
-                id: item.id || `coach-${Math.random()}`,
-                url: item.type === 'video' ? (item.thumbnailUrl || item.url) : item.url,
-                title: item.title || 'Coach Media',
-              });
-            }
-          });
-        }
-      } else if (athleteVault) {
-        const parsed = JSON.parse(athleteVault);
-        if (Array.isArray(parsed)) {
-          parsed.forEach((item: any) => {
-            if (item.dataUrl && !item.dataUrl.includes('images.unsplash.com')) {
-              items.push({
-                id: item.id || `photo-${Math.random()}`,
-                url: item.thumbnailUrl || item.dataUrl,
-                title: item.note || 'Physique Check-in',
-              });
-            }
-          });
-        }
-      }
-
-      // If user uploaded genuine buddyPhotos
-      if (buddy.buddyPhotos && buddy.buddyPhotos.length > 0) {
-        buddy.buddyPhotos
-          .filter((photoUrl) => typeof photoUrl === 'string' && !photoUrl.includes('images.unsplash.com'))
-          .forEach((photoUrl, idx) => {
-            if (!items.some((i) => i.url === photoUrl)) {
-              items.push({
-                id: `buddy-${idx}`,
-                url: photoUrl,
-                title: `Uploaded Photo #${idx + 1}`,
-              });
-            }
-          });
-      }
-
-      return items;
-    } catch (e) {
-      return [];
+      tactileEngine.playPRCelebration();
+      useUserStore.getState().updateProfile({ avatarUrl: stored.url });
+      void saveVaultRow({ id: `vault-avatar-${Date.now()}`, type: 'photo', title: 'Profile photo', media_url: stored.url, storage_path: stored.path });
+      useBuddyProfileStore.getState().addBuddyPhoto(stored.url);
+      setIsAvatarPickerOpen(false);
+    } finally {
+      setAvatarBusy(false);
     }
   };
-  const availableVaultPhotos = isAvatarPickerOpen || isVaultOpen ? readVaultPhotos() : [];
 
-  const handleSelectAvatarFromVault = (url: string) => {
-    tactileEngine.playPRCelebration();
+  useEffect(() => {
+    if (!isAvatarPickerOpen) return;
+    let live = true;
+    void fetchVaultRows().then((rows) => {
+      if (!live) return;
+      const seen = new Set<string>();
+      const photos = rows
+        .map((row) => ({ id: row.id, url: row.type === 'video' ? row.thumbnail_url || '' : row.media_url, title: row.title }))
+        .filter((item) => item.url && !seen.has(item.url) && seen.add(item.url));
+      setVaultPhotos(photos);
+    });
+    return () => {
+      live = false;
+    };
+  }, [isAvatarPickerOpen]);
+
+  const applyAvatar = async (url: string) => {
+    setAvatarError(null);
+    setAvatarBusy(true);
+    const ok = await saveProfileAvatar(url);
+    setAvatarBusy(false);
+    if (!ok) {
+      setAvatarError('Could not update your profile photo. Try again.');
+      return false;
+    }
     useUserStore.getState().updateProfile({ avatarUrl: url });
-    try {
-      localStorage.setItem('o1_profile_avatar_url', url);
-    } catch (err) {
-      console.error(err);
-    }
+    return true;
+  };
+
+  const handleSelectAvatarFromVault = async (url: string) => {
+    if (!(await applyAvatar(url))) return;
+    tactileEngine.playPRCelebration();
     setIsAvatarPickerOpen(false);
   };
 
-  const handleRemovePhoto = (e: React.MouseEvent) => {
+  const handleRemovePhoto = async (e: React.MouseEvent) => {
     e.stopPropagation();
     tactileEngine.triggerSelectionBuzz();
-    useUserStore.getState().updateProfile({ avatarUrl: '' });
-    try {
-      localStorage.removeItem('o1_profile_avatar_url');
-    } catch (err) {
-      console.error(err);
-    }
+    if (await applyAvatar('')) setIsAvatarPickerOpen(false);
   };
 
   const handleSaveName = () => {
@@ -415,38 +357,45 @@ export const SettingsProfileSection: React.FC<ProfileSectionProps> = ({
               Select or upload your genuine profile photo. Avatars sync directly to your private {role === 'coach' ? 'Coach' : 'Athlete'} Vault.
             </p>
 
-            {/* Direct Gallery Upload Button */}
+            {avatarError ? (
+              <p role="alert" className="rounded-xl border border-o1-crimson/40 bg-o1-crimson/10 px-3 py-2 text-[11px] font-semibold text-o1-text">
+                {avatarError}
+              </p>
+            ) : null}
+
             <button
               type="button"
+              disabled={avatarBusy}
               onClick={() => fileInputRef.current?.click()}
-              className="w-full py-2.5 px-3 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover active:bg-o1-crimson-press text-white text-xs font-bold tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer shadow-xs active:scale-95"
+              className="w-full py-2.5 px-3 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover active:bg-o1-crimson-press text-white text-xs font-bold tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer shadow-xs active:scale-95 disabled:opacity-60"
             >
               <Upload className="w-4 h-4" />
-              <span>Upload Photo from Gallery</span>
+              <span>{avatarBusy ? 'Saving…' : 'Upload Photo from Gallery'}</span>
             </button>
 
-            {availableVaultPhotos.length > 0 && (
+            {vaultPhotos.length > 0 && (
               <div className="space-y-2">
                 <span className="text-[10px] font-mono font-bold text-neutral-400 block">
-                  Photos in Your Vault ({availableVaultPhotos.length})
+                  Photos in Your Vault ({vaultPhotos.length})
                 </span>
                 <div className="grid grid-cols-4 gap-2 max-h-48 overflow-y-auto pr-1">
-                  {availableVaultPhotos.map((item) => {
+                  {vaultPhotos.map((item) => {
                     const isCurrent = user.avatarUrl === item.url;
                     return (
                       <button
                         key={item.id}
                         type="button"
-                        onClick={() => handleSelectAvatarFromVault(item.url)}
+                        disabled={avatarBusy}
+                        onClick={() => void handleSelectAvatarFromVault(item.url)}
                         className={`aspect-square rounded-xl overflow-hidden relative border transition-all cursor-pointer group ${
                           isCurrent
-                            ? 'border-white/40'
+                            ? 'border-o1-crimson'
                             : 'border-white/[0.07] hover:border-white/[0.14]'
                         }`}
                       >
                         <img src={item.url} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
                         {isCurrent && (
-                          <span className="absolute top-1 right-1 w-4 h-4 rounded-full bg-white text-neutral-950 flex items-center justify-center text-[9px]">
+                          <span className="absolute top-1 right-1 w-4 h-4 rounded-full bg-o1-crimson text-white flex items-center justify-center text-[9px]">
                             <Check className="w-2.5 h-2.5" />
                           </span>
                         )}
@@ -474,10 +423,8 @@ export const SettingsProfileSection: React.FC<ProfileSectionProps> = ({
               {user.avatarUrl && (
                 <button
                   type="button"
-                  onClick={(e) => {
-                    handleRemovePhoto(e);
-                    setIsAvatarPickerOpen(false);
-                  }}
+                  disabled={avatarBusy}
+                  onClick={(e) => void handleRemovePhoto(e)}
                   className="w-full py-2 px-3 rounded-xl bg-white/[0.08] hover:bg-neutral-700 text-neutral-300 text-xs font-bold transition cursor-pointer flex items-center justify-center gap-1.5"
                 >
                   <Trash2 className="w-3.5 h-3.5" />

@@ -1,5 +1,5 @@
 import React, { RefObject } from 'react';
-import { Camera, Upload, Loader2, Sparkles, Watch, Gauge } from 'lucide-react';
+import { Camera, Upload, Loader2, Watch, Gauge } from 'lucide-react';
 
 interface CardioScanUploaderProps {
   scanMode: 'console' | 'watch';
@@ -29,7 +29,7 @@ export const CardioScanUploader: React.FC<CardioScanUploaderProps> = ({
           onClick={() => setScanMode('console')}
           className={`py-2 px-3 rounded-xl flex items-center justify-center gap-1.5 transition-all font-bold cursor-pointer ${
             scanMode === 'console'
-              ? 'bg-white text-neutral-900 shadow-sm'
+              ? 'bg-o1-crimson text-white'
               : 'text-neutral-500 hover:text-white'
           }`}
         >
@@ -42,7 +42,7 @@ export const CardioScanUploader: React.FC<CardioScanUploaderProps> = ({
           onClick={() => setScanMode('watch')}
           className={`py-2 px-3 rounded-xl flex items-center justify-center gap-1.5 transition-all font-bold cursor-pointer ${
             scanMode === 'watch'
-              ? 'bg-white text-neutral-900 shadow-sm'
+              ? 'bg-o1-crimson text-white'
               : 'text-neutral-500 hover:text-white'
           }`}
         >
@@ -85,7 +85,7 @@ export const CardioScanUploader: React.FC<CardioScanUploaderProps> = ({
           <button
             type="button"
             onClick={() => (onCameraCapture ? onCameraCapture() : cameraInputRef.current?.click())}
-            className="py-2.5 px-3 rounded-2xl bg-sky-500 hover:bg-sky-400 text-black font-black text-xs tracking-wider flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-95 shadow-xs"
+            className="py-2.5 px-3 rounded-2xl bg-sky-600 hover:bg-sky-700 text-white font-black text-xs tracking-wider flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-95"
           >
             <Camera className="w-4 h-4" />
             <span>Camera</span>

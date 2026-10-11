@@ -28,14 +28,6 @@
     "android/**",
     "ios/**",
     "dist/**",
-    "src/features/log/**",
-    "src/features/radar/**",
-    "src/features/fuel/**",
-    "src/stores/useLogStore.ts",
-    "src/stores/useRadarStore.ts",
-    "src/stores/radarTypes.ts",
-    "src/stores/useBuddyProfileStore.ts",
-    "src/stores/useBuddyMessageStore.ts",
-    "src/services/buddyPresenceSync.ts"
+    "src/features/fuel/**"
   ]
 }

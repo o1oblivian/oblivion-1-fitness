@@ -38,8 +38,6 @@ import { deleteDayLog, markForgotten, purgeArchivedDay } from '../services/dayLo
 import { collapsedReps, collapsedWeight, exerciseFromSets, formatLoad, knownSets, setWorkKg, setsFromExercise } from '../liftLedger';
 
 interface GenuineLogHistoryViewProps {
-  onNavigateToWorkout?: () => void;
-  onNavigateToFuel?: () => void;
   showToast: (msg: string) => void;
 }
 
@@ -142,11 +140,7 @@ function mindfulLine(rec?: MeditationDayRecord): string {
   return part(rec?.minutes, ' min') || '--';
 }
 
-export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({
-  onNavigateToWorkout,
-  onNavigateToFuel,
-  showToast,
-}) => {
+export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({ showToast }) => {
   const workoutExercises = useWorkoutStore((s) => s.exercises);
   const sessionTonnageKg = useWorkoutStore((s) => s.sessionTonnageKg);
   const completedSetsCount = useWorkoutStore((s) => s.completedSetsCount);
@@ -489,7 +483,7 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({
                 setWeekOffset(0);
                 setSelectedDateStr(today.toDateString());
               }}
-              className={`px-2 py-0.5 rounded-xl text-[10px] font-semibold ${weekOffset === 0 ? 'bg-white text-neutral-950' : 'bg-white/[0.08] text-neutral-400'}`}
+              className={`px-2 py-0.5 rounded-xl text-[10px] font-semibold ${weekOffset === 0 ? 'bg-o1-crimson text-white' : 'bg-white/[0.08] text-neutral-400'}`}
             >
               Today
             </button>
@@ -543,7 +537,7 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({
                       tactileEngine.triggerSelectionBuzz();
                       setChartChannel(chartChannel === channel.id ? null : channel.id);
                     }}
-                    className={`o1-pill border text-[11px] font-semibold ${chartChannel === channel.id ? 'bg-white text-neutral-950 border-white' : 'bg-o1-well border-white/[0.07] text-neutral-200'}`}
+                    className={`o1-pill border text-[11px] font-semibold ${chartChannel === channel.id ? 'bg-o1-crimson text-white border-o1-crimson' : 'bg-o1-well border-white/[0.07] text-neutral-200'}`}
                   >
                     Chart
                   </button>
@@ -573,7 +567,7 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({
                             tactileEngine.triggerSelectionBuzz();
                             setChartSpan(span);
                           }}
-                          className={`px-3 py-1 rounded-full text-[11px] font-semibold ${chartSpan === span ? 'bg-white text-neutral-950' : 'text-neutral-400'}`}
+                          className={`px-3 py-1 rounded-full text-[11px] font-semibold ${chartSpan === span ? 'bg-o1-crimson text-white' : 'text-neutral-400'}`}
                         >
                           {span === 'week' ? 'Week' : span === 'month' ? 'Month' : 'Year'}
                         </button>

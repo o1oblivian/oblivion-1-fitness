@@ -1,6 +1,5 @@
 import React from 'react';
 import { X, ShieldCheck, CheckCircle2 } from 'lucide-react';
-import { useBuddyProfileStore } from '../../../stores/useBuddyProfileStore';
 import { useSelfieCapture } from '../hooks/useSelfieCapture';
 import { SelfieCameraView } from './SelfieCameraView';
 

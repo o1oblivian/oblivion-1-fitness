@@ -138,7 +138,7 @@ export const PrivacyStealthModal: React.FC<Props> = ({ isOpen, onClose, onSaved 
         <button
           type="button"
           onClick={() => { tactileEngine.playPRCelebration(); onClose(); }}
-          className="w-full py-2.5 rounded-xl bg-zinc-100 hover:bg-white text-neutral-950 text-xs font-semibold tracking-wide shadow-sm active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer"
+          className="w-full py-2.5 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover active:bg-o1-crimson-press text-white text-xs font-semibold tracking-wide active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer"
         >
           <Check className="w-4 h-4" />
           <span>Save Preferences</span>
