@@ -89,10 +89,15 @@ export function registerStripeRoutes(app: Express) {
           metadata: { coach_id: coachId },
         });
         accountId = account.id;
-        const { error } = await admin
-          .from('coach_profiles')
-          .upsert({ id: coachId, stripe_connect_account_id: accountId, stripe_payouts_enabled: false }, { onConflict: 'id' });
+        const stripeFields = { stripe_connect_account_id: accountId, stripe_payouts_enabled: false };
+        const email = (res.locals.userEmail as string | undefined) || '';
+        // Postgres checks NOT NULL columns before ON CONFLICT, so an upsert fails for existing profiles too.
+        const { error } = profile
+          ? await admin.from('coach_profiles').update(stripeFields).eq('id', coachId)
+          : await admin.from('coach_profiles').insert({ id: coachId, display_name: email.split('@')[0] || 'Coach', ...stripeFields });
         if (error) {
+          console.error('[stripe] saving connect account failed:', error.message);
+          await stripe.accounts.del(accountId).catch(() => undefined);
           return res.status(500).json({ error: 'Could not save the Stripe account to your coach profile.' });
         }
       }

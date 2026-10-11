@@ -162,7 +162,7 @@ export async function publishProgram(coachId: string, program: {
   if (!coachId || !program.title) return;
   const price = Number(program.priceUsd);
   try {
-    await supabase.from('coach_programs').upsert({
+    const { error } = await supabase.from('coach_programs').upsert({
       id: program.id || `prog-${Date.now()}`,
       coach_id: coachId,
       title: program.title,
@@ -177,6 +177,7 @@ export async function publishProgram(coachId: string, program: {
       duration_label: program.durationWeeks ? `${program.durationWeeks} weeks` : '',
       listed: true,
     });
+    if (error) console.error('[coachBridge] publish failed:', error.message);
   } catch {
     /* The phone copy remains. */
   }
