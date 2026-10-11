@@ -18,6 +18,9 @@ import { useBuddyRealtime } from './hooks/useBuddyRealtime';
 import { getAuthenticatedUserId } from '../../services/authUser';
 import { readAthleteSettingsSnapshot } from '../../utils/athleteSettingsSnapshot';
 import { useBuddyProfileStore } from '../../stores/useBuddyProfileStore';
+import { findNearbyCoaches, NearbyCoach } from './services/coachesNearby';
+import { CoachesNearbyStrip } from './components/CoachesNearbyStrip';
+import { CoachNearbySheet } from './components/CoachNearbySheet';
 
 export const BuddyView: React.FC = () => {
   const storeBuddies = useRadarStore((s) => s.buddies);
@@ -42,6 +45,9 @@ export const BuddyView: React.FC = () => {
 
   // Genuine Wired Search State & Supabase Integration
   const [searchResults, setSearchResults] = useState<DemoAthlete[]>(buddies);
+  const [nearbyPeople, setNearbyPeople] = useState<DemoAthlete[]>([]);
+  const [coaches, setCoaches] = useState<NearbyCoach[]>([]);
+  const [selectedCoach, setSelectedCoach] = useState<NearbyCoach | null>(null);
   const [isSearchingSupabase, setIsSearchingSupabase] = useState(false);
   const [userCoords, setUserCoords] = useState<{ latitude: number; longitude: number } | null>(null);
   const [locationOn, setLocationOn] = useState<boolean | null>(null);
@@ -192,6 +198,7 @@ export const BuddyView: React.FC = () => {
           searchRadius(isPro, deckFilters)
         );
         if (!isCancelled) {
+          setNearbyPeople(results.filter((row) => row.id !== radarUid));
           const profile = useBuddyProfileStore.getState();
           const ranked = rankAthletes({
             discipline: profile.selectedDisciplines[0] || '',
@@ -376,15 +383,28 @@ export const BuddyView: React.FC = () => {
     setActiveTab(tab);
   };
 
+  useEffect(() => {
+    let live = true;
+    void findNearbyCoaches(nearbyPeople)
+      .then((rows) => live && setCoaches(rows.filter((coach) => !blocks.includes(coach.id))))
+      .catch(() => live && setCoaches([]));
+    return () => {
+      live = false;
+    };
+  }, [nearbyPeople, blocks]);
+
+  const coachIds = useMemo(() => new Set(coaches.map((coach) => coach.id)), [coaches]);
+
   const deckCard = useMemo(() => {
     return searchResults.find((ath) => {
+      if (coachIds.has(ath.id)) return false;
       if (dismissedIds.includes(ath.id)) return false;
       if (mutuals[ath.id]) return false;
       if (blocks.includes(ath.id)) return false;
       if (deckFilters.verifiedOnly && !ath.is_verified) return false;
       return true;
     }) || null;
-  }, [searchResults, dismissedIds, mutuals, blocks, deckFilters.verifiedOnly]);
+  }, [searchResults, coachIds, dismissedIds, mutuals, blocks, deckFilters.verifiedOnly]);
 
   const chatPeople = useMemo(() => {
     const known = new Map<string, DemoAthlete>();
@@ -481,6 +501,8 @@ export const BuddyView: React.FC = () => {
           <span className="mt-0.5 block text-[12px] text-neutral-400">People filtering by that will not see a blank card.</span>
         </button>
       )}
+
+      {activeTab === 'DISCOVER' && buddyLive ? <CoachesNearbyStrip coaches={coaches} onOpen={setSelectedCoach} /> : null}
 
       <div className="px-3 pt-1">
         {activeTab === 'MATCHED' ? (
@@ -705,6 +727,14 @@ export const BuddyView: React.FC = () => {
         onCloseStudio={() => setIsStudioOpen(false)}
         destinationCity={travelCity || ''}
         travelRadiusKm={radiusKm}
+      />
+
+      <CoachNearbySheet
+        coach={selectedCoach}
+        viewerId={radarUid}
+        viewerName={buddyProfile.displayName}
+        onClose={() => setSelectedCoach(null)}
+        onToast={showToast}
       />
 
       {filtersOpen && (
