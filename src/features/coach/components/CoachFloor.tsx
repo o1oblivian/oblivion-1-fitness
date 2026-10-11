@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Dumbbell, Inbox, Layers, LayoutGrid, MessageSquare, Plus, Radio, User, UserPlus, Users, Wallet } from 'lucide-react';
+import { Dumbbell, Inbox, Layers, LayoutGrid, MessageSquare, Radio, User, UserPlus, Users, Wallet } from 'lucide-react';
 import { useAuthStore } from '../../../stores/useAuthStore';
 import { useCoachStore } from '../../../stores/useCoachStore';
 import { useModalStore } from '../../../components/modals/useModalStore';
@@ -119,22 +119,6 @@ function FilmTile({ title, thumb, onOpen }: { title: string; thumb: string; onOp
         onError={() => setSrc(nextReelCover(src))}
       />
       <span className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-transparent" />
-    </button>
-  );
-}
-
-function AddFilmTile({ onOpen }: { onOpen: () => void }) {
-  return (
-    <button
-      type="button"
-      onClick={onOpen}
-      aria-label="Add a clip or open your Vault"
-      className="flex aspect-[4/5] flex-col items-center justify-center gap-2 border border-dashed border-white/[0.07] bg-o1-surface text-o1-text active:scale-[0.98]"
-    >
-      <span className="flex h-11 w-11 items-center justify-center rounded-full bg-o1-crimson text-white">
-        <Plus size={20} />
-      </span>
-      <span className="text-[12px] font-semibold">Add / Vault</span>
     </button>
   );
 }
@@ -320,13 +304,7 @@ export const CoachFloor: React.FC<CoachFloorProps> = ({
           avatar={photo}
           bio={coachBio}
           hasStory={films.length > 0}
-          onAvatarPress={() => {
-            if (films.length > 0) {
-              openReel(films[0].id);
-              return;
-            }
-            onOpenVault();
-          }}
+          onAvatarPress={films.length > 0 ? () => openReel(films[0].id) : undefined}
           onAddClip={onOpenVault}
           onEdit={() => {
             tactileEngine.triggerSelectionBuzz();
@@ -384,17 +362,17 @@ export const CoachFloor: React.FC<CoachFloorProps> = ({
       </div>
 
       {tab === 'films' && (
-        <div className="grid grid-cols-2 gap-0.5">
-          <AddFilmTile
-            onOpen={() => {
-              tactileEngine.triggerSelectionBuzz();
-              onOpenVault();
-            }}
-          />
-          {films.map((film) => (
-            <FilmTile key={film.id} title={film.title} thumb={film.thumb} onOpen={() => openReel(film.id)} />
-          ))}
-        </div>
+        films.length === 0 ? (
+          <p className="rounded-2xl border border-white/[0.07] bg-o1-surface px-4 py-8 text-center text-[13px] text-o1-text">
+            No films yet. Tap + on your photo to open your Vault.
+          </p>
+        ) : (
+          <div className="grid grid-cols-2 gap-0.5">
+            {films.map((film) => (
+              <FilmTile key={film.id} title={film.title} thumb={film.thumb} onOpen={() => openReel(film.id)} />
+            ))}
+          </div>
+        )
       )}
 
       {tab === 'programs' && (

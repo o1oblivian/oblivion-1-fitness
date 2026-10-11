@@ -65,12 +65,12 @@ export const CoachProfileHeader: React.FC<CoachProfileHeaderProps> = ({
         {onAddClip ? (
           <button
             type="button"
-            aria-label="Add a clip"
+            aria-label="Open Vault"
             onClick={() => {
               tactileEngine.triggerSelectionBuzz();
               onAddClip();
             }}
-            className="absolute bottom-0 right-0 flex h-7 w-7 items-center justify-center rounded-full border-2 border-o1-canvas bg-white text-neutral-950 active:scale-95"
+            className="absolute bottom-0 right-0 flex h-7 w-7 items-center justify-center rounded-full border-2 border-o1-canvas bg-o1-crimson text-white active:scale-95"
           >
             <Plus size={14} />
           </button>
