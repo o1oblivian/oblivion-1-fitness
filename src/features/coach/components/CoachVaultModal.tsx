@@ -15,7 +15,9 @@ import { useBuddyProfileStore } from '../../../stores/useBuddyProfileStore';
 import { useUserStore } from '../../../stores/useUserStore';
 import { useReelsStore } from '../../../stores/useReelsStore';
 import { compressPhoto, compressVideo } from '../../../utils/mediaCompressor';
+import { deleteVaultRow, fetchVaultRows, isSharedUrl, removeMedia, saveVaultRow, storeMedia } from '../../../services/mediaStorage';
 import { CoachReelUploadModal } from '../../reels/components/CoachReelUploadModal';
+import { insertReelRow } from '../../reels/services/publishCoachReelService';
 import type { ExploreReelItem } from '../../reels/reelTypes';
 
 export interface VaultMediaItem {
@@ -29,6 +31,8 @@ export interface VaultMediaItem {
   createdAt: string;
   fileSize?: string;
   notes?: string;
+  /** Storage object paths, removed with the item. */
+  storagePaths?: string[];
 }
 
 const STORAGE_KEY = 'o1_coach_exercise_vault_media';
@@ -63,6 +67,33 @@ export const CoachVaultView: React.FC<CoachVaultViewProps> = ({ embedded = false
   const [isCompressing, setIsCompressing] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
+  useEffect(() => {
+    let live = true;
+    void fetchVaultRows().then((rows) => {
+      if (!live || rows.length === 0) return;
+      setItems((prev) => {
+        const known = new Set(prev.map((item) => item.id));
+        const cloud: VaultMediaItem[] = rows
+          .filter((row) => !known.has(row.id))
+          .map((row) => ({
+            id: row.id,
+            type: row.type,
+            title: row.title || (row.type === 'video' ? 'Reel' : 'Photo'),
+            category: row.type === 'video' ? 'Form Check' : 'Transformation',
+            athleteName: ownerName,
+            url: row.media_url,
+            thumbnailUrl: row.thumbnail_url || undefined,
+            createdAt: row.created_at ? new Date(row.created_at).toLocaleDateString() : '',
+            storagePaths: row.storage_path ? [row.storage_path] : undefined,
+          }));
+        return cloud.length ? [...prev, ...cloud] : prev;
+      });
+    });
+    return () => {
+      live = false;
+    };
+  }, [ownerName]);
+
   // Sync to localStorage
   useEffect(() => {
     try {
@@ -93,22 +124,45 @@ export const CoachVaultView: React.FC<CoachVaultViewProps> = ({ embedded = false
     setIsCompressing(true);
     const isVid = file.type.startsWith('video');
 
+    const title = file.name.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' ') || (isVid ? 'Training Reel Check-in' : 'Progress Audit Photo');
     try {
-      const result = isVid ? await compressVideo(file) : await compressPhoto(file);
-      const title = file.name.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' ') || (isVid ? 'Training Reel Check-in' : 'Progress Audit Photo');
+      let source: Blob = file;
+      let poster: string | undefined;
+      let fileSize: string | undefined;
+      try {
+        const result = isVid ? await compressVideo(file) : await compressPhoto(file);
+        source = result.file;
+        poster = result.thumbnailUrl;
+        fileSize = result.formattedCompressed;
+      } catch (err) {
+        console.warn('[CoachVault] Compression fallback:', err);
+      }
+      const [media, cover] = await Promise.all([
+        storeMedia(source, 'vault'),
+        isVid && poster ? storeMedia(poster, 'vault') : Promise.resolve(null),
+      ]);
       const newItem: VaultMediaItem = {
         id: `vault-media-${Date.now()}`,
         type: isVid ? 'video' : 'photo',
         title,
         category: isVid ? 'Form Check' : 'Transformation',
         athleteName: ownerName,
-        url: result.url,
-        thumbnailUrl: isVid ? result.thumbnailUrl || result.url : undefined,
+        url: media.url,
+        thumbnailUrl: isVid ? cover?.url || undefined : undefined,
         createdAt: 'Just now',
-        fileSize: result.formattedCompressed,
+        fileSize,
+        storagePaths: [media.path, cover?.path].filter((p): p is string => Boolean(p)),
       };
 
       setItems((prev) => [newItem, ...prev]);
+      void saveVaultRow({
+        id: newItem.id,
+        type: newItem.type,
+        title,
+        media_url: newItem.url,
+        thumbnail_url: newItem.thumbnailUrl,
+        storage_path: media.path,
+      });
 
       if (showOnBuddyOnAdd) {
         const buddyUrl = newItem.thumbnailUrl || newItem.url;
@@ -118,23 +172,7 @@ export const CoachVaultView: React.FC<CoachVaultViewProps> = ({ embedded = false
       }
 
       tactileEngine.playPRCelebration();
-      setAvatarSuccessMsg('Asset saved to Vault successfully!');
-      setTimeout(() => setAvatarSuccessMsg(null), 2500);
-    } catch (err) {
-      console.warn('[CoachVault] Compression fallback:', err);
-      const localUrl = URL.createObjectURL(file);
-      const title = file.name.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' ') || (isVid ? 'Training Reel Check-in' : 'Progress Audit Photo');
-      const newItem: VaultMediaItem = {
-        id: `vault-media-${Date.now()}`,
-        type: isVid ? 'video' : 'photo',
-        title,
-        category: isVid ? 'Form Check' : 'Transformation',
-        athleteName: ownerName,
-        url: localUrl,
-        createdAt: 'Just now',
-      };
-      setItems((prev) => [newItem, ...prev]);
-      setAvatarSuccessMsg('Asset saved to Vault successfully!');
+      setAvatarSuccessMsg(media.remote ? 'Saved to your Vault' : 'Saved on this phone only. Sign in to back it up.');
       setTimeout(() => setAvatarSuccessMsg(null), 2500);
     } finally {
       setIsCompressing(false);
@@ -167,7 +205,7 @@ export const CoachVaultView: React.FC<CoachVaultViewProps> = ({ embedded = false
         ? 'QUADS & GLUTES'
         : 'CHEST & TRICEPS';
 
-    addCoachReel({
+    const reel: ExploreReelItem = {
       id: `reel-${Date.now()}`,
       title: item.title,
       category: 'BIOMECHANICS',
@@ -203,13 +241,15 @@ export const CoachVaultView: React.FC<CoachVaultViewProps> = ({ embedded = false
           badge: 'CUE',
         },
       ],
-    });
+    };
+    addCoachReel(reel);
+    void insertReelRow(reel);
     setPublishedReelIds((prev) => [...prev, item.id]);
-    setAvatarSuccessMsg('⚡ Reel published to Train Ring!');
+    setAvatarSuccessMsg(isSharedUrl(item.url) ? 'Reel published' : 'Reel published on this phone only. Sign in and re-add it to share.');
     setTimeout(() => setAvatarSuccessMsg(null), 2500);
   };
 
-  const handleReelPublished = (reelTitle: string) => {
+  const handleReelPublished = (reelTitle: string, _category: string, shared: boolean) => {
     tactileEngine.playPRCelebration();
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
@@ -220,7 +260,7 @@ export const CoachVaultView: React.FC<CoachVaultViewProps> = ({ embedded = false
     } catch {
       // ignore
     }
-    setAvatarSuccessMsg(`⚡ Reel "${reelTitle}" uploaded & synced to Vault!`);
+    setAvatarSuccessMsg(shared ? `Reel "${reelTitle}" published` : `Reel "${reelTitle}" saved on this phone only. Sign in to share it.`);
     setTimeout(() => setAvatarSuccessMsg(null), 3000);
   };
 
@@ -233,6 +273,12 @@ export const CoachVaultView: React.FC<CoachVaultViewProps> = ({ embedded = false
       if (buddy.isPhotoOnBuddy(url)) {
         buddy.toggleVaultPhotoOnBuddy(url);
       }
+      const urls = [itemToDelete.url, itemToDelete.thumbnailUrl].filter(Boolean);
+      const inUse =
+        urls.includes(user.avatarUrl) ||
+        useReelsStore.getState().reels.some((reel) => urls.includes(reel.videoUrl) || urls.includes(reel.thumbnail));
+      if (!inUse) void removeMedia(itemToDelete.storagePaths ?? []);
+      void deleteVaultRow(id);
     }
     setItems((prev) => prev.filter((i) => i.id !== id));
     if (selectedPreviewItem?.id === id) {

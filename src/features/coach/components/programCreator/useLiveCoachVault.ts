@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../../../../services/supabaseClient';
 import { getAuthenticatedUserId } from '../../../../services/authUser';
+import { saveVaultRow, storeMedia } from '../../../../services/mediaStorage';
 
 export interface VaultUploadItem {
   id: string;
@@ -66,28 +67,28 @@ export function useLiveCoachVault() {
     return () => { isMounted = false; };
   }, []);
 
-  const addVaultItem = async (dataUrl: string, title: string) => {
-    const newItem: VaultUploadItem = { id: `vault-media-${Date.now()}`, url: dataUrl, title };
+  /** Uploads the artwork and returns the link to use as the cover. */
+  const addVaultItem = async (source: Blob | string, title: string): Promise<string> => {
+    const stored = await storeMedia(source, 'covers');
+    const newItem: VaultUploadItem = { id: `vault-media-${Date.now()}`, url: stored.url, title };
     setVaultItems((prev) => [newItem, ...prev]);
-
-    try {
-      const coachId = await getAuthenticatedUserId();
-      if (!coachId) return;
-      await supabase.from('media_vault').insert([{
-        id: newItem.id,
-        user_id: coachId,
-        title,
-        media_url: dataUrl,
-        thumbnail_url: dataUrl,
-        type: 'photo',
-        created_at: new Date().toISOString(),
-      }]);
-    } catch {}
+    void saveVaultRow({ id: newItem.id, type: 'photo', title, media_url: stored.url, storage_path: stored.path });
 
     try {
       const prevLocal = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-      localStorage.setItem(STORAGE_KEY, JSON.stringify([newItem, ...prevLocal]));
+      const localItem = {
+        id: newItem.id,
+        type: 'photo',
+        title,
+        category: 'Transformation',
+        athleteName: '',
+        url: stored.url,
+        createdAt: 'Just now',
+        storagePaths: stored.path ? [stored.path] : undefined,
+      };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify([localItem, ...prevLocal]));
     } catch {}
+    return stored.url;
   };
 
   return { vaultItems, loading, addVaultItem };

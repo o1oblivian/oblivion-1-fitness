@@ -4,6 +4,7 @@ import { supabase } from '../../../../services/supabaseClient';
 import { tactileEngine } from '../../../../services/tactileEngine';
 import { useUserStore } from '../../../../stores/useUserStore';
 import { compressPhoto } from '../../../../utils/mediaCompressor';
+import { storeMedia } from '../../../../services/mediaStorage';
 import { StorefrontStats, saveStorefront } from '../../../reels/services/coachStorefront';
 
 const VAULT_KEY = 'o1_coach_exercise_vault_media';
@@ -42,15 +43,6 @@ function vaultPhotos(): string[] {
   }
 }
 
-function blobToDataUrl(blob: Blob): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(String(reader.result || ''));
-    reader.onerror = () => reject(reader.error);
-    reader.readAsDataURL(blob);
-  });
-}
-
 /** Name, photo and bio for the coach profile, plus the public offer numbers. */
 export const CoachProfileEditSheet: React.FC<CoachProfileEditSheetProps> = ({ open, initial, stats, onClose, onSaved, onError }) => {
   if (!open) return null;
@@ -75,7 +67,9 @@ const EditSheetBody: React.FC<Omit<CoachProfileEditSheetProps, 'open'>> = ({ ini
     setBusy('photo');
     try {
       const result = await compressPhoto(file, { maxDimension: 512 });
-      setAvatar(await blobToDataUrl(result.file));
+      const stored = await storeMedia(result.file, 'avatars');
+      setAvatar(stored.url);
+      if (!stored.remote) onError('Photo saved on this phone only. Sign in to share it.');
     } catch {
       onError('Could not read that photo.');
     } finally {

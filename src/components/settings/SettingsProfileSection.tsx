@@ -8,6 +8,8 @@ import { PhotoVaultModal } from '../../features/log/components/PhotoVaultModal';
 import { CoachVaultModal } from '../../features/coach/components/CoachVaultModal';
 import { tactileEngine } from '../../services/tactileEngine';
 import { parseCleanInt, parseCleanNumber } from '../../utils/numberInputUtils';
+import { compressPhoto } from '../../utils/mediaCompressor';
+import { saveVaultRow, storeMedia } from '../../services/mediaStorage';
 
 interface ProfileSectionProps {
   name: string;
@@ -57,58 +59,50 @@ export const SettingsProfileSection: React.FC<ProfileSectionProps> = ({
   const [isVaultOpen, setIsVaultOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
+    e.target.value = '';
     if (!file) return;
 
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const dataUrl = event.target?.result as string;
-      if (dataUrl) {
-        tactileEngine.playPRCelebration();
-        // 1. Update user profile avatar
-        useUserStore.getState().updateProfile({ avatarUrl: dataUrl });
-        try {
-          localStorage.setItem('o1_profile_avatar_url', dataUrl);
-        } catch (err) {
-          console.error(err);
-        }
+    const compressed = await compressPhoto(file, { maxDimension: 1024 }).then((r) => r.file).catch(() => file);
+    const stored = await storeMedia(compressed, 'avatars');
+    const photoUrl = stored.url;
+    tactileEngine.playPRCelebration();
+    useUserStore.getState().updateProfile({ avatarUrl: photoUrl });
 
-        // 2. Sync to vault so it's safely stored
-        try {
-          const vaultKey = role === 'coach' ? 'o1_coach_exercise_vault_media' : 'o1_athlete_physique_vault_v1';
-          const rawVault = localStorage.getItem(vaultKey);
-          const existing = rawVault ? JSON.parse(rawVault) : [];
-          if (role === 'coach') {
-            existing.unshift({
-              id: `coach-vault-${Date.now()}`,
-              url: dataUrl,
-              title: 'Profile Avatar',
-              type: 'image',
-              uploadedAt: new Date().toISOString(),
-            });
-          } else {
-            existing.unshift({
-              id: `athlete-vault-${Date.now()}`,
-              dataUrl,
-              note: 'Profile Avatar',
-              timestamp: new Date().toISOString(),
-              date: new Date().toISOString().split('T')[0],
-            });
-          }
-          localStorage.setItem(vaultKey, JSON.stringify(existing));
-        } catch (err) {
-          console.error('Failed to sync avatar to vault:', err);
-        }
-
-        // 3. Add to buddy photos for radar presence
-        useBuddyProfileStore.getState().addBuddyPhoto(dataUrl);
-
-        setIsAvatarPickerOpen(false);
+    try {
+      const vaultKey = role === 'coach' ? 'o1_coach_exercise_vault_media' : 'o1_athlete_physique_vault_v1';
+      const rawVault = localStorage.getItem(vaultKey);
+      const existing = rawVault ? JSON.parse(rawVault) : [];
+      const id = `${role === 'coach' ? 'coach' : 'athlete'}-vault-${Date.now()}`;
+      if (role === 'coach') {
+        existing.unshift({
+          id,
+          type: 'photo',
+          title: 'Profile Avatar',
+          category: 'Transformation',
+          athleteName: localName,
+          url: photoUrl,
+          createdAt: 'Just now',
+          storagePaths: stored.path ? [stored.path] : undefined,
+        });
+        void saveVaultRow({ id, type: 'photo', title: 'Profile Avatar', media_url: photoUrl, storage_path: stored.path });
+      } else {
+        existing.unshift({
+          id,
+          dataUrl: photoUrl,
+          note: 'Profile Avatar',
+          timestamp: new Date().toISOString(),
+          date: new Date().toISOString().split('T')[0],
+        });
       }
-    };
-    reader.readAsDataURL(file);
-    e.target.value = '';
+      localStorage.setItem(vaultKey, JSON.stringify(existing));
+    } catch (err) {
+      console.error('Failed to sync avatar to vault:', err);
+    }
+
+    useBuddyProfileStore.getState().addBuddyPhoto(photoUrl);
+    setIsAvatarPickerOpen(false);
   };
 
   // Read available photos from Vault (single master source, zero fake mock photos)
@@ -303,7 +297,7 @@ export const SettingsProfileSection: React.FC<ProfileSectionProps> = ({
         <input
           type="file"
           ref={fileInputRef}
-          onChange={handleFileUpload}
+          onChange={(e) => void handleFileUpload(e)}
           accept="image/*"
           className="hidden"
         />

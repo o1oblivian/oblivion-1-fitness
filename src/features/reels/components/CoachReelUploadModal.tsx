@@ -15,7 +15,8 @@ export { REEL_CATEGORIES, SUB_FILTER_TAGS } from './ReelCategorySelector';
 interface CoachReelUploadModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onReelPublished?: (reelTitle: string, category: string) => void;
+  /** `shared` is false when the clip could not be uploaded and only plays on this phone. */
+  onReelPublished?: (reelTitle: string, category: string, shared: boolean) => void;
 }
 
 export const CoachReelUploadModal: React.FC<CoachReelUploadModalProps> = ({ isOpen, onClose, onReelPublished }) => {
@@ -29,6 +30,7 @@ export const CoachReelUploadModal: React.FC<CoachReelUploadModalProps> = ({ isOp
   const [cues, setCues] = useState('');
   const [showOnBuddy, setShowOnBuddy] = useState(true);
   const [isCompressing, setIsCompressing] = useState(false);
+  const [isPublishing, setIsPublishing] = useState(false);
   const [compressionProgress, setCompressionProgress] = useState(0);
   const [compressedResult, setCompressedResult] = useState<CompressedMediaResult | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string>('');
@@ -63,26 +65,26 @@ export const CoachReelUploadModal: React.FC<CoachReelUploadModalProps> = ({ isOp
 
   const handlePublish = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!previewUrl || !title.trim()) return;
-    tactileEngine.playPRCelebration();
+    if (!previewUrl || !title.trim() || isPublishing) return;
+    setIsPublishing(true);
 
     const authorName = profile?.name || user?.name || 'Coach';
     const authorHandle = user?.handle ? (user.handle.startsWith('@') ? user.handle : `@${user.handle}`) : '';
     const authorAvatar = user?.avatarUrl || '';
     const authorId = profile?.id || user?.userId || 'coach_current';
 
-    await publishCoachReel({
-      title, cues, selectedCategory, selectedFilterTag, previewUrl,
-      compressedResult, authorName, authorHandle, authorAvatar, authorId,
-    });
-
-    if (showOnBuddy) {
-      const thumb = compressedResult?.thumbnailUrl || previewUrl;
-      if (!buddy.isPhotoOnBuddy(thumb)) buddy.toggleVaultPhotoOnBuddy(thumb);
+    try {
+      const { reel, shared } = await publishCoachReel({
+        title, cues, selectedCategory, selectedFilterTag, previewUrl,
+        compressedResult, authorName, authorHandle, authorAvatar, authorId,
+      });
+      tactileEngine.playPRCelebration();
+      if (showOnBuddy && !buddy.isPhotoOnBuddy(reel.thumbnail)) buddy.toggleVaultPhotoOnBuddy(reel.thumbnail);
+      onReelPublished?.(title, selectedCategory, shared);
+      onClose();
+    } finally {
+      setIsPublishing(false);
     }
-
-    onReelPublished?.(title, selectedCategory);
-    onClose();
   };
 
   return (
@@ -111,9 +113,9 @@ export const CoachReelUploadModal: React.FC<CoachReelUploadModalProps> = ({ isOp
           <ReelCategorySelector selectedCategory={selectedCategory} onSelectCategory={setSelectedCategory} selectedFilterTag={selectedFilterTag} onSelectFilterTag={setSelectedFilterTag} />
           <ReelFormFields title={title} setTitle={setTitle} cues={cues} setCues={setCues} showOnBuddy={showOnBuddy} setShowOnBuddy={setShowOnBuddy} disabled={!previewUrl || !title.trim() || isCompressing} selectedCategory={selectedCategory} />
           <div className="pt-1">
-            <button type="submit" disabled={!previewUrl || !title.trim() || isCompressing} className="w-full py-2.5 rounded-xl bg-zinc-100 hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed text-neutral-950 text-xs font-semibold tracking-wide active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer">
+            <button type="submit" disabled={!previewUrl || !title.trim() || isCompressing || isPublishing} className="w-full py-2.5 rounded-xl bg-zinc-100 hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed text-neutral-950 text-xs font-semibold tracking-wide active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer">
               <CheckCircle2 className="w-4 h-4" />
-              <span>Publish Reel to Train Ring ({selectedCategory})</span>
+              <span>{isPublishing ? 'Uploading…' : `Publish Reel to Train Ring (${selectedCategory})`}</span>
             </button>
           </div>
         </form>

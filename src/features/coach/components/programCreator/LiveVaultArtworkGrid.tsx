@@ -1,6 +1,7 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { Upload, Plus, Check, FolderOpen } from 'lucide-react';
 import { tactileEngine } from '../../../../services/tactileEngine';
+import { compressPhoto } from '../../../../utils/mediaCompressor';
 import { useLiveCoachVault } from './useLiveCoachVault';
 
 interface Props {
@@ -11,23 +12,22 @@ interface Props {
 export const LiveVaultArtworkGrid: React.FC<Props> = ({ coverImage, onSelectImage }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { vaultItems, loading, addVaultItem } = useLiveCoachVault();
+  const [uploading, setUploading] = useState(false);
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
+    if (fileInputRef.current) fileInputRef.current.value = '';
     if (!file) return;
 
     tactileEngine.triggerImpactPulse();
-    const reader = new FileReader();
-    reader.onload = async (event) => {
-      const dataUrl = event.target?.result as string;
-      if (!dataUrl) return;
-
+    setUploading(true);
+    try {
+      const compressed = await compressPhoto(file, { maxDimension: 1600 }).then((r) => r.file).catch(() => file);
       const title = file.name.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' ') || 'Program Artwork';
-      await addVaultItem(dataUrl, title);
-      onSelectImage(dataUrl);
-    };
-    reader.readAsDataURL(file);
-    if (fileInputRef.current) fileInputRef.current.value = '';
+      onSelectImage(await addVaultItem(compressed, title));
+    } finally {
+      setUploading(false);
+    }
   };
 
   if (loading) {
@@ -37,18 +37,19 @@ export const LiveVaultArtworkGrid: React.FC<Props> = ({ coverImage, onSelectImag
   if (vaultItems.length === 0) {
     return (
       <div className="p-4 rounded-xl bg-o1-sheet border border-dashed border-white/[0.07] text-center space-y-2.5">
-        <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileUpload} className="hidden" />
+        <input ref={fileInputRef} type="file" accept="image/*" onChange={(e) => void handleFileUpload(e)} className="hidden" />
         <FolderOpen className="w-6 h-6 text-o1-muted mx-auto" />
         <div className="text-xs text-o1-text font-medium">
           No media in vault. Upload program artwork or select from Presets.
         </div>
         <button
           type="button"
+          disabled={uploading}
           onClick={() => fileInputRef.current?.click()}
-          className="px-4 py-2 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover text-o1-text text-xs font-tactical font-bold tracking-wider flex items-center gap-1.5 mx-auto cursor-pointer transition-all shadow-md"
+          className="px-4 py-2 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover text-o1-text text-xs font-tactical font-bold tracking-wider flex items-center gap-1.5 mx-auto cursor-pointer transition-all shadow-md disabled:opacity-60"
         >
           <Upload className="w-3.5 h-3.5" />
-          <span>+ Upload Artwork</span>
+          <span>{uploading ? 'Uploading…' : '+ Upload Artwork'}</span>
         </button>
       </div>
     );
@@ -56,7 +57,7 @@ export const LiveVaultArtworkGrid: React.FC<Props> = ({ coverImage, onSelectImag
 
   return (
     <div className="space-y-1.5">
-      <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileUpload} className="hidden" />
+      <input ref={fileInputRef} type="file" accept="image/*" onChange={(e) => void handleFileUpload(e)} className="hidden" />
       <div className="text-[10px] font-mono text-o1-muted tracking-wider px-0.5">
         Coach Media Vault ({vaultItems.length})
       </div>
@@ -64,13 +65,14 @@ export const LiveVaultArtworkGrid: React.FC<Props> = ({ coverImage, onSelectImag
         {/* First slot: [ + Upload ] tile */}
         <button
           type="button"
+          disabled={uploading}
           onClick={() => fileInputRef.current?.click()}
-          className="aspect-video rounded-xl border border-dashed border-o1-crimson/60 bg-o1-crimson/10 hover:bg-o1-crimson/20 flex flex-col items-center justify-center gap-1 cursor-pointer transition-all group"
+          className="aspect-video rounded-xl border border-dashed border-o1-crimson/60 bg-o1-crimson/10 hover:bg-o1-crimson/20 flex flex-col items-center justify-center gap-1 cursor-pointer transition-all group disabled:opacity-60"
         >
           <div className="w-6 h-6 rounded-full bg-o1-crimson flex items-center justify-center shadow-xs">
             <Plus className="w-3.5 h-3.5 text-o1-text stroke-[3]" />
           </div>
-          <span className="text-[9px] font-tactical font-bold text-o1-text tracking-wider">+ Upload</span>
+          <span className="text-[9px] font-tactical font-bold text-o1-text tracking-wider">{uploading ? 'Uploading…' : '+ Upload'}</span>
         </button>
 
         {/* Coach's uploaded vault images */}
