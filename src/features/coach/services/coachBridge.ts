@@ -5,12 +5,12 @@ import { LinkedCoach, clearLinkedCoach, readLinkedCoach, saveLinkedCoach } from 
 import { AthleteCheckInSubmission } from '../types/coachPlatformTypes';
 import { CoachFinishedWorkoutLog } from '../../../stores/coachTypes';
 import { isSampleId } from './sampleIds';
-import { isValidUuid, linkCoachClient } from './coachService';
+import { isValidUuid } from './coachService';
 import { ensureCoachCard } from './coachPublicProfile';
 import { fetchCoachCard } from './coachDirectory';
 import { buildProgramPlan, weekOneLines } from './programPlan';
 import type { ProgramFormData } from '../components/programCreator/types';
-import { StorefrontProgram, mapProgramRow } from '../../reels/services/coachStorefront';
+import { PROGRAM_COLUMNS, StorefrontProgram, mapProgramRow, withProgramContent } from '../../reels/services/coachStorefront';
 
 export interface CoachInviteIdentity {
   id: string;
@@ -37,25 +37,21 @@ export async function publishCoachInvite(code: string, coach: CoachInviteIdentit
 export async function acceptCoachInvite(): Promise<LinkedCoach | null> {
   const code = readPendingInvite();
   if (!code) return readLinkedCoach();
-  const { data, error } = await supabase
-    .from('coach_invites')
-    .select('coach_id, coach_name, coach_handle, coach_avatar')
-    .eq('code', code)
-    .maybeSingle();
-  if (error || !data?.coach_id || !data?.coach_name) return readLinkedCoach();
-  const coach: LinkedCoach = {
-    id: String(data.coach_id),
-    name: String(data.coach_name),
-    handle: String(data.coach_handle || ''),
-    avatar: String(data.coach_avatar || ''),
-  };
   const { data: auth } = await supabase.auth.getUser();
   const user = auth.user;
   if (!user?.id) return readLinkedCoach();
   const meta = user.user_metadata ?? {};
   const name = String(meta.full_name || meta.name || user.email?.split('@')[0] || 'Athlete');
   const avatar = typeof meta.avatar_url === 'string' ? meta.avatar_url : '';
-  if (!(await linkCoachClient(coach.id, { id: user.id, name, avatar }))) return readLinkedCoach();
+  const { data, error } = await supabase.rpc('join_coach_by_invite', { invite_code: code, display_name: name, avatar });
+  const row = (data ?? null) as { coach_id?: string; coach_name?: string; coach_handle?: string; coach_avatar?: string } | null;
+  if (error || !row?.coach_id || !row.coach_name) return readLinkedCoach();
+  const coach: LinkedCoach = {
+    id: String(row.coach_id),
+    name: String(row.coach_name),
+    handle: String(row.coach_handle || ''),
+    avatar: String(row.coach_avatar || ''),
+  };
   localStorage.removeItem('o1_pending_invite');
   saveLinkedCoach(coach);
   return coach;
@@ -198,12 +194,13 @@ export async function fetchOwnPrograms(coachId: string): Promise<StorefrontProgr
   if (!isValidUuid(coachId)) return [];
   const { data, error } = await supabase
     .from('coach_programs')
-    .select('*')
+    .select(PROGRAM_COLUMNS)
     .eq('coach_id', coachId)
     .eq('listed', true)
-    .order('created_at', { ascending: false });
+    .order('created_at', { ascending: false })
+    .limit(50);
   if (error || !Array.isArray(data)) return null;
-  return (data as Record<string, unknown>[]).map(mapProgramRow);
+  return (await withProgramContent(data as Record<string, unknown>[])).map(mapProgramRow);
 }
 
 /** Saves the whole program, every week, day and exercise, so enrolled athletes receive the real plan. */
@@ -212,6 +209,7 @@ export async function publishProgram(coachId: string, coachName: string, form: P
   if (!isValidUuid(coachId) || !title) return null;
   if (!(await ensureCoachCard(coachName))) return null;
   const plan = buildProgramPlan(form);
+  const weekOne = weekOneLines(plan);
   const price = form.isFreeCommunity ? 0 : Math.round(Math.max(0, form.priceUsd) * (100 - form.discountPercent));
   const { data, error } = await supabase
     .from('coach_programs')
@@ -230,18 +228,18 @@ export async function publishProgram(coachId: string, coachName: string, form: P
       tier: form.difficulty,
       discipline: form.category,
       cover_url: form.coverImage || '',
-      week_one: weekOneLines(plan),
+      week_one: weekOne,
       duration_label: `${form.durationWeeks} ${form.durationWeeks === 1 ? 'week' : 'weeks'}`,
       split_label: plan.weeks[0]?.days.map((day) => day.splitFocus).filter(Boolean).join(' / ') || '',
       listed: true,
     })
-    .select('*')
+    .select(PROGRAM_COLUMNS)
     .single();
   if (error || !data) {
     if (error) console.warn('[coachBridge] program publish failed:', error.message);
     return null;
   }
-  return mapProgramRow(data as Record<string, unknown>);
+  return mapProgramRow({ ...(data as Record<string, unknown>), week_one: weekOne, program_data: plan });
 }
 
 /** Takes a program off the store. Athletes already enrolled keep it. */

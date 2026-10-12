@@ -5,6 +5,7 @@ import { useAuthStore } from '../../stores/useAuthStore';
 import {
   Athlete,
   deleteCoachNote,
+  ROSTER_PAGE,
   fetchCoachClients,
   fetchCoachDirectives,
   isValidUuid,
@@ -43,6 +44,7 @@ export const O1FCoachCommandCenter: React.FC<O1FCoachCommandCenterProps> = ({ is
 
   const [athletes, setAthletes] = useState<Athlete[] | null>(null);
   const [rosterFailed, setRosterFailed] = useState(false);
+  const [rosterHasMore, setRosterHasMore] = useState(false);
   const [notes, setNotes] = useState<DirectiveItem[] | null>(null);
   const [notesFailed, setNotesFailed] = useState(false);
   const [checkins, setCheckins] = useState<AthleteCheckInSubmission[] | null>(null);
@@ -77,9 +79,24 @@ export const O1FCoachCommandCenter: React.FC<O1FCoachCommandCenterProps> = ({ is
     if (!coachId) return;
     const rows = await fetchCoachClients(coachId);
     setRosterFailed(rows === null);
+    setRosterHasMore(rows?.length === ROSTER_PAGE);
     if (rows) setAthletes(rows);
     else setAthletes((prev) => prev ?? []);
   }, [coachId]);
+
+  const loadMoreRoster = useCallback(async () => {
+    if (!coachId || !athletes) return;
+    const rows = await fetchCoachClients(coachId, athletes.length);
+    if (!rows) {
+      setRosterFailed(true);
+      return;
+    }
+    setRosterHasMore(rows.length === ROSTER_PAGE);
+    setAthletes((prev) => {
+      const seen = new Set((prev ?? []).map((row) => row.id));
+      return [...(prev ?? []), ...rows.filter((row) => !seen.has(row.id))];
+    });
+  }, [coachId, athletes]);
 
   const loadNotes = useCallback(async () => {
     if (!coachId) return;
@@ -208,6 +225,8 @@ export const O1FCoachCommandCenter: React.FC<O1FCoachCommandCenterProps> = ({ is
           athletes={athletes}
           rosterFailed={rosterFailed}
           onRetryRoster={() => void loadRoster()}
+          rosterHasMore={rosterHasMore}
+          onLoadMoreRoster={() => void loadMoreRoster()}
           checkins={checkins}
           onCheckinsChange={setCheckins}
           notes={notes}

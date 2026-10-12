@@ -10,7 +10,6 @@ export type AthleticFocusType =
 export interface DevicePermissions {
   location: boolean;
   camera: boolean;
-  microphone: boolean;
   notifications: boolean;
 }
 
@@ -47,7 +46,6 @@ export const INITIAL_ONBOARDING_DATA: OnboardingData = {
   permissions: {
     location: false,
     camera: false,
-    microphone: false,
     notifications: false,
   },
 };

@@ -1,6 +1,6 @@
 import React from 'react';
 import { ChevronUp } from 'lucide-react';
-import { FuelMeals, MealItem } from '../store/useFuelStore';
+import { FuelMeals } from '../store/useFuelStore';
 import { MEAL_SLOTS, SlotKey } from '../constants/fuelConstants';
 import { FuelIntakeSlotCard } from './FuelIntakeSlotCard';
 
@@ -8,72 +8,52 @@ interface FuelIntakeSectionProps {
   isIntakeExpanded: boolean;
   onToggleIntake: () => void;
   meals: FuelMeals;
-  dietPreference?: string;
+  slotTargets: Partial<Record<SlotKey, number>> | null;
   onDeleteItem: (slot: SlotKey, itemId: string, itemName: string) => void;
   onOpenAddFoodModal: (categoryLabel: string) => void;
-  onOpenVoiceModal: (slot: SlotKey) => void;
   onOpenScanModal: (slot: SlotKey) => void;
-  onQuickAddItem?: (slot: SlotKey, item: MealItem) => void;
 }
 
 export const FuelIntakeSection: React.FC<FuelIntakeSectionProps> = ({
   isIntakeExpanded,
   onToggleIntake,
   meals,
-  dietPreference,
+  slotTargets,
   onDeleteItem,
   onOpenAddFoodModal,
-  onOpenVoiceModal,
   onOpenScanModal,
-  onQuickAddItem,
 }) => {
-  const totalLoggedCalories = Object.values(meals).reduce(
-    (acc: number, items: MealItem[] | undefined) =>
-      acc + (items || []).reduce((slotAcc: number, it: MealItem) => slotAcc + (Number(it.calories) || 0), 0),
-    0
-  );
+  const filledSlots = MEAL_SLOTS.filter((slot) => (meals[slot.key] || []).length > 0).length;
 
   return (
     <section id="verified-intake-categories" className="space-y-3 select-none">
-      {/* Intake Section Header with Live Calorie Counter */}
-      <div
+      <button
+        type="button"
         onClick={onToggleIntake}
-        className="flex items-center justify-between px-1 cursor-pointer"
+        aria-expanded={isIntakeExpanded}
+        className="w-full flex items-center justify-between px-1 cursor-pointer bg-transparent border-0"
       >
-        <div className="flex items-center gap-2">
-          <h2 className="text-base font-bold text-neutral-100 tracking-tight">
-            Intake
-          </h2>
-          <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-white/[0.08] text-neutral-300">
-            {totalLoggedCalories.toLocaleString()} kcal logged
+        <span className="flex items-center gap-2">
+          <span className="text-base font-semibold text-o1-text">Intake</span>
+          <span className="px-2 py-0.5 rounded-full text-[10px] font-medium tabular-nums border border-white/[0.08] text-o1-muted">
+            {filledSlots}/{MEAL_SLOTS.length} logged
           </span>
-        </div>
-
-        <button
-          type="button"
-          aria-label="Toggle intake slots"
-          className="w-7 h-7 rounded-full bg-white/[0.08] hover:bg-neutral-700 flex items-center justify-center text-neutral-400 transition-colors shadow-2xs cursor-pointer"
-        >
-          <ChevronUp
-            className={`w-4 h-4 transition-transform duration-200 ${
-              isIntakeExpanded ? '' : 'rotate-180'
-            }`}
-          />
-        </button>
-      </div>
+        </span>
+        <span className="w-7 h-7 rounded-full border border-white/[0.08] flex items-center justify-center text-o1-muted">
+          <ChevronUp className={`w-4 h-4 transition-transform duration-200 ${isIntakeExpanded ? '' : 'rotate-180'}`} />
+        </span>
+      </button>
 
       {isIntakeExpanded &&
         MEAL_SLOTS.map((slot) => (
           <FuelIntakeSlotCard
             key={slot.key}
             slot={slot}
+            targetKcal={slotTargets?.[slot.key] ?? null}
             items={meals[slot.key] || []}
-            dietPreference={dietPreference}
             onDeleteItem={onDeleteItem}
             onOpenAddFoodModal={onOpenAddFoodModal}
-            onOpenVoiceModal={onOpenVoiceModal}
             onOpenScanModal={onOpenScanModal}
-            onQuickAddItem={onQuickAddItem}
           />
         ))}
     </section>

@@ -120,7 +120,6 @@ export const CARBS_FOODS: FoodCatalogItem[] = [
   { id: 'c-101', name: 'Cooked White Rice (Gym cup, 180g)', brand: 'SunRice / Whole Food', serving: '180g', calories: 234, protein: 4.5, carbs: 51, fats: 0.4, category: 'CARBS' },
   { id: 'c-102', name: 'Cooked Pasta (Plain, 100g)', brand: 'Barilla', serving: '100g cooked', calories: 131, protein: 5, carbs: 25, fats: 1.1, category: 'CARBS' },
   { id: 'c-103', name: 'Sourdough Slice (Toasted)', brand: 'Bakery', serving: '1 slice (40g)', calories: 110, protein: 4, carbs: 20, fats: 1, category: 'CARBS' },
-  { id: 'c-104', name: 'Banana (Medium)', brand: 'Produce', serving: '1 medium (118g)', calories: 105, protein: 1.3, carbs: 27, fats: 0.4, category: 'CARBS' },
   { id: 'c-105', name: 'Apple (Medium, with skin)', brand: 'Produce', serving: '1 medium (182g)', calories: 95, protein: 0.5, carbs: 25, fats: 0.3, category: 'CARBS' },
   { id: 'c-106', name: 'Blueberries (Fresh, 100g)', brand: 'Produce', serving: '100g', calories: 57, protein: 0.7, carbs: 14.5, fats: 0.3, category: 'CARBS' },
   { id: 'c-107', name: 'Weet-Bix (2 biscuits)', brand: 'Sanitarium', serving: '2 biscuits (30g)', calories: 106, protein: 3.6, carbs: 20, fats: 0.4, category: 'CARBS' },

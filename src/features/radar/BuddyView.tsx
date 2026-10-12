@@ -74,20 +74,29 @@ export const BuddyView: React.FC = () => {
     if (cap !== radiusKm) setRadiusKm(cap);
   }, [isPro, travelRadiusKm, radiusKm]);
 
+  const radarConsent = useBuddyProfileStore((s) => s.radarConsent);
+
   useEffect(() => {
     void getAuthenticatedUserId().then((id) => {
       setRadarUid(id || '');
       setAuthReady(true);
     });
-    void getDeviceCoordinates().then((coords) => {
-      if (!coords) {
-        setLocationOn(false);
-        return;
-      }
-      setLocationOn(true);
-      setUserCoords(coords);
-    });
   }, []);
+
+  useEffect(() => {
+    if (!radarConsent) {
+      setUserCoords(null);
+      setLocationOn(false);
+      return;
+    }
+    let live = true;
+    void getDeviceCoordinates().then((coords) => {
+      if (!live) return;
+      setLocationOn(Boolean(coords));
+      if (coords) setUserCoords(coords);
+    });
+    return () => { live = false; };
+  }, [radarConsent]);
 
   useEffect(() => {
     if (!radarUid) return;
@@ -99,6 +108,7 @@ export const BuddyView: React.FC = () => {
   }, [radarUid]);
 
   useEffect(() => {
+    if (!radarConsent || !isBuddyProfileActive) return;
     if (!profileHydrated || !userCoords || !buddyProfile.displayName.trim() || buddyProfile.age < 18) return;
     let cancelled = false;
     const looking = buddyProfile.partnerBio.split('\n')[1]?.trim() || '';
@@ -131,7 +141,7 @@ export const BuddyView: React.FC = () => {
       setQueueRevision((n) => n + 1);
     });
     return () => { cancelled = true; };
-  }, [profileHydrated, userCoords, buddyProfile.displayName, buddyProfile.age, buddyProfile.homeGym, buddyProfile.selectedDisciplines, buddyProfile.favoriteWorkouts, buddyProfile.preferredTimes, buddyProfile.partnerBio, buddyProfile.buddyPhotos, buddyProfile.experienceLevel, buddyProfile.ghostMode, buddyProfile.gender, buddyProfile.trainingPlace]);
+  }, [radarConsent, isBuddyProfileActive, profileHydrated, userCoords, buddyProfile.displayName, buddyProfile.age, buddyProfile.homeGym, buddyProfile.selectedDisciplines, buddyProfile.favoriteWorkouts, buddyProfile.preferredTimes, buddyProfile.partnerBio, buddyProfile.buddyPhotos, buddyProfile.experienceLevel, buddyProfile.ghostMode, buddyProfile.gender, buddyProfile.trainingPlace]);
 
   useEffect(() => {
     let stopped = false;
@@ -334,13 +344,36 @@ export const BuddyView: React.FC = () => {
     }
     rememberLike(athlete.id, true);
     setLikedAthletes((prev) => ({ ...prev, [athlete.id]: true }));
-    if (result.mutual) {
-      rememberMutual(athlete.id);
-      setMutuals((prev) => ({ ...prev, [athlete.id]: true }));
+    if (!result.mutual) {
+      showToast(`Liked ${athlete.name}. Chat opens if they like you back.`);
+      return;
     }
+    rememberMutual(athlete.id);
+    setMutuals((prev) => ({ ...prev, [athlete.id]: true }));
     setOpenSchedule(false);
     setSelectedMessageAthlete(athlete);
-    showToast(result.mutual ? `${athlete.name} is in Chats` : `Liked ${athlete.name}`);
+    showToast(`${athlete.name} is in Chats`);
+  };
+
+  const blockPerson = (person: DemoAthlete, quiet = false) => {
+    void publishBlock(radarUid, person.id).then((saved) => {
+      if (!quiet) showToast(saved ? `Blocked ${person.name}` : 'Blocked on this phone. It did not save to your account.');
+    });
+    setBlocks((prev) => [person.id, ...prev.filter((id) => id !== person.id)]);
+    setMutuals((prev) => {
+      const next = { ...prev };
+      delete next[person.id];
+      return next;
+    });
+    setSelectedMessageAthlete((open) => (open?.id === person.id ? null : open));
+    setSelectedProfileAthlete((open) => (open?.id === person.id ? null : open));
+  };
+
+  const reportPerson = (person: DemoAthlete, reason: string, details: string, alsoBlock: boolean) => {
+    void publishReport(radarUid, person.id, person.name, reason, details).then((saved) => {
+      showToast(saved ? (alsoBlock ? `Report sent and ${person.name} blocked` : 'Report sent') : 'Report did not send. Check your connection and try again.');
+    });
+    if (alsoBlock) blockPerson(person, true);
   };
 
   const enableLocation = async () => {
@@ -349,9 +382,10 @@ export const BuddyView: React.FC = () => {
     const result = await requestDeviceLocation();
     setLocating(false);
     if (result.status === 'granted') {
+      if (!radarConsent) buddyProfile.setRadarConsent(true);
       setLocationOn(true);
       setUserCoords(result.coords);
-      showToast('Location on');
+      showToast('You are on the radar. Only your rough area is used.');
       return;
     }
     setLocationOn(false);
@@ -536,10 +570,12 @@ export const BuddyView: React.FC = () => {
           <div id="radar-empty-state" className="flex flex-col items-center px-5 pt-16 text-center">
             <p className="o1-num text-[42px] leading-none text-[#F2EFE6]">{deckFilters.distanceKm}</p>
             <p className="mt-1 text-[13px] text-neutral-400">km radius</p>
-            <h3 className="mt-6 text-[22px] font-semibold leading-tight text-white">No training partners in this radius.</h3>
+            <h3 className="mt-6 text-[22px] font-semibold leading-tight text-white">
+              {locationOn === false ? 'Find training partners near you.' : 'No training partners in this radius.'}
+            </h3>
             <p className="mt-2 max-w-[18rem] text-[14px] leading-relaxed text-neutral-400">
               {locationOn === false
-                ? 'Location is off, so the search has no starting point.'
+                ? 'Turn on Buddy to search. Only your rough area, about 1 km, is used.'
                 : 'Widen the radius and bring back people you passed.'}
             </p>
             <button
@@ -548,14 +584,8 @@ export const BuddyView: React.FC = () => {
                 tactileEngine.triggerSelectionBuzz();
                 void (async () => {
                   if (!userCoords) {
-                    const coords = await getDeviceCoordinates();
-                    if (!coords) {
-                      setLocationOn(false);
-                      showToast('Turn location on to search');
-                      return;
-                    }
-                    setLocationOn(true);
-                    setUserCoords(coords);
+                    await enableLocation();
+                    return;
                   }
                   const hadPasses = dismissedIds.length > 0;
                   if (hadPasses) {
@@ -585,7 +615,7 @@ export const BuddyView: React.FC = () => {
               }}
               className="mt-6 h-12 w-full max-w-sm rounded-full bg-o1-crimson text-[15px] font-semibold text-white active:bg-o1-crimson-press"
             >
-              Widen search
+              {locationOn === false ? 'Turn on Buddy' : 'Widen search'}
             </button>
           </div>
         )}
@@ -636,27 +666,8 @@ export const BuddyView: React.FC = () => {
           setSelectedMessageAthlete(null);
           showToast(`Unmatched ${person.name}`);
         }}
-        onBlock={() => {
-          const person = selectedMessageAthlete;
-          if (!person) return;
-          void publishBlock(radarUid, person.id).then((saved) => {
-            showToast(saved ? `Blocked ${person.name}` : 'Blocked on this phone. It did not save to your account.');
-          });
-          setBlocks((prev) => [person.id, ...prev.filter((id) => id !== person.id)]);
-          setMutuals((prev) => {
-            const next = { ...prev };
-            delete next[person.id];
-            return next;
-          });
-          setSelectedMessageAthlete(null);
-        }}
-        onReport={(reason) => {
-          const person = selectedMessageAthlete;
-          if (!person) return;
-          void publishReport(radarUid, person.id, person.name, reason).then((saved) => {
-            showToast(saved ? 'Report saved' : 'Report stayed on this phone. It did not save to your account.');
-          });
-        }}
+        onBlock={(person) => blockPerson(person)}
+        onReport={reportPerson}
         onLine={(text) => {
           const person = selectedMessageAthlete;
           if (!person) return;
@@ -669,14 +680,14 @@ export const BuddyView: React.FC = () => {
           setOpenSchedule(false);
         }}
         onSendInvite={({ gym, dateTime }) => showToast(`Session invite sent for ${gym} (${dateTime})`)}
-        allowCompose
+        allowCompose={Boolean(selectedMessageAthlete && mutuals[selectedMessageAthlete.id] && !blocks.includes(selectedMessageAthlete.id))}
         scheduleOpen={openSchedule}
         scheduleTarget={selectedBookingAthlete}
         onCloseSchedule={() => setSelectedBookingAthlete(null)}
         onInviteSent={({ gym, dateTime }) => showToast(`Training session booked at ${gym} (${dateTime})`)}
         isPrivacyOpen={isPrivacyOpen}
         onClosePrivacy={() => setIsPrivacyOpen(false)}
-        onPrivacySaved={() => showToast('Stealth & privacy parameters updated')}
+        onPrivacySaved={(s) => showToast(!s.radarConsent ? 'You are off Buddy. Your card and area are removed.' : s.ghostMode ? 'Ghost mode on. Nobody can see your card.' : 'Your card is visible on Buddy')}
         isFiltersOpen={isFiltersOpen}
         onCloseFilters={() => setIsFiltersOpen(false)}
         onApplyFilters={(f) => {

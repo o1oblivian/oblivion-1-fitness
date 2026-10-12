@@ -1,11 +1,16 @@
 import { ExerciseEntry, LoggedSet } from './store/useTelemetryHistoryStore';
 
-/** Sets that were actually logged. Empty planned sets stay out of the book. */
-export function setsFromExercise(exercise: {
-  sets?: Array<{ completed?: boolean; reps?: number; weightKg?: number; weight?: number }>;
-}): LoggedSet[] {
+/**
+ * Sets that were actually logged. Empty planned sets stay out of the book.
+ * `completedOnly` is for the live tracker, where prescribed numbers are prefilled and only a tick means done.
+ */
+export function setsFromExercise(
+  exercise: { sets?: Array<{ completed?: boolean; reps?: number; weightKg?: number; weight?: number }> },
+  completedOnly = false,
+): LoggedSet[] {
   return (exercise.sets || [])
     .filter((set) => {
+      if (completedOnly) return Boolean(set?.completed);
       const reps = Number(set?.reps) || 0;
       const weight = Number(set?.weightKg ?? set?.weight) || 0;
       return Boolean(set?.completed) || reps > 0 || weight > 0;

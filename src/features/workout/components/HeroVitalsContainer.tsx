@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useTelemetryHistoryStore } from '../../log/store/useTelemetryHistoryStore';
 import { latestSleepRecord } from '../../report/vitals';
-import { supplementStatus } from '../supplementStack';
 import { useTelemetryStore } from '../../telemetry/store/useTelemetryStore';
 import { useFuelStore } from '../../fuel/store/useFuelStore';
+import { hydrationGoalLiters } from '../../fuel/utils/fuelMath';
 import { useWorkoutStore } from '../store/useWorkoutStore';
 import { useLogStore } from '../../../stores/useLogStore';
 import { useWallpaperStore } from '../../../stores/useWallpaperStore';
@@ -133,9 +133,11 @@ export const HeroVitalsContainer: React.FC<HeroVitalsContainerProps> = ({
   const storeDistTarget = useTelemetryStore((s) => s.distTarget);
   const recoveryEnergyScore = useWorkoutStore((s) => s.recoveryEnergyScore ?? 0);
   const hydrationCurrentL = useFuelStore((s) => s.hydrationCurrentL ?? 0.0);
-  const addFuelHydration = useFuelStore((s) => s.addFuelHydration);
+  const addFuelHydration = useFuelStore((s) => s.logHydration);
   const setHydrationLiters = useFuelStore((s) => s.setHydrationLiters);
   const fuelBurnedKcal = useFuelStore((s) => s.burnedKcal);
+  const hydrationTargetL = useFuelStore((s) => s.hydrationTargetL);
+  const fuelWeightKg = useFuelStore((s) => s.weightKg);
   const currentSleep = useLogStore((s) => s.subModules?.sleep);
   const historyByDate = useTelemetryHistoryStore((s) => s.historyByDate);
   const loggedSleep = latestSleepRecord(historyByDate);
@@ -153,10 +155,12 @@ export const HeroVitalsContainer: React.FC<HeroVitalsContainerProps> = ({
         ? loggedSleep.recoveryPercent
         : null;
   const restingHr = loggedSleep && loggedSleep.restingHeartRate > 0 ? loggedSleep.restingHeartRate : null;
-  const [supplements, setSupplements] = useState(supplementStatus);
-  useEffect(() => {
-    if (activeModal === null) setSupplements(supplementStatus());
-  }, [activeModal]);
+  const supplementStack = useFuelStore((s) => s.supplementStack);
+  const supplementsTakenIds = useFuelStore((s) => s.supplementsTaken);
+  const supplements = {
+    taken: supplementStack.filter((s) => supplementsTakenIds.includes(s.id)).length,
+    total: supplementStack.length,
+  };
 
   // Pure genuine telemetry values from actual user activity - zero mock/fake values
   const isPresentDay = activeDay.toLowerCase() === systemToday.toLowerCase();
@@ -181,7 +185,8 @@ export const HeroVitalsContainer: React.FC<HeroVitalsContainerProps> = ({
     storeDistTarget && storeDistTarget > 0 ? storeDistTarget : 8.0;
   const currentReadiness = recoveryEnergyScore || 0;
   const splitName = DAY_SPLIT_MAP[activeDay] || 'Rest Day';
-  const waterPct = Math.min(100, Math.round((hydrationCurrentL / 3.0) * 100));
+  const waterGoalL = hydrationGoalLiters(hydrationTargetL, fuelWeightKg);
+  const waterPct = waterGoalL ? Math.min(100, Math.round((hydrationCurrentL / waterGoalL) * 100)) : 0;
 
   const { isEnabled, isPaused, intervalSeconds, nextWallpaper, getActiveWallpaper, refreshLive, reportBroken, activeIndex, pool, customUrl } =
     useWallpaperStore();

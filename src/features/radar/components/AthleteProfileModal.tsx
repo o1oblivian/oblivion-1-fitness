@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { ChevronLeft, MoreVertical, MapPin, X, Check, MessageCircle, Calendar } from 'lucide-react';
+import { ChevronLeft, MoreVertical, MapPin, X, Check, MessageCircle, Calendar, Flag, Ban } from 'lucide-react';
 import { Athlete } from '../types';
 import { tactileEngine } from '../../../services/tactileEngine';
+import { SafetyReportSheet } from '../../../components/common/SafetyReportSheet';
 
 interface AthleteProfileModalProps {
   athlete: Athlete | null;
@@ -10,6 +11,8 @@ interface AthleteProfileModalProps {
   onAccept: (athlete: Athlete) => void;
   onMessage: (athlete: Athlete) => void;
   onBook: (athlete: Athlete) => void;
+  onBlock?: (athlete: Athlete) => void;
+  onReport?: (athlete: Athlete, reason: string, details: string, alsoBlock: boolean) => void;
 }
 
 export const AthleteProfileModal: React.FC<AthleteProfileModalProps> = ({
@@ -19,8 +22,11 @@ export const AthleteProfileModal: React.FC<AthleteProfileModalProps> = ({
   onAccept,
   onMessage,
   onBook,
+  onBlock,
+  onReport,
 }) => {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [reportOpen, setReportOpen] = useState(false);
   if (!athlete) return null;
 
   const photo = athlete.image_url || athlete.avatar || athlete.photos?.[0] || '';
@@ -44,6 +50,8 @@ export const AthleteProfileModal: React.FC<AthleteProfileModalProps> = ({
     { label: 'Message', icon: MessageCircle, run: () => onMessage(athlete) },
     { label: 'Book a session', icon: Calendar, run: () => onBook(athlete) },
     { label: 'Pass', icon: X, run: () => onPass(athlete) },
+    ...(onReport ? [{ label: 'Report', icon: Flag, run: () => setReportOpen(true) }] : []),
+    ...(onBlock ? [{ label: 'Block', icon: Ban, run: () => onBlock(athlete) }] : []),
   ];
 
   return (
@@ -164,6 +172,12 @@ export const AthleteProfileModal: React.FC<AthleteProfileModalProps> = ({
           </button>
         </div>
       </div>
+      <SafetyReportSheet
+        open={reportOpen}
+        name={athlete.name}
+        onClose={() => setReportOpen(false)}
+        onSubmit={(reason, details, alsoBlock) => onReport?.(athlete, reason, details, alsoBlock)}
+      />
     </div>
   );
 };

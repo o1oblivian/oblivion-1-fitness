@@ -18,6 +18,7 @@ import { useBuddyMessageStore } from '../../../stores/useBuddyMessageStore';
 import { useUserStore } from '../../../stores/useUserStore';
 import { searchVenues, VenueHit } from '../services/venueSearch';
 import { rememberLine, postLine, readThread } from '../services/buddyMatch';
+import { SafetyReportSheet } from '../../../components/common/SafetyReportSheet';
 
 interface Props {
   isOpen: boolean;
@@ -28,7 +29,7 @@ interface Props {
   scheduleOpen?: boolean;
   onUnmatch?: () => void;
   onBlock?: () => void;
-  onReport?: (reason: string) => void;
+  onReport?: (reason: string, details: string, alsoBlock: boolean) => void;
   onLine?: (text: string) => void;
   sessionUserId?: string;
 }
@@ -111,11 +112,9 @@ export const AthleteMessageModal: React.FC<Props> = ({
   sessionUserId = '',
 }) => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [hasReplied, setHasReplied] = useState(false);
   const [inputText, setInputText] = useState('');
   const [menuOpen, setMenuOpen] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
-  const [reportReason, setReportReason] = useState('');
 
   const [isScheduleOpen, setIsScheduleOpen] = useState(scheduleOpen);
   const [schedDate, setSchedDate] = useState(() => new Date().toISOString().slice(0, 10));
@@ -151,10 +150,7 @@ export const AthleteMessageModal: React.FC<Props> = ({
             content: line.body,
             created_at: line.at,
           }, currentUserId)));
-          if (mapped.length > 0) {
-            setMessages(mapped);
-            setHasReplied(mapped.some((m) => m.sender === 'peer'));
-          }
+          if (mapped.length > 0) setMessages(mapped);
         } catch (err) {
           console.warn('[AthleteMessageModal] Error fetching buddy_messages:', err);
         }
@@ -187,7 +183,6 @@ export const AthleteMessageModal: React.FC<Props> = ({
         }, currentUserId || '');
         return applyAccepts([...prev, incoming]);
       });
-      setHasReplied(true);
     }
   }, [liveMessages, athlete, currentUserId]);
 
@@ -260,9 +255,7 @@ export const AthleteMessageModal: React.FC<Props> = ({
       time: timeStr,
     };
     setMessages((prev) => [...prev, newMsg]);
-    void deliverLine(text, newMsg.id).then((ok) => {
-      if (ok) setHasReplied(true);
-    });
+    void deliverLine(text, newMsg.id);
   };
 
   // Send custom typed message (only once unlocked after peer reply)
@@ -326,7 +319,6 @@ export const AthleteMessageModal: React.FC<Props> = ({
         setSendNote(saved.error || 'Invite did not send');
         return;
       }
-      setHasReplied(true);
       setSendNote('');
       rememberLine(athlete.id, `Session at ${venueName}`);
       onLine?.(`Session at ${venueName}`);
@@ -406,30 +398,12 @@ export const AthleteMessageModal: React.FC<Props> = ({
             <button type="button" onClick={() => { setMenuOpen(false); setReportOpen(true); }} className="flex w-full rounded-xl px-3 py-2.5 text-left text-[13px] text-white">Report</button>
           </div>
         )}
-        {reportOpen && (
-          <div className="border-b border-white/[0.07] bg-[#121214] px-4 py-3">
-            <p className="text-[13px] font-semibold text-white">Report behaviour</p>
-            <textarea
-              value={reportReason}
-              onChange={(event) => setReportReason(event.target.value.slice(0, 240))}
-              placeholder="What happened"
-              className="mt-2 h-20 w-full rounded-xl border border-white/[0.07] bg-[#161616] px-3 py-2 text-[13px] text-white outline-none"
-            />
-            <button
-              type="button"
-              onClick={() => {
-                const reason = reportReason.trim();
-                if (!reason) return;
-                onReport?.(reason);
-                setReportReason('');
-                setReportOpen(false);
-              }}
-              className="mt-2 h-9 rounded-full bg-o1-crimson px-4 text-[12px] font-semibold text-white"
-            >
-              Send report
-            </button>
-          </div>
-        )}
+        <SafetyReportSheet
+          open={reportOpen}
+          name={athlete?.name || ''}
+          onClose={() => setReportOpen(false)}
+          onSubmit={(reason, details, alsoBlock) => onReport?.(reason, details, alsoBlock)}
+        />
 
         {/* Schedule Training Session Drawer Dropdown */}
         {isScheduleOpen && (
@@ -605,15 +579,14 @@ export const AthleteMessageModal: React.FC<Props> = ({
 
               <div className="space-y-1 max-w-xs">
                 <h3 className="text-sm font-bold text-white">
-                  Send a Message Request to {athlete.name}
+                  {allowCompose ? `Say hi to ${athlete.name}` : `You liked ${athlete.name}`}
                 </h3>
                 <p className="text-xs text-neutral-400">
-                  Select a curated athletic icebreaker to initiate connection
+                  {allowCompose ? 'Pick an opener or write your own.' : 'Messages open when you both say yes.'}
                 </p>
               </div>
 
-              {/* Curated Icebreaker Pill List */}
-              <div className="w-full space-y-2 pt-2">
+              {allowCompose && <div className="w-full space-y-2 pt-2">
                 {CURATED_ICEBREAKERS.map((text, idx) => (
                   <button
                     key={idx}
@@ -625,7 +598,7 @@ export const AthleteMessageModal: React.FC<Props> = ({
                     <span className="truncate">{text}</span>
                   </button>
                 ))}
-              </div>
+              </div>}
             </div>
           ) : (
             <div className="space-y-3">
@@ -756,7 +729,7 @@ export const AthleteMessageModal: React.FC<Props> = ({
         <div className="p-3 bg-black border-t border-white/[0.05]">
           {sendNote ? <p className="mb-2 text-center text-[11px] text-neutral-400">{sendNote}</p> : null}
           <div className="flex items-center gap-2">
-          {hasReplied || allowCompose ? (
+          {allowCompose ? (
             <>
               <input
                 type="text"
@@ -784,9 +757,7 @@ export const AthleteMessageModal: React.FC<Props> = ({
           ) : (
             <div className="w-full py-2.5 px-4 rounded-full bg-o1-well border border-white/[0.07] text-center">
               <span className="text-[11px] font-mono text-neutral-400">
-                {messages.length === 0
-                  ? 'Pick an athletic icebreaker above to initiate request'
-                  : `Waiting for ${athlete.name} to reply...`}
+                Messages open when you both say yes
               </span>
             </div>
           )}

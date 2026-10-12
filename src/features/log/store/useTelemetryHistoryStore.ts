@@ -107,7 +107,7 @@ export interface TelemetryHistoryActions {
     dateKey: string,
     category: C,
     record: Partial<DayTelemetryRecord[C]>,
-    options?: { fromCloud?: boolean }
+    options?: { skipCloud?: boolean }
   ) => void;
   clearDayRecord: (dateKey: string, category: TelemetryCategory) => void;
   resetAllHistory: () => void;
@@ -292,34 +292,8 @@ export const getDefaultCategoryRecord = <C extends TelemetryCategory>(category: 
       return { ...defaultWorkout } as DayTelemetryRecord[C];
     case 'cardio':
       return { ...defaultCardio } as DayTelemetryRecord[C];
-    case 'nutrition': {
-      // Dynamic fallback to client's configured targets if saved in fuel store
-      let targetCal = 0;
-      let targetP = 0;
-      let targetC = 0;
-      let targetF = 0;
-      if (typeof window !== 'undefined') {
-        try {
-          const raw = localStorage.getItem('o1fc_fuel_state_v5');
-          if (raw) {
-            const parsed = JSON.parse(raw);
-            targetCal = Number(parsed.calorieTarget) || 0;
-            targetP = Number(parsed.targetProteinG) || 0;
-            targetC = Number(parsed.targetCarbsG) || 0;
-            targetF = Number(parsed.targetFatsG) || 0;
-          }
-        } catch {
-          // ignore
-        }
-      }
-      return {
-        ...defaultNutrition,
-        calorieTarget: targetCal,
-        proteinTargetG: targetP,
-        carbsTargetG: targetC,
-        fatsTargetG: targetF,
-      } as DayTelemetryRecord[C];
-    }
+    case 'nutrition':
+      return { ...defaultNutrition } as DayTelemetryRecord[C];
     case 'sleep':
       return { ...defaultSleep } as DayTelemetryRecord[C];
     case 'meditation':
@@ -410,7 +384,7 @@ const telemetryHistoryStore = createStore<TelemetryHistoryState, TelemetryHistor
         safeStorage.setItem(STORAGE_KEY, nextHistory);
         return { historyByDate: nextHistory };
       });
-      if (options?.fromCloud) return;
+      if (options?.skipCloud) return;
       for (const [syncCategory, payload] of toSync) {
         queueDayLogSync(dateKey, syncCategory, payload);
       }

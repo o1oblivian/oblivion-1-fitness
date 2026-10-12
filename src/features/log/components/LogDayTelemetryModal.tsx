@@ -23,7 +23,7 @@ import { useWorkoutStore } from '../../workout/store/useWorkoutStore';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { sanitizeNumericInput } from '../../../utils/numberInputUtils';
 import { persistCardioLog } from '../services/cardioLogService';
-import { releaseForgotten } from '../services/dayLogService';
+import { localDayKey, localNoonIso, releaseForgotten } from '../services/dayLogService';
 import { exerciseFromSets, knownSets, setsFromExercise } from '../liftLedger';
 import { FuelMeals } from '../../fuel/store/useFuelStore';
 import { syncSessionToSupabase } from '../../../services/supabaseClient';
@@ -368,6 +368,7 @@ export const LogDayTelemetryModal: React.FC<LogDayTelemetryModalProps> = ({
             total_sets: setsNum ?? 0,
             strain: 0,
             exercises,
+            completed_at: dayMeta.dateKey === localDayKey(new Date().toISOString()) ? undefined : localNoonIso(dayMeta.dateKey),
           });
         });
       }
@@ -464,7 +465,7 @@ export const LogDayTelemetryModal: React.FC<LogDayTelemetryModalProps> = ({
       const fuelState = useFuelStore.getState();
       const enteredTarget = readNum(nutritionCalorieTarget);
       if (enteredTarget != null && enteredTarget > 0 && enteredTarget !== fuelState.calorieTarget) {
-        fuelState.setCalorieTarget(enteredTarget);
+        fuelState.setEnergyTargets(enteredTarget, fuelState.targetProteinG ?? 0, fuelState.targetCarbsG ?? 0, fuelState.targetFatsG ?? 0);
       }
       if (calNum == null && proNum == null && carbNum == null && fatNum == null && !mealName.trim()) {
         onSaved?.(enteredTarget != null ? 'Calorie target saved' : 'Add a number first');

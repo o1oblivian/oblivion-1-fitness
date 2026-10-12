@@ -1,6 +1,13 @@
 @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700&family=IBM+Plex+Mono:wght@500;600;700&display=swap');
 @import "tailwindcss";
 
+@font-face {
+  font-family: 'O1 Dash';
+  src: url('/fonts/o1-dash.woff2') format('woff2');
+  font-display: block;
+  unicode-range: U+002D;
+}
+
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
@@ -147,6 +154,13 @@ html, body, button, input, optgroup, select, textarea {
   font-variant-numeric: tabular-nums lining-nums;
   font-feature-settings: "tnum", "lnum";
   letter-spacing: -0.02em;
+}
+
+/* Unread metrics: '--' drawn with spaced dashes. The face only covers U+002D, so other glyphs fall through. */
+#root .o1-unread,
+#root .o1-unread *,
+#root input[placeholder="--"]::placeholder {
+  font-family: 'O1 Dash', 'Manrope', -apple-system, BlinkMacSystemFont, system-ui, sans-serif !important;
 }
 
 /* Never force caps. Chrome is title case in copy; CSS must not shout. */

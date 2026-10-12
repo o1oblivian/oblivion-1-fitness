@@ -96,7 +96,7 @@ export async function fetchStorefrontStats(coachId: string): Promise<StorefrontS
     isValidUuid(me)
       ? supabase.from('coach_follows').select('coach_id').eq('coach_id', coachId).eq('follower_id', me as string).limit(1)
       : Promise.resolve({ data: [], error: null }),
-    supabase.from('coach_reviews').select('stars').eq('coach_id', coachId),
+    supabase.from('coach_reviews').select('stars').eq('coach_id', coachId).order('created_at', { ascending: false }).limit(500),
     supabase.from('coach_storefronts').select('years_coaching, capacity, monthly_price_cents').eq('coach_id', coachId).maybeSingle(),
     supabase.from('coaching_applications').select('id', { count: 'exact', head: true }).eq('coach_id', coachId).eq('status', 'accepted'),
   ]);
@@ -134,18 +134,37 @@ export async function setFollowing(coachId: string, follow: boolean): Promise<bo
   return ok;
 }
 
+/** Program content (week_one, program_data) is not selectable; it comes from `program_content` for entitled athletes only. */
+export const PROGRAM_COLUMNS =
+  'id, coach_id, title, description, focus, cover_url, discipline, duration_label, days_per_week, tier, split_label, equipment, price_cents, listed, created_at';
+export const CATALOG_COLUMNS =
+  'id, catalog_coach_id, title, focus, cover_url, discipline, duration_label, days_per_week, tier, split_label, equipment, price_cents, active, sort_order';
+
+/** Adds the plan to rows the member owns, joined, was accepted for, or that are free. Paid content stays out otherwise. */
+export async function withProgramContent(rows: Record<string, unknown>[]): Promise<Record<string, unknown>[]> {
+  const ids = [...new Set(rows.map((row) => String(row.id || '')).filter(Boolean))].slice(0, 60);
+  if (!ids.length) return rows;
+  const { data, error } = await supabase.rpc('program_content', { program_ids: ids });
+  if (error || !Array.isArray(data)) return rows;
+  const content = new Map((data as Record<string, unknown>[]).map((row) => [String(row.id), row]));
+  return rows.map((row) => {
+    const unlocked = content.get(String(row.id));
+    return unlocked ? { ...row, week_one: unlocked.week_one, program_data: unlocked.program_data } : row;
+  });
+}
+
 export async function fetchStorefrontPrograms(coachId: string): Promise<StorefrontProgram[]> {
   if (!coachId) return [];
   const [own, catalog] = await Promise.all([
-    supabase.from('coach_programs').select('*').eq('coach_id', coachId).eq('listed', true),
-    supabase.from('program_catalog').select('*').eq('catalog_coach_id', coachId).eq('active', true).order('sort_order'),
+    supabase.from('coach_programs').select(PROGRAM_COLUMNS).eq('coach_id', coachId).eq('listed', true).order('created_at', { ascending: false }).limit(50),
+    supabase.from('program_catalog').select(CATALOG_COLUMNS).eq('catalog_coach_id', coachId).eq('active', true).order('sort_order').limit(50),
   ]);
   const rows = [
     ...(Array.isArray(own.data) ? own.data : []),
     ...(Array.isArray(catalog.data) ? catalog.data : []),
     ...mockProgramRows().filter((row) => row.catalog_coach_id === coachId),
   ] as Record<string, unknown>[];
-  return uniquePrograms(rows).map(mapProgramRow);
+  return (await withProgramContent(uniquePrograms(rows))).map(mapProgramRow);
 }
 
 export function uniquePrograms(rows: Record<string, unknown>[]): Record<string, unknown>[] {
@@ -274,7 +293,8 @@ export async function fetchCoachApplications(coachId: string): Promise<CoachingA
     .select('*')
     .eq('coach_id', coachId)
     .eq('status', 'pending')
-    .order('created_at', { ascending: false });
+    .order('created_at', { ascending: false })
+    .limit(50);
   return Array.isArray(data) ? data.map(mapApplication) : [];
 }
 
@@ -300,7 +320,8 @@ export async function adoptAcceptedCoach(): Promise<boolean> {
     .limit(1);
   const row = Array.isArray(data) && data[0] ? mapApplication(data[0]) : null;
   if (!row) return false;
-  if (!(await linkCoachClient(row.coachId, { id: me as string, name: row.athleteName }))) return false;
+  const joined = await supabase.rpc('join_coach_from_application', { coach: row.coachId, display_name: row.athleteName });
+  if (joined.error || joined.data !== true) return false;
   saveLinkedCoach({ id: row.coachId, name: row.coachName, handle: row.coachHandle, avatar: row.coachAvatar });
   return true;
 }

@@ -10,6 +10,7 @@ export type StoreHook<TState extends object, TActions extends object> = {
   <TSelected>(selector: (state: TState & TActions) => TSelected): TSelected;
   getState: () => TState & TActions;
   setState: (updater: Partial<TState> | ((prev: TState) => Partial<TState>)) => void;
+  subscribe: (listener: (state: TState & TActions, prev: TState & TActions) => void) => () => void;
   actions: TActions;
 };
 
@@ -45,6 +46,7 @@ export function createStore<TState extends object, TActions extends object>(
       return { ...state, ...next };
     });
   };
+  storeHook.subscribe = useZustandStore.subscribe;
   storeHook.actions = actionsRef;
 
   return {

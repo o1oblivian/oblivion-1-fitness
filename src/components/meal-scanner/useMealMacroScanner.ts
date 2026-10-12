@@ -3,10 +3,7 @@ import {
   analyzeMealImageWithGemini, analyzePackageNutritionPhoto, lookupBarcodeNumber, ScannedMealBreakdown, ScanMode,
 } from '../../services/mealVisionService';
 import { useFuelStore, FuelMeals } from '../../features/fuel/store/useFuelStore';
-import { useLogStore } from '../../stores/useLogStore';
 import { tactileEngine } from '../../services/tactileEngine';
-import { supabase } from '../../services/supabaseClient';
-import { getAuthenticatedUserId } from '../../services/authUser';
 import { useSubscription } from '../../context/SubscriptionContext';
 
 interface UseMealMacroScannerParams {
@@ -43,31 +40,14 @@ export function useMealMacroScanner({
   }, [isOpen, targetSlot, defaultSlot]);
 
   const triggerToast = (msg: string, type: 'success' | 'error' | 'info' = 'success') => {
-    if (showToast) showToast(msg, type);
-    else useFuelStore.getState().showToast(msg);
+    showToast?.(msg, type);
   };
 
-  const commitAdjustedMeal = async (name: string, kcal: number, p: number, c: number, f: number, weight: number) => {
+  const commitAdjustedMeal = (name: string, kcal: number, p: number, c: number, f: number) => {
     const effectiveSlot = (slot || 'lunch') as keyof FuelMeals;
     useFuelStore.getState().addMealItem(effectiveSlot, {
       id: `meal-ai-${Date.now()}`, name, calories: kcal, protein: p, carbs: c, fats: f,
     });
-    try {
-      const logState = useLogStore.getState();
-      const n = logState.subModules?.nutrition;
-      logState.updateSubModule('nutrition', {
-        caloriesConsumed: (n?.caloriesConsumed || 0) + kcal,
-        proteinG: (n?.proteinG || 0) + p,
-        carbsG: (n?.carbsG || 0) + c,
-        fatsG: (n?.fatsG || 0) + f,
-      });
-      const userId = await getAuthenticatedUserId();
-      if (!userId) return;
-      await supabase.from('nutrition_logs').insert([{
-        user_id: userId, meal_slot: effectiveSlot, food_name: name, calories: kcal,
-        protein: p, carbs: c, fats: f, serving_grams: weight, created_at: new Date().toISOString(),
-      }]);
-    } catch {}
     onConfirmMeal?.(name, kcal, p, c, f, effectiveSlot);
     triggerToast(`🎯 Logged to ${effectiveSlot}: ${name} (${p}g P / ${kcal} kcal)`, 'success');
     setScannedMeal(null);

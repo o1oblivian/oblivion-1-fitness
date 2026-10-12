@@ -4,6 +4,7 @@ import { tactileEngine } from '../../../services/tactileEngine';
 import { telemetryArbitrationService } from '../../telemetry/services/telemetryArbitrationService';
 import { useFuelStore } from '../../fuel/store/useFuelStore';
 import { persistCardioLog } from '../services/cardioLogService';
+import { localDayKey } from '../services/dayLogService';
 import { processCardioScanImage } from '../services/cardioScanService';
 import { CardioScanUploader } from './scan/CardioScanUploader';
 import { CardioScanMetricFields, ExtractedCardioData } from './scan/CardioScanMetricFields';
@@ -19,7 +20,7 @@ interface CardioConsoleScanModalProps {
 export const CardioConsoleScanModal: React.FC<CardioConsoleScanModalProps> = ({
   isOpen, onClose, dateKey, onSynced,
 }) => {
-  const targetDateKey = dateKey || new Date().toISOString().slice(0, 10);
+  const targetDateKey = dateKey || localDayKey(new Date().toISOString());
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isScanning, setIsScanning] = useState(false);
   const [scanMode, setScanMode] = useState<'console' | 'watch'>('watch');
@@ -47,27 +48,33 @@ export const CardioConsoleScanModal: React.FC<CardioConsoleScanModalProps> = ({
 
   const handleSaveTelemetry = async () => {
     if (!extractedData) return;
-    let loggedSteps = extractedData.steps || 0;
+    const distanceKm = extractedData.distanceKm ?? 0;
+    const durationMinutes = extractedData.durationMinutes ?? 0;
+    const burnedKcal = extractedData.burnedKcal ?? 0;
+    const isToday = targetDateKey === localDayKey(new Date().toISOString());
+    let loggedSteps = extractedData.steps ?? 0;
 
-    if (scanMode === 'watch') {
-      telemetryArbitrationService.setDailyCumulative(loggedSteps);
-    } else {
-      const res = telemetryArbitrationService.recordConsoleSession({
-        distanceKm: extractedData.distanceKm,
-        durationMinutes: extractedData.durationMinutes,
-        steps: extractedData.steps,
-        burnedKcal: extractedData.burnedKcal,
-      });
-      loggedSteps = res.sessionSteps;
+    if (isToday) {
+      if (scanMode === 'watch') {
+        if (loggedSteps > 0) telemetryArbitrationService.setDailyCumulative(loggedSteps);
+      } else {
+        const res = telemetryArbitrationService.recordConsoleSession({
+          distanceKm,
+          durationMinutes,
+          steps: loggedSteps,
+          burnedKcal,
+        });
+        loggedSteps = res.sessionSteps;
+      }
+      if (burnedKcal > 0) useFuelStore.getState().logBurned(burnedKcal);
     }
 
-    if (extractedData.burnedKcal > 0) useFuelStore.getState().logBurned(extractedData.burnedKcal);
     await persistCardioLog({
       activityType: extractedData.activityType,
-      distanceKm: extractedData.distanceKm,
-      durationMinutes: extractedData.durationMinutes,
-      burnedKcal: extractedData.burnedKcal,
-      avgHeartRateBpm: extractedData.avgHeartRateBpm,
+      distanceKm,
+      durationMinutes,
+      burnedKcal,
+      avgHeartRateBpm: extractedData.avgHeartRateBpm ?? 0,
       steps: loggedSteps,
       dateKey: targetDateKey,
     });

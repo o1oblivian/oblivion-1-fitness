@@ -380,7 +380,9 @@ export const useProductionSettings = (onShowToast?: (msg: string) => void) => {
         await supabase.from('workout_logs').delete().eq('user_id', uid);
       } catch {}
       try {
-        await supabase.from('nutrition_logs').delete().eq('user_id', uid);
+        await supabase.from('meal_logs').delete().eq('user_id', uid);
+        await supabase.from('fuel_days').delete().eq('user_id', uid);
+        await supabase.from('fuel_profiles').delete().eq('user_id', uid);
       } catch {}
       try {
         await supabase.from('telemetry_records').delete().eq('user_id', uid);

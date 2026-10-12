@@ -65,7 +65,7 @@ export async function hydrateSessionsFromSupabase(): Promise<void> {
             avgHeartRateBpm: heartRate,
             zone2Minutes: 0,
             activityType: actType,
-          }, { fromCloud: true });
+          }, { skipCloud: true });
         }
       } else {
         if (dateKey && !isForgotten(dateKey, 'workout')) {
@@ -77,7 +77,7 @@ export async function hydrateSessionsFromSupabase(): Promise<void> {
             durationMinutes: durMinutes,
             routineName: sessionTitle,
             intensityRpe: loggedRpe,
-          }, { fromCloud: true });
+          }, { skipCloud: true });
         }
       }
     }
@@ -118,7 +118,7 @@ export async function hydrateSessionsFromSupabase(): Promise<void> {
             hasData: true,
             exercises,
             completedSets: exercises.reduce((sum, lift) => sum + lift.sets, 0),
-          }, { fromCloud: true });
+          }, { skipCloud: true });
         });
       }
     }

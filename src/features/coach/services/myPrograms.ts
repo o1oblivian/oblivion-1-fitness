@@ -7,9 +7,12 @@ import {
   PROGRAMS_EVENT,
   ProgramCoach,
   StorefrontProgram,
+  CATALOG_COLUMNS,
+  PROGRAM_COLUMNS,
   enrollmentRow,
   mapProgramRow,
   uniquePrograms,
+  withProgramContent,
 } from '../../reels/services/coachStorefront';
 
 export interface EnrolledProgram extends StorefrontProgram {
@@ -29,11 +32,12 @@ async function programRowsById(ids: string[]): Promise<Map<string, Record<string
   const byId = new Map<string, Record<string, unknown>>();
   if (!ids.length) return byId;
   const [own, catalog] = await Promise.all([
-    supabase.from('coach_programs').select('*').in('id', ids),
-    supabase.from('program_catalog').select('*').in('id', ids),
+    supabase.from('coach_programs').select(PROGRAM_COLUMNS).in('id', ids),
+    supabase.from('program_catalog').select(CATALOG_COLUMNS).in('id', ids),
   ]);
-  for (const row of [...(own.data ?? []), ...(catalog.data ?? []), ...mockProgramRows()] as Record<string, unknown>[]) {
-    if (row?.id && ids.includes(String(row.id))) byId.set(String(row.id), row);
+  const rows = [...(own.data ?? []), ...(catalog.data ?? []), ...mockProgramRows()] as Record<string, unknown>[];
+  for (const row of await withProgramContent(rows.filter((row) => row?.id && ids.includes(String(row.id))))) {
+    byId.set(String(row.id), row);
   }
   return byId;
 }
@@ -86,7 +90,7 @@ export async function fetchMyPrograms(): Promise<EnrolledProgram[] | null> {
   const me = await getAuthenticatedUserId();
   if (!isValidUuid(me)) return null;
   const load = () =>
-    supabase.from('program_enrollments').select('*').eq('athlete_id', me as string).order('created_at', { ascending: true });
+    supabase.from('program_enrollments').select('*').eq('athlete_id', me as string).order('created_at', { ascending: true }).limit(100);
   let { data, error } = await load();
   if (error || !Array.isArray(data)) return null;
   if (await adoptAcceptedPrograms(me as string, new Set(data.map((row) => String(row.program_id))))) {
@@ -115,10 +119,10 @@ export async function setProgramStatus(programId: string, status: 'active' | 'cl
 
 export async function fetchBrowsePrograms(): Promise<BrowseProgram[]> {
   const [own, catalog] = await Promise.all([
-    supabase.from('coach_programs').select('*').eq('listed', true).limit(BROWSE_LIMIT),
-    supabase.from('program_catalog').select('*').eq('active', true).not('catalog_coach_id', 'is', null).order('sort_order').limit(BROWSE_LIMIT),
+    supabase.from('coach_programs').select(PROGRAM_COLUMNS).eq('listed', true).order('created_at', { ascending: false }).limit(BROWSE_LIMIT),
+    supabase.from('program_catalog').select(CATALOG_COLUMNS).eq('active', true).not('catalog_coach_id', 'is', null).order('sort_order').limit(BROWSE_LIMIT),
   ]);
-  const rows = uniquePrograms([...(own.data ?? []), ...(catalog.data ?? []), ...mockProgramRows()] as Record<string, unknown>[]);
+  const rows = await withProgramContent(uniquePrograms([...(own.data ?? []), ...(catalog.data ?? []), ...mockProgramRows()] as Record<string, unknown>[]));
   const coachIdOf = (row: Record<string, unknown>) => String(row.coach_id || row.catalog_coach_id || '');
 
   const coaches = new Map<string, ProgramCoach>();

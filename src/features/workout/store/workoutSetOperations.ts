@@ -6,6 +6,58 @@ import {
   calculateFatigueScore,
 } from '../../../utils/physiologyEngine';
 import { buildNextSet } from '../utils/lastLoggedSet';
+import { exerciseFromSets, setsFromExercise } from '../../log/liftLedger';
+import type { ExerciseEntry, WorkoutDayRecord } from '../../log/store/useTelemetryHistoryStore';
+
+const isLiftEntry = (e: ExerciseItem) => {
+  const name = (e.name || '').toLowerCase();
+  return !name.startsWith('cardio:') && !name.includes('telemetry');
+};
+
+export interface SessionLedger {
+  tonnageKg: number;
+  completedSets: number;
+  totalReps: number;
+  exercises: ExerciseEntry[];
+}
+
+/** Ticked sets only, so prescribed numbers that were never lifted stay out of the record. */
+export const sessionLedger = (exercises: ExerciseItem[]): SessionLedger => {
+  const lifts = exercises.filter(isLiftEntry);
+  const ticked = lifts.map((e) => ({ ...e, sets: (e.sets || []).filter((s) => s.completed) }));
+  const entries = lifts
+    .map((e) => exerciseFromSets(e.name || e.exerciseName || 'Exercise', setsFromExercise(e, true), true))
+    .filter((entry) => (entry.setLog?.length || 0) > 0);
+  const completedSets = entries.reduce((sum, e) => sum + (e.setLog?.length || 0), 0);
+  const totalReps = entries.reduce((sum, e) => sum + (e.setLog || []).reduce((r, s) => r + s.reps, 0), 0);
+  return {
+    tonnageKg: completedSets > 0 ? calculateSessionTonnage(ticked, getAthleteWeightKg(), true) : 0,
+    completedSets,
+    totalReps,
+    exercises: entries,
+  };
+};
+
+/** Adds a session on top of what the day already holds instead of replacing it. */
+export const mergeWorkoutDay = (
+  base: Partial<WorkoutDayRecord> | undefined,
+  ledger: SessionLedger,
+  routineName: string,
+): Partial<WorkoutDayRecord> => {
+  const baseHas = Boolean(base?.hasData);
+  const names = [baseHas ? base?.routineName : '', routineName]
+    .map((n) => (n || '').trim())
+    .filter((n, i, all) => n && all.indexOf(n) === i);
+  return {
+    hasData: baseHas || ledger.completedSets > 0,
+    tonnageKg: Math.round(((baseHas ? Number(base?.tonnageKg) || 0 : 0) + ledger.tonnageKg) * 10) / 10,
+    completedSets: (baseHas ? Number(base?.completedSets) || 0 : 0) + ledger.completedSets,
+    durationMinutes: baseHas ? Number(base?.durationMinutes) || 0 : 0,
+    routineName: names.join(' + '),
+    intensityRpe: baseHas ? Number(base?.intensityRpe) || 0 : 0,
+    exercises: [...(baseHas ? base?.exercises || [] : []), ...ledger.exercises],
+  };
+};
 
 export interface SessionMetrics {
   sessionTonnageKg: number;

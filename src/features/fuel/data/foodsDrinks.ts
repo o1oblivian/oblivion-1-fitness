@@ -111,8 +111,6 @@ export const DRINKS_FOODS: FoodCatalogItem[] = [
   { id: 'd-97', name: 'Spring Water (Natural Artesian)', brand: 'Fiji Water', serving: '1 bottle (500ml)', calories: 0, protein: 0, carbs: 0, fats: 0, category: 'DRINKS' },
   { id: 'd-98', name: 'Chamomile Honey Herbal Sleep Tea', brand: 'Traditional Medicinals', serving: '240ml brewed', calories: 2, protein: 0, carbs: 0.5, fats: 0, category: 'DRINKS' },
   { id: 'd-99', name: 'Electrolyte Replenishment Gel (Berry)', brand: 'Maurten Gel 100', serving: '1 pouch (40g)', calories: 100, protein: 0, carbs: 25, fats: 0, category: 'DRINKS' },
-  { id: 'd-100', name: 'O1 Tactical Hydration Matrix (Amino + Pink Himalayan Salt)', brand: 'Oblivion 1', serving: '1 scoop in 500ml', calories: 10, protein: 2, carbs: 1, fats: 0, category: 'DRINKS' },
-
   { id: 'd-101', name: 'Black Coffee (Brewed, no milk)', brand: 'Cafe', serving: '240ml', calories: 2, protein: 0.3, carbs: 0, fats: 0, category: 'DRINKS' },
   { id: 'd-102', name: 'Skim Milk', brand: 'Dairy Farmers / Fairlife', serving: '250ml', calories: 90, protein: 9, carbs: 13, fats: 0.2, category: 'DRINKS' },
   { id: 'd-103', name: 'Unsweetened Almond Milk', brand: 'Almond Breeze', serving: '250ml', calories: 30, protein: 1, carbs: 1, fats: 2.5, category: 'DRINKS' },

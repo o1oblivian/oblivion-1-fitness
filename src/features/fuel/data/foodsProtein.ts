@@ -3,7 +3,7 @@ import { FoodCatalogItem } from './foodCatalogTypes';
 export const PROTEIN_FOODS: FoodCatalogItem[] = [
   // Chicken & Poultry
   { id: 'p-1', name: 'Chicken Breast (Skinless, Grilled)', brand: 'Whole Food', serving: '100g', calories: 165, protein: 31, carbs: 0, fats: 3.6, category: 'PROTEIN' },
-  { id: 'p-2', name: 'Chicken Breast (Raw, Boneless)', brand: 'Whole Food', serving: '100g', calories: 120, protein: 26, carbs: 0, fats: 1.5, category: 'PROTEIN' },
+  { id: 'p-2', name: 'Chicken Breast (Raw, Boneless)', brand: 'Whole Food', serving: '100g', calories: 120, protein: 22.5, carbs: 0, fats: 2.6, category: 'PROTEIN' },
   { id: 'p-3', name: 'Chicken Thigh (Skinless, Roasted)', brand: 'Whole Food', serving: '100g', calories: 179, protein: 24.5, carbs: 0, fats: 8.2, category: 'PROTEIN' },
   { id: 'p-4', name: 'Chicken Thigh (Bone-in, Roasted)', brand: 'Whole Food', serving: '100g', calories: 232, protein: 23.8, carbs: 0, fats: 15, category: 'PROTEIN' },
   { id: 'p-5', name: 'Chicken Tenderloins (Grilled)', brand: 'Whole Food', serving: '100g', calories: 140, protein: 28, carbs: 0, fats: 2, category: 'PROTEIN' },
@@ -96,8 +96,6 @@ export const PROTEIN_FOODS: FoodCatalogItem[] = [
   { id: 'p-82', name: 'Syntha-6 Protein Matrix (Vanilla Ice Cream)', brand: 'BSN', serving: '1 scoop (47g)', calories: 200, protein: 22, carbs: 15, fats: 6, category: 'PROTEIN' },
   { id: 'p-83', name: 'Beef Protein Isolate (Carnivor)', brand: 'MuscleMeds', serving: '1 scoop (37g)', calories: 120, protein: 23, carbs: 7, fats: 0, category: 'PROTEIN' },
   { id: 'p-84', name: 'Pure Soy Protein Isolate', brand: 'NOW Sports', serving: '1 scoop (24g)', calories: 90, protein: 20, carbs: 0, fats: 0.5, category: 'PROTEIN' },
-  { id: 'p-85', name: 'O1 Precision Hydro Whey', brand: 'Oblivion 1', serving: '1 scoop (30g)', calories: 115, protein: 27, carbs: 0.5, fats: 0.5, category: 'PROTEIN' },
-  { id: 'p-86', name: 'O1 Tactical Micellar Casein Matrix', brand: 'Oblivion 1', serving: '1 scoop (34g)', calories: 125, protein: 26, carbs: 1.5, fats: 1, category: 'PROTEIN' },
   { id: 'p-87', name: 'Venison Steak (Pan-Seared, Lean)', brand: 'Wild Game', serving: '100g', calories: 158, protein: 30, carbs: 0, fats: 3.2, category: 'PROTEIN' },
   { id: 'p-88', name: 'Wild Boar Tenderloin (Roasted)', brand: 'Wild Game', serving: '100g', calories: 160, protein: 28, carbs: 0, fats: 4.4, category: 'PROTEIN' },
   { id: 'p-89', name: 'Kangaroo Loin Fillet (Seared)', brand: 'Australian Premium', serving: '100g', calories: 102, protein: 23, carbs: 0, fats: 1, category: 'PROTEIN' },
@@ -116,7 +114,7 @@ export const PROTEIN_FOODS: FoodCatalogItem[] = [
   { id: 'p-101', name: 'Chicken Breast (Grilled, 180g)', brand: 'Whole Food', serving: '180g', calories: 297, protein: 56, carbs: 0, fats: 6.5, category: 'PROTEIN' },
   { id: 'p-102', name: 'Extra Large Egg (Boiled)', brand: 'Farm Fresh', serving: '1 egg (56g)', calories: 80, protein: 7, carbs: 0.6, fats: 5.3, category: 'PROTEIN' },
   { id: 'p-103', name: 'Egg White Carton (3 whites)', brand: 'Farm Fresh', serving: '99g', calories: 51, protein: 11, carbs: 0.6, fats: 0.2, category: 'PROTEIN' },
-  { id: 'p-104', name: 'Lean Beef Mince 5% Fat (Cooked)', brand: 'Whole Food', serving: '120g', calories: 170, protein: 28, carbs: 0, fats: 6, category: 'PROTEIN' },
+  { id: 'p-104', name: 'Lean Beef Mince 5% Fat (Cooked)', brand: 'Whole Food', serving: '120g', calories: 197, protein: 30.5, carbs: 0, fats: 7.7, category: 'PROTEIN' },
   { id: 'p-105', name: 'Atlantic Salmon Fillet (150g cooked)', brand: 'Wild Catch', serving: '150g', calories: 273, protein: 37.5, carbs: 0, fats: 12, category: 'PROTEIN' },
   { id: 'p-106', name: 'Tuna in Spring Water (Drained Tin)', brand: 'John West / Starkist', serving: '95g drained', calories: 105, protein: 24, carbs: 0, fats: 1, category: 'PROTEIN' },
   { id: 'p-107', name: 'Chobani Fit Plain High Protein Yogurt', brand: 'Chobani', serving: '170g', calories: 90, protein: 17, carbs: 5, fats: 0.2, category: 'PROTEIN' },

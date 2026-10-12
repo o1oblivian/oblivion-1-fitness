@@ -15,6 +15,7 @@ import {
 import { useWorkoutStore } from '../store/useWorkoutStore';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { ExerciseItem, ExerciseSet } from '../../../types';
+import { calibrateTemplate } from '../utils/calibrateLoads';
 
 export interface WorkoutBlueprintModalProps {
   blueprint: WorkoutBlueprint | null;
@@ -95,7 +96,7 @@ export const WorkoutBlueprintModal: React.FC<WorkoutBlueprintModalProps> = ({
     });
 
     // Deploy to active log & active session
-    addExercisesToActiveLog(newExercises);
+    addExercisesToActiveLog(calibrateTemplate(newExercises));
     setActiveRoutine(blueprint.title);
 
     if (onLoaded) {

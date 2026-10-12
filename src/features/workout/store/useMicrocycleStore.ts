@@ -5,6 +5,7 @@ import { DayStrainDetail, EMPTY_MICROCYCLE_DAYS } from '../components/microcycle
 import { computeAcwr, weekCompletionPct, AcwrSnapshot } from '../../../utils/acwrMath';
 import { getAuthenticatedUserId } from '../../../services/authUser';
 import { useConsultationStore } from '../../induction/useConsultationStore';
+import { localDayKey } from '../../log/services/dayLogService';
 
 export interface MicrocycleStoreState {
   activeDays: DayStrainDetail[];
@@ -12,13 +13,14 @@ export interface MicrocycleStoreState {
   activeIsoWeekDates: { dayLabel: string; dateKey: string; dayIndex: number }[];
   acwr: AcwrSnapshot;
   refreshFromSupabase: () => Promise<void>;
-  updateDayVolumeOptimistic: (dateKey: string, tonnage: number, setsCount: number, title?: string) => void;
+  /** Rebuilds the week from the device record and the last cloud fetch, with no network call. */
+  recompute: () => void;
 }
 
 export function computeIsoWeekDates(): { dayLabel: string; dateKey: string; dayIndex: number }[] {
   const now = new Date();
   const jsDay = now.getDay();
-  const isoDay = jsDay === 0 ? 6 : jsDay - 1; // 0=Mon..6=Sun
+  const isoDay = jsDay === 0 ? 6 : jsDay - 1;
   const monday = new Date(now);
   monday.setDate(now.getDate() - isoDay);
   monday.setHours(0, 0, 0, 0);
@@ -33,6 +35,7 @@ export function computeIsoWeekDates(): { dayLabel: string; dateKey: string; dayI
 }
 
 const EMPTY_ACWR: AcwrSnapshot = { acuteKg: 0, chronicKg: 0, ratio: null, label: '--', completionPct: null, calibrating: true, historyDays: 0 };
+const ROW_CAP = 400;
 
 function dateKeyOffset(daysBack: number): string {
   const d = new Date();
@@ -41,33 +44,69 @@ function dateKeyOffset(daysBack: number): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
+function localMidnightIso(dateKey: string, endOfDay = false): string {
+  const [y, m, d] = dateKey.split('-').map(Number);
+  const date = endOfDay ? new Date(y, m - 1, d, 23, 59, 59, 999) : new Date(y, m - 1, d, 0, 0, 0, 0);
+  return date.toISOString();
+}
+
+interface CloudDay {
+  logVol: number;
+  logSets: number;
+  sessVol: number;
+  sessSets: number;
+  title: string | null;
+}
+
+let cloudByDay = new Map<string, CloudDay>();
+
+function bucket(key: string): CloudDay {
+  let day = cloudByDay.get(key);
+  if (!day) {
+    day = { logVol: 0, logSets: 0, sessVol: 0, sessSets: 0, title: null };
+    cloudByDay.set(key, day);
+  }
+  return day;
+}
+
 export const useMicrocycleStore = create<MicrocycleStoreState>((set, get) => ({
   activeDays: EMPTY_MICROCYCLE_DAYS.map((d) => ({ ...d })),
   isLoading: false,
   activeIsoWeekDates: computeIsoWeekDates(),
   acwr: EMPTY_ACWR,
 
-  updateDayVolumeOptimistic: (dateKey: string, tonnage: number, setsCount: number, title?: string) => {
-    const dates = get().activeIsoWeekDates;
-    const targetIdx = dates.findIndex((d) => d.dateKey === dateKey);
-    if (targetIdx === -1) return;
+  recompute: () => {
+    const dates = computeIsoWeekDates();
+    const historyByDate = useTelemetryHistoryStore.getState().historyByDate;
 
-    set((state) => {
-      const nextDays = state.activeDays.map((d, i) => {
-        if (i !== targetIdx) return d;
-        const vol = Math.max(0, tonnage);
-        const st = Math.max(0, setsCount);
-        return {
-          ...d,
-          volume: vol,
-          sets: st,
-          title: title || (vol > 0 ? 'Resistance Training' : 'Rest & Prep'),
-          split: vol > 0 ? (title?.toUpperCase() || 'STRENGTH') : 'REST',
-          strainScore: vol > 0 ? Math.min(10, Number((4 + vol / 1000).toFixed(1))) : 0,
-        };
-      });
-      return { activeDays: nextDays };
+    const dayLoad = (key: string) => {
+      const hist = historyByDate[key]?.workout;
+      const cloud = cloudByDay.get(key);
+      return {
+        vol: Math.max(hist?.hasData ? Number(hist.tonnageKg) || 0 : 0, cloud?.logVol ?? 0, cloud?.sessVol ?? 0),
+        sets: Math.max(hist?.hasData ? Number(hist.completedSets) || 0 : 0, cloud?.logSets ?? 0, cloud?.sessSets ?? 0),
+        title: (hist?.hasData && hist.routineName) || cloud?.title || null,
+      };
+    };
+
+    const computed = EMPTY_MICROCYCLE_DAYS.map((baseDay, idx) => {
+      const load = dayLoad(dates[idx].dateKey);
+      return { ...baseDay, volume: load.vol, sets: load.sets, title: load.title };
     });
+
+    const daily28 = Array.from({ length: 28 }, (_, i) => dayLoad(dateKeyOffset(27 - i)).vol);
+    const isoDay = new Date().getDay() === 0 ? 7 : new Date().getDay();
+    const acwr = {
+      ...computeAcwr(daily28),
+      completionPct: weekCompletionPct(computed.map((d) => d.volume), isoDay, useConsultationStore.getState().frequencyDays || 4),
+    };
+
+    const prev = get().activeDays;
+    const unchanged =
+      prev.length === computed.length &&
+      prev.every((d, i) => d.volume === computed[i].volume && d.sets === computed[i].sets && d.title === computed[i].title);
+    if (unchanged && get().acwr.ratio === acwr.ratio && get().acwr.historyDays === acwr.historyDays) return;
+    set({ activeDays: computed, activeIsoWeekDates: dates, acwr });
   },
 
   refreshFromSupabase: async () => {
@@ -75,72 +114,54 @@ export const useMicrocycleStore = create<MicrocycleStoreState>((set, get) => ({
     try {
       const uid = await getAuthenticatedUserId();
       const dates = computeIsoWeekDates();
-      const startIso = `${dates[0].dateKey}T00:00:00.000Z`;
-      const endIso = `${dates[6].dateKey}T23:59:59.999Z`;
-      const chronicStart = `${dateKeyOffset(27)}T00:00:00.000Z`;
-
-      let logRows: any[] = [];
-      let sessionRows: any[] = [];
+      cloudByDay = new Map<string, CloudDay>();
       if (uid) {
+        const weekStart = localMidnightIso(dates[0].dateKey);
+        const weekEnd = localMidnightIso(dates[6].dateKey, true);
+        const chronicStart = localMidnightIso(dateKeyOffset(27));
         const [logsRes, sessRes] = await Promise.all([
-          supabase.from('workout_logs').select('weight_kg, reps, created_at, user_id').eq('user_id', uid).gte('created_at', startIso).lte('created_at', endIso),
-          supabase.from('completed_sessions').select('tonnage_kg, total_sets, title, completed_at, created_at, user_id').eq('user_id', uid).gte('created_at', chronicStart).lte('created_at', endIso),
+          supabase
+            .from('workout_logs')
+            .select('weight_kg, reps, created_at')
+            .eq('user_id', uid)
+            .gte('created_at', weekStart)
+            .lte('created_at', weekEnd)
+            .order('created_at', { ascending: false })
+            .limit(ROW_CAP),
+          supabase
+            .from('completed_sessions')
+            .select('tonnage_kg, total_sets, title, completed_at, created_at')
+            .eq('user_id', uid)
+            .gte('created_at', chronicStart)
+            .lte('created_at', weekEnd)
+            .order('created_at', { ascending: false })
+            .limit(ROW_CAP),
         ]);
-        logRows = Array.isArray(logsRes.data) ? logsRes.data : [];
-        sessionRows = Array.isArray(sessRes.data) ? sessRes.data : [];
+        for (const r of Array.isArray(logsRes.data) ? logsRes.data : []) {
+          const day = bucket(localDayKey(r.created_at));
+          day.logVol += (Number(r.weight_kg) || 0) * (Number(r.reps) || 0);
+          day.logSets += 1;
+        }
+        for (const s of Array.isArray(sessRes.data) ? sessRes.data : []) {
+          const day = bucket(localDayKey(s.completed_at || s.created_at));
+          day.sessVol += Number(s.tonnage_kg) || 0;
+          day.sessSets += Number(s.total_sets) || 0;
+          day.title = day.title || s.title || null;
+        }
       }
-
-      const historyByDate = useTelemetryHistoryStore.getState().historyByDate;
-      const computed = EMPTY_MICROCYCLE_DAYS.map((baseDay, idx) => {
-        const { dateKey } = dates[idx];
-        const dayLogs = Array.isArray(logRows) ? logRows.filter((r: any) => r.created_at?.startsWith(dateKey)) : [];
-        const logsVol = dayLogs.reduce((acc: number, r: any) => acc + (Number(r.weight_kg || 0) * Number(r.reps || 0)), 0);
-        const logsSets = dayLogs.length;
-
-        const hist = historyByDate[dateKey]?.workout;
-        const histVol = hist?.hasData ? (hist.tonnageKg || 0) : 0;
-        const histSets = hist?.hasData ? (hist.completedSets || 0) : 0;
-
-        const daySession = Array.isArray(sessionRows) ? sessionRows.find((s: any) => (s.completed_at || s.created_at)?.startsWith(dateKey)) : null;
-        const sessVol = Number(daySession?.tonnage_kg) || 0;
-        const sessSets = Number(daySession?.total_sets) || 0;
-
-        const finalVol = Math.max(logsVol, histVol, sessVol);
-        const finalSets = Math.max(logsSets, histSets, sessSets);
-        const sessionTitle = hist?.routineName || daySession?.title || (finalVol > 0 ? baseDay.title : 'Rest & Prep');
-
-        return {
-          ...baseDay,
-          volume: finalVol,
-          sets: finalSets,
-          title: sessionTitle,
-          split: finalVol > 0 ? (hist?.routineName ? hist.routineName.toUpperCase() : baseDay.split) : 'REST',
-          strainScore: finalVol > 0 ? Math.min(10, Number((4 + finalVol / 1000).toFixed(1))) : 0,
-        };
-      });
-
-      const historyByDateAll = useTelemetryHistoryStore.getState().historyByDate;
-      const daily28 = Array.from({ length: 28 }, (_, i) => {
-        const key = dateKeyOffset(27 - i);
-        const hist = historyByDateAll[key]?.workout;
-        const histVol = hist?.hasData ? Number(hist.tonnageKg || 0) : 0;
-        const sessVol = Array.isArray(sessionRows)
-          ? sessionRows
-              .filter((s: any) => (s.completed_at || s.created_at)?.startsWith(key))
-              .reduce((acc: number, s: any) => acc + (Number(s.tonnage_kg) || 0), 0)
-          : 0;
-        return Math.max(histVol, sessVol);
-      });
-      const isoDay = new Date().getDay() === 0 ? 7 : new Date().getDay();
-      const acwr = {
-        ...computeAcwr(daily28),
-        completionPct: weekCompletionPct(computed.map((d) => d.volume), isoDay, useConsultationStore.getState().frequencyDays || 4),
-      };
-
-      set({ activeDays: computed, activeIsoWeekDates: dates, acwr, isLoading: false });
+      set({ isLoading: false });
+      get().recompute();
     } catch (err) {
       console.warn('[MicrocycleStore] Sync notice:', err);
       set({ isLoading: false });
+      get().recompute();
     }
   },
 }));
+
+let lastHistory = useTelemetryHistoryStore.getState().historyByDate;
+useTelemetryHistoryStore.subscribe((state) => {
+  if (state.historyByDate === lastHistory) return;
+  lastHistory = state.historyByDate;
+  useMicrocycleStore.getState().recompute();
+});

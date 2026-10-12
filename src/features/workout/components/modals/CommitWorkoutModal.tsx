@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { CheckCircle2, BookmarkPlus, X, Flame, Calendar } from 'lucide-react';
 import { tactileEngine } from '../../../../services/tactileEngine';
 import { getSystemTodayCode } from '../../services/dayRoutineService';
@@ -42,9 +43,14 @@ export const CommitWorkoutModal: React.FC<CommitWorkoutModalProps> = ({
 
   if (!isOpen) return null;
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-xs select-none animate-in fade-in duration-150">
-      <div className="bg-o1-card text-neutral-100 rounded-2xl border border-white/[0.07] shadow-2xl max-w-sm w-full p-5 space-y-4">
+  return createPortal(
+    <div
+      className="fixed inset-0 z-[60] flex items-center justify-center bg-black/85 o1-sheet-scrim select-none animate-in fade-in duration-150"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
+      <div className="w-full max-w-[420px] max-h-[85dvh] overflow-y-auto overscroll-contain rounded-2xl bg-o1-card text-neutral-100 border border-white/[0.07] shadow-2xl p-5 space-y-4">
         {/* Header */}
         <div className="flex items-center justify-between border-b border-white/[0.05] pb-3">
           <div className="flex items-center gap-2">
@@ -183,6 +189,7 @@ export const CommitWorkoutModal: React.FC<CommitWorkoutModalProps> = ({
           </div>
         )}
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 };

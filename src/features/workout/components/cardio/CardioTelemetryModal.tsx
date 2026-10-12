@@ -6,6 +6,7 @@ import { captureNativeStill } from '../../../../services/nativeCameraService';
 import { useLogStore } from '../../../../stores/useLogStore';
 import { useFuelStore } from '../../../fuel/store/useFuelStore';
 import { useTelemetryHistoryStore } from '../../../log/store/useTelemetryHistoryStore';
+import { localDayKey } from '../../../log/services/dayLogService';
 import { telemetryArbitrationService } from '../../../telemetry/services/telemetryArbitrationService';
 import { tactileEngine } from '../../../../services/tactileEngine';
 import { useSubscription } from '../../../../context/SubscriptionContext';
@@ -50,14 +51,14 @@ export const CardioTelemetryModal: React.FC<Props> = ({ isOpen, onClose, onPostC
       const ocr = await processCardioScanImage(base64, 'console');
       const mapped: CardioTelemetryResult = {
         deviceType: ocr.activityType?.toLowerCase().includes('watch') ? 'watch' : 'console',
-        elapsedDisplay: ocr.durationMinutes || null,
-        elapsedMinutes: ocr.durationMinutes || null,
-        distanceKm: ocr.distanceKm || null,
-        caloriesBurned: ocr.burnedKcal || null,
+        elapsedDisplay: ocr.durationMinutes,
+        elapsedMinutes: ocr.durationMinutes,
+        distanceKm: ocr.distanceKm,
+        caloriesBurned: ocr.burnedKcal,
         speedKmh: null,
         inclinePct: null,
-        avgHeartRateBpm: ocr.avgHeartRateBpm || null,
-        steps: ocr.steps || null,
+        avgHeartRateBpm: ocr.avgHeartRateBpm,
+        steps: ocr.steps,
       };
       setTelemetry(mapped);
       const hasOcr = mapped.steps != null || mapped.distanceKm != null || mapped.caloriesBurned != null || mapped.elapsedMinutes != null;
@@ -99,7 +100,7 @@ export const CardioTelemetryModal: React.FC<Props> = ({ isOpen, onClose, onPostC
 
   const handlePost = () => {
     if (!telemetry) return;
-    const today = new Date().toISOString().slice(0, 10);
+    const today = localDayKey(new Date().toISOString());
     const steps = telemetry.steps || 0, dist = telemetry.distanceKm || 0, dur = telemetry.elapsedMinutes || 0, cal = telemetry.caloriesBurned || 0, hr = telemetry.avgHeartRateBpm || 0;
     useTelemetryHistoryStore.getState().updateDayRecord(today, 'cardio', { hasData: true, distanceKm: dist, durationMinutes: dur, burnedKcal: cal, avgHeartRateBpm: hr, zone2Minutes: 0, steps: steps > 0 ? steps : undefined, activityType: telemetry.deviceType === 'watch' ? 'Watch' : 'Console' });
     try {

@@ -99,8 +99,8 @@ export async function publishBuddyCard(
     gender: profile.gender || null,
     looking_for: profile.lookingFor || null,
     training_place: profile.place || null,
-    latitude: coords.latitude,
-    longitude: coords.longitude,
+    latitude: Math.round(coords.latitude * 100) / 100,
+    longitude: Math.round(coords.longitude * 100) / 100,
     region_key: areaKey(coords.latitude, coords.longitude),
     last_active: new Date().toISOString(),
   };
@@ -117,22 +117,13 @@ export async function publishBuddyCard(
   return { ok: true };
 }
 
-export async function upsertBuddyLocation(coords: {
-  latitude: number;
-  longitude: number;
-}): Promise<{ ok: boolean; error?: string }> {
+/** Takes the athlete off the radar and deletes their stored area. */
+export async function withdrawBuddyCard(): Promise<boolean> {
   const uid = await getAuthenticatedUserId();
-  if (!uid) return { ok: false, error: 'Sign in required to publish location.' };
-  const { error } = await supabase.from('buddy_profiles').upsert(
-    {
-      id: uid,
-      user_id: uid,
-      latitude: coords.latitude,
-      longitude: coords.longitude,
-      last_active: new Date().toISOString(),
-    },
-    { onConflict: 'id' },
-  );
-  if (error) return { ok: false, error: error.message };
-  return { ok: true };
+  if (!uid) return false;
+  const [card, area] = await Promise.all([
+    supabase.from('buddy_profiles').update({ is_ghost_mode: true }).eq('id', uid),
+    supabase.from('buddy_locations').delete().eq('user_id', uid),
+  ]);
+  return !card.error && !area.error;
 }

@@ -22,8 +22,8 @@ interface Props {
   allowCompose?: boolean;
   scheduleOpen?: boolean;
   onUnmatch?: () => void;
-  onBlock?: () => void;
-  onReport?: (reason: string) => void;
+  onBlock?: (ath: DemoAthlete) => void;
+  onReport?: (ath: DemoAthlete, reason: string, details: string, alsoBlock: boolean) => void;
   onLine?: (text: string) => void;
 
   scheduleTarget: DemoAthlete | null;
@@ -32,7 +32,7 @@ interface Props {
 
   isPrivacyOpen: boolean;
   onClosePrivacy: () => void;
-  onPrivacySaved: () => void;
+  onPrivacySaved: (settings: Record<string, boolean>) => void;
 
   isFiltersOpen?: boolean;
   onCloseFilters?: () => void;
@@ -110,6 +110,8 @@ export const RadarModalsContainer: React.FC<Props> = ({
         onAccept={onAcceptProfile}
         onMessage={onMessageProfile}
         onBook={onBookProfile}
+        onBlock={onBlock}
+        onReport={onReport}
       />
 
       <AthleteMessageModal
@@ -121,8 +123,8 @@ export const RadarModalsContainer: React.FC<Props> = ({
         allowCompose={allowCompose}
         scheduleOpen={scheduleOpen}
         onUnmatch={onUnmatch}
-        onBlock={onBlock}
-        onReport={onReport}
+        onBlock={messageTarget && onBlock ? () => onBlock(messageTarget) : undefined}
+        onReport={messageTarget && onReport ? (reason, details, alsoBlock) => onReport(messageTarget, reason, details, alsoBlock) : undefined}
         onLine={onLine}
       />
 

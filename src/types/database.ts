@@ -1,18 +1,7 @@
-export interface FoodLogRecord {
-  id: string; athlete_id: string; meal_type: string; name: string;
-  calories: number; protein: number; carbs: number; fat: number;
-  logged_at: string; is_pending_sync?: boolean;
-}
-
 export interface WorkoutLogRecord {
   id: string; athlete_id: string; exercise_id: string; exercise_name: string;
   sets: number; reps: number; weight_kg: number; rpe: number;
   logged_at: string; is_pending_sync?: boolean;
-}
-
-export interface AthleteTelemetryRecord {
-  athlete_id: string; steps?: number; active_cals?: number;
-  readiness_score?: number; updated_at: string; is_pending_sync?: boolean;
 }
 
 export interface BuddyProfileRecord {
@@ -51,15 +40,4 @@ export interface CoachTransactionRecord {
 export interface UserEntitlementRecord {
   user_id: string; tier: string; status: 'active' | 'inactive' | 'expired';
   platform: 'ios' | 'android' | 'web'; expires_at: string; updated_at: string;
-}
-
-export type DatabaseTable =
-  | 'food_logs' | 'workout_logs' | 'athlete_telemetry' | 'coach_clients'
-  | 'coach_payout_accounts' | 'coach_transactions' | 'platform_commissions'
-  | 'buddy_profiles' | 'buddy_matches' | 'buddy_messages' | 'user_entitlements'
-  | 'athlete_profiles' | 'coach_profiles' | 'coach_payout_ledger';
-
-export interface DatabaseSyncMutation {
-  id: string; table: DatabaseTable; operation: 'INSERT' | 'UPSERT' | 'UPDATE' | 'DELETE';
-  payload: Record<string, any>; timestamp: number; retryCount: number;
 }

@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { X, Droplets, Plus, RotateCcw, ArrowRight } from 'lucide-react';
 import { tactileEngine } from '../../../services/tactileEngine';
+import { useFuelStore } from '../../fuel/store/useFuelStore';
+import { hydrationGoalLiters } from '../../fuel/utils/fuelMath';
 
 interface HydrationIntelligenceModalProps {
   isOpen: boolean;
@@ -20,10 +22,12 @@ export const HydrationIntelligenceModal: React.FC<HydrationIntelligenceModalProp
   onShowToast,
 }) => {
   const [beverageType, setBeverageType] = useState<'water' | 'electrolytes' | 'coffee'>('water');
+  const explicitTargetL = useFuelStore((s) => s.hydrationTargetL);
+  const weightKg = useFuelStore((s) => s.weightKg);
   if (!isOpen) return null;
 
-  const targetLiters = 3.0;
-  const pct = Math.min(100, Math.round((currentLiters / targetLiters) * 100));
+  const targetLiters = hydrationGoalLiters(explicitTargetL, weightKg);
+  const pct = targetLiters ? Math.min(100, Math.round((currentLiters / targetLiters) * 100)) : 0;
 
   const fastLogs = [
     { label: '250mL Glass', volume: 0.25, icon: '🥛' },
@@ -126,7 +130,7 @@ export const HydrationIntelligenceModal: React.FC<HydrationIntelligenceModalProp
                 <span className="text-3xl font-mono font-black text-white tracking-tight">
                   {currentLiters.toFixed(2)}
                 </span>
-                <span className="text-sm font-mono text-neutral-400">/ {targetLiters.toFixed(2)} L</span>
+                <span className="text-sm font-mono text-neutral-400">/ {targetLiters != null ? targetLiters.toFixed(2) : '--'} L</span>
               </div>
               <span className={`text-[10px] font-mono font-bold tracking-wider block ${hydrationStateColor}`}>
                 {hydrationStateLabel}
@@ -151,9 +155,9 @@ export const HydrationIntelligenceModal: React.FC<HydrationIntelligenceModalProp
               </div>
             </div>
             <div className="flex justify-between text-[9px] font-mono text-neutral-500 px-0.5">
-              <span>0.0L Baseline</span>
-              <span>1.5L Halfway</span>
-              <span>3.0L Target</span>
+              <span>0.0L</span>
+              <span>{targetLiters != null ? `${(targetLiters / 2).toFixed(1)}L` : '--'}</span>
+              <span>{targetLiters != null ? `${targetLiters.toFixed(1)}L target` : 'Add weight in Fuel'}</span>
             </div>
           </div>
         </div>

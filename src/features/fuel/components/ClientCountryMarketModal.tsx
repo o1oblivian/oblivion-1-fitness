@@ -201,12 +201,12 @@ export const ClientCountryMarketModal: React.FC<ClientCountryMarketModalProps> =
 
   return (
     <div className="fixed inset-0 z-50 bg-black/70 o1-sheet-scrim flex items-center justify-center animate-in fade-in duration-150 select-none">
-      <div className="o1-sheet-card w-full bg-o1-card border border-white/[0.07] p-4 shadow-xl flex flex-col overflow-y-auto space-y-3">
+      <div className="o1-sheet-card w-full bg-o1-sheet border border-white/[0.08] p-4 shadow-xl flex flex-col overflow-y-auto space-y-3">
         {/* Header */}
         <div className="flex items-center justify-between pb-2 border-b border-white/[0.05]">
           <div className="flex items-center gap-2">
-            <Globe className="w-5 h-5 text-sky-400 shrink-0" />
-            <h3 className="font-semibold text-sm text-neutral-100">
+            <Globe className="w-5 h-5 text-sky-600 shrink-0" />
+            <h3 className="font-semibold text-sm text-o1-text">
               Food market
             </h3>
           </div>
@@ -216,7 +216,7 @@ export const ClientCountryMarketModal: React.FC<ClientCountryMarketModalProps> =
               tactileEngine.triggerSelectionBuzz();
               onClose();
             }}
-            className="w-8 h-8 rounded-full bg-white/[0.08] hover:bg-neutral-700 flex items-center justify-center text-neutral-300 transition-colors cursor-pointer"
+            className="w-8 h-8 rounded-full bg-white/[0.08] hover:bg-white/[0.06] flex items-center justify-center text-o1-text transition-colors cursor-pointer"
             aria-label="Close"
           >
             <X className="w-4 h-4 stroke-[2.5]" />
@@ -225,20 +225,20 @@ export const ClientCountryMarketModal: React.FC<ClientCountryMarketModalProps> =
 
         {/* Small Search Bar */}
         <div className="relative w-full">
-          <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400 pointer-events-none" />
+          <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-o1-muted pointer-events-none" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search country or code..."
             autoFocus
-            className="w-full h-8.5 pl-8.5 pr-8 rounded-xl bg-o1-well border border-white/[0.07] text-xs text-neutral-100 placeholder-neutral-400 focus:outline-none focus:border-o1-crimson font-mono transition-colors"
+            className="w-full h-8.5 pl-8.5 pr-8 rounded-xl bg-o1-surface border border-white/[0.08] text-xs text-o1-text placeholder-o1-muted focus:outline-none focus:border-o1-crimson tabular-nums transition-colors"
           />
           {searchQuery && (
             <button
               type="button"
               onClick={() => setSearchQuery('')}
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-neutral-700 text-neutral-300 flex items-center justify-center cursor-pointer hover:bg-neutral-300"
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-white/20 text-o1-text flex items-center justify-center cursor-pointer hover:bg-white/80"
               title="Clear search"
             >
               <X className="w-2.5 h-2.5 stroke-[2.5]" />
@@ -264,8 +264,8 @@ export const ClientCountryMarketModal: React.FC<ClientCountryMarketModalProps> =
                   }}
                   className={`h-10 rounded-xl text-lg flex items-center justify-center border transition-all cursor-pointer ${
                     isSelected
-                      ? 'border-sky-400/70 bg-sky-950/40'
-                      : 'border-white/[0.07] bg-o1-well'
+                      ? 'border-sky-600 bg-transparent'
+                      : 'border-white/[0.08] bg-o1-surface'
                   }`}
                 >
                   {c.flag}
@@ -278,7 +278,7 @@ export const ClientCountryMarketModal: React.FC<ClientCountryMarketModalProps> =
         {/* Country List */}
         <div className="overflow-y-auto space-y-1 pr-1 flex-1 my-1 max-h-[50vh]">
           {filteredCountries.length === 0 ? (
-            <div className="py-8 text-center text-xs text-neutral-400 font-mono">
+            <div className="py-8 text-center text-xs text-o1-muted tabular-nums">
               No country found matching &ldquo;{searchQuery}&rdquo;
             </div>
           ) : (
@@ -295,19 +295,19 @@ export const ClientCountryMarketModal: React.FC<ClientCountryMarketModalProps> =
                   }}
                   className={`w-full flex items-center justify-between px-3.5 py-2 rounded-xl transition-all text-left cursor-pointer active:scale-98 ${
                     isSelected
-                      ? 'bg-sky-950/30 text-neutral-100 font-semibold border border-sky-900/50'
-                      : 'text-neutral-300 hover:bg-white/[0.06] font-medium'
+                      ? 'bg-transparent text-o1-text font-semibold border border-sky-600/40'
+                      : 'text-o1-text hover:bg-white/[0.06] font-medium'
                   }`}
                 >
                   <div className="flex items-center gap-2.5 min-w-0">
                     <span className="text-lg leading-none shrink-0">{c.flag}</span>
                     <span className="text-xs sm:text-sm font-medium truncate">{c.name}</span>
-                    <span className="text-[10px] font-mono text-neutral-500 shrink-0">
+                    <span className="text-[10px] tabular-nums text-o1-muted shrink-0">
                       {c.code}
                     </span>
                   </div>
                   {isSelected && (
-                    <div className="w-5 h-5 rounded-full bg-sky-600 flex items-center justify-center text-white shrink-0 ml-2">
+                    <div className="w-5 h-5 rounded-full bg-sky-600 flex items-center justify-center text-o1-text shrink-0 ml-2">
                       <Check className="w-3 h-3 stroke-[3]" />
                     </div>
                   )}
@@ -319,7 +319,7 @@ export const ClientCountryMarketModal: React.FC<ClientCountryMarketModalProps> =
 
         {/* Footer Note */}
         <div className="pt-2.5 border-t border-white/[0.05]">
-          <p className="text-[11px] text-neutral-400 leading-normal text-left font-mono">
+          <p className="text-[11px] text-o1-muted leading-normal text-left tabular-nums">
             Brands and barcodes follow this flag. Search still uses live OpenFoodFacts.
           </p>
         </div>

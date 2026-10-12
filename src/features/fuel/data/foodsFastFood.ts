@@ -116,7 +116,6 @@ export const FASTFOOD_FOODS: FoodCatalogItem[] = [
   { id: 'ff-100', name: 'Classic Cheese Pizza Slice (Large Pan)', brand: 'Pizza Hut', serving: '1 slice (115g)', calories: 300, protein: 13, carbs: 34, fats: 13, category: 'FASTFOOD' },
 
   { id: 'ff-101', name: 'GYG Burrito Bowl (Chicken, no cheese, extra veg)', brand: 'Guzman y Gomez', serving: '1 bowl', calories: 620, protein: 42, carbs: 58, fats: 22, category: 'FASTFOOD' },
-  { id: 'ff-102', name: 'Grill\'d Simply Grill\'d (Lean Beef, no bun extras)', brand: 'Grill\'d', serving: '1 burger', calories: 480, protein: 35, carbs: 32, fats: 22, category: 'FASTFOOD' },
   { id: 'ff-103', name: 'Nando\'s 1/4 Chicken (Lemon & Herb, no chips)', brand: 'Nando\'s', serving: '1/4 bird', calories: 250, protein: 32, carbs: 1, fats: 13, category: 'FASTFOOD' },
   { id: 'ff-104', name: 'Chipotle Chicken Bowl (Rice, beans, salsa, no sour cream)', brand: 'Chipotle', serving: '1 bowl', calories: 630, protein: 45, carbs: 70, fats: 16, category: 'FASTFOOD' },
 ];

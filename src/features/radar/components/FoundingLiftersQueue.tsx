@@ -24,7 +24,7 @@ export const FoundingLiftersQueue: React.FC<Props> = ({
   const progress = count == null ? 0 : Math.max(0, Math.min(100, Math.round((count / safeThreshold) * 100)));
   const locationOff = locationOn === false;
   const detail = locationOff
-    ? 'Location is off, so this phone cannot join an area yet.'
+    ? 'Buddy uses your rough area, about 1 km, to find people near you. Your exact location is never shown.'
     : cardLive
       ? 'Your profile is in the queue. The deck opens when Buddy is switched on.'
       : 'Add your name and an age of 18 or older to join the queue.';

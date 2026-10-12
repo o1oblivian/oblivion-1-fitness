@@ -12,6 +12,7 @@ import { WORKOUT_BLUEPRINTS, WorkoutBlueprint, BlueprintExercise } from '../../.
 import { useWorkoutStore } from '../store/useWorkoutStore';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { ExerciseItem, ExerciseSet } from '../../../types';
+import { calibrateTemplate } from '../utils/calibrateLoads';
 import { EXERCISE_DATABASE } from '../../../data/exerciseDatabase';
 
 export type BlueprintTier = 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED';
@@ -236,7 +237,7 @@ export const BlueprintModeView: React.FC<BlueprintModeViewProps> = ({ onShowToas
       convertToExerciseItem(be, blueprint.id, idx, tier)
     );
 
-    addExercisesToActiveLog(newExercises);
+    addExercisesToActiveLog(calibrateTemplate(newExercises));
     setActiveRoutine(`${blueprint.title} (${tier})`);
     onShowToast?.(`Loaded ${blueprint.title} [${tier}] (${newExercises.length} movements)`);
 

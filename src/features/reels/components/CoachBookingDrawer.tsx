@@ -26,6 +26,9 @@ import { CoachProfileHeader, ProfileActionButton, compactCount, ratingLabel } fr
 import { StorefrontEditor } from '../../coach/components/profile/StorefrontEditor';
 import type { CoachConsoleAction } from '../../coach/services/coachConsoleBus';
 import { stripeConnectService } from '../../../services/stripeConnectService';
+import { Capacitor } from '@capacitor/core';
+
+const NATIVE_APP = Capacitor.isNativePlatform();
 
 export interface CoachBookingDrawerProps {
   coach: ExploreCoach | null;
@@ -278,7 +281,8 @@ export const CoachBookingDrawer: React.FC<CoachBookingDrawerProps> = ({ coach, i
                   setApplyProgram(program);
                   setTab('coaching');
                 }}
-                onBuy={isOwn ? undefined : (program) => checkout({ kind: 'program', programId: program.id })}
+                showPrices={!NATIVE_APP}
+                onBuy={isOwn || NATIVE_APP ? undefined : (program) => checkout({ kind: 'program', programId: program.id })}
               />
             </div>
           )}

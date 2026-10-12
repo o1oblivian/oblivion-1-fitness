@@ -11,6 +11,17 @@ export const INITIAL_MICROCYCLE_VOLUME: DailyVolumePoint[] = [
   { day: 'Sun', shortDay: 'S', volumeKg: 0, targetKg: 0, strain: 0, setsCount: 0, isToday: false },
 ];
 
+export interface CommittedSession {
+  id: string;
+  title: string;
+  dateKey: string;
+  tonnageKg: number;
+  completedSets: number;
+  totalReps: number;
+  exercises: import('../../log/store/useTelemetryHistoryStore').ExerciseEntry[];
+  items: ExerciseItem[];
+}
+
 export type NormalizedWorkoutMode = 'Lift' | 'Sports' | 'Recovery';
 export type NormalizedWorkoutSubMode = 'AUTO' | 'MANUAL' | 'SWAPPER';
 export type WorkoutExercise = ExerciseItem;
@@ -48,6 +59,8 @@ export interface WorkoutStoreActions {
   addExerciseToActiveLog: (exercise: WorkoutExercise) => void;
   addExercisesToActiveLog: (exercises: WorkoutExercise[]) => void;
   clearActiveLog: () => void;
+  /** Saves ticked sets to today, then empties the tracker. Null when nothing was ticked. */
+  commitSession: () => CommittedSession | null;
   cycleWallpaper: () => void;
   setWallpaperIndex: (index: number) => void;
   setCustomWallpaperUrl: (url: string | null) => void;

@@ -2,8 +2,11 @@ import { createStore } from '../../../utils/createStore';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { safeStorage } from '../../../utils/safeStorage';
 import { queueOfflineAction, isDeviceOnline } from '../../../services/offlineSyncService';
-import { useTelemetryHistoryStore, getTelemetryHistoryState } from '../../log/store/useTelemetryHistoryStore';
-import { exerciseFromSets, setsFromExercise } from '../../log/liftLedger';
+import {
+  useTelemetryHistoryStore,
+  getTelemetryHistoryState,
+  WorkoutDayRecord,
+} from '../../log/store/useTelemetryHistoryStore';
 import {
   NormalizedWorkoutMode,
   NormalizedWorkoutSubMode,
@@ -21,7 +24,39 @@ import {
   toggleSetInExercises,
   updateSetInExercises,
   computeSessionMetrics,
+  sessionLedger,
+  mergeWorkoutDay,
 } from './workoutSetOperations';
+
+const BASELINE_KEY = 'o1fc_workout_day_baseline';
+
+function localTodayKey(): string {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+}
+
+/**
+ * What today held before the current session started. Captured once per session so live edits
+ * add to earlier sessions instead of overwriting them.
+ */
+function dayBaseline(todayKey: string): Partial<WorkoutDayRecord> | undefined {
+  const saved = safeStorage.getItem<{ dateKey: string; record?: Partial<WorkoutDayRecord> } | null>(BASELINE_KEY, null);
+  if (saved && saved.dateKey === todayKey) return saved.record;
+  const record = getTelemetryHistoryState().historyByDate[todayKey]?.workout;
+  const snapshot = record?.hasData ? { ...record } : undefined;
+  safeStorage.setItem(BASELINE_KEY, { dateKey: todayKey, record: snapshot });
+  return snapshot;
+}
+
+/** Nothing ticked any more: put today back to how it was before this session touched it. */
+function restoreBaseline(todayKey: string, sessionEnded: boolean) {
+  const saved = safeStorage.getItem<{ dateKey: string; record?: Partial<WorkoutDayRecord> } | null>(BASELINE_KEY, null);
+  if (!saved || saved.dateKey !== todayKey) return;
+  const history = getTelemetryHistoryState();
+  if (saved.record?.hasData) history.updateDayRecord(todayKey, 'workout', saved.record);
+  else if (history.historyByDate[todayKey]?.workout?.hasData) history.clearDayRecord(todayKey, 'workout');
+  if (sessionEnded) safeStorage.removeItem(BASELINE_KEY);
+}
 
 export type { NormalizedWorkoutMode, NormalizedWorkoutSubMode, WorkoutStoreState, WorkoutStoreActions };
 
@@ -88,29 +123,17 @@ const workoutStore = createStore<WorkoutStoreState, WorkoutStoreActions>(
           : metrics.weeklyVolumeData,
       });
 
-      // Synchronize directly into persistent telemetry history
       try {
-        const genuineExercises = nextExercises.filter(
-          (e) => !e.name?.toLowerCase().startsWith('cardio:') && !e.name?.toLowerCase().includes('telemetry')
-        );
-        if (metrics.sessionTonnageKg > 0 || metrics.completedSetsCount > 0 || genuineExercises.length > 0) {
-          const now = new Date();
-          const todayKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-          getTelemetryHistoryState().updateDayRecord(todayKey, 'workout', {
-            hasData: true,
-            tonnageKg: metrics.sessionTonnageKg,
-            completedSets: metrics.completedSetsCount,
-            durationMinutes: 0,
-            routineName: get().activeRoutine || '',
-            intensityRpe: 0,
-            exercises: genuineExercises
-              .map((e) => exerciseFromSets(
-                e.name || e.exerciseName || 'Exercise',
-                setsFromExercise(e),
-                (e.sets || []).some((s: { completed?: boolean }) => s.completed),
-              ))
-              .filter((entry) => (entry.setLog?.length || 0) > 0),
-          });
+        const ledger = sessionLedger(nextExercises);
+        const todayKey = localTodayKey();
+        if (ledger.completedSets > 0) {
+          getTelemetryHistoryState().updateDayRecord(
+            todayKey,
+            'workout',
+            mergeWorkoutDay(dayBaseline(todayKey), ledger, get().activeRoutine || ''),
+          );
+        } else {
+          restoreBaseline(todayKey, nextExercises.length === 0);
         }
       } catch (err) {
         console.warn('[WorkoutStore] History sync warning:', err);
@@ -146,6 +169,21 @@ const workoutStore = createStore<WorkoutStoreState, WorkoutStoreActions>(
         updateExercisesWithMetrics([...newExs, ...get().exercises]);
       },
       clearActiveLog: () => updateExercisesWithMetrics([]),
+      commitSession: () => {
+        const exercises = get().exercises;
+        const ledger = sessionLedger(exercises);
+        if (ledger.completedSets === 0) return null;
+        const title = get().activeRoutine || 'Workout';
+        const todayKey = localTodayKey();
+        getTelemetryHistoryState().updateDayRecord(todayKey, 'workout', mergeWorkoutDay(dayBaseline(todayKey), ledger, title));
+        safeStorage.removeItem(BASELINE_KEY);
+        const committed = exercises
+          .map((e) => ({ ...e, sets: (e.sets || []).filter((s) => s.completed) }))
+          .filter((e) => e.sets.length > 0);
+        updateExercisesWithMetrics([]);
+        set({ activeSession: false, activeRoutine: '' });
+        return { id: `session-${crypto.randomUUID()}`, title, dateKey: todayKey, ...ledger, items: committed };
+      },
       cycleWallpaper: () => {
         tactileEngine.triggerDialHaptic();
         set({ currentWallpaperIndex: (get().currentWallpaperIndex + 1) % 3, customWallpaperUrl: null });

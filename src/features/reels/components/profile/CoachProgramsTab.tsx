@@ -11,6 +11,8 @@ interface CoachProgramsTabProps {
   onApply?: (program: StorefrontProgram) => void;
   /** Paid programs: opens Stripe Checkout. */
   onBuy?: (program: StorefrontProgram) => Promise<void>;
+  /** Off inside the store apps, where paid digital programs cannot be sold outside in-app purchase. */
+  showPrices?: boolean;
   /** The coach viewing their own catalog: no enroll or apply actions. */
   isOwn?: boolean;
   onCreate?: () => void;
@@ -24,7 +26,7 @@ export function priceLabel(cents: number | null): string {
 
 const NONE: ReadonlySet<string> = new Set();
 
-export const CoachProgramsTab: React.FC<CoachProgramsTabProps> = ({ programs, enrolledIds = NONE, onEnroll, onApply, onBuy, isOwn = false, onCreate }) => {
+export const CoachProgramsTab: React.FC<CoachProgramsTabProps> = ({ programs, enrolledIds = NONE, onEnroll, onApply, onBuy, showPrices = true, isOwn = false, onCreate }) => {
   const [openId, setOpenId] = useState<string | null>(null);
   const [buyingId, setBuyingId] = useState<string | null>(null);
 
@@ -59,8 +61,8 @@ export const CoachProgramsTab: React.FC<CoachProgramsTabProps> = ({ programs, en
       {programs.map((program) => {
         const open = openId === program.id;
         const meta = [program.discipline, program.weeks, program.daysPerWeek ? `${program.daysPerWeek} days/wk` : '', program.level].filter(Boolean).join(' · ');
-        const price = priceLabel(program.priceCents);
         const free = program.priceCents === 0;
+        const price = showPrices || free ? priceLabel(program.priceCents) : '';
         const enrolled = enrolledIds.has(program.id);
         return (
           <div key={program.id} className="overflow-hidden rounded-2xl border border-white/[0.07] bg-o1-surface">
@@ -116,6 +118,9 @@ export const CoachProgramsTab: React.FC<CoachProgramsTabProps> = ({ programs, en
                     ))}
                   </div>
                 )}
+                {!isOwn && !enrolled && !free && !program.plan && program.weekOne.length === 0 ? (
+                  <p className="text-[12px] text-o1-muted">The full plan unlocks after you join.</p>
+                ) : null}
                 {isOwn ? (
                   <p className="text-center text-[12px] text-o1-muted">Athletes see this on your profile.</p>
                 ) : enrolled ? (

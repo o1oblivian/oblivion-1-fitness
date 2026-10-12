@@ -6,7 +6,10 @@ import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
 export interface WorkoutSessionPayload {
   id?: string; user_id?: string; title?: string; duration?: string; duration_seconds?: number;
-  strain?: number; tonnage_kg?: number; total_sets?: number; exercises?: any; created_at?: string; [key: string]: any;
+  strain?: number; tonnage_kg?: number; total_sets?: number; exercises?: any; created_at?: string;
+  /** When the session happened. Defaults to now; past-day entries pass their own day. */
+  completed_at?: string;
+  [key: string]: any;
 }
 
 export interface AthleteProfile {
@@ -109,12 +112,14 @@ export async function syncSessionToSupabase(sessionData: WorkoutSessionPayload):
     const tonnage = sessionData.tonnage_kg ?? sessionData.tonnageKg ?? 0;
     const totalSets = sessionData.total_sets ?? sessionData.totalSets ?? 0;
     const nowIso = new Date().toISOString();
+    const givenAt = sessionData.completed_at ? new Date(sessionData.completed_at) : null;
+    const completedAt = givenAt && !Number.isNaN(givenAt.getTime()) ? givenAt.toISOString() : nowIso;
     const sessionTitle = sessionData.title || 'Workout';
 
     const completedSessionPayload: Record<string, unknown> = {
       id: sessionData.id || `session-${Date.now()}`, user_id: userId, client_id: userId, title: sessionTitle,
       session_name: sessionTitle, tonnage_kg: tonnage, volume_kg: tonnage,
-      total_sets: totalSets, completed_at: nowIso, created_at: nowIso,
+      total_sets: totalSets, completed_at: completedAt, created_at: completedAt,
     };
     if (durationSeconds > 0) completedSessionPayload.duration_seconds = durationSeconds;
     if (sessionData.strain != null && sessionData.strain > 0) completedSessionPayload.strain = sessionData.strain;

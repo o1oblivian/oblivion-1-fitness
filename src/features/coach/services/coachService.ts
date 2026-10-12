@@ -45,15 +45,19 @@ function mapRosterRow(row: Row): Athlete {
   };
 }
 
-/** Active clients linked to this coach in `coach_clients`. Null when the roster could not be loaded. */
-export async function fetchCoachClients(coachId: string): Promise<Athlete[] | null> {
+export const ROSTER_PAGE = 50;
+
+/** One page of active clients linked to this coach, newest first. Null when the roster could not be loaded. */
+export async function fetchCoachClients(coachId: string, offset = 0): Promise<Athlete[] | null> {
   if (!isValidUuid(coachId)) return [];
   const { data, error } = await supabase
     .from('coach_clients')
     .select(ROSTER_COLUMNS)
     .eq('coach_id', coachId)
     .eq('status', 'active')
-    .order('created_at', { ascending: false });
+    .order('created_at', { ascending: false })
+    .order('client_id', { ascending: true })
+    .range(offset, offset + ROSTER_PAGE - 1);
   if (error || !Array.isArray(data)) {
     if (error) console.warn('[coachService] roster query failed:', error.message);
     return null;
@@ -111,7 +115,8 @@ export async function fetchCoachDirectives(coachId: string): Promise<DirectiveIt
     .from('coach_directives')
     .select('id, tag, title, summary, affected_count, priority, created_at')
     .eq('coach_id', coachId)
-    .order('created_at', { ascending: false });
+    .order('created_at', { ascending: false })
+    .limit(50);
   if (error || !Array.isArray(data)) {
     if (error) console.warn('[coachService] notes query failed:', error.message);
     return null;
@@ -188,7 +193,7 @@ export function mapCoachMessage(m: Row): CoachMessage {
   };
 }
 
-/** Newest first. Pass `athleteId` to load a single conversation. Null when the inbox could not be loaded. */
+/** Newest first: the latest 50 lines of one conversation, or the latest 200 across the inbox. Null when it could not be loaded. */
 export async function fetchCoachMessages(coachId: string, athleteId = ''): Promise<CoachMessage[] | null> {
   if (!isValidUuid(coachId)) return [];
   let query = supabase
@@ -196,7 +201,7 @@ export async function fetchCoachMessages(coachId: string, athleteId = ''): Promi
     .select('id, sender_name, message, created_at, athlete_id')
     .eq('coach_id', coachId);
   if (athleteId) query = query.eq('athlete_id', athleteId);
-  const { data, error } = await query.order('created_at', { ascending: false });
+  const { data, error } = await query.order('created_at', { ascending: false }).limit(athleteId ? 50 : 200);
   if (error || !Array.isArray(data)) return null;
   return liveMessages((data as Row[]).map(mapCoachMessage));
 }

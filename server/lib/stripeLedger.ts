@@ -119,68 +119,38 @@ export interface CoachBalanceSummary {
   platformFeeCents: number;
 }
 
-const toCents = (dollars: unknown): number => Math.round(Number(dollars || 0) * 100);
+const LEDGER_PAGE = 50;
 
-function isReleased(tx: CoachTransactionRow, now: number): boolean {
-  const status = String(tx.status).toUpperCase();
-  if (status === 'AVAILABLE' || status === 'PAID_OUT') return true;
-  if (status !== 'PENDING') return false;
-  const ageDays = (now - new Date(tx.created_at).getTime()) / 86_400_000;
-  return ageDays >= payoutHoldDays();
-}
-
-export function summariseBalance(transactions: CoachTransactionRow[], payouts: CoachPayoutRow[]): CoachBalanceSummary {
-  const now = Date.now();
-  let earnedReleased = 0;
-  let pending = 0;
-  let gross = 0;
-  let fee = 0;
-  for (const tx of transactions) {
-    if (String(tx.status).toUpperCase() === 'REFUNDED') continue;
-    gross += toCents(tx.gross_amount);
-    fee += toCents(tx.platform_fee);
-    if (isReleased(tx, now)) earnedReleased += toCents(tx.coach_net);
-    else pending += toCents(tx.coach_net);
-  }
-  let committed = 0;
-  let paid = 0;
-  for (const p of payouts) {
-    const s = String(p.status).toLowerCase();
-    if (s === 'paid') {
-      paid += Number(p.amount_cents || 0);
-      committed += Number(p.amount_cents || 0);
-    } else if (s === 'processing' || s === 'pending') {
-      committed += Number(p.amount_cents || 0);
-    }
-  }
-  return {
-    currency: PAYOUT_CURRENCY,
-    availableCents: earnedReleased - committed,
-    pendingCents: pending,
-    paidCents: paid,
-    grossCents: gross,
-    platformFeeCents: fee,
-  };
-}
-
-export async function loadCoachLedger(
-  coachId: string,
-): Promise<{ transactions: CoachTransactionRow[]; payouts: CoachPayoutRow[] } | null> {
+/** Totals come from `coach_ledger_totals` so the whole history is summed in SQL, never loaded into the server. */
+export async function getCoachBalance(coachId: string): Promise<{
+  transactions: CoachTransactionRow[];
+  payouts: CoachPayoutRow[];
+  summary: CoachBalanceSummary;
+} | null> {
   const admin = getSupabaseAdmin();
   if (!admin) return null;
-  const [tx, po] = await Promise.all([
-    admin.from('coach_transactions').select('*').eq('coach_id', coachId).order('created_at', { ascending: false }),
-    admin.from('coach_payout_ledger').select('*').eq('coach_id', coachId).order('created_at', { ascending: false }),
+  const [tx, po, totals] = await Promise.all([
+    admin.from('coach_transactions').select('*').eq('coach_id', coachId).order('created_at', { ascending: false }).limit(LEDGER_PAGE),
+    admin.from('coach_payout_ledger').select('*').eq('coach_id', coachId).order('created_at', { ascending: false }).limit(LEDGER_PAGE),
+    admin.rpc('coach_ledger_totals', { p_coach: coachId, p_hold_days: payoutHoldDays() }).single(),
   ]);
   if (tx.error) throw new Error(`coach_transactions: ${tx.error.message}`);
   if (po.error) throw new Error(`coach_payout_ledger: ${po.error.message}`);
-  return { transactions: (tx.data || []) as CoachTransactionRow[], payouts: (po.data || []) as CoachPayoutRow[] };
-}
-
-export async function getCoachBalance(coachId: string) {
-  const ledger = await loadCoachLedger(coachId);
-  if (!ledger) return null;
-  return { ...ledger, summary: summariseBalance(ledger.transactions, ledger.payouts) };
+  if (totals.error || !totals.data) throw new Error(`coach_ledger_totals: ${totals.error?.message || 'no row'}`);
+  const sum = totals.data as Record<string, unknown>;
+  const cents = (key: string) => Number(sum[key] || 0);
+  return {
+    transactions: (tx.data || []) as CoachTransactionRow[],
+    payouts: (po.data || []) as CoachPayoutRow[],
+    summary: {
+      currency: PAYOUT_CURRENCY,
+      availableCents: cents('released_cents') - cents('committed_cents'),
+      pendingCents: cents('pending_cents'),
+      paidCents: cents('paid_cents'),
+      grossCents: cents('gross_cents'),
+      platformFeeCents: cents('fee_cents'),
+    },
+  };
 }
 
 /**

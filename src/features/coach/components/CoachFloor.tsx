@@ -42,6 +42,8 @@ export interface CoachFloorProps {
   athletes: Athlete[] | null;
   rosterFailed: boolean;
   onRetryRoster: () => void;
+  rosterHasMore: boolean;
+  onLoadMoreRoster: () => void;
   checkins: AthleteCheckInSubmission[] | null;
   onCheckinsChange: (updater: (prev: AthleteCheckInSubmission[] | null) => AthleteCheckInSubmission[] | null) => void;
   notes: DirectiveItem[] | null;
@@ -147,6 +149,8 @@ export const CoachFloor: React.FC<CoachFloorProps> = ({
   athletes,
   rosterFailed,
   onRetryRoster,
+  rosterHasMore,
+  onLoadMoreRoster,
   checkins,
   onCheckinsChange,
   notes,
@@ -449,7 +453,7 @@ export const CoachFloor: React.FC<CoachFloorProps> = ({
             </p>
           ) : null}
           <section className="space-y-2">
-            <h3 className="px-1 text-[13px] font-semibold text-o1-text">Clients{athletes === null ? '' : ` (${people.length})`}</h3>
+            <h3 className="px-1 text-[13px] font-semibold text-o1-text">Clients{athletes === null ? '' : ` (${people.length}${rosterHasMore ? '+' : ''})`}</h3>
             {athletes === null ? (
               <Empty>Loading clients…</Empty>
             ) : people.length === 0 ? (
@@ -474,6 +478,18 @@ export const CoachFloor: React.FC<CoachFloorProps> = ({
                 />
               ))
             )}
+            {rosterHasMore && !sample ? (
+              <button
+                type="button"
+                onClick={() => {
+                  tactileEngine.triggerSelectionBuzz();
+                  onLoadMoreRoster();
+                }}
+                className="flex h-[44px] w-full items-center justify-center rounded-full border border-white/[0.07] bg-o1-surface text-[13px] font-semibold text-o1-text active:scale-[0.99]"
+              >
+                Show more clients
+              </button>
+            ) : null}
           </section>
           <section className="space-y-2">
             <h3 className="px-1 text-[13px] font-semibold text-o1-text">Who trained this week</h3>

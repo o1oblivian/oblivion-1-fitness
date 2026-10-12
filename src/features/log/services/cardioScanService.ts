@@ -4,49 +4,47 @@ import { analyzeCardioImageWithGemini } from '../../../services/mealScannerServi
 import Tesseract from 'tesseract.js';
 import { apiUrl } from '../../../services/apiBase';
 
+function readMetric(value: unknown, decimals = 0): number | null {
+  if (value == null || (typeof value === 'string' && value.trim() === '')) return null;
+  const n = Number(value);
+  if (!Number.isFinite(n) || n <= 0) return null;
+  const f = 10 ** decimals;
+  return Math.round(n * f) / f;
+}
+
 function toExtracted(
   scanMode: 'console' | 'watch',
   fields: {
     activityType?: string;
-    distanceKm?: number | null;
-    durationMinutes?: number | null;
-    burnedKcal?: number | null;
-    avgHeartRateBpm?: number | null;
-    steps?: number | null;
-    confidenceScore: number;
+    distanceKm?: unknown;
+    durationMinutes?: unknown;
+    burnedKcal?: unknown;
+    avgHeartRateBpm?: unknown;
+    steps?: unknown;
     rawReadings?: string;
     aliveAiNote?: string;
   }
 ): ExtractedCardioData {
-  const dist = fields.distanceKm != null ? Number(fields.distanceKm) : 0;
-  const dur = fields.durationMinutes != null ? Number(fields.durationMinutes) : 0;
-  const burn = fields.burnedKcal != null ? Number(fields.burnedKcal) : 0;
-  const hr = fields.avgHeartRateBpm != null ? Number(fields.avgHeartRateBpm) : 0;
-  const steps = fields.steps != null ? Number(fields.steps) : 0;
+  const distanceKm = readMetric(fields.distanceKm, 2);
+  const durationMinutes = readMetric(fields.durationMinutes);
+  const burnedKcal = readMetric(fields.burnedKcal);
+  const avgHeartRateBpm = readMetric(fields.avgHeartRateBpm);
+  const steps = readMetric(fields.steps);
   return {
     activityType: fields.activityType || (scanMode === 'watch' ? 'Smartwatch Pedometer' : 'Cardio Console'),
-    distanceKm: Number(dist.toFixed(2)),
-    durationMinutes: Math.round(dur),
-    burnedKcal: Math.round(burn),
-    avgHeartRateBpm: Math.round(hr),
-    zone2Minutes: 0,
+    distanceKm,
+    durationMinutes,
+    burnedKcal,
+    avgHeartRateBpm,
     steps,
-    confidenceScore: fields.confidenceScore,
+    fieldsRead: [distanceKm, durationMinutes, burnedKcal, avgHeartRateBpm, steps].filter((v) => v != null).length,
     rawReadings: fields.rawReadings,
     aliveAiNote: fields.aliveAiNote,
   };
 }
 
 function isEmptyTelemetry(data: ExtractedCardioData | null): boolean {
-  if (!data) return true;
-  if (data.confidenceScore === 0) return true;
-  return (
-    !(data.steps > 0) &&
-    !(data.distanceKm > 0) &&
-    !(data.burnedKcal > 0) &&
-    !(data.durationMinutes > 0) &&
-    !(data.avgHeartRateBpm > 0)
-  );
+  return !data || data.fieldsRead === 0;
 }
 
 async function geminiWatchFallback(
@@ -56,41 +54,25 @@ async function geminiWatchFallback(
   try {
     const parsed = await analyzeCardioImageWithGemini(base64Image, scanMode);
     if (!parsed) return null;
-    const dist = parsed.distanceKm != null ? Number(parsed.distanceKm) : null;
-    const dur =
-      typeof parsed.elapsedMinutes === 'number'
-        ? parsed.elapsedMinutes
-        : parsed.elapsedMinutes != null && String(parsed.elapsedMinutes).trim() !== ''
-          ? Number(parsed.elapsedMinutes)
-          : null;
-    const burn = parsed.caloriesBurned != null ? Number(parsed.caloriesBurned) : null;
-    const hr = parsed.avgHeartRateBpm != null ? Number(parsed.avgHeartRateBpm) : null;
-    const steps = parsed.steps != null ? Number(parsed.steps) : null;
-    const hasData =
-      (steps != null && steps > 0) ||
-      (dist != null && dist > 0) ||
-      (burn != null && burn > 0) ||
-      (dur != null && dur > 0) ||
-      (hr != null && hr > 0);
-    if (!hasData) return null;
-    return toExtracted(scanMode, {
+    const data = toExtracted(scanMode, {
       activityType:
         parsed.deviceType === 'WATCH' || scanMode === 'watch' ? 'Smartwatch Pedometer' : 'Cardio Console',
-      distanceKm: dist,
-      durationMinutes: dur,
-      burnedKcal: burn,
-      avgHeartRateBpm: hr,
-      steps,
-      confidenceScore: 96,
-      rawReadings: [
-        steps != null && steps > 0 ? `${steps.toLocaleString()} steps` : null,
-        burn != null && burn > 0 ? `${burn} kcal` : null,
-        dist != null && dist > 0 ? `${dist} km` : null,
-      ]
-        .filter(Boolean)
-        .join(' • '),
-      aliveAiNote: 'Gemini Vision watch/console telemetry verified.',
+      distanceKm: parsed.distanceKm,
+      durationMinutes: parsed.elapsedMinutes,
+      burnedKcal: parsed.caloriesBurned,
+      avgHeartRateBpm: parsed.avgHeartRateBpm,
+      steps: parsed.steps,
     });
+    if (isEmptyTelemetry(data)) return null;
+    data.rawReadings = [
+      data.steps != null ? `${data.steps.toLocaleString()} steps` : null,
+      data.burnedKcal != null ? `${data.burnedKcal} kcal` : null,
+      data.distanceKm != null ? `${data.distanceKm} km` : null,
+    ]
+      .filter(Boolean)
+      .join(' • ');
+    data.aliveAiNote = 'Read by Gemini Vision. Check the numbers before saving.';
+    return data;
   } catch (err) {
     console.warn('[Optical Vision] Gemini watch OCR fallback failed:', err);
     return null;
@@ -119,12 +101,10 @@ export async function processCardioScanImage(
         const t = json.telemetry;
         extracted = toExtracted(scanMode, {
           distanceKm: t.distanceKm,
-          durationMinutes: t.elapsedMinutes != null ? Number(t.elapsedMinutes) : null,
+          durationMinutes: t.elapsedMinutes,
           burnedKcal: t.caloriesBurned,
           avgHeartRateBpm: t.avgHeartRateBpm,
           steps: t.steps,
-          confidenceScore:
-            t.steps != null || t.distanceKm != null || t.caloriesBurned != null || t.elapsedMinutes != null ? 98 : 0,
           rawReadings: json.calibrationNote,
           aliveAiNote: json.calibrationNote,
         });
@@ -148,16 +128,8 @@ export async function processCardioScanImage(
           burnedKcal: parsed.caloriesBurned,
           avgHeartRateBpm: parsed.avgHeartRateBpm,
           steps: parsed.steps,
-          confidenceScore:
-            parsed.steps != null ||
-            parsed.distanceKm != null ||
-            parsed.caloriesBurned != null ||
-            parsed.elapsedMinutes != null ||
-            parsed.avgHeartRateBpm != null
-              ? 95
-              : 0,
           rawReadings: rawText.slice(0, 120),
-          aliveAiNote: 'On-device Optical OCR telemetry extraction verified.',
+          aliveAiNote: 'Read on device. Check the numbers before saving.',
         });
       }
     } catch (ocrErr) {
@@ -172,16 +144,8 @@ export async function processCardioScanImage(
 
   if (extracted && !isEmptyTelemetry(extracted)) return extracted;
 
-  return {
-    activityType: scanMode === 'watch' ? 'Smartwatch Pedometer' : 'Cardio Console',
-    distanceKm: 0,
-    durationMinutes: 0,
-    burnedKcal: 0,
-    avgHeartRateBpm: 0,
-    zone2Minutes: 0,
-    steps: 0,
-    confidenceScore: 0,
+  return toExtracted(scanMode, {
     rawReadings: 'No digital numbers detected. Enter values manually or retake photo.',
-    aliveAiNote: 'Optical display requires manual verification.',
-  };
+    aliveAiNote: 'Nothing could be read from the screen.',
+  });
 }

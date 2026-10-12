@@ -9,8 +9,6 @@ import {
   getSupabaseAdmin,
   resolveCheckoutItem,
   resolveCoachPlan,
-  summariseBalance,
-  loadCoachLedger,
 } from '../lib/stripeLedger';
 import { handleCreateIdentitySession, handleStripeWebhook } from './stripeIdentityRoutes';
 
@@ -161,10 +159,8 @@ export function registerStripeRoutes(app: Express) {
         }
       }
 
-      const [ledger, plan] = await Promise.all([loadCoachLedger(coachId), resolveCoachPlan(coachId)]);
-      const transactions = ledger?.transactions ?? [];
-      const payouts = ledger?.payouts ?? [];
-      const summary = summariseBalance(transactions, payouts);
+      const [ledger, plan] = await Promise.all([getCoachBalance(coachId), resolveCoachPlan(coachId)]);
+      if (!ledger) return res.status(503).json({ error: 'Payments backend is not configured.' });
 
       return res.json({
         accountLinked: Boolean(profile?.stripe_connect_account_id),
@@ -172,9 +168,9 @@ export function registerStripeRoutes(app: Express) {
         payoutsEnabled: Boolean(profile?.stripe_payouts_enabled),
         plan,
         platformFeeRate: COACH_PLANS[plan].platformFeeRate,
-        ...summary,
-        payouts: payouts.slice(0, 50),
-        transactions: transactions.slice(0, 50),
+        ...ledger.summary,
+        payouts: ledger.payouts,
+        transactions: ledger.transactions,
       });
     } catch (err: any) {
       console.error('[stripe] balance failed:', err?.message);

@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { supabase } from '../../../services/supabaseClient';
 import { useBuddyMessageStore, RealtimeBuddyMessage } from '../../../stores/useBuddyMessageStore';
 import { tactileEngine } from '../../../services/tactileEngine';
-import { unpackLine } from '../services/buddyMatch';
+import { readBlocks, unpackLine } from '../services/buddyMatch';
 
 interface UseBuddyRealtimeOptions {
   currentUserId?: string;
@@ -33,7 +33,7 @@ export function useBuddyRealtime({
         (payload) => {
           const row = payload.new as { id?: string; created_at?: string };
           const line = unpackLine(String(row.id || ''), String(row.created_at || ''));
-          if (!line) return;
+          if (!line || readBlocks().includes(line.senderId)) return;
           tactileEngine.triggerSelectionBuzz();
           const message: RealtimeBuddyMessage = {
             id: line.id,

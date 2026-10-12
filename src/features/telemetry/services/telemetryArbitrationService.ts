@@ -57,7 +57,7 @@ class TelemetryArbitrationService {
 
   /**
    * Tier 2: Console Scanner (Session Delta)
-   * Appends session steps (or derives distanceKm * 1250) without wiping daily totals,
+   * Appends steps read from the console (never estimated) without wiping daily totals,
    * and records session [startTime, endTime] window.
    */
   public recordConsoleSession(params: {
@@ -69,9 +69,7 @@ class TelemetryArbitrationService {
   }): { sessionSteps: number; startTime: number; endTime: number } {
     const distanceKm = Math.max(0, Number(params.distanceKm) || 0);
     const durationMinutes = Math.max(1, Number(params.durationMinutes) || 1);
-    const sessionSteps = params.steps && params.steps > 0
-      ? Math.round(params.steps)
-      : Math.round(distanceKm * 1250);
+    const sessionSteps = params.steps && params.steps > 0 ? Math.round(params.steps) : 0;
 
     const endTime = params.endTime || Date.now();
     const startTime = endTime - (durationMinutes * 60 * 1000);

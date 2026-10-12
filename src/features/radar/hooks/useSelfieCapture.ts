@@ -55,8 +55,12 @@ export function useSelfieCapture(isOpen: boolean, onVerified?: () => void) {
   const runVerification = async (selfieBase64: string) => {
     setIsVerifying(true);
     setErrorMessage(null);
-    const avatar = buddyPhotos[0] || '';
-    const res = await verifyAthletePose(avatar, selfieBase64, challenge);
+    if (!buddyPhotos[0]) {
+      setIsVerifying(false);
+      setErrorMessage('Add a profile photo to your Buddy card first.');
+      return;
+    }
+    const res = await verifyAthletePose(selfieBase64, challenge);
     setIsVerifying(false);
 
     if (res.isVerified) {

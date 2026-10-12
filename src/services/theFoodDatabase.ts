@@ -51,12 +51,12 @@ function catalogMarket(
     authorityShortName: 'O1FC Catalog',
     authorityFullName: `O1FC Athletic Catalog · ${countryName}`,
     isOfficial: false,
-    searchPlaceholder: `Type to search live OpenFoodFacts (${examples})`,
+    searchPlaceholder: `Search food or brand · e.g. ${examples.split(',')[0].trim()}`,
   };
 }
 
 export const REGIONAL_DATABASE_INFO: Record<string, RegionalDatabaseConfig> = {
-  AU: catalogMarket('AU', 'Australia', 'Bulk Nutrients, Up & Go, GYG'),
+  AU: catalogMarket('AU', 'Australia', "Grill'd, Bulk Nutrients, Up & Go, GYG"),
   US: catalogMarket('US', 'United States', 'Fairlife, Quest, Chipotle'),
   GB: catalogMarket('GB', 'United Kingdom', 'Myprotein, Greggs, Nando\'s'),
   IN: catalogMarket('IN', 'India', 'Amul, Paneer, MuscleBlaze'),

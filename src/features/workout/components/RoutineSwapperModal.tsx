@@ -5,6 +5,7 @@ import { useWorkoutStore } from '../store/useWorkoutStore';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { PRESET_SPLITS, MUSCLE_SUBSTITUTIONS, MuscleSubstitutionItem } from '../data/routineSwapperData';
 import { EXERCISE_DATABASE } from '../../../data/exerciseDatabase';
+import { calibrateTemplate } from '../utils/calibrateLoads';
 
 interface RoutineSwapperModalProps {
   isOpen: boolean;
@@ -57,9 +58,10 @@ export const RoutineSwapperModal: React.FC<RoutineSwapperModalProps> = ({
 
   const handleSubstituteMuscle = (item: MuscleSubstitutionItem) => {
     tactileEngine.playPRCelebration();
-    setExercises(item.exercises);
+    const calibrated = calibrateTemplate(item.exercises);
+    setExercises(calibrated);
     setActiveRoutine(item.muscle);
-    onSelectPreset(item.muscle, item.exercises);
+    onSelectPreset(item.muscle, calibrated);
     showToast(`Substituted target muscle: ${item.muscle} (${item.exercises.length} drills).`);
     onClose();
   };

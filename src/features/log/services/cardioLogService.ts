@@ -2,7 +2,7 @@ import { supabase } from '../../../services/supabaseClient';
 import { getAuthenticatedUserId } from '../../../services/authUser';
 import { useTelemetryHistoryStore } from '../store/useTelemetryHistoryStore';
 import { useLogStore } from '../../../stores/useLogStore';
-import { syncDailyStepsToSupabase } from './userTelemetryService';
+import { localDayKey, localNoonIso } from './dayLogService';
 
 export interface CardioLogEntry {
   id: string;
@@ -19,7 +19,7 @@ export interface CardioLogEntry {
 
 /**
  * Records a cardio log in today's telemetry and syncs it to Supabase
- * completed_sessions and cardio_logs.
+ * completed_sessions; the day record itself syncs through athlete_day_logs.
  */
 export async function persistCardioLog(entry: {
   activityType: string;
@@ -34,11 +34,10 @@ export async function persistCardioLog(entry: {
   if (!userId) return;
 
   const nowIso = new Date().toISOString();
-  const dateKey =
-    entry.dateKey ||
-    `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}-${String(
-      new Date().getDate()
-    ).padStart(2, '0')}`;
+  const todayKey = localDayKey(nowIso);
+  const dateKey = entry.dateKey || todayKey;
+  const isToday = dateKey === todayKey;
+  const happenedAt = isToday ? nowIso : localNoonIso(dateKey) || nowIso;
 
   const cardioRecord: CardioLogEntry = {
     id: `cardio-${Date.now()}`,
@@ -50,7 +49,7 @@ export async function persistCardioLog(entry: {
     avgHeartRateBpm: entry.avgHeartRateBpm && entry.avgHeartRateBpm > 0 ? entry.avgHeartRateBpm : undefined,
     steps: entry.steps,
     dateKey,
-    timestamp: nowIso,
+    timestamp: happenedAt,
   };
 
   // 1. Reactively update in-memory stores for immediate UI reflection
@@ -65,17 +64,15 @@ export async function persistCardioLog(entry: {
       zone2Minutes: 0,
     });
 
-    useLogStore.getState().updateSubModule('cardio', {
-      activityType: entry.activityType,
-      distanceKm: entry.distanceKm,
-      durationMinutes: entry.durationMinutes,
-      burnedKcal: entry.burnedKcal,
-      avgHeartRateBpm: entry.avgHeartRateBpm && entry.avgHeartRateBpm > 0 ? entry.avgHeartRateBpm : 0,
-      zone2Minutes: 0,
-    });
-
-    if (entry.steps && entry.steps > 0) {
-      syncDailyStepsToSupabase(entry.steps);
+    if (isToday) {
+      useLogStore.getState().updateSubModule('cardio', {
+        activityType: entry.activityType,
+        distanceKm: entry.distanceKm,
+        durationMinutes: entry.durationMinutes,
+        burnedKcal: entry.burnedKcal,
+        avgHeartRateBpm: entry.avgHeartRateBpm && entry.avgHeartRateBpm > 0 ? entry.avgHeartRateBpm : 0,
+        zone2Minutes: 0,
+      });
     }
   } catch (storeErr) {
     console.warn('[CardioService] Store update notice:', storeErr);
@@ -92,26 +89,13 @@ export async function persistCardioLog(entry: {
       tonnage_kg: 0,
       volume_kg: 0,
       total_sets: 1,
-      completed_at: nowIso,
-      created_at: nowIso,
+      completed_at: happenedAt,
+      created_at: happenedAt,
     };
     if (entry.durationMinutes > 0) sessionPayload.duration_seconds = Math.round(entry.durationMinutes * 60);
 
-    const heartRate = entry.avgHeartRateBpm && entry.avgHeartRateBpm > 0 ? entry.avgHeartRateBpm : null;
-    await Promise.allSettled([
-      supabase.from('completed_sessions').insert([sessionPayload]),
-      supabase.from('cardio_logs').insert([{
-        id: cardioRecord.id,
-        user_id: userId,
-        activity_type: entry.activityType,
-        distance_km: entry.distanceKm,
-        duration_minutes: entry.durationMinutes,
-        burned_kcal: entry.burnedKcal,
-        avg_heart_rate_bpm: heartRate,
-        steps: entry.steps || 0,
-        created_at: nowIso,
-      }]),
-    ]);
+    const { error } = await supabase.from('completed_sessions').insert([sessionPayload]);
+    if (error) console.warn('[CardioService] Supabase sync notice:', error.message);
   } catch (err) {
     console.warn('[CardioService] Supabase sync notice:', err);
   }

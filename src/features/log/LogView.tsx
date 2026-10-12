@@ -8,7 +8,6 @@ import { InviteModal } from './components/InviteModal';
 import { CoachRoutineDispatchModal } from './components/CoachRoutineDispatchModal';
 import { ShareBenchmarkModal } from './components/ShareBenchmarkModal';
 import { PhotoVaultModal } from './components/PhotoVaultModal';
-import { SplitOption } from './types';
 import { useLogHydration } from './hooks/useLogHydration';
 import { useUserStore } from '../../stores/useUserStore';
 import { useTrainingSummary } from './useTrainingSummary';
@@ -46,8 +45,6 @@ export const LogView: React.FC = () => {
   const [isShareProgressOpen, setIsShareProgressOpen] = useState(false);
   const [isPhotoVaultOpen, setIsPhotoVaultOpen] = useState(false);
   const [isReportOpen, setIsReportOpen] = useState(false);
-  const [selectedSplit, setSelectedSplit] = useState<SplitOption>('Push');
-
   useEffect(() => {
     void getAuthenticatedUserId().then(async (id) => {
       if (!id) return;
@@ -72,10 +69,7 @@ export const LogView: React.FC = () => {
     window.dispatchEvent(new CustomEvent('app_navigate_tab', { detail: 'coach' }));
   };
 
-  const handleChooseRoutine = (split: SplitOption) => {
-    setSelectedSplit(split);
-    setIsCoachDispatchOpen(true);
-  };
+  const handleChooseRoutine = () => setIsCoachDispatchOpen(true);
 
   return (
     <div
@@ -132,7 +126,6 @@ export const LogView: React.FC = () => {
       <CoachRoutineDispatchModal
         isOpen={isCoachDispatchOpen}
         onClose={() => setIsCoachDispatchOpen(false)}
-        selectedSplit={selectedSplit}
         onNavigateToWorkout={handleNavigateToWorkout}
         onNavigateToCoach={handleNavigateToCoach}
         showToast={showToast}

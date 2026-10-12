@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Flag } from 'lucide-react';
 import { CommitWorkoutModal } from './modals/CommitWorkoutModal';
 import { tactileEngine } from '../../../services/tactileEngine';
@@ -9,9 +9,8 @@ import { DialInputModal } from '../../../components/common/DialInputModal';
 import { ActiveLogExerciseAccordion } from './ActiveLogExerciseAccordion';
 import { saveAthleteDayRoutine } from '../services/dayRoutineService';
 import { useUserStore } from '../../../stores/useUserStore';
-import { useTelemetryHistoryStore } from '../../log/store/useTelemetryHistoryStore';
-import { exerciseFromSets, setsFromExercise } from '../../log/liftLedger';
-import { releaseForgotten } from '../../log/services/dayLogService';
+import { localDayKey, releaseForgotten } from '../../log/services/dayLogService';
+import { sessionLedger } from '../store/workoutSetOperations';
 import { syncSessionToSupabase } from '../../../services/supabaseClient';
 import { getAuthenticatedUserId } from '../../../services/authUser';
 import { readLinkedCoach } from '../../coach/services/coachLink';
@@ -19,6 +18,7 @@ import { publishFinishedWorkout } from '../../coach/services/coachBridge';
 import { readAthleteSettingsSnapshot } from '../../../utils/athleteSettingsSnapshot';
 import { displayToKg, kgToDisplay, loadUnitLabel } from '../../../utils/weightUnits';
 import { priorBestKg, setIsPr } from '../services/sessionPr';
+import { calibrateTemplate } from '../utils/calibrateLoads';
 
 export interface ActiveLogCardProps {
   onShowToast?: (msg: string) => void;
@@ -32,7 +32,6 @@ export const ActiveLogCard: React.FC<ActiveLogCardProps> = ({ onShowToast }) => 
   const addSet = useWorkoutStore((s) => s.addSet);
   const removeSet = useWorkoutStore((s) => s.removeSet);
   const toggleSetCompleted = useWorkoutStore((s) => s.toggleSetCompleted);
-  const clearActiveLog = useWorkoutStore((s) => s.clearActiveLog);
   const showToastFn = useWorkoutStore((s) => s.showToast);
 
   const notify = (msg: string) => {
@@ -149,7 +148,7 @@ export const ActiveLogCard: React.FC<ActiveLogCardProps> = ({ onShowToast }) => 
 
   const handleLoadBeginnerStarter = (starter: typeof BEGINNER_STARTERS[0]) => {
     tactileEngine.playPRCelebration();
-    setExercises(starter.exercises as any);
+    setExercises(calibrateTemplate(starter.exercises as any));
     useWorkoutStore.getState().setActiveSession(true);
     useWorkoutStore.getState().setActiveRoutine(starter.routineName);
     setExpandedExerciseId(starter.exercises[0].id);
@@ -173,24 +172,11 @@ export const ActiveLogCard: React.FC<ActiveLogCardProps> = ({ onShowToast }) => 
     initialValue: 0,
   });
 
-  // Calculate live volume, sets, and reps
-  let totalVolume = 0;
-  let totalSets = 0;
-  let totalReps = 0;
-
-  exercises.forEach((ex) => {
-    (ex.sets || []).forEach((s) => {
-      const done = Boolean(s.completed) || (Number(s.reps) > 0 && Number(s.weightKg ?? s.weight) > 0);
-      if (!done) return;
-      totalSets += 1;
-      const w = Number(s.weightKg ?? s.weight);
-      const r = Number(s.reps);
-      const weight = Number.isFinite(w) && w > 0 ? w : 0;
-      const reps = Number.isFinite(r) && r > 0 ? r : 0;
-      totalVolume += weight * reps;
-      totalReps += reps;
-    });
-  });
+  const ledger = sessionLedger(exercises);
+  const totalVolume = Math.round(ledger.tonnageKg);
+  const totalSets = ledger.completedSets;
+  const totalReps = ledger.totalReps;
+  const committingRef = useRef(false);
 
   const handleToggleRow = (exerciseId: string) => {
     tactileEngine.triggerSelectionBuzz();
@@ -292,103 +278,90 @@ export const ActiveLogCard: React.FC<ActiveLogCardProps> = ({ onShowToast }) => 
   };
 
   const handleRegisterLog = () => {
-    const activeTitle = useWorkoutStore.getState().activeRoutine || 'Coach Dispatched Protocol';
+    if (committingRef.current || useWorkoutStore.getState().exercises.length === 0) return;
+    committingRef.current = true;
+    try {
+      const todayKey = localDayKey(new Date().toISOString());
+      releaseForgotten(todayKey, 'workout');
+      const priors = new Map(
+        exercises.map((e) => {
+          const name = e.name || e.exerciseName || 'Exercise';
+          return [name, priorBestKg(name)] as const;
+        }),
+      );
 
-    // Dispatch finish notification & workout history log to Coach Store for daily feedback
-    const athleteUser = useUserStore.getState();
-    const linkedCoach = readLinkedCoach();
-    const finished = {
-      id: crypto.randomUUID(),
-      athleteId: athleteUser.userId || '',
-      athleteName: athleteUser.name || 'Athlete',
-      athleteAvatar: athleteUser.avatarUrl,
-      title: activeTitle,
-      tonnageKg: totalVolume,
-      totalSets,
-      totalReps,
-      avgRpe: 0,
-      durationMinutes: 0,
-      completedAt: new Date().toISOString(),
-      exercises: exercises.map((e) => ({
-        name: e.name,
-        sets: e.sets.length,
-        reps: e.sets[0]?.reps || 0,
-        weightKg: e.sets[0]?.weightKg || e.sets[0]?.weight || 0,
-        rpe: e.sets[0]?.rpe || 0,
-      })),
-    };
-    useCoachStore.getState().recordFinishedWorkout(finished);
-    if (linkedCoach?.id) void publishFinishedWorkout(finished, linkedCoach.id);
-
-    // 3. Register accurately and straight into useTelemetryHistoryStore for Workout History & 7-Day Matrix
-    const now = new Date();
-    const todayDateKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-    releaseForgotten(todayDateKey, 'workout');
-    useTelemetryHistoryStore.getState().updateDayRecord(todayDateKey, 'workout', {
-      hasData: true,
-      tonnageKg: totalVolume,
-      completedSets: totalSets,
-      durationMinutes: 0,
-      routineName: activeTitle,
-      intensityRpe: 0,
-      exercises: exercises
-        .map((e) => exerciseFromSets(
-          e.name || e.exerciseName || 'Exercise',
-          setsFromExercise(e),
-          true,
-        ))
-        .filter((entry) => (entry.setLog?.length || 0) > 0),
-    });
-
-    // 4. Persist to live Supabase tables completed_sessions and workout_logs
-    void (async () => {
-      const uid = await getAuthenticatedUserId();
-      if (!uid) {
-        notify('Session saved on this device. Sign in to archive to the cloud.');
+      const session = useWorkoutStore.getState().commitSession();
+      if (!session) {
+        notify('Tick at least one set before saving.');
         return;
       }
-      const ok = await syncSessionToSupabase({
-        id: `session-${Date.now()}`,
-        user_id: uid,
-        title: activeTitle,
-        duration: '',
-        duration_seconds: 0,
-        tonnage_kg: totalVolume,
-        total_sets: totalSets,
-        strain: 0,
-        exercises: exercises.map((e) => {
-          const name = e.name || e.exerciseName || 'Exercise';
-          const prior = priorBestKg(name);
-          return {
-            name,
-            sets: (e.sets || []).map((set) => {
-              const weightKg = Number(set.weightKg ?? set.weight) || 0;
-              const reps = Number(set.reps) || 0;
-              return {
-                ...set,
-                weightKg,
-                reps,
-                is_pr: setIsPr(name, weightKg, reps, prior),
-              };
-            }),
-            reps: e.sets?.[0]?.reps || 0,
-            weightKg: e.sets?.[0]?.weightKg || e.sets?.[0]?.weight || 0,
-            rpe: e.sets?.[0]?.rpe || 0,
-          };
-        }),
-      });
-      notify(ok ? 'Cloud Sync: Session archived.' : 'Cloud archive failed. Session is still saved on this device.');
-    })();
+      setIsCommitOpen(false);
+      setExpandedExerciseId(null);
+      tactileEngine.playPRCelebration();
 
-    clearActiveLog();
-    setIsCommitOpen(false);
-    tactileEngine.playPRCelebration();
+      const athleteUser = useUserStore.getState();
+      const linkedCoach = readLinkedCoach();
+      const finished = {
+        id: crypto.randomUUID(),
+        athleteId: athleteUser.userId || '',
+        athleteName: athleteUser.name || 'Athlete',
+        athleteAvatar: athleteUser.avatarUrl,
+        title: session.title,
+        tonnageKg: session.tonnageKg,
+        totalSets: session.completedSets,
+        totalReps: session.totalReps,
+        avgRpe: 0,
+        durationMinutes: 0,
+        completedAt: new Date().toISOString(),
+        exercises: session.exercises.map((e) => ({
+          name: e.name,
+          sets: e.sets,
+          reps: e.reps,
+          weightKg: e.weightKg,
+          rpe: 0,
+        })),
+      };
+      useCoachStore.getState().recordFinishedWorkout(finished);
+      if (linkedCoach?.id) void publishFinishedWorkout(finished, linkedCoach.id);
 
-    const settled = settleFinishedSession();
-    if (settled.nextTitle) {
-      notify(`Saved. Next up: ${settled.nextTitle}.`);
-    } else {
-      notify('Session saved for today.');
+      void (async () => {
+        const uid = await getAuthenticatedUserId();
+        if (!uid) {
+          notify('Session saved on this device. Sign in to archive to the cloud.');
+          return;
+        }
+        const ok = await syncSessionToSupabase({
+          id: session.id,
+          user_id: uid,
+          title: session.title,
+          duration: '',
+          duration_seconds: 0,
+          tonnage_kg: session.tonnageKg,
+          total_sets: session.completedSets,
+          strain: 0,
+          exercises: session.items.map((e) => {
+            const name = e.name || e.exerciseName || 'Exercise';
+            const prior = priors.get(name) ?? 0;
+            return {
+              name,
+              sets: e.sets.map((set) => {
+                const weightKg = Number(set.weightKg ?? set.weight) || 0;
+                const reps = Number(set.reps) || 0;
+                return { ...set, weightKg, reps, is_pr: setIsPr(name, weightKg, reps, prior) };
+              }),
+              reps: e.sets[0]?.reps || 0,
+              weightKg: e.sets[0]?.weightKg || e.sets[0]?.weight || 0,
+              rpe: e.sets[0]?.rpe || 0,
+            };
+          }),
+        });
+        notify(ok ? 'Cloud Sync: Session archived.' : 'Cloud archive failed. Session is still saved on this device.');
+      })();
+
+      const settled = settleFinishedSession();
+      notify(settled.nextTitle ? `Saved. Next up: ${settled.nextTitle}.` : 'Session saved for today.');
+    } finally {
+      committingRef.current = false;
     }
   };
 

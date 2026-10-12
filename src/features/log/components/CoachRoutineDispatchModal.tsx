@@ -4,160 +4,82 @@ import { tactileEngine } from '../../../services/tactileEngine';
 import { useCoachStore } from '../../../stores/useCoachStore';
 import { useWorkoutStore } from '../../workout/store/useWorkoutStore';
 import { getSystemTodayCode, saveAthleteDayRoutine } from '../../workout/services/dayRoutineService';
-import { rememberSession } from '../todaySession';
+import { rememberSession, resolveTodaySession, startTodaySession } from '../todaySession';
 import { SplitOption } from '../types';
 
 interface CoachRoutineDispatchModalProps {
   isOpen: boolean;
   onClose: () => void;
-  selectedSplit: SplitOption;
   onNavigateToWorkout: () => void;
   onNavigateToCoach: () => void;
   showToast: (msg: string) => void;
 }
 
+const SPLIT_MOVEMENTS: Record<Exclude<SplitOption, 'Custom'>, { name: string; muscle: string; equipment: string; restSecs: number }[]> = {
+  Push: [
+    { name: 'Barbell Incline Bench Press', muscle: 'Chest', equipment: 'Barbell', restSecs: 120 },
+    { name: 'Standing Overhead Press', muscle: 'Shoulders', equipment: 'Barbell', restSecs: 90 },
+  ],
+  Pull: [{ name: 'Weighted Pull-Ups', muscle: 'Back', equipment: 'Bodyweight', restSecs: 120 }],
+  Legs: [{ name: 'Barbell Back Squat', muscle: 'Quads', equipment: 'Barbell', restSecs: 150 }],
+};
+
+function blankSplit(split: Exclude<SplitOption, 'Custom'>) {
+  const stamp = Date.now();
+  return SPLIT_MOVEMENTS[split].map((m, i) => ({
+    id: `${split.toLowerCase()}-${stamp}-${i}`,
+    name: m.name,
+    exerciseName: m.name,
+    targetMuscle: m.muscle,
+    equipment: m.equipment,
+    tier: 'Compound Prime',
+    restSecs: m.restSecs,
+    sets: Array.from({ length: 3 }, (_, s) => ({
+      id: `set-${stamp}-${i}-${s}`,
+      setNumber: s + 1,
+      reps: 0,
+      weightKg: 0,
+      weight: 0,
+      rpe: 0,
+      completed: false,
+    })),
+  }));
+}
+
 export const CoachRoutineDispatchModal: React.FC<CoachRoutineDispatchModalProps> = ({
   isOpen,
   onClose,
-  selectedSplit,
   onNavigateToWorkout,
   onNavigateToCoach,
   showToast,
 }) => {
-  const assignedWorkouts = useCoachStore((s) => s.assignedWorkouts);
+  useCoachStore((s) => s.assignedWorkouts);
   const deployProtocol = useWorkoutStore((s) => s.deployProtocol);
   const setActiveSession = useWorkoutStore((s) => s.setActiveSession);
 
   if (!isOpen) return null;
 
-  const hasDispatchedWorkout = assignedWorkouts && assignedWorkouts.length > 0;
-  const activeDispatch = hasDispatchedWorkout ? assignedWorkouts[0] : null;
+  const session = resolveTodaySession();
+  const coachSession = session.origin === 'coach' ? session : null;
+  const firstRpe = coachSession?.exercises[0]?.sets?.[0]?.rpe;
 
-  // Load coach assigned workout into the live tracker
   const handleLoadCoachWorkout = () => {
+    if (!coachSession) return;
     tactileEngine.playPRCelebration();
-    if (activeDispatch && activeDispatch.exercises) {
-      const convertedExercises = activeDispatch.exercises.map((ex: any, idx: number) => ({
-        id: `coach-dispatch-${Date.now()}-${idx}`,
-        exerciseName: ex.name || 'Prescribed Movement',
-        name: ex.name || 'Prescribed Movement',
-        targetMuscle: ex.targetMuscle || 'Compound',
-        equipment: 'Barbell',
-        tier: 'Coach Directive',
-        restSecs: 90,
-        sets: [
-          { setNumber: 1, targetReps: 8, targetWeightKg: 80, completed: false },
-          { setNumber: 2, targetReps: 8, targetWeightKg: 80, completed: false },
-          { setNumber: 3, targetReps: 8, targetWeightKg: 80, completed: false },
-        ],
-      }));
-
-      deployProtocol(convertedExercises as any);
-      setActiveSession(true);
-      showToast(`⚡ Loaded Coach Protocol: ${activeDispatch.title || 'Assigned Workout'}`);
-    } else {
-      // Load standard assigned split
-      loadFallbackSplit(selectedSplit);
-    }
-
+    startTodaySession(coachSession);
+    showToast(`Loaded ${coachSession.title} from your coach`);
     onClose();
     onNavigateToWorkout();
   };
 
-  const loadFallbackSplit = (split: SplitOption) => {
+  const loadSplit = (split: Exclude<SplitOption, 'Custom'>) => {
     tactileEngine.triggerSelectionBuzz();
-    const fallbackExMap: Record<SplitOption, any[]> = {
-      Push: [
-        {
-          id: `push-1-${Date.now()}`,
-          name: 'Barbell Incline Bench Press',
-          exerciseName: 'Barbell Incline Bench Press',
-          targetMuscle: 'Chest',
-          equipment: 'Barbell',
-          tier: 'Compound Prime',
-          restSecs: 120,
-          sets: [
-            { setNumber: 1, targetReps: 8, targetWeightKg: 75, completed: false },
-            { setNumber: 2, targetReps: 8, targetWeightKg: 80, completed: false },
-            { setNumber: 3, targetReps: 6, targetWeightKg: 85, completed: false },
-          ],
-        },
-        {
-          id: `push-2-${Date.now()}`,
-          name: 'Standing Overhead Press',
-          exerciseName: 'Standing Overhead Press',
-          targetMuscle: 'Shoulders',
-          equipment: 'Barbell',
-          tier: 'Compound Prime',
-          restSecs: 90,
-          sets: [
-            { setNumber: 1, targetReps: 8, targetWeightKg: 50, completed: false },
-            { setNumber: 2, targetReps: 8, targetWeightKg: 55, completed: false },
-          ],
-        },
-      ],
-      Pull: [
-        {
-          id: `pull-1-${Date.now()}`,
-          name: 'Weighted Pull-Ups',
-          exerciseName: 'Weighted Pull-Ups',
-          targetMuscle: 'Back',
-          equipment: 'Bodyweight',
-          tier: 'Compound Prime',
-          restSecs: 120,
-          sets: [
-            { setNumber: 1, targetReps: 6, targetWeightKg: 15, completed: false },
-            { setNumber: 2, targetReps: 6, targetWeightKg: 20, completed: false },
-          ],
-        },
-      ],
-      Legs: [
-        {
-          id: `legs-1-${Date.now()}`,
-          name: 'Barbell Back Squat',
-          exerciseName: 'Barbell Back Squat',
-          targetMuscle: 'Quads',
-          equipment: 'Barbell',
-          tier: 'Compound Prime',
-          restSecs: 150,
-          sets: [
-            { setNumber: 1, targetReps: 6, targetWeightKg: 120, completed: false },
-            { setNumber: 2, targetReps: 6, targetWeightKg: 130, completed: false },
-          ],
-        },
-      ],
-      Custom: [
-        {
-          id: `custom-1-${Date.now()}`,
-          name: 'Dynamic Functional Movement',
-          exerciseName: 'Dynamic Functional Movement',
-          targetMuscle: 'Full Body',
-          equipment: 'Dumbbell',
-          tier: 'Compound Prime',
-          restSecs: 90,
-          sets: [
-            { setNumber: 1, targetReps: 10, targetWeightKg: 24, completed: false },
-          ],
-        },
-      ],
-    };
-
-    const exercises = fallbackExMap[split].map((exercise) => ({
-      ...exercise,
-      sets: (exercise.sets || []).map((set: any, index: number) => ({
-        ...set,
-        reps: set.reps || set.targetReps || 0,
-        weightKg: set.weightKg || set.targetWeightKg || 0,
-        weight: set.weightKg || set.targetWeightKg || 0,
-        setNumber: set.setNumber || index + 1,
-        completed: false,
-      })),
-    }));
+    const exercises = blankSplit(split);
     saveAthleteDayRoutine(getSystemTodayCode(), split, exercises);
     deployProtocol(exercises);
     setActiveSession(true);
     rememberSession('saved');
-    showToast(`${split} is stored for today.`);
+    showToast(`${split} is stored for today. Enter your weights as you go.`);
     onClose();
     onNavigateToWorkout();
   };
@@ -170,7 +92,6 @@ export const CoachRoutineDispatchModal: React.FC<CoachRoutineDispatchModalProps>
       }}
     >
       <div className="o1-sheet-card bg-o1-card border border-white/[0.07] w-full p-5 shadow-xl relative space-y-4 overflow-y-auto">
-        {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-xl bg-red-950/40 border border-red-900/50 flex items-center justify-center text-o1-crimson">
@@ -195,24 +116,21 @@ export const CoachRoutineDispatchModal: React.FC<CoachRoutineDispatchModalProps>
           </button>
         </div>
 
-        {/* Coach Dispatched Workout or No-Coach State */}
-        {hasDispatchedWorkout && activeDispatch ? (
+        {coachSession ? (
           <div className="bg-o1-well border border-white/[0.07] rounded-2xl p-4 space-y-3">
             <div className="flex items-center justify-between">
               <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-bold tracking-wider">
-                ● Dispatched by Coach
+                ● Sent by your coach
               </span>
-              <span className="text-[10px] font-mono text-neutral-400">
-                Target RPE: {activeDispatch.exercises?.[0]?.rpe || 8.5}
-              </span>
+              {firstRpe ? (
+                <span className="text-[10px] font-mono text-neutral-400">Target RPE: {firstRpe}</span>
+              ) : null}
             </div>
 
             <div className="space-y-1">
-              <h4 className="font-bold text-sm text-white">
-                {activeDispatch.title || 'Clavicular Hypertrophy Protocol'}
-              </h4>
+              <h4 className="font-bold text-sm text-white">{coachSession.title}</h4>
               <p className="text-xs text-neutral-400">
-                {activeDispatch.exercises?.length || 4} Prescribed exercises calibrated to your progression.
+                {coachSession.exercises.length} {coachSession.exercises.length === 1 ? 'exercise' : 'exercises'} prescribed by your coach.
               </p>
             </div>
 
@@ -223,18 +141,18 @@ export const CoachRoutineDispatchModal: React.FC<CoachRoutineDispatchModalProps>
             >
               <div className="flex items-center gap-2">
                 <Play className="w-3.5 h-3.5 fill-white" />
-                <span>LOAD DISPATCHED WORKOUT &amp; START</span>
+                <span>LOAD COACH WORKOUT &amp; START</span>
               </div>
               <ChevronRight className="w-4 h-4" />
             </button>
           </div>
         ) : (
           <div className="space-y-2">
-            {(['Push', 'Pull', 'Legs'] as SplitOption[]).map((split) => (
+            {(['Push', 'Pull', 'Legs'] as const).map((split) => (
               <button
                 key={split}
                 type="button"
-                onClick={() => loadFallbackSplit(split)}
+                onClick={() => loadSplit(split)}
                 className="w-full py-2.5 px-4 rounded-xl bg-o1-well hover:bg-white/[0.06] border border-white/[0.07] text-white font-semibold text-xs flex items-center justify-between transition-all cursor-pointer"
               >
                 <span>{split}</span>

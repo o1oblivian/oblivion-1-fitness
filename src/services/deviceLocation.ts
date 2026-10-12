@@ -34,8 +34,9 @@ export async function getDeviceCoordinates(): Promise<DeviceCoords | null> {
     if (Capacitor.isNativePlatform()) {
       const { Geolocation } = await import('@capacitor/geolocation');
       const pos = await Geolocation.getCurrentPosition({
-        enableHighAccuracy: true,
+        enableHighAccuracy: false,
         timeout: 12000,
+        maximumAge: 300000,
       });
       const latitude = Number(pos.coords.latitude);
       const longitude = Number(pos.coords.longitude);
@@ -56,7 +57,7 @@ export async function getDeviceCoordinates(): Promise<DeviceCoords | null> {
         });
       },
       () => resolve(null),
-      { enableHighAccuracy: true, timeout: 12000, maximumAge: 30000 },
+      { enableHighAccuracy: false, timeout: 12000, maximumAge: 300000 },
     );
   });
 }

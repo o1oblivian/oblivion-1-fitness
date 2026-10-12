@@ -14,6 +14,7 @@ import { useTelemetryStore } from '../features/telemetry/store/useTelemetryStore
 import { useLogStore } from '../stores/useLogStore';
 import { getTelemetryHistoryState } from '../features/log/store/useTelemetryHistoryStore';
 import { syncSessionToSupabase } from '../services/supabaseClient';
+import { localNoonIso } from '../features/log/services/dayLogService';
 import { safeStorage } from './sanitizers';
 
 export const O1FC_LAST_LOG_DATE_KEY = 'O1FC_LAST_LOG_DATE';
@@ -63,28 +64,6 @@ export async function performMidnightRollover(previousDate: string, currentDate:
     // 2. Archive into persistent telemetry history store (useTelemetryHistoryStore)
     const histStore = getTelemetryHistoryState();
 
-    if (totalConsumedKcal > 0 || allMealItems.length > 0) {
-      histStore.updateDayRecord(previousDate, 'nutrition', {
-        hasData: true,
-        calories: totalConsumedKcal,
-        calorieTarget: Number(fuelState.calorieTarget) || 0,
-        proteinG: totalProteinG,
-        proteinTargetG: Number(fuelState.targetProteinG) || 0,
-        carbsG: totalCarbsG,
-        carbsTargetG: Number(fuelState.targetCarbsG) || 0,
-        fatsG: totalFatsG,
-        fatsTargetG: Number(fuelState.targetFatsG) || 0,
-        meals: allMealItems.map((m) => ({
-          name: m.name,
-          category: 'Lunch',
-          calories: m.calories,
-          proteinG: m.protein,
-          carbsG: m.carbs,
-          fatsG: m.fats,
-        })),
-      });
-    }
-
     if (cardioMins > 0 || cardioKm > 0 || cardioKcal > 0) {
       histStore.updateDayRecord(previousDate, 'cardio', {
         hasData: true,
@@ -133,6 +112,7 @@ export async function performMidnightRollover(previousDate: string, currentDate:
         tonnageKg: sessionTonnageKg,
         totalSets: completedSetsCount,
         strain: 0,
+        completed_at: localNoonIso(previousDate),
         exercises: exercises.map((e) => ({
           name: e.name,
           sets: e.sets?.length || 3,

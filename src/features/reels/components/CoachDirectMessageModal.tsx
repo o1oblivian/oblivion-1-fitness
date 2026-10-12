@@ -5,6 +5,8 @@ import { tactileEngine } from '../../../services/tactileEngine';
 import { getAuthenticatedUserId } from '../../../services/authUser';
 import { useAuthStore } from '../../../stores/useAuthStore';
 import { sendCoachMessage } from '../../coach/services/coachBridge';
+import { blockUser, reportUser } from '../../../services/safetyService';
+import { SafetyReportSheet } from '../../../components/common/SafetyReportSheet';
 
 interface CoachDirectMessageModalProps {
   coach: ExploreCoach | null;
@@ -16,6 +18,8 @@ export const CoachDirectMessageModal: React.FC<CoachDirectMessageModalProps> = (
   const [messageText, setMessageText] = useState('');
   const [sending, setSending] = useState(false);
   const [sendError, setSendError] = useState('');
+  const [reportOpen, setReportOpen] = useState(false);
+  const [safetyNote, setSafetyNote] = useState('');
   const senderName = useAuthStore((s) => s.profile?.name);
 
   if (!coach) return null;
@@ -25,6 +29,7 @@ export const CoachDirectMessageModal: React.FC<CoachDirectMessageModalProps> = (
     setMessageSent(false);
     setMessageText('');
     setSendError('');
+    setSafetyNote('');
   };
 
   return (
@@ -110,7 +115,22 @@ export const CoachDirectMessageModal: React.FC<CoachDirectMessageModalProps> = (
             </button>
           </div>
         )}
+        {safetyNote ? <p role="status" className="text-center text-[12px] text-neutral-300">{safetyNote}</p> : null}
+        <button type="button" onClick={() => setReportOpen(true)} className="mx-auto h-9 px-3 text-[12px] font-semibold text-neutral-400">
+          Report or block {coach.name}
+        </button>
       </div>
+      <SafetyReportSheet
+        open={reportOpen}
+        name={coach.name}
+        onClose={() => setReportOpen(false)}
+        onSubmit={(reason, details, alsoBlock) => {
+          void reportUser({ reportedId: coach.id, name: coach.name, reason, details, context: 'coach' }).then((ok) => {
+            setSafetyNote(ok ? 'Report sent. The Oblivion 1 team will review it.' : 'Report did not send. Sign in and try again.');
+          });
+          if (alsoBlock) void blockUser(coach.id);
+        }}
+      />
     </div>
   );
 };

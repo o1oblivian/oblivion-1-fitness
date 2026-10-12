@@ -1,4 +1,5 @@
 import express from 'express';
+import http from 'http';
 import os from 'os';
 import path from 'path';
 import { createRequire } from 'module';
@@ -911,140 +912,6 @@ Return valid JSON only matching:
     }
   });
 
-  // 3. AI INTEL MEAL SUGGESTIONS (Macro Target Adaptive)
-  app.post('/api/fuel/ai-suggestions', async (req, res) => {
-    try {
-      const remainingKcal = Math.max(100, Math.round(Number(req.body.targetCalories ?? req.body.remainingKcal ?? 650)));
-      const remainingProtein = Math.max(8, Math.round(Number(req.body.targetProtein ?? req.body.remainingProtein ?? 40)));
-      const remainingCarbs = Math.max(0, Math.round(Number(req.body.targetCarbs ?? req.body.remainingCarbs ?? 50)));
-      const remainingFats = Math.max(0, Math.round(Number(req.body.targetFats ?? req.body.remainingFats ?? 15)));
-      const slot = String(req.body.slot ?? req.body.mealSlot ?? 'lunch').toLowerCase();
-      const rotation = Math.max(0, Math.round(Number(req.body.rotation ?? 0)));
-      const dietPreference = req.body.dietPreference ?? req.body.diet ?? 'Omnivore';
-
-      const genAI = getGenAI();
-
-      if (genAI) {
-        try {
-          const prompt = `You are the executive sports performance chef and clinical dietitian for Oblivion 1 Athletic Fuel OS.
-An athlete is logging their meals and needs a live real-time recommendation to directly hit their target macro deficit for today.
-
-ATHLETE CURRENT DEFICIT GAP:
-- Target Calories to fill: ${remainingKcal} kcal
-- Target Protein to fill: ${remainingProtein}g
-- Target Carbs to fill: ${remainingCarbs}g
-- Target Fats to fill: ${remainingFats}g
-- Meal Slot: ${slot}
-- Dietary Protocol: ${dietPreference}
-
-Generate 3 distinct, high-performance, real whole-food athlete meal recommendations tailored strictly to the "${dietPreference}" protocol.
-Each meal is ONE ${slot} portion (~${remainingKcal} kcal), not the whole remaining day.
-Specify exact measured ingredients with gram portions.
-
-Respond ONLY with valid JSON in this exact structure:
-{
-  "suggestions": [
-    {
-      "id": "sug-1",
-      "name": "Meal Name",
-      "description": "Culinary summary explaining nutrient timing and metabolic benefit",
-      "prepTime": "15 min",
-      "calories": ${remainingKcal},
-      "protein": ${remainingProtein},
-      "carbs": ${remainingCarbs},
-      "fats": ${remainingFats},
-      "ingredients": ["Exact portion ingredient 1", "Ingredient 2", "Ingredient 3"]
-    }
-  ]
-}`;
-
-          const response = await generateContentWithFallback(genAI, [prompt]);
-
-          const text = response.text || '';
-          const parsed = parseGeminiJson(text);
-          if (Array.isArray(parsed.suggestions) && parsed.suggestions.length > 0) {
-              return res.json({ success: true, suggestions: parsed.suggestions, provider: 'gemini-1.5-flash' });
-            }
-        } catch (aiErr) {
-          console.warn('Gemini meal suggestions error, calculating live dynamic macros:', aiErr);
-        }
-      }
-
-      // Dynamic real-time calculated athletic suggestions based on exact remaining deficit and diet
-      const getDietProteins = (diet: string) => {
-        const d = diet.toLowerCase();
-        if (d.includes('vegan')) {
-          return [
-            { proteinName: 'Pan-Seared Organic Tempeh & Quinoa Bowl', ingredient: `${Math.round(remainingProtein * 4.5)}g Organic Tempeh`, base: 'Quinoa & Greens' },
-            { proteinName: 'Vital Wheat Seitan Strips with Roasted Sweet Potato', ingredient: `${Math.round(remainingProtein * 1.5)}g High-Protein Seitan Cuts`, base: 'Sweet Potato' },
-            { proteinName: 'Crisp Tofu & Shelled Edamame Power Stir-Fry', ingredient: `${Math.round(remainingProtein * 4)}g Extra Firm Tofu`, base: 'Brown Rice & Edamame' },
-          ];
-        }
-        if (d.includes('veg')) {
-          return [
-            { proteinName: 'Greek Yogurt & Raw Hemp Seed Power Bowl', ingredient: `${Math.round(remainingProtein * 10)}g 0% Greek Yogurt`, base: 'Wild Berries & Oats' },
-            { proteinName: 'Egg White Frittata with Feta & Sourdough', ingredient: `${Math.round(remainingProtein * 9)}ml Liquid Egg Whites`, base: 'Fermented Sourdough' },
-            { proteinName: 'Grilled Halloumi & Mediterranean Spiced Lentils', ingredient: `${Math.round(remainingProtein * 3)}g Halloumi & Lentils`, base: 'Steamed Greens' },
-          ];
-        }
-        if (d.includes('pesc')) {
-          return [
-            { proteinName: 'Wild Sockeye Salmon Fillet with Jasmine Rice', ingredient: `${Math.round(remainingProtein * 4.5)}g Wild Alaskan Salmon`, base: 'Steamed Jasmine Rice' },
-            { proteinName: 'Yellowfin Tuna Poke & Seasoned Black Rice', ingredient: `${Math.round(remainingProtein * 3.5)}g Sashimi Tuna`, base: 'Forbidden Black Rice' },
-            { proteinName: 'Pacific Cod Medallion with Roasted Fingerling Potatoes', ingredient: `${Math.round(remainingProtein * 4.8)}g Wild Pacific Cod`, base: 'Baby Potatoes & Asparagus' },
-          ];
-        }
-        if (d.includes('carni')) {
-          return [
-            { proteinName: 'Australian MSA Prime Ribeye Steak with Pasture Butter', ingredient: `${Math.round(remainingProtein * 4)}g Ribeye Cut`, base: 'Grass-Fed Butter' },
-            { proteinName: 'Ground Wagyu Beef 80/20 & Pasture Eggs', ingredient: `${Math.round(remainingProtein * 4.2)}g Wagyu Mince`, base: '3 Pasture Eggs' },
-            { proteinName: 'Wild Catch Salmon & Seared Beef Liver Medallions', ingredient: `${Math.round(remainingProtein * 3.8)}g Salmon & Liver`, base: 'Coarse Sea Salt' },
-          ];
-        }
-        if (d.includes('paleo')) {
-          return [
-            { proteinName: 'Grass-Fed Sirloin Cut with Roasted Butternut Mash', ingredient: `${Math.round(remainingProtein * 4)}g Grass-Fed Sirloin`, base: 'Butternut Squash' },
-            { proteinName: 'Free-Range Turkey Patties with Avocado Salad', ingredient: `${Math.round(remainingProtein * 3.8)}g Lean Turkey`, base: 'Fresh Hass Avocado' },
-            { proteinName: 'Wild Elk Medallions with Steamed Broccolini', ingredient: `${Math.round(remainingProtein * 4)}g Wild Elk Loin`, base: 'Field Vegetables' },
-          ];
-        }
-        return [
-          { proteinName: 'Air-Chilled Chicken Breast with Jasmine Rice', ingredient: `${Math.round(remainingProtein * 3.3)}g Chicken Breast`, base: 'Jasmine Rice & Broccoli' },
-          { proteinName: 'Grass-Fed Lean Flank Steak with Roasted Sweet Potato', ingredient: `${Math.round(remainingProtein * 3.8)}g Flank Steak`, base: 'Sweet Potato Hash' },
-          { proteinName: 'Wild Alaskan Salmon Fillet with Quinoa Pilaf', ingredient: `${Math.round(remainingProtein * 4.5)}g Salmon Fillet`, base: 'Quinoa & Asparagus' },
-        ];
-      };
-
-      const dietOptions = getDietProteins(dietPreference);
-      const start = dietOptions.length ? rotation % dietOptions.length : 0;
-      const rotated = dietOptions.length
-        ? [0, 1, 2].map((i) => dietOptions[(start + i) % dietOptions.length])
-        : dietOptions;
-
-      const dynamicSuggestions = rotated.map((opt, idx) => ({
-        id: `live-sug-${Date.now()}-${idx}`,
-        name: opt.proteinName,
-        description: `One ${slot} plate for ${dietPreference}: ~${remainingProtein}g protein, ${remainingKcal} kcal — not the full remaining day.`,
-        prepTime: idx === 0 ? '12 min' : idx === 1 ? '16 min' : '10 min',
-        calories: remainingKcal,
-        protein: remainingProtein,
-        carbs: remainingCarbs,
-        fats: remainingFats,
-        ingredients: [
-          opt.ingredient,
-          `${Math.round(remainingCarbs * 2.2)}g ${opt.base}`,
-          `${Math.round(remainingFats * 0.8)}g Cold-Pressed EVOO or Healthy Lipids`,
-          'Himalayan Pink Salt & Herbs',
-        ],
-      }));
-
-      return res.json({ success: true, suggestions: dynamicSuggestions, provider: 'o1fc-live-nutrition-engine' });
-    } catch (err: any) {
-      console.error('Error in /api/fuel/ai-suggestions:', err);
-      res.status(500).json({ error: err.message || 'Internal server error generating meal suggestions' });
-    }
-  });
-
   // Live branded search: OpenFoodFacts. Optional USDA FDC overlay for US when USDA_FDC_API_KEY is set.
   app.get('/api/fuel/live-food-search', async (req, res) => {
     try {
@@ -1345,6 +1212,7 @@ Respond ONLY with a valid JSON object matching this schema:
   // VITE MIDDLEWARE / STATIC ASSETS
   // =========================================================================
   const phoneHost = lanIPv4();
+  const httpServer = http.createServer(app);
   if (process.env.NODE_ENV !== 'production') {
     const require = createRequire(import.meta.url);
     app.get('/preview-look', (_req, res) => {
@@ -1394,9 +1262,8 @@ Respond ONLY with a valid JSON object matching this schema:
         middlewareMode: true,
         host: true,
         allowedHosts: true as const,
-        hmr: process.env.DISABLE_HMR === 'true'
-          ? false
-          : { protocol: 'ws', host: phoneHost || undefined, clientPort: PORT },
+        hmr: process.env.DISABLE_HMR !== 'true',
+        ws: process.env.DISABLE_HMR === 'true' ? false : { server: httpServer },
       },
       appType: 'spa',
     });
@@ -1409,7 +1276,7 @@ Respond ONLY with a valid JSON object matching this schema:
     });
   }
 
-  app.listen(PORT, '0.0.0.0', () => {
+  httpServer.listen(PORT, '0.0.0.0', () => {
     process.stdout.write(`[O1 Fuel OS] Full-stack server active on http://0.0.0.0:${PORT}\n`);
     if (phoneHost) process.stdout.write(`[O1 Fuel OS] Phone: http://${phoneHost}:${PORT}/\n`);
   });

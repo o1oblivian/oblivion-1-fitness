@@ -29,7 +29,6 @@ export const AthleteLaunchProtocolCard: React.FC<AthleteLaunchProtocolCardProps>
     data.permissions || {
       location: false,
       camera: false,
-      microphone: false,
       notifications: false,
     }
   );
@@ -47,7 +46,6 @@ export const AthleteLaunchProtocolCard: React.FC<AthleteLaunchProtocolCardProps>
     const allEnabled: DevicePermissions = {
       location: true,
       camera: true,
-      microphone: true,
       notifications: true,
     };
     setPerms(allEnabled);
@@ -56,7 +54,6 @@ export const AthleteLaunchProtocolCard: React.FC<AthleteLaunchProtocolCardProps>
 
   const requestLocation = () => updatePerm('location', !perms.location);
   const requestCamera = () => updatePerm('camera', !perms.camera);
-  const requestMic = () => updatePerm('microphone', !perms.microphone);
   const requestNotifications = () => updatePerm('notifications', !perms.notifications);
 
   return (
@@ -144,7 +141,7 @@ export const AthleteLaunchProtocolCard: React.FC<AthleteLaunchProtocolCardProps>
         </div>
 
         <p className="text-[10px] font-sans text-neutral-400 leading-normal">
-          Optional. The phone asks only when you open meal scan, voice log, radar, or reminders. You can skip this and turn each one on later.
+          Optional. The phone asks only when you open meal scan, radar, or reminders. You can skip this and turn each one on later.
         </p>
 
         <div className="grid grid-cols-2 gap-2 pt-1">
@@ -200,37 +197,11 @@ export const AthleteLaunchProtocolCard: React.FC<AthleteLaunchProtocolCardProps>
             )}
           </button>
 
-          {/* Microphone */}
-          <button
-            type="button"
-            onClick={requestMic}
-            className={`p-2.5 rounded-2xl border transition-all cursor-pointer flex items-center justify-between text-left ${
-              perms.microphone
-                ? 'bg-o1-well border-white/[0.14]'
-                : 'bg-white/[0.03] border-white/[0.07] hover:border-white/[0.14]'
-            }`}
-          >
-            <div>
-              <span className="text-xs font-bold text-white block">Microphone</span>
-              <span className="text-[10px] font-sans text-neutral-400">Voice Fuel Log</span>
-            </div>
-            {perms.microphone ? (
-              <span className="flex items-center gap-1 text-[10px] font-sans font-semibold text-o1-ok">
-                <Check className="w-3.5 h-3.5 stroke-[3]" />
-                <span>On</span>
-              </span>
-            ) : (
-              <span className="text-[10px] font-sans font-semibold px-2 py-0.5 rounded-full bg-white/10 text-white border border-white/[0.07]">
-                Enable
-              </span>
-            )}
-          </button>
-
           {/* Notifications */}
           <button
             type="button"
             onClick={requestNotifications}
-            className={`p-2.5 rounded-2xl border transition-all cursor-pointer flex items-center justify-between text-left ${
+            className={`col-span-2 p-2.5 rounded-2xl border transition-all cursor-pointer flex items-center justify-between text-left ${
               perms.notifications
                 ? 'bg-o1-well border-white/[0.14]'
                 : 'bg-white/[0.03] border-white/[0.07] hover:border-white/[0.14]'

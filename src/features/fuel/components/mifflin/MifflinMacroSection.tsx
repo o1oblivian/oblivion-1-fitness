@@ -20,10 +20,10 @@ export const MifflinMacroSection: React.FC<MifflinMacroSectionProps> = ({
   return (
     <div className="space-y-3 pt-2 border-t border-white/[0.05]">
       <div className="flex items-center justify-between">
-        <span className="text-[11px] font-mono font-bold tracking-wider text-neutral-400">
+        <span className="text-[11px] tabular-nums font-bold tracking-wider text-o1-muted">
           3. Macro Split
         </span>
-        <span className="text-[10px] font-mono text-neutral-500 font-semibold">{proteinPerKg}g protein/kg</span>
+        <span className="text-[10px] tabular-nums text-o1-muted font-semibold">{proteinPerKg}g protein/kg</span>
       </div>
 
       <div className="grid grid-cols-2 gap-2">
@@ -63,23 +63,23 @@ export const MifflinMacroSection: React.FC<MifflinMacroSectionProps> = ({
             }}
             className={`p-2.5 rounded-2xl border text-left transition-all cursor-pointer ${
               macroKey === m.key
-                ? 'border-o1-crimson bg-o1-crimson text-white font-bold shadow-xs'
-                : 'border-white/[0.07] bg-o1-well text-neutral-400 hover:text-white'
+                ? 'border-o1-crimson bg-o1-crimson text-o1-text font-bold shadow-xs'
+                : 'border-white/[0.08] bg-o1-surface text-o1-muted hover:text-o1-text'
             }`}
           >
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold">{m.label}</span>
               {macroKey === m.key && <Check className="w-3.5 h-3.5 text-o1-crimson stroke-[3]" />}
             </div>
-            <span className="text-[10px] font-mono text-neutral-400 block mt-0.5">{m.sub}</span>
+            <span className="text-[10px] tabular-nums text-o1-muted block mt-0.5">{m.sub}</span>
           </button>
         ))}
       </div>
 
-      <div className="p-3 bg-o1-well border border-white/[0.07] rounded-2xl space-y-1.5">
-        <div className="flex items-center justify-between text-[10px] font-mono">
-          <span className="text-neutral-400">Protein Intake Target</span>
-          <span className="text-white font-bold">{proteinPerKg.toFixed(1)} g / kg</span>
+      <div className="p-3 bg-o1-surface border border-white/[0.08] rounded-2xl space-y-1.5">
+        <div className="flex items-center justify-between text-[10px] tabular-nums">
+          <span className="text-o1-muted">Protein Intake Target</span>
+          <span className="text-o1-text font-bold">{proteinPerKg.toFixed(1)} g / kg</span>
         </div>
         <input
           type="range"
@@ -88,9 +88,9 @@ export const MifflinMacroSection: React.FC<MifflinMacroSectionProps> = ({
           step="0.1"
           value={proteinPerKg}
           onChange={(e) => setProteinPerKg(parseFloat(e.target.value))}
-          className="w-full accent-o1-crimson h-1.5 bg-o1-card rounded-lg cursor-pointer"
+          className="w-full accent-o1-crimson h-1.5 bg-o1-sheet rounded-lg cursor-pointer"
         />
-        <div className="flex justify-between text-[9px] font-mono text-neutral-400">
+        <div className="flex justify-between text-[9px] tabular-nums text-o1-muted">
           <span>1.6g</span>
           <span>2.2g</span>
           <span>2.8g</span>

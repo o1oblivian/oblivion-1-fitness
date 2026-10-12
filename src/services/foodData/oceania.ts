@@ -660,32 +660,6 @@ export const OCEANIA_FOODS: RegionalFoodMap = {
         "country": "AU"
       },
       {
-        "id": "au-fast-3",
-        "name": "Grill'd Simply Grill'd Beef Burger (Low Carb Bun)",
-        "brand": "Grill'd AU",
-        "calories": 460,
-        "protein": 36.0,
-        "carbs": 12.8,
-        "fats": 28.0,
-        "serving_size": "1 burger (260g)",
-        "serving_grams": 260,
-        "category": "fastfood",
-        "country": "AU"
-      },
-      {
-        "id": "au-fast-4",
-        "name": "Grill'd Sweet Potato Chips with Herb Mayo",
-        "brand": "Grill'd AU",
-        "calories": 380,
-        "protein": 4.2,
-        "carbs": 48.0,
-        "fats": 18.0,
-        "serving_size": "Regular serve (160g)",
-        "serving_grams": 160,
-        "category": "fastfood",
-        "country": "AU"
-      },
-      {
         "id": "au-fast-5",
         "name": "Schnitz Classic Chicken Schnitzel Wrap",
         "brand": "Schnitz AU",

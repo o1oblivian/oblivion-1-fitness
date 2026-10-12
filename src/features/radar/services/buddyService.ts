@@ -1,8 +1,6 @@
 import { Coordinates, DemoAthlete } from '../types';
-import { calculateDistance } from './matchingEngine';
 import { supabase } from '../../../services/supabaseClient';
 import { safeStorage } from '../../../utils/safeStorage';
-import { radiusBox } from './buddyLaunch';
 
 interface RemoteBuddyRow {
   id?: string;
@@ -12,8 +10,6 @@ interface RemoteBuddyRow {
   handle?: string;
   age?: number | string;
   home_gym?: string;
-  latitude?: number | string;
-  longitude?: number | string;
   avatar_url?: string;
   image_url?: string;
   avatar?: string;
@@ -29,7 +25,6 @@ interface RemoteBuddyRow {
   bio?: string;
   last_active?: string;
   is_ghost_mode?: boolean;
-  verified?: boolean;
   is_verified?: boolean;
 }
 
@@ -95,102 +90,41 @@ export async function searchAthletesWithSupabase(
       origin_lng: userCoords.longitude,
       radius_km: radiusKm,
     });
-    if (!remoteDeck.error && Array.isArray(remoteDeck.data)) {
-      fetchedFromSupabase = true;
-      supabaseCandidates = remoteDeck.data.flatMap((raw) => {
-        const item = raw as RemoteBuddyRow & { distance_km?: number };
-        const lat = Number(item.latitude);
-        const lon = Number(item.longitude);
-        if (item.is_ghost_mode) return [];
-        if (!Number.isFinite(lat) || !Number.isFinite(lon) || (lat === 0 && lon === 0)) return [];
-        const dist = Number(item.distance_km);
-        const photo = String(item.avatar_url || item.image_url || item.avatar || '');
-        const safePhoto = photo.includes('images.unsplash.com') ? '' : photo;
-        const recent = item.last_active ? Date.now() - new Date(item.last_active).getTime() < 15 * 60 * 1000 : false;
-        return [{
-          id: String(item.id || item.user_id || ''),
-          name: String(item.athlete_name || item.name || '').trim(),
-          handle: item.handle || '',
-          age: Number(item.age) || 0,
-          home_gym: item.home_gym || '',
-          distance_km: Number.isFinite(dist) ? dist : Number(calculateDistance(userCoords.latitude, userCoords.longitude, lat, lon).toFixed(1)),
-          match_score: 0,
-          image_url: safePhoto,
-          photos: safePhoto ? [safePhoto] : [],
-          discipline: item.discipline || '',
-          training_discipline: item.discipline || '',
-          current_split: item.current_split || '',
-          preferred_time: item.training_time || item.preferred_time || '',
-          gender: item.gender || '',
-          looking_for: item.looking_for || '',
-          training_place: item.training_place || item.where || '',
-          experience_level: item.experience_level || '',
-          bio: item.bio || '',
-          is_online: recent,
-          is_verified: Boolean(item.verified || item.is_verified),
-        }];
-      }).filter((row) => row.name);
-    }
-    const textMatch = `athlete_name.ilike.%${cleanQuery}%,home_gym.ilike.%${cleanQuery}%,current_split.ilike.%${cleanQuery}%`;
-    const box = radiusBox(userCoords.latitude, userCoords.longitude, radiusKm);
     if (remoteDeck.error || !Array.isArray(remoteDeck.data)) {
-    const columns = 'id,user_id,athlete_name,age,home_gym,latitude,longitude,avatar_url,image_url,discipline,current_split,training_time,gender,looking_for,training_place,experience_level,bio,last_active,is_ghost_mode,verified,is_verified,handle';
-    const bounded = (withGhost: boolean) => {
-      let query = supabase.from('buddy_profiles').select(columns).gte('latitude', box.minLat).lte('latitude', box.maxLat);
-      if (box.minLng >= -180 && box.maxLng <= 180) {
-        query = query.gte('longitude', box.minLng).lte('longitude', box.maxLng);
-      }
-      if (withGhost) query = query.eq('is_ghost_mode', false);
-      if (cleanQuery) query = query.or(textMatch);
-      return query.limit(200);
-    };
-    let { data, error } = await bounded(true);
-    if (error) {
-      const open = await bounded(false);
-      data = open.data;
-      error = open.error;
+      throw new Error(remoteDeck.error?.message || 'Radar search did not answer');
     }
-    if (error) throw new Error(error.message);
-
-    if (!error && Array.isArray(data)) {
-      fetchedFromSupabase = true;
-      supabaseCandidates = data.flatMap((raw) => {
-        const item = raw as RemoteBuddyRow;
-        const lat = Number(item.latitude);
-        const lon = Number(item.longitude);
-        if (item.is_ghost_mode) return [];
-        if (!Number.isFinite(lat) || !Number.isFinite(lon) || (lat === 0 && lon === 0)) return [];
-        const dist = Number(calculateDistance(userCoords.latitude, userCoords.longitude, lat, lon).toFixed(1));
-        const photo = String(item.avatar_url || item.image_url || item.avatar || '');
-        const safePhoto = photo.includes('images.unsplash.com') ? '' : photo;
-        const recent = item.last_active ? Date.now() - new Date(item.last_active).getTime() < 15 * 60 * 1000 : false;
-        return [{
-          id: String(item.id || item.user_id || ''),
-          name: String(item.athlete_name || item.name || '').trim(),
-          handle: item.handle || '',
-          age: Number(item.age) || 0,
-          home_gym: item.home_gym || '',
-          distance_km: dist,
-          match_score: 0,
-          image_url: safePhoto,
-          photos: safePhoto ? [safePhoto] : [],
-          discipline: item.discipline || '',
-          training_discipline: item.discipline || '',
-          current_split: item.current_split || '',
-          preferred_time: item.training_time || item.preferred_time || '',
-          gender: item.gender || '',
-          looking_for: item.looking_for || '',
-          training_place: item.training_place || item.where || '',
-          experience_level: item.experience_level || '',
-          bio: item.bio || '',
-          is_online: recent,
-          is_verified: Boolean(item.verified || item.is_verified),
-        }];
-      }).filter((row) => row.name);
-    } else if (error) {
-      console.error('[Supabase Search] PostgREST query error:', error);
-    }
-    }
+    fetchedFromSupabase = true;
+    supabaseCandidates = remoteDeck.data.flatMap((raw) => {
+      const item = raw as RemoteBuddyRow & { distance_km?: number };
+      if (item.is_ghost_mode) return [];
+      const dist = Number(item.distance_km);
+      if (!Number.isFinite(dist) || dist < 0) return [];
+      const photo = String(item.avatar_url || item.image_url || item.avatar || '');
+      const safePhoto = photo.includes('images.unsplash.com') ? '' : photo;
+      const recent = item.last_active ? Date.now() - new Date(item.last_active).getTime() < 15 * 60 * 1000 : false;
+      return [{
+        id: String(item.id || item.user_id || ''),
+        name: String(item.athlete_name || item.name || '').trim(),
+        handle: item.handle || '',
+        age: Number(item.age) || 0,
+        home_gym: item.home_gym || '',
+        distance_km: dist,
+        match_score: 0,
+        image_url: safePhoto,
+        photos: safePhoto ? [safePhoto] : [],
+        discipline: item.discipline || '',
+        training_discipline: item.discipline || '',
+        current_split: item.current_split || '',
+        preferred_time: item.training_time || item.preferred_time || '',
+        gender: item.gender || '',
+        looking_for: item.looking_for || '',
+        training_place: item.training_place || item.where || '',
+        experience_level: item.experience_level || '',
+        bio: item.bio || '',
+        is_online: recent,
+        is_verified: Boolean(item.is_verified),
+      }];
+    }).filter((row) => row.name);
   } catch (err) {
     console.error('[Supabase Search] Live query failure:', err);
     throw err;

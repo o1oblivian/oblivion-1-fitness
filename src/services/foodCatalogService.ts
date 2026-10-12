@@ -8,7 +8,7 @@ import {
 } from './theFoodDatabase';
 import { filterCustomFoods } from './customFoodDatabase';
 import { FOOD_CATALOG } from '../features/fuel/data/foodCatalog';
-import { matchesFoodQuery } from '../features/fuel/utils/foodSearchMatch';
+import { matchesFoodQuery, rankByFoodQuery } from '../features/fuel/utils/foodSearchMatch';
 import { apiUrl } from './apiBase';
 
 export type { FoodItemRecord, FoodCatalogQueryParams, FoodCategoryType, RegionalDatabaseInfo };
@@ -31,12 +31,15 @@ function itemFitsMarket(itemCountry: string, market: string, searching: boolean)
   return c === 'GLOBAL' || c === m;
 }
 
+/** User-saved foods always lead; everything else is ordered by match quality. */
+function rankResults(items: FoodItemRecord[], query: string): FoodItemRecord[] {
+  const isMine = (it: FoodItemRecord) => it.is_custom || it.source === 'custom';
+  return [...items.filter(isMine), ...rankByFoodQuery(items.filter((it) => !isMine(it)), query)];
+}
+
 const MAPPED_APP_CATALOG: FoodItemRecord[] = FOOD_CATALOG.map((item) => {
-  let servingGrams = 100;
-  const match = item.serving.match(/(\d+(?:\.\d+)?)\s*(?:g|ml)/i);
-  if (match) {
-    servingGrams = parseFloat(match[1]) || 100;
-  }
+  const match = item.serving.match(/(\d+(?:\.\d+)?)\s*(?:g|ml)\b/i);
+  const servingGrams = match ? parseFloat(match[1]) || undefined : undefined;
   const cat = item.category.toLowerCase() as FoodCategoryType;
   return {
     id: `app-catalog-${item.id}`,
@@ -159,7 +162,7 @@ export async function queryFoodCatalog({
           liveItems.forEach((it) => {
             if (!map.has(it.name.toLowerCase())) map.set(it.name.toLowerCase(), it);
           });
-          return Array.from(map.values()).slice(0, limit);
+          return rankResults(Array.from(map.values()), trimmed).slice(0, limit);
         }
       }
     } finally {
@@ -184,5 +187,5 @@ export async function queryFoodCatalog({
       fallbackMap.set(it.name.toLowerCase(), it);
     }
   });
-  return Array.from(fallbackMap.values()).slice(0, limit);
+  return rankResults(Array.from(fallbackMap.values()), trimmed).slice(0, limit);
 }

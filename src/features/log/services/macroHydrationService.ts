@@ -2,104 +2,102 @@ import { supabase } from '../../../services/supabaseClient';
 import { getAuthenticatedUserId } from '../../../services/authUser';
 import { useTelemetryHistoryStore } from '../store/useTelemetryHistoryStore';
 import { useLogStore } from '../../../stores/useLogStore';
-import { useFuelStore, FuelMeals } from '../../fuel/store/useFuelStore';
+import { useFuelStore } from '../../fuel/store/useFuelStore';
+import { FUEL_SLOTS, FuelSlot, localDateKey } from '../../fuel/services/fuelCloud';
 import { isForgotten } from './dayLogService';
 
-/**
- * Hydrates past 7 days nutritional telemetry from public.daily_macros
- * and public.meal_logs for the authenticated athlete.
- */
+const HISTORY_DAYS = 14;
+
+function slotFor(value: unknown): FuelSlot {
+  const slot = String(value || '');
+  return (FUEL_SLOTS as string[]).includes(slot) ? (slot as FuelSlot) : 'snack';
+}
+
+function categoryFor(slot: FuelSlot): 'Breakfast' | 'Lunch' | 'Dinner' | 'Snacks' {
+  if (slot === 'breakfast') return 'Breakfast';
+  if (slot === 'dinner') return 'Dinner';
+  if (slot === 'lunch') return 'Lunch';
+  return 'Snacks';
+}
+
+/** Rebuilds the last two weeks of nutrition history from fuel_days + meal_logs, keyed by local calendar date. */
 export async function hydrateMacrosFromSupabase(): Promise<void> {
   try {
     const userId = await getAuthenticatedUserId();
     if (!userId) return;
 
-    const minDate = new Date();
-    minDate.setDate(minDate.getDate() - 14);
-    const minDateKey = minDate.toISOString().slice(0, 10);
-    const todayKey = new Date().toISOString().slice(0, 10);
+    await useFuelStore.getState().hydrate();
 
-    // 1. Fetch from daily_macros
-    const { data: macroRows } = await supabase
-      .from('daily_macros')
-      .select('*')
-      .or(`user_id.eq.${userId},client_id.eq.${userId}`)
-      .gte('date', minDateKey)
-      .order('date', { ascending: false });
+    const since = new Date();
+    since.setDate(since.getDate() - HISTORY_DAYS);
+    const minDateKey = localDateKey(since);
+    const todayKey = localDateKey();
 
-    if (Array.isArray(macroRows) && macroRows.length > 0) {
-      for (const m of macroRows) {
-        if (!m.date || isForgotten(String(m.date).slice(0, 10), 'nutrition')) continue;
-        const cal = Number(m.calories) || 0;
-        const p = Number(m.protein) || 0;
-        const c = Number(m.carbs) || 0;
-        const f = Number(m.fat ?? m.fats ?? 0);
-
-        useTelemetryHistoryStore.getState().updateDayRecord(m.date, 'nutrition', {
-          hasData: cal > 0 || p > 0 || c > 0 || f > 0,
-          calories: cal,
-          calorieTarget: Number(m.calorie_target) || 0,
-          proteinG: p,
-          proteinTargetG: Number(m.protein_target) || 0,
-          carbsG: c,
-          carbsTargetG: Number(m.carbs_target) || 0,
-          fatsG: f,
-          fatsTargetG: Number(m.fat_target ?? m.fats_target ?? 0),
-        }, { fromCloud: true });
-
-        if (m.date === todayKey) {
-          useLogStore.getState().updateSubModule('nutrition', {
-            caloriesConsumed: cal,
-            caloriesTarget: Number(m.calorie_target) || 0,
-            proteinG: p,
-            proteinTargetG: Number(m.protein_target) || 0,
-            carbsG: c,
-            carbsTargetG: Number(m.carbs_target) || 0,
-            fatsG: f,
-            fatsTargetG: Number(m.fat_target ?? m.fats_target ?? 0),
-          });
-        }
-      }
+    const [daysRes, mealsRes] = await Promise.all([
+      supabase.from('fuel_days').select('date_key, calories, protein, carbs, fats').eq('user_id', userId).gte('date_key', minDateKey),
+      supabase
+        .from('meal_logs')
+        .select('id, date, meal_type, name, calories, protein, carbs, fats, created_at')
+        .eq('user_id', userId)
+        .gte('date', minDateKey)
+        .order('created_at', { ascending: true }),
+    ]);
+    if (daysRes.error || mealsRes.error) {
+      console.warn('[MacroHydration] Query notice:', daysRes.error?.message || mealsRes.error?.message);
+      return;
     }
 
-    // 2. Fetch individual meal_logs for detail aggregation
-    const { data: mealRows } = await supabase
-      .from('meal_logs')
-      .select('*')
-      .or(`user_id.eq.${userId},client_id.eq.${userId}`)
-      .gte('created_at', `${minDateKey}T00:00:00.000Z`)
-      .order('created_at', { ascending: true });
-
-    if (Array.isArray(mealRows) && mealRows.length > 0) {
-      const todayMeals: FuelMeals = {
-        breakfast: [], lunch: [], dinner: [], snack: [], drinks: [], supplements: []
-      };
-
-      for (const item of mealRows) {
-        const itemDate = (item.created_at || '').slice(0, 10);
-        if (itemDate === todayKey) {
-          const slot = (item.meal_slot || 'breakfast').toLowerCase() as keyof FuelMeals;
-          if (todayMeals[slot]) {
-            todayMeals[slot].push({
-              id: item.id || `meal-${Math.random().toString(36).slice(2, 7)}`,
-              name: item.food_name || item.name || 'Food item',
-              calories: Number(item.calories) || 0,
-              protein: Number(item.protein) || 0,
-              carbs: Number(item.carbs) || 0,
-              fats: Number(item.fat ?? item.fats ?? 0),
-            });
-          }
-        }
-      }
-
-      // Sync to useFuelStore if currently empty
-      const currentMeals = useFuelStore.getState().meals;
-      const curCount = Object.values(currentMeals).reduce((acc, arr) => acc + arr.length, 0);
-      const todayCount = Object.values(todayMeals).reduce((acc, arr) => acc + arr.length, 0);
-      if (curCount === 0 && todayCount > 0 && !isForgotten(todayKey, 'nutrition')) {
-        useFuelStore.setState((prev) => ({ ...prev, meals: todayMeals }));
-      }
+    const mealsByDay = new Map<string, NonNullable<typeof mealsRes.data>>();
+    for (const row of mealsRes.data || []) {
+      const key = String(row.date || '');
+      mealsByDay.set(key, [...(mealsByDay.get(key) || []), row]);
     }
+
+    const fuel = useFuelStore.getState();
+    const history = useTelemetryHistoryStore.getState();
+    for (const day of daysRes.data || []) {
+      const dateKey = String(day.date_key).slice(0, 10);
+      if (dateKey === todayKey || isForgotten(dateKey, 'nutrition')) continue;
+      const meals = mealsByDay.get(dateKey) || [];
+      const calories = Number(day.calories) || 0;
+      history.updateDayRecord(dateKey, 'nutrition', {
+        hasData: calories > 0 || meals.length > 0,
+        calories,
+        calorieTarget: fuel.calorieTarget ?? 0,
+        proteinG: Number(day.protein) || 0,
+        proteinTargetG: fuel.targetProteinG ?? 0,
+        carbsG: Number(day.carbs) || 0,
+        carbsTargetG: fuel.targetCarbsG ?? 0,
+        fatsG: Number(day.fats) || 0,
+        fatsTargetG: fuel.targetFatsG ?? 0,
+        meals: meals.map((m) => ({
+          name: String(m.name || ''),
+          category: categoryFor(slotFor(m.meal_type)),
+          slot: slotFor(m.meal_type),
+          calories: Number(m.calories) || 0,
+          proteinG: Number(m.protein) || 0,
+          carbsG: Number(m.carbs) || 0,
+          fatsG: Number(m.fats) || 0,
+        })),
+      }, { skipCloud: true });
+    }
+
+    const today = useFuelStore.getState();
+    const totals = Object.values(today.meals).flat().reduce(
+      (acc, m) => ({ cal: acc.cal + m.calories, p: acc.p + m.protein, c: acc.c + m.carbs, f: acc.f + m.fats }),
+      { cal: 0, p: 0, c: 0, f: 0 },
+    );
+    useLogStore.getState().updateSubModule('nutrition', {
+      caloriesConsumed: Math.round(totals.cal),
+      caloriesTarget: today.calorieTarget ?? 0,
+      proteinG: Math.round(totals.p * 10) / 10,
+      proteinTargetG: today.targetProteinG ?? 0,
+      carbsG: Math.round(totals.c * 10) / 10,
+      carbsTargetG: today.targetCarbsG ?? 0,
+      fatsG: Math.round(totals.f * 10) / 10,
+      fatsTargetG: today.targetFatsG ?? 0,
+      hydrationLiters: today.hydrationCurrentL,
+    });
   } catch (err) {
     console.warn('[MacroHydration] Query notice:', err);
   }

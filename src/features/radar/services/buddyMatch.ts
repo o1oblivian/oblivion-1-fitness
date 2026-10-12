@@ -1,4 +1,5 @@
 import { supabase } from '../../../services/supabaseClient';
+import { reportUser } from '../../../services/safetyService';
 import { DemoAthlete } from '../types';
 import { sameGym } from './gymMatch';
 
@@ -228,7 +229,7 @@ export async function sendLike(myId: string, theirId: string, unlimited = false)
 
 const MAX_LINE_ID_BYTES = 1800;
 
-function mailRow(kind: 'm' | 'b' | 'r', myId: string, theirId: string, body = ''): { id: string; from_id: string; to_id: string } | null {
+function mailRow(kind: 'm' | 'b', myId: string, theirId: string, body = ''): { id: string; from_id: string; to_id: string } | null {
   const stamp = Date.now();
   const id = body
     ? `${kind}|${myId}|${theirId}|${stamp}|raw|${body}`
@@ -265,13 +266,10 @@ export async function publishBlock(myId: string, theirId: string): Promise<boole
   return !error;
 }
 
-export async function publishReport(myId: string, theirId: string, name: string, reason: string): Promise<boolean> {
+export async function publishReport(myId: string, theirId: string, name: string, reason: string, details = ''): Promise<boolean> {
   rememberReport({ id: theirId, name, reason });
-  if (!myId || !theirId || !reason) return false;
-  const row = mailRow('r', myId, theirId, JSON.stringify({ name, reason }));
-  if (!row) return false;
-  const { error } = await supabase.from('buddy_likes').insert(row);
-  return !error;
+  if (!myId) return false;
+  return reportUser({ reportedId: theirId, name, reason, details, context: 'buddy' });
 }
 
 export async function syncBlocks(myId: string): Promise<string[]> {

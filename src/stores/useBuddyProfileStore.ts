@@ -8,6 +8,7 @@ export type ExperienceLevel = 'Beginner' | 'Intermediate' | 'Advanced' | 'Elite'
 export interface BuddyProfileState {
   isBuddyProfileActive: boolean; // false = Solo Fitness Mode (invisible on radar); true = Visible on Radar
   ghostMode: boolean; // Stealth Mode: Browse radar while remaining invisible to others
+  radarConsent: boolean;
   displayName: string;
   age: number;
   homeGym: string;
@@ -32,6 +33,7 @@ export interface BuddyProfileState {
 export interface BuddyProfileActions {
   toggleBuddyProfile: (active?: boolean) => void;
   toggleGhostMode: (active?: boolean) => void;
+  setRadarConsent: (on: boolean) => void;
   setDisplayName: (name: string) => void;
   setAge: (age: number) => void;
   setHomeGym: (gym: string) => void;
@@ -56,7 +58,6 @@ export interface BuddyProfileActions {
   setMaxDistanceKm: (dist: number) => void;
   setRadiusKm: (dist: number) => void;
   setAgeRange: (min: number, max: number) => void;
-  toggleVerifiedBadge: () => void;
   updateBuddyProfile: (updates: Partial<BuddyProfileState>) => void;
 }
 
@@ -66,6 +67,7 @@ const loadSavedBuddyProfile = (): BuddyProfileState => {
   const defaultState: BuddyProfileState = {
     isBuddyProfileActive: true, // Default active on athlete radar
     ghostMode: false,
+    radarConsent: false,
     displayName: '',
     age: 0,
     homeGym: '',
@@ -132,6 +134,11 @@ const buddyStore = createStore<BuddyProfileState, BuddyProfileActions>(
       const nextActive = active !== undefined ? active : !get().isBuddyProfileActive;
       set({ isBuddyProfileActive: nextActive });
       persistState(get());
+      if (!nextActive) {
+        void import('../services/buddyPresenceSync').then(({ withdrawBuddyCard }) => {
+          void withdrawBuddyCard();
+        });
+      }
     },
 
     toggleGhostMode: (active) => {
@@ -142,6 +149,17 @@ const buddyStore = createStore<BuddyProfileState, BuddyProfileActions>(
       void import('../services/buddyPresenceSync').then(({ syncBuddyGhostMode }) => {
         void syncBuddyGhostMode(nextGhost);
       });
+    },
+
+    setRadarConsent: (on) => {
+      tactileEngine.triggerSelectionBuzz();
+      set({ radarConsent: on });
+      persistState(get());
+      if (!on) {
+        void import('../services/buddyPresenceSync').then(({ withdrawBuddyCard }) => {
+          void withdrawBuddyCard();
+        });
+      }
     },
 
     setDisplayName: (displayName) => {
@@ -313,13 +331,6 @@ const buddyStore = createStore<BuddyProfileState, BuddyProfileActions>(
     setAgeRange: (min, max) => {
       tactileEngine.triggerSelectionBuzz();
       set({ ageRangeMin: min, ageRangeMax: max });
-      persistState(get());
-    },
-
-    toggleVerifiedBadge: () => {
-      tactileEngine.triggerSelectionBuzz();
-      const next = !get().isVerifiedBadge;
-      set({ isVerifiedBadge: next });
       persistState(get());
     },
 

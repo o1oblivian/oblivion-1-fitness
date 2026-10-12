@@ -67,7 +67,7 @@ export async function hydrateDayLogs(): Promise<void> {
       useTelemetryHistoryStore.getState().updateDayRecord(dateKey, category, {
         ...(row.payload as Record<string, unknown>),
         hasData: true,
-      }, { fromCloud: true });
+      }, { skipCloud: true });
     }
   } catch (err) {
     console.warn('[DayLog] Hydration notice:', err);
@@ -79,6 +79,14 @@ export function localDayKey(value: unknown): string {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return value.slice(0, 10);
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+}
+
+/** Noon on a YYYY-MM-DD day in local time, so the day survives any timezone round trip. */
+export function localNoonIso(dateKey: string): string | undefined {
+  const hit = /^(\d{4})-(\d{2})-(\d{2})$/.exec(dateKey);
+  if (!hit) return undefined;
+  const date = new Date(Number(hit[1]), Number(hit[2]) - 1, Number(hit[3]), 12, 0, 0);
+  return Number.isNaN(date.getTime()) ? undefined : date.toISOString();
 }
 
 /** Delete the archived session or meals that would otherwise restore a removed day. */
@@ -111,18 +119,8 @@ export async function purgeArchivedDay(dateKey: string, category: DayLogCategory
     }
 
     if (category === 'nutrition') {
-      await supabase.from('daily_macros').delete().or(`user_id.eq.${userId},client_id.eq.${userId}`).eq('date', dateKey);
-      const { data: meals } = await supabase
-        .from('meal_logs')
-        .select('id, created_at')
-        .or(`user_id.eq.${userId},client_id.eq.${userId}`)
-        .limit(400);
-      const mealIds = (meals || [])
-        .filter((row) => localDayKey(row.created_at) === dateKey && row.id)
-        .map((row) => String(row.id));
-      if (mealIds.length > 0) {
-        await supabase.from('meal_logs').delete().in('id', mealIds);
-      }
+      await supabase.from('meal_logs').delete().eq('user_id', userId).eq('date', dateKey);
+      await supabase.from('fuel_days').delete().eq('user_id', userId).eq('date_key', dateKey);
     }
   } catch (err) {
     console.warn('[DayLog] Archive delete notice:', err);

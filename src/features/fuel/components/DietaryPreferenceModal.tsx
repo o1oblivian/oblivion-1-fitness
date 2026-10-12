@@ -24,15 +24,15 @@ export const DietaryPreferenceModal: React.FC<DietaryPreferenceModalProps> = ({
   if (!isOpen) return null;
 
   const content = (
-    <div className="o1-sheet-card w-full bg-o1-card border border-white/[0.07] p-4 shadow-xl flex flex-col overflow-y-auto select-none">
+    <div className="o1-sheet-card w-full bg-o1-sheet border border-white/[0.08] p-4 shadow-xl flex flex-col overflow-y-auto select-none">
       <div className="flex items-center justify-between pb-3 mb-3 border-b border-white/[0.05]">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-o1-well text-neutral-300 flex items-center justify-center">
+          <div className="w-8 h-8 rounded-xl bg-o1-surface text-o1-text flex items-center justify-center">
             <Utensils className="w-4 h-4" />
           </div>
           <div>
-            <h3 className="text-sm font-semibold text-white">Diet</h3>
-            <p className="text-[11px] text-neutral-500">Filters catalog, 1-tap meals and Intel</p>
+            <h3 className="text-sm font-semibold text-o1-text">Diet</h3>
+            <p className="text-[11px] text-o1-muted">Filters the food catalog and Intel meals</p>
           </div>
         </div>
         <button
@@ -41,7 +41,7 @@ export const DietaryPreferenceModal: React.FC<DietaryPreferenceModalProps> = ({
             tactileEngine.triggerSelectionBuzz();
             onClose();
           }}
-          className="w-8 h-8 rounded-full bg-o1-well flex items-center justify-center text-neutral-500 cursor-pointer"
+          className="w-8 h-8 rounded-full bg-o1-surface flex items-center justify-center text-o1-muted cursor-pointer"
         >
           <X className="w-4 h-4" />
         </button>
@@ -62,24 +62,24 @@ export const DietaryPreferenceModal: React.FC<DietaryPreferenceModalProps> = ({
               className={`relative text-left p-3 rounded-2xl border transition-all cursor-pointer ${
                 isSelected
                   ? `${d.accentSoft} ${d.accentBorder} shadow-xs`
-                  : 'bg-white/[0.03] border-white/[0.07] hover:bg-o1-well'
+                  : 'bg-white/[0.03] border-white/[0.08] hover:bg-o1-sheet'
               }`}
             >
               <div className="flex items-start justify-between gap-1">
                 <span className="text-lg leading-none">{d.icon}</span>
                 {isSelected && (
                   <span
-                    className="w-4 h-4 rounded-full flex items-center justify-center text-white shrink-0"
+                    className="w-4 h-4 rounded-full flex items-center justify-center text-o1-text shrink-0"
                     style={{ backgroundColor: d.accent }}
                   >
                     <Check className="w-2.5 h-2.5 stroke-[3]" />
                   </span>
                 )}
               </div>
-              <span className={`mt-1.5 block text-[12px] font-semibold ${isSelected ? d.accentDark : 'text-white'}`}>
+              <span className={`mt-1.5 block text-[12px] font-semibold ${isSelected ? d.accentDark : 'text-o1-text'}`}>
                 {d.label}
               </span>
-              <span className="mt-0.5 block text-[10px] leading-snug text-neutral-400">
+              <span className="mt-0.5 block text-[10px] leading-snug text-o1-muted">
                 {d.short}
               </span>
             </button>

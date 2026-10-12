@@ -7,6 +7,8 @@ import { supabase } from '../../../services/supabaseClient';
 import { useAuthStore } from '../../../stores/useAuthStore';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { AthleteAvatar } from './floor/FloorAthleteCard';
+import { blockUser, fetchBlockedIds, reportUser } from '../../../services/safetyService';
+import { SafetyReportSheet } from '../../../components/common/SafetyReportSheet';
 
 export interface InboxContact {
   name: string;
@@ -40,6 +42,17 @@ export const CoachInboxView: React.FC<CoachInboxViewProps> = ({ coachId = '', vi
   const [openId, setOpenId] = useState<string | null>(null);
   const [reply, setReply] = useState('');
   const [sending, setSending] = useState(false);
+  const [blocked, setBlocked] = useState<string[]>([]);
+  const [reportOpen, setReportOpen] = useState(false);
+  const [notice, setNotice] = useState('');
+
+  useEffect(() => {
+    let live = true;
+    void fetchBlockedIds().then((ids) => live && setBlocked(ids));
+    return () => {
+      live = false;
+    };
+  }, []);
 
   const applyRows = useCallback((rows: CoachMessage[] | null) => {
     setLoadFailed(rows === null);
@@ -103,7 +116,7 @@ export const CoachInboxView: React.FC<CoachInboxViewProps> = ({ coachId = '', vi
   const threads = useMemo<Thread[]>(() => {
     const byAthlete = new Map<string, CoachMessage[]>();
     messages.forEach((row) => {
-      if (!row.athleteId) return;
+      if (!row.athleteId || (viewer === 'coach' && blocked.includes(row.athleteId))) return;
       byAthlete.set(row.athleteId, [...(byAthlete.get(row.athleteId) || []), row]);
     });
     return Array.from(byAthlete, ([athleteId, rows]) => {
@@ -117,9 +130,47 @@ export const CoachInboxView: React.FC<CoachInboxViewProps> = ({ coachId = '', vi
         waiting: !fromCoach(rows[0]),
       };
     });
-  }, [messages, contacts, fromCoach]);
+  }, [messages, contacts, fromCoach, viewer, blocked]);
 
   const open = threads.find((thread) => thread.athleteId === openId) || null;
+  const other = viewer === 'coach' ? { id: open?.athleteId || '', name: open?.name || 'Athlete' } : { id: coachId, name: coachName || 'your coach' };
+  const otherBlocked = Boolean(other.id) && blocked.includes(other.id);
+
+  const block = async (person: { id: string; name: string }, quiet = false) => {
+    if (!person.id) return;
+    const ok = await blockUser(person.id);
+    if (ok) setBlocked((prev) => (prev.includes(person.id) ? prev : [...prev, person.id]));
+    if (!quiet) setNotice(ok ? `Blocked ${person.name}. They can no longer message you.` : 'Block did not save. Check your connection and try again.');
+    if (ok && viewer === 'coach') setOpenId(null);
+  };
+
+  const safetyActions = other.id ? (
+    <div className="flex shrink-0 items-center gap-1">
+      <button type="button" onClick={() => setReportOpen(true)} className="h-9 rounded-full px-3 text-[12px] font-semibold text-o1-muted">
+        Report
+      </button>
+      {otherBlocked ? null : (
+        <button type="button" onClick={() => void block(other)} className="h-9 rounded-full px-3 text-[12px] font-semibold text-o1-muted">
+          Block
+        </button>
+      )}
+    </div>
+  ) : null;
+
+  const reportSheet = (
+    <SafetyReportSheet
+      open={reportOpen}
+      name={other.name}
+      onClose={() => setReportOpen(false)}
+      onSubmit={(reason, details, alsoBlock) => {
+        const person = other;
+        void reportUser({ reportedId: person.id, name: person.name, reason, details, context: 'coach' }).then((ok) => {
+          setNotice(ok ? 'Report sent. The Oblivion 1 team will review it.' : 'Report did not send. Check your connection and try again.');
+        });
+        if (alsoBlock) void block(person, true);
+      }}
+    />
+  );
 
   const send = async () => {
     const text = reply.trim();
@@ -186,11 +237,16 @@ export const CoachInboxView: React.FC<CoachInboxViewProps> = ({ coachId = '', vi
               <ChevronLeft size={20} />
             </button>
             <AthleteAvatar name={open.name} avatar={open.avatar} size={36} />
-            <p className="truncate text-[15px] font-semibold text-o1-text">{open.name}</p>
+            <p className="min-w-0 flex-1 truncate text-[15px] font-semibold text-o1-text">{open.name}</p>
+            {safetyActions}
           </div>
         ) : (
-          <p className="text-[13px] font-semibold text-o1-text">Messages with {coachName || 'your coach'}</p>
+          <div className="flex items-center justify-between gap-2">
+            <p className="min-w-0 truncate text-[13px] font-semibold text-o1-text">Messages with {coachName || 'your coach'}</p>
+            {safetyActions}
+          </div>
         )}
+        {notice ? <p role="status" className="rounded-xl border border-white/[0.07] bg-o1-canvas px-3 py-2 text-[12px] text-o1-text">{notice}</p> : null}
         {isLoading ? (
           <p className="py-6 text-center text-[13px] text-o1-muted">Loading messages…</p>
         ) : rows.length === 0 ? (
@@ -211,7 +267,12 @@ export const CoachInboxView: React.FC<CoachInboxViewProps> = ({ coachId = '', vi
           </ul>
         )}
         {failureNote}
-        {replyBox}
+        {otherBlocked ? (
+          <p className="text-center text-[12px] text-o1-muted">You blocked {other.name}. Messages are off.</p>
+        ) : (
+          replyBox
+        )}
+        {reportSheet}
       </section>
     );
   }

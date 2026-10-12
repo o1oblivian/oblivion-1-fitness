@@ -100,8 +100,8 @@ export function mapAssignedRow(row: any): CoachDispatchedWorkout {
     return {
       id: String(exercise.id || `ex-${index}`),
       name: exercise.name || 'Exercise',
-      sets: setList ? setList.length : Number(exercise.sets || exercise.setsCount || 3),
-      reps: first?.reps || first?.targetReps || exercise.reps || 8,
+      sets: setList ? setList.length : Number(exercise.sets || exercise.setsCount || 1),
+      reps: first?.reps || first?.targetReps || exercise.reps || 0,
       rpe: first?.rpe || exercise.rpe,
       targetMuscle: exercise.targetMuscle || exercise.muscle,
       restSecs: exercise.restSecs,

@@ -94,8 +94,8 @@ export const MealMacroScannerModal: React.FC<MealMacroScannerModalProps> = (prop
             <ScannedMealResultCard
               scannedMeal={scannedMeal}
               slotName={slot}
-              onCommitMeal={(name, kcal, p, c, f, weight) => {
-                commitAdjustedMeal(name, kcal, p, c, f, weight);
+              onCommitMeal={(name, kcal, p, c, f) => {
+                commitAdjustedMeal(name, kcal, p, c, f);
                 onClose();
               }}
             />

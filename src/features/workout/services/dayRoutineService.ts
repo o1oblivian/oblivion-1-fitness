@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { WorkoutExercise, WorkoutSet } from '../store/workoutStoreTypes';
+import { priorBestKg } from './sessionPr';
 
 let dayRoutineRevision = 0;
 const dayRoutineListeners = new Set<() => void>();
@@ -24,23 +25,17 @@ export function useDayRoutineRevision(): number {
 
 export const USER_SAVED_WORKOUTS_KEY = 'o1fc_athlete_saved_day_routines';
 
+type DayCode = 'Mon' | 'Tue' | 'Wed' | 'Thu' | 'Fri' | 'Sat' | 'Sun';
+
 export interface SavedDayRoutine {
-  day: 'Mon' | 'Tue' | 'Wed' | 'Thu' | 'Fri' | 'Sat' | 'Sun';
+  day: DayCode;
   splitName: string;
   exercises: WorkoutExercise[];
   savedAt: string;
 }
 
-export const getSystemTodayCode = (): 'Mon' | 'Tue' | 'Wed' | 'Thu' | 'Fri' | 'Sat' | 'Sun' => {
-  const map: Array<'Mon' | 'Tue' | 'Wed' | 'Thu' | 'Fri' | 'Sat' | 'Sun'> = [
-    'Sun',
-    'Mon',
-    'Tue',
-    'Wed',
-    'Thu',
-    'Fri',
-    'Sat',
-  ];
+export const getSystemTodayCode = (): DayCode => {
+  const map: DayCode[] = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   return map[new Date().getDay()] || 'Thu';
 };
 
@@ -70,232 +65,105 @@ export const formatConciseSplitName = (name: string): string => {
   return clean.charAt(0).toUpperCase() + clean.slice(1).toLowerCase();
 };
 
-/**
- * Default fallback routines for days if the athlete hasn't saved a custom one yet
- */
-export const DEFAULT_DAY_ROUTINES: Record<
-  'Mon' | 'Tue' | 'Wed' | 'Thu' | 'Fri' | 'Sat' | 'Sun',
-  { splitName: string; exercises: WorkoutExercise[] }
-> = {
+interface MovementPlan {
+  name: string;
+  muscle: string;
+  equipment: string;
+  tier: string;
+  restSecs: number;
+  sets: number;
+  reps: number;
+}
+
+/** Movement plan only. Loads come from the athlete's own history, never from this table. */
+const DAY_PLANS: Record<DayCode, { splitName: string; movements: MovementPlan[] }> = {
   Mon: {
     splitName: 'PUSH A',
-    exercises: [
-      {
-        id: 'mon-ex-1',
-        name: 'Barbell Flat Bench Press',
-        exerciseName: 'Barbell Flat Bench Press',
-        targetMuscle: 'Chest',
-        equipment: 'Barbell',
-        tier: 'Compound Prime',
-        restSecs: 120,
-        sets: [
-          { id: 'm-s1', setNumber: 1, reps: 5, weight: 100, weightKg: 100, rpe: 8, completed: false },
-          { id: 'm-s2', setNumber: 2, reps: 5, weight: 100, weightKg: 100, rpe: 8.5, completed: false },
-          { id: 'm-s3', setNumber: 3, reps: 5, weight: 102.5, weightKg: 102.5, rpe: 9, completed: false },
-        ],
-      },
-      {
-        id: 'mon-ex-2',
-        name: 'Standing Overhead Military Press',
-        exerciseName: 'Standing Overhead Military Press',
-        targetMuscle: 'Deltoids',
-        equipment: 'Barbell',
-        tier: 'Compound Secondary',
-        restSecs: 90,
-        sets: [
-          { id: 'm-s4', setNumber: 1, reps: 8, weight: 60, weightKg: 60, rpe: 8, completed: false },
-          { id: 'm-s5', setNumber: 2, reps: 8, weight: 60, weightKg: 60, rpe: 8.5, completed: false },
-          { id: 'm-s6', setNumber: 3, reps: 8, weight: 60, weightKg: 60, rpe: 9, completed: false },
-        ],
-      },
+    movements: [
+      { name: 'Barbell Flat Bench Press', muscle: 'Chest', equipment: 'Barbell', tier: 'Compound Prime', restSecs: 120, sets: 3, reps: 5 },
+      { name: 'Standing Overhead Military Press', muscle: 'Deltoids', equipment: 'Barbell', tier: 'Compound Secondary', restSecs: 90, sets: 3, reps: 8 },
     ],
   },
   Tue: {
     splitName: 'PULL A',
-    exercises: [
-      {
-        id: 'tue-ex-1',
-        name: 'Conventional Barbell Deadlift',
-        exerciseName: 'Conventional Barbell Deadlift',
-        targetMuscle: 'Posterior Chain',
-        equipment: 'Barbell',
-        tier: 'Compound Prime',
-        restSecs: 180,
-        sets: [
-          { id: 't-s1', setNumber: 1, reps: 5, weight: 140, weightKg: 140, rpe: 8, completed: false },
-          { id: 't-s2', setNumber: 2, reps: 5, weight: 145, weightKg: 145, rpe: 8.5, completed: false },
-          { id: 't-s3', setNumber: 3, reps: 5, weight: 150, weightKg: 150, rpe: 9, completed: false },
-        ],
-      },
-      {
-        id: 'tue-ex-2',
-        name: 'Weighted Neutral Grip Pull-Up',
-        exerciseName: 'Weighted Neutral Grip Pull-Up',
-        targetMuscle: 'Lats',
-        equipment: 'Bodyweight / Belt',
-        tier: 'Compound Secondary',
-        restSecs: 90,
-        sets: [
-          { id: 't-s4', setNumber: 1, reps: 6, weight: 15, weightKg: 15, rpe: 8, completed: false },
-          { id: 't-s5', setNumber: 2, reps: 6, weight: 15, weightKg: 15, rpe: 8.5, completed: false },
-          { id: 't-s6', setNumber: 3, reps: 6, weight: 15, weightKg: 15, rpe: 9, completed: false },
-        ],
-      },
+    movements: [
+      { name: 'Conventional Barbell Deadlift', muscle: 'Posterior Chain', equipment: 'Barbell', tier: 'Compound Prime', restSecs: 180, sets: 3, reps: 5 },
+      { name: 'Weighted Neutral Grip Pull-Up', muscle: 'Lats', equipment: 'Bodyweight / Belt', tier: 'Compound Secondary', restSecs: 90, sets: 3, reps: 6 },
     ],
   },
   Wed: {
     splitName: 'LEGS A',
-    exercises: [
-      {
-        id: 'wed-ex-1',
-        name: 'Olympic Barbell Back Squat',
-        exerciseName: 'Olympic Barbell Back Squat',
-        targetMuscle: 'Quadriceps',
-        equipment: 'Barbell',
-        tier: 'Compound Prime',
-        restSecs: 150,
-        sets: [
-          { id: 'w-s1', setNumber: 1, reps: 5, weight: 120, weightKg: 120, rpe: 8, completed: false },
-          { id: 'w-s2', setNumber: 2, reps: 5, weight: 125, weightKg: 125, rpe: 8.5, completed: false },
-          { id: 'w-s3', setNumber: 3, reps: 5, weight: 130, weightKg: 130, rpe: 9, completed: false },
-        ],
-      },
-      {
-        id: 'wed-ex-2',
-        name: 'Romanian Deadlift (RDL)',
-        exerciseName: 'Romanian Deadlift (RDL)',
-        targetMuscle: 'Hamstrings',
-        equipment: 'Barbell',
-        tier: 'Accessory',
-        restSecs: 90,
-        sets: [
-          { id: 'w-s4', setNumber: 1, reps: 10, weight: 90, weightKg: 90, rpe: 8, completed: false },
-          { id: 'w-s5', setNumber: 2, reps: 10, weight: 90, weightKg: 90, rpe: 8.5, completed: false },
-        ],
-      },
+    movements: [
+      { name: 'Olympic Barbell Back Squat', muscle: 'Quadriceps', equipment: 'Barbell', tier: 'Compound Prime', restSecs: 150, sets: 3, reps: 5 },
+      { name: 'Romanian Deadlift (RDL)', muscle: 'Hamstrings', equipment: 'Barbell', tier: 'Accessory', restSecs: 90, sets: 3, reps: 10 },
     ],
   },
   Thu: {
     splitName: 'HYPER',
-    exercises: [
-      {
-        id: 'thu-ex-1',
-        name: 'SkiErg 500m Sprint Intervals',
-        exerciseName: 'SkiErg 500m Sprint Intervals',
-        targetMuscle: 'Cardio Engine',
-        equipment: 'Concept2 SkiErg',
-        tier: 'Conditioning',
-        restSecs: 60,
-        sets: [
-          { id: 'th-s1', setNumber: 1, reps: 500, weight: 0, weightKg: 0, rpe: 8, completed: false },
-          { id: 'th-s2', setNumber: 2, reps: 500, weight: 0, weightKg: 0, rpe: 8.5, completed: false },
-        ],
-      },
-      {
-        id: 'thu-ex-2',
-        name: 'Sled Push Heavy Drive',
-        exerciseName: 'Sled Push Heavy Drive',
-        targetMuscle: 'Lower Body Drive',
-        equipment: 'Turf Sled',
-        tier: 'Conditioning',
-        restSecs: 90,
-        sets: [
-          { id: 'th-s3', setNumber: 1, reps: 50, weight: 120, weightKg: 120, rpe: 8.5, completed: false },
-          { id: 'th-s4', setNumber: 2, reps: 50, weight: 120, weightKg: 120, rpe: 9, completed: false },
-        ],
-      },
+    movements: [
+      { name: 'SkiErg 500m Sprint Intervals', muscle: 'Cardio Engine', equipment: 'Concept2 SkiErg', tier: 'Conditioning', restSecs: 60, sets: 2, reps: 500 },
+      { name: 'Sled Push Heavy Drive', muscle: 'Lower Body Drive', equipment: 'Turf Sled', tier: 'Conditioning', restSecs: 90, sets: 2, reps: 50 },
     ],
   },
   Fri: {
     splitName: 'PUSH B',
-    exercises: [
-      {
-        id: 'fri-ex-1',
-        name: 'Incline Dumbbell Chest Press',
-        exerciseName: 'Incline Dumbbell Chest Press',
-        targetMuscle: 'Upper Chest',
-        equipment: 'Dumbbells',
-        tier: 'Compound Prime',
-        restSecs: 90,
-        sets: [
-          { id: 'f-s1', setNumber: 1, reps: 8, weight: 36, weightKg: 36, rpe: 8, completed: false },
-          { id: 'f-s2', setNumber: 2, reps: 8, weight: 38, weightKg: 38, rpe: 8.5, completed: false },
-          { id: 'f-s3', setNumber: 3, reps: 8, weight: 40, weightKg: 40, rpe: 9, completed: false },
-        ],
-      },
-      {
-        id: 'fri-ex-2',
-        name: 'Cable Overhead Triceps Extension',
-        exerciseName: 'Cable Overhead Triceps Extension',
-        targetMuscle: 'Triceps Long Head',
-        equipment: 'Cable Tower',
-        tier: 'Accessory',
-        restSecs: 60,
-        sets: [
-          { id: 'f-s4', setNumber: 1, reps: 12, weight: 28, weightKg: 28, rpe: 8, completed: false },
-          { id: 'f-s5', setNumber: 2, reps: 12, weight: 32, weightKg: 32, rpe: 8.5, completed: false },
-          { id: 'f-s6', setNumber: 3, reps: 10, weight: 35, weightKg: 35, rpe: 9, completed: false },
-        ],
-      },
+    movements: [
+      { name: 'Incline Dumbbell Chest Press', muscle: 'Upper Chest', equipment: 'Dumbbells', tier: 'Compound Prime', restSecs: 90, sets: 3, reps: 8 },
+      { name: 'Cable Overhead Triceps Extension', muscle: 'Triceps Long Head', equipment: 'Cable Tower', tier: 'Accessory', restSecs: 60, sets: 3, reps: 12 },
     ],
   },
   Sat: {
     splitName: 'PULL B',
-    exercises: [
-      {
-        id: 'sat-ex-1',
-        name: 'Barbell Chest Supported T-Bar Row',
-        exerciseName: 'Barbell Chest Supported T-Bar Row',
-        targetMuscle: 'Upper Back & Lats',
-        equipment: 'Barbell / Rig',
-        tier: 'Compound Prime',
-        restSecs: 90,
-        sets: [
-          { id: 's-s1', setNumber: 1, reps: 8, weight: 70, weightKg: 70, rpe: 8, completed: false },
-          { id: 's-s2', setNumber: 2, reps: 8, weight: 75, weightKg: 75, rpe: 8.5, completed: false },
-          { id: 's-s3', setNumber: 3, reps: 8, weight: 80, weightKg: 80, rpe: 9, completed: false },
-        ],
-      },
-      {
-        id: 'sat-ex-2',
-        name: 'Incline Dumbbell Biceps Curl',
-        exerciseName: 'Incline Dumbbell Biceps Curl',
-        targetMuscle: 'Biceps Long Head',
-        equipment: 'Dumbbells',
-        tier: 'Accessory',
-        restSecs: 60,
-        sets: [
-          { id: 's-s4', setNumber: 1, reps: 10, weight: 16, weightKg: 16, rpe: 8, completed: false },
-          { id: 's-s5', setNumber: 2, reps: 10, weight: 16, weightKg: 16, rpe: 8.5, completed: false },
-        ],
-      },
+    movements: [
+      { name: 'Barbell Chest Supported T-Bar Row', muscle: 'Upper Back & Lats', equipment: 'Barbell / Rig', tier: 'Compound Prime', restSecs: 90, sets: 3, reps: 8 },
+      { name: 'Incline Dumbbell Biceps Curl', muscle: 'Biceps Long Head', equipment: 'Dumbbells', tier: 'Accessory', restSecs: 60, sets: 3, reps: 10 },
     ],
   },
   Sun: {
     splitName: 'REST',
-    exercises: [
-      {
-        id: 'sun-ex-1',
-        name: 'Thoracic Extension & Foam Roller Release',
-        exerciseName: 'Thoracic Extension & Foam Roller Release',
-        targetMuscle: 'Spine & Fascia',
-        equipment: 'Foam Roller',
-        tier: 'Restoration',
-        restSecs: 45,
-        sets: [
-          { id: 'su-s1', setNumber: 1, reps: 15, weight: 0, weightKg: 0, rpe: 4, completed: false },
-          { id: 'su-s2', setNumber: 2, reps: 15, weight: 0, weightKg: 0, rpe: 4, completed: false },
-        ],
-      },
+    movements: [
+      { name: 'Thoracic Extension & Foam Roller Release', muscle: 'Spine & Fascia', equipment: 'Foam Roller', tier: 'Restoration', restSecs: 45, sets: 2, reps: 15 },
     ],
   },
 };
+
+/** Working load that leaves about two reps in reserve, from the athlete's best estimated max. 0 when uncalibrated. */
+export function workingLoadKg(exerciseName: string, reps: number): number {
+  const max = priorBestKg(exerciseName);
+  if (max <= 0 || reps <= 0 || reps > 30) return 0;
+  return Math.floor(max / (1 + (reps + 2) / 30) / 2.5) * 2.5;
+}
+
+function buildDefaultRoutine(day: DayCode): WorkoutExercise[] {
+  const prefix = day.toLowerCase();
+  return DAY_PLANS[day].movements.map((m, i) => {
+    const load = workingLoadKg(m.name, m.reps);
+    return {
+      id: `${prefix}-ex-${i + 1}`,
+      name: m.name,
+      exerciseName: m.name,
+      targetMuscle: m.muscle,
+      equipment: m.equipment,
+      tier: m.tier,
+      restSecs: m.restSecs,
+      sets: Array.from({ length: m.sets }, (_, s) => ({
+        id: `${prefix}-${i + 1}-s${s + 1}`,
+        setNumber: s + 1,
+        reps: m.reps,
+        weight: load,
+        weightKg: load,
+        rpe: 0,
+        completed: false,
+      })),
+    };
+  });
+}
 
 /**
  * Retrieve saved routine for a specific day from localStorage
  */
 export const getAthleteDayRoutine = (
-  day: 'Mon' | 'Tue' | 'Wed' | 'Thu' | 'Fri' | 'Sat' | 'Sun'
+  day: DayCode
 ): { splitName: string; exercises: WorkoutExercise[]; isCustom: boolean } => {
   try {
     const raw = localStorage.getItem(USER_SAVED_WORKOUTS_KEY);
@@ -303,7 +171,7 @@ export const getAthleteDayRoutine = (
       const parsed = JSON.parse(raw);
       if (parsed && parsed[day] && Array.isArray(parsed[day].exercises)) {
         return {
-          splitName: formatConciseSplitName(parsed[day].splitName || DEFAULT_DAY_ROUTINES[day].splitName),
+          splitName: formatConciseSplitName(parsed[day].splitName || DAY_PLANS[day].splitName),
           exercises: parsed[day].exercises,
           isCustom: true,
         };
@@ -314,8 +182,8 @@ export const getAthleteDayRoutine = (
   }
 
   return {
-    splitName: formatConciseSplitName(DEFAULT_DAY_ROUTINES[day]?.splitName || 'REST'),
-    exercises: DEFAULT_DAY_ROUTINES[day]?.exercises || [],
+    splitName: formatConciseSplitName(DAY_PLANS[day]?.splitName || 'REST'),
+    exercises: DAY_PLANS[day] ? buildDefaultRoutine(day) : [],
     isCustom: false,
   };
 };
@@ -324,7 +192,7 @@ export const getAthleteDayRoutine = (
  * Save an athlete's workout to repeat on a specific day of the week
  */
 export const saveAthleteDayRoutine = (
-  day: 'Mon' | 'Tue' | 'Wed' | 'Thu' | 'Fri' | 'Sat' | 'Sun',
+  day: DayCode,
   splitName: string,
   exercises: WorkoutExercise[]
 ): boolean => {
@@ -352,7 +220,7 @@ export const saveAthleteDayRoutine = (
 
     saved[day] = {
       day,
-      splitName: splitName || DEFAULT_DAY_ROUTINES[day]?.splitName || `${day} Routine`,
+      splitName: splitName || DAY_PLANS[day]?.splitName || `${day} Routine`,
       exercises: cleanExercises,
       savedAt: new Date().toISOString(),
     };

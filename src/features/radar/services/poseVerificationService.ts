@@ -49,63 +49,36 @@ export function getRandomPoseChallenge(): PoseChallenge {
   return TACTICAL_POSE_CHALLENGES[index];
 }
 
-export async function verifyAthletePose(
-  avatarBase64: string,
-  selfieBase64: string,
-  challenge: PoseChallenge,
-  athleteId = ''
-): Promise<PoseVerificationResult> {
+const FAILED: PoseVerificationResult = {
+  match: false,
+  posePassed: false,
+  confidence: 0,
+  reason: 'Could not reach verification. Check your connection and try again.',
+  isVerified: false,
+};
+
+export async function verifyAthletePose(selfieBase64: string, challenge: PoseChallenge): Promise<PoseVerificationResult> {
   try {
+    const { data } = await supabase.auth.getSession();
+    const token = data.session?.access_token;
+    if (!token) return { ...FAILED, reason: 'Sign in to verify your profile.' };
     const res = await fetch(apiUrl('/api/vision/verify-pose'), {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        avatarBase64,
-        selfieBase64,
-        challengePrompt: challenge.prompt,
-      }),
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ selfieBase64, challengePrompt: challenge.prompt }),
     });
-
-    let data: { match: boolean; posePassed: boolean; confidence: number; reason: string };
-    if (res.ok) {
-      data = await res.json();
-    } else {
-      return {
-        match: false,
-        posePassed: false,
-        confidence: 0,
-        reason: 'Vision verification service unavailable (Sensor Standby).',
-        isVerified: false,
-      };
-    }
-
-    const isVerified = data.match === true && data.posePassed === true && Number(data.confidence || 0) >= 0.85;
-
-    if (isVerified) {
-      useBuddyProfileStore.getState().updateBuddyProfile({ isVerifiedBadge: true });
-      if (athleteId) {
-        const { error } = await supabase
-          .from('buddy_profiles')
-          .update({ is_verified: true, verified_at: new Date().toISOString() })
-          .eq('id', athleteId);
-        if (error) console.error('[PoseVerification] profile update failed:', error.message);
-      }
-    }
-
-    return {
-      match: data.match,
-      posePassed: data.posePassed,
-      confidence: Number(data.confidence || 0),
-      reason: data.reason || 'Verification complete',
-      isVerified,
+    const body = (await res.json().catch(() => null)) as Partial<PoseVerificationResult> | null;
+    if (!body) return FAILED;
+    const result: PoseVerificationResult = {
+      match: body.match === true,
+      posePassed: body.posePassed === true,
+      confidence: Number(body.confidence) || 0,
+      reason: typeof body.reason === 'string' && body.reason ? body.reason : FAILED.reason,
+      isVerified: res.ok && body.isVerified === true,
     };
-  } catch (err: any) {
-    return {
-      match: false,
-      posePassed: false,
-      confidence: 0,
-      reason: 'Biometric optical sensors standby. Could not reach verification service.',
-      isVerified: false,
-    };
+    if (result.isVerified) useBuddyProfileStore.getState().updateBuddyProfile({ isVerifiedBadge: true });
+    return result;
+  } catch {
+    return FAILED;
   }
 }
