@@ -12,6 +12,19 @@ interface HelpSupportSectionProps {
   onOpenCitations: () => void;
 }
 
+const NavRow: React.FC<{ label: string; first?: boolean; onClick: () => void }> = ({ label, first, onClick }) => (
+  <button
+    type="button"
+    onClick={() => { tactileEngine.triggerSelectionBuzz(); onClick(); }}
+    className={`w-full min-h-[44px] flex items-center justify-between gap-3 cursor-pointer group text-left ${
+      first ? '' : 'border-t border-white/[0.05]'
+    }`}
+  >
+    <span className="text-xs font-sans font-medium text-neutral-300 group-hover:text-white">{label}</span>
+    <ChevronRight className="w-4 h-4 text-neutral-400 group-hover:text-white shrink-0" />
+  </button>
+);
+
 export const SettingsHelpSupportSection: React.FC<HelpSupportSectionProps> = ({
   onOpenTutorial,
   onOpenHelpCenter,
@@ -28,35 +41,9 @@ export const SettingsHelpSupportSection: React.FC<HelpSupportSectionProps> = ({
       </h3>
 
       <div className="bg-o1-card rounded-2xl border border-white/[0.07] shadow-md p-3 space-y-1.5">
-        <div
-          onClick={() => { tactileEngine.triggerSelectionBuzz(); onOpenTutorial(); }}
-          className="flex items-center justify-between gap-3 cursor-pointer group py-1"
-        >
-          <span className="text-xs font-sans font-medium text-neutral-300 group-hover:text-white">
-            System Onboarding Tutorial
-          </span>
-          <ChevronRight className="w-4 h-4 text-neutral-400 group-hover:text-white shrink-0" />
-        </div>
-
-        <div
-          onClick={() => { tactileEngine.triggerSelectionBuzz(); onOpenHelpCenter(); }}
-          className="pt-2 border-t border-white/[0.05] flex items-center justify-between gap-3 cursor-pointer group py-1"
-        >
-          <span className="text-xs font-sans font-medium text-neutral-300 group-hover:text-white">
-            Help Centre &amp; Telemetry Manual
-          </span>
-          <ChevronRight className="w-4 h-4 text-neutral-400 group-hover:text-white shrink-0" />
-        </div>
-
-        <div
-          onClick={() => { tactileEngine.triggerSelectionBuzz(); onOpenContactSupport(); }}
-          className="pt-2 border-t border-white/[0.05] flex items-center justify-between gap-3 cursor-pointer group py-1"
-        >
-          <span className="text-xs font-sans font-medium text-neutral-300 group-hover:text-white">
-            Contact Support &amp; Club HQ
-          </span>
-          <ChevronRight className="w-4 h-4 text-neutral-400 group-hover:text-white shrink-0" />
-        </div>
+        <NavRow first label="System Onboarding Tutorial" onClick={onOpenTutorial} />
+        <NavRow label="Help Centre & Telemetry Manual" onClick={onOpenHelpCenter} />
+        <NavRow label="Contact Support & Club HQ" onClick={onOpenContactSupport} />
 
         <div className="pt-2 border-t border-white/[0.05] flex flex-wrap justify-center gap-2">
           <button
@@ -88,7 +75,7 @@ export const SettingsHelpSupportSection: React.FC<HelpSupportSectionProps> = ({
           <button
             type="button"
             onClick={() => { tactileEngine.triggerSelectionBuzz(); onOpenCitations(); }}
-            className="w-full py-1.5 text-center text-[11px] font-sans text-neutral-400 hover:text-neutral-200 transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+            className="w-full min-h-[44px] text-center text-[11px] font-sans text-neutral-400 hover:text-neutral-200 transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
           >
             <ShieldAlert className="w-3.5 h-3.5 text-amber-500" />
             <span>Health &amp; Biomechanical Disclaimers</span>

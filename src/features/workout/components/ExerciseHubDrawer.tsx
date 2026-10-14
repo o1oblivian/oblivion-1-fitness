@@ -74,7 +74,9 @@ export const ExerciseHubDrawer: React.FC<ExerciseHubDrawerProps> = ({
     <div className="relative my-2">
       <div
         id="exercise-hub-drawer"
-        className="bg-o1-card border border-white/[0.07] rounded-2xl p-1.5 sm:p-2 shadow-xl select-none relative transition-colors"
+        className={`select-none relative transition-colors ${
+          isExpanded ? 'bg-o1-card border border-white/[0.07] rounded-2xl p-1.5 sm:p-2 shadow-xl' : ''
+        }`}
       >
         {/* 1. Discipline Selector Track (Always Visible & Tightened) */}
         <DisciplineSelectorTrack

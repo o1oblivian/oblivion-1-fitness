@@ -1,94 +1,78 @@
 /**
- * Oblivion 1 Fitness Club - Web Bluetooth Fallback Driver
- * Powered by standard Web Bluetooth API (navigator.bluetooth)
- * Strict File Ceiling: < 140 lines
+ * Oblivion 1 Fitness Club - Web Bluetooth driver (desktop Chrome / Edge).
+ * Read-only: subscribes to Heart Rate Measurement notifications and never writes to the sensor.
  */
 
-import { BluetoothDeviceInfo, parseHeartRateValue, BleConnectResult } from './bleTypes';
+import { BeatIntervalsHandler, BleConnectResult, BleDriver, isPickerCancel, parseBeatIntervalsMs } from './bleTypes';
 
-export class WebBleDriver {
-  private device: any = null;
-  private server: any = null;
-  private hrChar: any = null;
+interface WebGattCharacteristic extends EventTarget {
+  value?: DataView;
+  startNotifications(): Promise<WebGattCharacteristic>;
+  stopNotifications(): Promise<WebGattCharacteristic>;
+}
+
+interface WebBluetoothDevice extends EventTarget {
+  id: string;
+  name?: string;
+  gatt?: {
+    connected: boolean;
+    connect(): Promise<{
+      getPrimaryService(service: string): Promise<{ getCharacteristic(name: string): Promise<WebGattCharacteristic> }>;
+    }>;
+    disconnect(): void;
+  };
+}
+
+interface WebBluetooth {
+  requestDevice(options: { filters: { services: string[] }[] }): Promise<WebBluetoothDevice>;
+}
+
+export class WebBleDriver implements BleDriver {
+  private devices = new Map<string, { device: WebBluetoothDevice; measurement: WebGattCharacteristic | null }>();
 
   public isSupported(): boolean {
     return typeof navigator !== 'undefined' && 'bluetooth' in navigator;
   }
 
   public async connect(
-    onHeartRate: (bpm: number) => void,
-    onDisconnect: () => void
+    onBeats: BeatIntervalsHandler,
+    onDisconnect: (deviceId: string) => void,
+    connectedIds: string[],
   ): Promise<BleConnectResult> {
-    if (!this.isSupported()) {
-      return {
-        success: false,
-        error: 'Web Bluetooth is not supported on this browser platform.',
-      };
-    }
-
+    if (!this.isSupported()) return { success: false, error: 'This browser has no Bluetooth support.' };
+    let device: WebBluetoothDevice | null = null;
     try {
-      const navBle = (navigator as any).bluetooth;
-      const device = await navBle.requestDevice({
-        filters: [
-          { services: ['heart_rate'] },
-          { services: ['cycling_speed_and_cadence'] },
-          { services: ['running_speed_and_cadence'] },
-        ],
-        optionalServices: ['battery_service', 0x180d, 0x1816, 0x1814],
-      });
+      const bluetooth = (navigator as Navigator & { bluetooth: WebBluetooth }).bluetooth;
+      device = await bluetooth.requestDevice({ filters: [{ services: ['heart_rate'] }] });
+      if (!device?.gatt) return { success: false, cancelled: true };
+      const id = device.id;
+      if (connectedIds.includes(id)) return { success: false, error: 'That sensor is already connected.' };
 
-      if (!device) return { success: false, error: 'No device selected' };
-
-      this.device = device;
       device.addEventListener('gattserverdisconnected', () => {
-        this.device = null;
-        this.server = null;
-        this.hrChar = null;
-        onDisconnect();
+        this.devices.delete(id);
+        onDisconnect(id);
       });
-
       const server = await device.gatt.connect();
-      this.server = server;
-
-      try {
-        const hrService = await server.getPrimaryService('heart_rate');
-        const hrChar = await hrService.getCharacteristic('heart_rate_measurement');
-        await hrChar.startNotifications();
-        hrChar.addEventListener('characteristicvaluechanged', (evt: any) => {
-          const val = evt.target.value;
-          if (val) {
-            const bpm = parseHeartRateValue(val);
-            if (bpm > 30 && bpm < 240) onHeartRate(bpm);
-          }
-        });
-        this.hrChar = hrChar;
-      } catch (err) {
-        console.warn('[WebBLE] HR Service warning:', err);
-      }
-
-      return { success: true, deviceName: device.name || 'Web BLE Device' };
-    } catch (err: any) {
-      this.device = null;
-      return { success: false, error: err?.message || 'Web BLE connection failed' };
+      const measurement = await (await server.getPrimaryService('heart_rate')).getCharacteristic('heart_rate_measurement');
+      measurement.addEventListener('characteristicvaluechanged', () => {
+        if (measurement.value) onBeats(id, parseBeatIntervalsMs(measurement.value));
+      });
+      await measurement.startNotifications();
+      this.devices.set(id, { device, measurement });
+      return { success: true, device: { id, name: device.name || 'Heart rate sensor' } };
+    } catch (err) {
+      if (device?.gatt?.connected) device.gatt.disconnect();
+      if (isPickerCancel(err)) return { success: false, cancelled: true };
+      const message = err instanceof Error ? err.message : '';
+      return { success: false, error: message || 'Could not connect to the sensor.' };
     }
   }
 
-  public disconnect(): void {
-    if (this.device?.gatt?.connected) {
-      this.device.gatt.disconnect();
-    }
-    this.device = null;
-    this.server = null;
-    this.hrChar = null;
-  }
-
-  public getConnectedInfo(): BluetoothDeviceInfo | null {
-    if (!this.device || !this.device.gatt?.connected) return null;
-    return {
-      id: this.device.id,
-      name: this.device.name || 'Web Bluetooth Sensor',
-      connected: true,
-      serviceType: this.hrChar ? 'heart_rate' : 'generic',
-    };
+  public async disconnect(deviceId: string): Promise<void> {
+    const entry = this.devices.get(deviceId);
+    this.devices.delete(deviceId);
+    if (!entry) return;
+    await entry.measurement?.stopNotifications().catch(() => {});
+    if (entry.device.gatt?.connected) entry.device.gatt.disconnect();
   }
 }

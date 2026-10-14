@@ -20,7 +20,7 @@ const DEVICE_KEYS = new Set([
   'o1fc_theme_preference',
   'o1fc_hint_swipe_delete_v3',
   'o1fc_last_crash_v1',
-  'o1fc_ble_heart_rate',
+  'o1fc_motion_steps_off',
 ]);
 /** Already keyed by user id. */
 const DEVICE_PREFIXES = ['o1fc_athlete_trial_v2_'];

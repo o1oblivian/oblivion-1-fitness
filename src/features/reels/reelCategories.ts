@@ -1,6 +1,6 @@
 /** The one list of reel categories. Upload form, feed mapper, filters and Workout circles all read it. */
 export const REEL_CATEGORIES = [
-  { id: 'TUTORIAL', label: 'O1FC Tutorial', desc: 'How to use the app', coachPick: false },
+  { id: 'TUTORIAL', label: 'App guide', desc: 'How to use the app', coachPick: false },
   { id: 'HYPERTROPHY', label: 'Hypertrophy', desc: 'Muscle growth and tension', coachPick: true },
   { id: 'BIOMECHANICS', label: 'Biomechanics', desc: 'Form cues and leverage', coachPick: true },
   { id: 'STRENGTH', label: 'Strength', desc: 'Heavy compound lifts', coachPick: true },

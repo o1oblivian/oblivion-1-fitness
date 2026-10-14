@@ -61,19 +61,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     async function syncProfile(uid: string, uEmail?: string | null) {
       if (!uid) return;
       try {
+        // Only what the athlete actually entered; empty fields are left out so the account copy is never overwritten with placeholders.
         const uState = useUserStore.getState();
-        const profilePayload = {
-          id: uid,
-          handle: uState.handle || `@athlete_${uid.slice(0, 6)}`,
-          full_name: uState.name || 'Oblivion 1 Athlete',
-          avatar_url: uState.avatarUrl || '',
-          settings: {
-            weightKg: uState.weightKg || 80,
-            targetWeightKg: uState.targetWeightKg || 80,
+        const profilePayload: Record<string, unknown> = { id: uid, updated_at: new Date().toISOString() };
+        if (uState.handle) profilePayload.handle = uState.handle;
+        if (uState.name) profilePayload.full_name = uState.name;
+        if (uState.avatarUrl) profilePayload.avatar_url = uState.avatarUrl;
+        if (uState.weightKg > 0) {
+          profilePayload.settings = {
+            weightKg: uState.weightKg,
+            ...(uState.targetWeightKg > 0 ? { targetWeightKg: uState.targetWeightKg } : {}),
             email: uEmail,
-          },
-          updated_at: new Date().toISOString(),
-        };
+          };
+        }
 
         const { error } = await supabase.from('profiles').upsert(profilePayload, { onConflict: 'id' });
         if (error) {

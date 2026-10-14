@@ -7,7 +7,7 @@ import { safeStorage } from '../../utils/safeStorage';
 interface FooterActionsProps {
   onLogout: () => void;
   onDeleteAccount: () => void;
-  onExportData: () => void;
+  onExportData: () => Promise<void>;
 }
 
 export const SettingsFooterSection: React.FC<FooterActionsProps> = ({
@@ -17,7 +17,7 @@ export const SettingsFooterSection: React.FC<FooterActionsProps> = ({
 }) => {
   const { pending, online, syncing } = useSyncStatus();
   const [confirmSignOut, setConfirmSignOut] = useState(false);
-  const activeEmail = safeStorage.getItem<string>('o1fc_user_email', '') || 'athlete@oblivion1.club';
+  const activeEmail = safeStorage.getItem<string>('o1fc_user_email', '') || 'Signed in';
   const changes = `${pending} unsynced ${pending === 1 ? 'change' : 'changes'}`;
 
   return (
@@ -68,12 +68,12 @@ export const SettingsFooterSection: React.FC<FooterActionsProps> = ({
             type="button"
             onClick={() => {
               tactileEngine.triggerSelectionBuzz();
-              onExportData();
+              void onExportData();
             }}
             className="o1-pill border border-white/[0.07] bg-o1-well hover:bg-white/[0.06] text-neutral-200 text-xs font-sans font-semibold transition-all active:scale-95 cursor-pointer"
           >
             <Download className="w-3.5 h-3.5 text-neutral-400" />
-            <span>Vault backup</span>
+            <span>Export my data</span>
           </button>
 
           <button

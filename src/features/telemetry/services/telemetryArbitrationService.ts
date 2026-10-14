@@ -1,6 +1,6 @@
 import { useTelemetryStore } from '../store/useTelemetryStore';
-import { syncDailyStepsToSupabase } from '../../log/services/userTelemetryService';
-import { bluetoothSensorService } from '../../../services/bluetoothSensorService';
+
+/** Step counts stay on this phone; nothing here is sent to the account. */
 
 export interface CardioSessionWindow {
   id: string;
@@ -42,7 +42,7 @@ class TelemetryArbitrationService {
   }
 
   /**
-   * Tier 1: Wearable / BLE (Cumulative Baseline)
+   * Tier 1: Watch screen scan (Cumulative Baseline)
    * Directly sets the authoritative all-day cumulative total.
    */
   public getDailyCumulative(): number {
@@ -52,7 +52,6 @@ class TelemetryArbitrationService {
   public setDailyCumulative(wearableTotal: number): void {
     const valid = Math.max(0, Math.round(wearableTotal));
     useTelemetryStore.getState().setStepCount(valid);
-    syncDailyStepsToSupabase(valid).catch(() => {});
   }
 
   /**
@@ -88,8 +87,6 @@ class TelemetryArbitrationService {
 
     if (sessionSteps > 0) {
       useTelemetryStore.getState().addSteps(sessionSteps);
-      const newTotal = useTelemetryStore.getState().stepCount || 0;
-      syncDailyStepsToSupabase(newTotal).catch(() => {});
     }
 
     return { sessionSteps, startTime, endTime };
@@ -97,12 +94,9 @@ class TelemetryArbitrationService {
 
   /**
    * Tier 3: Phone Accelerometer (Time-Window Muted)
-   * Returns true to mute/suppress phone sensor strides if during a logged session or when BLE wearable is connected.
+   * Returns true to mute phone sensor strides during a logged cardio session, so they are not counted twice.
    */
   public isPhoneSensorMuted(timestamp: number = Date.now()): boolean {
-    if (bluetoothSensorService.getConnectedDevice() !== null) {
-      return true;
-    }
     return this.sessionWindows.some(
       (win) => timestamp >= win.startTime && timestamp <= win.endTime
     );

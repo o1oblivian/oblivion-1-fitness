@@ -26,6 +26,7 @@ import { estimateSessionEnergy, resetSessionClock, trackSessionClock } from '../
 import { useFuelStore } from '../../fuel/store/useFuelStore';
 import { useRestTimerStore } from './useRestTimerStore';
 import { prefillFromHistory } from '../services/setCoach';
+import { readAthleteSettingsSnapshot } from '../../../utils/athleteSettingsSnapshot';
 import type { ExerciseItem, ExerciseSet } from '../../../types';
 
 const BASELINE_KEY = 'o1fc_workout_day_baseline';
@@ -215,7 +216,8 @@ const workoutStore = createStore<WorkoutStoreState, WorkoutStoreActions>(
         const toggled = toggleSetInExercises(exercises, exerciseId, setNumber, willComplete);
         updateExercisesWithMetrics(willComplete ? completeSetsBefore(toggled, exerciseId, setNumber) : toggled);
         const restTimer = useRestTimerStore.getState();
-        if (willComplete && targetEx) restTimer.start(Number(targetEx.restSecs) || 90, targetEx.name || targetEx.exerciseName || 'Rest');
+        const autoRest = readAthleteSettingsSnapshot().defaultRestSeconds !== 0;
+        if (willComplete && targetEx && autoRest) restTimer.start(Number(targetEx.restSecs) || 90, targetEx.name || targetEx.exerciseName || 'Rest');
         else if (!willComplete && restTimer.timer?.exerciseName === (targetEx?.name || targetEx?.exerciseName)) restTimer.skip();
       },
       completeEarlierSets: (exerciseId, setNumber) => {

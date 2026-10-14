@@ -132,7 +132,7 @@ export const SegmentedTowers: React.FC<SegmentedTowersProps> = ({
               </span>
               <span className="flex flex-col items-center justify-end" style={{ height: LABEL_ROW_H }}>
                 <span
-                  className={`text-[10px] tracking-wide leading-none ${
+                  className={`text-[11px] tracking-wide leading-none ${
                     isActive ? 'text-o1-crimson font-bold' : 'text-neutral-300 font-medium'
                   }`}
                 >

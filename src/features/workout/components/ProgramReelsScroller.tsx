@@ -125,7 +125,11 @@ export const ProgramReelsScroller: React.FC<ProgramReelsScrollerProps> = ({ acti
         {stories.map((story) => {
           const isActive = activeId === story.id;
           const fresh = story.unwatched > 0;
-          const ring = isActive ? 'ring-1 ring-white/60' : 'ring-1 ring-white/15 group-hover:ring-white/30';
+          const ring = isActive
+            ? 'ring-1 ring-white/60'
+            : story.category === 'ALL' && fresh
+              ? 'ring-[1.5px] ring-o1-text/80'
+              : 'ring-1 ring-white/15 group-hover:ring-white/30';
           return (
             <button
               key={story.id}
@@ -153,14 +157,9 @@ export const ProgramReelsScroller: React.FC<ProgramReelsScrollerProps> = ({ acti
                     </span>
                   )}
                 </span>
-                {story.category === 'ALL' && fresh && (
-                  <span className="absolute top-0.5 right-0.5 w-2.5 h-2.5 rounded-full bg-white border-2 border-black" aria-hidden="true" />
-                )}
               </span>
               <span
-                className={`mt-1.5 block w-full px-0.5 text-center font-sans text-[11px] font-medium truncate transition-colors duration-200 ${
-                  isActive || fresh ? 'text-white' : 'text-o1-muted group-hover:text-white'
-                }`}
+                className="mt-1.5 block w-full px-0.5 text-center font-sans text-[11px] font-medium truncate text-white"
               >
                 {story.name}
               </span>

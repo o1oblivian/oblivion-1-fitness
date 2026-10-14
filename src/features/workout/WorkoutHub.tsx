@@ -123,11 +123,11 @@ export const WorkoutHub: React.FC = () => {
           <motion.div
             key="intel-drawer"
             id="intel-coach-accordion-drawer"
-            initial={{ opacity: 0, height: 0, y: -6 }}
-            animate={{ opacity: 1, height: 'auto', y: 0 }}
-            exit={{ opacity: 0, height: 0, y: -6 }}
+            initial={{ opacity: 0, height: 0, y: -6, overflow: 'hidden' }}
+            animate={{ opacity: 1, height: 'auto', y: 0, transitionEnd: { overflow: 'visible' } }}
+            exit={{ opacity: 0, height: 0, y: -6, overflow: 'hidden' }}
             transition={{ duration: 0.22, ease: 'easeOut' }}
-            className="overflow-hidden my-2"
+            className="my-2"
           >
             <IntelCoachAccordionPanel
               onClose={() => setExpandedHubTab(null)}
@@ -151,7 +151,14 @@ export const WorkoutHub: React.FC = () => {
 
       {/* 5. ACTIVE LOG (Target for Ingested Protocols & Manual Logging) */}
       <div id="active-log-section" className="scroll-mt-3">
-        <ActiveLogCard />
+        <ActiveLogCard
+          onBuildWorkout={() => {
+            setExpandedHubTab('intel');
+            window.setTimeout(() => {
+              document.getElementById('card-intel-coach')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 120);
+          }}
+        />
       </div>
 
       {/* 6. MICROCYCLE STRAIN TRACKER (Recharts Weekly Load Trends & Anatomy Towers) */}

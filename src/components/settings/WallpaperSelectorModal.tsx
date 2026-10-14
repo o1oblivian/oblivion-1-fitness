@@ -157,7 +157,7 @@ export const WallpaperSelectorModal: React.FC<WallpaperSelectorModalProps> = ({
                 </p>
               </div>
             </div>
-            <CrimsonSwitch checked={isEnabled} onChange={setEnabled} />
+            <CrimsonSwitch checked={isEnabled} onChange={setEnabled} label="Show wallpaper on workout screen" />
           </div>
 
           <div className="grid grid-cols-6 gap-1.5">

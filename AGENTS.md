@@ -44,6 +44,7 @@ All future agents and contributors MUST adhere strictly to these rules:
  * `android.permission.ACCESS_COARSE_LOCATION`, `ACCESS_FINE_LOCATION` (Buddy Radar, approved Oct 2026)
      * `android.permission.BLUETOOTH`, `BLUETOOTH_ADMIN`, `BLUETOOTH_SCAN` (`neverForLocation`), `BLUETOOTH_CONNECT`
  * `com.android.vending.BILLING` (RevenueCat / Google Play subscriptions)
+ * `android.permission.POST_NOTIFICATIONS` (on-device reminders, approved Oct 2026). `@capacitor/local-notifications` also merges `RECEIVE_BOOT_COMPLETED` and `WAKE_LOCK`; `SCHEDULE_EXACT_ALARM` is stripped with `tools:node="remove"`.
 
 6. **Permanent Rule (Optical Vision Engine)**:
    - Optical Vision Engine must return `null` for non-visible metrics on watches and gym consoles. Never apply zero or estimated fallbacks. Unread metrics must render as '--'.

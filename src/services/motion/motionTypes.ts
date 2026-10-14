@@ -9,9 +9,11 @@ export interface MotionEngineStatus {
   isSupported: boolean;
   isActive: boolean;
   permissionGranted: boolean;
-  liveMagnitude: number;
+  /** null until the phone has delivered a motion sample. */
+  liveMagnitude: number | null;
   stepsToday: number;
-  estimatedVelocityMs: number;
+  /** null until the phone has delivered a motion sample. */
+  estimatedVelocityMs: number | null;
   isPeakDetected: boolean;
   vbtStatus: VbtMotionStatus;
 }

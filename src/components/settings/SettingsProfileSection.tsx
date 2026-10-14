@@ -11,6 +11,9 @@ import { parseCleanInt, parseCleanNumber } from '../../utils/numberInputUtils';
 import { compressPhoto } from '../../utils/mediaCompressor';
 import { fetchVaultRows, removeMedia, saveProfileAvatar, saveVaultRow, uploadMedia } from '../../services/mediaStorage';
 
+const LB_PER_KG = 2.20462;
+const CM_PER_IN = 2.54;
+
 interface ProfileSectionProps {
   name: string;
   handle: string;
@@ -130,14 +133,26 @@ export const SettingsProfileSection: React.FC<ProfileSectionProps> = ({
   const handleSaveName = () => {
     tactileEngine.triggerSelectionBuzz();
     setIsEditingName(false);
-    if (onUpdateName) onUpdateName(localName);
-    useUserStore.getState().updateProfile({ name: localName });
+    const trimmed = localName.trim();
+    if (!trimmed) {
+      setLocalName(name || user.name);
+      return;
+    }
+    setLocalName(trimmed);
+    if (onUpdateName) onUpdateName(trimmed);
+    useUserStore.getState().updateProfile({ name: trimmed });
   };
 
   const handleSaveHandle = () => {
     tactileEngine.triggerSelectionBuzz();
     setIsEditingHandle(false);
-    const formatted = localHandle.startsWith('@') ? localHandle : `@${localHandle}`;
+    const bare = localHandle.trim().replace(/^@+/, '').replace(/[^a-zA-Z0-9._]/g, '');
+    if (!bare) {
+      setLocalHandle(handle || user.handle);
+      return;
+    }
+    const formatted = `@${bare}`;
+    setLocalHandle(formatted);
     if (onUpdateHandle) onUpdateHandle(formatted);
     useUserStore.getState().updateProfile({ handle: formatted });
   };
@@ -146,6 +161,11 @@ export const SettingsProfileSection: React.FC<ProfileSectionProps> = ({
     if (onUpdateWeight) onUpdateWeight(newWeight);
     useUserStore.getState().setWeightKg(newWeight);
   };
+
+  const inLbs = weightUnit === 'lbs';
+  const inInches = heightUnit === 'in';
+  const shownWeight = Math.round(weightKg * (inLbs ? LB_PER_KG : 1) * 10) / 10;
+  const shownHeight = Math.round(inInches ? heightCm / CM_PER_IN : heightCm);
 
   return (
     <div className="space-y-2 select-none">
@@ -157,13 +177,14 @@ export const SettingsProfileSection: React.FC<ProfileSectionProps> = ({
         {/* Profile Card Header with Single Vault-Linked Avatar */}
         <div className="flex items-center gap-3.5">
           {/* Interactive Avatar Button */}
-          <div
+          <button
+            type="button"
             onClick={() => {
               tactileEngine.triggerSelectionBuzz();
               setIsAvatarPickerOpen(true);
             }}
+            aria-label="Change profile photo"
             className="relative w-14 h-14 rounded-full bg-o1-well border border-white/[0.07] flex items-center justify-center font-tactical font-bold text-base shadow-xs cursor-pointer group shrink-0 overflow-hidden"
-            title="Tap to change profile picture from Vault or Gallery"
           >
             {user.avatarUrl ? (
               <img
@@ -180,58 +201,66 @@ export const SettingsProfileSection: React.FC<ProfileSectionProps> = ({
             <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
               <Camera className="w-5 h-5 text-white" />
             </div>
-          </div>
+          </button>
 
           {/* Profile Name & Handle (Tap to Edit) */}
           <div className="min-w-0 flex-1 space-y-1">
             {isEditingName ? (
-              <div className="flex items-center gap-1.5">
+              <form
+                className="flex items-center gap-1.5"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  handleSaveName();
+                }}
+              >
                 <input
                   type="text"
+                  aria-label="Name"
                   value={localName}
+                  maxLength={40}
                   onChange={(e) => setLocalName(e.target.value)}
-                  className="bg-black border border-white/[0.07] rounded-xl px-2 py-0.5 text-sm font-bold text-white focus:outline-none focus:border-o1-crimson w-full"
+                  className="bg-black border border-white/[0.07] rounded-xl px-2 min-h-[36px] text-sm font-bold text-white focus:outline-none focus:border-o1-crimson w-full"
                   autoFocus
                 />
-                <button
-                  type="button"
-                  onClick={handleSaveName}
-                  className="p-1 rounded-md bg-o1-crimson text-white cursor-pointer"
-                >
-                  <Check className="w-3.5 h-3.5" />
+                <button type="submit" aria-label="Save name" className="w-11 h-11 shrink-0 rounded-xl bg-o1-crimson text-white flex items-center justify-center cursor-pointer">
+                  <Check className="w-4 h-4" />
                 </button>
-              </div>
+              </form>
             ) : (
-              <div className="flex items-center gap-1.5 cursor-pointer" onClick={() => setIsEditingName(true)}>
-                <h4 className="font-sans font-semibold text-sm text-white truncate">
-                  {localName}
+              <button type="button" className="block max-w-full text-left cursor-pointer" onClick={() => setIsEditingName(true)}>
+                <h4 className={`font-sans font-semibold text-sm truncate ${localName ? 'text-white' : 'text-neutral-400'}`}>
+                  {localName || 'Add your name'}
                 </h4>
-              </div>
+              </button>
             )}
 
             {isEditingHandle ? (
-              <div className="flex items-center gap-1.5">
+              <form
+                className="flex items-center gap-1.5"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  handleSaveHandle();
+                }}
+              >
                 <input
                   type="text"
+                  aria-label="Handle"
                   value={localHandle}
+                  maxLength={31}
+                  autoCapitalize="none"
+                  autoCorrect="off"
                   onChange={(e) => setLocalHandle(e.target.value)}
-                  className="bg-black border border-white/[0.07] rounded-xl px-2 py-0.5 text-xs font-mono text-neutral-300 focus:outline-none focus:border-o1-crimson w-full"
+                  className="bg-black border border-white/[0.07] rounded-xl px-2 min-h-[36px] text-xs font-mono text-neutral-300 focus:outline-none focus:border-o1-crimson w-full"
                   autoFocus
                 />
-                <button
-                  type="button"
-                  onClick={handleSaveHandle}
-                  className="p-1 rounded-md bg-o1-crimson text-white cursor-pointer"
-                >
-                  <Check className="w-3.5 h-3.5" />
+                <button type="submit" aria-label="Save handle" className="w-11 h-11 shrink-0 rounded-xl bg-o1-crimson text-white flex items-center justify-center cursor-pointer">
+                  <Check className="w-4 h-4" />
                 </button>
-              </div>
+              </form>
             ) : (
-              <div className="cursor-pointer" onClick={() => setIsEditingHandle(true)}>
-                <p className="font-sans text-xs text-neutral-400 truncate">
-                  {localHandle}
-                </p>
-              </div>
+              <button type="button" className="block max-w-full text-left cursor-pointer" onClick={() => setIsEditingHandle(true)}>
+                <p className="font-sans text-xs text-neutral-400 truncate">{localHandle || 'Add a handle'}</p>
+              </button>
             )}
           </div>
         </div>
@@ -254,7 +283,9 @@ export const SettingsProfileSection: React.FC<ProfileSectionProps> = ({
             <div className="flex items-center justify-center h-5 mt-0.5">
               <input
                 type="number"
-                placeholder="0"
+                inputMode="numeric"
+                placeholder="--"
+                aria-label="Age"
                 value={age === 0 ? '' : age}
                 onFocus={(e) => e.target.select()}
                 onChange={(e) => onUpdateAge && onUpdateAge(parseCleanInt(e.target.value))}
@@ -270,10 +301,15 @@ export const SettingsProfileSection: React.FC<ProfileSectionProps> = ({
             <div className="flex items-center justify-center h-5 mt-0.5">
               <input
                 type="number"
-                placeholder="0"
-                value={heightCm === 0 ? '' : heightCm}
+                inputMode="numeric"
+                placeholder="--"
+                aria-label={`Height in ${heightUnit}`}
+                value={shownHeight === 0 ? '' : shownHeight}
                 onFocus={(e) => e.target.select()}
-                onChange={(e) => onUpdateHeight && onUpdateHeight(parseCleanInt(e.target.value))}
+                onChange={(e) => {
+                  const entered = parseCleanInt(e.target.value);
+                  onUpdateHeight?.(inInches ? entered * CM_PER_IN : entered);
+                }}
                 className="w-10 text-center bg-transparent font-mono font-bold text-xs text-white focus:outline-none p-0 m-0 leading-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               />
               <span className="text-[10px] text-neutral-400 font-mono font-semibold leading-none ml-0.5">{heightUnit}</span>
@@ -287,12 +323,17 @@ export const SettingsProfileSection: React.FC<ProfileSectionProps> = ({
             <div className="flex items-center justify-center h-5 mt-0.5">
               <input
                 type="number"
-                step="0.5"
-                placeholder="0"
-                value={weightKg === 0 ? '' : weightKg}
+                step="0.1"
+                inputMode="decimal"
+                placeholder="--"
+                aria-label={`Weight in ${weightUnit}`}
+                value={shownWeight === 0 ? '' : shownWeight}
                 onFocus={(e) => e.target.select()}
-                onChange={(e) => handleWeightChange(parseCleanNumber(e.target.value))}
-                className="w-10 text-center bg-transparent font-mono font-bold text-xs text-white focus:outline-none p-0 m-0 leading-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                onChange={(e) => {
+                  const entered = parseCleanNumber(e.target.value);
+                  handleWeightChange(inLbs ? entered / LB_PER_KG : entered);
+                }}
+                className="w-12 text-center bg-transparent font-mono font-bold text-xs text-white focus:outline-none p-0 m-0 leading-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               />
               <span className="text-[10px] text-neutral-400 font-mono font-semibold leading-none ml-0.5">{weightUnit}</span>
             </div>
@@ -323,7 +364,7 @@ export const SettingsProfileSection: React.FC<ProfileSectionProps> = ({
               Showcase your profile card and training highlights across reels
             </span>
           </div>
-          <CrimsonSwitch checked={eliteReelsPresence} onChange={onToggleReels} />
+          <CrimsonSwitch label="Elite Reels presence" checked={eliteReelsPresence} onChange={onToggleReels} />
         </div>
       </div>
 

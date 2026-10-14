@@ -1,47 +1,63 @@
 /**
- * Oblivion 1 Fitness Club - Bluetooth LE Types and GATT UUIDs
- * Strict File Ceiling: < 140 lines
+ * Oblivion 1 Fitness Club - Bluetooth LE types.
+ * Sensors are read-only: the app subscribes to the standard Heart Rate Measurement
+ * characteristic for beat-to-beat intervals (HRV) and never writes to a device.
  */
+
+export const MAX_BLE_DEVICES = 2;
 
 export interface BluetoothDeviceInfo {
   id: string;
   name: string;
-  connected: boolean;
-  batteryLevel?: number;
-  lastHeartRate?: number;
-  lastCadence?: number;
-  serviceType: 'heart_rate' | 'speed_cadence' | 'generic';
+  /** Live RMSSD from this sensor, or null until enough clean beats have arrived. */
+  hrvMs: number | null;
+  /** False once the sensor has streamed without beat intervals, so it cannot give HRV. */
+  sendsBeatIntervals: boolean | null;
 }
 
-export type BluetoothStateChangeCallback = (
-  info: BluetoothDeviceInfo | null,
-  error?: string
-) => void;
+export type BluetoothStateChangeCallback = (devices: BluetoothDeviceInfo[], error?: string) => void;
 
 export interface BleConnectResult {
   success: boolean;
-  deviceName?: string;
+  device?: { id: string; name: string };
   error?: string;
+  /** The person closed the system picker; not an error worth showing. */
+  cancelled?: boolean;
 }
 
-// Standard Bluetooth SIG 16-bit to 128-bit UUID format
+/** Called with each Heart Rate Measurement: beat intervals in ms, or null when the packet carries none. */
+export type BeatIntervalsHandler = (deviceId: string, intervalsMs: number[] | null) => void;
+
+export interface BleDriver {
+  isSupported(): boolean;
+  connect(onBeats: BeatIntervalsHandler, onDisconnect: (deviceId: string) => void, connectedIds: string[]): Promise<BleConnectResult>;
+  disconnect(deviceId: string): Promise<void>;
+}
+
+// Standard Bluetooth SIG 16-bit UUIDs in 128-bit form.
 export const BLE_UUIDS = {
   HEART_RATE_SERVICE: '0000180d-0000-1000-8000-00805f9b34fb',
   HEART_RATE_MEASUREMENT: '00002a37-0000-1000-8000-00805f9b34fb',
-  CYCLING_SPEED_CADENCE_SERVICE: '00001816-0000-1000-8000-00805f9b34fb',
-  CSC_MEASUREMENT: '00002a5b-0000-1000-8000-00805f9b34fb',
-  RUNNING_SPEED_CADENCE_SERVICE: '00001814-0000-1000-8000-00805f9b34fb',
-  RSC_MEASUREMENT: '00002a53-0000-1000-8000-00805f9b34fb',
 } as const;
 
-export function parseHeartRateValue(value: DataView): number {
-  if (value.byteLength === 0) return 0;
+/**
+ * Heart Rate Measurement (0x2A37): flags, heart rate (8 or 16 bit), optional energy expended,
+ * then optional RR intervals in 1/1024 s. Returns the intervals in ms, or null when absent.
+ */
+export function parseBeatIntervalsMs(value: DataView): number[] | null {
+  if (value.byteLength < 2) return null;
   const flags = value.getUint8(0);
-  const rate16Bits = flags & 0x1;
-  if (rate16Bits && value.byteLength >= 3) {
-    return value.getUint16(1, /*littleEndian=*/ true);
-  } else if (value.byteLength >= 2) {
-    return value.getUint8(1);
+  if (!(flags & 0x10)) return null;
+  let offset = flags & 0x01 ? 3 : 2;
+  if (flags & 0x08) offset += 2;
+  const intervals: number[] = [];
+  for (; offset + 1 < value.byteLength; offset += 2) {
+    intervals.push(Math.round((value.getUint16(offset, true) * 1000) / 1024));
   }
-  return 0;
+  return intervals;
+}
+
+export function isPickerCancel(err: unknown): boolean {
+  const text = String((err as { message?: string })?.message ?? err ?? '').toLowerCase();
+  return text.includes('cancel') || text.includes('user denied') || text.includes('no device selected') || text.includes('notfounderror');
 }

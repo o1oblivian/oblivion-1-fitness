@@ -29,8 +29,8 @@ export const IntelInsightsCard: React.FC = () => {
         <span aria-hidden="true" className="pointer-events-none absolute inset-x-4 top-0 h-px bg-gradient-to-r from-transparent via-white/[0.14] to-transparent" />
 
         <span className="relative min-w-0 flex-1">
-          <span className="block text-[9px] font-medium tracking-[0.28em] uppercase text-o1-muted">Oblivion Pro</span>
-          <span className="block text-[17px] font-light tracking-wide text-[#FFFFFF] leading-tight mt-1">My progress</span>
+          <span className="block text-[11px] font-medium tracking-[0.2em] uppercase text-o1-muted">Oblivion Pro</span>
+          <span className="block text-[15px] font-light tracking-wide text-[#FFFFFF] leading-tight mt-1">My progress</span>
           <span className="flex flex-wrap items-center gap-x-1.5 mt-1.5 text-[11px] text-o1-muted leading-none">
             {FEATURES.map((f, i) => (
               <React.Fragment key={f}>

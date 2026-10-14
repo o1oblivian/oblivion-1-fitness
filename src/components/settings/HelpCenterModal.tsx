@@ -13,7 +13,7 @@ const MANUAL_TOPICS = [
     icon: Activity,
     title: 'Logging workouts',
     summary: 'Sets, effort and weights',
-    desc: 'Tick each set when you finish it. The app adds up the total weight you lifted and estimates your best for each lift. Effort is how hard a set felt: Easy, Good, Hard or Max in Simple mode, or RPE from 1 to 10 in Pro mode. Barbell weights include a 20 kg bar. Switch between Simple and Pro in Settings.',
+    desc: 'Tick each set when you finish it. The app adds up the total weight you lifted and estimates your best for each lift. Effort is how hard a set felt: Easy, Good, Hard or Max in Simple mode, or RPE from 1 to 10 in Pro mode. Barbell weights include the bar you pick in Settings. Switch between Simple and Pro in Settings.',
   },
   {
     id: 'fuel',
@@ -27,7 +27,7 @@ const MANUAL_TOPICS = [
     icon: Compass,
     title: 'Buddy Radar and privacy',
     summary: 'Find training partners nearby',
-    desc: 'Radar shows verified members training near you so you can find a partner or a spotter. Turn on Incognito to train privately without appearing to anyone nearby.',
+    desc: 'Radar shows verified members training near you so you can find a partner or a spotter. Turn on Ghost mode in Settings to browse without appearing to anyone nearby.',
   },
 ];
 

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Flag, X } from 'lucide-react';
+import { X } from 'lucide-react';
 import { CommitWorkoutModal, type LiftHighlight } from './modals/CommitWorkoutModal';
 import { feelWord, summariseLifts } from '../services/setCoach';
 import { useSimpleMode } from '../../../stores/useDisplayPrefs';
@@ -7,10 +7,10 @@ import type { WeightUnit } from '../../../hooks/useAthleteSettings';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { useWorkoutStore } from '../store/useWorkoutStore';
 import { useCoachStore } from '../../../stores/useCoachStore';
-import { settleFinishedSession } from '../../log/todaySession';
+import { resolvePlannedSession, settleFinishedSession, startTodaySession } from '../../log/todaySession';
 import { DialInputModal } from '../../../components/common/DialInputModal';
 import { ActiveLogExerciseAccordion } from './ActiveLogExerciseAccordion';
-import { saveAthleteDayRoutine } from '../services/dayRoutineService';
+import { estimateSessionMinutes, saveAthleteDayRoutine, useDayRoutineRevision } from '../services/dayRoutineService';
 import { useUserStore } from '../../../stores/useUserStore';
 import { localDayKey, releaseForgotten } from '../../log/services/dayLogService';
 import { sessionLedger } from '../store/workoutSetOperations';
@@ -22,7 +22,7 @@ import { displayToKg, kgToDisplay, loadUnitLabel } from '../../../utils/weightUn
 import { localTodayKey, priorBestKg, setIsPr } from '../services/sessionPr';
 import { BEGINNER_STARTERS, buildStarterSession, type BeginnerStarter } from '../data/beginnerStarters';
 import { estimateSessionEnergy } from '../utils/sessionEnergy';
-import { getTelemetryHistoryState } from '../../log/store/useTelemetryHistoryStore';
+import { getTelemetryHistoryState, useTelemetryHistoryStore } from '../../log/store/useTelemetryHistoryStore';
 import type { ExerciseItem } from '../../../types';
 
 type BackupState = 'pending' | 'saved' | 'signed-out' | 'queued';
@@ -87,7 +87,12 @@ function sessionFeel(exercises: ExerciseItem[], simple: boolean): string | null 
   return simple ? `Felt ${feelWord(avg).toLowerCase()} overall` : `Average effort RPE ${Math.round(avg * 10) / 10}`;
 }
 
-export const ActiveLogCard: React.FC = () => {
+interface ActiveLogCardProps {
+  /** Opens the Build workout panel. */
+  onBuildWorkout?: () => void;
+}
+
+export const ActiveLogCard: React.FC<ActiveLogCardProps> = ({ onBuildWorkout }) => {
   const simple = useSimpleMode();
   const exercises = useWorkoutStore((s) => s.exercises);
   const setExercises = useWorkoutStore((s) => s.setExercises);
@@ -110,6 +115,25 @@ export const ActiveLogCard: React.FC = () => {
     if (known.size === 0 && exercises.length > 0) setStatus((s) => (s?.kind === 'saved' ? null : s));
     knownIdsRef.current = new Set(exercises.map((e) => e.id));
   }, [exercises]);
+
+  useDayRoutineRevision();
+  useCoachStore((s) => s.assignedWorkouts);
+  const planned = exercises.length === 0 ? resolvePlannedSession() : null;
+  const plannedMinutes = planned ? estimateSessionMinutes(planned.exercises) : 0;
+  const restPlan = Boolean(planned && /^rest/i.test(planned.title));
+  const workoutSavedToday = useTelemetryHistoryStore((s) => Boolean(s.historyByDate[localTodayKey()]?.workout?.hasData));
+  const loggedToday = exercises.length === 0 && workoutSavedToday;
+
+  const handleStartToday = () => {
+    tactileEngine.triggerSelectionBuzz();
+    if (!planned || planned.exercises.length === 0) {
+      onBuildWorkout?.();
+      return;
+    }
+    startTodaySession(planned);
+    setExpandedExerciseId(planned.exercises[0]?.id ?? null);
+    setStatus({ kind: 'info', text: 'Tick each set as you finish it. The rest timer starts on its own.' });
+  };
 
   const handleLoadBeginnerStarter = (starter: BeginnerStarter) => {
     tactileEngine.triggerSelectionBuzz();
@@ -373,7 +397,7 @@ export const ActiveLogCard: React.FC = () => {
     <>
       <div className="w-full bg-o1-card rounded-2xl p-2 border border-white/[0.07] space-y-2 text-o1-text select-none transition-colors">
         <div className="flex items-baseline justify-between gap-2 px-0.5">
-          <span className="text-[13px] text-o1-text">Active log</span>
+          <span className="text-[15px] text-o1-text">Active log</span>
           <span className="font-mono text-[11px] text-o1-muted truncate">
             {kgToDisplay(totalVolume, unit).toLocaleString()} {unitLower} · {totalSets} {totalSets === 1 ? 'set' : 'sets'} · {totalReps} reps
           </span>
@@ -404,26 +428,64 @@ export const ActiveLogCard: React.FC = () => {
           </div>
         )}
 
-        {exercises.length === 0 ? (
-          <div className="rounded-2xl bg-black border border-white/[0.07] px-3 py-3 space-y-2">
-            <p className="text-[12px] text-o1-text">Nothing logged yet. Start a session above.</p>
-            <button
-              type="button"
-              onClick={() => {
-                tactileEngine.triggerSelectionBuzz();
-                setShowQuickStart((v) => !v);
-              }}
-              aria-expanded={showQuickStart}
-              className="min-h-[32px] text-[11px] text-o1-muted hover:text-o1-text underline underline-offset-2 cursor-pointer"
-            >
-              {showQuickStart ? 'Hide quick start' : 'Beginner starters'}
-            </button>
+        {planned ? (
+          <div className="px-0.5 pb-0.5 space-y-2.5">
+            {loggedToday ? (
+              <p className="text-[12px] text-o1-muted leading-snug">Today's workout is saved. Rest up, or start another below.</p>
+            ) : planned.exercises.length > 0 ? (
+              <p className="text-[12px] text-o1-muted leading-snug truncate">
+                <span className="text-o1-text">{restPlan ? 'Rest day' : planned.title}</span> · {planned.exercises.length}{' '}
+                {restPlan ? 'light ' : ''}
+                {planned.exercises.length === 1 ? 'exercise' : 'exercises'}
+                {plannedMinutes > 0 ? ` · about ${plannedMinutes} min` : ''}
+                {restPlan ? '' : ` · ${planned.detail}`}
+              </p>
+            ) : (
+              <p className="text-[12px] text-o1-muted leading-snug">
+                {planned.title === 'Rest day' ? 'Rest day. Recover, or build a light session.' : 'No workout planned for today yet.'}
+              </p>
+            )}
+
+            {!loggedToday && (
+              <button
+                type="button"
+                onClick={handleStartToday}
+                className="w-full h-12 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover active:bg-o1-crimson-press active:scale-[0.99] text-white font-medium text-[14px] flex items-center justify-center transition cursor-pointer"
+              >
+                {planned.exercises.length === 0 ? 'Build a workout' : restPlan ? 'Start recovery' : "Start today's workout"}
+              </button>
+            )}
+
+            <div className="flex items-center justify-center gap-2 text-[12px] text-o1-muted">
+              {(loggedToday || planned.exercises.length > 0) && (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      tactileEngine.triggerSelectionBuzz();
+                      onBuildWorkout?.();
+                    }}
+                    className="min-h-[44px] px-2 hover:text-o1-text underline underline-offset-2 cursor-pointer"
+                  >
+                    Build my own
+                  </button>
+                  <span aria-hidden="true">·</span>
+                </>
+              )}
+              <button
+                type="button"
+                onClick={() => {
+                  tactileEngine.triggerSelectionBuzz();
+                  setShowQuickStart((v) => !v);
+                }}
+                aria-expanded={showQuickStart}
+                className="min-h-[44px] px-2 hover:text-o1-text underline underline-offset-2 cursor-pointer"
+              >
+                {showQuickStart ? 'Hide beginner starters' : 'Beginner starters'}
+              </button>
+            </div>
+
             {showQuickStart && (
-            <div className="rounded-2xl bg-o1-card border border-white/[0.07] p-3 space-y-2">
-              <div className="flex items-center gap-2">
-                <Flag className="w-4 h-4 text-o1-muted" strokeWidth={1.75} />
-                <h4 className="text-[12px] text-o1-text">Beginner quick start</h4>
-              </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {BEGINNER_STARTERS.map((starter) => (
                   <button
@@ -433,20 +495,19 @@ export const ActiveLogCard: React.FC = () => {
                     className="p-3 text-left rounded-xl bg-o1-well border border-white/[0.07] hover:border-white/[0.14] transition-colors cursor-pointer flex flex-col justify-between active:scale-[0.99]"
                   >
                     <div>
-                      <span className="text-[10px] px-1.5 py-0.5 rounded-full border border-white/[0.14] text-o1-muted">
+                      <span className="text-[11px] px-1.5 py-0.5 rounded-full border border-white/[0.14] text-o1-muted">
                         {starter.badge}
                       </span>
                       <h5 className="text-[13px] text-o1-text leading-tight mt-1.5">{starter.title}</h5>
                       <p className="text-[11px] text-o1-muted mt-0.5">{starter.subtitle}</p>
                     </div>
-                    <div className="mt-2 pt-1.5 border-t border-white/[0.07] text-[10px] text-o1-muted flex items-center justify-between">
+                    <div className="mt-2 pt-1.5 border-t border-white/[0.07] text-[11px] text-o1-muted flex items-center justify-between">
                       <span>{starter.movements.length} exercises</span>
                       <span>Tap to load</span>
                     </div>
                   </button>
                 ))}
               </div>
-            </div>
             )}
           </div>
         ) : (

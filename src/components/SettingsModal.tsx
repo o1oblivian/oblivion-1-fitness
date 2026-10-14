@@ -108,7 +108,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
       <SendFeedbackModal
         isOpen={showFeedbackModal}
         onClose={() => setShowFeedbackModal(false)}
-        onShowToast={onShowToast}
       />
 
       <DeleteConfirmModal

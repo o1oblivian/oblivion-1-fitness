@@ -1,5 +1,5 @@
 import React from 'react';
-import { Cpu, UserRound, ChevronDown } from 'lucide-react';
+import { Dumbbell, UserRound, ChevronDown } from 'lucide-react';
 import { tactileEngine } from '../../../services/tactileEngine';
 
 type HubTab = 'intel' | 'coach';
@@ -11,14 +11,14 @@ export interface TrainingHubCardsProps {
   coachNote?: string | null;
 }
 
-const TABS: { id: HubTab; title: string; sub: string; icon: typeof Cpu; tone: string; drawerId: string }[] = [
-  { id: 'intel', title: 'Build workout', sub: 'Made for today', icon: Cpu, tone: 'text-[#d97706]', drawerId: 'intel-coach-accordion-drawer' },
-  { id: 'coach', title: 'My Coach', sub: 'From your coach', icon: UserRound, tone: 'text-[#0284c7]', drawerId: 'my-coach-accordion-drawer' },
+const TABS: { id: HubTab; title: string; sub: string; icon: typeof Dumbbell; drawerId: string }[] = [
+  { id: 'intel', title: 'Build workout', sub: 'Made for today', icon: Dumbbell, drawerId: 'intel-coach-accordion-drawer' },
+  { id: 'coach', title: 'My Coach', sub: 'From your coach', icon: UserRound, drawerId: 'my-coach-accordion-drawer' },
 ];
 
 export const TrainingHubCards: React.FC<TrainingHubCardsProps> = ({ expandedHubTab, onToggleTab, coachNote }) => (
   <div id="training-hub-cards-section" className="grid grid-cols-2 gap-2.5 my-2 select-none">
-    {TABS.map(({ id, title, sub, icon: Icon, tone, drawerId }) => {
+    {TABS.map(({ id, title, sub, icon: Icon, drawerId }) => {
       const active = expandedHubTab === id;
       const note = id === 'coach' ? coachNote : null;
       return (
@@ -38,7 +38,7 @@ export const TrainingHubCards: React.FC<TrainingHubCardsProps> = ({ expandedHubT
           }`}
         >
           <span className="flex items-center gap-2.5 min-w-0">
-            <span className={`relative w-9 h-9 rounded-full bg-o1-well flex items-center justify-center shrink-0 ${tone}`}>
+            <span className="relative w-9 h-9 rounded-full bg-o1-well border border-white/[0.07] flex items-center justify-center shrink-0 text-o1-text">
               <Icon className="w-4 h-4" strokeWidth={1.75} />
               {note && <span aria-hidden className="absolute top-0.5 right-0.5 w-2 h-2 rounded-full bg-o1-crimson" />}
             </span>

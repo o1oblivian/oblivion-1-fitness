@@ -1,24 +1,33 @@
 /**
- * Oblivion 1 Fitness Club - Hybrid Bluetooth Sensor Service
- * Native iOS/Android via @capacitor-community/bluetooth-le + Web Bluetooth fallback
- * Strict File Ceiling: < 140 lines
+ * Oblivion 1 Fitness Club - Bluetooth HRV sensors.
+ * Up to two heart-rate sensors at once. Only beat-to-beat intervals are read, turned into HRV,
+ * and kept on this phone. Nothing is written to a sensor and nothing is sent to the account.
  */
 
 import { Capacitor } from '@capacitor/core';
-import { BluetoothDeviceInfo, BluetoothStateChangeCallback, BleConnectResult } from './ble/bleTypes';
+import { BleDriver, BluetoothDeviceInfo, BluetoothStateChangeCallback, BleConnectResult, MAX_BLE_DEVICES } from './ble/bleTypes';
 import { NativeBleDriver } from './ble/nativeBleDriver';
 import { WebBleDriver } from './ble/webBleDriver';
+import { HrvCollector, flushHrv, useHrvStore } from './ble/hrv';
 import { tactileEngine } from './tactileEngine';
 
+/** Packets without beat intervals before a sensor is marked as unable to give HRV. */
+const NO_INTERVALS_LIMIT = 15;
+
+interface Connection {
+  info: BluetoothDeviceInfo;
+  collector: HrvCollector;
+  packetsWithoutIntervals: number;
+}
+
 class BluetoothSensorService {
-  private nativeDriver = new NativeBleDriver();
-  private webDriver = new WebBleDriver();
-  private listeners: Set<BluetoothStateChangeCallback> = new Set();
-  private isScanning = false;
+  private driver: BleDriver = Capacitor.isNativePlatform() ? new NativeBleDriver() : new WebBleDriver();
+  private connections = new Map<string, Connection>();
+  private listeners = new Set<BluetoothStateChangeCallback>();
+  private pairing = false;
 
   public isSupported(): boolean {
-    if (Capacitor.isNativePlatform()) return true;
-    return this.webDriver.isSupported();
+    return this.driver.isSupported();
   }
 
   public subscribe(cb: BluetoothStateChangeCallback): () => void {
@@ -26,70 +35,85 @@ class BluetoothSensorService {
     return () => this.listeners.delete(cb);
   }
 
-  private notify(info: BluetoothDeviceInfo | null, error?: string) {
+  public getDevices(): BluetoothDeviceInfo[] {
+    return [...this.connections.values()].map((c) => ({ ...c.info }));
+  }
+
+  public isFull(): boolean {
+    return this.connections.size >= MAX_BLE_DEVICES;
+  }
+
+  private notify(error?: string) {
+    const devices = this.getDevices();
     this.listeners.forEach((cb) => {
       try {
-        cb(info, error);
+        cb(devices, error);
       } catch (err) {
-        console.error('[BLE] Notification error:', err);
+        console.error('[BLE] Listener error:', err);
       }
     });
   }
 
-  public getConnectedDevice(): BluetoothDeviceInfo | null {
-    if (Capacitor.isNativePlatform()) {
-      return this.nativeDriver.getConnectedInfo();
+  private handleBeats = (deviceId: string, intervalsMs: number[] | null) => {
+    const conn = this.connections.get(deviceId);
+    if (!conn) return;
+    if (!intervalsMs || intervalsMs.length === 0) {
+      conn.packetsWithoutIntervals++;
+      if (conn.info.sendsBeatIntervals === null && conn.packetsWithoutIntervals >= NO_INTERVALS_LIMIT) {
+        conn.info.sendsBeatIntervals = false;
+        this.notify();
+      }
+      return;
     }
-    return this.webDriver.getConnectedInfo();
-  }
+    conn.packetsWithoutIntervals = 0;
+    const first = conn.info.sendsBeatIntervals !== true;
+    conn.info.sendsBeatIntervals = true;
+    const hrv = conn.collector.push(intervalsMs);
+    if (hrv !== null) useHrvStore.getState().record({ rmssdMs: hrv, at: Date.now(), device: conn.info.name });
+    if (first || hrv !== conn.info.hrvMs) {
+      conn.info.hrvMs = hrv;
+      this.notify();
+    }
+  };
+
+  private handleDisconnect = (deviceId: string) => {
+    if (!this.connections.delete(deviceId)) return;
+    flushHrv();
+    this.notify('A sensor disconnected.');
+  };
 
   public async requestAndConnect(): Promise<BleConnectResult> {
-    if (this.isScanning) {
-      return { success: false, error: 'Pairing scan in progress.' };
+    if (this.pairing) return { success: false, error: 'Already looking for a sensor.' };
+    if (this.isFull()) return { success: false, error: `Up to ${MAX_BLE_DEVICES} sensors can be connected.` };
+    this.pairing = true;
+    try {
+      const result = await this.driver.connect(this.handleBeats, this.handleDisconnect, [...this.connections.keys()]);
+      if (result.success && result.device) {
+        this.connections.set(result.device.id, {
+          info: { id: result.device.id, name: result.device.name, hrvMs: null, sendsBeatIntervals: null },
+          collector: new HrvCollector(),
+          packetsWithoutIntervals: 0,
+        });
+        tactileEngine.triggerSelectionBuzz();
+        this.notify();
+      } else if (result.error) {
+        this.notify(result.error);
+      }
+      return result;
+    } finally {
+      this.pairing = false;
     }
-
-    this.isScanning = true;
-    tactileEngine.triggerSelectionBuzz();
-
-    const onHeartRate = (bpm: number) => {
-      window.dispatchEvent(
-        new CustomEvent('o1fc_ble_heart_rate', {
-          detail: { heartRate: bpm, timestamp: Date.now() },
-        })
-      );
-    };
-
-    const onDisconnect = () => {
-      this.notify(null, 'Sensor disconnected');
-    };
-
-    let result: BleConnectResult;
-
-    if (Capacitor.isNativePlatform()) {
-      result = await this.nativeDriver.connect(onHeartRate, onDisconnect);
-    } else {
-      result = await this.webDriver.connect(onHeartRate, onDisconnect);
-    }
-
-    this.isScanning = false;
-
-    if (result.success) {
-      tactileEngine.playPRCelebration();
-      this.notify(this.getConnectedDevice());
-    } else {
-      this.notify(null, result.error);
-    }
-
-    return result;
   }
 
-  public disconnect(): void {
-    if (Capacitor.isNativePlatform()) {
-      this.nativeDriver.disconnect();
-    } else {
-      this.webDriver.disconnect();
-    }
-    this.notify(null);
+  public async disconnect(deviceId: string): Promise<void> {
+    if (!this.connections.delete(deviceId)) return;
+    await this.driver.disconnect(deviceId);
+    flushHrv();
+    this.notify();
+  }
+
+  public disconnectAll(): void {
+    for (const id of [...this.connections.keys()]) void this.disconnect(id);
   }
 }
 

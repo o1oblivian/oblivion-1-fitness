@@ -4,6 +4,7 @@ import { tactileEngine } from '../../../services/tactileEngine';
 import { useTelemetryHistoryStore } from '../../log/store/useTelemetryHistoryStore';
 import { latestSleepRecord } from '../../report/vitals';
 import { TrainingSafetyInfo } from '../../legal/TrainingSafetyInfo';
+import { latestHrv, localDateKey, useHrvStore } from '../../../services/ble/hrv';
 
 interface Props {
   isOpen: boolean;
@@ -21,7 +22,15 @@ const fmtMinutes = (mins: number): string => {
 
 export const ReadinessTelemetryModal: React.FC<Props> = ({ isOpen, onClose, score }) => {
   const historyByDate = useTelemetryHistoryStore((s) => s.historyByDate);
+  const hrvByDate = useHrvStore((s) => s.byDate);
   if (!isOpen) return null;
+
+  const hrv = latestHrv(hrvByDate);
+  const hrvSource = !hrv
+    ? 'Pair a heart rate sensor in Settings'
+    : localDateKey(hrv.at) === localDateKey(Date.now())
+      ? `${hrv.device} · ${new Date(hrv.at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}`
+      : `${hrv.device} · ${new Date(hrv.at).toLocaleDateString([], { month: 'short', day: 'numeric' })}`;
 
   const sleep = latestSleepRecord(historyByDate);
   const hasScore = typeof score === 'number' && score > 0;
@@ -87,8 +96,8 @@ export const ReadinessTelemetryModal: React.FC<Props> = ({ isOpen, onClose, scor
               <Activity className="w-3.5 h-3.5 text-sky-600" />
               <span>HRV (Variability)</span>
             </div>
-            <div className="text-base font-mono font-medium text-white">--</div>
-            <div className="text-[10px] font-mono text-neutral-500">Needs a connected wearable</div>
+            <div className="text-base font-mono font-medium text-white">{hrv ? `${hrv.rmssdMs} ms` : '--'}</div>
+            <div className="text-[10px] font-mono text-neutral-500 truncate">{hrvSource}</div>
           </div>
 
           <div className="p-3.5 rounded-2xl bg-o1-card border border-white/[0.07] space-y-1">

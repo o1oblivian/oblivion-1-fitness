@@ -1,123 +1,75 @@
 /**
- * Oblivion 1 Fitness Club - Native Bluetooth Driver (iOS & Android)
- * Powered by @capacitor-community/bluetooth-le (BleClient)
- * Strict File Ceiling: < 140 lines
+ * Oblivion 1 Fitness Club - Native Bluetooth driver (iOS & Android), via @capacitor-community/bluetooth-le.
+ * Read-only: subscribes to Heart Rate Measurement notifications and never writes to the sensor.
  */
 
 import { Capacitor } from '@capacitor/core';
-import { BLE_UUIDS, BluetoothDeviceInfo, parseHeartRateValue, BleConnectResult } from './bleTypes';
+import type { BleClientInterface } from '@capacitor-community/bluetooth-le';
+import { BLE_UUIDS, BeatIntervalsHandler, BleConnectResult, BleDriver, isPickerCancel, parseBeatIntervalsMs } from './bleTypes';
 
-export class NativeBleDriver {
-  private activeDeviceId: string | null = null;
-  private isInitialized = false;
+export class NativeBleDriver implements BleDriver {
+  private client: BleClientInterface | null = null;
+  private initialized = false;
 
-  private async getBleClient() {
-    if (!Capacitor.isNativePlatform()) return null;
-    try {
-      const module = await import('@capacitor-community/bluetooth-le');
-      return module.BleClient;
-    } catch (e) {
-      console.warn('[NativeBLE] Plugin not available:', e);
-      return null;
-    }
+  public isSupported(): boolean {
+    return Capacitor.isNativePlatform();
   }
 
-  private async ensureInitialized(): Promise<any> {
-    if (!Capacitor.isNativePlatform()) return null;
-    const BleClient = await this.getBleClient();
-    if (!BleClient) return null;
-    if (!this.isInitialized) {
-      await BleClient.initialize();
-      this.isInitialized = true;
+  private async ready(): Promise<BleClientInterface | null> {
+    if (!this.isSupported()) return null;
+    if (!this.client) {
+      try {
+        this.client = (await import('@capacitor-community/bluetooth-le')).BleClient;
+      } catch (err) {
+        console.warn('[NativeBLE] Plugin not available:', err);
+        return null;
+      }
     }
-    return BleClient;
+    if (!this.initialized) {
+      // Matches the manifest: BLUETOOTH_SCAN is declared neverForLocation, so no location prompt.
+      await this.client.initialize({ androidNeverForLocation: true });
+      this.initialized = true;
+    }
+    return this.client;
   }
 
   public async connect(
-    onHeartRate: (bpm: number) => void,
-    onDisconnect: () => void
+    onBeats: BeatIntervalsHandler,
+    onDisconnect: (deviceId: string) => void,
+    connectedIds: string[],
   ): Promise<BleConnectResult> {
-    if (!Capacitor.isNativePlatform()) {
-      return { success: false, error: 'Native BLE driver requires iOS/Android native container.' };
-    }
-
+    let deviceId = '';
     try {
-      const BleClient = await this.ensureInitialized();
-      if (!BleClient) {
-        return { success: false, error: 'Native BLE plugin unavailable.' };
-      }
+      const client = await this.ready();
+      if (!client) return { success: false, error: 'Bluetooth is not available on this device.' };
+      if (!(await client.isEnabled())) return { success: false, error: 'Bluetooth is off. Turn it on and try again.' };
 
-      const device = await BleClient.requestDevice({
-        services: [
-          BLE_UUIDS.HEART_RATE_SERVICE,
-          BLE_UUIDS.CYCLING_SPEED_CADENCE_SERVICE,
-          BLE_UUIDS.RUNNING_SPEED_CADENCE_SERVICE,
-        ],
-        optionalServices: [],
+      const device = await client.requestDevice({ services: [BLE_UUIDS.HEART_RATE_SERVICE] });
+      deviceId = device?.deviceId || '';
+      if (!deviceId) return { success: false, cancelled: true };
+      if (connectedIds.includes(deviceId)) return { success: false, error: 'That sensor is already connected.' };
+
+      await client.connect(deviceId, (id) => onDisconnect(id));
+      await client.startNotifications(deviceId, BLE_UUIDS.HEART_RATE_SERVICE, BLE_UUIDS.HEART_RATE_MEASUREMENT, (value) => {
+        onBeats(deviceId, parseBeatIntervalsMs(value));
       });
-
-      if (!device?.deviceId) {
-        return { success: false, error: 'No BLE sensor selected.' };
-      }
-
-      await BleClient.connect(device.deviceId, () => {
-        this.activeDeviceId = null;
-        onDisconnect();
-      });
-
-      this.activeDeviceId = device.deviceId;
-
-      // Subscribe to Heart Rate notifications
-      try {
-        await BleClient.startNotifications(
-          device.deviceId,
-          BLE_UUIDS.HEART_RATE_SERVICE,
-          BLE_UUIDS.HEART_RATE_MEASUREMENT,
-          (value: DataView) => {
-            const bpm = parseHeartRateValue(value);
-            if (bpm > 30 && bpm < 240) {
-              onHeartRate(bpm);
-            }
-          }
-        );
-      } catch (err) {
-        console.warn('[NativeBLE] HR service notification warning:', err);
-      }
-
-      return {
-        success: true,
-        deviceName: device.name || 'Native BLE Wearable',
-      };
-    } catch (err: any) {
-      this.activeDeviceId = null;
-      return {
-        success: false,
-        error: err?.message || 'Failed native BLE connection',
-      };
-    }
-  }
-
-  public async disconnect(): Promise<void> {
-    if (!this.activeDeviceId) return;
-    try {
-      const BleClient = await this.getBleClient();
-      if (BleClient) {
-        await BleClient.disconnect(this.activeDeviceId);
-      }
+      return { success: true, device: { id: deviceId, name: device.name || 'Heart rate sensor' } };
     } catch (err) {
-      console.warn('[NativeBLE] Disconnect error:', err);
-    } finally {
-      this.activeDeviceId = null;
+      if (deviceId) await this.disconnect(deviceId);
+      if (isPickerCancel(err)) return { success: false, cancelled: true };
+      const message = err instanceof Error ? err.message : '';
+      return { success: false, error: message || 'Could not connect to the sensor.' };
     }
   }
 
-  public getConnectedInfo(): BluetoothDeviceInfo | null {
-    if (!this.activeDeviceId) return null;
-    return {
-      id: this.activeDeviceId,
-      name: 'Paired Native BLE Sensor',
-      connected: true,
-      serviceType: 'heart_rate',
-    };
+  public async disconnect(deviceId: string): Promise<void> {
+    const client = this.client;
+    if (!client) return;
+    try {
+      await client.stopNotifications(deviceId, BLE_UUIDS.HEART_RATE_SERVICE, BLE_UUIDS.HEART_RATE_MEASUREMENT).catch(() => {});
+      await client.disconnect(deviceId);
+    } catch (err) {
+      console.warn('[NativeBLE] Disconnect notice:', err);
+    }
   }
 }

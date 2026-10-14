@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Bell, ChevronRight, Volume2, Vibrate, ShieldCheck } from 'lucide-react';
 import { CrimsonSwitch } from './CrimsonSwitch';
 import { ScheduledRemindersModal } from './ScheduledRemindersModal';
 import { tactileEngine } from '../../services/tactileEngine';
+import { reminderPermission, type ReminderPermission } from '../../services/athleteReminderScheduler';
 
 interface AlertsFeedbackSectionProps {
   osPushEnabled: boolean;
@@ -11,14 +12,17 @@ interface AlertsFeedbackSectionProps {
   hapticVibration: boolean;
   soundEffects: boolean;
   crashReports: boolean;
-  onAllowPush: () => void;
-  onOpenScheduledReminders: () => void;
+  onSetRemindersEnabled: (val: boolean) => void;
   onTogglePreWorkout: (val: boolean) => void;
   onToggleCoachUpdates: (val: boolean) => void;
   onToggleHaptic: (val: boolean) => void;
   onToggleSound: (val: boolean) => void;
   onToggleCrashReports: (val: boolean) => void;
+  onShowToast?: (msg: string) => void;
 }
+
+const BLOCKED_COPY = "Notifications are blocked for this app. Turn them on in your phone's settings.";
+const UNSUPPORTED_COPY = "This device can't show reminders.";
 
 export const SettingsAlertsFeedbackSection: React.FC<AlertsFeedbackSectionProps> = ({
   osPushEnabled,
@@ -27,35 +31,48 @@ export const SettingsAlertsFeedbackSection: React.FC<AlertsFeedbackSectionProps>
   hapticVibration,
   soundEffects,
   crashReports,
-  onAllowPush,
-  onOpenScheduledReminders,
+  onSetRemindersEnabled,
   onTogglePreWorkout,
   onToggleCoachUpdates,
   onToggleHaptic,
   onToggleSound,
   onToggleCrashReports,
+  onShowToast,
 }) => {
   const [isScheduleOpen, setIsScheduleOpen] = useState(false);
+  const [permission, setPermission] = useState<ReminderPermission | null>(null);
+  const [asking, setAsking] = useState(false);
 
-  const handlePushClick = () => {
+  useEffect(() => {
+    let live = true;
+    void reminderPermission(false).then((state) => {
+      if (live) setPermission(state);
+    });
+    return () => {
+      live = false;
+    };
+  }, []);
+
+  const remindersOn = osPushEnabled && permission === 'granted';
+  const blockedReason = remindersOn
+    ? null
+    : permission === 'denied'
+      ? BLOCKED_COPY
+      : permission === 'unsupported'
+        ? UNSUPPORTED_COPY
+        : 'Reminders are off. Tap Enable in Settings to get these on your lock screen.';
+
+  const handleEnable = async () => {
     tactileEngine.triggerSelectionBuzz();
-    if (typeof window !== 'undefined' && 'Notification' in window) {
-      Notification.requestPermission().then((permission) => {
-        if (permission === 'granted') {
-          onAllowPush();
-          try {
-            new Notification('Oblivion 1 Fitness Club', {
-              body: 'Tactical telemetry and push alerts activated.',
-            });
-          } catch (e) {
-            console.error(e);
-          }
-        } else {
-          onAllowPush();
-        }
-      });
+    setAsking(true);
+    const state = await reminderPermission(true);
+    setAsking(false);
+    setPermission(state);
+    if (state === 'granted') {
+      onSetRemindersEnabled(true);
+      onShowToast?.('Reminders on.');
     } else {
-      onAllowPush();
+      onShowToast?.(state === 'unsupported' ? UNSUPPORTED_COPY : BLOCKED_COPY);
     }
   };
 
@@ -66,48 +83,53 @@ export const SettingsAlertsFeedbackSection: React.FC<AlertsFeedbackSectionProps>
       </h3>
 
       <div className="bg-o1-card rounded-2xl border border-white/[0.07] shadow-sm p-3 space-y-2.5 text-white transition-colors">
-        {/* OS Push Alerts Master Banner */}
-        {!osPushEnabled ? (
+        {!remindersOn ? (
           <div className="bg-o1-well border border-white/[0.07] rounded-xl p-3 flex items-center justify-between gap-3">
             <div className="min-w-0 flex items-start gap-2">
               <span className="w-1.5 h-1.5 rounded-full bg-o1-crimson mt-1.5 shrink-0" />
               <div>
-                <span className="text-xs font-sans font-semibold text-white block">
-                  Enable OS Push Alerts
-                </span>
+                <span className="text-xs font-sans font-semibold text-white block">Allow reminders</span>
                 <span className="text-[11px] font-sans text-neutral-400 block leading-tight">
-                  Instant workout reminders on your lock screen
+                  {permission === 'denied' ? BLOCKED_COPY : 'Workout and recovery reminders on your lock screen'}
                 </span>
               </div>
             </div>
             <button
               type="button"
-              onClick={handlePushClick}
-              className="o1-pill bg-o1-crimson hover:bg-o1-crimson-hover text-white text-xs font-sans font-semibold active:scale-95 cursor-pointer"
+              onClick={() => void handleEnable()}
+              disabled={asking || permission === 'unsupported'}
+              className="o1-pill min-h-[44px] bg-o1-crimson hover:bg-o1-crimson-hover text-white text-xs font-sans font-semibold active:scale-95 cursor-pointer disabled:opacity-50"
             >
-              Enable
+              {asking ? 'Asking…' : 'Enable'}
             </button>
           </div>
         ) : (
-          <div className="p-2.5 rounded-xl bg-o1-well border border-white/[0.07] flex items-center justify-between">
+          <div className="p-2.5 rounded-xl bg-o1-well border border-white/[0.07] flex items-center justify-between gap-3">
             <div className="flex items-center gap-2">
               <span className="w-1.5 h-1.5 rounded-full bg-o1-ok" />
-              <span className="text-xs font-sans font-semibold text-white">
-                OS push alerts on
-              </span>
+              <span className="text-xs font-sans font-semibold text-white">Reminders on</span>
             </div>
-            <span className="text-[10px] font-sans text-neutral-400">Lock screen</span>
+            <button
+              type="button"
+              onClick={() => {
+                tactileEngine.triggerSelectionBuzz();
+                onSetRemindersEnabled(false);
+                onShowToast?.('Reminders off.');
+              }}
+              className="o1-pill min-h-[44px] bg-black border border-white/[0.07] text-neutral-300 hover:text-white text-xs font-sans font-semibold cursor-pointer active:scale-95"
+            >
+              Turn off
+            </button>
           </div>
         )}
 
-        {/* Scheduled Reminders Navigation */}
-        <div
+        <button
+          type="button"
           onClick={() => {
             tactileEngine.triggerSelectionBuzz();
             setIsScheduleOpen(true);
-            onOpenScheduledReminders();
           }}
-          className="flex items-center justify-between gap-3 cursor-pointer group py-1 hover:text-o1-crimson transition-colors"
+          className="w-full min-h-[44px] flex items-center justify-between gap-3 cursor-pointer group text-left"
         >
           <div className="flex items-center gap-2">
             <Bell className="w-4 h-4 text-neutral-400 group-hover:text-o1-crimson" />
@@ -115,26 +137,22 @@ export const SettingsAlertsFeedbackSection: React.FC<AlertsFeedbackSectionProps>
               <span className="text-xs font-tactical font-semibold text-neutral-100 group-hover:text-white block">
                 Scheduled Session Reminders
               </span>
-              <span className="text-[10px] text-neutral-400 font-sans block">
-                Pre-workout alerts, evening recovery &amp; hydration
+              <span className="text-[11px] text-neutral-400 font-sans block">
+                Pre-workout, evening recovery &amp; water
               </span>
             </div>
           </div>
           <ChevronRight className="w-4 h-4 text-neutral-400 group-hover:text-white shrink-0" />
-        </div>
+        </button>
 
-        {/* Workout Alert Channels */}
         <div className="pt-3 border-t border-white/[0.05] space-y-3">
           <div className="flex items-center justify-between gap-3">
             <div>
-              <span className="text-xs font-sans font-medium text-neutral-200 block">
-                Pre-Workout Reminder
-              </span>
-              <span className="text-[10px] text-neutral-400 block">
-                Alert 30 mins prior to planned session
-              </span>
+              <span className="text-xs font-sans font-medium text-neutral-200 block">Pre-Workout Reminder</span>
+              <span className="text-[11px] text-neutral-400 block">30 minutes before your training time</span>
             </div>
             <CrimsonSwitch
+              label="Pre-workout reminder"
               checked={preWorkoutReminder}
               onChange={(val) => {
                 tactileEngine.triggerSelectionBuzz();
@@ -145,14 +163,11 @@ export const SettingsAlertsFeedbackSection: React.FC<AlertsFeedbackSectionProps>
 
           <div className="flex items-center justify-between gap-3 pt-1">
             <div>
-              <span className="text-xs font-sans font-medium text-neutral-200 block">
-                Coach Routine Updates
-              </span>
-              <span className="text-[10px] text-neutral-400 block">
-                Notifications when coach dispatches new routines
-              </span>
+              <span className="text-xs font-sans font-medium text-neutral-200 block">Coach Routine Updates</span>
+              <span className="text-[11px] text-neutral-400 block">Show a note in the app when your coach sends a routine</span>
             </div>
             <CrimsonSwitch
+              label="Coach routine updates"
               checked={coachUpdates}
               onChange={(val) => {
                 tactileEngine.triggerSelectionBuzz();
@@ -162,25 +177,21 @@ export const SettingsAlertsFeedbackSection: React.FC<AlertsFeedbackSectionProps>
           </div>
         </div>
 
-        {/* Tactile & Audio Sensory Feedback */}
         <div className="pt-3 border-t border-white/[0.05] space-y-3">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-2">
               <Vibrate className="w-4 h-4 text-neutral-400" />
               <div>
-                <span className="text-xs font-sans font-medium text-neutral-200 block">
-                  Tactile Haptic Vibration
-                </span>
-                <span className="text-[10px] text-neutral-400 block">
-                  Physical buzz on weight dials, timers &amp; PRs
-                </span>
+                <span className="text-xs font-sans font-medium text-neutral-200 block">Tactile Haptic Vibration</span>
+                <span className="text-[11px] text-neutral-400 block">Physical buzz on weight dials, timers &amp; PRs</span>
               </div>
             </div>
             <CrimsonSwitch
+              label="Haptic vibration"
               checked={hapticVibration}
               onChange={(val) => {
-                if (val) tactileEngine.triggerSelectionBuzz();
                 onToggleHaptic(val);
+                if (val) tactileEngine.triggerSelectionBuzz();
               }}
             />
           </div>
@@ -189,15 +200,12 @@ export const SettingsAlertsFeedbackSection: React.FC<AlertsFeedbackSectionProps>
             <div className="flex items-center gap-2">
               <Volume2 className="w-4 h-4 text-neutral-400" />
               <div>
-                <span className="text-xs font-sans font-medium text-neutral-200 block">
-                  Audio Effects &amp; Chimes
-                </span>
-                <span className="text-[10px] text-neutral-400 block">
-                  Dial ticks, rest countdown &amp; PR celebrations
-                </span>
+                <span className="text-xs font-sans font-medium text-neutral-200 block">Audio Effects &amp; Chimes</span>
+                <span className="text-[11px] text-neutral-400 block">Dial ticks, rest countdown &amp; PR celebrations</span>
               </div>
             </div>
             <CrimsonSwitch
+              label="Audio effects"
               checked={soundEffects}
               onChange={(val) => {
                 tactileEngine.triggerSelectionBuzz();
@@ -211,15 +219,14 @@ export const SettingsAlertsFeedbackSection: React.FC<AlertsFeedbackSectionProps>
           <div className="flex items-center gap-2">
             <ShieldCheck className="w-4 h-4 text-neutral-400" />
             <div>
-              <span className="text-xs font-sans font-medium text-neutral-200 block">
-                On-device crash log
-              </span>
-              <span className="text-[10px] text-neutral-400 block">
+              <span className="text-xs font-sans font-medium text-neutral-200 block">On-device crash log</span>
+              <span className="text-[11px] text-neutral-400 block">
                 Store the last render crash on this device. Nothing is sent remotely.
               </span>
             </div>
           </div>
           <CrimsonSwitch
+            label="On-device crash log"
             checked={crashReports}
             onChange={(val) => {
               tactileEngine.triggerSelectionBuzz();
@@ -229,10 +236,12 @@ export const SettingsAlertsFeedbackSection: React.FC<AlertsFeedbackSectionProps>
         </div>
       </div>
 
-      {/* Scheduled Reminders Modal */}
       <ScheduledRemindersModal
         isOpen={isScheduleOpen}
         onClose={() => setIsScheduleOpen(false)}
+        onShowToast={onShowToast}
+        blockedReason={blockedReason}
+        preWorkoutOn={preWorkoutReminder}
       />
     </div>
   );

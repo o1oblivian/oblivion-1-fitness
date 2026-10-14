@@ -26,7 +26,7 @@ export const SettingsBuddyDatingSection: React.FC = () => {
               {buddy.isBuddyProfileActive ? 'Discover nearby training partners and spotters' : 'Turned off — Pure fitness mode'}
             </span>
           </div>
-          <CrimsonSwitch checked={buddy.isBuddyProfileActive} onChange={(val) => buddy.toggleBuddyProfile(val)} />
+          <CrimsonSwitch checked={buddy.isBuddyProfileActive} onChange={(val) => buddy.toggleBuddyProfile(val)} label="Buddy Radar" />
         </div>
 
         {/* 2. STEALTH MODE */}
@@ -38,7 +38,7 @@ export const SettingsBuddyDatingSection: React.FC = () => {
             </div>
             <span className="text-[11px] font-sans text-neutral-400 block pt-0.5 leading-tight">Browse radar without revealing your profile</span>
           </div>
-          <CrimsonSwitch checked={buddy.ghostMode} onChange={(val) => buddy.toggleGhostMode(val)} />
+          <CrimsonSwitch checked={buddy.ghostMode} onChange={(val) => buddy.toggleGhostMode(val)} label="Ghost mode" />
         </div>
       </div>
     </div>

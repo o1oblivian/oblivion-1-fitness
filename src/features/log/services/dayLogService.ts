@@ -12,6 +12,7 @@ import {
   queueDayLogDelete,
   queueDayLogSync,
   setLocalEditedAt,
+  withoutSteps,
 } from './dayLogCloud';
 
 export type { DayLogCategory };
@@ -123,6 +124,8 @@ export async function hydrateDayLogs(): Promise<void> {
       const category = row.category as DayLogCategory;
       if (!dateKey || !category || !row.payload || typeof row.payload !== 'object') continue;
       if (isForgotten(dateKey, category)) continue;
+      const accountRecord = withoutSteps(category, row.payload as Record<string, unknown>);
+      if (!accountRecord) continue;
       const accountAt = Date.parse(String(row.updated_at || '')) || 0;
       if (phoneOwnsDay(dateKey, category, accountAt)) {
         const local = useTelemetryHistoryStore.getState().historyByDate[dateKey]?.[category];
@@ -133,7 +136,7 @@ export async function hydrateDayLogs(): Promise<void> {
         continue;
       }
       useTelemetryHistoryStore.getState().updateDayRecord(dateKey, category, {
-        ...(row.payload as Record<string, unknown>),
+        ...accountRecord,
         hasData: true,
       }, { skipCloud: true });
       if (accountAt > 0) setLocalEditedAt(dateKey, category, accountAt);

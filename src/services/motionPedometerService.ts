@@ -6,9 +6,10 @@
 
 import { useTelemetryStore } from '../features/telemetry/store/useTelemetryStore';
 import { telemetryArbitrationService } from '../features/telemetry/services/telemetryArbitrationService';
-import { tactileEngine } from './tactileEngine';
 import { MotionEngineStatus, MotionCallback, MotionFilterState, VbtMotionStatus } from './motion/motionTypes';
 import { processMotionSample, GRAVITY_NORMAL } from './motion/motionCalculations';
+
+const OFF_KEY = 'o1fc_motion_steps_off';
 
 function getDeviceMotionCtor(): { requestPermission?: () => Promise<string> } | null {
   if (typeof window === 'undefined' || !('DeviceMotionEvent' in window)) return null;
@@ -20,6 +21,7 @@ class MotionPedometerService {
   private permissionGranted = false;
   private listeners: Set<MotionCallback> = new Set();
   private lastSampleTime = 0;
+  private hasSample = false;
 
   private filterState: MotionFilterState = {
     smoothedMagnitude: GRAVITY_NORMAL,
@@ -39,6 +41,21 @@ class MotionPedometerService {
     return typeof window !== 'undefined' && 'DeviceMotionEvent' in window;
   }
 
+  public isEnabledByUser(): boolean {
+    try {
+      return localStorage.getItem(OFF_KEY) !== '1';
+    } catch {
+      return true;
+    }
+  }
+
+  private setEnabledByUser(on: boolean) {
+    try {
+      if (on) localStorage.removeItem(OFF_KEY);
+      else localStorage.setItem(OFF_KEY, '1');
+    } catch {}
+  }
+
   public subscribe(cb: MotionCallback): () => void {
     this.listeners.add(cb);
     cb(this.getStatus());
@@ -47,13 +64,14 @@ class MotionPedometerService {
 
   public getStatus(): MotionEngineStatus {
     const isHardwareReady = this.isSupported() && this.isActive && this.permissionGranted;
+    const reading = isHardwareReady && this.hasSample;
     // Report 0 if permissions are pending or hardware unavailable
     const steps = this.permissionGranted ? (useTelemetryStore.getState().stepCount || 0) : 0;
 
     // Genuine physical motion check: velocity must exceed stationary threshold (0.05 m/s)
     const rawVel = Math.abs(this.filterState.currentVerticalVelocity);
-    const isMoving = isHardwareReady && rawVel > 0.05;
-    const velocity = isMoving ? Number(rawVel.toFixed(2)) : 0.0;
+    const isMoving = reading && rawVel > 0.05;
+    const velocity = !reading ? null : isMoving ? Number(rawVel.toFixed(2)) : 0;
 
     let vbtStatus: VbtMotionStatus = 'Awaiting Barbell Motion';
     if (!this.isSupported() || (!this.permissionGranted && this.isActive)) {
@@ -68,11 +86,11 @@ class MotionPedometerService {
       isSupported: this.isSupported(),
       isActive: this.isActive,
       permissionGranted: this.permissionGranted,
-      liveMagnitude: isHardwareReady ? Number(this.filterState.smoothedMagnitude.toFixed(2)) : 0.0,
+      liveMagnitude: reading ? Number(this.filterState.smoothedMagnitude.toFixed(2)) : null,
       stepsToday: steps,
       estimatedVelocityMs: velocity,
       vbtStatus,
-      isPeakDetected: isHardwareReady ? this.filterState.isAbovePeak : false,
+      isPeakDetected: reading ? this.filterState.isAbovePeak : false,
     };
   }
 
@@ -103,8 +121,8 @@ class MotionPedometerService {
         }
       }
       this.permissionGranted = true;
+      this.setEnabledByUser(true);
       this.startTracking();
-      tactileEngine.triggerSelectionBuzz();
       return { success: true };
     } catch (err: unknown) {
       this.permissionGranted = false;
@@ -123,9 +141,16 @@ class MotionPedometerService {
     }
     if (this.isActive) return;
     this.isActive = true;
+    this.hasSample = false;
     this.lastSampleTime = performance.now();
     window.addEventListener('devicemotion', this.handleMotion, { passive: true });
     this.notify();
+  }
+
+  /** User switched step counting off in Settings; stays off across launches. */
+  public turnOff() {
+    this.setEnabledByUser(false);
+    this.stopTracking();
   }
 
   public stopTracking() {
@@ -150,14 +175,10 @@ class MotionPedometerService {
       this.filterState
     );
     this.filterState = updatedState;
+    this.hasSample = true;
 
-    if (didStep) {
-      if (!telemetryArbitrationService.isPhoneSensorMuted(Date.now())) {
-        useTelemetryStore.getState().addSteps(1);
-        if (typeof navigator !== 'undefined' && navigator.vibrate) {
-          try { navigator.vibrate(6); } catch {}
-        }
-      }
+    if (didStep && !telemetryArbitrationService.isPhoneSensorMuted(Date.now())) {
+      useTelemetryStore.getState().addSteps(1);
     }
     this.notify();
   };

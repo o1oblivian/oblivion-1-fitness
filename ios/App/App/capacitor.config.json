@@ -17,7 +17,11 @@
 		"AppPlugin",
 		"CAPBrowserPlugin",
 		"CAPCameraPlugin",
+		"FilesystemPlugin",
+		"GeolocationPlugin",
+		"LocalNotificationsPlugin",
 		"PreferencesPlugin",
+		"SharePlugin",
 		"PurchasesPlugin"
 	]
 }

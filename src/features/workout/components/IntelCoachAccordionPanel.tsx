@@ -56,8 +56,11 @@ const MOVEMENT_FOCUS_OPTIONS = [
   'Olympic & Power',
 ] as const;
 
+/** Shown before "More": enough for most sessions without a wall of choices. */
+const CORE_FOCUS: readonly string[] = ['Full Body', 'Upper Body', 'Lower Body', 'Push (Chest/Delts)', 'Pull (Back/Bis)', 'Abs & Core'];
+
 const PILL_OFF = 'bg-[#000000] text-[#FFFFFF] border border-white/[0.14] hover:bg-white/[0.06]';
-const PILL_ON = 'bg-[#FFFFFF] text-[#111113] border border-[#FFFFFF]';
+const PILL_ON = 'bg-[#F2F0EA] text-[#111113] border border-[#F2F0EA]';
 const PILL_SUB_OFF = 'text-o1-muted';
 const PILL_SUB_ON = 'text-[#111113]/60';
 
@@ -87,6 +90,12 @@ export const IntelCoachAccordionPanel: React.FC<IntelCoachAccordionPanelProps> =
     return goal ? GOAL_MODE[goal] : 'muscle';
   });
   const [movementFocus, setMovementFocus] = useState<string>('Full Body');
+  const [showAllFocus, setShowAllFocus] = useState(false);
+  const focusOptions = showAllFocus
+    ? [...CORE_FOCUS, ...MOVEMENT_FOCUS_OPTIONS.filter((f) => !CORE_FOCUS.includes(f))]
+    : CORE_FOCUS.includes(movementFocus)
+      ? CORE_FOCUS
+      : [...CORE_FOCUS, movementFocus];
   const [selectedDuration, setSelectedDuration] = useState<number>(() => useConsultationStore.getState().sessionMinutes || 45);
   const [isDurationModalOpen, setIsDurationModalOpen] = useState(false);
   const [prescription, setPrescription] = useState<ExerciseItem[] | null>(null);
@@ -171,7 +180,7 @@ export const IntelCoachAccordionPanel: React.FC<IntelCoachAccordionPanelProps> =
           </div>
           <div>
             <h3 className="font-mono text-xs font-medium tracking-wider text-white leading-tight">
-              Build my workout
+              Build workout
             </h3>
             <p className="text-[11px] text-neutral-400 leading-tight mt-0.5">
               Made for how you feel today
@@ -231,7 +240,7 @@ export const IntelCoachAccordionPanel: React.FC<IntelCoachAccordionPanelProps> =
                   </span>
                   <Icon className={`w-3.5 h-3.5 ${isSelected ? 'text-current' : lvl.color}`} />
                 </div>
-                <span className={`text-[10px] block truncate font-medium ${isSelected ? PILL_SUB_ON : PILL_SUB_OFF}`}>
+                <span className={`text-[11px] block truncate font-medium ${isSelected ? PILL_SUB_ON : PILL_SUB_OFF}`}>
                   {lvl.sub}
                 </span>
               </button>
@@ -262,7 +271,7 @@ export const IntelCoachAccordionPanel: React.FC<IntelCoachAccordionPanelProps> =
                   <span className="text-xs font-medium truncate">{label}</span>
                   <Icon className={`w-4 h-4 shrink-0 ${isSelected ? 'text-current' : color}`} />
                 </div>
-                <p className={`text-[10px] truncate ${isSelected ? PILL_SUB_ON : PILL_SUB_OFF}`}>{sub}</p>
+                <p className={`text-[11px] truncate ${isSelected ? PILL_SUB_ON : PILL_SUB_OFF}`}>{sub}</p>
               </button>
             );
           })}
@@ -285,12 +294,12 @@ export const IntelCoachAccordionPanel: React.FC<IntelCoachAccordionPanelProps> =
           className={`w-full px-4 py-2.5 rounded-full flex items-center justify-between transition-all cursor-pointer active:scale-[0.99] ${PILL_OFF}`}
         >
           <div className="flex items-center gap-2.5">
-            <Clock className="w-4 h-4 text-[#111113]/60" />
+            <Clock className="w-4 h-4 text-o1-muted" />
             <span className="text-xs font-medium">
               {selectedDuration} minutes · {getDurationSubLabel(selectedDuration)}
             </span>
           </div>
-          <ChevronDown className="w-4 h-4 text-[#111113]/60" />
+          <ChevronDown className="w-4 h-4 text-o1-muted" />
         </button>
       </div>
 
@@ -303,30 +312,42 @@ export const IntelCoachAccordionPanel: React.FC<IntelCoachAccordionPanelProps> =
           </span>
         </div>
         <div className="flex flex-wrap gap-1.5">
-          {MOVEMENT_FOCUS_OPTIONS.map((foc) => {
+          {focusOptions.map((foc) => {
             const isSelected = movementFocus === foc;
             return (
               <button
                 key={foc}
                 type="button"
+                aria-pressed={isSelected}
                 onClick={() => {
                   tactileEngine.triggerSelectionBuzz();
                   setMovementFocus(foc);
                 }}
-                className={`py-1.5 px-3 rounded-full text-xs font-medium transition-all cursor-pointer active:scale-[0.97] ${isSelected ? PILL_ON : PILL_OFF}`}
+                className={`min-h-[44px] px-3.5 rounded-full text-xs font-medium transition-all cursor-pointer active:scale-[0.97] ${isSelected ? PILL_ON : PILL_OFF}`}
               >
                 {foc}
               </button>
             );
           })}
+          <button
+            type="button"
+            aria-expanded={showAllFocus}
+            onClick={() => {
+              tactileEngine.triggerSelectionBuzz();
+              setShowAllFocus((v) => !v);
+            }}
+            className="min-h-[44px] px-3.5 rounded-full text-xs font-medium text-o1-muted hover:text-o1-text border border-dashed border-white/[0.18] transition-colors cursor-pointer"
+          >
+            {showAllFocus ? 'Fewer' : 'More'}
+          </button>
         </div>
       </div>
 
-      {/* Execution Footer matching Screenshot 1 & 3 */}
-      <div className="pt-2 flex items-center justify-between gap-3 border-t border-white/[0.05]">
+      {/* Stays in view above the dock while the options scroll */}
+      <div className="sticky bottom-0 z-10 -mx-2.5 px-2.5 pt-2 pb-1 bg-o1-card flex items-center justify-between gap-3 border-t border-white/[0.05]">
         <div className="flex items-center gap-3 text-xs font-mono font-medium text-neutral-300">
           <span className="flex items-center gap-1">
-            <Clock className="w-3.5 h-3.5 text-neutral-500" />
+            <Clock className="w-3.5 h-3.5 text-o1-muted" />
             {selectedDuration}m
           </span>
           <span className="flex items-center gap-1 text-o1-crimson">
@@ -338,10 +359,10 @@ export const IntelCoachAccordionPanel: React.FC<IntelCoachAccordionPanelProps> =
           type="button"
           disabled={isDesigning}
           onClick={handleDesignSession}
-          className="px-5 py-2.5 rounded-full bg-o1-crimson hover:bg-o1-crimson-hover active:bg-o1-crimson-press text-white active:scale-95 font-mono text-xs font-medium tracking-wider shadow-sm flex items-center gap-2 cursor-pointer transition-all shrink-0"
+          className="min-h-[44px] px-5 rounded-full bg-o1-crimson hover:bg-o1-crimson-hover active:bg-o1-crimson-press text-white active:scale-95 font-mono text-xs font-medium tracking-wider shadow-sm flex items-center gap-2 cursor-pointer transition-all shrink-0"
         >
           <Zap className="w-3.5 h-3.5" />
-          <span>{isDesigning ? 'Building…' : 'Build workout'}</span>
+          <span>{isDesigning ? 'Creating…' : 'Create workout'}</span>
         </button>
       </div>
 

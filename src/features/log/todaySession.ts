@@ -182,6 +182,24 @@ export function resolveTodaySession(): TodaySession {
   };
 }
 
+/** Today's session for the Workout start button: coach, saved, program, then the automatic daily plan. */
+export function resolvePlannedSession(): TodaySession {
+  const session = resolveTodaySession();
+  if (session.exercises.length > 0) return session;
+  const plan = getAthleteDayRoutine(getSystemTodayCode());
+  if (plan.exercises.length === 0) {
+    return /^rest/i.test(plan.splitName) ? { ...session, title: 'Rest day', detail: 'Day off' } : session;
+  }
+  const title = titleCase(plan.splitName || 'Workout');
+  return {
+    origin: 'none',
+    title,
+    detail: "Today's plan",
+    button: `Start · ${title}`,
+    exercises: plan.exercises.map(fromSavedExercise),
+  };
+}
+
 export function rememberSession(origin: SessionOrigin, assignedId?: string) {
   try {
     sessionStorage.setItem(ORIGIN_KEY, origin);

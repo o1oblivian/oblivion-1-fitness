@@ -69,17 +69,18 @@ export const SettingsUnitsDefaultsSection: React.FC<UnitsDefaultsSectionProps> =
     { label: '10kg / 22lb (EZ/Tech)', value: 10 },
   ];
 
-  // Mobile Keypad Input Handlers - commits only when Set button is pressed or +/- adjusted
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInputVal(e.target.value);
   };
 
-  const handleInputBlur = () => {
+  const commitInput = (): number => {
     let parsed = parseInt(inputVal, 10);
     if (isNaN(parsed) || parsed < MIN_STEPS) parsed = MIN_STEPS;
     if (parsed > MAX_STEPS) parsed = MAX_STEPS;
     const snapped = Math.round(parsed / 250) * 250;
     setInputVal(String(snapped));
+    if (snapped !== stepTarget) onSetStepTarget(snapped);
+    return snapped;
   };
 
   const adjustSteps = (delta: number) => {
@@ -92,12 +93,7 @@ export const SettingsUnitsDefaultsSection: React.FC<UnitsDefaultsSectionProps> =
 
   const handleApplySet = () => {
     tactileEngine.triggerSelectionBuzz();
-    let parsed = parseInt(inputVal, 10);
-    if (isNaN(parsed) || parsed < MIN_STEPS) parsed = MIN_STEPS;
-    if (parsed > MAX_STEPS) parsed = MAX_STEPS;
-    const snapped = Math.round(parsed / 250) * 250;
-    setInputVal(String(snapped));
-    onSetStepTarget(snapped);
+    commitInput();
     setIsSavedRecently(true);
     setTimeout(() => {
       setIsSavedRecently(false);
@@ -179,13 +175,11 @@ export const SettingsUnitsDefaultsSection: React.FC<UnitsDefaultsSectionProps> =
                         step={STEP_INCREMENT}
                         value={inputVal}
                         onChange={handleInputChange}
-                        onBlur={handleInputBlur}
+                        onBlur={commitInput}
                         onKeyDown={(e) => {
-                          if (e.key === 'Enter') {
-                            e.currentTarget.blur();
-                            handleApplySet();
-                          }
+                          if (e.key === 'Enter') e.currentTarget.blur();
                         }}
+                        aria-label="Daily step target"
                         className="w-44 text-center font-mono font-black text-3xl text-white bg-black border border-white/[0.07] focus:border-o1-crimson rounded-2xl py-2 px-3 outline-none transition-all shadow-inner tracking-tight"
                       />
                     </div>
@@ -254,7 +248,7 @@ export const SettingsUnitsDefaultsSection: React.FC<UnitsDefaultsSectionProps> =
                   Units &amp; Barbell Defaults
                 </span>
                 <span className="text-[10px] font-mono text-neutral-400 block truncate">
-                  {weightUnit.toUpperCase()} · {distanceUnit.toUpperCase()} · Bar: {defaultBarbellKg}kg · Rest: {defaultRestSeconds === 0 ? 'Off' : `${defaultRestSeconds}s`}
+                  {weightUnit.toUpperCase()} · {distanceUnit.toUpperCase()} · Bar: {weightUnit === 'lbs' ? `${Math.round(defaultBarbellKg * 2.20462)}lbs` : `${defaultBarbellKg}kg`} · Rest: {defaultRestSeconds === 0 ? 'Off' : `${defaultRestSeconds}s`}
                 </span>
               </div>
             </div>
@@ -286,7 +280,7 @@ export const SettingsUnitsDefaultsSection: React.FC<UnitsDefaultsSectionProps> =
                         tactileEngine.triggerSelectionBuzz();
                         onSetWeightUnit('kg');
                       }}
-                      className={`py-1 text-xs font-mono font-bold rounded-md transition-all cursor-pointer ${
+                      className={`py-1 min-h-[44px] text-xs font-mono font-bold rounded-md transition-all cursor-pointer ${
                         weightUnit === 'kg' ? 'bg-o1-crimson text-white shadow-xs' : 'text-neutral-400 hover:text-white'
                       }`}
                     >
@@ -298,7 +292,7 @@ export const SettingsUnitsDefaultsSection: React.FC<UnitsDefaultsSectionProps> =
                         tactileEngine.triggerSelectionBuzz();
                         onSetWeightUnit('lbs');
                       }}
-                      className={`py-1 text-xs font-mono font-bold rounded-md transition-all cursor-pointer ${
+                      className={`py-1 min-h-[44px] text-xs font-mono font-bold rounded-md transition-all cursor-pointer ${
                         weightUnit === 'lbs' ? 'bg-o1-crimson text-white shadow-xs' : 'text-neutral-400 hover:text-white'
                       }`}
                     >
@@ -318,7 +312,7 @@ export const SettingsUnitsDefaultsSection: React.FC<UnitsDefaultsSectionProps> =
                         tactileEngine.triggerSelectionBuzz();
                         onSetDistanceUnit('km');
                       }}
-                      className={`py-1 text-xs font-mono font-bold rounded-md transition-all cursor-pointer ${
+                      className={`py-1 min-h-[44px] text-xs font-mono font-bold rounded-md transition-all cursor-pointer ${
                         distanceUnit === 'km' ? 'bg-o1-crimson text-white shadow-xs' : 'text-neutral-400 hover:text-white'
                       }`}
                     >
@@ -330,7 +324,7 @@ export const SettingsUnitsDefaultsSection: React.FC<UnitsDefaultsSectionProps> =
                         tactileEngine.triggerSelectionBuzz();
                         onSetDistanceUnit('mi');
                       }}
-                      className={`py-1 text-xs font-mono font-bold rounded-md transition-all cursor-pointer ${
+                      className={`py-1 min-h-[44px] text-xs font-mono font-bold rounded-md transition-all cursor-pointer ${
                         distanceUnit === 'mi' ? 'bg-o1-crimson text-white shadow-xs' : 'text-neutral-400 hover:text-white'
                       }`}
                     >
@@ -350,7 +344,7 @@ export const SettingsUnitsDefaultsSection: React.FC<UnitsDefaultsSectionProps> =
                         tactileEngine.triggerSelectionBuzz();
                         onSetHeightUnit('cm');
                       }}
-                      className={`py-1 text-xs font-mono font-bold rounded-md transition-all cursor-pointer ${
+                      className={`py-1 min-h-[44px] text-xs font-mono font-bold rounded-md transition-all cursor-pointer ${
                         heightUnit === 'cm' ? 'bg-o1-crimson text-white shadow-xs' : 'text-neutral-400 hover:text-white'
                       }`}
                     >
@@ -362,7 +356,7 @@ export const SettingsUnitsDefaultsSection: React.FC<UnitsDefaultsSectionProps> =
                         tactileEngine.triggerSelectionBuzz();
                         onSetHeightUnit('in');
                       }}
-                      className={`py-1 text-xs font-mono font-bold rounded-md transition-all cursor-pointer ${
+                      className={`py-1 min-h-[44px] text-xs font-mono font-bold rounded-md transition-all cursor-pointer ${
                         heightUnit === 'in' ? 'bg-o1-crimson text-white shadow-xs' : 'text-neutral-400 hover:text-white'
                       }`}
                     >
@@ -389,14 +383,14 @@ export const SettingsUnitsDefaultsSection: React.FC<UnitsDefaultsSectionProps> =
                         tactileEngine.triggerSelectionBuzz();
                         onSetDefaultBarbell(b.value);
                       }}
-                      className={`p-2 rounded-xl border text-xs font-tactical flex items-center justify-between transition-all cursor-pointer ${
+                      className={`p-2 min-h-[44px] rounded-xl border text-xs font-tactical flex items-center justify-between transition-all cursor-pointer ${
                         defaultBarbellKg === b.value
                           ? 'bg-o1-crimson border-o1-crimson text-white font-bold'
                           : 'bg-o1-well border-white/[0.07] text-neutral-400 hover:text-white'
                       }`}
                     >
                       <span>{b.label}</span>
-                      <span className="font-mono text-[11px] text-neutral-400">
+                      <span className={`font-mono text-[11px] ${defaultBarbellKg === b.value ? 'text-white/80' : 'text-neutral-400'}`}>
                         {weightUnit === 'lbs' ? `${Math.round(b.value * 2.20462)} lbs` : `${b.value} kg`}
                       </span>
                     </button>
@@ -410,13 +404,18 @@ export const SettingsUnitsDefaultsSection: React.FC<UnitsDefaultsSectionProps> =
                   <div className="flex items-center gap-1.5">
                     <Clock className="w-3.5 h-3.5 text-neutral-400" />
                     <span className="text-[10px] font-tactical font-bold text-neutral-400 block">
-                      Auto Rest Timer Duration
+                      Rest timer
                     </span>
                   </div>
                   <span className="text-xs font-mono font-bold text-o1-crimson">
-                    {defaultRestSeconds === 0 ? 'Off (Manual)' : `${defaultRestSeconds} seconds`}
+                    {defaultRestSeconds === 0 ? 'Off' : `${defaultRestSeconds} seconds`}
                   </span>
                 </div>
+                <p className="text-[10px] font-sans text-neutral-400 leading-snug">
+                  {defaultRestSeconds === 0
+                    ? "The timer won't start by itself after a set."
+                    : 'Starts after each set. Exercises with their own rest time use that instead.'}
+                </p>
                 <div className="grid grid-cols-5 gap-1.5">
                   {restPresets.map((opt) => (
                     <button
@@ -426,7 +425,7 @@ export const SettingsUnitsDefaultsSection: React.FC<UnitsDefaultsSectionProps> =
                         tactileEngine.triggerSelectionBuzz();
                         onSetDefaultRest(opt.value);
                       }}
-                      className={`py-1.5 rounded-xl text-xs font-mono font-bold transition-all cursor-pointer ${
+                      className={`py-1.5 min-h-[44px] rounded-xl text-xs font-mono font-bold transition-all cursor-pointer ${
                         defaultRestSeconds === opt.value
                           ? 'bg-o1-crimson text-white shadow-xs'
                           : 'bg-o1-well border border-white/[0.07] text-neutral-400 hover:text-white'

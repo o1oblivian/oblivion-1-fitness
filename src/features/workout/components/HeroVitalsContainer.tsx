@@ -9,7 +9,6 @@ import { useLogStore } from '../../../stores/useLogStore';
 import { useWallpaperStore } from '../../../stores/useWallpaperStore';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { motionPedometerService } from '../../../services/motionPedometerService';
-import { hydrateDailyStepsFromSupabase } from '../../log/services/userTelemetryService';
 import { getSystemTodayCode } from '../services/dayRoutineService';
 import { HeroFrontFace } from './HeroFrontFace';
 import { HeroBackFace } from './HeroBackFace';
@@ -90,12 +89,10 @@ export const HeroVitalsContainer: React.FC<HeroVitalsContainerProps> = ({
     window.addEventListener('focus', handleVisibilityOrFocus);
     document.addEventListener('visibilitychange', handleVisibilityOrFocus);
 
-    // Auto-start motion sensor if supported and permitted
-    if (motionPedometerService.isSupported()) {
+    // Auto-start the phone step counter unless it was switched off in Settings
+    if (motionPedometerService.isSupported() && motionPedometerService.isEnabledByUser()) {
       motionPedometerService.startTracking();
     }
-
-    hydrateDailyStepsFromSupabase();
 
     return () => {
       clearInterval(intervalTimer);

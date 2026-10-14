@@ -6,17 +6,12 @@ import { supabase } from '../services/supabaseClient';
 import { apiUrl } from '../services/apiBase';
 import { clearLocalCrash } from '../utils/crashLog';
 import { clearAccountData, releaseDevice } from '../services/accountScope';
+import { useUserStore } from '../stores/useUserStore';
+import { clearReminders, notifyRemindersChanged } from '../services/athleteReminderScheduler';
+import { bluetoothSensorService } from '../services/bluetoothSensorService';
+import { exportJsonFile } from '../services/dataExport';
 
 export const O1_SETTINGS_KEY = 'o1fc_production_settings_v3';
-
-export type DisciplineType =
-  | 'Hypertrophy'
-  | 'Powerlifting'
-  | 'Hyrox / Hybrid'
-  | 'CrossFit'
-  | 'Calisthenics'
-  | 'Endurance'
-  | 'Strength & Conditioning';
 
 export type InputStyleType = 'Rotary Dial' | 'Keypad';
 export type WeightUnit = 'kg' | 'lbs';
@@ -33,10 +28,8 @@ export interface SettingsStoreState {
   bio: string;
   eliteReelsPresence: boolean;
 
-  // 2. Training
-  discipline: DisciplineType;
+  // 2. Training (discipline and days live in the consultation profile)
   autoDispatch: boolean;
-  activeDays: string[];
   restRecoveryMode: boolean;
 
   // 3. Units & Defaults
@@ -49,36 +42,20 @@ export interface SettingsStoreState {
   // 4. Daily Step Target (Dial Controlled)
   stepTarget: number;
 
-  // 5. Location
-  autoLocation: boolean;
-  homeGym: string;
-
-  // 6. Appearance
+  // 5. Appearance
   inputStyle: InputStyleType;
 
-  // 7. Audio & Tactile
+  // 6. Audio & Tactile
   hapticVibration: boolean;
   soundEffects: boolean;
-  dialClicks: boolean;
-  restTimerChime: boolean;
-  prChime: boolean;
 
-  // 8. Notifications
+  // 7. Notifications
   osPushEnabled: boolean;
   preWorkoutReminder: boolean;
   coachUpdates: boolean;
-  buddyMatches: boolean;
-  gymCheckIns: boolean;
-  systemBilling: boolean;
 
-  // 9. Privacy
-  buddyRadarDiscovery: boolean;
-  ghostMode: boolean;
-  publicTelemetry: boolean;
+  // 8. Privacy
   crashReports: boolean;
-
-  // 10. Devices
-  liveIngestionStream: boolean;
 }
 
 const persistSettingsPatch = (partial: Record<string, unknown>) => {
@@ -86,15 +63,26 @@ const persistSettingsPatch = (partial: Record<string, unknown>) => {
   safeStorage.setItem(O1_SETTINGS_KEY, { ...existing, ...partial });
 };
 
+/** Saved the moment it changes, so closing the app mid-edit never loses a setting. */
+function usePersistedSetting<T>(key: keyof SettingsStoreState, initial: T): [T, (value: T) => void] {
+  const [value, setValue] = useState<T>(initial);
+  const save = (next: T) => {
+    setValue(next);
+    persistSettingsPatch({ [key]: next });
+  };
+  return [value, save];
+}
+
 export const useProductionSettings = (onShowToast?: (msg: string) => void) => {
   const cached = safeStorage.getItem<Record<string, unknown>>(O1_SETTINGS_KEY, {});
+  const profile = useUserStore.getState();
   // Profile
-  const [name, setName] = useState<string>(typeof cached.name === 'string' ? cached.name : 'o1oblivionfitness');
-  const [handle, setHandle] = useState<string>(typeof cached.handle === 'string' ? cached.handle : '@o1oblivionfitness');
-  const [age, setAge] = useState<number>(typeof cached.age === 'number' ? cached.age : 26);
-  const [heightCm, setHeightCm] = useState<number>(typeof cached.heightCm === 'number' ? cached.heightCm : 180);
-  const [weightKg, setWeightKg] = useState<number>(typeof cached.weightKg === 'number' ? cached.weightKg : 82);
-  const [bio, setBio] = useState<string>(typeof cached.bio === 'string' ? cached.bio : '');
+  const [name, setName] = usePersistedSetting<string>('name', typeof cached.name === 'string' && cached.name ? cached.name : profile.name);
+  const [handle, setHandle] = usePersistedSetting<string>('handle', typeof cached.handle === 'string' && cached.handle ? cached.handle : profile.handle);
+  const [age, setAge] = usePersistedSetting<number>('age', typeof cached.age === 'number' ? cached.age : 0);
+  const [heightCm, setHeightCm] = usePersistedSetting<number>('heightCm', typeof cached.heightCm === 'number' ? cached.heightCm : 0);
+  const [weightKg, setWeightKg] = usePersistedSetting<number>('weightKg', typeof cached.weightKg === 'number' ? cached.weightKg : profile.weightKg);
+  const [bio, setBio] = usePersistedSetting<string>('bio', typeof cached.bio === 'string' ? cached.bio : '');
   const [eliteReelsPresence, setEliteReelsPresenceState] = useState<boolean>(
     typeof cached.eliteReelsPresence === 'boolean' ? cached.eliteReelsPresence : true
   );
@@ -104,37 +92,34 @@ export const useProductionSettings = (onShowToast?: (msg: string) => void) => {
   };
 
   // Training
-  const [discipline, setDiscipline] = useState<DisciplineType>(
-    (cached.discipline as DisciplineType) || 'Hypertrophy'
-  );
-  const [autoDispatch, setAutoDispatchState] = useState<boolean>(
+  const [autoDispatch, setAutoDispatch] = usePersistedSetting<boolean>(
+    'autoDispatch',
     typeof cached.autoDispatch === 'boolean' ? cached.autoDispatch : true
   );
-  const setAutoDispatch = (val: boolean) => {
-    setAutoDispatchState(val);
-    persistSettingsPatch({ autoDispatch: val });
-  };
-  const [activeDays, setActiveDays] = useState<string[]>(
-    Array.isArray(cached.activeDays) ? (cached.activeDays as string[]) : ['Mo', 'Tu', 'We', 'Th', 'Fr']
-  );
-  const [restRecoveryMode, setRestRecoveryMode] = useState<boolean>(
+  const [restRecoveryMode, setRestRecoveryMode] = usePersistedSetting<boolean>(
+    'restRecoveryMode',
     typeof cached.restRecoveryMode === 'boolean' ? cached.restRecoveryMode : false
   );
 
   // Units & Workout Defaults
-  const [weightUnit, setWeightUnit] = useState<WeightUnit>(
-    (cached.weightUnit as WeightUnit) || 'kg'
+  const [weightUnit, setWeightUnit] = usePersistedSetting<WeightUnit>(
+    'weightUnit',
+    cached.weightUnit === 'lbs' ? 'lbs' : 'kg'
   );
-  const [heightUnit, setHeightUnit] = useState<HeightUnit>(
-    (cached.heightUnit as HeightUnit) || 'cm'
+  const [heightUnit, setHeightUnit] = usePersistedSetting<HeightUnit>(
+    'heightUnit',
+    cached.heightUnit === 'in' ? 'in' : 'cm'
   );
-  const [distanceUnit, setDistanceUnit] = useState<DistanceUnit>(
-    (cached.distanceUnit as DistanceUnit) || 'km'
+  const [distanceUnit, setDistanceUnit] = usePersistedSetting<DistanceUnit>(
+    'distanceUnit',
+    cached.distanceUnit === 'mi' ? 'mi' : 'km'
   );
-  const [defaultRestSeconds, setDefaultRestSeconds] = useState<number>(
+  const [defaultRestSeconds, setDefaultRestSeconds] = usePersistedSetting<number>(
+    'defaultRestSeconds',
     typeof cached.defaultRestSeconds === 'number' ? cached.defaultRestSeconds : 90
   );
-  const [defaultBarbellKg, setDefaultBarbellKg] = useState<number>(
+  const [defaultBarbellKg, setDefaultBarbellKg] = usePersistedSetting<number>(
+    'defaultBarbellKg',
     typeof cached.defaultBarbellKg === 'number' ? cached.defaultBarbellKg : 20
   );
 
@@ -166,17 +151,10 @@ export const useProductionSettings = (onShowToast?: (msg: string) => void) => {
     }
   };
 
-  // Location
-  const [autoLocation, setAutoLocation] = useState<boolean>(
-    typeof cached.autoLocation === 'boolean' ? cached.autoLocation : true
-  );
-  const [homeGym, setHomeGym] = useState<string>(
-    typeof cached.homeGym === 'string' ? cached.homeGym : 'Melbourne, AU'
-  );
-
   // Appearance
-  const [inputStyle, setInputStyle] = useState<InputStyleType>(
-    (cached.inputStyle as InputStyleType) || 'Rotary Dial'
+  const [inputStyle, setInputStyle] = usePersistedSetting<InputStyleType>(
+    'inputStyle',
+    cached.inputStyle === 'Keypad' ? 'Keypad' : 'Rotary Dial'
   );
 
   // Audio & Tactile
@@ -186,32 +164,25 @@ export const useProductionSettings = (onShowToast?: (msg: string) => void) => {
   const [soundEffects, setSoundEffectsState] = useState<boolean>(
     typeof cached.soundEffects === 'boolean' ? cached.soundEffects : true
   );
-  const [dialClicks, setDialClicks] = useState<boolean>(
-    typeof cached.dialClicks === 'boolean' ? cached.dialClicks : true
-  );
-  const [restTimerChime, setRestTimerChime] = useState<boolean>(
-    typeof cached.restTimerChime === 'boolean' ? cached.restTimerChime : true
-  );
-  const [prChime, setPrChime] = useState<boolean>(
-    typeof cached.prChime === 'boolean' ? cached.prChime : true
-  );
-
   const setHapticVibration = (val: boolean) => {
     setHapticVibrationState(val);
+    persistSettingsPatch({ hapticVibration: val });
     tactileEngine.configureSettings({ hapticEnabled: val });
   };
   const setSoundEffects = (val: boolean) => {
     setSoundEffectsState(val);
+    persistSettingsPatch({ soundEffects: val });
     tactileEngine.configureSettings({ soundEnabled: val });
   };
 
-  // Notifications
+  // Notifications: every change rebuilds the reminders scheduled on this phone.
   const [osPushEnabled, setOsPushEnabledState] = useState<boolean>(
     typeof cached.osPushEnabled === 'boolean' ? cached.osPushEnabled : false
   );
   const setOsPushEnabled = (val: boolean) => {
     setOsPushEnabledState(val);
     persistSettingsPatch({ osPushEnabled: val });
+    notifyRemindersChanged();
   };
   const [preWorkoutReminder, setPreWorkoutReminderState] = useState<boolean>(
     typeof cached.preWorkoutReminder === 'boolean' ? cached.preWorkoutReminder : true
@@ -219,66 +190,32 @@ export const useProductionSettings = (onShowToast?: (msg: string) => void) => {
   const setPreWorkoutReminder = (val: boolean) => {
     setPreWorkoutReminderState(val);
     persistSettingsPatch({ preWorkoutReminder: val });
+    notifyRemindersChanged();
   };
-  const [coachUpdates, setCoachUpdates] = useState<boolean>(
+  const [coachUpdates, setCoachUpdatesState] = useState<boolean>(
     typeof cached.coachUpdates === 'boolean' ? cached.coachUpdates : true
   );
-  const [buddyMatches, setBuddyMatches] = useState<boolean>(
-    typeof cached.buddyMatches === 'boolean' ? cached.buddyMatches : true
-  );
-  const [gymCheckIns, setGymCheckIns] = useState<boolean>(
-    typeof cached.gymCheckIns === 'boolean' ? cached.gymCheckIns : true
-  );
-  const [systemBilling, setSystemBilling] = useState<boolean>(
-    typeof cached.systemBilling === 'boolean' ? cached.systemBilling : false
-  );
+  const setCoachUpdates = (val: boolean) => {
+    setCoachUpdatesState(val);
+    persistSettingsPatch({ coachUpdates: val });
+  };
 
-  // Privacy & Social
-  const [buddyRadarDiscovery, setBuddyRadarDiscoveryState] = useState<boolean>(
-    typeof cached.buddyRadarDiscovery === 'boolean' ? cached.buddyRadarDiscovery : true
-  );
-  const setBuddyRadarDiscovery = (val: boolean) => {
-    setBuddyRadarDiscoveryState(val);
-    persistSettingsPatch({ buddyRadarDiscovery: val });
-  };
-  const [ghostMode, setGhostModeState] = useState<boolean>(
-    typeof cached.ghostMode === 'boolean' ? cached.ghostMode : false
-  );
-  const setGhostMode = (val: boolean) => {
-    setGhostModeState(val);
-    persistSettingsPatch({ ghostMode: val });
-  };
-  const [publicTelemetry, setPublicTelemetry] = useState<boolean>(
-    typeof cached.publicTelemetry === 'boolean' ? cached.publicTelemetry : true
-  );
   const [crashReports, setCrashReportsState] = useState<boolean>(
     typeof cached.crashReports === 'boolean' ? cached.crashReports : true
   );
 
   const setCrashReports = (val: boolean) => {
     setCrashReportsState(val);
-    const existing = safeStorage.getItem<Record<string, unknown>>(O1_SETTINGS_KEY, {});
-    safeStorage.setItem(O1_SETTINGS_KEY, { ...existing, crashReports: val });
+    persistSettingsPatch({ crashReports: val });
     if (!val) clearLocalCrash();
   };
 
-  // Connected Devices
-  const [liveIngestionStream, setLiveIngestionStream] = useState<boolean>(
-    typeof cached.liveIngestionStream === 'boolean' ? cached.liveIngestionStream : true
-  );
   // Modals
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<boolean>(false);
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
 
-  const toggleDay = (day: string) => {
-    tactileEngine.triggerSelectionBuzz();
-    setActiveDays((prev) =>
-      prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day]
-    );
-  };
-
   const saveSettings = () => {
-    safeStorage.setItem(O1_SETTINGS_KEY, {
+    persistSettingsPatch({
       name,
       handle,
       age,
@@ -286,9 +223,7 @@ export const useProductionSettings = (onShowToast?: (msg: string) => void) => {
       weightKg,
       bio,
       eliteReelsPresence,
-      discipline,
       autoDispatch,
-      activeDays,
       restRecoveryMode,
       weightUnit,
       heightUnit,
@@ -296,25 +231,13 @@ export const useProductionSettings = (onShowToast?: (msg: string) => void) => {
       defaultRestSeconds,
       defaultBarbellKg,
       stepTarget,
-      autoLocation,
-      homeGym,
       inputStyle,
       hapticVibration,
       soundEffects,
-      dialClicks,
-      restTimerChime,
-      prChime,
       osPushEnabled,
       preWorkoutReminder,
       coachUpdates,
-      buddyMatches,
-      gymCheckIns,
-      systemBilling,
-      buddyRadarDiscovery,
-      ghostMode,
-      publicTelemetry,
       crashReports,
-      liveIngestionStream,
     });
     try {
       useTelemetryStore.getState().setStepTarget(stepTarget);
@@ -324,8 +247,15 @@ export const useProductionSettings = (onShowToast?: (msg: string) => void) => {
     if (onShowToast) onShowToast('Settings updated.');
   };
 
+  /** Reminders and Bluetooth sensors belong to this account; stop both before the device is released. */
+  const releasePhoneResources = async () => {
+    bluetoothSensorService.disconnectAll();
+    await clearReminders().catch(() => {});
+  };
+
   const handleLogout = async (onLogoutCallback?: () => void) => {
     tactileEngine.triggerSelectionBuzz();
+    await releasePhoneResources();
     try {
       await supabase.auth.signOut();
     } catch (e) {
@@ -344,7 +274,7 @@ export const useProductionSettings = (onShowToast?: (msg: string) => void) => {
 
   const handleConfirmDelete = async (onLogoutCallback?: () => void) => {
     setIsDeleting(true);
-    tactileEngine.playPRCelebration();
+    tactileEngine.triggerSelectionBuzz();
     try {
       const { data: userData, error: userErr } = await supabase.auth.getUser();
       const uid = userData?.user?.id;
@@ -396,6 +326,7 @@ export const useProductionSettings = (onShowToast?: (msg: string) => void) => {
       } catch (e) {
         console.warn('[Settings] Supabase auth signOut fallback:', e);
       }
+      await releasePhoneResources();
       setTimeout(() => {
         if (typeof window !== 'undefined') {
           clearAccountData();
@@ -419,8 +350,7 @@ export const useProductionSettings = (onShowToast?: (msg: string) => void) => {
     }
   };
 
-  const handleExportVault = () => {
-    tactileEngine.triggerSelectionBuzz();
+  const handleExportVault = async () => {
     // Gather all local-first athlete telemetry and logs from on-device storage
     const allLocalKeys = typeof window !== 'undefined' ? Object.keys(window.localStorage) : [];
     const localSnapshot: Record<string, any> = {};
@@ -437,12 +367,12 @@ export const useProductionSettings = (onShowToast?: (msg: string) => void) => {
     }
 
     const vaultArchive = {
-      vaultVersion: '1.0.0-SOVEREIGN-LOCAL-SANCTUARY',
+      vaultVersion: '1.0.0',
       architecture: 'Local-first',
       athlete: {
         name,
         handle,
-        email: 'o1oblivionfitness@gmail.com',
+        email: safeStorage.getItem<string>('o1fc_user_email', '') || '',
         age,
         heightCm,
         weightKg,
@@ -452,26 +382,18 @@ export const useProductionSettings = (onShowToast?: (msg: string) => void) => {
         defaultRestSeconds,
         defaultBarbellKg,
         stepTarget,
-        discipline,
-        activeDays,
-        homeGym,
       },
       localDataStore: localSnapshot,
       exportedAt: new Date().toISOString(),
-      compliance: {
-        appleAttCompliant: true,
-        googlePlayDataSafety: 'ZERO_CLOUD_STORAGE',
-        gdprCcpaRightToPortability: true,
-      },
     };
-    const blob = new Blob([JSON.stringify(vaultArchive, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `O1FC-Sanctuary-Vault-${Date.now()}.o1fc`;
-    link.click();
-    URL.revokeObjectURL(url);
-    if (onShowToast) onShowToast('Air-Gapped Vault Backup (.o1fc) exported.');
+    const day = new Date().toISOString().slice(0, 10);
+    try {
+      const result = await exportJsonFile(`oblivion1-data-${day}.json`, JSON.stringify(vaultArchive, null, 2));
+      if (result === 'saved') onShowToast?.('Your data file is ready');
+    } catch (err) {
+      console.warn('[Settings] Export failed:', err);
+      onShowToast?.("Couldn't export your data. Try again.");
+    }
   };
 
   return {
@@ -489,12 +411,8 @@ export const useProductionSettings = (onShowToast?: (msg: string) => void) => {
     setBio,
     eliteReelsPresence,
     setEliteReelsPresence,
-    discipline,
-    setDiscipline,
     autoDispatch,
     setAutoDispatch,
-    activeDays,
-    toggleDay,
     restRecoveryMode,
     setRestRecoveryMode,
     weightUnit,
@@ -509,44 +427,20 @@ export const useProductionSettings = (onShowToast?: (msg: string) => void) => {
     setDefaultBarbellKg,
     stepTarget,
     setStepTarget,
-    autoLocation,
-    setAutoLocation,
-    homeGym,
-    setHomeGym,
     inputStyle,
     setInputStyle,
     hapticVibration,
     setHapticVibration,
     soundEffects,
     setSoundEffects,
-    dialClicks,
-    setDialClicks,
-    restTimerChime,
-    setRestTimerChime,
-    prChime,
-    setPrChime,
     osPushEnabled,
     setOsPushEnabled,
     preWorkoutReminder,
     setPreWorkoutReminder,
     coachUpdates,
     setCoachUpdates,
-    buddyMatches,
-    setBuddyMatches,
-    gymCheckIns,
-    setGymCheckIns,
-    systemBilling,
-    setSystemBilling,
-    buddyRadarDiscovery,
-    setBuddyRadarDiscovery,
-    ghostMode,
-    setGhostMode,
-    publicTelemetry,
-    setPublicTelemetry,
     crashReports,
     setCrashReports,
-    liveIngestionStream,
-    setLiveIngestionStream,
     showDeleteConfirm,
     setShowDeleteConfirm,
     isDeleting,
