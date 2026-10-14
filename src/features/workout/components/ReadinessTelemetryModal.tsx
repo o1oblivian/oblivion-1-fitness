@@ -3,6 +3,7 @@ import { X, Heart, Activity, Moon, ShieldCheck } from 'lucide-react';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { useTelemetryHistoryStore } from '../../log/store/useTelemetryHistoryStore';
 import { latestSleepRecord } from '../../report/vitals';
+import { TrainingSafetyInfo } from '../../legal/TrainingSafetyInfo';
 
 interface Props {
   isOpen: boolean;
@@ -33,25 +34,26 @@ export const ReadinessTelemetryModal: React.FC<Props> = ({ isOpen, onClose, scor
       role="dialog"
       aria-modal="true"
       onClick={onClose}
-      className="fixed inset-0 z-50 bg-black/70 o1-sheet-scrim flex items-center justify-center animate-in fade-in duration-200 select-none"
+      className="fixed inset-0 z-[60000] bg-black/85 backdrop-blur-md o1-sheet-scrim flex items-center justify-center animate-in fade-in duration-200 select-none"
     >
       <div
         onClick={(e) => e.stopPropagation()}
         className="o1-sheet-card w-full bg-o1-card border border-white/[0.07] p-4 shadow-xl text-white space-y-3 overflow-y-auto relative"
       >
         {/* Header */}
-        <div className="flex items-center justify-between pb-3 border-b border-white/[0.05]">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-sky-500/10 border border-sky-500/30 flex items-center justify-center text-sky-400">
+        <div className="flex flex-wrap items-center pb-3 border-b border-white/[0.05]">
+          <div className="flex-1 flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-xl bg-sky-500/10 border border-sky-500/30 flex items-center justify-center text-sky-600">
               <Heart className="w-4 h-4 fill-sky-500/20" />
             </div>
             <div>
-              <span className="text-[10px] font-mono tracking-widest text-sky-400 font-bold block">
+              <span className="text-[10px] font-mono tracking-widest text-sky-600 font-medium block">
                 Biometric Telemetry
               </span>
-              <h3 className="text-sm font-bold text-white tracking-tight">Readiness</h3>
+              <h3 className="text-sm font-medium text-white tracking-tight">Readiness</h3>
             </div>
           </div>
+          <TrainingSafetyInfo topic="readiness" />
           <button
             type="button"
             aria-label="Close"
@@ -65,36 +67,36 @@ export const ReadinessTelemetryModal: React.FC<Props> = ({ isOpen, onClose, scor
         {/* Score */}
         <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/[0.07] flex items-center justify-between">
           <div>
-            <span className="text-[10px] font-mono tracking-wider text-neutral-400 font-bold block">
+            <span className="text-[10px] font-mono tracking-wider text-neutral-400 font-medium block">
               Readiness Score
             </span>
             <div className="flex items-baseline gap-2 mt-0.5">
-              <span className="text-3xl font-mono font-black text-sky-400">{hasScore ? `${score}%` : '--'}</span>
+              <span className="text-3xl font-mono font-light text-sky-600">{hasScore ? `${score}%` : '--'}</span>
               {!hasScore && <span className="text-xs font-semibold text-neutral-400">Nothing logged yet</span>}
             </div>
           </div>
           <div className="w-10 h-10 rounded-full bg-sky-500/10 border border-sky-500/30 flex items-center justify-center">
-            <ShieldCheck className="w-5 h-5 text-sky-400" />
+            <ShieldCheck className="w-5 h-5 text-sky-600" />
           </div>
         </div>
 
         {/* Logged biometrics */}
         <div className="grid grid-cols-2 gap-2.5">
           <div className="p-3.5 rounded-2xl bg-o1-card border border-white/[0.07] space-y-1">
-            <div className="flex items-center gap-1.5 text-neutral-400 text-[10px] font-mono font-bold">
-              <Activity className="w-3.5 h-3.5 text-sky-400" />
+            <div className="flex items-center gap-1.5 text-neutral-400 text-[10px] font-mono font-medium">
+              <Activity className="w-3.5 h-3.5 text-sky-600" />
               <span>HRV (Variability)</span>
             </div>
-            <div className="text-base font-mono font-bold text-white">--</div>
+            <div className="text-base font-mono font-medium text-white">--</div>
             <div className="text-[10px] font-mono text-neutral-500">Needs a connected wearable</div>
           </div>
 
           <div className="p-3.5 rounded-2xl bg-o1-card border border-white/[0.07] space-y-1">
-            <div className="flex items-center gap-1.5 text-neutral-400 text-[10px] font-mono font-bold">
-              <Heart className="w-3.5 h-3.5 text-red-500" />
+            <div className="flex items-center gap-1.5 text-neutral-400 text-[10px] font-mono font-medium">
+              <Heart className="w-3.5 h-3.5 text-o1-crimson" />
               <span>Resting Heart Rate</span>
             </div>
-            <div className="text-base font-mono font-bold text-white">{restingHr}</div>
+            <div className="text-base font-mono font-medium text-white">{restingHr}</div>
             <div className="text-[10px] font-mono text-neutral-500">
               {restingHr === '--' ? 'Not logged' : 'From your sleep log'}
             </div>
@@ -102,11 +104,11 @@ export const ReadinessTelemetryModal: React.FC<Props> = ({ isOpen, onClose, scor
 
           <div className="col-span-2 p-3.5 rounded-2xl bg-o1-card border border-white/[0.07] space-y-1.5">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-1.5 text-neutral-400 text-[10px] font-mono font-bold">
-                <Moon className="w-3.5 h-3.5 text-sky-400" />
+              <div className="flex items-center gap-1.5 text-neutral-400 text-[10px] font-mono font-medium">
+                <Moon className="w-3.5 h-3.5 text-sky-600" />
                 <span>Sleep</span>
               </div>
-              <span className="text-xs font-mono font-bold text-white">{totalSleep}</span>
+              <span className="text-xs font-mono font-medium text-white">{totalSleep}</span>
             </div>
             <div className="flex items-center justify-between text-[11px] font-mono text-neutral-300 pt-0.5">
               <span>Deep: <strong className="text-white">{fmtMinutes(sleep?.deepSleepMinutes ?? 0)}</strong></span>
@@ -123,7 +125,7 @@ export const ReadinessTelemetryModal: React.FC<Props> = ({ isOpen, onClose, scor
         <button
           type="button"
           onClick={() => { tactileEngine.triggerSelectionBuzz(); onClose(); }}
-          className="w-full min-h-[44px] rounded-2xl bg-white/10 hover:bg-white/15 border border-white/[0.07] text-white text-xs font-mono font-bold tracking-wider active:scale-95 transition cursor-pointer"
+          className="w-full min-h-[44px] rounded-2xl bg-white/10 hover:bg-white/15 border border-white/[0.07] text-white text-xs font-mono font-medium tracking-wider active:scale-95 transition cursor-pointer"
         >
           Close
         </button>

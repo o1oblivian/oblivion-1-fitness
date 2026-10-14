@@ -24,7 +24,7 @@ export const buildNextSet = (
     weightKg: load,
     weight: load,
     reps: copy ? Number(lastInSession.reps) || 0 : 0,
-    rpe: copy && Number(lastInSession.rpe) > 0 ? Number(lastInSession.rpe) : 0,
+    rpe: 0,
     completed: false,
   };
 };

@@ -27,13 +27,11 @@ function namesCollide(a: string, b: string): boolean {
 
 interface ManualModeViewProps {
   discipline?: DisciplineType;
-  onShowToast?: (msg: string) => void;
   onAddExercise?: (exercise: ExerciseItem) => void;
 }
 
 export const ManualModeView: React.FC<ManualModeViewProps> = ({
   discipline = 'lift',
-  onShowToast,
   onAddExercise,
 }) => {
   const addExercisesToActiveLog = useWorkoutStore((s) => s.addExercisesToActiveLog);
@@ -90,7 +88,7 @@ export const ManualModeView: React.FC<ManualModeViewProps> = ({
       name: def.name,
       targetMuscle: def.category,
       restSecs: def.restSecs || 90,
-      equipment: def.equipment as any,
+      equipment: def.equipment,
       tier: def.tier,
       sets: Array.from({ length: def.defaultSets || 3 }, (_, i) => ({
         id: `set-${Date.now()}-${i + 1}-${Math.random().toString(36).slice(2, 6)}`,
@@ -104,7 +102,6 @@ export const ManualModeView: React.FC<ManualModeViewProps> = ({
     };
     if (onAddExercise) onAddExercise(item);
     else addExercisesToActiveLog([item]);
-    onShowToast?.(`Added ${def.name} to active log`);
   };
 
   return (
@@ -120,7 +117,7 @@ export const ManualModeView: React.FC<ManualModeViewProps> = ({
             }}
             className={`px-3 py-1 rounded-full text-[10px] font-semibold tracking-wider whitespace-nowrap transition-all border cursor-pointer ${
               selectedCategory === cat
-                ? 'bg-white text-neutral-950 border-transparent'
+                ? 'bg-o1-sheet text-o1-text border-o1-crimson'
                 : 'bg-black text-neutral-400 border-white/[0.07] hover:text-white'
             }`}
           >
@@ -148,7 +145,7 @@ export const ManualModeView: React.FC<ManualModeViewProps> = ({
           }}
           className={`h-9 px-3 rounded-xl border text-xs font-medium flex items-center gap-1 cursor-pointer ${
             showGear || selectedEquip !== 'All'
-              ? 'bg-white text-neutral-950 border-transparent'
+              ? 'bg-o1-sheet text-o1-text border-o1-crimson'
               : 'bg-black text-neutral-300 border-white/[0.07]'
           }`}
         >
@@ -169,7 +166,7 @@ export const ManualModeView: React.FC<ManualModeViewProps> = ({
               }}
               className={`px-2.5 py-1 rounded-xl text-[10px] font-semibold tracking-wider whitespace-nowrap transition-all cursor-pointer border ${
                 selectedEquip === eq
-                  ? 'bg-white text-neutral-950 border-transparent'
+                  ? 'bg-o1-sheet text-o1-text border-o1-crimson'
                   : 'bg-o1-card text-neutral-400 border-white/[0.07]'
               }`}
             >

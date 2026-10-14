@@ -1,9 +1,11 @@
 import React from 'react';
+import { createPortal } from 'react-dom';
 import { HydrationIntelligenceModal } from './HydrationIntelligenceModal';
 import { BioSyncIntelligenceModal } from './BioSyncIntelligenceModal';
 import { SupplementTimingModal } from './SupplementTimingModal';
 import { SleepLogModal } from './SleepLogModal';
 import { ReadinessTelemetryModal } from './ReadinessTelemetryModal';
+import { useScrollLock } from '../../../hooks/useScrollLock';
 
 export interface HeroModalsProps {
   activeModal: 'hydration' | 'biosync' | 'supplements' | 'sleep' | null;
@@ -11,10 +13,9 @@ export interface HeroModalsProps {
   isReadinessOpen: boolean;
   onCloseReadiness: () => void;
   hydrationCurrentL: number;
-  recoveryEnergyScore: number;
+  readinessScore: number | null;
   onAddHydration: (liters: number) => void;
   onResetHydration: () => void;
-  onShowToast?: (msg: string) => void;
 }
 
 export const HeroModals: React.FC<HeroModalsProps> = ({
@@ -23,12 +24,16 @@ export const HeroModals: React.FC<HeroModalsProps> = ({
   isReadinessOpen,
   onCloseReadiness,
   hydrationCurrentL,
-  recoveryEnergyScore,
+  readinessScore,
   onAddHydration,
   onResetHydration,
-  onShowToast,
 }) => {
-  return (
+  const anyOpen = activeModal !== null || isReadinessOpen;
+  useScrollLock(anyOpen);
+
+  if (!anyOpen) return null;
+
+  return createPortal(
     <>
       <HydrationIntelligenceModal
         isOpen={activeModal === 'hydration'}
@@ -36,30 +41,17 @@ export const HeroModals: React.FC<HeroModalsProps> = ({
         currentLiters={hydrationCurrentL}
         onAddLiters={onAddHydration}
         onResetLiters={onResetHydration}
-        onShowToast={onShowToast}
       />
-      <BioSyncIntelligenceModal
-        isOpen={activeModal === 'biosync'}
-        onClose={onCloseModal}
-        onAutoRegulate={() => onShowToast?.('RPE auto-regulated for peak follicular window.')}
-        onShowToast={onShowToast}
-      />
-      <SupplementTimingModal
-        isOpen={activeModal === 'supplements'}
-        onClose={onCloseModal}
-        onShowToast={onShowToast}
-      />
-      <SleepLogModal
-        isOpen={activeModal === 'sleep'}
-        onClose={onCloseModal}
-        onShowToast={onShowToast}
-      />
+      <BioSyncIntelligenceModal isOpen={activeModal === 'biosync'} onClose={onCloseModal} />
+      <SupplementTimingModal isOpen={activeModal === 'supplements'} onClose={onCloseModal} />
+      <SleepLogModal isOpen={activeModal === 'sleep'} onClose={onCloseModal} />
       <ReadinessTelemetryModal
         isOpen={isReadinessOpen}
         onClose={onCloseReadiness}
-        score={recoveryEnergyScore}
+        score={readinessScore ?? undefined}
       />
-    </>
+    </>,
+    document.body,
   );
 };
 

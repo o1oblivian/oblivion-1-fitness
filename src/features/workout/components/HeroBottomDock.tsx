@@ -1,100 +1,92 @@
 import React from 'react';
-import { Gauge, RotateCw } from 'lucide-react';
+import { Gauge, Play, RotateCw } from 'lucide-react';
 import { tactileEngine } from '../../../services/tactileEngine';
 
 export interface HeroBottomDockProps {
   activeDay: string;
   activeSplitLabel: string;
-  isPresentDay: boolean;
+  hasSavedRoutine: boolean;
   onOpenCardio?: () => void;
-  onCycleDayDial: () => void;
   onLoadWorkout: () => void;
   onFlipToVitals: () => void;
 }
 
+const SIDE_PILL =
+  'h-11 px-4 rounded-full bg-black/45 backdrop-blur-md border border-white/15 text-neutral-200 flex items-center gap-1.5 cursor-pointer active:scale-95 transition-all text-[13px] font-sans font-normal shrink-0 hover:border-white/25 hover:bg-black/60 disabled:opacity-40 disabled:cursor-not-allowed';
+
 export const HeroBottomDock: React.FC<HeroBottomDockProps> = ({
   activeDay,
   activeSplitLabel,
-  isPresentDay,
+  hasSavedRoutine,
   onOpenCardio,
-  onCycleDayDial,
   onLoadWorkout,
   onFlipToVitals,
-}) => {
-  return (
-    <div
-      id="hero-bottom-dock"
-      className="relative z-10 flex items-center justify-between w-full select-none px-1"
+}) => (
+  <div id="hero-bottom-dock" className="relative z-10 flex items-center justify-between gap-2 w-full select-none px-0.5">
+    <button
+      type="button"
+      id="hero-cardio-btn"
+      title="Scan a cardio session"
+      disabled={!onOpenCardio}
+      onClick={(e) => {
+        e.stopPropagation();
+        tactileEngine.triggerSelectionBuzz();
+        onOpenCardio?.();
+      }}
+      className={SIDE_PILL}
     >
-      {/* 1. Left Pill: CARDIO */}
-      <button
-        type="button"
-        id="hero-cardio-btn"
-        title="Open Cardio & Heart Rate Telemetry"
-        onClick={(e) => {
-          e.stopPropagation();
-          tactileEngine.triggerSelectionBuzz();
-          if (onOpenCardio) onOpenCardio();
-          else onCycleDayDial();
-        }}
-        className="h-8 px-3.5 rounded-full bg-black/35 backdrop-blur-md border border-white/15 text-neutral-300 flex items-center gap-1.5 cursor-pointer active:scale-95 transition-all text-xs font-sans font-semibold tracking-wide shrink-0 hover:border-white/25 hover:bg-black/50"
-      >
-        <Gauge className="w-3.5 h-3.5" strokeWidth={1.75} />
-        <span>Cardio</span>
-      </button>
+      <Gauge className="w-4 h-4" strokeWidth={1.75} />
+      <span>Cardio</span>
+    </button>
 
-      {/* 2. Middle Pill: DAY | SPLIT */}
-      <div className="h-8 px-3.5 rounded-full bg-black/60 border border-white/[0.07] font-mono text-xs flex items-center justify-center gap-1.5 shrink-0 shadow-none">
-        <button
-          type="button"
-          id="hero-cycle-day-btn"
-          title={isPresentDay ? "Load today's saved workout" : "Browse day"}
-          onClick={(e) => {
-            e.stopPropagation();
-            tactileEngine.triggerSelectionBuzz();
-            if (isPresentDay) {
-              onLoadWorkout();
-            } else {
-              onCycleDayDial();
-            }
-          }}
-          className="text-white font-semibold tracking-normal hover:opacity-80 active:scale-90 transition cursor-pointer"
-        >
-          {activeDay || 'Thu'}
-        </button>
-        <span className="text-neutral-500/80 text-[11px] font-normal select-none">|</span>
-        <button
-          type="button"
-          id="hero-load-workout-btn"
-          title="Browse day dials"
-          onClick={(e) => {
-            e.stopPropagation();
-            tactileEngine.triggerSelectionBuzz();
-            onCycleDayDial();
-          }}
-          className="text-white font-extrabold tracking-normal hover:opacity-80 active:scale-95 transition cursor-pointer"
-        >
-          {activeSplitLabel || 'Hyper'}
-        </button>
-      </div>
+    <button
+      type="button"
+      id="hero-load-workout-btn"
+      title={hasSavedRoutine ? `Start your saved ${activeDay} workout` : `No saved ${activeDay} workout yet`}
+      aria-label={
+        hasSavedRoutine
+          ? `Start ${activeDay} ${activeSplitLabel} workout`
+          : `${activeDay} ${activeSplitLabel}. No saved workout for this day yet`
+      }
+      onClick={(e) => {
+        e.stopPropagation();
+        onLoadWorkout();
+      }}
+      className={`h-11 min-w-0 px-4 rounded-full border text-[13px] flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 transition-all ${
+        hasSavedRoutine
+          ? 'bg-o1-crimson border-o1-crimson hover:bg-o1-crimson-hover text-white'
+          : 'bg-black/65 border-white/[0.12] hover:border-white/25 text-white'
+      }`}
+    >
+      {hasSavedRoutine ? (
+        <>
+          <Play className="w-3.5 h-3.5 shrink-0" fill="currentColor" strokeWidth={0} />
+          <span className="truncate">Start {activeSplitLabel}</span>
+        </>
+      ) : (
+        <>
+          <span>{activeDay}</span>
+          <span className="text-white/40" aria-hidden>·</span>
+          <span className="font-light truncate">{activeSplitLabel}</span>
+        </>
+      )}
+    </button>
 
-      {/* 3. Right Pill: VITALS (No dot next vitals) */}
-      <button
-        type="button"
-        id="hero-flip-vitals-btn"
-        title="Flip to Biometrics & Restoration HUD"
-        onClick={(e) => {
-          e.stopPropagation();
-          tactileEngine.triggerSelectionBuzz();
-          onFlipToVitals();
-        }}
-        className="h-8 px-3.5 rounded-full bg-black/35 backdrop-blur-md border border-white/15 text-neutral-300 flex items-center gap-1.5 cursor-pointer active:scale-95 transition-all text-xs font-sans font-semibold tracking-wide shrink-0 hover:border-white/25 hover:bg-black/50"
-      >
-        <RotateCw className="w-3.5 h-3.5" strokeWidth={1.75} />
-        <span>Vitals</span>
-      </button>
-    </div>
-  );
-};
+    <button
+      type="button"
+      id="hero-flip-vitals-btn"
+      title="Show vitals"
+      onClick={(e) => {
+        e.stopPropagation();
+        tactileEngine.triggerSelectionBuzz();
+        onFlipToVitals();
+      }}
+      className={SIDE_PILL}
+    >
+      <RotateCw className="w-4 h-4" strokeWidth={1.75} />
+      <span>Vitals</span>
+    </button>
+  </div>
+);
 
 export default HeroBottomDock;

@@ -3,7 +3,7 @@ import { WorkoutBlueprint } from '../workoutBlueprints';
 export const HYBRID_BLUEPRINTS: WorkoutBlueprint[] = [
   {
     id: 'hyrox-hybrid',
-    title: 'Hyrox Engine / Hybrid',
+    title: 'Race Engine / Hybrid',
     subtitle: 'Lactate Threshold, Sled Power & Aerobic Capacity',
     badge: 'HYBRID',
     image: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=800&q=80',
@@ -11,7 +11,7 @@ export const HYBRID_BLUEPRINTS: WorkoutBlueprint[] = [
     focus: 'Functional Threshold & Compromised Running',
     estimatedTime: '72 Mins',
     description:
-      'Engineered for competitive Hyrox & Deka athletes. Builds high-wattage aerobic base, compromised running tolerance with heavy lactic acid pools, and sled pushing mechanical efficiency.',
+      'Engineered for fitness racing athletes. Builds high-wattage aerobic base, compromised running tolerance with heavy lactic acid pools, and sled pushing mechanical efficiency.',
     targetMuscles: ['Cardiorespiratory', 'Quadriceps', 'Glutes', 'Lats', 'Shoulders'],
     exercises: [
       {

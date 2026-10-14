@@ -1,6 +1,8 @@
+import './accountBoot';
+import './stores/useDisplayPrefs';
 import React, { Component, ReactNode, StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import App from './App.tsx';
+import { restoreDurableStorage } from './utils/safeStorage';
 import './index.css';
 
 (function installNativeApiBaseFetch() {
@@ -110,7 +112,9 @@ class RootErrorBoundary extends Component<RootBoundaryProps, RootBoundaryState> 
 try {
   const rootElement = document.getElementById('root');
   if (rootElement) {
-    const mount = () => {
+    // Stores read storage when App's modules load, so the durable copy is restored first.
+    const mount = async () => {
+      const { default: App } = await import('./App.tsx');
       createRoot(rootElement).render(
         <StrictMode>
           <RootErrorBoundary>
@@ -120,14 +124,11 @@ try {
       );
       rootElement.setAttribute('data-o1-mounted', '1');
     };
-    if (import.meta.env.DEV) {
-      import('./devPreviewBoot')
-        .then((mod) => mod.applyDevPreview())
-        .catch(() => undefined)
-        .finally(mount);
-    } else {
-      mount();
-    }
+    const restored = restoreDurableStorage().catch(() => undefined);
+    const ready = import.meta.env.DEV
+      ? restored.then(() => import('./devPreviewBoot')).then((mod) => mod.applyDevPreview()).catch(() => undefined)
+      : restored;
+    void ready.finally(() => mount().catch((err) => console.error('[O1 FC Launch Guard]:', err)));
   }
 } catch (startupError) {
   console.error('[O1 FC Cold Boot Exception Caught]:', startupError);

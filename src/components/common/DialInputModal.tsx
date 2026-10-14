@@ -64,7 +64,7 @@ export const DialInputModal: React.FC<DialInputModalProps> = ({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="w-full flex items-center justify-between">
-          <span className="text-[11px] font-tactical font-bold tracking-[0.14em] text-neutral-400">
+          <span className="text-[11px] font-normal tracking-[0.16em] text-o1-muted">
             {config.title}
           </span>
           <div className="flex items-center gap-1.5">

@@ -5,7 +5,8 @@ import { tactileEngine } from '../../../services/tactileEngine';
 import { getAuthenticatedUserId } from '../../../services/authUser';
 import { useAuthStore } from '../../../stores/useAuthStore';
 import { sendCoachMessage } from '../../coach/services/coachBridge';
-import { blockUser, reportUser } from '../../../services/safetyService';
+import { reportUser } from '../../../services/safetyService';
+import { useReelSafetyStore } from '../services/reelSafety';
 import { SafetyReportSheet } from '../../../components/common/SafetyReportSheet';
 
 interface CoachDirectMessageModalProps {
@@ -21,6 +22,7 @@ export const CoachDirectMessageModal: React.FC<CoachDirectMessageModalProps> = (
   const [reportOpen, setReportOpen] = useState(false);
   const [safetyNote, setSafetyNote] = useState('');
   const senderName = useAuthStore((s) => s.profile?.name);
+  const blockCoach = useReelSafetyStore((s) => s.blockCoach);
 
   if (!coach) return null;
 
@@ -128,7 +130,7 @@ export const CoachDirectMessageModal: React.FC<CoachDirectMessageModalProps> = (
           void reportUser({ reportedId: coach.id, name: coach.name, reason, details, context: 'coach' }).then((ok) => {
             setSafetyNote(ok ? 'Report sent. The Oblivion 1 team will review it.' : 'Report did not send. Sign in and try again.');
           });
-          if (alsoBlock) void blockUser(coach.id);
+          if (alsoBlock) void blockCoach(coach.id);
         }}
       />
     </div>

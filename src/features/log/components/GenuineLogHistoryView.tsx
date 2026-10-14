@@ -12,9 +12,8 @@ import {
   ChevronRight,
   Plus,
   Camera,
-  Pencil,
-  Trash2,
 } from 'lucide-react';
+import { SwipeToReveal } from '../../workout/components/SwipeToReveal';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { useWorkoutStore } from '../../workout/store/useWorkoutStore';
 import { useFuelStore } from '../../fuel/store/useFuelStore';
@@ -32,10 +31,13 @@ import {
 import { LogDayTelemetryModal } from './LogDayTelemetryModal';
 import { CardioConsoleScanModal } from './CardioConsoleScanModal';
 import { LogWeekStrip } from './LogWeekStrip';
+import { LogMonthGrid, type MonthDayItem } from './LogMonthGrid';
 import { LogProgressTowers, TowerPoint } from './LogProgressTowers';
-import { LogLedger } from './LogLedger';
-import { deleteDayLog, markForgotten, purgeArchivedDay } from '../services/dayLogService';
+import { LogLedger, type LedgerRowActions } from './LogLedger';
+import { deleteDayLog, markForgotten, purgeArchivedDay, purgeArchivedLift } from '../services/dayLogService';
 import { collapsedReps, collapsedWeight, exerciseFromSets, formatLoad, knownSets, setWorkKg, setsFromExercise } from '../liftLedger';
+import { resistanceMet } from '../../workout/utils/sessionEnergy';
+import { forgetPendingArchives } from '../../../services/sessionArchive';
 
 interface GenuineLogHistoryViewProps {
   showToast: (msg: string) => void;
@@ -62,7 +64,7 @@ function line(parts: Array<string | null>): string {
 
 function cleanWorkout(rec?: WorkoutDayRecord): WorkoutDayRecord | undefined {
   if (!rec?.hasData) return undefined;
-  const poisoned = rec.durationMinutes === 45 && rec.intensityRpe === 8.5;
+  const poisoned = rec.durationMinutes === 45 && rec.intensityRpe === 8.5 && !rec.burnedKcal;
   return {
     ...rec,
     durationMinutes: poisoned ? 0 : rec.durationMinutes || 0,
@@ -112,6 +114,7 @@ function workoutLine(rec?: WorkoutDayRecord): string {
     part(sessionKg(rec), ' kg'),
     part(rec.completedSets, ' sets'),
     part(rec.durationMinutes, ' min'),
+    part(rec.burnedKcal, ' kcal active'),
   ]);
 }
 
@@ -153,12 +156,15 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({ sh
   const today = useMemo(() => new Date(), []);
   const todayKey = dateKeyOf(today);
   const [weekOffset, setWeekOffset] = useState(0);
+  const [monthView, setMonthView] = useState(false);
+  const [monthOffset, setMonthOffset] = useState(0);
   const [selectedDateStr, setSelectedDateStr] = useState(today.toDateString());
   const [openChannel, setOpenChannel] = useState<TelemetryCategory | null>(null);
   const [chartChannel, setChartChannel] = useState<TelemetryCategory | null>(null);
   const [chartSpan, setChartSpan] = useState<'week' | 'month' | 'year'>('week');
-  const [editor, setEditor] = useState<{ category: TelemetryCategory; mode: 'create' | 'edit' } | null>(null);
+  const [editor, setEditor] = useState<{ category: TelemetryCategory; mode: 'create' | 'edit'; lift?: string } | null>(null);
   const [pendingDelete, setPendingDelete] = useState<TelemetryCategory | null>(null);
+  const [pendingLiftDelete, setPendingLiftDelete] = useState<string | null>(null);
   const [isConsoleScanOpen, setIsConsoleScanOpen] = useState(false);
 
   const mondayDate = useMemo(() => {
@@ -259,9 +265,51 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({ sh
     });
   }, [mondayDate, historyByDate, todayKey, liveWorkout, liveFood, stepCount]);
 
+  const monthStart = useMemo(() => new Date(today.getFullYear(), today.getMonth() + monthOffset, 1), [today, monthOffset]);
+
+  const monthDays = useMemo<MonthDayItem[]>(() => {
+    const count = new Date(monthStart.getFullYear(), monthStart.getMonth() + 1, 0).getDate();
+    return Array.from({ length: count }, (_, index) => {
+      const date = new Date(monthStart.getFullYear(), monthStart.getMonth(), index + 1);
+      const key = dateKeyOf(date);
+      const record = historyByDate[key];
+      const isToday = key === todayKey;
+      const trained = Boolean(record?.workout?.hasData || (isToday && liveWorkout));
+      return {
+        dayNum: index + 1,
+        dateStr: date.toDateString(),
+        isToday,
+        isFuture: date.getTime() > today.getTime() && !isToday,
+        trained,
+        hasActivity: Boolean(
+          record?.cardio?.hasData ||
+          record?.nutrition?.hasData ||
+          record?.sleep?.hasData ||
+          (record?.meditation?.minutes || 0) > 0 ||
+          (isToday && (liveFood || stepCount > 0)),
+        ),
+      };
+    });
+  }, [monthStart, historyByDate, todayKey, today, liveWorkout, liveFood, stepCount]);
+
+  const weekOffsetFor = (target: Date): number => {
+    const day = today.getDay();
+    const currentMonday = new Date(today);
+    currentMonday.setDate(today.getDate() + (day === 0 ? -6 : 1 - day));
+    currentMonday.setHours(0, 0, 0, 0);
+    const start = new Date(target);
+    start.setHours(0, 0, 0, 0);
+    const targetDay = start.getDay();
+    start.setDate(start.getDate() + (targetDay === 0 ? -6 : 1 - targetDay));
+    return Math.min(0, Math.round((start.getTime() - currentMonday.getTime()) / (7 * 86_400_000)));
+  };
+
   const sunday = new Date(mondayDate);
   sunday.setDate(mondayDate.getDate() + 6);
-  const weekRangeLabel = `${mondayDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} – ${sunday.toLocaleDateString('en-US', { day: 'numeric' })}`;
+  const weekRangeLabel = monthView
+    ? monthStart.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+    : `${mondayDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} – ${sunday.toLocaleDateString('en-US', { day: 'numeric' })}`;
+  const atPresent = monthView ? monthOffset >= 0 : weekOffset >= 0;
 
   const selectedDayMeta: DayMeta = useMemo(() => {
     const yesterday = new Date(today);
@@ -295,11 +343,6 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({ sh
   };
 
   const removeEntry = (category: TelemetryCategory) => {
-    if (pendingDelete !== category) {
-      tactileEngine.triggerSelectionBuzz();
-      setPendingDelete(category);
-      return;
-    }
     tactileEngine.triggerSelectionBuzz();
     if (category === 'nutrition' && isViewingToday) {
       const fuel = useFuelStore.getState();
@@ -308,15 +351,44 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({ sh
       });
     }
     if (category === 'workout' && isViewingToday) {
+      const loggedKcal = historyByDate[selectedDateKey]?.workout?.burnedKcal ?? 0;
+      if (loggedKcal > 0) useFuelStore.getState().logBurned(-loggedKcal);
       useWorkoutStore.getState().clearActiveLog();
       useWorkoutStore.getState().setActiveSession(false);
     }
     markForgotten(selectedDateKey, category);
     useTelemetryHistoryStore.getState().clearDayRecord(selectedDateKey, category);
     void deleteDayLog(selectedDateKey, category);
+    if (category === 'workout' || category === 'cardio') forgetPendingArchives(selectedDateKey, category);
     void purgeArchivedDay(selectedDateKey, category);
     setPendingDelete(null);
-    showToast('Removed');
+  };
+
+  const removeLift = (name: string) => {
+    setPendingLiftDelete(null);
+    const remaining = (workout?.exercises || []).filter((exercise) => exercise.name !== name);
+    if (remaining.length === 0) {
+      removeEntry('workout');
+      return;
+    }
+    tactileEngine.triggerSelectionBuzz();
+    if (isViewingToday) {
+      const store = useWorkoutStore.getState();
+      const kept = store.exercises.filter((exercise) => (exercise.name || exercise.exerciseName || '') !== name);
+      if (kept.length !== store.exercises.length) store.setExercises(kept);
+    }
+    const saved = historyByDate[selectedDateKey]?.workout;
+    if (saved?.hasData) {
+      const exercises = (saved.exercises || []).filter((exercise) => exercise.name !== name);
+      useTelemetryHistoryStore.getState().updateDayRecord(selectedDateKey, 'workout', {
+        ...saved,
+        exercises,
+        tonnageKg: exercises.reduce((sum, lift) => sum + setWorkKg(knownSets(lift)), 0),
+        completedSets: exercises.reduce((sum, lift) => sum + (knownSets(lift).length || lift.sets || 0), 0),
+      });
+    }
+    forgetPendingArchives(selectedDateKey, 'workout', name);
+    void purgeArchivedLift(selectedDateKey, name);
   };
 
   const formatTower = (category: TelemetryCategory, value: number) => {
@@ -452,6 +524,8 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({ sh
     { id: 'sleep', title: 'Sleep', summary: sleepLine(sleep), color: 'text-o1-iris', icon: <Moon /> },
     { id: 'meditation', title: 'Mindful', summary: mindfulLine(mindful), color: 'text-o1-rose', icon: <Brain /> },
   ];
+  const workoutHasLifts = (workout?.exercises?.length ?? 0) > 0;
+  const firstEditable = channels.find((channel) => (channel.id !== 'workout' || !workoutHasLifts) && hasEntry(channel.id))?.id ?? null;
 
   return (
     <div className="o1-log space-y-2.5 select-none font-sans">
@@ -461,7 +535,24 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({ sh
             <span className="o1-mark text-o1-copper">
               <CalendarDays />
             </span>
-            <span className="text-sm font-semibold text-white">Week</span>
+            <div className="inline-flex bg-o1-well border border-white/[0.07] p-0.5 rounded-full">
+              {([false, true] as const).map((month) => (
+                <button
+                  key={String(month)}
+                  type="button"
+                  onClick={() => {
+                    tactileEngine.triggerSelectionBuzz();
+                    if (month) {
+                      setMonthOffset((selectedDate.getFullYear() - today.getFullYear()) * 12 + selectedDate.getMonth() - today.getMonth());
+                    }
+                    setMonthView(month);
+                  }}
+                  className={`px-2.5 py-0.5 rounded-full text-[11px] font-semibold ${monthView === month ? 'bg-o1-crimson text-white' : 'text-neutral-400'}`}
+                >
+                  {month ? 'Month' : 'Week'}
+                </button>
+              ))}
+            </div>
           </div>
           <div className="flex items-center gap-1">
             <span className="text-[10px] font-semibold text-neutral-400 mr-1">{weekRangeLabel}</span>
@@ -469,10 +560,11 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({ sh
               type="button"
               onClick={() => {
                 tactileEngine.triggerSelectionBuzz();
-                setWeekOffset((offset) => offset - 1);
+                if (monthView) setMonthOffset((offset) => offset - 1);
+                else setWeekOffset((offset) => offset - 1);
               }}
               className="p-1 rounded-lg bg-white/[0.08] text-neutral-300"
-              aria-label="Previous week"
+              aria-label={monthView ? 'Previous month' : 'Previous week'}
             >
               <ChevronLeft className="w-3.5 h-3.5" />
             </button>
@@ -481,9 +573,10 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({ sh
               onClick={() => {
                 tactileEngine.triggerSelectionBuzz();
                 setWeekOffset(0);
+                setMonthOffset(0);
                 setSelectedDateStr(today.toDateString());
               }}
-              className={`px-2 py-0.5 rounded-xl text-[10px] font-semibold ${weekOffset === 0 ? 'bg-o1-crimson text-white' : 'bg-white/[0.08] text-neutral-400'}`}
+              className={`px-2.5 py-0.5 rounded-full border text-[11px] ${atPresent ? 'border-[#C4121A]/60 text-o1-text' : 'border-white/[0.14] text-o1-muted hover:text-o1-text'}`}
             >
               Today
             </button>
@@ -491,29 +584,48 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({ sh
               type="button"
               onClick={() => {
                 tactileEngine.triggerSelectionBuzz();
-                setWeekOffset((offset) => Math.min(0, offset + 1));
+                if (monthView) setMonthOffset((offset) => Math.min(0, offset + 1));
+                else setWeekOffset((offset) => Math.min(0, offset + 1));
               }}
-              disabled={weekOffset >= 0}
+              disabled={atPresent}
               className="p-1 rounded-lg bg-white/[0.08] text-neutral-300 disabled:opacity-30"
-              aria-label="Next week"
+              aria-label={monthView ? 'Next month' : 'Next week'}
             >
               <ChevronRight className="w-3.5 h-3.5" />
             </button>
           </div>
         </div>
-        <LogWeekStrip
-          weekDays={weekDays}
-          selectedDateStr={selectedDateStr}
-          onSelectDate={(dateStr) => setSelectedDateStr(dateStr)}
-          selectedDayMeta={selectedDayMeta}
-        />
+        {monthView ? (
+          <LogMonthGrid
+            leading={(monthStart.getDay() + 6) % 7}
+            days={monthDays}
+            selectedDateStr={selectedDateStr}
+            onSelectDate={(dateStr) => {
+              setSelectedDateStr(dateStr);
+              setWeekOffset(weekOffsetFor(new Date(dateStr)));
+              setPendingDelete(null);
+              setPendingLiftDelete(null);
+            }}
+          />
+        ) : (
+          <LogWeekStrip
+            weekDays={weekDays}
+            selectedDateStr={selectedDateStr}
+            onSelectDate={(dateStr) => {
+              setSelectedDateStr(dateStr);
+              setPendingDelete(null);
+              setPendingLiftDelete(null);
+            }}
+          />
+        )}
       </div>
 
       <div className="space-y-2">
         {channels.map((channel) => {
           const open = openChannel === channel.id;
-          return (
-            <div key={channel.id} className="rounded-2xl bg-o1-card border border-white/[0.07] overflow-hidden">
+          const editable = hasEntry(channel.id);
+          const swipeable = editable && (channel.id !== 'workout' || !workoutHasLifts);
+          const header = (
               <div className="w-full min-h-[44px] px-3 py-2 flex items-center justify-between text-left gap-2">
                 <button
                   type="button"
@@ -555,6 +667,46 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({ sh
                   </button>
                 </span>
               </div>
+          );
+          return (
+            <div key={channel.id} className="rounded-2xl bg-o1-card border border-white/[0.07] overflow-hidden">
+              {swipeable ? (
+                <SwipeToReveal
+                  actionLabel="Delete"
+                  actionAriaLabel={`Delete ${channel.title.toLowerCase()} for ${selectedDayMeta.dayLabel}`}
+                  onAction={() => setPendingDelete(channel.id)}
+                  secondaryAction={{
+                    label: 'Edit',
+                    ariaLabel: `Edit ${channel.title.toLowerCase()} for ${selectedDayMeta.dayLabel}`,
+                    onAction: () => openEditor(channel.id, 'edit'),
+                  }}
+                  hint={channel.id === firstEditable}
+                  contentClassName="bg-o1-card"
+                >
+                  {header}
+                </SwipeToReveal>
+              ) : header}
+              {pendingDelete === channel.id && swipeable && (
+                <div role="alertdialog" aria-label={`Delete ${channel.title}`} className="mx-3 mb-2.5 flex items-center gap-2 rounded-xl bg-o1-well border border-[#C4121A]/40 pl-3 pr-1.5 py-1.5">
+                  <p className="flex-1 min-w-0 text-[12px] text-o1-text leading-snug">
+                    Delete {selectedDayMeta.dayLabel.toLowerCase() === 'today' ? "today's" : `${selectedDayMeta.dayLabel}'s`} {channel.title.toLowerCase()}? This action cannot be undone.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => setPendingDelete(null)}
+                    className="h-8 px-3 rounded-full text-[12px] text-o1-muted hover:text-o1-text cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => removeEntry(channel.id)}
+                    className="h-8 px-3 rounded-full bg-[#C4121A] hover:bg-[#A30F16] active:bg-[#800C11] text-[12px] text-white cursor-pointer"
+                  >
+                    Delete
+                  </button>
+                </div>
+              )}
               {chartChannel === channel.id && (
                 <div className="px-3 pb-3 border-t border-white/[0.05]">
                   <div className="flex justify-center pt-2">
@@ -609,24 +761,42 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({ sh
                     sleep={sleep}
                     mindful={mindful}
                     steps={isViewingToday ? stepCount : cardio?.steps || 0}
+                    liftActions={{
+                      hint: true,
+                      onEdit: (row) => {
+                        tactileEngine.triggerSelectionBuzz();
+                        setPendingLiftDelete(null);
+                        setEditor({ category: 'workout', mode: 'edit', lift: row.name });
+                      },
+                      onDelete: (row) => setPendingLiftDelete(row.name),
+                    }}
                   />
-                  <div className="flex flex-wrap justify-center gap-2">
-                    {(channel.id === 'sleep' || channel.id === 'meditation') && !hasEntry(channel.id) && (
+                  {channel.id === 'workout' && pendingLiftDelete && (
+                    <div role="alertdialog" aria-label={`Delete ${pendingLiftDelete}`} className="flex items-center gap-2 rounded-xl bg-o1-well border border-[#C4121A]/40 pl-3 pr-1.5 py-1.5">
+                      <p className="flex-1 min-w-0 text-[12px] text-o1-text leading-snug">
+                        Delete {pendingLiftDelete} from {selectedDayMeta.dayLabel.toLowerCase() === 'today' ? 'today' : selectedDayMeta.dayLabel}? This action cannot be undone.
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => setPendingLiftDelete(null)}
+                        className="h-8 px-3 rounded-full text-[12px] text-o1-muted hover:text-o1-text cursor-pointer"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => removeLift(pendingLiftDelete)}
+                        className="h-8 px-3 rounded-full bg-[#C4121A] hover:bg-[#A30F16] active:bg-[#800C11] text-[12px] text-white cursor-pointer"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  )}
+                  <div className="flex flex-wrap justify-center gap-2 empty:hidden">
+                    {(channel.id === 'sleep' || channel.id === 'meditation') && !editable && (
                       <button type="button" onClick={() => openEditor(channel.id, 'create')} className="o1-pill bg-o1-well border border-white/[0.07] text-neutral-200 text-xs font-semibold">
                         <Plus className="w-3.5 h-3.5 text-neutral-400" />
                         <span>Log</span>
-                      </button>
-                    )}
-                    {hasEntry(channel.id) && (
-                      <button type="button" onClick={() => openEditor(channel.id, 'edit')} className="o1-pill bg-o1-well border border-white/[0.07] text-neutral-200 text-xs font-semibold">
-                        <Pencil className="w-3.5 h-3.5 text-neutral-400" />
-                        <span>Edit</span>
-                      </button>
-                    )}
-                    {hasEntry(channel.id) && (
-                      <button type="button" onClick={() => removeEntry(channel.id)} className="o1-pill bg-o1-well border border-white/[0.07] text-neutral-200 text-xs font-semibold">
-                        <Trash2 className="w-3.5 h-3.5 text-neutral-400" />
-                        <span>{pendingDelete === channel.id ? 'Remove' : 'Delete'}</span>
                       </button>
                     )}
                     {channel.id === 'cardio' && (
@@ -649,6 +819,7 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({ sh
           onClose={() => setEditor(null)}
           category={editor.category}
           mode={editor.mode}
+          focusLift={editor.lift}
           dayMeta={selectedDayMeta}
           onSaved={showToast}
         />
@@ -675,6 +846,7 @@ function ChannelDetail({
   sleep,
   mindful,
   steps,
+  liftActions,
 }: {
   category: TelemetryCategory;
   workout?: WorkoutDayRecord;
@@ -683,6 +855,7 @@ function ChannelDetail({
   sleep?: SleepDayRecord;
   mindful?: MeditationDayRecord;
   steps: number;
+  liftActions?: LedgerRowActions;
 }) {
   if (category === 'workout') {
     if (!workout?.hasData) return <EmptyCopy>No workout logged for this day.</EmptyCopy>;
@@ -713,11 +886,15 @@ function ChannelDetail({
           cells: [sheetFig(workout.completedSets), '--', sheetFig(workout.tonnageKg)],
         }];
     return (
-      <LogLedger
-        nameLabel="Lift"
-        columns={[{ label: 'Sets', width: '2.5rem' }, { label: 'Reps', width: '3.25rem' }, { label: 'kg', width: '4.75rem' }]}
-        rows={rows}
-      />
+      <>
+        <LogLedger
+          nameLabel="Lift"
+          columns={[{ label: 'Sets', width: '2.5rem' }, { label: 'Reps', width: '3.25rem' }, { label: 'kg', width: '4.75rem' }]}
+          rows={rows}
+          rowActions={exercises.length > 0 ? liftActions : undefined}
+        />
+        {(workout.burnedKcal ?? 0) > 0 && <BurnNote workout={workout} />}
+      </>
     );
   }
 
@@ -803,6 +980,22 @@ function ChannelDetail({
       columns={[{ label: 'min', width: '3rem' }]}
       rows={[{ id: 'mindful', name: mindfulName, cells: [sheetFig(mindful?.minutes)] }]}
     />
+  );
+}
+
+function BurnNote({ workout }: { workout: WorkoutDayRecord }) {
+  const rpe = workout.intensityRpe > 0 ? workout.intensityRpe : null;
+  const met = Math.round(resistanceMet(rpe) * 10) / 10;
+  const inputs = line([part(workout.durationMinutes, ' min'), rpe ? `RPE ${rpe}` : null, `${met} MET`]);
+  return (
+    <div className="mt-3 pt-2.5 border-t border-white/[0.07] space-y-1">
+      <p className="text-[12px] text-o1-text">
+        {Math.round(workout.burnedKcal ?? 0).toLocaleString()} kcal active <span className="text-o1-muted">· {inputs}</span>
+      </p>
+      <p className="text-[11px] leading-relaxed text-o1-muted">
+        Active burn only, from training time, effort and bodyweight. Watches add resting burn to the total, so they read higher for the same session.
+      </p>
+    </div>
   );
 }
 

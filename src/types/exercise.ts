@@ -19,15 +19,13 @@ export type ExerciseMechanic =
   | 'aerobic'
   | 'mobility';
 
-export type MovementPattern =
-  | 'push'
-  | 'pull'
-  | 'hinge'
-  | 'squat'
-  | 'carry'
-  | 'core'
-  | 'locomotion'
-  | 'mobility';
+const MOVEMENT_PATTERNS = ['push', 'pull', 'hinge', 'squat', 'carry', 'core', 'locomotion', 'mobility'] as const;
+
+export type MovementPattern = (typeof MOVEMENT_PATTERNS)[number];
+
+export function toMovementPattern(value: string | undefined): MovementPattern | undefined {
+  return (MOVEMENT_PATTERNS as readonly string[]).includes(value ?? '') ? (value as MovementPattern) : undefined;
+}
 
 /**
  * COMPREHENSIVE RELATIONAL EXERCISE SCHEMA (O1FC)

@@ -2,6 +2,7 @@ import { useState, useRef, useMemo, useEffect } from 'react';
 import { ExploreReelItem, ExploreCoach, FilmstripClip } from '../reelTypes';
 import { useReelsStore } from '../../../stores/useReelsStore';
 import { useWorkoutStore } from '../../workout/store/useWorkoutStore';
+import { workingLoadKg } from '../../workout/services/dayRoutineService';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { fetchCoachCards, toExploreCoach } from '../../coach/services/coachDirectory';
 import { filterReelsCatalog } from './reelsFilterHelper';
@@ -13,6 +14,9 @@ import { readAthleteSettingsSnapshot } from '../../../utils/athleteSettingsSnaps
 import { reelUrl, shareLink } from '../services/reelLinks';
 import type { ShareLinkTarget } from '../components/ShareLinkSheet';
 import { fetchLikeCount, loadMyLikes, setReelLike } from '../services/reelLikes';
+import { useReelViewsStore } from '../services/reelViews';
+import { isReelVisible, useReelSafetyStore, useVisibleReels } from '../services/reelSafety';
+import { reelCategoryLabel } from '../reelCategories';
 
 export { CATEGORIES, FILTER_TAGS } from './reelsFilterHelper';
 
@@ -24,7 +28,13 @@ export function useEliteReelsLogic(
   initialCategory: ExploreReelItem['category'] = 'ALL',
   initialFilter: string = 'ALL'
 ) {
-  const allReels = useReelsStore((s) => s.reels);
+  const allReels = useVisibleReels(useReelsStore((s) => s.reels));
+  const blockedCoaches = useReelSafetyStore((s) => s.blockedCoaches);
+  const hiddenReels = useReelSafetyStore((s) => s.hiddenReels);
+  const hydrateSafety = useReelSafetyStore((s) => s.hydrate);
+  useEffect(() => {
+    void hydrateSafety();
+  }, [hydrateSafety]);
   const [selectedFilter, setSelectedFilter] = useState(initialFilter);
   const [selectedCategory, setSelectedCategory] = useState<ExploreReelItem['category']>(initialCategory);
   const [searchQuery, setSearchQuery] = useState('');
@@ -44,16 +54,19 @@ export function useEliteReelsLogic(
     return [...rows].sort((a, b) => Number(textHitsDiscipline(`${b.title} ${b.filterTag || ''}`, discipline)) - Number(textHitsDiscipline(`${a.title} ${a.filterTag || ''}`, discipline)));
   }, [allReels, selectedFilter, selectedCategory, searchQuery, discipline]);
 
+  const categoryCounts = useMemo(() => {
+    const counts: Partial<Record<ExploreReelItem['category'], number>> = {};
+    for (const reel of filterReelsCatalog(allReels, selectedFilter, 'ALL', searchQuery)) {
+      counts[reel.category] = (counts[reel.category] ?? 0) + 1;
+      counts.ALL = (counts.ALL ?? 0) + 1;
+    }
+    return counts;
+  }, [allReels, selectedFilter, searchQuery]);
+
   const [activeReel, setActiveReel] = useState<ExploreReelItem | null>(null);
   const [activeClip, setActiveClip] = useState<FilmstripClip | null>(null);
 
-  useEffect(() => {
-    if (initialCategory) setSelectedCategory(initialCategory);
-    if (initialFilter) setSelectedFilter(initialFilter);
-  }, [initialCategory, initialFilter]);
-
   const [isPlaying, setIsPlaying] = useState(false);
-  const [isMuted, setIsMuted] = useState(true);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [likedReels, setLikedReels] = useState<Record<string, boolean>>({});
   const [likeCounts, setLikeCounts] = useState<Record<string, number | null>>({});
@@ -73,14 +86,16 @@ export function useEliteReelsLogic(
   }, []);
 
   const activeReelId = activeReel?.id || '';
+  const markViewed = useReelViewsStore((s) => s.markViewed);
   useEffect(() => {
     if (!activeReelId) return;
+    markViewed(activeReelId);
     let live = true;
     void fetchLikeCount(activeReelId).then((count) => {
       if (live) setLikeCounts((prev) => ({ ...prev, [activeReelId]: count }));
     });
     return () => { live = false; };
-  }, [activeReelId]);
+  }, [activeReelId, markViewed]);
 
   const [toast, setToast] = useState<string | null>(null);
   const [linkSheet, setLinkSheet] = useState<ShareLinkTarget | null>(null);
@@ -110,8 +125,9 @@ export function useEliteReelsLogic(
   const addExerciseToActiveLog = useWorkoutStore((s) => s.addExerciseToActiveLog);
 
   const stepReel = (direction: 1 | -1) => {
-    const queue = playlist && playlist.length > 0 ? playlist : filteredReels;
-    if (!activeReel || queue.length < 2) return;
+    const ownQueue = playlist?.filter((r) => isReelVisible(r, hiddenReels, blockedCoaches)) ?? [];
+    const queue = ownQueue.length > 0 ? ownQueue : filteredReels;
+    if (!activeReel || queue.length === 0) return;
     const idx = queue.findIndex((r) => r.id === activeReel.id);
     const nextIdx = idx < 0 ? 0 : (idx + direction + queue.length) % queue.length;
     const next = queue[nextIdx];
@@ -149,14 +165,6 @@ export function useEliteReelsLogic(
     void saveVaultBookmark(userRef.current, id, saved);
     flash(saved ? 'Saved to your vault' : 'Removed from your vault');
   };
-  const handleToggleMute = (e?: React.SyntheticEvent) => {
-    e?.stopPropagation();
-    tactileEngine.triggerLightTick();
-    const next = !isMuted;
-    setIsMuted(next);
-    if (videoRef.current) videoRef.current.muted = next;
-  };
-
   const handleTogglePlay = () => {
     const video = videoRef.current;
     if (!video) return;
@@ -182,34 +190,45 @@ export function useEliteReelsLogic(
       flash('Already in today\u2019s log');
       return;
     }
-    tactileEngine.playPRCelebration();
     const stamp = Date.now();
+    const name = clip ? `${reel.title} (${clip.title})` : reel.title;
+    const reps = 10;
+    const load = workingLoadKg(reel.title, reps);
     addExerciseToActiveLog({
       id: `reel-${reel.id}-${stamp}`,
-      name: clip ? `${reel.title} (${clip.title})` : reel.title,
-      targetMuscle: titleCase(reel.filterTag || reel.category),
+      name,
+      exerciseName: reel.title,
+      targetMuscle: titleCase(reel.filterTag || reelCategoryLabel(reel.category)),
       restSecs: readAthleteSettingsSnapshot().defaultRestSeconds || 90,
-      sets: [1, 2, 3].map((setNumber) => ({ id: `set-${stamp}-${setNumber}`, setNumber, weightKg: 0, reps: 0, rpe: 0, completed: false })),
+      sets: [1, 2, 3].map((setNumber) => ({
+        id: `set-${stamp}-${setNumber}`,
+        setNumber,
+        weightKg: load,
+        reps: load > 0 ? reps : 0,
+        rpe: 0,
+        completed: false,
+      })),
     });
-    flash('Added to today\u2019s log');
+    flash(load > 0 ? 'Added to today\u2019s log with your working load' : 'Added to today\u2019s log');
   };
 
   const coachesList = useMemo(() => {
     const q = searchQuery.toLowerCase().trim();
     const rows = remoteCoaches.filter((coach) => {
+      if (blockedCoaches[coach.id]) return false;
       const blob = `${coach?.name ?? ''} ${coach?.specialtyTitle ?? ''} ${coach?.specialty ?? ''}`;
       const matchesQuery = !q || blob.toLowerCase().includes(q);
       return matchesQuery && chipHit(blob, selectedFilter);
     });
     return [...rows].sort((a, b) => Number(textHitsDiscipline(`${b.specialtyTitle} ${b.specialty}`, discipline)) - Number(textHitsDiscipline(`${a.specialtyTitle} ${a.specialty}`, discipline)));
-  }, [searchQuery, remoteCoaches, selectedFilter, discipline]);
+  }, [searchQuery, remoteCoaches, selectedFilter, discipline, blockedCoaches]);
 
   return {
     selectedFilter, setSelectedFilter, selectedCategory, setSelectedCategory,
     searchQuery, setSearchQuery, activeReel, setActiveReel, activeClip, setActiveClip,
-    isPlaying, setIsPlaying, isMuted, videoRef, likedReels, likeCounts, savedReels, addedExercises,
+    isPlaying, setIsPlaying, videoRef, likedReels, likeCounts, savedReels, addedExercises,
     bookingCoach, setBookingCoach, messageCoach, setMessageCoach, setPlaylist, handleNextReel, handlePrevReel,
-    handleToggleLike, handleToggleSave, handleToggleMute, handleTogglePlay,
-    handleShare, handleAddExerciseToWorkout, filteredReels, coachesList, toast, flash, linkSheet, setLinkSheet,
+    handleToggleLike, handleToggleSave, handleTogglePlay,
+    handleShare, handleAddExerciseToWorkout, filteredReels, categoryCounts, coachesList, toast, flash, linkSheet, setLinkSheet,
   };
 }

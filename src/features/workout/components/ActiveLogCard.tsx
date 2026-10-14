@@ -1,6 +1,9 @@
-import React, { useRef, useState } from 'react';
-import { Flag } from 'lucide-react';
-import { CommitWorkoutModal } from './modals/CommitWorkoutModal';
+import React, { useEffect, useRef, useState } from 'react';
+import { Flag, X } from 'lucide-react';
+import { CommitWorkoutModal, type LiftHighlight } from './modals/CommitWorkoutModal';
+import { feelWord, summariseLifts } from '../services/setCoach';
+import { useSimpleMode } from '../../../stores/useDisplayPrefs';
+import type { WeightUnit } from '../../../hooks/useAthleteSettings';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { useWorkoutStore } from '../store/useWorkoutStore';
 import { useCoachStore } from '../../../stores/useCoachStore';
@@ -11,148 +14,111 @@ import { saveAthleteDayRoutine } from '../services/dayRoutineService';
 import { useUserStore } from '../../../stores/useUserStore';
 import { localDayKey, releaseForgotten } from '../../log/services/dayLogService';
 import { sessionLedger } from '../store/workoutSetOperations';
-import { syncSessionToSupabase } from '../../../services/supabaseClient';
-import { getAuthenticatedUserId } from '../../../services/authUser';
+import { archiveSession } from '../../../services/sessionArchive';
 import { readLinkedCoach } from '../../coach/services/coachLink';
 import { publishFinishedWorkout } from '../../coach/services/coachBridge';
 import { readAthleteSettingsSnapshot } from '../../../utils/athleteSettingsSnapshot';
 import { displayToKg, kgToDisplay, loadUnitLabel } from '../../../utils/weightUnits';
-import { priorBestKg, setIsPr } from '../services/sessionPr';
-import { calibrateTemplate } from '../utils/calibrateLoads';
+import { localTodayKey, priorBestKg, setIsPr } from '../services/sessionPr';
+import { BEGINNER_STARTERS, buildStarterSession, type BeginnerStarter } from '../data/beginnerStarters';
+import { estimateSessionEnergy } from '../utils/sessionEnergy';
+import { getTelemetryHistoryState } from '../../log/store/useTelemetryHistoryStore';
+import type { ExerciseItem } from '../../../types';
 
-export interface ActiveLogCardProps {
-  onShowToast?: (msg: string) => void;
-  [key: string]: any;
+type BackupState = 'pending' | 'saved' | 'signed-out' | 'queued';
+
+interface LogStatus {
+  kind: 'saved' | 'info' | 'warn';
+  text: string;
+  backup?: BackupState;
+  routineDay?: string;
 }
 
-export const ActiveLogCard: React.FC<ActiveLogCardProps> = ({ onShowToast }) => {
+const BACKUP_TEXT: Record<BackupState, string> = {
+  pending: 'Backing up to your account…',
+  saved: 'Backed up to your account.',
+  'signed-out': 'Saved on this device. Sign in to back it up.',
+  queued: 'Saved on this device. Backup retries automatically.',
+};
+
+const STATUS_DOT: Record<LogStatus['kind'], string> = {
+  saved: 'bg-[#10b981]',
+  info: 'bg-[#0284c7]',
+  warn: 'bg-[#f59e0b]',
+};
+
+/** Lifts where a ticked set beat every earlier day's best estimated 1RM. */
+function sessionPrCount(exercises: ExerciseItem[]): number {
+  const today = localTodayKey();
+  return exercises.filter((e) => {
+    const name = e.name || e.exerciseName || '';
+    const prior = priorBestKg(name, today);
+    return prior > 0 && (e.sets || []).some((s) => s.completed && setIsPr(name, Number(s.weightKg ?? s.weight) || 0, Number(s.reps) || 0, prior));
+  }).length;
+}
+
+function sameDayLastWeekKg(): number | null {
+  const d = new Date();
+  d.setDate(d.getDate() - 7);
+  const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  const record = getTelemetryHistoryState().historyByDate[key]?.workout;
+  return record?.hasData && record.tonnageKg > 0 ? record.tonnageKg : null;
+}
+
+const TREND_NOTE = { up: 'Up on last time', same: 'Same as last time', down: 'Lighter than last time', first: 'First time logged' };
+
+function liftHighlights(exercises: ExerciseItem[], unit: WeightUnit): LiftHighlight[] {
+  const unitLower = loadUnitLabel(unit).toLowerCase();
+  const setText = (s: { weightKg: number; reps: number }) =>
+    s.weightKg > 0 ? `${kgToDisplay(s.weightKg, unit)} ${unitLower} × ${s.reps}` : `${s.reps} reps`;
+  return summariseLifts(exercises).map((l) => ({
+    name: l.name,
+    top: setText(l.top),
+    note: l.lastTop && l.trend !== 'same' ? `${TREND_NOTE[l.trend]} · was ${setText(l.lastTop)}` : TREND_NOTE[l.trend],
+    trend: l.trend,
+    best: l.best,
+  }));
+}
+
+function sessionFeel(exercises: ExerciseItem[], simple: boolean): string | null {
+  const rated = exercises.flatMap((e) => (e.sets || []).filter((s) => s.completed && Number(s.rpe) > 0).map((s) => Number(s.rpe)));
+  if (rated.length === 0) return null;
+  const avg = rated.reduce((a, b) => a + b, 0) / rated.length;
+  return simple ? `Felt ${feelWord(avg).toLowerCase()} overall` : `Average effort RPE ${Math.round(avg * 10) / 10}`;
+}
+
+export const ActiveLogCard: React.FC = () => {
+  const simple = useSimpleMode();
   const exercises = useWorkoutStore((s) => s.exercises);
   const setExercises = useWorkoutStore((s) => s.setExercises);
   const updateExerciseSet = useWorkoutStore((s) => s.updateExerciseSet);
   const addSet = useWorkoutStore((s) => s.addSet);
   const removeSet = useWorkoutStore((s) => s.removeSet);
   const toggleSetCompleted = useWorkoutStore((s) => s.toggleSetCompleted);
-  const showToastFn = useWorkoutStore((s) => s.showToast);
-
-  const notify = (msg: string) => {
-    if (onShowToast) onShowToast(msg);
-    else showToastFn(msg);
-  };
+  const completeEarlierSets = useWorkoutStore((s) => s.completeEarlierSets);
 
   const [expandedExerciseId, setExpandedExerciseId] = useState<string | null>(null);
   const [isCommitOpen, setIsCommitOpen] = useState(false);
   const [showQuickStart, setShowQuickStart] = useState(false);
+  const [status, setStatus] = useState<LogStatus | null>(null);
 
-  const BEGINNER_STARTERS = [
-    {
-      title: 'Full Body Foundation',
-      subtitle: '35 mins • 4 classic movements',
-      badge: 'Beginner Best',
-      routineName: 'Full Body Foundation (Beginner)',
-      exercises: [
-        {
-          id: 'bg-sq-1',
-          name: 'Goblet Squat (Dumbbell)',
-          exerciseName: 'Goblet Squat',
-          targetMuscle: 'Quadriceps / Glutes',
-          equipment: 'Dumbbell',
-          sets: [
-            { id: 's1', setNumber: 1, reps: 10, weightKg: 10, rpe: 7, completed: false },
-            { id: 's2', setNumber: 2, reps: 10, weightKg: 10, rpe: 7.5, completed: false },
-            { id: 's3', setNumber: 3, reps: 10, weightKg: 12, rpe: 8, completed: false },
-          ],
-        },
-        {
-          id: 'bg-bp-2',
-          name: 'Dumbbell Flat Bench Press',
-          exerciseName: 'Dumbbell Bench Press',
-          targetMuscle: 'Chest / Triceps',
-          equipment: 'Dumbbells',
-          sets: [
-            { id: 's1', setNumber: 1, reps: 10, weightKg: 12, rpe: 7, completed: false },
-            { id: 's2', setNumber: 2, reps: 10, weightKg: 12, rpe: 7.5, completed: false },
-            { id: 's3', setNumber: 3, reps: 10, weightKg: 14, rpe: 8, completed: false },
-          ],
-        },
-        {
-          id: 'bg-lp-3',
-          name: 'Lat Pulldown (Neutral Grip)',
-          exerciseName: 'Lat Pulldown',
-          targetMuscle: 'Upper Back / Lats',
-          equipment: 'Cable Machine',
-          sets: [
-            { id: 's1', setNumber: 1, reps: 12, weightKg: 30, rpe: 7, completed: false },
-            { id: 's2', setNumber: 2, reps: 12, weightKg: 30, rpe: 7.5, completed: false },
-            { id: 's3', setNumber: 3, reps: 12, weightKg: 35, rpe: 8, completed: false },
-          ],
-        },
-        {
-          id: 'bg-rdl-4',
-          name: 'Romanian Deadlift (Dumbbell)',
-          exerciseName: 'Romanian Deadlift',
-          targetMuscle: 'Hamstrings / Posterior',
-          equipment: 'Dumbbells',
-          sets: [
-            { id: 's1', setNumber: 1, reps: 10, weightKg: 14, rpe: 7, completed: false },
-            { id: 's2', setNumber: 2, reps: 10, weightKg: 14, rpe: 7.5, completed: false },
-            { id: 's3', setNumber: 3, reps: 10, weightKg: 16, rpe: 8, completed: false },
-          ],
-        },
-      ],
-    },
-    {
-      title: 'Upper Push & Pull Starter',
-      subtitle: '30 mins • Arms & Upper Body',
-      badge: 'Easy Start',
-      routineName: 'Upper Body Starter (Beginner)',
-      exercises: [
-        {
-          id: 'bg-row-1',
-          name: 'Seated Cable Row',
-          exerciseName: 'Seated Cable Row',
-          targetMuscle: 'Upper Back',
-          equipment: 'Cable Machine',
-          sets: [
-            { id: 's1', setNumber: 1, reps: 12, weightKg: 25, rpe: 7, completed: false },
-            { id: 's2', setNumber: 2, reps: 12, weightKg: 25, rpe: 7.5, completed: false },
-            { id: 's3', setNumber: 3, reps: 12, weightKg: 30, rpe: 8, completed: false },
-          ],
-        },
-        {
-          id: 'bg-inc-2',
-          name: 'Incline Dumbbell Press',
-          exerciseName: 'Incline Dumbbell Press',
-          targetMuscle: 'Upper Chest',
-          equipment: 'Dumbbells',
-          sets: [
-            { id: 's1', setNumber: 1, reps: 10, weightKg: 10, rpe: 7, completed: false },
-            { id: 's2', setNumber: 2, reps: 10, weightKg: 10, rpe: 7.5, completed: false },
-            { id: 's3', setNumber: 3, reps: 10, weightKg: 12, rpe: 8, completed: false },
-          ],
-        },
-        {
-          id: 'bg-lat-3',
-          name: 'Standing Lateral Raise',
-          exerciseName: 'Lateral Raise',
-          targetMuscle: 'Side Delts',
-          equipment: 'Dumbbells',
-          sets: [
-            { id: 's1', setNumber: 1, reps: 12, weightKg: 5, rpe: 7, completed: false },
-            { id: 's2', setNumber: 2, reps: 12, weightKg: 5, rpe: 7.5, completed: false },
-            { id: 's3', setNumber: 3, reps: 12, weightKg: 6, rpe: 8, completed: false },
-          ],
-        },
-      ],
-    },
-  ];
+  const knownIdsRef = useRef<Set<string>>(new Set(exercises.map((e) => e.id)));
+  useEffect(() => {
+    const known = knownIdsRef.current;
+    const added = exercises.filter((e) => !known.has(e.id));
+    if (added.length === 1 && exercises.length === known.size + 1) setExpandedExerciseId(added[0].id);
+    if (known.size === 0 && exercises.length > 0) setStatus((s) => (s?.kind === 'saved' ? null : s));
+    knownIdsRef.current = new Set(exercises.map((e) => e.id));
+  }, [exercises]);
 
-  const handleLoadBeginnerStarter = (starter: typeof BEGINNER_STARTERS[0]) => {
-    tactileEngine.playPRCelebration();
-    setExercises(calibrateTemplate(starter.exercises as any));
+  const handleLoadBeginnerStarter = (starter: BeginnerStarter) => {
+    tactileEngine.triggerSelectionBuzz();
+    const session = buildStarterSession(starter);
+    setExercises(session);
     useWorkoutStore.getState().setActiveSession(true);
     useWorkoutStore.getState().setActiveRoutine(starter.routineName);
-    setExpandedExerciseId(starter.exercises[0].id);
-    notify(`🎉 Loaded ${starter.title}! Tap the checkmark when you complete each set.`);
+    setExpandedExerciseId(session[0]?.id ?? null);
+    setStatus({ kind: 'info', text: 'Tick each set as you finish it. The rest timer starts on its own.' });
   };
 
   // Rotary Dial Input Modal State
@@ -177,6 +143,23 @@ export const ActiveLogCard: React.FC<ActiveLogCardProps> = ({ onShowToast }) => 
   const totalSets = ledger.completedSets;
   const totalReps = ledger.totalReps;
   const committingRef = useRef(false);
+  const visibleStatus = status && status.kind !== 'saved' && totalSets > 0 ? null : status;
+  const untickedFilledSets = exercises.reduce(
+    (n, e) => n + (e.sets || []).filter((s) => !s.completed && Number(s.reps) > 0).length,
+    0,
+  );
+  const previewExercises =
+    totalSets === 0 && untickedFilledSets > 0
+      ? exercises.map((e) => ({ ...e, sets: (e.sets || []).map((s) => (Number(s.reps) > 0 ? { ...s, completed: true } : s)) }))
+      : exercises;
+  const commitPreview = previewExercises === exercises ? ledger : sessionLedger(previewExercises);
+  const energyPreview = isCommitOpen ? estimateSessionEnergy(previewExercises, commitPreview.completedSets) : null;
+  const prPreview = isCommitOpen ? sessionPrCount(previewExercises) : 0;
+  const lastWeekKg = isCommitOpen ? sameDayLastWeekKg() : null;
+  const unit = readAthleteSettingsSnapshot().weightUnit;
+  const unitLower = loadUnitLabel(unit).toLowerCase();
+  const highlights = isCommitOpen ? liftHighlights(previewExercises, unit) : [];
+  const feel = isCommitOpen ? sessionFeel(previewExercises, simple) : null;
 
   const handleToggleRow = (exerciseId: string) => {
     tactileEngine.triggerSelectionBuzz();
@@ -184,7 +167,6 @@ export const ActiveLogCard: React.FC<ActiveLogCardProps> = ({ onShowToast }) => 
   };
 
   const handleDeleteExercise = (exerciseId: string) => {
-    tactileEngine.triggerSelectionBuzz();
     setExercises((prev) => prev.filter((e) => e.id !== exerciseId));
     if (expandedExerciseId === exerciseId) {
       setExpandedExerciseId(null);
@@ -194,6 +176,7 @@ export const ActiveLogCard: React.FC<ActiveLogCardProps> = ({ onShowToast }) => 
   const handleDuplicateSet = (exerciseId: string) => {
     tactileEngine.triggerSelectionBuzz();
     const targetEx = exercises.find((e) => e.id === exerciseId);
+    completeEarlierSets(exerciseId, Number.MAX_SAFE_INTEGER);
     if (!targetEx || !targetEx.sets || targetEx.sets.length === 0) {
       addSet(exerciseId);
       return;
@@ -204,6 +187,7 @@ export const ActiveLogCard: React.FC<ActiveLogCardProps> = ({ onShowToast }) => 
       ...lastSet,
       id: `set-${Date.now()}-${newSetNumber}-${Math.random().toString(36).slice(2, 6)}`,
       setNumber: newSetNumber,
+      rpe: 0,
       completed: false,
     };
     setExercises((prev) =>
@@ -222,6 +206,7 @@ export const ActiveLogCard: React.FC<ActiveLogCardProps> = ({ onShowToast }) => 
     setIndex?: number
   ) => {
     tactileEngine.triggerSelectionBuzz();
+    completeEarlierSets(exerciseId, setNumber);
     setDialConfig({
       isOpen: true,
       exerciseId,
@@ -238,7 +223,7 @@ export const ActiveLogCard: React.FC<ActiveLogCardProps> = ({ onShowToast }) => 
 
   const handleConfirmDial = (val: number) => {
     if (!dialConfig.exerciseId) return;
-    tactileEngine.playPRCelebration();
+    tactileEngine.triggerSelectionBuzz();
     const unit = readAthleteSettingsSnapshot().weightUnit;
     const numVal =
       dialConfig.type === 'weight' ? displayToKg(Number(val), unit) : Number(val);
@@ -273,7 +258,7 @@ export const ActiveLogCard: React.FC<ActiveLogCardProps> = ({ onShowToast }) => 
   };
 
   const handleFinishAndSave = () => {
-    tactileEngine.playPRCelebration();
+    tactileEngine.triggerSelectionBuzz();
     setIsCommitOpen(true);
   };
 
@@ -286,13 +271,14 @@ export const ActiveLogCard: React.FC<ActiveLogCardProps> = ({ onShowToast }) => 
       const priors = new Map(
         exercises.map((e) => {
           const name = e.name || e.exerciseName || 'Exercise';
-          return [name, priorBestKg(name)] as const;
+          return [name, priorBestKg(name, todayKey)] as const;
         }),
       );
 
       const session = useWorkoutStore.getState().commitSession();
       if (!session) {
-        notify('Tick at least one set before saving.');
+        setIsCommitOpen(false);
+        setStatus({ kind: 'warn', text: 'Nothing saved. Tick at least one set, then finish.' });
         return;
       }
       setIsCommitOpen(false);
@@ -310,8 +296,8 @@ export const ActiveLogCard: React.FC<ActiveLogCardProps> = ({ onShowToast }) => 
         tonnageKg: session.tonnageKg,
         totalSets: session.completedSets,
         totalReps: session.totalReps,
-        avgRpe: 0,
-        durationMinutes: 0,
+        avgRpe: session.avgRpe ?? 0,
+        durationMinutes: session.durationMinutes,
         completedAt: new Date().toISOString(),
         exercises: session.exercises.map((e) => ({
           name: e.name,
@@ -324,18 +310,21 @@ export const ActiveLogCard: React.FC<ActiveLogCardProps> = ({ onShowToast }) => 
       useCoachStore.getState().recordFinishedWorkout(finished);
       if (linkedCoach?.id) void publishFinishedWorkout(finished, linkedCoach.id);
 
+      const settled = settleFinishedSession();
+      const burn = session.burnedKcal ? ` · ~${session.burnedKcal} kcal` : '';
+      const summary = `Saved · ${session.durationMinutes} min${burn}.`;
+      setStatus({
+        kind: 'saved',
+        text: settled.nextTitle ? `${summary} Next up: ${settled.nextTitle}.` : summary,
+        backup: 'pending',
+      });
+
       void (async () => {
-        const uid = await getAuthenticatedUserId();
-        if (!uid) {
-          notify('Session saved on this device. Sign in to archive to the cloud.');
-          return;
-        }
-        const ok = await syncSessionToSupabase({
+        const outcome = await archiveSession({
           id: session.id,
-          user_id: uid,
           title: session.title,
-          duration: '',
-          duration_seconds: 0,
+          duration: session.durationMinutes > 0 ? `${session.durationMinutes}m` : '',
+          duration_seconds: session.durationMinutes * 60,
           tonnage_kg: session.tonnageKg,
           total_sets: session.completedSets,
           strain: 0,
@@ -355,110 +344,114 @@ export const ActiveLogCard: React.FC<ActiveLogCardProps> = ({ onShowToast }) => 
             };
           }),
         });
-        notify(ok ? 'Cloud Sync: Session archived.' : 'Cloud archive failed. Session is still saved on this device.');
+        setStatus((s) => (s?.kind === 'saved' ? { ...s, backup: outcome } : s));
       })();
-
-      const settled = settleFinishedSession();
-      notify(settled.nextTitle ? `Saved. Next up: ${settled.nextTitle}.` : 'Session saved for today.');
     } finally {
       committingRef.current = false;
     }
   };
 
+  const handleTickFilledAndFinish = () => {
+    setExercises((current) =>
+      current.map((e) => ({
+        ...e,
+        sets: (e.sets || []).map((s) => (!s.completed && Number(s.reps) > 0 ? { ...s, completed: true } : s)),
+      })),
+    );
+    handleRegisterLog();
+  };
+
   const handleSaveRoutineToDay = (selectedDay: 'Mon' | 'Tue' | 'Wed' | 'Thu' | 'Fri' | 'Sat' | 'Sun') => {
     const success = saveAthleteDayRoutine(selectedDay, '', exercises);
-    handleRegisterLog();
+    if (totalSets === 0) handleTickFilledAndFinish();
+    else handleRegisterLog();
 
-    if (success) {
-      notify(`Workout saved as repeating ${selectedDay} routine! Tomorrow's program ready.`);
-    }
+    if (success) setStatus((s) => (s?.kind === 'saved' ? { ...s, routineDay: selectedDay } : s));
   };
 
   return (
     <>
-      <div className="w-full bg-o1-card rounded-2xl p-2.5 border border-white/[0.07] shadow-sm space-y-2.5 text-white select-none transition-colors">
-        {/* Header Telemetry */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold text-neutral-100 tracking-wide">
-              Active Log
-            </span>
-            <span className="text-[11px] font-mono text-neutral-400">
-              {exercises.length} {exercises.length === 1 ? 'exercise' : 'exercises'}
-            </span>
-          </div>
-          <div className="o1-num flex items-center gap-3 text-[11px] text-neutral-400">
-            <span>
-              V:{' '}
-              <strong className="text-white">
-                {kgToDisplay(totalVolume, readAthleteSettingsSnapshot().weightUnit).toLocaleString()}{' '}
-                {loadUnitLabel(readAthleteSettingsSnapshot().weightUnit)}
-              </strong>
-            </span>
-            <span>
-              S: <strong className="text-neutral-100">{totalSets}</strong>
-            </span>
-            <span>
-              R: <strong className="text-neutral-100">{totalReps}</strong>
-            </span>
-          </div>
+      <div className="w-full bg-o1-card rounded-2xl p-2 border border-white/[0.07] space-y-2 text-o1-text select-none transition-colors">
+        <div className="flex items-baseline justify-between gap-2 px-0.5">
+          <span className="text-[13px] text-o1-text">Active log</span>
+          <span className="font-mono text-[11px] text-o1-muted truncate">
+            {kgToDisplay(totalVolume, unit).toLocaleString()} {unitLower} · {totalSets} {totalSets === 1 ? 'set' : 'sets'} · {totalReps} reps
+          </span>
         </div>
 
-        {/* Exercise Rows or Empty State */}
+        {visibleStatus && (
+          <div role="status" className="flex items-start gap-2.5 rounded-xl bg-o1-well border border-white/[0.07] pl-3 pr-1 py-1.5">
+            <span aria-hidden className={`mt-[7px] w-1.5 h-1.5 rounded-full shrink-0 ${STATUS_DOT[visibleStatus.kind]}`} />
+            <div className="min-w-0 flex-1 py-0.5 space-y-0.5">
+              <p className="text-[12px] text-o1-text leading-snug">{visibleStatus.text}</p>
+              {visibleStatus.routineDay && (
+                <p className="text-[11px] text-o1-muted leading-snug">Loads again every {visibleStatus.routineDay}.</p>
+              )}
+              {visibleStatus.backup && (
+                <p className={`text-[11px] leading-snug ${visibleStatus.backup === 'queued' ? 'text-[#f59e0b]' : 'text-o1-muted'}`}>
+                  {BACKUP_TEXT[visibleStatus.backup]}
+                </p>
+              )}
+            </div>
+            <button
+              type="button"
+              onClick={() => setStatus(null)}
+              aria-label="Dismiss"
+              className="w-8 h-8 shrink-0 flex items-center justify-center rounded-lg text-o1-muted hover:text-o1-text cursor-pointer"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        )}
+
         {exercises.length === 0 ? (
           <div className="rounded-2xl bg-black border border-white/[0.07] px-3 py-3 space-y-2">
-            <p className="text-xs text-[#F2EFE6]">
-              Nothing logged yet. Start a session above.
-            </p>
+            <p className="text-[12px] text-o1-text">Nothing logged yet. Start a session above.</p>
             <button
               type="button"
               onClick={() => {
                 tactileEngine.triggerSelectionBuzz();
                 setShowQuickStart((v) => !v);
               }}
-              className="text-[11px] font-medium text-neutral-300 hover:text-white cursor-pointer"
+              aria-expanded={showQuickStart}
+              className="min-h-[32px] text-[11px] text-o1-muted hover:text-o1-text underline underline-offset-2 cursor-pointer"
             >
-              {showQuickStart ? 'Hide quick start' : '1-tap beginner starters'}
+              {showQuickStart ? 'Hide quick start' : 'Beginner starters'}
             </button>
             {showQuickStart && (
             <div className="rounded-2xl bg-o1-card border border-white/[0.07] p-3 space-y-2">
               <div className="flex items-center gap-2">
-                <Flag className="w-4 h-4 text-neutral-400" strokeWidth={1.75} />
-                <h4 className="text-xs font-semibold text-white">
-                  Beginner quick start
-                </h4>
+                <Flag className="w-4 h-4 text-o1-muted" strokeWidth={1.75} />
+                <h4 className="text-[12px] text-o1-text">Beginner quick start</h4>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                {BEGINNER_STARTERS.map((starter, sIdx) => (
-                  <div
-                    key={sIdx}
+                {BEGINNER_STARTERS.map((starter) => (
+                  <button
+                    key={starter.routineName}
+                    type="button"
                     onClick={() => handleLoadBeginnerStarter(starter)}
-                    className="p-3 rounded-xl bg-o1-well border border-white/[0.07] hover:border-white/[0.14] transition-all cursor-pointer flex flex-col justify-between group active:scale-[0.99]"
+                    className="p-3 text-left rounded-xl bg-o1-well border border-white/[0.07] hover:border-white/[0.14] transition-colors cursor-pointer flex flex-col justify-between active:scale-[0.99]"
                   >
                     <div>
-                      <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full bg-white/10 text-neutral-300">
+                      <span className="text-[10px] px-1.5 py-0.5 rounded-full border border-white/[0.14] text-o1-muted">
                         {starter.badge}
                       </span>
-                      <h5 className="font-semibold text-xs text-white leading-tight mt-1">
-                        {starter.title}
-                      </h5>
-                      <p className="text-[10px] text-neutral-400 mt-0.5">
-                        {starter.subtitle}
-                      </p>
+                      <h5 className="text-[13px] text-o1-text leading-tight mt-1.5">{starter.title}</h5>
+                      <p className="text-[11px] text-o1-muted mt-0.5">{starter.subtitle}</p>
                     </div>
-                    <div className="mt-2 pt-1.5 border-t border-white/[0.05] text-[9px] text-neutral-400 flex items-center justify-between">
-                      <span>{starter.exercises.length} exercises</span>
+                    <div className="mt-2 pt-1.5 border-t border-white/[0.07] text-[10px] text-o1-muted flex items-center justify-between">
+                      <span>{starter.movements.length} exercises</span>
                       <span>Tap to load</span>
                     </div>
-                  </div>
+                  </button>
                 ))}
               </div>
             </div>
             )}
           </div>
         ) : (
-          <div className="space-y-1.5">
-            {exercises.map((exercise) => {
+          <div className="space-y-1">
+            {exercises.map((exercise, index) => {
               const isExpanded = expandedExerciseId === exercise.id;
 
               return (
@@ -466,8 +459,12 @@ export const ActiveLogCard: React.FC<ActiveLogCardProps> = ({ onShowToast }) => 
                   key={exercise.id}
                   exercise={exercise}
                   isExpanded={isExpanded}
+                  showSwipeHint={isExpanded || (index === 0 && !exercises.some((e) => e.id === expandedExerciseId))}
                   onToggleExpand={() => handleToggleRow(exercise.id)}
-                  onAddSet={(id) => addSet(id)}
+                  onAddSet={(id) => {
+                    completeEarlierSets(id, Number.MAX_SAFE_INTEGER);
+                    addSet(id);
+                  }}
                   onDuplicateSet={(id) => handleDuplicateSet(id)}
                   onRemoveSet={(id, setNum) => removeSet(id, setNum)}
                   onRemoveExercise={(id) => handleDeleteExercise(id)}
@@ -487,9 +484,9 @@ export const ActiveLogCard: React.FC<ActiveLogCardProps> = ({ onShowToast }) => 
           <button
             type="button"
             onClick={handleFinishAndSave}
-            className="w-full py-3.5 rounded-2xl bg-o1-crimson hover:bg-o1-crimson-hover active:scale-[0.99] text-white font-mono font-bold text-xs tracking-wider shadow-md shadow-o1-crimson/20 flex items-center justify-center gap-2 transition cursor-pointer"
+            className="w-full h-10 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover active:bg-o1-crimson-press active:scale-[0.99] text-white font-medium text-[13px] flex items-center justify-center transition cursor-pointer"
           >
-            <span>⚡ Finish &amp; Save Session</span>
+            Finish workout
           </button>
         )}
       </div>
@@ -514,10 +511,21 @@ export const ActiveLogCard: React.FC<ActiveLogCardProps> = ({ onShowToast }) => 
         isOpen={isCommitOpen}
         onClose={() => setIsCommitOpen(false)}
         onRegisterLog={handleRegisterLog}
+        onTickFilledAndFinish={handleTickFilledAndFinish}
+        untickedFilledSets={untickedFilledSets}
         onSaveRoutineToDay={handleSaveRoutineToDay}
-        totalKg={totalVolume}
-        totalSets={totalSets}
-        totalReps={totalReps}
+        tickedSets={totalSets}
+        totalKg={Math.round(commitPreview.tonnageKg)}
+        totalSets={commitPreview.completedSets}
+        totalReps={commitPreview.totalReps}
+        durationMinutes={energyPreview?.durationMinutes ?? 0}
+        burnedKcal={energyPreview?.burnedKcal ?? null}
+        prCount={prPreview}
+        lastWeekKg={lastWeekKg}
+        formatKg={(kg) => `${kgToDisplay(kg, unit).toLocaleString()} ${unitLower}`}
+        highlights={highlights}
+        feel={feel}
+        simple={simple}
       />
     </>
   );

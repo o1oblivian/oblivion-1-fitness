@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import type { ExploreReelItem } from '../features/reels/reelTypes';
-import { mockReels } from '../services/devMocks';
+import { CLUB_REELS } from '../features/reels/clubReels';
 import { fetchReelFeed } from '../features/reels/services/reelFeed';
 
 type FeedStatus = 'idle' | 'loading' | 'ready' | 'error';
@@ -17,7 +17,7 @@ interface ReelsState {
 let inflight: Promise<void> | null = null;
 
 export const useReelsStore = create<ReelsState>((set, get) => ({
-  reels: mockReels(),
+  reels: CLUB_REELS,
   status: 'idle',
 
   loadFeed: (force = false) => {
@@ -31,7 +31,7 @@ export const useReelsStore = create<ReelsState>((set, get) => ({
           return;
         }
         const seen = new Set(rows.map((reel) => reel.id));
-        set({ reels: [...rows, ...mockReels().filter((reel) => !seen.has(reel.id))], status: 'ready' });
+        set({ reels: [...rows, ...CLUB_REELS.filter((reel) => !seen.has(reel.id))], status: 'ready' });
       })
       .finally(() => {
         inflight = null;

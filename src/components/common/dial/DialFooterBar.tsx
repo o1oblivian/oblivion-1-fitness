@@ -45,11 +45,7 @@ export const DialFooterBar: React.FC<DialFooterBarProps> = ({
               >
                 <span
                   style={isActive ? { color: accentColor } : undefined}
-                  className={`text-xs font-mono transition-colors ${
-                    isActive
-                      ? 'font-bold'
-                      : 'text-neutral-500 hover:text-white font-medium'
-                  }`}
+                  className={`text-xs font-mono font-normal transition-colors ${isActive ? '' : 'text-o1-muted hover:text-o1-text'}`}
                 >
                   {preset}
                   <span className="text-[10px] ml-0.5 opacity-70">
@@ -76,11 +72,11 @@ export const DialFooterBar: React.FC<DialFooterBarProps> = ({
           onConfirm();
         }}
         style={{ backgroundColor: accentColor }}
-        className="w-full py-3.5 rounded-full hover:brightness-110 active:scale-[0.98] text-white font-tactical font-bold text-xs tracking-wider shadow-lg flex items-center justify-center gap-2 transition-all cursor-pointer"
+        className="w-full min-h-[48px] rounded-full hover:brightness-110 active:scale-[0.98] text-white font-medium text-[13px] tracking-wide flex items-center justify-center gap-2 transition-all cursor-pointer"
       >
-        <Check className="w-4 h-4 stroke-[3]" />
+        <Check className="w-4 h-4" />
         <span>
-          CONFIRM {value} {unit}
+          Confirm {value} {isKg ? 'kg' : unit.toLowerCase()}
         </span>
       </button>
     </div>

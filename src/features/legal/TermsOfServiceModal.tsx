@@ -46,16 +46,26 @@ export const TermsOfServiceModal: React.FC<Props> = ({ isOpen, onClose }) => {
           <div className="py-3 border-b border-white/[0.05] space-y-1.5 last:border-0">
             <div className="flex items-center gap-1.5 text-o1-crimson font-bold text-[11px]">
               <AlertTriangle className="w-3.5 h-3.5" />
-              <span>2. Biomechanical &amp; Physical Liability Release</span>
+              <span>2. Not a Medical App</span>
             </div>
             <p className="text-[11px] text-neutral-400">
-              Oblivion 1 Fitness Club training protocols involve strenuous physical exertion. By utilizing workout tracking, 1RM calculators, and cardio telemetry, you certify you are medically cleared and voluntarily assume all risks of injury. Oblivion 1 disclaims all biomechanical liabilities.
+              Oblivion 1 is a training log and coaching tool. It is not a medical device and does not diagnose, treat, monitor or prevent any disease, injury or medical condition. Readiness scores, reports, estimated 1RMs, nutrition targets, scans and coach messages are general fitness information only, not medical advice. Always seek a doctor or physiotherapist for injuries, pain, pregnancy, heart, blood pressure or other health conditions, and before starting a new program. If you experience chest pain, dizziness, fainting or shortness of breath, stop training and seek medical help immediately.
+            </p>
+          </div>
+
+          <div className="py-3 border-b border-white/[0.05] space-y-1.5 last:border-0">
+            <div className="flex items-center gap-1.5 text-o1-crimson font-bold text-[11px]">
+              <AlertTriangle className="w-3.5 h-3.5" />
+              <span>3. Training Safety &amp; Assumption of Risk</span>
+            </div>
+            <p className="text-[11px] text-neutral-400">
+              Strength and cardio training carry a risk of injury. You train at your own risk and are responsible for warming up, using correct technique, choosing loads within your ability, using spotters or safety equipment, and stopping when something hurts. Oblivion 1 does not ask for or store injury or medical history, so suggested workouts cannot account for your personal conditions. To the extent permitted by law, Oblivion 1 is not liable for injury arising from use of the app.
             </p>
           </div>
 
           <div className="py-3 border-b border-white/[0.05] space-y-1.5 last:border-0">
             <div className="flex items-center gap-1.5 text-emerald-400 font-bold text-[11px]">
-              <span>3. Community &amp; Spotter Code of Conduct</span>
+              <span>4. Community &amp; Spotter Code of Conduct</span>
             </div>
             <p className="text-[11px] text-neutral-400">
               Athletes utilizing the Buddy Match Radar agree to zero harassment, respect gym floor etiquette, and practice certified spotter vigilance. Harassment or misconduct results in immediate banishment and revocation of club credentials without refund.
@@ -65,7 +75,7 @@ export const TermsOfServiceModal: React.FC<Props> = ({ isOpen, onClose }) => {
           <div className="py-3 border-b border-white/[0.05] space-y-1.5 last:border-0">
             <div className="flex items-center gap-1.5 text-sky-400 font-bold text-[11px]">
               <ShieldCheck className="w-3.5 h-3.5" />
-              <span>4. Local-First Architecture &amp; Data Ownership</span>
+              <span>5. Local-First Architecture &amp; Data Ownership</span>
             </div>
             <p className="text-[11px] text-neutral-400">
               Oblivion 1 operates on a local-first model. Workout data, roster files, and nutrition telemetry reside on the user's hardware. Users maintain complete ownership of their local vault and are responsible for maintaining their exported backups.
@@ -73,7 +83,7 @@ export const TermsOfServiceModal: React.FC<Props> = ({ isOpen, onClose }) => {
           </div>
 
           <div className="py-3 border-b border-white/[0.05] space-y-1.5 last:border-0">
-            <div className="text-[11px] text-neutral-200 font-bold">5. Governing Law</div>
+            <div className="text-[11px] text-neutral-200 font-bold">6. Governing Law</div>
             <p className="text-[11px] text-neutral-400">
               Governed by commercial digital distribution standards of Apple Inc. and Google LLC. Contact: legal@oblivion1.club.
             </p>

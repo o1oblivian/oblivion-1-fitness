@@ -57,7 +57,7 @@ export const SelfieCameraView: React.FC<SelfieCameraViewProps> = ({
           <div className="absolute inset-0 bg-black/75 backdrop-blur-xs flex flex-col items-center justify-center space-y-2.5 p-4 text-center">
             <div className="w-12 h-12 rounded-full border-2 border-sky-400 border-t-transparent animate-spin flex items-center justify-center " />
             <p className="text-xs font-mono font-bold tracking-widest text-sky-300">
-              Gemini biometric audit in progress...
+              Checking your photo…
             </p>
             <p className="text-[10px] text-neutral-400 font-sans">Matching facial landmarks &amp; pose alignment</p>
           </div>

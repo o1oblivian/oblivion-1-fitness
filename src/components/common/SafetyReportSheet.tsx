@@ -16,9 +16,11 @@ interface SafetyReportSheetProps {
   name: string;
   onClose: () => void;
   onSubmit: (reason: string, details: string, alsoBlock: boolean) => void;
+  title?: string;
+  reasons?: readonly string[];
 }
 
-export const SafetyReportSheet: React.FC<SafetyReportSheetProps> = ({ open, name, onClose, onSubmit }) => {
+export const SafetyReportSheet: React.FC<SafetyReportSheetProps> = ({ open, name, onClose, onSubmit, title, reasons = REPORT_REASONS }) => {
   const [reason, setReason] = useState<string>('');
   const [details, setDetails] = useState('');
   const [alsoBlock, setAlsoBlock] = useState(true);
@@ -39,7 +41,7 @@ export const SafetyReportSheet: React.FC<SafetyReportSheetProps> = ({ open, name
       >
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-[15px] font-semibold text-o1-text">Report {name || 'this person'}</p>
+            <p className="text-[15px] font-semibold text-o1-text">{title ?? `Report ${name || 'this person'}`}</p>
             <p className="mt-0.5 text-[12px] text-o1-muted">Only the Oblivion 1 team sees reports. They are not told it was you.</p>
           </div>
           <button type="button" aria-label="Close" onClick={close} className="h-8 w-8 rounded-full bg-white/[0.06] flex items-center justify-center text-o1-muted">
@@ -47,7 +49,7 @@ export const SafetyReportSheet: React.FC<SafetyReportSheetProps> = ({ open, name
           </button>
         </div>
         <div className="mt-3 space-y-1.5">
-          {REPORT_REASONS.map((item) => (
+          {reasons.map((item) => (
             <button
               key={item}
               type="button"

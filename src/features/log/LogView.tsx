@@ -4,6 +4,7 @@ import { OblivionReportModal } from '../report/components/OblivionReportModal';
 import { useWeighInCapture } from '../report/weighInLog';
 import { UnifiedTopBoard } from './components/UnifiedTopBoard';
 import { GenuineLogHistoryView } from './components/GenuineLogHistoryView';
+import { LiftHistoryCard } from './components/LiftHistoryCard';
 import { InviteModal } from './components/InviteModal';
 import { CoachRoutineDispatchModal } from './components/CoachRoutineDispatchModal';
 import { ShareBenchmarkModal } from './components/ShareBenchmarkModal';
@@ -110,6 +111,8 @@ export const LogView: React.FC = () => {
       {/* 2. GENUINE LOG HISTORY TAB (ZERO MOCK / FAKE DATA)             */}
       {/* ============================================================== */}
       <GenuineLogHistoryView showToast={showToast} />
+
+      <LiftHistoryCard />
 
       {/* ============================================================== */}
       {/* 3. MODALS & SLIDE-OVERS                                        */}

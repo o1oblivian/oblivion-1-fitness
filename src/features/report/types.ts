@@ -66,6 +66,9 @@ export interface LiftProgress {
   currentE1rm: number;
   bestE1rm: number;
   bestDay: string;
+  /** The set that set the best estimated max. */
+  bestWeightKg: number;
+  bestReps: number;
   changePct: number | null;
   trend: LiftTrend;
   recentPb: boolean;
@@ -73,7 +76,8 @@ export interface LiftProgress {
   lastWeightKg: number;
   lastReps: number;
   lastDay: string;
-  series: { day: string; e1rm: number }[];
+  /** Best set of each session, oldest first, last 16 sessions. */
+  series: { day: string; e1rm: number; weightKg: number; reps: number }[];
 }
 
 export interface PersonalBest {

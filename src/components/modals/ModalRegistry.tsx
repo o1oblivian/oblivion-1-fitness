@@ -3,15 +3,12 @@ import { useModalStore } from './useModalStore';
 
 // Modal component imports
 import { SettingsModal } from '../SettingsModal';
-import { SolidarityTrackerModal } from '../../features/workout/components/SolidarityTrackerModal';
 import { EliteReelsHub } from '../../features/reels/EliteReelsHub';
 import { CardioTelemetryModal } from '../../features/workout/components/CardioTelemetryModal';
 import { ProgramDetailModal } from '../../features/workout/components/ProgramDetailModal';
 import { RoutineSwapperModal } from '../../features/workout/components/RoutineSwapperModal';
 import { HydrationIntelligenceModal } from '../../features/workout/components/HydrationIntelligenceModal';
-import { BioSyncIntelligenceModal as BioSyncModal } from '../../features/workout/components/BioSyncIntelligenceModal';
 import { SupplementTimingModal } from '../../features/workout/components/SupplementTimingModal';
-import { ProgramReelsModal } from './ProgramReelsModal';
 import { AIMealScanModal } from '../AIMealScanModal';
 
 import {
@@ -20,9 +17,7 @@ import {
   TravelPassPayload,
   ExerciseSwapperPayload,
   HydrationPayload,
-  BioSyncPayload,
   GenericToastPayload,
-  ProgramReelsStoryPayload,
   EliteReelsPayload,
 } from './types';
 import { REEL_LINK_EVENT, consumeReelLink } from '../../features/reels/services/reelLinks';
@@ -57,13 +52,6 @@ export const ModalRegistry: React.FC = () => {
       {/* 1. Settings Modal */}
       <SettingsModal
         isOpen={activeModal === 'SETTINGS'}
-        onClose={closeModal}
-        onShowToast={(payload as GenericToastPayload)?.onShowToast}
-      />
-
-      {/* 2. Biometric Sheet (SolidarityTrackerModal) */}
-      <SolidarityTrackerModal
-        isOpen={activeModal === 'BIOMETRIC_SHEET'}
         onClose={closeModal}
         onShowToast={(payload as GenericToastPayload)?.onShowToast}
       />
@@ -145,33 +133,11 @@ export const ModalRegistry: React.FC = () => {
         }}
       />
 
-      {/* 8. BioSync Cycle Tracking Modal */}
-      <BioSyncModal
-        isOpen={activeModal === 'BIO_SYNC'}
-        onClose={closeModal}
-        onAutoRegulate={() => {
-          const cb = (payload as BioSyncPayload)?.onAutoAdjust;
-          if (cb) cb();
-          closeModal();
-        }}
-      />
-
       {/* 9. Supplement Timing Modal */}
       <SupplementTimingModal
         isOpen={activeModal === 'SUPPLEMENTS'}
         onClose={closeModal}
         onShowToast={(payload as GenericToastPayload)?.onShowToast}
-      />
-
-      {/* 10. Program Reels Story Viewer Modal */}
-      <ProgramReelsModal
-        isOpen={activeModal === 'PROGRAM_REELS_STORY'}
-        onClose={closeModal}
-        initialStoryId={(payload as ProgramReelsStoryPayload)?.initialStoryId}
-        onAdoptBlueprint={(title) => {
-          const cb = (payload as ProgramReelsStoryPayload)?.onAdoptBlueprint;
-          if (cb) cb(title);
-        }}
       />
     </>
   );

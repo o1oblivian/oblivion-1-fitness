@@ -38,14 +38,14 @@ export const MembershipPlanFeatures: React.FC<Props> = ({
     { label: 'Coach Marketplace', value: isFreeAthlete ? 'Browse + message' : 'Priority Access' },
     { label: 'Wallpapers', value: isFreeAthlete ? '3 presets' : 'All unlocked' },
     { label: 'Watch Dial Faces', value: isFreeAthlete ? '1 default' : 'All unlocked' },
-    { label: 'Telemetry / Body Metrics', value: isFreeAthlete ? 'View only' : 'Deep Analytics' },
+    { label: 'Body stats', value: isFreeAthlete ? 'View only' : 'Deep Analytics' },
     { label: 'Progress Photo Vault', value: isFreeAthlete ? '5 photos' : 'Unlimited' },
     { label: 'Data Export', value: isFreeAthlete ? '—' : '✓' },
   ];
 
   const athleteExtFeatures = [
     { label: '5-Axis Athlete Polygon', value: isFreeAthlete ? '—' : '✓' },
-    { label: 'ACWR Load Balance Sweet-Spot', value: isFreeAthlete ? '—' : '✓' },
+    { label: 'Training load balance', value: isFreeAthlete ? '—' : '✓' },
     { label: 'Metabolic Locomotion Audits', value: isFreeAthlete ? '—' : '✓' },
     { label: 'Intracellular Hydration Model', value: isFreeAthlete ? '—' : '✓' },
   ];
@@ -117,10 +117,10 @@ export const MembershipPlanFeatures: React.FC<Props> = ({
         <span>{showExt ? 'Show less' : `Show all ${base.length + ext.length} features`}</span>
       </button>
 
-      {/* O1FC Intelligence Insights Pill */}
+      {/* O1FC Intel Insights Pill */}
       <div className="p-3 rounded-2xl bg-o1-well border border-white/[0.07] flex items-center justify-between">
         <div>
-          <p className="text-xs font-bold text-white">O1FC Intelligence Insights</p>
+          <p className="text-xs font-bold text-white">Progress insights</p>
           <p className="text-[10px] text-neutral-400">Smart recovery, nutrition &amp; volume periodization</p>
         </div>
         <span className="text-[11px] font-sans font-semibold text-neutral-400">

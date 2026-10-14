@@ -1,115 +1,61 @@
-import React, { useState } from 'react';
-import { Cpu, UserRound, ChevronDown, ChevronUp } from 'lucide-react';
+import React from 'react';
+import { Cpu, UserRound, ChevronDown } from 'lucide-react';
 import { tactileEngine } from '../../../services/tactileEngine';
-import { ExerciseItem } from '../../../types';
-import { IntelCoachAccordionPanel } from './IntelCoachAccordionPanel';
-import { CoachProtocolAccordionPanel } from './CoachProtocolAccordionPanel';
+
+type HubTab = 'intel' | 'coach';
 
 export interface TrainingHubCardsProps {
-  expandedHubTab?: 'intel' | 'coach' | null;
-  onToggleTab?: (tab: 'intel' | 'coach') => void;
-  onDeployProtocol?: (exercises: ExerciseItem[]) => void;
-  onShowToast?: (msg: string) => void;
-  renderAccordionsInline?: boolean;
+  expandedHubTab: HubTab | null;
+  onToggleTab: (tab: HubTab) => void;
+  /** Unread coach update; replaces the My Coach subtitle until the card is opened. */
+  coachNote?: string | null;
 }
 
-export const TrainingHubCards: React.FC<TrainingHubCardsProps> = ({
-  expandedHubTab,
-  onToggleTab,
-  onDeployProtocol,
-  onShowToast,
-  renderAccordionsInline = true,
-}) => {
-  const [internalSegment, setInternalSegment] = useState<'intel' | 'coach' | null>(null);
+const TABS: { id: HubTab; title: string; sub: string; icon: typeof Cpu; tone: string; drawerId: string }[] = [
+  { id: 'intel', title: 'Build workout', sub: 'Made for today', icon: Cpu, tone: 'text-[#d97706]', drawerId: 'intel-coach-accordion-drawer' },
+  { id: 'coach', title: 'My Coach', sub: 'From your coach', icon: UserRound, tone: 'text-[#0284c7]', drawerId: 'my-coach-accordion-drawer' },
+];
 
-  const isControlled = expandedHubTab !== undefined;
-  const activeSegment = isControlled ? expandedHubTab : internalSegment;
-
-  const handleSelect = (tab: 'intel' | 'coach') => {
-    tactileEngine.triggerSelectionBuzz();
-    if (isControlled && onToggleTab) onToggleTab(tab);
-    else setInternalSegment((prev) => (prev === tab ? null : tab));
-  };
-
-  const isIntelActive = activeSegment === 'intel';
-  const isCoachActive = activeSegment === 'coach';
-
-  return (
-    <div id="training-hub-cards-section" className="space-y-2.5 my-2 select-none">
-      <div className="grid grid-cols-2 gap-2.5">
+export const TrainingHubCards: React.FC<TrainingHubCardsProps> = ({ expandedHubTab, onToggleTab, coachNote }) => (
+  <div id="training-hub-cards-section" className="grid grid-cols-2 gap-2.5 my-2 select-none">
+    {TABS.map(({ id, title, sub, icon: Icon, tone, drawerId }) => {
+      const active = expandedHubTab === id;
+      const note = id === 'coach' ? coachNote : null;
+      return (
         <button
-          id="card-intel-coach"
+          key={id}
+          id={`card-${id === 'intel' ? 'intel-coach' : 'my-coach'}`}
           type="button"
-          onClick={() => handleSelect('intel')}
-          className={`relative rounded-full p-2.5 sm:px-3.5 transition-all active:scale-[0.98] cursor-pointer flex items-center justify-between border ${
-            isIntelActive
-              ? 'bg-white text-neutral-950 border-transparent shadow-md'
-              : 'bg-o1-card text-white border-white/[0.07] hover:border-white/[0.14] shadow-xs'
-          }`}
-        >
-          <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-9 h-9 rounded-full bg-o1-well flex items-center justify-center shrink-0 text-o1-gold">
-              <Cpu className="w-4 h-4" strokeWidth={1.75} />
-            </div>
-            <div className="min-w-0 text-left">
-              <h4 className="font-bold text-xs sm:text-sm tracking-tight truncate leading-tight">Intel Coach</h4>
-              <p className={`text-[10px] sm:text-[11px] truncate leading-tight mt-0.5 ${isIntelActive ? 'text-neutral-600' : 'text-neutral-500'}`}>
-                Load &amp; Recovery Insights
-              </p>
-            </div>
-          </div>
-          <div className="shrink-0 ml-1.5 text-neutral-400">
-            {isIntelActive ? <ChevronUp className="w-4 h-4 stroke-[2.2]" /> : <ChevronDown className="w-4 h-4 stroke-[2.2]" />}
-          </div>
-        </button>
-
-        <button
-          id="card-my-coach"
-          type="button"
-          onClick={() => handleSelect('coach')}
-          className={`relative rounded-full p-2.5 sm:px-3.5 transition-all active:scale-[0.98] cursor-pointer flex items-center justify-between border ${
-            isCoachActive
-              ? 'bg-white text-neutral-950 border-transparent shadow-md'
-              : 'bg-o1-card text-white border-white/[0.07] hover:border-white/[0.14] shadow-xs'
-          }`}
-        >
-          <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-9 h-9 rounded-full bg-o1-well flex items-center justify-center shrink-0 text-o1-copper">
-              <UserRound className="w-4 h-4" strokeWidth={1.75} />
-            </div>
-            <div className="min-w-0 text-left">
-              <h4 className="font-bold text-xs sm:text-sm tracking-tight truncate leading-tight">My Coach</h4>
-              <p className={`text-[10px] sm:text-[11px] truncate leading-tight mt-0.5 ${isCoachActive ? 'text-neutral-600' : 'text-neutral-500'}`}>
-                Assigned workouts
-              </p>
-            </div>
-          </div>
-          <div className="shrink-0 ml-1.5 text-neutral-400">
-            {isCoachActive ? <ChevronUp className="w-4 h-4 stroke-[2.2]" /> : <ChevronDown className="w-4 h-4 stroke-[2.2]" />}
-          </div>
-        </button>
-      </div>
-
-      {renderAccordionsInline && activeSegment === 'intel' && (
-        <IntelCoachAccordionPanel
-          onClose={() => (isControlled && onToggleTab ? onToggleTab('intel') : setInternalSegment(null))}
-          onDeployProtocol={(exs) => {
-            onDeployProtocol?.(exs);
-            onShowToast?.(`Intel Session Deployed: ${exs.length} exercises scheduled.`);
-            if (isControlled && onToggleTab) onToggleTab('intel');
-            else setInternalSegment(null);
+          aria-expanded={active}
+          aria-controls={drawerId}
+          aria-label={note ? `${title}. ${note}` : undefined}
+          onClick={() => {
+            tactileEngine.triggerSelectionBuzz();
+            onToggleTab(id);
           }}
-        />
-      )}
-
-      {renderAccordionsInline && activeSegment === 'coach' && (
-        <CoachProtocolAccordionPanel
-          onClose={() => (isControlled && onToggleTab ? onToggleTab('coach') : setInternalSegment(null))}
-          onLoaded={(title) => onShowToast?.(`Started ${title}`)}
-        />
-      )}
-    </div>
-  );
-};
+          className={`min-h-[52px] rounded-full p-2 pr-3 transition-all active:scale-[0.98] cursor-pointer flex items-center justify-between border text-white ${
+            active ? 'bg-o1-sheet border-o1-crimson/70' : 'bg-o1-surface border-white/[0.07] hover:border-white/[0.14]'
+          }`}
+        >
+          <span className="flex items-center gap-2.5 min-w-0">
+            <span className={`relative w-9 h-9 rounded-full bg-o1-well flex items-center justify-center shrink-0 ${tone}`}>
+              <Icon className="w-4 h-4" strokeWidth={1.75} />
+              {note && <span aria-hidden className="absolute top-0.5 right-0.5 w-2 h-2 rounded-full bg-o1-crimson" />}
+            </span>
+            <span className="min-w-0 text-left">
+              <span className="block font-medium text-[13px] tracking-tight truncate leading-tight">{title}</span>
+              <span className={`block text-[11px] truncate leading-tight mt-0.5 ${note ? 'text-o1-text' : 'text-o1-muted'}`}>
+                {note || sub}
+              </span>
+            </span>
+          </span>
+          <ChevronDown
+            className={`w-4 h-4 shrink-0 ml-1 stroke-[2.2] transition-transform ${active ? 'rotate-180 text-white' : 'text-neutral-400'}`}
+          />
+        </button>
+      );
+    })}
+  </div>
+);
 
 export default TrainingHubCards;

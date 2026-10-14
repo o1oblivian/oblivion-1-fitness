@@ -1,20 +1,18 @@
 import { supabase } from '../../../services/supabaseClient';
-import { getAuthenticatedUserId } from '../../../services/authUser';
+import { enqueueSync, flushSync, registerSyncHandler, rewriteSyncOps, scheduleSync } from '../../../services/syncOutbox';
 import { safeStorage } from '../../../utils/sanitizers';
 
 export type DayLogCategory = 'workout' | 'cardio' | 'nutrition' | 'sleep' | 'meditation';
 
-const SYNC_DELAY_MS = 1500;
 const FORGOTTEN_KEY = 'o1fc_log_forgotten_v1';
-
-const pending = new Map<string, { timer: ReturnType<typeof setTimeout>; payload: Record<string, unknown> }>();
+const EDITS_KEY = 'o1fc_day_edits_v1';
 let flushOnHideBound = false;
 
 function bindFlushOnHide(): void {
   if (flushOnHideBound || typeof document === 'undefined') return;
   flushOnHideBound = true;
   document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'hidden') flushDayLogSync();
+    if (document.visibilityState === 'hidden') void flushSync();
   });
 }
 
@@ -22,70 +20,91 @@ function syncKey(dateKey: string, category: DayLogCategory): string {
   return `${dateKey}:${category}`;
 }
 
-/** Upsert one day category to the athlete's account. */
-export async function persistDayLog(
-  dateKey: string,
-  category: DayLogCategory,
-  payload: Record<string, unknown>,
-): Promise<void> {
-  try {
-    const userId = await getAuthenticatedUserId();
-    if (!userId) return;
-    const { error } = await supabase.from('athlete_day_logs').upsert(
-      [
-        {
-          user_id: userId,
-          date_key: dateKey,
-          category,
-          payload,
-          updated_at: new Date().toISOString(),
-        },
-      ],
-      { onConflict: 'user_id,date_key,category' },
-    );
-    if (error) console.warn('[DayLog] Cloud save notice:', error.message);
-  } catch (err) {
-    console.warn('[DayLog] Cloud save notice:', err);
-  }
+export function dayOpKey(dateKey: string, category: DayLogCategory): string {
+  return `day:${syncKey(dateKey, category)}`;
 }
 
-/** Live workouts update on every set, so writes are coalesced per day and category. */
-export function queueDayLogSync(dateKey: string, category: DayLogCategory, payload: Record<string, unknown>): void {
-  const key = syncKey(dateKey, category);
-  const existing = pending.get(key);
-  if (existing) clearTimeout(existing.timer);
+/** When this phone last changed a day category. The phone's copy wins over an older account copy. */
+export function localEditedAt(dateKey: string, category: DayLogCategory): number {
+  const map = safeStorage.getItem<Record<string, number>>(EDITS_KEY, {}) || {};
+  return Number(map[syncKey(dateKey, category)]) || 0;
+}
+
+export function setLocalEditedAt(dateKey: string, category: DayLogCategory, at: number): void {
+  const map = safeStorage.getItem<Record<string, number>>(EDITS_KEY, {}) || {};
+  map[syncKey(dateKey, category)] = at;
+  safeStorage.setItem(EDITS_KEY, map);
+}
+
+/** Upsert one day category to the athlete's account. */
+async function persistDayLog(payload: Record<string, unknown>, userId: string): Promise<boolean> {
+  const { error } = await supabase.from('athlete_day_logs').upsert(
+    [
+      {
+        user_id: userId,
+        date_key: payload.dateKey,
+        category: payload.category,
+        payload: payload.record,
+        updated_at: payload.updatedAt,
+      },
+    ],
+    { onConflict: 'user_id,date_key,category' },
+  );
+  if (error) console.warn('[DayLog] Backup notice:', error.message);
+  return !error;
+}
+
+async function removeDayLog(payload: Record<string, unknown>, userId: string): Promise<boolean> {
+  const { error } = await supabase
+    .from('athlete_day_logs')
+    .delete()
+    .eq('user_id', userId)
+    .eq('date_key', payload.dateKey)
+    .eq('category', payload.category);
+  if (error) console.warn('[DayLog] Backup delete notice:', error.message);
+  return !error;
+}
+
+registerSyncHandler('day_log', persistDayLog);
+registerSyncHandler('day_log_delete', removeDayLog);
+
+/** Live workouts update on every set; the queue keeps only the latest copy per day and category. */
+export function queueDayLogSync(dateKey: string, category: DayLogCategory, record: Record<string, unknown>): void {
+  const at = Date.now();
   releaseForgotten(dateKey, category);
+  setLocalEditedAt(dateKey, category, at);
   bindFlushOnHide();
-  const timer = setTimeout(() => {
-    pending.delete(key);
-    void persistDayLog(dateKey, category, payload);
-  }, SYNC_DELAY_MS);
-  pending.set(key, { timer, payload });
+  enqueueSync('day_log', dayOpKey(dateKey, category), dateKey, {
+    dateKey,
+    category,
+    record,
+    updatedAt: new Date(at).toISOString(),
+  });
+  scheduleSync();
+}
+
+/** Queue removal of the account copy; replaces any upload still waiting for that day. */
+export function queueDayLogDelete(dateKey: string, category: DayLogCategory): void {
+  setLocalEditedAt(dateKey, category, Date.now());
+  enqueueSync('day_log_delete', dayOpKey(dateKey, category), dateKey, { dateKey, category });
+  void flushSync();
 }
 
 export function cancelDayLogSync(dateKey: string, category: DayLogCategory): void {
-  const key = syncKey(dateKey, category);
-  const existing = pending.get(key);
-  if (!existing) return;
-  clearTimeout(existing.timer);
-  pending.delete(key);
+  const key = dayOpKey(dateKey, category);
+  rewriteSyncOps((op) => (op.kind === 'day_log' && op.key === key ? null : op));
 }
 
 /** Send queued writes now, e.g. when the app is backgrounded. */
 export function flushDayLogSync(): void {
-  for (const [key, { timer, payload }] of pending) {
-    clearTimeout(timer);
-    pending.delete(key);
-    const [dateKey, category] = key.split(':') as [string, DayLogCategory];
-    void persistDayLog(dateKey, category, payload);
-  }
+  void flushSync();
 }
 
 function forgottenMap(): Record<string, true> {
   return safeStorage.getItem<Record<string, true>>(FORGOTTEN_KEY, {}) || {};
 }
 
-/** A deleted day must not come back from the cloud before the delete lands. */
+/** A deleted day must not come back from the account copy. */
 export function markForgotten(dateKey: string, category: DayLogCategory): void {
   const map = forgottenMap();
   map[syncKey(dateKey, category)] = true;

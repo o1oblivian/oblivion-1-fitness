@@ -11,23 +11,23 @@ const MANUAL_TOPICS = [
   {
     id: 'telemetry',
     icon: Activity,
-    title: 'Workout & Biometric Telemetry',
-    summary: 'RPE, RIR & Barbell Math',
-    desc: 'Oblivion 1 dynamically computes 1RM, volume tonnage, and fatigue index based on your logged Reps in Reserve (RIR) and Rate of Perceived Exertion (RPE). Barbell defaults include a 20kg Olympic bar standard.',
+    title: 'Logging workouts',
+    summary: 'Sets, effort and weights',
+    desc: 'Tick each set when you finish it. The app adds up the total weight you lifted and estimates your best for each lift. Effort is how hard a set felt: Easy, Good, Hard or Max in Simple mode, or RPE from 1 to 10 in Pro mode. Barbell weights include a 20 kg bar. Switch between Simple and Pro in Settings.',
   },
   {
     id: 'fuel',
     icon: Zap,
-    title: 'Fuel OS Macro Intelligence',
-    summary: 'Precision Calorie & Macro Target Split',
-    desc: 'Fuel OS calculates maintenance, surplus, or deficit caloric targets according to your athlete profile. Use the Quick-Add or Optical Meal Scanner to log meals directly into your daily nutritional ledger.',
+    title: 'Food tracking',
+    summary: 'Calories, protein, carbs and fat',
+    desc: 'Fuel sets daily targets for calories, protein, carbs and fat from your profile, whether you want to lose, keep or gain weight. Log meals with Quick-Add or by scanning your meal with the camera.',
   },
   {
     id: 'radar',
     icon: Compass,
-    title: 'Buddy Radar & Privacy Matrix',
-    summary: '5km Proximity & Spotter Matching',
-    desc: 'The Radar scans for verified athletes within your facility or 5km perimeter. Incognito mode allows you to train privately without broadcasting telemetry to other nearby members.',
+    title: 'Buddy Radar and privacy',
+    summary: 'Find training partners nearby',
+    desc: 'Radar shows verified members training near you so you can find a partner or a spotter. Turn on Incognito to train privately without appearing to anyone nearby.',
   },
 ];
 
@@ -45,8 +45,8 @@ export const HelpCenterModal: React.FC<HelpCenterModalProps> = ({ isOpen, onClos
               <BookOpen className="w-4 h-4 text-o1-crimson" />
             </div>
             <div>
-              <h2 className="text-sm font-bold tracking-wider font-tactical">Help &amp; Telemetry Manual</h2>
-              <p className="text-[10px] font-mono text-neutral-500">Oblivion 1 Athlete OS Knowledge Base</p>
+              <h2 className="text-sm font-bold tracking-wider font-tactical">Help</h2>
+              <p className="text-[10px] font-mono text-neutral-500">How Oblivion 1 works</p>
             </div>
           </div>
           <button

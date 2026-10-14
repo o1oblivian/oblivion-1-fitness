@@ -1,8 +1,8 @@
 /**
- * Organic vivid status tones. In-range is lake teal, caution is raw gold, alert is crimson.
+ * Natural status tones from the O1FC palette: emerald in range, amber caution, crimson alert.
  */
-export const GOOD = '#4F8F9A';
-export const WATCH = '#D4A017';
+export const GOOD = '#10b981';
+export const WATCH = '#f59e0b';
 export const ALERT = '#C4121A';
 export const IDLE = '#7A756A';
 
@@ -16,17 +16,17 @@ export const TONE_HEX: Record<Tone, string> = {
 };
 
 export const TONE_TEXT: Record<Tone, string> = {
-  good: 'text-o1-ok',
-  watch: 'text-o1-caution',
+  good: 'text-[#10b981]',
+  watch: 'text-[#f59e0b]',
   alert: 'text-o1-crimson',
-  idle: 'text-o1-stone',
+  idle: 'text-o1-muted',
 };
 
 export const TONE_CHIP: Record<Tone, string> = {
-  good: 'text-o1-ok border-o1-ok/30',
-  watch: 'text-o1-caution border-o1-caution/30',
+  good: 'text-[#10b981] border-[#10b981]/30',
+  watch: 'text-[#f59e0b] border-[#f59e0b]/30',
   alert: 'text-o1-crimson border-o1-crimson/30',
-  idle: 'text-o1-stone border-white/[0.07]',
+  idle: 'text-o1-muted border-white/[0.07]',
 };
 
 export function toneForScore(value: number | null): Tone {

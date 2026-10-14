@@ -59,15 +59,14 @@ export function resolveDialConfig(
       ? [6, 7, 7.5, 8, 8.5, 9, 9.5, 10]
       : [10, 20, 30, 40, 50]);
 
-  // Oblivion 1 Crimson for Weights/Sets, Amber for Reps/Fuel, Cyan for Steps, Emerald for RPE
   const accentColor = isWeight
     ? '#C4121A'
     : isReps
-    ? '#D4A017'
+    ? '#d97706'
     : isSteps
-    ? '#4F8F9A'
+    ? '#0284c7'
     : isRpe
-    ? '#6B8F5E'
+    ? '#059669'
     : '#C4121A';
 
   return {

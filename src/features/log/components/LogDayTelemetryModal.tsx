@@ -26,8 +26,7 @@ import { persistCardioLog } from '../services/cardioLogService';
 import { localDayKey, localNoonIso, releaseForgotten } from '../services/dayLogService';
 import { exerciseFromSets, knownSets, setsFromExercise } from '../liftLedger';
 import { FuelMeals } from '../../fuel/store/useFuelStore';
-import { syncSessionToSupabase } from '../../../services/supabaseClient';
-import { getAuthenticatedUserId } from '../../../services/authUser';
+import { archiveSession } from '../../../services/sessionArchive';
 
 interface LogDayTelemetryModalProps {
   isOpen: boolean;
@@ -36,6 +35,8 @@ interface LogDayTelemetryModalProps {
   dayMeta: DayMeta | null;
   onSaved?: (msg: string) => void;
   mode?: 'create' | 'edit';
+  /** Workout edit shows only this lift; the rest of the day is saved unchanged. */
+  focusLift?: string;
 }
 
 export const LogDayTelemetryModal: React.FC<LogDayTelemetryModalProps> = ({
@@ -45,6 +46,7 @@ export const LogDayTelemetryModal: React.FC<LogDayTelemetryModalProps> = ({
   dayMeta,
   onSaved,
   mode = 'create',
+  focusLift,
 }) => {
   const historyByDate = useTelemetryHistoryStore((s) => s.historyByDate);
   const updateDayRecord = useTelemetryHistoryStore((s) => s.updateDayRecord);
@@ -356,20 +358,16 @@ export const LogDayTelemetryModal: React.FC<LogDayTelemetryModalProps> = ({
       };
       updateDayRecord(dayMeta.dateKey, 'workout', record);
       if (mode === 'create') {
-        void getAuthenticatedUserId().then((uid) => {
-          if (!uid) return;
-          return syncSessionToSupabase({
-            id: `session-${Date.now()}`,
-            user_id: uid,
-            title: rName || 'Workout',
-            duration: durNum != null ? `${durNum}m` : '',
-            duration_seconds: durNum != null ? Math.round(durNum * 60) : 0,
-            tonnage_kg: tonnageNum ?? 0,
-            total_sets: setsNum ?? 0,
-            strain: 0,
-            exercises,
-            completed_at: dayMeta.dateKey === localDayKey(new Date().toISOString()) ? undefined : localNoonIso(dayMeta.dateKey),
-          });
+        void archiveSession({
+          id: crypto.randomUUID(),
+          title: rName || 'Workout',
+          duration: durNum != null ? `${durNum}m` : '',
+          duration_seconds: durNum != null ? Math.round(durNum * 60) : 0,
+          tonnage_kg: tonnageNum ?? 0,
+          total_sets: setsNum ?? 0,
+          strain: 0,
+          exercises,
+          completed_at: dayMeta.dateKey === localDayKey(new Date().toISOString()) ? undefined : localNoonIso(dayMeta.dateKey),
         });
       }
       onSaved?.(mode === 'edit' ? 'Workout updated' : 'Workout logged');
@@ -638,6 +636,7 @@ export const LogDayTelemetryModal: React.FC<LogDayTelemetryModalProps> = ({
             <div className="space-y-3.5">
               {liftDrafts.length > 0 ? (
                 <div className="space-y-3">
+                  {!focusLift && (
                   <div>
                     <label className="text-[10px] text-neutral-400 font-bold block mb-1">Duration (MIN)</label>
                     <input
@@ -649,7 +648,8 @@ export const LogDayTelemetryModal: React.FC<LogDayTelemetryModalProps> = ({
                       placeholder="55"
                     />
                   </div>
-                  {liftDrafts.map((lift, liftIndex) => (
+                  )}
+                  {liftDrafts.map((lift, liftIndex) => (focusLift && lift.name !== focusLift) ? null : (
                     <div key={`${lift.name}-${liftIndex}`} className="space-y-1.5">
                       <div className="text-[11px] font-sans font-semibold text-white">{lift.name}</div>
                       <div className="grid grid-cols-[1.25rem_1fr_1fr] gap-2 text-[9px] text-neutral-500">

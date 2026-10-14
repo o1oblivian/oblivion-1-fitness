@@ -6,6 +6,7 @@ import { useOblivionReport } from '../useOblivionReport';
 import { publishReport, readSharePreference, revokeReport } from '../reportShareService';
 import { OblivionReportView } from './OblivionReportView';
 import { DexaPanel } from './DexaPanel';
+import { TrainingSafetyInfo } from '../../legal/TrainingSafetyInfo';
 import type { ReportAction } from '../types';
 
 interface OblivionReportModalProps {
@@ -61,10 +62,11 @@ export const OblivionReportModal: React.FC<OblivionReportModalProps> = ({ isOpen
       aria-label="The Oblivion Report"
     >
       <div className="w-full max-w-[420px] mx-auto space-y-3">
-        <div className="flex items-center justify-between h-11">
-          <div className="text-[10px] font-mono tracking-wider text-neutral-500">
-            {loading ? 'Syncing history…' : source === 'cloud' ? 'Cloud + device history' : 'Device history'}
+        <div className="flex flex-wrap items-center min-h-11">
+          <div className="flex-1 text-[10px] font-mono tracking-wider text-neutral-500">
+            {loading ? 'Loading history…' : source === 'cloud' ? 'Account + device history' : 'Device history'}
           </div>
+          <TrainingSafetyInfo topic="report" />
           <button
             type="button"
             onClick={() => {
@@ -91,7 +93,7 @@ export const OblivionReportModal: React.FC<OblivionReportModalProps> = ({ isOpen
             <div className="text-sm font-bold text-white">Share with my coach</div>
             <div className="text-[11px] text-neutral-500 leading-snug">
               {syncState === 'error'
-                ? 'Could not sync. Check your connection and try again.'
+                ? 'Could not update sharing. Check your connection and try again.'
                 : shared
                   ? coachId
                     ? 'Your coach can read scores and aggregates, never raw logs.'
@@ -119,7 +121,7 @@ export const OblivionReportModal: React.FC<OblivionReportModalProps> = ({ isOpen
         <DexaPanel />
 
         <p className="text-[10px] font-mono text-neutral-600 text-center leading-relaxed pt-2">
-          Computed on this device from your logs. No AI. Metrics without data show --.
+          Computed on this device from your logs. Metrics without data show --.
         </p>
       </div>
     </div>

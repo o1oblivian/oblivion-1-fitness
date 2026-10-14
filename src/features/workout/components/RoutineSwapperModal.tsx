@@ -21,7 +21,7 @@ export const RoutineSwapperModal: React.FC<RoutineSwapperModalProps> = ({
   onSelectPreset,
 }) => {
   const [tab, setTab] = useState<'PRESETS' | 'MUSCLE_SWAP' | 'EXERCISE'>('PRESETS');
-  const { exercises, swapExercise, setExercises, setActiveRoutine, showToast } = useWorkoutStore();
+  const { exercises, swapExercise, setExercises, setActiveRoutine } = useWorkoutStore();
 
   // If activePreset matches an exercise ID or name, prepare single exercise alternatives
   const targetExercise = exercises.find(
@@ -43,7 +43,6 @@ export const RoutineSwapperModal: React.FC<RoutineSwapperModalProps> = ({
         name: altName,
         targetMuscle: altCategory,
       });
-      showToast(`Swapped to ${altName}`);
     }
     onClose();
   };
@@ -52,7 +51,6 @@ export const RoutineSwapperModal: React.FC<RoutineSwapperModalProps> = ({
     tactileEngine.triggerSelectionBuzz();
     setActiveRoutine(title);
     onSelectPreset(title);
-    showToast(`Activated routine split: ${title}.`);
     onClose();
   };
 
@@ -62,7 +60,6 @@ export const RoutineSwapperModal: React.FC<RoutineSwapperModalProps> = ({
     setExercises(calibrated);
     setActiveRoutine(item.muscle);
     onSelectPreset(item.muscle, calibrated);
-    showToast(`Substituted target muscle: ${item.muscle} (${item.exercises.length} drills).`);
     onClose();
   };
 
@@ -81,10 +78,10 @@ export const RoutineSwapperModal: React.FC<RoutineSwapperModalProps> = ({
               <Layers className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="font-tactical font-black text-sm tracking-wider text-white">
+              <h3 className="font-tactical font-light text-sm tracking-wider text-white">
                 Routine Swapper
               </h3>
-              <p className="text-[10px] font-telemetry text-zinc-400">
+              <p className="text-[10px] font-telemetry text-neutral-400">
                 Substitute Target Muscles &amp; Active Sets
               </p>
             </div>
@@ -103,8 +100,8 @@ export const RoutineSwapperModal: React.FC<RoutineSwapperModalProps> = ({
             onClick={() => setTab('PRESETS')}
             className={`flex-1 py-2.5 text-xs font-tactical tracking-wider flex items-center justify-center gap-1.5 transition-colors ${
               tab === 'PRESETS'
-                ? 'text-[#4F8F9A] border-b-2 border-[#4F8F9A] font-bold bg-o1-card'
-                : 'text-zinc-400 hover:text-zinc-200'
+                ? 'text-[#4F8F9A] border-b-2 border-[#4F8F9A] font-medium bg-o1-card'
+                : 'text-neutral-400 hover:text-neutral-200'
             }`}
           >
             <Dumbbell className="w-3.5 h-3.5" />
@@ -114,8 +111,8 @@ export const RoutineSwapperModal: React.FC<RoutineSwapperModalProps> = ({
             onClick={() => setTab('MUSCLE_SWAP')}
             className={`flex-1 py-2.5 text-xs font-tactical tracking-wider flex items-center justify-center gap-1.5 transition-colors ${
               tab === 'MUSCLE_SWAP'
-                ? 'text-[#C4121A] border-b-2 border-[#C4121A] font-bold bg-o1-card'
-                : 'text-zinc-400 hover:text-zinc-200'
+                ? 'text-[#C4121A] border-b-2 border-[#C4121A] font-medium bg-o1-card'
+                : 'text-neutral-400 hover:text-neutral-200'
             }`}
           >
             <Target className="w-3.5 h-3.5" />
@@ -125,8 +122,8 @@ export const RoutineSwapperModal: React.FC<RoutineSwapperModalProps> = ({
             onClick={() => setTab('EXERCISE')}
             className={`flex-1 py-2.5 text-xs font-tactical tracking-wider flex items-center justify-center gap-1.5 transition-colors ${
               tab === 'EXERCISE'
-                ? 'text-amber-400 border-b-2 border-amber-400 font-bold bg-o1-card'
-                : 'text-zinc-400 hover:text-zinc-200'
+                ? 'text-amber-400 border-b-2 border-amber-400 font-medium bg-o1-card'
+                : 'text-neutral-400 hover:text-neutral-200'
             }`}
           >
             <ArrowRight className="w-3.5 h-3.5" />
@@ -140,10 +137,10 @@ export const RoutineSwapperModal: React.FC<RoutineSwapperModalProps> = ({
             <div className="space-y-3">
               {targetExercise ? (
                 <div className="p-3 bg-o1-card rounded-xl border border-white/[0.07]">
-                  <span className="text-[10px] font-tactical font-bold text-zinc-500 tracking-wider block">
+                  <span className="text-[10px] font-tactical font-medium text-neutral-500 tracking-wider block">
                     Replacing Active Exercise:
                   </span>
-                  <div className="font-tactical font-black text-sm text-white mt-0.5">
+                  <div className="font-tactical font-light text-sm text-white mt-0.5">
                     {targetExercise.name}
                   </div>
                   <div className="text-[11px] font-sans font-medium text-amber-400">
@@ -153,7 +150,7 @@ export const RoutineSwapperModal: React.FC<RoutineSwapperModalProps> = ({
               ) : null}
 
               <div className="space-y-2">
-                <span className="text-[10px] font-tactical font-bold text-zinc-400 tracking-wider block">
+                <span className="text-[10px] font-tactical font-medium text-neutral-400 tracking-wider block">
                   Select Alternative Stimulus:
                 </span>
                 {EXERCISE_DATABASE.slice(0, 10).map((drill) => (
@@ -164,20 +161,20 @@ export const RoutineSwapperModal: React.FC<RoutineSwapperModalProps> = ({
                   >
                     <div className="min-w-0 flex-1 pr-2">
                       <div className="flex items-center gap-2">
-                        <span className="font-tactical font-bold text-xs text-white group-hover:text-amber-400 transition-colors">
+                        <span className="font-tactical font-medium text-xs text-white group-hover:text-amber-400 transition-colors">
                           {drill.name}
                         </span>
-                        <span className="text-[9px] font-sans font-bold text-zinc-400 bg-white/[0.08] px-1.5 py-0.5 rounded">
+                        <span className="text-[9px] font-sans font-medium text-neutral-400 bg-white/[0.08] px-1.5 py-0.5 rounded">
                           {drill.equipment}
                         </span>
                       </div>
-                      <p className="text-[11px] font-sans text-zinc-500 truncate mt-0.5">
+                      <p className="text-[11px] font-sans text-neutral-500 truncate mt-0.5">
                         {drill.subLabel || drill.category}
                       </p>
                     </div>
                     <button
                       type="button"
-                      className="px-2.5 py-1 rounded-xl bg-amber-500/10 text-amber-400 group-hover:bg-amber-500 group-hover:text-black font-tactical text-[10px] font-black tracking-wider transition-all"
+                      className="px-2.5 py-1 rounded-xl bg-amber-500/10 text-amber-400 group-hover:bg-amber-500 group-hover:text-black font-tactical text-[10px] font-light tracking-wider transition-all"
                     >
                       Swap
                     </button>
@@ -199,23 +196,23 @@ export const RoutineSwapperModal: React.FC<RoutineSwapperModalProps> = ({
                   }`}
                 >
                   <div className="flex items-center justify-between">
-                    <span className="font-tactical font-black text-sm text-white">
+                    <span className="font-tactical font-light text-sm text-white">
                       {item.title}
                     </span>
-                    <span className="text-[9px] font-tactical font-bold text-zinc-400 bg-white/[0.08] px-2 py-0.5 rounded-full border border-white/[0.07] tracking-wider">
+                    <span className="text-[9px] font-tactical font-medium text-neutral-400 bg-white/[0.08] px-2 py-0.5 rounded-full border border-white/[0.07] tracking-wider">
                       {item.tier}
                     </span>
                   </div>
-                  <p className="text-[11px] font-sans text-sky-400 font-semibold">
+                  <p className="text-[11px] font-sans text-sky-600 font-semibold">
                     {item.split}
                   </p>
-                  <p className="text-xs text-zinc-400 leading-relaxed font-sans">
+                  <p className="text-xs text-neutral-400 leading-relaxed font-sans">
                     {item.desc}
                   </p>
-                  <div className="flex items-center justify-between pt-1.5 border-t border-white/[0.05] text-[10px] text-zinc-500 font-sans">
+                  <div className="flex items-center justify-between pt-1.5 border-t border-white/[0.05] text-[10px] text-neutral-500 font-sans">
                     <span>{item.volume}</span>
-                    <span className="text-white flex items-center gap-1 font-tactical font-bold tracking-wider">
-                      <span>Activate Protocol</span>
+                    <span className="text-white flex items-center gap-1 font-tactical font-medium tracking-wider">
+                      <span>Start this plan</span>
                       <ArrowRight className="w-3 h-3 text-[#4F8F9A]" />
                     </span>
                   </div>
@@ -230,10 +227,10 @@ export const RoutineSwapperModal: React.FC<RoutineSwapperModalProps> = ({
                 className="p-3.5 rounded-2xl border border-white/[0.07] bg-o1-card hover:border-[#C4121A] cursor-pointer transition-all space-y-2"
               >
                 <div className="flex items-center justify-between">
-                  <span className="font-tactical font-black text-sm text-white">
+                  <span className="font-tactical font-light text-sm text-white">
                     {item.muscle}
                   </span>
-                  <span className="text-[9px] font-tactical font-bold text-[#C4121A] bg-[#C4121A]/10 px-2 py-0.5 rounded-full border border-[#C4121A]/30 tracking-wider">
+                  <span className="text-[9px] font-tactical font-medium text-[#C4121A] bg-[#C4121A]/10 px-2 py-0.5 rounded-full border border-[#C4121A]/30 tracking-wider">
                     {item.tag}
                   </span>
                 </div>
@@ -241,16 +238,16 @@ export const RoutineSwapperModal: React.FC<RoutineSwapperModalProps> = ({
                   {item.exercises.map((ex) => (
                     <div
                       key={ex.id}
-                      className="text-xs text-zinc-300 flex items-center justify-between bg-black px-2.5 py-1.5 rounded-xl border border-white/[0.07]"
+                      className="text-xs text-neutral-300 flex items-center justify-between bg-black px-2.5 py-1.5 rounded-xl border border-white/[0.07]"
                     >
                       <span className="font-sans font-medium">{ex.name}</span>
-                      <span className="font-sans text-[10px] text-zinc-500">
+                      <span className="font-sans text-[10px] text-neutral-500">
                         {ex.sets.length} sets • {ex.targetMuscle}
                       </span>
                     </div>
                   ))}
                 </div>
-                <div className="flex items-center justify-between pt-1.5 border-t border-white/[0.05] text-[10px] text-[#C4121A] font-tactical font-bold tracking-wider">
+                <div className="flex items-center justify-between pt-1.5 border-t border-white/[0.05] text-[10px] text-[#C4121A] font-tactical font-medium tracking-wider">
                   <span>Substitute Active Sets</span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </div>

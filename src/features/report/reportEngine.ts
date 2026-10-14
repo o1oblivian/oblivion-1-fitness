@@ -52,13 +52,12 @@ interface LiftSession {
   reps: number;
 }
 
-function buildLiftSessions(sets: LoggedSet[]): Map<string, LiftSession[]> {
+function buildLiftSessions(sets: LoggedSet[], requireMuscle = true): Map<string, LiftSession[]> {
   const best = new Map<string, Map<string, LiftSession>>();
   for (const s of sets) {
     const e1rm = estimateOneRepMax(s.weightKg, s.reps);
     if (e1rm === null) continue;
-    const credit = classifyExercise(s.exercise);
-    if (!credit) continue;
+    if (requireMuscle && !classifyExercise(s.exercise)) continue;
     const name = s.exercise.trim();
     const perDay = best.get(name) ?? new Map<string, LiftSession>();
     const prev = perDay.get(s.day);
@@ -111,14 +110,25 @@ function analyseLift(name: string, sessions: LiftSession[], todayIdx: number): L
     currentE1rm: Math.round(last.e1rm * 10) / 10,
     bestE1rm: Math.round(bestSession.e1rm * 10) / 10,
     bestDay: bestSession.day,
+    bestWeightKg: bestSession.weightKg,
+    bestReps: bestSession.reps,
     changePct,
     trend,
     recentPb,
     lastWeightKg: last.weightKg,
     lastReps: last.reps,
     lastDay: last.day,
-    series: sessions.slice(-16).map((s) => ({ day: s.day, e1rm: Math.round(s.e1rm * 10) / 10 })),
+    series: sessions.slice(-16).map((s) => ({ day: s.day, e1rm: Math.round(s.e1rm * 10) / 10, weightKg: s.weightKg, reps: s.reps })),
   };
+}
+
+/** Every loaded lift on record, most recently trained first. One session is enough to appear. */
+export function analyseAllLifts(sets: LoggedSet[], now: number): LiftProgress[] {
+  const todayIdx = dayIndex(toDayKey(now));
+  const valid = sets.filter((s) => s.reps >= 1 && todayIdx - dayIndex(s.day) >= 0);
+  return Array.from(buildLiftSessions(valid, false).entries())
+    .map(([name, sessions]) => analyseLift(name, sessions, todayIdx))
+    .sort((a, b) => dayIndex(b.lastDay) - dayIndex(a.lastDay) || b.sessions - a.sessions);
 }
 
 function collectPersonalBests(sessionsByLift: Map<string, LiftSession[]>, todayIdx: number): PersonalBest[] {

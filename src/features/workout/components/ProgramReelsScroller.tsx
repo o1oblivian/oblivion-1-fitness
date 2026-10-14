@@ -1,172 +1,169 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { tactileEngine } from '../../../services/tactileEngine';
-import { readAthleteSettingsSnapshot } from '../../../utils/athleteSettingsSnapshot';
-import o1fcTutorialLensImg from '../../../assets/images/o1fc_tutorial_lens_1790743700478.jpg';
+import { useReelsStore } from '../../../stores/useReelsStore';
+import { useReelViewsStore } from '../../reels/services/reelViews';
+import { filterReelsCatalog } from '../../reels/hooks/reelsFilterHelper';
+import type { ExploreReelItem } from '../../reels/reelTypes';
+import { getAthleteDayRoutine, getSystemTodayCode, useDayRoutineRevision } from '../services/dayRoutineService';
+import reelsImg from '../../../assets/images/reels/reels.jpg';
+import tutorialImg from '../../../assets/images/reels/tutorial.jpg';
+import hypertrophyImg from '../../../assets/images/reels/hypertrophy.jpg';
+import biomechanicsImg from '../../../assets/images/reels/biomechanics.jpg';
+import strengthImg from '../../../assets/images/reels/strength.jpg';
+import mobilityImg from '../../../assets/images/reels/mobility.jpg';
+import conditioningImg from '../../../assets/images/reels/conditioning.jpg';
+import rehabImg from '../../../assets/images/reels/rehab.jpg';
+import { REEL_CATEGORIES, type ReelCategoryId } from '../../reels/reelCategories';
+import { useVisibleReels } from '../../reels/services/reelSafety';
 
-export interface StoryProgram {
+export type ReelCategory = ExploreReelItem['category'];
+
+interface StoryProgram {
   id: string;
   name: string;
-  category?: 'ALL' | 'TUTORIAL' | 'MOBILITY' | 'BIOMECHANICS' | 'HYPERTROPHY' | 'STRENGTH' | 'REHAB';
-  filterTag?: string;
-  duration?: string;
+  category: ReelCategory;
   photoUrl: string;
 }
 
-export const PROGRAM_STORIES: StoryProgram[] = [
-  {
-    id: 'elite-reels',
-    name: 'All',
-    category: 'ALL',
-    filterTag: 'ALL',
-    photoUrl: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=400&auto=format&fit=crop&crop=center&q=80',
-  },
-  {
-    id: 'o1fc-tutorial',
-    name: 'O1FC Tutorial',
-    category: 'TUTORIAL',
-    filterTag: 'TUTORIAL',
-    photoUrl: o1fcTutorialLensImg,
-  },
-  {
-    id: 'hypertrophy',
-    name: 'Hypertrophy',
-    category: 'HYPERTROPHY',
-    filterTag: 'HYPERTROPHY',
-    photoUrl: 'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=400&auto=format&fit=crop&crop=center&q=80',
-  },
-  {
-    id: 'biomechanics',
-    name: 'Biomechanics',
-    category: 'BIOMECHANICS',
-    filterTag: 'BIOMECHANICS',
-    photoUrl: 'https://images.unsplash.com/photo-1574680096145-d05b474e2155?w=400&auto=format&fit=crop&crop=center&q=80',
-  },
-  {
-    id: 'strength',
-    name: 'Strength',
-    category: 'STRENGTH',
-    filterTag: 'STRENGTH',
-    photoUrl: 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?w=400&auto=format&fit=crop&crop=center&q=80',
-  },
-  {
-    id: 'mobility',
-    name: 'Mobility',
-    category: 'MOBILITY',
-    filterTag: 'MOBILITY',
-    photoUrl: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?w=400&auto=format&fit=crop&crop=center&q=80',
-  },
-  {
-    id: 'hyrox',
-    name: 'Hyrox',
-    category: 'ALL',
-    filterTag: 'HYROX',
-    photoUrl: 'https://images.unsplash.com/photo-1526506118085-60ce8714f8c5?w=400&auto=format&fit=crop&crop=center&q=80',
-  },
-  {
-    id: 'rehab',
-    name: 'Rehab',
-    category: 'REHAB',
-    filterTag: 'REHAB',
-    photoUrl: 'https://images.unsplash.com/photo-1584735935682-2f2b69dff9d2?w=400&auto=format&fit=crop&crop=center&q=80',
-  },
+const FALLBACK_COVERS: Record<ReelCategoryId, string> = {
+  TUTORIAL: tutorialImg,
+  HYPERTROPHY: hypertrophyImg,
+  BIOMECHANICS: biomechanicsImg,
+  STRENGTH: strengthImg,
+  MOBILITY: mobilityImg,
+  CONDITIONING: conditioningImg,
+  REHAB: rehabImg,
+};
+
+const STORY_IDS: Record<ReelCategoryId, string> = {
+  TUTORIAL: 'o1fc-tutorial',
+  HYPERTROPHY: 'hypertrophy',
+  BIOMECHANICS: 'biomechanics',
+  STRENGTH: 'strength',
+  MOBILITY: 'mobility',
+  CONDITIONING: 'conditioning',
+  REHAB: 'rehab',
+};
+
+const PROGRAM_STORIES: StoryProgram[] = [
+  { id: 'elite-reels', name: 'Reels', category: 'ALL', photoUrl: reelsImg },
+  ...REEL_CATEGORIES.map((c) => ({ id: STORY_IDS[c.id], name: c.label, category: c.id, photoUrl: FALLBACK_COVERS[c.id] })),
 ];
 
-export interface ProgramReelsScrollerProps {
-  onOpenExploreHub?: () => void;
-  onOpenPlayerWithCategory?: (
-    category: 'ALL' | 'TUTORIAL' | 'MOBILITY' | 'BIOMECHANICS' | 'HYPERTROPHY' | 'STRENGTH' | 'REHAB',
-    filterTag: string
-  ) => void;
-  onSelectCategory?: (
-    category: 'ALL' | 'TUTORIAL' | 'MOBILITY' | 'BIOMECHANICS' | 'HYPERTROPHY' | 'STRENGTH' | 'REHAB',
-    filterTag: string,
-    storyId: string
-  ) => void;
-  onSelectBlueprint?: (blueprintKey: string) => void;
-  activeId?: string;
+/** The club's own circles stay put even before any reels are posted to them, and keep the club artwork. */
+const ALWAYS_SHOWN = new Set<ReelCategory>(['ALL', 'TUTORIAL']);
+
+const StoryCover: React.FC<{ src: string; fallback: string; dim: boolean }> = ({ src, fallback, dim }) => {
+  const [failed, setFailed] = useState<string | null>(null);
+  return (
+    <img
+      src={failed === src ? fallback : src}
+      alt=""
+      onError={() => setFailed(src)}
+      className={`w-full h-full object-cover object-center transition-all duration-300 group-hover:scale-105 ${dim ? 'opacity-70' : ''}`}
+      loading="lazy"
+      decoding="async"
+    />
+  );
+};
+
+export function reelStoryId(category: ReelCategory): string {
+  return PROGRAM_STORIES.find((s) => s.category === category)?.id ?? 'elite-reels';
 }
 
-export const ProgramReelsScroller: React.FC<ProgramReelsScrollerProps> = ({
-  onOpenExploreHub,
-  onOpenPlayerWithCategory,
-  onSelectCategory,
-  activeId = 'elite-reels',
-}) => {
-  const [selectedId, setSelectedId] = useState<string>(activeId);
+/** Categories that suit today's planned session, most relevant first. */
+function todaysCategories(): ReelCategory[] {
+  const { splitName, exercises } = getAthleteDayRoutine(getSystemTodayCode());
+  const text = `${splitName} ${exercises.map((e) => `${e.targetMuscle || ''} ${e.tier || ''}`).join(' ')}`.toUpperCase();
+  if (/REST|RECOVERY|RESTORATION/.test(splitName.toUpperCase())) return ['MOBILITY', 'REHAB'];
+  if (/HYROX|HYPER\b|CONDITIONING|CARDIO|SLED|ERG/.test(text)) return ['CONDITIONING', 'MOBILITY'];
+  if (/LEGS|LOWER|QUAD|HAMSTRING|GLUTE|SQUAT/.test(text)) return ['STRENGTH', 'BIOMECHANICS', 'MOBILITY'];
+  if (/PUSH|PULL|UPPER|CHEST|BACK|LAT|DELT|BICEP|TRICEP/.test(text)) return ['HYPERTROPHY', 'BIOMECHANICS'];
+  return [];
+}
+
+export interface ProgramReelsScrollerProps {
+  activeId: string;
+  onSelect: (category: ReelCategory, filterTag: string) => void;
+}
+
+export const ProgramReelsScroller: React.FC<ProgramReelsScrollerProps> = ({ activeId, onSelect }) => {
+  const reels = useVisibleReels(useReelsStore((s) => s.reels));
+  const loadFeed = useReelsStore((s) => s.loadFeed);
+  const viewed = useReelViewsStore((s) => s.viewed);
+  const hydrateViews = useReelViewsStore((s) => s.hydrate);
+  const routineRevision = useDayRoutineRevision();
 
   useEffect(() => {
-    if (activeId) {
-      setSelectedId(activeId);
-    }
-  }, [activeId]);
+    void loadFeed();
+    void hydrateViews();
+  }, [loadFeed, hydrateViews]);
 
-  const handleClick = (story: StoryProgram) => {
-    tactileEngine.triggerLightTick();
-    setSelectedId(story.id);
-
-    const cat = story.category || 'ALL';
-    const tag = story.filterTag || 'ALL';
-
-    if (onSelectCategory) {
-      onSelectCategory(cat, tag, story.id);
-      return;
-    }
-
-    if (story.id === 'elite-reels') {
-      onOpenExploreHub?.();
-      return;
-    }
-    onOpenPlayerWithCategory?.(cat, tag);
-  };
+  const stories = useMemo(() => {
+    void routineRevision;
+    const priority = todaysCategories();
+    const rank = (s: StoryProgram) => (s.category === 'ALL' ? -1 : priority.includes(s.category) ? priority.indexOf(s.category) : priority.length);
+    return PROGRAM_STORIES
+      .map((story, order) => ({ story, order }))
+      .sort((a, b) => rank(a.story) - rank(b.story) || a.order - b.order)
+      .map(({ story }) => {
+        const matching = filterReelsCatalog(reels, 'ALL', story.category, '');
+        const cover = ALWAYS_SHOWN.has(story.category) ? undefined : matching.find((r) => r.thumbnail)?.thumbnail;
+        return {
+          ...story,
+          cover: cover || story.photoUrl,
+          total: matching.length,
+          unwatched: matching.filter((r) => !viewed[r.id]).length,
+        };
+      })
+      .filter((story) => ALWAYS_SHOWN.has(story.category) || story.total > 0);
+  }, [reels, viewed, routineRevision]);
 
   return (
     <div className="w-full select-none pt-1 pb-1">
       <div className="flex items-start gap-3 overflow-x-auto py-1 px-1 scrollbar-none">
-        {PROGRAM_STORIES.filter((story) =>
-          story.id === 'elite-reels' ? readAthleteSettingsSnapshot().eliteReelsPresence : true
-        ).map((story) => {
-          const isActive = selectedId === story.id;
-
+        {stories.map((story) => {
+          const isActive = activeId === story.id;
+          const fresh = story.unwatched > 0;
+          const ring = isActive ? 'ring-1 ring-white/60' : 'ring-1 ring-white/15 group-hover:ring-white/30';
           return (
             <button
               key={story.id}
               type="button"
               id={`reel-story-${story.id}`}
-              onClick={() => handleClick(story)}
-              className="group flex flex-col items-center shrink-0 focus:outline-none cursor-pointer active:scale-95 transition-transform duration-200"
-              style={{ width: '80px' }}
+              aria-pressed={isActive}
+              aria-label={fresh ? `${story.name}, ${story.unwatched} new` : story.name}
+              onClick={() => {
+                tactileEngine.triggerLightTick();
+                onSelect(story.category, 'ALL');
+              }}
+              className="group flex flex-col items-center shrink-0 w-[80px] cursor-pointer active:scale-95 transition-transform duration-200 focus-visible:outline-none"
             >
-              <div className="relative w-[76px] h-[76px] flex items-center justify-center">
-                <div
-                  className={`w-full h-full rounded-full p-[1.5px] transition-all duration-300 ${
-                    isActive
-                      ? 'ring-1 ring-white/40'
-                      : 'ring-1 ring-white/15 group-hover:ring-white/30'
-                  }`}
-                >
-                  <div className="w-full h-full rounded-full overflow-hidden relative bg-o1-well">
-                    <img
-                      src={story.photoUrl}
-                      alt={story.name}
-                      className="w-full h-full object-cover object-center transform transition-transform duration-300 group-hover:scale-105"
-                      loading="lazy"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/10 pointer-events-none" />
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-1 w-full text-center px-0.5">
-                <span
-                  className={`block font-sans text-[9px] font-semibold tracking-normal truncate transition-colors duration-200 ${
-                    isActive
-                      ? 'text-white'
-                      : 'text-neutral-400 group-hover:text-white'
-                  }`}
-                >
-                  {story.name}
+              <span className={`relative block w-[76px] h-[76px] rounded-full p-[2px] transition-all duration-300 group-focus-visible:ring-white/60 ${ring}`}>
+                <span className="block w-full h-full rounded-full overflow-hidden relative bg-o1-well">
+                  <StoryCover src={story.cover} fallback={story.photoUrl} dim={!fresh && !isActive && story.category !== 'ALL'} />
+                  <span className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/10 pointer-events-none" />
+                  {story.category === 'ALL' && (
+                    <span className="absolute inset-0 flex items-center justify-center pointer-events-none" aria-hidden="true">
+                      <span className="flex items-center justify-center w-7 h-7 rounded-full bg-black/55 backdrop-blur-sm">
+                        <svg className="w-3.5 h-3.5 text-white translate-x-px" viewBox="0 0 24 24" fill="currentColor">
+                          <polygon points="6 3 20 12 6 21 6 3" />
+                        </svg>
+                      </span>
+                    </span>
+                  )}
                 </span>
-              </div>
+                {story.category === 'ALL' && fresh && (
+                  <span className="absolute top-0.5 right-0.5 w-2.5 h-2.5 rounded-full bg-white border-2 border-black" aria-hidden="true" />
+                )}
+              </span>
+              <span
+                className={`mt-1.5 block w-full px-0.5 text-center font-sans text-[11px] font-medium truncate transition-colors duration-200 ${
+                  isActive || fresh ? 'text-white' : 'text-o1-muted group-hover:text-white'
+                }`}
+              >
+                {story.name}
+              </span>
             </button>
           );
         })}

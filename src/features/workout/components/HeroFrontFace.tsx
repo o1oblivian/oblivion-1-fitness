@@ -1,67 +1,102 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { DayAdaptiveDial } from './dials/DayAdaptiveDial';
 import { HeroHeader } from './HeroHeader';
 import { HeroBottomDock } from './HeroBottomDock';
-import { getSystemTodayCode, getAthleteDayRoutine, formatConciseSplitName } from '../services/dayRoutineService';
+import { getAthleteDayRoutine, formatConciseSplitName, getSystemTodayCode, useDayRoutineRevision } from '../services/dayRoutineService';
 import { useWorkoutStore } from '../store/useWorkoutStore';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { useWallpaperStore } from '../../../stores/useWallpaperStore';
+import { useWallpaperAutoDim } from '../hooks/useWallpaperAutoDim';
 
-export interface HeroFrontFaceProps {
-  isFlipped: boolean; activeWallpaper?: string; activeDay: string; splitName: string;
-  steps: number; burnKcal: number; distKm: string | number; recoveryEnergyScore: number;
-  stepTarget?: number; goalMove?: number; goalDist?: number;
-  onCycleWallpaper: () => void; onCycleDayDial: () => void; onFlipToVitals: () => void;
-  onOpenCardio?: () => void; onOpenReadiness: () => void; onOpenSettings?: () => void;
-  onShowToast?: (msg: string) => void;
+function dialSummary(p: {
+  day: string; steps: number; burnKcal: number; goalMove: number; intakeKcal: number; intakeGoal: number;
+  distKm: number; hydrationPct: number | null; sleepHours: number | null;
+}): string {
+  const n = (v: number) => Math.round(v).toLocaleString();
+  const parts = [
+    p.steps > 0 ? `${n(p.steps)} steps` : 'steps not logged',
+    p.burnKcal > 0 ? `${n(p.burnKcal)} kcal burned${p.goalMove > 0 ? ` of ${n(p.goalMove)}` : ''}` : 'burn not logged',
+    p.intakeKcal > 0 ? `${n(p.intakeKcal)} kcal eaten${p.intakeGoal > 0 ? ` of ${n(p.intakeGoal)}` : ''}` : 'no meals logged',
+    p.distKm > 0 ? `${p.distKm.toFixed(1)} km` : null,
+    p.hydrationPct != null ? `${p.hydrationPct}% hydrated` : null,
+    p.sleepHours != null ? `${p.sleepHours} hours sleep` : null,
+  ].filter(Boolean);
+  return `${p.day}. ${parts.join(', ')}. Tap to browse days.`;
 }
 
+export interface HeroFrontFaceProps {
+  isFlipped: boolean; activeWallpaper?: string; activeDay: string;
+  steps: number; burnKcal: number; distKm: number; intakeKcal: number; intakeGoal: number;
+  hydrationPct: number | null; sleepHours: number | null;
+  readinessScore: number | null;
+  stepTarget?: number; goalMove?: number; goalDist?: number;
+  onCycleDayDial: () => void; onFlipToVitals: () => void;
+  onOpenCardio?: () => void; onOpenReadiness: () => void; onOpenSettings?: () => void;
+}
+
+const scrollToActiveLog = () =>
+  document.getElementById('active-log-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
 export const HeroFrontFace: React.FC<HeroFrontFaceProps> = ({
-  isFlipped, activeWallpaper, activeDay, splitName, steps, burnKcal, distKm,
-  recoveryEnergyScore, stepTarget = 0, goalMove = 0, goalDist = 0,
-  onCycleDayDial, onFlipToVitals, onOpenCardio, onOpenReadiness, onOpenSettings, onShowToast,
+  isFlipped, activeWallpaper, activeDay, steps, burnKcal, distKm, intakeKcal, intakeGoal, hydrationPct, sleepHours,
+  readinessScore, stepTarget = 0, goalMove = 0, goalDist = 0,
+  onCycleDayDial, onFlipToVitals, onOpenCardio, onOpenReadiness, onOpenSettings,
 }) => {
-  const systemToday = getSystemTodayCode();
-  const isPresentDay = activeDay.toLowerCase() === systemToday.toLowerCase();
+  useDayRoutineRevision();
+  const [noRoutineDay, setNoRoutineDay] = useState<string | null>(null);
+  useEffect(() => {
+    if (!noRoutineDay) return;
+    const t = window.setTimeout(() => setNoRoutineDay(null), 5000);
+    return () => window.clearTimeout(t);
+  }, [noRoutineDay]);
+  const wallpaperBrightness = useWallpaperStore((s) => s.brightness);
+  const autoDim = useWallpaperAutoDim(activeWallpaper);
   const activeSession = useWorkoutStore((s) => s.activeSession);
   const activeLogs = useWorkoutStore((s) => s.activeLogs);
   const setActiveLogs = useWorkoutStore((s) => s.setActiveLogs);
   const setActiveSession = useWorkoutStore((s) => s.setActiveSession);
   const setActiveRoutine = useWorkoutStore((s) => s.setActiveRoutine);
-  const dayRoutine = getAthleteDayRoutine(activeDay as any);
-  const activeSplitLabel = formatConciseSplitName(dayRoutine.splitName || splitName);
+  const dayRoutine = getAthleteDayRoutine(activeDay as Parameters<typeof getAthleteDayRoutine>[0]);
+  const activeSplitLabel = formatConciseSplitName(dayRoutine.splitName);
   const isWorkoutLoaded = activeSession && (activeLogs?.length ?? 0) > 0;
+  const hasSavedRoutine = dayRoutine.isCustom && dayRoutine.exercises.length > 0;
+  const isEmptyDay = steps <= 0 && burnKcal <= 0 && intakeKcal <= 0 && distKm <= 0 && hydrationPct == null && sleepHours == null;
 
-  const handleShortcutLoadWorkout = () => {
-    if (!isPresentDay) return;
-
+  const handleLoadWorkout = () => {
     if (isWorkoutLoaded) {
       tactileEngine.triggerSelectionBuzz();
-      onShowToast?.(`Today's session is already in Active Log.`);
+      scrollToActiveLog();
       return;
     }
 
-    if (!dayRoutine.isCustom || !dayRoutine.exercises?.length) {
+    if (!hasSavedRoutine) {
       tactileEngine.triggerSelectionBuzz();
-      onShowToast?.(`No saved ${activeDay} workout yet. Finish a session and save it to this day.`);
+      setNoRoutineDay(activeDay);
       return;
     }
 
-    tactileEngine.playPRCelebration();
-    const cleanExercises = dayRoutine.exercises.map((ex: any, i: number) => ({
+    tactileEngine.triggerSelectionBuzz();
+    const stamp = Date.now();
+    const cleanExercises = dayRoutine.exercises.map((ex, i) => ({
       ...ex,
-      id: `live-${activeDay.toLowerCase()}-${Date.now()}-${i}`,
-      sets: (ex.sets || []).map((s: any, sIdx: number) => ({
+      id: `live-${activeDay.toLowerCase()}-${stamp}-${i}`,
+      sets: (ex.sets || []).map((s, sIdx) => ({
         ...s,
-        id: `s-${Date.now()}-${i}-${sIdx}`,
+        id: `s-${stamp}-${i}-${sIdx}`,
         completed: false,
       })),
     }));
     setActiveLogs(cleanExercises);
     setActiveSession(true);
     setActiveRoutine(activeSplitLabel);
-    onShowToast?.(`${activeDay} routine loaded · ${cleanExercises.length} movements`);
+    window.setTimeout(scrollToActiveLog, 120);
   };
+
+  const dialCaption = noRoutineDay === activeDay
+    ? `No saved ${activeDay} workout yet. Finish a session and choose "save as weekly routine".`
+    : isEmptyDay
+      ? activeDay === getSystemTodayCode() ? null : `Nothing logged on ${activeDay}`
+      : null;
 
   return (
     <div
@@ -71,7 +106,7 @@ export const HeroFrontFace: React.FC<HeroFrontFaceProps> = ({
         WebkitBackfaceVisibility: 'hidden',
         pointerEvents: isFlipped ? 'none' : 'auto',
       }}
-      className={`absolute inset-0 w-full h-full rounded-2xl sm:rounded-2xl overflow-hidden bg-transparent text-white transition-opacity duration-300 ${
+      className={`absolute inset-0 w-full h-full rounded-2xl overflow-hidden bg-transparent text-white transition-opacity duration-300 ${
         isFlipped ? 'opacity-0 pointer-events-none' : 'opacity-100'
       }`}
     >
@@ -82,6 +117,7 @@ export const HeroFrontFace: React.FC<HeroFrontFaceProps> = ({
           alt=""
           aria-hidden="true"
           className="absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700 select-none pointer-events-none"
+          style={{ filter: `brightness(${(wallpaperBrightness / 100) * autoDim})` }}
           onError={(e) => {
             (e.currentTarget as HTMLElement).style.display = 'none';
             useWallpaperStore.getState().reportBroken(activeWallpaper);
@@ -89,44 +125,58 @@ export const HeroFrontFace: React.FC<HeroFrontFaceProps> = ({
         />
       )}
 
-      {/* Root Container Structure: Top status dots, Center telemetry, Bottom HeroBottomDock - No dead margins */}
       <div className="relative w-full h-full flex flex-col justify-between p-2.5 pb-2 select-none overflow-hidden z-10">
-        {/* Top: Status dots & flip trigger */}
         <HeroHeader
-          readinessScore={recoveryEnergyScore}
-          onCycleDayDial={onCycleDayDial}
+          readinessScore={readinessScore}
           onOpenReadiness={onOpenReadiness}
           onOpenSettings={onOpenSettings}
         />
 
-        {/* Center: Telemetry reading - Tap dial to cycle through 7 day dials */}
         <div
           role="button"
           tabIndex={0}
+          aria-label={dialSummary({ day: activeDay, steps, burnKcal, goalMove, intakeKcal, intakeGoal, distKm, hydrationPct, sleepHours })}
           title="Browse day dials"
           onClick={() => onCycleDayDial()}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              onCycleDayDial();
+            }
+          }}
           className="relative flex-1 flex flex-col items-center justify-center my-auto w-full cursor-pointer select-none active:scale-[0.99] transition-transform"
         >
           <DayAdaptiveDial
             activeDay={activeDay}
             splitLabel={activeSplitLabel}
-            dailySteps={steps}
+            steps={steps}
             stepTarget={stepTarget}
-            dailyMove={burnKcal}
+            burnKcal={burnKcal}
             goalMove={goalMove}
-            dailyDist={Number(distKm) || 0}
+            distKm={distKm}
             goalDist={goalDist}
+            intakeKcal={intakeKcal}
+            intakeGoal={intakeGoal}
+            hydrationPct={hydrationPct}
+            sleepHours={sleepHours}
           />
+          {dialCaption && (
+            <span
+              role="status"
+              className="absolute bottom-0 left-0 right-0 px-4 text-center text-[11px] font-medium text-white/80"
+              style={{ textShadow: '0 1px 2px rgba(0,0,0,0.8)' }}
+            >
+              {dialCaption}
+            </span>
+          )}
         </div>
 
-        {/* Bottom: HeroBottomDock pinned cleanly with zero black background */}
         <HeroBottomDock
           activeDay={activeDay}
           activeSplitLabel={activeSplitLabel}
-          isPresentDay={isPresentDay}
+          hasSavedRoutine={hasSavedRoutine && !isWorkoutLoaded}
           onOpenCardio={onOpenCardio}
-          onCycleDayDial={onCycleDayDial}
-          onLoadWorkout={handleShortcutLoadWorkout}
+          onLoadWorkout={handleLoadWorkout}
           onFlipToVitals={onFlipToVitals}
         />
       </div>

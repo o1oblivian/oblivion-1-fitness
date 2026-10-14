@@ -1,61 +1,51 @@
-import React, { useState, useEffect } from 'react';
-import { CheckCircle2, ShieldCheck } from 'lucide-react';
-import { useOfflineStatus } from '../../services/offlineSyncService';
+import React from 'react';
+import { flushSync, useSyncStatus } from '../../services/syncOutbox';
+
+/** Online changes normally land within seconds; only a backlog older than this is worth showing. */
+const STALE_MS = 30_000;
 
 export const BasementOfflineBanner: React.FC = () => {
-  const { isOnline } = useOfflineStatus();
-  const [showRestored, setShowRestored] = useState(false);
-  const [wasOffline, setWasOffline] = useState(!navigator.onLine);
+  const { online, pending, oldestAt, syncing } = useSyncStatus();
+  const changes = `${pending} change${pending === 1 ? '' : 's'}`;
 
-  useEffect(() => {
-    if (!isOnline) {
-      setWasOffline(true);
-    } else if (wasOffline && isOnline) {
-      setShowRestored(true);
-      const timer = setTimeout(() => {
-        setShowRestored(false);
-        setWasOffline(false);
-      }, 3500);
-      return () => clearTimeout(timer);
-    }
-  }, [isOnline, wasOffline]);
-
-  if (!isOnline) {
+  if (!online) {
     return (
       <aside
-        aria-label="Basement safe offline mode status"
-        className="w-full bg-o1-well border-b border-amber-500/30 px-3 py-1.5 flex items-center justify-between text-[11px] font-mono select-none animate-in fade-in slide-in-from-top-2 duration-200 z-40"
+        aria-label="Offline status"
+        className="w-full bg-o1-well border-b border-white/[0.07] px-3 py-1.5 flex items-center gap-2 text-[11px] text-o1-muted select-none z-40"
       >
-        <div className="flex items-center gap-2 text-amber-400">
-          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-          <span className="font-bold tracking-wider text-amber-300">
-            Basement safe • offline active
-          </span>
-        </div>
-        <div className="flex items-center gap-1.5 text-neutral-400 text-[10px]">
-          <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-          <span className="hidden sm:inline">All sets, timers &amp; logs saving locally</span>
-          <span className="sm:hidden">Saving locally</span>
-        </div>
+        <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" />
+        <span className="truncate">
+          Offline. Saved on this phone{pending > 0 ? ` · ${changes} to back up` : ''}
+        </span>
       </aside>
     );
   }
 
-  if (showRestored) {
+  if (pending > 0 && oldestAt !== null && Date.now() - oldestAt > STALE_MS) {
     return (
       <aside
-        aria-label="Online connection restored status"
-        className="w-full bg-emerald-950/80 border-b border-emerald-500/40 px-3 py-1.5 flex items-center justify-between text-[11px] font-mono select-none animate-in fade-in slide-in-from-top-2 duration-200 z-40"
+        aria-label="Backup status"
+        className="w-full bg-o1-well border-b border-white/[0.07] px-3 py-1.5 flex items-center justify-between gap-2 text-[11px] text-o1-muted select-none z-40"
       >
-        <div className="flex items-center gap-2 text-emerald-300 font-bold">
-          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-          <span className="tracking-wider">Connected • gym logs synced</span>
-        </div>
-        <span className="text-[10px] text-emerald-200/80 font-normal">Cloud sync complete</span>
+        <span className="flex items-center gap-2 min-w-0">
+          <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" />
+          <span className="truncate">{syncing ? 'Backing up…' : `${changes} waiting to back up`}</span>
+        </span>
+        {!syncing && (
+          <button
+            type="button"
+            onClick={() => void flushSync()}
+            className="shrink-0 px-2.5 py-0.5 rounded-full border border-white/[0.14] text-o1-text text-[11px]"
+          >
+            Retry
+          </button>
+        )}
       </aside>
     );
   }
 
   return null;
 };
+
 export default BasementOfflineBanner;

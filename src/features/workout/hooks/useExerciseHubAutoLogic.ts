@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { ExerciseItem } from '../../../types';
+import { toMovementPattern } from '../../../types/exercise';
 import { DisciplineType, ExerciseDefinition } from '../../../types/workout';
 import {
   estimateSessionCalorieBurn,
@@ -38,7 +39,6 @@ interface UseExerciseHubAutoLogicProps {
   selectedDiscipline: 'lift' | 'sports' | 'recovery' | null;
   onAddBatch?: (exercises: ExerciseItem[]) => void;
   addExercisesToActiveLog: (exercises: ExerciseItem[]) => void;
-  showToast: (msg: string) => void;
 }
 
 export function useExerciseHubAutoLogic({
@@ -46,7 +46,6 @@ export function useExerciseHubAutoLogic({
   selectedDiscipline,
   onAddBatch,
   addExercisesToActiveLog,
-  showToast,
 }: UseExerciseHubAutoLogicProps) {
   const currentChips = useMemo(() => {
     if (discipline === 'lift') return LIFT_CHIPS;
@@ -114,7 +113,6 @@ export function useExerciseHubAutoLogic({
     const nextIndex = (currentIndex + 1) % effectivePool.length;
     const nextItem = effectivePool[nextIndex];
     setSlotOverrides((prev) => ({ ...prev, [slotIdx]: nextItem.id }));
-    showToast(`Swapped to ${nextItem.name}`);
   };
 
   const totalSets = useMemo(() => {
@@ -140,11 +138,11 @@ export function useExerciseHubAutoLogic({
         name: def.name,
         targetMuscle: def.primaryMuscleGroup || def.category || 'Compound',
         restSecs: def.defaultRestSeconds || def.restSecs || readAthleteSettingsSnapshot().defaultRestSeconds || 90,
-        equipment: def.equipment as any,
-        tier: def.tier as any,
+        equipment: def.equipment,
+        tier: def.tier,
         baseMET: def.baseMET,
         mechanic: def.mechanic,
-        movementPattern: def.movementPattern as any,
+        movementPattern: toMovementPattern(def.movementPattern),
         sets: Array.from({ length: countSets }, (_, s) => ({
           id: `set-${Date.now()}-${s + 1}-${Math.random().toString(36).slice(2, 6)}`,
           setNumber: s + 1,
@@ -162,7 +160,6 @@ export function useExerciseHubAutoLogic({
     } else {
       addExercisesToActiveLog(formatted);
     }
-    showToast(`Added ${formatted.length} exercises to active session!`);
   };
 
   return {

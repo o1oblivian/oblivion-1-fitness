@@ -3,7 +3,7 @@ import { useCoachStore } from '../../stores/useCoachStore';
 import { useActiveProgramStore, ProgramDaySchedule } from '../../stores/useActiveProgramStore';
 import { useWorkoutStore } from '../workout/store/useWorkoutStore';
 import { getAthleteDayRoutine, getSystemTodayCode } from '../workout/services/dayRoutineService';
-import { CoachDispatchedWorkout, DispatchedExercise } from '../../types/coach';
+import { AssignedExerciseRow, AssignedWorkoutRow, CoachDispatchedWorkout, DispatchedExercise } from '../../types/coach';
 import { titleCase } from '../../utils/displayCase';
 
 export type SessionOrigin = 'coach' | 'saved' | 'program' | 'none';
@@ -92,9 +92,9 @@ function fromSavedExercise(exercise: any) {
   );
 }
 
-export function mapAssignedRow(row: any): CoachDispatchedWorkout {
+export function mapAssignedRow(row: AssignedWorkoutRow): CoachDispatchedWorkout {
   const raw = row?.exercises || row?.workout_data?.exercises || [];
-  const exercises: DispatchedExercise[] = (Array.isArray(raw) ? raw : []).map((exercise: any, index: number) => {
+  const exercises: DispatchedExercise[] = (Array.isArray(raw) ? raw : []).map((exercise: AssignedExerciseRow, index: number) => {
     const setList = Array.isArray(exercise.sets) ? exercise.sets : null;
     const first = setList?.[0];
     return {

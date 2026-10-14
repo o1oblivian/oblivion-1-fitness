@@ -23,6 +23,21 @@ export async function getAuthenticatedUserId(): Promise<string | null> {
   }
 }
 
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/** The account signed in on this device, read without a network round trip so it works offline. */
+export async function getCachedUserId(): Promise<string | null> {
+  try {
+    const { data } = await supabase.auth.getSession();
+    const id = data.session?.user?.id;
+    if (id && !isPlaceholderUserId(id)) return id;
+  } catch {
+    // fall back to the stored id
+  }
+  const id = peekStoredUserId()?.replace(/^"|"$/g, '') ?? null;
+  return id && UUID.test(id) ? id : null;
+}
+
 export function peekStoredUserId(): string | null {
   if (typeof window === 'undefined') return null;
   try {

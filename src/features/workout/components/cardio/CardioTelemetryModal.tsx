@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { X, Camera, Upload, Activity, Zap, CheckCircle2 } from 'lucide-react';
+import { X, Camera, Image as ImageIcon, Activity, Loader2 } from 'lucide-react';
 import { analyzeConsoleTelemetry, CardioTelemetryResult } from '../../../../services/geminiVisionService';
 import { processCardioScanImage } from '../../../log/services/cardioScanService';
 import { captureNativeStill } from '../../../../services/nativeCameraService';
@@ -12,6 +12,12 @@ import { tactileEngine } from '../../../../services/tactileEngine';
 import { useSubscription } from '../../../../context/SubscriptionContext';
 import { CardioMetricsGrid, MetricItem } from './CardioMetricsGrid';
 
+const NO_NUMBERS = { ok: false, text: 'No numbers found. Tap any number to enter it, or retake the photo.' };
+const foundMessage = (steps: number | null | undefined) => ({
+  ok: true,
+  text: steps ? `Found ${steps.toLocaleString()} steps.` : 'Numbers found.',
+});
+
 interface Props {
   isOpen: boolean; onClose: () => void; onPostCardio?: (data: CardioTelemetryResult) => void;
 }
@@ -20,7 +26,7 @@ export const CardioTelemetryModal: React.FC<Props> = ({ isOpen, onClose, onPostC
   const { isPro, openPaywall } = useSubscription();
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [statusMessage, setStatusMessage] = useState<string | null>(null);
+  const [statusMessage, setStatusMessage] = useState<{ ok: boolean; text: string } | null>(null);
   const [telemetry, setTelemetry] = useState<CardioTelemetryResult | null>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -37,9 +43,7 @@ export const CardioTelemetryModal: React.FC<Props> = ({ isOpen, onClose, onPostC
       const hasAny = res.steps != null || res.distanceKm != null || res.caloriesBurned != null || res.elapsedMinutes != null;
       if (hasAny) {
         setTelemetry(res);
-        setStatusMessage(res.steps != null && res.steps > 0
-          ? `Optical OCR extracted ${res.steps.toLocaleString()} steps directly from display.`
-          : 'Display parsed. Review telemetry or tap any tile to fine-tune.');
+        setStatusMessage(foundMessage(res.steps));
         tactileEngine.playPRCelebration();
         setIsAnalyzing(false);
         return;
@@ -62,13 +66,11 @@ export const CardioTelemetryModal: React.FC<Props> = ({ isOpen, onClose, onPostC
       };
       setTelemetry(mapped);
       const hasOcr = mapped.steps != null || mapped.distanceKm != null || mapped.caloriesBurned != null || mapped.elapsedMinutes != null;
-      setStatusMessage(hasOcr
-        ? (mapped.steps ? `Optical OCR extracted ${mapped.steps.toLocaleString()} steps directly from display.` : 'Display parsed. Review telemetry or tap any tile to fine-tune.')
-        : 'No readable numbers detected on image. Tap any metric to enter manually or retake photo.');
-      tactileEngine.playPRCelebration();
+      setStatusMessage(hasOcr ? foundMessage(mapped.steps) : NO_NUMBERS);
+      if (hasOcr) tactileEngine.playPRCelebration();
     } catch {
       setTelemetry(null);
-      setStatusMessage('Display could not be resolved automatically. Tap any metric to enter manually.');
+      setStatusMessage(NO_NUMBERS);
     } finally {
       setIsAnalyzing(false);
     }
@@ -77,7 +79,7 @@ export const CardioTelemetryModal: React.FC<Props> = ({ isOpen, onClose, onPostC
   const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (!isPro) return openPaywall('Cardio & Wearable OCR Scanner');
+    if (!isPro) return openPaywall('Scan Cardio & Watch');
     const reader = new FileReader();
     reader.onload = () => typeof reader.result === 'string' && handleProcessImage(reader.result);
     reader.readAsDataURL(file);
@@ -116,16 +118,16 @@ export const CardioTelemetryModal: React.FC<Props> = ({ isOpen, onClose, onPostC
 
   const metrics: MetricItem[] = [
     { id: 'steps', label: 'STEPS', num: telemetry?.steps != null ? telemetry.steps.toLocaleString() : '--', unit: 'steps' },
-    { id: 'elapsed', label: 'ELAPSED', num: telemetry?.elapsedDisplay || (telemetry?.elapsedMinutes != null ? `${telemetry.elapsedMinutes} min` : '--'), unit: 'min' },
+    { id: 'elapsed', label: 'ELAPSED', num: telemetry?.elapsedDisplay || (telemetry?.elapsedMinutes ?? '--'), unit: String(telemetry?.elapsedDisplay ?? '').includes(':') ? '' : 'min' },
     { id: 'calories', label: 'CALORIES', num: telemetry?.caloriesBurned != null ? telemetry.caloriesBurned : '--', unit: 'kcal' },
     { id: 'distance', label: 'DISTANCE', num: telemetry?.distanceKm != null ? telemetry.distanceKm : '--', unit: 'km' },
-    { id: 'heartRate', label: 'Heart Rate', num: telemetry?.avgHeartRateBpm != null ? telemetry.avgHeartRateBpm : '--', unit: 'bpm' },
+    { id: 'heartRate', label: 'HEART RATE', num: telemetry?.avgHeartRateBpm != null ? telemetry.avgHeartRateBpm : '--', unit: 'bpm' },
     { id: 'speed', label: 'SPEED', num: telemetry?.speedKmh != null ? telemetry.speedKmh : '--', unit: 'km/h' },
     { id: 'incline', label: 'INCLINE', num: telemetry?.inclinePct != null ? telemetry.inclinePct : '--', unit: '%' },
   ];
 
   const handleTakePhoto = async () => {
-    if (!isPro) return openPaywall('Cardio & Wearable OCR Scanner');
+    if (!isPro) return openPaywall('Scan Cardio & Watch');
     try {
       const blob = await captureNativeStill();
       if (blob) {
@@ -144,39 +146,41 @@ export const CardioTelemetryModal: React.FC<Props> = ({ isOpen, onClose, onPostC
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 bg-black/85 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="o1-sheet-card bg-o1-card overflow-hidden shadow-xl flex flex-col border border-white/[0.07]">
-        <div className="flex items-center justify-between px-5 py-3.5 bg-black border-b border-white/[0.05]">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-red-500/10 border border-o1-crimson/20 flex items-center justify-center text-o1-crimson"><Activity className="w-4 h-4" /></div>
-            <div>
-              <h2 className="text-xs font-tactical font-black text-white tracking-wider">Cardio & Wearable OCR</h2>
-              <p className="text-[10px] font-sans font-medium text-neutral-400">Direct Multimodal Console & Watch Telemetry</p>
+      <div role="dialog" aria-modal="true" aria-labelledby="cardio-scan-title" className="o1-sheet-card bg-o1-card overflow-hidden flex flex-col border border-white/[0.07]">
+        <div className="flex items-start justify-between gap-3 px-4 py-3.5 bg-black border-b border-white/[0.05]">
+          <div className="flex items-start gap-2.5 min-w-0">
+            <div className="w-8 h-8 shrink-0 rounded-xl bg-o1-crimson/10 border border-o1-crimson/20 flex items-center justify-center text-o1-crimson"><Activity className="w-4 h-4" strokeWidth={1.75} /></div>
+            <div className="min-w-0 space-y-0.5">
+              <h2 id="cardio-scan-title" className="text-[14px] font-light text-white tracking-wide">Scan Cardio &amp; Watch</h2>
+              <p className="text-[11px] font-light text-neutral-400 leading-snug">Take a photo of your treadmill screen, bike console, or watch dial to auto-sync your metrics.</p>
             </div>
           </div>
-          <button onClick={onClose} className="p-1.5 text-neutral-400 hover:text-white rounded-full cursor-pointer"><X className="w-4 h-4" /></button>
+          <button type="button" onClick={onClose} aria-label="Close" className="p-1.5 -mr-1 text-neutral-400 hover:text-white rounded-full cursor-pointer"><X className="w-4 h-4" /></button>
         </div>
         <div className="p-4 overflow-y-auto space-y-3 flex-1 min-h-0">
           <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={handleFile} />
           <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFile} />
-          <div className="grid grid-cols-2 gap-2.5">
-            <button type="button" onClick={() => void handleTakePhoto()} className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover text-white text-[11px] font-tactical font-black tracking-wider cursor-pointer active:scale-95 transition shadow-md"><Camera className="w-3.5 h-3.5" /> Take Photo</button>
-            <button onClick={() => fileInputRef.current?.click()} className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-o1-well hover:bg-white/[0.06] text-neutral-200 text-[11px] font-tactical font-bold tracking-wider cursor-pointer border border-white/[0.07] active:scale-95 transition"><Upload className="w-3.5 h-3.5" /> Upload Photo</button>
+          <div className="grid grid-cols-2 gap-2">
+            <button type="button" onClick={() => void handleTakePhoto()} className="flex items-center justify-center gap-2 h-10 px-3 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover active:bg-o1-crimson-press text-white text-[12px] font-normal cursor-pointer active:scale-[0.98] transition"><Camera className="w-3.5 h-3.5" strokeWidth={1.75} /> Snap Screen / Dial</button>
+            <button type="button" onClick={() => fileInputRef.current?.click()} className="flex items-center justify-center gap-2 h-10 px-3 rounded-xl bg-o1-well hover:bg-white/[0.06] text-neutral-200 text-[12px] font-normal cursor-pointer border border-white/[0.07] active:scale-[0.98] transition"><ImageIcon className="w-3.5 h-3.5" strokeWidth={1.75} /> Choose from Photos</button>
           </div>
           {selectedImage && (
             <div className="relative rounded-2xl overflow-hidden bg-black max-h-48 flex items-center justify-center border border-white/[0.07]">
               <img src={selectedImage} alt="Cardio display" className="max-h-48 object-contain" />
-              {isAnalyzing && <div className="absolute inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center gap-2 text-white font-tactical text-xs tracking-wider font-bold"><Zap className="w-4 h-4 animate-spin text-o1-crimson" /> Reading Display...</div>}
+              {isAnalyzing && <div className="absolute inset-0 bg-black/60 flex items-center justify-center gap-2 text-white text-[12px] font-light"><Loader2 className="w-4 h-4 animate-spin text-o1-crimson" /> Reading numbers…</div>}
             </div>
           )}
           {statusMessage && (
-            <div className="p-2.5 rounded-xl text-xs flex items-center gap-2 border bg-emerald-500/10 border-emerald-500/20 text-emerald-400">
-              <CheckCircle2 className="w-3.5 h-3.5 shrink-0" /><span className="font-sans font-medium text-[11px] leading-tight">{statusMessage}</span>
-            </div>
+            <p role="status" className={`px-3 py-2 rounded-xl border text-[11px] font-light leading-snug ${
+              statusMessage.ok ? 'bg-[#059669]/10 border-[#059669]/25 text-[#10b981]' : 'bg-[#d97706]/10 border-[#d97706]/25 text-[#f59e0b]'
+            }`}>
+              {statusMessage.text}
+            </p>
           )}
           <CardioMetricsGrid metrics={metrics} onUpdateMetric={handleUpdateMetric} />
         </div>
         <div className="p-4 bg-black border-t border-white/[0.05]">
-          <button onClick={handlePost} disabled={!telemetry || isAnalyzing} className="w-full py-2.5 rounded-xl bg-zinc-100 hover:bg-white disabled:opacity-40 text-neutral-950 font-semibold text-xs tracking-wide flex items-center justify-center gap-2 cursor-pointer active:scale-[0.99] transition"><Zap className="w-4 h-4" /> Save Telemetry to Session</button>
+          <button type="button" onClick={handlePost} disabled={!telemetry || isAnalyzing} className="w-full h-10 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover active:bg-o1-crimson-press text-white disabled:opacity-40 font-normal text-[13px] tracking-wide flex items-center justify-center cursor-pointer active:scale-[0.99] transition">Save Cardio Session</button>
         </div>
       </div>
     </div>

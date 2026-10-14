@@ -10,12 +10,16 @@ import { ModalRegistry } from './components/modals/ModalRegistry';
 import { useModalStore } from './components/modals/useModalStore';
 import { BasementOfflineBanner } from './components/common/BasementOfflineBanner';
 import { armAthleteReminders } from './services/athleteReminderScheduler';
+import { startSync } from './services/localFirstSync';
+import { RestTimerBar } from './features/workout/components/RestTimerBar';
+import { useRestTimerStore } from './features/workout/store/useRestTimerStore';
 
 export const MainAppLayout: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabMode>('tracker');
 
   const { activeModal } = useModalStore();
   const isTravelPassOpen = activeModal === 'TRAVEL_PASS';
+  const restActive = useRestTimerStore((s) => s.timer !== null);
 
   const handleTabSelect = React.useCallback((tab: TabMode) => {
     setActiveTab((prev) => (prev === tab ? prev : tab));
@@ -24,6 +28,8 @@ export const MainAppLayout: React.FC = () => {
   React.useEffect(() => {
     return armAthleteReminders();
   }, []);
+
+  React.useEffect(() => startSync(), []);
 
   React.useEffect(() => {
     const handleNavEvent = (e: CustomEvent<TabMode>) => {
@@ -52,7 +58,7 @@ export const MainAppLayout: React.FC = () => {
             flex: '1 1 0%',
             minHeight: 0,
             paddingTop: 'max(16px, env(safe-area-inset-top, 0px))',
-            paddingBottom: 'calc(4rem + max(16px, env(safe-area-inset-bottom, 0px)))',
+            paddingBottom: `calc(${restActive ? '8rem' : '4rem'} + max(16px, env(safe-area-inset-bottom, 0px)))`,
           }}
         >
           <div className="o1-shell">
@@ -66,6 +72,7 @@ export const MainAppLayout: React.FC = () => {
           </div>
         </main>
 
+        <RestTimerBar />
         {/* Floating Bottom Navigation Bar */}
         <NavigationDock currentMode={activeTab} onSelectTab={handleTabSelect} />
       </div>

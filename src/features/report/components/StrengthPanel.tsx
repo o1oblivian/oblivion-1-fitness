@@ -111,7 +111,7 @@ export const StrengthPanel: React.FC<StrengthPanelProps> = ({ lifts, personalBes
         Personal bests · 60 days
       </h4>
       {personalBests.length === 0 ? (
-        <p className="text-xs text-neutral-500">No new PBs yet. Beat a previous best e1RM and it lands here.</p>
+        <p className="text-xs text-neutral-500">No new bests yet. Beat your estimated max on any lift and it shows here.</p>
       ) : (
         <ul className="space-y-1.5">
           {personalBests.map((pb) => (

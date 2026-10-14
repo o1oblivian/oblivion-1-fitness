@@ -2,6 +2,7 @@ import { createStore } from '../../../utils/createStore';
 import { safeStorage } from '../../../utils/sanitizers';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { cancelDayLogSync, queueDayLogSync } from '../services/dayLogCloud';
+import { scrubLegacySleepDefaults } from './legacySleep';
 
 export type TelemetryCategory = 'workout' | 'cardio' | 'nutrition' | 'sleep' | 'meditation';
 
@@ -41,6 +42,8 @@ export interface WorkoutDayRecord {
   routineName: string;
   intensityRpe: number;
   exercises: ExerciseEntry[];
+  /** Estimated net active kcal from lifting. Absent when bodyweight was unknown. */
+  burnedKcal?: number;
 }
 
 export interface CardioDayRecord {
@@ -172,6 +175,8 @@ const sanitizeAndMigrateHistory = (
   for (const dateKey of Object.keys(result)) {
     const day = result[dateKey];
     if (!day) continue;
+
+    if (day.sleep) day.sleep = scrubLegacySleepDefaults(day.sleep);
 
     // Detect if workout has cardio exercises mistakenly stored
     if (day.workout?.exercises && Array.isArray(day.workout.exercises)) {
@@ -308,6 +313,7 @@ const telemetryHistoryStore = createStore<TelemetryHistoryState, TelemetryHistor
   (set) => ({
     updateDayRecord: (dateKey, category, record, options) => {
       const toSync: Array<[TelemetryCategory, Record<string, unknown>]> = [];
+      let repairCloud = false;
       set((prev) => {
         const currentDay = { ...(prev.historyByDate[dateKey] || {}) };
         const currentCategory = currentDay[category] || getDefaultCategoryRecord(category);
@@ -357,11 +363,19 @@ const telemetryHistoryStore = createStore<TelemetryHistoryState, TelemetryHistor
           }
         }
 
-        const updatedCategory = {
+        let updatedCategory = {
           ...currentCategory,
           ...sanitizedRecord,
           hasData: true,
         };
+        if (category === 'sleep') {
+          const sleep = updatedCategory as unknown as SleepDayRecord;
+          const scrubbed = scrubLegacySleepDefaults(sleep);
+          if (scrubbed !== sleep) {
+            updatedCategory = scrubbed as unknown as typeof updatedCategory;
+            repairCloud = true;
+          }
+        }
 
         // If data is already identical, bail out without mutating store
         if (
@@ -369,6 +383,7 @@ const telemetryHistoryStore = createStore<TelemetryHistoryState, TelemetryHistor
           JSON.stringify(currentCategory) === JSON.stringify(updatedCategory)
         ) {
           toSync.length = 0;
+          if (repairCloud) toSync.push([category, { ...updatedCategory }]);
           return prev;
         }
 
@@ -384,7 +399,7 @@ const telemetryHistoryStore = createStore<TelemetryHistoryState, TelemetryHistor
         safeStorage.setItem(STORAGE_KEY, nextHistory);
         return { historyByDate: nextHistory };
       });
-      if (options?.skipCloud) return;
+      if (options?.skipCloud && !repairCloud) return;
       for (const [syncCategory, payload] of toSync) {
         queueDayLogSync(dateKey, syncCategory, payload);
       }

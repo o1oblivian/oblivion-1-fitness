@@ -1,18 +1,59 @@
-import React from 'react';
-import { ChevronDown, ChevronUp, Plus, Trash2, Layers, Dumbbell } from 'lucide-react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { ChevronDown, ChevronUp, Plus, Layers } from 'lucide-react';
 import { tactileEngine } from '../../../services/tactileEngine';
-import { ExerciseItem } from '../../../types';
+import { ExerciseItem, ExerciseSet } from '../../../types';
+import { readAthleteSettingsSnapshot } from '../../../utils/athleteSettingsSnapshot';
+import { displayToKg, formatLoad, loadUnitLabel } from '../../../utils/weightUnits';
+import type { WeightUnit } from '../../../hooks/useAthleteSettings';
+import { useTelemetryHistoryStore, type LoggedSet } from '../../log/store/useTelemetryHistoryStore';
+import { estimatedMaxKg, localTodayKey, priorBestSet } from '../services/sessionPr';
+import { lastSessionSets, nextSetAdvice, type SetAdvice } from '../services/setCoach';
+import { athleteDose } from '../utils/equipmentAccess';
+import { useConsultationStore } from '../../induction/useConsultationStore';
 import { ActiveLogSetRow } from './ActiveLogSetRow';
+import { SwipeToReveal } from './SwipeToReveal';
+import { useSimpleMode } from '../../../stores/useDisplayPrefs';
+
+const BEST_BUBBLE_MS = 2500;
+
+function shortDate(dateKey: string): string {
+  const [y, m, d] = dateKey.split('-').map(Number);
+  return new Date(y, m - 1, d).toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
+}
+
+function lastTimeText(sets: LoggedSet[], unit: WeightUnit): string {
+  const unitLower = loadUnitLabel(unit).toLowerCase();
+  const reps = sets.map((s) => s.reps).join(', ');
+  if (sets.every((s) => s.weightKg <= 0)) return `${reps} reps`;
+  if (sets.every((s) => s.weightKg === sets[0].weightKg)) return `${formatLoad(sets[0].weightKg, unit)} ${unitLower} × ${reps}`;
+  return sets.map((s) => `${formatLoad(s.weightKg, unit)}×${s.reps}`).join(' · ');
+}
+
+function adviceText(advice: SetAdvice, unit: WeightUnit): string {
+  const load = advice.weightKg > 0 ? `${formatLoad(advice.weightKg, unit)} ${loadUnitLabel(unit).toLowerCase()}` : `${advice.reps} reps`;
+  switch (advice.kind) {
+    case 'up':
+      return `Felt easy. Try ${load} next.`;
+    case 'same':
+      return 'Right on target. Same again.';
+    case 'hold':
+      return 'Hard but fine. Keep the weight, a rep or two fewer is okay.';
+    case 'down':
+      return `Too hard. Go for ${load} next.`;
+    case 'stop':
+      return `That was all-out. Go for ${load}, and stop if you feel pain or dizziness.`;
+  }
+}
 
 export interface ActiveLogExerciseAccordionProps {
   exercise: ExerciseItem;
   isExpanded: boolean;
+  showSwipeHint?: boolean;
   onToggleExpand: () => void;
   onAddSet: (exerciseId: string) => void;
   onDuplicateSet?: (exerciseId: string) => void;
-  onRemoveSet?: (exerciseId: string, setNumber: number) => void;
+  onRemoveSet: (exerciseId: string, setNumber: number) => void;
   onRemoveExercise: (exerciseId: string) => void;
-  onSwapMovement?: (exerciseId: string) => void;
   onOpenDial: (
     exerciseId: string,
     setNumber: number,
@@ -21,148 +62,233 @@ export interface ActiveLogExerciseAccordionProps {
     setId?: string,
     setIndex?: number
   ) => void;
-  onOpenPlateVisualizer?: (weightKg: number) => void;
-  onToggleSet?: (exerciseId: string, setNumber: number, restSecs?: number) => void;
-  onQuickUpdateSet?: (exerciseId: string, setNumber: number, updates: Partial<any>) => void;
+  onToggleSet?: (exerciseId: string, setNumber: number) => void;
+  onQuickUpdateSet?: (exerciseId: string, setNumber: number, updates: Partial<ExerciseSet>) => void;
 }
 
 export const ActiveLogExerciseAccordion: React.FC<ActiveLogExerciseAccordionProps> = ({
   exercise,
   isExpanded,
+  showSwipeHint = false,
   onToggleExpand,
   onAddSet,
   onDuplicateSet,
   onRemoveSet,
   onRemoveExercise,
   onOpenDial,
-  onOpenPlateVisualizer,
   onToggleSet,
   onQuickUpdateSet,
 }) => {
+  const simple = useSimpleMode();
+  const [showBest, setShowBest] = useState(false);
   const setsList = exercise.sets || [];
+  const done = setsList.filter((s) => s.completed).length;
+  const activeIndex = setsList.findIndex((s) => !s.completed);
+  const weightUnit = readAthleteSettingsSnapshot().weightUnit;
+  const unitLower = loadUnitLabel(weightUnit).toLowerCase();
+
+  const historyByDate = useTelemetryHistoryStore((s) => s.historyByDate);
+  const best = useMemo(() => priorBestSet(exercise.name, localTodayKey(), historyByDate), [exercise.name, historyByDate]);
+  const todayTop = setsList.reduce<{ weightKg: number; reps: number; max: number } | null>((top, s) => {
+    if (!s.completed) return top;
+    const weightKg = Number(s.weightKg ?? s.weight) || 0;
+    const reps = Number(s.reps) || 0;
+    const max = estimatedMaxKg(weightKg, reps);
+    return max > 0 && (!top || max > top.max) ? { weightKg, reps, max } : top;
+  }, null);
+  const isPrToday = Boolean(best && todayTop && todayTop.max > best.estimatedMaxKg);
+  const lastTime = useMemo(() => lastSessionSets(exercise.name, localTodayKey(), historyByDate), [exercise.name, historyByDate]);
+
+  const trainingAge = useConsultationStore((s) => s.trainingAge);
+  const ageBand = useConsultationStore((s) => s.ageBand);
+  const prevSet = activeIndex > 0 ? setsList[activeIndex - 1] : undefined;
+  const nextSet = activeIndex > 0 ? setsList[activeIndex] : undefined;
+  const advice =
+    prevSet?.completed && nextSet
+      ? nextSetAdvice({
+          rpe: Number(prevSet.rpe) || 0,
+          weightKg: Number(prevSet.weightKg ?? prevSet.weight) || 0,
+          reps: Number(prevSet.reps) || 0,
+          stepKg: weightUnit === 'lbs' ? displayToKg(5, 'lbs') : 2.5,
+          rpeCap: athleteDose(trainingAge, ageBand).rpeCap,
+          careful: ageBand === 'under18' || ageBand === '60+',
+        })
+      : null;
+  const adviceChange: Partial<ExerciseSet> | null =
+    !advice || advice.kind === 'same' || advice.kind === 'hold'
+      ? null
+      : advice.weightKg > 0
+        ? (Number(nextSet?.weightKg ?? nextSet?.weight) || 0) === advice.weightKg
+          ? null
+          : { weightKg: advice.weightKg, weight: advice.weightKg }
+        : (Number(nextSet?.reps) || 0) === advice.reps
+          ? null
+          : { reps: advice.reps };
+
+  useEffect(() => {
+    if (!showBest) return;
+    const id = window.setTimeout(() => setShowBest(false), BEST_BUBBLE_MS);
+    return () => window.clearTimeout(id);
+  }, [showBest]);
+
+  const setText = (weightKg: number, reps: number) => `${formatLoad(weightKg, weightUnit)} ${unitLower} × ${reps}`;
+  const bestMessage = !best
+    ? 'First time logging this lift'
+    : isPrToday && todayTop
+      ? `New best ${setText(todayTop.weightKg, todayTop.reps)} · was ${setText(best.weightKg, best.reps)}`
+      : `Best ${setText(best.weightKg, best.reps)} · ${shortDate(best.dateKey)}`;
 
   return (
-    <div className="rounded-2xl bg-o1-card border border-white/[0.07] px-2 py-1 shadow-xs select-none transition-colors space-y-1.5">
-      <div
-        onClick={() => {
-          tactileEngine.triggerSelectionBuzz();
-          onToggleExpand();
-        }}
-        className="w-full flex items-center justify-between cursor-pointer select-none h-8"
+    <div className="relative rounded-2xl bg-o1-card border border-white/[0.07] px-1.5 py-0.5 select-none transition-colors space-y-1">
+      <SwipeToReveal
+        actionLabel="Remove"
+        actionAriaLabel={`Remove ${exercise.name}`}
+        onAction={() => onRemoveExercise(exercise.id)}
+        className="rounded-xl"
+        contentClassName="bg-o1-card"
       >
-        <div className="flex items-center gap-1.5 min-w-0 pr-1.5">
-          <div className="text-o1-crimson -rotate-12 shrink-0">
-            <Dumbbell className="w-3.5 h-3.5 stroke-[2]" />
-          </div>
-          <h4 className="font-tactical font-semibold text-[13px] text-white tracking-tight truncate leading-none">
-            {exercise.name}
-          </h4>
-        </div>
-
-        <div className="flex items-center gap-1.5 shrink-0">
-          <span className="font-sans text-[11px] text-neutral-400 font-medium">
-            {setsList.length} {setsList.length === 1 ? 'set' : 'sets'}
-          </span>
+        <div className="w-full flex items-center min-h-9 gap-1.5">
           <button
             type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              e.preventDefault();
+            onClick={() => {
               tactileEngine.triggerSelectionBuzz();
-              onRemoveExercise(exercise.id);
+              onToggleExpand();
             }}
-            className="w-7 h-7 flex items-center justify-center text-neutral-400 hover:text-o1-crimson rounded-md transition-colors cursor-pointer hover:bg-white/5 active:scale-95"
-            title="Delete Exercise"
-            aria-label="Delete Exercise"
+            aria-expanded={isExpanded}
+            className="flex-1 min-w-0 min-h-9 flex items-center gap-2 text-left cursor-pointer"
           >
-            <Trash2 className="w-3.5 h-3.5 shrink-0" />
+            <span className="min-w-0 text-sm font-medium tracking-tight text-white leading-snug truncate py-0.5">{exercise.name}</span>
+            <span className="ml-auto shrink-0 font-mono text-[11px] text-o1-muted">
+              {done}/{setsList.length}
+            </span>
+            {isExpanded ? (
+              <ChevronUp className="w-4 h-4 text-o1-muted shrink-0" />
+            ) : (
+              <ChevronDown className="w-4 h-4 text-o1-muted shrink-0" />
+            )}
           </button>
-          {isExpanded ? (
-            <ChevronUp className="w-3.5 h-3.5 text-neutral-400" />
-          ) : (
-            <ChevronDown className="w-3.5 h-3.5 text-neutral-400" />
-          )}
+          <button
+            type="button"
+            onClick={() => {
+              tactileEngine.triggerSelectionBuzz();
+              setShowBest((v) => !v);
+            }}
+            aria-label={isPrToday ? `New personal best on ${exercise.name}` : `Personal best for ${exercise.name}`}
+            aria-expanded={showBest}
+            className={`h-6 px-2 shrink-0 rounded-lg border font-mono text-[10px] cursor-pointer transition-colors ${
+              isPrToday
+                ? 'border-[#10b981]/60 text-[#10b981]'
+                : showBest
+                  ? 'border-white/[0.14] text-o1-text bg-o1-sheet'
+                  : 'border-white/[0.07] text-o1-muted hover:text-o1-text'
+            }`}
+          >
+            {simple ? (isPrToday ? 'New best' : 'Best') : isPrToday ? 'PR' : 'PB'}
+          </button>
         </div>
-      </div>
+      </SwipeToReveal>
 
-      {/* Expanded Exercise Content: Column Headers, Set Rows, Action Controls */}
+      {showBest && (
+        <div
+          role="status"
+          className="absolute right-2 top-10 z-20 max-w-[85%] px-3 py-1.5 rounded-xl bg-o1-sheet border border-white/[0.07] text-[11px] text-o1-text shadow-lg animate-in fade-in duration-150 pointer-events-none"
+        >
+          {bestMessage}
+        </div>
+      )}
+
       {isExpanded && (
-        <div className="space-y-2 pt-1">
-          {/* Column Headers: SET | REPS | KG | RPE/RIR */}
-          <div className="flex items-center gap-2 text-[11px] font-tactical font-bold text-neutral-400 tracking-wider px-1">
-            <span className="w-7 text-left pl-1 shrink-0">Set</span>
+        <div className="space-y-1 pb-1 pt-1.5">
+          {lastTime && (
+            <p className="px-1 text-[11px] text-o1-muted leading-snug">
+              Last time · {shortDate(lastTime.dateKey)}:{' '}
+              <span className="font-mono text-o1-text">{lastTimeText(lastTime.sets, weightUnit)}</span>
+            </p>
+          )}
+          <div className="flex items-center gap-1.5 text-[10px] leading-none uppercase tracking-[0.12em] text-o1-muted px-1">
+            <span className="w-8 shrink-0 text-center">Set</span>
             <span className="flex-1 text-center">Reps</span>
-            <span className="flex-1 text-center">KG</span>
-            <span className="flex-1 text-center">RPE/RIR</span>
-            <span className="w-6 shrink-0" />
+            <span className="flex-1 text-center">{unitLower}</span>
+            {simple ? null : <span className="flex-1 text-center">RPE</span>}
+            <span className="w-7 shrink-0" />
           </div>
 
-          {/* Set Rows */}
           <div className="space-y-1">
-            {setsList.map((set, setIndex) => (
-              <ActiveLogSetRow
-                key={set.id || set.setNumber || setIndex}
-                exerciseId={exercise.id}
-                set={set}
-                exerciseName={exercise.name}
-                isDone={Boolean(set.completed)}
-                onOpenDial={(type, currentVal) =>
-                  onOpenDial(exercise.id, set.setNumber, type, currentVal, set.id, setIndex)
-                }
-                onOpenPlateVisualizer={onOpenPlateVisualizer}
-                onRemoveSet={() => onRemoveSet?.(exercise.id, set.setNumber)}
-                onToggleDone={() => onToggleSet?.(exercise.id, set.setNumber)}
-                onQuickUpdateSet={(updates) => onQuickUpdateSet?.(exercise.id, set.setNumber, updates)}
-              />
-            ))}
+            {setsList.map((set, setIndex) => {
+              const isLast = setsList.length === 1;
+              return (
+                <ActiveLogSetRow
+                  key={set.id || set.setNumber || setIndex}
+                  set={set}
+                  exerciseName={exercise.name}
+                  priorBestKg={best?.estimatedMaxKg ?? 0}
+                  isDone={Boolean(set.completed)}
+                  isActive={setIndex === activeIndex}
+                  swipeHint={showSwipeHint && setIndex === 0}
+                  removeLabel={isLast ? `Remove ${exercise.name}` : 'Delete'}
+                  removeAriaLabel={isLast ? `Remove ${exercise.name}` : `Delete set ${set.setNumber}`}
+                  onOpenDial={(type, currentVal) =>
+                    onOpenDial(exercise.id, set.setNumber, type, currentVal, set.id, setIndex)
+                  }
+                  onRemoveSet={() =>
+                    isLast ? onRemoveExercise(exercise.id) : onRemoveSet(exercise.id, set.setNumber)
+                  }
+                  onToggleDone={() => onToggleSet?.(exercise.id, set.setNumber)}
+                  onQuickUpdateSet={(updates) => onQuickUpdateSet?.(exercise.id, set.setNumber, updates)}
+                />
+              );
+            })}
           </div>
 
-          {/* Bottom Action Row: [ + Add Set ]  [ ⧉ ]  [ 🗑 ] */}
-          <div className="pt-1 flex items-center gap-2">
-            {/* Wide + Add Set button with dashed red border */}
+          {advice && nextSet && (
+            <div
+              role="status"
+              className={`flex items-center gap-2 rounded-xl border px-2.5 py-1.5 ${
+                advice.kind === 'stop' ? 'border-[#f59e0b]/40' : 'border-white/[0.07]'
+              } bg-o1-well`}
+            >
+              <p className="flex-1 min-w-0 text-[11.5px] text-o1-text leading-snug">
+                <span className="text-o1-muted">Set {nextSet.setNumber}: </span>
+                {adviceText(advice, weightUnit)}
+              </p>
+              {adviceChange && onQuickUpdateSet && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    tactileEngine.triggerSelectionBuzz();
+                    onQuickUpdateSet(exercise.id, nextSet.setNumber, adviceChange);
+                  }}
+                  className="h-7 px-2.5 shrink-0 rounded-lg border border-white/[0.14] text-[11px] text-o1-text hover:border-[#C4121A] cursor-pointer active:scale-[0.97] transition"
+                >
+                  Use
+                </button>
+              )}
+            </div>
+          )}
+
+          <div className="flex items-center gap-1.5">
             <button
               type="button"
               onClick={() => {
                 tactileEngine.triggerSelectionBuzz();
                 onAddSet(exercise.id);
               }}
-              className="flex-1 h-8 border border-dashed border-o1-crimson/50 hover:border-o1-crimson text-o1-crimson hover:bg-o1-crimson/10 font-tactical text-[11px] font-semibold tracking-wider rounded-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+              className="flex-1 h-8 border border-dashed border-white/[0.14] hover:border-[#C4121A]/60 text-o1-text text-[12px] rounded-xl flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
             >
               <Plus className="w-3.5 h-3.5" />
-              <span>Add Set</span>
+              <span>Add set</span>
             </button>
-
-            {/* Duplicate set button */}
             <button
               type="button"
               onClick={() => {
                 tactileEngine.triggerSelectionBuzz();
-                if (onDuplicateSet) {
-                  onDuplicateSet(exercise.id);
-                } else {
-                  onAddSet(exercise.id);
-                }
+                if (onDuplicateSet) onDuplicateSet(exercise.id);
+                else onAddSet(exercise.id);
               }}
-              className="h-8 w-8 rounded-xl border border-white/[0.07] bg-black text-neutral-300 hover:text-white hover:border-white/[0.14] flex items-center justify-center transition-colors cursor-pointer shrink-0"
-              title="Duplicate Set"
+              aria-label={`Duplicate last set of ${exercise.name}`}
+              className="h-8 w-8 rounded-xl border border-white/[0.07] text-o1-muted hover:text-o1-text hover:border-white/[0.14] flex items-center justify-center transition-colors cursor-pointer shrink-0"
             >
               <Layers className="w-4 h-4" />
-            </button>
-
-            {/* Delete Exercise button */}
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                e.preventDefault();
-                tactileEngine.triggerSelectionBuzz();
-                onRemoveExercise(exercise.id);
-              }}
-              className="w-7 h-7 rounded-lg border border-o1-crimson/40 bg-black text-o1-crimson hover:bg-o1-crimson/20 active:scale-95 flex items-center justify-center transition-colors cursor-pointer shrink-0"
-              title="Delete Exercise"
-              aria-label="Delete Exercise"
-            >
-              <Trash2 className="w-4 h-4 text-o1-crimson shrink-0" />
             </button>
           </div>
         </div>

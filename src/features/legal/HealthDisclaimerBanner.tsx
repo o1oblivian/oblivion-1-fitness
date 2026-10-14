@@ -66,7 +66,7 @@ export const HealthDisclaimerBanner: React.FC<Props> = ({ onLearnMore, compact =
             }}
             className="text-[9px] font-mono font-bold text-o1-ok hover:underline flex items-center gap-0.5 cursor-pointer pt-0.5"
           >
-            <span>Review Full Protocol Terms</span>
+            <span>Read the full terms</span>
             <ChevronRight className="w-2.5 h-2.5" />
           </button>
         )}

@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { supabase } from '../services/supabaseClient';
 import { useUserStore } from '../stores/useUserStore';
+import { releaseDevice } from '../services/accountScope';
 
 interface AuthContextType {
   userId: string;
@@ -18,15 +19,40 @@ const AuthContext = createContext<AuthContextType>({
   signOut: async () => {},
 });
 
+/** Private browsing and full storage throw on access; identity then lives in memory only. */
+function readKey(key: string): string | null {
+  try {
+    return typeof window !== 'undefined' ? localStorage.getItem(key) : null;
+  } catch {
+    return null;
+  }
+}
+
+function writeIdentity(uid: string, uEmail: string | null): void {
+  try {
+    localStorage.setItem('o1fc_user_id', uid);
+    if (uEmail) localStorage.setItem('o1fc_user_email', uEmail);
+  } catch {
+    /* storage unavailable */
+  }
+}
+
+function forgetIdentity(): void {
+  try {
+    localStorage.removeItem('o1fc_user_id');
+    localStorage.removeItem('o1fc_user_email');
+  } catch {
+    /* storage unavailable */
+  }
+}
+
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [userId, setUserId] = useState<string>(() => {
-    const stored = typeof window !== 'undefined' ? localStorage.getItem('o1fc_user_id') : null;
+    const stored = readKey('o1fc_user_id');
     if (!stored || stored === 'default-athlete' || stored === 'athlete-c1') return '';
     return stored;
   });
-  const [email, setEmail] = useState<string | null>(() => {
-    return (typeof window !== 'undefined' && localStorage.getItem('o1fc_user_email')) || null;
-  });
+  const [email, setEmail] = useState<string | null>(() => readKey('o1fc_user_email') || null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
@@ -66,8 +92,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setUserId(uid);
         setEmail(uEmail);
         useUserStore.getState().setUserId(uid);
-        localStorage.setItem('o1fc_user_id', uid);
-        if (uEmail) localStorage.setItem('o1fc_user_email', uEmail);
+        writeIdentity(uid, uEmail);
         syncProfile(uid, uEmail);
       }
       setIsLoading(false);
@@ -82,15 +107,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setUserId(uid);
         setEmail(uEmail);
         useUserStore.getState().setUserId(uid);
-        localStorage.setItem('o1fc_user_id', uid);
-        if (uEmail) localStorage.setItem('o1fc_user_email', uEmail);
+        writeIdentity(uid, uEmail);
         await syncProfile(uid, uEmail);
       } else if (event === 'SIGNED_OUT') {
         setUserId('');
         setEmail(null);
         useUserStore.getState().setUserId('');
-        localStorage.removeItem('o1fc_user_id');
-        localStorage.removeItem('o1fc_user_email');
+        forgetIdentity();
       }
     });
 
@@ -107,8 +130,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUserId('');
     setEmail(null);
     useUserStore.getState().setUserId('');
-    localStorage.removeItem('o1fc_user_id');
-    localStorage.removeItem('o1fc_user_email');
+    forgetIdentity();
+    releaseDevice();
   };
 
   return (

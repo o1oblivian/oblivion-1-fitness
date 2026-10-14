@@ -1,22 +1,12 @@
 import { supabase } from '../../../services/supabaseClient';
 import { CoachCard, fetchCoachCards, toExploreCoach } from '../../coach/services/coachDirectory';
 import type { ExploreCoach, ExploreReelItem } from '../reelTypes';
+import { normalizeBodyPart, normalizeReelCategory } from '../reelCategories';
 
 type Row = Record<string, unknown>;
 
 const REEL_COLUMNS = 'id, coach_id, title, category, filter_tag, video_url, thumbnail_url, cues, duration_secs, created_at';
 const FEED_LIMIT = 100;
-
-const CATEGORIES: ExploreReelItem['category'][] = ['ALL', 'TUTORIAL', 'MOBILITY', 'BIOMECHANICS', 'HYPERTROPHY', 'STRENGTH', 'REHAB'];
-const FILTER_TAGS: ExploreReelItem['filterTag'][] = [
-  'TUTORIAL',
-  'CHEST & TRICEPS',
-  'BACK & BICEPS',
-  'QUADS & GLUTES',
-  'SHOULDERS & ARMS',
-  'MOBILITY & REHAB',
-  'HYROX / CONDITIONING',
-];
 
 function clock(secs: unknown): string {
   const total = Math.round(Number(secs));
@@ -43,8 +33,8 @@ function fallbackCoach(id: string): ExploreCoach {
 }
 
 export function mapReelRow(row: Row, coach: ExploreCoach): ExploreReelItem {
-  const category = CATEGORIES.includes(row.category as ExploreReelItem['category']) ? (row.category as ExploreReelItem['category']) : 'ALL';
-  const filterTag = FILTER_TAGS.includes(row.filter_tag as ExploreReelItem['filterTag']) ? (row.filter_tag as ExploreReelItem['filterTag']) : 'TUTORIAL';
+  const category = normalizeReelCategory(row.category, row.filter_tag) ?? 'ALL';
+  const filterTag = normalizeBodyPart(row.filter_tag);
   const videoUrl = String(row.video_url || '');
   const thumbnail = String(row.thumbnail_url || '');
   const duration = clock(row.duration_secs);

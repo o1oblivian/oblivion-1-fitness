@@ -85,7 +85,7 @@ export const ContactSupportModal: React.FC<ContactSupportModalProps> = ({
               onChange={(e) => setTopic(e.target.value)}
               className="w-full py-2 px-3 rounded-xl bg-o1-well border border-white/[0.07] text-xs font-mono focus:outline-hidden focus:border-o1-crimson"
             >
-              <option value="technical">Technical Bug &amp; Telemetry Issue</option>
+              <option value="technical">Something isn't working</option>
               <option value="billing">Club Pass &amp; Membership Billing</option>
               <option value="radar">Buddy Radar &amp; Proximity Matching</option>
               <option value="other">General Club Inquiry</option>

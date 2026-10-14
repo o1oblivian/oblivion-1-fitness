@@ -1,8 +1,15 @@
 import { supabase } from './supabaseClient';
+import type { AssignedWorkoutRow } from '../types/coach';
+
+export interface CoachDirectivePayload {
+  eventType: 'INSERT' | 'UPDATE' | 'DELETE';
+  table: string;
+  new: AssignedWorkoutRow;
+}
 
 export function subscribeToCoachDirectives(
   athleteId: string,
-  onDirectiveOrRoutineChanged: (payload: any) => void
+  onDirectiveOrRoutineChanged: (payload: CoachDirectivePayload) => void
 ): () => void {
   const channel = supabase
     .channel(`athlete-coach-pipeline-${athleteId}`)

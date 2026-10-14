@@ -1,4 +1,5 @@
 import { ExerciseItem } from '../../../types';
+import { toMovementPattern } from '../../../types/exercise';
 import { EXERCISE_DATABASE } from '../../../data/exerciseDatabase';
 import { ExerciseDefinition } from '../../../types/workout';
 import {
@@ -7,6 +8,8 @@ import {
   EnergyCheckIn,
 } from '../../../utils/physiologyEngine';
 import { useUserStore } from '../../../stores/useUserStore';
+import { useConsultationStore } from '../../induction/useConsultationStore';
+import { athleteDose, availableKit, canPerform, dosedSets, isSafeFor, isUnloaded } from './equipmentAccess';
 
 export type EnergyLevel = EnergyCheckIn;
 export type TrainingGoal = 'burn' | 'muscle' | 'reset' | 'athletic';
@@ -83,6 +86,17 @@ const matchesMovementFocus = (ex: ExerciseDefinition, focus: string): boolean =>
   const hay = muscleHaystack(ex);
   const hit = (...keys: string[]) => keys.some((k) => hay.includes(k));
 
+  const word = (...keys: string[]) => keys.some((k) => new RegExp(`\\b${k}`).test(hay));
+  const legs = ['squat', 'lunge', 'leg press', 'leg curl', 'leg extension', 'abduct', 'adduct', 'calf', 'glute', 'hip'];
+
+  if (f.startsWith('push')) {
+    if (pattern === 'pull' || word('row', 'pull', 'curl', 'chin', 'crunch', ...legs)) return false;
+    return pattern === 'push' || word('chest', 'pec', 'shoulder', 'delt', 'tricep', 'press', 'fly', 'dip');
+  }
+  if (f.startsWith('pull')) {
+    if (['push', 'squat', 'lunge'].includes(pattern) || word('press', 'fly', 'crunch', 'rower', 'rowing', 'lateral raise', 'front raise', ...legs)) return false;
+    return pattern === 'pull' || word('lats?', 'upper back', 'bicep', 'row', 'chin', 'pull', 'curl');
+  }
   if (f.includes('chest')) return hit('chest', 'pec', 'bench', 'fly');
   if (f.includes('bicep')) return hit('bicep', 'curl');
   if (f.includes('tricep')) return hit('tricep', 'pushdown', 'skull', 'extension');
@@ -129,6 +143,13 @@ const matchesMovementFocus = (ex: ExerciseDefinition, focus: string): boolean =>
   return hit(...f.split(/[^a-z]+/).filter((t) => t.length > 2));
 };
 
+/** Exercises the athlete can do where they train, minus moves that load what they asked us to protect. */
+export const reachableExercises = (): ExerciseDefinition[] => {
+  const { facilities, injuries, ageBand } = useConsultationStore.getState();
+  const kit = availableKit(facilities);
+  return EXERCISE_DATABASE.filter((ex) => canPerform(ex.name, ex.equipment, kit) && isSafeFor(ex.name, { injuries, ageBand }));
+};
+
 /**
  * Queries real exercises from EXERCISE_DATABASE matching goal mode and movement focus.
  */
@@ -136,7 +157,8 @@ export const queryExercisesForGoal = (
   goal: TrainingGoal,
   movementFocus?: string
 ): ExerciseDefinition[] => {
-  let pool = EXERCISE_DATABASE;
+  const reachable = reachableExercises();
+  let pool = reachable;
 
   if (goal === 'reset') {
     pool = pool.filter(
@@ -147,7 +169,7 @@ export const queryExercisesForGoal = (
         e.category?.toLowerCase().includes('recovery')
     );
     if (pool.length === 0) {
-      pool = EXERCISE_DATABASE.filter((e) => e.discipline === 'recovery');
+      pool = reachable.filter((e) => e.discipline === 'recovery');
     }
   } else if (goal === 'burn') {
     pool = pool.filter(
@@ -221,9 +243,10 @@ export const generateIntelPrescription = (
   const user = useUserStore.getState?.();
   const calibration = user?.calibrationProgress || 78;
 
-  const targetRpe = energyLevel === 'PRIME' ? 9.0 : energyLevel === 'LOW' ? 6.5 : 8.0;
-  const setsCount =
-    durationMinutes >= 75 ? 5 : durationMinutes >= 60 ? 4 : durationMinutes >= 30 ? 3 : 2;
+  const { trainingAge, ageBand } = useConsultationStore.getState();
+  const dose = athleteDose(trainingAge, ageBand);
+  const targetRpe = Math.min(dose.rpeCap, energyLevel === 'PRIME' ? 9.0 : energyLevel === 'LOW' ? 6.5 : 8.0);
+  const setsCount = dosedSets(durationMinutes >= 75 ? 5 : durationMinutes >= 60 ? 4 : durationMinutes >= 30 ? 3 : 2, dose);
 
   const targetExerciseCount =
     durationMinutes <= 10
@@ -243,7 +266,7 @@ export const generateIntelPrescription = (
                   : 8;
 
   const candidatePool = queryExercisesForGoal(goal, movementFocus);
-  const basePool = candidatePool.length >= targetExerciseCount ? candidatePool : EXERCISE_DATABASE;
+  const basePool = candidatePool.length >= targetExerciseCount ? candidatePool : reachableExercises();
   const rotateBy = Date.now() % Math.max(1, basePool.length);
   const effectivePool = [...basePool.slice(rotateBy), ...basePool.slice(0, rotateBy)];
 
@@ -270,13 +293,17 @@ export const generateIntelPrescription = (
 
   // Map to fully hydrated ExerciseItems with sets, calculated weights, and RPE
   return selectedDefs.map((def, idx) => {
-    const computedLoad = calculateDynamicLoad(
-      def.movementPattern || 'squat',
-      def.equipment,
-      athleteWeightKg,
-      energyLevel,
-      calibration
-    );
+    const unloaded = isUnloaded(def.name, def.equipment);
+    const computedLoad = unloaded
+      ? 0
+      : Math.max(
+          2.5,
+          Math.round(
+            (calculateDynamicLoad(def.movementPattern || 'squat', def.equipment, athleteWeightKg, energyLevel, calibration) *
+              dose.loadFactor) /
+              2.5
+          ) * 2.5
+        );
 
     let reps = def.defaultReps || 10;
     if (goal === 'burn') reps = Math.max(reps, 12);
@@ -292,11 +319,11 @@ export const generateIntelPrescription = (
       tier: def.tier,
       baseMET: def.baseMET,
       mechanic: def.mechanic,
-      movementPattern: def.movementPattern as any,
+      movementPattern: toMovementPattern(def.movementPattern),
       sets: Array.from({ length: setsCount }, (_, s) => ({
         id: `set-${Date.now()}-${s + 1}-${Math.random().toString(36).slice(2, 6)}`,
         setNumber: s + 1,
-        weightKg: def.equipment === 'bodyweight' || def.equipment === 'mat' || def.equipment === 'erg' ? 0 : computedLoad,
+        weightKg: computedLoad,
         reps,
         rpe: Number((targetRpe + (s > 1 ? 0.5 : 0)).toFixed(1)),
         completed: false,

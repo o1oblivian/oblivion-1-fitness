@@ -1,14 +1,3 @@
-export interface DialProps {
-  dailySteps: number;
-  stepTarget?: number;
-  dailyMove: number;
-  goalMove?: number;
-  dailyDist: number;
-  goalDist?: number;
-  dailyIntake?: number;
-  onOpenStepDial?: () => void;
-}
-
 export interface DialComponentProps {
   steps: number;
   stepTarget: number;
@@ -17,21 +6,16 @@ export interface DialComponentProps {
   distKm: number;
   goalDist: number;
   intakeKcal: number;
+  /** 0 when the athlete has not set a calorie target; the intake bar then stays empty. */
+  intakeGoal: number;
+  /** null when nothing is logged for that day. */
+  hydrationPct: number | null;
+  sleepHours: number | null;
   activeDay: string;
   splitLabel: string;
 }
 
-export const DIAL_PRESETS = [
-  { key: 'split_hud', label: 'Mon: Aerospace Split HUD' },
-  { key: 'chrono', label: 'Tue: Horology Chronograph' },
-  { key: 'f1_rack', label: 'Wed: F1 Telemetry Rack' },
-  { key: 'radar', label: 'Thu: Constellation Radar' },
-  { key: 'horizon', label: 'Fri: Dual-Arc Horizon' },
-  { key: 'quadrant', label: 'Sat: Modular Quadrant' },
-  { key: 'restoration', label: 'Sun: Restoration Monolith' },
-] as const;
-
-export type DialKey = typeof DIAL_PRESETS[number]['key'];
+type DialKey = 'split_hud' | 'chrono' | 'f1_rack' | 'radar' | 'horizon' | 'quadrant' | 'restoration';
 
 export const DAY_DIAL_MAP: Record<string, DialKey> = {
   Mon: 'split_hud',

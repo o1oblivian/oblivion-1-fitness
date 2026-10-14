@@ -1,5 +1,6 @@
 import { supabase } from '../../../services/supabaseClient';
-import { getAuthenticatedUserId } from '../../../services/authUser';
+import { getCachedUserId } from '../../../services/authUser';
+import { enqueueSync, flushSync, registerSyncHandler } from '../../../services/syncOutbox';
 import { useTelemetryHistoryStore } from '../store/useTelemetryHistoryStore';
 import { useLogStore } from '../../../stores/useLogStore';
 import { localDayKey, localNoonIso } from './dayLogService';
@@ -17,9 +18,17 @@ export interface CardioLogEntry {
   timestamp: string;
 }
 
+registerSyncHandler('cardio_session', async (payload, userId) => {
+  const { error } = await supabase
+    .from('completed_sessions')
+    .upsert([{ ...payload, user_id: userId, client_id: userId }], { onConflict: 'id' });
+  if (error) console.warn('[CardioService] Backup notice:', error.message);
+  return !error;
+});
+
 /**
- * Records a cardio log in today's telemetry and syncs it to Supabase
- * completed_sessions; the day record itself syncs through athlete_day_logs.
+ * Records a cardio log on this phone first, then queues its backup to completed_sessions;
+ * the day record itself syncs through athlete_day_logs.
  */
 export async function persistCardioLog(entry: {
   activityType: string;
@@ -30,8 +39,7 @@ export async function persistCardioLog(entry: {
   steps?: number;
   dateKey?: string;
 }): Promise<void> {
-  const userId = await getAuthenticatedUserId();
-  if (!userId) return;
+  const userId = (await getCachedUserId()) || '';
 
   const nowIso = new Date().toISOString();
   const todayKey = localDayKey(nowIso);
@@ -40,7 +48,7 @@ export async function persistCardioLog(entry: {
   const happenedAt = isToday ? nowIso : localNoonIso(dateKey) || nowIso;
 
   const cardioRecord: CardioLogEntry = {
-    id: `cardio-${Date.now()}`,
+    id: crypto.randomUUID(),
     userId,
     activityType: entry.activityType,
     distanceKm: entry.distanceKm,
@@ -78,25 +86,19 @@ export async function persistCardioLog(entry: {
     console.warn('[CardioService] Store update notice:', storeErr);
   }
 
-  // 2. Map properly into completed_sessions on Supabase
-  try {
-    const sessionPayload: Record<string, unknown> = {
-      id: cardioRecord.id,
-      user_id: userId,
-      client_id: userId,
-      title: `Cardio: ${entry.activityType}`,
-      session_name: `Cardio: ${entry.activityType}`,
-      tonnage_kg: 0,
-      volume_kg: 0,
-      total_sets: 1,
-      completed_at: happenedAt,
-      created_at: happenedAt,
-    };
-    if (entry.durationMinutes > 0) sessionPayload.duration_seconds = Math.round(entry.durationMinutes * 60);
-
-    const { error } = await supabase.from('completed_sessions').insert([sessionPayload]);
-    if (error) console.warn('[CardioService] Supabase sync notice:', error.message);
-  } catch (err) {
-    console.warn('[CardioService] Supabase sync notice:', err);
-  }
+  // 2. Queue the completed_sessions backup; it is sent when the account is reachable.
+  if (!userId) return;
+  const sessionPayload: Record<string, unknown> = {
+    id: cardioRecord.id,
+    title: `Cardio: ${entry.activityType}`,
+    session_name: `Cardio: ${entry.activityType}`,
+    tonnage_kg: 0,
+    volume_kg: 0,
+    total_sets: 1,
+    completed_at: happenedAt,
+    created_at: happenedAt,
+  };
+  if (entry.durationMinutes > 0) sessionPayload.duration_seconds = Math.round(entry.durationMinutes * 60);
+  enqueueSync('cardio_session', `cardio:${cardioRecord.id}`, dateKey, sessionPayload);
+  void flushSync();
 }

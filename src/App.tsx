@@ -8,6 +8,7 @@ import { SubscriptionProvider } from './context/SubscriptionContext';
 import { AuthProvider } from './context/AuthContext';
 import { ClubPassPaywallModal } from './features/membership/components/ClubPassPaywallModal';
 import { OnboardingCoordinator } from './features/onboarding/OnboardingCoordinator';
+import { PasswordRecoverySheet } from './features/onboarding/components/PasswordRecoverySheet';
 import { InductionProtocol } from './features/induction/InductionProtocol';
 import { useConsultationStore } from './features/induction/useConsultationStore';
 import { revenueCatService } from './services/revenueCatService';
@@ -19,11 +20,15 @@ import { captureInviteFromUrl } from './features/log/publicShare';
 import { captureReelLink } from './features/reels/services/reelLinks';
 import { AppErrorBoundary } from './components/common/AppErrorBoundary';
 
+/** safeStorage JSON-parses on read, so the stored "true" comes back as a boolean. */
+function onboardingCompleted(): boolean {
+  return ['o1fc_onboarding_completed', 'olfc_onboarding_completed'].some((key) => String(safeStorage.getItem(key)) === 'true');
+}
+
 export default function App() {
   const [showOnboarding, setShowOnboarding] = useState(() => {
-    const isCompleted = safeStorage.getItem('o1fc_onboarding_completed') === 'true' || safeStorage.getItem('olfc_onboarding_completed') === 'true';
     const hasAuth = Boolean(safeStorage.getItem('o1fc_user_id'));
-    return !isCompleted || !hasAuth;
+    return !onboardingCompleted() || !hasAuth;
   });
   const [onboardingReplay, setOnboardingReplay] = useState(false);
   const [membershipSuccessBanner, setMembershipSuccessBanner] = useState(false);
@@ -91,13 +96,7 @@ export default function App() {
       const handleAuthUrl = async (url: string) => {
         if (!url) return;
         try {
-          const ok = await applyAuthCallbackUrl(url);
-          if (ok) {
-            if (safeStorage.getItem('o1fc_onboarding_completed') === 'true' || safeStorage.getItem('olfc_onboarding_completed') === 'true') {
-              setShowOnboarding(false);
-            }
-            tactileEngine.playPRCelebration();
-          }
+          if (await applyAuthCallbackUrl(url)) tactileEngine.playPRCelebration();
         } catch (err) {
           console.warn('[App] Error handling OAuth deep link session:', err);
         }
@@ -209,13 +208,11 @@ export default function App() {
             replay={onboardingReplay}
             onComplete={() => {
               setShowOnboarding(false);
-              if (!onboardingReplay && useConsultationStore.getState().locked) {
-                window.dispatchEvent(new CustomEvent('o1fc_open_paywall', { detail: 'Club Pass Pro' }));
-              }
               setOnboardingReplay(false);
             }}
           />
         )}
+        <PasswordRecoverySheet />
         {membershipSuccessBanner && (
           <div className="fixed top-[max(1rem,env(safe-area-inset-top))] left-1/2 -translate-x-1/2 z-50 w-full max-w-[420px] px-4 bg-o1-card border border-white/[0.07] rounded-2xl p-4 shadow-lg flex items-center justify-between gap-3 animate-in fade-in slide-in-from-top-4 duration-200">
             <div className="flex items-center gap-2.5">

@@ -1,34 +1,29 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { useWorkoutStore } from '../store/useWorkoutStore';
 import { useTelemetryHistoryStore } from '../../log/store/useTelemetryHistoryStore';
 import { latestSleepRecord } from '../../report/vitals';
 import { useTelemetryStore } from '../../telemetry/store/useTelemetryStore';
 import { useFuelStore } from '../../fuel/store/useFuelStore';
 import { hydrationGoalLiters } from '../../fuel/utils/fuelMath';
-import { useWorkoutStore } from '../store/useWorkoutStore';
 import { useLogStore } from '../../../stores/useLogStore';
 import { useWallpaperStore } from '../../../stores/useWallpaperStore';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { motionPedometerService } from '../../../services/motionPedometerService';
 import { hydrateDailyStepsFromSupabase } from '../../log/services/userTelemetryService';
+import { getSystemTodayCode } from '../services/dayRoutineService';
 import { HeroFrontFace } from './HeroFrontFace';
 import { HeroBackFace } from './HeroBackFace';
 import { HeroModals } from './HeroModals';
 
 export const DAYS_LIST = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-export const DAY_SPLIT_MAP: Record<string, string> = {
-  Mon: 'Push A',
-  Tue: 'Pull A',
-  Wed: 'Legs A',
-  Thu: 'Hyper',
-  Fri: 'Push B',
-  Sat: 'Pull B',
-  Sun: 'Rest',
-};
 
-export const getSystemToday = (): string => {
-  const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-  return days[new Date().getDay()] || 'Thu';
-};
+function dateKeyForWeekday(day: string, today: string): { key: string; offset: number } {
+  const offset = DAYS_LIST.indexOf(day) - DAYS_LIST.indexOf(today);
+  const d = new Date();
+  d.setDate(d.getDate() + offset);
+  const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  return { key, offset };
+}
 
 export interface HeroVitalsContainerProps {
   stepCount?: number;
@@ -40,7 +35,6 @@ export interface HeroVitalsContainerProps {
   onVitalsClick?: () => void;
   onOptionsClick?: () => void;
   onOpenSupplements?: () => void;
-  onShowToast?: (msg: string) => void;
 }
 
 export const HeroVitalsContainer: React.FC<HeroVitalsContainerProps> = ({
@@ -53,7 +47,6 @@ export const HeroVitalsContainer: React.FC<HeroVitalsContainerProps> = ({
   onVitalsClick,
   onOptionsClick,
   onOpenSupplements,
-  onShowToast,
 }) => {
   const [isFlipped, setIsFlipped] = useState(false);
   const [activeModal, setActiveModal] = useState<'hydration' | 'biosync' | 'supplements' | 'sleep' | null>(null);
@@ -64,16 +57,16 @@ export const HeroVitalsContainer: React.FC<HeroVitalsContainerProps> = ({
     if (currentDay && DAYS_LIST.includes(currentDay)) {
       return currentDay;
     }
-    return getSystemToday();
+    return getSystemTodayCode();
   });
 
   // Track the actual calendar system day for automatic daily rollover
-  const [systemToday, setSystemToday] = useState<string>(getSystemToday());
+  const [systemToday, setSystemToday] = useState<string>(getSystemTodayCode());
 
   // Automatic daily rollover and system day sync (checks every 30s + on focus/visibility + midnight event)
   useEffect(() => {
     const syncCurrentSystemDay = () => {
-      const currentCode = getSystemToday();
+      const currentCode = getSystemTodayCode();
       setSystemToday((prev) => {
         if (prev !== currentCode) {
           // Calendar day advanced (midnight passed or phone resumed on new day)
@@ -93,17 +86,9 @@ export const HeroVitalsContainer: React.FC<HeroVitalsContainerProps> = ({
       }
     };
 
-    const handleBleHeartRate = (e: any) => {
-      const hr = e?.detail?.heartRate;
-      if (hr && hr > 30) {
-        // BLE stream received from paired wearable
-      }
-    };
-
     window.addEventListener('o1fc_day_changed', handleDayChangedEvent);
     window.addEventListener('focus', handleVisibilityOrFocus);
     document.addEventListener('visibilitychange', handleVisibilityOrFocus);
-    window.addEventListener('o1fc_ble_heart_rate', handleBleHeartRate);
 
     // Auto-start motion sensor if supported and permitted
     if (motionPedometerService.isSupported()) {
@@ -117,7 +102,6 @@ export const HeroVitalsContainer: React.FC<HeroVitalsContainerProps> = ({
       window.removeEventListener('o1fc_day_changed', handleDayChangedEvent);
       window.removeEventListener('focus', handleVisibilityOrFocus);
       document.removeEventListener('visibilitychange', handleVisibilityOrFocus);
-      window.removeEventListener('o1fc_ble_heart_rate', handleBleHeartRate);
     };
   }, []);
 
@@ -131,11 +115,12 @@ export const HeroVitalsContainer: React.FC<HeroVitalsContainerProps> = ({
   const storeStepTarget = useTelemetryStore((s) => s.stepTarget);
   const storeMoveTarget = useTelemetryStore((s) => s.moveTarget);
   const storeDistTarget = useTelemetryStore((s) => s.distTarget);
-  const recoveryEnergyScore = useWorkoutStore((s) => s.recoveryEnergyScore ?? 0);
   const hydrationCurrentL = useFuelStore((s) => s.hydrationCurrentL ?? 0.0);
   const addFuelHydration = useFuelStore((s) => s.logHydration);
   const setHydrationLiters = useFuelStore((s) => s.setHydrationLiters);
   const fuelBurnedKcal = useFuelStore((s) => s.burnedKcal);
+  const fuelMeals = useFuelStore((s) => s.meals);
+  const fuelCalorieTarget = useFuelStore((s) => s.calorieTarget);
   const hydrationTargetL = useFuelStore((s) => s.hydrationTargetL);
   const fuelWeightKg = useFuelStore((s) => s.weightKg);
   const currentSleep = useLogStore((s) => s.subModules?.sleep);
@@ -162,31 +147,53 @@ export const HeroVitalsContainer: React.FC<HeroVitalsContainerProps> = ({
     total: supplementStack.length,
   };
 
-  // Pure genuine telemetry values from actual user activity - zero mock/fake values
-  const isPresentDay = activeDay.toLowerCase() === systemToday.toLowerCase();
+  const liveIntakeKcal = useMemo(
+    () => Math.round(Object.values(fuelMeals || {}).flat().reduce((sum, m) => sum + (m.calories || 0), 0)),
+    [fuelMeals],
+  );
 
-  const steps = isPresentDay ? (propStepCount !== undefined ? propStepCount : (storeStepCount ?? 0)) : 0;
-  const burnKcal = isPresentDay
-    ? (propActiveKcal !== undefined
-        ? propActiveKcal
-        : (fuelBurnedKcal || (steps > 0 ? Math.round(steps * 0.04) : 0)))
-    : 0;
-  const distKm = isPresentDay
-    ? (propDistanceKm !== undefined
-        ? propDistanceKm
-        : (steps > 0 ? (steps * 0.00075).toFixed(1) : '0.0'))
-    : '0.0';
+  // Today is live, past days come from the saved day log, future days stay blank.
+  const dayStats = useMemo(() => {
+    const { key, offset } = dateKeyForWeekday(activeDay, systemToday);
+    const record = historyByDate[key];
+    const cardio = record?.cardio?.hasData ? record.cardio : undefined;
+    const nutrition = record?.nutrition?.hasData ? record.nutrition : undefined;
+    const loggedBurn = (cardio?.burnedKcal ?? 0) + (record?.workout?.hasData ? record.workout.burnedKcal ?? 0 : 0);
+    const target = fuelCalorieTarget && fuelCalorieTarget > 0 ? fuelCalorieTarget : 0;
+    if (offset > 0) return { steps: 0, burn: 0, dist: 0, intake: 0, intakeGoal: target, isToday: false, sleep: null };
+    if (offset < 0) {
+      const sleep = record?.sleep?.hasData && record.sleep.durationHours > 0 ? Math.round(record.sleep.durationHours * 10) / 10 : null;
+      return {
+        steps: cardio?.steps ?? 0,
+        burn: loggedBurn,
+        dist: cardio?.distanceKm ?? 0,
+        intake: nutrition?.calories ?? 0,
+        intakeGoal: nutrition && nutrition.calorieTarget > 0 ? nutrition.calorieTarget : target,
+        isToday: false,
+        sleep,
+      };
+    }
+    const liveSteps = propStepCount !== undefined ? propStepCount : (storeStepCount ?? 0);
+    return {
+      steps: liveSteps,
+      // Fuel holds every burn logged today on any device; the day log covers it before Fuel hydrates.
+      burn: propActiveKcal !== undefined ? propActiveKcal : Math.max(fuelBurnedKcal || 0, loggedBurn),
+      dist: propDistanceKm !== undefined ? Number(propDistanceKm) || 0 : (cardio?.distanceKm ?? 0),
+      intake: liveIntakeKcal,
+      intakeGoal: target,
+      isToday: true,
+      sleep: null,
+    };
+  }, [activeDay, systemToday, historyByDate, fuelCalorieTarget, propStepCount, storeStepCount, propActiveKcal, fuelBurnedKcal, propDistanceKm, liveIntakeKcal]);
 
-  const stepTarget =
-    storeStepTarget && storeStepTarget > 0 ? storeStepTarget : 10000;
-  const goalMove =
-    storeMoveTarget && storeMoveTarget > 0 ? storeMoveTarget : 700;
-  const goalDist =
-    storeDistTarget && storeDistTarget > 0 ? storeDistTarget : 8.0;
-  const currentReadiness = recoveryEnergyScore || 0;
-  const splitName = DAY_SPLIT_MAP[activeDay] || 'Rest Day';
+  const stepTarget = storeStepTarget && storeStepTarget > 0 ? storeStepTarget : 0;
+  const goalMove = storeMoveTarget && storeMoveTarget > 0 ? storeMoveTarget : 0;
+  const goalDist = storeDistTarget && storeDistTarget > 0 ? storeDistTarget : 0;
   const waterGoalL = hydrationGoalLiters(hydrationTargetL, fuelWeightKg);
   const waterPct = waterGoalL ? Math.min(100, Math.round((hydrationCurrentL / waterGoalL) * 100)) : 0;
+  // Readiness needs a logged sleep quality; hydration is measured against the athlete's own goal.
+  const readinessScore =
+    sleepQuality === null ? null : Math.min(100, Math.round(sleepQuality * 0.6 + (waterPct / 100) * 40));
 
   const { isEnabled, isPaused, intervalSeconds, nextWallpaper, getActiveWallpaper, refreshLive, reportBroken, activeIndex, pool, customUrl } =
     useWallpaperStore();
@@ -211,13 +218,26 @@ export const HeroVitalsContainer: React.FC<HeroVitalsContainerProps> = ({
     void refreshLive(true);
   }, [isEnabled, refreshLive]);
 
+  const heroRef = useRef<HTMLDivElement>(null);
+  const [heroVisible, setHeroVisible] = useState(true);
+  const trainingNow = useWorkoutStore((s) => s.activeSession && s.exercises.length > 0);
+
   useEffect(() => {
-    if (!isEnabled || isPaused) return;
+    const node = heroRef.current;
+    if (!node || typeof IntersectionObserver === 'undefined') return;
+    const observer = new IntersectionObserver(([entry]) => setHeroVisible(entry.isIntersecting), { threshold: 0.25 });
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
+
+  // Rotation stops mid-session and while the hero is off screen, so the dial never changes under a glance.
+  useEffect(() => {
+    if (!isEnabled || isPaused || trainingNow || !heroVisible) return;
     const timer = setInterval(() => {
-      nextWallpaper();
+      if (document.visibilityState === 'visible') nextWallpaper();
     }, intervalSeconds * 1000);
     return () => clearInterval(timer);
-  }, [isEnabled, isPaused, intervalSeconds, nextWallpaper]);
+  }, [isEnabled, isPaused, trainingNow, heroVisible, intervalSeconds, nextWallpaper]);
 
   const handleCycleDay = () => {
     tactileEngine.triggerSelectionBuzz();
@@ -229,6 +249,7 @@ export const HeroVitalsContainer: React.FC<HeroVitalsContainerProps> = ({
   return (
     <>
       <div
+        ref={heroRef}
         id="hero-vitals-container"
         style={{ perspective: '1200px' }}
         className="w-full max-w-md mx-auto aspect-[10/11] relative select-none mb-3"
@@ -245,21 +266,22 @@ export const HeroVitalsContainer: React.FC<HeroVitalsContainerProps> = ({
             isFlipped={isFlipped}
             activeWallpaper={activeWallpaper}
             activeDay={activeDay}
-            splitName={splitName}
-            steps={steps}
-            burnKcal={burnKcal}
-            distKm={distKm}
-            recoveryEnergyScore={currentReadiness}
+            steps={dayStats.steps}
+            burnKcal={dayStats.burn}
+            distKm={dayStats.dist}
+            intakeKcal={dayStats.intake}
+            intakeGoal={dayStats.intakeGoal}
+            hydrationPct={dayStats.isToday && hydrationCurrentL > 0 ? waterPct : null}
+            sleepHours={dayStats.isToday ? sleepHours : dayStats.sleep}
+            readinessScore={readinessScore}
             stepTarget={stepTarget}
             goalMove={goalMove}
             goalDist={goalDist}
-            onCycleWallpaper={nextWallpaper}
             onCycleDayDial={handleCycleDay}
             onFlipToVitals={() => { setIsFlipped(true); onVitalsClick?.(); }}
             onOpenCardio={onOpenCardioModal || onCardioClick}
             onOpenReadiness={() => setIsReadinessOpen(true)}
             onOpenSettings={onOptionsClick}
-            onShowToast={onShowToast}
           />
 
           <HeroBackFace
@@ -267,18 +289,18 @@ export const HeroVitalsContainer: React.FC<HeroVitalsContainerProps> = ({
             activeWallpaper={activeWallpaper}
             hydrationCurrentL={hydrationCurrentL}
             waterPct={waterPct}
+            readinessScore={readinessScore}
             sleepHours={sleepHours}
             sleepQuality={sleepQuality}
             restingHr={restingHr}
             supplementsTaken={supplements.taken}
             supplementsTotal={supplements.total}
-            onCycleWallpaper={nextWallpaper}
             onFlipBack={() => setIsFlipped(false)}
+            onOpenReadiness={() => setIsReadinessOpen(true)}
             onOpenTile={(tile) => {
               setActiveModal(tile);
               if (tile === 'supplements') onOpenSupplements?.();
             }}
-            onOpenSettings={onOptionsClick}
           />
         </div>
       </div>
@@ -289,10 +311,9 @@ export const HeroVitalsContainer: React.FC<HeroVitalsContainerProps> = ({
         isReadinessOpen={isReadinessOpen}
         onCloseReadiness={() => setIsReadinessOpen(false)}
         hydrationCurrentL={hydrationCurrentL}
-        recoveryEnergyScore={recoveryEnergyScore}
+        readinessScore={readinessScore}
         onAddHydration={(l) => addFuelHydration(l)}
         onResetHydration={() => setHydrationLiters(0)}
-        onShowToast={onShowToast}
       />
     </>
   );

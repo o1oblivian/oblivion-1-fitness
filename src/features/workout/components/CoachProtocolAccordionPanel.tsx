@@ -7,10 +7,9 @@ import { resolveTodaySession, startTodaySession } from '../../log/todaySession';
 
 interface CoachProtocolAccordionPanelProps {
   onClose: () => void;
-  onLoaded?: (title: string) => void;
 }
 
-export const CoachProtocolAccordionPanel: React.FC<CoachProtocolAccordionPanelProps> = ({ onClose, onLoaded }) => {
+export const CoachProtocolAccordionPanel: React.FC<CoachProtocolAccordionPanelProps> = ({ onClose }) => {
   const assigned = useCoachStore((s) => s.assignedWorkouts);
   const workout = assigned.find((row) => row.status !== 'completed') ?? mockAssignedWorkouts()[0] ?? null;
 
@@ -27,7 +26,6 @@ export const CoachProtocolAccordionPanel: React.FC<CoachProtocolAccordionPanelPr
     const session = resolveTodaySession();
     if (session.origin !== 'coach') return;
     startTodaySession(session);
-    onLoaded?.(session.title);
     onClose();
 
     setTimeout(() => {
@@ -44,7 +42,7 @@ export const CoachProtocolAccordionPanel: React.FC<CoachProtocolAccordionPanelPr
             <User className="w-4 h-4 stroke-[2]" />
           </div>
           <div>
-            <h3 className="font-mono text-xs font-bold tracking-wider text-white leading-tight">
+            <h3 className="font-mono text-xs font-medium tracking-wider text-white leading-tight">
               Coach Training Protocol
             </h3>
             <p className="text-[11px] text-neutral-400 leading-tight mt-0.5">
@@ -55,7 +53,7 @@ export const CoachProtocolAccordionPanel: React.FC<CoachProtocolAccordionPanelPr
         <button
           type="button"
           onClick={handleOpenCoachHub}
-          className="text-[10px] font-mono font-bold text-o1-crimson bg-o1-crimson/10 border border-o1-crimson/30 hover:bg-o1-crimson/20 px-2.5 py-1 rounded-xl tracking-wider transition-colors cursor-pointer"
+          className="text-[10px] font-mono font-medium text-o1-crimson bg-o1-crimson/10 border border-o1-crimson/30 hover:bg-o1-crimson/20 px-2.5 py-1 rounded-xl tracking-wider transition-colors cursor-pointer"
         >
           Coach Hub
         </button>
@@ -66,9 +64,9 @@ export const CoachProtocolAccordionPanel: React.FC<CoachProtocolAccordionPanelPr
           <div className="flex items-center justify-between text-neutral-400">
             <div className="flex items-center gap-1.5">
               <Sparkles className="w-3.5 h-3.5 text-o1-crimson fill-o1-crimson" />
-              <span className="font-mono text-xs font-bold tracking-wider">From your coach</span>
+              <span className="font-mono text-xs font-medium tracking-wider">From your coach</span>
             </div>
-            <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded border text-emerald-400 bg-emerald-500/10 border-emerald-500/20">
+            <span className="text-[10px] font-mono font-medium px-2 py-0.5 rounded border text-emerald-500 bg-emerald-500/10 border-emerald-500/20">
               ● Ready to load
             </span>
           </div>
@@ -76,7 +74,7 @@ export const CoachProtocolAccordionPanel: React.FC<CoachProtocolAccordionPanelPr
           <div className="p-4 rounded-2xl bg-o1-well border border-white/[0.07] space-y-3">
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
-                <h4 className="text-xs sm:text-sm font-bold text-white leading-snug">{workout.title}</h4>
+                <h4 className="text-xs sm:text-sm font-medium text-white leading-snug">{workout.title}</h4>
                 <p className="text-[11px] text-neutral-400 mt-0.5 font-medium">
                   {workout.coachName} · {workout.exercises.length} exercises
                 </p>
@@ -84,7 +82,7 @@ export const CoachProtocolAccordionPanel: React.FC<CoachProtocolAccordionPanelPr
               <button
                 type="button"
                 onClick={handleLoad}
-                className="min-h-[44px] px-4 rounded-full bg-white text-neutral-950 hover:bg-neutral-100 active:scale-95 font-bold text-xs flex items-center gap-1.5 shadow-xs transition-all cursor-pointer shrink-0"
+                className="min-h-[44px] px-4 rounded-full bg-o1-crimson hover:bg-o1-crimson-hover active:bg-o1-crimson-press text-white active:scale-95 font-medium text-xs flex items-center gap-1.5 shadow-xs transition-all cursor-pointer shrink-0"
               >
                 <Play className="w-3 h-3 fill-current" />
                 <span>Load</span>

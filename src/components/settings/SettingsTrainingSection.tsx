@@ -3,6 +3,10 @@ import { MapPin, Check, ChevronRight, X } from 'lucide-react';
 import { CrimsonSwitch } from './CrimsonSwitch';
 import { DisciplineType } from '../../hooks/useAthleteSettings';
 import { tactileEngine } from '../../services/tactileEngine';
+import { useConsultationStore } from '../../features/induction/useConsultationStore';
+import { optionsIn, useClubTaxonomy } from '../../features/induction/useClubTaxonomyStore';
+import type { Facility } from '../../features/induction/consultationTypes';
+import { bumpDayRoutines } from '../../features/workout/services/dayRoutineService';
 
 interface TrainingSectionProps {
   discipline: DisciplineType;
@@ -39,6 +43,47 @@ const PRESET_GYMS = [
   'Third Space, London Soho',
   'AlphaFit Elite Facility',
 ];
+
+function TrainingPlaces() {
+  const options = optionsIn(useClubTaxonomy(), 'facility');
+  const facilities = useConsultationStore((state) => state.facilities);
+  const update = useConsultationStore((state) => state.update);
+
+  const toggle = (key: Facility) => {
+    tactileEngine.triggerSelectionBuzz();
+    void update({ facilities: facilities.includes(key) ? facilities.filter((value) => value !== key) : [...facilities, key] });
+  };
+
+  return (
+    <div className="pt-3 border-t border-white/[0.05]">
+      <div className="mb-2">
+        <span className="text-xs font-sans font-semibold text-neutral-100 block">Where you train</span>
+        <span className="text-[10px] font-sans text-neutral-400 block">
+          {facilities.length === 0 ? 'Not set. Workouts can use any equipment.' : 'Suggested workouts only use equipment you have.'}
+        </span>
+      </div>
+      <div className="flex flex-wrap gap-1.5">
+        {options.map((option) => {
+          const active = facilities.includes(option.optionKey as Facility);
+          return (
+            <button
+              key={option.id}
+              type="button"
+              role="checkbox"
+              aria-checked={active}
+              onClick={() => toggle(option.optionKey as Facility)}
+              className={`px-3 py-1.5 rounded-xl text-xs font-sans transition-colors ${
+                active ? 'bg-o1-crimson text-white' : 'bg-black border border-white/[0.07] text-neutral-400'
+              }`}
+            >
+              {option.label}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
 
 export const SettingsTrainingSection: React.FC<TrainingSectionProps> = ({
   discipline,
@@ -143,6 +188,8 @@ export const SettingsTrainingSection: React.FC<TrainingSectionProps> = ({
           </div>
         </div>
 
+        <TrainingPlaces />
+
         {/* Home Base Facility & GPS */}
         <div className="pt-3 border-t border-white/[0.05] space-y-3">
           <div
@@ -169,10 +216,10 @@ export const SettingsTrainingSection: React.FC<TrainingSectionProps> = ({
           <div className="flex items-center justify-between gap-3 pt-1">
             <div>
               <span className="text-xs font-tactical font-semibold text-neutral-200 block">
-                Auto-Location GPS
+                Use my location
               </span>
               <span className="text-[10px] font-sans text-neutral-400 block">
-                Sync live training facility proximity
+                Find gyms and training buddies near you
               </span>
             </div>
             <CrimsonSwitch
@@ -193,10 +240,10 @@ export const SettingsTrainingSection: React.FC<TrainingSectionProps> = ({
           <div className="flex items-center justify-between gap-3">
             <div>
               <span className="text-xs font-tactical font-semibold text-neutral-200 block">
-                Auto-Dispatch Coach Program
+                Auto plan
               </span>
               <span className="text-[10px] font-sans text-neutral-400 block">
-                Load next microcycle session automatically
+                Off means you design your own workouts
               </span>
             </div>
             <CrimsonSwitch
@@ -204,6 +251,7 @@ export const SettingsTrainingSection: React.FC<TrainingSectionProps> = ({
               onChange={(val) => {
                 tactileEngine.triggerSelectionBuzz();
                 onToggleAutoDispatch(val);
+                bumpDayRoutines();
               }}
             />
           </div>
@@ -211,10 +259,10 @@ export const SettingsTrainingSection: React.FC<TrainingSectionProps> = ({
           <div className="flex items-center justify-between gap-3 pt-1">
             <div>
               <span className="text-xs font-tactical font-semibold text-neutral-200 block">
-                Rest &amp; Recovery Mode
+                Recovery mode
               </span>
               <span className="text-[10px] font-sans text-neutral-400 block">
-                Adjust RPE targets for fatigue deload
+                Open Workout on recovery sessions
               </span>
             </div>
             <CrimsonSwitch

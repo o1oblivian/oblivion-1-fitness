@@ -4,58 +4,73 @@ import type { MuscleId, MuscleVolume, VolumeStatus } from '../types';
 type View = 'front' | 'back';
 
 interface Region {
-  muscle: MuscleId;
-  d: string;
-  /** Regions are authored for the viewer-left half and mirrored across x=100. */
   key: string;
+  muscle: MuscleId;
+  /** Absolute coordinates for the viewer-left half; mirrored across x=100. */
+  d: string;
 }
 
-const SHOULDER = 'M76 68 c62 68 50 74 46 90 c44 100 46 110 50 118 l64 112 c64 98 68 84 80 76 z';
-const UPPER_ARM = 'M50 118 c46 134 46 152 48 166 l62 164 c64 150 64 132 64 112 z';
-const FOREARM = 'M48 170 c44 190 42 210 42 228 l54 232 c58 214 60 192 62 168 z';
+const SILHOUETTE =
+  'M100 56 L93 56 Q84 60 70 65 Q56 70 53 86 Q51 104 50 120 Q47 134 46 142 Q40 166 37 192 L35 212 Q32 224 34 234 Q40 240 44 234 L46 214 Q50 192 55 172 Q58 156 59 144 Q62 124 66 106 Q68 124 69 142 Q71 164 72 182 Q70 196 68 208 Q64 232 66 256 Q68 280 72 300 Q68 318 68 334 Q70 360 77 388 Q72 398 74 404 L92 404 Q93 396 90 388 Q93 360 93 334 Q93 316 92 300 Q95 276 96 252 Q98 236 100 222 Z';
+
+const SHOULDER = 'M72 65 Q58 68 54 82 Q52 94 56 104 Q62 94 70 87 Q77 78 81 68 Z';
+const FOREARM = 'M50 146 Q43 168 40 196 L46 208 Q51 186 56 170 Q59 156 58 145 Z';
 
 const FRONT: Region[] = [
-  { key: 'f-shoulders', muscle: 'shoulders', d: SHOULDER },
-  { key: 'f-chest', muscle: 'chest', d: 'M98 72 l98 118 c90 124 76 122 66 112 c64 98 70 84 80 76 c86 72 92 71 98 72 z' },
-  { key: 'f-biceps', muscle: 'biceps', d: UPPER_ARM },
+  { key: 'f-traps', muscle: 'upperBack', d: 'M93 54 Q85 60 74 64 L88 65 Q93 61 95 56 Z' },
+  { key: 'f-delts', muscle: 'shoulders', d: SHOULDER },
+  { key: 'f-chest', muscle: 'chest', d: 'M98 68 L83 68 Q73 76 69 90 Q71 104 82 108 Q92 110 98 106 Z' },
+  { key: 'f-biceps', muscle: 'biceps', d: 'M57 106 Q53 118 53 132 Q54 140 58 141 Q64 128 66 111 Q63 103 57 106 Z' },
   { key: 'f-forearms', muscle: 'forearms', d: FOREARM },
-  { key: 'f-core', muscle: 'core', d: 'M98 122 l98 206 c90 210 80 206 76 198 c74 170 76 140 82 126 c88 123 94 122 98 122 z' },
-  { key: 'f-quads', muscle: 'quads', d: 'M98 214 l98 300 c90 316 76 316 70 300 c66 270 68 238 76 220 c84 212 92 212 98 214 z' },
-  { key: 'f-calves', muscle: 'calves', d: 'M72 312 c68 340 68 364 72 384 l86 384 c90 364 92 340 92 312 c86 318 78 318 72 312 z' },
+  { key: 'f-abs', muscle: 'core', d: 'M98 112 L87 113 Q85 140 87 168 Q90 192 98 198 Z' },
+  { key: 'f-obliques', muscle: 'core', d: 'M85 113 Q74 117 71 136 Q72 162 77 184 Q83 190 88 193 Q83 168 83 140 Z' },
+  { key: 'f-quads', muscle: 'quads', d: 'M96 214 Q82 210 74 220 Q68 248 70 278 Q74 296 84 300 Q92 294 94 276 Q97 244 96 214 Z' },
+  { key: 'f-shin', muscle: 'calves', d: 'M74 312 Q70 336 74 364 Q78 382 82 386 Q82 356 84 330 Q82 315 74 312 Z' },
+  { key: 'f-calf', muscle: 'calves', d: 'M86 313 Q92 330 90 358 Q88 378 84 386 Q84 350 86 313 Z' },
 ];
 
 const BACK: Region[] = [
-  { key: 'b-traps', muscle: 'upperBack', d: 'M98 58 c88 62 78 68 72 76 c76 86 86 96 98 104 z' },
-  { key: 'b-shoulders', muscle: 'shoulders', d: SHOULDER },
-  { key: 'b-upperBack', muscle: 'upperBack', d: 'M98 108 l98 160 c88 168 76 160 70 146 c66 130 66 112 72 98 c80 100 90 104 98 108 z' },
-  { key: 'b-triceps', muscle: 'triceps', d: UPPER_ARM },
+  { key: 'b-traps', muscle: 'upperBack', d: 'M100 50 L94 52 Q86 60 73 64 Q84 72 91 88 Q97 98 100 104 Z' },
+  { key: 'b-delts', muscle: 'shoulders', d: SHOULDER },
+  { key: 'b-lats', muscle: 'upperBack', d: 'M88 93 Q78 87 69 93 Q67 118 72 146 Q84 162 98 170 L98 118 Q92 108 88 93 Z' },
+  { key: 'b-triceps', muscle: 'triceps', d: 'M56 104 Q50 117 50 134 Q52 142 58 143 Q66 127 68 109 Q64 100 56 104 Z' },
   { key: 'b-forearms', muscle: 'forearms', d: FOREARM },
-  { key: 'b-lowerBack', muscle: 'lowerBack', d: 'M98 164 l98 204 c90 206 80 204 76 196 c74 184 76 172 80 166 c86 166 92 165 98 164 z' },
-  { key: 'b-glutes', muscle: 'glutes', d: 'M98 208 l98 262 c88 270 74 266 70 250 c68 232 74 214 84 210 c90 208 94 207 98 208 z' },
-  { key: 'b-hamstrings', muscle: 'hamstrings', d: 'M98 268 l98 318 c90 326 76 326 70 314 c66 296 68 280 74 270 c84 268 92 266 98 268 z' },
-  { key: 'b-calves', muscle: 'calves', d: 'M72 326 c68 346 68 366 72 384 l88 384 c92 366 92 346 90 328 c84 332 78 332 72 326 z' },
+  { key: 'b-lowerBack', muscle: 'lowerBack', d: 'M98 174 Q86 168 78 177 Q78 192 84 202 L98 204 Z' },
+  { key: 'b-glutes', muscle: 'glutes', d: 'M98 207 Q82 203 72 213 Q66 231 74 246 Q86 254 98 248 Z' },
+  { key: 'b-hamstrings', muscle: 'hamstrings', d: 'M96 255 Q82 254 74 259 Q68 279 72 300 Q80 308 88 304 Q94 284 96 255 Z' },
+  { key: 'b-calf-outer', muscle: 'calves', d: 'M75 312 Q67 330 70 352 Q76 364 83 360 Q85 336 83 314 Z' },
+  { key: 'b-calf-inner', muscle: 'calves', d: 'M86 314 Q94 330 92 352 Q88 364 84 360 Q86 336 86 314 Z' },
 ];
 
-const STATUS_FILL: Record<VolumeStatus, { fill: string; opacity: number }> = {
-  none: { fill: '#18181b', opacity: 1 },
-  under: { fill: '#d97706', opacity: 0.6 },
-  optimal: { fill: '#4F8F9A', opacity: 0.8 },
-  over: { fill: '#C4121A', opacity: 0.9 },
+const STATUS_FILL: Record<VolumeStatus, string> = {
+  none: '#1f1f23',
+  under: '#d97706',
+  optimal: '#10b981',
+  over: '#C4121A',
 };
 
 const STATUS_LABEL: Record<VolumeStatus, string> = {
-  none: 'Not Trained',
-  under: 'UNDER-TRAINED',
-  optimal: 'OPTIMAL',
-  over: 'OVER-REACHING',
+  none: 'Not trained',
+  under: 'Under-trained',
+  optimal: 'Optimal',
+  over: 'Over-reaching',
+};
+
+const LEGEND_LABEL: Record<VolumeStatus, string> = {
+  none: 'Rest',
+  under: 'Under',
+  optimal: 'Optimal',
+  over: 'Over',
 };
 
 const STATUS_TEXT: Record<VolumeStatus, string> = {
-  none: 'text-neutral-400 border-white/[0.1]',
-  under: 'text-amber-500 border-amber-500/30',
-  optimal: 'text-o1-ok border-o1-ok/30',
-  over: 'text-red-500 border-red-500/30',
+  none: 'text-o1-muted border-white/[0.1]',
+  under: 'text-[#f59e0b] border-[#d97706]/40',
+  optimal: 'text-[#10b981] border-[#10b981]/40',
+  over: 'text-[#e5484d] border-o1-crimson/50',
 };
+
+const fmtSets = (v: number) => (v > 0 ? String(Math.round(v * 10) / 10) : '—');
 
 interface MuscleMapProps {
   muscles: MuscleVolume[];
@@ -68,31 +83,28 @@ export const MuscleMap: React.FC<MuscleMapProps> = ({ muscles }) => {
   const regions = view === 'front' ? FRONT : BACK;
   const current = byId.get(selected) ?? muscles[0];
 
-  const pick = (id: MuscleId) => setSelected(id);
-
   const renderRegion = (r: Region, mirrored: boolean) => {
     const m = byId.get(r.muscle);
     const status = m?.status ?? 'none';
-    const paint = STATUS_FILL[status];
     const isSelected = r.muscle === selected;
     return (
       <path
         key={`${r.key}-${mirrored ? 'r' : 'l'}`}
         d={r.d}
-        fill={paint.fill}
-        fillOpacity={paint.opacity}
-        stroke={isSelected ? '#fafafa' : '#2a2a2e'}
-        strokeWidth={isSelected ? 1.6 : 0.8}
+        fill={STATUS_FILL[status]}
+        fillOpacity={status === 'none' ? 1 : isSelected ? 0.95 : 0.72}
+        stroke={isSelected ? '#EAE8DF' : 'rgba(255,255,255,0.1)'}
+        strokeWidth={isSelected ? 1.4 : 0.6}
         strokeLinejoin="round"
         role="button"
         tabIndex={mirrored ? -1 : 0}
         aria-label={`${m?.label ?? r.muscle}: ${STATUS_LABEL[status].toLowerCase()}`}
         className="cursor-pointer outline-none transition-[fill-opacity,stroke] duration-150"
-        onClick={() => pick(r.muscle)}
+        onClick={() => setSelected(r.muscle)}
         onKeyDown={(e) => {
           if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
-            pick(r.muscle);
+            setSelected(r.muscle);
           }
         }}
       />
@@ -104,13 +116,13 @@ export const MuscleMap: React.FC<MuscleMapProps> = ({ muscles }) => {
   const weeklyPeak = current ? Math.max(...current.weekly, current.max, 1) : 1;
 
   return (
-    <section className="w-full rounded-2xl bg-black border border-white/[0.07] p-4 space-y-4">
+    <section className="w-full rounded-2xl bg-o1-canvas border border-white/[0.07] p-4 space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-[10px] font-mono font-bold tracking-[0.18em] text-neutral-400">Muscle Map</h3>
-          <p className="text-[11px] text-neutral-500 mt-0.5">Hard sets, last 7 days</p>
+          <h3 className="text-[13px] font-bold text-o1-text">Muscle Map</h3>
+          <p className="text-[11px] text-o1-muted mt-0.5">Hard sets, last 7 days</p>
         </div>
-        <div className="flex p-0.5 rounded-full bg-[#161618] border border-white/[0.07]" role="tablist" aria-label="Body view">
+        <div className="flex p-0.5 rounded-full bg-o1-sheet border border-white/[0.07]" role="tablist" aria-label="Body view">
           {(['front', 'back'] as const).map((v) => (
             <button
               key={v}
@@ -118,8 +130,8 @@ export const MuscleMap: React.FC<MuscleMapProps> = ({ muscles }) => {
               role="tab"
               aria-selected={view === v}
               onClick={() => setView(v)}
-              className={`h-8 px-4 rounded-full text-[10px] font-mono font-bold tracking-wider transition-colors ${
-                view === v ? 'bg-white text-black' : 'text-neutral-400'
+              className={`h-10 px-4 rounded-full text-[12px] font-semibold capitalize transition-colors ${
+                view === v ? 'bg-white/[0.1] text-o1-text border border-white/[0.12]' : 'text-o1-muted border border-transparent'
               }`}
             >
               {v}
@@ -128,35 +140,37 @@ export const MuscleMap: React.FC<MuscleMapProps> = ({ muscles }) => {
         </div>
       </div>
 
-      <svg viewBox="0 0 200 400" className="w-full max-h-[340px] mx-auto select-none" aria-label={`${view} muscle map`}>
-        <circle cx="100" cy="27" r="16" fill="#0c0c0e" stroke="#2a2a2e" strokeWidth="0.8" />
-        <path d="M92 42 l92 60 l108 60 l108 42 z" fill="#0c0c0e" stroke="#2a2a2e" strokeWidth="0.8" />
-        <ellipse cx="44" cy="244" rx="7" ry="11" fill="#0c0c0e" stroke="#2a2a2e" strokeWidth="0.8" />
-        <ellipse cx="156" cy="244" rx="7" ry="11" fill="#0c0c0e" stroke="#2a2a2e" strokeWidth="0.8" />
-        <ellipse cx="80" cy="392" rx="12" ry="5" fill="#0c0c0e" stroke="#2a2a2e" strokeWidth="0.8" />
-        <ellipse cx="120" cy="392" rx="12" ry="5" fill="#0c0c0e" stroke="#2a2a2e" strokeWidth="0.8" />
-        <g>{regions.map((r) => renderRegion(r, false))}</g>
-        <g transform="translate(200 0) scale(-1 1)">{regions.map((r) => renderRegion(r, true))}</g>
+      <svg viewBox="0 0 200 410" className="w-full max-h-[360px] mx-auto select-none" aria-label={`${view} muscle map`}>
+        <ellipse cx="100" cy="30" rx="14" ry="17" fill="#111113" stroke="rgba(255,255,255,0.16)" strokeWidth="0.8" />
+        <path d="M93 44 L107 44 L108 58 L92 58 Z" fill="#111113" />
+        {[false, true].map((mirrored) => (
+          <g key={mirrored ? 'r' : 'l'} transform={mirrored ? 'translate(200 0) scale(-1 1)' : undefined}>
+            <path d={SILHOUETTE} fill="#111113" stroke="none" />
+            <path d={SILHOUETTE.replace(/\s*Z$/, '')} fill="none" stroke="rgba(255,255,255,0.16)" strokeWidth="0.8" strokeLinejoin="round" />
+            {regions.map((r) => renderRegion(r, mirrored))}
+            {view === 'front' &&
+              [134, 154, 174].map((y) => (
+                <line key={y} x1="88" y1={y} x2="98" y2={y} stroke="rgba(0,0,0,0.45)" strokeWidth="1" pointerEvents="none" />
+              ))}
+          </g>
+        ))}
       </svg>
 
-      <div className="flex items-center justify-between text-[10px] font-mono tracking-wider text-neutral-400">
+      <div className="flex items-center justify-between text-[11px] text-o1-muted">
         {(['none', 'under', 'optimal', 'over'] as const).map((s) => (
           <span key={s} className="flex items-center gap-1.5">
-            <span
-              className="w-2.5 h-2.5 rounded-sm border border-white/10"
-              style={{ background: STATUS_FILL[s].fill, opacity: s === 'none' ? 1 : STATUS_FILL[s].opacity }}
-            />
-            {s === 'none' ? 'Rest' : s === 'under' ? 'Under' : s === 'optimal' ? 'Optimal' : 'Over'}
+            <span className="w-2.5 h-2.5 rounded-sm border border-white/10" style={{ background: STATUS_FILL[s] }} />
+            {LEGEND_LABEL[s]}
           </span>
         ))}
       </div>
 
       {current && (
-        <div className="rounded-xl bg-[#111113] border border-white/[0.07] p-3.5 space-y-3">
+        <div className="rounded-xl bg-o1-surface border border-white/[0.07] p-3.5 space-y-3">
           <div className="flex items-center justify-between gap-3">
             <div>
-              <div className="text-sm font-bold text-white">{current.label}</div>
-              <div className="text-[11px] text-neutral-500 font-mono">
+              <div className="text-sm font-bold text-o1-text">{current.label}</div>
+              <div className="text-[11px] text-o1-muted">
                 {current.lastTrainedDaysAgo === null
                   ? 'No sets in 28 days'
                   : current.lastTrainedDaysAgo === 0
@@ -164,46 +178,51 @@ export const MuscleMap: React.FC<MuscleMapProps> = ({ muscles }) => {
                     : `Last trained ${current.lastTrainedDaysAgo}d ago`}
               </div>
             </div>
-            <span className={`px-2.5 py-1 rounded-full border text-[9px] font-mono font-bold tracking-wider ${STATUS_TEXT[current.status]}`}>
+            <span className={`px-2.5 py-1 rounded-full border text-[11px] font-semibold ${STATUS_TEXT[current.status]}`}>
               {STATUS_LABEL[current.status]}
             </span>
           </div>
 
           <div className="space-y-1.5">
-            <div className="flex items-baseline justify-between font-mono">
-              <span className="text-xl font-black text-white">{current.sets}</span>
-              <span className="text-[10px] text-neutral-500">
-                target {current.min}–{current.max} sets / wk
+            <div className="flex items-baseline justify-between">
+              <span className="text-xl font-mono font-black text-o1-text">
+                {fmtSets(current.sets)}
+                <span className="ml-1 text-[11px] font-sans font-medium text-o1-muted">sets this week</span>
+              </span>
+              <span className="text-[11px] text-o1-muted">
+                target {current.min}–{current.max} / wk
               </span>
             </div>
             <div className="relative h-2 rounded-full bg-white/[0.06] overflow-hidden">
               <div
-                className="absolute inset-y-0 bg-o1-ok/25"
+                className="absolute inset-y-0 bg-[#10b981]/20"
                 style={{ left: pct(current.min), width: `calc(${pct(current.max)} - ${pct(current.min)})` }}
               />
-              <div
-                className="absolute inset-y-0 left-0 rounded-full"
-                style={{ width: pct(current.sets), background: STATUS_FILL[current.status].fill === '#18181b' ? '#3f3f46' : STATUS_FILL[current.status].fill }}
-              />
+              {current.sets > 0 && (
+                <div
+                  className="absolute inset-y-0 left-0 rounded-full"
+                  style={{ width: pct(current.sets), background: STATUS_FILL[current.status] }}
+                />
+              )}
             </div>
           </div>
 
           <div className="space-y-1.5">
-            <span className="text-[10px] font-mono tracking-wider text-neutral-500">4-week trend</span>
+            <span className="text-[11px] text-o1-muted">4-week trend</span>
             <div className="flex items-end gap-1.5 h-10">
               {current.weekly.map((v, i) => (
-                <div key={i} className="flex-1 flex flex-col items-center justify-end gap-1 h-full">
+                <div key={i} className="flex-1 flex items-end h-full">
                   <div
-                    className={`w-full rounded-sm ${i === current.weekly.length - 1 ? 'bg-white' : 'bg-white/20'}`}
-                    style={{ height: `${Math.max(v > 0 ? 8 : 2, (v / weeklyPeak) * 100)}%` }}
+                    className={`w-full rounded-sm ${i === current.weekly.length - 1 ? 'bg-o1-text' : 'bg-white/25'}`}
+                    style={{ height: v > 0 ? `${Math.max(8, (v / weeklyPeak) * 100)}%` : '2px', opacity: v > 0 ? 1 : 0.4 }}
                   />
                 </div>
               ))}
             </div>
-            <div className="flex gap-1.5 text-[9px] font-mono text-neutral-500">
+            <div className="flex gap-1.5 text-[11px] font-mono text-o1-muted">
               {current.weekly.map((v, i) => (
                 <span key={i} className="flex-1 text-center">
-                  {v}
+                  {fmtSets(v)}
                 </span>
               ))}
             </div>
@@ -213,8 +232,8 @@ export const MuscleMap: React.FC<MuscleMapProps> = ({ muscles }) => {
             <ul className="space-y-1 pt-0.5">
               {current.topExercises.map((ex) => (
                 <li key={ex.name} className="flex items-center justify-between text-xs">
-                  <span className="text-neutral-300 truncate pr-3">{ex.name}</span>
-                  <span className="font-mono text-neutral-500 shrink-0">{ex.sets} sets</span>
+                  <span className="text-o1-text/85 truncate pr-3">{ex.name}</span>
+                  <span className="font-mono text-o1-muted shrink-0">{ex.sets} sets</span>
                 </li>
               ))}
             </ul>

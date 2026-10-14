@@ -2,7 +2,7 @@ import { supabase } from '../../../services/supabaseClient';
 import { getAuthenticatedUserId } from '../../../services/authUser';
 import { useTelemetryHistoryStore } from '../store/useTelemetryHistoryStore';
 import { exerciseFromSets } from '../liftLedger';
-import { isForgotten, localDayKey } from './dayLogService';
+import { isForgotten, localDayKey, phoneOwnsDay } from './dayLogService';
 
 /**
  * Hydrates completed strength and cardio workout history directly from
@@ -56,7 +56,7 @@ export async function hydrateSessionsFromSupabase(): Promise<void> {
         const cals = calMatch ? parseInt(calMatch[1], 10) : Number(row.burned_kcal || row.calories) || 0;
         const actType = row.activity_type || sessionTitle.replace(/^Cardio:\s*/i, '').split('(')[0].trim() || 'Cardio';
 
-        if (dateKey && !isForgotten(dateKey, 'cardio')) {
+        if (dateKey && !isForgotten(dateKey, 'cardio') && !phoneOwnsDay(dateKey, 'cardio')) {
           useTelemetryHistoryStore.getState().updateDayRecord(dateKey, 'cardio', {
             hasData: true,
             distanceKm: dist,
@@ -68,7 +68,7 @@ export async function hydrateSessionsFromSupabase(): Promise<void> {
           }, { skipCloud: true });
         }
       } else {
-        if (dateKey && !isForgotten(dateKey, 'workout')) {
+        if (dateKey && !isForgotten(dateKey, 'workout') && !phoneOwnsDay(dateKey, 'workout')) {
           if (row.id) strengthDays.push({ id: String(row.id), dateKey });
           useTelemetryHistoryStore.getState().updateDayRecord(dateKey, 'workout', {
             hasData: true,
@@ -106,7 +106,7 @@ export async function hydrateSessionsFromSupabase(): Promise<void> {
         });
         strengthDays.forEach((day) => {
           const lifts = bySession.get(day.id);
-          if (!lifts || isForgotten(day.dateKey, 'workout')) return;
+          if (!lifts || isForgotten(day.dateKey, 'workout') || phoneOwnsDay(day.dateKey, 'workout')) return;
           const local = useTelemetryHistoryStore.getState().historyByDate[day.dateKey]?.workout?.exercises || [];
           if (local.some((lift) => (lift.setLog?.length || 0) > 0)) return;
           const exercises = [...lifts.entries()].map(([name, sets]) => exerciseFromSets(

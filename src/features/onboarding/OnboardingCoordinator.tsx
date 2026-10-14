@@ -1,13 +1,16 @@
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { Loader2 } from 'lucide-react';
 import { OnboardingData, INITIAL_ONBOARDING_DATA } from './types/onboardingTypes';
 import { AuthCard } from './steps/AuthCard';
 import { AthleteLaunchProtocolCard } from './steps/AthleteLaunchProtocolCard';
-import { LegalSheet } from './components/LegalSheet';
-import { useUserStore } from '../../stores/useUserStore';
+import { openLegalUrl } from '../../services/apiBase';
 import { supabase } from '../../services/supabaseClient';
 import { tactileEngine } from '../../services/tactileEngine';
 import { safeStorage } from '../../utils/safeStorage';
-import signupBg from '../../assets/images/signup_bg_1790312578259.jpg';
+import { useConsultationStore } from '../induction/useConsultationStore';
+import signupBg from '../../assets/images/signin_starfield.jpg';
+
+type Phase = 'auth' | 'routing' | 'protocol';
 
 export const OnboardingCoordinator: React.FC<{ onComplete: () => void; replay?: boolean }> = ({
   onComplete,
@@ -17,17 +20,14 @@ export const OnboardingCoordinator: React.FC<{ onComplete: () => void; replay?: 
     typeof window !== 'undefined' &&
     Boolean(localStorage.getItem('o1fc_user_id') || safeStorage.getItem('o1fc_user_id'));
   const tutorialOnly = replay || hasSession;
-  const [phase, setPhase] = useState<'auth' | 'protocol'>(tutorialOnly ? 'protocol' : 'auth');
+  const [phase, setPhase] = useState<Phase>(tutorialOnly ? 'protocol' : 'auth');
   const [data, setData] = useState<OnboardingData>(INITIAL_ONBOARDING_DATA);
-  const [legalSheet, setLegalSheet] = useState<'privacy' | 'terms' | null>(null);
-
   const handleUpdate = (partial: Partial<OnboardingData>) => {
     setData((p) => ({ ...p, ...partial }));
   };
 
   const handleFinish = async () => {
     tactileEngine.playPRCelebration();
-    useUserStore.getState().setWeightKg(data.weightKg || 80);
 
     try {
       const { data: userData } = await supabase.auth.getUser();
@@ -36,11 +36,6 @@ export const OnboardingCoordinator: React.FC<{ onComplete: () => void; replay?: 
       if (targetId && targetId !== 'athlete-c1' && targetId !== 'default-athlete') {
         const { error } = await supabase.from('profiles').upsert({
           id: targetId,
-          body_mass_kg: data.weightKg || 80,
-          stature_cm: data.heightCm || 180,
-          primary_goal: data.primaryFocus || 'HYROX & RACING',
-          daily_step_target: data.dailyStepTarget || 10000,
-          permissions: data.permissions,
           onboarding_completed: true,
           updated_at: new Date().toISOString(),
         });
@@ -54,23 +49,49 @@ export const OnboardingCoordinator: React.FC<{ onComplete: () => void; replay?: 
     safeStorage.setItem('o1fc_onboarding_completed', 'true');
     localStorage.setItem('olfc_onboarding_completed', 'true');
     localStorage.setItem('o1fc_onboarding_completed', 'true');
-    localStorage.setItem('o1fc_step_goal', String(data.dailyStepTarget || 10000));
-    localStorage.setItem('o1fc_primary_focus', data.primaryFocus || 'HYROX & RACING');
     onComplete();
+  };
+
+  const phaseRef = useRef<Phase>(phase);
+  phaseRef.current = phase;
+  const finishRef = useRef(handleFinish);
+  finishRef.current = handleFinish;
+
+  const routeSignedIn = useCallback(async (signedIn: boolean) => {
+    if (!signedIn || phaseRef.current !== 'auth') return;
+    phaseRef.current = 'routing';
+    setPhase('routing');
+    const returning = await useConsultationStore.getState().hydrate().catch(() => false);
+    if (returning) {
+      void finishRef.current();
+      return;
+    }
+    phaseRef.current = 'protocol';
+    setPhase('protocol');
+  }, []);
+
+  useEffect(() => {
+    const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
+      if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session?.user) {
+        window.setTimeout(() => void routeSignedIn(true), 0);
+      }
+    });
+    return () => sub.subscription.unsubscribe();
+  }, [routeSignedIn]);
+
+  const handleAuthenticated = async () => {
+    const { data: sessionData } = await supabase.auth.getSession();
+    await routeSignedIn(Boolean(sessionData.session?.user));
   };
 
   return (
     <div className="fixed inset-0 z-50 bg-black text-white flex flex-col justify-between overflow-y-auto no-scrollbar select-none">
-      {/* Exact High-Definition Dark Celestial Background from reference image */}
       <img
         src={signupBg}
-        alt="Celestial space background"
+        alt=""
         className="fixed inset-0 w-full h-full object-cover pointer-events-none select-none z-0"
-        referrerPolicy="no-referrer"
       />
-
-      {/* Ambient Depth & Vignette to protect legibility */}
-      <div className="fixed inset-0 pointer-events-none bg-gradient-to-t from-black/90 via-black/30 to-black/10 z-0" />
+      <div className="fixed inset-0 pointer-events-none bg-gradient-to-t from-black/30 via-transparent to-transparent z-0" />
 
       <div
         className="w-full max-w-[480px] mx-auto min-h-dvh flex flex-col justify-between p-4 sm:p-6 relative z-10"
@@ -83,27 +104,26 @@ export const OnboardingCoordinator: React.FC<{ onComplete: () => void; replay?: 
       >
         <div className="pt-2" />
 
-        {/* Dynamic Card based on phase */}
         <div className="py-4 my-auto">
-          {phase === 'auth' ? (
+          {phase === 'routing' ? (
+            <div className="flex justify-center" role="status" aria-label="Signing in">
+              <Loader2 className="h-6 w-6 animate-spin text-o1-muted" />
+            </div>
+          ) : phase === 'auth' ? (
             <AuthCard
               data={data}
               onUpdate={handleUpdate}
-              onNext={() => setPhase('protocol')}
-              onOpenLegal={(type) => setLegalSheet(type)}
+              onNext={() => void handleAuthenticated()}
+              onOpenLegal={(type) => void openLegalUrl(type)}
             />
           ) : (
             <AthleteLaunchProtocolCard
-              data={data}
-              onUpdate={handleUpdate}
               onLaunch={handleFinish}
-              onSkip={tutorialOnly ? onComplete : undefined}
+              onSkip={replay ? onComplete : undefined}
             />
           )}
         </div>
       </div>
-
-      <LegalSheet type={legalSheet} onClose={() => setLegalSheet(null)} />
     </div>
   );
 };

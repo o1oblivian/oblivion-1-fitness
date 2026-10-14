@@ -3,6 +3,8 @@ import type { User, Session, AuthError } from '@supabase/supabase-js';
 import { supabase } from '../services/supabaseClient';
 import { safeStorage } from '../utils/safeStorage';
 import { useUserStore } from './useUserStore';
+import { releaseDevice } from '../services/accountScope';
+import { getOAuthRedirectTo } from '../services/oauthDeepLink';
 
 export interface AuthProfile {
   id?: string;
@@ -19,22 +21,37 @@ export interface AuthState {
   isLoading: boolean;
   error: string | null;
   signIn: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
-  signUp: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  signUp: (email: string, password: string) => Promise<{ success: boolean; error?: string; needsConfirmation?: boolean }>;
   signOut: () => Promise<void>;
   clearError: () => void;
   initialize: () => Promise<void>;
   setProfileRole?: (role: 'coach' | 'athlete') => void;
 }
 
+export const EMAIL_NOT_CONFIRMED = 'Confirm your email before signing in.';
+export const ACCOUNT_EXISTS = 'You already have an account with this email. Enter your password to sign in.';
+
 function parseAuthError(err: AuthError | Error | any): string {
   const msg = err?.message || String(err || '');
   if (msg.includes('Invalid login credentials') || msg.includes('invalid_credentials')) {
-    return 'Invalid email or password. Please verify your details.';
+    return 'That email and password don\u2019t match. Try again or reset your password.';
   }
   if (msg.includes('Email not confirmed') || msg.includes('email_not_confirmed')) {
-    return 'Please confirm your email before signing in.';
+    return EMAIL_NOT_CONFIRMED;
   }
-  return msg || 'Authentication request failed. Please check network connection.';
+  if (/already registered|already been registered|user_already_exists/i.test(msg)) {
+    return ACCOUNT_EXISTS;
+  }
+  if (/rate limit|too many|over_email_send_rate_limit|429/i.test(msg)) {
+    return 'Too many attempts. Wait a minute and try again.';
+  }
+  if (/weak_password|password should/i.test(msg)) {
+    return 'Choose a stronger password: at least 8 characters, mixing letters and numbers.';
+  }
+  if (/failed to fetch|network|load failed/i.test(msg)) {
+    return 'No connection. Check your internet and try again.';
+  }
+  return msg || 'Sign-in failed. Please try again.';
 }
 
 const getStoredRole = (): 'coach' | 'athlete' => {
@@ -145,12 +162,16 @@ export const useAuthStore = create<AuthState>((set) => ({
       const { data, error } = await supabase.auth.signUp({
         email: cleanEmail,
         password,
-        options: { emailRedirectTo: typeof window !== 'undefined' ? window.location.origin : undefined },
+        options: { emailRedirectTo: getOAuthRedirectTo() },
       });
       if (error) {
         const formatted = parseAuthError(error);
         set({ error: formatted, isLoading: false });
         return { success: false, error: formatted };
+      }
+      if (data?.user && !data.session && data.user.identities?.length === 0) {
+        set({ error: ACCOUNT_EXISTS, isLoading: false });
+        return { success: false, error: ACCOUNT_EXISTS };
       }
       if (data?.session && data.user) {
         safeStorage.setItem('o1fc_user_id', data.user.id);
@@ -158,10 +179,10 @@ export const useAuthStore = create<AuthState>((set) => ({
         if (data.user.email) safeStorage.setItem('o1fc_user_email', data.user.email);
         safeStorage.setItem('o1fc_onboarding_completed', 'true');
         set({ user: data.user, session: data.session, isAuthenticated: true, isLoading: false, error: null });
-      } else {
-        set({ isLoading: false });
+        return { success: true };
       }
-      return { success: true };
+      set({ isLoading: false });
+      return { success: true, needsConfirmation: true };
     } catch (err: any) {
       const formatted = parseAuthError(err);
       set({ error: formatted, isLoading: false });
@@ -175,5 +196,6 @@ export const useAuthStore = create<AuthState>((set) => ({
     safeStorage.removeItem('o1fc_user_id');
     safeStorage.removeItem('o1fc_user_email');
     set({ user: null, session: null, isAuthenticated: false, error: null });
+    releaseDevice();
   },
 }));

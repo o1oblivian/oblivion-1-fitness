@@ -71,7 +71,7 @@ async function geminiWatchFallback(
     ]
       .filter(Boolean)
       .join(' • ');
-    data.aliveAiNote = 'Read by Gemini Vision. Check the numbers before saving.';
+    data.aliveAiNote = 'Read from your photo. Check the numbers before saving.';
     return data;
   } catch (err) {
     console.warn('[Optical Vision] Gemini watch OCR fallback failed:', err);

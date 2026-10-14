@@ -7,9 +7,7 @@ import {
   TravelPassPayload,
   ExerciseSwapperPayload,
   HydrationPayload,
-  BioSyncPayload,
   GenericToastPayload,
-  ProgramReelsStoryPayload,
   EliteReelsPayload,
 } from './types';
 import { tactileEngine } from '../../services/tactileEngine';
@@ -26,16 +24,13 @@ export interface ModalStoreActions {
   ) => void;
   closeModal: () => void;
   openSettings: (payload?: GenericToastPayload) => void;
-  openBiometricSheet: (payload?: GenericToastPayload) => void;
   openFullEliteReels: (options?: 'grid' | 'player' | EliteReelsPayload) => void;
   openCardioScanner: (payload?: CardioScannerPayload) => void;
   openMealScanner: (payload?: MealScannerPayload) => void;
   openTravelPass: (payload?: TravelPassPayload) => void;
   openExerciseSwapper: (payload?: ExerciseSwapperPayload) => void;
   openHydration: (payload?: HydrationPayload) => void;
-  openBioSync: (payload?: BioSyncPayload) => void;
   openSupplements: (payload?: GenericToastPayload) => void;
-  openProgramReelsStory: (payload?: ProgramReelsStoryPayload) => void;
 }
 
 const initialState: ModalStoreState = {
@@ -65,10 +60,6 @@ const modalStore = createStore<ModalStoreState, ModalStoreActions>(
       modalStore.actions.openModal('SETTINGS', payload || {});
     },
 
-    openBiometricSheet: (payload) => {
-      modalStore.actions.openModal('BIOMETRIC_SHEET', payload || {});
-    },
-
     openFullEliteReels: (options?: 'grid' | 'player' | EliteReelsPayload) => {
       const payload = typeof options === 'string' ? { initialMode: options } : (options || { initialMode: 'player' as const });
       modalStore.actions.openModal('FULL_ELITE_REELS', payload);
@@ -94,16 +85,8 @@ const modalStore = createStore<ModalStoreState, ModalStoreActions>(
       modalStore.actions.openModal('HYDRATION', payload || {});
     },
 
-    openBioSync: (payload) => {
-      modalStore.actions.openModal('BIO_SYNC', payload || {});
-    },
-
     openSupplements: (payload) => {
       modalStore.actions.openModal('SUPPLEMENTS', payload || {});
-    },
-
-    openProgramReelsStory: (payload) => {
-      modalStore.actions.openModal('PROGRAM_REELS_STORY', payload || {});
     },
   })
 );

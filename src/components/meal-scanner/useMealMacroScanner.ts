@@ -6,6 +6,8 @@ import { useFuelStore, FuelMeals } from '../../features/fuel/store/useFuelStore'
 import { tactileEngine } from '../../services/tactileEngine';
 import { useSubscription } from '../../context/SubscriptionContext';
 
+const MEAL_SCAN_FAILED = 'Could not read this meal photo. Retake it with the food clearly in view.';
+
 interface UseMealMacroScannerParams {
   isOpen: boolean;
   targetSlot?: keyof FuelMeals | string;
@@ -72,11 +74,11 @@ export function useMealMacroScanner({
       let errMsg =
         err?.message?.includes('permission') || err?.name === 'NotAllowedError'
           ? 'Camera permission denied. Manual macro entry enabled.'
-          : err?.message || 'Could not resolve meal macronutrients with Gemini Vision. Please retake photo with clear view of the food.';
+          : err?.message || MEAL_SCAN_FAILED;
 
-      // Strictly ensure "Sensor Standby" is NEVER shown as an error for a captured photo
-      if (errMsg.toLowerCase().includes('sensor standby') || errMsg.toLowerCase().includes('standby mode')) {
-        errMsg = 'Could not resolve meal macronutrients with Gemini Vision. Please retake photo with clear view of the food.';
+      // Provider and model errors are never shown verbatim.
+      if (/sensor standby|standby mode|gemini|google|genai|api[\s_-]?key|quota|model|\bai\b/i.test(errMsg)) {
+        errMsg = MEAL_SCAN_FAILED;
       }
 
       setError(errMsg);

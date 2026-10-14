@@ -49,12 +49,12 @@ export const CardioMetricsGrid: React.FC<Props> = ({ metrics, onUpdateMetric }) 
                   : 'border-white/[0.07] hover:border-white/[0.14]'
               }`}
             >
-              <div className="flex items-center justify-between gap-1 mb-0.5">
-                <span className="text-[8px] font-tactical font-black tracking-wider text-neutral-400 block truncate">
+              <div className="flex items-center justify-between gap-1 mb-1">
+                <span className="o1-num text-[10px] font-normal text-neutral-500 font-mono tracking-widest block truncate">
                   {m.label}
                 </span>
                 {onUpdateMetric && !isEditing && (
-                  <Edit3 className="w-2.5 h-2.5 text-neutral-400 opacity-40 group-hover:opacity-100 transition-opacity" />
+                  <Edit3 className="w-2.5 h-2.5 shrink-0 text-neutral-500 opacity-50 group-hover:opacity-100 transition-opacity" strokeWidth={1.5} />
                 )}
               </div>
 
@@ -70,7 +70,7 @@ export const CardioMetricsGrid: React.FC<Props> = ({ metrics, onUpdateMetric }) 
                       if (e.key === 'Enter') saveEdit(m.id);
                       if (e.key === 'Escape') setEditingId(null);
                     }}
-                    className="w-full text-xs font-mono font-bold text-white bg-o1-card border border-o1-crimson rounded px-1 py-0.5 outline-none text-center"
+                    className="w-full text-[14px] font-light tabular-nums text-white bg-o1-card border border-o1-crimson rounded px-1 py-0.5 outline-none text-center"
                   />
                   <button
                     type="button"
@@ -81,12 +81,10 @@ export const CardioMetricsGrid: React.FC<Props> = ({ metrics, onUpdateMetric }) 
                   </button>
                 </div>
               ) : (
-                <span className="text-xs sm:text-sm font-mono font-bold text-white truncate block tracking-tight">
-                  {displayText}{' '}
-                  {!isMissing && (
-                    <span className="text-[8.5px] text-neutral-400 font-normal">
-                      {m.unit}
-                    </span>
+                <span className="text-[15px] font-light tabular-nums text-white truncate block">
+                  {displayText}
+                  {!isMissing && m.unit && (
+                    <span className="ml-1 text-[10px] font-light text-neutral-500">{m.unit}</span>
                   )}
                 </span>
               )}
@@ -95,8 +93,8 @@ export const CardioMetricsGrid: React.FC<Props> = ({ metrics, onUpdateMetric }) 
         })}
       </div>
       {onUpdateMetric && (
-        <p className="text-[9.5px] font-sans text-neutral-400 text-center">
-          Optical vision calibrated. Tap any metric to fine-tune before saving.
+        <p className="text-[11px] font-light text-neutral-500 text-center">
+          Numbers auto-extracted from photo. Tap any number to edit.
         </p>
       )}
     </div>

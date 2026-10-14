@@ -95,5 +95,5 @@ export async function analyzeMealImageWithGemini(
     }
   }
 
-  throw new Error('Could not analyze meal photo with Gemini Vision. Please retake photo with clear view of the food.');
+  throw new Error('Could not read this meal photo. Retake it with the food clearly in view.');
 }

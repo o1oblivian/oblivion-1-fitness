@@ -58,7 +58,7 @@ export const SegmentedTowers: React.FC<SegmentedTowersProps> = ({
 
   const inner = tubeHeightPx - 2 * (FRAME + GAP);
   const top = Math.max(1, reference?.value ?? 0, ...towers.map((t) => t.value ?? 0)) * 1.08;
-  const radius = Math.min(14, Math.round(maxTubeWidthPx / 2.8));
+  const radius = Math.min(14, Math.round(Math.min(20, maxTubeWidthPx) / 2.8));
   const refBottom = reference ? LABEL_ROW_H + FRAME + GAP + (Math.min(reference.value, top) / top) * inner : 0;
 
   const revealReference = () => {
@@ -110,7 +110,7 @@ export const SegmentedTowers: React.FC<SegmentedTowersProps> = ({
               <span
                 className="block shrink-0 bg-o1-canvas"
                 style={{
-                  width: Math.min(20, Math.max(18, maxTubeWidthPx)),
+                  width: Math.min(28, Math.max(18, maxTubeWidthPx)),
                   height: tubeHeightPx,
                   padding: GAP,
                   borderRadius: radius,
@@ -119,7 +119,7 @@ export const SegmentedTowers: React.FC<SegmentedTowersProps> = ({
               >
                 <span
                   className="flex h-full w-full flex-col-reverse overflow-hidden"
-                  style={{ gap: GAP, borderRadius: Math.max(2, radius - FRAME - GAP) }}
+                  style={{ borderRadius: Math.max(2, radius - FRAME - GAP) }}
                 >
                   {Array.from({ length: slabCount }, (_, i) => (
                     <span

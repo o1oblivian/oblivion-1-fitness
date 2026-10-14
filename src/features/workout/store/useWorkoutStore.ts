@@ -1,9 +1,7 @@
 import { createStore } from '../../../utils/createStore';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { safeStorage } from '../../../utils/safeStorage';
-import { queueOfflineAction, isDeviceOnline } from '../../../services/offlineSyncService';
 import {
-  useTelemetryHistoryStore,
   getTelemetryHistoryState,
   WorkoutDayRecord,
 } from '../../log/store/useTelemetryHistoryStore';
@@ -15,11 +13,8 @@ import {
   initialWorkoutState,
 } from './workoutStoreTypes';
 import {
-  createSevenWorkouts,
-  createRecoveryExercise,
-} from './workoutStoreFactories';
-import {
   addSetToExercises,
+  completeSetsBefore,
   removeSetFromExercises,
   toggleSetInExercises,
   updateSetInExercises,
@@ -27,6 +22,11 @@ import {
   sessionLedger,
   mergeWorkoutDay,
 } from './workoutSetOperations';
+import { estimateSessionEnergy, resetSessionClock, trackSessionClock } from '../utils/sessionEnergy';
+import { useFuelStore } from '../../fuel/store/useFuelStore';
+import { useRestTimerStore } from './useRestTimerStore';
+import { prefillFromHistory } from '../services/setCoach';
+import type { ExerciseItem, ExerciseSet } from '../../../types';
 
 const BASELINE_KEY = 'o1fc_workout_day_baseline';
 
@@ -62,7 +62,7 @@ export type { NormalizedWorkoutMode, NormalizedWorkoutSubMode, WorkoutStoreState
 
 // Hydrate saved session if available for 100% offline gym basement safety
 const STORAGE_WORKOUT_KEY = 'o1fc_active_workout_session';
-const savedExercisesRaw = safeStorage.getItem<any[]>(STORAGE_WORKOUT_KEY, []);
+const savedExercisesRaw = safeStorage.getItem<ExerciseItem[]>(STORAGE_WORKOUT_KEY, []);
 // Clean out any misclassified cardio items from resistance workout sessions
 const savedExercises = (savedExercisesRaw || [])
   .filter(
@@ -70,7 +70,7 @@ const savedExercises = (savedExercisesRaw || [])
   )
     .map((e) => ({
       ...e,
-      sets: (e.sets || []).map((s: any) => {
+      sets: (e.sets || []).map((s: ExerciseSet) => {
         if (s.completed) return s;
         const reps = Number(s.reps) || 0;
         const weight = Number(s.weightKg ?? s.weight) || 0;
@@ -84,7 +84,6 @@ const hydratedState: WorkoutStoreState = {
     ? {
         exercises: savedExercises,
         activeLogs: savedExercises,
-        activeExercises: savedExercises,
         activeSession: true,
         ...computeSessionMetrics(savedExercises, false),
       }
@@ -97,15 +96,11 @@ if (savedExercises.length > 0) {
 const workoutStore = createStore<WorkoutStoreState, WorkoutStoreActions>(
   hydratedState,
   (set, get) => {
-    const updateExercisesWithMetrics = (nextExercises: any[]) => {
+    const updateExercisesWithMetrics = (nextExercises: ExerciseItem[]) => {
       const metrics = computeSessionMetrics(nextExercises, get().isRestDayActive);
       
-      // Save locally immediately - guaranteed zero data loss in gym basements
       if (nextExercises.length > 0) {
         safeStorage.setItem(STORAGE_WORKOUT_KEY, nextExercises);
-        if (!isDeviceOnline()) {
-          queueOfflineAction('exercise_set', { exercisesCount: nextExercises.length, timestamp: Date.now() });
-        }
       } else {
         safeStorage.removeItem(STORAGE_WORKOUT_KEY);
       }
@@ -113,7 +108,6 @@ const workoutStore = createStore<WorkoutStoreState, WorkoutStoreActions>(
       set({
         exercises: nextExercises,
         activeLogs: nextExercises,
-        activeExercises: nextExercises,
         sessionTonnageKg: metrics.sessionTonnageKg,
         completedSetsCount: metrics.completedSetsCount,
         totalRepsCount: metrics.totalRepsCount,
@@ -126,6 +120,7 @@ const workoutStore = createStore<WorkoutStoreState, WorkoutStoreActions>(
       try {
         const ledger = sessionLedger(nextExercises);
         const todayKey = localTodayKey();
+        trackSessionClock(ledger.completedSets);
         if (ledger.completedSets > 0) {
           getTelemetryHistoryState().updateDayRecord(
             todayKey,
@@ -149,24 +144,15 @@ const workoutStore = createStore<WorkoutStoreState, WorkoutStoreActions>(
         set({ selectedMode: normalized });
         tactileEngine.triggerSelectionBuzz();
       },
-      setSubMode: (sub) => {
-        set({ subMode: sub });
-        tactileEngine.triggerSelectionBuzz();
-      },
-      toggleExerciseHub: () => {
-        tactileEngine.triggerSelectionBuzz();
-        set({ isExerciseHubOpen: !get().isExerciseHubOpen });
-      },
-      setExerciseHubOpen: (open) => set({ isExerciseHubOpen: open }),
       addExerciseToActiveLog: (ex) => {
         tactileEngine.triggerSelectionBuzz();
         set({ activeSession: true });
-        updateExercisesWithMetrics([ex, ...get().exercises]);
+        updateExercisesWithMetrics([...prefillFromHistory([ex]), ...get().exercises]);
       },
       addExercisesToActiveLog: (newExs) => {
         tactileEngine.playPRCelebration();
         set({ activeSession: true });
-        updateExercisesWithMetrics([...newExs, ...get().exercises]);
+        updateExercisesWithMetrics([...prefillFromHistory(newExs), ...get().exercises]);
       },
       clearActiveLog: () => updateExercisesWithMetrics([]),
       commitSession: () => {
@@ -175,21 +161,19 @@ const workoutStore = createStore<WorkoutStoreState, WorkoutStoreActions>(
         if (ledger.completedSets === 0) return null;
         const title = get().activeRoutine || 'Workout';
         const todayKey = localTodayKey();
-        getTelemetryHistoryState().updateDayRecord(todayKey, 'workout', mergeWorkoutDay(dayBaseline(todayKey), ledger, title));
-        safeStorage.removeItem(BASELINE_KEY);
         const committed = exercises
           .map((e) => ({ ...e, sets: (e.sets || []).filter((s) => s.completed) }))
           .filter((e) => e.sets.length > 0);
+        const energy = estimateSessionEnergy(committed, ledger.completedSets);
+        getTelemetryHistoryState().updateDayRecord(todayKey, 'workout', mergeWorkoutDay(dayBaseline(todayKey), ledger, title, energy));
+        if (energy.burnedKcal) useFuelStore.getState().logBurned(energy.burnedKcal);
+        safeStorage.removeItem(BASELINE_KEY);
+        resetSessionClock();
+        useRestTimerStore.getState().skip();
         updateExercisesWithMetrics([]);
         set({ activeSession: false, activeRoutine: '' });
-        return { id: `session-${crypto.randomUUID()}`, title, dateKey: todayKey, ...ledger, items: committed };
+        return { id: `session-${crypto.randomUUID()}`, title, dateKey: todayKey, ...ledger, items: committed, ...energy };
       },
-      cycleWallpaper: () => {
-        tactileEngine.triggerDialHaptic();
-        set({ currentWallpaperIndex: (get().currentWallpaperIndex + 1) % 3, customWallpaperUrl: null });
-      },
-      setWallpaperIndex: (index) => set({ currentWallpaperIndex: index, customWallpaperUrl: null }),
-      setCustomWallpaperUrl: (url) => set({ customWallpaperUrl: url }),
       setActiveRoutine: (routine) => set({ activeRoutine: routine }),
       setActiveLogs: (exercisesOrUpdater) => {
         const current = get().exercises;
@@ -210,49 +194,9 @@ const workoutStore = createStore<WorkoutStoreState, WorkoutStoreActions>(
         );
         updateExercisesWithMetrics(updated);
       },
-      deployProtocol: (newExercises) => updateExercisesWithMetrics([...newExercises, ...get().exercises]),
-      loadSevenWorkouts: (programTitle) => {
-        const sevenWorkouts = createSevenWorkouts(programTitle);
-        updateExercisesWithMetrics([...sevenWorkouts, ...get().exercises]);
-        tactileEngine.playPRCelebration();
-      },
-      postCardio: (cardioData) => {
-        const now = new Date();
-        const todayDateKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-        try {
-          useTelemetryHistoryStore.getState().updateDayRecord(todayDateKey, 'cardio', {
-            hasData: true,
-            durationMinutes: cardioData.durationMins,
-            burnedKcal: cardioData.calories,
-            distanceKm: 0,
-            steps: cardioData.steps > 0 ? cardioData.steps : 0,
-            avgHeartRateBpm: cardioData.avgHr > 0 ? cardioData.avgHr : 0,
-            zone2Minutes: 0,
-            activityType: cardioData.type || 'Cardio',
-          });
-        } catch {}
-        tactileEngine.triggerSelectionBuzz();
-      },
-      appendExercise: (exercise) => {
-        updateExercisesWithMetrics([exercise, ...get().exercises]);
-        tactileEngine.triggerSelectionBuzz();
-      },
-      addRecoveryExercise: (drill) => {
-        const recoveryEx = createRecoveryExercise(drill);
-        updateExercisesWithMetrics([recoveryEx, ...get().exercises]);
-        tactileEngine.triggerSelectionBuzz();
-      },
+      deployProtocol: (newExercises) => updateExercisesWithMetrics([...prefillFromHistory(newExercises), ...get().exercises]),
       updateExerciseSet: (exerciseId, setNumber, updates) => {
         updateExercisesWithMetrics(updateSetInExercises(get().exercises, exerciseId, setNumber, updates));
-      },
-      updateSet: (exerciseId, setIndex, field, value) => {
-        const exercises = get().exercises;
-        const targetEx = exercises.find((e) => e.id === exerciseId);
-        if (!targetEx) return;
-        const targetSet = targetEx.sets[setIndex] ?? targetEx.sets.find((s) => s.setNumber === setIndex);
-        const setNumber = targetSet ? targetSet.setNumber : setIndex + 1;
-        if (field === 'completed' && value === true) tactileEngine.triggerSelectionBuzz();
-        updateExercisesWithMetrics(updateSetInExercises(exercises, exerciseId, setNumber, { [field]: value }));
       },
       addSet: (exerciseId) => {
         tactileEngine.triggerDialHaptic();
@@ -268,47 +212,21 @@ const workoutStore = createStore<WorkoutStoreState, WorkoutStoreActions>(
         const targetSet = targetEx?.sets.find((s) => s.setNumber === setNumber);
         const willComplete = targetSet ? !targetSet.completed : true;
         if (willComplete) tactileEngine.triggerSelectionBuzz();
-        updateExercisesWithMetrics(toggleSetInExercises(exercises, exerciseId, setNumber, willComplete));
+        const toggled = toggleSetInExercises(exercises, exerciseId, setNumber, willComplete);
+        updateExercisesWithMetrics(willComplete ? completeSetsBefore(toggled, exerciseId, setNumber) : toggled);
+        const restTimer = useRestTimerStore.getState();
+        if (willComplete && targetEx) restTimer.start(Number(targetEx.restSecs) || 90, targetEx.name || targetEx.exerciseName || 'Rest');
+        else if (!willComplete && restTimer.timer?.exerciseName === (targetEx?.name || targetEx?.exerciseName)) restTimer.skip();
       },
-      setHydrationLiters: (litersOrUpdater) => {
-        const current = get().hydrationLiters;
-        const next = typeof litersOrUpdater === 'function' ? litersOrUpdater(current) : litersOrUpdater;
-        set({ hydrationLiters: Math.max(0, Math.min(3.0, Number(next.toFixed(2)))) });
+      completeEarlierSets: (exerciseId, setNumber) => {
+        const current = get().exercises;
+        const next = completeSetsBefore(current, exerciseId, setNumber);
+        if (next !== current) updateExercisesWithMetrics(next);
       },
-      toggleRestDay: () => {
-        tactileEngine.triggerSelectionBuzz();
-        const nextRest = !get().isRestDayActive;
-        const metrics = computeSessionMetrics(get().exercises, nextRest);
-        set({ isRestDayActive: nextRest, recoveryEnergyScore: metrics.recoveryEnergyScore });
-      },
-      setSupplementsLogged: (countOrUpdater) => {
-        const current = get().supplementsLogged;
-        const next = typeof countOrUpdater === 'function' ? countOrUpdater(current) : countOrUpdater;
-        set({ supplementsLogged: Math.max(0, next) });
-      },
-      setSelectedProgramTitle: (title) => set({ selectedProgramTitle: title }),
       clearDailyWorkout: () => {
         updateExercisesWithMetrics([]);
-        set({ activeSession: false, activeLogs: [], activeExercises: [], hydrationLiters: 0.0, supplementsLogged: 0 });
+        set({ activeSession: false, activeRoutine: '' });
       },
-      seedWorkoutDemo: () => {
-        // Genuine data only - no mock seeding
-      },
-      clearWorkoutState: () => {
-        updateExercisesWithMetrics([]);
-        set({
-          activeSession: false,
-          activeLogs: [],
-          activeExercises: [],
-          isExerciseHubOpen: false,
-          sessionTonnageKg: 0,
-          completedSetsCount: 0,
-          totalRepsCount: 0,
-          weeklyVolumeData: [],
-        });
-      },
-      showToast: () => {},
-      clearToast: () => set({ toastMessage: null }),
     };
   }
 );

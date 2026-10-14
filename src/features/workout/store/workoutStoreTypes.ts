@@ -1,5 +1,4 @@
 import { ExerciseItem, ExerciseSet, DailyVolumePoint } from '../../../types';
-import { MobilityExercise } from '../../../data/recoveryRoutines';
 
 export const INITIAL_MICROCYCLE_VOLUME: DailyVolumePoint[] = [
   { day: 'Mon', shortDay: 'M', volumeKg: 0, targetKg: 0, strain: 0, setsCount: 0, isToday: false },
@@ -20,6 +19,10 @@ export interface CommittedSession {
   totalReps: number;
   exercises: import('../../log/store/useTelemetryHistoryStore').ExerciseEntry[];
   items: ExerciseItem[];
+  durationMinutes: number;
+  avgRpe: number | null;
+  /** Estimated net active kcal. Null when bodyweight is unknown. */
+  burnedKcal: number | null;
 }
 
 export type NormalizedWorkoutMode = 'Lift' | 'Sports' | 'Recovery';
@@ -34,15 +37,7 @@ export interface WorkoutStoreState {
   activeRoutine: string;
   exercises: ExerciseItem[];
   activeLogs: ExerciseItem[];
-  activeExercises: ExerciseItem[];
-  isExerciseHubOpen: boolean;
-  hydrationLiters: number;
   isRestDayActive: boolean;
-  supplementsLogged: number;
-  selectedProgramTitle: string;
-  toastMessage: string | null;
-  currentWallpaperIndex: number;
-  customWallpaperUrl: string | null;
   sessionTonnageKg: number;
   completedSetsCount: number;
   totalRepsCount: number;
@@ -53,17 +48,11 @@ export interface WorkoutStoreState {
 export interface WorkoutStoreActions {
   setActiveSession: (active: boolean) => void;
   setMode: (mode: NormalizedWorkoutMode | 'LIFT' | 'SPORTS' | 'RECOVERY') => void;
-  setSubMode: (sub: NormalizedWorkoutSubMode) => void;
-  toggleExerciseHub: () => void;
-  setExerciseHubOpen: (open: boolean) => void;
   addExerciseToActiveLog: (exercise: WorkoutExercise) => void;
   addExercisesToActiveLog: (exercises: WorkoutExercise[]) => void;
   clearActiveLog: () => void;
   /** Saves ticked sets to today, then empties the tracker. Null when nothing was ticked. */
   commitSession: () => CommittedSession | null;
-  cycleWallpaper: () => void;
-  setWallpaperIndex: (index: number) => void;
-  setCustomWallpaperUrl: (url: string | null) => void;
   setActiveRoutine: (routine: string) => void;
   setActiveLogs: (
     exercises: ExerciseItem[] | ((prev: ExerciseItem[]) => ExerciseItem[])
@@ -73,39 +62,16 @@ export interface WorkoutStoreActions {
   ) => void;
   swapExercise: (oldExerciseId: string, newExercise: Partial<ExerciseItem>) => void;
   deployProtocol: (newExercises: ExerciseItem[]) => void;
-  loadSevenWorkouts: (programTitle: string) => void;
-  postCardio: (cardioData: {
-    type: string;
-    calories: number;
-    durationMins: number;
-    avgHr: number;
-    steps: number;
-  }) => void;
-  appendExercise: (exercise: ExerciseItem) => void;
-  addRecoveryExercise: (drill: MobilityExercise) => void;
   updateExerciseSet: (
     exerciseId: string,
     setNumber: number,
     updates: Partial<ExerciseSet>
   ) => void;
-  updateSet: (
-    exerciseId: string,
-    setIndex: number,
-    field: string,
-    value: any
-  ) => void;
   addSet: (exerciseId: string) => void;
   removeSet: (exerciseId: string, setNumber: number) => void;
   toggleSetCompleted: (exerciseId: string, setNumber: number) => void;
-  setHydrationLiters: (liters: number | ((prev: number) => number)) => void;
-  toggleRestDay: () => void;
-  setSupplementsLogged: (count: number | ((prev: number) => number)) => void;
-  setSelectedProgramTitle: (title: string) => void;
+  completeEarlierSets: (exerciseId: string, setNumber: number) => void;
   clearDailyWorkout: () => void;
-  seedWorkoutDemo: () => void;
-  clearWorkoutState: () => void;
-  showToast: (msg: string) => void;
-  clearToast: () => void;
 }
 
 export const initialWorkoutState: WorkoutStoreState = {
@@ -115,19 +81,11 @@ export const initialWorkoutState: WorkoutStoreState = {
   activeRoutine: '',
   exercises: [],
   activeLogs: [],
-  activeExercises: [],
-  isExerciseHubOpen: false,
-  hydrationLiters: 0,
   isRestDayActive: false,
-  supplementsLogged: 0,
-  selectedProgramTitle: 'V-TAPER SCULPTOR',
-  toastMessage: null,
-  currentWallpaperIndex: 0,
-  customWallpaperUrl: null,
   sessionTonnageKg: 0,
   completedSetsCount: 0,
   totalRepsCount: 0,
-  recoveryEnergyScore: 92,
+  recoveryEnergyScore: 0,
   weeklyVolumeData: INITIAL_MICROCYCLE_VOLUME,
 };
 

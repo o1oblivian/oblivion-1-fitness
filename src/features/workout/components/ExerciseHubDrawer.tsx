@@ -19,7 +19,6 @@ export interface ExerciseHubDrawerProps {
   onToggle?: () => void;
   onAddExercise?: (exercise: ExerciseItem) => void;
   onAddBatch?: (exercises: ExerciseItem[]) => void;
-  onShowToast?: (msg: string) => void;
 }
 
 export const ExerciseHubDrawer: React.FC<ExerciseHubDrawerProps> = ({
@@ -27,12 +26,9 @@ export const ExerciseHubDrawer: React.FC<ExerciseHubDrawerProps> = ({
   onSelectDiscipline,
   onAddExercise,
   onAddBatch,
-  onShowToast,
 }) => {
   const addExerciseToActiveLog = useWorkoutStore((s) => s.addExerciseToActiveLog);
   const addExercisesToActiveLog = useWorkoutStore((s) => s.addExercisesToActiveLog);
-  const storeToast = useWorkoutStore((s) => s.showToast);
-  const showToast = onShowToast || storeToast;
 
   const [internalDiscipline, setInternalDiscipline] = useState<'lift' | 'sports' | 'recovery' | null>(null);
   const selectedDiscipline =
@@ -72,7 +68,6 @@ export const ExerciseHubDrawer: React.FC<ExerciseHubDrawerProps> = ({
     selectedDiscipline,
     onAddBatch,
     addExercisesToActiveLog,
-    showToast,
   });
 
   return (
@@ -157,18 +152,16 @@ export const ExerciseHubDrawer: React.FC<ExerciseHubDrawerProps> = ({
             {activeSubTab === 'manual' && (
               <ManualModeView
                 discipline={discipline}
-                onShowToast={showToast}
                 onAddExercise={(exercise) => {
                   if (onAddExercise) onAddExercise(exercise);
                   else addExerciseToActiveLog(exercise);
-                  showToast(`Added ${exercise.name}`);
                   handleAutoCollapse();
                 }}
               />
             )}
 
             {(activeSubTab === 'blueprint' || (activeSubTab as string) === 'swapper') && (
-              <BlueprintModeView onShowToast={showToast} onLoaded={handleAutoCollapse} />
+              <BlueprintModeView onLoaded={handleAutoCollapse} />
             )}
           </div>
         )}

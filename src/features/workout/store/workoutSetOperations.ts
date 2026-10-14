@@ -43,19 +43,31 @@ export const mergeWorkoutDay = (
   base: Partial<WorkoutDayRecord> | undefined,
   ledger: SessionLedger,
   routineName: string,
+  finished?: { durationMinutes: number; avgRpe: number | null; burnedKcal: number | null },
 ): Partial<WorkoutDayRecord> => {
   const baseHas = Boolean(base?.hasData);
   const names = [baseHas ? base?.routineName : '', routineName]
     .map((n) => (n || '').trim())
     .filter((n, i, all) => n && all.indexOf(n) === i);
+  const baseMinutes = baseHas ? Number(base?.durationMinutes) || 0 : 0;
+  const baseRpe = baseHas ? Number(base?.intensityRpe) || 0 : 0;
+  const baseKcal = baseHas ? Number(base?.burnedKcal) || 0 : 0;
+  const addMinutes = finished?.durationMinutes ?? 0;
+  const addRpe = finished?.avgRpe ?? 0;
+  const intensityRpe =
+    baseRpe > 0 && addRpe > 0 && baseMinutes + addMinutes > 0
+      ? Math.round(((baseRpe * baseMinutes + addRpe * addMinutes) / (baseMinutes + addMinutes)) * 10) / 10
+      : baseRpe || addRpe;
+  const burnedKcal = baseKcal + (finished?.burnedKcal ?? 0);
   return {
     hasData: baseHas || ledger.completedSets > 0,
     tonnageKg: Math.round(((baseHas ? Number(base?.tonnageKg) || 0 : 0) + ledger.tonnageKg) * 10) / 10,
     completedSets: (baseHas ? Number(base?.completedSets) || 0 : 0) + ledger.completedSets,
-    durationMinutes: baseHas ? Number(base?.durationMinutes) || 0 : 0,
+    durationMinutes: baseMinutes + addMinutes,
     routineName: names.join(' + '),
-    intensityRpe: baseHas ? Number(base?.intensityRpe) || 0 : 0,
+    intensityRpe,
     exercises: [...(baseHas ? base?.exercises || [] : []), ...ledger.exercises],
+    ...(burnedKcal > 0 ? { burnedKcal } : {}),
   };
 };
 
@@ -177,6 +189,25 @@ export const toggleSetInExercises = (
       ),
     };
   });
+};
+
+/** Moving on to a later set means the earlier filled sets were lifted. */
+export const completeSetsBefore = (
+  exercises: ExerciseItem[],
+  exerciseId: string,
+  setNumber: number
+): ExerciseItem[] => {
+  let changed = false;
+  const next = exercises.map((ex) => {
+    if (ex.id !== exerciseId) return ex;
+    const sets = (ex.sets || []).map((s) => {
+      if (s.completed || Number(s.setNumber) >= Number(setNumber) || !(Number(s.reps) > 0)) return s;
+      changed = true;
+      return { ...s, completed: true };
+    });
+    return changed ? { ...ex, sets } : ex;
+  });
+  return changed ? next : exercises;
 };
 
 export const updateSetInExercises = (

@@ -59,7 +59,7 @@ export const DialNumpad: React.FC<DialNumpadProps> = ({ value, unit, max, onChan
         <span className="text-[10px] font-mono tracking-wider text-neutral-400 block">
           TARGET {unit}
         </span>
-        <span className="text-3xl font-mono font-black text-white">
+        <span className="text-3xl font-mono font-light text-o1-text">
           {value} <span className="text-sm font-sans text-neutral-400">{unit}</span>
         </span>
       </div>
@@ -71,7 +71,7 @@ export const DialNumpad: React.FC<DialNumpadProps> = ({ value, unit, max, onChan
             key={d}
             type="button"
             onClick={() => handleDigit(d)}
-            className="h-11 rounded-xl bg-o1-well hover:bg-white/[0.06] border border-white/[0.07] font-mono text-lg font-bold text-white active:scale-95 transition-all cursor-pointer"
+            className="h-11 rounded-xl bg-o1-well hover:bg-white/[0.06] border border-white/[0.07] font-mono text-lg font-normal text-white active:scale-95 transition-all cursor-pointer"
           >
             {d}
           </button>
@@ -80,7 +80,7 @@ export const DialNumpad: React.FC<DialNumpadProps> = ({ value, unit, max, onChan
         <button
           type="button"
           onClick={handleDecimal}
-          className="h-11 rounded-xl bg-o1-well hover:bg-white/[0.06] border border-white/[0.07] font-mono text-base font-bold text-white active:scale-95 transition-all cursor-pointer flex items-center justify-center"
+          className="h-11 rounded-xl bg-o1-well hover:bg-white/[0.06] border border-white/[0.07] font-mono text-base font-normal text-white active:scale-95 transition-all cursor-pointer flex items-center justify-center"
         >
           .5
         </button>
@@ -88,7 +88,7 @@ export const DialNumpad: React.FC<DialNumpadProps> = ({ value, unit, max, onChan
         <button
           type="button"
           onClick={() => handleDigit('0')}
-          className="h-11 rounded-xl bg-o1-well hover:bg-white/[0.06] border border-white/[0.07] font-mono text-lg font-bold text-white active:scale-95 transition-all cursor-pointer"
+          className="h-11 rounded-xl bg-o1-well hover:bg-white/[0.06] border border-white/[0.07] font-mono text-lg font-normal text-white active:scale-95 transition-all cursor-pointer"
         >
           0
         </button>
@@ -96,7 +96,7 @@ export const DialNumpad: React.FC<DialNumpadProps> = ({ value, unit, max, onChan
         <button
           type="button"
           onClick={handleBackspace}
-          className="h-11 rounded-xl bg-o1-well hover:bg-white/[0.06] border border-white/[0.07] font-mono text-base font-bold text-neutral-300 active:scale-95 transition-all cursor-pointer flex items-center justify-center"
+          className="h-11 rounded-xl bg-o1-well hover:bg-white/[0.06] border border-white/[0.07] font-mono text-base font-normal text-neutral-300 active:scale-95 transition-all cursor-pointer flex items-center justify-center"
         >
           <Delete className="w-5 h-5" />
         </button>

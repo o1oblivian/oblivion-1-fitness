@@ -38,28 +38,35 @@ export const CoachConsultTab: React.FC<CoachConsultTabProps> = ({
   onPay,
 }) => {
   const taxonomy = useClubTaxonomy();
-  const discipline = useConsultationStore((s) => s.primaryDiscipline);
-  const trainingAge = useConsultationStore((s) => s.trainingAge);
-  const coachingIntent = useConsultationStore((s) => s.coachingIntent);
-  const coachingStyle = useConsultationStore((s) => s.coachingStyle);
-  const facility = useConsultationStore((s) => s.facility);
-  const frequencyDays = useConsultationStore((s) => s.frequencyDays);
+  const profile = useConsultationStore((s) => s);
+  const updateConsultation = useConsultationStore((s) => s.update);
   const [goal, setGoal] = useState('');
   const [sending, setSending] = useState(false);
   const [paying, setPaying] = useState(false);
 
   const intake = useMemo(() => {
     const label = (group: string, key: string) => optionsIn(taxonomy, group).find((row) => row.optionKey === key)?.label || '';
+    const labels = (group: string, keys: readonly string[]) => keys.map((key) => label(group, key)).filter(Boolean).join(', ');
     const rows: Record<string, string> = {
-      [INTAKE_TITLES.discipline]: label('discipline', discipline),
-      [INTAKE_TITLES.training_age]: label('training_age', trainingAge),
-      [INTAKE_TITLES.coaching_intent]: label('coaching_intent', coachingIntent),
-      [INTAKE_TITLES.coaching_style]: label('coaching_style', coachingStyle),
-      [INTAKE_TITLES.facility]: label('facility', facility),
-      [INTAKE_TITLES.frequency]: frequencyDays ? `${frequencyDays} days` : '',
+      [INTAKE_TITLES.age_band]: label('age_band', profile.ageBand),
+      [INTAKE_TITLES.goal]: label('goal', profile.goal),
+      [INTAKE_TITLES.discipline]: label('discipline', profile.primaryDiscipline),
+      [INTAKE_TITLES.training_age]: label('training_age', profile.trainingAge),
+      [INTAKE_TITLES.coaching_intent]: label('coaching_intent', profile.coachingIntent),
+      [INTAKE_TITLES.coaching_style]: label('coaching_style', profile.coachingStyle),
+      [INTAKE_TITLES.facility]: labels('facility', profile.facilities),
+      [INTAKE_TITLES.training_days]: profile.trainingDays.length > 0 ? profile.trainingDays.join(', ') : profile.frequencyDays ? `${profile.frequencyDays} days` : '',
+      [INTAKE_TITLES.session_length]: label('session_length', String(profile.sessionMinutes || '')),
+      [INTAKE_TITLES.injuries]: labels('injuries', profile.injuries.filter((key) => key !== 'none')),
+      [INTAKE_TITLES.competition]: profile.competitionDate,
     };
     return Object.fromEntries(Object.entries(rows).filter(([, value]) => value));
-  }, [taxonomy, discipline, trainingAge, coachingIntent, coachingStyle, facility, frequencyDays]);
+  }, [taxonomy, profile]);
+
+  const coachingQuestions = [
+    { group: 'coaching_intent', prompt: 'How do you want to be coached?', value: profile.coachingIntent, field: 'coachingIntent' },
+    { group: 'coaching_style', prompt: 'What feedback works best for you?', value: profile.coachingStyle, field: 'coachingStyle' },
+  ] as const;
 
   const firstName = coach.name.split(' ')[0] || coach.name;
   const monthly = priceLabel(stats.monthlyPriceCents);
@@ -131,6 +138,32 @@ export const CoachConsultTab: React.FC<CoachConsultTabProps> = ({
           ) : (
             <p className="text-[12px] text-o1-muted">Your intake answers will appear here once induction is done.</p>
           )}
+          {coachingQuestions.map(({ group, prompt, value, field }) => (
+            <div key={group} className="space-y-1.5">
+              <p className="text-[11px] text-o1-muted">{prompt}</p>
+              <div className="flex flex-wrap gap-1.5" role="radiogroup" aria-label={prompt}>
+                {optionsIn(taxonomy, group).map((option) => {
+                  const active = value === option.optionKey;
+                  return (
+                    <button
+                      key={option.id}
+                      type="button"
+                      role="radio"
+                      aria-checked={active}
+                      title={option.detail}
+                      onClick={() => {
+                        tactileEngine.triggerSelectionBuzz();
+                        void updateConsultation({ [field]: option.optionKey });
+                      }}
+                      className={`h-8 rounded-full px-3 text-[11.5px] font-normal transition active:scale-[0.97] ${active ? 'bg-o1-crimson text-white' : 'bg-white/[0.06] text-o1-text'}`}
+                    >
+                      {option.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
           {program ? (
             <div className="flex items-center justify-between gap-2 rounded-xl bg-black px-3 py-2">
               <span className="truncate text-[13px] text-o1-text">Program: {program.title}</span>

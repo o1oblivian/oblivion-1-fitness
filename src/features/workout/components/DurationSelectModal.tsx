@@ -44,7 +44,7 @@ export const DurationSelectModal: React.FC<DurationSelectModalProps> = ({
       <div className="o1-sheet-card relative w-full bg-o1-card border border-white/[0.07] shadow-xl p-5 z-10 space-y-4 overflow-y-auto text-white">
         <div className="flex items-center justify-between border-b border-white/[0.05] pb-3">
           <div>
-            <h3 className="text-sm font-tactical font-black text-white tracking-wider">
+            <h3 className="text-sm font-tactical font-light text-white tracking-wider">
               Select Available Duration
             </h3>
             <p className="text-[11px] font-sans text-neutral-400">
@@ -80,7 +80,7 @@ export const DurationSelectModal: React.FC<DurationSelectModalProps> = ({
               >
                 <div className="flex items-center gap-2">
                   <span
-                    className={`text-xs font-tactical font-bold tracking-wider ${
+                    className={`text-xs font-tactical font-medium tracking-wider ${
                       isSelected ? 'text-white' : 'text-white'
                     }`}
                   >

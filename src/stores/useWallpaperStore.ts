@@ -28,6 +28,9 @@ interface WallpaperStoreState {
   intervalSeconds: WallpaperInterval;
   isPaused: boolean;
   isEnabled: boolean;
+  /** Wallpaper brightness in percent, WALLPAPER_BRIGHTNESS_MIN..100. */
+  brightness: number;
+  setBrightness: (pct: number) => void;
   isLoading: boolean;
   sourceLabel: string;
   customUrl: string | null;
@@ -52,6 +55,7 @@ interface SavedSettings {
   interval?: WallpaperInterval;
   isPaused?: boolean;
   isEnabled?: boolean;
+  brightness?: number;
 }
 
 interface LoadedSettings {
@@ -59,7 +63,13 @@ interface LoadedSettings {
   interval: WallpaperInterval;
   isPaused: boolean;
   isEnabled: boolean;
+  brightness: number;
 }
+
+export const WALLPAPER_BRIGHTNESS_MIN = 20;
+
+const clampBrightness = (v: unknown): number =>
+  typeof v === 'number' && Number.isFinite(v) ? Math.round(Math.min(100, Math.max(WALLPAPER_BRIGHTNESS_MIN, v))) : 100;
 
 const loadSettings = (): LoadedSettings => {
   const fallback: LoadedSettings = {
@@ -67,6 +77,7 @@ const loadSettings = (): LoadedSettings => {
     interval: 15,
     isPaused: false,
     isEnabled: true,
+    brightness: 100,
   };
   if (typeof window === 'undefined') return fallback;
   try {
@@ -81,6 +92,7 @@ const loadSettings = (): LoadedSettings => {
       interval,
       isPaused: Boolean(parsed.isPaused),
       isEnabled: parsed.isEnabled !== undefined ? Boolean(parsed.isEnabled) : true,
+      brightness: clampBrightness(parsed.brightness),
     };
   } catch {
     return fallback;
@@ -118,7 +130,7 @@ const persistBroken = (urls: string[]) => {
   }
 };
 
-const persistSettings = (s: Pick<WallpaperStoreState, 'topic' | 'intervalSeconds' | 'isPaused' | 'isEnabled'>) => {
+const persistSettings = (s: Pick<WallpaperStoreState, 'topic' | 'intervalSeconds' | 'isPaused' | 'isEnabled' | 'brightness'>) => {
   if (typeof window === 'undefined') return;
   try {
     localStorage.setItem(
@@ -128,6 +140,7 @@ const persistSettings = (s: Pick<WallpaperStoreState, 'topic' | 'intervalSeconds
         interval: s.intervalSeconds,
         isPaused: s.isPaused,
         isEnabled: s.isEnabled,
+        brightness: s.brightness,
       }),
     );
   } catch {
@@ -168,6 +181,7 @@ export const useWallpaperStore = create<WallpaperStoreState>((set, get) => ({
   intervalSeconds: initial.interval,
   isPaused: initial.isPaused,
   isEnabled: initial.isEnabled,
+  brightness: initial.brightness,
   isLoading: false,
   sourceLabel: '',
   customUrl: loadCustom(),
@@ -238,6 +252,11 @@ export const useWallpaperStore = create<WallpaperStoreState>((set, get) => ({
   togglePause: () => {
     tactileEngine.triggerSelectionBuzz();
     set({ isPaused: !get().isPaused });
+    persistSettings(get());
+  },
+
+  setBrightness: (pct: number) => {
+    set({ brightness: clampBrightness(pct) });
     persistSettings(get());
   },
 

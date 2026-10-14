@@ -89,7 +89,7 @@ export const SettingsMembershipSection: React.FC<MembershipSectionProps> = ({ on
             </div>
             <p className="text-[10px] text-neutral-400 font-mono">
               {isExpired
-                ? 'Basic workout logging is always free. Premium Telemetry & Radar requires an active pass.'
+                ? 'Basic workout logging is always free. Premium analytics and Radar need an active pass.'
                 : 'Workout Logger and Hydration stay free forever even after 90 days.'}
             </p>
           </div>
@@ -98,7 +98,7 @@ export const SettingsMembershipSection: React.FC<MembershipSectionProps> = ({ on
         <div className="pt-2 border-t border-white/[0.05] flex items-center justify-between">
           <div className="flex items-center gap-1.5 text-[10px] font-mono text-neutral-400">
             <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
-            <span>Private Cloud Sync • Zero 3rd-Party Trackers</span>
+            <span>Private backup • Zero 3rd-party trackers</span>
           </div>
 
           <button

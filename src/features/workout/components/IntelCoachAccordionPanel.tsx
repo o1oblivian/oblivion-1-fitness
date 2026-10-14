@@ -7,7 +7,6 @@ import {
   Dumbbell,
   Activity,
   Zap,
-  Check,
   ChevronDown,
   BatteryCharging,
   Droplets,
@@ -24,6 +23,9 @@ import {
 } from '../utils/intelPrescriptionGenerator';
 import { getAthleteWeightKg } from '../../../utils/physiologyEngine';
 import { IntelPrescriptionCard } from './IntelPrescriptionCard';
+import { IntelInsightsModal } from './IntelInsightsModal';
+import { useConsultationStore } from '../../induction/useConsultationStore';
+import type { Goal } from '../../induction/consultationTypes';
 
 interface IntelCoachAccordionPanelProps {
   onClose: () => void;
@@ -54,17 +56,42 @@ const MOVEMENT_FOCUS_OPTIONS = [
   'Olympic & Power',
 ] as const;
 
+const PILL_OFF = 'bg-[#000000] text-[#FFFFFF] border border-white/[0.14] hover:bg-white/[0.06]';
+const PILL_ON = 'bg-[#FFFFFF] text-[#111113] border border-[#FFFFFF]';
+const PILL_SUB_OFF = 'text-o1-muted';
+const PILL_SUB_ON = 'text-[#111113]/60';
+
+const GOAL_CARDS: { key: TrainingGoal; label: string; sub: string; icon: typeof Flame; color: string }[] = [
+  { key: 'burn', label: 'Burn calories', sub: 'Sweat and fitness', icon: Flame, color: 'text-o1-crimson' },
+  { key: 'muscle', label: 'Build muscle', sub: 'Size and strength', icon: Dumbbell, color: 'text-o1-crimson' },
+  { key: 'reset', label: 'Reset and move', sub: 'Easy mobility and recovery', icon: Activity, color: 'text-sky-600' },
+  { key: 'athletic', label: 'Athletic', sub: 'Speed and power', icon: Zap, color: 'text-sky-600' },
+];
+
+const GOAL_MODE: Record<Goal, TrainingGoal> = {
+  muscle: 'muscle',
+  strength: 'muscle',
+  fat_loss: 'burn',
+  fitness: 'burn',
+  sport: 'athletic',
+  mobility: 'reset',
+};
+
 export const IntelCoachAccordionPanel: React.FC<IntelCoachAccordionPanelProps> = ({
   onClose,
   onDeployProtocol,
 }) => {
   const [energyLevel, setEnergyLevel] = useState<EnergyLevel>('STEADY');
-  const [trainingGoal, setTrainingGoal] = useState<TrainingGoal>('muscle');
+  const [trainingGoal, setTrainingGoal] = useState<TrainingGoal>(() => {
+    const { goal } = useConsultationStore.getState();
+    return goal ? GOAL_MODE[goal] : 'muscle';
+  });
   const [movementFocus, setMovementFocus] = useState<string>('Full Body');
-  const [selectedDuration, setSelectedDuration] = useState<number>(45);
+  const [selectedDuration, setSelectedDuration] = useState<number>(() => useConsultationStore.getState().sessionMinutes || 45);
   const [isDurationModalOpen, setIsDurationModalOpen] = useState(false);
   const [prescription, setPrescription] = useState<ExerciseItem[] | null>(null);
   const [isDesigning, setIsDesigning] = useState(false);
+  const [isLoadReportOpen, setIsLoadReportOpen] = useState(false);
 
   const { deployProtocol, setActiveSession, setMode } = useWorkoutStore();
   const athleteWeightKg = getAthleteWeightKg();
@@ -143,39 +170,47 @@ export const IntelCoachAccordionPanel: React.FC<IntelCoachAccordionPanelProps> =
             <SlidersHorizontal className="w-4 h-4 stroke-[2]" />
           </div>
           <div>
-            <h3 className="font-mono text-xs font-bold tracking-wider text-white leading-tight">
-              Intel Session Engine
+            <h3 className="font-mono text-xs font-medium tracking-wider text-white leading-tight">
+              Build my workout
             </h3>
             <p className="text-[11px] text-neutral-400 leading-tight mt-0.5">
-              Autoregulated training prescription
+              Made for how you feel today
             </p>
           </div>
         </div>
-        <span className="text-[10px] font-mono font-bold text-o1-crimson bg-o1-crimson/10 border border-o1-crimson/30 px-2.5 py-1 rounded-xl tracking-wider">
-          Intel Adaptive
-        </span>
+        <button
+          type="button"
+          onClick={() => {
+            tactileEngine.triggerSelectionBuzz();
+            setIsLoadReportOpen(true);
+          }}
+          className="min-h-[44px] px-3 rounded-full bg-o1-well border border-white/[0.1] hover:border-white/[0.2] text-[11px] font-mono font-medium text-white tracking-wider flex items-center gap-1.5 cursor-pointer active:scale-95 transition-all"
+        >
+          <Activity className="w-3.5 h-3.5 text-[#d97706]" />
+          Today's report
+        </button>
       </div>
 
       {/* 1. ENERGY CHECK-IN */}
       <div className="space-y-1.5">
         <div className="flex items-center justify-between">
-          <span className="text-[11px] font-bold text-neutral-300 tracking-wider font-mono">
-            1. Energy CHECK-IN
+          <span className="text-[11px] font-medium text-neutral-300 tracking-wider font-mono">
+            How do you feel today?
           </span>
           <span className="text-[11px] font-mono font-medium text-neutral-400">
             {energyLevel === 'LOW'
-              ? 'Reset & Ease'
+              ? 'Take it easy'
               : energyLevel === 'PRIME'
-              ? 'Full Attack'
-              : 'Standard Baseline'}
+              ? 'Go hard'
+              : 'Normal session'}
           </span>
         </div>
         <div className="grid grid-cols-3 gap-2">
           {(
             [
-              { key: 'LOW', label: 'LOW', sub: 'Reset & Ease', icon: Droplets, color: 'text-sky-500' },
-              { key: 'STEADY', label: 'STEADY', sub: 'Solid Work', icon: Zap, color: 'text-amber-500' },
-              { key: 'PRIME', label: 'PRIME', sub: 'Full Attack', icon: BatteryCharging, color: 'text-emerald-500' },
+              { key: 'LOW', label: 'Tired', sub: 'Take it easy', icon: Droplets, color: 'text-sky-500' },
+              { key: 'STEADY', label: 'Okay', sub: 'Normal session', icon: Zap, color: 'text-amber-500' },
+              { key: 'PRIME', label: 'Great', sub: 'Go hard', icon: BatteryCharging, color: 'text-emerald-500' },
             ] as const
           ).map((lvl) => {
             const isSelected = energyLevel === lvl.key;
@@ -188,31 +223,15 @@ export const IntelCoachAccordionPanel: React.FC<IntelCoachAccordionPanelProps> =
                   tactileEngine.triggerSelectionBuzz();
                   setEnergyLevel(lvl.key);
                 }}
-                className={`py-2 px-2.5 rounded-2xl border text-center transition-all cursor-pointer ${
-                  isSelected
-                    ? 'bg-white text-neutral-950 border-transparent shadow-md'
-                    : 'bg-o1-well text-neutral-300 border-white/[0.07] hover:border-white/[0.14]'
-                }`}
+                className={`py-2 px-2.5 rounded-full text-center transition-all cursor-pointer active:scale-[0.98] ${isSelected ? PILL_ON : PILL_OFF}`}
               >
                 <div className="flex items-center justify-center gap-1.5 mb-0.5">
-                  <span className="text-xs font-bold font-mono tracking-wider">
+                  <span className="text-xs font-medium font-mono tracking-wider">
                     {lvl.label}
                   </span>
-                  <Icon
-                    className={`w-3.5 h-3.5 ${
-                      isSelected
-                        ? lvl.color
-                        : 'text-neutral-500'
-                    }`}
-                  />
+                  <Icon className={`w-3.5 h-3.5 ${isSelected ? 'text-current' : lvl.color}`} />
                 </div>
-                <span
-                  className={`text-[10px] block truncate font-medium ${
-                    isSelected
-                      ? 'text-neutral-600'
-                      : 'text-neutral-400'
-                  }`}
-                >
+                <span className={`text-[10px] block truncate font-medium ${isSelected ? PILL_SUB_ON : PILL_SUB_OFF}`}>
                   {lvl.sub}
                 </span>
               </button>
@@ -223,139 +242,38 @@ export const IntelCoachAccordionPanel: React.FC<IntelCoachAccordionPanelProps> =
 
       {/* 2. TRAINING GOAL MODE */}
       <div className="space-y-1.5">
-        <span className="text-[11px] font-bold text-neutral-300 tracking-wider font-mono">
-          2. training goal mode
+        <span className="text-[11px] font-medium text-neutral-300 tracking-wider font-mono">
+          What do you want from it?
         </span>
         <div className="grid grid-cols-2 gap-2">
-          {/* Card 1: Burn kcal */}
-          <button
-            type="button"
-            onClick={() => {
-              tactileEngine.triggerSelectionBuzz();
-              setTrainingGoal('burn');
-            }}
-            className={`p-3 rounded-2xl border text-left transition-all cursor-pointer relative ${
-              trainingGoal === 'burn'
-                ? 'bg-white text-neutral-950 border-transparent shadow-md'
-                : 'bg-o1-well text-neutral-300 border-white/[0.07] hover:border-white/[0.14]'
-            }`}
-          >
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-xs font-bold">Burn kcal</span>
-              <Flame className="w-4 h-4 text-o1-crimson" />
-            </div>
-            <p
-              className={`text-[10px] ${
-                trainingGoal === 'burn'
-                  ? 'text-neutral-600 font-medium'
-                  : 'text-neutral-400'
-              }`}
-            >
-              Metabolic Torch
-            </p>
-          </button>
-
-          {/* Card 2: Build Muscle (Selected in Screenshot) */}
-          <button
-            type="button"
-            onClick={() => {
-              tactileEngine.triggerSelectionBuzz();
-              setTrainingGoal('muscle');
-            }}
-            className={`p-3 rounded-2xl border text-left transition-all cursor-pointer relative ${
-              trainingGoal === 'muscle'
-                ? 'bg-white text-neutral-950 border-transparent shadow-md'
-                : 'bg-o1-well text-neutral-300 border-white/[0.07] hover:border-white/[0.14]'
-            }`}
-          >
-            <div className="flex items-center justify-between mb-1">
-              <div className="flex items-center gap-1.5">
-                <span className="text-xs font-bold">Build Muscle</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <Dumbbell className="w-4 h-4 text-o1-crimson" />
-                {trainingGoal === 'muscle' && (
-                  <Check className="w-3.5 h-3.5 text-o1-crimson stroke-[3]" />
-                )}
-              </div>
-            </div>
-            <p
-              className={`text-[10px] ${
-                trainingGoal === 'muscle'
-                  ? 'text-neutral-600 font-medium'
-                  : 'text-neutral-400'
-              }`}
-            >
-              Hypertrophy
-            </p>
-          </button>
-
-          {/* Card 3: Reset & Move */}
-          <button
-            type="button"
-            onClick={() => {
-              tactileEngine.triggerSelectionBuzz();
-              setTrainingGoal('reset');
-            }}
-            className={`p-3 rounded-2xl border text-left transition-all cursor-pointer relative ${
-              trainingGoal === 'reset'
-                ? 'bg-white text-neutral-950 border-transparent shadow-md'
-                : 'bg-o1-well text-neutral-300 border-white/[0.07] hover:border-white/[0.14]'
-            }`}
-          >
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-xs font-bold">Reset &amp; Move</span>
-              <Activity className="w-4 h-4 text-sky-500" />
-            </div>
-            <p
-              className={`text-[10px] ${
-                trainingGoal === 'reset'
-                  ? 'text-neutral-600 font-medium'
-                  : 'text-neutral-400'
-              }`}
-            >
-              Recovery &amp; Joint Flow
-            </p>
-          </button>
-
-          {/* Card 4: Athletic Peak */}
-          <button
-            type="button"
-            onClick={() => {
-              tactileEngine.triggerSelectionBuzz();
-              setTrainingGoal('athletic');
-            }}
-            className={`p-3 rounded-2xl border text-left transition-all cursor-pointer relative ${
-              trainingGoal === 'athletic'
-                ? 'bg-white text-neutral-950 border-transparent shadow-md'
-                : 'bg-o1-well text-neutral-300 border-white/[0.07] hover:border-white/[0.14]'
-            }`}
-          >
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-xs font-bold">Athletic Peak</span>
-              <Zap className="w-4 h-4 text-sky-500" />
-            </div>
-            <p
-              className={`text-[10px] ${
-                trainingGoal === 'athletic'
-                  ? 'text-neutral-600 font-medium'
-                  : 'text-neutral-400'
-              }`}
-            >
-              Speed &amp; Explosiveness
-            </p>
-          </button>
+          {GOAL_CARDS.map(({ key, label, sub, icon: Icon, color }) => {
+            const isSelected = trainingGoal === key;
+            return (
+              <button
+                key={key}
+                type="button"
+                onClick={() => {
+                  tactileEngine.triggerSelectionBuzz();
+                  setTrainingGoal(key);
+                }}
+                className={`px-4 py-2 rounded-full text-left transition-all cursor-pointer active:scale-[0.98] ${isSelected ? PILL_ON : PILL_OFF}`}
+              >
+                <div className="flex items-center justify-between gap-1.5">
+                  <span className="text-xs font-medium truncate">{label}</span>
+                  <Icon className={`w-4 h-4 shrink-0 ${isSelected ? 'text-current' : color}`} />
+                </div>
+                <p className={`text-[10px] truncate ${isSelected ? PILL_SUB_ON : PILL_SUB_OFF}`}>{sub}</p>
+              </button>
+            );
+          })}
         </div>
       </div>
 
       {/* 3. AVAILABLE DURATION */}
       <div className="space-y-1.5">
         <div className="flex items-center justify-between">
-          <span className="text-[11px] font-bold text-neutral-300 tracking-wider font-mono">
-            3. Available Duration
-          </span>
-          <span className="text-[11px] font-mono font-medium text-neutral-400">
-            {selectedDuration} Minutes Selected
+          <span className="text-[11px] font-medium text-neutral-300 tracking-wider font-mono">
+            How long have you got?
           </span>
         </div>
         <button
@@ -364,15 +282,15 @@ export const IntelCoachAccordionPanel: React.FC<IntelCoachAccordionPanelProps> =
             tactileEngine.triggerSelectionBuzz();
             setIsDurationModalOpen(true);
           }}
-          className="w-full p-3.5 rounded-2xl border border-white/[0.07] bg-o1-well hover:bg-white/[0.06] flex items-center justify-between transition-all cursor-pointer"
+          className={`w-full px-4 py-2.5 rounded-full flex items-center justify-between transition-all cursor-pointer active:scale-[0.99] ${PILL_OFF}`}
         >
           <div className="flex items-center gap-2.5">
-            <Clock className="w-4 h-4 text-neutral-400" />
-            <span className="text-xs font-bold text-white">
-              {selectedDuration} Minutes — {selectedDuration}m {getDurationSubLabel(selectedDuration)}
+            <Clock className="w-4 h-4 text-[#111113]/60" />
+            <span className="text-xs font-medium">
+              {selectedDuration} minutes · {getDurationSubLabel(selectedDuration)}
             </span>
           </div>
-          <ChevronDown className="w-4 h-4 text-neutral-400" />
+          <ChevronDown className="w-4 h-4 text-[#111113]/60" />
         </button>
       </div>
 
@@ -380,8 +298,8 @@ export const IntelCoachAccordionPanel: React.FC<IntelCoachAccordionPanelProps> =
       <div className="space-y-1.5">
         <div className="flex items-center gap-1.5">
           <Compass className="w-3.5 h-3.5 text-neutral-400" />
-          <span className="text-[11px] font-bold text-neutral-300 tracking-wider font-mono">
-            4. Movement Focus
+          <span className="text-[11px] font-medium text-neutral-300 tracking-wider font-mono">
+            What to train
           </span>
         </div>
         <div className="flex flex-wrap gap-1.5">
@@ -395,11 +313,7 @@ export const IntelCoachAccordionPanel: React.FC<IntelCoachAccordionPanelProps> =
                   tactileEngine.triggerSelectionBuzz();
                   setMovementFocus(foc);
                 }}
-                className={`py-1.5 px-3 rounded-full text-xs font-medium transition-all cursor-pointer ${
-                  isSelected
-                    ? 'bg-white text-neutral-950 font-bold shadow-xs border border-transparent'
-                    : 'bg-o1-well text-neutral-300 border border-white/[0.07] hover:border-white/[0.14]'
-                }`}
+                className={`py-1.5 px-3 rounded-full text-xs font-medium transition-all cursor-pointer active:scale-[0.97] ${isSelected ? PILL_ON : PILL_OFF}`}
               >
                 {foc}
               </button>
@@ -410,7 +324,7 @@ export const IntelCoachAccordionPanel: React.FC<IntelCoachAccordionPanelProps> =
 
       {/* Execution Footer matching Screenshot 1 & 3 */}
       <div className="pt-2 flex items-center justify-between gap-3 border-t border-white/[0.05]">
-        <div className="flex items-center gap-3 text-xs font-mono font-bold text-neutral-300">
+        <div className="flex items-center gap-3 text-xs font-mono font-medium text-neutral-300">
           <span className="flex items-center gap-1">
             <Clock className="w-3.5 h-3.5 text-neutral-500" />
             {selectedDuration}m
@@ -424,10 +338,10 @@ export const IntelCoachAccordionPanel: React.FC<IntelCoachAccordionPanelProps> =
           type="button"
           disabled={isDesigning}
           onClick={handleDesignSession}
-          className="px-5 py-2.5 rounded-full bg-white text-neutral-950 hover:bg-neutral-100 active:scale-95 font-mono text-xs font-bold tracking-wider shadow-sm flex items-center gap-2 cursor-pointer transition-all shrink-0"
+          className="px-5 py-2.5 rounded-full bg-o1-crimson hover:bg-o1-crimson-hover active:bg-o1-crimson-press text-white active:scale-95 font-mono text-xs font-medium tracking-wider shadow-sm flex items-center gap-2 cursor-pointer transition-all shrink-0"
         >
-          <Zap className="w-3.5 h-3.5 text-o1-crimson fill-o1-crimson" />
-          <span>{isDesigning ? 'Synthesizing...' : 'Design Session'}</span>
+          <Zap className="w-3.5 h-3.5" />
+          <span>{isDesigning ? 'Building…' : 'Build workout'}</span>
         </button>
       </div>
 
@@ -447,6 +361,8 @@ export const IntelCoachAccordionPanel: React.FC<IntelCoachAccordionPanelProps> =
         onSelect={(min) => setSelectedDuration(min)}
         onClose={() => setIsDurationModalOpen(false)}
       />
+
+      <IntelInsightsModal isOpen={isLoadReportOpen} onClose={() => setIsLoadReportOpen(false)} initialTab="today" />
     </div>
   );
 };

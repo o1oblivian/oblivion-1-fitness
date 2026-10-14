@@ -21,7 +21,7 @@ export const PrivacyPolicyModal: React.FC<Props> = ({ isOpen, onClose, onDeleteR
             </div>
             <div>
               <h2 className="text-sm font-black tracking-wider text-neutral-100">Privacy &amp; Data Sanctuary Policy</h2>
-              <p className="text-[10px] font-mono text-neutral-400">100% Local-First · Zero-Cloud Architecture</p>
+              <p className="text-[10px] font-mono text-neutral-400">Local-first · Private backup</p>
             </div>
           </div>
           <button
@@ -34,14 +34,14 @@ export const PrivacyPolicyModal: React.FC<Props> = ({ isOpen, onClose, onDeleteR
         </div>
 
         <div className="overflow-y-auto no-scrollbar py-3 space-y-0 text-xs font-mono text-neutral-300 leading-relaxed">
-          {/* Section 1: Zero-Cloud Sovereign Device Architecture */}
+          {/* Section 1: Local-first storage and private backup */}
           <div className="py-3 border-b border-white/[0.05] space-y-1.5 last:border-0">
             <div className="flex items-center gap-1.5 text-sky-400 font-bold text-[11px]">
               <Lock className="w-3.5 h-3.5" />
-              <span>1. Zero-Cloud Sovereign Sanctuary (On-Device Storage)</span>
+              <span>1. Local-First Storage &amp; Private Backup</span>
             </div>
             <p className="text-[11px] text-neutral-400">
-              Oblivion 1 Fitness Club operates on a strict <strong>100% Local-First, Zero-Cloud Architecture</strong>. Your device is the absolute source of truth. All workout logs, sets, reps, bodyweight metrics, macronutrient records, hydration telemetry, and coach rosters write directly to encrypted on-device storage. Telemetry is never transmitted to, hosted on, or harvested by corporate cloud servers or external databases.
+              Workout logs, sets, reps, bodyweight, nutrition and hydration records are saved on your device first. When you are signed in, they are <strong>backed up to your private Oblivion 1 account</strong> so they survive a lost or replaced phone. Only you, and a coach you choose to share with, can read them. Your data is never sold or shared with advertisers.
             </p>
           </div>
 
@@ -52,29 +52,39 @@ export const PrivacyPolicyModal: React.FC<Props> = ({ isOpen, onClose, onDeleteR
               <span>2. Zero Third-Party Trackers, Pixels, or Data Brokers</span>
             </div>
             <p className="text-[11px] text-neutral-400">
-              In full compliance with Apple App Tracking Transparency (ATT) and Google Play User Data policies, this application contains <strong>zero third-party tracking pixels, zero marketing SDKs, and zero behavioral telemetry scrapers</strong>. Your physical strain, heart rate data, and workout schedules remain entirely confined to your hardware.
+              In full compliance with Apple App Tracking Transparency (ATT) and Google Play User Data policies, this application contains <strong>zero third-party tracking pixels, zero marketing SDKs, and zero behavioral telemetry scrapers</strong>. Your strain, heart rate and workout data are never used for advertising.
             </p>
           </div>
 
-          {/* Section 3: Camera, Vision & On-Device Processing */}
+          {/* Section 3: Camera scans */}
           <div className="py-3 border-b border-white/[0.05] space-y-1.5 last:border-0">
             <div className="flex items-center gap-1.5 text-amber-400 font-bold text-[11px]">
               <Camera className="w-3.5 h-3.5" />
-              <span>3. Camera &amp; Vision Scanner Ephemeral Processing</span>
+              <span>3. Camera Scans</span>
             </div>
             <p className="text-[11px] text-neutral-400">
-              Cardio console photos and meal scan images are processed in-flight via local client buffers for biometric OCR and nutrition estimation. Images are never permanently retained or uploaded to external cloud storage.
+              Cardio console and meal scan photos are sent securely to our scanning service only to read the numbers on them. Scan photos are not saved to your account.
             </p>
           </div>
 
-          {/* Section 4: User-Owned Air-Gapped Backups */}
+          <div className="py-3 border-b border-white/[0.05] space-y-1.5 last:border-0">
+            <div className="flex items-center gap-1.5 text-amber-400 font-bold text-[11px]">
+              <Activity className="w-3.5 h-3.5" />
+              <span>4. No Medical Records</span>
+            </div>
+            <p className="text-[11px] text-neutral-400">
+              Oblivion 1 is not a medical app. We do not ask for, collect or store diagnoses, injuries, medications or medical history. Sleep and heart rate you choose to log are used only to show your own readiness and reports, and are never shared with insurers, employers or advertisers.
+            </p>
+          </div>
+
+          {/* Section 4: User-owned export */}
           <div className="py-3 border-b border-white/[0.05] space-y-1.5 last:border-0">
             <div className="flex items-center gap-1.5 text-sky-400 font-bold text-[11px]">
               <Lock className="w-3.5 h-3.5" />
-              <span>4. Air-Gapped User-Owned Data Vaults (.o1fc)</span>
+              <span>5. Your Data Export (.o1fc)</span>
             </div>
             <p className="text-[11px] text-neutral-400">
-              You own your data completely. Athletes can export a full, unencrypted or encrypted archive of their training history at any time via Settings &rarr; GDPR Vault Export. This archive lives solely on your local device storage, personal iCloud, or personal drive. Oblivion 1 never sees or touches it.
+              You own your data completely. Athletes can export a full, unencrypted or encrypted archive of their training history at any time via Settings &rarr; GDPR Vault Export. The exported file lives wherever you save it. Oblivion 1 never sees or touches it.
             </p>
           </div>
 
@@ -82,7 +92,7 @@ export const PrivacyPolicyModal: React.FC<Props> = ({ isOpen, onClose, onDeleteR
           <div className="py-3 border-b border-white/[0.05] space-y-1.5 last:border-0">
             <div className="flex items-center gap-1.5 text-o1-crimson font-bold text-[11px]">
               <Trash2 className="w-3.5 h-3.5" />
-              <span>5. Unconditional Account &amp; Telemetry Erasure (GDPR / CCPA)</span>
+              <span>6. Unconditional Account &amp; Telemetry Erasure (GDPR / CCPA)</span>
             </div>
             <p className="text-[11px] text-neutral-400">
               In accordance with Apple App Store Guideline 5.1.1(v) and Google Play Safety standards, athletes have the permanent right to delete their profile. Tapping "Delete Athlete Account" immediately clears all on-device records, caches, and cryptographic keys irreversibly.

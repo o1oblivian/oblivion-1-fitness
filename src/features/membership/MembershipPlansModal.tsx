@@ -10,6 +10,7 @@ import { MembershipPlanCard } from './components/MembershipPlanCard';
 import { MembershipPlanFeatures } from './components/MembershipPlanFeatures';
 import { getAuthenticatedUserId } from '../../services/authUser';
 import { MembershipCheckoutModal } from './components/MembershipCheckoutModal';
+import { useStorePrices } from './planCatalog';
 
 export interface MembershipPlansModalProps {
   isOpen: boolean;
@@ -48,7 +49,8 @@ export const MembershipPlansModal: React.FC<MembershipPlansModalProps> = ({
     isFree: false,
     userType: 'athlete',
   });
-  const { purchasePro, restorePurchases } = useSubscription();
+  const { activatePlan, restorePurchases } = useSubscription();
+  const priceOf = useStorePrices();
 
   useEffect(() => {
     if (!isOpen) return;
@@ -139,7 +141,7 @@ export const MembershipPlansModal: React.FC<MembershipPlansModalProps> = ({
         const res = await revenueCatService.purchasePackage(selectedProductId, uid);
         if (res.success) {
           tactileEngine.playPRCelebration();
-          await purchasePro(selectedProductId);
+          await activatePlan(selectedProductId);
           if (onCheckout) onCheckout(selectedProductId);
           if (onSelectPlan) onSelectPlan(selectedProductId);
           onShowToast?.(`Subscribed to ${currentSelected.name}`);
@@ -239,7 +241,7 @@ export const MembershipPlansModal: React.FC<MembershipPlansModalProps> = ({
                     Launch special
                   </span>
                   <p className="text-[11px] text-neutral-400 mt-0.5 leading-snug">
-                    <strong className="text-white">{IAP_PRODUCTS.founder_pass.price} Lifetime Founder Pass</strong> — Training OS Pro + Global Radar forever.
+                    <strong className="text-white">{priceOf(IAP_PRODUCTS.founder_pass)} Lifetime Founder Pass</strong> — Training OS Pro + Global Radar forever.
                   </p>
                 </div>
               </div>
@@ -250,7 +252,7 @@ export const MembershipPlansModal: React.FC<MembershipPlansModalProps> = ({
               {currentProducts.map((p) => (
                 <MembershipPlanCard
                   key={p.productId}
-                  product={p}
+                  product={{ ...p, price: priceOf(p) }}
                   isSelected={selectedProductId === p.productId}
                   onSelect={setSelectedProductId}
                 />
@@ -340,7 +342,7 @@ export const MembershipPlansModal: React.FC<MembershipPlansModalProps> = ({
         onSuccess={async (tier) => {
           if (onCheckout) onCheckout(tier);
           if (onSelectPlan) onSelectPlan(tier);
-          await purchasePro(tier);
+          await activatePlan(tier);
           onClose();
         }}
         onShowToast={onShowToast}

@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { safeStorage } from '../../../utils/sanitizers';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { getAuthenticatedUserId } from '../../../services/authUser';
+import { registerExternalQueue } from '../../../services/syncOutbox';
 import { getTelemetryHistoryState } from '../../log/store/useTelemetryHistoryStore';
 import {
   CloudMeal,
@@ -381,6 +382,14 @@ export const useFuelStore = create<FuelState>((set, get) => {
   if (typeof window !== 'undefined') {
     window.addEventListener('online', () => void flush());
   }
+  registerExternalQueue('fuel', {
+    flush,
+    pending: () =>
+      outbox.inserts.length +
+      outbox.deletes.length +
+      (Object.keys(outbox.profile).length > 0 ? 1 : 0) +
+      Object.keys(outbox.days).length,
+  });
 
   return {
     ...boot.profile,

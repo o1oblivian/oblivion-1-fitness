@@ -43,17 +43,17 @@ export const ProgramDetailModal: React.FC<ProgramDetailModalProps> = ({
           {/* Program Title Overlay */}
           <div className="absolute bottom-3 left-4 right-4">
             <div className="flex items-center gap-2 mb-1">
-              <span className="text-[9px] font-telemetry bg-[#C4121A] text-white px-2 py-0.5 rounded font-bold tracking-wider">
+              <span className="text-[9px] font-telemetry bg-[#C4121A] text-white px-2 py-0.5 rounded font-medium tracking-wider">
                 Tactical Protocol
               </span>
-              <span className="text-[9px] font-telemetry bg-black/60 text-sky-400 px-2 py-0.5 rounded font-bold border border-sky-500/30">
+              <span className="text-[9px] font-telemetry bg-black/60 text-sky-600 px-2 py-0.5 rounded font-medium border border-sky-500/30">
                 Verified
               </span>
             </div>
-            <h2 className="font-tactical font-black text-xl tracking-wider text-white">
+            <h2 className="font-tactical font-light text-xl tracking-wider text-white">
               {programTitle}
             </h2>
-            <p className="text-[11px] font-telemetry text-zinc-300">
+            <p className="text-[11px] font-telemetry text-neutral-300">
               {program.subtitle}
             </p>
           </div>
@@ -64,19 +64,19 @@ export const ProgramDetailModal: React.FC<ProgramDetailModalProps> = ({
           {/* Tags */}
           <div className="grid grid-cols-2 gap-2">
             <div className="bg-o1-card border border-white/[0.07] p-3 rounded-2xl">
-              <span className="text-[9px] font-telemetry text-zinc-500 block">
+              <span className="text-[9px] font-telemetry text-neutral-500 block">
                 Primary Focus
               </span>
-              <span className="font-tactical font-bold text-xs text-[#4F8F9A] mt-0.5 block">
+              <span className="font-tactical font-medium text-xs text-[#4F8F9A] mt-0.5 block">
                 {program.focus}
               </span>
             </div>
 
             <div className="bg-o1-card border border-white/[0.07] p-3 rounded-2xl">
-              <span className="text-[9px] font-telemetry text-zinc-500 block">
+              <span className="text-[9px] font-telemetry text-neutral-500 block">
                 Athlete Tier
               </span>
-              <span className="font-tactical font-bold text-xs text-[#4F8F9A] mt-0.5 block">
+              <span className="font-tactical font-medium text-xs text-[#4F8F9A] mt-0.5 block">
                 {program.level}
               </span>
             </div>
@@ -85,10 +85,10 @@ export const ProgramDetailModal: React.FC<ProgramDetailModalProps> = ({
           {/* Exercise List */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-[10px] font-telemetry text-zinc-400 tracking-wider font-bold">
+              <span className="text-[10px] font-telemetry text-neutral-400 tracking-wider font-medium">
                 Session Exercise Schedule
               </span>
-              <span className="text-[10px] font-telemetry text-zinc-500">
+              <span className="text-[10px] font-telemetry text-neutral-500">
                 {program.exercises.length} MOVEMENTS
               </span>
             </div>
@@ -100,20 +100,20 @@ export const ProgramDetailModal: React.FC<ProgramDetailModalProps> = ({
                   className="bg-o1-card border border-white/[0.07] rounded-2xl p-3 flex items-center justify-between"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-6 h-6 rounded-lg bg-white/[0.08] border border-white/[0.07] flex items-center justify-center font-telemetry font-bold text-xs text-zinc-300">
+                    <div className="w-6 h-6 rounded-lg bg-white/[0.08] border border-white/[0.07] flex items-center justify-center font-telemetry font-medium text-xs text-neutral-300">
                       {idx + 1}
                     </div>
                     <div>
-                      <h4 className="font-tactical font-bold text-xs text-white">
+                      <h4 className="font-tactical font-medium text-xs text-white">
                         {ex.name}
                       </h4>
-                      <p className="text-[10px] font-telemetry text-zinc-400">
+                      <p className="text-[10px] font-telemetry text-neutral-400">
                         {ex.sets} • {ex.reps}
                       </p>
                     </div>
                   </div>
 
-                  <span className="text-[10px] font-telemetry font-bold text-zinc-300 bg-white/[0.08] px-2 py-1 rounded-xl border border-white/[0.07]">
+                  <span className="text-[10px] font-telemetry font-medium text-neutral-300 bg-white/[0.08] px-2 py-1 rounded-xl border border-white/[0.07]">
                     {ex.load}
                   </span>
                 </div>
@@ -130,7 +130,7 @@ export const ProgramDetailModal: React.FC<ProgramDetailModalProps> = ({
               onLoadWorkouts(programTitle);
               onClose();
             }}
-            className="w-full py-3.5 rounded-2xl bg-[#C4121A] hover:bg-o1-crimson text-white font-tactical text-xs font-bold tracking-wider active:scale-95 transition-all flex items-center justify-center gap-2"
+            className="w-full py-3.5 rounded-2xl bg-[#C4121A] hover:bg-o1-crimson text-white font-tactical text-xs font-medium tracking-wider active:scale-95 transition-all flex items-center justify-center gap-2"
           >
             <Dumbbell className="w-4 h-4" />
             <span>LOAD &amp; APPEND 7 WORKOUTS</span>

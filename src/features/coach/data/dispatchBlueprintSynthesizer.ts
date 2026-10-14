@@ -743,7 +743,7 @@ export function synthesizeDailyBlueprint(
       return {
         id: `bp-hyrox-${duration}-${gear.replace(/\s+/g, '')}`,
         vector: 'Hyrox/Metcon',
-        title: 'O1FC Hyrox & Metcon • Engine Capacity',
+        title: 'O1FC Conditioning & Metcon • Engine Capacity',
         tagline: 'Sled Drive, Ergometer Pacing, Grip Strength & Lung Capacity',
         durationMins: config.mins,
         movesCount: config.moves,

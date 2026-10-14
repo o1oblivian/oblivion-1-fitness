@@ -1,6 +1,8 @@
-import React from 'react';
-import { Download, LogOut, Trash2 } from 'lucide-react';
+import React, { useState } from 'react';
+import { AlertTriangle, Download, LogOut, Trash2 } from 'lucide-react';
 import { tactileEngine } from '../../services/tactileEngine';
+import { flushSync, useSyncStatus } from '../../services/syncOutbox';
+import { safeStorage } from '../../utils/safeStorage';
 
 interface FooterActionsProps {
   onLogout: () => void;
@@ -13,12 +15,38 @@ export const SettingsFooterSection: React.FC<FooterActionsProps> = ({
   onDeleteAccount,
   onExportData,
 }) => {
-  const activeEmail =
-    (typeof window !== 'undefined' && window.localStorage.getItem('o1fc_user_email')) ||
-    'athlete@oblivion1.club';
+  const { pending, online, syncing } = useSyncStatus();
+  const [confirmSignOut, setConfirmSignOut] = useState(false);
+  const activeEmail = safeStorage.getItem<string>('o1fc_user_email', '') || 'athlete@oblivion1.club';
+  const changes = `${pending} unsynced ${pending === 1 ? 'change' : 'changes'}`;
 
   return (
     <div className="space-y-2 pt-1 pb-4 select-none">
+      {pending > 0 && (
+        <div role="alert" className="rounded-2xl border border-o1-crimson/50 bg-o1-crimson/10 p-3 flex items-start gap-2.5">
+          <AlertTriangle className="w-4 h-4 text-o1-crimson shrink-0 mt-0.5" />
+          <div className="min-w-0 flex-1">
+            <p className="text-xs font-semibold text-white">{changes} on this phone</p>
+            <p className="text-[11px] text-neutral-300 leading-snug">
+              Do not sign out or uninstall the app until they are backed up.
+              {!online && ' Connect to the internet to back them up.'}
+            </p>
+          </div>
+          {online && (
+            <button
+              type="button"
+              disabled={syncing}
+              onClick={() => {
+                tactileEngine.triggerSelectionBuzz();
+                void flushSync();
+              }}
+              className="shrink-0 text-[11px] font-semibold text-white underline disabled:opacity-50 cursor-pointer"
+            >
+              {syncing ? 'Backing up…' : 'Back up now'}
+            </button>
+          )}
+        </div>
+      )}
       <div className="bg-o1-card rounded-2xl border border-white/[0.07] shadow-sm p-3 space-y-2.5">
         <div className="flex items-center justify-between">
           <div className="min-w-0">
@@ -52,7 +80,8 @@ export const SettingsFooterSection: React.FC<FooterActionsProps> = ({
             type="button"
             onClick={() => {
               tactileEngine.triggerSelectionBuzz();
-              onLogout();
+              if (pending > 0) setConfirmSignOut(true);
+              else onLogout();
             }}
             className="o1-pill border border-white/[0.07] bg-o1-well hover:bg-white/[0.06] text-neutral-200 text-xs font-sans font-semibold transition-all active:scale-95 cursor-pointer"
           >
@@ -73,6 +102,64 @@ export const SettingsFooterSection: React.FC<FooterActionsProps> = ({
           </button>
         </div>
       </div>
+
+      {confirmSignOut && (
+        <div
+          role="alertdialog"
+          aria-modal="true"
+          aria-labelledby="unsynced-signout-title"
+          className="fixed inset-0 z-[80000] bg-black/85 o1-sheet-scrim flex items-center justify-center p-4"
+        >
+          <div className="w-full max-w-[360px] rounded-2xl bg-o1-sheet border border-white/[0.07] p-4 space-y-3">
+            <h3 id="unsynced-signout-title" className="text-sm font-semibold text-white">Unsynced data on this phone</h3>
+            <p className="text-xs text-neutral-300 leading-relaxed">
+              {pending > 0
+                ? `${changes} have not reached your account yet. Signing out deletes them from this phone for good.`
+                : 'Everything is backed up. You can sign out safely.'}
+            </p>
+            <div className="flex flex-col gap-2">
+              {pending > 0 && online && (
+                <button
+                  type="button"
+                  disabled={syncing}
+                  onClick={() => {
+                    tactileEngine.triggerSelectionBuzz();
+                    void flushSync();
+                  }}
+                  className="w-full min-h-[44px] rounded-xl bg-[#FFFFFF] text-[#111113] text-xs font-semibold disabled:opacity-60 cursor-pointer"
+                >
+                  {syncing ? 'Backing up…' : 'Back up now'}
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => {
+                  tactileEngine.triggerSelectionBuzz();
+                  setConfirmSignOut(false);
+                  onLogout();
+                }}
+                className={`w-full min-h-[44px] rounded-xl text-xs font-semibold cursor-pointer ${
+                  pending > 0
+                    ? 'border border-o1-crimson/50 text-o1-crimson bg-transparent'
+                    : 'bg-[#FFFFFF] text-[#111113]'
+                }`}
+              >
+                {pending > 0 ? 'Sign out anyway' : 'Sign out'}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  tactileEngine.triggerSelectionBuzz();
+                  setConfirmSignOut(false);
+                }}
+                className="w-full min-h-[44px] rounded-xl border border-white/[0.07] text-neutral-200 text-xs font-semibold cursor-pointer"
+              >
+                Wait
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

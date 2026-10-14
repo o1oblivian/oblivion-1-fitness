@@ -80,7 +80,7 @@ export const MealScanActions: React.FC<MealScanActionsProps> = ({
       {/* Tab 3: Plate Interactive Estimate Guide */}
       {scanMode === 'plate' && (
         <div className="p-3 rounded-2xl bg-o1-well border border-white/[0.07] text-center space-y-1">
-          <p className="text-xs font-mono font-bold text-neutral-200">Plate Nutrition Vision Engine</p>
+          <p className="text-xs font-mono font-bold text-neutral-200">Plate Nutrition Scanner</p>
           <p className="text-[10px] text-neutral-400">Visual portion mass estimation with real-time Atwater adjustment</p>
         </div>
       )}

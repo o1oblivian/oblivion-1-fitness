@@ -115,7 +115,7 @@ export const ScoreHero: React.FC<ScoreHeroProps> = ({ report, targetSessions, on
 
       <div className="flex gap-2 border-t border-white/[0.05] pt-3">
         {stat('Sets 7d', stats.setsLast7 > 0 ? String(stats.setsLast7) : '--')}
-        {stat('Tonnage 7d', stats.tonnageLast7Kg > 0 ? `${(stats.tonnageLast7Kg / 1000).toFixed(1)}t` : '--')}
+        {stat('Lifted, 7 days', stats.tonnageLast7Kg > 0 ? `${(stats.tonnageLast7Kg / 1000).toFixed(1)}t` : '--')}
         {stat('Load ratio', stats.acwr === null ? '--' : stats.acwr.toFixed(2))}
         {stat('Sleep', stats.avgSleepHours === null ? '--' : `${stats.avgSleepHours}h`)}
       </div>

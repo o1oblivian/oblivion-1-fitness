@@ -53,7 +53,7 @@ export const AutoModeFiltersRow: React.FC<AutoModeFiltersRowProps> = ({
             setIsEquipOpen(false);
             setIsVolOpen(false);
           }}
-          className="shrink-0 ml-2 h-8 px-3 rounded-full bg-o1-well border border-white/[0.07] text-xs font-medium text-zinc-400 hover:text-white flex items-center gap-1.5 cursor-pointer"
+          className="shrink-0 ml-2 h-8 px-3 rounded-full bg-o1-well border border-white/[0.07] text-xs font-medium text-neutral-400 hover:text-white flex items-center gap-1.5 cursor-pointer"
         >
           <SlidersHorizontal className="w-3 h-3" />
           Change
@@ -75,8 +75,8 @@ export const AutoModeFiltersRow: React.FC<AutoModeFiltersRowProps> = ({
                   }}
                   className={
                     isSelected
-                      ? 'bg-white text-neutral-950 text-xs font-semibold px-3 py-1 rounded-full whitespace-nowrap cursor-pointer'
-                      : 'bg-o1-well text-zinc-400 hover:text-white text-xs font-medium px-3 py-1 rounded-full whitespace-nowrap cursor-pointer border border-white/[0.07]'
+                      ? 'bg-o1-sheet text-o1-text border border-o1-crimson text-xs font-medium px-3 py-1 rounded-full whitespace-nowrap cursor-pointer'
+                      : 'bg-o1-well text-neutral-400 hover:text-white text-xs font-medium px-3 py-1 rounded-full whitespace-nowrap cursor-pointer border border-white/[0.07]'
                   }
                 >
                   {chip}

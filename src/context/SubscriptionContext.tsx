@@ -36,6 +36,8 @@ export interface SubscriptionContextType {
   currentPlan: string;
   trialState: TrialState;
   purchasePro: (planId?: string) => Promise<boolean>;
+  /** Reflects a plan the store already charged for; never opens checkout. */
+  activatePlan: (planId: string) => Promise<void>;
   restorePurchases: () => Promise<boolean>;
   isLoading: boolean;
   isPaywallOpen: boolean;
@@ -108,6 +110,16 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
     return res.success;
   }, []);
 
+  const activatePlan = useCallback(async (planId: string) => {
+    const uid = await getAuthenticatedUserId();
+    if (!uid) return;
+    activateProSubscription(uid, planId);
+    setTrial(getAthleteTrialState(uid));
+    setIsPro(true);
+    setCurrentPlan(planId);
+    setIsPaywallOpen(false);
+  }, []);
+
   const restorePurchases = useCallback(async () => {
     setIsLoading(true);
     const uid = await getAuthenticatedUserId();
@@ -152,6 +164,7 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
         currentPlan,
         trialState: trial,
         purchasePro,
+        activatePlan,
         restorePurchases,
         isLoading,
         isPaywallOpen,
@@ -175,6 +188,7 @@ export const useSubscription = (): SubscriptionContextType => {
       currentPlan: 'o1fc_core_free',
       trialState: getAthleteTrialState(''),
       purchasePro: async () => false,
+      activatePlan: async () => {},
       restorePurchases: async () => false,
       isLoading: false,
       isPaywallOpen: false,

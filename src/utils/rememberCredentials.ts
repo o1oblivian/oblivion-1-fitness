@@ -2,28 +2,12 @@ import { safeStorage } from './safeStorage';
 
 const FLAG_KEY = 'o1fc_remember_me';
 const EMAIL_KEY = 'o1fc_remember_email';
-const SECRET_KEY = 'o1fc_remember_secret';
+/** Older builds kept the password here. It is only ever deleted now. */
+const LEGACY_SECRET_KEY = 'o1fc_remember_secret';
 
 export interface RememberedCredentials {
   rememberMe: boolean;
   email: string;
-  password: string;
-}
-
-function encodeSecret(plain: string): string {
-  try {
-    return btoa(unescape(encodeURIComponent(plain)));
-  } catch {
-    return plain;
-  }
-}
-
-function decodeSecret(encoded: string): string {
-  try {
-    return decodeURIComponent(escape(atob(encoded)));
-  } catch {
-    return encoded;
-  }
 }
 
 function isRememberOn(raw: unknown): boolean {
@@ -32,30 +16,24 @@ function isRememberOn(raw: unknown): boolean {
 }
 
 export function loadRememberedCredentials(): RememberedCredentials {
+  safeStorage.removeItem(LEGACY_SECRET_KEY);
   const rememberMe = isRememberOn(safeStorage.getItem(FLAG_KEY, null));
   const email = String(safeStorage.getItem(EMAIL_KEY, '') || '');
-  const secret = String(safeStorage.getItem(SECRET_KEY, '') || '');
-  return {
-    rememberMe,
-    email: rememberMe ? email : '',
-    password: rememberMe && secret ? decodeSecret(secret) : '',
-  };
+  return { rememberMe, email: rememberMe ? email : '' };
 }
 
-export function persistRememberedCredentials(email: string, password: string): void {
-  const clean = email.trim().toLowerCase();
+export function persistRememberedEmail(email: string): void {
   safeStorage.setItem(FLAG_KEY, 'true');
-  safeStorage.setItem(EMAIL_KEY, clean);
-  if (password) safeStorage.setItem(SECRET_KEY, encodeSecret(password));
+  safeStorage.setItem(EMAIL_KEY, email.trim().toLowerCase());
 }
 
 export function clearRememberedCredentials(): void {
   safeStorage.setItem(FLAG_KEY, 'false');
   safeStorage.removeItem(EMAIL_KEY);
-  safeStorage.removeItem(SECRET_KEY);
+  safeStorage.removeItem(LEGACY_SECRET_KEY);
 }
 
-export function applyRememberPreference(rememberMe: boolean, email: string, password: string): void {
-  if (rememberMe && email.includes('@')) persistRememberedCredentials(email, password);
+export function applyRememberPreference(rememberMe: boolean, email: string): void {
+  if (rememberMe && email.includes('@')) persistRememberedEmail(email);
   else clearRememberedCredentials();
 }

@@ -5,10 +5,10 @@ import { CoachBookingDrawer, ProfileTab } from './components/CoachBookingDrawer'
 import { CoachDirectMessageModal } from './components/CoachDirectMessageModal';
 import { ShareLinkSheet } from './components/ShareLinkSheet';
 import { useEliteReelsLogic, CATEGORIES } from './hooks/useEliteReelsLogic';
-import { optionsIn, useClubTaxonomy } from '../induction/useClubTaxonomyStore';
 import { useReelsStore } from '../../stores/useReelsStore';
 import { ExploreCoach, ExploreReelItem } from './reelTypes';
 import { openCoachConsole } from '../coach/services/coachConsoleBus';
+import { isReelVisible, useReelSafetyStore, useVisibleReels } from './services/reelSafety';
 
 export interface EliteReelsHubProps {
   isOpen: boolean;
@@ -31,11 +31,11 @@ export const EliteReelsHub: React.FC<EliteReelsHubProps> = ({
   initialCoachId,
   initialProfileTab,
 }) => {
-  const taxonomy = useClubTaxonomy();
-  const discoveryChips = optionsIn(taxonomy, 'discovery').map((option) => option.label);
   const [viewMode, setViewMode] = useState<'grid' | 'player'>(initialMode);
   const [returnCoach, setReturnCoach] = useState<ExploreCoach | null>(null);
-  const library = useReelsStore((s) => s.reels);
+  const library = useVisibleReels(useReelsStore((s) => s.reels));
+  const hiddenReels = useReelSafetyStore((s) => s.hiddenReels);
+  const blockedCoaches = useReelSafetyStore((s) => s.blockedCoaches);
   const feedStatus = useReelsStore((s) => s.status);
   const loadFeed = useReelsStore((s) => s.loadFeed);
   const feedSettled = feedStatus === 'ready' || feedStatus === 'error';
@@ -45,12 +45,19 @@ export const EliteReelsHub: React.FC<EliteReelsHubProps> = ({
   }, [isOpen, loadFeed]);
 
   const {
-    selectedFilter, setSelectedFilter, searchQuery, setSearchQuery, activeReel, setActiveReel, activeClip, setActiveClip,
-    isPlaying, setIsPlaying, isMuted, videoRef, likedReels, likeCounts, savedReels, addedExercises,
+    setSelectedFilter, selectedCategory, setSelectedCategory, searchQuery, setSearchQuery, activeReel, setActiveReel, activeClip, setActiveClip,
+    isPlaying, setIsPlaying, videoRef, likedReels, likeCounts, savedReels, addedExercises,
     bookingCoach, setBookingCoach, messageCoach, setMessageCoach, setPlaylist, handleNextReel, handlePrevReel,
-    handleToggleLike, handleToggleSave, handleToggleMute, handleTogglePlay,
-    handleShare, handleAddExerciseToWorkout, filteredReels, coachesList, toast, flash, linkSheet, setLinkSheet,
+    handleToggleLike, handleToggleSave, handleTogglePlay,
+    handleShare, handleAddExerciseToWorkout, filteredReels, categoryCounts, coachesList, toast, flash, linkSheet, setLinkSheet,
   } = useEliteReelsLogic(initialCategory, initialFilter);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    setSelectedCategory(initialCategory);
+    setSelectedFilter(initialFilter);
+    setSearchQuery('');
+  }, [isOpen, initialCategory, initialFilter, setSelectedCategory, setSelectedFilter, setSearchQuery]);
 
   const openerDeps = useRef({ coachesList, flash, setBookingCoach, setActiveReel, setActiveClip, setPlaylist });
   useEffect(() => {
@@ -89,6 +96,15 @@ export const EliteReelsHub: React.FC<EliteReelsHubProps> = ({
     // Re-running when coachesList refreshes would reset whatever the member is watching.
   }, [isOpen, initialMode, initialReelId, initialCoachId, library, feedSettled]);
 
+  const activeHidden = Boolean(activeReel && !isReelVisible(activeReel, hiddenReels, blockedCoaches));
+  useEffect(() => {
+    if (!activeHidden) return;
+    const next = filteredReels[0];
+    setActiveReel(next ?? null);
+    setActiveClip(next?.filmstripClips?.[0] || null);
+    if (!next) setViewMode('grid');
+  }, [activeHidden, filteredReels, setActiveReel, setActiveClip]);
+
   const covered = Boolean(bookingCoach || messageCoach || linkSheet);
   useEffect(() => {
     const video = videoRef.current;
@@ -125,7 +141,6 @@ export const EliteReelsHub: React.FC<EliteReelsHubProps> = ({
         <ReelPlayerView
           activeReel={activeReel}
           activeClip={activeClip}
-          isMuted={isMuted}
           isPlaying={isPlaying}
           videoRef={videoRef}
           likedReels={likedReels}
@@ -136,7 +151,6 @@ export const EliteReelsHub: React.FC<EliteReelsHubProps> = ({
           onClose={closePlayer}
           onNextReel={handleNextReel}
           onPrevReel={handlePrevReel}
-          onToggleMute={handleToggleMute}
           onTogglePlay={handleTogglePlay}
           onPlayingChange={setIsPlaying}
           onToggleLike={handleToggleLike}
@@ -152,9 +166,9 @@ export const EliteReelsHub: React.FC<EliteReelsHubProps> = ({
         <ReelExploreGrid
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
-          selectedFilter={selectedFilter}
-          setSelectedFilter={setSelectedFilter}
-          filterTags={discoveryChips}
+          selectedCategory={selectedCategory}
+          setSelectedCategory={setSelectedCategory}
+          categoryCounts={categoryCounts}
           filteredReels={filteredReels}
           onClose={onClose}
           onSelectReel={(reel, clip) => {

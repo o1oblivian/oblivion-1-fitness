@@ -1,12 +1,10 @@
 import React, { useState } from 'react';
-import { X, Dna, Zap, Check, Activity } from 'lucide-react';
+import { X, Dna, Activity } from 'lucide-react';
 import { tactileEngine } from '../../../services/tactileEngine';
 
 interface BioSyncIntelligenceModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onAutoRegulate?: () => void;
-  onShowToast?: (msg: string) => void;
 }
 
 type CyclePhase = 'MENSTRUAL' | 'FOLLICULAR' | 'OVULATORY' | 'LUTEAL';
@@ -63,32 +61,19 @@ const PHASE_DETAILS: Record<CyclePhase, PhaseMeta> = {
 export const BioSyncIntelligenceModal: React.FC<BioSyncIntelligenceModalProps> = ({
   isOpen,
   onClose,
-  onAutoRegulate,
-  onShowToast,
 }) => {
-  const [activePhase, setActivePhase] = useState<CyclePhase>('OVULATORY');
-  const [regulated, setRegulated] = useState(false);
+  const [activePhase, setActivePhase] = useState<CyclePhase>('FOLLICULAR');
 
   if (!isOpen) return null;
 
   const currentMeta = PHASE_DETAILS[activePhase];
-
-  const handleAutoRegulate = () => {
-    tactileEngine.playPRCelebration();
-    setRegulated(true);
-    if (onAutoRegulate) onAutoRegulate();
-    onShowToast?.(`Bio-Sync auto-regulated: workout intensity calibrated to ${activePhase} profile.`);
-    setTimeout(() => {
-      onClose();
-    }, 850);
-  };
 
   return (
     <div
       id="biosync-intelligence-modal"
       role="dialog"
       aria-modal="true"
-      className="fixed inset-0 z-[60000] bg-black/70 o1-sheet-scrim flex items-center justify-center animate-in fade-in duration-200 select-none"
+      className="fixed inset-0 z-[60000] bg-black/85 backdrop-blur-md o1-sheet-scrim flex items-center justify-center animate-in fade-in duration-200 select-none"
       onClick={onClose}
     >
       <div
@@ -98,15 +83,15 @@ export const BioSyncIntelligenceModal: React.FC<BioSyncIntelligenceModalProps> =
         {/* Header */}
         <div className="flex items-center justify-between border-b border-white/[0.05] pb-3.5">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-sky-500/10 border border-sky-500/30 flex items-center justify-center text-sky-400">
+            <div className="w-9 h-9 rounded-xl bg-sky-500/10 border border-sky-500/30 flex items-center justify-center text-sky-600">
               <Dna className="w-4 h-4" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="font-tactical font-bold text-sm tracking-wider text-white">
+                <h3 className="font-tactical font-medium text-sm tracking-wider text-white">
                   Bio-Sync Intelligence
                 </h3>
-                <span className="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-white/10 text-sky-400">
+                <span className="px-1.5 py-0.5 rounded text-[9px] font-mono font-medium bg-white/10 text-sky-600">
                   Endocrine
                 </span>
               </div>
@@ -127,7 +112,7 @@ export const BioSyncIntelligenceModal: React.FC<BioSyncIntelligenceModalProps> =
         <div className="space-y-1.5">
           <div className="flex items-center justify-between text-[10px] font-mono tracking-wider text-neutral-400">
             <span>Biological Cycle Phase</span>
-            <span className="text-sky-400 font-mono">{currentMeta.daySpan}</span>
+            <span className="text-sky-600 font-mono">{currentMeta.daySpan}</span>
           </div>
           <div className="grid grid-cols-4 gap-1 p-1 rounded-xl bg-white/[0.03] border border-white/[0.07]">
             {(
@@ -153,7 +138,7 @@ export const BioSyncIntelligenceModal: React.FC<BioSyncIntelligenceModalProps> =
                       : 'text-neutral-400 hover:text-white'
                   }`}
                 >
-                  <span className="text-[11px] font-mono font-bold block">{p.label}</span>
+                  <span className="text-[11px] font-mono font-medium block">{p.label}</span>
                   <span className="text-[9px] font-mono opacity-70 block">{p.code}</span>
                 </button>
               );
@@ -164,16 +149,16 @@ export const BioSyncIntelligenceModal: React.FC<BioSyncIntelligenceModalProps> =
         {/* Phase Intelligence Spotlight Card (Zero Dark Fog) */}
         <div className="bg-white/[0.03] border border-white/[0.07] rounded-2xl p-4 space-y-3">
           <div className="flex items-center justify-between">
-            <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold tracking-wider bg-sky-500/10 text-sky-400 border border-sky-500/30">
+            <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-medium tracking-wider bg-sky-500/10 text-sky-600 border border-sky-500/30">
               {currentMeta.daySpan} • {activePhase}
             </span>
-            <span className="text-[10px] font-mono font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full">
+            <span className="text-[10px] font-mono font-medium text-emerald-500 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full">
               OFFSET: {currentMeta.rpeOffset}
             </span>
           </div>
 
           <div>
-            <h4 className="text-sm font-tactical font-bold text-white leading-snug">
+            <h4 className="text-sm font-tactical font-medium text-white leading-snug">
               {currentMeta.title}
             </h4>
             <p className="text-xs font-sans text-neutral-300 mt-1 leading-relaxed">
@@ -184,18 +169,18 @@ export const BioSyncIntelligenceModal: React.FC<BioSyncIntelligenceModalProps> =
           {/* Neuromuscular Metrics Grid */}
           <div className="grid grid-cols-2 gap-2 pt-1 border-t border-white/[0.05]">
             <div className="p-2.5 rounded-xl bg-black/40 border border-white/[0.07]">
-              <span className="text-[9px] font-mono tracking-wider text-neutral-400 block font-bold">
+              <span className="text-[9px] font-mono tracking-wider text-neutral-400 block font-medium">
                 Recovery Window
               </span>
-              <span className="text-xs font-mono font-bold text-white mt-0.5 block">
+              <span className="text-xs font-mono font-medium text-white mt-0.5 block">
                 {currentMeta.restInterval}
               </span>
             </div>
             <div className="p-2.5 rounded-xl bg-black/40 border border-white/[0.07]">
-              <span className="text-[9px] font-mono tracking-wider text-neutral-400 block font-bold">
+              <span className="text-[9px] font-mono tracking-wider text-neutral-400 block font-medium">
                 Target Intensity
               </span>
-              <span className="text-xs font-mono font-bold text-sky-400 mt-0.5 block">
+              <span className="text-xs font-mono font-medium text-sky-600 mt-0.5 block">
                 {currentMeta.rpeRecommendation.split(' ')[1] || 'RPE 8.5'}
               </span>
             </div>
@@ -204,37 +189,28 @@ export const BioSyncIntelligenceModal: React.FC<BioSyncIntelligenceModalProps> =
 
         {/* Auto-Regulation Recommendation Box */}
         <div className="p-3 rounded-xl bg-white/[0.03] border border-white/[0.07] text-xs text-neutral-300 space-y-1">
-          <span className="text-[10px] font-mono tracking-wider text-neutral-400 font-bold flex items-center gap-1.5">
-            <Activity className="w-3.5 h-3.5 text-sky-400" />
-            <span>Prescribed Bio-Sync Calibration:</span>
+          <span className="text-[10px] font-mono tracking-wider text-neutral-400 font-medium flex items-center gap-1.5">
+            <Activity className="w-3.5 h-3.5 text-sky-600" />
+            <span>How it affects training</span>
           </span>
           <p className="text-[11px] text-neutral-300 font-sans pl-5">
             {currentMeta.powerImpact}
           </p>
         </div>
 
-        {/* Master Auto-Regulate Trigger */}
-        <button
-          type="button"
-          onClick={handleAutoRegulate}
-          className={`w-full py-2.5 px-4 rounded-xl font-semibold text-xs tracking-wide flex items-center justify-center gap-2 active:scale-[0.98] transition-all cursor-pointer ${
-            regulated
-              ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-950/20'
-              : 'bg-zinc-100 hover:bg-white text-neutral-950'
-          }`}
-        >
-          {regulated ? (
-            <>
-              <Check className="w-4 h-4 stroke-[3]" />
-              <span>RPE AUTO-REGULATION Engaged</span>
-            </>
-          ) : (
-            <>
-              <Zap className="w-4 h-4 fill-white" />
-              <span>Engage BIO-SYNC AUTO-REGULATION</span>
-            </>
-          )}
-        </button>
+        <p className="text-[11px] text-o1-muted leading-relaxed px-0.5">
+          A guide to training by cycle phase. It doesn&apos;t change your plan; adjust your RPE targets using it as you see fit.
+        </p>
+
+        <div className="sticky bottom-0 z-10 -mx-3.5 -mb-3.5 px-3.5 pt-2.5 pb-[max(env(safe-area-inset-bottom),14px)] bg-o1-card border-t border-white/[0.05]">
+          <button
+            type="button"
+            onClick={onClose}
+            className="w-full py-2.5 px-4 rounded-xl font-medium text-xs flex items-center justify-center gap-2 active:scale-[0.98] transition-all cursor-pointer bg-o1-crimson hover:bg-o1-crimson-hover active:bg-o1-crimson-press text-white"
+          >
+            Done
+          </button>
+        </div>
       </div>
     </div>
   );

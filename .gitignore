@@ -30,3 +30,6 @@ ios/App/.symlinks/
 *.keystore
 
 .stripe-e2e-state.json
+
+# Local tutorial-video recording scripts and captures
+.tutorials/

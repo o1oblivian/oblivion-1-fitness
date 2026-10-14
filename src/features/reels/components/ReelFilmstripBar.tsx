@@ -4,6 +4,7 @@ import { ExploreReelItem, FilmstripClip, ExploreCoach } from '../reelTypes';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { useAuthStore } from '../../../stores/useAuthStore';
 import { FOLLOW_EVENT, isFollowing, setFollowing } from '../services/coachStorefront';
+import { isClubCoach } from '../clubReels';
 
 interface ReelFilmstripBarProps {
   activeReel: ExploreReelItem;
@@ -24,7 +25,8 @@ export const ReelFilmstripBar: React.FC<ReelFilmstripBarProps> = ({
 }) => {
   const currentTitle = activeClip?.title || activeReel?.title || '';
   const coach = activeReel?.coach;
-  const coachId = coach?.id || '';
+  const club = isClubCoach(coach?.id);
+  const coachId = club ? '' : coach?.id || '';
   const userId = useAuthStore((s) => s.user?.id || '');
   const [following, setFollowingState] = useState<boolean | null>(null);
 
@@ -53,7 +55,7 @@ export const ReelFilmstripBar: React.FC<ReelFilmstripBarProps> = ({
     onNotice('Sign in to follow coaches');
   };
 
-  const showFollow = Boolean(coach) && following === false && coachId !== userId;
+  const showFollow = Boolean(coachId) && following === false && coachId !== userId;
 
   return (
     <div
@@ -64,12 +66,13 @@ export const ReelFilmstripBar: React.FC<ReelFilmstripBarProps> = ({
         {coach ? (
           <button
             type="button"
+            disabled={club}
             onClick={() => {
               tactileEngine.triggerSelectionBuzz();
               onBookCoach(coach);
             }}
-            className="flex min-h-[44px] min-w-0 items-center gap-2 text-left active:scale-[0.98]"
-            aria-label={`Open ${coach.name}'s profile`}
+            className="flex min-h-[44px] min-w-0 items-center gap-2 text-left active:scale-[0.98] disabled:active:scale-100"
+            aria-label={club ? coach.name : `Open ${coach.name}'s profile`}
           >
             {coach.avatar ? (
               <img src={coach.avatar} alt="" className="h-8 w-8 shrink-0 rounded-full border border-white/30 object-cover" />

@@ -1,3 +1,5 @@
+import type { BodyPartTag, ReelCategoryId } from './reelCategories';
+
 export interface FilmstripClip {
   id: string;
   title: string;
@@ -36,15 +38,10 @@ export interface ExploreCoach {
 export interface ExploreReelItem {
   id: string;
   title: string;
-  category: 'ALL' | 'TUTORIAL' | 'MOBILITY' | 'BIOMECHANICS' | 'HYPERTROPHY' | 'STRENGTH' | 'REHAB';
-  filterTag:
-    | 'TUTORIAL'
-    | 'CHEST & TRICEPS'
-    | 'BACK & BICEPS'
-    | 'QUADS & GLUTES'
-    | 'SHOULDERS & ARMS'
-    | 'MOBILITY & REHAB'
-    | 'HYROX / CONDITIONING';
+  /** 'ALL' only for rows that predate exclusive categories; those show in the Reels circle only. */
+  category: 'ALL' | ReelCategoryId;
+  /** Optional body-part tag inside the category. */
+  filterTag: BodyPartTag | null;
   videoUrl: string;
   thumbnail: string;
   views: string;

@@ -5,6 +5,7 @@ import { tactileEngine } from '../services/tactileEngine';
 import { supabase } from '../services/supabaseClient';
 import { apiUrl } from '../services/apiBase';
 import { clearLocalCrash } from '../utils/crashLog';
+import { clearAccountData, releaseDevice } from '../services/accountScope';
 
 export const O1_SETTINGS_KEY = 'o1fc_production_settings_v3';
 
@@ -330,17 +331,15 @@ export const useProductionSettings = (onShowToast?: (msg: string) => void) => {
     } catch (e) {
       console.warn('[Settings] Supabase sign out fallback:', e);
     }
-    if (typeof window !== 'undefined') {
-      window.localStorage.removeItem('o1fc_auth_token');
+    try {
       window.localStorage.removeItem('supabase.auth.token');
-      window.localStorage.removeItem('o1fc_user_id');
-      window.localStorage.removeItem('o1fc_user_email');
-      window.localStorage.removeItem('o1fc_athlete_id');
       window.localStorage.removeItem('o1fc_onboarding_completed');
-      window.dispatchEvent(new CustomEvent('o1fc_relaunch_onboarding'));
+      window.localStorage.removeItem('olfc_onboarding_completed');
+    } catch {
+      // storage unavailable; releaseDevice still restarts clean
     }
-    if (onShowToast) onShowToast('Signed out of tactical session.');
     if (onLogoutCallback) onLogoutCallback();
+    releaseDevice();
   };
 
   const handleConfirmDelete = async (onLogoutCallback?: () => void) => {
@@ -399,8 +398,13 @@ export const useProductionSettings = (onShowToast?: (msg: string) => void) => {
       }
       setTimeout(() => {
         if (typeof window !== 'undefined') {
-          window.localStorage.clear();
-          window.sessionStorage.clear();
+          clearAccountData();
+          try {
+            window.localStorage.clear();
+            window.sessionStorage.clear();
+          } catch {
+            // storage unavailable
+          }
           window.dispatchEvent(new CustomEvent('o1fc_account_deleted'));
           window.dispatchEvent(new CustomEvent('o1fc_relaunch_onboarding'));
         }
@@ -434,7 +438,7 @@ export const useProductionSettings = (onShowToast?: (msg: string) => void) => {
 
     const vaultArchive = {
       vaultVersion: '1.0.0-SOVEREIGN-LOCAL-SANCTUARY',
-      architecture: '100% Local-First / Zero-Cloud Air-Gapped',
+      architecture: 'Local-first',
       athlete: {
         name,
         handle,

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { supabase } from '../../services/supabaseClient';
 import { useTelemetryHistoryStore, type DayTelemetryRecord } from '../log/store/useTelemetryHistoryStore';
 import { useUserStore } from '../../stores/useUserStore';
+import { knownSets } from '../log/liftLedger';
 import { buildReport, toDayKey } from './reportEngine';
 import { readWeighIns } from './weighInLog';
 import type { LoggedSet, OblivionReport, SleepSample } from './types';
@@ -67,9 +68,8 @@ export interface UseOblivionReportResult {
 }
 
 /**
- * Builds the athlete's own report entirely on-device. Per-set history comes from
- * Supabase `workout_logs` when signed in (preferred), with the local telemetry
- * history filling any day the cloud has no rows for.
+ * Builds the athlete's own report entirely on-device. Per-set history comes from this phone first;
+ * Supabase `workout_logs` only fills days the phone has no sets for (e.g. a new phone).
  */
 export function useOblivionReport(enabled: boolean): UseOblivionReportResult {
   const historyByDate = useTelemetryHistoryStore((s) => s.historyByDate);
@@ -104,18 +104,19 @@ export function useOblivionReport(enabled: boolean): UseOblivionReportResult {
   }, []);
 
   const { report, sets, sleep } = useMemo(() => {
-    const remoteDays = new Set((remote ?? []).map((s) => s.day));
-    const sets: LoggedSet[] = [...(remote ?? [])];
+    const sets: LoggedSet[] = [];
     const sleep: SleepSample[] = [];
 
     Object.entries(historyByDate).forEach(([day, rec]) => {
       const w = rec.workout;
-      if (w?.hasData && !remoteDays.has(day)) {
+      if (w?.hasData) {
         for (const ex of w.exercises ?? []) {
-          if (!ex?.name || !(ex.reps >= 1)) continue;
-          const count = Math.min(12, Math.max(1, Math.round(ex.sets || 1)));
-          for (let i = 0; i < count; i += 1) {
-            sets.push({ exercise: ex.name, weightKg: Number(ex.weightKg) || 0, reps: ex.reps, rpe: null, day });
+          if (!ex?.name) continue;
+          const logged = knownSets(ex);
+          const rows = logged.length > 0 ? logged : [{ reps: Number(ex.reps) || 0, weightKg: Number(ex.weightKg) || 0 }];
+          for (const set of rows) {
+            if (!(set.reps >= 1)) continue;
+            sets.push({ exercise: ex.name, weightKg: Number(set.weightKg) || 0, reps: set.reps, rpe: null, day });
           }
         }
       }
@@ -124,6 +125,9 @@ export function useOblivionReport(enabled: boolean): UseOblivionReportResult {
         sleep.push({ day, hours: sl.durationHours, recoveryPct: sl.recoveryPercent > 0 ? sl.recoveryPercent : null });
       }
     });
+
+    const phoneDays = new Set(sets.map((s) => s.day));
+    sets.push(...(remote ?? []).filter((s) => !phoneDays.has(s.day)));
 
     const built = buildReport({
       sets,

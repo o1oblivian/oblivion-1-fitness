@@ -38,12 +38,12 @@ export const SupplementTimingModal: React.FC<SupplementTimingModalProps> = ({ is
       role="dialog"
       aria-modal="true"
       aria-label="Supplements"
-      className="fixed inset-0 z-[60000] bg-black/70 o1-sheet-scrim flex flex-col justify-end items-center animate-in fade-in duration-200 select-none"
+      className="fixed inset-0 z-[60000] bg-black/85 backdrop-blur-md o1-sheet-scrim flex flex-col justify-end items-center animate-in fade-in duration-200 select-none"
       onClick={onClose}
     >
       <div
         style={{ paddingBottom: 'max(16px, env(safe-area-inset-bottom, 0px))' }}
-        className="w-full max-w-[480px] max-h-[85dvh] overflow-y-auto rounded-t-3xl bg-o1-sheet border border-white/[0.08] border-b-0 px-4 pt-2.5 space-y-3.5 animate-in slide-in-from-bottom-8 duration-200"
+        className="w-full max-w-[480px] max-h-[85dvh] overflow-y-auto overscroll-contain touch-pan-y rounded-t-3xl bg-o1-sheet border border-white/[0.08] border-b-0 px-4 pt-2.5 space-y-3.5 animate-in slide-in-from-bottom-8 duration-200"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex justify-center">

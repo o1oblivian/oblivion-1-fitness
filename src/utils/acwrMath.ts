@@ -45,6 +45,14 @@ export function computeAcwr(dailyLoadsKg: number[]): AcwrSnapshot {
   return { acuteKg, chronicKg, ratio, label, completionPct: null, calibrating: false, historyDays };
 }
 
+/** Training load labels in everyday words, for Simple mode. */
+export const PLAIN_LOAD: Record<string, string> = {
+  Optimal: 'Steady',
+  Underload: 'Lighter than usual',
+  Caution: 'Building fast',
+  'High risk': 'Too much, ease off',
+};
+
 export function weekCompletionPct(weekLoadsKg: number[], elapsedDays: number, plannedDays?: number): number | null {
   const logged = weekLoadsKg.filter((load) => load > 0).length;
   if (logged === 0) return null;

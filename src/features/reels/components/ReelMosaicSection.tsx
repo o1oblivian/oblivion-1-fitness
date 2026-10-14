@@ -98,9 +98,7 @@ export const ReelMosaicSection: React.FC<ReelMosaicSectionProps> = ({ reels, onS
         <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl border border-white/[0.07] bg-o1-card text-neutral-500 shadow-sm">
           <Play className="h-5 w-5 opacity-40" />
         </div>
-        <h4 className="font-mono text-xs font-bold tracking-widest text-neutral-400">
-          No posts found in this category
-        </h4>
+        <h4 className="text-[13px] text-o1-muted">No reels here yet</h4>
       </div>
     );
   }

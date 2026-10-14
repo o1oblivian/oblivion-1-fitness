@@ -16,9 +16,10 @@ import {
   Swords,
   Mountain,
   Sparkles,
+  SunDim,
 } from 'lucide-react';
 import { tactileEngine } from '../../services/tactileEngine';
-import { useWallpaperStore, WallpaperInterval } from '../../stores/useWallpaperStore';
+import { useWallpaperStore, WallpaperInterval, WALLPAPER_BRIGHTNESS_MIN } from '../../stores/useWallpaperStore';
 import { WallpaperTopic } from '../../services/liveWallpaperService';
 import { compressWallpaperFile } from '../../services/wallpaperImage';
 import { CrimsonSwitch } from './CrimsonSwitch';
@@ -30,7 +31,7 @@ interface WallpaperSelectorModalProps {
 }
 
 const TOPICS: { id: WallpaperTopic; label: string; icon: typeof Dumbbell }[] = [
-  { id: 'hyrox', label: 'Hyrox', icon: Activity },
+  { id: 'hyrox', label: 'Hybrid', icon: Activity },
   { id: 'iron', label: 'Iron', icon: Dumbbell },
   { id: 'track', label: 'Track', icon: Timer },
   { id: 'combat', label: 'Combat', icon: Swords },
@@ -50,6 +51,8 @@ export const WallpaperSelectorModal: React.FC<WallpaperSelectorModalProps> = ({
     isEnabled,
     isPaused,
     intervalSeconds,
+    brightness,
+    setBrightness,
     topic,
     pool,
     activeIndex,
@@ -123,7 +126,7 @@ export const WallpaperSelectorModal: React.FC<WallpaperSelectorModalProps> = ({
               Workout wallpaper
             </h2>
               <p className="text-[11px] text-neutral-400">
-              Hyrox · Iron · Track · Combat · Nature — pick, pause, or leave live
+              Hybrid · Iron · Track · Combat · Nature — pick, pause, or leave live
             </p>
           </div>
           <button
@@ -187,6 +190,7 @@ export const WallpaperSelectorModal: React.FC<WallpaperSelectorModalProps> = ({
                 decoding="async"
                 onError={() => reportBroken(current.url)}
                 className="w-full h-36 object-cover bg-black"
+                style={{ filter: `brightness(${brightness / 100})` }}
               />
               <div className="flex items-center justify-between px-3 py-2">
                 <div className="min-w-0">
@@ -220,6 +224,30 @@ export const WallpaperSelectorModal: React.FC<WallpaperSelectorModalProps> = ({
                   </button>
                 </div>
               </div>
+            </div>
+          )}
+
+          {isEnabled && (
+            <div className="p-3 rounded-2xl bg-o1-card border border-white/[0.07] space-y-2">
+              <div className="flex items-center justify-between">
+                <label htmlFor="wallpaper-brightness" className="flex items-center gap-2">
+                  <SunDim className="w-4 h-4 text-neutral-500" />
+                  <span className="font-tactical font-bold text-xs tracking-wider">Brightness</span>
+                </label>
+                <span className="text-[11px] font-mono text-neutral-400 tabular-nums">{brightness}%</span>
+              </div>
+              <input
+                id="wallpaper-brightness"
+                type="range"
+                min={WALLPAPER_BRIGHTNESS_MIN}
+                max={100}
+                step={5}
+                value={brightness}
+                onChange={(e) => setBrightness(Number(e.target.value))}
+                className="w-full h-11 accent-[#C4121A] cursor-pointer"
+                aria-valuetext={`${brightness}%`}
+              />
+              <p className="text-[11px] text-neutral-500">Lower it to make the dials easier to read over bright photos.</p>
             </div>
           )}
 

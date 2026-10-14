@@ -7,11 +7,12 @@ import { ReelActionRail } from './ReelActionRail';
 import { ReelPlayerTopBar } from './ReelPlayerTopBar';
 import { ReelAssetGalleryDrawer } from './ReelAssetGalleryDrawer';
 import { isPlayableClip } from '../reelClips';
+import { ReelSafetyMenu } from './ReelSafetyMenu';
+import { HEALTH_CATEGORIES, NOT_MEDICAL_ADVICE } from '../reelCategories';
 
 interface ReelPlayerViewProps {
   activeReel: ExploreReelItem;
   activeClip: FilmstripClip | null;
-  isMuted: boolean;
   isPlaying: boolean;
   videoRef: React.RefObject<HTMLVideoElement | null>;
   likedReels: Record<string, boolean>;
@@ -23,7 +24,6 @@ interface ReelPlayerViewProps {
   onClose: () => void;
   onNextReel?: () => void;
   onPrevReel?: () => void;
-  onToggleMute: (e?: React.SyntheticEvent) => void;
   onTogglePlay: () => void;
   onPlayingChange: (playing: boolean) => void;
   onToggleLike: (reelId: string, e?: React.MouseEvent) => void;
@@ -40,14 +40,16 @@ const SWIPE_PX = 40;
 const WHEEL_COOLDOWN_MS = 650;
 
 export const ReelPlayerView: React.FC<ReelPlayerViewProps> = ({
-  activeReel, activeClip, isMuted, isPlaying, videoRef, likedReels, likeCount, savedReels,
-  addedExercises, covered = false, onClose, onNextReel, onPrevReel, onToggleMute, onTogglePlay, onPlayingChange,
+  activeReel, activeClip, isPlaying, videoRef, likedReels, likeCount, savedReels,
+  addedExercises, covered = false, onClose, onNextReel, onPrevReel, onTogglePlay, onPlayingChange,
   onToggleLike, onToggleSave, onShare, onAddExercise, onSelectClip, onBookCoach, onMessageCoach, onNotice,
 }) => {
   const touchStartY = useRef<number | null>(null);
   const lastWheel = useRef(0);
   const [isAssetGalleryOpen, setIsAssetGalleryOpen] = useState(false);
+  const [optionsOpen, setOptionsOpen] = useState(false);
   const [failed, setFailed] = useState(false);
+  const paused = covered || isAssetGalleryOpen || optionsOpen;
 
   const src = activeClip ? activeClip.videoUrl : activeReel.videoUrl;
   const poster = activeClip ? activeClip.thumbnail : activeReel.thumbnail;
@@ -57,11 +59,11 @@ export const ReelPlayerView: React.FC<ReelPlayerViewProps> = ({
     setIsAssetGalleryOpen(false);
   }, [src]);
 
-  const latest = useRef({ onNextReel, onPrevReel, onTogglePlay, onToggleMute, onClose });
-  latest.current = { onNextReel, onPrevReel, onTogglePlay, onToggleMute, onClose };
+  const latest = useRef({ onNextReel, onPrevReel, onTogglePlay, onClose });
+  latest.current = { onNextReel, onPrevReel, onTogglePlay, onClose };
 
   useEffect(() => {
-    if (covered || isAssetGalleryOpen) return;
+    if (paused) return;
     const onKey = (event: KeyboardEvent) => {
       const target = event.target as HTMLElement | null;
       if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) return;
@@ -69,17 +71,16 @@ export const ReelPlayerView: React.FC<ReelPlayerViewProps> = ({
       if (event.key === 'ArrowDown' || event.key === 'j') actions.onNextReel?.();
       else if (event.key === 'ArrowUp' || event.key === 'k') actions.onPrevReel?.();
       else if (event.key === ' ') actions.onTogglePlay();
-      else if (event.key === 'm') actions.onToggleMute();
       else if (event.key === 'Escape') actions.onClose();
       else return;
       event.preventDefault();
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [covered, isAssetGalleryOpen]);
+  }, [paused]);
 
   const handleWheel = (e: React.WheelEvent) => {
-    if (covered || isAssetGalleryOpen || Math.abs(e.deltaY) < 30) return;
+    if (paused || Math.abs(e.deltaY) < 30) return;
     const now = Date.now();
     if (now - lastWheel.current < WHEEL_COOLDOWN_MS) return;
     lastWheel.current = now;
@@ -92,7 +93,7 @@ export const ReelPlayerView: React.FC<ReelPlayerViewProps> = ({
   };
 
   const handleTouchEnd = (e: React.TouchEvent) => {
-    if (touchStartY.current === null || isAssetGalleryOpen) return;
+    if (touchStartY.current === null || paused) return;
     const deltaY = e.changedTouches[0].clientY - touchStartY.current;
     touchStartY.current = null;
     if (deltaY < -SWIPE_PX && onNextReel) {
@@ -113,7 +114,12 @@ export const ReelPlayerView: React.FC<ReelPlayerViewProps> = ({
       onTouchEnd={handleTouchEnd}
       onWheel={handleWheel}
     >
-      <ReelPlayerTopBar isMuted={isMuted} onClose={onClose} onToggleMute={onToggleMute} />
+      <ReelPlayerTopBar onClose={onClose} onOpenOptions={() => setOptionsOpen(true)} />
+      {HEALTH_CATEGORIES.has(activeReel.category) ? (
+        <p className="absolute z-30 left-3 right-28 top-[calc(env(safe-area-inset-top)+0.9rem)] text-[11px] leading-snug text-white/75 drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)] pointer-events-none">
+          {NOT_MEDICAL_ADVICE}
+        </p>
+      ) : null}
 
       <div
         className="relative flex-1 w-full h-full flex items-center justify-center cursor-pointer overflow-hidden bg-black"
@@ -130,7 +136,7 @@ export const ReelPlayerView: React.FC<ReelPlayerViewProps> = ({
           playsInline
           loop
           autoPlay
-          muted={isMuted}
+          muted
           onPlaying={() => onPlayingChange(true)}
           onPause={() => onPlayingChange(false)}
           onEmptied={() => onPlayingChange(false)}
@@ -183,6 +189,7 @@ export const ReelPlayerView: React.FC<ReelPlayerViewProps> = ({
           onSelectClip={onSelectClip}
         />
       </div>
+      <ReelSafetyMenu reel={activeReel} open={optionsOpen} onClose={() => setOptionsOpen(false)} />
     </div>
   );
 };

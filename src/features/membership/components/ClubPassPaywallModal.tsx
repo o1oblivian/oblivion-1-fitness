@@ -26,7 +26,7 @@ const PERKS = [
 ];
 
 export const ClubPassPaywallModal: React.FC = () => {
-  const { isPaywallOpen, closePaywall } = useSubscription();
+  const { isPaywallOpen, closePaywall, activatePlan } = useSubscription();
   const [audience, setAudience] = useState<Audience>('athletes');
   const [selectedId, setSelectedId] = useState(DEFAULT_PLAN.athletes);
   const [isPurchasing, setIsPurchasing] = useState(false);
@@ -84,6 +84,7 @@ export const ClubPassPaywallModal: React.FC = () => {
     setIsPurchasing(false);
     if (res.success) {
       tactileEngine.playPRCelebration();
+      await activatePlan(selected.productId);
       closePaywall();
     } else {
       setStatusMsg(res.error || 'Available via the App Store or Google Play.');

@@ -1,9 +1,8 @@
-import React, { useState } from 'react';
-import { Eye, EyeOff, Loader2, AlertCircle, Check } from 'lucide-react';
-import { Capacitor } from '@capacitor/core';
-import { supabase } from '../../../services/supabaseClient';
-import { useAuthStore } from '../../../stores/useAuthStore';
+import React, { useEffect, useState } from 'react';
+import { Eye, EyeOff, Loader2, AlertCircle, ArrowLeft, MailCheck } from 'lucide-react';
+import { ACCOUNT_EXISTS, EMAIL_NOT_CONFIRMED, useAuthStore } from '../../../stores/useAuthStore';
 import { tactileEngine } from '../../../services/tactileEngine';
+import { AUTH_ERROR_EVENT, resendSignupEmail, sendPasswordReset, startOAuth, takeAuthCallbackError } from '../../../services/oauthDeepLink';
 import { OnboardingData } from '../types/onboardingTypes';
 import { applyRememberPreference, loadRememberedCredentials } from '../../../utils/rememberCredentials';
 
@@ -14,310 +13,392 @@ interface AuthCardProps {
   onOpenLegal: (type: 'privacy' | 'terms') => void;
 }
 
+type View = 'form' | 'reset' | 'confirm';
+type Mode = 'signin' | 'signup';
+
+const MIN_PASSWORD = 8;
+const SYSTEM_FONT = '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", system-ui, sans-serif';
+const GOOGLE_FONT = 'Roboto, "Google Sans", Arial, system-ui, sans-serif';
+
+const fieldClass =
+  'h-11 w-full rounded-xl border-0 bg-o1-surface/60 px-3.5 text-[14px] font-normal text-o1-text placeholder:text-[#5E5C55] outline-none transition-colors focus:bg-white/[0.08] focus:ring-1 focus:ring-o1-crimson/60';
+
+function cleanEmail(value: string): string {
+  return value.trim().toLowerCase();
+}
+
+function validEmail(value: string): boolean {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail(value));
+}
+
 export const AuthCard: React.FC<AuthCardProps> = ({ data, onUpdate, onNext, onOpenLegal }) => {
   const [remembered] = useState(loadRememberedCredentials);
   const [email, setEmail] = useState(remembered.email || data.email || '');
-  const [password, setPassword] = useState(remembered.password || '');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(remembered.rememberMe);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [authError, setAuthError] = useState<string | null>(null);
-  const [authMode, setAuthMode] = useState<'signin' | 'signup'>(data.isSignUp ? 'signup' : 'signin');
+  const [busy, setBusy] = useState<'email' | 'apple' | 'google' | 'reset' | 'resend' | null>(null);
+  const [error, setError] = useState<string | null>(takeAuthCallbackError);
+  const [notice, setNotice] = useState<string | null>(null);
+  const [mode, setMode] = useState<Mode>(data.isSignUp ? 'signup' : 'signin');
+  const [view, setView] = useState<View>('form');
+  const [resendIn, setResendIn] = useState(0);
 
-  const commitRemember = (next: boolean, nextEmail = email, nextPassword = password) => {
-    setRememberMe(next);
-    onUpdate({ rememberMe: next, email: nextEmail });
-    applyRememberPreference(next, nextEmail, nextPassword);
+  useEffect(() => {
+    const onAuthError = () => {
+      const message = takeAuthCallbackError();
+      if (!message) return;
+      setBusy(null);
+      setError(message);
+    };
+    window.addEventListener(AUTH_ERROR_EVENT, onAuthError);
+    return () => window.removeEventListener(AUTH_ERROR_EVENT, onAuthError);
+  }, []);
+
+  useEffect(() => {
+    if (resendIn <= 0) return;
+    const timer = window.setTimeout(() => setResendIn((value) => value - 1), 1000);
+    return () => window.clearTimeout(timer);
+  }, [resendIn]);
+
+  const go = (next: View) => {
+    tactileEngine.triggerSelectionBuzz();
+    setError(null);
+    setNotice(null);
+    setView(next);
   };
 
-  const handleSocialAuth = async (provider: 'apple' | 'google') => {
-    setAuthError(null);
-    setIsSubmitting(true);
+  const switchMode = (next: Mode) => {
+    if (next === mode) return;
+    tactileEngine.triggerSelectionBuzz();
+    setMode(next);
+    setError(null);
+    setNotice(null);
+  };
+
+  const social = async (provider: 'apple' | 'google') => {
+    setError(null);
+    setBusy(provider);
     tactileEngine.triggerDialHaptic();
     try {
-      const isNative = Capacitor.isNativePlatform();
-      const redirectTo = isNative
-        ? 'com.o1fc.fitness://auth/callback'
-        : (typeof window !== 'undefined' ? `${window.location.origin}` : undefined);
-
-      const { data: authData, error } = await supabase.auth.signInWithOAuth({
-        provider,
-        options: {
-          redirectTo,
-        },
-      });
-      if (error) {
-        setAuthError(error.message);
-        setIsSubmitting(false);
-        return;
-      }
-      if (authData?.url) {
-        window.location.assign(authData.url);
-      }
-    } catch (err: any) {
-      setAuthError(err?.message || `Failed to initiate ${provider} authentication.`);
-      setIsSubmitting(false);
+      await startOAuth(provider);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : `Could not open ${provider === 'apple' ? 'Apple' : 'Google'} sign-in.`);
+    } finally {
+      setBusy(null);
     }
   };
 
-  const handleEmailAuth = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email.includes('@')) {
-      setAuthError("Please include an '@' in the email address.");
+  const submit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    const address = cleanEmail(email);
+    if (!validEmail(address)) {
+      setError('Enter a valid email address.');
       return;
     }
-    setAuthError(null);
-    setIsSubmitting(true);
+    if (!password) {
+      setError('Enter your password.');
+      return;
+    }
+    if (mode === 'signup' && password.length < MIN_PASSWORD) {
+      setError(`Use at least ${MIN_PASSWORD} characters for your password.`);
+      return;
+    }
+    setError(null);
+    setBusy('email');
     tactileEngine.triggerDialHaptic();
-
-    const cleanEmail = email.trim().toLowerCase();
-
-    const res =
-      authMode === 'signup'
-        ? await useAuthStore.getState().signUp(cleanEmail, password)
-        : await useAuthStore.getState().signIn(cleanEmail, password);
-
-    if (!res.success && res.error) {
-      setAuthError(res.error);
-      setIsSubmitting(false);
+    const store = useAuthStore.getState();
+    const res = mode === 'signup' ? await store.signUp(address, password) : await store.signIn(address, password);
+    setBusy(null);
+    if (!res.success) {
+      if (res.error === EMAIL_NOT_CONFIRMED) {
+        setPassword('');
+        setView('confirm');
+        setNotice('Your email is not confirmed yet. Open the link we sent, or resend it below.');
+        return;
+      }
+      if (res.error === ACCOUNT_EXISTS) {
+        setMode('signin');
+        setPassword('');
+        setNotice(ACCOUNT_EXISTS);
+        return;
+      }
+      setError(res.error || 'Something went wrong. Try again.');
       return;
     }
-
-    applyRememberPreference(rememberMe, cleanEmail, password);
-    onUpdate({ email: cleanEmail, isSignUp: authMode === 'signup', rememberMe });
-    setIsSubmitting(false);
+    applyRememberPreference(true, address);
+    onUpdate({ email: address, isSignUp: mode === 'signup', rememberMe: true });
+    if ('needsConfirmation' in res && res.needsConfirmation) {
+      setPassword('');
+      setResendIn(30);
+      setView('confirm');
+      return;
+    }
     onNext();
   };
 
-  return (
-    <div className="relative w-full max-w-sm mx-auto select-none text-white space-y-6 animate-in fade-in duration-500">
-      {/* 1. TOP HOROLOGY PRECISION INDEX GAUGE (IMAGE 1 STYLE) */}
-      <div className="flex items-center justify-center gap-2 opacity-50 select-none pt-2">
-        <span className="font-mono text-[8px] tracking-[0.35em] text-neutral-400">
-          ||||||||||||||||
-        </span>
-        <span className="text-[10px] text-o1-crimson leading-none">▾</span>
-        <span className="font-mono text-[8px] tracking-[0.35em] text-neutral-400">
-          ||||||||||||||||
-        </span>
-      </div>
+  const requestReset = async (event: React.FormEvent) => {
+    event.preventDefault();
+    const address = cleanEmail(email);
+    if (!validEmail(address)) {
+      setError('Enter the email you signed up with.');
+      return;
+    }
+    setError(null);
+    setBusy('reset');
+    try {
+      await sendPasswordReset(address);
+      setNotice(`If an account exists for ${address}, a reset link is on its way. Open it on this device to choose a new password.`);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Could not send the reset email.');
+    } finally {
+      setBusy(null);
+    }
+  };
 
-      {/* 2. MONUMENTAL BRAND TYPOGRAPHY: OBLIVION 1FC (PREMIUM INDUSTRIAL ATHLETIC LUXURY) */}
-      <div className="text-center space-y-1.5 py-4">
-        <h1 className="text-3xl sm:text-4xl font-display font-bold tracking-wide bg-gradient-to-b from-white via-neutral-100 to-neutral-400 bg-clip-text text-transparent drop-shadow-[0_4px_24px_rgba(255,255,255,0.22)]">
-          Oblivion 1FC
-        </h1>
-        <p className="text-[10px] font-sans font-semibold tracking-wide text-neutral-400">
-          Training OS Pro · Fuel OS · Coach Hub
-        </p>
-      </div>
+  const resend = async () => {
+    setError(null);
+    setBusy('resend');
+    try {
+      await resendSignupEmail(cleanEmail(email));
+      setNotice('A fresh confirmation link has been sent.');
+      setResendIn(30);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Could not resend the email.');
+    } finally {
+      setBusy(null);
+    }
+  };
 
-      {/* 4. NUDE MODE SWITCHER (ZERO BOX / ZERO CAPSULE) */}
-      <div className="flex items-center justify-center gap-6 pt-1 select-none">
-        <button
-          type="button"
-          onClick={() => {
-            tactileEngine.triggerSelectionBuzz();
-            setAuthMode('signin');
-            setAuthError(null);
-          }}
-          className={`relative pb-2 text-[11px] font-sans font-semibold tracking-wide transition-all cursor-pointer ${
-            authMode === 'signin' ? 'text-white' : 'text-neutral-500 hover:text-neutral-300'
-          }`}
-        >
-          Sign in
-          {authMode === 'signin' && (
-            <span className="absolute bottom-0 inset-x-0 h-[2px] bg-o1-crimson rounded-full" />
-          )}
-        </button>
-
-        <span className="text-white/20 select-none pb-2 text-xs font-mono">/</span>
-
-        <button
-          type="button"
-          onClick={() => {
-            tactileEngine.triggerSelectionBuzz();
-            setAuthMode('signup');
-            setAuthError(null);
-          }}
-          className={`relative pb-2 text-[11px] font-sans font-semibold tracking-wide transition-all cursor-pointer ${
-            authMode === 'signup' ? 'text-white' : 'text-neutral-500 hover:text-neutral-300'
-          }`}
-        >
-          Sign up
-          {authMode === 'signup' && (
-            <span className="absolute bottom-0 inset-x-0 h-[2px] bg-o1-crimson rounded-full" />
-          )}
-        </button>
-      </div>
-
-      {/* 5. NUDE FLOATING FORM (ZERO GREY BOXES / PURE HAIRLINE UNDERLINES) */}
-      <form onSubmit={handleEmailAuth} className="space-y-4 pt-1">
-        <div className="group relative">
-          <input
-            type="email"
-            required
-            autoComplete="email"
-            aria-label="Email"
-            value={email}
-            onChange={(e) => {
-              const next = e.target.value;
-              setEmail(next);
-              setAuthError(null);
-              if (rememberMe) applyRememberPreference(true, next, password);
-            }}
-            placeholder="athlete@oblivion1.club"
-            className="w-full bg-transparent border-b border-white/[0.05] focus:border-o1-crimson py-2.5 px-0 text-sm font-sans text-white placeholder-neutral-600 focus:outline-none transition-colors"
-          />
+  const messages = (
+    <>
+      {error ? (
+        <div role="alert" className="flex items-start gap-2.5 rounded-xl bg-o1-bad-wash/60 backdrop-blur-md px-3.5 py-2.5 text-[12px] font-normal leading-snug text-o1-bad-ink">
+          <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+          <span>{error}</span>
         </div>
+      ) : null}
+      {notice ? (
+        <div role="status" className="rounded-xl bg-white/[0.07] px-3.5 py-2.5 backdrop-blur-md text-[12px] font-normal leading-snug text-o1-text">
+          {notice}
+        </div>
+      ) : null}
+    </>
+  );
 
-        <div className="group relative">
-          <div className="relative flex items-center">
-            <input
-              type={showPassword ? 'text' : 'password'}
-              required
-              autoComplete={authMode === 'signup' ? 'new-password' : 'current-password'}
-              aria-label="Password"
-              value={password}
-              onChange={(e) => {
-                const next = e.target.value;
-                setPassword(next);
-                setAuthError(null);
-                if (rememberMe) applyRememberPreference(true, email, next);
-              }}
-              placeholder="••••••••••••"
-              className="w-full bg-transparent border-b border-white/[0.05] focus:border-o1-crimson py-2.5 pr-8 pl-0 text-sm font-sans text-white placeholder-neutral-600 focus:outline-none transition-colors"
-            />
+  return (
+    <div className="relative mx-auto w-full max-w-[340px] select-none text-o1-text animate-in fade-in duration-500">
+      <div className="flex flex-col items-center text-center">
+        <img src="/brand/o1fc-hero.png" alt="Oblivion 1 Fitness Club" width={1466} height={900} className="h-auto w-[70%] max-w-[250px] select-none" draggable={false} />
+        <h1 className="mt-3 font-display text-[23px] font-light leading-tight tracking-[-0.01em] text-o1-text">
+          {view === 'reset' ? 'Reset your password' : view === 'confirm' ? 'Confirm your email' : mode === 'signin' ? 'Welcome back' : 'Create your membership'}
+        </h1>
+        {view !== 'form' ? (
+          <p className="mt-1.5 max-w-[280px] text-[13px] font-normal leading-relaxed text-o1-muted/80">
+            {view === 'reset'
+              ? 'We will email you a secure link to choose a new password.'
+              : `We sent a link to ${cleanEmail(email)}. Open it on this phone to activate your account.`}
+          </p>
+        ) : null}
+      </div>
+
+      <div className="mt-5">
+        {view === 'form' ? (
+          <>
+            <div role="tablist" aria-label="Account" className="grid grid-cols-2 rounded-full bg-o1-surface/60 p-0.5">
+              {(['signin', 'signup'] as const).map((key) => (
+                <button
+                  key={key}
+                  type="button"
+                  role="tab"
+                  aria-selected={mode === key}
+                  onClick={() => switchMode(key)}
+                  className={`h-8 rounded-full text-[13px] font-normal transition-colors ${mode === key ? 'bg-white/[0.1] text-o1-text' : 'text-o1-muted'}`}
+                >
+                  {key === 'signin' ? 'Sign in' : 'Create account'}
+                </button>
+              ))}
+            </div>
+
+            <div className="mt-4 space-y-2.5">
+              <button
+                type="button"
+                onClick={() => void social('apple')}
+                disabled={busy !== null}
+                style={{ fontFamily: SYSTEM_FONT }}
+                className="flex h-11 w-full items-center justify-center gap-2 o1-machined o1-see-through rounded-full text-[15px] font-normal text-[#FFFFFF] transition active:scale-[0.98] disabled:opacity-60"
+              >
+                {busy === 'apple' ? (
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                ) : (
+                  <svg className="h-[18px] w-[18px] shrink-0 -translate-y-px fill-[#FFFFFF]" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.37c.61-.75 1.04-1.8.92-2.85-.92.04-2.02.62-2.67 1.38-.58.67-.99 1.73-.87 2.76 1.02.08 2.01-.54 2.62-1.29z" />
+                  </svg>
+                )}
+                <span>Continue with Apple</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => void social('google')}
+                disabled={busy !== null}
+                style={{ fontFamily: GOOGLE_FONT }}
+                className="flex h-11 w-full items-center justify-center gap-3 o1-machined o1-see-through rounded-full text-[14px] font-normal text-[#E3E3E3] transition active:scale-[0.98] disabled:opacity-60"
+              >
+                {busy === 'google' ? (
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                ) : (
+                  <svg className="h-[18px] w-[18px] shrink-0" viewBox="0 0 48 48" aria-hidden="true">
+                    <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z" />
+                    <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z" />
+                    <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z" />
+                    <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z" />
+                  </svg>
+                )}
+                <span>Continue with Google</span>
+              </button>
+            </div>
+
+            <div className="my-4 h-[0.5px] bg-white/[0.1]" />
+
+            <form onSubmit={submit} noValidate className="space-y-2.5">
+              <label className="block">
+                <input
+                  aria-label="Email"
+                  type="email"
+                  inputMode="email"
+                  autoComplete="email"
+                  autoCapitalize="none"
+                  spellCheck={false}
+                  value={email}
+                  onChange={(event) => {
+                    setEmail(event.target.value);
+                    setError(null);
+                  }}
+                  placeholder="Email"
+                  className={fieldClass}
+                />
+              </label>
+
+              <label className="block">
+                <span className="relative block">
+                  <input
+                    aria-label="Password"
+                    placeholder={mode === 'signup' ? `Password (${MIN_PASSWORD}+ characters)` : 'Password'}
+                    type={showPassword ? 'text' : 'password'}
+                    autoComplete={mode === 'signup' ? 'new-password' : 'current-password'}
+                    value={password}
+                    onChange={(event) => {
+                      setPassword(event.target.value);
+                      setError(null);
+                    }}
+                    className={`${fieldClass} pr-12`}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((value) => !value)}
+                    className="absolute right-0.5 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center text-o1-muted"
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  >
+                    {showPassword ? <EyeOff className="h-[18px] w-[18px]" /> : <Eye className="h-[18px] w-[18px]" />}
+                  </button>
+                </span>
+              </label>
+
+              {mode === 'signin' ? (
+                <div className="flex justify-end">
+                  <button type="button" onClick={() => go('reset')} className="h-8 text-[12px] font-normal text-o1-muted">
+                    Forgot password?
+                  </button>
+                </div>
+              ) : null}
+
+              {messages}
+
+              <button
+                type="submit"
+                disabled={busy !== null}
+                className="flex h-11 w-full items-center justify-center rounded-full bg-o1-crimson text-[14px] font-medium text-white transition hover:bg-o1-crimson-hover active:scale-[0.98] active:bg-o1-crimson-press disabled:opacity-60"
+              >
+                {busy === 'email' ? <Loader2 className="h-5 w-5 animate-spin" /> : mode === 'signin' ? 'Sign in' : 'Create account'}
+              </button>
+            </form>
+          </>
+        ) : null}
+
+        {view === 'reset' ? (
+          <form onSubmit={requestReset} noValidate className="space-y-4">
+            <label className="block">
+              <input
+                aria-label="Email"
+                type="email"
+                inputMode="email"
+                autoComplete="email"
+                autoCapitalize="none"
+                spellCheck={false}
+                value={email}
+                onChange={(event) => {
+                  setEmail(event.target.value);
+                  setError(null);
+                }}
+                placeholder="Email"
+                className={fieldClass}
+              />
+            </label>
+            {messages}
+            <button
+              type="submit"
+              disabled={busy !== null}
+              className="flex h-11 w-full items-center justify-center rounded-full bg-o1-crimson text-[14px] font-medium text-white transition active:scale-[0.98] disabled:opacity-60"
+            >
+              {busy === 'reset' ? <Loader2 className="h-5 w-5 animate-spin" /> : 'Send reset link'}
+            </button>
+            <button type="button" onClick={() => go('form')} className="flex h-11 w-full items-center justify-center gap-2 text-[14px] font-normal text-o1-muted">
+              <ArrowLeft className="h-4 w-4" />
+              Back to sign in
+            </button>
+          </form>
+        ) : null}
+
+        {view === 'confirm' ? (
+          <div className="space-y-4">
+            <div className="flex justify-center">
+              <span className="flex h-12 w-12 items-center justify-center rounded-full bg-white/[0.07] backdrop-blur-md">
+                <MailCheck className="h-6 w-6 text-o1-text" />
+              </span>
+            </div>
+            {messages}
             <button
               type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-0 text-neutral-500 hover:text-white cursor-pointer p-1 transition"
-              aria-label={showPassword ? 'Hide password' : 'Show password'}
+              onClick={() => void resend()}
+              disabled={busy !== null || resendIn > 0}
+              className="flex h-11 w-full items-center justify-center rounded-full bg-white/[0.08] text-[14px] backdrop-blur-md font-normal text-o1-text transition active:scale-[0.98] disabled:opacity-50"
             >
-              {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              {busy === 'resend' ? <Loader2 className="h-5 w-5 animate-spin" /> : resendIn > 0 ? `Resend email in ${resendIn}s` : 'Resend email'}
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setMode('signin');
+                go('form');
+              }}
+              className="flex h-11 w-full items-center justify-center rounded-full bg-o1-crimson text-[14px] font-medium text-white transition active:scale-[0.98]"
+            >
+              I confirmed, sign in
             </button>
           </div>
-        </div>
-
-        <div className="flex items-center justify-between pt-1">
-          <button
-            type="button"
-            role="checkbox"
-            aria-checked={rememberMe}
-            aria-label="Remember me"
-            title="Remember me"
-            onClick={() => {
-              tactileEngine.triggerSelectionBuzz();
-              commitRemember(!rememberMe);
-            }}
-            className={`w-5 h-5 rounded-[5px] flex items-center justify-center border transition-all cursor-pointer ${
-              rememberMe
-                ? 'bg-o1-crimson border-o1-crimson text-[#F2EFE6]'
-                : 'bg-transparent border-white/25 text-transparent hover:border-white/50'
-            }`}
-          >
-            <Check className={`w-3.5 h-3.5 stroke-[3] ${rememberMe ? 'opacity-100' : 'opacity-0'}`} />
-          </button>
-          <button
-            type="button"
-            onClick={() => alert('Password reset link sent to your email.')}
-            className="text-o1-crimson hover:text-o1-crimson-hover font-sans font-semibold tracking-wide cursor-pointer transition text-[10px]"
-          >
-            Forgot?
-          </button>
-        </div>
-
-        {/* Error message */}
-        {authError && (
-          <div className="p-2.5 rounded-xl bg-rose-500/10 border-b border-rose-500/40 text-rose-300 text-xs font-mono flex items-center gap-2">
-            <AlertCircle className="w-4 h-4 shrink-0 text-rose-400" />
-            <span className="truncate">{authError}</span>
-          </div>
-        )}
-
-        {/* Primary Action Button: Oblivion 1 Crimson Ignition */}
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className="w-full py-3.5 rounded-full bg-o1-crimson hover:bg-o1-crimson-hover active:scale-[0.98] text-white font-sans font-semibold text-xs tracking-wide transition-all shadow-md border border-white/[0.07] flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 mt-2"
-        >
-          {isSubmitting ? (
-            <Loader2 className="w-4 h-4 animate-spin text-white" />
-          ) : (
-            <span>{authMode === 'signin' ? 'Sign in' : 'Create profile'}</span>
-          )}
-        </button>
-      </form>
-
-      {/* 6. NUDE DIVIDER */}
-      <div className="flex items-center gap-3 pt-2">
-        <div className="flex-1 h-px bg-white/10" />
-        <span className="text-[9px] font-sans font-semibold text-neutral-400 tracking-wide">
-          Or continue with
-        </span>
-        <div className="flex-1 h-px bg-white/10" />
+        ) : null}
       </div>
 
-      {/* 7. NUDE SOCIAL AUTH (OFFICIAL COMPLIANT APPLE & GOOGLE) */}
-      <div className="flex items-center gap-3">
-        {/* Apple HIG compliant logo button */}
-        <button
-          type="button"
-          onClick={() => handleSocialAuth('apple')}
-          className="flex-1 py-3 px-4 rounded-full bg-black/80 hover:bg-black text-white border border-white/[0.07] font-sans text-xs font-medium flex items-center justify-center gap-2.5 transition active:scale-95 cursor-pointer shadow-sm backdrop-blur-md"
-        >
-          <svg className="w-4 h-4 fill-white shrink-0" viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.37c.61-.75 1.04-1.8 0.92-2.85-.92.04-2.02.62-2.67 1.38-.58.67-.99 1.73-.87 2.76 1.02.08 2.01-.54 2.62-1.29z" />
-          </svg>
-          <span className="tracking-tight font-medium">Apple</span>
-        </button>
-
-        {/* Google Identity Guidelines compliant logo button */}
-        <button
-          type="button"
-          onClick={() => handleSocialAuth('google')}
-          className="flex-1 py-3 px-4 rounded-full bg-white hover:bg-neutral-100 text-[#3c4043] border border-white/[0.07] font-sans text-xs font-semibold flex items-center justify-center gap-2.5 transition active:scale-95 cursor-pointer shadow-sm"
-        >
-          <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" aria-hidden="true">
-            <path
-              fill="#4285F4"
-              d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-            />
-            <path
-              fill="#34A853"
-              d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-            />
-            <path
-              fill="#FBBC05"
-              d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
-            />
-            <path
-              fill="#EA4335"
-              d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
-            />
-          </svg>
-          <span className="tracking-tight font-medium">Google</span>
-        </button>
-      </div>
-
-      {/* 8. LEGAL DISCLAIMER */}
-      <p className="text-center text-[9px] font-mono text-neutral-500 tracking-wider">
-        By continuing, you accept our{' '}
-        <button
-          type="button"
-          onClick={() => onOpenLegal('terms')}
-          className="text-neutral-400 underline hover:text-white cursor-pointer font-medium"
-        >
+      <p className="mt-4 text-center text-[11px] font-normal leading-relaxed text-o1-muted/80">
+        By continuing you agree to our{' '}
+        <button type="button" onClick={() => onOpenLegal('terms')} className="font-normal text-o1-muted underline decoration-white/25 underline-offset-2">
           Terms
         </button>{' '}
-        &amp;{' '}
-        <button
-          type="button"
-          onClick={() => onOpenLegal('privacy')}
-          className="text-neutral-400 underline hover:text-white cursor-pointer font-medium"
-        >
+        and{' '}
+        <button type="button" onClick={() => onOpenLegal('privacy')} className="font-normal text-o1-muted underline decoration-white/25 underline-offset-2">
           Privacy Policy
         </button>
+        .
       </p>
     </div>
   );

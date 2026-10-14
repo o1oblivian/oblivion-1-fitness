@@ -5,14 +5,14 @@ import { isSharedUrl, saveVaultRow, uploadMedia } from '../../../services/mediaS
 import { useReelsStore } from '../../../stores/useReelsStore';
 import { fetchCoachCard, toExploreCoach } from '../../coach/services/coachDirectory';
 import { ExploreReelItem } from '../reelTypes';
-import { REEL_CATEGORIES, SUB_FILTER_TAGS } from '../components/ReelCategorySelector';
+import type { BodyPartTag, ReelCategoryId } from '../reelCategories';
 import { mapReelRow } from './reelFeed';
 
 interface PublishReelParams {
   title: string;
   cues: string;
-  selectedCategory: (typeof REEL_CATEGORIES)[number]['id'];
-  selectedFilterTag: (typeof SUB_FILTER_TAGS)[number];
+  selectedCategory: ReelCategoryId;
+  selectedFilterTag: BodyPartTag | null;
   previewUrl: string;
   compressedResult: CompressedMediaResult | null;
   fallbackName: string;
@@ -58,13 +58,6 @@ export async function publishCoachReel({
   if (!clip) return { ok: false, reason: 'upload' };
 
   const id = `coach-reel-${Date.now()}`;
-  const category = selectedCategory === 'HYROX' ? 'ALL' : selectedCategory;
-  const filterTag =
-    selectedCategory === 'HYROX'
-      ? 'HYROX / CONDITIONING'
-      : selectedCategory === 'MOBILITY' || selectedCategory === 'REHAB'
-      ? 'MOBILITY & REHAB'
-      : selectedFilterTag;
   const coach = toExploreCoach(
     card ?? { id: coachId, name: fallbackName || 'Coach', handle: '', avatar: '', bio: '', specialties: [], hourlyRate: null, monthlyRate: null, verified: false, accepting: true },
   );
@@ -72,8 +65,8 @@ export async function publishCoachReel({
     {
       id,
       title: title.trim(),
-      category,
-      filter_tag: filterTag,
+      category: selectedCategory,
+      filter_tag: selectedFilterTag,
       video_url: clip.url,
       thumbnail_url: poster?.url || '',
       cues: cues.trim(),

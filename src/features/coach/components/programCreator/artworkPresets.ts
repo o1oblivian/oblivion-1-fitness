@@ -17,7 +17,7 @@ export const O1_PRESETS: ArtworkPreset[] = [
   },
   {
     id: 'preset-hyrox',
-    label: 'HYROX & Sled',
+    label: 'Conditioning & Sled',
     url: 'https://images.unsplash.com/photo-1526506118085-60ce8714f8c5?auto=format&fit=crop&w=1200&q=80',
   },
   {

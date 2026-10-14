@@ -18,7 +18,7 @@ export const DisciplineSelectorTrack: React.FC<DisciplineSelectorTrackProps> = (
         onClick={() => onPillClick('lift')}
         className={
           selectedDiscipline === 'lift'
-            ? 'bg-o1-well shadow-xs text-white rounded-full px-3.5 py-1.5 text-xs font-bold flex items-center justify-center gap-1.5 flex-1 transition-all cursor-pointer'
+            ? 'bg-o1-well shadow-xs text-white rounded-full px-3.5 py-1.5 text-xs font-medium flex items-center justify-center gap-1.5 flex-1 transition-all cursor-pointer'
             : 'text-neutral-400 hover:text-white rounded-full px-3.5 py-1.5 text-xs font-semibold flex items-center justify-center gap-1.5 flex-1 transition-all cursor-pointer'
         }
       >
@@ -34,7 +34,7 @@ export const DisciplineSelectorTrack: React.FC<DisciplineSelectorTrackProps> = (
         onClick={() => onPillClick('sports')}
         className={
           selectedDiscipline === 'sports'
-            ? 'bg-o1-well shadow-xs text-white rounded-full px-3.5 py-1.5 text-xs font-bold flex items-center justify-center gap-1.5 flex-1 transition-all cursor-pointer'
+            ? 'bg-o1-well shadow-xs text-white rounded-full px-3.5 py-1.5 text-xs font-medium flex items-center justify-center gap-1.5 flex-1 transition-all cursor-pointer'
             : 'text-neutral-400 hover:text-white rounded-full px-3.5 py-1.5 text-xs font-semibold flex items-center justify-center gap-1.5 flex-1 transition-all cursor-pointer'
         }
       >
@@ -50,7 +50,7 @@ export const DisciplineSelectorTrack: React.FC<DisciplineSelectorTrackProps> = (
         onClick={() => onPillClick('recovery')}
         className={
           selectedDiscipline === 'recovery'
-            ? 'bg-o1-well shadow-xs text-white rounded-full px-3.5 py-1.5 text-xs font-bold flex items-center justify-center gap-1.5 flex-1 transition-all cursor-pointer'
+            ? 'bg-o1-well shadow-xs text-white rounded-full px-3.5 py-1.5 text-xs font-medium flex items-center justify-center gap-1.5 flex-1 transition-all cursor-pointer'
             : 'text-neutral-400 hover:text-white rounded-full px-3.5 py-1.5 text-xs font-semibold flex items-center justify-center gap-1.5 flex-1 transition-all cursor-pointer'
         }
       >

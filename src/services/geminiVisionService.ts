@@ -147,9 +147,9 @@ export async function analyzeMealNutrients(
         await new Promise((r) => setTimeout(r, 400));
         continue;
       }
-      throw err?.message ? err : new Error('Unable to resolve meal macronutrients with Gemini Vision.');
+      throw err?.message ? err : new Error('Could not read this meal photo. Retake it with the food clearly in view.');
     }
   }
 
-  throw new Error('Could not analyze meal photo with Gemini Vision. Please retake photo with clear view of the food.');
+  throw new Error('Could not read this meal photo. Retake it with the food clearly in view.');
 }

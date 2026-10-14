@@ -13,9 +13,11 @@ import { useFuelStore } from '../features/fuel/store/useFuelStore';
 import { useTelemetryStore } from '../features/telemetry/store/useTelemetryStore';
 import { useLogStore } from '../stores/useLogStore';
 import { getTelemetryHistoryState } from '../features/log/store/useTelemetryHistoryStore';
-import { syncSessionToSupabase } from '../services/supabaseClient';
+import { archiveSession } from '../services/sessionArchive';
 import { localNoonIso } from '../features/log/services/dayLogService';
 import { safeStorage } from './sanitizers';
+import { mergeWorkoutDay, sessionLedger } from '../features/workout/store/workoutSetOperations';
+import { estimateSessionEnergy } from '../features/workout/utils/sessionEnergy';
 
 export const O1FC_LAST_LOG_DATE_KEY = 'O1FC_LAST_LOG_DATE';
 
@@ -42,9 +44,6 @@ export async function performMidnightRollover(previousDate: string, currentDate:
     const logState = useLogStore.getState();
 
     const exercises = workoutState.exercises || [];
-    const sessionTonnageKg = workoutState.sessionTonnageKg || 0;
-    const completedSetsCount = workoutState.completedSetsCount || 0;
-    const totalRepsCount = workoutState.totalRepsCount || 0;
 
     // Fuel metrics calculation
     const allMealItems = Object.values(fuelState.meals || {}).flat();
@@ -87,42 +86,39 @@ export async function performMidnightRollover(previousDate: string, currentDate:
       });
     }
 
-    if (completedSetsCount > 0 || sessionTonnageKg > 0 || exercises.length > 0) {
-      histStore.updateDayRecord(previousDate, 'workout', {
-        hasData: true,
-        tonnageKg: sessionTonnageKg,
-        completedSets: completedSetsCount,
-        durationMinutes: 0,
-        routineName: workoutState.activeRoutine || '',
-        intensityRpe: 0,
-        exercises: exercises.map((e) => ({
-          name: e.name || 'Exercise',
-          sets: e.sets?.length || 0,
-          reps: e.sets?.[0]?.reps || 0,
-          weightKg: e.sets?.[0]?.weightKg || 0,
-          completed: true,
-        })),
-      });
+    // An unfinished session is closed out like Finish: ticked sets only, plus its time and burn.
+    const ledger = sessionLedger(exercises);
+    if (ledger.completedSets > 0) {
+      const ticked = exercises
+        .map((e) => ({ ...e, sets: (e.sets || []).filter((s) => s.completed) }))
+        .filter((e) => e.sets.length > 0);
+      const energy = estimateSessionEnergy(ticked, ledger.completedSets);
+      const title = workoutState.activeRoutine || 'Workout';
+      const day = histStore.historyByDate[previousDate]?.workout;
+      // Live ticks already wrote the sets to the day they were lifted; only the timing is missing.
+      histStore.updateDayRecord(
+        previousDate,
+        'workout',
+        day?.hasData
+          ? mergeWorkoutDay(day, { tonnageKg: 0, completedSets: 0, totalReps: 0, exercises: [] }, title, energy)
+          : mergeWorkoutDay(undefined, ledger, title, energy),
+      );
 
-      const archivedSession = {
-        id: `archive-${previousDate}-${Date.now()}`,
-        title: `Daily Protocol Archive (${previousDate})`,
-        timestamp: `${previousDate} • Midnight Rollover`,
-        duration: '--',
-        tonnageKg: sessionTonnageKg,
-        totalSets: completedSetsCount,
+      archiveSession({
+        id: crypto.randomUUID(),
+        title,
+        duration: energy.durationMinutes > 0 ? `${energy.durationMinutes}m` : '',
+        duration_seconds: energy.durationMinutes * 60,
+        tonnage_kg: ledger.tonnageKg,
+        total_sets: ledger.completedSets,
         strain: 0,
         completed_at: localNoonIso(previousDate),
-        exercises: exercises.map((e) => ({
-          name: e.name,
-          sets: e.sets?.length || 3,
-          reps: `${totalRepsCount} total reps`,
-          load: `${e.sets?.[0]?.weightKg || 0} kg`,
+        exercises: ticked.map((e) => ({
+          name: e.name || e.exerciseName || 'Exercise',
+          sets: e.sets.map((s) => ({ ...s, weightKg: Number(s.weightKg ?? s.weight) || 0, reps: Number(s.reps) || 0 })),
         })),
-      };
-
-      syncSessionToSupabase(archivedSession).catch((err) => {
-        console.warn('[O1FC Midnight Rollover] Cloud sync deferred:', err);
+      }).catch((err) => {
+        console.warn('[O1FC Midnight Rollover] Backup deferred:', err);
       });
     }
 
