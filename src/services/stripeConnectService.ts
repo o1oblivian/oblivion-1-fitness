@@ -45,6 +45,8 @@ export interface StripeBalance {
 
 export type BalanceFailure = 'offline' | 'unconfigured' | 'signed-out' | 'server';
 
+const errorMessage = (err: unknown): string => (err instanceof Error ? err.message : '');
+
 async function authHeaders(): Promise<Record<string, string>> {
   const { data: { session } } = await supabase.auth.getSession();
   return {
@@ -111,8 +113,8 @@ export const stripeConnectService = {
       const url = typeof data?.url === 'string' ? data.url : undefined;
       if (!res.ok || !url) return { error: data?.error || 'Failed to initialize Stripe onboarding.' };
       return { url };
-    } catch (err: any) {
-      return { error: err.message || 'Network error communicating with Stripe Connect.' };
+    } catch (err: unknown) {
+      return { error: errorMessage(err) || 'Network error communicating with Stripe Connect.' };
     }
   },
 
@@ -127,8 +129,8 @@ export const stripeConnectService = {
       const data = await res.json().catch(() => ({}));
       if (!res.ok || data?.error) return { success: false, error: data?.error || 'Failed to process withdrawal.' };
       return { success: true, payoutId: data?.payoutId || data?.transferId };
-    } catch (err: any) {
-      return { success: false, error: err.message || 'Network error communicating with payout service.' };
+    } catch (err: unknown) {
+      return { success: false, error: errorMessage(err) || 'Network error communicating with payout service.' };
     }
   },
 
@@ -141,8 +143,8 @@ export const stripeConnectService = {
       const data = await res.json().catch(() => ({}));
       if (!res.ok) return { error: data?.error || 'Could not open the Stripe dashboard.' };
       return { url: data?.url };
-    } catch (err: any) {
-      return { error: err.message || 'Network error reaching Stripe portal service.' };
+    } catch (err: unknown) {
+      return { error: errorMessage(err) || 'Network error reaching Stripe portal service.' };
     }
   },
 
@@ -156,8 +158,8 @@ export const stripeConnectService = {
         return { error: data?.error || 'Could not load your balance.', reason };
       }
       return { data: data as StripeBalance };
-    } catch (err: any) {
-      return { error: err.message || 'Network error loading your balance.', reason: 'offline' };
+    } catch (err: unknown) {
+      return { error: errorMessage(err) || 'Network error loading your balance.', reason: 'offline' };
     }
   },
 
@@ -173,8 +175,8 @@ export const stripeConnectService = {
       const data = await res.json().catch(() => ({}));
       if (!res.ok || typeof data?.url !== 'string') return { error: data?.error || 'Could not start checkout.' };
       return { url: data.url };
-    } catch (err: any) {
-      return { error: err.message || 'Network error starting checkout.' };
+    } catch (err: unknown) {
+      return { error: errorMessage(err) || 'Network error starting checkout.' };
     }
   },
 };

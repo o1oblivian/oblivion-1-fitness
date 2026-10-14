@@ -1,6 +1,5 @@
 import { safeStorage } from '../utils/safeStorage';
 import { supabase } from './supabaseClient';
-import { isNativePlatform } from './subscriptionService';
 
 const TRIAL_STORAGE_KEY = 'o1fc_athlete_trial_v2';
 const TRIAL_DURATION_DAYS = 90;
@@ -84,6 +83,15 @@ export function activateProSubscription(userId: string = '', planId: string): vo
   syncTrialToSupabase(userId, current.startDate, true, planId);
 }
 
+/** The store reports no active plan (expired, refunded or cancelled), so the athlete goes back to the trial clock. */
+export function clearProSubscription(userId: string = ''): void {
+  if (!userId) return;
+  const current = getAthleteTrialState(userId);
+  if (!current.hasSubscribedPro) return;
+  safeStorage.setItem(`${TRIAL_STORAGE_KEY}_${userId}`, { startDate: current.startDate, hasSubscribedPro: false });
+  syncTrialToSupabase(userId, current.startDate);
+}
+
 /**
  * Helper to simulate or test trial expiration for testing/admin purposes
  */
@@ -129,17 +137,6 @@ async function syncTrialToSupabase(
       membership_tier: isPro ? planId || 'o1fc_pro' : 'core_free',
       updated_at: new Date().toISOString(),
     });
-
-    if (isPro) {
-      await supabase.from('user_entitlements').upsert({
-        user_id: userId,
-        tier: planId || 'o1fc_pro',
-        status: 'active',
-        platform: isNativePlatform() ? 'ios' : 'web',
-        expires_at: '2099-12-31T23:59:59Z',
-        updated_at: new Date().toISOString(),
-      });
-    }
   } catch {
     // Fail-open offline resilience: Supabase sync fails gracefully without blocking app
   }

@@ -4,11 +4,13 @@ import {
   checkSubscriptionStatus,
   purchasePro as svcPurchasePro,
   restorePurchases as svcRestorePurchases,
+  verifySubscriptionWithStore,
   PLUS_ENTITLEMENT,
 } from '../services/subscriptionService';
 import {
   getAthleteTrialState,
   activateProSubscription,
+  clearProSubscription,
   TrialState,
 } from '../services/trialService';
 import { getAuthenticatedUserId } from '../services/authUser';
@@ -85,6 +87,18 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
       setIsPro((Boolean(uid) && hasProEntitlement) || creator);
       setCurrentPlan(status.tierId || (hasProEntitlement ? PLUS_ENTITLEMENT : 'o1fc_core_free'));
       setIsLoading(false);
+
+      if (!uid) return;
+      const verified = await verifySubscriptionWithStore(uid);
+      if (!verified || !mounted) return;
+      if (verified.isActive) {
+        if (!trialInfo.hasSubscribedPro || trialInfo.planId !== verified.tierId) activateProSubscription(uid, verified.tierId);
+      } else {
+        clearProSubscription(uid);
+      }
+      setTrial(getAthleteTrialState(uid));
+      setIsPro(verified.isActive || creator);
+      setCurrentPlan(verified.isActive ? verified.tierId : 'o1fc_core_free');
     };
 
     init();
