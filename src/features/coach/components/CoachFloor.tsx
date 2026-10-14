@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Dumbbell, Inbox, Layers, LayoutGrid, MessageSquare, Radio, User, UserPlus, Users, Wallet } from 'lucide-react';
 import { supabase } from '../../../services/supabaseClient';
+import { liveChannel } from '../../../services/realtimeChannel';
 import { useAuthStore } from '../../../stores/useAuthStore';
 import { useCoachStore } from '../../../stores/useCoachStore';
 import { useModalStore } from '../../../components/modals/useModalStore';
@@ -219,8 +220,7 @@ export const CoachFloor: React.FC<CoachFloorProps> = ({
     if (!coachId) return;
     const refresh = () => void fetchLatestCoachFeedback(coachId).then(setLatestFeedback);
     refresh();
-    const channel = supabase
-      .channel(`coach-feedback-${coachId}`)
+    const channel = liveChannel(`coach-feedback-${coachId}`)
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'coach_messages', filter: `coach_id=eq.${coachId}` }, refresh)
       .subscribe();
     return () => {

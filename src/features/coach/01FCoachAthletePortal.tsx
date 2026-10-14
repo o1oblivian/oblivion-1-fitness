@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Play } from 'lucide-react';
 import { supabase } from '../../services/supabaseClient';
+import { liveChannel } from '../../services/realtimeChannel';
 import { CheckinDraft, DailyCheckInProgress } from './components/DailyCheckInProgress';
 import { AthleteProgramsPanel } from './components/programs/AthleteProgramsPanel';
 import { CoachInboxView } from './components/CoachInboxView';
@@ -149,8 +150,7 @@ export const O1FCoachAthletePortal: React.FC<{ isCoach?: boolean }> = ({ isCoach
     if (!coach?.id || isCoach || !me) return;
     const coachId = coach.id;
     const refreshMine = () => void loadMine(coachId);
-    const channel = supabase
-      .channel(`athlete-coach-${me}`)
+    const channel = liveChannel(`athlete-coach-${me}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'athlete_checkins', filter: `athlete_id=eq.${me}` }, refreshMine)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'workout_completions', filter: `athlete_id=eq.${me}` }, refreshMine)
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'coach_messages', filter: `athlete_id=eq.${me}` }, refreshMine)

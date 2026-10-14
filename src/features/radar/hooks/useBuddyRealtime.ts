@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { supabase } from '../../../services/supabaseClient';
+import { liveChannel } from '../../../services/realtimeChannel';
 import { useBuddyMessageStore, RealtimeBuddyMessage } from '../../../stores/useBuddyMessageStore';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { readBlocks, unpackLine } from '../services/buddyMatch';
@@ -20,8 +21,7 @@ export function useBuddyRealtime({
   useEffect(() => {
     if (!currentUserId) return;
 
-    const channel = supabase
-      .channel(`buddy-lines-${currentUserId}`)
+    const channel = liveChannel(`buddy-lines-${currentUserId}`)
       .on(
         'postgres_changes',
         {

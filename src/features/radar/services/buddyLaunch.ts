@@ -1,4 +1,5 @@
 import { supabase } from '../../../services/supabaseClient';
+import { liveChannel } from '../../../services/realtimeChannel';
 
 export const DEFAULT_AREA_THRESHOLD = 250;
 
@@ -67,8 +68,7 @@ export async function readBuddyGate(coords: { latitude: number; longitude: numbe
 }
 
 export function subscribeBuddyGate(onChange: () => void): () => void {
-  const channel = supabase
-    .channel('app-config-buddy')
+  const channel = liveChannel('app-config-buddy')
     .on(
       'postgres_changes',
       { event: '*', schema: 'public', table: 'app_config', filter: 'key=eq.buddy' },

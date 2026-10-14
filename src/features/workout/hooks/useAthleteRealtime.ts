@@ -5,6 +5,7 @@
 
 import { useEffect } from 'react';
 import { supabase } from '../../../services/supabaseClient';
+import { liveChannel } from '../../../services/realtimeChannel';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { readAthleteSettingsSnapshot } from '../../../utils/athleteSettingsSnapshot';
 import type { AssignedWorkoutRow } from '../../../types/coach';
@@ -31,8 +32,7 @@ export function useAthleteRealtime({
       });
     };
 
-    const channel = supabase
-      .channel(`athlete-assigned-${athleteId}`)
+    const channel = liveChannel(`athlete-assigned-${athleteId}`)
       .on(
         'postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'assigned_workouts', filter: `client_id=eq.${athleteId}` },

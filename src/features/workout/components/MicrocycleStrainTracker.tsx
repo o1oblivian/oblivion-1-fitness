@@ -4,6 +4,7 @@ import { useMicrocycleStore } from '../store/useMicrocycleStore';
 import { getLocalSystemDayIdx } from './microcycle/microcycleTypes';
 import { MicrocycleTowers } from './microcycle/MicrocycleTowers';
 import { supabase } from '../../../services/supabaseClient';
+import { liveChannel } from '../../../services/realtimeChannel';
 import { getAuthenticatedUserId } from '../../../services/authUser';
 import { readAthleteSettingsSnapshot } from '../../../utils/athleteSettingsSnapshot';
 import { kgToDisplay, loadUnitLabel } from '../../../utils/weightUnits';
@@ -42,8 +43,7 @@ export const MicrocycleStrainTracker: React.FC = () => {
     void getAuthenticatedUserId().then((uid) => {
       if (!uid || cancelled) return;
       const filter = `user_id=eq.${uid}`;
-      channel = supabase
-        .channel(`microcycle-${uid}`)
+      channel = liveChannel(`microcycle-${uid}`)
         .on('postgres_changes', { event: '*', schema: 'public', table: 'completed_sessions', filter }, refreshSoon)
         .on('postgres_changes', { event: '*', schema: 'public', table: 'workout_logs', filter }, refreshSoon)
         .subscribe();

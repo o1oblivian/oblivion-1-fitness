@@ -35,7 +35,7 @@ export class FeatureErrorBoundary extends Component<Props, State> {
   }
 
   public override componentDidUpdate(prevProps: Props): void {
-    if (this.state.hasError && (prevProps.featureName !== this.props.featureName || prevProps.children !== this.props.children)) {
+    if (this.state.hasError && prevProps.featureName !== this.props.featureName) {
       this.setState({ hasError: false, errorMessage: '' });
     }
   }

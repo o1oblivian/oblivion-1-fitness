@@ -1,4 +1,5 @@
 import { supabase } from './supabaseClient';
+import { liveChannel } from './realtimeChannel';
 import type { AssignedWorkoutRow } from '../types/coach';
 
 export interface CoachDirectivePayload {
@@ -11,8 +12,7 @@ export function subscribeToCoachDirectives(
   athleteId: string,
   onDirectiveOrRoutineChanged: (payload: CoachDirectivePayload) => void
 ): () => void {
-  const channel = supabase
-    .channel(`athlete-coach-pipeline-${athleteId}`)
+  const channel = liveChannel(`athlete-coach-pipeline-${athleteId}`)
     .on(
       'postgres_changes',
       {

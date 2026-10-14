@@ -4,6 +4,7 @@ import { CoachMessage, fetchCoachMessages } from '../services/coachService';
 import { sendCoachMessage } from '../services/coachBridge';
 import { getAuthenticatedUserId } from '../../../services/authUser';
 import { supabase } from '../../../services/supabaseClient';
+import { liveChannel } from '../../../services/realtimeChannel';
 import { useAuthStore } from '../../../stores/useAuthStore';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { AthleteAvatar } from './floor/FloorAthleteCard';
@@ -85,8 +86,7 @@ export const CoachInboxView: React.FC<CoachInboxViewProps> = ({ coachId = '', vi
   useEffect(() => {
     if (!owner || (viewer === 'athlete' && !me)) return;
     const athleteId = viewer === 'athlete' ? me : '';
-    const channel = supabase
-      .channel(`coach-inbox-${owner}-${athleteId || 'all'}`)
+    const channel = liveChannel(`coach-inbox-${owner}-${athleteId || 'all'}`)
       .on(
         'postgres_changes',
         {

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { CheckCircle2 } from 'lucide-react';
 import { supabase } from '../../services/supabaseClient';
+import { liveChannel } from '../../services/realtimeChannel';
 import { useAuthStore } from '../../stores/useAuthStore';
 import {
   Athlete,
@@ -136,8 +137,7 @@ export const O1FCoachCommandCenter: React.FC<O1FCoachCommandCenterProps> = ({ is
     void loadCheckins();
     void loadWorkouts();
     const filter = `coach_id=eq.${coachId}`;
-    const channel = supabase
-      .channel(`coach-console-${coachId}`)
+    const channel = liveChannel(`coach-console-${coachId}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'coach_clients', filter }, () => void loadRoster())
       .on('postgres_changes', { event: '*', schema: 'public', table: 'athlete_checkins', filter }, () => void loadCheckins())
       .on('postgres_changes', { event: '*', schema: 'public', table: 'coach_directives', filter }, () => void loadNotes())
