@@ -117,6 +117,14 @@ export async function publishBuddyCard(
   return { ok: true };
 }
 
+/** For sign-out: withdraws the card while the session still works, but never holds sign-out up for more than 1.5 s. */
+export async function withdrawBuddyCardForSignOut(): Promise<void> {
+  await Promise.race([
+    withdrawBuddyCard().catch(() => false),
+    new Promise((resolve) => setTimeout(resolve, 1500)),
+  ]);
+}
+
 /** Takes the athlete off the radar and deletes their stored area. */
 export async function withdrawBuddyCard(): Promise<boolean> {
   const uid = await getAuthenticatedUserId();

@@ -4,6 +4,7 @@ import { supabase } from '../services/supabaseClient';
 import { safeStorage } from '../utils/safeStorage';
 import { useUserStore } from './useUserStore';
 import { releaseDevice } from '../services/accountScope';
+import { withdrawBuddyCardForSignOut } from '../services/buddyPresenceSync';
 import { getOAuthRedirectTo } from '../services/oauthDeepLink';
 
 export function clearStoredSession(): void {
@@ -208,6 +209,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   signOut: async () => {
+    await withdrawBuddyCardForSignOut();
     try { await supabase.auth.signOut({ scope: 'local' }); } catch {}
     clearStoredSession();
     set({ user: null, session: null, isAuthenticated: false, error: null });
