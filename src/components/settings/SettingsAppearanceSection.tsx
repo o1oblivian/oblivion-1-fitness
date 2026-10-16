@@ -42,7 +42,7 @@ function Segmented<T extends string>({
       <div
         role="radiogroup"
         aria-label={title}
-        className="grid gap-1.5 p-1 rounded-xl bg-white/[0.03]"
+        className="grid gap-1 p-0.5 rounded-xl bg-white/[0.03]"
         style={{ gridTemplateColumns: `repeat(${options.length}, minmax(0, 1fr))` }}
       >
         {options.map((option) => (
@@ -55,7 +55,7 @@ function Segmented<T extends string>({
               tactileEngine.triggerSelectionBuzz();
               onChange(option.value);
             }}
-            className={`py-1.5 min-h-[44px] rounded-xl text-xs font-tactical transition-all cursor-pointer ${
+            className={`h-8 rounded-lg text-xs font-tactical transition-all cursor-pointer ${
               value === option.value ? 'bg-o1-crimson text-white font-bold' : 'text-neutral-400 hover:text-neutral-200'
             }`}
           >
@@ -126,7 +126,7 @@ export const SettingsAppearanceSection: React.FC<AppearanceSectionProps> = ({
               Workout entry dial or keypad
             </span>
           </div>
-          <div className="grid grid-cols-2 gap-1.5 p-1 rounded-xl bg-white/[0.03]">
+          <div className="grid grid-cols-2 gap-1 p-0.5 rounded-xl bg-white/[0.03]">
             {(['Rotary Dial', 'Keypad'] as InputStyleType[]).map((style) => (
               <button
                 key={style}
@@ -135,7 +135,7 @@ export const SettingsAppearanceSection: React.FC<AppearanceSectionProps> = ({
                   tactileEngine.triggerSelectionBuzz();
                   onSetInputStyle(style);
                 }}
-                className={`py-1.5 min-h-[44px] rounded-xl text-xs font-tactical transition-all cursor-pointer ${
+                className={`h-8 rounded-lg text-xs font-tactical transition-all cursor-pointer ${
                   inputStyle === style
                     ? 'bg-o1-crimson text-white font-bold'
                     : 'text-neutral-400 hover:text-neutral-200'

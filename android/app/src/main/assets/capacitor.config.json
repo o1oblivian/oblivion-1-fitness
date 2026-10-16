@@ -5,11 +5,31 @@
 	"server": {
 		"androidScheme": "https"
 	},
+	"backgroundColor": "#000000",
+	"ios": {
+		"contentInset": "always",
+		"backgroundColor": "#000000"
+	},
+	"android": {
+		"backgroundColor": "#000000"
+	},
 	"plugins": {
+		"SystemBars": {
+			"style": "DARK",
+			"insetsHandling": "css"
+		},
 		"SplashScreen": {
 			"launchShowDuration": 1200,
 			"launchAutoHide": true,
 			"backgroundColor": "#09090b"
+		},
+		"SocialLogin": {
+			"providers": {
+				"google": true,
+				"apple": true,
+				"facebook": false,
+				"twitter": false
+			}
 		}
 	}
 }

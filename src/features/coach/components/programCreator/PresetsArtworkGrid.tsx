@@ -2,17 +2,13 @@ import React from 'react';
 import { Check } from 'lucide-react';
 import { tactileEngine } from '../../../../services/tactileEngine';
 import { O1_PRESETS } from './artworkPresets';
-import { mockCoverArt } from '../../../../services/devMocks';
 
 interface Props {
   coverImage: string;
   onSelectImage: (url: string) => void;
 }
 
-const STOCK_ASSETS = [
-  ...O1_PRESETS.map((p) => ({ id: p.id, title: p.label, url: p.url })),
-  ...mockCoverArt(),
-];
+const STOCK_ASSETS = O1_PRESETS.map((p) => ({ id: p.id, title: p.label, url: p.url }));
 
 export const PresetsArtworkGrid: React.FC<Props> = ({ coverImage, onSelectImage }) => {
   return (

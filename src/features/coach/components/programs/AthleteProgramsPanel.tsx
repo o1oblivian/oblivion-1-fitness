@@ -52,6 +52,7 @@ export const AthleteProgramsPanel: React.FC = () => {
   const openFullEliteReels = useModalStore((s) => s.openFullEliteReels);
   const [mine, setMine] = useState<EnrolledProgram[] | null>(null);
   const [browse, setBrowse] = useState<BrowseProgram[] | null>(null);
+  const [browseFailed, setBrowseFailed] = useState(false);
   const [discipline, setDiscipline] = useState('All');
   const [readingId, setReadingId] = useState<string | null>(null);
   const [showPast, setShowPast] = useState(false);
@@ -75,7 +76,15 @@ export const AthleteProgramsPanel: React.FC = () => {
 
   useEffect(() => {
     loadMine();
-    void fetchBrowsePrograms().then(setBrowse).catch(() => setBrowse([]));
+    void fetchBrowsePrograms()
+      .then((rows) => {
+        setBrowseFailed(false);
+        setBrowse(rows);
+      })
+      .catch(() => {
+        setBrowseFailed(true);
+        setBrowse([]);
+      });
     window.addEventListener(PROGRAMS_EVENT, loadMine);
     return () => window.removeEventListener(PROGRAMS_EVENT, loadMine);
   }, [loadMine]);
@@ -203,7 +212,7 @@ export const AthleteProgramsPanel: React.FC = () => {
         {browse === null ? (
           <p className="px-1 py-4 text-[13px] text-o1-muted">Loading programs</p>
         ) : shown.length === 0 ? (
-          <p className="px-1 py-4 text-[13px] text-o1-muted">No programs published yet.</p>
+          <p className="px-1 py-4 text-[13px] text-o1-muted">{browseFailed ? 'Could not load programs. Check your connection.' : 'No programs published yet.'}</p>
         ) : (
           <div className="-mx-1 flex snap-x gap-2 overflow-x-auto px-1 pb-1 [scrollbar-width:none]">
             {shown.map((program) => {
@@ -257,7 +266,7 @@ export const AthleteProgramsPanel: React.FC = () => {
       <CoachDirectMessageModal coach={messageCoach} onClose={() => setMessageCoach(null)} />
 
       {toast && (
-        <div role="status" aria-live="polite" className="pointer-events-none fixed inset-x-0 top-16 z-[70] mx-auto w-fit rounded-full border border-white/[0.07] bg-o1-sheet px-4 py-2 text-[12px] font-semibold text-o1-text shadow-xl">
+        <div role="status" aria-live="polite" className="o1-toast">
           {toast}
         </div>
       )}

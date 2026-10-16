@@ -10,7 +10,6 @@ import { FuelIntakeSection } from './components/FuelIntakeSection';
 import { FuelModalsLayer } from './components/FuelModalsLayer';
 import { useFuelTotals } from './hooks/useFuelTotals';
 import { useFuelModals } from './hooks/useFuelModals';
-import { useSubscription } from '../../context/SubscriptionContext';
 import { hydrationGoalLiters, lastSevenDateKeys, resolveMacroTargets, WeekDayEntry } from './utils/fuelMath';
 import { FuelWeekSlide } from './components/FuelWeekSlide';
 import { MEAL_SLOT_SHARE, MealSlot, slotBudget } from './data/intelMealEngine';
@@ -26,7 +25,6 @@ function gramsLeft(target: number | null, eaten: number): number {
 }
 
 export const FuelView: React.FC = () => {
-  const { isPro, openPaywall } = useSubscription();
   const meals = useFuelStore((s) => s.meals);
   const calorieTarget = useFuelStore((s) => s.calorieTarget);
   const targetProteinG = useFuelStore((s) => s.targetProteinG);
@@ -173,10 +171,6 @@ export const FuelView: React.FC = () => {
           modals.setIsAddFoodModalOpen(true);
         }}
         onOpenScanModal={(slot) => {
-          if (!isPro) {
-            openPaywall('Vision Macro & Nutrition Scanner');
-            return;
-          }
           modals.setScanSlot(slot);
           modals.setIsCameraOpen(true);
         }}
@@ -242,7 +236,7 @@ export const FuelView: React.FC = () => {
         <div
           role="status"
           aria-live="polite"
-          className="pointer-events-none fixed inset-x-0 top-[calc(env(safe-area-inset-top)+4rem)] z-[70] mx-auto w-fit max-w-[90vw] rounded-full border border-white/[0.08] bg-o1-sheet px-4 py-2 text-[12px] font-semibold text-o1-text shadow-xl"
+          className="o1-toast"
         >
           {toast}
         </div>

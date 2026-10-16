@@ -101,8 +101,9 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
       flash('Pick at least one athlete.', 2000);
       return;
     }
-    if (selectedAthletes.every((athlete) => isSampleId(athlete.id))) {
-      flash('Sample clients only. Nothing was sent.', 2500);
+    const linked = selectedAthletes.filter((athlete) => isValidUuid(athlete.client_id || athlete.id) && !isSampleId(athlete.id));
+    if (!linked.length) {
+      flash('Pick a linked client. Nothing was saved on this phone.', 2500);
       return;
     }
 
@@ -112,17 +113,15 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
       const coachId = (await getAuthenticatedUserId()) || '';
       const cue = coachCue.trim();
       const exercises = stack.map((ex) => ({ name: ex.name, muscle: ex.muscle, cue: ex.cue, setsCount: ex.sets.length, sets: ex.sets }));
-      const linked = selectedAthletes.filter((athlete) => isValidUuid(athlete.client_id || athlete.id));
       const [y, m, d] = setup.date.split('-').map(Number);
       const day = new Date(y, (m || 1) - 1, d || 1, 6);
       const assignedAt = setup.date === localDateKey() || Number.isNaN(day.getTime()) ? new Date().toISOString() : day.toISOString();
-      if (linked.length) {
-        if (!isValidUuid(coachId)) {
-          setIsSubmitting(false);
-          flash('Sign in to send workouts.', 2500);
-          return;
-        }
-        const rows = linked.map((athlete) => {
+      if (!isValidUuid(coachId)) {
+        setIsSubmitting(false);
+        flash('Sign in to send workouts.', 2500);
+        return;
+      }
+      const rows = linked.map((athlete) => {
           const personId = athlete.client_id || athlete.id;
           return {
             coach_id: coachId,
@@ -142,12 +141,11 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
             assigned_date: assignedAt,
           };
         });
-        const { error } = await supabase.from('assigned_workouts').insert(rows);
-        if (error) throw new Error(error.message);
-      }
+      const { error } = await supabase.from('assigned_workouts').insert(rows);
+      if (error) throw new Error(error.message);
 
-      setToast(selectedAthletes.length > 1 ? `Sent to ${selectedAthletes.length} athletes` : `Sent to ${selectedAthletes[0]?.name || 'athlete'}`);
-      onDispatched?.(setup.title, selectedAthletes.map((a) => a.name).join(', '));
+      setToast(linked.length > 1 ? `Sent to ${linked.length} athletes` : `Sent to ${linked[0]?.name || 'athlete'}`);
+      onDispatched?.(setup.title, linked.map((a) => a.name).join(', '));
       closeTimer.current = setTimeout(onClose, 1500);
     } catch (e) {
       setIsSubmitting(false);

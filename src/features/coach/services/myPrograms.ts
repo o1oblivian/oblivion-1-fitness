@@ -2,7 +2,6 @@ import { supabase } from '../../../services/supabaseClient';
 import { getAuthenticatedUserId } from '../../../services/authUser';
 import { useReelsStore } from '../../../stores/useReelsStore';
 import { isValidUuid } from './coachService';
-import { mockProgramRows } from '../../../services/devMocks';
 import {
   PROGRAMS_EVENT,
   ProgramCoach,
@@ -35,7 +34,7 @@ async function programRowsById(ids: string[]): Promise<Map<string, Record<string
     supabase.from('coach_programs').select(PROGRAM_COLUMNS).in('id', ids),
     supabase.from('program_catalog').select(CATALOG_COLUMNS).in('id', ids),
   ]);
-  const rows = [...(own.data ?? []), ...(catalog.data ?? []), ...mockProgramRows()] as Record<string, unknown>[];
+  const rows = [...(own.data ?? []), ...(catalog.data ?? [])] as Record<string, unknown>[];
   for (const row of await withProgramContent(rows.filter((row) => row?.id && ids.includes(String(row.id))))) {
     byId.set(String(row.id), row);
   }
@@ -122,7 +121,7 @@ export async function fetchBrowsePrograms(): Promise<BrowseProgram[]> {
     supabase.from('coach_programs').select(PROGRAM_COLUMNS).eq('listed', true).order('created_at', { ascending: false }).limit(BROWSE_LIMIT),
     supabase.from('program_catalog').select(CATALOG_COLUMNS).eq('active', true).not('catalog_coach_id', 'is', null).order('sort_order').limit(BROWSE_LIMIT),
   ]);
-  const rows = await withProgramContent(uniquePrograms([...(own.data ?? []), ...(catalog.data ?? []), ...mockProgramRows()] as Record<string, unknown>[]));
+  const rows = await withProgramContent(uniquePrograms([...(own.data ?? []), ...(catalog.data ?? [])] as Record<string, unknown>[]));
   const coachIdOf = (row: Record<string, unknown>) => String(row.coach_id || row.catalog_coach_id || '');
 
   const coaches = new Map<string, ProgramCoach>();
@@ -130,7 +129,7 @@ export async function fetchBrowsePrograms(): Promise<BrowseProgram[]> {
     const c = reel.coach;
     if (c?.id && !coaches.has(c.id)) coaches.set(c.id, { id: c.id, name: c.name, handle: c.handle, avatar: c.avatar });
   }
-  const unknown = [...new Set(rows.map(coachIdOf).filter((id) => id && !coaches.has(id)))];
+  const unknown = [...new Set(rows.map(coachIdOf).filter((id) => isValidUuid(id) && !coaches.has(id)))];
   if (unknown.length) {
     const { data } = await supabase.from('coach_profiles').select('id, display_name, avatar_url').in('id', unknown);
     for (const p of (data ?? []) as Record<string, unknown>[]) {

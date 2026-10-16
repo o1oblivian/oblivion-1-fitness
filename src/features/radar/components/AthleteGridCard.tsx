@@ -23,11 +23,11 @@ export const AthleteGridCard: React.FC<AthleteGridCardProps> = ({
   onLikeToggle,
 }) => {
   const photo = athlete.image_url || athlete.avatar || athlete.photos?.[0] || '';
-  const matchPct = athlete.match_score ?? athlete.matchPercentage ?? 85;
-  const gym = athlete.home_gym || athlete.homeGym || 'Local Gym';
-  const dist = athlete.distance_km ?? athlete.distanceKm ?? 2.4;
-  const isOnline = athlete.is_online ?? true;
-  const discipline = athlete.discipline || athlete.training_discipline || 'ATHLETE';
+  const matchPct = athlete.match_score ?? athlete.matchPercentage ?? 0;
+  const gym = athlete.home_gym || athlete.homeGym || '';
+  const dist = athlete.distance_km ?? athlete.distanceKm;
+  const isOnline = Boolean(athlete.is_online);
+  const discipline = athlete.discipline || athlete.training_discipline || '';
   const isVerified = Boolean(athlete.is_verified);
 
   return (
@@ -91,9 +91,8 @@ export const AthleteGridCard: React.FC<AthleteGridCardProps> = ({
             </h3>
             <div className="flex items-center gap-1 text-[9.5px] font-normal text-neutral-300 truncate mt-0.5">
               <TacticalPlaceBeaconIcon className="w-2.5 h-2.5 text-o1-crimson shrink-0" />
-              <span className="truncate">{gym}</span>
-              <span className="text-white/40">·</span>
-              <span className="font-mono text-[9px] text-neutral-400 shrink-0">{dist} km</span>
+              <span className="truncate">{gym || 'Gym unknown'}</span>
+              {Number.isFinite(Number(dist)) ? <span className="font-mono text-[9px] text-neutral-400 shrink-0">· {dist} km</span> : null}
             </div>
           </div>
 

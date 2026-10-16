@@ -42,8 +42,13 @@ export const ModalRegistry: React.FC = () => {
     };
     openPending();
     window.addEventListener(REEL_LINK_EVENT, openPending);
-    return () => window.removeEventListener(REEL_LINK_EVENT, openPending);
-  }, [openFullEliteReels]);
+    const closeOnSignOut = () => closeModal();
+    window.addEventListener('o1fc_signed_out', closeOnSignOut);
+    return () => {
+      window.removeEventListener(REEL_LINK_EVENT, openPending);
+      window.removeEventListener('o1fc_signed_out', closeOnSignOut);
+    };
+  }, [openFullEliteReels, closeModal]);
 
   if (!activeModal) return null;
 

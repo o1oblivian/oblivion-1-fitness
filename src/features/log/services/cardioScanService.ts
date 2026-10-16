@@ -2,7 +2,8 @@ import { ExtractedCardioData } from '../components/scan/CardioScanMetricFields';
 import { parseTelemetryFromOcrText } from '../../../services/ocrTelemetryParser';
 import { analyzeCardioImageWithGemini } from '../../../services/mealScannerService';
 import Tesseract from 'tesseract.js';
-import { apiUrl } from '../../../services/apiBase';
+import { apiFetch } from '../../../services/apiBase';
+import { compressAndAnalyzeImage } from '../../../services/imageCompressionService';
 
 function readMetric(value: unknown, decimals = 0): number | null {
   if (value == null || (typeof value === 'string' && value.trim() === '')) return null;
@@ -79,21 +80,31 @@ async function geminiWatchFallback(
   }
 }
 
+function withinMs<T>(work: Promise<T>, ms: number): Promise<T | null> {
+  return Promise.race([work, new Promise<null>((resolve) => setTimeout(() => resolve(null), ms))]);
+}
+
 export async function processCardioScanImage(
   base64Image: string,
-  scanMode: 'console' | 'watch'
+  scanMode: 'console' | 'watch',
+  options: { skipServer?: boolean } = {}
 ): Promise<ExtractedCardioData> {
   const cleanBase64 = base64Image.replace(/^data:image\/[a-z]+;base64,/, '');
   const dataUrl = base64Image.startsWith('data:') ? base64Image : `data:image/jpeg;base64,${cleanBase64}`;
 
   let extracted: ExtractedCardioData | null = null;
 
-  try {
-    const res = await fetch(apiUrl('/api/vision/cardio-telemetry'), {
+  if (!options.skipServer) try {
+    const blob = await (await fetch(dataUrl)).blob();
+    const { compressedBase64 } = await compressAndAnalyzeImage(blob, 1600, 0.85);
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 40_000);
+    const res = await apiFetch('/api/vision/cardio-telemetry', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ imageBase64: cleanBase64, mimeType: 'image/jpeg' }),
-    });
+      body: JSON.stringify({ imageBase64: compressedBase64 || cleanBase64, mimeType: 'image/jpeg' }),
+      signal: controller.signal,
+    }).finally(() => clearTimeout(timer));
 
     if (res.ok) {
       const json = await res.json().catch(() => null);
@@ -116,13 +127,12 @@ export async function processCardioScanImage(
 
   if (isEmptyTelemetry(extracted)) {
     try {
-      const ocrResult = await Tesseract.recognize(dataUrl, 'eng');
+      const ocrResult = await withinMs(Tesseract.recognize(dataUrl, 'eng'), 25_000);
       const rawText = ocrResult?.data?.text || '';
       if (rawText.trim().length > 0) {
         const parsed = parseTelemetryFromOcrText(rawText);
         extracted = toExtracted(scanMode, {
-          activityType:
-            parsed.deviceType === 'watch' || scanMode === 'watch' ? 'Smartwatch Pedometer' : 'Cardio Console',
+          activityType: parsed.deviceType === 'watch' ? 'Smartwatch Pedometer' : 'Cardio Console',
           distanceKm: parsed.distanceKm,
           durationMinutes: parsed.elapsedMinutes,
           burnedKcal: parsed.caloriesBurned,
@@ -138,7 +148,7 @@ export async function processCardioScanImage(
   }
 
   if (isEmptyTelemetry(extracted)) {
-    const geminiResult = await geminiWatchFallback(dataUrl, scanMode);
+    const geminiResult = await withinMs(geminiWatchFallback(dataUrl, scanMode), 25_000);
     if (geminiResult) extracted = geminiResult;
   }
 

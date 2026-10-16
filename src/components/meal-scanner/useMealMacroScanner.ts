@@ -51,7 +51,7 @@ export function useMealMacroScanner({
       id: `meal-ai-${Date.now()}`, name, calories: kcal, protein: p, carbs: c, fats: f,
     });
     onConfirmMeal?.(name, kcal, p, c, f, effectiveSlot);
-    triggerToast(`🎯 Logged to ${effectiveSlot}: ${name} (${p}g P / ${kcal} kcal)`, 'success');
+    triggerToast(`Added to ${effectiveSlot} · ${kcal} kcal`, 'success');
     setScannedMeal(null);
   };
 

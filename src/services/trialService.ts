@@ -1,5 +1,4 @@
 import { safeStorage } from '../utils/safeStorage';
-import { supabase } from './supabaseClient';
 
 const TRIAL_STORAGE_KEY = 'o1fc_athlete_trial_v2';
 const TRIAL_DURATION_DAYS = 90;
@@ -45,9 +44,6 @@ export function getAthleteTrialState(userId: string = ''): TrialState {
       hasSubscribedPro: false,
     };
     safeStorage.setItem(`${TRIAL_STORAGE_KEY}_${userId}`, stored);
-
-    // Sync to Supabase in background
-    syncTrialToSupabase(userId, stored.startDate);
   }
 
   const startMs = new Date(stored.startDate).getTime();
@@ -80,7 +76,6 @@ export function activateProSubscription(userId: string = '', planId: string): vo
     planId,
   };
   safeStorage.setItem(`${TRIAL_STORAGE_KEY}_${userId}`, updated);
-  syncTrialToSupabase(userId, current.startDate, true, planId);
 }
 
 /** The store reports no active plan (expired, refunded or cancelled), so the athlete goes back to the trial clock. */
@@ -89,7 +84,6 @@ export function clearProSubscription(userId: string = ''): void {
   const current = getAthleteTrialState(userId);
   if (!current.hasSubscribedPro) return;
   safeStorage.setItem(`${TRIAL_STORAGE_KEY}_${userId}`, { startDate: current.startDate, hasSubscribedPro: false });
-  syncTrialToSupabase(userId, current.startDate);
 }
 
 /**
@@ -116,28 +110,3 @@ export function resetTrial90Days(userId: string = ''): void {
   });
 }
 
-/**
- * Background sync with Supabase profiles and user_entitlements
- */
-async function syncTrialToSupabase(
-  userId: string,
-  startDate: string,
-  isPro: boolean = false,
-  planId?: string
-) {
-  try {
-    const expiresAt = new Date(new Date(startDate).getTime() + TRIAL_DURATION_MS).toISOString();
-    
-    // Update Supabase profile table
-    await supabase.from('athlete_profiles').upsert({
-      id: userId,
-      trial_started_at: startDate,
-      trial_expires_at: expiresAt,
-      is_trial_active: true,
-      membership_tier: isPro ? planId || 'o1fc_pro' : 'core_free',
-      updated_at: new Date().toISOString(),
-    });
-  } catch {
-    // Fail-open offline resilience: Supabase sync fails gracefully without blocking app
-  }
-}

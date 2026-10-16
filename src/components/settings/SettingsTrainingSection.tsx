@@ -54,10 +54,10 @@ function DisciplineAndDays() {
                   tactileEngine.triggerSelectionBuzz();
                   void update({ primaryDiscipline: option.optionKey as Discipline });
                 }}
-                className={`min-h-[44px] px-3 rounded-xl text-xs font-tactical transition-all cursor-pointer ${
+                className={`o1-pill text-[11px] font-normal cursor-pointer ${
                   active
-                    ? 'bg-o1-crimson text-white font-bold shadow-xs'
-                    : 'bg-black border border-white/[0.07] text-neutral-400 hover:text-white hover:border-white/[0.14]'
+                    ? 'bg-o1-crimson border border-o1-crimson text-white'
+                    : 'bg-o1-surface border border-white/[0.07] text-o1-muted hover:text-o1-text'
                 }`}
               >
                 {option.label}
@@ -75,7 +75,7 @@ function DisciplineAndDays() {
             {shownDays.length} days / week
           </span>
         </div>
-        <div className="grid grid-cols-7 gap-1" role="group" aria-label="Training days">
+        <div className="grid grid-cols-7 gap-1.5" role="group" aria-label="Training days">
           {WEEK.map((day) => {
             const active = shownDays.includes(day);
             return (
@@ -85,10 +85,10 @@ function DisciplineAndDays() {
                 aria-pressed={active}
                 aria-label={day}
                 onClick={() => toggleDay(day)}
-                className={`min-h-[44px] rounded-xl text-xs font-tactical font-bold transition-all cursor-pointer ${
+                className={`flex h-8 w-full items-center justify-center rounded-full border text-[11px] font-normal transition-colors cursor-pointer ${
                   active
-                    ? 'bg-o1-crimson text-white shadow-xs'
-                    : 'bg-black border border-white/[0.07] text-neutral-400 hover:text-neutral-200'
+                    ? 'border-o1-crimson bg-o1-crimson text-white'
+                    : 'border-white/[0.07] bg-o1-surface text-o1-muted'
                 }`}
               >
                 {day.slice(0, 2)}
@@ -129,8 +129,10 @@ function TrainingPlaces() {
               role="checkbox"
               aria-checked={active}
               onClick={() => toggle(option.optionKey as Facility)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-sans transition-colors ${
-                active ? 'bg-o1-crimson text-white' : 'bg-black border border-white/[0.07] text-neutral-400'
+              className={`o1-pill text-[11px] font-normal cursor-pointer ${
+                active
+                  ? 'bg-o1-crimson border border-o1-crimson text-white'
+                  : 'bg-o1-surface border border-white/[0.07] text-o1-muted hover:text-o1-text'
               }`}
             >
               {option.label}

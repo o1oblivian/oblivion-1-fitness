@@ -9,7 +9,7 @@ import {
 import { filterCustomFoods } from './customFoodDatabase';
 import { FOOD_CATALOG } from '../features/fuel/data/foodCatalog';
 import { matchesFoodQuery, rankByFoodQuery } from '../features/fuel/utils/foodSearchMatch';
-import { apiUrl } from './apiBase';
+import { apiFetch } from './apiBase';
 
 export type { FoodItemRecord, FoodCatalogQueryParams, FoodCategoryType, RegionalDatabaseInfo };
 export { getRegionalDatabaseInfo, getRegionalFallbackFoods };
@@ -128,7 +128,7 @@ export async function queryFoodCatalog({
         limit: String(limit),
       });
 
-      const res = await fetch(apiUrl(`/api/fuel/live-food-search?${params.toString()}`), {
+      const res = await apiFetch(`/api/fuel/live-food-search?${params.toString()}`, {
         signal: liveController.signal,
         headers: { Accept: 'application/json' },
       });

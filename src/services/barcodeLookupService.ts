@@ -1,5 +1,5 @@
 import { readNutrient, resolveCalories, ScannedMealBreakdown } from './mealVisionTypes';
-import { apiUrl } from './apiBase';
+import { apiFetch } from './apiBase';
 
 export async function fetchOpenFoodFactsProduct(barcode: string): Promise<ScannedMealBreakdown | null> {
   const clean = barcode.trim();
@@ -70,7 +70,7 @@ export async function lookupBarcodeNumber(barcodeOrQuery: string): Promise<Scann
   const offResult = await fetchOpenFoodFactsProduct(clean);
   if (offResult) return offResult;
 
-  const res = await fetch(apiUrl('/api/fuel/scan-barcode'), {
+  const res = await apiFetch('/api/fuel/scan-barcode', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ barcode: clean }),

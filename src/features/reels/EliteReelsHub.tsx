@@ -205,7 +205,7 @@ export const EliteReelsHub: React.FC<EliteReelsHubProps> = ({
         <div
           role="status"
           aria-live="polite"
-          className="pointer-events-none fixed top-[calc(env(safe-area-inset-top)+4rem)] inset-x-0 mx-auto w-fit z-[70] px-4 py-2 rounded-full bg-white text-[12px] font-semibold text-neutral-950 shadow-xl animate-in fade-in duration-200"
+          className="o1-toast"
         >
           {toast}
         </div>

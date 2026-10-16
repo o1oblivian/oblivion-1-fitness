@@ -1,7 +1,7 @@
 import { supabase } from '../../../services/supabaseClient';
 import { getCachedUserId } from '../../../services/authUser';
 import { enqueueSync, flushSync, registerSyncHandler } from '../../../services/syncOutbox';
-import { useTelemetryHistoryStore } from '../store/useTelemetryHistoryStore';
+import { useTelemetryHistoryStore, type CardioDayRecord } from '../store/useTelemetryHistoryStore';
 import { useLogStore } from '../../../stores/useLogStore';
 import { localDayKey, localNoonIso } from './dayLogService';
 
@@ -16,6 +16,28 @@ export interface CardioLogEntry {
   steps?: number;
   dateKey: string;
   timestamp: string;
+}
+
+type CardioSession = Omit<CardioDayRecord, 'hasData' | 'zone2Minutes'> & { zone2Minutes?: number };
+
+/** Adds a session to what the day already holds, so a second cardio log never replaces the first. */
+export function addCardioSession(base: CardioDayRecord | undefined, add: CardioSession): CardioDayRecord {
+  if (!base?.hasData) return { hasData: true, zone2Minutes: 0, ...add, steps: add.steps && add.steps > 0 ? add.steps : undefined };
+  const minutes = (base.durationMinutes || 0) + (add.durationMinutes || 0);
+  const hrWeight = (hr: number, mins: number) => (hr > 0 ? hr * (mins || 1) : 0);
+  const hrMinutes = (base.avgHeartRateBpm > 0 ? base.durationMinutes || 1 : 0) + (add.avgHeartRateBpm > 0 ? add.durationMinutes || 1 : 0);
+  const steps = (base.steps || 0) + (add.steps || 0);
+  const types = [base.activityType, add.activityType].map((t) => (t || '').trim()).filter((t, i, all) => t && all.indexOf(t) === i);
+  return {
+    hasData: true,
+    distanceKm: Math.round(((base.distanceKm || 0) + (add.distanceKm || 0)) * 100) / 100,
+    durationMinutes: minutes,
+    burnedKcal: (base.burnedKcal || 0) + (add.burnedKcal || 0),
+    avgHeartRateBpm: hrMinutes > 0 ? Math.round((hrWeight(base.avgHeartRateBpm, base.durationMinutes) + hrWeight(add.avgHeartRateBpm, add.durationMinutes)) / hrMinutes) : 0,
+    zone2Minutes: (base.zone2Minutes || 0) + (add.zone2Minutes || 0),
+    activityType: types.join(' + '),
+    steps: steps > 0 ? steps : undefined,
+  };
 }
 
 registerSyncHandler('cardio_session', async (payload, userId) => {
@@ -62,24 +84,25 @@ export async function persistCardioLog(entry: {
 
   // 1. Reactively update in-memory stores for immediate UI reflection
   try {
-    useTelemetryHistoryStore.getState().updateDayRecord(dateKey, 'cardio', {
-      hasData: true,
+    const history = useTelemetryHistoryStore.getState();
+    const day = addCardioSession(history.historyByDate[dateKey]?.cardio, {
       activityType: entry.activityType,
       distanceKm: entry.distanceKm,
       durationMinutes: entry.durationMinutes,
       burnedKcal: entry.burnedKcal,
       avgHeartRateBpm: entry.avgHeartRateBpm && entry.avgHeartRateBpm > 0 ? entry.avgHeartRateBpm : 0,
-      zone2Minutes: 0,
+      steps: entry.steps,
     });
+    history.updateDayRecord(dateKey, 'cardio', day);
 
     if (isToday) {
       useLogStore.getState().updateSubModule('cardio', {
-        activityType: entry.activityType,
-        distanceKm: entry.distanceKm,
-        durationMinutes: entry.durationMinutes,
-        burnedKcal: entry.burnedKcal,
-        avgHeartRateBpm: entry.avgHeartRateBpm && entry.avgHeartRateBpm > 0 ? entry.avgHeartRateBpm : 0,
-        zone2Minutes: 0,
+        activityType: day.activityType,
+        distanceKm: day.distanceKm,
+        durationMinutes: day.durationMinutes,
+        burnedKcal: day.burnedKcal,
+        avgHeartRateBpm: day.avgHeartRateBpm,
+        zone2Minutes: day.zone2Minutes,
       });
     }
   } catch (storeErr) {
@@ -92,6 +115,7 @@ export async function persistCardioLog(entry: {
     id: cardioRecord.id,
     title: `Cardio: ${entry.activityType}`,
     session_name: `Cardio: ${entry.activityType}`,
+    activity_type: entry.activityType || 'cardio',
     tonnage_kg: 0,
     volume_kg: 0,
     total_sets: 1,

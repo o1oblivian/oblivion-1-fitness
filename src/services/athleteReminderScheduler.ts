@@ -204,9 +204,13 @@ function queueNative(plan: PlannedReminder[]): Promise<void> {
   return nativeQueue;
 }
 
-/** Removes every reminder this app scheduled, e.g. on sign out. */
+/** Removes every reminder this app scheduled, e.g. on sign out. Never blocks sign-out if the plugin stalls. */
 export function clearReminders(): Promise<void> {
-  return Capacitor.isNativePlatform() ? queueNative([]) : Promise.resolve();
+  if (!Capacitor.isNativePlatform()) return Promise.resolve();
+  return Promise.race([
+    queueNative([]),
+    new Promise<void>((resolve) => setTimeout(resolve, 1500)),
+  ]);
 }
 
 /** Keeps the phone's reminders in line with Settings for as long as the app shell is mounted. */

@@ -50,25 +50,28 @@ export function stopMediaStream(stream: MediaStream | null): void {
   });
 }
 
-/**
- * Native still capture via Capacitor Camera. Falls back to null on web / missing plugin.
- * Gallery is not requested — Camera source only — to stay within CAMERA permission.
- */
-export async function captureNativeStill(): Promise<Blob | null> {
-  if (!Capacitor.isNativePlatform()) return null;
-  try {
-    const { Camera, CameraResultType, CameraSource } = await import('@capacitor/camera');
-    const photo = await Camera.getPhoto({
-      quality: 85,
-      resultType: CameraResultType.DataUrl,
-      source: CameraSource.Camera,
-      webUseInput: false,
-    });
-    if (!photo.dataUrl) return null;
-    const res = await fetch(photo.dataUrl);
-    return await res.blob();
-  } catch (err) {
-    console.warn('[Camera] Native Capacitor Camera capture unavailable:', err);
-    return null;
+export type PhotoSource = 'camera' | 'photos';
+
+/** Opens the phone camera or the photo picker and returns a data URL. Throws with the reason it failed. */
+export async function capturePhotoDataUrl(source: PhotoSource): Promise<string> {
+  if (!Capacitor.isNativePlatform()) {
+    throw new Error('Open the installed app to use the camera.');
   }
+  const { Camera, CameraResultType, CameraSource } = await import('@capacitor/camera');
+  const permissions = await Camera.requestPermissions(source === 'camera' ? { permissions: ['camera'] } : { permissions: ['photos', 'camera'] });
+  const state = source === 'camera' ? permissions.camera : permissions.photos;
+  if (state === 'denied') {
+    throw new Error(source === 'camera' ? 'Camera permission was denied. Allow the camera in phone settings.' : 'Photo access was denied. Allow photos in phone settings.');
+  }
+  const photo = await Camera.getPhoto({
+    quality: 85,
+    allowEditing: false,
+    resultType: CameraResultType.Base64,
+    source: source === 'camera' ? CameraSource.Camera : CameraSource.Photos,
+    correctOrientation: true,
+    webUseInput: false,
+  });
+  if (!photo.base64String) throw new Error('The camera returned an empty photo.');
+  const mime = photo.format === 'png' ? 'image/png' : 'image/jpeg';
+  return `data:${mime};base64,${photo.base64String}`;
 }

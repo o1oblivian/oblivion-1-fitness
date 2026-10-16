@@ -1,5 +1,5 @@
 import { supabase } from './supabaseClient';
-import { apiUrl } from './apiBase';
+import { apiFetch } from './apiBase';
 import { CoachPayoutLedgerRecord } from '../types/database';
 import type { CoachPlanId } from '../../shared/coachPlans';
 
@@ -104,7 +104,7 @@ export const stripeConnectService = {
   async createConnectAccount(returnUrl?: string): Promise<{ url?: string; error?: string }> {
     try {
       const origin = returnUrl || (typeof window !== 'undefined' ? window.location.origin : '');
-      const res = await fetch(apiUrl('/api/stripe/create-connect-account'), {
+      const res = await apiFetch('/api/stripe/create-connect-account', {
         method: 'POST',
         headers: await authHeaders(),
         body: JSON.stringify({ returnUrl: origin }),
@@ -121,7 +121,7 @@ export const stripeConnectService = {
   /** The server decides the destination account and validates the amount against the real balance. */
   async createPayout(amountCents: number): Promise<{ success: boolean; payoutId?: string; error?: string }> {
     try {
-      const res = await fetch(apiUrl('/api/stripe/create-payout'), {
+      const res = await apiFetch('/api/stripe/create-payout', {
         method: 'POST',
         headers: await authHeaders(),
         body: JSON.stringify({ amountCents }),
@@ -136,7 +136,7 @@ export const stripeConnectService = {
 
   async createStripeLoginLink(): Promise<{ url?: string; error?: string }> {
     try {
-      const res = await fetch(apiUrl('/api/stripe/create-login-link'), {
+      const res = await apiFetch('/api/stripe/create-login-link', {
         method: 'POST',
         headers: await authHeaders(),
       });
@@ -151,7 +151,7 @@ export const stripeConnectService = {
   /** Real pending / available / paid balance, computed on the server from the payout ledger. */
   async getBalance(): Promise<{ data?: StripeBalance; error?: string; reason?: BalanceFailure }> {
     try {
-      const res = await fetch(apiUrl('/api/stripe/balance'), { method: 'GET', headers: await authHeaders() });
+      const res = await apiFetch('/api/stripe/balance', { method: 'GET', headers: await authHeaders() });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
         const reason: BalanceFailure = res.status === 401 ? 'signed-out' : res.status === 503 ? 'unconfigured' : 'server';
@@ -167,7 +167,7 @@ export const stripeConnectService = {
   async createCheckout(input: { kind: 'program' | 'coaching'; coachId: string; programId?: string; athleteName?: string }): Promise<{ url?: string; error?: string }> {
     try {
       const returnUrl = typeof window !== 'undefined' ? `${window.location.origin}${window.location.pathname}` : '';
-      const res = await fetch(apiUrl('/api/stripe/create-checkout'), {
+      const res = await apiFetch('/api/stripe/create-checkout', {
         method: 'POST',
         headers: await authHeaders(),
         body: JSON.stringify({ ...input, returnUrl }),

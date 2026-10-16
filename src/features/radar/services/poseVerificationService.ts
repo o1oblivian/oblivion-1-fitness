@@ -1,5 +1,5 @@
 import { supabase } from '../../../services/supabaseClient';
-import { apiUrl } from '../../../services/apiBase';
+import { apiFetch } from '../../../services/apiBase';
 import { useBuddyProfileStore } from '../../../stores/useBuddyProfileStore';
 
 export interface PoseChallenge {
@@ -62,7 +62,7 @@ export async function verifyAthletePose(selfieBase64: string, challenge: PoseCha
     const { data } = await supabase.auth.getSession();
     const token = data.session?.access_token;
     if (!token) return { ...FAILED, reason: 'Sign in to verify your profile.' };
-    const res = await fetch(apiUrl('/api/vision/verify-pose'), {
+    const res = await apiFetch('/api/vision/verify-pose', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
       body: JSON.stringify({ selfieBase64, challengePrompt: challenge.prompt }),

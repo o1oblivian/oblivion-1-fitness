@@ -31,7 +31,8 @@ function signedInAs(email: string): boolean {
 }
 
 const creatorSignedIn = (): boolean => signedInAs(CREATOR_EMAIL);
-const launchPreviewAllowed = (): boolean => creatorSignedIn() || signedInAs(REVIEWER_EMAIL) || import.meta.env.DEV;
+/** Launch-gated UI only. Never grants Club Pass Pro — that comes from RevenueCat / the store. */
+const launchPreviewAllowed = (): boolean => creatorSignedIn() || signedInAs(REVIEWER_EMAIL);
 
 export interface SubscriptionContextType {
   isPro: boolean;
@@ -57,11 +58,12 @@ const EMPTY_TRIAL = getAthleteTrialState('');
 
 export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [trial, setTrial] = useState<TrialState>(EMPTY_TRIAL);
-  const [isPro, setIsPro] = useState<boolean>(() => creatorSignedIn() || import.meta.env.DEV);
-  const [isCreator, setIsCreator] = useState<boolean>(() => creatorSignedIn() || import.meta.env.DEV);
-  const [canPreviewLaunch, setCanPreviewLaunch] = useState<boolean>(launchPreviewAllowed);
+  const [isPro, setIsPro] = useState(false);
+  const [isCreator, setIsCreator] = useState(() => creatorSignedIn());
+  const [canPreviewLaunch, setCanPreviewLaunch] = useState(launchPreviewAllowed);
   const authEmail = useAuthStore((s) => s.user?.email || s.profile?.email || '');
   useEffect(() => {
+    setIsCreator(creatorSignedIn());
     setCanPreviewLaunch(launchPreviewAllowed());
   }, [authEmail]);
   const [currentPlan, setCurrentPlan] = useState<string>('o1fc_core_free');
@@ -79,12 +81,10 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
       if (!mounted) return;
 
       setTrial(trialInfo);
-
-      const creator = creatorSignedIn() || import.meta.env.DEV;
-      setIsCreator(creator);
+      setIsCreator(creatorSignedIn());
       setCanPreviewLaunch(launchPreviewAllowed());
-      const hasProEntitlement = trialInfo.hasSubscribedPro || (status.isActive && status.tierId !== 'o1fc_core_free') || creator;
-      setIsPro((Boolean(uid) && hasProEntitlement) || creator);
+      const hasProEntitlement = trialInfo.hasSubscribedPro || (status.isActive && status.tierId !== 'o1fc_core_free');
+      setIsPro(Boolean(uid) && hasProEntitlement);
       setCurrentPlan(status.tierId || (hasProEntitlement ? PLUS_ENTITLEMENT : 'o1fc_core_free'));
       setIsLoading(false);
 
@@ -97,7 +97,7 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
         clearProSubscription(uid);
       }
       setTrial(getAthleteTrialState(uid));
-      setIsPro(verified.isActive || creator);
+      setIsPro(verified.isActive);
       setCurrentPlan(verified.isActive ? verified.tierId : 'o1fc_core_free');
     };
 
@@ -150,7 +150,6 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
   }, []);
 
   const openPaywall = useCallback((featureName?: string) => {
-    if (creatorSignedIn() || import.meta.env.DEV) return;
     setGatedFeature(featureName || 'Club Pass Pro Feature');
     setIsPaywallOpen(true);
   }, []);

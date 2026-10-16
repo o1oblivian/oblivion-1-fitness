@@ -2,7 +2,6 @@ import React from 'react';
 import { User, Sparkles, Play } from 'lucide-react';
 import { useCoachStore } from '../../../stores/useCoachStore';
 import { tactileEngine } from '../../../services/tactileEngine';
-import { mockAssignedWorkouts } from '../../../services/devMocks';
 import { resolveTodaySession, startTodaySession } from '../../log/todaySession';
 
 interface CoachProtocolAccordionPanelProps {
@@ -11,7 +10,7 @@ interface CoachProtocolAccordionPanelProps {
 
 export const CoachProtocolAccordionPanel: React.FC<CoachProtocolAccordionPanelProps> = ({ onClose }) => {
   const assigned = useCoachStore((s) => s.assignedWorkouts);
-  const workout = assigned.find((row) => row.status !== 'completed') ?? mockAssignedWorkouts()[0] ?? null;
+  const workout = assigned.find((row) => row.status !== 'completed') ?? null;
 
   const handleOpenCoachHub = () => {
     tactileEngine.triggerSelectionBuzz();

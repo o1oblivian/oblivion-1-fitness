@@ -23,7 +23,9 @@ export const ScannedMealResultCard: React.FC<ScannedMealResultCardProps> = ({
   const baseFatPerG = perGram(scannedMeal.fatsGrams);
   const hasAllMacros = baseProtPerG !== null && baseCarbPerG !== null && baseFatPerG !== null;
 
-  const [weight, setWeight] = useState(baseWeight);
+  const [weightText, setWeightText] = useState(String(baseWeight));
+  const weight = Math.min(5000, Math.max(0, parseInt(weightText || '0', 10) || 0));
+  const setWeight = (update: (w: number) => number) => setWeightText(String(Math.min(5000, Math.max(0, update(weight)))));
   const [prep, setPrep] = useState<'lean' | 'oil'>('lean');
   const [dressing, setDressing] = useState<'plain' | 'sauce'>('plain');
   const [isLogging, setIsLogging] = useState(false);
@@ -93,14 +95,21 @@ export const ScannedMealResultCard: React.FC<ScannedMealResultCardProps> = ({
         <div className="flex items-center justify-between text-xs font-tactical font-bold text-neutral-300">
           <span>Portion Weight</span>
           <div className="flex items-center gap-1 bg-black px-2 py-0.5 rounded-xl border border-white/[0.07]">
-            <input type="number" value={weight} onChange={(e) => setWeight(Math.max(10, parseInt(e.target.value || '0', 10)))}
-              className="w-11 bg-transparent text-center font-mono font-bold text-xs text-white focus:outline-hidden" />
+            <input
+              type="text"
+              inputMode="numeric"
+              value={weightText}
+              placeholder="0"
+              onFocus={(e) => e.currentTarget.select()}
+              onChange={(e) => setWeightText(e.target.value.replace(/\D/g, '').slice(0, 4))}
+              className="w-12 bg-transparent text-center font-mono font-bold text-xs text-white focus:outline-hidden"
+            />
             <span className="text-[10px] font-mono text-neutral-400">g</span>
           </div>
         </div>
         <div className="grid grid-cols-4 gap-1.5">
           {[-25, -10, 10, 25].map((delta) => (
-            <button key={delta} type="button" onClick={() => { tactileEngine.triggerSelectionBuzz(); setWeight((w) => Math.max(10, w + delta)); }}
+            <button key={delta} type="button" onClick={() => { tactileEngine.triggerSelectionBuzz(); setWeight((w) => w + delta); }}
               className="py-1 rounded-xl bg-white/10 hover:bg-white/20 text-[10px] font-mono font-bold text-neutral-200 transition cursor-pointer active:scale-95">
               {delta > 0 ? `+${delta}g` : `${delta}g`}
             </button>
@@ -130,7 +139,7 @@ export const ScannedMealResultCard: React.FC<ScannedMealResultCardProps> = ({
       )}
 
       {/* Primary Save Action */}
-      <button type="button" disabled={isLogging || !hasAllMacros} onClick={handleSave}
+      <button type="button" disabled={isLogging || !hasAllMacros || weight <= 0} onClick={handleSave}
         className="o1-pill mx-auto bg-o1-crimson hover:bg-o1-crimson-hover active:scale-95 text-white font-sans font-semibold text-xs cursor-pointer disabled:opacity-50">
         <Check className="w-3.5 h-3.5 stroke-[3]" />
         <span>{isLogging ? 'Saving' : 'Log meal'}</span>

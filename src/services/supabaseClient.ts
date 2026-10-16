@@ -51,6 +51,22 @@ function hasSubtleCrypto(): boolean {
 
 const insecureOrigin = typeof window !== 'undefined' && !hasSubtleCrypto();
 
+/** Finishes an explicit sign-out before the auth client reads storage. */
+function finishPendingSignOut(): void {
+  try {
+    if (typeof window === 'undefined' || localStorage.getItem('o1fc_signed_out_pending') !== '1') return;
+    for (const key of Object.keys(localStorage)) {
+      if (/^sb-.+-auth-token/.test(key)) localStorage.removeItem(key);
+    }
+    localStorage.removeItem('o1fc_user_id');
+    localStorage.removeItem('o1fc_user_email');
+    localStorage.removeItem('o1fc_signed_out_pending');
+  } catch {
+    /* storage unavailable */
+  }
+}
+finishPendingSignOut();
+
 type ExtendedSupabaseClient = SupabaseClient & {
   insert: (table: string, payload: any) => Promise<{ data: any; error: any }>;
 };

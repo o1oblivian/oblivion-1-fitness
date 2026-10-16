@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ShieldAlert, X, ChevronRight } from 'lucide-react';
 import { tactileEngine } from '../../services/tactileEngine';
 
 const DISMISS_KEY = 'o1fc_health_disclaimer_dismissed';
+const DISMISS_EVENT = 'o1fc:health-disclaimer-dismissed';
+let sessionDismissed = false;
 
 interface Props {
   onLearnMore?: () => void;
@@ -18,16 +20,24 @@ export const HealthDisclaimerBanner: React.FC<Props> = ({ onLearnMore, compact =
     }
   });
 
-  if (dismissed) return null;
+  useEffect(() => {
+    const hide = () => setDismissed(true);
+    window.addEventListener(DISMISS_EVENT, hide);
+    return () => window.removeEventListener(DISMISS_EVENT, hide);
+  }, []);
+
+  if (dismissed || sessionDismissed) return null;
 
   const dismiss = () => {
     tactileEngine.triggerSelectionBuzz();
+    sessionDismissed = true;
     try {
       localStorage.setItem(DISMISS_KEY, '1');
     } catch {
       // storage unavailable: stays hidden for this session only
     }
     setDismissed(true);
+    window.dispatchEvent(new Event(DISMISS_EVENT));
   };
 
   return (
@@ -44,10 +54,10 @@ export const HealthDisclaimerBanner: React.FC<Props> = ({ onLearnMore, compact =
           <button
             type="button"
             onClick={dismiss}
-            className="text-neutral-400 hover:text-white p-0.5 rounded cursor-pointer"
+            className="text-neutral-400 hover:text-white -m-2 p-2 rounded cursor-pointer"
             aria-label="Dismiss disclaimer"
           >
-            <X className="w-3 h-3" />
+            <X className="w-4 h-4" />
           </button>
         </div>
 

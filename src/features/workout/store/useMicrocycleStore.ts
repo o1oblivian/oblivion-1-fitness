@@ -60,11 +60,11 @@ interface CloudDay {
 
 let cloudByDay = new Map<string, CloudDay>();
 
-function bucket(key: string): CloudDay {
-  let day = cloudByDay.get(key);
+function bucket(map: Map<string, CloudDay>, key: string): CloudDay {
+  let day = map.get(key);
   if (!day) {
     day = { logVol: 0, logSets: 0, sessVol: 0, sessSets: 0, title: null };
-    cloudByDay.set(key, day);
+    map.set(key, day);
   }
   return day;
 }
@@ -114,7 +114,8 @@ export const useMicrocycleStore = create<MicrocycleStoreState>((set, get) => ({
     try {
       const uid = await getAuthenticatedUserId();
       const dates = computeIsoWeekDates();
-      cloudByDay = new Map<string, CloudDay>();
+      // Built locally and swapped in at the end, so overlapping refreshes cannot add the same rows twice.
+      const next = new Map<string, CloudDay>();
       if (uid) {
         const weekStart = localMidnightIso(dates[0].dateKey);
         const weekEnd = localMidnightIso(dates[6].dateKey, true);
@@ -138,17 +139,19 @@ export const useMicrocycleStore = create<MicrocycleStoreState>((set, get) => ({
             .limit(ROW_CAP),
         ]);
         for (const r of Array.isArray(logsRes.data) ? logsRes.data : []) {
-          const day = bucket(localDayKey(r.created_at));
+          const day = bucket(next, localDayKey(r.created_at));
           day.logVol += (Number(r.weight_kg) || 0) * (Number(r.reps) || 0);
           day.logSets += 1;
         }
         for (const s of Array.isArray(sessRes.data) ? sessRes.data : []) {
-          const day = bucket(localDayKey(s.completed_at || s.created_at));
+          if (String(s.title || '').toLowerCase().startsWith('cardio')) continue;
+          const day = bucket(next, localDayKey(s.completed_at || s.created_at));
           day.sessVol += Number(s.tonnage_kg) || 0;
           day.sessSets += Number(s.total_sets) || 0;
           day.title = day.title || s.title || null;
         }
       }
+      cloudByDay = next;
       set({ isLoading: false });
       get().recompute();
     } catch (err) {

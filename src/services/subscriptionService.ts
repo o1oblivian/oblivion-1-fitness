@@ -1,8 +1,11 @@
 import { Capacitor } from '@capacitor/core';
 import { revenueCatService, readCachedEntitlement, type EntitlementInfo, type StorePlatform } from './revenueCatService';
 
-export const PLUS_ENTITLEMENT = 'com.o1fc.fitness.plus_monthly';
-export type MembershipTierId = 'com.o1fc.fitness.plus_monthly' | 'o1fc_coach_free' | 'o1fc_coach_pro_monthly';
+/** Default paid product to purchase when Settings opens the paywall (maps to Google `o1fc_pro_monthly:monthly`). */
+export const PLUS_ENTITLEMENT = 'o1fc_pro_monthly';
+/** RevenueCat entitlement that unlocks Pro features. */
+export const PRO_ENTITLEMENT_ID = 'o1fc_pro';
+export type MembershipTierId = 'o1fc_pro_monthly' | 'o1fc_founder_pass' | 'o1fc_coach_free' | 'o1fc_coach_pro_monthly';
 
 export interface SubscriptionStatus {
   isActive: boolean;

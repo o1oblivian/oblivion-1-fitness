@@ -9,6 +9,9 @@ import { TIER_PLANS, useStorePrices } from '../membership/planCatalog';
 import { bumpDayRoutines, estimateSessionMinutes, planFirstWeek } from '../workout/services/dayRoutineService';
 import { patchAthleteSettingsSnapshot, readAthleteSettingsSnapshot } from '../../utils/athleteSettingsSnapshot';
 import { useConsultationStore } from './useConsultationStore';
+import { profileOnboardingComplete } from '../../services/oauthDeepLink';
+import { supabase } from '../../services/supabaseClient';
+import { safeStorage } from '../../utils/safeStorage';
 import {
   ConsultationProfile,
   Facility,
@@ -77,10 +80,8 @@ export function InductionProtocol() {
 
   useEffect(() => {
     let cancelled = false;
-    void useConsultationStore
-      .getState()
-      .hydrate()
-      .catch(() => false)
+    void profileOnboardingComplete()
+      .then((done) => (done ? useConsultationStore.getState().hydrate().catch(() => false) : false))
       .then((found) => {
         if (!cancelled && !found) setPhase('questions');
       });
@@ -165,6 +166,17 @@ export function InductionProtocol() {
     setBusy('finish');
     tactileEngine.playPRCelebration();
     await lockIn(tier);
+    const uid = await getAuthenticatedUserId();
+    if (uid) {
+      const { error } = await supabase.from('profiles').upsert({
+        id: uid,
+        onboarding_completed: true,
+        updated_at: new Date().toISOString(),
+      });
+      if (error) console.warn('[Consultation] Could not save onboarding completion:', error.message);
+    }
+    safeStorage.setItem('o1fc_onboarding_completed', 'true');
+    safeStorage.setItem('olfc_onboarding_completed', 'true');
   };
 
   const plan = TIER_PLANS[picked];
@@ -277,7 +289,7 @@ export function InductionProtocol() {
                       aria-checked={active}
                       aria-label={DAY_NAMES[day]}
                       onClick={() => toggleDay(day)}
-                      className={`flex h-10 items-center justify-center rounded-xl text-[11.5px] font-normal transition active:scale-[0.96] ${active ? 'bg-o1-crimson text-white' : `${glass} text-o1-text`}`}
+                      className={`flex h-8 w-full items-center justify-center rounded-full border text-[11px] font-normal transition-colors ${active ? 'border-o1-crimson bg-o1-crimson text-white' : 'border-white/[0.07] bg-o1-surface text-o1-muted'}`}
                     >
                       {day.slice(0, 2)}
                     </button>

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Activity, Clock, TrendingUp, Flame, Heart, Footprints } from 'lucide-react';
 import { parseCleanInt, parseCleanNumber } from '../../../../utils/numberInputUtils';
+import { estimateStepsFromCardio } from '../../../telemetry/services/stepEstimate';
 
 /** Unread metrics stay null and render as '--'. */
 export interface ExtractedCardioData {
@@ -31,6 +32,7 @@ const METRICS: { key: MetricKey; label: string; icon: typeof Clock; tone: string
 ];
 
 export const CardioScanMetricFields: React.FC<CardioScanMetricFieldsProps> = ({ data, onChange }) => {
+  const estimatedSteps = data.steps == null ? estimateStepsFromCardio(data.distanceKm, data.durationMinutes) : null;
   return (
     <div className="grid grid-cols-2 gap-2 text-xs">
       <div className="p-2.5 rounded-2xl bg-o1-well border border-white/[0.07] space-y-1">
@@ -56,7 +58,7 @@ export const CardioScanMetricFields: React.FC<CardioScanMetricFieldsProps> = ({ 
               type="number"
               inputMode={decimal ? 'decimal' : 'numeric'}
               step={decimal ? '0.01' : '1'}
-              placeholder="--"
+              placeholder={key === 'steps' && estimatedSteps != null ? `~${estimatedSteps.toLocaleString()} est.` : '--'}
               value={value == null ? '' : value}
               onFocus={(e) => e.target.select()}
               onChange={(e) => {

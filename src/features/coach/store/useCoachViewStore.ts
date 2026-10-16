@@ -16,7 +16,7 @@ export const useCoachViewStore = create<CoachViewState>()(
   persist(
     (set) => ({
       view: 'coach',
-      floorTab: 'films',
+      floorTab: 'floor',
       setView: (view) => set({ view }),
       setFloorTab: (floorTab) => set({ floorTab }),
     }),

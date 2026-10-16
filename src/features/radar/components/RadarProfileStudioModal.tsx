@@ -406,8 +406,12 @@ export const RadarProfileStudioModal: React.FC<Props> = ({
                     </label>
                     <input
                       type="number"
-                      value={buddy.age}
-                      onChange={(e) => buddy.setAge(parseInt(e.target.value) || 18)}
+                      inputMode="numeric"
+                      min={18}
+                      max={99}
+                      placeholder="18+"
+                      value={buddy.age > 0 ? buddy.age : ''}
+                      onChange={(e) => buddy.setAge(Math.max(0, Math.min(99, parseInt(e.target.value, 10) || 0)))}
                       className="w-full bg-o1-well border border-white/[0.07] rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-o1-crimson"
                     />
                   </div>

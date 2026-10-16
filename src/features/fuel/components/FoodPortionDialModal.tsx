@@ -85,6 +85,7 @@ export const FoodPortionDialModal: React.FC<FoodPortionDialModalProps> = ({
   const posRef = useRef(pos);
   const animRef = useRef<number | null>(null);
   const holdRef = useRef<number | null>(null);
+  const committedRef = useRef(false);
   const tickRef = useRef({ bucket: 0, at: 0, quiet: false });
   const dragRef = useRef<{ x: number; start: number; lastX: number; lastT: number; vel: number } | null>(null);
 
@@ -152,6 +153,7 @@ export const FoodPortionDialModal: React.FC<FoodPortionDialModalProps> = ({
     tickRef.current = { bucket: Math.floor(start / SCALE[startUnit].minor), at: 0, quiet: false };
     setPad(null);
     setHold(0);
+    committedRef.current = false;
     return () => {
       stopAnim();
       if (holdRef.current != null) cancelAnimationFrame(holdRef.current);
@@ -274,7 +276,8 @@ export const FoodPortionDialModal: React.FC<FoodPortionDialModalProps> = ({
 
   const commit = () => {
     const value = pad != null ? shown : amount;
-    if (value <= 0) return;
+    if (value <= 0 || committedRef.current) return;
+    committedRef.current = true;
     tactileEngine.playPRCelebration();
     if (memoryKey) {
       const memory = safeStorage.getItem<PortionMemory>(MEMORY_KEY, {});
@@ -291,7 +294,8 @@ export const FoodPortionDialModal: React.FC<FoodPortionDialModalProps> = ({
   };
 
   const startHold = () => {
-    if (shown <= 0) return;
+    if (shown <= 0 || committedRef.current) return;
+    if (holdRef.current != null) cancelAnimationFrame(holdRef.current);
     tactileEngine.triggerSelectionBuzz();
     const t0 = performance.now();
     const step = (t: number) => {

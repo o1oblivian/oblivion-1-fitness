@@ -97,10 +97,6 @@ export async function handleRevenueCatWebhook(req: Request, res: Response): Prom
       res.status(500).json({ error: 'Entitlement write failed' });
       return;
     }
-    await admin
-      .from('athlete_profiles')
-      .update({ membership_tier: change.tier, status: change.status, updated_at: now })
-      .eq('id', change.userId);
   }
   res.json({ received: true });
 }

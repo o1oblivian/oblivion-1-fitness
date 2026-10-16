@@ -63,14 +63,14 @@ export const SettingsFooterSection: React.FC<FooterActionsProps> = ({
           </span>
         </div>
 
-        <div className="flex flex-wrap justify-center gap-2 pt-1">
+        <div className="flex flex-col gap-2 pt-1">
           <button
             type="button"
             onClick={() => {
               tactileEngine.triggerSelectionBuzz();
               void onExportData();
             }}
-            className="o1-pill border border-white/[0.07] bg-o1-well hover:bg-white/[0.06] text-neutral-200 text-xs font-sans font-semibold transition-all active:scale-95 cursor-pointer"
+            className="flex w-full min-h-11 items-center justify-center gap-2 rounded-xl border border-white/[0.07] bg-o1-well text-neutral-200 text-xs font-sans font-semibold cursor-pointer"
           >
             <Download className="w-3.5 h-3.5 text-neutral-400" />
             <span>Export my data</span>
@@ -83,7 +83,7 @@ export const SettingsFooterSection: React.FC<FooterActionsProps> = ({
               if (pending > 0) setConfirmSignOut(true);
               else onLogout();
             }}
-            className="o1-pill border border-white/[0.07] bg-o1-well hover:bg-white/[0.06] text-neutral-200 text-xs font-sans font-semibold transition-all active:scale-95 cursor-pointer"
+            className="flex w-full min-h-11 items-center justify-center gap-2 rounded-xl border border-white/[0.07] bg-o1-well text-neutral-200 text-xs font-sans font-semibold cursor-pointer"
           >
             <LogOut className="w-3.5 h-3.5 text-neutral-400" />
             <span>Sign out</span>
@@ -95,7 +95,7 @@ export const SettingsFooterSection: React.FC<FooterActionsProps> = ({
               tactileEngine.triggerSelectionBuzz();
               onDeleteAccount();
             }}
-            className="o1-pill border border-o1-crimson/40 bg-transparent hover:bg-o1-crimson/10 text-o1-crimson text-xs font-sans font-semibold transition-all active:scale-95 cursor-pointer"
+            className="flex w-full min-h-11 items-center justify-center gap-2 rounded-xl border border-o1-crimson/40 bg-transparent text-o1-crimson text-xs font-sans font-semibold cursor-pointer"
           >
             <Trash2 className="w-3.5 h-3.5" />
             <span>Delete account</span>
@@ -114,7 +114,7 @@ export const SettingsFooterSection: React.FC<FooterActionsProps> = ({
             <h3 id="unsynced-signout-title" className="text-sm font-semibold text-white">Unsynced data on this phone</h3>
             <p className="text-xs text-neutral-300 leading-relaxed">
               {pending > 0
-                ? `${changes} have not reached your account yet. Signing out deletes them from this phone for good.`
+                ? `${changes} ${pending === 1 ? 'has' : 'have'} not reached your account yet. Signing out deletes ${pending === 1 ? 'it' : 'them'} from this phone for good.`
                 : 'Everything is backed up. You can sign out safely.'}
             </p>
             <div className="flex flex-col gap-2">

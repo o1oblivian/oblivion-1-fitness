@@ -56,7 +56,7 @@ class TelemetryArbitrationService {
 
   /**
    * Tier 2: Console Scanner (Session Delta)
-   * Appends steps read from the console (never estimated) without wiping daily totals,
+   * Appends session steps (read from the console, or distance-estimated by the caller) without wiping daily totals,
    * and records session [startTime, endTime] window.
    */
   public recordConsoleSession(params: {

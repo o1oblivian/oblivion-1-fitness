@@ -38,7 +38,7 @@ const loadSavedTargets = () => {
       : 10000;
 
   // Auto-clean any stale test inputs (e.g. 32000 steps from previous step target bug)
-  const savedSteps = typeof saved?.stepCount === 'number' && saved.stepCount !== 32000 && saved.stepCount !== 17750 ? saved.stepCount : 0;
+  const savedSteps = typeof saved?.stepCount === 'number' && saved.stepCount !== 32000 && saved.stepCount !== 17750 && saved.stepCount !== 1 ? saved.stepCount : 0;
   return {
     stepTarget: effectiveStepTarget,
     moveTarget: typeof saved?.moveTarget === 'number' && saved.moveTarget > 0 ? saved.moveTarget : 700,

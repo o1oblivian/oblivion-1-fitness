@@ -30,7 +30,7 @@ export const SettingsContent: React.FC<SettingsContentProps> = ({
   s,
   onShowToast,
   onLogout,
-  onClose,
+  onClose: _onClose,
   onOpenTutorial,
   onOpenHelpCenter,
   onOpenContactSupport,
@@ -134,7 +134,6 @@ export const SettingsContent: React.FC<SettingsContentProps> = ({
       {/* 10. Session Security, GDPR Vault & Account Deletion */}
       <SettingsFooterSection
         onLogout={() => {
-          onClose();
           void s.handleLogout(onLogout);
         }}
         onDeleteAccount={() => s.setShowDeleteConfirm(true)}

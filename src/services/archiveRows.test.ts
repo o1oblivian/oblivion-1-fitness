@@ -57,5 +57,6 @@ describe('session archive rows', () => {
     expect(session.tonnage_kg).toBe(3183);
     expect(session.pr_count).toBe(1);
     expect(session.strain).toBeUndefined();
+    expect(session.activity_type).toBe('strength');
   });
 });

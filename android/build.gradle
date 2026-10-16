@@ -22,6 +22,8 @@ allprojects {
         google()
         mavenCentral()
     }
+    // OneDrive locks build folders under the repo. Keep outputs on a short local path.
+    layout.buildDirectory.set(file("C:/o1build/${name}"))
 }
 
 task clean(type: Delete) {

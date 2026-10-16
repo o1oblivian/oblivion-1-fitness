@@ -7,7 +7,7 @@ import { RadarModalsContainer } from './components/RadarModalsContainer';
 import { tactileEngine } from '../../services/tactileEngine';
 import { CheckCircle2 } from 'lucide-react';
 import { useSubscription } from '../../context/SubscriptionContext';
-import { searchAthletesWithSupabase, localBuddyCards } from './services/buddyService';
+import { searchAthletesWithSupabase } from './services/buddyService';
 import { capRadius, rankAthletes, readDeckFilters, readMutuals, readOutgoing, readPasses, rememberLike, rememberPass, sendLike, writeDeckFilters, DeckFilters, FREE_RADIUS_KM, searchRadius, rememberMutual, readBlocks, readLastLines, syncMutuals, syncBlocks, publishBlock, publishReport, fetchBuddyCardsById, withdrawLike, clearPasses } from './services/buddyMatch';
 import { BuddyFilterSheet } from './components/BuddyFilterSheet';
 import { hydrateOwnBuddyCard, publishBuddyCard } from '../../services/buddyPresenceSync';
@@ -183,27 +183,9 @@ export const BuddyView: React.FC = () => {
       const flying = Boolean(travelCity) && Number.isFinite(travelLat) && Number.isFinite(travelLng) && travelLat !== 0 && travelLng !== 0;
       const origin = flying ? { latitude: travelLat, longitude: travelLng } : userCoords;
       if (!origin) {
-        if (locationOn === false) {
-          if (!isCancelled) {
-            useRadarStore.getState().setBuddies([]);
-            setSearchResults([]);
-          }
-          return;
-        }
-        const profile = useBuddyProfileStore.getState();
-        const seeded = localBuddyCards();
-        const ranked = rankAthletes({
-          discipline: profile.selectedDisciplines[0] || '',
-          split: profile.favoriteWorkouts[0] || '',
-          time: profile.preferredTimes[0] || '',
-          gym: profile.homeGym,
-          age: profile.age,
-          ageMin: deckFilters.ageMin,
-          ageMax: deckFilters.ageMax,
-        }, seeded, searchRadius(isPro, deckFilters), deckFilters);
         if (!isCancelled) {
-          useRadarStore.getState().setBuddies(ranked);
-          setSearchResults(ranked);
+          useRadarStore.getState().setBuddies([]);
+          setSearchResults([]);
         }
         return;
       }
@@ -227,7 +209,7 @@ export const BuddyView: React.FC = () => {
             age: profile.age,
             ageMin: deckFilters.ageMin,
             ageMax: deckFilters.ageMax,
-          }, results, searchRadius(isPro, deckFilters), deckFilters).filter((row) => row.id !== radarUid && (import.meta.env.DEV || !String(row.id).startsWith('preview-')) && (!flying || !String(row.id).startsWith('preview-')));
+          }, results, searchRadius(isPro, deckFilters), deckFilters).filter((row) => row.id !== radarUid && !String(row.id).startsWith('preview-'));
           useRadarStore.getState().setBuddies(ranked);
           setSearchResults(ranked);
         }
@@ -296,7 +278,7 @@ export const BuddyView: React.FC = () => {
   }, [radarUid]);
 
   useEffect(() => {
-    const known = new Set([...localBuddyCards(), ...searchResults, ...remoteChats].map((row) => row.id));
+    const known = new Set([...searchResults, ...remoteChats].map((row) => row.id));
     const missing = Object.keys(mutuals).filter((id) => !known.has(id) && !blocks.includes(id));
     if (!missing.length) return;
     let stopped = false;
@@ -410,6 +392,7 @@ export const BuddyView: React.FC = () => {
 
   const deckCard = useMemo(() => {
     return searchResults.find((ath) => {
+      if (!ath.id || ath.id.startsWith('preview-')) return false;
       if (coachIds.has(ath.id)) return false;
       if (dismissedIds.includes(ath.id)) return false;
       if (mutuals[ath.id]) return false;
@@ -421,7 +404,9 @@ export const BuddyView: React.FC = () => {
 
   const chatPeople = useMemo(() => {
     const known = new Map<string, DemoAthlete>();
-    [...localBuddyCards(), ...searchResults, ...remoteChats].forEach((row) => known.set(row.id, row));
+    [...searchResults, ...remoteChats].forEach((row) => {
+      if (!row.id.startsWith('preview-')) known.set(row.id, row);
+    });
     return Object.keys(mutuals)
       .filter((id) => !blocks.includes(id))
       .map((id) => known.get(id))
@@ -477,8 +462,8 @@ export const BuddyView: React.FC = () => {
 
       {authReady && !radarUid && (
         <div className="mx-3 mt-3 w-[calc(100%-1.5rem)] rounded-2xl border border-white/[0.07] bg-[#121214] px-4 py-3 text-left">
-          <p className="text-[13px] font-semibold text-white">Sign in to be seen</p>
-          <p className="mt-0.5 text-[12px] text-neutral-400">Likes and your card save only after you are signed in.</p>
+          <p className="text-[13px] font-semibold text-white">{typeof navigator !== 'undefined' && navigator.onLine === false ? 'You are offline' : 'Sign in to be seen'}</p>
+          <p className="mt-0.5 text-[12px] text-neutral-400">{typeof navigator !== 'undefined' && navigator.onLine === false ? 'Your card loads again when the connection is back.' : 'Likes and your card save only after you are signed in.'}</p>
         </div>
       )}
 

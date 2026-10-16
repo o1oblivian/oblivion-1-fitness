@@ -207,6 +207,17 @@ html, body {
   padding: 0;
 }
 
+/* Wide screens stay a phone. A real phone is already narrower than this, so it is unchanged. */
+@media (min-width: 520px) {
+  #root {
+    width: 430px;
+    margin-left: auto;
+    margin-right: auto;
+    transform: translate3d(0, 0, 0);
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06);
+  }
+}
+
 /* Unified inner content column (canvas remains edge-to-edge) */
 .o1-shell {
   width: 100%;
@@ -525,7 +536,57 @@ svg.lucide, .lucide {
 #root button.py-3,
 #root button.py-3\.5,
 #root button.py-4 {
-  min-height: 2.5rem;
+  min-height: 2.25rem;
+  padding-top: 0.5rem !important;
+  padding-bottom: 0.5rem !important;
+}
+
+/* Floating confirmations: one short line just above the nav dock, never over content headers. */
+.o1-toast {
+  position: fixed;
+  left: 50%;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 4.75rem);
+  transform: translateX(-50%);
+  z-index: 70;
+  max-width: min(80vw, 340px);
+  padding: 0.3rem 0.75rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgb(255 255 255 / 0.08);
+  background: rgb(22 22 24 / 0.94);
+  color: #EAE8DF;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.3;
+  text-align: center;
+  width: max-content;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  pointer-events: none;
+  box-shadow: 0 4px 14px rgb(0 0 0 / 0.5);
+}
+
+/* Compact controls: rows and buttons stay tappable without stretching tall. */
+#root button.min-h-\[44px\],
+#root button.min-h-\[48px\],
+#root button.min-h-\[52px\],
+#root button.min-h-\[56px\],
+#root [role="tab"].min-h-\[44px\] {
+  min-height: 2.25rem !important;
+}
+#root button.h-11:not(.w-11),
+#root button.h-12:not(.w-12),
+#root button.h-14:not(.w-14),
+#root button.h-\[44px\],
+#root button.h-\[48px\],
+#root button.h-\[52px\] {
+  height: 2.5rem !important;
+}
+#root button.h-11.w-11,
+#root button.h-12.w-12 {
+  height: 2.5rem !important;
+  width: 2.5rem !important;
 }
 
 /* Short in-card actions hug their label. Sheet CTAs stay full width. */
@@ -553,7 +614,9 @@ svg.lucide, .lucide {
 #root [class*="bg-rose-950/"],
 #root [class*="bg-emerald-950/"],
 #root [class*="bg-amber-950/"],
-#root [class*="bg-sky-950/"],
+#root [class*="bg-sky-950/"] {
+  background-color: #161616 !important;
+}
 #root .o1-mark {
   width: 1.75rem;
   height: 1.75rem;

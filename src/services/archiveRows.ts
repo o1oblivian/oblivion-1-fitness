@@ -3,7 +3,7 @@ import type { WorkoutSessionPayload } from './supabaseClient';
 /** Live column sets (verified against Supabase). Every archive row must stay inside these. */
 export const COMPLETED_SESSION_COLUMNS = [
   'id', 'user_id', 'client_id', 'title', 'session_name', 'tonnage_kg', 'volume_kg', 'total_sets',
-  'duration_seconds', 'strain', 'completed_at', 'created_at', 'pr_count',
+  'duration_seconds', 'strain', 'completed_at', 'created_at', 'pr_count', 'activity_type',
 ] as const;
 export const WORKOUT_LOG_COLUMNS = [
   'id', 'user_id', 'session_id', 'exercise_name', 'set_number', 'reps', 'weight_kg', 'rpe', 'is_pr', 'created_at',
@@ -43,9 +43,12 @@ export function buildArchiveRows(sessionData: WorkoutSessionPayload, userId: str
   const completedAt = givenAt && !Number.isNaN(givenAt.getTime()) ? givenAt.toISOString() : nowIso;
   const title = sessionData.title || 'Workout';
   const id = toUuid(sessionData.id);
+  const givenType = typeof sessionData.activity_type === 'string' ? sessionData.activity_type.trim() : '';
+  const activityType = givenType || (/^cardio:/i.test(title) ? title.replace(/^cardio:\s*/i, '').trim() || 'cardio' : 'strength');
 
   const session: Record<string, unknown> = {
     id, user_id: userId, client_id: userId, title, session_name: title,
+    activity_type: activityType,
     tonnage_kg: tonnage, volume_kg: tonnage, total_sets: totalSets,
     completed_at: completedAt, created_at: completedAt,
   };

@@ -61,7 +61,7 @@ export const MembershipPlansModal: React.FC<MembershipPlansModalProps> = ({
         if (cancelled) return;
         const pkgs = revenueCatService.listPackages(offerings);
         const pkg =
-          pkgs.find((p) => p.identifier === '$rc_monthly' || p.product?.identifier === 'o1fc_monthly_pro') ||
+          pkgs.find((p) => p.identifier === '$rc_monthly' || p.product?.identifier === 'o1fc_pro_monthly' || String(p.product?.identifier || '').startsWith('o1fc_pro_monthly:')) ||
           pkgs[0] ||
           REVENUECAT_FALLBACK_MONTHLY_PACKAGE;
         const product = pkg.product || pkg.webCheckoutProduct || REVENUECAT_FALLBACK_MONTHLY_PACKAGE.product;

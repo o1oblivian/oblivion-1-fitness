@@ -3,8 +3,6 @@ import { getAuthenticatedUserId } from '../../../services/authUser';
 import { isValidUuid, linkCoachClient } from '../../coach/services/coachService';
 import { saveLinkedCoach } from '../../coach/services/coachLink';
 import { ProgramPlanData, parseProgramPlan } from '../../coach/services/programPlan';
-import { mockProgramRows } from '../../../services/devMocks';
-
 export interface StorefrontStats {
   followers: number | null;
   following: boolean;
@@ -162,7 +160,6 @@ export async function fetchStorefrontPrograms(coachId: string): Promise<Storefro
   const rows = [
     ...(Array.isArray(own.data) ? own.data : []),
     ...(Array.isArray(catalog.data) ? catalog.data : []),
-    ...mockProgramRows().filter((row) => row.catalog_coach_id === coachId),
   ] as Record<string, unknown>[];
   return (await withProgramContent(uniquePrograms(rows))).map(mapProgramRow);
 }

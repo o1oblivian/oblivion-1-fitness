@@ -24,7 +24,7 @@ function todayKey(date = new Date()): string {
 
 /** Remember a step count without turning it into distance, calories, or a heart rate. */
 export function noteDailySteps(steps: number, dateKey = todayKey()): void {
-  if (steps <= 0) return;
+  if (steps <= 1) return;
   const existing = useTelemetryHistoryStore.getState().historyByDate[dateKey]?.cardio;
   const name = (existing?.activityType || '').toLowerCase();
   const stepShadow = !existing?.hasData || name.includes('step');

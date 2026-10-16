@@ -62,7 +62,7 @@ function getGenAI(overrideKey?: string): GoogleGenAI | null {
 
 // Resilient Gemini generateContent caller with model fallback & exponential retry for 503/429 spikes
 async function generateContentWithFallback(genAI: GoogleGenAI, contents: any[], config?: any): Promise<any> {
-  const modelsToTry = ['gemini-1.5-flash', 'gemini-flash-latest', 'gemini-3.1-flash-lite'];
+  const modelsToTry = ['gemini-flash-latest', 'gemini-3.1-flash-lite', 'gemini-1.5-flash'];
   let lastError: any = null;
 
   for (const model of modelsToTry) {
@@ -293,6 +293,23 @@ const SUPPLEMENT_KNOWLEDGE_BASE: Array<{
 async function startServer() {
   const app = express();
   const PORT = Number(process.env.PORT) || 3000;
+
+  const APP_ORIGINS = new Set(['https://localhost', 'http://localhost', 'capacitor://localhost', 'ionic://localhost']);
+  app.use('/api', (req, res, next) => {
+    const origin = String(req.headers.origin || '');
+    if (APP_ORIGINS.has(origin)) {
+      res.setHeader('Access-Control-Allow-Origin', origin);
+      res.setHeader('Vary', 'Origin');
+      res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS');
+      res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-gemini-key');
+      res.setHeader('Access-Control-Max-Age', '86400');
+    }
+    if (req.method === 'OPTIONS') {
+      res.sendStatus(204);
+      return;
+    }
+    next();
+  });
 
   // Configure JSON parser with larger limit and rawBody verification for Stripe webhooks
   app.use(
@@ -546,9 +563,9 @@ Respond ONLY in valid JSON matching this exact schema:
       }
       const cleanBase64 = imageBase64.replace(/^data:image\/[a-z]+;base64,/, '');
 
-      // Execute REAL Optical Character Recognition on image buffer
+      // Tesseract is slow on the hosted CPU, so it only runs when Gemini is unavailable or reads nothing.
       const imgBuffer = Buffer.from(cleanBase64, 'base64');
-      const ocrExtracted = await recognizeTelemetryFromBuffer(imgBuffer);
+      let ocrExtracted = null as Awaited<ReturnType<typeof recognizeTelemetryFromBuffer>> | null;
 
       const genAI = getGenAI();
 
@@ -661,7 +678,7 @@ Return STRICT JSON matching this schema:
         }
       }
 
-      // If pure Optical Character Recognition detected real metrics from the display image:
+      ocrExtracted = await recognizeTelemetryFromBuffer(imgBuffer);
       if (ocrExtracted && (ocrExtracted.steps || ocrExtracted.distanceKm || ocrExtracted.caloriesBurned || ocrExtracted.elapsedMinutes > 0)) {
         return res.json({
           success: true,
@@ -1144,7 +1161,6 @@ Respond ONLY with a valid JSON object matching this schema:
         'workout_sessions',
         'user_telemetry',
         'user_entitlements',
-        'telemetry_records',
         'buddy_messages',
       ];
       for (const table of userIdTables) {

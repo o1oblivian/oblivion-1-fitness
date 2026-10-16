@@ -288,7 +288,10 @@ export const SettingsProfileSection: React.FC<ProfileSectionProps> = ({
                 aria-label="Age"
                 value={age === 0 ? '' : age}
                 onFocus={(e) => e.target.select()}
-                onChange={(e) => onUpdateAge && onUpdateAge(parseCleanInt(e.target.value))}
+                onChange={(e) => {
+                  const next = parseCleanInt(e.target.value);
+                  onUpdateAge?.(next <= 0 ? 0 : Math.min(99, next));
+                }}
                 className="w-12 text-center bg-transparent font-mono font-bold text-xs text-white focus:outline-none p-0 m-0 leading-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               />
             </div>

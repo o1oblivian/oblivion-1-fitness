@@ -37,7 +37,7 @@ export const NavigationDock: React.FC<NavigationDockProps> = ({ currentMode, onS
       role="navigation"
       aria-label="Main Navigation"
       style={{
-        bottom: 'max(16px, env(safe-area-inset-bottom, 0px))',
+        bottom: 'max(8px, env(safe-area-inset-bottom, 0px))',
         paddingLeft: 'max(16px, env(safe-area-inset-left, 0px))',
         paddingRight: 'max(16px, env(safe-area-inset-right, 0px))',
       }}

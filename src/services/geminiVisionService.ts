@@ -3,7 +3,7 @@
  * Precision optical telemetry extraction. Strict null contract for unread values.
  */
 import { downscaleBase64IfNeeded } from './imageDownscaleUtils';
-import { apiUrl } from './apiBase';
+import { apiFetch } from './apiBase';
 import { readConfidence, readNutrient, resolveCalories } from './mealVisionTypes';
 
 // 1. PERMANENT GEMINI API KEY FALLBACK
@@ -41,18 +41,25 @@ export interface MealNutrientsResult {
 }
 
 export async function analyzeConsoleTelemetry(base64Image: string): Promise<CardioTelemetryResult> {
-  const cleanBase64 = await downscaleBase64IfNeeded(base64Image, 1024, 0.8);
+  const cleanBase64 = await downscaleBase64IfNeeded(base64Image, 1600, 0.85);
   for (let attempt = 1; attempt <= 2; attempt++) {
+    const startedAt = Date.now();
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 40_000);
+    // Retry only a fast failure (dropped connection); a slow one already used the time budget.
+    const retryable = () => attempt === 1 && Date.now() - startedAt < 5_000;
     try {
       const headers: Record<string, string> = { 'Content-Type': 'application/json', Accept: 'application/json' };
       if (geminiKey) headers['x-gemini-key'] = geminiKey;
-      const response = await fetch(apiUrl('/api/vision/cardio-telemetry'), {
+      const response = await apiFetch('/api/vision/cardio-telemetry', {
         method: 'POST',
         headers,
         body: JSON.stringify({ imageBase64: cleanBase64, mimeType: 'image/jpeg' }),
+        signal: controller.signal,
       });
+      clearTimeout(timer);
       if (!response.ok) {
-        if (attempt === 1) { await new Promise((r) => setTimeout(r, 350)); continue; }
+        if (retryable()) { await new Promise((r) => setTimeout(r, 350)); continue; }
         break;
       }
       const json = await response.json();
@@ -73,7 +80,8 @@ export async function analyzeConsoleTelemetry(base64Image: string): Promise<Card
         };
       }
     } catch {
-      if (attempt === 1) { await new Promise((r) => setTimeout(r, 350)); continue; }
+      clearTimeout(timer);
+      if (retryable()) { await new Promise((r) => setTimeout(r, 350)); continue; }
       break;
     }
   }
@@ -104,7 +112,7 @@ export async function analyzeMealNutrients(
     try {
       const headers: Record<string, string> = { 'Content-Type': 'application/json', Accept: 'application/json' };
       if (geminiKey) headers['x-gemini-key'] = geminiKey;
-      const response = await fetch(apiUrl('/api/vision/meal-nutrients'), {
+      const response = await apiFetch('/api/vision/meal-nutrients', {
         method: 'POST',
         headers,
         body: JSON.stringify({

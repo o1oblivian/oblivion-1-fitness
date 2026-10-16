@@ -93,7 +93,7 @@ const ProgressChart: React.FC<{ lift: LiftProgress; stroke: string }> = ({ lift,
   );
 };
 
-export const LiftHistoryCard: React.FC = () => {
+export const LiftHistoryCard: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
   const simple = useSimpleMode();
   const { sets, loading } = useOblivionReport(true);
   const lifts = useMemo(() => analyseAllLifts(sets, Date.now()), [sets]);
@@ -113,12 +113,16 @@ export const LiftHistoryCard: React.FC = () => {
   const empty = (text: string) => <p className="py-2 text-[11px] text-o1-muted leading-relaxed">{text}</p>;
 
   return (
-    <div className="rounded-2xl bg-o1-card border border-white/[0.07] p-3 space-y-2.5">
+    <div className={embedded ? 'pt-2.5 border-t border-white/[0.05] space-y-2' : 'rounded-2xl bg-o1-card border border-white/[0.07] p-3 space-y-2.5'}>
       <div className="flex items-center gap-2">
-        <span className="o1-mark text-o1-gold">
-          <Trophy />
+        {!embedded && (
+          <span className="o1-mark text-o1-gold">
+            <Trophy />
+          </span>
+        )}
+        <span className={embedded ? 'text-[12px] font-semibold text-o1-muted' : 'text-sm font-semibold text-white'}>
+          {embedded ? 'All-time lift history' : 'Lift history'}
         </span>
-        <span className="text-sm font-semibold text-white">Lift history</span>
         {loading && <span className="text-[10px] text-o1-muted">Loading…</span>}
       </div>
 
@@ -140,7 +144,7 @@ export const LiftHistoryCard: React.FC = () => {
 
       {view === 'lifts' && (
         lifts.length === 0
-          ? empty('Log a lift with weight on the bar and its progress shows here.')
+          ? empty('No lifts logged yet')
           : (
             <ul className="divide-y divide-white/[0.05]">
               {lifts.map((lift) => {

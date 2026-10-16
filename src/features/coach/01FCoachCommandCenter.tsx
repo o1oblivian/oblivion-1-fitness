@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import { CheckCircle2 } from 'lucide-react';
 import { supabase } from '../../services/supabaseClient';
 import { liveChannel } from '../../services/realtimeChannel';
 import { useAuthStore } from '../../stores/useAuthStore';
@@ -27,7 +26,7 @@ import { fetchFinishedForCoach, fetchRemoteCheckins, mapCompletionRow, publishCo
 import { CoachCard } from './services/coachDirectory';
 import { fetchMyCoachCard } from './services/coachPublicProfile';
 import { useCoachStore } from '../../stores/useCoachStore';
-import { coachPeople } from './services/floorRoster';
+import { liveClients } from './services/floorRoster';
 import { onCoachConsoleAction } from './services/coachConsoleBus';
 
 export interface O1FCoachCommandCenterProps {
@@ -59,7 +58,7 @@ export const O1FCoachCommandCenter: React.FC<O1FCoachCommandCenterProps> = ({ is
   const [toastMsg, setToastMsg] = useState<string | null>(null);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const roster = useMemo(() => athletes ?? [], [athletes]);
-  const floorRoster = useMemo(() => coachPeople(roster).people, [roster]);
+  const floorRoster = useMemo(() => liveClients(roster), [roster]);
 
   const showToast = useCallback((msg: string) => {
     if (toastTimer.current) clearTimeout(toastTimer.current);
@@ -210,10 +209,9 @@ export const O1FCoachCommandCenter: React.FC<O1FCoachCommandCenterProps> = ({ is
         <div
           role="status"
           aria-live="polite"
-          className="fixed inset-x-4 top-[calc(env(safe-area-inset-top)+0.75rem)] z-[60] mx-auto flex max-w-md items-center gap-2 rounded-2xl border border-white/[0.07] bg-o1-sheet p-3 text-[13px] font-semibold text-o1-text shadow-xl"
+          className="o1-toast"
         >
-          <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-500" />
-          <span>{toastMsg}</span>
+          {toastMsg}
         </div>
       )}
 

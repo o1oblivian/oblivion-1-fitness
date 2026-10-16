@@ -92,7 +92,7 @@ export const LogLedger: React.FC<LogLedgerProps> = ({ nameLabel, columns, rows, 
                 tactileEngine.triggerSelectionBuzz();
                 setOpenNameId(nameOpen ? null : row.id);
               }}
-              className={`w-full min-h-[44px] text-left bg-transparent border-0 p-0 text-[11px] text-neutral-200 ${nameOpen ? 'whitespace-normal' : 'truncate'} ${canExpandName ? 'cursor-pointer' : 'cursor-default'}`}
+              className={`w-full min-h-[36px] text-left bg-transparent border-0 p-0 text-[11px] text-neutral-200 ${nameOpen ? 'whitespace-normal' : 'truncate'} ${canExpandName ? 'cursor-pointer' : 'cursor-default'}`}
             >
               {nameOpen ? row.name : short}
             </button>
@@ -110,12 +110,12 @@ export const LogLedger: React.FC<LogLedgerProps> = ({ nameLabel, columns, rows, 
                       tactileEngine.triggerSelectionBuzz();
                       setOpenSetsId(setsOpen ? null : row.id);
                     }}
-                    className={`w-full min-h-[44px] px-1 text-right bg-transparent border-0 tabular-nums touch-manipulation ${index === row.cells.length - 1 ? 'pr-1' : ''} ${setsOpen && index === 0 ? 'text-white underline decoration-white/40 underline-offset-4' : 'text-neutral-100'}`}
+                    className={`w-full min-h-[36px] px-1 text-right bg-transparent border-0 tabular-nums touch-manipulation ${index === row.cells.length - 1 ? 'pr-1' : ''} ${setsOpen && index === 0 ? 'text-white underline decoration-white/40 underline-offset-4' : 'text-neutral-100'}`}
                   >
                     {cell}
                   </button>
                 ) : (
-                  <span className={`inline-block min-h-[44px] w-full px-1 leading-[44px] ${index === row.cells.length - 1 ? 'pr-1' : ''}`}>{cell}</span>
+                  <span className={`inline-block min-h-[36px] w-full px-1 leading-[36px] ${index === row.cells.length - 1 ? 'pr-1' : ''}`}>{cell}</span>
                 )}
               </td>
             );

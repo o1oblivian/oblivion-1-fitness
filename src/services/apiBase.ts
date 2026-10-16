@@ -1,10 +1,11 @@
 import { Browser } from '@capacitor/browser';
-import { Capacitor } from '@capacitor/core';
+import { Capacitor, CapacitorHttp } from '@capacitor/core';
 
 export const API_ORIGIN = String(import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '');
 
 export function apiUrl(path: string): string {
   const p = path.startsWith('/') ? path : `/${path}`;
+  if (API_ORIGIN && Capacitor.isNativePlatform()) return `${API_ORIGIN}${p}`;
   if (typeof window !== 'undefined') {
     const host = window.location.hostname;
     const isLan =
@@ -18,6 +19,50 @@ export function apiUrl(path: string): string {
   }
   if (!API_ORIGIN) return p;
   return `${API_ORIGIN}${p}`;
+}
+
+/**
+ * fetch for the app's own server. The installed app runs on https://localhost, so the WebView
+ * would block cross-origin calls; on the phone the request goes through native HTTP instead.
+ */
+export async function apiFetch(path: string, init: RequestInit = {}): Promise<Response> {
+  const url = apiUrl(path);
+  if (!Capacitor.isNativePlatform() || !/^https?:\/\//i.test(url)) return fetch(url, init);
+  const headers: Record<string, string> = {};
+  new Headers(init.headers).forEach((value, key) => {
+    headers[key] = value;
+  });
+  let data: unknown;
+  if (typeof init.body === 'string') {
+    try {
+      data = JSON.parse(init.body);
+    } catch {
+      data = init.body;
+    }
+  }
+  const request = CapacitorHttp.request({
+    url,
+    method: (init.method || 'GET').toUpperCase(),
+    headers,
+    data,
+    connectTimeout: 30_000,
+    readTimeout: 90_000,
+  });
+  const signal = init.signal;
+  const res = signal
+    ? await Promise.race([
+        request,
+        new Promise<never>((_, reject) => {
+          const abort = () => reject(new DOMException('Request aborted', 'AbortError'));
+          if (signal.aborted) abort();
+          else signal.addEventListener('abort', abort, { once: true });
+        }),
+      ])
+    : await request;
+  const status = res.status >= 200 && res.status <= 599 ? res.status : 500;
+  const empty = status === 204 || status === 205 || status === 304;
+  const body = empty ? null : typeof res.data === 'string' ? res.data : JSON.stringify(res.data ?? null);
+  return new Response(body, { status, headers: { 'Content-Type': 'application/json' } });
 }
 
 export const LEGAL_URLS = {

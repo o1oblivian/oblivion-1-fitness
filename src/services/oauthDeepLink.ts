@@ -90,7 +90,6 @@ export async function persistAuthenticatedUser(): Promise<boolean> {
     if (error || !user) return false;
     safeStorage.setItem('o1fc_user_id', user.id);
     if (user.email) safeStorage.setItem('o1fc_user_email', user.email);
-    safeStorage.setItem('o1fc_onboarding_completed', 'true');
     return true;
   } catch (err) {
     console.warn('[OAuth] Failed to persist session user:', err);
@@ -98,26 +97,82 @@ export async function persistAuthenticatedUser(): Promise<boolean> {
   }
 }
 
+/** Server flag only. A local flag used to be set on every sign-in, which skipped the wizard. */
+export async function profileOnboardingComplete(): Promise<boolean> {
+  try {
+    const { data: sessionData } = await supabase.auth.getSession();
+    const uid = sessionData.session?.user?.id;
+    if (!uid) return false;
+    const { data, error } = await supabase.from('profiles').select('onboarding_completed').eq('id', uid).maybeSingle();
+    if (error || !data) return false;
+    return (data as { onboarding_completed?: boolean }).onboarding_completed === true;
+  } catch {
+    return false;
+  }
+}
+
+function authCode(rawUrl: string): string | null {
+  try {
+    return new URL(rawUrl).searchParams.get('code');
+  } catch {
+    const match = rawUrl.match(/[?&#]code=([^&#]+)/);
+    return match ? decodeURIComponent(match[1]) : null;
+  }
+}
+
+/** The WebView cannot read the saved login code until it is in the foreground again. */
+async function waitUntilActive(): Promise<void> {
+  await closeNativeBrowser();
+  if (typeof document === 'undefined') return;
+  if (document.visibilityState !== 'visible') {
+    await new Promise<void>((resolve) => {
+      const finish = () => {
+        document.removeEventListener('visibilitychange', onChange);
+        resolve();
+      };
+      const onChange = () => {
+        if (document.visibilityState === 'visible') finish();
+      };
+      document.addEventListener('visibilitychange', onChange);
+      window.setTimeout(finish, 1200);
+    });
+  }
+  await new Promise((resolve) => window.setTimeout(resolve, 250));
+}
+
+let consumedCode = '';
+let exchangeInFlight: Promise<boolean> | null = null;
+
 /**
  * Apply a native custom-scheme or web OAuth callback URL.
  * Supports PKCE (`code`) and implicit (`access_token`) responses.
  */
 export async function applyAuthCallbackUrl(rawUrl: string): Promise<boolean> {
   if (!rawUrl) return false;
-  if (rawUrl.startsWith(NATIVE_OAUTH_REDIRECT)) void closeNativeBrowser();
+  const code = authCode(rawUrl);
+  if (code && code === consumedCode) return persistAuthenticatedUser();
+  if (exchangeInFlight) return exchangeInFlight;
+
+  const run = async (): Promise<boolean> => {
+  if (rawUrl.startsWith('com.o1fc.fitness://')) await waitUntilActive();
   const providerError = callbackError(rawUrl);
   if (providerError) {
     publishAuthError(providerError);
     return false;
   }
   try {
-    if (rawUrl.includes('code=')) {
-      const { error } = await supabase.auth.exchangeCodeForSession(rawUrl);
+    if (code) {
+      let { error } = await supabase.auth.exchangeCodeForSession(code);
+      if (error && /verifier/i.test(error.message)) {
+        await new Promise((resolve) => window.setTimeout(resolve, 500));
+        ({ error } = await supabase.auth.exchangeCodeForSession(code));
+      }
       if (error) {
         console.warn('[OAuth] exchangeCodeForSession failed:', error.message);
-        if (rawUrl.startsWith(NATIVE_OAUTH_REDIRECT)) publishAuthError('Sign-in could not be completed. Please try again.');
+        publishAuthError(error.message || 'Sign-in could not be completed. Please try again.');
         return false;
       }
+      consumedCode = code;
       return persistAuthenticatedUser();
     }
 
@@ -134,13 +189,22 @@ export async function applyAuthCallbackUrl(rawUrl: string): Promise<boolean> {
     });
     if (error) {
       console.warn('[OAuth] setSession failed:', error.message);
+      publishAuthError(error.message || 'Sign-in could not be completed. Please try again.');
       return false;
     }
     return persistAuthenticatedUser();
   } catch (err) {
     console.warn('[OAuth] Callback handling failed:', err);
+    const message = err instanceof Error ? err.message : 'Sign-in could not be completed. Please try again.';
+    publishAuthError(message);
     return false;
   }
+  };
+
+  exchangeInFlight = run().finally(() => {
+    exchangeInFlight = null;
+  });
+  return exchangeInFlight;
 }
 
 export async function openOAuthUrl(url: string): Promise<void> {

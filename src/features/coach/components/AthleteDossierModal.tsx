@@ -84,26 +84,7 @@ export const AthleteDossierModal: React.FC<AthleteDossierModalProps> = ({
           </div>
 
           {/* The Oblivion Report (athlete-consented snapshot) */}
-          {athlete.id.startsWith('sample-') ? (
-            <div className="grid grid-cols-2 gap-2.5">
-              <div className="rounded-2xl border border-white/[0.07] bg-o1-canvas p-3">
-                <span className="text-[10px] text-o1-muted">Sleep</span>
-                <p className="tabular-nums mt-1 text-[18px] text-o1-text">{athlete.sleepHours ?? '--'} h</p>
-              </div>
-              <div className="rounded-2xl border border-white/[0.07] bg-o1-canvas p-3">
-                <span className="text-[10px] text-o1-muted">Soreness</span>
-                <p className="mt-1 text-[15px] text-o1-text">{athlete.soreness || '--'}</p>
-              </div>
-              <div className="rounded-2xl border border-white/[0.07] bg-o1-canvas p-3">
-                <span className="text-[10px] text-o1-muted">Fuel</span>
-                <p className="tabular-nums mt-1 text-[18px] text-o1-text">{athlete.fuelPct ?? '--'}%</p>
-              </div>
-              <div className="rounded-2xl border border-white/[0.07] bg-o1-canvas p-3">
-                <span className="text-[10px] text-o1-muted">Sets / PRs</span>
-                <p className="tabular-nums mt-1 text-[18px] text-o1-text">{athlete.sets ?? '--'} / {athlete.prs ?? '--'}</p>
-              </div>
-            </div>
-          ) : !athlete.volume && !athlete.sets ? (
+          {!athlete.volume && !athlete.sets ? (
             <div className="rounded-2xl border border-white/[0.07] bg-o1-canvas p-4">
               <p className="text-[13px] text-o1-text">Onboarding // Day 0</p>
               <p className="mt-1 text-[12px] text-o1-muted">Awaiting first logged session.</p>

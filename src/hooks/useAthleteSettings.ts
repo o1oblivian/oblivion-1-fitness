@@ -1,9 +1,9 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { safeStorage } from '../utils/sanitizers';
 import { useTelemetryStore } from '../features/telemetry/store/useTelemetryStore';
 import { tactileEngine } from '../services/tactileEngine';
 import { supabase } from '../services/supabaseClient';
-import { apiUrl } from '../services/apiBase';
+import { apiFetch } from '../services/apiBase';
 import { clearLocalCrash } from '../utils/crashLog';
 import { clearAccountData, releaseDevice } from '../services/accountScope';
 import { useUserStore } from '../stores/useUserStore';
@@ -63,6 +63,24 @@ const persistSettingsPatch = (partial: Record<string, unknown>) => {
   safeStorage.setItem(O1_SETTINGS_KEY, { ...existing, ...partial });
 };
 
+/** Writes the account row now. Waiting for the next app load was dropping the edit on sign-out. */
+function pushProfile(patch: Record<string, unknown>) {
+  void (async () => {
+    try {
+      const { data } = await supabase.auth.getUser();
+      const uid = data.user?.id;
+      if (!uid) return;
+      const { error } = await supabase.from('profiles').upsert(
+        { id: uid, ...patch, updated_at: new Date().toISOString() },
+        { onConflict: 'id' },
+      );
+      if (error) console.warn('[Settings] profile save:', error.message);
+    } catch (err) {
+      console.warn('[Settings] profile save:', err);
+    }
+  })();
+}
+
 /** Saved the moment it changes, so closing the app mid-edit never loses a setting. */
 function usePersistedSetting<T>(key: keyof SettingsStoreState, initial: T): [T, (value: T) => void] {
   const [value, setValue] = useState<T>(initial);
@@ -79,6 +97,14 @@ export const useProductionSettings = (onShowToast?: (msg: string) => void) => {
   // Profile
   const [name, setName] = usePersistedSetting<string>('name', typeof cached.name === 'string' && cached.name ? cached.name : profile.name);
   const [handle, setHandle] = usePersistedSetting<string>('handle', typeof cached.handle === 'string' && cached.handle ? cached.handle : profile.handle);
+  const accountName = useUserStore((s) => s.name);
+  const accountHandle = useUserStore((s) => s.handle);
+  useEffect(() => {
+    if (!name && accountName) setName(accountName);
+  }, [accountName, name, setName]);
+  useEffect(() => {
+    if (!handle && accountHandle) setHandle(accountHandle);
+  }, [accountHandle, handle, setHandle]);
   const [age, setAge] = usePersistedSetting<number>('age', typeof cached.age === 'number' ? cached.age : 0);
   const [heightCm, setHeightCm] = usePersistedSetting<number>('heightCm', typeof cached.heightCm === 'number' ? cached.heightCm : 0);
   const [weightKg, setWeightKg] = usePersistedSetting<number>('weightKg', typeof cached.weightKg === 'number' ? cached.weightKg : profile.weightKg);
@@ -253,22 +279,33 @@ export const useProductionSettings = (onShowToast?: (msg: string) => void) => {
     await clearReminders().catch(() => {});
   };
 
-  const handleLogout = async (onLogoutCallback?: () => void) => {
+  const handleLogout = (onLogoutCallback?: () => void) => {
     tactileEngine.triggerSelectionBuzz();
-    await releasePhoneResources();
+    // Wipe the session and leave immediately. Waiting on reminders or Bluetooth
+    // can hang forever on Android and leaves Sign out looking frozen.
     try {
-      await supabase.auth.signOut();
-    } catch (e) {
-      console.warn('[Settings] Supabase sign out fallback:', e);
-    }
-    try {
-      window.localStorage.removeItem('supabase.auth.token');
-      window.localStorage.removeItem('o1fc_onboarding_completed');
-      window.localStorage.removeItem('olfc_onboarding_completed');
+      void supabase.auth.stopAutoRefresh();
+      void supabase.auth.signOut({ scope: 'local' });
     } catch {
-      // storage unavailable; releaseDevice still restarts clean
+      /* reload still drops the stored session */
     }
+    try {
+      window.localStorage.setItem('o1fc_signed_out_pending', '1');
+      window.localStorage.removeItem('supabase.auth.token');
+      window.localStorage.removeItem('o1fc_user_id');
+      window.localStorage.removeItem('o1fc_user_email');
+      for (const key of Object.keys(window.localStorage)) {
+        if (key.startsWith('sb-') && key.includes('auth-token')) window.localStorage.removeItem(key);
+      }
+    } catch {
+      /* releaseDevice still restarts clean */
+    }
+    void Promise.race([
+      releasePhoneResources(),
+      new Promise((resolve) => setTimeout(resolve, 800)),
+    ]);
     if (onLogoutCallback) onLogoutCallback();
+    window.dispatchEvent(new CustomEvent('o1fc_signed_out'));
     releaseDevice();
   };
 
@@ -286,7 +323,7 @@ export const useProductionSettings = (onShowToast?: (msg: string) => void) => {
       const { data: sessionData } = await supabase.auth.getSession();
       const accessToken = sessionData?.session?.access_token;
       if (accessToken) {
-        const res = await fetch(apiUrl('/api/account/delete'), {
+        const res = await apiFetch('/api/account/delete', {
           method: 'POST',
           headers: {
             Authorization: `Bearer ${accessToken}`,
@@ -312,9 +349,6 @@ export const useProductionSettings = (onShowToast?: (msg: string) => void) => {
         await supabase.from('meal_logs').delete().eq('user_id', uid);
         await supabase.from('fuel_days').delete().eq('user_id', uid);
         await supabase.from('fuel_profiles').delete().eq('user_id', uid);
-      } catch {}
-      try {
-        await supabase.from('telemetry_records').delete().eq('user_id', uid);
       } catch {}
       try {
         await supabase.from('profiles').delete().eq('id', uid);
@@ -396,11 +430,25 @@ export const useProductionSettings = (onShowToast?: (msg: string) => void) => {
     }
   };
 
+  const setNameNow = (next: string) => {
+    setName(next);
+    useUserStore.getState().updateProfile({ name: next });
+    const trimmed = next.trim();
+    if (trimmed) pushProfile({ full_name: trimmed });
+  };
+
+  const setHandleNow = (next: string) => {
+    setHandle(next);
+    useUserStore.getState().updateProfile({ handle: next });
+    const bare = next.trim().replace(/^@+/, '');
+    if (bare) pushProfile({ handle: bare });
+  };
+
   return {
     name,
-    setName,
+    setName: setNameNow,
     handle,
-    setHandle,
+    setHandle: setHandleNow,
     age,
     setAge,
     heightCm,

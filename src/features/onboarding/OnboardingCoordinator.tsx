@@ -8,6 +8,7 @@ import { supabase } from '../../services/supabaseClient';
 import { tactileEngine } from '../../services/tactileEngine';
 import { safeStorage } from '../../utils/safeStorage';
 import { useConsultationStore } from '../induction/useConsultationStore';
+import { profileOnboardingComplete } from '../../services/oauthDeepLink';
 import signupBg from '../../assets/images/signin_starfield.jpg';
 
 type Phase = 'auth' | 'routing' | 'protocol';
@@ -29,22 +30,6 @@ export const OnboardingCoordinator: React.FC<{ onComplete: () => void; replay?: 
   const handleFinish = async () => {
     tactileEngine.playPRCelebration();
 
-    try {
-      const { data: userData } = await supabase.auth.getUser();
-      const user = userData?.user;
-      const targetId = user?.id || localStorage.getItem('o1fc_user_id') || '';
-      if (targetId && targetId !== 'athlete-c1' && targetId !== 'default-athlete') {
-        const { error } = await supabase.from('profiles').upsert({
-          id: targetId,
-          onboarding_completed: true,
-          updated_at: new Date().toISOString(),
-        });
-        if (error) console.error('[Onboarding] Profile upsert failed:', error.message);
-      }
-    } catch (e) {
-      console.error('[Onboarding] Profile dossier upsert failed:', e);
-    }
-
     safeStorage.setItem('olfc_onboarding_completed', 'true');
     safeStorage.setItem('o1fc_onboarding_completed', 'true');
     localStorage.setItem('olfc_onboarding_completed', 'true');
@@ -58,11 +43,13 @@ export const OnboardingCoordinator: React.FC<{ onComplete: () => void; replay?: 
   finishRef.current = handleFinish;
 
   const routeSignedIn = useCallback(async (signedIn: boolean) => {
+    if (typeof window !== 'undefined' && localStorage.getItem('o1fc_signed_out_pending') === '1') return;
     if (!signedIn || phaseRef.current !== 'auth') return;
     phaseRef.current = 'routing';
     setPhase('routing');
-    const returning = await useConsultationStore.getState().hydrate().catch(() => false);
+    const returning = await profileOnboardingComplete();
     if (returning) {
+      await useConsultationStore.getState().hydrate().catch(() => false);
       void finishRef.current();
       return;
     }
@@ -94,17 +81,13 @@ export const OnboardingCoordinator: React.FC<{ onComplete: () => void; replay?: 
       <div className="fixed inset-0 pointer-events-none bg-gradient-to-t from-black/30 via-transparent to-transparent z-0" />
 
       <div
-        className="w-full max-w-[480px] mx-auto min-h-dvh flex flex-col justify-between p-4 sm:p-6 relative z-10"
+        className="w-full max-w-[480px] mx-auto min-h-dvh flex flex-col justify-center px-4 relative z-10"
         style={{
-          paddingTop: 'max(16px, env(safe-area-inset-top, 0px))',
-          paddingBottom: 'max(16px, env(safe-area-inset-bottom, 0px))',
-          paddingLeft: 'max(16px, env(safe-area-inset-left, 0px))',
-          paddingRight: 'max(16px, env(safe-area-inset-right, 0px))',
+          paddingTop: 'env(safe-area-inset-top, 0px)',
+          paddingBottom: 'env(safe-area-inset-bottom, 0px)',
         }}
       >
-        <div className="pt-2" />
-
-        <div className="py-4 my-auto">
+        <div className="py-3">
           {phase === 'routing' ? (
             <div className="flex justify-center" role="status" aria-label="Signing in">
               <Loader2 className="h-6 w-6 animate-spin text-o1-muted" />

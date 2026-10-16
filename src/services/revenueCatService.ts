@@ -1,10 +1,13 @@
 import { Capacitor } from '@capacitor/core';
 import { Purchases, type CustomerInfo, type PurchasesOfferings, type PurchasesPackage } from '@revenuecat/purchases-capacitor';
-import { supabase } from './supabaseClient';
 import { getAuthenticatedUserId } from './authUser';
 import { isNativeStorePlatform, resolveNativeStoreKey } from './purchasesService';
 
+/** RevenueCat entitlement that unlocks Club Pass Pro. */
+export const REVENUECAT_ENTITLEMENT_PRO = 'o1fc_pro';
+/** Google Play base product (base plan id is appended as `o1fc_pro_monthly:monthly`). */
 export const REVENUECAT_TIER_MONTHLY = 'o1fc_pro_monthly';
+export const REVENUECAT_TIER_FOUNDER = 'o1fc_founder_pass';
 const STORAGE_KEY = 'o1fc_revenuecat_entitlements';
 const STATUS_KEY = 'o1fc_subscription_status';
 
@@ -48,13 +51,13 @@ export const REVENUECAT_FALLBACK_MONTHLY_PACKAGE = {
   packageType: 'MONTHLY',
   isFallback: true,
   product: {
-    identifier: 'o1fc_monthly_pro',
+    identifier: REVENUECAT_TIER_MONTHLY,
     title: 'Monthly Pro Access',
     priceString: '$9.99',
     price: 9.99,
   },
   webCheckoutProduct: {
-    identifier: 'o1fc_monthly_pro',
+    identifier: REVENUECAT_TIER_MONTHLY,
     title: 'Monthly Pro Access',
     priceString: '$9.99',
     price: 9.99,
@@ -96,9 +99,17 @@ function packageLabel(pkg: PurchasesPackage): string {
   return `${pkg.identifier} ${pkg.packageType} ${pkg.product.identifier}`.toLowerCase();
 }
 
+const productMatches = (id: string, planId: string) => id === planId || id.startsWith(`${planId}:`);
+
 /** The store package for one plan. Each plan only ever resolves to its own kind of product, never a sibling plan. */
 export function findPackageForPlan(packages: PurchasesPackage[], planId: string): PurchasesPackage | null {
-  const exact = packages.find((pkg) => pkg.identifier === planId || pkg.product.identifier === planId);
+  const exact = packages.find(
+    (pkg) =>
+      pkg.identifier === planId ||
+      pkg.product.identifier === planId ||
+      productMatches(pkg.product.identifier, planId) ||
+      productMatches(pkg.identifier, planId),
+  );
   if (exact) return exact;
   const kind = planKind(planId);
   return (
@@ -112,7 +123,9 @@ export function findPackageForPlan(packages: PurchasesPackage[], planId: string)
   );
 }
 
-const productMatches = (id: string, planId: string) => id === planId || id.startsWith(`${planId}:`);
+function hasProEntitlement(info: CustomerInfo): boolean {
+  return Object.values(info.entitlements.active).some((e) => e.isActive && e.identifier === REVENUECAT_ENTITLEMENT_PRO);
+}
 
 /** True when the store shows this specific plan as owned. */
 export function ownsPlan(info: CustomerInfo | null | undefined, planId: string): boolean {
@@ -120,9 +133,14 @@ export function ownsPlan(info: CustomerInfo | null | undefined, planId: string):
   const kind = planKind(planId);
   const owned = kind === 'lifetime' ? info.allPurchasedProductIdentifiers : info.activeSubscriptions;
   if (owned.some((id) => productMatches(id, planId))) return true;
-  const active = Object.values(info.entitlements.active);
+  const active = Object.values(info.entitlements.active).filter((e) => e.isActive);
   if (kind === 'coach') return active.some((e) => e.identifier.includes('coach') || e.productIdentifier.includes('coach'));
-  return active.length > 0;
+  if (kind === 'lifetime') {
+    return active.some((e) => productMatches(e.productIdentifier, planId) || /founder|lifetime/.test(e.productIdentifier));
+  }
+  // Monthly / travel Pro: require the o1fc_pro entitlement or a matching product.
+  if (active.some((e) => productMatches(e.productIdentifier, planId))) return true;
+  return kind === 'monthly' || kind === 'travel' ? hasProEntitlement(info) : active.length > 0;
 }
 
 /** Reads the paid plan straight from the store's customer record, with the store's own expiry. */
@@ -205,6 +223,19 @@ function rememberEntitlement(info: EntitlementInfo): void {
   }
 }
 
+const STORE_TIMEOUT_MS = 12_000;
+const PURCHASE_TIMEOUT_MS = 20_000;
+
+function withStoreTimeout<T>(work: Promise<T>, message: string, timeoutMs = STORE_TIMEOUT_MS): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error(message)), timeoutMs);
+    work.then(
+      (value) => { clearTimeout(timer); resolve(value); },
+      (err) => { clearTimeout(timer); reject(err); },
+    );
+  });
+}
+
 async function resolveAppUserId(preferred?: string): Promise<string | null> {
   if (preferred && preferred !== 'default-athlete' && preferred !== 'athlete-c1') return preferred;
   return getAuthenticatedUserId();
@@ -222,9 +253,11 @@ class RevenueCatManager {
       return false;
     }
     try {
-      const { isConfigured } = await Purchases.isConfigured();
-      if (isConfigured) await Purchases.logIn({ appUserID: userId });
-      else await Purchases.configure({ apiKey, appUserID: userId });
+      await withStoreTimeout((async () => {
+        const { isConfigured } = await Purchases.isConfigured();
+        if (isConfigured) await Purchases.logIn({ appUserID: userId });
+        else await Purchases.configure({ apiKey, appUserID: userId });
+      })(), 'Google Play billing did not answer.');
       return true;
     } catch (e) {
       console.warn('[RevenueCat] Store connection failed:', e);
@@ -249,7 +282,7 @@ class RevenueCatManager {
   async getOfferings(appUserId?: string): Promise<StoreCatalog> {
     try {
       const client = await this.init(appUserId);
-      return { packages: client ? packagesFromOfferings(await client.getOfferings()) : [] };
+      return { packages: client ? packagesFromOfferings(await withStoreTimeout(client.getOfferings(), 'Store products did not load.')) : [] };
     } catch {
       return { packages: [] };
     }
@@ -273,12 +306,18 @@ class RevenueCatManager {
       }
 
       const client = await this.init(userId);
-      if (!client) return { success: false, error: 'Store billing is unavailable on this device.' };
+      if (!client) return { success: false, error: 'Google Play billing is unavailable. Install the app from Google Play to subscribe.' };
 
-      const pkg = findPackageForPlan(packagesFromOfferings(await client.getOfferings()), planId);
-      if (!pkg) return { success: false, error: 'No store product is available for this plan yet.' };
+      const pkg = findPackageForPlan(packagesFromOfferings(await withStoreTimeout(client.getOfferings(), 'Store products did not load. Check your connection and try again.')), planId);
+      if (!pkg || (pkg as { isFallback?: boolean }).isFallback) {
+        return { success: false, error: 'This plan is not live in Google Play yet.' };
+      }
 
-      const { customerInfo } = await client.purchasePackage({ aPackage: pkg });
+      const { customerInfo } = await withStoreTimeout(
+        client.purchasePackage({ aPackage: pkg }),
+        'The payment window did not open. Install the app from Google Play internal testing, then try Upgrade again.',
+        PURCHASE_TIMEOUT_MS,
+      );
       if (!ownsPlan(customerInfo, planId)) {
         return { success: false, error: 'Purchase completed but the plan was not found on this account yet. Try Restore Purchases.' };
       }
@@ -293,17 +332,8 @@ class RevenueCatManager {
     }
   }
 
-  private async recordPlan(info: EntitlementInfo, userId: string): Promise<void> {
+  private async recordPlan(info: EntitlementInfo, _userId: string): Promise<void> {
     rememberEntitlement(info);
-    if (!info.isActive || !userId) return;
-    try {
-      await supabase
-        .from('athlete_profiles')
-        .update({ membership_tier: info.tierId, status: 'active', updated_at: new Date().toISOString() })
-        .eq('id', userId);
-    } catch {
-      /* the RevenueCat webhook writes the authoritative entitlement row */
-    }
   }
 
   /** Asks the store first. Returns null only when the store could not be reached. */
@@ -311,7 +341,7 @@ class RevenueCatManager {
     try {
       const client = await this.init(userId);
       if (!client) return null;
-      const { customerInfo } = await client.getCustomerInfo();
+      const { customerInfo } = await withStoreTimeout(client.getCustomerInfo(), 'Store account did not load.');
       const info = entitlementFromCustomerInfo(customerInfo, currentPlatform());
       await this.recordPlan(info, (await resolveAppUserId(userId)) || '');
       return info;

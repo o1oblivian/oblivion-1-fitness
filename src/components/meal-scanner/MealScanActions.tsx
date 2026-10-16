@@ -1,6 +1,8 @@
 import React, { RefObject, useState } from 'react';
+import { Capacitor } from '@capacitor/core';
 import { Camera, Upload, Scan, Video } from 'lucide-react';
 import { ScanMode } from '../../services/mealVisionTypes';
+import { capturePhotoDataUrl, PhotoSource } from '../../services/nativeCameraService';
 import { LiveBarcodeScanner } from './LiveBarcodeScanner';
 
 interface MealScanActionsProps {
@@ -19,6 +21,26 @@ export const MealScanActions: React.FC<MealScanActionsProps> = ({
   isLoading, cameraInputRef, fileInputRef, onFileUpload,
 }) => {
   const [showLiveScanner, setShowLiveScanner] = useState(false);
+  const [captureError, setCaptureError] = useState<string | null>(null);
+
+  const openPhoto = (source: PhotoSource) => {
+    if (!Capacitor.isNativePlatform()) {
+      (source === 'camera' ? cameraInputRef : fileInputRef).current?.click();
+      return;
+    }
+    setCaptureError(null);
+    void capturePhotoDataUrl(source)
+      .then(async (dataUrl) => {
+        const blob = await (await fetch(dataUrl)).blob();
+        const file = new File([blob], source === 'camera' ? 'meal.jpg' : 'meal-upload.jpg', { type: blob.type || 'image/jpeg' });
+        onFileUpload(file);
+      })
+      .catch((err: unknown) => {
+        const message = err instanceof Error ? err.message : 'The camera did not open.';
+        if (/cancel/i.test(message)) return;
+        setCaptureError(message);
+      });
+  };
 
   return (
     <div className="space-y-3">
@@ -71,18 +93,12 @@ export const MealScanActions: React.FC<MealScanActionsProps> = ({
 
       {/* Tab 2: Package Nutrition Facts OCR Guide Overlay */}
       {scanMode === 'package' && (
-        <div className="p-3 rounded-2xl bg-amber-950/30 border border-amber-500/30 text-center space-y-1">
-          <p className="text-xs font-mono font-bold text-amber-300">Align Nutrition Facts Table</p>
-          <p className="text-[10px] text-neutral-400">Strictly extracts serving grams, calories, protein, carbs & fat</p>
-        </div>
+        <p className="text-[11px] text-neutral-400 text-center">Fill the photo with the Nutrition Facts table.</p>
       )}
 
       {/* Tab 3: Plate Interactive Estimate Guide */}
       {scanMode === 'plate' && (
-        <div className="p-3 rounded-2xl bg-o1-well border border-white/[0.07] text-center space-y-1">
-          <p className="text-xs font-mono font-bold text-neutral-200">Plate Nutrition Scanner</p>
-          <p className="text-[10px] text-neutral-400">Visual portion mass estimation with real-time Atwater adjustment</p>
-        </div>
+        <p className="text-[11px] text-neutral-400 text-center">Photograph the whole plate from above.</p>
       )}
 
       <input
@@ -109,26 +125,27 @@ export const MealScanActions: React.FC<MealScanActionsProps> = ({
         }}
       />
 
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-2">
         <button
           type="button"
-          onClick={() => cameraInputRef.current?.click()}
+          onClick={() => openPhoto('camera')}
           disabled={isLoading}
-          className="flex items-center justify-center gap-2 py-3 px-4 rounded-2xl bg-white text-neutral-950 text-xs font-semibold cursor-pointer active:scale-95 transition-transform disabled:opacity-50"
+          className="h-10 flex items-center justify-center gap-2 px-3 rounded-xl bg-white text-neutral-950 text-xs font-semibold cursor-pointer active:scale-95 transition-transform disabled:opacity-50"
         >
           <Camera className="w-4 h-4" />
           <span>Take Photo</span>
         </button>
         <button
           type="button"
-          onClick={() => fileInputRef.current?.click()}
+          onClick={() => openPhoto('photos')}
           disabled={isLoading}
-          className="flex items-center justify-center gap-2 py-3 px-4 rounded-2xl bg-o1-well hover:bg-white/[0.06] text-neutral-200 text-xs font-bold cursor-pointer active:scale-95 transition-transform disabled:opacity-50"
+          className="h-10 flex items-center justify-center gap-2 px-3 rounded-xl bg-o1-well hover:bg-white/[0.06] text-neutral-200 text-xs font-semibold cursor-pointer active:scale-95 transition-transform disabled:opacity-50"
         >
           <Upload className="w-4 h-4" />
           <span>Upload Photo</span>
         </button>
       </div>
+      {captureError ? <p className="text-[12px] text-[#C4121A]">{captureError}</p> : null}
     </div>
   );
 };

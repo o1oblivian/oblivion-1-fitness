@@ -9,6 +9,7 @@ interface CardioScanUploaderProps {
   cameraInputRef: RefObject<HTMLInputElement | null>;
   fileInputRef: RefObject<HTMLInputElement | null>;
   onCameraCapture?: () => void;
+  onPickPhotos?: () => void;
 }
 
 export const CardioScanUploader: React.FC<CardioScanUploaderProps> = ({
@@ -19,6 +20,7 @@ export const CardioScanUploader: React.FC<CardioScanUploaderProps> = ({
   cameraInputRef,
   fileInputRef,
   onCameraCapture,
+  onPickPhotos,
 }) => {
   return (
     <div className="space-y-3">
@@ -93,7 +95,7 @@ export const CardioScanUploader: React.FC<CardioScanUploaderProps> = ({
 
           <button
             type="button"
-            onClick={() => fileInputRef.current?.click()}
+            onClick={() => (onPickPhotos ? onPickPhotos() : fileInputRef.current?.click())}
             className="py-2.5 px-3 rounded-2xl bg-o1-well border border-white/[0.07] hover:bg-white/[0.06] text-white font-bold text-xs tracking-wider flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-95"
           >
             <Upload className="w-4 h-4" />

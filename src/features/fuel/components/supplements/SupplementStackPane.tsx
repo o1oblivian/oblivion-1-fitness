@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Globe, Pencil, Plus, Search, Trash2 } from 'lucide-react';
 import { tactileEngine } from '../../../../services/tactileEngine';
-import { apiUrl } from '../../../../services/apiBase';
+import { apiFetch } from '../../../../services/apiBase';
 import { useFuelStore, SupplementItem, SupplementTiming, SupplementUnit } from '../../store/useFuelStore';
 import { EVIDENCE_COPY, LibrarySupplement, formatDose, scaledAmount, searchLibrary } from '../../data/supplementLibrary';
 import { SupplementComposer, SupplementComposerResult, SupplementDraft } from './SupplementComposer';
@@ -113,7 +113,7 @@ export const SupplementStackPane: React.FC<SupplementStackPaneProps> = ({ weight
     tactileEngine.triggerSelectionBuzz();
     setOnline({ status: 'loading', results: [] });
     try {
-      const res = await fetch(apiUrl(`/api/fuel/supplement-search?q=${encodeURIComponent(trimmed)}`));
+      const res = await apiFetch(`/api/fuel/supplement-search?q=${encodeURIComponent(trimmed)}`);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       setOnline({ status: 'done', results: Array.isArray(data.supplements) ? data.supplements : [] });

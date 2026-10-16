@@ -92,6 +92,7 @@ export default function App() {
       };
       window.addEventListener('o1fc_relaunch_onboarding', handleRelaunch);
       window.addEventListener('o1fc_account_deleted', handleRelaunch);
+      window.addEventListener('o1fc_signed_out', handleRelaunch);
 
       const handleAuthUrl = async (url: string) => {
         if (!url) return;
@@ -190,6 +191,7 @@ export default function App() {
         window.removeEventListener('hashchange', handlePopState);
         window.removeEventListener('o1fc_relaunch_onboarding', handleRelaunch);
         window.removeEventListener('o1fc_account_deleted', handleRelaunch);
+        window.removeEventListener('o1fc_signed_out', handleRelaunch);
       };
     }
     return () => cleanupRollover();

@@ -6,9 +6,11 @@ import { useFuelStore } from '../../fuel/store/useFuelStore';
 import { persistCardioLog } from '../services/cardioLogService';
 import { localDayKey } from '../services/dayLogService';
 import { processCardioScanImage } from '../services/cardioScanService';
+import { estimateStepsFromCardio } from '../../telemetry/services/stepEstimate';
 import { CardioScanUploader } from './scan/CardioScanUploader';
 import { CardioScanMetricFields, ExtractedCardioData } from './scan/CardioScanMetricFields';
-import { captureNativeStill } from '../../../services/nativeCameraService';
+import { Capacitor } from '@capacitor/core';
+import { capturePhotoDataUrl, PhotoSource } from '../../../services/nativeCameraService';
 
 interface CardioConsoleScanModalProps {
   isOpen: boolean;
@@ -25,6 +27,8 @@ export const CardioConsoleScanModal: React.FC<CardioConsoleScanModalProps> = ({
   const [isScanning, setIsScanning] = useState(false);
   const [scanMode, setScanMode] = useState<'console' | 'watch'>('watch');
   const [extractedData, setExtractedData] = useState<ExtractedCardioData | null>(null);
+  const [captureError, setCaptureError] = useState<string | null>(null);
+  const [isCapturing, setIsCapturing] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
@@ -52,11 +56,13 @@ export const CardioConsoleScanModal: React.FC<CardioConsoleScanModalProps> = ({
     const durationMinutes = extractedData.durationMinutes ?? 0;
     const burnedKcal = extractedData.burnedKcal ?? 0;
     const isToday = targetDateKey === localDayKey(new Date().toISOString());
-    let loggedSteps = extractedData.steps ?? 0;
+    const readSteps = extractedData.steps ?? 0;
+    let loggedSteps = readSteps || estimateStepsFromCardio(distanceKm, durationMinutes) || 0;
+    const syncWatchTotal = scanMode === 'watch' && readSteps > 0;
 
     if (isToday) {
-      if (scanMode === 'watch') {
-        if (loggedSteps > 0) telemetryArbitrationService.setDailyCumulative(loggedSteps);
+      if (syncWatchTotal) {
+        telemetryArbitrationService.setDailyCumulative(readSteps);
       } else {
         const res = telemetryArbitrationService.recordConsoleSession({
           distanceKm,
@@ -79,9 +85,9 @@ export const CardioConsoleScanModal: React.FC<CardioConsoleScanModalProps> = ({
       dateKey: targetDateKey,
     });
 
-    onSynced?.(scanMode === 'watch'
+    onSynced?.(syncWatchTotal
       ? `Watch baseline synced: ${loggedSteps.toLocaleString()} cumulative steps`
-      : `Console session logged: +${loggedSteps.toLocaleString()} steps added`);
+      : `Session logged: +${loggedSteps.toLocaleString()} steps${readSteps > 0 ? '' : ' (est.)'}`);
     tactileEngine.playPRCelebration();
     onClose();
   };
@@ -95,19 +101,24 @@ export const CardioConsoleScanModal: React.FC<CardioConsoleScanModalProps> = ({
     }
   };
 
-  const handleCameraCapture = async () => {
-    try {
-      const blob = await captureNativeStill();
-      if (blob) {
-        const r = new FileReader();
-        r.onload = () => handleProcessImage(r.result as string);
-        r.readAsDataURL(blob);
-        return;
-      }
-    } catch {
-      /* web file input fallback */
+  const handleCameraCapture = (source: PhotoSource = 'camera') => {
+    setCaptureError(null);
+    if (!Capacitor.isNativePlatform()) {
+      (source === 'camera' ? cameraInputRef : fileInputRef).current?.click();
+      return;
     }
-    cameraInputRef.current?.click();
+    setIsCapturing(true);
+    void capturePhotoDataUrl(source)
+      .then((dataUrl) => {
+        setIsCapturing(false);
+        void handleProcessImage(dataUrl);
+      })
+      .catch((err: unknown) => {
+        setIsCapturing(false);
+        const message = err instanceof Error ? err.message : 'Could not open the camera.';
+        setCaptureError(message);
+        onSynced?.(message);
+      });
   };
 
   return (
@@ -137,9 +148,13 @@ export const CardioConsoleScanModal: React.FC<CardioConsoleScanModalProps> = ({
 
         <CardioScanUploader
           scanMode={scanMode} setScanMode={setScanMode} imagePreview={imagePreview}
-          isScanning={isScanning} cameraInputRef={cameraInputRef} fileInputRef={fileInputRef}
-          onCameraCapture={() => void handleCameraCapture()}
+          isScanning={isScanning || isCapturing} cameraInputRef={cameraInputRef} fileInputRef={fileInputRef}
+          onCameraCapture={() => handleCameraCapture('camera')}
+          onPickPhotos={() => handleCameraCapture('photos')}
         />
+        {captureError ? (
+          <p role="alert" className="px-3 py-2 rounded-xl border border-[#d97706]/25 bg-[#d97706]/10 text-[11px] font-light text-[#f59e0b]">{captureError}</p>
+        ) : null}
 
         {extractedData && (
           <div className="space-y-3 pt-1">

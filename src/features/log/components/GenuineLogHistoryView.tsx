@@ -13,7 +13,6 @@ import {
   Plus,
   Camera,
 } from 'lucide-react';
-import { SwipeToReveal } from '../../workout/components/SwipeToReveal';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { useWorkoutStore } from '../../workout/store/useWorkoutStore';
 import { useFuelStore } from '../../fuel/store/useFuelStore';
@@ -29,6 +28,7 @@ import {
   useTelemetryHistoryStore,
 } from '../store/useTelemetryHistoryStore';
 import { LogDayTelemetryModal } from './LogDayTelemetryModal';
+import { LiftHistoryCard } from './LiftHistoryCard';
 import { CardioConsoleScanModal } from './CardioConsoleScanModal';
 import { LogWeekStrip } from './LogWeekStrip';
 import { LogMonthGrid, type MonthDayItem } from './LogMonthGrid';
@@ -118,6 +118,15 @@ function workoutLine(rec?: WorkoutDayRecord): string {
   ]);
 }
 
+/** A lone 1 is the old placeholder, not a sensor or manual reading. */
+function readableSteps(rec?: CardioDayRecord, steps = 0): number {
+  const raw = Number(rec?.steps ?? steps);
+  if (!Number.isFinite(raw) || raw <= 0) return 0;
+  const hasSession = (rec?.distanceKm || 0) > 0 || (rec?.durationMinutes || 0) > 0 || (rec?.burnedKcal || 0) > 0;
+  if (raw === 1 && !hasSession) return 0;
+  return raw;
+}
+
 function cardioLine(rec?: CardioDayRecord, steps = 0): string {
   const logged = line([
     part(rec?.distanceKm, ' km', 1),
@@ -125,7 +134,7 @@ function cardioLine(rec?: CardioDayRecord, steps = 0): string {
     part(rec?.burnedKcal, ' kcal'),
   ]);
   if (logged !== '--') return logged;
-  return part(rec?.steps || steps, ' steps') || '--';
+  return part(readableSteps(rec, steps), ' steps') || '--';
 }
 
 function foodLine(rec?: NutritionDayRecord): string {
@@ -165,6 +174,12 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({ sh
   const [editor, setEditor] = useState<{ category: TelemetryCategory; mode: 'create' | 'edit'; lift?: string } | null>(null);
   const [pendingDelete, setPendingDelete] = useState<TelemetryCategory | null>(null);
   const [pendingLiftDelete, setPendingLiftDelete] = useState<string | null>(null);
+  const [pendingMealDelete, setPendingMealDelete] = useState<{ index: number; name: string } | null>(null);
+  const clearPending = () => {
+    setPendingDelete(null);
+    setPendingLiftDelete(null);
+    setPendingMealDelete(null);
+  };
   const [isConsoleScanOpen, setIsConsoleScanOpen] = useState(false);
 
   const mondayDate = useMemo(() => {
@@ -188,7 +203,14 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({ sh
       const name = (exercise.name || exercise.exerciseName || '').toLowerCase();
       return !name.startsWith('cardio:') && !name.includes('telemetry');
     });
-    if (lifts.length === 0 && sessionTonnageKg <= 0 && completedSetsCount <= 0) return undefined;
+    const exercises = lifts
+      .map((exercise) => exerciseFromSets(
+        exercise.name || exercise.exerciseName || 'Exercise',
+        setsFromExercise(exercise, true),
+        true,
+      ))
+      .filter((entry) => (entry.setLog?.length || 0) > 0);
+    if (exercises.length === 0 && sessionTonnageKg <= 0 && completedSetsCount <= 0) return undefined;
     return {
       hasData: true,
       tonnageKg: sessionTonnageKg,
@@ -196,13 +218,7 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({ sh
       durationMinutes: 0,
       routineName: activeRoutineTitle || '',
       intensityRpe: 0,
-      exercises: lifts
-        .map((exercise) => exerciseFromSets(
-          exercise.name || exercise.exerciseName || 'Exercise',
-          setsFromExercise(exercise),
-          (exercise.sets || []).some((set) => set.completed),
-        ))
-        .filter((entry) => (entry.setLog?.length || 0) > 0),
+      exercises,
     };
   }, [isViewingToday, workoutExercises, sessionTonnageKg, completedSetsCount, activeRoutineTitle]);
 
@@ -238,6 +254,7 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({ sh
   const food = liveFood || cleanNutrition(day?.nutrition);
   const sleep = day?.sleep?.hasData ? day.sleep : undefined;
   const mindful = day?.meditation?.hasData && (day.meditation.minutes || 0) > 0 ? day.meditation : undefined;
+  const visibleSteps = readableSteps(cardio, isViewingToday ? stepCount : 0);
 
   const weekDays = useMemo(() => {
     return WEEKDAYS.map((dayName, index) => {
@@ -356,6 +373,11 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({ sh
       useWorkoutStore.getState().clearActiveLog();
       useWorkoutStore.getState().setActiveSession(false);
     }
+    if (category === 'cardio' && isViewingToday) {
+      const cardioKcal = historyByDate[selectedDateKey]?.cardio?.burnedKcal ?? 0;
+      if (cardioKcal > 0) useFuelStore.getState().logBurned(-cardioKcal);
+      useTelemetryStore.getState().setStepCount(0);
+    }
     markForgotten(selectedDateKey, category);
     useTelemetryHistoryStore.getState().clearDayRecord(selectedDateKey, category);
     void deleteDayLog(selectedDateKey, category);
@@ -389,6 +411,34 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({ sh
     }
     forgetPendingArchives(selectedDateKey, 'workout', name);
     void purgeArchivedLift(selectedDateKey, name);
+  };
+
+  const removeMeal = (index: number) => {
+    setPendingMealDelete(null);
+    const target = food?.meals?.[index];
+    if (!target) return;
+    tactileEngine.triggerSelectionBuzz();
+    if (isViewingToday && target.slot) {
+      const slot = target.slot;
+      const item = useFuelStore.getState().meals[slot]?.find((meal) => meal.name === target.name);
+      if (item) useFuelStore.getState().removeMealItem(slot, item.id);
+    }
+    const saved = historyByDate[selectedDateKey]?.nutrition;
+    if (saved?.hasData && saved.meals?.length) {
+      const savedIndex = saved.meals.findIndex((meal) => meal.name === target.name && meal.slot === target.slot);
+      if (savedIndex >= 0) {
+        const meals = saved.meals.filter((_, i) => i !== savedIndex);
+        const sum = (pick: (meal: (typeof meals)[number]) => number) => Math.round(meals.reduce((total, meal) => total + (pick(meal) || 0), 0) * 10) / 10;
+        useTelemetryHistoryStore.getState().updateDayRecord(selectedDateKey, 'nutrition', {
+          ...saved,
+          meals,
+          calories: Math.round(sum((meal) => meal.calories)),
+          proteinG: sum((meal) => meal.proteinG),
+          carbsG: sum((meal) => meal.carbsG),
+          fatsG: sum((meal) => meal.fatsG),
+        });
+      }
+    }
   };
 
   const formatTower = (category: TelemetryCategory, value: number) => {
@@ -524,8 +574,36 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({ sh
     { id: 'sleep', title: 'Sleep', summary: sleepLine(sleep), color: 'text-o1-iris', icon: <Moon /> },
     { id: 'meditation', title: 'Mindful', summary: mindfulLine(mindful), color: 'text-o1-rose', icon: <Brain /> },
   ];
-  const workoutHasLifts = (workout?.exercises?.length ?? 0) > 0;
-  const firstEditable = channels.find((channel) => (channel.id !== 'workout' || !workoutHasLifts) && hasEntry(channel.id))?.id ?? null;
+  const rowActionsFor = (category: TelemetryCategory): LedgerRowActions | undefined => {
+    if (category === 'workout') {
+      return {
+        hint: true,
+        onEdit: (row) => {
+          tactileEngine.triggerSelectionBuzz();
+          clearPending();
+          setEditor({ category: 'workout', mode: 'edit', lift: row.name });
+        },
+        onDelete: (row) => {
+          clearPending();
+          setPendingLiftDelete(row.name);
+        },
+      };
+    }
+    if (!hasEntry(category) && !(category === 'cardio' && visibleSteps > 0)) return undefined;
+    return {
+      hint: true,
+      onEdit: () => {
+        clearPending();
+        openEditor(category, hasEntry(category) ? 'edit' : 'create');
+      },
+      onDelete: (row) => {
+        clearPending();
+        const mealIndex = category === 'nutrition' ? Number(row.id.split(':')[1]) : NaN;
+        if (Number.isInteger(mealIndex) && (food?.meals?.length ?? 0) > 1) setPendingMealDelete({ index: mealIndex, name: row.name });
+        else setPendingDelete(category);
+      },
+    };
+  };
 
   return (
     <div className="o1-log space-y-2.5 select-none font-sans">
@@ -603,8 +681,7 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({ sh
             onSelectDate={(dateStr) => {
               setSelectedDateStr(dateStr);
               setWeekOffset(weekOffsetFor(new Date(dateStr)));
-              setPendingDelete(null);
-              setPendingLiftDelete(null);
+              clearPending();
             }}
           />
         ) : (
@@ -613,8 +690,7 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({ sh
             selectedDateStr={selectedDateStr}
             onSelectDate={(dateStr) => {
               setSelectedDateStr(dateStr);
-              setPendingDelete(null);
-              setPendingLiftDelete(null);
+              clearPending();
             }}
           />
         )}
@@ -624,7 +700,6 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({ sh
         {channels.map((channel) => {
           const open = openChannel === channel.id;
           const editable = hasEntry(channel.id);
-          const swipeable = editable && (channel.id !== 'workout' || !workoutHasLifts);
           const header = (
               <div className="w-full min-h-[44px] px-3 py-2 flex items-center justify-between text-left gap-2">
                 <button
@@ -670,23 +745,8 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({ sh
           );
           return (
             <div key={channel.id} className="rounded-2xl bg-o1-card border border-white/[0.07] overflow-hidden">
-              {swipeable ? (
-                <SwipeToReveal
-                  actionLabel="Delete"
-                  actionAriaLabel={`Delete ${channel.title.toLowerCase()} for ${selectedDayMeta.dayLabel}`}
-                  onAction={() => setPendingDelete(channel.id)}
-                  secondaryAction={{
-                    label: 'Edit',
-                    ariaLabel: `Edit ${channel.title.toLowerCase()} for ${selectedDayMeta.dayLabel}`,
-                    onAction: () => openEditor(channel.id, 'edit'),
-                  }}
-                  hint={channel.id === firstEditable}
-                  contentClassName="bg-o1-card"
-                >
-                  {header}
-                </SwipeToReveal>
-              ) : header}
-              {pendingDelete === channel.id && swipeable && (
+              {header}
+              {pendingDelete === channel.id && (editable || (channel.id === 'cardio' && visibleSteps > 0)) && (
                 <div role="alertdialog" aria-label={`Delete ${channel.title}`} className="mx-3 mb-2.5 flex items-center gap-2 rounded-xl bg-o1-well border border-[#C4121A]/40 pl-3 pr-1.5 py-1.5">
                   <p className="flex-1 min-w-0 text-[12px] text-o1-text leading-snug">
                     Delete {selectedDayMeta.dayLabel.toLowerCase() === 'today' ? "today's" : `${selectedDayMeta.dayLabel}'s`} {channel.title.toLowerCase()}? This action cannot be undone.
@@ -760,17 +820,30 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({ sh
                     food={food}
                     sleep={sleep}
                     mindful={mindful}
-                    steps={isViewingToday ? stepCount : cardio?.steps || 0}
-                    liftActions={{
-                      hint: true,
-                      onEdit: (row) => {
-                        tactileEngine.triggerSelectionBuzz();
-                        setPendingLiftDelete(null);
-                        setEditor({ category: 'workout', mode: 'edit', lift: row.name });
-                      },
-                      onDelete: (row) => setPendingLiftDelete(row.name),
-                    }}
+                    steps={readableSteps(cardio, isViewingToday ? stepCount : 0)}
+                    rowActions={rowActionsFor(channel.id)}
                   />
+                  {channel.id === 'nutrition' && pendingMealDelete && (
+                    <div role="alertdialog" aria-label={`Delete ${pendingMealDelete.name}`} className="flex items-center gap-2 rounded-xl bg-o1-well border border-[#C4121A]/40 pl-3 pr-1.5 py-1.5">
+                      <p className="flex-1 min-w-0 text-[12px] text-o1-text leading-snug">
+                        Delete {pendingMealDelete.name}? This action cannot be undone.
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => setPendingMealDelete(null)}
+                        className="h-8 px-3 rounded-full text-[12px] text-o1-muted hover:text-o1-text cursor-pointer"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => removeMeal(pendingMealDelete.index)}
+                        className="h-8 px-3 rounded-full bg-[#C4121A] hover:bg-[#A30F16] active:bg-[#800C11] text-[12px] text-white cursor-pointer"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  )}
                   {channel.id === 'workout' && pendingLiftDelete && (
                     <div role="alertdialog" aria-label={`Delete ${pendingLiftDelete}`} className="flex items-center gap-2 rounded-xl bg-o1-well border border-[#C4121A]/40 pl-3 pr-1.5 py-1.5">
                       <p className="flex-1 min-w-0 text-[12px] text-o1-text leading-snug">
@@ -792,6 +865,7 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({ sh
                       </button>
                     </div>
                   )}
+                  {channel.id === 'workout' && <LiftHistoryCard embedded />}
                   <div className="flex flex-wrap justify-center gap-2 empty:hidden">
                     {(channel.id === 'sleep' || channel.id === 'meditation') && !editable && (
                       <button type="button" onClick={() => openEditor(channel.id, 'create')} className="o1-pill bg-o1-well border border-white/[0.07] text-neutral-200 text-xs font-semibold">
@@ -846,7 +920,7 @@ function ChannelDetail({
   sleep,
   mindful,
   steps,
-  liftActions,
+  rowActions,
 }: {
   category: TelemetryCategory;
   workout?: WorkoutDayRecord;
@@ -855,11 +929,14 @@ function ChannelDetail({
   sleep?: SleepDayRecord;
   mindful?: MeditationDayRecord;
   steps: number;
-  liftActions?: LedgerRowActions;
+  rowActions?: LedgerRowActions;
 }) {
   if (category === 'workout') {
-    if (!workout?.hasData) return <EmptyCopy>No workout logged for this day.</EmptyCopy>;
-    const exercises = workout.exercises || [];
+    const loggedLifts = (workout?.exercises || []).filter((exercise) => knownSets(exercise).length > 0 || (exercise.completed && ((exercise.reps || 0) > 0 || (exercise.weightKg || 0) > 0)));
+    if (!workout?.hasData || (loggedLifts.length === 0 && !(workout.completedSets > 0) && !(workout.tonnageKg > 0))) {
+      return <EmptyCopy>No lifts logged yet</EmptyCopy>;
+    }
+    const exercises = loggedLifts;
     const rows = exercises.length > 0
       ? exercises.map((exercise, index) => {
           const setLog = knownSets(exercise);
@@ -891,7 +968,7 @@ function ChannelDetail({
           nameLabel="Lift"
           columns={[{ label: 'Sets', width: '2.5rem' }, { label: 'Reps', width: '3.25rem' }, { label: 'kg', width: '4.75rem' }]}
           rows={rows}
-          rowActions={exercises.length > 0 ? liftActions : undefined}
+          rowActions={exercises.length > 0 ? rowActions : undefined}
         />
         {(workout.burnedKcal ?? 0) > 0 && <BurnNote workout={workout} />}
       </>
@@ -910,6 +987,7 @@ function ChannelDetail({
           nameLabel="Day"
           columns={[{ label: 'steps', width: '4.5rem' }]}
           rows={[{ id: 'steps', name: 'Steps', cells: [steps.toLocaleString()] }]}
+          rowActions={rowActions}
         />
       );
     }
@@ -925,6 +1003,7 @@ function ChannelDetail({
           name,
           cells: [sheetFig(cardio?.distanceKm, 1), sheetFig(cardio?.durationMinutes), sheetFig(cardio?.burnedKcal)],
         }]}
+        rowActions={rowActions}
       />
     );
   }
@@ -934,7 +1013,7 @@ function ChannelDetail({
     const meals = food.meals || [];
     const rows = meals.length > 0
       ? meals.map((meal, index) => ({
-          id: `${meal.name}-${index}`,
+          id: `meal:${index}`,
           name: meal.name || 'Meal',
           cells: [sheetFig(meal.calories), sheetFig(meal.proteinG, 1), sheetFig(meal.carbsG, 1), sheetFig(meal.fatsG, 1)],
         }))
@@ -953,21 +1032,24 @@ function ChannelDetail({
           { label: 'F', width: '2.25rem' },
         ]}
         rows={rows}
+        rowActions={rowActions}
       />
     );
   }
 
   if (category === 'sleep') {
     if (sleepLine(sleep) === '--') return <EmptyCopy>No sleep logged for this day.</EmptyCopy>;
+    const hasRecovery = (sleep?.recoveryPercent ?? 0) > 0;
     return (
       <LogLedger
         nameLabel="Rest"
-        columns={[{ label: 'h', width: '3rem' }, { label: '%', width: '3rem' }]}
+        columns={hasRecovery ? [{ label: 'h', width: '3rem' }, { label: 'Recovery', width: '4.5rem' }] : [{ label: 'h', width: '3rem' }]}
         rows={[{
           id: 'sleep',
           name: 'Sleep',
-          cells: [sheetFig(sleep?.durationHours, 1), sheetFig(sleep?.recoveryPercent)],
+          cells: hasRecovery ? [sheetFig(sleep?.durationHours, 1), `${sheetFig(sleep?.recoveryPercent)}%`] : [sheetFig(sleep?.durationHours, 1)],
         }]}
+        rowActions={rowActions}
       />
     );
   }
@@ -979,6 +1061,7 @@ function ChannelDetail({
       nameLabel="Session"
       columns={[{ label: 'min', width: '3rem' }]}
       rows={[{ id: 'mindful', name: mindfulName, cells: [sheetFig(mindful?.minutes)] }]}
+      rowActions={rowActions}
     />
   );
 }

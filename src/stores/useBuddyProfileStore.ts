@@ -227,9 +227,9 @@ const buddyStore = createStore<BuddyProfileState, BuddyProfileActions>(
 
     addBuddyPhoto: (photoDataUrl) => {
       tactileEngine.triggerSelectionBuzz();
-      const current = get().buddyPhotos;
-      if (current.length >= 6) return;
-      const next = [...current, photoDataUrl];
+      if (!photoDataUrl) return;
+      const rest = get().buddyPhotos.filter((url) => url !== photoDataUrl);
+      const next = [photoDataUrl, ...rest].slice(0, 6);
       set({ buddyPhotos: next });
       persistState(get());
     },

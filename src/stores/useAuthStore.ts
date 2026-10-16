@@ -6,6 +6,19 @@ import { useUserStore } from './useUserStore';
 import { releaseDevice } from '../services/accountScope';
 import { getOAuthRedirectTo } from '../services/oauthDeepLink';
 
+export function clearStoredSession(): void {
+  safeStorage.removeItem('o1fc_auth_token');
+  safeStorage.removeItem('o1fc_user_id');
+  safeStorage.removeItem('o1fc_user_email');
+  try {
+    for (const key of Object.keys(window.localStorage)) {
+      if (key.startsWith('sb-') && key.includes('auth-token')) window.localStorage.removeItem(key);
+    }
+  } catch {
+    /* storage unavailable */
+  }
+}
+
 export interface AuthProfile {
   id?: string;
   role?: 'coach' | 'athlete';
@@ -74,6 +87,11 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   initialize: async () => {
     try {
+      if (typeof window !== 'undefined' && localStorage.getItem('o1fc_signed_out_pending') === '1') {
+        clearStoredSession();
+        set({ user: null, session: null, isAuthenticated: false, isLoading: false });
+        return;
+      }
       const { data } = await supabase.auth.getSession();
       if (data?.session?.user) {
         set({
@@ -91,6 +109,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       }
 
       supabase.auth.onAuthStateChange((event, session) => {
+        if (typeof window !== 'undefined' && localStorage.getItem('o1fc_signed_out_pending') === '1') return;
         if ((event === 'INITIAL_SESSION' || event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') && session?.user) {
           set({
             user: session.user,
@@ -143,7 +162,6 @@ export const useAuthStore = create<AuthState>((set) => ({
         safeStorage.setItem('o1fc_user_id', data.user.id);
         useUserStore.getState().setUserId(data.user.id);
         if (data.user.email) safeStorage.setItem('o1fc_user_email', data.user.email);
-        safeStorage.setItem('o1fc_onboarding_completed', 'true');
         set({ user: data.user, session: data.session, isAuthenticated: true, isLoading: false, error: null });
         return { success: true };
       }
@@ -177,7 +195,6 @@ export const useAuthStore = create<AuthState>((set) => ({
         safeStorage.setItem('o1fc_user_id', data.user.id);
         useUserStore.getState().setUserId(data.user.id);
         if (data.user.email) safeStorage.setItem('o1fc_user_email', data.user.email);
-        safeStorage.setItem('o1fc_onboarding_completed', 'true');
         set({ user: data.user, session: data.session, isAuthenticated: true, isLoading: false, error: null });
         return { success: true };
       }
@@ -191,11 +208,10 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   signOut: async () => {
-    try { await supabase.auth.signOut(); } catch {}
-    safeStorage.removeItem('o1fc_auth_token');
-    safeStorage.removeItem('o1fc_user_id');
-    safeStorage.removeItem('o1fc_user_email');
+    try { await supabase.auth.signOut({ scope: 'local' }); } catch {}
+    clearStoredSession();
     set({ user: null, session: null, isAuthenticated: false, error: null });
+    if (typeof window !== 'undefined') window.dispatchEvent(new CustomEvent('o1fc_signed_out'));
     releaseDevice();
   },
 }));

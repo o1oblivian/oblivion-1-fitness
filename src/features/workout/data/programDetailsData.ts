@@ -1,5 +1,3 @@
-import { mockProgramDetails } from '../../../services/devMocks';
-
 export interface ProgramExerciseDetail {
   name: string;
   sets: string;
@@ -16,6 +14,6 @@ export interface ProgramDetailInfo {
   exercises: ProgramExerciseDetail[];
 }
 
-export function getProgramDetailData(programTitle: string): ProgramDetailInfo | null {
-  return mockProgramDetails()[programTitle.toUpperCase()] ?? null;
+export function getProgramDetailData(_programTitle: string): ProgramDetailInfo | null {
+  return null;
 }

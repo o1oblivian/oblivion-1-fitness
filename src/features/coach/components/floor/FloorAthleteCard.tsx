@@ -18,7 +18,6 @@ interface FloorAthleteCardProps {
   lastFeedback?: string;
   actions: FloorCardAction[];
   onOpenProfile?: () => void;
-  sample?: boolean;
 }
 
 export function AthleteAvatar({ name, avatar, size = 44 }: { name: string; avatar?: string; size?: number }) {
@@ -47,7 +46,6 @@ export const FloorAthleteCard: React.FC<FloorAthleteCardProps> = ({
   lastFeedback,
   actions,
   onOpenProfile,
-  sample = false,
 }) => {
   const badge = reviewBadge(lastFeedback);
   return (
@@ -61,10 +59,7 @@ export const FloorAthleteCard: React.FC<FloorAthleteCardProps> = ({
         <AthleteAvatar name={name} avatar={avatar} />
         <span className="min-w-0 flex-1">
           <span className="flex items-baseline justify-between gap-2">
-            <span className="flex min-w-0 items-center gap-1.5">
-              <span className="truncate text-[15px] font-semibold text-o1-text">{name}</span>
-              {sample ? <span className="shrink-0 rounded-full bg-o1-warn-wash px-1.5 py-0.5 text-[10px] font-semibold text-o1-warn-ink">Sample</span> : null}
-            </span>
+            <span className="truncate text-[15px] font-semibold text-o1-text">{name}</span>
             {meta ? <span className="shrink-0 text-[11px] text-o1-muted">{meta}</span> : null}
           </span>
           {subtitle ? <span className="block truncate text-[12px] text-o1-muted">{subtitle}</span> : null}

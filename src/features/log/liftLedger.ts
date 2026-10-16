@@ -69,9 +69,11 @@ export function collapsedReps(sets: LoggedSet[], fallbackReps = 0): string {
   return total > 0 ? String(total) : '--';
 }
 
-/** Closed kg cell. 82.5 × 6 × 3 = 1,485. Those lift totals add up to the session kg. */
+/** Closed kg cell. The weight on the bar, not the volume. Mixed loads read as 60–80. */
 export function collapsedWeight(sets: LoggedSet[], fallbackWeight = 0): string {
-  const work = setWorkKg(sets);
-  if (work > 0) return work.toLocaleString();
-  return fallbackWeight > 0 ? formatLoad(fallbackWeight) : '--';
+  const loads = sets.map((set) => set.weightKg).filter((kg) => kg > 0);
+  if (loads.length === 0) return fallbackWeight > 0 ? formatLoad(fallbackWeight) : '--';
+  const low = Math.min(...loads);
+  const high = Math.max(...loads);
+  return low === high ? formatLoad(low) : `${formatLoad(low)}–${formatLoad(high)}`;
 }

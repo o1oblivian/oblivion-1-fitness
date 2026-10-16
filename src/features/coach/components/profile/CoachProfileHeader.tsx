@@ -133,7 +133,7 @@ export function ProfileActionButton({
         tactileEngine.triggerSelectionBuzz();
         onPress();
       }}
-      className={`h-[44px] flex-1 rounded-xl text-[13px] font-semibold active:scale-[0.98] ${
+      className={`h-9 flex-1 rounded-xl text-[13px] font-semibold active:scale-[0.98] ${
         primary ? 'bg-o1-crimson text-white' : 'border border-white/[0.07] bg-o1-surface text-o1-text'
       }`}
     >

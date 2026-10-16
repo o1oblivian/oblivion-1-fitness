@@ -10,7 +10,7 @@ interface MembershipSectionProps {
 
 export const SettingsMembershipSection: React.FC<MembershipSectionProps> = ({ onManage, onShowToast }) => {
   const [isRestoring, setIsRestoring] = useState(false);
-  const { trialState, restorePurchases, openPaywall } = useSubscription();
+  const { trialState, restorePurchases, openPaywall, isPro } = useSubscription();
 
   const handleRestore = async () => {
     tactileEngine.triggerSelectionBuzz();
@@ -38,11 +38,11 @@ export const SettingsMembershipSection: React.FC<MembershipSectionProps> = ({ on
         <div className="flex items-center justify-between gap-3">
           <div className="min-w-0">
             <span className="text-xs font-sans font-semibold text-white block truncate">
-              {trialState.hasSubscribedPro ? 'O1 Club Pass Pro' : 'Core Free'}
+              {isPro || trialState.hasSubscribedPro ? 'O1 Club Pass Pro' : 'Core Free'}
             </span>
 
             <p className="text-xs text-neutral-400 mt-1">
-              {trialState.hasSubscribedPro
+              {isPro || trialState.hasSubscribedPro
                 ? 'Club Pass is active.'
                 : isTrialActive
                 ? 'Full access for 90 days.'
@@ -59,7 +59,7 @@ export const SettingsMembershipSection: React.FC<MembershipSectionProps> = ({ on
             }}
             className="o1-pill bg-o1-crimson hover:bg-o1-crimson-hover text-white text-xs font-sans font-semibold cursor-pointer active:scale-95"
           >
-            {trialState.hasSubscribedPro ? (
+            {isPro || trialState.hasSubscribedPro ? (
               <span>Plans</span>
             ) : (
               <>
@@ -71,7 +71,7 @@ export const SettingsMembershipSection: React.FC<MembershipSectionProps> = ({ on
         </div>
 
         {/* 90-Day Trial Progress Meter if on Core Free */}
-        {isTrialActive && (
+        {isTrialActive && !isPro && (
           <div className="p-3 rounded-xl bg-o1-well border border-white/[0.07] space-y-1.5">
             <div className="flex items-center justify-between text-[11px] font-mono">
               <span className="text-neutral-300 font-bold">

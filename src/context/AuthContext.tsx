@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { supabase } from '../services/supabaseClient';
+import { fetchAthleteProfile, supabase } from '../services/supabaseClient';
 import { useUserStore } from '../stores/useUserStore';
 import { releaseDevice } from '../services/accountScope';
 
@@ -58,6 +58,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     let mounted = true;
 
+    async function hydrateProfile(uid: string) {
+      const row = await fetchAthleteProfile(uid);
+      if (!row) return;
+      const local = useUserStore.getState();
+      const name = !local.name && row.full_name ? row.full_name.trim() : '';
+      const handle = !local.handle && row.handle ? row.handle.trim() : '';
+      const avatarUrl = !local.avatarUrl && row.avatar_url ? row.avatar_url : '';
+      if (name || handle || avatarUrl) {
+        useUserStore.getState().updateProfile({
+          ...(name ? { name } : {}),
+          ...(handle ? { handle } : {}),
+          ...(avatarUrl ? { avatarUrl } : {}),
+        });
+      }
+      if (name) {
+        try {
+          const key = 'o1fc_production_settings_v3';
+          const cached = JSON.parse(localStorage.getItem(key) || '{}') as Record<string, unknown>;
+          if (!cached.name) localStorage.setItem(key, JSON.stringify({ ...cached, name }));
+        } catch {
+          /* settings cache stays as it is */
+        }
+      }
+    }
+
     async function syncProfile(uid: string, uEmail?: string | null) {
       if (!uid) return;
       try {
@@ -94,6 +119,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         useUserStore.getState().setUserId(uid);
         writeIdentity(uid, uEmail);
         syncProfile(uid, uEmail);
+        void hydrateProfile(uid);
       }
       setIsLoading(false);
     }).catch(() => {
@@ -109,6 +135,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         useUserStore.getState().setUserId(uid);
         writeIdentity(uid, uEmail);
         await syncProfile(uid, uEmail);
+        await hydrateProfile(uid);
       } else if (event === 'SIGNED_OUT') {
         setUserId('');
         setEmail(null);
@@ -125,12 +152,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signOut = async () => {
     try {
-      await supabase.auth.signOut();
+      await supabase.auth.signOut({ scope: 'local' });
     } catch {}
     setUserId('');
     setEmail(null);
     useUserStore.getState().setUserId('');
     forgetIdentity();
+    try {
+      for (const key of Object.keys(window.localStorage)) {
+        if (key.startsWith('sb-') && key.includes('auth-token')) window.localStorage.removeItem(key);
+      }
+    } catch {
+      /* storage unavailable */
+    }
+    window.dispatchEvent(new CustomEvent('o1fc_signed_out'));
     releaseDevice();
   };
 

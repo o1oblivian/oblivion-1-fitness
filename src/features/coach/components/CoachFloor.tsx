@@ -11,7 +11,7 @@ import { Athlete, fetchLatestCoachFeedback } from '../services/coachService';
 import { AthleteCheckInSubmission } from '../types/coachPlatformTypes';
 import { DirectiveItem } from '../types/coachDirectives';
 import { fetchCoachFilms, ProfileFilm } from '../services/coachFilms';
-import { coachPeople } from '../services/floorRoster';
+import { liveClients } from '../services/floorRoster';
 import { saveCheckinReplyRemote, saveWorkoutFeedback, sendCoachMessage } from '../services/coachBridge';
 import { CoachCard, formatHandle, toExploreCoach } from '../services/coachDirectory';
 import { isSampleId } from '../services/sampleIds';
@@ -194,9 +194,17 @@ export const CoachFloor: React.FC<CoachFloorProps> = ({
     else setFilms((prev) => prev ?? []);
   }, [coachId]);
 
+  const filmList = films ?? [];
+  const showFilms = filmsFailed || filmList.length > 0;
+  const visibleTabs = TABS.filter((item) => item.id !== 'films' || showFilms);
+
   useEffect(() => {
     void loadFilms();
   }, [loadFilms, ownReelCount]);
+
+  useEffect(() => {
+    if (tab === 'films' && films !== null && !showFilms) setTab('floor');
+  }, [tab, films, showFilms, setTab]);
 
   useEffect(() => {
     if (!coachId) return;
@@ -228,8 +236,7 @@ export const CoachFloor: React.FC<CoachFloorProps> = ({
     };
   }, [coachId]);
 
-  const { people, sample } = useMemo(() => coachPeople(athletes ?? []), [athletes]);
-  const filmList = films ?? [];
+  const people = useMemo(() => liveClients(athletes ?? []), [athletes]);
   const pending = (checkins ?? []).filter((row) => !row.coachFeedback?.feedbackText?.trim());
 
   const name = (card?.name || profileName || 'Coach').trim();
@@ -382,7 +389,7 @@ export const CoachFloor: React.FC<CoachFloorProps> = ({
       />
 
       <div className="flex justify-around border-b border-white/[0.07]" role="tablist" aria-label="Coach console">
-        {TABS.map((item) => {
+        {visibleTabs.map((item) => {
           const Icon = item.icon;
           const on = tab === item.id;
           return (
@@ -447,22 +454,16 @@ export const CoachFloor: React.FC<CoachFloorProps> = ({
             </section>
           ) : null}
           {rosterFailed ? <RetryAlert message="Could not load your clients." onRetry={onRetryRoster} /> : null}
-          {sample ? (
-            <p role="note" className="rounded-2xl border border-white/[0.07] bg-o1-surface px-3 py-2 text-[12px] font-semibold text-o1-muted">
-              Sample clients for testing. Nothing you send to them leaves this phone.
-            </p>
-          ) : null}
           <section className="space-y-2">
             <h3 className="px-1 text-[13px] font-semibold text-o1-text">Clients{athletes === null ? '' : ` (${people.length}${rosterHasMore ? '+' : ''})`}</h3>
             {athletes === null ? (
               <Empty>Loading clients…</Empty>
             ) : people.length === 0 ? (
-              <Empty>No clients yet. Invite one above.</Empty>
+              <Empty>No active clients yet. Tap 'Invite a client' to send your coach link.</Empty>
             ) : (
               people.map((athlete) => (
                 <FloorAthleteCard
                   key={`roster-${athlete.id}`}
-                  sample={sample}
                   name={athlete.name}
                   avatar={athlete.avatar}
                   subtitle={athlete.handle || athlete.status}
@@ -478,7 +479,7 @@ export const CoachFloor: React.FC<CoachFloorProps> = ({
                 />
               ))
             )}
-            {rosterHasMore && !sample ? (
+            {rosterHasMore ? (
               <button
                 type="button"
                 onClick={() => {

@@ -4,7 +4,6 @@ import { OblivionReportModal } from '../report/components/OblivionReportModal';
 import { useWeighInCapture } from '../report/weighInLog';
 import { UnifiedTopBoard } from './components/UnifiedTopBoard';
 import { GenuineLogHistoryView } from './components/GenuineLogHistoryView';
-import { LiftHistoryCard } from './components/LiftHistoryCard';
 import { InviteModal } from './components/InviteModal';
 import { CoachRoutineDispatchModal } from './components/CoachRoutineDispatchModal';
 import { ShareBenchmarkModal } from './components/ShareBenchmarkModal';
@@ -112,8 +111,6 @@ export const LogView: React.FC = () => {
       {/* ============================================================== */}
       <GenuineLogHistoryView showToast={showToast} />
 
-      <LiftHistoryCard />
-
       {/* ============================================================== */}
       {/* 3. MODALS & SLIDE-OVERS                                        */}
       {/* ============================================================== */}
@@ -162,7 +159,7 @@ export const LogView: React.FC = () => {
         <div
           role="status"
           aria-live="polite"
-          className="pointer-events-none fixed inset-x-0 top-[calc(env(safe-area-inset-top)+4rem)] z-[70] mx-auto w-fit max-w-[90vw] rounded-full border border-white/[0.07] bg-o1-sheet px-4 py-2 text-[12px] font-semibold text-o1-text shadow-xl"
+          className="o1-toast"
         >
           {toast}
         </div>

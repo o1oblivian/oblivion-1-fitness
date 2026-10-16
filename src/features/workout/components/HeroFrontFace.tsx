@@ -125,7 +125,7 @@ export const HeroFrontFace: React.FC<HeroFrontFaceProps> = ({
         />
       )}
 
-      <div className="relative w-full h-full flex flex-col justify-between p-2.5 pb-2 select-none overflow-hidden z-10">
+      <div className="relative w-full h-full flex flex-col justify-between px-2.5 pt-3 pb-3 select-none overflow-hidden z-10">
         <HeroHeader
           readinessScore={readinessScore}
           onOpenReadiness={onOpenReadiness}

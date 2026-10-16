@@ -71,7 +71,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           </button>
         </div>
 
-        <div className="flex-1 min-h-0 overflow-y-auto no-scrollbar bg-black p-3 space-y-2.5">
+        <div className="flex-1 min-h-0 overflow-y-auto no-scrollbar bg-black px-3 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] space-y-2.5">
           <SettingsErrorBoundary>
             <SettingsContent
               s={s}

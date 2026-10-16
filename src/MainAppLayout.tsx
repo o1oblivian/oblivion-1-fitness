@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { TabMode, NavigationDock } from './components/NavigationDock';
 import { WorkoutHub } from './features/workout/WorkoutHub';
 import { FuelView as FuelHub } from './features/fuel/FuelView';
@@ -21,9 +21,15 @@ export const MainAppLayout: React.FC = () => {
   const isTravelPassOpen = activeModal === 'TRAVEL_PASS';
   const restActive = useRestTimerStore((s) => s.timer !== null);
 
+  const mainRef = useRef<HTMLElement>(null);
+
   const handleTabSelect = React.useCallback((tab: TabMode) => {
     setActiveTab((prev) => (prev === tab ? prev : tab));
   }, []);
+
+  useEffect(() => {
+    mainRef.current?.scrollTo(0, 0);
+  }, [activeTab]);
 
   React.useEffect(() => {
     return armAthleteReminders();
@@ -53,12 +59,13 @@ export const MainAppLayout: React.FC = () => {
         <BasementOfflineBanner />
 
         <main
+          ref={mainRef}
           className="w-full overflow-y-auto"
           style={{
             flex: '1 1 0%',
             minHeight: 0,
-            paddingTop: 'max(16px, env(safe-area-inset-top, 0px))',
-            paddingBottom: `calc(${restActive ? '8rem' : '4rem'} + max(16px, env(safe-area-inset-bottom, 0px)))`,
+            paddingTop: 'env(safe-area-inset-top, 0px)',
+            paddingBottom: `calc(${restActive ? '8rem' : '4.75rem'} + env(safe-area-inset-bottom, 0px))`,
           }}
         >
           <div className="o1-shell">

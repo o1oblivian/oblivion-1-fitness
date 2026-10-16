@@ -1,4 +1,5 @@
 import { supabase } from '../../../services/supabaseClient';
+import { hydrationGoalLiters } from '../../fuel/utils/fuelMath';
 import { DirectiveItem } from '../types/coachDirectives';
 import { WORKOUT_BLUEPRINTS } from '../../../data/workoutBlueprints';
 import { isSampleId } from './sampleIds';
@@ -29,6 +30,21 @@ export const isValidUuid = (val?: string | null): boolean =>
   Boolean(val && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(val));
 
 const ROSTER_COLUMNS = 'id, client_id, client_name, client_avatar, status, created_at';
+const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
+
+function positive(value: unknown): number | null {
+  const n = typeof value === 'number' ? value : Number(value);
+  return Number.isFinite(n) && n > 0 ? n : null;
+}
+
+function atHandle(value: string): string {
+  const handle = value.trim().replace(/^@/, '');
+  return handle ? `@${handle}` : '';
+}
+
+function localDateKey(date = new Date()): string {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+}
 
 function mapRosterRow(row: Row): Athlete {
   const clientId = text(row.client_id);
@@ -43,6 +59,107 @@ function mapRosterRow(row: Row): Athlete {
     avatar: row.client_avatar ? String(row.client_avatar) : undefined,
     lastActive: row.created_at ? `Joined ${new Date(String(row.created_at)).toLocaleDateString()}` : undefined,
   };
+}
+
+function sleepQuality(payload: unknown): number | null {
+  if (!payload || typeof payload !== 'object') return null;
+  const row = payload as Record<string, unknown>;
+  return positive(row.sleepPerformancePercent) ?? positive(row.recoveryPercent);
+}
+
+/** Same readiness formula as the athlete's own card: logged sleep quality, plus today's water against their goal. */
+function readinessFromRecords(quality: number | null, waterMl: number, goalL: number | null): number | null {
+  if (quality === null) return null;
+  const waterPct = goalL && goalL > 0 ? Math.min(100, Math.round(((waterMl / 1000) / goalL) * 100)) : 0;
+  return Math.min(100, Math.round(quality * 0.6 + (waterPct / 100) * 40));
+}
+
+/** Profile, 7-day training volume, and readiness from the client's own Supabase rows. */
+async function attachLiveRecords(athletes: Athlete[]): Promise<Athlete[]> {
+  const ids = [...new Set(athletes.map((athlete) => athlete.client_id || athlete.id).filter(isValidUuid))];
+  if (!ids.length) return athletes;
+  const since = Date.now() - WEEK_MS;
+  const list = ids.join(',');
+  const [profiles, sessions, sleep, fuelProfiles, fuelDays] = await Promise.all([
+    supabase.from('profiles').select('id, full_name, handle, avatar_url').in('id', ids),
+    supabase
+      .from('completed_sessions')
+      .select('id, user_id, client_id, volume_kg, tonnage_kg, completed_at, created_at')
+      .or(`user_id.in.(${list}),client_id.in.(${list})`)
+      .order('created_at', { ascending: false })
+      .limit(400),
+    supabase
+      .from('athlete_day_logs')
+      .select('user_id, date_key, payload')
+      .eq('category', 'sleep')
+      .in('user_id', ids)
+      .order('date_key', { ascending: false })
+      .limit(Math.min(ids.length * 14, 400)),
+    supabase.from('fuel_profiles').select('user_id, hydration_target_ml, weight_kg').in('user_id', ids),
+    supabase.from('fuel_days').select('user_id, water_ml').eq('date_key', localDateKey()).in('user_id', ids),
+  ]);
+
+  const profileById = new Map<string, { full_name?: string; handle?: string; avatar_url?: string }>();
+  if (!profiles.error) {
+    for (const row of profiles.data || []) profileById.set(String(row.id), row);
+  }
+
+  const volume = new Map<string, number>();
+  const latest = new Map<string, number>();
+  const seen = new Set<string>();
+  if (!sessions.error) {
+    for (const row of sessions.data || []) {
+      const id = text(row.id);
+      if (id && seen.has(id)) continue;
+      if (id) seen.add(id);
+      const when = Date.parse(text(row.completed_at || row.created_at));
+      if (!Number.isFinite(when) || when < since) continue;
+      const key = ids.includes(text(row.user_id)) ? text(row.user_id) : text(row.client_id);
+      if (!key) continue;
+      const kg = positive(row.volume_kg) ?? positive(row.tonnage_kg);
+      if (kg !== null) volume.set(key, (volume.get(key) || 0) + kg);
+      latest.set(key, Math.max(latest.get(key) || 0, when));
+    }
+  }
+
+  const quality = new Map<string, number>();
+  if (!sleep.error) {
+    for (const row of sleep.data || []) {
+      const key = text(row.user_id);
+      if (!key || quality.has(key)) continue;
+      const score = sleepQuality(row.payload);
+      if (score !== null) quality.set(key, score);
+    }
+  }
+
+  const goal = new Map<string, number | null>();
+  if (!fuelProfiles.error) {
+    for (const row of fuelProfiles.data || []) {
+      const targetMl = positive(row.hydration_target_ml);
+      goal.set(text(row.user_id), hydrationGoalLiters(targetMl === null ? null : targetMl / 1000, positive(row.weight_kg)));
+    }
+  }
+  const water = new Map<string, number>();
+  if (!fuelDays.error) {
+    for (const row of fuelDays.data || []) water.set(text(row.user_id), Math.max(0, Number(row.water_ml) || 0));
+  }
+
+  return athletes.map((athlete) => {
+    const key = athlete.client_id || athlete.id;
+    const profile = profileById.get(key);
+    const name = text(profile?.full_name);
+    const handle = atHandle(text(profile?.handle));
+    const trained = latest.get(key);
+    return {
+      ...athlete,
+      name: name || athlete.name,
+      handle: handle || athlete.handle,
+      avatar: profile?.avatar_url || athlete.avatar,
+      readiness: readinessFromRecords(quality.get(key) ?? null, water.get(key) || 0, goal.get(key) ?? null),
+      volume: volume.has(key) ? Math.round(volume.get(key)!) : null,
+      lastActive: trained ? `Last session ${new Date(trained).toLocaleDateString()}` : athlete.lastActive,
+    };
+  });
 }
 
 export const ROSTER_PAGE = 50;
@@ -62,7 +179,13 @@ export async function fetchCoachClients(coachId: string, offset = 0): Promise<At
     if (error) console.warn('[coachService] roster query failed:', error.message);
     return null;
   }
-  return (data as Row[]).map(mapRosterRow);
+  const athletes = (data as Row[]).map(mapRosterRow).filter((athlete) => !isSampleId(athlete.id) && !isSampleId(athlete.client_id));
+  try {
+    return await attachLiveRecords(athletes);
+  } catch (err) {
+    console.warn('[coachService] live client metrics unavailable:', err instanceof Error ? err.message : err);
+    return athletes;
+  }
 }
 
 /** Links an athlete to a coach. Safe to call twice; the pair is unique. */

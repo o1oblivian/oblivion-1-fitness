@@ -43,7 +43,7 @@ export const MealMacroScannerModal: React.FC<MealMacroScannerModalProps> = (prop
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 o1-sheet-scrim">
       <div className="o1-sheet-card bg-o1-card overflow-hidden shadow-xl flex flex-col border border-white/[0.07]">
-        <div className="flex items-center justify-between px-5 py-4 bg-black">
+        <div className="flex items-center justify-between px-3 py-2.5 bg-black">
           <div className="flex items-center gap-2.5">
             <div className="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center text-white">
               <Utensils className="w-4 h-4" />
@@ -58,7 +58,7 @@ export const MealMacroScannerModal: React.FC<MealMacroScannerModalProps> = (prop
           </button>
         </div>
 
-        <div className="p-5 space-y-4 overflow-y-auto flex-1">
+        <div className="px-3 py-2.5 space-y-2.5 overflow-y-auto flex-1">
           <MealScanModeSelector scanMode={scanMode} onSelectMode={setScanMode} />
           <MealScanActions
             scanMode={scanMode}
@@ -77,16 +77,15 @@ export const MealMacroScannerModal: React.FC<MealMacroScannerModalProps> = (prop
               {(isLoading || isScanning) && <MealScanLoadingBadge scanMode={scanMode} />}
             </div>
           ) : scanMode !== 'barcode' && !scannedMeal && !imageFile && !isLoading && !isScanning ? (
-            <div className="rounded-2xl border border-white/[0.07] bg-black p-6 text-center space-y-1">
-              <span className="text-xs font-mono font-bold tracking-widest text-neutral-400">Sensor Standby</span>
-              <p className="text-[11px] text-neutral-500">Optical vision models in standby mode. Awaiting camera capture.</p>
+            <div className="rounded-xl border border-white/[0.07] bg-black px-3 py-4 text-center">
+              <p className="text-[11px] text-neutral-500">Your photo shows here.</p>
             </div>
           ) : null}
 
           {error && (
-            <div className="p-3 rounded-2xl bg-red-950/40 text-red-300 text-xs flex items-center gap-2">
-              <AlertCircle className="w-4 h-4 shrink-0" />
-              <span>{error}</span>
+            <div role="alert" className="w-full px-3 py-2 rounded-xl bg-o1-well border border-[#C4121A]/40 text-o1-text text-xs flex items-start gap-2">
+              <AlertCircle className="w-4 h-4 shrink-0 mt-px text-[#C4121A]" />
+              <span className="flex-1 min-w-0 break-words leading-snug">{error}</span>
             </div>
           )}
 
@@ -102,7 +101,7 @@ export const MealMacroScannerModal: React.FC<MealMacroScannerModalProps> = (prop
           )}
         </div>
 
-        <div className="p-3.5 bg-black flex justify-end">
+        <div className="px-3 py-2 bg-black flex justify-end">
           <button onClick={onClose} className="px-5 py-2 rounded-xl bg-o1-well hover:bg-white/[0.06] text-neutral-300 text-xs font-medium cursor-pointer">
             Done
           </button>

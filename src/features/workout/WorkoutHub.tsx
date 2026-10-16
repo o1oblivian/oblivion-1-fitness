@@ -18,6 +18,7 @@ import { EliteReelsHub } from '../reels/EliteReelsHub';
 import { readAthleteSettingsSnapshot } from '../../utils/athleteSettingsSnapshot';
 import { getAuthenticatedUserId } from '../../services/authUser';
 import type { AssignedWorkoutRow } from '../../types/coach';
+import { HealthDisclaimerBanner } from '../legal/HealthDisclaimerBanner';
 
 export const WorkoutHub: React.FC = () => {
   const [expandedHubTab, setExpandedHubTab] = useState<'intel' | 'coach' | null>(null);
@@ -88,6 +89,10 @@ export const WorkoutHub: React.FC = () => {
           onOptionsClick={() => modalActions.openSettings()}
           onOpenSupplements={() => modalActions.openSupplements()}
         />
+      </div>
+
+      <div className="px-1 pt-2">
+        <HealthDisclaimerBanner compact />
       </div>
 
       {/* 2. PROGRAM REELS & STORIES */}

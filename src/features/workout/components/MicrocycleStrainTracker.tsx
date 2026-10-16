@@ -57,7 +57,7 @@ export const MicrocycleStrainTracker: React.FC = () => {
 
   const totalVolume = activeDays.reduce((acc, d) => acc + d.volume, 0);
   const totalSets = activeDays.reduce((acc, d) => acc + d.sets, 0);
-  const trainedDays = activeDays.filter((d) => d.volume > 0);
+  const trainedDays = activeDays.filter((d) => d.volume > 0 || d.sets > 0);
   const typicalLoad = trainedDays.length > 0 ? totalVolume / trainedDays.length : 0;
   const learnedDays = Math.min(7, acwr.historyDays);
   const plainLoad = PLAIN_LOAD[acwr.label];

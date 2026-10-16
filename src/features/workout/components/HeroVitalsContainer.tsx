@@ -249,7 +249,7 @@ export const HeroVitalsContainer: React.FC<HeroVitalsContainerProps> = ({
         ref={heroRef}
         id="hero-vitals-container"
         style={{ perspective: '1200px' }}
-        className="w-full max-w-md mx-auto aspect-[10/11] relative select-none mb-3"
+        className="w-full max-w-md mx-auto aspect-[5/6] relative select-none mb-3"
       >
         <div
           style={{
@@ -277,7 +277,10 @@ export const HeroVitalsContainer: React.FC<HeroVitalsContainerProps> = ({
             onCycleDayDial={handleCycleDay}
             onFlipToVitals={() => { setIsFlipped(true); onVitalsClick?.(); }}
             onOpenCardio={onOpenCardioModal || onCardioClick}
-            onOpenReadiness={() => setIsReadinessOpen(true)}
+            onOpenReadiness={() => {
+              if (readinessScore == null) setActiveModal('sleep');
+              else setIsReadinessOpen(true);
+            }}
             onOpenSettings={onOptionsClick}
           />
 

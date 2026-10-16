@@ -1,6 +1,5 @@
 import { Coordinates, DemoAthlete } from '../types';
 import { supabase } from '../../../services/supabaseClient';
-import { safeStorage } from '../../../utils/safeStorage';
 
 interface RemoteBuddyRow {
   id?: string;
@@ -26,35 +25,6 @@ interface RemoteBuddyRow {
   last_active?: string;
   is_ghost_mode?: boolean;
   is_verified?: boolean;
-}
-
-const LOCAL_BUDDIES_KEY = 'o1_buddy_local';
-
-/** Dev preview cards seeded by devPreviewBoot. Always empty in production builds. */
-export function localBuddyCards(): DemoAthlete[] {
-  if (!import.meta.env.DEV) return [];
-  const rows = safeStorage.getItem<Array<Record<string, string>>>(LOCAL_BUDDIES_KEY, []) || [];
-  return rows.map((item) => ({
-    id: String(item.id || ''),
-    name: item.name || 'Athlete',
-    handle: item.handle || '',
-    age: Number(item.age) || 0,
-    home_gym: item.home_gym || '',
-    distance_km: 1,
-    match_score: 0,
-    image_url: item.avatar || '',
-    photos: item.avatar ? [item.avatar] : [],
-    discipline: item.discipline || 'Strength',
-    training_discipline: item.discipline || 'Strength',
-    current_split: item.current_split || '',
-    preferred_time: item.time || '',
-    gender: item.gender || '',
-    looking_for: item.looking_for || '',
-    training_place: item.where || item.training_place || '',
-    experience_level: item.level || '',
-    bio: item.bio || '',
-    is_online: false,
-  }));
 }
 
 /**
@@ -130,12 +100,7 @@ export async function searchAthletesWithSupabase(
     throw err;
   }
 
-  // Bind exclusively to live Supabase candidates
-  const allCandidates: DemoAthlete[] = supabaseCandidates;
-  const seen = new Set(allCandidates.map((row) => row.id));
-  for (const local of localBuddyCards()) {
-    if (!seen.has(local.id)) allCandidates.push(local);
-  }
+  const allCandidates: DemoAthlete[] = supabaseCandidates.filter((row) => row.id && !row.id.startsWith('preview-'));
 
   // If no query string, filter by radius and sort by match score
   if (!cleanQuery) {

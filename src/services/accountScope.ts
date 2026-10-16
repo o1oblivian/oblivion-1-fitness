@@ -5,6 +5,8 @@ import { durableClear } from '../utils/durableStore';
  * device, wipes it so nobody sees (or syncs into their cloud) another person's history.
  */
 const OWNER_KEY = 'o1fc_device_owner';
+/** Read by supabaseClient before the auth client starts, so a token refresh racing the reload cannot restore the session. */
+export const SIGNED_OUT_PENDING_KEY = 'o1fc_signed_out_pending';
 const APP_KEY = /^(o1|olfc)/i;
 
 /** Device-level keys that are not personal data. */
@@ -21,6 +23,8 @@ const DEVICE_KEYS = new Set([
   'o1fc_hint_swipe_delete_v3',
   'o1fc_last_crash_v1',
   'o1fc_motion_steps_off',
+  'o1fc_health_disclaimer_dismissed',
+  SIGNED_OUT_PENDING_KEY,
 ]);
 /** Already keyed by user id. */
 const DEVICE_PREFIXES = ['o1fc_athlete_trial_v2_'];
@@ -102,6 +106,10 @@ export function releaseDevice(): void {
   clearAccountData();
   try {
     localStorage.removeItem(OWNER_KEY);
+    for (const key of Object.keys(localStorage)) {
+      if (/^sb-.+-auth-token/.test(key)) localStorage.removeItem(key);
+    }
+    localStorage.setItem(SIGNED_OUT_PENDING_KEY, '1');
   } catch {
     /* storage unavailable */
   }
