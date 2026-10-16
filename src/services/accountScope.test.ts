@@ -69,11 +69,11 @@ describe('accountScope', () => {
     expect(reload).not.toHaveBeenCalled();
   });
 
-  it('sign-out clears personal data and the owner', () => {
+  it('sign-out clears personal data and the owner', async () => {
     localStorage.setItem('o1fc_device_owner', 'user-a');
     releaseDevice();
     expect(localStorage.getItem('o1fc_telemetry_5day_history_v1')).toBeNull();
     expect(localStorage.getItem('o1fc_device_owner')).toBeNull();
-    expect(reload).toHaveBeenCalledOnce();
+    await vi.waitFor(() => expect(reload).toHaveBeenCalledOnce());
   });
 });

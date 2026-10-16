@@ -3,6 +3,7 @@ import { X, ShieldCheck, RotateCcw, Check, Sparkles, Loader2 } from 'lucide-reac
 import { useSubscription } from '../../../context/SubscriptionContext';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { planKind, revenueCatService } from '../../../services/revenueCatService';
+import { openLegalUrl } from '../../../services/apiBase';
 import { IAP_PRODUCTS, IAPProductInfo } from '../../../types/iap';
 
 type Audience = 'athletes' | 'coaches';
@@ -26,7 +27,7 @@ const PERKS = [
 ];
 
 export const ClubPassPaywallModal: React.FC = () => {
-  const { isPaywallOpen, closePaywall, activatePlan } = useSubscription();
+  const { isPaywallOpen, closePaywall, activatePlan, restorePurchases } = useSubscription();
   const [audience, setAudience] = useState<Audience>('athletes');
   const [selectedId, setSelectedId] = useState(DEFAULT_PLAN.athletes);
   const [isPurchasing, setIsPurchasing] = useState(false);
@@ -86,7 +87,8 @@ export const ClubPassPaywallModal: React.FC = () => {
       tactileEngine.playPRCelebration();
       await activatePlan(selected.productId);
       closePaywall();
-    } else {
+    } else if (!/cancel/i.test(res.error || '')) {
+      // Closing the store sheet is the athlete's choice, not an error.
       setStatusMsg(res.error || 'Available via the App Store or Google Play.');
     }
   };
@@ -95,9 +97,10 @@ export const ClubPassPaywallModal: React.FC = () => {
     setIsRestoring(true);
     setStatusMsg(null);
     tactileEngine.triggerSelectionBuzz();
-    const res = await revenueCatService.restore();
+    // Through the app's subscription state, so the restored plan unlocks features straight away.
+    const restored = await restorePurchases();
     setIsRestoring(false);
-    if (res.success && res.info.isActive) {
+    if (restored) {
       tactileEngine.playPRCelebration();
       closePaywall();
     } else {
@@ -196,9 +199,9 @@ export const ClubPassPaywallModal: React.FC = () => {
           </button>
 
           <div className="flex items-center justify-center gap-3 text-[10px] font-sans text-neutral-400">
-            <a href="https://www.apple.com/legal/internet-services/itunes/dev/stdeula/" target="_blank" rel="noreferrer" className="hover:text-white underline">Terms of Use (EULA)</a>
+            <button type="button" onClick={() => void openLegalUrl('terms')} className="hover:text-white underline cursor-pointer">Terms of Use</button>
             <span>•</span>
-            <a href="https://www.apple.com/legal/privacy/" target="_blank" rel="noreferrer" className="hover:text-white underline">Privacy Policy</a>
+            <button type="button" onClick={() => void openLegalUrl('privacy')} className="hover:text-white underline cursor-pointer">Privacy Policy</button>
           </div>
 
           <div className="flex items-center justify-between text-[10px] font-mono text-neutral-400 px-1">

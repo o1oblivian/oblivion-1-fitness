@@ -113,5 +113,9 @@ export function releaseDevice(): void {
   } catch {
     /* storage unavailable */
   }
-  window.location.reload();
+  // Detach the store customer so the next account on this phone never inherits this one's plan.
+  // Loaded on demand (this file must not import billing at start-up) and capped so sign-out never hangs.
+  const storeLogOut = import('./revenueCatService').then((m) => m.revenueCatService.logOut()).catch(() => undefined);
+  const cap = new Promise<void>((resolve) => setTimeout(resolve, 1500));
+  void Promise.race([storeLogOut, cap]).then(() => window.location.reload());
 }

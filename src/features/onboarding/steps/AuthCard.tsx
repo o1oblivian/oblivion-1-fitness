@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Capacitor } from '@capacitor/core';
 import { Eye, EyeOff, Loader2, AlertCircle, ArrowLeft, MailCheck } from 'lucide-react';
 import { ACCOUNT_EXISTS, EMAIL_NOT_CONFIRMED, useAuthStore } from '../../../stores/useAuthStore';
 import { tactileEngine } from '../../../services/tactileEngine';
@@ -36,7 +37,9 @@ export const AuthCard: React.FC<AuthCardProps> = ({ data, onUpdate, onNext, onOp
   const [email, setEmail] = useState(remembered.email || data.email || '');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [busy, setBusy] = useState<'email' | 'apple' | 'reset' | 'resend' | null>(null);
+  const [busy, setBusy] = useState<'email' | 'apple' | 'google' | 'reset' | 'resend' | null>(null);
+  // Apple's reviewer rejected Google in the system browser on iPhone and iPad, so Google is Android-only.
+  const showGoogle = Capacitor.getPlatform() === 'android';
   const [error, setError] = useState<string | null>(takeAuthCallbackError);
   const [notice, setNotice] = useState<string | null>(null);
   const [mode, setMode] = useState<Mode>(data.isSignUp ? 'signup' : 'signin');
@@ -75,7 +78,7 @@ export const AuthCard: React.FC<AuthCardProps> = ({ data, onUpdate, onNext, onOp
     setNotice(null);
   };
 
-  const social = async (provider: 'apple') => {
+  const social = async (provider: 'apple' | 'google') => {
     setError(null);
     setBusy(provider);
     tactileEngine.triggerDialHaptic();
@@ -89,7 +92,7 @@ export const AuthCard: React.FC<AuthCardProps> = ({ data, onUpdate, onNext, onOp
       }
       await startOAuth(provider);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Could not open Apple sign-in.');
+      setError(err instanceof Error ? err.message : `Could not open ${provider === 'apple' ? 'Apple' : 'Google'} sign-in.`);
     } finally {
       setBusy(null);
     }
@@ -243,6 +246,27 @@ export const AuthCard: React.FC<AuthCardProps> = ({ data, onUpdate, onNext, onOp
                 )}
                 <span>Continue with Apple</span>
               </button>
+              {showGoogle && (
+                <button
+                  type="button"
+                  onClick={() => void social('google')}
+                  disabled={busy !== null}
+                  style={{ fontFamily: SYSTEM_FONT }}
+                  className="flex h-11 w-full items-center justify-center gap-2 o1-machined o1-see-through rounded-full text-[15px] font-normal text-[#FFFFFF] transition active:scale-[0.98] disabled:opacity-60"
+                >
+                  {busy === 'google' ? (
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                  ) : (
+                    <svg className="h-[18px] w-[18px] shrink-0" viewBox="0 0 24 24" aria-hidden="true">
+                      <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.27-4.74 3.27-8.1z" />
+                      <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84A11 11 0 0 0 12 23z" />
+                      <path fill="#FBBC05" d="M5.84 14.1a6.6 6.6 0 0 1 0-4.2V7.06H2.18a11 11 0 0 0 0 9.88l3.66-2.84z" />
+                      <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1A11 11 0 0 0 2.18 7.06l3.66 2.84C6.71 7.31 9.14 5.38 12 5.38z" />
+                    </svg>
+                  )}
+                  <span>Continue with Google</span>
+                </button>
+              )}
             </div>
 
             <div className="my-4 h-[0.5px] bg-white/[0.1]" />

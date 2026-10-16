@@ -155,7 +155,9 @@ export function parseTelemetryFromOcrText(rawText: string): ParsedOcrTelemetry {
   const speedMatch = normalized.match(/(?:speed|spd)[\s:\-_=]*([0-9]+(?:\.[0-9]+)?)/i) ||
                      normalized.match(/([0-9]+(?:\.[0-9]+)?)[\s]*(?:km\/h|kmh|mph)/i);
   if (speedMatch && speedMatch[1]) {
-    const s = parseFloat(speedMatch[1]);
+    // A screen that shows mph (and not km/h) is converted so the stored speed is always km/h.
+    const isMph = /mph/i.test(normalized) && !/km\/h|kmh/i.test(normalized);
+    const s = parseFloat(speedMatch[1]) * (isMph ? 1.609344 : 1);
     if (s > 0 && s <= 45) {
       speedKmh = Number(s.toFixed(1));
     }

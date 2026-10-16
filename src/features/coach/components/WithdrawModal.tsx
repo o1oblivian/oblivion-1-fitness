@@ -27,6 +27,7 @@ export const WithdrawModal: React.FC<WithdrawModalProps> = ({
 
   const handleWithdraw = async () => {
     if (withdrawAmount <= 0) { setError('Specify an amount greater than $0.00'); return; }
+    if (withdrawAmount < 5) { setError('The minimum withdrawal is $5.00.'); return; }
     setError(null);
     setIsProcessing(true);
     tactileEngine.triggerSelectionBuzz();
@@ -72,11 +73,11 @@ export const WithdrawModal: React.FC<WithdrawModalProps> = ({
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-xs font-sans font-semibold text-o1-text block px-1">Withdrawal Amount ($ USD)</label>
+            <label className="text-xs font-sans font-semibold text-o1-text block px-1">Withdrawal Amount ($ AUD, minimum $5)</label>
             <div className="relative">
               <span className="absolute left-4 top-1/2 -translate-y-1/2 text-o1-muted font-mono text-sm">$</span>
               <input
-                type="number" step="0.01" min="1" max={availableBalance}
+                type="number" step="0.01" min="5" max={availableBalance}
                 value={amountStr}
                 onFocus={(e) => e.target.select()}
                 onChange={(e) => setAmountStr(sanitizeNumericInput(e.target.value))}
@@ -100,7 +101,7 @@ export const WithdrawModal: React.FC<WithdrawModalProps> = ({
               <Building2 className="w-4 h-4 text-o1-gold shrink-0" />
               <span className="truncate font-medium">To: {destinationLabel}</span>
             </div>
-            <span className="text-o1-gold font-mono font-bold shrink-0 ml-2">Standard ACH</span>
+            <span className="text-o1-gold font-mono font-bold shrink-0 ml-2">Bank transfer</span>
           </div>
 
           {error && (

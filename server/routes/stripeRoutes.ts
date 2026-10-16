@@ -184,6 +184,7 @@ export function registerStripeRoutes(app: Express) {
   app.post('/api/stripe/create-payout', async (req, res) => {
     const coachId = res.locals.userId as string;
     let ledgerId: string | null = null;
+    let transferId: string | null = null;
     let locked = false;
     try {
       const amountCents = Number(req.body?.amountCents);
@@ -247,14 +248,24 @@ export function registerStripeRoutes(app: Express) {
         { idempotencyKey: `o1fc_payout_${ledgerId}` },
       );
 
-      await admin
+      // Money has left. From here the ledger row must never be marked failed, or the same
+      // balance could be withdrawn twice.
+      transferId = transfer.id;
+      const marked = await admin
         .from('coach_payout_ledger')
         .update({ status: 'paid', stripe_transfer_id: transfer.id, updated_at: new Date().toISOString() })
         .eq('id', ledgerId);
+      if (marked.error) {
+        console.error('[stripe] transfer sent but ledger update failed:', transfer.id, marked.error.message);
+      }
 
       return res.json({ success: true, payoutId: transfer.id, transferId: transfer.id, amountCents });
     } catch (err: any) {
       console.error('[stripe] create-payout failed:', err?.message);
+      if (transferId) {
+        console.error('[stripe] transfer', transferId, 'was sent; leaving ledger row', ledgerId, 'as processing for review.');
+        return res.json({ success: true, payoutId: transferId, transferId, amountCents: Number(req.body?.amountCents) });
+      }
       if (ledgerId) {
         await getSupabaseAdmin()
           ?.from('coach_payout_ledger')

@@ -22,8 +22,11 @@ allprojects {
         google()
         mavenCentral()
     }
-    // OneDrive locks build folders under the repo. Keep outputs on a short local path.
-    layout.buildDirectory.set(file("C:/o1build/${name}"))
+    // OneDrive locks build folders under the repo on the Windows dev laptop only.
+    // CI (macOS/Linux) must keep the default build folder, or generated R classes are lost.
+    if (System.getProperty('os.name').toLowerCase().contains('windows')) {
+        layout.buildDirectory.set(file("C:/o1build/${name}"))
+    }
 }
 
 task clean(type: Delete) {

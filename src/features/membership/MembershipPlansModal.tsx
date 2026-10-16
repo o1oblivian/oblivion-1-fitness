@@ -5,6 +5,7 @@ import { IAP_PRODUCTS, IAPProductInfo } from '../../types/iap';
 import { tactileEngine } from '../../services/tactileEngine';
 import { REVENUECAT_FALLBACK_MONTHLY_PACKAGE, revenueCatService } from '../../services/revenueCatService';
 import { isNativeStorePlatform } from '../../services/purchasesService';
+import { openLegalUrl } from '../../services/apiBase';
 import { useSubscription } from '../../context/SubscriptionContext';
 import { MembershipPlanCard } from './components/MembershipPlanCard';
 import { MembershipPlanFeatures } from './components/MembershipPlanFeatures';
@@ -327,6 +328,14 @@ export const MembershipPlansModal: React.FC<MembershipPlansModalProps> = ({
                 className="hover:text-white underline cursor-pointer"
               >
                 Restore Purchases
+              </button>
+              <span>•</span>
+              <button type="button" onClick={() => void openLegalUrl('terms')} className="hover:text-white underline cursor-pointer">
+                Terms of Use
+              </button>
+              <span>•</span>
+              <button type="button" onClick={() => void openLegalUrl('privacy')} className="hover:text-white underline cursor-pointer">
+                Privacy Policy
               </button>
             </div>
           </div>

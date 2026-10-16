@@ -514,12 +514,13 @@ Respond ONLY in valid JSON matching this exact schema:
           success: true,
           scan: {
             type: ocrCardio.deviceType === 'watch' ? 'Smartwatch Pedometer' : 'Cardio Console',
-            calories: ocrCardio.caloriesBurned || (ocrCardio.steps ? Math.round(ocrCardio.steps * 0.043) : 0),
-            durationMins: ocrCardio.elapsedMinutes || (ocrCardio.steps ? Math.round(ocrCardio.steps / 100) : 0),
-            avgHr: ocrCardio.avgHeartRateBpm || 0,
-            steps: ocrCardio.steps || (ocrCardio.distanceKm ? Math.round(ocrCardio.distanceKm * 1312) : 0),
-            distanceKm: ocrCardio.distanceKm || (ocrCardio.steps ? Number((ocrCardio.steps / 1312).toFixed(2)) : 0),
-            confidence: 96,
+            // Only what the screen showed. Unread values are null, never estimated or zero.
+            calories: ocrCardio.caloriesBurned || null,
+            durationMins: ocrCardio.elapsedMinutes || null,
+            avgHr: ocrCardio.avgHeartRateBpm || null,
+            steps: ocrCardio.steps || null,
+            distanceKm: ocrCardio.distanceKm || null,
+            confidence: 80,
             aliveAiNote: ocrCardio.steps
               ? `Optical OCR verified: ${ocrCardio.steps.toLocaleString()} steps detected.`
               : 'Optical telemetry captured from console display.',
@@ -534,11 +535,11 @@ Respond ONLY in valid JSON matching this exact schema:
         success: true,
         scan: {
           type: 'Manual Telemetry Entry',
-          calories: 0,
-          durationMins: 0,
-          avgHr: 0,
-          steps: 0,
-          distanceKm: 0,
+          calories: null,
+          durationMins: null,
+          avgHr: null,
+          steps: null,
+          distanceKm: null,
           confidence: 0,
           aliveAiNote: 'No readable digits detected on image. Please enter metrics manually or retake photo with clear lighting.',
           rawReadings: 'Unread display: manual input required',

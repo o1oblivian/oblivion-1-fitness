@@ -168,8 +168,9 @@ workflows:
           elif [ -f "app/release-keystore.jks" ]; then
             echo "Using persistent repository release keystore (app/release-keystore.jks)..."
           else
-            echo "Creating production release keystore for Google Play AAB..."
-            keytool -genkeypair -v -keystore app/release-keystore.jks -alias o1fc -keyalg RSA -keysize 2048 -validity 10000 -storepass o1fcfitness -keypass o1fcfitness -dname "CN=Oblivion 1 Fitness Club, OU=Mobile, O=O1FC, L=Sydney, ST=NSW, C=AU"
+            echo "ERROR: CM_KEYSTORE is not set in the google_play_credentials group."
+            echo "A new keystore would be signed with the wrong upload key and Google Play would reject it."
+            exit 1
           fi
           echo "Verifying Keystore Fingerprints:"
           keytool -list -v -keystore app/release-keystore.jks -alias o1fc -storepass o1fcfitness | grep -E "SHA1:|SHA256:" || true

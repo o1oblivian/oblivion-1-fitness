@@ -241,10 +241,37 @@ async function resolveAppUserId(preferred?: string): Promise<string | null> {
   return getAuthenticatedUserId();
 }
 
+/** Name of the store this phone buys from, for messages the athlete reads. */
+function storeName(): string {
+  try {
+    return Capacitor.getPlatform() === 'ios' ? 'the App Store' : 'Google Play';
+  } catch {
+    return 'the store';
+  }
+}
+
 class RevenueCatManager {
   private ready: { userId: string; connected: Promise<boolean> } | null = null;
 
   isNative = (): boolean => isNativeStorePlatform();
+
+  /** Detaches the store customer on sign-out or account deletion so the next sign-in starts clean. */
+  async logOut(): Promise<void> {
+    this.ready = null;
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(STATUS_KEY);
+    } catch {
+      /* storage blocked */
+    }
+    if (!isNativeStorePlatform()) return;
+    try {
+      const { isConfigured } = await Purchases.isConfigured();
+      if (isConfigured) await withStoreTimeout(Purchases.logOut(), 'Store sign-out did not answer.', 4_000);
+    } catch {
+      /* an anonymous store customer cannot log out; nothing to clear */
+    }
+  }
 
   private async connect(userId: string): Promise<boolean> {
     const apiKey = resolveNativeStoreKey();
@@ -257,7 +284,7 @@ class RevenueCatManager {
         const { isConfigured } = await Purchases.isConfigured();
         if (isConfigured) await Purchases.logIn({ appUserID: userId });
         else await Purchases.configure({ apiKey, appUserID: userId });
-      })(), 'Google Play billing did not answer.');
+      })(), `${storeName()} billing did not answer.`);
       return true;
     } catch (e) {
       console.warn('[RevenueCat] Store connection failed:', e);
@@ -306,16 +333,16 @@ class RevenueCatManager {
       }
 
       const client = await this.init(userId);
-      if (!client) return { success: false, error: 'Google Play billing is unavailable. Install the app from Google Play to subscribe.' };
+      if (!client) return { success: false, error: `Billing is unavailable. Install the app from ${storeName()} to subscribe.` };
 
       const pkg = findPackageForPlan(packagesFromOfferings(await withStoreTimeout(client.getOfferings(), 'Store products did not load. Check your connection and try again.')), planId);
       if (!pkg || (pkg as { isFallback?: boolean }).isFallback) {
-        return { success: false, error: 'This plan is not live in Google Play yet.' };
+        return { success: false, error: `This plan is not live in ${storeName()} yet.` };
       }
 
       const { customerInfo } = await withStoreTimeout(
         client.purchasePackage({ aPackage: pkg }),
-        'The payment window did not open. Install the app from Google Play internal testing, then try Upgrade again.',
+        `The payment window did not open. Install the app from ${storeName()}, then try again.`,
         PURCHASE_TIMEOUT_MS,
       );
       if (!ownsPlan(customerInfo, planId)) {

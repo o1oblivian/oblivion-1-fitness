@@ -322,38 +322,24 @@ export const useProductionSettings = (onShowToast?: (msg: string) => void) => {
       }
       const { data: sessionData } = await supabase.auth.getSession();
       const accessToken = sessionData?.session?.access_token;
-      if (accessToken) {
-        const res = await apiFetch('/api/account/delete', {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-            'Content-Type': 'application/json',
-          },
-        });
-        if (!res.ok) {
-          const payload = await res.json().catch(() => ({}));
-          try {
-            await supabase.rpc('delete_user_account', { target_user_id: uid });
-          } catch {}
-          if (res.status === 503) {
-            setIsDeleting(false);
-            if (onShowToast) onShowToast(payload.error || 'Account deletion is not configured on the server.');
-            return;
-          }
-        }
+      if (!accessToken) {
+        setIsDeleting(false);
+        if (onShowToast) onShowToast('Sign in again to delete this account.');
+        return;
       }
-      try {
-        await supabase.from('workout_logs').delete().eq('user_id', uid);
-      } catch {}
-      try {
-        await supabase.from('meal_logs').delete().eq('user_id', uid);
-        await supabase.from('fuel_days').delete().eq('user_id', uid);
-        await supabase.from('fuel_profiles').delete().eq('user_id', uid);
-      } catch {}
-      try {
-        await supabase.from('profiles').delete().eq('id', uid);
-      } catch (e) {
-        console.warn('[Settings] Supabase delete profile fallback:', e);
+      // The server removes the sign-in itself. Only report success once it confirms.
+      const res = await apiFetch('/api/account/delete', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      if (!res.ok) {
+        const payload = await res.json().catch(() => ({}));
+        setIsDeleting(false);
+        if (onShowToast) onShowToast(payload?.error || 'Your account was not deleted. Check your connection and try again.');
+        return;
       }
       try {
         await supabase.auth.signOut();
@@ -361,6 +347,7 @@ export const useProductionSettings = (onShowToast?: (msg: string) => void) => {
         console.warn('[Settings] Supabase auth signOut fallback:', e);
       }
       await releasePhoneResources();
+      await import('../services/revenueCatService').then((m) => m.revenueCatService.logOut()).catch(() => undefined);
       setTimeout(() => {
         if (typeof window !== 'undefined') {
           clearAccountData();

@@ -57,6 +57,11 @@ export const CardioConsoleScanModal: React.FC<CardioConsoleScanModalProps> = ({
     const burnedKcal = extractedData.burnedKcal ?? 0;
     const isToday = targetDateKey === localDayKey(new Date().toISOString());
     const readSteps = extractedData.steps ?? 0;
+    if (distanceKm <= 0 && durationMinutes <= 0 && burnedKcal <= 0 && readSteps <= 0) {
+      // Nothing was read from the photo. Never save an empty session as zeros.
+      onSynced?.('No numbers were readable on that screen. Retake the photo, or log it by hand.');
+      return;
+    }
     let loggedSteps = readSteps || estimateStepsFromCardio(distanceKm, durationMinutes) || 0;
     const syncWatchTotal = scanMode === 'watch' && readSteps > 0;
 
