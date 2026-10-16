@@ -14,6 +14,7 @@ import {
 } from './server/routes/billingWebhookHandler';
 import { handleVerifyPose } from './server/routes/poseVerificationRoute';
 import { registerStripeRoutes } from './server/routes/stripeRoutes';
+import { deleteAccountData } from './server/lib/accountDeletion';
 
 dotenv.config();
 dotenv.config({ path: '.env.local', override: true });
@@ -311,6 +312,31 @@ async function startServer() {
     next();
   });
 
+  // Image-analysis routes cost money per call. Cap how often one address can use them.
+  app.set('trust proxy', 1);
+  const scanHits = new Map<string, { count: number; resetAt: number }>();
+  const SCAN_LIMIT_PER_MINUTE = 40;
+  setInterval(() => {
+    const now = Date.now();
+    for (const [key, hit] of scanHits) if (hit.resetAt <= now) scanHits.delete(key);
+  }, 60_000).unref();
+  app.use(['/api/vision', '/api/fuel', '/api/cardio', '/api/workout'], (req, res, next) => {
+    if (req.method !== 'POST') return next();
+    const now = Date.now();
+    const key = req.ip || 'unknown';
+    const hit = scanHits.get(key);
+    if (!hit || hit.resetAt <= now) {
+      scanHits.set(key, { count: 1, resetAt: now + 60_000 });
+      return next();
+    }
+    hit.count += 1;
+    if (hit.count > SCAN_LIMIT_PER_MINUTE) {
+      res.setHeader('Retry-After', String(Math.ceil((hit.resetAt - now) / 1000)));
+      return res.status(429).json({ error: 'Too many scans. Wait a minute and try again.' });
+    }
+    return next();
+  });
+
   // Configure JSON parser with larger limit and rawBody verification for Stripe webhooks
   app.use(
     express.json({
@@ -393,17 +419,23 @@ Respond ONLY in valid JSON matching this exact schema:
 
           const text = response.text || '';
           const parsed = parseGeminiJson(text);
+          const read = (v: unknown): number | null => (Number.isFinite(Number(v)) && Number(v) >= 0 && v !== null && v !== '' ? Math.round(Number(v)) : null);
+          const kcal = read(parsed.estimatedKcal);
+          // A reading with no calories is not a reading. Say so instead of filling in typical numbers.
+          if (kcal === null) {
+            return res.status(422).json({ error: 'Could not read this meal. Retake the photo or enter it by hand.' });
+          }
           return res.json({
             success: true,
             scan: {
-              mealName: parsed.mealName || 'High-Protein Athletic Plate',
-              description: parsed.description || 'Optical volumetric macronutrient analysis',
-              estimatedKcal: Math.round(Number(parsed.estimatedKcal) || 550),
-              proteinG: Math.round(Number(parsed.proteinG) || 45),
-              carbsG: Math.round(Number(parsed.carbsG) || 50),
-              fatsG: Math.round(Number(parsed.fatsG) || 15),
-              confidence: Math.round(Number(parsed.confidence) || 94),
-              aliveAiNote: parsed.aliveAiNote || 'Bioenergetic balance aligned with post-training muscle protein synthesis.',
+              mealName: parsed.mealName || 'Meal',
+              description: parsed.description || '',
+              estimatedKcal: kcal,
+              proteinG: read(parsed.proteinG),
+              carbsG: read(parsed.carbsG),
+              fatsG: read(parsed.fatsG),
+              confidence: read(parsed.confidence),
+              aliveAiNote: parsed.aliveAiNote || '',
               items: Array.isArray(parsed.items) ? parsed.items : [],
             },
             provider: 'alive-ai-vision',
@@ -413,24 +445,8 @@ Respond ONLY in valid JSON matching this exact schema:
         }
       }
 
-      // Robust fallback heuristic when API key is missing or quota exceeded
-      const fallbackScan = {
-        mealName: 'High-Protein Athletic Plate',
-        description: 'Visual analysis: Seared lean animal protein, complex low-GI carbohydrate base, and micronutrient greens',
-        estimatedKcal: 560,
-        proteinG: 46,
-        carbsG: 52,
-        fatsG: 14,
-        confidence: 91,
-        aliveAiNote: 'High biological value protein profile with balanced macronutrient ratio for peak hypertrophy recovery.',
-        items: [
-          { name: 'Lean Grilled Breast / Steak', portion: '180g', calories: 280, protein: 42, carbs: 0, fats: 8 },
-          { name: 'Steamed Jasmine Rice / Sweet Potato', portion: '160g', calories: 210, protein: 4, carbs: 46, fats: 1 },
-          { name: 'Charred Greens with EVOO drizzle', portion: '100g', calories: 70, protein: 0, carbs: 6, fats: 5 },
-        ],
-      };
-
-      return res.json({ success: true, scan: fallbackScan, provider: 'alive-ai-heuristic-engine' });
+      // No analysis available. Never invent a meal; the app asks the athlete to enter it by hand.
+      return res.status(503).json({ error: 'Meal scanning is unavailable right now. Enter the meal by hand.' });
     } catch (err: any) {
       console.error('Error in /api/fuel/scan-meal:', err);
       res.status(500).json({ error: err.message || 'Internal server error during meal analysis' });
@@ -488,15 +504,16 @@ Respond ONLY in valid JSON matching this exact schema:
           return res.json({
               success: true,
               scan: {
-                type: parsed.type || 'Treadmill',
-                calories: Math.max(0, Math.round(Number(parsed.calories) || 0)),
-                durationMins: Math.max(0, Math.round(Number(parsed.durationMins) || 0)),
-                avgHr: Math.max(0, Math.round(Number(parsed.avgHr) || 0)),
-                steps: Math.max(0, Math.round(Number(parsed.steps) || 0)),
-                distanceKm: parsed.distanceKm ? Number(parsed.distanceKm) : undefined,
-                confidence: Math.round(Number(parsed.confidence) || 94),
-                aliveAiNote: parsed.aliveAiNote || 'Cardiovascular load calibrated within target parameters.',
-                rawReadings: parsed.rawReadings || 'Telemetry extracted from console display',
+                type: parsed.type || 'Cardio',
+                // Only what the screen showed. A value that was not read is null, never 0.
+                calories: Number(parsed.calories) > 0 ? Math.round(Number(parsed.calories)) : null,
+                durationMins: Number(parsed.durationMins) > 0 ? Math.round(Number(parsed.durationMins)) : null,
+                avgHr: Number(parsed.avgHr) > 0 ? Math.round(Number(parsed.avgHr)) : null,
+                steps: Number(parsed.steps) > 0 ? Math.round(Number(parsed.steps)) : null,
+                distanceKm: Number(parsed.distanceKm) > 0 ? Number(parsed.distanceKm) : null,
+                confidence: Math.max(0, Math.min(99, Math.round(Number(parsed.confidence) || 0))),
+                aliveAiNote: parsed.aliveAiNote || '',
+                rawReadings: parsed.rawReadings || '',
               },
               provider: 'alive-ai-vision',
             });
@@ -832,6 +849,12 @@ Return valid JSON only matching:
               calculatedCalories = Math.round(proteinG * 4 + carbsG * 4 + fatG * 9);
             }
 
+            if (calculatedCalories <= 0) {
+              return res.status(422).json({
+                error: 'Could not resolve meal macronutrients. Retake photo with clear lighting and full plate visibility.',
+              });
+            }
+
             return res.json({
               success: true,
               nutrients: {
@@ -843,7 +866,8 @@ Return valid JSON only matching:
                 proteinGrams: proteinG,
                 carbsGrams: carbsG,
                 fatGrams: fatG,
-                confidenceScore: Math.min(99, Math.max(70, Number(parsed.confidenceScore) || 94)),
+                // The model's own figure, never a made-up default.
+                confidenceScore: Math.min(99, Math.max(0, Math.round(Number(parsed.confidenceScore) || 0))),
               },
             });
         } catch (aiErr: any) {
@@ -895,14 +919,24 @@ Return valid JSON only matching:
             const prod = offData.product;
             const nutriments = prod.nutriments || {};
 
+            // Use one basis for every number: per serving when the registry has it, otherwise per 100 g.
+            // Mixing the two would label 100 g figures as a serving.
+            const perServing = Number(nutriments['energy-kcal_serving']) > 0 && Boolean(prod.serving_size);
+            const suffix = perServing ? '_serving' : '_100g';
+            const kcal = Number(nutriments[`energy-kcal${suffix}`]);
+            if (!Number.isFinite(kcal) || kcal <= 0) {
+              // The registry knows the product but not its nutrition. Do not invent calories.
+              return res.json({ success: true, found: false, message: 'This product has no nutrition data. Enter it by hand.' });
+            }
+            const per = (key: string) => Math.round(Number(nutriments[`${key}${suffix}`] || 0) * 10) / 10;
             const item = {
               name: prod.product_name || prod.product_name_en || `Scanned Item (${cleanCode})`,
-              brand: prod.brands || 'Commercial Brand',
-              portion: prod.serving_size || '100g serving',
-              calories: Math.round(nutriments['energy-kcal_serving'] || nutriments['energy-kcal_100g'] || nutriments['energy-kcal'] || 150),
-              protein: Math.round((nutriments.proteins_serving || nutriments.proteins_100g || nutriments.proteins || 0) * 10) / 10,
-              carbs: Math.round((nutriments.carbohydrates_serving || nutriments.carbohydrates_100g || nutriments.carbohydrates || 0) * 10) / 10,
-              fats: Math.round((nutriments.fat_serving || nutriments.fat_100g || nutriments.fat || 0) * 10) / 10,
+              brand: prod.brands || '',
+              portion: perServing ? String(prod.serving_size) : '100g',
+              calories: Math.round(kcal),
+              protein: per('proteins'),
+              carbs: per('carbohydrates'),
+              fats: per('fat'),
               category: 'snack',
             };
 
@@ -1153,47 +1187,12 @@ Respond ONLY with a valid JSON object matching this schema:
         return res.status(401).json({ error: 'Not authenticated.' });
       }
 
-      const userIdTables = [
-        'workout_logs',
-        'nutrition_logs',
-        'meal_logs',
-        'daily_macros',
-        'completed_sessions',
-        'workout_sessions',
-        'user_telemetry',
-        'user_entitlements',
-        'buddy_messages',
-      ];
-      for (const table of userIdTables) {
-        try {
-          await admin.from(table).delete().eq('user_id', uid);
-        } catch {
-          /* table may not exist */
-        }
-      }
-      try {
-        await admin.from('completed_sessions').delete().eq('client_id', uid);
-      } catch {
-        /* ignore */
-      }
-      try {
-        await admin.from('profiles').delete().eq('id', uid);
-      } catch {
-        /* ignore */
-      }
-      try {
-        await admin.from('coach_profiles').delete().eq('id', uid);
-      } catch {
-        /* ignore */
-      }
-
-      const { error: delErr } = await admin.auth.admin.deleteUser(uid);
-      if (delErr) {
-        return res.status(500).json({ error: delErr.message || 'Failed to delete auth user.' });
-      }
+      const result = await deleteAccountData(uid);
+      if (!result.ok) return res.status(result.status).json({ error: result.error });
       return res.json({ success: true });
     } catch (err: any) {
-      return res.status(500).json({ error: err.message || 'Account deletion failed.' });
+      console.error('[account/delete] failed:', err?.message);
+      return res.status(500).json({ error: 'Account deletion failed. Try again.' });
     }
   });
 

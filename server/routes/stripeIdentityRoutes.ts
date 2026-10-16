@@ -4,8 +4,10 @@ import {
   getStripe,
   getSupabaseAdmin,
   recordProgramSale,
+  recordSaleDispute,
   recordSaleRefund,
   recordTransferReversal,
+  safeReturnBase,
 } from '../lib/stripeLedger';
 
 /**
@@ -18,7 +20,7 @@ export async function handleCreateIdentitySession(req: Request, res: Response) {
     if (!coachId) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
-    const returnUrl = req.body?.returnUrl || req.headers.origin || 'http://localhost:3000';
+    const returnUrl = safeReturnBase(req.body?.returnUrl, String(req.headers.origin || 'http://localhost:3000'));
     const userEmail = (res.locals.userEmail as string | undefined) || '';
     const stripe = await getStripe();
     if (!stripe) {
@@ -50,7 +52,7 @@ export async function handleCreateIdentitySession(req: Request, res: Response) {
     return res.json({ url: verificationSession.url, sessionId: verificationSession.id });
   } catch (err: any) {
     console.error('Error in /api/stripe/create-identity-session:', err);
-    return res.status(500).json({ error: err.message || 'Identity session creation failed' });
+    return res.status(500).json({ error: 'Identity check could not start. Try again.' });
   }
 }
 
@@ -65,11 +67,8 @@ async function constructVerifiedEvent(req: Request): Promise<any> {
   const signature = req.headers['stripe-signature'];
 
   if (secrets.length === 0) {
-    if (process.env.NODE_ENV === 'production') {
-      throw Object.assign(new Error('Webhook secret is not configured.'), { status: 503 });
-    }
-    console.warn('[Stripe Webhook] No webhook secret set; accepting unsigned events (non-production only).');
-    return req.body;
+    // An unsigned webhook would let anyone credit a coach without paying. Never accept one.
+    throw Object.assign(new Error('Webhook secret is not configured.'), { status: 503 });
   }
 
   const stripe = await getStripe();
@@ -114,16 +113,26 @@ export async function handleStripeWebhook(req: Request, res: Response) {
     }
 
     // Program sale paid: write the platform/coach split to the ledger.
-    if (type === 'checkout.session.completed' && object?.payment_status === 'paid') {
+    // `async_payment_succeeded` covers methods that confirm after checkout closes; both carry a paid session.
+    if (
+      (type === 'checkout.session.completed' || type === 'checkout.session.async_payment_succeeded') &&
+      object?.payment_status === 'paid'
+    ) {
       const meta = object?.metadata ?? {};
       const coachId = meta.coach_id;
       if (coachId) {
+        const grossCents = Number(object?.amount_total || 0);
+        if (!Number.isInteger(grossCents) || grossCents <= 0 || String(object?.currency || '').toLowerCase() !== 'aud') {
+          // Checkout only ever creates positive AUD sessions, so anything else is not one of ours.
+          console.error('[Stripe Webhook] Ignoring session with unexpected amount/currency:', object?.id, grossCents, object?.currency);
+          return res.json({ received: true, ignored: 'unexpected amount or currency' });
+        }
         const result = await recordProgramSale({
           coachId,
           athleteId: meta.athlete_id,
           athleteName: meta.athlete_name,
           programTitle: meta.program_title,
-          grossCents: Number(object?.amount_total || 0),
+          grossCents,
           currency: object?.currency,
           stripeSessionId: String(object.id),
         });
@@ -136,7 +145,20 @@ export async function handleStripeWebhook(req: Request, res: Response) {
     }
 
     if (type === 'charge.refunded' && object) {
-      return res.json({ received: true, ...(await recordSaleRefund(object)) });
+      const refund = await recordSaleRefund(object);
+      // The sale may not be written yet. A 500 makes Stripe deliver this again later instead of losing the refund.
+      if (refund.reason === 'sale_not_found') return res.status(500).json({ error: 'Sale not recorded yet.', ...refund });
+      return res.json({ received: true, ...refund });
+    }
+
+    // A dispute takes the money back at once: void the sale. If it is won, put it back.
+    if (type === 'charge.dispute.created' && object) {
+      return res.json({ received: true, ...(await recordSaleDispute(object, false)) });
+    }
+    if (type === 'charge.dispute.closed' && object) {
+      if (object.status === 'won') return res.json({ received: true, ...(await recordSaleDispute(object, true)) });
+      if (object.status === 'lost') return res.json({ received: true, ...(await recordSaleDispute(object, false)) });
+      return res.json({ received: true, ignored: `dispute ${object.status}` });
     }
 
     if (type === 'transfer.reversed' && object?.id) {

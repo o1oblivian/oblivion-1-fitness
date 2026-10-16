@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Check, Copy, Mail, MessageCircle, MessageSquare, Send, X } from 'lucide-react';
 import { copyText } from '../../log/publicShare';
 import { tactileEngine } from '../../../services/tactileEngine';
+import { openExternalUrl } from '../../../services/apiBase';
 
 export interface ShareLinkTarget {
   title: string;
@@ -37,7 +38,7 @@ function openChannel(href: string) {
     window.location.href = href;
     return;
   }
-  window.open(href, '_blank', 'noopener,noreferrer');
+  void openExternalUrl(href);
 }
 
 /** Share options for devices without a system share sheet (e.g. web over plain HTTP). */

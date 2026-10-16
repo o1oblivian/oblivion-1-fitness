@@ -42,7 +42,8 @@ export const MembershipPlansModal: React.FC<MembershipPlansModalProps> = ({
   const [monthlyStoreProduct, setMonthlyStoreProduct] = useState<IAPProductInfo>({
     productId: REVENUECAT_FALLBACK_MONTHLY_PACKAGE.product.identifier,
     name: REVENUECAT_FALLBACK_MONTHLY_PACKAGE.product.title,
-    price: REVENUECAT_FALLBACK_MONTHLY_PACKAGE.product.priceString,
+    // Shown only once the store answers; never a made-up price.
+    price: '--',
     periodText: '/mo',
     description: 'Full training & fuel OS',
     badge: 'PRO',
@@ -69,7 +70,7 @@ export const MembershipPlansModal: React.FC<MembershipPlansModalProps> = ({
         const next: IAPProductInfo = {
           productId: String(product.identifier || pkg.identifier || REVENUECAT_FALLBACK_MONTHLY_PACKAGE.product.identifier),
           name: String(product.title || 'Monthly Pro Access'),
-          price: String(product.priceString || '$9.99'),
+          price: (pkg as { isFallback?: boolean }).isFallback ? '--' : String(product.priceString || '--'),
           periodText: '/mo',
           description: 'Full training & fuel OS',
           badge: 'PRO',
@@ -148,7 +149,8 @@ export const MembershipPlansModal: React.FC<MembershipPlansModalProps> = ({
           onShowToast?.(`Subscribed to ${currentSelected.name}`);
           onClose();
         } else {
-          setStoreStatusBanner(res.error || (nativeStore ? 'Store billing is unavailable.' : null));
+          // Closing the store sheet is the athlete's choice, not an error.
+          if (!/cancel/i.test(res.error || '')) setStoreStatusBanner(res.error || (nativeStore ? 'Store billing is unavailable.' : null));
         }
       } catch (err: any) {
         setStoreStatusBanner(nativeStore ? 'Store billing is unavailable on this device.' : null);
@@ -295,7 +297,7 @@ export const MembershipPlansModal: React.FC<MembershipPlansModalProps> = ({
               type="button"
               id="btn-subscribe-master"
               onClick={handleMainAction}
-              disabled={isPurchasing}
+              disabled={isPurchasing || (nativeStore && !isFreePlanSelected && currentSelected.price === '--')}
               className="w-full bg-o1-crimson hover:bg-o1-crimson-hover active:bg-o1-crimson-press text-white font-tactical font-black text-xs py-3.5 px-4 rounded-2xl transition-all active:scale-[0.98] flex items-center justify-center gap-2 shadow-md cursor-pointer disabled:opacity-50"
             >
               {isPurchasing ? (

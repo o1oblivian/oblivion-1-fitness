@@ -157,7 +157,7 @@ const EditSheetBody: React.FC<Omit<CoachProfileEditSheetProps, 'open'>> = ({ ini
 
   return (
     <div className="fixed inset-0 z-[110] flex items-end justify-center bg-black/80 sm:items-center" role="dialog" aria-modal="true" aria-label="Edit profile">
-      <div className="max-h-[92vh] w-full max-w-md space-y-4 overflow-y-auto rounded-t-2xl border border-white/[0.07] bg-o1-sheet p-4 pb-[calc(env(safe-area-inset-bottom)+1rem)] sm:rounded-2xl">
+      <div className="max-h-[92dvh] w-full max-w-md space-y-4 overflow-y-auto rounded-t-2xl border border-white/[0.07] bg-o1-sheet p-4 pb-[calc(env(safe-area-inset-bottom)+1rem)] sm:rounded-2xl">
         <div className="flex items-center justify-between">
           <h2 className="text-[15px] font-semibold text-o1-text">Edit profile</h2>
           <button type="button" onClick={onClose} aria-label="Close" className="flex h-9 w-9 items-center justify-center rounded-full bg-white/[0.07] text-o1-muted active:scale-95">

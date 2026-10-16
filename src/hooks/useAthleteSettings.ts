@@ -364,6 +364,8 @@ export const useProductionSettings = (onShowToast?: (msg: string) => void) => {
         setShowDeleteConfirm(false);
         if (onShowToast) onShowToast('Account and telemetry permanently erased.');
         if (onLogoutCallback) onLogoutCallback();
+        // Restart clean so no screen or in-memory store keeps the deleted account's data.
+        releaseDevice();
       }, 500);
     } catch {
       setIsDeleting(false);

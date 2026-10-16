@@ -19,6 +19,7 @@ import { applyAuthCallbackUrl } from './services/oauthDeepLink';
 import { captureInviteFromUrl } from './features/log/publicShare';
 import { captureReelLink } from './features/reels/services/reelLinks';
 import { AppErrorBoundary } from './components/common/AppErrorBoundary';
+import { useModalStore } from './components/modals/useModalStore';
 
 /** safeStorage JSON-parses on read, so the stored "true" comes back as a boolean. */
 function onboardingCompleted(): boolean {
@@ -148,6 +149,7 @@ export default function App() {
       }
 
       let appUrlListenerHandle: { remove: () => Promise<void> } | null = null;
+      let backButtonHandle: { remove: () => Promise<void> } | null = null;
       if (Capacitor.isNativePlatform()) {
         import('@capacitor/app')
           .then(({ App: CapApp }) => {
@@ -161,6 +163,18 @@ export default function App() {
               appUrlListenerHandle = handle;
             }).catch((err) => {
               console.warn('[App] appUrlOpen listener unavailable:', err);
+            });
+            // Android hardware back: close an open sheet first, then step back, and only then leave the app.
+            // Registering this replaces the default behaviour, so all three cases are handled here.
+            CapApp.addListener('backButton', ({ canGoBack }) => {
+              const { activeModal, closeModal } = useModalStore.getState();
+              if (activeModal) closeModal();
+              else if (canGoBack) window.history.back();
+              else void CapApp.minimizeApp();
+            }).then((handle) => {
+              backButtonHandle = handle;
+            }).catch((err) => {
+              console.warn('[App] backButton listener unavailable:', err);
             });
             CapApp.getLaunchUrl().then((launch) => {
               if (!launch?.url) return;
@@ -182,6 +196,7 @@ export default function App() {
         if (Capacitor.isNativePlatform()) {
           try {
             appUrlListenerHandle?.remove();
+            backButtonHandle?.remove();
           } catch (err) {
             console.warn('[App] appUrlOpen listener cleanup skipped:', err);
           }

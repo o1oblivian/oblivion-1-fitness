@@ -10,7 +10,7 @@ import { tactileEngine } from '../../../services/tactileEngine';
 import { revenueCatService } from '../../../services/revenueCatService';
 import { isNativeStorePlatform } from '../../../services/purchasesService';
 import { getAuthenticatedUserId } from '../../../services/authUser';
-import { LEGAL_URLS, openLegalUrl } from '../../../services/apiBase';
+import { LEGAL_URLS, openExternalUrl, openLegalUrl } from '../../../services/apiBase';
 import { useAuthStore } from '../../../stores/useAuthStore';
 
 interface Props {
@@ -125,7 +125,7 @@ export const MembershipCheckoutModal: React.FC<Props> = ({
               </span>
               <p className="text-[10px] text-neutral-400 font-sans leading-relaxed">
                 {nativeStore
-                  ? 'In compliance with Apple App Store Guideline 3.1.1 and Google Play Billing, all digital memberships and coaching tiers are securely managed through your operating system store account.'
+                  ? 'Club Pass memberships are billed through your App Store or Google Play account, and you manage or cancel them in your store settings.'
                   : 'Local browser checkout grants Pro on this device for development testing. Native iOS/Android builds open the store payment sheet.'}
               </p>
             </div>
@@ -165,6 +165,10 @@ export const MembershipCheckoutModal: React.FC<Props> = ({
               href="https://www.apple.com/legal/internet-services/itunes/dev/stdeula/"
               target="_blank"
               rel="noreferrer"
+              onClick={(e) => {
+                e.preventDefault();
+                void openExternalUrl('https://www.apple.com/legal/internet-services/itunes/dev/stdeula/');
+              }}
               className="hover:underline"
             >
               Terms of Use (EULA)

@@ -14,6 +14,7 @@ import {
   Navigation,
 } from 'lucide-react';
 import { tactileEngine } from '../../../services/tactileEngine';
+import { openExternalUrl } from '../../../services/apiBase';
 import { useBuddyMessageStore } from '../../../stores/useBuddyMessageStore';
 import { useUserStore } from '../../../stores/useUserStore';
 import { searchVenues, VenueHit } from '../services/venueSearch';
@@ -704,7 +705,7 @@ export const AthleteMessageModal: React.FC<Props> = ({
                             onClick={() => {
                               tactileEngine.triggerSelectionBuzz();
                               if (m.invite?.lat == null || m.invite.lng == null) return;
-                              window.open(`https://www.openstreetmap.org/?mlat=${m.invite.lat}&mlon=${m.invite.lng}#map=16/${m.invite.lat}/${m.invite.lng}`, '_blank', 'noopener');
+                              void openExternalUrl(`https://www.openstreetmap.org/?mlat=${m.invite.lat}&mlon=${m.invite.lng}#map=16/${m.invite.lat}/${m.invite.lng}`);
                             }}
                             className="inline-flex items-center gap-1 text-[11px] font-mono text-neutral-200 hover:underline cursor-pointer"
                           >

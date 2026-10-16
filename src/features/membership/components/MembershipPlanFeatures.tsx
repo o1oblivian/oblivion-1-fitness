@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Info, ChevronDown } from 'lucide-react';
 import { tactileEngine } from '../../../services/tactileEngine';
-import { LEGAL_URLS, openLegalUrl } from '../../../services/apiBase';
+import { LEGAL_URLS, openExternalUrl, openLegalUrl } from '../../../services/apiBase';
 
 interface Props {
   userType: 'athletes' | 'coaches';
@@ -129,7 +129,18 @@ export const MembershipPlanFeatures: React.FC<Props> = ({
       </div>
 
       <div className="flex items-center justify-center gap-3 text-[10px] text-neutral-400 underline pt-1">
-        <a href="https://www.apple.com/legal/internet-services/itunes/dev/stdeula/" target="_blank" rel="noreferrer" className="hover:text-white">Terms of Use (EULA)</a>
+        <a
+          href="https://www.apple.com/legal/internet-services/itunes/dev/stdeula/"
+          target="_blank"
+          rel="noreferrer"
+          onClick={(e) => {
+            e.preventDefault();
+            void openExternalUrl('https://www.apple.com/legal/internet-services/itunes/dev/stdeula/');
+          }}
+          className="hover:text-white"
+        >
+          Terms of Use (EULA)
+        </a>
         <span>•</span>
         <a
           href={LEGAL_URLS.privacy}

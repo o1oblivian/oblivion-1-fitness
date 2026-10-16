@@ -63,7 +63,17 @@ export const PrivacyPolicyModal: React.FC<Props> = ({ isOpen, onClose, onDeleteR
               <span>3. Camera Scans</span>
             </div>
             <p className="text-[11px] text-neutral-400">
-              Cardio console and meal scan photos are sent securely to our scanning service only to read the numbers on them. Scan photos are not saved to your account.
+              Cardio console, watch and meal scan photos, and barcode scans, are sent securely to our scanning service, and to Google's Gemini image-analysis service, only to read the numbers on them. Scan photos are not saved to your account. Profile photos and reels you upload are stored in your account and shown to the people you choose.
+            </p>
+          </div>
+
+          <div className="py-3 border-b border-white/[0.05] space-y-1.5 last:border-0">
+            <div className="flex items-center gap-1.5 text-amber-400 font-bold text-[11px]">
+              <Activity className="w-3.5 h-3.5" />
+              <span>Location, Bluetooth, Purchases &amp; Payments</span>
+            </div>
+            <p className="text-[11px] text-neutral-400">
+              Buddy Radar uses your approximate location (rounded to about 1 km, only while the app is open and only if you allow it) to show nearby athletes; turn on Ghost Mode to hide yourself, and your location is removed when you delete your account. Bluetooth is used only to read a heart-rate sensor you choose to connect. Club Pass purchases are processed by Apple or Google and RevenueCat; we receive your subscription status, not your card. Coaching payments are processed by Stripe; we receive the sale amount and your name, not your card. Sign-in and cloud backup are provided by Supabase.
             </p>
           </div>
 
@@ -95,7 +105,7 @@ export const PrivacyPolicyModal: React.FC<Props> = ({ isOpen, onClose, onDeleteR
               <span>6. Unconditional Account &amp; Telemetry Erasure (GDPR / CCPA)</span>
             </div>
             <p className="text-[11px] text-neutral-400">
-              In accordance with Apple App Store Guideline 5.1.1(v) and Google Play Safety standards, athletes have the permanent right to delete their profile. Tapping "Delete Athlete Account" immediately clears all on-device records, caches, and cryptographic keys irreversibly.
+              You can delete your account at any time in Settings &rarr; Delete account. Our server then permanently deletes your profile, logs, messages, photos, reels and sign-in, and the app clears everything stored on your phone. Payment records for coaching sales are kept as the law requires. A store subscription is cancelled separately in your App Store or Google Play subscription settings.
             </p>
             {onDeleteRequest && (
               <button

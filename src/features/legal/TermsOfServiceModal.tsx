@@ -39,7 +39,7 @@ export const TermsOfServiceModal: React.FC<Props> = ({ isOpen, onClose }) => {
               <span>1. Subscription Billing &amp; Auto-Renewal</span>
             </div>
             <p className="text-[11px] text-neutral-400">
-              Club Pass Pro subscriptions ($9.99/mo) are billed directly through your Apple ID or Google Play Account. Subscriptions automatically renew unless auto-renew is cancelled at least 24 hours prior to the end of the billing cycle in App Store or Play Store account settings.
+              Club Pass subscriptions are billed directly through your Apple ID or Google Play Account, at the price shown in the store before you confirm. Subscriptions automatically renew unless auto-renew is cancelled at least 24 hours prior to the end of the billing cycle in App Store or Play Store account settings. Live 1:1 coaching with a human coach is a real-world service, is paid by card through Stripe, and is not part of Club Pass.
             </p>
           </div>
 
@@ -68,7 +68,7 @@ export const TermsOfServiceModal: React.FC<Props> = ({ isOpen, onClose }) => {
               <span>4. Community &amp; Spotter Code of Conduct</span>
             </div>
             <p className="text-[11px] text-neutral-400">
-              Athletes utilizing the Buddy Match Radar agree to zero harassment, respect gym floor etiquette, and practice certified spotter vigilance. Harassment or misconduct results in immediate banishment and revocation of club credentials without refund.
+              Athletes utilizing the Buddy Match Radar agree to zero harassment, respect gym floor etiquette, and practice certified spotter vigilance. There is no tolerance for objectionable, abusive, sexual, hateful or illegal content in profiles, photos, reels, reviews or messages. You can report any profile, reel, coach or message, and block any athlete, from the menu on that item. We review reports within 24 hours and remove the content and the offending account when a report is upheld. Harassment or misconduct results in immediate banishment and revocation of club credentials without refund. To reach us directly, write to legal@oblivion1.club.
             </p>
           </div>
 

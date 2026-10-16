@@ -87,7 +87,7 @@ export const ProgramCreatorModal: React.FC<{
   return (
     <div className="fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm sm:flex sm:items-center sm:justify-center p-0 sm:p-4 select-none animate-fadeIn">
       {/* Container: Fullscreen on mobile, centered modal card on sm+ */}
-      <div className="w-full h-full sm:h-auto sm:max-h-[92vh] sm:max-w-2xl bg-o1-canvas sm:rounded-2xl flex flex-col overflow-hidden text-o1-text shadow-2xl border-0 sm:border sm:border-white/[0.07]">
+      <div className="w-full h-full sm:h-auto sm:max-h-[92dvh] sm:max-w-2xl bg-o1-canvas sm:rounded-2xl flex flex-col overflow-hidden text-o1-text shadow-2xl border-0 sm:border sm:border-white/[0.07]">
         
         {/* Top Header */}
         <div className="px-4 py-2 border-b border-white/[0.07] flex items-center justify-between bg-o1-surface shrink-0 min-h-[44px]">

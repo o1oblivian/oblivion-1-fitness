@@ -7,8 +7,10 @@ import {
   getCoachConnectProfile,
   getStripe,
   getSupabaseAdmin,
+  reconcileStuckPayouts,
   resolveCheckoutItem,
   resolveCoachPlan,
+  safeReturnBase,
 } from '../lib/stripeLedger';
 import { handleCreateIdentitySession, handleStripeWebhook } from './stripeIdentityRoutes';
 
@@ -42,18 +44,14 @@ export async function requireSupabaseAuth(req: Request, res: Response, next: Nex
   }
 }
 
-/** Only allow Stripe to send the coach back to an http(s) page or the app's own URL scheme. */
-function safeReturnBase(candidate: unknown, fallback: string): string {
-  if (typeof candidate !== 'string' || !candidate) return fallback;
-  try {
-    const url = new URL(candidate);
-    if (url.protocol === 'https:' || url.protocol === 'http:' || url.protocol === 'com.o1fc.fitness:') {
-      return `${url.origin === 'null' ? `${url.protocol}//${url.host}` : url.origin}${url.pathname}`.replace(/\/$/, '');
-    }
-  } catch {
-    /* fall through */
-  }
-  return fallback;
+/**
+ * Stripe errors that prove no transfer was created. Anything else (dropped connection, 5xx, timeout)
+ * may have gone through, so it must never be treated as "not sent".
+ */
+function stripeDefinitelyRejected(err: any): boolean {
+  return ['StripeInvalidRequestError', 'StripePermissionError', 'StripeAuthenticationError', 'StripeRateLimitError'].includes(
+    String(err?.type || ''),
+  );
 }
 
 const inFlightPayouts = new Set<string>();
@@ -109,7 +107,7 @@ export function registerStripeRoutes(app: Express) {
       return res.json({ url: link.url });
     } catch (err: any) {
       console.error('[stripe] create-connect-account failed:', err?.message);
-      return res.status(500).json({ error: err?.message || 'Failed to start Stripe onboarding.' });
+      return res.status(500).json({ error: 'Could not start Stripe onboarding. Try again.' });
     }
   });
 
@@ -124,7 +122,8 @@ export function registerStripeRoutes(app: Express) {
       const link = await stripe.accounts.createLoginLink(profile.stripe_connect_account_id);
       return res.json({ url: link.url });
     } catch (err: any) {
-      return res.status(500).json({ error: err?.message || 'Failed to open the Stripe dashboard.' });
+      console.error('[stripe] create-login-link failed:', err?.message);
+      return res.status(500).json({ error: 'Could not open the Stripe dashboard. Try again.' });
     }
   });
 
@@ -159,6 +158,11 @@ export function registerStripeRoutes(app: Express) {
         }
       }
 
+      // Settle any withdrawal that was interrupted before reading the balance.
+      await reconcileStuckPayouts(coachId, profile?.stripe_connect_account_id || null).catch((e) =>
+        console.warn('[stripe] reconcile skipped:', (e as Error)?.message),
+      );
+
       const [ledger, plan] = await Promise.all([getCoachBalance(coachId), resolveCoachPlan(coachId)]);
       if (!ledger) return res.status(503).json({ error: 'Payments backend is not configured.' });
 
@@ -185,10 +189,11 @@ export function registerStripeRoutes(app: Express) {
     const coachId = res.locals.userId as string;
     let ledgerId: string | null = null;
     let transferId: string | null = null;
+    let unsure = false;
     let locked = false;
     try {
       const amountCents = Number(req.body?.amountCents);
-      if (!Number.isInteger(amountCents) || amountCents < MIN_PAYOUT_CENTS) {
+      if (!Number.isSafeInteger(amountCents) || amountCents < MIN_PAYOUT_CENTS) {
         return res.status(400).json({
           error: `Withdrawal must be a whole number of cents, at least ${MIN_PAYOUT_CENTS / 100} ${PAYOUT_CURRENCY.toUpperCase()}.`,
         });
@@ -212,6 +217,9 @@ export function registerStripeRoutes(app: Express) {
       }
       inFlightPayouts.add(coachId);
       locked = true;
+
+      // A withdrawal interrupted earlier must be settled first, or its funds look free and could be sent twice.
+      await reconcileStuckPayouts(coachId, profile.stripe_connect_account_id);
 
       const before = await getCoachBalance(coachId);
       if (!before) return res.status(503).json({ error: 'Payments backend is not configured.' });
@@ -237,16 +245,32 @@ export function registerStripeRoutes(app: Express) {
         return res.status(409).json({ error: 'Balance changed. Please try again.' });
       }
 
-      const transfer = await stripe.transfers.create(
-        {
-          amount: amountCents,
-          currency: PAYOUT_CURRENCY,
-          destination: profile.stripe_connect_account_id,
-          description: `Oblivion 1 coaching payout ${coachId.slice(0, 8)}`,
-          metadata: { coach_id: coachId, ledger_id: ledgerId },
-        },
-        { idempotencyKey: `o1fc_payout_${ledgerId}` },
-      );
+      const destination = profile.stripe_connect_account_id;
+      const sendTransfer = () =>
+        stripe.transfers.create(
+          {
+            amount: amountCents,
+            currency: PAYOUT_CURRENCY,
+            destination,
+            description: `Oblivion 1 coaching payout ${coachId.slice(0, 8)}`,
+            metadata: { coach_id: coachId, ledger_id: String(ledgerId) },
+          },
+          { idempotencyKey: `o1fc_payout_${ledgerId}` },
+        );
+      let transfer;
+      try {
+        transfer = await sendTransfer();
+      } catch (first) {
+        if (stripeDefinitelyRejected(first)) throw first;
+        // The answer may have been lost on the way back. Asking again with the same idempotency key
+        // returns the original transfer if it was created, and creates it once if it was not.
+        try {
+          transfer = await sendTransfer();
+        } catch (second) {
+          if (!stripeDefinitelyRejected(second)) unsure = true;
+          throw second;
+        }
+      }
 
       // Money has left. From here the ledger row must never be marked failed, or the same
       // balance could be withdrawn twice.
@@ -266,13 +290,20 @@ export function registerStripeRoutes(app: Express) {
         console.error('[stripe] transfer', transferId, 'was sent; leaving ledger row', ledgerId, 'as processing for review.');
         return res.json({ success: true, payoutId: transferId, transferId, amountCents: Number(req.body?.amountCents) });
       }
+      if (unsure && ledgerId) {
+        // Stripe never confirmed either way. The funds stay reserved and the next balance check settles
+        // the row from Stripe's records. Releasing them now could pay the same money twice.
+        return res.status(502).json({
+          error: 'Your withdrawal is being confirmed by Stripe. Do not try again. Check your balance in a few minutes.',
+        });
+      }
       if (ledgerId) {
         await getSupabaseAdmin()
           ?.from('coach_payout_ledger')
           .update({ status: 'failed', error_message: String(err?.message || 'transfer failed').slice(0, 300), updated_at: new Date().toISOString() })
           .eq('id', ledgerId);
       }
-      return res.status(502).json({ error: err?.message || 'Payout failed.' });
+      return res.status(502).json({ error: 'The withdrawal could not be sent. Your balance is unchanged. Try again later.' });
     } finally {
       if (locked) inFlightPayouts.delete(coachId);
     }
@@ -308,6 +339,19 @@ export function registerStripeRoutes(app: Express) {
         return res.status(status).json({ error: resolved.error === 'not_configured' ? 'Payments are not configured.' : resolved.error });
       }
       const { item } = resolved;
+
+      // A program is bought once. Without this, a second tap or a second device charges the card again.
+      if (item.kind === 'program' && item.programId) {
+        const owned = await getSupabaseAdmin()!
+          .from('program_enrollments')
+          .select('status')
+          .eq('athlete_id', athleteId)
+          .eq('program_id', item.programId)
+          .maybeSingle();
+        if (owned.data?.status === 'active') {
+          return res.status(409).json({ error: 'You already own this program.' });
+        }
+      }
 
       const athleteName = String(req.body?.athleteName || '').slice(0, 80);
       const metadata: Record<string, string> = {

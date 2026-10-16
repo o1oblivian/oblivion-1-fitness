@@ -59,7 +59,9 @@ export const ClubPassPaywallModal: React.FC = () => {
   const plans = PLANS[audience];
   const selected = plans.find((p) => p.productId === selectedId) || plans[0];
   const kind = planKind(selected.productId);
-  const priceOf = (plan: IAPProductInfo) => storePrices[plan.productId] || (plan.isFree ? plan.price : `${plan.price} AUD`);
+  // Paid prices come only from the store, in the buyer's own currency. Until they load, show '--' and block purchase.
+  const priceOf = (plan: IAPProductInfo) => storePrices[plan.productId] || (plan.isFree ? plan.price : '--');
+  const priceMissing = !selected.isFree && !storePrices[selected.productId];
   const ctaLabel = selected.isFree
     ? 'Continue Free →'
     : kind === 'lifetime'
@@ -182,7 +184,7 @@ export const ClubPassPaywallModal: React.FC = () => {
         <div className="p-4 border-t border-white/[0.05] bg-o1-card space-y-2">
           <button
             onClick={handlePrimary}
-            disabled={isPurchasing}
+            disabled={isPurchasing || priceMissing}
             className="w-full py-3.5 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover text-white font-tactical font-black text-xs tracking-wider flex items-center justify-center gap-2 cursor-pointer shadow-md active:scale-98 transition disabled:opacity-50"
           >
             {isPurchasing ? (

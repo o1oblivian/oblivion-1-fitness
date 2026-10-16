@@ -283,11 +283,14 @@ export async function enrollPaidProgram(athleteId: string, coachId: string, prog
  * Applies a (full or partial) refund to the sale it belongs to. Recomputed from the charge totals each time,
  * so repeated or out-of-order webhook deliveries always land on the same numbers.
  */
-export async function recordSaleRefund(charge: {
-  payment_intent?: string | { id: string } | null;
-  amount?: number;
-  amount_refunded?: number;
-}): Promise<{ updated: boolean; reason?: string }> {
+export async function recordSaleRefund(
+  charge: {
+    payment_intent?: string | { id: string } | null;
+    amount?: number;
+    amount_refunded?: number;
+  },
+  opts: { restore?: boolean } = {},
+): Promise<{ updated: boolean; reason?: string }> {
   const admin = getSupabaseAdmin();
   const stripe = await getStripe();
   if (!admin || !stripe) return { updated: false, reason: 'not_configured' };
@@ -313,10 +316,91 @@ export async function recordSaleRefund(charge: {
   const update =
     keptCents <= 0
       ? { status: 'REFUNDED' }
-      : { gross_amount: keptCents / 100, platform_fee: feeCents / 100, coach_net: (keptCents - feeCents) / 100 };
+      : {
+          gross_amount: keptCents / 100,
+          platform_fee: feeCents / 100,
+          coach_net: (keptCents - feeCents) / 100,
+          // A won dispute puts a voided sale back on the normal hold; it is counted from its original date.
+          ...(opts.restore ? { status: 'PENDING' } : {}),
+        };
   const { error } = await admin.from('coach_transactions').update(update).eq('id', sale.id);
   if (error) throw new Error(`Refund update failed: ${error.message}`);
   return { updated: true };
+}
+
+/**
+ * A dispute pulls the money back from the platform straight away, so the sale is voided until it is won.
+ * `won` restores the sale; any other outcome keeps it voided. Safe to repeat.
+ */
+export async function recordSaleDispute(
+  dispute: { charge?: string | { id: string } | null; amount?: number },
+  won: boolean,
+): Promise<{ updated: boolean; reason?: string }> {
+  const stripe = await getStripe();
+  if (!stripe) return { updated: false, reason: 'not_configured' };
+  const chargeId = typeof dispute.charge === 'string' ? dispute.charge : dispute.charge?.id;
+  if (!chargeId) return { updated: false, reason: 'no_charge' };
+  const charge = await stripe.charges.retrieve(chargeId);
+  const alreadyRefunded = Number(charge.amount_refunded || 0);
+  const lost = Math.max(0, Number(dispute.amount || 0));
+  const refunded = won ? alreadyRefunded : Math.min(charge.amount, alreadyRefunded + lost);
+  return recordSaleRefund(
+    {
+      payment_intent: typeof charge.payment_intent === 'string' ? charge.payment_intent : charge.payment_intent?.id,
+      amount: charge.amount,
+      amount_refunded: refunded,
+    },
+    { restore: won },
+  );
+}
+
+/**
+ * A payout row left in `processing` means the server stopped between reserving the funds and recording the
+ * result. Ask Stripe what really happened: a transfer tagged with the row's id means it was sent (mark paid);
+ * none after ten minutes means it was never sent (release the funds). Never guesses.
+ */
+export async function reconcileStuckPayouts(coachId: string, destinationAccountId: string | null): Promise<void> {
+  const admin = getSupabaseAdmin();
+  const stripe = await getStripe();
+  if (!admin || !stripe || !destinationAccountId) return;
+  const cutoff = new Date(Date.now() - 10 * 60 * 1000).toISOString();
+  const stuck = await admin
+    .from('coach_payout_ledger')
+    .select('id, created_at')
+    .eq('coach_id', coachId)
+    .eq('status', 'processing')
+    .lt('created_at', cutoff);
+  if (stuck.error || !stuck.data?.length) return;
+
+  const oldest = Math.min(...stuck.data.map((r) => Date.parse(String(r.created_at)) || Date.now()));
+  const SCAN_LIMIT = 1000;
+  const scanned = await stripe.transfers
+    .list({ destination: destinationAccountId, created: { gte: Math.floor(oldest / 1000) - 60 }, limit: 100 })
+    .autoPagingToArray({ limit: SCAN_LIMIT });
+  for (const row of stuck.data) {
+    const sent = scanned.find((t) => t.metadata?.ledger_id === String(row.id));
+    // Not found in a truncated scan proves nothing, so leave the row alone.
+    if (!sent && scanned.length >= SCAN_LIMIT) continue;
+    const update = sent
+      ? { status: 'paid', stripe_transfer_id: sent.id, updated_at: new Date().toISOString() }
+      : { status: 'failed', error_message: 'No transfer was sent.', updated_at: new Date().toISOString() };
+    const { error } = await admin.from('coach_payout_ledger').update(update).eq('id', row.id).eq('status', 'processing');
+    if (error) console.error('[stripe] payout reconcile failed for', row.id, error.message);
+  }
+}
+
+/** Only allow Stripe to send the user back to an http(s) page or the app's own URL scheme. */
+export function safeReturnBase(candidate: unknown, fallback: string): string {
+  if (typeof candidate !== 'string' || !candidate) return fallback;
+  try {
+    const url = new URL(candidate);
+    if (url.protocol === 'https:' || url.protocol === 'http:' || url.protocol === 'com.o1fc.fitness:') {
+      return `${url.origin === 'null' ? `${url.protocol}//${url.host}` : url.origin}${url.pathname}`.replace(/\/$/, '');
+    }
+  } catch {
+    /* fall through */
+  }
+  return fallback;
 }
 
 /** A reversed transfer returns money to the platform, so the coach's ledger entry shrinks or is voided. */

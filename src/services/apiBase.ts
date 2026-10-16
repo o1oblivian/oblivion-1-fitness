@@ -78,6 +78,11 @@ export async function openLegalUrl(kind: 'privacy' | 'terms' | 'delete-account')
       : kind === 'terms'
         ? LEGAL_URLS.terms
         : LEGAL_URLS.deleteAccount;
+  await openExternalUrl(url);
+}
+
+/** Opens a web page in the system in-app browser on a phone (Safari / Custom Tabs), or a new tab on the web. */
+export async function openExternalUrl(url: string): Promise<void> {
   try {
     if (Capacitor.isNativePlatform()) {
       await Browser.open({ url });

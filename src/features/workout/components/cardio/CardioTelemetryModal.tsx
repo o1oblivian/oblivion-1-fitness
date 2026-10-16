@@ -112,6 +112,10 @@ export const CardioTelemetryModal: React.FC<Props> = ({ isOpen, onClose, onPostC
     const today = localDayKey(new Date().toISOString());
     const readSteps = telemetry.steps || 0;
     const steps = readSteps || estimatedSteps || 0, dist = telemetry.distanceKm || 0, dur = telemetry.elapsedMinutes || 0, cal = telemetry.caloriesBurned || 0, hr = telemetry.avgHeartRateBpm || 0;
+    if (steps <= 0 && dist <= 0 && dur <= 0 && cal <= 0 && hr <= 0) {
+      // Nothing was read or entered. Never save an empty session as zeros.
+      return;
+    }
     const activityType = !selectedImage ? 'Cardio' : telemetry.deviceType === 'watch' ? 'Watch' : 'Console';
     const history = useTelemetryHistoryStore.getState();
     const day = addCardioSession(history.historyByDate[today]?.cardio, { distanceKm: dist, durationMinutes: dur, burnedKcal: cal, avgHeartRateBpm: hr, steps, activityType });
@@ -194,7 +198,7 @@ export const CardioTelemetryModal: React.FC<Props> = ({ isOpen, onClose, onPostC
           <CardioMetricsGrid metrics={metrics} onUpdateMetric={handleUpdateMetric} />
         </div>
         <div className="px-3 py-2.5 bg-black border-t border-white/[0.05]">
-          <button type="button" onClick={handlePost} disabled={!telemetry || isAnalyzing} className="w-full h-10 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover active:bg-o1-crimson-press text-white disabled:opacity-40 font-normal text-[13px] tracking-wide flex items-center justify-center cursor-pointer active:scale-[0.99] transition">Save Cardio Session</button>
+          <button type="button" onClick={handlePost} disabled={!telemetry || isAnalyzing || !((telemetry.steps || 0) > 0 || (estimatedSteps || 0) > 0 || (telemetry.distanceKm || 0) > 0 || (telemetry.elapsedMinutes || 0) > 0 || (telemetry.caloriesBurned || 0) > 0 || (telemetry.avgHeartRateBpm || 0) > 0)} className="w-full h-10 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover active:bg-o1-crimson-press text-white disabled:opacity-40 font-normal text-[13px] tracking-wide flex items-center justify-center cursor-pointer active:scale-[0.99] transition">Save Cardio Session</button>
         </div>
       </div>
     </div>
