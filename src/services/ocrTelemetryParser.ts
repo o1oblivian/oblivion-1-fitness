@@ -2,8 +2,9 @@ import Tesseract from 'tesseract.js';
 
 /**
  * Dedicated Optical Character Recognition Telemetry Parser
- * Real-time extraction of digital watch (G-Shock, Apple Watch, Garmin, Casio, Fitbit)
- * and gym console (Treadmill, Bike, Rower, Elliptical) displays.
+ * Real-time extraction from any watch face (Apple Watch, Garmin, Whoop, Fitbit,
+ * Polar, sports digital, analog, chronograph) and gym consoles. Brand is not a filter.
+ * Unread metrics stay null.
  */
 
 export interface ParsedOcrTelemetry {
@@ -67,10 +68,10 @@ export function parseTelemetryFromOcrText(rawText: string): ParsedOcrTelemetry {
     };
   }
 
-  // Normalize text: clean extra spaces, handle comma numbers (e.g. 6,157 -> 6157)
+  // Segmented LCDs on any digital watch OCR as "6 151" or "6,151", not "6151".
   const normalized = rawText
     .replace(/\r\n|\r|\n/g, ' ')
-    .replace(/(\d),(\d)/g, '$1$2');
+    .replace(/\b(\d{1,2})[\s,](\d{3})\b/g, '$1$2');
 
   // 1. Elapsed / Clock Time Detection
   // Matches patterns like "02:48", "31:00", "01:24:50", "15:30"
@@ -219,6 +220,13 @@ export function parseTelemetryFromOcrText(rawText: string): ParsedOcrTelemetry {
       const fourOrFiveDigits = candidateNumbers.filter((n) => n >= 1000 && n <= 99999);
       detectedSteps = fourOrFiveDigits.length > 0 ? fourOrFiveDigits[0] : candidateNumbers[0];
     }
+  }
+
+  // A watch clock (4:14, P 4:11) is not a workout duration. Keep it off Time when steps were read.
+  const clockLike = elapsedDisplay !== '--' && !/(elapsed|duration|workout|timer)/i.test(normalized);
+  if (deviceType === 'watch' && detectedSteps != null && clockLike) {
+    elapsedDisplay = '--';
+    elapsedMinutes = 0;
   }
 
   return {

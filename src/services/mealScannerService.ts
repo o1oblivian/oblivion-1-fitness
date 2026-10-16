@@ -61,8 +61,11 @@ export async function analyzeCardioImageWithGemini(
   const mimeType = mimeMatch?.[1] || 'image/jpeg';
 
   const prompt = `You are a precision optical character recognition engine for fitness screens.
-Extract only physically legible metrics from this ${scanMode === 'watch' ? 'digital watch / wearable' : 'cardio console'} image.
-NEVER estimate or fabricate missing values. If a metric is not visible, return null — never 0 for unread metrics.
+Extract only physically legible metrics from this ${scanMode === 'watch' ? 'watch' : 'cardio console'} image.
+When the image is a watch, accept any wristwatch: Apple Watch, Garmin, Whoop, Fitbit, Polar, Suunto, Coros, Casio, G-Shock, Ironman, Timex, other sports digitals, and analog or chronograph faces. Brand is not a reason to reject the photo.
+Segmented LCDs often read as "6 151" or "6,151". Return that as steps: 6151. A clock such as "4:14" or "P 4:11" is the time of day, not workout duration — return elapsedMinutes null.
+An analog face with only hands and no printed digits has no step count: return steps null.
+NEVER estimate or fabricate missing values. If a metric is not visible, return null — never 0 for unread metrics. Do not convert distance into steps; only return steps that are printed on the screen.
 
 Return STRICT JSON:
 {

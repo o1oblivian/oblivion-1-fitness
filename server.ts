@@ -558,10 +558,11 @@ Respond ONLY in valid JSON matching this exact schema:
 Inspect this image with extreme precision. Extract only physically legible display metrics.
 
 CATEGORIES TO RECOGNIZE:
-1. Wearables & Watches:
-   - Smartwatches: Apple Watch, Garmin, Suunto, Coros, Polar, Whoop (OLED, AMOLED, color LCD).
-   - Digital & Sports Watches: Casio G-Shock, Ironman, Timex (inverted LCD, dot-matrix, segmented reflective displays).
-   - Handle segmented spaces in numbers: e.g. "8 083 STEPS" or "8083 STEPS" -> return steps: 8083. "6 157" -> 6157.
+1. Wearables & Watches — accept ANY wristwatch. Brand is not a filter.
+   - Smartwatches and bands: Apple Watch, Garmin, Whoop, Fitbit, Polar, Suunto, Coros, and any other OLED, AMOLED, or color LCD sports watch.
+   - Digital sports watches: Casio, G-Shock, Ironman, Timex, and any other inverted LCD, dot-matrix, or segmented display.
+   - Analog and chronograph faces: accept the photo. Read a printed step count, heart rate, or other metric when digits are on the dial or a digital subdial. If the face shows only hands and no printed number for a metric, return null for that metric.
+   - Segmented digits often OCR with a space or comma: "8 083 STEPS", "8083 STEPS", and "6 157" are the same count (8083 or 6157).
    - Disambiguate clock time: NEVER map current time-of-day clock readouts (e.g. "P 4:11", "4:11 PM", "10/3 SAT", "3:10") to workout elapsed time, duration, calories, or steps.
 2. Gym Machines & Cardio Consoles:
    - Concept2 (PM3/PM4/PM5 monitors): Parse Time, Distance, Pace (/500m), Stroke Rate, Watts, Calories.
