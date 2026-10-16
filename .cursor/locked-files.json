@@ -4,6 +4,9 @@
     "src/services/mealVisionService.ts",
     "src/components/MealMacroScannerModal.tsx",
     "src/components/meal-scanner/MealScanActions.tsx",
-    "src/components/meal-scanner/useMealMacroScanner.ts"
+    "src/components/meal-scanner/useMealMacroScanner.ts",
+    "ios/App/App/Info.plist",
+    "ios/App/App/AppDelegate.swift",
+    "ios/App/CapApp-SPM/Package.swift"
   ]
 }
