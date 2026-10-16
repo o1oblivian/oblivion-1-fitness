@@ -25,7 +25,7 @@
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>NSCameraUsageDescription</key>
-	<string>Oblivion 1 uses the camera to scan meals and capture training form so we can log nutrition and technique feedback.</string>
+	<string>Oblivion 1 Fitness Club uses your camera to scan meal nutrition labels, barcodes, and athletic tracking data.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Oblivion 1 accesses photos for progress tracking and log uploads.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
