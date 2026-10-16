@@ -231,7 +231,6 @@ export const BuddyView: React.FC = () => {
   const [selectedProfileAthlete, setSelectedProfileAthlete] = useState<DemoAthlete | null>(null);
   const [selectedMessageAthlete, setSelectedMessageAthlete] = useState<DemoAthlete | null>(null);
   const [openSchedule, setOpenSchedule] = useState(false);
-  const [selectedBookingAthlete, setSelectedBookingAthlete] = useState<DemoAthlete | null>(null);
 
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -667,9 +666,6 @@ export const BuddyView: React.FC = () => {
         onSendInvite={({ gym, dateTime }) => showToast(`Session invite sent for ${gym} (${dateTime})`)}
         allowCompose={Boolean(selectedMessageAthlete && mutuals[selectedMessageAthlete.id] && !blocks.includes(selectedMessageAthlete.id))}
         scheduleOpen={openSchedule}
-        scheduleTarget={selectedBookingAthlete}
-        onCloseSchedule={() => setSelectedBookingAthlete(null)}
-        onInviteSent={({ gym, dateTime }) => showToast(`Training session booked at ${gym} (${dateTime})`)}
         isPrivacyOpen={isPrivacyOpen}
         onClosePrivacy={() => setIsPrivacyOpen(false)}
         onPrivacySaved={(s) => showToast(!s.radarConsent ? 'You are off Buddy. Your card and area are removed.' : s.ghostMode ? 'Ghost mode on. Nobody can see your card.' : 'Your card is visible on Buddy')}

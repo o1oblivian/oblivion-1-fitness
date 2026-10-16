@@ -63,7 +63,7 @@ function getGenAI(overrideKey?: string): GoogleGenAI | null {
 
 // Resilient Gemini generateContent caller with model fallback & exponential retry for 503/429 spikes
 async function generateContentWithFallback(genAI: GoogleGenAI, contents: any[], config?: any): Promise<any> {
-  const modelsToTry = ['gemini-flash-latest', 'gemini-3.1-flash-lite', 'gemini-1.5-flash'];
+  const modelsToTry = ['gemini-flash-latest', 'gemini-3.1-flash-lite'];
   let lastError: any = null;
 
   for (const model of modelsToTry) {
@@ -399,23 +399,20 @@ Respond ONLY in valid JSON matching this exact schema:
   ]
 }`;
 
-          const response = await genAI.models.generateContent({
-            model: 'gemini-1.5-flash',
-            contents: [
-              {
-                role: 'user',
-                parts: [
-                  {
-                    inlineData: {
-                      mimeType: mimeType,
-                      data: cleanBase64,
-                    },
+          const response = await generateContentWithFallback(genAI, [
+            {
+              role: 'user',
+              parts: [
+                {
+                  inlineData: {
+                    mimeType: mimeType,
+                    data: cleanBase64,
                   },
-                  { text: prompt },
-                ],
-              },
-            ],
-          });
+                },
+                { text: prompt },
+              ],
+            },
+          ]);
 
           const text = response.text || '';
           const parsed = parseGeminiJson(text);
@@ -637,7 +634,7 @@ Return STRICT JSON matching this schema:
                 { text: prompt },
               ],
             },
-          ]);
+          ], { responseMimeType: 'application/json' });
 
           const text = response?.text || '';
           const parsed = parseGeminiJson(text);
@@ -739,23 +736,8 @@ Return STRICT JSON matching this schema:
       });
     } catch (err: any) {
       console.error('Error in /api/vision/cardio-telemetry:', err);
-      res.json({
-        success: true,
-        telemetry: {
-          deviceType: 'watch',
-          elapsedDisplay: null,
-          elapsedMinutes: null,
-          distanceKm: null,
-          caloriesBurned: null,
-          speedKmh: null,
-          inclinePct: null,
-          avgHeartRateBpm: null,
-          steps: null,
-          watts: null,
-          pace: null,
-        },
-        calibrationNote: 'Optical display could not be resolved automatically. Tap to enter metrics manually.',
-      });
+      // A server fault is not "no numbers on the screen". Let the app try its on-device reader.
+      res.status(500).json({ error: 'The scanner could not process this photo.' });
     }
   });
 
@@ -834,7 +816,7 @@ Return valid JSON only matching:
                 ],
               },
             ],
-            { temperature: 0.0 }
+            { temperature: 0.0, responseMimeType: 'application/json' }
           );
 
           const text = response.text || '';
@@ -1141,10 +1123,7 @@ Respond ONLY with a valid JSON object matching this schema:
   "synergyStack": "Complementary compounds it stacks well with"
 }`;
 
-            const response = await genAI.models.generateContent({
-              model: 'gemini-1.5-flash',
-              contents: prompt,
-            });
+            const response = await generateContentWithFallback(genAI, [{ role: 'user', parts: [{ text: prompt }] }]);
 
             const text = response.text || '';
             const parsed = parseGeminiJson(text);

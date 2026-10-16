@@ -2,6 +2,8 @@ export interface VenueHit {
   id: string;
   name: string;
   address: string;
+  /** Suburb or city, for a short "Name, Suburb" label. */
+  locality: string;
   lat: number;
   lng: number;
 }
@@ -40,6 +42,7 @@ export async function searchVenues(name: string, place: string, postcode: string
       id: String(props.osm_id || `${coords[0]}:${coords[1]}`),
       name: label,
       address: address || label,
+      locality: props.city || props.state || '',
       lng: coords[0],
       lat: coords[1],
     });

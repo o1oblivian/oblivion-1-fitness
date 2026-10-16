@@ -30,8 +30,9 @@ function signedInAs(email: string): boolean {
   }
 }
 
-const creatorSignedIn = (): boolean => signedInAs(CREATOR_EMAIL);
-/** Launch-gated UI only. Never grants Club Pass Pro — that comes from RevenueCat / the store. */
+/** The owner account only counts when Supabase has a live session for it, never from a saved local value. */
+const creatorSignedIn = (): boolean => (useAuthStore.getState().user?.email || '').trim().toLowerCase() === CREATOR_EMAIL;
+/** Launch-gated UI. The store reviewer still goes through the real paywall; only the owner gets Pro without paying. */
 const launchPreviewAllowed = (): boolean => creatorSignedIn() || signedInAs(REVIEWER_EMAIL);
 
 export interface SubscriptionContextType {
@@ -171,10 +172,11 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
   return (
     <SubscriptionContext.Provider
       value={{
-        isPro,
+        // The owner account has every Club Pass feature without a store purchase.
+        isPro: isPro || isCreator,
         isCreator,
         canPreviewLaunch,
-        currentPlan,
+        currentPlan: isCreator && !isPro ? PLUS_ENTITLEMENT : currentPlan,
         trialState: trial,
         purchasePro,
         activatePlan,

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { MapPin, Check, ChevronRight, X } from 'lucide-react';
+import { MapPin, ChevronRight } from 'lucide-react';
 import { CrimsonSwitch } from './CrimsonSwitch';
+import { HomeGymPicker } from './HomeGymPicker';
 import { tactileEngine } from '../../services/tactileEngine';
 import { useConsultationStore } from '../../features/induction/useConsultationStore';
 import { optionsIn, useClubTaxonomy } from '../../features/induction/useClubTaxonomyStore';
@@ -156,19 +157,14 @@ export const SettingsTrainingSection: React.FC<TrainingSectionProps> = ({
   const locationOn = useBuddyProfileStore((s) => s.radarConsent);
   const setRadarConsent = useBuddyProfileStore((s) => s.setRadarConsent);
   const [isGymModalOpen, setIsGymModalOpen] = useState(false);
-  const [customGym, setCustomGym] = useState('');
   const [locating, setLocating] = useState(false);
 
   const openGymModal = () => {
     tactileEngine.triggerSelectionBuzz();
-    setCustomGym(homeGym);
     setIsGymModalOpen(true);
   };
 
-  const handleCustomSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const gym = customGym.trim();
-    tactileEngine.triggerSelectionBuzz();
+  const handlePickGym = (gym: string) => {
     setHomeGym(gym);
     setIsGymModalOpen(false);
     onShowToast?.(gym ? `Home gym: ${gym}` : 'Home gym cleared.');
@@ -286,66 +282,12 @@ export const SettingsTrainingSection: React.FC<TrainingSectionProps> = ({
         </div>
       </div>
 
-      {/* Gym Selector Modal */}
-      {isGymModalOpen && (
-        <div
-          className="fixed inset-0 z-50 bg-black/70 o1-sheet-scrim flex items-center justify-center select-none animate-in fade-in duration-200"
-          onClick={(e) => {
-            if (e.target === e.currentTarget) setIsGymModalOpen(false);
-          }}
-        >
-          <div className="o1-sheet-card bg-black border border-white/[0.07] w-full p-5 shadow-xl relative space-y-4 overflow-y-auto text-white">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-o1-well border border-white/[0.07] flex items-center justify-center text-[#4F8F9A]">
-                  <MapPin className="w-4 h-4" />
-                </div>
-                <div>
-                  <h3 className="font-tactical font-bold text-sm text-neutral-100 tracking-wider">
-                    Home Gym
-                  </h3>
-                  <span className="text-[11px] text-neutral-400 block">
-                    Shown on your Buddy card
-                  </span>
-                </div>
-              </div>
-
-              <button
-                type="button"
-                aria-label="Close"
-                onClick={() => setIsGymModalOpen(false)}
-                className="w-11 h-11 -mr-2 rounded-full text-neutral-400 hover:text-white flex items-center justify-center cursor-pointer transition-colors"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            <form onSubmit={handleCustomSubmit} className="space-y-2">
-              <label htmlFor="home-gym-input" className="text-[11px] font-tactical font-bold text-neutral-400 block tracking-wider">
-                Gym name and suburb
-              </label>
-              <div className="flex gap-2">
-                <input
-                  id="home-gym-input"
-                  type="text"
-                  value={customGym}
-                  maxLength={80}
-                  onChange={(e) => setCustomGym(e.target.value)}
-                  placeholder="e.g. Iron Vault Fitness, Richmond"
-                  className="flex-1 min-h-[44px] bg-black border border-white/[0.07] rounded-xl px-3 text-xs font-sans text-white placeholder:text-neutral-500 focus:outline-none focus:border-o1-crimson"
-                />
-                <button
-                  type="submit"
-                  className="min-h-[44px] px-4 rounded-xl bg-o1-crimson text-white text-xs font-tactical font-bold cursor-pointer active:scale-95 flex items-center gap-1.5"
-                >
-                  <Check className="w-3.5 h-3.5" />
-                  Save
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      <HomeGymPicker
+        open={isGymModalOpen}
+        current={homeGym}
+        onClose={() => setIsGymModalOpen(false)}
+        onPick={handlePickGym}
+      />
     </div>
   );
 };

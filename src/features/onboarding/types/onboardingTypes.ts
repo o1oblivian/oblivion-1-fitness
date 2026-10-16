@@ -41,7 +41,6 @@ export const INITIAL_ONBOARDING_DATA: OnboardingData = {
   disciplines: ['Bodybuilding', 'Powerlifting'],
   preferredTime: 'Morning',
   trainingFrequency: 5,
-  homeGym: 'Oblivion 1 Metro Hub',
   showOnRadar: true,
   permissions: {
     location: false,

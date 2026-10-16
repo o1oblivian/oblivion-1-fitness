@@ -73,7 +73,7 @@ export const PrivacyPolicyModal: React.FC<Props> = ({ isOpen, onClose, onDeleteR
               <span>Location, Bluetooth, Purchases &amp; Payments</span>
             </div>
             <p className="text-[11px] text-neutral-400">
-              Buddy Radar uses your approximate location (rounded to about 1 km, only while the app is open and only if you allow it) to show nearby athletes; turn on Ghost Mode to hide yourself, and your location is removed when you delete your account. Bluetooth is used only to read a heart-rate sensor you choose to connect. Club Pass purchases are processed by Apple or Google and RevenueCat; we receive your subscription status, not your card. Coaching payments are processed by Stripe; we receive the sale amount and your name, not your card. Sign-in and cloud backup are provided by Supabase.
+              Buddy Radar uses your approximate location (rounded to about 1 km, only while the app is open and only if you allow it) to show nearby athletes; turn on Ghost Mode to hide yourself, and your location is removed when you delete your account. Your home gym is chosen from a live map search: the words you type are sent to the open-source Photon / OpenStreetMap search service, without your account or location. Bluetooth is used only to read a heart-rate sensor you choose to connect. Club Pass purchases are processed by Apple or Google and RevenueCat; we receive your subscription status, not your card. Coaching payments are processed by Stripe; we receive the sale amount and your name, not your card. Sign-in and cloud backup are provided by Supabase.
             </p>
           </div>
 

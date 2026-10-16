@@ -73,7 +73,7 @@ Reply with JSON only:
     let parsed: { match?: unknown; posePassed?: unknown; confidence?: unknown; reason?: unknown } | null = null;
     try {
       const response = await genAI.models.generateContent({
-        model: 'gemini-3.8-flash',
+        model: 'gemini-flash-latest',
         contents: [
           {
             role: 'user',

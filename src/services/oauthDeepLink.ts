@@ -13,10 +13,10 @@ export function getOAuthRedirectTo(): string | undefined {
   return undefined;
 }
 
-/** Google rejects OAuth inside embedded web views, so native opens the system browser tab. */
-export async function startOAuth(provider: 'apple' | 'google'): Promise<void> {
+/** Native opens the system browser tab, never an embedded web view. */
+export async function startAppleOAuth(): Promise<void> {
   const { data, error } = await supabase.auth.signInWithOAuth({
-    provider,
+    provider: 'apple',
     options: { redirectTo: getOAuthRedirectTo(), skipBrowserRedirect: true },
   });
   if (error) throw error;

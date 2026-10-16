@@ -6,6 +6,7 @@ import { useRoleStore } from '../../../stores/useRoleStore';
 import { PhotoVaultModal } from '../../log/components/PhotoVaultModal';
 import { CoachVaultModal } from '../../coach/components/CoachVaultModal';
 import { tactileEngine } from '../../../services/tactileEngine';
+import { HomeGymField } from '../../../components/settings/HomeGymPicker';
 
 interface Props {
   isOpen: boolean;
@@ -422,13 +423,7 @@ export const RadarProfileStudioModal: React.FC<Props> = ({
                     <MapPin className="w-3 h-3 text-o1-crimson" />
                     <span>Home Gym</span>
                   </label>
-                  <input
-                    type="text"
-                    value={buddy.homeGym}
-                    onChange={(e) => buddy.setHomeGym(e.target.value)}
-                    placeholder="Gym name"
-                    className="w-full bg-o1-well border border-white/[0.07] rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-o1-crimson"
-                  />
+                  <HomeGymField />
                 </div>
 
                 <div className="space-y-1.5">

@@ -2,7 +2,6 @@ import React from 'react';
 import { DemoAthlete } from '../types';
 import { AthleteProfileModal } from './AthleteProfileModal';
 import { AthleteMessageModal } from './AthleteMessageModal';
-import { ScheduleTrainingModal } from './ScheduleTrainingModal';
 import { PrivacyStealthModal } from './PrivacyStealthModal';
 import { TravelHubModal } from './TravelHubModal';
 import { RadarProfileStudioModal } from './RadarProfileStudioModal';
@@ -25,10 +24,6 @@ interface Props {
   onBlock?: (ath: DemoAthlete) => void;
   onReport?: (ath: DemoAthlete, reason: string, details: string, alsoBlock: boolean) => void;
   onLine?: (text: string) => void;
-
-  scheduleTarget: DemoAthlete | null;
-  onCloseSchedule: () => void;
-  onInviteSent: (details: { gym: string; dateTime: string }) => void;
 
   isPrivacyOpen: boolean;
   onClosePrivacy: () => void;
@@ -70,9 +65,6 @@ export const RadarModalsContainer: React.FC<Props> = ({
   onBlock,
   onReport,
   onLine,
-  scheduleTarget,
-  onCloseSchedule,
-  onInviteSent,
   isPrivacyOpen,
   onClosePrivacy,
   onPrivacySaved,
@@ -126,13 +118,6 @@ export const RadarModalsContainer: React.FC<Props> = ({
         onBlock={messageTarget && onBlock ? () => onBlock(messageTarget) : undefined}
         onReport={messageTarget && onReport ? (reason, details, alsoBlock) => onReport(messageTarget, reason, details, alsoBlock) : undefined}
         onLine={onLine}
-      />
-
-      <ScheduleTrainingModal
-        isOpen={Boolean(scheduleTarget)}
-        onClose={onCloseSchedule}
-        athlete={scheduleTarget}
-        onInviteSent={onInviteSent}
       />
 
       <PrivacyStealthModal

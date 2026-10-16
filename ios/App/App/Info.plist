@@ -30,6 +30,8 @@
 	<string>Oblivion 1 accesses photos for progress tracking and log uploads.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Oblivion 1 uses your location to show training buddies and coaches near you on Buddy Radar. It is only used while you have Radar on.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Oblivion 1 uses your location to show training buddies and coaches near you on Buddy Radar. It is only used while you have Radar on.</string>
 	<key>NSBluetoothAlwaysUsageDescription</key>
 	<string>Oblivion 1 connects to your heart rate sensor to measure HRV. Readings stay on your phone.</string>
 	<key>NSBluetoothPeripheralUsageDescription</key>
