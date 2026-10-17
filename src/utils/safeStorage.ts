@@ -98,4 +98,4 @@ export function restoreDurableStorage(): Promise<void> {
   });
 }
 
-export default safeStorage;
+

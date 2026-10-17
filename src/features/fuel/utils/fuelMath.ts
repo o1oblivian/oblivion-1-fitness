@@ -44,7 +44,7 @@ export function sumMacros(items: Array<{ calories: number; protein: number; carb
 }
 
 /** Share of the day's budget an athlete should have eaten by now (linear 07:00 → 21:00). */
-export function expectedIntakeShare(now = new Date()): number {
+function expectedIntakeShare(now = new Date()): number {
   const hours = now.getHours() + now.getMinutes() / 60;
   const share = (hours - EATING_WINDOW_START_H) / (EATING_WINDOW_END_H - EATING_WINDOW_START_H);
   return Math.min(1, Math.max(0, share));
@@ -91,8 +91,8 @@ export function resolveMacroTargets(
   return { protein: p, carbs: c, fats: f };
 }
 
-export type DayCalorieState = 'on' | 'under' | 'over' | 'empty';
-export type ProteinDayState = 'hit' | 'miss' | 'pending' | 'empty';
+type DayCalorieState = 'on' | 'under' | 'over' | 'empty';
+type ProteinDayState = 'hit' | 'miss' | 'pending' | 'empty';
 
 export interface WeekDayEntry {
   dateKey: string;
@@ -118,7 +118,7 @@ export interface WeeklyTrajectory {
 const DAY_TOLERANCE = 0.1;
 const PROTEIN_HIT_SHARE = 0.9;
 
-export function dayCalorieState(calories: number | null, target: number | null): DayCalorieState {
+function dayCalorieState(calories: number | null, target: number | null): DayCalorieState {
   if (calories == null || calories <= 0) return 'empty';
   if (target == null || target <= 0) return 'on';
   const delta = (calories - target) / target;

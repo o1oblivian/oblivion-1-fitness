@@ -185,4 +185,4 @@ export const SettingsAppearanceSection: React.FC<AppearanceSectionProps> = ({
     </div>
   );
 };
-export default SettingsAppearanceSection;
+

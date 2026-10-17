@@ -1,6 +1,6 @@
 export type DisciplineType = 'lift' | 'sports' | 'recovery';
 
-export type EquipmentCategory =
+type EquipmentCategory =
   | 'barbell'
   | 'dumbbell'
   | 'machine'
@@ -12,7 +12,7 @@ export type EquipmentCategory =
   | 'kettlebell'
   | 'sandbag';
 
-export type ExerciseMechanic =
+type ExerciseMechanic =
   | 'compound'
   | 'isolation'
   | 'isometric'

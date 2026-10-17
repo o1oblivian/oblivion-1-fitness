@@ -40,4 +40,4 @@ export const PhotoVaultModal: React.FC<PhotoVaultModalProps> = ({ isOpen, onClos
   );
 };
 
-export default PhotoVaultModal;
+

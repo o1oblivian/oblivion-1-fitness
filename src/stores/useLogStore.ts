@@ -1,6 +1,6 @@
 import { createStore } from '../utils/createStore';
 
-export interface CardioTelemetry {
+interface CardioTelemetry {
   distanceKm: number;
   durationMinutes: number;
   zone2Minutes: number;
@@ -10,7 +10,7 @@ export interface CardioTelemetry {
   activityType?: string;
 }
 
-export interface NutritionTelemetry {
+interface NutritionTelemetry {
   caloriesConsumed: number;
   caloriesTarget: number;
   proteinG: number;
@@ -23,7 +23,7 @@ export interface NutritionTelemetry {
   hydrationTargetLiters: number;
 }
 
-export interface SleepTelemetry {
+interface SleepTelemetry {
   durationHours: number;
   deepSleepMinutes: number;
   remSleepMinutes: number;
@@ -34,7 +34,7 @@ export interface SleepTelemetry {
   hrvMs: number;
 }
 
-export interface MeditationTelemetry {
+interface MeditationTelemetry {
   minutesLogged: number;
   targetMinutes: number;
   sessionsCount: number;
@@ -42,7 +42,7 @@ export interface MeditationTelemetry {
   state: string;
 }
 
-export interface SubModulesTelemetry {
+interface SubModulesTelemetry {
   cardio: CardioTelemetry;
   nutrition: NutritionTelemetry;
   sleep: SleepTelemetry;
@@ -50,11 +50,11 @@ export interface SubModulesTelemetry {
 }
 
 /** Today's live telemetry. Day history lives in useTelemetryHistoryStore, hydrated from Supabase. */
-export interface LogStoreState {
+interface LogStoreState {
   subModules: SubModulesTelemetry;
 }
 
-export interface LogStoreActions {
+interface LogStoreActions {
   updateSubModule: <K extends keyof SubModulesTelemetry>(key: K, data: Partial<SubModulesTelemetry[K]>) => void;
 }
 

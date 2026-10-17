@@ -252,4 +252,4 @@ export const HydrationIntelligenceModal: React.FC<HydrationIntelligenceModalProp
   );
 };
 
-export default HydrationIntelligenceModal;
+

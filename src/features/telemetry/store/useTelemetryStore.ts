@@ -2,19 +2,9 @@ import { createStore } from '../../../utils/createStore';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { safeStorage } from '../../../utils/safeStorage';
 import { noteDailySteps } from '../../log/services/dayLogService';
-import {
-  OperatorProfileMetrics,
-  HistoryWorkoutSession,
-  TelemetryStoreState,
-  TelemetryStoreActions,
-} from './telemetryTypes';
+import { TelemetryStoreState, TelemetryStoreActions } from './telemetryTypes';
 
-export type {
-  OperatorProfileMetrics,
-  HistoryWorkoutSession,
-  TelemetryStoreState,
-  TelemetryStoreActions,
-};
+;
 
 const TARGETS_STORAGE_KEY = 'o1fc_telemetry_targets_v2';
 const SETTINGS_STORAGE_KEY = 'o1fc_production_settings_v3';

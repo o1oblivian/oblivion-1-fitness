@@ -5,13 +5,7 @@ import {
   getTelemetryHistoryState,
   WorkoutDayRecord,
 } from '../../log/store/useTelemetryHistoryStore';
-import {
-  NormalizedWorkoutMode,
-  NormalizedWorkoutSubMode,
-  WorkoutStoreState,
-  WorkoutStoreActions,
-  initialWorkoutState,
-} from './workoutStoreTypes';
+import { NormalizedWorkoutMode, WorkoutStoreState, WorkoutStoreActions, initialWorkoutState } from './workoutStoreTypes';
 import {
   addSetToExercises,
   completeSetsBefore,
@@ -59,7 +53,7 @@ function restoreBaseline(todayKey: string, sessionEnded: boolean) {
   if (sessionEnded) safeStorage.removeItem(BASELINE_KEY);
 }
 
-export type { NormalizedWorkoutMode, NormalizedWorkoutSubMode, WorkoutStoreState, WorkoutStoreActions };
+;
 
 // Hydrate saved session if available for 100% offline gym basement safety
 const STORAGE_WORKOUT_KEY = 'o1fc_active_workout_session';
@@ -135,7 +129,6 @@ const workoutStore = createStore<WorkoutStoreState, WorkoutStoreActions>(
         console.warn('[WorkoutStore] History sync warning:', err);
       }
     };
-
 
     return {
       setActiveSession: (active) => set({ activeSession: active }),

@@ -531,4 +531,4 @@ export const RadarProfileStudioModal: React.FC<Props> = ({
   );
 };
 
-export default RadarProfileStudioModal;
+

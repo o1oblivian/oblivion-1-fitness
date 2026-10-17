@@ -22,12 +22,12 @@ export function loadRememberedCredentials(): RememberedCredentials {
   return { rememberMe, email: rememberMe ? email : '' };
 }
 
-export function persistRememberedEmail(email: string): void {
+function persistRememberedEmail(email: string): void {
   safeStorage.setItem(FLAG_KEY, 'true');
   safeStorage.setItem(EMAIL_KEY, email.trim().toLowerCase());
 }
 
-export function clearRememberedCredentials(): void {
+function clearRememberedCredentials(): void {
   safeStorage.setItem(FLAG_KEY, 'false');
   safeStorage.removeItem(EMAIL_KEY);
   safeStorage.removeItem(LEGACY_SECRET_KEY);

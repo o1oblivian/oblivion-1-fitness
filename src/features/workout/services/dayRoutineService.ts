@@ -29,11 +29,11 @@ export function useDayRoutineRevision(): number {
   return revision;
 }
 
-export const USER_SAVED_WORKOUTS_KEY = 'o1fc_athlete_saved_day_routines';
+const USER_SAVED_WORKOUTS_KEY = 'o1fc_athlete_saved_day_routines';
 
 type DayCode = 'Mon' | 'Tue' | 'Wed' | 'Thu' | 'Fri' | 'Sat' | 'Sun';
 
-export interface SavedDayRoutine {
+interface SavedDayRoutine {
   day: DayCode;
   splitName: string;
   exercises: WorkoutExercise[];

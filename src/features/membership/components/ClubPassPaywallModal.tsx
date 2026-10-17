@@ -224,4 +224,4 @@ export const ClubPassPaywallModal: React.FC = () => {
     </div>
   );
 };
-export default ClubPassPaywallModal;
+

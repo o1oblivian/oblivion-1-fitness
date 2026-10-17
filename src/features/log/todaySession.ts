@@ -215,7 +215,7 @@ export function rememberSession(origin: SessionOrigin, assignedId?: string) {
   }
 }
 
-export function readSessionOrigin(): { origin: SessionOrigin; assignedId: string } {
+function readSessionOrigin(): { origin: SessionOrigin; assignedId: string } {
   try {
     const origin = sessionStorage.getItem(ORIGIN_KEY) as SessionOrigin | null;
     return {
@@ -227,7 +227,7 @@ export function readSessionOrigin(): { origin: SessionOrigin; assignedId: string
   }
 }
 
-export function clearSessionOrigin() {
+function clearSessionOrigin() {
   try {
     sessionStorage.removeItem(ORIGIN_KEY);
     sessionStorage.removeItem(ASSIGNED_KEY);

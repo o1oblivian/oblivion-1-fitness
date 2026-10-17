@@ -2,7 +2,7 @@ import type { ExploreCoach, ExploreReelItem } from './reelTypes';
 import type { BodyPartTag, ReelCategoryId } from './reelCategories';
 
 /** Official club reels that ship inside the app. Footage: Mixkit Stock Video Free License (no audio, no attribution required). */
-export const CLUB_COACH_ID = 'o1fc-club';
+const CLUB_COACH_ID = 'o1fc-club';
 
 const CLUB_COACH: ExploreCoach = {
   id: CLUB_COACH_ID,

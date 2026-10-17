@@ -406,4 +406,4 @@ export const ActiveLogSetRow: React.FC<ActiveLogSetRowProps> = ({
   );
 };
 
-export default ActiveLogSetRow;
+

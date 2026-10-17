@@ -395,4 +395,4 @@ export const AuthCard: React.FC<AuthCardProps> = ({ data, onUpdate, onNext, onOp
   );
 };
 
-export default AuthCard;
+

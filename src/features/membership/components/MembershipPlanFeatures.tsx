@@ -173,4 +173,4 @@ export const MembershipPlanFeatures: React.FC<Props> = ({
     </div>
   );
 };
-export default MembershipPlanFeatures;
+

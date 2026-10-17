@@ -103,4 +103,4 @@ export const TermsOfServiceModal: React.FC<Props> = ({ isOpen, onClose }) => {
     </div>
   );
 };
-export default TermsOfServiceModal;
+

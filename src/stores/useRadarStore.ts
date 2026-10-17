@@ -1,11 +1,11 @@
 import { create } from 'zustand';
 import { AthleteBlip, RadarCorridor } from '../types';
 import { tactileEngine } from '../services/tactileEngine';
-import { RadarView, RadarAthlete, RadarState, RadarActions, RadarStore } from './radarTypes';
+import { RadarView, RadarState, RadarStore } from './radarTypes';
 
-export type { RadarView, RadarAthlete, RadarState, RadarActions, RadarStore };
+export type { RadarView,  RadarState,  RadarStore };
 
-export const computeDisplayedAthletes = (
+const computeDisplayedAthletes = (
   radiusKm: number,
   searchQuery: string,
   selectedDisciplines: string[],
@@ -221,4 +221,3 @@ export const useRadarStore = create<RadarStore>((set, get) => ({
   clearRadarState: () => set({ buddies: [], athletes: [], displayedAthletes: [], isScanning: false }),
 }));
 
-export default useRadarStore;

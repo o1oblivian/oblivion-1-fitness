@@ -111,4 +111,4 @@ export const OnboardingCoordinator: React.FC<{ onComplete: () => void; replay?: 
   );
 };
 
-export default OnboardingCoordinator;
+

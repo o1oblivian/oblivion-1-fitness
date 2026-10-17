@@ -11,7 +11,7 @@ import { ActionList } from '../../report/components/ActionList';
 import { DayBars, SectionCard, StatCell } from '../../report/components/IntelParts';
 import { IntelTodayPanel } from './IntelTodayPanel';
 
-export type IntelTab = 'today' | 'week' | 'training' | 'recovery' | 'next';
+type IntelTab = 'today' | 'week' | 'training' | 'recovery' | 'next';
 
 interface IntelInsightsModalProps {
   isOpen: boolean;
@@ -388,4 +388,4 @@ export const IntelInsightsModal: React.FC<IntelInsightsModalProps> = ({ isOpen, 
   );
 };
 
-export default IntelInsightsModal;
+

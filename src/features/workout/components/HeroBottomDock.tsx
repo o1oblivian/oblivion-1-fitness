@@ -89,4 +89,4 @@ export const HeroBottomDock: React.FC<HeroBottomDockProps> = ({
   </div>
 );
 
-export default HeroBottomDock;
+

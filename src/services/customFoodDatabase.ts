@@ -5,7 +5,7 @@ const STORAGE_KEY = 'o1fc_custom_foods_catalog';
 /**
  * Loads all custom foods from persistent localStorage
  */
-export function getCustomFoods(): FoodItemRecord[] {
+function getCustomFoods(): FoodItemRecord[] {
   if (typeof window === 'undefined') return [];
   try {
     const raw = localStorage.getItem(STORAGE_KEY);

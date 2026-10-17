@@ -254,4 +254,4 @@ export const O1FCIntelMealSuggestionsSection: React.FC<O1FCIntelMealSuggestionsS
   );
 };
 
-export default O1FCIntelMealSuggestionsSection;
+

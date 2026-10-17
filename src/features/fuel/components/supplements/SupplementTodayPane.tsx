@@ -132,4 +132,4 @@ export const SupplementTodayPane: React.FC<SupplementTodayPaneProps> = ({ onShow
   );
 };
 
-export default SupplementTodayPane;
+

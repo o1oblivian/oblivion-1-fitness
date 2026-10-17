@@ -171,4 +171,4 @@ export const ProgramReelsScroller: React.FC<ProgramReelsScrollerProps> = ({ acti
   );
 };
 
-export default ProgramReelsScroller;
+

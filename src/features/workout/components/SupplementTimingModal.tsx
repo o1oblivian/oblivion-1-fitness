@@ -93,4 +93,4 @@ export const SupplementTimingModal: React.FC<SupplementTimingModalProps> = ({ is
   );
 };
 
-export default SupplementTimingModal;
+

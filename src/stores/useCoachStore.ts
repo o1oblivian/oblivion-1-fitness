@@ -58,4 +58,4 @@ export const useCoachStore = create<CoachStore>((set) => ({
   },
 }));
 
-export default useCoachStore;
+

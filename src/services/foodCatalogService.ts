@@ -1,19 +1,12 @@
-import {
-  FoodItemRecord,
-  FoodCatalogQueryParams,
-  FoodCategoryType,
-  getRegionalDatabaseInfo,
-  getRegionalFallbackFoods,
-  RegionalDatabaseInfo,
-} from './theFoodDatabase';
+import { FoodItemRecord, FoodCatalogQueryParams, FoodCategoryType, getRegionalDatabaseInfo, getRegionalFallbackFoods } from './theFoodDatabase';
 import { filterCustomFoods } from './customFoodDatabase';
 import { errorMessage, errorName } from '../../shared/errorMessage';
 import { FOOD_CATALOG } from '../features/fuel/data/foodCatalog';
 import { matchesFoodQuery, rankByFoodQuery } from '../features/fuel/utils/foodSearchMatch';
 import { apiFetch } from './apiBase';
 
-export type { FoodItemRecord, FoodCatalogQueryParams, FoodCategoryType, RegionalDatabaseInfo };
-export { getRegionalDatabaseInfo, getRegionalFallbackFoods };
+export type { FoodItemRecord, FoodCatalogQueryParams,   };
+export { getRegionalDatabaseInfo,  };
 
 /** Row shape returned by `/api/fuel/live-food-search` (the server also accepts snake_case aliases). */
 interface LiveFoodRow {

@@ -1,6 +1,6 @@
 import { createStore } from '../utils/createStore';
 
-export interface UserState {
+interface UserState {
   userId: string;
   handle: string;
   name: string;
@@ -13,7 +13,7 @@ export interface UserState {
   assigned_coach_id?: string | null;
 }
 
-export interface UserActions {
+interface UserActions {
   setUserId: (userId: string) => void;
   setHandle: (handle: string) => void;
   setWeightKg: (weight: number) => void;

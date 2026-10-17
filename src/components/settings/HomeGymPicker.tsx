@@ -12,7 +12,7 @@ interface HomeGymPickerProps {
 }
 
 /** A home gym can only be a real place returned by the live venue search, never typed-in text. */
-export function venueLabel(hit: VenueHit): string {
+function venueLabel(hit: VenueHit): string {
   return [hit.name, hit.locality].filter(Boolean).join(', ').slice(0, 80);
 }
 
@@ -195,4 +195,4 @@ export const HomeGymField: React.FC = () => {
   );
 };
 
-export default HomeGymPicker;
+

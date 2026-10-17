@@ -1,13 +1,11 @@
-export type OnboardingStep = 1 | 2 | 3 | 4;
-
-export type AthleticFocusType =
+type AthleticFocusType =
   | 'HYROX & RACING'
   | 'STRENGTH & 1RM'
   | 'HYPERTROPHY & VOLUME'
   | 'FUNCTIONAL METCON'
   | 'LONGEVITY & HEALTH';
 
-export interface DevicePermissions {
+interface DevicePermissions {
   location: boolean;
   camera: boolean;
   notifications: boolean;

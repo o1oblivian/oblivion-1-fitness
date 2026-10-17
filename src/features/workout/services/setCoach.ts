@@ -120,7 +120,7 @@ export function feelWord(avgRpe: number): 'Easy' | 'Good' | 'Hard' | 'Max' {
   return 'Max';
 }
 
-export type AdviceKind = 'up' | 'same' | 'hold' | 'down' | 'stop';
+type AdviceKind = 'up' | 'same' | 'hold' | 'down' | 'stop';
 
 export interface SetAdvice {
   kind: AdviceKind;

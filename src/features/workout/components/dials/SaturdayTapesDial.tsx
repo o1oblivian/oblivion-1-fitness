@@ -41,4 +41,4 @@ export const SaturdayTapesDial: React.FC<DialComponentProps> = (props) => {
   );
 };
 
-export default SaturdayTapesDial;
+

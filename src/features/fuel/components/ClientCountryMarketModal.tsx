@@ -8,7 +8,7 @@ export interface CountryOption {
   flag: string;
 }
 
-export const FEATURED_MARKET_CODES = [
+const FEATURED_MARKET_CODES = [
   'AU', 'US', 'GB', 'CA', 'NZ', 'IN', 'JP', 'DE', 'FR', 'AE', 'BR', 'MX', 'ZA', 'SG', 'KR', 'IT',
 ];
 
@@ -328,4 +328,4 @@ export const ClientCountryMarketModal: React.FC<ClientCountryMarketModalProps> =
   );
 };
 
-export default ClientCountryMarketModal;
+

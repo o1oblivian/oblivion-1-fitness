@@ -50,4 +50,4 @@ export const ActionList: React.FC<ActionListProps> = ({ title, actions, ctaLabel
   </section>
 );
 
-export default ActionList;
+

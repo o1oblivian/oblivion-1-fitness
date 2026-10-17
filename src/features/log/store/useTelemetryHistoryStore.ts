@@ -23,7 +23,7 @@ export interface ExerciseEntry {
   setLog?: LoggedSet[];
 }
 
-export interface MealEntry {
+interface MealEntry {
   name: string;
   category: 'Breakfast' | 'Lunch' | 'Dinner' | 'Snacks';
   calories: number;
@@ -102,12 +102,12 @@ export interface DayTelemetryRecord {
   meditation: MeditationDayRecord;
 }
 
-export interface TelemetryHistoryState {
+interface TelemetryHistoryState {
   // Keyed by dateKey 'YYYY-MM-DD'
   historyByDate: Record<string, Partial<DayTelemetryRecord>>;
 }
 
-export interface TelemetryHistoryActions {
+interface TelemetryHistoryActions {
   updateDayRecord: <C extends TelemetryCategory>(
     dateKey: string,
     category: C,
@@ -254,7 +254,7 @@ const defaultMeditation: MeditationDayRecord = {
   hrvScore: 0,
 };
 
-export const getDefaultCategoryRecord = <C extends TelemetryCategory>(category: C): DayTelemetryRecord[C] => {
+const getDefaultCategoryRecord = <C extends TelemetryCategory>(category: C): DayTelemetryRecord[C] => {
   switch (category) {
     case 'workout':
       return { ...defaultWorkout } as DayTelemetryRecord[C];

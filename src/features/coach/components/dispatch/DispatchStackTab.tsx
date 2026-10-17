@@ -17,7 +17,7 @@ export function localDateKey(offsetDays = 0): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
-export function dispatchDayLabel(key: string): string {
+function dispatchDayLabel(key: string): string {
   if (key === localDateKey()) return 'Today';
   if (key === localDateKey(1)) return 'Tomorrow';
   const [y, m, d] = key.split('-').map(Number);

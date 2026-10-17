@@ -1,6 +1,6 @@
 import { TrainingSplit } from '../../../types';
 
-export interface OperatorProfileMetrics {
+interface OperatorProfileMetrics {
   handle: string;
   strainValue: number;
   streakDays: number;
@@ -9,7 +9,7 @@ export interface OperatorProfileMetrics {
   macroPrecision: number;
 }
 
-export interface HistoryWorkoutSession {
+interface HistoryWorkoutSession {
   id: string;
   title: string;
   timestamp: string;

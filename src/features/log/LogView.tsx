@@ -168,4 +168,4 @@ export const LogView: React.FC = () => {
   );
 };
 
-export default LogView;
+

@@ -419,4 +419,4 @@ export const IntelCoachAccordionPanel: React.FC<IntelCoachAccordionPanelProps> =
   );
 };
 
-export default IntelCoachAccordionPanel;
+

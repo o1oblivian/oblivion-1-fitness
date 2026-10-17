@@ -11,12 +11,12 @@ import {
 } from './types';
 import { tactileEngine } from '../../services/tactileEngine';
 
-export interface ModalStoreState {
+interface ModalStoreState {
   activeModal: ModalType | null;
   payload: Partial<ModalPayloadMap[ModalType]> | null;
 }
 
-export interface ModalStoreActions {
+interface ModalStoreActions {
   openModal: <T extends ModalType>(
     modalType: T,
     payload?: ModalPayloadMap[T]

@@ -1,7 +1,7 @@
 import { supabase } from '../../../services/supabaseClient';
 import { liveChannel } from '../../../services/realtimeChannel';
 
-export const DEFAULT_AREA_THRESHOLD = 250;
+const DEFAULT_AREA_THRESHOLD = 250;
 
 export interface BuddyGate {
   active: boolean;

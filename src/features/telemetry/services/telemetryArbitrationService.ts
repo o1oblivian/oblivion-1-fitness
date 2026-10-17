@@ -2,7 +2,7 @@ import { useTelemetryStore } from '../store/useTelemetryStore';
 
 /** Step counts stay on this phone; nothing here is sent to the account. */
 
-export interface CardioSessionWindow {
+interface CardioSessionWindow {
   id: string;
   startTime: number;
   endTime: number;

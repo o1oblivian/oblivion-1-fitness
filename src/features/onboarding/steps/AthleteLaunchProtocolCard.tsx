@@ -74,4 +74,4 @@ export const AthleteLaunchProtocolCard: React.FC<AthleteLaunchProtocolCardProps>
   );
 };
 
-export default AthleteLaunchProtocolCard;
+

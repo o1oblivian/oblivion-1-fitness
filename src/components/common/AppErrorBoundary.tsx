@@ -62,4 +62,4 @@ export class AppErrorBoundary extends Component<AppErrorBoundaryProps, AppErrorB
   }
 }
 
-export default AppErrorBoundary;
+

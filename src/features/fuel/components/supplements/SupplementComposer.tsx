@@ -200,4 +200,4 @@ export const SupplementComposer: React.FC<SupplementComposerProps> = ({ mode, in
   );
 };
 
-export default SupplementComposer;
+

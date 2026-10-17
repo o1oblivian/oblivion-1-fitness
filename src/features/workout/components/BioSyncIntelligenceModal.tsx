@@ -216,4 +216,4 @@ export const BioSyncIntelligenceModal: React.FC<BioSyncIntelligenceModalProps> =
   );
 };
 
-export default BioSyncIntelligenceModal;
+

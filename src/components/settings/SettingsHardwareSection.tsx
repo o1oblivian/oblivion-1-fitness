@@ -91,4 +91,4 @@ export const SettingsHardwareSection: React.FC<ConnectedDevicesProps> = ({ onSho
   );
 };
 
-export default SettingsHardwareSection;
+

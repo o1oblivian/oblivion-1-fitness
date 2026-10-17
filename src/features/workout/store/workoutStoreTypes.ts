@@ -10,7 +10,7 @@ export const INITIAL_MICROCYCLE_VOLUME: DailyVolumePoint[] = [
   { day: 'Sun', shortDay: 'S', volumeKg: 0, targetKg: 0, strain: 0, setsCount: 0, isToday: false },
 ];
 
-export interface CommittedSession {
+interface CommittedSession {
   id: string;
   title: string;
   dateKey: string;
@@ -26,7 +26,7 @@ export interface CommittedSession {
 }
 
 export type NormalizedWorkoutMode = 'Lift' | 'Sports' | 'Recovery';
-export type NormalizedWorkoutSubMode = 'AUTO' | 'MANUAL' | 'SWAPPER';
+type NormalizedWorkoutSubMode = 'AUTO' | 'MANUAL' | 'SWAPPER';
 export type WorkoutExercise = ExerciseItem;
 export type WorkoutSet = ExerciseSet;
 

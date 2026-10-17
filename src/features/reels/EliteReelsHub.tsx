@@ -214,4 +214,4 @@ export const EliteReelsHub: React.FC<EliteReelsHubProps> = ({
   );
 };
 
-export default EliteReelsHub;
+

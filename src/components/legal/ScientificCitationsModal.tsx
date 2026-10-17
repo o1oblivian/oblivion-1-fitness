@@ -147,4 +147,4 @@ export const ScientificCitationsModal: React.FC<ScientificCitationsModalProps> =
   );
 };
 
-export default ScientificCitationsModal;
+

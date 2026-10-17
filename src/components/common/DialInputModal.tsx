@@ -130,4 +130,4 @@ export const DialInputModal: React.FC<DialInputModalProps> = ({
   );
 };
 
-export default DialInputModal;
+

@@ -123,4 +123,4 @@ export const WithdrawModal: React.FC<WithdrawModalProps> = ({
     </div>
   );
 };
-export default WithdrawModal;
+

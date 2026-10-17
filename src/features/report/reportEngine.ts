@@ -1,4 +1,5 @@
 import { computeAcwr } from '../../utils/acwrMath';
+import { clamp, round1 } from '../../utils/mathUtils';
 import { classifyExercise, MUSCLES, volumeStatus } from './muscleModel';
 import type {
   LiftProgress,
@@ -29,8 +30,6 @@ export function dayIndex(key: string): number {
   return Math.round(Date.UTC(y, (m || 1) - 1, d || 1) / 86_400_000);
 }
 
-const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v));
-const round1 = (v: number) => Math.round(v * 10) / 10;
 const roundHalf = (v: number) => Math.round(v * 2) / 2;
 
 /* ------------------------------------------------------------------ */
@@ -38,7 +37,7 @@ const roundHalf = (v: number) => Math.round(v * 2) / 2;
 /* ------------------------------------------------------------------ */
 
 /** Epley estimate. Only trusted for 1–12 rep sets with load on the bar. */
-export function estimateOneRepMax(weightKg: number, reps: number): number | null {
+function estimateOneRepMax(weightKg: number, reps: number): number | null {
   if (!(weightKg > 0) || !(reps >= 1) || reps > 12) return null;
   if (reps === 1) return weightKg;
   return weightKg * (1 + reps / 30);

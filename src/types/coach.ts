@@ -1,31 +1,3 @@
-export interface SquadAthlete {
-  id: string;
-  callsign: string;
-  name: string;
-  tier: 'Tier 1 Operator' | 'Vanguard' | 'Cadet';
-  status: 'In Session' | 'Telemetry Warning' | 'Audit Due' | 'Optimal Rest';
-  statusColor: 'cyan' | 'crimson' | 'amber';
-  heartRate: number;
-  cnsStrain: number; // 0 - 21 scale
-  recoveryScore: number; // 0 - 100%
-  lastCheckIn: string;
-  currentProtocol: string;
-  jointMobilityAlert?: string;
-  tempoScore: number; // 0 - 100%
-}
-
-export interface BiomechanicsAuditData {
-  athleteId: string;
-  athleteName: string;
-  lift: string;
-  kneeValgusAngle: string;
-  barPathDeviation: string;
-  hipHingeDegrees: string;
-  tempoAdherence: number;
-  tacticalVerdict: string;
-  timestamp: string;
-}
-
 export interface CoachDirective {
   readonly id: string;
   readonly tag: 'RECOVERY' | 'TRAINING' | 'NUTRITION' | 'PERFORMANCE';
@@ -35,32 +7,6 @@ export interface CoachDirective {
   readonly priority: 'HIGH' | 'MEDIUM' | 'NORMAL';
   readonly badgeStyle: string;
   readonly createdAt?: string;
-}
-
-export interface AssignedRoutineRecord {
-  readonly id: string;
-  readonly athleteId: string;
-  readonly athleteName: string;
-  readonly title: string;
-  readonly assignedAt: string;
-}
-
-export interface CoachEarningsTransaction {
-  readonly id: string;
-  readonly athleteName: string;
-  readonly plan: string;
-  readonly amount: number;
-  readonly date: string;
-  readonly status: 'COMPLETED' | 'PENDING' | 'REFUNDED';
-}
-
-export type CoachEarnings = readonly CoachEarningsTransaction[];
-
-export interface CoachProtocol {
-  readonly directives: readonly CoachDirective[];
-  readonly assignedRoutines: readonly AssignedRoutineRecord[];
-  readonly athleteRoster: readonly SquadAthlete[];
-  readonly earningsTransactions: readonly CoachEarningsTransaction[];
 }
 
 export interface DispatchedExercise {
@@ -76,7 +22,7 @@ export interface DispatchedExercise {
 }
 
 /** A set as coaches' clients write it; any field may be missing. */
-export interface AssignedSetRow {
+interface AssignedSetRow {
   setNumber?: number;
   reps?: number;
   targetReps?: number;

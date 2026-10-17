@@ -132,4 +132,4 @@ export const PrivacyPolicyModal: React.FC<Props> = ({ isOpen, onClose, onDeleteR
     </div>
   );
 };
-export default PrivacyPolicyModal;
+

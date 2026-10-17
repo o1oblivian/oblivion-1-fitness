@@ -1,7 +1,7 @@
 import { readNutrient, resolveCalories, ScannedMealBreakdown } from './mealVisionTypes';
 import { apiFetch } from './apiBase';
 
-export async function fetchOpenFoodFactsProduct(barcode: string): Promise<ScannedMealBreakdown | null> {
+async function fetchOpenFoodFactsProduct(barcode: string): Promise<ScannedMealBreakdown | null> {
   const clean = barcode.trim();
   try {
     const res = await fetch(`https://world.openfoodfacts.org/api/v2/product/${clean}.json`);

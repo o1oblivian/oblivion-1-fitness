@@ -45,4 +45,4 @@ export const WednesdaySpeedoDial: React.FC<DialComponentProps> = (props) => {
   );
 };
 
-export default WednesdaySpeedoDial;
+

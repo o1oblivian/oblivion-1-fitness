@@ -71,35 +71,3 @@ export function titleCase(input: string): string {
     .join('');
 }
 
-export function sentenceCase(input: string): string {
-  if (!input) return input;
-  const parts = input.split(/(\s+|[/|·•]+)/).filter((p) => p.length > 0);
-  let first = true;
-  return parts
-    .map((part) => {
-      if (/^[\s/|·•]+$/.test(part)) return part;
-      const stripped = core(part);
-      if (!stripped) return part;
-      const upper = stripped.toUpperCase();
-      const lower = stripped.toLowerCase();
-      let next = stripped;
-      if (ACRONYMS.has(upper)) next = upper;
-      else if (PROPER.has(lower)) next = PROPER.get(lower)!;
-      else if (first) {
-        next = stripped.charAt(0).toUpperCase() + stripped.slice(1).toLowerCase();
-        first = false;
-      } else {
-        next = stripped.toLowerCase();
-        first = false;
-      }
-      return part.replace(stripped, next);
-    })
-    .join('');
-}
-
-/** Chrome (1–3 words) → title case. Longer supporting copy → sentence case. */
-export function displayCase(input: string): string {
-  const words = input.trim().split(/\s+/).filter(Boolean);
-  if (words.length >= 4 || /[.!?]$/.test(input.trim())) return sentenceCase(input);
-  return titleCase(input);
-}

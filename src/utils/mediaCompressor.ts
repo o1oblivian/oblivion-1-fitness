@@ -19,7 +19,7 @@ export interface CompressedMediaResult {
   durationSecs?: number;
 }
 
-export function formatFileSize(bytes: number): string {
+function formatFileSize(bytes: number): string {
   if (!bytes || bytes <= 0) return '0 B';
   const units = ['B', 'KB', 'MB', 'GB'];
   const i = Math.floor(Math.log(bytes) / Math.log(1024));
@@ -145,7 +145,7 @@ export async function compressPhoto(
 /**
  * Extracts a high-res poster thumbnail from a video file at a specific timestamp.
  */
-export async function extractVideoPoster(
+async function extractVideoPoster(
   videoFileOrUrl: File | string,
   timeSecs: number = 0.5
 ): Promise<{ thumbnailUrl: string; width: number; height: number; duration: number }> {

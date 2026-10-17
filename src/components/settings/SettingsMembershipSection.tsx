@@ -115,4 +115,4 @@ export const SettingsMembershipSection: React.FC<MembershipSectionProps> = ({ on
     </div>
   );
 };
-export default SettingsMembershipSection;
+

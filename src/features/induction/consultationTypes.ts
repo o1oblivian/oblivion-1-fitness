@@ -1,16 +1,16 @@
 export type Discipline = 'hyrox' | 'running' | 'mobility' | 'hypertrophy' | 'powerlifting' | 'crossfit' | 'hybrid';
 /** Training experience. `5+yrs` is kept so older saved answers still read. */
 export type TrainingAge = 'new' | '<1yr' | '1-3yrs' | '3-5yrs' | '5+yrs' | 'competitor';
-export type CoachingIntent = '1-on-1' | 'telemetry-only' | 'self-guided';
-export type CoachingStyle = 'biometrics' | 'biomechanics' | 'hardcore';
+type CoachingIntent = '1-on-1' | 'telemetry-only' | 'self-guided';
+type CoachingStyle = 'biometrics' | 'biomechanics' | 'hardcore';
 export type Facility = 'commercial' | 'functional_box' | 'garage_minimal' | 'outdoor' | 'bodyweight' | 'other';
 export type AgeBand = 'under18' | '18-39' | '40-59' | '60+';
 export type Goal = 'fitness' | 'muscle' | 'strength' | 'fat_loss' | 'mobility' | 'sport';
 export type Injury = 'knees' | 'lower_back' | 'shoulders' | 'wrists' | 'none';
 export type TrainingDay = 'Mon' | 'Tue' | 'Wed' | 'Thu' | 'Fri' | 'Sat' | 'Sun';
 
-export const FACILITY_KEYS: Facility[] = ['commercial', 'functional_box', 'garage_minimal', 'outdoor', 'bodyweight', 'other'];
-export const INJURY_KEYS: Injury[] = ['knees', 'lower_back', 'shoulders', 'wrists', 'none'];
+const FACILITY_KEYS: Facility[] = ['commercial', 'functional_box', 'garage_minimal', 'outdoor', 'bodyweight', 'other'];
+const INJURY_KEYS: Injury[] = ['knees', 'lower_back', 'shoulders', 'wrists', 'none'];
 export const WEEK: TrainingDay[] = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 function parseList<T extends string>(raw: unknown, allowed: readonly T[]): T[] {
   const parts = Array.isArray(raw) ? raw : String(raw || '').split(',');

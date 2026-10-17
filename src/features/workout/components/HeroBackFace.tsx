@@ -175,4 +175,4 @@ export const HeroBackFace: React.FC<HeroBackFaceProps> = ({
   );
 };
 
-export default HeroBackFace;
+

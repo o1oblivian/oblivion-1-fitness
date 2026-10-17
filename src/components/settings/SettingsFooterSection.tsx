@@ -164,4 +164,4 @@ export const SettingsFooterSection: React.FC<FooterActionsProps> = ({
   );
 };
 
-export default SettingsFooterSection;
+

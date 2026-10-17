@@ -14,7 +14,7 @@ const GLUTEN =
 const ALCOHOL = /\b(wine|beer|vodka|whisky|rum|alcohol)\b/i;
 const GRAIN_DAIRY = /\b(oat|rice|bread|pasta|yogurt|milk|cheese|whey|bean|lentil|quinoa|potato|sweet potato)\b/i;
 
-export function foodMatchesDiet(name: string, brand: string, diet?: string): boolean {
+function foodMatchesDiet(name: string, brand: string, diet?: string): boolean {
   const protocol = (diet || 'Omnivore').toLowerCase();
   if (!protocol || protocol === 'omnivore') return true;
 
@@ -58,7 +58,7 @@ export function foodMatchesDiet(name: string, brand: string, diet?: string): boo
 }
 
 /** Name-only carnivore check can over-include salads named with chicken — keep inclusive for animal proteins. */
-export function isLikelyCarnivoreStaple(name: string, brand: string): boolean {
+function isLikelyCarnivoreStaple(name: string, brand: string): boolean {
   const hay = `${name} ${brand}`;
   if (GRAIN_DAIRY.test(hay) && !MEAT.test(hay) && !FISH.test(hay) && !EGG.test(hay)) return false;
   return MEAT.test(hay) || FISH.test(hay) || EGG.test(hay) || /\b(whey|casein)\b/i.test(hay);

@@ -215,4 +215,4 @@ export const DiscoverHeader: React.FC<Props> = ({
   );
 };
 
-export default DiscoverHeader;
+

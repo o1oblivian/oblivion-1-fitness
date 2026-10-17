@@ -133,4 +133,4 @@ export const MicrocycleStrainTracker: React.FC = () => {
   );
 };
 
-export default MicrocycleStrainTracker;
+

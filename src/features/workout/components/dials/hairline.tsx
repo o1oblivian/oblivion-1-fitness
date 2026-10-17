@@ -6,8 +6,6 @@ import { fmtInt, fmtKm, pct } from './luxuryDialShared';
 export const INK = '#F4F2EA';
 export const MUTED = 'rgba(244,242,234,0.8)';
 export const TRACK = 'rgba(244,242,234,0.3)';
-export const RULE = 'rgba(244,242,234,0.25)';
-
 export const EMERALD = '#10b981';
 export const CRIMSON = '#E0262E';
 export const AMBER = '#f59e0b';

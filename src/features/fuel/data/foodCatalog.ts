@@ -17,13 +17,3 @@ export const FOOD_CATALOG: FoodCatalogItem[] = [
   ...DRINKS_FOODS,
 ];
 
-export const FOOD_CATEGORY_OPTIONS = [
-  'ALL',
-  'PROTEIN',
-  'CARBS',
-  'FATS',
-  'FASTFOOD',
-  'DRINKS',
-] as const;
-
-export type FoodFilterCategory = typeof FOOD_CATEGORY_OPTIONS[number];

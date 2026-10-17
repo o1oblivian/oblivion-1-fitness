@@ -1,12 +1,4 @@
-/**
- * Fuel OS food pipeline (honest sources):
- * - Browse: O1FC athletic catalog + regional staples (offline, instant)
- * - Typed search: live OpenFoodFacts for the selected market
- * - Barcode: OpenFoodFacts product lookup
- * - Optional US overlay: USDA FoodData Central when USDA_FDC_API_KEY is set on the server
- */
-
-import { FoodCategoryType, FoodItemRecord, RegionalFoodMap } from './foodData/types';
+import { FoodCategoryType, FoodItemRecord } from './foodData/types';
 import { OCEANIA_FOODS } from './foodData/oceania';
 import { AMERICAS_FOODS } from './foodData/americas';
 import { EUROPE_FOODS } from './foodData/europe';
@@ -14,9 +6,9 @@ import { ASIA_FOODS } from './foodData/asia';
 import { AFRICA_GLOBAL_FOODS } from './foodData/africa_global';
 import { matchesFoodQuery } from '../features/fuel/utils/foodSearchMatch';
 
-export type { FoodCategoryType, FoodItemRecord, RegionalFoodMap };
+export type { FoodCategoryType, FoodItemRecord,  };
 
-export interface RegionalDatabaseConfig {
+interface RegionalDatabaseConfig {
   countryCode: string;
   countryName: string;
   authorityShortName: string;
@@ -55,7 +47,7 @@ function catalogMarket(
   };
 }
 
-export const REGIONAL_DATABASE_INFO: Record<string, RegionalDatabaseConfig> = {
+const REGIONAL_DATABASE_INFO: Record<string, RegionalDatabaseConfig> = {
   AU: catalogMarket('AU', 'Australia', "Grill'd, Bulk Nutrients, Up & Go, GYG"),
   US: catalogMarket('US', 'United States', 'Fairlife, Quest, Chipotle'),
   GB: catalogMarket('GB', 'United Kingdom', 'Myprotein, Greggs, Nando\'s'),
@@ -93,7 +85,7 @@ export function getRegionalDatabaseInfo(countryCode: string = 'AU'): RegionalDat
 /**
  * Master multi-market fallback database across all 21 countries.
  */
-export const REGIONAL_FALLBACK_FOODS: Record<string, Record<FoodCategoryType, FoodItemRecord[]>> = {
+const REGIONAL_FALLBACK_FOODS: Record<string, Record<FoodCategoryType, FoodItemRecord[]>> = {
   ...OCEANIA_FOODS,
   ...AMERICAS_FOODS,
   ...EUROPE_FOODS,

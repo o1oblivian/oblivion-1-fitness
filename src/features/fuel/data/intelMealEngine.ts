@@ -178,7 +178,7 @@ export function slotBudget(
   return { kcal, protein, carbs, fats };
 }
 
-export interface IntelMealIngredient {
+interface IntelMealIngredient {
   label: string;
   grams: number;
   display: string;

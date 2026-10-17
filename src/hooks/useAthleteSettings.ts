@@ -19,7 +19,7 @@ export type WeightUnit = 'kg' | 'lbs';
 export type HeightUnit = 'cm' | 'in';
 export type DistanceUnit = 'km' | 'mi';
 
-export interface SettingsStoreState {
+interface SettingsStoreState {
   // 1. Profile
   name: string;
   handle: string;

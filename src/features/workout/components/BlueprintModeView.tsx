@@ -121,4 +121,4 @@ export const BlueprintModeView: React.FC<BlueprintModeViewProps> = ({ onLoaded }
   );
 };
 
-export default BlueprintModeView;
+

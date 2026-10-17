@@ -17,8 +17,8 @@ export interface AthleteProfile {
   id: string; handle?: string; full_name?: string; bio?: string; avatar_url?: string; settings?: Record<string, unknown>; updated_at?: string;
 }
 
-export const PROD_SUPABASE_URL = 'https://qkfvepjeyreicqomatyt.supabase.co';
-export const PROD_SUPABASE_ANON_KEY =
+const PROD_SUPABASE_URL = 'https://qkfvepjeyreicqomatyt.supabase.co';
+const PROD_SUPABASE_ANON_KEY =
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFrZnZlcGpleXJlaWNxb21hdHl0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc3MTgxMTUsImV4cCI6MjEwMzI5NDExNX0.mHwZdAANv_Ii4t-oKyz--EeQR64A0lVhUgqtuOfNXpA';
 
 function getSafeEnv(key: string): string {
@@ -38,7 +38,7 @@ if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KE
 }
 
 // Hardwire production Supabase credentials as default fallbacks
-export const SUPABASE_URL = (envUrl && envUrl.startsWith('http') && !envUrl.includes('placeholder')) ? envUrl : PROD_SUPABASE_URL;
+const SUPABASE_URL = (envUrl && envUrl.startsWith('http') && !envUrl.includes('placeholder')) ? envUrl : PROD_SUPABASE_URL;
 const SUPABASE_ANON_KEY = (envKey && !envKey.includes('placeholder')) ? envKey : PROD_SUPABASE_ANON_KEY;
 
 function hasSubtleCrypto(): boolean {

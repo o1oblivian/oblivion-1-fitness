@@ -3,7 +3,7 @@ import { tactileEngine } from '../../../services/tactileEngine';
 import { SwipeToReveal } from '../../workout/components/SwipeToReveal';
 
 /** Barbell, dumbbell, and kettlebell stay short until the row is tapped. */
-export function abbreviateEquipment(name: string): string {
+function abbreviateEquipment(name: string): string {
   return name
     .replace(/\bbarbells?\b/gi, 'BB')
     .replace(/\bdumbbells?\b/gi, 'DB')
@@ -12,18 +12,18 @@ export function abbreviateEquipment(name: string): string {
     .trim();
 }
 
-export interface LedgerColumn {
+interface LedgerColumn {
   label: string;
   width?: string;
 }
 
-export interface LedgerDetail {
+interface LedgerDetail {
   id: string;
   name: string;
   cells: string[];
 }
 
-export interface LedgerRow {
+interface LedgerRow {
   id: string;
   name: string;
   cells: string[];

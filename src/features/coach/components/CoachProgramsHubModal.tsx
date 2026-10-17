@@ -193,4 +193,4 @@ export const CoachProgramsHubModal: React.FC<CoachProgramsHubModalProps> = ({
   );
 };
 
-export default CoachProgramsHubModal;
+

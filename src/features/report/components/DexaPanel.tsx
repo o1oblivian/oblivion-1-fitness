@@ -250,4 +250,4 @@ export const DexaPanel: React.FC = () => {
   );
 };
 
-export default DexaPanel;
+

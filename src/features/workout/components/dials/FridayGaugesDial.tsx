@@ -50,4 +50,4 @@ export const FridayGaugesDial: React.FC<DialComponentProps> = (props) => {
   );
 };
 
-export default FridayGaugesDial;
+

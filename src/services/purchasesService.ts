@@ -5,8 +5,8 @@
 import { Capacitor } from '@capacitor/core';
 
 /** Public SDK keys from RevenueCat (platform-specific). One source of truth: no env overrides. */
-export const NATIVE_APPLE_SDK_KEY = 'appl_bVAQIwbQxZzifRbzmyBjdZohETH';
-export const NATIVE_GOOGLE_SDK_KEY = 'goog_WUkUOSxwelTEdPbjhkcgeIQzqEW';
+const NATIVE_APPLE_SDK_KEY = 'appl_bVAQIwbQxZzifRbzmyBjdZohETH';
+const NATIVE_GOOGLE_SDK_KEY = 'goog_WUkUOSxwelTEdPbjhkcgeIQzqEW';
 
 export function isNativeStorePlatform(): boolean {
   if (typeof window === 'undefined') return false;

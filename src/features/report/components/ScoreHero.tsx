@@ -123,4 +123,4 @@ export const ScoreHero: React.FC<ScoreHeroProps> = ({ report, targetSessions, on
   );
 };
 
-export default ScoreHero;
+

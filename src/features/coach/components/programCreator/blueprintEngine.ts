@@ -19,13 +19,11 @@ export const ALL_DISCIPLINES = [
   'Full Body',
 ] as const;
 
-export type DisciplineFocus = typeof ALL_DISCIPLINES[number] | string;
-
 /**
  * Real database query engine that filters the standardized O1FC Exercise Repository
  * based on the coach's selected discipline or movement focus.
  */
-export function getExercisesForDiscipline(focus: string): ExerciseDefinition[] {
+function getExercisesForDiscipline(focus: string): ExerciseDefinition[] {
   const norm = (focus || '').toLowerCase().trim();
 
   const filtered = EXERCISE_REPOSITORY.filter((ex) => {

@@ -446,4 +446,4 @@ export const AddFoodModal: React.FC<AddFoodModalProps> = ({
   );
 };
 
-export default AddFoodModal;
+

@@ -5,7 +5,7 @@ import { tactileEngine } from '../../../services/tactileEngine';
 import { nextReelCover, reelCover } from '../coverPresets';
 import { isPlayableClip } from '../reelClips';
 
-export interface ReelPostItem {
+interface ReelPostItem {
   id: string;
   reel: ExploreReelItem;
   clip?: FilmstripClip;
@@ -143,4 +143,4 @@ export const ReelMosaicSection: React.FC<ReelMosaicSectionProps> = ({ reels, onS
   );
 };
 
-export default ReelMosaicSection;
+

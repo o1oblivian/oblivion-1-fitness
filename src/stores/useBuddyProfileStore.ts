@@ -1,8 +1,8 @@
 import { createStore } from '../utils/createStore';
 import { tactileEngine } from '../services/tactileEngine';
 
-export type BuddyIntent = 'both' | 'partner' | 'dating' | 'spotter' | 'hyrox';
-export type LookingFor = 'all' | 'women' | 'men';
+type BuddyIntent = 'both' | 'partner' | 'dating' | 'spotter' | 'hyrox';
+type LookingFor = 'all' | 'women' | 'men';
 export type ExperienceLevel = 'Beginner' | 'Intermediate' | 'Advanced' | 'Elite';
 
 export interface BuddyProfileState {
@@ -30,7 +30,7 @@ export interface BuddyProfileState {
   isVerifiedBadge: boolean;
 }
 
-export interface BuddyProfileActions {
+interface BuddyProfileActions {
   toggleBuddyProfile: (active?: boolean) => void;
   toggleGhostMode: (active?: boolean) => void;
   setRadarConsent: (on: boolean) => void;

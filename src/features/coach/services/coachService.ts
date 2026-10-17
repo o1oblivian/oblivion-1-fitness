@@ -209,7 +209,7 @@ const BLUEPRINT_TITLES = new Set(WORKOUT_BLUEPRINTS.map((row) => row.title.trim(
 const SYNTHESIZED_TITLE = /^o1fc .+ • /;
 
 /** Hides rows older builds wrote automatically (blueprint titles, synthesized dispatches). */
-export function liveDirectives(rows: DirectiveItem[]): DirectiveItem[] {
+function liveDirectives(rows: DirectiveItem[]): DirectiveItem[] {
   return rows.filter((row) => {
     const title = row.title.trim().toLowerCase();
     return !BLUEPRINT_TITLES.has(title) && !SYNTHESIZED_TITLE.test(title);
@@ -304,7 +304,7 @@ function messageAuthor(id: string): CoachMessage['from'] {
   return null;
 }
 
-export function mapCoachMessage(m: Row): CoachMessage {
+function mapCoachMessage(m: Row): CoachMessage {
   return {
     id: String(m.id),
     sender: text(m.sender_name),

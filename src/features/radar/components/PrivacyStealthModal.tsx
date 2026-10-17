@@ -117,4 +117,4 @@ export const PrivacyStealthModal: React.FC<Props> = ({ isOpen, onClose, onSaved 
   );
 };
 
-export default PrivacyStealthModal;
+

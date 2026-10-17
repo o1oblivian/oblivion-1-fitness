@@ -6,7 +6,7 @@ import {
   playSelectionBuzzAudio,
 } from './audioSynthesis';
 
-export interface TactileEngineSettings {
+interface TactileEngineSettings {
   dialClicks: boolean;
   restChime: boolean;
   prChime: boolean;
@@ -149,9 +149,5 @@ class TactileEngineService {
 }
 
 export const tactileEngine = new TactileEngineService();
-export { TactileEngineService };
+;
 
-export const triggerDialHaptic = (): void => tactileEngine.triggerDialHaptic();
-export const playTimerChime = (): void => tactileEngine.playTimerChime();
-export const playPRCelebration = (): void => tactileEngine.playPRCelebration();
-export const triggerSelectionBuzz = (): void => tactileEngine.triggerSelectionBuzz();

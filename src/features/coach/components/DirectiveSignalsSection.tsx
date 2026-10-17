@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { Pencil, Trash2 } from 'lucide-react';
-import { DIRECTIVES_LIST, DirectiveItem } from '../types/coachDirectives';
+import { DirectiveItem } from '../types/coachDirectives';
 import { tactileEngine } from '../../../services/tactileEngine';
 
-export { DIRECTIVES_LIST };
-export type { DirectiveItem };
+;
+;
 
 export interface NoteDraft {
   tag: DirectiveItem['tag'];
@@ -267,4 +267,3 @@ export const DirectiveSignalsSection: React.FC<DirectiveSignalsSectionProps> = (
   );
 };
 
-export default DirectiveSignalsSection;

@@ -181,4 +181,4 @@ export const HeroFrontFace: React.FC<HeroFrontFaceProps> = ({
   );
 };
 
-export default HeroFrontFace;
+

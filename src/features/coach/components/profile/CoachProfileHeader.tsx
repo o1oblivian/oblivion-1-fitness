@@ -2,7 +2,7 @@ import React from 'react';
 import { BadgeCheck, Pencil, Plus } from 'lucide-react';
 import { tactileEngine } from '../../../../services/tactileEngine';
 
-export interface ProfileStat {
+interface ProfileStat {
   label: string;
   value: string;
   onPress?: () => void;

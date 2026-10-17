@@ -5,7 +5,7 @@ interface MealScanLoadingBadgeProps {
   scanMode: ScanMode;
 }
 
-export function getScanLoadingLabel(mode: ScanMode): string {
+function getScanLoadingLabel(mode: ScanMode): string {
   switch (mode) {
     case 'barcode':
       return 'Decoding barcode & product data...';

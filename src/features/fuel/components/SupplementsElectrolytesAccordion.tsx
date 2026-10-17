@@ -132,4 +132,4 @@ export const SupplementsElectrolytesAccordion: React.FC<SupplementsElectrolytesA
   );
 };
 
-export default SupplementsElectrolytesAccordion;
+

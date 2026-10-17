@@ -2,7 +2,7 @@ import { Capacitor } from '@capacitor/core';
 import { supabase } from './supabaseClient';
 import { safeStorage } from '../utils/safeStorage';
 
-export const NATIVE_OAUTH_REDIRECT = 'com.o1fc.fitness://auth/callback';
+const NATIVE_OAUTH_REDIRECT = 'com.o1fc.fitness://auth/callback';
 
 export function getOAuthRedirectTo(): string | undefined {
   if (Capacitor.isNativePlatform()) return NATIVE_OAUTH_REDIRECT;
@@ -207,7 +207,7 @@ export async function applyAuthCallbackUrl(rawUrl: string): Promise<boolean> {
   return exchangeInFlight;
 }
 
-export async function openOAuthUrl(url: string): Promise<void> {
+async function openOAuthUrl(url: string): Promise<void> {
   if (!url) throw new Error('OAuth provider URL missing.');
   if (Capacitor.isNativePlatform()) {
     try {

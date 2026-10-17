@@ -182,4 +182,4 @@ export const AthleteProfileModal: React.FC<AthleteProfileModalProps> = ({
   );
 };
 
-export default AthleteProfileModal;
+

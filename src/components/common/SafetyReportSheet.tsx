@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { X } from 'lucide-react';
 import { tactileEngine } from '../../services/tactileEngine';
 
-export const REPORT_REASONS = [
+const REPORT_REASONS = [
   'Harassment or threats',
   'Sexual or inappropriate content',
   'Fake profile or impersonation',
@@ -96,4 +96,4 @@ export const SafetyReportSheet: React.FC<SafetyReportSheetProps> = ({ open, name
   );
 };
 
-export default SafetyReportSheet;
+

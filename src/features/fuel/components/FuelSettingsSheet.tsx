@@ -5,7 +5,7 @@ import { parseCleanInt, sanitizeNumericInput } from '../../../utils/numberInputU
 import { COUNTRIES } from './ClientCountryMarketModal';
 import { getDietProtocol } from '../data/dietProtocols';
 
-export interface FuelTargets {
+interface FuelTargets {
   calories: number | null;
   protein: number | null;
   carbs: number | null;
@@ -237,4 +237,4 @@ export const FuelSettingsSheet: React.FC<FuelSettingsSheetProps> = ({
   );
 };
 
-export default FuelSettingsSheet;
+

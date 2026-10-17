@@ -261,4 +261,4 @@ export const LiftHistoryCard: React.FC = () => {
   );
 };
 
-export default LiftHistoryCard;
+

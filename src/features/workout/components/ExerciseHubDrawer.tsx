@@ -172,4 +172,4 @@ export const ExerciseHubDrawer: React.FC<ExerciseHubDrawerProps> = ({
   );
 };
 
-export default ExerciseHubDrawer;
+

@@ -1,4 +1,5 @@
 import type { DayTelemetryRecord } from '../log/store/useTelemetryHistoryStore';
+import { clamp } from '../../utils/mathUtils';
 import { classifyExercise } from './muscleModel';
 import { acwrScore, dayIndex, toDayKey } from './reportEngine';
 import type { Tone } from './palette';
@@ -15,7 +16,7 @@ export interface WeekStats {
   fuelDays: number;
 }
 
-export interface DayBucket {
+interface DayBucket {
   day: string;
   label: string;
   trained: boolean;
@@ -27,14 +28,14 @@ export interface DayBucket {
   proteinTarget: number | null;
 }
 
-export interface Finding {
+interface Finding {
   id: string;
   tone: Tone;
   title: string;
   detail: string;
 }
 
-export interface GradePart {
+interface GradePart {
   id: 'training' | 'load' | 'recovery' | 'fuel';
   label: string;
   value: number | null;
@@ -54,7 +55,6 @@ export interface WeeklyIntel {
 
 type History = Record<string, Partial<DayTelemetryRecord>>;
 
-const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v));
 const avg = (xs: number[]) => (xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : null);
 const DAY_LABELS = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
 

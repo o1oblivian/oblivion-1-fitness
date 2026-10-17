@@ -106,4 +106,4 @@ export const LiveBarcodeScanner: React.FC<LiveBarcodeScannerProps> = ({ onDetect
   );
 };
 
-export default LiveBarcodeScanner;
+

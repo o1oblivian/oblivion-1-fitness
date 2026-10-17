@@ -24,7 +24,7 @@ function recordSwipe() {
   if (next === LEARN_AFTER) learnedListeners.forEach((fn) => fn());
 }
 
-export interface SwipeSecondaryAction {
+interface SwipeSecondaryAction {
   label: string;
   ariaLabel: string;
   onAction: () => void;
@@ -228,4 +228,4 @@ export const SwipeToReveal: React.FC<SwipeToRevealProps> = ({
   );
 };
 
-export default SwipeToReveal;
+

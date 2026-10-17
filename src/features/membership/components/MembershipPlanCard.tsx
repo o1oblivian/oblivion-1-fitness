@@ -78,4 +78,4 @@ export const MembershipPlanCard: React.FC<Props> = ({ product, isSelected, onSel
     </div>
   );
 };
-export default MembershipPlanCard;
+

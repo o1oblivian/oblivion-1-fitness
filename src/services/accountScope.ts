@@ -6,7 +6,7 @@ import { durableClear } from '../utils/durableStore';
  */
 const OWNER_KEY = 'o1fc_device_owner';
 /** Read by supabaseClient before the auth client starts, so a token refresh racing the reload cannot restore the session. */
-export const SIGNED_OUT_PENDING_KEY = 'o1fc_signed_out_pending';
+const SIGNED_OUT_PENDING_KEY = 'o1fc_signed_out_pending';
 const APP_KEY = /^(o1|olfc)/i;
 
 /** Device-level keys that are not personal data. */

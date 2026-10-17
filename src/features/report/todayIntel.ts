@@ -1,3 +1,4 @@
+import { clamp } from '../../utils/mathUtils';
 import { classifyExercise, MUSCLE_BY_ID } from './muscleModel';
 import { acwrScore, dayIndex, toDayKey } from './reportEngine';
 import type { Tone } from './palette';
@@ -5,7 +6,7 @@ import type { LiftTrend, LoggedSet, MuscleId, OblivionReport, SleepSample, Volum
 
 export type Decision = 'PUSH' | 'MAINTAIN' | 'EASE OFF' | 'DELOAD' | 'NO SIGNAL';
 
-export interface ReadinessSignal {
+interface ReadinessSignal {
   id: 'sleep' | 'load' | 'rest';
   label: string;
   value: number | null;
@@ -14,7 +15,7 @@ export interface ReadinessSignal {
   tone: Tone;
 }
 
-export interface MuscleReadiness {
+interface MuscleReadiness {
   id: MuscleId;
   label: string;
   daysAgo: number | null;
@@ -23,7 +24,7 @@ export interface MuscleReadiness {
   status: VolumeStatus;
 }
 
-export interface LiftPrescription {
+interface LiftPrescription {
   name: string;
   lastWeightKg: number;
   lastReps: number;
@@ -47,7 +48,6 @@ export interface TodayIntel {
   daysSinceSession: number | null;
 }
 
-const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v));
 const toStep = (kg: number, step = 1.25) => Math.round((Math.round(kg / step) * step) * 100) / 100;
 
 const RPE_CAP: Record<Decision, number> = { PUSH: 9, MAINTAIN: 8.5, 'EASE OFF': 7.5, DELOAD: 7, 'NO SIGNAL': 8.5 };

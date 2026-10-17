@@ -201,4 +201,4 @@ export const SegmentedTowers: React.FC<SegmentedTowersProps> = ({
   );
 };
 
-export default SegmentedTowers;
+

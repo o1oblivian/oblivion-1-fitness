@@ -317,4 +317,4 @@ export const SupplementStackPane: React.FC<SupplementStackPaneProps> = ({ weight
   );
 };
 
-export default SupplementStackPane;
+

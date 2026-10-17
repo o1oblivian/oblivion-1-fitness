@@ -1,9 +1,9 @@
 import { Browser } from '@capacitor/browser';
 import { Capacitor, CapacitorHttp } from '@capacitor/core';
 
-export const API_ORIGIN = String(import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '');
+const API_ORIGIN = String(import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '');
 
-export function apiUrl(path: string): string {
+function apiUrl(path: string): string {
   const p = path.startsWith('/') ? path : `/${path}`;
   if (API_ORIGIN && Capacitor.isNativePlatform()) return `${API_ORIGIN}${p}`;
   if (typeof window !== 'undefined') {

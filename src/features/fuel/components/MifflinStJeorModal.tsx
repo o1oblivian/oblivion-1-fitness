@@ -14,7 +14,7 @@ import {
   MacroSplitKey,
 } from './mifflin/MifflinMacroSection';
 
-export interface EnergyBody {
+interface EnergyBody {
   weightKg: number | null;
   heightCm: number | null;
   ageYears: number | null;

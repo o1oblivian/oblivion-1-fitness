@@ -49,4 +49,4 @@ export const SundayOrbitDial: React.FC<DialComponentProps> = (props) => {
   );
 };
 
-export default SundayOrbitDial;
+

@@ -5,7 +5,7 @@ import { create } from 'zustand';
  * Guarantees stable snapshot caching, prevents getSnapshot infinite loops,
  * and maintains complete backward compatibility with all store usages.
  */
-export type StoreHook<TState extends object, TActions extends object> = {
+type StoreHook<TState extends object, TActions extends object> = {
   (): TState & TActions;
   <TSelected>(selector: (state: TState & TActions) => TSelected): TSelected;
   getState: () => TState & TActions;

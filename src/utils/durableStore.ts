@@ -8,7 +8,7 @@ const OWNER_KEY = 'o1fc_device_owner';
 const RESTORE_CAP_MS = 10_000;
 
 /** Keys that hold logged training, food and the sync queue. */
-export const DURABLE_KEYS = new Set([
+const DURABLE_KEYS = new Set([
   'o1fc_telemetry_5day_history_v1',
   'o1fc_active_workout_session',
   'o1fc_athlete_saved_day_routines',

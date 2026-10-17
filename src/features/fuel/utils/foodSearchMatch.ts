@@ -37,7 +37,7 @@ function tokenHits(token: string, hayWords: string[]): boolean {
 }
 
 /** 0 = no match. Higher = better: every meaningful word must prefix-match a word in name or brand. */
-export function foodQueryScore(name: string, brand: string, query: string): number {
+function foodQueryScore(name: string, brand: string, query: string): number {
   const all = words(query);
   if (all.length === 0) return 1;
 

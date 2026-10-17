@@ -5,9 +5,9 @@
 
 import { MotionFilterState } from './motionTypes';
 
-export const PEAK_THRESHOLD = 11.8; // m/s^2
-export const VALLEY_THRESHOLD = 8.2;
-export const MIN_STEP_INTERVAL_MS = 280; // ~3.5 steps/sec cadence cap
+const PEAK_THRESHOLD = 11.8; // m/s^2
+const VALLEY_THRESHOLD = 8.2;
+const MIN_STEP_INTERVAL_MS = 280; // ~3.5 steps/sec cadence cap
 export const GRAVITY_NORMAL = 9.81;
 
 export function processMotionSample(

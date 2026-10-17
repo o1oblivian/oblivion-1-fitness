@@ -35,4 +35,4 @@ export const ThursdayTicksDial: React.FC<DialComponentProps> = (props) => {
   );
 };
 
-export default ThursdayTicksDial;
+

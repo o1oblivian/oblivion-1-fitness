@@ -55,4 +55,4 @@ export const WorkoutHeroBanner: React.FC<WorkoutHeroBannerProps> = ({
   );
 };
 
-export default WorkoutHeroBanner;
+

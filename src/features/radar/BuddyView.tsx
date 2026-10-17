@@ -733,4 +733,4 @@ export const BuddyView: React.FC = () => {
   );
 };
 
-export default BuddyView;
+

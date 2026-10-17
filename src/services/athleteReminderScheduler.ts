@@ -164,7 +164,7 @@ async function applyNative(plan: PlannedReminder[]): Promise<void> {
   });
 }
 
-export function nextOccurrence(item: PlannedReminder, now: Date): number {
+function nextOccurrence(item: PlannedReminder, now: Date): number {
   for (let offset = 0; offset <= 7; offset++) {
     const at = new Date(now);
     at.setDate(now.getDate() + offset);

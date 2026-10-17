@@ -245,4 +245,4 @@ export const FuelView: React.FC = () => {
   );
 };
 
-export default FuelView;
+

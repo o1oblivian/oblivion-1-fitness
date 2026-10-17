@@ -1,7 +1,7 @@
 import { supabase } from './supabaseClient';
 import { getAuthenticatedUserId } from './authUser';
 
-export const MEDIA_BUCKET = 'media';
+const MEDIA_BUCKET = 'media';
 
 export type MediaFolder = 'vault' | 'reels' | 'avatars' | 'covers';
 

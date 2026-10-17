@@ -11,7 +11,7 @@ import { HANDLE_PATTERN, cleanHandle, saveMyPublicProfile } from '../../services
 const BIO_LIMIT = 300;
 const SPECIALTY_LIMIT = 5;
 
-export interface CoachProfileDraft {
+interface CoachProfileDraft {
   name: string;
   handle: string;
   bio: string;

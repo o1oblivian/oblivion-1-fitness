@@ -151,7 +151,7 @@ const taxonomyStore = createStore<TaxonomyState, TaxonomyActions>({ options: rea
   },
 }));
 
-export const useClubTaxonomyStore = taxonomyStore.useStore;
+const useClubTaxonomyStore = taxonomyStore.useStore;
 
 export function useClubTaxonomy(): TaxonomyOption[] {
   const options = useClubTaxonomyStore((state) => state.options);

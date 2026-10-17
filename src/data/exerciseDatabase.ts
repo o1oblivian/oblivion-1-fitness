@@ -9,7 +9,7 @@ import {
   EXPANDED_RECOVERY_EXERCISES,
 } from './exercises/expandedExercises';
 
-export { LIFT_EXERCISES, SPORTS_EXERCISES, RECOVERY_EXERCISES, EXERCISE_REPOSITORY };
+;
 
 function notDuplicate(ex: ExerciseDefinition, seen: ExerciseDefinition[]): boolean {
   const name = ex.name.toLowerCase();

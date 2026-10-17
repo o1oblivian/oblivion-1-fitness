@@ -168,4 +168,4 @@ export const BlueprintCard: React.FC<BlueprintCardProps> = ({
   );
 };
 
-export default BlueprintCard;
+

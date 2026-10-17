@@ -2,7 +2,7 @@
 // PROGRAM & BLUEPRINT TYPE CONTRACTS & MASTER REPOSITORY
 // ============================================================================
 
-export type BlueprintCategory =
+type BlueprintCategory =
   | 'Warm-Up'
   | 'Activation / Prime'
   | 'Main Lifts'
@@ -34,16 +34,6 @@ export interface WorkoutBlueprint {
   description: string;
   targetMuscles: string[];
   exercises: BlueprintExercise[];
-}
-
-export interface ProgramStoryHeader {
-  id: string;
-  blueprintId: string;
-  name: string;
-  badge: string;
-  isReels?: boolean;
-  image: string;
-  description: string;
 }
 
 // Re-export all modular category blueprint repositories

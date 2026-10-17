@@ -427,4 +427,4 @@ export const CoachVaultModal: React.FC<CoachVaultModalProps> = ({ isOpen = true,
   );
 };
 
-export default CoachVaultModal;
+

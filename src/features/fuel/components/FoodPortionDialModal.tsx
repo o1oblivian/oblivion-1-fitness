@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Delete, X } from 'lucide-react';
 import { tactileEngine } from '../../../services/tactileEngine';
+import { round1 } from '../../../utils/mathUtils';
 import { safeStorage } from '../../../utils/safeStorage';
 import type { MacroBudget } from '../data/intelMealEngine';
 
@@ -48,8 +49,6 @@ const formatServings = (n: number) => {
   if (!glyph) return String(whole);
   return whole === 0 ? glyph : `${whole}${glyph}`;
 };
-
-const round1 = (n: number) => Math.round(n * 10) / 10;
 
 /** "1 burger (352g)" → "1 burger"; pure weights like "100g" → null. */
 function countLabel(serving?: string): string | null {

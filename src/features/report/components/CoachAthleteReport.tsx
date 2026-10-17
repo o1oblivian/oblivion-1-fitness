@@ -69,4 +69,4 @@ export const CoachAthleteReport: React.FC<CoachAthleteReportProps> = ({ athleteI
   );
 };
 
-export default CoachAthleteReport;
+

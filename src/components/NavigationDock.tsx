@@ -4,14 +4,10 @@ import { tactileEngine } from '../services/tactileEngine';
 import { useBuddyMessageStore } from '../stores/useBuddyMessageStore';
 
 export type TabMode = 'tracker' | 'fuel' | 'radar' | 'coach' | 'client' | 'workout';
-export type NavTab = TabMode;
-
 export interface NavigationDockProps {
   currentMode: TabMode;
   onSelectTab: (mode: TabMode) => void;
 }
-
-export type BottomNavigationProps = NavigationDockProps;
 
 interface TabConfig {
   id: TabMode;
@@ -101,4 +97,3 @@ export const NavigationDock: React.FC<NavigationDockProps> = ({ currentMode, onS
   );
 };
 
-export default NavigationDock;

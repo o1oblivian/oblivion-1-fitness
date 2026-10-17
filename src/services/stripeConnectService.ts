@@ -14,7 +14,7 @@ export interface CoachProfileData {
   accepting_new_athletes?: boolean;
 }
 
-export interface CoachSaleRecord {
+interface CoachSaleRecord {
   id: string;
   athlete_name?: string | null;
   program_title?: string | null;
@@ -181,4 +181,4 @@ export const stripeConnectService = {
   },
 };
 
-export default stripeConnectService;
+

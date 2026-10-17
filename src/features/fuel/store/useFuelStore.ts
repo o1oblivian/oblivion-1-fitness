@@ -4,38 +4,10 @@ import { tactileEngine } from '../../../services/tactileEngine';
 import { getAuthenticatedUserId } from '../../../services/authUser';
 import { registerExternalQueue } from '../../../services/syncOutbox';
 import { getTelemetryHistoryState } from '../../log/store/useTelemetryHistoryStore';
-import {
-  CloudMeal,
-  Electrolytes,
-  FUEL_SLOTS,
-  FuelDayPatch,
-  FuelDayTotals,
-  FuelProfilePatch,
-  FuelSlot,
-  SupplementEvidence,
-  SupplementItem,
-  SupplementTiming,
-  SupplementUnit,
-  deleteMealRow,
-  fetchFuelSnapshot,
-  fetchFuelWeek,
-  insertMealRow,
-  localDateKey,
-  toMealRow,
-  upsertFuelDay,
-  upsertFuelProfile,
-} from '../services/fuelCloud';
+import { CloudMeal, Electrolytes, FUEL_SLOTS, FuelDayPatch, FuelDayTotals, FuelProfilePatch, FuelSlot, SupplementItem, SupplementTiming, SupplementUnit, deleteMealRow, fetchFuelSnapshot, fetchFuelWeek, insertMealRow, localDateKey, toMealRow, upsertFuelDay, upsertFuelProfile } from '../services/fuelCloud';
 import { lastSevenDateKeys, sumMacros } from '../utils/fuelMath';
 
-export type { FuelDayTotals, FuelSlot, SupplementItem, SupplementTiming, SupplementUnit, SupplementEvidence, Electrolytes };
-
-export type ExtendedMealCategory =
-  | 'Breakfast'
-  | 'Lunch'
-  | 'Dinner'
-  | 'Snack'
-  | 'Drinks'
-  | 'Supplements & Electrolytes';
+export type {  FuelSlot, SupplementItem, SupplementTiming, SupplementUnit,  Electrolytes };
 
 export interface MealItem {
   id: string;
@@ -50,7 +22,7 @@ export type FuelMeals = Record<FuelSlot, MealItem[]>;
 
 export type BiologicalSex = 'male' | 'female';
 
-export interface FuelBody {
+interface FuelBody {
   heightCm: number | null;
   ageYears: number | null;
   sex: BiologicalSex | null;
@@ -607,4 +579,3 @@ export const useFuelStore = create<FuelState>((set, get) => {
   };
 });
 
-export default useFuelStore;

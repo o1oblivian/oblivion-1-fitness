@@ -55,4 +55,4 @@ export const IntelInsightsCard: React.FC = () => {
   );
 };
 
-export default IntelInsightsCard;
+

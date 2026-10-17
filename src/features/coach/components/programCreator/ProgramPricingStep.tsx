@@ -283,4 +283,4 @@ export const ProgramPricingStep: React.FC<{
     </div>
   );
 };
-export default ProgramPricingStep;
+

@@ -17,7 +17,7 @@ export interface MicrocycleStoreState {
   recompute: () => void;
 }
 
-export function computeIsoWeekDates(): { dayLabel: string; dateKey: string; dayIndex: number }[] {
+function computeIsoWeekDates(): { dayLabel: string; dateKey: string; dayIndex: number }[] {
   const now = new Date();
   const jsDay = now.getDay();
   const isoDay = jsDay === 0 ? 6 : jsDay - 1;

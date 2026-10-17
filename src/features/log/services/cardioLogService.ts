@@ -5,7 +5,7 @@ import { useTelemetryHistoryStore, type CardioDayRecord } from '../store/useTele
 import { useLogStore } from '../../../stores/useLogStore';
 import { localDayKey, localNoonIso } from './dayLogService';
 
-export interface CardioLogEntry {
+interface CardioLogEntry {
   id: string;
   userId: string;
   activityType: string;

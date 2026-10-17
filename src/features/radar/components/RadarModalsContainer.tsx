@@ -142,4 +142,4 @@ export const RadarModalsContainer: React.FC<Props> = ({
   );
 };
 
-export default RadarModalsContainer;
+

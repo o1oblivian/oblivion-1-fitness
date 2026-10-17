@@ -19,12 +19,12 @@ import { safeStorage } from './safeStorage';
 import { mergeWorkoutDay, sessionLedger } from '../features/workout/store/workoutSetOperations';
 import { estimateSessionEnergy } from '../features/workout/utils/sessionEnergy';
 
-export const O1FC_LAST_LOG_DATE_KEY = 'O1FC_LAST_LOG_DATE';
+const O1FC_LAST_LOG_DATE_KEY = 'O1FC_LAST_LOG_DATE';
 
 /**
  * Returns today's date formatted as YYYY-MM-DD
  */
-export function getTodayDateString(): string {
+function getTodayDateString(): string {
   const now = new Date();
   const year = now.getFullYear();
   const month = String(now.getMonth() + 1).padStart(2, '0');
@@ -35,7 +35,7 @@ export function getTodayDateString(): string {
 /**
  * Executes a full midnight rollover and telemetry archiving cycle.
  */
-export async function performMidnightRollover(previousDate: string, currentDate: string): Promise<boolean> {
+async function performMidnightRollover(previousDate: string, currentDate: string): Promise<boolean> {
   try {
     // 1. Gather current day totals from all unified stores
     const workoutState = useWorkoutStore.getState();
@@ -158,7 +158,7 @@ export async function performMidnightRollover(previousDate: string, currentDate:
 /**
  * Checks if the calendar date has advanced since the last log date and runs rollover if needed.
  */
-export function checkAndExecuteMidnightRollover(): boolean {
+function checkAndExecuteMidnightRollover(): boolean {
   if (typeof window === 'undefined') return false;
 
   const today = getTodayDateString();

@@ -1,7 +1,7 @@
 import React from 'react';
 import { tactileEngine } from '../../../services/tactileEngine';
 
-export interface WeekDayItem {
+interface WeekDayItem {
   dayName: string;
   dayNum: number;
   dateStr: string;
@@ -63,4 +63,4 @@ export const LogWeekStrip: React.FC<LogWeekStripProps> = ({
   );
 };
 
-export default LogWeekStrip;
+

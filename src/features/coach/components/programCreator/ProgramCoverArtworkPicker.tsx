@@ -86,4 +86,4 @@ export const ProgramCoverArtworkPicker: React.FC<Props> = ({
   );
 };
 
-export default ProgramCoverArtworkPicker;
+

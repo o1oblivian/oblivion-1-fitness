@@ -14,9 +14,9 @@ export interface LiveWallpaper {
   category: WallpaperCategory;
 }
 
-export const WALLPAPER_TOPIC_IDS: WallpaperTopic[] = ['hyrox', 'iron', 'track', 'combat', 'nature', 'all'];
+const WALLPAPER_TOPIC_IDS: WallpaperTopic[] = ['hyrox', 'iron', 'track', 'combat', 'nature', 'all'];
 
-export function isWallpaperTopic(value: unknown): value is WallpaperTopic {
+function isWallpaperTopic(value: unknown): value is WallpaperTopic {
   return typeof value === 'string' && (WALLPAPER_TOPIC_IDS as string[]).includes(value);
 }
 

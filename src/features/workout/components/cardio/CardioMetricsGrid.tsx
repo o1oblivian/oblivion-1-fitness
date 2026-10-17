@@ -101,4 +101,4 @@ export const CardioMetricsGrid: React.FC<Props> = ({ metrics, onUpdateMetric }) 
   );
 };
 
-export default CardioMetricsGrid;
+

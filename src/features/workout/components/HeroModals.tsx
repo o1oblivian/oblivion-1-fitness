@@ -55,4 +55,4 @@ export const HeroModals: React.FC<HeroModalsProps> = ({
   );
 };
 
-export default HeroModals;
+

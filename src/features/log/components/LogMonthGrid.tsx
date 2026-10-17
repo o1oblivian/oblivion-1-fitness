@@ -64,4 +64,4 @@ export const LogMonthGrid: React.FC<LogMonthGridProps> = ({ leading, days, selec
   );
 };
 
-export default LogMonthGrid;
+

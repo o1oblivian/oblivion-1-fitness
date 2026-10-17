@@ -363,4 +363,4 @@ export const MembershipPlansModal: React.FC<MembershipPlansModalProps> = ({
     document.body,
   );
 };
-export default MembershipPlansModal;
+

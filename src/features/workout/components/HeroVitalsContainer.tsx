@@ -15,7 +15,7 @@ import { HeroFrontFace } from './HeroFrontFace';
 import { HeroBackFace } from './HeroBackFace';
 import { HeroModals } from './HeroModals';
 
-export const DAYS_LIST = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+const DAYS_LIST = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
 function dateKeyForWeekday(day: string, today: string): { key: string; offset: number } {
   const offset = DAYS_LIST.indexOf(day) - DAYS_LIST.indexOf(today);
@@ -321,4 +321,4 @@ export const HeroVitalsContainer: React.FC<HeroVitalsContainerProps> = ({
   );
 };
 
-export default HeroVitalsContainer;
+

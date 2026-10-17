@@ -4,8 +4,6 @@ import { BODY_PART_TAGS, REEL_CATEGORIES } from '../reelCategories';
 
 export const CATEGORIES: Array<ExploreReelItem['category']> = ['ALL', ...REEL_CATEGORIES.map((c) => c.id)];
 
-export const FILTER_TAGS = ['ALL', ...REEL_CATEGORIES.map((c) => c.id), ...BODY_PART_TAGS];
-
 const CATEGORY_BY_NAME = new Map<string, string>(
   REEL_CATEGORIES.flatMap((c) => [[c.id, c.id], [c.label.toUpperCase(), c.id]] as Array<[string, string]>),
 );

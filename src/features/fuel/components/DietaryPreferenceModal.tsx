@@ -3,8 +3,8 @@ import { X, Check, Utensils } from 'lucide-react';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { DIET_OPTIONS } from '../data/dietProtocols';
 
-export { DIET_OPTIONS } from '../data/dietProtocols';
-export type { DietProtocol as DietOption } from '../data/dietProtocols';
+;
+;
 
 interface DietaryPreferenceModalProps {
   isOpen: boolean;
@@ -118,4 +118,4 @@ export const DietaryPreferenceModal: React.FC<DietaryPreferenceModalProps> = ({
   );
 };
 
-export default DietaryPreferenceModal;
+

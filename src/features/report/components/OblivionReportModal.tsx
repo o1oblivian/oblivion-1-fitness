@@ -128,4 +128,4 @@ export const OblivionReportModal: React.FC<OblivionReportModalProps> = ({ isOpen
   );
 };
 
-export default OblivionReportModal;
+

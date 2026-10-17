@@ -75,5 +75,3 @@ export const IAP_PRODUCTS = {
   },
 } as const;
 
-export type IAPProductKey = keyof typeof IAP_PRODUCTS;
-

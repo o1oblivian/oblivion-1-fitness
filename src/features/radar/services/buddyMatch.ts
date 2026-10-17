@@ -7,7 +7,7 @@ export const SAME_GYM_REASON = 'Same gym';
 
 export const FREE_RADIUS_KM = 25;
 export const PREMIUM_RADIUS_KM = 250;
-export const FREE_DAILY_LIKES = 5;
+const FREE_DAILY_LIKES = 5;
 
 const LIKES_KEY = 'o1_buddy_likes_day';
 const OUT_KEY = 'o1_buddy_outgoing_likes';
@@ -51,7 +51,7 @@ function readJson<T>(key: string, fallback: T): T {
   }
 }
 
-export function likesUsedToday(): string[] {
+function likesUsedToday(): string[] {
   const saved = readJson<{ day: string; ids: string[] }>(LIKES_KEY, { day: '', ids: [] });
   if (saved.day !== dayKey()) return [];
   return Array.isArray(saved.ids) ? saved.ids : [];
@@ -101,7 +101,7 @@ export function rememberMutual(id: string): void {
   markMutual(id);
 }
 
-export function forgetMutual(id: string): void {
+function forgetMutual(id: string): void {
   const mutuals = readMutuals();
   delete mutuals[id];
   localStorage.setItem(MUTUAL_KEY, JSON.stringify(mutuals));
@@ -116,14 +116,14 @@ export function readBlocks(): string[] {
   return Array.isArray(rows) ? rows : [];
 }
 
-export function rememberBlock(id: string): void {
+function rememberBlock(id: string): void {
   const rows = readBlocks().filter((row) => row !== id);
   localStorage.setItem(BLOCK_KEY, JSON.stringify([id, ...rows]));
   forgetMutual(id);
   rememberPass(id);
 }
 
-export function rememberReport(entry: { id: string; name: string; reason: string }): void {
+function rememberReport(entry: { id: string; name: string; reason: string }): void {
   const rows = readJson<Array<{ id: string; name: string; reason: string; at: string }>>(REPORT_KEY, []);
   const next = [{ ...entry, at: new Date().toISOString() }, ...(Array.isArray(rows) ? rows : [])].slice(0, 50);
   localStorage.setItem(REPORT_KEY, JSON.stringify(next));
@@ -437,7 +437,7 @@ export interface DeckFilters {
 
 const FILTER_KEY = 'o1_buddy_deck_filters';
 
-export const DEFAULT_DECK_FILTERS: DeckFilters = {
+const DEFAULT_DECK_FILTERS: DeckFilters = {
   distanceKm: FREE_RADIUS_KM,
   ageMin: 18,
   ageMax: 45,

@@ -132,4 +132,4 @@ export const AthleteDossierModal: React.FC<AthleteDossierModalProps> = ({
     </div>
   );
 };
-export default AthleteDossierModal;
+

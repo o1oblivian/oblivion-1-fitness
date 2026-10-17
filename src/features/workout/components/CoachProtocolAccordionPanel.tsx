@@ -115,4 +115,4 @@ export const CoachProtocolAccordionPanel: React.FC<CoachProtocolAccordionPanelPr
   );
 };
 
-export default CoachProtocolAccordionPanel;
+

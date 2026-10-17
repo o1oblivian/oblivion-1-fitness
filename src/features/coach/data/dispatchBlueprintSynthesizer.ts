@@ -16,7 +16,7 @@ export type SessionDuration = '20m' | '30m' | '45m' | '60m' | '75m';
 export type FacilityGear = 'Full Gym' | 'DB & Bench' | 'Bodyweight';
 export type IntensityMode = 'Progressive RPE' | 'Failure Dropset';
 
-export interface SynthesizedBlueprintExercise {
+interface SynthesizedBlueprintExercise {
   id: string;
   name: string;
   muscle: string;

@@ -373,4 +373,4 @@ export const ManualFoodEntryModal: React.FC<ManualFoodEntryModalProps> = ({
   );
 };
 
-export default ManualFoodEntryModal;
+

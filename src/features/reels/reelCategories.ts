@@ -24,7 +24,7 @@ export const NOT_MEDICAL_ADVICE = 'General training guidance, not medical advice
 
 const IDS = new Set<string>(REEL_CATEGORIES.map((c) => c.id));
 
-export const isReelCategory = (value: unknown): value is ReelCategoryId => typeof value === 'string' && IDS.has(value);
+const isReelCategory = (value: unknown): value is ReelCategoryId => typeof value === 'string' && IDS.has(value);
 
 /** Reads a stored category, including rows saved before categories were exclusive. */
 export function normalizeReelCategory(category: unknown, filterTag?: unknown): ReelCategoryId | null {

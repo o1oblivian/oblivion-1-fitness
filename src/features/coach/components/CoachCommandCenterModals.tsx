@@ -74,4 +74,4 @@ export const CoachCommandCenterModals: React.FC<CoachCommandCenterModalsProps> =
   </>
 );
 
-export default CoachCommandCenterModals;
+

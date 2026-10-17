@@ -14,7 +14,7 @@ export interface TrainingSummary {
 const DAY_MS = 86_400_000;
 
 /** Real training numbers computed from logged workout days, not running counters. */
-export function computeTrainingSummary(
+function computeTrainingSummary(
   history: ReturnType<typeof useTelemetryHistoryStore.getState>['historyByDate'],
   nowMs: number,
 ): TrainingSummary {

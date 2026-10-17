@@ -14,7 +14,7 @@ export interface LibrarySupplement {
   note: string;
 }
 
-export const SUPPLEMENT_LIBRARY: LibrarySupplement[] = [
+const SUPPLEMENT_LIBRARY: LibrarySupplement[] = [
   { name: 'Creatine monohydrate', aliases: ['creatine'], category: 'Performance', amount: 5, unit: 'g', timing: 'Anytime', evidence: 'strong', note: 'Daily, any time. Timing matters less than consistency.' },
   { name: 'Caffeine', aliases: ['coffee', 'stim'], category: 'Performance', amount: 200, unit: 'mg', perKg: 3, timing: 'Pre-Workout', evidence: 'strong', caffeineMgPerUnit: 1, note: '3 mg/kg about 60 min before training. Avoid within 8 h of sleep.' },
   { name: 'Beta-alanine', aliases: ['beta alanine', 'carnosine'], category: 'Performance', amount: 3.2, unit: 'g', timing: 'Anytime', evidence: 'strong', note: 'Split doses with meals to limit tingling. Builds over 4+ weeks.' },

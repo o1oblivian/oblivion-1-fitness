@@ -139,4 +139,4 @@ export const FuelIntakeSlotCard: React.FC<FuelIntakeSlotCardProps> = ({
   );
 };
 
-export default FuelIntakeSlotCard;
+

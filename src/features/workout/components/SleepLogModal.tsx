@@ -344,4 +344,4 @@ export const SleepLogModal: React.FC<SleepLogModalProps> = ({ isOpen, onClose })
   );
 };
 
-export default SleepLogModal;
+

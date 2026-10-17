@@ -201,4 +201,4 @@ export const ShareBenchmarkModal: React.FC<ShareBenchmarkModalProps> = ({
   );
 };
 
-export default ShareBenchmarkModal;
+

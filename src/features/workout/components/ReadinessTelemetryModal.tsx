@@ -143,4 +143,4 @@ export const ReadinessTelemetryModal: React.FC<Props> = ({ isOpen, onClose, scor
   );
 };
 
-export default ReadinessTelemetryModal;
+

@@ -19,7 +19,7 @@ interface Props {
   onSelectDestination?: (city: string, radiusKm: number, originCity: string) => void;
 }
 
-export interface DestinationHub {
+interface DestinationHub {
   id: string;
   name: string;
   country: string;
@@ -33,7 +33,7 @@ export interface DestinationHub {
   timezone: string;
 }
 
-export const GLOBAL_HUBS: DestinationHub[] = [
+const GLOBAL_HUBS: DestinationHub[] = [
   {
     id: 'melbourne',
     name: 'Melbourne',
@@ -728,4 +728,4 @@ export const TravelHubModal: React.FC<Props> = ({ isOpen, onClose, onSelectDesti
   );
 };
 
-export default TravelHubModal;
+

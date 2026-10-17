@@ -294,4 +294,4 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
   );
 };
 
-export default WorkoutDispatchStudio;
+

@@ -8,7 +8,7 @@ import { releaseDevice } from '../services/accountScope';
 import { withdrawBuddyCardForSignOut } from '../services/buddyPresenceSync';
 import { getOAuthRedirectTo } from '../services/oauthDeepLink';
 
-export function clearStoredSession(): void {
+function clearStoredSession(): void {
   safeStorage.removeItem('o1fc_auth_token');
   safeStorage.removeItem('o1fc_user_id');
   safeStorage.removeItem('o1fc_user_email');
@@ -21,7 +21,7 @@ export function clearStoredSession(): void {
   }
 }
 
-export interface AuthProfile {
+interface AuthProfile {
   id?: string;
   role?: 'coach' | 'athlete';
   name?: string;

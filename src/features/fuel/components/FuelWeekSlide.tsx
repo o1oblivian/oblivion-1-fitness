@@ -132,4 +132,4 @@ export const FuelWeekSlide: React.FC<FuelWeekSlideProps> = ({ days, targets }) =
   );
 };
 
-export default FuelWeekSlide;
+

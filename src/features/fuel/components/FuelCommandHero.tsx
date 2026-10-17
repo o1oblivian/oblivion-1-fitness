@@ -301,4 +301,4 @@ export const FuelCommandHero: React.FC<FuelCommandHeroProps> = ({
   );
 };
 
-export default FuelCommandHero;
+

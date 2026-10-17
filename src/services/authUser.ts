@@ -1,6 +1,6 @@
 import { supabase } from './supabaseClient';
 
-export function isPlaceholderUserId(id: string | null | undefined): boolean {
+function isPlaceholderUserId(id: string | null | undefined): boolean {
   if (!id) return true;
   return (
     id === 'default-athlete' ||
@@ -83,7 +83,7 @@ export async function getCachedUserId(): Promise<string | null> {
   return id && UUID.test(id) ? id : null;
 }
 
-export function peekStoredUserId(): string | null {
+function peekStoredUserId(): string | null {
   if (typeof window === 'undefined') return null;
   try {
     const id = localStorage.getItem('o1fc_user_id');

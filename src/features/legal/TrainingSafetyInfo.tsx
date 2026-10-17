@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Info } from 'lucide-react';
 import { tactileEngine } from '../../services/tactileEngine';
 
-export type SafetyTopic = 'report' | 'readiness';
+type SafetyTopic = 'report' | 'readiness';
 
 const PRIORITIES: Record<SafetyTopic, string[]> = {
   report: [
@@ -71,4 +71,4 @@ export const TrainingSafetyInfo: React.FC<Props> = ({ topic }) => {
   );
 };
 
-export default TrainingSafetyInfo;
+

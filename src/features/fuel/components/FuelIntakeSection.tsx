@@ -60,4 +60,4 @@ export const FuelIntakeSection: React.FC<FuelIntakeSectionProps> = ({
   );
 };
 
-export default FuelIntakeSection;
+

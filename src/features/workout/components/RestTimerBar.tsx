@@ -85,4 +85,4 @@ export const RestTimerBar: React.FC = () => {
   );
 };
 
-export default RestTimerBar;
+

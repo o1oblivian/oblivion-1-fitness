@@ -22,7 +22,7 @@ export function readWeighIns(): WeighIn[] {
 }
 
 /** One entry per local day; later weigh-ins on the same day replace earlier ones. */
-export function recordWeighIn(kg: number, now = Date.now()): void {
+function recordWeighIn(kg: number, now = Date.now()): void {
   if (typeof window === 'undefined' || !(kg > 0) || !Number.isFinite(kg)) return;
   const day = toDayKey(now);
   const list = readWeighIns().filter((w) => w.day !== day);

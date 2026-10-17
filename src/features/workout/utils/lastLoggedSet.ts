@@ -1,7 +1,7 @@
 import { ExerciseSet } from '../../../types';
 import { defaultEmptyLoadKg } from '../../../utils/defaultEmptyLoad';
 
-export const isSetBlank = (s: Partial<ExerciseSet> | undefined | null): boolean => {
+const isSetBlank = (s: Partial<ExerciseSet> | undefined | null): boolean => {
   if (!s) return true;
   const weight = Number(s.weightKg ?? s.weight) || 0;
   const reps = Number(s.reps) || 0;

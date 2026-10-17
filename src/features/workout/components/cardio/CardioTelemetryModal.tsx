@@ -204,4 +204,4 @@ export const CardioTelemetryModal: React.FC<Props> = ({ isOpen, onClose, onPostC
     </div>
   );
 };
-export default CardioTelemetryModal;
+

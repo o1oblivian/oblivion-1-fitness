@@ -3,17 +3,6 @@ import { DemoAthlete } from '../features/radar/types';
 
 export type RadarView = 'athletes' | 'gyms';
 
-export interface RadarAthlete {
-  id: string;
-  name: string;
-  handle: string;
-  distanceKm: number;
-  activity: string;
-  status: 'ONLINE' | 'ACTIVE' | 'RECOVERY';
-  avatarUrl?: string;
-  isPartner?: boolean;
-}
-
 export interface RadarState {
   radiusKm: number;
   corridor: RadarCorridor;
@@ -42,7 +31,7 @@ export interface RadarState {
   travelLng: number;
 }
 
-export interface RadarActions {
+interface RadarActions {
   setRadius: (radiusKm: number) => void;
   setCorridor: (corridor: RadarCorridor) => void;
   setSearchQuery: (query: string) => void;

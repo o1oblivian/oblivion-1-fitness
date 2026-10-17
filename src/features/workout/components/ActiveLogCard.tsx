@@ -592,4 +592,4 @@ export const ActiveLogCard: React.FC<ActiveLogCardProps> = ({ onBuildWorkout }) 
   );
 };
 
-export default ActiveLogCard;
+

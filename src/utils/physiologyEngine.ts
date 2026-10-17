@@ -15,7 +15,7 @@ export type EnergyCheckIn = 'LOW' | 'STEADY' | 'PRIME';
  * STEADY: 1.00
  * PRIME: 1.20
  */
-export const ENERGY_INTENSITY_MULTIPLIERS: Record<EnergyCheckIn, number> = {
+const ENERGY_INTENSITY_MULTIPLIERS: Record<EnergyCheckIn, number> = {
   LOW: 0.85,
   STEADY: 1.0,
   PRIME: 1.2,
@@ -65,7 +65,7 @@ export const calculateCalorieBurn = (
 /**
  * Checks if an exercise item or definition represents a bodyweight movement.
  */
-export const isBodyweightMovement = (
+const isBodyweightMovement = (
   item: { equipment?: string; name?: string; targetMuscle?: string }
 ): boolean => {
   const eq = (item.equipment || '').toLowerCase();

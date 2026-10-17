@@ -84,4 +84,4 @@ export const HealthDisclaimerBanner: React.FC<Props> = ({ onLearnMore, compact =
     </div>
   );
 };
-export default HealthDisclaimerBanner;
+

@@ -1,4 +1,4 @@
-export interface ProgramExerciseDetail {
+interface ProgramExerciseDetail {
   name: string;
   sets: string;
   reps: string;

@@ -191,4 +191,4 @@ export const ManualModeView: React.FC<ManualModeViewProps> = ({
   );
 };
 
-export default ManualModeView;
+

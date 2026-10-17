@@ -206,4 +206,4 @@ export const MembershipCheckoutModal: React.FC<Props> = ({
   );
 };
 
-export default MembershipCheckoutModal;
+

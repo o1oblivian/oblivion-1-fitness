@@ -1,6 +1,6 @@
 import { CoachDispatchedWorkout } from '../types';
 
-export interface CoachAthleteRecord {
+interface CoachAthleteRecord {
   id: string;
   name: string;
   avatar: string;
@@ -37,7 +37,7 @@ export interface CoachFinishedWorkoutLog {
   }>;
 }
 
-export interface CoachLiveTelemetry {
+interface CoachLiveTelemetry {
   athleteId: string;
   athleteName: string;
   activeExercise?: string;
@@ -58,7 +58,7 @@ export interface CoachState {
   assignedWorkouts: CoachDispatchedWorkout[];
 }
 
-export interface CoachActions {
+interface CoachActions {
   updateLiveTelemetry: (telemetry: CoachLiveTelemetry) => void;
   /** Athlete side: marks the session finished in live telemetry. */
   recordFinishedWorkout: (log: CoachFinishedWorkoutLog) => void;

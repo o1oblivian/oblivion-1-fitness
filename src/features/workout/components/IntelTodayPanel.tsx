@@ -208,4 +208,4 @@ export const IntelTodayPanel: React.FC<IntelTodayPanelProps> = ({ report, sets, 
   );
 };
 
-export default IntelTodayPanel;
+

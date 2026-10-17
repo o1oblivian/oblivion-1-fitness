@@ -17,7 +17,7 @@ export type TrainingGoal = 'burn' | 'muscle' | 'reset' | 'athletic';
 /**
  * Calculates dynamic target load based on movement pattern, athlete profile, and energy level.
  */
-export const calculateDynamicLoad = (
+const calculateDynamicLoad = (
   pattern: string,
   equipment: string,
   athleteWeightKg: number,
@@ -144,7 +144,7 @@ const matchesMovementFocus = (ex: ExerciseDefinition, focus: string): boolean =>
 };
 
 /** Exercises the athlete can do where they train, minus moves that load what they asked us to protect. */
-export const reachableExercises = (): ExerciseDefinition[] => {
+const reachableExercises = (): ExerciseDefinition[] => {
   const { facilities, injuries, ageBand } = useConsultationStore.getState();
   const kit = availableKit(facilities);
   return EXERCISE_DATABASE.filter((ex) => canPerform(ex.name, ex.equipment, kit) && isSafeFor(ex.name, { injuries, ageBand }));

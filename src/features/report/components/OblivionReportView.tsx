@@ -56,4 +56,4 @@ export const OblivionReportView: React.FC<OblivionReportViewProps> = ({
   </div>
 );
 
-export default OblivionReportView;
+

@@ -44,4 +44,4 @@ export const SettingsBuddyDatingSection: React.FC = () => {
     </div>
   );
 };
-export default SettingsBuddyDatingSection;
+

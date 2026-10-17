@@ -2,13 +2,13 @@ import React from 'react';
 import { X, Check } from 'lucide-react';
 import { tactileEngine } from '../../../services/tactileEngine';
 
-export interface DurationOption {
+interface DurationOption {
   minutes: number;
   label: string;
   sub: string;
 }
 
-export const DURATION_OPTIONS: DurationOption[] = [
+const DURATION_OPTIONS: DurationOption[] = [
   { minutes: 5, label: '5 Minutes', sub: '5m Express' },
   { minutes: 10, label: '10 Minutes', sub: '10m Quick' },
   { minutes: 15, label: '15 Minutes', sub: '15m Primer' },

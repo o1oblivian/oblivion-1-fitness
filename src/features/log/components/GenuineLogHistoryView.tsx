@@ -791,4 +791,4 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({ sh
   );
 };
 
-export default GenuineLogHistoryView;
+

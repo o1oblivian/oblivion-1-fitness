@@ -183,4 +183,4 @@ export const WorkoutHub: React.FC = () => {
   );
 };
 
-export default WorkoutHub;
+

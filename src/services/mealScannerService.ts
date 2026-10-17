@@ -1,6 +1,6 @@
 import { GoogleGenAI } from '@google/genai';
 
-export const GEMINI_FLASH_MODEL = 'gemini-1.5-flash';
+const GEMINI_FLASH_MODEL = 'gemini-1.5-flash';
 
 function readImportMetaGeminiKey(): string {
   try {
@@ -10,7 +10,7 @@ function readImportMetaGeminiKey(): string {
   }
 }
 
-export function getGeminiApiKey(): string {
+function getGeminiApiKey(): string {
   const fromProcess =
     (typeof process !== 'undefined' && (process.env?.GEMINI_API_KEY || process.env?.VITE_GEMINI_API_KEY)) || '';
   return fromProcess || readImportMetaGeminiKey() || '';
@@ -18,7 +18,7 @@ export function getGeminiApiKey(): string {
 
 let client: GoogleGenAI | null = null;
 
-export function getGeminiClient(): GoogleGenAI | null {
+function getGeminiClient(): GoogleGenAI | null {
   const apiKey = getGeminiApiKey();
   if (!apiKey) return null;
   if (client) return client;
@@ -31,7 +31,7 @@ export function getGeminiClient(): GoogleGenAI | null {
   }
 }
 
-export function parseGeminiJson<T = Record<string, unknown>>(responseText: string): T {
+function parseGeminiJson<T = Record<string, unknown>>(responseText: string): T {
   const cleaned = String(responseText || '').replace(/```json\n?|```/g, '').trim();
   const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
   const data = JSON.parse(jsonMatch ? jsonMatch[0] : cleaned);

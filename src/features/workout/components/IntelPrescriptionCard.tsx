@@ -69,4 +69,4 @@ export const IntelPrescriptionCard: React.FC<IntelPrescriptionCardProps> = ({
   );
 };
 
-export default IntelPrescriptionCard;
+

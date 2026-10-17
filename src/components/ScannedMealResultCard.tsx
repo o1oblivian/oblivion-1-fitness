@@ -152,4 +152,4 @@ export const ScannedMealResultCard: React.FC<ScannedMealResultCardProps> = ({
     </div>
   );
 };
-export default ScannedMealResultCard;
+

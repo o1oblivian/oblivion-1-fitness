@@ -85,4 +85,4 @@ export const SettingsHelpSupportSection: React.FC<HelpSupportSectionProps> = ({
     </div>
   );
 };
-export default SettingsHelpSupportSection;
+

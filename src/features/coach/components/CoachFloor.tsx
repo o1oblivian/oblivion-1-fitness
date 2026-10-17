@@ -576,4 +576,4 @@ export const CoachFloor: React.FC<CoachFloorProps> = ({
   );
 };
 
-export default CoachFloor;
+

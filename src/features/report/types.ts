@@ -88,7 +88,7 @@ export interface PersonalBest {
   day: string;
 }
 
-export type ScorePartId = 'strength' | 'consistency' | 'recovery' | 'bodyComp';
+type ScorePartId = 'strength' | 'consistency' | 'recovery' | 'bodyComp';
 
 export interface ScorePart {
   id: ScorePartId;
@@ -117,7 +117,7 @@ export interface ReportAction {
   exercise?: string;
 }
 
-export interface ReportStats {
+interface ReportStats {
   sessions28d: number;
   targetSessionsPerWeek: number;
   setsLast7: number;

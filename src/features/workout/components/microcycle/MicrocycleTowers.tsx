@@ -47,4 +47,4 @@ export const MicrocycleTowers: React.FC<MicrocycleTowersProps> = ({
   );
 };
 
-export default MicrocycleTowers;
+

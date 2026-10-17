@@ -297,4 +297,4 @@ export const ActiveLogExerciseAccordion: React.FC<ActiveLogExerciseAccordionProp
   );
 };
 
-export default ActiveLogExerciseAccordion;
+

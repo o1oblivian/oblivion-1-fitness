@@ -263,4 +263,4 @@ export const CoachEarningsDeck: React.FC<CoachEarningsDeckProps> = ({ coachId = 
     </div>
   );
 };
-export default CoachEarningsDeck;
+

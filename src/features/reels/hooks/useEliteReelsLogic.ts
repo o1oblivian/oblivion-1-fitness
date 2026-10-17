@@ -18,7 +18,7 @@ import { useReelViewsStore } from '../services/reelViews';
 import { isReelVisible, useReelSafetyStore, useVisibleReels } from '../services/reelSafety';
 import { reelCategoryLabel } from '../reelCategories';
 
-export { CATEGORIES, FILTER_TAGS } from './reelsFilterHelper';
+export { CATEGORIES,  } from './reelsFilterHelper';
 
 function titleCase(raw: string): string {
   return raw.toLowerCase().replace(/(^|[\s/&-])([a-z])/g, (_, lead: string, ch: string) => lead + ch.toUpperCase());

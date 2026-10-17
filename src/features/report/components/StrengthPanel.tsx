@@ -131,4 +131,4 @@ export const StrengthPanel: React.FC<StrengthPanelProps> = ({ lifts, personalBes
   </section>
 );
 
-export default StrengthPanel;
+

@@ -56,4 +56,4 @@ export const HeroHeader: React.FC<HeroHeaderProps> = ({ readinessScore, onOpenRe
   </div>
 );
 
-export default HeroHeader;
+

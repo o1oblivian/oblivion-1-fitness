@@ -58,4 +58,4 @@ export const TrainingHubCards: React.FC<TrainingHubCardsProps> = ({ expandedHubT
   </div>
 );
 
-export default TrainingHubCards;
+

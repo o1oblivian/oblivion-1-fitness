@@ -769,4 +769,4 @@ export const AthleteMessageModal: React.FC<Props> = ({
   );
 };
 
-export default AthleteMessageModal;
+

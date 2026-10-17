@@ -119,4 +119,4 @@ export const LiveVaultArtworkGrid: React.FC<Props> = ({ coverImage, onSelectImag
   );
 };
 
-export default LiveVaultArtworkGrid;
+

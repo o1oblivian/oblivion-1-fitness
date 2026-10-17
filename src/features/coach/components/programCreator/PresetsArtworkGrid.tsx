@@ -50,4 +50,4 @@ export const PresetsArtworkGrid: React.FC<Props> = ({ coverImage, onSelectImage 
   );
 };
 
-export default PresetsArtworkGrid;
+

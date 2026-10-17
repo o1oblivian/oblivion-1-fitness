@@ -244,4 +244,4 @@ export const MuscleMap: React.FC<MuscleMapProps> = ({ muscles }) => {
   );
 };
 
-export default MuscleMap;
+

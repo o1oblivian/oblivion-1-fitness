@@ -2,9 +2,9 @@
  * Natural status tones from the O1FC palette: emerald in range, amber caution, crimson alert.
  */
 export const GOOD = '#10b981';
-export const WATCH = '#f59e0b';
-export const ALERT = '#C4121A';
-export const IDLE = '#7A756A';
+const WATCH = '#f59e0b';
+const ALERT = '#C4121A';
+const IDLE = '#7A756A';
 
 export type Tone = 'good' | 'watch' | 'alert' | 'idle';
 

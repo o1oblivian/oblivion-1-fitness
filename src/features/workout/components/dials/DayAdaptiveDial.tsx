@@ -42,4 +42,4 @@ function renderDial(kind: string | undefined, dial: DialComponentProps) {
   }
 }
 
-export default DayAdaptiveDial;
+
