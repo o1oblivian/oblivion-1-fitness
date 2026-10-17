@@ -35,7 +35,7 @@ const CRIMSON = '#C4121A';
 const PACE_COPY: Record<FuelPace, { label: string; className: string }> = {
   ahead: { label: 'Ahead of pace', className: 'text-amber-500 border-amber-600/40' },
   on_pace: { label: 'On pace', className: 'text-emerald-500 border-emerald-600/40' },
-  behind: { label: 'Behind pace', className: 'text-sky-600 border-sky-600/40' },
+  behind: { label: 'Behind pace', className: 'text-sky-500 border-sky-500/50' },
 };
 
 function fmtGrams(n: number): string {
@@ -256,7 +256,7 @@ export const FuelCommandHero: React.FC<FuelCommandHeroProps> = ({
 
         <div className="mt-1.5 pt-3 border-t border-white/[0.08]">
           <div className="flex items-center gap-3">
-            <Droplet className="w-4 h-4 text-sky-600 shrink-0" aria-hidden />
+            <Droplet className="w-4 h-4 text-sky-500 shrink-0" aria-hidden />
             <div className="flex-1 min-w-0">
               <div className="flex items-baseline justify-between">
                 <span className="text-[11px] text-o1-muted">Water</span>
@@ -265,8 +265,8 @@ export const FuelCommandHero: React.FC<FuelCommandHeroProps> = ({
                   <span className="text-o1-muted"> / {waterGoalL != null ? waterGoalL.toFixed(1) : '--'} L</span>
                 </span>
               </div>
-              <div className="h-1 mt-1.5 rounded-full bg-white/[0.08] overflow-hidden">
-                <div className="h-full rounded-full bg-sky-600 transition-[width] duration-300" style={{ width: `${waterShare * 100}%` }} />
+              <div className="h-1.5 mt-1.5 rounded-full bg-white/[0.12] overflow-hidden">
+                <div className="h-full rounded-full bg-sky-500 transition-[width] duration-300" style={{ width: `${waterShare * 100}%` }} />
               </div>
             </div>
           </div>
@@ -276,21 +276,21 @@ export const FuelCommandHero: React.FC<FuelCommandHeroProps> = ({
               disabled={waterL <= 0}
               onClick={() => addWater(-0.25)}
               aria-label="Remove 250 millilitres"
-              className="w-9 h-9 rounded-xl border border-white/[0.08] flex items-center justify-center text-o1-muted disabled:opacity-30 cursor-pointer"
+              className="w-10 h-10 rounded-xl bg-o1-text text-black hover:bg-[#C9C7BC] active:bg-[#C9C7BC] flex items-center justify-center disabled:opacity-30 disabled:hover:bg-o1-text transition-colors cursor-pointer"
             >
               <Minus className="w-4 h-4" />
             </button>
             <button
               type="button"
               onClick={() => addWater(0.25)}
-              className="flex-1 h-9 rounded-xl border border-white/[0.08] text-sm font-medium text-o1-text hover:border-sky-600/60 cursor-pointer"
+              className="flex-1 h-10 rounded-xl bg-o1-text text-sm font-bold text-black hover:bg-[#C9C7BC] active:bg-[#C9C7BC] transition-colors cursor-pointer"
             >
               +250 ml
             </button>
             <button
               type="button"
               onClick={() => addWater(0.5)}
-              className="flex-1 h-9 rounded-xl border border-white/[0.08] text-sm font-medium text-o1-text hover:border-sky-600/60 cursor-pointer"
+              className="flex-1 h-10 rounded-xl bg-o1-text text-sm font-bold text-black hover:bg-[#C9C7BC] active:bg-[#C9C7BC] transition-colors cursor-pointer"
             >
               +500 ml
             </button>

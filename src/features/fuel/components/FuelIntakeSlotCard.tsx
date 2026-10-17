@@ -10,7 +10,7 @@ const SLOT_NOTE: Partial<Record<SlotKey, string>> = {
 };
 
 const ICON_BUTTON =
-  'w-8 h-8 rounded-full border border-white/[0.08] bg-o1-canvas hover:border-white/20 text-o1-muted hover:text-o1-text flex items-center justify-center transition-colors active:scale-95 cursor-pointer';
+  'w-9 h-9 rounded-full bg-o1-text text-black hover:bg-[#C9C7BC] flex items-center justify-center transition-colors active:scale-95 cursor-pointer';
 
 function g(n: number): string {
   return `${Math.round(n * 10) / 10}`;
@@ -55,32 +55,32 @@ export const FuelIntakeSlotCard: React.FC<FuelIntakeSlotCardProps> = ({
 
   return (
     <div id={`intake-slot-${slot.key}`} className="bg-o1-canvas border border-white/[0.08] rounded-2xl overflow-hidden">
-      <div className="flex items-center justify-between gap-3 px-3.5 py-3">
+      <div className="flex items-center justify-between gap-3 px-3.5 py-3 bg-o1-text">
         <div className="flex items-center gap-3 min-w-0">
-          <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${slot.iconBg}`}>{slot.icon}</div>
+          <span className="flex items-center justify-center shrink-0">{slot.icon}</span>
           <div className="min-w-0">
-            <h3 className="text-sm font-semibold text-o1-text">{slot.label}</h3>
-            <p className="text-[11px] text-o1-muted tabular-nums truncate">{subtitle}</p>
+            <h3 className="text-sm font-semibold text-black">{slot.label}</h3>
+            <p className="text-[11px] text-black/60 tabular-nums truncate">{subtitle}</p>
           </div>
         </div>
         <div className="text-right shrink-0 tabular-nums">
-          <span className="o1-unread block text-sm font-semibold text-o1-text">
-            {hasItems ? Math.round(total.calories).toLocaleString() : '--'} <span className="text-[10px] font-normal text-o1-muted">kcal</span>
+          <span className="o1-unread block text-sm font-semibold text-black">
+            {hasItems ? Math.round(total.calories).toLocaleString() : '--'} <span className="text-[10px] font-normal text-black/60">kcal</span>
           </span>
           {hasItems && (
-            <span className="block text-[10px] font-medium">
+            <span className="block text-[10px] font-semibold">
               <span className="text-o1-crimson">{g(total.protein)}P</span>
-              <span className="text-o1-muted"> · </span>
-              <span className="text-amber-500">{g(total.carbs)}C</span>
-              <span className="text-o1-muted"> · </span>
-              <span className="text-emerald-500">{g(total.fats)}F</span>
+              <span className="text-black/40"> · </span>
+              <span className="text-amber-700">{g(total.carbs)}C</span>
+              <span className="text-black/40"> · </span>
+              <span className="text-emerald-700">{g(total.fats)}F</span>
             </span>
           )}
         </div>
       </div>
 
       {hasItems && (
-        <ul className="px-3 pb-1 space-y-1.5">
+        <ul className="px-3 pt-3 pb-1 space-y-1.5">
           {items.map((item) => (
             <li key={item.id} className="flex items-center justify-between gap-2 pl-3 pr-1.5 py-2 rounded-xl bg-o1-surface border border-white/[0.05]">
               <div className="min-w-0">
@@ -120,7 +120,7 @@ export const FuelIntakeSlotCard: React.FC<FuelIntakeSlotCardProps> = ({
             aria-label={`Add food to ${slot.label}`}
             className={ICON_BUTTON}
           >
-            <Plus className={`w-4 h-4 stroke-[2.5] ${slot.plusColor}`} />
+            <Plus className="w-4 h-4 stroke-[2.5]" />
           </button>
         </div>
         <button

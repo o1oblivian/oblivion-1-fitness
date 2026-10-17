@@ -61,44 +61,32 @@ export interface MealSlotConfig {
   key: SlotKey;
   label: string;
   icon: React.ReactNode;
-  iconBg: string;
-  plusColor: string;
 }
 
 export const MEAL_SLOTS: MealSlotConfig[] = [
   {
     key: 'breakfast',
     label: 'Breakfast',
-    icon: <Sun className="w-4 h-4 text-amber-500 stroke-[2.2]" />,
-    iconBg: 'bg-amber-950/40 border border-amber-800/60',
-    plusColor: 'text-amber-500',
+    icon: <Sun className="w-6 h-6 text-amber-600 stroke-[2.2]" />,
   },
   {
     key: 'lunch',
     label: 'Lunch',
-    icon: <Utensils className="w-4 h-4 text-red-500 stroke-[2.2]" />,
-    iconBg: 'bg-red-950/40 border border-red-800/60',
-    plusColor: 'text-red-500',
+    icon: <Utensils className="w-6 h-6 text-red-600 stroke-[2.2]" />,
   },
   {
     key: 'dinner',
     label: 'Dinner',
-    icon: <Moon className="w-4 h-4 text-sky-500 stroke-[2.2]" />,
-    iconBg: 'bg-sky-950/40 border border-sky-800/60',
-    plusColor: 'text-sky-500',
+    icon: <Moon className="w-6 h-6 text-sky-600 stroke-[2.2]" />,
   },
   {
     key: 'snack',
     label: 'Snack',
-    icon: <Box className="w-4 h-4 text-emerald-500 stroke-[2.2]" />,
-    iconBg: 'bg-emerald-950/40 border border-emerald-800/60',
-    plusColor: 'text-emerald-500',
+    icon: <Box className="w-6 h-6 text-emerald-600 stroke-[2.2]" />,
   },
   {
     key: 'drinks',
     label: 'Drinks',
-    icon: <Coffee className="w-4 h-4 text-sky-500 stroke-[2.2]" />,
-    iconBg: 'bg-sky-950/40 border border-sky-800/60',
-    plusColor: 'text-sky-500',
+    icon: <Coffee className="w-6 h-6 text-sky-600 stroke-[2.2]" />,
   },
 ];
