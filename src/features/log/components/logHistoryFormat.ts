@@ -108,6 +108,12 @@ export function readableSteps(rec?: CardioDayRecord, steps = 0): number {
   return raw;
 }
 
+/** Worked out from the day's steps, so it always reads as an estimate. */
+export function stepKcalText(rec?: CardioDayRecord): string {
+  const kcal = Math.round(Number(rec?.stepKcal) || 0);
+  return kcal > 0 ? `~${kcal.toLocaleString()}` : '';
+}
+
 export function cardioLine(rec?: CardioDayRecord, steps = 0): string {
   const logged = line([
     part(rec?.distanceKm, ' km', 1),
@@ -115,7 +121,10 @@ export function cardioLine(rec?: CardioDayRecord, steps = 0): string {
     part(rec?.burnedKcal, ' kcal'),
   ]);
   if (logged !== '--') return logged;
-  return part(readableSteps(rec, steps), ' steps') || '--';
+  const stepText = part(readableSteps(rec, steps), ' steps');
+  if (!stepText) return '--';
+  const kcal = stepKcalText(rec);
+  return kcal ? `${stepText} · ${kcal} kcal` : stepText;
 }
 
 export function foodLine(rec?: NutritionDayRecord): string {
@@ -173,7 +182,7 @@ export function cardioHeadline(rec?: CardioDayRecord, steps = 0): Headline | nul
     { value: part(rec?.durationMinutes, ''), unit: 'min' },
     { value: part(rec?.burnedKcal, ''), unit: 'kcal' },
     { value: part(readableSteps(rec, steps), ''), unit: 'steps' },
-  ]);
+  ], [stepKcalText(rec) ? `${stepKcalText(rec)} kcal` : null]);
 }
 
 export function foodHeadline(rec?: NutritionDayRecord): Headline | null {

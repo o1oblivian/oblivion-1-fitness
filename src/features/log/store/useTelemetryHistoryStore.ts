@@ -55,6 +55,8 @@ export interface CardioDayRecord {
   zone2Minutes: number;
   activityType: string;
   steps?: number;
+  /** Estimated active kcal from the day's steps. Phone only, and kept apart from a logged session's burn. */
+  stepKcal?: number;
 }
 
 export interface NutritionDayRecord {

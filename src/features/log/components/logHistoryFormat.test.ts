@@ -6,7 +6,7 @@ import type {
   SleepDayRecord,
   WorkoutDayRecord,
 } from '../store/useTelemetryHistoryStore';
-import { cardioHeadline, dayHeading, foodHeadline, mindfulHeadline, sleepHeadline, workoutHeadline } from './logHistoryFormat';
+import { cardioHeadline, cardioLine, dayHeading, foodHeadline, mindfulHeadline, sleepHeadline, workoutHeadline } from './logHistoryFormat';
 
 describe('dayHeading', () => {
   const today = new Date(2026, 9, 17, 15, 30);
@@ -50,6 +50,18 @@ describe('cardioHeadline', () => {
   it('falls back to steps and ignores a lone placeholder step', () => {
     expect(cardioHeadline(undefined, 5016)).toEqual({ value: '5,016', unit: 'steps', caption: '' });
     expect(cardioHeadline(undefined, 1)).toBeNull();
+  });
+
+  it('leads a step day with steps and shows the estimated burn beside them', () => {
+    const rec = record<CardioDayRecord>({ steps: 12614, stepKcal: 315, activityType: 'Steps' });
+    expect(cardioHeadline(rec)).toEqual({ value: '12,614', unit: 'steps', caption: '~315 kcal' });
+    expect(cardioLine(rec)).toBe('12,614 steps · ~315 kcal');
+  });
+
+  it('shows steps alone when no burn could be worked out', () => {
+    const rec = record<CardioDayRecord>({ steps: 5016, activityType: 'Steps' });
+    expect(cardioHeadline(rec)).toEqual({ value: '5,016', unit: 'steps', caption: '' });
+    expect(cardioLine(rec)).toBe('5,016 steps');
   });
 
   it('adds steps to the caption when a session leads', () => {

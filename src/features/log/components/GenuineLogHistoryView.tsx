@@ -271,7 +271,8 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({ sh
       useWorkoutStore.getState().setActiveSession(false);
     }
     if (category === 'cardio' && isViewingToday) {
-      const cardioKcal = historyByDate[selectedDateKey]?.cardio?.burnedKcal ?? 0;
+      const cardioRecord = historyByDate[selectedDateKey]?.cardio;
+      const cardioKcal = (cardioRecord?.burnedKcal ?? 0) + (cardioRecord?.stepKcal ?? 0);
       if (cardioKcal > 0) useFuelStore.getState().logBurned(-cardioKcal);
       useTelemetryStore.getState().setStepCount(0);
     }

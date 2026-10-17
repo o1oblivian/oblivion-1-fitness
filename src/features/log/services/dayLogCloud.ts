@@ -42,7 +42,8 @@ export function setLocalEditedAt(dateKey: string, category: DayLogCategory, at: 
  */
 export function withoutSteps(category: DayLogCategory, record: Record<string, unknown>): Record<string, unknown> | null {
   if (category !== 'cardio') return record;
-  const { steps: _steps, ...rest } = record;
+  // The burn worked out from steps is a step figure too, so it stays on the phone with them.
+  const { steps: _steps, stepKcal: _stepKcal, ...rest } = record;
   const name = String(rest.activityType ?? '').toLowerCase();
   const measured = ['distanceKm', 'durationMinutes', 'burnedKcal', 'avgHeartRateBpm'].some((k) => Number(rest[k]) > 0);
   if (!measured && (name === '' || name.includes('step'))) return null;

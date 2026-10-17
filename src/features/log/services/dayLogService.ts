@@ -3,6 +3,9 @@ import { getAuthenticatedUserId } from '../../../services/authUser';
 import { enqueueSync, flushSync, hasPendingSync, registerSyncHandler } from '../../../services/syncOutbox';
 import { safeStorage } from '../../../utils/safeStorage';
 import { useTelemetryHistoryStore } from '../store/useTelemetryHistoryStore';
+import { useFuelStore } from '../../fuel/store/useFuelStore';
+import { estimateKcalFromSteps } from '../../telemetry/services/stepEstimate';
+import { athleteBodyweightKg } from '../../workout/utils/sessionEnergy';
 import {
   cancelDayLogSync,
   DayLogCategory,
@@ -22,23 +25,42 @@ function todayKey(date = new Date()): string {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 }
 
-/** Remember a step count without turning it into distance, calories, or a heart rate. */
+const STEP_KCAL_WRITE_MIN = 20;
+
+/**
+ * Remember a step count. It never becomes a distance or a heart rate. The estimated active burn
+ * (needs a bodyweight) is kept beside the steps and added to today's Fuel burn as the count grows.
+ * A logged cardio session already holds its own burn, so steps add none on top of it.
+ */
 export function noteDailySteps(steps: number, dateKey = todayKey()): void {
   if (steps <= 1) return;
-  const existing = useTelemetryHistoryStore.getState().historyByDate[dateKey]?.cardio;
+  const history = useTelemetryHistoryStore.getState();
+  const existing = history.historyByDate[dateKey]?.cardio;
   const name = (existing?.activityType || '').toLowerCase();
   const stepShadow = !existing?.hasData || name.includes('step');
-  if (!stepShadow) return;
-  useTelemetryHistoryStore.getState().updateDayRecord(dateKey, 'cardio', {
-    hasData: true,
-    steps,
-    distanceKm: 0,
-    burnedKcal: 0,
-    durationMinutes: 0,
-    avgHeartRateBpm: 0,
-    zone2Minutes: 0,
-    activityType: 'Steps',
-  });
+  const sessionBurn = stepShadow ? 0 : existing?.burnedKcal || 0;
+  const kcal = sessionBurn > 0 ? 0 : estimateKcalFromSteps(steps, athleteBodyweightKg()) ?? 0;
+  const credited = existing?.hasData ? existing.stepKcal || 0 : 0;
+
+  if (stepShadow) {
+    history.updateDayRecord(dateKey, 'cardio', {
+      hasData: true,
+      steps,
+      stepKcal: kcal,
+      distanceKm: 0,
+      burnedKcal: 0,
+      durationMinutes: 0,
+      avgHeartRateBpm: 0,
+      zone2Minutes: 0,
+      activityType: 'Steps',
+    });
+  } else {
+    // A session record is only rewritten once the burn has moved enough to matter, so it isn't backed up on every step.
+    const moved = Math.abs(kcal - credited);
+    if (!existing || moved === 0 || (moved < STEP_KCAL_WRITE_MIN && kcal > 0)) return;
+    history.updateDayRecord(dateKey, 'cardio', { ...existing, stepKcal: kcal });
+  }
+  if (dateKey === todayKey() && kcal !== credited) useFuelStore.getState().logBurned(kcal - credited);
 }
 
 /** Remove the account copy when the athlete deletes that day on Log. Queued, so it lands even offline. */

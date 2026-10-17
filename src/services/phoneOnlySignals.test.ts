@@ -86,6 +86,12 @@ describe('withoutSteps', () => {
     expect(withoutSteps('cardio', { hasData: true, activityType: 'Steps', steps: 9000, distanceKm: 0 })).toBeNull();
   });
 
+  it('keeps the burn worked out from steps on the phone too', () => {
+    expect(withoutSteps('cardio', { hasData: true, activityType: 'Steps', steps: 9000, stepKcal: 220, burnedKcal: 0 })).toBeNull();
+    const out = withoutSteps('cardio', { hasData: true, activityType: 'Running', steps: 6000, stepKcal: 150, distanceKm: 5 });
+    expect(out).toEqual({ hasData: true, activityType: 'Running', distanceKm: 5 });
+  });
+
   it('keeps a real cardio session but strips its step count', () => {
     const out = withoutSteps('cardio', { hasData: true, activityType: 'Running', steps: 6000, distanceKm: 5 });
     expect(out).toEqual({ hasData: true, activityType: 'Running', distanceKm: 5 });

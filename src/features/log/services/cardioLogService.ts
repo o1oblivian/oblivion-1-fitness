@@ -37,6 +37,7 @@ export function addCardioSession(base: CardioDayRecord | undefined, add: CardioS
     zone2Minutes: (base.zone2Minutes || 0) + (add.zone2Minutes || 0),
     activityType: types.join(' + '),
     steps: steps > 0 ? steps : undefined,
+    stepKcal: base.stepKcal && base.stepKcal > 0 ? base.stepKcal : undefined,
   };
 }
 

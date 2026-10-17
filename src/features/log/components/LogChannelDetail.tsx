@@ -10,7 +10,7 @@ import type {
   TelemetryCategory,
   WorkoutDayRecord,
 } from '../store/useTelemetryHistoryStore';
-import { cardioLine, line, mindfulLine, part, sheetFig, sleepLine } from './logHistoryFormat';
+import { cardioLine, line, mindfulLine, part, sheetFig, sleepLine, stepKcalText } from './logHistoryFormat';
 
 export function ChannelDetail({
   category,
@@ -85,8 +85,8 @@ export function ChannelDetail({
       return (
         <LogLedger
           nameLabel="Day"
-          columns={[{ label: 'steps', width: '4.5rem' }]}
-          rows={[{ id: 'steps', name: 'Steps', cells: [steps.toLocaleString()] }]}
+          columns={[{ label: 'steps', width: '4.5rem' }, { label: 'kcal', width: '3.75rem' }]}
+          rows={[{ id: 'steps', name: 'Steps', cells: [steps.toLocaleString(), stepKcalText(cardio) || '--'] }]}
           rowActions={rowActions}
         />
       );

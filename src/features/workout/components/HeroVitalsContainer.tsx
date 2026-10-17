@@ -155,7 +155,7 @@ export const HeroVitalsContainer: React.FC<HeroVitalsContainerProps> = ({
     const record = historyByDate[key];
     const cardio = record?.cardio?.hasData ? record.cardio : undefined;
     const nutrition = record?.nutrition?.hasData ? record.nutrition : undefined;
-    const loggedBurn = (cardio?.burnedKcal ?? 0) + (record?.workout?.hasData ? record.workout.burnedKcal ?? 0 : 0);
+    const loggedBurn = (cardio?.burnedKcal ?? 0) + (cardio?.stepKcal ?? 0) + (record?.workout?.hasData ? record.workout.burnedKcal ?? 0 : 0);
     const target = fuelCalorieTarget && fuelCalorieTarget > 0 ? fuelCalorieTarget : 0;
     if (offset > 0) return { steps: 0, burn: 0, dist: 0, intake: 0, intakeGoal: target, isToday: false, sleep: null };
     if (offset < 0) {
