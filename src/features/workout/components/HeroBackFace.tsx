@@ -2,8 +2,6 @@ import React from 'react';
 import { RotateCw, Droplet, Activity, Pill, Moon } from 'lucide-react';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { useWallpaperStore } from '../../../stores/useWallpaperStore';
-import { useWallpaperAutoDim } from '../hooks/useWallpaperAutoDim';
-
 type VitalsTile = 'hydration' | 'biosync' | 'supplements' | 'sleep';
 
 export interface HeroBackFaceProps {
@@ -67,7 +65,6 @@ export const HeroBackFace: React.FC<HeroBackFaceProps> = ({
   onOpenTile,
 }) => {
   const wallpaperBrightness = useWallpaperStore((s) => s.brightness);
-  const autoDim = useWallpaperAutoDim(activeWallpaper);
   const supplementSub =
     supplementsTotal === 0
       ? 'Add your stack'
@@ -96,7 +93,7 @@ export const HeroBackFace: React.FC<HeroBackFaceProps> = ({
           alt=""
           aria-hidden="true"
           className="absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-1000 select-none pointer-events-none"
-          style={{ filter: `brightness(${(wallpaperBrightness / 100) * autoDim})` }}
+          style={{ filter: `brightness(${wallpaperBrightness / 100})` }}
           onError={(e) => {
             (e.currentTarget as HTMLElement).style.display = 'none';
             useWallpaperStore.getState().reportBroken(activeWallpaper);

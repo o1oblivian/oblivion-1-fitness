@@ -65,10 +65,10 @@ const PILL_SUB_OFF = 'text-o1-muted';
 const PILL_SUB_ON = 'text-[#111113]/60';
 
 const GOAL_CARDS: { key: TrainingGoal; label: string; sub: string; icon: typeof Flame; color: string }[] = [
-  { key: 'burn', label: 'Burn calories', sub: 'Sweat and fitness', icon: Flame, color: 'text-o1-crimson' },
-  { key: 'muscle', label: 'Build muscle', sub: 'Size and strength', icon: Dumbbell, color: 'text-o1-crimson' },
-  { key: 'reset', label: 'Reset and move', sub: 'Easy mobility and recovery', icon: Activity, color: 'text-sky-600' },
-  { key: 'athletic', label: 'Athletic', sub: 'Speed and power', icon: Zap, color: 'text-sky-600' },
+  { key: 'burn', label: 'Burn calories', sub: 'Sweat and fitness', icon: Flame, color: 'text-[#C4121A]' },
+  { key: 'muscle', label: 'Build muscle', sub: 'Size and strength', icon: Dumbbell, color: 'text-[#d97706]' },
+  { key: 'reset', label: 'Reset and move', sub: 'Easy mobility and recovery', icon: Activity, color: 'text-[#4F8F9A]' },
+  { key: 'athletic', label: 'Athletic', sub: 'Speed and power', icon: Zap, color: 'text-[#0284c7]' },
 ];
 
 const GOAL_MODE: Record<Goal, TrainingGoal> = {
@@ -99,6 +99,7 @@ export const IntelCoachAccordionPanel: React.FC<IntelCoachAccordionPanelProps> =
   const [selectedDuration, setSelectedDuration] = useState<number>(() => useConsultationStore.getState().sessionMinutes || 45);
   const [isDurationModalOpen, setIsDurationModalOpen] = useState(false);
   const [prescription, setPrescription] = useState<ExerciseItem[] | null>(null);
+  const [builtFor, setBuiltFor] = useState('');
   const [isDesigning, setIsDesigning] = useState(false);
   const [isLoadReportOpen, setIsLoadReportOpen] = useState(false);
 
@@ -115,9 +116,20 @@ export const IntelCoachAccordionPanel: React.FC<IntelCoachAccordionPanelProps> =
     );
   }, [trainingGoal, selectedDuration, energyLevel, athleteWeightKg, movementFocus]);
 
+  // The built workout only counts while the options it was built from are unchanged.
+  const optionsKey = `${trainingGoal}|${energyLevel}|${selectedDuration}|${movementFocus}`;
+  const isFresh = prescription !== null && builtFor === optionsKey;
+
+  const handleEditOptions = () => {
+    tactileEngine.triggerSelectionBuzz();
+    setPrescription(null);
+    setBuiltFor('');
+  };
+
   const handleDesignSession = () => {
     tactileEngine.triggerSelectionBuzz();
     setIsDesigning(true);
+    const builtKey = optionsKey;
     setTimeout(() => {
       // Real live generation from EXERCISE_DATABASE
       const generated = generateIntelPrescription(
@@ -128,6 +140,7 @@ export const IntelCoachAccordionPanel: React.FC<IntelCoachAccordionPanelProps> =
       );
       tactileEngine.playPRCelebration();
       setPrescription(generated);
+      setBuiltFor(builtKey);
       setIsDesigning(false);
     }, 280);
   };
@@ -175,7 +188,7 @@ export const IntelCoachAccordionPanel: React.FC<IntelCoachAccordionPanelProps> =
       {/* Header matching Screenshot 1 & 3 */}
       <div className="flex items-center justify-between border-b border-white/[0.05] pb-3">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-o1-well border border-white/[0.07] flex items-center justify-center text-neutral-300">
+          <div className="w-8 h-8 rounded-xl bg-o1-well border border-white/[0.07] flex items-center justify-center text-[#d97706]">
             <SlidersHorizontal className="w-4 h-4 stroke-[2]" />
           </div>
           <div>
@@ -217,9 +230,9 @@ export const IntelCoachAccordionPanel: React.FC<IntelCoachAccordionPanelProps> =
         <div className="grid grid-cols-3 gap-2">
           {(
             [
-              { key: 'LOW', label: 'Tired', sub: 'Take it easy', icon: Droplets, color: 'text-sky-500' },
-              { key: 'STEADY', label: 'Okay', sub: 'Normal session', icon: Zap, color: 'text-amber-500' },
-              { key: 'PRIME', label: 'Great', sub: 'Go hard', icon: BatteryCharging, color: 'text-emerald-500' },
+              { key: 'LOW', label: 'Tired', sub: 'Take it easy', icon: Droplets, color: 'text-[#0284c7]' },
+              { key: 'STEADY', label: 'Okay', sub: 'Normal session', icon: Zap, color: 'text-[#d97706]' },
+              { key: 'PRIME', label: 'Great', sub: 'Go hard', icon: BatteryCharging, color: 'text-[#059669]' },
             ] as const
           ).map((lvl) => {
             const isSelected = energyLevel === lvl.key;
@@ -238,7 +251,7 @@ export const IntelCoachAccordionPanel: React.FC<IntelCoachAccordionPanelProps> =
                   <span className="text-xs font-medium font-mono tracking-wider">
                     {lvl.label}
                   </span>
-                  <Icon className={`w-3.5 h-3.5 ${isSelected ? 'text-current' : lvl.color}`} />
+                  <Icon className={`w-3.5 h-3.5 ${lvl.color}`} />
                 </div>
                 <span className={`text-[11px] block truncate font-medium ${isSelected ? PILL_SUB_ON : PILL_SUB_OFF}`}>
                   {lvl.sub}
@@ -269,7 +282,7 @@ export const IntelCoachAccordionPanel: React.FC<IntelCoachAccordionPanelProps> =
               >
                 <div className="flex items-center justify-between gap-1.5">
                   <span className="text-xs font-medium truncate">{label}</span>
-                  <Icon className={`w-4 h-4 shrink-0 ${isSelected ? 'text-current' : color}`} />
+                  <Icon className={`w-4 h-4 shrink-0 ${color}`} />
                 </div>
                 <p className={`text-[11px] truncate ${isSelected ? PILL_SUB_ON : PILL_SUB_OFF}`}>{sub}</p>
               </button>
@@ -345,34 +358,52 @@ export const IntelCoachAccordionPanel: React.FC<IntelCoachAccordionPanelProps> =
 
       {/* Stays in view above the dock while the options scroll */}
       <div className="sticky bottom-0 z-10 -mx-2.5 px-2.5 pt-2 pb-1 bg-o1-card flex items-center justify-between gap-3 border-t border-white/[0.05]">
-        <div className="flex items-center gap-3 text-xs font-mono font-medium text-neutral-300">
-          <span className="flex items-center gap-1">
-            <Clock className="w-3.5 h-3.5 text-o1-muted" />
-            {selectedDuration}m
-          </span>
-          <span className="flex items-center gap-1 text-o1-crimson">
-            <Flame className="w-3.5 h-3.5 text-o1-crimson" />
-            ~{estCalories} kcal
-          </span>
-        </div>
-        <button
-          type="button"
-          disabled={isDesigning}
-          onClick={handleDesignSession}
-          className="min-h-[44px] px-5 rounded-full bg-o1-crimson hover:bg-o1-crimson-hover active:bg-o1-crimson-press text-white active:scale-95 font-mono text-xs font-medium tracking-wider shadow-sm flex items-center gap-2 cursor-pointer transition-all shrink-0"
-        >
-          <Zap className="w-3.5 h-3.5" />
-          <span>{isDesigning ? 'Creating…' : 'Create workout'}</span>
-        </button>
+        {isFresh ? (
+          <>
+            <button
+              type="button"
+              onClick={handleEditOptions}
+              className="min-h-[44px] px-2 text-[11px] font-mono font-medium tracking-wider text-o1-muted hover:text-o1-text underline decoration-white/25 underline-offset-2 cursor-pointer shrink-0"
+            >
+              Edit
+            </button>
+            <button
+              type="button"
+              onClick={handleLoadPrescription}
+              className="min-h-[44px] flex-1 px-5 rounded-full bg-o1-crimson hover:bg-o1-crimson-hover active:bg-o1-crimson-press text-white active:scale-[0.98] font-mono text-xs font-medium tracking-wider shadow-sm flex items-center justify-center gap-2 cursor-pointer transition-all"
+            >
+              <Dumbbell className="w-3.5 h-3.5" />
+              <span>Load into active log</span>
+            </button>
+          </>
+        ) : (
+          <>
+            <div className="flex items-center gap-3 text-xs font-mono font-medium text-neutral-300">
+              <span className="flex items-center gap-1">
+                <Clock className="w-3.5 h-3.5 text-o1-muted" />
+                {selectedDuration}m
+              </span>
+              <span className="flex items-center gap-1 text-o1-crimson">
+                <Flame className="w-3.5 h-3.5 text-o1-crimson" />
+                ~{estCalories} kcal
+              </span>
+            </div>
+            <button
+              type="button"
+              disabled={isDesigning}
+              onClick={handleDesignSession}
+              className="min-h-[44px] px-5 rounded-full bg-o1-crimson hover:bg-o1-crimson-hover active:bg-o1-crimson-press text-white active:scale-95 font-mono text-xs font-medium tracking-wider shadow-sm flex items-center gap-2 cursor-pointer transition-all shrink-0"
+            >
+              <Zap className="w-3.5 h-3.5" />
+              <span>{isDesigning ? 'Creating…' : 'Create workout'}</span>
+            </button>
+          </>
+        )}
       </div>
 
       {/* Generated Prescription from Live EXERCISE_DATABASE */}
       {prescription && (
-        <IntelPrescriptionCard
-          prescription={prescription}
-          estCalories={estCalories}
-          onLoadPrescription={handleLoadPrescription}
-        />
+        <IntelPrescriptionCard prescription={prescription} estCalories={estCalories} outdated={!isFresh} />
       )}
 
       {/* Duration Bottom Sheet */}

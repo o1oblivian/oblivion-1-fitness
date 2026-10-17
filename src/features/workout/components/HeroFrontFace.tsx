@@ -6,8 +6,6 @@ import { getAthleteDayRoutine, formatConciseSplitName, getSystemTodayCode, useDa
 import { useWorkoutStore } from '../store/useWorkoutStore';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { useWallpaperStore } from '../../../stores/useWallpaperStore';
-import { useWallpaperAutoDim } from '../hooks/useWallpaperAutoDim';
-
 function dialSummary(p: {
   day: string; steps: number; burnKcal: number; goalMove: number; intakeKcal: number; intakeGoal: number;
   distKm: number; hydrationPct: number | null; sleepHours: number | null;
@@ -50,7 +48,6 @@ export const HeroFrontFace: React.FC<HeroFrontFaceProps> = ({
     return () => window.clearTimeout(t);
   }, [noRoutineDay]);
   const wallpaperBrightness = useWallpaperStore((s) => s.brightness);
-  const autoDim = useWallpaperAutoDim(activeWallpaper);
   const activeSession = useWorkoutStore((s) => s.activeSession);
   const activeLogs = useWorkoutStore((s) => s.activeLogs);
   const setActiveLogs = useWorkoutStore((s) => s.setActiveLogs);
@@ -117,7 +114,7 @@ export const HeroFrontFace: React.FC<HeroFrontFaceProps> = ({
           alt=""
           aria-hidden="true"
           className="absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700 select-none pointer-events-none"
-          style={{ filter: `brightness(${(wallpaperBrightness / 100) * autoDim})` }}
+          style={{ filter: `brightness(${wallpaperBrightness / 100})` }}
           onError={(e) => {
             (e.currentTarget as HTMLElement).style.display = 'none';
             useWallpaperStore.getState().reportBroken(activeWallpaper);

@@ -6,13 +6,14 @@ import { formatLoad, loadUnitLabel } from '../../../utils/weightUnits';
 interface IntelPrescriptionCardProps {
   prescription: ExerciseItem[];
   estCalories: number;
-  onLoadPrescription: () => void;
+  /** The options changed after this workout was built, so it no longer matches them. */
+  outdated?: boolean;
 }
 
 export const IntelPrescriptionCard: React.FC<IntelPrescriptionCardProps> = ({
   prescription,
   estCalories,
-  onLoadPrescription,
+  outdated = false,
 }) => {
   const unit = readAthleteSettingsSnapshot().weightUnit;
   const unitLower = loadUnitLabel(unit).toLowerCase();
@@ -23,10 +24,14 @@ export const IntelPrescriptionCard: React.FC<IntelPrescriptionCardProps> = ({
         <span className="text-[11px] uppercase tracking-[0.12em] text-o1-muted">
           Prescription · {prescription.length} movements
         </span>
-        {estCalories > 0 && <span className="text-[12px] font-mono font-light text-o1-text">~{estCalories} kcal</span>}
+        {outdated ? (
+          <span className="text-[11px] font-mono font-light text-[#d97706]">Options changed. Create again.</span>
+        ) : (
+          estCalories > 0 && <span className="text-[12px] font-mono font-light text-o1-text">~{estCalories} kcal</span>
+        )}
       </div>
 
-      <div className="space-y-1.5">
+      <div className={`space-y-1.5 transition-opacity ${outdated ? 'opacity-40' : ''}`}>
         {prescription.map((drill, idx) => {
           const sets = drill.sets || [];
           const first = sets[0];
@@ -59,16 +64,7 @@ export const IntelPrescriptionCard: React.FC<IntelPrescriptionCardProps> = ({
         })}
       </div>
 
-      <div className="flex flex-col items-center gap-2 pt-2">
-        <button
-          type="button"
-          onClick={onLoadPrescription}
-          className="w-full min-h-[48px] rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover active:bg-o1-crimson-press active:scale-[0.98] text-white font-medium text-[13px] transition-all cursor-pointer"
-        >
-          Load into active log
-        </button>
-        <p className="text-[10px] text-o1-muted text-center">Consult a physician before beginning any training program.</p>
-      </div>
+      <p className="text-[10px] text-o1-muted text-center pt-1">Consult a physician before beginning any training program.</p>
     </div>
   );
 };

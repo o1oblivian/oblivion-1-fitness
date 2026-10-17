@@ -23,7 +23,7 @@ export const DisciplineSelectorTrack: React.FC<DisciplineSelectorTrackProps> = (
         }
       >
         <Weight
-          className="w-3.5 h-3.5 text-neutral-400"
+          className="w-3.5 h-3.5 text-[#C4121A]"
           strokeWidth={1.75}
         />
         <span>Lift</span>
@@ -39,7 +39,7 @@ export const DisciplineSelectorTrack: React.FC<DisciplineSelectorTrackProps> = (
         }
       >
         <Trophy
-          className="w-3.5 h-3.5 text-neutral-400"
+          className="w-3.5 h-3.5 text-[#059669]"
           strokeWidth={1.75}
         />
         <span>Sports</span>
@@ -55,7 +55,7 @@ export const DisciplineSelectorTrack: React.FC<DisciplineSelectorTrackProps> = (
         }
       >
         <Leaf
-          className="w-3.5 h-3.5 text-neutral-400"
+          className="w-3.5 h-3.5 text-[#4F8F9A]"
           strokeWidth={1.75}
         />
         <span>Recovery</span>
