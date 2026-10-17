@@ -39,8 +39,7 @@ if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KE
 
 // Hardwire production Supabase credentials as default fallbacks
 export const SUPABASE_URL = (envUrl && envUrl.startsWith('http') && !envUrl.includes('placeholder')) ? envUrl : PROD_SUPABASE_URL;
-export const SUPABASE_ANON_KEY = (envKey && !envKey.includes('placeholder')) ? envKey : PROD_SUPABASE_ANON_KEY;
-export const SUPABASE_AUTH_URL = `${SUPABASE_URL}/auth/v1`;
+const SUPABASE_ANON_KEY = (envKey && !envKey.includes('placeholder')) ? envKey : PROD_SUPABASE_ANON_KEY;
 
 function hasSubtleCrypto(): boolean {
   try {
@@ -75,9 +74,6 @@ const authOptions = {
   flowType: (insecureOrigin ? 'implicit' : 'pkce') as 'implicit' | 'pkce',
   storage: typeof window !== 'undefined' ? window.localStorage : undefined,
 };
-
-export const supabaseAuthOptions = authOptions;
-
 let rawClient: SupabaseClient;
 try {
   rawClient = createClient(

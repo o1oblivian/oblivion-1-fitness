@@ -118,7 +118,6 @@ export interface TelemetryHistoryActions {
 
 const STORAGE_KEY = 'o1fc_telemetry_5day_history_v1';
 
-// Dynamic helper for past 5 days
 export interface DayMeta {
   offset: number;
   dateKey: string;
@@ -127,44 +126,6 @@ export interface DayMeta {
   dateFormatted: string;
   isToday: boolean;
   isYesterday: boolean;
-}
-
-export function getPastDays(daysCount: number = 5): DayMeta[] {
-  const days: DayMeta[] = [];
-  const dayNamesShort = ['SU', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA'];
-  const dayNamesFull = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
-
-  for (let i = 0; i < daysCount; i++) {
-    const d = new Date();
-    d.setDate(d.getDate() - i);
-    const dayOfWeek = d.getDay();
-    const isToday = i === 0;
-    const isYesterday = i === 1;
-
-    const dayLabel = isToday ? 'TODAY' : isYesterday ? 'YESTERDAY' : dayNamesFull[dayOfWeek];
-    const dayPillLabel = isToday ? 'TO' : isYesterday ? 'YE' : dayNamesShort[dayOfWeek];
-
-    const year = d.getFullYear();
-    const month = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    const dateKey = `${year}-${month}-${day}`;
-    const dateFormatted = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-
-    days.push({
-      offset: i,
-      dateKey,
-      dayLabel,
-      dayPillLabel,
-      dateFormatted,
-      isToday,
-      isYesterday,
-    });
-  }
-  return days;
-}
-
-export function getPast5Days(): DayMeta[] {
-  return getPastDays(5);
 }
 
 const sanitizeAndMigrateHistory = (
@@ -434,4 +395,3 @@ const telemetryHistoryStore = createStore<TelemetryHistoryState, TelemetryHistor
 
 export const useTelemetryHistoryStore = telemetryHistoryStore.useStore;
 export const getTelemetryHistoryState = telemetryHistoryStore.getState;
-export const setTelemetryHistoryState = telemetryHistoryStore.setState;

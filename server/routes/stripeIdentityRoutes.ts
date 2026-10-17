@@ -193,5 +193,3 @@ export async function handleStripeWebhook(req: Request, res: Response) {
     return res.status(500).json({ error: errorMessage(err) });
   }
 }
-
-export const handleStripeIdentityWebhook = handleStripeWebhook;
