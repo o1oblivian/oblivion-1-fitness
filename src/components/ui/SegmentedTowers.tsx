@@ -26,6 +26,7 @@ interface SegmentedTowersProps {
   maxTubeWidthPx: number;
   /** Full capsules with one half-transparent border in the tower's own colour and a medal on the peak. */
   bold?: boolean;
+  /** A small notch on the last tower's border at this height. Tapping it shows the label. */
   reference?: { value: number; label: string } | null;
   activeKey?: string | null;
   peakKey?: string | null;
@@ -34,6 +35,8 @@ interface SegmentedTowersProps {
   ariaLabel: string;
 }
 
+/** Matches the `gap-1.5` between tower columns. */
+const COLUMN_GAP_PX = 6;
 const FRAME = 0.5;
 const GAP = 1;
 const LABEL_ROW_H = 22;
@@ -68,6 +71,8 @@ export const SegmentedTowers: React.FC<SegmentedTowersProps> = ({
   const inner = tubeHeightPx - 2 * (frame + gap);
   const top = Math.max(1, reference?.value ?? 0, ...towers.map((t) => t.value ?? 0)) * 1.08;
   const radius = bold ? tubeWidth / 2 : Math.min(14, Math.round(Math.min(20, maxTubeWidthPx) / 2.8));
+  /** Distance from the group's right edge to the last tower's right border: half a column minus half a tube. */
+  const lastTowerEdgeRight = `calc((100% - ${(towers.length - 1) * COLUMN_GAP_PX}px) / ${towers.length * 2} - ${tubeWidth / 2}px)`;
   const refBottom = reference ? LABEL_ROW_H + frame + gap + (Math.min(reference.value, top) / top) * inner : 0;
 
   const revealReference = () => {
@@ -172,22 +177,15 @@ export const SegmentedTowers: React.FC<SegmentedTowersProps> = ({
 
       {reference && (
         <>
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute inset-x-0 z-10 h-px"
-            style={{
-              bottom: refBottom,
-              backgroundImage: 'linear-gradient(to right, rgba(0,0,0,0.5) 50%, transparent 50%)',
-              backgroundSize: '6px 1px',
-            }}
-          />
           <button
             type="button"
             aria-label={`Show ${reference.label.toLowerCase()}`}
             onClick={revealReference}
-            className="absolute inset-x-0 z-20 h-4 cursor-pointer bg-transparent border-0 p-0"
-            style={{ bottom: refBottom - 8 }}
-          />
+            className="absolute z-20 flex h-6 w-6 translate-x-1/2 cursor-pointer items-center justify-center bg-transparent border-0 p-0"
+            style={{ bottom: refBottom - 12, right: lastTowerEdgeRight }}
+          >
+            <span aria-hidden="true" className="block h-[2px] w-[7px] rounded-full bg-o1-bone" />
+          </button>
           {refOpen && (
             <span
               role="status"

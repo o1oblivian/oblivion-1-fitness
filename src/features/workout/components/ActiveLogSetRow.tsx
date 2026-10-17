@@ -233,8 +233,8 @@ export const ActiveLogSetRow: React.FC<ActiveLogSetRowProps> = ({
             }}
             aria-pressed={Boolean(isDone)}
             aria-label={isDone ? `Set ${set.setNumber} done. Tap to undo` : `Mark set ${set.setNumber} done and start rest`}
-            className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 font-mono text-[13px] cursor-pointer transition-all border ${
-              isDone ? 'bg-o1-card border-[#10b981]/60 text-[#10b981]' : 'bg-o1-card border-white/[0.07] text-o1-text hover:border-[#C4121A]'
+            className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 font-mono text-[13px] cursor-pointer transition-all bg-o1-card ${
+              isDone ? 'text-o1-crimson' : 'text-o1-text hover:bg-o1-sheet'
             } ${cue === 'tick' ? 'o1-cue-wave' : ''}`}
           >
             {isDone ? <Check className="w-4 h-4" strokeWidth={2} /> : set.setNumber}

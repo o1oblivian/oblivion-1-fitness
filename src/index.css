@@ -728,7 +728,6 @@ html[data-text-size] .text-6xl { font-size: calc(3.75rem * var(--o1-display-scal
   animation: o1-cue-shake 2.4s ease-in-out infinite;
 }
 .o1-cue-wave {
-  border-color: rgb(196 18 26 / 0.8) !important;
   animation: o1-cue-wave 1.6s ease-out infinite;
 }
 @media (prefers-reduced-motion: reduce) {
