@@ -15,7 +15,7 @@ export const LiveBarcodeScanner: React.FC<LiveBarcodeScannerProps> = ({ onDetect
 
   useEffect(() => {
     let active = true;
-    let scanInterval: ReturnType<typeof setInterval> | null = null;
+    let scanInterval: any = null;
 
     async function startCamera() {
       try {
@@ -33,16 +33,15 @@ export const LiveBarcodeScanner: React.FC<LiveBarcodeScannerProps> = ({ onDetect
           setIsStreaming(true);
         }
 
-        const interval = setInterval(async () => {
+        scanInterval = setInterval(async () => {
           if (!videoRef.current || videoRef.current.readyState < 2) return;
           const code = await tryDetectNativeBarcode(videoRef.current);
           if (code) {
-            clearInterval(interval);
+            clearInterval(scanInterval);
             onDetected(code);
           }
         }, 350);
-        scanInterval = interval;
-      } catch {
+      } catch (err: any) {
         setIsStreaming(false);
         setError('Camera permission denied or unavailable. Use manual lookup or photo upload.');
       }

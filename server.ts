@@ -5,13 +5,7 @@ import path from 'path';
 import { createRequire } from 'module';
 import { createServer as createViteServer } from 'vite';
 import { createClient } from '@supabase/supabase-js';
-import {
-  GoogleGenAI,
-  type ContentListUnion,
-  type GenerateContentConfig,
-  type GenerateContentResponse,
-} from '@google/genai';
-import { errorMessage } from './shared/errorMessage';
+import { GoogleGenAI } from '@google/genai';
 import dotenv from 'dotenv';
 import { recognizeTelemetryFromBuffer } from './src/services/ocrTelemetryParser';
 import {
@@ -38,8 +32,8 @@ function getGeminiApiKey(explicitKey?: string): string {
     process.env.GEMINI_API_KEY ||
     process.env.VITE_GEMINI_API_KEY ||
     readImportMetaGeminiKey() ||
-    process.env.GEMINI_API_KEY_2 ||
-    process.env.VITE_GEMINI_API_KEY_2 ||
+    (process.env as any).GEMINI_API_KEY_2 ||
+    (process.env as any).VITE_GEMINI_API_KEY_2 ||
     ''
   );
 }
@@ -67,13 +61,9 @@ function getGenAI(overrideKey?: string): GoogleGenAI | null {
 }
 
 // Resilient Gemini generateContent caller with model fallback & exponential retry for 503/429 spikes
-async function generateContentWithFallback(
-  genAI: GoogleGenAI,
-  contents: ContentListUnion,
-  config?: GenerateContentConfig
-): Promise<GenerateContentResponse> {
+async function generateContentWithFallback(genAI: GoogleGenAI, contents: any[], config?: any): Promise<any> {
   const modelsToTry = ['gemini-flash-latest', 'gemini-3.1-flash-lite'];
-  let lastError: unknown = null;
+  let lastError: any = null;
 
   for (const model of modelsToTry) {
     for (let attempt = 0; attempt < 2; attempt++) {
@@ -86,9 +76,9 @@ async function generateContentWithFallback(
         if (response && response.text) {
           return response;
         }
-      } catch (err) {
+      } catch (err: any) {
         lastError = err;
-        const errMsg = errorMessage(err) || String(err);
+        const errMsg = String(err?.message || err);
         if (errMsg.includes('404') || errMsg.includes('not found') || errMsg.includes('no longer available')) {
           break; // Dead model, skip immediately without waiting
         }
@@ -109,28 +99,6 @@ function parseGeminiJson(responseText: string): any {
   const cleaned = String(responseText || '').replace(/```json\n?|```/g, '').trim();
   const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
   return JSON.parse(jsonMatch ? jsonMatch[0] : cleaned);
-}
-
-interface LiveFoodItem {
-  id: string;
-  name: string;
-  brand: string;
-  calories: number;
-  protein: number;
-  carbs: number;
-  fats: number;
-  servingSize: string;
-  servingGrams: number;
-  category: string;
-  country: string;
-  source: 'openfoodfacts' | 'usda';
-}
-
-interface UsdaNutrient {
-  nutrientName?: string;
-  nutrient?: { name?: string };
-  value?: number;
-  amount?: number;
 }
 
 // Built-in verified barcode database for popular athletic foods & supplements
@@ -372,7 +340,7 @@ async function startServer() {
   app.use(
     express.json({
       limit: '50mb',
-      verify: (req: http.IncomingMessage & { originalUrl?: string; rawBody?: Buffer }, _res, buf) => {
+      verify: (req: any, _res, buf) => {
         if (req.originalUrl?.startsWith('/api/stripe/webhook')) {
           req.rawBody = buf;
         }
@@ -509,8 +477,8 @@ Return STRICT JSON matching this schema:
                 calibrationNote: stepsVal ? `Optical OCR read ${stepsVal.toLocaleString()} steps directly.` : 'Optical OCR calibrated.',
               });
             }
-        } catch (genErr) {
-          console.warn('Gemini vision API unavailable or interrupted, falling back to pure Tesseract OCR pass:', errorMessage(genErr) || genErr);
+        } catch (genErr: any) {
+          console.warn('Gemini vision API unavailable or interrupted, falling back to pure Tesseract OCR pass:', genErr?.message || genErr);
         }
       }
 
@@ -555,7 +523,7 @@ Return STRICT JSON matching this schema:
         },
         calibrationNote: 'No readable numbers detected on image. Tap any metric to enter manually or retake photo.',
       });
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error in /api/vision/cardio-telemetry:', err);
       // A server fault is not "no numbers on the screen". Let the app try its on-device reader.
       res.status(500).json({ error: 'The scanner could not process this photo.' });
@@ -673,17 +641,17 @@ Return valid JSON only matching:
                 confidenceScore: Math.min(99, Math.max(0, Math.round(Number(parsed.confidenceScore) || 0))),
               },
             });
-        } catch (aiErr) {
-          console.warn('Gemini vision API error during meal analysis:', errorMessage(aiErr) || aiErr);
+        } catch (aiErr: any) {
+          console.warn('Gemini vision API error during meal analysis:', aiErr?.message || aiErr);
         }
       }
 
       return res.status(422).json({
         error: 'Could not resolve meal macronutrients. Retake photo with clear lighting and full plate visibility.',
       });
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error in /api/vision/meal-nutrients:', err);
-      res.status(500).json({ error: errorMessage(err, 'Error analyzing meal photo') });
+      res.status(500).json({ error: err.message || 'Error analyzing meal photo' });
     }
   });
 
@@ -759,9 +727,9 @@ Return valid JSON only matching:
         barcode: cleanCode,
         message: 'Barcode recognized but not yet mapped in global registry. Quick-log enabled.',
       });
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error in /api/fuel/scan-barcode:', err);
-      res.status(500).json({ error: errorMessage(err, 'Internal server error during barcode lookup') });
+      res.status(500).json({ error: err.message || 'Internal server error during barcode lookup' });
     }
   });
 
@@ -777,7 +745,7 @@ Return valid JSON only matching:
         return res.json({ success: true, items: [], source: 'none', live: false });
       }
 
-      const items: LiveFoodItem[] = [];
+      const items: any[] = [];
       const domainMap: Record<string, string> = {
         AU: 'au', US: 'us', GB: 'uk', DE: 'de', FR: 'fr',
         IT: 'it', ES: 'es', NL: 'nl', CA: 'ca', JP: 'jp',
@@ -859,9 +827,9 @@ Return valid JSON only matching:
             for (const food of fdcData.foods || []) {
               const name = String(food.description || '').trim();
               if (!name) continue;
-              const nutrients: UsdaNutrient[] = Array.isArray(food.foodNutrients) ? food.foodNutrients : [];
+              const nutrients = Array.isArray(food.foodNutrients) ? food.foodNutrients : [];
               const pick = (names: string[]) => {
-                const row = nutrients.find((n) => names.includes(String(n.nutrientName || n.nutrient?.name || '')));
+                const row = nutrients.find((n: any) => names.includes(String(n.nutrientName || n.nutrient?.name || '')));
                 return Number(row?.value ?? row?.amount ?? 0) || 0;
               };
               const calories = Math.round(pick(['Energy', 'Energy (Atwater General Factors)', 'Calories']));
@@ -900,9 +868,9 @@ Return valid JSON only matching:
         source: sources.includes('usda') ? 'openfoodfacts+usda' : 'openfoodfacts',
         live: true,
       });
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error in /api/fuel/live-food-search:', err);
-      res.status(500).json({ error: errorMessage(err, 'Error searching live food database') });
+      res.status(500).json({ error: err.message || 'Error searching live food database' });
     }
   });
 
@@ -953,9 +921,9 @@ Respond ONLY with a valid JSON object matching this schema:
       }
 
       res.json({ success: true, supplements: results, provider: 'o1-pharmacopeia' });
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error in /api/fuel/supplement-search:', err);
-      res.status(500).json({ error: errorMessage(err, 'Internal server error searching supplements') });
+      res.status(500).json({ error: err.message || 'Internal server error searching supplements' });
     }
   });
 
@@ -987,8 +955,8 @@ Respond ONLY with a valid JSON object matching this schema:
       const result = await deleteAccountData(uid);
       if (!result.ok) return res.status(result.status).json({ error: result.error });
       return res.json({ success: true });
-    } catch (err) {
-      console.error('[account/delete] failed:', errorMessage(err));
+    } catch (err: any) {
+      console.error('[account/delete] failed:', err?.message);
       return res.status(500).json({ error: 'Account deletion failed. Try again.' });
     }
   });

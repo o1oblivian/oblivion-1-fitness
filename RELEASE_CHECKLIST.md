@@ -39,7 +39,7 @@ Agent run: Oct 15–16, 2026. Atlas, Bravo and Comet worked independently (own t
 |---|------|--------|-------|-------|-------|--------|------|
 | W1 | Log a set | 3/3 PASS | PASS | PASS | PASS | | |
 | W2 | Finish workout, shows in Log | 3/3 PASS | PASS | PASS | PASS | | Week card shows double volume (bug 5) |
-| W3 | Watch photo scan | FAIL | PASS | PASS | PASS | PASS | Browser lab photos only. Owner’s G-Shock (about 6,151 steps) returned “No numbers found” on the APK. Segmented-digit read is in source, not in 1.0.81. |
+| W3 | Watch photo scan | LOCKED | PASS | PASS | PASS | PASS | Browser lab photos only. Owner’s G-Shock (about 6,151 steps) returned “No numbers found” on the APK. Segmented-digit read is in source, not in 1.0.81. Oct 17 2026: owner confirmed the cardio scanner works on the phone (build from `verified-1.0.82-scanners`). |
 | W4 | Treadmill photo scan | 3/3 PASS | PASS | PASS | PASS | PASS | Time, km and kcal correct, steps blank. Speed reads 1.2 instead of 2.4 and the type says "watch" (bug 9) |
 | W5 | Save cardio | 3/3 PASS | PASS | PASS | PASS | | Manual entry is labelled "Watch" (bug 9) |
 | W6 | Hero card | PARTIAL | PASS | BLOCKED | PASS | | 358×430 card, dial centred, 46 to 54 px clear of the nav |

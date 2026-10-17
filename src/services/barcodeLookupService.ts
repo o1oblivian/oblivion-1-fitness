@@ -43,15 +43,10 @@ export async function fetchOpenFoodFactsProduct(barcode: string): Promise<Scanne
   return null;
 }
 
-/** Shape Chromium/WebView expose for the Shape Detection API; it is not in lib.dom yet. */
-type NativeBarcodeDetectorCtor = new (options: { formats: string[] }) => {
-  detect: (source: HTMLImageElement | HTMLVideoElement) => Promise<{ rawValue?: string }[]>;
-};
-
 export async function tryDetectNativeBarcode(source: Blob | HTMLVideoElement): Promise<string | null> {
   if (typeof window === 'undefined' || !('BarcodeDetector' in window)) return null;
   try {
-    const detector = new (window as unknown as { BarcodeDetector: NativeBarcodeDetectorCtor }).BarcodeDetector({
+    const detector = new (window as any).BarcodeDetector({
       formats: ['ean_13', 'ean_8', 'upc_a', 'upc_e', 'code_128', 'code_39', 'qr_code'],
     });
     if (source instanceof Blob) {

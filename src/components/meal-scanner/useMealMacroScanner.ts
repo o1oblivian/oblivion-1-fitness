@@ -5,7 +5,6 @@ import {
 import { useFuelStore, FuelMeals } from '../../features/fuel/store/useFuelStore';
 import { tactileEngine } from '../../services/tactileEngine';
 import { useSubscription } from '../../context/SubscriptionContext';
-import { errorMessage, errorName } from '../../../shared/errorMessage';
 
 const MEAL_SCAN_FAILED = 'Could not read this meal photo. Retake it with the food clearly in view.';
 
@@ -71,12 +70,11 @@ export function useMealMacroScanner({
       const detected = await action();
       setScannedMeal(detected);
       tactileEngine.playPRCelebration();
-    } catch (err) {
-      const detail = errorMessage(err);
+    } catch (err: any) {
       let errMsg =
-        detail.includes('permission') || errorName(err) === 'NotAllowedError'
+        err?.message?.includes('permission') || err?.name === 'NotAllowedError'
           ? 'Camera permission denied. Manual macro entry enabled.'
-          : detail || MEAL_SCAN_FAILED;
+          : err?.message || MEAL_SCAN_FAILED;
 
       // Provider and model errors are never shown verbatim.
       if (/sensor standby|standby mode|gemini|google|genai|api[\s_-]?key|quota|model|\bai\b/i.test(errMsg)) {

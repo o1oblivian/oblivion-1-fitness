@@ -2,7 +2,6 @@ import { readConfidence, readNutrient, resolveCalories, ScannedMealBreakdown, Sc
 import { tryDetectNativeBarcode, lookupBarcodeNumber } from './barcodeLookupService';
 import { compressAndAnalyzeImage } from './imageCompressionService';
 import { apiFetch } from './apiBase';
-import { errorMessage } from '../../shared/errorMessage';
 
 export * from './mealVisionTypes';
 export { lookupBarcodeNumber } from './barcodeLookupService';
@@ -84,14 +83,13 @@ export async function analyzeMealImageWithGemini(
       } else if (!proxyRes.ok && data?.error && attempt === maxAttempts) {
         throw new Error(data.error);
       }
-    } catch (err) {
+    } catch (err: any) {
       clearTimeout(timeoutId);
       if (attempt < maxAttempts) {
         await new Promise((r) => setTimeout(r, 600));
         continue;
       }
-      const message = errorMessage(err);
-      if (message && !message.includes('Sensor Standby')) {
+      if (err?.message && !err.message.includes('Sensor Standby')) {
         throw err;
       }
     }
