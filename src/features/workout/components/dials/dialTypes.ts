@@ -15,16 +15,16 @@ export interface DialComponentProps {
   splitLabel: string;
 }
 
-type DialKey = 'split_hud' | 'chrono' | 'f1_rack' | 'radar' | 'horizon' | 'quadrant' | 'restoration';
+type DialKey = 'rings' | 'chrono' | 'speedo' | 'ticks' | 'gauges' | 'tapes' | 'orbits';
 
 export const DAY_DIAL_MAP: Record<string, DialKey> = {
-  Mon: 'split_hud',
+  Mon: 'rings',
   Tue: 'chrono',
-  Wed: 'f1_rack',
-  Thu: 'radar',
-  Fri: 'horizon',
-  Sat: 'quadrant',
-  Sun: 'restoration',
+  Wed: 'speedo',
+  Thu: 'ticks',
+  Fri: 'gauges',
+  Sat: 'tapes',
+  Sun: 'orbits',
 };
 
 export const polarToCartesian = (cx: number, cy: number, r: number, angleInDegrees: number) => {

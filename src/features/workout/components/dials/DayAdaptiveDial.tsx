@@ -1,12 +1,12 @@
 import React from 'react';
 import { DAY_DIAL_MAP, DialComponentProps } from './dialTypes';
-import { MondaySplitDial } from './MondaySplitDial';
+import { MondayRingsDial } from './MondayRingsDial';
 import { TuesdayChronoDial } from './TuesdayChronoDial';
-import { WednesdayF1Dial } from './WednesdayF1Dial';
-import { ThursdayRadarDial } from './ThursdayRadarDial';
-import { FridayHorizonDial } from './FridayHorizonDial';
-import { SaturdayQuadrantDial } from './SaturdayQuadrantDial';
-import { SundayRestorationDial } from './SundayRestorationDial';
+import { WednesdaySpeedoDial } from './WednesdaySpeedoDial';
+import { ThursdayTicksDial } from './ThursdayTicksDial';
+import { FridayGaugesDial } from './FridayGaugesDial';
+import { SaturdayTapesDial } from './SaturdayTapesDial';
+import { SundayOrbitDial } from './SundayOrbitDial';
 
 const finite = (n: number) => (Number.isFinite(n) && n > 0 ? n : 0);
 
@@ -25,20 +25,20 @@ export const DayAdaptiveDial: React.FC<DialComponentProps> = (props) => {
 
 function renderDial(kind: string | undefined, dial: DialComponentProps) {
   switch (kind) {
-    case 'split_hud':
-      return <MondaySplitDial {...dial} />;
+    case 'rings':
+      return <MondayRingsDial {...dial} />;
     case 'chrono':
       return <TuesdayChronoDial {...dial} />;
-    case 'f1_rack':
-      return <WednesdayF1Dial {...dial} />;
-    case 'horizon':
-      return <FridayHorizonDial {...dial} />;
-    case 'quadrant':
-      return <SaturdayQuadrantDial {...dial} />;
-    case 'restoration':
-      return <SundayRestorationDial {...dial} />;
+    case 'speedo':
+      return <WednesdaySpeedoDial {...dial} />;
+    case 'gauges':
+      return <FridayGaugesDial {...dial} />;
+    case 'tapes':
+      return <SaturdayTapesDial {...dial} />;
+    case 'orbits':
+      return <SundayOrbitDial {...dial} />;
     default:
-      return <ThursdayRadarDial {...dial} />;
+      return <ThursdayTicksDial {...dial} />;
   }
 }
 

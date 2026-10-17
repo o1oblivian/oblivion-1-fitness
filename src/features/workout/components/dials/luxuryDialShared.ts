@@ -1,10 +1,3 @@
-export const CRIMSON = '#C4121A';
-export const AMBER = '#d97706';
-export const SKY = '#0284c7';
-export const EMERALD = '#059669';
-export const HAIR = 'rgba(255,255,255,0.32)';
-export const HAIR_SOFT = 'rgba(255,255,255,0.18)';
-
 export function fmtInt(n: number): string {
   if (!Number.isFinite(n) || n <= 0) return '--';
   return Math.round(n).toLocaleString();
