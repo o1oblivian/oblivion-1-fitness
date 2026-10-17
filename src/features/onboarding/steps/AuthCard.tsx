@@ -91,6 +91,7 @@ export const AuthCard: React.FC<AuthCardProps> = ({ data, onUpdate, onNext, onOp
 
   const signInWithApple = async () => {
     setError(null);
+    setNotice(null);
     setBusy('apple');
     tactileEngine.triggerDialHaptic();
     try {
@@ -125,6 +126,7 @@ export const AuthCard: React.FC<AuthCardProps> = ({ data, onUpdate, onNext, onOp
       return;
     }
     setError(null);
+    setNotice(null);
     setBusy('email');
     tactileEngine.triggerDialHaptic();
     const store = useAuthStore.getState();
@@ -168,6 +170,7 @@ export const AuthCard: React.FC<AuthCardProps> = ({ data, onUpdate, onNext, onOp
       return;
     }
     setError(null);
+    setNotice(null);
     setBusy('reset');
     try {
       await sendPasswordReset(address);
@@ -183,6 +186,7 @@ export const AuthCard: React.FC<AuthCardProps> = ({ data, onUpdate, onNext, onOp
 
   const resend = async () => {
     setError(null);
+    setNotice(null);
     setBusy('resend');
     try {
       await resendSignupEmail(cleanEmail(email));

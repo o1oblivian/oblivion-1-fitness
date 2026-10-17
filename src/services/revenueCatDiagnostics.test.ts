@@ -35,8 +35,15 @@ describe('store diagnostics', () => {
     const res = await revenueCatService.purchasePackage('o1fc_pro_monthly', 'user-1');
     expect(res.success).toBe(false);
     expect(res.error).toContain('Billing is unavailable.');
-    expect(res.error).toContain('Invalid API key');
-    expect(revenueCatService.lastIssue).toContain('Invalid API key');
+    expect(res.error).toContain('rejected');
+    expect(res.error).toContain('..._key');
+    expect(revenueCatService.lastIssue).toContain('rejected');
+  });
+
+  it('keeps the store reason when the failure is not about the key', async () => {
+    purchases.configure.mockRejectedValue(new Error('Network down'));
+    await revenueCatService.purchasePackage('o1fc_pro_monthly', 'user-1');
+    expect(revenueCatService.lastIssue).toContain('Network down');
   });
 
   it('says when the store connects but has no products', async () => {

@@ -304,6 +304,13 @@ function storeName(): string {
   }
 }
 
+/** Turns a RevenueCat "invalid key" failure into a message that names the key this build used. */
+function explainStoreFailure(message: string): string {
+  if (!/credential|invalid api key/i.test(message)) return message;
+  const key = resolveNativeStoreKey();
+  return `RevenueCat rejected the ${storeName()} key in this build (ends ...${key.slice(-4)}). Compare it with the key in RevenueCat, Project settings, API keys.`;
+}
+
 class RevenueCatManager {
   private ready: { userId: string; connected: Promise<boolean> } | null = null;
   private issue: string | null = null;
@@ -355,7 +362,7 @@ class RevenueCatManager {
       return true;
     } catch (e) {
       console.warn('[RevenueCat] Store connection failed:', e);
-      this.issue = `RevenueCat could not connect: ${errorMessage(e, 'no reason given')}`;
+      this.issue = `RevenueCat could not connect: ${explainStoreFailure(errorMessage(e, 'no reason given'))}`;
       return false;
     }
   }
@@ -387,7 +394,7 @@ class RevenueCatManager {
       return { packages };
     } catch (err) {
       console.warn('[RevenueCat] Products unavailable:', err);
-      this.issue = `${storeName()} products did not load: ${errorMessage(err, 'no reason given')}`;
+      this.issue = `${storeName()} products did not load: ${explainStoreFailure(errorMessage(err, 'no reason given'))}`;
       return { packages: [] };
     }
   }
@@ -458,9 +465,7 @@ class RevenueCatManager {
       const message =
         err instanceof Error ? err.message : String((err as { message?: unknown })?.message ?? err);
       console.warn('[RevenueCat] Store billing error:', err);
-      if (/credential|invalid api key/i.test(message))
-        return { success: false, error: 'Store billing is unavailable on this device.' };
-      return { success: false, error: message || 'Store billing error.' };
+      return { success: false, error: explainStoreFailure(message) || 'Store billing error.' };
     }
   }
 

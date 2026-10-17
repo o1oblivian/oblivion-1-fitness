@@ -11,6 +11,9 @@ import { useConsultationStore } from '../induction/useConsultationStore';
 import { profileOnboardingComplete } from '../../services/oauthDeepLink';
 import signupBg from '../../assets/images/signin_starfield.jpg';
 
+/** Events that mean a person is now signed in. USER_UPDATED covers saving a new password after a reset link. */
+const SIGN_IN_EVENTS = new Set<string>(['SIGNED_IN', 'INITIAL_SESSION', 'USER_UPDATED']);
+
 type Phase = 'auth' | 'routing' | 'protocol';
 
 export const OnboardingCoordinator: React.FC<{ onComplete: () => void; replay?: boolean }> = ({
@@ -63,7 +66,7 @@ export const OnboardingCoordinator: React.FC<{ onComplete: () => void; replay?: 
 
   useEffect(() => {
     const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
-      if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session?.user) {
+      if (SIGN_IN_EVENTS.has(event) && session?.user) {
         window.setTimeout(() => void routeSignedIn(true), 0);
       }
     });
