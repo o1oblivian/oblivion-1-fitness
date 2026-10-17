@@ -93,7 +93,7 @@ const ProgressChart: React.FC<{ lift: LiftProgress; stroke: string }> = ({ lift,
   );
 };
 
-export const LiftHistoryCard: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
+export const LiftHistoryCard: React.FC = () => {
   const simple = useSimpleMode();
   const { sets, loading } = useOblivionReport(true);
   const lifts = useMemo(() => analyseAllLifts(sets, Date.now()), [sets]);
@@ -114,7 +114,7 @@ export const LiftHistoryCard: React.FC<{ embedded?: boolean }> = ({ embedded = f
   const empty = (text: string) => <p className="py-2 text-[11px] text-o1-muted leading-relaxed">{text}</p>;
 
   return (
-    <div className={embedded ? 'pt-2.5 border-t border-white/[0.05] space-y-2' : 'rounded-2xl bg-o1-card border border-white/[0.07] p-3 space-y-2.5'}>
+    <div className="rounded-2xl bg-o1-card border border-white/[0.07] px-3 py-1 space-y-2.5">
       <button
         type="button"
         aria-expanded={expanded}
@@ -124,14 +124,10 @@ export const LiftHistoryCard: React.FC<{ embedded?: boolean }> = ({ embedded = f
         }}
         className="w-full min-h-[44px] flex items-center gap-2 text-left bg-transparent border-0 p-0"
       >
-        {!embedded && (
-          <span className="o1-mark text-o1-gold">
-            <Trophy />
-          </span>
-        )}
-        <span className={embedded ? 'text-[12px] font-semibold text-o1-muted' : 'text-sm font-semibold text-white'}>
-          {embedded ? 'All-time lift history' : 'Lift history'}
+        <span className="o1-mark text-o1-gold">
+          <Trophy />
         </span>
+        <span className="text-[13px] font-semibold text-o1-text">All-time lift history</span>
         {loading && <span className="text-[10px] text-o1-muted">Loading…</span>}
         <span className="ml-auto text-o1-muted shrink-0">
           {expanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}

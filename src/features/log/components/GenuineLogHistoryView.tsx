@@ -6,11 +6,8 @@ import {
   Apple,
   Moon,
   Brain,
-  ChevronDown,
-  ChevronUp,
   ChevronLeft,
   ChevronRight,
-  Plus,
   Camera,
 } from 'lucide-react';
 import { tactileEngine } from '../../../services/tactileEngine';
@@ -32,21 +29,27 @@ import { LogMonthGrid, type MonthDayItem } from './LogMonthGrid';
 import { LogProgressTowers, TowerPoint } from './LogProgressTowers';
 import { type LedgerRowActions } from './LogLedger';
 import { ChannelDetail } from './LogChannelDetail';
+import { LogChannelRow, LogStillToLog, type LogQuickAction } from './LogDayLedger';
 import {
   WEEKDAYS,
-  cardioLine,
+  cardioHeadline,
   cleanCardio,
   cleanNutrition,
   cleanWorkout,
   dateKeyOf,
+  foodHeadline,
   foodLine,
   line,
+  mindfulHeadline,
   mindfulLine,
   part,
   readableSteps,
   sessionKg,
+  sleepHeadline,
   sleepLine,
+  workoutHeadline,
   workoutLine,
+  type Headline,
 } from './logHistoryFormat';
 import { deleteDayLog, markForgotten, purgeArchivedDay, purgeArchivedLift } from '../services/dayLogService';
 import { exerciseFromSets, knownSets, setWorkKg, setsFromExercise } from '../liftLedger';
@@ -55,6 +58,14 @@ import { forgetPendingArchives } from '../../../services/sessionArchive';
 interface GenuineLogHistoryViewProps {
   showToast: (msg: string) => void;
 }
+
+const QUICK_LABEL: Record<TelemetryCategory, string> = {
+  workout: 'Log workout',
+  cardio: 'Log cardio',
+  nutrition: 'Add food',
+  sleep: 'Log sleep',
+  meditation: 'Log mindful',
+};
 
 export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({ showToast }) => {
   const workoutExercises = useWorkoutStore((s) => s.exercises);
@@ -73,7 +84,7 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({ sh
   const [monthOffset, setMonthOffset] = useState(0);
   const [selectedDateStr, setSelectedDateStr] = useState(today.toDateString());
   const [openChannel, setOpenChannel] = useState<TelemetryCategory | null>(null);
-  const [chartChannel, setChartChannel] = useState<TelemetryCategory | null>(null);
+  const [towerChannel, setTowerChannel] = useState<TelemetryCategory>('workout');
   const [chartSpan, setChartSpan] = useState<'week' | 'month' | 'year'>('week');
   const [editor, setEditor] = useState<{ category: TelemetryCategory; mode: 'create' | 'edit'; lift?: string } | null>(null);
   const [pendingDelete, setPendingDelete] = useState<TelemetryCategory | null>(null);
@@ -453,16 +464,49 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({ sh
   const channels: Array<{
     id: TelemetryCategory;
     title: string;
-    summary: string;
+    /** Null when nothing is logged for this channel on the selected day. */
+    headline: Headline | null;
     color: string;
     icon: React.ReactNode;
   }> = [
-    { id: 'workout', title: 'Workout', summary: workoutLine(workout), color: 'text-o1-olive', icon: <Weight /> },
-    { id: 'cardio', title: 'Cardio', summary: cardioLine(cardio, isViewingToday ? stepCount : 0), color: 'text-o1-teal', icon: <HeartPulse /> },
-    { id: 'nutrition', title: 'Food', summary: foodLine(food), color: 'text-o1-slate', icon: <Apple /> },
-    { id: 'sleep', title: 'Sleep', summary: sleepLine(sleep), color: 'text-o1-iris', icon: <Moon /> },
-    { id: 'meditation', title: 'Mindful', summary: mindfulLine(mindful), color: 'text-o1-rose', icon: <Brain /> },
+    { id: 'workout', title: 'Workout', headline: workoutHeadline(workout), color: 'text-o1-olive', icon: <Weight /> },
+    { id: 'cardio', title: 'Cardio', headline: cardioHeadline(cardio, isViewingToday ? stepCount : 0), color: 'text-o1-teal', icon: <HeartPulse /> },
+    { id: 'nutrition', title: 'Food', headline: foodHeadline(food), color: 'text-o1-slate', icon: <Apple /> },
+    { id: 'sleep', title: 'Sleep', headline: sleepHeadline(sleep), color: 'text-o1-iris', icon: <Moon /> },
+    { id: 'meditation', title: 'Mindful', headline: mindfulHeadline(mindful), color: 'text-o1-rose', icon: <Brain /> },
   ];
+  const loggedChannels = channels.flatMap((channel) => (channel.headline ? [{ ...channel, headline: channel.headline }] : []));
+  const tower = towerPoints(towerChannel);
+  const ledgerTitle = selectedDate.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+
+  const selectTowerKey = (key: string) => {
+    if (chartSpan === 'week') {
+      setSelectedDateStr(key);
+      return;
+    }
+    const target = new Date(key);
+    target.setHours(0, 0, 0, 0);
+    const weekday = today.getDay();
+    const currentMonday = new Date(today);
+    currentMonday.setDate(today.getDate() + (weekday === 0 ? -6 : 1 - weekday));
+    currentMonday.setHours(0, 0, 0, 0);
+    const diff = Math.round((target.getTime() - currentMonday.getTime()) / (7 * 86_400_000));
+    setWeekOffset(Math.min(0, diff));
+    setSelectedDateStr(key);
+  };
+
+  const quickActions: LogQuickAction[] = channels.flatMap((channel) => {
+    if (channel.headline) return [];
+    const log: LogQuickAction = { id: channel.id, label: QUICK_LABEL[channel.id], onSelect: () => openEditor(channel.id, 'create') };
+    if (channel.id !== 'cardio') return [log];
+    const scan: LogQuickAction = {
+      id: 'cardio-scan',
+      label: 'Scan console',
+      icon: <Camera className="w-3.5 h-3.5 text-neutral-400" />,
+      onSelect: () => setIsConsoleScanOpen(true),
+    };
+    return [log, scan];
+  });
   const rowActionsFor = (category: TelemetryCategory): LedgerRowActions | undefined => {
     if (category === 'workout') {
       return {
@@ -492,6 +536,73 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({ sh
         else setPendingDelete(category);
       },
     };
+  };
+
+  const confirmButtons = (onCancel: () => void, onConfirm: () => void) => (
+    <>
+      <button type="button" onClick={onCancel} className="h-8 px-3 rounded-full text-[12px] text-o1-muted hover:text-o1-text cursor-pointer">
+        Cancel
+      </button>
+      <button
+        type="button"
+        onClick={onConfirm}
+        className="h-8 px-3 rounded-full bg-[#C4121A] hover:bg-[#A30F16] active:bg-[#800C11] text-[12px] text-white cursor-pointer"
+      >
+        Delete
+      </button>
+    </>
+  );
+
+  /** Everything inside an open channel row: its entries, delete confirmations, and the console scan for cardio. */
+  const renderChannelEntries = (category: TelemetryCategory, title: string) => {
+    const dayWord = selectedDayMeta.dayLabel.toLowerCase() === 'today' ? "today's" : `${selectedDayMeta.dayLabel}'s`;
+    const confirmBox = 'flex items-center gap-2 rounded-xl bg-o1-well border border-[#C4121A]/40 pl-3 pr-1.5 py-1.5';
+    return (
+      <>
+        {pendingDelete === category && (
+          <div role="alertdialog" aria-label={`Delete ${title}`} className={confirmBox}>
+            <p className="flex-1 min-w-0 text-[12px] text-o1-text leading-snug">
+              Delete {dayWord} {title.toLowerCase()}? This action cannot be undone.
+            </p>
+            {confirmButtons(() => setPendingDelete(null), () => removeEntry(category))}
+          </div>
+        )}
+        <ChannelDetail
+          category={category}
+          workout={workout}
+          cardio={cardio}
+          food={food}
+          sleep={sleep}
+          mindful={mindful}
+          steps={visibleSteps}
+          rowActions={rowActionsFor(category)}
+        />
+        {category === 'nutrition' && pendingMealDelete && (
+          <div role="alertdialog" aria-label={`Delete ${pendingMealDelete.name}`} className={confirmBox}>
+            <p className="flex-1 min-w-0 text-[12px] text-o1-text leading-snug">
+              Delete {pendingMealDelete.name}? This action cannot be undone.
+            </p>
+            {confirmButtons(() => setPendingMealDelete(null), () => removeMeal(pendingMealDelete.index))}
+          </div>
+        )}
+        {category === 'workout' && pendingLiftDelete && (
+          <div role="alertdialog" aria-label={`Delete ${pendingLiftDelete}`} className={confirmBox}>
+            <p className="flex-1 min-w-0 text-[12px] text-o1-text leading-snug">
+              Delete {pendingLiftDelete} from {selectedDayMeta.dayLabel.toLowerCase() === 'today' ? 'today' : selectedDayMeta.dayLabel}? This action cannot be undone.
+            </p>
+            {confirmButtons(() => setPendingLiftDelete(null), () => removeLift(pendingLiftDelete))}
+          </div>
+        )}
+        {category === 'cardio' && (
+          <div className="flex justify-center">
+            <button type="button" onClick={() => setIsConsoleScanOpen(true)} className="o1-pill bg-o1-well border border-white/[0.07] text-neutral-200 text-xs font-semibold">
+              <Camera className="w-3.5 h-3.5 text-neutral-400" />
+              <span>Scan</span>
+            </button>
+          </div>
+        )}
+      </>
+    );
   };
 
   return (
@@ -585,196 +696,82 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({ sh
         )}
       </div>
 
-      <div className="space-y-2">
-        {channels.map((channel) => {
-          const open = openChannel === channel.id;
-          const editable = hasEntry(channel.id);
-          const header = (
-              <div className="w-full min-h-[44px] px-3 py-2 flex items-center justify-between text-left gap-2">
+      <div className="rounded-2xl bg-o1-card border border-white/[0.07] overflow-hidden text-neutral-100">
+        <div className="px-3 pt-3 pb-3">
+          <div className="flex flex-wrap gap-1.5" role="group" aria-label="Channel shown in the chart">
+            {channels.map((channel) => (
+              <button
+                key={channel.id}
+                type="button"
+                aria-pressed={towerChannel === channel.id}
+                onClick={() => {
+                  tactileEngine.triggerSelectionBuzz();
+                  setTowerChannel(channel.id);
+                }}
+                className={`px-2.5 py-1 rounded-full border text-[11px] font-semibold ${
+                  towerChannel === channel.id ? 'bg-o1-text text-o1-surface border-o1-text' : 'bg-o1-well border-white/[0.07] text-neutral-200'
+                }`}
+              >
+                {channel.title}
+              </button>
+            ))}
+          </div>
+          <div className="flex justify-center pt-3">
+            <div className="inline-flex bg-o1-well border border-white/[0.07] p-0.5 rounded-full">
+              {(['week', 'month', 'year'] as const).map((span) => (
                 <button
+                  key={span}
                   type="button"
+                  aria-pressed={chartSpan === span}
                   onClick={() => {
                     tactileEngine.triggerSelectionBuzz();
-                    setOpenChannel(open ? null : channel.id);
-                    setPendingDelete(null);
+                    setChartSpan(span);
                   }}
-                  className="flex items-center gap-2 min-w-0 flex-1 text-left bg-transparent border-0 p-0"
+                  className={`px-3 py-1 rounded-full text-[11px] font-semibold ${chartSpan === span ? 'bg-o1-crimson text-white' : 'text-neutral-400'}`}
                 >
-                  <span className={`o1-mark ${channel.color}`}>{channel.icon}</span>
-                  <div className="min-w-0">
-                    <div className="text-[13px] font-semibold text-white">{channel.title}</div>
-                    <div className="text-[11px] text-neutral-400 truncate">{channel.summary}</div>
-                  </div>
+                  {span === 'week' ? 'Week' : span === 'month' ? 'Month' : 'Year'}
                 </button>
-                <span className="flex items-center gap-1.5 shrink-0">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      tactileEngine.triggerSelectionBuzz();
-                      setChartChannel(chartChannel === channel.id ? null : channel.id);
-                    }}
-                    className={`o1-pill border text-[11px] font-semibold ${chartChannel === channel.id ? 'bg-o1-crimson text-white border-o1-crimson' : 'bg-o1-well border-white/[0.07] text-neutral-200'}`}
-                  >
-                    Chart
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      tactileEngine.triggerSelectionBuzz();
-                      setOpenChannel(open ? null : channel.id);
-                      setPendingDelete(null);
-                    }}
-                    className="bg-transparent border-0 p-1 text-neutral-500"
-                    aria-label={open ? 'Close log' : 'Open log'}
-                  >
-                    {open ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                  </button>
-                </span>
-              </div>
-          );
-          return (
-            <div key={channel.id} className="rounded-2xl bg-o1-card border border-white/[0.07] overflow-hidden">
-              {header}
-              {pendingDelete === channel.id && (editable || (channel.id === 'cardio' && visibleSteps > 0)) && (
-                <div role="alertdialog" aria-label={`Delete ${channel.title}`} className="mx-3 mb-2.5 flex items-center gap-2 rounded-xl bg-o1-well border border-[#C4121A]/40 pl-3 pr-1.5 py-1.5">
-                  <p className="flex-1 min-w-0 text-[12px] text-o1-text leading-snug">
-                    Delete {selectedDayMeta.dayLabel.toLowerCase() === 'today' ? "today's" : `${selectedDayMeta.dayLabel}'s`} {channel.title.toLowerCase()}? This action cannot be undone.
-                  </p>
-                  <button
-                    type="button"
-                    onClick={() => setPendingDelete(null)}
-                    className="h-8 px-3 rounded-full text-[12px] text-o1-muted hover:text-o1-text cursor-pointer"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => removeEntry(channel.id)}
-                    className="h-8 px-3 rounded-full bg-[#C4121A] hover:bg-[#A30F16] active:bg-[#800C11] text-[12px] text-white cursor-pointer"
-                  >
-                    Delete
-                  </button>
-                </div>
-              )}
-              {chartChannel === channel.id && (
-                <div className="px-3 pb-3 border-t border-white/[0.05]">
-                  <div className="flex justify-center pt-2">
-                    <div className="inline-flex bg-o1-well border border-white/[0.07] p-0.5 rounded-full">
-                      {(['week', 'month', 'year'] as const).map((span) => (
-                        <button
-                          key={span}
-                          type="button"
-                          onClick={() => {
-                            tactileEngine.triggerSelectionBuzz();
-                            setChartSpan(span);
-                          }}
-                          className={`px-3 py-1 rounded-full text-[11px] font-semibold ${chartSpan === span ? 'bg-o1-crimson text-white' : 'text-neutral-400'}`}
-                        >
-                          {span === 'week' ? 'Week' : span === 'month' ? 'Month' : 'Year'}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                  <LogProgressTowers
-                    category={channel.id}
-                    points={towerPoints(channel.id).points}
-                    unit={towerPoints(channel.id).unit}
-                    selectedKey={towerPoints(channel.id).selectedKey}
-                    formatValue={(value) => formatTower(channel.id, value)}
-                    onSelect={(key) => {
-                      if (chartSpan === 'week') {
-                        setSelectedDateStr(key);
-                        return;
-                      }
-                      const target = new Date(key);
-                      const day = today.getDay();
-                      const mondayOffset = day === 0 ? -6 : 1 - day;
-                      const currentMonday = new Date(today);
-                      currentMonday.setDate(today.getDate() + mondayOffset);
-                      currentMonday.setHours(0, 0, 0, 0);
-                      target.setHours(0, 0, 0, 0);
-                      const diff = Math.round((target.getTime() - currentMonday.getTime()) / (7 * 86_400_000));
-                      setWeekOffset(Math.min(0, diff));
-                      setSelectedDateStr(key);
-                    }}
-                  />
-                </div>
-              )}
-              {open && (
-                <div className="px-3 pb-3 space-y-2.5 border-t border-white/[0.05]">
-                  <ChannelDetail
-                    category={channel.id}
-                    workout={workout}
-                    cardio={cardio}
-                    food={food}
-                    sleep={sleep}
-                    mindful={mindful}
-                    steps={readableSteps(cardio, isViewingToday ? stepCount : 0)}
-                    rowActions={rowActionsFor(channel.id)}
-                  />
-                  {channel.id === 'nutrition' && pendingMealDelete && (
-                    <div role="alertdialog" aria-label={`Delete ${pendingMealDelete.name}`} className="flex items-center gap-2 rounded-xl bg-o1-well border border-[#C4121A]/40 pl-3 pr-1.5 py-1.5">
-                      <p className="flex-1 min-w-0 text-[12px] text-o1-text leading-snug">
-                        Delete {pendingMealDelete.name}? This action cannot be undone.
-                      </p>
-                      <button
-                        type="button"
-                        onClick={() => setPendingMealDelete(null)}
-                        className="h-8 px-3 rounded-full text-[12px] text-o1-muted hover:text-o1-text cursor-pointer"
-                      >
-                        Cancel
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => removeMeal(pendingMealDelete.index)}
-                        className="h-8 px-3 rounded-full bg-[#C4121A] hover:bg-[#A30F16] active:bg-[#800C11] text-[12px] text-white cursor-pointer"
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  )}
-                  {channel.id === 'workout' && pendingLiftDelete && (
-                    <div role="alertdialog" aria-label={`Delete ${pendingLiftDelete}`} className="flex items-center gap-2 rounded-xl bg-o1-well border border-[#C4121A]/40 pl-3 pr-1.5 py-1.5">
-                      <p className="flex-1 min-w-0 text-[12px] text-o1-text leading-snug">
-                        Delete {pendingLiftDelete} from {selectedDayMeta.dayLabel.toLowerCase() === 'today' ? 'today' : selectedDayMeta.dayLabel}? This action cannot be undone.
-                      </p>
-                      <button
-                        type="button"
-                        onClick={() => setPendingLiftDelete(null)}
-                        className="h-8 px-3 rounded-full text-[12px] text-o1-muted hover:text-o1-text cursor-pointer"
-                      >
-                        Cancel
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => removeLift(pendingLiftDelete)}
-                        className="h-8 px-3 rounded-full bg-[#C4121A] hover:bg-[#A30F16] active:bg-[#800C11] text-[12px] text-white cursor-pointer"
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  )}
-                  {channel.id === 'workout' && <LiftHistoryCard embedded />}
-                  <div className="flex flex-wrap justify-center gap-2 empty:hidden">
-                    {(channel.id === 'sleep' || channel.id === 'meditation') && !editable && (
-                      <button type="button" onClick={() => openEditor(channel.id, 'create')} className="o1-pill bg-o1-well border border-white/[0.07] text-neutral-200 text-xs font-semibold">
-                        <Plus className="w-3.5 h-3.5 text-neutral-400" />
-                        <span>Log</span>
-                      </button>
-                    )}
-                    {channel.id === 'cardio' && (
-                      <button type="button" onClick={() => setIsConsoleScanOpen(true)} className="o1-pill bg-o1-well border border-white/[0.07] text-neutral-200 text-xs font-semibold">
-                        <Camera className="w-3.5 h-3.5 text-neutral-400" />
-                        <span>Scan</span>
-                      </button>
-                    )}
-                  </div>
-                </div>
-              )}
+              ))}
             </div>
-          );
-        })}
+          </div>
+          <LogProgressTowers
+            category={towerChannel}
+            points={tower.points}
+            unit={tower.unit}
+            selectedKey={tower.selectedKey}
+            formatValue={(value) => formatTower(towerChannel, value)}
+            onSelect={selectTowerKey}
+          />
+        </div>
+
+        <div className="border-t border-white/[0.07] px-4 pt-3 pb-2.5 flex items-baseline justify-between gap-2">
+          <h3 className="text-[14px] font-semibold text-o1-text">{ledgerTitle}</h3>
+          <span className="text-[11px] text-o1-muted">{loggedChannels.length} of {channels.length} logged</span>
+        </div>
+        {loggedChannels.length === 0 && (
+          <p className="px-4 pb-3 text-[12px] text-o1-muted">Nothing is logged for this day yet.</p>
+        )}
+        {loggedChannels.map((channel) => (
+          <LogChannelRow
+            key={channel.id}
+            title={channel.title}
+            icon={channel.icon}
+            iconClass={channel.color}
+            headline={channel.headline}
+            open={openChannel === channel.id}
+            onToggle={() => {
+              tactileEngine.triggerSelectionBuzz();
+              setOpenChannel(openChannel === channel.id ? null : channel.id);
+              setPendingDelete(null);
+            }}
+          >
+            {renderChannelEntries(channel.id, channel.title)}
+          </LogChannelRow>
+        ))}
+        <LogStillToLog actions={quickActions} />
       </div>
+
+      <LiftHistoryCard />
 
       {editor && (
         <LogDayTelemetryModal

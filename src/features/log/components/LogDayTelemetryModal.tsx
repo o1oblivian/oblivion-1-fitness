@@ -333,7 +333,8 @@ export const LogDayTelemetryModal: React.FC<LogDayTelemetryModalProps> = ({
       const durNum = readNum(workoutDuration);
       const exWeightNum = readNum(exerciseWeight);
       const exRepsNum = readNum(exerciseReps);
-      if (tonnageNum == null && setsNum == null && durNum == null && exWeightNum == null && exRepsNum == null && !exerciseName.trim() && !workoutRoutine.trim()) {
+      // The routine name is pre-filled, so it cannot count as something the athlete logged.
+      if (tonnageNum == null && setsNum == null && durNum == null && exWeightNum == null && exRepsNum == null && !exerciseName.trim()) {
         onSaved?.('Add a number first');
         return;
       }

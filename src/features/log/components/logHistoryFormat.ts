@@ -119,3 +119,68 @@ export function sleepLine(rec?: SleepDayRecord): string {
 export function mindfulLine(rec?: MeditationDayRecord): string {
   return part(rec?.minutes, ' min') || '--';
 }
+
+/** The one number a channel row leads with, and the smaller facts that go beside it. */
+export interface Headline {
+  value: string;
+  unit: string;
+  caption: string;
+}
+
+interface Candidate {
+  value: string | null;
+  unit: string;
+  /** How this reads in a caption when another figure leads. */
+  inCaption?: string;
+}
+
+/** The first figure that exists leads; every other figure that exists becomes the caption. Null when none exist. */
+function headlineFrom(candidates: Candidate[], extras: Array<string | null> = []): Headline | null {
+  const lead = candidates.find((candidate) => candidate.value);
+  if (!lead || !lead.value) return null;
+  const rest = candidates
+    .filter((candidate) => candidate !== lead && candidate.value)
+    .map((candidate) => candidate.inCaption ?? `${candidate.value} ${candidate.unit}`);
+  return { value: lead.value, unit: lead.unit, caption: [...rest, ...extras].filter(Boolean).join(' · ') };
+}
+
+export function workoutHeadline(rec?: WorkoutDayRecord): Headline | null {
+  if (!rec?.hasData) return null;
+  return headlineFrom([
+    { value: part(sessionKg(rec), ''), unit: 'kg' },
+    { value: part(rec.completedSets, ''), unit: 'sets' },
+    { value: part(rec.durationMinutes, ''), unit: 'min' },
+    { value: part(rec.burnedKcal, ''), unit: 'kcal', inCaption: `${part(rec.burnedKcal, '')} kcal active` },
+  ]);
+}
+
+export function cardioHeadline(rec?: CardioDayRecord, steps = 0): Headline | null {
+  return headlineFrom([
+    { value: part(rec?.distanceKm, '', 1), unit: 'km' },
+    { value: part(rec?.durationMinutes, ''), unit: 'min' },
+    { value: part(rec?.burnedKcal, ''), unit: 'kcal' },
+    { value: part(readableSteps(rec, steps), ''), unit: 'steps' },
+  ]);
+}
+
+export function foodHeadline(rec?: NutritionDayRecord): Headline | null {
+  return headlineFrom(
+    [{ value: part(rec?.calories, ''), unit: 'kcal' }],
+    [part(rec?.proteinG, 'g protein'), part(rec?.carbsG, 'g carbs'), part(rec?.fatsG, 'g fat')],
+  );
+}
+
+export function sleepHeadline(rec?: SleepDayRecord): Headline | null {
+  const recovery = part(rec?.recoveryPercent, '');
+  return headlineFrom([
+    { value: part(rec?.durationHours, '', 1), unit: 'h' },
+    { value: recovery, unit: '% recovery', inCaption: `${recovery}% recovery` },
+  ]);
+}
+
+export function mindfulHeadline(rec?: MeditationDayRecord): Headline | null {
+  return headlineFrom(
+    [{ value: part(rec?.minutes, ''), unit: 'min' }],
+    [rec?.protocol || null, rec?.coherence || null],
+  );
+}

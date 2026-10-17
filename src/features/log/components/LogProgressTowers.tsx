@@ -17,6 +17,10 @@ const ARIA_NAME: Record<TelemetryCategory, string> = {
   meditation: 'Mindful minutes',
 };
 
+/** Seven wide capsules for a week; twelve months need slimmer ones to fit. */
+const WIDE_TOWER_PX = 34;
+const SLIM_TOWER_PX = 22;
+
 interface LogProgressTowersProps {
   category: TelemetryCategory;
   points: TowerPoint[];
@@ -37,7 +41,9 @@ export const LogProgressTowers: React.FC<LogProgressTowersProps> = ({
   const peak = points.reduce((best, point) => (point.value > best ? point.value : best), 0);
   const logged = points.filter((point) => point.value > 0);
   const average = logged.length > 0 ? logged.reduce((sum, point) => sum + point.value, 0) / logged.length : 0;
-  const peakPoint = points.find((point) => point.value > 0 && point.value === peak);
+  const peakIndex = points.findIndex((point) => point.value > 0 && point.value === peak);
+  const peakPoint = peakIndex >= 0 ? points[peakIndex] : undefined;
+  const peakAccent = peakPoint ? dayTowerTheme(peakPoint.label, peakIndex).accent : undefined;
 
   const towers: SegmentedTower[] = points.map((point, index) => {
     const theme = dayTowerTheme(point.label, index);
@@ -48,26 +54,28 @@ export const LogProgressTowers: React.FC<LogProgressTowersProps> = ({
       value: has ? point.value : null,
       slabs: theme.slabs,
       accent: theme.accent,
+      ramp: theme.ramp,
       valueLabel: has ? formatValue(point.value) : '--',
       ariaValue: has ? `${formatValue(point.value)} ${unit}` : 'nothing logged',
     };
   });
 
   return (
-    <div className="pt-2 space-y-2">
-      <div className="flex items-center justify-between gap-2 text-[11px]">
+    <div className="pt-3 space-y-2">
+      <div className="flex items-center justify-between gap-2 px-1 text-[11px]">
         <span className="text-o1-muted">{average > 0 ? `Average ${formatValue(average)} ${unit}` : 'No days logged'}</span>
         {peakPoint ? (
-          <span className="text-o1-text">
+          <span className="font-semibold" style={{ color: peakAccent }}>
             Peak {peakPoint.label} {formatValue(peakPoint.value)}
           </span>
         ) : null}
       </div>
       <SegmentedTowers
+        bold
         towers={towers}
-        tubeHeightPx={104}
-        maxTubeWidthPx={20}
-        reference={average > 0 && logged.length > 1 ? { value: average, label: `AVG ${formatValue(average)} ${unit}` } : null}
+        tubeHeightPx={170}
+        maxTubeWidthPx={points.length > 7 ? SLIM_TOWER_PX : WIDE_TOWER_PX}
+        reference={average > 0 && logged.length > 1 ? { value: average, label: 'AVERAGE' } : null}
         activeKey={selectedKey ?? null}
         peakKey={peakPoint?.key ?? null}
         showValues
