@@ -94,6 +94,6 @@ export const MEAL_SLOTS: MealSlotConfig[] = [
     key: 'drinks',
     label: 'Drinks',
     icon: <Coffee className="w-6 h-6 stroke-[2.2]" />,
-    accent: 'text-sky-600',
+    accent: 'text-[#8F6FB8]',
   },
 ];
