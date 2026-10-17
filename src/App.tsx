@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { CheckCircle2, X } from 'lucide-react';
+import { CheckCircle2, Loader2, X } from 'lucide-react';
 import { MainAppLayout } from './MainAppLayout';
 import { lockDarkTheme } from './utils/lockDarkTheme';
 import { useAuthStore } from './stores/useAuthStore';
@@ -32,6 +32,7 @@ export default function App() {
     return !onboardingCompleted() || !hasAuth;
   });
   const [onboardingReplay, setOnboardingReplay] = useState(false);
+  const [signingOut, setSigningOut] = useState(false);
   const [membershipSuccessBanner, setMembershipSuccessBanner] = useState(false);
   const consultationLocked = useConsultationStore((state) => state.locked);
 
@@ -93,7 +94,9 @@ export default function App() {
       };
       window.addEventListener('o1fc_relaunch_onboarding', handleRelaunch);
       window.addEventListener('o1fc_account_deleted', handleRelaunch);
-      window.addEventListener('o1fc_signed_out', handleRelaunch);
+      // Sign-out ends in a reload. Show a blank holding screen until then; onboarding would flash first.
+      const handleSignedOut = () => setSigningOut(true);
+      window.addEventListener('o1fc_signed_out', handleSignedOut);
 
       const handleAuthUrl = async (url: string) => {
         if (!url) return;
@@ -206,7 +209,7 @@ export default function App() {
         window.removeEventListener('hashchange', handlePopState);
         window.removeEventListener('o1fc_relaunch_onboarding', handleRelaunch);
         window.removeEventListener('o1fc_account_deleted', handleRelaunch);
-        window.removeEventListener('o1fc_signed_out', handleRelaunch);
+        window.removeEventListener('o1fc_signed_out', handleSignedOut);
       };
     }
     return () => cleanupRollover();
@@ -230,6 +233,16 @@ export default function App() {
           />
         )}
         <PasswordRecoverySheet />
+        {signingOut && (
+          <div
+            role="status"
+            aria-live="polite"
+            className="fixed inset-0 z-[100000] flex flex-col items-center justify-center gap-3 bg-black text-o1-muted"
+          >
+            <Loader2 className="h-6 w-6 animate-spin" />
+            <span className="text-sm">Signing out</span>
+          </div>
+        )}
         {membershipSuccessBanner && (
           <div className="fixed top-[max(1rem,env(safe-area-inset-top))] left-1/2 -translate-x-1/2 z-50 w-full max-w-[420px] px-4 bg-o1-card border border-white/[0.07] rounded-2xl p-4 shadow-lg flex items-center justify-between gap-3 animate-in fade-in slide-in-from-top-4 duration-200">
             <div className="flex items-center gap-2.5">

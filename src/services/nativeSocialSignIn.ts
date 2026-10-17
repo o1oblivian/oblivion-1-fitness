@@ -10,6 +10,14 @@ export function hasNativeAppleSignIn(): boolean {
   return Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'ios';
 }
 
+/**
+ * Apple sign-in is offered on iPhone (native sheet) and in a normal browser tab.
+ * On Android it would send the athlete to a browser page inside the app, so it is not offered there.
+ */
+export function appleSignInAvailable(): boolean {
+  return !Capacitor.isNativePlatform() || hasNativeAppleSignIn();
+}
+
 let initialized: Promise<void> | null = null;
 
 async function plugin() {
