@@ -52,7 +52,6 @@ const OWNED_ROWS: ReadonlyArray<readonly [string, string]> = [
   ['coach_reviews', 'athlete_id'],
   ['coaching_applications', 'athlete_id'],
   ['program_enrollments', 'athlete_id'],
-  ['athlete_profiles', 'id'],
   ['profiles', 'id'],
   ['coach_profiles', 'id'],
 ];
