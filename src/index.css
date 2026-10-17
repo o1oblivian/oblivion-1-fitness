@@ -702,3 +702,13 @@ html[data-text-size] .text-6xl { font-size: calc(3.75rem * var(--o1-display-scal
   #root .sm\:p-6 { padding: 0.75rem !important; }
   #root .sm\:py-5 { padding-top: 0.625rem !important; padding-bottom: 0.625rem !important; }
 }
+
+/* The phone paints saved logins in its own light-blue autofill colour. Paint the sign-in fields the same dark neutral as the screen instead. */
+.o1-auth-field:-webkit-autofill,
+.o1-auth-field:-webkit-autofill:hover,
+.o1-auth-field:-webkit-autofill:focus {
+  -webkit-text-fill-color: #EAE8DF;
+  caret-color: #EAE8DF;
+  box-shadow: 0 0 0 1000px #0A0A0B inset;
+  transition: background-color 600000s 0s;
+}

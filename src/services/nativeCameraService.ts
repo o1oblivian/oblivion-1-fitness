@@ -2,6 +2,8 @@ import { Capacitor } from '@capacitor/core';
 
 export type PhotoSource = 'camera' | 'photos';
 
+const MAX_PHOTO_PX = 1600;
+
 /** Opens the phone camera or the photo picker and returns a data URL. Throws with the reason it failed. */
 export async function capturePhotoDataUrl(source: PhotoSource): Promise<string> {
   if (!Capacitor.isNativePlatform()) {
@@ -15,6 +17,9 @@ export async function capturePhotoDataUrl(source: PhotoSource): Promise<string> 
   }
   const photo = await Camera.getPhoto({
     quality: 85,
+    // Resize on the phone before the photo crosses the native bridge. The scanners downscale to 1600px or less anyway.
+    width: MAX_PHOTO_PX,
+    height: MAX_PHOTO_PX,
     allowEditing: false,
     resultType: CameraResultType.Base64,
     source: source === 'camera' ? CameraSource.Camera : CameraSource.Photos,

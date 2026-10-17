@@ -5,7 +5,7 @@ import path from 'path';
 import { createRequire } from 'module';
 import { createServer as createViteServer } from 'vite';
 import { createClient } from '@supabase/supabase-js';
-import { GoogleGenAI } from '@google/genai';
+import { GoogleGenAI, ThinkingLevel } from '@google/genai';
 import dotenv from 'dotenv';
 import { recognizeTelemetryFromBuffer } from './src/services/ocrTelemetryParser';
 import {
@@ -60,10 +60,14 @@ function getGenAI(overrideKey?: string): GoogleGenAI | null {
   }
 }
 
+/** Reading digits off a photo does not need long reasoning; a low thinking level answers noticeably faster. */
+const QUICK_READ_THINKING = { thinkingLevel: ThinkingLevel.LOW };
+
 // Resilient Gemini generateContent caller with model fallback & exponential retry for 503/429 spikes
 async function generateContentWithFallback(genAI: GoogleGenAI, contents: any[], config?: any): Promise<any> {
   const modelsToTry = ['gemini-flash-latest', 'gemini-3.1-flash-lite'];
   let lastError: any = null;
+  let activeConfig = config;
 
   for (const model of modelsToTry) {
     for (let attempt = 0; attempt < 2; attempt++) {
@@ -71,7 +75,7 @@ async function generateContentWithFallback(genAI: GoogleGenAI, contents: any[], 
         const response = await genAI.models.generateContent({
           model,
           contents,
-          config,
+          config: activeConfig,
         });
         if (response && response.text) {
           return response;
@@ -79,6 +83,12 @@ async function generateContentWithFallback(genAI: GoogleGenAI, contents: any[], 
       } catch (err: any) {
         lastError = err;
         const errMsg = String(err?.message || err);
+        if (activeConfig?.thinkingConfig && /thinking/i.test(errMsg)) {
+          // This model does not accept the thinking setting. Ask again without it.
+          activeConfig = { ...activeConfig, thinkingConfig: undefined };
+          attempt -= 1;
+          continue;
+        }
         if (errMsg.includes('404') || errMsg.includes('not found') || errMsg.includes('no longer available')) {
           break; // Dead model, skip immediately without waiting
         }
@@ -423,7 +433,7 @@ Return STRICT JSON matching this schema:
                 { text: prompt },
               ],
             },
-          ], { responseMimeType: 'application/json' });
+          ], { responseMimeType: 'application/json', thinkingConfig: QUICK_READ_THINKING });
 
           const text = response?.text || '';
           const parsed = parseGeminiJson(text);
@@ -605,7 +615,7 @@ Return valid JSON only matching:
                 ],
               },
             ],
-            { temperature: 0.0, responseMimeType: 'application/json' }
+            { temperature: 0.0, responseMimeType: 'application/json', thinkingConfig: QUICK_READ_THINKING }
           );
 
           const text = response.text || '';

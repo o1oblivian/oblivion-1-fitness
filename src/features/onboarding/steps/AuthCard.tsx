@@ -21,7 +21,7 @@ const MIN_PASSWORD = 8;
 const SYSTEM_FONT = '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", system-ui, sans-serif';
 
 const fieldClass =
-  'h-11 w-full rounded-xl border-0 bg-o1-surface/60 px-3.5 text-[14px] font-normal text-o1-text placeholder:text-[#5E5C55] outline-none transition-colors focus:bg-white/[0.08] focus:ring-1 focus:ring-o1-crimson/60';
+  'o1-auth-field h-11 w-full rounded-xl border-0 bg-o1-surface/60 px-3.5 text-[14px] font-normal text-o1-text placeholder:text-[#5E5C55] outline-none transition-colors focus:bg-white/[0.08] focus:ring-1 focus:ring-o1-crimson/60';
 
 function cleanEmail(value: string): string {
   return value.trim().toLowerCase();

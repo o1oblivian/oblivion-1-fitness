@@ -177,7 +177,7 @@ export const SegmentedTowers: React.FC<SegmentedTowersProps> = ({
             className="pointer-events-none absolute inset-x-0 z-10 h-px"
             style={{
               bottom: refBottom,
-              backgroundImage: 'linear-gradient(to right, rgba(255,255,255,0.5) 50%, transparent 50%)',
+              backgroundImage: 'linear-gradient(to right, rgba(0,0,0,0.5) 50%, transparent 50%)',
               backgroundSize: '6px 1px',
             }}
           />
