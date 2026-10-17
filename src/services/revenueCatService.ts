@@ -6,7 +6,7 @@ import {
   type PurchasesPackage,
 } from '@revenuecat/purchases-capacitor';
 import { errorMessage } from '../../shared/errorMessage';
-import { getAuthenticatedUserId } from './authUser';
+import { getAuthenticatedUserId, getCachedUserId } from './authUser';
 import { isNativeStorePlatform, resolveNativeStoreKey } from './purchasesService';
 
 /** RevenueCat entitlement that unlocks Club Pass Pro. */
@@ -290,7 +290,9 @@ function withStoreTimeout<T>(
 
 async function resolveAppUserId(preferred?: string): Promise<string | null> {
   if (preferred && preferred !== 'default-athlete' && preferred !== 'athlete-c1') return preferred;
-  return getAuthenticatedUserId();
+  // The store only needs a stable id for the customer. When the server check is slow or the
+  // phone is offline, the account already signed in on this device is just as good.
+  return (await getAuthenticatedUserId()) ?? (await getCachedUserId());
 }
 
 /** Name of the store this phone buys from, for messages the athlete reads. */

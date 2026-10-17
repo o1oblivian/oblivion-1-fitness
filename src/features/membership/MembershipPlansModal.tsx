@@ -12,7 +12,6 @@ import { openLegalUrl } from '../../services/apiBase';
 import { useSubscription } from '../../context/SubscriptionContext';
 import { MembershipPlanCard } from './components/MembershipPlanCard';
 import { MembershipPlanFeatures } from './components/MembershipPlanFeatures';
-import { getAuthenticatedUserId } from '../../services/authUser';
 import { MembershipCheckoutModal } from './components/MembershipCheckoutModal';
 import { useStorePrices } from './planCatalog';
 
@@ -160,12 +159,7 @@ export const MembershipPlansModal: React.FC<MembershipPlansModalProps> = ({
     } else {
       setIsPurchasing(true);
       try {
-        const uid = await getAuthenticatedUserId();
-        if (!uid) {
-          setStoreStatusBanner('Sign in to subscribe.');
-          return;
-        }
-        const res = await revenueCatService.purchasePackage(selectedProductId, uid);
+        const res = await revenueCatService.purchasePackage(selectedProductId);
         if (res.success) {
           tactileEngine.playPRCelebration();
           await activatePlan(selectedProductId);

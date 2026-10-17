@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useLayoutEffect, useRef, useState } from 'react';
 import { TabMode, NavigationDock } from './components/NavigationDock';
 import { WorkoutHub } from './features/workout/WorkoutHub';
 import { FuelView as FuelHub } from './features/fuel/FuelView';
@@ -27,8 +27,11 @@ export const MainAppLayout: React.FC = () => {
     setActiveTab((prev) => (prev === tab ? prev : tab));
   }, []);
 
-  useEffect(() => {
+  // The page itself scrolls (the <main> grows with its content), so reset both; resetting only
+  // <main> left the next tab opening part-way down. Layout effect: no flash of the old position.
+  useLayoutEffect(() => {
     mainRef.current?.scrollTo(0, 0);
+    window.scrollTo(0, 0);
   }, [activeTab]);
 
   React.useEffect(() => {

@@ -1,9 +1,9 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const auth = vi.hoisted(() => ({ getUser: vi.fn(), getSession: vi.fn() }));
 vi.mock('./supabaseClient', () => ({ supabase: { auth } }));
 
-import { forgetVerifiedUser, getAuthenticatedUserId } from './authUser';
+import { forgetVerifiedUser, getAuthenticatedUserId, getCachedUserId } from './authUser';
 
 const USER = '11111111-1111-4111-8111-111111111111';
 const signedIn = (token: string) =>
@@ -66,5 +66,45 @@ describe('getAuthenticatedUserId', () => {
   it('still works when the session cannot be read', async () => {
     auth.getSession.mockRejectedValue(new Error('storage blocked'));
     expect(await getAuthenticatedUserId()).toBe(USER);
+  });
+});
+
+describe('a stuck auth client', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    forgetVerifiedUser();
+    vi.useFakeTimers();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it('gives up on a server check that never answers instead of waiting forever', async () => {
+    signedIn('token-a');
+    auth.getUser.mockReturnValue(new Promise(() => {}));
+    const pending = getAuthenticatedUserId();
+    await vi.advanceTimersByTimeAsync(8_000);
+    expect(await pending).toBeNull();
+  });
+
+  it('gives up on a session read that never answers', async () => {
+    auth.getSession.mockReturnValue(new Promise(() => {}));
+    auth.getUser.mockResolvedValue({ data: { user: { id: USER } }, error: null });
+    const pending = getAuthenticatedUserId();
+    await vi.advanceTimersByTimeAsync(8_000);
+    expect(await pending).toBe(USER);
+  });
+
+  it('falls back to the account stored on the device when the session read hangs', async () => {
+    vi.stubGlobal('window', {});
+    vi.stubGlobal('localStorage', {
+      getItem: (key: string) => (key === 'o1fc_user_id' ? USER : null),
+    });
+    auth.getSession.mockReturnValue(new Promise(() => {}));
+    const pending = getCachedUserId();
+    await vi.advanceTimersByTimeAsync(3_000);
+    expect(await pending).toBe(USER);
+    vi.unstubAllGlobals();
   });
 });

@@ -236,10 +236,7 @@ export function InductionProtocol() {
       return;
     }
     setBusy('buy');
-    const uid = await getAuthenticatedUserId();
-    const res = uid
-      ? await revenueCatService.purchasePackage(plan.product.productId, uid)
-      : { success: false, error: 'Sign in to subscribe.' };
+    const res = await revenueCatService.purchasePackage(plan.product.productId);
     if (!res.success) {
       setBusy(null);
       setStoreError(res.error || 'The store is unavailable right now.');

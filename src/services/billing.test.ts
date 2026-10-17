@@ -3,7 +3,10 @@ import type { CustomerInfo, PurchasesPackage } from '@revenuecat/purchases-capac
 
 vi.mock('@revenuecat/purchases-capacitor', () => ({ Purchases: {} }));
 vi.mock('./supabaseClient', () => ({ supabase: {} }));
-vi.mock('./authUser', () => ({ getAuthenticatedUserId: async () => null }));
+vi.mock('./authUser', () => ({
+  getAuthenticatedUserId: async () => null,
+  getCachedUserId: async () => null,
+}));
 
 import {
   entitlementFromCustomerInfo,

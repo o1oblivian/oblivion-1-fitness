@@ -24,23 +24,40 @@ interface Verification {
 
 let verification: Verification | null = null;
 
-async function askServerWho(): Promise<string | null> {
-  try {
-    const { data, error } = await supabase.auth.getUser();
-    if (error || !data.user?.id || isPlaceholderUserId(data.user.id)) return null;
-    return data.user.id;
-  } catch {
-    return null;
-  }
+/** A slow or stuck auth call must end in "unknown", never leave a screen waiting forever. */
+const AUTH_TIMEOUT_MS = 8_000;
+
+function within<T>(work: Promise<T>, fallback: T, ms = AUTH_TIMEOUT_MS): Promise<T> {
+  return new Promise<T>((resolve) => {
+    const timer = setTimeout(() => resolve(fallback), ms);
+    work.then(
+      (value) => {
+        clearTimeout(timer);
+        resolve(value);
+      },
+      () => {
+        clearTimeout(timer);
+        resolve(fallback);
+      },
+    );
+  });
 }
 
-async function currentAccessToken(): Promise<string | null> {
-  try {
-    const { data } = await supabase.auth.getSession();
-    return data.session?.access_token ?? null;
-  } catch {
-    return null;
-  }
+function askServerWho(): Promise<string | null> {
+  return within(
+    supabase.auth.getUser().then(({ data, error }) => {
+      if (error || !data.user?.id || isPlaceholderUserId(data.user.id)) return null;
+      return data.user.id;
+    }),
+    null,
+  );
+}
+
+function currentAccessToken(): Promise<string | null> {
+  return within(
+    supabase.auth.getSession().then(({ data }) => data.session?.access_token ?? null),
+    null,
+  );
 }
 
 /**
@@ -76,13 +93,12 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 /** The account signed in on this device, read without a network round trip so it works offline. */
 export async function getCachedUserId(): Promise<string | null> {
-  try {
-    const { data } = await supabase.auth.getSession();
-    const id = data.session?.user?.id;
-    if (id && !isPlaceholderUserId(id)) return id;
-  } catch {
-    // fall back to the stored id
-  }
+  const sessionId = await within(
+    supabase.auth.getSession().then(({ data }) => data.session?.user?.id ?? null),
+    null,
+    3_000,
+  );
+  if (sessionId && !isPlaceholderUserId(sessionId)) return sessionId;
   const id = peekStoredUserId()?.replace(/^"|"$/g, '') ?? null;
   return id && UUID.test(id) ? id : null;
 }
