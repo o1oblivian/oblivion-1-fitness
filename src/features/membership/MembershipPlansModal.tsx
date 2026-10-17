@@ -61,6 +61,7 @@ export const MembershipPlansModal: React.FC<MembershipPlansModalProps> = ({
       .getOfferings()
       .then((offerings) => {
         if (cancelled) return;
+        if (!offerings.packages.length && revenueCatService.isNative()) setStoreStatusBanner(revenueCatService.lastIssue);
         const pkgs = revenueCatService.listPackages(offerings);
         const pkg =
           pkgs.find((p) => p.identifier === '$rc_monthly' || p.product?.identifier === 'o1fc_pro_monthly' || String(p.product?.identifier || '').startsWith('o1fc_pro_monthly:')) ||

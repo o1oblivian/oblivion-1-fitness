@@ -1,5 +1,6 @@
 import { Capacitor } from '@capacitor/core';
 import { Purchases, type CustomerInfo, type PurchasesOfferings, type PurchasesPackage } from '@revenuecat/purchases-capacitor';
+import { errorMessage } from '../../shared/errorMessage';
 import { getAuthenticatedUserId } from './authUser';
 import { isNativeStorePlatform, resolveNativeStoreKey } from './purchasesService';
 
@@ -252,12 +253,19 @@ function storeName(): string {
 
 class RevenueCatManager {
   private ready: { userId: string; connected: Promise<boolean> } | null = null;
+  private issue: string | null = null;
 
   isNative = (): boolean => isNativeStorePlatform();
+
+  /** Why the store last failed to connect or list products, in words the owner can act on. Null when it is working. */
+  get lastIssue(): string | null {
+    return this.issue;
+  }
 
   /** Detaches the store customer on sign-out or account deletion so the next sign-in starts clean. */
   async logOut(): Promise<void> {
     this.ready = null;
+    this.issue = null;
     try {
       localStorage.removeItem(STORAGE_KEY);
       localStorage.removeItem(STATUS_KEY);
@@ -277,6 +285,7 @@ class RevenueCatManager {
     const apiKey = resolveNativeStoreKey();
     if (!apiKey) {
       console.warn('[RevenueCat] Native store key missing for', Capacitor.getPlatform());
+      this.issue = 'This build has no RevenueCat key for this phone.';
       return false;
     }
     try {
@@ -285,9 +294,11 @@ class RevenueCatManager {
         if (isConfigured) await Purchases.logIn({ appUserID: userId });
         else await Purchases.configure({ apiKey, appUserID: userId });
       })(), `${storeName()} billing did not answer.`);
+      this.issue = null;
       return true;
     } catch (e) {
       console.warn('[RevenueCat] Store connection failed:', e);
+      this.issue = `RevenueCat could not connect: ${errorMessage(e, 'no reason given')}`;
       return false;
     }
   }
@@ -309,8 +320,15 @@ class RevenueCatManager {
   async getOfferings(appUserId?: string): Promise<StoreCatalog> {
     try {
       const client = await this.init(appUserId);
-      return { packages: client ? packagesFromOfferings(await withStoreTimeout(client.getOfferings(), 'Store products did not load.')) : [] };
-    } catch {
+      if (!client) return { packages: [] };
+      const packages = packagesFromOfferings(await withStoreTimeout(client.getOfferings(), 'Store products did not load.'));
+      this.issue = packages.length
+        ? null
+        : `${storeName()} returned no products. Check that the subscriptions are attached to the default offering in RevenueCat.`;
+      return { packages };
+    } catch (err) {
+      console.warn('[RevenueCat] Products unavailable:', err);
+      this.issue = `${storeName()} products did not load: ${errorMessage(err, 'no reason given')}`;
       return { packages: [] };
     }
   }
@@ -333,7 +351,9 @@ class RevenueCatManager {
       }
 
       const client = await this.init(userId);
-      if (!client) return { success: false, error: `Billing is unavailable. Install the app from ${storeName()} to subscribe.` };
+      if (!client) {
+        return { success: false, error: `Billing is unavailable. ${this.issue ?? 'The store did not answer.'} Install the app from ${storeName()} to subscribe.` };
+      }
 
       const pkg = findPackageForPlan(packagesFromOfferings(await withStoreTimeout(client.getOfferings(), 'Store products did not load. Check your connection and try again.')), planId);
       if (!pkg || (pkg as { isFallback?: boolean }).isFallback) {
