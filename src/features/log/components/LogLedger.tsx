@@ -33,7 +33,8 @@ export interface LedgerRow {
 
 /** Swipe a row left to reveal Edit and Delete for that row. */
 export interface LedgerRowActions {
-  onEdit: (row: LedgerRow) => void;
+  /** Left out for rows that can only be removed, such as steps read from the phone. */
+  onEdit?: (row: LedgerRow) => void;
   onDelete: (row: LedgerRow) => void;
   /** Nudge the first row so the swipe is discoverable. */
   hint?: boolean;
@@ -157,7 +158,11 @@ export const LogLedger: React.FC<LogLedgerProps> = ({ nameLabel, columns, rows, 
           actionLabel="Delete"
           actionAriaLabel={`Delete ${row.name}`}
           onAction={() => rowActions.onDelete(row)}
-          secondaryAction={{ label: 'Edit', ariaLabel: `Edit ${row.name}`, onAction: () => rowActions.onEdit(row) }}
+          secondaryAction={
+            rowActions.onEdit
+              ? { label: 'Edit', ariaLabel: `Edit ${row.name}`, onAction: () => rowActions.onEdit?.(row) }
+              : undefined
+          }
           hint={Boolean(rowActions.hint) && index === 0}
           contentClassName="bg-o1-card"
         >

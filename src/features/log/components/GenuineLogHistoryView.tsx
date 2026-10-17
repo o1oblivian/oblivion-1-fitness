@@ -9,7 +9,6 @@ import {
   ChevronDown,
   ChevronLeft,
   ChevronRight,
-  Camera,
 } from 'lucide-react';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { useWorkoutStore } from '../../workout/store/useWorkoutStore';
@@ -24,7 +23,6 @@ import {
 } from '../store/useTelemetryHistoryStore';
 import { LogDayTelemetryModal } from './LogDayTelemetryModal';
 import { LiftHistoryCard } from './LiftHistoryCard';
-import { CardioConsoleScanModal } from './CardioConsoleScanModal';
 import { LogWeekStrip } from './LogWeekStrip';
 import { LogMonthGrid, type MonthDayItem } from './LogMonthGrid';
 import { LogProgressTowers, TowerPoint } from './LogProgressTowers';
@@ -61,10 +59,8 @@ interface GenuineLogHistoryViewProps {
   showToast: (msg: string) => void;
 }
 
-const QUICK_LABEL: Record<TelemetryCategory, string> = {
-  workout: 'Log workout',
-  cardio: 'Log cardio',
-  nutrition: 'Add food',
+/** Workouts, cardio and food come from their own tabs; only sleep and mindful minutes are typed in from the Log. */
+const MANUAL_LOG_LABEL: Partial<Record<TelemetryCategory, string>> = {
   sleep: 'Log sleep',
   meditation: 'Log mindful',
 };
@@ -98,8 +94,6 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({ sh
     setPendingLiftDelete(null);
     setPendingMealDelete(null);
   };
-  const [isConsoleScanOpen, setIsConsoleScanOpen] = useState(false);
-
   const mondayDate = useMemo(() => {
     const day = today.getDay();
     const mondayOffset = day === 0 ? -6 : 1 - day;
@@ -499,16 +493,9 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({ sh
   };
 
   const quickActions: LogQuickAction[] = channels.flatMap((channel) => {
-    if (channel.headline) return [];
-    const log: LogQuickAction = { id: channel.id, label: QUICK_LABEL[channel.id], onSelect: () => openEditor(channel.id, 'create') };
-    if (channel.id !== 'cardio') return [log];
-    const scan: LogQuickAction = {
-      id: 'cardio-scan',
-      label: 'Scan console',
-      icon: <Camera className="w-3.5 h-3.5 text-neutral-400" />,
-      onSelect: () => setIsConsoleScanOpen(true),
-    };
-    return [log, scan];
+    const label = MANUAL_LOG_LABEL[channel.id];
+    if (channel.headline || !label) return [];
+    return [{ id: channel.id, label, onSelect: () => openEditor(channel.id, 'create') }];
   });
   const rowActionsFor = (category: TelemetryCategory): LedgerRowActions | undefined => {
     if (category === 'workout') {
@@ -525,13 +512,16 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({ sh
         },
       };
     }
-    if (!hasEntry(category) && !(category === 'cardio' && visibleSteps > 0)) return undefined;
+    const canEdit = hasEntry(category);
+    if (!canEdit && !(category === 'cardio' && visibleSteps > 0)) return undefined;
     return {
       hint: true,
-      onEdit: () => {
-        clearPending();
-        openEditor(category, hasEntry(category) ? 'edit' : 'create');
-      },
+      onEdit: canEdit
+        ? () => {
+            clearPending();
+            openEditor(category, 'edit');
+          }
+        : undefined,
       onDelete: (row) => {
         clearPending();
         const mealIndex = category === 'nutrition' ? Number(row.id.split(':')[1]) : NaN;
@@ -556,7 +546,7 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({ sh
     </>
   );
 
-  /** Everything inside an open channel row: its entries, delete confirmations, and the console scan for cardio. */
+  /** Everything inside an open channel row: its entries and delete confirmations. */
   const renderChannelEntries = (category: TelemetryCategory, title: string) => {
     const dayWord = selectedDayMeta.dayLabel.toLowerCase() === 'today' ? "today's" : `${selectedDayMeta.dayLabel}'s`;
     const confirmBox = 'flex items-center gap-2 rounded-xl bg-o1-well border border-[#C4121A]/40 pl-3 pr-1.5 py-1.5';
@@ -594,14 +584,6 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({ sh
               Delete {pendingLiftDelete} from {selectedDayMeta.dayLabel.toLowerCase() === 'today' ? 'today' : selectedDayMeta.dayLabel}? This action cannot be undone.
             </p>
             {confirmButtons(() => setPendingLiftDelete(null), () => removeLift(pendingLiftDelete))}
-          </div>
-        )}
-        {category === 'cardio' && (
-          <div className="flex justify-center">
-            <button type="button" onClick={() => setIsConsoleScanOpen(true)} className="o1-pill bg-o1-well border border-white/[0.07] text-neutral-200 text-xs font-semibold">
-              <Camera className="w-3.5 h-3.5 text-neutral-400" />
-              <span>Scan</span>
-            </button>
           </div>
         )}
       </>
@@ -804,12 +786,6 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({ sh
           onSaved={showToast}
         />
       )}
-      <CardioConsoleScanModal
-        isOpen={isConsoleScanOpen}
-        onClose={() => setIsConsoleScanOpen(false)}
-        dateKey={selectedDateKey}
-        onSynced={showToast}
-      />
     </div>
   );
 };

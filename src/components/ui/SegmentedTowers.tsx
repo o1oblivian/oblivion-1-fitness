@@ -191,7 +191,7 @@ export const SegmentedTowers: React.FC<SegmentedTowersProps> = ({
           {refOpen && (
             <span
               role="status"
-              className="pointer-events-none absolute right-0 z-30 rounded-md border border-white/20 bg-o1-canvas px-1.5 py-0.5 text-[9px] tracking-wide leading-none text-o1-text"
+              className="pointer-events-none absolute right-0 z-30 rounded-md border border-white/10 bg-black/60 px-1.5 py-0.5 text-[9px] tracking-wide leading-none text-o1-text"
               style={{ bottom: refBottom + 4 }}
             >
               {reference.label}
