@@ -4,14 +4,9 @@
  */
 import { Capacitor } from '@capacitor/core';
 
-/** Public SDK keys from RevenueCat (platform-specific). Overridable via env. */
+/** Public SDK keys from RevenueCat (platform-specific). One source of truth: no env overrides. */
 export const NATIVE_APPLE_SDK_KEY = 'appl_bVAQIwbQxZzifRbzmyBjdZohETH';
 export const NATIVE_GOOGLE_SDK_KEY = 'goog_WUkUOSxwelTEdPbjhkcgeIQzqEW';
-
-const env = import.meta.env as Record<string, string | undefined>;
-
-export const appleKey = env.VITE_REVENUECAT_APPLE_KEY || env.REVENUECAT_APPLE_KEY || NATIVE_APPLE_SDK_KEY;
-export const googleKey = env.VITE_REVENUECAT_GOOGLE_KEY || env.REVENUECAT_GOOGLE_KEY || NATIVE_GOOGLE_SDK_KEY;
 
 export function isNativeStorePlatform(): boolean {
   if (typeof window === 'undefined') return false;
@@ -25,8 +20,8 @@ export function isNativeStorePlatform(): boolean {
 
 export function resolveNativeStoreKey(): string {
   try {
-    return Capacitor.getPlatform() === 'ios' ? appleKey : googleKey;
+    return Capacitor.getPlatform() === 'ios' ? NATIVE_APPLE_SDK_KEY : NATIVE_GOOGLE_SDK_KEY;
   } catch {
-    return googleKey;
+    return NATIVE_GOOGLE_SDK_KEY;
   }
 }
