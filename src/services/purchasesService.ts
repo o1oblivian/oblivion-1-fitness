@@ -5,8 +5,8 @@
 import { Capacitor } from '@capacitor/core';
 
 /** Public SDK keys from RevenueCat (platform-specific). Overridable via env. */
-export const NATIVE_APPLE_SDK_KEY = 'appl_bVAQTwbQxZzifRbzmyBjdZohETH';
-export const NATIVE_GOOGLE_SDK_KEY = 'goog_WuKUOSxwe1TEDPbjhkcgeIQzqEW';
+export const NATIVE_APPLE_SDK_KEY = 'appl_bVAQIwbQxZzifRbzmyBjdZohETH';
+export const NATIVE_GOOGLE_SDK_KEY = 'goog_WUkUOSxwelTEdPbjhkcgeIQzqEW';
 
 const env = import.meta.env as Record<string, string | undefined>;
 
