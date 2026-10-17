@@ -7,7 +7,7 @@ import { O1FCoachCommandCenter } from './01FCoachCommandCenter';
 import { O1FCoachAthletePortal } from './01FCoachAthletePortal';
 import { onCoachConsoleRequested } from './services/coachConsoleBus';
 import { isValidUuid } from './services/coachService';
-import { CoachRootView, useCoachViewStore } from './store/useCoachViewStore';
+import { CoachRootView, resolveCoachAccess, useCoachViewStore } from './store/useCoachViewStore';
 
 const TOGGLES: { id: CoachRootView; label: string; icon: typeof Users }[] = [
   { id: 'athlete', label: 'Athletes', icon: Users },
@@ -18,11 +18,19 @@ const TOGGLES: { id: CoachRootView; label: string; icon: typeof Users }[] = [
 export const O1FCoachRootView: React.FC = () => {
   const userId = useAuthStore((s) => s.user?.id || '');
   const role = useAuthStore((s) => s.profile?.role);
-  const [hasCoachCard, setHasCoachCard] = useState(false);
   const view = useCoachViewStore((s) => s.view);
   const setView = useCoachViewStore((s) => s.setView);
+  const cachedCard = useCoachViewStore((s) => s.coachCard);
+  const setCoachCard = useCoachViewStore((s) => s.setCoachCard);
+  const [checkFailed, setCheckFailed] = useState(false);
   const [visited, setVisited] = useState<Record<CoachRootView, boolean>>(() => ({ athlete: view === 'athlete', coach: view === 'coach' }));
-  const isCoach = role === 'coach' || hasCoachCard;
+  const { isCoach, awaitingFirstCheck } = resolveCoachAccess({
+    role,
+    userId,
+    validUserId: isValidUuid(userId),
+    cached: cachedCard,
+    checkFailed,
+  });
 
   useEffect(() => onCoachConsoleRequested(() => {
     setView('coach');
@@ -30,7 +38,7 @@ export const O1FCoachRootView: React.FC = () => {
   }), [setView]);
 
   useEffect(() => {
-    setHasCoachCard(false);
+    setCheckFailed(false);
     if (!isValidUuid(userId)) return;
     let cancelled = false;
     void supabase
@@ -38,14 +46,18 @@ export const O1FCoachRootView: React.FC = () => {
       .select('id')
       .eq('id', userId)
       .maybeSingle()
-      .then(({ data }) => {
-        if (!cancelled) setHasCoachCard(Boolean(data));
+      .then(({ data, error }) => {
+        if (cancelled) return;
+        // A failed lookup is not an answer: show the athlete view this time and ask again next visit.
+        if (error) setCheckFailed(true);
+        else setCoachCard(userId, Boolean(data));
       });
     return () => {
       cancelled = true;
     };
-  }, [userId]);
+  }, [userId, setCoachCard]);
 
+  if (awaitingFirstCheck) return <div className="min-h-screen w-full bg-black" aria-busy="true" />;
   if (!isCoach) return <O1FCoachAthletePortal isCoach={false} />;
 
   return (
