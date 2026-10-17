@@ -107,22 +107,45 @@ export async function persistAuthenticatedUser(): Promise<boolean> {
   }
 }
 
-/** Server flag only. A local flag used to be set on every sign-in, which skipped the wizard. */
+export type OnboardingStatus = 'done' | 'not_done' | 'unknown';
+
+const STATUS_TIMEOUT_MS = 8_000;
+
+/**
+ * Server flag only. A local flag used to be set on every sign-in, which skipped the wizard.
+ * `unknown` means the server could not be asked (offline, slow, signed out); callers may retry.
+ */
+export async function profileOnboardingStatus(): Promise<OnboardingStatus> {
+  const ask = async (): Promise<OnboardingStatus> => {
+    try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const uid = sessionData.session?.user?.id;
+      if (!uid) return 'unknown';
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('onboarding_completed')
+        .eq('id', uid)
+        .maybeSingle();
+      if (error) return 'unknown';
+      if (!data) return 'not_done';
+      return (data as { onboarding_completed?: boolean }).onboarding_completed === true
+        ? 'done'
+        : 'not_done';
+    } catch {
+      return 'unknown';
+    }
+  };
+  return new Promise<OnboardingStatus>((resolve) => {
+    const timer = setTimeout(() => resolve('unknown'), STATUS_TIMEOUT_MS);
+    void ask().then((status) => {
+      clearTimeout(timer);
+      resolve(status);
+    });
+  });
+}
+
 export async function profileOnboardingComplete(): Promise<boolean> {
-  try {
-    const { data: sessionData } = await supabase.auth.getSession();
-    const uid = sessionData.session?.user?.id;
-    if (!uid) return false;
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('onboarding_completed')
-      .eq('id', uid)
-      .maybeSingle();
-    if (error || !data) return false;
-    return (data as { onboarding_completed?: boolean }).onboarding_completed === true;
-  } catch {
-    return false;
-  }
+  return (await profileOnboardingStatus()) === 'done';
 }
 
 function authCode(rawUrl: string): string | null {

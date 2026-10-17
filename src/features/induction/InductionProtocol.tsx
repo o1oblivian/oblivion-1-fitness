@@ -16,7 +16,8 @@ import {
   readAthleteSettingsSnapshot,
 } from '../../utils/athleteSettingsSnapshot';
 import { useConsultationStore } from './useConsultationStore';
-import { profileOnboardingComplete } from '../../services/oauthDeepLink';
+import { profileOnboardingStatus } from '../../services/oauthDeepLink';
+import { restoreConsultation } from './restoreConsultation';
 import { supabase } from '../../services/supabaseClient';
 import { safeStorage } from '../../utils/safeStorage';
 import {
@@ -108,18 +109,13 @@ export function InductionProtocol() {
 
   useEffect(() => {
     let cancelled = false;
-    void profileOnboardingComplete()
-      .then((done) =>
-        done
-          ? useConsultationStore
-              .getState()
-              .hydrate()
-              .catch(() => false)
-          : false,
-      )
-      .then((found) => {
-        if (!cancelled && !found) setPhase('questions');
-      });
+    void restoreConsultation({
+      status: profileOnboardingStatus,
+      hydrate: () => useConsultationStore.getState().hydrate(),
+      isCancelled: () => cancelled,
+    }).then((found) => {
+      if (!cancelled && !found) setPhase('questions');
+    });
     return () => {
       cancelled = true;
     };
