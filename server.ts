@@ -12,7 +12,6 @@ import {
   handleRevenueCatWebhook,
   handleSyncEntitlements,
 } from './server/routes/billingWebhookHandler';
-import { handleVerifyPose } from './server/routes/poseVerificationRoute';
 import { registerStripeRoutes } from './server/routes/stripeRoutes';
 import { deleteAccountData } from './server/lib/accountDeletion';
 
@@ -655,9 +654,6 @@ Return valid JSON only matching:
       res.status(500).json({ error: err.message || 'Error analyzing meal photo' });
     }
   });
-
-  // AI Biometric Pose Verification Route (Gemini Vision)
-  app.post('/api/vision/verify-pose', (req, res) => handleVerifyPose(req, res, getGenAI));
 
   // 2. REAL BARCODE SCANNER & OPEN FOOD FACTS LOOKUP
   app.post('/api/fuel/scan-barcode', async (req, res) => {
