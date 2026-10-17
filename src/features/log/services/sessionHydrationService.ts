@@ -39,45 +39,64 @@ export async function hydrateSessionsFromSupabase(): Promise<void> {
       const dateKey = localDayKey(completedAt);
       const sessionTitle = row.session_name || row.title || 'Workout Session';
       const rawSeconds = Number(row.duration_seconds);
-      const durMinutes = Number.isFinite(rawSeconds) && rawSeconds > 0 ? Math.round(rawSeconds / 60) : 0;
+      const durMinutes =
+        Number.isFinite(rawSeconds) && rawSeconds > 0 ? Math.round(rawSeconds / 60) : 0;
       const rawTonnage = Number(row.volume_kg ?? row.tonnage_kg ?? row.tonnage) || 0;
       const totalSets = Number(row.total_sets || row.sets_count) || 0;
       const heartRate = Number(row.avg_heart_rate || row.avg_hr) || 0;
       const loggedRpe = Number(row.avg_rpe ?? row.rpe) || 0;
 
-      const isCardio =
-        sessionTitle.toLowerCase().startsWith('cardio') ||
-        row.activity_type != null;
+      const isCardio = sessionTitle.toLowerCase().startsWith('cardio') || row.activity_type != null;
 
       if (isCardio) {
         const distMatch = sessionTitle.match(/([\d.]+)\s*km/i);
         const calMatch = sessionTitle.match(/(\d+)\s*kcal/i);
-        const dist = distMatch ? parseFloat(distMatch[1]) : Number(row.distance_km || row.distance) || 0;
-        const cals = calMatch ? parseInt(calMatch[1], 10) : Number(row.burned_kcal || row.calories) || 0;
-        const actType = row.activity_type || sessionTitle.replace(/^Cardio:\s*/i, '').split('(')[0].trim() || 'Cardio';
+        const dist = distMatch
+          ? parseFloat(distMatch[1])
+          : Number(row.distance_km || row.distance) || 0;
+        const cals = calMatch
+          ? parseInt(calMatch[1], 10)
+          : Number(row.burned_kcal || row.calories) || 0;
+        const actType =
+          row.activity_type ||
+          sessionTitle
+            .replace(/^Cardio:\s*/i, '')
+            .split('(')[0]
+            .trim() ||
+          'Cardio';
 
         if (dateKey && !isForgotten(dateKey, 'cardio') && !phoneOwnsDay(dateKey, 'cardio')) {
-          useTelemetryHistoryStore.getState().updateDayRecord(dateKey, 'cardio', {
-            hasData: true,
-            distanceKm: dist,
-            durationMinutes: durMinutes,
-            burnedKcal: cals,
-            avgHeartRateBpm: heartRate,
-            zone2Minutes: 0,
-            activityType: actType,
-          }, { skipCloud: true });
+          useTelemetryHistoryStore.getState().updateDayRecord(
+            dateKey,
+            'cardio',
+            {
+              hasData: true,
+              distanceKm: dist,
+              durationMinutes: durMinutes,
+              burnedKcal: cals,
+              avgHeartRateBpm: heartRate,
+              zone2Minutes: 0,
+              activityType: actType,
+            },
+            { skipCloud: true },
+          );
         }
       } else {
         if (dateKey && !isForgotten(dateKey, 'workout') && !phoneOwnsDay(dateKey, 'workout')) {
           if (row.id) strengthDays.push({ id: String(row.id), dateKey });
-          useTelemetryHistoryStore.getState().updateDayRecord(dateKey, 'workout', {
-            hasData: true,
-            tonnageKg: rawTonnage,
-            completedSets: totalSets,
-            durationMinutes: durMinutes,
-            routineName: sessionTitle,
-            intensityRpe: loggedRpe,
-          }, { skipCloud: true });
+          useTelemetryHistoryStore.getState().updateDayRecord(
+            dateKey,
+            'workout',
+            {
+              hasData: true,
+              tonnageKg: rawTonnage,
+              completedSets: totalSets,
+              durationMinutes: durMinutes,
+              routineName: sessionTitle,
+              intensityRpe: loggedRpe,
+            },
+            { skipCloud: true },
+          );
         }
       }
     }
@@ -86,15 +105,23 @@ export async function hydrateSessionsFromSupabase(): Promise<void> {
       const { data: logs } = await supabase
         .from('workout_logs')
         .select('session_id, exercise_name, set_number, reps, weight_kg')
-        .in('session_id', strengthDays.map((day) => day.id))
+        .in(
+          'session_id',
+          strengthDays.map((day) => day.id),
+        )
         .limit(800);
       if (Array.isArray(logs) && logs.length > 0) {
-        const bySession = new Map<string, Map<string, Array<{ setNumber: number; reps: number; weightKg: number }>>>();
+        const bySession = new Map<
+          string,
+          Map<string, Array<{ setNumber: number; reps: number; weightKg: number }>>
+        >();
         logs.forEach((row) => {
           const sessionId = String(row.session_id || '');
           const name = String(row.exercise_name || 'Exercise');
           if (!sessionId) return;
-          const lifts = bySession.get(sessionId) || new Map<string, Array<{ setNumber: number; reps: number; weightKg: number }>>();
+          const lifts =
+            bySession.get(sessionId) ||
+            new Map<string, Array<{ setNumber: number; reps: number; weightKg: number }>>();
           const sets = lifts.get(name) || [];
           sets.push({
             setNumber: Number(row.set_number) || sets.length + 1,
@@ -106,19 +133,31 @@ export async function hydrateSessionsFromSupabase(): Promise<void> {
         });
         strengthDays.forEach((day) => {
           const lifts = bySession.get(day.id);
-          if (!lifts || isForgotten(day.dateKey, 'workout') || phoneOwnsDay(day.dateKey, 'workout')) return;
-          const local = useTelemetryHistoryStore.getState().historyByDate[day.dateKey]?.workout?.exercises || [];
+          if (!lifts || isForgotten(day.dateKey, 'workout') || phoneOwnsDay(day.dateKey, 'workout'))
+            return;
+          const local =
+            useTelemetryHistoryStore.getState().historyByDate[day.dateKey]?.workout?.exercises ||
+            [];
           if (local.some((lift) => (lift.setLog?.length || 0) > 0)) return;
-          const exercises = [...lifts.entries()].map(([name, sets]) => exerciseFromSets(
-            name,
-            [...sets].sort((a, b) => a.setNumber - b.setNumber).map((set) => ({ reps: set.reps, weightKg: set.weightKg })),
-          ));
+          const exercises = [...lifts.entries()].map(([name, sets]) =>
+            exerciseFromSets(
+              name,
+              [...sets]
+                .sort((a, b) => a.setNumber - b.setNumber)
+                .map((set) => ({ reps: set.reps, weightKg: set.weightKg })),
+            ),
+          );
           if (exercises.length === 0) return;
-          useTelemetryHistoryStore.getState().updateDayRecord(day.dateKey, 'workout', {
-            hasData: true,
-            exercises,
-            completedSets: exercises.reduce((sum, lift) => sum + lift.sets, 0),
-          }, { skipCloud: true });
+          useTelemetryHistoryStore.getState().updateDayRecord(
+            day.dateKey,
+            'workout',
+            {
+              hasData: true,
+              exercises,
+              completedSets: exercises.reduce((sum, lift) => sum + lift.sets, 0),
+            },
+            { skipCloud: true },
+          );
         });
       }
     }

@@ -54,12 +54,18 @@ export const CardioMetricsGrid: React.FC<Props> = ({ metrics, onUpdateMetric }) 
                   {m.label}
                 </span>
                 {onUpdateMetric && !isEditing && (
-                  <Edit3 className="w-2.5 h-2.5 shrink-0 text-neutral-500 opacity-50 group-hover:opacity-100 transition-opacity" strokeWidth={1.5} />
+                  <Edit3
+                    className="w-2.5 h-2.5 shrink-0 text-neutral-500 opacity-50 group-hover:opacity-100 transition-opacity"
+                    strokeWidth={1.5}
+                  />
                 )}
               </div>
 
               {isEditing ? (
-                <div className="flex items-center gap-1 mt-0.5" onClick={(e) => e.stopPropagation()}>
+                <div
+                  className="flex items-center gap-1 mt-0.5"
+                  onClick={(e) => e.stopPropagation()}
+                >
                   <input
                     type="text"
                     inputMode="decimal"
@@ -100,5 +106,3 @@ export const CardioMetricsGrid: React.FC<Props> = ({ metrics, onUpdateMetric }) 
     </div>
   );
 };
-
-

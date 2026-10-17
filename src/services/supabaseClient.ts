@@ -6,15 +6,29 @@ import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { buildArchiveRows } from './archiveRows';
 
 export interface WorkoutSessionPayload {
-  id?: string; user_id?: string; title?: string; duration?: string; duration_seconds?: number;
-  strain?: number; tonnage_kg?: number; total_sets?: number; exercises?: unknown; created_at?: string;
+  id?: string;
+  user_id?: string;
+  title?: string;
+  duration?: string;
+  duration_seconds?: number;
+  strain?: number;
+  tonnage_kg?: number;
+  total_sets?: number;
+  exercises?: unknown;
+  created_at?: string;
   /** When the session happened. Defaults to now; past-day entries pass their own day. */
   completed_at?: string;
   [key: string]: unknown;
 }
 
 export interface AthleteProfile {
-  id: string; handle?: string; full_name?: string; bio?: string; avatar_url?: string; settings?: Record<string, unknown>; updated_at?: string;
+  id: string;
+  handle?: string;
+  full_name?: string;
+  bio?: string;
+  avatar_url?: string;
+  settings?: Record<string, unknown>;
+  updated_at?: string;
 }
 
 const PROD_SUPABASE_URL = 'https://qkfvepjeyreicqomatyt.supabase.co';
@@ -23,7 +37,10 @@ const PROD_SUPABASE_ANON_KEY =
 
 function getSafeEnv(key: string): string {
   try {
-    const metaEnv = typeof import.meta !== 'undefined' ? (import.meta.env as Record<string, string | undefined>) : undefined;
+    const metaEnv =
+      typeof import.meta !== 'undefined'
+        ? (import.meta.env as Record<string, string | undefined>)
+        : undefined;
     if (metaEnv?.[key]) return metaEnv[key]!;
     if (typeof process !== 'undefined' && process?.env?.[key]) return process.env[key]!;
   } catch {}
@@ -38,8 +55,12 @@ if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KE
 }
 
 // Hardwire production Supabase credentials as default fallbacks
-const SUPABASE_URL = (envUrl && envUrl.startsWith('http') && !envUrl.includes('placeholder')) ? envUrl : PROD_SUPABASE_URL;
-const SUPABASE_ANON_KEY = (envKey && !envKey.includes('placeholder')) ? envKey : PROD_SUPABASE_ANON_KEY;
+const SUPABASE_URL =
+  envUrl && envUrl.startsWith('http') && !envUrl.includes('placeholder')
+    ? envUrl
+    : PROD_SUPABASE_URL;
+const SUPABASE_ANON_KEY =
+  envKey && !envKey.includes('placeholder') ? envKey : PROD_SUPABASE_ANON_KEY;
 
 function hasSubtleCrypto(): boolean {
   try {
@@ -54,7 +75,8 @@ const insecureOrigin = typeof window !== 'undefined' && !hasSubtleCrypto();
 /** Finishes an explicit sign-out before the auth client reads storage. */
 function finishPendingSignOut(): void {
   try {
-    if (typeof window === 'undefined' || localStorage.getItem('o1fc_signed_out_pending') !== '1') return;
+    if (typeof window === 'undefined' || localStorage.getItem('o1fc_signed_out_pending') !== '1')
+      return;
     for (const key of Object.keys(localStorage)) {
       if (/^sb-.+-auth-token/.test(key)) localStorage.removeItem(key);
     }
@@ -81,7 +103,7 @@ try {
     import.meta.env.VITE_SUPABASE_ANON_KEY || SUPABASE_ANON_KEY,
     {
       auth: authOptions,
-    }
+    },
   );
 } catch (e) {
   console.warn('[Supabase Safe Guard] Initialization notice:', e);
@@ -106,21 +128,29 @@ export async function syncSessionToSupabase(sessionData: WorkoutSessionPayload):
     if (!userId || userId === 'default-athlete' || userId === 'athlete-c1') return false;
     const { session, logs, mirror } = buildArchiveRows(sessionData, userId);
 
-    const sessionRes = await supabase.from('completed_sessions').upsert([session], { onConflict: 'id' });
+    const sessionRes = await supabase
+      .from('completed_sessions')
+      .upsert([session], { onConflict: 'id' });
     if (sessionRes.error) {
       console.error('[Supabase] completed_sessions upsert failed:', sessionRes.error);
       return false;
     }
     if (logs.length > 0) {
-      await supabase.from('workout_logs').delete().eq('session_id', session.id as string);
+      await supabase
+        .from('workout_logs')
+        .delete()
+        .eq('session_id', session.id as string);
       const logsRes = await supabase.from('workout_logs').insert(logs);
       if (logsRes.error) {
         console.error('[Supabase] workout_logs insert failed:', logsRes.error);
         return false;
       }
     }
-    const mirrorRes = await supabase.from('workout_sessions').upsert([mirror], { onConflict: 'id' });
-    if (mirrorRes.error) console.warn('[Supabase] workout_sessions mirror upsert failed:', mirrorRes.error);
+    const mirrorRes = await supabase
+      .from('workout_sessions')
+      .upsert([mirror], { onConflict: 'id' });
+    if (mirrorRes.error)
+      console.warn('[Supabase] workout_sessions mirror upsert failed:', mirrorRes.error);
     return true;
   } catch (err) {
     console.error('[Supabase] Exception while archiving session:', err);
@@ -134,5 +164,7 @@ export async function fetchAthleteProfile(userId?: string): Promise<AthleteProfi
     if (!uid) return null;
     const { data, error } = await supabase.from('profiles').select('*').eq('id', uid).maybeSingle();
     return error ? null : (data as AthleteProfile | null);
-  } catch { return null; }
+  } catch {
+    return null;
+  }
 }

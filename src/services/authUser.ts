@@ -53,7 +53,11 @@ export async function getAuthenticatedUserId(): Promise<string | null> {
   const token = await currentAccessToken();
   if (!token) return askServerWho();
 
-  if (verification && verification.token === token && Date.now() - verification.at < VERIFIED_FOR_MS) {
+  if (
+    verification &&
+    verification.token === token &&
+    Date.now() - verification.at < VERIFIED_FOR_MS
+  ) {
     return verification.id;
   }
   const mine: Verification = { token, at: Date.now(), id: askServerWho() };

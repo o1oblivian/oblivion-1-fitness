@@ -9,10 +9,30 @@ import type { LiftProgress, LiftTrend } from '../../report/types';
 type View = 'lifts' | 'bests' | 'stuck';
 
 const TREND: Record<LiftTrend, { simple: string; pro: string; cls: string; stroke: string }> = {
-  rising: { simple: 'Going up', pro: 'Rising', cls: 'text-emerald-500 border-emerald-500/30', stroke: '#10b981' },
-  steady: { simple: 'Holding', pro: 'Steady', cls: 'text-o1-muted border-white/[0.12]', stroke: '#8A887F' },
-  plateau: { simple: 'Stuck', pro: 'Plateau', cls: 'text-amber-500 border-amber-500/30', stroke: '#d97706' },
-  declining: { simple: 'Dropping', pro: 'Declining', cls: 'text-[#C4121A] border-[#C4121A]/40', stroke: '#C4121A' },
+  rising: {
+    simple: 'Going up',
+    pro: 'Rising',
+    cls: 'text-emerald-500 border-emerald-500/30',
+    stroke: '#10b981',
+  },
+  steady: {
+    simple: 'Holding',
+    pro: 'Steady',
+    cls: 'text-o1-muted border-white/[0.12]',
+    stroke: '#8A887F',
+  },
+  plateau: {
+    simple: 'Stuck',
+    pro: 'Plateau',
+    cls: 'text-amber-500 border-amber-500/30',
+    stroke: '#d97706',
+  },
+  declining: {
+    simple: 'Dropping',
+    pro: 'Declining',
+    cls: 'text-[#C4121A] border-[#C4121A]/40',
+    stroke: '#C4121A',
+  },
 };
 
 const PILL_OFF = 'bg-[#000000] text-[#FFFFFF] border border-white/[0.14]';
@@ -44,9 +64,10 @@ function stuckAdvice(lift: LiftProgress, simple: boolean): { headline: string; t
   const weeks = weeksSince(lift.bestDay);
   return {
     headline: `No new best in ${weeks} week${weeks === 1 ? '' : 's'} (since ${shortDay(lift.bestDay)}).`,
-    tip: lift.lastReps <= 6
-      ? 'Try sets of 8–10 for three weeks, then come back to heavy sets.'
-      : 'Try heavier sets of 4–6 for three weeks, or drop the weight 10% for one week and build back up.',
+    tip:
+      lift.lastReps <= 6
+        ? 'Try sets of 8–10 for three weeks, then come back to heavy sets.'
+        : 'Try heavier sets of 4–6 for three weeks, or drop the weight 10% for one week and build back up.',
   };
 }
 
@@ -69,7 +90,12 @@ const ProgressChart: React.FC<{ lift: LiftProgress; stroke: string }> = ({ lift,
         {hi !== lo && <span>{kg(lo)}</span>}
       </div>
       <div className="relative flex-1">
-        <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-20" preserveAspectRatio="none" aria-hidden="true">
+        <svg
+          viewBox={`0 0 ${W} ${H}`}
+          className="w-full h-20"
+          preserveAspectRatio="none"
+          aria-hidden="true"
+        >
           {pts.length > 1 && (
             <polyline
               points={pts.map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join(' ')}
@@ -97,8 +123,14 @@ export const LiftHistoryCard: React.FC = () => {
   const simple = useSimpleMode();
   const { sets, loading } = useOblivionReport(true);
   const lifts = useMemo(() => analyseAllLifts(sets, Date.now()), [sets]);
-  const stuck = useMemo(() => lifts.filter((l) => l.trend === 'plateau' || l.trend === 'declining'), [lifts]);
-  const bests = useMemo(() => [...lifts].sort((a, b) => dayOf(b.bestDay).getTime() - dayOf(a.bestDay).getTime()), [lifts]);
+  const stuck = useMemo(
+    () => lifts.filter((l) => l.trend === 'plateau' || l.trend === 'declining'),
+    [lifts],
+  );
+  const bests = useMemo(
+    () => [...lifts].sort((a, b) => dayOf(b.bestDay).getTime() - dayOf(a.bestDay).getTime()),
+    [lifts],
+  );
   const [view, setView] = useState<View>('lifts');
   const [openLift, setOpenLift] = useState<string | null>(null);
   const [expanded, setExpanded] = useState(false);
@@ -111,7 +143,9 @@ export const LiftHistoryCard: React.FC = () => {
     { id: 'stuck', label: stuck.length > 0 ? `Stuck · ${stuck.length}` : 'Stuck' },
   ];
 
-  const empty = (text: string) => <p className="py-2 text-[11px] text-o1-muted leading-relaxed">{text}</p>;
+  const empty = (text: string) => (
+    <p className="py-2 text-[11px] text-o1-muted leading-relaxed">{text}</p>
+  );
 
   return (
     <div className="rounded-2xl bg-o1-card border border-white/[0.07] px-3 py-1 space-y-2.5">
@@ -152,46 +186,64 @@ export const LiftHistoryCard: React.FC = () => {
         </div>
       )}
 
-      {expanded && view === 'lifts' && (
-        lifts.length === 0
-          ? empty('No lifts logged yet')
-          : (
-            <ul className="divide-y divide-white/[0.05]">
-              {lifts.map((lift) => {
-                const trend = TREND[lift.trend];
-                const open = openLift === lift.name;
-                return (
-                  <li key={lift.name}>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        tactileEngine.triggerSelectionBuzz();
-                        setOpenLift(open ? null : lift.name);
-                      }}
-                      className="w-full min-h-[44px] py-2 flex items-center gap-2 text-left bg-transparent border-0"
-                    >
-                      <div className="flex-1 min-w-0">
-                        <div className="text-[13px] font-semibold text-white truncate">{lift.name}</div>
-                        <div className="text-[11px] text-o1-muted truncate">
-                          Last {kg(lift.lastWeightKg)} × {lift.lastReps} · {shortDay(lift.lastDay)}
-                        </div>
+      {expanded &&
+        view === 'lifts' &&
+        (lifts.length === 0 ? (
+          empty('No lifts logged yet')
+        ) : (
+          <ul className="divide-y divide-white/[0.05]">
+            {lifts.map((lift) => {
+              const trend = TREND[lift.trend];
+              const open = openLift === lift.name;
+              return (
+                <li key={lift.name}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      tactileEngine.triggerSelectionBuzz();
+                      setOpenLift(open ? null : lift.name);
+                    }}
+                    className="w-full min-h-[44px] py-2 flex items-center gap-2 text-left bg-transparent border-0"
+                  >
+                    <div className="flex-1 min-w-0">
+                      <div className="text-[13px] font-semibold text-white truncate">
+                        {lift.name}
                       </div>
-                      {lift.sessions >= 2 && (
-                        <span className={`shrink-0 px-2 py-0.5 rounded-full border text-[10px] font-semibold ${trend.cls}`}>
-                          {simple ? trend.simple : trend.pro}
-                        </span>
+                      <div className="text-[11px] text-o1-muted truncate">
+                        Last {kg(lift.lastWeightKg)} × {lift.lastReps} · {shortDay(lift.lastDay)}
+                      </div>
+                    </div>
+                    {lift.sessions >= 2 && (
+                      <span
+                        className={`shrink-0 px-2 py-0.5 rounded-full border text-[10px] font-semibold ${trend.cls}`}
+                      >
+                        {simple ? trend.simple : trend.pro}
+                      </span>
+                    )}
+                    {open ? (
+                      <ChevronUp className="w-4 h-4 text-o1-muted shrink-0" />
+                    ) : (
+                      <ChevronDown className="w-4 h-4 text-o1-muted shrink-0" />
+                    )}
+                  </button>
+                  {open && (
+                    <div className="pb-3 space-y-2">
+                      {lift.series.length > 1 && (
+                        <ProgressChart lift={lift} stroke={trend.stroke} />
                       )}
-                      {open ? <ChevronUp className="w-4 h-4 text-o1-muted shrink-0" /> : <ChevronDown className="w-4 h-4 text-o1-muted shrink-0" />}
-                    </button>
-                    {open && (
-                      <div className="pb-3 space-y-2">
-                        {lift.series.length > 1 && <ProgressChart lift={lift} stroke={trend.stroke} />}
-                        <p className="text-[11px] text-o1-muted">
-                          {estLabel} {kg(lift.currentE1rm)} now · best {kg(lift.bestE1rm)} · {lift.sessions} session{lift.sessions === 1 ? '' : 's'}
-                        </p>
-                        <ul className="space-y-1">
-                          {[...lift.series].reverse().slice(0, 6).map((s) => (
-                            <li key={s.day} className="flex items-center justify-between text-[12px]">
+                      <p className="text-[11px] text-o1-muted">
+                        {estLabel} {kg(lift.currentE1rm)} now · best {kg(lift.bestE1rm)} ·{' '}
+                        {lift.sessions} session{lift.sessions === 1 ? '' : 's'}
+                      </p>
+                      <ul className="space-y-1">
+                        {[...lift.series]
+                          .reverse()
+                          .slice(0, 6)
+                          .map((s) => (
+                            <li
+                              key={s.day}
+                              className="flex items-center justify-between text-[12px]"
+                            >
                               <span className="text-o1-muted">{shortDay(s.day)}</span>
                               <span className="text-o1-text">
                                 {kg(s.weightKg)} × {s.reps}
@@ -199,66 +251,79 @@ export const LiftHistoryCard: React.FC = () => {
                               </span>
                             </li>
                           ))}
-                        </ul>
-                      </div>
-                    )}
-                  </li>
-                );
-              })}
-            </ul>
-          )
-      )}
-
-      {expanded && view === 'bests' && (
-        bests.length === 0
-          ? empty('Your best set on every lift shows here once you log one.')
-          : (
-            <ul className="divide-y divide-white/[0.05]">
-              {bests.map((lift) => (
-                <li key={lift.name} className="min-h-[44px] py-2 flex items-center justify-between gap-3">
-                  <div className="min-w-0">
-                    <div className="text-[13px] font-semibold text-white truncate">{lift.name}</div>
-                    <div className="text-[11px] text-o1-muted">{shortDay(lift.bestDay)}</div>
-                  </div>
-                  <div className="text-right shrink-0">
-                    <div className="text-[13px] font-semibold text-white">{kg(lift.bestWeightKg)} × {lift.bestReps}</div>
-                    {!simple && <div className="text-[10px] text-o1-muted">{estLabel} {kg(lift.bestE1rm)}</div>}
-                  </div>
-                </li>
-              ))}
-            </ul>
-          )
-      )}
-
-      {expanded && view === 'stuck' && (
-        stuck.length === 0
-          ? empty(
-              lifts.some((l) => l.sessions >= 3)
-                ? 'Nothing stuck. Every lift is going up or holding.'
-                : 'We need 3 sessions of a lift within 6 weeks before we can tell if it is stuck.',
-            )
-          : (
-            <ul className="space-y-2">
-              {stuck.map((lift) => {
-                const advice = stuckAdvice(lift, simple);
-                return (
-                  <li key={lift.name} className="rounded-xl bg-o1-well border border-white/[0.07] px-3 py-2 space-y-0.5">
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="text-[13px] font-semibold text-white truncate">{lift.name}</span>
-                      <span className={`shrink-0 px-2 py-0.5 rounded-full border text-[10px] font-semibold ${TREND[lift.trend].cls}`}>
-                        {simple ? TREND[lift.trend].simple : TREND[lift.trend].pro}
-                      </span>
+                      </ul>
                     </div>
-                    <p className="text-[12px] text-o1-text">{advice.headline}</p>
-                    <p className="text-[11px] text-o1-muted leading-relaxed">{advice.tip}</p>
-                  </li>
-                );
-              })}
-            </ul>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        ))}
+
+      {expanded &&
+        view === 'bests' &&
+        (bests.length === 0 ? (
+          empty('Your best set on every lift shows here once you log one.')
+        ) : (
+          <ul className="divide-y divide-white/[0.05]">
+            {bests.map((lift) => (
+              <li
+                key={lift.name}
+                className="min-h-[44px] py-2 flex items-center justify-between gap-3"
+              >
+                <div className="min-w-0">
+                  <div className="text-[13px] font-semibold text-white truncate">{lift.name}</div>
+                  <div className="text-[11px] text-o1-muted">{shortDay(lift.bestDay)}</div>
+                </div>
+                <div className="text-right shrink-0">
+                  <div className="text-[13px] font-semibold text-white">
+                    {kg(lift.bestWeightKg)} × {lift.bestReps}
+                  </div>
+                  {!simple && (
+                    <div className="text-[10px] text-o1-muted">
+                      {estLabel} {kg(lift.bestE1rm)}
+                    </div>
+                  )}
+                </div>
+              </li>
+            ))}
+          </ul>
+        ))}
+
+      {expanded &&
+        view === 'stuck' &&
+        (stuck.length === 0 ? (
+          empty(
+            lifts.some((l) => l.sessions >= 3)
+              ? 'Nothing stuck. Every lift is going up or holding.'
+              : 'We need 3 sessions of a lift within 6 weeks before we can tell if it is stuck.',
           )
-      )}
+        ) : (
+          <ul className="space-y-2">
+            {stuck.map((lift) => {
+              const advice = stuckAdvice(lift, simple);
+              return (
+                <li
+                  key={lift.name}
+                  className="rounded-xl bg-o1-well border border-white/[0.07] px-3 py-2 space-y-0.5"
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-[13px] font-semibold text-white truncate">
+                      {lift.name}
+                    </span>
+                    <span
+                      className={`shrink-0 px-2 py-0.5 rounded-full border text-[10px] font-semibold ${TREND[lift.trend].cls}`}
+                    >
+                      {simple ? TREND[lift.trend].simple : TREND[lift.trend].pro}
+                    </span>
+                  </div>
+                  <p className="text-[12px] text-o1-text">{advice.headline}</p>
+                  <p className="text-[11px] text-o1-muted leading-relaxed">{advice.tip}</p>
+                </li>
+              );
+            })}
+          </ul>
+        ))}
     </div>
   );
 };
-
-

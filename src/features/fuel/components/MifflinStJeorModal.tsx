@@ -4,15 +4,8 @@ import { tactileEngine } from '../../../services/tactileEngine';
 import { useUserStore } from '../../../stores/useUserStore';
 import type { BiologicalSex } from '../store/useFuelStore';
 import { MifflinBodyDetailsSection } from './mifflin/MifflinBodyDetailsSection';
-import {
-  MifflinGoalSection,
-  BodyGoal,
-  PaceRate,
-} from './mifflin/MifflinGoalSection';
-import {
-  MifflinMacroSection,
-  MacroSplitKey,
-} from './mifflin/MifflinMacroSection';
+import { MifflinGoalSection, BodyGoal, PaceRate } from './mifflin/MifflinGoalSection';
+import { MifflinMacroSection, MacroSplitKey } from './mifflin/MifflinMacroSection';
 
 interface EnergyBody {
   weightKg: number | null;
@@ -59,7 +52,9 @@ export const MifflinStJeorModal: React.FC<MifflinStJeorModalProps> = ({
     setTargetWeightKg(body.weightKg ?? 0);
   }, [isOpen, body.weightKg, body.heightCm, body.ageYears, body.sex]);
 
-  const isComplete = weightKg > 0 && (useBodyFat ? bodyFatPct > 0 && bodyFatPct < 70 : heightCm > 0 && ageYrs > 0 && gender != null);
+  const isComplete =
+    weightKg > 0 &&
+    (useBodyFat ? bodyFatPct > 0 && bodyFatPct < 70 : heightCm > 0 && ageYrs > 0 && gender != null);
 
   // Lean body mass calculation
   const leanBodyMassKg = useMemo(() => {
@@ -241,26 +236,47 @@ export const MifflinStJeorModal: React.FC<MifflinStJeorModalProps> = ({
             <div className="grid grid-cols-3 gap-1.5 text-center tabular-nums mb-2">
               <div>
                 <span className="text-[9px] text-o1-muted block">BMR</span>
-                <span className="text-xs font-bold">{isComplete ? bmr.toLocaleString() : '--'}</span>
+                <span className="text-xs font-bold">
+                  {isComplete ? bmr.toLocaleString() : '--'}
+                </span>
               </div>
               <div>
                 <span className="text-[9px] text-o1-muted block">TDEE</span>
-                <span className="text-xs font-bold">{isComplete ? tdee.toLocaleString() : '--'}</span>
+                <span className="text-xs font-bold">
+                  {isComplete ? tdee.toLocaleString() : '--'}
+                </span>
               </div>
               <div>
                 <span className="text-[9px] text-o1-crimson block">Target</span>
-                <span className="text-xs font-bold text-o1-crimson">{isComplete ? netTargetCalories.toLocaleString() : '--'}</span>
+                <span className="text-xs font-bold text-o1-crimson">
+                  {isComplete ? netTargetCalories.toLocaleString() : '--'}
+                </span>
               </div>
             </div>
             <div className="h-1.5 w-full bg-white/[0.08] rounded-full overflow-hidden flex">
-              <div style={{ width: `${isComplete ? macroBreakdown.pPct : 0}%` }} className="bg-o1-crimson h-full" />
-              <div style={{ width: `${isComplete ? macroBreakdown.cPct : 0}%` }} className="bg-amber-600 h-full" />
-              <div style={{ width: `${isComplete ? macroBreakdown.fPct : 0}%` }} className="bg-emerald-600 h-full" />
+              <div
+                style={{ width: `${isComplete ? macroBreakdown.pPct : 0}%` }}
+                className="bg-o1-crimson h-full"
+              />
+              <div
+                style={{ width: `${isComplete ? macroBreakdown.cPct : 0}%` }}
+                className="bg-amber-600 h-full"
+              />
+              <div
+                style={{ width: `${isComplete ? macroBreakdown.fPct : 0}%` }}
+                className="bg-emerald-600 h-full"
+              />
             </div>
             <div className="grid grid-cols-3 gap-1 text-center tabular-nums mt-2">
-              <span className="text-[10px] text-o1-crimson">{isComplete ? `${macroBreakdown.proteinG}g P` : '-- P'}</span>
-              <span className="text-[10px] text-amber-500">{isComplete ? `${macroBreakdown.carbsG}g C` : '-- C'}</span>
-              <span className="text-[10px] text-emerald-500">{isComplete ? `${macroBreakdown.fatsG}g F` : '-- F'}</span>
+              <span className="text-[10px] text-o1-crimson">
+                {isComplete ? `${macroBreakdown.proteinG}g P` : '-- P'}
+              </span>
+              <span className="text-[10px] text-amber-500">
+                {isComplete ? `${macroBreakdown.carbsG}g C` : '-- C'}
+              </span>
+              <span className="text-[10px] text-emerald-500">
+                {isComplete ? `${macroBreakdown.fatsG}g F` : '-- F'}
+              </span>
             </div>
           </div>
           <button
@@ -271,18 +287,28 @@ export const MifflinStJeorModal: React.FC<MifflinStJeorModalProps> = ({
               tactileEngine.playPRCelebration();
               useUserStore.getState().setWeightKg(weightKg);
               if (targetWeightKg > 0) useUserStore.getState().setTargetWeightKg(targetWeightKg);
-              onApplyTargets(netTargetCalories, macroBreakdown.proteinG, macroBreakdown.carbsG, macroBreakdown.fatsG, {
-                weightKg,
-                heightCm: heightCm > 0 ? heightCm : null,
-                ageYears: ageYrs > 0 ? ageYrs : null,
-                sex: gender,
-              });
+              onApplyTargets(
+                netTargetCalories,
+                macroBreakdown.proteinG,
+                macroBreakdown.carbsG,
+                macroBreakdown.fatsG,
+                {
+                  weightKg,
+                  heightCm: heightCm > 0 ? heightCm : null,
+                  ageYears: ageYrs > 0 ? ageYrs : null,
+                  sex: gender,
+                },
+              );
               onClose();
             }}
             className="w-full py-2.5 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover active:bg-o1-crimson-press disabled:opacity-40 disabled:cursor-not-allowed text-o1-text font-semibold text-xs tracking-wide flex items-center justify-center gap-2 transition-colors cursor-pointer"
           >
             <Check className="w-4 h-4 stroke-[3]" />
-            <span>{isComplete ? `Apply Blueprint (${netTargetCalories.toLocaleString()} kcal)` : 'Add weight, height, age and sex'}</span>
+            <span>
+              {isComplete
+                ? `Apply Blueprint (${netTargetCalories.toLocaleString()} kcal)`
+                : 'Add weight, height, age and sex'}
+            </span>
           </button>
         </div>
       </div>

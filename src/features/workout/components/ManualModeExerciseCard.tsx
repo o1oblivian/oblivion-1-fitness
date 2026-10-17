@@ -18,7 +18,7 @@ export const ManualModeExerciseCard: React.FC<ManualModeExerciseCardProps> = ({
     exercise.baseMET || 6.0,
     athleteWeightKg,
     estimatedMins,
-    'STEADY'
+    'STEADY',
   );
 
   return (
@@ -38,9 +38,7 @@ export const ManualModeExerciseCard: React.FC<ManualModeExerciseCardProps> = ({
             </span>
           )}
         </div>
-        <h5 className="font-medium text-xs text-white truncate mt-0.5">
-          {exercise.name}
-        </h5>
+        <h5 className="font-medium text-xs text-white truncate mt-0.5">{exercise.name}</h5>
         <div className="flex items-center gap-2 text-[10px] font-mono text-neutral-400 mt-0.5">
           <span>
             {exercise.defaultSets || 3} sets × {exercise.defaultReps || 10} reps

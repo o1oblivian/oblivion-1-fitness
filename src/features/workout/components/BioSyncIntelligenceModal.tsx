@@ -24,7 +24,8 @@ const PHASE_DETAILS: Record<CyclePhase, PhaseMeta> = {
     title: 'Baseline System Deload // Early Follicular',
     daySpan: 'Days 01–05',
     hormoneContext: 'Estrogen and progesterone at physiological baseline.',
-    powerImpact: 'Conservative load tolerance. Emphasize joint mobility and steady-state cardiac flush.',
+    powerImpact:
+      'Conservative load tolerance. Emphasize joint mobility and steady-state cardiac flush.',
     rpeRecommendation: 'Target RPE 6.5–7.0 (RIR 3–4). Auto-regulate down -5% on max loads.',
     restInterval: '120–150s extended recovery',
     rpeOffset: '-0.5 RPE',
@@ -51,7 +52,8 @@ const PHASE_DETAILS: Record<CyclePhase, PhaseMeta> = {
     title: 'Elevated Progesterone // Metabolic Endurance Shift',
     daySpan: 'Days 17–28',
     hormoneContext: 'Progesterone elevation increases core temperature and amino acid oxidation.',
-    powerImpact: 'Higher cardiovascular strain. Shift towards hypertrophy volume and moderate load.',
+    powerImpact:
+      'Higher cardiovascular strain. Shift towards hypertrophy volume and moderate load.',
     rpeRecommendation: 'Target RPE 7.0–8.0 (RIR 2–3). Prioritize intra-workout electrolytes.',
     restInterval: '90–120s structured pacing',
     rpeOffset: 'BASELINE',
@@ -95,7 +97,9 @@ export const BioSyncIntelligenceModal: React.FC<BioSyncIntelligenceModalProps> =
                   Endocrine
                 </span>
               </div>
-              <p className="text-[11px] font-mono text-neutral-400">Endocrine Rhythm &amp; Neuromuscular Peaking</p>
+              <p className="text-[11px] font-mono text-neutral-400">
+                Endocrine Rhythm &amp; Neuromuscular Peaking
+              </p>
             </div>
           </div>
           <button
@@ -193,13 +197,12 @@ export const BioSyncIntelligenceModal: React.FC<BioSyncIntelligenceModalProps> =
             <Activity className="w-3.5 h-3.5 text-sky-600" />
             <span>How it affects training</span>
           </span>
-          <p className="text-[11px] text-neutral-300 font-sans pl-5">
-            {currentMeta.powerImpact}
-          </p>
+          <p className="text-[11px] text-neutral-300 font-sans pl-5">{currentMeta.powerImpact}</p>
         </div>
 
         <p className="text-[11px] text-o1-muted leading-relaxed px-0.5">
-          A guide to training by cycle phase. It doesn&apos;t change your plan; adjust your RPE targets using it as you see fit.
+          A guide to training by cycle phase. It doesn&apos;t change your plan; adjust your RPE
+          targets using it as you see fit.
         </p>
 
         <div className="sticky bottom-0 z-10 -mx-3.5 -mb-3.5 px-3.5 pt-2.5 pb-[max(env(safe-area-inset-bottom),14px)] bg-o1-card border-t border-white/[0.05]">
@@ -215,5 +218,3 @@ export const BioSyncIntelligenceModal: React.FC<BioSyncIntelligenceModalProps> =
     </div>
   );
 };
-
-

@@ -6,7 +6,8 @@ export const MOBILITY_BLUEPRINTS: WorkoutBlueprint[] = [
     title: '360 Mobility Flow / Longevity',
     subtitle: 'Joint Architecture, Fascial Glide & Neural De-Load',
     badge: 'MOBILITY',
-    image: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=800&q=80',
+    image:
+      'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=800&q=80',
     phase: 'Phase 1: Restoration',
     focus: 'Synovial Fluid Exchange & Rotational Planes',
     estimatedTime: '45 Mins',
@@ -105,13 +106,19 @@ export const MOBILITY_BLUEPRINTS: WorkoutBlueprint[] = [
     title: 'Bulletproof Knees & Ankle Dorsiflexion (ATG)',
     subtitle: 'Patellar Tendon Remodeling, Tibialis Power & Full-Range Strength',
     badge: 'MOBILITY',
-    image: 'https://images.unsplash.com/photo-1434682881908-b43d0467b798?auto=format&fit=crop&w=800&q=80',
+    image:
+      'https://images.unsplash.com/photo-1434682881908-b43d0467b798?auto=format&fit=crop&w=800&q=80',
     phase: 'Phase 1: Foundation',
     focus: 'Patellar Tendon Remodeling & Ankle Dorsiflexion',
     estimatedTime: '45 Mins',
     description:
       'Ben Patrick ATG inspired orthopedic restoration protocol. Builds structural resilience from ground up with backward sled drags, tibialis raises, Peterson step-ups, full-depth ATG split squats, and deep hip flexor couch stretch.',
-    targetMuscles: ['Patellar Tendon', 'Tibialis Anterior', 'Vastus Medialis', 'Psoas / Rectus Femoris'],
+    targetMuscles: [
+      'Patellar Tendon',
+      'Tibialis Anterior',
+      'Vastus Medialis',
+      'Psoas / Rectus Femoris',
+    ],
     exercises: [
       {
         id: 'atg-1',
@@ -204,7 +211,8 @@ export const MOBILITY_BLUEPRINTS: WorkoutBlueprint[] = [
     title: 'Thoracic Spine & Overhead Shoulder Restoration',
     subtitle: 'T-Spine Extension, Glenohumeral CARs & Rotator Relief',
     badge: 'MOBILITY',
-    image: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=800&q=80',
+    image:
+      'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=800&q=80',
     phase: 'Phase 1: Restoration',
     focus: 'Rib Cage Expansion, Lat Flexibility & Scapular Motion',
     estimatedTime: '40 Mins',
@@ -303,7 +311,8 @@ export const MOBILITY_BLUEPRINTS: WorkoutBlueprint[] = [
     title: '360 Deep Hip Architecture & Pelvic Groundwork',
     subtitle: 'Internal/External Femoral Rotation & Adductor Lengthening',
     badge: 'MOBILITY',
-    image: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=800&q=80',
+    image:
+      'https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=800&q=80',
     phase: 'Phase 1: Foundation',
     focus: 'Femoroacetabular Joint Mobility & Pelvic Health',
     estimatedTime: '42 Mins',
@@ -402,7 +411,8 @@ export const MOBILITY_BLUEPRINTS: WorkoutBlueprint[] = [
     title: 'Spine Decompression & Anti-Desk Posture Reset',
     subtitle: 'McGill Big 3 Core Stability & Spinal Health Architecture',
     badge: 'MOBILITY',
-    image: 'https://images.unsplash.com/photo-1518310383802-640c2de311b2?auto=format&fit=crop&w=800&q=80',
+    image:
+      'https://images.unsplash.com/photo-1518310383802-640c2de311b2?auto=format&fit=crop&w=800&q=80',
     phase: 'Phase 1: Foundation',
     focus: 'Spinal Sparing, QL Stability & Lumbar Protection',
     estimatedTime: '38 Mins',
@@ -501,13 +511,20 @@ export const MOBILITY_BLUEPRINTS: WorkoutBlueprint[] = [
     title: 'Foot Arch, Ankle & Plantar Elasticity',
     subtitle: 'Foot Core, Plantar Fascia Health & Ankle Recoil',
     badge: 'MOBILITY',
-    image: 'https://images.unsplash.com/photo-1552674605-db6ffd4facb5?auto=format&fit=crop&w=800&q=80',
+    image:
+      'https://images.unsplash.com/photo-1552674605-db6ffd4facb5?auto=format&fit=crop&w=800&q=80',
     phase: 'Phase 1: Foundation',
     focus: 'Intrinsic Foot Muscles, Ankle Dorsiflexion & Plantar Arch',
     estimatedTime: '35 Mins',
     description:
       'Builds foundational spring and injury resilience from the ground up. Features barefoot intrinsic foot splay, lacrosse ball plantar massage, slant-board calf stretches, and single-leg balance pivots.',
-    targetMuscles: ['Intrinsic Foot Musculature', 'Plantar Fascia', 'Gastrocnemius', 'Soleus', 'Peroneals'],
+    targetMuscles: [
+      'Intrinsic Foot Musculature',
+      'Plantar Fascia',
+      'Gastrocnemius',
+      'Soleus',
+      'Peroneals',
+    ],
     exercises: [
       {
         id: 'fa-1',

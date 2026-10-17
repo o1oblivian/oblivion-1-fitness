@@ -1,5 +1,15 @@
 import React, { useState } from 'react';
-import { ChevronLeft, MoreVertical, MapPin, X, Check, MessageCircle, Calendar, Flag, Ban } from 'lucide-react';
+import {
+  ChevronLeft,
+  MoreVertical,
+  MapPin,
+  X,
+  Check,
+  MessageCircle,
+  Calendar,
+  Flag,
+  Ban,
+} from 'lucide-react';
 import { Athlete } from '../types';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { SafetyReportSheet } from '../../../components/common/SafetyReportSheet';
@@ -107,7 +117,9 @@ export const AthleteProfileModal: React.FC<AthleteProfileModalProps> = ({
 
         <div className="min-h-0 flex-1 px-4 pt-3">
           <div className="relative h-full overflow-hidden rounded-2xl bg-[#161616]">
-            {photo ? <img src={photo} alt={athlete.name} className="h-full w-full object-cover" /> : null}
+            {photo ? (
+              <img src={photo} alt={athlete.name} className="h-full w-full object-cover" />
+            ) : null}
             {matchPct > 0 && (athlete.match_reasons || []).length > 0 ? (
               <div className="absolute top-4 left-4 z-10">
                 <span className="text-[11px] font-semibold text-white">{matchPct}% match</span>
@@ -123,7 +135,10 @@ export const AthleteProfileModal: React.FC<AthleteProfileModalProps> = ({
             </h2>
             <div className="flex items-center gap-1.5 text-xs text-neutral-300">
               <MapPin className="w-3.5 h-3.5 shrink-0 text-o1-crimson" />
-              <span>{Number.isFinite(dist) ? `${dist} km` : 'Distance unknown'}{gym ? ` · ${gym}` : ''}</span>
+              <span>
+                {Number.isFinite(dist) ? `${dist} km` : 'Distance unknown'}
+                {gym ? ` · ${gym}` : ''}
+              </span>
             </div>
             {(athlete.match_reasons || []).length > 0 && (
               <p className="text-[13px] text-white">{athlete.match_reasons?.join(' · ')}</p>
@@ -138,9 +153,14 @@ export const AthleteProfileModal: React.FC<AthleteProfileModalProps> = ({
           {rows.length > 0 && (
             <div className="divide-y divide-white/[0.06] overflow-hidden rounded-2xl border border-white/[0.07] bg-[#121214]">
               {rows.map((row) => (
-                <div key={row.label} className="flex items-center justify-between gap-3 px-3 py-2.5">
+                <div
+                  key={row.label}
+                  className="flex items-center justify-between gap-3 px-3 py-2.5"
+                >
                   <span className="text-[12px] text-neutral-400">{row.label}</span>
-                  <span className="text-right text-[13px] font-semibold text-white">{row.value}</span>
+                  <span className="text-right text-[13px] font-semibold text-white">
+                    {row.value}
+                  </span>
                 </div>
               ))}
             </div>
@@ -181,5 +201,3 @@ export const AthleteProfileModal: React.FC<AthleteProfileModalProps> = ({
     </div>
   );
 };
-
-

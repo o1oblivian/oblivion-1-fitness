@@ -17,7 +17,12 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div role="alertdialog" aria-modal="true" aria-labelledby="delete-account-title" className="fixed inset-0 z-50 bg-black/70 o1-sheet-scrim flex items-center justify-center select-none animate-in fade-in duration-150">
+    <div
+      role="alertdialog"
+      aria-modal="true"
+      aria-labelledby="delete-account-title"
+      className="fixed inset-0 z-50 bg-black/70 o1-sheet-scrim flex items-center justify-center select-none animate-in fade-in duration-150"
+    >
       <div className="o1-sheet-card w-full bg-o1-card border border-white/[0.07] p-4 shadow-xl space-y-3 text-center overflow-y-auto">
         <div className="w-10 h-10 rounded-full bg-o1-well border border-white/[0.07] text-o1-crimson flex items-center justify-center mx-auto">
           <AlertTriangle className="w-5 h-5" />
@@ -28,7 +33,8 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
             Permanently delete account?
           </h3>
           <p className="text-xs font-sans text-neutral-400 leading-relaxed">
-            This will wipe all workout logs, nutrition history, vault media, and personal data. This cannot be undone.
+            This will wipe all workout logs, nutrition history, vault media, and personal data. This
+            cannot be undone.
           </p>
         </div>
 
@@ -55,5 +61,3 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
     </div>
   );
 };
-
-

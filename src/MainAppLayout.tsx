@@ -90,4 +90,3 @@ export const MainAppLayout: React.FC = () => {
     </div>
   );
 };
-

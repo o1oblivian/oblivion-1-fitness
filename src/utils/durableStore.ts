@@ -58,19 +58,25 @@ function currentOwner(): string {
   }
 }
 
-function run(mode: IDBTransactionMode, work: (store: IDBObjectStore) => IDBRequest | void): Promise<unknown> {
-  return openDb().then((db) => new Promise((resolve) => {
-    if (!db) return resolve(undefined);
-    try {
-      const tx = db.transaction(STORE, mode);
-      const req = work(tx.objectStore(STORE));
-      tx.oncomplete = () => resolve(req ? req.result : undefined);
-      tx.onerror = () => resolve(undefined);
-      tx.onabort = () => resolve(undefined);
-    } catch {
-      resolve(undefined);
-    }
-  }));
+function run(
+  mode: IDBTransactionMode,
+  work: (store: IDBObjectStore) => IDBRequest | void,
+): Promise<unknown> {
+  return openDb().then(
+    (db) =>
+      new Promise((resolve) => {
+        if (!db) return resolve(undefined);
+        try {
+          const tx = db.transaction(STORE, mode);
+          const req = work(tx.objectStore(STORE));
+          tx.oncomplete = () => resolve(req ? req.result : undefined);
+          tx.onerror = () => resolve(undefined);
+          tx.onabort = () => resolve(undefined);
+        } catch {
+          resolve(undefined);
+        }
+      }),
+  );
 }
 
 export function isDurableKey(key: string): boolean {
@@ -120,7 +126,11 @@ export async function restoreDurable(restore: (key: string, value: string) => vo
       }
       const entry = (await run('readonly', (store) => store.get(key))) as Entry | undefined;
       if (abandoned) return;
-      if (entry && typeof entry.value === 'string' && (entry.owner === owner || entry.owner === '')) {
+      if (
+        entry &&
+        typeof entry.value === 'string' &&
+        (entry.owner === owner || entry.owner === '')
+      ) {
         restore(key, entry.value);
       }
     }

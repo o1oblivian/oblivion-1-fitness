@@ -21,19 +21,39 @@ interface CardioLogEntry {
 type CardioSession = Omit<CardioDayRecord, 'hasData' | 'zone2Minutes'> & { zone2Minutes?: number };
 
 /** Adds a session to what the day already holds, so a second cardio log never replaces the first. */
-export function addCardioSession(base: CardioDayRecord | undefined, add: CardioSession): CardioDayRecord {
-  if (!base?.hasData) return { hasData: true, zone2Minutes: 0, ...add, steps: add.steps && add.steps > 0 ? add.steps : undefined };
+export function addCardioSession(
+  base: CardioDayRecord | undefined,
+  add: CardioSession,
+): CardioDayRecord {
+  if (!base?.hasData)
+    return {
+      hasData: true,
+      zone2Minutes: 0,
+      ...add,
+      steps: add.steps && add.steps > 0 ? add.steps : undefined,
+    };
   const minutes = (base.durationMinutes || 0) + (add.durationMinutes || 0);
   const hrWeight = (hr: number, mins: number) => (hr > 0 ? hr * (mins || 1) : 0);
-  const hrMinutes = (base.avgHeartRateBpm > 0 ? base.durationMinutes || 1 : 0) + (add.avgHeartRateBpm > 0 ? add.durationMinutes || 1 : 0);
+  const hrMinutes =
+    (base.avgHeartRateBpm > 0 ? base.durationMinutes || 1 : 0) +
+    (add.avgHeartRateBpm > 0 ? add.durationMinutes || 1 : 0);
   const steps = (base.steps || 0) + (add.steps || 0);
-  const types = [base.activityType, add.activityType].map((t) => (t || '').trim()).filter((t, i, all) => t && all.indexOf(t) === i);
+  const types = [base.activityType, add.activityType]
+    .map((t) => (t || '').trim())
+    .filter((t, i, all) => t && all.indexOf(t) === i);
   return {
     hasData: true,
     distanceKm: Math.round(((base.distanceKm || 0) + (add.distanceKm || 0)) * 100) / 100,
     durationMinutes: minutes,
     burnedKcal: (base.burnedKcal || 0) + (add.burnedKcal || 0),
-    avgHeartRateBpm: hrMinutes > 0 ? Math.round((hrWeight(base.avgHeartRateBpm, base.durationMinutes) + hrWeight(add.avgHeartRateBpm, add.durationMinutes)) / hrMinutes) : 0,
+    avgHeartRateBpm:
+      hrMinutes > 0
+        ? Math.round(
+            (hrWeight(base.avgHeartRateBpm, base.durationMinutes) +
+              hrWeight(add.avgHeartRateBpm, add.durationMinutes)) /
+              hrMinutes,
+          )
+        : 0,
     zone2Minutes: (base.zone2Minutes || 0) + (add.zone2Minutes || 0),
     activityType: types.join(' + '),
     steps: steps > 0 ? steps : undefined,
@@ -77,7 +97,8 @@ export async function persistCardioLog(entry: {
     distanceKm: entry.distanceKm,
     durationMinutes: entry.durationMinutes,
     burnedKcal: entry.burnedKcal,
-    avgHeartRateBpm: entry.avgHeartRateBpm && entry.avgHeartRateBpm > 0 ? entry.avgHeartRateBpm : undefined,
+    avgHeartRateBpm:
+      entry.avgHeartRateBpm && entry.avgHeartRateBpm > 0 ? entry.avgHeartRateBpm : undefined,
     steps: entry.steps,
     dateKey,
     timestamp: happenedAt,
@@ -91,7 +112,8 @@ export async function persistCardioLog(entry: {
       distanceKm: entry.distanceKm,
       durationMinutes: entry.durationMinutes,
       burnedKcal: entry.burnedKcal,
-      avgHeartRateBpm: entry.avgHeartRateBpm && entry.avgHeartRateBpm > 0 ? entry.avgHeartRateBpm : 0,
+      avgHeartRateBpm:
+        entry.avgHeartRateBpm && entry.avgHeartRateBpm > 0 ? entry.avgHeartRateBpm : 0,
       steps: entry.steps,
     });
     history.updateDayRecord(dateKey, 'cardio', day);
@@ -123,7 +145,8 @@ export async function persistCardioLog(entry: {
     completed_at: happenedAt,
     created_at: happenedAt,
   };
-  if (entry.durationMinutes > 0) sessionPayload.duration_seconds = Math.round(entry.durationMinutes * 60);
+  if (entry.durationMinutes > 0)
+    sessionPayload.duration_seconds = Math.round(entry.durationMinutes * 60);
   enqueueSync('cardio_session', `cardio:${cardioRecord.id}`, dateKey, sessionPayload);
   void flushSync();
 }

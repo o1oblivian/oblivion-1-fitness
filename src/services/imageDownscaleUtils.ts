@@ -1,4 +1,8 @@
-export async function downscaleBase64IfNeeded(base64: string, maxDim = 1024, quality = 0.8): Promise<string> {
+export async function downscaleBase64IfNeeded(
+  base64: string,
+  maxDim = 1024,
+  quality = 0.8,
+): Promise<string> {
   if (typeof window === 'undefined' || typeof Image === 'undefined') return base64;
   return new Promise((resolve) => {
     const img = new Image();

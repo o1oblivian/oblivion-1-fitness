@@ -55,9 +55,14 @@ export function resolveTextSize(pref: TextSizePref, ageBand: AgeBand | ''): Text
 }
 
 /** Beginners, teenagers and over-60s start on Simple: plain words and fewer numbers. */
-export function resolveDetail(pref: DetailPref, trainingAge: TrainingAge | '', ageBand: AgeBand | ''): Detail {
+export function resolveDetail(
+  pref: DetailPref,
+  trainingAge: TrainingAge | '',
+  ageBand: AgeBand | '',
+): Detail {
   if (pref !== 'auto') return pref;
-  const simple = trainingAge === 'new' || trainingAge === '<1yr' || ageBand === 'under18' || ageBand === '60+';
+  const simple =
+    trainingAge === 'new' || trainingAge === '<1yr' || ageBand === 'under18' || ageBand === '60+';
   return simple ? 'simple' : 'pro';
 }
 

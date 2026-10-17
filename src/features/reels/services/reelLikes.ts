@@ -15,11 +15,18 @@ export async function loadMyLikes(userId: string): Promise<Record<string, boolea
 /** Null when the table is unavailable, so the rail shows a label instead of a made-up number. */
 export async function fetchLikeCount(reelId: string): Promise<number | null> {
   if (!reelId) return null;
-  const { count, error } = await supabase.from('reel_likes').select('reel_id', { count: 'exact', head: true }).eq('reel_id', reelId);
-  return error ? null : count ?? null;
+  const { count, error } = await supabase
+    .from('reel_likes')
+    .select('reel_id', { count: 'exact', head: true })
+    .eq('reel_id', reelId);
+  return error ? null : (count ?? null);
 }
 
-export async function setReelLike(userId: string, reelId: string, liked: boolean): Promise<boolean> {
+export async function setReelLike(
+  userId: string,
+  reelId: string,
+  liked: boolean,
+): Promise<boolean> {
   if (!isValidUuid(userId) || !reelId) return false;
   const res = liked
     ? await supabase.from('reel_likes').insert({ user_id: userId, reel_id: reelId })

@@ -26,10 +26,15 @@ export const sessionLedger = (exercises: ExerciseItem[]): SessionLedger => {
   const lifts = exercises.filter(isLiftEntry);
   const ticked = lifts.map((e) => ({ ...e, sets: (e.sets || []).filter((s) => s.completed) }));
   const entries = lifts
-    .map((e) => exerciseFromSets(e.name || e.exerciseName || 'Exercise', setsFromExercise(e, true), true))
+    .map((e) =>
+      exerciseFromSets(e.name || e.exerciseName || 'Exercise', setsFromExercise(e, true), true),
+    )
     .filter((entry) => (entry.setLog?.length || 0) > 0);
   const completedSets = entries.reduce((sum, e) => sum + (e.setLog?.length || 0), 0);
-  const totalReps = entries.reduce((sum, e) => sum + (e.setLog || []).reduce((r, s) => r + s.reps, 0), 0);
+  const totalReps = entries.reduce(
+    (sum, e) => sum + (e.setLog || []).reduce((r, s) => r + s.reps, 0),
+    0,
+  );
   return {
     tonnageKg: completedSets > 0 ? calculateSessionTonnage(ticked, getAthleteWeightKg(), true) : 0,
     completedSets,
@@ -56,12 +61,15 @@ export const mergeWorkoutDay = (
   const addRpe = finished?.avgRpe ?? 0;
   const intensityRpe =
     baseRpe > 0 && addRpe > 0 && baseMinutes + addMinutes > 0
-      ? Math.round(((baseRpe * baseMinutes + addRpe * addMinutes) / (baseMinutes + addMinutes)) * 10) / 10
+      ? Math.round(
+          ((baseRpe * baseMinutes + addRpe * addMinutes) / (baseMinutes + addMinutes)) * 10,
+        ) / 10
       : baseRpe || addRpe;
   const burnedKcal = baseKcal + (finished?.burnedKcal ?? 0);
   return {
     hasData: baseHas || ledger.completedSets > 0,
-    tonnageKg: Math.round(((baseHas ? Number(base?.tonnageKg) || 0 : 0) + ledger.tonnageKg) * 10) / 10,
+    tonnageKg:
+      Math.round(((baseHas ? Number(base?.tonnageKg) || 0 : 0) + ledger.tonnageKg) * 10) / 10,
     completedSets: (baseHas ? Number(base?.completedSets) || 0 : 0) + ledger.completedSets,
     durationMinutes: baseMinutes + addMinutes,
     routineName: names.join(' + '),
@@ -81,7 +89,7 @@ export interface SessionMetrics {
 
 export const computeSessionMetrics = (
   exercises: ExerciseItem[],
-  isRestDayActive = false
+  isRestDayActive = false,
 ): SessionMetrics => {
   const athleteWeightKg = getAthleteWeightKg();
 
@@ -115,7 +123,10 @@ export const computeSessionMetrics = (
       return {
         ...d,
         volumeKg: Number(volumeTons.toFixed(1)),
-        strain: completedSetsCount > 0 ? Number(Math.min(21, (completedSetsCount * 0.6) + (volumeTons * 0.4)).toFixed(1)) : 0,
+        strain:
+          completedSetsCount > 0
+            ? Number(Math.min(21, completedSetsCount * 0.6 + volumeTons * 0.4).toFixed(1))
+            : 0,
         setsCount: completedSetsCount,
         isToday: true,
       };
@@ -138,7 +149,7 @@ export const computeSessionMetrics = (
 
 export const addSetToExercises = (
   exercises: ExerciseItem[],
-  exerciseId: string
+  exerciseId: string,
 ): ExerciseItem[] => {
   return exercises.map((ex) => {
     if (ex.id !== exerciseId) return ex;
@@ -156,13 +167,13 @@ export const addSetToExercises = (
 export const removeSetFromExercises = (
   exercises: ExerciseItem[],
   exerciseId: string,
-  setNumber: number
+  setNumber: number,
 ): ExerciseItem[] => {
   return exercises
     .map((ex) => {
       if (ex.id !== exerciseId) return ex;
       const filtered = (ex.sets || []).filter(
-        (s) => s.setNumber !== setNumber && Number(s.setNumber) !== Number(setNumber)
+        (s) => s.setNumber !== setNumber && Number(s.setNumber) !== Number(setNumber),
       );
       return {
         ...ex,
@@ -176,7 +187,7 @@ export const toggleSetInExercises = (
   exercises: ExerciseItem[],
   exerciseId: string,
   setNumber: number,
-  willComplete: boolean
+  willComplete: boolean,
 ): ExerciseItem[] => {
   return exercises.map((ex) => {
     if (ex.id !== exerciseId) return ex;
@@ -185,7 +196,7 @@ export const toggleSetInExercises = (
       sets: (ex.sets || []).map((s) =>
         s.setNumber === setNumber || Number(s.setNumber) === Number(setNumber)
           ? { ...s, completed: willComplete }
-          : s
+          : s,
       ),
     };
   });
@@ -195,13 +206,14 @@ export const toggleSetInExercises = (
 export const completeSetsBefore = (
   exercises: ExerciseItem[],
   exerciseId: string,
-  setNumber: number
+  setNumber: number,
 ): ExerciseItem[] => {
   let changed = false;
   const next = exercises.map((ex) => {
     if (ex.id !== exerciseId) return ex;
     const sets = (ex.sets || []).map((s) => {
-      if (s.completed || Number(s.setNumber) >= Number(setNumber) || !(Number(s.reps) > 0)) return s;
+      if (s.completed || Number(s.setNumber) >= Number(setNumber) || !(Number(s.reps) > 0))
+        return s;
       changed = true;
       return { ...s, completed: true };
     });
@@ -214,7 +226,7 @@ export const updateSetInExercises = (
   exercises: ExerciseItem[],
   exerciseId: string,
   setNumber: number,
-  updates: Partial<ExerciseSet>
+  updates: Partial<ExerciseSet>,
 ): ExerciseItem[] => {
   // Normalize weight and weightKg
   const normalizedUpdates = { ...updates };
@@ -231,7 +243,7 @@ export const updateSetInExercises = (
       sets: (ex.sets || []).map((s) =>
         s.setNumber === setNumber || Number(s.setNumber) === Number(setNumber)
           ? { ...s, ...normalizedUpdates }
-          : s
+          : s,
       ),
     };
   });

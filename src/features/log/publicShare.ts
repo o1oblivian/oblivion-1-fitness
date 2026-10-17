@@ -11,7 +11,11 @@ export function getOrCreateInviteCode(handle: string): string {
   } catch {
     /* private mode */
   }
-  const stem = (handle || 'athlete').replace(/[^a-z0-9]/gi, '').slice(0, 10).toUpperCase() || 'ATHLETE';
+  const stem =
+    (handle || 'athlete')
+      .replace(/[^a-z0-9]/gi, '')
+      .slice(0, 10)
+      .toUpperCase() || 'ATHLETE';
   const suffix = Math.random().toString(36).slice(2, 6).toUpperCase();
   const code = `${stem}-${suffix}`;
   try {

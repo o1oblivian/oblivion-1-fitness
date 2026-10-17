@@ -18,10 +18,14 @@ interface PublishReelParams {
   fallbackName: string;
 }
 
-export type PublishReelResult = { ok: true; reel: ExploreReelItem } | { ok: false; reason: 'signed-out' | 'upload' | 'save' };
+export type PublishReelResult =
+  { ok: true; reel: ExploreReelItem } | { ok: false; reason: 'signed-out' | 'upload' | 'save' };
 
 /** Writes the reel to the shared `reels` table. Only uploaded clips are written; phone-only links would not play for anyone else. */
-export async function insertReelRow(reel: ExploreReelItem, durationSecs?: number): Promise<boolean> {
+export async function insertReelRow(
+  reel: ExploreReelItem,
+  durationSecs?: number,
+): Promise<boolean> {
   if (!isSharedUrl(reel.videoUrl)) return false;
   const { error } = await supabase.from('reels').insert({
     id: reel.id,
@@ -52,14 +56,27 @@ export async function publishCoachReel({
   if (!coachId) return { ok: false, reason: 'signed-out' };
   const [clip, poster, card] = await Promise.all([
     uploadMedia(compressedResult?.file || previewUrl, 'reels'),
-    compressedResult?.thumbnailUrl ? uploadMedia(compressedResult.thumbnailUrl, 'reels') : Promise.resolve(null),
+    compressedResult?.thumbnailUrl
+      ? uploadMedia(compressedResult.thumbnailUrl, 'reels')
+      : Promise.resolve(null),
     fetchCoachCard(coachId),
   ]);
   if (!clip) return { ok: false, reason: 'upload' };
 
   const id = `coach-reel-${Date.now()}`;
   const coach = toExploreCoach(
-    card ?? { id: coachId, name: fallbackName || 'Coach', handle: '', avatar: '', bio: '', specialties: [], hourlyRate: null, monthlyRate: null, verified: false, accepting: true },
+    card ?? {
+      id: coachId,
+      name: fallbackName || 'Coach',
+      handle: '',
+      avatar: '',
+      bio: '',
+      specialties: [],
+      hourlyRate: null,
+      monthlyRate: null,
+      verified: false,
+      accepting: true,
+    },
   );
   const reel = mapReelRow(
     {
@@ -75,7 +92,8 @@ export async function publishCoachReel({
     coach,
   );
 
-  if (!(await insertReelRow(reel, compressedResult?.durationSecs))) return { ok: false, reason: 'save' };
+  if (!(await insertReelRow(reel, compressedResult?.durationSecs)))
+    return { ok: false, reason: 'save' };
   useReelsStore.getState().addCoachReel(reel);
   void saveVaultRow({
     id: `vault-reel-${Date.now()}`,

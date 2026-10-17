@@ -31,7 +31,10 @@ export const useReelsStore = create<ReelsState>((set, get) => ({
           return;
         }
         const seen = new Set(rows.map((reel) => reel.id));
-        set({ reels: [...rows, ...CLUB_REELS.filter((reel) => !seen.has(reel.id))], status: 'ready' });
+        set({
+          reels: [...rows, ...CLUB_REELS.filter((reel) => !seen.has(reel.id))],
+          status: 'ready',
+        });
       })
       .finally(() => {
         inflight = null;

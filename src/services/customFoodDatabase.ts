@@ -27,7 +27,9 @@ function getCustomFoods(): FoodItemRecord[] {
 /**
  * Persists a new or updated custom food permanently in localStorage
  */
-export function saveCustomFood(food: Omit<FoodItemRecord, 'id' | 'is_custom'> & { id?: string }): FoodItemRecord {
+export function saveCustomFood(
+  food: Omit<FoodItemRecord, 'id' | 'is_custom'> & { id?: string },
+): FoodItemRecord {
   const current = getCustomFoods();
   const id = food.id || `custom-food-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`;
 
@@ -75,7 +77,7 @@ export function saveCustomFood(food: Omit<FoodItemRecord, 'id' | 'is_custom'> & 
  */
 export function filterCustomFoods(
   category?: FoodCategoryType,
-  query: string = ''
+  query: string = '',
 ): FoodItemRecord[] {
   const all = getCustomFoods();
   const trimmed = query.trim().toLowerCase();

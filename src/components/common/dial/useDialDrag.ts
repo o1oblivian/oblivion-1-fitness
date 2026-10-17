@@ -40,10 +40,7 @@ export function useDialDrag(config: DialConfig, initialValue: number) {
       fraction = Math.max(0, Math.min(1, fraction));
       const raw = config.min + fraction * (config.max - config.min);
       const stepped = Math.round(raw / config.step) * config.step;
-      const finalVal = Math.min(
-        Math.max(Number(stepped.toFixed(1)), config.min),
-        config.max
-      );
+      const finalVal = Math.min(Math.max(Number(stepped.toFixed(1)), config.min), config.max);
 
       setValue((prev) => {
         if (prev !== finalVal) {
@@ -53,7 +50,7 @@ export function useDialDrag(config: DialConfig, initialValue: number) {
         return prev;
       });
     },
-    [config]
+    [config],
   );
 
   const handlePointerDown = (e: React.PointerEvent<SVGSVGElement>) => {

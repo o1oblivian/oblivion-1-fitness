@@ -89,7 +89,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       try {
         // Only what the athlete actually entered; empty fields are left out so the account copy is never overwritten with placeholders.
         const uState = useUserStore.getState();
-        const profilePayload: Record<string, unknown> = { id: uid, updated_at: new Date().toISOString() };
+        const profilePayload: Record<string, unknown> = {
+          id: uid,
+          updated_at: new Date().toISOString(),
+        };
         if (uState.handle) profilePayload.handle = uState.handle;
         if (uState.name) profilePayload.full_name = uState.name;
         if (uState.avatarUrl) profilePayload.avatar_url = uState.avatarUrl;
@@ -101,7 +104,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           };
         }
 
-        const { error } = await supabase.from('profiles').upsert(profilePayload, { onConflict: 'id' });
+        const { error } = await supabase
+          .from('profiles')
+          .upsert(profilePayload, { onConflict: 'id' });
         if (error) {
           console.warn('[AuthContext] profiles upsert notice:', error.message);
         }
@@ -110,24 +115,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     }
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!mounted) return;
-      if (session?.user) {
-        const uid = session.user.id;
-        const uEmail = session.user.email || null;
-        setUserId(uid);
-        setEmail(uEmail);
-        useUserStore.getState().setUserId(uid);
-        writeIdentity(uid, uEmail);
-        syncProfile(uid, uEmail);
-        void hydrateProfile(uid);
-      }
-      setIsLoading(false);
-    }).catch(() => {
-      if (mounted) setIsLoading(false);
-    });
+    supabase.auth
+      .getSession()
+      .then(({ data: { session } }) => {
+        if (!mounted) return;
+        if (session?.user) {
+          const uid = session.user.id;
+          const uEmail = session.user.email || null;
+          setUserId(uid);
+          setEmail(uEmail);
+          useUserStore.getState().setUserId(uid);
+          writeIdentity(uid, uEmail);
+          syncProfile(uid, uEmail);
+          void hydrateProfile(uid);
+        }
+        setIsLoading(false);
+      })
+      .catch(() => {
+        if (mounted) setIsLoading(false);
+      });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (session?.user) {
         const uid = session.user.id;
         const uEmail = session.user.email || null;
@@ -162,7 +172,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     forgetIdentity();
     try {
       for (const key of Object.keys(window.localStorage)) {
-        if (key.startsWith('sb-') && key.includes('auth-token')) window.localStorage.removeItem(key);
+        if (key.startsWith('sb-') && key.includes('auth-token'))
+          window.localStorage.removeItem(key);
       }
     } catch {
       /* storage unavailable */

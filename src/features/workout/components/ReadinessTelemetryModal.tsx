@@ -36,7 +36,10 @@ export const ReadinessTelemetryModal: React.FC<Props> = ({ isOpen, onClose, scor
   const hasScore = typeof score === 'number' && score > 0;
   const restingHr = sleep && sleep.restingHeartRate > 0 ? `${sleep.restingHeartRate} bpm` : '--';
   const totalSleep = sleep ? fmtMinutes(Math.round(sleep.durationHours * 60)) : '--';
-  const efficiency = sleep && sleep.sleepEfficiencyPercent > 0 ? `${sleep.sleepEfficiencyPercent}% Efficiency` : '-- Efficiency';
+  const efficiency =
+    sleep && sleep.sleepEfficiencyPercent > 0
+      ? `${sleep.sleepEfficiencyPercent}% Efficiency`
+      : '-- Efficiency';
 
   return (
     <div
@@ -66,7 +69,10 @@ export const ReadinessTelemetryModal: React.FC<Props> = ({ isOpen, onClose, scor
           <button
             type="button"
             aria-label="Close"
-            onClick={() => { tactileEngine.triggerSelectionBuzz(); onClose(); }}
+            onClick={() => {
+              tactileEngine.triggerSelectionBuzz();
+              onClose();
+            }}
             className="w-11 h-11 -mr-2 rounded-full flex items-center justify-center text-neutral-400 hover:text-white transition active:scale-95 cursor-pointer"
           >
             <X className="w-4 h-4" />
@@ -80,8 +86,12 @@ export const ReadinessTelemetryModal: React.FC<Props> = ({ isOpen, onClose, scor
               Readiness Score
             </span>
             <div className="flex items-baseline gap-2 mt-0.5">
-              <span className="text-3xl font-mono font-light text-sky-600">{hasScore ? `${score}%` : '--'}</span>
-              {!hasScore && <span className="text-xs font-semibold text-neutral-400">Nothing logged yet</span>}
+              <span className="text-3xl font-mono font-light text-sky-600">
+                {hasScore ? `${score}%` : '--'}
+              </span>
+              {!hasScore && (
+                <span className="text-xs font-semibold text-neutral-400">Nothing logged yet</span>
+              )}
             </div>
           </div>
           <div className="w-10 h-10 rounded-full bg-sky-500/10 border border-sky-500/30 flex items-center justify-center">
@@ -96,7 +106,9 @@ export const ReadinessTelemetryModal: React.FC<Props> = ({ isOpen, onClose, scor
               <Activity className="w-3.5 h-3.5 text-sky-600" />
               <span>HRV (Variability)</span>
             </div>
-            <div className="text-base font-mono font-medium text-white">{hrv ? `${hrv.rmssdMs} ms` : '--'}</div>
+            <div className="text-base font-mono font-medium text-white">
+              {hrv ? `${hrv.rmssdMs} ms` : '--'}
+            </div>
             <div className="text-[10px] font-mono text-neutral-500 truncate">{hrvSource}</div>
           </div>
 
@@ -120,8 +132,14 @@ export const ReadinessTelemetryModal: React.FC<Props> = ({ isOpen, onClose, scor
               <span className="text-xs font-mono font-medium text-white">{totalSleep}</span>
             </div>
             <div className="flex items-center justify-between text-[11px] font-mono text-neutral-300 pt-0.5">
-              <span>Deep: <strong className="text-white">{fmtMinutes(sleep?.deepSleepMinutes ?? 0)}</strong></span>
-              <span>Rem: <strong className="text-white">{fmtMinutes(sleep?.remSleepMinutes ?? 0)}</strong></span>
+              <span>
+                Deep:{' '}
+                <strong className="text-white">{fmtMinutes(sleep?.deepSleepMinutes ?? 0)}</strong>
+              </span>
+              <span>
+                Rem:{' '}
+                <strong className="text-white">{fmtMinutes(sleep?.remSleepMinutes ?? 0)}</strong>
+              </span>
               <span className="text-neutral-400">{efficiency}</span>
             </div>
           </div>
@@ -133,7 +151,10 @@ export const ReadinessTelemetryModal: React.FC<Props> = ({ isOpen, onClose, scor
 
         <button
           type="button"
-          onClick={() => { tactileEngine.triggerSelectionBuzz(); onClose(); }}
+          onClick={() => {
+            tactileEngine.triggerSelectionBuzz();
+            onClose();
+          }}
           className="w-full min-h-[44px] rounded-2xl bg-white/10 hover:bg-white/15 border border-white/[0.07] text-white text-xs font-mono font-medium tracking-wider active:scale-95 transition cursor-pointer"
         >
           Close
@@ -142,5 +163,3 @@ export const ReadinessTelemetryModal: React.FC<Props> = ({ isOpen, onClose, scor
     </div>
   );
 };
-
-

@@ -5,9 +5,22 @@ import { ProgramCoverArtworkPicker } from './ProgramCoverArtworkPicker';
 import { tactileEngine } from '../../../../services/tactileEngine';
 
 const CATEGORIES: ProgramCategory[] = [
-  'Hypertrophy', 'Push Pull Legs', 'Strength', 'Powerlifting', 'HYROX',
-  'Combat & Boxing', 'Endurance', 'Mobility', 'Sport-Specific', 'Calisthenics',
-  'Conditioning', 'Body Recomp', 'Weight Loss', 'Upper / Lower', 'Full Body', 'Beginner Friendly',
+  'Hypertrophy',
+  'Push Pull Legs',
+  'Strength',
+  'Powerlifting',
+  'HYROX',
+  'Combat & Boxing',
+  'Endurance',
+  'Mobility',
+  'Sport-Specific',
+  'Calisthenics',
+  'Conditioning',
+  'Body Recomp',
+  'Weight Loss',
+  'Upper / Lower',
+  'Full Body',
+  'Beginner Friendly',
 ];
 const DIFFICULTIES: ProgramDifficulty[] = ['Beginner', 'Intermediate', 'Advanced', 'Elite'];
 const DURATIONS = [1, 2, 3, 4, 6, 8, 10, 12, 16];
@@ -17,7 +30,8 @@ export const ProgramDetailsStep: React.FC<{
   data: ProgramFormData;
   onChange: (u: Partial<ProgramFormData>) => void;
 }> = ({ data, onChange }) => {
-  const currentShortOverview = data.shortOverview !== undefined ? data.shortOverview : data.description;
+  const currentShortOverview =
+    data.shortOverview !== undefined ? data.shortOverview : data.description;
   const currentMethodology = data.fullMethodology || '';
 
   const handleAppendMethodologySection = (sectionTitle: string, templateBody: string) => {
@@ -36,9 +50,7 @@ export const ProgramDetailsStep: React.FC<{
       <div className="space-y-1">
         <div className="flex items-center gap-2">
           <BookOpen className="w-4 h-4 text-o1-text" />
-          <h3 className="text-sm font-bold text-o1-text">
-            Program Details
-          </h3>
+          <h3 className="text-sm font-bold text-o1-text">Program Details</h3>
         </div>
         <p className="text-xs text-o1-muted">
           Set title, athletic overview, cover asset, and training schedule
@@ -47,9 +59,7 @@ export const ProgramDetailsStep: React.FC<{
 
       {/* Program Title */}
       <div>
-        <label className="text-xs font-semibold text-o1-text block mb-1.5">
-          Program Title *
-        </label>
+        <label className="text-xs font-semibold text-o1-text block mb-1.5">Program Title *</label>
         <input
           type="text"
           value={data.title}
@@ -125,7 +135,10 @@ export const ProgramDetailsStep: React.FC<{
           /* View 2: Full Methodology */
           <div className="space-y-2">
             <div className="flex items-center justify-between text-[10px] text-o1-muted font-mono">
-              <span>In-depth training philosophy, periodization phases, fatigue rules & athlete guidelines</span>
+              <span>
+                In-depth training philosophy, periodization phases, fatigue rules & athlete
+                guidelines
+              </span>
               <span>{wordCount} words</span>
             </div>
 
@@ -136,40 +149,48 @@ export const ProgramDetailsStep: React.FC<{
               </span>
               <button
                 type="button"
-                onClick={() => handleAppendMethodologySection(
-                  'Periodization Architecture',
-                  '- Phase 1 (Weeks 1-2): Accumulation & motor recruitment (RPE 7-8)\n- Phase 2 (Weeks 3-4): Mechanical tension & progressive overload (RPE 8-9)\n- Deload Week: 40% reduction in compound training volume'
-                )}
+                onClick={() =>
+                  handleAppendMethodologySection(
+                    'Periodization Architecture',
+                    '- Phase 1 (Weeks 1-2): Accumulation & motor recruitment (RPE 7-8)\n- Phase 2 (Weeks 3-4): Mechanical tension & progressive overload (RPE 8-9)\n- Deload Week: 40% reduction in compound training volume',
+                  )
+                }
                 className="px-2 py-0.5 rounded-xl text-[10px] font-medium bg-white/[0.08] text-o1-text hover:bg-neutral-700 transition-colors cursor-pointer"
               >
                 + Periodization
               </button>
               <button
                 type="button"
-                onClick={() => handleAppendMethodologySection(
-                  'Progressive Overload Directives',
-                  '- Micro-load compounds by 2.5kg once top rep bracket is completed across all working sets.\n- Maintain 2-3 minutes rest between compound multi-joint efforts.'
-                )}
+                onClick={() =>
+                  handleAppendMethodologySection(
+                    'Progressive Overload Directives',
+                    '- Micro-load compounds by 2.5kg once top rep bracket is completed across all working sets.\n- Maintain 2-3 minutes rest between compound multi-joint efforts.',
+                  )
+                }
                 className="px-2 py-0.5 rounded-xl text-[10px] font-medium bg-white/[0.08] text-o1-text hover:bg-neutral-700 transition-colors cursor-pointer"
               >
                 + Overload Rules
               </button>
               <button
                 type="button"
-                onClick={() => handleAppendMethodologySection(
-                  'Fatigue & Recovery Protocol',
-                  '- Hydration threshold: minimum 3.5L fluids on training days.\n- Sleep target: 7.5 - 9.0 hours sleep for optimal endocrine restoration.\n- Ensure 48 hours recovery before retraining matching prime movers.'
-                )}
+                onClick={() =>
+                  handleAppendMethodologySection(
+                    'Fatigue & Recovery Protocol',
+                    '- Hydration threshold: minimum 3.5L fluids on training days.\n- Sleep target: 7.5 - 9.0 hours sleep for optimal endocrine restoration.\n- Ensure 48 hours recovery before retraining matching prime movers.',
+                  )
+                }
                 className="px-2 py-0.5 rounded-xl text-[10px] font-medium bg-white/[0.08] text-o1-text hover:bg-neutral-700 transition-colors cursor-pointer"
               >
                 + Recovery & Fatigue
               </button>
               <button
                 type="button"
-                onClick={() => handleAppendMethodologySection(
-                  'Nutrition & Fueling Framework',
-                  '- Daily protein requirement: 2.0g - 2.2g per kg target bodyweight.\n- Pre-session fueling: 40-60g fast-acting carbohydrates 45 mins prior.'
-                )}
+                onClick={() =>
+                  handleAppendMethodologySection(
+                    'Nutrition & Fueling Framework',
+                    '- Daily protein requirement: 2.0g - 2.2g per kg target bodyweight.\n- Pre-session fueling: 40-60g fast-acting carbohydrates 45 mins prior.',
+                  )
+                }
                 className="px-2 py-0.5 rounded-xl text-[10px] font-medium bg-white/[0.08] text-o1-text hover:bg-neutral-700 transition-colors cursor-pointer"
               >
                 + Nutrition
@@ -218,9 +239,7 @@ export const ProgramDetailsStep: React.FC<{
 
       {/* Difficulty Level */}
       <div>
-        <label className="text-xs font-semibold text-o1-text block mb-2">
-          Difficulty Level
-        </label>
+        <label className="text-xs font-semibold text-o1-text block mb-2">Difficulty Level</label>
         <div className="flex p-1 rounded-2xl bg-white/[0.08] gap-1">
           {DIFFICULTIES.map((d) => {
             const isSelected = data.difficulty === d;
@@ -233,9 +252,7 @@ export const ProgramDetailsStep: React.FC<{
                   onChange({ difficulty: d });
                 }}
                 className={`flex-1 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
-                  isSelected
-                    ? 'bg-o1-crimson text-white'
-                    : 'text-o1-muted hover:text-o1-text'
+                  isSelected ? 'bg-o1-crimson text-white' : 'text-o1-muted hover:text-o1-text'
                 }`}
               >
                 {d}
@@ -247,9 +264,7 @@ export const ProgramDetailsStep: React.FC<{
 
       {/* Duration (Weeks) */}
       <div>
-        <label className="text-xs font-semibold text-o1-text block mb-2">
-          Duration (Weeks)
-        </label>
+        <label className="text-xs font-semibold text-o1-text block mb-2">Duration (Weeks)</label>
         <div className="p-2 rounded-2xl bg-white/[0.08] flex items-center justify-between gap-1 overflow-x-auto no-scrollbar">
           {DURATIONS.map((w) => {
             const isSelected = data.durationWeeks === w;
@@ -262,9 +277,7 @@ export const ProgramDetailsStep: React.FC<{
                   onChange({ durationWeeks: w });
                 }}
                 className={`w-8 h-8 rounded-xl text-xs font-bold transition-all flex items-center justify-center cursor-pointer shrink-0 ${
-                  isSelected
-                    ? 'bg-o1-crimson text-white'
-                    : 'text-o1-muted hover:bg-neutral-700'
+                  isSelected ? 'bg-o1-crimson text-white' : 'text-o1-muted hover:bg-neutral-700'
                 }`}
               >
                 {w}
@@ -291,9 +304,7 @@ export const ProgramDetailsStep: React.FC<{
                   onChange({ trainingDaysPerWeek: days });
                 }}
                 className={`flex-1 h-8 rounded-xl text-xs font-bold transition-all flex items-center justify-center cursor-pointer ${
-                  isSelected
-                    ? 'bg-o1-crimson text-white'
-                    : 'text-o1-muted hover:bg-neutral-700'
+                  isSelected ? 'bg-o1-crimson text-white' : 'text-o1-muted hover:bg-neutral-700'
                 }`}
               >
                 {days}
@@ -305,9 +316,7 @@ export const ProgramDetailsStep: React.FC<{
 
       {/* Program Artwork Picker */}
       <div>
-        <label className="text-xs font-semibold text-o1-text block mb-2">
-          Program Artwork
-        </label>
+        <label className="text-xs font-semibold text-o1-text block mb-2">Program Artwork</label>
         <ProgramCoverArtworkPicker
           coverImage={data.coverImage}
           coverSource={data.coverSource}
@@ -318,5 +327,3 @@ export const ProgramDetailsStep: React.FC<{
     </div>
   );
 };
-
-

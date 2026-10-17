@@ -12,7 +12,8 @@ const PORK = /\b(pork|bacon|ham|prosciutto|salami|chorizo|pepperoni|lard|gelatin
 const GLUTEN =
   /\b(bread|pasta|wheat|bagel|wrap|pretzel|graham|couscous|farro|barley|weet-bix|sourdough|bun|flour|seitan)\b/i;
 const ALCOHOL = /\b(wine|beer|vodka|whisky|rum|alcohol)\b/i;
-const GRAIN_DAIRY = /\b(oat|rice|bread|pasta|yogurt|milk|cheese|whey|bean|lentil|quinoa|potato|sweet potato)\b/i;
+const GRAIN_DAIRY =
+  /\b(oat|rice|bread|pasta|yogurt|milk|cheese|whey|bean|lentil|quinoa|potato|sweet potato)\b/i;
 
 function foodMatchesDiet(name: string, brand: string, diet?: string): boolean {
   const protocol = (diet || 'Omnivore').toLowerCase();
@@ -21,7 +22,13 @@ function foodMatchesDiet(name: string, brand: string, diet?: string): boolean {
   const hay = `${name} ${brand}`;
 
   if (protocol === 'vegan') {
-    return !MEAT.test(hay) && !FISH.test(hay) && !DAIRY.test(hay) && !EGG.test(hay) && !/honey|collagen|gelatin/i.test(hay);
+    return (
+      !MEAT.test(hay) &&
+      !FISH.test(hay) &&
+      !DAIRY.test(hay) &&
+      !EGG.test(hay) &&
+      !/honey|collagen|gelatin/i.test(hay)
+    );
   }
   if (protocol === 'vegetarian') {
     return !MEAT.test(hay) && !FISH.test(hay);
@@ -36,7 +43,8 @@ function foodMatchesDiet(name: string, brand: string, diet?: string): boolean {
     return !DAIRY.test(hay) && !GLUTEN.test(hay) && !/\b(bean|lentil|peanut|soy|tofu)\b/i.test(hay);
   }
   if (protocol === 'keto') {
-    const carbsHint = /\b(rice|oat|bread|pasta|banana|apple|potato|honey|syrup|juice|bagel|wrap|cereal)\b/i;
+    const carbsHint =
+      /\b(rice|oat|bread|pasta|banana|apple|potato|honey|syrup|juice|bagel|wrap|cereal)\b/i;
     return !carbsHint.test(hay);
   }
   if (protocol === 'mediterranean') {

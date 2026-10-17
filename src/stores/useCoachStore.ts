@@ -11,14 +11,17 @@ const initialState: CoachState = {
   assignedWorkouts: [],
 };
 
-const newestFirst = (a: { completedAt: string }, b: { completedAt: string }) => b.completedAt.localeCompare(a.completedAt);
+const newestFirst = (a: { completedAt: string }, b: { completedAt: string }) =>
+  b.completedAt.localeCompare(a.completedAt);
 
 export const useCoachStore = create<CoachStore>((set) => ({
   ...initialState,
 
   dispatchWorkout: (workout) => {
     tactileEngine.triggerSelectionBuzz();
-    set((s) => ({ assignedWorkouts: [workout, ...s.assignedWorkouts.filter((row) => row.id !== workout.id)] }));
+    set((s) => ({
+      assignedWorkouts: [workout, ...s.assignedWorkouts.filter((row) => row.id !== workout.id)],
+    }));
   },
   ingestAssigned: (workout) => {
     set((s) => {
@@ -49,13 +52,17 @@ export const useCoachStore = create<CoachStore>((set) => ({
   },
   setFinishedWorkouts: (rows) => set({ finishedWorkouts: [...rows].sort(newestFirst) }),
   upsertFinishedWorkout: (row) => {
-    set((s) => ({ finishedWorkouts: [row, ...s.finishedWorkouts.filter((w) => w.id !== row.id)].sort(newestFirst) }));
+    set((s) => ({
+      finishedWorkouts: [row, ...s.finishedWorkouts.filter((w) => w.id !== row.id)].sort(
+        newestFirst,
+      ),
+    }));
   },
   applyWorkoutFeedback: (workoutId, feedback, givenAt) => {
     set((s) => ({
-      finishedWorkouts: s.finishedWorkouts.map((w) => (w.id === workoutId ? { ...w, feedback, feedbackGivenAt: givenAt } : w)),
+      finishedWorkouts: s.finishedWorkouts.map((w) =>
+        w.id === workoutId ? { ...w, feedback, feedbackGivenAt: givenAt } : w,
+      ),
     }));
   },
 }));
-
-

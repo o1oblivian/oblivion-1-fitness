@@ -40,7 +40,9 @@ export const FuelIntakeSection: React.FC<FuelIntakeSectionProps> = ({
           </span>
         </span>
         <span className="w-7 h-7 rounded-full border border-white/[0.08] flex items-center justify-center text-o1-muted">
-          <ChevronUp className={`w-4 h-4 transition-transform duration-200 ${isIntakeExpanded ? '' : 'rotate-180'}`} />
+          <ChevronUp
+            className={`w-4 h-4 transition-transform duration-200 ${isIntakeExpanded ? '' : 'rotate-180'}`}
+          />
         </span>
       </button>
 
@@ -59,5 +61,3 @@ export const FuelIntakeSection: React.FC<FuelIntakeSectionProps> = ({
     </section>
   );
 };
-
-

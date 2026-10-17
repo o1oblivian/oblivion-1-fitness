@@ -10,4 +10,3 @@ export interface MealFoodItem {
   timestamp: string;
   logged: boolean;
 }
-

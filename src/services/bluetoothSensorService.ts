@@ -5,7 +5,13 @@
  */
 
 import { Capacitor } from '@capacitor/core';
-import { BleDriver, BluetoothDeviceInfo, BluetoothStateChangeCallback, BleConnectResult, MAX_BLE_DEVICES } from './ble/bleTypes';
+import {
+  BleDriver,
+  BluetoothDeviceInfo,
+  BluetoothStateChangeCallback,
+  BleConnectResult,
+  MAX_BLE_DEVICES,
+} from './ble/bleTypes';
 import { NativeBleDriver } from './ble/nativeBleDriver';
 import { WebBleDriver } from './ble/webBleDriver';
 import { HrvCollector, flushHrv, useHrvStore } from './ble/hrv';
@@ -21,7 +27,9 @@ interface Connection {
 }
 
 class BluetoothSensorService {
-  private driver: BleDriver = Capacitor.isNativePlatform() ? new NativeBleDriver() : new WebBleDriver();
+  private driver: BleDriver = Capacitor.isNativePlatform()
+    ? new NativeBleDriver()
+    : new WebBleDriver();
   private connections = new Map<string, Connection>();
   private listeners = new Set<BluetoothStateChangeCallback>();
   private pairing = false;
@@ -59,7 +67,10 @@ class BluetoothSensorService {
     if (!conn) return;
     if (!intervalsMs || intervalsMs.length === 0) {
       conn.packetsWithoutIntervals++;
-      if (conn.info.sendsBeatIntervals === null && conn.packetsWithoutIntervals >= NO_INTERVALS_LIMIT) {
+      if (
+        conn.info.sendsBeatIntervals === null &&
+        conn.packetsWithoutIntervals >= NO_INTERVALS_LIMIT
+      ) {
         conn.info.sendsBeatIntervals = false;
         this.notify();
       }
@@ -69,7 +80,8 @@ class BluetoothSensorService {
     const first = conn.info.sendsBeatIntervals !== true;
     conn.info.sendsBeatIntervals = true;
     const hrv = conn.collector.push(intervalsMs);
-    if (hrv !== null) useHrvStore.getState().record({ rmssdMs: hrv, at: Date.now(), device: conn.info.name });
+    if (hrv !== null)
+      useHrvStore.getState().record({ rmssdMs: hrv, at: Date.now(), device: conn.info.name });
     if (first || hrv !== conn.info.hrvMs) {
       conn.info.hrvMs = hrv;
       this.notify();
@@ -84,13 +96,21 @@ class BluetoothSensorService {
 
   public async requestAndConnect(): Promise<BleConnectResult> {
     if (this.pairing) return { success: false, error: 'Already looking for a sensor.' };
-    if (this.isFull()) return { success: false, error: `Up to ${MAX_BLE_DEVICES} sensors can be connected.` };
+    if (this.isFull())
+      return { success: false, error: `Up to ${MAX_BLE_DEVICES} sensors can be connected.` };
     this.pairing = true;
     try {
-      const result = await this.driver.connect(this.handleBeats, this.handleDisconnect, [...this.connections.keys()]);
+      const result = await this.driver.connect(this.handleBeats, this.handleDisconnect, [
+        ...this.connections.keys(),
+      ]);
       if (result.success && result.device) {
         this.connections.set(result.device.id, {
-          info: { id: result.device.id, name: result.device.name, hrvMs: null, sendsBeatIntervals: null },
+          info: {
+            id: result.device.id,
+            name: result.device.name,
+            hrvMs: null,
+            sendsBeatIntervals: null,
+          },
           collector: new HrvCollector(),
           packetsWithoutIntervals: 0,
         });

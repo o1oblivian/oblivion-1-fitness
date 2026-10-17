@@ -3,7 +3,11 @@ import { X, Layers, ArrowRight, Dumbbell, Target } from 'lucide-react';
 import { ExerciseItem } from '../../../types';
 import { useWorkoutStore } from '../store/useWorkoutStore';
 import { tactileEngine } from '../../../services/tactileEngine';
-import { PRESET_SPLITS, MUSCLE_SUBSTITUTIONS, MuscleSubstitutionItem } from '../data/routineSwapperData';
+import {
+  PRESET_SPLITS,
+  MUSCLE_SUBSTITUTIONS,
+  MuscleSubstitutionItem,
+} from '../data/routineSwapperData';
 import { EXERCISE_DATABASE } from '../../../data/exerciseDatabase';
 import { calibrateTemplate } from '../utils/calibrateLoads';
 
@@ -24,9 +28,10 @@ export const RoutineSwapperModal: React.FC<RoutineSwapperModalProps> = ({
   const { exercises, swapExercise, setExercises, setActiveRoutine } = useWorkoutStore();
 
   // If activePreset matches an exercise ID or name, prepare single exercise alternatives
-  const targetExercise = exercises.find(
-    (e) => e.id === activePreset || e.name.toLowerCase() === activePreset.toLowerCase()
-  ) || exercises[0];
+  const targetExercise =
+    exercises.find(
+      (e) => e.id === activePreset || e.name.toLowerCase() === activePreset.toLowerCase(),
+    ) || exercises[0];
 
   React.useEffect(() => {
     if (activePreset && tab !== 'EXERCISE' && exercises.some((e) => e.id === activePreset)) {
@@ -86,10 +91,7 @@ export const RoutineSwapperModal: React.FC<RoutineSwapperModalProps> = ({
               </p>
             </div>
           </div>
-          <button
-            onClick={onClose}
-            className="p-1 rounded text-neutral-400 hover:text-white"
-          >
+          <button onClick={onClose} className="p-1 rounded text-neutral-400 hover:text-white">
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -203,12 +205,8 @@ export const RoutineSwapperModal: React.FC<RoutineSwapperModalProps> = ({
                       {item.tier}
                     </span>
                   </div>
-                  <p className="text-[11px] font-sans text-sky-600 font-semibold">
-                    {item.split}
-                  </p>
-                  <p className="text-xs text-neutral-400 leading-relaxed font-sans">
-                    {item.desc}
-                  </p>
+                  <p className="text-[11px] font-sans text-sky-600 font-semibold">{item.split}</p>
+                  <p className="text-xs text-neutral-400 leading-relaxed font-sans">{item.desc}</p>
                   <div className="flex items-center justify-between pt-1.5 border-t border-white/[0.05] text-[10px] text-neutral-500 font-sans">
                     <span>{item.volume}</span>
                     <span className="text-white flex items-center gap-1 font-tactical font-medium tracking-wider">
@@ -227,9 +225,7 @@ export const RoutineSwapperModal: React.FC<RoutineSwapperModalProps> = ({
                 className="p-3.5 rounded-2xl border border-white/[0.07] bg-o1-card hover:border-[#C4121A] cursor-pointer transition-all space-y-2"
               >
                 <div className="flex items-center justify-between">
-                  <span className="font-tactical font-light text-sm text-white">
-                    {item.muscle}
-                  </span>
+                  <span className="font-tactical font-light text-sm text-white">{item.muscle}</span>
                   <span className="text-[9px] font-tactical font-medium text-[#C4121A] bg-[#C4121A]/10 px-2 py-0.5 rounded-full border border-[#C4121A]/30 tracking-wider">
                     {item.tag}
                   </span>

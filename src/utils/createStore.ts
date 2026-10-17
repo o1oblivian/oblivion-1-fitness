@@ -18,8 +18,8 @@ export function createStore<TState extends object, TActions extends object>(
   initialState: TState,
   createActions: (
     set: (updater: Partial<TState> | ((prev: TState) => Partial<TState>)) => void,
-    get: () => TState & TActions
-  ) => TActions
+    get: () => TState & TActions,
+  ) => TActions,
 ) {
   let actionsRef: TActions = {} as TActions;
 

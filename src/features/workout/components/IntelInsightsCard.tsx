@@ -26,15 +26,27 @@ export const IntelInsightsCard: React.FC = () => {
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 bg-[radial-gradient(120%_90%_at_100%_0%,rgba(234,232,223,0.07),transparent_55%)]"
         />
-        <span aria-hidden="true" className="pointer-events-none absolute inset-x-4 top-0 h-px bg-gradient-to-r from-transparent via-white/[0.14] to-transparent" />
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-x-4 top-0 h-px bg-gradient-to-r from-transparent via-white/[0.14] to-transparent"
+        />
 
         <span className="relative min-w-0 flex-1">
-          <span className="block text-[11px] font-medium tracking-[0.2em] uppercase text-o1-muted">Oblivion Pro</span>
-          <span className="block text-[15px] font-light tracking-wide text-[#FFFFFF] leading-tight mt-1">My progress</span>
+          <span className="block text-[11px] font-medium tracking-[0.2em] uppercase text-o1-muted">
+            Oblivion Pro
+          </span>
+          <span className="block text-[15px] font-light tracking-wide text-[#FFFFFF] leading-tight mt-1">
+            My progress
+          </span>
           <span className="flex flex-wrap items-center gap-x-1.5 mt-1.5 text-[11px] text-o1-muted leading-none">
             {FEATURES.map((f, i) => (
               <React.Fragment key={f}>
-                {i > 0 && <span aria-hidden="true" className="w-[3px] h-[3px] rounded-full bg-white/[0.22]" />}
+                {i > 0 && (
+                  <span
+                    aria-hidden="true"
+                    className="w-[3px] h-[3px] rounded-full bg-white/[0.22]"
+                  />
+                )}
                 <span>{f}</span>
               </React.Fragment>
             ))}
@@ -54,5 +66,3 @@ export const IntelInsightsCard: React.FC = () => {
     </>
   );
 };
-
-

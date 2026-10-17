@@ -28,7 +28,12 @@ export const WALLPAPER_CATEGORY_LABELS: Record<WallpaperCategory, string> = {
 const base = (photo: string, width: number, quality: number) =>
   `https://images.unsplash.com/photo-${photo}?auto=format&fit=crop&w=${width}&q=${quality}`;
 
-function w(category: WallpaperCategory, id: string, photo: string, title: string): CatalogWallpaper {
+function w(
+  category: WallpaperCategory,
+  id: string,
+  photo: string,
+  title: string,
+): CatalogWallpaper {
   return {
     id: `wp-${id}`,
     category,

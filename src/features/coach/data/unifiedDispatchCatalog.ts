@@ -10,9 +10,12 @@ function mapDispatchCategory(def: ExerciseDefinition): DispatchCatalogExercise['
     if (c.includes('hyrox')) return 'Hyrox & Motion';
     return 'Sports & Athletics';
   }
-  if (c.includes('chest') || c.includes('tricep') || muscle.includes('chest')) return 'Push (Chest & Tri)';
-  if (c.includes('back') || c.includes('lat') || c.includes('bicep') || muscle.includes('back')) return 'Pull (Back & Bi)';
-  if (c.includes('shoulder') || c.includes('delt') || c.includes('trap')) return 'Shoulders & Delts';
+  if (c.includes('chest') || c.includes('tricep') || muscle.includes('chest'))
+    return 'Push (Chest & Tri)';
+  if (c.includes('back') || c.includes('lat') || c.includes('bicep') || muscle.includes('back'))
+    return 'Pull (Back & Bi)';
+  if (c.includes('shoulder') || c.includes('delt') || c.includes('trap'))
+    return 'Shoulders & Delts';
   if (c.includes('arm') || c.includes('forearm') || c.includes('grip')) return 'Arms & Forearms';
   if (c.includes('core') || c.includes('abs')) return 'Core & Stability';
   if (
@@ -32,7 +35,8 @@ function mapDispatchCategory(def: ExerciseDefinition): DispatchCatalogExercise['
 
 function mapDispatchType(def: ExerciseDefinition): DispatchCatalogExercise['type'] {
   if (def.mechanic === 'isolation') return 'Isolation';
-  if (def.discipline === 'sports' || def.discipline === 'recovery' || def.mechanic === 'aerobic') return 'Functional';
+  if (def.discipline === 'sports' || def.discipline === 'recovery' || def.mechanic === 'aerobic')
+    return 'Functional';
   return 'Compound';
 }
 
@@ -42,7 +46,8 @@ function mapDispatchEquipment(eq: string): DispatchCatalogExercise['equipment'] 
   if (e.includes('cable')) return 'Cable';
   if (e.includes('machine')) return 'Machine';
   if (e.includes('kettle')) return 'Kettlebell';
-  if (e.includes('body') || e.includes('mat') || e.includes('turf') || e.includes('erg')) return 'Bodyweight';
+  if (e.includes('body') || e.includes('mat') || e.includes('turf') || e.includes('erg'))
+    return 'Bodyweight';
   return 'Barbell';
 }
 

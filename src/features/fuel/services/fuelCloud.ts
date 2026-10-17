@@ -1,7 +1,14 @@
 import { supabase } from '../../../services/supabaseClient';
 
 export type FuelSlot = 'breakfast' | 'lunch' | 'dinner' | 'snack' | 'drinks' | 'supplements';
-export const FUEL_SLOTS: FuelSlot[] = ['breakfast', 'lunch', 'dinner', 'snack', 'drinks', 'supplements'];
+export const FUEL_SLOTS: FuelSlot[] = [
+  'breakfast',
+  'lunch',
+  'dinner',
+  'snack',
+  'drinks',
+  'supplements',
+];
 
 export interface CloudMeal {
   id: string;
@@ -81,10 +88,18 @@ function num(value: unknown): number {
   return Number.isFinite(n) ? n : 0;
 }
 
-export async function fetchFuelSnapshot(userId: string, dateKey: string): Promise<FuelSnapshot | null> {
+export async function fetchFuelSnapshot(
+  userId: string,
+  dateKey: string,
+): Promise<FuelSnapshot | null> {
   const [profileRes, dayRes, mealRes] = await Promise.all([
     supabase.from('fuel_profiles').select('*').eq('user_id', userId).maybeSingle(),
-    supabase.from('fuel_days').select('*').eq('user_id', userId).eq('date_key', dateKey).maybeSingle(),
+    supabase
+      .from('fuel_days')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('date_key', dateKey)
+      .maybeSingle(),
     supabase
       .from('meal_logs')
       .select('id, meal_type, name, calories, protein, carbs, fats, created_at')
@@ -93,7 +108,10 @@ export async function fetchFuelSnapshot(userId: string, dateKey: string): Promis
       .order('created_at', { ascending: true }),
   ]);
   if (profileRes.error || dayRes.error || mealRes.error) {
-    console.warn('[FuelCloud] Snapshot unavailable:', profileRes.error?.message || dayRes.error?.message || mealRes.error?.message);
+    console.warn(
+      '[FuelCloud] Snapshot unavailable:',
+      profileRes.error?.message || dayRes.error?.message || mealRes.error?.message,
+    );
     return null;
   }
   const meals: CloudMeal[] = (mealRes.data || []).map((row) => ({
@@ -116,7 +134,11 @@ export interface FuelDayTotals {
 }
 
 /** Daily totals for [fromKey, toKey] summed from meal_logs, keyed by local date. Days with no meals are absent. */
-export async function fetchFuelWeek(userId: string, fromKey: string, toKey: string): Promise<Record<string, FuelDayTotals> | null> {
+export async function fetchFuelWeek(
+  userId: string,
+  fromKey: string,
+  toKey: string,
+): Promise<Record<string, FuelDayTotals> | null> {
   const { data, error } = await supabase
     .from('meal_logs')
     .select('date, calories, protein, carbs, fats')
@@ -144,15 +166,24 @@ export async function fetchFuelWeek(userId: string, fromKey: string, toKey: stri
 export async function upsertFuelProfile(userId: string, patch: FuelProfilePatch): Promise<boolean> {
   const { error } = await supabase
     .from('fuel_profiles')
-    .upsert([{ user_id: userId, ...patch, updated_at: new Date().toISOString() }], { onConflict: 'user_id' });
+    .upsert([{ user_id: userId, ...patch, updated_at: new Date().toISOString() }], {
+      onConflict: 'user_id',
+    });
   if (error) console.warn('[FuelCloud] Profile save failed:', error.message);
   return !error;
 }
 
-export async function upsertFuelDay(userId: string, dateKey: string, patch: FuelDayPatch): Promise<boolean> {
+export async function upsertFuelDay(
+  userId: string,
+  dateKey: string,
+  patch: FuelDayPatch,
+): Promise<boolean> {
   const { error } = await supabase
     .from('fuel_days')
-    .upsert([{ user_id: userId, date_key: dateKey, ...patch, updated_at: new Date().toISOString() }], { onConflict: 'user_id,date_key' });
+    .upsert(
+      [{ user_id: userId, date_key: dateKey, ...patch, updated_at: new Date().toISOString() }],
+      { onConflict: 'user_id,date_key' },
+    );
   if (error) console.warn('[FuelCloud] Day save failed:', error.message);
   return !error;
 }

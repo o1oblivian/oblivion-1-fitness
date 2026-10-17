@@ -21,7 +21,8 @@ export const FoundingLiftersQueue: React.FC<Props> = ({
   onEnableLocation,
 }) => {
   const safeThreshold = threshold > 0 ? threshold : 250;
-  const progress = count == null ? 0 : Math.max(0, Math.min(100, Math.round((count / safeThreshold) * 100)));
+  const progress =
+    count == null ? 0 : Math.max(0, Math.min(100, Math.round((count / safeThreshold) * 100)));
   const locationOff = locationOn === false;
   const detail = locationOff
     ? 'Buddy uses your rough area, about 1 km, to find people near you. Your exact location is never shown.'

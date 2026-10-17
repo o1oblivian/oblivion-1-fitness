@@ -54,19 +54,11 @@ export interface WorkoutStoreActions {
   /** Saves ticked sets to today, then empties the tracker. Null when nothing was ticked. */
   commitSession: () => CommittedSession | null;
   setActiveRoutine: (routine: string) => void;
-  setActiveLogs: (
-    exercises: ExerciseItem[] | ((prev: ExerciseItem[]) => ExerciseItem[])
-  ) => void;
-  setExercises: (
-    exercises: ExerciseItem[] | ((prev: ExerciseItem[]) => ExerciseItem[])
-  ) => void;
+  setActiveLogs: (exercises: ExerciseItem[] | ((prev: ExerciseItem[]) => ExerciseItem[])) => void;
+  setExercises: (exercises: ExerciseItem[] | ((prev: ExerciseItem[]) => ExerciseItem[])) => void;
   swapExercise: (oldExerciseId: string, newExercise: Partial<ExerciseItem>) => void;
   deployProtocol: (newExercises: ExerciseItem[]) => void;
-  updateExerciseSet: (
-    exerciseId: string,
-    setNumber: number,
-    updates: Partial<ExerciseSet>
-  ) => void;
+  updateExerciseSet: (exerciseId: string, setNumber: number, updates: Partial<ExerciseSet>) => void;
   addSet: (exerciseId: string) => void;
   removeSet: (exerciseId: string, setNumber: number) => void;
   toggleSetCompleted: (exerciseId: string, setNumber: number) => void;
@@ -88,4 +80,3 @@ export const initialWorkoutState: WorkoutStoreState = {
   recoveryEnergyScore: 0,
   weeklyVolumeData: INITIAL_MICROCYCLE_VOLUME,
 };
-

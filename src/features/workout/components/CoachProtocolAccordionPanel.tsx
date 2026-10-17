@@ -8,13 +8,16 @@ interface CoachProtocolAccordionPanelProps {
   onClose: () => void;
 }
 
-export const CoachProtocolAccordionPanel: React.FC<CoachProtocolAccordionPanelProps> = ({ onClose }) => {
+export const CoachProtocolAccordionPanel: React.FC<CoachProtocolAccordionPanelProps> = ({
+  onClose,
+}) => {
   const assigned = useCoachStore((s) => s.assignedWorkouts);
   const workout = assigned.find((row) => row.status !== 'completed') ?? null;
 
   const handleOpenCoachHub = () => {
     tactileEngine.triggerSelectionBuzz();
-    const coachTab = document.getElementById('nav-tab-coach') || document.getElementById('dock-tab-coach');
+    const coachTab =
+      document.getElementById('nav-tab-coach') || document.getElementById('dock-tab-coach');
     if (coachTab) coachTab.click();
   };
 
@@ -28,7 +31,8 @@ export const CoachProtocolAccordionPanel: React.FC<CoachProtocolAccordionPanelPr
     onClose();
 
     setTimeout(() => {
-      const activeEl = document.getElementById('active-log-section') || document.getElementById('active-log-card');
+      const activeEl =
+        document.getElementById('active-log-section') || document.getElementById('active-log-card');
       activeEl?.scrollIntoView({ behavior: 'smooth' });
     }, 150);
   };
@@ -73,7 +77,9 @@ export const CoachProtocolAccordionPanel: React.FC<CoachProtocolAccordionPanelPr
           <div className="p-4 rounded-2xl bg-o1-well border border-white/[0.07] space-y-3">
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
-                <h4 className="text-xs sm:text-sm font-medium text-white leading-snug">{workout.title}</h4>
+                <h4 className="text-xs sm:text-sm font-medium text-white leading-snug">
+                  {workout.title}
+                </h4>
                 <p className="text-[11px] text-neutral-400 mt-0.5 font-medium">
                   {workout.coachName} · {workout.exercises.length} exercises
                 </p>
@@ -114,5 +120,3 @@ export const CoachProtocolAccordionPanel: React.FC<CoachProtocolAccordionPanelPr
     </div>
   );
 };
-
-

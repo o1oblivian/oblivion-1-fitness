@@ -14,7 +14,10 @@ export function errorMessage(err: unknown, fallback = ''): string {
 }
 
 export function errorName(err: unknown): string {
-  return typeof err === 'object' && err !== null && 'name' in err && typeof (err as { name: unknown }).name === 'string'
+  return typeof err === 'object' &&
+    err !== null &&
+    'name' in err &&
+    typeof (err as { name: unknown }).name === 'string'
     ? (err as { name: string }).name
     : '';
 }

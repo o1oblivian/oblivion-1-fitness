@@ -54,5 +54,3 @@ export const HeroModals: React.FC<HeroModalsProps> = ({
     document.body,
   );
 };
-
-

@@ -3,10 +3,7 @@ import { tactileEngine } from '../../../services/tactileEngine';
 import { ExerciseItem } from '../../../types';
 import { toMovementPattern } from '../../../types/exercise';
 import { DisciplineType, ExerciseDefinition } from '../../../types/workout';
-import {
-  estimateSessionCalorieBurn,
-  getAthleteWeightKg,
-} from '../../../utils/physiologyEngine';
+import { estimateSessionCalorieBurn, getAthleteWeightKg } from '../../../utils/physiologyEngine';
 import { LIFT_CHIPS, SPORTS_CHIPS, RECOVERY_CHIPS } from '../components/hub/hubConstants';
 import { filterEffectivePool } from '../utils/exerciseFilterUtils';
 import { readAthleteSettingsSnapshot } from '../../../utils/athleteSettingsSnapshot';
@@ -118,7 +115,7 @@ export function useExerciseHubAutoLogic({
   const totalSets = useMemo(() => {
     return routineItems.reduce(
       (acc, it, idx) => acc + (slotSets[idx] !== undefined ? slotSets[idx] : it.defaultSets || 3),
-      0
+      0,
     );
   }, [routineItems, slotSets]);
 
@@ -137,7 +134,11 @@ export function useExerciseHubAutoLogic({
         id: `hub-${Date.now()}-${idx}-${Math.random().toString(36).slice(2, 6)}`,
         name: def.name,
         targetMuscle: def.primaryMuscleGroup || def.category || 'Compound',
-        restSecs: def.defaultRestSeconds || def.restSecs || readAthleteSettingsSnapshot().defaultRestSeconds || 90,
+        restSecs:
+          def.defaultRestSeconds ||
+          def.restSecs ||
+          readAthleteSettingsSnapshot().defaultRestSeconds ||
+          90,
         equipment: def.equipment,
         tier: def.tier,
         baseMET: def.baseMET,

@@ -40,4 +40,3 @@ export * from './telemetry';
 export * from './coach';
 export * from './database';
 export * from './iap';
-;

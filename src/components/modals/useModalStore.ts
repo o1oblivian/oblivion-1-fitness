@@ -17,10 +17,7 @@ interface ModalStoreState {
 }
 
 interface ModalStoreActions {
-  openModal: <T extends ModalType>(
-    modalType: T,
-    payload?: ModalPayloadMap[T]
-  ) => void;
+  openModal: <T extends ModalType>(modalType: T, payload?: ModalPayloadMap[T]) => void;
   closeModal: () => void;
   openSettings: (payload?: GenericToastPayload) => void;
   openFullEliteReels: (options?: 'grid' | 'player' | EliteReelsPayload) => void;
@@ -36,54 +33,54 @@ const initialState: ModalStoreState = {
   payload: null,
 };
 
-const modalStore = createStore<ModalStoreState, ModalStoreActions>(
-  initialState,
-  (set) => ({
-    openModal: (modalType, payload) => {
-      tactileEngine.triggerSelectionBuzz();
-      set({
-        activeModal: modalType,
-        payload: payload || {},
-      });
-    },
+const modalStore = createStore<ModalStoreState, ModalStoreActions>(initialState, (set) => ({
+  openModal: (modalType, payload) => {
+    tactileEngine.triggerSelectionBuzz();
+    set({
+      activeModal: modalType,
+      payload: payload || {},
+    });
+  },
 
-    closeModal: () => {
-      set({
-        activeModal: null,
-        payload: null,
-      });
-    },
+  closeModal: () => {
+    set({
+      activeModal: null,
+      payload: null,
+    });
+  },
 
-    openSettings: (payload) => {
-      modalStore.actions.openModal('SETTINGS', payload || {});
-    },
+  openSettings: (payload) => {
+    modalStore.actions.openModal('SETTINGS', payload || {});
+  },
 
-    openFullEliteReels: (options?: 'grid' | 'player' | EliteReelsPayload) => {
-      const payload = typeof options === 'string' ? { initialMode: options } : (options || { initialMode: 'player' as const });
-      modalStore.actions.openModal('FULL_ELITE_REELS', payload);
-    },
+  openFullEliteReels: (options?: 'grid' | 'player' | EliteReelsPayload) => {
+    const payload =
+      typeof options === 'string'
+        ? { initialMode: options }
+        : options || { initialMode: 'player' as const };
+    modalStore.actions.openModal('FULL_ELITE_REELS', payload);
+  },
 
-    openCardioScanner: (payload) => {
-      modalStore.actions.openModal('CARDIO_SCANNER', payload || {});
-    },
+  openCardioScanner: (payload) => {
+    modalStore.actions.openModal('CARDIO_SCANNER', payload || {});
+  },
 
-    openTravelPass: (payload) => {
-      modalStore.actions.openModal('TRAVEL_PASS', payload || {});
-    },
+  openTravelPass: (payload) => {
+    modalStore.actions.openModal('TRAVEL_PASS', payload || {});
+  },
 
-    openExerciseSwapper: (payload) => {
-      modalStore.actions.openModal('EXERCISE_SWAPPER', payload || {});
-    },
+  openExerciseSwapper: (payload) => {
+    modalStore.actions.openModal('EXERCISE_SWAPPER', payload || {});
+  },
 
-    openHydration: (payload) => {
-      modalStore.actions.openModal('HYDRATION', payload || {});
-    },
+  openHydration: (payload) => {
+    modalStore.actions.openModal('HYDRATION', payload || {});
+  },
 
-    openSupplements: (payload) => {
-      modalStore.actions.openModal('SUPPLEMENTS', payload || {});
-    },
-  })
-);
+  openSupplements: (payload) => {
+    modalStore.actions.openModal('SUPPLEMENTS', payload || {});
+  },
+}));
 
 export const useModalStore = modalStore.useStore;
 export const modalActions = modalStore.actions;

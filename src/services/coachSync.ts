@@ -10,7 +10,7 @@ export interface CoachDirectivePayload {
 
 export function subscribeToCoachDirectives(
   athleteId: string,
-  onDirectiveOrRoutineChanged: (payload: CoachDirectivePayload) => void
+  onDirectiveOrRoutineChanged: (payload: CoachDirectivePayload) => void,
 ): () => void {
   const channel = liveChannel(`athlete-coach-pipeline-${athleteId}`)
     .on(
@@ -23,7 +23,7 @@ export function subscribeToCoachDirectives(
       },
       (payload) => {
         onDirectiveOrRoutineChanged(payload);
-      }
+      },
     )
     .on(
       'postgres_changes',
@@ -35,7 +35,7 @@ export function subscribeToCoachDirectives(
       },
       (payload) => {
         onDirectiveOrRoutineChanged(payload);
-      }
+      },
     )
     .on(
       'postgres_changes',
@@ -47,7 +47,7 @@ export function subscribeToCoachDirectives(
       },
       (payload) => {
         onDirectiveOrRoutineChanged(payload);
-      }
+      },
     )
     .subscribe();
 

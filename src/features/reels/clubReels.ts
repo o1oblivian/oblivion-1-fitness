@@ -102,7 +102,16 @@ export const CLUB_REELS: ExploreReelItem[] = SPECS.map((spec) => {
     duration: spec.duration,
     cues: spec.cues,
     coach: CLUB_COACH,
-    filmstripClips: [{ id: `o1fc-club-${spec.slug}-clip`, title: spec.title, duration: spec.duration, thumbnail, videoUrl, tag: spec.category }],
+    filmstripClips: [
+      {
+        id: `o1fc-club-${spec.slug}-clip`,
+        title: spec.title,
+        duration: spec.duration,
+        thumbnail,
+        videoUrl,
+        tag: spec.category,
+      },
+    ],
   };
 });
 

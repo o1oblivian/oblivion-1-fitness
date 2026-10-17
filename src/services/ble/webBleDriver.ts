@@ -3,7 +3,13 @@
  * Read-only: subscribes to Heart Rate Measurement notifications and never writes to the sensor.
  */
 
-import { BeatIntervalsHandler, BleConnectResult, BleDriver, isPickerCancel, parseBeatIntervalsMs } from './bleTypes';
+import {
+  BeatIntervalsHandler,
+  BleConnectResult,
+  BleDriver,
+  isPickerCancel,
+  parseBeatIntervalsMs,
+} from './bleTypes';
 
 interface WebGattCharacteristic extends EventTarget {
   value?: DataView;
@@ -17,7 +23,9 @@ interface WebBluetoothDevice extends EventTarget {
   gatt?: {
     connected: boolean;
     connect(): Promise<{
-      getPrimaryService(service: string): Promise<{ getCharacteristic(name: string): Promise<WebGattCharacteristic> }>;
+      getPrimaryService(
+        service: string,
+      ): Promise<{ getCharacteristic(name: string): Promise<WebGattCharacteristic> }>;
     }>;
     disconnect(): void;
   };
@@ -28,7 +36,10 @@ interface WebBluetooth {
 }
 
 export class WebBleDriver implements BleDriver {
-  private devices = new Map<string, { device: WebBluetoothDevice; measurement: WebGattCharacteristic | null }>();
+  private devices = new Map<
+    string,
+    { device: WebBluetoothDevice; measurement: WebGattCharacteristic | null }
+  >();
 
   public isSupported(): boolean {
     return typeof navigator !== 'undefined' && 'bluetooth' in navigator;
@@ -39,21 +50,25 @@ export class WebBleDriver implements BleDriver {
     onDisconnect: (deviceId: string) => void,
     connectedIds: string[],
   ): Promise<BleConnectResult> {
-    if (!this.isSupported()) return { success: false, error: 'This browser has no Bluetooth support.' };
+    if (!this.isSupported())
+      return { success: false, error: 'This browser has no Bluetooth support.' };
     let device: WebBluetoothDevice | null = null;
     try {
       const bluetooth = (navigator as Navigator & { bluetooth: WebBluetooth }).bluetooth;
       device = await bluetooth.requestDevice({ filters: [{ services: ['heart_rate'] }] });
       if (!device?.gatt) return { success: false, cancelled: true };
       const id = device.id;
-      if (connectedIds.includes(id)) return { success: false, error: 'That sensor is already connected.' };
+      if (connectedIds.includes(id))
+        return { success: false, error: 'That sensor is already connected.' };
 
       device.addEventListener('gattserverdisconnected', () => {
         this.devices.delete(id);
         onDisconnect(id);
       });
       const server = await device.gatt.connect();
-      const measurement = await (await server.getPrimaryService('heart_rate')).getCharacteristic('heart_rate_measurement');
+      const measurement = await (
+        await server.getPrimaryService('heart_rate')
+      ).getCharacteristic('heart_rate_measurement');
       measurement.addEventListener('characteristicvaluechanged', () => {
         if (measurement.value) onBeats(id, parseBeatIntervalsMs(measurement.value));
       });

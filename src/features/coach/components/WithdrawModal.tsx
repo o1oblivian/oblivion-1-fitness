@@ -13,9 +13,15 @@ interface WithdrawModalProps {
 }
 
 export const WithdrawModal: React.FC<WithdrawModalProps> = ({
-  isOpen, onClose, availableBalance, profile, onSuccess,
+  isOpen,
+  onClose,
+  availableBalance,
+  profile,
+  onSuccess,
 }) => {
-  const [amountStr, setAmountStr] = useState<string>(availableBalance > 0 ? availableBalance.toFixed(2) : '0.00');
+  const [amountStr, setAmountStr] = useState<string>(
+    availableBalance > 0 ? availableBalance.toFixed(2) : '0.00',
+  );
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -26,8 +32,14 @@ export const WithdrawModal: React.FC<WithdrawModalProps> = ({
     : 'Stripe Express (Direct Deposit)';
 
   const handleWithdraw = async () => {
-    if (withdrawAmount <= 0) { setError('Specify an amount greater than $0.00'); return; }
-    if (withdrawAmount < 5) { setError('The minimum withdrawal is $5.00.'); return; }
+    if (withdrawAmount <= 0) {
+      setError('Specify an amount greater than $0.00');
+      return;
+    }
+    if (withdrawAmount < 5) {
+      setError('The minimum withdrawal is $5.00.');
+      return;
+    }
     setError(null);
     setIsProcessing(true);
     tactileEngine.triggerSelectionBuzz();
@@ -57,27 +69,49 @@ export const WithdrawModal: React.FC<WithdrawModalProps> = ({
               <ArrowDownRight className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-sm font-tactical font-black text-o1-text tracking-wider">Withdraw Earnings</h2>
-              <p className="text-xs font-sans text-o1-muted font-semibold mt-0.5">Automated Stripe Express Transfer</p>
+              <h2 className="text-sm font-tactical font-black text-o1-text tracking-wider">
+                Withdraw Earnings
+              </h2>
+              <p className="text-xs font-sans text-o1-muted font-semibold mt-0.5">
+                Automated Stripe Express Transfer
+              </p>
             </div>
           </div>
-          <button onClick={onClose} className="p-1.5 text-o1-muted hover:text-o1-text rounded-full cursor-pointer"><X className="w-5 h-5" /></button>
+          <button
+            onClick={onClose}
+            className="p-1.5 text-o1-muted hover:text-o1-text rounded-full cursor-pointer"
+          >
+            <X className="w-5 h-5" />
+          </button>
         </div>
 
         <div className="p-5 space-y-4 bg-o1-canvas">
           <div className="bg-o1-surface border border-white/[0.07] rounded-2xl p-4 text-center space-y-1">
-            <span className="text-xs font-tactical text-o1-muted tracking-wider font-bold block">Available for Payout</span>
+            <span className="text-xs font-tactical text-o1-muted tracking-wider font-bold block">
+              Available for Payout
+            </span>
             <div className="text-3xl font-mono font-black text-o1-text tracking-tight">
-              ${availableBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              $
+              {availableBalance.toLocaleString(undefined, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}
             </div>
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-xs font-sans font-semibold text-o1-text block px-1">Withdrawal Amount ($ AUD, minimum $5)</label>
+            <label className="text-xs font-sans font-semibold text-o1-text block px-1">
+              Withdrawal Amount ($ AUD, minimum $5)
+            </label>
             <div className="relative">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-o1-muted font-mono text-sm">$</span>
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-o1-muted font-mono text-sm">
+                $
+              </span>
               <input
-                type="number" step="0.01" min="5" max={availableBalance}
+                type="number"
+                step="0.01"
+                min="5"
+                max={availableBalance}
                 value={amountStr}
                 onFocus={(e) => e.target.select()}
                 onChange={(e) => setAmountStr(sanitizeNumericInput(e.target.value))}
@@ -87,7 +121,9 @@ export const WithdrawModal: React.FC<WithdrawModalProps> = ({
             <div className="grid grid-cols-3 gap-2 pt-1">
               {[0.25, 0.5, 1.0].map((pct) => (
                 <button
-                  key={pct} type="button" onClick={() => setAmountStr((availableBalance * pct).toFixed(2))}
+                  key={pct}
+                  type="button"
+                  onClick={() => setAmountStr((availableBalance * pct).toFixed(2))}
                   className="py-1.5 rounded-xl bg-o1-surface border border-o1-gold/25 hover:border-o1-gold/50 text-xs font-tactical font-black text-o1-gold hover:text-o1-gold cursor-pointer"
                 >
                   {pct === 1 ? 'MAX (100%)' : `${pct * 100}%`}
@@ -106,7 +142,8 @@ export const WithdrawModal: React.FC<WithdrawModalProps> = ({
 
           {error && (
             <div className="p-2.5 rounded-xl bg-red-950/40 border border-red-500/30 text-red-300 text-xs font-sans flex items-center gap-2">
-              <ShieldAlert className="w-4 h-4 shrink-0" /><span>{error}</span>
+              <ShieldAlert className="w-4 h-4 shrink-0" />
+              <span>{error}</span>
             </div>
           )}
 
@@ -115,12 +152,17 @@ export const WithdrawModal: React.FC<WithdrawModalProps> = ({
             disabled={isProcessing || withdrawAmount <= 0}
             className="w-full py-3.5 rounded-xl bg-gradient-to-r from-o1-gold via-o1-gold to-o1-gold text-black font-tactical font-black text-xs tracking-wider flex items-center justify-center gap-2 cursor-pointer shadow-lg active:scale-98 transition disabled:opacity-50"
           >
-            {isProcessing ? <Loader2 className="w-4 h-4 animate-spin text-black" /> : <ArrowDownRight className="w-4 h-4 text-black stroke-[3]" />}
-            <span>{isProcessing ? 'Dispatching payout...' : `WITHDRAW $${withdrawAmount.toFixed(2)}`}</span>
+            {isProcessing ? (
+              <Loader2 className="w-4 h-4 animate-spin text-black" />
+            ) : (
+              <ArrowDownRight className="w-4 h-4 text-black stroke-[3]" />
+            )}
+            <span>
+              {isProcessing ? 'Dispatching payout...' : `WITHDRAW $${withdrawAmount.toFixed(2)}`}
+            </span>
           </button>
         </div>
       </div>
     </div>
   );
 };
-

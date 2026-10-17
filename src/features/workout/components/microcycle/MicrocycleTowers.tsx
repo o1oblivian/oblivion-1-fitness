@@ -37,7 +37,11 @@ export const MicrocycleTowers: React.FC<MicrocycleTowersProps> = ({
       towers={towers}
       tubeHeightPx={104}
       maxTubeWidthPx={28}
-      reference={baselineVolume > 0 ? { value: baselineVolume, label: `BASELINE ${(baselineVolume / 1000).toFixed(1)}k kg` } : null}
+      reference={
+        baselineVolume > 0
+          ? { value: baselineVolume, label: `BASELINE ${(baselineVolume / 1000).toFixed(1)}k kg` }
+          : null
+      }
       activeKey={activeDays[selectedDayIdx]?.day ?? null}
       peakKey={peakDay?.day ?? null}
       showValues
@@ -46,5 +50,3 @@ export const MicrocycleTowers: React.FC<MicrocycleTowersProps> = ({
     />
   );
 };
-
-

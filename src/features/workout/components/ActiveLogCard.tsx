@@ -7,10 +7,18 @@ import type { WeightUnit } from '../../../hooks/useAthleteSettings';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { useWorkoutStore } from '../store/useWorkoutStore';
 import { useCoachStore } from '../../../stores/useCoachStore';
-import { resolvePlannedSession, settleFinishedSession, startTodaySession } from '../../log/todaySession';
+import {
+  resolvePlannedSession,
+  settleFinishedSession,
+  startTodaySession,
+} from '../../log/todaySession';
 import { DialInputModal } from '../../../components/common/DialInputModal';
 import { ActiveLogExerciseAccordion } from './ActiveLogExerciseAccordion';
-import { estimateSessionMinutes, saveAthleteDayRoutine, useDayRoutineRevision } from '../services/dayRoutineService';
+import {
+  estimateSessionMinutes,
+  saveAthleteDayRoutine,
+  useDayRoutineRevision,
+} from '../services/dayRoutineService';
 import { useUserStore } from '../../../stores/useUserStore';
 import { localDayKey, releaseForgotten } from '../../log/services/dayLogService';
 import { sessionLedger } from '../store/workoutSetOperations';
@@ -20,9 +28,16 @@ import { publishFinishedWorkout } from '../../coach/services/coachBridge';
 import { readAthleteSettingsSnapshot } from '../../../utils/athleteSettingsSnapshot';
 import { displayToKg, kgToDisplay, loadUnitLabel } from '../../../utils/weightUnits';
 import { localTodayKey, priorBestKg, setIsPr } from '../services/sessionPr';
-import { BEGINNER_STARTERS, buildStarterSession, type BeginnerStarter } from '../data/beginnerStarters';
+import {
+  BEGINNER_STARTERS,
+  buildStarterSession,
+  type BeginnerStarter,
+} from '../data/beginnerStarters';
 import { estimateSessionEnergy } from '../utils/sessionEnergy';
-import { getTelemetryHistoryState, useTelemetryHistoryStore } from '../../log/store/useTelemetryHistoryStore';
+import {
+  getTelemetryHistoryState,
+  useTelemetryHistoryStore,
+} from '../../log/store/useTelemetryHistoryStore';
 import type { ExerciseItem } from '../../../types';
 
 type BackupState = 'pending' | 'saved' | 'signed-out' | 'queued';
@@ -53,7 +68,14 @@ function sessionPrCount(exercises: ExerciseItem[]): number {
   return exercises.filter((e) => {
     const name = e.name || e.exerciseName || '';
     const prior = priorBestKg(name, today);
-    return prior > 0 && (e.sets || []).some((s) => s.completed && setIsPr(name, Number(s.weightKg ?? s.weight) || 0, Number(s.reps) || 0, prior));
+    return (
+      prior > 0 &&
+      (e.sets || []).some(
+        (s) =>
+          s.completed &&
+          setIsPr(name, Number(s.weightKg ?? s.weight) || 0, Number(s.reps) || 0, prior),
+      )
+    );
   }).length;
 }
 
@@ -65,7 +87,12 @@ function sameDayLastWeekKg(): number | null {
   return record?.hasData && record.tonnageKg > 0 ? record.tonnageKg : null;
 }
 
-const TREND_NOTE = { up: 'Up on last time', same: 'Same as last time', down: 'Lighter than last time', first: 'First time logged' };
+const TREND_NOTE = {
+  up: 'Up on last time',
+  same: 'Same as last time',
+  down: 'Lighter than last time',
+  first: 'First time logged',
+};
 
 function liftHighlights(exercises: ExerciseItem[], unit: WeightUnit): LiftHighlight[] {
   const unitLower = loadUnitLabel(unit).toLowerCase();
@@ -74,17 +101,24 @@ function liftHighlights(exercises: ExerciseItem[], unit: WeightUnit): LiftHighli
   return summariseLifts(exercises).map((l) => ({
     name: l.name,
     top: setText(l.top),
-    note: l.lastTop && l.trend !== 'same' ? `${TREND_NOTE[l.trend]} · was ${setText(l.lastTop)}` : TREND_NOTE[l.trend],
+    note:
+      l.lastTop && l.trend !== 'same'
+        ? `${TREND_NOTE[l.trend]} · was ${setText(l.lastTop)}`
+        : TREND_NOTE[l.trend],
     trend: l.trend,
     best: l.best,
   }));
 }
 
 function sessionFeel(exercises: ExerciseItem[], simple: boolean): string | null {
-  const rated = exercises.flatMap((e) => (e.sets || []).filter((s) => s.completed && Number(s.rpe) > 0).map((s) => Number(s.rpe)));
+  const rated = exercises.flatMap((e) =>
+    (e.sets || []).filter((s) => s.completed && Number(s.rpe) > 0).map((s) => Number(s.rpe)),
+  );
   if (rated.length === 0) return null;
   const avg = rated.reduce((a, b) => a + b, 0) / rated.length;
-  return simple ? `Felt ${feelWord(avg).toLowerCase()} overall` : `Average effort RPE ${Math.round(avg * 10) / 10}`;
+  return simple
+    ? `Felt ${feelWord(avg).toLowerCase()} overall`
+    : `Average effort RPE ${Math.round(avg * 10) / 10}`;
 }
 
 interface ActiveLogCardProps {
@@ -111,8 +145,10 @@ export const ActiveLogCard: React.FC<ActiveLogCardProps> = ({ onBuildWorkout }) 
   useEffect(() => {
     const known = knownIdsRef.current;
     const added = exercises.filter((e) => !known.has(e.id));
-    if (added.length === 1 && exercises.length === known.size + 1) setExpandedExerciseId(added[0].id);
-    if (known.size === 0 && exercises.length > 0) setStatus((s) => (s?.kind === 'saved' ? null : s));
+    if (added.length === 1 && exercises.length === known.size + 1)
+      setExpandedExerciseId(added[0].id);
+    if (known.size === 0 && exercises.length > 0)
+      setStatus((s) => (s?.kind === 'saved' ? null : s));
     knownIdsRef.current = new Set(exercises.map((e) => e.id));
   }, [exercises]);
 
@@ -121,7 +157,9 @@ export const ActiveLogCard: React.FC<ActiveLogCardProps> = ({ onBuildWorkout }) 
   const planned = exercises.length === 0 ? resolvePlannedSession() : null;
   const plannedMinutes = planned ? estimateSessionMinutes(planned.exercises) : 0;
   const restPlan = Boolean(planned && /^rest/i.test(planned.title));
-  const workoutSavedToday = useTelemetryHistoryStore((s) => Boolean(s.historyByDate[localTodayKey()]?.workout?.hasData));
+  const workoutSavedToday = useTelemetryHistoryStore((s) =>
+    Boolean(s.historyByDate[localTodayKey()]?.workout?.hasData),
+  );
   const loggedToday = exercises.length === 0 && workoutSavedToday;
 
   const handleStartToday = () => {
@@ -132,7 +170,10 @@ export const ActiveLogCard: React.FC<ActiveLogCardProps> = ({ onBuildWorkout }) 
     }
     startTodaySession(planned);
     setExpandedExerciseId(planned.exercises[0]?.id ?? null);
-    setStatus({ kind: 'info', text: 'Tick each set as you finish it. The rest timer starts on its own.' });
+    setStatus({
+      kind: 'info',
+      text: 'Tick each set as you finish it. The rest timer starts on its own.',
+    });
   };
 
   const handleLoadBeginnerStarter = (starter: BeginnerStarter) => {
@@ -142,7 +183,10 @@ export const ActiveLogCard: React.FC<ActiveLogCardProps> = ({ onBuildWorkout }) 
     useWorkoutStore.getState().setActiveSession(true);
     useWorkoutStore.getState().setActiveRoutine(starter.routineName);
     setExpandedExerciseId(session[0]?.id ?? null);
-    setStatus({ kind: 'info', text: 'Tick each set as you finish it. The rest timer starts on its own.' });
+    setStatus({
+      kind: 'info',
+      text: 'Tick each set as you finish it. The rest timer starts on its own.',
+    });
   };
 
   // Rotary Dial Input Modal State
@@ -174,10 +218,15 @@ export const ActiveLogCard: React.FC<ActiveLogCardProps> = ({ onBuildWorkout }) 
   );
   const previewExercises =
     totalSets === 0 && untickedFilledSets > 0
-      ? exercises.map((e) => ({ ...e, sets: (e.sets || []).map((s) => (Number(s.reps) > 0 ? { ...s, completed: true } : s)) }))
+      ? exercises.map((e) => ({
+          ...e,
+          sets: (e.sets || []).map((s) => (Number(s.reps) > 0 ? { ...s, completed: true } : s)),
+        }))
       : exercises;
   const commitPreview = previewExercises === exercises ? ledger : sessionLedger(previewExercises);
-  const energyPreview = isCommitOpen ? estimateSessionEnergy(previewExercises, commitPreview.completedSets) : null;
+  const energyPreview = isCommitOpen
+    ? estimateSessionEnergy(previewExercises, commitPreview.completedSets)
+    : null;
   const prPreview = isCommitOpen ? sessionPrCount(previewExercises) : 0;
   const lastWeekKg = isCommitOpen ? sameDayLastWeekKg() : null;
   const unit = readAthleteSettingsSnapshot().weightUnit;
@@ -215,9 +264,7 @@ export const ActiveLogCard: React.FC<ActiveLogCardProps> = ({ onBuildWorkout }) 
       completed: false,
     };
     setExercises((prev) =>
-      prev.map((e) =>
-        e.id === exerciseId ? { ...e, sets: [...(e.sets || []), newSet] } : e
-      )
+      prev.map((e) => (e.id === exerciseId ? { ...e, sets: [...(e.sets || []), newSet] } : e)),
     );
   };
 
@@ -227,7 +274,7 @@ export const ActiveLogCard: React.FC<ActiveLogCardProps> = ({ onBuildWorkout }) 
     type: 'weight' | 'reps' | 'rpe',
     currentVal: number,
     setId?: string,
-    setIndex?: number
+    setIndex?: number,
   ) => {
     tactileEngine.triggerSelectionBuzz();
     completeEarlierSets(exerciseId, setNumber);
@@ -241,7 +288,7 @@ export const ActiveLogCard: React.FC<ActiveLogCardProps> = ({ onBuildWorkout }) 
       initialValue:
         type === 'weight'
           ? kgToDisplay(currentVal ?? 0, readAthleteSettingsSnapshot().weightUnit)
-          : currentVal ?? (type === 'reps' ? 10 : 8),
+          : (currentVal ?? (type === 'reps' ? 10 : 8)),
     });
   };
 
@@ -249,8 +296,7 @@ export const ActiveLogCard: React.FC<ActiveLogCardProps> = ({ onBuildWorkout }) 
     if (!dialConfig.exerciseId) return;
     tactileEngine.triggerSelectionBuzz();
     const unit = readAthleteSettingsSnapshot().weightUnit;
-    const numVal =
-      dialConfig.type === 'weight' ? displayToKg(Number(val), unit) : Number(val);
+    const numVal = dialConfig.type === 'weight' ? displayToKg(Number(val), unit) : Number(val);
     const fieldKey = dialConfig.type === 'weight' ? 'weightKg' : dialConfig.type;
 
     // Direct reactive state update matching setId, setNumber, or index
@@ -277,7 +323,7 @@ export const ActiveLogCard: React.FC<ActiveLogCardProps> = ({ onBuildWorkout }) 
           return s;
         });
         return { ...ex, sets: updatedSets };
-      })
+      }),
     );
   };
 
@@ -379,13 +425,17 @@ export const ActiveLogCard: React.FC<ActiveLogCardProps> = ({ onBuildWorkout }) 
     setExercises((current) =>
       current.map((e) => ({
         ...e,
-        sets: (e.sets || []).map((s) => (!s.completed && Number(s.reps) > 0 ? { ...s, completed: true } : s)),
+        sets: (e.sets || []).map((s) =>
+          !s.completed && Number(s.reps) > 0 ? { ...s, completed: true } : s,
+        ),
       })),
     );
     handleRegisterLog();
   };
 
-  const handleSaveRoutineToDay = (selectedDay: 'Mon' | 'Tue' | 'Wed' | 'Thu' | 'Fri' | 'Sat' | 'Sun') => {
+  const handleSaveRoutineToDay = (
+    selectedDay: 'Mon' | 'Tue' | 'Wed' | 'Thu' | 'Fri' | 'Sat' | 'Sun',
+  ) => {
     const success = saveAthleteDayRoutine(selectedDay, '', exercises);
     if (totalSets === 0) handleTickFilledAndFinish();
     else handleRegisterLog();
@@ -399,20 +449,31 @@ export const ActiveLogCard: React.FC<ActiveLogCardProps> = ({ onBuildWorkout }) 
         <div className="flex items-baseline justify-between gap-2 px-0.5">
           <span className="text-[15px] text-o1-text">Active log</span>
           <span className="font-mono text-[11px] text-o1-muted truncate">
-            {kgToDisplay(totalVolume, unit).toLocaleString()} {unitLower} · {totalSets} {totalSets === 1 ? 'set' : 'sets'} · {totalReps} reps
+            {kgToDisplay(totalVolume, unit).toLocaleString()} {unitLower} · {totalSets}{' '}
+            {totalSets === 1 ? 'set' : 'sets'} · {totalReps} reps
           </span>
         </div>
 
         {visibleStatus && (
-          <div role="status" className="flex items-start gap-2.5 rounded-xl bg-o1-well border border-white/[0.07] pl-3 pr-1 py-1.5">
-            <span aria-hidden className={`mt-[7px] w-1.5 h-1.5 rounded-full shrink-0 ${STATUS_DOT[visibleStatus.kind]}`} />
+          <div
+            role="status"
+            className="flex items-start gap-2.5 rounded-xl bg-o1-well border border-white/[0.07] pl-3 pr-1 py-1.5"
+          >
+            <span
+              aria-hidden
+              className={`mt-[7px] w-1.5 h-1.5 rounded-full shrink-0 ${STATUS_DOT[visibleStatus.kind]}`}
+            />
             <div className="min-w-0 flex-1 py-0.5 space-y-0.5">
               <p className="text-[12px] text-o1-text leading-snug">{visibleStatus.text}</p>
               {visibleStatus.routineDay && (
-                <p className="text-[11px] text-o1-muted leading-snug">Loads again every {visibleStatus.routineDay}.</p>
+                <p className="text-[11px] text-o1-muted leading-snug">
+                  Loads again every {visibleStatus.routineDay}.
+                </p>
               )}
               {visibleStatus.backup && (
-                <p className={`text-[11px] leading-snug ${visibleStatus.backup === 'queued' ? 'text-[#f59e0b]' : 'text-o1-muted'}`}>
+                <p
+                  className={`text-[11px] leading-snug ${visibleStatus.backup === 'queued' ? 'text-[#f59e0b]' : 'text-o1-muted'}`}
+                >
                   {BACKUP_TEXT[visibleStatus.backup]}
                 </p>
               )}
@@ -431,18 +492,22 @@ export const ActiveLogCard: React.FC<ActiveLogCardProps> = ({ onBuildWorkout }) 
         {planned ? (
           <div className="px-0.5 pb-0.5 space-y-2.5">
             {loggedToday ? (
-              <p className="text-[12px] text-o1-muted leading-snug">Today's workout is saved. Rest up, or start another below.</p>
+              <p className="text-[12px] text-o1-muted leading-snug">
+                Today's workout is saved. Rest up, or start another below.
+              </p>
             ) : planned.exercises.length > 0 ? (
               <p className="text-[12px] text-o1-muted leading-snug truncate">
-                <span className="text-o1-text">{restPlan ? 'Rest day' : planned.title}</span> · {planned.exercises.length}{' '}
-                {restPlan ? 'light ' : ''}
+                <span className="text-o1-text">{restPlan ? 'Rest day' : planned.title}</span> ·{' '}
+                {planned.exercises.length} {restPlan ? 'light ' : ''}
                 {planned.exercises.length === 1 ? 'exercise' : 'exercises'}
                 {plannedMinutes > 0 ? ` · about ${plannedMinutes} min` : ''}
                 {restPlan ? '' : ` · ${planned.detail}`}
               </p>
             ) : (
               <p className="text-[12px] text-o1-muted leading-snug">
-                {planned.title === 'Rest day' ? 'Rest day. Recover, or build a light session.' : 'No workout planned for today yet.'}
+                {planned.title === 'Rest day'
+                  ? 'Rest day. Recover, or build a light session.'
+                  : 'No workout planned for today yet.'}
               </p>
             )}
 
@@ -452,7 +517,11 @@ export const ActiveLogCard: React.FC<ActiveLogCardProps> = ({ onBuildWorkout }) 
                 onClick={handleStartToday}
                 className="w-full h-12 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover active:bg-o1-crimson-press active:scale-[0.99] text-white font-medium text-[14px] flex items-center justify-center transition cursor-pointer"
               >
-                {planned.exercises.length === 0 ? 'Build a workout' : restPlan ? 'Start recovery' : "Start today's workout"}
+                {planned.exercises.length === 0
+                  ? 'Build a workout'
+                  : restPlan
+                    ? 'Start recovery'
+                    : "Start today's workout"}
               </button>
             )}
 
@@ -498,7 +567,9 @@ export const ActiveLogCard: React.FC<ActiveLogCardProps> = ({ onBuildWorkout }) 
                       <span className="text-[11px] px-1.5 py-0.5 rounded-full border border-white/[0.14] text-o1-muted">
                         {starter.badge}
                       </span>
-                      <h5 className="text-[13px] text-o1-text leading-tight mt-1.5">{starter.title}</h5>
+                      <h5 className="text-[13px] text-o1-text leading-tight mt-1.5">
+                        {starter.title}
+                      </h5>
                       <p className="text-[11px] text-o1-muted mt-0.5">{starter.subtitle}</p>
                     </div>
                     <div className="mt-2 pt-1.5 border-t border-white/[0.07] text-[11px] text-o1-muted flex items-center justify-between">
@@ -520,7 +591,10 @@ export const ActiveLogCard: React.FC<ActiveLogCardProps> = ({ onBuildWorkout }) 
                   key={exercise.id}
                   exercise={exercise}
                   isExpanded={isExpanded}
-                  showSwipeHint={isExpanded || (index === 0 && !exercises.some((e) => e.id === expandedExerciseId))}
+                  showSwipeHint={
+                    isExpanded ||
+                    (index === 0 && !exercises.some((e) => e.id === expandedExerciseId))
+                  }
                   onToggleExpand={() => handleToggleRow(exercise.id)}
                   onAddSet={(id) => {
                     completeEarlierSets(id, Number.MAX_SAFE_INTEGER);
@@ -591,5 +665,3 @@ export const ActiveLogCard: React.FC<ActiveLogCardProps> = ({ onBuildWorkout }) 
     </>
   );
 };
-
-

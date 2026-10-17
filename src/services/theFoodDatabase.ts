@@ -6,7 +6,7 @@ import { ASIA_FOODS } from './foodData/asia';
 import { AFRICA_GLOBAL_FOODS } from './foodData/africa_global';
 import { matchesFoodQuery } from '../features/fuel/utils/foodSearchMatch';
 
-export type { FoodCategoryType, FoodItemRecord,  };
+export type { FoodCategoryType, FoodItemRecord };
 
 interface RegionalDatabaseConfig {
   countryCode: string;
@@ -35,7 +35,7 @@ export interface FoodCatalogQueryParams {
 function catalogMarket(
   countryCode: string,
   countryName: string,
-  examples: string
+  examples: string,
 ): RegionalDatabaseConfig {
   return {
     countryCode,
@@ -50,7 +50,7 @@ function catalogMarket(
 const REGIONAL_DATABASE_INFO: Record<string, RegionalDatabaseConfig> = {
   AU: catalogMarket('AU', 'Australia', "Grill'd, Bulk Nutrients, Up & Go, GYG"),
   US: catalogMarket('US', 'United States', 'Fairlife, Quest, Chipotle'),
-  GB: catalogMarket('GB', 'United Kingdom', 'Myprotein, Greggs, Nando\'s'),
+  GB: catalogMarket('GB', 'United Kingdom', "Myprotein, Greggs, Nando's"),
   IN: catalogMarket('IN', 'India', 'Amul, Paneer, MuscleBlaze'),
   CA: catalogMarket('CA', 'Canada', 'Tim Hortons, Maple Leaf'),
   DE: catalogMarket('DE', 'Germany', 'Quark, ESN, Döner'),
@@ -61,7 +61,7 @@ const REGIONAL_DATABASE_INFO: Record<string, RegionalDatabaseConfig> = {
   AE: catalogMarket('AE', 'UAE / Middle East', 'Shawarma, Laban, Almarai'),
   BR: catalogMarket('BR', 'Brazil', 'Picanha, Açaí'),
   MX: catalogMarket('MX', 'Mexico', 'Pollo, Frijoles, Aguacate'),
-  ZA: catalogMarket('ZA', 'South Africa', 'Biltong, Nando\'s, USN'),
+  ZA: catalogMarket('ZA', 'South Africa', "Biltong, Nando's, USN"),
   IT: catalogMarket('IT', 'Italy', 'Bresaola, Parmigiano'),
   ES: catalogMarket('ES', 'Spain', 'Jamón, HSN'),
   NL: catalogMarket('NL', 'Netherlands', 'Kwark, XXL Nutrition'),
@@ -73,7 +73,8 @@ const REGIONAL_DATABASE_INFO: Record<string, RegionalDatabaseConfig> = {
 
 export function getRegionalDatabaseInfo(countryCode: string = 'AU'): RegionalDatabaseInfo {
   const norm = (countryCode || 'AU').toUpperCase();
-  const raw = REGIONAL_DATABASE_INFO[norm] || REGIONAL_DATABASE_INFO.GLOBAL || REGIONAL_DATABASE_INFO.AU;
+  const raw =
+    REGIONAL_DATABASE_INFO[norm] || REGIONAL_DATABASE_INFO.GLOBAL || REGIONAL_DATABASE_INFO.AU;
   return {
     ...raw,
     name: raw.countryName,
@@ -101,10 +102,13 @@ const REGIONAL_FALLBACK_FOODS: Record<string, Record<FoodCategoryType, FoodItemR
 export function getRegionalFallbackFoods(
   countryCode: string = 'AU',
   category: FoodCategoryType,
-  searchQuery: string = ''
+  searchQuery: string = '',
 ): FoodItemRecord[] {
   const normCountry = (countryCode || 'AU').toUpperCase();
-  const dataset = REGIONAL_FALLBACK_FOODS[normCountry] || REGIONAL_FALLBACK_FOODS.GLOBAL || REGIONAL_FALLBACK_FOODS.AU;
+  const dataset =
+    REGIONAL_FALLBACK_FOODS[normCountry] ||
+    REGIONAL_FALLBACK_FOODS.GLOBAL ||
+    REGIONAL_FALLBACK_FOODS.AU;
   const q = searchQuery.trim();
 
   const localItems = dataset[category] || REGIONAL_FALLBACK_FOODS.AU[category] || [];
@@ -127,7 +131,7 @@ export function getRegionalFallbackFoods(
   }
 
   const directMatches = baseItems.filter((item) =>
-    matchesFoodQuery(item.name, `${item.brand} ${item.country}`, q)
+    matchesFoodQuery(item.name, `${item.brand} ${item.country}`, q),
   );
 
   if (directMatches.length >= 15) {

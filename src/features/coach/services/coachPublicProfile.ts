@@ -30,10 +30,16 @@ export async function fetchMyCoachCard(): Promise<CoachCard | null> {
 export async function ensureCoachCard(displayName: string): Promise<boolean> {
   const uid = await getAuthenticatedUserId();
   if (!uid) return false;
-  const { data, error } = await supabase.from('coach_profiles').select('id').eq('id', uid).maybeSingle();
+  const { data, error } = await supabase
+    .from('coach_profiles')
+    .select('id')
+    .eq('id', uid)
+    .maybeSingle();
   if (error) return false;
   if (data) return true;
-  const inserted = await supabase.from('coach_profiles').insert({ id: uid, display_name: displayName.trim() || 'Coach' });
+  const inserted = await supabase
+    .from('coach_profiles')
+    .insert({ id: uid, display_name: displayName.trim() || 'Coach' });
   return !inserted.error;
 }
 
@@ -41,13 +47,19 @@ async function saveHandle(uid: string, raw: string, current: string): Promise<Ha
   const handle = cleanHandle(raw);
   if (handle === current) return 'unchanged';
   if (handle && !HANDLE_PATTERN.test(handle)) return 'invalid';
-  const { error } = await supabase.from('coach_profiles').update({ handle: handle || null }).eq('id', uid);
+  const { error } = await supabase
+    .from('coach_profiles')
+    .update({ handle: handle || null })
+    .eq('id', uid);
   if (!error) return 'saved';
   return error.code === '23505' ? 'taken' : 'failed';
 }
 
 /** Writes the public card athletes see on Buddy, in Reels and in the coach directory. */
-export async function saveMyPublicProfile(profile: CoachPublicProfile, currentHandle: string): Promise<{ card: boolean; handle: HandleResult }> {
+export async function saveMyPublicProfile(
+  profile: CoachPublicProfile,
+  currentHandle: string,
+): Promise<{ card: boolean; handle: HandleResult }> {
   const uid = await getAuthenticatedUserId();
   if (!uid) return { card: false, handle: 'failed' };
   const fields = {
@@ -59,7 +71,8 @@ export async function saveMyPublicProfile(profile: CoachPublicProfile, currentHa
   };
   const updated = await supabase.from('coach_profiles').update(fields).eq('id', uid).select('id');
   let card = !updated.error && (updated.data ?? []).length > 0;
-  if (!updated.error && !card) card = !(await supabase.from('coach_profiles').insert({ id: uid, ...fields })).error;
+  if (!updated.error && !card)
+    card = !(await supabase.from('coach_profiles').insert({ id: uid, ...fields })).error;
   if (!card) return { card: false, handle: 'failed' };
   return { card, handle: await saveHandle(uid, profile.handle, cleanHandle(currentHandle)) };
 }
@@ -68,6 +81,10 @@ export async function saveMyPublicProfile(profile: CoachPublicProfile, currentHa
 export async function saveMyCoachAvatar(url: string): Promise<boolean> {
   const uid = await getAuthenticatedUserId();
   if (!uid || !isSharedUrl(url)) return false;
-  const { data, error } = await supabase.from('coach_profiles').update({ avatar_url: url }).eq('id', uid).select('id');
+  const { data, error } = await supabase
+    .from('coach_profiles')
+    .update({ avatar_url: url })
+    .eq('id', uid)
+    .select('id');
   return !error && Array.isArray(data) && data.length > 0;
 }

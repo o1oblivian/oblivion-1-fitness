@@ -8,7 +8,10 @@ interface Props {
   coverImage: string;
   coverSource: 'vault' | 'presets' | 'upload' | 'url';
   category: string;
-  onUpdate: (updates: { coverImage?: string; coverSource?: 'vault' | 'presets' | 'upload' | 'url' }) => void;
+  onUpdate: (updates: {
+    coverImage?: string;
+    coverSource?: 'vault' | 'presets' | 'upload' | 'url';
+  }) => void;
 }
 
 export const ProgramCoverArtworkPicker: React.FC<Props> = ({
@@ -34,10 +37,13 @@ export const ProgramCoverArtworkPicker: React.FC<Props> = ({
               Program Artwork
             </span>
             <span className="px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-400 text-[9px] font-mono font-bold border border-emerald-500/30 flex items-center gap-1">
-              <Check className="w-2.5 h-2.5" />Active
+              <Check className="w-2.5 h-2.5" />
+              Active
             </span>
           </div>
-          <span className="text-xs font-bold text-o1-text tracking-wide">{category} · Official Cover</span>
+          <span className="text-xs font-bold text-o1-text tracking-wide">
+            {category} · Official Cover
+          </span>
         </div>
       </div>
 
@@ -85,5 +91,3 @@ export const ProgramCoverArtworkPicker: React.FC<Props> = ({
     </div>
   );
 };
-
-

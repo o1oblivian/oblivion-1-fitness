@@ -10,10 +10,16 @@ export async function capturePhotoDataUrl(source: PhotoSource): Promise<string> 
     throw new Error('Open the installed app to use the camera.');
   }
   const { Camera, CameraResultType, CameraSource } = await import('@capacitor/camera');
-  const permissions = await Camera.requestPermissions(source === 'camera' ? { permissions: ['camera'] } : { permissions: ['photos', 'camera'] });
+  const permissions = await Camera.requestPermissions(
+    source === 'camera' ? { permissions: ['camera'] } : { permissions: ['photos', 'camera'] },
+  );
   const state = source === 'camera' ? permissions.camera : permissions.photos;
   if (state === 'denied') {
-    throw new Error(source === 'camera' ? 'Camera permission was denied. Allow the camera in phone settings.' : 'Photo access was denied. Allow photos in phone settings.');
+    throw new Error(
+      source === 'camera'
+        ? 'Camera permission was denied. Allow the camera in phone settings.'
+        : 'Photo access was denied. Allow photos in phone settings.',
+    );
   }
   const photo = await Camera.getPhoto({
     quality: 85,

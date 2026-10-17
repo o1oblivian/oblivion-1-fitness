@@ -30,7 +30,11 @@ export type BeatIntervalsHandler = (deviceId: string, intervalsMs: number[] | nu
 
 export interface BleDriver {
   isSupported(): boolean;
-  connect(onBeats: BeatIntervalsHandler, onDisconnect: (deviceId: string) => void, connectedIds: string[]): Promise<BleConnectResult>;
+  connect(
+    onBeats: BeatIntervalsHandler,
+    onDisconnect: (deviceId: string) => void,
+    connectedIds: string[],
+  ): Promise<BleConnectResult>;
   disconnect(deviceId: string): Promise<void>;
 }
 
@@ -59,5 +63,10 @@ export function parseBeatIntervalsMs(value: DataView): number[] | null {
 
 export function isPickerCancel(err: unknown): boolean {
   const text = String((err as { message?: string })?.message ?? err ?? '').toLowerCase();
-  return text.includes('cancel') || text.includes('user denied') || text.includes('no device selected') || text.includes('notfounderror');
+  return (
+    text.includes('cancel') ||
+    text.includes('user denied') ||
+    text.includes('no device selected') ||
+    text.includes('notfounderror')
+  );
 }

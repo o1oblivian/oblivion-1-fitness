@@ -29,7 +29,11 @@ const EMPTY_COPY: Record<'not_shared' | 'unlinked' | 'error', { title: string; b
   },
 };
 
-export const CoachAthleteReport: React.FC<CoachAthleteReportProps> = ({ athleteId, athleteName, onDispatch }) => {
+export const CoachAthleteReport: React.FC<CoachAthleteReportProps> = ({
+  athleteId,
+  athleteName,
+  onDispatch,
+}) => {
   const [state, setState] = useState<State>({ phase: 'loading' });
 
   useEffect(() => {
@@ -65,8 +69,10 @@ export const CoachAthleteReport: React.FC<CoachAthleteReportProps> = ({ athleteI
   }
 
   return (
-    <OblivionReportView report={state.result.report} mode="coach" onAction={(action) => onDispatch(action)} />
+    <OblivionReportView
+      report={state.result.report}
+      mode="coach"
+      onAction={(action) => onDispatch(action)}
+    />
   );
 };
-
-

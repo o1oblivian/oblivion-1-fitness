@@ -36,7 +36,10 @@ export interface AuthState {
   isLoading: boolean;
   error: string | null;
   signIn: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
-  signUp: (email: string, password: string) => Promise<{ success: boolean; error?: string; needsConfirmation?: boolean }>;
+  signUp: (
+    email: string,
+    password: string,
+  ) => Promise<{ success: boolean; error?: string; needsConfirmation?: boolean }>;
   signOut: () => Promise<void>;
   clearError: () => void;
   initialize: () => Promise<void>;
@@ -44,7 +47,8 @@ export interface AuthState {
 }
 
 export const EMAIL_NOT_CONFIRMED = 'Confirm your email before signing in.';
-export const ACCOUNT_EXISTS = 'You already have an account with this email. Enter your password to sign in.';
+export const ACCOUNT_EXISTS =
+  'You already have an account with this email. Enter your password to sign in.';
 
 function parseAuthError(err: unknown): string {
   const msg = errorMessage(err) || String(err || '');
@@ -89,7 +93,10 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   initialize: async () => {
     try {
-      if (typeof window !== 'undefined' && localStorage.getItem('o1fc_signed_out_pending') === '1') {
+      if (
+        typeof window !== 'undefined' &&
+        localStorage.getItem('o1fc_signed_out_pending') === '1'
+      ) {
         clearStoredSession();
         set({ user: null, session: null, isAuthenticated: false, isLoading: false });
         return;
@@ -105,14 +112,25 @@ export const useAuthStore = create<AuthState>((set) => ({
         });
         safeStorage.setItem('o1fc_user_id', data.session.user.id);
         useUserStore.getState().setUserId(data.session.user.id);
-        if (data.session.user.email) safeStorage.setItem('o1fc_user_email', data.session.user.email);
+        if (data.session.user.email)
+          safeStorage.setItem('o1fc_user_email', data.session.user.email);
       } else {
         set({ user: null, session: null, isAuthenticated: false, isLoading: false });
       }
 
       supabase.auth.onAuthStateChange((event, session) => {
-        if (typeof window !== 'undefined' && localStorage.getItem('o1fc_signed_out_pending') === '1') return;
-        if ((event === 'INITIAL_SESSION' || event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') && session?.user) {
+        if (
+          typeof window !== 'undefined' &&
+          localStorage.getItem('o1fc_signed_out_pending') === '1'
+        )
+          return;
+        if (
+          (event === 'INITIAL_SESSION' ||
+            event === 'SIGNED_IN' ||
+            event === 'TOKEN_REFRESHED' ||
+            event === 'USER_UPDATED') &&
+          session?.user
+        ) {
           set({
             user: session.user,
             session,
@@ -154,7 +172,10 @@ export const useAuthStore = create<AuthState>((set) => ({
     const cleanEmail = email.trim().toLowerCase();
 
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({ email: cleanEmail, password });
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: cleanEmail,
+        password,
+      });
       if (error) {
         const formatted = parseAuthError(error);
         set({ error: formatted, isLoading: false });
@@ -164,7 +185,13 @@ export const useAuthStore = create<AuthState>((set) => ({
         safeStorage.setItem('o1fc_user_id', data.user.id);
         useUserStore.getState().setUserId(data.user.id);
         if (data.user.email) safeStorage.setItem('o1fc_user_email', data.user.email);
-        set({ user: data.user, session: data.session, isAuthenticated: true, isLoading: false, error: null });
+        set({
+          user: data.user,
+          session: data.session,
+          isAuthenticated: true,
+          isLoading: false,
+          error: null,
+        });
         return { success: true };
       }
       return { success: false, error: 'No user session returned.' };
@@ -197,7 +224,13 @@ export const useAuthStore = create<AuthState>((set) => ({
         safeStorage.setItem('o1fc_user_id', data.user.id);
         useUserStore.getState().setUserId(data.user.id);
         if (data.user.email) safeStorage.setItem('o1fc_user_email', data.user.email);
-        set({ user: data.user, session: data.session, isAuthenticated: true, isLoading: false, error: null });
+        set({
+          user: data.user,
+          session: data.session,
+          isAuthenticated: true,
+          isLoading: false,
+          error: null,
+        });
         return { success: true };
       }
       set({ isLoading: false });
@@ -211,7 +244,9 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   signOut: async () => {
     await withdrawBuddyCardForSignOut();
-    try { await supabase.auth.signOut({ scope: 'local' }); } catch {}
+    try {
+      await supabase.auth.signOut({ scope: 'local' });
+    } catch {}
     clearStoredSession();
     set({ user: null, session: null, isAuthenticated: false, error: null });
     if (typeof window !== 'undefined') window.dispatchEvent(new CustomEvent('o1fc_signed_out'));

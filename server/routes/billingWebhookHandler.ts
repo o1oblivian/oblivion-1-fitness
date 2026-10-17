@@ -46,11 +46,15 @@ export function entitlementChangeFor(event: RevenueCatEvent): EntitlementChange 
   if (!userId || userId.startsWith('$RCAnonymousID') || userId === 'default-athlete') return null;
   const tier = event.new_product_id || event.product_id || '';
   if (!tier) return null;
-  const expiresAt = typeof event.expiration_at_ms === 'number' ? new Date(event.expiration_at_ms).toISOString() : null;
+  const expiresAt =
+    typeof event.expiration_at_ms === 'number'
+      ? new Date(event.expiration_at_ms).toISOString()
+      : null;
   const base = { userId, tier, platform: storePlatform(event.store), expiresAt };
   if (GRANTS.has(type)) return { ...base, status: 'active' };
   if (type === 'EXPIRATION') return { ...base, status: 'inactive' };
-  if (type === 'CANCELLATION' && event.cancel_reason === 'CUSTOMER_SUPPORT') return { ...base, status: 'inactive' };
+  if (type === 'CANCELLATION' && event.cancel_reason === 'CUSTOMER_SUPPORT')
+    return { ...base, status: 'inactive' };
   return null;
 }
 
@@ -121,5 +125,9 @@ export async function handleSyncEntitlements(req: Request, res: Response): Promi
     .select('tier, status, expires_at')
     .eq('user_id', userId)
     .maybeSingle();
-  res.json({ isPro: data?.status === 'active', tier: data?.tier ?? null, expiresAt: data?.expires_at ?? null });
+  res.json({
+    isPro: data?.status === 'active',
+    tier: data?.tier ?? null,
+    expiresAt: data?.expires_at ?? null,
+  });
 }

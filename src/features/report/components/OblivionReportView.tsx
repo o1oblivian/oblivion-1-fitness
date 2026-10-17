@@ -35,7 +35,9 @@ export const OblivionReportView: React.FC<OblivionReportViewProps> = ({
       <span className="text-[10px] font-mono font-bold tracking-[0.22em] text-neutral-500">
         The Oblivion Report
       </span>
-      <span className="text-[10px] font-mono text-neutral-600">Updated {relativeTime(report.generatedAt)}</span>
+      <span className="text-[10px] font-mono text-neutral-600">
+        Updated {relativeTime(report.generatedAt)}
+      </span>
     </div>
 
     <ScoreHero
@@ -55,5 +57,3 @@ export const OblivionReportView: React.FC<OblivionReportViewProps> = ({
     <StrengthPanel lifts={report.lifts} personalBests={report.personalBests} />
   </div>
 );
-
-

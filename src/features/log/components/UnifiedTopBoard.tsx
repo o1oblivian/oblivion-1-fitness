@@ -118,9 +118,7 @@ export const UnifiedTopBoard: React.FC<UnifiedTopBoardProps> = ({
             className="flex items-center gap-2 group cursor-pointer active:scale-95 transition-transform"
             aria-label="Invite friends"
           >
-            <span className="text-sm font-semibold text-white">
-              Invite
-            </span>
+            <span className="text-sm font-semibold text-white">Invite</span>
 
             <div className="w-10 h-10 rounded-full bg-white/[0.08] border border-white/[0.07] flex items-center justify-center text-neutral-200 group-hover:bg-o1-crimson group-hover:text-white group-hover:border-o1-crimson transition-colors shadow-xs">
               <UserPlus className="w-5 h-5 stroke-[2]" />
@@ -138,9 +136,7 @@ export const UnifiedTopBoard: React.FC<UnifiedTopBoardProps> = ({
             <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight">
               {session.title}
             </h2>
-            <p className="text-xs text-neutral-400 font-medium">
-              {session.detail}
-            </p>
+            <p className="text-xs text-neutral-400 font-medium">{session.detail}</p>
           </div>
 
           {/* TARGET RPE Box */}
@@ -193,12 +189,8 @@ export const UnifiedTopBoard: React.FC<UnifiedTopBoardProps> = ({
         <div className="flex items-start justify-between">
           <div>
             <div className="flex items-baseline gap-1.5">
-              <span className="text-2xl font-black text-white tracking-tight">
-                {athleteWeight}
-              </span>
-              <span className="text-xs font-mono font-bold text-neutral-400">
-                KG
-              </span>
+              <span className="text-2xl font-black text-white tracking-tight">{athleteWeight}</span>
+              <span className="text-xs font-mono font-bold text-neutral-400">KG</span>
             </div>
             <span className="text-[10px] font-mono font-bold text-neutral-400 tracking-wider">
               Bodyweight
@@ -207,12 +199,8 @@ export const UnifiedTopBoard: React.FC<UnifiedTopBoardProps> = ({
 
           <div className="text-right">
             <div className="flex items-baseline justify-end gap-1.5">
-              <span className="text-2xl font-black text-white tracking-tight">
-                {targetWeight}
-              </span>
-              <span className="text-xs font-mono font-bold text-neutral-400">
-                KG
-              </span>
+              <span className="text-2xl font-black text-white tracking-tight">{targetWeight}</span>
+              <span className="text-xs font-mono font-bold text-neutral-400">KG</span>
             </div>
             <span className="text-[10px] font-mono font-bold text-neutral-400 tracking-wider">
               Goal Weight
@@ -223,11 +211,20 @@ export const UnifiedTopBoard: React.FC<UnifiedTopBoardProps> = ({
         {/* Real training numbers from logged workout days */}
         <div className="grid grid-cols-3 gap-2 text-center font-mono">
           {[
-            { label: '7-day volume', value: training.sessions7d > 0 ? `${training.volume7dKg.toLocaleString()} kg` : '--' },
+            {
+              label: '7-day volume',
+              value: training.sessions7d > 0 ? `${training.volume7dKg.toLocaleString()} kg` : '--',
+            },
             { label: 'Streak', value: training.streakDays > 0 ? `${training.streakDays} d` : '--' },
-            { label: 'Sessions 7d', value: training.sessions7d > 0 ? String(training.sessions7d) : '--' },
+            {
+              label: 'Sessions 7d',
+              value: training.sessions7d > 0 ? String(training.sessions7d) : '--',
+            },
           ].map((chip) => (
-            <div key={chip.label} className="py-2 rounded-xl bg-white/[0.03] min-h-[44px] flex flex-col items-center justify-center">
+            <div
+              key={chip.label}
+              className="py-2 rounded-xl bg-white/[0.03] min-h-[44px] flex flex-col items-center justify-center"
+            >
               <span className="text-xs font-bold text-white">{chip.value}</span>
               <span className="text-[9px] tracking-wider text-neutral-500">{chip.label}</span>
             </div>
@@ -264,5 +261,3 @@ export const UnifiedTopBoard: React.FC<UnifiedTopBoardProps> = ({
     </div>
   );
 };
-
-

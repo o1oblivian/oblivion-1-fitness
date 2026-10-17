@@ -17,7 +17,12 @@ export async function exportJsonFile(fileName: string, json: string): Promise<Ex
       import('@capacitor/filesystem'),
       import('@capacitor/share'),
     ]);
-    const { uri } = await Filesystem.writeFile({ path: fileName, data: json, directory: Directory.Cache, encoding: Encoding.UTF8 });
+    const { uri } = await Filesystem.writeFile({
+      path: fileName,
+      data: json,
+      directory: Directory.Cache,
+      encoding: Encoding.UTF8,
+    });
     try {
       await Share.share({ title: fileName, files: [uri] });
       return 'saved';

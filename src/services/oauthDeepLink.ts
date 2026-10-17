@@ -25,12 +25,18 @@ export async function startAppleOAuth(): Promise<void> {
 }
 
 export async function sendPasswordReset(email: string): Promise<void> {
-  const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: getOAuthRedirectTo() });
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: getOAuthRedirectTo(),
+  });
   if (error) throw error;
 }
 
 export async function resendSignupEmail(email: string): Promise<void> {
-  const { error } = await supabase.auth.resend({ type: 'signup', email, options: { emailRedirectTo: getOAuthRedirectTo() } });
+  const { error } = await supabase.auth.resend({
+    type: 'signup',
+    email,
+    options: { emailRedirectTo: getOAuthRedirectTo() },
+  });
   if (error) throw error;
 }
 
@@ -55,14 +61,18 @@ function callbackError(rawUrl: string): string | null {
     const code = params.get('error');
     if (!code) continue;
     if (code === 'access_denied') return 'Sign-in was cancelled.';
-    return (params.get('error_description') || 'Sign-in could not be completed.').replace(/\+/g, ' ');
+    return (params.get('error_description') || 'Sign-in could not be completed.').replace(
+      /\+/g,
+      ' ',
+    );
   }
   return null;
 }
 
 function publishAuthError(message: string): void {
   pendingAuthError = message;
-  if (typeof window !== 'undefined') window.dispatchEvent(new CustomEvent(AUTH_ERROR_EVENT, { detail: message }));
+  if (typeof window !== 'undefined')
+    window.dispatchEvent(new CustomEvent(AUTH_ERROR_EVENT, { detail: message }));
 }
 
 /** Returns (once) an error the provider sent back on the last redirect. */
@@ -103,7 +113,11 @@ export async function profileOnboardingComplete(): Promise<boolean> {
     const { data: sessionData } = await supabase.auth.getSession();
     const uid = sessionData.session?.user?.id;
     if (!uid) return false;
-    const { data, error } = await supabase.from('profiles').select('onboarding_completed').eq('id', uid).maybeSingle();
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('onboarding_completed')
+      .eq('id', uid)
+      .maybeSingle();
     if (error || !data) return false;
     return (data as { onboarding_completed?: boolean }).onboarding_completed === true;
   } catch {
@@ -154,51 +168,52 @@ export async function applyAuthCallbackUrl(rawUrl: string): Promise<boolean> {
   if (exchangeInFlight) return exchangeInFlight;
 
   const run = async (): Promise<boolean> => {
-  if (rawUrl.startsWith('com.o1fc.fitness://')) await waitUntilActive();
-  const providerError = callbackError(rawUrl);
-  if (providerError) {
-    publishAuthError(providerError);
-    return false;
-  }
-  try {
-    if (code) {
-      let { error } = await supabase.auth.exchangeCodeForSession(code);
-      if (error && /verifier/i.test(error.message)) {
-        await new Promise((resolve) => window.setTimeout(resolve, 500));
-        ({ error } = await supabase.auth.exchangeCodeForSession(code));
+    if (rawUrl.startsWith('com.o1fc.fitness://')) await waitUntilActive();
+    const providerError = callbackError(rawUrl);
+    if (providerError) {
+      publishAuthError(providerError);
+      return false;
+    }
+    try {
+      if (code) {
+        let { error } = await supabase.auth.exchangeCodeForSession(code);
+        if (error && /verifier/i.test(error.message)) {
+          await new Promise((resolve) => window.setTimeout(resolve, 500));
+          ({ error } = await supabase.auth.exchangeCodeForSession(code));
+        }
+        if (error) {
+          console.warn('[OAuth] exchangeCodeForSession failed:', error.message);
+          publishAuthError(error.message || 'Sign-in could not be completed. Please try again.');
+          return false;
+        }
+        consumedCode = code;
+        return persistAuthenticatedUser();
       }
+
+      const fragment = rawUrl.includes('#') ? rawUrl.split('#')[1] : '';
+      const query = rawUrl.includes('?') ? rawUrl.split('?')[1]?.split('#')[0] : '';
+      const params = new URLSearchParams(fragment || query);
+      const accessToken = params.get('access_token');
+      const refreshToken = params.get('refresh_token') || '';
+      if (!accessToken) return false;
+
+      const { error } = await supabase.auth.setSession({
+        access_token: accessToken,
+        refresh_token: refreshToken,
+      });
       if (error) {
-        console.warn('[OAuth] exchangeCodeForSession failed:', error.message);
+        console.warn('[OAuth] setSession failed:', error.message);
         publishAuthError(error.message || 'Sign-in could not be completed. Please try again.');
         return false;
       }
-      consumedCode = code;
       return persistAuthenticatedUser();
-    }
-
-    const fragment = rawUrl.includes('#') ? rawUrl.split('#')[1] : '';
-    const query = rawUrl.includes('?') ? rawUrl.split('?')[1]?.split('#')[0] : '';
-    const params = new URLSearchParams(fragment || query);
-    const accessToken = params.get('access_token');
-    const refreshToken = params.get('refresh_token') || '';
-    if (!accessToken) return false;
-
-    const { error } = await supabase.auth.setSession({
-      access_token: accessToken,
-      refresh_token: refreshToken,
-    });
-    if (error) {
-      console.warn('[OAuth] setSession failed:', error.message);
-      publishAuthError(error.message || 'Sign-in could not be completed. Please try again.');
+    } catch (err) {
+      console.warn('[OAuth] Callback handling failed:', err);
+      const message =
+        err instanceof Error ? err.message : 'Sign-in could not be completed. Please try again.';
+      publishAuthError(message);
       return false;
     }
-    return persistAuthenticatedUser();
-  } catch (err) {
-    console.warn('[OAuth] Callback handling failed:', err);
-    const message = err instanceof Error ? err.message : 'Sign-in could not be completed. Please try again.';
-    publishAuthError(message);
-    return false;
-  }
   };
 
   exchangeInFlight = run().finally(() => {

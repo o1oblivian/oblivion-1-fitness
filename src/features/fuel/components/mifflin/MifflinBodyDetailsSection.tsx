@@ -86,9 +86,7 @@ export const MifflinBodyDetailsSection: React.FC<MifflinBodyDetailsSectionProps>
         </div>
 
         <div className="bg-o1-surface border border-white/[0.08] rounded-2xl p-2.5">
-          <label className="text-[9px] tabular-nums text-o1-muted block font-bold">
-            Age (yrs)
-          </label>
+          <label className="text-[9px] tabular-nums text-o1-muted block font-bold">Age (yrs)</label>
           <input
             type="number"
             placeholder="--"
@@ -136,10 +134,16 @@ export const MifflinBodyDetailsSection: React.FC<MifflinBodyDetailsSectionProps>
           </label>
           <select
             value={gender ?? ''}
-            onChange={(e) => setGender(e.target.value === 'male' || e.target.value === 'female' ? e.target.value : null)}
+            onChange={(e) =>
+              setGender(
+                e.target.value === 'male' || e.target.value === 'female' ? e.target.value : null,
+              )
+            }
             className="w-full h-9 px-2 rounded-xl bg-o1-surface border border-white/[0.08] text-xs tabular-nums font-bold text-o1-text focus:outline-none"
           >
-            <option value="" disabled>Select</option>
+            <option value="" disabled>
+              Select
+            </option>
             <option value="male">Male</option>
             <option value="female">Female</option>
           </select>

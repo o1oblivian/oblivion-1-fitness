@@ -87,7 +87,8 @@ export const CommitWorkoutModal: React.FC<CommitWorkoutModalProps> = ({
   useScrollLock(isOpen);
   const noneTicked = tickedSets === 0;
   const nothingToLog = noneTicked && untickedFilledSets === 0;
-  const trend = lastWeekKg && totalKg > 0 ? Math.round(((totalKg - lastWeekKg) / lastWeekKg) * 100) : null;
+  const trend =
+    lastWeekKg && totalKg > 0 ? Math.round(((totalKg - lastWeekKg) / lastWeekKg) * 100) : null;
 
   if (!isOpen) return null;
 
@@ -132,21 +133,31 @@ export const CommitWorkoutModal: React.FC<CommitWorkoutModalProps> = ({
         {totalSets > 0 && (
           <div className="grid grid-cols-2 gap-2 -mt-2">
             <Stat label="Time" value={durationMinutes > 0 ? `${durationMinutes} min` : '--'} />
-            <Stat label="Active burn" value={burnedKcal != null ? `${burnedKcal.toLocaleString()} kcal` : '--'} />
+            <Stat
+              label="Active burn"
+              value={burnedKcal != null ? `${burnedKcal.toLocaleString()} kcal` : '--'}
+            />
           </div>
         )}
         {totalSets > 0 && burnedKcal == null && (
-          <p className="text-[11px] text-o1-muted text-center -mt-2">Add your bodyweight in Profile to estimate workout burn.</p>
+          <p className="text-[11px] text-o1-muted text-center -mt-2">
+            Add your bodyweight in Profile to estimate workout burn.
+          </p>
         )}
 
         {totalSets > 0 && (prCount > 0 || trend !== null) && (
           <div className="flex items-center justify-center gap-3 text-[12px]">
             {prCount > 0 && (
               <span className="text-[#10b981]">
-                {prCount} {simple ? (prCount === 1 ? 'new best' : 'new bests') : prCount === 1 ? 'PR' : 'PRs'}
+                {prCount}{' '}
+                {simple ? (prCount === 1 ? 'new best' : 'new bests') : prCount === 1 ? 'PR' : 'PRs'}
               </span>
             )}
-            {prCount > 0 && trend !== null && <span className="text-o1-muted" aria-hidden>·</span>}
+            {prCount > 0 && trend !== null && (
+              <span className="text-o1-muted" aria-hidden>
+                ·
+              </span>
+            )}
             {trend !== null && (
               <span className="text-o1-muted">
                 <span className={trend >= 0 ? 'text-[#10b981]' : 'text-[#f59e0b]'}>
@@ -160,7 +171,10 @@ export const CommitWorkoutModal: React.FC<CommitWorkoutModalProps> = ({
         )}
 
         {totalSets > 0 && highlights.length > 0 && !showDaySelector && (
-          <ul className="rounded-2xl bg-black border border-white/[0.07] divide-y divide-white/[0.05]" aria-label="Each lift">
+          <ul
+            className="rounded-2xl bg-black border border-white/[0.07] divide-y divide-white/[0.05]"
+            aria-label="Each lift"
+          >
             {highlights.map((h) => (
               <li key={h.name} className="flex items-center gap-2 px-3 py-2">
                 <div className="min-w-0 flex-1">
@@ -169,7 +183,9 @@ export const CommitWorkoutModal: React.FC<CommitWorkoutModalProps> = ({
                 </div>
                 <div className="shrink-0 text-right">
                   <p className="font-mono text-[12px] text-o1-text">{h.top}</p>
-                  {h.best && <p className="text-[10.5px] text-[#10b981]">{simple ? 'New best' : 'PR'}</p>}
+                  {h.best && (
+                    <p className="text-[10.5px] text-[#10b981]">{simple ? 'New best' : 'PR'}</p>
+                  )}
                 </div>
               </li>
             ))}
@@ -203,11 +219,16 @@ export const CommitWorkoutModal: React.FC<CommitWorkoutModalProps> = ({
                       setSelectedDay(day);
                     }}
                     className={`h-11 rounded-xl text-center text-[12px] transition-colors cursor-pointer border flex flex-col items-center justify-center gap-0.5 ${
-                      isSelected ? 'bg-o1-sheet border-white/[0.14] text-white' : 'border-transparent text-o1-muted hover:text-o1-text'
+                      isSelected
+                        ? 'bg-o1-sheet border-white/[0.14] text-white'
+                        : 'border-transparent text-o1-muted hover:text-o1-text'
                     }`}
                   >
                     <span className={day === systemToday ? 'text-[#C4121A]' : ''}>{day}</span>
-                    <span className={`w-1 h-1 rounded-full ${isSelected ? 'bg-white' : 'bg-transparent'}`} aria-hidden />
+                    <span
+                      className={`w-1 h-1 rounded-full ${isSelected ? 'bg-white' : 'bg-transparent'}`}
+                      aria-hidden
+                    />
                   </button>
                 );
               })}
@@ -249,7 +270,9 @@ export const CommitWorkoutModal: React.FC<CommitWorkoutModalProps> = ({
               }}
               className="w-full min-h-[48px] px-4 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover active:bg-o1-crimson-press active:scale-[0.98] text-white font-medium text-[13px] flex items-center justify-center transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
             >
-              {noneTicked ? `Tick ${untickedFilledSets} set${untickedFilledSets === 1 ? '' : 's'} & finish` : 'Finish & log session'}
+              {noneTicked
+                ? `Tick ${untickedFilledSets} set${untickedFilledSets === 1 ? '' : 's'} & finish`
+                : 'Finish & log session'}
             </button>
             <button
               type="button"

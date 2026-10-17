@@ -29,9 +29,7 @@ export class SettingsErrorBoundary extends Component<Props, State> {
       return (
         <div className="p-6 bg-red-950/20 border border-red-500/30 rounded-2xl text-center space-y-3 m-4">
           <AlertTriangle className="w-8 h-8 text-red-500 mx-auto" />
-          <h3 className="text-sm font-mono font-bold text-white">
-            Settings Diagnostics Alert
-          </h3>
+          <h3 className="text-sm font-mono font-bold text-white">Settings Diagnostics Alert</h3>
           <p className="text-xs font-mono text-neutral-400">
             An unexpected error occurred while loading settings panels.
           </p>

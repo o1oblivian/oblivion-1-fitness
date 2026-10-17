@@ -9,7 +9,13 @@ import { CoachVaultModal } from '../../features/coach/components/CoachVaultModal
 import { tactileEngine } from '../../services/tactileEngine';
 import { parseCleanInt, parseCleanNumber } from '../../utils/numberInputUtils';
 import { compressPhoto } from '../../utils/mediaCompressor';
-import { fetchVaultRows, removeMedia, saveProfileAvatar, saveVaultRow, uploadMedia } from '../../services/mediaStorage';
+import {
+  fetchVaultRows,
+  removeMedia,
+  saveProfileAvatar,
+  saveVaultRow,
+  uploadMedia,
+} from '../../services/mediaStorage';
 
 const LB_PER_KG = 2.20462;
 const CM_PER_IN = 2.54;
@@ -72,7 +78,9 @@ export const SettingsProfileSection: React.FC<ProfileSectionProps> = ({
     setAvatarError(null);
     setAvatarBusy(true);
     try {
-      const compressed = await compressPhoto(file, { maxDimension: 1024 }).then((r) => r.file).catch(() => file);
+      const compressed = await compressPhoto(file, { maxDimension: 1024 })
+        .then((r) => r.file)
+        .catch(() => file);
       const stored = await uploadMedia(compressed, 'avatars');
       if (!stored || !(await saveProfileAvatar(stored.url))) {
         if (stored) void removeMedia([stored.path]);
@@ -81,7 +89,13 @@ export const SettingsProfileSection: React.FC<ProfileSectionProps> = ({
       }
       tactileEngine.playPRCelebration();
       useUserStore.getState().updateProfile({ avatarUrl: stored.url });
-      void saveVaultRow({ id: `vault-avatar-${Date.now()}`, type: 'photo', title: 'Profile photo', media_url: stored.url, storage_path: stored.path });
+      void saveVaultRow({
+        id: `vault-avatar-${Date.now()}`,
+        type: 'photo',
+        title: 'Profile photo',
+        media_url: stored.url,
+        storage_path: stored.path,
+      });
       useBuddyProfileStore.getState().addBuddyPhoto(stored.url);
       setIsAvatarPickerOpen(false);
     } finally {
@@ -96,7 +110,11 @@ export const SettingsProfileSection: React.FC<ProfileSectionProps> = ({
       if (!live) return;
       const seen = new Set<string>();
       const photos = rows
-        .map((row) => ({ id: row.id, url: row.type === 'video' ? row.thumbnail_url || '' : row.media_url, title: row.title }))
+        .map((row) => ({
+          id: row.id,
+          url: row.type === 'video' ? row.thumbnail_url || '' : row.media_url,
+          title: row.title,
+        }))
         .filter((item) => item.url && !seen.has(item.url) && seen.add(item.url));
       setVaultPhotos(photos);
     });
@@ -146,7 +164,10 @@ export const SettingsProfileSection: React.FC<ProfileSectionProps> = ({
   const handleSaveHandle = () => {
     tactileEngine.triggerSelectionBuzz();
     setIsEditingHandle(false);
-    const bare = localHandle.trim().replace(/^@+/, '').replace(/[^a-zA-Z0-9._]/g, '');
+    const bare = localHandle
+      .trim()
+      .replace(/^@+/, '')
+      .replace(/[^a-zA-Z0-9._]/g, '');
     if (!bare) {
       setLocalHandle(handle || user.handle);
       return;
@@ -222,13 +243,23 @@ export const SettingsProfileSection: React.FC<ProfileSectionProps> = ({
                   className="bg-black border border-white/[0.07] rounded-xl px-2 min-h-[36px] text-sm font-bold text-white focus:outline-none focus:border-o1-crimson w-full"
                   autoFocus
                 />
-                <button type="submit" aria-label="Save name" className="w-11 h-11 shrink-0 rounded-xl bg-o1-crimson text-white flex items-center justify-center cursor-pointer">
+                <button
+                  type="submit"
+                  aria-label="Save name"
+                  className="w-11 h-11 shrink-0 rounded-xl bg-o1-crimson text-white flex items-center justify-center cursor-pointer"
+                >
                   <Check className="w-4 h-4" />
                 </button>
               </form>
             ) : (
-              <button type="button" className="block max-w-full text-left cursor-pointer" onClick={() => setIsEditingName(true)}>
-                <h4 className={`font-sans font-semibold text-sm truncate ${localName ? 'text-white' : 'text-neutral-400'}`}>
+              <button
+                type="button"
+                className="block max-w-full text-left cursor-pointer"
+                onClick={() => setIsEditingName(true)}
+              >
+                <h4
+                  className={`font-sans font-semibold text-sm truncate ${localName ? 'text-white' : 'text-neutral-400'}`}
+                >
                   {localName || 'Add your name'}
                 </h4>
               </button>
@@ -253,13 +284,23 @@ export const SettingsProfileSection: React.FC<ProfileSectionProps> = ({
                   className="bg-black border border-white/[0.07] rounded-xl px-2 min-h-[36px] text-xs font-mono text-neutral-300 focus:outline-none focus:border-o1-crimson w-full"
                   autoFocus
                 />
-                <button type="submit" aria-label="Save handle" className="w-11 h-11 shrink-0 rounded-xl bg-o1-crimson text-white flex items-center justify-center cursor-pointer">
+                <button
+                  type="submit"
+                  aria-label="Save handle"
+                  className="w-11 h-11 shrink-0 rounded-xl bg-o1-crimson text-white flex items-center justify-center cursor-pointer"
+                >
                   <Check className="w-4 h-4" />
                 </button>
               </form>
             ) : (
-              <button type="button" className="block max-w-full text-left cursor-pointer" onClick={() => setIsEditingHandle(true)}>
-                <p className="font-sans text-xs text-neutral-400 truncate">{localHandle || 'Add a handle'}</p>
+              <button
+                type="button"
+                className="block max-w-full text-left cursor-pointer"
+                onClick={() => setIsEditingHandle(true)}
+              >
+                <p className="font-sans text-xs text-neutral-400 truncate">
+                  {localHandle || 'Add a handle'}
+                </p>
               </button>
             )}
           </div>
@@ -315,7 +356,9 @@ export const SettingsProfileSection: React.FC<ProfileSectionProps> = ({
                 }}
                 className="w-10 text-center bg-transparent font-mono font-bold text-xs text-white focus:outline-none p-0 m-0 leading-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               />
-              <span className="text-[10px] text-neutral-400 font-mono font-semibold leading-none ml-0.5">{heightUnit}</span>
+              <span className="text-[10px] text-neutral-400 font-mono font-semibold leading-none ml-0.5">
+                {heightUnit}
+              </span>
             </div>
           </div>
 
@@ -338,7 +381,9 @@ export const SettingsProfileSection: React.FC<ProfileSectionProps> = ({
                 }}
                 className="w-12 text-center bg-transparent font-mono font-bold text-xs text-white focus:outline-none p-0 m-0 leading-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               />
-              <span className="text-[10px] text-neutral-400 font-mono font-semibold leading-none ml-0.5">{weightUnit}</span>
+              <span className="text-[10px] text-neutral-400 font-mono font-semibold leading-none ml-0.5">
+                {weightUnit}
+              </span>
             </div>
           </div>
         </div>
@@ -367,7 +412,11 @@ export const SettingsProfileSection: React.FC<ProfileSectionProps> = ({
               Showcase your profile card and training highlights across reels
             </span>
           </div>
-          <CrimsonSwitch label="Elite Reels presence" checked={eliteReelsPresence} onChange={onToggleReels} />
+          <CrimsonSwitch
+            label="Elite Reels presence"
+            checked={eliteReelsPresence}
+            onChange={onToggleReels}
+          />
         </div>
       </div>
 
@@ -398,11 +447,15 @@ export const SettingsProfileSection: React.FC<ProfileSectionProps> = ({
             </div>
 
             <p className="text-[11px] text-neutral-400 leading-snug">
-              Select or upload your genuine profile photo. Avatars sync directly to your private {role === 'coach' ? 'Coach' : 'Athlete'} Vault.
+              Select or upload your genuine profile photo. Avatars sync directly to your private{' '}
+              {role === 'coach' ? 'Coach' : 'Athlete'} Vault.
             </p>
 
             {avatarError ? (
-              <p role="alert" className="rounded-xl border border-o1-crimson/40 bg-o1-crimson/10 px-3 py-2 text-[11px] font-semibold text-o1-text">
+              <p
+                role="alert"
+                className="rounded-xl border border-o1-crimson/40 bg-o1-crimson/10 px-3 py-2 text-[11px] font-semibold text-o1-text"
+              >
                 {avatarError}
               </p>
             ) : null}
@@ -437,7 +490,11 @@ export const SettingsProfileSection: React.FC<ProfileSectionProps> = ({
                             : 'border-white/[0.07] hover:border-white/[0.14]'
                         }`}
                       >
-                        <img src={item.url} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                        <img
+                          src={item.url}
+                          alt={item.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                        />
                         {isCurrent && (
                           <span className="absolute top-1 right-1 w-4 h-4 rounded-full bg-o1-crimson text-white flex items-center justify-center text-[9px]">
                             <Check className="w-2.5 h-2.5" />

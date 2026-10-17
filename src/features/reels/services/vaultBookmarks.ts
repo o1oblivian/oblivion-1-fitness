@@ -23,7 +23,10 @@ function writeLocal(map: Record<string, boolean>) {
 export async function loadVaultBookmarks(userId: string): Promise<Record<string, boolean>> {
   const local = readLocal();
   if (!userId) return local;
-  const { data, error } = await supabase.from('vault_bookmarks').select('reel_id').eq('user_id', userId);
+  const { data, error } = await supabase
+    .from('vault_bookmarks')
+    .select('reel_id')
+    .eq('user_id', userId);
   if (error || !Array.isArray(data)) return local;
   const next = { ...local };
   for (const row of data) {
@@ -33,7 +36,11 @@ export async function loadVaultBookmarks(userId: string): Promise<Record<string,
   return next;
 }
 
-export async function saveVaultBookmark(userId: string, reelId: string, saved: boolean): Promise<void> {
+export async function saveVaultBookmark(
+  userId: string,
+  reelId: string,
+  saved: boolean,
+): Promise<void> {
   const next = readLocal();
   if (saved) next[reelId] = true;
   else delete next[reelId];

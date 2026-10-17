@@ -124,8 +124,14 @@ function rememberBlock(id: string): void {
 }
 
 function rememberReport(entry: { id: string; name: string; reason: string }): void {
-  const rows = readJson<Array<{ id: string; name: string; reason: string; at: string }>>(REPORT_KEY, []);
-  const next = [{ ...entry, at: new Date().toISOString() }, ...(Array.isArray(rows) ? rows : [])].slice(0, 50);
+  const rows = readJson<Array<{ id: string; name: string; reason: string; at: string }>>(
+    REPORT_KEY,
+    [],
+  );
+  const next = [
+    { ...entry, at: new Date().toISOString() },
+    ...(Array.isArray(rows) ? rows : []),
+  ].slice(0, 50);
   localStorage.setItem(REPORT_KEY, JSON.stringify(next));
 }
 
@@ -146,7 +152,9 @@ export async function syncMutuals(myId: string): Promise<string[] | null> {
     supabase.from('buddy_likes').select('to_id').eq('from_id', myId),
   ]);
   if (incoming.error || outgoing.error) return null;
-  const sent = new Set((outgoing.data || []).map((row) => String(row.to_id)).filter((id) => id && !id.includes('|')));
+  const sent = new Set(
+    (outgoing.data || []).map((row) => String(row.to_id)).filter((id) => id && !id.includes('|')),
+  );
   const hits = (incoming.data || [])
     .map((row) => String(row.from_id))
     .filter((id) => id && !id.includes('|') && sent.has(id));
@@ -168,8 +176,7 @@ export async function withdrawLike(myId: string, theirId: string): Promise<void>
 }
 
 export type LikeResult =
-  | { ok: true; mutual: boolean }
-  | { ok: false; reason: 'auth' | 'cap' | 'save' };
+  { ok: true; mutual: boolean } | { ok: false; reason: 'auth' | 'cap' | 'save' };
 
 async function likesSavedToday(myId: string): Promise<number | null> {
   const start = new Date();
@@ -183,7 +190,11 @@ async function likesSavedToday(myId: string): Promise<number | null> {
   return count;
 }
 
-export async function sendLike(myId: string, theirId: string, unlimited = false): Promise<LikeResult> {
+export async function sendLike(
+  myId: string,
+  theirId: string,
+  unlimited = false,
+): Promise<LikeResult> {
   if (!myId || !theirId) return { ok: false, reason: 'auth' };
   const remote = await supabase.rpc('send_buddy_like', { their_id: theirId, unlimited });
   if (!remote.error && remote.data && typeof remote.data === 'object') {
@@ -206,10 +217,9 @@ export async function sendLike(myId: string, theirId: string, unlimited = false)
       if (count >= FREE_DAILY_LIKES) return { ok: false, reason: 'cap' };
     }
   }
-  const { error } = await supabase.from('buddy_likes').upsert(
-    { id: likeId, from_id: myId, to_id: theirId },
-    { onConflict: 'id' },
-  );
+  const { error } = await supabase
+    .from('buddy_likes')
+    .upsert({ id: likeId, from_id: myId, to_id: theirId }, { onConflict: 'id' });
   if (error) return { ok: false, reason: 'save' };
   const back = await supabase
     .from('buddy_likes')
@@ -224,7 +234,12 @@ export async function sendLike(myId: string, theirId: string, unlimited = false)
 
 const MAX_LINE_ID_BYTES = 1800;
 
-function mailRow(kind: 'm' | 'b', myId: string, theirId: string, body = ''): { id: string; from_id: string; to_id: string } | null {
+function mailRow(
+  kind: 'm' | 'b',
+  myId: string,
+  theirId: string,
+  body = '',
+): { id: string; from_id: string; to_id: string } | null {
   const stamp = Date.now();
   const id = body
     ? `${kind}|${myId}|${theirId}|${stamp}|raw|${body}`
@@ -237,7 +252,11 @@ function mailRow(kind: 'm' | 'b', myId: string, theirId: string, body = ''): { i
   };
 }
 
-export async function postLine(myId: string, theirId: string, body: string): Promise<{ ok: boolean; error?: string }> {
+export async function postLine(
+  myId: string,
+  theirId: string,
+  body: string,
+): Promise<{ ok: boolean; error?: string }> {
   if (!myId || !theirId) return { ok: false, error: 'Sign in to send' };
   if (!body.trim()) return { ok: false, error: 'Message did not send' };
   const row = mailRow('m', myId, theirId, body);
@@ -261,7 +280,13 @@ export async function publishBlock(myId: string, theirId: string): Promise<boole
   return !error;
 }
 
-export async function publishReport(myId: string, theirId: string, name: string, reason: string, details = ''): Promise<boolean> {
+export async function publishReport(
+  myId: string,
+  theirId: string,
+  name: string,
+  reason: string,
+  details = '',
+): Promise<boolean> {
   rememberReport({ id: theirId, name, reason });
   if (!myId) return false;
   return reportUser({ reportedId: theirId, name, reason, details, context: 'buddy' });
@@ -320,8 +345,16 @@ export function unpackLine(id: string, at: string): SharedLine | null {
 export async function readThread(myId: string, theirId: string): Promise<SharedLine[]> {
   if (!myId || !theirId) return [];
   const [sent, got] = await Promise.all([
-    supabase.from('buddy_likes').select('id,created_at').eq('from_id', `m|${myId}`).like('id', `m|${myId}|${theirId}|%`),
-    supabase.from('buddy_likes').select('id,created_at').eq('from_id', `m|${theirId}`).like('id', `m|${theirId}|${myId}|%`),
+    supabase
+      .from('buddy_likes')
+      .select('id,created_at')
+      .eq('from_id', `m|${myId}`)
+      .like('id', `m|${myId}|${theirId}|%`),
+    supabase
+      .from('buddy_likes')
+      .select('id,created_at')
+      .eq('from_id', `m|${theirId}`)
+      .like('id', `m|${theirId}|${myId}|%`),
   ]);
   const rows = [...(sent.data || []), ...(got.data || [])];
   return rows
@@ -335,25 +368,27 @@ export async function fetchBuddyCardsById(ids: string[]): Promise<DemoAthlete[]>
   if (!usable.length) return [];
   const { data, error } = await supabase.from('buddy_profiles').select('*').in('id', usable);
   if (error || !Array.isArray(data)) return [];
-  return data.filter((row) => row.athlete_name !== 'line').map((row) => ({
-    id: String(row.id),
-    name: row.athlete_name || 'Athlete',
-    age: Number(row.age) || 0,
-    home_gym: row.home_gym || '',
-    distance_km: 0,
-    match_score: 0,
-    image_url: row.image_url || row.avatar_url || '',
-    photos: row.image_url || row.avatar_url ? [row.image_url || row.avatar_url] : [],
-    discipline: row.discipline || '',
-    training_discipline: row.discipline || '',
-    gender: row.gender || '',
-    looking_for: row.looking_for || '',
-    training_place: row.training_place || '',
-    bio: row.bio || '',
-    current_split: row.current_split || '',
-    preferred_time: row.training_time || '',
-    experience_level: row.experience_level || '',
-  }));
+  return data
+    .filter((row) => row.athlete_name !== 'line')
+    .map((row) => ({
+      id: String(row.id),
+      name: row.athlete_name || 'Athlete',
+      age: Number(row.age) || 0,
+      home_gym: row.home_gym || '',
+      distance_km: 0,
+      match_score: 0,
+      image_url: row.image_url || row.avatar_url || '',
+      photos: row.image_url || row.avatar_url ? [row.image_url || row.avatar_url] : [],
+      discipline: row.discipline || '',
+      training_discipline: row.discipline || '',
+      gender: row.gender || '',
+      looking_for: row.looking_for || '',
+      training_place: row.training_place || '',
+      bio: row.bio || '',
+      current_split: row.current_split || '',
+      preferred_time: row.training_time || '',
+      experience_level: row.experience_level || '',
+    }));
 }
 
 function overlap(a: string, b: string): boolean {
@@ -363,7 +398,11 @@ function overlap(a: string, b: string): boolean {
   return left === right || left.includes(right) || right.includes(left);
 }
 
-function scorePair(viewer: ViewerPrefs, athlete: DemoAthlete, distanceKm: number): { score: number; reasons: string[] } {
+function scorePair(
+  viewer: ViewerPrefs,
+  athlete: DemoAthlete,
+  distanceKm: number,
+): { score: number; reasons: string[] } {
   let score = 0;
   const reasons: string[] = [];
   const discipline = athlete.discipline || athlete.training_discipline || '';
@@ -396,7 +435,12 @@ function scorePair(viewer: ViewerPrefs, athlete: DemoAthlete, distanceKm: number
   return { score: Math.min(99, score), reasons: reasons.filter(Boolean) };
 }
 
-export function rankAthletes(viewer: ViewerPrefs, rows: DemoAthlete[], radiusKm: number, filters?: DeckFilters): DemoAthlete[] {
+export function rankAthletes(
+  viewer: ViewerPrefs,
+  rows: DemoAthlete[],
+  radiusKm: number,
+  filters?: DeckFilters,
+): DemoAthlete[] {
   const ranked: DemoAthlete[] = [];
   for (const row of rows) {
     const dist = Number(row.distance_km ?? row.distanceKm);
@@ -414,7 +458,9 @@ export function rankAthletes(viewer: ViewerPrefs, rows: DemoAthlete[], radiusKm:
       match_reasons: scored.reasons,
     });
   }
-  ranked.sort((a, b) => (b.match_score || 0) - (a.match_score || 0) || a.distance_km - b.distance_km);
+  ranked.sort(
+    (a, b) => (b.match_score || 0) - (a.match_score || 0) || a.distance_km - b.distance_km,
+  );
   return ranked;
 }
 
@@ -464,7 +510,8 @@ export function writeDeckFilters(next: DeckFilters): void {
 }
 
 function passesDeckFilters(athlete: DemoAthlete, filters: DeckFilters): boolean {
-  if (filters.photoOnly && !(athlete.image_url || athlete.avatar || athlete.photos?.[0])) return false;
+  if (filters.photoOnly && !(athlete.image_url || athlete.avatar || athlete.photos?.[0]))
+    return false;
   if (filters.verifiedOnly && !athlete.is_verified) return false;
   const gender = (athlete.gender || '').toLowerCase();
   if (filters.show !== 'all' && gender !== filters.show) return false;

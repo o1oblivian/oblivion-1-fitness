@@ -74,13 +74,36 @@ export function useCardioLogForm({ isOpen, dayMeta, category, mode, onSaved }: D
     return 'done';
   };
 
-  return { cardioType, setCardioType, cardioDistance, setCardioDistance, cardioDuration, setCardioDuration, cardioBurn, setCardioBurn, cardioHeartRate, setCardioHeartRate, save };
+  return {
+    cardioType,
+    setCardioType,
+    cardioDistance,
+    setCardioDistance,
+    cardioDuration,
+    setCardioDuration,
+    cardioBurn,
+    setCardioBurn,
+    cardioHeartRate,
+    setCardioHeartRate,
+    save,
+  };
 }
 
 export type CardioLogForm = ReturnType<typeof useCardioLogForm>;
 
 export function CardioLogFields({ form }: { form: CardioLogForm }) {
-  const { cardioType, setCardioType, cardioDistance, setCardioDistance, cardioDuration, setCardioDuration, cardioBurn, setCardioBurn, cardioHeartRate, setCardioHeartRate } = form;
+  const {
+    cardioType,
+    setCardioType,
+    cardioDistance,
+    setCardioDistance,
+    cardioDuration,
+    setCardioDuration,
+    cardioBurn,
+    setCardioBurn,
+    cardioHeartRate,
+    setCardioHeartRate,
+  } = form;
   return (
     <div className="space-y-3.5">
       <div>
@@ -107,9 +130,7 @@ export function CardioLogFields({ form }: { form: CardioLogForm }) {
 
       <div className="grid grid-cols-2 gap-2">
         <div>
-          <label className="text-[10px] text-neutral-400 font-bold block mb-1">
-            Distance (KM)
-          </label>
+          <label className="text-[10px] text-neutral-400 font-bold block mb-1">Distance (KM)</label>
           <input
             type="number"
             step="0.1"

@@ -19,13 +19,20 @@ export const TermsOfServiceModal: React.FC<Props> = ({ isOpen, onClose }) => {
               <FileText className="w-4 h-4 text-o1-crimson" />
             </div>
             <div>
-              <h2 className="text-sm font-black tracking-wider text-neutral-100">Terms of Service</h2>
-              <p className="text-[10px] font-mono text-neutral-400">Apple &amp; Google Distribution Compliance</p>
+              <h2 className="text-sm font-black tracking-wider text-neutral-100">
+                Terms of Service
+              </h2>
+              <p className="text-[10px] font-mono text-neutral-400">
+                Apple &amp; Google Distribution Compliance
+              </p>
             </div>
           </div>
           <button
             type="button"
-            onClick={() => { tactileEngine.triggerSelectionBuzz(); onClose(); }}
+            onClick={() => {
+              tactileEngine.triggerSelectionBuzz();
+              onClose();
+            }}
             className="p-1.5 text-neutral-400 hover:text-white rounded-full bg-o1-card border border-white/[0.07] cursor-pointer"
           >
             <X className="w-4 h-4" />
@@ -39,7 +46,12 @@ export const TermsOfServiceModal: React.FC<Props> = ({ isOpen, onClose }) => {
               <span>1. Subscription Billing &amp; Auto-Renewal</span>
             </div>
             <p className="text-[11px] text-neutral-400">
-              Club Pass subscriptions are billed directly through your Apple ID or Google Play Account, at the price shown in the store before you confirm. Subscriptions automatically renew unless auto-renew is cancelled at least 24 hours prior to the end of the billing cycle in App Store or Play Store account settings. Live 1:1 coaching with a human coach is a real-world service, is paid by card through Stripe, and is not part of Club Pass.
+              Club Pass subscriptions are billed directly through your Apple ID or Google Play
+              Account, at the price shown in the store before you confirm. Subscriptions
+              automatically renew unless auto-renew is cancelled at least 24 hours prior to the end
+              of the billing cycle in App Store or Play Store account settings. Live 1:1 coaching
+              with a human coach is a real-world service, is paid by card through Stripe, and is not
+              part of Club Pass.
             </p>
           </div>
 
@@ -49,7 +61,14 @@ export const TermsOfServiceModal: React.FC<Props> = ({ isOpen, onClose }) => {
               <span>2. Not a Medical App</span>
             </div>
             <p className="text-[11px] text-neutral-400">
-              Oblivion 1 is a training log and coaching tool. It is not a medical device and does not diagnose, treat, monitor or prevent any disease, injury or medical condition. Readiness scores, reports, estimated 1RMs, nutrition targets, scans and coach messages are general fitness information only, not medical advice. Always seek a doctor or physiotherapist for injuries, pain, pregnancy, heart, blood pressure or other health conditions, and before starting a new program. If you experience chest pain, dizziness, fainting or shortness of breath, stop training and seek medical help immediately.
+              Oblivion 1 is a training log and coaching tool. It is not a medical device and does
+              not diagnose, treat, monitor or prevent any disease, injury or medical condition.
+              Readiness scores, reports, estimated 1RMs, nutrition targets, scans and coach messages
+              are general fitness information only, not medical advice. Always seek a doctor or
+              physiotherapist for injuries, pain, pregnancy, heart, blood pressure or other health
+              conditions, and before starting a new program. If you experience chest pain,
+              dizziness, fainting or shortness of breath, stop training and seek medical help
+              immediately.
             </p>
           </div>
 
@@ -59,7 +78,12 @@ export const TermsOfServiceModal: React.FC<Props> = ({ isOpen, onClose }) => {
               <span>3. Training Safety &amp; Assumption of Risk</span>
             </div>
             <p className="text-[11px] text-neutral-400">
-              Strength and cardio training carry a risk of injury. You train at your own risk and are responsible for warming up, using correct technique, choosing loads within your ability, using spotters or safety equipment, and stopping when something hurts. Oblivion 1 does not ask for or store injury or medical history, so suggested workouts cannot account for your personal conditions. To the extent permitted by law, Oblivion 1 is not liable for injury arising from use of the app.
+              Strength and cardio training carry a risk of injury. You train at your own risk and
+              are responsible for warming up, using correct technique, choosing loads within your
+              ability, using spotters or safety equipment, and stopping when something hurts.
+              Oblivion 1 does not ask for or store injury or medical history, so suggested workouts
+              cannot account for your personal conditions. To the extent permitted by law, Oblivion
+              1 is not liable for injury arising from use of the app.
             </p>
           </div>
 
@@ -68,7 +92,14 @@ export const TermsOfServiceModal: React.FC<Props> = ({ isOpen, onClose }) => {
               <span>4. Community &amp; Spotter Code of Conduct</span>
             </div>
             <p className="text-[11px] text-neutral-400">
-              Athletes utilizing the Buddy Match Radar agree to zero harassment, respect gym floor etiquette, and practice certified spotter vigilance. There is no tolerance for objectionable, abusive, sexual, hateful or illegal content in profiles, photos, reels, reviews or messages. You can report any profile, reel, coach or message, and block any athlete, from the menu on that item. We review reports within 24 hours and remove the content and the offending account when a report is upheld. Harassment or misconduct results in immediate banishment and revocation of club credentials without refund. To reach us directly, write to legal@oblivion1.club.
+              Athletes utilizing the Buddy Match Radar agree to zero harassment, respect gym floor
+              etiquette, and practice certified spotter vigilance. There is no tolerance for
+              objectionable, abusive, sexual, hateful or illegal content in profiles, photos, reels,
+              reviews or messages. You can report any profile, reel, coach or message, and block any
+              athlete, from the menu on that item. We review reports within 24 hours and remove the
+              content and the offending account when a report is upheld. Harassment or misconduct
+              results in immediate banishment and revocation of club credentials without refund. To
+              reach us directly, write to legal@oblivion1.club.
             </p>
           </div>
 
@@ -78,14 +109,17 @@ export const TermsOfServiceModal: React.FC<Props> = ({ isOpen, onClose }) => {
               <span>5. Local-First Architecture &amp; Data Ownership</span>
             </div>
             <p className="text-[11px] text-neutral-400">
-              Oblivion 1 operates on a local-first model. Workout data, roster files, and nutrition telemetry reside on the user's hardware. Users maintain complete ownership of their local vault and are responsible for maintaining their exported backups.
+              Oblivion 1 operates on a local-first model. Workout data, roster files, and nutrition
+              telemetry reside on the user's hardware. Users maintain complete ownership of their
+              local vault and are responsible for maintaining their exported backups.
             </p>
           </div>
 
           <div className="py-3 border-b border-white/[0.05] space-y-1.5 last:border-0">
             <div className="text-[11px] text-neutral-200 font-bold">6. Governing Law</div>
             <p className="text-[11px] text-neutral-400">
-              Governed by commercial digital distribution standards of Apple Inc. and Google LLC. Contact: legal@oblivion1.club.
+              Governed by commercial digital distribution standards of Apple Inc. and Google LLC.
+              Contact: legal@oblivion1.club.
             </p>
           </div>
         </div>
@@ -93,7 +127,10 @@ export const TermsOfServiceModal: React.FC<Props> = ({ isOpen, onClose }) => {
         <div className="pt-3 border-t border-white/[0.05]">
           <button
             type="button"
-            onClick={() => { tactileEngine.triggerSelectionBuzz(); onClose(); }}
+            onClick={() => {
+              tactileEngine.triggerSelectionBuzz();
+              onClose();
+            }}
             className="w-full py-2.5 rounded-xl bg-zinc-100 hover:bg-white text-neutral-950 font-mono text-xs font-semibold tracking-wide cursor-pointer transition active:scale-[0.98]"
           >
             Acknowledge &amp; Return
@@ -103,4 +140,3 @@ export const TermsOfServiceModal: React.FC<Props> = ({ isOpen, onClose }) => {
     </div>
   );
 };
-

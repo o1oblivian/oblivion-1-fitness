@@ -40,9 +40,28 @@ const SWIPE_PX = 40;
 const WHEEL_COOLDOWN_MS = 650;
 
 export const ReelPlayerView: React.FC<ReelPlayerViewProps> = ({
-  activeReel, activeClip, isPlaying, videoRef, likedReels, likeCount, savedReels,
-  addedExercises, covered = false, onClose, onNextReel, onPrevReel, onTogglePlay, onPlayingChange,
-  onToggleLike, onToggleSave, onShare, onAddExercise, onSelectClip, onBookCoach, onMessageCoach, onNotice,
+  activeReel,
+  activeClip,
+  isPlaying,
+  videoRef,
+  likedReels,
+  likeCount,
+  savedReels,
+  addedExercises,
+  covered = false,
+  onClose,
+  onNextReel,
+  onPrevReel,
+  onTogglePlay,
+  onPlayingChange,
+  onToggleLike,
+  onToggleSave,
+  onShare,
+  onAddExercise,
+  onSelectClip,
+  onBookCoach,
+  onMessageCoach,
+  onNotice,
 }) => {
   const touchStartY = useRef<number | null>(null);
   const lastWheel = useRef(0);
@@ -66,7 +85,11 @@ export const ReelPlayerView: React.FC<ReelPlayerViewProps> = ({
     if (paused) return;
     const onKey = (event: KeyboardEvent) => {
       const target = event.target as HTMLElement | null;
-      if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) return;
+      if (
+        target &&
+        (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)
+      )
+        return;
       const actions = latest.current;
       if (event.key === 'ArrowDown' || event.key === 'j') actions.onNextReel?.();
       else if (event.key === 'ArrowUp' || event.key === 'k') actions.onPrevReel?.();
@@ -148,7 +171,9 @@ export const ReelPlayerView: React.FC<ReelPlayerViewProps> = ({
 
         {failed ? (
           <div className="absolute inset-0 flex items-center justify-center bg-black/60 pointer-events-none">
-            <p className="rounded-full bg-[#0E0E0E] px-4 py-2 text-[13px] text-[#EAE8DF]">This video could not load</p>
+            <p className="rounded-full bg-[#0E0E0E] px-4 py-2 text-[13px] text-[#EAE8DF]">
+              This video could not load
+            </p>
           </div>
         ) : !isPlaying ? (
           <div className="absolute inset-0 flex items-center justify-center bg-black/30 pointer-events-none transition-opacity">

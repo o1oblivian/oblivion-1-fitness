@@ -34,9 +34,7 @@ export const ProgramPricingStep: React.FC<{
       <div className="space-y-1">
         <div className="flex items-center gap-2">
           <DollarSign className="w-4 h-4 text-o1-text" />
-          <h3 className="text-sm font-bold text-o1-text">
-            Pricing & Access
-          </h3>
+          <h3 className="text-sm font-bold text-o1-text">Pricing & Access</h3>
         </div>
         <p className="text-xs text-o1-muted">
           Set program pricing, tier structures, and flexible athlete volume projections
@@ -53,9 +51,7 @@ export const ProgramPricingStep: React.FC<{
       >
         <div className="space-y-1 pr-3">
           <div className="flex items-center gap-2">
-            <span className="text-xs font-bold text-o1-text">
-              Free Community Program
-            </span>
+            <span className="text-xs font-bold text-o1-text">Free Community Program</span>
             <span className="px-2 py-0.5 rounded-md bg-white/[0.08] text-o1-muted text-[10px] font-mono font-semibold">
               Free Access
             </span>
@@ -141,9 +137,7 @@ export const ProgramPricingStep: React.FC<{
                 {/* 3 Metric Pills */}
                 <div className="grid grid-cols-3 gap-2 text-center">
                   <div className="p-2.5 rounded-xl bg-o1-sheet border border-white/[0.07]">
-                    <span className="text-[9px] text-o1-muted block font-semibold">
-                      Sale Price
-                    </span>
+                    <span className="text-[9px] text-o1-muted block font-semibold">Sale Price</span>
                     <span className="text-xs font-bold font-mono text-o1-text">
                       ${effectivePrice.toFixed(2)}
                     </span>
@@ -169,16 +163,16 @@ export const ProgramPricingStep: React.FC<{
                 {/* Projected Volume Slider */}
                 <div className="space-y-2 pt-1">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-semibold text-o1-text">
-                      Projected Athletes:
-                    </span>
+                    <span className="text-xs font-semibold text-o1-text">Projected Athletes:</span>
                     <div className="flex items-center gap-1.5">
                       <input
                         type="number"
                         min={1}
                         max={1000}
                         value={projectedAthletes}
-                        onChange={(e) => setProjectedAthletes(Math.max(1, Number(e.target.value) || 1))}
+                        onChange={(e) =>
+                          setProjectedAthletes(Math.max(1, Number(e.target.value) || 1))
+                        }
                         className="w-16 px-2 py-0.5 rounded-xl bg-o1-sheet border border-white/[0.07] text-xs font-mono font-bold text-center text-o1-text focus:outline-none"
                       />
                       <span className="text-[11px] text-o1-muted">athletes</span>
@@ -247,9 +241,7 @@ export const ProgramPricingStep: React.FC<{
       <div className="p-4 rounded-2xl bg-o1-surface border border-white/[0.07] space-y-3 shadow-2xs">
         <div className="flex items-center gap-2">
           <Calendar className="w-4 h-4 text-o1-text" />
-          <h4 className="text-xs font-bold text-o1-text">
-            Program Schedule
-          </h4>
+          <h4 className="text-xs font-bold text-o1-text">Program Schedule</h4>
         </div>
         <p className="text-[11px] text-o1-muted">
           Specify cohort start and end dates, or leave blank for self-paced perpetual access.
@@ -257,9 +249,7 @@ export const ProgramPricingStep: React.FC<{
 
         <div className="grid grid-cols-2 gap-3 pt-1">
           <div>
-            <label className="text-[10px] font-semibold text-o1-muted block mb-1">
-              Start Date
-            </label>
+            <label className="text-[10px] font-semibold text-o1-muted block mb-1">Start Date</label>
             <input
               type="date"
               value={data.startDate || ''}
@@ -268,9 +258,7 @@ export const ProgramPricingStep: React.FC<{
             />
           </div>
           <div>
-            <label className="text-[10px] font-semibold text-o1-muted block mb-1">
-              End Date
-            </label>
+            <label className="text-[10px] font-semibold text-o1-muted block mb-1">End Date</label>
             <input
               type="date"
               value={data.endDate || ''}
@@ -283,4 +271,3 @@ export const ProgramPricingStep: React.FC<{
     </div>
   );
 };
-

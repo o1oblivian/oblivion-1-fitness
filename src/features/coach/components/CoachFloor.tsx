@@ -1,5 +1,16 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Dumbbell, Inbox, Layers, LayoutGrid, MessageSquare, Radio, User, UserPlus, Users, Wallet } from 'lucide-react';
+import {
+  Dumbbell,
+  Inbox,
+  Layers,
+  LayoutGrid,
+  MessageSquare,
+  Radio,
+  User,
+  UserPlus,
+  Users,
+  Wallet,
+} from 'lucide-react';
 import { supabase } from '../../../services/supabaseClient';
 import { liveChannel } from '../../../services/realtimeChannel';
 import { useAuthStore } from '../../../stores/useAuthStore';
@@ -12,7 +23,11 @@ import { AthleteCheckInSubmission } from '../types/coachPlatformTypes';
 import { DirectiveItem } from '../types/coachDirectives';
 import { fetchCoachFilms, ProfileFilm } from '../services/coachFilms';
 import { liveClients } from '../services/floorRoster';
-import { saveCheckinReplyRemote, saveWorkoutFeedback, sendCoachMessage } from '../services/coachBridge';
+import {
+  saveCheckinReplyRemote,
+  saveWorkoutFeedback,
+  sendCoachMessage,
+} from '../services/coachBridge';
 import { CoachCard, formatHandle, toExploreCoach } from '../services/coachDirectory';
 import { isSampleId } from '../services/sampleIds';
 import { CoachFloorTab, useCoachViewStore } from '../store/useCoachViewStore';
@@ -23,7 +38,12 @@ import { CoachEarningsDeck } from './CoachEarningsDeck';
 import { FloorAthleteCard, type FloorCardAction } from './floor/FloorAthleteCard';
 import { CoachFeedbackSheet } from './floor/CoachFeedbackSheet';
 import { CoachingRequestCard, useCoachingRequests } from './CoachingRequests';
-import { CoachProfileHeader, ProfileActionButton, compactCount, ratingLabel } from './profile/CoachProfileHeader';
+import {
+  CoachProfileHeader,
+  ProfileActionButton,
+  compactCount,
+  ratingLabel,
+} from './profile/CoachProfileHeader';
 import { CoachProfileEditSheet } from './profile/CoachProfileEditSheet';
 import { CoachProgramsTab } from '../../reels/components/profile/CoachProgramsTab';
 import {
@@ -46,7 +66,9 @@ export interface CoachFloorProps {
   rosterHasMore: boolean;
   onLoadMoreRoster: () => void;
   checkins: AthleteCheckInSubmission[] | null;
-  onCheckinsChange: (updater: (prev: AthleteCheckInSubmission[] | null) => AthleteCheckInSubmission[] | null) => void;
+  onCheckinsChange: (
+    updater: (prev: AthleteCheckInSubmission[] | null) => AthleteCheckInSubmission[] | null,
+  ) => void;
   notes: DirectiveItem[] | null;
   notesFailed: boolean;
   onRetryNotes: () => void;
@@ -85,7 +107,9 @@ function ago(iso: string | undefined): string {
 }
 
 function stat(value: number | null | undefined, unit = ''): string {
-  return value == null || !Number.isFinite(value) || value <= 0 ? '--' : `${Math.round(value).toLocaleString()}${unit}`;
+  return value == null || !Number.isFinite(value) || value <= 0
+    ? '--'
+    : `${Math.round(value).toLocaleString()}${unit}`;
 }
 
 function kg(value: number | null | undefined): string {
@@ -99,36 +123,57 @@ function rosterId(athlete: Athlete): string {
 
 /** Roster row for the target, or a minimal one so athletes outside the roster can still get a workout. */
 function dispatchTarget(target: FeedbackTarget): Athlete {
-  return target.athlete ?? {
-    id: target.athleteId,
-    client_id: target.athleteId,
-    name: target.name,
-    handle: '',
-    avatar: target.avatar,
-    status: 'Active',
-    readiness: null,
-    volume: null,
-  };
+  return (
+    target.athlete ?? {
+      id: target.athleteId,
+      client_id: target.athleteId,
+      name: target.name,
+      handle: '',
+      avatar: target.avatar,
+      status: 'Active',
+      readiness: null,
+      volume: null,
+    }
+  );
 }
 
 function FilmTile({ film, onOpen }: { film: ProfileFilm; onOpen: () => void }) {
   const [src, setSrc] = useState(reelCover(film.id, film.thumb));
   return (
-    <button type="button" onClick={onOpen} className="relative aspect-[4/5] overflow-hidden bg-o1-surface active:scale-[0.98]" aria-label={film.title}>
-      <img src={src} alt="" className="h-full w-full object-cover" onError={() => setSrc(nextReelCover(src))} />
+    <button
+      type="button"
+      onClick={onOpen}
+      className="relative aspect-[4/5] overflow-hidden bg-o1-surface active:scale-[0.98]"
+      aria-label={film.title}
+    >
+      <img
+        src={src}
+        alt=""
+        className="h-full w-full object-cover"
+        onError={() => setSrc(nextReelCover(src))}
+      />
       <span className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-transparent" />
     </button>
   );
 }
 
 const Empty: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <p className="rounded-2xl border border-white/[0.07] bg-o1-surface px-4 py-6 text-center text-[13px] text-o1-muted">{children}</p>
+  <p className="rounded-2xl border border-white/[0.07] bg-o1-surface px-4 py-6 text-center text-[13px] text-o1-muted">
+    {children}
+  </p>
 );
 
 const RetryAlert: React.FC<{ message: string; onRetry: () => void }> = ({ message, onRetry }) => (
-  <div role="alert" className="flex items-center justify-between gap-2 rounded-xl border border-o1-crimson/30 bg-o1-crimson/10 px-3 py-2">
+  <div
+    role="alert"
+    className="flex items-center justify-between gap-2 rounded-xl border border-o1-crimson/30 bg-o1-crimson/10 px-3 py-2"
+  >
     <p className="text-[12px] text-o1-text">{message}</p>
-    <button type="button" onClick={onRetry} className="min-h-[36px] px-2 text-[12px] font-semibold text-o1-text">
+    <button
+      type="button"
+      onClick={onRetry}
+      className="min-h-[36px] px-2 text-[12px] font-semibold text-o1-text"
+    >
       Retry
     </button>
   </div>
@@ -171,7 +216,9 @@ export const CoachFloor: React.FC<CoachFloorProps> = ({
   onRosterChanged,
 }) => {
   const openFullEliteReels = useModalStore((s) => s.openFullEliteReels);
-  const ownReelCount = useReelsStore((s) => s.reels.filter((reel) => reel.coach?.id === coachId).length);
+  const ownReelCount = useReelsStore(
+    (s) => s.reels.filter((reel) => reel.coach?.id === coachId).length,
+  );
   const finishedWorkouts = useCoachStore((s) => s.finishedWorkouts);
   const applyWorkoutFeedback = useCoachStore((s) => s.applyWorkoutFeedback);
   const profileName = useAuthStore((s) => s.profile?.name || '');
@@ -209,7 +256,9 @@ export const CoachFloor: React.FC<CoachFloorProps> = ({
   useEffect(() => {
     if (!coachId) return;
     let live = true;
-    void fetchStorefrontStats(coachId).then((next) => live && setStorefront(next)).catch(() => undefined);
+    void fetchStorefrontStats(coachId)
+      .then((next) => live && setStorefront(next))
+      .catch(() => undefined);
     return () => {
       live = false;
     };
@@ -218,7 +267,9 @@ export const CoachFloor: React.FC<CoachFloorProps> = ({
   useEffect(() => {
     if (!coachId || tab !== 'programs') return;
     let live = true;
-    void fetchStorefrontPrograms(coachId).then((next) => live && setPrograms(next)).catch(() => live && setPrograms([]));
+    void fetchStorefrontPrograms(coachId)
+      .then((next) => live && setPrograms(next))
+      .catch(() => live && setPrograms([]));
     return () => {
       live = false;
     };
@@ -229,7 +280,16 @@ export const CoachFloor: React.FC<CoachFloorProps> = ({
     const refresh = () => void fetchLatestCoachFeedback(coachId).then(setLatestFeedback);
     refresh();
     const channel = liveChannel(`coach-feedback-${coachId}`)
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'coach_messages', filter: `coach_id=eq.${coachId}` }, refresh)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'coach_messages',
+          filter: `coach_id=eq.${coachId}`,
+        },
+        refresh,
+      )
       .subscribe();
     return () => {
       void supabase.removeChannel(channel);
@@ -242,7 +302,9 @@ export const CoachFloor: React.FC<CoachFloorProps> = ({
   const name = (card?.name || profileName || 'Coach').trim();
   const handle = formatHandle(card?.handle);
   const explore = card ? toExploreCoach(card) : null;
-  const specialtyLine = [card?.specialties.slice(0, 3).join(' · '), explore?.rate].filter(Boolean).join(' · ');
+  const specialtyLine = [card?.specialties.slice(0, 3).join(' · '), explore?.rate]
+    .filter(Boolean)
+    .join(' · ');
 
   const openReel = (reelId?: string) => {
     tactileEngine.triggerSelectionBuzz();
@@ -260,7 +322,8 @@ export const CoachFloor: React.FC<CoachFloorProps> = ({
   }, [people]);
 
   const findAthlete = (id: string, athleteName: string) =>
-    people.find((athlete) => athlete.id === id || athlete.client_id === id) || people.find((athlete) => athlete.name === athleteName);
+    people.find((athlete) => athlete.id === id || athlete.client_id === id) ||
+    people.find((athlete) => athlete.name === athleteName);
 
   const deliverFeedback = async (message: string): Promise<boolean> => {
     const target = feedbackFor;
@@ -271,8 +334,16 @@ export const CoachFloor: React.FC<CoachFloorProps> = ({
       return true;
     }
     const [sent, workoutSaved, checkinSaved] = await Promise.all([
-      sendCoachMessage({ coachId, athleteId: target.athleteId, senderName: name, message, from: 'coach' }),
-      target.workoutId ? saveWorkoutFeedback(coachId, target.workoutId, message) : Promise.resolve(true),
+      sendCoachMessage({
+        coachId,
+        athleteId: target.athleteId,
+        senderName: name,
+        message,
+        from: 'coach',
+      }),
+      target.workoutId
+        ? saveWorkoutFeedback(coachId, target.workoutId, message)
+        : Promise.resolve(true),
       target.checkinId ? saveCheckinReplyRemote(target.checkinId, message) : Promise.resolve(true),
     ]);
     const at = new Date().toISOString();
@@ -282,7 +353,17 @@ export const CoachFloor: React.FC<CoachFloorProps> = ({
       const checkinId = target.checkinId;
       onCheckinsChange((prev) =>
         (prev ?? []).map((row) =>
-          row.id === checkinId ? { ...row, coachFeedback: { ...row.coachFeedback, feedbackText: message, givenAt: 'Today', status: 'reviewed' } } : row,
+          row.id === checkinId
+            ? {
+                ...row,
+                coachFeedback: {
+                  ...row.coachFeedback,
+                  feedbackText: message,
+                  givenAt: 'Today',
+                  status: 'reviewed',
+                },
+              }
+            : row,
         ),
       );
     }
@@ -307,11 +388,25 @@ export const CoachFloor: React.FC<CoachFloorProps> = ({
           setFeedbackFor(target);
         },
       },
-      { label: 'Workout', icon: Dumbbell, onClick: () => { tactileEngine.triggerSelectionBuzz(); onDispatchAthlete(dispatchTarget(target)); } },
+      {
+        label: 'Workout',
+        icon: Dumbbell,
+        onClick: () => {
+          tactileEngine.triggerSelectionBuzz();
+          onDispatchAthlete(dispatchTarget(target));
+        },
+      },
     ];
     const { athlete } = target;
     if (athlete) {
-      actions.push({ label: 'Profile', icon: User, onClick: () => { tactileEngine.triggerSelectionBuzz(); onSelectAthlete(athlete); } });
+      actions.push({
+        label: 'Profile',
+        icon: User,
+        onClick: () => {
+          tactileEngine.triggerSelectionBuzz();
+          onSelectAthlete(athlete);
+        },
+      });
     }
     return actions;
   };
@@ -335,8 +430,15 @@ export const CoachFloor: React.FC<CoachFloorProps> = ({
           }}
           stats={[
             { label: 'Followers', value: compactCount(storefront.followers) },
-            { label: 'Clients', value: athletes === null ? '--' : String(people.length), onPress: () => setTab('floor') },
-            { label: storefront.reviewCount > 0 ? `${storefront.reviewCount} reviews` : 'Rating', value: ratingLabel(storefront.rating) },
+            {
+              label: 'Clients',
+              value: athletes === null ? '--' : String(people.length),
+              onPress: () => setTab('floor'),
+            },
+            {
+              label: storefront.reviewCount > 0 ? `${storefront.reviewCount} reviews` : 'Rating',
+              value: ratingLabel(storefront.rating),
+            },
           ]}
           actions={
             <>
@@ -373,7 +475,10 @@ export const CoachFloor: React.FC<CoachFloorProps> = ({
           onCardChange({
             id: coachId,
             hourlyRate: card?.hourlyRate ?? null,
-            monthlyRate: front.monthlyPriceCents != null ? front.monthlyPriceCents / 100 : card?.monthlyRate ?? null,
+            monthlyRate:
+              front.monthlyPriceCents != null
+                ? front.monthlyPriceCents / 100
+                : (card?.monthlyRate ?? null),
             verified: card?.verified ?? false,
             name: next.name,
             handle: next.handle,
@@ -388,7 +493,11 @@ export const CoachFloor: React.FC<CoachFloorProps> = ({
         }}
       />
 
-      <div className="flex justify-around border-b border-white/[0.07]" role="tablist" aria-label="Coach console">
+      <div
+        className="flex justify-around border-b border-white/[0.07]"
+        role="tablist"
+        aria-label="Coach console"
+      >
         {visibleTabs.map((item) => {
           const Icon = item.icon;
           const on = tab === item.id;
@@ -413,7 +522,9 @@ export const CoachFloor: React.FC<CoachFloorProps> = ({
 
       {tab === 'films' && (
         <div className="space-y-2">
-          {filmsFailed ? <RetryAlert message="Could not load your films." onRetry={() => void loadFilms()} /> : null}
+          {filmsFailed ? (
+            <RetryAlert message="Could not load your films." onRetry={() => void loadFilms()} />
+          ) : null}
           {films === null ? (
             <Empty>Loading films…</Empty>
           ) : filmList.length === 0 ? (
@@ -430,7 +541,9 @@ export const CoachFloor: React.FC<CoachFloorProps> = ({
         </div>
       )}
 
-      {tab === 'programs' && <CoachProgramsTab programs={programs} isOwn onCreate={onCreateProgram} />}
+      {tab === 'programs' && (
+        <CoachProgramsTab programs={programs} isOwn onCreate={onCreateProgram} />
+      )}
 
       {tab === 'floor' && (
         <div className="space-y-4">
@@ -447,15 +560,25 @@ export const CoachFloor: React.FC<CoachFloorProps> = ({
           </button>
           {requests.length > 0 ? (
             <section className="space-y-2">
-              <h3 className="px-1 text-[13px] font-semibold text-o1-text">Coaching requests ({requests.length})</h3>
+              <h3 className="px-1 text-[13px] font-semibold text-o1-text">
+                Coaching requests ({requests.length})
+              </h3>
               {requests.map((request) => (
-                <CoachingRequestCard key={request.id} request={request} onDecide={(row, accept) => void decide(row, accept)} />
+                <CoachingRequestCard
+                  key={request.id}
+                  request={request}
+                  onDecide={(row, accept) => void decide(row, accept)}
+                />
               ))}
             </section>
           ) : null}
-          {rosterFailed ? <RetryAlert message="Could not load your clients." onRetry={onRetryRoster} /> : null}
+          {rosterFailed ? (
+            <RetryAlert message="Could not load your clients." onRetry={onRetryRoster} />
+          ) : null}
           <section className="space-y-2">
-            <h3 className="px-1 text-[13px] font-semibold text-o1-text">Clients{athletes === null ? '' : ` (${people.length}${rosterHasMore ? '+' : ''})`}</h3>
+            <h3 className="px-1 text-[13px] font-semibold text-o1-text">
+              Clients{athletes === null ? '' : ` (${people.length}${rosterHasMore ? '+' : ''})`}
+            </h3>
             {athletes === null ? (
               <Empty>Loading clients…</Empty>
             ) : people.length === 0 ? (
@@ -475,7 +598,12 @@ export const CoachFloor: React.FC<CoachFloorProps> = ({
                   ]}
                   lastFeedback={latestFeedback[rosterId(athlete)]}
                   onOpenProfile={() => onSelectAthlete(athlete)}
-                  actions={athleteActions({ athleteId: rosterId(athlete), name: athlete.name, avatar: athlete.avatar, athlete })}
+                  actions={athleteActions({
+                    athleteId: rosterId(athlete),
+                    name: athlete.name,
+                    avatar: athlete.avatar,
+                    athlete,
+                  })}
                 />
               ))
             )}
@@ -514,7 +642,16 @@ export const CoachFloor: React.FC<CoachFloorProps> = ({
                     ]}
                     lastFeedback={log.feedback}
                     onOpenProfile={athlete ? () => onSelectAthlete(athlete) : undefined}
-                    actions={athleteActions({ athleteId: log.athleteId, name: log.athleteName, avatar, athlete, workoutId: log.id }, log.feedback ? 'Note' : 'Review')}
+                    actions={athleteActions(
+                      {
+                        athleteId: log.athleteId,
+                        name: log.athleteName,
+                        avatar,
+                        athlete,
+                        workoutId: log.id,
+                      },
+                      log.feedback ? 'Note' : 'Review',
+                    )}
                   />
                 );
               })
@@ -543,7 +680,16 @@ export const CoachFloor: React.FC<CoachFloorProps> = ({
                       { label: 'Soreness', value: stat(row.sorenessRating, '/10') },
                     ]}
                     onOpenProfile={athlete ? () => onSelectAthlete(athlete) : undefined}
-                    actions={athleteActions({ athleteId: row.athleteId, name: row.athleteName, avatar: athlete?.avatar, athlete, checkinId: row.id }, 'Reply')}
+                    actions={athleteActions(
+                      {
+                        athleteId: row.athleteId,
+                        name: row.athleteName,
+                        avatar: athlete?.avatar,
+                        athlete,
+                        checkinId: row.id,
+                      },
+                      'Reply',
+                    )}
                   />
                 );
               })
@@ -562,18 +708,34 @@ export const CoachFloor: React.FC<CoachFloorProps> = ({
           onDeleteNote={onDeleteNote}
         />
       )}
-      {tab === 'inbox' && <CoachInboxView viewer="coach" coachId={coachId} contacts={contacts} coachName={name} />}
-      {tab === 'earnings' && <CoachEarningsDeck coachId={coachId} onShowToast={(msg) => onShowToast?.(msg)} />}
+      {tab === 'inbox' && (
+        <CoachInboxView viewer="coach" coachId={coachId} contacts={contacts} coachName={name} />
+      )}
+      {tab === 'earnings' && (
+        <CoachEarningsDeck coachId={coachId} onShowToast={(msg) => onShowToast?.(msg)} />
+      )}
 
       <CoachFeedbackSheet
         target={feedbackFor}
         onClose={() => setFeedbackFor(null)}
         onSend={deliverFeedback}
-        onSendWorkout={feedbackFor ? () => { setFeedbackFor(null); onDispatchAthlete(dispatchTarget(feedbackFor)); } : undefined}
-        onViewProfile={feedbackAthlete ? () => { setFeedbackFor(null); onSelectAthlete(feedbackAthlete); } : undefined}
+        onSendWorkout={
+          feedbackFor
+            ? () => {
+                setFeedbackFor(null);
+                onDispatchAthlete(dispatchTarget(feedbackFor));
+              }
+            : undefined
+        }
+        onViewProfile={
+          feedbackAthlete
+            ? () => {
+                setFeedbackFor(null);
+                onSelectAthlete(feedbackAthlete);
+              }
+            : undefined
+        }
       />
     </div>
   );
 };
-
-

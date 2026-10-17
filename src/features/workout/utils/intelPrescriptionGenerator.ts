@@ -9,7 +9,14 @@ import {
 } from '../../../utils/physiologyEngine';
 import { useUserStore } from '../../../stores/useUserStore';
 import { useConsultationStore } from '../../induction/useConsultationStore';
-import { athleteDose, availableKit, canPerform, dosedSets, isSafeFor, isUnloaded } from './equipmentAccess';
+import {
+  athleteDose,
+  availableKit,
+  canPerform,
+  dosedSets,
+  isSafeFor,
+  isUnloaded,
+} from './equipmentAccess';
 
 export type EnergyLevel = EnergyCheckIn;
 export type TrainingGoal = 'burn' | 'muscle' | 'reset' | 'athletic';
@@ -22,12 +29,17 @@ const calculateDynamicLoad = (
   equipment: string,
   athleteWeightKg: number,
   energyLevel: EnergyLevel,
-  calibrationScore: number = 75
+  calibrationScore: number = 75,
 ): number => {
   const isElite = calibrationScore >= 80;
   const energyMultiplier = energyLevel === 'PRIME' ? 1.1 : energyLevel === 'LOW' ? 0.85 : 1.0;
 
-  if (equipment === 'bodyweight' || equipment === 'mat' || equipment === 'erg' || equipment === 'turf') {
+  if (
+    equipment === 'bodyweight' ||
+    equipment === 'mat' ||
+    equipment === 'erg' ||
+    equipment === 'turf'
+  ) {
     return 0;
   }
 
@@ -87,29 +99,52 @@ const matchesMovementFocus = (ex: ExerciseDefinition, focus: string): boolean =>
   const hit = (...keys: string[]) => keys.some((k) => hay.includes(k));
 
   const word = (...keys: string[]) => keys.some((k) => new RegExp(`\\b${k}`).test(hay));
-  const legs = ['squat', 'lunge', 'leg press', 'leg curl', 'leg extension', 'abduct', 'adduct', 'calf', 'glute', 'hip'];
+  const legs = [
+    'squat',
+    'lunge',
+    'leg press',
+    'leg curl',
+    'leg extension',
+    'abduct',
+    'adduct',
+    'calf',
+    'glute',
+    'hip',
+  ];
 
   if (f.startsWith('push')) {
     if (pattern === 'pull' || word('row', 'pull', 'curl', 'chin', 'crunch', ...legs)) return false;
-    return pattern === 'push' || word('chest', 'pec', 'shoulder', 'delt', 'tricep', 'press', 'fly', 'dip');
+    return (
+      pattern === 'push' ||
+      word('chest', 'pec', 'shoulder', 'delt', 'tricep', 'press', 'fly', 'dip')
+    );
   }
   if (f.startsWith('pull')) {
-    if (['push', 'squat', 'lunge'].includes(pattern) || word('press', 'fly', 'crunch', 'rower', 'rowing', 'lateral raise', 'front raise', ...legs)) return false;
-    return pattern === 'pull' || word('lats?', 'upper back', 'bicep', 'row', 'chin', 'pull', 'curl');
+    if (
+      ['push', 'squat', 'lunge'].includes(pattern) ||
+      word('press', 'fly', 'crunch', 'rower', 'rowing', 'lateral raise', 'front raise', ...legs)
+    )
+      return false;
+    return (
+      pattern === 'pull' || word('lats?', 'upper back', 'bicep', 'row', 'chin', 'pull', 'curl')
+    );
   }
   if (f.includes('chest')) return hit('chest', 'pec', 'bench', 'fly');
   if (f.includes('bicep')) return hit('bicep', 'curl');
   if (f.includes('tricep')) return hit('tricep', 'pushdown', 'skull', 'extension');
-  if (f.includes('forearm') || f.includes('grip')) return hit('forearm', 'grip', 'wrist', 'hang', 'pinch');
+  if (f.includes('forearm') || f.includes('grip'))
+    return hit('forearm', 'grip', 'wrist', 'hang', 'pinch');
   if (f.includes('trap')) return hit('trap', 'face pull', 'shrug', 'rear delt');
   if (f.includes('hamstring')) return hit('hamstring', 'rdl', 'deadlift', 'nordic');
   if (f.includes('quad')) return hit('quad', 'squat', 'lunge', 'leg press', 'extension');
-  if (f.includes('hip') || f.includes('adductor')) return hit('hip', 'adductor', 'abduct', 'copenhagen', 'sumo');
+  if (f.includes('hip') || f.includes('adductor'))
+    return hit('hip', 'adductor', 'abduct', 'copenhagen', 'sumo');
   if (f.includes('glute')) return hit('glute', 'hip thrust', 'bridge', 'kickback');
   if ((f.includes('calf') || f.includes('calves')) && !f.includes('legs')) {
     return hit('calf', 'calves', 'tibialis', 'soleus');
   }
-  if (f.includes('abs') || f.includes('core')) return hit('abs', 'core', 'oblique', 'plank', 'raise');
+  if (f.includes('abs') || f.includes('core'))
+    return hit('abs', 'core', 'oblique', 'plank', 'raise');
   if (f.includes('olympic')) return hit('olympic', 'snatch', 'clean', 'jerk', 'hang');
   if (f.includes('back') || f.includes('lat')) return hit('back', 'lat', 'row', 'pull', 'chin');
   if (f.includes('shoulder') || f.includes('delt')) {
@@ -125,14 +160,14 @@ const matchesMovementFocus = (ex: ExerciseDefinition, focus: string): boolean =>
   if (f.includes('upper')) {
     return (
       ['chest', 'back', 'shoulders', 'biceps', 'triceps', 'lats', 'traps'].some(
-        (m) => primary.includes(m) || secondary.some((s) => s.includes(m)) || hay.includes(m)
+        (m) => primary.includes(m) || secondary.some((s) => s.includes(m)) || hay.includes(m),
       ) || ['push', 'pull'].includes(pattern)
     );
   }
   if (f.includes('lower') || f.includes('legs')) {
     return (
       ['quads', 'hamstrings', 'glutes', 'calves', 'legs', 'adductors', 'hips'].some(
-        (m) => primary.includes(m) || secondary.some((s) => s.includes(m)) || hay.includes(m)
+        (m) => primary.includes(m) || secondary.some((s) => s.includes(m)) || hay.includes(m),
       ) || ['squat', 'hinge', 'lunge'].includes(pattern)
     );
   }
@@ -147,7 +182,9 @@ const matchesMovementFocus = (ex: ExerciseDefinition, focus: string): boolean =>
 const reachableExercises = (): ExerciseDefinition[] => {
   const { facilities, injuries, ageBand } = useConsultationStore.getState();
   const kit = availableKit(facilities);
-  return EXERCISE_DATABASE.filter((ex) => canPerform(ex.name, ex.equipment, kit) && isSafeFor(ex.name, { injuries, ageBand }));
+  return EXERCISE_DATABASE.filter(
+    (ex) => canPerform(ex.name, ex.equipment, kit) && isSafeFor(ex.name, { injuries, ageBand }),
+  );
 };
 
 /**
@@ -155,7 +192,7 @@ const reachableExercises = (): ExerciseDefinition[] => {
  */
 export const queryExercisesForGoal = (
   goal: TrainingGoal,
-  movementFocus?: string
+  movementFocus?: string,
 ): ExerciseDefinition[] => {
   const reachable = reachableExercises();
   let pool = reachable;
@@ -166,7 +203,7 @@ export const queryExercisesForGoal = (
         e.discipline === 'recovery' ||
         e.movementPattern === 'mobility' ||
         e.category?.toLowerCase().includes('mobility') ||
-        e.category?.toLowerCase().includes('recovery')
+        e.category?.toLowerCase().includes('recovery'),
     );
     if (pool.length === 0) {
       pool = reachable.filter((e) => e.discipline === 'recovery');
@@ -176,7 +213,7 @@ export const queryExercisesForGoal = (
       (e) =>
         e.discipline === 'sports' ||
         (e.baseMET && e.baseMET >= 7.0) ||
-        (e.discipline === 'lift' && e.mechanic === 'compound')
+        (e.discipline === 'lift' && e.mechanic === 'compound'),
     );
   } else if (goal === 'athletic') {
     pool = pool.filter(
@@ -186,7 +223,7 @@ export const queryExercisesForGoal = (
         e.tier?.includes('Engine') ||
         e.tier?.includes('Loaded Carry') ||
         e.tier?.includes('Olympic') ||
-        e.movementPattern === 'carry'
+        e.movementPattern === 'carry',
     );
   } else {
     // 'muscle' — lifts
@@ -212,7 +249,7 @@ export const computePrescriptionCalories = (
   durationMinutes: number,
   energyLevel: EnergyLevel,
   athleteWeightKg: number = getAthleteWeightKg(),
-  movementFocus?: string
+  movementFocus?: string,
 ): number => {
   const pool = queryExercisesForGoal(goal, movementFocus);
   if (pool.length === 0 || durationMinutes <= 0) return 0;
@@ -223,7 +260,10 @@ export const computePrescriptionCalories = (
   const perExerciseMinutes = durationMinutes / sample.length;
 
   const totalKcal = sample.reduce((acc, ex) => {
-    return acc + calculateCalorieBurn(ex.baseMET || 6.0, athleteWeightKg, perExerciseMinutes, energyLevel);
+    return (
+      acc +
+      calculateCalorieBurn(ex.baseMET || 6.0, athleteWeightKg, perExerciseMinutes, energyLevel)
+    );
   }, 0);
 
   return Math.round(totalKcal);
@@ -237,7 +277,7 @@ export const generateIntelPrescription = (
   goal: TrainingGoal,
   energyLevel: EnergyLevel = 'STEADY',
   durationMinutes: number = 45,
-  movementFocus: string = 'Full Body'
+  movementFocus: string = 'Full Body',
 ): ExerciseItem[] => {
   const athleteWeightKg = getAthleteWeightKg();
   const user = useUserStore.getState?.();
@@ -245,8 +285,14 @@ export const generateIntelPrescription = (
 
   const { trainingAge, ageBand } = useConsultationStore.getState();
   const dose = athleteDose(trainingAge, ageBand);
-  const targetRpe = Math.min(dose.rpeCap, energyLevel === 'PRIME' ? 9.0 : energyLevel === 'LOW' ? 6.5 : 8.0);
-  const setsCount = dosedSets(durationMinutes >= 75 ? 5 : durationMinutes >= 60 ? 4 : durationMinutes >= 30 ? 3 : 2, dose);
+  const targetRpe = Math.min(
+    dose.rpeCap,
+    energyLevel === 'PRIME' ? 9.0 : energyLevel === 'LOW' ? 6.5 : 8.0,
+  );
+  const setsCount = dosedSets(
+    durationMinutes >= 75 ? 5 : durationMinutes >= 60 ? 4 : durationMinutes >= 30 ? 3 : 2,
+    dose,
+  );
 
   const targetExerciseCount =
     durationMinutes <= 10
@@ -266,7 +312,8 @@ export const generateIntelPrescription = (
                   : 8;
 
   const candidatePool = queryExercisesForGoal(goal, movementFocus);
-  const basePool = candidatePool.length >= targetExerciseCount ? candidatePool : reachableExercises();
+  const basePool =
+    candidatePool.length >= targetExerciseCount ? candidatePool : reachableExercises();
   const rotateBy = Date.now() % Math.max(1, basePool.length);
   const effectivePool = [...basePool.slice(rotateBy), ...basePool.slice(0, rotateBy)];
 
@@ -299,10 +346,16 @@ export const generateIntelPrescription = (
       : Math.max(
           2.5,
           Math.round(
-            (calculateDynamicLoad(def.movementPattern || 'squat', def.equipment, athleteWeightKg, energyLevel, calibration) *
+            (calculateDynamicLoad(
+              def.movementPattern || 'squat',
+              def.equipment,
+              athleteWeightKg,
+              energyLevel,
+              calibration,
+            ) *
               dose.loadFactor) /
-              2.5
-          ) * 2.5
+              2.5,
+          ) * 2.5,
         );
 
     let reps = def.defaultReps || 10;

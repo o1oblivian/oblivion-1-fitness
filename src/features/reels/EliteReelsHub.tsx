@@ -45,11 +45,41 @@ export const EliteReelsHub: React.FC<EliteReelsHubProps> = ({
   }, [isOpen, loadFeed]);
 
   const {
-    setSelectedFilter, selectedCategory, setSelectedCategory, searchQuery, setSearchQuery, activeReel, setActiveReel, activeClip, setActiveClip,
-    isPlaying, setIsPlaying, videoRef, likedReels, likeCounts, savedReels, addedExercises,
-    bookingCoach, setBookingCoach, messageCoach, setMessageCoach, setPlaylist, handleNextReel, handlePrevReel,
-    handleToggleLike, handleToggleSave, handleTogglePlay,
-    handleShare, handleAddExerciseToWorkout, filteredReels, categoryCounts, coachesList, toast, flash, linkSheet, setLinkSheet,
+    setSelectedFilter,
+    selectedCategory,
+    setSelectedCategory,
+    searchQuery,
+    setSearchQuery,
+    activeReel,
+    setActiveReel,
+    activeClip,
+    setActiveClip,
+    isPlaying,
+    setIsPlaying,
+    videoRef,
+    likedReels,
+    likeCounts,
+    savedReels,
+    addedExercises,
+    bookingCoach,
+    setBookingCoach,
+    messageCoach,
+    setMessageCoach,
+    setPlaylist,
+    handleNextReel,
+    handlePrevReel,
+    handleToggleLike,
+    handleToggleSave,
+    handleTogglePlay,
+    handleShare,
+    handleAddExerciseToWorkout,
+    filteredReels,
+    categoryCounts,
+    coachesList,
+    toast,
+    flash,
+    linkSheet,
+    setLinkSheet,
   } = useEliteReelsLogic(initialCategory, initialFilter);
 
   useEffect(() => {
@@ -57,21 +87,44 @@ export const EliteReelsHub: React.FC<EliteReelsHubProps> = ({
     setSelectedCategory(initialCategory);
     setSelectedFilter(initialFilter);
     setSearchQuery('');
-  }, [isOpen, initialCategory, initialFilter, setSelectedCategory, setSelectedFilter, setSearchQuery]);
+  }, [
+    isOpen,
+    initialCategory,
+    initialFilter,
+    setSelectedCategory,
+    setSelectedFilter,
+    setSearchQuery,
+  ]);
 
-  const openerDeps = useRef({ coachesList, flash, setBookingCoach, setActiveReel, setActiveClip, setPlaylist });
+  const openerDeps = useRef({
+    coachesList,
+    flash,
+    setBookingCoach,
+    setActiveReel,
+    setActiveClip,
+    setPlaylist,
+  });
   useEffect(() => {
-    openerDeps.current = { coachesList, flash, setBookingCoach, setActiveReel, setActiveClip, setPlaylist };
+    openerDeps.current = {
+      coachesList,
+      flash,
+      setBookingCoach,
+      setActiveReel,
+      setActiveClip,
+      setPlaylist,
+    };
   });
 
   useEffect(() => {
     if (!isOpen || ((initialCoachId || initialReelId) && !feedSettled)) return;
-    const { coachesList, flash, setBookingCoach, setActiveReel, setActiveClip, setPlaylist } = openerDeps.current;
+    const { coachesList, flash, setBookingCoach, setActiveReel, setActiveClip, setPlaylist } =
+      openerDeps.current;
     setPlaylist(null);
     setReturnCoach(null);
     if (initialCoachId) {
-      const coach = library.find((reel) => reel.coach?.id === initialCoachId)?.coach
-        || coachesList.find((c) => c.id === initialCoachId);
+      const coach =
+        library.find((reel) => reel.coach?.id === initialCoachId)?.coach ||
+        coachesList.find((c) => c.id === initialCoachId);
       setViewMode('grid');
       if (coach) setBookingCoach(coach);
       else flash('That coach profile is not available');
@@ -96,7 +149,9 @@ export const EliteReelsHub: React.FC<EliteReelsHubProps> = ({
     // Re-running when coachesList refreshes would reset whatever the member is watching.
   }, [isOpen, initialMode, initialReelId, initialCoachId, library, feedSettled]);
 
-  const activeHidden = Boolean(activeReel && !isReelVisible(activeReel, hiddenReels, blockedCoaches));
+  const activeHidden = Boolean(
+    activeReel && !isReelVisible(activeReel, hiddenReels, blockedCoaches),
+  );
   useEffect(() => {
     if (!activeHidden) return;
     const next = filteredReels[0];
@@ -136,7 +191,10 @@ export const EliteReelsHub: React.FC<EliteReelsHubProps> = ({
   };
 
   return (
-    <div id="elite-reels-hub-modal" className="fixed inset-0 z-50 bg-black text-neutral-100 flex flex-col font-sans select-none overflow-hidden">
+    <div
+      id="elite-reels-hub-modal"
+      className="fixed inset-0 z-50 bg-black text-neutral-100 flex flex-col font-sans select-none overflow-hidden"
+    >
       {viewMode === 'player' && activeReel ? (
         <ReelPlayerView
           activeReel={activeReel}
@@ -158,7 +216,9 @@ export const EliteReelsHub: React.FC<EliteReelsHubProps> = ({
           onShare={handleShare}
           onAddExercise={handleAddExerciseToWorkout}
           onSelectClip={setActiveClip}
-          onBookCoach={(coach) => setBookingCoach(coachesList.find((c) => c.id === coach.id) || coach)}
+          onBookCoach={(coach) =>
+            setBookingCoach(coachesList.find((c) => c.id === coach.id) || coach)
+          }
           onMessageCoach={setMessageCoach}
           onNotice={flash}
         />
@@ -181,10 +241,13 @@ export const EliteReelsHub: React.FC<EliteReelsHubProps> = ({
 
       <CoachBookingDrawer
         coach={bookingCoach}
-        initialTab={initialCoachId && bookingCoach?.id === initialCoachId ? initialProfileTab : undefined}
+        initialTab={
+          initialCoachId && bookingCoach?.id === initialCoachId ? initialProfileTab : undefined
+        }
         onClose={() => {
           setBookingCoach(null);
-          if (initialCoachId && bookingCoach?.id === initialCoachId && viewMode === 'grid') onClose();
+          if (initialCoachId && bookingCoach?.id === initialCoachId && viewMode === 'grid')
+            onClose();
         }}
         onSelectReel={(reel, coachReels) => {
           setReturnCoach(bookingCoach);
@@ -202,16 +265,10 @@ export const EliteReelsHub: React.FC<EliteReelsHubProps> = ({
       <ShareLinkSheet link={linkSheet} onClose={() => setLinkSheet(null)} />
 
       {toast && (
-        <div
-          role="status"
-          aria-live="polite"
-          className="o1-toast"
-        >
+        <div role="status" aria-live="polite" className="o1-toast">
           {toast}
         </div>
       )}
     </div>
   );
 };
-
-

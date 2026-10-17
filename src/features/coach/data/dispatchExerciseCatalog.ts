@@ -18,7 +18,8 @@ export interface DispatchCatalogExercise {
   defaultReps: number | string;
   defaultRpe: number;
   defaultWeightKg: number;
-  equipment: 'Barbell' | 'Dumbbell' | 'Cable' | 'Machine' | 'Bodyweight' | 'Kettlebell' | 'Functional';
+  equipment:
+    'Barbell' | 'Dumbbell' | 'Cable' | 'Machine' | 'Bodyweight' | 'Kettlebell' | 'Functional';
 }
 
 export const DISPATCH_EXERCISE_CATALOG: DispatchCatalogExercise[] = [

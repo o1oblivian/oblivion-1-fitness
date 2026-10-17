@@ -3,14 +3,15 @@ import { createRequire } from 'module';
 
 /** Development only: loads sample coach and athlete rows into this phone's local storage. */
 export function registerDevPreview(app: Express): void {
-    const require = createRequire(import.meta.url);
-    app.get('/preview-look', (_req, res) => {
-      const clearing = _req.query.clear === '1';
-      const previewPath = require.resolve('../scripts/preview.cjs');
-      delete require.cache[previewPath];
-      const pack = clearing ? null : require('../scripts/preview.cjs').bundle();
-      const payload = JSON.stringify(pack || {}).replace(/</g, '\\u003c');
-      res.type('html').send(`<!doctype html><meta name="viewport" content="width=device-width,initial-scale=1"><title>Preview</title><body style="background:#000;color:#fff;font-family:sans-serif;padding:24px"><p>${clearing ? 'Preview rows removed. Returning to the app.' : 'Preview rows saved on this phone. Returning to the app.'}</p><script>
+  const require = createRequire(import.meta.url);
+  app.get('/preview-look', (_req, res) => {
+    const clearing = _req.query.clear === '1';
+    const previewPath = require.resolve('../scripts/preview.cjs');
+    delete require.cache[previewPath];
+    const pack = clearing ? null : require('../scripts/preview.cjs').bundle();
+    const payload = JSON.stringify(pack || {}).replace(/</g, '\\u003c');
+    res.type('html')
+      .send(`<!doctype html><meta name="viewport" content="width=device-width,initial-scale=1"><title>Preview</title><body style="background:#000;color:#fff;font-family:sans-serif;padding:24px"><p>${clearing ? 'Preview rows removed. Returning to the app.' : 'Preview rows saved on this phone. Returning to the app.'}</p><script>
         const pack = ${payload};
         const drop = (key) => {
           const prev = JSON.parse(localStorage.getItem(key) || '[]');
@@ -45,5 +46,5 @@ export function registerDevPreview(app: Express): void {
         }
         location.replace('/');
       </script></body>`);
-    });
+  });
 }

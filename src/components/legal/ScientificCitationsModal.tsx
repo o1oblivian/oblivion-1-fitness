@@ -49,8 +49,7 @@ const CITATIONS: CitationItem[] = [
     title: 'Acute:Chronic Workload Ratio (ACWR) & Injury Risk Mitigation',
     citation:
       'Gabbett, T. J. (2016). The training—injury prevention paradox: should athletes be training smarter and harder? Br J Sports Med, 50(5), 273-280.',
-    application:
-      'Informs the Microcycle 5-Axis Spider Chart and the 0.8–1.3x sweet-spot index.',
+    application: 'Informs the Microcycle 5-Axis Spider Chart and the 0.8–1.3x sweet-spot index.',
     icon: Zap,
     accentColor: 'text-amber-600',
   },
@@ -122,9 +121,7 @@ export const ScientificCitationsModal: React.FC<ScientificCitationsModalProps> =
                 </div>
 
                 <div className="text-xs text-neutral-400 flex items-baseline gap-1.5 mt-1">
-                  <span className="font-semibold text-neutral-200 shrink-0">
-                    Application:
-                  </span>
+                  <span className="font-semibold text-neutral-200 shrink-0">Application:</span>
                   <span>{c.application}</span>
                 </div>
               </div>
@@ -146,5 +143,3 @@ export const ScientificCitationsModal: React.FC<ScientificCitationsModalProps> =
     </div>
   );
 };
-
-

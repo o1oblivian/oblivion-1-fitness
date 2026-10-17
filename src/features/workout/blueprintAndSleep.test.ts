@@ -1,7 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import type { BlueprintExercise, WorkoutBlueprint } from '../../data/workoutBlueprints';
 import { scrubLegacySleepDefaults } from '../log/store/legacySleep';
-import { blueprintExerciseToItem, blueprintMatchesTag, targetReps, tierMovements, tierSpecs } from './utils/blueprintTiers';
+import {
+  blueprintExerciseToItem,
+  blueprintMatchesTag,
+  targetReps,
+  tierMovements,
+  tierSpecs,
+} from './utils/blueprintTiers';
 
 const move = (over: Partial<BlueprintExercise> = {}): BlueprintExercise => ({
   id: 'm1',
@@ -74,9 +80,24 @@ describe('blueprint tiers', () => {
   });
 
   it('scales load and volume by tier', () => {
-    expect(tierSpecs(move(), 'BEGINNER')).toMatchObject({ sets: 2, weightKg: 60, restSecs: 145, rpe: 7 });
-    expect(tierSpecs(move(), 'INTERMEDIATE')).toMatchObject({ sets: 3, weightKg: 100, restSecs: 120, rpe: 8 });
-    expect(tierSpecs(move(), 'ADVANCED')).toMatchObject({ sets: 4, weightKg: 115, restSecs: 105, rpe: 9 });
+    expect(tierSpecs(move(), 'BEGINNER')).toMatchObject({
+      sets: 2,
+      weightKg: 60,
+      restSecs: 145,
+      rpe: 7,
+    });
+    expect(tierSpecs(move(), 'INTERMEDIATE')).toMatchObject({
+      sets: 3,
+      weightKg: 100,
+      restSecs: 120,
+      rpe: 8,
+    });
+    expect(tierSpecs(move(), 'ADVANCED')).toMatchObject({
+      sets: 4,
+      weightKg: 115,
+      restSecs: 105,
+      rpe: 9,
+    });
   });
 
   it('keeps bodyweight movements unloaded', () => {
@@ -105,7 +126,12 @@ describe('blueprint tiers', () => {
   });
 
   it('matches core work through target muscles', () => {
-    const bp = blueprint({ title: 'Finisher', badge: 'CONDITIONING', focus: 'Engine', targetMuscles: ['Obliques'] });
+    const bp = blueprint({
+      title: 'Finisher',
+      badge: 'CONDITIONING',
+      focus: 'Engine',
+      targetMuscles: ['Obliques'],
+    });
     expect(blueprintMatchesTag(bp, 'CORE')).toBe(true);
   });
 });

@@ -5,7 +5,9 @@ import { ExerciseEntry, LoggedSet } from './store/useTelemetryHistoryStore';
  * `completedOnly` is for the live tracker, where prescribed numbers are prefilled and only a tick means done.
  */
 export function setsFromExercise(
-  exercise: { sets?: Array<{ completed?: boolean; reps?: number; weightKg?: number; weight?: number }> },
+  exercise: {
+    sets?: Array<{ completed?: boolean; reps?: number; weightKg?: number; weight?: number }>;
+  },
   completedOnly = false,
 ): LoggedSet[] {
   return (exercise.sets || [])
@@ -21,9 +23,14 @@ export function setsFromExercise(
     }));
 }
 
-export function exerciseFromSets(name: string, setLog: LoggedSet[], completed = true): ExerciseEntry {
+export function exerciseFromSets(
+  name: string,
+  setLog: LoggedSet[],
+  completed = true,
+): ExerciseEntry {
   const uniformReps = setLog.length > 0 && setLog.every((set) => set.reps === setLog[0].reps);
-  const uniformWeight = setLog.length > 0 && setLog.every((set) => set.weightKg === setLog[0].weightKg);
+  const uniformWeight =
+    setLog.length > 0 && setLog.every((set) => set.weightKg === setLog[0].weightKg);
   const totalReps = setLog.reduce((sum, set) => sum + set.reps, 0);
   const volumeKg = setLog.reduce((sum, set) => sum + set.weightKg * set.reps, 0);
   return {

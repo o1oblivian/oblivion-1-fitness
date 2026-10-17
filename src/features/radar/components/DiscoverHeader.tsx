@@ -52,7 +52,10 @@ export const DiscoverHeader: React.FC<Props> = ({
           {canGoBack && (
             <button
               type="button"
-              onClick={() => { tactileEngine.triggerSelectionBuzz(); onBack?.(); }}
+              onClick={() => {
+                tactileEngine.triggerSelectionBuzz();
+                onBack?.();
+              }}
               aria-label="Back"
               className="w-10 h-10 rounded-full bg-o1-well border border-white/[0.07] flex items-center justify-center text-white/90 hover:text-white transition active:scale-90 cursor-pointer shadow-xs animate-in fade-in zoom-in-95 duration-150"
             >
@@ -62,7 +65,10 @@ export const DiscoverHeader: React.FC<Props> = ({
           {activeTab === 'DISCOVER' && (
             <button
               type="button"
-              onClick={() => { tactileEngine.triggerSelectionBuzz(); onOpenFilters?.(); }}
+              onClick={() => {
+                tactileEngine.triggerSelectionBuzz();
+                onOpenFilters?.();
+              }}
               aria-label="Filters"
               className="text-neutral-300 hover:text-white transition active:scale-95 cursor-pointer p-1"
             >
@@ -76,7 +82,10 @@ export const DiscoverHeader: React.FC<Props> = ({
           {/* Active Buddy Pill */}
           <button
             type="button"
-            onClick={() => { tactileEngine.triggerSelectionBuzz(); onTabChange('DISCOVER'); }}
+            onClick={() => {
+              tactileEngine.triggerSelectionBuzz();
+              onTabChange('DISCOVER');
+            }}
             className={`px-3.5 py-1.5 rounded-full flex items-center gap-1.5 transition active:scale-95 cursor-pointer shadow-xs ${
               activeTab === 'DISCOVER'
                 ? 'bg-o1-well text-white border border-white/[0.07] shadow-sm'
@@ -90,7 +99,10 @@ export const DiscoverHeader: React.FC<Props> = ({
           {/* Chats with Counter */}
           <button
             type="button"
-            onClick={() => { tactileEngine.triggerSelectionBuzz(); onTabChange('MATCHED'); }}
+            onClick={() => {
+              tactileEngine.triggerSelectionBuzz();
+              onTabChange('MATCHED');
+            }}
             className={`flex items-center gap-1.5 transition active:scale-95 cursor-pointer ${
               activeTab === 'MATCHED'
                 ? 'text-white font-semibold'
@@ -110,7 +122,10 @@ export const DiscoverHeader: React.FC<Props> = ({
         <div className="flex items-center gap-2">
           <button
             type="button"
-            onClick={() => { tactileEngine.triggerSelectionBuzz(); onOpenPrivacy(); }}
+            onClick={() => {
+              tactileEngine.triggerSelectionBuzz();
+              onOpenPrivacy();
+            }}
             aria-label="Stealth & Privacy"
             className="text-neutral-300 hover:text-white transition active:scale-95 cursor-pointer p-1"
           >
@@ -144,13 +159,9 @@ export const DiscoverHeader: React.FC<Props> = ({
               </div>
               <div className="flex items-center gap-1.5">
                 {travelOrigin && (
-                  <span className="text-[9px] font-medium text-neutral-400">
-                    {travelOrigin} ➔
-                  </span>
+                  <span className="text-[9px] font-medium text-neutral-400">{travelOrigin} ➔</span>
                 )}
-                <span className="text-[11px] font-bold text-white">
-                  {travelCity.toUpperCase()}
-                </span>
+                <span className="text-[11px] font-bold text-white">{travelCity.toUpperCase()}</span>
                 <span className="text-[8.5px] text-o1-crimson font-semibold px-1 py-0.2 bg-o1-crimson/10 rounded border border-o1-crimson/20">
                   {radiusKm} KM RADIUS
                 </span>
@@ -173,46 +184,51 @@ export const DiscoverHeader: React.FC<Props> = ({
 
       {/* Search Input and Separate Dedicated Flight/Plane Travel Trigger: (search         ) ( 🛫 ) */}
       {activeTab === 'DISCOVER' && (
-      <div className="flex items-center gap-2 px-3 mt-1.5">
-        {/* Dedicated Search Bar (search         ) */}
-        <div className="relative flex-1 flex items-center">
-          <Search className="w-3.5 h-3.5 text-neutral-500 absolute left-3.5 pointer-events-none" />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => onSearchChange(e.target.value)}
-            placeholder={travelCity ? `Search athletes & gyms in ${travelCity}...` : "Search gym, name, discipline..."}
-            className="w-full pl-9 pr-8 py-2 rounded-full bg-o1-well border border-white/[0.07] text-[11px] placeholder:text-[11px] placeholder-neutral-500 text-white focus:outline-none focus:border-white/[0.14] transition shadow-xs"
-          />
-          {searchQuery && (
-            <button
-              type="button"
-              onClick={() => { tactileEngine.triggerSelectionBuzz(); onSearchChange(''); }}
-              aria-label="Clear search"
-              className="absolute right-3 p-0.5 text-neutral-400 hover:text-white active:scale-90 transition cursor-pointer"
-            >
-              <X className="w-3 h-3" />
-            </button>
-          )}
-        </div>
+        <div className="flex items-center gap-2 px-3 mt-1.5">
+          {/* Dedicated Search Bar (search         ) */}
+          <div className="relative flex-1 flex items-center">
+            <Search className="w-3.5 h-3.5 text-neutral-500 absolute left-3.5 pointer-events-none" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => onSearchChange(e.target.value)}
+              placeholder={
+                travelCity
+                  ? `Search athletes & gyms in ${travelCity}...`
+                  : 'Search gym, name, discipline...'
+              }
+              className="w-full pl-9 pr-8 py-2 rounded-full bg-o1-well border border-white/[0.07] text-[11px] placeholder:text-[11px] placeholder-neutral-500 text-white focus:outline-none focus:border-white/[0.14] transition shadow-xs"
+            />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => {
+                  tactileEngine.triggerSelectionBuzz();
+                  onSearchChange('');
+                }}
+                aria-label="Clear search"
+                className="absolute right-3 p-0.5 text-neutral-400 hover:text-white active:scale-90 transition cursor-pointer"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            )}
+          </div>
 
-        {/* Dedicated Standalone Travel / Flight Hub Button ( 🛫 ) */}
-        <button
-          type="button"
-          onClick={() => {
-            tactileEngine.triggerSelectionBuzz();
-            onOpenTravelHub();
-          }}
-          aria-label="Open Travel Hub - Train Anywhere"
-          title="Global Travel Hub (Train Anywhere)"
-          className="w-9 h-9 shrink-0 rounded-full bg-o1-well border border-white/[0.07] flex items-center justify-center text-neutral-200 hover:text-o1-crimson hover:border-white/[0.14] active:scale-90 transition shadow-xs cursor-pointer group"
-        >
-          <PremiumPlaneIcon className="w-3.5 h-3.5 text-neutral-200 group-hover:text-o1-crimson transition-colors" />
-        </button>
-      </div>
+          {/* Dedicated Standalone Travel / Flight Hub Button ( 🛫 ) */}
+          <button
+            type="button"
+            onClick={() => {
+              tactileEngine.triggerSelectionBuzz();
+              onOpenTravelHub();
+            }}
+            aria-label="Open Travel Hub - Train Anywhere"
+            title="Global Travel Hub (Train Anywhere)"
+            className="w-9 h-9 shrink-0 rounded-full bg-o1-well border border-white/[0.07] flex items-center justify-center text-neutral-200 hover:text-o1-crimson hover:border-white/[0.14] active:scale-90 transition shadow-xs cursor-pointer group"
+          >
+            <PremiumPlaneIcon className="w-3.5 h-3.5 text-neutral-200 group-hover:text-o1-crimson transition-colors" />
+          </button>
+        </div>
       )}
     </div>
   );
 };
-
-

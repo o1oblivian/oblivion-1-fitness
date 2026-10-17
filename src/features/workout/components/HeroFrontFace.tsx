@@ -2,19 +2,35 @@ import React, { useEffect, useState } from 'react';
 import { DayAdaptiveDial } from './dials/DayAdaptiveDial';
 import { HeroHeader } from './HeroHeader';
 import { HeroBottomDock } from './HeroBottomDock';
-import { getAthleteDayRoutine, formatConciseSplitName, getSystemTodayCode, useDayRoutineRevision } from '../services/dayRoutineService';
+import {
+  getAthleteDayRoutine,
+  formatConciseSplitName,
+  getSystemTodayCode,
+  useDayRoutineRevision,
+} from '../services/dayRoutineService';
 import { useWorkoutStore } from '../store/useWorkoutStore';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { useWallpaperStore } from '../../../stores/useWallpaperStore';
 function dialSummary(p: {
-  day: string; steps: number; burnKcal: number; goalMove: number; intakeKcal: number; intakeGoal: number;
-  distKm: number; hydrationPct: number | null; sleepHours: number | null;
+  day: string;
+  steps: number;
+  burnKcal: number;
+  goalMove: number;
+  intakeKcal: number;
+  intakeGoal: number;
+  distKm: number;
+  hydrationPct: number | null;
+  sleepHours: number | null;
 }): string {
   const n = (v: number) => Math.round(v).toLocaleString();
   const parts = [
     p.steps > 0 ? `${n(p.steps)} steps` : 'steps not logged',
-    p.burnKcal > 0 ? `${n(p.burnKcal)} kcal burned${p.goalMove > 0 ? ` of ${n(p.goalMove)}` : ''}` : 'burn not logged',
-    p.intakeKcal > 0 ? `${n(p.intakeKcal)} kcal eaten${p.intakeGoal > 0 ? ` of ${n(p.intakeGoal)}` : ''}` : 'no meals logged',
+    p.burnKcal > 0
+      ? `${n(p.burnKcal)} kcal burned${p.goalMove > 0 ? ` of ${n(p.goalMove)}` : ''}`
+      : 'burn not logged',
+    p.intakeKcal > 0
+      ? `${n(p.intakeKcal)} kcal eaten${p.intakeGoal > 0 ? ` of ${n(p.intakeGoal)}` : ''}`
+      : 'no meals logged',
     p.distKm > 0 ? `${p.distKm.toFixed(1)} km` : null,
     p.hydrationPct != null ? `${p.hydrationPct}% hydrated` : null,
     p.sleepHours != null ? `${p.sleepHours} hours sleep` : null,
@@ -23,22 +39,52 @@ function dialSummary(p: {
 }
 
 export interface HeroFrontFaceProps {
-  isFlipped: boolean; activeWallpaper?: string; activeDay: string;
-  steps: number; burnKcal: number; distKm: number; intakeKcal: number; intakeGoal: number;
-  hydrationPct: number | null; sleepHours: number | null;
+  isFlipped: boolean;
+  activeWallpaper?: string;
+  activeDay: string;
+  steps: number;
+  burnKcal: number;
+  distKm: number;
+  intakeKcal: number;
+  intakeGoal: number;
+  hydrationPct: number | null;
+  sleepHours: number | null;
   readinessScore: number | null;
-  stepTarget?: number; goalMove?: number; goalDist?: number;
-  onCycleDayDial: () => void; onFlipToVitals: () => void;
-  onOpenCardio?: () => void; onOpenReadiness: () => void; onOpenSettings?: () => void;
+  stepTarget?: number;
+  goalMove?: number;
+  goalDist?: number;
+  onCycleDayDial: () => void;
+  onFlipToVitals: () => void;
+  onOpenCardio?: () => void;
+  onOpenReadiness: () => void;
+  onOpenSettings?: () => void;
 }
 
 const scrollToActiveLog = () =>
-  document.getElementById('active-log-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  document
+    .getElementById('active-log-section')
+    ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
 export const HeroFrontFace: React.FC<HeroFrontFaceProps> = ({
-  isFlipped, activeWallpaper, activeDay, steps, burnKcal, distKm, intakeKcal, intakeGoal, hydrationPct, sleepHours,
-  readinessScore, stepTarget = 0, goalMove = 0, goalDist = 0,
-  onCycleDayDial, onFlipToVitals, onOpenCardio, onOpenReadiness, onOpenSettings,
+  isFlipped,
+  activeWallpaper,
+  activeDay,
+  steps,
+  burnKcal,
+  distKm,
+  intakeKcal,
+  intakeGoal,
+  hydrationPct,
+  sleepHours,
+  readinessScore,
+  stepTarget = 0,
+  goalMove = 0,
+  goalDist = 0,
+  onCycleDayDial,
+  onFlipToVitals,
+  onOpenCardio,
+  onOpenReadiness,
+  onOpenSettings,
 }) => {
   useDayRoutineRevision();
   const [noRoutineDay, setNoRoutineDay] = useState<string | null>(null);
@@ -57,7 +103,13 @@ export const HeroFrontFace: React.FC<HeroFrontFaceProps> = ({
   const activeSplitLabel = formatConciseSplitName(dayRoutine.splitName);
   const isWorkoutLoaded = activeSession && (activeLogs?.length ?? 0) > 0;
   const hasSavedRoutine = dayRoutine.isCustom && dayRoutine.exercises.length > 0;
-  const isEmptyDay = steps <= 0 && burnKcal <= 0 && intakeKcal <= 0 && distKm <= 0 && hydrationPct == null && sleepHours == null;
+  const isEmptyDay =
+    steps <= 0 &&
+    burnKcal <= 0 &&
+    intakeKcal <= 0 &&
+    distKm <= 0 &&
+    hydrationPct == null &&
+    sleepHours == null;
 
   const handleLoadWorkout = () => {
     if (isWorkoutLoaded) {
@@ -89,11 +141,14 @@ export const HeroFrontFace: React.FC<HeroFrontFaceProps> = ({
     window.setTimeout(scrollToActiveLog, 120);
   };
 
-  const dialCaption = noRoutineDay === activeDay
-    ? `No saved ${activeDay} workout yet. Finish a session and choose "save as weekly routine".`
-    : isEmptyDay
-      ? activeDay === getSystemTodayCode() ? null : `Nothing logged on ${activeDay}`
-      : null;
+  const dialCaption =
+    noRoutineDay === activeDay
+      ? `No saved ${activeDay} workout yet. Finish a session and choose "save as weekly routine".`
+      : isEmptyDay
+        ? activeDay === getSystemTodayCode()
+          ? null
+          : `Nothing logged on ${activeDay}`
+        : null;
 
   return (
     <div
@@ -132,7 +187,17 @@ export const HeroFrontFace: React.FC<HeroFrontFaceProps> = ({
         <div
           role="button"
           tabIndex={0}
-          aria-label={dialSummary({ day: activeDay, steps, burnKcal, goalMove, intakeKcal, intakeGoal, distKm, hydrationPct, sleepHours })}
+          aria-label={dialSummary({
+            day: activeDay,
+            steps,
+            burnKcal,
+            goalMove,
+            intakeKcal,
+            intakeGoal,
+            distKm,
+            hydrationPct,
+            sleepHours,
+          })}
           title="Browse day dials"
           onClick={() => onCycleDayDial()}
           onKeyDown={(e) => {
@@ -180,5 +245,3 @@ export const HeroFrontFace: React.FC<HeroFrontFaceProps> = ({
     </div>
   );
 };
-
-

@@ -12,7 +12,13 @@ interface UseFuelTotalsProps {
   showToast: (msg: string) => void;
 }
 
-export function useFuelTotals({ meals, calorieTarget, burnedKcal, removeMealItem, showToast }: UseFuelTotalsProps) {
+export function useFuelTotals({
+  meals,
+  calorieTarget,
+  burnedKcal,
+  removeMealItem,
+  showToast,
+}: UseFuelTotalsProps) {
   const totals = useMemo(() => sumMacros(Object.values(meals).flat()), [meals]);
   const balance = energyBalance(calorieTarget, totals.calories, burnedKcal);
 

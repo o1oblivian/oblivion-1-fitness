@@ -37,7 +37,21 @@ const PROPER = new Map<string, string>([
   ['olympic', 'Olympic'],
 ]);
 
-const SMALL = new Set(['a', 'an', 'the', 'and', 'or', 'of', 'to', 'in', 'on', 'for', 'with', 'at', 'by']);
+const SMALL = new Set([
+  'a',
+  'an',
+  'the',
+  'and',
+  'or',
+  'of',
+  'to',
+  'in',
+  'on',
+  'for',
+  'with',
+  'at',
+  'by',
+]);
 
 function core(token: string): string {
   return token.replace(/[^A-Za-z0-9']/g, '');
@@ -70,4 +84,3 @@ export function titleCase(input: string): string {
     })
     .join('');
 }
-

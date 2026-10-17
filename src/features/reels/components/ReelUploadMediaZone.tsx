@@ -54,9 +54,19 @@ export const ReelUploadMediaZone: React.FC<ReelUploadMediaZoneProps> = ({
         <div className="space-y-2">
           <div className="relative rounded-2xl overflow-hidden bg-black border border-white/[0.07] aspect-video flex items-center justify-center">
             {compressedResult?.type === 'video' ? (
-              <video src={previewUrl} controls muted playsInline className="w-full h-full object-contain max-h-52" />
+              <video
+                src={previewUrl}
+                controls
+                muted
+                playsInline
+                className="w-full h-full object-contain max-h-52"
+              />
             ) : (
-              <img src={previewUrl} alt="Preview" className="w-full h-full object-contain max-h-52" />
+              <img
+                src={previewUrl}
+                alt="Preview"
+                className="w-full h-full object-contain max-h-52"
+              />
             )}
             <button
               type="button"
@@ -70,7 +80,9 @@ export const ReelUploadMediaZone: React.FC<ReelUploadMediaZoneProps> = ({
           {compressedResult && (
             <p className="px-1 text-[11px] text-o1-muted">
               {compressedResult.formattedOriginal}
-              {compressedResult.type === 'video' && (compressedResult.durationSecs ?? 0) > 0 ? ` · ${compressedResult.durationSecs}s` : ''}
+              {compressedResult.type === 'video' && (compressedResult.durationSecs ?? 0) > 0
+                ? ` · ${compressedResult.durationSecs}s`
+                : ''}
             </p>
           )}
         </div>

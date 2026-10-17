@@ -9,11 +9,7 @@ interface MotionSensorRowProps {
   onToggle: (enable: boolean) => void;
 }
 
-export const MotionSensorRow: React.FC<MotionSensorRowProps> = ({
-  status,
-  error,
-  onToggle,
-}) => {
+export const MotionSensorRow: React.FC<MotionSensorRowProps> = ({ status, error, onToggle }) => {
   return (
     <div className="pt-3 border-t border-white/[0.05] space-y-2">
       <div className="flex items-center justify-between gap-3">
@@ -29,8 +25,8 @@ export const MotionSensorRow: React.FC<MotionSensorRowProps> = ({
               {!status.isSupported
                 ? "This phone can't count steps"
                 : status.isActive
-                ? `On · ${status.stepsToday.toLocaleString()} steps today`
-                : 'Off'}
+                  ? `On · ${status.stepsToday.toLocaleString()} steps today`
+                  : 'Off'}
             </span>
           </div>
         </div>
@@ -39,7 +35,10 @@ export const MotionSensorRow: React.FC<MotionSensorRowProps> = ({
       </div>
 
       {error && (
-        <div role="alert" className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-start gap-2 text-[11px] text-amber-300">
+        <div
+          role="alert"
+          className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-start gap-2 text-[11px] text-amber-300"
+        >
           <AlertCircle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
           <span>{error}</span>
         </div>
@@ -52,7 +51,8 @@ export const MotionSensorRow: React.FC<MotionSensorRowProps> = ({
               Acceleration Vector
             </span>
             <span className="text-sm font-bold text-white">
-              {status.liveMagnitude ?? '--'} <span className="text-[10px] text-neutral-400">m/s²</span>
+              {status.liveMagnitude ?? '--'}{' '}
+              <span className="text-[10px] text-neutral-400">m/s²</span>
             </span>
           </div>
           <div className="p-2.5 rounded-xl bg-o1-well border border-white/[0.07] text-center font-mono">
@@ -60,7 +60,8 @@ export const MotionSensorRow: React.FC<MotionSensorRowProps> = ({
               Barbell Velocity (VBT)
             </span>
             <span className="text-sm font-bold text-o1-crimson block">
-              {status.estimatedVelocityMs === null ? '--' : status.estimatedVelocityMs.toFixed(1)} <span className="text-[10px] text-neutral-400">m/s</span>
+              {status.estimatedVelocityMs === null ? '--' : status.estimatedVelocityMs.toFixed(1)}{' '}
+              <span className="text-[10px] text-neutral-400">m/s</span>
             </span>
             <span className="text-[9px] text-neutral-400 block mt-0.5 truncate">
               {status.vbtStatus || 'Awaiting Barbell Motion'}

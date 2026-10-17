@@ -46,19 +46,54 @@ export const INTAKE_TITLES = {
 } as const;
 
 export const INTAKE_PROMPTS: Record<IntakeGroup, { title: string; subtitle: string }> = {
-  age_band: { title: 'How old are you?', subtitle: 'Keeps your training safe and comfortable for your age.' },
+  age_band: {
+    title: 'How old are you?',
+    subtitle: 'Keeps your training safe and comfortable for your age.',
+  },
   goal: { title: 'What do you want most?', subtitle: 'Pick the one that matters most right now.' },
-  discipline: { title: 'Which sport or event?', subtitle: 'Puts matching workouts, reels and coaches first.' },
-  training_age: { title: 'How much have you trained before?', subtitle: 'Sets how many sets, how heavy and how hard you start.' },
-  facility: { title: 'Where do you train?', subtitle: 'Pick all that apply. Workouts use only your equipment.' },
-  training_days: { title: 'Which days can you train?', subtitle: 'Tap your days. The rest are for recovery.' },
-  session_length: { title: 'How long per workout?', subtitle: 'Sets how many exercises we give you.' },
-  plan_style: { title: 'Want us to plan your workouts?', subtitle: 'You can change this any time in Settings.' },
-  competition: { title: 'When is your next event?', subtitle: 'Your training will build toward this date.' },
+  discipline: {
+    title: 'Which sport or event?',
+    subtitle: 'Puts matching workouts, reels and coaches first.',
+  },
+  training_age: {
+    title: 'How much have you trained before?',
+    subtitle: 'Sets how many sets, how heavy and how hard you start.',
+  },
+  facility: {
+    title: 'Where do you train?',
+    subtitle: 'Pick all that apply. Workouts use only your equipment.',
+  },
+  training_days: {
+    title: 'Which days can you train?',
+    subtitle: 'Tap your days. The rest are for recovery.',
+  },
+  session_length: {
+    title: 'How long per workout?',
+    subtitle: 'Sets how many exercises we give you.',
+  },
+  plan_style: {
+    title: 'Want us to plan your workouts?',
+    subtitle: 'You can change this any time in Settings.',
+  },
+  competition: {
+    title: 'When is your next event?',
+    subtitle: 'Your training will build toward this date.',
+  },
 };
 
 /** Groups whose meaning lives in code. Their wording ships with the app, not the database. */
-const CODE_OWNED = new Set(['age_band', 'goal', 'discipline', 'training_age', 'facility', 'session_length', 'injuries', 'plan_style', 'coaching_intent', 'coaching_style']);
+const CODE_OWNED = new Set([
+  'age_band',
+  'goal',
+  'discipline',
+  'training_age',
+  'facility',
+  'session_length',
+  'injuries',
+  'plan_style',
+  'coaching_intent',
+  'coaching_style',
+]);
 
 interface TaxonomyState {
   options: TaxonomyOption[];
@@ -99,14 +134,19 @@ function mapRow(row: {
 }
 
 function fromConfig(): TaxonomyOption[] {
-  return (fallbackRows as Array<Parameters<typeof mapRow>[0]>).map(mapRow).filter((row): row is TaxonomyOption => Boolean(row));
+  return (fallbackRows as Array<Parameters<typeof mapRow>[0]>)
+    .map(mapRow)
+    .filter((row): row is TaxonomyOption => Boolean(row));
 }
 
 /** Remote rows for database-managed groups, app wording for code-owned groups and anything missing. */
 function withConfig(remote: TaxonomyOption[]): TaxonomyOption[] {
   const managed = remote.filter((row) => !CODE_OWNED.has(row.groupKey));
   const known = new Set(managed.map((row) => `${row.groupKey}:${row.optionKey}`));
-  return [...managed, ...fromConfig().filter((row) => !known.has(`${row.groupKey}:${row.optionKey}`))];
+  return [
+    ...managed,
+    ...fromConfig().filter((row) => !known.has(`${row.groupKey}:${row.optionKey}`)),
+  ];
 }
 
 function readCache(): TaxonomyOption[] {
@@ -122,34 +162,39 @@ function readCache(): TaxonomyOption[] {
 }
 
 export function optionsIn(options: TaxonomyOption[], group: string): TaxonomyOption[] {
-  return options.filter((row) => row.groupKey === group && row.active).sort((a, b) => a.sortOrder - b.sortOrder);
+  return options
+    .filter((row) => row.groupKey === group && row.active)
+    .sort((a, b) => a.sortOrder - b.sortOrder);
 }
 
-const taxonomyStore = createStore<TaxonomyState, TaxonomyActions>({ options: readCache(), ready: false }, (set) => ({
-  load: async () => {
-    const { data, error } = await supabase
-      .from('club_taxonomy_options')
-      .select('id, group_key, option_key, label, detail, sort_order, active')
-      .eq('active', true);
-    if (error || !Array.isArray(data) || data.length === 0) {
-      const local = readCache();
-      set({ options: local, ready: true });
-      return;
-    }
-    const remote = data.map(mapRow).filter((row): row is TaxonomyOption => Boolean(row));
-    if (remote.length === 0) {
-      set({ options: fromConfig(), ready: true });
-      return;
-    }
-    const rows = withConfig(remote);
-    try {
-      localStorage.setItem(CACHE_KEY, JSON.stringify(data));
-    } catch {
-      /* private mode */
-    }
-    set({ options: rows, ready: true });
-  },
-}));
+const taxonomyStore = createStore<TaxonomyState, TaxonomyActions>(
+  { options: readCache(), ready: false },
+  (set) => ({
+    load: async () => {
+      const { data, error } = await supabase
+        .from('club_taxonomy_options')
+        .select('id, group_key, option_key, label, detail, sort_order, active')
+        .eq('active', true);
+      if (error || !Array.isArray(data) || data.length === 0) {
+        const local = readCache();
+        set({ options: local, ready: true });
+        return;
+      }
+      const remote = data.map(mapRow).filter((row): row is TaxonomyOption => Boolean(row));
+      if (remote.length === 0) {
+        set({ options: fromConfig(), ready: true });
+        return;
+      }
+      const rows = withConfig(remote);
+      try {
+        localStorage.setItem(CACHE_KEY, JSON.stringify(data));
+      } catch {
+        /* private mode */
+      }
+      set({ options: rows, ready: true });
+    },
+  }),
+);
 
 const useClubTaxonomyStore = taxonomyStore.useStore;
 

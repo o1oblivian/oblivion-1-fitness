@@ -15,7 +15,15 @@ interface LogChannelRowProps {
 }
 
 /** One logged channel: the number that matters on the right, the full entries when opened. */
-export const LogChannelRow: React.FC<LogChannelRowProps> = ({ title, icon, iconClass, headline, open, onToggle, children }) => (
+export const LogChannelRow: React.FC<LogChannelRowProps> = ({
+  title,
+  icon,
+  iconClass,
+  headline,
+  open,
+  onToggle,
+  children,
+}) => (
   <div className="border-t border-white/[0.07]">
     <button
       type="button"
@@ -26,13 +34,19 @@ export const LogChannelRow: React.FC<LogChannelRowProps> = ({ title, icon, iconC
       <span className={`o1-mark ${iconClass}`}>{icon}</span>
       <span className="flex-1 min-w-0">
         <span className="block text-[13px] font-semibold text-o1-text">{title}</span>
-        {headline.caption && <span className="block text-[11px] text-o1-muted truncate">{headline.caption}</span>}
+        {headline.caption && (
+          <span className="block text-[11px] text-o1-muted truncate">{headline.caption}</span>
+        )}
       </span>
       <span className="shrink-0 font-mono text-[17px] leading-none tabular-nums text-o1-text">
         {headline.value}
         <span className="ml-1 font-sans text-[11px] text-o1-muted">{headline.unit}</span>
       </span>
-      {open ? <ChevronUp className="w-4 h-4 text-o1-muted shrink-0" /> : <ChevronDown className="w-4 h-4 text-o1-muted shrink-0" />}
+      {open ? (
+        <ChevronUp className="w-4 h-4 text-o1-muted shrink-0" />
+      ) : (
+        <ChevronDown className="w-4 h-4 text-o1-muted shrink-0" />
+      )}
     </button>
     {open && <div className="px-4 pb-3 space-y-2.5">{children}</div>}
   </div>
@@ -58,7 +72,9 @@ export const LogStillToLog: React.FC<{ actions: LogQuickAction[] }> = ({ actions
             type="button"
             onClick={action.onSelect}
             className={`o1-pill border text-xs font-semibold ${
-              index === 0 ? 'bg-o1-crimson border-o1-crimson text-white' : 'bg-o1-well border-white/[0.07] text-neutral-200'
+              index === 0
+                ? 'bg-o1-crimson border-o1-crimson text-white'
+                : 'bg-o1-well border-white/[0.07] text-neutral-200'
             }`}
           >
             {action.icon}

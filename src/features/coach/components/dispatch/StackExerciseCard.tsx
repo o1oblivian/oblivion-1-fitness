@@ -5,10 +5,21 @@ import type { DispatchStack } from './useDispatchStack';
 
 interface StackExerciseCardProps {
   exercise: StackExercise;
-  actions: Pick<DispatchStack, 'toggleExpand' | 'removeExercise' | 'addSet' | 'removeSet' | 'updateSet' | 'setCue' | 'appendCue' | 'resetCue'>;
+  actions: Pick<
+    DispatchStack,
+    | 'toggleExpand'
+    | 'removeExercise'
+    | 'addSet'
+    | 'removeSet'
+    | 'updateSet'
+    | 'setCue'
+    | 'appendCue'
+    | 'resetCue'
+  >;
 }
 
-const SET_INPUT = 'col-span-3 h-9 text-center rounded-lg bg-o1-sheet border border-white/[0.07] font-bold outline-none focus:border-o1-crimson';
+const SET_INPUT =
+  'col-span-3 h-9 text-center rounded-lg bg-o1-sheet border border-white/[0.07] font-bold outline-none focus:border-o1-crimson';
 
 export const StackExerciseCard: React.FC<StackExerciseCardProps> = ({ exercise, actions }) => (
   <div className="rounded-2xl border border-white/[0.07] bg-o1-surface overflow-hidden">
@@ -63,7 +74,9 @@ export const StackExerciseCard: React.FC<StackExerciseCardProps> = ({ exercise, 
                 inputMode="decimal"
                 aria-label={`Set ${idx + 1} weight in kg`}
                 value={set.weightKg}
-                onChange={(e) => actions.updateSet(exercise.id, set.id, 'weightKg', Number(e.target.value))}
+                onChange={(e) =>
+                  actions.updateSet(exercise.id, set.id, 'weightKg', Number(e.target.value))
+                }
                 className={`${SET_INPUT} text-o1-text`}
               />
               <input
@@ -71,7 +84,9 @@ export const StackExerciseCard: React.FC<StackExerciseCardProps> = ({ exercise, 
                 inputMode="numeric"
                 aria-label={`Set ${idx + 1} reps`}
                 value={set.reps}
-                onChange={(e) => actions.updateSet(exercise.id, set.id, 'reps', Number(e.target.value))}
+                onChange={(e) =>
+                  actions.updateSet(exercise.id, set.id, 'reps', Number(e.target.value))
+                }
                 className={`${SET_INPUT} text-o1-text`}
               />
               <input
@@ -80,7 +95,9 @@ export const StackExerciseCard: React.FC<StackExerciseCardProps> = ({ exercise, 
                 step="0.5"
                 aria-label={`Set ${idx + 1} RPE`}
                 value={set.rpe}
-                onChange={(e) => actions.updateSet(exercise.id, set.id, 'rpe', Number(e.target.value))}
+                onChange={(e) =>
+                  actions.updateSet(exercise.id, set.id, 'rpe', Number(e.target.value))
+                }
                 className={`${SET_INPUT} text-o1-crimson`}
               />
               <button

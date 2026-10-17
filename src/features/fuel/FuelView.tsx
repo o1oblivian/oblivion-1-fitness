@@ -10,11 +10,21 @@ import { FuelIntakeSection } from './components/FuelIntakeSection';
 import { FuelModalsLayer } from './components/FuelModalsLayer';
 import { useFuelTotals } from './hooks/useFuelTotals';
 import { useFuelModals } from './hooks/useFuelModals';
-import { hydrationGoalLiters, lastSevenDateKeys, resolveMacroTargets, WeekDayEntry } from './utils/fuelMath';
+import {
+  hydrationGoalLiters,
+  lastSevenDateKeys,
+  resolveMacroTargets,
+  WeekDayEntry,
+} from './utils/fuelMath';
 import { FuelWeekSlide } from './components/FuelWeekSlide';
 import { MEAL_SLOT_SHARE, MealSlot, slotBudget } from './data/intelMealEngine';
 
-function restingBurn(weightKg: number | null, heightCm: number | null, ageYears: number | null, sex: 'male' | 'female' | null): number | null {
+function restingBurn(
+  weightKg: number | null,
+  heightCm: number | null,
+  ageYears: number | null,
+  sex: 'male' | 'female' | null,
+): number | null {
   if (!weightKg || !heightCm || !ageYears || !sex) return null;
   const base = 10 * weightKg + 6.25 * heightCm - 5 * ageYears;
   return Math.round(sex === 'male' ? base + 5 : base - 161);
@@ -60,9 +70,12 @@ export const FuelView: React.FC = () => {
     setToast(message);
     toastTimer.current = setTimeout(() => setToast(null), 2400);
   }, []);
-  useEffect(() => () => {
-    if (toastTimer.current) clearTimeout(toastTimer.current);
-  }, []);
+  useEffect(
+    () => () => {
+      if (toastTimer.current) clearTimeout(toastTimer.current);
+    },
+    [],
+  );
 
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [calculatorOpen, setCalculatorOpen] = useState(false);
@@ -93,7 +106,13 @@ export const FuelView: React.FC = () => {
     showToast,
   });
 
-  const macroTargets = resolveMacroTargets(calorieTarget, targetProteinG, targetCarbsG, targetFatsG, weightKg);
+  const macroTargets = resolveMacroTargets(
+    calorieTarget,
+    targetProteinG,
+    targetCarbsG,
+    targetFatsG,
+    weightKg,
+  );
   const macros: MacroMeter[] = [
     { label: 'Protein', consumed: totals.protein, target: macroTargets.protein, color: '#C4121A' },
     { label: 'Carbs', consumed: totals.carbs, target: macroTargets.carbs, color: '#d97706' },
@@ -104,12 +123,20 @@ export const FuelView: React.FC = () => {
   const remainingCarbs = gramsLeft(macroTargets.carbs, totals.carbs);
   const remainingFats = gramsLeft(macroTargets.fats, totals.fats);
   const intelRemaining = useMemo(
-    () => ({ kcal: remainingKcal, protein: remainingProtein, carbs: remainingCarbs, fats: remainingFats }),
+    () => ({
+      kcal: remainingKcal,
+      protein: remainingProtein,
+      carbs: remainingCarbs,
+      fats: remainingFats,
+    }),
     [remainingKcal, remainingProtein, remainingCarbs, remainingFats],
   );
   const calibrated = calorieTarget != null && calorieTarget > 0 && macroTargets.protein != null;
   const loggedSlots = useMemo(
-    () => (['breakfast', 'lunch', 'dinner', 'snack'] as const).filter((s) => (meals[s] || []).length > 0),
+    () =>
+      (['breakfast', 'lunch', 'dinner', 'snack'] as const).filter(
+        (s) => (meals[s] || []).length > 0,
+      ),
     [meals],
   );
   const slotTargets = useMemo(() => {
@@ -127,10 +154,17 @@ export const FuelView: React.FC = () => {
       ? { dateKey: key, totals: totals.calories > 0 ? totals : null, isToday: true }
       : { dateKey: key, totals: weekTotals[key] ?? null, isToday: false },
   );
-  const dateLabel = new Date(y, m - 1, d).toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' });
+  const dateLabel = new Date(y, m - 1, d).toLocaleDateString(undefined, {
+    weekday: 'short',
+    day: 'numeric',
+    month: 'short',
+  });
 
   return (
-    <div id="fuel-view-container" className="w-full h-auto min-h-full bg-o1-canvas text-o1-text pt-1 pb-10 select-none space-y-3">
+    <div
+      id="fuel-view-container"
+      className="w-full h-auto min-h-full bg-o1-canvas text-o1-text pt-1 pb-10 select-none space-y-3"
+    >
       <FuelCommandHero
         dateLabel={dateLabel}
         balance={balance}
@@ -140,7 +174,12 @@ export const FuelView: React.FC = () => {
         weekSlide={
           <FuelWeekSlide
             days={weekDays}
-            targets={{ calories: calorieTarget, protein: macroTargets.protein, carbs: macroTargets.carbs, fats: macroTargets.fats }}
+            targets={{
+              calories: calorieTarget,
+              protein: macroTargets.protein,
+              carbs: macroTargets.carbs,
+              fats: macroTargets.fats,
+            }}
           />
         }
         waterL={hydrationCurrentL}
@@ -184,7 +223,12 @@ export const FuelView: React.FC = () => {
         countryMarket={countryMarket}
         dietPreference={dietPreference}
         weightKg={weightKg}
-        targets={{ calories: calorieTarget, protein: macroTargets.protein, carbs: macroTargets.carbs, fats: macroTargets.fats }}
+        targets={{
+          calories: calorieTarget,
+          protein: macroTargets.protein,
+          carbs: macroTargets.carbs,
+          fats: macroTargets.fats,
+        }}
         bmr={restingBurn(weightKg, body.heightCm, body.ageYears, body.sex)}
         onOpenCountry={() => modals.setIsCountryModalOpen(true)}
         onOpenDiet={() => modals.setIsDietModalOpen(true)}
@@ -233,16 +277,10 @@ export const FuelView: React.FC = () => {
       />
 
       {toast ? (
-        <div
-          role="status"
-          aria-live="polite"
-          className="o1-toast"
-        >
+        <div role="status" aria-live="polite" className="o1-toast">
           {toast}
         </div>
       ) : null}
     </div>
   );
 };
-
-

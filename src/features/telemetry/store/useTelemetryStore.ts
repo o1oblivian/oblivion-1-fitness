@@ -4,8 +4,6 @@ import { safeStorage } from '../../../utils/safeStorage';
 import { noteDailySteps } from '../../log/services/dayLogService';
 import { TelemetryStoreState, TelemetryStoreActions } from './telemetryTypes';
 
-;
-
 const TARGETS_STORAGE_KEY = 'o1fc_telemetry_targets_v2';
 const SETTINGS_STORAGE_KEY = 'o1fc_production_settings_v3';
 
@@ -13,10 +11,12 @@ const loadSavedTargets = () => {
   if (typeof window === 'undefined') {
     return { stepTarget: 10000, moveTarget: 700, distTarget: 8, stepCount: 0 };
   }
-  const saved = safeStorage.getItem<{ stepTarget?: number; moveTarget?: number; distTarget?: number; stepCount?: number }>(
-    TARGETS_STORAGE_KEY,
-    {}
-  );
+  const saved = safeStorage.getItem<{
+    stepTarget?: number;
+    moveTarget?: number;
+    distTarget?: number;
+    stepCount?: number;
+  }>(TARGETS_STORAGE_KEY, {});
   const settingsSaved = safeStorage.getItem<{ stepTarget?: number }>(SETTINGS_STORAGE_KEY, {});
 
   // Prioritize active athlete settings target if defined and valid
@@ -24,15 +24,23 @@ const loadSavedTargets = () => {
     typeof settingsSaved?.stepTarget === 'number' && settingsSaved.stepTarget > 0
       ? settingsSaved.stepTarget
       : typeof saved?.stepTarget === 'number' && saved.stepTarget > 0
-      ? saved.stepTarget
-      : 10000;
+        ? saved.stepTarget
+        : 10000;
 
   // Auto-clean any stale test inputs (e.g. 32000 steps from previous step target bug)
-  const savedSteps = typeof saved?.stepCount === 'number' && saved.stepCount !== 32000 && saved.stepCount !== 17750 && saved.stepCount !== 1 ? saved.stepCount : 0;
+  const savedSteps =
+    typeof saved?.stepCount === 'number' &&
+    saved.stepCount !== 32000 &&
+    saved.stepCount !== 17750 &&
+    saved.stepCount !== 1
+      ? saved.stepCount
+      : 0;
   return {
     stepTarget: effectiveStepTarget,
-    moveTarget: typeof saved?.moveTarget === 'number' && saved.moveTarget > 0 ? saved.moveTarget : 700,
-    distTarget: typeof saved?.distTarget === 'number' && saved.distTarget > 0 ? saved.distTarget : 8,
+    moveTarget:
+      typeof saved?.moveTarget === 'number' && saved.moveTarget > 0 ? saved.moveTarget : 700,
+    distTarget:
+      typeof saved?.distTarget === 'number' && saved.distTarget > 0 ? saved.distTarget : 8,
     stepCount: savedSteps,
   };
 };
@@ -67,7 +75,9 @@ const initialState: TelemetryStoreState = {
   historyLogs: [],
 };
 
-const persistTargets = (state: Pick<TelemetryStoreState, 'stepTarget' | 'moveTarget' | 'distTarget' | 'stepCount'>) => {
+const persistTargets = (
+  state: Pick<TelemetryStoreState, 'stepTarget' | 'moveTarget' | 'distTarget' | 'stepCount'>,
+) => {
   safeStorage.setItem(TARGETS_STORAGE_KEY, {
     stepTarget: state.stepTarget,
     moveTarget: state.moveTarget,
@@ -203,7 +213,7 @@ const telemetryStore = createStore<TelemetryStoreState, TelemetryStoreActions>(
     },
     showToast: () => {},
     clearToast: () => set({ toastMessage: null }),
-  })
+  }),
 );
 
 export const useTelemetryStore = telemetryStore.useStore;

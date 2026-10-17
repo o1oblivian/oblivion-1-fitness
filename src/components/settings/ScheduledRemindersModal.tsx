@@ -74,8 +74,12 @@ export const ScheduledRemindersModal: React.FC<ScheduledRemindersModalProps> = (
               <Bell className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="font-tactical font-bold text-sm text-neutral-100 tracking-wider">Scheduled Reminders</h3>
-              <span className="text-[11px] text-neutral-400 block">Set on this phone. Nothing is sent anywhere.</span>
+              <h3 className="font-tactical font-bold text-sm text-neutral-100 tracking-wider">
+                Scheduled Reminders
+              </h3>
+              <span className="text-[11px] text-neutral-400 block">
+                Set on this phone. Nothing is sent anywhere.
+              </span>
             </div>
           </div>
           <button
@@ -89,7 +93,10 @@ export const ScheduledRemindersModal: React.FC<ScheduledRemindersModalProps> = (
         </div>
 
         {blockedReason ? (
-          <p role="status" className="rounded-xl border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-[11px] text-amber-300">
+          <p
+            role="status"
+            className="rounded-xl border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-[11px] text-amber-300"
+          >
             {blockedReason}
           </p>
         ) : null}
@@ -97,9 +104,13 @@ export const ScheduledRemindersModal: React.FC<ScheduledRemindersModalProps> = (
         <div className="space-y-2 bg-o1-well border border-white/[0.07] rounded-xl p-3">
           <div className="flex items-center justify-between gap-3">
             <div className="space-y-0.5">
-              <span className="text-xs font-tactical font-bold text-white block">Training time</span>
+              <span className="text-xs font-tactical font-bold text-white block">
+                Training time
+              </span>
               <span className="text-[11px] text-neutral-400 block">
-                {preWorkoutOn ? `Reminder ${PRE_WORKOUT_LEAD_MIN} min before` : 'Pre-workout reminder is off in Settings'}
+                {preWorkoutOn
+                  ? `Reminder ${PRE_WORKOUT_LEAD_MIN} min before`
+                  : 'Pre-workout reminder is off in Settings'}
               </span>
             </div>
             <input
@@ -123,7 +134,9 @@ export const ScheduledRemindersModal: React.FC<ScheduledRemindersModalProps> = (
                   disabled={!preWorkoutOn}
                   onClick={() => toggleDay(day)}
                   className={`min-h-[44px] rounded-xl text-xs font-mono font-bold transition-all cursor-pointer disabled:opacity-40 ${
-                    active ? 'bg-o1-crimson text-white' : 'bg-black text-neutral-400 border border-white/[0.07]'
+                    active
+                      ? 'bg-o1-crimson text-white'
+                      : 'bg-black text-neutral-400 border border-white/[0.07]'
                   }`}
                 >
                   {day.slice(0, 2)}
@@ -135,8 +148,12 @@ export const ScheduledRemindersModal: React.FC<ScheduledRemindersModalProps> = (
 
         <div className="bg-o1-well border border-white/[0.07] rounded-xl p-3 flex items-center justify-between gap-3">
           <div className="space-y-0.5 min-w-0">
-            <span className="text-xs font-tactical font-bold text-white block">Recovery check-in</span>
-            <span className="text-[11px] text-neutral-400 block">Every evening: log sleep and how you feel</span>
+            <span className="text-xs font-tactical font-bold text-white block">
+              Recovery check-in
+            </span>
+            <span className="text-[11px] text-neutral-400 block">
+              Every evening: log sleep and how you feel
+            </span>
           </div>
           <div className="flex items-center gap-2 shrink-0">
             <input
@@ -147,7 +164,11 @@ export const ScheduledRemindersModal: React.FC<ScheduledRemindersModalProps> = (
               onChange={(e) => e.target.value && patch({ recoveryTime: e.target.value })}
               className={INPUT}
             />
-            <CrimsonSwitch label="Recovery check-in" checked={config.recoveryOn} onChange={(recoveryOn) => patch({ recoveryOn })} />
+            <CrimsonSwitch
+              label="Recovery check-in"
+              checked={config.recoveryOn}
+              onChange={(recoveryOn) => patch({ recoveryOn })}
+            />
           </div>
         </div>
 
@@ -171,7 +192,11 @@ export const ScheduledRemindersModal: React.FC<ScheduledRemindersModalProps> = (
               <option value={3}>Every 3 hrs</option>
               <option value={4}>Every 4 hrs</option>
             </select>
-            <CrimsonSwitch label="Water reminders" checked={config.hydrationOn} onChange={(hydrationOn) => patch({ hydrationOn })} />
+            <CrimsonSwitch
+              label="Water reminders"
+              checked={config.hydrationOn}
+              onChange={(hydrationOn) => patch({ hydrationOn })}
+            />
           </div>
         </div>
 

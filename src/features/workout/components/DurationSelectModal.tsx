@@ -37,10 +37,7 @@ export const DurationSelectModal: React.FC<DurationSelectModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 o1-sheet-scrim animate-in fade-in duration-200">
-      <div
-        className="fixed inset-0 bg-black/75 transition-opacity"
-        onClick={onClose}
-      />
+      <div className="fixed inset-0 bg-black/75 transition-opacity" onClick={onClose} />
       <div className="o1-sheet-card relative w-full bg-o1-card border border-white/[0.07] shadow-xl p-5 z-10 space-y-4 overflow-y-auto text-white">
         <div className="flex items-center justify-between border-b border-white/[0.05] pb-3">
           <div>

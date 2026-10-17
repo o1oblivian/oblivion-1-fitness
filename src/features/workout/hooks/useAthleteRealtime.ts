@@ -35,12 +35,22 @@ export function useAthleteRealtime({
     const channel = liveChannel(`athlete-assigned-${athleteId}`)
       .on(
         'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'assigned_workouts', filter: `client_id=eq.${athleteId}` },
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'assigned_workouts',
+          filter: `client_id=eq.${athleteId}`,
+        },
         handleRow,
       )
       .on(
         'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'assigned_workouts', filter: `athlete_id=eq.${athleteId}` },
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'assigned_workouts',
+          filter: `athlete_id=eq.${athleteId}`,
+        },
         handleRow,
       )
       .subscribe();

@@ -3,9 +3,6 @@ import { X, Check, Utensils } from 'lucide-react';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { DIET_OPTIONS } from '../data/dietProtocols';
 
-;
-;
-
 interface DietaryPreferenceModalProps {
   isOpen: boolean;
   selectedDiet: string;
@@ -76,12 +73,12 @@ export const DietaryPreferenceModal: React.FC<DietaryPreferenceModalProps> = ({
                   </span>
                 )}
               </div>
-              <span className={`mt-1.5 block text-[12px] font-semibold ${isSelected ? d.accentDark : 'text-o1-text'}`}>
+              <span
+                className={`mt-1.5 block text-[12px] font-semibold ${isSelected ? d.accentDark : 'text-o1-text'}`}
+              >
                 {d.label}
               </span>
-              <span className="mt-0.5 block text-[10px] leading-snug text-o1-muted">
-                {d.short}
-              </span>
+              <span className="mt-0.5 block text-[10px] leading-snug text-o1-muted">{d.short}</span>
             </button>
           );
         })}
@@ -117,5 +114,3 @@ export const DietaryPreferenceModal: React.FC<DietaryPreferenceModalProps> = ({
     </div>
   );
 };
-
-

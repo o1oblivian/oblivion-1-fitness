@@ -24,7 +24,9 @@ export const LiveVaultArtworkGrid: React.FC<Props> = ({ coverImage, onSelectImag
     setUploading(true);
     setFailed(false);
     try {
-      const compressed = await compressPhoto(file, { maxDimension: 1600 }).then((r) => r.file).catch(() => file);
+      const compressed = await compressPhoto(file, { maxDimension: 1600 })
+        .then((r) => r.file)
+        .catch(() => file);
       const title = file.name.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' ') || 'Program Artwork';
       const url = await addVaultItem(compressed, title);
       if (url) onSelectImage(url);
@@ -35,7 +37,9 @@ export const LiveVaultArtworkGrid: React.FC<Props> = ({ coverImage, onSelectImag
   };
 
   const failure = failed ? (
-    <p role="alert" className="text-[12px] text-o1-text">Upload failed. Check your connection and try again.</p>
+    <p role="alert" className="text-[12px] text-o1-text">
+      Upload failed. Check your connection and try again.
+    </p>
   ) : null;
 
   if (loading) {
@@ -45,7 +49,13 @@ export const LiveVaultArtworkGrid: React.FC<Props> = ({ coverImage, onSelectImag
   if (vaultItems.length === 0) {
     return (
       <div className="p-4 rounded-xl bg-o1-sheet border border-dashed border-white/[0.07] text-center space-y-2.5">
-        <input ref={fileInputRef} type="file" accept="image/*" onChange={(e) => void handleFileUpload(e)} className="hidden" />
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          onChange={(e) => void handleFileUpload(e)}
+          className="hidden"
+        />
         <FolderOpen className="w-6 h-6 text-o1-muted mx-auto" />
         <div className="text-xs text-o1-text font-medium">
           No media in vault. Upload program artwork or select from Presets.
@@ -66,7 +76,13 @@ export const LiveVaultArtworkGrid: React.FC<Props> = ({ coverImage, onSelectImag
 
   return (
     <div className="space-y-1.5">
-      <input ref={fileInputRef} type="file" accept="image/*" onChange={(e) => void handleFileUpload(e)} className="hidden" />
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        onChange={(e) => void handleFileUpload(e)}
+        className="hidden"
+      />
       <div className="text-[10px] font-mono text-o1-muted tracking-wider px-0.5">
         Coach Media Vault ({vaultItems.length})
       </div>
@@ -82,7 +98,9 @@ export const LiveVaultArtworkGrid: React.FC<Props> = ({ coverImage, onSelectImag
           <div className="w-6 h-6 rounded-full bg-o1-crimson flex items-center justify-center shadow-xs">
             <Plus className="w-3.5 h-3.5 text-o1-text stroke-[3]" />
           </div>
-          <span className="text-[9px] font-tactical font-bold text-o1-text tracking-wider">{uploading ? 'Uploading…' : '+ Upload'}</span>
+          <span className="text-[9px] font-tactical font-bold text-o1-text tracking-wider">
+            {uploading ? 'Uploading…' : '+ Upload'}
+          </span>
         </button>
 
         {/* Coach's uploaded vault images */}
@@ -118,5 +136,3 @@ export const LiveVaultArtworkGrid: React.FC<Props> = ({ coverImage, onSelectImag
     </div>
   );
 };
-
-

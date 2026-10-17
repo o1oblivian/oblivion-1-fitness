@@ -3,7 +3,8 @@
  * Strict File Ceiling: < 140 lines
  */
 
-export type VbtMotionStatus = 'Awaiting Barbell Motion' | 'Tracking Barbell Motion' | 'Hardware Unavailable';
+export type VbtMotionStatus =
+  'Awaiting Barbell Motion' | 'Tracking Barbell Motion' | 'Hardware Unavailable';
 
 export interface MotionEngineStatus {
   isSupported: boolean;

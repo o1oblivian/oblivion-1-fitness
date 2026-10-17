@@ -43,13 +43,17 @@ export const OnboardingCoordinator: React.FC<{ onComplete: () => void; replay?: 
   finishRef.current = handleFinish;
 
   const routeSignedIn = useCallback(async (signedIn: boolean) => {
-    if (typeof window !== 'undefined' && localStorage.getItem('o1fc_signed_out_pending') === '1') return;
+    if (typeof window !== 'undefined' && localStorage.getItem('o1fc_signed_out_pending') === '1')
+      return;
     if (!signedIn || phaseRef.current !== 'auth') return;
     phaseRef.current = 'routing';
     setPhase('routing');
     const returning = await profileOnboardingComplete();
     if (returning) {
-      await useConsultationStore.getState().hydrate().catch(() => false);
+      await useConsultationStore
+        .getState()
+        .hydrate()
+        .catch(() => false);
       void finishRef.current();
       return;
     }
@@ -110,5 +114,3 @@ export const OnboardingCoordinator: React.FC<{ onComplete: () => void; replay?: 
     </div>
   );
 };
-
-

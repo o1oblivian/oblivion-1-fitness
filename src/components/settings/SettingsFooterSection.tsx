@@ -23,7 +23,10 @@ export const SettingsFooterSection: React.FC<FooterActionsProps> = ({
   return (
     <div className="space-y-2 pt-1 pb-4 select-none">
       {pending > 0 && (
-        <div role="alert" className="rounded-2xl border border-o1-crimson/50 bg-o1-crimson/10 p-3 flex items-start gap-2.5">
+        <div
+          role="alert"
+          className="rounded-2xl border border-o1-crimson/50 bg-o1-crimson/10 p-3 flex items-start gap-2.5"
+        >
           <AlertTriangle className="w-4 h-4 text-o1-crimson shrink-0 mt-0.5" />
           <div className="min-w-0 flex-1">
             <p className="text-xs font-semibold text-white">{changes} on this phone</p>
@@ -50,9 +53,7 @@ export const SettingsFooterSection: React.FC<FooterActionsProps> = ({
       <div className="bg-o1-card rounded-2xl border border-white/[0.07] shadow-sm p-3 space-y-2.5">
         <div className="flex items-center justify-between">
           <div className="min-w-0">
-            <span className="text-xs font-sans font-semibold text-white block">
-              Active session
-            </span>
+            <span className="text-xs font-sans font-semibold text-white block">Active session</span>
             <span className="text-[11px] font-sans text-neutral-400 block truncate">
               {activeEmail}
             </span>
@@ -111,7 +112,9 @@ export const SettingsFooterSection: React.FC<FooterActionsProps> = ({
           className="fixed inset-0 z-[80000] bg-black/85 o1-sheet-scrim flex items-center justify-center p-4"
         >
           <div className="w-full max-w-[360px] rounded-2xl bg-o1-sheet border border-white/[0.07] p-4 space-y-3">
-            <h3 id="unsynced-signout-title" className="text-sm font-semibold text-white">Unsynced data on this phone</h3>
+            <h3 id="unsynced-signout-title" className="text-sm font-semibold text-white">
+              Unsynced data on this phone
+            </h3>
             <p className="text-xs text-neutral-300 leading-relaxed">
               {pending > 0
                 ? `${changes} ${pending === 1 ? 'has' : 'have'} not reached your account yet. Signing out deletes ${pending === 1 ? 'it' : 'them'} from this phone for good.`
@@ -163,5 +166,3 @@ export const SettingsFooterSection: React.FC<FooterActionsProps> = ({
     </div>
   );
 };
-
-

@@ -49,7 +49,9 @@ export const HeroVitalsContainer: React.FC<HeroVitalsContainerProps> = ({
   onOpenSupplements,
 }) => {
   const [isFlipped, setIsFlipped] = useState(false);
-  const [activeModal, setActiveModal] = useState<'hydration' | 'biosync' | 'supplements' | 'sleep' | null>(null);
+  const [activeModal, setActiveModal] = useState<
+    'hydration' | 'biosync' | 'supplements' | 'sleep' | null
+  >(null);
   const [isReadinessOpen, setIsReadinessOpen] = useState(false);
 
   // Active day auto-initializes to today's real-time calendar day
@@ -137,7 +139,8 @@ export const HeroVitalsContainer: React.FC<HeroVitalsContainerProps> = ({
       : loggedSleep && loggedSleep.recoveryPercent > 0
         ? loggedSleep.recoveryPercent
         : null;
-  const restingHr = loggedSleep && loggedSleep.restingHeartRate > 0 ? loggedSleep.restingHeartRate : null;
+  const restingHr =
+    loggedSleep && loggedSleep.restingHeartRate > 0 ? loggedSleep.restingHeartRate : null;
   const supplementStack = useFuelStore((s) => s.supplementStack);
   const supplementsTakenIds = useFuelStore((s) => s.supplementsTaken);
   const supplements = {
@@ -146,7 +149,12 @@ export const HeroVitalsContainer: React.FC<HeroVitalsContainerProps> = ({
   };
 
   const liveIntakeKcal = useMemo(
-    () => Math.round(Object.values(fuelMeals || {}).flat().reduce((sum, m) => sum + (m.calories || 0), 0)),
+    () =>
+      Math.round(
+        Object.values(fuelMeals || {})
+          .flat()
+          .reduce((sum, m) => sum + (m.calories || 0), 0),
+      ),
     [fuelMeals],
   );
 
@@ -156,11 +164,26 @@ export const HeroVitalsContainer: React.FC<HeroVitalsContainerProps> = ({
     const record = historyByDate[key];
     const cardio = record?.cardio?.hasData ? record.cardio : undefined;
     const nutrition = record?.nutrition?.hasData ? record.nutrition : undefined;
-    const loggedBurn = (cardio?.burnedKcal ?? 0) + (cardio?.stepKcal ?? 0) + (record?.workout?.hasData ? record.workout.burnedKcal ?? 0 : 0);
+    const loggedBurn =
+      (cardio?.burnedKcal ?? 0) +
+      (cardio?.stepKcal ?? 0) +
+      (record?.workout?.hasData ? (record.workout.burnedKcal ?? 0) : 0);
     const target = fuelCalorieTarget && fuelCalorieTarget > 0 ? fuelCalorieTarget : 0;
-    if (offset > 0) return { steps: 0, burn: 0, dist: 0, intake: 0, intakeGoal: target, isToday: false, sleep: null };
+    if (offset > 0)
+      return {
+        steps: 0,
+        burn: 0,
+        dist: 0,
+        intake: 0,
+        intakeGoal: target,
+        isToday: false,
+        sleep: null,
+      };
     if (offset < 0) {
-      const sleep = record?.sleep?.hasData && record.sleep.durationHours > 0 ? Math.round(record.sleep.durationHours * 10) / 10 : null;
+      const sleep =
+        record?.sleep?.hasData && record.sleep.durationHours > 0
+          ? Math.round(record.sleep.durationHours * 10) / 10
+          : null;
       return {
         steps: cardio?.steps ?? 0,
         burn: loggedBurn,
@@ -175,27 +198,55 @@ export const HeroVitalsContainer: React.FC<HeroVitalsContainerProps> = ({
     return {
       steps: liveSteps,
       // Fuel holds every burn logged today on any device; the day log covers it before Fuel hydrates.
-      burn: propActiveKcal !== undefined ? propActiveKcal : Math.max(fuelBurnedKcal || 0, loggedBurn),
+      burn:
+        propActiveKcal !== undefined ? propActiveKcal : Math.max(fuelBurnedKcal || 0, loggedBurn),
       // A logged distance wins; otherwise the day's steps give a walking estimate.
-      dist: (propDistanceKm !== undefined ? Number(propDistanceKm) || 0 : (cardio?.distanceKm ?? 0)) || (estimateKmFromSteps(liveSteps) ?? 0),
+      dist:
+        (propDistanceKm !== undefined ? Number(propDistanceKm) || 0 : (cardio?.distanceKm ?? 0)) ||
+        (estimateKmFromSteps(liveSteps) ?? 0),
       intake: liveIntakeKcal,
       intakeGoal: target,
       isToday: true,
       sleep: null,
     };
-  }, [activeDay, systemToday, historyByDate, fuelCalorieTarget, propStepCount, storeStepCount, propActiveKcal, fuelBurnedKcal, propDistanceKm, liveIntakeKcal]);
+  }, [
+    activeDay,
+    systemToday,
+    historyByDate,
+    fuelCalorieTarget,
+    propStepCount,
+    storeStepCount,
+    propActiveKcal,
+    fuelBurnedKcal,
+    propDistanceKm,
+    liveIntakeKcal,
+  ]);
 
   const stepTarget = storeStepTarget && storeStepTarget > 0 ? storeStepTarget : 0;
   const goalMove = storeMoveTarget && storeMoveTarget > 0 ? storeMoveTarget : 0;
   const goalDist = storeDistTarget && storeDistTarget > 0 ? storeDistTarget : 0;
   const waterGoalL = hydrationGoalLiters(hydrationTargetL, fuelWeightKg);
-  const waterPct = waterGoalL ? Math.min(100, Math.round((hydrationCurrentL / waterGoalL) * 100)) : 0;
+  const waterPct = waterGoalL
+    ? Math.min(100, Math.round((hydrationCurrentL / waterGoalL) * 100))
+    : 0;
   // Readiness needs a logged sleep quality; hydration is measured against the athlete's own goal.
   const readinessScore =
-    sleepQuality === null ? null : Math.min(100, Math.round(sleepQuality * 0.6 + (waterPct / 100) * 40));
+    sleepQuality === null
+      ? null
+      : Math.min(100, Math.round(sleepQuality * 0.6 + (waterPct / 100) * 40));
 
-  const { isEnabled, isPaused, intervalSeconds, nextWallpaper, getActiveWallpaper, refreshLive, reportBroken, activeIndex, pool, customUrl } =
-    useWallpaperStore();
+  const {
+    isEnabled,
+    isPaused,
+    intervalSeconds,
+    nextWallpaper,
+    getActiveWallpaper,
+    refreshLive,
+    reportBroken,
+    activeIndex,
+    pool,
+    customUrl,
+  } = useWallpaperStore();
   const currentWallpaper = getActiveWallpaper();
   const activeWallpaper = isEnabled ? currentWallpaper?.url : undefined;
 
@@ -224,7 +275,9 @@ export const HeroVitalsContainer: React.FC<HeroVitalsContainerProps> = ({
   useEffect(() => {
     const node = heroRef.current;
     if (!node || typeof IntersectionObserver === 'undefined') return;
-    const observer = new IntersectionObserver(([entry]) => setHeroVisible(entry.isIntersecting), { threshold: 0.25 });
+    const observer = new IntersectionObserver(([entry]) => setHeroVisible(entry.isIntersecting), {
+      threshold: 0.25,
+    });
     observer.observe(node);
     return () => observer.disconnect();
   }, []);
@@ -277,7 +330,10 @@ export const HeroVitalsContainer: React.FC<HeroVitalsContainerProps> = ({
             goalMove={goalMove}
             goalDist={goalDist}
             onCycleDayDial={handleCycleDay}
-            onFlipToVitals={() => { setIsFlipped(true); onVitalsClick?.(); }}
+            onFlipToVitals={() => {
+              setIsFlipped(true);
+              onVitalsClick?.();
+            }}
             onOpenCardio={onOpenCardioModal || onCardioClick}
             onOpenReadiness={() => {
               if (readinessScore == null) setActiveModal('sleep');
@@ -320,5 +376,3 @@ export const HeroVitalsContainer: React.FC<HeroVitalsContainerProps> = ({
     </>
   );
 };
-
-

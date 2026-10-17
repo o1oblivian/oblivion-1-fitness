@@ -2,7 +2,13 @@ import React, { useMemo, useState } from 'react';
 import { Sparkles, ChevronDown, RefreshCw, Plus, Check, Clock, Utensils } from 'lucide-react';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { MealItem } from '../store/useFuelStore';
-import { buildIntelMeals, IntelMealSuggestion, MacroBudget, MealSlot, slotBudget } from '../data/intelMealEngine';
+import {
+  buildIntelMeals,
+  IntelMealSuggestion,
+  MacroBudget,
+  MealSlot,
+  slotBudget,
+} from '../data/intelMealEngine';
 
 const SLOTS: { key: MealSlot; label: string }[] = [
   { key: 'breakfast', label: 'Breakfast' },
@@ -13,7 +19,8 @@ const SLOTS: { key: MealSlot; label: string }[] = [
 
 function slotForNow(logged: readonly MealSlot[]): MealSlot {
   const h = new Date().getHours() + new Date().getMinutes() / 60;
-  const byClock: MealSlot = h < 10.5 ? 'breakfast' : h < 16 ? 'lunch' : h < 17.5 ? 'snack' : h < 21.5 ? 'dinner' : 'snack';
+  const byClock: MealSlot =
+    h < 10.5 ? 'breakfast' : h < 16 ? 'lunch' : h < 17.5 ? 'snack' : h < 21.5 ? 'dinner' : 'snack';
   const order: MealSlot[] = ['breakfast', 'lunch', 'snack', 'dinner'];
   const start = order.indexOf(byClock);
   for (let i = 0; i < order.length; i++) {
@@ -55,11 +62,17 @@ export const O1FCIntelMealSuggestionsSection: React.FC<O1FCIntelMealSuggestionsS
   const [rotation, setRotation] = useState(0);
   const [loggedId, setLoggedId] = useState<string | null>(null);
 
-  const budget = useMemo(() => slotBudget(slot, remaining, loggedSlots), [slot, remaining, loggedSlots]);
+  const budget = useMemo(
+    () => slotBudget(slot, remaining, loggedSlots),
+    [slot, remaining, loggedSlots],
+  );
   const dayDone = remaining.kcal < 150;
   const meals = useMemo(
-    () => (calibrated && !dayDone ? buildIntelMeals({ diet: dietPreference, slot, budget, rotation }) : []),
-    [calibrated, dayDone, dietPreference, slot, budget, rotation]
+    () =>
+      calibrated && !dayDone
+        ? buildIntelMeals({ diet: dietPreference, slot, budget, rotation })
+        : [],
+    [calibrated, dayDone, dietPreference, slot, budget, rotation],
   );
   const slotLabel = SLOTS.find((s) => s.key === slot)?.label ?? slot;
 
@@ -77,12 +90,17 @@ export const O1FCIntelMealSuggestionsSection: React.FC<O1FCIntelMealSuggestionsS
         fats: ing.fats,
       });
     });
-    showToast(`Logged ${meal.name} to ${slotLabel} · ${meal.ingredients.length} items, +${meal.calories} kcal`);
+    showToast(
+      `Logged ${meal.name} to ${slotLabel} · ${meal.ingredients.length} items, +${meal.calories} kcal`,
+    );
     window.setTimeout(() => setLoggedId(null), 1500);
   };
 
   return (
-    <section id="o1fc-intel-meal-suggestions-tab" className="bg-o1-canvas border border-white/[0.08] rounded-2xl overflow-hidden select-none">
+    <section
+      id="o1fc-intel-meal-suggestions-tab"
+      className="bg-o1-canvas border border-white/[0.08] rounded-2xl overflow-hidden select-none"
+    >
       <button
         type="button"
         aria-expanded={isExpanded}
@@ -94,13 +112,21 @@ export const O1FCIntelMealSuggestionsSection: React.FC<O1FCIntelMealSuggestionsS
       >
         <span className="flex items-center gap-2.5 min-w-0">
           <Sparkles className="w-4 h-4 text-emerald-500 shrink-0" />
-          <span className="text-sm font-semibold text-o1-text truncate">Intel Meal Suggestions</span>
+          <span className="text-sm font-semibold text-o1-text truncate">
+            Intel Meal Suggestions
+          </span>
         </span>
         <span className="flex items-center gap-2 shrink-0">
           <span className="text-[11px] text-o1-muted tabular-nums">
-            {calibrated ? (dayDone ? 'Day target reached' : `${slotLabel} · ~${budget.kcal.toLocaleString()} kcal`) : 'Set targets'}
+            {calibrated
+              ? dayDone
+                ? 'Day target reached'
+                : `${slotLabel} · ~${budget.kcal.toLocaleString()} kcal`
+              : 'Set targets'}
           </span>
-          <ChevronDown className={`w-4 h-4 text-o1-muted transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`} />
+          <ChevronDown
+            className={`w-4 h-4 text-o1-muted transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}
+          />
         </span>
       </button>
 
@@ -108,7 +134,9 @@ export const O1FCIntelMealSuggestionsSection: React.FC<O1FCIntelMealSuggestionsS
         <div className="px-3.5 pb-3.5 pt-3 space-y-3 border-t border-white/[0.05]">
           {!calibrated ? (
             <div className="rounded-xl bg-o1-surface border border-white/[0.05] p-3.5 flex items-center justify-between gap-3">
-              <p className="text-xs text-o1-muted">Set your daily calorie and macro targets so portions can be sized to you.</p>
+              <p className="text-xs text-o1-muted">
+                Set your daily calorie and macro targets so portions can be sized to you.
+              </p>
               <button
                 type="button"
                 onClick={onOpenSettings}
@@ -119,7 +147,11 @@ export const O1FCIntelMealSuggestionsSection: React.FC<O1FCIntelMealSuggestionsS
             </div>
           ) : (
             <>
-              <div className="grid grid-cols-4 gap-1 p-1 rounded-xl bg-o1-surface border border-white/[0.05]" role="tablist" aria-label="Meal slot">
+              <div
+                className="grid grid-cols-4 gap-1 p-1 rounded-xl bg-o1-surface border border-white/[0.05]"
+                role="tablist"
+                aria-label="Meal slot"
+              >
                 {SLOTS.map((s) => {
                   const active = s.key === slot;
                   const done = loggedSlots.includes(s.key);
@@ -135,7 +167,9 @@ export const O1FCIntelMealSuggestionsSection: React.FC<O1FCIntelMealSuggestionsS
                         setRotation(0);
                       }}
                       className={`h-8 rounded-lg text-[11px] font-semibold flex items-center justify-center gap-1 transition-colors cursor-pointer ${
-                        active ? 'bg-o1-text text-black border border-transparent' : 'text-o1-muted hover:text-o1-text border border-transparent'
+                        active
+                          ? 'bg-o1-text text-black border border-transparent'
+                          : 'text-o1-muted hover:text-o1-text border border-transparent'
                       }`}
                     >
                       {s.label}
@@ -194,16 +228,25 @@ export const O1FCIntelMealSuggestionsSection: React.FC<O1FCIntelMealSuggestionsS
                   {meals.map((meal) => {
                     const isLogged = loggedId === meal.id;
                     return (
-                      <li key={meal.id} className="rounded-xl bg-o1-surface border border-white/[0.05] p-3 space-y-2.5">
+                      <li
+                        key={meal.id}
+                        className="rounded-xl bg-o1-surface border border-white/[0.05] p-3 space-y-2.5"
+                      >
                         <div className="flex items-start justify-between gap-3">
                           <div className="min-w-0">
-                            <h4 className="text-[13px] font-semibold text-o1-text leading-snug">{meal.name}</h4>
+                            <h4 className="text-[13px] font-semibold text-o1-text leading-snug">
+                              {meal.name}
+                            </h4>
                             <span className="mt-0.5 flex items-center gap-2 text-[10px] text-o1-muted">
                               <span className="inline-flex items-center gap-1">
                                 <Clock className="w-2.5 h-2.5" />
                                 {meal.prepTime}
                               </span>
-                              <span className={`px-1.5 py-px rounded-full border tabular-nums ${fitTone(meal.fit)}`}>{meal.fit}% fit</span>
+                              <span
+                                className={`px-1.5 py-px rounded-full border tabular-nums ${fitTone(meal.fit)}`}
+                              >
+                                {meal.fit}% fit
+                              </span>
                             </span>
                           </div>
                           <button
@@ -211,25 +254,38 @@ export const O1FCIntelMealSuggestionsSection: React.FC<O1FCIntelMealSuggestionsS
                             onClick={() => logMeal(meal)}
                             disabled={isLogged}
                             className={`shrink-0 h-8 px-3 rounded-full text-xs font-semibold flex items-center gap-1 transition-colors active:scale-95 cursor-pointer ${
-                              isLogged ? 'bg-emerald-600 text-white' : 'bg-o1-crimson hover:bg-[#A30F16] active:bg-[#800C11] text-white'
+                              isLogged
+                                ? 'bg-emerald-600 text-white'
+                                : 'bg-o1-crimson hover:bg-[#A30F16] active:bg-[#800C11] text-white'
                             }`}
                           >
-                            {isLogged ? <Check className="w-3.5 h-3.5" /> : <Plus className="w-3.5 h-3.5" />}
+                            {isLogged ? (
+                              <Check className="w-3.5 h-3.5" />
+                            ) : (
+                              <Plus className="w-3.5 h-3.5" />
+                            )}
                             {isLogged ? 'Logged' : 'Log'}
                           </button>
                         </div>
 
                         <ul className="space-y-1">
                           {meal.ingredients.map((ing) => (
-                            <li key={ing.label} className="flex items-baseline justify-between gap-3 text-[11px]">
+                            <li
+                              key={ing.label}
+                              className="flex items-baseline justify-between gap-3 text-[11px]"
+                            >
                               <span className="text-o1-text truncate">{ing.label}</span>
-                              <span className="text-o1-muted tabular-nums shrink-0">{ing.display}</span>
+                              <span className="text-o1-muted tabular-nums shrink-0">
+                                {ing.display}
+                              </span>
                             </li>
                           ))}
                         </ul>
 
                         <p className="pt-2 border-t border-white/[0.05] text-[11px] font-semibold tabular-nums">
-                          <span className="text-o1-text">{meal.calories.toLocaleString()} kcal</span>
+                          <span className="text-o1-text">
+                            {meal.calories.toLocaleString()} kcal
+                          </span>
                           <span className="text-o1-muted"> · </span>
                           <span className="text-o1-crimson">{meal.protein}g P</span>
                           <span className="text-o1-muted"> · </span>
@@ -244,7 +300,8 @@ export const O1FCIntelMealSuggestionsSection: React.FC<O1FCIntelMealSuggestionsS
               )}
 
               <p className="text-[10px] text-o1-muted leading-relaxed">
-                Portions are solved to your remaining macros. Nutrition values from USDA FoodData Central; weights are cooked unless noted.
+                Portions are solved to your remaining macros. Nutrition values from USDA FoodData
+                Central; weights are cooked unless noted.
               </p>
             </>
           )}
@@ -253,5 +310,3 @@ export const O1FCIntelMealSuggestionsSection: React.FC<O1FCIntelMealSuggestionsS
     </section>
   );
 };
-
-

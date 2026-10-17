@@ -42,7 +42,8 @@ export const LogProgressTowers: React.FC<LogProgressTowersProps> = ({
 }) => {
   const peak = points.reduce((best, point) => (point.value > best ? point.value : best), 0);
   const logged = points.filter((point) => point.value > 0);
-  const average = logged.length > 0 ? logged.reduce((sum, point) => sum + point.value, 0) / logged.length : 0;
+  const average =
+    logged.length > 0 ? logged.reduce((sum, point) => sum + point.value, 0) / logged.length : 0;
   const peakIndex = points.findIndex((point) => point.value > 0 && point.value === peak);
   const peakPoint = peakIndex >= 0 ? points[peakIndex] : undefined;
   const isWeek = points.length === DAYS_IN_WEEK;
@@ -66,11 +67,14 @@ export const LogProgressTowers: React.FC<LogProgressTowersProps> = ({
   return (
     <div className="pt-3 space-y-2">
       <div className="flex items-center justify-between gap-2 px-1 text-[11px]">
-        <span className="text-o1-muted">{average > 0 ? `Average ${formatValue(average)} ${unit}` : 'No days logged'}</span>
+        <span className="text-o1-muted">
+          {average > 0 ? `Average ${formatValue(average)} ${unit}` : 'No days logged'}
+        </span>
         {peakPoint ? (
           <span className="font-semibold" style={{ color: peakAccent }}>
             {/* The medal already marks the peak day in a week, so only the month and year views name it. */}
-            Peak {isWeek ? '' : `${peakPoint.label} `}{formatValue(peakPoint.value)}
+            Peak {isWeek ? '' : `${peakPoint.label} `}
+            {formatValue(peakPoint.value)}
           </span>
         ) : null}
       </div>

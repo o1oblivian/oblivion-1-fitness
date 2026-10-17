@@ -4,7 +4,11 @@ import { useReelsStore } from '../../../stores/useReelsStore';
 import { useReelViewsStore } from '../../reels/services/reelViews';
 import { filterReelsCatalog } from '../../reels/hooks/reelsFilterHelper';
 import type { ExploreReelItem } from '../../reels/reelTypes';
-import { getAthleteDayRoutine, getSystemTodayCode, useDayRoutineRevision } from '../services/dayRoutineService';
+import {
+  getAthleteDayRoutine,
+  getSystemTodayCode,
+  useDayRoutineRevision,
+} from '../services/dayRoutineService';
 import reelsImg from '../../../assets/images/reels/reels.jpg';
 import tutorialImg from '../../../assets/images/reels/tutorial.jpg';
 import hypertrophyImg from '../../../assets/images/reels/hypertrophy.jpg';
@@ -47,13 +51,22 @@ const STORY_IDS: Record<ReelCategoryId, string> = {
 
 const PROGRAM_STORIES: StoryProgram[] = [
   { id: 'elite-reels', name: 'Reels', category: 'ALL', photoUrl: reelsImg },
-  ...REEL_CATEGORIES.map((c) => ({ id: STORY_IDS[c.id], name: c.label, category: c.id, photoUrl: FALLBACK_COVERS[c.id] })),
+  ...REEL_CATEGORIES.map((c) => ({
+    id: STORY_IDS[c.id],
+    name: c.label,
+    category: c.id,
+    photoUrl: FALLBACK_COVERS[c.id],
+  })),
 ];
 
 /** The club's own circles stay put even before any reels are posted to them, and keep the club artwork. */
 const ALWAYS_SHOWN = new Set<ReelCategory>(['ALL', 'TUTORIAL']);
 
-const StoryCover: React.FC<{ src: string; fallback: string; dim: boolean }> = ({ src, fallback, dim }) => {
+const StoryCover: React.FC<{ src: string; fallback: string; dim: boolean }> = ({
+  src,
+  fallback,
+  dim,
+}) => {
   const [failed, setFailed] = useState<string | null>(null);
   return (
     <img
@@ -74,11 +87,14 @@ export function reelStoryId(category: ReelCategory): string {
 /** Categories that suit today's planned session, most relevant first. */
 function todaysCategories(): ReelCategory[] {
   const { splitName, exercises } = getAthleteDayRoutine(getSystemTodayCode());
-  const text = `${splitName} ${exercises.map((e) => `${e.targetMuscle || ''} ${e.tier || ''}`).join(' ')}`.toUpperCase();
+  const text =
+    `${splitName} ${exercises.map((e) => `${e.targetMuscle || ''} ${e.tier || ''}`).join(' ')}`.toUpperCase();
   if (/REST|RECOVERY|RESTORATION/.test(splitName.toUpperCase())) return ['MOBILITY', 'REHAB'];
   if (/HYROX|HYPER\b|CONDITIONING|CARDIO|SLED|ERG/.test(text)) return ['CONDITIONING', 'MOBILITY'];
-  if (/LEGS|LOWER|QUAD|HAMSTRING|GLUTE|SQUAT/.test(text)) return ['STRENGTH', 'BIOMECHANICS', 'MOBILITY'];
-  if (/PUSH|PULL|UPPER|CHEST|BACK|LAT|DELT|BICEP|TRICEP/.test(text)) return ['HYPERTROPHY', 'BIOMECHANICS'];
+  if (/LEGS|LOWER|QUAD|HAMSTRING|GLUTE|SQUAT/.test(text))
+    return ['STRENGTH', 'BIOMECHANICS', 'MOBILITY'];
+  if (/PUSH|PULL|UPPER|CHEST|BACK|LAT|DELT|BICEP|TRICEP/.test(text))
+    return ['HYPERTROPHY', 'BIOMECHANICS'];
   return [];
 }
 
@@ -87,7 +103,10 @@ export interface ProgramReelsScrollerProps {
   onSelect: (category: ReelCategory, filterTag: string) => void;
 }
 
-export const ProgramReelsScroller: React.FC<ProgramReelsScrollerProps> = ({ activeId, onSelect }) => {
+export const ProgramReelsScroller: React.FC<ProgramReelsScrollerProps> = ({
+  activeId,
+  onSelect,
+}) => {
   const reels = useVisibleReels(useReelsStore((s) => s.reels));
   const loadFeed = useReelsStore((s) => s.loadFeed);
   const viewed = useReelViewsStore((s) => s.viewed);
@@ -102,13 +121,19 @@ export const ProgramReelsScroller: React.FC<ProgramReelsScrollerProps> = ({ acti
   const stories = useMemo(() => {
     void routineRevision;
     const priority = todaysCategories();
-    const rank = (s: StoryProgram) => (s.category === 'ALL' ? -1 : priority.includes(s.category) ? priority.indexOf(s.category) : priority.length);
-    return PROGRAM_STORIES
-      .map((story, order) => ({ story, order }))
+    const rank = (s: StoryProgram) =>
+      s.category === 'ALL'
+        ? -1
+        : priority.includes(s.category)
+          ? priority.indexOf(s.category)
+          : priority.length;
+    return PROGRAM_STORIES.map((story, order) => ({ story, order }))
       .sort((a, b) => rank(a.story) - rank(b.story) || a.order - b.order)
       .map(({ story }) => {
         const matching = filterReelsCatalog(reels, 'ALL', story.category, '');
-        const cover = ALWAYS_SHOWN.has(story.category) ? undefined : matching.find((r) => r.thumbnail)?.thumbnail;
+        const cover = ALWAYS_SHOWN.has(story.category)
+          ? undefined
+          : matching.find((r) => r.thumbnail)?.thumbnail;
         return {
           ...story,
           cover: cover || story.photoUrl,
@@ -143,14 +168,27 @@ export const ProgramReelsScroller: React.FC<ProgramReelsScrollerProps> = ({ acti
               }}
               className="group flex flex-col items-center shrink-0 w-[80px] cursor-pointer active:scale-95 transition-transform duration-200 focus-visible:outline-none"
             >
-              <span className={`relative block w-[76px] h-[76px] rounded-full p-[2px] transition-all duration-300 group-focus-visible:ring-white/60 ${ring}`}>
+              <span
+                className={`relative block w-[76px] h-[76px] rounded-full p-[2px] transition-all duration-300 group-focus-visible:ring-white/60 ${ring}`}
+              >
                 <span className="block w-full h-full rounded-full overflow-hidden relative bg-o1-well">
-                  <StoryCover src={story.cover} fallback={story.photoUrl} dim={!fresh && !isActive && story.category !== 'ALL'} />
+                  <StoryCover
+                    src={story.cover}
+                    fallback={story.photoUrl}
+                    dim={!fresh && !isActive && story.category !== 'ALL'}
+                  />
                   <span className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/10 pointer-events-none" />
                   {story.category === 'ALL' && (
-                    <span className="absolute inset-0 flex items-center justify-center pointer-events-none" aria-hidden="true">
+                    <span
+                      className="absolute inset-0 flex items-center justify-center pointer-events-none"
+                      aria-hidden="true"
+                    >
                       <span className="flex items-center justify-center w-7 h-7 rounded-full bg-black/55 backdrop-blur-sm">
-                        <svg className="w-3.5 h-3.5 text-white translate-x-px" viewBox="0 0 24 24" fill="currentColor">
+                        <svg
+                          className="w-3.5 h-3.5 text-white translate-x-px"
+                          viewBox="0 0 24 24"
+                          fill="currentColor"
+                        >
                           <polygon points="6 3 20 12 6 21 6 3" />
                         </svg>
                       </span>
@@ -158,9 +196,7 @@ export const ProgramReelsScroller: React.FC<ProgramReelsScrollerProps> = ({ acti
                   )}
                 </span>
               </span>
-              <span
-                className="mt-1.5 block w-full px-0.5 text-center font-sans text-[11px] font-medium truncate text-white"
-              >
+              <span className="mt-1.5 block w-full px-0.5 text-center font-sans text-[11px] font-medium truncate text-white">
                 {story.name}
               </span>
             </button>
@@ -170,5 +206,3 @@ export const ProgramReelsScroller: React.FC<ProgramReelsScrollerProps> = ({ acti
     </div>
   );
 };
-
-

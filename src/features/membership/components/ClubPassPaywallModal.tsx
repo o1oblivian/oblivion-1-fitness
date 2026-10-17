@@ -9,7 +9,12 @@ import { IAP_PRODUCTS, IAPProductInfo } from '../../../types/iap';
 type Audience = 'athletes' | 'coaches';
 
 const PLANS: Record<Audience, readonly IAPProductInfo[]> = {
-  athletes: [IAP_PRODUCTS.founder_pass, IAP_PRODUCTS.core_free, IAP_PRODUCTS.premium, IAP_PRODUCTS.premium_travel],
+  athletes: [
+    IAP_PRODUCTS.founder_pass,
+    IAP_PRODUCTS.core_free,
+    IAP_PRODUCTS.premium,
+    IAP_PRODUCTS.premium_travel,
+  ],
   coaches: [IAP_PRODUCTS.coach_free, IAP_PRODUCTS.coach_pro],
 };
 
@@ -18,7 +23,9 @@ const DEFAULT_PLAN: Record<Audience, string> = {
   coaches: IAP_PRODUCTS.coach_pro.productId,
 };
 
-const PAID_PLAN_IDS = [...PLANS.athletes, ...PLANS.coaches].filter((p) => !p.isFree).map((p) => p.productId);
+const PAID_PLAN_IDS = [...PLANS.athletes, ...PLANS.coaches]
+  .filter((p) => !p.isFree)
+  .map((p) => p.productId);
 
 const PERKS = [
   'Meal scan and the cardio console',
@@ -60,7 +67,8 @@ export const ClubPassPaywallModal: React.FC = () => {
   const selected = plans.find((p) => p.productId === selectedId) || plans[0];
   const kind = planKind(selected.productId);
   // Paid prices come only from the store, in the buyer's own currency. Until they load, show '--' and block purchase.
-  const priceOf = (plan: IAPProductInfo) => storePrices[plan.productId] || (plan.isFree ? plan.price : '--');
+  const priceOf = (plan: IAPProductInfo) =>
+    storePrices[plan.productId] || (plan.isFree ? plan.price : '--');
   const priceMissing = !selected.isFree && !storePrices[selected.productId];
   const ctaLabel = selected.isFree
     ? 'Continue Free →'
@@ -115,14 +123,25 @@ export const ClubPassPaywallModal: React.FC = () => {
       <div className="o1-sheet-card o1-sheet-tall bg-o1-card border border-white/[0.07] overflow-hidden flex flex-col">
         <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.05] bg-o1-card">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-o1-well border border-white/[0.07] flex items-center justify-center text-zinc-400"><Sparkles className="w-4 h-4" /></div>
+            <div className="w-8 h-8 rounded-xl bg-o1-well border border-white/[0.07] flex items-center justify-center text-zinc-400">
+              <Sparkles className="w-4 h-4" />
+            </div>
             <h2 className="text-sm font-sans font-semibold text-white">Club Pass</h2>
           </div>
-          <button onClick={closePaywall} aria-label="Close" className="p-1.5 text-neutral-400 hover:text-white rounded-full cursor-pointer transition"><X className="w-5 h-5" /></button>
+          <button
+            onClick={closePaywall}
+            aria-label="Close"
+            className="p-1.5 text-neutral-400 hover:text-white rounded-full cursor-pointer transition"
+          >
+            <X className="w-5 h-5" />
+          </button>
         </div>
 
         <div className="p-4 overflow-y-auto space-y-3 bg-o1-card flex-1 min-h-0">
-          <div role="tablist" className="grid grid-cols-2 gap-1 p-1 rounded-xl bg-o1-well border border-white/[0.07]">
+          <div
+            role="tablist"
+            className="grid grid-cols-2 gap-1 p-1 rounded-xl bg-o1-well border border-white/[0.07]"
+          >
             {(['athletes', 'coaches'] as const).map((tab) => (
               <button
                 key={tab}
@@ -131,7 +150,9 @@ export const ClubPassPaywallModal: React.FC = () => {
                 aria-selected={audience === tab}
                 onClick={() => switchAudience(tab)}
                 className={`py-2 rounded-lg text-[11px] font-mono font-bold uppercase tracking-wider cursor-pointer transition ${
-                  audience === tab ? 'bg-o1-card text-white border border-white/[0.07]' : 'text-neutral-400 hover:text-white'
+                  audience === tab
+                    ? 'bg-o1-card text-white border border-white/[0.07]'
+                    : 'text-neutral-400 hover:text-white'
                 }`}
               >
                 {tab}
@@ -143,7 +164,8 @@ export const ClubPassPaywallModal: React.FC = () => {
             <div className="space-y-1.5 py-0.5">
               {PERKS.map((p) => (
                 <div key={p} className="flex items-center gap-2 text-xs font-mono text-neutral-200">
-                  <Check className="w-3.5 h-3.5 text-zinc-400 shrink-0" /><span>{p}</span>
+                  <Check className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
+                  <span>{p}</span>
                 </div>
               ))}
             </div>
@@ -154,27 +176,44 @@ export const ClubPassPaywallModal: React.FC = () => {
               <button
                 key={plan.productId}
                 type="button"
-                onClick={() => { tactileEngine.triggerSelectionBuzz(); setSelectedId(plan.productId); setStatusMsg(null); }}
+                onClick={() => {
+                  tactileEngine.triggerSelectionBuzz();
+                  setSelectedId(plan.productId);
+                  setStatusMsg(null);
+                }}
                 className={`w-full p-3 rounded-2xl border text-left flex items-center justify-between gap-3 cursor-pointer transition-all ${
-                  selected.productId === plan.productId ? 'bg-o1-well border-[rgba(196,18,26,0.4)]' : 'bg-o1-card border-white/[0.07] hover:border-white/[0.14]'
+                  selected.productId === plan.productId
+                    ? 'bg-o1-well border-[rgba(196,18,26,0.4)]'
+                    : 'bg-o1-card border-white/[0.07] hover:border-white/[0.14]'
                 }`}
               >
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
                     <span className="text-xs font-bold font-mono text-white">{plan.name}</span>
-                    {plan.badge && <span className="text-[9px] font-mono px-2 py-0.5 rounded-full bg-o1-well text-zinc-400 border border-white/[0.07] font-bold">{plan.badge}</span>}
+                    {plan.badge && (
+                      <span className="text-[9px] font-mono px-2 py-0.5 rounded-full bg-o1-well text-zinc-400 border border-white/[0.07] font-bold">
+                        {plan.badge}
+                      </span>
+                    )}
                   </div>
-                  <span className="text-[10px] font-mono text-neutral-400 block mt-0.5">{plan.description}</span>
+                  <span className="text-[10px] font-mono text-neutral-400 block mt-0.5">
+                    {plan.description}
+                  </span>
                 </div>
                 <span className="text-sm font-black font-mono text-white shrink-0 text-right">
                   {priceOf(plan)}
-                  <span className="text-[10px] font-normal text-neutral-400">{plan.periodText}</span>
+                  <span className="text-[10px] font-normal text-neutral-400">
+                    {plan.periodText}
+                  </span>
                 </span>
               </button>
             ))}
           </div>
           {statusMsg && (
-            <div role="status" className="p-3 rounded-2xl bg-o1-warn-wash border border-amber-500/30 text-o1-warn-ink text-xs font-mono text-center flex items-center justify-center gap-2">
+            <div
+              role="status"
+              className="p-3 rounded-2xl bg-o1-warn-wash border border-amber-500/30 text-o1-warn-ink text-xs font-mono text-center flex items-center justify-center gap-2"
+            >
               <ShieldCheck className="w-4 h-4 shrink-0" />
               <span>{statusMsg}</span>
             </div>
@@ -201,13 +240,29 @@ export const ClubPassPaywallModal: React.FC = () => {
           </button>
 
           <div className="flex items-center justify-center gap-3 text-[10px] font-sans text-neutral-400">
-            <button type="button" onClick={() => void openLegalUrl('terms')} className="hover:text-white underline cursor-pointer">Terms of Use</button>
+            <button
+              type="button"
+              onClick={() => void openLegalUrl('terms')}
+              className="hover:text-white underline cursor-pointer"
+            >
+              Terms of Use
+            </button>
             <span>•</span>
-            <button type="button" onClick={() => void openLegalUrl('privacy')} className="hover:text-white underline cursor-pointer">Privacy Policy</button>
+            <button
+              type="button"
+              onClick={() => void openLegalUrl('privacy')}
+              className="hover:text-white underline cursor-pointer"
+            >
+              Privacy Policy
+            </button>
           </div>
 
           <div className="flex items-center justify-between text-[10px] font-mono text-neutral-400 px-1">
-            <button onClick={handleRestore} disabled={isRestoring} className="text-zinc-400 hover:underline flex items-center gap-1 cursor-pointer disabled:opacity-50">
+            <button
+              onClick={handleRestore}
+              disabled={isRestoring}
+              className="text-zinc-400 hover:underline flex items-center gap-1 cursor-pointer disabled:opacity-50"
+            >
               <RotateCcw className={`w-3 h-3 text-zinc-400 ${isRestoring ? 'animate-spin' : ''}`} />
               <span>{isRestoring ? 'Restoring...' : 'Restore Purchases'}</span>
             </button>
@@ -224,4 +279,3 @@ export const ClubPassPaywallModal: React.FC = () => {
     </div>
   );
 };
-

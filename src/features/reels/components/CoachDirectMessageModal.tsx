@@ -14,7 +14,10 @@ interface CoachDirectMessageModalProps {
   onClose: () => void;
 }
 
-export const CoachDirectMessageModal: React.FC<CoachDirectMessageModalProps> = ({ coach, onClose }) => {
+export const CoachDirectMessageModal: React.FC<CoachDirectMessageModalProps> = ({
+  coach,
+  onClose,
+}) => {
   const [messageSent, setMessageSent] = useState(false);
   const [messageText, setMessageText] = useState('');
   const [sending, setSending] = useState(false);
@@ -54,7 +57,9 @@ export const CoachDirectMessageModal: React.FC<CoachDirectMessageModalProps> = (
               className="w-9 h-9 rounded-full object-cover border border-o1-crimson"
             />
             <div>
-              <h3 className="text-xs font-bold text-white font-tactical">Direct Message with {coach.name}</h3>
+              <h3 className="text-xs font-bold text-white font-tactical">
+                Direct Message with {coach.name}
+              </h3>
               <p className="text-[10px] text-neutral-400 font-mono">{coach.handle}</p>
             </div>
           </div>
@@ -99,11 +104,21 @@ export const CoachDirectMessageModal: React.FC<CoachDirectMessageModalProps> = (
                 void (async () => {
                   const athleteId = await getAuthenticatedUserId();
                   const ok = athleteId
-                    ? await sendCoachMessage({ coachId: coach.id, athleteId, senderName: senderName || 'Athlete', message: messageText, from: 'athlete' })
+                    ? await sendCoachMessage({
+                        coachId: coach.id,
+                        athleteId,
+                        senderName: senderName || 'Athlete',
+                        message: messageText,
+                        from: 'athlete',
+                      })
                     : false;
                   setSending(false);
                   if (!ok) {
-                    setSendError(athleteId ? 'Message did not send. Try again.' : 'Sign in to message coaches.');
+                    setSendError(
+                      athleteId
+                        ? 'Message did not send. Try again.'
+                        : 'Sign in to message coaches.',
+                    );
                     return;
                   }
                   setMessageSent(true);
@@ -117,8 +132,16 @@ export const CoachDirectMessageModal: React.FC<CoachDirectMessageModalProps> = (
             </button>
           </div>
         )}
-        {safetyNote ? <p role="status" className="text-center text-[12px] text-neutral-300">{safetyNote}</p> : null}
-        <button type="button" onClick={() => setReportOpen(true)} className="mx-auto h-9 px-3 text-[12px] font-semibold text-neutral-400">
+        {safetyNote ? (
+          <p role="status" className="text-center text-[12px] text-neutral-300">
+            {safetyNote}
+          </p>
+        ) : null}
+        <button
+          type="button"
+          onClick={() => setReportOpen(true)}
+          className="mx-auto h-9 px-3 text-[12px] font-semibold text-neutral-400"
+        >
           Report or block {coach.name}
         </button>
       </div>
@@ -127,8 +150,18 @@ export const CoachDirectMessageModal: React.FC<CoachDirectMessageModalProps> = (
         name={coach.name}
         onClose={() => setReportOpen(false)}
         onSubmit={(reason, details, alsoBlock) => {
-          void reportUser({ reportedId: coach.id, name: coach.name, reason, details, context: 'coach' }).then((ok) => {
-            setSafetyNote(ok ? 'Report sent. The Oblivion 1 team will review it.' : 'Report did not send. Sign in and try again.');
+          void reportUser({
+            reportedId: coach.id,
+            name: coach.name,
+            reason,
+            details,
+            context: 'coach',
+          }).then((ok) => {
+            setSafetyNote(
+              ok
+                ? 'Report sent. The Oblivion 1 team will review it.'
+                : 'Report did not send. Sign in and try again.',
+            );
           });
           if (alsoBlock) void blockCoach(coach.id);
         }}

@@ -3,7 +3,10 @@ import { X, Award, Play, ChevronRight, Compass } from 'lucide-react';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { useCoachStore } from '../../../stores/useCoachStore';
 import { useWorkoutStore } from '../../workout/store/useWorkoutStore';
-import { getSystemTodayCode, saveAthleteDayRoutine } from '../../workout/services/dayRoutineService';
+import {
+  getSystemTodayCode,
+  saveAthleteDayRoutine,
+} from '../../workout/services/dayRoutineService';
 import { rememberSession, resolveTodaySession, startTodaySession } from '../todaySession';
 import { SplitOption } from '../types';
 
@@ -15,7 +18,10 @@ interface CoachRoutineDispatchModalProps {
   showToast: (msg: string) => void;
 }
 
-const SPLIT_MOVEMENTS: Record<Exclude<SplitOption, 'Custom'>, { name: string; muscle: string; equipment: string; restSecs: number }[]> = {
+const SPLIT_MOVEMENTS: Record<
+  Exclude<SplitOption, 'Custom'>,
+  { name: string; muscle: string; equipment: string; restSecs: number }[]
+> = {
   Push: [
     { name: 'Barbell Incline Bench Press', muscle: 'Chest', equipment: 'Barbell', restSecs: 120 },
     { name: 'Standing Overhead Press', muscle: 'Shoulders', equipment: 'Barbell', restSecs: 90 },
@@ -98,12 +104,8 @@ export const CoachRoutineDispatchModal: React.FC<CoachRoutineDispatchModalProps>
               <Award className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="font-bold text-sm text-white tracking-wider">
-                Choose a workout
-              </h3>
-              <span className="text-[10px] text-neutral-400 block">
-                Stored on this weekday
-              </span>
+              <h3 className="font-bold text-sm text-white tracking-wider">Choose a workout</h3>
+              <span className="text-[10px] text-neutral-400 block">Stored on this weekday</span>
             </div>
           </div>
 
@@ -123,14 +125,18 @@ export const CoachRoutineDispatchModal: React.FC<CoachRoutineDispatchModalProps>
                 ● Sent by your coach
               </span>
               {firstRpe ? (
-                <span className="text-[10px] font-mono text-neutral-400">Target RPE: {firstRpe}</span>
+                <span className="text-[10px] font-mono text-neutral-400">
+                  Target RPE: {firstRpe}
+                </span>
               ) : null}
             </div>
 
             <div className="space-y-1">
               <h4 className="font-bold text-sm text-white">{coachSession.title}</h4>
               <p className="text-xs text-neutral-400">
-                {coachSession.exercises.length} {coachSession.exercises.length === 1 ? 'exercise' : 'exercises'} prescribed by your coach.
+                {coachSession.exercises.length}{' '}
+                {coachSession.exercises.length === 1 ? 'exercise' : 'exercises'} prescribed by your
+                coach.
               </p>
             </div>
 

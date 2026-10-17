@@ -56,14 +56,18 @@ export const LogLedger: React.FC<LogLedgerProps> = ({ nameLabel, columns, rows, 
   const colgroup = (
     <colgroup>
       <col />
-      {columns.map((column) => <col key={column.label} style={{ width: column.width }} />)}
+      {columns.map((column) => (
+        <col key={column.label} style={{ width: column.width }} />
+      ))}
     </colgroup>
   );
 
   const head = (
     <thead>
       <tr className="text-[10px] text-neutral-500">
-        <th className="text-left font-medium py-1.5 pr-2 border-b border-white/[0.07]">{nameLabel}</th>
+        <th className="text-left font-medium py-1.5 pr-2 border-b border-white/[0.07]">
+          {nameLabel}
+        </th>
         {columns.map((column, index) => (
           <th
             key={column.label}
@@ -101,7 +105,10 @@ export const LogLedger: React.FC<LogLedgerProps> = ({ nameLabel, columns, rows, 
           {row.cells.map((cell, index) => {
             const opensSets = details.length > 0;
             return (
-              <td key={`${row.id}-${columns[index]?.label || index}`} className="p-0 text-right text-neutral-300 tabular-nums align-middle">
+              <td
+                key={`${row.id}-${columns[index]?.label || index}`}
+                className="p-0 text-right text-neutral-300 tabular-nums align-middle"
+              >
                 {opensSets ? (
                   <button
                     type="button"
@@ -116,22 +123,30 @@ export const LogLedger: React.FC<LogLedgerProps> = ({ nameLabel, columns, rows, 
                     {cell}
                   </button>
                 ) : (
-                  <span className={`inline-block min-h-[36px] w-full px-1 leading-[36px] ${index === row.cells.length - 1 ? 'pr-1' : ''}`}>{cell}</span>
+                  <span
+                    className={`inline-block min-h-[36px] w-full px-1 leading-[36px] ${index === row.cells.length - 1 ? 'pr-1' : ''}`}
+                  >
+                    {cell}
+                  </span>
                 )}
               </td>
             );
           })}
         </tr>
-        {setsOpen && details.map((detail) => (
-          <tr key={detail.id} className="border-b border-white/[0.04]">
-            <td className="py-1 pr-2 pl-3 text-neutral-500 tabular-nums">{detail.name}</td>
-            {detail.cells.map((cell, index) => (
-              <td key={`${detail.id}-${index}`} className={`py-1 pl-1 text-right text-neutral-400 tabular-nums ${index === detail.cells.length - 1 ? 'pr-1' : ''}`}>
-                {cell}
-              </td>
-            ))}
-          </tr>
-        ))}
+        {setsOpen &&
+          details.map((detail) => (
+            <tr key={detail.id} className="border-b border-white/[0.04]">
+              <td className="py-1 pr-2 pl-3 text-neutral-500 tabular-nums">{detail.name}</td>
+              {detail.cells.map((cell, index) => (
+                <td
+                  key={`${detail.id}-${index}`}
+                  className={`py-1 pl-1 text-right text-neutral-400 tabular-nums ${index === detail.cells.length - 1 ? 'pr-1' : ''}`}
+                >
+                  {cell}
+                </td>
+              ))}
+            </tr>
+          ))}
       </React.Fragment>
     );
   };
@@ -160,7 +175,11 @@ export const LogLedger: React.FC<LogLedgerProps> = ({ nameLabel, columns, rows, 
           onAction={() => rowActions.onDelete(row)}
           secondaryAction={
             rowActions.onEdit
-              ? { label: 'Edit', ariaLabel: `Edit ${row.name}`, onAction: () => rowActions.onEdit?.(row) }
+              ? {
+                  label: 'Edit',
+                  ariaLabel: `Edit ${row.name}`,
+                  onAction: () => rowActions.onEdit?.(row),
+                }
               : undefined
           }
           hint={Boolean(rowActions.hint) && index === 0}

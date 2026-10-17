@@ -26,7 +26,14 @@ const TRAINING = [
   'Rowing',
 ];
 
-const LOOKING = ['Training partner', 'Spotter', 'Run club', 'Program swap', 'Sauna and recover', 'Something ongoing'];
+const LOOKING = [
+  'Training partner',
+  'Spotter',
+  'Run club',
+  'Program swap',
+  'Sauna and recover',
+  'Something ongoing',
+];
 const WHEN = ['Morning', 'Midday', 'Evening', 'Night'];
 const LEVELS = ['Beginner', 'Intermediate', 'Advanced'];
 const PLACES = [
@@ -63,12 +70,22 @@ function Toggle({ on, onClick }: { on: boolean; onClick: () => void }) {
       }}
       className={`relative h-7 w-12 rounded-full ${on ? 'bg-o1-crimson' : 'bg-[#2a2a2a]'}`}
     >
-      <span className={`absolute top-0.5 h-6 w-6 rounded-full ${on ? 'right-0.5 bg-neutral-950' : 'left-0.5 bg-neutral-400'}`} />
+      <span
+        className={`absolute top-0.5 h-6 w-6 rounded-full ${on ? 'right-0.5 bg-neutral-950' : 'left-0.5 bg-neutral-400'}`}
+      />
     </button>
   );
 }
 
-function Card({ title, hint, children }: { title: string; hint?: string; children: React.ReactNode }) {
+function Card({
+  title,
+  hint,
+  children,
+}: {
+  title: string;
+  hint?: string;
+  children: React.ReactNode;
+}) {
   return (
     <section className="rounded-2xl border border-white/[0.07] bg-[#121214] p-4">
       <p className="text-[15px] font-semibold text-white">{title}</p>
@@ -112,7 +129,12 @@ export const BuddyFilterSheet: React.FC<{
     <div className="fixed inset-0 z-[60] flex o1-sheet-scrim o1-page-scrim">
       <div className="o1-sheet-card o1-page flex flex-col bg-black text-white">
         <div className="flex items-center justify-between px-4 py-3">
-          <button type="button" aria-label="Close filters" onClick={onClose} className="text-neutral-300">
+          <button
+            type="button"
+            aria-label="Close filters"
+            onClick={onClose}
+            className="text-neutral-300"
+          >
             <X className="h-5 w-5" />
           </button>
           <p className="text-[15px] font-semibold">Preferences</p>
@@ -149,7 +171,12 @@ export const BuddyFilterSheet: React.FC<{
                     { id: 'women' as const, label: 'Women' },
                     { id: 'men' as const, label: 'Men' },
                   ].map((item) => (
-                    <Pill key={item.id} on={draft.show === item.id} label={item.label} onClick={() => setDraft({ ...draft, show: item.id })} />
+                    <Pill
+                      key={item.id}
+                      on={draft.show === item.id}
+                      label={item.label}
+                      onClick={() => setDraft({ ...draft, show: item.id })}
+                    />
                   ))}
                 </div>
               </Card>
@@ -182,12 +209,20 @@ export const BuddyFilterSheet: React.FC<{
                   />
                 </div>
                 <div className="mt-3 flex items-center justify-between gap-3">
-                  <p className="text-[12px] text-neutral-400">Show people a little outside this range</p>
-                  <Toggle on={draft.stretchAge} onClick={() => setDraft({ ...draft, stretchAge: !draft.stretchAge })} />
+                  <p className="text-[12px] text-neutral-400">
+                    Show people a little outside this range
+                  </p>
+                  <Toggle
+                    on={draft.stretchAge}
+                    onClick={() => setDraft({ ...draft, stretchAge: !draft.stretchAge })}
+                  />
                 </div>
               </Card>
 
-              <Card title={`Up to ${draft.distanceKm} km`} hint="Free stays inside 25 km. Farther is premium, up to 250 km.">
+              <Card
+                title={`Up to ${draft.distanceKm} km`}
+                hint="Free stays inside 25 km. Farther is premium, up to 250 km."
+              >
                 <input
                   type="range"
                   min={5}
@@ -198,15 +233,27 @@ export const BuddyFilterSheet: React.FC<{
                   className="w-full accent-white"
                 />
                 <div className="mt-3 flex items-center justify-between gap-3">
-                  <p className="text-[12px] text-neutral-400">Show people a little further if the deck runs thin</p>
-                  <Toggle on={draft.stretchDistance} onClick={() => setDraft({ ...draft, stretchDistance: !draft.stretchDistance })} />
+                  <p className="text-[12px] text-neutral-400">
+                    Show people a little further if the deck runs thin
+                  </p>
+                  <Toggle
+                    on={draft.stretchDistance}
+                    onClick={() => setDraft({ ...draft, stretchDistance: !draft.stretchDistance })}
+                  />
                 </div>
               </Card>
 
               <Card title="Training" hint="Empty means any. Pick what you want to see.">
                 <div className="flex flex-wrap gap-1.5">
                   {TRAINING.map((item) => (
-                    <Pill key={item} on={draft.disciplines.includes(item)} label={item} onClick={() => setDraft({ ...draft, disciplines: toggle(draft.disciplines, item) })} />
+                    <Pill
+                      key={item}
+                      on={draft.disciplines.includes(item)}
+                      label={item}
+                      onClick={() =>
+                        setDraft({ ...draft, disciplines: toggle(draft.disciplines, item) })
+                      }
+                    />
                   ))}
                 </div>
               </Card>
@@ -214,15 +261,24 @@ export const BuddyFilterSheet: React.FC<{
               <Card title="On the card">
                 <div className="flex items-center justify-between">
                   <p className="text-[13px] text-neutral-200">Photo required</p>
-                  <Toggle on={draft.photoOnly} onClick={() => setDraft({ ...draft, photoOnly: !draft.photoOnly })} />
+                  <Toggle
+                    on={draft.photoOnly}
+                    onClick={() => setDraft({ ...draft, photoOnly: !draft.photoOnly })}
+                  />
                 </div>
                 <div className="mt-3 flex items-center justify-between">
                   <p className="text-[13px] text-neutral-200">Verified only</p>
-                  <Toggle on={draft.verifiedOnly} onClick={() => setDraft({ ...draft, verifiedOnly: !draft.verifiedOnly })} />
+                  <Toggle
+                    on={draft.verifiedOnly}
+                    onClick={() => setDraft({ ...draft, verifiedOnly: !draft.verifiedOnly })}
+                  />
                 </div>
                 <div className="mt-3 flex items-center justify-between">
                   <p className="text-[13px] text-neutral-200">My gym only</p>
-                  <Toggle on={draft.sameGymOnly} onClick={() => setDraft({ ...draft, sameGymOnly: !draft.sameGymOnly })} />
+                  <Toggle
+                    on={draft.sameGymOnly}
+                    onClick={() => setDraft({ ...draft, sameGymOnly: !draft.sameGymOnly })}
+                  />
                 </div>
               </Card>
             </>
@@ -231,28 +287,48 @@ export const BuddyFilterSheet: React.FC<{
               <Card title="What are they looking for?">
                 <div className="flex flex-wrap gap-1.5">
                   {LOOKING.map((item) => (
-                    <Pill key={item} on={draft.intents.includes(item)} label={item} onClick={() => setDraft({ ...draft, intents: toggle(draft.intents, item) })} />
+                    <Pill
+                      key={item}
+                      on={draft.intents.includes(item)}
+                      label={item}
+                      onClick={() => setDraft({ ...draft, intents: toggle(draft.intents, item) })}
+                    />
                   ))}
                 </div>
               </Card>
               <Card title="When do they train?">
                 <div className="flex flex-wrap gap-1.5">
                   {WHEN.map((item) => (
-                    <Pill key={item} on={draft.times.includes(item)} label={item} onClick={() => setDraft({ ...draft, times: toggle(draft.times, item) })} />
+                    <Pill
+                      key={item}
+                      on={draft.times.includes(item)}
+                      label={item}
+                      onClick={() => setDraft({ ...draft, times: toggle(draft.times, item) })}
+                    />
                   ))}
                 </div>
               </Card>
               <Card title="Experience">
                 <div className="flex flex-wrap gap-1.5">
                   {LEVELS.map((item) => (
-                    <Pill key={item} on={draft.levels.includes(item)} label={item} onClick={() => setDraft({ ...draft, levels: toggle(draft.levels, item) })} />
+                    <Pill
+                      key={item}
+                      on={draft.levels.includes(item)}
+                      label={item}
+                      onClick={() => setDraft({ ...draft, levels: toggle(draft.levels, item) })}
+                    />
                   ))}
                 </div>
               </Card>
               <Card title="Where they train">
                 <div className="flex flex-wrap gap-1.5">
                   {PLACES.map((item) => (
-                    <Pill key={item.id} on={draft.place === item.id} label={item.label} onClick={() => setDraft({ ...draft, place: item.id })} />
+                    <Pill
+                      key={item.id}
+                      on={draft.place === item.id}
+                      label={item.label}
+                      onClick={() => setDraft({ ...draft, place: item.id })}
+                    />
                   ))}
                 </div>
               </Card>

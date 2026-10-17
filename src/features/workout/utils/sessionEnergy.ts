@@ -26,7 +26,9 @@ export interface SessionEnergy {
 
 function readClock(): SessionClock | null {
   const clock = safeStorage.getItem<SessionClock | null>(CLOCK_KEY, null);
-  return clock && Number.isFinite(clock.startedAt) && Number.isFinite(clock.lastTickAt) ? clock : null;
+  return clock && Number.isFinite(clock.startedAt) && Number.isFinite(clock.lastTickAt)
+    ? clock
+    : null;
 }
 
 /** Called whenever the ticked-set count changes. */
@@ -79,18 +81,31 @@ export function resistanceMet(avgRpe: number | null): number {
 }
 
 /** Net of resting metabolism (MET − 1), so it doesn't double count the BMR already in the calorie target. */
-export function resistanceKcal(minutes: number, bodyweightKg: number | null, avgRpe: number | null): number | null {
+export function resistanceKcal(
+  minutes: number,
+  bodyweightKg: number | null,
+  avgRpe: number | null,
+): number | null {
   if (bodyweightKg == null || minutes <= 0) return null;
   return Math.round(((resistanceMet(avgRpe) - 1) * 3.5 * bodyweightKg * minutes) / 200);
 }
 
-export function estimateSessionEnergy(exercises: ExerciseItem[], completedSets: number, now = Date.now()): SessionEnergy {
+export function estimateSessionEnergy(
+  exercises: ExerciseItem[],
+  completedSets: number,
+  now = Date.now(),
+): SessionEnergy {
   const rpes = exercises
     .flatMap((e) => e.sets || [])
     .filter((s) => s.completed)
     .map((s) => Number(s.rpe) || 0)
     .filter((rpe) => rpe > 0 && rpe <= 10);
-  const avgRpe = rpes.length > 0 ? Math.round((rpes.reduce((a, b) => a + b, 0) / rpes.length) * 10) / 10 : null;
+  const avgRpe =
+    rpes.length > 0 ? Math.round((rpes.reduce((a, b) => a + b, 0) / rpes.length) * 10) / 10 : null;
   const durationMinutes = sessionMinutes(completedSets, now);
-  return { durationMinutes, avgRpe, burnedKcal: resistanceKcal(durationMinutes, athleteBodyweightKg(), avgRpe) };
+  return {
+    durationMinutes,
+    avgRpe,
+    burnedKcal: resistanceKcal(durationMinutes, athleteBodyweightKg(), avgRpe),
+  };
 }

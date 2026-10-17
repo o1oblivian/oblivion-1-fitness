@@ -14,7 +14,7 @@ export function processMotionSample(
   acc: { x: number; y: number; z: number },
   dt: number,
   now: number,
-  state: MotionFilterState
+  state: MotionFilterState,
 ): { didStep: boolean; updatedState: MotionFilterState } {
   // 3-axis Euclidean acceleration magnitude
   const rawMag = Math.sqrt(acc.x * acc.x + acc.y * acc.y + acc.z * acc.z);

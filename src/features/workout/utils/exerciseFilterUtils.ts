@@ -4,7 +4,7 @@ import { EXERCISE_DATABASE } from '../../../data/exerciseDatabase';
 export function filterEffectivePool(
   discipline: DisciplineType,
   selectedCategory: string,
-  selectedEquipment: string
+  selectedEquipment: string,
 ): ExerciseDefinition[] {
   const pool = EXERCISE_DATABASE.filter((e) => {
     const matchDiscipline = e.discipline === discipline;

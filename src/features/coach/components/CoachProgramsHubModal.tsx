@@ -84,7 +84,12 @@ export const CoachProgramsHubModal: React.FC<CoachProgramsHubModalProps> = ({
   const count = programs?.length ?? 0;
 
   return (
-    <div className="fixed inset-0 z-[95] bg-black/80 flex items-center justify-center p-3 select-none animate-fadeIn" role="dialog" aria-modal="true" aria-label="Programs">
+    <div
+      className="fixed inset-0 z-[95] bg-black/80 flex items-center justify-center p-3 select-none animate-fadeIn"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Programs"
+    >
       <div className="w-full max-w-md bg-o1-sheet border border-white/[0.07] rounded-2xl p-3.5 space-y-2.5 max-h-[85vh] flex flex-col">
         <div className="flex items-center justify-between border-b border-white/[0.07] pb-2 min-h-[44px]">
           <div className="flex items-center gap-2">
@@ -94,25 +99,43 @@ export const CoachProgramsHubModal: React.FC<CoachProgramsHubModalProps> = ({
             <div>
               <h3 className="text-[14px] font-semibold text-o1-text">Programs</h3>
               <p className="text-[11px] text-o1-muted">
-                {programs === null ? 'Loading…' : count === 1 ? '1 published program' : `${count} published programs`}
+                {programs === null
+                  ? 'Loading…'
+                  : count === 1
+                    ? '1 published program'
+                    : `${count} published programs`}
               </p>
             </div>
           </div>
           <button
             type="button"
             aria-label="Close"
-            onClick={() => { tactileEngine.triggerSelectionBuzz(); onClose(); }}
+            onClick={() => {
+              tactileEngine.triggerSelectionBuzz();
+              onClose();
+            }}
             className="flex h-10 w-10 items-center justify-center rounded-full text-o1-muted active:bg-white/[0.06]"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
-        {notice ? <p role="status" className="text-[12px] text-o1-text">{notice}</p> : null}
+        {notice ? (
+          <p role="status" className="text-[12px] text-o1-text">
+            {notice}
+          </p>
+        ) : null}
         {loadFailed ? (
-          <div role="alert" className="flex items-center justify-between gap-2 rounded-xl border border-o1-crimson/30 bg-o1-crimson/10 px-3 py-2">
+          <div
+            role="alert"
+            className="flex items-center justify-between gap-2 rounded-xl border border-o1-crimson/30 bg-o1-crimson/10 px-3 py-2"
+          >
             <p className="text-[12px] text-o1-text">Could not load your programs.</p>
-            <button type="button" onClick={() => void load()} className="min-h-[36px] px-2 text-[12px] font-semibold text-o1-text">
+            <button
+              type="button"
+              onClick={() => void load()}
+              className="min-h-[36px] px-2 text-[12px] font-semibold text-o1-text"
+            >
               Retry
             </button>
           </div>
@@ -135,9 +158,14 @@ export const CoachProgramsHubModal: React.FC<CoachProgramsHubModalProps> = ({
             programs.map((prog) => {
               const exercises = exerciseCount(prog.plan);
               return (
-                <div key={prog.id} className="p-3 rounded-2xl bg-o1-surface border border-white/[0.07] flex items-center justify-between gap-3">
+                <div
+                  key={prog.id}
+                  className="p-3 rounded-2xl bg-o1-surface border border-white/[0.07] flex items-center justify-between gap-3"
+                >
                   <div className="min-w-0">
-                    <h4 className="text-[13px] font-semibold text-o1-text truncate">{prog.title}</h4>
+                    <h4 className="text-[13px] font-semibold text-o1-text truncate">
+                      {prog.title}
+                    </h4>
                     <div className="flex items-center gap-2 text-[11px] text-o1-muted mt-0.5">
                       {prog.level ? <span>{prog.level}</span> : null}
                       {prog.level && prog.weeks ? <span aria-hidden>·</span> : null}
@@ -156,9 +184,15 @@ export const CoachProgramsHubModal: React.FC<CoachProgramsHubModalProps> = ({
                     disabled={removingId === prog.id}
                     onClick={() => void handleDelete(prog.id)}
                     onBlur={() => setConfirmId((id) => (id === prog.id ? null : id))}
-                    aria-label={confirmId === prog.id ? `Confirm remove ${prog.title}` : `Remove ${prog.title}`}
+                    aria-label={
+                      confirmId === prog.id
+                        ? `Confirm remove ${prog.title}`
+                        : `Remove ${prog.title}`
+                    }
                     className={`flex h-10 shrink-0 items-center justify-center rounded-xl transition disabled:opacity-50 ${
-                      confirmId === prog.id ? 'bg-o1-crimson px-3 text-[12px] font-semibold text-white' : 'w-10 text-o1-muted active:bg-white/[0.06]'
+                      confirmId === prog.id
+                        ? 'bg-o1-crimson px-3 text-[12px] font-semibold text-white'
+                        : 'w-10 text-o1-muted active:bg-white/[0.06]'
                     }`}
                   >
                     {confirmId === prog.id ? 'Remove' : <Trash2 className="w-4 h-4" />}
@@ -171,7 +205,10 @@ export const CoachProgramsHubModal: React.FC<CoachProgramsHubModalProps> = ({
 
         <button
           type="button"
-          onClick={() => { tactileEngine.triggerSelectionBuzz(); setIsCreatorOpen(true); }}
+          onClick={() => {
+            tactileEngine.triggerSelectionBuzz();
+            setIsCreatorOpen(true);
+          }}
           className="w-full h-[48px] rounded-2xl bg-o1-crimson hover:bg-o1-crimson-hover text-white text-[13px] font-semibold flex items-center justify-center gap-1.5 active:scale-[0.98] transition"
         >
           <Plus className="w-4 h-4" />
@@ -192,5 +229,3 @@ export const CoachProgramsHubModal: React.FC<CoachProgramsHubModalProps> = ({
     </div>
   );
 };
-
-

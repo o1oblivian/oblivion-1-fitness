@@ -80,7 +80,9 @@ export const ActiveLogSetRow: React.FC<ActiveLogSetRowProps> = ({
   const unitLabel = loadUnitLabel(weightUnit);
   const unitLower = unitLabel.toLowerCase();
   const displayLoad = kgToDisplay(weightKg, weightUnit);
-  const isPr = Boolean(isDone && priorBestKg > 0 && setIsPr(exerciseName, weightKg, reps, priorBestKg));
+  const isPr = Boolean(
+    isDone && priorBestKg > 0 && setIsPr(exerciseName, weightKg, reps, priorBestKg),
+  );
   const bumpSmall = weightUnit === 'lbs' ? 5 : 2.5;
   const bumpLarge = weightUnit === 'lbs' ? 10 : 5;
   const valueTone = isDone ? 'text-o1-text' : 'text-o1-muted';
@@ -98,7 +100,8 @@ export const ActiveLogSetRow: React.FC<ActiveLogSetRowProps> = ({
   });
   const repsCue = cue === 'values' && !(hasReps && touched.reps);
   const weightCue = cue === 'values' && hasWeight && !touched.weight;
-  const showRpe = Boolean(onQuickUpdateSet) && (rpeOpen || (askRpe && isDone) || (simple && cue === 'effort'));
+  const showRpe =
+    Boolean(onQuickUpdateSet) && (rpeOpen || (askRpe && isDone) || (simple && cue === 'effort'));
 
   useEffect(() => {
     doneRef.current = Boolean(isDone);
@@ -232,7 +235,11 @@ export const ActiveLogSetRow: React.FC<ActiveLogSetRowProps> = ({
               onToggleDone?.();
             }}
             aria-pressed={Boolean(isDone)}
-            aria-label={isDone ? `Set ${set.setNumber} done. Tap to undo` : `Mark set ${set.setNumber} done and start rest`}
+            aria-label={
+              isDone
+                ? `Set ${set.setNumber} done. Tap to undo`
+                : `Mark set ${set.setNumber} done and start rest`
+            }
             className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 font-mono text-[13px] cursor-pointer transition-all bg-o1-card ${
               isDone ? 'text-o1-crimson' : 'text-o1-text hover:bg-o1-sheet'
             } ${cue === 'tick' ? 'o1-cue-wave' : ''}`}
@@ -280,7 +287,9 @@ export const ActiveLogSetRow: React.FC<ActiveLogSetRowProps> = ({
               aria-expanded={bumpsOpen}
               aria-label={`Quick bumps for set ${set.setNumber}`}
               className={`w-7 h-8 shrink-0 rounded-lg border font-mono text-[10px] cursor-pointer transition-colors ${
-                bumpsOpen ? 'border-[#C4121A] text-o1-text bg-o1-sheet' : 'border-white/[0.07] text-o1-muted hover:text-o1-text'
+                bumpsOpen
+                  ? 'border-[#C4121A] text-o1-text bg-o1-sheet'
+                  : 'border-white/[0.07] text-o1-muted hover:text-o1-text'
               }`}
             >
               {simple ? '±' : 'QB'}
@@ -291,7 +300,10 @@ export const ActiveLogSetRow: React.FC<ActiveLogSetRowProps> = ({
         </div>
 
         {lockNote && (
-          <p role="status" className="px-1 text-[11px] text-o1-muted animate-in fade-in duration-150">
+          <p
+            role="status"
+            className="px-1 text-[11px] text-o1-muted animate-in fade-in duration-150"
+          >
             Set done. Tap the tick to undo, then edit.
           </p>
         )}
@@ -303,7 +315,11 @@ export const ActiveLogSetRow: React.FC<ActiveLogSetRowProps> = ({
         )}
 
         {showRpe && simple && (
-          <div className="flex items-center gap-1.5 px-1 animate-in fade-in duration-150" role="group" aria-label="How did that set feel?">
+          <div
+            className="flex items-center gap-1.5 px-1 animate-in fade-in duration-150"
+            role="group"
+            aria-label="How did that set feel?"
+          >
             {FEEL_CHOICES.map(({ label, rpe }) => (
               <button
                 key={label}
@@ -311,7 +327,9 @@ export const ActiveLogSetRow: React.FC<ActiveLogSetRowProps> = ({
                 onClick={() => pickRpe(rpe)}
                 aria-pressed={rpeVal === rpe}
                 className={`flex-1 h-7 rounded-lg border text-[11px] cursor-pointer active:scale-[0.97] transition ${
-                  rpeVal === rpe ? 'border-[#C4121A] text-o1-text bg-o1-sheet' : 'border-white/[0.07] text-o1-muted hover:text-o1-text'
+                  rpeVal === rpe
+                    ? 'border-[#C4121A] text-o1-text bg-o1-sheet'
+                    : 'border-white/[0.07] text-o1-muted hover:text-o1-text'
                 }`}
               >
                 {label}
@@ -321,7 +339,11 @@ export const ActiveLogSetRow: React.FC<ActiveLogSetRowProps> = ({
         )}
 
         {showRpe && !simple && (
-          <div className="flex items-center gap-1.5 px-1 animate-in fade-in duration-150" role="group" aria-label="How hard was that set?">
+          <div
+            className="flex items-center gap-1.5 px-1 animate-in fade-in duration-150"
+            role="group"
+            aria-label="How hard was that set?"
+          >
             {RPE_CHOICES.map((value) => (
               <button
                 key={value}
@@ -329,7 +351,9 @@ export const ActiveLogSetRow: React.FC<ActiveLogSetRowProps> = ({
                 onClick={() => pickRpe(value)}
                 aria-pressed={rpeVal === value}
                 className={`flex-1 h-7 rounded-lg border font-mono text-[13px] cursor-pointer active:scale-[0.97] transition ${
-                  rpeVal === value ? 'border-[#C4121A] text-o1-text bg-o1-sheet' : 'border-white/[0.07] text-o1-muted hover:text-o1-text'
+                  rpeVal === value
+                    ? 'border-[#C4121A] text-o1-text bg-o1-sheet'
+                    : 'border-white/[0.07] text-o1-muted hover:text-o1-text'
                 }`}
               >
                 {value}
@@ -352,7 +376,10 @@ export const ActiveLogSetRow: React.FC<ActiveLogSetRowProps> = ({
         )}
 
         {pendingTick && !isDone && (
-          <div role="status" className="flex items-center justify-between px-1 text-[11px] text-o1-muted animate-in fade-in duration-150">
+          <div
+            role="status"
+            className="flex items-center justify-between px-1 text-[11px] text-o1-muted animate-in fade-in duration-150"
+          >
             <span>Ticking set {set.setNumber}…</span>
             <button
               type="button"
@@ -405,5 +432,3 @@ export const ActiveLogSetRow: React.FC<ActiveLogSetRowProps> = ({
     </SwipeToReveal>
   );
 };
-
-

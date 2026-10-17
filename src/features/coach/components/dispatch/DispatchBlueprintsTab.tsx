@@ -26,7 +26,12 @@ const INTENSITY: { value: IntensityMode; label: string }[] = [
   { value: 'Failure Dropset', label: 'Dropset' },
 ];
 
-function Segmented<T extends string>({ label, options, value, onChange }: {
+function Segmented<T extends string>({
+  label,
+  options,
+  value,
+  onChange,
+}: {
   label: string;
   options: { value: T; label: string }[];
   value: T;
@@ -62,7 +67,10 @@ export const DispatchBlueprintsTab: React.FC<DispatchBlueprintsTabProps> = ({ on
   const [gear, setGear] = useState<FacilityGear>('Full Gym');
   const [intensity, setIntensity] = useState<IntensityMode>('Progressive RPE');
 
-  const blueprint = useMemo(() => synthesizeDailyBlueprint(vector, duration, gear, intensity, 0), [vector, duration, gear, intensity]);
+  const blueprint = useMemo(
+    () => synthesizeDailyBlueprint(vector, duration, gear, intensity, 0),
+    [vector, duration, gear, intensity],
+  );
 
   return (
     <div className="space-y-4">
@@ -84,7 +92,9 @@ export const DispatchBlueprintsTab: React.FC<DispatchBlueprintsTabProps> = ({ on
                 setVector(v);
               }}
               className={`h-9 px-3 rounded-xl text-xs font-medium whitespace-nowrap ${
-                vector === v ? 'bg-o1-crimson text-white font-bold' : 'bg-white/[0.08] text-o1-muted'
+                vector === v
+                  ? 'bg-o1-crimson text-white font-bold'
+                  : 'bg-white/[0.08] text-o1-muted'
               }`}
             >
               {v}
@@ -94,9 +104,19 @@ export const DispatchBlueprintsTab: React.FC<DispatchBlueprintsTabProps> = ({ on
       </div>
 
       <div className="grid grid-cols-1 gap-2.5">
-        <Segmented label="Duration" options={DURATIONS.map((d) => ({ value: d, label: d }))} value={duration} onChange={setDuration} />
+        <Segmented
+          label="Duration"
+          options={DURATIONS.map((d) => ({ value: d, label: d }))}
+          value={duration}
+          onChange={setDuration}
+        />
         <Segmented label="Equipment" options={GEAR} value={gear} onChange={setGear} />
-        <Segmented label="Intensity" options={INTENSITY} value={intensity} onChange={setIntensity} />
+        <Segmented
+          label="Intensity"
+          options={INTENSITY}
+          value={intensity}
+          onChange={setIntensity}
+        />
       </div>
 
       <div className="p-4 rounded-2xl border border-white/[0.07] bg-o1-surface space-y-3">
@@ -109,7 +129,10 @@ export const DispatchBlueprintsTab: React.FC<DispatchBlueprintsTabProps> = ({ on
 
         <div className="space-y-1.5">
           {blueprint.exercises.map((ex, i) => (
-            <div key={`${ex.name}-${i}`} className="p-2.5 rounded-xl bg-o1-sheet border border-white/[0.07] space-y-1 text-xs">
+            <div
+              key={`${ex.name}-${i}`}
+              className="p-2.5 rounded-xl bg-o1-sheet border border-white/[0.07] space-y-1 text-xs"
+            >
               <div className="flex items-center justify-between">
                 <span className="font-bold text-o1-text truncate">{ex.name}</span>
                 <span className="font-mono text-o1-muted font-bold shrink-0 ml-2">
@@ -118,7 +141,9 @@ export const DispatchBlueprintsTab: React.FC<DispatchBlueprintsTabProps> = ({ on
               </div>
               <div className="flex items-center justify-between text-[10px] text-o1-muted">
                 <span className="truncate">{ex.muscle}</span>
-                <span className="font-mono">RPE {ex.rpe} · Tempo {ex.tempo}</span>
+                <span className="font-mono">
+                  RPE {ex.rpe} · Tempo {ex.tempo}
+                </span>
               </div>
               <p className="text-[10px] text-o1-muted italic truncate">"{ex.cue}"</p>
             </div>
@@ -133,7 +158,9 @@ export const DispatchBlueprintsTab: React.FC<DispatchBlueprintsTabProps> = ({ on
           <Plus size={14} />
           Use this workout
         </button>
-        <p className="text-[10px] text-o1-muted text-center">Consult a physician before beginning any training program.</p>
+        <p className="text-[10px] text-o1-muted text-center">
+          Consult a physician before beginning any training program.
+        </p>
       </div>
     </div>
   );

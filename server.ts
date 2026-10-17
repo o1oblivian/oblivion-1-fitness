@@ -38,7 +38,7 @@ async function startServer() {
           req.rawBody = buf;
         }
       },
-    })
+    }),
   );
   app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
@@ -99,9 +99,11 @@ function lanIPv4(): string | null {
       if ((family === 'IPv4' || family === '4') && !net.internal) addresses.push(net.address);
     }
   }
-  return addresses.find((address) => address.startsWith('10.') || address.startsWith('192.168.'))
-    || addresses.find((address) => !address.startsWith('169.254.'))
-    || null;
+  return (
+    addresses.find((address) => address.startsWith('10.') || address.startsWith('192.168.')) ||
+    addresses.find((address) => !address.startsWith('169.254.')) ||
+    null
+  );
 }
 
 startServer().catch((err) => {

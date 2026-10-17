@@ -6,7 +6,8 @@ export const GLUTE_LAB_BLUEPRINTS: WorkoutBlueprint[] = [
     title: 'Booty Builder',
     subtitle: 'Posterior Chain Hypertrophy & Glute Engine',
     badge: 'GLUTE LAB',
-    image: 'https://images.unsplash.com/photo-1574680096145-d05b474e2155?auto=format&fit=crop&w=800&q=80',
+    image:
+      'https://images.unsplash.com/photo-1574680096145-d05b474e2155?auto=format&fit=crop&w=800&q=80',
     phase: 'Phase 2: Hypertrophy',
     focus: 'Gluteus Maximus & Medius Expansion',
     estimatedTime: '62 Mins',
@@ -105,13 +106,19 @@ export const GLUTE_LAB_BLUEPRINTS: WorkoutBlueprint[] = [
     title: 'Pelvic Stability & Upper Glute Shelf',
     subtitle: 'Gluteus Medius Abduction, Hip Stability & Lumbar Protection',
     badge: 'GLUTE LAB',
-    image: 'https://images.unsplash.com/photo-1518310383802-640c2de311b2?auto=format&fit=crop&w=800&q=80',
+    image:
+      'https://images.unsplash.com/photo-1518310383802-640c2de311b2?auto=format&fit=crop&w=800&q=80',
     phase: 'Phase 2: Hypertrophy',
     focus: 'Gluteus Medius, Minimus & Upper Glute Max Fiber',
     estimatedTime: '52 Mins',
     description:
       'Creates the coveted side-glute shelf and solidifies hip abduction stability. Integrates Kas glute bridges with micro-pauses, deficit reverse lunges, standing cable kickbacks at 45-degree abduction, and mechanical drop machine abductions.',
-    targetMuscles: ['Gluteus Medius', 'Gluteus Minimus', 'Upper Gluteus Maximus', 'Tensor Fasciae Latae'],
+    targetMuscles: [
+      'Gluteus Medius',
+      'Gluteus Minimus',
+      'Upper Gluteus Maximus',
+      'Tensor Fasciae Latae',
+    ],
     exercises: [
       {
         id: 'ps-1',
@@ -204,7 +211,8 @@ export const GLUTE_LAB_BLUEPRINTS: WorkoutBlueprint[] = [
     title: 'Lengthened Hip Hinge & Deep Glute Stretch',
     subtitle: 'Deficit RDLs, Single-Leg Hinge & 45° Rounded Hyperextensions',
     badge: 'GLUTE LAB',
-    image: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=800&q=80',
+    image:
+      'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=800&q=80',
     phase: 'Phase 2: Hypertrophy',
     focus: 'Lengthened Muscle Position Tension for Maximum Growth',
     estimatedTime: '55 Mins',
@@ -303,7 +311,8 @@ export const GLUTE_LAB_BLUEPRINTS: WorkoutBlueprint[] = [
     title: 'High-Box Step-Up & Unilateral Glute Engine',
     subtitle: 'Eccentric Step-Downs, Bulgarian Split Squats & Pelvic Balance',
     badge: 'GLUTE LAB',
-    image: 'https://images.unsplash.com/photo-1574680096145-d05b474e2155?auto=format&fit=crop&w=800&q=80',
+    image:
+      'https://images.unsplash.com/photo-1574680096145-d05b474e2155?auto=format&fit=crop&w=800&q=80',
     phase: 'Phase 2: Hypertrophy',
     focus: 'Unilateral Hip Extension & Eliminating Asymmetries',
     estimatedTime: '55 Mins',
@@ -402,7 +411,8 @@ export const GLUTE_LAB_BLUEPRINTS: WorkoutBlueprint[] = [
     title: 'Mind-Muscle Glute Activation & Resistance Band Matrix',
     subtitle: 'High-Rep Metabolic Pumping, Frog Bridges & Curtsy Lunges',
     badge: 'GLUTE LAB',
-    image: 'https://images.unsplash.com/photo-1518310383802-640c2de311b2?auto=format&fit=crop&w=800&q=80',
+    image:
+      'https://images.unsplash.com/photo-1518310383802-640c2de311b2?auto=format&fit=crop&w=800&q=80',
     phase: 'Phase 2: Hypertrophy',
     focus: 'Metabolic Stress, Capillarization & Mind-Muscle Connection',
     estimatedTime: '45 Mins',
@@ -501,13 +511,19 @@ export const GLUTE_LAB_BLUEPRINTS: WorkoutBlueprint[] = [
     title: 'Glute-Hamstring Tie-In & Pelvic Tilt Correction',
     subtitle: 'Under-Butt Fold Separation, Nordic Curls & Single-Leg Thrusts',
     badge: 'GLUTE LAB',
-    image: 'https://images.unsplash.com/photo-1574680096145-d05b474e2155?auto=format&fit=crop&w=800&q=80',
+    image:
+      'https://images.unsplash.com/photo-1574680096145-d05b474e2155?auto=format&fit=crop&w=800&q=80',
     phase: 'Phase 2: Hypertrophy',
     focus: 'Infra-Gluteal Fold Sculpting & Anterior Pelvic Tilt Correction',
     estimatedTime: '58 Mins',
     description:
       'Creates the deep athletic division between the lower glute and upper hamstring while correcting excessive anterior pelvic tilt. Integrates single-leg barbell hip thrusts, stiff-leg deadlifts, and Swiss ball hamstring curls.',
-    targetMuscles: ['Lower Gluteus Maximus Fold', 'Biceps Femoris', 'Semitendinosus', 'Rectus Abdominis'],
+    targetMuscles: [
+      'Lower Gluteus Maximus Fold',
+      'Biceps Femoris',
+      'Semitendinosus',
+      'Rectus Abdominis',
+    ],
     exercises: [
       {
         id: 'gt-1',

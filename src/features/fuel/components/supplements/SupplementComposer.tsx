@@ -1,10 +1,20 @@
 import React, { useState } from 'react';
 import { tactileEngine } from '../../../../services/tactileEngine';
 import { sanitizeNumericInput } from '../../../../utils/numberInputUtils';
-import type { SupplementEvidence, SupplementTiming, SupplementUnit } from '../../services/fuelCloud';
+import type {
+  SupplementEvidence,
+  SupplementTiming,
+  SupplementUnit,
+} from '../../services/fuelCloud';
 import { EVIDENCE_COPY } from '../../data/supplementLibrary';
 
-export const SUPPLEMENT_TIMINGS: SupplementTiming[] = ['Morning', 'Pre-Workout', 'Post-Workout', 'Evening', 'Anytime'];
+export const SUPPLEMENT_TIMINGS: SupplementTiming[] = [
+  'Morning',
+  'Pre-Workout',
+  'Post-Workout',
+  'Evening',
+  'Anytime',
+];
 const UNITS: SupplementUnit[] = ['mg', 'g', 'mcg', 'IU', 'caps', 'tabs', 'scoop', 'ml'];
 
 export interface SupplementDraft {
@@ -46,7 +56,13 @@ function decimalOnly(raw: string): string {
 const fieldClass =
   'w-full h-10 px-3 rounded-xl bg-o1-surface border border-white/[0.08] text-sm text-o1-text focus:outline-none focus:border-white/30';
 
-export const SupplementComposer: React.FC<SupplementComposerProps> = ({ mode, initial, duplicate, onSubmit, onCancel }) => {
+export const SupplementComposer: React.FC<SupplementComposerProps> = ({
+  mode,
+  initial,
+  duplicate,
+  onSubmit,
+  onCancel,
+}) => {
   const [draft, setDraft] = useState<SupplementDraft>(initial);
   const [caffeineTouched, setCaffeineTouched] = useState(false);
 
@@ -86,11 +102,18 @@ export const SupplementComposer: React.FC<SupplementComposerProps> = ({ mode, in
   };
 
   return (
-    <form onSubmit={submit} className="rounded-2xl border border-white/[0.08] p-3 space-y-3 animate-in fade-in duration-150">
+    <form
+      onSubmit={submit}
+      className="rounded-2xl border border-white/[0.08] p-3 space-y-3 animate-in fade-in duration-150"
+    >
       <div className="flex items-start justify-between gap-2">
-        <h5 className="text-xs font-semibold text-o1-text">{mode === 'add' ? 'Add to stack' : 'Edit supplement'}</h5>
+        <h5 className="text-xs font-semibold text-o1-text">
+          {mode === 'add' ? 'Add to stack' : 'Edit supplement'}
+        </h5>
         {draft.evidence && (
-          <span className={`shrink-0 h-5 px-2 rounded-full border text-[10px] font-medium inline-flex items-center ${EVIDENCE_COPY[draft.evidence].className}`}>
+          <span
+            className={`shrink-0 h-5 px-2 rounded-full border text-[10px] font-medium inline-flex items-center ${EVIDENCE_COPY[draft.evidence].className}`}
+          >
             {EVIDENCE_COPY[draft.evidence].label}
           </span>
         )}
@@ -108,7 +131,9 @@ export const SupplementComposer: React.FC<SupplementComposerProps> = ({ mode, in
           className={fieldClass}
           aria-invalid={isDuplicate}
         />
-        {isDuplicate && <span className="block mt-1 text-[10px] text-o1-crimson">Already in your stack</span>}
+        {isDuplicate && (
+          <span className="block mt-1 text-[10px] text-o1-crimson">Already in your stack</span>
+        )}
       </label>
 
       <div className="grid grid-cols-[1fr_auto] gap-2 items-end">
@@ -134,7 +159,10 @@ export const SupplementComposer: React.FC<SupplementComposerProps> = ({ mode, in
             onFocus={(e) => e.target.select()}
             onChange={(e) => {
               setCaffeineTouched(true);
-              setDraft((d) => ({ ...d, caffeineMg: sanitizeNumericInput(e.target.value.replace(/\D/g, '').slice(0, 4)) }));
+              setDraft((d) => ({
+                ...d,
+                caffeineMg: sanitizeNumericInput(e.target.value.replace(/\D/g, '').slice(0, 4)),
+              }));
             }}
             placeholder="0"
             className={`${fieldClass} w-24 tabular-nums text-center`}
@@ -152,7 +180,9 @@ export const SupplementComposer: React.FC<SupplementComposerProps> = ({ mode, in
             aria-checked={draft.unit === u}
             onClick={() => setDraft((d) => ({ ...d, unit: u }))}
             className={`h-7 px-2.5 rounded-lg border text-[11px] font-medium cursor-pointer ${
-              draft.unit === u ? 'border-o1-crimson text-o1-text' : 'border-white/[0.08] text-o1-muted'
+              draft.unit === u
+                ? 'border-o1-crimson text-o1-text'
+                : 'border-white/[0.08] text-o1-muted'
             }`}
           >
             {u}
@@ -171,7 +201,9 @@ export const SupplementComposer: React.FC<SupplementComposerProps> = ({ mode, in
               aria-checked={draft.timing === t}
               onClick={() => setDraft((d) => ({ ...d, timing: t }))}
               className={`h-8 rounded-lg border text-[10px] font-medium cursor-pointer ${
-                draft.timing === t ? 'border-o1-crimson text-o1-text' : 'border-white/[0.08] text-o1-muted'
+                draft.timing === t
+                  ? 'border-o1-crimson text-o1-text'
+                  : 'border-white/[0.08] text-o1-muted'
               }`}
             >
               {t === 'Pre-Workout' ? 'Pre' : t === 'Post-Workout' ? 'Post' : t}
@@ -199,5 +231,3 @@ export const SupplementComposer: React.FC<SupplementComposerProps> = ({ mode, in
     </form>
   );
 };
-
-

@@ -96,19 +96,28 @@ const loadSavedBuddyProfile = (): BuddyProfileState => {
     if (!saved) return defaultState;
     const parsed = JSON.parse(saved);
     const stockName = parsed.displayName === 'Jordan Vance';
-    const stockBio = typeof parsed.partnerBio === 'string' && parsed.partnerBio.startsWith('High-intensity lifting');
+    const stockBio =
+      typeof parsed.partnerBio === 'string' &&
+      parsed.partnerBio.startsWith('High-intensity lifting');
     if (stockName || stockBio) return defaultState;
-    const loadedPhotos =
-      Array.isArray(parsed.buddyPhotos)
-        ? parsed.buddyPhotos.filter(
-            (url: string) => typeof url === 'string' && !url.includes('images.unsplash.com') && !url.includes('photo-1534528741775')
-          )
-        : [];
+    const loadedPhotos = Array.isArray(parsed.buddyPhotos)
+      ? parsed.buddyPhotos.filter(
+          (url: string) =>
+            typeof url === 'string' &&
+            !url.includes('images.unsplash.com') &&
+            !url.includes('photo-1534528741775'),
+        )
+      : [];
     return {
       ...defaultState,
       ...parsed,
       gender: parsed.gender === 'women' || parsed.gender === 'men' ? parsed.gender : '',
-      trainingPlace: parsed.trainingPlace === 'gym' || parsed.trainingPlace === 'home' || parsed.trainingPlace === 'outdoors' ? parsed.trainingPlace : '',
+      trainingPlace:
+        parsed.trainingPlace === 'gym' ||
+        parsed.trainingPlace === 'home' ||
+        parsed.trainingPlace === 'outdoors'
+          ? parsed.trainingPlace
+          : '',
       buddyPhotos: loadedPhotos,
     };
   } catch (err) {
@@ -244,7 +253,13 @@ const buddyStore = createStore<BuddyProfileState, BuddyProfileActions>(
     reorderBuddyPhotos: (startIndex: number, endIndex: number) => {
       tactileEngine.triggerDialHaptic();
       const photos = [...get().buddyPhotos];
-      if (startIndex < 0 || startIndex >= photos.length || endIndex < 0 || endIndex >= photos.length) return;
+      if (
+        startIndex < 0 ||
+        startIndex >= photos.length ||
+        endIndex < 0 ||
+        endIndex >= photos.length
+      )
+        return;
       const [removed] = photos.splice(startIndex, 1);
       photos.splice(endIndex, 0, removed);
       set({ buddyPhotos: photos });
@@ -297,7 +312,9 @@ const buddyStore = createStore<BuddyProfileState, BuddyProfileActions>(
     toggleFavoriteWorkout: (workout) => {
       tactileEngine.triggerSelectionBuzz();
       const current = get().favoriteWorkouts;
-      const next = current.includes(workout) ? current.filter((w) => w !== workout) : [...current, workout];
+      const next = current.includes(workout)
+        ? current.filter((w) => w !== workout)
+        : [...current, workout];
       set({ favoriteWorkouts: next });
       persistState(get());
     },
@@ -341,7 +358,7 @@ const buddyStore = createStore<BuddyProfileState, BuddyProfileActions>(
         return next;
       });
     },
-  })
+  }),
 );
 
 export const useBuddyProfileStore = buddyStore.useStore;

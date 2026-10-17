@@ -25,12 +25,42 @@ interface ShareChannel {
 const enc = encodeURIComponent;
 
 const CHANNELS: ShareChannel[] = [
-  { id: 'whatsapp', label: 'WhatsApp', icon: <MessageCircle size={20} />, href: (url, text) => `https://wa.me/?text=${enc(`${text} ${url}`)}` },
-  { id: 'sms', label: 'Messages', icon: <MessageSquare size={20} />, href: (url, text) => `sms:?&body=${enc(`${text} ${url}`)}` },
-  { id: 'email', label: 'Email', icon: <Mail size={20} />, href: (url, text, title) => `mailto:?subject=${enc(title)}&body=${enc(`${text}\n${url}`)}` },
-  { id: 'telegram', label: 'Telegram', icon: <Send size={20} />, href: (url, text) => `https://t.me/share/url?url=${enc(url)}&text=${enc(text)}` },
-  { id: 'x', label: 'X', icon: <span className="text-[17px] font-bold leading-none">𝕏</span>, href: (url, text) => `https://twitter.com/intent/tweet?text=${enc(text)}&url=${enc(url)}` },
-  { id: 'facebook', label: 'Facebook', icon: <span className="text-[18px] font-bold leading-none">f</span>, href: (url) => `https://www.facebook.com/sharer/sharer.php?u=${enc(url)}` },
+  {
+    id: 'whatsapp',
+    label: 'WhatsApp',
+    icon: <MessageCircle size={20} />,
+    href: (url, text) => `https://wa.me/?text=${enc(`${text} ${url}`)}`,
+  },
+  {
+    id: 'sms',
+    label: 'Messages',
+    icon: <MessageSquare size={20} />,
+    href: (url, text) => `sms:?&body=${enc(`${text} ${url}`)}`,
+  },
+  {
+    id: 'email',
+    label: 'Email',
+    icon: <Mail size={20} />,
+    href: (url, text, title) => `mailto:?subject=${enc(title)}&body=${enc(`${text}\n${url}`)}`,
+  },
+  {
+    id: 'telegram',
+    label: 'Telegram',
+    icon: <Send size={20} />,
+    href: (url, text) => `https://t.me/share/url?url=${enc(url)}&text=${enc(text)}`,
+  },
+  {
+    id: 'x',
+    label: 'X',
+    icon: <span className="text-[17px] font-bold leading-none">𝕏</span>,
+    href: (url, text) => `https://twitter.com/intent/tweet?text=${enc(text)}&url=${enc(url)}`,
+  },
+  {
+    id: 'facebook',
+    label: 'Facebook',
+    icon: <span className="text-[18px] font-bold leading-none">f</span>,
+    href: (url) => `https://www.facebook.com/sharer/sharer.php?u=${enc(url)}`,
+  },
 ];
 
 function openChannel(href: string) {
@@ -64,7 +94,10 @@ export const ShareLinkSheet: React.FC<ShareLinkSheetProps> = ({ link, onClose })
   };
 
   return (
-    <div className="fixed inset-0 z-[80] flex items-end justify-center bg-black/60" onClick={onClose}>
+    <div
+      className="fixed inset-0 z-[80] flex items-end justify-center bg-black/60"
+      onClick={onClose}
+    >
       <div
         role="dialog"
         aria-label={`Share ${link.title}`}
@@ -73,7 +106,12 @@ export const ShareLinkSheet: React.FC<ShareLinkSheetProps> = ({ link, onClose })
       >
         <div className="flex items-center justify-between">
           <p className="truncate text-[14px] font-semibold">Share {link.title}</p>
-          <button type="button" onClick={onClose} className="flex h-11 w-11 items-center justify-center text-[#8A887F]" aria-label="Close share">
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex h-11 w-11 items-center justify-center text-[#8A887F]"
+            aria-label="Close share"
+          >
             <X size={20} />
           </button>
         </div>
@@ -90,11 +128,17 @@ export const ShareLinkSheet: React.FC<ShareLinkSheetProps> = ({ link, onClose })
               }}
               className="flex flex-col items-center gap-1.5 rounded-xl py-2 active:scale-[0.97]"
             >
-              <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[#1A1A1A] text-[#EAE8DF]">{channel.icon}</span>
+              <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[#1A1A1A] text-[#EAE8DF]">
+                {channel.icon}
+              </span>
               <span className="text-[11px] text-[#8A887F]">{channel.label}</span>
             </button>
           ))}
-          <button type="button" onClick={() => void copy()} className="flex flex-col items-center gap-1.5 rounded-xl py-2 active:scale-[0.97]">
+          <button
+            type="button"
+            onClick={() => void copy()}
+            className="flex flex-col items-center gap-1.5 rounded-xl py-2 active:scale-[0.97]"
+          >
             <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[#1A1A1A] text-[#EAE8DF]">
               {copied ? <Check size={20} /> : <Copy size={20} />}
             </span>

@@ -37,8 +37,16 @@ interface ReelSafetyState {
   blockCoach: (coachId: string) => Promise<void>;
 }
 
-async function fileReelReport(me: string, reel: ExploreReelItem, reason: string, details: string): Promise<boolean> {
-  const note = [`Reel: ${reel.title} (${reel.id})`, details].filter(Boolean).join('\n').slice(0, 2000);
+async function fileReelReport(
+  me: string,
+  reel: ExploreReelItem,
+  reason: string,
+  details: string,
+): Promise<boolean> {
+  const note = [`Reel: ${reel.title} (${reel.id})`, details]
+    .filter(Boolean)
+    .join('\n')
+    .slice(0, 2000);
   const { error } = await supabase.from('safety_reports').insert({
     reporter_id: me,
     reported_id: reel.coach.id,
@@ -48,7 +56,13 @@ async function fileReelReport(me: string, reel: ExploreReelItem, reason: string,
     details: note,
   });
   if (!error) return true;
-  return reportUser({ reportedId: reel.coach.id, name: reel.coach.name, reason, details: note, context: 'coach' });
+  return reportUser({
+    reportedId: reel.coach.id,
+    name: reel.coach.name,
+    reason,
+    details: note,
+    context: 'coach',
+  });
 }
 
 export const useReelSafetyStore = create<ReelSafetyState>((set, get) => ({
@@ -91,5 +105,8 @@ export function isReelVisible(reel: ExploreReelItem, hidden: IdSet, blocked: IdS
 export function useVisibleReels(reels: ExploreReelItem[]): ExploreReelItem[] {
   const hidden = useReelSafetyStore((s) => s.hiddenReels);
   const blocked = useReelSafetyStore((s) => s.blockedCoaches);
-  return useMemo(() => reels.filter((reel) => isReelVisible(reel, hidden, blocked)), [reels, hidden, blocked]);
+  return useMemo(
+    () => reels.filter((reel) => isReelVisible(reel, hidden, blocked)),
+    [reels, hidden, blocked],
+  );
 }

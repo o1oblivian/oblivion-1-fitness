@@ -23,7 +23,10 @@ export const O1FCoachRootView: React.FC = () => {
   const cachedCard = useCoachViewStore((s) => s.coachCard);
   const setCoachCard = useCoachViewStore((s) => s.setCoachCard);
   const [checkFailed, setCheckFailed] = useState(false);
-  const [visited, setVisited] = useState<Record<CoachRootView, boolean>>(() => ({ athlete: view === 'athlete', coach: view === 'coach' }));
+  const [visited, setVisited] = useState<Record<CoachRootView, boolean>>(() => ({
+    athlete: view === 'athlete',
+    coach: view === 'coach',
+  }));
   const { isCoach, awaitingFirstCheck } = resolveCoachAccess({
     role,
     userId,
@@ -32,10 +35,14 @@ export const O1FCoachRootView: React.FC = () => {
     checkFailed,
   });
 
-  useEffect(() => onCoachConsoleRequested(() => {
-    setView('coach');
-    setVisited((prev) => ({ ...prev, coach: true }));
-  }), [setView]);
+  useEffect(
+    () =>
+      onCoachConsoleRequested(() => {
+        setView('coach');
+        setVisited((prev) => ({ ...prev, coach: true }));
+      }),
+    [setView],
+  );
 
   useEffect(() => {
     setCheckFailed(false);
@@ -63,7 +70,11 @@ export const O1FCoachRootView: React.FC = () => {
   return (
     <div className="w-full flex flex-col min-h-screen">
       <div className="sticky top-0 z-40 w-full pt-2 pb-1.5 bg-black/95 backdrop-blur-md">
-        <div className="flex items-center justify-center gap-1.5" role="tablist" aria-label="Coach view">
+        <div
+          className="flex items-center justify-center gap-1.5"
+          role="tablist"
+          aria-label="Coach view"
+        >
           {TOGGLES.map(({ id, label, icon: Icon }) => {
             const active = view === id;
             return (
@@ -79,7 +90,9 @@ export const O1FCoachRootView: React.FC = () => {
                   setVisited((prev) => (prev[id] ? prev : { ...prev, [id]: true }));
                 }}
                 className={`o1-pill text-[11px] font-semibold border ${
-                  active ? 'bg-o1-crimson text-white border-o1-crimson' : 'bg-o1-sheet text-o1-text border-white/[0.07]'
+                  active
+                    ? 'bg-o1-crimson text-white border-o1-crimson'
+                    : 'bg-o1-sheet text-o1-text border-white/[0.07]'
                 }`}
               >
                 <Icon className="w-3.5 h-3.5" />
@@ -103,5 +116,3 @@ export const O1FCoachRootView: React.FC = () => {
     </div>
   );
 };
-
-

@@ -78,7 +78,8 @@ export const FuelSettingsSheet: React.FC<FuelSettingsSheetProps> = ({
   const macroKcal = draft.protein * 4 + draft.carbs * 4 + draft.fats * 9;
   const macroGap = draft.calories > 0 && macroKcal > 0 ? macroKcal - draft.calories : null;
   const parsedWeight = parseFloat(weightDraft);
-  const weightChanged = Number.isFinite(parsedWeight) && parsedWeight > 0 && parsedWeight !== weightKg;
+  const weightChanged =
+    Number.isFinite(parsedWeight) && parsedWeight > 0 && parsedWeight !== weightKg;
   const targetsDirty =
     draft.calories !== (targets.calories ?? 0) ||
     draft.protein !== (targets.protein ?? 0) ||
@@ -192,7 +193,9 @@ export const FuelSettingsSheet: React.FC<FuelSettingsSheetProps> = ({
                   placeholder="--"
                   value={draft[field.key] === 0 ? '' : draft[field.key]}
                   onFocus={(e) => e.target.select()}
-                  onChange={(e) => setDraft((d) => ({ ...d, [field.key]: parseCleanInt(e.target.value) }))}
+                  onChange={(e) =>
+                    setDraft((d) => ({ ...d, [field.key]: parseCleanInt(e.target.value) }))
+                  }
                   className={`w-full h-10 px-2 rounded-xl bg-o1-surface border border-white/[0.08] text-sm text-center tabular-nums text-o1-text focus:outline-none ${field.focus}`}
                 />
               </label>
@@ -236,5 +239,3 @@ export const FuelSettingsSheet: React.FC<FuelSettingsSheetProps> = ({
     </div>
   );
 };
-
-

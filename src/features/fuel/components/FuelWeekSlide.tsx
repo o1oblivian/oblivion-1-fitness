@@ -4,7 +4,12 @@ import { MacroTotals, WeekDayEntry, weeklyTrajectory } from '../utils/fuelMath';
 
 interface FuelWeekSlideProps {
   days: WeekDayEntry[];
-  targets: { calories: number | null; protein: number | null; carbs: number | null; fats: number | null };
+  targets: {
+    calories: number | null;
+    protein: number | null;
+    carbs: number | null;
+    fats: number | null;
+  };
 }
 
 type TowerTheme = { slabs: string[]; accent: string };
@@ -49,7 +54,12 @@ export const FuelWeekSlide: React.FC<FuelWeekSlideProps> = ({ days, targets }) =
   const towers: SegmentedTower[] = days.map((d, i) => {
     const kcal = d.totals && d.totals.calories > 0 ? d.totals.calories : null;
     const state = t.dayStates[i];
-    const theme = d.isToday && state !== 'over' ? STATE_THEME.today : state === 'empty' ? STATE_THEME.on : STATE_THEME[state];
+    const theme =
+      d.isToday && state !== 'over'
+        ? STATE_THEME.today
+        : state === 'empty'
+          ? STATE_THEME.on
+          : STATE_THEME[state];
     return {
       key: d.dateKey,
       label: parseKey(d.dateKey).toLocaleDateString(undefined, { weekday: 'narrow' }),
@@ -68,22 +78,35 @@ export const FuelWeekSlide: React.FC<FuelWeekSlideProps> = ({ days, targets }) =
       <div className="flex items-baseline justify-between gap-2">
         <div className="flex items-baseline gap-2 min-w-0">
           <span className="o1-unread text-2xl font-semibold tabular-nums leading-none">
-            {fmt(selected ? selectedTotals?.calories ?? null : t.avgCalories)}
+            {fmt(selected ? (selectedTotals?.calories ?? null) : t.avgCalories)}
           </span>
           <span className="text-[11px] text-o1-muted truncate">
-            {selected ? 'kcal' : `avg kcal${targets.calories ? ` / ${targets.calories.toLocaleString()}` : ''}`}
+            {selected
+              ? 'kcal'
+              : `avg kcal${targets.calories ? ` / ${targets.calories.toLocaleString()}` : ''}`}
           </span>
         </div>
-        <span className={`shrink-0 text-[11px] ${selected ? 'text-o1-text font-medium' : 'text-o1-muted'}`}>
-          {selected ? parseKey(selected.dateKey).toLocaleDateString(undefined, { weekday: 'long' }) : range}
+        <span
+          className={`shrink-0 text-[11px] ${selected ? 'text-o1-text font-medium' : 'text-o1-muted'}`}
+        >
+          {selected
+            ? parseKey(selected.dateKey).toLocaleDateString(undefined, { weekday: 'long' })
+            : range}
         </span>
       </div>
-      <p className={`text-[11px] tabular-nums mt-1 text-o1-muted truncate ${selected ? 'o1-unread' : ''}`}>
+      <p
+        className={`text-[11px] tabular-nums mt-1 text-o1-muted truncate ${selected ? 'o1-unread' : ''}`}
+      >
         {selected ? (
-          selectedTotals ? `${fmt(selectedTotals.protein)}g P · ${fmt(selectedTotals.carbs)}g C · ${fmt(selectedTotals.fats)}g F` : 'Nothing logged'
+          selectedTotals ? (
+            `${fmt(selectedTotals.protein)}g P · ${fmt(selectedTotals.carbs)}g C · ${fmt(selectedTotals.fats)}g F`
+          ) : (
+            'Nothing logged'
+          )
         ) : t.balancePerDay != null && t.status ? (
           <>
-            {signed(t.balancePerDay)} kcal/day · <span className={STATUS_COPY[t.status].className}>{STATUS_COPY[t.status].label}</span>
+            {signed(t.balancePerDay)} kcal/day ·{' '}
+            <span className={STATUS_COPY[t.status].className}>{STATUS_COPY[t.status].label}</span>
             {' · '}
             {t.loggedDays} full {t.loggedDays === 1 ? 'day' : 'days'}
           </>
@@ -99,7 +122,14 @@ export const FuelWeekSlide: React.FC<FuelWeekSlideProps> = ({ days, targets }) =
           towers={towers}
           tubeHeightPx={57}
           maxTubeWidthPx={20}
-          reference={targets.calories ? { value: targets.calories, label: `TARGET ${targets.calories.toLocaleString()} kcal` } : null}
+          reference={
+            targets.calories
+              ? {
+                  value: targets.calories,
+                  label: `TARGET ${targets.calories.toLocaleString()} kcal`,
+                }
+              : null
+          }
           activeKey={selectedKey ?? days[days.length - 1].dateKey}
           onSelect={(key) => setSelectedKey((cur) => (cur === key ? null : key))}
           ariaLabel="Calories by day, last 7 days"
@@ -110,7 +140,9 @@ export const FuelWeekSlide: React.FC<FuelWeekSlideProps> = ({ days, targets }) =
         <div className="flex items-center justify-between gap-2">
           <dt className="text-o1-crimson font-medium w-14 shrink-0">Protein</dt>
           <dd className="text-o1-text">
-            {targets.protein && t.proteinDays > 0 ? `${t.proteinHits}/${t.proteinDays} days hit` : '--'}
+            {targets.protein && t.proteinDays > 0
+              ? `${t.proteinHits}/${t.proteinDays} days hit`
+              : '--'}
           </dd>
         </div>
         <div className="flex items-center justify-between gap-2">
@@ -131,5 +163,3 @@ export const FuelWeekSlide: React.FC<FuelWeekSlideProps> = ({ days, targets }) =
     </div>
   );
 };
-
-

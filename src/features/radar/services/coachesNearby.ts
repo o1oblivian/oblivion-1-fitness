@@ -33,19 +33,30 @@ function firstSpecialty(value: unknown): string {
 }
 
 /** People in `nearby` who have a coach profile, with their public offer. Coaches at the viewer's gym come first, then nearest. */
-export async function findNearbyCoaches(nearby: DemoAthlete[], viewerGym = ''): Promise<NearbyCoach[]> {
+export async function findNearbyCoaches(
+  nearby: DemoAthlete[],
+  viewerGym = '',
+): Promise<NearbyCoach[]> {
   const people = new Map(nearby.filter((row) => UUID.test(row.id)).map((row) => [row.id, row]));
   if (people.size === 0) return [];
   const ids = [...people.keys()];
   const [profiles, fronts, reviews] = await Promise.all([
-    supabase.from('coach_profiles').select('id, display_name, avatar_url, specialties, accepting_new_athletes').in('id', ids),
-    supabase.from('coach_storefronts').select('coach_id, years_coaching, capacity, monthly_price_cents').in('coach_id', ids),
+    supabase
+      .from('coach_profiles')
+      .select('id, display_name, avatar_url, specialties, accepting_new_athletes')
+      .in('id', ids),
+    supabase
+      .from('coach_storefronts')
+      .select('coach_id, years_coaching, capacity, monthly_price_cents')
+      .in('coach_id', ids),
     supabase.from('coach_reviews').select('coach_id, stars').in('coach_id', ids),
   ]);
   if (profiles.error || !Array.isArray(profiles.data)) return [];
 
   const frontBy = new Map<string, Record<string, unknown>>();
-  (fronts.data ?? []).forEach((row: Record<string, unknown>) => frontBy.set(String(row.coach_id), row));
+  (fronts.data ?? []).forEach((row: Record<string, unknown>) =>
+    frontBy.set(String(row.coach_id), row),
+  );
   const starsBy = new Map<string, number[]>();
   (reviews.data ?? []).forEach((row: Record<string, unknown>) => {
     const stars = Number(row.stars);
@@ -65,8 +76,10 @@ export async function findNearbyCoaches(nearby: DemoAthlete[], viewerGym = ''): 
         id,
         name: String(row.display_name || person.name || 'Coach').trim(),
         handle: person.handle || '',
-        photo: person.image_url || person.avatar || person.photos?.[0] || String(row.avatar_url || ''),
-        discipline: firstSpecialty(row.specialties) || person.training_discipline || person.discipline || '',
+        photo:
+          person.image_url || person.avatar || person.photos?.[0] || String(row.avatar_url || ''),
+        discipline:
+          firstSpecialty(row.specialties) || person.training_discipline || person.discipline || '',
         gym: person.home_gym || person.homeGym || '',
         sameGym: sameGym(viewerGym, person.home_gym || person.homeGym),
         distanceKm: num(person.distance_km ?? person.distanceKm),
@@ -80,7 +93,11 @@ export async function findNearbyCoaches(nearby: DemoAthlete[], viewerGym = ''): 
       return coach;
     })
     .filter((coach): coach is NearbyCoach => Boolean(coach))
-    .sort((a, b) => Number(b.sameGym) - Number(a.sameGym) || (a.distanceKm ?? Infinity) - (b.distanceKm ?? Infinity));
+    .sort(
+      (a, b) =>
+        Number(b.sameGym) - Number(a.sameGym) ||
+        (a.distanceKm ?? Infinity) - (b.distanceKm ?? Infinity),
+    );
 }
 
 export function coachPriceLabel(cents: number | null): string {

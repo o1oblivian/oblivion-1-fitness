@@ -73,5 +73,3 @@ export const CoachCommandCenterModals: React.FC<CoachCommandCenterModalsProps> =
     />
   </>
 );
-
-

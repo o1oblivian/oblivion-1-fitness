@@ -69,7 +69,12 @@ function getExercisesForDiscipline(focus: string): ExerciseDefinition[] {
     }
 
     // Legs / Lower body focus
-    if (norm.includes('leg') || norm.includes('lower') || norm.includes('quad') || norm.includes('glute')) {
+    if (
+      norm.includes('leg') ||
+      norm.includes('lower') ||
+      norm.includes('quad') ||
+      norm.includes('glute')
+    ) {
       return (
         m === 'squat' ||
         m === 'hinge' ||
@@ -85,7 +90,12 @@ function getExercisesForDiscipline(focus: string): ExerciseDefinition[] {
     }
 
     // Mobility & Recovery focus
-    if (norm.includes('mobility') || norm.includes('recovery') || norm.includes('stretch') || norm.includes('flow')) {
+    if (
+      norm.includes('mobility') ||
+      norm.includes('recovery') ||
+      norm.includes('stretch') ||
+      norm.includes('flow')
+    ) {
       return (
         disc === 'recovery' ||
         m === 'mobility' ||
@@ -100,7 +110,12 @@ function getExercisesForDiscipline(focus: string): ExerciseDefinition[] {
     }
 
     // HYROX / Conditioning / Hybrid sports
-    if (norm.includes('hyrox') || norm.includes('conditioning') || norm.includes('endurance') || norm.includes('sport')) {
+    if (
+      norm.includes('hyrox') ||
+      norm.includes('conditioning') ||
+      norm.includes('endurance') ||
+      norm.includes('sport')
+    ) {
       return (
         disc === 'sports' ||
         c.includes('hyrox') ||
@@ -210,11 +225,9 @@ export function generateO1FCBlueprint(focus: string, count = 5): ProgramExercise
 
   // Separate compounds/prime lifts from accessories/flows for balanced programming
   const compounds = pool.filter(
-    (e) => e.tier === 'Compound Prime' || e.mechanic === 'compound' || e.discipline === 'sports'
+    (e) => e.tier === 'Compound Prime' || e.mechanic === 'compound' || e.discipline === 'sports',
   );
-  const accessories = pool.filter(
-    (e) => e.tier !== 'Compound Prime' && e.mechanic !== 'compound'
-  );
+  const accessories = pool.filter((e) => e.tier !== 'Compound Prime' && e.mechanic !== 'compound');
 
   const selectedList: ExerciseDefinition[] = [];
 
@@ -254,7 +267,11 @@ export function generateO1FCBlueprint(focus: string, count = 5): ProgramExercise
     if (isMobility) {
       sets = 3;
       restSeconds = 30;
-      repsString = ex.defaultReps ? (ex.defaultReps > 20 ? `${ex.defaultReps}s hold` : `${ex.defaultReps} reps`) : '45s hold';
+      repsString = ex.defaultReps
+        ? ex.defaultReps > 20
+          ? `${ex.defaultReps}s hold`
+          : `${ex.defaultReps} reps`
+        : '45s hold';
     } else if (isStrength) {
       sets = ex.mechanic === 'compound' ? 4 : 3;
       restSeconds = ex.mechanic === 'compound' ? 150 : 90;
@@ -302,22 +319,65 @@ export function getQuickAddExercises(focus: string): string[] {
 /**
  * Returns a recommended split layout for a week based on the selected program discipline.
  */
-export function getDisciplineSplitSchedule(focus: string, numDays: number): { dayName: string; splitFocus: string }[] {
+export function getDisciplineSplitSchedule(
+  focus: string,
+  numDays: number,
+): { dayName: string; splitFocus: string }[] {
   const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
   const norm = (focus || '').toLowerCase();
 
   let splitCycle = ['Push', 'Pull', 'Legs', 'Upper Body', 'Lower Body', 'Conditioning', 'Mobility'];
 
   if (norm.includes('push') || norm.includes('pull') || norm.includes('leg')) {
-    splitCycle = ['Push (Chest & Triceps)', 'Pull (Back & Biceps)', 'Legs (Quads & Glutes)', 'Active Recovery', 'Push (Shoulders & Chest)', 'Pull (Lats & Traps)', 'Legs (Posterior Chain)'];
+    splitCycle = [
+      'Push (Chest & Triceps)',
+      'Pull (Back & Biceps)',
+      'Legs (Quads & Glutes)',
+      'Active Recovery',
+      'Push (Shoulders & Chest)',
+      'Pull (Lats & Traps)',
+      'Legs (Posterior Chain)',
+    ];
   } else if (norm.includes('mobility') || norm.includes('recovery')) {
-    splitCycle = ['Hip & Pelvic Flow', 'Thoracic Spine Flow', 'Dead Hang Decompression', 'Breathwork Reset', 'Deep Hip Anterior Stretch', 'Active Mobility Flow', 'Rest & Integration'];
+    splitCycle = [
+      'Hip & Pelvic Flow',
+      'Thoracic Spine Flow',
+      'Dead Hang Decompression',
+      'Breathwork Reset',
+      'Deep Hip Anterior Stretch',
+      'Active Mobility Flow',
+      'Rest & Integration',
+    ];
   } else if (norm.includes('hyrox') || norm.includes('conditioning')) {
-    splitCycle = ['SkiErg & Sled Push', 'Threshold Rower & Swings', 'Heavy Loaded Carries', 'Active Recovery & Mobility', 'Sandbag Triple Extension', '5-10-5 Shuttle Sprints', 'Engine Recovery'];
+    splitCycle = [
+      'SkiErg & Sled Push',
+      'Threshold Rower & Swings',
+      'Heavy Loaded Carries',
+      'Active Recovery & Mobility',
+      'Sandbag Triple Extension',
+      '5-10-5 Shuttle Sprints',
+      'Engine Recovery',
+    ];
   } else if (norm.includes('upper') || norm.includes('lower')) {
-    splitCycle = ['Upper Heavy Strength', 'Lower Knee Dominant', 'Spine & Hip Mobility', 'Upper Hypertrophy Volume', 'Lower Posterior Chain', 'Hybrid Engine Conditioning', 'Rest'];
+    splitCycle = [
+      'Upper Heavy Strength',
+      'Lower Knee Dominant',
+      'Spine & Hip Mobility',
+      'Upper Hypertrophy Volume',
+      'Lower Posterior Chain',
+      'Hybrid Engine Conditioning',
+      'Rest',
+    ];
   } else if (norm.includes('strength') || norm.includes('power')) {
-    splitCycle = ['Squat Primary & Accessories', 'Bench Press Strength', 'Rest & Mobility', 'Deadlift & Posterior Chain', 'Overhead Press & Shoulders', 'Accessory Hypertrophy', 'Recovery'];
+    splitCycle = [
+      'Squat Primary & Accessories',
+      'Bench Press Strength',
+      'Rest & Mobility',
+      'Deadlift & Posterior Chain',
+      'Overhead Press & Shoulders',
+      'Accessory Hypertrophy',
+      'Recovery',
+    ];
   }
 
   return Array.from({ length: Math.min(numDays, 7) }, (_, idx) => ({

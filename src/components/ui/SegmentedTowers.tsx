@@ -64,16 +64,23 @@ export const SegmentedTowers: React.FC<SegmentedTowersProps> = ({
   const tubeWidth = bold ? maxTubeWidthPx : Math.min(28, Math.max(18, maxTubeWidthPx));
   const [refOpen, setRefOpen] = useState(false);
   const refTimer = useRef<number | null>(null);
-  useEffect(() => () => {
-    if (refTimer.current !== null) window.clearTimeout(refTimer.current);
-  }, []);
+  useEffect(
+    () => () => {
+      if (refTimer.current !== null) window.clearTimeout(refTimer.current);
+    },
+    [],
+  );
 
   const inner = tubeHeightPx - 2 * (frame + gap);
   const top = Math.max(1, reference?.value ?? 0, ...towers.map((t) => t.value ?? 0)) * 1.08;
-  const radius = bold ? tubeWidth / 2 : Math.min(14, Math.round(Math.min(20, maxTubeWidthPx) / 2.8));
+  const radius = bold
+    ? tubeWidth / 2
+    : Math.min(14, Math.round(Math.min(20, maxTubeWidthPx) / 2.8));
   /** Distance from the group's right edge to the last tower's right border: half a column minus half a tube. */
   const lastTowerEdgeRight = `calc((100% - ${(towers.length - 1) * COLUMN_GAP_PX}px) / ${towers.length * 2} - ${tubeWidth / 2}px)`;
-  const refBottom = reference ? LABEL_ROW_H + frame + gap + (Math.min(reference.value, top) / top) * inner : 0;
+  const refBottom = reference
+    ? LABEL_ROW_H + frame + gap + (Math.min(reference.value, top) / top) * inner
+    : 0;
 
   const revealReference = () => {
     tactileEngine.triggerSelectionBuzz();
@@ -89,12 +96,21 @@ export const SegmentedTowers: React.FC<SegmentedTowersProps> = ({
     <div className="o1-instrument relative select-none" role="group" aria-label={ariaLabel}>
       <div className="flex items-end justify-between gap-1.5">
         {towers.map((t) => {
-          const lit = t.value != null && t.value > 0 ? Math.min(slabCount, Math.max(1, Math.round((t.value / top) * slabCount))) : 0;
+          const lit =
+            t.value != null && t.value > 0
+              ? Math.min(slabCount, Math.max(1, Math.round((t.value / top) * slabCount)))
+              : 0;
           const isActive = activeKey === t.key;
           const isPeak = peakKey != null && peakKey === t.key;
           const border = bold
-            ? lit > 0 ? `${t.accent}80` : TRACK_BORDER
-            : isPeak ? `${CRIMSON}A6` : lit > 0 ? `${t.accent}59` : TRACK_BORDER;
+            ? lit > 0
+              ? `${t.accent}80`
+              : TRACK_BORDER
+            : isPeak
+              ? `${CRIMSON}A6`
+              : lit > 0
+                ? `${t.accent}59`
+                : TRACK_BORDER;
           const slabColor = (i: number): string => {
             if (i >= lit) return TRACK;
             if (bold && t.ramp) return rampColor(t.ramp, lit === 1 ? 0.5 : 1 - i / (lit - 1));
@@ -157,10 +173,15 @@ export const SegmentedTowers: React.FC<SegmentedTowersProps> = ({
                   ))}
                 </span>
               </span>
-              <span className="flex flex-col items-center justify-end" style={{ height: LABEL_ROW_H }}>
+              <span
+                className="flex flex-col items-center justify-end"
+                style={{ height: LABEL_ROW_H }}
+              >
                 <span
                   className={`text-[11px] tracking-wide leading-none ${
-                    isActive ? `${bold ? 'text-o1-text' : 'text-o1-crimson'} font-bold` : 'text-neutral-300 font-medium'
+                    isActive
+                      ? `${bold ? 'text-o1-text' : 'text-o1-crimson'} font-bold`
+                      : 'text-neutral-300 font-medium'
                   }`}
                 >
                   {t.label}
@@ -200,5 +221,3 @@ export const SegmentedTowers: React.FC<SegmentedTowersProps> = ({
     </div>
   );
 };
-
-

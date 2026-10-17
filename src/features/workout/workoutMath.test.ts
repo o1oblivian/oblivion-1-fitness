@@ -19,10 +19,18 @@ vi.mock('../../utils/safeStorage', () => {
 });
 vi.mock('../../stores/useUserStore', () => ({ useUserStore: { getState: () => userState } }));
 vi.mock('../fuel/store/useFuelStore', () => ({ useFuelStore: { getState: () => fuelState } }));
-vi.mock('../log/store/useTelemetryHistoryStore', () => ({ getTelemetryHistoryState: () => historyState }));
+vi.mock('../log/store/useTelemetryHistoryStore', () => ({
+  getTelemetryHistoryState: () => historyState,
+}));
 
-const { resistanceMet, resistanceKcal, sessionMinutes, trackSessionClock, resetSessionClock, estimateSessionEnergy } =
-  await import('./utils/sessionEnergy');
+const {
+  resistanceMet,
+  resistanceKcal,
+  sessionMinutes,
+  trackSessionClock,
+  resetSessionClock,
+  estimateSessionEnergy,
+} = await import('./utils/sessionEnergy');
 const { estimatedMaxKg, priorBestKg, priorBestSet, setIsPr } = await import('./services/sessionPr');
 
 const MIN = 60_000;
@@ -60,7 +68,8 @@ describe('resistanceMet', () => {
 
 describe('resistanceKcal', () => {
   it('counts net active kcal only', () => expect(resistanceKcal(50, 80, 8)).toBe(292));
-  it('returns null without a bodyweight instead of guessing', () => expect(resistanceKcal(50, null, 8)).toBeNull());
+  it('returns null without a bodyweight instead of guessing', () =>
+    expect(resistanceKcal(50, null, 8)).toBeNull());
   it('returns null for a zero-minute session', () => expect(resistanceKcal(0, 80, 8)).toBeNull());
 });
 
@@ -104,7 +113,14 @@ describe('estimateSessionEnergy', () => {
   it('averages RPE over ticked sets only and ignores out-of-range values', () => {
     userState.weightKg = 80;
     const energy = estimateSessionEnergy(
-      [lift([{ rpe: 8, completed: true }, { rpe: 9, completed: true }, { rpe: 6, completed: false }, { rpe: 14, completed: true }])],
+      [
+        lift([
+          { rpe: 8, completed: true },
+          { rpe: 9, completed: true },
+          { rpe: 6, completed: false },
+          { rpe: 14, completed: true },
+        ]),
+      ],
       3,
       T0,
     );
@@ -115,7 +131,9 @@ describe('estimateSessionEnergy', () => {
 
   it('falls back to the Fuel bodyweight when the profile has none', () => {
     fuelState.weightKg = 70;
-    expect(estimateSessionEnergy([lift([{ rpe: 0, completed: true }])], 1, T0).burnedKcal).toBeGreaterThan(0);
+    expect(
+      estimateSessionEnergy([lift([{ rpe: 0, completed: true }])], 1, T0).burnedKcal,
+    ).toBeGreaterThan(0);
   });
 
   it('returns null burn when no plausible bodyweight is known', () => {
@@ -129,9 +147,13 @@ describe('estimateSessionEnergy', () => {
 describe('PR detection', () => {
   beforeEach(() => {
     historyState.historyByDate = {
-      '2026-10-05': { workout: { exercises: [{ name: 'Bench Press', setLog: [{ weightKg: 100, reps: 5 }] }] } },
+      '2026-10-05': {
+        workout: { exercises: [{ name: 'Bench Press', setLog: [{ weightKg: 100, reps: 5 }] }] },
+      },
       '2026-10-08': { workout: { exercises: [{ name: 'bench press ', weightKg: 90, reps: 1 }] } },
-      '2026-10-12': { workout: { exercises: [{ name: 'Bench Press', setLog: [{ weightKg: 120, reps: 3 }] }] } },
+      '2026-10-12': {
+        workout: { exercises: [{ name: 'Bench Press', setLog: [{ weightKg: 120, reps: 3 }] }] },
+      },
     };
   });
 
@@ -147,7 +169,8 @@ describe('PR detection', () => {
     expect(priorBestKg('Bench Press')).toBeCloseTo(132, 1);
   });
 
-  it('matches names case-insensitively and trims spaces', () => expect(priorBestKg('  BENCH PRESS', '2026-10-06')).toBeCloseTo(116.67, 1));
+  it('matches names case-insensitively and trims spaces', () =>
+    expect(priorBestKg('  BENCH PRESS', '2026-10-06')).toBeCloseTo(116.67, 1));
 
   it('needs to beat the prior, not equal it', () => {
     const prior = priorBestKg('Bench Press', '2026-10-12');
@@ -161,13 +184,29 @@ describe('PR detection', () => {
   });
 
   it('returns the actual set behind the best, not just the estimate', () => {
-    expect(priorBestSet('Bench Press', '2026-10-12')).toMatchObject({ weightKg: 100, reps: 5, dateKey: '2026-10-05' });
-    expect(priorBestSet('Bench Press')).toMatchObject({ weightKg: 120, reps: 3, dateKey: '2026-10-12' });
+    expect(priorBestSet('Bench Press', '2026-10-12')).toMatchObject({
+      weightKg: 100,
+      reps: 5,
+      dateKey: '2026-10-05',
+    });
+    expect(priorBestSet('Bench Press')).toMatchObject({
+      weightKg: 120,
+      reps: 3,
+      dateKey: '2026-10-12',
+    });
   });
 
   it('reports the real set behind the best estimate', () => {
-    expect(priorBestSet('Bench Press', '2026-10-12')).toMatchObject({ weightKg: 100, reps: 5, dateKey: '2026-10-05' });
-    expect(priorBestSet('Bench Press')).toMatchObject({ weightKg: 120, reps: 3, dateKey: '2026-10-12' });
+    expect(priorBestSet('Bench Press', '2026-10-12')).toMatchObject({
+      weightKg: 100,
+      reps: 5,
+      dateKey: '2026-10-05',
+    });
+    expect(priorBestSet('Bench Press')).toMatchObject({
+      weightKg: 120,
+      reps: 3,
+      dateKey: '2026-10-12',
+    });
     expect(priorBestSet('Zercher Squat')).toBeNull();
   });
 });
@@ -178,20 +217,45 @@ describe('mergeWorkoutDay', async () => {
 
   it('adds a second session on top of the first', () => {
     const merged = mergeWorkoutDay(
-      { hasData: true, tonnageKg: 1000, completedSets: 10, durationMinutes: 30, intensityRpe: 8, burnedKcal: 200, routineName: 'Push A', exercises: [] },
+      {
+        hasData: true,
+        tonnageKg: 1000,
+        completedSets: 10,
+        durationMinutes: 30,
+        intensityRpe: 8,
+        burnedKcal: 200,
+        routineName: 'Push A',
+        exercises: [],
+      },
       ledger,
       'Arms',
       { durationMinutes: 20, avgRpe: 6, burnedKcal: 100 },
     );
-    expect(merged).toMatchObject({ tonnageKg: 1500, completedSets: 15, durationMinutes: 50, intensityRpe: 7.2, burnedKcal: 300, routineName: 'Push A + Arms' });
+    expect(merged).toMatchObject({
+      tonnageKg: 1500,
+      completedSets: 15,
+      durationMinutes: 50,
+      intensityRpe: 7.2,
+      burnedKcal: 300,
+      routineName: 'Push A + Arms',
+    });
   });
 
   it('does not write a zero burn', () => {
-    expect(mergeWorkoutDay(undefined, ledger, 'Push A', { durationMinutes: 20, avgRpe: null, burnedKcal: null })).not.toHaveProperty('burnedKcal');
+    expect(
+      mergeWorkoutDay(undefined, ledger, 'Push A', {
+        durationMinutes: 20,
+        avgRpe: null,
+        burnedKcal: null,
+      }),
+    ).not.toHaveProperty('burnedKcal');
   });
 
   it('does not repeat the routine name when the same session is logged twice', () => {
-    expect(mergeWorkoutDay({ hasData: true, routineName: 'Push A', exercises: [] }, ledger, 'Push A').routineName).toBe('Push A');
+    expect(
+      mergeWorkoutDay({ hasData: true, routineName: 'Push A', exercises: [] }, ledger, 'Push A')
+        .routineName,
+    ).toBe('Push A');
   });
 });
 
@@ -200,18 +264,34 @@ describe('completeSetsBefore', async () => {
   const ticks = (exs: ExerciseItem[]) => exs[0].sets.map((s) => Boolean(s.completed));
 
   it('ticks filled sets before the one being worked on', () => {
-    const exs = [lift([{ rpe: 0, completed: false }, { rpe: 0, completed: false }, { rpe: 0, completed: false }])];
+    const exs = [
+      lift([
+        { rpe: 0, completed: false },
+        { rpe: 0, completed: false },
+        { rpe: 0, completed: false },
+      ]),
+    ];
     expect(ticks(completeSetsBefore(exs, 'ex', 3))).toEqual([true, true, false]);
   });
 
   it('leaves sets without reps unticked', () => {
-    const exs = [lift([{ rpe: 0, completed: false }, { rpe: 0, completed: false }])];
+    const exs = [
+      lift([
+        { rpe: 0, completed: false },
+        { rpe: 0, completed: false },
+      ]),
+    ];
     exs[0].sets[0].reps = 0;
     expect(ticks(completeSetsBefore(exs, 'ex', 2))).toEqual([false, false]);
   });
 
   it('returns the same array when nothing changes', () => {
-    const exs = [lift([{ rpe: 0, completed: true }, { rpe: 0, completed: false }])];
+    const exs = [
+      lift([
+        { rpe: 0, completed: true },
+        { rpe: 0, completed: false },
+      ]),
+    ];
     expect(completeSetsBefore(exs, 'ex', 2)).toBe(exs);
   });
 });

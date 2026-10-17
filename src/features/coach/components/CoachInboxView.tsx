@@ -33,7 +33,12 @@ interface Thread {
   waiting: boolean;
 }
 
-export const CoachInboxView: React.FC<CoachInboxViewProps> = ({ coachId = '', viewer, contacts = {}, coachName = '' }) => {
+export const CoachInboxView: React.FC<CoachInboxViewProps> = ({
+  coachId = '',
+  viewer,
+  contacts = {},
+  coachName = '',
+}) => {
   const myName = useAuthStore((s) => s.profile?.name || '');
   const [me, setMe] = useState('');
   const [messages, setMessages] = useState<CoachMessage[]>([]);
@@ -65,7 +70,10 @@ export const CoachInboxView: React.FC<CoachInboxViewProps> = ({ coachId = '', vi
     void (async () => {
       const uid = (await getAuthenticatedUserId()) || '';
       const owner = viewer === 'coach' ? coachId || uid : coachId;
-      const rows = owner && (viewer === 'coach' || uid) ? await fetchCoachMessages(owner, viewer === 'athlete' ? uid : '') : [];
+      const rows =
+        owner && (viewer === 'coach' || uid)
+          ? await fetchCoachMessages(owner, viewer === 'athlete' ? uid : '')
+          : [];
       if (!live) return;
       setMe(uid);
       applyRows(rows);
@@ -133,24 +141,40 @@ export const CoachInboxView: React.FC<CoachInboxViewProps> = ({ coachId = '', vi
   }, [messages, contacts, fromCoach, viewer, blocked]);
 
   const open = threads.find((thread) => thread.athleteId === openId) || null;
-  const other = viewer === 'coach' ? { id: open?.athleteId || '', name: open?.name || 'Athlete' } : { id: coachId, name: coachName || 'your coach' };
+  const other =
+    viewer === 'coach'
+      ? { id: open?.athleteId || '', name: open?.name || 'Athlete' }
+      : { id: coachId, name: coachName || 'your coach' };
   const otherBlocked = Boolean(other.id) && blocked.includes(other.id);
 
   const block = async (person: { id: string; name: string }, quiet = false) => {
     if (!person.id) return;
     const ok = await blockUser(person.id);
     if (ok) setBlocked((prev) => (prev.includes(person.id) ? prev : [...prev, person.id]));
-    if (!quiet) setNotice(ok ? `Blocked ${person.name}. They can no longer message you.` : 'Block did not save. Check your connection and try again.');
+    if (!quiet)
+      setNotice(
+        ok
+          ? `Blocked ${person.name}. They can no longer message you.`
+          : 'Block did not save. Check your connection and try again.',
+      );
     if (ok && viewer === 'coach') setOpenId(null);
   };
 
   const safetyActions = other.id ? (
     <div className="flex shrink-0 items-center gap-1">
-      <button type="button" onClick={() => setReportOpen(true)} className="h-9 rounded-full px-3 text-[12px] font-semibold text-o1-muted">
+      <button
+        type="button"
+        onClick={() => setReportOpen(true)}
+        className="h-9 rounded-full px-3 text-[12px] font-semibold text-o1-muted"
+      >
         Report
       </button>
       {otherBlocked ? null : (
-        <button type="button" onClick={() => void block(other)} className="h-9 rounded-full px-3 text-[12px] font-semibold text-o1-muted">
+        <button
+          type="button"
+          onClick={() => void block(other)}
+          className="h-9 rounded-full px-3 text-[12px] font-semibold text-o1-muted"
+        >
           Block
         </button>
       )}
@@ -164,8 +188,18 @@ export const CoachInboxView: React.FC<CoachInboxViewProps> = ({ coachId = '', vi
       onClose={() => setReportOpen(false)}
       onSubmit={(reason, details, alsoBlock) => {
         const person = other;
-        void reportUser({ reportedId: person.id, name: person.name, reason, details, context: 'coach' }).then((ok) => {
-          setNotice(ok ? 'Report sent. The Oblivion 1 team will review it.' : 'Report did not send. Check your connection and try again.');
+        void reportUser({
+          reportedId: person.id,
+          name: person.name,
+          reason,
+          details,
+          context: 'coach',
+        }).then((ok) => {
+          setNotice(
+            ok
+              ? 'Report sent. The Oblivion 1 team will review it.'
+              : 'Report did not send. Check your connection and try again.',
+          );
         });
         if (alsoBlock) void block(person, true);
       }}
@@ -181,7 +215,10 @@ export const CoachInboxView: React.FC<CoachInboxViewProps> = ({ coachId = '', vi
     const ok = await sendCoachMessage({
       coachId: owner,
       athleteId,
-      senderName: (viewer === 'coach' ? coachName : myName) || myName || (viewer === 'coach' ? 'Coach' : 'Athlete'),
+      senderName:
+        (viewer === 'coach' ? coachName : myName) ||
+        myName ||
+        (viewer === 'coach' ? 'Coach' : 'Athlete'),
       message: text,
       from: viewer,
     });
@@ -193,11 +230,17 @@ export const CoachInboxView: React.FC<CoachInboxViewProps> = ({ coachId = '', vi
   };
 
   const failureNote = loadFailed ? (
-    <p role="alert" className="rounded-xl border border-white/[0.07] bg-o1-canvas px-3 py-2 text-[12px] text-o1-text">
+    <p
+      role="alert"
+      className="rounded-xl border border-white/[0.07] bg-o1-canvas px-3 py-2 text-[12px] text-o1-text"
+    >
       Could not load messages. Check your connection.
     </p>
   ) : sendFailed ? (
-    <p role="alert" className="rounded-xl border border-white/[0.07] bg-o1-canvas px-3 py-2 text-[12px] text-o1-text">
+    <p
+      role="alert"
+      className="rounded-xl border border-white/[0.07] bg-o1-canvas px-3 py-2 text-[12px] text-o1-text"
+    >
       Message not sent. Check your connection and try again.
     </p>
   ) : null;
@@ -213,7 +256,11 @@ export const CoachInboxView: React.FC<CoachInboxViewProps> = ({ coachId = '', vi
       <input
         value={reply}
         onChange={(event) => setReply(event.target.value)}
-        placeholder={viewer === 'coach' ? `Reply to ${open?.name.split(' ')[0] || 'athlete'}` : `Message ${coachName || 'your coach'}`}
+        placeholder={
+          viewer === 'coach'
+            ? `Reply to ${open?.name.split(' ')[0] || 'athlete'}`
+            : `Message ${coachName || 'your coach'}`
+        }
         maxLength={500}
         className="h-[44px] min-w-0 flex-1 rounded-xl border border-white/[0.07] bg-o1-canvas px-3 text-[13px] text-o1-text outline-none focus:border-o1-crimson"
       />
@@ -233,20 +280,36 @@ export const CoachInboxView: React.FC<CoachInboxViewProps> = ({ coachId = '', vi
       <section className="space-y-3 rounded-2xl border border-white/[0.07] bg-o1-surface p-3">
         {viewer === 'coach' && open ? (
           <div className="flex items-center gap-2">
-            <button type="button" onClick={() => setOpenId(null)} aria-label="Back to inbox" className="flex h-11 w-11 items-center justify-center text-o1-muted">
+            <button
+              type="button"
+              onClick={() => setOpenId(null)}
+              aria-label="Back to inbox"
+              className="flex h-11 w-11 items-center justify-center text-o1-muted"
+            >
               <ChevronLeft size={20} />
             </button>
             <AthleteAvatar name={open.name} avatar={open.avatar} size={36} />
-            <p className="min-w-0 flex-1 truncate text-[15px] font-semibold text-o1-text">{open.name}</p>
+            <p className="min-w-0 flex-1 truncate text-[15px] font-semibold text-o1-text">
+              {open.name}
+            </p>
             {safetyActions}
           </div>
         ) : (
           <div className="flex items-center justify-between gap-2">
-            <p className="min-w-0 truncate text-[13px] font-semibold text-o1-text">Messages with {coachName || 'your coach'}</p>
+            <p className="min-w-0 truncate text-[13px] font-semibold text-o1-text">
+              Messages with {coachName || 'your coach'}
+            </p>
             {safetyActions}
           </div>
         )}
-        {notice ? <p role="status" className="rounded-xl border border-white/[0.07] bg-o1-canvas px-3 py-2 text-[12px] text-o1-text">{notice}</p> : null}
+        {notice ? (
+          <p
+            role="status"
+            className="rounded-xl border border-white/[0.07] bg-o1-canvas px-3 py-2 text-[12px] text-o1-text"
+          >
+            {notice}
+          </p>
+        ) : null}
         {isLoading ? (
           <p className="py-6 text-center text-[13px] text-o1-muted">Loading messages…</p>
         ) : rows.length === 0 ? (
@@ -257,9 +320,17 @@ export const CoachInboxView: React.FC<CoachInboxViewProps> = ({ coachId = '', vi
               const mine = fromCoach(row) === (viewer === 'coach');
               return (
                 <li key={row.id} className={`flex ${mine ? 'justify-end' : 'justify-start'}`}>
-                  <div className={`max-w-[80%] rounded-2xl px-3 py-2 ${mine ? 'bg-o1-crimson text-o1-text' : 'bg-o1-canvas text-o1-text border border-white/[0.07]'}`}>
+                  <div
+                    className={`max-w-[80%] rounded-2xl px-3 py-2 ${mine ? 'bg-o1-crimson text-o1-text' : 'bg-o1-canvas text-o1-text border border-white/[0.07]'}`}
+                  >
                     <p className="whitespace-pre-wrap text-[13px]">{row.message}</p>
-                    {row.time ? <p className={`mt-0.5 text-[10px] tabular-nums ${mine ? 'text-white/70' : 'text-o1-muted'}`}>{row.time}</p> : null}
+                    {row.time ? (
+                      <p
+                        className={`mt-0.5 text-[10px] tabular-nums ${mine ? 'text-white/70' : 'text-o1-muted'}`}
+                      >
+                        {row.time}
+                      </p>
+                    ) : null}
                   </div>
                 </li>
               );
@@ -268,7 +339,9 @@ export const CoachInboxView: React.FC<CoachInboxViewProps> = ({ coachId = '', vi
         )}
         {failureNote}
         {otherBlocked ? (
-          <p className="text-center text-[12px] text-o1-muted">You blocked {other.name}. Messages are off.</p>
+          <p className="text-center text-[12px] text-o1-muted">
+            You blocked {other.name}. Messages are off.
+          </p>
         ) : (
           replyBox
         )}
@@ -286,18 +359,26 @@ export const CoachInboxView: React.FC<CoachInboxViewProps> = ({ coachId = '', vi
           <p className="text-[13px] font-semibold text-o1-text">Inbox</p>
           <p className="text-[12px] text-o1-muted">Messages from your athletes.</p>
         </div>
-        {waitingCount > 0 ? <span className="text-[12px] font-semibold tabular-nums text-o1-text">{waitingCount} to reply</span> : null}
+        {waitingCount > 0 ? (
+          <span className="text-[12px] font-semibold tabular-nums text-o1-text">
+            {waitingCount} to reply
+          </span>
+        ) : null}
       </div>
 
       {failureNote}
 
       {isLoading ? (
-        <p className="rounded-2xl border border-white/[0.07] bg-o1-surface px-4 py-6 text-center text-[13px] text-o1-muted">Loading messages…</p>
+        <p className="rounded-2xl border border-white/[0.07] bg-o1-surface px-4 py-6 text-center text-[13px] text-o1-muted">
+          Loading messages…
+        </p>
       ) : threads.length === 0 ? (
         <div className="space-y-1 rounded-2xl border border-white/[0.07] bg-o1-surface px-4 py-6 text-center">
           <Inbox className="mx-auto h-6 w-6 text-o1-muted" />
           <p className="text-[13px] font-semibold text-o1-text">No messages yet</p>
-          <p className="text-[12px] text-o1-muted">When an athlete messages you, it shows up here.</p>
+          <p className="text-[12px] text-o1-muted">
+            When an athlete messages you, it shows up here.
+          </p>
         </div>
       ) : (
         threads.map((thread) => {
@@ -315,15 +396,26 @@ export const CoachInboxView: React.FC<CoachInboxViewProps> = ({ coachId = '', vi
               <AthleteAvatar name={thread.name} avatar={thread.avatar} />
               <span className="min-w-0 flex-1">
                 <span className="flex items-baseline justify-between gap-2">
-                  <span className="truncate text-[14px] font-semibold text-o1-text">{thread.name}</span>
-                  {last.time ? <span className="shrink-0 text-[11px] tabular-nums text-o1-muted">{last.time}</span> : null}
+                  <span className="truncate text-[14px] font-semibold text-o1-text">
+                    {thread.name}
+                  </span>
+                  {last.time ? (
+                    <span className="shrink-0 text-[11px] tabular-nums text-o1-muted">
+                      {last.time}
+                    </span>
+                  ) : null}
                 </span>
                 <span className="block truncate text-[12px] text-o1-muted">
                   {fromCoach(last) ? 'You: ' : ''}
                   {last.message}
                 </span>
               </span>
-              {thread.waiting ? <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-o1-crimson" aria-label="Needs a reply" /> : null}
+              {thread.waiting ? (
+                <span
+                  className="h-2.5 w-2.5 shrink-0 rounded-full bg-o1-crimson"
+                  aria-label="Needs a reply"
+                />
+              ) : null}
             </button>
           );
         })

@@ -41,7 +41,7 @@ export const FuelIntakeSlotCard: React.FC<FuelIntakeSlotCardProps> = ({
       carbs: acc.carbs + (Number(it.carbs) || 0),
       fats: acc.fats + (Number(it.fats) || 0),
     }),
-    { calories: 0, protein: 0, carbs: 0, fats: 0 }
+    { calories: 0, protein: 0, carbs: 0, fats: 0 },
   );
   const hasItems = items.length > 0;
   const note = SLOT_NOTE[slot.key];
@@ -54,10 +54,15 @@ export const FuelIntakeSlotCard: React.FC<FuelIntakeSlotCardProps> = ({
         : `Target ~${Math.round(targetKcal).toLocaleString()} kcal`);
 
   return (
-    <div id={`intake-slot-${slot.key}`} className="bg-o1-canvas border border-white/[0.08] rounded-2xl overflow-hidden">
+    <div
+      id={`intake-slot-${slot.key}`}
+      className="bg-o1-canvas border border-white/[0.08] rounded-2xl overflow-hidden"
+    >
       <div className="flex items-center justify-between gap-3 px-3.5 py-1.5 bg-o1-text">
         <div className="flex items-center gap-3 min-w-0">
-          <span className={`flex items-center justify-center shrink-0 ${slot.accent}`}>{slot.icon}</span>
+          <span className={`flex items-center justify-center shrink-0 ${slot.accent}`}>
+            {slot.icon}
+          </span>
           <div className="min-w-0">
             <h3 className="text-sm font-semibold text-black">{slot.label}</h3>
             <p className="text-[11px] text-black/60 tabular-nums truncate">{subtitle}</p>
@@ -65,7 +70,8 @@ export const FuelIntakeSlotCard: React.FC<FuelIntakeSlotCardProps> = ({
         </div>
         <div className="text-right shrink-0 tabular-nums">
           <span className="o1-unread block text-sm font-semibold text-black">
-            {hasItems ? Math.round(total.calories).toLocaleString() : '--'} <span className="text-[10px] font-normal text-black/60">kcal</span>
+            {hasItems ? Math.round(total.calories).toLocaleString() : '--'}{' '}
+            <span className="text-[10px] font-normal text-black/60">kcal</span>
           </span>
           {hasItems && (
             <span className="block text-[10px] font-semibold">
@@ -82,11 +88,16 @@ export const FuelIntakeSlotCard: React.FC<FuelIntakeSlotCardProps> = ({
       {hasItems && (
         <ul className="px-3 pt-3 pb-1 space-y-1.5">
           {items.map((item) => (
-            <li key={item.id} className="flex items-center justify-between gap-2 pl-3 pr-1.5 py-2 rounded-xl bg-o1-surface border border-white/[0.05]">
+            <li
+              key={item.id}
+              className="flex items-center justify-between gap-2 pl-3 pr-1.5 py-2 rounded-xl bg-o1-surface border border-white/[0.05]"
+            >
               <div className="min-w-0">
                 <span className="block text-xs font-medium text-o1-text truncate">{item.name}</span>
                 <span className="block text-[11px] tabular-nums mt-0.5">
-                  <span className="text-o1-text">{Math.round(Number(item.calories) || 0)} kcal</span>
+                  <span className="text-o1-text">
+                    {Math.round(Number(item.calories) || 0)} kcal
+                  </span>
                   <span className="text-o1-muted"> · </span>
                   <span className="text-o1-crimson">{g(Number(item.protein) || 0)}g P</span>
                   <span className="text-o1-muted"> · </span>
@@ -138,5 +149,3 @@ export const FuelIntakeSlotCard: React.FC<FuelIntakeSlotCardProps> = ({
     </div>
   );
 };
-
-

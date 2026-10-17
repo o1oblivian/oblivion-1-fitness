@@ -23,7 +23,13 @@ const REVIEWER_EMAIL = 'o1oblivianfitness+review@gmail.com';
 function signedInAs(email: string): boolean {
   try {
     const stored = (localStorage.getItem('o1fc_user_email') || '').trim().toLowerCase();
-    const live = (useAuthStore.getState().user?.email || useAuthStore.getState().profile?.email || '').trim().toLowerCase();
+    const live = (
+      useAuthStore.getState().user?.email ||
+      useAuthStore.getState().profile?.email ||
+      ''
+    )
+      .trim()
+      .toLowerCase();
     return stored === email || live === email;
   } catch {
     return false;
@@ -31,7 +37,8 @@ function signedInAs(email: string): boolean {
 }
 
 /** The owner account only counts when Supabase has a live session for it, never from a saved local value. */
-const creatorSignedIn = (): boolean => (useAuthStore.getState().user?.email || '').trim().toLowerCase() === CREATOR_EMAIL;
+const creatorSignedIn = (): boolean =>
+  (useAuthStore.getState().user?.email || '').trim().toLowerCase() === CREATOR_EMAIL;
 /** Launch-gated UI. The store reviewer still goes through the real paywall; only the owner gets Pro without paying. */
 const launchPreviewAllowed = (): boolean => creatorSignedIn() || signedInAs(REVIEWER_EMAIL);
 
@@ -84,7 +91,8 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
       setTrial(trialInfo);
       setIsCreator(creatorSignedIn());
       setCanPreviewLaunch(launchPreviewAllowed());
-      const hasProEntitlement = trialInfo.hasSubscribedPro || (status.isActive && status.tierId !== 'o1fc_core_free');
+      const hasProEntitlement =
+        trialInfo.hasSubscribedPro || (status.isActive && status.tierId !== 'o1fc_core_free');
       setIsPro(Boolean(uid) && hasProEntitlement);
       setCurrentPlan(status.tierId || (hasProEntitlement ? PLUS_ENTITLEMENT : 'o1fc_core_free'));
       setIsLoading(false);
@@ -93,7 +101,8 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
       const verified = await verifySubscriptionWithStore(uid);
       if (!verified || !mounted) return;
       if (verified.isActive) {
-        if (!trialInfo.hasSubscribedPro || trialInfo.planId !== verified.tierId) activateProSubscription(uid, verified.tierId);
+        if (!trialInfo.hasSubscribedPro || trialInfo.planId !== verified.tierId)
+          activateProSubscription(uid, verified.tierId);
       } else {
         clearProSubscription(uid);
       }
@@ -103,7 +112,9 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
     };
 
     init();
-    return () => { mounted = false; };
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   const purchasePro = useCallback(async (planId?: string) => {

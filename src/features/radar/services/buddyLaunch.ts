@@ -22,7 +22,9 @@ export function areaKey(latitude: number, longitude: number): string {
   return `${latCell.toFixed(1)}:${lngCell.toFixed(1)}`;
 }
 
-export async function readBuddyGate(coords: { latitude: number; longitude: number } | null): Promise<BuddyGate> {
+export async function readBuddyGate(
+  coords: { latitude: number; longitude: number } | null,
+): Promise<BuddyGate> {
   try {
     const { data, error } = await supabase
       .from('app_config')

@@ -31,7 +31,9 @@ function ReelTile({
     <button
       type="button"
       onClick={() => onSelect(item)}
-      aria-label={item.clip ? `Play ${item.reel.title}, ${item.clip.title}` : `Play ${item.reel.title}`}
+      aria-label={
+        item.clip ? `Play ${item.reel.title}, ${item.clip.title}` : `Play ${item.reel.title}`
+      }
       className={`group relative block w-full ${shape} cursor-pointer overflow-hidden rounded-2xl border border-white/[0.07] bg-[#0E0E0E] shadow-md transition-transform duration-200 active:scale-[0.98] focus-visible:outline focus-visible:outline-2 focus-visible:outline-white`}
     >
       <img
@@ -142,5 +144,3 @@ export const ReelMosaicSection: React.FC<ReelMosaicSectionProps> = ({ reels, onS
     </div>
   );
 };
-
-

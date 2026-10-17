@@ -39,5 +39,3 @@ export const PhotoVaultModal: React.FC<PhotoVaultModalProps> = ({ isOpen, onClos
     </div>
   );
 };
-
-

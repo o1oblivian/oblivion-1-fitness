@@ -53,22 +53,25 @@ export const TrainingSafetyInfo: React.FC<Props> = ({ topic }) => {
           <section className="space-y-1.5">
             <h4 className="text-[11px] font-bold text-o1-text">What this prioritises</h4>
             <ul className="space-y-1 text-[11px] text-o1-muted leading-snug list-disc pl-4">
-              {PRIORITIES[topic].map((line) => <li key={line}>{line}</li>)}
+              {PRIORITIES[topic].map((line) => (
+                <li key={line}>{line}</li>
+              ))}
             </ul>
           </section>
           <section className="space-y-1.5">
             <h4 className="text-[11px] font-bold text-o1-text">Staying injury-free</h4>
             <ul className="space-y-1 text-[11px] text-o1-muted leading-snug list-disc pl-4">
-              {PREVENT.map((line) => <li key={line}>{line}</li>)}
+              {PREVENT.map((line) => (
+                <li key={line}>{line}</li>
+              ))}
             </ul>
           </section>
           <p className="text-[10px] text-o1-muted leading-snug border-t border-white/[0.07] pt-2">
-            Oblivion 1 is a training log, not a medical app. Nothing here is medical advice. If you have an injury, condition or pain, talk to a doctor or physiotherapist before training.
+            Oblivion 1 is a training log, not a medical app. Nothing here is medical advice. If you
+            have an injury, condition or pain, talk to a doctor or physiotherapist before training.
           </p>
         </div>
       )}
     </>
   );
 };
-
-

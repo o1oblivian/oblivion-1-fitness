@@ -25,7 +25,9 @@ function finite(value: unknown): number {
   return Number.isFinite(n) ? n : 0;
 }
 
-export function sumMacros(items: Array<{ calories: number; protein: number; carbs: number; fats: number }>): MacroTotals {
+export function sumMacros(
+  items: Array<{ calories: number; protein: number; carbs: number; fats: number }>,
+): MacroTotals {
   const totals = items.reduce(
     (acc, it) => ({
       calories: acc.calories + finite(it.calories),
@@ -50,7 +52,12 @@ function expectedIntakeShare(now = new Date()): number {
   return Math.min(1, Math.max(0, share));
 }
 
-export function energyBalance(target: number | null, eaten: number, burned: number, now = new Date()): EnergyBalance {
+export function energyBalance(
+  target: number | null,
+  eaten: number,
+  burned: number,
+  now = new Date(),
+): EnergyBalance {
   if (target == null || target <= 0) {
     return { remaining: null, over: 0, budget: null, progress: 0, pace: null };
   }
@@ -58,7 +65,8 @@ export function energyBalance(target: number | null, eaten: number, burned: numb
   const remaining = Math.round(budget - finite(eaten));
   const progress = Math.min(1, Math.max(0, finite(eaten) / budget));
   const delta = finite(eaten) / budget - expectedIntakeShare(now);
-  const pace: FuelPace = delta > PACE_TOLERANCE ? 'ahead' : delta < -PACE_TOLERANCE ? 'behind' : 'on_pace';
+  const pace: FuelPace =
+    delta > PACE_TOLERANCE ? 'ahead' : delta < -PACE_TOLERANCE ? 'behind' : 'on_pace';
   return { remaining, over: remaining < 0 ? -remaining : 0, budget, progress, pace };
 }
 
@@ -85,7 +93,11 @@ export function resolveMacroTargets(
   const proteinCap = (calories * PROTEIN_MAX_SHARE) / 4;
   const p =
     protein ??
-    Math.round(weightKg && weightKg > 0 ? Math.min(weightKg * PROTEIN_G_PER_KG, proteinCap) : (calories * PROTEIN_DEFAULT_SHARE) / 4);
+    Math.round(
+      weightKg && weightKg > 0
+        ? Math.min(weightKg * PROTEIN_G_PER_KG, proteinCap)
+        : (calories * PROTEIN_DEFAULT_SHARE) / 4,
+    );
   const f = fats ?? Math.round((calories * FAT_SHARE) / 9);
   const c = carbs ?? Math.max(0, Math.round((calories - p * 4 - f * 9) / 4));
   return { protein: p, carbs: c, fats: f };
@@ -129,11 +141,15 @@ function avg(values: number[]): number | null {
   return values.length > 0 ? values.reduce((a, b) => a + b, 0) / values.length : null;
 }
 
-export function weeklyTrajectory(days: WeekDayEntry[], targets: { calories: number | null; protein: number | null }): WeeklyTrajectory {
+export function weeklyTrajectory(
+  days: WeekDayEntry[],
+  targets: { calories: number | null; protein: number | null },
+): WeeklyTrajectory {
   const logged = (d: WeekDayEntry) => d.totals != null && d.totals.calories > 0;
   const completed = days.filter((d) => !d.isToday && logged(d)).map((d) => d.totals as MacroTotals);
   const avgCalories = avg(completed.map((t) => t.calories));
-  const balancePerDay = avgCalories != null && targets.calories ? Math.round(avgCalories - targets.calories) : null;
+  const balancePerDay =
+    avgCalories != null && targets.calories ? Math.round(avgCalories - targets.calories) : null;
   const status =
     balancePerDay == null || !targets.calories
       ? null
@@ -175,7 +191,10 @@ export function lastSevenDateKeys(today: Date = new Date()): string[] {
   });
 }
 
-export function hydrationGoalLiters(explicitL: number | null, weightKg: number | null): number | null {
+export function hydrationGoalLiters(
+  explicitL: number | null,
+  weightKg: number | null,
+): number | null {
   if (explicitL != null && explicitL > 0) return explicitL;
   if (weightKg != null && weightKg > 0) return Math.round(weightKg * 0.035 * 10) / 10;
   return null;

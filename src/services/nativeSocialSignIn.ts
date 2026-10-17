@@ -35,7 +35,9 @@ async function nonces(): Promise<{ raw: string; hashed: string }> {
   const bytes = crypto.getRandomValues(new Uint8Array(32));
   const raw = Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('');
   const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(raw));
-  const hashed = Array.from(new Uint8Array(digest), (b) => b.toString(16).padStart(2, '0')).join('');
+  const hashed = Array.from(new Uint8Array(digest), (b) => b.toString(16).padStart(2, '0')).join(
+    '',
+  );
   return { raw, hashed };
 }
 
@@ -53,14 +55,21 @@ export async function nativeAppleSignIn(): Promise<boolean> {
   const { raw, hashed } = await nonces();
   let idToken: string | null = null;
   try {
-    const res = await SocialLogin.login({ provider: 'apple', options: { scopes: ['name', 'email'], nonce: hashed } });
+    const res = await SocialLogin.login({
+      provider: 'apple',
+      options: { scopes: ['name', 'email'], nonce: hashed },
+    });
     idToken = res.result.idToken;
   } catch (err) {
     if (cancelled(err)) return false;
     throw err;
   }
   if (!idToken) throw new Error('Apple did not return a sign-in token.');
-  const { error } = await supabase.auth.signInWithIdToken({ provider: 'apple', token: idToken, nonce: raw });
+  const { error } = await supabase.auth.signInWithIdToken({
+    provider: 'apple',
+    token: idToken,
+    nonce: raw,
+  });
   if (error) throw error;
   return persistAuthenticatedUser();
 }

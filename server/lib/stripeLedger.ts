@@ -26,7 +26,9 @@ export function getSupabaseAdmin(): SupabaseClient | null {
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
   if (!supabaseUrl || !serviceKey) return null;
   if (!adminClient) {
-    adminClient = createClient(supabaseUrl, serviceKey, { auth: { persistSession: false, autoRefreshToken: false } });
+    adminClient = createClient(supabaseUrl, serviceKey, {
+      auth: { persistSession: false, autoRefreshToken: false },
+    });
   }
   return adminClient;
 }
@@ -62,7 +64,9 @@ export async function getCoachConnectProfile(coachId: string): Promise<CoachConn
   if (error || !data) return null;
   return {
     id: String(data.id),
-    stripe_connect_account_id: data.stripe_connect_account_id ? String(data.stripe_connect_account_id) : null,
+    stripe_connect_account_id: data.stripe_connect_account_id
+      ? String(data.stripe_connect_account_id)
+      : null,
     stripe_payouts_enabled: Boolean(data.stripe_payouts_enabled),
   };
 }
@@ -130,13 +134,24 @@ export async function getCoachBalance(coachId: string): Promise<{
   const admin = getSupabaseAdmin();
   if (!admin) return null;
   const [tx, po, totals] = await Promise.all([
-    admin.from('coach_transactions').select('*').eq('coach_id', coachId).order('created_at', { ascending: false }).limit(LEDGER_PAGE),
-    admin.from('coach_payout_ledger').select('*').eq('coach_id', coachId).order('created_at', { ascending: false }).limit(LEDGER_PAGE),
+    admin
+      .from('coach_transactions')
+      .select('*')
+      .eq('coach_id', coachId)
+      .order('created_at', { ascending: false })
+      .limit(LEDGER_PAGE),
+    admin
+      .from('coach_payout_ledger')
+      .select('*')
+      .eq('coach_id', coachId)
+      .order('created_at', { ascending: false })
+      .limit(LEDGER_PAGE),
     admin.rpc('coach_ledger_totals', { p_coach: coachId, p_hold_days: payoutHoldDays() }).single(),
   ]);
   if (tx.error) throw new Error(`coach_transactions: ${tx.error.message}`);
   if (po.error) throw new Error(`coach_payout_ledger: ${po.error.message}`);
-  if (totals.error || !totals.data) throw new Error(`coach_ledger_totals: ${totals.error?.message || 'no row'}`);
+  if (totals.error || !totals.data)
+    throw new Error(`coach_ledger_totals: ${totals.error?.message || 'no row'}`);
   const sum = totals.data as Record<string, unknown>;
   const cents = (key: string) => Number(sum[key] || 0);
   return {
@@ -219,18 +234,42 @@ export async function resolveCheckoutItem(input: {
   if (input.kind === 'program') {
     if (!input.programId) return { error: 'Choose a program to buy.' };
     const [own, catalog] = await Promise.all([
-      admin.from('coach_programs').select('id, title, price_cents, listed').eq('id', input.programId).eq('coach_id', input.coachId).maybeSingle(),
-      admin.from('program_catalog').select('id, title, price_cents, active').eq('id', input.programId).eq('catalog_coach_id', input.coachId).maybeSingle(),
+      admin
+        .from('coach_programs')
+        .select('id, title, price_cents, listed')
+        .eq('id', input.programId)
+        .eq('coach_id', input.coachId)
+        .maybeSingle(),
+      admin
+        .from('program_catalog')
+        .select('id, title, price_cents, active')
+        .eq('id', input.programId)
+        .eq('catalog_coach_id', input.coachId)
+        .maybeSingle(),
     ]);
-    const row = (own.data && own.data.listed ? own.data : null) ?? (catalog.data && catalog.data.active ? catalog.data : null);
+    const row =
+      (own.data && own.data.listed ? own.data : null) ??
+      (catalog.data && catalog.data.active ? catalog.data : null);
     const priceCents = Math.round(Number(row?.price_cents || 0));
     if (!row) return { error: 'This program is not for sale.' };
     if (priceCents <= 0) return { error: 'This program is free. Enroll instead.' };
-    return { item: { kind: 'program', coachId: input.coachId, programId: String(row.id), title: String(row.title || 'Program'), priceCents } };
+    return {
+      item: {
+        kind: 'program',
+        coachId: input.coachId,
+        programId: String(row.id),
+        title: String(row.title || 'Program'),
+        priceCents,
+      },
+    };
   }
 
   const [front, application] = await Promise.all([
-    admin.from('coach_storefronts').select('monthly_price_cents').eq('coach_id', input.coachId).maybeSingle(),
+    admin
+      .from('coach_storefronts')
+      .select('monthly_price_cents')
+      .eq('coach_id', input.coachId)
+      .maybeSingle(),
     admin
       .from('coaching_applications')
       .select('id')
@@ -243,11 +282,23 @@ export async function resolveCheckoutItem(input: {
   const priceCents = Math.round(Number(front.data?.monthly_price_cents || 0));
   if (priceCents <= 0) return { error: 'This coach has not set a coaching price.' };
   if (!application.data) return { error: 'The coach needs to accept your application first.' };
-  return { item: { kind: 'coaching', coachId: input.coachId, programId: null, title: '1:1 coaching (1 month)', priceCents } };
+  return {
+    item: {
+      kind: 'coaching',
+      coachId: input.coachId,
+      programId: null,
+      title: '1:1 coaching (1 month)',
+      priceCents,
+    },
+  };
 }
 
 /** Gives the athlete the program they paid for. Safe to repeat. */
-export async function enrollPaidProgram(athleteId: string, coachId: string, programId: string): Promise<void> {
+export async function enrollPaidProgram(
+  athleteId: string,
+  coachId: string,
+  programId: string,
+): Promise<void> {
   const admin = getSupabaseAdmin();
   if (!admin) return;
   const [own, catalog] = await Promise.all([
@@ -294,7 +345,8 @@ export async function recordSaleRefund(
   const admin = getSupabaseAdmin();
   const stripe = await getStripe();
   if (!admin || !stripe) return { updated: false, reason: 'not_configured' };
-  const paymentIntent = typeof charge.payment_intent === 'string' ? charge.payment_intent : charge.payment_intent?.id;
+  const paymentIntent =
+    typeof charge.payment_intent === 'string' ? charge.payment_intent : charge.payment_intent?.id;
   if (!paymentIntent) return { updated: false, reason: 'no_payment_intent' };
 
   const sessions = await stripe.checkout.sessions.list({ payment_intent: paymentIntent, limit: 1 });
@@ -346,7 +398,10 @@ export async function recordSaleDispute(
   const refunded = won ? alreadyRefunded : Math.min(charge.amount, alreadyRefunded + lost);
   return recordSaleRefund(
     {
-      payment_intent: typeof charge.payment_intent === 'string' ? charge.payment_intent : charge.payment_intent?.id,
+      payment_intent:
+        typeof charge.payment_intent === 'string'
+          ? charge.payment_intent
+          : charge.payment_intent?.id,
       amount: charge.amount,
       amount_refunded: refunded,
     },
@@ -359,7 +414,10 @@ export async function recordSaleDispute(
  * result. Ask Stripe what really happened: a transfer tagged with the row's id means it was sent (mark paid);
  * none after ten minutes means it was never sent (release the funds). Never guesses.
  */
-export async function reconcileStuckPayouts(coachId: string, destinationAccountId: string | null): Promise<void> {
+export async function reconcileStuckPayouts(
+  coachId: string,
+  destinationAccountId: string | null,
+): Promise<void> {
   const admin = getSupabaseAdmin();
   const stripe = await getStripe();
   if (!admin || !stripe || !destinationAccountId) return;
@@ -375,7 +433,11 @@ export async function reconcileStuckPayouts(coachId: string, destinationAccountI
   const oldest = Math.min(...stuck.data.map((r) => Date.parse(String(r.created_at)) || Date.now()));
   const SCAN_LIMIT = 1000;
   const scanned = await stripe.transfers
-    .list({ destination: destinationAccountId, created: { gte: Math.floor(oldest / 1000) - 60 }, limit: 100 })
+    .list({
+      destination: destinationAccountId,
+      created: { gte: Math.floor(oldest / 1000) - 60 },
+      limit: 100,
+    })
     .autoPagingToArray({ limit: SCAN_LIMIT });
   for (const row of stuck.data) {
     const sent = scanned.find((t) => t.metadata?.ledger_id === String(row.id));
@@ -383,8 +445,16 @@ export async function reconcileStuckPayouts(coachId: string, destinationAccountI
     if (!sent && scanned.length >= SCAN_LIMIT) continue;
     const update = sent
       ? { status: 'paid', stripe_transfer_id: sent.id, updated_at: new Date().toISOString() }
-      : { status: 'failed', error_message: 'No transfer was sent.', updated_at: new Date().toISOString() };
-    const { error } = await admin.from('coach_payout_ledger').update(update).eq('id', row.id).eq('status', 'processing');
+      : {
+          status: 'failed',
+          error_message: 'No transfer was sent.',
+          updated_at: new Date().toISOString(),
+        };
+    const { error } = await admin
+      .from('coach_payout_ledger')
+      .update(update)
+      .eq('id', row.id)
+      .eq('status', 'processing');
     if (error) console.error('[stripe] payout reconcile failed for', row.id, error.message);
   }
 }
@@ -394,8 +464,15 @@ export function safeReturnBase(candidate: unknown, fallback: string): string {
   if (typeof candidate !== 'string' || !candidate) return fallback;
   try {
     const url = new URL(candidate);
-    if (url.protocol === 'https:' || url.protocol === 'http:' || url.protocol === 'com.o1fc.fitness:') {
-      return `${url.origin === 'null' ? `${url.protocol}//${url.host}` : url.origin}${url.pathname}`.replace(/\/$/, '');
+    if (
+      url.protocol === 'https:' ||
+      url.protocol === 'http:' ||
+      url.protocol === 'com.o1fc.fitness:'
+    ) {
+      return `${url.origin === 'null' ? `${url.protocol}//${url.host}` : url.origin}${url.pathname}`.replace(
+        /\/$/,
+        '',
+      );
     }
   } catch {
     /* fall through */
@@ -413,12 +490,15 @@ export async function recordTransferReversal(transfer: {
   const admin = getSupabaseAdmin();
   if (!admin) return { updated: false, reason: 'not_configured' };
   const kept = Math.max(0, Number(transfer.amount || 0) - Number(transfer.amount_reversed || 0));
-  const update = kept <= 0
-    ? { status: 'reversed', updated_at: new Date().toISOString() }
-    : { amount_cents: kept, updated_at: new Date().toISOString() };
+  const update =
+    kept <= 0
+      ? { status: 'reversed', updated_at: new Date().toISOString() }
+      : { amount_cents: kept, updated_at: new Date().toISOString() };
   const ledgerId = transfer.metadata?.ledger_id;
   const query = admin.from('coach_payout_ledger').update(update);
-  const { data, error } = await (ledgerId ? query.eq('id', ledgerId) : query.eq('stripe_transfer_id', transfer.id)).select('id');
+  const { data, error } = await (
+    ledgerId ? query.eq('id', ledgerId) : query.eq('stripe_transfer_id', transfer.id)
+  ).select('id');
   if (error) throw new Error(`Reversal update failed: ${error.message}`);
   return { updated: Boolean(data?.length), reason: data?.length ? undefined : 'payout_not_found' };
 }

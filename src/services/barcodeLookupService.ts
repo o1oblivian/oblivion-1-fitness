@@ -9,7 +9,8 @@ async function fetchOpenFoodFactsProduct(barcode: string): Promise<ScannedMealBr
     const data = await res.json();
     if (data.status === 1 && data.product) {
       const p = data.product;
-      const name = p.product_name || p.product_name_en || (p.brands ? `${p.brands} Product` : 'Packaged Food');
+      const name =
+        p.product_name || p.product_name_en || (p.brands ? `${p.brands} Product` : 'Packaged Food');
       const servingStr = p.serving_size || (p.serving_quantity ? `${p.serving_quantity}g` : '100g');
       const grams = parseInt(servingStr.match(/(\d+)\s*g/i)?.[1] || '100', 10);
       const scale = grams > 0 ? grams / 100 : 1;
@@ -22,7 +23,12 @@ async function fetchOpenFoodFactsProduct(barcode: string): Promise<ScannedMealBr
       const prot = perServing(n.proteins_100g ?? n.proteins);
       const carb = perServing(n.carbohydrates_100g ?? n.carbohydrates);
       const fat = perServing(n.fat_100g ?? n.fat);
-      const cal = resolveCalories(perServing(n['energy-kcal_100g'] ?? n['energy-kcal']), prot, carb, fat);
+      const cal = resolveCalories(
+        perServing(n['energy-kcal_100g'] ?? n['energy-kcal']),
+        prot,
+        carb,
+        fat,
+      );
 
       return {
         dishName: p.brands ? `${p.brands} ${name}` : name,
@@ -32,9 +38,10 @@ async function fetchOpenFoodFactsProduct(barcode: string): Promise<ScannedMealBr
         carbsGrams: carb,
         fatsGrams: fat,
         confidenceScore: 100,
-        ingredientsDetected: Array.isArray(p.ingredients_tags) && p.ingredients_tags.length
-          ? p.ingredients_tags.slice(0, 4).map((i: string) => i.replace(/^en:/, ''))
-          : ['OpenFoodFacts Verified Match'],
+        ingredientsDetected:
+          Array.isArray(p.ingredients_tags) && p.ingredients_tags.length
+            ? p.ingredients_tags.slice(0, 4).map((i: string) => i.replace(/^en:/, ''))
+            : ['OpenFoodFacts Verified Match'],
         barcode: clean,
         brand: p.brands,
       };
@@ -43,7 +50,9 @@ async function fetchOpenFoodFactsProduct(barcode: string): Promise<ScannedMealBr
   return null;
 }
 
-export async function tryDetectNativeBarcode(source: Blob | HTMLVideoElement): Promise<string | null> {
+export async function tryDetectNativeBarcode(
+  source: Blob | HTMLVideoElement,
+): Promise<string | null> {
   if (typeof window === 'undefined' || !('BarcodeDetector' in window)) return null;
   try {
     const detector = new (window as any).BarcodeDetector({
@@ -52,7 +61,11 @@ export async function tryDetectNativeBarcode(source: Blob | HTMLVideoElement): P
     if (source instanceof Blob) {
       const img = new Image();
       const url = URL.createObjectURL(source);
-      await new Promise((res, rej) => { img.onload = res; img.onerror = rej; img.src = url; });
+      await new Promise((res, rej) => {
+        img.onload = res;
+        img.onerror = rej;
+        img.src = url;
+      });
       const barcodes = await detector.detect(img);
       URL.revokeObjectURL(url);
       return barcodes?.[0]?.rawValue?.trim() || null;

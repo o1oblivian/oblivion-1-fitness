@@ -10,7 +10,12 @@ import { ensureCoachCard } from './coachPublicProfile';
 import { fetchCoachCard } from './coachDirectory';
 import { buildProgramPlan, weekOneLines } from './programPlan';
 import type { ProgramFormData } from '../components/programCreator/types';
-import { PROGRAM_COLUMNS, StorefrontProgram, mapProgramRow, withProgramContent } from '../../reels/services/coachStorefront';
+import {
+  PROGRAM_COLUMNS,
+  StorefrontProgram,
+  mapProgramRow,
+  withProgramContent,
+} from '../../reels/services/coachStorefront';
 
 export interface CoachInviteIdentity {
   id: string;
@@ -20,7 +25,10 @@ export interface CoachInviteIdentity {
 }
 
 /** Registers an invite code so any athlete who opens the link can resolve the coach. */
-export async function publishCoachInvite(code: string, coach: CoachInviteIdentity): Promise<boolean> {
+export async function publishCoachInvite(
+  code: string,
+  coach: CoachInviteIdentity,
+): Promise<boolean> {
   const clean = code.trim();
   if (!clean || !isValidUuid(coach.id) || !coach.name) return false;
   const { error } = await supabase.from('coach_invites').upsert({
@@ -43,8 +51,17 @@ export async function acceptCoachInvite(): Promise<LinkedCoach | null> {
   const meta = user.user_metadata ?? {};
   const name = String(meta.full_name || meta.name || user.email?.split('@')[0] || 'Athlete');
   const avatar = typeof meta.avatar_url === 'string' ? meta.avatar_url : '';
-  const { data, error } = await supabase.rpc('join_coach_by_invite', { invite_code: code, display_name: name, avatar });
-  const row = (data ?? null) as { coach_id?: string; coach_name?: string; coach_handle?: string; coach_avatar?: string } | null;
+  const { data, error } = await supabase.rpc('join_coach_by_invite', {
+    invite_code: code,
+    display_name: name,
+    avatar,
+  });
+  const row = (data ?? null) as {
+    coach_id?: string;
+    coach_name?: string;
+    coach_handle?: string;
+    coach_avatar?: string;
+  } | null;
   if (error || !row?.coach_id || !row.coach_name) return readLinkedCoach();
   const coach: LinkedCoach = {
     id: String(row.coach_id),
@@ -81,7 +98,12 @@ export async function fetchMyLinkedCoach(): Promise<{ coach: LinkedCoach | null 
   const linked = readLinkedCoach();
   const coach: LinkedCoach = card
     ? { id: coachId, name: card.name, handle: card.handle, avatar: card.avatar }
-    : { id: coachId, name: linked?.id === coachId ? linked.name : 'Your coach', handle: '', avatar: linked?.id === coachId ? linked.avatar : '' };
+    : {
+        id: coachId,
+        name: linked?.id === coachId ? linked.name : 'Your coach',
+        handle: '',
+        avatar: linked?.id === coachId ? linked.avatar : '',
+      };
   saveLinkedCoach(coach);
   return { coach };
 }
@@ -102,8 +124,15 @@ function workoutSummary(log: CoachFinishedWorkoutLog): Summary {
   };
 }
 
-export function mapCompletionRow(row: { id: unknown; athlete_id?: unknown; submitted_at?: unknown; metrics_summary?: unknown }): CoachFinishedWorkoutLog {
-  const s = (row.metrics_summary && typeof row.metrics_summary === 'object' ? row.metrics_summary : {}) as Summary;
+export function mapCompletionRow(row: {
+  id: unknown;
+  athlete_id?: unknown;
+  submitted_at?: unknown;
+  metrics_summary?: unknown;
+}): CoachFinishedWorkoutLog {
+  const s = (
+    row.metrics_summary && typeof row.metrics_summary === 'object' ? row.metrics_summary : {}
+  ) as Summary;
   const num = (value: unknown) => (Number.isFinite(Number(value)) ? Number(value) : 0);
   return {
     id: String(row.id),
@@ -119,14 +148,19 @@ export function mapCompletionRow(row: { id: unknown; athlete_id?: unknown; submi
     completedAt: String(row.submitted_at || ''),
     feedback: s.coachFeedback ? String(s.coachFeedback) : undefined,
     feedbackGivenAt: s.coachFeedbackAt ? String(s.coachFeedbackAt) : undefined,
-    exercises: Array.isArray(s.exercises) ? (s.exercises as CoachFinishedWorkoutLog['exercises']) : [],
+    exercises: Array.isArray(s.exercises)
+      ? (s.exercises as CoachFinishedWorkoutLog['exercises'])
+      : [],
   };
 }
 
 const COMPLETION_COLUMNS = 'id, athlete_id, submitted_at, metrics_summary';
 
 /** Sends a finished session to the athlete's coach. The id must be a UUID. */
-export async function publishFinishedWorkout(log: CoachFinishedWorkoutLog, coachId: string): Promise<boolean> {
+export async function publishFinishedWorkout(
+  log: CoachFinishedWorkoutLog,
+  coachId: string,
+): Promise<boolean> {
   if (!isValidUuid(coachId) || !isValidUuid(log.id) || !isValidUuid(log.athleteId)) return false;
   const { error } = await supabase.from('workout_completions').upsert({
     id: log.id,
@@ -140,7 +174,9 @@ export async function publishFinishedWorkout(log: CoachFinishedWorkoutLog, coach
 }
 
 /** Sessions the coach's athletes finished in the last week, newest first. Null when they could not be loaded. */
-export async function fetchFinishedForCoach(coachId: string): Promise<CoachFinishedWorkoutLog[] | null> {
+export async function fetchFinishedForCoach(
+  coachId: string,
+): Promise<CoachFinishedWorkoutLog[] | null> {
   if (!isValidUuid(coachId)) return [];
   const since = new Date(Date.now() - 7 * 86_400_000).toISOString();
   const { data, error } = await supabase
@@ -155,7 +191,9 @@ export async function fetchFinishedForCoach(coachId: string): Promise<CoachFinis
 }
 
 /** The athlete's own recent sessions, with any coach reply. */
-export async function fetchMyFinishedWorkouts(athleteId: string): Promise<CoachFinishedWorkoutLog[] | null> {
+export async function fetchMyFinishedWorkouts(
+  athleteId: string,
+): Promise<CoachFinishedWorkoutLog[] | null> {
   if (!isValidUuid(athleteId)) return [];
   const { data, error } = await supabase
     .from('workout_completions')
@@ -168,7 +206,11 @@ export async function fetchMyFinishedWorkouts(athleteId: string): Promise<CoachF
 }
 
 /** Stores the coach's reply on the session so the athlete sees it with the workout. */
-export async function saveWorkoutFeedback(coachId: string, workoutId: string, feedback: string): Promise<boolean> {
+export async function saveWorkoutFeedback(
+  coachId: string,
+  workoutId: string,
+  feedback: string,
+): Promise<boolean> {
   if (!isValidUuid(coachId) || !isValidUuid(workoutId)) return false;
   const { data, error } = await supabase
     .from('workout_completions')
@@ -177,11 +219,17 @@ export async function saveWorkoutFeedback(coachId: string, workoutId: string, fe
     .eq('coach_id', coachId)
     .maybeSingle();
   if (error || !data) return false;
-  const summary = (data.metrics_summary && typeof data.metrics_summary === 'object' ? data.metrics_summary : {}) as Summary;
+  const summary = (
+    data.metrics_summary && typeof data.metrics_summary === 'object' ? data.metrics_summary : {}
+  ) as Summary;
   const res = await supabase
     .from('workout_completions')
     .update({
-      metrics_summary: { ...summary, coachFeedback: feedback, coachFeedbackAt: new Date().toISOString() },
+      metrics_summary: {
+        ...summary,
+        coachFeedback: feedback,
+        coachFeedbackAt: new Date().toISOString(),
+      },
       approval_status: 'approved',
     })
     .eq('id', workoutId)
@@ -204,13 +252,19 @@ export async function fetchOwnPrograms(coachId: string): Promise<StorefrontProgr
 }
 
 /** Saves the whole program, every week, day and exercise, so enrolled athletes receive the real plan. */
-export async function publishProgram(coachId: string, coachName: string, form: ProgramFormData): Promise<StorefrontProgram | null> {
+export async function publishProgram(
+  coachId: string,
+  coachName: string,
+  form: ProgramFormData,
+): Promise<StorefrontProgram | null> {
   const title = form.title.trim();
   if (!isValidUuid(coachId) || !title) return null;
   if (!(await ensureCoachCard(coachName))) return null;
   const plan = buildProgramPlan(form);
   const weekOne = weekOneLines(plan);
-  const price = form.isFreeCommunity ? 0 : Math.round(Math.max(0, form.priceUsd) * (100 - form.discountPercent));
+  const price = form.isFreeCommunity
+    ? 0
+    : Math.round(Math.max(0, form.priceUsd) * (100 - form.discountPercent));
   const { data, error } = await supabase
     .from('coach_programs')
     .insert({
@@ -230,7 +284,11 @@ export async function publishProgram(coachId: string, coachName: string, form: P
       cover_url: form.coverImage || '',
       week_one: weekOne,
       duration_label: `${form.durationWeeks} ${form.durationWeeks === 1 ? 'week' : 'weeks'}`,
-      split_label: plan.weeks[0]?.days.map((day) => day.splitFocus).filter(Boolean).join(' / ') || '',
+      split_label:
+        plan.weeks[0]?.days
+          .map((day) => day.splitFocus)
+          .filter(Boolean)
+          .join(' / ') || '',
       listed: true,
     })
     .select(PROGRAM_COLUMNS)
@@ -239,7 +297,11 @@ export async function publishProgram(coachId: string, coachName: string, form: P
     if (error) console.warn('[coachBridge] program publish failed:', error.message);
     return null;
   }
-  return mapProgramRow({ ...(data as Record<string, unknown>), week_one: weekOne, program_data: plan });
+  return mapProgramRow({
+    ...(data as Record<string, unknown>),
+    week_one: weekOne,
+    program_data: plan,
+  });
 }
 
 /** Takes a program off the store. Athletes already enrolled keep it. */
@@ -255,7 +317,9 @@ export async function unlistProgram(coachId: string, programId: string): Promise
 }
 
 /** Notes the linked coach sent to all clients, newest first. Null when they could not be loaded. */
-export async function fetchCoachNotes(coachId: string): Promise<Array<{ id: string; title: string; summary: string; createdAt: string }> | null> {
+export async function fetchCoachNotes(
+  coachId: string,
+): Promise<Array<{ id: string; title: string; summary: string; createdAt: string }> | null> {
   if (!isValidUuid(coachId)) return [];
   const { data, error } = await supabase
     .from('coach_directives')
@@ -273,7 +337,9 @@ export async function fetchCoachNotes(coachId: string): Promise<Array<{ id: stri
 }
 
 /** Null when the check-ins could not be loaded. */
-export async function fetchRemoteCheckins(coachId: string): Promise<AthleteCheckInSubmission[] | null> {
+export async function fetchRemoteCheckins(
+  coachId: string,
+): Promise<AthleteCheckInSubmission[] | null> {
   if (!isValidUuid(coachId)) return [];
   const { data, error } = await supabase
     .from('athlete_checkins')
@@ -286,7 +352,9 @@ export async function fetchRemoteCheckins(coachId: string): Promise<AthleteCheck
 }
 
 /** Null when the check-ins could not be loaded. */
-export async function fetchAthleteCheckins(athleteId: string): Promise<AthleteCheckInSubmission[] | null> {
+export async function fetchAthleteCheckins(
+  athleteId: string,
+): Promise<AthleteCheckInSubmission[] | null> {
   if (!isValidUuid(athleteId)) return [];
   const { data, error } = await supabase
     .from('athlete_checkins')
@@ -300,7 +368,9 @@ export async function fetchAthleteCheckins(athleteId: string): Promise<AthleteCh
 
 function shortDate(iso: unknown): string {
   const date = iso ? new Date(String(iso)) : null;
-  return date && !Number.isNaN(date.getTime()) ? date.toLocaleDateString(undefined, { day: 'numeric', month: 'short' }) : '';
+  return date && !Number.isNaN(date.getTime())
+    ? date.toLocaleDateString(undefined, { day: 'numeric', month: 'short' })
+    : '';
 }
 
 export function mapCheckin(row: Record<string, unknown>): AthleteCheckInSubmission {

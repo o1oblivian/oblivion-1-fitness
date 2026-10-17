@@ -16,13 +16,21 @@ import { DirectiveItem } from './types/coachDirectives';
 import type { NoteDraft } from './components/DirectiveSignalsSection';
 import { CoachFloor } from './components/CoachFloor';
 import { AddClientModal } from './components/AddClientModal';
-import { CoachCommandCenterModals, type CoachModalFlags } from './components/CoachCommandCenterModals';
+import {
+  CoachCommandCenterModals,
+  type CoachModalFlags,
+} from './components/CoachCommandCenterModals';
 import { AthleteCheckInSubmission } from './types/coachPlatformTypes';
 import { tactileEngine } from '../../services/tactileEngine';
 import { HealthDisclaimerBanner } from '../legal';
 import { getAuthenticatedUserId } from '../../services/authUser';
 import { getOrCreateInviteCode } from '../log/publicShare';
-import { fetchFinishedForCoach, fetchRemoteCheckins, mapCompletionRow, publishCoachInvite } from './services/coachBridge';
+import {
+  fetchFinishedForCoach,
+  fetchRemoteCheckins,
+  mapCompletionRow,
+  publishCoachInvite,
+} from './services/coachBridge';
 import { CoachCard } from './services/coachDirectory';
 import { fetchMyCoachCard } from './services/coachPublicProfile';
 import { useCoachStore } from '../../stores/useCoachStore';
@@ -35,7 +43,9 @@ export interface O1FCoachCommandCenterProps {
 
 const NOTE_BADGE = 'bg-o1-sheet text-o1-text border-white/[0.07]';
 
-export const O1FCoachCommandCenter: React.FC<O1FCoachCommandCenterProps> = ({ isCoach = false }) => {
+export const O1FCoachCommandCenter: React.FC<O1FCoachCommandCenterProps> = ({
+  isCoach = false,
+}) => {
   const userRole = useAuthStore((s) => s.profile?.role);
   const profileName = useAuthStore((s) => s.profile?.name || '');
   const isVerifiedCoach = Boolean(isCoach || userRole === 'coach');
@@ -48,7 +58,12 @@ export const O1FCoachCommandCenter: React.FC<O1FCoachCommandCenterProps> = ({ is
   const [notes, setNotes] = useState<DirectiveItem[] | null>(null);
   const [notesFailed, setNotesFailed] = useState(false);
   const [checkins, setCheckins] = useState<AthleteCheckInSubmission[] | null>(null);
-  const [modals, setModals] = useState<CoachModalFlags>({ programs: false, programCreate: false, workout: false, vault: false });
+  const [modals, setModals] = useState<CoachModalFlags>({
+    programs: false,
+    programCreate: false,
+    workout: false,
+    vault: false,
+  });
   const [programsRevision, setProgramsRevision] = useState(0);
   const [shareOpen, setShareOpen] = useState(false);
   const [inviteCode, setInviteCode] = useState<string | null>(null);
@@ -66,9 +81,12 @@ export const O1FCoachCommandCenter: React.FC<O1FCoachCommandCenterProps> = ({ is
     toastTimer.current = setTimeout(() => setToastMsg(null), 3500);
   }, []);
 
-  useEffect(() => () => {
-    if (toastTimer.current) clearTimeout(toastTimer.current);
-  }, []);
+  useEffect(
+    () => () => {
+      if (toastTimer.current) clearTimeout(toastTimer.current);
+    },
+    [],
+  );
 
   useEffect(() => {
     void getAuthenticatedUserId().then((id) => setCoachId(isValidUuid(id) ? (id as string) : ''));
@@ -124,7 +142,12 @@ export const O1FCoachCommandCenter: React.FC<O1FCoachCommandCenterProps> = ({ is
     setInviteFailed(false);
     const name = card?.name || profileName || 'Coach';
     const code = getOrCreateInviteCode(card?.handle || name);
-    const ok = await publishCoachInvite(code, { id: coachId, name, handle: card?.handle || '', avatar: card?.avatar || '' });
+    const ok = await publishCoachInvite(code, {
+      id: coachId,
+      name,
+      handle: card?.handle || '',
+      avatar: card?.avatar || '',
+    });
     setInviteCode(ok ? code : null);
     setInviteFailed(!ok);
   }, [coachId, card, profileName]);
@@ -137,14 +160,33 @@ export const O1FCoachCommandCenter: React.FC<O1FCoachCommandCenterProps> = ({ is
     void loadWorkouts();
     const filter = `coach_id=eq.${coachId}`;
     const channel = liveChannel(`coach-console-${coachId}`)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'coach_clients', filter }, () => void loadRoster())
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'athlete_checkins', filter }, () => void loadCheckins())
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'coach_directives', filter }, () => void loadNotes())
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'workout_completions', filter }, (payload) => {
-        const row = payload.new as Record<string, unknown> | null;
-        if (row && row.id) useCoachStore.getState().upsertFinishedWorkout(mapCompletionRow(row as { id: unknown }));
-        else void loadWorkouts();
-      })
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'coach_clients', filter },
+        () => void loadRoster(),
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'athlete_checkins', filter },
+        () => void loadCheckins(),
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'coach_directives', filter },
+        () => void loadNotes(),
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'workout_completions', filter },
+        (payload) => {
+          const row = payload.new as Record<string, unknown> | null;
+          if (row && row.id)
+            useCoachStore
+              .getState()
+              .upsertFinishedWorkout(mapCompletionRow(row as { id: unknown }));
+          else void loadWorkouts();
+        },
+      )
       .subscribe();
     return () => {
       void supabase.removeChannel(channel);
@@ -206,11 +248,7 @@ export const O1FCoachCommandCenter: React.FC<O1FCoachCommandCenterProps> = ({ is
   return (
     <div id="o1fcoach-command-center" className="w-full space-y-3.5 select-none pt-1">
       {toastMsg && (
-        <div
-          role="status"
-          aria-live="polite"
-          className="o1-toast"
-        >
+        <div role="status" aria-live="polite" className="o1-toast">
           {toastMsg}
         </div>
       )}
@@ -273,5 +311,3 @@ export const O1FCoachCommandCenter: React.FC<O1FCoachCommandCenterProps> = ({ is
     </div>
   );
 };
-
-

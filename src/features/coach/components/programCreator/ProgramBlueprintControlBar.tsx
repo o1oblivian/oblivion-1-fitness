@@ -39,7 +39,8 @@ export const ProgramBlueprintControlBar: React.FC<Props> = ({
         <div className="flex items-center gap-2">
           <span className="w-2 h-2 rounded-full bg-o1-crimson" />
           <span className="text-o1-muted text-xs font-semibold">
-            Discipline: <span className="text-o1-text font-bold">{selectedMuscleTag || category}</span>
+            Discipline:{' '}
+            <span className="text-o1-text font-bold">{selectedMuscleTag || category}</span>
           </span>
         </div>
 

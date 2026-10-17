@@ -4,7 +4,9 @@ const GEMINI_FLASH_MODEL = 'gemini-1.5-flash';
 
 function readImportMetaGeminiKey(): string {
   try {
-    return String((import.meta as ImportMeta & { env?: Record<string, string> }).env?.VITE_GEMINI_API_KEY || '');
+    return String(
+      (import.meta as ImportMeta & { env?: Record<string, string> }).env?.VITE_GEMINI_API_KEY || '',
+    );
   } catch {
     return '';
   }
@@ -12,7 +14,9 @@ function readImportMetaGeminiKey(): string {
 
 function getGeminiApiKey(): string {
   const fromProcess =
-    (typeof process !== 'undefined' && (process.env?.GEMINI_API_KEY || process.env?.VITE_GEMINI_API_KEY)) || '';
+    (typeof process !== 'undefined' &&
+      (process.env?.GEMINI_API_KEY || process.env?.VITE_GEMINI_API_KEY)) ||
+    '';
   return fromProcess || readImportMetaGeminiKey() || '';
 }
 
@@ -32,7 +36,9 @@ function getGeminiClient(): GoogleGenAI | null {
 }
 
 function parseGeminiJson<T = Record<string, unknown>>(responseText: string): T {
-  const cleaned = String(responseText || '').replace(/```json\n?|```/g, '').trim();
+  const cleaned = String(responseText || '')
+    .replace(/```json\n?|```/g, '')
+    .trim();
   const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
   const data = JSON.parse(jsonMatch ? jsonMatch[0] : cleaned);
   return data as T;
@@ -51,7 +57,7 @@ export interface GeminiCardioTelemetry {
 
 export async function analyzeCardioImageWithGemini(
   base64Image: string,
-  scanMode: 'console' | 'watch'
+  scanMode: 'console' | 'watch',
 ): Promise<GeminiCardioTelemetry | null> {
   const genAI = getGeminiClient();
   if (!genAI) return null;
@@ -84,10 +90,7 @@ Return STRICT JSON:
     contents: [
       {
         role: 'user',
-        parts: [
-          { inlineData: { mimeType, data: cleanBase64 } },
-          { text: prompt },
-        ],
+        parts: [{ inlineData: { mimeType, data: cleanBase64 } }, { text: prompt }],
       },
     ],
   });

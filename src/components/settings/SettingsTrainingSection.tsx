@@ -5,7 +5,13 @@ import { HomeGymPicker } from './HomeGymPicker';
 import { tactileEngine } from '../../services/tactileEngine';
 import { useConsultationStore } from '../../features/induction/useConsultationStore';
 import { optionsIn, useClubTaxonomy } from '../../features/induction/useClubTaxonomyStore';
-import { WEEK, suggestedDays, type Discipline, type Facility, type TrainingDay } from '../../features/induction/consultationTypes';
+import {
+  WEEK,
+  suggestedDays,
+  type Discipline,
+  type Facility,
+  type TrainingDay,
+} from '../../features/induction/consultationTypes';
 import { bumpDayRoutines } from '../../features/workout/services/dayRoutineService';
 import { useBuddyProfileStore } from '../../stores/useBuddyProfileStore';
 import { requestDeviceLocation } from '../../services/deviceLocation';
@@ -40,7 +46,9 @@ function DisciplineAndDays() {
     <>
       <div>
         <div className="mb-2">
-          <span className="text-xs font-sans font-semibold text-neutral-100">Primary Discipline</span>
+          <span className="text-xs font-sans font-semibold text-neutral-100">
+            Primary Discipline
+          </span>
         </div>
         <div className="flex flex-wrap gap-1.5" role="radiogroup" aria-label="Primary discipline">
           {disciplines.map((option) => {
@@ -70,7 +78,9 @@ function DisciplineAndDays() {
 
       <div className="pt-3 border-t border-white/[0.05]">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-xs font-tactical font-semibold text-neutral-100">Active Training Days</span>
+          <span className="text-xs font-tactical font-semibold text-neutral-100">
+            Active Training Days
+          </span>
           <span className="text-[11px] font-mono text-neutral-400">
             {trainingDays.length === 0 ? 'Suggested · ' : ''}
             {shownDays.length} days / week
@@ -109,15 +119,23 @@ function TrainingPlaces() {
 
   const toggle = (key: Facility) => {
     tactileEngine.triggerSelectionBuzz();
-    void update({ facilities: facilities.includes(key) ? facilities.filter((value) => value !== key) : [...facilities, key] });
+    void update({
+      facilities: facilities.includes(key)
+        ? facilities.filter((value) => value !== key)
+        : [...facilities, key],
+    });
   };
 
   return (
     <div className="pt-3 border-t border-white/[0.05]">
       <div className="mb-2">
-        <span className="text-xs font-sans font-semibold text-neutral-100 block">Where you train</span>
+        <span className="text-xs font-sans font-semibold text-neutral-100 block">
+          Where you train
+        </span>
         <span className="text-[10px] font-sans text-neutral-400 block">
-          {facilities.length === 0 ? 'Not set. Workouts can use any equipment.' : 'Suggested workouts only use equipment you have.'}
+          {facilities.length === 0
+            ? 'Not set. Workouts can use any equipment.'
+            : 'Suggested workouts only use equipment you have.'}
         </span>
       </div>
       <div className="flex flex-wrap gap-1.5">
@@ -184,7 +202,7 @@ export const SettingsTrainingSection: React.FC<TrainingSectionProps> = ({
       onShowToast?.(
         result.status === 'unavailable'
           ? "This device can't share its location."
-          : "Location is blocked for this app. Turn it on in your phone's settings."
+          : "Location is blocked for this app. Turn it on in your phone's settings.",
       );
     }
   };

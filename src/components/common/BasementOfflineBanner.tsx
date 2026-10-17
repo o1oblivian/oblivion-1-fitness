@@ -30,7 +30,9 @@ export const BasementOfflineBanner: React.FC = () => {
       >
         <span className="flex items-center gap-2 min-w-0">
           <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" />
-          <span className="truncate">{syncing ? 'Backing up…' : `${changes} waiting to back up`}</span>
+          <span className="truncate">
+            {syncing ? 'Backing up…' : `${changes} waiting to back up`}
+          </span>
         </span>
         {!syncing && (
           <button
@@ -47,5 +49,3 @@ export const BasementOfflineBanner: React.FC = () => {
 
   return null;
 };
-
-

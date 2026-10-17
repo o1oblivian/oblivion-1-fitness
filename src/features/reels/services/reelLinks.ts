@@ -26,10 +26,19 @@ function isCancel(error: unknown): boolean {
   return name === 'AbortError' || /cancel/i.test(message ?? '');
 }
 
-export async function shareLink(data: { title: string; text: string; url: string }): Promise<ShareResult> {
+export async function shareLink(data: {
+  title: string;
+  text: string;
+  url: string;
+}): Promise<ShareResult> {
   if (Capacitor.isNativePlatform() && Capacitor.isPluginAvailable('Share')) {
     try {
-      await Share.share({ title: data.title, text: data.text, url: data.url, dialogTitle: `Share ${data.title}` });
+      await Share.share({
+        title: data.title,
+        text: data.text,
+        url: data.url,
+        dialogTitle: `Share ${data.title}`,
+      });
       return 'shared';
     } catch (error) {
       if (isCancel(error)) return 'cancelled';

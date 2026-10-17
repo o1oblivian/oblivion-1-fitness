@@ -62,7 +62,14 @@ function dayKeyAgo(nowMs: number, ago: number): string {
   return toDayKey(nowMs - ago * 86_400_000);
 }
 
-function weekStats(sets: LoggedSet[], history: History, todayIdx: number, from: number, to: number, nowMs: number): WeekStats {
+function weekStats(
+  sets: LoggedSet[],
+  history: History,
+  todayIdx: number,
+  from: number,
+  to: number,
+  nowMs: number,
+): WeekStats {
   const inRange = (key: string) => {
     const ago = todayIdx - dayIndex(key);
     return ago >= from && ago <= to;
@@ -135,7 +142,8 @@ export function buildWeeklyIntel(
       label: DAY_LABELS[new Date(ms).getDay()],
       trained,
       tonnageKg: Math.round(tonnage),
-      sleepHours: rec?.sleep?.hasData && rec.sleep.durationHours > 0 ? rec.sleep.durationHours : null,
+      sleepHours:
+        rec?.sleep?.hasData && rec.sleep.durationHours > 0 ? rec.sleep.durationHours : null,
       kcal: nut?.hasData && nut.calories > 0 ? nut.calories : null,
       kcalTarget: nut?.hasData && nut.calorieTarget > 0 ? nut.calorieTarget : null,
       proteinG: nut?.hasData && nut.calories > 0 ? nut.proteinG : null,
@@ -178,7 +186,8 @@ export function buildWeeklyIntel(
 
   const fuelScores: number[] = [];
   for (const d of days) {
-    if (d.kcal === null || d.kcalTarget === null || d.proteinG === null || d.proteinTarget === null) continue;
+    if (d.kcal === null || d.kcalTarget === null || d.proteinG === null || d.proteinTarget === null)
+      continue;
     const kcalScore = clamp(100 - (Math.abs(d.kcal - d.kcalTarget) / d.kcalTarget) * 150, 0, 100);
     const proteinScore = clamp((d.proteinG / d.proteinTarget) * 100, 0, 100);
     fuelScores.push((kcalScore + proteinScore) / 2);
@@ -189,7 +198,10 @@ export function buildWeeklyIntel(
     label: 'Fuel',
     weight: 0.25,
     value: fuelScores.length >= 3 && fuelAvg !== null ? Math.round(fuelAvg) : null,
-    detail: fuelScores.length >= 3 ? `${fuelScores.length} days vs targets` : 'Log 3+ days with targets set',
+    detail:
+      fuelScores.length >= 3
+        ? `${fuelScores.length} days vs targets`
+        : 'Log 3+ days with targets set',
   };
 
   const parts = [training, load, recovery, fuel];
@@ -199,13 +211,29 @@ export function buildWeeklyIntel(
     const w = available.reduce((a, p) => a + p.weight, 0);
     score = Math.round(available.reduce((a, p) => a + (p.value as number) * p.weight, 0) / w);
   }
-  const letter = score === null ? null : score >= 85 ? 'A' : score >= 72 ? 'B' : score >= 58 ? 'C' : score >= 45 ? 'D' : 'F';
+  const letter =
+    score === null
+      ? null
+      : score >= 85
+        ? 'A'
+        : score >= 72
+          ? 'B'
+          : score >= 58
+            ? 'C'
+            : score >= 45
+              ? 'D'
+              : 'F';
 
   /* ---- findings, each backed by a number ---- */
   const findings: Finding[] = [];
   if (hasAnyTraining) {
     if (thisWeek.sessions >= target) {
-      findings.push({ id: 'sessions', tone: 'good', title: 'Session target met', detail: `${thisWeek.sessions} sessions against a target of ${target}.` });
+      findings.push({
+        id: 'sessions',
+        tone: 'good',
+        title: 'Session target met',
+        detail: `${thisWeek.sessions} sessions against a target of ${target}.`,
+      });
     } else {
       findings.push({
         id: 'sessions',
@@ -218,11 +246,26 @@ export function buildWeeklyIntel(
   if (lastWeek.tonnageKg > 0 && thisWeek.tonnageKg > 0) {
     const pct = Math.round(((thisWeek.tonnageKg - lastWeek.tonnageKg) / lastWeek.tonnageKg) * 100);
     if (pct >= 30) {
-      findings.push({ id: 'spike', tone: 'alert', title: 'Volume spike', detail: `Tonnage is up ${pct}% on last week. Spikes over 30% raise injury risk.` });
+      findings.push({
+        id: 'spike',
+        tone: 'alert',
+        title: 'Volume spike',
+        detail: `Tonnage is up ${pct}% on last week. Spikes over 30% raise injury risk.`,
+      });
     } else if (pct <= -30) {
-      findings.push({ id: 'drop', tone: 'watch', title: 'Volume drop', detail: `Tonnage is down ${Math.abs(pct)}% on last week.` });
+      findings.push({
+        id: 'drop',
+        tone: 'watch',
+        title: 'Volume drop',
+        detail: `Tonnage is down ${Math.abs(pct)}% on last week.`,
+      });
     } else {
-      findings.push({ id: 'steady-volume', tone: 'good', title: 'Volume steady', detail: `Tonnage ${pct >= 0 ? '+' : ''}${pct}% on last week.` });
+      findings.push({
+        id: 'steady-volume',
+        tone: 'good',
+        title: 'Volume steady',
+        detail: `Tonnage ${pct >= 0 ? '+' : ''}${pct}% on last week.`,
+      });
     }
   }
   if (ratio !== null && ratio > 1.3) {
@@ -233,7 +276,12 @@ export function buildWeeklyIntel(
       detail: `7d:28d ratio ${ratio.toFixed(2)}. Sweet spot is 0.8–1.3.`,
     });
   } else if (ratio !== null && ratio < 0.8 && hasAnyTraining) {
-    findings.push({ id: 'acwr-low', tone: 'watch', title: 'Load below baseline', detail: `7d:28d ratio ${ratio.toFixed(2)}. Room to add volume.` });
+    findings.push({
+      id: 'acwr-low',
+      tone: 'watch',
+      title: 'Load below baseline',
+      detail: `7d:28d ratio ${ratio.toFixed(2)}. Room to add volume.`,
+    });
   }
   if (thisWeek.sleepNights >= 2 && thisWeek.avgSleepHours !== null) {
     const short = days.filter((d) => d.sleepHours !== null && d.sleepHours < 6.5).length;
@@ -245,7 +293,12 @@ export function buildWeeklyIntel(
         detail: `${thisWeek.avgSleepHours}h average${short ? `, ${short} night${short === 1 ? '' : 's'} under 6.5h` : ''}.`,
       });
     } else {
-      findings.push({ id: 'sleep', tone: 'good', title: 'Sleep on target', detail: `${thisWeek.avgSleepHours}h average across ${thisWeek.sleepNights} nights.` });
+      findings.push({
+        id: 'sleep',
+        tone: 'good',
+        title: 'Sleep on target',
+        detail: `${thisWeek.avgSleepHours}h average across ${thisWeek.sleepNights} nights.`,
+      });
     }
   }
   const proteinPairs = days.filter((d) => d.proteinG !== null && d.proteinTarget !== null);
@@ -253,19 +306,44 @@ export function buildWeeklyIntel(
     const got = avg(proteinPairs.map((d) => d.proteinG as number)) as number;
     const want = avg(proteinPairs.map((d) => d.proteinTarget as number)) as number;
     if (got < want * 0.85) {
-      findings.push({ id: 'protein', tone: 'watch', title: 'Protein under target', detail: `${Math.round(got)} g a day against ${Math.round(want)} g.` });
+      findings.push({
+        id: 'protein',
+        tone: 'watch',
+        title: 'Protein under target',
+        detail: `${Math.round(got)} g a day against ${Math.round(want)} g.`,
+      });
     } else {
-      findings.push({ id: 'protein', tone: 'good', title: 'Protein on target', detail: `${Math.round(got)} g a day against ${Math.round(want)} g.` });
+      findings.push({
+        id: 'protein',
+        tone: 'good',
+        title: 'Protein on target',
+        detail: `${Math.round(got)} g a day against ${Math.round(want)} g.`,
+      });
     }
   }
   const pbs = report.lifts.filter((l) => l.recentPb);
   if (pbs.length > 0) {
-    findings.push({ id: 'pb', tone: 'good', title: `${pbs.length} lift${pbs.length === 1 ? '' : 's'} at a new best`, detail: pbs.map((l) => l.name).slice(0, 3).join(', ') });
+    findings.push({
+      id: 'pb',
+      tone: 'good',
+      title: `${pbs.length} lift${pbs.length === 1 ? '' : 's'} at a new best`,
+      detail: pbs
+        .map((l) => l.name)
+        .slice(0, 3)
+        .join(', '),
+    });
   }
   report.lifts
     .filter((l) => l.trend === 'plateau')
     .slice(0, 2)
-    .forEach((l) => findings.push({ id: `plateau-${l.name}`, tone: 'watch', title: `Plateau: ${l.name}`, detail: `No new best e1RM in 4+ weeks (${l.bestE1rm} kg).` }));
+    .forEach((l) =>
+      findings.push({
+        id: `plateau-${l.name}`,
+        tone: 'watch',
+        title: `Plateau: ${l.name}`,
+        detail: `No new best e1RM in 4+ weeks (${l.bestE1rm} kg).`,
+      }),
+    );
 
   return { days, thisWeek, lastWeek, parts, score, letter, findings };
 }

@@ -11,19 +11,35 @@ import { O1_PRESETS } from './artworkPresets';
 const STEPS = ['Details', 'Builder', 'Pricing', 'Review'] as const;
 
 const DAY_NAMES = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-const SPLIT_NAMES = ['Push', 'Pull', 'Legs', 'Upper Body', 'Lower Body', 'Conditioning', 'Mobility'];
+const SPLIT_NAMES = [
+  'Push',
+  'Pull',
+  'Legs',
+  'Upper Body',
+  'Lower Body',
+  'Conditioning',
+  'Mobility',
+];
 
 /** Grows or trims the plan to the chosen length, keeping every day the coach already filled in. */
-function resizeWeeks(current: ProgramWeekPlan[], numWeeks: number, numDays: number): ProgramWeekPlan[] {
+function resizeWeeks(
+  current: ProgramWeekPlan[],
+  numWeeks: number,
+  numDays: number,
+): ProgramWeekPlan[] {
   const days = Math.min(Math.max(numDays, 1), 7);
   return Array.from({ length: Math.max(numWeeks, 1) }, (_, wIdx) => ({
     weekNumber: wIdx + 1,
-    days: Array.from({ length: days }, (_, dIdx) => current[wIdx]?.days[dIdx] ?? {
-      id: `d-${wIdx + 1}-${dIdx + 1}`,
-      dayName: DAY_NAMES[dIdx],
-      splitFocus: SPLIT_NAMES[dIdx % SPLIT_NAMES.length],
-      exercises: [],
-    }),
+    days: Array.from(
+      { length: days },
+      (_, dIdx) =>
+        current[wIdx]?.days[dIdx] ?? {
+          id: `d-${wIdx + 1}-${dIdx + 1}`,
+          dayName: DAY_NAMES[dIdx],
+          splitFocus: SPLIT_NAMES[dIdx % SPLIT_NAMES.length],
+          exercises: [],
+        },
+    ),
   }));
 }
 
@@ -59,7 +75,10 @@ export const ProgramCreatorModal: React.FC<{
   const handleUpdate = (updates: Partial<ProgramFormData>) => {
     setFormData((prev) => {
       const next = { ...prev, ...updates };
-      if (next.durationWeeks !== prev.durationWeeks || next.trainingDaysPerWeek !== prev.trainingDaysPerWeek) {
+      if (
+        next.durationWeeks !== prev.durationWeeks ||
+        next.trainingDaysPerWeek !== prev.trainingDaysPerWeek
+      ) {
         next.weeks = resizeWeeks(next.weeks, next.durationWeeks, next.trainingDaysPerWeek);
       }
       return next;
@@ -88,7 +107,6 @@ export const ProgramCreatorModal: React.FC<{
     <div className="fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm sm:flex sm:items-center sm:justify-center p-0 sm:p-4 select-none animate-fadeIn">
       {/* Container: Fullscreen on mobile, centered modal card on sm+ */}
       <div className="w-full h-full sm:h-auto sm:max-h-[92dvh] sm:max-w-2xl bg-o1-canvas sm:rounded-2xl flex flex-col overflow-hidden text-o1-text shadow-2xl border-0 sm:border sm:border-white/[0.07]">
-        
         {/* Top Header */}
         <div className="px-4 py-2 border-b border-white/[0.07] flex items-center justify-between bg-o1-surface shrink-0 min-h-[44px]">
           <div className="flex items-center gap-2.5">
@@ -109,10 +127,8 @@ export const ProgramCreatorModal: React.FC<{
                 <Sparkles size={16} />
               </div>
             )}
-            
-            <h2 className="text-sm font-bold text-o1-text leading-tight">
-              Program Creator
-            </h2>
+
+            <h2 className="text-sm font-bold text-o1-text leading-tight">Program Creator</h2>
           </div>
 
           <div className="flex items-center gap-2">
@@ -151,8 +167,8 @@ export const ProgramCreatorModal: React.FC<{
                   isActive
                     ? 'text-o1-text font-bold'
                     : isCompleted
-                    ? 'text-o1-text'
-                    : 'text-o1-muted'
+                      ? 'text-o1-text'
+                      : 'text-o1-muted'
                 }`}
               >
                 <span className="flex items-center justify-center gap-1">
@@ -176,7 +192,10 @@ export const ProgramCreatorModal: React.FC<{
         </div>
 
         {publishError ? (
-          <p role="alert" className="shrink-0 border-t border-white/[0.07] bg-o1-surface px-4 py-2 text-[12px] text-o1-text">
+          <p
+            role="alert"
+            className="shrink-0 border-t border-white/[0.07] bg-o1-surface px-4 py-2 text-[12px] text-o1-text"
+          >
             {publishError}
           </p>
         ) : null}
@@ -227,7 +246,6 @@ export const ProgramCreatorModal: React.FC<{
             </button>
           )}
         </div>
-
       </div>
     </div>
   );

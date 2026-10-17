@@ -34,7 +34,10 @@ class TactileEngineService {
 
   private loadSettings(): void {
     const stored = safeStorage.getItem<Partial<TactileEngineSettings>>(STORAGE_KEY, {});
-    const production = safeStorage.getItem<Record<string, unknown>>('o1fc_production_settings_v3', {});
+    const production = safeStorage.getItem<Record<string, unknown>>(
+      'o1fc_production_settings_v3',
+      {},
+    );
     this.settings = {
       ...DEFAULT_SETTINGS,
       ...stored,
@@ -71,8 +74,7 @@ class TactileEngineService {
       if (!this.audioCtx) {
         const AudioContextClass =
           window.AudioContext ||
-          (window as unknown as { webkitAudioContext: typeof AudioContext })
-            .webkitAudioContext;
+          (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
         if (AudioContextClass) {
           this.audioCtx = new AudioContextClass();
         }
@@ -149,5 +151,3 @@ class TactileEngineService {
 }
 
 export const tactileEngine = new TactileEngineService();
-;
-

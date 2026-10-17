@@ -48,7 +48,9 @@ export type BalanceFailure = 'offline' | 'unconfigured' | 'signed-out' | 'server
 const errorMessage = (err: unknown): string => (err instanceof Error ? err.message : '');
 
 async function authHeaders(): Promise<Record<string, string>> {
-  const { data: { session } } = await supabase.auth.getSession();
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
   return {
     'Content-Type': 'application/json',
     ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
@@ -70,7 +72,9 @@ export const stripeConnectService = {
     try {
       const { data: authData } = await supabase.auth.getUser();
       if (authData?.user?.id) {
-        const { data, error } = await supabase.rpc('my_coach_account').maybeSingle<CoachAccountRow>();
+        const { data, error } = await supabase
+          .rpc('my_coach_account')
+          .maybeSingle<CoachAccountRow>();
 
         if (!error && data) {
           return {
@@ -79,7 +83,8 @@ export const stripeConnectService = {
             stripe_payouts_enabled: Boolean(data.stripe_payouts_enabled),
             currency: 'AUD',
             is_id_verified: Boolean(data.is_id_verified),
-            identity_status: data.identity_status || (data.is_id_verified ? 'verified' : 'unverified'),
+            identity_status:
+              data.identity_status || (data.is_id_verified ? 'verified' : 'unverified'),
             verified_at: data.verified_at ?? undefined,
             accepting_new_athletes: data.accepting_new_athletes !== false,
           };
@@ -111,7 +116,8 @@ export const stripeConnectService = {
       });
       const data = await res.json().catch(() => ({}));
       const url = typeof data?.url === 'string' ? data.url : undefined;
-      if (!res.ok || !url) return { error: data?.error || 'Failed to initialize Stripe onboarding.' };
+      if (!res.ok || !url)
+        return { error: data?.error || 'Failed to initialize Stripe onboarding.' };
       return { url };
     } catch (err: unknown) {
       return { error: errorMessage(err) || 'Network error communicating with Stripe Connect.' };
@@ -119,7 +125,9 @@ export const stripeConnectService = {
   },
 
   /** The server decides the destination account and validates the amount against the real balance. */
-  async createPayout(amountCents: number): Promise<{ success: boolean; payoutId?: string; error?: string }> {
+  async createPayout(
+    amountCents: number,
+  ): Promise<{ success: boolean; payoutId?: string; error?: string }> {
     try {
       const res = await apiFetch('/api/stripe/create-payout', {
         method: 'POST',
@@ -127,10 +135,14 @@ export const stripeConnectService = {
         body: JSON.stringify({ amountCents }),
       });
       const data = await res.json().catch(() => ({}));
-      if (!res.ok || data?.error) return { success: false, error: data?.error || 'Failed to process withdrawal.' };
+      if (!res.ok || data?.error)
+        return { success: false, error: data?.error || 'Failed to process withdrawal.' };
       return { success: true, payoutId: data?.payoutId || data?.transferId };
     } catch (err: unknown) {
-      return { success: false, error: errorMessage(err) || 'Network error communicating with payout service.' };
+      return {
+        success: false,
+        error: errorMessage(err) || 'Network error communicating with payout service.',
+      };
     }
   },
 
@@ -151,34 +163,46 @@ export const stripeConnectService = {
   /** Real pending / available / paid balance, computed on the server from the payout ledger. */
   async getBalance(): Promise<{ data?: StripeBalance; error?: string; reason?: BalanceFailure }> {
     try {
-      const res = await apiFetch('/api/stripe/balance', { method: 'GET', headers: await authHeaders() });
+      const res = await apiFetch('/api/stripe/balance', {
+        method: 'GET',
+        headers: await authHeaders(),
+      });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        const reason: BalanceFailure = res.status === 401 ? 'signed-out' : res.status === 503 ? 'unconfigured' : 'server';
+        const reason: BalanceFailure =
+          res.status === 401 ? 'signed-out' : res.status === 503 ? 'unconfigured' : 'server';
         return { error: data?.error || 'Could not load your balance.', reason };
       }
       return { data: data as StripeBalance };
     } catch (err: unknown) {
-      return { error: errorMessage(err) || 'Network error loading your balance.', reason: 'offline' };
+      return {
+        error: errorMessage(err) || 'Network error loading your balance.',
+        reason: 'offline',
+      };
     }
   },
 
   /** Hosted Stripe Checkout for a paid program or 1:1 coaching. Price and coach are resolved server-side. */
-  async createCheckout(input: { kind: 'program' | 'coaching'; coachId: string; programId?: string; athleteName?: string }): Promise<{ url?: string; error?: string }> {
+  async createCheckout(input: {
+    kind: 'program' | 'coaching';
+    coachId: string;
+    programId?: string;
+    athleteName?: string;
+  }): Promise<{ url?: string; error?: string }> {
     try {
-      const returnUrl = typeof window !== 'undefined' ? `${window.location.origin}${window.location.pathname}` : '';
+      const returnUrl =
+        typeof window !== 'undefined' ? `${window.location.origin}${window.location.pathname}` : '';
       const res = await apiFetch('/api/stripe/create-checkout', {
         method: 'POST',
         headers: await authHeaders(),
         body: JSON.stringify({ ...input, returnUrl }),
       });
       const data = await res.json().catch(() => ({}));
-      if (!res.ok || typeof data?.url !== 'string') return { error: data?.error || 'Could not start checkout.' };
+      if (!res.ok || typeof data?.url !== 'string')
+        return { error: data?.error || 'Could not start checkout.' };
       return { url: data.url };
     } catch (err: unknown) {
       return { error: errorMessage(err) || 'Network error starting checkout.' };
     }
   },
 };
-
-

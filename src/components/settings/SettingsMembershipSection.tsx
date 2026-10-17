@@ -8,7 +8,10 @@ interface MembershipSectionProps {
   onShowToast?: (msg: string) => void;
 }
 
-export const SettingsMembershipSection: React.FC<MembershipSectionProps> = ({ onManage, onShowToast }) => {
+export const SettingsMembershipSection: React.FC<MembershipSectionProps> = ({
+  onManage,
+  onShowToast,
+}) => {
   const [isRestoring, setIsRestoring] = useState(false);
   const { trialState, restorePurchases, openPaywall, isPro } = useSubscription();
 
@@ -45,8 +48,8 @@ export const SettingsMembershipSection: React.FC<MembershipSectionProps> = ({ on
               {isPro || trialState.hasSubscribedPro
                 ? 'Club Pass is active.'
                 : isTrialActive
-                ? 'Full access for 90 days.'
-                : 'Club Pass is available when you want it.'}
+                  ? 'Full access for 90 days.'
+                  : 'Club Pass is available when you want it.'}
             </p>
           </div>
 
@@ -74,9 +77,7 @@ export const SettingsMembershipSection: React.FC<MembershipSectionProps> = ({ on
         {isTrialActive && !isPro && (
           <div className="p-3 rounded-xl bg-o1-well border border-white/[0.07] space-y-1.5">
             <div className="flex items-center justify-between text-[11px] font-mono">
-              <span className="text-neutral-300 font-bold">
-                90-Day Complimentary Window
-              </span>
+              <span className="text-neutral-300 font-bold">90-Day Complimentary Window</span>
               <span className="text-o1-crimson font-bold">
                 {isExpired ? 'Ended' : `${trialState.daysRemaining} of 90 days left`}
               </span>
@@ -84,7 +85,9 @@ export const SettingsMembershipSection: React.FC<MembershipSectionProps> = ({ on
             <div className="w-full h-1.5 rounded-full bg-white/[0.08] overflow-hidden">
               <div
                 className={`h-full rounded-full transition-all duration-300 ${isExpired ? 'bg-amber-500' : 'bg-o1-crimson'}`}
-                style={{ width: `${Math.min(100, Math.max(5, ((90 - trialState.daysRemaining) / 90) * 100))}%` }}
+                style={{
+                  width: `${Math.min(100, Math.max(5, ((90 - trialState.daysRemaining) / 90) * 100))}%`,
+                }}
               />
             </div>
             <p className="text-[10px] text-neutral-400 font-mono">
@@ -115,4 +118,3 @@ export const SettingsMembershipSection: React.FC<MembershipSectionProps> = ({ on
     </div>
   );
 };
-

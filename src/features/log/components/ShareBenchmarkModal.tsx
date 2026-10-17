@@ -42,8 +42,10 @@ export const ShareBenchmarkModal: React.FC<ShareBenchmarkModalProps> = ({
 
   if (!isOpen) return null;
 
-  const weightText = metrics.bodyweightKg && metrics.bodyweightKg > 0 ? `${metrics.bodyweightKg} kg` : '--';
-  const goalText = metrics.goalWeightKg && metrics.goalWeightKg > 0 ? `${metrics.goalWeightKg} kg` : '--';
+  const weightText =
+    metrics.bodyweightKg && metrics.bodyweightKg > 0 ? `${metrics.bodyweightKg} kg` : '--';
+  const goalText =
+    metrics.goalWeightKg && metrics.goalWeightKg > 0 ? `${metrics.goalWeightKg} kg` : '--';
   const volumeText = metrics.sessions7d > 0 ? `${metrics.volume7dKg.toLocaleString()} kg` : '--';
   const sessionText = metrics.sessions7d > 0 ? String(metrics.sessions7d) : '--';
   const streakText = metrics.streakDays > 0 ? `${metrics.streakDays} d` : '--';
@@ -73,12 +75,13 @@ export const ShareBenchmarkModal: React.FC<ShareBenchmarkModalProps> = ({
     }
   };
 
-  const buildFile = () => renderProgressCard({
-    name: metrics.name || 'Set your name',
-    before: beforeImg,
-    after: afterImg,
-    rows,
-  });
+  const buildFile = () =>
+    renderProgressCard({
+      name: metrics.name || 'Set your name',
+      before: beforeImg,
+      after: afterImg,
+      rows,
+    });
 
   const handleShare = async () => {
     tactileEngine.triggerSelectionBuzz();
@@ -91,7 +94,13 @@ export const ShareBenchmarkModal: React.FC<ShareBenchmarkModalProps> = ({
         url: PUBLIC_SITE,
         file,
       });
-      setStatus(result === 'shared' ? 'Share sheet opened.' : result === 'copied' ? 'Link copied. The card is ready to save.' : 'Share was cancelled.');
+      setStatus(
+        result === 'shared'
+          ? 'Share sheet opened.'
+          : result === 'copied'
+            ? 'Link copied. The card is ready to save.'
+            : 'Share was cancelled.',
+      );
       if (result !== 'shared') downloadFile(file);
     } catch {
       setStatus('The card could not be built on this device.');
@@ -113,9 +122,14 @@ export const ShareBenchmarkModal: React.FC<ShareBenchmarkModalProps> = ({
     <button
       key={label}
       type="button"
-      onClick={() => { tactileEngine.triggerSelectionBuzz(); set(!on); }}
+      onClick={() => {
+        tactileEngine.triggerSelectionBuzz();
+        set(!on);
+      }}
       className={`h-8 px-3 rounded-full text-[11px] font-semibold border cursor-pointer ${
-        on ? 'bg-o1-well text-white border-white/30' : 'bg-transparent text-neutral-500 border-white/[0.07]'
+        on
+          ? 'bg-o1-well text-white border-white/30'
+          : 'bg-transparent text-neutral-500 border-white/[0.07]'
       }`}
     >
       {label}
@@ -125,12 +139,19 @@ export const ShareBenchmarkModal: React.FC<ShareBenchmarkModalProps> = ({
   return (
     <div
       className="fixed inset-0 z-50 bg-black/70 o1-sheet-scrim flex items-center justify-center select-none"
-      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
     >
       <div className="o1-sheet-card bg-o1-card border border-white/[0.07] w-full p-4 shadow-xl relative space-y-3 overflow-y-auto">
         <div className="flex items-center justify-between">
           <h3 className="font-bold text-sm text-white">Share progress</h3>
-          <button type="button" onClick={onClose} aria-label="Close" className="w-10 h-10 rounded-full text-neutral-400 hover:text-white flex items-center justify-center cursor-pointer">
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close"
+            className="w-10 h-10 rounded-full text-neutral-400 hover:text-white flex items-center justify-center cursor-pointer"
+          >
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -138,15 +159,35 @@ export const ShareBenchmarkModal: React.FC<ShareBenchmarkModalProps> = ({
         <div className="rounded-2xl bg-black border border-white/[0.07] p-3.5 text-white space-y-3">
           <div className="flex items-baseline justify-between">
             <span className="text-[11px] font-semibold text-neutral-300">Oblivion 1</span>
-            <span className="text-[11px] text-neutral-500 truncate max-w-[50%]">{metrics.handle}</span>
+            <span className="text-[11px] text-neutral-500 truncate max-w-[50%]">
+              {metrics.handle}
+            </span>
           </div>
-          <div className="text-lg font-semibold leading-tight">{metrics.name || 'Set your name'}</div>
+          <div className="text-lg font-semibold leading-tight">
+            {metrics.name || 'Set your name'}
+          </div>
           <div className="grid grid-cols-2 gap-2">
-            <button type="button" onClick={() => beforeRef.current?.click()} className="aspect-[3/4] rounded-xl bg-o1-well border border-white/[0.14] overflow-hidden flex items-center justify-center text-[11px] text-neutral-400 cursor-pointer">
-              {beforeUrl ? <img src={beforeUrl} alt="Before" className="w-full h-full object-cover" /> : 'Before'}
+            <button
+              type="button"
+              onClick={() => beforeRef.current?.click()}
+              className="aspect-[3/4] rounded-xl bg-o1-well border border-white/[0.14] overflow-hidden flex items-center justify-center text-[11px] text-neutral-400 cursor-pointer"
+            >
+              {beforeUrl ? (
+                <img src={beforeUrl} alt="Before" className="w-full h-full object-cover" />
+              ) : (
+                'Before'
+              )}
             </button>
-            <button type="button" onClick={() => afterRef.current?.click()} className="aspect-[3/4] rounded-xl bg-o1-well border border-white/[0.14] overflow-hidden flex items-center justify-center text-[11px] text-neutral-400 cursor-pointer">
-              {afterUrl ? <img src={afterUrl} alt="After" className="w-full h-full object-cover" /> : 'After'}
+            <button
+              type="button"
+              onClick={() => afterRef.current?.click()}
+              className="aspect-[3/4] rounded-xl bg-o1-well border border-white/[0.14] overflow-hidden flex items-center justify-center text-[11px] text-neutral-400 cursor-pointer"
+            >
+              {afterUrl ? (
+                <img src={afterUrl} alt="After" className="w-full h-full object-cover" />
+              ) : (
+                'After'
+              )}
             </button>
           </div>
           <div className="space-y-1.5">
@@ -161,11 +202,24 @@ export const ShareBenchmarkModal: React.FC<ShareBenchmarkModalProps> = ({
         </div>
 
         <p className="text-[11px] text-neutral-500 leading-snug">
-          Empty frames and -- stay empty until a photo or a number exists. This is the post reviewers and athletes see.
+          Empty frames and -- stay empty until a photo or a number exists. This is the post
+          reviewers and athletes see.
         </p>
 
-        <input ref={beforeRef} type="file" accept="image/*" className="hidden" onChange={(e) => void onPick('before', e.target.files?.[0])} />
-        <input ref={afterRef} type="file" accept="image/*" className="hidden" onChange={(e) => void onPick('after', e.target.files?.[0])} />
+        <input
+          ref={beforeRef}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={(e) => void onPick('before', e.target.files?.[0])}
+        />
+        <input
+          ref={afterRef}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={(e) => void onPick('after', e.target.files?.[0])}
+        />
 
         <div className="flex flex-wrap gap-1.5">
           {toggle('Weight', showWeight, setShowWeight)}
@@ -186,11 +240,19 @@ export const ShareBenchmarkModal: React.FC<ShareBenchmarkModalProps> = ({
         )}
 
         <div className="grid grid-cols-2 gap-2">
-          <button type="button" onClick={() => void handleSave()} className="min-h-[44px] rounded-xl bg-o1-well border border-white/[0.07] text-white text-xs font-semibold flex items-center justify-center gap-1.5 cursor-pointer">
+          <button
+            type="button"
+            onClick={() => void handleSave()}
+            className="min-h-[44px] rounded-xl bg-o1-well border border-white/[0.07] text-white text-xs font-semibold flex items-center justify-center gap-1.5 cursor-pointer"
+          >
             <Download className="w-4 h-4" />
             Save image
           </button>
-          <button type="button" onClick={() => void handleShare()} className="min-h-[44px] rounded-xl bg-o1-crimson text-white text-xs font-semibold flex items-center justify-center gap-1.5 cursor-pointer">
+          <button
+            type="button"
+            onClick={() => void handleShare()}
+            className="min-h-[44px] rounded-xl bg-o1-crimson text-white text-xs font-semibold flex items-center justify-center gap-1.5 cursor-pointer"
+          >
             <Share2 className="w-4 h-4" />
             Share
           </button>
@@ -200,5 +262,3 @@ export const ShareBenchmarkModal: React.FC<ShareBenchmarkModalProps> = ({
     </div>
   );
 };
-
-

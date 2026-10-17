@@ -100,12 +100,7 @@ export interface ScorePart {
 }
 
 export type ActionKind =
-  | 'volume_add'
-  | 'volume_reduce'
-  | 'plateau'
-  | 'deload'
-  | 'consistency'
-  | 'recovery';
+  'volume_add' | 'volume_reduce' | 'plateau' | 'deload' | 'consistency' | 'recovery';
 
 export interface ReportAction {
   id: string;

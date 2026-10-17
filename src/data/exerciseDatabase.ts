@@ -9,8 +9,6 @@ import {
   EXPANDED_RECOVERY_EXERCISES,
 } from './exercises/expandedExercises';
 
-;
-
 function notDuplicate(ex: ExerciseDefinition, seen: ExerciseDefinition[]): boolean {
   const name = ex.name.toLowerCase();
   return !seen.some((r) => r.id === ex.id || r.name.toLowerCase() === name);

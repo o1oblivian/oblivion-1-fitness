@@ -20,13 +20,18 @@ export const PrivacyPolicyModal: React.FC<Props> = ({ isOpen, onClose, onDeleteR
               <Lock className="w-4 h-4 text-[#4F8F9A]" />
             </div>
             <div>
-              <h2 className="text-sm font-black tracking-wider text-neutral-100">Privacy &amp; Data Sanctuary Policy</h2>
+              <h2 className="text-sm font-black tracking-wider text-neutral-100">
+                Privacy &amp; Data Sanctuary Policy
+              </h2>
               <p className="text-[10px] font-mono text-neutral-400">Local-first · Private backup</p>
             </div>
           </div>
           <button
             type="button"
-            onClick={() => { tactileEngine.triggerSelectionBuzz(); onClose(); }}
+            onClick={() => {
+              tactileEngine.triggerSelectionBuzz();
+              onClose();
+            }}
             className="p-1.5 text-neutral-400 hover:text-white rounded-full bg-o1-card border border-white/[0.07] cursor-pointer"
           >
             <X className="w-4 h-4" />
@@ -41,7 +46,11 @@ export const PrivacyPolicyModal: React.FC<Props> = ({ isOpen, onClose, onDeleteR
               <span>1. Local-First Storage &amp; Private Backup</span>
             </div>
             <p className="text-[11px] text-neutral-400">
-              Workout logs, sets, reps, bodyweight, nutrition and hydration records are saved on your device first. When you are signed in, they are <strong>backed up to your private Oblivion 1 account</strong> so they survive a lost or replaced phone. Only you, and a coach you choose to share with, can read them. Your data is never sold or shared with advertisers.
+              Workout logs, sets, reps, bodyweight, nutrition and hydration records are saved on
+              your device first. When you are signed in, they are{' '}
+              <strong>backed up to your private Oblivion 1 account</strong> so they survive a lost
+              or replaced phone. Only you, and a coach you choose to share with, can read them. Your
+              data is never sold or shared with advertisers.
             </p>
           </div>
 
@@ -52,7 +61,13 @@ export const PrivacyPolicyModal: React.FC<Props> = ({ isOpen, onClose, onDeleteR
               <span>2. Zero Third-Party Trackers, Pixels, or Data Brokers</span>
             </div>
             <p className="text-[11px] text-neutral-400">
-              In full compliance with Apple App Tracking Transparency (ATT) and Google Play User Data policies, this application contains <strong>zero third-party tracking pixels, zero marketing SDKs, and zero behavioral telemetry scrapers</strong>. Your strain, heart rate and workout data are never used for advertising.
+              In full compliance with Apple App Tracking Transparency (ATT) and Google Play User
+              Data policies, this application contains{' '}
+              <strong>
+                zero third-party tracking pixels, zero marketing SDKs, and zero behavioral telemetry
+                scrapers
+              </strong>
+              . Your strain, heart rate and workout data are never used for advertising.
             </p>
           </div>
 
@@ -63,7 +78,10 @@ export const PrivacyPolicyModal: React.FC<Props> = ({ isOpen, onClose, onDeleteR
               <span>3. Camera Scans</span>
             </div>
             <p className="text-[11px] text-neutral-400">
-              Cardio console, watch and meal scan photos, and barcode scans, are sent securely to our scanning service, and to Google's Gemini image-analysis service, only to read the numbers on them. Scan photos are not saved to your account. Profile photos and reels you upload are stored in your account and shown to the people you choose.
+              Cardio console, watch and meal scan photos, and barcode scans, are sent securely to
+              our scanning service, and to Google's Gemini image-analysis service, only to read the
+              numbers on them. Scan photos are not saved to your account. Profile photos and reels
+              you upload are stored in your account and shown to the people you choose.
             </p>
           </div>
 
@@ -73,7 +91,15 @@ export const PrivacyPolicyModal: React.FC<Props> = ({ isOpen, onClose, onDeleteR
               <span>Location, Bluetooth, Purchases &amp; Payments</span>
             </div>
             <p className="text-[11px] text-neutral-400">
-              Buddy Radar uses your approximate location (rounded to about 1 km, only while the app is open and only if you allow it) to show nearby athletes; turn on Ghost Mode to hide yourself, and your location is removed when you delete your account. Your home gym is chosen from a live map search: the words you type are sent to the open-source Photon / OpenStreetMap search service, without your account or location. Bluetooth is used only to read a heart-rate sensor you choose to connect. Club Pass purchases are processed by Apple or Google and RevenueCat; we receive your subscription status, not your card. Coaching payments are processed by Stripe; we receive the sale amount and your name, not your card. Sign-in and cloud backup are provided by Supabase.
+              Buddy Radar uses your approximate location (rounded to about 1 km, only while the app
+              is open and only if you allow it) to show nearby athletes; turn on Ghost Mode to hide
+              yourself, and your location is removed when you delete your account. Your home gym is
+              chosen from a live map search: the words you type are sent to the open-source Photon /
+              OpenStreetMap search service, without your account or location. Bluetooth is used only
+              to read a heart-rate sensor you choose to connect. Club Pass purchases are processed
+              by Apple or Google and RevenueCat; we receive your subscription status, not your card.
+              Coaching payments are processed by Stripe; we receive the sale amount and your name,
+              not your card. Sign-in and cloud backup are provided by Supabase.
             </p>
           </div>
 
@@ -83,7 +109,10 @@ export const PrivacyPolicyModal: React.FC<Props> = ({ isOpen, onClose, onDeleteR
               <span>4. No Medical Records</span>
             </div>
             <p className="text-[11px] text-neutral-400">
-              Oblivion 1 is not a medical app. We do not ask for, collect or store diagnoses, injuries, medications or medical history. Sleep and heart rate you choose to log are used only to show your own readiness and reports, and are never shared with insurers, employers or advertisers.
+              Oblivion 1 is not a medical app. We do not ask for, collect or store diagnoses,
+              injuries, medications or medical history. Sleep and heart rate you choose to log are
+              used only to show your own readiness and reports, and are never shared with insurers,
+              employers or advertisers.
             </p>
           </div>
 
@@ -94,7 +123,9 @@ export const PrivacyPolicyModal: React.FC<Props> = ({ isOpen, onClose, onDeleteR
               <span>5. Your Data Export (.o1fc)</span>
             </div>
             <p className="text-[11px] text-neutral-400">
-              You own your data completely. Athletes can export a full, unencrypted or encrypted archive of their training history at any time via Settings &rarr; GDPR Vault Export. The exported file lives wherever you save it. Oblivion 1 never sees or touches it.
+              You own your data completely. Athletes can export a full, unencrypted or encrypted
+              archive of their training history at any time via Settings &rarr; GDPR Vault Export.
+              The exported file lives wherever you save it. Oblivion 1 never sees or touches it.
             </p>
           </div>
 
@@ -105,12 +136,19 @@ export const PrivacyPolicyModal: React.FC<Props> = ({ isOpen, onClose, onDeleteR
               <span>6. Unconditional Account &amp; Telemetry Erasure (GDPR / CCPA)</span>
             </div>
             <p className="text-[11px] text-neutral-400">
-              You can delete your account at any time in Settings &rarr; Delete account. Our server then permanently deletes your profile, logs, messages, photos, reels and sign-in, and the app clears everything stored on your phone. Payment records for coaching sales are kept as the law requires. A store subscription is cancelled separately in your App Store or Google Play subscription settings.
+              You can delete your account at any time in Settings &rarr; Delete account. Our server
+              then permanently deletes your profile, logs, messages, photos, reels and sign-in, and
+              the app clears everything stored on your phone. Payment records for coaching sales are
+              kept as the law requires. A store subscription is cancelled separately in your App
+              Store or Google Play subscription settings.
             </p>
             {onDeleteRequest && (
               <button
                 type="button"
-                onClick={() => { onClose(); onDeleteRequest(); }}
+                onClick={() => {
+                  onClose();
+                  onDeleteRequest();
+                }}
                 className="mt-1 text-[10px] text-o1-crimson underline font-bold hover:text-red-400 cursor-pointer"
               >
                 Initiate Account Deletion Protocol &rarr;
@@ -122,7 +160,10 @@ export const PrivacyPolicyModal: React.FC<Props> = ({ isOpen, onClose, onDeleteR
         <div className="pt-3 border-t border-white/[0.05]">
           <button
             type="button"
-            onClick={() => { tactileEngine.triggerSelectionBuzz(); onClose(); }}
+            onClick={() => {
+              tactileEngine.triggerSelectionBuzz();
+              onClose();
+            }}
             className="w-full py-3 rounded-2xl bg-o1-card hover:bg-white/[0.06] border border-white/[0.07] text-white font-mono text-xs font-black tracking-wider cursor-pointer transition active:scale-95"
           >
             Understood &amp; Close
@@ -132,4 +173,3 @@ export const PrivacyPolicyModal: React.FC<Props> = ({ isOpen, onClose, onDeleteR
     </div>
   );
 };
-

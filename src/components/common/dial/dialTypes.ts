@@ -19,7 +19,7 @@ export function resolveDialConfig(
   max?: number,
   step?: number,
   title?: string,
-  presets?: number[]
+  presets?: number[],
 ): DialConfig {
   const upper = unit.toUpperCase();
   const isKg = upper === 'KG';
@@ -38,36 +38,36 @@ export function resolveDialConfig(
     (isWeight
       ? 'WEIGHT LOAD'
       : isReps
-      ? 'REPETITIONS'
-      : isSteps
-      ? 'DAILY STEP ENGINE'
-      : isRpe
-      ? 'RPE / RIR'
-      : `${unit} SELECTOR`);
+        ? 'REPETITIONS'
+        : isSteps
+          ? 'DAILY STEP ENGINE'
+          : isRpe
+            ? 'RPE / RIR'
+            : `${unit} SELECTOR`);
 
   const resolvedPresets =
     presets ||
     (isKg
       ? [20, 40, 60, 80, 100, 140, 180, 220]
       : isLbs
-      ? [45, 95, 135, 185, 225, 315, 405, 495]
-      : isReps
-      ? [5, 8, 10, 12, 15, 20, 25, 30]
-      : isSteps
-      ? [5000, 8000, 10000, 12000, 15000]
-      : isRpe
-      ? [6, 7, 7.5, 8, 8.5, 9, 9.5, 10]
-      : [10, 20, 30, 40, 50]);
+        ? [45, 95, 135, 185, 225, 315, 405, 495]
+        : isReps
+          ? [5, 8, 10, 12, 15, 20, 25, 30]
+          : isSteps
+            ? [5000, 8000, 10000, 12000, 15000]
+            : isRpe
+              ? [6, 7, 7.5, 8, 8.5, 9, 9.5, 10]
+              : [10, 20, 30, 40, 50]);
 
   const accentColor = isWeight
     ? '#C4121A'
     : isReps
-    ? '#d97706'
-    : isSteps
-    ? '#0284c7'
-    : isRpe
-    ? '#059669'
-    : '#C4121A';
+      ? '#d97706'
+      : isSteps
+        ? '#0284c7'
+        : isRpe
+          ? '#059669'
+          : '#C4121A';
 
   return {
     unit: upper,

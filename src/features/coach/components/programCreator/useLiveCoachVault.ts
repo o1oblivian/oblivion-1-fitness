@@ -1,5 +1,10 @@
 import { useState, useEffect } from 'react';
-import { fetchVaultRows, saveVaultRow, uploadMedia, isSharedUrl } from '../../../../services/mediaStorage';
+import {
+  fetchVaultRows,
+  saveVaultRow,
+  uploadMedia,
+  isSharedUrl,
+} from '../../../../services/mediaStorage';
 
 export interface VaultUploadItem {
   id: string;
@@ -25,7 +30,11 @@ export function useLiveCoachVault() {
         if (!isMounted) return;
         setVaultItems(
           rows
-            .map((row) => ({ id: row.id, url: coverUrl(row.type, row.media_url, row.thumbnail_url), title: row.title || 'Vault' }))
+            .map((row) => ({
+              id: row.id,
+              url: coverUrl(row.type, row.media_url, row.thumbnail_url),
+              title: row.title || 'Vault',
+            }))
             .filter((item) => item.url),
         );
         setLoading(false);
@@ -41,7 +50,13 @@ export function useLiveCoachVault() {
     if (!stored) return null;
     const newItem: VaultUploadItem = { id: `vault-media-${Date.now()}`, url: stored.url, title };
     setVaultItems((prev) => [newItem, ...prev]);
-    void saveVaultRow({ id: newItem.id, type: 'photo', title, media_url: stored.url, storage_path: stored.path });
+    void saveVaultRow({
+      id: newItem.id,
+      type: 'photo',
+      title,
+      media_url: stored.url,
+      storage_path: stored.path,
+    });
     return stored.url;
   };
 

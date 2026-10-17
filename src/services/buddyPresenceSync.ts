@@ -2,9 +2,15 @@ import { supabase } from './supabaseClient';
 import { getAuthenticatedUserId } from './authUser';
 import { patchAthleteSettingsSnapshot } from '../utils/athleteSettingsSnapshot';
 import { areaKey } from '../features/radar/services/buddyLaunch';
-import { BuddyProfileState, ExperienceLevel, useBuddyProfileStore } from '../stores/useBuddyProfileStore';
+import {
+  BuddyProfileState,
+  ExperienceLevel,
+  useBuddyProfileStore,
+} from '../stores/useBuddyProfileStore';
 
-export async function syncBuddyGhostMode(isGhost: boolean): Promise<{ ok: boolean; error?: string }> {
+export async function syncBuddyGhostMode(
+  isGhost: boolean,
+): Promise<{ ok: boolean; error?: string }> {
   patchAthleteSettingsSnapshot({ ghostMode: isGhost });
   const uid = await getAuthenticatedUserId();
   if (!uid) return { ok: false, error: 'Sign in to hide or show your radar profile.' };
@@ -32,7 +38,11 @@ function leadWith(cloudValue: unknown, local: string[]): string[] {
 export async function hydrateOwnBuddyCard(): Promise<boolean> {
   const uid = await getAuthenticatedUserId();
   if (!uid) return false;
-  const { data, error } = await supabase.from('buddy_profiles').select('*').eq('id', uid).maybeSingle();
+  const { data, error } = await supabase
+    .from('buddy_profiles')
+    .select('*')
+    .eq('id', uid)
+    .maybeSingle();
   if (error || !data) return !error;
   const local = useBuddyProfileStore.getState();
   const updates: Partial<BuddyProfileState> = {
@@ -108,12 +118,15 @@ export async function publishBuddyCard(
   if (error && /region_key/i.test(error.message)) {
     const { region_key: omitted, ...withoutRegion } = payload;
     if (omitted) {
-      const retry = await supabase.from('buddy_profiles').upsert(withoutRegion, { onConflict: 'id' });
+      const retry = await supabase
+        .from('buddy_profiles')
+        .upsert(withoutRegion, { onConflict: 'id' });
       error = retry.error;
     }
   }
   if (error) return { ok: false, error: error.message };
-  if (photoDropped) return { ok: true, warning: 'Photo was too large, so your card saved without it' };
+  if (photoDropped)
+    return { ok: true, warning: 'Photo was too large, so your card saved without it' };
   return { ok: true };
 }
 

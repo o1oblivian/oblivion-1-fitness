@@ -12,7 +12,7 @@ const isSetBlank = (s: Partial<ExerciseSet> | undefined | null): boolean => {
 export const buildNextSet = (
   setNumber: number,
   lastInSession?: ExerciseSet,
-  equipment?: string
+  equipment?: string,
 ): ExerciseSet => {
   const copy = lastInSession && !isSetBlank(lastInSession);
   const load = copy

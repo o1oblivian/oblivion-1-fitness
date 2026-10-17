@@ -53,9 +53,7 @@ export const ProgramDetailModal: React.FC<ProgramDetailModalProps> = ({
             <h2 className="font-tactical font-light text-xl tracking-wider text-white">
               {programTitle}
             </h2>
-            <p className="text-[11px] font-telemetry text-neutral-300">
-              {program.subtitle}
-            </p>
+            <p className="text-[11px] font-telemetry text-neutral-300">{program.subtitle}</p>
           </div>
         </div>
 
@@ -73,9 +71,7 @@ export const ProgramDetailModal: React.FC<ProgramDetailModalProps> = ({
             </div>
 
             <div className="bg-o1-card border border-white/[0.07] p-3 rounded-2xl">
-              <span className="text-[9px] font-telemetry text-neutral-500 block">
-                Athlete Tier
-              </span>
+              <span className="text-[9px] font-telemetry text-neutral-500 block">Athlete Tier</span>
               <span className="font-tactical font-medium text-xs text-[#4F8F9A] mt-0.5 block">
                 {program.level}
               </span>
@@ -104,9 +100,7 @@ export const ProgramDetailModal: React.FC<ProgramDetailModalProps> = ({
                       {idx + 1}
                     </div>
                     <div>
-                      <h4 className="font-tactical font-medium text-xs text-white">
-                        {ex.name}
-                      </h4>
+                      <h4 className="font-tactical font-medium text-xs text-white">{ex.name}</h4>
                       <p className="text-[10px] font-telemetry text-neutral-400">
                         {ex.sets} • {ex.reps}
                       </p>

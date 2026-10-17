@@ -1,4 +1,19 @@
-const FILLER = new Set(['gym', 'gyms', 'fitness', 'club', 'health', 'the', 'centre', 'center', 'studio', 'and', 'pty', 'ltd', 'co', 'inc']);
+const FILLER = new Set([
+  'gym',
+  'gyms',
+  'fitness',
+  'club',
+  'health',
+  'the',
+  'centre',
+  'center',
+  'studio',
+  'and',
+  'pty',
+  'ltd',
+  'co',
+  'inc',
+]);
 
 function gymTokens(name: string): string[] {
   return name

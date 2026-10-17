@@ -94,10 +94,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         </div>
       </div>
 
-      <HelpCenterModal
-        isOpen={showHelpModal}
-        onClose={() => setShowHelpModal(false)}
-      />
+      <HelpCenterModal isOpen={showHelpModal} onClose={() => setShowHelpModal(false)} />
 
       <ContactSupportModal
         isOpen={showContactModal}
@@ -105,10 +102,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         onShowToast={onShowToast}
       />
 
-      <SendFeedbackModal
-        isOpen={showFeedbackModal}
-        onClose={() => setShowFeedbackModal(false)}
-      />
+      <SendFeedbackModal isOpen={showFeedbackModal} onClose={() => setShowFeedbackModal(false)} />
 
       <DeleteConfirmModal
         isOpen={s.showDeleteConfirm}
@@ -117,10 +111,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         onConfirm={() => s.handleConfirmDelete(onLogout || onClose)}
       />
 
-      <TermsOfServiceModal
-        isOpen={showTermsModal}
-        onClose={() => setShowTermsModal(false)}
-      />
+      <TermsOfServiceModal isOpen={showTermsModal} onClose={() => setShowTermsModal(false)} />
 
       <PrivacyPolicyModal
         isOpen={showPrivacyModal}
@@ -139,11 +130,16 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
       <MembershipPlansModal
         isOpen={showMembershipModal}
         onClose={() => setShowMembershipModal(false)}
-        onOpenDisclaimer={() => { setShowMembershipModal(false); setShowCitationsModal(true); }}
-        onOpenHealth={() => { setShowMembershipModal(false); setShowCitationsModal(true); }}
+        onOpenDisclaimer={() => {
+          setShowMembershipModal(false);
+          setShowCitationsModal(true);
+        }}
+        onOpenHealth={() => {
+          setShowMembershipModal(false);
+          setShowCitationsModal(true);
+        }}
         onShowToast={onShowToast}
       />
     </div>
   );
 };
-

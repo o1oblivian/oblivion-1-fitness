@@ -34,7 +34,11 @@ export async function hydrateMacrosFromSupabase(): Promise<void> {
     const todayKey = localDateKey();
 
     const [daysRes, mealsRes] = await Promise.all([
-      supabase.from('fuel_days').select('date_key, calories, protein, carbs, fats').eq('user_id', userId).gte('date_key', minDateKey),
+      supabase
+        .from('fuel_days')
+        .select('date_key, calories, protein, carbs, fats')
+        .eq('user_id', userId)
+        .gte('date_key', minDateKey),
       supabase
         .from('meal_logs')
         .select('id, date, meal_type, name, calories, protein, carbs, fats, created_at')
@@ -43,7 +47,10 @@ export async function hydrateMacrosFromSupabase(): Promise<void> {
         .order('created_at', { ascending: true }),
     ]);
     if (daysRes.error || mealsRes.error) {
-      console.warn('[MacroHydration] Query notice:', daysRes.error?.message || mealsRes.error?.message);
+      console.warn(
+        '[MacroHydration] Query notice:',
+        daysRes.error?.message || mealsRes.error?.message,
+      );
       return;
     }
 
@@ -60,33 +67,45 @@ export async function hydrateMacrosFromSupabase(): Promise<void> {
       if (dateKey === todayKey || isForgotten(dateKey, 'nutrition')) continue;
       const meals = mealsByDay.get(dateKey) || [];
       const calories = Number(day.calories) || 0;
-      history.updateDayRecord(dateKey, 'nutrition', {
-        hasData: calories > 0 || meals.length > 0,
-        calories,
-        calorieTarget: fuel.calorieTarget ?? 0,
-        proteinG: Number(day.protein) || 0,
-        proteinTargetG: fuel.targetProteinG ?? 0,
-        carbsG: Number(day.carbs) || 0,
-        carbsTargetG: fuel.targetCarbsG ?? 0,
-        fatsG: Number(day.fats) || 0,
-        fatsTargetG: fuel.targetFatsG ?? 0,
-        meals: meals.map((m) => ({
-          name: String(m.name || ''),
-          category: categoryFor(slotFor(m.meal_type)),
-          slot: slotFor(m.meal_type),
-          calories: Number(m.calories) || 0,
-          proteinG: Number(m.protein) || 0,
-          carbsG: Number(m.carbs) || 0,
-          fatsG: Number(m.fats) || 0,
-        })),
-      }, { skipCloud: true });
+      history.updateDayRecord(
+        dateKey,
+        'nutrition',
+        {
+          hasData: calories > 0 || meals.length > 0,
+          calories,
+          calorieTarget: fuel.calorieTarget ?? 0,
+          proteinG: Number(day.protein) || 0,
+          proteinTargetG: fuel.targetProteinG ?? 0,
+          carbsG: Number(day.carbs) || 0,
+          carbsTargetG: fuel.targetCarbsG ?? 0,
+          fatsG: Number(day.fats) || 0,
+          fatsTargetG: fuel.targetFatsG ?? 0,
+          meals: meals.map((m) => ({
+            name: String(m.name || ''),
+            category: categoryFor(slotFor(m.meal_type)),
+            slot: slotFor(m.meal_type),
+            calories: Number(m.calories) || 0,
+            proteinG: Number(m.protein) || 0,
+            carbsG: Number(m.carbs) || 0,
+            fatsG: Number(m.fats) || 0,
+          })),
+        },
+        { skipCloud: true },
+      );
     }
 
     const today = useFuelStore.getState();
-    const totals = Object.values(today.meals).flat().reduce(
-      (acc, m) => ({ cal: acc.cal + m.calories, p: acc.p + m.protein, c: acc.c + m.carbs, f: acc.f + m.fats }),
-      { cal: 0, p: 0, c: 0, f: 0 },
-    );
+    const totals = Object.values(today.meals)
+      .flat()
+      .reduce(
+        (acc, m) => ({
+          cal: acc.cal + m.calories,
+          p: acc.p + m.protein,
+          c: acc.c + m.carbs,
+          f: acc.f + m.fats,
+        }),
+        { cal: 0, p: 0, c: 0, f: 0 },
+      );
     useLogStore.getState().updateSubModule('nutrition', {
       caloriesConsumed: Math.round(totals.cal),
       caloriesTarget: today.calorieTarget ?? 0,

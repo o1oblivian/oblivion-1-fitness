@@ -22,8 +22,15 @@ interface PhotonFeature {
   };
 }
 
-export async function searchVenues(name: string, place: string, postcode: string): Promise<VenueHit[]> {
-  const q = [name, place, postcode].map((part) => part.trim()).filter(Boolean).join(' ');
+export async function searchVenues(
+  name: string,
+  place: string,
+  postcode: string,
+): Promise<VenueHit[]> {
+  const q = [name, place, postcode]
+    .map((part) => part.trim())
+    .filter(Boolean)
+    .join(' ');
   if (q.length < 2) return [];
   const url = `https://photon.komoot.io/api/?q=${encodeURIComponent(q)}&limit=8`;
   const res = await fetch(url);
@@ -35,7 +42,13 @@ export async function searchVenues(name: string, place: string, postcode: string
     const coords = feature.geometry?.coordinates;
     const label = props.name || [props.housenumber, props.street].filter(Boolean).join(' ');
     if (!label || !coords) continue;
-    const address = [props.housenumber, props.street, props.city || props.state, props.postcode, props.country]
+    const address = [
+      props.housenumber,
+      props.street,
+      props.city || props.state,
+      props.postcode,
+      props.country,
+    ]
       .filter(Boolean)
       .join(', ');
     hits.push({

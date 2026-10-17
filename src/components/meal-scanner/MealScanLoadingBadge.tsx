@@ -21,9 +21,7 @@ export const MealScanLoadingBadge: React.FC<MealScanLoadingBadgeProps> = ({ scan
   return (
     <div className="absolute inset-0 bg-black/80 flex flex-col items-center justify-center gap-2.5 p-4 text-center">
       <div className="w-9 h-9 rounded-full border-2 border-o1-crimson border-t-transparent animate-spin" />
-      <p className="text-xs font-semibold text-white">
-        {getScanLoadingLabel(scanMode)}
-      </p>
+      <p className="text-xs font-semibold text-white">{getScanLoadingLabel(scanMode)}</p>
     </div>
   );
 };

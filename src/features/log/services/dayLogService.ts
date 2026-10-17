@@ -1,6 +1,11 @@
 import { supabase } from '../../../services/supabaseClient';
 import { getAuthenticatedUserId } from '../../../services/authUser';
-import { enqueueSync, flushSync, hasPendingSync, registerSyncHandler } from '../../../services/syncOutbox';
+import {
+  enqueueSync,
+  flushSync,
+  hasPendingSync,
+  registerSyncHandler,
+} from '../../../services/syncOutbox';
 import { safeStorage } from '../../../utils/safeStorage';
 import { useTelemetryHistoryStore } from '../store/useTelemetryHistoryStore';
 import { useFuelStore } from '../../fuel/store/useFuelStore';
@@ -39,7 +44,7 @@ export function noteDailySteps(steps: number, dateKey = todayKey()): void {
   const name = (existing?.activityType || '').toLowerCase();
   const stepShadow = !existing?.hasData || name.includes('step');
   const sessionBurn = stepShadow ? 0 : existing?.burnedKcal || 0;
-  const kcal = sessionBurn > 0 ? 0 : estimateKcalFromSteps(steps, athleteBodyweightKg()) ?? 0;
+  const kcal = sessionBurn > 0 ? 0 : (estimateKcalFromSteps(steps, athleteBodyweightKg()) ?? 0);
   const credited = existing?.hasData ? existing.stepKcal || 0 : 0;
 
   if (stepShadow) {
@@ -60,7 +65,8 @@ export function noteDailySteps(steps: number, dateKey = todayKey()): void {
     if (!existing || moved === 0 || (moved < STEP_KCAL_WRITE_MIN && kcal > 0)) return;
     history.updateDayRecord(dateKey, 'cardio', { ...existing, stepKcal: kcal });
   }
-  if (dateKey === todayKey() && kcal !== credited) useFuelStore.getState().logBurned(kcal - credited);
+  if (dateKey === todayKey() && kcal !== credited)
+    useFuelStore.getState().logBurned(kcal - credited);
 }
 
 /** Remove the account copy when the athlete deletes that day on Log. Queued, so it lands even offline. */
@@ -94,9 +100,19 @@ function ensureEditBaseline(): void {
 }
 
 /** True when this phone holds a change for the day the account has not confirmed, or edited it more recently. */
-export function phoneOwnsDay(dateKey: string, category: DayLogCategory, accountUpdatedAt = 0): boolean {
+export function phoneOwnsDay(
+  dateKey: string,
+  category: DayLogCategory,
+  accountUpdatedAt = 0,
+): boolean {
   ensureEditBaseline();
-  if (hasPendingSync((op) => op.scope === dateKey && (op.key === dayOpKey(dateKey, category) || op.kind !== 'day_log'))) return true;
+  if (
+    hasPendingSync(
+      (op) =>
+        op.scope === dateKey && (op.key === dayOpKey(dateKey, category) || op.kind !== 'day_log'),
+    )
+  )
+    return true;
   const edited = localEditedAt(dateKey, category);
   return edited > 0 && edited >= accountUpdatedAt;
 }
@@ -115,7 +131,11 @@ async function backUpPhoneOnlyDays(userId: string): Promise<void> {
     .select('date_key, category')
     .eq('user_id', userId);
   if (error || !Array.isArray(data)) return;
-  const onAccount = new Set(data.map((row) => dayOpKey(String(row.date_key || '').slice(0, 10), row.category as DayLogCategory)));
+  const onAccount = new Set(
+    data.map((row) =>
+      dayOpKey(String(row.date_key || '').slice(0, 10), row.category as DayLogCategory),
+    ),
+  );
   const history = useTelemetryHistoryStore.getState().historyByDate;
   for (const [dateKey, day] of Object.entries(history)) {
     for (const category of DAY_CATEGORIES) {
@@ -157,10 +177,15 @@ export async function hydrateDayLogs(): Promise<void> {
         }
         continue;
       }
-      useTelemetryHistoryStore.getState().updateDayRecord(dateKey, category, {
-        ...accountRecord,
-        hasData: true,
-      }, { skipCloud: true });
+      useTelemetryHistoryStore.getState().updateDayRecord(
+        dateKey,
+        category,
+        {
+          ...accountRecord,
+          hasData: true,
+        },
+        { skipCloud: true },
+      );
       if (accountAt > 0) setLocalEditedAt(dateKey, category, accountAt);
     }
     await backUpPhoneOnlyDays(userId);
@@ -184,7 +209,11 @@ export function localNoonIso(dateKey: string): string | undefined {
   return Number.isNaN(date.getTime()) ? undefined : date.toISOString();
 }
 
-async function archivedSessionIds(userId: string, dateKey: string, category: 'workout' | 'cardio'): Promise<string[] | null> {
+async function archivedSessionIds(
+  userId: string,
+  dateKey: string,
+  category: 'workout' | 'cardio',
+): Promise<string[] | null> {
   const { data, error } = await supabase
     .from('completed_sessions')
     .select('id, title, session_name, activity_type, completed_at, created_at')
@@ -207,7 +236,11 @@ async function purgeLift(payload: Record<string, unknown>, userId: string): Prom
   const ids = await archivedSessionIds(userId, String(payload.dateKey), 'workout');
   if (ids === null) return false;
   if (ids.length === 0) return true;
-  const { error } = await supabase.from('workout_logs').delete().in('session_id', ids).eq('exercise_name', String(payload.name));
+  const { error } = await supabase
+    .from('workout_logs')
+    .delete()
+    .in('session_id', ids)
+    .eq('exercise_name', String(payload.name));
   return !error;
 }
 
@@ -226,9 +259,17 @@ async function purgeDay(payload: Record<string, unknown>, userId: string): Promi
     }
   }
   if (category === 'nutrition') {
-    const meals = await supabase.from('meal_logs').delete().eq('user_id', userId).eq('date', dateKey);
+    const meals = await supabase
+      .from('meal_logs')
+      .delete()
+      .eq('user_id', userId)
+      .eq('date', dateKey);
     if (meals.error) return false;
-    const day = await supabase.from('fuel_days').delete().eq('user_id', userId).eq('date_key', dateKey);
+    const day = await supabase
+      .from('fuel_days')
+      .delete()
+      .eq('user_id', userId)
+      .eq('date_key', dateKey);
     if (day.error) return false;
   }
   return true;
@@ -239,7 +280,10 @@ registerSyncHandler('purge_day', purgeDay);
 
 /** Delete one lift's backed-up sets for a day so it does not come back in history. */
 export async function purgeArchivedLift(dateKey: string, exerciseName: string): Promise<void> {
-  enqueueSync('purge_lift', `purge_lift:${dateKey}:${exerciseName}`, dateKey, { dateKey, name: exerciseName });
+  enqueueSync('purge_lift', `purge_lift:${dateKey}:${exerciseName}`, dateKey, {
+    dateKey,
+    name: exerciseName,
+  });
   void flushSync();
 }
 

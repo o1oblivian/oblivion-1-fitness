@@ -25,7 +25,13 @@ const point = (r: number, deg: number) => {
   return { x: CX + r * Math.cos(rad), y: CY + r * Math.sin(rad) };
 };
 
-export const ChronoDialGauge: React.FC<ChronoDialGaugeProps> = ({ value, config, svgRef, onPointerDown, onCenterClick }) => {
+export const ChronoDialGauge: React.FC<ChronoDialGaugeProps> = ({
+  value,
+  config,
+  svgRef,
+  onPointerDown,
+  onCenterClick,
+}) => {
   const { min, max, unit, accentColor } = config;
   const currentPercent = Math.min(Math.max((value - min) / (max - min), 0), 1);
   const currentAngle = 135 + currentPercent * 270;
@@ -43,7 +49,14 @@ export const ChronoDialGauge: React.FC<ChronoDialGaugeProps> = ({ value, config,
         onPointerDown={onPointerDown}
         className="w-full h-full cursor-grab active:cursor-grabbing select-none"
       >
-        <circle cx={CX} cy={CY} r="126" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="1" />
+        <circle
+          cx={CX}
+          cy={CY}
+          r="126"
+          fill="none"
+          stroke="rgba(255,255,255,0.1)"
+          strokeWidth="1"
+        />
 
         {Array.from({ length: 49 }).map((_, idx) => {
           const frac = idx / 48;
@@ -67,8 +80,22 @@ export const ChronoDialGauge: React.FC<ChronoDialGaugeProps> = ({ value, config,
           );
         })}
 
-        <path d={trackPath} fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="2" strokeLinecap="round" />
-        {currentPercent > 0.005 && <path d={filledPath} fill="none" stroke={accentColor} strokeWidth="2.5" strokeLinecap="round" />}
+        <path
+          d={trackPath}
+          fill="none"
+          stroke="rgba(255,255,255,0.08)"
+          strokeWidth="2"
+          strokeLinecap="round"
+        />
+        {currentPercent > 0.005 && (
+          <path
+            d={filledPath}
+            fill="none"
+            stroke={accentColor}
+            strokeWidth="2.5"
+            strokeLinecap="round"
+          />
+        )}
 
         {generateScaleMarkers(config).map((m, i) => {
           const p = point(88, 135 + m.fraction * 270);
@@ -100,7 +127,9 @@ export const ChronoDialGauge: React.FC<ChronoDialGaugeProps> = ({ value, config,
           className="w-32 h-32 rounded-full flex flex-col items-center justify-center text-center cursor-pointer pointer-events-auto active:scale-95 transition-transform"
         >
           <span className="text-[11px] font-normal tracking-[0.16em] text-o1-muted">{unit}</span>
-          <span className="text-5xl font-mono font-light text-o1-text tracking-tight leading-none my-1.5 tabular-nums">{value}</span>
+          <span className="text-5xl font-mono font-light text-o1-text tracking-tight leading-none my-1.5 tabular-nums">
+            {value}
+          </span>
           <span className="text-[11px] font-normal text-o1-muted">tap for numpad</span>
         </button>
       </div>

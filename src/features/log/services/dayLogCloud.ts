@@ -1,5 +1,11 @@
 import { supabase } from '../../../services/supabaseClient';
-import { enqueueSync, flushSync, registerSyncHandler, rewriteSyncOps, scheduleSync } from '../../../services/syncOutbox';
+import {
+  enqueueSync,
+  flushSync,
+  registerSyncHandler,
+  rewriteSyncOps,
+  scheduleSync,
+} from '../../../services/syncOutbox';
 import { safeStorage } from '../../../utils/safeStorage';
 
 export type DayLogCategory = 'workout' | 'cardio' | 'nutrition' | 'sleep' | 'meditation';
@@ -40,19 +46,27 @@ export function setLocalEditedAt(dateKey: string, category: DayLogCategory, at: 
  * Step counts never leave this phone. Returns the record without steps, or null when the
  * record is only a step count and there is nothing else to back up.
  */
-export function withoutSteps(category: DayLogCategory, record: Record<string, unknown>): Record<string, unknown> | null {
+export function withoutSteps(
+  category: DayLogCategory,
+  record: Record<string, unknown>,
+): Record<string, unknown> | null {
   if (category !== 'cardio') return record;
   // The burn worked out from steps is a step figure too, so it stays on the phone with them.
   const { steps: _steps, stepKcal: _stepKcal, ...rest } = record;
   const name = String(rest.activityType ?? '').toLowerCase();
-  const measured = ['distanceKm', 'durationMinutes', 'burnedKcal', 'avgHeartRateBpm'].some((k) => Number(rest[k]) > 0);
+  const measured = ['distanceKm', 'durationMinutes', 'burnedKcal', 'avgHeartRateBpm'].some(
+    (k) => Number(rest[k]) > 0,
+  );
   if (!measured && (name === '' || name.includes('step'))) return null;
   return rest;
 }
 
 /** Upsert one day category to the athlete's account. */
 async function persistDayLog(payload: Record<string, unknown>, userId: string): Promise<boolean> {
-  const record = withoutSteps(payload.category as DayLogCategory, (payload.record ?? {}) as Record<string, unknown>);
+  const record = withoutSteps(
+    payload.category as DayLogCategory,
+    (payload.record ?? {}) as Record<string, unknown>,
+  );
   if (!record) return true;
   const { error } = await supabase.from('athlete_day_logs').upsert(
     [
@@ -85,7 +99,11 @@ registerSyncHandler('day_log', persistDayLog);
 registerSyncHandler('day_log_delete', removeDayLog);
 
 /** Live workouts update on every set; the queue keeps only the latest copy per day and category. */
-export function queueDayLogSync(dateKey: string, category: DayLogCategory, full: Record<string, unknown>): void {
+export function queueDayLogSync(
+  dateKey: string,
+  category: DayLogCategory,
+  full: Record<string, unknown>,
+): void {
   const record = withoutSteps(category, full);
   if (!record) {
     cancelDayLogSync(dateKey, category);

@@ -6,7 +6,8 @@ export const HYPERTROPHY_BLUEPRINTS: WorkoutBlueprint[] = [
     title: 'V-Taper Sculptor',
     subtitle: 'Width-Dominant Hypertrophy Protocol',
     badge: 'HYPERTROPHY',
-    image: 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?auto=format&fit=crop&w=800&q=80',
+    image:
+      'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?auto=format&fit=crop&w=800&q=80',
     phase: 'Phase 2: Hypertrophy',
     focus: 'Lat Width & Lateral Delts',
     estimatedTime: '68 Mins',
@@ -105,13 +106,19 @@ export const HYPERTROPHY_BLUEPRINTS: WorkoutBlueprint[] = [
     title: 'Greek God Proportion',
     subtitle: 'Golden Era Classical Proportions & Shoulder/Core Ratio',
     badge: 'HYPERTROPHY',
-    image: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=800&q=80',
+    image:
+      'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=800&q=80',
     phase: 'Phase 2: Hypertrophy',
     focus: 'Clavicular Chest, Capped Delts, Chiseled Midsection',
     estimatedTime: '65 Mins',
     description:
       'Inspired by classical golden era aesthetics. Emphasizes clavicular chest shelf, upper-arm peaks, wide sweeping shoulders, and tight waist vacuum aesthetics without thick obliques.',
-    targetMuscles: ['Incline Pectoralis', 'Lateral Delts', 'Biceps/Triceps Peak', 'Rectus Abdominis'],
+    targetMuscles: [
+      'Incline Pectoralis',
+      'Lateral Delts',
+      'Biceps/Triceps Peak',
+      'Rectus Abdominis',
+    ],
     exercises: [
       {
         id: 'gg-1',
@@ -204,13 +211,19 @@ export const HYPERTROPHY_BLUEPRINTS: WorkoutBlueprint[] = [
     title: 'Arm Hypertrophy / Dual Peak',
     subtitle: 'Biceps Long-Head, Brachialis & Horseshoe Triceps',
     badge: 'HYPERTROPHY',
-    image: 'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?auto=format&fit=crop&w=800&q=80',
+    image:
+      'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?auto=format&fit=crop&w=800&q=80',
     phase: 'Phase 2: Hypertrophy',
     focus: 'Lengthened Elbow Flexion & Triceps Overhead Extension',
     estimatedTime: '54 Mins',
     description:
       'Biomechanical upper-arm overload prioritizing peak tension in lengthened muscle lengths. Features Bayesian cable curls behind torso, seated incline dumbbell curls for long-head peak, JM press for elbow drive, and dual cable pushdowns.',
-    targetMuscles: ['Biceps Brachii Long Head', 'Brachialis', 'Triceps Long & Lateral Heads', 'Forearm Flexors'],
+    targetMuscles: [
+      'Biceps Brachii Long Head',
+      'Brachialis',
+      'Triceps Long & Lateral Heads',
+      'Forearm Flexors',
+    ],
     exercises: [
       {
         id: 'ah-1',
@@ -303,13 +316,19 @@ export const HYPERTROPHY_BLUEPRINTS: WorkoutBlueprint[] = [
     title: 'Quad Dominance / Teardrop Architecture',
     subtitle: 'Vastus Medialis Oblique (VMO) & Deep Knee Flexion',
     badge: 'HYPERTROPHY',
-    image: 'https://images.unsplash.com/photo-1574680096145-d05b474e2155?auto=format&fit=crop&w=800&q=80',
+    image:
+      'https://images.unsplash.com/photo-1574680096145-d05b474e2155?auto=format&fit=crop&w=800&q=80',
     phase: 'Phase 2: Hypertrophy',
     focus: 'Vastus Medialis & Rectus Femoris Knee Flexion',
     estimatedTime: '64 Mins',
     description:
       'Engineered for maximum anterior thigh expansion and sweeping teardrop definition. Integrates heel-elevated front squats, hack squats through deep dorsiflexion, lengthened pause leg extensions, and walking lunge matrix.',
-    targetMuscles: ['Vastus Medialis (VMO)', 'Rectus Femoris', 'Vastus Lateralis', 'Adductor Magnus'],
+    targetMuscles: [
+      'Vastus Medialis (VMO)',
+      'Rectus Femoris',
+      'Vastus Lateralis',
+      'Adductor Magnus',
+    ],
     exercises: [
       {
         id: 'qd-1',
@@ -402,13 +421,19 @@ export const HYPERTROPHY_BLUEPRINTS: WorkoutBlueprint[] = [
     title: 'Upper Chest Shelf & Clavicular Armor',
     subtitle: 'Clavicular Pec Major Bias & Anterior Delt Integration',
     badge: 'HYPERTROPHY',
-    image: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?auto=format&fit=crop&w=800&q=80',
+    image:
+      'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?auto=format&fit=crop&w=800&q=80',
     phase: 'Phase 2: Hypertrophy',
     focus: 'Clavicular Pectoralis Major & Scapular Retraction',
     estimatedTime: '58 Mins',
     description:
       'Eliminates upper chest hollows and creates a dense, armor-plated clavicular shelf. Utilizes 30-degree incline dumbbell pressing, low-to-high cable converging flyes, incline machine press mechanical drops, and weighted dip chest lean.',
-    targetMuscles: ['Clavicular Pectoralis Major', 'Sternal Pecs', 'Anterior Deltoids', 'Triceps Brachii'],
+    targetMuscles: [
+      'Clavicular Pectoralis Major',
+      'Sternal Pecs',
+      'Anterior Deltoids',
+      'Triceps Brachii',
+    ],
     exercises: [
       {
         id: 'uc-1',
@@ -501,7 +526,8 @@ export const HYPERTROPHY_BLUEPRINTS: WorkoutBlueprint[] = [
     title: '3D Boulder Delts & Lateral Capping',
     subtitle: 'Anterior, Lateral & Posterior Deltoid Triad Isolation',
     badge: 'HYPERTROPHY',
-    image: 'https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?auto=format&fit=crop&w=800&q=80',
+    image:
+      'https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?auto=format&fit=crop&w=800&q=80',
     phase: 'Phase 2: Hypertrophy',
     focus: 'Lateral Deltoid Length-Tension & Rear Delt Flare',
     estimatedTime: '52 Mins',
@@ -600,7 +626,8 @@ export const HYPERTROPHY_BLUEPRINTS: WorkoutBlueprint[] = [
     title: 'Hamstring Tie-In & Posterior Thickness',
     subtitle: 'Lengthened Semitendinosus, Biceps Femoris & Spinal Erectors',
     badge: 'HYPERTROPHY',
-    image: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=800&q=80',
+    image:
+      'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=800&q=80',
     phase: 'Phase 2: Hypertrophy',
     focus: 'Knee Flexion & Hip Hinge Hamstring Overload',
     estimatedTime: '60 Mins',
@@ -699,13 +726,20 @@ export const HYPERTROPHY_BLUEPRINTS: WorkoutBlueprint[] = [
     title: 'Core Armor / Anti-Extension Pillar',
     subtitle: 'Brace, Anti-Rotation & Hip-Sparing Trunk Density',
     badge: 'CORE',
-    image: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?auto=format&fit=crop&w=800&q=80',
+    image:
+      'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?auto=format&fit=crop&w=800&q=80',
     phase: 'Phase 2: Hypertrophy',
     focus: 'Core Stability, Obliques & Spinal Endurance',
     estimatedTime: '42 Mins',
     description:
       'Builds a stiff trunk for squat, hinge, and field work. Prioritizes anti-extension, anti-rotation, and controlled hip flexion without spinal shear.',
-    targetMuscles: ['Rectus Abdominis', 'Obliques', 'Transverse Abdominis', 'Hip Flexors', 'Erectors'],
+    targetMuscles: [
+      'Rectus Abdominis',
+      'Obliques',
+      'Transverse Abdominis',
+      'Hip Flexors',
+      'Erectors',
+    ],
     exercises: [
       {
         id: 'ca-1',

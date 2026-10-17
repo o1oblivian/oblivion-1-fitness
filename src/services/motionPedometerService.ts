@@ -6,14 +6,22 @@
 
 import { useTelemetryStore } from '../features/telemetry/store/useTelemetryStore';
 import { telemetryArbitrationService } from '../features/telemetry/services/telemetryArbitrationService';
-import { MotionEngineStatus, MotionCallback, MotionFilterState, VbtMotionStatus } from './motion/motionTypes';
+import {
+  MotionEngineStatus,
+  MotionCallback,
+  MotionFilterState,
+  VbtMotionStatus,
+} from './motion/motionTypes';
 import { processMotionSample, GRAVITY_NORMAL } from './motion/motionCalculations';
 
 const OFF_KEY = 'o1fc_motion_steps_off';
 
 function getDeviceMotionCtor(): { requestPermission?: () => Promise<string> } | null {
   if (typeof window === 'undefined' || !('DeviceMotionEvent' in window)) return null;
-  return (window as Window & { DeviceMotionEvent?: { requestPermission?: () => Promise<string> } }).DeviceMotionEvent ?? null;
+  return (
+    (window as Window & { DeviceMotionEvent?: { requestPermission?: () => Promise<string> } })
+      .DeviceMotionEvent ?? null
+  );
 }
 
 class MotionPedometerService {
@@ -66,7 +74,7 @@ class MotionPedometerService {
     const isHardwareReady = this.isSupported() && this.isActive && this.permissionGranted;
     const reading = isHardwareReady && this.hasSample;
     // Report 0 if permissions are pending or hardware unavailable
-    const steps = this.permissionGranted ? (useTelemetryStore.getState().stepCount || 0) : 0;
+    const steps = this.permissionGranted ? useTelemetryStore.getState().stepCount || 0 : 0;
 
     // Genuine physical motion check: velocity must exceed stationary threshold (0.05 m/s)
     const rawVel = Math.abs(this.filterState.currentVerticalVelocity);
@@ -172,7 +180,7 @@ class MotionPedometerService {
       { x: acc.x, y: acc.y, z: acc.z },
       dt,
       now,
-      this.filterState
+      this.filterState,
     );
     this.filterState = updatedState;
     this.hasSample = true;

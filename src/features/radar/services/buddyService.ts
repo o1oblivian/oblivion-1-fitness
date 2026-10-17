@@ -48,9 +48,14 @@ export async function searchAthletesWithSupabase(
   query: string,
   baseAthletes: DemoAthlete[] = [],
   userCoords: Coordinates,
-  radiusKm: number = 25
+  radiusKm: number = 25,
 ): Promise<{ results: DemoAthlete[]; fromSupabase: boolean }> {
-  const cleanQuery = query.trim().toLowerCase().replace(/[%_,()]/g, ' ').replace(/\s+/g, ' ').trim();
+  const cleanQuery = query
+    .trim()
+    .toLowerCase()
+    .replace(/[%_,()]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
   let supabaseCandidates: DemoAthlete[] = [];
   let fetchedFromSupabase = false;
 
@@ -64,43 +69,51 @@ export async function searchAthletesWithSupabase(
       throw new Error(remoteDeck.error?.message || 'Radar search did not answer');
     }
     fetchedFromSupabase = true;
-    supabaseCandidates = remoteDeck.data.flatMap((raw) => {
-      const item = raw as RemoteBuddyRow & { distance_km?: number };
-      if (item.is_ghost_mode) return [];
-      const dist = Number(item.distance_km);
-      if (!Number.isFinite(dist) || dist < 0) return [];
-      const photo = String(item.avatar_url || item.image_url || item.avatar || '');
-      const safePhoto = photo.includes('images.unsplash.com') ? '' : photo;
-      const recent = item.last_active ? Date.now() - new Date(item.last_active).getTime() < 15 * 60 * 1000 : false;
-      return [{
-        id: String(item.id || item.user_id || ''),
-        name: String(item.athlete_name || item.name || '').trim(),
-        handle: item.handle || '',
-        age: Number(item.age) || 0,
-        home_gym: item.home_gym || '',
-        distance_km: dist,
-        match_score: 0,
-        image_url: safePhoto,
-        photos: safePhoto ? [safePhoto] : [],
-        discipline: item.discipline || '',
-        training_discipline: item.discipline || '',
-        current_split: item.current_split || '',
-        preferred_time: item.training_time || item.preferred_time || '',
-        gender: item.gender || '',
-        looking_for: item.looking_for || '',
-        training_place: item.training_place || item.where || '',
-        experience_level: item.experience_level || '',
-        bio: item.bio || '',
-        is_online: recent,
-        is_verified: Boolean(item.is_verified),
-      }];
-    }).filter((row) => row.name);
+    supabaseCandidates = remoteDeck.data
+      .flatMap((raw) => {
+        const item = raw as RemoteBuddyRow & { distance_km?: number };
+        if (item.is_ghost_mode) return [];
+        const dist = Number(item.distance_km);
+        if (!Number.isFinite(dist) || dist < 0) return [];
+        const photo = String(item.avatar_url || item.image_url || item.avatar || '');
+        const safePhoto = photo.includes('images.unsplash.com') ? '' : photo;
+        const recent = item.last_active
+          ? Date.now() - new Date(item.last_active).getTime() < 15 * 60 * 1000
+          : false;
+        return [
+          {
+            id: String(item.id || item.user_id || ''),
+            name: String(item.athlete_name || item.name || '').trim(),
+            handle: item.handle || '',
+            age: Number(item.age) || 0,
+            home_gym: item.home_gym || '',
+            distance_km: dist,
+            match_score: 0,
+            image_url: safePhoto,
+            photos: safePhoto ? [safePhoto] : [],
+            discipline: item.discipline || '',
+            training_discipline: item.discipline || '',
+            current_split: item.current_split || '',
+            preferred_time: item.training_time || item.preferred_time || '',
+            gender: item.gender || '',
+            looking_for: item.looking_for || '',
+            training_place: item.training_place || item.where || '',
+            experience_level: item.experience_level || '',
+            bio: item.bio || '',
+            is_online: recent,
+            is_verified: Boolean(item.is_verified),
+          },
+        ];
+      })
+      .filter((row) => row.name);
   } catch (err) {
     console.error('[Supabase Search] Live query failure:', err);
     throw err;
   }
 
-  const allCandidates: DemoAthlete[] = supabaseCandidates.filter((row) => row.id && !row.id.startsWith('preview-'));
+  const allCandidates: DemoAthlete[] = supabaseCandidates.filter(
+    (row) => row.id && !row.id.startsWith('preview-'),
+  );
 
   // If no query string, filter by radius and sort by match score
   if (!cleanQuery) {
@@ -143,7 +156,19 @@ export async function searchAthletesWithSupabase(
 
     // 3. Destination City Corridor Discovery: If query specifies a destination city
     // (e.g. "Sydney", "Miami", "London", "Munich", etc.) ensure matching profiles or corridor members appear
-    const knownCities = ['sydney', 'melbourne', 'miami', 'london', 'munich', 'gold coast', 'tokyo', 'dubai', 'austin', 'los angeles', 'new york'];
+    const knownCities = [
+      'sydney',
+      'melbourne',
+      'miami',
+      'london',
+      'munich',
+      'gold coast',
+      'tokyo',
+      'dubai',
+      'austin',
+      'los angeles',
+      'new york',
+    ];
     const matchedCity = knownCities.find((c) => cleanQuery.includes(c));
     if (matchedCity) {
       if (gymLower.includes(matchedCity) || bioLower.includes(matchedCity)) {
@@ -177,4 +202,3 @@ export async function searchAthletesWithSupabase(
 
   return { results: matched, fromSupabase: fetchedFromSupabase };
 }
-

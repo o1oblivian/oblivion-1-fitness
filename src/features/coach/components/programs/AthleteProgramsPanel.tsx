@@ -7,7 +7,13 @@ import { nextReelCover, reelCover } from '../../../reels/coverPresets';
 import { CoachDirectMessageModal } from '../../../reels/components/CoachDirectMessageModal';
 import { priceLabel } from '../../../reels/components/profile/CoachProgramsTab';
 import { PROGRAMS_EVENT, ProgramCoach } from '../../../reels/services/coachStorefront';
-import { BrowseProgram, EnrolledProgram, fetchBrowsePrograms, fetchMyPrograms, setProgramStatus } from '../../services/myPrograms';
+import {
+  BrowseProgram,
+  EnrolledProgram,
+  fetchBrowsePrograms,
+  fetchMyPrograms,
+  setProgramStatus,
+} from '../../services/myPrograms';
 import { ProgramReaderSheet } from './ProgramReaderSheet';
 
 function Cover({ id, url, className }: { id: string; url: string; className: string }) {
@@ -45,7 +51,9 @@ function asExploreCoach(coach: ProgramCoach): ExploreCoach {
 }
 
 function meta(program: { weeks: string; daysPerWeek: number | null }): string {
-  return [program.weeks, program.daysPerWeek ? `${program.daysPerWeek} days/wk` : ''].filter(Boolean).join(' · ');
+  return [program.weeks, program.daysPerWeek ? `${program.daysPerWeek} days/wk` : '']
+    .filter(Boolean)
+    .join(' · ');
 }
 
 export const AthleteProgramsPanel: React.FC = () => {
@@ -66,12 +74,17 @@ export const AthleteProgramsPanel: React.FC = () => {
     setToast(message);
     toastTimer.current = setTimeout(() => setToast(null), 2200);
   };
-  useEffect(() => () => {
-    if (toastTimer.current) clearTimeout(toastTimer.current);
-  }, []);
+  useEffect(
+    () => () => {
+      if (toastTimer.current) clearTimeout(toastTimer.current);
+    },
+    [],
+  );
 
   const loadMine = useCallback(() => {
-    void fetchMyPrograms().then(setMine).catch(() => setMine(null));
+    void fetchMyPrograms()
+      .then(setMine)
+      .catch(() => setMine(null));
   }, []);
 
   useEffect(() => {
@@ -141,10 +154,16 @@ export const AthleteProgramsPanel: React.FC = () => {
               className="flex w-full items-center gap-3 rounded-2xl border border-white/[0.07] bg-o1-surface p-2.5 text-left active:scale-[0.99]"
               aria-label={`Open program ${index + 1}, ${program.title}`}
             >
-              <Cover id={program.id} url={program.coverUrl} className="h-14 w-14 shrink-0 rounded-xl object-cover" />
+              <Cover
+                id={program.id}
+                url={program.coverUrl}
+                className="h-14 w-14 shrink-0 rounded-xl object-cover"
+              />
               <span className="min-w-0 flex-1">
                 <span className="block text-[11px] text-o1-muted">Program {index + 1}</span>
-                <span className="block truncate text-[14px] font-semibold text-o1-text">{program.title}</span>
+                <span className="block truncate text-[14px] font-semibold text-o1-text">
+                  {program.title}
+                </span>
                 <span className="block truncate text-[12px] text-o1-muted">
                   {[program.coach.name, meta(program)].filter(Boolean).join(' · ')}
                 </span>
@@ -164,7 +183,10 @@ export const AthleteProgramsPanel: React.FC = () => {
             aria-expanded={showPast}
           >
             Past programs ({past.length})
-            <ChevronDown size={16} className={`transition-transform ${showPast ? 'rotate-180' : ''}`} />
+            <ChevronDown
+              size={16}
+              className={`transition-transform ${showPast ? 'rotate-180' : ''}`}
+            />
           </button>
           {showPast &&
             past.map((program) => (
@@ -174,10 +196,18 @@ export const AthleteProgramsPanel: React.FC = () => {
                 onClick={() => setReadingId(program.id)}
                 className="flex min-h-[44px] w-full items-center gap-3 rounded-2xl border border-white/[0.07] bg-o1-surface p-2.5 text-left opacity-80"
               >
-                <Cover id={program.id} url={program.coverUrl} className="h-10 w-10 shrink-0 rounded-lg object-cover" />
+                <Cover
+                  id={program.id}
+                  url={program.coverUrl}
+                  className="h-10 w-10 shrink-0 rounded-lg object-cover"
+                />
                 <span className="min-w-0 flex-1">
-                  <span className="block truncate text-[13px] font-semibold text-o1-text">{program.title}</span>
-                  <span className="block truncate text-[12px] text-o1-muted">{program.coach.name}</span>
+                  <span className="block truncate text-[13px] font-semibold text-o1-text">
+                    {program.title}
+                  </span>
+                  <span className="block truncate text-[12px] text-o1-muted">
+                    {program.coach.name}
+                  </span>
                 </span>
               </button>
             ))}
@@ -200,7 +230,9 @@ export const AthleteProgramsPanel: React.FC = () => {
                   }}
                   aria-pressed={on}
                   className={`h-[36px] shrink-0 rounded-full border px-3.5 text-[12px] font-semibold ${
-                    on ? 'border-o1-crimson bg-o1-crimson text-white' : 'border-white/[0.07] bg-o1-surface text-o1-text'
+                    on
+                      ? 'border-o1-crimson bg-o1-crimson text-white'
+                      : 'border-white/[0.07] bg-o1-surface text-o1-text'
                   }`}
                 >
                   {name}
@@ -212,7 +244,11 @@ export const AthleteProgramsPanel: React.FC = () => {
         {browse === null ? (
           <p className="px-1 py-4 text-[13px] text-o1-muted">Loading programs</p>
         ) : shown.length === 0 ? (
-          <p className="px-1 py-4 text-[13px] text-o1-muted">{browseFailed ? 'Could not load programs. Check your connection.' : 'No programs published yet.'}</p>
+          <p className="px-1 py-4 text-[13px] text-o1-muted">
+            {browseFailed
+              ? 'Could not load programs. Check your connection.'
+              : 'No programs published yet.'}
+          </p>
         ) : (
           <div className="-mx-1 flex snap-x gap-2 overflow-x-auto px-1 pb-1 [scrollbar-width:none]">
             {shown.map((program) => {
@@ -231,19 +267,35 @@ export const AthleteProgramsPanel: React.FC = () => {
                   aria-label={`${program.title} by ${program.coach.name}`}
                 >
                   <span className="relative block aspect-[4/5] w-full bg-o1-canvas">
-                    <Cover id={program.id} url={program.coverUrl} className="h-full w-full object-cover" />
+                    <Cover
+                      id={program.id}
+                      url={program.coverUrl}
+                      className="h-full w-full object-cover"
+                    />
                     <span className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-transparent" />
                     {owned ? (
-                      <span className="absolute left-2 top-2 rounded-full bg-o1-crimson px-2 py-0.5 text-[11px] font-semibold text-white">Enrolled</span>
+                      <span className="absolute left-2 top-2 rounded-full bg-o1-crimson px-2 py-0.5 text-[11px] font-semibold text-white">
+                        Enrolled
+                      </span>
                     ) : price ? (
-                      <span className="absolute left-2 top-2 rounded-full bg-black/70 px-2 py-0.5 text-[11px] font-semibold text-o1-text">{price}</span>
+                      <span className="absolute left-2 top-2 rounded-full bg-black/70 px-2 py-0.5 text-[11px] font-semibold text-o1-text">
+                        {price}
+                      </span>
                     ) : null}
                     <span className="absolute inset-x-2 bottom-2">
-                      <span className="line-clamp-2 block text-[13px] font-semibold leading-tight text-o1-text">{program.title}</span>
-                      <span className="block truncate text-[11px] text-white/75">{program.coach.name}</span>
+                      <span className="line-clamp-2 block text-[13px] font-semibold leading-tight text-o1-text">
+                        {program.title}
+                      </span>
+                      <span className="block truncate text-[11px] text-white/75">
+                        {program.coach.name}
+                      </span>
                     </span>
                   </span>
-                  {meta(program) ? <span className="block truncate px-2 py-1.5 text-[11px] text-o1-muted">{meta(program)}</span> : null}
+                  {meta(program) ? (
+                    <span className="block truncate px-2 py-1.5 text-[11px] text-o1-muted">
+                      {meta(program)}
+                    </span>
+                  ) : null}
                 </button>
               );
             })}

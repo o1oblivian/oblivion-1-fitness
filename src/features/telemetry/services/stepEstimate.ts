@@ -15,7 +15,10 @@ export function estimateKmFromSteps(steps: number | null | undefined): number | 
  * Estimated active kcal for a day's steps, at the walking stride used above.
  * Null without a bodyweight or any steps, so nothing is guessed.
  */
-export function estimateKcalFromSteps(steps: number | null | undefined, bodyweightKg: number | null | undefined): number | null {
+export function estimateKcalFromSteps(
+  steps: number | null | undefined,
+  bodyweightKg: number | null | undefined,
+): number | null {
   const count = Number(steps) || 0;
   const kg = Number(bodyweightKg) || 0;
   if (count <= 0 || kg <= 0) return null;

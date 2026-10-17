@@ -15,8 +15,14 @@ interface ReelExploreGridProps {
 }
 
 export const ReelExploreGrid: React.FC<ReelExploreGridProps> = ({
-  searchQuery, setSearchQuery, selectedCategory, setSelectedCategory,
-  categoryCounts, filteredReels, onClose, onSelectReel,
+  searchQuery,
+  setSearchQuery,
+  selectedCategory,
+  setSelectedCategory,
+  categoryCounts,
+  filteredReels,
+  onClose,
+  onSelectReel,
 }) => {
   return (
     <div className="flex-1 w-full h-full flex flex-col bg-black overflow-y-auto pb-8 select-none">

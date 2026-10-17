@@ -53,37 +53,93 @@ const IGNORE =
 const RULES: Rule[] = [
   // Legs & hinge first so "leg press / leg curl / leg extension" never match upper-body rules.
   { test: /leg curl|hamstring curl|nordic|glute[- ]?ham/i, primary: ['hamstrings'], secondary: [] },
-  { test: /romanian|\brdl\b|stiff[- ]?leg|good morning/i, primary: ['hamstrings', 'glutes', 'lowerBack'], secondary: [] },
-  { test: /deadlift/i, primary: ['hamstrings', 'glutes', 'lowerBack'], secondary: ['upperBack', 'forearms', 'quads'] },
-  { test: /back extension|hyperextension|superman/i, primary: ['lowerBack'], secondary: ['glutes', 'hamstrings'] },
-  { test: /hip thrust|glute bridge|bridge|glute|kickback.*glute|abductor|donkey/i, primary: ['glutes'], secondary: ['hamstrings'] },
+  {
+    test: /romanian|\brdl\b|stiff[- ]?leg|good morning/i,
+    primary: ['hamstrings', 'glutes', 'lowerBack'],
+    secondary: [],
+  },
+  {
+    test: /deadlift/i,
+    primary: ['hamstrings', 'glutes', 'lowerBack'],
+    secondary: ['upperBack', 'forearms', 'quads'],
+  },
+  {
+    test: /back extension|hyperextension|superman/i,
+    primary: ['lowerBack'],
+    secondary: ['glutes', 'hamstrings'],
+  },
+  {
+    test: /hip thrust|glute bridge|bridge|glute|kickback.*glute|abductor|donkey/i,
+    primary: ['glutes'],
+    secondary: ['hamstrings'],
+  },
   { test: /calf|heel raise|tibialis/i, primary: ['calves'], secondary: [] },
-  { test: /lunge|split squat|step[- ]?up|bulgarian/i, primary: ['quads', 'glutes'], secondary: ['hamstrings'] },
-  { test: /squat|leg press|hack|leg extension|sissy|wall sit/i, primary: ['quads'], secondary: ['glutes'] },
-  { test: /clean|snatch|thruster|kettlebell swing|\bswing\b|jerk/i, primary: ['glutes', 'hamstrings', 'quads'], secondary: ['upperBack', 'shoulders'] },
+  {
+    test: /lunge|split squat|step[- ]?up|bulgarian/i,
+    primary: ['quads', 'glutes'],
+    secondary: ['hamstrings'],
+  },
+  {
+    test: /squat|leg press|hack|leg extension|sissy|wall sit/i,
+    primary: ['quads'],
+    secondary: ['glutes'],
+  },
+  {
+    test: /clean|snatch|thruster|kettlebell swing|\bswing\b|jerk/i,
+    primary: ['glutes', 'hamstrings', 'quads'],
+    secondary: ['upperBack', 'shoulders'],
+  },
 
   // Close-grip pressing & triceps before chest.
-  { test: /close[- ]?grip bench|jm press|skull|tricep|pushdown|push[- ]?down|tate/i, primary: ['triceps'], secondary: ['chest'] },
+  {
+    test: /close[- ]?grip bench|jm press|skull|tricep|pushdown|push[- ]?down|tate/i,
+    primary: ['triceps'],
+    secondary: ['chest'],
+  },
   { test: /\bdips?\b/i, primary: ['chest', 'triceps'], secondary: ['shoulders'] },
 
   // Shoulders before back/chest so "reverse fly", "upright row", "face pull" land correctly.
-  { test: /face pull|reverse fly|reverse flye|rear delt/i, primary: ['shoulders'], secondary: ['upperBack'] },
-  { test: /upright row|lateral raise|side raise|front raise|overhead press|shoulder press|military|arnold|pike push|push press|\bohp\b|landmine press/i, primary: ['shoulders'], secondary: ['triceps'] },
+  {
+    test: /face pull|reverse fly|reverse flye|rear delt/i,
+    primary: ['shoulders'],
+    secondary: ['upperBack'],
+  },
+  {
+    test: /upright row|lateral raise|side raise|front raise|overhead press|shoulder press|military|arnold|pike push|push press|\bohp\b|landmine press/i,
+    primary: ['shoulders'],
+    secondary: ['triceps'],
+  },
 
   // Back.
   { test: /shrug/i, primary: ['upperBack'], secondary: ['forearms'] },
-  { test: /pull[- ]?up|chin[- ]?up|pulldown|pull[- ]?down|\brow\b|pullover|t[- ]?bar|seal row|\bpullups?\b/i, primary: ['upperBack'], secondary: ['biceps', 'forearms'] },
+  {
+    test: /pull[- ]?up|chin[- ]?up|pulldown|pull[- ]?down|\brow\b|pullover|t[- ]?bar|seal row|\bpullups?\b/i,
+    primary: ['upperBack'],
+    secondary: ['biceps', 'forearms'],
+  },
 
   // Chest.
-  { test: /bench|chest press|push[- ]?up|pec|\bfly\b|flye|crossover|floor press|incline press|decline press/i, primary: ['chest'], secondary: ['triceps', 'shoulders'] },
+  {
+    test: /bench|chest press|push[- ]?up|pec|\bfly\b|flye|crossover|floor press|incline press|decline press/i,
+    primary: ['chest'],
+    secondary: ['triceps', 'shoulders'],
+  },
 
   // Arms.
   { test: /curl/i, primary: ['biceps'], secondary: ['forearms'] },
   { test: /extension|kickback/i, primary: ['triceps'], secondary: [] },
-  { test: /wrist|forearm|grip|farmer|carry|dead hang/i, primary: ['forearms'], secondary: ['core', 'upperBack'] },
+  {
+    test: /wrist|forearm|grip|farmer|carry|dead hang/i,
+    primary: ['forearms'],
+    secondary: ['core', 'upperBack'],
+  },
 
   // Core.
-  { test: /crunch|sit[- ]?up|plank|leg raise|knee raise|russian twist|woodchop|wood chop|hollow|dead bug|ab wheel|rollout|\babs?\b|core|pallof|v[- ]?up/i, primary: ['core'], secondary: [] },
+  {
+    test: /crunch|sit[- ]?up|plank|leg raise|knee raise|russian twist|woodchop|wood chop|hollow|dead bug|ab wheel|rollout|\babs?\b|core|pallof|v[- ]?up/i,
+    primary: ['core'],
+    secondary: [],
+  },
 ];
 
 const GROUP_ALIASES: { test: RegExp; ids: MuscleId[] }[] = [

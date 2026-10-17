@@ -11,7 +11,8 @@ import { SundayOrbitDial } from './SundayOrbitDial';
 const finite = (n: number) => (Number.isFinite(n) && n > 0 ? n : 0);
 
 export const DayAdaptiveDial: React.FC<DialComponentProps> = (props) => {
-  const dayCode = props.activeDay.slice(0, 1).toUpperCase() + props.activeDay.slice(1, 3).toLowerCase();
+  const dayCode =
+    props.activeDay.slice(0, 1).toUpperCase() + props.activeDay.slice(1, 3).toLowerCase();
   const dial: DialComponentProps = {
     ...props,
     steps: finite(props.steps),
@@ -41,5 +42,3 @@ function renderDial(kind: string | undefined, dial: DialComponentProps) {
       return <ThursdayTicksDial {...dial} />;
   }
 }
-
-

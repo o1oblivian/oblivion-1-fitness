@@ -47,12 +47,7 @@ export const WorkoutHeroBanner: React.FC<WorkoutHeroBannerProps> = ({
 
   return (
     <div id="workout-hero-banner-root" className="w-full">
-      <HeroVitalsContainer
-        {...props}
-        stepCount={verifiedSteps}
-      />
+      <HeroVitalsContainer {...props} stepCount={verifiedSteps} />
     </div>
   );
 };
-
-

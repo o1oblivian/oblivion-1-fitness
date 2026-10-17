@@ -8,7 +8,14 @@ export interface ProgressCardInput {
 const W = 1080;
 const H = 1350;
 
-function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
+function roundRect(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  r: number,
+) {
   ctx.beginPath();
   ctx.moveTo(x + r, y);
   ctx.arcTo(x + w, y, x + w, y + h, r);
@@ -32,7 +39,14 @@ function coverImage(
   ctx.drawImage(img, (img.width - sw) / 2, (img.height - sh) / 2, sw, sh, x, y, w, h);
 }
 
-function emptyFrame(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, label: string) {
+function emptyFrame(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  label: string,
+) {
   ctx.fillStyle = '#161616';
   roundRect(ctx, x, y, w, h, 28);
   ctx.fill();

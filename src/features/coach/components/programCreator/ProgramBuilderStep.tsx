@@ -19,7 +19,10 @@ export const ProgramBuilderStep: React.FC<{
   const [activeDayIdx, setActiveDayIdx] = useState(0);
 
   const [selectedMuscleTag, setSelectedMuscleTag] = useState<string>(() => {
-    if (data.category && ALL_DISCIPLINES.some((d) => d.toLowerCase() === data.category.toLowerCase())) {
+    if (
+      data.category &&
+      ALL_DISCIPLINES.some((d) => d.toLowerCase() === data.category.toLowerCase())
+    ) {
       return data.category;
     }
     return 'Push';
@@ -30,7 +33,7 @@ export const ProgramBuilderStep: React.FC<{
   const totalDays = data.weeks.reduce((acc, w) => acc + w.days.length, 0);
   const totalExercises = data.weeks.reduce(
     (acc, w) => acc + w.days.reduce((a, d) => a + d.exercises.length, 0),
-    0
+    0,
   );
 
   const updateCurrentDay = (exercises: ProgramExerciseItem[]) => {
@@ -93,9 +96,7 @@ export const ProgramBuilderStep: React.FC<{
       <div className="flex items-center justify-between pb-2 border-b border-white/[0.07]">
         <div className="flex items-center gap-2">
           <Layers className="w-4 h-4 text-o1-text" />
-          <h3 className="text-sm font-bold text-o1-text">
-            Curriculum Builder
-          </h3>
+          <h3 className="text-sm font-bold text-o1-text">Curriculum Builder</h3>
         </div>
         <span className="text-xs font-mono font-medium text-o1-muted">
           {data.weeks.length}w · {totalDays}d · {totalExercises} exercises
@@ -105,9 +106,7 @@ export const ProgramBuilderStep: React.FC<{
       {/* Week Selector Bar */}
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <span className="text-xs font-semibold text-o1-text">
-            Training Weeks
-          </span>
+          <span className="text-xs font-semibold text-o1-text">Training Weeks</span>
           <div className="flex items-center gap-2 text-o1-muted">
             <button
               type="button"
@@ -162,7 +161,9 @@ export const ProgramBuilderStep: React.FC<{
                 }`}
               >
                 <span>Week {w.weekNumber}</span>
-                <span className={`text-[10px] font-mono ${isActive ? 'opacity-80' : 'text-o1-muted'}`}>
+                <span
+                  className={`text-[10px] font-mono ${isActive ? 'opacity-80' : 'text-o1-muted'}`}
+                >
                   {exCount} ex
                 </span>
               </button>
@@ -211,12 +212,8 @@ export const ProgramBuilderStep: React.FC<{
               }`}
             >
               <div className="flex items-center justify-between">
-                <span className="font-bold text-xs text-o1-text">
-                  {d.dayName}
-                </span>
-                <span className="text-[10px] font-mono text-o1-muted">
-                  {d.exercises.length} ex
-                </span>
+                <span className="font-bold text-xs text-o1-text">{d.dayName}</span>
+                <span className="text-[10px] font-mono text-o1-muted">{d.exercises.length} ex</span>
               </div>
               <div className="text-[11px] font-medium text-o1-muted truncate mt-0.5">
                 {d.splitFocus || 'Rest'}
@@ -348,4 +345,3 @@ export const ProgramBuilderStep: React.FC<{
     </div>
   );
 };
-

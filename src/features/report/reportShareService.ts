@@ -38,10 +38,12 @@ async function currentUserId(): Promise<string | null> {
 export async function publishReport(report: OblivionReport, shared: boolean): Promise<boolean> {
   const uid = await currentUserId();
   if (!uid) return false;
-  const { error } = await supabase.from(TABLE).upsert(
-    { athlete_id: uid, shared, snapshot: report, updated_at: new Date().toISOString() },
-    { onConflict: 'athlete_id' },
-  );
+  const { error } = await supabase
+    .from(TABLE)
+    .upsert(
+      { athlete_id: uid, shared, snapshot: report, updated_at: new Date().toISOString() },
+      { onConflict: 'athlete_id' },
+    );
   if (error) {
     console.error('[Report] publish failed:', error.message);
     return false;
@@ -80,7 +82,8 @@ export async function fetchSharedReport(athleteId: string | undefined): Promise<
       .maybeSingle();
     if (error) return { status: 'error' };
     const row = data as { snapshot?: OblivionReport; shared?: boolean } | null;
-    if (!row || !row.shared || !row.snapshot || row.snapshot.version !== 1) return { status: 'not_shared' };
+    if (!row || !row.shared || !row.snapshot || row.snapshot.version !== 1)
+      return { status: 'not_shared' };
     return { status: 'ok', report: row.snapshot };
   } catch {
     return { status: 'error' };

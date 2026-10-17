@@ -42,8 +42,8 @@ export const BleDeviceRow: React.FC<BleDeviceRowProps> = ({
               {!isSupported
                 ? "This phone can't use Bluetooth sensors"
                 : full
-                ? `${devices.length} of ${MAX_BLE_DEVICES} connected`
-                : `Up to ${MAX_BLE_DEVICES} sensors. HRV only, stays on this phone.`}
+                  ? `${devices.length} of ${MAX_BLE_DEVICES} connected`
+                  : `Up to ${MAX_BLE_DEVICES} sensors. HRV only, stays on this phone.`}
             </span>
           </div>
         </div>
@@ -75,7 +75,9 @@ export const BleDeviceRow: React.FC<BleDeviceRowProps> = ({
               className="flex items-center justify-between gap-3 p-2.5 rounded-xl bg-o1-well border border-white/[0.07]"
             >
               <div className="min-w-0">
-                <span className="text-xs font-sans font-semibold text-neutral-100 block truncate">{device.name}</span>
+                <span className="text-xs font-sans font-semibold text-neutral-100 block truncate">
+                  {device.name}
+                </span>
                 <span
                   className={`text-[11px] font-sans block ${
                     device.sendsBeatIntervals === false ? 'text-amber-300' : 'text-neutral-400'
@@ -98,7 +100,10 @@ export const BleDeviceRow: React.FC<BleDeviceRowProps> = ({
       )}
 
       {error && (
-        <div role="alert" className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-start gap-2 text-[11px] text-amber-300">
+        <div
+          role="alert"
+          className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-start gap-2 text-[11px] text-amber-300"
+        >
           <AlertCircle className="w-3.5 h-3.5 shrink-0 mt-0.5" aria-hidden />
           <span>{error}</span>
         </div>

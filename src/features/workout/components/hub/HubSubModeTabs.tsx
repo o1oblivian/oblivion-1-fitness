@@ -7,10 +7,7 @@ interface HubSubModeTabsProps {
   onChangeTab: (tab: 'auto' | 'manual' | 'blueprint') => void;
 }
 
-export const HubSubModeTabs: React.FC<HubSubModeTabsProps> = ({
-  activeSubTab,
-  onChangeTab,
-}) => {
+export const HubSubModeTabs: React.FC<HubSubModeTabsProps> = ({ activeSubTab, onChangeTab }) => {
   const isBlueprintActive = activeSubTab === 'blueprint' || activeSubTab === 'swapper';
 
   const tabClass = (active: boolean) =>

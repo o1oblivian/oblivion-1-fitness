@@ -15,11 +15,18 @@ const C = 2 * Math.PI * R;
 
 const tone = (value: number | null): string => TONE_HEX[toneForScore(value)];
 
-const PartCell: React.FC<{ part: ScorePart; children?: React.ReactNode }> = ({ part, children }) => (
+const PartCell: React.FC<{ part: ScorePart; children?: React.ReactNode }> = ({
+  part,
+  children,
+}) => (
   <div className="rounded-xl bg-[#111113] border border-white/[0.07] p-3 space-y-2 min-h-[88px]">
     <div className="flex items-baseline justify-between">
-      <span className="text-[10px] font-mono font-bold tracking-wider text-neutral-400">{part.label}</span>
-      <span className="text-lg font-black font-mono text-white leading-none">{part.value === null ? '--' : part.value}</span>
+      <span className="text-[10px] font-mono font-bold tracking-wider text-neutral-400">
+        {part.label}
+      </span>
+      <span className="text-lg font-black font-mono text-white leading-none">
+        {part.value === null ? '--' : part.value}
+      </span>
     </div>
     <div className="h-[3px] rounded-full bg-white/[0.07] overflow-hidden">
       <div
@@ -65,7 +72,9 @@ export const ScoreHero: React.FC<ScoreHeroProps> = ({ report, targetSessions, on
             <span className="text-[44px] leading-none font-black font-mono text-white tabular-nums">
               {score === null ? '--' : score}
             </span>
-            <span className="text-[9px] font-mono tracking-[0.2em] text-neutral-500 mt-1">Athlete score</span>
+            <span className="text-[9px] font-mono tracking-[0.2em] text-neutral-500 mt-1">
+              Athlete score
+            </span>
           </div>
         </div>
         <span className="px-3 py-1 rounded-full border border-white/[0.12] text-[10px] font-mono font-bold tracking-[0.2em] text-neutral-200">
@@ -73,7 +82,8 @@ export const ScoreHero: React.FC<ScoreHeroProps> = ({ report, targetSessions, on
         </span>
         {score === null && (
           <p className="text-[11px] text-neutral-500 text-center max-w-[280px]">
-            The score needs two of the four components. Log training, sleep or bodyweight and it calibrates automatically.
+            The score needs two of the four components. Log training, sleep or bodyweight and it
+            calibrates automatically.
           </p>
         )}
       </div>
@@ -83,7 +93,9 @@ export const ScoreHero: React.FC<ScoreHeroProps> = ({ report, targetSessions, on
           part.id === 'consistency' && targetSessions !== undefined && onTargetChange ? (
             <PartCell key={part.id} part={part}>
               <div className="flex items-center justify-between pt-0.5">
-                <span className="text-[9px] font-mono tracking-wider text-neutral-600">Target / wk</span>
+                <span className="text-[9px] font-mono tracking-wider text-neutral-600">
+                  Target / wk
+                </span>
                 <div className="flex items-center gap-1">
                   <button
                     type="button"
@@ -94,7 +106,9 @@ export const ScoreHero: React.FC<ScoreHeroProps> = ({ report, targetSessions, on
                   >
                     <Minus className="w-3 h-3" />
                   </button>
-                  <span className="w-4 text-center text-xs font-mono font-bold text-white">{targetSessions}</span>
+                  <span className="w-4 text-center text-xs font-mono font-bold text-white">
+                    {targetSessions}
+                  </span>
                   <button
                     type="button"
                     aria-label="Increase weekly session target"
@@ -115,12 +129,13 @@ export const ScoreHero: React.FC<ScoreHeroProps> = ({ report, targetSessions, on
 
       <div className="flex gap-2 border-t border-white/[0.05] pt-3">
         {stat('Sets 7d', stats.setsLast7 > 0 ? String(stats.setsLast7) : '--')}
-        {stat('Lifted, 7 days', stats.tonnageLast7Kg > 0 ? `${(stats.tonnageLast7Kg / 1000).toFixed(1)}t` : '--')}
+        {stat(
+          'Lifted, 7 days',
+          stats.tonnageLast7Kg > 0 ? `${(stats.tonnageLast7Kg / 1000).toFixed(1)}t` : '--',
+        )}
         {stat('Load ratio', stats.acwr === null ? '--' : stats.acwr.toFixed(2))}
         {stat('Sleep', stats.avgSleepHours === null ? '--' : `${stats.avgSleepHours}h`)}
       </div>
     </section>
   );
 };
-
-

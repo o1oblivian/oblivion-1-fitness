@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { MeditationDayRecord, useTelemetryHistoryStore } from '../../store/useTelemetryHistoryStore';
+import {
+  MeditationDayRecord,
+  useTelemetryHistoryStore,
+} from '../../store/useTelemetryHistoryStore';
 import { sanitizeNumericInput } from '../../../../utils/numberInputUtils';
 import { readNum, type DayLogContext, type SaveOutcome } from './shared';
 
@@ -48,13 +51,28 @@ export function useMeditationLogForm({ isOpen, dayMeta, category, mode, onSaved 
     return 'done';
   };
 
-  return { meditationMinutes, setMeditationMinutes, meditationCoherence, setMeditationCoherence, meditationProtocol, setMeditationProtocol, save };
+  return {
+    meditationMinutes,
+    setMeditationMinutes,
+    meditationCoherence,
+    setMeditationCoherence,
+    meditationProtocol,
+    setMeditationProtocol,
+    save,
+  };
 }
 
 export type MeditationLogForm = ReturnType<typeof useMeditationLogForm>;
 
 export function MeditationLogFields({ form }: { form: MeditationLogForm }) {
-  const { meditationMinutes, setMeditationMinutes, meditationCoherence, setMeditationCoherence, meditationProtocol, setMeditationProtocol } = form;
+  const {
+    meditationMinutes,
+    setMeditationMinutes,
+    meditationCoherence,
+    setMeditationCoherence,
+    meditationProtocol,
+    setMeditationProtocol,
+  } = form;
   return (
     <div className="space-y-3.5">
       <div className="grid grid-cols-2 gap-2">

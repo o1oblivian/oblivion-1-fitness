@@ -14,7 +14,10 @@ const TREND_STYLE: Record<LiftTrend, { label: string; cls: string; stroke: strin
   declining: { label: 'DECLINING', cls: 'text-red-500 border-red-500/30', stroke: '#C4121A' },
 };
 
-const Sparkline: React.FC<{ series: LiftProgress['series']; stroke: string }> = ({ series, stroke }) => {
+const Sparkline: React.FC<{ series: LiftProgress['series']; stroke: string }> = ({
+  series,
+  stroke,
+}) => {
   const W = 84;
   const H = 28;
   if (series.length < 2) return <svg width={W} height={H} aria-hidden="true" />;
@@ -45,7 +48,10 @@ const Sparkline: React.FC<{ series: LiftProgress['series']; stroke: string }> = 
 
 const shortDay = (key: string) => {
   const [y, m, d] = key.split('-').map(Number);
-  return new Date(y, (m || 1) - 1, d || 1).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  return new Date(y, (m || 1) - 1, d || 1).toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+  });
 };
 
 export const StrengthPanel: React.FC<StrengthPanelProps> = ({ lifts, personalBests }) => (
@@ -54,24 +60,31 @@ export const StrengthPanel: React.FC<StrengthPanelProps> = ({ lifts, personalBes
       <h3 className="text-[10px] font-mono font-bold tracking-[0.18em] text-neutral-400">
         Strength &amp; Progression
       </h3>
-      <p className="text-[11px] text-neutral-500 mt-0.5">Estimated 1RM (Epley), best set per session</p>
+      <p className="text-[11px] text-neutral-500 mt-0.5">
+        Estimated 1RM (Epley), best set per session
+      </p>
     </div>
 
     {lifts.length === 0 ? (
       <p className="text-xs text-neutral-500 leading-relaxed py-2">
-        Log at least two sessions of a lift (1–12 reps with load) and its estimated 1RM curve, PBs and plateau
-        detection appear here.
+        Log at least two sessions of a lift (1–12 reps with load) and its estimated 1RM curve, PBs
+        and plateau detection appear here.
       </p>
     ) : (
       <ul className="divide-y divide-white/[0.05]">
         {lifts.map((lift) => {
           const style = TREND_STYLE[lift.trend];
           return (
-            <li key={lift.name} className="py-3 first:pt-0 last:pb-0 flex items-center gap-3 min-h-[56px]">
+            <li
+              key={lift.name}
+              className="py-3 first:pt-0 last:pb-0 flex items-center gap-3 min-h-[56px]"
+            >
               <div className="flex-1 min-w-0 space-y-1">
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-bold text-white truncate">{lift.name}</span>
-                  <span className={`shrink-0 px-2 py-0.5 rounded-full border text-[8px] font-mono font-bold tracking-wider ${style.cls}`}>
+                  <span
+                    className={`shrink-0 px-2 py-0.5 rounded-full border text-[8px] font-mono font-bold tracking-wider ${style.cls}`}
+                  >
                     {style.label}
                   </span>
                 </div>
@@ -90,7 +103,9 @@ export const StrengthPanel: React.FC<StrengthPanelProps> = ({ lifts, personalBes
                             : 'text-red-500'
                       }
                     >
-                      {lift.changePct === null ? '--' : `${lift.changePct > 0 ? '+' : ''}${lift.changePct}%`}
+                      {lift.changePct === null
+                        ? '--'
+                        : `${lift.changePct > 0 ? '+' : ''}${lift.changePct}%`}
                     </span>
                   </span>
                 </div>
@@ -111,11 +126,16 @@ export const StrengthPanel: React.FC<StrengthPanelProps> = ({ lifts, personalBes
         Personal bests · 60 days
       </h4>
       {personalBests.length === 0 ? (
-        <p className="text-xs text-neutral-500">No new bests yet. Beat your estimated max on any lift and it shows here.</p>
+        <p className="text-xs text-neutral-500">
+          No new bests yet. Beat your estimated max on any lift and it shows here.
+        </p>
       ) : (
         <ul className="space-y-1.5">
           {personalBests.map((pb) => (
-            <li key={`${pb.exercise}-${pb.day}`} className="flex items-center justify-between gap-3 min-h-[36px] text-xs">
+            <li
+              key={`${pb.exercise}-${pb.day}`}
+              className="flex items-center justify-between gap-3 min-h-[36px] text-xs"
+            >
               <div className="min-w-0">
                 <div className="text-neutral-200 font-semibold truncate">{pb.exercise}</div>
                 <div className="text-[10px] font-mono text-neutral-500">
@@ -130,5 +150,3 @@ export const StrengthPanel: React.FC<StrengthPanelProps> = ({ lifts, personalBes
     </div>
   </section>
 );
-
-

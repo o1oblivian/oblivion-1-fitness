@@ -6,7 +6,15 @@ import type {
   SleepDayRecord,
   WorkoutDayRecord,
 } from '../store/useTelemetryHistoryStore';
-import { cardioHeadline, cardioLine, dayHeading, foodHeadline, mindfulHeadline, sleepHeadline, workoutHeadline } from './logHistoryFormat';
+import {
+  cardioHeadline,
+  cardioLine,
+  dayHeading,
+  foodHeadline,
+  mindfulHeadline,
+  sleepHeadline,
+  workoutHeadline,
+} from './logHistoryFormat';
 
 describe('dayHeading', () => {
   const today = new Date(2026, 9, 17, 15, 30);
@@ -25,17 +33,34 @@ const record = <T>(fields: Partial<T>): T => ({ hasData: true, ...fields }) as T
 
 describe('workoutHeadline', () => {
   it('leads with weight lifted and keeps the rest as the caption', () => {
-    const rec = record<WorkoutDayRecord>({ tonnageKg: 49485, completedSets: 12, durationMinutes: 45, burnedKcal: 310, exercises: [] });
-    expect(workoutHeadline(rec)).toEqual({ value: '49,485', unit: 'kg', caption: '12 sets · 45 min · 310 kcal active' });
+    const rec = record<WorkoutDayRecord>({
+      tonnageKg: 49485,
+      completedSets: 12,
+      durationMinutes: 45,
+      burnedKcal: 310,
+      exercises: [],
+    });
+    expect(workoutHeadline(rec)).toEqual({
+      value: '49,485',
+      unit: 'kg',
+      caption: '12 sets · 45 min · 310 kcal active',
+    });
   });
 
   it('leads with sets when no weight was recorded', () => {
-    const rec = record<WorkoutDayRecord>({ tonnageKg: 0, completedSets: 8, durationMinutes: 30, exercises: [] });
+    const rec = record<WorkoutDayRecord>({
+      tonnageKg: 0,
+      completedSets: 8,
+      durationMinutes: 30,
+      exercises: [],
+    });
     expect(workoutHeadline(rec)).toEqual({ value: '8', unit: 'sets', caption: '30 min' });
   });
 
   it('is null with no readings, never a zero', () => {
-    expect(workoutHeadline(record<WorkoutDayRecord>({ tonnageKg: 0, completedSets: 0, exercises: [] }))).toBeNull();
+    expect(
+      workoutHeadline(record<WorkoutDayRecord>({ tonnageKg: 0, completedSets: 0, exercises: [] })),
+    ).toBeNull();
     expect(workoutHeadline(undefined)).toBeNull();
     expect(workoutHeadline({ hasData: false } as WorkoutDayRecord)).toBeNull();
   });
@@ -43,7 +68,11 @@ describe('workoutHeadline', () => {
 
 describe('cardioHeadline', () => {
   it('leads with distance, then lists time and calories', () => {
-    const rec = record<CardioDayRecord>({ distanceKm: 5.234, durationMinutes: 28, burnedKcal: 240 });
+    const rec = record<CardioDayRecord>({
+      distanceKm: 5.234,
+      durationMinutes: 28,
+      burnedKcal: 240,
+    });
     expect(cardioHeadline(rec)).toEqual({ value: '5.2', unit: 'km', caption: '28 min · 240 kcal' });
   });
 
@@ -72,8 +101,17 @@ describe('cardioHeadline', () => {
 
 describe('foodHeadline', () => {
   it('leads with calories and lists the macros', () => {
-    const rec = record<NutritionDayRecord>({ calories: 2150, proteinG: 142.4, carbsG: 230, fatsG: 61 });
-    expect(foodHeadline(rec)).toEqual({ value: '2,150', unit: 'kcal', caption: '142g protein · 230g carbs · 61g fat' });
+    const rec = record<NutritionDayRecord>({
+      calories: 2150,
+      proteinG: 142.4,
+      carbsG: 230,
+      fatsG: 61,
+    });
+    expect(foodHeadline(rec)).toEqual({
+      value: '2,150',
+      unit: 'kcal',
+      caption: '142g protein · 230g carbs · 61g fat',
+    });
   });
 
   it('is null with no calories', () => {
@@ -83,25 +121,41 @@ describe('foodHeadline', () => {
 
 describe('sleepHeadline', () => {
   it('leads with hours and lists recovery', () => {
-    expect(sleepHeadline(record<SleepDayRecord>({ durationHours: 8, recoveryPercent: 82 }))).toEqual({ value: '8', unit: 'h', caption: '82% recovery' });
+    expect(
+      sleepHeadline(record<SleepDayRecord>({ durationHours: 8, recoveryPercent: 82 })),
+    ).toEqual({ value: '8', unit: 'h', caption: '82% recovery' });
   });
 
   it('leads with recovery when no hours were read', () => {
-    expect(sleepHeadline(record<SleepDayRecord>({ durationHours: 0, recoveryPercent: 74 }))).toEqual({ value: '74', unit: '% recovery', caption: '' });
+    expect(
+      sleepHeadline(record<SleepDayRecord>({ durationHours: 0, recoveryPercent: 74 })),
+    ).toEqual({ value: '74', unit: '% recovery', caption: '' });
   });
 
   it('is null with neither', () => {
-    expect(sleepHeadline(record<SleepDayRecord>({ durationHours: 0, recoveryPercent: 0 }))).toBeNull();
+    expect(
+      sleepHeadline(record<SleepDayRecord>({ durationHours: 0, recoveryPercent: 0 })),
+    ).toBeNull();
   });
 });
 
 describe('mindfulHeadline', () => {
   it('leads with minutes and names the protocol', () => {
-    const rec = record<MeditationDayRecord>({ minutes: 12, protocol: 'Box breathing', coherence: 'High' });
-    expect(mindfulHeadline(rec)).toEqual({ value: '12', unit: 'min', caption: 'Box breathing · High' });
+    const rec = record<MeditationDayRecord>({
+      minutes: 12,
+      protocol: 'Box breathing',
+      coherence: 'High',
+    });
+    expect(mindfulHeadline(rec)).toEqual({
+      value: '12',
+      unit: 'min',
+      caption: 'Box breathing · High',
+    });
   });
 
   it('is null with no minutes', () => {
-    expect(mindfulHeadline(record<MeditationDayRecord>({ minutes: 0, protocol: 'Box breathing' }))).toBeNull();
+    expect(
+      mindfulHeadline(record<MeditationDayRecord>({ minutes: 0, protocol: 'Box breathing' })),
+    ).toBeNull();
   });
 });

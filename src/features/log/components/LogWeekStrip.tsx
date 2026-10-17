@@ -62,5 +62,3 @@ export const LogWeekStrip: React.FC<LogWeekStripProps> = ({
     </div>
   );
 };
-
-

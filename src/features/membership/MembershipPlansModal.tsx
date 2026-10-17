@@ -3,7 +3,10 @@ import { createPortal } from 'react-dom';
 import { X, Shield, ArrowRight, CheckCircle2, Loader2, AlertCircle } from 'lucide-react';
 import { IAP_PRODUCTS, IAPProductInfo } from '../../types/iap';
 import { tactileEngine } from '../../services/tactileEngine';
-import { REVENUECAT_FALLBACK_MONTHLY_PACKAGE, revenueCatService } from '../../services/revenueCatService';
+import {
+  REVENUECAT_FALLBACK_MONTHLY_PACKAGE,
+  revenueCatService,
+} from '../../services/revenueCatService';
 import { isNativeStorePlatform } from '../../services/purchasesService';
 import { openLegalUrl } from '../../services/apiBase';
 import { useSubscription } from '../../context/SubscriptionContext';
@@ -34,7 +37,7 @@ export const MembershipPlansModal: React.FC<MembershipPlansModalProps> = ({
 }) => {
   const [userType, setUserType] = useState<'athletes' | 'coaches'>('athletes');
   const [selectedProductId, setSelectedProductId] = useState<string>(
-    REVENUECAT_FALLBACK_MONTHLY_PACKAGE.product.identifier
+    REVENUECAT_FALLBACK_MONTHLY_PACKAGE.product.identifier,
   );
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [isPurchasing, setIsPurchasing] = useState(false);
@@ -61,17 +64,30 @@ export const MembershipPlansModal: React.FC<MembershipPlansModalProps> = ({
       .getOfferings()
       .then((offerings) => {
         if (cancelled) return;
-        if (!offerings.packages.length && revenueCatService.isNative()) setStoreStatusBanner(revenueCatService.lastIssue);
+        if (!offerings.packages.length && revenueCatService.isNative())
+          setStoreStatusBanner(revenueCatService.lastIssue);
         const pkgs = revenueCatService.listPackages(offerings);
         const pkg =
-          pkgs.find((p) => p.identifier === '$rc_monthly' || p.product?.identifier === 'o1fc_pro_monthly' || String(p.product?.identifier || '').startsWith('o1fc_pro_monthly:')) ||
+          pkgs.find(
+            (p) =>
+              p.identifier === '$rc_monthly' ||
+              p.product?.identifier === 'o1fc_pro_monthly' ||
+              String(p.product?.identifier || '').startsWith('o1fc_pro_monthly:'),
+          ) ||
           pkgs[0] ||
           REVENUECAT_FALLBACK_MONTHLY_PACKAGE;
-        const product = pkg.product || pkg.webCheckoutProduct || REVENUECAT_FALLBACK_MONTHLY_PACKAGE.product;
+        const product =
+          pkg.product || pkg.webCheckoutProduct || REVENUECAT_FALLBACK_MONTHLY_PACKAGE.product;
         const next: IAPProductInfo = {
-          productId: String(product.identifier || pkg.identifier || REVENUECAT_FALLBACK_MONTHLY_PACKAGE.product.identifier),
+          productId: String(
+            product.identifier ||
+              pkg.identifier ||
+              REVENUECAT_FALLBACK_MONTHLY_PACKAGE.product.identifier,
+          ),
           name: String(product.title || 'Monthly Pro Access'),
-          price: (pkg as { isFallback?: boolean }).isFallback ? '--' : String(product.priceString || '--'),
+          price: (pkg as { isFallback?: boolean }).isFallback
+            ? '--'
+            : String(product.priceString || '--'),
           periodText: '/mo',
           description: 'Full training & fuel OS',
           badge: 'PRO',
@@ -81,9 +97,10 @@ export const MembershipPlansModal: React.FC<MembershipPlansModalProps> = ({
         };
         setMonthlyStoreProduct(next);
         setSelectedProductId((current) =>
-          current === IAP_PRODUCTS.premium.productId || current === REVENUECAT_FALLBACK_MONTHLY_PACKAGE.product.identifier
+          current === IAP_PRODUCTS.premium.productId ||
+          current === REVENUECAT_FALLBACK_MONTHLY_PACKAGE.product.identifier
             ? next.productId
-            : current
+            : current,
         );
       })
       .catch(() => {
@@ -95,8 +112,13 @@ export const MembershipPlansModal: React.FC<MembershipPlansModalProps> = ({
   }, [isOpen]);
 
   const athleteProducts: readonly IAPProductInfo[] = useMemo(
-    () => [IAP_PRODUCTS.founder_pass, IAP_PRODUCTS.core_free, monthlyStoreProduct, IAP_PRODUCTS.premium_travel],
-    [monthlyStoreProduct]
+    () => [
+      IAP_PRODUCTS.founder_pass,
+      IAP_PRODUCTS.core_free,
+      monthlyStoreProduct,
+      IAP_PRODUCTS.premium_travel,
+    ],
+    [monthlyStoreProduct],
   );
 
   const coachProducts: readonly IAPProductInfo[] = [
@@ -116,7 +138,9 @@ export const MembershipPlansModal: React.FC<MembershipPlansModalProps> = ({
   const handleSelectTab = (t: 'athletes' | 'coaches') => {
     tactileEngine.triggerSelectionBuzz();
     setUserType(t);
-    setSelectedProductId(t === 'athletes' ? monthlyStoreProduct.productId : IAP_PRODUCTS.coach_pro.productId);
+    setSelectedProductId(
+      t === 'athletes' ? monthlyStoreProduct.productId : IAP_PRODUCTS.coach_pro.productId,
+    );
     setStoreStatusBanner(null);
   };
 
@@ -151,7 +175,10 @@ export const MembershipPlansModal: React.FC<MembershipPlansModalProps> = ({
           onClose();
         } else {
           // Closing the store sheet is the athlete's choice, not an error.
-          if (!/cancel/i.test(res.error || '')) setStoreStatusBanner(res.error || (nativeStore ? 'Store billing is unavailable.' : null));
+          if (!/cancel/i.test(res.error || ''))
+            setStoreStatusBanner(
+              res.error || (nativeStore ? 'Store billing is unavailable.' : null),
+            );
         }
       } catch {
         setStoreStatusBanner(nativeStore ? 'Store billing is unavailable on this device.' : null);
@@ -194,12 +221,8 @@ export const MembershipPlansModal: React.FC<MembershipPlansModalProps> = ({
           {/* Header */}
           <div className="flex items-center justify-between px-5 pt-4 pb-3 shrink-0 border-b border-white/[0.05] bg-o1-card">
             <div>
-              <h2 className="text-sm font-bold text-white tracking-wide">
-                Choose Your Plan
-              </h2>
-              <p className="text-[11px] text-neutral-400 font-mono">
-                O1FC Official Membership
-              </p>
+              <h2 className="text-sm font-bold text-white tracking-wide">Choose Your Plan</h2>
+              <p className="text-[11px] text-neutral-400 font-mono">O1FC Official Membership</p>
             </div>
             <button
               type="button"
@@ -245,7 +268,10 @@ export const MembershipPlansModal: React.FC<MembershipPlansModalProps> = ({
                     Launch special
                   </span>
                   <p className="text-[11px] text-neutral-400 mt-0.5 leading-snug">
-                    <strong className="text-white">{priceOf(IAP_PRODUCTS.founder_pass)} Lifetime Founder Pass</strong> — Training OS Pro + Global Radar forever.
+                    <strong className="text-white">
+                      {priceOf(IAP_PRODUCTS.founder_pass)} Lifetime Founder Pass
+                    </strong>{' '}
+                    — Training OS Pro + Global Radar forever.
                   </p>
                 </div>
               </div>
@@ -298,13 +324,18 @@ export const MembershipPlansModal: React.FC<MembershipPlansModalProps> = ({
               type="button"
               id="btn-subscribe-master"
               onClick={handleMainAction}
-              disabled={isPurchasing || (nativeStore && !isFreePlanSelected && currentSelected.price === '--')}
+              disabled={
+                isPurchasing ||
+                (nativeStore && !isFreePlanSelected && currentSelected.price === '--')
+              }
               className="w-full bg-o1-crimson hover:bg-o1-crimson-hover active:bg-o1-crimson-press text-white font-tactical font-black text-xs py-3.5 px-4 rounded-2xl transition-all active:scale-[0.98] flex items-center justify-center gap-2 shadow-md cursor-pointer disabled:opacity-50"
             >
               {isPurchasing ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin text-white" />
-                  <span>{nativeStore ? 'Connecting to store BILLING...' : 'unlocking pro access...'}</span>
+                  <span>
+                    {nativeStore ? 'Connecting to store BILLING...' : 'unlocking pro access...'}
+                  </span>
                 </>
               ) : isFreePlanSelected ? (
                 <>
@@ -313,7 +344,9 @@ export const MembershipPlansModal: React.FC<MembershipPlansModalProps> = ({
                 </>
               ) : (
                 <>
-                  <span>{nativeStore ? 'Subscribe with app store / google play' : 'subscribe'}</span>
+                  <span>
+                    {nativeStore ? 'Subscribe with app store / google play' : 'subscribe'}
+                  </span>
                   <ArrowRight className="w-4 h-4" />
                 </>
               )}
@@ -333,11 +366,19 @@ export const MembershipPlansModal: React.FC<MembershipPlansModalProps> = ({
                 Restore Purchases
               </button>
               <span>•</span>
-              <button type="button" onClick={() => void openLegalUrl('terms')} className="hover:text-white underline cursor-pointer">
+              <button
+                type="button"
+                onClick={() => void openLegalUrl('terms')}
+                className="hover:text-white underline cursor-pointer"
+              >
                 Terms of Use
               </button>
               <span>•</span>
-              <button type="button" onClick={() => void openLegalUrl('privacy')} className="hover:text-white underline cursor-pointer">
+              <button
+                type="button"
+                onClick={() => void openLegalUrl('privacy')}
+                className="hover:text-white underline cursor-pointer"
+              >
                 Privacy Policy
               </button>
             </div>
@@ -363,4 +404,3 @@ export const MembershipPlansModal: React.FC<MembershipPlansModalProps> = ({
     document.body,
   );
 };
-

@@ -116,7 +116,11 @@ export const RadarModalsContainer: React.FC<Props> = ({
         scheduleOpen={scheduleOpen}
         onUnmatch={onUnmatch}
         onBlock={messageTarget && onBlock ? () => onBlock(messageTarget) : undefined}
-        onReport={messageTarget && onReport ? (reason, details, alsoBlock) => onReport(messageTarget, reason, details, alsoBlock) : undefined}
+        onReport={
+          messageTarget && onReport
+            ? (reason, details, alsoBlock) => onReport(messageTarget, reason, details, alsoBlock)
+            : undefined
+        }
         onLine={onLine}
       />
 
@@ -141,5 +145,3 @@ export const RadarModalsContainer: React.FC<Props> = ({
     </>
   );
 };
-
-

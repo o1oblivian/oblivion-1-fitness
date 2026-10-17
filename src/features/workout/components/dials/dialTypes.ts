@@ -35,7 +35,13 @@ export const polarToCartesian = (cx: number, cy: number, r: number, angleInDegre
   };
 };
 
-export const describeArc = (cx: number, cy: number, r: number, startAngle: number, endAngle: number) => {
+export const describeArc = (
+  cx: number,
+  cy: number,
+  r: number,
+  startAngle: number,
+  endAngle: number,
+) => {
   const start = polarToCartesian(cx, cy, r, startAngle);
   const end = polarToCartesian(cx, cy, r, endAngle);
   const largeArcFlag = endAngle - startAngle > 180 ? 1 : 0;

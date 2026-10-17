@@ -30,7 +30,10 @@ const DEVICE_KEYS = new Set([
 const DEVICE_PREFIXES = ['o1fc_athlete_trial_v2_'];
 
 const isAccountKey = (key: string) =>
-  APP_KEY.test(key) && key !== OWNER_KEY && !DEVICE_KEYS.has(key) && !DEVICE_PREFIXES.some((p) => key.startsWith(p));
+  APP_KEY.test(key) &&
+  key !== OWNER_KEY &&
+  !DEVICE_KEYS.has(key) &&
+  !DEVICE_PREFIXES.some((p) => key.startsWith(p));
 
 function wipe(storage: Storage): void {
   for (const key of Object.keys(storage)) {
@@ -115,7 +118,9 @@ export function releaseDevice(): void {
   }
   // Detach the store customer so the next account on this phone never inherits this one's plan.
   // Loaded on demand (this file must not import billing at start-up) and capped so sign-out never hangs.
-  const storeLogOut = import('./revenueCatService').then((m) => m.revenueCatService.logOut()).catch(() => undefined);
+  const storeLogOut = import('./revenueCatService')
+    .then((m) => m.revenueCatService.logOut())
+    .catch(() => undefined);
   const cap = new Promise<void>((resolve) => setTimeout(resolve, 1500));
   void Promise.race([storeLogOut, cap]).then(() => window.location.reload());
 }

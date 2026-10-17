@@ -3,7 +3,10 @@ import { Bell, ChevronRight, Volume2, Vibrate, ShieldCheck } from 'lucide-react'
 import { CrimsonSwitch } from './CrimsonSwitch';
 import { ScheduledRemindersModal } from './ScheduledRemindersModal';
 import { tactileEngine } from '../../services/tactileEngine';
-import { reminderPermission, type ReminderPermission } from '../../services/athleteReminderScheduler';
+import {
+  reminderPermission,
+  type ReminderPermission,
+} from '../../services/athleteReminderScheduler';
 
 interface AlertsFeedbackSectionProps {
   osPushEnabled: boolean;
@@ -21,7 +24,8 @@ interface AlertsFeedbackSectionProps {
   onShowToast?: (msg: string) => void;
 }
 
-const BLOCKED_COPY = "Notifications are blocked for this app. Turn them on in your phone's settings.";
+const BLOCKED_COPY =
+  "Notifications are blocked for this app. Turn them on in your phone's settings.";
 const UNSUPPORTED_COPY = "This device can't show reminders.";
 
 export const SettingsAlertsFeedbackSection: React.FC<AlertsFeedbackSectionProps> = ({
@@ -88,9 +92,13 @@ export const SettingsAlertsFeedbackSection: React.FC<AlertsFeedbackSectionProps>
             <div className="min-w-0 flex items-start gap-2">
               <span className="w-1.5 h-1.5 rounded-full bg-o1-crimson mt-1.5 shrink-0" />
               <div>
-                <span className="text-xs font-sans font-semibold text-white block">Allow reminders</span>
+                <span className="text-xs font-sans font-semibold text-white block">
+                  Allow reminders
+                </span>
                 <span className="text-[11px] font-sans text-neutral-400 block leading-tight">
-                  {permission === 'denied' ? BLOCKED_COPY : 'Workout and recovery reminders on your lock screen'}
+                  {permission === 'denied'
+                    ? BLOCKED_COPY
+                    : 'Workout and recovery reminders on your lock screen'}
                 </span>
               </div>
             </div>
@@ -148,8 +156,12 @@ export const SettingsAlertsFeedbackSection: React.FC<AlertsFeedbackSectionProps>
         <div className="pt-3 border-t border-white/[0.05] space-y-3">
           <div className="flex items-center justify-between gap-3">
             <div>
-              <span className="text-xs font-sans font-medium text-neutral-200 block">Pre-Workout Reminder</span>
-              <span className="text-[11px] text-neutral-400 block">30 minutes before your training time</span>
+              <span className="text-xs font-sans font-medium text-neutral-200 block">
+                Pre-Workout Reminder
+              </span>
+              <span className="text-[11px] text-neutral-400 block">
+                30 minutes before your training time
+              </span>
             </div>
             <CrimsonSwitch
               label="Pre-workout reminder"
@@ -163,8 +175,12 @@ export const SettingsAlertsFeedbackSection: React.FC<AlertsFeedbackSectionProps>
 
           <div className="flex items-center justify-between gap-3 pt-1">
             <div>
-              <span className="text-xs font-sans font-medium text-neutral-200 block">Coach Routine Updates</span>
-              <span className="text-[11px] text-neutral-400 block">Show a note in the app when your coach sends a routine</span>
+              <span className="text-xs font-sans font-medium text-neutral-200 block">
+                Coach Routine Updates
+              </span>
+              <span className="text-[11px] text-neutral-400 block">
+                Show a note in the app when your coach sends a routine
+              </span>
             </div>
             <CrimsonSwitch
               label="Coach routine updates"
@@ -182,8 +198,12 @@ export const SettingsAlertsFeedbackSection: React.FC<AlertsFeedbackSectionProps>
             <div className="flex items-center gap-2">
               <Vibrate className="w-4 h-4 text-neutral-400" />
               <div>
-                <span className="text-xs font-sans font-medium text-neutral-200 block">Tactile Haptic Vibration</span>
-                <span className="text-[11px] text-neutral-400 block">Physical buzz on weight dials, timers &amp; PRs</span>
+                <span className="text-xs font-sans font-medium text-neutral-200 block">
+                  Tactile Haptic Vibration
+                </span>
+                <span className="text-[11px] text-neutral-400 block">
+                  Physical buzz on weight dials, timers &amp; PRs
+                </span>
               </div>
             </div>
             <CrimsonSwitch
@@ -200,8 +220,12 @@ export const SettingsAlertsFeedbackSection: React.FC<AlertsFeedbackSectionProps>
             <div className="flex items-center gap-2">
               <Volume2 className="w-4 h-4 text-neutral-400" />
               <div>
-                <span className="text-xs font-sans font-medium text-neutral-200 block">Audio Effects &amp; Chimes</span>
-                <span className="text-[11px] text-neutral-400 block">Dial ticks, rest countdown &amp; PR celebrations</span>
+                <span className="text-xs font-sans font-medium text-neutral-200 block">
+                  Audio Effects &amp; Chimes
+                </span>
+                <span className="text-[11px] text-neutral-400 block">
+                  Dial ticks, rest countdown &amp; PR celebrations
+                </span>
               </div>
             </div>
             <CrimsonSwitch
@@ -219,7 +243,9 @@ export const SettingsAlertsFeedbackSection: React.FC<AlertsFeedbackSectionProps>
           <div className="flex items-center gap-2">
             <ShieldCheck className="w-4 h-4 text-neutral-400" />
             <div>
-              <span className="text-xs font-sans font-medium text-neutral-200 block">On-device crash log</span>
+              <span className="text-xs font-sans font-medium text-neutral-200 block">
+                On-device crash log
+              </span>
               <span className="text-[11px] text-neutral-400 block">
                 Store the last render crash on this device. Nothing is sent remotely.
               </span>

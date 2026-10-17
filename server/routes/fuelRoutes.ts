@@ -27,9 +27,12 @@ export function registerFuelRoutes(app: Express): void {
 
       // Query OpenFoodFacts API for genuine global food products
       try {
-        const offRes = await fetch(`https://world.openfoodfacts.org/api/v0/product/${cleanCode}.json`, {
-          headers: { 'User-Agent': 'Oblivion1Fitness-FuelOS/1.0' },
-        });
+        const offRes = await fetch(
+          `https://world.openfoodfacts.org/api/v0/product/${cleanCode}.json`,
+          {
+            headers: { 'User-Agent': 'Oblivion1Fitness-FuelOS/1.0' },
+          },
+        );
 
         if (offRes.ok) {
           const offData = await offRes.json();
@@ -39,14 +42,20 @@ export function registerFuelRoutes(app: Express): void {
 
             // Use one basis for every number: per serving when the registry has it, otherwise per 100 g.
             // Mixing the two would label 100 g figures as a serving.
-            const perServing = Number(nutriments['energy-kcal_serving']) > 0 && Boolean(prod.serving_size);
+            const perServing =
+              Number(nutriments['energy-kcal_serving']) > 0 && Boolean(prod.serving_size);
             const suffix = perServing ? '_serving' : '_100g';
             const kcal = Number(nutriments[`energy-kcal${suffix}`]);
             if (!Number.isFinite(kcal) || kcal <= 0) {
               // The registry knows the product but not its nutrition. Do not invent calories.
-              return res.json({ success: true, found: false, message: 'This product has no nutrition data. Enter it by hand.' });
+              return res.json({
+                success: true,
+                found: false,
+                message: 'This product has no nutrition data. Enter it by hand.',
+              });
             }
-            const per = (key: string) => Math.round(Number(nutriments[`${key}${suffix}`] || 0) * 10) / 10;
+            const per = (key: string) =>
+              Math.round(Number(nutriments[`${key}${suffix}`] || 0) * 10) / 10;
             const item = {
               name: prod.product_name || prod.product_name_en || `Scanned Item (${cleanCode})`,
               brand: prod.brands || '',
@@ -97,15 +106,27 @@ export function registerFuelRoutes(app: Express): void {
 
       const items: any[] = [];
       const domainMap: Record<string, string> = {
-        AU: 'au', US: 'us', GB: 'uk', DE: 'de', FR: 'fr',
-        IT: 'it', ES: 'es', NL: 'nl', CA: 'ca', JP: 'jp',
-        IN: 'in', BR: 'br', MX: 'mx', ZA: 'za', NZ: 'nz',
+        AU: 'au',
+        US: 'us',
+        GB: 'uk',
+        DE: 'de',
+        FR: 'fr',
+        IT: 'it',
+        ES: 'es',
+        NL: 'nl',
+        CA: 'ca',
+        JP: 'jp',
+        IN: 'in',
+        BR: 'br',
+        MX: 'mx',
+        ZA: 'za',
+        NZ: 'nz',
       };
       const offDomain = domainMap[country] || 'world';
 
       try {
         const offUrl = `https://${offDomain}.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(
-          q
+          q,
         )}&search_simple=1&action=process&json=1&page_size=${Math.min(limit * 2, 40)}`;
 
         const offRes = await fetch(offUrl, {
@@ -130,9 +151,16 @@ export function registerFuelRoutes(app: Express): void {
                 (p.nutriments?.['energy-kj_100g'] ? p.nutriments['energy-kj_100g'] / 4.184 : 0);
 
               const calories = Math.round(Number(rawKcal) || 0);
-              const protein = Math.round((Number(p.nutriments?.proteins_100g ?? p.nutriments?.proteins ?? 0)) * 10) / 10;
-              const carbs = Math.round((Number(p.nutriments?.carbohydrates_100g ?? p.nutriments?.carbohydrates ?? 0)) * 10) / 10;
-              const fats = Math.round((Number(p.nutriments?.fat_100g ?? p.nutriments?.fat ?? 0)) * 10) / 10;
+              const protein =
+                Math.round(
+                  Number(p.nutriments?.proteins_100g ?? p.nutriments?.proteins ?? 0) * 10,
+                ) / 10;
+              const carbs =
+                Math.round(
+                  Number(p.nutriments?.carbohydrates_100g ?? p.nutriments?.carbohydrates ?? 0) * 10,
+                ) / 10;
+              const fats =
+                Math.round(Number(p.nutriments?.fat_100g ?? p.nutriments?.fat ?? 0) * 10) / 10;
 
               if (calories <= 0 && protein <= 0 && carbs <= 0 && fats <= 0) continue;
 
@@ -179,13 +207,19 @@ export function registerFuelRoutes(app: Express): void {
               if (!name) continue;
               const nutrients = Array.isArray(food.foodNutrients) ? food.foodNutrients : [];
               const pick = (names: string[]) => {
-                const row = nutrients.find((n: any) => names.includes(String(n.nutrientName || n.nutrient?.name || '')));
+                const row = nutrients.find((n: any) =>
+                  names.includes(String(n.nutrientName || n.nutrient?.name || '')),
+                );
                 return Number(row?.value ?? row?.amount ?? 0) || 0;
               };
-              const calories = Math.round(pick(['Energy', 'Energy (Atwater General Factors)', 'Calories']));
+              const calories = Math.round(
+                pick(['Energy', 'Energy (Atwater General Factors)', 'Calories']),
+              );
               const protein = Math.round(pick(['Protein']) * 10) / 10;
-              const carbs = Math.round(pick(['Carbohydrate, by difference', 'Carbohydrate']) * 10) / 10;
-              const fats = Math.round(pick(['Total lipid (fat)', 'Total fat (NLEA)', 'Fat']) * 10) / 10;
+              const carbs =
+                Math.round(pick(['Carbohydrate, by difference', 'Carbohydrate']) * 10) / 10;
+              const fats =
+                Math.round(pick(['Total lipid (fat)', 'Total fat (NLEA)', 'Fat']) * 10) / 10;
               if (calories <= 0 && protein <= 0 && carbs <= 0 && fats <= 0) continue;
               if (seen.has(name.toLowerCase())) continue;
               seen.add(name.toLowerCase());
@@ -227,7 +261,9 @@ export function registerFuelRoutes(app: Express): void {
   // 4. SUPPLEMENT STACK DESIGN & ONLINE SEARCH
   app.get('/api/fuel/supplement-search', async (req, res) => {
     try {
-      const query = String(req.query.q || '').trim().toLowerCase();
+      const query = String(req.query.q || '')
+        .trim()
+        .toLowerCase();
 
       // Filter existing knowledge base
       let results = SUPPLEMENT_KNOWLEDGE_BASE;
@@ -237,7 +273,7 @@ export function registerFuelRoutes(app: Express): void {
             s.name.toLowerCase().includes(query) ||
             s.category.toLowerCase().includes(query) ||
             s.primaryBenefits.toLowerCase().includes(query) ||
-            s.mechanismOfAction.toLowerCase().includes(query)
+            s.mechanismOfAction.toLowerCase().includes(query),
         );
       }
 
@@ -259,11 +295,17 @@ Respond ONLY with a valid JSON object matching this schema:
   "synergyStack": "Complementary compounds it stacks well with"
 }`;
 
-            const response = await generateContentWithFallback(genAI, [{ role: 'user', parts: [{ text: prompt }] }]);
+            const response = await generateContentWithFallback(genAI, [
+              { role: 'user', parts: [{ text: prompt }] },
+            ]);
 
             const text = response.text || '';
             const parsed = parseGeminiJson(text);
-            return res.json({ success: true, supplements: [parsed], provider: 'gemini-clinical-search' });
+            return res.json({
+              success: true,
+              supplements: [parsed],
+              provider: 'gemini-clinical-search',
+            });
           } catch (aiErr) {
             console.warn('Gemini supplement lookup fallback:', aiErr);
           }

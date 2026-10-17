@@ -16,4 +16,3 @@ export const FOOD_CATALOG: FoodCatalogItem[] = [
   ...GRILLD_FOODS,
   ...DRINKS_FOODS,
 ];
-

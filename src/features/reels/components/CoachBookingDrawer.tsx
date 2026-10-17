@@ -22,7 +22,12 @@ import { ShareLinkSheet, ShareLinkTarget } from './ShareLinkSheet';
 import { fetchMyPrograms } from '../../coach/services/myPrograms';
 import { CoachProgramsTab } from './profile/CoachProgramsTab';
 import { CoachConsultTab } from './profile/CoachConsultTab';
-import { CoachProfileHeader, ProfileActionButton, compactCount, ratingLabel } from '../../coach/components/profile/CoachProfileHeader';
+import {
+  CoachProfileHeader,
+  ProfileActionButton,
+  compactCount,
+  ratingLabel,
+} from '../../coach/components/profile/CoachProfileHeader';
 import { StorefrontEditor } from '../../coach/components/profile/StorefrontEditor';
 import type { CoachConsoleAction } from '../../coach/services/coachConsoleBus';
 import { stripeConnectService } from '../../../services/stripeConnectService';
@@ -42,7 +47,14 @@ export interface CoachBookingDrawerProps {
 
 export type ProfileTab = 'reels' | 'programs' | 'coaching';
 
-export const CoachBookingDrawer: React.FC<CoachBookingDrawerProps> = ({ coach, initialTab, onClose, onSelectReel, onMessageCoach, onOpenConsole }) => {
+export const CoachBookingDrawer: React.FC<CoachBookingDrawerProps> = ({
+  coach,
+  initialTab,
+  onClose,
+  onSelectReel,
+  onMessageCoach,
+  onOpenConsole,
+}) => {
   const reels = useReelsStore((s) => s.reels);
   const user = useAuthStore((s) => s.user);
   const profile = useAuthStore((s) => s.profile);
@@ -59,7 +71,10 @@ export const CoachBookingDrawer: React.FC<CoachBookingDrawerProps> = ({ coach, i
 
   const coachId = coach?.id || '';
   const isOwn = Boolean(user?.id && user.id === coachId);
-  const coachReels = useMemo(() => reels.filter((reel) => reel.coach?.id === coachId), [reels, coachId]);
+  const coachReels = useMemo(
+    () => reels.filter((reel) => reel.coach?.id === coachId),
+    [reels, coachId],
+  );
 
   useEffect(() => {
     if (!coachId) return;
@@ -71,21 +86,36 @@ export const CoachBookingDrawer: React.FC<CoachBookingDrawerProps> = ({ coach, i
     setApplyProgram(null);
     setEditing(false);
     setLinkSheet(null);
-    void fetchStorefrontStats(coachId).then((next) => live && setStats(next)).catch(() => undefined);
-    void fetchStorefrontPrograms(coachId).then((next) => live && setPrograms(next)).catch(() => live && setPrograms([]));
-    void fetchMyApplication(coachId).then((next) => live && setApplication(next)).catch(() => undefined);
+    void fetchStorefrontStats(coachId)
+      .then((next) => live && setStats(next))
+      .catch(() => undefined);
+    void fetchStorefrontPrograms(coachId)
+      .then((next) => live && setPrograms(next))
+      .catch(() => live && setPrograms([]));
+    void fetchMyApplication(coachId)
+      .then((next) => live && setApplication(next))
+      .catch(() => undefined);
     setEnrolledIds(new Set());
     void fetchMyPrograms()
-      .then((mine) => live && setEnrolledIds(new Set((mine ?? []).filter((p) => p.status === 'active').map((p) => p.id))))
+      .then(
+        (mine) =>
+          live &&
+          setEnrolledIds(
+            new Set((mine ?? []).filter((p) => p.status === 'active').map((p) => p.id)),
+          ),
+      )
       .catch(() => undefined);
     return () => {
       live = false;
     };
   }, [coachId, initialTab]);
 
-  useEffect(() => () => {
-    if (toastTimer.current) clearTimeout(toastTimer.current);
-  }, []);
+  useEffect(
+    () => () => {
+      if (toastTimer.current) clearTimeout(toastTimer.current);
+    },
+    [],
+  );
 
   if (!coach) return null;
 
@@ -98,22 +128,40 @@ export const CoachBookingDrawer: React.FC<CoachBookingDrawerProps> = ({ coach, i
   const athleteName = () => {
     const meta = (user?.user_metadata ?? {}) as Record<string, unknown>;
     const email = profile?.email || user?.email || '';
-    return profile?.name || (typeof meta.full_name === 'string' ? meta.full_name : '') || (email.includes('@') ? email.split('@')[0] : '');
+    return (
+      profile?.name ||
+      (typeof meta.full_name === 'string' ? meta.full_name : '') ||
+      (email.includes('@') ? email.split('@')[0] : '')
+    );
   };
 
   const toggleFollow = async () => {
     tactileEngine.triggerSelectionBuzz();
     const next = !stats.following;
-    setStats((prev) => ({ ...prev, following: next, followers: prev.followers == null ? prev.followers : Math.max(0, prev.followers + (next ? 1 : -1)) }));
+    setStats((prev) => ({
+      ...prev,
+      following: next,
+      followers:
+        prev.followers == null ? prev.followers : Math.max(0, prev.followers + (next ? 1 : -1)),
+    }));
     const ok = await setFollowing(coach.id, next);
     if (!ok) {
-      setStats((prev) => ({ ...prev, following: !next, followers: prev.followers == null ? prev.followers : Math.max(0, prev.followers + (next ? -1 : 1)) }));
+      setStats((prev) => ({
+        ...prev,
+        following: !next,
+        followers:
+          prev.followers == null ? prev.followers : Math.max(0, prev.followers + (next ? -1 : 1)),
+      }));
       flash('Sign in to follow coaches');
     }
   };
 
   const checkout = async (input: { kind: 'program' | 'coaching'; programId?: string }) => {
-    const res = await stripeConnectService.createCheckout({ ...input, coachId: coach.id, athleteName: athleteName() });
+    const res = await stripeConnectService.createCheckout({
+      ...input,
+      coachId: coach.id,
+      athleteName: athleteName(),
+    });
     if (res.url) {
       window.location.assign(res.url);
       return;
@@ -138,13 +186,26 @@ export const CoachBookingDrawer: React.FC<CoachBookingDrawerProps> = ({ coach, i
   ];
 
   return (
-    <div id="coach-athletic-dossier-modal" className="fixed inset-0 z-50 flex flex-col bg-o1-canvas text-o1-text select-none animate-in fade-in duration-200">
+    <div
+      id="coach-athletic-dossier-modal"
+      className="fixed inset-0 z-50 flex flex-col bg-o1-canvas text-o1-text select-none animate-in fade-in duration-200"
+    >
       <div className="flex h-14 shrink-0 items-center justify-between px-1 pt-safe">
-        <button type="button" onClick={onClose} className="flex h-11 w-11 items-center justify-center" aria-label="Close profile">
+        <button
+          type="button"
+          onClick={onClose}
+          className="flex h-11 w-11 items-center justify-center"
+          aria-label="Close profile"
+        >
           <X size={20} />
         </button>
         <span className="truncate text-[14px] font-semibold">{coach.handle}</span>
-        <button type="button" onClick={() => void share()} className="flex h-11 w-11 items-center justify-center" aria-label="Share profile">
+        <button
+          type="button"
+          onClick={() => void share()}
+          className="flex h-11 w-11 items-center justify-center"
+          aria-label="Share profile"
+        >
           <Share2 size={18} />
         </button>
       </div>
@@ -165,24 +226,46 @@ export const CoachBookingDrawer: React.FC<CoachBookingDrawerProps> = ({ coach, i
             bio={coach.bio}
             verified={coach.verified}
             hasStory={coachReels.length > 0}
-            onAvatarPress={coachReels.length > 0 ? () => onSelectReel?.(coachReels[0], coachReels) : undefined}
+            onAvatarPress={
+              coachReels.length > 0 ? () => onSelectReel?.(coachReels[0], coachReels) : undefined
+            }
             onEdit={isOwn && !editing ? () => setEditing(true) : undefined}
             stats={[
               { label: 'Followers', value: compactCount(stats.followers) },
               isOwn
-                ? { label: 'Clients', value: stats.athletes != null ? String(stats.athletes) : '--' }
-                : { label: 'Years coaching', value: stats.years != null ? String(stats.years) : '--' },
-              { label: stats.reviewCount > 0 ? `${stats.reviewCount} reviews` : 'Rating', value: ratingLabel(stats.rating) },
+                ? {
+                    label: 'Clients',
+                    value: stats.athletes != null ? String(stats.athletes) : '--',
+                  }
+                : {
+                    label: 'Years coaching',
+                    value: stats.years != null ? String(stats.years) : '--',
+                  },
+              {
+                label: stats.reviewCount > 0 ? `${stats.reviewCount} reviews` : 'Rating',
+                value: ratingLabel(stats.rating),
+              },
             ]}
             actions={
               isOwn ? (
                 <>
-                  <ProfileActionButton label="Program" onPress={() => onOpenConsole?.('programs')} />
-                  <ProfileActionButton label="Daily Dispatch" primary onPress={() => onOpenConsole?.('dispatch')} />
+                  <ProfileActionButton
+                    label="Program"
+                    onPress={() => onOpenConsole?.('programs')}
+                  />
+                  <ProfileActionButton
+                    label="Daily Dispatch"
+                    primary
+                    onPress={() => onOpenConsole?.('dispatch')}
+                  />
                 </>
               ) : (
                 <>
-                  <ProfileActionButton label={stats.following ? 'Following' : 'Follow'} primary={!stats.following} onPress={() => void toggleFollow()} />
+                  <ProfileActionButton
+                    label={stats.following ? 'Following' : 'Follow'}
+                    primary={!stats.following}
+                    onPress={() => void toggleFollow()}
+                  />
                   <ProfileActionButton label="Message" onPress={() => onMessageCoach?.(coach)} />
                 </>
               )
@@ -224,8 +307,8 @@ export const CoachBookingDrawer: React.FC<CoachBookingDrawerProps> = ({ coach, i
         </div>
 
         <div className="mx-auto w-full max-w-xl">
-          {tab === 'reels' && (
-            coachReels.length === 0 ? (
+          {tab === 'reels' &&
+            (coachReels.length === 0 ? (
               <p className="py-10 text-center text-[13px] text-o1-muted">No reels yet.</p>
             ) : (
               <div className="grid grid-cols-3 gap-0.5 pt-0.5">
@@ -252,12 +335,14 @@ export const CoachBookingDrawer: React.FC<CoachBookingDrawerProps> = ({ coach, i
                       }}
                     />
                     <span className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
-                    <Play size={14} className="pointer-events-none absolute bottom-1.5 left-1.5 fill-white text-white drop-shadow" />
+                    <Play
+                      size={14}
+                      className="pointer-events-none absolute bottom-1.5 left-1.5 fill-white text-white drop-shadow"
+                    />
                   </button>
                 ))}
               </div>
-            )
-          )}
+            ))}
 
           {tab === 'programs' && (
             <div className="px-4">
@@ -267,13 +352,22 @@ export const CoachBookingDrawer: React.FC<CoachBookingDrawerProps> = ({ coach, i
                 isOwn={isOwn}
                 onCreate={isOwn ? () => onOpenConsole?.('programs') : undefined}
                 onEnroll={(program) => {
-                  const owner = { id: coach.id, name: coach.name, handle: coach.handle, avatar: coach.avatar };
+                  const owner = {
+                    id: coach.id,
+                    name: coach.name,
+                    handle: coach.handle,
+                    avatar: coach.avatar,
+                  };
                   void enrollInProgram(owner, program).then((result) => {
                     if (result === 'enrolled') {
                       setEnrolledIds((prev) => new Set(prev).add(program.id));
                       flash('Added to My programs on your Coach tab');
                     } else {
-                      flash(result === 'signed-out' ? 'Sign in to enroll' : 'Could not enroll. Try again.');
+                      flash(
+                        result === 'signed-out'
+                          ? 'Sign in to enroll'
+                          : 'Could not enroll. Try again.',
+                      );
                     }
                   });
                 }}
@@ -282,7 +376,11 @@ export const CoachBookingDrawer: React.FC<CoachBookingDrawerProps> = ({ coach, i
                   setTab('coaching');
                 }}
                 showPrices={!NATIVE_APP}
-                onBuy={isOwn || NATIVE_APP ? undefined : (program) => checkout({ kind: 'program', programId: program.id })}
+                onBuy={
+                  isOwn || NATIVE_APP
+                    ? undefined
+                    : (program) => checkout({ kind: 'program', programId: program.id })
+                }
               />
             </div>
           )}

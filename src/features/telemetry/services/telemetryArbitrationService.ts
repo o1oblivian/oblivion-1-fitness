@@ -71,7 +71,7 @@ class TelemetryArbitrationService {
     const sessionSteps = params.steps && params.steps > 0 ? Math.round(params.steps) : 0;
 
     const endTime = params.endTime || Date.now();
-    const startTime = endTime - (durationMinutes * 60 * 1000);
+    const startTime = endTime - durationMinutes * 60 * 1000;
 
     const session: CardioSessionWindow = {
       id: `cs-${Date.now()}`,
@@ -98,7 +98,7 @@ class TelemetryArbitrationService {
    */
   public isPhoneSensorMuted(timestamp: number = Date.now()): boolean {
     return this.sessionWindows.some(
-      (win) => timestamp >= win.startTime && timestamp <= win.endTime
+      (win) => timestamp >= win.startTime && timestamp <= win.endTime,
     );
   }
 

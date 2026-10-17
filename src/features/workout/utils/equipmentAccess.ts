@@ -4,11 +4,17 @@ import type { AgeBand, Facility, Injury, TrainingAge } from '../../induction/con
 export type Kit = 'none' | 'bar' | 'free_weights' | 'barbell' | 'gear' | 'erg' | 'sled' | 'machine';
 
 const KIT_PATTERNS: [Exclude<Kit, 'none'>, RegExp][] = [
-  ['machine', /machine|cable|smith|leg press|pulldown|pec deck|treadmill|stairmaster|stair climber|wattbike|hack squat|leg extension|leg curl|elliptical/],
+  [
+    'machine',
+    /machine|cable|smith|leg press|pulldown|pec deck|treadmill|stairmaster|stair climber|wattbike|hack squat|leg extension|leg curl|elliptical/,
+  ],
   ['erg', /\berg\b|skierg|ski erg|rower|rowing|concept2|assault|echo bike|air bike|bikeerg/],
   ['sled', /sled|prowler|harness/],
   ['barbell', /barbell|trap bar|hex bar|ez[- ]bar|landmine|t-bar|\brig\b/],
-  ['gear', /battle rope|heavy bag|medicine ball|med ball|wall ball|plyo box|box jump|box step|hurdle|wicket|\bcones?\b|ghd|sandbag|\brings?\b|rope climb/],
+  [
+    'gear',
+    /battle rope|heavy bag|medicine ball|med ball|wall ball|plyo box|box jump|box step|hurdle|wicket|\bcones?\b|ghd|sandbag|\brings?\b|rope climb/,
+  ],
   ['free_weights', /dumbbell|kettlebell|weighted|\bplate\b|\bbelt\b/],
   ['bar', /pull-?up|chin-?up|hanging|toes[- ]to[- ]bar|muscle-?up|\bdips?\b|inverted row/],
 ];
@@ -40,14 +46,20 @@ export function availableKit(facilities: readonly Facility[]): Set<Kit> | null {
   return kit;
 }
 
-export function canPerform(name: string, equipment: string | undefined, kit: Set<Kit> | null): boolean {
+export function canPerform(
+  name: string,
+  equipment: string | undefined,
+  kit: Set<Kit> | null,
+): boolean {
   if (!kit) return true;
   return kitNeeds(name, equipment).every((need) => kit.has(need));
 }
 
 /** Bodyweight, bar and erg work is logged by reps, distance or time, not by load. */
 export function isUnloaded(name: string, equipment = ''): boolean {
-  return kitNeeds(name, equipment).every((need) => need === 'none' || need === 'bar' || need === 'erg');
+  return kitNeeds(name, equipment).every(
+    (need) => need === 'none' || need === 'bar' || need === 'erg',
+  );
 }
 
 export interface TrainingAgeDose {
@@ -78,18 +90,26 @@ export function trainingAgeDose(trainingAge: TrainingAge | ''): TrainingAgeDose 
 export function athleteDose(trainingAge: TrainingAge | '', ageBand: AgeBand | ''): TrainingAgeDose {
   const dose = trainingAgeDose(trainingAge);
   if (ageBand !== 'under18' && ageBand !== '60+') return dose;
-  return { setDelta: Math.min(dose.setDelta, 0), loadFactor: dose.loadFactor * 0.9, rpeCap: Math.min(dose.rpeCap, 8) };
+  return {
+    setDelta: Math.min(dose.setDelta, 0),
+    loadFactor: dose.loadFactor * 0.9,
+    rpeCap: Math.min(dose.rpeCap, 8),
+  };
 }
 
 /** Moves that load each protected area hard. Matching is by name, so it errs on the side of skipping. */
 const STRAIN: Record<Exclude<Injury, 'none'>, RegExp> = {
-  knees: /jump|bound|burpee|sprint|pistol|depth|hurdle|lunge|split squat|skater|wall ball|thruster|shuttle|agility|foot speed|quickness|\bhops?\b|ladder/,
-  lower_back: /deadlift|good morning|bent-over|bent over|pendlay|kettlebell swing|\bswing|clean|snatch|sled|ghd|back extension|jefferson/,
-  shoulders: /overhead|military|push press|jerk|snatch|\bdips?\b|upright row|handstand|muscle-?up|behind the neck|wall ball|thruster/,
+  knees:
+    /jump|bound|burpee|sprint|pistol|depth|hurdle|lunge|split squat|skater|wall ball|thruster|shuttle|agility|foot speed|quickness|\bhops?\b|ladder/,
+  lower_back:
+    /deadlift|good morning|bent-over|bent over|pendlay|kettlebell swing|\bswing|clean|snatch|sled|ghd|back extension|jefferson/,
+  shoulders:
+    /overhead|military|push press|jerk|snatch|\bdips?\b|upright row|handstand|muscle-?up|behind the neck|wall ball|thruster/,
   wrists: /push-?up|plank|front squat|clean|handstand|burpee|bear crawl|mountain climber/,
 };
 
-const HIGH_IMPACT = /jump|bound|depth|plyo|hurdle|burpee|sprint|skater|tuck|muscle-?up|snatch|jerk|shuttle|agility|foot speed|quickness|\bhops?\b/;
+const HIGH_IMPACT =
+  /jump|bound|depth|plyo|hurdle|burpee|sprint|skater|tuck|muscle-?up|snatch|jerk|shuttle|agility|foot speed|quickness|\bhops?\b/;
 
 export interface SafetyProfile {
   injuries: readonly Injury[];

@@ -79,9 +79,11 @@ export const ModalRegistry: React.FC = () => {
             cb({
               type: data.deviceType === 'watch' ? 'Smartwatch Pedometer' : 'Console Telemetry',
               calories: data.caloriesBurned || 0,
-              durationMins: data.elapsedMinutes != null ? Math.max(1, Math.round(data.elapsedMinutes)) : 0,
+              durationMins:
+                data.elapsedMinutes != null ? Math.max(1, Math.round(data.elapsedMinutes)) : 0,
               avgHr: data.avgHeartRateBpm || 0,
-              steps: data.steps || (data.distanceKm != null ? Math.round(data.distanceKm * 1312) : 0),
+              steps:
+                data.steps || (data.distanceKm != null ? Math.round(data.distanceKm * 1312) : 0),
             });
           }
           closeModal();

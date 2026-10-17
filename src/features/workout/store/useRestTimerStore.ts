@@ -32,7 +32,9 @@ function persist(timer: RestTimer | null) {
 export const useRestTimerStore = create<RestTimerState>((set, get) => ({
   timer: load(),
   start: (seconds, exerciseName) => {
-    const durationSec = Math.round(Math.min(MAX_REST_SECONDS, Math.max(MIN_REST_SECONDS, seconds || 90)));
+    const durationSec = Math.round(
+      Math.min(MAX_REST_SECONDS, Math.max(MIN_REST_SECONDS, seconds || 90)),
+    );
     const timer = { endsAt: Date.now() + durationSec * 1000, durationSec, exerciseName };
     persist(timer);
     set({ timer });

@@ -19,29 +19,50 @@ export const SettingsBuddyDatingSection: React.FC = () => {
         <div className="flex items-center justify-between gap-3">
           <div className="min-w-0">
             <div className="flex items-center gap-2">
-              {buddy.isBuddyProfileActive ? <Radio className="w-4 h-4 text-[#6B8F5E] shrink-0" /> : <EyeOff className="w-4 h-4 text-neutral-400 shrink-0" />}
-              <span className="text-xs font-tactical font-semibold text-neutral-100 block truncate">Enable Buddy Dating &amp; Radar</span>
+              {buddy.isBuddyProfileActive ? (
+                <Radio className="w-4 h-4 text-[#6B8F5E] shrink-0" />
+              ) : (
+                <EyeOff className="w-4 h-4 text-neutral-400 shrink-0" />
+              )}
+              <span className="text-xs font-tactical font-semibold text-neutral-100 block truncate">
+                Enable Buddy Dating &amp; Radar
+              </span>
             </div>
             <span className="text-[11px] font-sans text-neutral-400 block pt-0.5 leading-tight">
-              {buddy.isBuddyProfileActive ? 'Discover nearby training partners and spotters' : 'Turned off — Pure fitness mode'}
+              {buddy.isBuddyProfileActive
+                ? 'Discover nearby training partners and spotters'
+                : 'Turned off — Pure fitness mode'}
             </span>
           </div>
-          <CrimsonSwitch checked={buddy.isBuddyProfileActive} onChange={(val) => buddy.toggleBuddyProfile(val)} label="Buddy Radar" />
+          <CrimsonSwitch
+            checked={buddy.isBuddyProfileActive}
+            onChange={(val) => buddy.toggleBuddyProfile(val)}
+            label="Buddy Radar"
+          />
         </div>
 
         {/* 2. STEALTH MODE */}
         <div className="pt-2 border-t border-white/[0.05] flex items-center justify-between gap-3 min-h-[44px]">
           <div className="min-w-0">
             <div className="flex items-center gap-2">
-              <Shield className={`w-4 h-4 shrink-0 ${buddy.ghostMode ? 'text-amber-500' : 'text-neutral-500'}`} />
-              <span className="text-xs font-tactical font-semibold text-neutral-100 block truncate">Stealth / Ghost Mode</span>
+              <Shield
+                className={`w-4 h-4 shrink-0 ${buddy.ghostMode ? 'text-amber-500' : 'text-neutral-500'}`}
+              />
+              <span className="text-xs font-tactical font-semibold text-neutral-100 block truncate">
+                Stealth / Ghost Mode
+              </span>
             </div>
-            <span className="text-[11px] font-sans text-neutral-400 block pt-0.5 leading-tight">Browse radar without revealing your profile</span>
+            <span className="text-[11px] font-sans text-neutral-400 block pt-0.5 leading-tight">
+              Browse radar without revealing your profile
+            </span>
           </div>
-          <CrimsonSwitch checked={buddy.ghostMode} onChange={(val) => buddy.toggleGhostMode(val)} label="Ghost mode" />
+          <CrimsonSwitch
+            checked={buddy.ghostMode}
+            onChange={(val) => buddy.toggleGhostMode(val)}
+            label="Ghost mode"
+          />
         </div>
       </div>
     </div>
   );
 };
-

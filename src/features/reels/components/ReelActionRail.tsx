@@ -23,10 +23,12 @@ function compact(value: number): string {
   return String(value);
 }
 
-const BUTTON = 'flex min-h-[44px] min-w-[44px] flex-col items-center justify-center gap-0.5 group cursor-pointer active:scale-90 transition-transform';
+const BUTTON =
+  'flex min-h-[44px] min-w-[44px] flex-col items-center justify-center gap-0.5 group cursor-pointer active:scale-90 transition-transform';
 const ICON = 'w-6 h-6 drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)] transition-all stroke-[1.4]';
 const IDLE = 'text-white/85 group-hover:text-white group-hover:scale-105';
-const LABEL = 'text-[10px] font-sans font-medium text-white/85 drop-shadow-[0_1px_2px_rgba(0,0,0,0.85)]';
+const LABEL =
+  'text-[10px] font-sans font-medium text-white/85 drop-shadow-[0_1px_2px_rgba(0,0,0,0.85)]';
 
 export const ReelActionRail: React.FC<ReelActionRailProps> = ({
   activeReel,
@@ -80,7 +82,9 @@ export const ReelActionRail: React.FC<ReelActionRailProps> = ({
         aria-label={saved ? 'Remove from vault' : 'Save to vault'}
         aria-pressed={saved}
       >
-        <Bookmark className={`${ICON} ${saved ? 'fill-[#f59e0b] text-[#f59e0b] scale-105' : IDLE}`} />
+        <Bookmark
+          className={`${ICON} ${saved ? 'fill-[#f59e0b] text-[#f59e0b] scale-105' : IDLE}`}
+        />
         <span className={LABEL}>{saved ? 'Saved' : 'Save'}</span>
       </button>
 

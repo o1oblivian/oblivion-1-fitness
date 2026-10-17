@@ -10,10 +10,7 @@ interface SendFeedbackModalProps {
 
 const CATEGORIES = ['Workout Logging', 'Fuel OS', 'Radar & Spotters', 'App Speed', 'Other'];
 
-export const SendFeedbackModal: React.FC<SendFeedbackModalProps> = ({
-  isOpen,
-  onClose,
-}) => {
+export const SendFeedbackModal: React.FC<SendFeedbackModalProps> = ({ isOpen, onClose }) => {
   const [rating, setRating] = useState(5);
   const [category, setCategory] = useState('Workout Logging');
   const [feedback, setFeedback] = useState('');
@@ -44,47 +41,72 @@ export const SendFeedbackModal: React.FC<SendFeedbackModalProps> = ({
               <MessageSquare className="w-4 h-4 text-emerald-500" />
             </div>
             <div>
-              <h2 id="send-feedback-title" className="text-sm font-bold tracking-wider font-tactical">Athlete Feedback Desk</h2>
-              <p className="text-[10px] font-mono text-neutral-500">Shape the Next Oblivion 1 Release</p>
+              <h2
+                id="send-feedback-title"
+                className="text-sm font-bold tracking-wider font-tactical"
+              >
+                Athlete Feedback Desk
+              </h2>
+              <p className="text-[10px] font-mono text-neutral-500">
+                Shape the Next Oblivion 1 Release
+              </p>
             </div>
           </div>
           <button
             type="button"
             aria-label="Close"
-            onClick={() => { tactileEngine.triggerSelectionBuzz(); onClose(); }}
+            onClick={() => {
+              tactileEngine.triggerSelectionBuzz();
+              onClose();
+            }}
             className="w-11 h-11 -mr-2 flex items-center justify-center text-neutral-400 hover:text-white rounded-full cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="py-4 space-y-3 flex-1 overflow-y-auto no-scrollbar">
+        <form
+          onSubmit={handleSubmit}
+          className="py-4 space-y-3 flex-1 overflow-y-auto no-scrollbar"
+        >
           <div className="space-y-1 text-center">
-            <label className="text-[10px] font-tactical font-bold text-neutral-500">Rate Athlete Experience</label>
+            <label className="text-[10px] font-tactical font-bold text-neutral-500">
+              Rate Athlete Experience
+            </label>
             <div className="flex justify-center gap-2 pt-1">
               {[1, 2, 3, 4, 5].map((s) => (
                 <button
                   key={s}
                   type="button"
-                  onClick={() => { tactileEngine.triggerSelectionBuzz(); setRating(s); }}
+                  onClick={() => {
+                    tactileEngine.triggerSelectionBuzz();
+                    setRating(s);
+                  }}
                   aria-label={`${s} of 5`}
                   aria-pressed={s <= rating}
                   className="w-11 h-11 flex items-center justify-center transition-transform hover:scale-110 active:scale-95 cursor-pointer"
                 >
-                  <Star className={`w-6 h-6 ${s <= rating ? 'text-amber-400 fill-amber-400' : 'text-neutral-700'}`} />
+                  <Star
+                    className={`w-6 h-6 ${s <= rating ? 'text-amber-400 fill-amber-400' : 'text-neutral-700'}`}
+                  />
                 </button>
               ))}
             </div>
           </div>
 
           <div className="space-y-1">
-            <label className="text-[10px] font-tactical font-bold text-neutral-500">Feature Focus</label>
+            <label className="text-[10px] font-tactical font-bold text-neutral-500">
+              Feature Focus
+            </label>
             <div className="flex flex-wrap gap-1.5">
               {CATEGORIES.map((cat) => (
                 <button
                   key={cat}
                   type="button"
-                  onClick={() => { tactileEngine.triggerSelectionBuzz(); setCategory(cat); }}
+                  onClick={() => {
+                    tactileEngine.triggerSelectionBuzz();
+                    setCategory(cat);
+                  }}
                   aria-pressed={category === cat}
                   className={`px-3 min-h-[44px] rounded-xl text-[11px] font-mono transition-all cursor-pointer ${
                     category === cat
@@ -99,7 +121,12 @@ export const SendFeedbackModal: React.FC<SendFeedbackModalProps> = ({
           </div>
 
           <div className="space-y-1">
-            <label htmlFor="feedback-text" className="text-[10px] font-tactical font-bold text-neutral-500">Feedback or Feature Request</label>
+            <label
+              htmlFor="feedback-text"
+              className="text-[10px] font-tactical font-bold text-neutral-500"
+            >
+              Feedback or Feature Request
+            </label>
             <textarea
               id="feedback-text"
               required

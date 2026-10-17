@@ -19,7 +19,13 @@ const payload = {
   strain: 0,
   exercises: [
     { name: 'BB Flat Bench', sets: [{ setNumber: 1, reps: 17, weightKg: 150, is_pr: true }] },
-    { name: 'Row', sets: [{ setNumber: 1, reps: 6, weightKg: 50 }, { setNumber: 2, reps: 5, weightKg: 52.5 }] },
+    {
+      name: 'Row',
+      sets: [
+        { setNumber: 1, reps: 6, weightKg: 50 },
+        { setNumber: 2, reps: 5, weightKg: 52.5 },
+      ],
+    },
   ],
 };
 
@@ -39,7 +45,9 @@ describe('session archive rows', () => {
   });
 
   it('keeps the same session id across retries so upserts never duplicate', () => {
-    expect(buildArchiveRows(payload, USER).session.id).toBe(buildArchiveRows(payload, USER).session.id);
+    expect(buildArchiveRows(payload, USER).session.id).toBe(
+      buildArchiveRows(payload, USER).session.id,
+    );
     expect(toUuid(payload.id)).toBe('3f2a9c1e-4b7d-4e8a-9c2b-1d5e6f7a8b9c');
     expect(isUuid(toUuid('session-1728000000000'))).toBe(true);
   });

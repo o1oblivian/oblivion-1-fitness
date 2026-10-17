@@ -44,7 +44,10 @@ describe('DayAdaptiveDial', () => {
 
   it.each(DAYS)('%s dial shows -- for unread metrics and never zeros', (day) => {
     // Serif text is the printed 0..goal scale on Tuesday, not a reading.
-    const html = render({ ...empty, activeDay: day }).replace(/<text[^>]*Georgia[^>]*>[^<]*<\/text>/g, '');
+    const html = render({ ...empty, activeDay: day }).replace(
+      /<text[^>]*Georgia[^>]*>[^<]*<\/text>/g,
+      '',
+    );
     expect(html).toContain('--');
     expect(html).not.toMatch(/>0</);
     expect(html).not.toContain('NaN');
@@ -61,7 +64,9 @@ describe('DayAdaptiveDial', () => {
   it('gives each day its own dial and a varied colour combination', () => {
     const htmlByDay = DAYS.map((day) => render({ ...base, activeDay: day }));
     expect(new Set(htmlByDay).size).toBe(7);
-    const stepColours = htmlByDay.map((html) => /<text[^>]*fill="(#[0-9a-fA-F]{6})"[^>]*>STEPS<\/text>/.exec(html)?.[1]);
+    const stepColours = htmlByDay.map(
+      (html) => /<text[^>]*fill="(#[0-9a-fA-F]{6})"[^>]*>STEPS<\/text>/.exec(html)?.[1],
+    );
     expect(stepColours.every(Boolean)).toBe(true);
     expect(new Set(stepColours).size).toBeGreaterThanOrEqual(4);
   });

@@ -19,7 +19,13 @@ function dropPreview(key: string) {
   if (!Array.isArray(prev)) return;
   localStorage.setItem(
     key,
-    JSON.stringify(prev.filter((row) => !String((row as { id?: string; athleteId?: string })?.id || '').startsWith('preview-') && !String((row as { athleteId?: string })?.athleteId || '').startsWith('preview-'))),
+    JSON.stringify(
+      prev.filter(
+        (row) =>
+          !String((row as { id?: string; athleteId?: string })?.id || '').startsWith('preview-') &&
+          !String((row as { athleteId?: string })?.athleteId || '').startsWith('preview-'),
+      ),
+    ),
   );
 }
 

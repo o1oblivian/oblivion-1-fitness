@@ -4,10 +4,29 @@ import { tactileEngine } from '../../../services/tactileEngine';
 import { getAuthenticatedUserId } from '../../../services/authUser';
 import { registerExternalQueue } from '../../../services/syncOutbox';
 import { getTelemetryHistoryState } from '../../log/store/useTelemetryHistoryStore';
-import { CloudMeal, Electrolytes, FUEL_SLOTS, FuelDayPatch, FuelDayTotals, FuelProfilePatch, FuelSlot, SupplementItem, SupplementTiming, SupplementUnit, deleteMealRow, fetchFuelSnapshot, fetchFuelWeek, insertMealRow, localDateKey, toMealRow, upsertFuelDay, upsertFuelProfile } from '../services/fuelCloud';
+import {
+  CloudMeal,
+  Electrolytes,
+  FUEL_SLOTS,
+  FuelDayPatch,
+  FuelDayTotals,
+  FuelProfilePatch,
+  FuelSlot,
+  SupplementItem,
+  SupplementTiming,
+  SupplementUnit,
+  deleteMealRow,
+  fetchFuelSnapshot,
+  fetchFuelWeek,
+  insertMealRow,
+  localDateKey,
+  toMealRow,
+  upsertFuelDay,
+  upsertFuelProfile,
+} from '../services/fuelCloud';
 import { lastSevenDateKeys, sumMacros } from '../utils/fuelMath';
 
-export type {  FuelSlot, SupplementItem, SupplementTiming, SupplementUnit,  Electrolytes };
+export type { FuelSlot, SupplementItem, SupplementTiming, SupplementUnit, Electrolytes };
 
 export interface MealItem {
   id: string;
@@ -97,7 +116,13 @@ interface FuelCache {
 }
 
 const CACHE_KEY = 'o1fc_fuel_cache_v6';
-const LEGACY_KEYS = ['o1fc_fuel_state_v5', 'o1_supplements_stack_v2', 'o1_electrolytes_log_v1', 'O1_OFFLINE_MUTATION_QUEUE', 'O1_LAST_SYNCED_AT'];
+const LEGACY_KEYS = [
+  'o1fc_fuel_state_v5',
+  'o1_supplements_stack_v2',
+  'o1_electrolytes_log_v1',
+  'O1_OFFLINE_MUTATION_QUEUE',
+  'O1_LAST_SYNCED_AT',
+];
 const LEGACY_WORKOUT_STACK_KEY = 'o1fc_supplement_stack_v1';
 const MAX_WATER_L = 10;
 
@@ -136,7 +161,14 @@ function blankProfile(): FuelProfileFields {
 }
 
 function blankDay(dateKey = localDateKey()): FuelDayFields {
-  return { dateKey, meals: emptyMeals(), hydrationCurrentL: 0, burnedKcal: 0, supplementsTaken: [], electrolytes: { ...ZERO_ELECTROLYTES } };
+  return {
+    dateKey,
+    meals: emptyMeals(),
+    hydrationCurrentL: 0,
+    burnedKcal: 0,
+    supplementsTaken: [],
+    electrolytes: { ...ZERO_ELECTROLYTES },
+  };
 }
 
 function emptyOutbox(): Outbox {
@@ -152,14 +184,27 @@ function readCache(): FuelCache {
   const cached = safeStorage.getItem<FuelCache | null>(CACHE_KEY, null);
   for (const key of LEGACY_KEYS) safeStorage.removeItem(key);
   if (!cached || typeof cached !== 'object' || !cached.profile || !cached.day) {
-    return { userId: null, profile: blankProfile(), day: blankDay(), outbox: emptyOutbox(), week: {} };
+    return {
+      userId: null,
+      profile: blankProfile(),
+      day: blankDay(),
+      outbox: emptyOutbox(),
+      week: {},
+    };
   }
   const today = localDateKey();
   return {
     userId: cached.userId ?? null,
     week: cached.week && typeof cached.week === 'object' ? cached.week : {},
-    profile: { ...blankProfile(), ...cached.profile, body: { ...blankProfile().body, ...cached.profile.body } },
-    day: cached.day.dateKey === today ? { ...blankDay(today), ...cached.day, meals: { ...emptyMeals(), ...cached.day.meals } } : blankDay(today),
+    profile: {
+      ...blankProfile(),
+      ...cached.profile,
+      body: { ...blankProfile().body, ...cached.profile.body },
+    },
+    day:
+      cached.day.dateKey === today
+        ? { ...blankDay(today), ...cached.day, meals: { ...emptyMeals(), ...cached.day.meals } }
+        : blankDay(today),
     outbox: { ...emptyOutbox(), ...cached.outbox },
   };
 }
@@ -188,7 +233,14 @@ function slotFromCategory(category: string): FuelSlot {
 function mealsFromCloud(rows: CloudMeal[]): FuelMeals {
   const meals = emptyMeals();
   for (const row of rows) {
-    meals[row.slot].push({ id: row.id, name: row.name, calories: row.calories, protein: row.protein, carbs: row.carbs, fats: row.fats });
+    meals[row.slot].push({
+      id: row.id,
+      name: row.name,
+      calories: row.calories,
+      protein: row.protein,
+      carbs: row.carbs,
+      fats: row.fats,
+    });
   }
   return meals;
 }
@@ -343,12 +395,19 @@ export const useFuelStore = create<FuelState>((set, get) => {
     const known = new Set(s.supplementStack.map((x) => x.name.trim().toLowerCase()));
     const adopted: SupplementItem[] = items
       .filter((it) => it?.name && !known.has(it.name.trim().toLowerCase()))
-      .map((it) => ({ id: it.id, name: it.name.trim(), dosage: it.dose || '1 serving', timing: it.timing, category: 'Custom' }));
+      .map((it) => ({
+        id: it.id,
+        name: it.name.trim(),
+        dosage: it.dose || '1 serving',
+        timing: it.timing,
+        category: 'Custom',
+      }));
     if (adopted.length === 0) return;
     const takenToday = new Set(legacy?.takenByDay?.[s.dateKey] ?? []);
     s.setSupplementStack([...s.supplementStack, ...adopted]);
     const adoptedTaken = adopted.filter((a) => takenToday.has(a.id)).map((a) => a.id);
-    if (adoptedTaken.length > 0) s.setSupplementsTaken([...get().supplementsTaken, ...adoptedTaken]);
+    if (adoptedTaken.length > 0)
+      s.setSupplementsTaken([...get().supplementsTaken, ...adoptedTaken]);
   };
 
   if (typeof window !== 'undefined') {
@@ -390,7 +449,9 @@ export const useFuelStore = create<FuelState>((set, get) => {
 
       const p = snapshot.profile;
       const d = snapshot.day;
-      const pendingIds = new Set(outbox.inserts.filter((x) => x.dateKey === dateKey).map((x) => x.meal.id));
+      const pendingIds = new Set(
+        outbox.inserts.filter((x) => x.dateKey === dateKey).map((x) => x.meal.id),
+      );
       const meals = mealsFromCloud([
         ...snapshot.meals.filter((m) => !outbox.deletes.includes(m.id) && !pendingIds.has(m.id)),
         ...outbox.inserts.filter((x) => x.dateKey === dateKey).map((x) => x.meal),
@@ -402,19 +463,28 @@ export const useFuelStore = create<FuelState>((set, get) => {
         targetProteinG: p ? positiveOrNull(p.protein_g) : local.targetProteinG,
         targetCarbsG: p ? positiveOrNull(p.carbs_g) : local.targetCarbsG,
         targetFatsG: p ? positiveOrNull(p.fats_g) : local.targetFatsG,
-        hydrationTargetL: p ? (positiveOrNull(p.hydration_target_ml) ?? 0) / 1000 || null : local.hydrationTargetL,
+        hydrationTargetL: p
+          ? (positiveOrNull(p.hydration_target_ml) ?? 0) / 1000 || null
+          : local.hydrationTargetL,
         weightKg: p ? positiveOrNull(p.weight_kg) : local.weightKg,
         body: p
-          ? { heightCm: positiveOrNull(p.height_cm), ageYears: positiveOrNull(p.age_years), sex: p.sex ?? null }
+          ? {
+              heightCm: positiveOrNull(p.height_cm),
+              ageYears: positiveOrNull(p.age_years),
+              sex: p.sex ?? null,
+            }
           : local.body,
         countryMarket: p?.country || local.countryMarket,
         dietPreference: p?.diet || local.dietPreference,
-        supplementStack: p && Array.isArray(p.supplement_stack) ? p.supplement_stack : local.supplementStack,
+        supplementStack:
+          p && Array.isArray(p.supplement_stack) ? p.supplement_stack : local.supplementStack,
         meals,
         hydrationCurrentL: d ? Math.round(Number(d.water_ml || 0)) / 1000 : 0,
         burnedKcal: d ? Number(d.burned_kcal || 0) : 0,
         supplementsTaken: d && Array.isArray(d.supplements_taken) ? d.supplements_taken : [],
-        electrolytes: d?.electrolytes ? { ...ZERO_ELECTROLYTES, ...d.electrolytes } : { ...ZERO_ELECTROLYTES },
+        electrolytes: d?.electrolytes
+          ? { ...ZERO_ELECTROLYTES, ...d.electrolytes }
+          : { ...ZERO_ELECTROLYTES },
       });
       if (!p) {
         const s = get();
@@ -506,8 +576,13 @@ export const useFuelStore = create<FuelState>((set, get) => {
         carbs: Math.max(0, Number(item.carbs) || 0),
         fats: Math.max(0, Number(item.fats) || 0),
       };
-      set((s) => ({ meals: { ...s.meals, [slot]: [meal, ...s.meals[slot].filter((m) => m.id !== meal.id)] } }));
-      outbox.inserts = [...outbox.inserts.filter((p) => p.meal.id !== meal.id), { dateKey: get().dateKey, meal: { ...meal, slot } }];
+      set((s) => ({
+        meals: { ...s.meals, [slot]: [meal, ...s.meals[slot].filter((m) => m.id !== meal.id)] },
+      }));
+      outbox.inserts = [
+        ...outbox.inserts.filter((p) => p.meal.id !== meal.id),
+        { dateKey: get().dateKey, meal: { ...meal, slot } },
+      ];
       mirrorHistory();
       persist();
       void flush();
@@ -544,7 +619,10 @@ export const useFuelStore = create<FuelState>((set, get) => {
 
     setSupplementStack: (stack) => {
       const ids = new Set(stack.map((s) => s.id));
-      set((s) => ({ supplementStack: stack, supplementsTaken: s.supplementsTaken.filter((id) => ids.has(id)) }));
+      set((s) => ({
+        supplementStack: stack,
+        supplementsTaken: s.supplementsTaken.filter((id) => ids.has(id)),
+      }));
       queueProfile({ supplement_stack: stack });
       queueDay({ supplements_taken: get().supplementsTaken });
     },
@@ -578,4 +656,3 @@ export const useFuelStore = create<FuelState>((set, get) => {
     },
   };
 });
-

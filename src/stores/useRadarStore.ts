@@ -3,13 +3,13 @@ import { AthleteBlip, RadarCorridor } from '../types';
 import { tactileEngine } from '../services/tactileEngine';
 import { RadarView, RadarState, RadarStore } from './radarTypes';
 
-export type { RadarView,  RadarState,  RadarStore };
+export type { RadarView, RadarState, RadarStore };
 
 const computeDisplayedAthletes = (
   radiusKm: number,
   searchQuery: string,
   selectedDisciplines: string[],
-  athletes: AthleteBlip[]
+  athletes: AthleteBlip[],
 ): AthleteBlip[] => {
   const q = searchQuery.toLowerCase().trim();
   return athletes.filter((a) => {
@@ -87,7 +87,12 @@ export const useRadarStore = create<RadarStore>((set, get) => ({
     set((s) => ({
       radiusKm,
       corridor,
-      displayedAthletes: computeDisplayedAthletes(radiusKm, s.searchQuery, s.selectedDisciplines, s.athletes),
+      displayedAthletes: computeDisplayedAthletes(
+        radiusKm,
+        s.searchQuery,
+        s.selectedDisciplines,
+        s.athletes,
+      ),
     }));
   },
   setCorridor: (corridor: RadarCorridor) => {
@@ -96,13 +101,23 @@ export const useRadarStore = create<RadarStore>((set, get) => ({
     set((s) => ({
       corridor,
       radiusKm,
-      displayedAthletes: computeDisplayedAthletes(radiusKm, s.searchQuery, s.selectedDisciplines, s.athletes),
+      displayedAthletes: computeDisplayedAthletes(
+        radiusKm,
+        s.searchQuery,
+        s.selectedDisciplines,
+        s.athletes,
+      ),
     }));
   },
   setSearchQuery: (searchQuery: string) => {
     set((s) => ({
       searchQuery,
-      displayedAthletes: computeDisplayedAthletes(s.radiusKm, searchQuery, s.selectedDisciplines, s.athletes),
+      displayedAthletes: computeDisplayedAthletes(
+        s.radiusKm,
+        searchQuery,
+        s.selectedDisciplines,
+        s.athletes,
+      ),
     }));
   },
   toggleTravelPass: (open?: boolean) => {
@@ -113,7 +128,8 @@ export const useRadarStore = create<RadarStore>((set, get) => ({
     tactileEngine.triggerSelectionBuzz();
     set((s) => ({ isFilterModalOpen: open !== undefined ? open : !s.isFilterModalOpen }));
   },
-  toggleVitals: (open?: boolean) => set((s) => ({ isVitalsOpen: open !== undefined ? open : !s.isVitalsOpen })),
+  toggleVitals: (open?: boolean) =>
+    set((s) => ({ isVitalsOpen: open !== undefined ? open : !s.isVitalsOpen })),
   setIsScanning: (isScanning: boolean) => set({ isScanning }),
   setActiveView: (activeView: RadarView) => {
     tactileEngine.triggerSelectionBuzz();
@@ -122,7 +138,12 @@ export const useRadarStore = create<RadarStore>((set, get) => ({
   setSelectedDisciplines: (selectedDisciplines) => {
     set((s) => ({
       selectedDisciplines,
-      displayedAthletes: computeDisplayedAthletes(s.radiusKm, s.searchQuery, selectedDisciplines, s.athletes),
+      displayedAthletes: computeDisplayedAthletes(
+        s.radiusKm,
+        s.searchQuery,
+        selectedDisciplines,
+        s.athletes,
+      ),
     }));
   },
   setSelectedTimes: (selectedTimes) => set({ selectedTimes }),
@@ -149,7 +170,12 @@ export const useRadarStore = create<RadarStore>((set, get) => ({
     set((s) => ({
       radiusKm: 250,
       corridor: 'regional_250km',
-      displayedAthletes: computeDisplayedAthletes(250, s.searchQuery, s.selectedDisciplines, s.athletes),
+      displayedAthletes: computeDisplayedAthletes(
+        250,
+        s.searchQuery,
+        s.selectedDisciplines,
+        s.athletes,
+      ),
     }));
   },
   handleContractTo25: () => {
@@ -157,7 +183,12 @@ export const useRadarStore = create<RadarStore>((set, get) => ({
     set((s) => ({
       radiusKm: 25,
       corridor: 'local_25km',
-      displayedAthletes: computeDisplayedAthletes(25, s.searchQuery, s.selectedDisciplines, s.athletes),
+      displayedAthletes: computeDisplayedAthletes(
+        25,
+        s.searchQuery,
+        s.selectedDisciplines,
+        s.athletes,
+      ),
     }));
   },
   setTravelDetails: (details) => {
@@ -167,17 +198,20 @@ export const useRadarStore = create<RadarStore>((set, get) => ({
         if (!updated.travelCity) {
           localStorage.removeItem('o1fc_travel_corridor');
         } else {
-          localStorage.setItem('o1fc_travel_corridor', JSON.stringify({
-            travelOrigin: updated.travelOrigin,
-            travelOriginCode: updated.travelOriginCode,
-            travelCity: updated.travelCity,
-            travelDestinationCode: updated.travelDestinationCode,
-            travelArrivalDate: updated.travelArrivalDate,
-            travelDepartureDate: updated.travelDepartureDate,
-            travelRadiusKm: updated.travelRadiusKm,
-            travelLat: updated.travelLat,
-            travelLng: updated.travelLng,
-          }));
+          localStorage.setItem(
+            'o1fc_travel_corridor',
+            JSON.stringify({
+              travelOrigin: updated.travelOrigin,
+              travelOriginCode: updated.travelOriginCode,
+              travelCity: updated.travelCity,
+              travelDestinationCode: updated.travelDestinationCode,
+              travelArrivalDate: updated.travelArrivalDate,
+              travelDepartureDate: updated.travelDepartureDate,
+              travelRadiusKm: updated.travelRadiusKm,
+              travelLat: updated.travelLat,
+              travelLng: updated.travelLng,
+            }),
+          );
         }
       } catch (e) {
         // Ignore storage errors
@@ -194,14 +228,24 @@ export const useRadarStore = create<RadarStore>((set, get) => ({
       radiusKm: filters.radiusKm,
       corridor,
       isFilterModalOpen: false,
-      displayedAthletes: computeDisplayedAthletes(filters.radiusKm, s.searchQuery, filters.disciplines, s.athletes),
+      displayedAthletes: computeDisplayedAthletes(
+        filters.radiusKm,
+        s.searchQuery,
+        filters.disciplines,
+        s.athletes,
+      ),
     }));
   },
   getDisplayedAthletes: () => get().displayedAthletes,
   setAthletes: (newAthletes: AthleteBlip[]) => {
     set((s) => ({
       athletes: newAthletes,
-      displayedAthletes: computeDisplayedAthletes(s.radiusKm, s.searchQuery, s.selectedDisciplines, newAthletes),
+      displayedAthletes: computeDisplayedAthletes(
+        s.radiusKm,
+        s.searchQuery,
+        s.selectedDisciplines,
+        newAthletes,
+      ),
     }));
   },
   setBuddies: (buddies) => set({ buddies }),
@@ -210,7 +254,12 @@ export const useRadarStore = create<RadarStore>((set, get) => ({
       const updated = [...s.athletes, newAthlete];
       return {
         athletes: updated,
-        displayedAthletes: computeDisplayedAthletes(s.radiusKm, s.searchQuery, s.selectedDisciplines, updated),
+        displayedAthletes: computeDisplayedAthletes(
+          s.radiusKm,
+          s.searchQuery,
+          s.selectedDisciplines,
+          updated,
+        ),
       };
     });
   },
@@ -218,6 +267,6 @@ export const useRadarStore = create<RadarStore>((set, get) => ({
   seedRadarDemo: () => {
     // Genuine radar only - no mock seeding
   },
-  clearRadarState: () => set({ buddies: [], athletes: [], displayedAthletes: [], isScanning: false }),
+  clearRadarState: () =>
+    set({ buddies: [], athletes: [], displayedAthletes: [], isScanning: false }),
 }));
-

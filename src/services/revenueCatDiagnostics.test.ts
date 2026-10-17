@@ -9,7 +9,9 @@ const purchases = vi.hoisted(() => ({
 }));
 
 vi.mock('@revenuecat/purchases-capacitor', () => ({ Purchases: purchases }));
-vi.mock('@capacitor/core', () => ({ Capacitor: { getPlatform: () => 'android', isNativePlatform: () => true } }));
+vi.mock('@capacitor/core', () => ({
+  Capacitor: { getPlatform: () => 'android', isNativePlatform: () => true },
+}));
 vi.mock('./supabaseClient', () => ({ supabase: {} }));
 vi.mock('./authUser', () => ({ getAuthenticatedUserId: async () => 'user-1' }));
 vi.mock('./purchasesService', () => ({
@@ -48,7 +50,15 @@ describe('store diagnostics', () => {
   it('reports no issue once products load', async () => {
     purchases.configure.mockResolvedValue(undefined);
     purchases.getOfferings.mockResolvedValue({
-      current: { availablePackages: [{ identifier: '$rc_monthly', packageType: 'MONTHLY', product: { identifier: 'o1fc_pro_monthly:monthly' } }] },
+      current: {
+        availablePackages: [
+          {
+            identifier: '$rc_monthly',
+            packageType: 'MONTHLY',
+            product: { identifier: 'o1fc_pro_monthly:monthly' },
+          },
+        ],
+      },
       all: {},
     });
     const catalog = await revenueCatService.getOfferings('user-1');

@@ -115,6 +115,6 @@ export const useActiveProgramStore = create<ActiveProgramState>()(
     }),
     {
       name: 'o1fc_active_program_store',
-    }
-  )
+    },
+  ),
 );

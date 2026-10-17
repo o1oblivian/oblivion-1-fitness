@@ -37,7 +37,10 @@ export function useDispatchStack() {
       counts[group] = (counts[group] || 0) + ex.sets.length;
     });
     const muscleDistribution = Object.entries(counts)
-      .map(([muscle, count]) => ({ muscle, percentage: sets > 0 ? Math.round((count / sets) * 100) : 0 }))
+      .map(([muscle, count]) => ({
+        muscle,
+        percentage: sets > 0 ? Math.round((count / sets) * 100) : 0,
+      }))
       .sort((a, b) => b.percentage - a.percentage);
     return {
       sets,
@@ -77,17 +80,25 @@ export function useDispatchStack() {
     tactileEngine.triggerSelectionBuzz();
     updateExercise(exerciseId, (ex) => ({
       ...ex,
-      sets: ex.sets.filter((s) => s.id !== setId).map((s, index) => ({ ...s, setNumber: index + 1 })),
+      sets: ex.sets
+        .filter((s) => s.id !== setId)
+        .map((s, index) => ({ ...s, setNumber: index + 1 })),
     }));
   };
 
-  const updateSet = (exerciseId: string, setId: string, field: keyof StackExerciseSet, value: number) =>
+  const updateSet = (
+    exerciseId: string,
+    setId: string,
+    field: keyof StackExerciseSet,
+    value: number,
+  ) =>
     updateExercise(exerciseId, (ex) => ({
       ...ex,
       sets: ex.sets.map((s) => (s.id === setId ? { ...s, [field]: value } : s)),
     }));
 
-  const setCue = (exerciseId: string, cue: string) => updateExercise(exerciseId, (ex) => ({ ...ex, cue }));
+  const setCue = (exerciseId: string, cue: string) =>
+    updateExercise(exerciseId, (ex) => ({ ...ex, cue }));
 
   const appendCue = (exerciseId: string, chip: string) => {
     tactileEngine.triggerSelectionBuzz();
@@ -108,7 +119,10 @@ export function useDispatchStack() {
 
   const addFromCatalog = (item: DispatchCatalogExercise) => {
     tactileEngine.triggerImpactPulse();
-    const reps = typeof item.defaultReps === 'number' ? item.defaultReps : parseInt(String(item.defaultReps), 10) || 10;
+    const reps =
+      typeof item.defaultReps === 'number'
+        ? item.defaultReps
+        : parseInt(String(item.defaultReps), 10) || 10;
     const stamp = Date.now();
     const exercise: StackExercise = {
       id: `stack-${stamp}`,

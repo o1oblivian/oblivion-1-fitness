@@ -6,7 +6,9 @@ describe('safeReturnBase', () => {
 
   it('keeps https and the app scheme, dropping query and hash', () => {
     expect(safeReturnBase('https://o1.club/coach?x=1#y', fallback)).toBe('https://o1.club/coach');
-    expect(safeReturnBase('com.o1fc.fitness://stripe/return', fallback)).toBe('com.o1fc.fitness://stripe/return');
+    expect(safeReturnBase('com.o1fc.fitness://stripe/return', fallback)).toBe(
+      'com.o1fc.fitness://stripe/return',
+    );
   });
 
   it('refuses script, data and file links', () => {

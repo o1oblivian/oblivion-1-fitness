@@ -90,24 +90,51 @@ export async function fetchStorefrontStats(coachId: string): Promise<StorefrontS
   if (!coachId) return EMPTY_STATS;
   const me = await getAuthenticatedUserId();
   const [followRes, mineRes, reviewRes, frontRes, athleteRes] = await Promise.all([
-    supabase.from('coach_follows').select('coach_id', { count: 'exact', head: true }).eq('coach_id', coachId),
+    supabase
+      .from('coach_follows')
+      .select('coach_id', { count: 'exact', head: true })
+      .eq('coach_id', coachId),
     isValidUuid(me)
-      ? supabase.from('coach_follows').select('coach_id').eq('coach_id', coachId).eq('follower_id', me as string).limit(1)
+      ? supabase
+          .from('coach_follows')
+          .select('coach_id')
+          .eq('coach_id', coachId)
+          .eq('follower_id', me as string)
+          .limit(1)
       : Promise.resolve({ data: [], error: null }),
-    supabase.from('coach_reviews').select('stars').eq('coach_id', coachId).order('created_at', { ascending: false }).limit(500),
-    supabase.from('coach_storefronts').select('years_coaching, capacity, monthly_price_cents').eq('coach_id', coachId).maybeSingle(),
-    supabase.from('coaching_applications').select('id', { count: 'exact', head: true }).eq('coach_id', coachId).eq('status', 'accepted'),
+    supabase
+      .from('coach_reviews')
+      .select('stars')
+      .eq('coach_id', coachId)
+      .order('created_at', { ascending: false })
+      .limit(500),
+    supabase
+      .from('coach_storefronts')
+      .select('years_coaching, capacity, monthly_price_cents')
+      .eq('coach_id', coachId)
+      .maybeSingle(),
+    supabase
+      .from('coaching_applications')
+      .select('id', { count: 'exact', head: true })
+      .eq('coach_id', coachId)
+      .eq('status', 'accepted'),
   ]);
-  const stars = Array.isArray(reviewRes.data) ? reviewRes.data.map((row: { stars: number }) => Number(row.stars)).filter(Number.isFinite) : [];
-  const front = (frontRes.data ?? null) as { years_coaching?: number; capacity?: number; monthly_price_cents?: number } | null;
+  const stars = Array.isArray(reviewRes.data)
+    ? reviewRes.data.map((row: { stars: number }) => Number(row.stars)).filter(Number.isFinite)
+    : [];
+  const front = (frontRes.data ?? null) as {
+    years_coaching?: number;
+    capacity?: number;
+    monthly_price_cents?: number;
+  } | null;
   return {
-    followers: followRes.error ? null : followRes.count ?? null,
+    followers: followRes.error ? null : (followRes.count ?? null),
     following: Array.isArray(mineRes.data) && mineRes.data.length > 0,
     rating: stars.length ? stars.reduce((sum, n) => sum + n, 0) / stars.length : null,
     reviewCount: stars.length,
     years: numberOrNull(front?.years_coaching),
     capacity: numberOrNull(front?.capacity),
-    athletes: athleteRes.error ? null : athleteRes.count ?? null,
+    athletes: athleteRes.error ? null : (athleteRes.count ?? null),
     monthlyPriceCents: numberOrNull(front?.monthly_price_cents),
   };
 }
@@ -115,7 +142,12 @@ export async function fetchStorefrontStats(coachId: string): Promise<StorefrontS
 export async function isFollowing(coachId: string): Promise<boolean> {
   const me = await getAuthenticatedUserId();
   if (!isValidUuid(me) || !coachId) return false;
-  const { data } = await supabase.from('coach_follows').select('coach_id').eq('coach_id', coachId).eq('follower_id', me as string).limit(1);
+  const { data } = await supabase
+    .from('coach_follows')
+    .select('coach_id')
+    .eq('coach_id', coachId)
+    .eq('follower_id', me as string)
+    .limit(1);
   return Array.isArray(data) && data.length > 0;
 }
 
@@ -126,9 +158,14 @@ export async function setFollowing(coachId: string, follow: boolean): Promise<bo
   if (!isValidUuid(me) || !coachId || me === coachId) return false;
   const res = follow
     ? await supabase.from('coach_follows').insert({ follower_id: me, coach_id: coachId })
-    : await supabase.from('coach_follows').delete().eq('follower_id', me as string).eq('coach_id', coachId);
+    : await supabase
+        .from('coach_follows')
+        .delete()
+        .eq('follower_id', me as string)
+        .eq('coach_id', coachId);
   const ok = !res.error || res.error.code === '23505';
-  if (ok) window.dispatchEvent(new CustomEvent(FOLLOW_EVENT, { detail: { coachId, following: follow } }));
+  if (ok)
+    window.dispatchEvent(new CustomEvent(FOLLOW_EVENT, { detail: { coachId, following: follow } }));
   return ok;
 }
 
@@ -139,7 +176,9 @@ export const CATALOG_COLUMNS =
   'id, catalog_coach_id, title, focus, cover_url, discipline, duration_label, days_per_week, tier, split_label, equipment, price_cents, active, sort_order';
 
 /** Adds the plan to rows the member owns, joined, was accepted for, or that are free. Paid content stays out otherwise. */
-export async function withProgramContent(rows: Record<string, unknown>[]): Promise<Record<string, unknown>[]> {
+export async function withProgramContent(
+  rows: Record<string, unknown>[],
+): Promise<Record<string, unknown>[]> {
   const ids = [...new Set(rows.map((row) => String(row.id || '')).filter(Boolean))].slice(0, 60);
   if (!ids.length) return rows;
   const { data, error } = await supabase.rpc('program_content', { program_ids: ids });
@@ -147,15 +186,29 @@ export async function withProgramContent(rows: Record<string, unknown>[]): Promi
   const content = new Map((data as Record<string, unknown>[]).map((row) => [String(row.id), row]));
   return rows.map((row) => {
     const unlocked = content.get(String(row.id));
-    return unlocked ? { ...row, week_one: unlocked.week_one, program_data: unlocked.program_data } : row;
+    return unlocked
+      ? { ...row, week_one: unlocked.week_one, program_data: unlocked.program_data }
+      : row;
   });
 }
 
 export async function fetchStorefrontPrograms(coachId: string): Promise<StorefrontProgram[]> {
   if (!coachId) return [];
   const [own, catalog] = await Promise.all([
-    supabase.from('coach_programs').select(PROGRAM_COLUMNS).eq('coach_id', coachId).eq('listed', true).order('created_at', { ascending: false }).limit(50),
-    supabase.from('program_catalog').select(CATALOG_COLUMNS).eq('catalog_coach_id', coachId).eq('active', true).order('sort_order').limit(50),
+    supabase
+      .from('coach_programs')
+      .select(PROGRAM_COLUMNS)
+      .eq('coach_id', coachId)
+      .eq('listed', true)
+      .order('created_at', { ascending: false })
+      .limit(50),
+    supabase
+      .from('program_catalog')
+      .select(CATALOG_COLUMNS)
+      .eq('catalog_coach_id', coachId)
+      .eq('active', true)
+      .order('sort_order')
+      .limit(50),
   ]);
   const rows = [
     ...(Array.isArray(own.data) ? own.data : []),
@@ -215,7 +268,10 @@ export function enrollmentRow(athleteId: string, coach: ProgramCoach, program: S
   };
 }
 
-export async function enrollInProgram(coach: ProgramCoach, program: StorefrontProgram): Promise<'enrolled' | 'signed-out' | 'failed'> {
+export async function enrollInProgram(
+  coach: ProgramCoach,
+  program: StorefrontProgram,
+): Promise<'enrolled' | 'signed-out' | 'failed'> {
   const me = await getAuthenticatedUserId();
   if (!isValidUuid(me)) return 'signed-out';
   const { error } = await supabase
@@ -253,7 +309,8 @@ export async function submitApplication(input: {
 }
 
 function mapApplication(row: Record<string, unknown>): CoachingApplication {
-  const intake = row.intake && typeof row.intake === 'object' ? (row.intake as Record<string, unknown>) : {};
+  const intake =
+    row.intake && typeof row.intake === 'object' ? (row.intake as Record<string, unknown>) : {};
   return {
     id: String(row.id),
     coachId: String(row.coach_id || ''),
@@ -262,7 +319,9 @@ function mapApplication(row: Record<string, unknown>): CoachingApplication {
     coachAvatar: String(row.coach_avatar || ''),
     athleteId: String(row.athlete_id || ''),
     athleteName: String(row.athlete_name || ''),
-    intake: Object.fromEntries(Object.entries(intake).map(([key, value]) => [key, String(value ?? '')])),
+    intake: Object.fromEntries(
+      Object.entries(intake).map(([key, value]) => [key, String(value ?? '')]),
+    ),
     goal: String(row.goal || ''),
     programId: row.program_id ? String(row.program_id) : null,
     status: (row.status as CoachingApplication['status']) || 'pending',
@@ -295,13 +354,20 @@ export async function fetchCoachApplications(coachId: string): Promise<CoachingA
   return Array.isArray(data) ? data.map(mapApplication) : [];
 }
 
-export async function decideApplication(application: CoachingApplication, accept: boolean): Promise<boolean> {
+export async function decideApplication(
+  application: CoachingApplication,
+  accept: boolean,
+): Promise<boolean> {
   const { error } = await supabase
     .from('coaching_applications')
     .update({ status: accept ? 'accepted' : 'declined', decided_at: new Date().toISOString() })
     .eq('id', application.id);
   if (error) return false;
-  if (accept) await linkCoachClient(application.coachId, { id: application.athleteId, name: application.athleteName || 'Athlete' });
+  if (accept)
+    await linkCoachClient(application.coachId, {
+      id: application.athleteId,
+      name: application.athleteName || 'Athlete',
+    });
   return true;
 }
 
@@ -317,13 +383,25 @@ export async function adoptAcceptedCoach(): Promise<boolean> {
     .limit(1);
   const row = Array.isArray(data) && data[0] ? mapApplication(data[0]) : null;
   if (!row) return false;
-  const joined = await supabase.rpc('join_coach_from_application', { coach: row.coachId, display_name: row.athleteName });
+  const joined = await supabase.rpc('join_coach_from_application', {
+    coach: row.coachId,
+    display_name: row.athleteName,
+  });
   if (joined.error || joined.data !== true) return false;
-  saveLinkedCoach({ id: row.coachId, name: row.coachName, handle: row.coachHandle, avatar: row.coachAvatar });
+  saveLinkedCoach({
+    id: row.coachId,
+    name: row.coachName,
+    handle: row.coachHandle,
+    avatar: row.coachAvatar,
+  });
   return true;
 }
 
-export async function saveStorefront(input: { years: number | null; capacity: number | null; monthlyPriceCents: number | null }): Promise<boolean> {
+export async function saveStorefront(input: {
+  years: number | null;
+  capacity: number | null;
+  monthlyPriceCents: number | null;
+}): Promise<boolean> {
   const me = await getAuthenticatedUserId();
   if (!isValidUuid(me)) return false;
   const { error } = await supabase.from('coach_storefronts').upsert({

@@ -88,12 +88,19 @@ export function PasswordRecoverySheet() {
               aria-label={show ? 'Hide password' : 'Show password'}
               className="absolute right-1 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center text-o1-muted"
             >
-              {show ? <EyeOff className="h-[18px] w-[18px]" /> : <Eye className="h-[18px] w-[18px]" />}
+              {show ? (
+                <EyeOff className="h-[18px] w-[18px]" />
+              ) : (
+                <Eye className="h-[18px] w-[18px]" />
+              )}
             </button>
           </span>
         </label>
         {error ? (
-          <div role="alert" className="mt-3 flex items-start gap-2.5 rounded-xl bg-o1-bad-wash/60 px-3.5 py-2.5 text-[12px] font-normal text-o1-bad-ink">
+          <div
+            role="alert"
+            className="mt-3 flex items-start gap-2.5 rounded-xl bg-o1-bad-wash/60 px-3.5 py-2.5 text-[12px] font-normal text-o1-bad-ink"
+          >
             <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
             <span>{error}</span>
           </div>

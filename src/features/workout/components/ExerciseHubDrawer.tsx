@@ -30,7 +30,9 @@ export const ExerciseHubDrawer: React.FC<ExerciseHubDrawerProps> = ({
   const addExerciseToActiveLog = useWorkoutStore((s) => s.addExerciseToActiveLog);
   const addExercisesToActiveLog = useWorkoutStore((s) => s.addExercisesToActiveLog);
 
-  const [internalDiscipline, setInternalDiscipline] = useState<'lift' | 'sports' | 'recovery' | null>(null);
+  const [internalDiscipline, setInternalDiscipline] = useState<
+    'lift' | 'sports' | 'recovery' | null
+  >(null);
   const selectedDiscipline =
     propSelectedDiscipline !== undefined ? propSelectedDiscipline : internalDiscipline;
   const isExpanded = selectedDiscipline !== null;
@@ -75,7 +77,9 @@ export const ExerciseHubDrawer: React.FC<ExerciseHubDrawerProps> = ({
       <div
         id="exercise-hub-drawer"
         className={`select-none relative transition-colors ${
-          isExpanded ? 'bg-o1-card border border-white/[0.07] rounded-2xl p-1.5 sm:p-2 shadow-xl' : ''
+          isExpanded
+            ? 'bg-o1-card border border-white/[0.07] rounded-2xl p-1.5 sm:p-2 shadow-xl'
+            : ''
         }`}
       >
         {/* 1. Discipline Selector Track (Always Visible & Tightened) */}
@@ -86,9 +90,14 @@ export const ExerciseHubDrawer: React.FC<ExerciseHubDrawerProps> = ({
 
         {/* 2. Expandable Catalog Body */}
         {isExpanded && (
-          <div id="exercise-hub-drawer-content" className="mt-3 pt-1 animate-in fade-in duration-200">
+          <div
+            id="exercise-hub-drawer-content"
+            className="mt-3 pt-1 animate-in fade-in duration-200"
+          >
             {/* Click-away backdrop for open popovers */}
-            {(autoLogic.isEquipOpen || autoLogic.isVolOpen || autoLogic.activeSetsSlot !== null) && (
+            {(autoLogic.isEquipOpen ||
+              autoLogic.isVolOpen ||
+              autoLogic.activeSetsSlot !== null) && (
               <div
                 className="fixed inset-0 z-20"
                 onClick={() => {
@@ -171,5 +180,3 @@ export const ExerciseHubDrawer: React.FC<ExerciseHubDrawerProps> = ({
     </div>
   );
 };
-
-

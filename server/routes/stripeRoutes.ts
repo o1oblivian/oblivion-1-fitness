@@ -51,9 +51,12 @@ async function requireSupabaseAuth(req: Request, res: Response, next: NextFuncti
  */
 function stripeDefinitelyRejected(err: unknown): boolean {
   const type = typeof err === 'object' && err !== null ? (err as { type?: unknown }).type : '';
-  return ['StripeInvalidRequestError', 'StripePermissionError', 'StripeAuthenticationError', 'StripeRateLimitError'].includes(
-    String(type || ''),
-  );
+  return [
+    'StripeInvalidRequestError',
+    'StripePermissionError',
+    'StripeAuthenticationError',
+    'StripeRateLimitError',
+  ].includes(String(type || ''));
 }
 
 const inFlightPayouts = new Set<string>();
@@ -87,16 +90,25 @@ export function registerStripeRoutes(app: Express) {
           metadata: { coach_id: coachId },
         });
         accountId = account.id;
-        const stripeFields = { stripe_connect_account_id: accountId, stripe_payouts_enabled: false };
+        const stripeFields = {
+          stripe_connect_account_id: accountId,
+          stripe_payouts_enabled: false,
+        };
         const email = (res.locals.userEmail as string | undefined) || '';
         // Postgres checks NOT NULL columns before ON CONFLICT, so an upsert fails for existing profiles too.
         const { error } = profile
           ? await admin.from('coach_profiles').update(stripeFields).eq('id', coachId)
-          : await admin.from('coach_profiles').insert({ id: coachId, display_name: email.split('@')[0] || 'Coach', ...stripeFields });
+          : await admin.from('coach_profiles').insert({
+              id: coachId,
+              display_name: email.split('@')[0] || 'Coach',
+              ...stripeFields,
+            });
         if (error) {
           console.error('[stripe] saving connect account failed:', error.message);
           await stripe.accounts.del(accountId).catch(() => undefined);
-          return res.status(500).json({ error: 'Could not save the Stripe account to your coach profile.' });
+          return res
+            .status(500)
+            .json({ error: 'Could not save the Stripe account to your coach profile.' });
         }
       }
 
@@ -137,7 +149,8 @@ export function registerStripeRoutes(app: Express) {
   app.get('/api/stripe/balance', async (_req, res) => {
     try {
       const coachId = res.locals.userId as string;
-      if (!getSupabaseAdmin()) return res.status(503).json({ error: 'Payments backend is not configured.' });
+      if (!getSupabaseAdmin())
+        return res.status(503).json({ error: 'Payments backend is not configured.' });
 
       let profile = await getCoachConnectProfile(coachId);
 
@@ -165,7 +178,10 @@ export function registerStripeRoutes(app: Express) {
         console.warn('[stripe] reconcile skipped:', (e as Error)?.message),
       );
 
-      const [ledger, plan] = await Promise.all([getCoachBalance(coachId), resolveCoachPlan(coachId)]);
+      const [ledger, plan] = await Promise.all([
+        getCoachBalance(coachId),
+        resolveCoachPlan(coachId),
+      ]);
       if (!ledger) return res.status(503).json({ error: 'Payments backend is not configured.' });
 
       return res.json({
@@ -202,7 +218,8 @@ export function registerStripeRoutes(app: Express) {
       }
       const stripe = await getStripe();
       const admin = getSupabaseAdmin();
-      if (!stripe || !admin) return res.status(503).json({ error: 'Stripe payouts are not configured.' });
+      if (!stripe || !admin)
+        return res.status(503).json({ error: 'Stripe payouts are not configured.' });
 
       const profile = await getCoachConnectProfile(coachId);
       if (!profile?.stripe_connect_account_id) {
@@ -211,7 +228,9 @@ export function registerStripeRoutes(app: Express) {
       // Confirm with Stripe itself that this account can really receive transfers right now.
       const account = await stripe.accounts.retrieve(profile.stripe_connect_account_id);
       if (!account.payouts_enabled) {
-        return res.status(403).json({ error: 'Stripe has not enabled payouts on your account yet.' });
+        return res
+          .status(403)
+          .json({ error: 'Stripe has not enabled payouts on your account yet.' });
       }
 
       if (inFlightPayouts.has(coachId)) {
@@ -232,7 +251,12 @@ export function registerStripeRoutes(app: Express) {
       // Reserve the funds first, then re-check, so two racing requests can never both succeed.
       const reserve = await admin
         .from('coach_payout_ledger')
-        .insert({ coach_id: coachId, amount_cents: amountCents, currency: PAYOUT_CURRENCY, status: 'processing' })
+        .insert({
+          coach_id: coachId,
+          amount_cents: amountCents,
+          currency: PAYOUT_CURRENCY,
+          status: 'processing',
+        })
         .select('id')
         .single();
       if (reserve.error || !reserve.data) {
@@ -279,33 +303,64 @@ export function registerStripeRoutes(app: Express) {
       transferId = transfer.id;
       const marked = await admin
         .from('coach_payout_ledger')
-        .update({ status: 'paid', stripe_transfer_id: transfer.id, updated_at: new Date().toISOString() })
+        .update({
+          status: 'paid',
+          stripe_transfer_id: transfer.id,
+          updated_at: new Date().toISOString(),
+        })
         .eq('id', ledgerId);
       if (marked.error) {
-        console.error('[stripe] transfer sent but ledger update failed:', transfer.id, marked.error.message);
+        console.error(
+          '[stripe] transfer sent but ledger update failed:',
+          transfer.id,
+          marked.error.message,
+        );
       }
 
-      return res.json({ success: true, payoutId: transfer.id, transferId: transfer.id, amountCents });
+      return res.json({
+        success: true,
+        payoutId: transfer.id,
+        transferId: transfer.id,
+        amountCents,
+      });
     } catch (err) {
       console.error('[stripe] create-payout failed:', errorMessage(err));
       if (transferId) {
-        console.error('[stripe] transfer', transferId, 'was sent; leaving ledger row', ledgerId, 'as processing for review.');
-        return res.json({ success: true, payoutId: transferId, transferId, amountCents: Number(req.body?.amountCents) });
+        console.error(
+          '[stripe] transfer',
+          transferId,
+          'was sent; leaving ledger row',
+          ledgerId,
+          'as processing for review.',
+        );
+        return res.json({
+          success: true,
+          payoutId: transferId,
+          transferId,
+          amountCents: Number(req.body?.amountCents),
+        });
       }
       if (unsure && ledgerId) {
         // Stripe never confirmed either way. The funds stay reserved and the next balance check settles
         // the row from Stripe's records. Releasing them now could pay the same money twice.
         return res.status(502).json({
-          error: 'Your withdrawal is being confirmed by Stripe. Do not try again. Check your balance in a few minutes.',
+          error:
+            'Your withdrawal is being confirmed by Stripe. Do not try again. Check your balance in a few minutes.',
         });
       }
       if (ledgerId) {
         await getSupabaseAdmin()
           ?.from('coach_payout_ledger')
-          .update({ status: 'failed', error_message: errorMessage(err, 'transfer failed').slice(0, 300), updated_at: new Date().toISOString() })
+          .update({
+            status: 'failed',
+            error_message: errorMessage(err, 'transfer failed').slice(0, 300),
+            updated_at: new Date().toISOString(),
+          })
           .eq('id', ledgerId);
       }
-      return res.status(502).json({ error: 'The withdrawal could not be sent. Your balance is unchanged. Try again later.' });
+      return res.status(502).json({
+        error: 'The withdrawal could not be sent. Your balance is unchanged. Try again later.',
+      });
     } finally {
       if (locked) inFlightPayouts.delete(coachId);
     }
@@ -317,13 +372,20 @@ export function registerStripeRoutes(app: Express) {
   app.post('/api/stripe/create-checkout', async (req, res) => {
     try {
       const athleteId = res.locals.userId as string;
-      const kind = req.body?.kind === 'coaching' ? 'coaching' : req.body?.kind === 'program' ? 'program' : null;
+      const kind =
+        req.body?.kind === 'coaching'
+          ? 'coaching'
+          : req.body?.kind === 'program'
+            ? 'program'
+            : null;
       const coachId = typeof req.body?.coachId === 'string' ? req.body.coachId : '';
       if (!kind || !coachId) return res.status(400).json({ error: 'Missing what to buy.' });
-      if (coachId === athleteId) return res.status(400).json({ error: 'You can’t buy from yourself.' });
+      if (coachId === athleteId)
+        return res.status(400).json({ error: 'You can’t buy from yourself.' });
 
       const stripe = await getStripe();
-      if (!stripe || !getSupabaseAdmin()) return res.status(503).json({ error: 'Payments are not configured.' });
+      if (!stripe || !getSupabaseAdmin())
+        return res.status(503).json({ error: 'Payments are not configured.' });
 
       const coach = await getCoachConnectProfile(coachId);
       if (!coach?.stripe_connect_account_id) {
@@ -338,7 +400,10 @@ export function registerStripeRoutes(app: Express) {
       });
       if (!resolved.item) {
         const status = resolved.error === 'not_configured' ? 503 : 400;
-        return res.status(status).json({ error: resolved.error === 'not_configured' ? 'Payments are not configured.' : resolved.error });
+        return res.status(status).json({
+          error:
+            resolved.error === 'not_configured' ? 'Payments are not configured.' : resolved.error,
+        });
       }
       const { item } = resolved;
 
@@ -375,7 +440,11 @@ export function registerStripeRoutes(app: Express) {
         line_items: [
           {
             quantity: 1,
-            price_data: { currency: PAYOUT_CURRENCY, unit_amount: item.priceCents, product_data: { name: item.title } },
+            price_data: {
+              currency: PAYOUT_CURRENCY,
+              unit_amount: item.priceCents,
+              product_data: { name: item.title },
+            },
           },
         ],
         metadata,
@@ -383,7 +452,8 @@ export function registerStripeRoutes(app: Express) {
         success_url: withParam('checkout=success&session_id={CHECKOUT_SESSION_ID}'),
         cancel_url: withParam('checkout=cancel'),
       });
-      if (!session.url) return res.status(502).json({ error: 'Stripe did not return a checkout page.' });
+      if (!session.url)
+        return res.status(502).json({ error: 'Stripe did not return a checkout page.' });
       return res.json({ url: session.url });
     } catch (err) {
       console.error('[stripe] create-checkout failed:', errorMessage(err));

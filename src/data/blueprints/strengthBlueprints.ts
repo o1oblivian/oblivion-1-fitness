@@ -6,13 +6,20 @@ export const STRENGTH_BLUEPRINTS: WorkoutBlueprint[] = [
     title: 'Powerlifting Peak',
     subtitle: 'Maximal SBD Force Production & Neural Drive',
     badge: 'STRENGTH',
-    image: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=800&q=80',
+    image:
+      'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=800&q=80',
     phase: 'Phase 1: Peaking',
     focus: 'Rate of Force Development & Heavy Singles',
     estimatedTime: '80 Mins',
     description:
       'Engineered for competitive platform performance. Prioritizes maximum motor unit synchronization, competition squat pause depth, arch stabilization benching, and wedge-pull deadlift speed.',
-    targetMuscles: ['Gluteus Maximus', 'Pectorals', 'Spinal Erectors', 'Hamstrings', 'Central Nervous System'],
+    targetMuscles: [
+      'Gluteus Maximus',
+      'Pectorals',
+      'Spinal Erectors',
+      'Hamstrings',
+      'Central Nervous System',
+    ],
     exercises: [
       {
         id: 'pl-1',
@@ -105,13 +112,19 @@ export const STRENGTH_BLUEPRINTS: WorkoutBlueprint[] = [
     title: 'Overhead Press Citadel / Strict Barbell',
     subtitle: 'Vertical Pushing Strength, Scapular Elevation & Core Pillar',
     badge: 'STRENGTH',
-    image: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=800&q=80',
+    image:
+      'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=800&q=80',
     phase: 'Phase 1: Max Strength',
     focus: 'Standing Barbell Overhead Press & Kinetic Pillar',
     estimatedTime: '62 Mins',
     description:
       'The pure test of raw vertical pressing power. Features paused standing military press, seated floor Z-press to eliminate lower body cheating, push press supramaximal overloads, and serratus anterior upward rotation drills.',
-    targetMuscles: ['Anterior & Lateral Deltoids', 'Triceps Brachii', 'Upper Trapezius', 'Core Stabilizers'],
+    targetMuscles: [
+      'Anterior & Lateral Deltoids',
+      'Triceps Brachii',
+      'Upper Trapezius',
+      'Core Stabilizers',
+    ],
     exercises: [
       {
         id: 'op-1',
@@ -204,13 +217,20 @@ export const STRENGTH_BLUEPRINTS: WorkoutBlueprint[] = [
     title: 'Trap Bar Deadlift & Grip Fortress',
     subtitle: 'Posterior Hinge Overload, Axle Grip & Scapular Stability',
     badge: 'STRENGTH',
-    image: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=800&q=80',
+    image:
+      'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=800&q=80',
     phase: 'Phase 1: Max Strength',
     focus: 'Neutral-Grip Heavy Pull, Traps & Grip Strength',
     estimatedTime: '65 Mins',
     description:
       'Designed to build brutal posterior hinge strength without spinal shear stress. Features heavy neutral-grip trap bar deadlifts, deficit stiff-legged deadlifts, fat-grip farmer walks, and isometric plate pinches.',
-    targetMuscles: ['Gluteus Maximus', 'Hamstrings', 'Spinal Erectors', 'Forearms / Grip', 'Trapezius'],
+    targetMuscles: [
+      'Gluteus Maximus',
+      'Hamstrings',
+      'Spinal Erectors',
+      'Forearms / Grip',
+      'Trapezius',
+    ],
     exercises: [
       {
         id: 'tb-1',
@@ -303,7 +323,8 @@ export const STRENGTH_BLUEPRINTS: WorkoutBlueprint[] = [
     title: 'Conjugate Dynamic Effort / Speed-Strength',
     subtitle: 'Accommodating Resistance, Band Overload & Bar Acceleration',
     badge: 'STRENGTH',
-    image: 'https://images.unsplash.com/photo-1526506118085-60ce8714f8c5?auto=format&fit=crop&w=800&q=80',
+    image:
+      'https://images.unsplash.com/photo-1526506118085-60ce8714f8c5?auto=format&fit=crop&w=800&q=80',
     phase: 'Phase 1: Dynamic Effort',
     focus: 'Rate of Force Development (RFD) & Submaximal Speed',
     estimatedTime: '58 Mins',
@@ -402,7 +423,8 @@ export const STRENGTH_BLUEPRINTS: WorkoutBlueprint[] = [
     title: 'Squat Mastery / ATG High-Bar & Paused Low-Bar',
     subtitle: 'Deep Olympic Depth, Knee Stability & Kinetic Pillar',
     badge: 'STRENGTH',
-    image: 'https://images.unsplash.com/photo-1574680096145-d05b474e2155?auto=format&fit=crop&w=800&q=80',
+    image:
+      'https://images.unsplash.com/photo-1574680096145-d05b474e2155?auto=format&fit=crop&w=800&q=80',
     phase: 'Phase 1: Foundation',
     focus: '3-Second Pause Squats, Pin Squats & Ankle Mobility',
     estimatedTime: '70 Mins',
@@ -501,7 +523,8 @@ export const STRENGTH_BLUEPRINTS: WorkoutBlueprint[] = [
     title: 'Tactical Calisthenics & Weighted Push/Pull',
     subtitle: 'Supramaximal Weighted Pull-Ups, Ring Dips & Front Lever Core',
     badge: 'STRENGTH',
-    image: 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?auto=format&fit=crop&w=800&q=80',
+    image:
+      'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?auto=format&fit=crop&w=800&q=80',
     phase: 'Phase 1: Relative Strength',
     focus: 'Relative Bodyweight Force & Scapular Stability',
     estimatedTime: '60 Mins',
@@ -600,7 +623,8 @@ export const STRENGTH_BLUEPRINTS: WorkoutBlueprint[] = [
     title: 'Olympic Primer / Snatch & Clean',
     subtitle: 'Bar Path, Second Pull & Overhead Stability',
     badge: 'OLYMPIC',
-    image: 'https://images.unsplash.com/photo-1517964603305-11cb0e7c5ae9?auto=format&fit=crop&w=800&q=80',
+    image:
+      'https://images.unsplash.com/photo-1517964603305-11cb0e7c5ae9?auto=format&fit=crop&w=800&q=80',
     phase: 'Phase 1: Technique Strength',
     focus: 'Olympic Weightlifting Positions & Power',
     estimatedTime: '70 Mins',

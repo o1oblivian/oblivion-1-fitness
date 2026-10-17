@@ -59,19 +59,19 @@ export const HydrationIntelligenceModal: React.FC<HydrationIntelligenceModalProp
     pct >= 100
       ? 'Peak Cellular Hydration'
       : pct >= 66
-      ? 'Optimal INTRA-CELLULAR Equilibrium'
-      : pct >= 33
-      ? 'Moderate osmotic reserve'
-      : 'dehydration deficit';
+        ? 'Optimal INTRA-CELLULAR Equilibrium'
+        : pct >= 33
+          ? 'Moderate osmotic reserve'
+          : 'dehydration deficit';
 
   const hydrationStateColor =
     pct >= 100
       ? 'text-emerald-500'
       : pct >= 66
-      ? 'text-[#4F8F9A]'
-      : pct >= 33
-      ? 'text-amber-400'
-      : 'text-o1-crimson';
+        ? 'text-[#4F8F9A]'
+        : pct >= 33
+          ? 'text-amber-400'
+          : 'text-o1-crimson';
 
   return (
     <div
@@ -100,7 +100,9 @@ export const HydrationIntelligenceModal: React.FC<HydrationIntelligenceModalProp
                   Osmotic
                 </span>
               </div>
-              <p className="text-[11px] font-mono text-neutral-400">Cellular Fluid Retention &amp; Electrolytes</p>
+              <p className="text-[11px] font-mono text-neutral-400">
+                Cellular Fluid Retention &amp; Electrolytes
+              </p>
             </div>
           </div>
           <button
@@ -124,16 +126,22 @@ export const HydrationIntelligenceModal: React.FC<HydrationIntelligenceModalProp
                 <span className="text-3xl font-mono font-light text-white tracking-tight">
                   {currentLiters.toFixed(2)}
                 </span>
-                <span className="text-sm font-mono text-neutral-400">/ {targetLiters != null ? targetLiters.toFixed(2) : '--'} L</span>
+                <span className="text-sm font-mono text-neutral-400">
+                  / {targetLiters != null ? targetLiters.toFixed(2) : '--'} L
+                </span>
               </div>
-              <span className={`text-[10px] font-mono font-medium tracking-wider block ${hydrationStateColor}`}>
+              <span
+                className={`text-[10px] font-mono font-medium tracking-wider block ${hydrationStateColor}`}
+              >
                 {hydrationStateLabel}
               </span>
             </div>
 
             {/* Percentage Badge */}
             <div className="px-3 py-1.5 rounded-xl bg-sky-500/10 border border-sky-500/30 text-right">
-              <span className="text-lg font-mono font-light text-sky-600 leading-none block">{pct}%</span>
+              <span className="text-lg font-mono font-light text-sky-600 leading-none block">
+                {pct}%
+              </span>
               <span className="text-[9px] font-mono text-neutral-400 block mt-0.5">Target</span>
             </div>
           </div>
@@ -151,7 +159,9 @@ export const HydrationIntelligenceModal: React.FC<HydrationIntelligenceModalProp
             <div className="flex justify-between text-[9px] font-mono text-neutral-500 px-0.5">
               <span>0.0L</span>
               <span>{targetLiters != null ? `${(targetLiters / 2).toFixed(1)}L` : '--'}</span>
-              <span>{targetLiters != null ? `${targetLiters.toFixed(1)}L target` : 'Add weight in Fuel'}</span>
+              <span>
+                {targetLiters != null ? `${targetLiters.toFixed(1)}L target` : 'Add weight in Fuel'}
+              </span>
             </div>
           </div>
         </div>
@@ -160,9 +170,7 @@ export const HydrationIntelligenceModal: React.FC<HydrationIntelligenceModalProp
         <div className="space-y-1.5">
           <div className="flex items-center justify-between text-[10px] font-mono tracking-wider text-neutral-400">
             <span>Beverage Hydration Coefficient</span>
-            <span className="text-sky-600 font-mono">
-              Factor: {getMultiplier()}x
-            </span>
+            <span className="text-sky-600 font-mono">Factor: {getMultiplier()}x</span>
           </div>
           <div className="grid grid-cols-3 gap-1.5 p-1 rounded-xl bg-white/[0.03] border border-white/[0.07]">
             {(
@@ -208,13 +216,17 @@ export const HydrationIntelligenceModal: React.FC<HydrationIntelligenceModalProp
                   className="p-3 rounded-2xl bg-white/[0.03] hover:bg-white/[0.07] border border-white/[0.07] hover:border-sky-500/40 text-left active:scale-[0.98] transition-all cursor-pointer group shadow-2xs"
                 >
                   <div className="flex items-center justify-between">
-                    <span className="font-mono font-light text-[15px] text-o1-text">{item.icon}</span>
+                    <span className="font-mono font-light text-[15px] text-o1-text">
+                      {item.icon}
+                    </span>
                     <div className="w-6 h-6 rounded-lg bg-white/5 border border-white/[0.07] flex items-center justify-center text-sky-600 group-hover:bg-sky-600 group-hover:text-black transition-colors">
                       <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
                     </div>
                   </div>
                   <div className="mt-2">
-                    <span className="text-xs font-mono font-medium text-white block">{item.label}</span>
+                    <span className="text-xs font-mono font-medium text-white block">
+                      {item.label}
+                    </span>
                     <span className="text-[10px] font-mono text-sky-600 block mt-0.5">
                       +{effectiveMl}mL effective
                     </span>
@@ -251,5 +263,3 @@ export const HydrationIntelligenceModal: React.FC<HydrationIntelligenceModalProp
     </div>
   );
 };
-
-

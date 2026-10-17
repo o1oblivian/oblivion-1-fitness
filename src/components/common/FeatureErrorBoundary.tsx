@@ -30,7 +30,11 @@ export class FeatureErrorBoundary extends Component<Props, State> {
     if (process.env.NODE_ENV !== 'production') {
       // Keep dev log minimal
       // eslint-disable-next-line no-console
-      console.warn(`[Telemetry Error Boundary] Fault in ${this.props.featureName || 'Module'}:`, error, errorInfo);
+      console.warn(
+        `[Telemetry Error Boundary] Fault in ${this.props.featureName || 'Module'}:`,
+        error,
+        errorInfo,
+      );
     }
   }
 
@@ -56,7 +60,10 @@ export class FeatureErrorBoundary extends Component<Props, State> {
     if (this.state.hasError) {
       const name = this.props.featureName || 'Application View';
       return (
-        <div id="feature-error-boundary-card" className="p-4 max-w-md mx-auto my-6 animate-in fade-in duration-200">
+        <div
+          id="feature-error-boundary-card"
+          className="p-4 max-w-md mx-auto my-6 animate-in fade-in duration-200"
+        >
           <div className="bg-o1-well border border-white/[0.07] text-white rounded-2xl p-5 shadow-2xl space-y-4">
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-xl bg-red-500/15 border border-red-500/30 flex items-center justify-center text-red-400 shrink-0">
@@ -73,8 +80,8 @@ export class FeatureErrorBoundary extends Component<Props, State> {
             </div>
 
             <p className="text-xs text-zinc-300 leading-relaxed font-sans">
-              The telemetry feed encountered an unhandled exception. The failure has been safely isolated
-              to prevent whole-application disruption.
+              The telemetry feed encountered an unhandled exception. The failure has been safely
+              isolated to prevent whole-application disruption.
             </p>
 
             <div className="bg-black rounded-xl p-3 border border-white/[0.07] flex items-start gap-2">

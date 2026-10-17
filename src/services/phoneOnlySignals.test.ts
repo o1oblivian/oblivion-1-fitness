@@ -19,16 +19,31 @@ const on = { osPushEnabled: true, preWorkoutReminder: true };
 
 describe('planReminders', () => {
   it('plans nothing while reminders are off', () => {
-    expect(planReminders({ osPushEnabled: false, preWorkoutReminder: true }, { ...DEFAULT_REMINDERS, hydrationOn: true })).toEqual([]);
+    expect(
+      planReminders(
+        { osPushEnabled: false, preWorkoutReminder: true },
+        { ...DEFAULT_REMINDERS, hydrationOn: true },
+      ),
+    ).toEqual([]);
   });
 
   it('fires 30 minutes before training on each chosen day', () => {
-    const plan = planReminders(on, { ...DEFAULT_REMINDERS, workoutTime: '18:00', selectedDays: ['Mon'], recoveryOn: false });
+    const plan = planReminders(on, {
+      ...DEFAULT_REMINDERS,
+      workoutTime: '18:00',
+      selectedDays: ['Mon'],
+      recoveryOn: false,
+    });
     expect(plan).toEqual([expect.objectContaining({ weekday: 1, hour: 17, minute: 30 })]);
   });
 
   it('moves a just-after-midnight workout reminder to the day before', () => {
-    const plan = planReminders(on, { ...DEFAULT_REMINDERS, workoutTime: '00:15', selectedDays: ['Sun'], recoveryOn: false });
+    const plan = planReminders(on, {
+      ...DEFAULT_REMINDERS,
+      workoutTime: '00:15',
+      selectedDays: ['Sun'],
+      recoveryOn: false,
+    });
     expect(plan).toEqual([expect.objectContaining({ weekday: 6, hour: 23, minute: 45 })]);
   });
 
@@ -83,17 +98,38 @@ describe('HrvCollector', () => {
 
 describe('withoutSteps', () => {
   it('never lets a step-only day leave the phone', () => {
-    expect(withoutSteps('cardio', { hasData: true, activityType: 'Steps', steps: 9000, distanceKm: 0 })).toBeNull();
+    expect(
+      withoutSteps('cardio', { hasData: true, activityType: 'Steps', steps: 9000, distanceKm: 0 }),
+    ).toBeNull();
   });
 
   it('keeps the burn worked out from steps on the phone too', () => {
-    expect(withoutSteps('cardio', { hasData: true, activityType: 'Steps', steps: 9000, stepKcal: 220, burnedKcal: 0 })).toBeNull();
-    const out = withoutSteps('cardio', { hasData: true, activityType: 'Running', steps: 6000, stepKcal: 150, distanceKm: 5 });
+    expect(
+      withoutSteps('cardio', {
+        hasData: true,
+        activityType: 'Steps',
+        steps: 9000,
+        stepKcal: 220,
+        burnedKcal: 0,
+      }),
+    ).toBeNull();
+    const out = withoutSteps('cardio', {
+      hasData: true,
+      activityType: 'Running',
+      steps: 6000,
+      stepKcal: 150,
+      distanceKm: 5,
+    });
     expect(out).toEqual({ hasData: true, activityType: 'Running', distanceKm: 5 });
   });
 
   it('keeps a real cardio session but strips its step count', () => {
-    const out = withoutSteps('cardio', { hasData: true, activityType: 'Running', steps: 6000, distanceKm: 5 });
+    const out = withoutSteps('cardio', {
+      hasData: true,
+      activityType: 'Running',
+      steps: 6000,
+      distanceKm: 5,
+    });
     expect(out).toEqual({ hasData: true, activityType: 'Running', distanceKm: 5 });
   });
 

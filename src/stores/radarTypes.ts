@@ -49,21 +49,23 @@ interface RadarActions {
   handleRescan: () => void;
   handleExpandTo250: () => void;
   handleContractTo25: () => void;
-  setTravelDetails: (details: Partial<{
-    travelOrigin: string;
-    travelOriginCode: string;
-    travelCity: string;
-    travelDestinationCode: string;
-    travelArrivalDate: string;
-    travelDepartureDate: string;
-    travelRadiusKm: number;
-    travelLat: number;
-    travelLng: number;
-    city: string;
-    arrivalDate: string;
-    departureDate: string;
-    radiusKm: number;
-  }>) => void;
+  setTravelDetails: (
+    details: Partial<{
+      travelOrigin: string;
+      travelOriginCode: string;
+      travelCity: string;
+      travelDestinationCode: string;
+      travelArrivalDate: string;
+      travelDepartureDate: string;
+      travelRadiusKm: number;
+      travelLat: number;
+      travelLng: number;
+      city: string;
+      arrivalDate: string;
+      departureDate: string;
+      radiusKm: number;
+    }>,
+  ) => void;
   applyFilters: (filters: { disciplines: string[]; times: string[]; radiusKm: number }) => void;
   getDisplayedAthletes: () => AthleteBlip[];
   setAthletes: (athletes: AthleteBlip[]) => void;

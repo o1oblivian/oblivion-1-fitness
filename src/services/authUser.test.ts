@@ -6,7 +6,8 @@ vi.mock('./supabaseClient', () => ({ supabase: { auth } }));
 import { forgetVerifiedUser, getAuthenticatedUserId } from './authUser';
 
 const USER = '11111111-1111-4111-8111-111111111111';
-const signedIn = (token: string) => auth.getSession.mockResolvedValue({ data: { session: { access_token: token } } });
+const signedIn = (token: string) =>
+  auth.getSession.mockResolvedValue({ data: { session: { access_token: token } } });
 
 describe('getAuthenticatedUserId', () => {
   beforeEach(() => {
@@ -17,7 +18,11 @@ describe('getAuthenticatedUserId', () => {
 
   it('shares one server check between simultaneous callers', async () => {
     signedIn('token-a');
-    const ids = await Promise.all([getAuthenticatedUserId(), getAuthenticatedUserId(), getAuthenticatedUserId()]);
+    const ids = await Promise.all([
+      getAuthenticatedUserId(),
+      getAuthenticatedUserId(),
+      getAuthenticatedUserId(),
+    ]);
     expect(ids).toEqual([USER, USER, USER]);
     expect(auth.getUser).toHaveBeenCalledTimes(1);
   });

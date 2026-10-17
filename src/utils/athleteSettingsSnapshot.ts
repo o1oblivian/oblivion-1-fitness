@@ -38,10 +38,9 @@ const DEFAULTS: AthleteSettingsSnapshot = {
 };
 
 export function readAthleteSettingsSnapshot(): AthleteSettingsSnapshot {
-  const cached = safeStorage.getItem<Partial<AthleteSettingsSnapshot> & { publicTelemetry?: boolean }>(
-    O1_SETTINGS_KEY,
-    {}
-  );
+  const cached = safeStorage.getItem<
+    Partial<AthleteSettingsSnapshot> & { publicTelemetry?: boolean }
+  >(O1_SETTINGS_KEY, {});
   return {
     ...DEFAULTS,
     ...cached,

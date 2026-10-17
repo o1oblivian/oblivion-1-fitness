@@ -1,6 +1,12 @@
 // Safe Storage utility with memory fallback and typed JSON serialization
 // Protects against browser storage restrictions (Brave Shields, Safari Private, iFrame security)
-import { durableClear, durableDelete, durablePut, isDurableKey, restoreDurable } from './durableStore';
+import {
+  durableClear,
+  durableDelete,
+  durablePut,
+  isDurableKey,
+  restoreDurable,
+} from './durableStore';
 
 const memoryStore = new Map<string, string>();
 
@@ -97,5 +103,3 @@ export function restoreDurableStorage(): Promise<void> {
     }
   });
 }
-
-

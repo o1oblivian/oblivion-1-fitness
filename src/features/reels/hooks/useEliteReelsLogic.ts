@@ -18,15 +18,17 @@ import { useReelViewsStore } from '../services/reelViews';
 import { isReelVisible, useReelSafetyStore, useVisibleReels } from '../services/reelSafety';
 import { reelCategoryLabel } from '../reelCategories';
 
-export { CATEGORIES,  } from './reelsFilterHelper';
+export { CATEGORIES } from './reelsFilterHelper';
 
 function titleCase(raw: string): string {
-  return raw.toLowerCase().replace(/(^|[\s/&-])([a-z])/g, (_, lead: string, ch: string) => lead + ch.toUpperCase());
+  return raw
+    .toLowerCase()
+    .replace(/(^|[\s/&-])([a-z])/g, (_, lead: string, ch: string) => lead + ch.toUpperCase());
 }
 
 export function useEliteReelsLogic(
   initialCategory: ExploreReelItem['category'] = 'ALL',
-  initialFilter: string = 'ALL'
+  initialFilter: string = 'ALL',
 ) {
   const allReels = useVisibleReels(useReelsStore((s) => s.reels));
   const blockedCoaches = useReelSafetyStore((s) => s.blockedCoaches);
@@ -36,7 +38,8 @@ export function useEliteReelsLogic(
     void hydrateSafety();
   }, [hydrateSafety]);
   const [selectedFilter, setSelectedFilter] = useState(initialFilter);
-  const [selectedCategory, setSelectedCategory] = useState<ExploreReelItem['category']>(initialCategory);
+  const [selectedCategory, setSelectedCategory] =
+    useState<ExploreReelItem['category']>(initialCategory);
   const [searchQuery, setSearchQuery] = useState('');
   const [remoteCoaches, setRemoteCoaches] = useState<ExploreCoach[]>([]);
 
@@ -45,13 +48,19 @@ export function useEliteReelsLogic(
     void fetchCoachCards().then((cards) => {
       if (isMounted) setRemoteCoaches(cards.map(toExploreCoach));
     });
-    return () => { isMounted = false; };
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const discipline = useConsultationStore((state) => state.primaryDiscipline);
   const filteredReels = useMemo(() => {
     const rows = filterReelsCatalog(allReels, selectedFilter, selectedCategory, searchQuery);
-    return [...rows].sort((a, b) => Number(textHitsDiscipline(`${b.title} ${b.filterTag || ''}`, discipline)) - Number(textHitsDiscipline(`${a.title} ${a.filterTag || ''}`, discipline)));
+    return [...rows].sort(
+      (a, b) =>
+        Number(textHitsDiscipline(`${b.title} ${b.filterTag || ''}`, discipline)) -
+        Number(textHitsDiscipline(`${a.title} ${a.filterTag || ''}`, discipline)),
+    );
   }, [allReels, selectedFilter, selectedCategory, searchQuery, discipline]);
 
   const categoryCounts = useMemo(() => {
@@ -77,12 +86,17 @@ export function useEliteReelsLogic(
     let live = true;
     void getAuthenticatedUserId().then(async (userId) => {
       userRef.current = userId || '';
-      const [saved, liked] = await Promise.all([loadVaultBookmarks(userRef.current), loadMyLikes(userRef.current)]);
+      const [saved, liked] = await Promise.all([
+        loadVaultBookmarks(userRef.current),
+        loadMyLikes(userRef.current),
+      ]);
       if (!live) return;
       setSavedReels(saved);
       setLikedReels(liked);
     });
-    return () => { live = false; };
+    return () => {
+      live = false;
+    };
   }, []);
 
   const activeReelId = activeReel?.id || '';
@@ -94,7 +108,9 @@ export function useEliteReelsLogic(
     void fetchLikeCount(activeReelId).then((count) => {
       if (live) setLikeCounts((prev) => ({ ...prev, [activeReelId]: count }));
     });
-    return () => { live = false; };
+    return () => {
+      live = false;
+    };
   }, [activeReelId, markViewed]);
 
   const [toast, setToast] = useState<string | null>(null);
@@ -106,9 +122,12 @@ export function useEliteReelsLogic(
     setToast(message);
     toastTimer.current = setTimeout(() => setToast(null), 2200);
   };
-  useEffect(() => () => {
-    if (toastTimer.current) clearTimeout(toastTimer.current);
-  }, []);
+  useEffect(
+    () => () => {
+      if (toastTimer.current) clearTimeout(toastTimer.current);
+    },
+    [],
+  );
 
   const exercises = useWorkoutStore((s) => s.exercises);
   const addedExercises = useMemo(() => {
@@ -147,7 +166,9 @@ export function useEliteReelsLogic(
     tactileEngine.triggerSelectionBuzz();
     const liked = !likedReels[id];
     const bump = (delta: number) =>
-      setLikeCounts((prev) => (prev[id] == null ? prev : { ...prev, [id]: Math.max(0, (prev[id] as number) + delta) }));
+      setLikeCounts((prev) =>
+        prev[id] == null ? prev : { ...prev, [id]: Math.max(0, (prev[id] as number) + delta) },
+      );
     setLikedReels((prev) => ({ ...prev, [id]: liked }));
     bump(liked ? 1 : -1);
     void setReelLike(userRef.current, id, liked).then((ok) => {
@@ -179,7 +200,9 @@ export function useEliteReelsLogic(
     tactileEngine.triggerLightTick();
     const target = {
       title: activeReel.title,
-      text: activeReel.coach?.name ? `${activeReel.title} by ${activeReel.coach.name}` : activeReel.title,
+      text: activeReel.coach?.name
+        ? `${activeReel.title} by ${activeReel.coach.name}`
+        : activeReel.title,
       url: reelUrl(activeReel.id),
     };
     if ((await shareLink(target)) === 'options') setLinkSheet(target);
@@ -209,7 +232,9 @@ export function useEliteReelsLogic(
         completed: false,
       })),
     });
-    flash(load > 0 ? 'Added to today\u2019s log with your working load' : 'Added to today\u2019s log');
+    flash(
+      load > 0 ? 'Added to today\u2019s log with your working load' : 'Added to today\u2019s log',
+    );
   };
 
   const coachesList = useMemo(() => {
@@ -220,15 +245,49 @@ export function useEliteReelsLogic(
       const matchesQuery = !q || blob.toLowerCase().includes(q);
       return matchesQuery && chipHit(blob, selectedFilter);
     });
-    return [...rows].sort((a, b) => Number(textHitsDiscipline(`${b.specialtyTitle} ${b.specialty}`, discipline)) - Number(textHitsDiscipline(`${a.specialtyTitle} ${a.specialty}`, discipline)));
+    return [...rows].sort(
+      (a, b) =>
+        Number(textHitsDiscipline(`${b.specialtyTitle} ${b.specialty}`, discipline)) -
+        Number(textHitsDiscipline(`${a.specialtyTitle} ${a.specialty}`, discipline)),
+    );
   }, [searchQuery, remoteCoaches, selectedFilter, discipline, blockedCoaches]);
 
   return {
-    selectedFilter, setSelectedFilter, selectedCategory, setSelectedCategory,
-    searchQuery, setSearchQuery, activeReel, setActiveReel, activeClip, setActiveClip,
-    isPlaying, setIsPlaying, videoRef, likedReels, likeCounts, savedReels, addedExercises,
-    bookingCoach, setBookingCoach, messageCoach, setMessageCoach, setPlaylist, handleNextReel, handlePrevReel,
-    handleToggleLike, handleToggleSave, handleTogglePlay,
-    handleShare, handleAddExerciseToWorkout, filteredReels, categoryCounts, coachesList, toast, flash, linkSheet, setLinkSheet,
+    selectedFilter,
+    setSelectedFilter,
+    selectedCategory,
+    setSelectedCategory,
+    searchQuery,
+    setSearchQuery,
+    activeReel,
+    setActiveReel,
+    activeClip,
+    setActiveClip,
+    isPlaying,
+    setIsPlaying,
+    videoRef,
+    likedReels,
+    likeCounts,
+    savedReels,
+    addedExercises,
+    bookingCoach,
+    setBookingCoach,
+    messageCoach,
+    setMessageCoach,
+    setPlaylist,
+    handleNextReel,
+    handlePrevReel,
+    handleToggleLike,
+    handleToggleSave,
+    handleTogglePlay,
+    handleShare,
+    handleAddExerciseToWorkout,
+    filteredReels,
+    categoryCounts,
+    coachesList,
+    toast,
+    flash,
+    linkSheet,
+    setLinkSheet,
   };
 }

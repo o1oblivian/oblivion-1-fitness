@@ -22,7 +22,7 @@ export interface BestSet {
 export function priorBestSet(
   exerciseName: string,
   beforeDateKey?: string,
-  history = getTelemetryHistoryState().historyByDate
+  history = getTelemetryHistoryState().historyByDate,
 ): BestSet | null {
   const key = exerciseName.trim().toLowerCase();
   if (!key) return null;
@@ -32,9 +32,10 @@ export function priorBestSet(
     const exercises = day?.workout?.exercises || [];
     for (const exercise of exercises) {
       if ((exercise.name || '').trim().toLowerCase() !== key) continue;
-      const sets = exercise.setLog && exercise.setLog.length > 0
-        ? exercise.setLog
-        : [{ weightKg: exercise.weightKg || 0, reps: exercise.reps || 0 }];
+      const sets =
+        exercise.setLog && exercise.setLog.length > 0
+          ? exercise.setLog
+          : [{ weightKg: exercise.weightKg || 0, reps: exercise.reps || 0 }];
       for (const set of sets) {
         const max = estimatedMaxKg(set.weightKg, set.reps);
         if (max > 0 && (!best || max > best.estimatedMaxKg)) {
@@ -50,7 +51,12 @@ export function priorBestKg(exerciseName: string, beforeDateKey?: string): numbe
   return priorBestSet(exerciseName, beforeDateKey)?.estimatedMaxKg ?? 0;
 }
 
-export function setIsPr(exerciseName: string, weightKg: number, reps: number, priorKg: number): boolean {
+export function setIsPr(
+  exerciseName: string,
+  weightKg: number,
+  reps: number,
+  priorKg: number,
+): boolean {
   const next = estimatedMaxKg(weightKg, reps);
   return next > 0 && next > priorKg;
 }

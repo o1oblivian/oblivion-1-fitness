@@ -68,7 +68,11 @@ export const ReelExploreHeader: React.FC<ReelExploreHeaderProps> = ({
         )}
       </div>
 
-      <div role="tablist" aria-label="Reel categories" className="flex items-center gap-2 overflow-x-auto scrollbar-none pb-0.5">
+      <div
+        role="tablist"
+        aria-label="Reel categories"
+        className="flex items-center gap-2 overflow-x-auto scrollbar-none pb-0.5"
+      >
         {TABS.map((tab) => {
           const isSelected = selectedCategory === tab.id;
           const count = counts[tab.id] ?? 0;
@@ -90,7 +94,11 @@ export const ReelExploreHeader: React.FC<ReelExploreHeaderProps> = ({
               }`}
             >
               {tab.label}
-              <span className={`ml-1.5 tabular-nums ${isSelected ? 'text-white/70' : 'text-[#5A5852]'}`}>{count}</span>
+              <span
+                className={`ml-1.5 tabular-nums ${isSelected ? 'text-white/70' : 'text-[#5A5852]'}`}
+              >
+                {count}
+              </span>
             </button>
           );
         })}

@@ -10,7 +10,11 @@ export interface ProfileFilm {
 export async function fetchCoachFilms(coachId: string): Promise<ProfileFilm[] | null> {
   const reels = await fetchCoachReels(coachId);
   if (!reels) return null;
-  return reels.map((reel) => ({ id: reel.id, title: reel.title, thumb: reel.thumbnail || reel.videoUrl }));
+  return reels.map((reel) => ({
+    id: reel.id,
+    title: reel.title,
+    thumb: reel.thumbnail || reel.videoUrl,
+  }));
 }
 
 export function figureCount(count: number): string {

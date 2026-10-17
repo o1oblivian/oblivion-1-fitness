@@ -2,7 +2,12 @@ import type { Express } from 'express';
 
 /** CORS for the native app origins, plus a per-address cap on the routes that cost money per call. */
 export function registerApiGuards(app: Express): void {
-  const APP_ORIGINS = new Set(['https://localhost', 'http://localhost', 'capacitor://localhost', 'ionic://localhost']);
+  const APP_ORIGINS = new Set([
+    'https://localhost',
+    'http://localhost',
+    'capacitor://localhost',
+    'ionic://localhost',
+  ]);
   app.use('/api', (req, res, next) => {
     const origin = String(req.headers.origin || '');
     if (APP_ORIGINS.has(origin)) {

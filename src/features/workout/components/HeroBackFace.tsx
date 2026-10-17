@@ -101,7 +101,10 @@ export const HeroBackFace: React.FC<HeroBackFaceProps> = ({
         />
       )}
 
-      <div className="relative w-full h-full flex flex-col justify-between p-3 pb-3.5 select-none" style={{ textShadow: '0 1px 2px rgba(0,0,0,0.7)' }}>
+      <div
+        className="relative w-full h-full flex flex-col justify-between p-3 pb-3.5 select-none"
+        style={{ textShadow: '0 1px 2px rgba(0,0,0,0.7)' }}
+      >
         <div className="flex justify-end items-center w-full z-10">
           <button
             type="button"
@@ -130,9 +133,13 @@ export const HeroBackFace: React.FC<HeroBackFaceProps> = ({
           <span className="text-6xl sm:text-7xl font-mono font-light text-white tracking-tight">
             {readinessScore === null ? '--' : `${readinessScore}%`}
           </span>
-          <span className="text-o1-crimson font-sans font-semibold text-[13px] mt-1">Restoration readiness</span>
+          <span className="text-o1-crimson font-sans font-semibold text-[13px] mt-1">
+            Restoration readiness
+          </span>
           {readinessScore === null && (
-            <span className="text-white/75 font-sans text-[11px] font-semibold mt-1.5">Log sleep to unlock</span>
+            <span className="text-white/75 font-sans text-[11px] font-semibold mt-1.5">
+              Log sleep to unlock
+            </span>
           )}
         </button>
 
@@ -174,5 +181,3 @@ export const HeroBackFace: React.FC<HeroBackFaceProps> = ({
     </div>
   );
 };
-
-

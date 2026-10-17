@@ -30,12 +30,13 @@ const EMPTY_TRIAL: TrialState = {
 export function getAthleteTrialState(userId: string = ''): TrialState {
   if (!userId) return EMPTY_TRIAL;
   const now = Date.now();
-  
+
   // 1. Check local storage
-  let stored = safeStorage.getItem<{ startDate: string; hasSubscribedPro?: boolean; planId?: string } | null>(
-    `${TRIAL_STORAGE_KEY}_${userId}`,
-    null
-  );
+  let stored = safeStorage.getItem<{
+    startDate: string;
+    hasSubscribedPro?: boolean;
+    planId?: string;
+  } | null>(`${TRIAL_STORAGE_KEY}_${userId}`, null);
 
   // If first time, seed initial 90-day trial start
   if (!stored || !stored.startDate) {
@@ -83,5 +84,8 @@ export function clearProSubscription(userId: string = ''): void {
   if (!userId) return;
   const current = getAthleteTrialState(userId);
   if (!current.hasSubscribedPro) return;
-  safeStorage.setItem(`${TRIAL_STORAGE_KEY}_${userId}`, { startDate: current.startDate, hasSubscribedPro: false });
+  safeStorage.setItem(`${TRIAL_STORAGE_KEY}_${userId}`, {
+    startDate: current.startDate,
+    hasSubscribedPro: false,
+  });
 }

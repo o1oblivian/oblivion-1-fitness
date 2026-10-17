@@ -11,11 +11,15 @@ vi.mock('./authUser', () => ({
 }));
 
 const { archiveSession, forgetPendingArchives } = await import('./sessionArchive');
-const { enqueueSync, flushSync, pendingSyncOps, registerSyncHandler } = await import('./syncOutbox');
+const { enqueueSync, flushSync, pendingSyncOps, registerSyncHandler } =
+  await import('./syncOutbox');
 const { safeStorage } = await import('../utils/safeStorage');
 
 const UID = '11111111-2222-3333-4444-555555555555';
-const sessions = () => pendingSyncOps().filter((op) => op.kind === 'session').map((op) => op.payload as Record<string, any>);
+const sessions = () =>
+  pendingSyncOps()
+    .filter((op) => op.kind === 'session')
+    .map((op) => op.payload as Record<string, any>);
 
 beforeEach(() => {
   safeStorage.clear();
@@ -53,7 +57,11 @@ describe('archiveSession offline', () => {
     liveUser.mockResolvedValue(UID);
     sync.mockResolvedValue(false);
     const at = new Date(2026, 9, 14, 18).toISOString();
-    await archiveSession({ title: 'Push', completed_at: at, exercises: [{ name: 'Bench' }, { name: 'Dips' }] });
+    await archiveSession({
+      title: 'Push',
+      completed_at: at,
+      exercises: [{ name: 'Bench' }, { name: 'Dips' }],
+    });
     forgetPendingArchives('2026-10-14', 'workout', 'Bench');
     expect(sessions()[0].exercises).toEqual([{ name: 'Dips' }]);
     forgetPendingArchives('2026-10-14', 'cardio');

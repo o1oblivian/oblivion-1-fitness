@@ -37,11 +37,7 @@ const DISCIPLINES_LIST = [
   'Rowing',
 ];
 
-export const RadarProfileStudioModal: React.FC<Props> = ({
-  isOpen,
-  onClose,
-  onApplyAndScan,
-}) => {
+export const RadarProfileStudioModal: React.FC<Props> = ({ isOpen, onClose, onApplyAndScan }) => {
   const buddy = useBuddyProfileStore();
   const radar = useRadarStore();
   const role = useRoleStore((s) => s.role);
@@ -57,7 +53,9 @@ export const RadarProfileStudioModal: React.FC<Props> = ({
   const hoverDropIdxRef = useRef<number | null>(null);
   const pointerStartPos = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
   const hasMovedRef = useRef<boolean>(false);
-  const cachedSlotRects = useRef<{ left: number; top: number; right: number; bottom: number }[]>([]);
+  const cachedSlotRects = useRef<{ left: number; top: number; right: number; bottom: number }[]>(
+    [],
+  );
   const slotRefs = useRef<(HTMLElement | null)[]>([]);
 
   const { ageRangeMin, ageRangeMax, setAgeRange } = buddy;
@@ -238,7 +236,7 @@ export const RadarProfileStudioModal: React.FC<Props> = ({
           {/* ========================================================================= */}
           {/* TAB: EDIT PROFILE (When View Mode is EDIT)                                */}
           {/* ========================================================================= */}
-          {(
+          {
             <div className="space-y-4 animate-in fade-in duration-150">
               {/* Profile Photos Grid */}
               <div className="bg-o1-card p-4 rounded-2xl border border-white/[0.07] space-y-3 shadow-xs">
@@ -267,7 +265,8 @@ export const RadarProfileStudioModal: React.FC<Props> = ({
                   {Array.from({ length: 6 }).map((_, idx) => {
                     const imgUrl = currentPhotos[idx];
                     const isDraggingThis = activeDragIdx === idx;
-                    const isHoverTarget = hoverDropIdx === idx && activeDragIdx !== null && activeDragIdx !== idx;
+                    const isHoverTarget =
+                      hoverDropIdx === idx && activeDragIdx !== null && activeDragIdx !== idx;
                     const isSelected = selectedSlotForSwap === idx;
 
                     if (!imgUrl) {
@@ -303,18 +302,18 @@ export const RadarProfileStudioModal: React.FC<Props> = ({
                           transform: isDraggingThis
                             ? `translate3d(${dragOffset.x}px, ${dragOffset.y}px, 0) scale(1.06)`
                             : isHoverTarget
-                            ? 'scale(0.96)'
-                            : 'none',
+                              ? 'scale(0.96)'
+                              : 'none',
                           zIndex: isDraggingThis ? 40 : 1,
                         }}
                         className={`aspect-[3/4] rounded-2xl relative overflow-hidden bg-o1-well select-none cursor-grab active:cursor-grabbing transition-transform ${
                           isDraggingThis
                             ? 'shadow-2xl ring-2 ring-o1-crimson opacity-90'
                             : isHoverTarget
-                            ? 'ring-2 ring-emerald-500'
-                            : isSelected
-                            ? 'ring-2 ring-o1-crimson'
-                            : ''
+                              ? 'ring-2 ring-emerald-500'
+                              : isSelected
+                                ? 'ring-2 ring-o1-crimson'
+                                : ''
                         }`}
                       >
                         <img
@@ -363,12 +362,18 @@ export const RadarProfileStudioModal: React.FC<Props> = ({
                   { label: "I'm looking for", placeholder: 'A spotter who shows up' },
                   { label: 'A good session is', placeholder: 'Heavy, short, and done' },
                 ].map((prompt, index) => {
-                  const parts = buddy.partnerBio.includes('\n') ? buddy.partnerBio.split('\n') : [buddy.partnerBio, '', ''];
+                  const parts = buddy.partnerBio.includes('\n')
+                    ? buddy.partnerBio.split('\n')
+                    : [buddy.partnerBio, '', ''];
                   return (
                     <label key={prompt.label} className="block">
                       <span className="text-[12px] text-neutral-400">{prompt.label}</span>
                       <input
-                        value={index === 0 && !buddy.partnerBio.includes('\n') ? buddy.partnerBio : (parts[index] || '')}
+                        value={
+                          index === 0 && !buddy.partnerBio.includes('\n')
+                            ? buddy.partnerBio
+                            : parts[index] || ''
+                        }
                         onChange={(event) => {
                           const next = buddy.partnerBio.includes('\n')
                             ? buddy.partnerBio.split('\n')
@@ -391,9 +396,7 @@ export const RadarProfileStudioModal: React.FC<Props> = ({
 
                 <div className="grid grid-cols-3 gap-2">
                   <div className="col-span-2 space-y-1">
-                    <label className="text-[10px] font-mono text-neutral-400 font-bold">
-                      Name
-                    </label>
+                    <label className="text-[10px] font-mono text-neutral-400 font-bold">Name</label>
                     <input
                       type="text"
                       value={buddy.displayName}
@@ -402,9 +405,7 @@ export const RadarProfileStudioModal: React.FC<Props> = ({
                     />
                   </div>
                   <div className="space-y-1">
-                    <label className="text-[10px] font-mono text-neutral-400 font-bold">
-                      Age
-                    </label>
+                    <label className="text-[10px] font-mono text-neutral-400 font-bold">Age</label>
                     <input
                       type="number"
                       inputMode="numeric"
@@ -412,7 +413,9 @@ export const RadarProfileStudioModal: React.FC<Props> = ({
                       max={99}
                       placeholder="18+"
                       value={buddy.age > 0 ? buddy.age : ''}
-                      onChange={(e) => buddy.setAge(Math.max(0, Math.min(99, parseInt(e.target.value, 10) || 0)))}
+                      onChange={(e) =>
+                        buddy.setAge(Math.max(0, Math.min(99, parseInt(e.target.value, 10) || 0)))
+                      }
                       className="w-full bg-o1-well border border-white/[0.07] rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-o1-crimson"
                     />
                   </div>
@@ -427,12 +430,16 @@ export const RadarProfileStudioModal: React.FC<Props> = ({
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-mono text-neutral-400 font-bold block">I am</label>
+                  <label className="text-[10px] font-mono text-neutral-400 font-bold block">
+                    I am
+                  </label>
                   <div className="flex flex-wrap gap-1.5">
-                    {([
-                      ['women', 'Woman'],
-                      ['men', 'Man'],
-                    ] as const).map(([id, label]) => (
+                    {(
+                      [
+                        ['women', 'Woman'],
+                        ['men', 'Man'],
+                      ] as const
+                    ).map(([id, label]) => (
                       <button
                         key={id}
                         type="button"
@@ -446,13 +453,17 @@ export const RadarProfileStudioModal: React.FC<Props> = ({
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-mono text-neutral-400 font-bold block">Where I train</label>
+                  <label className="text-[10px] font-mono text-neutral-400 font-bold block">
+                    Where I train
+                  </label>
                   <div className="flex flex-wrap gap-1.5">
-                    {([
-                      ['gym', 'Gym'],
-                      ['home', 'Home'],
-                      ['outdoors', 'Outdoors'],
-                    ] as const).map(([id, label]) => (
+                    {(
+                      [
+                        ['gym', 'Gym'],
+                        ['home', 'Home'],
+                        ['outdoors', 'Outdoors'],
+                      ] as const
+                    ).map(([id, label]) => (
                       <button
                         key={id}
                         type="button"
@@ -498,9 +509,8 @@ export const RadarProfileStudioModal: React.FC<Props> = ({
                   </div>
                 </div>
               </div>
-
             </div>
-          )}
+          }
         </div>
 
         <div className="shrink-0 border-t border-white/[0.05] bg-o1-card p-3">
@@ -516,19 +526,11 @@ export const RadarProfileStudioModal: React.FC<Props> = ({
 
       {/* DIRECT MASTER VAULT INTEGRATION */}
       {isVaultOpen && role === 'coach' && (
-        <CoachVaultModal
-          isOpen
-          onClose={() => setIsVaultOpen(false)}
-        />
+        <CoachVaultModal isOpen onClose={() => setIsVaultOpen(false)} />
       )}
       {isVaultOpen && role !== 'coach' && (
-        <PhotoVaultModal
-          isOpen
-          onClose={() => setIsVaultOpen(false)}
-        />
+        <PhotoVaultModal isOpen onClose={() => setIsVaultOpen(false)} />
       )}
     </div>
   );
 };
-
-

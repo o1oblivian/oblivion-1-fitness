@@ -70,7 +70,9 @@ export const FoodPortionDialModal: React.FC<FoodPortionDialModalProps> = ({
   const label = countLabel(food?.serving_size);
   const canServings = Boolean(onSetServings) && (servingG == null || label != null);
   const canGrams = servingG != null;
-  const maxG = servingG ? Math.min(3000, Math.max(500, Math.ceil((servingG * 5) / 100) * 100)) : 2000;
+  const maxG = servingG
+    ? Math.min(3000, Math.max(500, Math.ceil((servingG * 5) / 100) * 100))
+    : 2000;
   const memoryKey = food?.id || foodName || '';
 
   const [unit, setUnit] = useState<Unit>('g');
@@ -86,7 +88,13 @@ export const FoodPortionDialModal: React.FC<FoodPortionDialModalProps> = ({
   const holdRef = useRef<number | null>(null);
   const committedRef = useRef(false);
   const tickRef = useRef({ bucket: 0, at: 0, quiet: false });
-  const dragRef = useRef<{ x: number; start: number; lastX: number; lastT: number; vel: number } | null>(null);
+  const dragRef = useRef<{
+    x: number;
+    start: number;
+    lastX: number;
+    lastT: number;
+    vel: number;
+  } | null>(null);
 
   const max = unit === 'g' ? maxG : MAX_SERVINGS;
   const cfg = SCALE[unit];
@@ -115,7 +123,7 @@ export const FoodPortionDialModal: React.FC<FoodPortionDialModalProps> = ({
         }
       }
     },
-    [max, unit]
+    [max, unit],
   );
 
   const glideTo = useCallback(
@@ -136,15 +144,20 @@ export const FoodPortionDialModal: React.FC<FoodPortionDialModalProps> = ({
       };
       animRef.current = requestAnimationFrame(step);
     },
-    [place]
+    [place],
   );
 
   useEffect(() => {
     if (!isOpen) return;
     const memory = safeStorage.getItem<PortionMemory>(MEMORY_KEY, {});
-    const last = memoryKey ? memory[memoryKey] ?? null : null;
-    const startUnit: Unit = !canGrams ? 'serv' : last?.unit === 'serv' && canServings ? 'serv' : 'g';
-    const start = last && last.unit === startUnit ? last.amount : startUnit === 'g' ? servingG ?? 100 : 1;
+    const last = memoryKey ? (memory[memoryKey] ?? null) : null;
+    const startUnit: Unit = !canGrams
+      ? 'serv'
+      : last?.unit === 'serv' && canServings
+        ? 'serv'
+        : 'g';
+    const start =
+      last && last.unit === startUnit ? last.amount : startUnit === 'g' ? (servingG ?? 100) : 1;
     setLastPortion(last);
     setUnit(startUnit);
     posRef.current = start;
@@ -173,8 +186,12 @@ export const FoodPortionDialModal: React.FC<FoodPortionDialModalProps> = ({
     if (next === unit || !servingG) return;
     tactileEngine.triggerSelectionBuzz();
     stopAnim();
-    const converted = next === 'serv' ? snap(amount / servingG, 'serv') : snap(amount * servingG, 'g');
-    const v = next === 'serv' ? Math.max(0.25, Math.min(MAX_SERVINGS, converted)) : Math.min(maxG, converted);
+    const converted =
+      next === 'serv' ? snap(amount / servingG, 'serv') : snap(amount * servingG, 'g');
+    const v =
+      next === 'serv'
+        ? Math.max(0.25, Math.min(MAX_SERVINGS, converted))
+        : Math.min(maxG, converted);
     setUnit(next);
     posRef.current = v;
     setPos(v);
@@ -185,7 +202,13 @@ export const FoodPortionDialModal: React.FC<FoodPortionDialModalProps> = ({
     stopAnim();
     tickRef.current.quiet = false;
     e.currentTarget.setPointerCapture(e.pointerId);
-    dragRef.current = { x: e.clientX, start: posRef.current, lastX: e.clientX, lastT: performance.now(), vel: 0 };
+    dragRef.current = {
+      x: e.clientX,
+      start: posRef.current,
+      lastX: e.clientX,
+      lastT: performance.now(),
+      vel: 0,
+    };
   };
 
   const onPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
@@ -233,7 +256,8 @@ export const FoodPortionDialModal: React.FC<FoodPortionDialModalProps> = ({
   const onRulerKey = (e: React.KeyboardEvent<HTMLDivElement>) => {
     const big = e.shiftKey ? cfg.major : cfg.minor;
     if (e.key === 'ArrowRight' || e.key === 'ArrowUp') place(snap(posRef.current + big, unit));
-    else if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') place(snap(posRef.current - big, unit));
+    else if (e.key === 'ArrowLeft' || e.key === 'ArrowDown')
+      place(snap(posRef.current - big, unit));
     else return;
     e.preventDefault();
   };
@@ -243,9 +267,30 @@ export const FoodPortionDialModal: React.FC<FoodPortionDialModalProps> = ({
   const scale = unit === 'g' ? (servingG ? shown / servingG : shown / 100) : shown;
   const kcal = Math.round(food.calories * scale);
   const macros = [
-    { key: 'P', name: 'Protein', value: round1(food.protein * scale), left: budget?.protein, color: 'bg-o1-crimson', text: 'text-o1-crimson' },
-    { key: 'C', name: 'Carbs', value: round1(food.carbs * scale), left: budget?.carbs, color: 'bg-amber-500', text: 'text-amber-500' },
-    { key: 'F', name: 'Fat', value: round1(food.fats * scale), left: budget?.fats, color: 'bg-emerald-500', text: 'text-emerald-500' },
+    {
+      key: 'P',
+      name: 'Protein',
+      value: round1(food.protein * scale),
+      left: budget?.protein,
+      color: 'bg-o1-crimson',
+      text: 'text-o1-crimson',
+    },
+    {
+      key: 'C',
+      name: 'Carbs',
+      value: round1(food.carbs * scale),
+      left: budget?.carbs,
+      color: 'bg-amber-500',
+      text: 'text-amber-500',
+    },
+    {
+      key: 'F',
+      name: 'Fat',
+      value: round1(food.fats * scale),
+      left: budget?.fats,
+      color: 'bg-emerald-500',
+      text: 'text-emerald-500',
+    },
   ];
 
   const portionText =
@@ -258,13 +303,19 @@ export const FoodPortionDialModal: React.FC<FoodPortionDialModalProps> = ({
     chips.push(
       { id: 'half', text: '½ serve', unit: 'g', value: snap(servingG / 2, 'g') },
       { id: 'one', text: label ? `1 · ${servingG}g` : `${servingG} g`, unit: 'g', value: servingG },
-      { id: 'two', text: '2 serves', unit: 'g', value: Math.min(maxG, servingG * 2) }
+      { id: 'two', text: '2 serves', unit: 'g', value: Math.min(maxG, servingG * 2) },
     );
     if (servingG !== 100) chips.push({ id: '100', text: '100 g', unit: 'g', value: 100 });
   } else if (unit === 'serv') {
-    [0.5, 1, 1.5, 2, 3].forEach((v) => chips.push({ id: `s${v}`, text: `${formatServings(v)}×`, unit: 'serv', value: v }));
+    [0.5, 1, 1.5, 2, 3].forEach((v) =>
+      chips.push({ id: `s${v}`, text: `${formatServings(v)}×`, unit: 'serv', value: v }),
+    );
   }
-  if (lastPortion && lastPortion.unit === unit && !chips.some((c) => c.value === lastPortion.amount)) {
+  if (
+    lastPortion &&
+    lastPortion.unit === unit &&
+    !chips.some((c) => c.value === lastPortion.amount)
+  ) {
     chips.unshift({
       id: 'last',
       text: `Last · ${unit === 'g' ? `${lastPortion.amount} g` : `${formatServings(lastPortion.amount)}×`}`,
@@ -361,7 +412,7 @@ export const FoodPortionDialModal: React.FC<FoodPortionDialModalProps> = ({
         strokeOpacity={passed ? (major ? 0.9 : 0.55) : major ? 0.55 : 0.28}
         strokeWidth={major ? 1.6 : 1}
         strokeLinecap="round"
-      />
+      />,
     );
     if (major) {
       const text = unit === 'g' ? (v >= 1000 ? `${round1(v / 1000)}kg` : String(v)) : `${v}×`;
@@ -378,12 +429,25 @@ export const FoodPortionDialModal: React.FC<FoodPortionDialModalProps> = ({
           style={{ fontVariantNumeric: 'tabular-nums' }}
         >
           {text}
-        </text>
+        </text>,
       );
     }
   }
   const serveMarkX = unit === 'g' && servingG ? width / 2 + (servingG - pos) * cfg.ppu : null;
-  const keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', unit === 'serv' ? '.' : '', '0', 'back'];
+  const keys = [
+    '1',
+    '2',
+    '3',
+    '4',
+    '5',
+    '6',
+    '7',
+    '8',
+    '9',
+    unit === 'serv' ? '.' : '',
+    '0',
+    'back',
+  ];
 
   return (
     <div className="fixed inset-0 z-50 bg-black/70 o1-sheet-scrim flex items-center justify-center animate-in fade-in duration-150 select-none">
@@ -411,7 +475,10 @@ export const FoodPortionDialModal: React.FC<FoodPortionDialModalProps> = ({
         <div className="flex-1 overflow-y-auto px-4 pb-4 space-y-3">
           {canGrams && canServings && (
             <div className="flex justify-center">
-              <div className="inline-flex p-0.5 rounded-full bg-o1-surface border border-white/[0.07]" role="tablist">
+              <div
+                className="inline-flex p-0.5 rounded-full bg-o1-surface border border-white/[0.07]"
+                role="tablist"
+              >
                 {(['g', 'serv'] as Unit[]).map((u) => (
                   <button
                     key={u}
@@ -459,7 +526,9 @@ export const FoodPortionDialModal: React.FC<FoodPortionDialModalProps> = ({
                 <>
                   <span>{pad === '' ? '0' : pad}</span>
                   <span className="w-px h-3.5 bg-o1-crimson animate-pulse" />
-                  <span className="text-o1-muted">{unit === 'g' ? 'g' : `× ${label || 'serving'}`}</span>
+                  <span className="text-o1-muted">
+                    {unit === 'g' ? 'g' : `× ${label || 'serving'}`}
+                  </span>
                 </>
               ) : (
                 portionText
@@ -494,7 +563,8 @@ export const FoodPortionDialModal: React.FC<FoodPortionDialModalProps> = ({
                 style={{
                   height: RULER_H,
                   maskImage: 'linear-gradient(90deg, transparent, #000 16%, #000 84%, transparent)',
-                  WebkitMaskImage: 'linear-gradient(90deg, transparent, #000 16%, #000 84%, transparent)',
+                  WebkitMaskImage:
+                    'linear-gradient(90deg, transparent, #000 16%, #000 84%, transparent)',
                 }}
               >
                 <svg width={width} height={RULER_H} className="block">
@@ -503,7 +573,10 @@ export const FoodPortionDialModal: React.FC<FoodPortionDialModalProps> = ({
                     <circle cx={serveMarkX} cy={7} r={2.5} fill="#D4A017" />
                   )}
                   <rect x={width / 2 - 1} y={4} width={2} height={42} rx={1} fill="#C4121A" />
-                  <path d={`M ${width / 2 - 5} 2 L ${width / 2 + 5} 2 L ${width / 2} 8 Z`} fill="#C4121A" />
+                  <path
+                    d={`M ${width / 2 - 5} 2 L ${width / 2 + 5} 2 L ${width / 2} 8 Z`}
+                    fill="#C4121A"
+                  />
                 </svg>
               </div>
 
@@ -547,7 +620,7 @@ export const FoodPortionDialModal: React.FC<FoodPortionDialModalProps> = ({
                   >
                     {k === 'back' ? <Delete className="w-5 h-5 text-o1-muted" /> : k}
                   </button>
-                )
+                ),
               )}
               <button
                 type="button"
@@ -564,7 +637,12 @@ export const FoodPortionDialModal: React.FC<FoodPortionDialModalProps> = ({
                 onClick={applyPad}
                 className="col-span-2 h-11 rounded-2xl bg-o1-text text-black text-xs font-bold cursor-pointer active:scale-[0.98] transition-transform"
               >
-                Set {padValue != null ? (unit === 'g' ? `${Math.min(max, padValue)} g` : `${formatServings(snap(Math.min(max, padValue), 'serv'))}×`) : ''}
+                Set{' '}
+                {padValue != null
+                  ? unit === 'g'
+                    ? `${Math.min(max, padValue)} g`
+                    : `${formatServings(snap(Math.min(max, padValue), 'serv'))}×`
+                  : ''}
               </button>
             </div>
           )}
@@ -588,8 +666,12 @@ export const FoodPortionDialModal: React.FC<FoodPortionDialModalProps> = ({
                           style={{ width: `${Math.min(100, share * 100)}%` }}
                         />
                       </div>
-                      <p className={`mt-1 text-[10px] tabular-nums ${over ? 'text-amber-500' : 'text-o1-muted'}`}>
-                        {over ? `+${round1(m.value - (m.left as number))}g over` : `${Math.round(share * 100)}% of left`}
+                      <p
+                        className={`mt-1 text-[10px] tabular-nums ${over ? 'text-amber-500' : 'text-o1-muted'}`}
+                      >
+                        {over
+                          ? `+${round1(m.value - (m.left as number))}g over`
+                          : `${Math.round(share * 100)}% of left`}
                       </p>
                     </>
                   )}
@@ -611,7 +693,10 @@ export const FoodPortionDialModal: React.FC<FoodPortionDialModalProps> = ({
             }}
             className="relative w-full h-11 rounded-2xl bg-o1-crimson/25 border border-o1-crimson/40 overflow-hidden text-o1-text font-semibold text-sm disabled:opacity-40 cursor-pointer touch-none"
           >
-            <span className="absolute inset-y-0 left-0 bg-o1-crimson" style={{ width: `${hold * 100}%` }} />
+            <span
+              className="absolute inset-y-0 left-0 bg-o1-crimson"
+              style={{ width: `${hold * 100}%` }}
+            />
             <span className="relative tabular-nums">
               {hold > 0 ? 'Keep holding…' : `Hold to log · ${kcal.toLocaleString()} kcal`}
             </span>

@@ -20,7 +20,10 @@ const DECISION_TONE: Record<Decision, Tone> = {
 
 const shortDay = (key: string) => {
   const [y, m, d] = key.split('-').map(Number);
-  return new Date(y, (m || 1) - 1, d || 1).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  return new Date(y, (m || 1) - 1, d || 1).toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+  });
 };
 
 const kg = (v: number) => `${Math.round(v * 100) / 100}`;
@@ -33,12 +36,20 @@ interface IntelTodayPanelProps {
 }
 
 /** Today's call: readiness, load targets for open sets, ACWR and per-muscle recovery. */
-export const IntelTodayPanel: React.FC<IntelTodayPanelProps> = ({ report, sets, sleep, onApplied }) => {
+export const IntelTodayPanel: React.FC<IntelTodayPanelProps> = ({
+  report,
+  sets,
+  sleep,
+  onApplied,
+}) => {
   const exercises = useWorkoutStore((s) => s.exercises);
   const setExercises = useWorkoutStore((s) => s.setExercises);
   const [noMatch, setNoMatch] = useState(false);
   const simple = useSimpleMode();
-  const intel = useMemo(() => buildTodayIntel(report, sets, sleep, Date.now()), [report, sets, sleep]);
+  const intel = useMemo(
+    () => buildTodayIntel(report, sets, sleep, Date.now()),
+    [report, sets, sleep],
+  );
   const tone = DECISION_TONE[intel.decision];
   const ratio = report.stats.acwr;
 
@@ -110,7 +121,10 @@ export const IntelTodayPanel: React.FC<IntelTodayPanelProps> = ({ report, sets, 
                 <div className="text-xs font-medium text-o1-text">{sig.label}</div>
                 <div className="text-[11px] text-o1-muted truncate">{sig.note}</div>
               </div>
-              <span className="text-sm font-light font-mono shrink-0" style={{ color: sig.value === null ? '#8A887F' : TONE_HEX[sig.tone] }}>
+              <span
+                className="text-sm font-light font-mono shrink-0"
+                style={{ color: sig.value === null ? '#8A887F' : TONE_HEX[sig.tone] }}
+              >
                 {sig.display}
               </span>
             </li>
@@ -155,28 +169,47 @@ export const IntelTodayPanel: React.FC<IntelTodayPanelProps> = ({ report, sets, 
             </button>
             {noMatch && (
               <p role="status" className="text-[11px] text-[#f59e0b] leading-relaxed">
-                None of these lifts have open sets in your Active log. Add one of them first, then apply.
+                None of these lifts have open sets in your Active log. Add one of them first, then
+                apply.
               </p>
             )}
           </>
         )}
       </SectionCard>
 
-      <SectionCard title="Training load" subtitle={simple ? 'This week compared with your usual' : 'Last 7 days against your 28-day baseline'}>
+      <SectionCard
+        title="Training load"
+        subtitle={
+          simple ? 'This week compared with your usual' : 'Last 7 days against your 28-day baseline'
+        }
+      >
         {simple ? (
           <p className="text-sm font-medium text-o1-text">
-            {ratio === null ? 'Still learning your usual week' : PLAIN_LOAD[report.stats.acwrLabel] || report.stats.acwrLabel}
+            {ratio === null
+              ? 'Still learning your usual week'
+              : PLAIN_LOAD[report.stats.acwrLabel] || report.stats.acwrLabel}
           </p>
         ) : (
           <>
             <div className="flex items-baseline justify-between gap-3">
               <div className="flex items-baseline gap-2">
-                <span className="text-3xl font-light font-mono tabular-nums text-o1-text">{ratio === null ? '--' : ratio.toFixed(2)}</span>
+                <span className="text-3xl font-light font-mono tabular-nums text-o1-text">
+                  {ratio === null ? '--' : ratio.toFixed(2)}
+                </span>
                 <span className="text-[11px] text-o1-muted">Acute : chronic</span>
               </div>
-              <span className="text-[11px] text-o1-muted text-right">{ratio === null ? 'Calibrating' : report.stats.acwrLabel}</span>
+              <span className="text-[11px] text-o1-muted text-right">
+                {ratio === null ? 'Calibrating' : report.stats.acwrLabel}
+              </span>
             </div>
-            <ZoneGauge value={ratio} min={0} max={2} bandFrom={0.8} bandTo={1.3} ticks={['0', '0.8', '1.3', '1.5', '2.0']} />
+            <ZoneGauge
+              value={ratio}
+              min={0}
+              max={2}
+              bandFrom={0.8}
+              bandTo={1.3}
+              ticks={['0', '0.8', '1.3', '1.5', '2.0']}
+            />
           </>
         )}
       </SectionCard>
@@ -184,28 +217,46 @@ export const IntelTodayPanel: React.FC<IntelTodayPanelProps> = ({ report, sets, 
       <SectionCard title="Muscle recovery" subtitle="Large groups need 48h, small groups 24h">
         <div className="grid grid-cols-2 gap-2">
           {intel.muscles.map((m) => {
-            const t: Tone = m.state === 'recovering' ? 'watch' : m.state === 'ready' ? 'good' : 'idle';
+            const t: Tone =
+              m.state === 'recovering' ? 'watch' : m.state === 'ready' ? 'good' : 'idle';
             return (
-              <div key={m.id} className="rounded-xl bg-o1-sheet border border-white/[0.07] px-3 py-1.5 min-h-[44px] flex items-center justify-between gap-2">
+              <div
+                key={m.id}
+                className="rounded-xl bg-o1-sheet border border-white/[0.07] px-3 py-1.5 min-h-[44px] flex items-center justify-between gap-2"
+              >
                 <div className="min-w-0">
                   <div className="text-xs font-medium text-o1-text truncate">{m.label}</div>
                   <div className="text-[11px] text-o1-muted">
-                    {m.daysAgo === null ? 'Not trained' : m.daysAgo === 0 ? 'Today' : `${m.daysAgo}d ago`}
+                    {m.daysAgo === null
+                      ? 'Not trained'
+                      : m.daysAgo === 0
+                        ? 'Today'
+                        : `${m.daysAgo}d ago`}
                   </div>
                 </div>
-                <span className="w-2 h-2 rounded-full shrink-0" style={{ background: TONE_HEX[t] }} />
+                <span
+                  className="w-2 h-2 rounded-full shrink-0"
+                  style={{ background: TONE_HEX[t] }}
+                />
               </div>
             );
           })}
         </div>
         <div className="flex items-center gap-4 text-[11px] text-o1-muted">
-          <span className="flex items-center gap-1.5"><i className="w-2 h-2 rounded-full" style={{ background: TONE_HEX.watch }} />Recovering</span>
-          <span className="flex items-center gap-1.5"><i className="w-2 h-2 rounded-full" style={{ background: TONE_HEX.good }} />Ready</span>
-          <span className="flex items-center gap-1.5"><i className="w-2 h-2 rounded-full" style={{ background: TONE_HEX.idle }} />Cold</span>
+          <span className="flex items-center gap-1.5">
+            <i className="w-2 h-2 rounded-full" style={{ background: TONE_HEX.watch }} />
+            Recovering
+          </span>
+          <span className="flex items-center gap-1.5">
+            <i className="w-2 h-2 rounded-full" style={{ background: TONE_HEX.good }} />
+            Ready
+          </span>
+          <span className="flex items-center gap-1.5">
+            <i className="w-2 h-2 rounded-full" style={{ background: TONE_HEX.idle }} />
+            Cold
+          </span>
         </div>
       </SectionCard>
     </>
   );
 };
-
-

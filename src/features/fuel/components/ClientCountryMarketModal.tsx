@@ -9,7 +9,22 @@ export interface CountryOption {
 }
 
 const FEATURED_MARKET_CODES = [
-  'AU', 'US', 'GB', 'CA', 'NZ', 'IN', 'JP', 'DE', 'FR', 'AE', 'BR', 'MX', 'ZA', 'SG', 'KR', 'IT',
+  'AU',
+  'US',
+  'GB',
+  'CA',
+  'NZ',
+  'IN',
+  'JP',
+  'DE',
+  'FR',
+  'AE',
+  'BR',
+  'MX',
+  'ZA',
+  'SG',
+  'KR',
+  'IT',
 ];
 
 export const COUNTRIES: CountryOption[] = [
@@ -193,7 +208,7 @@ export const ClientCountryMarketModal: React.FC<ClientCountryMarketModalProps> =
     const q = searchQuery.trim().toLowerCase();
     if (!q) return COUNTRIES;
     return COUNTRIES.filter(
-      (c) => c.name.toLowerCase().includes(q) || c.code.toLowerCase().includes(q)
+      (c) => c.name.toLowerCase().includes(q) || c.code.toLowerCase().includes(q),
     );
   }, [searchQuery]);
 
@@ -206,9 +221,7 @@ export const ClientCountryMarketModal: React.FC<ClientCountryMarketModalProps> =
         <div className="flex items-center justify-between pb-2 border-b border-white/[0.05]">
           <div className="flex items-center gap-2">
             <Globe className="w-5 h-5 text-sky-600 shrink-0" />
-            <h3 className="font-semibold text-sm text-o1-text">
-              Food market
-            </h3>
+            <h3 className="font-semibold text-sm text-o1-text">Food market</h3>
           </div>
           <button
             type="button"
@@ -327,5 +340,3 @@ export const ClientCountryMarketModal: React.FC<ClientCountryMarketModalProps> =
     </div>
   );
 };
-
-

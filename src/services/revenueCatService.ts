@@ -1,5 +1,10 @@
 import { Capacitor } from '@capacitor/core';
-import { Purchases, type CustomerInfo, type PurchasesOfferings, type PurchasesPackage } from '@revenuecat/purchases-capacitor';
+import {
+  Purchases,
+  type CustomerInfo,
+  type PurchasesOfferings,
+  type PurchasesPackage,
+} from '@revenuecat/purchases-capacitor';
 import { errorMessage } from '../../shared/errorMessage';
 import { getAuthenticatedUserId } from './authUser';
 import { isNativeStorePlatform, resolveNativeStoreKey } from './purchasesService';
@@ -86,14 +91,25 @@ function currentPlatform(): StorePlatform {
 }
 
 export function freeEntitlement(platform: StorePlatform = currentPlatform()): EntitlementInfo {
-  return { isActive: false, tierId: 'o1fc_core_free', tierName: 'Core Athlete', platform, expiresAt: null, willRenew: false };
+  return {
+    isActive: false,
+    tierId: 'o1fc_core_free',
+    tierName: 'Core Athlete',
+    platform,
+    expiresAt: null,
+    willRenew: false,
+  };
 }
 
 /** Every package in the current offering, or across all offerings when there is no current one. */
-export function packagesFromOfferings(offerings: PurchasesOfferings | null | undefined): PurchasesPackage[] {
+export function packagesFromOfferings(
+  offerings: PurchasesOfferings | null | undefined,
+): PurchasesPackage[] {
   const current = offerings?.current?.availablePackages;
   if (current?.length) return current;
-  return Object.values(offerings?.all ?? {}).flatMap((offering) => offering?.availablePackages ?? []);
+  return Object.values(offerings?.all ?? {}).flatMap(
+    (offering) => offering?.availablePackages ?? [],
+  );
 }
 
 function packageLabel(pkg: PurchasesPackage): string {
@@ -103,7 +119,10 @@ function packageLabel(pkg: PurchasesPackage): string {
 const productMatches = (id: string, planId: string) => id === planId || id.startsWith(`${planId}:`);
 
 /** The store package for one plan. Each plan only ever resolves to its own kind of product, never a sibling plan. */
-export function findPackageForPlan(packages: PurchasesPackage[], planId: string): PurchasesPackage | null {
+export function findPackageForPlan(
+  packages: PurchasesPackage[],
+  planId: string,
+): PurchasesPackage | null {
   const exact = packages.find(
     (pkg) =>
       pkg.identifier === planId ||
@@ -125,19 +144,28 @@ export function findPackageForPlan(packages: PurchasesPackage[], planId: string)
 }
 
 function hasProEntitlement(info: CustomerInfo): boolean {
-  return Object.values(info.entitlements.active).some((e) => e.isActive && e.identifier === REVENUECAT_ENTITLEMENT_PRO);
+  return Object.values(info.entitlements.active).some(
+    (e) => e.isActive && e.identifier === REVENUECAT_ENTITLEMENT_PRO,
+  );
 }
 
 /** True when the store shows this specific plan as owned. */
 export function ownsPlan(info: CustomerInfo | null | undefined, planId: string): boolean {
   if (!info) return false;
   const kind = planKind(planId);
-  const owned = kind === 'lifetime' ? info.allPurchasedProductIdentifiers : info.activeSubscriptions;
+  const owned =
+    kind === 'lifetime' ? info.allPurchasedProductIdentifiers : info.activeSubscriptions;
   if (owned.some((id) => productMatches(id, planId))) return true;
   const active = Object.values(info.entitlements.active).filter((e) => e.isActive);
-  if (kind === 'coach') return active.some((e) => e.identifier.includes('coach') || e.productIdentifier.includes('coach'));
+  if (kind === 'coach')
+    return active.some(
+      (e) => e.identifier.includes('coach') || e.productIdentifier.includes('coach'),
+    );
   if (kind === 'lifetime') {
-    return active.some((e) => productMatches(e.productIdentifier, planId) || /founder|lifetime/.test(e.productIdentifier));
+    return active.some(
+      (e) =>
+        productMatches(e.productIdentifier, planId) || /founder|lifetime/.test(e.productIdentifier),
+    );
   }
   // Monthly / travel Pro: require the o1fc_pro entitlement or a matching product.
   if (active.some((e) => productMatches(e.productIdentifier, planId))) return true;
@@ -145,7 +173,10 @@ export function ownsPlan(info: CustomerInfo | null | undefined, planId: string):
 }
 
 /** Reads the paid plan straight from the store's customer record, with the store's own expiry. */
-export function entitlementFromCustomerInfo(info: CustomerInfo | null | undefined, platform: StorePlatform): EntitlementInfo {
+export function entitlementFromCustomerInfo(
+  info: CustomerInfo | null | undefined,
+  platform: StorePlatform,
+): EntitlementInfo {
   if (!info) return freeEntitlement(platform);
   const active = Object.values(info.entitlements.active).filter((e) => e.isActive);
   const best = active.find((e) => e.expirationDate === null) ?? active[0];
@@ -161,7 +192,14 @@ export function entitlementFromCustomerInfo(info: CustomerInfo | null | undefine
   }
   const lifetime = info.allPurchasedProductIdentifiers.find((id) => planKind(id) === 'lifetime');
   if (lifetime) {
-    return { isActive: true, tierId: lifetime, tierName: PLAN_NAMES.lifetime, platform, expiresAt: null, willRenew: false };
+    return {
+      isActive: true,
+      tierId: lifetime,
+      tierName: PLAN_NAMES.lifetime,
+      platform,
+      expiresAt: null,
+      willRenew: false,
+    };
   }
   const subscription = info.activeSubscriptions[0];
   if (subscription) {
@@ -179,7 +217,9 @@ export function entitlementFromCustomerInfo(info: CustomerInfo | null | undefine
 
 function isCancelledError(err: unknown): boolean {
   const e = (err ?? {}) as { code?: unknown; userCancelled?: unknown; message?: unknown };
-  return e.userCancelled === true || String(e.code) === '1' || /cancel/i.test(String(e.message ?? ''));
+  return (
+    e.userCancelled === true || String(e.code) === '1' || /cancel/i.test(String(e.message ?? ''))
+  );
 }
 
 function isEntitlementInfo(value: unknown): value is EntitlementInfo {
@@ -192,7 +232,8 @@ export function readCachedEntitlement(): EntitlementInfo | null {
   try {
     const parsed: unknown = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
     if (!isEntitlementInfo(parsed)) return null;
-    if (parsed.isActive && parsed.expiresAt && Date.parse(parsed.expiresAt) < Date.now()) return null;
+    if (parsed.isActive && parsed.expiresAt && Date.parse(parsed.expiresAt) < Date.now())
+      return null;
     return parsed;
   } catch {
     return null;
@@ -227,12 +268,22 @@ function rememberEntitlement(info: EntitlementInfo): void {
 const STORE_TIMEOUT_MS = 12_000;
 const PURCHASE_TIMEOUT_MS = 20_000;
 
-function withStoreTimeout<T>(work: Promise<T>, message: string, timeoutMs = STORE_TIMEOUT_MS): Promise<T> {
+function withStoreTimeout<T>(
+  work: Promise<T>,
+  message: string,
+  timeoutMs = STORE_TIMEOUT_MS,
+): Promise<T> {
   return new Promise<T>((resolve, reject) => {
     const timer = setTimeout(() => reject(new Error(message)), timeoutMs);
     work.then(
-      (value) => { clearTimeout(timer); resolve(value); },
-      (err) => { clearTimeout(timer); reject(err); },
+      (value) => {
+        clearTimeout(timer);
+        resolve(value);
+      },
+      (err) => {
+        clearTimeout(timer);
+        reject(err);
+      },
     );
   });
 }
@@ -275,7 +326,8 @@ class RevenueCatManager {
     if (!isNativeStorePlatform()) return;
     try {
       const { isConfigured } = await Purchases.isConfigured();
-      if (isConfigured) await withStoreTimeout(Purchases.logOut(), 'Store sign-out did not answer.', 4_000);
+      if (isConfigured)
+        await withStoreTimeout(Purchases.logOut(), 'Store sign-out did not answer.', 4_000);
     } catch {
       /* an anonymous store customer cannot log out; nothing to clear */
     }
@@ -289,11 +341,14 @@ class RevenueCatManager {
       return false;
     }
     try {
-      await withStoreTimeout((async () => {
-        const { isConfigured } = await Purchases.isConfigured();
-        if (isConfigured) await Purchases.logIn({ appUserID: userId });
-        else await Purchases.configure({ apiKey, appUserID: userId });
-      })(), `${storeName()} billing did not answer.`);
+      await withStoreTimeout(
+        (async () => {
+          const { isConfigured } = await Purchases.isConfigured();
+          if (isConfigured) await Purchases.logIn({ appUserID: userId });
+          else await Purchases.configure({ apiKey, appUserID: userId });
+        })(),
+        `${storeName()} billing did not answer.`,
+      );
       this.issue = null;
       return true;
     } catch (e) {
@@ -321,7 +376,9 @@ class RevenueCatManager {
     try {
       const client = await this.init(appUserId);
       if (!client) return { packages: [] };
-      const packages = packagesFromOfferings(await withStoreTimeout(client.getOfferings(), 'Store products did not load.'));
+      const packages = packagesFromOfferings(
+        await withStoreTimeout(client.getOfferings(), 'Store products did not load.'),
+      );
       this.issue = packages.length
         ? null
         : `${storeName()} returned no products. Check that the subscriptions are attached to the default offering in RevenueCat.`;
@@ -338,24 +395,44 @@ class RevenueCatManager {
     return packages.length ? packages : [REVENUECAT_FALLBACK_MONTHLY_PACKAGE];
   }
 
-  packageForPlan(catalog: StoreCatalog | null | undefined, planId: string): PurchasesPackage | null {
+  packageForPlan(
+    catalog: StoreCatalog | null | undefined,
+    planId: string,
+  ): PurchasesPackage | null {
     return findPackageForPlan(catalog?.packages ?? [], planId);
   }
 
-  async purchasePackage(planId: string = REVENUECAT_TIER_MONTHLY, athleteId: string = ''): Promise<PurchaseResult> {
+  async purchasePackage(
+    planId: string = REVENUECAT_TIER_MONTHLY,
+    athleteId: string = '',
+  ): Promise<PurchaseResult> {
     try {
       const userId = await resolveAppUserId(athleteId);
       if (!userId) return { success: false, error: 'Sign in to subscribe.' };
       if (!isNativeStorePlatform()) {
-        return { success: false, error: 'Subscribe in the iOS or Android app to complete checkout.' };
+        return {
+          success: false,
+          error: 'Subscribe in the iOS or Android app to complete checkout.',
+        };
       }
 
       const client = await this.init(userId);
       if (!client) {
-        return { success: false, error: `Billing is unavailable. ${this.issue ?? 'The store did not answer.'} Install the app from ${storeName()} to subscribe.` };
+        return {
+          success: false,
+          error: `Billing is unavailable. ${this.issue ?? 'The store did not answer.'} Install the app from ${storeName()} to subscribe.`,
+        };
       }
 
-      const pkg = findPackageForPlan(packagesFromOfferings(await withStoreTimeout(client.getOfferings(), 'Store products did not load. Check your connection and try again.')), planId);
+      const pkg = findPackageForPlan(
+        packagesFromOfferings(
+          await withStoreTimeout(
+            client.getOfferings(),
+            'Store products did not load. Check your connection and try again.',
+          ),
+        ),
+        planId,
+      );
       if (!pkg || (pkg as { isFallback?: boolean }).isFallback) {
         return { success: false, error: `This plan is not live in ${storeName()} yet.` };
       }
@@ -366,15 +443,21 @@ class RevenueCatManager {
         PURCHASE_TIMEOUT_MS,
       );
       if (!ownsPlan(customerInfo, planId)) {
-        return { success: false, error: 'Purchase completed but the plan was not found on this account yet. Try Restore Purchases.' };
+        return {
+          success: false,
+          error:
+            'Purchase completed but the plan was not found on this account yet. Try Restore Purchases.',
+        };
       }
       await this.recordPlan(entitlementFromCustomerInfo(customerInfo, currentPlatform()), userId);
       return { success: true };
     } catch (err: unknown) {
       if (isCancelledError(err)) return { success: false, error: 'Checkout cancelled.' };
-      const message = err instanceof Error ? err.message : String((err as { message?: unknown })?.message ?? err);
+      const message =
+        err instanceof Error ? err.message : String((err as { message?: unknown })?.message ?? err);
       console.warn('[RevenueCat] Store billing error:', err);
-      if (/credential|invalid api key/i.test(message)) return { success: false, error: 'Store billing is unavailable on this device.' };
+      if (/credential|invalid api key/i.test(message))
+        return { success: false, error: 'Store billing is unavailable on this device.' };
       return { success: false, error: message || 'Store billing error.' };
     }
   }
@@ -388,7 +471,10 @@ class RevenueCatManager {
     try {
       const client = await this.init(userId);
       if (!client) return null;
-      const { customerInfo } = await withStoreTimeout(client.getCustomerInfo(), 'Store account did not load.');
+      const { customerInfo } = await withStoreTimeout(
+        client.getCustomerInfo(),
+        'Store account did not load.',
+      );
       const info = entitlementFromCustomerInfo(customerInfo, currentPlatform());
       await this.recordPlan(info, (await resolveAppUserId(userId)) || '');
       return info;

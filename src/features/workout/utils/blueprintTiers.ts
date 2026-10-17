@@ -36,19 +36,43 @@ export const BLUEPRINT_TAGS = [
   'CORE',
 ] as const;
 
-const TAG_TERMS: Record<string, { badge: string[]; focus: string[]; title: string[]; muscles?: string[] }> = {
-  STRENGTH: { badge: ['STRENGTH', 'SBD'], focus: ['STRENGTH', 'PULL'], title: ['STRENGTH', 'PRESS', 'POWERLIFTING'] },
-  PLYOMETRICS: { badge: ['PLYO', 'VELOCITY'], focus: ['PLYO', 'VELOCITY'], title: ['JUMP', 'VELOCITY'] },
+const TAG_TERMS: Record<
+  string,
+  { badge: string[]; focus: string[]; title: string[]; muscles?: string[] }
+> = {
+  STRENGTH: {
+    badge: ['STRENGTH', 'SBD'],
+    focus: ['STRENGTH', 'PULL'],
+    title: ['STRENGTH', 'PRESS', 'POWERLIFTING'],
+  },
+  PLYOMETRICS: {
+    badge: ['PLYO', 'VELOCITY'],
+    focus: ['PLYO', 'VELOCITY'],
+    title: ['JUMP', 'VELOCITY'],
+  },
   MOBILITY: {
     badge: ['MOBILITY', 'LONGEVITY'],
     focus: ['MOBILITY', 'LONGEVITY', 'REMODELING'],
     title: ['MOBILITY', 'KNEES'],
   },
-  HYBRID: { badge: ['HYBRID', 'HYROX'], focus: ['HYBRID', 'THRESHOLD'], title: ['HYBRID', 'HYROX', 'CHIPPER'] },
+  HYBRID: {
+    badge: ['HYBRID', 'HYROX'],
+    focus: ['HYBRID', 'THRESHOLD'],
+    title: ['HYBRID', 'HYROX', 'CHIPPER'],
+  },
   'GLUTE LAB': { badge: ['GLUTE'], focus: ['GLUTE'], title: ['BOOTY', 'GLUTE'] },
-  CALISTHENICS: { badge: ['CALISTHENICS'], focus: ['CALISTHENICS'], title: ['CALISTHENICS', 'RING', 'WEIGHTED PUSH'] },
+  CALISTHENICS: {
+    badge: ['CALISTHENICS'],
+    focus: ['CALISTHENICS'],
+    title: ['CALISTHENICS', 'RING', 'WEIGHTED PUSH'],
+  },
   OLYMPIC: { badge: ['OLYMPIC'], focus: ['OLYMPIC'], title: ['OLYMPIC', 'SNATCH', 'CLEAN'] },
-  CORE: { badge: ['CORE'], focus: ['CORE'], title: ['CORE', 'ABS'], muscles: ['CORE', 'ABS', 'OBLIQUE'] },
+  CORE: {
+    badge: ['CORE'],
+    focus: ['CORE'],
+    title: ['CORE', 'ABS'],
+    muscles: ['CORE', 'ABS', 'OBLIQUE'],
+  },
 };
 
 export function blueprintMatchesTag(bp: WorkoutBlueprint, tag: string): boolean {
@@ -115,7 +139,11 @@ export function targetReps(reps: string): number {
 
 const uid = () => `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
-export function blueprintExerciseToItem(be: BlueprintExercise, blueprintId: string, tier: BlueprintTier): ExerciseItem {
+export function blueprintExerciseToItem(
+  be: BlueprintExercise,
+  blueprintId: string,
+  tier: BlueprintTier,
+): ExerciseItem {
   const specs = tierSpecs(be, tier);
   const reps = targetReps(specs.reps);
   const sets: ExerciseSet[] = Array.from({ length: specs.sets }, (_, i) => ({

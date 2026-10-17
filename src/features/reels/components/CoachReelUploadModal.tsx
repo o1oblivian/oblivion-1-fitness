@@ -1,7 +1,11 @@
 import React, { useState, useRef } from 'react';
 import { X, Film, CheckCircle2, ShieldCheck } from 'lucide-react';
 import { tactileEngine } from '../../../services/tactileEngine';
-import { compressVideo, compressPhoto, CompressedMediaResult } from '../../../utils/mediaCompressor';
+import {
+  compressVideo,
+  compressPhoto,
+  CompressedMediaResult,
+} from '../../../utils/mediaCompressor';
 import { useBuddyProfileStore } from '../../../stores/useBuddyProfileStore';
 import { useAuthStore } from '../../../stores/useAuthStore';
 import { useUserStore } from '../../../stores/useUserStore';
@@ -19,7 +23,11 @@ interface CoachReelUploadModalProps {
   onReelPublished?: (reelTitle: string, category: string) => void;
 }
 
-export const CoachReelUploadModal: React.FC<CoachReelUploadModalProps> = ({ isOpen, onClose, onReelPublished }) => {
+export const CoachReelUploadModal: React.FC<CoachReelUploadModalProps> = ({
+  isOpen,
+  onClose,
+  onReelPublished,
+}) => {
   const buddy = useBuddyProfileStore();
   const profile = useAuthStore((s) => s.profile);
   const user = useUserStore();
@@ -79,7 +87,12 @@ export const CoachReelUploadModal: React.FC<CoachReelUploadModalProps> = ({ isOp
     setPublishError('');
     try {
       const result = await publishCoachReel({
-        title, cues, selectedCategory, selectedFilterTag, previewUrl, compressedResult,
+        title,
+        cues,
+        selectedCategory,
+        selectedFilterTag,
+        previewUrl,
+        compressedResult,
         fallbackName: profile?.name || user?.name || 'Coach',
       });
       if (!result.ok) {
@@ -87,14 +100,15 @@ export const CoachReelUploadModal: React.FC<CoachReelUploadModalProps> = ({ isOp
           result.reason === 'signed-out'
             ? 'Sign in to publish reels.'
             : result.reason === 'upload'
-            ? 'Upload failed. Check your connection and try again.'
-            : 'The reel uploaded but could not be published. Try again.',
+              ? 'Upload failed. Check your connection and try again.'
+              : 'The reel uploaded but could not be published. Try again.',
         );
         return;
       }
       tactileEngine.playPRCelebration();
       const cover = result.reel.thumbnail;
-      if (showOnBuddy && cover && !buddy.isPhotoOnBuddy(cover)) buddy.toggleVaultPhotoOnBuddy(cover);
+      if (showOnBuddy && cover && !buddy.isPhotoOnBuddy(cover))
+        buddy.toggleVaultPhotoOnBuddy(cover);
       onReelPublished?.(title, selectedCategory);
       onClose();
     } finally {
@@ -103,8 +117,15 @@ export const CoachReelUploadModal: React.FC<CoachReelUploadModalProps> = ({ isOp
   };
 
   return (
-    <div id="coach-reel-upload-modal" className="fixed inset-0 z-50 bg-black/70 o1-sheet-scrim flex items-center justify-center select-none animate-in fade-in duration-200" onClick={onClose}>
-      <div className="o1-sheet-card relative w-full bg-o1-card border border-white/[0.07] overflow-hidden flex flex-col shadow-xl" onClick={(e) => e.stopPropagation()}>
+    <div
+      id="coach-reel-upload-modal"
+      className="fixed inset-0 z-50 bg-black/70 o1-sheet-scrim flex items-center justify-center select-none animate-in fade-in duration-200"
+      onClick={onClose}
+    >
+      <div
+        className="o1-sheet-card relative w-full bg-o1-card border border-white/[0.07] overflow-hidden flex flex-col shadow-xl"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.05] bg-black/90">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-full bg-o1-crimson/20 border border-o1-crimson/40 flex items-center justify-center text-o1-crimson">
@@ -115,23 +136,53 @@ export const CoachReelUploadModal: React.FC<CoachReelUploadModalProps> = ({ isOp
                 <span>Publish a reel</span>
                 <ShieldCheck className="w-3.5 h-3.5 text-o1-crimson" />
               </div>
-              <p className="text-[11px] text-o1-muted">Up to {MAX_REEL_SECS} seconds. Reels play without sound.</p>
+              <p className="text-[11px] text-o1-muted">
+                Up to {MAX_REEL_SECS} seconds. Reels play without sound.
+              </p>
             </div>
           </div>
-          <button type="button" onClick={onClose} aria-label="Close" className="w-10 h-10 rounded-full bg-o1-well border border-white/[0.07] flex items-center justify-center text-o1-muted hover:text-o1-text transition-colors cursor-pointer">
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close"
+            className="w-10 h-10 rounded-full bg-o1-well border border-white/[0.07] flex items-center justify-center text-o1-muted hover:text-o1-text transition-colors cursor-pointer"
+          >
             <X className="w-4 h-4" />
           </button>
         </div>
 
         <form onSubmit={handlePublish} className="flex-1 overflow-y-auto p-5 space-y-4">
-          <ReelUploadMediaZone previewUrl={previewUrl} compressedResult={compressedResult} isCompressing={isCompressing} compressionProgress={compressionProgress} onSelectFile={() => fileInputRef.current?.click()} fileInputRef={fileInputRef} onFileChange={handleFileSelect} />
+          <ReelUploadMediaZone
+            previewUrl={previewUrl}
+            compressedResult={compressedResult}
+            isCompressing={isCompressing}
+            compressionProgress={compressionProgress}
+            onSelectFile={() => fileInputRef.current?.click()}
+            fileInputRef={fileInputRef}
+            onFileChange={handleFileSelect}
+          />
           {fileError ? (
-            <p role="alert" className="rounded-xl border border-[#d97706]/30 bg-[#d97706]/10 px-3 py-2 text-[12px] text-[#f59e0b]">
+            <p
+              role="alert"
+              className="rounded-xl border border-[#d97706]/30 bg-[#d97706]/10 px-3 py-2 text-[12px] text-[#f59e0b]"
+            >
               {fileError}
             </p>
           ) : null}
-          <ReelCategorySelector selectedCategory={selectedCategory} onSelectCategory={setSelectedCategory} selectedFilterTag={selectedFilterTag} onSelectFilterTag={setSelectedFilterTag} />
-          <ReelFormFields title={title} setTitle={setTitle} cues={cues} setCues={setCues} showOnBuddy={showOnBuddy} setShowOnBuddy={setShowOnBuddy} />
+          <ReelCategorySelector
+            selectedCategory={selectedCategory}
+            onSelectCategory={setSelectedCategory}
+            selectedFilterTag={selectedFilterTag}
+            onSelectFilterTag={setSelectedFilterTag}
+          />
+          <ReelFormFields
+            title={title}
+            setTitle={setTitle}
+            cues={cues}
+            setCues={setCues}
+            showOnBuddy={showOnBuddy}
+            setShowOnBuddy={setShowOnBuddy}
+          />
           <label className="flex items-start gap-2.5 rounded-2xl border border-white/[0.07] bg-o1-well p-3 cursor-pointer">
             <input
               type="checkbox"
@@ -140,20 +191,37 @@ export const CoachReelUploadModal: React.FC<CoachReelUploadModalProps> = ({ isOp
               className="mt-0.5 w-4 h-4 shrink-0 accent-o1-crimson cursor-pointer"
             />
             <span className="space-y-1">
-              <span className="block text-[12px] text-o1-text">I filmed this clip or have permission to share it.</span>
+              <span className="block text-[12px] text-o1-text">
+                I filmed this clip or have permission to share it.
+              </span>
               <span className="block text-[11px] leading-snug text-o1-muted">
-                No copyrighted music or footage, nudity, hate, harassment, or unsafe advice. Members can report reels, and the
-                Oblivion 1 team removes reels and accounts that break these rules.
+                No copyrighted music or footage, nudity, hate, harassment, or unsafe advice. Members
+                can report reels, and the Oblivion 1 team removes reels and accounts that break
+                these rules.
               </span>
             </span>
           </label>
           {publishError ? (
-            <p role="alert" className="rounded-xl border border-white/[0.07] bg-o1-surface px-3 py-2 text-[12px] text-o1-text">
+            <p
+              role="alert"
+              className="rounded-xl border border-white/[0.07] bg-o1-surface px-3 py-2 text-[12px] text-o1-text"
+            >
               {publishError}
             </p>
           ) : null}
           <div className="pt-1">
-            <button type="submit" disabled={!previewUrl || !title.trim() || !selectedCategory || !rulesAccepted || isCompressing || isPublishing} className="w-full min-h-[44px] py-2.5 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover disabled:opacity-50 disabled:cursor-not-allowed text-white text-xs font-semibold tracking-wide active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer">
+            <button
+              type="submit"
+              disabled={
+                !previewUrl ||
+                !title.trim() ||
+                !selectedCategory ||
+                !rulesAccepted ||
+                isCompressing ||
+                isPublishing
+              }
+              className="w-full min-h-[44px] py-2.5 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover disabled:opacity-50 disabled:cursor-not-allowed text-white text-xs font-semibold tracking-wide active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer"
+            >
               <CheckCircle2 className="w-4 h-4" />
               <span>{isPublishing ? 'Uploading…' : 'Publish reel'}</span>
             </button>

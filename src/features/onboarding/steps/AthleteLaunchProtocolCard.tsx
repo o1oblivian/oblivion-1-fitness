@@ -9,21 +9,47 @@ interface AthleteLaunchProtocolCardProps {
 }
 
 const PILLARS = [
-  { icon: Dumbbell, title: 'Training', body: 'A plan built around your discipline, with every set logged on the rotary dial.' },
-  { icon: ScanLine, title: 'Fuel', body: 'Photograph a meal for a macro estimate, then track water and supplements.' },
-  { icon: Users, title: 'Club', body: 'Find a coach, meet training partners nearby and follow form reels.' },
+  {
+    icon: Dumbbell,
+    title: 'Training',
+    body: 'A plan built around your discipline, with every set logged on the rotary dial.',
+  },
+  {
+    icon: ScanLine,
+    title: 'Fuel',
+    body: 'Photograph a meal for a macro estimate, then track water and supplements.',
+  },
+  {
+    icon: Users,
+    title: 'Club',
+    body: 'Find a coach, meet training partners nearby and follow form reels.',
+  },
 ];
 
-export const AthleteLaunchProtocolCard: React.FC<AthleteLaunchProtocolCardProps> = ({ onLaunch, onSkip }) => {
+export const AthleteLaunchProtocolCard: React.FC<AthleteLaunchProtocolCardProps> = ({
+  onLaunch,
+  onSkip,
+}) => {
   const consulted = useConsultationStore((state) => state.locked);
 
   return (
     <div className="relative mx-auto w-full max-w-[340px] select-none text-o1-text animate-in fade-in duration-500">
       <div className="flex flex-col items-center text-center">
-        <img src="/brand/o1fc-hero.png" alt="Oblivion 1 Fitness Club" width={1466} height={900} className="h-auto w-[70%] max-w-[250px] select-none" draggable={false} />
-        <h1 className="mt-3 font-display text-[23px] font-light leading-tight tracking-[-0.01em]">Welcome to the club</h1>
+        <img
+          src="/brand/o1fc-hero.png"
+          alt="Oblivion 1 Fitness Club"
+          width={1466}
+          height={900}
+          className="h-auto w-[70%] max-w-[250px] select-none"
+          draggable={false}
+        />
+        <h1 className="mt-3 font-display text-[23px] font-light leading-tight tracking-[-0.01em]">
+          Welcome to the club
+        </h1>
         <p className="mt-1.5 max-w-[290px] text-[13px] font-normal leading-relaxed text-o1-muted/80">
-          {consulted ? 'Your profile is set. Everything is ready on the floor.' : 'A short consultation tailors your training, then you choose your membership.'}
+          {consulted
+            ? 'Your profile is set. Everything is ready on the floor.'
+            : 'A short consultation tailors your training, then you choose your membership.'}
         </p>
       </div>
 
@@ -42,7 +68,8 @@ export const AthleteLaunchProtocolCard: React.FC<AthleteLaunchProtocolCardProps>
       </div>
 
       <p className="mt-3 px-2 text-center text-[11px] font-normal leading-relaxed text-o1-muted/80">
-        Camera, location and notifications are only requested when you open a feature that uses them.
+        Camera, location and notifications are only requested when you open a feature that uses
+        them.
       </p>
 
       <div className="mt-5 space-y-1">
@@ -73,5 +100,3 @@ export const AthleteLaunchProtocolCard: React.FC<AthleteLaunchProtocolCardProps>
     </div>
   );
 };
-
-

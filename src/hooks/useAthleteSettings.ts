@@ -71,10 +71,9 @@ function pushProfile(patch: Record<string, unknown>) {
       const { data } = await supabase.auth.getUser();
       const uid = data.user?.id;
       if (!uid) return;
-      const { error } = await supabase.from('profiles').upsert(
-        { id: uid, ...patch, updated_at: new Date().toISOString() },
-        { onConflict: 'id' },
-      );
+      const { error } = await supabase
+        .from('profiles')
+        .upsert({ id: uid, ...patch, updated_at: new Date().toISOString() }, { onConflict: 'id' });
       if (error) console.warn('[Settings] profile save:', error.message);
     } catch (err) {
       console.warn('[Settings] profile save:', err);
@@ -83,7 +82,10 @@ function pushProfile(patch: Record<string, unknown>) {
 }
 
 /** Saved the moment it changes, so closing the app mid-edit never loses a setting. */
-function usePersistedSetting<T>(key: keyof SettingsStoreState, initial: T): [T, (value: T) => void] {
+function usePersistedSetting<T>(
+  key: keyof SettingsStoreState,
+  initial: T,
+): [T, (value: T) => void] {
   const [value, setValue] = useState<T>(initial);
   const save = (next: T) => {
     setValue(next);
@@ -96,8 +98,14 @@ export const useProductionSettings = (onShowToast?: (msg: string) => void) => {
   const cached = safeStorage.getItem<Record<string, unknown>>(O1_SETTINGS_KEY, {});
   const profile = useUserStore.getState();
   // Profile
-  const [name, setName] = usePersistedSetting<string>('name', typeof cached.name === 'string' && cached.name ? cached.name : profile.name);
-  const [handle, setHandle] = usePersistedSetting<string>('handle', typeof cached.handle === 'string' && cached.handle ? cached.handle : profile.handle);
+  const [name, setName] = usePersistedSetting<string>(
+    'name',
+    typeof cached.name === 'string' && cached.name ? cached.name : profile.name,
+  );
+  const [handle, setHandle] = usePersistedSetting<string>(
+    'handle',
+    typeof cached.handle === 'string' && cached.handle ? cached.handle : profile.handle,
+  );
   const accountName = useUserStore((s) => s.name);
   const accountHandle = useUserStore((s) => s.handle);
   useEffect(() => {
@@ -106,12 +114,24 @@ export const useProductionSettings = (onShowToast?: (msg: string) => void) => {
   useEffect(() => {
     if (!handle && accountHandle) setHandle(accountHandle);
   }, [accountHandle, handle, setHandle]);
-  const [age, setAge] = usePersistedSetting<number>('age', typeof cached.age === 'number' ? cached.age : 0);
-  const [heightCm, setHeightCm] = usePersistedSetting<number>('heightCm', typeof cached.heightCm === 'number' ? cached.heightCm : 0);
-  const [weightKg, setWeightKg] = usePersistedSetting<number>('weightKg', typeof cached.weightKg === 'number' ? cached.weightKg : profile.weightKg);
-  const [bio, setBio] = usePersistedSetting<string>('bio', typeof cached.bio === 'string' ? cached.bio : '');
+  const [age, setAge] = usePersistedSetting<number>(
+    'age',
+    typeof cached.age === 'number' ? cached.age : 0,
+  );
+  const [heightCm, setHeightCm] = usePersistedSetting<number>(
+    'heightCm',
+    typeof cached.heightCm === 'number' ? cached.heightCm : 0,
+  );
+  const [weightKg, setWeightKg] = usePersistedSetting<number>(
+    'weightKg',
+    typeof cached.weightKg === 'number' ? cached.weightKg : profile.weightKg,
+  );
+  const [bio, setBio] = usePersistedSetting<string>(
+    'bio',
+    typeof cached.bio === 'string' ? cached.bio : '',
+  );
   const [eliteReelsPresence, setEliteReelsPresenceState] = useState<boolean>(
-    typeof cached.eliteReelsPresence === 'boolean' ? cached.eliteReelsPresence : true
+    typeof cached.eliteReelsPresence === 'boolean' ? cached.eliteReelsPresence : true,
   );
   const setEliteReelsPresence = (val: boolean) => {
     setEliteReelsPresenceState(val);
@@ -121,33 +141,33 @@ export const useProductionSettings = (onShowToast?: (msg: string) => void) => {
   // Training
   const [autoDispatch, setAutoDispatch] = usePersistedSetting<boolean>(
     'autoDispatch',
-    typeof cached.autoDispatch === 'boolean' ? cached.autoDispatch : true
+    typeof cached.autoDispatch === 'boolean' ? cached.autoDispatch : true,
   );
   const [restRecoveryMode, setRestRecoveryMode] = usePersistedSetting<boolean>(
     'restRecoveryMode',
-    typeof cached.restRecoveryMode === 'boolean' ? cached.restRecoveryMode : false
+    typeof cached.restRecoveryMode === 'boolean' ? cached.restRecoveryMode : false,
   );
 
   // Units & Workout Defaults
   const [weightUnit, setWeightUnit] = usePersistedSetting<WeightUnit>(
     'weightUnit',
-    cached.weightUnit === 'lbs' ? 'lbs' : 'kg'
+    cached.weightUnit === 'lbs' ? 'lbs' : 'kg',
   );
   const [heightUnit, setHeightUnit] = usePersistedSetting<HeightUnit>(
     'heightUnit',
-    cached.heightUnit === 'in' ? 'in' : 'cm'
+    cached.heightUnit === 'in' ? 'in' : 'cm',
   );
   const [distanceUnit, setDistanceUnit] = usePersistedSetting<DistanceUnit>(
     'distanceUnit',
-    cached.distanceUnit === 'mi' ? 'mi' : 'km'
+    cached.distanceUnit === 'mi' ? 'mi' : 'km',
   );
   const [defaultRestSeconds, setDefaultRestSeconds] = usePersistedSetting<number>(
     'defaultRestSeconds',
-    typeof cached.defaultRestSeconds === 'number' ? cached.defaultRestSeconds : 90
+    typeof cached.defaultRestSeconds === 'number' ? cached.defaultRestSeconds : 90,
   );
   const [defaultBarbellKg, setDefaultBarbellKg] = usePersistedSetting<number>(
     'defaultBarbellKg',
-    typeof cached.defaultBarbellKg === 'number' ? cached.defaultBarbellKg : 20
+    typeof cached.defaultBarbellKg === 'number' ? cached.defaultBarbellKg : 20,
   );
 
   // Daily Step Target (Keypad & Dial Controlled)
@@ -181,15 +201,15 @@ export const useProductionSettings = (onShowToast?: (msg: string) => void) => {
   // Appearance
   const [inputStyle, setInputStyle] = usePersistedSetting<InputStyleType>(
     'inputStyle',
-    cached.inputStyle === 'Keypad' ? 'Keypad' : 'Rotary Dial'
+    cached.inputStyle === 'Keypad' ? 'Keypad' : 'Rotary Dial',
   );
 
   // Audio & Tactile
   const [hapticVibration, setHapticVibrationState] = useState<boolean>(
-    typeof cached.hapticVibration === 'boolean' ? cached.hapticVibration : true
+    typeof cached.hapticVibration === 'boolean' ? cached.hapticVibration : true,
   );
   const [soundEffects, setSoundEffectsState] = useState<boolean>(
-    typeof cached.soundEffects === 'boolean' ? cached.soundEffects : true
+    typeof cached.soundEffects === 'boolean' ? cached.soundEffects : true,
   );
   const setHapticVibration = (val: boolean) => {
     setHapticVibrationState(val);
@@ -204,7 +224,7 @@ export const useProductionSettings = (onShowToast?: (msg: string) => void) => {
 
   // Notifications: every change rebuilds the reminders scheduled on this phone.
   const [osPushEnabled, setOsPushEnabledState] = useState<boolean>(
-    typeof cached.osPushEnabled === 'boolean' ? cached.osPushEnabled : false
+    typeof cached.osPushEnabled === 'boolean' ? cached.osPushEnabled : false,
   );
   const setOsPushEnabled = (val: boolean) => {
     setOsPushEnabledState(val);
@@ -212,7 +232,7 @@ export const useProductionSettings = (onShowToast?: (msg: string) => void) => {
     notifyRemindersChanged();
   };
   const [preWorkoutReminder, setPreWorkoutReminderState] = useState<boolean>(
-    typeof cached.preWorkoutReminder === 'boolean' ? cached.preWorkoutReminder : true
+    typeof cached.preWorkoutReminder === 'boolean' ? cached.preWorkoutReminder : true,
   );
   const setPreWorkoutReminder = (val: boolean) => {
     setPreWorkoutReminderState(val);
@@ -220,7 +240,7 @@ export const useProductionSettings = (onShowToast?: (msg: string) => void) => {
     notifyRemindersChanged();
   };
   const [coachUpdates, setCoachUpdatesState] = useState<boolean>(
-    typeof cached.coachUpdates === 'boolean' ? cached.coachUpdates : true
+    typeof cached.coachUpdates === 'boolean' ? cached.coachUpdates : true,
   );
   const setCoachUpdates = (val: boolean) => {
     setCoachUpdatesState(val);
@@ -228,7 +248,7 @@ export const useProductionSettings = (onShowToast?: (msg: string) => void) => {
   };
 
   const [crashReports, setCrashReportsState] = useState<boolean>(
-    typeof cached.crashReports === 'boolean' ? cached.crashReports : true
+    typeof cached.crashReports === 'boolean' ? cached.crashReports : true,
   );
 
   const setCrashReports = (val: boolean) => {
@@ -301,7 +321,8 @@ export const useProductionSettings = (onShowToast?: (msg: string) => void) => {
       window.localStorage.removeItem('o1fc_user_id');
       window.localStorage.removeItem('o1fc_user_email');
       for (const key of Object.keys(window.localStorage)) {
-        if (key.startsWith('sb-') && key.includes('auth-token')) window.localStorage.removeItem(key);
+        if (key.startsWith('sb-') && key.includes('auth-token'))
+          window.localStorage.removeItem(key);
       }
     } catch {
       /* releaseDevice still restarts clean */
@@ -344,7 +365,10 @@ export const useProductionSettings = (onShowToast?: (msg: string) => void) => {
       if (!res.ok) {
         const payload = await res.json().catch(() => ({}));
         setIsDeleting(false);
-        if (onShowToast) onShowToast(payload?.error || 'Your account was not deleted. Check your connection and try again.');
+        if (onShowToast)
+          onShowToast(
+            payload?.error || 'Your account was not deleted. Check your connection and try again.',
+          );
         return;
       }
       try {
@@ -353,7 +377,9 @@ export const useProductionSettings = (onShowToast?: (msg: string) => void) => {
         console.warn('[Settings] Supabase auth signOut fallback:', e);
       }
       await releasePhoneResources();
-      await import('../services/revenueCatService').then((m) => m.revenueCatService.logOut()).catch(() => undefined);
+      await import('../services/revenueCatService')
+        .then((m) => m.revenueCatService.logOut())
+        .catch(() => undefined);
       setTimeout(() => {
         if (typeof window !== 'undefined') {
           clearAccountData();
@@ -417,7 +443,10 @@ export const useProductionSettings = (onShowToast?: (msg: string) => void) => {
     };
     const day = new Date().toISOString().slice(0, 10);
     try {
-      const result = await exportJsonFile(`oblivion1-data-${day}.json`, JSON.stringify(vaultArchive, null, 2));
+      const result = await exportJsonFile(
+        `oblivion1-data-${day}.json`,
+        JSON.stringify(vaultArchive, null, 2),
+      );
       if (result === 'saved') onShowToast?.('Your data file is ready');
     } catch (err) {
       console.warn('[Settings] Export failed:', err);

@@ -5,7 +5,8 @@ import { normalizeBodyPart, normalizeReelCategory } from '../reelCategories';
 
 type Row = Record<string, unknown>;
 
-const REEL_COLUMNS = 'id, coach_id, title, category, filter_tag, video_url, thumbnail_url, cues, duration_secs, created_at';
+const REEL_COLUMNS =
+  'id, coach_id, title, category, filter_tag, video_url, thumbnail_url, cues, duration_secs, created_at';
 const FEED_LIMIT = 100;
 
 function clock(secs: unknown): string {
@@ -67,7 +68,11 @@ async function mapRows(rows: Row[], known?: CoachCard[]): Promise<ExploreReelIte
 
 /** Newest reels from every coach. Null when the feed could not be loaded. */
 export async function fetchReelFeed(): Promise<ExploreReelItem[] | null> {
-  const { data, error } = await supabase.from('reels').select(REEL_COLUMNS).order('created_at', { ascending: false }).limit(FEED_LIMIT);
+  const { data, error } = await supabase
+    .from('reels')
+    .select(REEL_COLUMNS)
+    .order('created_at', { ascending: false })
+    .limit(FEED_LIMIT);
   if (error || !Array.isArray(data)) return null;
   return mapRows(data as Row[]);
 }

@@ -39,11 +39,19 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
 }) => {
   const [activeTab, setActiveTab] = useState<DispatchTab>('stack');
   const lockedId = targetAthlete?.id || athleteId || '';
-  const [athletes, setAthletes] = useState<Athlete[]>(() => mergeRoster(targetAthlete ? [targetAthlete] : [], roster));
-  const [selectedIds, setSelectedIds] = useState<string[]>(lockedId ? [lockedId] : roster.map((row) => row.id));
+  const [athletes, setAthletes] = useState<Athlete[]>(() =>
+    mergeRoster(targetAthlete ? [targetAthlete] : [], roster),
+  );
+  const [selectedIds, setSelectedIds] = useState<string[]>(
+    lockedId ? [lockedId] : roster.map((row) => row.id),
+  );
   const [pickerOpen, setPickerOpen] = useState(false);
   const [coachCue, setCoachCue] = useState('');
-  const [setup, setSetup] = useState<WorkoutSetup>(() => ({ title: 'Custom workout', date: localDateKey(), focus: 'Hypertrophy (8-12)' }));
+  const [setup, setSetup] = useState<WorkoutSetup>(() => ({
+    title: 'Custom workout',
+    date: localDateKey(),
+    focus: 'Hypertrophy (8-12)',
+  }));
   const dispatch = useDispatchStack();
   const { stack, telemetry } = dispatch;
 
@@ -58,10 +66,13 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
     toastTimer.current = setTimeout(() => setToast(null), ms);
   };
 
-  useEffect(() => () => {
-    if (toastTimer.current) clearTimeout(toastTimer.current);
-    if (closeTimer.current) clearTimeout(closeTimer.current);
-  }, []);
+  useEffect(
+    () => () => {
+      if (toastTimer.current) clearTimeout(toastTimer.current);
+      if (closeTimer.current) clearTimeout(closeTimer.current);
+    },
+    [],
+  );
 
   useEffect(() => {
     if (!isOpen) return;
@@ -84,16 +95,22 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
         setAthletes(merged);
         if (seeded.current) return;
         seeded.current = true;
-        const match = lockedId ? merged.find((row) => row.id === lockedId || row.client_id === lockedId) : undefined;
+        const match = lockedId
+          ? merged.find((row) => row.id === lockedId || row.client_id === lockedId)
+          : undefined;
         if (match) setSelectedIds([match.id]);
-        else if (!lockedId) setSelectedIds((prev) => (prev.length ? prev : merged.map((row) => row.id)));
+        else if (!lockedId)
+          setSelectedIds((prev) => (prev.length ? prev : merged.map((row) => row.id)));
       });
     return () => {
       live = false;
     };
   }, [isOpen, lockedId, targetAthlete, roster]);
 
-  const selectedAthletes = useMemo(() => athletes.filter((a) => selectedIds.includes(a.id)), [athletes, selectedIds]);
+  const selectedAthletes = useMemo(
+    () => athletes.filter((a) => selectedIds.includes(a.id)),
+    [athletes, selectedIds],
+  );
 
   const handleDispatch = async () => {
     if (stack.length === 0 || isSubmitting) return;
@@ -101,7 +118,9 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
       flash('Pick at least one athlete.', 2000);
       return;
     }
-    const linked = selectedAthletes.filter((athlete) => isValidUuid(athlete.client_id || athlete.id) && !isSampleId(athlete.id));
+    const linked = selectedAthletes.filter(
+      (athlete) => isValidUuid(athlete.client_id || athlete.id) && !isSampleId(athlete.id),
+    );
     if (!linked.length) {
       flash('Pick a linked client. Nothing was saved on this phone.', 2500);
       return;
@@ -112,39 +131,52 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
     try {
       const coachId = (await getAuthenticatedUserId()) || '';
       const cue = coachCue.trim();
-      const exercises = stack.map((ex) => ({ name: ex.name, muscle: ex.muscle, cue: ex.cue, setsCount: ex.sets.length, sets: ex.sets }));
+      const exercises = stack.map((ex) => ({
+        name: ex.name,
+        muscle: ex.muscle,
+        cue: ex.cue,
+        setsCount: ex.sets.length,
+        sets: ex.sets,
+      }));
       const [y, m, d] = setup.date.split('-').map(Number);
       const day = new Date(y, (m || 1) - 1, d || 1, 6);
-      const assignedAt = setup.date === localDateKey() || Number.isNaN(day.getTime()) ? new Date().toISOString() : day.toISOString();
+      const assignedAt =
+        setup.date === localDateKey() || Number.isNaN(day.getTime())
+          ? new Date().toISOString()
+          : day.toISOString();
       if (!isValidUuid(coachId)) {
         setIsSubmitting(false);
         flash('Sign in to send workouts.', 2500);
         return;
       }
       const rows = linked.map((athlete) => {
-          const personId = athlete.client_id || athlete.id;
-          return {
-            coach_id: coachId,
-            client_id: personId,
-            athlete_id: personId,
-            title: setup.title,
-            parameters: {
-              date: setup.date,
-              focus: setup.focus,
-              coachCue: cue,
-              totalSets: telemetry.sets,
-              estTime: telemetry.estTime,
-              volumeTons: telemetry.volumeTons,
-            },
-            exercises,
-            status: 'pending',
-            assigned_date: assignedAt,
-          };
-        });
+        const personId = athlete.client_id || athlete.id;
+        return {
+          coach_id: coachId,
+          client_id: personId,
+          athlete_id: personId,
+          title: setup.title,
+          parameters: {
+            date: setup.date,
+            focus: setup.focus,
+            coachCue: cue,
+            totalSets: telemetry.sets,
+            estTime: telemetry.estTime,
+            volumeTons: telemetry.volumeTons,
+          },
+          exercises,
+          status: 'pending',
+          assigned_date: assignedAt,
+        };
+      });
       const { error } = await supabase.from('assigned_workouts').insert(rows);
       if (error) throw new Error(error.message);
 
-      setToast(linked.length > 1 ? `Sent to ${linked.length} athletes` : `Sent to ${linked[0]?.name || 'athlete'}`);
+      setToast(
+        linked.length > 1
+          ? `Sent to ${linked.length} athletes`
+          : `Sent to ${linked[0]?.name || 'athlete'}`,
+      );
       onDispatched?.(setup.title, linked.map((a) => a.name).join(', '));
       closeTimer.current = setTimeout(onClose, 1500);
     } catch (e) {
@@ -156,12 +188,19 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
   if (!isOpen) return null;
 
   const target =
-    selectedAthletes.length === 1 ? selectedAthletes[0].name
-      : selectedAthletes.length > 1 ? `${selectedAthletes.length} athletes`
-      : 'pick an athlete';
+    selectedAthletes.length === 1
+      ? selectedAthletes[0].name
+      : selectedAthletes.length > 1
+        ? `${selectedAthletes.length} athletes`
+        : 'pick an athlete';
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 select-none p-0 sm:p-4 animate-fadeIn" role="dialog" aria-modal="true" aria-label="Send a workout">
+    <div
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 select-none p-0 sm:p-4 animate-fadeIn"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Send a workout"
+    >
       <div className="w-full max-w-lg h-full sm:h-[94vh] bg-o1-canvas text-o1-text sm:rounded-2xl flex flex-col overflow-hidden border border-white/[0.07]">
         <div className="p-3 pt-[calc(env(safe-area-inset-top)+0.75rem)] sm:pt-3 border-b border-white/[0.07] bg-o1-surface shrink-0 space-y-2">
           <div className="flex items-center justify-between gap-2">
@@ -181,13 +220,28 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
 
           <div className="flex flex-wrap items-center justify-between gap-2 text-xs py-1.5 px-3 rounded-2xl border border-white/[0.07]">
             <div className="flex items-center gap-3.5 text-o1-muted">
-              <span>Sets <strong className="text-o1-text">{telemetry.sets}</strong></span>
-              <span>Time <strong className="text-o1-text">{telemetry.estTime ? `${telemetry.estTime}m` : '--'}</strong></span>
-              <span>Volume <strong className="text-o1-text">{Number(telemetry.volumeTons) > 0 ? `${telemetry.volumeTons}k kg` : '--'}</strong></span>
+              <span>
+                Sets <strong className="text-o1-text">{telemetry.sets}</strong>
+              </span>
+              <span>
+                Time{' '}
+                <strong className="text-o1-text">
+                  {telemetry.estTime ? `${telemetry.estTime}m` : '--'}
+                </strong>
+              </span>
+              <span>
+                Volume{' '}
+                <strong className="text-o1-text">
+                  {Number(telemetry.volumeTons) > 0 ? `${telemetry.volumeTons}k kg` : '--'}
+                </strong>
+              </span>
             </div>
             <div className="flex items-center gap-1.5">
               {telemetry.muscleDistribution.slice(0, 2).map((m) => (
-                <span key={m.muscle} className="px-2 py-0.5 rounded-md bg-o1-sheet border border-white/[0.07] text-[10px] font-semibold text-o1-text">
+                <span
+                  key={m.muscle}
+                  className="px-2 py-0.5 rounded-md bg-o1-sheet border border-white/[0.07] text-[10px] font-semibold text-o1-text"
+                >
                   {m.muscle} <span className="text-o1-crimson">{m.percentage}%</span>
                 </span>
               ))}
@@ -206,7 +260,9 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
                   setActiveTab(id);
                 }}
                 className={`h-10 px-3 rounded-full text-xs font-semibold flex items-center justify-center gap-1.5 ${
-                  activeTab === id ? 'bg-o1-crimson text-white' : 'bg-o1-sheet border border-white/[0.07] text-o1-text'
+                  activeTab === id
+                    ? 'bg-o1-crimson text-white'
+                    : 'bg-o1-sheet border border-white/[0.07] text-o1-text'
                 }`}
               >
                 <Icon size={14} />
@@ -217,7 +273,11 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
         </div>
 
         {toast ? (
-          <div role="status" aria-live="polite" className="p-3 bg-emerald-500/10 border-b border-emerald-500/30 text-emerald-400 text-xs font-bold flex items-center justify-center gap-2">
+          <div
+            role="status"
+            aria-live="polite"
+            className="p-3 bg-emerald-500/10 border-b border-emerald-500/30 text-emerald-400 text-xs font-bold flex items-center justify-center gap-2"
+          >
             <CheckCircle2 size={16} />
             {toast}
           </div>
@@ -225,7 +285,12 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
 
         <div className="flex-1 overflow-y-auto p-4">
           {activeTab === 'stack' ? (
-            <DispatchStackTab setup={setup} onSetupChange={setSetup} dispatch={dispatch} onOpenLibrary={() => setActiveTab('library')} />
+            <DispatchStackTab
+              setup={setup}
+              onSetupChange={setSetup}
+              dispatch={dispatch}
+              onOpenLibrary={() => setActiveTab('library')}
+            />
           ) : activeTab === 'library' ? (
             <DispatchLibraryTab
               stack={stack}
@@ -238,7 +303,11 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
             <DispatchBlueprintsTab
               onLoad={(bp) => {
                 dispatch.loadBlueprint(bp);
-                setSetup((prev) => ({ ...prev, title: bp.title, focus: `${bp.intensityMode} · ${bp.durationMins}m` }));
+                setSetup((prev) => ({
+                  ...prev,
+                  title: bp.title,
+                  focus: `${bp.intensityMode} · ${bp.durationMins}m`,
+                }));
                 setActiveTab('stack');
               }}
             />
@@ -247,7 +316,9 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
 
         <div className="p-3 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] sm:pb-3 border-t border-white/[0.07] bg-o1-surface shrink-0 space-y-2">
           <div className="min-w-0">
-            <h4 className="text-xs font-bold text-o1-text truncate">{setup.title} ({setup.date})</h4>
+            <h4 className="text-xs font-bold text-o1-text truncate">
+              {setup.title} ({setup.date})
+            </h4>
             <p className="text-[11px] text-o1-muted truncate">
               {stack.length} exercises · {telemetry.sets} sets · For {target}
             </p>
@@ -287,11 +358,14 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
         </div>
 
         {pickerOpen ? (
-          <DispatchAthletePicker athletes={athletes} selectedIds={selectedIds} onChange={setSelectedIds} onClose={() => setPickerOpen(false)} />
+          <DispatchAthletePicker
+            athletes={athletes}
+            selectedIds={selectedIds}
+            onChange={setSelectedIds}
+            onClose={() => setPickerOpen(false)}
+          />
         ) : null}
       </div>
     </div>
   );
 };
-
-

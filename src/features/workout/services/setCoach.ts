@@ -1,5 +1,9 @@
 import type { ExerciseItem } from '../../../types';
-import { getTelemetryHistoryState, type LoggedSet, type WorkoutDayRecord } from '../../log/store/useTelemetryHistoryStore';
+import {
+  getTelemetryHistoryState,
+  type LoggedSet,
+  type WorkoutDayRecord,
+} from '../../log/store/useTelemetryHistoryStore';
 import { knownSets } from '../../log/liftLedger';
 import { estimatedMaxKg, localTodayKey, priorBestSet } from './sessionPr';
 
@@ -34,11 +38,9 @@ export function lastSessionSets(
 }
 
 /** Sets with no reps yet take last session's numbers, set for set. Prescribed or ticked sets are left alone. */
-export function prefillFromHistory<T extends Pick<ExerciseItem, 'name' | 'sets'> & { exerciseName?: string }>(
-  exercises: T[],
-  history?: History,
-  beforeDateKey?: string,
-): T[] {
+export function prefillFromHistory<
+  T extends Pick<ExerciseItem, 'name' | 'sets'> & { exerciseName?: string },
+>(exercises: T[], history?: History, beforeDateKey?: string): T[] {
   return exercises.map((ex) => {
     const sets = ex.sets || [];
     if (!sets.some((s) => !s.completed && !(Number(s.reps) > 0))) return ex;
@@ -144,7 +146,14 @@ export interface AdviceInput {
 const snap = (kg: number, step: number) => Math.max(0, Math.round(kg / step) * step);
 
 /** What the next set of the same lift should be, from how the last one felt. Null until a feel is given. */
-export function nextSetAdvice({ rpe, weightKg, reps, stepKg, rpeCap, careful = false }: AdviceInput): SetAdvice | null {
+export function nextSetAdvice({
+  rpe,
+  weightKg,
+  reps,
+  stepKg,
+  rpeCap,
+  careful = false,
+}: AdviceInput): SetAdvice | null {
   if (!(rpe > 0) || !(reps > 0)) return null;
   const loaded = weightKg > 0;
   const cap = Math.min(rpeCap, 9);

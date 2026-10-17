@@ -1,12 +1,18 @@
-import { FoodItemRecord, FoodCatalogQueryParams, FoodCategoryType, getRegionalDatabaseInfo, getRegionalFallbackFoods } from './theFoodDatabase';
+import {
+  FoodItemRecord,
+  FoodCatalogQueryParams,
+  FoodCategoryType,
+  getRegionalDatabaseInfo,
+  getRegionalFallbackFoods,
+} from './theFoodDatabase';
 import { filterCustomFoods } from './customFoodDatabase';
 import { errorMessage, errorName } from '../../shared/errorMessage';
 import { FOOD_CATALOG } from '../features/fuel/data/foodCatalog';
 import { matchesFoodQuery, rankByFoodQuery } from '../features/fuel/utils/foodSearchMatch';
 import { apiFetch } from './apiBase';
 
-export type { FoodItemRecord, FoodCatalogQueryParams,   };
-export { getRegionalDatabaseInfo,  };
+export type { FoodItemRecord, FoodCatalogQueryParams };
+export { getRegionalDatabaseInfo };
 
 /** Row shape returned by `/api/fuel/live-food-search` (the server also accepts snake_case aliases). */
 interface LiveFoodRow {
@@ -28,8 +34,10 @@ interface LiveFoodRow {
 function inferCatalogCountry(brand: string, name: string, fallback?: string): string {
   if (fallback) return fallback.toUpperCase();
   const hay = `${brand} ${name}`.toLowerCase();
-  if (/gyg|guzman|grill.?d|oporto|red rooster|zambrero|mad mex|schnitz|hungry jack/.test(hay)) return 'AU';
-  if (/chipotle|chick-fil-a|wendy|taco bell|in-n-out|five guys|panda express/.test(hay)) return 'US';
+  if (/gyg|guzman|grill.?d|oporto|red rooster|zambrero|mad mex|schnitz|hungry jack/.test(hay))
+    return 'AU';
+  if (/chipotle|chick-fil-a|wendy|taco bell|in-n-out|five guys|panda express/.test(hay))
+    return 'US';
   if (/greggs|wagamama/.test(hay)) return 'GB';
   if (/fergburger|hell pizza/.test(hay)) return 'NZ';
   return 'GLOBAL';
@@ -45,7 +53,13 @@ function itemFitsMarket(itemCountry: string, market: string, searching: boolean)
 /** User-saved foods always lead; everything else is ordered by match quality. */
 function rankResults(items: FoodItemRecord[], query: string): FoodItemRecord[] {
   const isMine = (it: FoodItemRecord) => it.is_custom || it.source === 'custom';
-  return [...items.filter(isMine), ...rankByFoodQuery(items.filter((it) => !isMine(it)), query)];
+  return [
+    ...items.filter(isMine),
+    ...rankByFoodQuery(
+      items.filter((it) => !isMine(it)),
+      query,
+    ),
+  ];
 }
 
 const MAPPED_APP_CATALOG: FoodItemRecord[] = FOOD_CATALOG.map((item) => {
@@ -94,8 +108,8 @@ export async function queryFoodCatalog({
         new Map(
           allCats
             .flatMap((cat) => getRegionalFallbackFoods(normCountry, cat, trimmed))
-            .map((it) => [it.id, it])
-        ).values()
+            .map((it) => [it.id, it]),
+        ).values(),
       )
     : getRegionalFallbackFoods(normCountry, targetCategory, trimmed);
 
@@ -103,9 +117,7 @@ export async function queryFoodCatalog({
     if (!itemFitsMarket(it.country, normCountry, searching)) return false;
     if (!trimmed) return it.category === targetCategory;
     return matchesFoodQuery(it.name, it.brand, trimmed);
-  }).sort(
-    (a, b) => Number(b.category === targetCategory) - Number(a.category === targetCategory)
-  );
+  }).sort((a, b) => Number(b.category === targetCategory) - Number(a.category === targetCategory));
 
   // If no search query, return custom foods + app catalog + rich verified database immediately
   if (!trimmed) {

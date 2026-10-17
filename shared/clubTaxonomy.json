@@ -1,68 +1,596 @@
 [
-  { "id": "discipline:hyrox", "group_key": "discipline", "option_key": "hyrox", "label": "Hyrox", "detail": "Running mixed with gym stations.", "sort_order": 1, "active": true },
-  { "id": "discipline:running", "group_key": "discipline", "option_key": "running", "label": "Running", "detail": "Kilometres, minutes, and heart rate.", "sort_order": 2, "active": true },
-  { "id": "discipline:mobility", "group_key": "discipline", "option_key": "mobility", "label": "Mobility", "detail": "Joints, range, and easy strength.", "sort_order": 3, "active": true },
-  { "id": "discipline:hypertrophy", "group_key": "discipline", "option_key": "hypertrophy", "label": "Bodybuilding", "detail": "Muscle size and shape, for the stage or the mirror.", "sort_order": 4, "active": true },
-  { "id": "discipline:powerlifting", "group_key": "discipline", "option_key": "powerlifting", "label": "Powerlifting", "detail": "Squat, bench, and deadlift.", "sort_order": 5, "active": true },
-  { "id": "discipline:crossfit", "group_key": "discipline", "option_key": "crossfit", "label": "CrossFit", "detail": "Mixed sessions and conditioning.", "sort_order": 6, "active": true },
-  { "id": "discipline:hybrid", "group_key": "discipline", "option_key": "hybrid", "label": "Hybrid", "detail": "Strength plus fitness.", "sort_order": 7, "active": true },
-  { "id": "age_band:under18", "group_key": "age_band", "option_key": "under18", "label": "Under 18", "detail": "Lighter starts and no max-effort sets while you grow.", "sort_order": 1, "active": true },
-  { "id": "age_band:18-39", "group_key": "age_band", "option_key": "18-39", "label": "18 to 39", "detail": "", "sort_order": 2, "active": true },
-  { "id": "age_band:40-59", "group_key": "age_band", "option_key": "40-59", "label": "40 to 59", "detail": "", "sort_order": 3, "active": true },
-  { "id": "age_band:60", "group_key": "age_band", "option_key": "60+", "label": "60 or over", "detail": "No jumping, and no max-effort sets.", "sort_order": 4, "active": true },
-  { "id": "goal:fitness", "group_key": "goal", "option_key": "fitness", "label": "Get fitter and healthier", "detail": "More energy, stamina and feeling good.", "sort_order": 1, "active": true },
-  { "id": "goal:muscle", "group_key": "goal", "option_key": "muscle", "label": "Build muscle", "detail": "Look and feel stronger.", "sort_order": 2, "active": true },
-  { "id": "goal:strength", "group_key": "goal", "option_key": "strength", "label": "Get stronger", "detail": "Lift heavier on the big lifts.", "sort_order": 3, "active": true },
-  { "id": "goal:fat_loss", "group_key": "goal", "option_key": "fat_loss", "label": "Lose fat", "detail": "Burn more while keeping your muscle.", "sort_order": 4, "active": true },
-  { "id": "goal:mobility", "group_key": "goal", "option_key": "mobility", "label": "Move better", "detail": "Ease stiffness, aches and old niggles.", "sort_order": 5, "active": true },
-  { "id": "goal:sport", "group_key": "goal", "option_key": "sport", "label": "Train for a sport or event", "detail": "Hyrox, running, CrossFit, powerlifting and more.", "sort_order": 6, "active": true },
-  { "id": "training_age:new", "group_key": "training_age", "option_key": "new", "label": "Just starting", "detail": "Never trained, or it's been a long time.", "sort_order": 1, "active": true },
-  { "id": "training_age:lt1", "group_key": "training_age", "option_key": "<1yr", "label": "Less than a year", "detail": "Still learning the basics.", "sort_order": 2, "active": true },
-  { "id": "training_age:1-3", "group_key": "training_age", "option_key": "1-3yrs", "label": "1 to 3 years", "detail": "Comfortable with most exercises.", "sort_order": 3, "active": true },
-  { "id": "training_age:3-5", "group_key": "training_age", "option_key": "3-5yrs", "label": "3 years or more", "detail": "Consistent and experienced.", "sort_order": 4, "active": true },
-  { "id": "training_age:5", "group_key": "training_age", "option_key": "5+yrs", "label": "3 years or more", "detail": "Consistent and experienced.", "sort_order": 5, "active": false },
-  { "id": "training_age:competitor", "group_key": "training_age", "option_key": "competitor", "label": "I compete", "detail": "Training for meets, races or shows.", "sort_order": 6, "active": true },
-  { "id": "session_length:20", "group_key": "session_length", "option_key": "20", "label": "20 minutes", "detail": "Short and focused.", "sort_order": 1, "active": true },
-  { "id": "session_length:30", "group_key": "session_length", "option_key": "30", "label": "30 minutes", "detail": "Fits a lunch break.", "sort_order": 2, "active": true },
-  { "id": "session_length:45", "group_key": "session_length", "option_key": "45", "label": "45 minutes", "detail": "The classic session.", "sort_order": 3, "active": true },
-  { "id": "session_length:60", "group_key": "session_length", "option_key": "60", "label": "An hour or more", "detail": "Room for everything.", "sort_order": 4, "active": true },
-  { "id": "injuries:knees", "group_key": "injuries", "option_key": "knees", "label": "Knees", "detail": "We skip jumps, lunges and hard landings.", "sort_order": 1, "active": true },
-  { "id": "injuries:lower_back", "group_key": "injuries", "option_key": "lower_back", "label": "Lower back", "detail": "We skip heavy bending and swinging lifts.", "sort_order": 2, "active": true },
-  { "id": "injuries:shoulders", "group_key": "injuries", "option_key": "shoulders", "label": "Shoulders", "detail": "We skip heavy overhead pressing and dips.", "sort_order": 3, "active": true },
-  { "id": "injuries:wrists", "group_key": "injuries", "option_key": "wrists", "label": "Wrists", "detail": "We skip push-ups, planks and front-rack holds.", "sort_order": 4, "active": true },
-  { "id": "injuries:none", "group_key": "injuries", "option_key": "none", "label": "Nothing to protect", "detail": "", "sort_order": 5, "active": true },
-  { "id": "plan_style:auto", "group_key": "plan_style", "option_key": "auto", "label": "Auto plan", "detail": "Free. We set each day's workout and change it as you log.", "sort_order": 1, "active": true },
-  { "id": "plan_style:own", "group_key": "plan_style", "option_key": "own", "label": "No plan", "detail": "I'll design my own workouts.", "sort_order": 2, "active": true },
-  { "id": "coaching_intent:1on1", "group_key": "coaching_intent", "option_key": "1-on-1", "label": "1-on-1 mentorship", "detail": "Matched with a coach who reviews your work.", "sort_order": 1, "active": true },
-  { "id": "coaching_intent:telemetry", "group_key": "coaching_intent", "option_key": "telemetry-only", "label": "Telemetry feedback", "detail": "Data-led feedback without a dedicated coach.", "sort_order": 2, "active": true },
-  { "id": "coaching_intent:self", "group_key": "coaching_intent", "option_key": "self-guided", "label": "Autonomous", "detail": "You lead. The plan adapts to what you log.", "sort_order": 3, "active": true },
-  { "id": "coaching_style:bio", "group_key": "coaching_style", "option_key": "biometrics", "label": "Data and biometrics", "detail": "Readiness, load and recovery numbers.", "sort_order": 1, "active": true },
-  { "id": "coaching_style:mech", "group_key": "coaching_style", "option_key": "biomechanics", "label": "Form and biomechanics", "detail": "Technique cues and form review.", "sort_order": 2, "active": true },
-  { "id": "coaching_style:hard", "group_key": "coaching_style", "option_key": "hardcore", "label": "Hardcore drill", "detail": "Direct, demanding, no excuses.", "sort_order": 3, "active": true },
-  { "id": "facility:commercial", "group_key": "facility", "option_key": "commercial", "label": "Commercial gym", "detail": "Racks, machines, cables and cardio.", "sort_order": 1, "active": true },
-  { "id": "facility:box", "group_key": "facility", "option_key": "functional_box", "label": "Functional or CrossFit box", "detail": "Rigs, sleds, ergs and kettlebells.", "sort_order": 2, "active": true },
-  { "id": "facility:garage", "group_key": "facility", "option_key": "garage_minimal", "label": "Home or garage gym", "detail": "Barbell, rack, dumbbells or kettlebells.", "sort_order": 3, "active": true },
-  { "id": "facility:outdoor", "group_key": "facility", "option_key": "outdoor", "label": "Outdoor", "detail": "Parks, tracks, hills and pull-up bars.", "sort_order": 4, "active": true },
-  { "id": "facility:bodyweight", "group_key": "facility", "option_key": "bodyweight", "label": "No equipment or travel", "detail": "Bodyweight only, anywhere.", "sort_order": 5, "active": true },
-  { "id": "facility:other", "group_key": "facility", "option_key": "other", "label": "Somewhere else", "detail": "We won't limit your equipment.", "sort_order": 6, "active": true },
-  { "id": "frequency:3", "group_key": "frequency", "option_key": "3", "label": "3 days", "detail": "More recovery between sessions.", "sort_order": 1, "active": true },
-  { "id": "frequency:4", "group_key": "frequency", "option_key": "4", "label": "4 days", "detail": "Balanced training load and recovery.", "sort_order": 2, "active": true },
-  { "id": "frequency:5", "group_key": "frequency", "option_key": "5", "label": "5 days", "detail": "Higher weekly volume.", "sort_order": 3, "active": true },
-  { "id": "frequency:6", "group_key": "frequency", "option_key": "6", "label": "6 days", "detail": "For experienced athletes with strong recovery.", "sort_order": 4, "active": true },
-  { "id": "membership_tier:core", "group_key": "membership_tier", "option_key": "core", "label": "Core", "detail": "Daily tracking, public feed, 1 active cycle.", "sort_order": 1, "active": true },
-  { "id": "membership_tier:pro", "group_key": "membership_tier", "option_key": "pro", "label": "Pro", "detail": "Telemetry, ACWR, rolling microcycles, sorted feed.", "sort_order": 2, "active": true },
-  { "id": "membership_tier:founders", "group_key": "membership_tier", "option_key": "founders_pass", "label": "Founders Pass", "detail": "Lifetime access and the founding lifter badge.", "sort_order": 3, "active": true },
-  { "id": "membership_tier:coach", "group_key": "membership_tier", "option_key": "coach", "label": "Coach", "detail": "Roster, dispatch, and program publishing.", "sort_order": 4, "active": true },
-  { "id": "membership_tier:coach_pro", "group_key": "membership_tier", "option_key": "coach_pro", "label": "Coach Pro", "detail": "Unlimited roster and the lower platform fee.", "sort_order": 5, "active": true },
-  { "id": "discovery:all", "group_key": "discovery", "option_key": "all", "label": "All", "detail": "", "sort_order": 0, "active": true },
-  { "id": "discovery:hyrox", "group_key": "discovery", "option_key": "hyrox", "label": "Conditioning", "detail": "", "sort_order": 1, "active": true },
-  { "id": "discovery:running", "group_key": "discovery", "option_key": "running", "label": "Running", "detail": "", "sort_order": 2, "active": true },
-  { "id": "discovery:mobility", "group_key": "discovery", "option_key": "mobility", "label": "Mobility", "detail": "", "sort_order": 3, "active": true },
-  { "id": "discovery:hypertrophy", "group_key": "discovery", "option_key": "hypertrophy", "label": "Hypertrophy", "detail": "", "sort_order": 4, "active": true },
-  { "id": "discovery:powerlifting", "group_key": "discovery", "option_key": "powerlifting", "label": "Powerlifting", "detail": "", "sort_order": 5, "active": true },
-  { "id": "discovery:crossfit", "group_key": "discovery", "option_key": "crossfit", "label": "Metcon", "detail": "", "sort_order": 6, "active": true },
-  { "id": "discovery:hybrid", "group_key": "discovery", "option_key": "hybrid", "label": "Hybrid", "detail": "", "sort_order": 7, "active": true },
-  { "id": "discovery:heavy", "group_key": "discovery", "option_key": "heavy_compound", "label": "Heavy Compound", "detail": "", "sort_order": 8, "active": true },
-  { "id": "discovery:biomech", "group_key": "discovery", "option_key": "biomechanics", "label": "Biomechanics", "detail": "", "sort_order": 9, "active": true },
-  { "id": "discovery:nutrition", "group_key": "discovery", "option_key": "nutrition", "label": "Nutrition", "detail": "", "sort_order": 10, "active": true }
+  {
+    "id": "discipline:hyrox",
+    "group_key": "discipline",
+    "option_key": "hyrox",
+    "label": "Hyrox",
+    "detail": "Running mixed with gym stations.",
+    "sort_order": 1,
+    "active": true
+  },
+  {
+    "id": "discipline:running",
+    "group_key": "discipline",
+    "option_key": "running",
+    "label": "Running",
+    "detail": "Kilometres, minutes, and heart rate.",
+    "sort_order": 2,
+    "active": true
+  },
+  {
+    "id": "discipline:mobility",
+    "group_key": "discipline",
+    "option_key": "mobility",
+    "label": "Mobility",
+    "detail": "Joints, range, and easy strength.",
+    "sort_order": 3,
+    "active": true
+  },
+  {
+    "id": "discipline:hypertrophy",
+    "group_key": "discipline",
+    "option_key": "hypertrophy",
+    "label": "Bodybuilding",
+    "detail": "Muscle size and shape, for the stage or the mirror.",
+    "sort_order": 4,
+    "active": true
+  },
+  {
+    "id": "discipline:powerlifting",
+    "group_key": "discipline",
+    "option_key": "powerlifting",
+    "label": "Powerlifting",
+    "detail": "Squat, bench, and deadlift.",
+    "sort_order": 5,
+    "active": true
+  },
+  {
+    "id": "discipline:crossfit",
+    "group_key": "discipline",
+    "option_key": "crossfit",
+    "label": "CrossFit",
+    "detail": "Mixed sessions and conditioning.",
+    "sort_order": 6,
+    "active": true
+  },
+  {
+    "id": "discipline:hybrid",
+    "group_key": "discipline",
+    "option_key": "hybrid",
+    "label": "Hybrid",
+    "detail": "Strength plus fitness.",
+    "sort_order": 7,
+    "active": true
+  },
+  {
+    "id": "age_band:under18",
+    "group_key": "age_band",
+    "option_key": "under18",
+    "label": "Under 18",
+    "detail": "Lighter starts and no max-effort sets while you grow.",
+    "sort_order": 1,
+    "active": true
+  },
+  {
+    "id": "age_band:18-39",
+    "group_key": "age_band",
+    "option_key": "18-39",
+    "label": "18 to 39",
+    "detail": "",
+    "sort_order": 2,
+    "active": true
+  },
+  {
+    "id": "age_band:40-59",
+    "group_key": "age_band",
+    "option_key": "40-59",
+    "label": "40 to 59",
+    "detail": "",
+    "sort_order": 3,
+    "active": true
+  },
+  {
+    "id": "age_band:60",
+    "group_key": "age_band",
+    "option_key": "60+",
+    "label": "60 or over",
+    "detail": "No jumping, and no max-effort sets.",
+    "sort_order": 4,
+    "active": true
+  },
+  {
+    "id": "goal:fitness",
+    "group_key": "goal",
+    "option_key": "fitness",
+    "label": "Get fitter and healthier",
+    "detail": "More energy, stamina and feeling good.",
+    "sort_order": 1,
+    "active": true
+  },
+  {
+    "id": "goal:muscle",
+    "group_key": "goal",
+    "option_key": "muscle",
+    "label": "Build muscle",
+    "detail": "Look and feel stronger.",
+    "sort_order": 2,
+    "active": true
+  },
+  {
+    "id": "goal:strength",
+    "group_key": "goal",
+    "option_key": "strength",
+    "label": "Get stronger",
+    "detail": "Lift heavier on the big lifts.",
+    "sort_order": 3,
+    "active": true
+  },
+  {
+    "id": "goal:fat_loss",
+    "group_key": "goal",
+    "option_key": "fat_loss",
+    "label": "Lose fat",
+    "detail": "Burn more while keeping your muscle.",
+    "sort_order": 4,
+    "active": true
+  },
+  {
+    "id": "goal:mobility",
+    "group_key": "goal",
+    "option_key": "mobility",
+    "label": "Move better",
+    "detail": "Ease stiffness, aches and old niggles.",
+    "sort_order": 5,
+    "active": true
+  },
+  {
+    "id": "goal:sport",
+    "group_key": "goal",
+    "option_key": "sport",
+    "label": "Train for a sport or event",
+    "detail": "Hyrox, running, CrossFit, powerlifting and more.",
+    "sort_order": 6,
+    "active": true
+  },
+  {
+    "id": "training_age:new",
+    "group_key": "training_age",
+    "option_key": "new",
+    "label": "Just starting",
+    "detail": "Never trained, or it's been a long time.",
+    "sort_order": 1,
+    "active": true
+  },
+  {
+    "id": "training_age:lt1",
+    "group_key": "training_age",
+    "option_key": "<1yr",
+    "label": "Less than a year",
+    "detail": "Still learning the basics.",
+    "sort_order": 2,
+    "active": true
+  },
+  {
+    "id": "training_age:1-3",
+    "group_key": "training_age",
+    "option_key": "1-3yrs",
+    "label": "1 to 3 years",
+    "detail": "Comfortable with most exercises.",
+    "sort_order": 3,
+    "active": true
+  },
+  {
+    "id": "training_age:3-5",
+    "group_key": "training_age",
+    "option_key": "3-5yrs",
+    "label": "3 years or more",
+    "detail": "Consistent and experienced.",
+    "sort_order": 4,
+    "active": true
+  },
+  {
+    "id": "training_age:5",
+    "group_key": "training_age",
+    "option_key": "5+yrs",
+    "label": "3 years or more",
+    "detail": "Consistent and experienced.",
+    "sort_order": 5,
+    "active": false
+  },
+  {
+    "id": "training_age:competitor",
+    "group_key": "training_age",
+    "option_key": "competitor",
+    "label": "I compete",
+    "detail": "Training for meets, races or shows.",
+    "sort_order": 6,
+    "active": true
+  },
+  {
+    "id": "session_length:20",
+    "group_key": "session_length",
+    "option_key": "20",
+    "label": "20 minutes",
+    "detail": "Short and focused.",
+    "sort_order": 1,
+    "active": true
+  },
+  {
+    "id": "session_length:30",
+    "group_key": "session_length",
+    "option_key": "30",
+    "label": "30 minutes",
+    "detail": "Fits a lunch break.",
+    "sort_order": 2,
+    "active": true
+  },
+  {
+    "id": "session_length:45",
+    "group_key": "session_length",
+    "option_key": "45",
+    "label": "45 minutes",
+    "detail": "The classic session.",
+    "sort_order": 3,
+    "active": true
+  },
+  {
+    "id": "session_length:60",
+    "group_key": "session_length",
+    "option_key": "60",
+    "label": "An hour or more",
+    "detail": "Room for everything.",
+    "sort_order": 4,
+    "active": true
+  },
+  {
+    "id": "injuries:knees",
+    "group_key": "injuries",
+    "option_key": "knees",
+    "label": "Knees",
+    "detail": "We skip jumps, lunges and hard landings.",
+    "sort_order": 1,
+    "active": true
+  },
+  {
+    "id": "injuries:lower_back",
+    "group_key": "injuries",
+    "option_key": "lower_back",
+    "label": "Lower back",
+    "detail": "We skip heavy bending and swinging lifts.",
+    "sort_order": 2,
+    "active": true
+  },
+  {
+    "id": "injuries:shoulders",
+    "group_key": "injuries",
+    "option_key": "shoulders",
+    "label": "Shoulders",
+    "detail": "We skip heavy overhead pressing and dips.",
+    "sort_order": 3,
+    "active": true
+  },
+  {
+    "id": "injuries:wrists",
+    "group_key": "injuries",
+    "option_key": "wrists",
+    "label": "Wrists",
+    "detail": "We skip push-ups, planks and front-rack holds.",
+    "sort_order": 4,
+    "active": true
+  },
+  {
+    "id": "injuries:none",
+    "group_key": "injuries",
+    "option_key": "none",
+    "label": "Nothing to protect",
+    "detail": "",
+    "sort_order": 5,
+    "active": true
+  },
+  {
+    "id": "plan_style:auto",
+    "group_key": "plan_style",
+    "option_key": "auto",
+    "label": "Auto plan",
+    "detail": "Free. We set each day's workout and change it as you log.",
+    "sort_order": 1,
+    "active": true
+  },
+  {
+    "id": "plan_style:own",
+    "group_key": "plan_style",
+    "option_key": "own",
+    "label": "No plan",
+    "detail": "I'll design my own workouts.",
+    "sort_order": 2,
+    "active": true
+  },
+  {
+    "id": "coaching_intent:1on1",
+    "group_key": "coaching_intent",
+    "option_key": "1-on-1",
+    "label": "1-on-1 mentorship",
+    "detail": "Matched with a coach who reviews your work.",
+    "sort_order": 1,
+    "active": true
+  },
+  {
+    "id": "coaching_intent:telemetry",
+    "group_key": "coaching_intent",
+    "option_key": "telemetry-only",
+    "label": "Telemetry feedback",
+    "detail": "Data-led feedback without a dedicated coach.",
+    "sort_order": 2,
+    "active": true
+  },
+  {
+    "id": "coaching_intent:self",
+    "group_key": "coaching_intent",
+    "option_key": "self-guided",
+    "label": "Autonomous",
+    "detail": "You lead. The plan adapts to what you log.",
+    "sort_order": 3,
+    "active": true
+  },
+  {
+    "id": "coaching_style:bio",
+    "group_key": "coaching_style",
+    "option_key": "biometrics",
+    "label": "Data and biometrics",
+    "detail": "Readiness, load and recovery numbers.",
+    "sort_order": 1,
+    "active": true
+  },
+  {
+    "id": "coaching_style:mech",
+    "group_key": "coaching_style",
+    "option_key": "biomechanics",
+    "label": "Form and biomechanics",
+    "detail": "Technique cues and form review.",
+    "sort_order": 2,
+    "active": true
+  },
+  {
+    "id": "coaching_style:hard",
+    "group_key": "coaching_style",
+    "option_key": "hardcore",
+    "label": "Hardcore drill",
+    "detail": "Direct, demanding, no excuses.",
+    "sort_order": 3,
+    "active": true
+  },
+  {
+    "id": "facility:commercial",
+    "group_key": "facility",
+    "option_key": "commercial",
+    "label": "Commercial gym",
+    "detail": "Racks, machines, cables and cardio.",
+    "sort_order": 1,
+    "active": true
+  },
+  {
+    "id": "facility:box",
+    "group_key": "facility",
+    "option_key": "functional_box",
+    "label": "Functional or CrossFit box",
+    "detail": "Rigs, sleds, ergs and kettlebells.",
+    "sort_order": 2,
+    "active": true
+  },
+  {
+    "id": "facility:garage",
+    "group_key": "facility",
+    "option_key": "garage_minimal",
+    "label": "Home or garage gym",
+    "detail": "Barbell, rack, dumbbells or kettlebells.",
+    "sort_order": 3,
+    "active": true
+  },
+  {
+    "id": "facility:outdoor",
+    "group_key": "facility",
+    "option_key": "outdoor",
+    "label": "Outdoor",
+    "detail": "Parks, tracks, hills and pull-up bars.",
+    "sort_order": 4,
+    "active": true
+  },
+  {
+    "id": "facility:bodyweight",
+    "group_key": "facility",
+    "option_key": "bodyweight",
+    "label": "No equipment or travel",
+    "detail": "Bodyweight only, anywhere.",
+    "sort_order": 5,
+    "active": true
+  },
+  {
+    "id": "facility:other",
+    "group_key": "facility",
+    "option_key": "other",
+    "label": "Somewhere else",
+    "detail": "We won't limit your equipment.",
+    "sort_order": 6,
+    "active": true
+  },
+  {
+    "id": "frequency:3",
+    "group_key": "frequency",
+    "option_key": "3",
+    "label": "3 days",
+    "detail": "More recovery between sessions.",
+    "sort_order": 1,
+    "active": true
+  },
+  {
+    "id": "frequency:4",
+    "group_key": "frequency",
+    "option_key": "4",
+    "label": "4 days",
+    "detail": "Balanced training load and recovery.",
+    "sort_order": 2,
+    "active": true
+  },
+  {
+    "id": "frequency:5",
+    "group_key": "frequency",
+    "option_key": "5",
+    "label": "5 days",
+    "detail": "Higher weekly volume.",
+    "sort_order": 3,
+    "active": true
+  },
+  {
+    "id": "frequency:6",
+    "group_key": "frequency",
+    "option_key": "6",
+    "label": "6 days",
+    "detail": "For experienced athletes with strong recovery.",
+    "sort_order": 4,
+    "active": true
+  },
+  {
+    "id": "membership_tier:core",
+    "group_key": "membership_tier",
+    "option_key": "core",
+    "label": "Core",
+    "detail": "Daily tracking, public feed, 1 active cycle.",
+    "sort_order": 1,
+    "active": true
+  },
+  {
+    "id": "membership_tier:pro",
+    "group_key": "membership_tier",
+    "option_key": "pro",
+    "label": "Pro",
+    "detail": "Telemetry, ACWR, rolling microcycles, sorted feed.",
+    "sort_order": 2,
+    "active": true
+  },
+  {
+    "id": "membership_tier:founders",
+    "group_key": "membership_tier",
+    "option_key": "founders_pass",
+    "label": "Founders Pass",
+    "detail": "Lifetime access and the founding lifter badge.",
+    "sort_order": 3,
+    "active": true
+  },
+  {
+    "id": "membership_tier:coach",
+    "group_key": "membership_tier",
+    "option_key": "coach",
+    "label": "Coach",
+    "detail": "Roster, dispatch, and program publishing.",
+    "sort_order": 4,
+    "active": true
+  },
+  {
+    "id": "membership_tier:coach_pro",
+    "group_key": "membership_tier",
+    "option_key": "coach_pro",
+    "label": "Coach Pro",
+    "detail": "Unlimited roster and the lower platform fee.",
+    "sort_order": 5,
+    "active": true
+  },
+  {
+    "id": "discovery:all",
+    "group_key": "discovery",
+    "option_key": "all",
+    "label": "All",
+    "detail": "",
+    "sort_order": 0,
+    "active": true
+  },
+  {
+    "id": "discovery:hyrox",
+    "group_key": "discovery",
+    "option_key": "hyrox",
+    "label": "Conditioning",
+    "detail": "",
+    "sort_order": 1,
+    "active": true
+  },
+  {
+    "id": "discovery:running",
+    "group_key": "discovery",
+    "option_key": "running",
+    "label": "Running",
+    "detail": "",
+    "sort_order": 2,
+    "active": true
+  },
+  {
+    "id": "discovery:mobility",
+    "group_key": "discovery",
+    "option_key": "mobility",
+    "label": "Mobility",
+    "detail": "",
+    "sort_order": 3,
+    "active": true
+  },
+  {
+    "id": "discovery:hypertrophy",
+    "group_key": "discovery",
+    "option_key": "hypertrophy",
+    "label": "Hypertrophy",
+    "detail": "",
+    "sort_order": 4,
+    "active": true
+  },
+  {
+    "id": "discovery:powerlifting",
+    "group_key": "discovery",
+    "option_key": "powerlifting",
+    "label": "Powerlifting",
+    "detail": "",
+    "sort_order": 5,
+    "active": true
+  },
+  {
+    "id": "discovery:crossfit",
+    "group_key": "discovery",
+    "option_key": "crossfit",
+    "label": "Metcon",
+    "detail": "",
+    "sort_order": 6,
+    "active": true
+  },
+  {
+    "id": "discovery:hybrid",
+    "group_key": "discovery",
+    "option_key": "hybrid",
+    "label": "Hybrid",
+    "detail": "",
+    "sort_order": 7,
+    "active": true
+  },
+  {
+    "id": "discovery:heavy",
+    "group_key": "discovery",
+    "option_key": "heavy_compound",
+    "label": "Heavy Compound",
+    "detail": "",
+    "sort_order": 8,
+    "active": true
+  },
+  {
+    "id": "discovery:biomech",
+    "group_key": "discovery",
+    "option_key": "biomechanics",
+    "label": "Biomechanics",
+    "detail": "",
+    "sort_order": 9,
+    "active": true
+  },
+  {
+    "id": "discovery:nutrition",
+    "group_key": "discovery",
+    "option_key": "nutrition",
+    "label": "Nutrition",
+    "detail": "",
+    "sort_order": 10,
+    "active": true
+  }
 ]

@@ -1,6 +1,6 @@
 /**
  * O1FC MIDNIGHT LOG ROLLOVER & TELEMETRY ARCHIVE ENGINE
- * 
+ *
  * Periodically checks the current local calendar date against O1FC_LAST_LOG_DATE.
  * When the date changes (midnight rollover):
  * 1. Archives the day's active telemetry, tonnage, sets, cardio, calories & macros to useLogStore and Supabase.
@@ -35,7 +35,10 @@ function getTodayDateString(): string {
 /**
  * Executes a full midnight rollover and telemetry archiving cycle.
  */
-async function performMidnightRollover(previousDate: string, currentDate: string): Promise<boolean> {
+async function performMidnightRollover(
+  previousDate: string,
+  currentDate: string,
+): Promise<boolean> {
   try {
     // 1. Gather current day totals from all unified stores
     const workoutState = useWorkoutStore.getState();
@@ -48,9 +51,12 @@ async function performMidnightRollover(previousDate: string, currentDate: string
     // Fuel metrics calculation
     const allMealItems = Object.values(fuelState.meals || {}).flat();
     const totalConsumedKcal = allMealItems.reduce((acc, m) => acc + (Number(m.calories) || 0), 0);
-    const totalProteinG = Math.round(allMealItems.reduce((acc, m) => acc + (Number(m.protein) || 0), 0) * 10) / 10;
-    const totalCarbsG = Math.round(allMealItems.reduce((acc, m) => acc + (Number(m.carbs) || 0), 0) * 10) / 10;
-    const totalFatsG = Math.round(allMealItems.reduce((acc, m) => acc + (Number(m.fats) || 0), 0) * 10) / 10;
+    const totalProteinG =
+      Math.round(allMealItems.reduce((acc, m) => acc + (Number(m.protein) || 0), 0) * 10) / 10;
+    const totalCarbsG =
+      Math.round(allMealItems.reduce((acc, m) => acc + (Number(m.carbs) || 0), 0) * 10) / 10;
+    const totalFatsG =
+      Math.round(allMealItems.reduce((acc, m) => acc + (Number(m.fats) || 0), 0) * 10) / 10;
     const hydrationLiters = fuelState.hydrationCurrentL || 0;
 
     // Telemetry steps & cardio
@@ -100,7 +106,12 @@ async function performMidnightRollover(previousDate: string, currentDate: string
         previousDate,
         'workout',
         day?.hasData
-          ? mergeWorkoutDay(day, { tonnageKg: 0, completedSets: 0, totalReps: 0, exercises: [] }, title, energy)
+          ? mergeWorkoutDay(
+              day,
+              { tonnageKg: 0, completedSets: 0, totalReps: 0, exercises: [] },
+              title,
+              energy,
+            )
           : mergeWorkoutDay(undefined, ledger, title, energy),
       );
 
@@ -115,7 +126,11 @@ async function performMidnightRollover(previousDate: string, currentDate: string
         completed_at: localNoonIso(previousDate),
         exercises: ticked.map((e) => ({
           name: e.name || e.exerciseName || 'Exercise',
-          sets: e.sets.map((s) => ({ ...s, weightKg: Number(s.weightKg ?? s.weight) || 0, reps: Number(s.reps) || 0 })),
+          sets: e.sets.map((s) => ({
+            ...s,
+            weightKg: Number(s.weightKg ?? s.weight) || 0,
+            reps: Number(s.reps) || 0,
+          })),
         })),
       }).catch((err) => {
         console.warn('[O1FC Midnight Rollover] Backup deferred:', err);

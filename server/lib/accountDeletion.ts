@@ -1,4 +1,9 @@
-import { getCoachBalance, getCoachConnectProfile, getStripe, getSupabaseAdmin } from './stripeLedger';
+import {
+  getCoachBalance,
+  getCoachConnectProfile,
+  getStripe,
+  getSupabaseAdmin,
+} from './stripeLedger';
 
 /**
  * Everything a person owns, as [table, column] pairs. A table or column that does not exist in a given
@@ -86,11 +91,18 @@ export async function deleteAccountData(uid: string): Promise<DeletionResult> {
     return {
       ok: false,
       status: 409,
-      error: 'You still have coaching earnings. Withdraw them in Earnings, and wait for pending earnings to clear, then delete your account.',
+      error:
+        'You still have coaching earnings. Withdraw them in Earnings, and wait for pending earnings to clear, then delete your account.',
     };
   }
-  if (balance?.payouts.some((p) => ['processing', 'pending'].includes(String(p.status).toLowerCase()))) {
-    return { ok: false, status: 409, error: 'A withdrawal is still being processed. Try again in a few minutes.' };
+  if (
+    balance?.payouts.some((p) => ['processing', 'pending'].includes(String(p.status).toLowerCase()))
+  ) {
+    return {
+      ok: false,
+      status: 409,
+      error: 'A withdrawal is still being processed. Try again in a few minutes.',
+    };
   }
 
   // Stored files first, while we can still tell which are theirs.
@@ -115,7 +127,8 @@ export async function deleteAccountData(uid: string): Promise<DeletionResult> {
   try {
     const profile = await getCoachConnectProfile(uid);
     const stripe = await getStripe();
-    if (stripe && profile?.stripe_connect_account_id) await stripe.accounts.del(profile.stripe_connect_account_id);
+    if (stripe && profile?.stripe_connect_account_id)
+      await stripe.accounts.del(profile.stripe_connect_account_id);
   } catch (e) {
     console.warn('[account/delete] stripe account not closed:', (e as Error)?.message);
   }

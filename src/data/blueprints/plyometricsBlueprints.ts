@@ -6,7 +6,8 @@ export const PLYOMETRICS_BLUEPRINTS: WorkoutBlueprint[] = [
     title: 'Sprint Velocity',
     subtitle: 'Elastic Recoil, Acceleration & Hamstring Resilience',
     badge: 'PLYOMETRICS',
-    image: 'https://images.unsplash.com/photo-1552674605-db6ffd4facb5?auto=format&fit=crop&w=800&q=80',
+    image:
+      'https://images.unsplash.com/photo-1552674605-db6ffd4facb5?auto=format&fit=crop&w=800&q=80',
     phase: 'Phase 2: Speed & Power',
     focus: 'Ground Contact Time & High-Speed Mechanics',
     estimatedTime: '55 Mins',
@@ -105,7 +106,8 @@ export const PLYOMETRICS_BLUEPRINTS: WorkoutBlueprint[] = [
     title: 'Vertical Jump Explosion / Kinetic Release',
     subtitle: 'Stretch-Shortening Cycle, Ankle Stiffness & Reactive Ground Force',
     badge: 'PLYOMETRICS',
-    image: 'https://images.unsplash.com/photo-1552674605-db6ffd4facb5?auto=format&fit=crop&w=800&q=80',
+    image:
+      'https://images.unsplash.com/photo-1552674605-db6ffd4facb5?auto=format&fit=crop&w=800&q=80',
     phase: 'Phase 2: Power & Velocity',
     focus: 'Depth Drops, Reactive RFD & Triple Extension Power',
     estimatedTime: '50 Mins',
@@ -204,13 +206,19 @@ export const PLYOMETRICS_BLUEPRINTS: WorkoutBlueprint[] = [
     title: 'Rotational Power & Transverse Plane Velocity',
     subtitle: 'Thoraco-Pelvic Separation, Hip Torque & Ballistic Release',
     badge: 'PLYOMETRICS',
-    image: 'https://images.unsplash.com/photo-1517964603305-11c0f6f66012?auto=format&fit=crop&w=800&q=80',
+    image:
+      'https://images.unsplash.com/photo-1517964603305-11c0f6f66012?auto=format&fit=crop&w=800&q=80',
     phase: 'Phase 2: Ballistic Power',
     focus: 'Oblique Torque, Rotational Med Ball Slams & Landmine Punch',
     estimatedTime: '48 Mins',
     description:
       'For combat athletes, golfers, throwers, and functional movers. Develops explosive transverse plane rotational torque through wall scoop tosses, landmine punch thrusters, explosive cable chops, and lateral skater bounds.',
-    targetMuscles: ['Internal & External Obliques', 'Transverse Abdominis', 'Glute Medius', 'Shoulders'],
+    targetMuscles: [
+      'Internal & External Obliques',
+      'Transverse Abdominis',
+      'Glute Medius',
+      'Shoulders',
+    ],
     exercises: [
       {
         id: 'rp-1',
@@ -303,7 +311,8 @@ export const PLYOMETRICS_BLUEPRINTS: WorkoutBlueprint[] = [
     title: 'Multi-Directional Agility & Deceleration Matrix',
     subtitle: '5-10-5 Pro Agility, Curved Acceleration & Plant Stability',
     badge: 'PLYOMETRICS',
-    image: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=800&q=80',
+    image:
+      'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=800&q=80',
     phase: 'Phase 2: Agility',
     focus: 'Eccentric Brake Force & Rapid Change of Direction (COD)',
     estimatedTime: '48 Mins',
@@ -402,7 +411,8 @@ export const PLYOMETRICS_BLUEPRINTS: WorkoutBlueprint[] = [
     title: 'Achilles Elastic Recoil & Fascial Spring',
     subtitle: 'Tendon Compliance, Ankle Stiffness & Reactive Pogo Volume',
     badge: 'PLYOMETRICS',
-    image: 'https://images.unsplash.com/photo-1552674605-db6ffd4facb5?auto=format&fit=crop&w=800&q=80',
+    image:
+      'https://images.unsplash.com/photo-1552674605-db6ffd4facb5?auto=format&fit=crop&w=800&q=80',
     phase: 'Phase 2: Elasticity',
     focus: 'Achilles Tendon Stiffness & Reactive Ground Force',
     estimatedTime: '42 Mins',
@@ -501,13 +511,19 @@ export const PLYOMETRICS_BLUEPRINTS: WorkoutBlueprint[] = [
     title: 'Upper Body Ballistics & Plyometric Push Matrix',
     subtitle: 'Clapping Push-Ups, Rebound Med Ball Catches & Punch Power',
     badge: 'PLYOMETRICS',
-    image: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?auto=format&fit=crop&w=800&q=80',
+    image:
+      'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?auto=format&fit=crop&w=800&q=80',
     phase: 'Phase 2: Ballistic Power',
     focus: 'Pectoral RFD, Triceps Acceleration & Kinetic Punch Force',
     estimatedTime: '45 Mins',
     description:
       'Translates gym pressing strength into devastating punching power and athletic striking velocity. Features clapping plyometric push-ups, explosive supine chest passes against rebounder, and landmine punch strikes.',
-    targetMuscles: ['Pectoralis Major', 'Triceps Brachii', 'Anterior Deltoids', 'Serratus Anterior'],
+    targetMuscles: [
+      'Pectoralis Major',
+      'Triceps Brachii',
+      'Anterior Deltoids',
+      'Serratus Anterior',
+    ],
     exercises: [
       {
         id: 'ub-1',

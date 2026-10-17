@@ -18,7 +18,11 @@ export function computeAcwr(dailyLoadsKg: number[]): AcwrSnapshot {
   const acuteKg = last7.length ? last7.reduce((a, b) => a + b, 0) / last7.length : 0;
   const chronicKg = days.length ? days.reduce((a, b) => a + b, 0) / days.length : 0;
   const historyDays = days.filter((v) => v > 0).length;
-  const calibrating = dailyLoadsKg.length < 28 || historyDays < 7 || !Number.isFinite(acuteKg) || !Number.isFinite(chronicKg);
+  const calibrating =
+    dailyLoadsKg.length < 28 ||
+    historyDays < 7 ||
+    !Number.isFinite(acuteKg) ||
+    !Number.isFinite(chronicKg);
 
   if (calibrating) {
     return {
@@ -53,11 +57,16 @@ export const PLAIN_LOAD: Record<string, string> = {
   'High risk': 'Too much, ease off',
 };
 
-export function weekCompletionPct(weekLoadsKg: number[], elapsedDays: number, plannedDays?: number): number | null {
+export function weekCompletionPct(
+  weekLoadsKg: number[],
+  elapsedDays: number,
+  plannedDays?: number,
+): number | null {
   const logged = weekLoadsKg.filter((load) => load > 0).length;
   if (logged === 0) return null;
-  const target = plannedDays && plannedDays > 0
-    ? Math.min(6, Math.max(1, plannedDays))
-    : Math.max(1, Math.min(7, elapsedDays));
+  const target =
+    plannedDays && plannedDays > 0
+      ? Math.min(6, Math.max(1, plannedDays))
+      : Math.max(1, Math.min(7, elapsedDays));
   return Math.min(100, Math.round((logged / target) * 1000) / 10);
 }

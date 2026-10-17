@@ -12,19 +12,25 @@ type EquipmentCategory =
   | 'kettlebell'
   | 'sandbag';
 
-type ExerciseMechanic =
-  | 'compound'
-  | 'isolation'
-  | 'isometric'
-  | 'aerobic'
-  | 'mobility';
+type ExerciseMechanic = 'compound' | 'isolation' | 'isometric' | 'aerobic' | 'mobility';
 
-const MOVEMENT_PATTERNS = ['push', 'pull', 'hinge', 'squat', 'carry', 'core', 'locomotion', 'mobility'] as const;
+const MOVEMENT_PATTERNS = [
+  'push',
+  'pull',
+  'hinge',
+  'squat',
+  'carry',
+  'core',
+  'locomotion',
+  'mobility',
+] as const;
 
 export type MovementPattern = (typeof MOVEMENT_PATTERNS)[number];
 
 export function toMovementPattern(value: string | undefined): MovementPattern | undefined {
-  return (MOVEMENT_PATTERNS as readonly string[]).includes(value ?? '') ? (value as MovementPattern) : undefined;
+  return (MOVEMENT_PATTERNS as readonly string[]).includes(value ?? '')
+    ? (value as MovementPattern)
+    : undefined;
 }
 
 /**

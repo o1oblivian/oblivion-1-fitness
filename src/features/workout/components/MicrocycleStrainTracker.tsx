@@ -44,8 +44,16 @@ export const MicrocycleStrainTracker: React.FC = () => {
       if (!uid || cancelled) return;
       const filter = `user_id=eq.${uid}`;
       channel = liveChannel(`microcycle-${uid}`)
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'completed_sessions', filter }, refreshSoon)
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'workout_logs', filter }, refreshSoon)
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'completed_sessions', filter },
+          refreshSoon,
+        )
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'workout_logs', filter },
+          refreshSoon,
+        )
         .subscribe();
     });
     return () => {
@@ -70,11 +78,15 @@ export const MicrocycleStrainTracker: React.FC = () => {
       : acwr.ratio != null
         ? `ACWR ${acwr.ratio.toFixed(2)}`
         : 'ACWR --';
-  const pillTone = acwr.calibrating ? 'text-o1-muted border-white/[0.07]' : ACWR_TONE[acwr.label] ?? 'text-o1-muted border-white/[0.07]';
+  const pillTone = acwr.calibrating
+    ? 'text-o1-muted border-white/[0.07]'
+    : (ACWR_TONE[acwr.label] ?? 'text-o1-muted border-white/[0.07]');
   const subtitle = simple
     ? acwr.calibrating
       ? 'Learning your normal week'
-      : plainLoad ? `${plainLoad} for you` : 'Compared with your usual'
+      : plainLoad
+        ? `${plainLoad} for you`
+        : 'Compared with your usual'
     : acwr.calibrating
       ? 'Mon–Sun · building your 28-day baseline'
       : `Mon–Sun · ${acwr.label ? `${acwr.label.toLowerCase()} ` : ''}load vs your 28-day average`;
@@ -82,7 +94,10 @@ export const MicrocycleStrainTracker: React.FC = () => {
   const unitLower = loadUnitLabel(unit).toLowerCase();
 
   return (
-    <div id="card-microcycle-strain-tracker" className="bg-o1-card border border-white/[0.07] rounded-2xl p-2.5 text-o1-text select-none space-y-1.5 my-2">
+    <div
+      id="card-microcycle-strain-tracker"
+      className="bg-o1-card border border-white/[0.07] rounded-2xl p-2.5 text-o1-text select-none space-y-1.5 my-2"
+    >
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2.5 min-w-0">
           <span className="o1-mark text-o1-olive">
@@ -110,12 +125,16 @@ export const MicrocycleStrainTracker: React.FC = () => {
 
       <div className="grid grid-cols-2 gap-2.5">
         <div className="bg-o1-well border border-white/[0.07] rounded-2xl p-3 space-y-1">
-          <span className="text-[11px] uppercase tracking-[0.12em] text-o1-muted block">{simple ? 'Total lifted' : 'Volume'}</span>
+          <span className="text-[11px] uppercase tracking-[0.12em] text-o1-muted block">
+            {simple ? 'Total lifted' : 'Volume'}
+          </span>
           <span className="font-mono font-light text-[15px] text-o1-text block tabular-nums">
             {totalVolume > 0 ? `${tonnes(kgToDisplay(totalVolume, unit))} ${unitLower}` : '--'}
           </span>
           <span className="text-[11px] text-o1-muted block">
-            {trainedDays.length > 0 ? `${trainedDays.length} training day${trainedDays.length === 1 ? '' : 's'}` : 'No sessions logged'}
+            {trainedDays.length > 0
+              ? `${trainedDays.length} training day${trainedDays.length === 1 ? '' : 's'}`
+              : 'No sessions logged'}
           </span>
         </div>
         <div className="bg-o1-well border border-white/[0.07] rounded-2xl p-3 space-y-1">
@@ -124,13 +143,12 @@ export const MicrocycleStrainTracker: React.FC = () => {
             {totalSets > 0 ? totalSets : '--'}
           </span>
           <span className="text-[11px] text-o1-muted block">
-            {acwr.completionPct != null ? `${acwr.completionPct}% of plan logged` : 'No plan scheduled'}
+            {acwr.completionPct != null
+              ? `${acwr.completionPct}% of plan logged`
+              : 'No plan scheduled'}
           </span>
         </div>
       </div>
-
     </div>
   );
 };
-
-

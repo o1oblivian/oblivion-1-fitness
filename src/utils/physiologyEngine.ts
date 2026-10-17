@@ -50,24 +50,26 @@ export const calculateCalorieBurn = (
   baseMET: number,
   weightKg: number = getAthleteWeightKg(),
   durationMinutes: number,
-  energyLevel: EnergyCheckIn = 'STEADY'
+  energyLevel: EnergyCheckIn = 'STEADY',
 ): number => {
   if (baseMET <= 0 || durationMinutes <= 0) return 0;
   const safeWeight = weightKg > 30 ? weightKg : 75;
   const multiplier = ENERGY_INTENSITY_MULTIPLIERS[energyLevel] || 1.0;
   const adjustedMET = baseMET * multiplier;
-  
+
   // Standard Compendium formula: (MET * 3.5 * weightKg / 200) * durationMinutes
-  const kcal = (adjustedMET * 3.5 * safeWeight / 200) * durationMinutes;
+  const kcal = ((adjustedMET * 3.5 * safeWeight) / 200) * durationMinutes;
   return Math.round(kcal);
 };
 
 /**
  * Checks if an exercise item or definition represents a bodyweight movement.
  */
-const isBodyweightMovement = (
-  item: { equipment?: string; name?: string; targetMuscle?: string }
-): boolean => {
+const isBodyweightMovement = (item: {
+  equipment?: string;
+  name?: string;
+  targetMuscle?: string;
+}): boolean => {
   const eq = (item.equipment || '').toLowerCase();
   const nm = (item.name || '').toLowerCase();
   if (eq === 'bodyweight' || eq === 'calisthenics') return true;
@@ -98,7 +100,7 @@ const isBodyweightMovement = (
 export const calculateSessionTonnage = (
   exercises: ExerciseItem[],
   athleteWeightKg: number = getAthleteWeightKg(),
-  completedOnly: boolean = false
+  completedOnly: boolean = false,
 ): number => {
   let totalTonnage = 0;
   const safeWeight = athleteWeightKg > 30 ? athleteWeightKg : 75;
@@ -126,7 +128,7 @@ export const estimateSessionCalorieBurn = (
   exercises: { name: string; baseMET?: number }[],
   durationMinutes: number,
   energyLevel: EnergyCheckIn = 'STEADY',
-  athleteWeightKg: number = getAthleteWeightKg()
+  athleteWeightKg: number = getAthleteWeightKg(),
 ): number => {
   if (exercises.length === 0 || durationMinutes <= 0) return 0;
   const perExerciseMinutes = durationMinutes / exercises.length;
@@ -156,7 +158,7 @@ export const estimateSessionCalorieBurn = (
 export const calculateFatigueScore = (
   tonnageKg: number,
   completedSets: number,
-  trainingLoad: number
+  trainingLoad: number,
 ): number => {
   const baseRecovery = 100;
   const tonnageFatigue = tonnageKg / 300;

@@ -1,6 +1,14 @@
 import { FoodCatalogItem } from './foodCatalogTypes';
 
-type Row = [id: string, name: string, serving: string, kcal: number, p: number, c: number, f: number];
+type Row = [
+  id: string,
+  name: string,
+  serving: string,
+  kcal: number,
+  p: number,
+  c: number,
+  f: number,
+];
 
 /** Grill'd AU published nutrition (traditional bun unless noted). Count-only servings log by servings, not grams. */
 const ROWS: Row[] = [
@@ -64,15 +72,17 @@ const ROWS: Row[] = [
   ['gd-93', 'Salted Caramel Thickshake', '1 shake', 547, 12.1, 76.9, 20.7],
 ];
 
-export const GRILLD_FOODS: FoodCatalogItem[] = ROWS.map(([id, name, serving, calories, protein, carbs, fats]) => ({
-  id,
-  name,
-  brand: "Grill'd",
-  serving,
-  calories,
-  protein,
-  carbs,
-  fats,
-  category: 'FASTFOOD',
-  country: 'AU',
-}));
+export const GRILLD_FOODS: FoodCatalogItem[] = ROWS.map(
+  ([id, name, serving, calories, protein, carbs, fats]) => ({
+    id,
+    name,
+    brand: "Grill'd",
+    serving,
+    calories,
+    protein,
+    carbs,
+    fats,
+    category: 'FASTFOOD',
+    country: 'AU',
+  }),
+);

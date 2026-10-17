@@ -111,7 +111,12 @@ export const DialInputModal: React.FC<DialInputModalProps> = ({
             onCenterClick={() => setMode('numpad')}
           />
         ) : (
-          <DialNumpad value={value} unit={config.unit} max={config.max} onChange={(v) => setValue(v)} />
+          <DialNumpad
+            value={value}
+            unit={config.unit}
+            max={config.max}
+            onChange={(v) => setValue(v)}
+          />
         )}
 
         <DialFooterBar
@@ -129,5 +134,3 @@ export const DialInputModal: React.FC<DialInputModalProps> = ({
     </div>
   );
 };
-
-

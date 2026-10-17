@@ -22,7 +22,12 @@ interface StorefrontEditorProps {
 }
 
 /** The coach's public offer: experience, open spots, and monthly price. */
-export const StorefrontEditor: React.FC<StorefrontEditorProps> = ({ stats, onSaved, onCancel, onError }) => {
+export const StorefrontEditor: React.FC<StorefrontEditorProps> = ({
+  stats,
+  onSaved,
+  onCancel,
+  onError,
+}) => {
   const [draft, setDraft] = useState<Draft>({
     years: stats.years != null ? String(stats.years) : '',
     capacity: stats.capacity != null ? String(stats.capacity) : '',
@@ -34,7 +39,10 @@ export const StorefrontEditor: React.FC<StorefrontEditorProps> = ({ stats, onSav
     const years = wholeOrNull(draft.years);
     const capacity = wholeOrNull(draft.capacity);
     const monthlyRaw = Number(draft.monthly);
-    const monthlyPriceCents = draft.monthly.trim() && Number.isFinite(monthlyRaw) && monthlyRaw >= 0 ? Math.round(monthlyRaw * 100) : null;
+    const monthlyPriceCents =
+      draft.monthly.trim() && Number.isFinite(monthlyRaw) && monthlyRaw >= 0
+        ? Math.round(monthlyRaw * 100)
+        : null;
     setSaving(true);
     const ok = await saveStorefront({ years, capacity, monthlyPriceCents });
     setSaving(false);
@@ -59,7 +67,11 @@ export const StorefrontEditor: React.FC<StorefrontEditorProps> = ({ stats, onSav
         </label>
       ))}
       <div className="flex gap-2 pt-1">
-        <button type="button" onClick={onCancel} className="h-[44px] flex-1 rounded-xl border border-white/[0.07] text-[13px] font-semibold text-o1-text">
+        <button
+          type="button"
+          onClick={onCancel}
+          className="h-[44px] flex-1 rounded-xl border border-white/[0.07] text-[13px] font-semibold text-o1-text"
+        >
           Cancel
         </button>
         <button

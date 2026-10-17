@@ -30,9 +30,12 @@ export const LogView: React.FC = () => {
     setToast(message);
     toastTimer.current = setTimeout(() => setToast(null), 2400);
   }, []);
-  useEffect(() => () => {
-    if (toastTimer.current) clearTimeout(toastTimer.current);
-  }, []);
+  useEffect(
+    () => () => {
+      if (toastTimer.current) clearTimeout(toastTimer.current);
+    },
+    [],
+  );
   const openSettings = useModalStore((s) => s.openSettings);
   const user = useUserStore();
   const buddyName = useBuddyProfileStore((s) => s.displayName);
@@ -156,16 +159,10 @@ export const LogView: React.FC = () => {
       />
 
       {toast ? (
-        <div
-          role="status"
-          aria-live="polite"
-          className="o1-toast"
-        >
+        <div role="status" aria-live="polite" className="o1-toast">
           {toast}
         </div>
       ) : null}
     </div>
   );
 };
-
-

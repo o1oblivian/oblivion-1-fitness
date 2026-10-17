@@ -9,13 +9,13 @@ export const ProgramReviewStep: React.FC<{ data: ProgramFormData }> = ({ data })
 
   const totalExercises = data.weeks.reduce(
     (acc, w) => acc + w.days.reduce((a, d) => a + d.exercises.length, 0),
-    0
+    0,
   );
 
   const toggleWeek = (weekNum: number) => {
     tactileEngine.triggerSelectionBuzz();
     setExpandedWeeks((prev) =>
-      prev.includes(weekNum) ? prev.filter((w) => w !== weekNum) : [...prev, weekNum]
+      prev.includes(weekNum) ? prev.filter((w) => w !== weekNum) : [...prev, weekNum],
     );
   };
 
@@ -28,9 +28,7 @@ export const ProgramReviewStep: React.FC<{ data: ProgramFormData }> = ({ data })
       <div className="space-y-1">
         <div className="flex items-center gap-2">
           <Target className="w-4 h-4 text-o1-text" />
-          <h3 className="text-sm font-bold text-o1-text">
-            Review & Publish
-          </h3>
+          <h3 className="text-sm font-bold text-o1-text">Review & Publish</h3>
         </div>
         <p className="text-xs text-o1-muted">
           Confirm full curriculum integrity and syllabus before publishing
@@ -40,11 +38,7 @@ export const ProgramReviewStep: React.FC<{ data: ProgramFormData }> = ({ data })
       {/* Program Summary Card */}
       <div className="rounded-2xl bg-o1-surface border border-white/[0.07] overflow-hidden space-y-3.5 p-3.5 shadow-2xs">
         <div className="relative h-40 rounded-2xl overflow-hidden bg-o1-canvas">
-          <img
-            src={data.coverImage}
-            alt={data.title}
-            className="w-full h-full object-cover"
-          />
+          <img src={data.coverImage} alt={data.title} className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-black/20 p-3.5 flex flex-col justify-between">
             <div className="flex items-center justify-between">
               <span className="px-2.5 py-1 rounded-xl bg-black/60 backdrop-blur-md text-o1-text text-[10px] font-bold tracking-wider border border-white/[0.07]">
@@ -69,9 +63,7 @@ export const ProgramReviewStep: React.FC<{ data: ProgramFormData }> = ({ data })
             <span className="text-[9px] tracking-wider text-o1-muted block font-semibold">
               Duration
             </span>
-            <span className="text-xs font-bold text-o1-text">
-              {data.durationWeeks} Weeks
-            </span>
+            <span className="text-xs font-bold text-o1-text">{data.durationWeeks} Weeks</span>
           </div>
           <div className="p-2.5 rounded-xl bg-o1-sheet border border-white/[0.07]">
             <span className="text-[9px] tracking-wider text-o1-muted block font-semibold">
@@ -85,9 +77,7 @@ export const ProgramReviewStep: React.FC<{ data: ProgramFormData }> = ({ data })
             <span className="text-[9px] tracking-wider text-o1-muted block font-semibold">
               Tier
             </span>
-            <span className="text-xs font-bold text-o1-text">
-              {data.difficulty}
-            </span>
+            <span className="text-xs font-bold text-o1-text">{data.difficulty}</span>
           </div>
           <div className="p-2.5 rounded-xl bg-o1-sheet border border-white/[0.07]">
             <span className="text-[9px] tracking-wider text-o1-muted block font-semibold">
@@ -142,9 +132,7 @@ export const ProgramReviewStep: React.FC<{ data: ProgramFormData }> = ({ data })
 
       {/* Curriculum Breakdown */}
       <div className="space-y-2">
-        <h4 className="text-xs font-bold text-o1-text px-1">
-          Curriculum Breakdown
-        </h4>
+        <h4 className="text-xs font-bold text-o1-text px-1">Curriculum Breakdown</h4>
         <div className="space-y-2">
           {data.weeks.map((w) => {
             const isExpanded = expandedWeeks.includes(w.weekNumber);
@@ -161,9 +149,7 @@ export const ProgramReviewStep: React.FC<{ data: ProgramFormData }> = ({ data })
                   className="w-full p-3 flex items-center justify-between text-left hover:bg-o1-sheet transition-colors cursor-pointer"
                 >
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-bold text-o1-text">
-                      Week {w.weekNumber}
-                    </span>
+                    <span className="text-xs font-bold text-o1-text">Week {w.weekNumber}</span>
                     <span className="text-[10px] font-mono text-o1-muted">
                       · {weekExCount} total exercises
                     </span>
@@ -223,4 +209,3 @@ export const ProgramReviewStep: React.FC<{ data: ProgramFormData }> = ({ data })
     </div>
   );
 };
-

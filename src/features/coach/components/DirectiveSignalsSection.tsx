@@ -3,9 +3,6 @@ import { Pencil, Trash2 } from 'lucide-react';
 import { DirectiveItem } from '../types/coachDirectives';
 import { tactileEngine } from '../../../services/tactileEngine';
 
-;
-;
-
 export interface NoteDraft {
   tag: DirectiveItem['tag'];
   title: string;
@@ -30,11 +27,14 @@ const TOPICS: { tag: DirectiveItem['tag']; label: string }[] = [
   { tag: 'PERFORMANCE', label: 'Progress' },
 ];
 
-const topicLabel = (tag: DirectiveItem['tag']) => TOPICS.find((item) => item.tag === tag)?.label || tag;
+const topicLabel = (tag: DirectiveItem['tag']) =>
+  TOPICS.find((item) => item.tag === tag)?.label || tag;
 
 function noteDate(iso?: string): string {
   const date = iso ? new Date(iso) : null;
-  return date && !Number.isNaN(date.getTime()) ? date.toLocaleDateString(undefined, { day: 'numeric', month: 'short' }) : '';
+  return date && !Number.isNaN(date.getTime())
+    ? date.toLocaleDateString(undefined, { day: 'numeric', month: 'short' })
+    : '';
 }
 
 function draftFrom(tag: DirectiveItem['tag'], text: string): NoteDraft {
@@ -42,7 +42,10 @@ function draftFrom(tag: DirectiveItem['tag'], text: string): NoteDraft {
   return { tag, title: clean.slice(0, 80), summary: clean };
 }
 
-const TopicPicker: React.FC<{ value: DirectiveItem['tag']; onChange: (tag: DirectiveItem['tag']) => void }> = ({ value, onChange }) => (
+const TopicPicker: React.FC<{
+  value: DirectiveItem['tag'];
+  onChange: (tag: DirectiveItem['tag']) => void;
+}> = ({ value, onChange }) => (
   <div className="flex gap-1.5 overflow-x-auto px-1 no-scrollbar">
     {TOPICS.map((item) => (
       <button
@@ -54,7 +57,9 @@ const TopicPicker: React.FC<{ value: DirectiveItem['tag']; onChange: (tag: Direc
           onChange(item.tag);
         }}
         className={`o1-pill shrink-0 border text-[12px] font-semibold active:scale-[0.98] ${
-          value === item.tag ? 'border-o1-crimson bg-o1-crimson text-white' : 'border-white/[0.07] bg-o1-surface text-o1-text'
+          value === item.tag
+            ? 'border-o1-crimson bg-o1-crimson text-white'
+            : 'border-white/[0.07] bg-o1-surface text-o1-text'
         }`}
       >
         {item.label}
@@ -95,7 +100,11 @@ const NoteRow: React.FC<{
           aria-label="Edit note"
           className="w-full resize-none rounded-xl border border-white/[0.07] bg-o1-canvas px-3 py-2 text-[13px] text-o1-text outline-none focus:border-o1-crimson"
         />
-        {error ? <p role="alert" className="text-[12px] text-o1-text">{error}</p> : null}
+        {error ? (
+          <p role="alert" className="text-[12px] text-o1-text">
+            {error}
+          </p>
+        ) : null}
         <div className="flex gap-2">
           <button
             type="button"
@@ -112,7 +121,9 @@ const NoteRow: React.FC<{
           <button
             type="button"
             disabled={busy || !text.trim()}
-            onClick={() => void run(() => onEdit(draftFrom(tag, text)), 'Could not save the change. Try again.')}
+            onClick={() =>
+              void run(() => onEdit(draftFrom(tag, text)), 'Could not save the change. Try again.')
+            }
             className="h-[44px] flex-1 rounded-xl bg-o1-crimson text-[13px] font-semibold text-white disabled:opacity-40"
           >
             {busy ? 'Saving…' : 'Save'}
@@ -130,7 +141,9 @@ const NoteRow: React.FC<{
             {[topicLabel(note.tag), noteDate(note.createdAt)].filter(Boolean).join(' · ')}
           </span>
           <p className="text-[13px] font-semibold text-o1-text">{note.title}</p>
-          {note.summary && note.summary !== note.title ? <p className="mt-1 text-[12px] text-o1-muted">{note.summary}</p> : null}
+          {note.summary && note.summary !== note.title ? (
+            <p className="mt-1 text-[12px] text-o1-muted">{note.summary}</p>
+          ) : null}
         </div>
         {mode === 'view' ? (
           <div className="flex shrink-0">
@@ -162,7 +175,11 @@ const NoteRow: React.FC<{
       {mode === 'confirm' ? (
         <div className="mt-2 space-y-2">
           <p className="text-[12px] text-o1-text">Delete this note for every client?</p>
-          {error ? <p role="alert" className="text-[12px] text-o1-text">{error}</p> : null}
+          {error ? (
+            <p role="alert" className="text-[12px] text-o1-text">
+              {error}
+            </p>
+          ) : null}
           <div className="flex gap-2">
             <button
               type="button"
@@ -243,12 +260,23 @@ export const DirectiveSignalsSection: React.FC<DirectiveSignalsSectionProps> = (
           {sending ? 'Sending…' : 'Send'}
         </button>
       </form>
-      {sendFailed ? <p role="alert" className="px-1 text-[12px] text-o1-text">Could not send. Check your connection and try again.</p> : null}
+      {sendFailed ? (
+        <p role="alert" className="px-1 text-[12px] text-o1-text">
+          Could not send. Check your connection and try again.
+        </p>
+      ) : null}
       {loadFailed ? (
-        <div role="alert" className="flex items-center justify-between gap-2 rounded-xl border border-o1-crimson/30 bg-o1-crimson/10 px-3 py-2">
+        <div
+          role="alert"
+          className="flex items-center justify-between gap-2 rounded-xl border border-o1-crimson/30 bg-o1-crimson/10 px-3 py-2"
+        >
           <p className="text-[12px] text-o1-text">Could not load your notes.</p>
           {onRetry ? (
-            <button type="button" onClick={onRetry} className="min-h-[36px] px-2 text-[12px] font-semibold text-o1-text">
+            <button
+              type="button"
+              onClick={onRetry}
+              className="min-h-[36px] px-2 text-[12px] font-semibold text-o1-text"
+            >
               Retry
             </button>
           ) : null}
@@ -260,10 +288,14 @@ export const DirectiveSignalsSection: React.FC<DirectiveSignalsSectionProps> = (
         <p className="px-1 py-4 text-center text-[12px] text-o1-muted">No notes yet.</p>
       ) : (
         directives.map((dir) => (
-          <NoteRow key={dir.id} note={dir} onEdit={(draft) => onEditNote(dir.id, draft)} onDelete={() => onDeleteNote(dir.id)} />
+          <NoteRow
+            key={dir.id}
+            note={dir}
+            onEdit={(draft) => onEditNote(dir.id, draft)}
+            onDelete={() => onDeleteNote(dir.id)}
+          />
         ))
       )}
     </div>
   );
 };
-

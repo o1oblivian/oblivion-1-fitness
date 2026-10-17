@@ -61,7 +61,13 @@ function buildLiftSessions(sets: LoggedSet[], requireMuscle = true): Map<string,
     const perDay = best.get(name) ?? new Map<string, LiftSession>();
     const prev = perDay.get(s.day);
     if (!prev || e1rm > prev.e1rm) {
-      perDay.set(s.day, { day: s.day, idx: dayIndex(s.day), e1rm, weightKg: s.weightKg, reps: s.reps });
+      perDay.set(s.day, {
+        day: s.day,
+        idx: dayIndex(s.day),
+        e1rm,
+        weightKg: s.weightKg,
+        reps: s.reps,
+      });
     }
     best.set(name, perDay);
   }
@@ -117,7 +123,12 @@ function analyseLift(name: string, sessions: LiftSession[], todayIdx: number): L
     lastWeightKg: last.weightKg,
     lastReps: last.reps,
     lastDay: last.day,
-    series: sessions.slice(-16).map((s) => ({ day: s.day, e1rm: Math.round(s.e1rm * 10) / 10, weightKg: s.weightKg, reps: s.reps })),
+    series: sessions.slice(-16).map((s) => ({
+      day: s.day,
+      e1rm: Math.round(s.e1rm * 10) / 10,
+      weightKg: s.weightKg,
+      reps: s.reps,
+    })),
   };
 }
 
@@ -130,7 +141,10 @@ export function analyseAllLifts(sets: LoggedSet[], now: number): LiftProgress[] 
     .sort((a, b) => dayIndex(b.lastDay) - dayIndex(a.lastDay) || b.sessions - a.sessions);
 }
 
-function collectPersonalBests(sessionsByLift: Map<string, LiftSession[]>, todayIdx: number): PersonalBest[] {
+function collectPersonalBests(
+  sessionsByLift: Map<string, LiftSession[]>,
+  todayIdx: number,
+): PersonalBest[] {
   const events: PersonalBest[] = [];
   sessionsByLift.forEach((sessions, name) => {
     let running = 0;
@@ -224,14 +238,24 @@ function gradeFor(score: number | null): string {
 }
 
 function strengthPart(lifts: LiftProgress[]): ScorePart {
-  const base: ScorePart = { id: 'strength', label: 'Strength', value: null, weight: WEIGHTS.strength, detail: 'Log 2+ sessions of a main lift' };
+  const base: ScorePart = {
+    id: 'strength',
+    label: 'Strength',
+    value: null,
+    weight: WEIGHTS.strength,
+    detail: 'Log 2+ sessions of a main lift',
+  };
   if (lifts.length === 0) return base;
   const changes = lifts.map((l) => l.changePct).filter((v): v is number => v !== null);
   const avgChange = changes.length ? changes.reduce((a, b) => a + b, 0) / changes.length : 0;
   const pbs = lifts.filter((l) => l.recentPb).length;
   const plateaus = lifts.filter((l) => l.trend === 'plateau').length;
   const declining = lifts.filter((l) => l.trend === 'declining').length;
-  const value = clamp(Math.round(60 + 3.5 * avgChange + 6 * Math.min(pbs, 3) - 5 * plateaus - 4 * declining), 0, 100);
+  const value = clamp(
+    Math.round(60 + 3.5 * avgChange + 6 * Math.min(pbs, 3) - 5 * plateaus - 4 * declining),
+    0,
+    100,
+  );
   return {
     ...base,
     value,
@@ -239,9 +263,19 @@ function strengthPart(lifts: LiftProgress[]): ScorePart {
   };
 }
 
-function consistencyPart(sets: LoggedSet[], todayIdx: number, target: number): { part: ScorePart; sessions28: number } {
+function consistencyPart(
+  sets: LoggedSet[],
+  todayIdx: number,
+  target: number,
+): { part: ScorePart; sessions28: number } {
   const days = new Set(sets.filter((s) => s.reps >= 1).map((s) => s.day));
-  const base: ScorePart = { id: 'consistency', label: 'Consistency', value: null, weight: WEIGHTS.consistency, detail: 'No sessions logged yet' };
+  const base: ScorePart = {
+    id: 'consistency',
+    label: 'Consistency',
+    value: null,
+    weight: WEIGHTS.consistency,
+    detail: 'No sessions logged yet',
+  };
   const any90 = Array.from(days).some((d) => todayIdx - dayIndex(d) <= 89);
   const perWeek = [0, 0, 0, 0];
   days.forEach((d) => {
@@ -265,8 +299,18 @@ export function acwrScore(ratio: number): number {
   return clamp(100 - ((ratio - 1.3) / 0.7) * 100, 0, 100);
 }
 
-function recoveryPart(input: ReportInput, todayIdx: number, ratio: number | null): { part: ScorePart; avgSleep: number | null } {
-  const base: ScorePart = { id: 'recovery', label: 'Recovery', value: null, weight: WEIGHTS.recovery, detail: 'Log sleep or train 7+ days' };
+function recoveryPart(
+  input: ReportInput,
+  todayIdx: number,
+  ratio: number | null,
+): { part: ScorePart; avgSleep: number | null } {
+  const base: ScorePart = {
+    id: 'recovery',
+    label: 'Recovery',
+    value: null,
+    weight: WEIGHTS.recovery,
+    detail: 'Log sleep or train 7+ days',
+  };
   const recentSleep = input.sleep.filter((s) => s.hours > 0 && todayIdx - dayIndex(s.day) <= 6);
   const bits: number[] = [];
   const detail: string[] = [];
@@ -275,8 +319,12 @@ function recoveryPart(input: ReportInput, todayIdx: number, ratio: number | null
   if (recentSleep.length > 0) {
     avgSleep = recentSleep.reduce((a, s) => a + s.hours, 0) / recentSleep.length;
     const hoursScore = clamp((avgSleep / 8) * 100, 0, 100);
-    const rec = recentSleep.map((s) => s.recoveryPct).filter((v): v is number => v !== null && v > 0);
-    const sleepScore = rec.length ? (hoursScore + rec.reduce((a, b) => a + b, 0) / rec.length) / 2 : hoursScore;
+    const rec = recentSleep
+      .map((s) => s.recoveryPct)
+      .filter((v): v is number => v !== null && v > 0);
+    const sleepScore = rec.length
+      ? (hoursScore + rec.reduce((a, b) => a + b, 0) / rec.length) / 2
+      : hoursScore;
     bits.push(sleepScore);
     detail.push(`sleep ${round1(avgSleep)}h`);
   }
@@ -286,13 +334,23 @@ function recoveryPart(input: ReportInput, todayIdx: number, ratio: number | null
   }
   if (bits.length === 0) return { part: base, avgSleep };
   return {
-    part: { ...base, value: Math.round(bits.reduce((a, b) => a + b, 0) / bits.length), detail: detail.join(' · ') },
+    part: {
+      ...base,
+      value: Math.round(bits.reduce((a, b) => a + b, 0) / bits.length),
+      detail: detail.join(' · '),
+    },
     avgSleep,
   };
 }
 
 function bodyCompPart(input: ReportInput): ScorePart {
-  const base: ScorePart = { id: 'bodyComp', label: 'Body Comp', value: null, weight: WEIGHTS.bodyComp, detail: 'Set bodyweight and goal weight' };
+  const base: ScorePart = {
+    id: 'bodyComp',
+    label: 'Body Comp',
+    value: null,
+    weight: WEIGHTS.bodyComp,
+    detail: 'Set bodyweight and goal weight',
+  };
   const logged = [...input.weighIns].sort((a, b) => dayIndex(a.day) - dayIndex(b.day));
   const current = logged.length ? logged[logged.length - 1].kg : input.currentWeightKg;
   const target = input.targetWeightKg;
@@ -459,11 +517,22 @@ export function buildReport(input: ReportInput): OblivionReport {
   let score: number | null = null;
   if (available.length >= 2) {
     const totalWeight = available.reduce((a, p) => a + p.weight, 0);
-    score = Math.round(available.reduce((a, p) => a + (p.value as number) * p.weight, 0) / totalWeight);
+    score = Math.round(
+      available.reduce((a, p) => a + (p.value as number) * p.weight, 0) / totalWeight,
+    );
   }
 
   const hasTraining = validSets.some((s) => classifyExercise(s.exercise));
-  const actions = buildActions(muscles, lifts, consistency, sessions28, target, acwrSnap.ratio, avgSleep, hasTraining);
+  const actions = buildActions(
+    muscles,
+    lifts,
+    consistency,
+    sessions28,
+    target,
+    acwrSnap.ratio,
+    avgSleep,
+    hasTraining,
+  );
 
   const weightKg = input.currentWeightKg > 0 ? round1(input.currentWeightKg) : null;
 

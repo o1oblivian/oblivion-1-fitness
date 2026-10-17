@@ -10,10 +10,14 @@ interface ConnectedDevicesProps {
 }
 
 export const SettingsHardwareSection: React.FC<ConnectedDevicesProps> = ({ onShowToast }) => {
-  const [devices, setDevices] = useState<BluetoothDeviceInfo[]>(() => bluetoothSensorService.getDevices());
+  const [devices, setDevices] = useState<BluetoothDeviceInfo[]>(() =>
+    bluetoothSensorService.getDevices(),
+  );
   const [bleError, setBleError] = useState<string | null>(null);
   const [isPairing, setIsPairing] = useState(false);
-  const [motionStatus, setMotionStatus] = useState<MotionEngineStatus>(() => motionPedometerService.getStatus());
+  const [motionStatus, setMotionStatus] = useState<MotionEngineStatus>(() =>
+    motionPedometerService.getStatus(),
+  );
   const [motionError, setMotionError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -84,11 +88,10 @@ export const SettingsHardwareSection: React.FC<ConnectedDevicesProps> = ({ onSho
         <MotionSensorRow status={motionStatus} error={motionError} onToggle={handleToggleMotion} />
 
         <p className="pt-2 border-t border-white/[0.05] text-[11px] font-sans text-neutral-400 leading-snug">
-          HRV and steps are kept only on this phone. They are never uploaded or shared, and nothing is sent to your sensors.
+          HRV and steps are kept only on this phone. They are never uploaded or shared, and nothing
+          is sent to your sensors.
         </p>
       </div>
     </div>
   );
 };
-
-

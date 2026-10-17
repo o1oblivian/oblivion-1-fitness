@@ -25,12 +25,16 @@ function lastTimeText(sets: LoggedSet[], unit: WeightUnit): string {
   const unitLower = loadUnitLabel(unit).toLowerCase();
   const reps = sets.map((s) => s.reps).join(', ');
   if (sets.every((s) => s.weightKg <= 0)) return `${reps} reps`;
-  if (sets.every((s) => s.weightKg === sets[0].weightKg)) return `${formatLoad(sets[0].weightKg, unit)} ${unitLower} × ${reps}`;
+  if (sets.every((s) => s.weightKg === sets[0].weightKg))
+    return `${formatLoad(sets[0].weightKg, unit)} ${unitLower} × ${reps}`;
   return sets.map((s) => `${formatLoad(s.weightKg, unit)}×${s.reps}`).join(' · ');
 }
 
 function adviceText(advice: SetAdvice, unit: WeightUnit): string {
-  const load = advice.weightKg > 0 ? `${formatLoad(advice.weightKg, unit)} ${loadUnitLabel(unit).toLowerCase()}` : `${advice.reps} reps`;
+  const load =
+    advice.weightKg > 0
+      ? `${formatLoad(advice.weightKg, unit)} ${loadUnitLabel(unit).toLowerCase()}`
+      : `${advice.reps} reps`;
   switch (advice.kind) {
     case 'up':
       return `Felt easy. Try ${load} next.`;
@@ -60,7 +64,7 @@ export interface ActiveLogExerciseAccordionProps {
     type: 'weight' | 'reps' | 'rpe',
     currentVal: number,
     setId?: string,
-    setIndex?: number
+    setIndex?: number,
   ) => void;
   onToggleSet?: (exerciseId: string, setNumber: number) => void;
   onQuickUpdateSet?: (exerciseId: string, setNumber: number, updates: Partial<ExerciseSet>) => void;
@@ -88,16 +92,25 @@ export const ActiveLogExerciseAccordion: React.FC<ActiveLogExerciseAccordionProp
   const unitLower = loadUnitLabel(weightUnit).toLowerCase();
 
   const historyByDate = useTelemetryHistoryStore((s) => s.historyByDate);
-  const best = useMemo(() => priorBestSet(exercise.name, localTodayKey(), historyByDate), [exercise.name, historyByDate]);
-  const todayTop = setsList.reduce<{ weightKg: number; reps: number; max: number } | null>((top, s) => {
-    if (!s.completed) return top;
-    const weightKg = Number(s.weightKg ?? s.weight) || 0;
-    const reps = Number(s.reps) || 0;
-    const max = estimatedMaxKg(weightKg, reps);
-    return max > 0 && (!top || max > top.max) ? { weightKg, reps, max } : top;
-  }, null);
+  const best = useMemo(
+    () => priorBestSet(exercise.name, localTodayKey(), historyByDate),
+    [exercise.name, historyByDate],
+  );
+  const todayTop = setsList.reduce<{ weightKg: number; reps: number; max: number } | null>(
+    (top, s) => {
+      if (!s.completed) return top;
+      const weightKg = Number(s.weightKg ?? s.weight) || 0;
+      const reps = Number(s.reps) || 0;
+      const max = estimatedMaxKg(weightKg, reps);
+      return max > 0 && (!top || max > top.max) ? { weightKg, reps, max } : top;
+    },
+    null,
+  );
   const isPrToday = Boolean(best && todayTop && todayTop.max > best.estimatedMaxKg);
-  const lastTime = useMemo(() => lastSessionSets(exercise.name, localTodayKey(), historyByDate), [exercise.name, historyByDate]);
+  const lastTime = useMemo(
+    () => lastSessionSets(exercise.name, localTodayKey(), historyByDate),
+    [exercise.name, historyByDate],
+  );
 
   const trainingAge = useConsultationStore((s) => s.trainingAge);
   const ageBand = useConsultationStore((s) => s.ageBand);
@@ -131,7 +144,8 @@ export const ActiveLogExerciseAccordion: React.FC<ActiveLogExerciseAccordionProp
     return () => window.clearTimeout(id);
   }, [showBest]);
 
-  const setText = (weightKg: number, reps: number) => `${formatLoad(weightKg, weightUnit)} ${unitLower} × ${reps}`;
+  const setText = (weightKg: number, reps: number) =>
+    `${formatLoad(weightKg, weightUnit)} ${unitLower} × ${reps}`;
   const bestMessage = !best
     ? 'First time logging this lift'
     : isPrToday && todayTop
@@ -157,7 +171,9 @@ export const ActiveLogExerciseAccordion: React.FC<ActiveLogExerciseAccordionProp
             aria-expanded={isExpanded}
             className="flex-1 min-w-0 min-h-9 flex items-center gap-2 text-left cursor-pointer"
           >
-            <span className="min-w-0 text-sm font-medium tracking-tight text-white leading-snug truncate py-0.5">{exercise.name}</span>
+            <span className="min-w-0 text-sm font-medium tracking-tight text-white leading-snug truncate py-0.5">
+              {exercise.name}
+            </span>
             <span className="ml-auto shrink-0 font-mono text-[11px] text-o1-muted">
               {done}/{setsList.length}
             </span>
@@ -173,7 +189,11 @@ export const ActiveLogExerciseAccordion: React.FC<ActiveLogExerciseAccordionProp
               tactileEngine.triggerSelectionBuzz();
               setShowBest((v) => !v);
             }}
-            aria-label={isPrToday ? `New personal best on ${exercise.name}` : `Personal best for ${exercise.name}`}
+            aria-label={
+              isPrToday
+                ? `New personal best on ${exercise.name}`
+                : `Personal best for ${exercise.name}`
+            }
             aria-expanded={showBest}
             className={`h-6 px-2 shrink-0 rounded-lg border font-mono text-[10px] cursor-pointer transition-colors ${
               isPrToday
@@ -202,7 +222,9 @@ export const ActiveLogExerciseAccordion: React.FC<ActiveLogExerciseAccordionProp
           {lastTime && (
             <p className="px-1 text-[11px] text-o1-muted leading-snug">
               Last time · {shortDate(lastTime.dateKey)}:{' '}
-              <span className="font-mono text-o1-text">{lastTimeText(lastTime.sets, weightUnit)}</span>
+              <span className="font-mono text-o1-text">
+                {lastTimeText(lastTime.sets, weightUnit)}
+              </span>
             </p>
           )}
           <div className="flex items-center gap-1.5 text-[10px] leading-none uppercase tracking-[0.12em] text-o1-muted px-1">
@@ -226,7 +248,9 @@ export const ActiveLogExerciseAccordion: React.FC<ActiveLogExerciseAccordionProp
                   isActive={setIndex === activeIndex}
                   swipeHint={showSwipeHint && setIndex === 0}
                   removeLabel={isLast ? `Remove ${exercise.name}` : 'Delete'}
-                  removeAriaLabel={isLast ? `Remove ${exercise.name}` : `Delete set ${set.setNumber}`}
+                  removeAriaLabel={
+                    isLast ? `Remove ${exercise.name}` : `Delete set ${set.setNumber}`
+                  }
                   onOpenDial={(type, currentVal) =>
                     onOpenDial(exercise.id, set.setNumber, type, currentVal, set.id, setIndex)
                   }
@@ -234,7 +258,9 @@ export const ActiveLogExerciseAccordion: React.FC<ActiveLogExerciseAccordionProp
                     isLast ? onRemoveExercise(exercise.id) : onRemoveSet(exercise.id, set.setNumber)
                   }
                   onToggleDone={() => onToggleSet?.(exercise.id, set.setNumber)}
-                  onQuickUpdateSet={(updates) => onQuickUpdateSet?.(exercise.id, set.setNumber, updates)}
+                  onQuickUpdateSet={(updates) =>
+                    onQuickUpdateSet?.(exercise.id, set.setNumber, updates)
+                  }
                 />
               );
             })}
@@ -296,5 +322,3 @@ export const ActiveLogExerciseAccordion: React.FC<ActiveLogExerciseAccordionProp
     </div>
   );
 };
-
-

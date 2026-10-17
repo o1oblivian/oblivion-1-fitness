@@ -14,9 +14,7 @@ const MANUAL_CATEGORIES: Record<string, string[]> = {
   recovery: RECOVERY_CHIPS,
 };
 
-const MANUAL_EQUIPMENT = EQUIPMENT_OPTIONS.map((eq) =>
-  eq === 'All Equipment' ? 'All' : eq
-);
+const MANUAL_EQUIPMENT = EQUIPMENT_OPTIONS.map((eq) => (eq === 'All Equipment' ? 'All' : eq));
 
 function namesCollide(a: string, b: string): boolean {
   const na = a.toLowerCase().trim();
@@ -190,5 +188,3 @@ export const ManualModeView: React.FC<ManualModeViewProps> = ({
     </div>
   );
 };
-
-

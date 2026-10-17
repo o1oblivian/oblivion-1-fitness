@@ -14,7 +14,13 @@ interface AddClientModalProps {
   onClose: () => void;
 }
 
-export const AddClientModal: React.FC<AddClientModalProps> = ({ isOpen, code, failed, onRetry, onClose }) => {
+export const AddClientModal: React.FC<AddClientModalProps> = ({
+  isOpen,
+  code,
+  failed,
+  onRetry,
+  onClose,
+}) => {
   const [copied, setCopied] = useState(false);
   const [sheet, setSheet] = useState<ShareLinkTarget | null>(null);
   const invite = code ? `https://oblivion1.club/join?coach=${encodeURIComponent(code)}` : '';
@@ -31,13 +37,20 @@ export const AddClientModal: React.FC<AddClientModalProps> = ({ isOpen, code, fa
   const share = async () => {
     if (!invite) return;
     tactileEngine.triggerSelectionBuzz();
-    const target = { title: 'Train with me on Oblivion 1', text: 'Join my coaching roster on Oblivion 1 Fitness Club', url: invite };
+    const target = {
+      title: 'Train with me on Oblivion 1',
+      text: 'Join my coaching roster on Oblivion 1 Fitness Club',
+      url: invite,
+    };
     if ((await shareLink(target)) === 'options') setSheet(target);
   };
 
   return (
     <>
-      <div className="fixed inset-0 z-50 flex items-end bg-black/80 backdrop-blur-sm" onClick={onClose}>
+      <div
+        className="fixed inset-0 z-50 flex items-end bg-black/80 backdrop-blur-sm"
+        onClick={onClose}
+      >
         <div
           className="o1-sheet-card w-full bg-o1-sheet border border-white/[0.07] p-5 shadow-xl space-y-4 overflow-y-auto"
           onClick={(e) => e.stopPropagation()}
@@ -45,7 +58,9 @@ export const AddClientModal: React.FC<AddClientModalProps> = ({ isOpen, code, fa
           <div className="flex items-start justify-between gap-3 border-b border-white/[0.07] pb-3">
             <div>
               <h3 className="text-sm font-semibold text-o1-text">Invite a client</h3>
-              <p className="text-[11px] text-o1-muted">Send this link. They join your roster when they sign up.</p>
+              <p className="text-[11px] text-o1-muted">
+                Send this link. They join your roster when they sign up.
+              </p>
             </div>
             <button
               type="button"
@@ -58,9 +73,16 @@ export const AddClientModal: React.FC<AddClientModalProps> = ({ isOpen, code, fa
           </div>
 
           {failed ? (
-            <div role="alert" className="flex items-center justify-between gap-2 rounded-xl border border-o1-crimson/30 bg-o1-crimson/10 px-3 py-2">
+            <div
+              role="alert"
+              className="flex items-center justify-between gap-2 rounded-xl border border-o1-crimson/30 bg-o1-crimson/10 px-3 py-2"
+            >
               <p className="text-[12px] text-o1-text">Could not create your invite link.</p>
-              <button type="button" onClick={onRetry} className="min-h-[36px] px-2 text-[12px] font-semibold text-o1-text">
+              <button
+                type="button"
+                onClick={onRetry}
+                className="min-h-[36px] px-2 text-[12px] font-semibold text-o1-text"
+              >
                 Retry
               </button>
             </div>

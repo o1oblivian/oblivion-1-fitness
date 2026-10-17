@@ -10,7 +10,10 @@ interface SupplementTodayPaneProps {
   onOpenStack: () => void;
 }
 
-export const SupplementTodayPane: React.FC<SupplementTodayPaneProps> = ({ onShowToast, onOpenStack }) => {
+export const SupplementTodayPane: React.FC<SupplementTodayPaneProps> = ({
+  onShowToast,
+  onOpenStack,
+}) => {
   const stack = useFuelStore((s) => s.supplementStack);
   const takenIds = useFuelStore((s) => s.supplementsTaken);
   const { toggleSupplementTaken, setSupplementsTaken } = useFuelStore.getState();
@@ -18,7 +21,9 @@ export const SupplementTodayPane: React.FC<SupplementTodayPaneProps> = ({ onShow
   if (stack.length === 0) {
     return (
       <div className="py-5 text-center space-y-3">
-        <p className="text-xs text-o1-muted">No supplements yet. Build your stack once and tick them off each day.</p>
+        <p className="text-xs text-o1-muted">
+          No supplements yet. Build your stack once and tick them off each day.
+        </p>
         <button
           type="button"
           onClick={onOpenStack}
@@ -32,7 +37,10 @@ export const SupplementTodayPane: React.FC<SupplementTodayPaneProps> = ({ onShow
 
   const taken = new Set(takenIds);
   const takenCount = stack.filter((s) => taken.has(s.id)).length;
-  const caffeineToday = stack.reduce((sum, s) => sum + (taken.has(s.id) ? s.caffeineMg ?? 0 : 0), 0);
+  const caffeineToday = stack.reduce(
+    (sum, s) => sum + (taken.has(s.id) ? (s.caffeineMg ?? 0) : 0),
+    0,
+  );
   const tracksCaffeine = stack.some((s) => (s.caffeineMg ?? 0) > 0);
   const overCaffeine = caffeineToday > CAFFEINE_DAILY_LIMIT_MG;
 
@@ -57,7 +65,9 @@ export const SupplementTodayPane: React.FC<SupplementTodayPaneProps> = ({ onShow
             <span className="text-o1-muted"> / {stack.length} taken</span>
           </span>
           {tracksCaffeine && (
-            <span className={`inline-flex items-center gap-1 text-[11px] tabular-nums ${overCaffeine ? 'text-amber-500' : 'text-o1-muted'}`}>
+            <span
+              className={`inline-flex items-center gap-1 text-[11px] tabular-nums ${overCaffeine ? 'text-amber-500' : 'text-o1-muted'}`}
+            >
               <Coffee className="w-3 h-3" aria-hidden />
               {caffeineToday} / {CAFFEINE_DAILY_LIMIT_MG} mg caffeine
             </span>
@@ -70,7 +80,9 @@ export const SupplementTodayPane: React.FC<SupplementTodayPaneProps> = ({ onShow
           />
         </div>
         {overCaffeine && (
-          <p className="text-[10px] text-amber-500">Above the 400 mg daily guidance for healthy adults.</p>
+          <p className="text-[10px] text-amber-500">
+            Above the 400 mg daily guidance for healthy adults.
+          </p>
         )}
       </div>
 
@@ -83,7 +95,10 @@ export const SupplementTodayPane: React.FC<SupplementTodayPaneProps> = ({ onShow
           <section key={timing} aria-label={timing} className="space-y-1.5">
             <div className="flex items-center justify-between">
               <h5 className="text-[11px] font-semibold text-o1-muted">
-                {timing} <span className="tabular-nums font-normal">· {groupTaken}/{items.length}</span>
+                {timing}{' '}
+                <span className="tabular-nums font-normal">
+                  · {groupTaken}/{items.length}
+                </span>
               </h5>
               {items.length > 1 && (
                 <button
@@ -108,13 +123,17 @@ export const SupplementTodayPane: React.FC<SupplementTodayPaneProps> = ({ onShow
                 >
                   <span
                     className={`w-5 h-5 rounded-lg flex items-center justify-center border shrink-0 ${
-                      isTaken ? 'bg-emerald-600 border-emerald-600 text-o1-text' : 'border-white/[0.14]'
+                      isTaken
+                        ? 'bg-emerald-600 border-emerald-600 text-o1-text'
+                        : 'border-white/[0.14]'
                     }`}
                   >
                     {isTaken && <Check className="w-3.5 h-3.5 stroke-[3]" />}
                   </span>
                   <span className="min-w-0 flex-1">
-                    <span className={`block text-xs font-semibold truncate ${isTaken ? 'text-o1-muted line-through' : 'text-o1-text'}`}>
+                    <span
+                      className={`block text-xs font-semibold truncate ${isTaken ? 'text-o1-muted line-through' : 'text-o1-text'}`}
+                    >
                       {item.name}
                     </span>
                     <span className="block text-[10px] text-o1-muted mt-0.5 truncate tabular-nums">
@@ -131,5 +150,3 @@ export const SupplementTodayPane: React.FC<SupplementTodayPaneProps> = ({ onShow
     </div>
   );
 };
-
-

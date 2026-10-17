@@ -46,7 +46,7 @@ export function synthesizeDailyBlueprint(
   duration: SessionDuration = '45m',
   gear: FacilityGear = 'Full Gym',
   intensity: IntensityMode = 'Progressive RPE',
-  _seedIndex: number = 0
+  _seedIndex: number = 0,
 ): SynthesizedBlueprint {
   const durationMap = {
     '20m': { mins: 20, moves: 3, setsPerMove: 3 },
@@ -75,7 +75,12 @@ export function synthesizeDailyBlueprint(
         exercises: [
           {
             id: 'bp-push-1',
-            name: gear === 'Bodyweight' ? 'Deficit Push-Ups' : gear === 'DB & Bench' ? 'Flat Dumbbell Press' : 'Barbell Flat Bench Press',
+            name:
+              gear === 'Bodyweight'
+                ? 'Deficit Push-Ups'
+                : gear === 'DB & Bench'
+                  ? 'Flat Dumbbell Press'
+                  : 'Barbell Flat Bench Press',
             muscle: 'Chest • Mid Sternal Pecs',
             sets: 4,
             reps: '6-8',
@@ -97,7 +102,10 @@ export function synthesizeDailyBlueprint(
           },
           {
             id: 'bp-push-3',
-            name: gear === 'Full Gym' ? 'Cable Lateral Raise (Behind Body)' : 'Seated Dumbbell Lateral Raise',
+            name:
+              gear === 'Full Gym'
+                ? 'Cable Lateral Raise (Behind Body)'
+                : 'Seated Dumbbell Lateral Raise',
             muscle: 'Shoulders • Lateral Deltoid Cap',
             sets: 4,
             reps: '12-15',
@@ -110,7 +118,12 @@ export function synthesizeDailyBlueprint(
             ? [
                 {
                   id: 'bp-push-4',
-                  name: gear === 'Full Gym' ? 'Pec Deck Machine Fly' : gear === 'DB & Bench' ? 'Flat Dumbbell Fly' : 'Diamond Push-Ups',
+                  name:
+                    gear === 'Full Gym'
+                      ? 'Pec Deck Machine Fly'
+                      : gear === 'DB & Bench'
+                        ? 'Flat Dumbbell Fly'
+                        : 'Diamond Push-Ups',
                   muscle: 'Chest • Sternal Division',
                   sets: 3,
                   reps: '12-15',
@@ -125,7 +138,10 @@ export function synthesizeDailyBlueprint(
             ? [
                 {
                   id: 'bp-push-5',
-                  name: gear === 'Full Gym' ? 'Tricep Rope Pushdown' : 'Two-Arm Overhead Dumbbell Extension',
+                  name:
+                    gear === 'Full Gym'
+                      ? 'Tricep Rope Pushdown'
+                      : 'Two-Arm Overhead Dumbbell Extension',
                   muscle: 'Triceps • Lateral & Long Heads',
                   sets: 3,
                   reps: '12-15',
@@ -140,7 +156,10 @@ export function synthesizeDailyBlueprint(
             ? [
                 {
                   id: 'bp-push-6',
-                  name: gear === 'Full Gym' ? 'Overhead Cable Tricep Extension' : 'Dumbbell Kickbacks with Squeeze',
+                  name:
+                    gear === 'Full Gym'
+                      ? 'Overhead Cable Tricep Extension'
+                      : 'Dumbbell Kickbacks with Squeeze',
                   muscle: 'Triceps • Long Head Stretch',
                   sets: 3,
                   reps: '15',
@@ -171,7 +190,12 @@ export function synthesizeDailyBlueprint(
         exercises: [
           {
             id: 'bp-push-b1',
-            name: gear === 'Full Gym' ? 'Standing Overhead Military Press' : gear === 'DB & Bench' ? 'Seated Dumbbell Shoulder Press' : 'Pike Push-Ups (Elevated Feet)',
+            name:
+              gear === 'Full Gym'
+                ? 'Standing Overhead Military Press'
+                : gear === 'DB & Bench'
+                  ? 'Seated Dumbbell Shoulder Press'
+                  : 'Pike Push-Ups (Elevated Feet)',
             muscle: 'Shoulders • Anterior & Medial Delts',
             sets: 4,
             reps: '6-8',
@@ -182,7 +206,12 @@ export function synthesizeDailyBlueprint(
           },
           {
             id: 'bp-push-b2',
-            name: gear === 'Full Gym' ? 'Weighted Chest Dips' : gear === 'DB & Bench' ? 'Incline Dumbbell Press' : 'Chair / Parallel Dips',
+            name:
+              gear === 'Full Gym'
+                ? 'Weighted Chest Dips'
+                : gear === 'DB & Bench'
+                  ? 'Incline Dumbbell Press'
+                  : 'Chair / Parallel Dips',
             muscle: 'Chest & Anterior Deltoid',
             sets: 4,
             reps: '8-10',
@@ -193,7 +222,12 @@ export function synthesizeDailyBlueprint(
           },
           {
             id: 'bp-push-b3',
-            name: gear === 'Full Gym' ? 'Close-Grip Barbell Bench Press' : gear === 'DB & Bench' ? 'Close-Grip Dumbbell Press' : 'Diamond Push-Ups',
+            name:
+              gear === 'Full Gym'
+                ? 'Close-Grip Barbell Bench Press'
+                : gear === 'DB & Bench'
+                  ? 'Close-Grip Dumbbell Press'
+                  : 'Diamond Push-Ups',
             muscle: 'Triceps • Medial & Lateral Heads',
             sets: 4,
             reps: '8-10',
@@ -206,7 +240,10 @@ export function synthesizeDailyBlueprint(
             ? [
                 {
                   id: 'bp-push-b4',
-                  name: gear === 'Full Gym' ? 'Cable Lateral Raise (Behind Body)' : 'Seated Dumbbell Lateral Raise',
+                  name:
+                    gear === 'Full Gym'
+                      ? 'Cable Lateral Raise (Behind Body)'
+                      : 'Seated Dumbbell Lateral Raise',
                   muscle: 'Shoulders • Lateral Deltoid Cap',
                   sets: 4,
                   reps: '15',
@@ -221,7 +258,10 @@ export function synthesizeDailyBlueprint(
             ? [
                 {
                   id: 'bp-push-b5',
-                  name: gear === 'Full Gym' ? 'EZ-Bar Skull Crusher' : 'Two-Arm Overhead Dumbbell Extension',
+                  name:
+                    gear === 'Full Gym'
+                      ? 'EZ-Bar Skull Crusher'
+                      : 'Two-Arm Overhead Dumbbell Extension',
                   muscle: 'Triceps • Long Head',
                   sets: 3,
                   reps: '12',
@@ -252,7 +292,12 @@ export function synthesizeDailyBlueprint(
         exercises: [
           {
             id: 'bp-pull-a1',
-            name: gear === 'Bodyweight' ? 'Weighted Pull-Ups' : gear === 'DB & Bench' ? 'Heavy Single-Arm Dumbbell Row' : 'Neutral Grip Lat Pulldown',
+            name:
+              gear === 'Bodyweight'
+                ? 'Weighted Pull-Ups'
+                : gear === 'DB & Bench'
+                  ? 'Heavy Single-Arm Dumbbell Row'
+                  : 'Neutral Grip Lat Pulldown',
             muscle: 'Back • Latissimus Dorsi',
             sets: 4,
             reps: '8-10',
@@ -263,7 +308,10 @@ export function synthesizeDailyBlueprint(
           },
           {
             id: 'bp-pull-a2',
-            name: gear === 'Full Gym' ? 'Straight-Arm Cable Pullover' : 'Dumbbell Pullover (Across Bench)',
+            name:
+              gear === 'Full Gym'
+                ? 'Straight-Arm Cable Pullover'
+                : 'Dumbbell Pullover (Across Bench)',
             muscle: 'Back • Lower Latissimus',
             sets: 4,
             reps: '12',
@@ -287,7 +335,8 @@ export function synthesizeDailyBlueprint(
             ? [
                 {
                   id: 'bp-pull-a4',
-                  name: gear === 'Full Gym' ? 'Cable Rope Face Pull' : 'Incline Bench Rear Delt Fly',
+                  name:
+                    gear === 'Full Gym' ? 'Cable Rope Face Pull' : 'Incline Bench Rear Delt Fly',
                   muscle: 'Upper Back • Rear Delts & Rotator Cuff',
                   sets: 4,
                   reps: '15',
@@ -344,7 +393,10 @@ export function synthesizeDailyBlueprint(
           },
           {
             id: 'bp-pull-b2',
-            name: gear === 'Full Gym' ? 'Pendlay Barbell Row (Deadstop)' : 'Heavy Single-Arm Dumbbell Row',
+            name:
+              gear === 'Full Gym'
+                ? 'Pendlay Barbell Row (Deadstop)'
+                : 'Heavy Single-Arm Dumbbell Row',
             muscle: 'Back • Mid Traps & Rhomboids',
             sets: 4,
             reps: '6-8',
@@ -368,7 +420,10 @@ export function synthesizeDailyBlueprint(
             ? [
                 {
                   id: 'bp-pull-b4',
-                  name: gear === 'Full Gym' ? 'Chest-Supported Rear Delt Row' : 'Incline Bench Rear Delt Fly',
+                  name:
+                    gear === 'Full Gym'
+                      ? 'Chest-Supported Rear Delt Row'
+                      : 'Incline Bench Rear Delt Fly',
                   muscle: 'Upper Back • Posterior Delts',
                   sets: 3,
                   reps: '12-15',
@@ -383,7 +438,10 @@ export function synthesizeDailyBlueprint(
             ? [
                 {
                   id: 'bp-pull-b5',
-                  name: gear === 'Full Gym' ? 'Cable Rope Hammer Curl' : 'Cross-Body Dumbbell Hammer Curl',
+                  name:
+                    gear === 'Full Gym'
+                      ? 'Cable Rope Hammer Curl'
+                      : 'Cross-Body Dumbbell Hammer Curl',
                   muscle: 'Arms • Brachialis & Forearms',
                   sets: 3,
                   reps: '10-12',
@@ -414,7 +472,12 @@ export function synthesizeDailyBlueprint(
         exercises: [
           {
             id: 'bp-leg-a1',
-            name: gear === 'Full Gym' ? 'Barbell Back Squat' : gear === 'DB & Bench' ? 'Bulgarian Split Squat' : 'Air Squats (3s Pause)',
+            name:
+              gear === 'Full Gym'
+                ? 'Barbell Back Squat'
+                : gear === 'DB & Bench'
+                  ? 'Bulgarian Split Squat'
+                  : 'Air Squats (3s Pause)',
             muscle: 'Legs • Quadriceps & Glutes',
             sets: 4,
             reps: '6-8',
@@ -464,7 +527,8 @@ export function synthesizeDailyBlueprint(
             ? [
                 {
                   id: 'bp-leg-a5',
-                  name: gear === 'Full Gym' ? 'Standing Calf Raise' : 'Single-Leg Dumbbell Calf Raise',
+                  name:
+                    gear === 'Full Gym' ? 'Standing Calf Raise' : 'Single-Leg Dumbbell Calf Raise',
                   muscle: 'Calves • Gastrocnemius',
                   sets: 4,
                   reps: '15-20',
@@ -576,7 +640,12 @@ export function synthesizeDailyBlueprint(
         exercises: [
           {
             id: 'bp-up-1',
-            name: gear === 'Bodyweight' ? 'Weighted Chest Dips' : gear === 'DB & Bench' ? 'Incline Dumbbell Press' : 'Incline Barbell Bench Press',
+            name:
+              gear === 'Bodyweight'
+                ? 'Weighted Chest Dips'
+                : gear === 'DB & Bench'
+                  ? 'Incline Dumbbell Press'
+                  : 'Incline Barbell Bench Press',
             muscle: 'Chest • Upper Clavicular Pecs',
             sets: 4,
             reps: '8-10',
@@ -587,7 +656,12 @@ export function synthesizeDailyBlueprint(
           },
           {
             id: 'bp-up-2',
-            name: gear === 'Bodyweight' ? 'Pull-Ups (Deadstop)' : gear === 'DB & Bench' ? 'Heavy Single-Arm Dumbbell Row' : 'Neutral Grip Lat Pulldown',
+            name:
+              gear === 'Bodyweight'
+                ? 'Pull-Ups (Deadstop)'
+                : gear === 'DB & Bench'
+                  ? 'Heavy Single-Arm Dumbbell Row'
+                  : 'Neutral Grip Lat Pulldown',
             muscle: 'Back • Latissimus Dorsi',
             sets: 4,
             reps: '8-10',
@@ -598,7 +672,10 @@ export function synthesizeDailyBlueprint(
           },
           {
             id: 'bp-up-3',
-            name: gear === 'Full Gym' ? 'Seated Dumbbell Shoulder Press' : 'Standing Dumbbell Overhead Press',
+            name:
+              gear === 'Full Gym'
+                ? 'Seated Dumbbell Shoulder Press'
+                : 'Standing Dumbbell Overhead Press',
             muscle: 'Shoulders • Anterior Deltoid',
             sets: 3,
             reps: '10',
@@ -611,7 +688,8 @@ export function synthesizeDailyBlueprint(
             ? [
                 {
                   id: 'bp-up-4',
-                  name: gear === 'Full Gym' ? 'Chest-Supported T-Bar Row' : 'Bent-Over Dumbbell Row',
+                  name:
+                    gear === 'Full Gym' ? 'Chest-Supported T-Bar Row' : 'Bent-Over Dumbbell Row',
                   muscle: 'Back • Upper Back & Rhomboids',
                   sets: 3,
                   reps: '10',
@@ -626,7 +704,10 @@ export function synthesizeDailyBlueprint(
             ? [
                 {
                   id: 'bp-up-5',
-                  name: gear === 'Full Gym' ? 'Cable Lateral Raise (Behind Body)' : 'Seated Dumbbell Lateral Raise',
+                  name:
+                    gear === 'Full Gym'
+                      ? 'Cable Lateral Raise (Behind Body)'
+                      : 'Seated Dumbbell Lateral Raise',
                   muscle: 'Shoulders • Lateral Deltoid',
                   sets: 3,
                   reps: '15',
@@ -641,7 +722,10 @@ export function synthesizeDailyBlueprint(
             ? [
                 {
                   id: 'bp-up-6',
-                  name: gear === 'Full Gym' ? 'Tricep Rope Pushdown' : 'Overhead Dumbbell Tricep Extension',
+                  name:
+                    gear === 'Full Gym'
+                      ? 'Tricep Rope Pushdown'
+                      : 'Overhead Dumbbell Tricep Extension',
                   muscle: 'Triceps • Lateral Head',
                   sets: 3,
                   reps: '12',
@@ -672,7 +756,12 @@ export function synthesizeDailyBlueprint(
         exercises: [
           {
             id: 'bp-low-1',
-            name: gear === 'Full Gym' ? 'Barbell Back Squat' : gear === 'DB & Bench' ? 'Bulgarian Split Squat' : 'Air Squats (3s Pause)',
+            name:
+              gear === 'Full Gym'
+                ? 'Barbell Back Squat'
+                : gear === 'DB & Bench'
+                  ? 'Bulgarian Split Squat'
+                  : 'Air Squats (3s Pause)',
             muscle: 'Legs • Quadriceps & Glutes',
             sets: 4,
             reps: '6-8',
@@ -722,7 +811,8 @@ export function synthesizeDailyBlueprint(
             ? [
                 {
                   id: 'bp-low-5',
-                  name: gear === 'Full Gym' ? 'Standing Calf Raise' : 'Single-Leg Dumbbell Calf Raise',
+                  name:
+                    gear === 'Full Gym' ? 'Standing Calf Raise' : 'Single-Leg Dumbbell Calf Raise',
                   muscle: 'Calves • Gastrocnemius',
                   sets: 4,
                   reps: '15',
@@ -937,7 +1027,8 @@ export function synthesizeDailyBlueprint(
           },
           {
             id: 'bp-str-3',
-            name: gear === 'Full Gym' ? 'Deficit Romanian Deadlift' : 'Heavy Single-Arm Dumbbell Row',
+            name:
+              gear === 'Full Gym' ? 'Deficit Romanian Deadlift' : 'Heavy Single-Arm Dumbbell Row',
             muscle: 'Posterior Chain • Hinge Pattern',
             sets: 4,
             reps: '6',

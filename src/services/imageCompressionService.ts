@@ -6,7 +6,7 @@
 export async function compressAndAnalyzeImage(
   blob: Blob,
   maxDimension = 1024,
-  quality = 0.75
+  quality = 0.75,
 ): Promise<{ compressedBase64: string; mimeType: string }> {
   return new Promise((resolve) => {
     const img = new Image();

@@ -1,6 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { supabase } from '../../services/supabaseClient';
-import { useTelemetryHistoryStore, type DayTelemetryRecord } from '../log/store/useTelemetryHistoryStore';
+import {
+  useTelemetryHistoryStore,
+  type DayTelemetryRecord,
+} from '../log/store/useTelemetryHistoryStore';
 import { useUserStore } from '../../stores/useUserStore';
 import { knownSets } from '../log/liftLedger';
 import { buildReport, toDayKey } from './reportEngine';
@@ -113,16 +116,29 @@ export function useOblivionReport(enabled: boolean): UseOblivionReportResult {
         for (const ex of w.exercises ?? []) {
           if (!ex?.name) continue;
           const logged = knownSets(ex);
-          const rows = logged.length > 0 ? logged : [{ reps: Number(ex.reps) || 0, weightKg: Number(ex.weightKg) || 0 }];
+          const rows =
+            logged.length > 0
+              ? logged
+              : [{ reps: Number(ex.reps) || 0, weightKg: Number(ex.weightKg) || 0 }];
           for (const set of rows) {
             if (!(set.reps >= 1)) continue;
-            sets.push({ exercise: ex.name, weightKg: Number(set.weightKg) || 0, reps: set.reps, rpe: null, day });
+            sets.push({
+              exercise: ex.name,
+              weightKg: Number(set.weightKg) || 0,
+              reps: set.reps,
+              rpe: null,
+              day,
+            });
           }
         }
       }
       const sl = rec.sleep;
       if (sl?.hasData && sl.durationHours > 0) {
-        sleep.push({ day, hours: sl.durationHours, recoveryPct: sl.recoveryPercent > 0 ? sl.recoveryPercent : null });
+        sleep.push({
+          day,
+          hours: sl.durationHours,
+          recoveryPct: sl.recoveryPercent > 0 ? sl.recoveryPercent : null,
+        });
       }
     });
 

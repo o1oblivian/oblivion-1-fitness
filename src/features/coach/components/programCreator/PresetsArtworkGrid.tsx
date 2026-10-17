@@ -28,7 +28,9 @@ export const PresetsArtworkGrid: React.FC<Props> = ({ coverImage, onSelectImage 
                 onSelectImage(p.url);
               }}
               className={`relative aspect-video rounded-xl overflow-hidden border border-white/[0.07] transition-all cursor-pointer group ${
-                isSelected ? 'opacity-100 shadow-md' : 'opacity-85 hover:opacity-100 hover:border-white/[0.07]'
+                isSelected
+                  ? 'opacity-100 shadow-md'
+                  : 'opacity-85 hover:opacity-100 hover:border-white/[0.07]'
               }`}
             >
               <img src={p.url} alt={p.title} className="w-full h-full object-cover" />
@@ -49,5 +51,3 @@ export const PresetsArtworkGrid: React.FC<Props> = ({ coverImage, onSelectImage 
     </div>
   );
 };
-
-

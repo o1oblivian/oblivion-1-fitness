@@ -1,6 +1,11 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { AlertTriangle, RefreshCw } from 'lucide-react';
-import { stripeConnectService, BalanceFailure, CoachProfileData, StripeBalance } from '../../../services/stripeConnectService';
+import {
+  stripeConnectService,
+  BalanceFailure,
+  CoachProfileData,
+  StripeBalance,
+} from '../../../services/stripeConnectService';
 import { WithdrawModal } from './WithdrawModal';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { COACH_PLANS, formatFeePercent } from '../../../../shared/coachPlans';
@@ -23,7 +28,10 @@ interface LedgerLine {
 
 function money(cents: number, currency: string): string {
   try {
-    return new Intl.NumberFormat(undefined, { style: 'currency', currency: currency.toUpperCase() }).format(cents / 100);
+    return new Intl.NumberFormat(undefined, {
+      style: 'currency',
+      currency: currency.toUpperCase(),
+    }).format(cents / 100);
   } catch {
     return (cents / 100).toFixed(2);
   }
@@ -31,9 +39,18 @@ function money(cents: number, currency: string): string {
 
 const FAILURE_COPY: Record<BalanceFailure, { title: string; detail: string }> = {
   offline: { title: 'Can’t reach payments', detail: 'Check your connection, then try again.' },
-  unconfigured: { title: 'Payments are not switched on', detail: 'The payments server is not set up yet. Your earnings are safe.' },
-  'signed-out': { title: 'Sign in to see earnings', detail: 'Your session expired. Sign in again, then retry.' },
-  server: { title: 'Earnings didn’t load', detail: 'Something went wrong on our side. Try again in a moment.' },
+  unconfigured: {
+    title: 'Payments are not switched on',
+    detail: 'The payments server is not set up yet. Your earnings are safe.',
+  },
+  'signed-out': {
+    title: 'Sign in to see earnings',
+    detail: 'Your session expired. Sign in again, then retry.',
+  },
+  server: {
+    title: 'Earnings didn’t load',
+    detail: 'Something went wrong on our side. Try again in a moment.',
+  },
 };
 
 const STATUS_LABEL: Record<string, string> = {
@@ -50,7 +67,10 @@ function statusTone(status: string): string {
   return 'bg-o1-warn-wash text-o1-warn-ink';
 }
 
-export const CoachEarningsDeck: React.FC<CoachEarningsDeckProps> = ({ coachId = '', onShowToast }) => {
+export const CoachEarningsDeck: React.FC<CoachEarningsDeckProps> = ({
+  coachId = '',
+  onShowToast,
+}) => {
   const [balance, setBalance] = useState<StripeBalance | null>(null);
   const [isWithdrawOpen, setIsWithdrawOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -72,7 +92,9 @@ export const CoachEarningsDeck: React.FC<CoachEarningsDeckProps> = ({ coachId = 
     }
   }, []);
 
-  useEffect(() => { void loadData(); }, [loadData]);
+  useEffect(() => {
+    void loadData();
+  }, [loadData]);
 
   // Onboarding opens in another tab/browser; refresh the moment the coach comes back.
   useEffect(() => {
@@ -122,7 +144,9 @@ export const CoachEarningsDeck: React.FC<CoachEarningsDeckProps> = ({ coachId = 
       currency: p.currency,
       amountCents: -Math.abs(Number(p.amount_cents || 0)),
     }));
-    return [...sales, ...payouts].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    return [...sales, ...payouts].sort(
+      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+    );
   }, [balance]);
 
   const availableCents = Math.max(0, balance?.availableCents ?? 0);
@@ -132,7 +156,10 @@ export const CoachEarningsDeck: React.FC<CoachEarningsDeckProps> = ({ coachId = 
   const startPayoutSetup = async () => {
     setSetupNote('');
     tactileEngine.triggerSelectionBuzz();
-    const returnUrl = typeof window !== 'undefined' ? `${window.location.origin}${window.location.pathname}` : undefined;
+    const returnUrl =
+      typeof window !== 'undefined'
+        ? `${window.location.origin}${window.location.pathname}`
+        : undefined;
     const res = await stripeConnectService.createConnectAccount(returnUrl);
     if (res.url) {
       window.location.assign(res.url);
@@ -146,7 +173,10 @@ export const CoachEarningsDeck: React.FC<CoachEarningsDeckProps> = ({ coachId = 
   if (loadFailure && !balance) {
     const copy = FAILURE_COPY[loadFailure];
     return (
-      <section role="alert" className="space-y-3 rounded-2xl border border-[rgba(196,18,26,0.4)] bg-o1-bad-wash p-4 select-none">
+      <section
+        role="alert"
+        className="space-y-3 rounded-2xl border border-[rgba(196,18,26,0.4)] bg-o1-bad-wash p-4 select-none"
+      >
         <div className="flex items-start gap-3">
           <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-o1-bad-ink" />
           <div className="min-w-0">
@@ -174,7 +204,9 @@ export const CoachEarningsDeck: React.FC<CoachEarningsDeckProps> = ({ coachId = 
     <div className="space-y-3 select-none">
       <section className="space-y-3 rounded-2xl border border-white/[0.07] bg-o1-surface p-4">
         <div className="flex items-center justify-between">
-          <p className="text-[13px] font-semibold text-o1-text">{balance ? 'Ready to withdraw' : 'Earnings'}</p>
+          <p className="text-[13px] font-semibold text-o1-text">
+            {balance ? 'Ready to withdraw' : 'Earnings'}
+          </p>
           <button
             type="button"
             onClick={() => void loadData()}
@@ -187,7 +219,9 @@ export const CoachEarningsDeck: React.FC<CoachEarningsDeckProps> = ({ coachId = 
         </div>
         {balance ? (
           <>
-            <p className="text-[32px] font-semibold leading-none tabular-nums text-o1-text">{money(availableCents, currency)}</p>
+            <p className="text-[32px] font-semibold leading-none tabular-nums text-o1-text">
+              {money(availableCents, currency)}
+            </p>
             <dl className="grid grid-cols-3 gap-1.5">
               {[
                 { label: 'On the way', value: balance.pendingCents },
@@ -196,14 +230,20 @@ export const CoachEarningsDeck: React.FC<CoachEarningsDeckProps> = ({ coachId = 
               ].map((row) => (
                 <div key={row.label} className="rounded-xl bg-o1-canvas px-2 py-1.5 text-center">
                   <dt className="text-[10px] text-o1-muted">{row.label}</dt>
-                  <dd className="text-[13px] font-semibold tabular-nums text-o1-text">{money(row.value, currency)}</dd>
+                  <dd className="text-[13px] font-semibold tabular-nums text-o1-text">
+                    {money(row.value, currency)}
+                  </dd>
                 </div>
               ))}
             </dl>
             <p className="text-[11px] text-o1-muted">
               {planLabel} plan · we keep {feeLabel} of each program sale
             </p>
-            {!isOnboarded ? <p className="text-[13px] text-o1-muted">Connect a bank account to get paid for program sales.</p> : null}
+            {!isOnboarded ? (
+              <p className="text-[13px] text-o1-muted">
+                Connect a bank account to get paid for program sales.
+              </p>
+            ) : null}
           </>
         ) : (
           <p className="text-[13px] text-o1-muted">Loading earnings…</p>
@@ -211,7 +251,10 @@ export const CoachEarningsDeck: React.FC<CoachEarningsDeckProps> = ({ coachId = 
         {!balance ? null : isOnboarded && availableCents > 0 ? (
           <button
             type="button"
-            onClick={() => { tactileEngine.triggerSelectionBuzz(); setIsWithdrawOpen(true); }}
+            onClick={() => {
+              tactileEngine.triggerSelectionBuzz();
+              setIsWithdrawOpen(true);
+            }}
             className="h-[44px] w-full rounded-xl bg-o1-crimson text-[13px] font-semibold text-o1-text active:scale-[0.98]"
           >
             Withdraw
@@ -219,7 +262,9 @@ export const CoachEarningsDeck: React.FC<CoachEarningsDeckProps> = ({ coachId = 
         ) : !isOnboarded ? (
           <button
             type="button"
-            onClick={() => { void startPayoutSetup(); }}
+            onClick={() => {
+              void startPayoutSetup();
+            }}
             className="h-[44px] w-full rounded-xl bg-o1-crimson text-[13px] font-semibold text-o1-text active:scale-[0.98]"
           >
             Set up payouts
@@ -232,18 +277,30 @@ export const CoachEarningsDeck: React.FC<CoachEarningsDeckProps> = ({ coachId = 
         <section className="space-y-2">
           <p className="px-1 text-[13px] font-semibold text-o1-text">History</p>
           {ledger.map((item) => (
-            <div key={item.id} className="flex items-center justify-between gap-3 rounded-2xl border border-white/[0.07] bg-o1-surface p-3">
+            <div
+              key={item.id}
+              className="flex items-center justify-between gap-3 rounded-2xl border border-white/[0.07] bg-o1-surface p-3"
+            >
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
-                  <span className="truncate text-[13px] font-semibold text-o1-text">{item.title}</span>
-                  <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold ${statusTone(item.status)}`}>
+                  <span className="truncate text-[13px] font-semibold text-o1-text">
+                    {item.title}
+                  </span>
+                  <span
+                    className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold ${statusTone(item.status)}`}
+                  >
                     {STATUS_LABEL[item.status] || item.status}
                   </span>
                 </div>
-                <span className="mt-0.5 block text-[11px] text-o1-muted">{new Date(item.createdAt).toLocaleDateString()}</span>
+                <span className="mt-0.5 block text-[11px] text-o1-muted">
+                  {new Date(item.createdAt).toLocaleDateString()}
+                </span>
               </div>
-              <span className={`shrink-0 text-[13px] font-semibold tabular-nums ${item.amountCents > 0 ? 'text-o1-text' : 'text-o1-muted'}`}>
-                {item.amountCents > 0 ? '+' : '−'}{money(Math.abs(item.amountCents), item.currency)}
+              <span
+                className={`shrink-0 text-[13px] font-semibold tabular-nums ${item.amountCents > 0 ? 'text-o1-text' : 'text-o1-muted'}`}
+              >
+                {item.amountCents > 0 ? '+' : '−'}
+                {money(Math.abs(item.amountCents), item.currency)}
               </span>
             </div>
           ))}
@@ -263,4 +320,3 @@ export const CoachEarningsDeck: React.FC<CoachEarningsDeckProps> = ({ coachId = 
     </div>
   );
 };
-

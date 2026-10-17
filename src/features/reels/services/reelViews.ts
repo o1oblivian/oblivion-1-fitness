@@ -9,7 +9,11 @@ const CACHE_LIMIT = 2000;
 function readCache(): Record<string, true> {
   try {
     const ids = JSON.parse(localStorage.getItem(CACHE_KEY) || '[]');
-    return Array.isArray(ids) ? Object.fromEntries(ids.filter((id) => typeof id === 'string').map((id: string) => [id, true as const])) : {};
+    return Array.isArray(ids)
+      ? Object.fromEntries(
+          ids.filter((id) => typeof id === 'string').map((id: string) => [id, true as const]),
+        )
+      : {};
   } catch {
     return {};
   }
@@ -42,7 +46,10 @@ export const useReelViewsStore = create<ReelViewsState>((set, get) => ({
     hydrating = (async () => {
       const userId = await getAuthenticatedUserId();
       if (!isValidUuid(userId || '')) return;
-      const { data, error } = await supabase.from('reel_views').select('reel_id').eq('user_id', userId);
+      const { data, error } = await supabase
+        .from('reel_views')
+        .select('reel_id')
+        .eq('user_id', userId);
       if (error || !Array.isArray(data)) return;
       const merged = { ...get().viewed };
       for (const row of data) if (row?.reel_id) merged[String(row.reel_id)] = true;
@@ -61,7 +68,12 @@ export const useReelViewsStore = create<ReelViewsState>((set, get) => ({
     set({ viewed: next });
     void getAuthenticatedUserId().then((userId) => {
       if (!isValidUuid(userId || '')) return;
-      void supabase.from('reel_views').upsert({ user_id: userId, reel_id: reelId }, { onConflict: 'user_id,reel_id', ignoreDuplicates: true });
+      void supabase
+        .from('reel_views')
+        .upsert(
+          { user_id: userId, reel_id: reelId },
+          { onConflict: 'user_id,reel_id', ignoreDuplicates: true },
+        );
     });
   },
 }));

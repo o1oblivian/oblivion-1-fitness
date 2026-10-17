@@ -25,9 +25,15 @@ export const IntelPrescriptionCard: React.FC<IntelPrescriptionCardProps> = ({
           Prescription · {prescription.length} movements
         </span>
         {outdated ? (
-          <span className="text-[11px] font-mono font-light text-[#d97706]">Options changed. Create again.</span>
+          <span className="text-[11px] font-mono font-light text-[#d97706]">
+            Options changed. Create again.
+          </span>
         ) : (
-          estCalories > 0 && <span className="text-[12px] font-mono font-light text-o1-text">~{estCalories} kcal</span>
+          estCalories > 0 && (
+            <span className="text-[12px] font-mono font-light text-o1-text">
+              ~{estCalories} kcal
+            </span>
+          )
         )}
       </div>
 
@@ -56,17 +62,21 @@ export const IntelPrescriptionCard: React.FC<IntelPrescriptionCardProps> = ({
               </span>
               <div className="min-w-0 flex-1">
                 <h5 className="text-[13px] text-o1-text truncate">{drill.name}</h5>
-                <p className="text-[11px] text-o1-muted mt-0.5 truncate">{drill.targetMuscle || 'Compound'}</p>
+                <p className="text-[11px] text-o1-muted mt-0.5 truncate">
+                  {drill.targetMuscle || 'Compound'}
+                </p>
               </div>
-              <span className="text-[11px] font-mono font-light text-o1-text shrink-0 text-right">{target}</span>
+              <span className="text-[11px] font-mono font-light text-o1-text shrink-0 text-right">
+                {target}
+              </span>
             </div>
           );
         })}
       </div>
 
-      <p className="text-[10px] text-o1-muted text-center pt-1">Consult a physician before beginning any training program.</p>
+      <p className="text-[10px] text-o1-muted text-center pt-1">
+        Consult a physician before beginning any training program.
+      </p>
     </div>
   );
 };
-
-

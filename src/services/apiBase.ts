@@ -61,7 +61,11 @@ export async function apiFetch(path: string, init: RequestInit = {}): Promise<Re
     : await request;
   const status = res.status >= 200 && res.status <= 599 ? res.status : 500;
   const empty = status === 204 || status === 205 || status === 304;
-  const body = empty ? null : typeof res.data === 'string' ? res.data : JSON.stringify(res.data ?? null);
+  const body = empty
+    ? null
+    : typeof res.data === 'string'
+      ? res.data
+      : JSON.stringify(res.data ?? null);
   return new Response(body, { status, headers: { 'Content-Type': 'application/json' } });
 }
 

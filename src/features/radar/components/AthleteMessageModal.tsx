@@ -55,14 +55,17 @@ function applyAccepts(rows: ChatMessage[]): ChatMessage[] {
   const accepted = new Set(rows.map((row) => row.acceptId).filter(Boolean));
   return rows
     .filter((row) => !row.acceptId)
-    .map((row) => (
+    .map((row) =>
       row.invite && accepted.has(row.id)
         ? { ...row, invite: { ...row.invite, status: 'Accepted' as const } }
-        : row
-    ));
+        : row,
+    );
 }
 
-function readStoredMessage(row: { id?: string; sender_id?: string; content?: string; text?: string; created_at?: string }, myId: string): ChatMessage {
+function readStoredMessage(
+  row: { id?: string; sender_id?: string; content?: string; text?: string; created_at?: string },
+  myId: string,
+): ChatMessage {
   const raw = String(row.content || row.text || '');
   const time = row.created_at
     ? new Date(row.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
@@ -70,13 +73,24 @@ function readStoredMessage(row: { id?: string; sender_id?: string; content?: str
   const sender: ChatMessage['sender'] = row.sender_id === myId ? 'user' : 'peer';
   if (raw.startsWith(INVITE_MARK)) {
     try {
-      return { id: String(row.id || `msg-${Date.now()}`), sender, time, invite: JSON.parse(raw.slice(INVITE_MARK.length)) };
+      return {
+        id: String(row.id || `msg-${Date.now()}`),
+        sender,
+        time,
+        invite: JSON.parse(raw.slice(INVITE_MARK.length)),
+      };
     } catch {
       /* Fall through to plain text. */
     }
   }
   if (raw.startsWith(ACCEPT_MARK)) {
-    return { id: String(row.id || `msg-${Date.now()}`), sender, time, text: 'Accepted the session', acceptId: raw.slice(ACCEPT_MARK.length) };
+    return {
+      id: String(row.id || `msg-${Date.now()}`),
+      sender,
+      time,
+      text: 'Accepted the session',
+      acceptId: raw.slice(ACCEPT_MARK.length),
+    };
   }
   return { id: String(row.id || `msg-${Date.now()}`), sender, time, text: raw };
 }
@@ -145,12 +159,19 @@ export const AthleteMessageModal: React.FC<Props> = ({
       async function fetchMatchMessages() {
         try {
           const lines = await readThread(currentUserId, targetAthleteId);
-          const mapped = applyAccepts(lines.map((line) => readStoredMessage({
-            id: line.id,
-            sender_id: line.senderId,
-            content: line.body,
-            created_at: line.at,
-          }, currentUserId)));
+          const mapped = applyAccepts(
+            lines.map((line) =>
+              readStoredMessage(
+                {
+                  id: line.id,
+                  sender_id: line.senderId,
+                  content: line.body,
+                  created_at: line.at,
+                },
+                currentUserId,
+              ),
+            ),
+          );
           if (mapped.length > 0) setMessages(mapped);
         } catch (err) {
           console.warn('[AthleteMessageModal] Error fetching buddy_messages:', err);
@@ -158,7 +179,9 @@ export const AthleteMessageModal: React.FC<Props> = ({
       }
 
       void fetchMatchMessages();
-      const timer = window.setInterval(() => { void fetchMatchMessages(); }, 8000);
+      const timer = window.setInterval(() => {
+        void fetchMatchMessages();
+      }, 8000);
       return () => {
         window.clearInterval(timer);
         setActiveMatchId(null);
@@ -176,12 +199,15 @@ export const AthleteMessageModal: React.FC<Props> = ({
     if (latest.sender_id === athlete.id || latest.match_id === athlete.id) {
       setMessages((prev) => {
         if (prev.some((m) => m.id === latest.id)) return prev;
-        const incoming = readStoredMessage({
-          id: latest.id,
-          sender_id: latest.sender_id,
-          content: latest.content,
-          created_at: latest.created_at,
-        }, currentUserId || '');
+        const incoming = readStoredMessage(
+          {
+            id: latest.id,
+            sender_id: latest.sender_id,
+            content: latest.content,
+            created_at: latest.created_at,
+          },
+          currentUserId || '',
+        );
         return applyAccepts([...prev, incoming]);
       });
     }
@@ -334,7 +360,6 @@ export const AthleteMessageModal: React.FC<Props> = ({
   return (
     <div className="fixed inset-0 z-50 flex o1-sheet-scrim o1-page-scrim animate-in fade-in duration-200 select-none">
       <div className="o1-sheet-card o1-page relative bg-black flex flex-col overflow-hidden text-white">
-        
         {/* Top Chat Bar Header */}
         <div className="flex items-center justify-between px-3 py-2.5 bg-black border-b border-white/[0.05] text-white shrink-0">
           <div className="flex items-center gap-2">
@@ -394,9 +419,36 @@ export const AthleteMessageModal: React.FC<Props> = ({
         </div>
         {menuOpen && (
           <div className="absolute right-3 top-14 z-20 w-48 rounded-2xl border border-white/[0.07] bg-[#121214] p-1 shadow-xl">
-            <button type="button" onClick={() => { setMenuOpen(false); onUnmatch?.(); }} className="flex w-full rounded-xl px-3 py-2.5 text-left text-[13px] text-white">Unmatch</button>
-            <button type="button" onClick={() => { setMenuOpen(false); onBlock?.(); }} className="flex w-full rounded-xl px-3 py-2.5 text-left text-[13px] text-white">Block</button>
-            <button type="button" onClick={() => { setMenuOpen(false); setReportOpen(true); }} className="flex w-full rounded-xl px-3 py-2.5 text-left text-[13px] text-white">Report</button>
+            <button
+              type="button"
+              onClick={() => {
+                setMenuOpen(false);
+                onUnmatch?.();
+              }}
+              className="flex w-full rounded-xl px-3 py-2.5 text-left text-[13px] text-white"
+            >
+              Unmatch
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setMenuOpen(false);
+                onBlock?.();
+              }}
+              className="flex w-full rounded-xl px-3 py-2.5 text-left text-[13px] text-white"
+            >
+              Block
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setMenuOpen(false);
+                setReportOpen(true);
+              }}
+              className="flex w-full rounded-xl px-3 py-2.5 text-left text-[13px] text-white"
+            >
+              Report
+            </button>
           </div>
         )}
         <SafetyReportSheet
@@ -415,8 +467,12 @@ export const AthleteMessageModal: React.FC<Props> = ({
                   <Calendar className="w-4 h-4" />
                 </div>
                 <div>
-                  <h4 className="text-xs font-bold text-white leading-tight">Schedule Training Session</h4>
-                  <p className="text-[10px] text-neutral-400 font-mono">Invite {athlete.name} to a gym session</p>
+                  <h4 className="text-xs font-bold text-white leading-tight">
+                    Schedule Training Session
+                  </h4>
+                  <p className="text-[10px] text-neutral-400 font-mono">
+                    Invite {athlete.name} to a gym session
+                  </p>
                 </div>
               </div>
               <button
@@ -495,7 +551,9 @@ export const AthleteMessageModal: React.FC<Props> = ({
 
               {/* Gym Venue Selection List */}
               <div className="space-y-1 pt-1 max-h-36 overflow-y-auto">
-                {venueNote ? <p className="px-1 text-[11px] text-neutral-400">{venueNote}</p> : null}
+                {venueNote ? (
+                  <p className="px-1 text-[11px] text-neutral-400">{venueNote}</p>
+                ) : null}
                 {venues.map((v) => {
                   const isSelected = selectedVenue?.id === v.id;
                   return (
@@ -514,11 +572,15 @@ export const AthleteMessageModal: React.FC<Props> = ({
                     >
                       <div>
                         <div className="text-xs font-bold leading-tight">{v.name}</div>
-                        <div className="text-[10px] font-mono text-neutral-400 mt-0.5">{v.address}</div>
+                        <div className="text-[10px] font-mono text-neutral-400 mt-0.5">
+                          {v.address}
+                        </div>
                       </div>
-                      <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${
-                        isSelected ? 'border-o1-crimson bg-o1-crimson' : 'border-white/[0.07]'
-                      }`}>
+                      <div
+                        className={`w-4 h-4 rounded-full border flex items-center justify-center ${
+                          isSelected ? 'border-o1-crimson bg-o1-crimson' : 'border-white/[0.07]'
+                        }`}
+                      >
                         {isSelected && <Check className="w-2.5 h-2.5 text-white" />}
                       </div>
                     </button>
@@ -529,11 +591,11 @@ export const AthleteMessageModal: React.FC<Props> = ({
 
             {/* Commute Parity Split */}
             <div className="p-2.5 rounded-xl bg-o1-well border border-white/[0.07] flex items-center justify-between text-xs">
-              <span className="text-[11px] text-neutral-300">
-                {athlete.name}
-              </span>
+              <span className="text-[11px] text-neutral-300">{athlete.name}</span>
               <span className="text-[11px] font-semibold text-white">
-                {Number.isFinite(Number(athlete.distance_km)) ? `${athlete.distance_km} km` : 'Distance unknown'}
+                {Number.isFinite(Number(athlete.distance_km))
+                  ? `${athlete.distance_km} km`
+                  : 'Distance unknown'}
               </span>
             </div>
 
@@ -583,32 +645,34 @@ export const AthleteMessageModal: React.FC<Props> = ({
                   {allowCompose ? `Say hi to ${athlete.name}` : `You liked ${athlete.name}`}
                 </h3>
                 <p className="text-xs text-neutral-400">
-                  {allowCompose ? 'Pick an opener or write your own.' : 'Messages open when you both say yes.'}
+                  {allowCompose
+                    ? 'Pick an opener or write your own.'
+                    : 'Messages open when you both say yes.'}
                 </p>
               </div>
 
-              {allowCompose && <div className="w-full space-y-2 pt-2">
-                {CURATED_ICEBREAKERS.map((text, idx) => (
-                  <button
-                    key={idx}
-                    type="button"
-                    onClick={() => handleSelectIcebreaker(text)}
-                    className="w-full p-3 rounded-full bg-o1-card border border-white/[0.07] hover:border-o1-crimson text-left text-xs font-medium text-neutral-200 transition active:scale-98 flex items-center gap-2 cursor-pointer shadow-xs group"
-                  >
-                    <ChevronRight className="w-4 h-4 text-o1-crimson shrink-0 group-hover:translate-x-0.5 transition-transform" />
-                    <span className="truncate">{text}</span>
-                  </button>
-                ))}
-              </div>}
+              {allowCompose && (
+                <div className="w-full space-y-2 pt-2">
+                  {CURATED_ICEBREAKERS.map((text, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => handleSelectIcebreaker(text)}
+                      className="w-full p-3 rounded-full bg-o1-card border border-white/[0.07] hover:border-o1-crimson text-left text-xs font-medium text-neutral-200 transition active:scale-98 flex items-center gap-2 cursor-pointer shadow-xs group"
+                    >
+                      <ChevronRight className="w-4 h-4 text-o1-crimson shrink-0 group-hover:translate-x-0.5 transition-transform" />
+                      <span className="truncate">{text}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           ) : (
             <div className="space-y-3">
               {messages.map((m) => (
                 <div
                   key={m.id}
-                  className={`flex flex-col ${
-                    m.sender === 'user' ? 'items-end' : 'items-start'
-                  }`}
+                  className={`flex flex-col ${m.sender === 'user' ? 'items-end' : 'items-start'}`}
                 >
                   {/* Standard Text Bubble */}
                   {m.text && (
@@ -671,22 +735,44 @@ export const AthleteMessageModal: React.FC<Props> = ({
                               onClick={() => {
                                 tactileEngine.triggerSelectionBuzz();
                                 const gymName = m.invite?.gym || 'session';
-                                setMessages((prev) => prev.map((row) => row.id === m.id && row.invite
-                                  ? { ...row, invite: { ...row.invite, status: 'Accepted' } }
-                                  : row));
+                                setMessages((prev) =>
+                                  prev.map((row) =>
+                                    row.id === m.id && row.invite
+                                      ? { ...row, invite: { ...row.invite, status: 'Accepted' } }
+                                      : row,
+                                  ),
+                                );
                                 void (async () => {
                                   if (!currentUserId) {
-                                    setMessages((prev) => prev.map((row) => row.id === m.id && row.invite
-                                      ? { ...row, invite: { ...row.invite, status: 'Pending Response' } }
-                                      : row));
+                                    setMessages((prev) =>
+                                      prev.map((row) =>
+                                        row.id === m.id && row.invite
+                                          ? {
+                                              ...row,
+                                              invite: { ...row.invite, status: 'Pending Response' },
+                                            }
+                                          : row,
+                                      ),
+                                    );
                                     setSendNote('Sign in to send');
                                     return;
                                   }
-                                  const saved = await postLine(currentUserId, athlete.id, `${ACCEPT_MARK}${m.id}`);
+                                  const saved = await postLine(
+                                    currentUserId,
+                                    athlete.id,
+                                    `${ACCEPT_MARK}${m.id}`,
+                                  );
                                   if (!saved.ok) {
-                                    setMessages((prev) => prev.map((row) => row.id === m.id && row.invite
-                                      ? { ...row, invite: { ...row.invite, status: 'Pending Response' } }
-                                      : row));
+                                    setMessages((prev) =>
+                                      prev.map((row) =>
+                                        row.id === m.id && row.invite
+                                          ? {
+                                              ...row,
+                                              invite: { ...row.invite, status: 'Pending Response' },
+                                            }
+                                          : row,
+                                      ),
+                                    );
                                     setSendNote(saved.error || 'Accept did not send');
                                     return;
                                   }
@@ -705,7 +791,9 @@ export const AthleteMessageModal: React.FC<Props> = ({
                             onClick={() => {
                               tactileEngine.triggerSelectionBuzz();
                               if (m.invite?.lat == null || m.invite.lng == null) return;
-                              void openExternalUrl(`https://www.openstreetmap.org/?mlat=${m.invite.lat}&mlon=${m.invite.lng}#map=16/${m.invite.lat}/${m.invite.lng}`);
+                              void openExternalUrl(
+                                `https://www.openstreetmap.org/?mlat=${m.invite.lat}&mlon=${m.invite.lng}#map=16/${m.invite.lat}/${m.invite.lng}`,
+                              );
                             }}
                             className="inline-flex items-center gap-1 text-[11px] font-mono text-neutral-200 hover:underline cursor-pointer"
                           >
@@ -728,45 +816,45 @@ export const AthleteMessageModal: React.FC<Props> = ({
 
         {/* Bottom Chat Input Bar: Only unlocked when peer replies */}
         <div className="p-3 bg-black border-t border-white/[0.05]">
-          {sendNote ? <p className="mb-2 text-center text-[11px] text-neutral-400">{sendNote}</p> : null}
+          {sendNote ? (
+            <p className="mb-2 text-center text-[11px] text-neutral-400">{sendNote}</p>
+          ) : null}
           <div className="flex items-center gap-2">
-          {allowCompose ? (
-            <>
-              <input
-                type="text"
-                value={inputText}
-                onChange={(e) => setInputText(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') handleSendCustomMessage();
-                }}
-                placeholder="Type a message..."
-                className="flex-1 bg-o1-well border border-white/[0.07] rounded-full px-4 py-2.5 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-o1-crimson transition"
-              />
-              <button
-                type="button"
-                onClick={handleSendCustomMessage}
-                disabled={!inputText.trim()}
-                className={`w-10 h-10 rounded-full flex items-center justify-center transition active:scale-90 cursor-pointer shadow-md ${
-                  inputText.trim()
-                    ? 'bg-o1-crimson text-white'
-                    : 'bg-white/[0.08] text-neutral-500 opacity-60'
-                }`}
-              >
-                <Send className="w-4 h-4 ml-0.5" />
-              </button>
-            </>
-          ) : (
-            <div className="w-full py-2.5 px-4 rounded-full bg-o1-well border border-white/[0.07] text-center">
-              <span className="text-[11px] font-mono text-neutral-400">
-                Messages open when you both say yes
-              </span>
-            </div>
-          )}
+            {allowCompose ? (
+              <>
+                <input
+                  type="text"
+                  value={inputText}
+                  onChange={(e) => setInputText(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') handleSendCustomMessage();
+                  }}
+                  placeholder="Type a message..."
+                  className="flex-1 bg-o1-well border border-white/[0.07] rounded-full px-4 py-2.5 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-o1-crimson transition"
+                />
+                <button
+                  type="button"
+                  onClick={handleSendCustomMessage}
+                  disabled={!inputText.trim()}
+                  className={`w-10 h-10 rounded-full flex items-center justify-center transition active:scale-90 cursor-pointer shadow-md ${
+                    inputText.trim()
+                      ? 'bg-o1-crimson text-white'
+                      : 'bg-white/[0.08] text-neutral-500 opacity-60'
+                  }`}
+                >
+                  <Send className="w-4 h-4 ml-0.5" />
+                </button>
+              </>
+            ) : (
+              <div className="w-full py-2.5 px-4 rounded-full bg-o1-well border border-white/[0.07] text-center">
+                <span className="text-[11px] font-mono text-neutral-400">
+                  Messages open when you both say yes
+                </span>
+              </div>
+            )}
           </div>
         </div>
       </div>
     </div>
   );
 };
-
-

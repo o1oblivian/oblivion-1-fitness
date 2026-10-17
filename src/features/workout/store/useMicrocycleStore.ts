@@ -34,7 +34,15 @@ function computeIsoWeekDates(): { dayLabel: string; dateKey: string; dayIndex: n
   });
 }
 
-const EMPTY_ACWR: AcwrSnapshot = { acuteKg: 0, chronicKg: 0, ratio: null, label: '--', completionPct: null, calibrating: true, historyDays: 0 };
+const EMPTY_ACWR: AcwrSnapshot = {
+  acuteKg: 0,
+  chronicKg: 0,
+  ratio: null,
+  label: '--',
+  completionPct: null,
+  calibrating: true,
+  historyDays: 0,
+};
 const ROW_CAP = 400;
 
 function dateKeyOffset(daysBack: number): string {
@@ -46,7 +54,9 @@ function dateKeyOffset(daysBack: number): string {
 
 function localMidnightIso(dateKey: string, endOfDay = false): string {
   const [y, m, d] = dateKey.split('-').map(Number);
-  const date = endOfDay ? new Date(y, m - 1, d, 23, 59, 59, 999) : new Date(y, m - 1, d, 0, 0, 0, 0);
+  const date = endOfDay
+    ? new Date(y, m - 1, d, 23, 59, 59, 999)
+    : new Date(y, m - 1, d, 0, 0, 0, 0);
   return date.toISOString();
 }
 
@@ -83,8 +93,16 @@ export const useMicrocycleStore = create<MicrocycleStoreState>((set, get) => ({
       const hist = historyByDate[key]?.workout;
       const cloud = cloudByDay.get(key);
       return {
-        vol: Math.max(hist?.hasData ? Number(hist.tonnageKg) || 0 : 0, cloud?.logVol ?? 0, cloud?.sessVol ?? 0),
-        sets: Math.max(hist?.hasData ? Number(hist.completedSets) || 0 : 0, cloud?.logSets ?? 0, cloud?.sessSets ?? 0),
+        vol: Math.max(
+          hist?.hasData ? Number(hist.tonnageKg) || 0 : 0,
+          cloud?.logVol ?? 0,
+          cloud?.sessVol ?? 0,
+        ),
+        sets: Math.max(
+          hist?.hasData ? Number(hist.completedSets) || 0 : 0,
+          cloud?.logSets ?? 0,
+          cloud?.sessSets ?? 0,
+        ),
         title: (hist?.hasData && hist.routineName) || cloud?.title || null,
       };
     };
@@ -98,14 +116,24 @@ export const useMicrocycleStore = create<MicrocycleStoreState>((set, get) => ({
     const isoDay = new Date().getDay() === 0 ? 7 : new Date().getDay();
     const acwr = {
       ...computeAcwr(daily28),
-      completionPct: weekCompletionPct(computed.map((d) => d.volume), isoDay, useConsultationStore.getState().frequencyDays || 4),
+      completionPct: weekCompletionPct(
+        computed.map((d) => d.volume),
+        isoDay,
+        useConsultationStore.getState().frequencyDays || 4,
+      ),
     };
 
     const prev = get().activeDays;
     const unchanged =
       prev.length === computed.length &&
-      prev.every((d, i) => d.volume === computed[i].volume && d.sets === computed[i].sets && d.title === computed[i].title);
-    if (unchanged && get().acwr.ratio === acwr.ratio && get().acwr.historyDays === acwr.historyDays) return;
+      prev.every(
+        (d, i) =>
+          d.volume === computed[i].volume &&
+          d.sets === computed[i].sets &&
+          d.title === computed[i].title,
+      );
+    if (unchanged && get().acwr.ratio === acwr.ratio && get().acwr.historyDays === acwr.historyDays)
+      return;
     set({ activeDays: computed, activeIsoWeekDates: dates, acwr });
   },
 
@@ -144,7 +172,12 @@ export const useMicrocycleStore = create<MicrocycleStoreState>((set, get) => ({
           day.logSets += 1;
         }
         for (const s of Array.isArray(sessRes.data) ? sessRes.data : []) {
-          if (String(s.title || '').toLowerCase().startsWith('cardio')) continue;
+          if (
+            String(s.title || '')
+              .toLowerCase()
+              .startsWith('cardio')
+          )
+            continue;
           const day = bucket(next, localDayKey(s.completed_at || s.created_at));
           day.sessVol += Number(s.tonnage_kg) || 0;
           day.sessSets += Number(s.total_sets) || 0;

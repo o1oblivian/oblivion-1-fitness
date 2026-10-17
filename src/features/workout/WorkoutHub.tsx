@@ -23,9 +23,9 @@ import { HealthDisclaimerBanner } from '../legal/HealthDisclaimerBanner';
 export const WorkoutHub: React.FC = () => {
   const [expandedHubTab, setExpandedHubTab] = useState<'intel' | 'coach' | null>(null);
   const [coachNote, setCoachNote] = useState<string | null>(null);
-  const [selectedDiscipline, setSelectedDiscipline] = useState<'lift' | 'sports' | 'recovery' | null>(() =>
-    readAthleteSettingsSnapshot().restRecoveryMode ? 'recovery' : null
-  );
+  const [selectedDiscipline, setSelectedDiscipline] = useState<
+    'lift' | 'sports' | 'recovery' | null
+  >(() => (readAthleteSettingsSnapshot().restRecoveryMode ? 'recovery' : null));
   const [isEliteReelsOpen, setIsEliteReelsOpen] = useState(false);
   const [reelsCategory, setReelsCategory] = useState<ReelCategory>('ALL');
   const [reelsFilter, setReelsFilter] = useState<string>('ALL');
@@ -106,7 +106,11 @@ export const WorkoutHub: React.FC = () => {
       />
 
       {/* 3. TRAINING HUB SECTION (With Accordion Tabs) */}
-      <TrainingHubCards expandedHubTab={expandedHubTab} onToggleTab={handleToggleHubTab} coachNote={coachNote} />
+      <TrainingHubCards
+        expandedHubTab={expandedHubTab}
+        onToggleTab={handleToggleHubTab}
+        coachNote={coachNote}
+      />
 
       {/* Animated Hub Drawer Accordions */}
       <AnimatePresence>
@@ -138,7 +142,9 @@ export const WorkoutHub: React.FC = () => {
               onClose={() => setExpandedHubTab(null)}
               onDeployProtocol={() => {
                 setExpandedHubTab(null);
-                document.getElementById('active-log-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                document
+                  .getElementById('active-log-section')
+                  ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
               }}
             />
           </motion.div>
@@ -160,7 +166,9 @@ export const WorkoutHub: React.FC = () => {
           onBuildWorkout={() => {
             setExpandedHubTab('intel');
             window.setTimeout(() => {
-              document.getElementById('card-intel-coach')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              document
+                .getElementById('card-intel-coach')
+                ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }, 120);
           }}
         />
@@ -182,5 +190,3 @@ export const WorkoutHub: React.FC = () => {
     </div>
   );
 };
-
-

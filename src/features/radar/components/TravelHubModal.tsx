@@ -1,14 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import {
-  X,
-  Search,
-  Calendar,
-  ArrowRight,
-  Globe2,
-  Navigation,
-  Edit2,
-  Check,
-} from 'lucide-react';
+import { X, Search, Calendar, ArrowRight, Globe2, Navigation, Edit2, Check } from 'lucide-react';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { PremiumPlaneIcon, TacticalPlaceBeaconIcon } from './RadarIcons';
 import { useRadarStore } from '../../../stores/useRadarStore';
@@ -70,7 +61,7 @@ const GLOBAL_HUBS: DestinationHub[] = [
     athletesCount: 21,
     featuredGym: 'World Gym Surfers Paradise',
     lat: -28.0167,
-    lng: 153.4000,
+    lng: 153.4,
     timezone: 'UTC+10 (AEST)',
   },
   {
@@ -161,7 +152,7 @@ const GLOBAL_HUBS: DestinationHub[] = [
     athletesCount: 47,
     featuredGym: 'CompleteBody 19th • Chelsea Strength',
     lat: 40.7128,
-    lng: -74.0060,
+    lng: -74.006,
     timezone: 'UTC-4 (EDT)',
   },
   {
@@ -174,7 +165,7 @@ const GLOBAL_HUBS: DestinationHub[] = [
     athletesCount: 24,
     featuredGym: 'Prime Time Fitness • Leopoldstraße',
     lat: 48.1351,
-    lng: 11.5820,
+    lng: 11.582,
     timezone: 'UTC+2 (CEST)',
   },
 ];
@@ -283,7 +274,7 @@ export const TravelHubModal: React.FC<Props> = ({ isOpen, onClose, onSelectDesti
       currentOriginHub.lat,
       currentOriginHub.lng,
       currentDestinationHub.lat,
-      currentDestinationHub.lng
+      currentDestinationHub.lng,
     );
   }, [currentOriginHub, currentDestinationHub, originCity, destinationCity]);
 
@@ -306,7 +297,7 @@ export const TravelHubModal: React.FC<Props> = ({ isOpen, onClose, onSelectDesti
         h.name.toLowerCase().includes(q) ||
         h.country.toLowerCase().includes(q) ||
         h.code.toLowerCase().includes(q) ||
-        h.partnerGyms.some((g) => g.toLowerCase().includes(q))
+        h.partnerGyms.some((g) => g.toLowerCase().includes(q)),
     );
   }, [searchQuery]);
 
@@ -436,7 +427,8 @@ export const TravelHubModal: React.FC<Props> = ({ isOpen, onClose, onSelectDesti
                     </div>
                     {originCity.trim() && (
                       <div className="text-xs text-neutral-400 font-medium truncate">
-                        {originCity}{originCountry ? `, ${originCountry}` : ''}
+                        {originCity}
+                        {originCountry ? `, ${originCountry}` : ''}
                       </div>
                     )}
                   </button>
@@ -446,7 +438,13 @@ export const TravelHubModal: React.FC<Props> = ({ isOpen, onClose, onSelectDesti
               {/* Center Supersonic Flight Vector */}
               <div className="px-2 flex flex-col items-center shrink-0">
                 <div className="flex items-center gap-1 text-[10px] font-mono text-neutral-400 mb-0.5">
-                  <span>{routeDistanceKm == null ? '' : routeDistanceKm === 0 ? 'Same city' : `${routeDistanceKm.toLocaleString()} km`}</span>
+                  <span>
+                    {routeDistanceKm == null
+                      ? ''
+                      : routeDistanceKm === 0
+                        ? 'Same city'
+                        : `${routeDistanceKm.toLocaleString()} km`}
+                  </span>
                 </div>
                 <div className="w-24 flex items-center gap-1">
                   <div className="h-[2px] flex-1 bg-neutral-700" />
@@ -506,7 +504,8 @@ export const TravelHubModal: React.FC<Props> = ({ isOpen, onClose, onSelectDesti
                     </div>
                     {destinationCity.trim() && (
                       <div className="text-xs text-neutral-400 font-medium truncate">
-                        {destinationCity}{destinationCountry ? `, ${destinationCountry}` : ''}
+                        {destinationCity}
+                        {destinationCountry ? `, ${destinationCountry}` : ''}
                       </div>
                     )}
                   </button>
@@ -695,7 +694,9 @@ export const TravelHubModal: React.FC<Props> = ({ isOpen, onClose, onSelectDesti
                       <div className="text-xs font-bold truncate leading-tight font-sans">
                         {hub.name}
                       </div>
-                      <div className={`text-[10px] truncate mt-0.5 ${isSelected ? 'text-white/80' : 'text-neutral-400'}`}>
+                      <div
+                        className={`text-[10px] truncate mt-0.5 ${isSelected ? 'text-white/80' : 'text-neutral-400'}`}
+                      >
                         {hub.country}
                       </div>
                     </div>
@@ -727,5 +728,3 @@ export const TravelHubModal: React.FC<Props> = ({ isOpen, onClose, onSelectDesti
     </div>
   );
 };
-
-

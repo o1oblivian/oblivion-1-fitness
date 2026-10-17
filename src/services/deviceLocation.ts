@@ -6,8 +6,7 @@ export interface DeviceCoords {
 }
 
 export type LocationRequest =
-  | { status: 'granted'; coords: DeviceCoords }
-  | { status: 'blocked' | 'unavailable' };
+  { status: 'granted'; coords: DeviceCoords } | { status: 'blocked' | 'unavailable' };
 
 /** Asks for location permission (shows the system prompt when the user has not decided yet), then reads a position. */
 export async function requestDeviceLocation(): Promise<LocationRequest> {
@@ -15,7 +14,10 @@ export async function requestDeviceLocation(): Promise<LocationRequest> {
     if (Capacitor.isNativePlatform()) {
       const { Geolocation } = await import('@capacitor/geolocation');
       const current = await Geolocation.checkPermissions();
-      const state = current.location === 'granted' ? current : await Geolocation.requestPermissions({ permissions: ['location'] });
+      const state =
+        current.location === 'granted'
+          ? current
+          : await Geolocation.requestPermissions({ permissions: ['location'] });
       if (state.location !== 'granted') return { status: 'blocked' };
     } else if (typeof navigator !== 'undefined' && navigator.permissions?.query) {
       const state = await navigator.permissions.query({ name: 'geolocation' }).catch(() => null);
@@ -24,7 +26,8 @@ export async function requestDeviceLocation(): Promise<LocationRequest> {
   } catch {
     /* fall through to a direct read, which prompts on web */
   }
-  if (typeof navigator !== 'undefined' && !navigator.geolocation && !Capacitor.isNativePlatform()) return { status: 'unavailable' };
+  if (typeof navigator !== 'undefined' && !navigator.geolocation && !Capacitor.isNativePlatform())
+    return { status: 'unavailable' };
   const coords = await getDeviceCoordinates();
   return coords ? { status: 'granted', coords } : { status: 'blocked' };
 }

@@ -3,11 +3,7 @@
 // ============================================================================
 
 type BlueprintCategory =
-  | 'Warm-Up'
-  | 'Activation / Prime'
-  | 'Main Lifts'
-  | 'Accessories'
-  | 'Finisher';
+  'Warm-Up' | 'Activation / Prime' | 'Main Lifts' | 'Accessories' | 'Finisher';
 
 export interface BlueprintExercise {
   id: string;

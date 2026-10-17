@@ -18,7 +18,9 @@ interface ProgramReaderSheetProps {
 function shortDate(iso: string | null): string {
   if (!iso) return '';
   const date = new Date(iso);
-  return Number.isNaN(date.getTime()) ? '' : date.toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
+  return Number.isNaN(date.getTime())
+    ? ''
+    : date.toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
 export const ProgramReaderSheet: React.FC<ProgramReaderSheetProps> = ({
@@ -47,9 +49,18 @@ export const ProgramReaderSheet: React.FC<ProgramReaderSheetProps> = ({
   const closed = program.status === 'closed';
 
   return (
-    <div role="dialog" aria-label={program.title} className="fixed inset-0 z-[60] flex flex-col bg-o1-canvas text-o1-text animate-in fade-in duration-200">
+    <div
+      role="dialog"
+      aria-label={program.title}
+      className="fixed inset-0 z-[60] flex flex-col bg-o1-canvas text-o1-text animate-in fade-in duration-200"
+    >
       <div className="flex h-14 shrink-0 items-center gap-1 px-1 pt-safe">
-        <button type="button" onClick={onClose} className="flex h-11 w-11 items-center justify-center" aria-label="Back to my programs">
+        <button
+          type="button"
+          onClick={onClose}
+          className="flex h-11 w-11 items-center justify-center"
+          aria-label="Back to my programs"
+        >
           <ArrowLeft size={20} />
         </button>
         <span className="truncate text-[14px] font-semibold">{label}</span>
@@ -71,7 +82,9 @@ export const ProgramReaderSheet: React.FC<ProgramReaderSheetProps> = ({
             />
             <span className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
             <div className="absolute inset-x-4 bottom-3">
-              {program.discipline ? <p className="text-[12px] font-semibold text-o1-text/80">{program.discipline}</p> : null}
+              {program.discipline ? (
+                <p className="text-[12px] font-semibold text-o1-text/80">{program.discipline}</p>
+              ) : null}
               <h2 className="text-[20px] font-semibold leading-tight">{program.title}</h2>
             </div>
           </div>
@@ -87,16 +100,26 @@ export const ProgramReaderSheet: React.FC<ProgramReaderSheetProps> = ({
               aria-label={`Open ${program.coach.name}'s profile`}
             >
               {program.coach.avatar ? (
-                <img src={program.coach.avatar} alt="" className="h-9 w-9 shrink-0 rounded-full object-cover" />
+                <img
+                  src={program.coach.avatar}
+                  alt=""
+                  className="h-9 w-9 shrink-0 rounded-full object-cover"
+                />
               ) : (
                 <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/[0.07] text-[13px] font-semibold">
                   {(program.coach.name || '?').slice(0, 1).toUpperCase()}
                 </span>
               )}
               <span className="min-w-0">
-                <span className="block truncate text-[14px] font-semibold">{program.coach.name}</span>
+                <span className="block truncate text-[14px] font-semibold">
+                  {program.coach.name}
+                </span>
                 <span className="block truncate text-[12px] text-o1-muted">
-                  {closed ? `Closed ${shortDate(program.closedAt)}` : enrolled ? `Enrolled ${enrolled}` : 'Enrolled'}
+                  {closed
+                    ? `Closed ${shortDate(program.closedAt)}`
+                    : enrolled
+                      ? `Enrolled ${enrolled}`
+                      : 'Enrolled'}
                 </span>
               </span>
             </button>
@@ -104,7 +127,10 @@ export const ProgramReaderSheet: React.FC<ProgramReaderSheetProps> = ({
             {facts.length > 0 && (
               <div className="grid grid-cols-2 gap-2">
                 {facts.map(([name, value]) => (
-                  <div key={name} className="rounded-xl border border-white/[0.07] bg-o1-surface px-3 py-2">
+                  <div
+                    key={name}
+                    className="rounded-xl border border-white/[0.07] bg-o1-surface px-3 py-2"
+                  >
                     <p className="text-[11px] text-o1-muted">{name}</p>
                     <p className="text-[13px] font-semibold">{value}</p>
                   </div>
@@ -112,20 +138,27 @@ export const ProgramReaderSheet: React.FC<ProgramReaderSheetProps> = ({
               </div>
             )}
 
-            {program.description ? <p className="text-[14px] leading-relaxed">{program.description}</p> : null}
+            {program.description ? (
+              <p className="text-[14px] leading-relaxed">{program.description}</p>
+            ) : null}
 
             {program.plan && program.plan.weeks.length > 0 ? (
               <ProgramPlanView plan={program.plan} />
-            ) : program.weekOne.length > 0 && (
-              <div className="space-y-2">
-                <p className="text-[13px] font-semibold text-o1-muted">Week 1</p>
-                {program.weekOne.map((day, index) => (
-                  <div key={`${program.id}-${index}`} className="rounded-xl border border-white/[0.07] bg-o1-surface px-3 py-2.5">
-                    <p className="text-[11px] text-o1-muted">Day {index + 1}</p>
-                    <p className="text-[14px]">{day}</p>
-                  </div>
-                ))}
-              </div>
+            ) : (
+              program.weekOne.length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-[13px] font-semibold text-o1-muted">Week 1</p>
+                  {program.weekOne.map((day, index) => (
+                    <div
+                      key={`${program.id}-${index}`}
+                      className="rounded-xl border border-white/[0.07] bg-o1-surface px-3 py-2.5"
+                    >
+                      <p className="text-[11px] text-o1-muted">Day {index + 1}</p>
+                      <p className="text-[14px]">{day}</p>
+                    </div>
+                  ))}
+                </div>
+              )
             )}
 
             <button
@@ -151,9 +184,15 @@ export const ProgramReaderSheet: React.FC<ProgramReaderSheetProps> = ({
               </button>
             ) : confirming ? (
               <div className="space-y-2 rounded-2xl border border-white/[0.07] bg-o1-surface p-3">
-                <p className="text-[13px]">Close this program? It moves to Past programs and you can restart it anytime.</p>
+                <p className="text-[13px]">
+                  Close this program? It moves to Past programs and you can restart it anytime.
+                </p>
                 <div className="flex gap-2">
-                  <button type="button" onClick={() => setConfirming(false)} className="h-[44px] flex-1 rounded-xl border border-white/[0.07] text-[13px] font-semibold">
+                  <button
+                    type="button"
+                    onClick={() => setConfirming(false)}
+                    className="h-[44px] flex-1 rounded-xl border border-white/[0.07] text-[13px] font-semibold"
+                  >
                     Keep it
                   </button>
                   <button

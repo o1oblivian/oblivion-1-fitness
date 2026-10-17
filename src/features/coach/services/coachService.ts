@@ -24,7 +24,8 @@ export interface Athlete {
 
 type Row = Record<string, unknown>;
 
-const text = (value: unknown, fallback = ''): string => (value == null || value === '' ? fallback : String(value));
+const text = (value: unknown, fallback = ''): string =>
+  value == null || value === '' ? fallback : String(value);
 
 export const isValidUuid = (val?: string | null): boolean =>
   Boolean(val && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(val));
@@ -57,7 +58,9 @@ function mapRosterRow(row: Row): Athlete {
     readiness: null,
     volume: null,
     avatar: row.client_avatar ? String(row.client_avatar) : undefined,
-    lastActive: row.created_at ? `Joined ${new Date(String(row.created_at)).toLocaleDateString()}` : undefined,
+    lastActive: row.created_at
+      ? `Joined ${new Date(String(row.created_at)).toLocaleDateString()}`
+      : undefined,
   };
 }
 
@@ -68,15 +71,22 @@ function sleepQuality(payload: unknown): number | null {
 }
 
 /** Same readiness formula as the athlete's own card: logged sleep quality, plus today's water against their goal. */
-function readinessFromRecords(quality: number | null, waterMl: number, goalL: number | null): number | null {
+function readinessFromRecords(
+  quality: number | null,
+  waterMl: number,
+  goalL: number | null,
+): number | null {
   if (quality === null) return null;
-  const waterPct = goalL && goalL > 0 ? Math.min(100, Math.round(((waterMl / 1000) / goalL) * 100)) : 0;
+  const waterPct =
+    goalL && goalL > 0 ? Math.min(100, Math.round((waterMl / 1000 / goalL) * 100)) : 0;
   return Math.min(100, Math.round(quality * 0.6 + (waterPct / 100) * 40));
 }
 
 /** Profile, 7-day training volume, and readiness from the client's own Supabase rows. */
 async function attachLiveRecords(athletes: Athlete[]): Promise<Athlete[]> {
-  const ids = [...new Set(athletes.map((athlete) => athlete.client_id || athlete.id).filter(isValidUuid))];
+  const ids = [
+    ...new Set(athletes.map((athlete) => athlete.client_id || athlete.id).filter(isValidUuid)),
+  ];
   if (!ids.length) return athletes;
   const since = Date.now() - WEEK_MS;
   const list = ids.join(',');
@@ -95,11 +105,21 @@ async function attachLiveRecords(athletes: Athlete[]): Promise<Athlete[]> {
       .in('user_id', ids)
       .order('date_key', { ascending: false })
       .limit(Math.min(ids.length * 14, 400)),
-    supabase.from('fuel_profiles').select('user_id, hydration_target_ml, weight_kg').in('user_id', ids),
-    supabase.from('fuel_days').select('user_id, water_ml').eq('date_key', localDateKey()).in('user_id', ids),
+    supabase
+      .from('fuel_profiles')
+      .select('user_id, hydration_target_ml, weight_kg')
+      .in('user_id', ids),
+    supabase
+      .from('fuel_days')
+      .select('user_id, water_ml')
+      .eq('date_key', localDateKey())
+      .in('user_id', ids),
   ]);
 
-  const profileById = new Map<string, { full_name?: string; handle?: string; avatar_url?: string }>();
+  const profileById = new Map<
+    string,
+    { full_name?: string; handle?: string; avatar_url?: string }
+  >();
   if (!profiles.error) {
     for (const row of profiles.data || []) profileById.set(String(row.id), row);
   }
@@ -136,12 +156,16 @@ async function attachLiveRecords(athletes: Athlete[]): Promise<Athlete[]> {
   if (!fuelProfiles.error) {
     for (const row of fuelProfiles.data || []) {
       const targetMl = positive(row.hydration_target_ml);
-      goal.set(text(row.user_id), hydrationGoalLiters(targetMl === null ? null : targetMl / 1000, positive(row.weight_kg)));
+      goal.set(
+        text(row.user_id),
+        hydrationGoalLiters(targetMl === null ? null : targetMl / 1000, positive(row.weight_kg)),
+      );
     }
   }
   const water = new Map<string, number>();
   if (!fuelDays.error) {
-    for (const row of fuelDays.data || []) water.set(text(row.user_id), Math.max(0, Number(row.water_ml) || 0));
+    for (const row of fuelDays.data || [])
+      water.set(text(row.user_id), Math.max(0, Number(row.water_ml) || 0));
   }
 
   return athletes.map((athlete) => {
@@ -155,9 +179,15 @@ async function attachLiveRecords(athletes: Athlete[]): Promise<Athlete[]> {
       name: name || athlete.name,
       handle: handle || athlete.handle,
       avatar: profile?.avatar_url || athlete.avatar,
-      readiness: readinessFromRecords(quality.get(key) ?? null, water.get(key) || 0, goal.get(key) ?? null),
+      readiness: readinessFromRecords(
+        quality.get(key) ?? null,
+        water.get(key) || 0,
+        goal.get(key) ?? null,
+      ),
       volume: volume.has(key) ? Math.round(volume.get(key)!) : null,
-      lastActive: trained ? `Last session ${new Date(trained).toLocaleDateString()}` : athlete.lastActive,
+      lastActive: trained
+        ? `Last session ${new Date(trained).toLocaleDateString()}`
+        : athlete.lastActive,
     };
   });
 }
@@ -179,17 +209,25 @@ export async function fetchCoachClients(coachId: string, offset = 0): Promise<At
     if (error) console.warn('[coachService] roster query failed:', error.message);
     return null;
   }
-  const athletes = (data as Row[]).map(mapRosterRow).filter((athlete) => !isSampleId(athlete.id) && !isSampleId(athlete.client_id));
+  const athletes = (data as Row[])
+    .map(mapRosterRow)
+    .filter((athlete) => !isSampleId(athlete.id) && !isSampleId(athlete.client_id));
   try {
     return await attachLiveRecords(athletes);
   } catch (err) {
-    console.warn('[coachService] live client metrics unavailable:', err instanceof Error ? err.message : err);
+    console.warn(
+      '[coachService] live client metrics unavailable:',
+      err instanceof Error ? err.message : err,
+    );
     return athletes;
   }
 }
 
 /** Links an athlete to a coach. Safe to call twice; the pair is unique. */
-export async function linkCoachClient(coachId: string, client: { id: string; name: string; avatar?: string }): Promise<boolean> {
+export async function linkCoachClient(
+  coachId: string,
+  client: { id: string; name: string; avatar?: string },
+): Promise<boolean> {
   if (!isValidUuid(coachId) || !isValidUuid(client.id)) return false;
   const { error } = await supabase.from('coach_clients').upsert(
     {
@@ -247,7 +285,10 @@ export async function fetchCoachDirectives(coachId: string): Promise<DirectiveIt
   return liveDirectives((data as Row[]).map(mapDirective));
 }
 
-export async function publishCoachNote(coachId: string, note: DirectiveItem): Promise<DirectiveItem | null> {
+export async function publishCoachNote(
+  coachId: string,
+  note: DirectiveItem,
+): Promise<DirectiveItem | null> {
   if (!isValidUuid(coachId)) return null;
   const { data, error } = await supabase
     .from('coach_directives')
@@ -266,7 +307,11 @@ export async function publishCoachNote(coachId: string, note: DirectiveItem): Pr
   return mapDirective(data as Row);
 }
 
-export async function updateCoachNote(coachId: string, id: string, patch: { tag: DirectiveItem['tag']; title: string; summary: string }): Promise<boolean> {
+export async function updateCoachNote(
+  coachId: string,
+  id: string,
+  patch: { tag: DirectiveItem['tag']; title: string; summary: string },
+): Promise<boolean> {
   if (!isValidUuid(coachId) || !id) return false;
   const { data, error } = await supabase
     .from('coach_directives')
@@ -279,7 +324,11 @@ export async function updateCoachNote(coachId: string, id: string, patch: { tag:
 
 export async function deleteCoachNote(coachId: string, id: string): Promise<boolean> {
   if (!isValidUuid(coachId) || !id) return false;
-  const { error } = await supabase.from('coach_directives').delete().eq('id', id).eq('coach_id', coachId);
+  const { error } = await supabase
+    .from('coach_directives')
+    .delete()
+    .eq('id', id)
+    .eq('coach_id', coachId);
   return !error;
 }
 
@@ -308,7 +357,12 @@ function mapCoachMessage(m: Row): CoachMessage {
   return {
     id: String(m.id),
     sender: text(m.sender_name),
-    time: m.created_at ? new Date(String(m.created_at)).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '',
+    time: m.created_at
+      ? new Date(String(m.created_at)).toLocaleTimeString([], {
+          hour: '2-digit',
+          minute: '2-digit',
+        })
+      : '',
     message: text(m.message),
     athleteId: String(m.athlete_id || ''),
     from: messageAuthor(String(m.id)),
@@ -317,14 +371,19 @@ function mapCoachMessage(m: Row): CoachMessage {
 }
 
 /** Newest first: the latest 50 lines of one conversation, or the latest 200 across the inbox. Null when it could not be loaded. */
-export async function fetchCoachMessages(coachId: string, athleteId = ''): Promise<CoachMessage[] | null> {
+export async function fetchCoachMessages(
+  coachId: string,
+  athleteId = '',
+): Promise<CoachMessage[] | null> {
   if (!isValidUuid(coachId)) return [];
   let query = supabase
     .from('coach_messages')
     .select('id, sender_name, message, created_at, athlete_id')
     .eq('coach_id', coachId);
   if (athleteId) query = query.eq('athlete_id', athleteId);
-  const { data, error } = await query.order('created_at', { ascending: false }).limit(athleteId ? 50 : 200);
+  const { data, error } = await query
+    .order('created_at', { ascending: false })
+    .limit(athleteId ? 50 : 200);
   if (error || !Array.isArray(data)) return null;
   return liveMessages((data as Row[]).map(mapCoachMessage));
 }

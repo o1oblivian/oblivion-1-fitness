@@ -55,7 +55,9 @@ export const O1FCoachAthletePortal: React.FC<{ isCoach?: boolean }> = ({ isCoach
   const me = authUser?.id || '';
 
   const [panel, setPanel] = useState<AthletePanel>('home');
-  const [coach, setCoach] = useState<LinkedCoach | null>(() => (isCoach ? null : readLinkedCoach()));
+  const [coach, setCoach] = useState<LinkedCoach | null>(() =>
+    isCoach ? null : readLinkedCoach(),
+  );
   const [directory, setDirectory] = useState<CoachCard[]>([]);
   const [programCount, setProgramCount] = useState<number | null>(null);
   const [films, setFilms] = useState<ProfileFilm[] | null>(null);
@@ -78,7 +80,8 @@ export const O1FCoachAthletePortal: React.FC<{ isCoach?: boolean }> = ({ isCoach
       }
       await acceptCoachInvite();
       let linked = await fetchMyLinkedCoach();
-      if (linked && !linked.coach && (await adoptAcceptedCoach())) linked = await fetchMyLinkedCoach();
+      if (linked && !linked.coach && (await adoptAcceptedCoach()))
+        linked = await fetchMyLinkedCoach();
       if (!cancelled && linked) setCoach(linked.coach);
     })();
     return () => {
@@ -108,31 +111,34 @@ export const O1FCoachAthletePortal: React.FC<{ isCoach?: boolean }> = ({ isCoach
     if (noteRows) setNotes(noteRows);
   }, []);
 
-  const loadMine = useCallback(async (coachId: string) => {
-    if (!me) return;
-    const [checkinRows, workoutRows, messages, assigned] = await Promise.all([
-      fetchAthleteCheckins(me),
-      fetchMyFinishedWorkouts(me),
-      fetchCoachMessages(coachId, me),
-      supabase
-        .from('assigned_workouts')
-        .select('*')
-        .eq('coach_id', coachId)
-        .or(`client_id.eq.${me},athlete_id.eq.${me}`)
-        .in('status', ['pending', 'active'])
-        .lte('assigned_date', endOfToday())
-        .order('assigned_date', { ascending: false })
-        .limit(1),
-    ]);
-    setHistoryFailed(checkinRows === null || workoutRows === null);
-    if (checkinRows) setCheckins(checkinRows);
-    if (workoutRows) setWorkouts(workoutRows);
-    const reply = (messages ?? []).find((row) => row.from === 'coach');
-    setLatestMessage(reply ? { text: reply.message, at: reply.createdAt } : null);
-    const row = Array.isArray(assigned.data) ? assigned.data[0] : null;
-    if (row) useCoachStore.getState().ingestAssigned(mapAssignedRow(row));
-    setSentTitle(row ? String(row.title || 'Workout') : '');
-  }, [me]);
+  const loadMine = useCallback(
+    async (coachId: string) => {
+      if (!me) return;
+      const [checkinRows, workoutRows, messages, assigned] = await Promise.all([
+        fetchAthleteCheckins(me),
+        fetchMyFinishedWorkouts(me),
+        fetchCoachMessages(coachId, me),
+        supabase
+          .from('assigned_workouts')
+          .select('*')
+          .eq('coach_id', coachId)
+          .or(`client_id.eq.${me},athlete_id.eq.${me}`)
+          .in('status', ['pending', 'active'])
+          .lte('assigned_date', endOfToday())
+          .order('assigned_date', { ascending: false })
+          .limit(1),
+      ]);
+      setHistoryFailed(checkinRows === null || workoutRows === null);
+      if (checkinRows) setCheckins(checkinRows);
+      if (workoutRows) setWorkouts(workoutRows);
+      const reply = (messages ?? []).find((row) => row.from === 'coach');
+      setLatestMessage(reply ? { text: reply.message, at: reply.createdAt } : null);
+      const row = Array.isArray(assigned.data) ? assigned.data[0] : null;
+      if (row) useCoachStore.getState().ingestAssigned(mapAssignedRow(row));
+      setSentTitle(row ? String(row.title || 'Workout') : '');
+    },
+    [me],
+  );
 
   useEffect(() => {
     if (!coach?.id) {
@@ -151,12 +157,43 @@ export const O1FCoachAthletePortal: React.FC<{ isCoach?: boolean }> = ({ isCoach
     const coachId = coach.id;
     const refreshMine = () => void loadMine(coachId);
     const channel = liveChannel(`athlete-coach-${me}`)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'athlete_checkins', filter: `athlete_id=eq.${me}` }, refreshMine)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'workout_completions', filter: `athlete_id=eq.${me}` }, refreshMine)
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'coach_messages', filter: `athlete_id=eq.${me}` }, refreshMine)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'coach_directives', filter: `coach_id=eq.${coachId}` }, () => {
-        void fetchCoachNotes(coachId).then((rows) => rows && setNotes(rows));
-      })
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'athlete_checkins', filter: `athlete_id=eq.${me}` },
+        refreshMine,
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'workout_completions',
+          filter: `athlete_id=eq.${me}`,
+        },
+        refreshMine,
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'coach_messages',
+          filter: `athlete_id=eq.${me}`,
+        },
+        refreshMine,
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'coach_directives',
+          filter: `coach_id=eq.${coachId}`,
+        },
+        () => {
+          void fetchCoachNotes(coachId).then((rows) => rows && setNotes(rows));
+        },
+      )
       .subscribe();
     return () => {
       void supabase.removeChannel(channel);
@@ -207,7 +244,9 @@ export const O1FCoachAthletePortal: React.FC<{ isCoach?: boolean }> = ({ isCoach
             onSubmit={handleCheckin}
           />
         )}
-        {panel === 'inbox' && <CoachInboxView viewer="athlete" coachId={coach?.id} coachName={coach?.name} />}
+        {panel === 'inbox' && (
+          <CoachInboxView viewer="athlete" coachId={coach?.id} coachName={coach?.name} />
+        )}
       </div>
     );
   }
@@ -216,15 +255,24 @@ export const O1FCoachAthletePortal: React.FC<{ isCoach?: boolean }> = ({ isCoach
     return (
       <div id="o1fcoach-athlete-portal" className="w-full space-y-3 select-none pt-1">
         <AthleteProgramsPanel />
-        {directory.length > 0 && <p className="px-1 pt-2 text-[13px] font-semibold text-o1-text">Coaches taking athletes</p>}
+        {directory.length > 0 && (
+          <p className="px-1 pt-2 text-[13px] font-semibold text-o1-text">
+            Coaches taking athletes
+          </p>
+        )}
         {directory.map((card) => (
-          <div key={card.id} className="flex items-center gap-3 rounded-2xl border border-white/[0.07] bg-o1-surface p-3">
+          <div
+            key={card.id}
+            className="flex items-center gap-3 rounded-2xl border border-white/[0.07] bg-o1-surface p-3"
+          >
             {card.avatar ? (
               <img
                 src={card.avatar}
                 alt=""
                 className="h-14 w-14 shrink-0 rounded-full object-cover"
-                onError={(event) => { event.currentTarget.style.visibility = 'hidden'; }}
+                onError={(event) => {
+                  event.currentTarget.style.visibility = 'hidden';
+                }}
               />
             ) : (
               <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-o1-sheet text-[16px] font-semibold text-o1-text">
@@ -233,7 +281,9 @@ export const O1FCoachAthletePortal: React.FC<{ isCoach?: boolean }> = ({ isCoach
             )}
             <div className="min-w-0 flex-1">
               <p className="truncate text-[14px] font-semibold text-o1-text">{card.name}</p>
-              <p className="truncate text-[12px] text-o1-muted">{card.specialties.slice(0, 2).join(' · ') || formatHandle(card.handle) || 'Coach'}</p>
+              <p className="truncate text-[12px] text-o1-muted">
+                {card.specialties.slice(0, 2).join(' · ') || formatHandle(card.handle) || 'Coach'}
+              </p>
             </div>
             <button
               type="button"
@@ -253,21 +303,29 @@ export const O1FCoachAthletePortal: React.FC<{ isCoach?: boolean }> = ({ isCoach
 
   const handle = formatHandle(coach.handle);
   const checkedInToday = (checkins ?? []).some((row) => isToday(row.createdAt || ''));
-  const checkinReply = (checkins ?? []).map((row) => row.coachFeedback?.feedbackText || '').find(Boolean) || '';
-  const recentMessage = latestMessage && Date.now() - new Date(latestMessage.at).getTime() < 14 * DAY_MS ? latestMessage : null;
+  const checkinReply =
+    (checkins ?? []).map((row) => row.coachFeedback?.feedbackText || '').find(Boolean) || '';
+  const recentMessage =
+    latestMessage && Date.now() - new Date(latestMessage.at).getTime() < 14 * DAY_MS
+      ? latestMessage
+      : null;
   const reply = recentMessage?.text || checkinReply;
   const filmList = films ?? [];
 
   return (
     <div id="o1fcoach-athlete-portal" className="w-full space-y-3 select-none pt-1">
       <AthleteProgramsPanel />
-      <p className="px-1 pt-2 text-[13px] font-semibold text-o1-text">{isCoach ? 'How athletes see you' : 'My coach'}</p>
+      <p className="px-1 pt-2 text-[13px] font-semibold text-o1-text">
+        {isCoach ? 'How athletes see you' : 'My coach'}
+      </p>
       <div className="flex items-center gap-4">
         <div className="flex h-[86px] w-[86px] shrink-0 items-center justify-center overflow-hidden rounded-full border border-white/[0.07] bg-o1-sheet">
           {coach.avatar ? (
             <img src={coach.avatar} alt="" className="h-full w-full object-cover" />
           ) : (
-            <span className="text-xl font-semibold text-o1-text">{coach.name.slice(0, 1).toUpperCase()}</span>
+            <span className="text-xl font-semibold text-o1-text">
+              {coach.name.slice(0, 1).toUpperCase()}
+            </span>
           )}
         </div>
         <div className="min-w-0 flex-1">
@@ -275,11 +333,15 @@ export const O1FCoachAthletePortal: React.FC<{ isCoach?: boolean }> = ({ isCoach
           {handle ? <p className="truncate text-[12px] text-o1-muted">{handle}</p> : null}
           <div className="mt-2 grid grid-cols-2">
             <div className="text-center">
-              <span className="tabular-nums block text-[15px] text-o1-text">{films === null ? '--' : figureCount(filmList.length)}</span>
+              <span className="tabular-nums block text-[15px] text-o1-text">
+                {films === null ? '--' : figureCount(filmList.length)}
+              </span>
               <span className="text-[11px] text-o1-muted">Films</span>
             </div>
             <div className="text-center">
-              <span className="tabular-nums block text-[15px] text-o1-text">{programCount === null ? '--' : figureCount(programCount)}</span>
+              <span className="tabular-nums block text-[15px] text-o1-text">
+                {programCount === null ? '--' : figureCount(programCount)}
+              </span>
               <span className="text-[11px] text-o1-muted">Programs</span>
             </div>
           </div>
@@ -297,7 +359,10 @@ export const O1FCoachAthletePortal: React.FC<{ isCoach?: boolean }> = ({ isCoach
         {!isCoach && (
           <button
             type="button"
-            onClick={() => { tactileEngine.triggerSelectionBuzz(); setPanel('checkin'); }}
+            onClick={() => {
+              tactileEngine.triggerSelectionBuzz();
+              setPanel('checkin');
+            }}
             className="h-[44px] flex-1 rounded-xl border border-white/[0.07] bg-o1-sheet text-[13px] font-semibold text-o1-text"
           >
             Check-in
@@ -349,7 +414,10 @@ export const O1FCoachAthletePortal: React.FC<{ isCoach?: boolean }> = ({ isCoach
       {!isCoach && checkins !== null && !checkedInToday && (
         <button
           type="button"
-          onClick={() => { tactileEngine.triggerSelectionBuzz(); setPanel('checkin'); }}
+          onClick={() => {
+            tactileEngine.triggerSelectionBuzz();
+            setPanel('checkin');
+          }}
           className="flex min-h-[44px] w-full items-center justify-between rounded-2xl border border-white/[0.07] bg-o1-surface px-3"
         >
           <span className="text-[13px] font-semibold text-o1-text">Log today's check-in</span>
@@ -364,7 +432,10 @@ export const O1FCoachAthletePortal: React.FC<{ isCoach?: boolean }> = ({ isCoach
       ) : null}
 
       {notes.map((note) => (
-        <div key={note.id} className="rounded-2xl border border-white/[0.07] bg-o1-surface px-3 py-3">
+        <div
+          key={note.id}
+          className="rounded-2xl border border-white/[0.07] bg-o1-surface px-3 py-3"
+        >
           <p className="text-[13px] font-semibold text-o1-text">{note.title}</p>
           {note.summary ? <p className="mt-1 text-[12px] text-o1-muted">{note.summary}</p> : null}
         </div>
@@ -408,12 +479,23 @@ export const O1FCoachAthletePortal: React.FC<{ isCoach?: boolean }> = ({ isCoach
               {messageState === 'sending' ? 'Sending…' : 'Send'}
             </button>
           </form>
-          {messageState === 'sent' ? <p role="status" className="text-[12px] text-o1-muted">Sent to {firstName}</p> : null}
-          {messageState === 'failed' ? <p role="alert" className="text-[12px] text-o1-text">Could not send. Try again.</p> : null}
+          {messageState === 'sent' ? (
+            <p role="status" className="text-[12px] text-o1-muted">
+              Sent to {firstName}
+            </p>
+          ) : null}
+          {messageState === 'failed' ? (
+            <p role="alert" className="text-[12px] text-o1-text">
+              Could not send. Try again.
+            </p>
+          ) : null}
 
           <button
             type="button"
-            onClick={() => { tactileEngine.triggerSelectionBuzz(); setPanel('inbox'); }}
+            onClick={() => {
+              tactileEngine.triggerSelectionBuzz();
+              setPanel('inbox');
+            }}
             className="flex min-h-[44px] w-full items-center justify-between rounded-2xl border border-white/[0.07] bg-o1-surface px-3"
           >
             <span className="text-[13px] font-semibold text-o1-text">Inbox</span>
@@ -423,5 +505,3 @@ export const O1FCoachAthletePortal: React.FC<{ isCoach?: boolean }> = ({ isCoach
     </div>
   );
 };
-
-

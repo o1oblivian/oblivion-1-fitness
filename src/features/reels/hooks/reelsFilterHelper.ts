@@ -2,10 +2,19 @@ import { ExploreReelItem } from '../reelTypes';
 import { chipHit } from '../../induction/consultationTypes';
 import { BODY_PART_TAGS, REEL_CATEGORIES } from '../reelCategories';
 
-export const CATEGORIES: Array<ExploreReelItem['category']> = ['ALL', ...REEL_CATEGORIES.map((c) => c.id)];
+export const CATEGORIES: Array<ExploreReelItem['category']> = [
+  'ALL',
+  ...REEL_CATEGORIES.map((c) => c.id),
+];
 
 const CATEGORY_BY_NAME = new Map<string, string>(
-  REEL_CATEGORIES.flatMap((c) => [[c.id, c.id], [c.label.toUpperCase(), c.id]] as Array<[string, string]>),
+  REEL_CATEGORIES.flatMap(
+    (c) =>
+      [
+        [c.id, c.id],
+        [c.label.toUpperCase(), c.id],
+      ] as Array<[string, string]>,
+  ),
 );
 
 function matchesChip(reel: ExploreReelItem, chip: string): boolean {
@@ -14,7 +23,8 @@ function matchesChip(reel: ExploreReelItem, chip: string): boolean {
   const category = CATEGORY_BY_NAME.get(upper);
   if (category) return reel.category === category;
   if ((BODY_PART_TAGS as readonly string[]).includes(upper)) return reel.filterTag === upper;
-  if (upper === 'HEAVY COMPOUND') return reel.category === 'STRENGTH' || chipHit(`${reel.title} ${reel.cues || ''}`, chip);
+  if (upper === 'HEAVY COMPOUND')
+    return reel.category === 'STRENGTH' || chipHit(`${reel.title} ${reel.cues || ''}`, chip);
   return chipHit(`${reel.title} ${reel.cues || ''} ${reel.filterTag || ''}`, chip);
 }
 
@@ -23,7 +33,7 @@ export const filterReelsCatalog = (
   reels: ExploreReelItem[],
   selectedFilter: string,
   selectedCategory: ExploreReelItem['category'],
-  searchQuery: string
+  searchQuery: string,
 ): ExploreReelItem[] => {
   const q = searchQuery.toLowerCase().trim();
   return reels.filter((reel) => {

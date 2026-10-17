@@ -20,7 +20,9 @@ export const PremiumPlaneIcon: React.FC<{ className?: string }> = ({ className =
  * Precision aerodynamic gym & facility beacon with concentric reticle aperture.
  * Distinctive, high-end alternative to generic consumer map pins.
  */
-export const TacticalPlaceBeaconIcon: React.FC<{ className?: string }> = ({ className = 'w-3.5 h-3.5' }) => (
+export const TacticalPlaceBeaconIcon: React.FC<{ className?: string }> = ({
+  className = 'w-3.5 h-3.5',
+}) => (
   <svg
     viewBox="0 0 24 24"
     fill="none"
@@ -35,4 +37,3 @@ export const TacticalPlaceBeaconIcon: React.FC<{ className?: string }> = ({ clas
     <circle cx="12" cy="10" r="3" />
   </svg>
 );
-

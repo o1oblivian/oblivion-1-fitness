@@ -2,7 +2,14 @@ import { clamp } from '../../utils/mathUtils';
 import { classifyExercise, MUSCLE_BY_ID } from './muscleModel';
 import { acwrScore, dayIndex, toDayKey } from './reportEngine';
 import type { Tone } from './palette';
-import type { LiftTrend, LoggedSet, MuscleId, OblivionReport, SleepSample, VolumeStatus } from './types';
+import type {
+  LiftTrend,
+  LoggedSet,
+  MuscleId,
+  OblivionReport,
+  SleepSample,
+  VolumeStatus,
+} from './types';
 
 export type Decision = 'PUSH' | 'MAINTAIN' | 'EASE OFF' | 'DELOAD' | 'NO SIGNAL';
 
@@ -48,14 +55,17 @@ export interface TodayIntel {
   daysSinceSession: number | null;
 }
 
-const toStep = (kg: number, step = 1.25) => Math.round((Math.round(kg / step) * step) * 100) / 100;
+const toStep = (kg: number, step = 1.25) => Math.round(Math.round(kg / step) * step * 100) / 100;
 
-const RPE_CAP: Record<Decision, number> = { PUSH: 9, MAINTAIN: 8.5, 'EASE OFF': 7.5, DELOAD: 7, 'NO SIGNAL': 8.5 };
+const RPE_CAP: Record<Decision, number> = {
+  PUSH: 9,
+  MAINTAIN: 8.5,
+  'EASE OFF': 7.5,
+  DELOAD: 7,
+  'NO SIGNAL': 8.5,
+};
 
-function prescribe(
-  lift: OblivionReport['lifts'][number],
-  decision: Decision,
-): LiftPrescription {
+function prescribe(lift: OblivionReport['lifts'][number], decision: Decision): LiftPrescription {
   const last = lift.lastWeightKg;
   let weight = last;
   let reps = lift.lastReps;
@@ -113,7 +123,9 @@ export function buildTodayIntel(
   let sleepValue: number | null = null;
   if (latestSleep) {
     const hoursScore = clamp((latestSleep.hours / 8) * 100, 0, 100);
-    sleepValue = Math.round(latestSleep.recoveryPct ? (hoursScore + latestSleep.recoveryPct) / 2 : hoursScore);
+    sleepValue = Math.round(
+      latestSleep.recoveryPct ? (hoursScore + latestSleep.recoveryPct) / 2 : hoursScore,
+    );
   }
 
   const ratio = report.stats.acwr;
@@ -125,9 +137,19 @@ export function buildTodayIntel(
     const ago = todayIdx - dayIndex(s.day);
     if (ago >= 0 && (daysSince === null || ago < daysSince)) daysSince = ago;
   }
-  const restValue = daysSince === null ? null : daysSince === 0 ? 60 : daysSince === 1 ? 75 : daysSince === 2 ? 90 : 100;
+  const restValue =
+    daysSince === null
+      ? null
+      : daysSince === 0
+        ? 60
+        : daysSince === 1
+          ? 75
+          : daysSince === 2
+            ? 90
+            : 100;
 
-  const toneFor = (v: number | null): Tone => (v === null ? 'idle' : v >= 75 ? 'good' : v >= 55 ? 'watch' : 'alert');
+  const toneFor = (v: number | null): Tone =>
+    v === null ? 'idle' : v >= 75 ? 'good' : v >= 55 ? 'watch' : 'alert';
 
   const signals: ReadinessSignal[] = [
     {
@@ -135,7 +157,11 @@ export function buildTodayIntel(
       label: 'Last night',
       value: sleepValue,
       display: latestSleep ? `${Math.round(latestSleep.hours * 10) / 10}h` : '--',
-      note: latestSleep ? (latestSleep.recoveryPct ? `${Math.round(latestSleep.recoveryPct)}% recovery` : 'Duration only') : 'No sleep logged',
+      note: latestSleep
+        ? latestSleep.recoveryPct
+          ? `${Math.round(latestSleep.recoveryPct)}% recovery`
+          : 'Duration only'
+        : 'No sleep logged',
       tone: toneFor(sleepValue),
     },
     {
@@ -151,13 +177,22 @@ export function buildTodayIntel(
       label: 'Since last session',
       value: restValue,
       display: daysSince === null ? '--' : daysSince === 0 ? 'Today' : `${daysSince}d`,
-      note: daysSince === null ? 'No sessions logged' : daysSince === 0 ? 'Already trained' : daysSince <= 2 ? 'Short turnaround' : 'Fully rested',
+      note:
+        daysSince === null
+          ? 'No sessions logged'
+          : daysSince === 0
+            ? 'Already trained'
+            : daysSince <= 2
+              ? 'Short turnaround'
+              : 'Fully rested',
       tone: toneFor(restValue),
     },
   ];
 
   const live = signals.filter((s) => s.value !== null) as (ReadinessSignal & { value: number })[];
-  const readiness = live.length ? Math.round(live.reduce((a, s) => a + s.value, 0) / live.length) : null;
+  const readiness = live.length
+    ? Math.round(live.reduce((a, s) => a + s.value, 0) / live.length)
+    : null;
 
   let decision: Decision;
   if (ratio !== null && ratio > 1.5) decision = 'DELOAD';
@@ -177,11 +212,26 @@ export function buildTodayIntel(
   }
 
   const copy: Record<Decision, { headline: string; detail: string }> = {
-    PUSH: { headline: 'Green light to progress', detail: 'Recovery signals support adding load today.' },
-    MAINTAIN: { headline: 'Hold your working loads', detail: 'Train as planned, keep reps clean, skip the heavy singles.' },
-    'EASE OFF': { headline: 'Dial it back today', detail: 'Recovery signals are low. Cut load and keep it technical.' },
-    DELOAD: { headline: 'Deload this week', detail: `7d:28d load ratio ${ratio?.toFixed(2) ?? ''} is above the 1.5 injury-risk line.` },
-    'NO SIGNAL': { headline: 'Not enough data to call it', detail: 'Log a session or a night of sleep and this calibrates on its own.' },
+    PUSH: {
+      headline: 'Green light to progress',
+      detail: 'Recovery signals support adding load today.',
+    },
+    MAINTAIN: {
+      headline: 'Hold your working loads',
+      detail: 'Train as planned, keep reps clean, skip the heavy singles.',
+    },
+    'EASE OFF': {
+      headline: 'Dial it back today',
+      detail: 'Recovery signals are low. Cut load and keep it technical.',
+    },
+    DELOAD: {
+      headline: 'Deload this week',
+      detail: `7d:28d load ratio ${ratio?.toFixed(2) ?? ''} is above the 1.5 injury-risk line.`,
+    },
+    'NO SIGNAL': {
+      headline: 'Not enough data to call it',
+      detail: 'Log a session or a night of sleep and this calibrates on its own.',
+    },
   };
 
   /* ---- muscle freshness ---- */
@@ -189,7 +239,14 @@ export function buildTodayIntel(
     const need = MUSCLE_BY_ID[m.id].min >= 8 ? 2 : 1;
     let state: MuscleReadiness['state'] = 'cold';
     if (m.lastTrainedDaysAgo !== null) state = m.lastTrainedDaysAgo < need ? 'recovering' : 'ready';
-    return { id: m.id, label: m.label, daysAgo: m.lastTrainedDaysAgo, state, sets: m.sets, status: m.status };
+    return {
+      id: m.id,
+      label: m.label,
+      daysAgo: m.lastTrainedDaysAgo,
+      state,
+      sets: m.sets,
+      status: m.status,
+    };
   });
 
   const prescriptions = report.lifts

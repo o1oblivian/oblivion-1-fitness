@@ -1,5 +1,14 @@
 import { describe, expect, it } from 'vitest';
-import { athleteDose, availableKit, canPerform, dosedSets, isSafeFor, isUnloaded, kitNeeds, trainingAgeDose } from './equipmentAccess';
+import {
+  athleteDose,
+  availableKit,
+  canPerform,
+  dosedSets,
+  isSafeFor,
+  isUnloaded,
+  kitNeeds,
+  trainingAgeDose,
+} from './equipmentAccess';
 import { parseFacilities } from '../../induction/consultationTypes';
 import { EXERCISE_DATABASE } from '../../../data/exerciseDatabase';
 
@@ -11,7 +20,10 @@ describe('kitNeeds', () => {
   });
 
   it('combines needs for loaded bodyweight work', () => {
-    expect(kitNeeds('Weighted Neutral Grip Pull-Up', 'Bodyweight / Belt').sort()).toEqual(['bar', 'free_weights']);
+    expect(kitNeeds('Weighted Neutral Grip Pull-Up', 'Bodyweight / Belt').sort()).toEqual([
+      'bar',
+      'free_weights',
+    ]);
   });
 
   it('treats plain bodyweight and mat work as needing nothing', () => {
@@ -115,9 +127,13 @@ describe('isSafeFor', () => {
   it('skips moves that load a protected area', () => {
     expect(isSafeFor('Box Jump', { ...open, injuries: ['knees'] })).toBe(false);
     expect(isSafeFor('Conventional Deadlift', { ...open, injuries: ['lower_back'] })).toBe(false);
-    expect(isSafeFor('Standing Overhead Military Press', { ...open, injuries: ['shoulders'] })).toBe(false);
+    expect(
+      isSafeFor('Standing Overhead Military Press', { ...open, injuries: ['shoulders'] }),
+    ).toBe(false);
     expect(isSafeFor('Push-Up', { ...open, injuries: ['wrists'] })).toBe(false);
-    expect(isSafeFor('Seated Leg Press', { ...open, injuries: ['lower_back', 'shoulders'] })).toBe(true);
+    expect(isSafeFor('Seated Leg Press', { ...open, injuries: ['lower_back', 'shoulders'] })).toBe(
+      true,
+    );
   });
 
   it('removes high-impact work for over-60s only', () => {
@@ -132,8 +148,13 @@ describe('isSafeFor', () => {
   });
 
   it('still leaves a full library for someone protecting every area at 60+', () => {
-    const profile = { injuries: ['knees', 'lower_back', 'shoulders', 'wrists'], ageBand: '60+' } as const;
-    expect(EXERCISE_DATABASE.filter((ex) => isSafeFor(ex.name, profile)).length).toBeGreaterThanOrEqual(40);
+    const profile = {
+      injuries: ['knees', 'lower_back', 'shoulders', 'wrists'],
+      ageBand: '60+',
+    } as const;
+    expect(
+      EXERCISE_DATABASE.filter((ex) => isSafeFor(ex.name, profile)).length,
+    ).toBeGreaterThanOrEqual(40);
   });
 });
 

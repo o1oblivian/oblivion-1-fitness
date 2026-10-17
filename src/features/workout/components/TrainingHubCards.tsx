@@ -11,12 +11,37 @@ export interface TrainingHubCardsProps {
   coachNote?: string | null;
 }
 
-const TABS: { id: HubTab; title: string; sub: string; icon: typeof Dumbbell; drawerId: string; tint: string }[] = [
-  { id: 'intel', title: 'Build workout', sub: 'Made for today', icon: Dumbbell, drawerId: 'intel-coach-accordion-drawer', tint: 'text-[#d97706]' },
-  { id: 'coach', title: 'My Coach', sub: 'From your coach', icon: UserRound, drawerId: 'my-coach-accordion-drawer', tint: 'text-[#0284c7]' },
+const TABS: {
+  id: HubTab;
+  title: string;
+  sub: string;
+  icon: typeof Dumbbell;
+  drawerId: string;
+  tint: string;
+}[] = [
+  {
+    id: 'intel',
+    title: 'Build workout',
+    sub: 'Made for today',
+    icon: Dumbbell,
+    drawerId: 'intel-coach-accordion-drawer',
+    tint: 'text-[#d97706]',
+  },
+  {
+    id: 'coach',
+    title: 'My Coach',
+    sub: 'From your coach',
+    icon: UserRound,
+    drawerId: 'my-coach-accordion-drawer',
+    tint: 'text-[#0284c7]',
+  },
 ];
 
-export const TrainingHubCards: React.FC<TrainingHubCardsProps> = ({ expandedHubTab, onToggleTab, coachNote }) => (
+export const TrainingHubCards: React.FC<TrainingHubCardsProps> = ({
+  expandedHubTab,
+  onToggleTab,
+  coachNote,
+}) => (
   <div id="training-hub-cards-section" className="grid grid-cols-2 gap-2.5 my-2 select-none">
     {TABS.map(({ id, title, sub, icon: Icon, drawerId, tint }) => {
       const active = expandedHubTab === id;
@@ -34,17 +59,30 @@ export const TrainingHubCards: React.FC<TrainingHubCardsProps> = ({ expandedHubT
             onToggleTab(id);
           }}
           className={`min-h-[52px] rounded-full p-2 pr-3 transition-all active:scale-[0.98] cursor-pointer flex items-center justify-between border text-white ${
-            active ? 'bg-o1-sheet border-o1-crimson/70' : 'bg-o1-surface border-white/[0.07] hover:border-white/[0.14]'
+            active
+              ? 'bg-o1-sheet border-o1-crimson/70'
+              : 'bg-o1-surface border-white/[0.07] hover:border-white/[0.14]'
           }`}
         >
           <span className="flex items-center gap-2.5 min-w-0">
-            <span className={`relative w-9 h-9 rounded-full bg-o1-well border border-white/[0.07] flex items-center justify-center shrink-0 ${tint}`}>
+            <span
+              className={`relative w-9 h-9 rounded-full bg-o1-well border border-white/[0.07] flex items-center justify-center shrink-0 ${tint}`}
+            >
               <Icon className="w-4 h-4" strokeWidth={1.75} />
-              {note && <span aria-hidden className="absolute top-0.5 right-0.5 w-2 h-2 rounded-full bg-o1-crimson" />}
+              {note && (
+                <span
+                  aria-hidden
+                  className="absolute top-0.5 right-0.5 w-2 h-2 rounded-full bg-o1-crimson"
+                />
+              )}
             </span>
             <span className="min-w-0 text-left">
-              <span className="block font-medium text-[13px] tracking-tight truncate leading-tight">{title}</span>
-              <span className={`block text-[11px] truncate leading-tight mt-0.5 ${note ? 'text-o1-text' : 'text-o1-muted'}`}>
+              <span className="block font-medium text-[13px] tracking-tight truncate leading-tight">
+                {title}
+              </span>
+              <span
+                className={`block text-[11px] truncate leading-tight mt-0.5 ${note ? 'text-o1-text' : 'text-o1-muted'}`}
+              >
                 {note || sub}
               </span>
             </span>
@@ -57,5 +95,3 @@ export const TrainingHubCards: React.FC<TrainingHubCardsProps> = ({ expandedHubT
     })}
   </div>
 );
-
-

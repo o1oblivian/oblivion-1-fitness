@@ -75,7 +75,11 @@ export const ReelFilmstripBar: React.FC<ReelFilmstripBarProps> = ({
             aria-label={club ? coach.name : `Open ${coach.name}'s profile`}
           >
             {coach.avatar ? (
-              <img src={coach.avatar} alt="" className="h-8 w-8 shrink-0 rounded-full border border-white/30 object-cover" />
+              <img
+                src={coach.avatar}
+                alt=""
+                className="h-8 w-8 shrink-0 rounded-full border border-white/30 object-cover"
+              />
             ) : (
               <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#0E0E0E] text-[12px] font-semibold text-white">
                 {coach.name.slice(0, 1).toUpperCase()}
@@ -83,7 +87,9 @@ export const ReelFilmstripBar: React.FC<ReelFilmstripBarProps> = ({
             )}
             <span className="flex min-w-0 items-center gap-1 truncate text-sm font-semibold text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.85)]">
               {coach.name}
-              {coach.verified ? <BadgeCheck size={14} className="shrink-0 text-[#0284c7]" aria-label="Verified" /> : null}
+              {coach.verified ? (
+                <BadgeCheck size={14} className="shrink-0 text-[#0284c7]" aria-label="Verified" />
+              ) : null}
             </span>
           </button>
         ) : null}
@@ -95,7 +101,9 @@ export const ReelFilmstripBar: React.FC<ReelFilmstripBarProps> = ({
             className="flex min-h-[44px] shrink-0 items-center active:scale-[0.98]"
             aria-label={`Follow ${coach?.name}`}
           >
-            <span className="rounded-full border border-white/70 px-3 py-1 text-[12px] font-semibold text-white">Follow</span>
+            <span className="rounded-full border border-white/70 px-3 py-1 text-[12px] font-semibold text-white">
+              Follow
+            </span>
           </button>
         ) : null}
 
@@ -116,7 +124,9 @@ export const ReelFilmstripBar: React.FC<ReelFilmstripBarProps> = ({
       </div>
 
       {currentTitle ? (
-        <p className="line-clamp-1 text-xs font-normal text-white/80 drop-shadow-[0_1px_2px_rgba(0,0,0,0.85)]">{currentTitle}</p>
+        <p className="line-clamp-1 text-xs font-normal text-white/80 drop-shadow-[0_1px_2px_rgba(0,0,0,0.85)]">
+          {currentTitle}
+        </p>
       ) : null}
     </div>
   );

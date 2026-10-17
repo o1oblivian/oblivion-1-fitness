@@ -34,7 +34,11 @@ export const AthleteDossierModal: React.FC<AthleteDossierModalProps> = ({
           <div className="flex items-center gap-3">
             <div className="w-11 h-11 rounded-full bg-o1-canvas border border-white/[0.07] overflow-hidden flex items-center justify-center font-bold text-sm text-o1-text">
               {athlete.avatar ? (
-                <img src={athlete.avatar} alt={athlete.name} className="w-full h-full object-cover" />
+                <img
+                  src={athlete.avatar}
+                  alt={athlete.name}
+                  className="w-full h-full object-cover"
+                />
               ) : (
                 athlete.name.charAt(0)
               )}
@@ -106,10 +110,13 @@ export const AthleteDossierModal: React.FC<AthleteDossierModalProps> = ({
             <div className="p-3 rounded-2xl border border-white/[0.07] bg-black/60 text-xs">
               <div className="flex items-center justify-between font-bold text-o1-text">
                 <span>Active Cycle</span>
-                <span className="text-[10px] font-mono text-o1-muted">{athlete.cycle || athlete.lastActive || '--'}</span>
+                <span className="text-[10px] font-mono text-o1-muted">
+                  {athlete.cycle || athlete.lastActive || '--'}
+                </span>
               </div>
               <p className="text-[11px] text-o1-muted mt-1 font-mono">
-                {athlete.status}{athlete.volume ? ` · ${athlete.volume.toLocaleString()} kg` : ''}
+                {athlete.status}
+                {athlete.volume ? ` · ${athlete.volume.toLocaleString()} kg` : ''}
               </p>
             </div>
           </div>
@@ -132,4 +139,3 @@ export const AthleteDossierModal: React.FC<AthleteDossierModalProps> = ({
     </div>
   );
 };
-

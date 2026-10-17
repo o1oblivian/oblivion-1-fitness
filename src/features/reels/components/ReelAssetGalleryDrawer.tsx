@@ -40,7 +40,9 @@ export const ReelAssetGalleryDrawer: React.FC<ReelAssetGalleryDrawerProps> = ({
         <div className="flex items-center justify-between border-b border-[#1F1F1F] pb-2">
           <div className="flex items-center gap-2">
             <span className="text-[14px] font-semibold text-[#EAE8DF]">Clips in this reel</span>
-            <span className="rounded-full bg-white/10 px-2 py-0.5 text-[11px] text-[#8A887F]">{clips.length}</span>
+            <span className="rounded-full bg-white/10 px-2 py-0.5 text-[11px] text-[#8A887F]">
+              {clips.length}
+            </span>
           </div>
           <button
             type="button"
@@ -66,15 +68,25 @@ export const ReelAssetGalleryDrawer: React.FC<ReelAssetGalleryDrawerProps> = ({
                 }}
                 aria-pressed={isCurrent}
                 className={`flex min-h-[52px] items-center gap-2 rounded-xl border p-2 text-left transition-all ${
-                  isCurrent ? 'border-o1-crimson bg-o1-crimson text-white' : 'border-[#1F1F1F] bg-black text-[#EAE8DF] hover:border-white/20'
+                  isCurrent
+                    ? 'border-o1-crimson bg-o1-crimson text-white'
+                    : 'border-[#1F1F1F] bg-black text-[#EAE8DF] hover:border-white/20'
                 }`}
               >
-                <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${isCurrent ? 'bg-neutral-950 text-white' : 'bg-[#1F1F1F] text-white'}`}>
+                <span
+                  className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${isCurrent ? 'bg-neutral-950 text-white' : 'bg-[#1F1F1F] text-white'}`}
+                >
                   <Play className="w-3.5 h-3.5 fill-current" />
                 </span>
                 <span className="min-w-0">
                   <span className="block truncate text-[13px] font-semibold">{clip.title}</span>
-                  {clip.duration ? <span className={`text-[11px] ${isCurrent ? 'text-neutral-600' : 'text-[#8A887F]'}`}>{clip.duration}</span> : null}
+                  {clip.duration ? (
+                    <span
+                      className={`text-[11px] ${isCurrent ? 'text-neutral-600' : 'text-[#8A887F]'}`}
+                    >
+                      {clip.duration}
+                    </span>
+                  ) : null}
                 </span>
               </button>
             );

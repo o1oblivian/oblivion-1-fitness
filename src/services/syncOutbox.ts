@@ -38,7 +38,9 @@ function backoffMs(attempts: number): number {
 }
 
 function waitingOut(op: OutboxOp, now: number): boolean {
-  return op.attempts > 0 && typeof op.failedAt === 'number' && now - op.failedAt < backoffMs(op.attempts);
+  return (
+    op.attempts > 0 && typeof op.failedAt === 'number' && now - op.failedAt < backoffMs(op.attempts)
+  );
 }
 
 const handlers = new Map<string, Handler>();
@@ -64,7 +66,12 @@ export function registerExternalQueue(name: string, queue: ExternalQueue): void 
   externals.set(name, queue);
 }
 
-export function enqueueSync(kind: string, key: string, scope: string, payload: Record<string, unknown>): void {
+export function enqueueSync(
+  kind: string,
+  key: string,
+  scope: string,
+  payload: Record<string, unknown>,
+): void {
   const op: OutboxOp = {
     id: `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`,
     kind,
@@ -141,7 +148,11 @@ async function pass(respectBackoff: boolean): Promise<void> {
           blocked.add(op.scope);
           if (handler) {
             const failedAt = Date.now();
-            write(read().map((o) => (o.id === op.id ? { ...o, attempts: o.attempts + 1, failedAt } : o)));
+            write(
+              read().map((o) =>
+                o.id === op.id ? { ...o, attempts: o.attempts + 1, failedAt } : o,
+              ),
+            );
           }
         }
       }

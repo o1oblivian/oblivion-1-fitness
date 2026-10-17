@@ -36,7 +36,7 @@ function toExtracted(
     steps?: unknown;
     rawReadings?: string;
     aliveAiNote?: string;
-  }
+  },
 ): ExtractedCardioData {
   const distanceKm = readMetric(fields.distanceKm, 2);
   const durationMinutes = readMetric(fields.durationMinutes);
@@ -44,13 +44,16 @@ function toExtracted(
   const avgHeartRateBpm = readMetric(fields.avgHeartRateBpm);
   const steps = readMetric(fields.steps);
   return {
-    activityType: fields.activityType || (scanMode === 'watch' ? 'Smartwatch Pedometer' : 'Cardio Console'),
+    activityType:
+      fields.activityType || (scanMode === 'watch' ? 'Smartwatch Pedometer' : 'Cardio Console'),
     distanceKm,
     durationMinutes,
     burnedKcal,
     avgHeartRateBpm,
     steps,
-    fieldsRead: [distanceKm, durationMinutes, burnedKcal, avgHeartRateBpm, steps].filter((v) => v != null).length,
+    fieldsRead: [distanceKm, durationMinutes, burnedKcal, avgHeartRateBpm, steps].filter(
+      (v) => v != null,
+    ).length,
     rawReadings: fields.rawReadings,
     aliveAiNote: fields.aliveAiNote,
   };
@@ -62,14 +65,16 @@ function isEmptyTelemetry(data: ExtractedCardioData | null): boolean {
 
 async function geminiWatchFallback(
   base64Image: string,
-  scanMode: 'console' | 'watch'
+  scanMode: 'console' | 'watch',
 ): Promise<ExtractedCardioData | null> {
   try {
     const parsed = await analyzeCardioImageWithGemini(base64Image, scanMode);
     if (!parsed) return null;
     const data = toExtracted(scanMode, {
       activityType:
-        parsed.deviceType === 'WATCH' || scanMode === 'watch' ? 'Smartwatch Pedometer' : 'Cardio Console',
+        parsed.deviceType === 'WATCH' || scanMode === 'watch'
+          ? 'Smartwatch Pedometer'
+          : 'Cardio Console',
       distanceKm: parsed.distanceKm,
       durationMinutes: parsed.elapsedMinutes,
       burnedKcal: parsed.caloriesBurned,
@@ -99,43 +104,49 @@ function withinMs<T>(work: Promise<T>, ms: number): Promise<T | null> {
 export async function processCardioScanImage(
   base64Image: string,
   scanMode: 'console' | 'watch',
-  options: { skipServer?: boolean } = {}
+  options: { skipServer?: boolean } = {},
 ): Promise<ExtractedCardioData> {
   const cleanBase64 = base64Image.replace(/^data:image\/[a-z]+;base64,/, '');
-  const dataUrl = base64Image.startsWith('data:') ? base64Image : `data:image/jpeg;base64,${cleanBase64}`;
+  const dataUrl = base64Image.startsWith('data:')
+    ? base64Image
+    : `data:image/jpeg;base64,${cleanBase64}`;
 
   let extracted: ExtractedCardioData | null = null;
 
-  if (!options.skipServer) try {
-    const blob = await (await fetch(dataUrl)).blob();
-    const { compressedBase64 } = await compressAndAnalyzeImage(blob, 1600, 0.85);
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 40_000);
-    const res = await apiFetch('/api/vision/cardio-telemetry', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ imageBase64: compressedBase64 || cleanBase64, mimeType: 'image/jpeg' }),
-      signal: controller.signal,
-    }).finally(() => clearTimeout(timer));
+  if (!options.skipServer)
+    try {
+      const blob = await (await fetch(dataUrl)).blob();
+      const { compressedBase64 } = await compressAndAnalyzeImage(blob, 1600, 0.85);
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 40_000);
+      const res = await apiFetch('/api/vision/cardio-telemetry', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          imageBase64: compressedBase64 || cleanBase64,
+          mimeType: 'image/jpeg',
+        }),
+        signal: controller.signal,
+      }).finally(() => clearTimeout(timer));
 
-    if (res.ok) {
-      const json = await res.json().catch(() => null);
-      if (json?.success && json?.telemetry) {
-        const t = json.telemetry;
-        extracted = toExtracted(scanMode, {
-          distanceKm: t.distanceKm,
-          durationMinutes: t.elapsedMinutes,
-          burnedKcal: t.caloriesBurned,
-          avgHeartRateBpm: t.avgHeartRateBpm,
-          steps: t.steps,
-          rawReadings: json.calibrationNote,
-          aliveAiNote: json.calibrationNote,
-        });
+      if (res.ok) {
+        const json = await res.json().catch(() => null);
+        if (json?.success && json?.telemetry) {
+          const t = json.telemetry;
+          extracted = toExtracted(scanMode, {
+            distanceKm: t.distanceKm,
+            durationMinutes: t.elapsedMinutes,
+            burnedKcal: t.caloriesBurned,
+            avgHeartRateBpm: t.avgHeartRateBpm,
+            steps: t.steps,
+            rawReadings: json.calibrationNote,
+            aliveAiNote: json.calibrationNote,
+          });
+        }
       }
+    } catch {
+      // Expected in native mobile Capacitor runtime where /api is not hosted locally
     }
-  } catch {
-    // Expected in native mobile Capacitor runtime where /api is not hosted locally
-  }
 
   if (isEmptyTelemetry(extracted)) {
     try {

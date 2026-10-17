@@ -62,13 +62,36 @@ export function useSleepLogForm({ isOpen, dayMeta, category, mode, onSaved }: Da
     return 'done';
   };
 
-  return { sleepHours, setSleepHours, sleepRecovery, setSleepRecovery, sleepDeep, setSleepDeep, sleepRem, setSleepRem, sleepHeartRate, setSleepHeartRate, save };
+  return {
+    sleepHours,
+    setSleepHours,
+    sleepRecovery,
+    setSleepRecovery,
+    sleepDeep,
+    setSleepDeep,
+    sleepRem,
+    setSleepRem,
+    sleepHeartRate,
+    setSleepHeartRate,
+    save,
+  };
 }
 
 export type SleepLogForm = ReturnType<typeof useSleepLogForm>;
 
 export function SleepLogFields({ form }: { form: SleepLogForm }) {
-  const { sleepHours, setSleepHours, sleepRecovery, setSleepRecovery, sleepDeep, setSleepDeep, sleepRem, setSleepRem, sleepHeartRate, setSleepHeartRate } = form;
+  const {
+    sleepHours,
+    setSleepHours,
+    sleepRecovery,
+    setSleepRecovery,
+    sleepDeep,
+    setSleepDeep,
+    sleepRem,
+    setSleepRem,
+    sleepHeartRate,
+    setSleepHeartRate,
+  } = form;
   return (
     <div className="space-y-3.5">
       <div className="grid grid-cols-2 gap-2">
@@ -103,9 +126,7 @@ export function SleepLogFields({ form }: { form: SleepLogForm }) {
 
       <div className="grid grid-cols-3 gap-2">
         <div>
-          <label className="text-[10px] text-neutral-400 font-bold block mb-1">
-            Deep (MIN)
-          </label>
+          <label className="text-[10px] text-neutral-400 font-bold block mb-1">Deep (MIN)</label>
           <input
             type="number"
             value={sleepDeep}
@@ -116,9 +137,7 @@ export function SleepLogFields({ form }: { form: SleepLogForm }) {
           />
         </div>
         <div>
-          <label className="text-[10px] text-neutral-400 font-bold block mb-1">
-            Rem (Min)
-          </label>
+          <label className="text-[10px] text-neutral-400 font-bold block mb-1">Rem (Min)</label>
           <input
             type="number"
             value={sleepRem}
@@ -129,9 +148,7 @@ export function SleepLogFields({ form }: { form: SleepLogForm }) {
           />
         </div>
         <div>
-          <label className="text-[10px] text-neutral-400 font-bold block mb-1">
-            RHR (BPM)
-          </label>
+          <label className="text-[10px] text-neutral-400 font-bold block mb-1">RHR (BPM)</label>
           <input
             type="number"
             value={sleepHeartRate}

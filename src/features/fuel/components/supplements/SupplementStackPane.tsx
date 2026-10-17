@@ -2,9 +2,24 @@ import React, { useState } from 'react';
 import { Globe, Pencil, Plus, Search, Trash2 } from 'lucide-react';
 import { tactileEngine } from '../../../../services/tactileEngine';
 import { apiFetch } from '../../../../services/apiBase';
-import { useFuelStore, SupplementItem, SupplementTiming, SupplementUnit } from '../../store/useFuelStore';
-import { EVIDENCE_COPY, LibrarySupplement, formatDose, scaledAmount, searchLibrary } from '../../data/supplementLibrary';
-import { SupplementComposer, SupplementComposerResult, SupplementDraft } from './SupplementComposer';
+import {
+  useFuelStore,
+  SupplementItem,
+  SupplementTiming,
+  SupplementUnit,
+} from '../../store/useFuelStore';
+import {
+  EVIDENCE_COPY,
+  LibrarySupplement,
+  formatDose,
+  scaledAmount,
+  searchLibrary,
+} from '../../data/supplementLibrary';
+import {
+  SupplementComposer,
+  SupplementComposerResult,
+  SupplementDraft,
+} from './SupplementComposer';
 
 interface OnlineResult {
   name: string;
@@ -19,9 +34,11 @@ interface SupplementStackPaneProps {
   onShowToast?: (msg: string) => void;
 }
 
-type ComposerState = { mode: 'add'; draft: SupplementDraft } | { mode: 'edit'; draft: SupplementDraft; id: string };
+type ComposerState =
+  { mode: 'add'; draft: SupplementDraft } | { mode: 'edit'; draft: SupplementDraft; id: string };
 
-const UNIT_PATTERN = /(\d+(?:\.\d+)?)\s*(mcg|µg|mg|g|iu|ml|caps?|capsules?|tabs?|tablets?|scoops?)\b/i;
+const UNIT_PATTERN =
+  /(\d+(?:\.\d+)?)\s*(mcg|µg|mg|g|iu|ml|caps?|capsules?|tabs?|tablets?|scoops?)\b/i;
 
 function unitFrom(raw: string): SupplementUnit {
   const u = raw.toLowerCase();
@@ -66,7 +83,12 @@ function draftFromOnline(result: OnlineResult): SupplementDraft {
     timing: timingFrom(result.timing),
     caffeineMg: '',
     category: result.category || 'Supplement',
-    note: [result.clinicalDosage && `Typical dose: ${result.clinicalDosage}.`, result.primaryBenefits].filter(Boolean).join(' '),
+    note: [
+      result.clinicalDosage && `Typical dose: ${result.clinicalDosage}.`,
+      result.primaryBenefits,
+    ]
+      .filter(Boolean)
+      .join(' '),
   };
 }
 
@@ -88,13 +110,19 @@ function blankDraft(name: string): SupplementDraft {
   return { name, amount: '', unit: 'mg', timing: 'Anytime', caffeineMg: '', category: 'Custom' };
 }
 
-export const SupplementStackPane: React.FC<SupplementStackPaneProps> = ({ weightKg, onShowToast }) => {
+export const SupplementStackPane: React.FC<SupplementStackPaneProps> = ({
+  weightKg,
+  onShowToast,
+}) => {
   const stack = useFuelStore((s) => s.supplementStack);
   const { setSupplementStack } = useFuelStore.getState();
 
   const [query, setQuery] = useState('');
   const [composer, setComposer] = useState<ComposerState | null>(null);
-  const [online, setOnline] = useState<{ status: 'idle' | 'loading' | 'done' | 'error'; results: OnlineResult[] }>({
+  const [online, setOnline] = useState<{
+    status: 'idle' | 'loading' | 'done' | 'error';
+    results: OnlineResult[];
+  }>({
     status: 'idle',
     results: [],
   });
@@ -116,7 +144,10 @@ export const SupplementStackPane: React.FC<SupplementStackPaneProps> = ({ weight
       const res = await apiFetch(`/api/fuel/supplement-search?q=${encodeURIComponent(trimmed)}`);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
-      setOnline({ status: 'done', results: Array.isArray(data.supplements) ? data.supplements : [] });
+      setOnline({
+        status: 'done',
+        results: Array.isArray(data.supplements) ? data.supplements : [],
+      });
     } catch {
       setOnline({ status: 'error', results: [] });
     }
@@ -139,7 +170,10 @@ export const SupplementStackPane: React.FC<SupplementStackPaneProps> = ({ weight
       setSupplementStack(stack.map((s) => (s.id === composer.id ? { id: s.id, ...base } : s)));
       onShowToast?.(`Updated ${result.name}`);
     } else {
-      setSupplementStack([...stack, { id: `supp-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`, ...base }]);
+      setSupplementStack([
+        ...stack,
+        { id: `supp-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`, ...base },
+      ]);
       onShowToast?.(`Added ${result.name} · ${base.dosage}`);
       setQuery('');
       setOnline({ status: 'idle', results: [] });
@@ -172,9 +206,14 @@ export const SupplementStackPane: React.FC<SupplementStackPaneProps> = ({ weight
         <section aria-label="Your stack" className="space-y-1.5">
           <h5 className="text-[11px] font-semibold text-o1-muted">Your stack · {stack.length}</h5>
           {stack.map((item) => (
-            <div key={item.id} className="p-2.5 rounded-2xl border border-white/[0.08] flex items-center gap-2">
+            <div
+              key={item.id}
+              className="p-2.5 rounded-2xl border border-white/[0.08] flex items-center gap-2"
+            >
               <div className="min-w-0 flex-1">
-                <span className="block text-xs font-semibold text-o1-text truncate">{item.name}</span>
+                <span className="block text-xs font-semibold text-o1-text truncate">
+                  {item.name}
+                </span>
                 <span className="block text-[10px] text-o1-muted mt-0.5 truncate tabular-nums">
                   {item.dosage} · {item.timing}
                   {item.caffeineMg ? ` · ${item.caffeineMg} mg caffeine` : ''}
@@ -182,7 +221,9 @@ export const SupplementStackPane: React.FC<SupplementStackPaneProps> = ({ weight
               </div>
               <button
                 type="button"
-                onClick={() => openComposer({ mode: 'edit', id: item.id, draft: draftFromItem(item) })}
+                onClick={() =>
+                  openComposer({ mode: 'edit', id: item.id, draft: draftFromItem(item) })
+                }
                 aria-label={`Edit ${item.name}`}
                 className="w-8 h-8 rounded-lg flex items-center justify-center text-o1-muted hover:text-o1-text cursor-pointer"
               >
@@ -202,7 +243,10 @@ export const SupplementStackPane: React.FC<SupplementStackPaneProps> = ({ weight
       )}
 
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-o1-muted" aria-hidden />
+        <Search
+          className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-o1-muted"
+          aria-hidden
+        />
         <input
           type="search"
           value={query}
@@ -225,13 +269,17 @@ export const SupplementStackPane: React.FC<SupplementStackPaneProps> = ({ weight
               key={entry.name}
               type="button"
               disabled={added}
-              onClick={() => openComposer({ mode: 'add', draft: draftFromLibrary(entry, weightKg) })}
+              onClick={() =>
+                openComposer({ mode: 'add', draft: draftFromLibrary(entry, weightKg) })
+              }
               className="w-full p-2.5 rounded-2xl border border-white/[0.08] flex items-center gap-2.5 text-left cursor-pointer disabled:cursor-default disabled:opacity-50 hover:border-white/20"
             >
               <span className="min-w-0 flex-1">
                 <span className="flex items-center gap-1.5">
                   <span className="text-xs font-semibold text-o1-text truncate">{entry.name}</span>
-                  <span className={`shrink-0 h-4 px-1.5 rounded-full border text-[9px] font-medium inline-flex items-center ${EVIDENCE_COPY[entry.evidence].className}`}>
+                  <span
+                    className={`shrink-0 h-4 px-1.5 rounded-full border text-[9px] font-medium inline-flex items-center ${EVIDENCE_COPY[entry.evidence].className}`}
+                  >
                     {EVIDENCE_COPY[entry.evidence].label.split(' ')[0]}
                   </span>
                 </span>
@@ -240,7 +288,11 @@ export const SupplementStackPane: React.FC<SupplementStackPaneProps> = ({ weight
                 </span>
               </span>
               <span className="shrink-0 text-[11px] font-medium text-o1-muted">
-                {added ? 'Added' : <Plus className="w-4 h-4 text-o1-text" aria-label={`Add ${entry.name}`} />}
+                {added ? (
+                  'Added'
+                ) : (
+                  <Plus className="w-4 h-4 text-o1-text" aria-label={`Add ${entry.name}`} />
+                )}
               </span>
             </button>
           );
@@ -256,7 +308,9 @@ export const SupplementStackPane: React.FC<SupplementStackPaneProps> = ({ weight
           >
             <Globe className="w-4 h-4 text-sky-600 shrink-0" aria-hidden />
             <span className="min-w-0 flex-1">
-              <span className="block text-xs font-semibold text-o1-text truncate">{result.name}</span>
+              <span className="block text-xs font-semibold text-o1-text truncate">
+                {result.name}
+              </span>
               <span className="block text-[10px] text-o1-muted mt-0.5 truncate">
                 {[result.clinicalDosage, result.category].filter(Boolean).join(' · ')}
               </span>
@@ -275,7 +329,9 @@ export const SupplementStackPane: React.FC<SupplementStackPaneProps> = ({ weight
           </p>
         )}
         {online.status === 'done' && online.results.length === 0 && (
-          <p className="text-center py-2 text-[11px] text-o1-muted">No online matches. Add it manually below.</p>
+          <p className="text-center py-2 text-[11px] text-o1-muted">
+            No online matches. Add it manually below.
+          </p>
         )}
       </div>
 
@@ -316,5 +372,3 @@ export const SupplementStackPane: React.FC<SupplementStackPaneProps> = ({ weight
     </div>
   );
 };
-
-

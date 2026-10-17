@@ -6,17 +6,29 @@ class MemoryStorage {
   constructor() {
     return new Proxy(this, {
       ownKeys: (t) => [...t.data.keys()],
-      getOwnPropertyDescriptor: (t, k) => (t.data.has(String(k)) ? { enumerable: true, configurable: true, value: t.data.get(String(k)) } : undefined),
+      getOwnPropertyDescriptor: (t, k) =>
+        t.data.has(String(k))
+          ? { enumerable: true, configurable: true, value: t.data.get(String(k)) }
+          : undefined,
     });
   }
-  getItem(k: string) { return this.data.has(k) ? this.data.get(k)! : null; }
-  setItem(k: string, v: string) { this.data.set(k, String(v)); }
-  removeItem(k: string) { this.data.delete(k); }
-  clear() { this.data.clear(); }
+  getItem(k: string) {
+    return this.data.has(k) ? this.data.get(k)! : null;
+  }
+  setItem(k: string, v: string) {
+    this.data.set(k, String(v));
+  }
+  removeItem(k: string) {
+    this.data.delete(k);
+  }
+  clear() {
+    this.data.clear();
+  }
 }
 
 const reload = vi.fn();
-const session = (id: string) => localStorage.setItem('sb-proj-auth-token', JSON.stringify({ user: { id } }));
+const session = (id: string) =>
+  localStorage.setItem('sb-proj-auth-token', JSON.stringify({ user: { id } }));
 
 beforeEach(() => {
   vi.stubGlobal('localStorage', new MemoryStorage());

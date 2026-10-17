@@ -6,18 +6,30 @@ import { tactileEngine } from '../services/tactileEngine';
 interface ScannedMealResultCardProps {
   scannedMeal: ScannedMealBreakdown;
   slotName?: string;
-  onCommitMeal: (name: string, kcal: number, p: number, c: number, f: number, weight: number) => void;
+  onCommitMeal: (
+    name: string,
+    kcal: number,
+    p: number,
+    c: number,
+    f: number,
+    weight: number,
+  ) => void;
 }
 
 export const ScannedMealResultCard: React.FC<ScannedMealResultCardProps> = ({
-  scannedMeal, onCommitMeal,
+  scannedMeal,
+  onCommitMeal,
 }) => {
-  const parsedWeight = parseInt(scannedMeal.servingDescription?.match(/(\d+)\s*g/i)?.[1] || '100', 10);
+  const parsedWeight = parseInt(
+    scannedMeal.servingDescription?.match(/(\d+)\s*g/i)?.[1] || '100',
+    10,
+  );
   const baseWeight = parsedWeight > 0 ? parsedWeight : 100;
   const isBarcode = scannedMeal.confidenceScore === 100 || !!scannedMeal.barcode;
   const confidence = scannedMeal.confidenceScore;
 
-  const perGram = (grams: number | null): number | null => (grams === null ? null : grams / baseWeight);
+  const perGram = (grams: number | null): number | null =>
+    grams === null ? null : grams / baseWeight;
   const baseProtPerG = perGram(scannedMeal.proteinGrams);
   const baseCarbPerG = perGram(scannedMeal.carbsGrams);
   const baseFatPerG = perGram(scannedMeal.fatsGrams);
@@ -25,7 +37,8 @@ export const ScannedMealResultCard: React.FC<ScannedMealResultCardProps> = ({
 
   const [weightText, setWeightText] = useState(String(baseWeight));
   const weight = Math.min(5000, Math.max(0, parseInt(weightText || '0', 10) || 0));
-  const setWeight = (update: (w: number) => number) => setWeightText(String(Math.min(5000, Math.max(0, update(weight)))));
+  const setWeight = (update: (w: number) => number) =>
+    setWeightText(String(Math.min(5000, Math.max(0, update(weight)))));
   const [prep, setPrep] = useState<'lean' | 'oil'>('lean');
   const [dressing, setDressing] = useState<'plain' | 'sauce'>('plain');
   const [isLogging, setIsLogging] = useState(false);
@@ -35,16 +48,24 @@ export const ScannedMealResultCard: React.FC<ScannedMealResultCardProps> = ({
   const sauceFat = dressing === 'sauce' ? 4 : 0;
 
   const protein = baseProtPerG === null ? null : Math.max(0, Math.round(weight * baseProtPerG));
-  const carbs = baseCarbPerG === null ? null : Math.max(0, Math.round(weight * baseCarbPerG + sauceCarb));
-  const fat = baseFatPerG === null ? null : Math.max(0, Math.round(weight * baseFatPerG + prepAddedFat + sauceFat));
+  const carbs =
+    baseCarbPerG === null ? null : Math.max(0, Math.round(weight * baseCarbPerG + sauceCarb));
+  const fat =
+    baseFatPerG === null
+      ? null
+      : Math.max(0, Math.round(weight * baseFatPerG + prepAddedFat + sauceFat));
   const calories =
-    protein === null || carbs === null || fat === null ? null : Math.round(protein * 4 + carbs * 4 + fat * 9);
+    protein === null || carbs === null || fat === null
+      ? null
+      : Math.round(protein * 4 + carbs * 4 + fat * 9);
 
   const handleSave = () => {
     if (protein === null || carbs === null || fat === null || calories === null) return;
     setIsLogging(true);
     tactileEngine.playPRCelebration();
-    const tag = [prep === 'oil' ? 'Oil' : 'Lean', dressing === 'sauce' ? 'Sauce' : ''].filter(Boolean).join(', ');
+    const tag = [prep === 'oil' ? 'Oil' : 'Lean', dressing === 'sauce' ? 'Sauce' : '']
+      .filter(Boolean)
+      .join(', ');
     const name = tag ? `${scannedMeal.dishName} (${tag})` : scannedMeal.dishName;
     onCommitMeal(name, calories, protein, carbs, fat, weight);
   };
@@ -54,7 +75,9 @@ export const ScannedMealResultCard: React.FC<ScannedMealResultCardProps> = ({
       <div className="flex items-start justify-between gap-2">
         <div>
           <h4 className="font-bold text-sm text-white font-tactical">{scannedMeal.dishName}</h4>
-          <span className="text-[10px] text-neutral-400 font-mono">{scannedMeal.servingDescription || `${weight}g portion`}</span>
+          <span className="text-[10px] text-neutral-400 font-mono">
+            {scannedMeal.servingDescription || `${weight}g portion`}
+          </span>
         </div>
         {isBarcode ? (
           <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 flex items-center gap-1">
@@ -73,19 +96,41 @@ export const ScannedMealResultCard: React.FC<ScannedMealResultCardProps> = ({
         <div className="flex items-center gap-1.5 flex-wrap">
           <span className="font-mono text-neutral-400 w-9">Prep:</span>
           {(['lean', 'oil'] as const).map((p) => (
-            <button key={p} type="button" onClick={() => { tactileEngine.triggerSelectionBuzz(); setPrep(p); }}
+            <button
+              key={p}
+              type="button"
+              onClick={() => {
+                tactileEngine.triggerSelectionBuzz();
+                setPrep(p);
+              }}
               className={`px-2 py-0.5 rounded-xl font-tactical font-bold transition cursor-pointer border ${
-                prep === p ? 'bg-o1-crimson text-white border-o1-crimson' : 'bg-white/5 text-neutral-400 border-white/[0.07]'
-              }`}>{p === 'lean' ? 'Lean / Air-Fried' : 'Cooked in Oil (+8g Fat)'}</button>
+                prep === p
+                  ? 'bg-o1-crimson text-white border-o1-crimson'
+                  : 'bg-white/5 text-neutral-400 border-white/[0.07]'
+              }`}
+            >
+              {p === 'lean' ? 'Lean / Air-Fried' : 'Cooked in Oil (+8g Fat)'}
+            </button>
           ))}
         </div>
         <div className="flex items-center gap-1.5 flex-wrap">
           <span className="font-mono text-neutral-400 w-9">Extra:</span>
           {(['plain', 'sauce'] as const).map((d) => (
-            <button key={d} type="button" onClick={() => { tactileEngine.triggerSelectionBuzz(); setDressing(d); }}
+            <button
+              key={d}
+              type="button"
+              onClick={() => {
+                tactileEngine.triggerSelectionBuzz();
+                setDressing(d);
+              }}
               className={`px-2 py-0.5 rounded-xl font-tactical font-bold transition cursor-pointer border ${
-                dressing === d ? 'bg-amber-600 text-white border-amber-600' : 'bg-white/5 text-neutral-400 border-white/[0.07]'
-              }`}>{d === 'plain' ? 'Plain' : 'Sauce (+6g C, +4g F)'}</button>
+                dressing === d
+                  ? 'bg-amber-600 text-white border-amber-600'
+                  : 'bg-white/5 text-neutral-400 border-white/[0.07]'
+              }`}
+            >
+              {d === 'plain' ? 'Plain' : 'Sauce (+6g C, +4g F)'}
+            </button>
           ))}
         </div>
       </div>
@@ -109,8 +154,15 @@ export const ScannedMealResultCard: React.FC<ScannedMealResultCardProps> = ({
         </div>
         <div className="grid grid-cols-4 gap-1.5">
           {[-25, -10, 10, 25].map((delta) => (
-            <button key={delta} type="button" onClick={() => { tactileEngine.triggerSelectionBuzz(); setWeight((w) => w + delta); }}
-              className="py-1 rounded-xl bg-white/10 hover:bg-white/20 text-[10px] font-mono font-bold text-neutral-200 transition cursor-pointer active:scale-95">
+            <button
+              key={delta}
+              type="button"
+              onClick={() => {
+                tactileEngine.triggerSelectionBuzz();
+                setWeight((w) => w + delta);
+              }}
+              className="py-1 rounded-xl bg-white/10 hover:bg-white/20 text-[10px] font-mono font-bold text-neutral-200 transition cursor-pointer active:scale-95"
+            >
               {delta > 0 ? `+${delta}g` : `${delta}g`}
             </button>
           ))}
@@ -126,7 +178,9 @@ export const ScannedMealResultCard: React.FC<ScannedMealResultCardProps> = ({
           { label: 'FAT', val: fat === null ? '--' : `${fat}g`, color: 'text-emerald-400' },
         ].map((m) => (
           <div key={m.label} className="p-1.5 rounded-xl bg-o1-well border border-white/[0.07]">
-            <span className="text-[9px] text-neutral-400 block font-sans font-semibold">{m.label}</span>
+            <span className="text-[9px] text-neutral-400 block font-sans font-semibold">
+              {m.label}
+            </span>
             <span className={`text-xs font-bold font-mono ${m.color}`}>{m.val}</span>
           </div>
         ))}
@@ -139,8 +193,12 @@ export const ScannedMealResultCard: React.FC<ScannedMealResultCardProps> = ({
       )}
 
       {/* Primary Save Action */}
-      <button type="button" disabled={isLogging || !hasAllMacros || weight <= 0} onClick={handleSave}
-        className="o1-pill mx-auto bg-o1-crimson hover:bg-o1-crimson-hover active:scale-95 text-white font-sans font-semibold text-xs cursor-pointer disabled:opacity-50">
+      <button
+        type="button"
+        disabled={isLogging || !hasAllMacros || weight <= 0}
+        onClick={handleSave}
+        className="o1-pill mx-auto bg-o1-crimson hover:bg-o1-crimson-hover active:scale-95 text-white font-sans font-semibold text-xs cursor-pointer disabled:opacity-50"
+      >
         <Check className="w-3.5 h-3.5 stroke-[3]" />
         <span>{isLogging ? 'Saving' : 'Log meal'}</span>
       </button>
@@ -152,4 +210,3 @@ export const ScannedMealResultCard: React.FC<ScannedMealResultCardProps> = ({
     </div>
   );
 };
-

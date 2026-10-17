@@ -20,7 +20,15 @@ interface FloorAthleteCardProps {
   onOpenProfile?: () => void;
 }
 
-export function AthleteAvatar({ name, avatar, size = 44 }: { name: string; avatar?: string; size?: number }) {
+export function AthleteAvatar({
+  name,
+  avatar,
+  size = 44,
+}: {
+  name: string;
+  avatar?: string;
+  size?: number;
+}) {
   const initial = name.trim().slice(0, 1).toUpperCase() || '?';
   return (
     <span
@@ -62,7 +70,9 @@ export const FloorAthleteCard: React.FC<FloorAthleteCardProps> = ({
             <span className="truncate text-[15px] font-semibold text-o1-text">{name}</span>
             {meta ? <span className="shrink-0 text-[11px] text-o1-muted">{meta}</span> : null}
           </span>
-          {subtitle ? <span className="block truncate text-[12px] text-o1-muted">{subtitle}</span> : null}
+          {subtitle ? (
+            <span className="block truncate text-[12px] text-o1-muted">{subtitle}</span>
+          ) : null}
         </span>
       </button>
 
@@ -81,13 +91,17 @@ export const FloorAthleteCard: React.FC<FloorAthleteCardProps> = ({
         <p
           role="status"
           className={`mt-2 inline-flex items-center rounded-full border px-2.5 py-1 text-[12px] font-bold ${
-            badge.tone === 'ok' ? 'border-emerald-500/40 bg-o1-ok-wash text-o1-ok-ink' : 'border-amber-500/40 bg-o1-warn-wash text-o1-warn-ink'
+            badge.tone === 'ok'
+              ? 'border-emerald-500/40 bg-o1-ok-wash text-o1-ok-ink'
+              : 'border-amber-500/40 bg-o1-warn-wash text-o1-warn-ink'
           }`}
         >
           {badge.label}
         </p>
       ) : lastFeedback ? (
-        <p className="mt-2 truncate rounded-lg bg-o1-ok-wash px-2 py-1 text-[11px] font-semibold text-o1-ok-ink">You said: {lastFeedback}</p>
+        <p className="mt-2 truncate rounded-lg bg-o1-ok-wash px-2 py-1 text-[11px] font-semibold text-o1-ok-ink">
+          You said: {lastFeedback}
+        </p>
       ) : null}
 
       <div className="mt-3 flex gap-1.5">
@@ -99,7 +113,9 @@ export const FloorAthleteCard: React.FC<FloorAthleteCardProps> = ({
               type="button"
               onClick={action.onClick}
               className={`flex h-[40px] flex-1 items-center justify-center gap-1.5 rounded-xl text-[12px] font-semibold active:scale-[0.98] ${
-                action.primary ? 'bg-o1-crimson text-o1-text' : 'border border-white/[0.07] bg-o1-surface text-o1-text'
+                action.primary
+                  ? 'bg-o1-crimson text-o1-text'
+                  : 'border border-white/[0.07] bg-o1-surface text-o1-text'
               }`}
             >
               <Icon size={14} />

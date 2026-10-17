@@ -46,7 +46,17 @@ interface TxtProps {
   children: React.ReactNode;
 }
 
-export function Txt({ x, y, size = 11, weight = 400, anchor = 'middle', color = INK, font, spacing, children }: TxtProps) {
+export function Txt({
+  x,
+  y,
+  size = 11,
+  weight = 400,
+  anchor = 'middle',
+  color = INK,
+  font,
+  spacing,
+  children,
+}: TxtProps) {
   return (
     <text
       x={x}
@@ -65,11 +75,29 @@ export function Txt({ x, y, size = 11, weight = 400, anchor = 'middle', color = 
 }
 
 export function StepsLabel({ x = CX, y, color }: { x?: number; y: number; color: string }) {
-  return <Txt x={x} y={y} size={10} weight={600} color={color} spacing="0.2em">STEPS</Txt>;
+  return (
+    <Txt x={x} y={y} size={10} weight={600} color={color} spacing="0.2em">
+      STEPS
+    </Txt>
+  );
 }
 
-export function HeroSteps({ x = CX, y, size, steps }: { x?: number; y: number; size: number; steps: number }) {
-  return <Txt x={x} y={y} size={size} weight={300}>{fmtInt(steps)}</Txt>;
+export function HeroSteps({
+  x = CX,
+  y,
+  size,
+  steps,
+}: {
+  x?: number;
+  y: number;
+  size: number;
+  steps: number;
+}) {
+  return (
+    <Txt x={x} y={y} size={size} weight={300}>
+      {fmtInt(steps)}
+    </Txt>
+  );
 }
 
 const arcAt = (cx: number, cy: number, r: number, start: number, end: number) =>
@@ -89,28 +117,87 @@ interface RingProps {
 }
 
 /** Hairline track with a coloured progress arc. Draws only the track until the metric has data. */
-export function Ring({ cx = CX, cy = CY, r, ratio, color, width = 2.2, start = 0, sweep = 360, tip }: RingProps) {
+export function Ring({
+  cx = CX,
+  cy = CY,
+  r,
+  ratio,
+  color,
+  width = 2.2,
+  start = 0,
+  sweep = 360,
+  tip,
+}: RingProps) {
   const f = clamp01(ratio);
   const end = start + sweep * f;
   const tipPoint = polarToCartesian(cx, cy, r, Math.min(end, start + 359.9));
   return (
     <>
       <path d={arcAt(cx, cy, r, start, start + sweep)} fill="none" stroke={TRACK} strokeWidth="1" />
-      {f > 0 && <path d={arcAt(cx, cy, r, start, end)} fill="none" stroke={color} strokeWidth={width} strokeLinecap="round" />}
+      {f > 0 && (
+        <path
+          d={arcAt(cx, cy, r, start, end)}
+          fill="none"
+          stroke={color}
+          strokeWidth={width}
+          strokeLinecap="round"
+        />
+      )}
       {tip && f > 0 && <circle cx={tipPoint.x} cy={tipPoint.y} r={3.4} fill={color} />}
     </>
   );
 }
 
-export function Line({ x1, y1, x2, y2, color = INK, opacity = 1, width = 1 }: {
-  x1: number; y1: number; x2: number; y2: number; color?: string; opacity?: number; width?: number;
+export function Line({
+  x1,
+  y1,
+  x2,
+  y2,
+  color = INK,
+  opacity = 1,
+  width = 1,
+}: {
+  x1: number;
+  y1: number;
+  x2: number;
+  y2: number;
+  color?: string;
+  opacity?: number;
+  width?: number;
 }) {
-  return <line x1={x1} y1={y1} x2={x2} y2={y2} stroke={color} strokeOpacity={opacity} strokeWidth={width} strokeLinecap="round" />;
+  return (
+    <line
+      x1={x1}
+      y1={y1}
+      x2={x2}
+      y2={y2}
+      stroke={color}
+      strokeOpacity={opacity}
+      strokeWidth={width}
+      strokeLinecap="round"
+    />
+  );
 }
 
 /** One radial tick at `angle`, from radius `r` inwards by `len`. */
-export function RadialTick({ cx = CX, cy = CY, r, len, angle, color = INK, opacity = 1, width = 1 }: {
-  cx?: number; cy?: number; r: number; len: number; angle: number; color?: string; opacity?: number; width?: number;
+export function RadialTick({
+  cx = CX,
+  cy = CY,
+  r,
+  len,
+  angle,
+  color = INK,
+  opacity = 1,
+  width = 1,
+}: {
+  cx?: number;
+  cy?: number;
+  r: number;
+  len: number;
+  angle: number;
+  color?: string;
+  opacity?: number;
+  width?: number;
 }) {
   const a = polarToCartesian(cx, cy, r, angle);
   const b = polarToCartesian(cx, cy, r - len, angle);
@@ -118,8 +205,22 @@ export function RadialTick({ cx = CX, cy = CY, r, len, angle, color = INK, opaci
 }
 
 /** Thin hand with a short tail, ending in a hollow hub. */
-export function Hand({ cx = CX, cy = CY, angle, length, tail = 14, color, hub = 4 }: {
-  cx?: number; cy?: number; angle: number; length: number; tail?: number; color: string; hub?: number;
+export function Hand({
+  cx = CX,
+  cy = CY,
+  angle,
+  length,
+  tail = 14,
+  color,
+  hub = 4,
+}: {
+  cx?: number;
+  cy?: number;
+  angle: number;
+  length: number;
+  tail?: number;
+  color: string;
+  hub?: number;
 }) {
   const tip = polarToCartesian(cx, cy, length, angle);
   const back = polarToCartesian(cx, cy, -tail, angle);
@@ -151,8 +252,12 @@ function Strip({ palette, burnKcal, distKm, intakeKcal }: Omit<FrameProps, 'chil
       <Line x1={40} y1={228} x2={200} y2={228} color={INK} opacity={0.25} />
       {items.map((it) => (
         <React.Fragment key={it.unit}>
-          <Txt x={it.x} y={240} size={15} weight={500} color={it.color}>{it.value}</Txt>
-          <Txt x={it.x} y={256} size={9} color={MUTED} spacing="0.16em">{it.unit}</Txt>
+          <Txt x={it.x} y={240} size={15} weight={500} color={it.color}>
+            {it.value}
+          </Txt>
+          <Txt x={it.x} y={256} size={9} color={MUTED} spacing="0.16em">
+            {it.unit}
+          </Txt>
         </React.Fragment>
       ))}
     </>
@@ -161,7 +266,13 @@ function Strip({ palette, burnKcal, distKm, intakeKcal }: Omit<FrameProps, 'chil
 
 export function DialFrame({ children, ...strip }: FrameProps) {
   return (
-    <svg width={224} height={252} viewBox="0 0 240 270" className="block max-w-full mx-auto select-none pointer-events-none" aria-hidden="true">
+    <svg
+      width={224}
+      height={252}
+      viewBox="0 0 240 270"
+      className="block max-w-full mx-auto select-none pointer-events-none"
+      aria-hidden="true"
+    >
       {children}
       <Strip {...strip} />
     </svg>

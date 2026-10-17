@@ -40,13 +40,9 @@ export interface PhotoCompressOptions {
  */
 export async function compressPhoto(
   fileOrBlob: File | Blob,
-  options: PhotoCompressOptions = {}
+  options: PhotoCompressOptions = {},
 ): Promise<CompressedMediaResult> {
-  const {
-    maxDimension = 1280,
-    quality = 0.82,
-    format = 'image/webp',
-  } = options;
+  const { maxDimension = 1280, quality = 0.82, format = 'image/webp' } = options;
 
   const originalSizeBytes = fileOrBlob.size;
 
@@ -100,21 +96,25 @@ export async function compressPhoto(
                 finish(fallbackBlob);
               },
               'image/jpeg',
-              quality
+              quality,
             );
             return;
           }
           finish(blob);
         },
         format,
-        quality
+        quality,
       );
 
       function finish(blob: Blob) {
         const compressedSizeBytes = blob.size;
-        const savingsPercent = originalSizeBytes > 0
-          ? Math.max(0, Math.round(((originalSizeBytes - compressedSizeBytes) / originalSizeBytes) * 100))
-          : 0;
+        const savingsPercent =
+          originalSizeBytes > 0
+            ? Math.max(
+                0,
+                Math.round(((originalSizeBytes - compressedSizeBytes) / originalSizeBytes) * 100),
+              )
+            : 0;
 
         const compressedUrl = URL.createObjectURL(blob);
 
@@ -147,7 +147,7 @@ export async function compressPhoto(
  */
 async function extractVideoPoster(
   videoFileOrUrl: File | string,
-  timeSecs: number = 0.5
+  timeSecs: number = 0.5,
 ): Promise<{ thumbnailUrl: string; width: number; height: number; duration: number }> {
   return new Promise((resolve, reject) => {
     const video = document.createElement('video');
@@ -155,7 +155,8 @@ async function extractVideoPoster(
     video.muted = true;
     video.playsInline = true;
 
-    const url = typeof videoFileOrUrl === 'string' ? videoFileOrUrl : URL.createObjectURL(videoFileOrUrl);
+    const url =
+      typeof videoFileOrUrl === 'string' ? videoFileOrUrl : URL.createObjectURL(videoFileOrUrl);
 
     let isResolved = false;
 
@@ -191,7 +192,8 @@ async function extractVideoPoster(
         const ctx = canvas.getContext('2d');
         if (ctx) {
           ctx.drawImage(video, 0, 0, pWidth, pHeight);
-          const thumbUrl = canvas.toDataURL('image/webp', 0.8) || canvas.toDataURL('image/jpeg', 0.8);
+          const thumbUrl =
+            canvas.toDataURL('image/webp', 0.8) || canvas.toDataURL('image/jpeg', 0.8);
           if (typeof videoFileOrUrl !== 'string') URL.revokeObjectURL(url);
           resolve({ thumbnailUrl: thumbUrl, width, height, duration: video.duration || 0 });
           return;
@@ -231,7 +233,7 @@ export interface VideoCompressOptions {
  */
 export async function compressVideo(
   videoFile: File,
-  options: VideoCompressOptions = {}
+  options: VideoCompressOptions = {},
 ): Promise<CompressedMediaResult> {
   const originalSizeBytes = videoFile.size;
   const onProgress = options.onProgress;
@@ -250,18 +252,19 @@ export async function compressVideo(
   const targetBitrateBytesPerSec = 280 * 1024; // ~2.2 Mbps
   const estimatedTargetSize = Math.min(
     originalSizeBytes * 0.12, // at least 88% reduction for raw mobile files
-    targetDurationSecs * targetBitrateBytesPerSec
+    targetDurationSecs * targetBitrateBytesPerSec,
   );
 
   // Clamp compressed size to realistic mobile reel bounds (e.g. 1.2 MB - 3.8 MB)
   const compressedSizeBytes = Math.max(
     Math.round(originalSizeBytes * 0.08),
-    Math.min(originalSizeBytes, Math.round(estimatedTargetSize))
+    Math.min(originalSizeBytes, Math.round(estimatedTargetSize)),
   );
 
-  const savingsPercent = originalSizeBytes > compressedSizeBytes
-    ? Math.round(((originalSizeBytes - compressedSizeBytes) / originalSizeBytes) * 100)
-    : 0;
+  const savingsPercent =
+    originalSizeBytes > compressedSizeBytes
+      ? Math.round(((originalSizeBytes - compressedSizeBytes) / originalSizeBytes) * 100)
+      : 0;
 
   if (onProgress) onProgress(90);
 

@@ -28,9 +28,10 @@ export function dayHeading(selected: Date, today: Date): string {
 
 export function part(value: number | null | undefined, suffix: string, digits = 0): string | null {
   if (value == null || !Number.isFinite(value) || value <= 0) return null;
-  const shown = digits > 0
-    ? String(Math.round(value * 10 ** digits) / 10 ** digits)
-    : Math.round(value).toLocaleString();
+  const shown =
+    digits > 0
+      ? String(Math.round(value * 10 ** digits) / 10 ** digits)
+      : Math.round(value).toLocaleString();
   return `${shown}${suffix}`;
 }
 
@@ -55,7 +56,9 @@ export function cleanWorkout(rec?: WorkoutDayRecord): WorkoutDayRecord | undefin
 
 export function cleanCardio(rec?: CardioDayRecord): CardioDayRecord | undefined {
   if (!rec?.hasData) return undefined;
-  const stepShadow = /step/i.test(rec.activityType || '') && (rec.avgHeartRateBpm === 135 || rec.avgHeartRateBpm === 142);
+  const stepShadow =
+    /step/i.test(rec.activityType || '') &&
+    (rec.avgHeartRateBpm === 135 || rec.avgHeartRateBpm === 142);
   if (stepShadow) {
     return {
       ...rec,
@@ -68,7 +71,10 @@ export function cleanCardio(rec?: CardioDayRecord): CardioDayRecord | undefined 
     };
   }
   const guessedZone = Math.round((rec.durationMinutes || 0) * 0.75);
-  const fillerHr = [135, 138, 142].includes(rec.avgHeartRateBpm) && rec.zone2Minutes === guessedZone && guessedZone > 0;
+  const fillerHr =
+    [135, 138, 142].includes(rec.avgHeartRateBpm) &&
+    rec.zone2Minutes === guessedZone &&
+    guessedZone > 0;
   return {
     ...rec,
     avgHeartRateBpm: fillerHr ? 0 : rec.avgHeartRateBpm || 0,
@@ -78,13 +84,20 @@ export function cleanCardio(rec?: CardioDayRecord): CardioDayRecord | undefined 
 
 export function cleanNutrition(rec?: NutritionDayRecord): NutritionDayRecord | undefined {
   if (!rec?.hasData) return undefined;
-  const poison = rec.calorieTarget === 2200 && rec.proteinTargetG === 165 && rec.carbsTargetG === 250 && rec.fatsTargetG === 60;
+  const poison =
+    rec.calorieTarget === 2200 &&
+    rec.proteinTargetG === 165 &&
+    rec.carbsTargetG === 250 &&
+    rec.fatsTargetG === 60;
   if (!poison) return rec;
   return { ...rec, calorieTarget: 0, proteinTargetG: 0, carbsTargetG: 0, fatsTargetG: 0 };
 }
 
 export function sessionKg(rec?: WorkoutDayRecord): number {
-  const fromSets = (rec?.exercises || []).reduce((sum, lift) => sum + setWorkKg(knownSets(lift)), 0);
+  const fromSets = (rec?.exercises || []).reduce(
+    (sum, lift) => sum + setWorkKg(knownSets(lift)),
+    0,
+  );
   if (fromSets > 0) return fromSets;
   return rec?.tonnageKg || 0;
 }
@@ -103,7 +116,8 @@ export function workoutLine(rec?: WorkoutDayRecord): string {
 export function readableSteps(rec?: CardioDayRecord, steps = 0): number {
   const raw = Number(rec?.steps ?? steps);
   if (!Number.isFinite(raw) || raw <= 0) return 0;
-  const hasSession = (rec?.distanceKm || 0) > 0 || (rec?.durationMinutes || 0) > 0 || (rec?.burnedKcal || 0) > 0;
+  const hasSession =
+    (rec?.distanceKm || 0) > 0 || (rec?.durationMinutes || 0) > 0 || (rec?.burnedKcal || 0) > 0;
   if (raw === 1 && !hasSession) return 0;
   return raw;
 }
@@ -132,10 +146,7 @@ export function foodLine(rec?: NutritionDayRecord): string {
 }
 
 export function sleepLine(rec?: SleepDayRecord): string {
-  return line([
-    part(rec?.durationHours, ' h', 1),
-    part(rec?.recoveryPercent, '% recovery'),
-  ]);
+  return line([part(rec?.durationHours, ' h', 1), part(rec?.recoveryPercent, '% recovery')]);
 }
 
 export function mindfulLine(rec?: MeditationDayRecord): string {
@@ -163,7 +174,11 @@ function headlineFrom(candidates: Candidate[], extras: Array<string | null> = []
   const rest = candidates
     .filter((candidate) => candidate !== lead && candidate.value)
     .map((candidate) => candidate.inCaption ?? `${candidate.value} ${candidate.unit}`);
-  return { value: lead.value, unit: lead.unit, caption: [...rest, ...extras].filter(Boolean).join(' · ') };
+  return {
+    value: lead.value,
+    unit: lead.unit,
+    caption: [...rest, ...extras].filter(Boolean).join(' · '),
+  };
 }
 
 export function workoutHeadline(rec?: WorkoutDayRecord): Headline | null {
@@ -172,17 +187,24 @@ export function workoutHeadline(rec?: WorkoutDayRecord): Headline | null {
     { value: part(sessionKg(rec), ''), unit: 'kg' },
     { value: part(rec.completedSets, ''), unit: 'sets' },
     { value: part(rec.durationMinutes, ''), unit: 'min' },
-    { value: part(rec.burnedKcal, ''), unit: 'kcal', inCaption: `${part(rec.burnedKcal, '')} kcal active` },
+    {
+      value: part(rec.burnedKcal, ''),
+      unit: 'kcal',
+      inCaption: `${part(rec.burnedKcal, '')} kcal active`,
+    },
   ]);
 }
 
 export function cardioHeadline(rec?: CardioDayRecord, steps = 0): Headline | null {
-  return headlineFrom([
-    { value: part(rec?.distanceKm, '', 1), unit: 'km' },
-    { value: part(rec?.durationMinutes, ''), unit: 'min' },
-    { value: part(rec?.burnedKcal, ''), unit: 'kcal' },
-    { value: part(readableSteps(rec, steps), ''), unit: 'steps' },
-  ], [stepKcalText(rec) ? `${stepKcalText(rec)} kcal` : null]);
+  return headlineFrom(
+    [
+      { value: part(rec?.distanceKm, '', 1), unit: 'km' },
+      { value: part(rec?.durationMinutes, ''), unit: 'min' },
+      { value: part(rec?.burnedKcal, ''), unit: 'kcal' },
+      { value: part(readableSteps(rec, steps), ''), unit: 'steps' },
+    ],
+    [stepKcalText(rec) ? `${stepKcalText(rec)} kcal` : null],
+  );
 }
 
 export function foodHeadline(rec?: NutritionDayRecord): Headline | null {

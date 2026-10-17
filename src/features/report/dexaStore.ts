@@ -56,7 +56,13 @@ export function readDexaScans(): DexaScan[] {
     const parsed = JSON.parse(raw) as unknown;
     if (!Array.isArray(parsed)) return [];
     return (parsed as DexaScan[])
-      .filter((s) => s && typeof s.id === 'string' && typeof s.date === 'string' && Number.isFinite(s.bodyFatPct))
+      .filter(
+        (s) =>
+          s &&
+          typeof s.id === 'string' &&
+          typeof s.date === 'string' &&
+          Number.isFinite(s.bodyFatPct),
+      )
       .sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
   } catch {
     return [];

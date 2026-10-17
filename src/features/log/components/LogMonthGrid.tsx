@@ -20,15 +20,27 @@ interface LogMonthGridProps {
 
 const HEAD = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
 
-export const LogMonthGrid: React.FC<LogMonthGridProps> = ({ leading, days, selectedDateStr, onSelectDate }) => {
+export const LogMonthGrid: React.FC<LogMonthGridProps> = ({
+  leading,
+  days,
+  selectedDateStr,
+  onSelectDate,
+}) => {
   const trainedCount = days.filter((d) => d.trained).length;
   return (
     <div className="space-y-1.5">
       <div className="grid grid-cols-7 gap-1 pt-1">
         {HEAD.map((h, i) => (
-          <span key={i} className="text-center text-[10px] font-bold uppercase tracking-[0.12em] text-white">{h}</span>
+          <span
+            key={i}
+            className="text-center text-[10px] font-bold uppercase tracking-[0.12em] text-white"
+          >
+            {h}
+          </span>
         ))}
-        {Array.from({ length: leading }, (_, i) => <span key={`pad-${i}`} />)}
+        {Array.from({ length: leading }, (_, i) => (
+          <span key={`pad-${i}`} />
+        ))}
         {days.map((item) => {
           const isSelected = selectedDateStr === item.dateStr;
           return (
@@ -43,12 +55,18 @@ export const LogMonthGrid: React.FC<LogMonthGridProps> = ({ leading, days, selec
                 onSelectDate(item.dateStr);
               }}
               className={`flex flex-col items-center justify-center gap-0.5 h-10 rounded-xl border transition-colors cursor-pointer disabled:cursor-default disabled:opacity-30 ${
-                isSelected ? 'bg-o1-sheet border-white/[0.14]' : 'bg-transparent border-transparent hover:bg-white/[0.03]'
+                isSelected
+                  ? 'bg-o1-sheet border-white/[0.14]'
+                  : 'bg-transparent border-transparent hover:bg-white/[0.03]'
               }`}
             >
               <span
                 className={`font-mono text-[13px] leading-none ${
-                  item.trained ? 'font-semibold text-[#10b981]' : item.isToday ? 'text-[#C4121A]' : 'text-o1-text'
+                  item.trained
+                    ? 'font-semibold text-[#10b981]'
+                    : item.isToday
+                      ? 'text-[#C4121A]'
+                      : 'text-o1-text'
                 }`}
               >
                 {item.dayNum}
@@ -58,10 +76,9 @@ export const LogMonthGrid: React.FC<LogMonthGridProps> = ({ leading, days, selec
         })}
       </div>
       <div className="text-[10px] text-o1-muted px-0.5">
-        {trainedCount} workout day{trainedCount === 1 ? '' : 's'} <span className="text-[#10b981]">in green</span>
+        {trainedCount} workout day{trainedCount === 1 ? '' : 's'}{' '}
+        <span className="text-[#10b981]">in green</span>
       </div>
     </div>
   );
 };
-
-

@@ -17,7 +17,13 @@ interface CoachNearbySheetProps {
 }
 
 /** A coach from the Buddy strip: their offer, a one-tap free intro request, and their full profile. */
-export const CoachNearbySheet: React.FC<CoachNearbySheetProps> = ({ coach, viewerId, viewerName, onClose, onToast }) => {
+export const CoachNearbySheet: React.FC<CoachNearbySheetProps> = ({
+  coach,
+  viewerId,
+  viewerName,
+  onClose,
+  onToast,
+}) => {
   const openFullEliteReels = useModalStore((s) => s.openFullEliteReels);
   const [intro, setIntro] = useState<IntroState>('idle');
 
@@ -38,9 +44,15 @@ export const CoachNearbySheet: React.FC<CoachNearbySheetProps> = ({ coach, viewe
   if (!coach) return null;
   const isSelf = coach.id === viewerId;
   const stats = [
-    { label: coach.reviewCount > 0 ? `${coach.reviewCount} reviews` : 'Rating', value: coach.rating != null ? `★ ${coach.rating.toFixed(1)}` : '--' },
+    {
+      label: coach.reviewCount > 0 ? `${coach.reviewCount} reviews` : 'Rating',
+      value: coach.rating != null ? `★ ${coach.rating.toFixed(1)}` : '--',
+    },
     { label: 'Years', value: coach.years != null ? String(coach.years) : '--' },
-    { label: 'Spots', value: !coach.accepting ? 'Full' : coach.capacity != null ? String(coach.capacity) : '--' },
+    {
+      label: 'Spots',
+      value: !coach.accepting ? 'Full' : coach.capacity != null ? String(coach.capacity) : '--',
+    },
   ];
   const where = [coach.gym, coachDistanceLabel(coach.distanceKm)].filter(Boolean).join(' · ');
   const price = coachPriceLabel(coach.monthlyPriceCents);
@@ -66,33 +78,58 @@ export const CoachNearbySheet: React.FC<CoachNearbySheetProps> = ({ coach, viewe
   };
 
   const introLabel =
-    intro === 'sending' ? 'Sending…'
-      : intro === 'sent' || intro === 'pending' ? 'Request sent'
-      : intro === 'accepted' ? 'You train with this coach'
-      : !coach.accepting ? 'Not taking new clients'
-      : 'Free intro session';
+    intro === 'sending'
+      ? 'Sending…'
+      : intro === 'sent' || intro === 'pending'
+        ? 'Request sent'
+        : intro === 'accepted'
+          ? 'You train with this coach'
+          : !coach.accepting
+            ? 'Not taking new clients'
+            : 'Free intro session';
 
   return (
-    <div className="fixed inset-0 z-[90] flex items-end justify-center bg-black/80 sm:items-center" role="dialog" aria-modal="true" aria-label={`${coach.name}, coach`} onClick={onClose}>
+    <div
+      className="fixed inset-0 z-[90] flex items-end justify-center bg-black/80 sm:items-center"
+      role="dialog"
+      aria-modal="true"
+      aria-label={`${coach.name}, coach`}
+      onClick={onClose}
+    >
       <div
         className="w-full max-w-md space-y-4 rounded-t-2xl border border-white/[0.07] bg-o1-sheet p-4 pb-[calc(env(safe-area-inset-bottom)+1rem)] sm:rounded-2xl"
         onClick={(event) => event.stopPropagation()}
       >
         <div className="flex items-start gap-3">
           <span className="h-20 w-20 shrink-0 overflow-hidden rounded-2xl border border-white/[0.07] bg-o1-surface">
-            {coach.photo ? <img src={coach.photo} alt="" className="h-full w-full object-cover" /> : null}
+            {coach.photo ? (
+              <img src={coach.photo} alt="" className="h-full w-full object-cover" />
+            ) : null}
           </span>
           <div className="min-w-0 flex-1 space-y-0.5">
             <div className="flex items-center gap-1.5">
               <h2 className="truncate text-[16px] font-semibold text-o1-text">{coach.name}</h2>
               <CoachPill />
             </div>
-            {coach.handle ? <p className="truncate text-[12px] text-o1-muted">{coach.handle.startsWith('@') ? coach.handle : `@${coach.handle}`}</p> : null}
-            {coach.discipline ? <p className="text-[13px] text-o1-text">{coach.discipline}</p> : null}
+            {coach.handle ? (
+              <p className="truncate text-[12px] text-o1-muted">
+                {coach.handle.startsWith('@') ? coach.handle : `@${coach.handle}`}
+              </p>
+            ) : null}
+            {coach.discipline ? (
+              <p className="text-[13px] text-o1-text">{coach.discipline}</p>
+            ) : null}
             {where ? <p className="truncate text-[12px] text-o1-muted">{where}</p> : null}
-            {coach.sameGym && !isSelf ? <p className="text-[12px] font-semibold text-o1-crimson">Trains at your gym</p> : null}
+            {coach.sameGym && !isSelf ? (
+              <p className="text-[12px] font-semibold text-o1-crimson">Trains at your gym</p>
+            ) : null}
           </div>
-          <button type="button" onClick={onClose} aria-label="Close" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/[0.07] text-o1-muted active:scale-95">
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/[0.07] text-o1-muted active:scale-95"
+          >
             <X size={16} />
           </button>
         </div>
@@ -118,7 +155,9 @@ export const CoachNearbySheet: React.FC<CoachNearbySheetProps> = ({ coach, viewe
               {introLabel}
             </button>
           ) : (
-            <p className="text-center text-[12px] text-o1-muted">This is how athletes nearby see you.</p>
+            <p className="text-center text-[12px] text-o1-muted">
+              This is how athletes nearby see you.
+            </p>
           )}
           <button
             type="button"

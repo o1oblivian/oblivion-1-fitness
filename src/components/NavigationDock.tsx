@@ -42,7 +42,8 @@ export const NavigationDock: React.FC<NavigationDockProps> = ({ currentMode, onS
       <div className="w-full flex items-center justify-around h-full">
         {TABS.map((tab) => {
           const Icon = tab.icon;
-          const isActive = currentMode === tab.id || (tab.id === 'tracker' && currentMode === 'workout');
+          const isActive =
+            currentMode === tab.id || (tab.id === 'tracker' && currentMode === 'workout');
           const isBuddy = tab.isBuddy;
 
           return (
@@ -52,7 +53,10 @@ export const NavigationDock: React.FC<NavigationDockProps> = ({ currentMode, onS
               data-dock-tab={tab.id}
               type="button"
               onClick={() => {
-                if (currentMode !== tab.id && !(tab.id === 'tracker' && currentMode === 'workout')) {
+                if (
+                  currentMode !== tab.id &&
+                  !(tab.id === 'tracker' && currentMode === 'workout')
+                ) {
                   tactileEngine.triggerSelectionBuzz();
                   onSelectTab(tab.id);
                 }
@@ -96,4 +100,3 @@ export const NavigationDock: React.FC<NavigationDockProps> = ({ currentMode, onS
     </nav>
   );
 };
-

@@ -4,7 +4,11 @@ import { ExploreCoach } from '../../reelTypes';
 import { tactileEngine } from '../../../../services/tactileEngine';
 import { useConsultationStore } from '../../../induction/useConsultationStore';
 import { INTAKE_TITLES, optionsIn, useClubTaxonomy } from '../../../induction/useClubTaxonomyStore';
-import { CoachingApplication, StorefrontProgram, StorefrontStats } from '../../services/coachStorefront';
+import {
+  CoachingApplication,
+  StorefrontProgram,
+  StorefrontStats,
+} from '../../services/coachStorefront';
 import { priceLabel } from './CoachProgramsTab';
 
 interface CoachConsultTabProps {
@@ -45,8 +49,13 @@ export const CoachConsultTab: React.FC<CoachConsultTabProps> = ({
   const [paying, setPaying] = useState(false);
 
   const intake = useMemo(() => {
-    const label = (group: string, key: string) => optionsIn(taxonomy, group).find((row) => row.optionKey === key)?.label || '';
-    const labels = (group: string, keys: readonly string[]) => keys.map((key) => label(group, key)).filter(Boolean).join(', ');
+    const label = (group: string, key: string) =>
+      optionsIn(taxonomy, group).find((row) => row.optionKey === key)?.label || '';
+    const labels = (group: string, keys: readonly string[]) =>
+      keys
+        .map((key) => label(group, key))
+        .filter(Boolean)
+        .join(', ');
     const rows: Record<string, string> = {
       [INTAKE_TITLES.age_band]: label('age_band', profile.ageBand),
       [INTAKE_TITLES.goal]: label('goal', profile.goal),
@@ -55,22 +64,43 @@ export const CoachConsultTab: React.FC<CoachConsultTabProps> = ({
       [INTAKE_TITLES.coaching_intent]: label('coaching_intent', profile.coachingIntent),
       [INTAKE_TITLES.coaching_style]: label('coaching_style', profile.coachingStyle),
       [INTAKE_TITLES.facility]: labels('facility', profile.facilities),
-      [INTAKE_TITLES.training_days]: profile.trainingDays.length > 0 ? profile.trainingDays.join(', ') : profile.frequencyDays ? `${profile.frequencyDays} days` : '',
+      [INTAKE_TITLES.training_days]:
+        profile.trainingDays.length > 0
+          ? profile.trainingDays.join(', ')
+          : profile.frequencyDays
+            ? `${profile.frequencyDays} days`
+            : '',
       [INTAKE_TITLES.session_length]: label('session_length', String(profile.sessionMinutes || '')),
-      [INTAKE_TITLES.injuries]: labels('injuries', profile.injuries.filter((key) => key !== 'none')),
+      [INTAKE_TITLES.injuries]: labels(
+        'injuries',
+        profile.injuries.filter((key) => key !== 'none'),
+      ),
       [INTAKE_TITLES.competition]: profile.competitionDate,
     };
     return Object.fromEntries(Object.entries(rows).filter(([, value]) => value));
   }, [taxonomy, profile]);
 
   const coachingQuestions = [
-    { group: 'coaching_intent', prompt: 'How do you want to be coached?', value: profile.coachingIntent, field: 'coachingIntent' },
-    { group: 'coaching_style', prompt: 'What feedback works best for you?', value: profile.coachingStyle, field: 'coachingStyle' },
+    {
+      group: 'coaching_intent',
+      prompt: 'How do you want to be coached?',
+      value: profile.coachingIntent,
+      field: 'coachingIntent',
+    },
+    {
+      group: 'coaching_style',
+      prompt: 'What feedback works best for you?',
+      value: profile.coachingStyle,
+      field: 'coachingStyle',
+    },
   ] as const;
 
   const firstName = coach.name.split(' ')[0] || coach.name;
   const monthly = priceLabel(stats.monthlyPriceCents);
-  const spots = stats.capacity != null && stats.athletes != null ? Math.max(0, stats.capacity - stats.athletes) : null;
+  const spots =
+    stats.capacity != null && stats.athletes != null
+      ? Math.max(0, stats.capacity - stats.athletes)
+      : null;
   const canApply = !isOwn && (!application || application.status === 'declined');
 
   return (
@@ -92,7 +122,11 @@ export const CoachConsultTab: React.FC<CoachConsultTabProps> = ({
       <section className="space-y-1 rounded-2xl border border-white/[0.07] bg-o1-surface p-4">
         <div className="flex items-baseline justify-between gap-2">
           <h3 className="text-[15px] font-semibold text-o1-text">1:1 coaching</h3>
-          {monthly ? <span className="tabular-nums text-[14px] font-semibold text-o1-text">{monthly}/mo</span> : null}
+          {monthly ? (
+            <span className="tabular-nums text-[14px] font-semibold text-o1-text">
+              {monthly}/mo
+            </span>
+          ) : null}
         </div>
         <p className="text-[12px] text-o1-muted">
           Programming, form reviews, and check-ins from {firstName}.
@@ -106,7 +140,11 @@ export const CoachConsultTab: React.FC<CoachConsultTabProps> = ({
         </p>
       ) : null}
 
-      {!isOwn && onPay && application?.status === 'accepted' && monthly && stats.monthlyPriceCents ? (
+      {!isOwn &&
+      onPay &&
+      application?.status === 'accepted' &&
+      monthly &&
+      stats.monthlyPriceCents ? (
         <button
           type="button"
           disabled={paying}
@@ -125,7 +163,9 @@ export const CoachConsultTab: React.FC<CoachConsultTabProps> = ({
       {canApply && (
         <section className="space-y-3 rounded-2xl border border-white/[0.07] bg-o1-surface p-4">
           <h3 className="text-[15px] font-semibold text-o1-text">Book a consultation</h3>
-          {application?.status === 'declined' ? <p className="text-[12px] text-o1-muted">{STATUS_COPY.declined}</p> : null}
+          {application?.status === 'declined' ? (
+            <p className="text-[12px] text-o1-muted">{STATUS_COPY.declined}</p>
+          ) : null}
           {Object.keys(intake).length > 0 ? (
             <dl className="grid grid-cols-2 gap-x-3 gap-y-2">
               {Object.entries(intake).map(([title, value]) => (
@@ -136,7 +176,9 @@ export const CoachConsultTab: React.FC<CoachConsultTabProps> = ({
               ))}
             </dl>
           ) : (
-            <p className="text-[12px] text-o1-muted">Your intake answers will appear here once induction is done.</p>
+            <p className="text-[12px] text-o1-muted">
+              Your intake answers will appear here once induction is done.
+            </p>
           )}
           {coachingQuestions.map(({ group, prompt, value, field }) => (
             <div key={group} className="space-y-1.5">
@@ -167,7 +209,11 @@ export const CoachConsultTab: React.FC<CoachConsultTabProps> = ({
           {program ? (
             <div className="flex items-center justify-between gap-2 rounded-xl bg-black px-3 py-2">
               <span className="truncate text-[13px] text-o1-text">Program: {program.title}</span>
-              <button type="button" onClick={onClearProgram} className="h-[44px] shrink-0 px-2 text-[12px] text-o1-muted">
+              <button
+                type="button"
+                onClick={onClearProgram}
+                className="h-[44px] shrink-0 px-2 text-[12px] text-o1-muted"
+              >
                 Remove
               </button>
             </div>

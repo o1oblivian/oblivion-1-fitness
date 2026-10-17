@@ -59,7 +59,10 @@ export const PrivacyStealthModal: React.FC<Props> = ({ isOpen, onClose, onSaved 
           </div>
           <button
             type="button"
-            onClick={() => { tactileEngine.triggerSelectionBuzz(); onClose(); }}
+            onClick={() => {
+              tactileEngine.triggerSelectionBuzz();
+              onClose();
+            }}
             className="w-8 h-8 rounded-full bg-o1-well hover:bg-white/[0.06] border border-white/[0.07] flex items-center justify-center text-neutral-400 hover:text-white active:scale-95 transition-all cursor-pointer"
             aria-label="Close"
           >
@@ -84,8 +87,12 @@ export const PrivacyStealthModal: React.FC<Props> = ({ isOpen, onClose, onSaved 
                     <Icon className="w-4 h-4" />
                   </span>
                   <span className="space-y-0.5 min-w-0">
-                    <span className="block text-xs font-semibold text-white tracking-wide font-tactical">{row.title}</span>
-                    <span className="block text-[11px] text-neutral-400 leading-snug">{row.desc}</span>
+                    <span className="block text-xs font-semibold text-white tracking-wide font-tactical">
+                      {row.title}
+                    </span>
+                    <span className="block text-[11px] text-neutral-400 leading-snug">
+                      {row.desc}
+                    </span>
                   </span>
                 </span>
                 <span
@@ -106,7 +113,10 @@ export const PrivacyStealthModal: React.FC<Props> = ({ isOpen, onClose, onSaved 
 
         <button
           type="button"
-          onClick={() => { tactileEngine.triggerSelectionBuzz(); onClose(); }}
+          onClick={() => {
+            tactileEngine.triggerSelectionBuzz();
+            onClose();
+          }}
           className="w-full py-2.5 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover active:bg-o1-crimson-press text-white text-xs font-semibold tracking-wide active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer"
         >
           <Check className="w-4 h-4" />
@@ -116,5 +126,3 @@ export const PrivacyStealthModal: React.FC<Props> = ({ isOpen, onClose, onSaved 
     </div>
   );
 };
-
-

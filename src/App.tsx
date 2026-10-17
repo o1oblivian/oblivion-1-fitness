@@ -23,7 +23,9 @@ import { useModalStore } from './components/modals/useModalStore';
 
 /** safeStorage JSON-parses on read, so the stored "true" comes back as a boolean. */
 function onboardingCompleted(): boolean {
-  return ['o1fc_onboarding_completed', 'olfc_onboarding_completed'].some((key) => String(safeStorage.getItem(key)) === 'true');
+  return ['o1fc_onboarding_completed', 'olfc_onboarding_completed'].some(
+    (key) => String(safeStorage.getItem(key)) === 'true',
+  );
 }
 
 export default function App() {
@@ -59,9 +61,18 @@ export default function App() {
         const anchor = (e.target as HTMLElement)?.closest('a');
         if (!anchor) return;
         const href = anchor.getAttribute('href');
-        if (!href || href.startsWith('mailto:') || href.startsWith('tel:') || href.startsWith('blob:') || anchor.hasAttribute('download') || anchor.getAttribute('target') === '_blank') return;
+        if (
+          !href ||
+          href.startsWith('mailto:') ||
+          href.startsWith('tel:') ||
+          href.startsWith('blob:') ||
+          anchor.hasAttribute('download') ||
+          anchor.getAttribute('target') === '_blank'
+        )
+          return;
         let path = href;
-        if (path.startsWith(window.location.origin)) path = path.slice(window.location.origin.length);
+        if (path.startsWith(window.location.origin))
+          path = path.slice(window.location.origin.length);
         else if (path.startsWith('http://') || path.startsWith('https://')) return;
 
         e.preventDefault();
@@ -80,7 +91,7 @@ export default function App() {
       const handlePopState = () => {
         const raw = window.location.hash.replace(/^#\/?/, '').toLowerCase();
         if (raw) {
-          const target = (raw === 'dashboard' || raw === 'workout') ? 'tracker' : raw;
+          const target = raw === 'dashboard' || raw === 'workout' ? 'tracker' : raw;
           window.dispatchEvent(new CustomEvent('app_navigate_tab', { detail: target }));
         }
       };
@@ -109,11 +120,17 @@ export default function App() {
 
       const webHref = window.location.href;
       if (captureInviteFromUrl(webHref)) {
-        void import('./features/coach/services/coachBridge').then(({ acceptCoachInvite }) => acceptCoachInvite());
+        void import('./features/coach/services/coachBridge').then(({ acceptCoachInvite }) =>
+          acceptCoachInvite(),
+        );
         try {
           const cleaned = new URL(webHref);
           cleaned.searchParams.delete('invite');
-          window.history.replaceState({}, document.title, cleaned.pathname + cleaned.search + cleaned.hash);
+          window.history.replaceState(
+            {},
+            document.title,
+            cleaned.pathname + cleaned.search + cleaned.hash,
+          );
         } catch {
           /* ignore */
         }
@@ -123,7 +140,11 @@ export default function App() {
           const cleaned = new URL(window.location.href);
           cleaned.searchParams.delete('reel');
           cleaned.searchParams.delete('coach');
-          window.history.replaceState({}, document.title, cleaned.pathname + cleaned.search + cleaned.hash);
+          window.history.replaceState(
+            {},
+            document.title,
+            cleaned.pathname + cleaned.search + cleaned.hash,
+          );
         } catch {
           /* ignore */
         }
@@ -133,11 +154,17 @@ export default function App() {
         const cleaned = new URL(webHref);
         cleaned.searchParams.delete('checkout');
         cleaned.searchParams.delete('session_id');
-        window.history.replaceState({}, document.title, cleaned.pathname + cleaned.search + cleaned.hash);
+        window.history.replaceState(
+          {},
+          document.title,
+          cleaned.pathname + cleaned.search + cleaned.hash,
+        );
         if (checkoutResult === 'success') {
           window.dispatchEvent(new CustomEvent('app_navigate_tab', { detail: 'coach' }));
           void import('./features/reels/services/coachStorefront').then(({ PROGRAMS_EVENT }) => {
-            [2000, 6000].forEach((ms) => setTimeout(() => window.dispatchEvent(new CustomEvent(PROGRAMS_EVENT)), ms));
+            [2000, 6000].forEach((ms) =>
+              setTimeout(() => window.dispatchEvent(new CustomEvent(PROGRAMS_EVENT)), ms),
+            );
           });
         }
       }
@@ -160,13 +187,17 @@ export default function App() {
               if (!url) return;
               captureInviteFromUrl(url);
               captureReelLink(url);
-              void import('./features/coach/services/coachBridge').then(({ acceptCoachInvite }) => acceptCoachInvite());
+              void import('./features/coach/services/coachBridge').then(({ acceptCoachInvite }) =>
+                acceptCoachInvite(),
+              );
               await handleAuthUrl(url);
-            }).then((handle) => {
-              appUrlListenerHandle = handle;
-            }).catch((err) => {
-              console.warn('[App] appUrlOpen listener unavailable:', err);
-            });
+            })
+              .then((handle) => {
+                appUrlListenerHandle = handle;
+              })
+              .catch((err) => {
+                console.warn('[App] appUrlOpen listener unavailable:', err);
+              });
             // Android hardware back: close an open sheet first, then step back, and only then leave the app.
             // Registering this replaces the default behaviour, so all three cases are handled here.
             CapApp.addListener('backButton', ({ canGoBack }) => {
@@ -174,20 +205,26 @@ export default function App() {
               if (activeModal) closeModal();
               else if (canGoBack) window.history.back();
               else void CapApp.minimizeApp();
-            }).then((handle) => {
-              backButtonHandle = handle;
-            }).catch((err) => {
-              console.warn('[App] backButton listener unavailable:', err);
-            });
-            CapApp.getLaunchUrl().then((launch) => {
-              if (!launch?.url) return;
-              captureInviteFromUrl(launch.url);
-              captureReelLink(launch.url);
-              void import('./features/coach/services/coachBridge').then(({ acceptCoachInvite }) => acceptCoachInvite());
-              void handleAuthUrl(launch.url);
-            }).catch((err) => {
-              console.warn('[App] getLaunchUrl unavailable:', err);
-            });
+            })
+              .then((handle) => {
+                backButtonHandle = handle;
+              })
+              .catch((err) => {
+                console.warn('[App] backButton listener unavailable:', err);
+              });
+            CapApp.getLaunchUrl()
+              .then((launch) => {
+                if (!launch?.url) return;
+                captureInviteFromUrl(launch.url);
+                captureReelLink(launch.url);
+                void import('./features/coach/services/coachBridge').then(({ acceptCoachInvite }) =>
+                  acceptCoachInvite(),
+                );
+                void handleAuthUrl(launch.url);
+              })
+              .catch((err) => {
+                console.warn('[App] getLaunchUrl unavailable:', err);
+              });
           })
           .catch((err) => {
             console.warn('[App] @capacitor/app skipped on web:', err);
@@ -217,49 +254,56 @@ export default function App() {
 
   return (
     <AppErrorBoundary>
-    <div className="min-h-screen w-full overflow-x-hidden relative bg-black">
-    <AuthProvider>
-      <SubscriptionProvider>
-        <MainAppLayout />
-        <ClubPassPaywallModal />
-        {!showOnboarding && !consultationLocked && <InductionProtocol />}
-        {showOnboarding && (
-          <OnboardingCoordinator
-            replay={onboardingReplay}
-            onComplete={() => {
-              setShowOnboarding(false);
-              setOnboardingReplay(false);
-            }}
-          />
-        )}
-        <PasswordRecoverySheet />
-        {signingOut && (
-          <div
-            role="status"
-            aria-live="polite"
-            className="fixed inset-0 z-[100000] flex flex-col items-center justify-center gap-3 bg-black text-o1-muted"
-          >
-            <Loader2 className="h-6 w-6 animate-spin" />
-            <span className="text-sm">Signing out</span>
-          </div>
-        )}
-        {membershipSuccessBanner && (
-          <div className="fixed top-[max(1rem,env(safe-area-inset-top))] left-1/2 -translate-x-1/2 z-50 w-full max-w-[420px] px-4 bg-o1-card border border-white/[0.07] rounded-2xl p-4 shadow-lg flex items-center justify-between gap-3 animate-in fade-in slide-in-from-top-4 duration-200">
-            <div className="flex items-center gap-2.5">
-              <CheckCircle2 className="w-5 h-5 text-zinc-300 shrink-0" />
-              <div>
-                <p className="text-xs font-tactical font-black text-white tracking-wider">Membership Activated</p>
-                <p className="text-[10px] font-mono text-zinc-400">Revenuecat IN-APP purchase verified</p>
+      <div className="min-h-screen w-full overflow-x-hidden relative bg-black">
+        <AuthProvider>
+          <SubscriptionProvider>
+            <MainAppLayout />
+            <ClubPassPaywallModal />
+            {!showOnboarding && !consultationLocked && <InductionProtocol />}
+            {showOnboarding && (
+              <OnboardingCoordinator
+                replay={onboardingReplay}
+                onComplete={() => {
+                  setShowOnboarding(false);
+                  setOnboardingReplay(false);
+                }}
+              />
+            )}
+            <PasswordRecoverySheet />
+            {signingOut && (
+              <div
+                role="status"
+                aria-live="polite"
+                className="fixed inset-0 z-[100000] flex flex-col items-center justify-center gap-3 bg-black text-o1-muted"
+              >
+                <Loader2 className="h-6 w-6 animate-spin" />
+                <span className="text-sm">Signing out</span>
               </div>
-            </div>
-            <button onClick={() => setMembershipSuccessBanner(false)} className="p-1 text-neutral-400 hover:text-white rounded-full cursor-pointer">
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-        )}
-      </SubscriptionProvider>
-    </AuthProvider>
-    </div>
+            )}
+            {membershipSuccessBanner && (
+              <div className="fixed top-[max(1rem,env(safe-area-inset-top))] left-1/2 -translate-x-1/2 z-50 w-full max-w-[420px] px-4 bg-o1-card border border-white/[0.07] rounded-2xl p-4 shadow-lg flex items-center justify-between gap-3 animate-in fade-in slide-in-from-top-4 duration-200">
+                <div className="flex items-center gap-2.5">
+                  <CheckCircle2 className="w-5 h-5 text-zinc-300 shrink-0" />
+                  <div>
+                    <p className="text-xs font-tactical font-black text-white tracking-wider">
+                      Membership Activated
+                    </p>
+                    <p className="text-[10px] font-mono text-zinc-400">
+                      Revenuecat IN-APP purchase verified
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setMembershipSuccessBanner(false)}
+                  className="p-1 text-neutral-400 hover:text-white rounded-full cursor-pointer"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            )}
+          </SubscriptionProvider>
+        </AuthProvider>
+      </div>
     </AppErrorBoundary>
   );
 }

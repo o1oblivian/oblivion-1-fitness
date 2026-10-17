@@ -1,6 +1,9 @@
 import { Capacitor } from '@capacitor/core';
 import type { Weekday } from '@capacitor/local-notifications';
-import { readAthleteSettingsSnapshot, type AthleteSettingsSnapshot } from '../utils/athleteSettingsSnapshot';
+import {
+  readAthleteSettingsSnapshot,
+  type AthleteSettingsSnapshot,
+} from '../utils/athleteSettingsSnapshot';
 import { safeStorage } from '../utils/safeStorage';
 
 /** Reminders are scheduled by the phone itself. Nothing is sent to a server. */
@@ -39,13 +42,16 @@ export const DEFAULT_REMINDERS: ReminderConfig = {
 
 export function readReminderConfig(): ReminderConfig {
   const saved = safeStorage.getItem<Record<string, unknown> | null>(REMINDERS_KEY, null) || {};
-  const time = (value: unknown, fallback: string) => (typeof value === 'string' && HHMM.test(value) ? value : fallback);
+  const time = (value: unknown, fallback: string) =>
+    typeof value === 'string' && HHMM.test(value) ? value : fallback;
   const hours = Math.round(Number(saved.hydrationHours));
   return {
     workoutTime: time(saved.workoutTime, DEFAULT_REMINDERS.workoutTime),
-    recoveryOn: typeof saved.recoveryOn === 'boolean' ? saved.recoveryOn : DEFAULT_REMINDERS.recoveryOn,
+    recoveryOn:
+      typeof saved.recoveryOn === 'boolean' ? saved.recoveryOn : DEFAULT_REMINDERS.recoveryOn,
     recoveryTime: time(saved.recoveryTime, DEFAULT_REMINDERS.recoveryTime),
-    hydrationOn: typeof saved.hydrationOn === 'boolean' ? saved.hydrationOn : DEFAULT_REMINDERS.hydrationOn,
+    hydrationOn:
+      typeof saved.hydrationOn === 'boolean' ? saved.hydrationOn : DEFAULT_REMINDERS.hydrationOn,
     hydrationHours: hours >= 1 && hours <= 4 ? hours : DEFAULT_REMINDERS.hydrationHours,
     selectedDays: Array.isArray(saved.selectedDays)
       ? REMINDER_DAYS.filter((day) => (saved.selectedDays as unknown[]).includes(day))
@@ -103,10 +109,19 @@ export function planReminders(
   }
   if (config.recoveryOn) {
     const at = minutesOf(config.recoveryTime);
-    plan.push({ id: ID_MIN + 100, body: 'Wind down. Log your sleep and how you feel.', hour: Math.floor(at / 60), minute: at % 60 });
+    plan.push({
+      id: ID_MIN + 100,
+      body: 'Wind down. Log your sleep and how you feel.',
+      hour: Math.floor(at / 60),
+      minute: at % 60,
+    });
   }
   if (config.hydrationOn) {
-    for (let hour = HYDRATION_START_HOUR; hour <= HYDRATION_END_HOUR; hour += config.hydrationHours) {
+    for (
+      let hour = HYDRATION_START_HOUR;
+      hour <= HYDRATION_END_HOUR;
+      hour += config.hydrationHours
+    ) {
       plan.push({ id: ID_MIN + 200 + hour, body: 'Time for a glass of water.', hour, minute: 0 });
     }
   }
@@ -126,10 +141,17 @@ export async function reminderPermission(ask: boolean): Promise<ReminderPermissi
     if (Capacitor.isNativePlatform()) {
       const plugin = await nativePlugin();
       const status = ask ? await plugin.requestPermissions() : await plugin.checkPermissions();
-      return status.display === 'granted' ? 'granted' : status.display === 'denied' ? 'denied' : 'prompt';
+      return status.display === 'granted'
+        ? 'granted'
+        : status.display === 'denied'
+          ? 'denied'
+          : 'prompt';
     }
     if (typeof window === 'undefined' || !('Notification' in window)) return 'unsupported';
-    const state = ask && Notification.permission === 'default' ? await Notification.requestPermission() : Notification.permission;
+    const state =
+      ask && Notification.permission === 'default'
+        ? await Notification.requestPermission()
+        : Notification.permission;
     return state === 'granted' ? 'granted' : state === 'denied' ? 'denied' : 'prompt';
   } catch {
     return 'unsupported';
@@ -178,7 +200,12 @@ function nextOccurrence(item: PlannedReminder, now: Date): number {
 
 /** Browsers only show reminders while the app is open, so arm the next day's worth of timers. */
 function applyWeb(plan: PlannedReminder[]): number[] {
-  if (typeof window === 'undefined' || !('Notification' in window) || Notification.permission !== 'granted') return [];
+  if (
+    typeof window === 'undefined' ||
+    !('Notification' in window) ||
+    Notification.permission !== 'granted'
+  )
+    return [];
   const now = new Date();
   return plan.flatMap((item) => {
     const wait = nextOccurrence(item, now) - now.getTime();
@@ -207,10 +234,7 @@ function queueNative(plan: PlannedReminder[]): Promise<void> {
 /** Removes every reminder this app scheduled, e.g. on sign out. Never blocks sign-out if the plugin stalls. */
 export function clearReminders(): Promise<void> {
   if (!Capacitor.isNativePlatform()) return Promise.resolve();
-  return Promise.race([
-    queueNative([]),
-    new Promise<void>((resolve) => setTimeout(resolve, 1500)),
-  ]);
+  return Promise.race([queueNative([]), new Promise<void>((resolve) => setTimeout(resolve, 1500))]);
 }
 
 /** Keeps the phone's reminders in line with Settings for as long as the app shell is mounted. */

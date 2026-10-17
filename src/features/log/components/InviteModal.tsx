@@ -45,7 +45,13 @@ export const InviteModal: React.FC<InviteModalProps> = ({
       text: 'Train with me on Oblivion 1.',
       url: link,
     });
-    mark(result === 'shared' ? 'Share sheet opened.' : result === 'copied' ? 'Invite link copied.' : 'Share was cancelled.');
+    mark(
+      result === 'shared'
+        ? 'Share sheet opened.'
+        : result === 'copied'
+          ? 'Invite link copied.'
+          : 'Share was cancelled.',
+    );
   };
 
   const handleCopy = async () => {
@@ -64,22 +70,41 @@ export const InviteModal: React.FC<InviteModalProps> = ({
   };
 
   const social = [
-    { name: 'WhatsApp', href: `https://wa.me/?text=${encodeURIComponent(shareText)}`, color: '#25D366' },
-    { name: 'Telegram', href: `https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent('Train with me on Oblivion 1.')}`, color: '#229ED9' },
+    {
+      name: 'WhatsApp',
+      href: `https://wa.me/?text=${encodeURIComponent(shareText)}`,
+      color: '#25D366',
+    },
+    {
+      name: 'Telegram',
+      href: `https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent('Train with me on Oblivion 1.')}`,
+      color: '#229ED9',
+    },
     { name: 'Messages', href: `sms:?body=${encodeURIComponent(shareText)}`, color: '#34C759' },
-    { name: 'X', href: `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`, color: '#111111' },
+    {
+      name: 'X',
+      href: `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`,
+      color: '#111111',
+    },
   ];
 
   return (
     <div
       id="invite-modal-backdrop"
       className="fixed inset-0 z-50 bg-black/70 o1-sheet-scrim flex items-center justify-center select-none"
-      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
     >
       <div className="o1-sheet-card bg-o1-card text-neutral-100 w-full p-4 shadow-xl relative space-y-3 border border-white/[0.07] overflow-y-auto">
         <div className="flex items-center justify-between">
           <h3 className="font-bold text-base text-white">Invite</h3>
-          <button type="button" onClick={onClose} className="w-8 h-8 rounded-full bg-white/[0.08] text-neutral-400 hover:text-white flex items-center justify-center cursor-pointer" aria-label="Close">
+          <button
+            type="button"
+            onClick={onClose}
+            className="w-8 h-8 rounded-full bg-white/[0.08] text-neutral-400 hover:text-white flex items-center justify-center cursor-pointer"
+            aria-label="Close"
+          >
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -89,11 +114,17 @@ export const InviteModal: React.FC<InviteModalProps> = ({
           <div className="text-sm font-semibold text-white break-all">{link}</div>
           <div className="text-[12px] font-semibold tracking-wide text-neutral-200">{code}</div>
           <p className="text-[11px] text-neutral-400">
-            {isLive ? 'This invite is live on your account.' : 'Sign in so this invite links to your account.'}
+            {isLive
+              ? 'This invite is live on your account.'
+              : 'Sign in so this invite links to your account.'}
           </p>
         </div>
 
-        <button type="button" onClick={() => void handleShare()} className="w-full min-h-[44px] rounded-xl bg-o1-crimson text-white text-xs font-semibold flex items-center justify-center gap-2 cursor-pointer">
+        <button
+          type="button"
+          onClick={() => void handleShare()}
+          className="w-full min-h-[44px] rounded-xl bg-o1-crimson text-white text-xs font-semibold flex items-center justify-center gap-2 cursor-pointer"
+        >
           <Share2 className="w-4 h-4" />
           Share invite
         </button>
@@ -108,7 +139,10 @@ export const InviteModal: React.FC<InviteModalProps> = ({
               onClick={() => tactileEngine.triggerSelectionBuzz()}
               className="flex flex-col items-center gap-1.5"
             >
-              <span className="w-11 h-11 rounded-2xl flex items-center justify-center text-[11px] font-semibold text-white" style={{ background: item.color }}>
+              <span
+                className="w-11 h-11 rounded-2xl flex items-center justify-center text-[11px] font-semibold text-white"
+                style={{ background: item.color }}
+              >
                 {item.name.slice(0, 1)}
               </span>
               <span className="text-[10px] text-neutral-400">{item.name}</span>
@@ -116,7 +150,11 @@ export const InviteModal: React.FC<InviteModalProps> = ({
           ))}
         </div>
 
-        <button type="button" onClick={() => void handleCopy()} className="w-full min-h-[40px] rounded-xl bg-o1-well border border-white/[0.07] text-neutral-200 text-xs font-semibold flex items-center justify-center gap-2 cursor-pointer">
+        <button
+          type="button"
+          onClick={() => void handleCopy()}
+          className="w-full min-h-[40px] rounded-xl bg-o1-well border border-white/[0.07] text-neutral-200 text-xs font-semibold flex items-center justify-center gap-2 cursor-pointer"
+        >
           {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
           Copy link
         </button>
@@ -131,7 +169,11 @@ export const InviteModal: React.FC<InviteModalProps> = ({
               placeholder="Their code"
               className="flex-1 bg-o1-well border border-white/[0.07] rounded-xl px-3 py-2.5 text-xs text-white placeholder:text-neutral-500 focus:outline-none"
             />
-            <button type="submit" className="w-10 h-10 rounded-xl bg-o1-crimson text-white flex items-center justify-center cursor-pointer" aria-label="Save invite">
+            <button
+              type="submit"
+              className="w-10 h-10 rounded-xl bg-o1-crimson text-white flex items-center justify-center cursor-pointer"
+              aria-label="Save invite"
+            >
               <Send className="w-4 h-4" />
             </button>
           </div>

@@ -23,7 +23,9 @@ export const MifflinMacroSection: React.FC<MifflinMacroSectionProps> = ({
         <span className="text-[11px] tabular-nums font-bold tracking-wider text-o1-muted">
           3. Macro Split
         </span>
-        <span className="text-[10px] tabular-nums text-o1-muted font-semibold">{proteinPerKg}g protein/kg</span>
+        <span className="text-[10px] tabular-nums text-o1-muted font-semibold">
+          {proteinPerKg}g protein/kg
+        </span>
       </div>
 
       <div className="grid grid-cols-2 gap-2">

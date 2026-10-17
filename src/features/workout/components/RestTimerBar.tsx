@@ -53,10 +53,14 @@ export const RestTimerBar: React.FC = () => {
       style={{ bottom: 'calc(max(16px, env(safe-area-inset-bottom, 0px)) + 56px)' }}
     >
       <div className="flex items-center gap-3 pl-4 pr-1.5 h-12">
-        <span className={`font-mono font-light text-[22px] tabular-nums leading-none ${warning ? 'text-[#C4121A]' : 'text-o1-text'}`}>
+        <span
+          className={`font-mono font-light text-[22px] tabular-nums leading-none ${warning ? 'text-[#C4121A]' : 'text-o1-text'}`}
+        >
           {clock(remaining)}
         </span>
-        <span className="flex-1 min-w-0 text-[11px] text-o1-muted truncate">Rest · {timer.exerciseName}</span>
+        <span className="flex-1 min-w-0 text-[11px] text-o1-muted truncate">
+          Rest · {timer.exerciseName}
+        </span>
         <button
           type="button"
           onClick={() => {
@@ -79,10 +83,11 @@ export const RestTimerBar: React.FC = () => {
         </button>
       </div>
       <div className="h-[2px] bg-white/[0.06]" aria-hidden>
-        <div className="h-full bg-[#C4121A] transition-[width] duration-200 ease-linear" style={{ width: `${progress * 100}%` }} />
+        <div
+          className="h-full bg-[#C4121A] transition-[width] duration-200 ease-linear"
+          style={{ width: `${progress * 100}%` }}
+        />
       </div>
     </div>
   );
 };
-
-

@@ -21,7 +21,10 @@ export async function handleCreateIdentitySession(req: Request, res: Response) {
     if (!coachId) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
-    const returnUrl = safeReturnBase(req.body?.returnUrl, String(req.headers.origin || 'http://localhost:3000'));
+    const returnUrl = safeReturnBase(
+      req.body?.returnUrl,
+      String(req.headers.origin || 'http://localhost:3000'),
+    );
     const userEmail = (res.locals.userEmail as string | undefined) || '';
     const stripe = await getStripe();
     if (!stripe) {
@@ -45,7 +48,10 @@ export async function handleCreateIdentitySession(req: Request, res: Response) {
     if (admin) {
       const { error } = await admin
         .from('coach_profiles')
-        .update({ stripe_identity_session_id: verificationSession.id, identity_status: 'processing' })
+        .update({
+          stripe_identity_session_id: verificationSession.id,
+          identity_status: 'processing',
+        })
         .eq('id', coachId);
       if (error) console.warn('[Stripe Identity] DB sync warning:', error.message);
     }
@@ -62,9 +68,10 @@ export async function handleCreateIdentitySession(req: Request, res: Response) {
  * use separate secrets in Stripe). An unsigned webhook is only tolerated outside production.
  */
 async function constructVerifiedEvent(req: Request): Promise<any> {
-  const secrets = [process.env.STRIPE_WEBHOOK_SECRET, process.env.STRIPE_CONNECT_WEBHOOK_SECRET].filter(
-    (s): s is string => Boolean(s),
-  );
+  const secrets = [
+    process.env.STRIPE_WEBHOOK_SECRET,
+    process.env.STRIPE_CONNECT_WEBHOOK_SECRET,
+  ].filter((s): s is string => Boolean(s));
   const signature = req.headers['stripe-signature'];
 
   if (secrets.length === 0) {
@@ -94,7 +101,8 @@ export async function handleStripeWebhook(req: Request, res: Response) {
   try {
     event = await constructVerifiedEvent(req);
   } catch (err) {
-    const status = err instanceof Error && 'status' in err && typeof err.status === 'number' ? err.status : 400;
+    const status =
+      err instanceof Error && 'status' in err && typeof err.status === 'number' ? err.status : 400;
     return res.status(status).json({ error: errorMessage(err, 'Invalid webhook') });
   }
 
@@ -117,16 +125,26 @@ export async function handleStripeWebhook(req: Request, res: Response) {
     // Program sale paid: write the platform/coach split to the ledger.
     // `async_payment_succeeded` covers methods that confirm after checkout closes; both carry a paid session.
     if (
-      (type === 'checkout.session.completed' || type === 'checkout.session.async_payment_succeeded') &&
+      (type === 'checkout.session.completed' ||
+        type === 'checkout.session.async_payment_succeeded') &&
       object?.payment_status === 'paid'
     ) {
       const meta = object?.metadata ?? {};
       const coachId = meta.coach_id;
       if (coachId) {
         const grossCents = Number(object?.amount_total || 0);
-        if (!Number.isInteger(grossCents) || grossCents <= 0 || String(object?.currency || '').toLowerCase() !== 'aud') {
+        if (
+          !Number.isInteger(grossCents) ||
+          grossCents <= 0 ||
+          String(object?.currency || '').toLowerCase() !== 'aud'
+        ) {
           // Checkout only ever creates positive AUD sessions, so anything else is not one of ours.
-          console.error('[Stripe Webhook] Ignoring session with unexpected amount/currency:', object?.id, grossCents, object?.currency);
+          console.error(
+            '[Stripe Webhook] Ignoring session with unexpected amount/currency:',
+            object?.id,
+            grossCents,
+            object?.currency,
+          );
           return res.json({ received: true, ignored: 'unexpected amount or currency' });
         }
         const result = await recordProgramSale({
@@ -149,7 +167,8 @@ export async function handleStripeWebhook(req: Request, res: Response) {
     if (type === 'charge.refunded' && object) {
       const refund = await recordSaleRefund(object);
       // The sale may not be written yet. A 500 makes Stripe deliver this again later instead of losing the refund.
-      if (refund.reason === 'sale_not_found') return res.status(500).json({ error: 'Sale not recorded yet.', ...refund });
+      if (refund.reason === 'sale_not_found')
+        return res.status(500).json({ error: 'Sale not recorded yet.', ...refund });
       return res.json({ received: true, ...refund });
     }
 
@@ -158,8 +177,10 @@ export async function handleStripeWebhook(req: Request, res: Response) {
       return res.json({ received: true, ...(await recordSaleDispute(object, false)) });
     }
     if (type === 'charge.dispute.closed' && object) {
-      if (object.status === 'won') return res.json({ received: true, ...(await recordSaleDispute(object, true)) });
-      if (object.status === 'lost') return res.json({ received: true, ...(await recordSaleDispute(object, false)) });
+      if (object.status === 'won')
+        return res.json({ received: true, ...(await recordSaleDispute(object, true)) });
+      if (object.status === 'lost')
+        return res.json({ received: true, ...(await recordSaleDispute(object, false)) });
       return res.json({ received: true, ignored: `dispute ${object.status}` });
     }
 
@@ -172,7 +193,11 @@ export async function handleStripeWebhook(req: Request, res: Response) {
       if (coachId && admin) {
         await admin
           .from('coach_profiles')
-          .update({ is_id_verified: true, identity_status: 'verified', verified_at: new Date().toISOString() })
+          .update({
+            is_id_verified: true,
+            identity_status: 'verified',
+            verified_at: new Date().toISOString(),
+          })
           .eq('id', coachId);
       }
       return res.json({ received: true, verified: true });
@@ -181,7 +206,10 @@ export async function handleStripeWebhook(req: Request, res: Response) {
     if (type === 'identity.verification_session.requires_input') {
       const coachId = object?.metadata?.coach_id;
       if (coachId && admin) {
-        await admin.from('coach_profiles').update({ identity_status: 'failed_retry_required' }).eq('id', coachId);
+        await admin
+          .from('coach_profiles')
+          .update({ identity_status: 'failed_retry_required' })
+          .eq('id', coachId);
       }
       return res.json({ received: true, status: 'requires_input' });
     }

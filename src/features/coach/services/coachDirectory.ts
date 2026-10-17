@@ -16,7 +16,8 @@ export interface CoachCard {
 
 type Row = Record<string, unknown>;
 
-const CARD_COLUMNS = 'id, display_name, avatar_url, specialties, bio, hourly_rate, monthly_coaching_rate, is_id_verified, accepting_new_athletes';
+const CARD_COLUMNS =
+  'id, display_name, avatar_url, specialties, bio, hourly_rate, monthly_coaching_rate, is_id_verified, accepting_new_athletes';
 
 function rate(value: unknown): number | null {
   if (value == null || value === '') return null;
@@ -26,7 +27,9 @@ function rate(value: unknown): number | null {
 
 /** `@name` for display, or '' when the coach has not picked one. */
 export function formatHandle(raw: string | null | undefined): string {
-  const clean = String(raw || '').trim().replace(/^@+/, '');
+  const clean = String(raw || '')
+    .trim()
+    .replace(/^@+/, '');
   return clean ? `@${clean}` : '';
 }
 
@@ -61,7 +64,9 @@ export async function fetchCoachCards(ids?: string[]): Promise<CoachCard[]> {
   const unique = ids ? [...new Set(ids.filter(Boolean))] : null;
   if (unique && !unique.length) return [];
   let query = supabase.from('coach_profiles').select(CARD_COLUMNS);
-  query = unique ? query.in('id', unique) : query.order('created_at', { ascending: false }).limit(60);
+  query = unique
+    ? query.in('id', unique)
+    : query.order('created_at', { ascending: false }).limit(60);
   const { data, error } = await query;
   if (error || !Array.isArray(data)) return [];
   const rows = data as Row[];
@@ -71,13 +76,22 @@ export async function fetchCoachCards(ids?: string[]): Promise<CoachCard[]> {
 
 export async function fetchCoachCard(id: string): Promise<CoachCard | null> {
   if (!id) return null;
-  const { data, error } = await supabase.from('coach_profiles').select(CARD_COLUMNS).eq('id', id).maybeSingle();
+  const { data, error } = await supabase
+    .from('coach_profiles')
+    .select(CARD_COLUMNS)
+    .eq('id', id)
+    .maybeSingle();
   if (error || !data) return null;
   return mapCard(data as Row, await handlesFor([id]));
 }
 
 export function toExploreCoach(card: CoachCard): ExploreCoach {
-  const rateLabel = card.monthlyRate != null ? `$${Math.round(card.monthlyRate)}/mo` : card.hourlyRate != null ? `$${Math.round(card.hourlyRate)}/hr` : '';
+  const rateLabel =
+    card.monthlyRate != null
+      ? `$${Math.round(card.monthlyRate)}/mo`
+      : card.hourlyRate != null
+        ? `$${Math.round(card.hourlyRate)}/hr`
+        : '';
   return {
     id: card.id,
     name: card.name,

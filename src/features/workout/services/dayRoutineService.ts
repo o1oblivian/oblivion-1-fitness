@@ -3,7 +3,17 @@ import { WorkoutExercise, WorkoutSet } from '../store/workoutStoreTypes';
 import { priorBestKg } from './sessionPr';
 import { useConsultationStore } from '../../induction/useConsultationStore';
 import { WEEK } from '../../induction/consultationTypes';
-import { Kit, SafetyProfile, TrainingAgeDose, athleteDose, availableKit, canPerform, dosedSets, isSafeFor, isUnloaded } from '../utils/equipmentAccess';
+import {
+  Kit,
+  SafetyProfile,
+  TrainingAgeDose,
+  athleteDose,
+  availableKit,
+  canPerform,
+  dosedSets,
+  isSafeFor,
+  isUnloaded,
+} from '../utils/equipmentAccess';
 import { TrainingGoal, queryExercisesForGoal } from '../utils/intelPrescriptionGenerator';
 import { ExerciseDefinition } from '../../../types/workout';
 import { readAthleteSettingsSnapshot } from '../../../utils/athleteSettingsSnapshot';
@@ -53,7 +63,8 @@ export const formatConciseSplitName = (name: string): string => {
   const clean = name.replace(/\s*\(.*?\)/g, '').trim();
   const upper = clean.toUpperCase();
   if (upper.includes('HYROX') || upper.includes('HYPER')) return 'Hyper';
-  if (upper.includes('REST') || upper.includes('RECOVERY') || upper.includes('RESTORATION')) return 'Rest';
+  if (upper.includes('REST') || upper.includes('RECOVERY') || upper.includes('RESTORATION'))
+    return 'Rest';
   if (upper.includes('PUSH A')) return 'Push A';
   if (upper.includes('PULL A')) return 'Pull A';
   if (upper.includes('LEGS A')) return 'Legs A';
@@ -81,7 +92,8 @@ interface MovementPlan {
   reps: number;
 }
 
-type MovementOption = Pick<MovementPlan, 'name' | 'equipment'> & Partial<Pick<MovementPlan, 'sets' | 'reps' | 'restSecs'>>;
+type MovementOption = Pick<MovementPlan, 'name' | 'equipment'> &
+  Partial<Pick<MovementPlan, 'sets' | 'reps' | 'restSecs'>>;
 
 /** First option is the full-gym movement; the rest are ordered substitutes for less equipment. */
 interface MovementSlot extends MovementPlan {
@@ -94,14 +106,26 @@ const DAY_PLANS: Record<DayCode, { splitName: string; movements: MovementSlot[] 
     splitName: 'PUSH A',
     movements: [
       {
-        name: 'Barbell Flat Bench Press', muscle: 'Chest', equipment: 'Barbell', tier: 'Compound Prime', restSecs: 120, sets: 3, reps: 5,
+        name: 'Barbell Flat Bench Press',
+        muscle: 'Chest',
+        equipment: 'Barbell',
+        tier: 'Compound Prime',
+        restSecs: 120,
+        sets: 3,
+        reps: 5,
         alternatives: [
           { name: 'Dumbbell Bench Press', equipment: 'Dumbbell', reps: 8 },
           { name: 'Push-Up', equipment: 'Bodyweight', reps: 12 },
         ],
       },
       {
-        name: 'Standing Overhead Military Press', muscle: 'Deltoids', equipment: 'Barbell', tier: 'Compound Secondary', restSecs: 90, sets: 3, reps: 8,
+        name: 'Standing Overhead Military Press',
+        muscle: 'Deltoids',
+        equipment: 'Barbell',
+        tier: 'Compound Secondary',
+        restSecs: 90,
+        sets: 3,
+        reps: 8,
         alternatives: [
           { name: 'Seated Dumbbell Shoulder Press', equipment: 'Dumbbell', reps: 10 },
           { name: 'Pike Push-Up', equipment: 'Bodyweight', reps: 10 },
@@ -113,14 +137,26 @@ const DAY_PLANS: Record<DayCode, { splitName: string; movements: MovementSlot[] 
     splitName: 'PULL A',
     movements: [
       {
-        name: 'Conventional Barbell Deadlift', muscle: 'Posterior Chain', equipment: 'Barbell', tier: 'Compound Prime', restSecs: 180, sets: 3, reps: 5,
+        name: 'Conventional Barbell Deadlift',
+        muscle: 'Posterior Chain',
+        equipment: 'Barbell',
+        tier: 'Compound Prime',
+        restSecs: 180,
+        sets: 3,
+        reps: 5,
         alternatives: [
           { name: 'Kettlebell Deadlift', equipment: 'Kettlebell', reps: 10 },
           { name: 'Single-Leg Glute Bridge', equipment: 'Bodyweight', reps: 12 },
         ],
       },
       {
-        name: 'Weighted Neutral Grip Pull-Up', muscle: 'Lats', equipment: 'Bodyweight / Belt', tier: 'Compound Secondary', restSecs: 90, sets: 3, reps: 6,
+        name: 'Weighted Neutral Grip Pull-Up',
+        muscle: 'Lats',
+        equipment: 'Bodyweight / Belt',
+        tier: 'Compound Secondary',
+        restSecs: 90,
+        sets: 3,
+        reps: 6,
         alternatives: [
           { name: 'Neutral Grip Pull-Up', equipment: 'Pull-Up Bar', reps: 8 },
           { name: 'Prone Y-T-W Raise', equipment: 'Bodyweight', reps: 10 },
@@ -132,14 +168,26 @@ const DAY_PLANS: Record<DayCode, { splitName: string; movements: MovementSlot[] 
     splitName: 'LEGS A',
     movements: [
       {
-        name: 'Olympic Barbell Back Squat', muscle: 'Quadriceps', equipment: 'Barbell', tier: 'Compound Prime', restSecs: 150, sets: 3, reps: 5,
+        name: 'Olympic Barbell Back Squat',
+        muscle: 'Quadriceps',
+        equipment: 'Barbell',
+        tier: 'Compound Prime',
+        restSecs: 150,
+        sets: 3,
+        reps: 5,
         alternatives: [
           { name: 'Dumbbell Goblet Squat', equipment: 'Dumbbell', reps: 10 },
           { name: 'Bulgarian Split Squat', equipment: 'Bodyweight', reps: 10 },
         ],
       },
       {
-        name: 'Romanian Deadlift (RDL)', muscle: 'Hamstrings', equipment: 'Barbell', tier: 'Accessory', restSecs: 90, sets: 3, reps: 10,
+        name: 'Romanian Deadlift (RDL)',
+        muscle: 'Hamstrings',
+        equipment: 'Barbell',
+        tier: 'Accessory',
+        restSecs: 90,
+        sets: 3,
+        reps: 10,
         alternatives: [
           { name: 'Dumbbell Romanian Deadlift', equipment: 'Dumbbell', reps: 10 },
           { name: 'Single-Leg Romanian Deadlift', equipment: 'Bodyweight', reps: 10 },
@@ -151,11 +199,23 @@ const DAY_PLANS: Record<DayCode, { splitName: string; movements: MovementSlot[] 
     splitName: 'HYPER',
     movements: [
       {
-        name: 'SkiErg 500m Sprint Intervals', muscle: 'Cardio Engine', equipment: 'Concept2 SkiErg', tier: 'Conditioning', restSecs: 60, sets: 2, reps: 500,
+        name: 'SkiErg 500m Sprint Intervals',
+        muscle: 'Cardio Engine',
+        equipment: 'Concept2 SkiErg',
+        tier: 'Conditioning',
+        restSecs: 60,
+        sets: 2,
+        reps: 500,
         alternatives: [{ name: '400m Run Intervals', equipment: 'Bodyweight', sets: 4, reps: 400 }],
       },
       {
-        name: 'Sled Push Heavy Drive', muscle: 'Lower Body Drive', equipment: 'Turf Sled', tier: 'Conditioning', restSecs: 90, sets: 2, reps: 50,
+        name: 'Sled Push Heavy Drive',
+        muscle: 'Lower Body Drive',
+        equipment: 'Turf Sled',
+        tier: 'Conditioning',
+        restSecs: 90,
+        sets: 2,
+        reps: 50,
         alternatives: [
           { name: 'Kettlebell Swing', equipment: 'Kettlebell', sets: 3, reps: 20 },
           { name: 'Burpee Broad Jumps', equipment: 'Bodyweight', sets: 3, reps: 10 },
@@ -167,11 +227,23 @@ const DAY_PLANS: Record<DayCode, { splitName: string; movements: MovementSlot[] 
     splitName: 'PUSH B',
     movements: [
       {
-        name: 'Incline Dumbbell Chest Press', muscle: 'Upper Chest', equipment: 'Dumbbells', tier: 'Compound Prime', restSecs: 90, sets: 3, reps: 8,
+        name: 'Incline Dumbbell Chest Press',
+        muscle: 'Upper Chest',
+        equipment: 'Dumbbells',
+        tier: 'Compound Prime',
+        restSecs: 90,
+        sets: 3,
+        reps: 8,
         alternatives: [{ name: 'Decline Push-Up', equipment: 'Bodyweight', reps: 12 }],
       },
       {
-        name: 'Cable Overhead Triceps Extension', muscle: 'Triceps Long Head', equipment: 'Cable Tower', tier: 'Accessory', restSecs: 60, sets: 3, reps: 12,
+        name: 'Cable Overhead Triceps Extension',
+        muscle: 'Triceps Long Head',
+        equipment: 'Cable Tower',
+        tier: 'Accessory',
+        restSecs: 60,
+        sets: 3,
+        reps: 12,
         alternatives: [
           { name: 'Overhead Dumbbell Triceps Extension', equipment: 'Dumbbell', reps: 12 },
           { name: 'Diamond Push-Up', equipment: 'Bodyweight', reps: 10 },
@@ -183,7 +255,13 @@ const DAY_PLANS: Record<DayCode, { splitName: string; movements: MovementSlot[] 
     splitName: 'PULL B',
     movements: [
       {
-        name: 'Barbell Chest Supported T-Bar Row', muscle: 'Upper Back & Lats', equipment: 'Barbell / Rig', tier: 'Compound Prime', restSecs: 90, sets: 3, reps: 8,
+        name: 'Barbell Chest Supported T-Bar Row',
+        muscle: 'Upper Back & Lats',
+        equipment: 'Barbell / Rig',
+        tier: 'Compound Prime',
+        restSecs: 90,
+        sets: 3,
+        reps: 8,
         alternatives: [
           { name: 'One-Arm Dumbbell Row', equipment: 'Dumbbell', reps: 10 },
           { name: 'Inverted Row', equipment: 'Pull-Up Bar', reps: 10 },
@@ -191,7 +269,13 @@ const DAY_PLANS: Record<DayCode, { splitName: string; movements: MovementSlot[] 
         ],
       },
       {
-        name: 'Incline Dumbbell Biceps Curl', muscle: 'Biceps Long Head', equipment: 'Dumbbells', tier: 'Accessory', restSecs: 60, sets: 3, reps: 10,
+        name: 'Incline Dumbbell Biceps Curl',
+        muscle: 'Biceps Long Head',
+        equipment: 'Dumbbells',
+        tier: 'Accessory',
+        restSecs: 60,
+        sets: 3,
+        reps: 10,
         alternatives: [
           { name: 'Chin-Up', equipment: 'Pull-Up Bar', reps: 8 },
           { name: 'Isometric Towel Curl', equipment: 'Bodyweight', reps: 8 },
@@ -203,7 +287,13 @@ const DAY_PLANS: Record<DayCode, { splitName: string; movements: MovementSlot[] 
     splitName: 'REST',
     movements: [
       {
-        name: 'Thoracic Extension & Foam Roller Release', muscle: 'Spine & Fascia', equipment: 'Foam Roller', tier: 'Restoration', restSecs: 45, sets: 2, reps: 15,
+        name: 'Thoracic Extension & Foam Roller Release',
+        muscle: 'Spine & Fascia',
+        equipment: 'Foam Roller',
+        tier: 'Restoration',
+        restSecs: 45,
+        sets: 2,
+        reps: 15,
         alternatives: [],
       },
     ],
@@ -219,20 +309,31 @@ const TRAINING_SLOTS: Record<number, DayCode[]> = {
 };
 
 /** The session planned for a weekday: the athlete's chosen days first, otherwise spread by days a week. */
-function planForDay(day: DayCode, preview = false): { splitName: string; movements: MovementSlot[] } {
+function planForDay(
+  day: DayCode,
+  preview = false,
+): { splitName: string; movements: MovementSlot[] } {
   const consultation = useConsultationStore.getState();
   if (!consultation.locked && !preview) return DAY_PLANS[day];
-  const slots = consultation.trainingDays.length > 0
-    ? consultation.trainingDays
-    : TRAINING_SLOTS[consultation.frequencyDays] || SESSION_ORDER;
+  const slots =
+    consultation.trainingDays.length > 0
+      ? consultation.trainingDays
+      : TRAINING_SLOTS[consultation.frequencyDays] || SESSION_ORDER;
   const index = slots.indexOf(day);
-  return index >= 0 && index < SESSION_ORDER.length ? DAY_PLANS[SESSION_ORDER[index]] : DAY_PLANS.Sun;
+  return index >= 0 && index < SESSION_ORDER.length
+    ? DAY_PLANS[SESSION_ORDER[index]]
+    : DAY_PLANS.Sun;
 }
 
 /** The first option the athlete can do where they train and that spares what they protect; null when none fits. */
-function pickMovement(slot: MovementSlot, kit: Set<Kit> | null, safety: SafetyProfile): MovementPlan | null {
+function pickMovement(
+  slot: MovementSlot,
+  kit: Set<Kit> | null,
+  safety: SafetyProfile,
+): MovementPlan | null {
   const { alternatives, ...primary } = slot;
-  const fits = (name: string, equipment: string) => isSafeFor(name, safety) && canPerform(name, equipment, kit);
+  const fits = (name: string, equipment: string) =>
+    isSafeFor(name, safety) && canPerform(name, equipment, kit);
   if (fits(primary.name, primary.equipment)) return primary;
   const option = alternatives.find((alt) => fits(alt.name, alt.equipment));
   if (option) return { ...primary, ...option };
@@ -251,10 +352,24 @@ const SPLIT_FOCUS: [RegExp, TrainingGoal, string][] = [
   [/HYPER|HYROX/, 'athletic', 'Full Body'],
 ];
 
-const GENERIC_WORDS = new Set(['barbell', 'dumbbell', 'kettlebell', 'cable', 'machine', 'standing', 'seated', 'weighted']);
+const GENERIC_WORDS = new Set([
+  'barbell',
+  'dumbbell',
+  'kettlebell',
+  'cable',
+  'machine',
+  'standing',
+  'seated',
+  'weighted',
+]);
 
 function keyWords(name: string): Set<string> {
-  return new Set(name.toLowerCase().split(/[^a-z]+/).filter((word) => word.length > 3 && !GENERIC_WORDS.has(word)));
+  return new Set(
+    name
+      .toLowerCase()
+      .split(/[^a-z]+/)
+      .filter((word) => word.length > 3 && !GENERIC_WORDS.has(word)),
+  );
 }
 
 /** "Standing Overhead Military Press" and "Standing Barbell Overhead Press" train the same thing. */
@@ -264,14 +379,21 @@ function nearDuplicate(a: string, b: string): boolean {
 }
 
 function planMinutes(list: readonly MovementPlan[]): number {
-  return Math.round(list.reduce((sum, m) => sum + m.sets * (WORK_SECS_PER_SET + m.restSecs), 0) / 60);
+  return Math.round(
+    list.reduce((sum, m) => sum + m.sets * (WORK_SECS_PER_SET + m.restSecs), 0) / 60,
+  );
 }
 
 /**
  * Tops a short day up to the athlete's session length with library moves for the same split.
  * The library query already drops moves they can't do where they train or that load a protected area.
  */
-function fillSession(picked: MovementPlan[], splitName: string, targetMinutes: number, dose: TrainingAgeDose): void {
+function fillSession(
+  picked: MovementPlan[],
+  splitName: string,
+  targetMinutes: number,
+  dose: TrainingAgeDose,
+): void {
   const focus = SPLIT_FOCUS.find(([pattern]) => pattern.test(splitName.toUpperCase()));
   if (!focus) return;
   const pool = queryExercisesForGoal(focus[1], focus[2]);
@@ -288,7 +410,8 @@ function fillSession(picked: MovementPlan[], splitName: string, targetMinutes: n
   const add = (requireNewMuscle: boolean) => {
     for (const ex of pool) {
       if (picked.length >= MAX_EXERCISES) return;
-      if (taken.has(ex.name.toLowerCase()) || picked.some((m) => nearDuplicate(m.name, ex.name))) continue;
+      if (taken.has(ex.name.toLowerCase()) || picked.some((m) => nearDuplicate(m.name, ex.name)))
+        continue;
       const next = toPlan(ex);
       if (requireNewMuscle && picked.some((m) => m.muscle === next.muscle)) continue;
       if (planMinutes([...picked, next]) > targetMinutes) continue;
@@ -301,8 +424,13 @@ function fillSession(picked: MovementPlan[], splitName: string, targetMinutes: n
 }
 
 /** Minutes a session takes: each set's work plus the rest after it. */
-export function estimateSessionMinutes(exercises: readonly Pick<WorkoutExercise, 'sets' | 'restSecs'>[]): number {
-  const secs = exercises.reduce((sum, ex) => sum + (ex.sets?.length || 0) * (WORK_SECS_PER_SET + (ex.restSecs || 60)), 0);
+export function estimateSessionMinutes(
+  exercises: readonly Pick<WorkoutExercise, 'sets' | 'restSecs'>[],
+): number {
+  const secs = exercises.reduce(
+    (sum, ex) => sum + (ex.sets?.length || 0) * (WORK_SECS_PER_SET + (ex.restSecs || 60)),
+    0,
+  );
   return Math.round(secs / 60);
 }
 
@@ -330,7 +458,8 @@ export function workingLoadKg(exerciseName: string, reps: number): number {
 
 function buildDefaultRoutine(day: DayCode, preview = false): WorkoutExercise[] {
   const prefix = day.toLowerCase();
-  const { facilities, trainingAge, ageBand, injuries, sessionMinutes } = useConsultationStore.getState();
+  const { facilities, trainingAge, ageBand, injuries, sessionMinutes } =
+    useConsultationStore.getState();
   const kit = availableKit(facilities);
   const dose = athleteDose(trainingAge, ageBand);
   const plan = planForDay(day, preview);
@@ -389,7 +518,7 @@ export function planFirstWeek(): PlannedDay[] {
  * Retrieve saved routine for a specific day from localStorage
  */
 export const getAthleteDayRoutine = (
-  day: DayCode
+  day: DayCode,
 ): { splitName: string; exercises: WorkoutExercise[]; isCustom: boolean } => {
   try {
     const raw = localStorage.getItem(USER_SAVED_WORKOUTS_KEY);
@@ -408,7 +537,8 @@ export const getAthleteDayRoutine = (
   }
 
   if (!DAY_PLANS[day]) return { splitName: 'Rest', exercises: [], isCustom: false };
-  if (!readAthleteSettingsSnapshot().autoDispatch) return { splitName: 'Your own', exercises: [], isCustom: false };
+  if (!readAthleteSettingsSnapshot().autoDispatch)
+    return { splitName: 'Your own', exercises: [], isCustom: false };
   return {
     splitName: formatConciseSplitName(planForDay(day).splitName),
     exercises: buildDefaultRoutine(day),
@@ -424,7 +554,7 @@ type SavedDayRoutines = Partial<Record<DayCode, SavedDayRoutine>>;
 export const saveAthleteDayRoutine = (
   day: DayCode,
   splitName: string,
-  exercises: WorkoutExercise[]
+  exercises: WorkoutExercise[],
 ): boolean => {
   try {
     let saved: SavedDayRoutines = {};
@@ -438,15 +568,17 @@ export const saveAthleteDayRoutine = (
     }
 
     // Reset completion states so next time they load it, sets are ready to be completed
-    const cleanExercises: WorkoutExercise[] = exercises.map((ex: WorkoutExercise, exIdx: number) => ({
-      ...ex,
-      id: `saved-${day.toLowerCase()}-${Date.now()}-${exIdx}`,
-      sets: (ex.sets || []).map((s: WorkoutSet, sIdx: number) => ({
-        ...s,
-        id: `s-${Date.now()}-${exIdx}-${sIdx}`,
-        completed: false,
-      })),
-    }));
+    const cleanExercises: WorkoutExercise[] = exercises.map(
+      (ex: WorkoutExercise, exIdx: number) => ({
+        ...ex,
+        id: `saved-${day.toLowerCase()}-${Date.now()}-${exIdx}`,
+        sets: (ex.sets || []).map((s: WorkoutSet, sIdx: number) => ({
+          ...s,
+          id: `s-${Date.now()}-${exIdx}-${sIdx}`,
+          completed: false,
+        })),
+      }),
+    );
 
     saved[day] = {
       day,

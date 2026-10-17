@@ -2,7 +2,9 @@ import { GoogleGenAI, ThinkingLevel } from '@google/genai';
 
 function readImportMetaGeminiKey(): string {
   try {
-    return String((import.meta as ImportMeta & { env?: Record<string, string> }).env?.VITE_GEMINI_API_KEY || '');
+    return String(
+      (import.meta as ImportMeta & { env?: Record<string, string> }).env?.VITE_GEMINI_API_KEY || '',
+    );
   } catch {
     return '';
   }
@@ -46,7 +48,11 @@ export function getGenAI(overrideKey?: string): GoogleGenAI | null {
 export const QUICK_READ_THINKING = { thinkingLevel: ThinkingLevel.LOW };
 
 // Resilient Gemini generateContent caller with model fallback & exponential retry for 503/429 spikes
-export async function generateContentWithFallback(genAI: GoogleGenAI, contents: any[], config?: any): Promise<any> {
+export async function generateContentWithFallback(
+  genAI: GoogleGenAI,
+  contents: any[],
+  config?: any,
+): Promise<any> {
   const modelsToTry = ['gemini-flash-latest', 'gemini-3.1-flash-lite'];
   let lastError: any = null;
   let activeConfig = config;
@@ -71,10 +77,19 @@ export async function generateContentWithFallback(genAI: GoogleGenAI, contents: 
           attempt -= 1;
           continue;
         }
-        if (errMsg.includes('404') || errMsg.includes('not found') || errMsg.includes('no longer available')) {
+        if (
+          errMsg.includes('404') ||
+          errMsg.includes('not found') ||
+          errMsg.includes('no longer available')
+        ) {
           break; // Dead model, skip immediately without waiting
         }
-        const isTemporary = errMsg.includes('503') || errMsg.includes('UNAVAILABLE') || errMsg.includes('high demand') || errMsg.includes('429') || errMsg.includes('quota');
+        const isTemporary =
+          errMsg.includes('503') ||
+          errMsg.includes('UNAVAILABLE') ||
+          errMsg.includes('high demand') ||
+          errMsg.includes('429') ||
+          errMsg.includes('quota');
         if (isTemporary && attempt === 0) {
           await new Promise((resolve) => setTimeout(resolve, 500));
           continue;
@@ -88,7 +103,9 @@ export async function generateContentWithFallback(genAI: GoogleGenAI, contents: 
 }
 
 export function parseGeminiJson(responseText: string): any {
-  const cleaned = String(responseText || '').replace(/```json\n?|```/g, '').trim();
+  const cleaned = String(responseText || '')
+    .replace(/```json\n?|```/g, '')
+    .trim();
   const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
   return JSON.parse(jsonMatch ? jsonMatch[0] : cleaned);
 }

@@ -26,7 +26,10 @@ export const MembershipPlanFeatures: React.FC<Props> = ({
     { label: 'Likes / Connections', value: isFreeAthlete ? '5 / day' : 'Unlimited' },
     { label: 'Direct Messages', value: isFreeAthlete ? '3 / day' : 'Unlimited' },
     { label: 'Radar Radius', value: isFreeAthlete ? '25 km' : '250 km' },
-    { label: 'Travel Pass', value: selectedProductId === 'o1fc_pro_travel_monthly' ? '✓' : isFreeAthlete ? '—' : 'Add-on' },
+    {
+      label: 'Travel Pass',
+      value: selectedProductId === 'o1fc_pro_travel_monthly' ? '✓' : isFreeAthlete ? '—' : 'Add-on',
+    },
     { label: 'HD Form Reels', value: '✓' },
     { label: 'Workout Logger', value: 'All exercises' },
     { label: 'Fuel Tracker', value: isFreeAthlete ? 'Basic' : 'Full + Intel Scan' },
@@ -79,8 +82,8 @@ export const MembershipPlanFeatures: React.FC<Props> = ({
         ? 'Included in core free'
         : 'included in premium pro'
       : isFreeCoach
-      ? 'INCLUDED IN COACH STARTER (UP TO 5 ATHLETES)'
-      : 'Included in coach pro';
+        ? 'INCLUDED IN COACH STARTER (UP TO 5 ATHLETES)'
+        : 'Included in coach pro';
 
   return (
     <div className="space-y-3 pt-2 text-neutral-200">
@@ -98,9 +101,7 @@ export const MembershipPlanFeatures: React.FC<Props> = ({
               <span>{item.label}</span>
               <Info className="w-3 h-3 text-neutral-500" />
             </div>
-            <span className="font-mono font-bold text-white text-[11px]">
-              {item.value}
-            </span>
+            <span className="font-mono font-bold text-white text-[11px]">{item.value}</span>
           </div>
         ))}
       </div>
@@ -113,7 +114,9 @@ export const MembershipPlanFeatures: React.FC<Props> = ({
         }}
         className="w-full flex items-center justify-center gap-1 text-xs text-neutral-400 hover:text-white py-1 transition cursor-pointer font-mono"
       >
-        <ChevronDown className={`w-3.5 h-3.5 transition-transform ${showExt ? 'rotate-180' : ''}`} />
+        <ChevronDown
+          className={`w-3.5 h-3.5 transition-transform ${showExt ? 'rotate-180' : ''}`}
+        />
         <span>{showExt ? 'Show less' : `Show all ${base.length + ext.length} features`}</span>
       </button>
 
@@ -121,7 +124,9 @@ export const MembershipPlanFeatures: React.FC<Props> = ({
       <div className="p-3 rounded-2xl bg-o1-well border border-white/[0.07] flex items-center justify-between">
         <div>
           <p className="text-xs font-bold text-white">Progress insights</p>
-          <p className="text-[10px] text-neutral-400">Smart recovery, nutrition &amp; volume periodization</p>
+          <p className="text-[10px] text-neutral-400">
+            Smart recovery, nutrition &amp; volume periodization
+          </p>
         </div>
         <span className="text-[11px] font-sans font-semibold text-neutral-400">
           Included with Pro
@@ -135,7 +140,9 @@ export const MembershipPlanFeatures: React.FC<Props> = ({
           rel="noreferrer"
           onClick={(e) => {
             e.preventDefault();
-            void openExternalUrl('https://www.apple.com/legal/internet-services/itunes/dev/stdeula/');
+            void openExternalUrl(
+              'https://www.apple.com/legal/internet-services/itunes/dev/stdeula/',
+            );
           }}
           className="hover:text-white"
         >
@@ -168,9 +175,18 @@ export const MembershipPlanFeatures: React.FC<Props> = ({
           Terms
         </a>
         <span>•</span>
-        <button type="button" onClick={() => { if (onOpenHealth) onOpenHealth(); else if (onOpenDisclaimer) onOpenDisclaimer(); else onShowToast?.('Health Disclaimer'); }} className="hover:text-white cursor-pointer">Health Disclaimer</button>
+        <button
+          type="button"
+          onClick={() => {
+            if (onOpenHealth) onOpenHealth();
+            else if (onOpenDisclaimer) onOpenDisclaimer();
+            else onShowToast?.('Health Disclaimer');
+          }}
+          className="hover:text-white cursor-pointer"
+        >
+          Health Disclaimer
+        </button>
       </div>
     </div>
   );
 };
-

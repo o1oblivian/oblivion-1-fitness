@@ -79,8 +79,12 @@ export const HomeGymPicker: React.FC<HomeGymPickerProps> = ({ open, current, onC
               <MapPin className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="font-tactical font-bold text-sm text-neutral-100 tracking-wider">Home Gym</h3>
-              <span className="text-[11px] text-neutral-400 block">Pick your gym from the live map search</span>
+              <h3 className="font-tactical font-bold text-sm text-neutral-100 tracking-wider">
+                Home Gym
+              </h3>
+              <span className="text-[11px] text-neutral-400 block">
+                Pick your gym from the live map search
+              </span>
             </div>
           </div>
           <button
@@ -111,7 +115,10 @@ export const HomeGymPicker: React.FC<HomeGymPickerProps> = ({ open, current, onC
         ) : null}
 
         <div className="space-y-2">
-          <label htmlFor="home-gym-search" className="text-[11px] font-tactical font-bold text-neutral-400 block tracking-wider">
+          <label
+            htmlFor="home-gym-search"
+            className="text-[11px] font-tactical font-bold text-neutral-400 block tracking-wider"
+          >
             Search for your gym
           </label>
           <div className="relative">
@@ -127,7 +134,9 @@ export const HomeGymPicker: React.FC<HomeGymPickerProps> = ({ open, current, onC
               placeholder="Gym name and suburb"
               className="w-full min-h-[44px] bg-black border border-white/[0.07] rounded-xl pl-9 pr-9 text-xs font-sans text-white placeholder:text-neutral-500 focus:outline-none focus:border-o1-crimson"
             />
-            {searching ? <Loader2 className="w-4 h-4 text-neutral-400 animate-spin absolute right-3 top-1/2 -translate-y-1/2" /> : null}
+            {searching ? (
+              <Loader2 className="w-4 h-4 text-neutral-400 animate-spin absolute right-3 top-1/2 -translate-y-1/2" />
+            ) : null}
           </div>
 
           {note ? <p className="text-[11px] text-neutral-400 px-1">{note}</p> : null}
@@ -147,7 +156,9 @@ export const HomeGymPicker: React.FC<HomeGymPickerProps> = ({ open, current, onC
                     <MapPin className="w-3.5 h-3.5 mt-0.5 shrink-0 text-[#4F8F9A]" />
                     <span className="min-w-0">
                       <span className="block text-xs text-neutral-100 truncate">{hit.name}</span>
-                      <span className="block text-[11px] text-neutral-400 truncate">{hit.address}</span>
+                      <span className="block text-[11px] text-neutral-400 truncate">
+                        {hit.address}
+                      </span>
                     </span>
                   </button>
                 </li>
@@ -156,7 +167,8 @@ export const HomeGymPicker: React.FC<HomeGymPickerProps> = ({ open, current, onC
           ) : null}
 
           <p className="text-[10px] text-neutral-500 px-1 leading-snug">
-            Only the words you type are sent to the OpenStreetMap-based Photon search. Your account and location are not sent.
+            Only the words you type are sent to the OpenStreetMap-based Photon search. Your account
+            and location are not sent.
           </p>
         </div>
       </div>
@@ -179,7 +191,9 @@ export const HomeGymField: React.FC = () => {
         }}
         className="w-full min-h-[40px] bg-o1-well border border-white/[0.07] rounded-xl px-3 py-2 text-xs text-left flex items-center justify-between gap-2 cursor-pointer focus:outline-none focus:border-o1-crimson"
       >
-        <span className={`truncate ${homeGym ? 'text-white' : 'text-neutral-500'}`}>{homeGym || 'Search for your gym'}</span>
+        <span className={`truncate ${homeGym ? 'text-white' : 'text-neutral-500'}`}>
+          {homeGym || 'Search for your gym'}
+        </span>
         <Search className="w-3.5 h-3.5 shrink-0 text-neutral-400" />
       </button>
       <HomeGymPicker
@@ -194,5 +208,3 @@ export const HomeGymField: React.FC = () => {
     </>
   );
 };
-
-

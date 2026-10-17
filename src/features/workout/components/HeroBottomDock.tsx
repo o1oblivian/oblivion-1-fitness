@@ -22,7 +22,10 @@ export const HeroBottomDock: React.FC<HeroBottomDockProps> = ({
   onLoadWorkout,
   onFlipToVitals,
 }) => (
-  <div id="hero-bottom-dock" className="relative z-10 flex items-center justify-between gap-2 w-full select-none px-0.5">
+  <div
+    id="hero-bottom-dock"
+    className="relative z-10 flex items-center justify-between gap-2 w-full select-none px-0.5"
+  >
     <button
       type="button"
       id="hero-cardio-btn"
@@ -42,7 +45,11 @@ export const HeroBottomDock: React.FC<HeroBottomDockProps> = ({
     <button
       type="button"
       id="hero-load-workout-btn"
-      title={hasSavedRoutine ? `Start your saved ${activeDay} workout` : `No saved ${activeDay} workout yet`}
+      title={
+        hasSavedRoutine
+          ? `Start your saved ${activeDay} workout`
+          : `No saved ${activeDay} workout yet`
+      }
       aria-label={
         hasSavedRoutine
           ? `Start ${activeDay} ${activeSplitLabel} workout`
@@ -66,7 +73,9 @@ export const HeroBottomDock: React.FC<HeroBottomDockProps> = ({
       ) : (
         <>
           <span>{activeDay}</span>
-          <span className="text-white/40" aria-hidden>·</span>
+          <span className="text-white/40" aria-hidden>
+            ·
+          </span>
           <span className="font-light truncate">{activeSplitLabel}</span>
         </>
       )}
@@ -88,5 +97,3 @@ export const HeroBottomDock: React.FC<HeroBottomDockProps> = ({
     </button>
   </div>
 );
-
-

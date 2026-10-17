@@ -69,7 +69,9 @@ interface LoadedSettings {
 export const WALLPAPER_BRIGHTNESS_MIN = 20;
 
 const clampBrightness = (v: unknown): number =>
-  typeof v === 'number' && Number.isFinite(v) ? Math.round(Math.min(100, Math.max(WALLPAPER_BRIGHTNESS_MIN, v))) : 100;
+  typeof v === 'number' && Number.isFinite(v)
+    ? Math.round(Math.min(100, Math.max(WALLPAPER_BRIGHTNESS_MIN, v)))
+    : 100;
 
 const loadSettings = (): LoadedSettings => {
   const fallback: LoadedSettings = {
@@ -130,7 +132,12 @@ const persistBroken = (urls: string[]) => {
   }
 };
 
-const persistSettings = (s: Pick<WallpaperStoreState, 'topic' | 'intervalSeconds' | 'isPaused' | 'isEnabled' | 'brightness'>) => {
+const persistSettings = (
+  s: Pick<
+    WallpaperStoreState,
+    'topic' | 'intervalSeconds' | 'isPaused' | 'isEnabled' | 'brightness'
+  >,
+) => {
   if (typeof window === 'undefined') return;
   try {
     localStorage.setItem(
@@ -203,13 +210,18 @@ export const useWallpaperStore = create<WallpaperStoreState>((set, get) => ({
     if (!state.pool.some((p) => p.url === url)) return;
 
     const activeUrl = slidesOf(state)[state.activeIndex]?.url;
-    const brokenUrls = state.brokenUrls.includes(url) ? state.brokenUrls : [...state.brokenUrls, url];
+    const brokenUrls = state.brokenUrls.includes(url)
+      ? state.brokenUrls
+      : [...state.brokenUrls, url];
     const pool = state.pool.filter((p) => p.url !== url);
     persistBroken(brokenUrls);
 
     // Keep the viewer on the same frame when possible; otherwise land on the next valid one.
     const slides = slidesOf({ customUrl: state.customUrl, pool });
-    let activeIndex = activeUrl && activeUrl !== url ? slides.findIndex((s) => s.url === activeUrl) : state.activeIndex;
+    let activeIndex =
+      activeUrl && activeUrl !== url
+        ? slides.findIndex((s) => s.url === activeUrl)
+        : state.activeIndex;
     if (activeIndex < 0) activeIndex = 0;
     if (slides.length > 0) activeIndex = activeIndex % slides.length;
     else activeIndex = 0;

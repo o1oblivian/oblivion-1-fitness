@@ -16,7 +16,13 @@ const DAYS: Array<[string, string]> = [
   ['Sun', 'Sunday'],
 ];
 
-export const EMPTY_MICROCYCLE_DAYS: DayStrainDetail[] = DAYS.map(([day, full]) => ({ day, full, title: null, volume: 0, sets: 0 }));
+export const EMPTY_MICROCYCLE_DAYS: DayStrainDetail[] = DAYS.map(([day, full]) => ({
+  day,
+  full,
+  title: null,
+  volume: 0,
+  sets: 0,
+}));
 
 export const getLocalSystemDayIdx = (): number => {
   const jsDay = new Date().getDay();

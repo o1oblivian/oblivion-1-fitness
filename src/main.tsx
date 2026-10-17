@@ -37,8 +37,12 @@ if (typeof window !== 'undefined') {
     const reason = event?.reason;
     const msg = typeof reason === 'string' ? reason : reason?.message || '';
     if (
-      msg.includes('NotAllowedError') || msg.includes('Permission') || msg.includes('audio') ||
-      msg.includes('media') || msg.includes('SecurityError') || msg.includes('key')
+      msg.includes('NotAllowedError') ||
+      msg.includes('Permission') ||
+      msg.includes('audio') ||
+      msg.includes('media') ||
+      msg.includes('SecurityError') ||
+      msg.includes('key')
     ) {
       console.warn('[O1 FC Global Guard] Handled unhandled rejection:', reason);
       event.preventDefault();
@@ -89,9 +93,7 @@ class RootErrorBoundary extends Component<RootBoundaryProps, RootBoundaryState> 
         : 'Unknown render error';
       return (
         <div className="min-h-dvh w-full bg-black text-white flex flex-col items-stretch justify-start p-6 select-text font-sans">
-          <h1 className="text-base font-bold tracking-wider mb-2 text-neutral-100">
-            Launch error
-          </h1>
+          <h1 className="text-base font-bold tracking-wider mb-2 text-neutral-100">Launch error</h1>
           <pre className="text-[11px] leading-relaxed whitespace-pre-wrap break-words text-amber-200 bg-black/60 border border-white/[0.07] rounded-xl p-3 overflow-auto mb-6">
             {details}
           </pre>
@@ -120,22 +122,26 @@ try {
           <RootErrorBoundary>
             <App />
           </RootErrorBoundary>
-        </StrictMode>
+        </StrictMode>,
       );
       rootElement.setAttribute('data-o1-mounted', '1');
     };
     const restored = restoreDurableStorage().catch(() => undefined);
     const ready = import.meta.env.DEV
-      ? restored.then(() => import('./devPreviewBoot')).then((mod) => mod.applyDevPreview()).catch(() => undefined)
+      ? restored
+          .then(() => import('./devPreviewBoot'))
+          .then((mod) => mod.applyDevPreview())
+          .catch(() => undefined)
       : restored;
     void ready.finally(() => mount().catch((err) => console.error('[O1 FC Launch Guard]:', err)));
   }
 } catch (startupError) {
   console.error('[O1 FC Cold Boot Exception Caught]:', startupError);
   const el = document.getElementById('root');
-  const message = startupError instanceof Error
-    ? `${startupError.name}: ${startupError.message}\n\n${startupError.stack || ''}`
-    : String(startupError);
+  const message =
+    startupError instanceof Error
+      ? `${startupError.name}: ${startupError.message}\n\n${startupError.stack || ''}`
+      : String(startupError);
   if (el) {
     el.innerHTML = `
       <div style="min-height:100dvh;width:100%;background:#000000;color:#fff;display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;font-family:sans-serif;padding:24px;box-sizing:border-box;">

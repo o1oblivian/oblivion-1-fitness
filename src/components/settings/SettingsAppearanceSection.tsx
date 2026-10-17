@@ -5,9 +5,20 @@ import { tactileEngine } from '../../services/tactileEngine';
 import { useWallpaperStore } from '../../stores/useWallpaperStore';
 import { wallpaperTopicLabel } from '../../services/liveWallpaperService';
 import { WallpaperSelectorModal } from './WallpaperSelectorModal';
-import { DetailPref, TextSize, TextSizePref, useDetail, useDisplayPrefs, useTextSize } from '../../stores/useDisplayPrefs';
+import {
+  DetailPref,
+  TextSize,
+  TextSizePref,
+  useDetail,
+  useDisplayPrefs,
+  useTextSize,
+} from '../../stores/useDisplayPrefs';
 
-const TEXT_SIZE_LABEL: Record<TextSize, string> = { standard: 'Standard', large: 'Large', xlarge: 'Extra large' };
+const TEXT_SIZE_LABEL: Record<TextSize, string> = {
+  standard: 'Standard',
+  large: 'Large',
+  xlarge: 'Extra large',
+};
 const TEXT_SIZE_OPTIONS: { value: TextSizePref; label: string }[] = [
   { value: 'auto', label: 'Auto' },
   { value: 'standard', label: 'Aa' },
@@ -56,7 +67,9 @@ function Segmented<T extends string>({
               onChange(option.value);
             }}
             className={`h-8 rounded-lg text-xs font-tactical transition-all cursor-pointer ${
-              value === option.value ? 'bg-o1-crimson text-white font-bold' : 'text-neutral-400 hover:text-neutral-200'
+              value === option.value
+                ? 'bg-o1-crimson text-white font-bold'
+                : 'text-neutral-400 hover:text-neutral-200'
             }`}
           >
             {option.label}
@@ -96,7 +109,11 @@ export const SettingsAppearanceSection: React.FC<AppearanceSectionProps> = ({
       <div className="bg-o1-card rounded-2xl border border-white/[0.07] p-3 space-y-2.5 text-white">
         <Segmented
           title="Text size"
-          subtitle={textSizePref === 'auto' ? `Auto · ${TEXT_SIZE_LABEL[textSize]} for your age` : 'Applies across the whole app'}
+          subtitle={
+            textSizePref === 'auto'
+              ? `Auto · ${TEXT_SIZE_LABEL[textSize]} for your age`
+              : 'Applies across the whole app'
+          }
           options={TEXT_SIZE_OPTIONS}
           value={textSizePref}
           onChange={setTextSize}
@@ -185,4 +202,3 @@ export const SettingsAppearanceSection: React.FC<AppearanceSectionProps> = ({
     </div>
   );
 };
-

@@ -19,7 +19,11 @@ import {
   SunDim,
 } from 'lucide-react';
 import { tactileEngine } from '../../services/tactileEngine';
-import { useWallpaperStore, WallpaperInterval, WALLPAPER_BRIGHTNESS_MIN } from '../../stores/useWallpaperStore';
+import {
+  useWallpaperStore,
+  WallpaperInterval,
+  WALLPAPER_BRIGHTNESS_MIN,
+} from '../../stores/useWallpaperStore';
 import { WallpaperTopic } from '../../services/liveWallpaperService';
 import { compressWallpaperFile } from '../../services/wallpaperImage';
 import { CrimsonSwitch } from './CrimsonSwitch';
@@ -125,7 +129,7 @@ export const WallpaperSelectorModal: React.FC<WallpaperSelectorModalProps> = ({
             >
               Workout wallpaper
             </h2>
-              <p className="text-[11px] text-neutral-400">
+            <p className="text-[11px] text-neutral-400">
               Hybrid · Iron · Track · Combat · Nature — pick, pause, or leave live
             </p>
           </div>
@@ -153,11 +157,17 @@ export const WallpaperSelectorModal: React.FC<WallpaperSelectorModalProps> = ({
                   Show on console
                 </span>
                 <p className="text-[11px] text-neutral-400">
-                  {isEnabled ? 'Live rotation on the workout hero' : 'Off — no image load, saves battery'}
+                  {isEnabled
+                    ? 'Live rotation on the workout hero'
+                    : 'Off — no image load, saves battery'}
                 </p>
               </div>
             </div>
-            <CrimsonSwitch checked={isEnabled} onChange={setEnabled} label="Show wallpaper on workout screen" />
+            <CrimsonSwitch
+              checked={isEnabled}
+              onChange={setEnabled}
+              label="Show wallpaper on workout screen"
+            />
           </div>
 
           <div className="grid grid-cols-6 gap-1.5">
@@ -234,7 +244,9 @@ export const WallpaperSelectorModal: React.FC<WallpaperSelectorModalProps> = ({
                   <SunDim className="w-4 h-4 text-neutral-500" />
                   <span className="font-tactical font-bold text-xs tracking-wider">Brightness</span>
                 </label>
-                <span className="text-[11px] font-mono text-neutral-400 tabular-nums">{brightness}%</span>
+                <span className="text-[11px] font-mono text-neutral-400 tabular-nums">
+                  {brightness}%
+                </span>
               </div>
               <input
                 id="wallpaper-brightness"
@@ -247,7 +259,9 @@ export const WallpaperSelectorModal: React.FC<WallpaperSelectorModalProps> = ({
                 className="w-full h-11 accent-[#C4121A] cursor-pointer"
                 aria-valuetext={`${brightness}%`}
               />
-              <p className="text-[11px] text-neutral-500">Lower it to make the dials easier to read over bright photos.</p>
+              <p className="text-[11px] text-neutral-500">
+                Lower it to make the dials easier to read over bright photos.
+              </p>
             </div>
           )}
 
@@ -307,9 +321,7 @@ export const WallpaperSelectorModal: React.FC<WallpaperSelectorModalProps> = ({
                     type="button"
                     onClick={() => setIntervalSeconds(sec)}
                     className={`py-1.5 rounded-xl text-[10px] font-mono font-bold cursor-pointer ${
-                      intervalSeconds === sec
-                        ? 'bg-black text-white'
-                        : 'text-neutral-500'
+                      intervalSeconds === sec ? 'bg-black text-white' : 'text-neutral-500'
                     }`}
                   >
                     {sec}s
@@ -349,7 +361,13 @@ export const WallpaperSelectorModal: React.FC<WallpaperSelectorModalProps> = ({
             className="w-full py-2.5 px-4 rounded-xl bg-o1-well border border-white/[0.07] text-neutral-200 font-semibold text-xs tracking-wide flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
           >
             <ImagePlus className="w-4 h-4" />
-            <span>{isReading ? 'Processing…' : customUrl ? 'Replace my photo' : 'Add my photo to rotation'}</span>
+            <span>
+              {isReading
+                ? 'Processing…'
+                : customUrl
+                  ? 'Replace my photo'
+                  : 'Add my photo to rotation'}
+            </span>
           </button>
           {customUrl && (
             <button

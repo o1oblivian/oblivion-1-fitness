@@ -1,10 +1,20 @@
 import React, { useState } from 'react';
 import { ArrowLeftRight, ChevronDown } from 'lucide-react';
-import { WORKOUT_BLUEPRINTS, WorkoutBlueprint, BlueprintExercise } from '../../../data/workoutBlueprints';
+import {
+  WORKOUT_BLUEPRINTS,
+  WorkoutBlueprint,
+  BlueprintExercise,
+} from '../../../data/workoutBlueprints';
 import { useWorkoutStore } from '../store/useWorkoutStore';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { calibrateTemplate } from '../utils/calibrateLoads';
-import { BLUEPRINT_TAGS, BlueprintTier, blueprintExerciseToItem, blueprintMatchesTag, tierMovements } from '../utils/blueprintTiers';
+import {
+  BLUEPRINT_TAGS,
+  BlueprintTier,
+  blueprintExerciseToItem,
+  blueprintMatchesTag,
+  tierMovements,
+} from '../utils/blueprintTiers';
 import { BlueprintCard } from './blueprint/BlueprintCard';
 import { BlueprintSwapper } from './blueprint/BlueprintSwapper';
 
@@ -25,18 +35,26 @@ export const BlueprintModeView: React.FC<BlueprintModeViewProps> = ({ onLoaded }
   const activeRoutine = useWorkoutStore((s) => s.activeRoutine);
   const hasExercises = useWorkoutStore((s) => s.exercises.length > 0);
 
-  const filteredBlueprints = WORKOUT_BLUEPRINTS.filter((bp) => blueprintMatchesTag(bp, selectedTag));
+  const filteredBlueprints = WORKOUT_BLUEPRINTS.filter((bp) =>
+    blueprintMatchesTag(bp, selectedTag),
+  );
   const tierFor = (id: string): BlueprintTier => selectedTiers[id] || 'INTERMEDIATE';
 
   const handleLoadBlueprint = (blueprint: WorkoutBlueprint, tier: BlueprintTier) => {
     tactileEngine.playPRCelebration();
-    const items = tierMovements(blueprint, tier).map((be) => blueprintExerciseToItem(be, blueprint.id, tier));
+    const items = tierMovements(blueprint, tier).map((be) =>
+      blueprintExerciseToItem(be, blueprint.id, tier),
+    );
     addExercisesToActiveLog(calibrateTemplate(items));
     setActiveRoutine(`${blueprint.title} (${tier})`);
     onLoaded?.();
   };
 
-  const handleAddSingleExercise = (be: BlueprintExercise, blueprintId: string, tier: BlueprintTier) => {
+  const handleAddSingleExercise = (
+    be: BlueprintExercise,
+    blueprintId: string,
+    tier: BlueprintTier,
+  ) => {
     tactileEngine.triggerSelectionBuzz();
     addExerciseToActiveLog(blueprintExerciseToItem(be, blueprintId, tier));
     onLoaded?.();
@@ -71,7 +89,9 @@ export const BlueprintModeView: React.FC<BlueprintModeViewProps> = ({ onLoaded }
                     setIsStyleOpen(false);
                   }}
                   className={`w-full text-left px-3 py-1.5 text-xs rounded-xl cursor-pointer ${
-                    selectedTag === tag ? 'bg-o1-well font-semibold text-white' : 'text-neutral-400 hover:bg-white/5'
+                    selectedTag === tag
+                      ? 'bg-o1-well font-semibold text-white'
+                      : 'text-neutral-400 hover:bg-white/5'
                   }`}
                 >
                   {tag}
@@ -120,5 +140,3 @@ export const BlueprintModeView: React.FC<BlueprintModeViewProps> = ({ onLoaded }
     </div>
   );
 };
-
-

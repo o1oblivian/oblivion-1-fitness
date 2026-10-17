@@ -23,13 +23,18 @@ const inputCls =
 
 const fmtDate = (key: string) => {
   const [y, m, d] = key.split('-').map(Number);
-  return new Date(y, (m || 1) - 1, d || 1).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  return new Date(y, (m || 1) - 1, d || 1).toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  });
 };
 
 const ageText = (days: number) =>
   days === 0 ? 'today' : days < 60 ? `${days} days ago` : `${Math.round(days / 30)} months ago`;
 
-const signed = (v: number, unit: string) => `${v > 0 ? '+' : ''}${Math.round(v * 100) / 100}${unit}`;
+const signed = (v: number, unit: string) =>
+  `${v > 0 ? '+' : ''}${Math.round(v * 100) / 100}${unit}`;
 
 export const DexaPanel: React.FC = () => {
   const [scans, setScans] = useState<DexaScan[]>(readDexaScans);
@@ -81,7 +86,9 @@ export const DexaPanel: React.FC = () => {
         <form onSubmit={save} className="space-y-3" noValidate>
           <div className="grid grid-cols-2 gap-2">
             <label className="space-y-1">
-              <span className="text-[10px] font-mono font-bold tracking-wider text-neutral-500">Scan date</span>
+              <span className="text-[10px] font-mono font-bold tracking-wider text-neutral-500">
+                Scan date
+              </span>
               <input
                 type="date"
                 max={toDayKey(Date.now())}
@@ -91,7 +98,9 @@ export const DexaPanel: React.FC = () => {
               />
             </label>
             <label className="space-y-1">
-              <span className="text-[10px] font-mono font-bold tracking-wider text-neutral-500">Body fat %</span>
+              <span className="text-[10px] font-mono font-bold tracking-wider text-neutral-500">
+                Body fat %
+              </span>
               <input
                 type="number"
                 inputMode="decimal"
@@ -117,7 +126,9 @@ export const DexaPanel: React.FC = () => {
                     inputMode="decimal"
                     step="0.01"
                     value={draft.lean[seg.id as LeanSegment]}
-                    onChange={(e) => setDraft({ ...draft, lean: { ...draft.lean, [seg.id]: e.target.value } })}
+                    onChange={(e) =>
+                      setDraft({ ...draft, lean: { ...draft.lean, [seg.id]: e.target.value } })
+                    }
                     className={inputCls}
                   />
                 </label>
@@ -160,8 +171,8 @@ export const DexaPanel: React.FC = () => {
               </div>
               {previous && (
                 <div className="text-[11px] font-mono text-neutral-400 mt-0.5">
-                  {signed(Math.round((latest.bodyFatPct - previous.bodyFatPct) * 10) / 10, ' pts')} since{' '}
-                  {fmtDate(previous.date)}
+                  {signed(Math.round((latest.bodyFatPct - previous.bodyFatPct) * 10) / 10, ' pts')}{' '}
+                  since {fmtDate(previous.date)}
                 </div>
               )}
             </div>
@@ -191,10 +202,15 @@ export const DexaPanel: React.FC = () => {
                 const v = latest.lean[seg.id];
                 const prev = previous?.lean[seg.id];
                 return (
-                  <li key={seg.id} className="min-h-[44px] flex items-center justify-between gap-3 text-xs">
+                  <li
+                    key={seg.id}
+                    className="min-h-[44px] flex items-center justify-between gap-3 text-xs"
+                  >
                     <span className="text-neutral-300">{seg.label}</span>
                     <span className="font-mono">
-                      <span className="text-white font-bold">{v === undefined ? '--' : `${v} kg`}</span>
+                      <span className="text-white font-bold">
+                        {v === undefined ? '--' : `${v} kg`}
+                      </span>
                       {v !== undefined && prev !== undefined && (
                         <span className="text-neutral-500 ml-2">{signed(v - prev, '')}</span>
                       )}
@@ -213,7 +229,9 @@ export const DexaPanel: React.FC = () => {
           )}
 
           {scans.length > 1 && (
-            <p className="text-[10px] font-mono text-neutral-600">{scans.length} scans saved on this device.</p>
+            <p className="text-[10px] font-mono text-neutral-600">
+              {scans.length} scans saved on this device.
+            </p>
           )}
 
           <button
@@ -228,8 +246,8 @@ export const DexaPanel: React.FC = () => {
       ) : (
         <div className="space-y-3">
           <p className="text-xs text-neutral-500 leading-relaxed">
-            Had a DEXA scan? Enter body fat, lean mass and the scan date from your report to keep a clinical reference
-            next to your training.
+            Had a DEXA scan? Enter body fat, lean mass and the scan date from your report to keep a
+            clinical reference next to your training.
           </p>
           <button
             type="button"
@@ -243,11 +261,9 @@ export const DexaPanel: React.FC = () => {
       )}
 
       <p className="text-[10px] font-mono text-neutral-600 leading-relaxed">
-        Values are shown exactly as you entered them. Oblivion does not measure body composition and does not use these
-        numbers in your scores or share them with your coach.
+        Values are shown exactly as you entered them. Oblivion does not measure body composition and
+        does not use these numbers in your scores or share them with your coach.
       </p>
     </SectionCard>
   );
 };
-
-

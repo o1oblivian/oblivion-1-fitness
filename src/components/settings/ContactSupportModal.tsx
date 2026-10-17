@@ -63,14 +63,22 @@ export const ContactSupportModal: React.FC<ContactSupportModalProps> = ({
               <Headphones className="w-4 h-4 text-[#4F8F9A]" />
             </div>
             <div>
-              <h2 id="contact-support-title" className="text-sm font-bold tracking-wider font-tactical">Contact support</h2>
+              <h2
+                id="contact-support-title"
+                className="text-sm font-bold tracking-wider font-tactical"
+              >
+                Contact support
+              </h2>
               <p className="text-[10px] font-mono text-neutral-500">We reply by email</p>
             </div>
           </div>
           <button
             type="button"
             aria-label="Close"
-            onClick={() => { tactileEngine.triggerSelectionBuzz(); onClose(); }}
+            onClick={() => {
+              tactileEngine.triggerSelectionBuzz();
+              onClose();
+            }}
             className="w-11 h-11 -mr-2 flex items-center justify-center text-neutral-400 hover:text-white rounded-full cursor-pointer"
           >
             <X className="w-4 h-4" />
@@ -81,20 +89,31 @@ export const ContactSupportModal: React.FC<ContactSupportModalProps> = ({
           <div className="p-3 rounded-2xl bg-o1-well border border-white/[0.07] flex items-center justify-between gap-2">
             <div className="flex items-center gap-2 min-w-0">
               <Mail className="w-4 h-4 text-neutral-400 shrink-0" />
-              <span className="text-xs font-mono truncate text-neutral-300 select-text">{SUPPORT_EMAIL}</span>
+              <span className="text-xs font-mono truncate text-neutral-300 select-text">
+                {SUPPORT_EMAIL}
+              </span>
             </div>
             <button
               type="button"
               onClick={() => void handleCopyEmail()}
               className="min-h-[44px] px-3 rounded-xl bg-white/[0.08] text-[11px] font-mono flex items-center gap-1 hover:text-white cursor-pointer shrink-0"
             >
-              {copied ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+              {copied ? (
+                <Check className="w-3 h-3 text-emerald-400" />
+              ) : (
+                <Copy className="w-3 h-3" />
+              )}
               <span>{copied ? 'Copied' : 'Copy'}</span>
             </button>
           </div>
 
           <div className="space-y-1">
-            <label htmlFor="support-topic" className="text-[10px] font-tactical font-bold text-neutral-500">Topic</label>
+            <label
+              htmlFor="support-topic"
+              className="text-[10px] font-tactical font-bold text-neutral-500"
+            >
+              Topic
+            </label>
             <select
               id="support-topic"
               value={topic}
@@ -102,13 +121,20 @@ export const ContactSupportModal: React.FC<ContactSupportModalProps> = ({
               className="w-full min-h-[44px] px-3 rounded-xl bg-o1-well border border-white/[0.07] text-xs font-mono focus:outline-hidden focus:border-o1-crimson"
             >
               {TOPICS.map((t) => (
-                <option key={t.value} value={t.value}>{t.label}</option>
+                <option key={t.value} value={t.value}>
+                  {t.label}
+                </option>
               ))}
             </select>
           </div>
 
           <div className="space-y-1">
-            <label htmlFor="support-message" className="text-[10px] font-tactical font-bold text-neutral-500">Message</label>
+            <label
+              htmlFor="support-message"
+              className="text-[10px] font-tactical font-bold text-neutral-500"
+            >
+              Message
+            </label>
             <textarea
               id="support-message"
               required

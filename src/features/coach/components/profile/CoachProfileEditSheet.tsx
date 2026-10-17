@@ -6,7 +6,11 @@ import { useUserStore } from '../../../../stores/useUserStore';
 import { compressPhoto } from '../../../../utils/mediaCompressor';
 import { fetchVaultRows, uploadMedia } from '../../../../services/mediaStorage';
 import { StorefrontStats, saveStorefront } from '../../../reels/services/coachStorefront';
-import { HANDLE_PATTERN, cleanHandle, saveMyPublicProfile } from '../../services/coachPublicProfile';
+import {
+  HANDLE_PATTERN,
+  cleanHandle,
+  saveMyPublicProfile,
+} from '../../services/coachPublicProfile';
 
 const BIO_LIMIT = 300;
 const SPECIALTY_LIMIT = 5;
@@ -25,7 +29,10 @@ interface CoachProfileEditSheetProps {
   initial: CoachProfileDraft;
   stats: StorefrontStats;
   onClose: () => void;
-  onSaved: (profile: CoachProfileDraft, storefront: Pick<StorefrontStats, 'years' | 'capacity' | 'monthlyPriceCents'>) => void;
+  onSaved: (
+    profile: CoachProfileDraft,
+    storefront: Pick<StorefrontStats, 'years' | 'capacity' | 'monthlyPriceCents'>,
+  ) => void;
   onError: (message: string) => void;
 }
 
@@ -35,19 +42,47 @@ function wholeOrNull(raw: string): number | null {
 }
 
 function parseSpecialties(raw: string): string[] {
-  return [...new Set(raw.split(',').map((part) => part.trim()).filter(Boolean))].slice(0, SPECIALTY_LIMIT);
+  return [
+    ...new Set(
+      raw
+        .split(',')
+        .map((part) => part.trim())
+        .filter(Boolean),
+    ),
+  ].slice(0, SPECIALTY_LIMIT);
 }
 
 /** Name, handle, photo, bio and specialties for the coach card, plus the public offer numbers. */
-export const CoachProfileEditSheet: React.FC<CoachProfileEditSheetProps> = ({ open, initial, stats, onClose, onSaved, onError }) => {
+export const CoachProfileEditSheet: React.FC<CoachProfileEditSheetProps> = ({
+  open,
+  initial,
+  stats,
+  onClose,
+  onSaved,
+  onError,
+}) => {
   if (!open) return null;
-  return <EditSheetBody initial={initial} stats={stats} onClose={onClose} onSaved={onSaved} onError={onError} />;
+  return (
+    <EditSheetBody
+      initial={initial}
+      stats={stats}
+      onClose={onClose}
+      onSaved={onSaved}
+      onError={onError}
+    />
+  );
 };
 
 const inputClass =
   'h-[44px] w-full rounded-xl border border-white/[0.07] bg-o1-canvas px-3 text-[14px] text-o1-text outline-none placeholder:text-o1-muted focus:border-o1-crimson';
 
-const EditSheetBody: React.FC<Omit<CoachProfileEditSheetProps, 'open'>> = ({ initial, stats, onClose, onSaved, onError }) => {
+const EditSheetBody: React.FC<Omit<CoachProfileEditSheetProps, 'open'>> = ({
+  initial,
+  stats,
+  onClose,
+  onSaved,
+  onError,
+}) => {
   const [name, setName] = useState(initial.name);
   const [handle, setHandle] = useState(initial.handle);
   const [bio, setBio] = useState(initial.bio);
@@ -56,19 +91,29 @@ const EditSheetBody: React.FC<Omit<CoachProfileEditSheetProps, 'open'>> = ({ ini
   const [accepting, setAccepting] = useState(initial.accepting);
   const [years, setYears] = useState(stats.years != null ? String(stats.years) : '');
   const [capacity, setCapacity] = useState(stats.capacity != null ? String(stats.capacity) : '');
-  const [monthly, setMonthly] = useState(stats.monthlyPriceCents != null ? String(stats.monthlyPriceCents / 100) : '');
+  const [monthly, setMonthly] = useState(
+    stats.monthlyPriceCents != null ? String(stats.monthlyPriceCents / 100) : '',
+  );
   const [busy, setBusy] = useState<'photo' | 'save' | null>(null);
   const [photos, setPhotos] = useState<string[]>([]);
   const fileRef = useRef<HTMLInputElement | null>(null);
 
   const handleValue = cleanHandle(handle);
-  const handleError = handleValue && !HANDLE_PATTERN.test(handleValue) ? '3 to 30 letters, numbers, dots or underscores.' : '';
+  const handleError =
+    handleValue && !HANDLE_PATTERN.test(handleValue)
+      ? '3 to 30 letters, numbers, dots or underscores.'
+      : '';
 
   useEffect(() => {
     let live = true;
     void fetchVaultRows().then((rows) => {
       if (!live) return;
-      setPhotos(rows.filter((row) => row.type === 'photo').map((row) => row.media_url).slice(0, 12));
+      setPhotos(
+        rows
+          .filter((row) => row.type === 'photo')
+          .map((row) => row.media_url)
+          .slice(0, 12),
+      );
     });
     return () => {
       live = false;
@@ -107,7 +152,10 @@ const EditSheetBody: React.FC<Omit<CoachProfileEditSheetProps, 'open'>> = ({ ini
     const storefront = {
       years: wholeOrNull(years),
       capacity: wholeOrNull(capacity),
-      monthlyPriceCents: monthly.trim() && Number.isFinite(monthlyRaw) && monthlyRaw >= 0 ? Math.round(monthlyRaw * 100) : null,
+      monthlyPriceCents:
+        monthly.trim() && Number.isFinite(monthlyRaw) && monthlyRaw >= 0
+          ? Math.round(monthlyRaw * 100)
+          : null,
     };
     const draft: CoachProfileDraft = {
       name: cleanName,
@@ -120,7 +168,14 @@ const EditSheetBody: React.FC<Omit<CoachProfileEditSheetProps, 'open'>> = ({ ini
     setBusy('save');
     const [result, frontOk] = await Promise.all([
       saveMyPublicProfile(
-        { displayName: cleanName, avatarUrl: avatar, bio: cleanBio, acceptingNewAthletes: accepting, handle: handleValue, specialties: draft.specialties },
+        {
+          displayName: cleanName,
+          avatarUrl: avatar,
+          bio: cleanBio,
+          acceptingNewAthletes: accepting,
+          handle: handleValue,
+          specialties: draft.specialties,
+        },
         initial.handle,
       ).catch(() => ({ card: false, handle: 'failed' as const })),
       saveStorefront(storefront).catch(() => false),
@@ -156,11 +211,21 @@ const EditSheetBody: React.FC<Omit<CoachProfileEditSheetProps, 'open'>> = ({ ini
   );
 
   return (
-    <div className="fixed inset-0 z-[110] flex items-end justify-center bg-black/80 sm:items-center" role="dialog" aria-modal="true" aria-label="Edit profile">
+    <div
+      className="fixed inset-0 z-[110] flex items-end justify-center bg-black/80 sm:items-center"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Edit profile"
+    >
       <div className="max-h-[92dvh] w-full max-w-md space-y-4 overflow-y-auto rounded-t-2xl border border-white/[0.07] bg-o1-sheet p-4 pb-[calc(env(safe-area-inset-bottom)+1rem)] sm:rounded-2xl">
         <div className="flex items-center justify-between">
           <h2 className="text-[15px] font-semibold text-o1-text">Edit profile</h2>
-          <button type="button" onClick={onClose} aria-label="Close" className="flex h-9 w-9 items-center justify-center rounded-full bg-white/[0.07] text-o1-muted active:scale-95">
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close"
+            className="flex h-9 w-9 items-center justify-center rounded-full bg-white/[0.07] text-o1-muted active:scale-95"
+          >
             <X size={16} />
           </button>
         </div>
@@ -172,22 +237,46 @@ const EditSheetBody: React.FC<Omit<CoachProfileEditSheetProps, 'open'>> = ({ ini
             aria-label="Change photo"
             className="relative flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-full border border-white/[0.07] bg-o1-surface active:scale-95"
           >
-            {avatar ? <img src={avatar} alt="" className="h-full w-full object-cover" /> : <span className="text-xl font-semibold text-o1-text">{(name || '?').slice(0, 1).toUpperCase()}</span>}
+            {avatar ? (
+              <img src={avatar} alt="" className="h-full w-full object-cover" />
+            ) : (
+              <span className="text-xl font-semibold text-o1-text">
+                {(name || '?').slice(0, 1).toUpperCase()}
+              </span>
+            )}
             <span className="absolute inset-x-0 bottom-0 flex h-6 items-center justify-center bg-black/60">
-              {busy === 'photo' ? <Loader2 size={12} className="animate-spin text-o1-text" /> : <Camera size={12} className="text-o1-text" />}
+              {busy === 'photo' ? (
+                <Loader2 size={12} className="animate-spin text-o1-text" />
+              ) : (
+                <Camera size={12} className="text-o1-text" />
+              )}
             </span>
           </button>
           <div className="flex flex-1 flex-col gap-2">
-            <button type="button" onClick={() => fileRef.current?.click()} className="h-[40px] rounded-xl bg-o1-crimson text-[13px] font-semibold text-white active:scale-[0.98]">
+            <button
+              type="button"
+              onClick={() => fileRef.current?.click()}
+              className="h-[40px] rounded-xl bg-o1-crimson text-[13px] font-semibold text-white active:scale-[0.98]"
+            >
               Upload photo
             </button>
             {avatar ? (
-              <button type="button" onClick={() => setAvatar('')} className="h-[36px] rounded-xl border border-white/[0.07] text-[12px] font-semibold text-o1-muted active:scale-[0.98]">
+              <button
+                type="button"
+                onClick={() => setAvatar('')}
+                className="h-[36px] rounded-xl border border-white/[0.07] text-[12px] font-semibold text-o1-muted active:scale-[0.98]"
+              >
                 Remove photo
               </button>
             ) : null}
           </div>
-          <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={(event) => void pickFile(event)} />
+          <input
+            ref={fileRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={(event) => void pickFile(event)}
+          />
         </div>
 
         {photos.length > 0 ? (
@@ -218,13 +307,20 @@ const EditSheetBody: React.FC<Omit<CoachProfileEditSheetProps, 'open'>> = ({ ini
 
         <label className="block space-y-1">
           <span className="text-[12px] font-semibold text-o1-muted">Name</span>
-          <input value={name} onChange={(event) => setName(event.target.value)} maxLength={60} className={inputClass} />
+          <input
+            value={name}
+            onChange={(event) => setName(event.target.value)}
+            maxLength={60}
+            className={inputClass}
+          />
         </label>
 
         <label className="block space-y-1">
           <span className="text-[12px] font-semibold text-o1-muted">Handle</span>
           <div className="relative">
-            <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[14px] text-o1-muted">@</span>
+            <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[14px] text-o1-muted">
+              @
+            </span>
             <input
               value={handle}
               onChange={(event) => setHandle(event.target.value.replace(/^@+/, ''))}
@@ -237,13 +333,17 @@ const EditSheetBody: React.FC<Omit<CoachProfileEditSheetProps, 'open'>> = ({ ini
               className={`${inputClass} pl-7`}
             />
           </div>
-          {handleError ? <span className="block text-[12px] text-o1-text">{handleError}</span> : null}
+          {handleError ? (
+            <span className="block text-[12px] text-o1-text">{handleError}</span>
+          ) : null}
         </label>
 
         <label className="block space-y-1">
           <span className="flex justify-between text-[12px] font-semibold text-o1-muted">
             <span>Bio</span>
-            <span className="tabular-nums">{bio.length}/{BIO_LIMIT}</span>
+            <span className="tabular-nums">
+              {bio.length}/{BIO_LIMIT}
+            </span>
           </span>
           <textarea
             value={bio}
@@ -263,7 +363,9 @@ const EditSheetBody: React.FC<Omit<CoachProfileEditSheetProps, 'open'>> = ({ ini
             placeholder="Powerlifting, Hypertrophy, HYROX"
             className={inputClass}
           />
-          <span className="block text-[11px] text-o1-muted">Separate with commas. Up to {SPECIALTY_LIMIT}.</span>
+          <span className="block text-[11px] text-o1-muted">
+            Separate with commas. Up to {SPECIALTY_LIMIT}.
+          </span>
         </label>
 
         <div className="space-y-2 rounded-2xl border border-white/[0.07] bg-o1-surface p-3">
@@ -282,13 +384,19 @@ const EditSheetBody: React.FC<Omit<CoachProfileEditSheetProps, 'open'>> = ({ ini
               }}
               className={`relative h-7 w-12 rounded-full transition-colors ${accepting ? 'bg-o1-crimson' : 'bg-white/[0.12]'}`}
             >
-              <span className={`absolute top-0.5 h-6 w-6 rounded-full bg-o1-text transition-transform ${accepting ? 'translate-x-[22px]' : 'translate-x-0.5'}`} />
+              <span
+                className={`absolute top-0.5 h-6 w-6 rounded-full bg-o1-text transition-transform ${accepting ? 'translate-x-[22px]' : 'translate-x-0.5'}`}
+              />
             </button>
           </label>
         </div>
 
         <div className="flex gap-2">
-          <button type="button" onClick={onClose} className="h-[44px] flex-1 rounded-xl border border-white/[0.07] text-[13px] font-semibold text-o1-text active:scale-[0.98]">
+          <button
+            type="button"
+            onClick={onClose}
+            className="h-[44px] flex-1 rounded-xl border border-white/[0.07] text-[13px] font-semibold text-o1-text active:scale-[0.98]"
+          >
             Cancel
           </button>
           <button

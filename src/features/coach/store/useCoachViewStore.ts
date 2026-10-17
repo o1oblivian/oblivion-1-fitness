@@ -26,7 +26,13 @@ interface CoachAccessInput {
  * Decides which Coach layout to paint. `awaitingFirstCheck` means "show nothing yet":
  * painting the athlete view for a coach and then swapping it is the flash this prevents.
  */
-export function resolveCoachAccess({ role, userId, validUserId, cached, checkFailed }: CoachAccessInput) {
+export function resolveCoachAccess({
+  role,
+  userId,
+  validUserId,
+  cached,
+  checkFailed,
+}: CoachAccessInput) {
   const known = cached && cached.userId === userId ? cached.has : null;
   return {
     isCoach: role === 'coach' || known === true,

@@ -1,14 +1,20 @@
 import { useEffect } from 'react';
 
 let lockCount = 0;
-let saved: { scrollY: number; body: string; main: string; mainEl: HTMLElement | null } | null = null;
+let saved: { scrollY: number; body: string; main: string; mainEl: HTMLElement | null } | null =
+  null;
 
 function lock() {
   lockCount += 1;
   if (lockCount > 1) return;
   const body = document.body;
   const main = document.querySelector('main');
-  saved = { scrollY: window.scrollY, body: body.getAttribute('style') ?? '', main: main?.getAttribute('style') ?? '', mainEl: main };
+  saved = {
+    scrollY: window.scrollY,
+    body: body.getAttribute('style') ?? '',
+    main: main?.getAttribute('style') ?? '',
+    mainEl: main,
+  };
   body.style.position = 'fixed';
   body.style.top = `-${saved.scrollY}px`;
   body.style.left = '0';

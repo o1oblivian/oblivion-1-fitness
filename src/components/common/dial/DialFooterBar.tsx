@@ -48,9 +48,7 @@ export const DialFooterBar: React.FC<DialFooterBarProps> = ({
                   className={`text-xs font-mono font-normal transition-colors ${isActive ? '' : 'text-o1-muted hover:text-o1-text'}`}
                 >
                   {preset}
-                  <span className="text-[10px] ml-0.5 opacity-70">
-                    {isKg ? 'kg' : ''}
-                  </span>
+                  <span className="text-[10px] ml-0.5 opacity-70">{isKg ? 'kg' : ''}</span>
                 </span>
                 <span
                   style={isActive ? { backgroundColor: accentColor } : undefined}

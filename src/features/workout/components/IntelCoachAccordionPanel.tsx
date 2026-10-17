@@ -57,18 +57,55 @@ const MOVEMENT_FOCUS_OPTIONS = [
 ] as const;
 
 /** Shown before "More": enough for most sessions without a wall of choices. */
-const CORE_FOCUS: readonly string[] = ['Full Body', 'Upper Body', 'Lower Body', 'Push (Chest/Delts)', 'Pull (Back/Bis)', 'Abs & Core'];
+const CORE_FOCUS: readonly string[] = [
+  'Full Body',
+  'Upper Body',
+  'Lower Body',
+  'Push (Chest/Delts)',
+  'Pull (Back/Bis)',
+  'Abs & Core',
+];
 
 const PILL_OFF = 'bg-[#000000] text-[#FFFFFF] border border-white/[0.14] hover:bg-white/[0.06]';
 const PILL_ON = 'bg-[#F2F0EA] text-[#111113] border border-[#F2F0EA]';
 const PILL_SUB_OFF = 'text-o1-muted';
 const PILL_SUB_ON = 'text-[#111113]/60';
 
-const GOAL_CARDS: { key: TrainingGoal; label: string; sub: string; icon: typeof Flame; color: string }[] = [
-  { key: 'burn', label: 'Burn calories', sub: 'Sweat and fitness', icon: Flame, color: 'text-[#C4121A]' },
-  { key: 'muscle', label: 'Build muscle', sub: 'Size and strength', icon: Dumbbell, color: 'text-[#d97706]' },
-  { key: 'reset', label: 'Reset and move', sub: 'Easy mobility and recovery', icon: Activity, color: 'text-[#4F8F9A]' },
-  { key: 'athletic', label: 'Athletic', sub: 'Speed and power', icon: Zap, color: 'text-[#0284c7]' },
+const GOAL_CARDS: {
+  key: TrainingGoal;
+  label: string;
+  sub: string;
+  icon: typeof Flame;
+  color: string;
+}[] = [
+  {
+    key: 'burn',
+    label: 'Burn calories',
+    sub: 'Sweat and fitness',
+    icon: Flame,
+    color: 'text-[#C4121A]',
+  },
+  {
+    key: 'muscle',
+    label: 'Build muscle',
+    sub: 'Size and strength',
+    icon: Dumbbell,
+    color: 'text-[#d97706]',
+  },
+  {
+    key: 'reset',
+    label: 'Reset and move',
+    sub: 'Easy mobility and recovery',
+    icon: Activity,
+    color: 'text-[#4F8F9A]',
+  },
+  {
+    key: 'athletic',
+    label: 'Athletic',
+    sub: 'Speed and power',
+    icon: Zap,
+    color: 'text-[#0284c7]',
+  },
 ];
 
 const GOAL_MODE: Record<Goal, TrainingGoal> = {
@@ -96,7 +133,9 @@ export const IntelCoachAccordionPanel: React.FC<IntelCoachAccordionPanelProps> =
     : CORE_FOCUS.includes(movementFocus)
       ? CORE_FOCUS
       : [...CORE_FOCUS, movementFocus];
-  const [selectedDuration, setSelectedDuration] = useState<number>(() => useConsultationStore.getState().sessionMinutes || 45);
+  const [selectedDuration, setSelectedDuration] = useState<number>(
+    () => useConsultationStore.getState().sessionMinutes || 45,
+  );
   const [isDurationModalOpen, setIsDurationModalOpen] = useState(false);
   const [prescription, setPrescription] = useState<ExerciseItem[] | null>(null);
   const [builtFor, setBuiltFor] = useState('');
@@ -112,7 +151,7 @@ export const IntelCoachAccordionPanel: React.FC<IntelCoachAccordionPanelProps> =
       selectedDuration,
       energyLevel,
       athleteWeightKg,
-      movementFocus
+      movementFocus,
     );
   }, [trainingGoal, selectedDuration, energyLevel, athleteWeightKg, movementFocus]);
 
@@ -136,7 +175,7 @@ export const IntelCoachAccordionPanel: React.FC<IntelCoachAccordionPanelProps> =
         trainingGoal,
         energyLevel,
         selectedDuration,
-        movementFocus
+        movementFocus,
       );
       tactileEngine.playPRCelebration();
       setPrescription(generated);
@@ -223,16 +262,34 @@ export const IntelCoachAccordionPanel: React.FC<IntelCoachAccordionPanelProps> =
             {energyLevel === 'LOW'
               ? 'Take it easy'
               : energyLevel === 'PRIME'
-              ? 'Go hard'
-              : 'Normal session'}
+                ? 'Go hard'
+                : 'Normal session'}
           </span>
         </div>
         <div className="grid grid-cols-3 gap-2">
           {(
             [
-              { key: 'LOW', label: 'Tired', sub: 'Take it easy', icon: Droplets, color: 'text-[#0284c7]' },
-              { key: 'STEADY', label: 'Okay', sub: 'Normal session', icon: Zap, color: 'text-[#d97706]' },
-              { key: 'PRIME', label: 'Great', sub: 'Go hard', icon: BatteryCharging, color: 'text-[#059669]' },
+              {
+                key: 'LOW',
+                label: 'Tired',
+                sub: 'Take it easy',
+                icon: Droplets,
+                color: 'text-[#0284c7]',
+              },
+              {
+                key: 'STEADY',
+                label: 'Okay',
+                sub: 'Normal session',
+                icon: Zap,
+                color: 'text-[#d97706]',
+              },
+              {
+                key: 'PRIME',
+                label: 'Great',
+                sub: 'Go hard',
+                icon: BatteryCharging,
+                color: 'text-[#059669]',
+              },
             ] as const
           ).map((lvl) => {
             const isSelected = energyLevel === lvl.key;
@@ -248,12 +305,12 @@ export const IntelCoachAccordionPanel: React.FC<IntelCoachAccordionPanelProps> =
                 className={`py-2 px-2.5 rounded-full text-center transition-all cursor-pointer active:scale-[0.98] ${isSelected ? PILL_ON : PILL_OFF}`}
               >
                 <div className="flex items-center justify-center gap-1.5 mb-0.5">
-                  <span className="text-xs font-medium font-mono tracking-wider">
-                    {lvl.label}
-                  </span>
+                  <span className="text-xs font-medium font-mono tracking-wider">{lvl.label}</span>
                   <Icon className={`w-3.5 h-3.5 ${lvl.color}`} />
                 </div>
-                <span className={`text-[11px] block truncate font-medium ${isSelected ? PILL_SUB_ON : PILL_SUB_OFF}`}>
+                <span
+                  className={`text-[11px] block truncate font-medium ${isSelected ? PILL_SUB_ON : PILL_SUB_OFF}`}
+                >
                   {lvl.sub}
                 </span>
               </button>
@@ -284,7 +341,9 @@ export const IntelCoachAccordionPanel: React.FC<IntelCoachAccordionPanelProps> =
                   <span className="text-xs font-medium truncate">{label}</span>
                   <Icon className={`w-4 h-4 shrink-0 ${color}`} />
                 </div>
-                <p className={`text-[11px] truncate ${isSelected ? PILL_SUB_ON : PILL_SUB_OFF}`}>{sub}</p>
+                <p className={`text-[11px] truncate ${isSelected ? PILL_SUB_ON : PILL_SUB_OFF}`}>
+                  {sub}
+                </p>
               </button>
             );
           })}
@@ -384,8 +443,7 @@ export const IntelCoachAccordionPanel: React.FC<IntelCoachAccordionPanelProps> =
                 {selectedDuration}m
               </span>
               <span className="flex items-center gap-1 text-o1-crimson">
-                <Flame className="w-3.5 h-3.5 text-o1-crimson" />
-                ~{estCalories} kcal
+                <Flame className="w-3.5 h-3.5 text-o1-crimson" />~{estCalories} kcal
               </span>
             </div>
             <button
@@ -403,7 +461,11 @@ export const IntelCoachAccordionPanel: React.FC<IntelCoachAccordionPanelProps> =
 
       {/* Generated Prescription from Live EXERCISE_DATABASE */}
       {prescription && (
-        <IntelPrescriptionCard prescription={prescription} estCalories={estCalories} outdated={!isFresh} />
+        <IntelPrescriptionCard
+          prescription={prescription}
+          estCalories={estCalories}
+          outdated={!isFresh}
+        />
       )}
 
       {/* Duration Bottom Sheet */}
@@ -414,9 +476,11 @@ export const IntelCoachAccordionPanel: React.FC<IntelCoachAccordionPanelProps> =
         onClose={() => setIsDurationModalOpen(false)}
       />
 
-      <IntelInsightsModal isOpen={isLoadReportOpen} onClose={() => setIsLoadReportOpen(false)} initialTab="today" />
+      <IntelInsightsModal
+        isOpen={isLoadReportOpen}
+        onClose={() => setIsLoadReportOpen(false)}
+        initialTab="today"
+      />
     </div>
   );
 };
-
-

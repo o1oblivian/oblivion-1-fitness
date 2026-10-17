@@ -55,7 +55,13 @@ export const SwipeToReveal: React.FC<SwipeToRevealProps> = ({
 }) => {
   const rootRef = useRef<HTMLDivElement>(null);
   const actionRef = useRef<HTMLDivElement>(null);
-  const gesture = useRef<{ x: number; y: number; base: number; axis: 'x' | 'y' | null; id: number } | null>(null);
+  const gesture = useRef<{
+    x: number;
+    y: number;
+    base: number;
+    axis: 'x' | 'y' | null;
+    id: number;
+  } | null>(null);
   const swallowClick = useRef(false);
   const nudgedOnce = useRef(false);
   const [offset, setOffset] = useState(0);
@@ -89,25 +95,41 @@ export const SwipeToReveal: React.FC<SwipeToRevealProps> = ({
     return () => document.removeEventListener('pointerdown', onOutside, true);
   }, [open, close]);
 
-  useEffect(() => () => {
-    if (closeOpenRow === close) closeOpenRow = null;
-  }, [close]);
+  useEffect(
+    () => () => {
+      if (closeOpenRow === close) closeOpenRow = null;
+    },
+    [close],
+  );
 
   useEffect(() => {
-    if (!hint || !peekHint || nudgedOnce.current || window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
+    if (
+      !hint ||
+      !peekHint ||
+      nudgedOnce.current ||
+      window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+    )
+      return;
     const onLearned = () => setPeekHint(false);
     learnedListeners.add(onLearned);
     const timers: number[] = [];
     const busy = () => {
       const root = rootRef.current;
-      return !root || gesture.current !== null || root.contains(document.activeElement) || closeOpenRow !== null;
+      return (
+        !root ||
+        gesture.current !== null ||
+        root.contains(document.activeElement) ||
+        closeOpenRow !== null
+      );
     };
     timers.push(
       window.setTimeout(() => {
         if (busy()) return;
         nudgedOnce.current = true;
         setOffset((v) => (v === 0 ? -PEEK_PX : v));
-        timers.push(window.setTimeout(() => setOffset((v) => (v === -PEEK_PX ? 0 : v)), PEEK_HOLD_MS));
+        timers.push(
+          window.setTimeout(() => setOffset((v) => (v === -PEEK_PX ? 0 : v)), PEEK_HOLD_MS),
+        );
       }, PEEK_FIRST_MS),
     );
     return () => {
@@ -118,7 +140,13 @@ export const SwipeToReveal: React.FC<SwipeToRevealProps> = ({
 
   const onPointerDown = (e: React.PointerEvent) => {
     if (e.pointerType === 'mouse' && e.button !== 0) return;
-    gesture.current = { x: e.clientX, y: e.clientY, base: open ? -revealWidth() : 0, axis: null, id: e.pointerId };
+    gesture.current = {
+      x: e.clientX,
+      y: e.clientY,
+      base: open ? -revealWidth() : 0,
+      axis: null,
+      id: e.pointerId,
+    };
   };
 
   const onPointerMove = (e: React.PointerEvent) => {
@@ -227,5 +255,3 @@ export const SwipeToReveal: React.FC<SwipeToRevealProps> = ({
     </div>
   );
 };
-
-

@@ -3,7 +3,12 @@ import { useCoachStore } from '../../stores/useCoachStore';
 import { useActiveProgramStore, ProgramDaySchedule } from '../../stores/useActiveProgramStore';
 import { useWorkoutStore } from '../workout/store/useWorkoutStore';
 import { getAthleteDayRoutine, getSystemTodayCode } from '../workout/services/dayRoutineService';
-import { AssignedExerciseRow, AssignedWorkoutRow, CoachDispatchedWorkout, DispatchedExercise } from '../../types/coach';
+import {
+  AssignedExerciseRow,
+  AssignedWorkoutRow,
+  CoachDispatchedWorkout,
+  DispatchedExercise,
+} from '../../types/coach';
 import { titleCase } from '../../utils/displayCase';
 import type { ExerciseItem, ExerciseSet } from '../../types/exercise';
 
@@ -44,7 +49,12 @@ function freshSets(count: number, reps: number, weightKg: number, rpe: number) {
   }));
 }
 
-function asLogExercise(name: string, sets: ExerciseSet[], muscle?: string, equipment?: string): ExerciseItem {
+function asLogExercise(
+  name: string,
+  sets: ExerciseSet[],
+  muscle?: string,
+  equipment?: string,
+): ExerciseItem {
   return {
     id: `today-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
     name,
@@ -58,7 +68,8 @@ function asLogExercise(name: string, sets: ExerciseSet[], muscle?: string, equip
 }
 
 function fromCoachExercise(exercise: DispatchedExercise) {
-  const reps = typeof exercise.reps === 'number' ? exercise.reps : parseInt(String(exercise.reps), 10) || 0;
+  const reps =
+    typeof exercise.reps === 'number' ? exercise.reps : parseInt(String(exercise.reps), 10) || 0;
   return asLogExercise(
     exercise.name,
     freshSets(exercise.sets, reps, exercise.weightKg || 0, exercise.rpe || 0),
@@ -99,21 +110,25 @@ function fromSavedExercise(exercise: ExerciseItem) {
 
 export function mapAssignedRow(row: AssignedWorkoutRow): CoachDispatchedWorkout {
   const raw = row?.exercises || row?.workout_data?.exercises || [];
-  const exercises: DispatchedExercise[] = (Array.isArray(raw) ? raw : []).map((exercise: AssignedExerciseRow, index: number) => {
-    const setList = Array.isArray(exercise.sets) ? exercise.sets : null;
-    const first = setList?.[0];
-    return {
-      id: String(exercise.id || `ex-${index}`),
-      name: exercise.name || 'Exercise',
-      sets: setList ? setList.length : Number(exercise.sets || exercise.setsCount || 1),
-      reps: first?.reps || first?.targetReps || exercise.reps || 0,
-      rpe: first?.rpe || exercise.rpe,
-      targetMuscle: exercise.targetMuscle || exercise.muscle,
-      restSecs: exercise.restSecs,
-      notes: exercise.notes || exercise.cue,
-      weightKg: Number(first?.weightKg || first?.weight || first?.targetWeightKg || exercise.weightKg || 0),
-    };
-  });
+  const exercises: DispatchedExercise[] = (Array.isArray(raw) ? raw : []).map(
+    (exercise: AssignedExerciseRow, index: number) => {
+      const setList = Array.isArray(exercise.sets) ? exercise.sets : null;
+      const first = setList?.[0];
+      return {
+        id: String(exercise.id || `ex-${index}`),
+        name: exercise.name || 'Exercise',
+        sets: setList ? setList.length : Number(exercise.sets || exercise.setsCount || 1),
+        reps: first?.reps || first?.targetReps || exercise.reps || 0,
+        rpe: first?.rpe || exercise.rpe,
+        targetMuscle: exercise.targetMuscle || exercise.muscle,
+        restSecs: exercise.restSecs,
+        notes: exercise.notes || exercise.cue,
+        weightKg: Number(
+          first?.weightKg || first?.weight || first?.targetWeightKg || exercise.weightKg || 0,
+        ),
+      };
+    },
+  );
   return {
     id: String(row.id || `assigned-${Date.now()}`),
     title: row.title || 'Coach workout',
@@ -193,7 +208,9 @@ export function resolvePlannedSession(): TodaySession {
   if (session.exercises.length > 0) return session;
   const plan = getAthleteDayRoutine(getSystemTodayCode());
   if (plan.exercises.length === 0) {
-    return /^rest/i.test(plan.splitName) ? { ...session, title: 'Rest day', detail: 'Day off' } : session;
+    return /^rest/i.test(plan.splitName)
+      ? { ...session, title: 'Rest day', detail: 'Day off' }
+      : session;
   }
   const title = titleCase(plan.splitName || 'Workout');
   return {
@@ -256,10 +273,7 @@ export function settleFinishedSession() {
   const { origin, assignedId } = readSessionOrigin();
   if (origin === 'coach' && assignedId) {
     useCoachStore.getState().completeAssigned(assignedId);
-    void supabase
-      .from('assigned_workouts')
-      .update({ status: 'completed' })
-      .eq('id', assignedId);
+    void supabase.from('assigned_workouts').update({ status: 'completed' }).eq('id', assignedId);
   }
 
   let nextTitle = '';

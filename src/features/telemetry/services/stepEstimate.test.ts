@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { estimateKcalFromSteps, estimateKmFromSteps, estimateStepsFromCardio } from './stepEstimate';
+import {
+  estimateKcalFromSteps,
+  estimateKmFromSteps,
+  estimateStepsFromCardio,
+} from './stepEstimate';
 
 describe('estimateKmFromSteps', () => {
   it('turns steps into a walking distance', () => {

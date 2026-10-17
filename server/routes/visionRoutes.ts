@@ -1,6 +1,11 @@
 import type { Express } from 'express';
 import { recognizeTelemetryFromBuffer } from '../../src/services/ocrTelemetryParser';
-import { generateContentWithFallback, getGenAI, parseGeminiJson, QUICK_READ_THINKING } from '../lib/gemini';
+import {
+  generateContentWithFallback,
+  getGenAI,
+  parseGeminiJson,
+  QUICK_READ_THINKING,
+} from '../lib/gemini';
 
 /** Photo reading: cardio consoles and watches, and meal photos. */
 export function registerVisionRoutes(app: Express): void {
@@ -56,80 +61,124 @@ Return STRICT JSON matching this schema:
   "pace": string | null
 }`;
 
-          const response = await generateContentWithFallback(genAI, [
-            {
-              role: 'user',
-              parts: [
-                {
-                  inlineData: {
-                    mimeType,
-                    data: cleanBase64,
+          const response = await generateContentWithFallback(
+            genAI,
+            [
+              {
+                role: 'user',
+                parts: [
+                  {
+                    inlineData: {
+                      mimeType,
+                      data: cleanBase64,
+                    },
                   },
-                },
-                { text: prompt },
-              ],
-            },
-          ], { responseMimeType: 'application/json', thinkingConfig: QUICK_READ_THINKING });
+                  { text: prompt },
+                ],
+              },
+            ],
+            { responseMimeType: 'application/json', thinkingConfig: QUICK_READ_THINKING },
+          );
 
           const text = response?.text || '';
           const parsed = parseGeminiJson(text);
 
-            // Normalize elapsed time
-            let normalizedElapsed: string | null = null;
-            let elapsedMinsNumber: number | null = null;
-            if (typeof parsed.elapsedMinutes === 'string' && parsed.elapsedMinutes.trim() !== '') {
-              const timeParts = parsed.elapsedMinutes.split(':').map((p: string) => parseFloat(p.trim()));
-              if (timeParts.length === 2 && !isNaN(timeParts[0]) && !isNaN(timeParts[1])) {
-                elapsedMinsNumber = Number((timeParts[0] + timeParts[1] / 60).toFixed(2));
-                normalizedElapsed = parsed.elapsedMinutes.trim();
-              } else if (!isNaN(parseFloat(parsed.elapsedMinutes))) {
-                elapsedMinsNumber = parseFloat(parsed.elapsedMinutes);
-                normalizedElapsed = `${elapsedMinsNumber} min`;
-              }
-            } else if (typeof parsed.elapsedMinutes === 'number' && parsed.elapsedMinutes > 0) {
-              elapsedMinsNumber = parsed.elapsedMinutes;
+          // Normalize elapsed time
+          let normalizedElapsed: string | null = null;
+          let elapsedMinsNumber: number | null = null;
+          if (typeof parsed.elapsedMinutes === 'string' && parsed.elapsedMinutes.trim() !== '') {
+            const timeParts = parsed.elapsedMinutes
+              .split(':')
+              .map((p: string) => parseFloat(p.trim()));
+            if (timeParts.length === 2 && !isNaN(timeParts[0]) && !isNaN(timeParts[1])) {
+              elapsedMinsNumber = Number((timeParts[0] + timeParts[1] / 60).toFixed(2));
+              normalizedElapsed = parsed.elapsedMinutes.trim();
+            } else if (!isNaN(parseFloat(parsed.elapsedMinutes))) {
+              elapsedMinsNumber = parseFloat(parsed.elapsedMinutes);
               normalizedElapsed = `${elapsedMinsNumber} min`;
-            } else if (ocrExtracted?.elapsedMinutes) {
-              elapsedMinsNumber = ocrExtracted.elapsedMinutes;
-              normalizedElapsed = ocrExtracted.elapsedDisplay;
             }
+          } else if (typeof parsed.elapsedMinutes === 'number' && parsed.elapsedMinutes > 0) {
+            elapsedMinsNumber = parsed.elapsedMinutes;
+            normalizedElapsed = `${elapsedMinsNumber} min`;
+          } else if (ocrExtracted?.elapsedMinutes) {
+            elapsedMinsNumber = ocrExtracted.elapsedMinutes;
+            normalizedElapsed = ocrExtracted.elapsedDisplay;
+          }
 
-            const distanceVal = parsed.distanceKm !== null && parsed.distanceKm !== undefined ? Number(parsed.distanceKm) : (ocrExtracted?.distanceKm ?? null);
-            const caloriesVal = parsed.caloriesBurned !== null && parsed.caloriesBurned !== undefined ? Number(parsed.caloriesBurned) : (ocrExtracted?.caloriesBurned ?? null);
-            const speedVal = parsed.speedKmh !== null && parsed.speedKmh !== undefined ? Number(parsed.speedKmh) : (ocrExtracted?.speedKmh ?? null);
-            const inclineVal = parsed.inclinePct !== null && parsed.inclinePct !== undefined ? Number(parsed.inclinePct) : (ocrExtracted?.inclinePct ?? null);
-            const heartRateVal = parsed.avgHeartRateBpm !== null && parsed.avgHeartRateBpm !== undefined ? Number(parsed.avgHeartRateBpm) : (ocrExtracted?.avgHeartRateBpm ?? null);
-            const stepsVal = parsed.steps !== null && parsed.steps !== undefined ? Number(parsed.steps) : (ocrExtracted?.steps ?? null);
-            const wattsVal = parsed.watts !== null && parsed.watts !== undefined ? Number(parsed.watts) : null;
-            const paceVal = parsed.pace || null;
+          const distanceVal =
+            parsed.distanceKm !== null && parsed.distanceKm !== undefined
+              ? Number(parsed.distanceKm)
+              : (ocrExtracted?.distanceKm ?? null);
+          const caloriesVal =
+            parsed.caloriesBurned !== null && parsed.caloriesBurned !== undefined
+              ? Number(parsed.caloriesBurned)
+              : (ocrExtracted?.caloriesBurned ?? null);
+          const speedVal =
+            parsed.speedKmh !== null && parsed.speedKmh !== undefined
+              ? Number(parsed.speedKmh)
+              : (ocrExtracted?.speedKmh ?? null);
+          const inclineVal =
+            parsed.inclinePct !== null && parsed.inclinePct !== undefined
+              ? Number(parsed.inclinePct)
+              : (ocrExtracted?.inclinePct ?? null);
+          const heartRateVal =
+            parsed.avgHeartRateBpm !== null && parsed.avgHeartRateBpm !== undefined
+              ? Number(parsed.avgHeartRateBpm)
+              : (ocrExtracted?.avgHeartRateBpm ?? null);
+          const stepsVal =
+            parsed.steps !== null && parsed.steps !== undefined
+              ? Number(parsed.steps)
+              : (ocrExtracted?.steps ?? null);
+          const wattsVal =
+            parsed.watts !== null && parsed.watts !== undefined ? Number(parsed.watts) : null;
+          const paceVal = parsed.pace || null;
 
-            const hasAnyMetric = distanceVal !== null || caloriesVal !== null || speedVal !== null || inclineVal !== null || heartRateVal !== null || stepsVal !== null || (elapsedMinsNumber !== null && elapsedMinsNumber > 0);
-            if (hasAnyMetric) {
-              return res.json({
-                success: true,
-                telemetry: {
-                  deviceType: parsed.deviceType === 'WATCH' ? 'watch' : (ocrExtracted?.deviceType || 'console'),
-                  elapsedDisplay: normalizedElapsed,
-                  elapsedMinutes: elapsedMinsNumber,
-                  distanceKm: distanceVal,
-                  caloriesBurned: caloriesVal,
-                  speedKmh: speedVal,
-                  inclinePct: inclineVal,
-                  avgHeartRateBpm: heartRateVal,
-                  steps: stepsVal,
-                  watts: wattsVal,
-                  pace: paceVal,
-                },
-                calibrationNote: stepsVal ? `Optical OCR read ${stepsVal.toLocaleString()} steps directly.` : 'Optical OCR calibrated.',
-              });
-            }
+          const hasAnyMetric =
+            distanceVal !== null ||
+            caloriesVal !== null ||
+            speedVal !== null ||
+            inclineVal !== null ||
+            heartRateVal !== null ||
+            stepsVal !== null ||
+            (elapsedMinsNumber !== null && elapsedMinsNumber > 0);
+          if (hasAnyMetric) {
+            return res.json({
+              success: true,
+              telemetry: {
+                deviceType:
+                  parsed.deviceType === 'WATCH' ? 'watch' : ocrExtracted?.deviceType || 'console',
+                elapsedDisplay: normalizedElapsed,
+                elapsedMinutes: elapsedMinsNumber,
+                distanceKm: distanceVal,
+                caloriesBurned: caloriesVal,
+                speedKmh: speedVal,
+                inclinePct: inclineVal,
+                avgHeartRateBpm: heartRateVal,
+                steps: stepsVal,
+                watts: wattsVal,
+                pace: paceVal,
+              },
+              calibrationNote: stepsVal
+                ? `Optical OCR read ${stepsVal.toLocaleString()} steps directly.`
+                : 'Optical OCR calibrated.',
+            });
+          }
         } catch (genErr: any) {
-          console.warn('Gemini vision API unavailable or interrupted, falling back to pure Tesseract OCR pass:', genErr?.message || genErr);
+          console.warn(
+            'Gemini vision API unavailable or interrupted, falling back to pure Tesseract OCR pass:',
+            genErr?.message || genErr,
+          );
         }
       }
 
       ocrExtracted = await recognizeTelemetryFromBuffer(imgBuffer);
-      if (ocrExtracted && (ocrExtracted.steps || ocrExtracted.distanceKm || ocrExtracted.caloriesBurned || ocrExtracted.elapsedMinutes > 0)) {
+      if (
+        ocrExtracted &&
+        (ocrExtracted.steps ||
+          ocrExtracted.distanceKm ||
+          ocrExtracted.caloriesBurned ||
+          ocrExtracted.elapsedMinutes > 0)
+      ) {
         return res.json({
           success: true,
           telemetry: {
@@ -167,7 +216,8 @@ Return STRICT JSON matching this schema:
           watts: null,
           pace: null,
         },
-        calibrationNote: 'No readable numbers detected on image. Tap any metric to enter manually or retake photo.',
+        calibrationNote:
+          'No readable numbers detected on image. Tap any metric to enter manually or retake photo.',
       });
     } catch (err: any) {
       console.error('Error in /api/vision/cardio-telemetry:', err);
@@ -251,49 +301,62 @@ Return valid JSON only matching:
                 ],
               },
             ],
-            { temperature: 0.0, responseMimeType: 'application/json', thinkingConfig: QUICK_READ_THINKING }
+            {
+              temperature: 0.0,
+              responseMimeType: 'application/json',
+              thinkingConfig: QUICK_READ_THINKING,
+            },
           );
 
           const text = response.text || '';
           const parsed = parseGeminiJson(text);
           const proteinG = Math.max(0, Math.round(Number(parsed.proteinGrams) || 0));
-            const carbsG = Math.max(0, Math.round(Number(parsed.carbsGrams) || 0));
-            const fatG = Math.max(0, Math.round(Number(parsed.fatGrams) || 0));
-            
-            // Check calories or calculate using standard Atwater physiological macro factors (4 kcal/g protein, 4 kcal/g carbs, 9 kcal/g fat)
-            let calculatedCalories = Math.max(0, Math.round(Number(parsed.calories) || 0));
-            if (calculatedCalories === 0 && (proteinG > 0 || carbsG > 0 || fatG > 0)) {
-              calculatedCalories = Math.round(proteinG * 4 + carbsG * 4 + fatG * 9);
-            }
+          const carbsG = Math.max(0, Math.round(Number(parsed.carbsGrams) || 0));
+          const fatG = Math.max(0, Math.round(Number(parsed.fatGrams) || 0));
 
-            if (calculatedCalories <= 0) {
-              return res.status(422).json({
-                error: 'Could not resolve meal macronutrients. Retake photo with clear lighting and full plate visibility.',
-              });
-            }
+          // Check calories or calculate using standard Atwater physiological macro factors (4 kcal/g protein, 4 kcal/g carbs, 9 kcal/g fat)
+          let calculatedCalories = Math.max(0, Math.round(Number(parsed.calories) || 0));
+          if (calculatedCalories === 0 && (proteinG > 0 || carbsG > 0 || fatG > 0)) {
+            calculatedCalories = Math.round(proteinG * 4 + carbsG * 4 + fatG * 9);
+          }
 
-            return res.json({
-              success: true,
-              nutrients: {
-                mealName: parsed.mealName || (scanMode === 'package' ? 'Packaged Nutrition Item' : 'Analyzed Athletic Plate'),
-                detectedItems: Array.isArray(parsed.detectedItems) ? parsed.detectedItems : [],
-                estimatedGrams: Number(parsed.estimatedGrams) || 0,
-                servingDescription: parsed.servingDescription || (scanMode === 'package' ? '1 package serving' : '1 standard plate'),
-                calories: calculatedCalories,
-                proteinGrams: proteinG,
-                carbsGrams: carbsG,
-                fatGrams: fatG,
-                // The model's own figure, never a made-up default.
-                confidenceScore: Math.min(99, Math.max(0, Math.round(Number(parsed.confidenceScore) || 0))),
-              },
+          if (calculatedCalories <= 0) {
+            return res.status(422).json({
+              error:
+                'Could not resolve meal macronutrients. Retake photo with clear lighting and full plate visibility.',
             });
+          }
+
+          return res.json({
+            success: true,
+            nutrients: {
+              mealName:
+                parsed.mealName ||
+                (scanMode === 'package' ? 'Packaged Nutrition Item' : 'Analyzed Athletic Plate'),
+              detectedItems: Array.isArray(parsed.detectedItems) ? parsed.detectedItems : [],
+              estimatedGrams: Number(parsed.estimatedGrams) || 0,
+              servingDescription:
+                parsed.servingDescription ||
+                (scanMode === 'package' ? '1 package serving' : '1 standard plate'),
+              calories: calculatedCalories,
+              proteinGrams: proteinG,
+              carbsGrams: carbsG,
+              fatGrams: fatG,
+              // The model's own figure, never a made-up default.
+              confidenceScore: Math.min(
+                99,
+                Math.max(0, Math.round(Number(parsed.confidenceScore) || 0)),
+              ),
+            },
+          });
         } catch (aiErr: any) {
           console.warn('Gemini vision API error during meal analysis:', aiErr?.message || aiErr);
         }
       }
 
       return res.status(422).json({
-        error: 'Could not resolve meal macronutrients. Retake photo with clear lighting and full plate visibility.',
+        error:
+          'Could not resolve meal macronutrients. Retake photo with clear lighting and full plate visibility.',
       });
     } catch (err: any) {
       console.error('Error in /api/vision/meal-nutrients:', err);

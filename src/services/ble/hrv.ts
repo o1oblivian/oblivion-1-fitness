@@ -23,7 +23,11 @@ export class HrvCollector {
     for (const ms of intervalsMs) {
       if (ms < MIN_RR_MS || ms > MAX_RR_MS) continue;
       const prev = this.beats[this.beats.length - 1];
-      if (prev !== undefined && Math.abs(ms - prev) > prev * MAX_JUMP && this.rejectStreak < MAX_REJECT_STREAK) {
+      if (
+        prev !== undefined &&
+        Math.abs(ms - prev) > prev * MAX_JUMP &&
+        this.rejectStreak < MAX_REJECT_STREAK
+      ) {
         this.rejectStreak++;
         continue;
       }
@@ -78,7 +82,9 @@ function readSaved(): Record<string, HrvReading> {
   const saved = safeStorage.getItem<Record<string, HrvReading> | null>(KEY, null);
   if (!saved || typeof saved !== 'object') return {};
   return Object.fromEntries(
-    Object.entries(saved).filter(([, r]) => r && Number.isFinite(r.rmssdMs) && r.rmssdMs > 0 && Number.isFinite(r.at)),
+    Object.entries(saved).filter(
+      ([, r]) => r && Number.isFinite(r.rmssdMs) && r.rmssdMs > 0 && Number.isFinite(r.at),
+    ),
   );
 }
 
@@ -87,7 +93,9 @@ let lastSaved = 0;
 const store = createStore<HrvState, HrvActions>({ byDate: readSaved() }, (set, get) => ({
   record: (reading) => {
     const dateKey = localDateKey(reading.at);
-    const kept = Object.keys(get().byDate).sort().slice(-(KEEP_DAYS - 1));
+    const kept = Object.keys(get().byDate)
+      .sort()
+      .slice(-(KEEP_DAYS - 1));
     const byDate: Record<string, HrvReading> = {};
     for (const key of kept) byDate[key] = get().byDate[key];
     byDate[dateKey] = reading;

@@ -51,7 +51,12 @@ import {
   workoutLine,
   type Headline,
 } from './logHistoryFormat';
-import { deleteDayLog, markForgotten, purgeArchivedDay, purgeArchivedLift } from '../services/dayLogService';
+import {
+  deleteDayLog,
+  markForgotten,
+  purgeArchivedDay,
+  purgeArchivedLift,
+} from '../services/dayLogService';
 import { exerciseFromSets, knownSets, setWorkKg, setsFromExercise } from '../liftLedger';
 import { forgetPendingArchives } from '../../../services/sessionArchive';
 
@@ -85,10 +90,17 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({ sh
   const [towersOpen, setTowersOpen] = useState(true);
   const [towerChannel, setTowerChannel] = useState<TelemetryCategory>('workout');
   const [chartSpan, setChartSpan] = useState<'week' | 'month' | 'year'>('week');
-  const [editor, setEditor] = useState<{ category: TelemetryCategory; mode: 'create' | 'edit'; lift?: string } | null>(null);
+  const [editor, setEditor] = useState<{
+    category: TelemetryCategory;
+    mode: 'create' | 'edit';
+    lift?: string;
+  } | null>(null);
   const [pendingDelete, setPendingDelete] = useState<TelemetryCategory | null>(null);
   const [pendingLiftDelete, setPendingLiftDelete] = useState<string | null>(null);
-  const [pendingMealDelete, setPendingMealDelete] = useState<{ index: number; name: string } | null>(null);
+  const [pendingMealDelete, setPendingMealDelete] = useState<{
+    index: number;
+    name: string;
+  } | null>(null);
   const clearPending = () => {
     setPendingDelete(null);
     setPendingLiftDelete(null);
@@ -116,13 +128,16 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({ sh
       return !name.startsWith('cardio:') && !name.includes('telemetry');
     });
     const exercises = lifts
-      .map((exercise) => exerciseFromSets(
-        exercise.name || exercise.exerciseName || 'Exercise',
-        setsFromExercise(exercise, true),
-        true,
-      ))
+      .map((exercise) =>
+        exerciseFromSets(
+          exercise.name || exercise.exerciseName || 'Exercise',
+          setsFromExercise(exercise, true),
+          true,
+        ),
+      )
       .filter((entry) => (entry.setLog?.length || 0) > 0);
-    if (exercises.length === 0 && sessionTonnageKg <= 0 && completedSetsCount <= 0) return undefined;
+    if (exercises.length === 0 && sessionTonnageKg <= 0 && completedSetsCount <= 0)
+      return undefined;
     return {
       hasData: true,
       tonnageKg: sessionTonnageKg,
@@ -146,16 +161,24 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({ sh
       carbsTargetG: 0,
       fatsG: Math.round(allMeals.reduce((sum, meal) => sum + (meal.fats || 0), 0) * 10) / 10,
       fatsTargetG: 0,
-      meals: (['breakfast', 'lunch', 'dinner', 'snack', 'drinks', 'supplements'] as const).flatMap((slot) =>
-        (meals?.[slot] || []).map((meal) => ({
-          name: meal.name,
-          category: slot === 'breakfast' ? 'Breakfast' as const : slot === 'dinner' ? 'Dinner' as const : slot === 'snack' ? 'Snacks' as const : 'Lunch' as const,
-          slot,
-          calories: Math.round(meal.calories || 0),
-          proteinG: meal.protein || 0,
-          carbsG: meal.carbs || 0,
-          fatsG: meal.fats || 0,
-        })),
+      meals: (['breakfast', 'lunch', 'dinner', 'snack', 'drinks', 'supplements'] as const).flatMap(
+        (slot) =>
+          (meals?.[slot] || []).map((meal) => ({
+            name: meal.name,
+            category:
+              slot === 'breakfast'
+                ? ('Breakfast' as const)
+                : slot === 'dinner'
+                  ? ('Dinner' as const)
+                  : slot === 'snack'
+                    ? ('Snacks' as const)
+                    : ('Lunch' as const),
+            slot,
+            calories: Math.round(meal.calories || 0),
+            proteinG: meal.protein || 0,
+            carbsG: meal.carbs || 0,
+            fatsG: meal.fats || 0,
+          })),
       ),
     };
   }, [isViewingToday, currentCalories, allMeals, calorieTarget, meals]);
@@ -165,7 +188,8 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({ sh
   const cardio = cleanCardio(day?.cardio);
   const food = liveFood || cleanNutrition(day?.nutrition);
   const sleep = day?.sleep?.hasData ? day.sleep : undefined;
-  const mindful = day?.meditation?.hasData && (day.meditation.minutes || 0) > 0 ? day.meditation : undefined;
+  const mindful =
+    day?.meditation?.hasData && (day.meditation.minutes || 0) > 0 ? day.meditation : undefined;
   const visibleSteps = readableSteps(cardio, isViewingToday ? stepCount : 0);
 
   const weekDays = useMemo(() => {
@@ -186,7 +210,10 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({ sh
     });
   }, [mondayDate, historyByDate, todayKey, liveWorkout]);
 
-  const monthStart = useMemo(() => new Date(today.getFullYear(), today.getMonth() + monthOffset, 1), [today, monthOffset]);
+  const monthStart = useMemo(
+    () => new Date(today.getFullYear(), today.getMonth() + monthOffset, 1),
+    [today, monthOffset],
+  );
 
   const monthDays = useMemo<MonthDayItem[]>(() => {
     const count = new Date(monthStart.getFullYear(), monthStart.getMonth() + 1, 0).getDate();
@@ -232,8 +259,16 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({ sh
     return {
       offset: Math.round((today.getTime() - selectedDate.getTime()) / 86_400_000),
       dateKey: selectedDateKey,
-      dayLabel: isViewingToday ? 'Today' : isYesterday ? 'Yesterday' : selectedDate.toLocaleDateString('en-US', { weekday: 'long' }),
-      dayPillLabel: isViewingToday ? 'Today' : isYesterday ? 'Yest' : WEEKDAYS[(selectedDate.getDay() + 6) % 7],
+      dayLabel: isViewingToday
+        ? 'Today'
+        : isYesterday
+          ? 'Yesterday'
+          : selectedDate.toLocaleDateString('en-US', { weekday: 'long' }),
+      dayPillLabel: isViewingToday
+        ? 'Today'
+        : isYesterday
+          ? 'Yest'
+          : WEEKDAYS[(selectedDate.getDay() + 6) % 7],
       dateFormatted: selectedDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
       isToday: isViewingToday,
       isYesterday,
@@ -248,7 +283,11 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({ sh
   const hasEntry = (category: TelemetryCategory): boolean => {
     if (category === 'workout') return workoutLine(workout) !== '--';
     if (category === 'cardio') {
-      const logged = line([part(cardio?.distanceKm, ' km', 1), part(cardio?.durationMinutes, ' min'), part(cardio?.burnedKcal, ' kcal')]);
+      const logged = line([
+        part(cardio?.distanceKm, ' km', 1),
+        part(cardio?.durationMinutes, ' min'),
+        part(cardio?.burnedKcal, ' kcal'),
+      ]);
       return logged !== '--';
     }
     if (category === 'nutrition') return foodLine(food) !== '--';
@@ -261,7 +300,9 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({ sh
     if (category === 'nutrition' && isViewingToday) {
       const fuel = useFuelStore.getState();
       (Object.keys(fuel.meals) as Array<keyof typeof fuel.meals>).forEach((slot) => {
-        [...fuel.meals[slot]].forEach((item) => useFuelStore.getState().removeMealItem(slot, item.id));
+        [...fuel.meals[slot]].forEach((item) =>
+          useFuelStore.getState().removeMealItem(slot, item.id),
+        );
       });
     }
     if (category === 'workout' && isViewingToday) {
@@ -279,7 +320,8 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({ sh
     markForgotten(selectedDateKey, category);
     useTelemetryHistoryStore.getState().clearDayRecord(selectedDateKey, category);
     void deleteDayLog(selectedDateKey, category);
-    if (category === 'workout' || category === 'cardio') forgetPendingArchives(selectedDateKey, category);
+    if (category === 'workout' || category === 'cardio')
+      forgetPendingArchives(selectedDateKey, category);
     void purgeArchivedDay(selectedDateKey, category);
     setPendingDelete(null);
   };
@@ -294,7 +336,9 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({ sh
     tactileEngine.triggerSelectionBuzz();
     if (isViewingToday) {
       const store = useWorkoutStore.getState();
-      const kept = store.exercises.filter((exercise) => (exercise.name || exercise.exerciseName || '') !== name);
+      const kept = store.exercises.filter(
+        (exercise) => (exercise.name || exercise.exerciseName || '') !== name,
+      );
       if (kept.length !== store.exercises.length) store.setExercises(kept);
     }
     const saved = historyByDate[selectedDateKey]?.workout;
@@ -304,7 +348,10 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({ sh
         ...saved,
         exercises,
         tonnageKg: exercises.reduce((sum, lift) => sum + setWorkKg(knownSets(lift)), 0),
-        completedSets: exercises.reduce((sum, lift) => sum + (knownSets(lift).length || lift.sets || 0), 0),
+        completedSets: exercises.reduce(
+          (sum, lift) => sum + (knownSets(lift).length || lift.sets || 0),
+          0,
+        ),
       });
     }
     forgetPendingArchives(selectedDateKey, 'workout', name);
@@ -323,10 +370,13 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({ sh
     }
     const saved = historyByDate[selectedDateKey]?.nutrition;
     if (saved?.hasData && saved.meals?.length) {
-      const savedIndex = saved.meals.findIndex((meal) => meal.name === target.name && meal.slot === target.slot);
+      const savedIndex = saved.meals.findIndex(
+        (meal) => meal.name === target.name && meal.slot === target.slot,
+      );
       if (savedIndex >= 0) {
         const meals = saved.meals.filter((_, i) => i !== savedIndex);
-        const sum = (pick: (meal: (typeof meals)[number]) => number) => Math.round(meals.reduce((total, meal) => total + (pick(meal) || 0), 0) * 10) / 10;
+        const sum = (pick: (meal: (typeof meals)[number]) => number) =>
+          Math.round(meals.reduce((total, meal) => total + (pick(meal) || 0), 0) * 10) / 10;
         useTelemetryHistoryStore.getState().updateDayRecord(selectedDateKey, 'nutrition', {
           ...saved,
           meals,
@@ -346,7 +396,9 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({ sh
     return String(Math.round(value));
   };
 
-  const towerPoints = (category: TelemetryCategory): { points: TowerPoint[]; unit: string; selectedKey: string } => {
+  const towerPoints = (
+    category: TelemetryCategory,
+  ): { points: TowerPoint[]; unit: string; selectedKey: string } => {
     const readDay = (date: Date) => {
       const key = dateKeyOf(date);
       const record = historyByDate[key];
@@ -392,14 +444,30 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({ sh
           kcal,
         };
       });
-      const unit = category === 'workout' ? 'kg' : category === 'nutrition' ? 'kcal' : category === 'sleep' ? 'h' : category === 'meditation' ? 'min' : (months.some((month) => month.minutes > 0) ? 'min' : 'kcal');
+      const unit =
+        category === 'workout'
+          ? 'kg'
+          : category === 'nutrition'
+            ? 'kcal'
+            : category === 'sleep'
+              ? 'h'
+              : category === 'meditation'
+                ? 'min'
+                : months.some((month) => month.minutes > 0)
+                  ? 'min'
+                  : 'kcal';
       return {
-        selectedKey: new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1).toDateString(),
+        selectedKey: new Date(
+          selectedDate.getFullYear(),
+          selectedDate.getMonth(),
+          1,
+        ).toDateString(),
         unit,
         points: months.map((month) => ({
           key: month.key,
           label: month.label,
-          value: category === 'cardio' ? (unit === 'min' ? month.minutes : month.kcal) : month.value,
+          value:
+            category === 'cardio' ? (unit === 'min' ? month.minutes : month.kcal) : month.value,
         })),
       };
     }
@@ -429,7 +497,18 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({ sh
           kcal,
         };
       });
-      const unit = category === 'workout' ? 'kg' : category === 'nutrition' ? 'kcal' : category === 'sleep' ? 'h' : category === 'meditation' ? 'min' : (weeks.some((week) => week.minutes > 0) ? 'min' : 'kcal');
+      const unit =
+        category === 'workout'
+          ? 'kg'
+          : category === 'nutrition'
+            ? 'kcal'
+            : category === 'sleep'
+              ? 'h'
+              : category === 'meditation'
+                ? 'min'
+                : weeks.some((week) => week.minutes > 0)
+                  ? 'min'
+                  : 'kcal';
       return {
         selectedKey: mondayDate.toDateString(),
         unit,
@@ -447,14 +526,26 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({ sh
       const raw = readDay(date);
       return { key: date.toDateString(), label, raw };
     });
-    const unit = category === 'workout' ? 'kg' : category === 'nutrition' ? 'kcal' : category === 'sleep' ? 'h' : category === 'meditation' ? 'min' : (days.some((day) => typeof day.raw === 'object' && day.raw.minutes > 0) ? 'min' : 'kcal');
+    const unit =
+      category === 'workout'
+        ? 'kg'
+        : category === 'nutrition'
+          ? 'kcal'
+          : category === 'sleep'
+            ? 'h'
+            : category === 'meditation'
+              ? 'min'
+              : days.some((day) => typeof day.raw === 'object' && day.raw.minutes > 0)
+                ? 'min'
+                : 'kcal';
     return {
       selectedKey: selectedDateStr,
       unit,
       points: days.map((day) => ({
         key: day.key,
         label: day.label,
-        value: typeof day.raw === 'number' ? day.raw : (unit === 'min' ? day.raw.minutes : day.raw.kcal),
+        value:
+          typeof day.raw === 'number' ? day.raw : unit === 'min' ? day.raw.minutes : day.raw.kcal,
       })),
     };
   };
@@ -467,13 +558,45 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({ sh
     color: string;
     icon: React.ReactNode;
   }> = [
-    { id: 'workout', title: 'Workout', headline: workoutHeadline(workout), color: 'text-o1-olive', icon: <Weight /> },
-    { id: 'cardio', title: 'Cardio', headline: cardioHeadline(cardio, isViewingToday ? stepCount : 0), color: 'text-o1-teal', icon: <HeartPulse /> },
-    { id: 'nutrition', title: 'Food', headline: foodHeadline(food), color: 'text-o1-slate', icon: <Apple /> },
-    { id: 'sleep', title: 'Sleep', headline: sleepHeadline(sleep), color: 'text-o1-iris', icon: <Moon /> },
-    { id: 'meditation', title: 'Mindful', headline: mindfulHeadline(mindful), color: 'text-o1-rose', icon: <Brain /> },
+    {
+      id: 'workout',
+      title: 'Workout',
+      headline: workoutHeadline(workout),
+      color: 'text-o1-olive',
+      icon: <Weight />,
+    },
+    {
+      id: 'cardio',
+      title: 'Cardio',
+      headline: cardioHeadline(cardio, isViewingToday ? stepCount : 0),
+      color: 'text-o1-teal',
+      icon: <HeartPulse />,
+    },
+    {
+      id: 'nutrition',
+      title: 'Food',
+      headline: foodHeadline(food),
+      color: 'text-o1-slate',
+      icon: <Apple />,
+    },
+    {
+      id: 'sleep',
+      title: 'Sleep',
+      headline: sleepHeadline(sleep),
+      color: 'text-o1-iris',
+      icon: <Moon />,
+    },
+    {
+      id: 'meditation',
+      title: 'Mindful',
+      headline: mindfulHeadline(mindful),
+      color: 'text-o1-rose',
+      icon: <Brain />,
+    },
   ];
-  const loggedChannels = channels.flatMap((channel) => (channel.headline ? [{ ...channel, headline: channel.headline }] : []));
+  const loggedChannels = channels.flatMap((channel) =>
+    channel.headline ? [{ ...channel, headline: channel.headline }] : [],
+  );
   const tower = towerPoints(towerChannel);
   const ledgerTitle = dayHeading(selectedDate, today);
 
@@ -526,7 +649,8 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({ sh
       onDelete: (row) => {
         clearPending();
         const mealIndex = category === 'nutrition' ? Number(row.id.split(':')[1]) : NaN;
-        if (Number.isInteger(mealIndex) && (food?.meals?.length ?? 0) > 1) setPendingMealDelete({ index: mealIndex, name: row.name });
+        if (Number.isInteger(mealIndex) && (food?.meals?.length ?? 0) > 1)
+          setPendingMealDelete({ index: mealIndex, name: row.name });
         else setPendingDelete(category);
       },
     };
@@ -534,7 +658,11 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({ sh
 
   const confirmButtons = (onCancel: () => void, onConfirm: () => void) => (
     <>
-      <button type="button" onClick={onCancel} className="h-8 px-3 rounded-full text-[12px] text-o1-muted hover:text-o1-text cursor-pointer">
+      <button
+        type="button"
+        onClick={onCancel}
+        className="h-8 px-3 rounded-full text-[12px] text-o1-muted hover:text-o1-text cursor-pointer"
+      >
         Cancel
       </button>
       <button
@@ -549,8 +677,12 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({ sh
 
   /** Everything inside an open channel row: its entries and delete confirmations. */
   const renderChannelEntries = (category: TelemetryCategory, title: string) => {
-    const dayWord = selectedDayMeta.dayLabel.toLowerCase() === 'today' ? "today's" : `${selectedDayMeta.dayLabel}'s`;
-    const confirmBox = 'flex items-center gap-2 rounded-xl bg-o1-well border border-[#C4121A]/40 pl-3 pr-1.5 py-1.5';
+    const dayWord =
+      selectedDayMeta.dayLabel.toLowerCase() === 'today'
+        ? "today's"
+        : `${selectedDayMeta.dayLabel}'s`;
+    const confirmBox =
+      'flex items-center gap-2 rounded-xl bg-o1-well border border-[#C4121A]/40 pl-3 pr-1.5 py-1.5';
     return (
       <>
         {pendingDelete === category && (
@@ -558,7 +690,10 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({ sh
             <p className="flex-1 min-w-0 text-[12px] text-o1-text leading-snug">
               Delete {dayWord} {title.toLowerCase()}? This action cannot be undone.
             </p>
-            {confirmButtons(() => setPendingDelete(null), () => removeEntry(category))}
+            {confirmButtons(
+              () => setPendingDelete(null),
+              () => removeEntry(category),
+            )}
           </div>
         )}
         <ChannelDetail
@@ -572,19 +707,33 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({ sh
           rowActions={rowActionsFor(category)}
         />
         {category === 'nutrition' && pendingMealDelete && (
-          <div role="alertdialog" aria-label={`Delete ${pendingMealDelete.name}`} className={confirmBox}>
+          <div
+            role="alertdialog"
+            aria-label={`Delete ${pendingMealDelete.name}`}
+            className={confirmBox}
+          >
             <p className="flex-1 min-w-0 text-[12px] text-o1-text leading-snug">
               Delete {pendingMealDelete.name}? This action cannot be undone.
             </p>
-            {confirmButtons(() => setPendingMealDelete(null), () => removeMeal(pendingMealDelete.index))}
+            {confirmButtons(
+              () => setPendingMealDelete(null),
+              () => removeMeal(pendingMealDelete.index),
+            )}
           </div>
         )}
         {category === 'workout' && pendingLiftDelete && (
           <div role="alertdialog" aria-label={`Delete ${pendingLiftDelete}`} className={confirmBox}>
             <p className="flex-1 min-w-0 text-[12px] text-o1-text leading-snug">
-              Delete {pendingLiftDelete} from {selectedDayMeta.dayLabel.toLowerCase() === 'today' ? 'today' : selectedDayMeta.dayLabel}? This action cannot be undone.
+              Delete {pendingLiftDelete} from{' '}
+              {selectedDayMeta.dayLabel.toLowerCase() === 'today'
+                ? 'today'
+                : selectedDayMeta.dayLabel}
+              ? This action cannot be undone.
             </p>
-            {confirmButtons(() => setPendingLiftDelete(null), () => removeLift(pendingLiftDelete))}
+            {confirmButtons(
+              () => setPendingLiftDelete(null),
+              () => removeLift(pendingLiftDelete),
+            )}
           </div>
         )}
       </>
@@ -607,7 +756,11 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({ sh
                   onClick={() => {
                     tactileEngine.triggerSelectionBuzz();
                     if (month) {
-                      setMonthOffset((selectedDate.getFullYear() - today.getFullYear()) * 12 + selectedDate.getMonth() - today.getMonth());
+                      setMonthOffset(
+                        (selectedDate.getFullYear() - today.getFullYear()) * 12 +
+                          selectedDate.getMonth() -
+                          today.getMonth(),
+                      );
                     }
                     setMonthView(month);
                   }}
@@ -619,7 +772,9 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({ sh
             </div>
           </div>
           <div className="flex items-center gap-1">
-            <span className="text-[10px] font-semibold text-neutral-400 mr-1">{weekRangeLabel}</span>
+            <span className="text-[10px] font-semibold text-neutral-400 mr-1">
+              {weekRangeLabel}
+            </span>
             <button
               type="button"
               onClick={() => {
@@ -694,13 +849,20 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({ sh
         >
           <span className="text-[14px] font-semibold text-o1-text">Progress</span>
           <span className="flex items-center gap-2 text-[11px] text-o1-muted">
-            {channels.find((channel) => channel.id === towerChannel)?.title} · {chartSpan === 'week' ? 'Week' : chartSpan === 'month' ? 'Month' : 'Year'}
-            <ChevronDown className={`w-4 h-4 transition-transform ${towersOpen ? 'rotate-180' : ''}`} />
+            {channels.find((channel) => channel.id === towerChannel)?.title} ·{' '}
+            {chartSpan === 'week' ? 'Week' : chartSpan === 'month' ? 'Month' : 'Year'}
+            <ChevronDown
+              className={`w-4 h-4 transition-transform ${towersOpen ? 'rotate-180' : ''}`}
+            />
           </span>
         </button>
         {towersOpen && (
           <div className="px-3 pb-3">
-            <div className="grid grid-cols-5 gap-1" role="group" aria-label="Channel shown in the chart">
+            <div
+              className="grid grid-cols-5 gap-1"
+              role="group"
+              aria-label="Channel shown in the chart"
+            >
               {channels.map((channel) => (
                 <button
                   key={channel.id}
@@ -711,7 +873,9 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({ sh
                     setTowerChannel(channel.id);
                   }}
                   className={`px-0.5 py-1.5 rounded-full border text-[12px] font-semibold text-center truncate ${
-                    towerChannel === channel.id ? 'bg-o1-text text-o1-surface border-o1-text' : 'bg-o1-well border-white/[0.07] text-neutral-200'
+                    towerChannel === channel.id
+                      ? 'bg-o1-text text-o1-surface border-o1-text'
+                      : 'bg-o1-well border-white/[0.07] text-neutral-200'
                   }`}
                 >
                   {channel.title}
@@ -749,7 +913,9 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({ sh
 
         <div className="border-t border-white/[0.07] px-4 pt-3 pb-2.5 flex items-baseline justify-between gap-2">
           <h3 className="text-[14px] font-semibold text-o1-text">{ledgerTitle}</h3>
-          <span className="text-[11px] text-o1-muted">{loggedChannels.length} of {channels.length} logged</span>
+          <span className="text-[11px] text-o1-muted">
+            {loggedChannels.length} of {channels.length} logged
+          </span>
         </div>
         {loggedChannels.length === 0 && (
           <p className="px-4 pb-3 text-[12px] text-o1-muted">Nothing is logged for this day yet.</p>
@@ -790,5 +956,3 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({ sh
     </div>
   );
 };
-
-

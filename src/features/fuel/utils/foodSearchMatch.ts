@@ -13,8 +13,22 @@ const SEARCH_ALIASES: Record<string, string[]> = {
 
 /** Words that describe the dish type, not which item; they still boost ranking when present. */
 const FILLER_WORDS = new Set([
-  'a', 'an', 'the', 'and', 'with', 'of', 'from', 'at', 'in', 'on', 'my',
-  'burger', 'burgers', 'meal', 'serve', 'order',
+  'a',
+  'an',
+  'the',
+  'and',
+  'with',
+  'of',
+  'from',
+  'at',
+  'in',
+  'on',
+  'my',
+  'burger',
+  'burgers',
+  'meal',
+  'serve',
+  'order',
 ]);
 
 function normalize(text: string): string {
@@ -63,7 +77,10 @@ export function matchesFoodQuery(name: string, brand: string, query: string): bo
 }
 
 /** Stable sort by match score; unmatched rows (e.g. live results with odd names) keep their order at the end. */
-export function rankByFoodQuery<T extends { name: string; brand: string }>(items: T[], query: string): T[] {
+export function rankByFoodQuery<T extends { name: string; brand: string }>(
+  items: T[],
+  query: string,
+): T[] {
   if (!query.trim()) return items;
   return items
     .map((item, i) => ({ item, i, s: foodQueryScore(item.name, item.brand, query) }))

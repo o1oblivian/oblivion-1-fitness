@@ -26,7 +26,16 @@ export function priceLabel(cents: number | null): string {
 
 const NONE: ReadonlySet<string> = new Set();
 
-export const CoachProgramsTab: React.FC<CoachProgramsTabProps> = ({ programs, enrolledIds = NONE, onEnroll, onApply, onBuy, showPrices = true, isOwn = false, onCreate }) => {
+export const CoachProgramsTab: React.FC<CoachProgramsTabProps> = ({
+  programs,
+  enrolledIds = NONE,
+  onEnroll,
+  onApply,
+  onBuy,
+  showPrices = true,
+  isOwn = false,
+  onCreate,
+}) => {
   const [openId, setOpenId] = useState<string | null>(null);
   const [buyingId, setBuyingId] = useState<string | null>(null);
 
@@ -49,7 +58,9 @@ export const CoachProgramsTab: React.FC<CoachProgramsTabProps> = ({ programs, en
   if (programs.length === 0) {
     return (
       <div className="space-y-3 py-6">
-        <p className="text-center text-[13px] text-o1-muted">{isOwn ? 'You have not published a program yet.' : 'No programs published yet.'}</p>
+        <p className="text-center text-[13px] text-o1-muted">
+          {isOwn ? 'You have not published a program yet.' : 'No programs published yet.'}
+        </p>
         {createButton}
       </div>
     );
@@ -60,12 +71,22 @@ export const CoachProgramsTab: React.FC<CoachProgramsTabProps> = ({ programs, en
       {createButton}
       {programs.map((program) => {
         const open = openId === program.id;
-        const meta = [program.discipline, program.weeks, program.daysPerWeek ? `${program.daysPerWeek} days/wk` : '', program.level].filter(Boolean).join(' · ');
+        const meta = [
+          program.discipline,
+          program.weeks,
+          program.daysPerWeek ? `${program.daysPerWeek} days/wk` : '',
+          program.level,
+        ]
+          .filter(Boolean)
+          .join(' · ');
         const free = program.priceCents === 0;
         const price = showPrices || free ? priceLabel(program.priceCents) : '';
         const enrolled = enrolledIds.has(program.id);
         return (
-          <div key={program.id} className="overflow-hidden rounded-2xl border border-white/[0.07] bg-o1-surface">
+          <div
+            key={program.id}
+            className="overflow-hidden rounded-2xl border border-white/[0.07] bg-o1-surface"
+          >
             <button
               type="button"
               onClick={() => {
@@ -89,23 +110,32 @@ export const CoachProgramsTab: React.FC<CoachProgramsTabProps> = ({ programs, en
                 <span className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
                 <div className="absolute inset-x-3 bottom-2.5 flex items-end justify-between gap-2">
                   <div className="min-w-0">
-                    <p className="truncate text-[15px] font-semibold text-o1-text">{program.title}</p>
+                    <p className="truncate text-[15px] font-semibold text-o1-text">
+                      {program.title}
+                    </p>
                     {meta ? <p className="truncate text-[12px] text-white/80">{meta}</p> : null}
                   </div>
                   {enrolled ? (
-                    <span className="shrink-0 rounded-full border border-white/[0.07] bg-o1-sheet px-2.5 py-1 text-[12px] font-semibold text-o1-text">Enrolled</span>
+                    <span className="shrink-0 rounded-full border border-white/[0.07] bg-o1-sheet px-2.5 py-1 text-[12px] font-semibold text-o1-text">
+                      Enrolled
+                    </span>
                   ) : price ? (
-                    <span className="shrink-0 rounded-full border border-white/[0.07] bg-o1-sheet px-2.5 py-1 text-[12px] font-semibold text-o1-text">{price}</span>
+                    <span className="shrink-0 rounded-full border border-white/[0.07] bg-o1-sheet px-2.5 py-1 text-[12px] font-semibold text-o1-text">
+                      {price}
+                    </span>
                   ) : null}
                 </div>
               </div>
             </button>
             {open && (
               <div className="space-y-3 p-3">
-                {program.description ? <p className="text-[13px] leading-relaxed text-o1-text">{program.description}</p> : null}
+                {program.description ? (
+                  <p className="text-[13px] leading-relaxed text-o1-text">{program.description}</p>
+                ) : null}
                 {program.plan && program.plan.weeks.length > 0 ? (
                   <p className="text-[12px] text-o1-muted">
-                    {program.plan.weeks.length} {program.plan.weeks.length === 1 ? 'week' : 'weeks'} · {exerciseCount(program.plan)} exercises, set by set
+                    {program.plan.weeks.length} {program.plan.weeks.length === 1 ? 'week' : 'weeks'}{' '}
+                    · {exerciseCount(program.plan)} exercises, set by set
                   </p>
                 ) : null}
                 {program.weekOne.length > 0 && (
@@ -122,7 +152,9 @@ export const CoachProgramsTab: React.FC<CoachProgramsTabProps> = ({ programs, en
                   <p className="text-[12px] text-o1-muted">The full plan unlocks after you join.</p>
                 ) : null}
                 {isOwn ? (
-                  <p className="text-center text-[12px] text-o1-muted">Athletes see this on your profile.</p>
+                  <p className="text-center text-[12px] text-o1-muted">
+                    Athletes see this on your profile.
+                  </p>
                 ) : enrolled ? (
                   <p className="flex h-[44px] items-center justify-center rounded-full border border-white/[0.07] text-[13px] font-semibold text-o1-muted">
                     In My programs on your Coach tab

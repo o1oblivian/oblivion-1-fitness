@@ -6,7 +6,8 @@ export const HYBRID_BLUEPRINTS: WorkoutBlueprint[] = [
     title: 'Race Engine / Hybrid',
     subtitle: 'Lactate Threshold, Sled Power & Aerobic Capacity',
     badge: 'HYBRID',
-    image: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=800&q=80',
+    image:
+      'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=800&q=80',
     phase: 'Phase 3: Work Capacity',
     focus: 'Functional Threshold & Compromised Running',
     estimatedTime: '72 Mins',
@@ -105,7 +106,8 @@ export const HYBRID_BLUEPRINTS: WorkoutBlueprint[] = [
     title: 'Lactate Clearance Chipper / Functional Threshold',
     subtitle: 'High-Density Anaerobic Engine & Monostructural Capacity',
     badge: 'HYBRID',
-    image: 'https://images.unsplash.com/photo-1517963879433-6ad2b056d712?auto=format&fit=crop&w=800&q=80',
+    image:
+      'https://images.unsplash.com/photo-1517963879433-6ad2b056d712?auto=format&fit=crop&w=800&q=80',
     phase: 'Phase 3: Work Capacity',
     focus: 'Lactate Shuttling, Wattage Pacing & Functional Gymnastics',
     estimatedTime: '48 Mins',
@@ -204,7 +206,8 @@ export const HYBRID_BLUEPRINTS: WorkoutBlueprint[] = [
     title: 'DEKA FIT / 10-Station Arena Protocol',
     subtitle: 'RAM Burpees, 500m Row, Sled Push & Dead Ball Slams',
     badge: 'HYBRID',
-    image: 'https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?auto=format&fit=crop&w=800&q=80',
+    image:
+      'https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?auto=format&fit=crop&w=800&q=80',
     phase: 'Phase 3: Functional Stamina',
     focus: 'Multi-Modal Endurance & Constant Work Cadence',
     estimatedTime: '55 Mins',
@@ -303,7 +306,8 @@ export const HYBRID_BLUEPRINTS: WorkoutBlueprint[] = [
     title: 'Compromised Running & Aerobic Threshold',
     subtitle: '1km Repeat Splits, Walking Lunges & Heavy Farmer Carries',
     badge: 'HYBRID',
-    image: 'https://images.unsplash.com/photo-1434682881908-b43d0467b798?auto=format&fit=crop&w=800&q=80',
+    image:
+      'https://images.unsplash.com/photo-1434682881908-b43d0467b798?auto=format&fit=crop&w=800&q=80',
     phase: 'Phase 3: Stamina',
     focus: 'Running with Heavy Lactic Acid Accumulation',
     estimatedTime: '65 Mins',
@@ -402,7 +406,8 @@ export const HYBRID_BLUEPRINTS: WorkoutBlueprint[] = [
     title: 'Murph Hero Protocol / Bodyweight Stamina',
     subtitle: 'Volume Gymnastic Density & Aerobic Mile Sandwich',
     badge: 'HYBRID',
-    image: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=800&q=80',
+    image:
+      'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=800&q=80',
     phase: 'Phase 3: Work Capacity',
     focus: 'Gymnastic Volume Density & Cardiorespiratory Grit',
     estimatedTime: '60 Mins',
@@ -501,7 +506,8 @@ export const HYBRID_BLUEPRINTS: WorkoutBlueprint[] = [
     title: 'Kettlebell Pentathlon & Hardstyle Ballistics',
     subtitle: 'Clean & Press, Snatches, Front Squats & Turkish Get-Ups',
     badge: 'HYBRID',
-    image: 'https://images.unsplash.com/photo-1517964603305-11c0f6f66012?auto=format&fit=crop&w=800&q=80',
+    image:
+      'https://images.unsplash.com/photo-1517964603305-11c0f6f66012?auto=format&fit=crop&w=800&q=80',
     phase: 'Phase 2: Ballistic Power',
     focus: 'Total Body Power Endurance & Joint Centration',
     estimatedTime: '50 Mins',

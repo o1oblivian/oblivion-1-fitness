@@ -1,6 +1,10 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { tactileEngine } from '../../../services/tactileEngine';
-import { CoachingApplication, decideApplication, fetchCoachApplications } from '../../reels/services/coachStorefront';
+import {
+  CoachingApplication,
+  decideApplication,
+  fetchCoachApplications,
+} from '../../reels/services/coachStorefront';
 import { AthleteAvatar } from './floor/FloorAthleteCard';
 
 const REQUESTS_EVENT = 'o1-coaching-requests-changed';
@@ -11,7 +15,9 @@ export function useCoachingRequests(coachId: string, onAccepted?: () => void) {
 
   const load = useCallback(() => {
     if (!coachId) return;
-    void fetchCoachApplications(coachId).then(setRequests).catch(() => undefined);
+    void fetchCoachApplications(coachId)
+      .then(setRequests)
+      .catch(() => undefined);
   }, [coachId]);
 
   useEffect(() => {
@@ -48,7 +54,9 @@ export const CoachingRequestCard: React.FC<{
             <span className="shrink-0 text-[11px] text-o1-muted">Wants coaching</span>
           </div>
           <p className="text-[13px] text-o1-text">{request.goal}</p>
-          {intake.length > 0 ? <p className="mt-0.5 text-[12px] text-o1-muted">{intake.join(' · ')}</p> : null}
+          {intake.length > 0 ? (
+            <p className="mt-0.5 text-[12px] text-o1-muted">{intake.join(' · ')}</p>
+          ) : null}
         </div>
       </div>
       <div className="flex gap-2">
@@ -58,7 +66,9 @@ export const CoachingRequestCard: React.FC<{
             type="button"
             onClick={() => onDecide(request, accept)}
             className={`h-[44px] flex-1 rounded-xl text-[13px] font-semibold active:scale-[0.98] ${
-              accept ? 'bg-o1-crimson text-white' : 'border border-white/[0.07] bg-o1-canvas text-o1-text'
+              accept
+                ? 'bg-o1-crimson text-white'
+                : 'border border-white/[0.07] bg-o1-canvas text-o1-text'
             }`}
           >
             {accept ? 'Accept' : 'Decline'}

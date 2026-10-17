@@ -1,4 +1,9 @@
-import type { ProgramDayPlan, ProgramExerciseItem, ProgramFormData, ProgramWeekPlan } from '../components/programCreator/types';
+import type {
+  ProgramDayPlan,
+  ProgramExerciseItem,
+  ProgramFormData,
+  ProgramWeekPlan,
+} from '../components/programCreator/types';
 
 /** Shape stored in `coach_programs.program_data`. Everything an enrolled athlete needs to train the program. */
 export interface ProgramPlanData {
@@ -11,7 +16,8 @@ export interface ProgramPlanData {
 
 type Row = Record<string, unknown>;
 
-const str = (value: unknown): string => (typeof value === 'string' ? value : value == null ? '' : String(value));
+const str = (value: unknown): string =>
+  typeof value === 'string' ? value : value == null ? '' : String(value);
 
 function whole(value: unknown, fallback: number): number {
   const n = Math.round(Number(value));
@@ -56,7 +62,9 @@ export function parseProgramPlan(raw: unknown): ProgramPlanData | null {
     .map((week, index): ProgramWeekPlan | null => {
       if (!week || typeof week !== 'object') return null;
       const w = week as Row;
-      const days = (Array.isArray(w.days) ? w.days : []).map(parseDay).filter((day): day is ProgramDayPlan => day !== null);
+      const days = (Array.isArray(w.days) ? w.days : [])
+        .map(parseDay)
+        .filter((day): day is ProgramDayPlan => day !== null);
       return { weekNumber: whole(w.weekNumber, index + 1) || index + 1, days };
     })
     .filter((week): week is ProgramWeekPlan => week !== null && week.days.length > 0);
@@ -79,16 +87,25 @@ export function buildProgramPlan(form: ProgramFormData): ProgramPlanData {
       weekNumber: week.weekNumber,
       days: week.days.map((day) => ({
         ...day,
-        exercises: day.exercises.filter((ex) => ex.name.trim()).map((ex) => ({ ...ex, name: ex.name.trim(), cue: ex.cue?.trim() || undefined })),
+        exercises: day.exercises
+          .filter((ex) => ex.name.trim())
+          .map((ex) => ({ ...ex, name: ex.name.trim(), cue: ex.cue?.trim() || undefined })),
       })),
     })),
   };
 }
 
 export function weekOneLines(plan: ProgramPlanData): string[] {
-  return (plan.weeks[0]?.days ?? []).map((day) => [day.dayName, day.splitFocus].filter(Boolean).join(' · ')).filter(Boolean);
+  return (plan.weeks[0]?.days ?? [])
+    .map((day) => [day.dayName, day.splitFocus].filter(Boolean).join(' · '))
+    .filter(Boolean);
 }
 
 export function exerciseCount(plan: ProgramPlanData | null): number {
-  return plan ? plan.weeks.reduce((sum, week) => sum + week.days.reduce((n, day) => n + day.exercises.length, 0), 0) : 0;
+  return plan
+    ? plan.weeks.reduce(
+        (sum, week) => sum + week.days.reduce((n, day) => n + day.exercises.length, 0),
+        0,
+      )
+    : 0;
 }

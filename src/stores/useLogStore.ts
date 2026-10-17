@@ -55,7 +55,10 @@ interface LogStoreState {
 }
 
 interface LogStoreActions {
-  updateSubModule: <K extends keyof SubModulesTelemetry>(key: K, data: Partial<SubModulesTelemetry[K]>) => void;
+  updateSubModule: <K extends keyof SubModulesTelemetry>(
+    key: K,
+    data: Partial<SubModulesTelemetry[K]>,
+  ) => void;
 }
 
 const initialLogState: LogStoreState = {
@@ -101,12 +104,13 @@ const initialLogState: LogStoreState = {
 };
 
 const logStore = createStore<LogStoreState, LogStoreActions>(initialLogState, (set) => ({
-  updateSubModule: (key, data) => set((prev) => ({
-    subModules: {
-      ...prev.subModules,
-      [key]: { ...prev.subModules[key], ...data },
-    },
-  })),
+  updateSubModule: (key, data) =>
+    set((prev) => ({
+      subModules: {
+        ...prev.subModules,
+        [key]: { ...prev.subModules[key], ...data },
+      },
+    })),
 }));
 
 export const useLogStore = logStore.useStore;

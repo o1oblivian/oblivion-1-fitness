@@ -13,7 +13,13 @@ interface CoachFeedbackSheetProps {
   onViewProfile?: () => void;
 }
 
-export const CoachFeedbackSheet: React.FC<CoachFeedbackSheetProps> = ({ target, onClose, onSend, onSendWorkout, onViewProfile }) => {
+export const CoachFeedbackSheet: React.FC<CoachFeedbackSheetProps> = ({
+  target,
+  onClose,
+  onSend,
+  onSendWorkout,
+  onViewProfile,
+}) => {
   const [note, setNote] = useState('');
   const [sending, setSending] = useState(false);
   const [failed, setFailed] = useState(false);
@@ -38,7 +44,10 @@ export const CoachFeedbackSheet: React.FC<CoachFeedbackSheetProps> = ({ target, 
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end bg-black/80 backdrop-blur-sm" onClick={onClose}>
+    <div
+      className="fixed inset-0 z-50 flex items-end bg-black/80 backdrop-blur-sm"
+      onClick={onClose}
+    >
       <div
         role="dialog"
         aria-label={`Feedback for ${target.name}`}
@@ -51,7 +60,12 @@ export const CoachFeedbackSheet: React.FC<CoachFeedbackSheetProps> = ({ target, 
             <p className="truncate text-[15px] font-semibold text-o1-text">{target.name}</p>
             <p className="text-[12px] text-o1-muted">Only {target.name.split(' ')[0]} sees this.</p>
           </div>
-          <button type="button" onClick={onClose} aria-label="Close" className="flex h-11 w-11 items-center justify-center text-o1-muted">
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close"
+            className="flex h-11 w-11 items-center justify-center text-o1-muted"
+          >
             <X size={20} />
           </button>
         </div>
@@ -81,7 +95,9 @@ export const CoachFeedbackSheet: React.FC<CoachFeedbackSheetProps> = ({ target, 
           className="mt-2 w-full resize-none rounded-xl border border-white/[0.07] bg-o1-canvas px-3 py-2 text-[13px] text-o1-text outline-none focus:border-o1-crimson"
         />
         {failed ? (
-          <p role="alert" className="mt-2 text-[12px] text-o1-text">Could not send. Check your connection and try again.</p>
+          <p role="alert" className="mt-2 text-[12px] text-o1-text">
+            Could not send. Check your connection and try again.
+          </p>
         ) : null}
         <button
           type="button"

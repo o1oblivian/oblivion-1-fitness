@@ -40,8 +40,12 @@ export function isSharedUrl(url: string | null | undefined): boolean {
 }
 
 /** Uploads into `<user id>/<folder>/` of the public media bucket. Null when signed out or the upload fails. */
-export async function uploadMedia(source: Blob | string, folder: MediaFolder): Promise<StoredMedia | null> {
-  if (typeof source === 'string' && isSharedUrl(source)) return { url: source, path: null, remote: true };
+export async function uploadMedia(
+  source: Blob | string,
+  folder: MediaFolder,
+): Promise<StoredMedia | null> {
+  if (typeof source === 'string' && isSharedUrl(source))
+    return { url: source, path: null, remote: true };
   const uid = await getAuthenticatedUserId();
   if (!uid) return null;
   const blob = await toBlob(source);
@@ -58,7 +62,11 @@ export async function uploadMedia(source: Blob | string, folder: MediaFolder): P
     console.warn('[mediaStorage] upload failed:', error.message);
     return null;
   }
-  return { url: supabase.storage.from(MEDIA_BUCKET).getPublicUrl(path).data.publicUrl, path, remote: true };
+  return {
+    url: supabase.storage.from(MEDIA_BUCKET).getPublicUrl(path).data.publicUrl,
+    path,
+    remote: true,
+  };
 }
 
 export async function removeMedia(paths: (string | null | undefined)[]): Promise<void> {

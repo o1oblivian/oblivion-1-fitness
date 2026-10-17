@@ -1,11 +1,5 @@
 import React, { useState } from 'react';
-import {
-  X,
-  ShieldCheck,
-  Smartphone,
-  Loader2,
-  AlertCircle,
-} from 'lucide-react';
+import { X, ShieldCheck, Smartphone, Loader2, AlertCircle } from 'lucide-react';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { revenueCatService } from '../../../services/revenueCatService';
 import { isNativeStorePlatform } from '../../../services/purchasesService';
@@ -69,7 +63,6 @@ export const MembershipCheckoutModal: React.FC<Props> = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 o1-sheet-scrim select-none animate-in fade-in duration-150">
       <div className="o1-sheet-card w-full bg-o1-card border border-white/[0.07] overflow-hidden shadow-xl flex flex-col">
-        
         {/* Modal Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.05] bg-black">
           <div className="flex items-center gap-2.5">
@@ -99,17 +92,13 @@ export const MembershipCheckoutModal: React.FC<Props> = ({
           {/* Plan Summary Card */}
           <div className="p-4 rounded-2xl bg-o1-well border border-white/[0.07] space-y-1">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-mono font-bold text-neutral-500">
-                Selected Plan
-              </span>
+              <span className="text-xs font-mono font-bold text-neutral-500">Selected Plan</span>
               <span className="text-[10px] font-sans px-2 py-0.5 rounded-full bg-o1-card border border-[#D4A017]/40 text-[#D4A017] font-semibold">
                 Official tier
               </span>
             </div>
             <div className="flex items-baseline justify-between pt-1">
-              <h3 className="text-sm font-tactical font-black text-white">
-                {planName}
-              </h3>
+              <h3 className="text-sm font-tactical font-black text-white">{planName}</h3>
               <span className="text-sm font-sans font-semibold text-white tabular-nums">
                 {price}
               </span>
@@ -121,7 +110,9 @@ export const MembershipCheckoutModal: React.FC<Props> = ({
             <ShieldCheck className="w-4 h-4 text-[#6B8F5E] shrink-0 mt-0.5" />
             <div className="space-y-0.5">
               <span className="font-bold block text-white tracking-wider text-[11px]">
-                {nativeStore ? 'Membership Tier Available via App Store / Google Play' : 'Pay with card — local preview'}
+                {nativeStore
+                  ? 'Membership Tier Available via App Store / Google Play'
+                  : 'Pay with card — local preview'}
               </span>
               <p className="text-[10px] text-neutral-400 font-sans leading-relaxed">
                 {nativeStore
@@ -167,7 +158,9 @@ export const MembershipCheckoutModal: React.FC<Props> = ({
               rel="noreferrer"
               onClick={(e) => {
                 e.preventDefault();
-                void openExternalUrl('https://www.apple.com/legal/internet-services/itunes/dev/stdeula/');
+                void openExternalUrl(
+                  'https://www.apple.com/legal/internet-services/itunes/dev/stdeula/',
+                );
               }}
               className="hover:underline"
             >
@@ -205,5 +198,3 @@ export const MembershipCheckoutModal: React.FC<Props> = ({
     </div>
   );
 };
-
-

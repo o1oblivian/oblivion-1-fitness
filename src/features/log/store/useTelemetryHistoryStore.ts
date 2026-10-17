@@ -112,7 +112,7 @@ interface TelemetryHistoryActions {
     dateKey: string,
     category: C,
     record: Partial<DayTelemetryRecord[C]>,
-    options?: { skipCloud?: boolean }
+    options?: { skipCloud?: boolean },
   ) => void;
   clearDayRecord: (dateKey: string, category: TelemetryCategory) => void;
   resetAllHistory: () => void;
@@ -131,7 +131,7 @@ export interface DayMeta {
 }
 
 const sanitizeAndMigrateHistory = (
-  saved: Record<string, Partial<DayTelemetryRecord>>
+  saved: Record<string, Partial<DayTelemetryRecord>>,
 ): Record<string, Partial<DayTelemetryRecord>> => {
   const result: Record<string, Partial<DayTelemetryRecord>> = { ...saved };
 
@@ -143,8 +143,9 @@ const sanitizeAndMigrateHistory = (
 
     // Detect if workout has cardio exercises mistakenly stored
     if (day.workout?.exercises && Array.isArray(day.workout.exercises)) {
-      const cardioExs = day.workout.exercises.filter((e) =>
-        e.name.toLowerCase().startsWith('cardio:') || e.name.toLowerCase().includes('telemetry')
+      const cardioExs = day.workout.exercises.filter(
+        (e) =>
+          e.name.toLowerCase().startsWith('cardio:') || e.name.toLowerCase().includes('telemetry'),
       );
 
       if (cardioExs.length > 0) {
@@ -160,13 +161,16 @@ const sanitizeAndMigrateHistory = (
             burnedKcal: 0,
             avgHeartRateBpm: 0,
             zone2Minutes: 0,
-            activityType: cEx.name.replace(/^Cardio:\s*/i, '').replace(/\s*\(\d+m\)$/, '') || 'Cardio',
+            activityType:
+              cEx.name.replace(/^Cardio:\s*/i, '').replace(/\s*\(\d+m\)$/, '') || 'Cardio',
           };
         }
 
         // Clean out cardio items from workout resistance exercises
         const realLifts = day.workout.exercises.filter(
-          (e) => !e.name.toLowerCase().startsWith('cardio:') && !e.name.toLowerCase().includes('telemetry')
+          (e) =>
+            !e.name.toLowerCase().startsWith('cardio:') &&
+            !e.name.toLowerCase().includes('telemetry'),
         );
 
         if (realLifts.length === 0 && (!day.workout.tonnageKg || day.workout.tonnageKg === 0)) {
@@ -254,7 +258,9 @@ const defaultMeditation: MeditationDayRecord = {
   hrvScore: 0,
 };
 
-const getDefaultCategoryRecord = <C extends TelemetryCategory>(category: C): DayTelemetryRecord[C] => {
+const getDefaultCategoryRecord = <C extends TelemetryCategory>(
+  category: C,
+): DayTelemetryRecord[C] => {
   switch (category) {
     case 'workout':
       return { ...defaultWorkout } as DayTelemetryRecord[C];
@@ -280,7 +286,7 @@ const telemetryHistoryStore = createStore<TelemetryHistoryState, TelemetryHistor
       set((prev) => {
         const currentDay = { ...(prev.historyByDate[dateKey] || {}) };
         const currentCategory = currentDay[category] || getDefaultCategoryRecord(category);
-        
+
         let sanitizedRecord = { ...record };
         if (category === 'nutrition') {
           const nr = { ...(record as Partial<NutritionDayRecord>) };
@@ -293,12 +299,16 @@ const telemetryHistoryStore = createStore<TelemetryHistoryState, TelemetryHistor
 
         if (category === 'workout' && (sanitizedRecord as Partial<WorkoutDayRecord>).exercises) {
           const wr = sanitizedRecord as Partial<WorkoutDayRecord>;
-          const currentLifts = ((currentCategory as WorkoutDayRecord).exercises) || [];
+          const currentLifts = (currentCategory as WorkoutDayRecord).exercises || [];
           const currentHasSets = currentLifts.some((lift) => (lift.setLog?.length || 0) > 0);
-          const incomingHasSets = (wr.exercises || []).some((lift) => (lift.setLog?.length || 0) > 0);
+          const incomingHasSets = (wr.exercises || []).some(
+            (lift) => (lift.setLog?.length || 0) > 0,
+          );
           if (currentHasSets && !incomingHasSets) wr.exercises = currentLifts;
-          const cardioExs = (wr.exercises || []).filter((e) =>
-            e.name.toLowerCase().startsWith('cardio:') || e.name.toLowerCase().includes('telemetry')
+          const cardioExs = (wr.exercises || []).filter(
+            (e) =>
+              e.name.toLowerCase().startsWith('cardio:') ||
+              e.name.toLowerCase().includes('telemetry'),
           );
           if (cardioExs.length > 0) {
             const cEx = cardioExs[0];
@@ -312,12 +322,15 @@ const telemetryHistoryStore = createStore<TelemetryHistoryState, TelemetryHistor
                 burnedKcal: 0,
                 avgHeartRateBpm: 0,
                 zone2Minutes: 0,
-                activityType: cEx.name.replace(/^Cardio:\s*/i, '').replace(/\s*\(\d+m\)$/, '') || 'Cardio',
+                activityType:
+                  cEx.name.replace(/^Cardio:\s*/i, '').replace(/\s*\(\d+m\)$/, '') || 'Cardio',
               };
               toSync.push(['cardio', { ...currentDay.cardio }]);
             }
             wr.exercises = (wr.exercises || []).filter(
-              (e) => !e.name.toLowerCase().startsWith('cardio:') && !e.name.toLowerCase().includes('telemetry')
+              (e) =>
+                !e.name.toLowerCase().startsWith('cardio:') &&
+                !e.name.toLowerCase().includes('telemetry'),
             );
             if (wr.exercises.length === 0 && (!wr.tonnageKg || wr.tonnageKg === 0)) {
               wr.hasData = false;
@@ -392,7 +405,7 @@ const telemetryHistoryStore = createStore<TelemetryHistoryState, TelemetryHistor
       safeStorage.removeItem(STORAGE_KEY);
       set({ historyByDate: {} });
     },
-  })
+  }),
 );
 
 export const useTelemetryHistoryStore = telemetryHistoryStore.useStore;

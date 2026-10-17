@@ -9,8 +9,15 @@ export interface HeroHeaderProps {
   onOpenSettings?: () => void;
 }
 
-export const HeroHeader: React.FC<HeroHeaderProps> = ({ readinessScore, onOpenReadiness, onOpenSettings }) => (
-  <div id="hero-header-top-bar" className="relative z-10 flex items-center justify-between w-full select-none">
+export const HeroHeader: React.FC<HeroHeaderProps> = ({
+  readinessScore,
+  onOpenReadiness,
+  onOpenSettings,
+}) => (
+  <div
+    id="hero-header-top-bar"
+    className="relative z-10 flex items-center justify-between w-full select-none"
+  >
     <button
       type="button"
       id="hero-settings-trigger"
@@ -32,7 +39,11 @@ export const HeroHeader: React.FC<HeroHeaderProps> = ({ readinessScore, onOpenRe
     <button
       type="button"
       id="hero-readiness-btn"
-      aria-label={readinessScore === null ? 'Log sleep to see readiness' : `Readiness ${readinessScore} percent`}
+      aria-label={
+        readinessScore === null
+          ? 'Log sleep to see readiness'
+          : `Readiness ${readinessScore} percent`
+      }
       onClick={(e) => {
         e.stopPropagation();
         tactileEngine.triggerSelectionBuzz();
@@ -48,12 +59,12 @@ export const HeroHeader: React.FC<HeroHeaderProps> = ({ readinessScore, onOpenRe
         </>
       ) : (
         <>
-          <span className="text-[11px] font-semibold tracking-[0.08em] text-white/75">Readiness</span>
+          <span className="text-[11px] font-semibold tracking-[0.08em] text-white/75">
+            Readiness
+          </span>
           <span className="text-[15px] font-mono font-medium tabular-nums">{readinessScore}%</span>
         </>
       )}
     </button>
   </div>
 );
-
-

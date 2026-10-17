@@ -74,4 +74,3 @@ export const IAP_PRODUCTS = {
     userType: 'coach' as const,
   },
 } as const;
-

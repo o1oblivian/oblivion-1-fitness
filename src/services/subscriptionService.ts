@@ -1,5 +1,10 @@
 import { Capacitor } from '@capacitor/core';
-import { revenueCatService, readCachedEntitlement, type EntitlementInfo, type StorePlatform } from './revenueCatService';
+import {
+  revenueCatService,
+  readCachedEntitlement,
+  type EntitlementInfo,
+  type StorePlatform,
+} from './revenueCatService';
 
 /** Default paid product to purchase when Settings opens the paywall (maps to Google `o1fc_pro_monthly:monthly`). */
 export const PLUS_ENTITLEMENT = 'o1fc_pro_monthly';
@@ -40,7 +45,11 @@ export function checkSubscriptionStatus(): SubscriptionStatus {
     isActive: false,
     tierId: 'o1fc_core_free',
     tierName: 'Core Athlete',
-    platform: isNativePlatform() ? (Capacitor.getPlatform() === 'android' ? 'android' : 'ios') : 'web',
+    platform: isNativePlatform()
+      ? Capacitor.getPlatform() === 'android'
+        ? 'android'
+        : 'ios'
+      : 'web',
     expirationDate: null,
     willRenew: false,
   };
@@ -51,7 +60,9 @@ export async function initializeIAP(userId?: string): Promise<void> {
 }
 
 /** The store's answer right now, or null when the store can't be reached (offline, web). */
-export async function verifySubscriptionWithStore(userId?: string): Promise<SubscriptionStatus | null> {
+export async function verifySubscriptionWithStore(
+  userId?: string,
+): Promise<SubscriptionStatus | null> {
   const info = await revenueCatService.verifyWithStore(userId || '');
   return info ? toStatus(info) : null;
 }
@@ -64,7 +75,11 @@ export async function purchasePro(
   return { success: res.success, isPro: status.isActive, status };
 }
 
-export async function restorePurchases(): Promise<{ success: boolean; isPro: boolean; status: SubscriptionStatus }> {
+export async function restorePurchases(): Promise<{
+  success: boolean;
+  isPro: boolean;
+  status: SubscriptionStatus;
+}> {
   const res = await revenueCatService.restore();
   return { success: res.success, isPro: res.success, status: toStatus(res.info) };
 }

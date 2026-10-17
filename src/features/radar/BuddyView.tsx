@@ -9,7 +9,31 @@ import { tactileEngine } from '../../services/tactileEngine';
 import { CheckCircle2 } from 'lucide-react';
 import { useSubscription } from '../../context/SubscriptionContext';
 import { searchAthletesWithSupabase } from './services/buddyService';
-import { capRadius, rankAthletes, readDeckFilters, readMutuals, readOutgoing, readPasses, rememberLike, rememberPass, sendLike, writeDeckFilters, DeckFilters, FREE_RADIUS_KM, searchRadius, rememberMutual, readBlocks, readLastLines, syncMutuals, syncBlocks, publishBlock, publishReport, fetchBuddyCardsById, withdrawLike, clearPasses } from './services/buddyMatch';
+import {
+  capRadius,
+  rankAthletes,
+  readDeckFilters,
+  readMutuals,
+  readOutgoing,
+  readPasses,
+  rememberLike,
+  rememberPass,
+  sendLike,
+  writeDeckFilters,
+  DeckFilters,
+  FREE_RADIUS_KM,
+  searchRadius,
+  rememberMutual,
+  readBlocks,
+  readLastLines,
+  syncMutuals,
+  syncBlocks,
+  publishBlock,
+  publishReport,
+  fetchBuddyCardsById,
+  withdrawLike,
+  clearPasses,
+} from './services/buddyMatch';
 import { BuddyFilterSheet } from './components/BuddyFilterSheet';
 import { hydrateOwnBuddyCard, publishBuddyCard } from '../../services/buddyPresenceSync';
 import { readBuddyGate, subscribeBuddyGate } from './services/buddyLaunch';
@@ -49,7 +73,9 @@ export const BuddyView: React.FC = () => {
   const [nearbyPeople, setNearbyPeople] = useState<DemoAthlete[]>([]);
   const [coaches, setCoaches] = useState<NearbyCoach[]>([]);
   const [selectedCoach, setSelectedCoach] = useState<NearbyCoach | null>(null);
-  const [userCoords, setUserCoords] = useState<{ latitude: number; longitude: number } | null>(null);
+  const [userCoords, setUserCoords] = useState<{ latitude: number; longitude: number } | null>(
+    null,
+  );
   const [locationOn, setLocationOn] = useState<boolean | null>(null);
   const [locating, setLocating] = useState(false);
   const [radarUid, setRadarUid] = useState('');
@@ -96,7 +122,9 @@ export const BuddyView: React.FC = () => {
       setLocationOn(Boolean(coords));
       if (coords) setUserCoords(coords);
     });
-    return () => { live = false; };
+    return () => {
+      live = false;
+    };
   }, [radarConsent]);
 
   useEffect(() => {
@@ -104,13 +132,23 @@ export const BuddyView: React.FC = () => {
     let cancelled = false;
     void hydrateOwnBuddyCard()
       .catch(() => false)
-      .then(() => { if (!cancelled) setProfileHydrated(true); });
-    return () => { cancelled = true; };
+      .then(() => {
+        if (!cancelled) setProfileHydrated(true);
+      });
+    return () => {
+      cancelled = true;
+    };
   }, [radarUid]);
 
   useEffect(() => {
     if (!radarConsent || !isBuddyProfileActive) return;
-    if (!profileHydrated || !userCoords || !buddyProfile.displayName.trim() || buddyProfile.age < 18) return;
+    if (
+      !profileHydrated ||
+      !userCoords ||
+      !buddyProfile.displayName.trim() ||
+      buddyProfile.age < 18
+    )
+      return;
     let cancelled = false;
     const looking = buddyProfile.partnerBio.split('\n')[1]?.trim() || '';
     void publishBuddyCard(userCoords, {
@@ -141,8 +179,27 @@ export const BuddyView: React.FC = () => {
       }
       setQueueRevision((n) => n + 1);
     });
-    return () => { cancelled = true; };
-  }, [radarConsent, isBuddyProfileActive, profileHydrated, userCoords, buddyProfile.displayName, buddyProfile.age, buddyProfile.homeGym, buddyProfile.selectedDisciplines, buddyProfile.favoriteWorkouts, buddyProfile.preferredTimes, buddyProfile.partnerBio, buddyProfile.buddyPhotos, buddyProfile.experienceLevel, buddyProfile.ghostMode, buddyProfile.gender, buddyProfile.trainingPlace]);
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    radarConsent,
+    isBuddyProfileActive,
+    profileHydrated,
+    userCoords,
+    buddyProfile.displayName,
+    buddyProfile.age,
+    buddyProfile.homeGym,
+    buddyProfile.selectedDisciplines,
+    buddyProfile.favoriteWorkouts,
+    buddyProfile.preferredTimes,
+    buddyProfile.partnerBio,
+    buddyProfile.buddyPhotos,
+    buddyProfile.experienceLevel,
+    buddyProfile.ghostMode,
+    buddyProfile.gender,
+    buddyProfile.trainingPlace,
+  ]);
 
   useEffect(() => {
     let stopped = false;
@@ -155,8 +212,12 @@ export const BuddyView: React.FC = () => {
       setBuddyReady(true);
     };
     void pull();
-    const timer = window.setInterval(() => { void pull(); }, 5000);
-    const unsubscribe = subscribeBuddyGate(() => { void pull(); });
+    const timer = window.setInterval(() => {
+      void pull();
+    }, 5000);
+    const unsubscribe = subscribeBuddyGate(() => {
+      void pull();
+    });
     return () => {
       stopped = true;
       window.clearInterval(timer);
@@ -181,7 +242,12 @@ export const BuddyView: React.FC = () => {
         useRadarStore.getState().setBuddies([]);
         return;
       }
-      const flying = Boolean(travelCity) && Number.isFinite(travelLat) && Number.isFinite(travelLng) && travelLat !== 0 && travelLng !== 0;
+      const flying =
+        Boolean(travelCity) &&
+        Number.isFinite(travelLat) &&
+        Number.isFinite(travelLng) &&
+        travelLat !== 0 &&
+        travelLng !== 0;
       const origin = flying ? { latitude: travelLat, longitude: travelLng } : userCoords;
       if (!origin) {
         if (!isCancelled) {
@@ -197,20 +263,25 @@ export const BuddyView: React.FC = () => {
           activeQuery,
           [],
           origin,
-          searchRadius(isPro, deckFilters)
+          searchRadius(isPro, deckFilters),
         );
         if (!isCancelled) {
           setNearbyPeople(results.filter((row) => row.id !== radarUid));
           const profile = useBuddyProfileStore.getState();
-          const ranked = rankAthletes({
-            discipline: profile.selectedDisciplines[0] || '',
-            split: profile.favoriteWorkouts[0] || '',
-            time: profile.preferredTimes[0] || '',
-            gym: profile.homeGym,
-            age: profile.age,
-            ageMin: deckFilters.ageMin,
-            ageMax: deckFilters.ageMax,
-          }, results, searchRadius(isPro, deckFilters), deckFilters).filter((row) => row.id !== radarUid && !String(row.id).startsWith('preview-'));
+          const ranked = rankAthletes(
+            {
+              discipline: profile.selectedDisciplines[0] || '',
+              split: profile.favoriteWorkouts[0] || '',
+              time: profile.preferredTimes[0] || '',
+              gym: profile.homeGym,
+              age: profile.age,
+              ageMin: deckFilters.ageMin,
+              ageMax: deckFilters.ageMax,
+            },
+            results,
+            searchRadius(isPro, deckFilters),
+            deckFilters,
+          ).filter((row) => row.id !== radarUid && !String(row.id).startsWith('preview-'));
           useRadarStore.getState().setBuddies(ranked);
           setSearchResults(ranked);
         }
@@ -227,7 +298,23 @@ export const BuddyView: React.FC = () => {
     return () => {
       isCancelled = true;
     };
-  }, [searchQuery, travelCity, travelLat, travelLng, userCoords, locationOn, ghostMode, isBuddyProfileActive, isPro, deckFilters, buddyProfile.selectedDisciplines, buddyProfile.homeGym, radarUid, buddyLive, buddyReady]);
+  }, [
+    searchQuery,
+    travelCity,
+    travelLat,
+    travelLng,
+    userCoords,
+    locationOn,
+    ghostMode,
+    isBuddyProfileActive,
+    isPro,
+    deckFilters,
+    buddyProfile.selectedDisciplines,
+    buddyProfile.homeGym,
+    radarUid,
+    buddyLive,
+    buddyReady,
+  ]);
 
   const [selectedProfileAthlete, setSelectedProfileAthlete] = useState<DemoAthlete | null>(null);
   const [selectedMessageAthlete, setSelectedMessageAthlete] = useState<DemoAthlete | null>(null);
@@ -240,9 +327,12 @@ export const BuddyView: React.FC = () => {
     setToastMessage(msg);
     toastTimer.current = setTimeout(() => setToastMessage(null), 3000);
   }, []);
-  useEffect(() => () => {
-    if (toastTimer.current) clearTimeout(toastTimer.current);
-  }, []);
+  useEffect(
+    () => () => {
+      if (toastTimer.current) clearTimeout(toastTimer.current);
+    },
+    [],
+  );
 
   useBuddyRealtime({
     currentUserId: radarUid,
@@ -266,11 +356,15 @@ export const BuddyView: React.FC = () => {
       if (blocked.length) setBlocks(blocked);
       if (!hits) return;
       const next: Record<string, true> = {};
-      hits.forEach((id) => { next[id] = true; });
+      hits.forEach((id) => {
+        next[id] = true;
+      });
       setMutuals(next);
     };
     void pull();
-    const timer = window.setInterval(() => { void pull(); }, 8000);
+    const timer = window.setInterval(() => {
+      void pull();
+    }, 8000);
     return () => {
       stopped = true;
       window.clearInterval(timer);
@@ -283,13 +377,16 @@ export const BuddyView: React.FC = () => {
     if (!missing.length) return;
     let stopped = false;
     void fetchBuddyCardsById(missing).then((rows) => {
-      if (!stopped && rows.length) setRemoteChats((prev) => {
-        const map = new Map(prev.map((row) => [row.id, row]));
-        rows.forEach((row) => map.set(row.id, row));
-        return [...map.values()];
-      });
+      if (!stopped && rows.length)
+        setRemoteChats((prev) => {
+          const map = new Map(prev.map((row) => [row.id, row]));
+          rows.forEach((row) => map.set(row.id, row));
+          return [...map.values()];
+        });
     });
-    return () => { stopped = true; };
+    return () => {
+      stopped = true;
+    };
   }, [mutuals, searchResults, blocks, remoteChats]);
 
   useEffect(() => {
@@ -318,7 +415,11 @@ export const BuddyView: React.FC = () => {
       showToast(`${athlete.name} is in Chats`);
       return;
     }
-    const result = await sendLike(radarUid, athlete.id, isPro || Boolean(likedAthletes[athlete.id]));
+    const result = await sendLike(
+      radarUid,
+      athlete.id,
+      isPro || Boolean(likedAthletes[athlete.id]),
+    );
     if (!result.ok) {
       if (result.reason === 'cap') openPaywall('Unlimited Buddy likes');
       else showToast('Like did not save. Check your connection and try again.');
@@ -339,7 +440,12 @@ export const BuddyView: React.FC = () => {
 
   const blockPerson = (person: DemoAthlete, quiet = false) => {
     void publishBlock(radarUid, person.id).then((saved) => {
-      if (!quiet) showToast(saved ? `Blocked ${person.name}` : 'Blocked on this phone. It did not save to your account.');
+      if (!quiet)
+        showToast(
+          saved
+            ? `Blocked ${person.name}`
+            : 'Blocked on this phone. It did not save to your account.',
+        );
     });
     setBlocks((prev) => [person.id, ...prev.filter((id) => id !== person.id)]);
     setMutuals((prev) => {
@@ -351,9 +457,20 @@ export const BuddyView: React.FC = () => {
     setSelectedProfileAthlete((open) => (open?.id === person.id ? null : open));
   };
 
-  const reportPerson = (person: DemoAthlete, reason: string, details: string, alsoBlock: boolean) => {
+  const reportPerson = (
+    person: DemoAthlete,
+    reason: string,
+    details: string,
+    alsoBlock: boolean,
+  ) => {
     void publishReport(radarUid, person.id, person.name, reason, details).then((saved) => {
-      showToast(saved ? (alsoBlock ? `Report sent and ${person.name} blocked` : 'Report sent') : 'Report did not send. Check your connection and try again.');
+      showToast(
+        saved
+          ? alsoBlock
+            ? `Report sent and ${person.name} blocked`
+            : 'Report sent'
+          : 'Report did not send. Check your connection and try again.',
+      );
     });
     if (alsoBlock) blockPerson(person, true);
   };
@@ -371,7 +488,11 @@ export const BuddyView: React.FC = () => {
       return;
     }
     setLocationOn(false);
-    showToast(result.status === 'unavailable' ? 'This device cannot share location' : 'Location is blocked. Allow it in your phone or browser settings.');
+    showToast(
+      result.status === 'unavailable'
+        ? 'This device cannot share location'
+        : 'Location is blocked. Allow it in your phone or browser settings.',
+    );
   };
 
   const handleTabChange = (tab: 'DISCOVER' | 'MATCHED') => {
@@ -391,15 +512,17 @@ export const BuddyView: React.FC = () => {
   const coachIds = useMemo(() => new Set(coaches.map((coach) => coach.id)), [coaches]);
 
   const deckCard = useMemo(() => {
-    return searchResults.find((ath) => {
-      if (!ath.id || ath.id.startsWith('preview-')) return false;
-      if (coachIds.has(ath.id)) return false;
-      if (dismissedIds.includes(ath.id)) return false;
-      if (mutuals[ath.id]) return false;
-      if (blocks.includes(ath.id)) return false;
-      if (deckFilters.verifiedOnly && !ath.is_verified) return false;
-      return true;
-    }) || null;
+    return (
+      searchResults.find((ath) => {
+        if (!ath.id || ath.id.startsWith('preview-')) return false;
+        if (coachIds.has(ath.id)) return false;
+        if (dismissedIds.includes(ath.id)) return false;
+        if (mutuals[ath.id]) return false;
+        if (blocks.includes(ath.id)) return false;
+        if (deckFilters.verifiedOnly && !ath.is_verified) return false;
+        return true;
+      }) || null
+    );
   }, [searchResults, coachIds, dismissedIds, mutuals, blocks, deckFilters.verifiedOnly]);
 
   const chatPeople = useMemo(() => {
@@ -422,7 +545,10 @@ export const BuddyView: React.FC = () => {
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
         radiusKm={radiusKm}
-        onBack={() => { if (searchQuery) setSearchQuery(''); else if (activeTab === 'MATCHED') setActiveTab('DISCOVER'); }}
+        onBack={() => {
+          if (searchQuery) setSearchQuery('');
+          else if (activeTab === 'MATCHED') setActiveTab('DISCOVER');
+        }}
         onOpenPrivacy={() => setIsPrivacyOpen(true)}
         onOpenProfile={() => {
           setIsStudioOpen(true);
@@ -462,8 +588,16 @@ export const BuddyView: React.FC = () => {
 
       {authReady && !radarUid && (
         <div className="mx-3 mt-3 w-[calc(100%-1.5rem)] rounded-2xl border border-white/[0.07] bg-[#121214] px-4 py-3 text-left">
-          <p className="text-[13px] font-semibold text-white">{typeof navigator !== 'undefined' && navigator.onLine === false ? 'You are offline' : 'Sign in to be seen'}</p>
-          <p className="mt-0.5 text-[12px] text-neutral-400">{typeof navigator !== 'undefined' && navigator.onLine === false ? 'Your card loads again when the connection is back.' : 'Likes and your card save only after you are signed in.'}</p>
+          <p className="text-[13px] font-semibold text-white">
+            {typeof navigator !== 'undefined' && navigator.onLine === false
+              ? 'You are offline'
+              : 'Sign in to be seen'}
+          </p>
+          <p className="mt-0.5 text-[12px] text-neutral-400">
+            {typeof navigator !== 'undefined' && navigator.onLine === false
+              ? 'Your card loads again when the connection is back.'
+              : 'Likes and your card save only after you are signed in.'}
+          </p>
         </div>
       )}
 
@@ -476,31 +610,42 @@ export const BuddyView: React.FC = () => {
           className="mx-3 mt-3 w-[calc(100%-1.5rem)] rounded-2xl border border-white/[0.07] bg-[#121214] px-4 py-3 text-left"
         >
           <span className="block text-[13px] font-semibold text-white">Your card is not live</span>
-          <span className="mt-0.5 block text-[12px] text-neutral-400">Add your name and an age of 18 or older so people can find you.</span>
+          <span className="mt-0.5 block text-[12px] text-neutral-400">
+            Add your name and an age of 18 or older so people can find you.
+          </span>
         </button>
       )}
 
-      {radarUid && buddyProfile.displayName.trim() && buddyProfile.age >= 18 && !buddyProfile.gender && (
-        <button
-          type="button"
-          onClick={() => {
-            setIsStudioOpen(true);
-          }}
-          className="mx-3 mt-3 w-[calc(100%-1.5rem)] rounded-2xl border border-white/[0.07] bg-[#121214] px-4 py-3 text-left"
-        >
-          <span className="block text-[13px] font-semibold text-white">Set Woman or Man</span>
-          <span className="mt-0.5 block text-[12px] text-neutral-400">People filtering by that will not see a blank card.</span>
-        </button>
-      )}
+      {radarUid &&
+        buddyProfile.displayName.trim() &&
+        buddyProfile.age >= 18 &&
+        !buddyProfile.gender && (
+          <button
+            type="button"
+            onClick={() => {
+              setIsStudioOpen(true);
+            }}
+            className="mx-3 mt-3 w-[calc(100%-1.5rem)] rounded-2xl border border-white/[0.07] bg-[#121214] px-4 py-3 text-left"
+          >
+            <span className="block text-[13px] font-semibold text-white">Set Woman or Man</span>
+            <span className="mt-0.5 block text-[12px] text-neutral-400">
+              People filtering by that will not see a blank card.
+            </span>
+          </button>
+        )}
 
-      {activeTab === 'DISCOVER' && buddyLive ? <CoachesNearbyStrip coaches={coaches} onOpen={setSelectedCoach} /> : null}
+      {activeTab === 'DISCOVER' && buddyLive ? (
+        <CoachesNearbyStrip coaches={coaches} onOpen={setSelectedCoach} />
+      ) : null}
 
       <div className="px-3 pt-1">
         {activeTab === 'MATCHED' ? (
           chatPeople.length === 0 ? (
             <div className="mt-4 rounded-2xl border border-white/[0.07] bg-o1-card p-8 text-center">
               <h3 className="text-sm font-semibold text-white">No matches yet</h3>
-              <p className="mt-1 text-xs text-neutral-400">When you both say yes, they show up here.</p>
+              <p className="mt-1 text-xs text-neutral-400">
+                When you both say yes, they show up here.
+              </p>
             </div>
           ) : (
             <div className="mt-2 divide-y divide-white/[0.06] overflow-hidden rounded-2xl border border-white/[0.07] bg-o1-card">
@@ -517,10 +662,18 @@ export const BuddyView: React.FC = () => {
                     }}
                     className="flex w-full items-center gap-3 px-3 py-3 text-left"
                   >
-                    {photo ? <img src={photo} alt="" className="h-12 w-12 rounded-full object-cover" /> : <span className="h-12 w-12 rounded-full bg-[#161616]" />}
+                    {photo ? (
+                      <img src={photo} alt="" className="h-12 w-12 rounded-full object-cover" />
+                    ) : (
+                      <span className="h-12 w-12 rounded-full bg-[#161616]" />
+                    )}
                     <span className="min-w-0">
-                      <span className="block truncate text-[15px] font-semibold text-white">{athlete.name}</span>
-                      <span className="block truncate text-[12px] text-neutral-400">{lastLines[athlete.id] || 'New match'}</span>
+                      <span className="block truncate text-[15px] font-semibold text-white">
+                        {athlete.name}
+                      </span>
+                      <span className="block truncate text-[12px] text-neutral-400">
+                        {lastLines[athlete.id] || 'New match'}
+                      </span>
                     </span>
                   </button>
                 );
@@ -536,7 +689,9 @@ export const BuddyView: React.FC = () => {
             locationOn={locationOn}
             locating={locating}
             onEnableLocation={() => void enableLocation()}
-            cardLive={Boolean(radarUid && buddyProfile.displayName.trim() && buddyProfile.age >= 18)}
+            cardLive={Boolean(
+              radarUid && buddyProfile.displayName.trim() && buddyProfile.age >= 18,
+            )}
             onOpenProfile={() => {
               setIsStudioOpen(true);
             }}
@@ -549,14 +704,20 @@ export const BuddyView: React.FC = () => {
               rememberPass(ath.id);
               setDismissedIds((prev) => [...prev, ath.id]);
             }}
-            onAccept={(ath) => { void offerLike(ath); }}
+            onAccept={(ath) => {
+              void offerLike(ath);
+            }}
           />
         ) : locationOn === null ? null : (
           <div id="radar-empty-state" className="flex flex-col items-center px-5 pt-16 text-center">
-            <p className="o1-num text-[42px] leading-none text-[#F2EFE6]">{deckFilters.distanceKm}</p>
+            <p className="o1-num text-[42px] leading-none text-[#F2EFE6]">
+              {deckFilters.distanceKm}
+            </p>
             <p className="mt-1 text-[13px] text-neutral-400">km radius</p>
             <h3 className="mt-6 text-[22px] font-semibold leading-tight text-white">
-              {locationOn === false ? 'Find training partners near you.' : 'No training partners in this radius.'}
+              {locationOn === false
+                ? 'Find training partners near you.'
+                : 'No training partners in this radius.'}
             </h3>
             <p className="mt-2 max-w-[18rem] text-[14px] leading-relaxed text-neutral-400">
               {locationOn === false
@@ -579,14 +740,43 @@ export const BuddyView: React.FC = () => {
                   }
                   const cap = isPro ? 250 : 25;
                   const wider = Math.min(cap, deckFilters.distanceKm + 10);
-                  const strict = deckFilters.verifiedOnly || deckFilters.photoOnly || deckFilters.sameGymOnly || deckFilters.disciplines.length > 0 || deckFilters.times.length > 0 || deckFilters.levels.length > 0 || deckFilters.intents.length > 0 || deckFilters.show !== 'all' || deckFilters.place !== 'any';
-                  const next: DeckFilters = wider > deckFilters.distanceKm
-                    ? { ...deckFilters, distanceKm: wider, stretchDistance: true, verifiedOnly: false, photoOnly: false, sameGymOnly: false }
-                    : strict
-                      ? { ...deckFilters, verifiedOnly: false, photoOnly: false, sameGymOnly: false, disciplines: [], times: [], levels: [], intents: [], show: 'all', place: 'any' }
-                      : deckFilters;
+                  const strict =
+                    deckFilters.verifiedOnly ||
+                    deckFilters.photoOnly ||
+                    deckFilters.sameGymOnly ||
+                    deckFilters.disciplines.length > 0 ||
+                    deckFilters.times.length > 0 ||
+                    deckFilters.levels.length > 0 ||
+                    deckFilters.intents.length > 0 ||
+                    deckFilters.show !== 'all' ||
+                    deckFilters.place !== 'any';
+                  const next: DeckFilters =
+                    wider > deckFilters.distanceKm
+                      ? {
+                          ...deckFilters,
+                          distanceKm: wider,
+                          stretchDistance: true,
+                          verifiedOnly: false,
+                          photoOnly: false,
+                          sameGymOnly: false,
+                        }
+                      : strict
+                        ? {
+                            ...deckFilters,
+                            verifiedOnly: false,
+                            photoOnly: false,
+                            sameGymOnly: false,
+                            disciplines: [],
+                            times: [],
+                            levels: [],
+                            intents: [],
+                            show: 'all',
+                            place: 'any',
+                          }
+                        : deckFilters;
                   if (next === deckFilters && !hadPasses) {
-                    if (deckFilters.distanceKm >= 25 && !isPro) openPaywall('Buddy radius past 25 km');
+                    if (deckFilters.distanceKm >= 25 && !isPro)
+                      openPaywall('Buddy radius past 25 km');
                     else showToast(`No one else inside ${deckFilters.distanceKm} km`);
                     return;
                   }
@@ -595,7 +785,13 @@ export const BuddyView: React.FC = () => {
                     setDeckFilters(next);
                     setRadiusKm(next.distanceKm);
                   }
-                  showToast(wider > deckFilters.distanceKm ? `Radius ${wider} km` : hadPasses ? 'Passed people are back' : 'Filters cleared');
+                  showToast(
+                    wider > deckFilters.distanceKm
+                      ? `Radius ${wider} km`
+                      : hadPasses
+                        ? 'Passed people are back'
+                        : 'Filters cleared',
+                  );
                 })();
               }}
               className="mt-6 h-12 w-full max-w-sm rounded-full bg-o1-crimson text-[15px] font-semibold text-white active:bg-o1-crimson-press"
@@ -664,12 +860,26 @@ export const BuddyView: React.FC = () => {
           setSelectedMessageAthlete(null);
           setOpenSchedule(false);
         }}
-        onSendInvite={({ gym, dateTime }) => showToast(`Session invite sent for ${gym} (${dateTime})`)}
-        allowCompose={Boolean(selectedMessageAthlete && mutuals[selectedMessageAthlete.id] && !blocks.includes(selectedMessageAthlete.id))}
+        onSendInvite={({ gym, dateTime }) =>
+          showToast(`Session invite sent for ${gym} (${dateTime})`)
+        }
+        allowCompose={Boolean(
+          selectedMessageAthlete &&
+          mutuals[selectedMessageAthlete.id] &&
+          !blocks.includes(selectedMessageAthlete.id),
+        )}
         scheduleOpen={openSchedule}
         isPrivacyOpen={isPrivacyOpen}
         onClosePrivacy={() => setIsPrivacyOpen(false)}
-        onPrivacySaved={(s) => showToast(!s.radarConsent ? 'You are off Buddy. Your card and area are removed.' : s.ghostMode ? 'Ghost mode on. Nobody can see your card.' : 'Your card is visible on Buddy')}
+        onPrivacySaved={(s) =>
+          showToast(
+            !s.radarConsent
+              ? 'You are off Buddy. Your card and area are removed.'
+              : s.ghostMode
+                ? 'Ghost mode on. Nobody can see your card.'
+                : 'Your card is visible on Buddy',
+          )
+        }
         isFiltersOpen={isFiltersOpen}
         onCloseFilters={() => setIsFiltersOpen(false)}
         onApplyFilters={(f) => {
@@ -714,7 +924,12 @@ export const BuddyView: React.FC = () => {
           onNeedPremium={() => openPaywall('Buddy radius past 25 km')}
           onApply={(next) => {
             const distanceKm = capRadius(isPro, next.distanceKm);
-            const saved = { ...next, distanceKm, ageMin: Math.min(next.ageMin, next.ageMax), ageMax: Math.max(next.ageMin, next.ageMax) };
+            const saved = {
+              ...next,
+              distanceKm,
+              ageMin: Math.min(next.ageMin, next.ageMax),
+              ageMax: Math.max(next.ageMin, next.ageMax),
+            };
             writeDeckFilters(saved);
             setDeckFilters(saved);
             setRadiusKm(distanceKm);
@@ -732,5 +947,3 @@ export const BuddyView: React.FC = () => {
     </div>
   );
 };
-
-

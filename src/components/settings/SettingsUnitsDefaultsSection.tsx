@@ -134,9 +134,7 @@ export const SettingsUnitsDefaultsSection: React.FC<UnitsDefaultsSectionProps> =
             </div>
 
             <div className="flex items-center gap-1.5 text-neutral-400 shrink-0">
-              <span className="text-[10px] font-mono">
-                {stepsExpanded ? 'Close' : 'Adjust'}
-              </span>
+              <span className="text-[10px] font-mono">{stepsExpanded ? 'Close' : 'Adjust'}</span>
               {stepsExpanded ? (
                 <ChevronUp className="w-4 h-4 text-neutral-400" />
               ) : (
@@ -199,7 +197,8 @@ export const SettingsUnitsDefaultsSection: React.FC<UnitsDefaultsSectionProps> =
                 {/* Telemetry Estimation */}
                 <div className="flex items-center justify-center gap-3 text-[11px] font-mono text-neutral-400">
                   <span>
-                    ~{distanceUnit === 'mi'
+                    ~
+                    {distanceUnit === 'mi'
                       ? (((stepTarget * 0.75) / 1000) * 0.621371).toFixed(1) + ' mi'
                       : ((stepTarget * 0.75) / 1000).toFixed(1) + ' km'}
                   </span>
@@ -248,15 +247,17 @@ export const SettingsUnitsDefaultsSection: React.FC<UnitsDefaultsSectionProps> =
                   Units &amp; Barbell Defaults
                 </span>
                 <span className="text-[10px] font-mono text-neutral-400 block truncate">
-                  {weightUnit.toUpperCase()} · {distanceUnit.toUpperCase()} · Bar: {weightUnit === 'lbs' ? `${Math.round(defaultBarbellKg * 2.20462)}lbs` : `${defaultBarbellKg}kg`} · Rest: {defaultRestSeconds === 0 ? 'Off' : `${defaultRestSeconds}s`}
+                  {weightUnit.toUpperCase()} · {distanceUnit.toUpperCase()} · Bar:{' '}
+                  {weightUnit === 'lbs'
+                    ? `${Math.round(defaultBarbellKg * 2.20462)}lbs`
+                    : `${defaultBarbellKg}kg`}{' '}
+                  · Rest: {defaultRestSeconds === 0 ? 'Off' : `${defaultRestSeconds}s`}
                 </span>
               </div>
             </div>
 
             <div className="flex items-center gap-1.5 text-neutral-400 shrink-0">
-              <span className="text-[10px] font-mono">
-                {unitsExpanded ? 'Close' : 'Adjust'}
-              </span>
+              <span className="text-[10px] font-mono">{unitsExpanded ? 'Close' : 'Adjust'}</span>
               {unitsExpanded ? (
                 <ChevronUp className="w-4 h-4 text-neutral-400" />
               ) : (
@@ -281,7 +282,9 @@ export const SettingsUnitsDefaultsSection: React.FC<UnitsDefaultsSectionProps> =
                         onSetWeightUnit('kg');
                       }}
                       className={`py-1 min-h-[44px] text-xs font-mono font-bold rounded-md transition-all cursor-pointer ${
-                        weightUnit === 'kg' ? 'bg-o1-crimson text-white shadow-xs' : 'text-neutral-400 hover:text-white'
+                        weightUnit === 'kg'
+                          ? 'bg-o1-crimson text-white shadow-xs'
+                          : 'text-neutral-400 hover:text-white'
                       }`}
                     >
                       KG
@@ -293,7 +296,9 @@ export const SettingsUnitsDefaultsSection: React.FC<UnitsDefaultsSectionProps> =
                         onSetWeightUnit('lbs');
                       }}
                       className={`py-1 min-h-[44px] text-xs font-mono font-bold rounded-md transition-all cursor-pointer ${
-                        weightUnit === 'lbs' ? 'bg-o1-crimson text-white shadow-xs' : 'text-neutral-400 hover:text-white'
+                        weightUnit === 'lbs'
+                          ? 'bg-o1-crimson text-white shadow-xs'
+                          : 'text-neutral-400 hover:text-white'
                       }`}
                     >
                       LBS
@@ -313,7 +318,9 @@ export const SettingsUnitsDefaultsSection: React.FC<UnitsDefaultsSectionProps> =
                         onSetDistanceUnit('km');
                       }}
                       className={`py-1 min-h-[44px] text-xs font-mono font-bold rounded-md transition-all cursor-pointer ${
-                        distanceUnit === 'km' ? 'bg-o1-crimson text-white shadow-xs' : 'text-neutral-400 hover:text-white'
+                        distanceUnit === 'km'
+                          ? 'bg-o1-crimson text-white shadow-xs'
+                          : 'text-neutral-400 hover:text-white'
                       }`}
                     >
                       KM
@@ -325,7 +332,9 @@ export const SettingsUnitsDefaultsSection: React.FC<UnitsDefaultsSectionProps> =
                         onSetDistanceUnit('mi');
                       }}
                       className={`py-1 min-h-[44px] text-xs font-mono font-bold rounded-md transition-all cursor-pointer ${
-                        distanceUnit === 'mi' ? 'bg-o1-crimson text-white shadow-xs' : 'text-neutral-400 hover:text-white'
+                        distanceUnit === 'mi'
+                          ? 'bg-o1-crimson text-white shadow-xs'
+                          : 'text-neutral-400 hover:text-white'
                       }`}
                     >
                       Mi
@@ -345,7 +354,9 @@ export const SettingsUnitsDefaultsSection: React.FC<UnitsDefaultsSectionProps> =
                         onSetHeightUnit('cm');
                       }}
                       className={`py-1 min-h-[44px] text-xs font-mono font-bold rounded-md transition-all cursor-pointer ${
-                        heightUnit === 'cm' ? 'bg-o1-crimson text-white shadow-xs' : 'text-neutral-400 hover:text-white'
+                        heightUnit === 'cm'
+                          ? 'bg-o1-crimson text-white shadow-xs'
+                          : 'text-neutral-400 hover:text-white'
                       }`}
                     >
                       Cm
@@ -357,7 +368,9 @@ export const SettingsUnitsDefaultsSection: React.FC<UnitsDefaultsSectionProps> =
                         onSetHeightUnit('in');
                       }}
                       className={`py-1 min-h-[44px] text-xs font-mono font-bold rounded-md transition-all cursor-pointer ${
-                        heightUnit === 'in' ? 'bg-o1-crimson text-white shadow-xs' : 'text-neutral-400 hover:text-white'
+                        heightUnit === 'in'
+                          ? 'bg-o1-crimson text-white shadow-xs'
+                          : 'text-neutral-400 hover:text-white'
                       }`}
                     >
                       In
@@ -390,8 +403,12 @@ export const SettingsUnitsDefaultsSection: React.FC<UnitsDefaultsSectionProps> =
                       }`}
                     >
                       <span>{b.label}</span>
-                      <span className={`font-mono text-[11px] ${defaultBarbellKg === b.value ? 'text-white/80' : 'text-neutral-400'}`}>
-                        {weightUnit === 'lbs' ? `${Math.round(b.value * 2.20462)} lbs` : `${b.value} kg`}
+                      <span
+                        className={`font-mono text-[11px] ${defaultBarbellKg === b.value ? 'text-white/80' : 'text-neutral-400'}`}
+                      >
+                        {weightUnit === 'lbs'
+                          ? `${Math.round(b.value * 2.20462)} lbs`
+                          : `${b.value} kg`}
                       </span>
                     </button>
                   ))}

@@ -16,7 +16,7 @@ export function registerPublicPages(app: Express): void {
     (_req, res) => {
       res.setHeader('Content-Type', 'text/html; charset=utf-8');
       res.sendFile(path.join(publicDir, 'delete-account.html'));
-    }
+    },
   );
 
   app.get(['/terms', '/terms.html', '/terms-of-service', '/terms-of-use', '/eula'], (_req, res) => {

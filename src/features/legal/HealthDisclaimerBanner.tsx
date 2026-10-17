@@ -84,4 +84,3 @@ export const HealthDisclaimerBanner: React.FC<Props> = ({ onLearnMore, compact =
     </div>
   );
 };
-

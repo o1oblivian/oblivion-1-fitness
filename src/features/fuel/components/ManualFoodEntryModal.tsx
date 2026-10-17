@@ -1,5 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { X, Plus, Database, Check, Flame, Beef, Wheat, Apple, Coffee, Utensils } from 'lucide-react';
+import {
+  X,
+  Plus,
+  Database,
+  Check,
+  Flame,
+  Beef,
+  Wheat,
+  Apple,
+  Coffee,
+  Utensils,
+} from 'lucide-react';
 import { FoodCategoryType, FoodItemRecord } from '../../../services/foodData/types';
 import { saveCustomFood } from '../../../services/customFoodDatabase';
 import { tactileEngine } from '../../../services/tactileEngine';
@@ -176,7 +187,8 @@ export const ManualFoodEntryModal: React.FC<ManualFoodEntryModalProps> = ({
 
           <div>
             <label className="block text-[11px] tabular-nums font-bold text-o1-muted mb-1">
-              Brand / Source <span className="text-[10px] text-o1-muted font-normal">(Optional)</span>
+              Brand / Source{' '}
+              <span className="text-[10px] text-o1-muted font-normal">(Optional)</span>
             </label>
             <input
               type="text"
@@ -239,7 +251,8 @@ export const ManualFoodEntryModal: React.FC<ManualFoodEntryModalProps> = ({
 
           <div>
             <label className="block text-[11px] tabular-nums font-bold text-o1-muted mb-1">
-              Portion Desc <span className="text-[10px] text-o1-muted font-normal">(e.g. 1 scoop)</span>
+              Portion Desc{' '}
+              <span className="text-[10px] text-o1-muted font-normal">(e.g. 1 scoop)</span>
             </label>
             <input
               type="text"
@@ -372,5 +385,3 @@ export const ManualFoodEntryModal: React.FC<ManualFoodEntryModalProps> = ({
     </div>
   );
 };
-
-

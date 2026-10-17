@@ -11,7 +11,11 @@ interface SupplementTimingModalProps {
   onShowToast?: (msg: string) => void;
 }
 
-export const SupplementTimingModal: React.FC<SupplementTimingModalProps> = ({ isOpen, onClose, onShowToast }) => {
+export const SupplementTimingModal: React.FC<SupplementTimingModalProps> = ({
+  isOpen,
+  onClose,
+  onShowToast,
+}) => {
   const weightKg = useFuelStore((s) => s.weightKg);
   const [pane, setPane] = useState<'today' | 'stack'>('today');
 
@@ -66,7 +70,10 @@ export const SupplementTimingModal: React.FC<SupplementTimingModalProps> = ({ is
           </button>
         </div>
 
-        <div className="grid grid-cols-2 gap-1 p-1 rounded-2xl border border-white/[0.08]" role="tablist">
+        <div
+          className="grid grid-cols-2 gap-1 p-1 rounded-2xl border border-white/[0.08]"
+          role="tablist"
+        >
           {(['today', 'stack'] as const).map((id) => (
             <button
               key={id}
@@ -92,5 +99,3 @@ export const SupplementTimingModal: React.FC<SupplementTimingModalProps> = ({ is
     </div>
   );
 };
-
-

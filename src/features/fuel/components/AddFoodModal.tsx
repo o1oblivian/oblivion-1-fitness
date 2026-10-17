@@ -18,7 +18,11 @@ import { useFuelStore } from '../store/useFuelStore';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { FoodPortionDialModal } from './FoodPortionDialModal';
 import { ClientCountryMarketModal, COUNTRIES } from './ClientCountryMarketModal';
-import { queryFoodCatalog, FoodItemRecord, getRegionalDatabaseInfo } from '../../../services/foodCatalogService';
+import {
+  queryFoodCatalog,
+  FoodItemRecord,
+  getRegionalDatabaseInfo,
+} from '../../../services/foodCatalogService';
 import { FoodCategoryType } from '../../../services/foodData/types';
 import { ManualFoodEntryModal } from './ManualFoodEntryModal';
 import { foodMatchesDietSafe } from '../utils/dietFoodFilter';
@@ -110,7 +114,7 @@ export const AddFoodModal: React.FC<AddFoodModalProps> = ({
           }
         }
       },
-      searchQuery ? 250 : 0
+      searchQuery ? 250 : 0,
     );
 
     return () => {
@@ -120,7 +124,13 @@ export const AddFoodModal: React.FC<AddFoodModalProps> = ({
   }, [isOpen, activeCategory, searchQuery, countryMarket]);
 
   const currentCountry = useMemo(() => {
-    return COUNTRIES.find((c) => c.code === countryMarket) || { flag: '🇦🇺', name: 'Australia', code: 'AU' };
+    return (
+      COUNTRIES.find((c) => c.code === countryMarket) || {
+        flag: '🇦🇺',
+        name: 'Australia',
+        code: 'AU',
+      }
+    );
   }, [countryMarket]);
 
   const regionalDbInfo = useMemo(() => {
@@ -128,7 +138,9 @@ export const AddFoodModal: React.FC<AddFoodModalProps> = ({
   }, [countryMarket]);
 
   const visibleFoods = useMemo(() => {
-    const filtered = dbFoods.filter((f) => foodMatchesDietSafe(f.name, f.brand || '', dietPreference));
+    const filtered = dbFoods.filter((f) =>
+      foodMatchesDietSafe(f.name, f.brand || '', dietPreference),
+    );
     if (activeCategory !== 'fastfood') return filtered;
     return [...filtered].sort((a, b) => {
       const brand = (a.brand || '').localeCompare(b.brand || '');
@@ -157,7 +169,7 @@ export const AddFoodModal: React.FC<AddFoodModalProps> = ({
   };
 
   const handleCommitFoodWithGrams = (food: FoodItemRecord, grams: number) => {
-    const baseServingG = (food.serving_grams && food.serving_grams > 0) ? food.serving_grams : 100;
+    const baseServingG = food.serving_grams && food.serving_grams > 0 ? food.serving_grams : 100;
     commitFood(food, grams / baseServingG, `${grams}g`);
   };
 
@@ -319,8 +331,13 @@ export const AddFoodModal: React.FC<AddFoodModalProps> = ({
           ) : visibleFoods.length === 0 ? (
             <div className="py-16 text-center text-o1-muted font-sans text-xs flex flex-col items-center justify-center gap-2">
               <Database className="w-6 h-6 text-o1-muted/50" />
-              <span>No {dietPreference} match for &quot;{searchQuery || activeCategory}&quot;. Try another name or add a custom food.</span>
-              <span className="text-[10px] text-o1-muted">Tap below to log a custom food item with exact macros.</span>
+              <span>
+                No {dietPreference} match for &quot;{searchQuery || activeCategory}&quot;. Try
+                another name or add a custom food.
+              </span>
+              <span className="text-[10px] text-o1-muted">
+                Tap below to log a custom food item with exact macros.
+              </span>
             </div>
           ) : (
             visibleFoods.map((food) => (
@@ -366,7 +383,10 @@ export const AddFoodModal: React.FC<AddFoodModalProps> = ({
                       <Flame className="w-3 h-3 text-o1-crimson shrink-0" />
                       <span className="font-semibold text-o1-text">{food.calories} kcal</span>
                       <span className="text-white/20">·</span>
-                      <span>{food.serving_size || (food.serving_grams ? `${food.serving_grams}g` : '1 serving')}</span>
+                      <span>
+                        {food.serving_size ||
+                          (food.serving_grams ? `${food.serving_grams}g` : '1 serving')}
+                      </span>
                     </div>
                     <div className="flex items-center gap-2 text-[11px] tabular-nums">
                       <span className="text-o1-crimson font-bold">{food.protein}p</span>
@@ -445,5 +465,3 @@ export const AddFoodModal: React.FC<AddFoodModalProps> = ({
     </div>
   );
 };
-
-
