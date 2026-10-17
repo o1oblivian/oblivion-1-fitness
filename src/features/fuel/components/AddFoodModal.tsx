@@ -13,8 +13,8 @@ import {
   Database,
   Utensils,
 } from 'lucide-react';
-import { MealCategory, MealFoodItem } from '../../../types';
-import { useFuelStore, ExtendedMealCategory } from '../store/useFuelStore';
+import { MealFoodItem } from '../../../types';
+import { useFuelStore } from '../store/useFuelStore';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { FoodPortionDialModal } from './FoodPortionDialModal';
 import { ClientCountryMarketModal, COUNTRIES } from './ClientCountryMarketModal';
@@ -25,10 +25,11 @@ import { foodMatchesDietSafe } from '../utils/dietFoodFilter';
 import type { MacroBudget } from '../data/intelMealEngine';
 
 interface AddFoodModalProps {
-  category: ExtendedMealCategory | MealCategory;
+  /** Slot label from the fuel screen ("Snacks", "Supplements & Electrolytes"); the store maps it to a slot. */
+  category: string;
   isOpen: boolean;
   onClose: () => void;
-  onAddFood?: (category: ExtendedMealCategory | MealCategory, item: MealFoodItem) => void;
+  onAddFood?: (category: string, item: MealFoodItem) => void;
   showToast?: (msg: string) => void;
   budget?: MacroBudget | null;
 }
@@ -102,7 +103,7 @@ export const AddFoodModal: React.FC<AddFoodModalProps> = ({
             setDbFoods(items);
             setIsLoading(false);
           }
-        } catch (err: any) {
+        } catch {
           if (!controller.signal.aborted) {
             setDbFoods([]);
             setIsLoading(false);

@@ -31,7 +31,7 @@ interface Props {
 
   isFiltersOpen?: boolean;
   onCloseFilters?: () => void;
-  onApplyFilters?: (filters: any) => void;
+  onApplyFilters?: (filters: { radiusKm?: number }) => void;
 
   isTravelHubOpen: boolean;
   onCloseTravelHub: () => void;

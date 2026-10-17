@@ -416,6 +416,8 @@ export const getAthleteDayRoutine = (
   };
 };
 
+type SavedDayRoutines = Partial<Record<DayCode, SavedDayRoutine>>;
+
 /**
  * Save an athlete's workout to repeat on a specific day of the week
  */
@@ -425,11 +427,11 @@ export const saveAthleteDayRoutine = (
   exercises: WorkoutExercise[]
 ): boolean => {
   try {
-    let saved: Record<string, any> = {};
+    let saved: SavedDayRoutines = {};
     const raw = localStorage.getItem(USER_SAVED_WORKOUTS_KEY);
     if (raw) {
       try {
-        saved = JSON.parse(raw) || {};
+        saved = (JSON.parse(raw) as SavedDayRoutines | null) || {};
       } catch {
         saved = {};
       }

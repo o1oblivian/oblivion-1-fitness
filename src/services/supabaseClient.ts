@@ -7,14 +7,14 @@ import { buildArchiveRows } from './archiveRows';
 
 export interface WorkoutSessionPayload {
   id?: string; user_id?: string; title?: string; duration?: string; duration_seconds?: number;
-  strain?: number; tonnage_kg?: number; total_sets?: number; exercises?: any; created_at?: string;
+  strain?: number; tonnage_kg?: number; total_sets?: number; exercises?: unknown; created_at?: string;
   /** When the session happened. Defaults to now; past-day entries pass their own day. */
   completed_at?: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export interface AthleteProfile {
-  id: string; handle?: string; full_name?: string; bio?: string; avatar_url?: string; settings?: Record<string, any>; updated_at?: string;
+  id: string; handle?: string; full_name?: string; bio?: string; avatar_url?: string; settings?: Record<string, unknown>; updated_at?: string;
 }
 
 export const PROD_SUPABASE_URL = 'https://qkfvepjeyreicqomatyt.supabase.co';
@@ -23,7 +23,8 @@ export const PROD_SUPABASE_ANON_KEY =
 
 function getSafeEnv(key: string): string {
   try {
-    if (typeof import.meta !== 'undefined' && (import.meta as any)?.env?.[key]) return (import.meta as any).env[key];
+    const metaEnv = typeof import.meta !== 'undefined' ? (import.meta.env as Record<string, string | undefined>) : undefined;
+    if (metaEnv?.[key]) return metaEnv[key]!;
     if (typeof process !== 'undefined' && process?.env?.[key]) return process.env[key]!;
   } catch {}
   return '';
@@ -67,10 +68,6 @@ function finishPendingSignOut(): void {
 }
 finishPendingSignOut();
 
-type ExtendedSupabaseClient = SupabaseClient & {
-  insert: (table: string, payload: any) => Promise<{ data: any; error: any }>;
-};
-
 const authOptions = {
   persistSession: true,
   autoRefreshToken: true,
@@ -103,14 +100,7 @@ try {
   });
 }
 
-export const supabase: ExtendedSupabaseClient = Object.assign(rawClient, {
-  insert: async (table: string, payload: any) => {
-    try {
-      const { data, error } = await rawClient.from(table).insert(payload).select();
-      return { data, error };
-    } catch (err) { return { data: null, error: err }; }
-  },
-});
+export const supabase: SupabaseClient = rawClient;
 
 /** Idempotent: safe to retry with the same payload id; never duplicates rows. */
 export async function syncSessionToSupabase(sessionData: WorkoutSessionPayload): Promise<boolean> {

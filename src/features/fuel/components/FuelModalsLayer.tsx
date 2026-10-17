@@ -54,7 +54,7 @@ export const FuelModalsLayer: React.FC<FuelModalsLayerProps> = ({
       />
       <AddFoodModal
         isOpen={isAddFoodModalOpen}
-        category={addFoodCategory as any}
+        category={addFoodCategory}
         onClose={onCloseAddFoodModal}
         onAddFood={(_cat, item) => {
           showToast(`Logged ${item.name} (${item.calories} kcal)`);

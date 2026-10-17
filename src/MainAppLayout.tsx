@@ -38,13 +38,14 @@ export const MainAppLayout: React.FC = () => {
   React.useEffect(() => startSync(), []);
 
   React.useEffect(() => {
-    const handleNavEvent = (e: CustomEvent<TabMode>) => {
-      if (e.detail) {
-        handleTabSelect(e.detail);
+    const handleNavEvent = (e: Event) => {
+      const { detail } = e as CustomEvent<TabMode>;
+      if (detail) {
+        handleTabSelect(detail);
       }
     };
-    window.addEventListener('app_navigate_tab' as any, handleNavEvent);
-    return () => window.removeEventListener('app_navigate_tab' as any, handleNavEvent);
+    window.addEventListener('app_navigate_tab', handleNavEvent);
+    return () => window.removeEventListener('app_navigate_tab', handleNavEvent);
   }, [handleTabSelect]);
 
   return (

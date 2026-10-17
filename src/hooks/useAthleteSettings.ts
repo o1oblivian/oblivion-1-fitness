@@ -382,7 +382,7 @@ export const useProductionSettings = (onShowToast?: (msg: string) => void) => {
   const handleExportVault = async () => {
     // Gather all local-first athlete telemetry and logs from on-device storage
     const allLocalKeys = typeof window !== 'undefined' ? Object.keys(window.localStorage) : [];
-    const localSnapshot: Record<string, any> = {};
+    const localSnapshot: Record<string, unknown> = {};
     if (typeof window !== 'undefined') {
       allLocalKeys.forEach((key) => {
         if (key.startsWith('o1') || key.startsWith('workout') || key.startsWith('fuel')) {

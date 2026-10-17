@@ -4,13 +4,14 @@
  */
 import { downscaleBase64IfNeeded } from './imageDownscaleUtils';
 import { apiFetch } from './apiBase';
+import { errorMessage } from '../../shared/errorMessage';
 import { readConfidence, readNutrient, resolveCalories } from './mealVisionTypes';
 
 // 1. PERMANENT GEMINI API KEY FALLBACK
 export const geminiKey: string =
   (typeof process !== 'undefined' && process.env?.GEMINI_API_KEY) ||
   (typeof import.meta !== 'undefined' && import.meta.env?.VITE_GEMINI_API_KEY) ||
-  (typeof import.meta !== 'undefined' && (import.meta.env as any)?.GEMINI_API_KEY_2) ||
+  (typeof import.meta !== 'undefined' && (import.meta.env as Record<string, string | undefined>)?.GEMINI_API_KEY_2) ||
   (typeof process !== 'undefined' && process.env?.GEMINI_API_KEY_2) ||
   '';
 
@@ -149,13 +150,13 @@ export async function analyzeMealNutrients(
           throw new Error(errJson.error);
         }
       }
-    } catch (err: any) {
+    } catch (err) {
       console.error('[MealScanner Failure]', err);
       if (attempt === 1) {
         await new Promise((r) => setTimeout(r, 400));
         continue;
       }
-      throw err?.message ? err : new Error('Could not read this meal photo. Retake it with the food clearly in view.');
+      throw errorMessage(err) ? err : new Error('Could not read this meal photo. Retake it with the food clearly in view.');
     }
   }
 

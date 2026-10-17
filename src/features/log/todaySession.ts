@@ -5,6 +5,7 @@ import { useWorkoutStore } from '../workout/store/useWorkoutStore';
 import { getAthleteDayRoutine, getSystemTodayCode } from '../workout/services/dayRoutineService';
 import { AssignedExerciseRow, AssignedWorkoutRow, CoachDispatchedWorkout, DispatchedExercise } from '../../types/coach';
 import { titleCase } from '../../utils/displayCase';
+import type { ExerciseItem, ExerciseSet } from '../../types/exercise';
 
 export type SessionOrigin = 'coach' | 'saved' | 'program' | 'none';
 
@@ -26,7 +27,7 @@ export interface TodaySession {
   title: string;
   detail: string;
   button: string;
-  exercises: any[];
+  exercises: ExerciseItem[];
   assignedId?: string;
 }
 
@@ -43,7 +44,7 @@ function freshSets(count: number, reps: number, weightKg: number, rpe: number) {
   }));
 }
 
-function asLogExercise(name: string, sets: any[], muscle?: string, equipment?: string) {
+function asLogExercise(name: string, sets: ExerciseSet[], muscle?: string, equipment?: string): ExerciseItem {
   return {
     id: `today-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
     name,
@@ -74,14 +75,18 @@ function fromProgramExercise(exercise: ProgramDaySchedule['exercises'][number]) 
   );
 }
 
-function fromSavedExercise(exercise: any) {
-  const sets = (exercise.sets || []).map((set: any, index: number) => ({
+/** Saved workouts written by older builds also carry target fields on each set. */
+type SavedSet = Partial<ExerciseSet> & { targetReps?: number; targetWeightKg?: number };
+
+function fromSavedExercise(exercise: ExerciseItem) {
+  const sets: ExerciseSet[] = ((exercise.sets || []) as SavedSet[]).map((set, index) => ({
     ...set,
     id: `set-${Date.now()}-${index}-${Math.random().toString(36).slice(2, 6)}`,
     setNumber: set.setNumber || index + 1,
     reps: set.reps || set.targetReps || 0,
     weightKg: set.weightKg || set.weight || set.targetWeightKg || 0,
     weight: set.weightKg || set.weight || set.targetWeightKg || 0,
+    rpe: set.rpe ?? 0,
     completed: false,
   }));
   return asLogExercise(

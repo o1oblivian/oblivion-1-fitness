@@ -1,5 +1,6 @@
 import type { Express, NextFunction, Request, Response } from 'express';
 import { COACH_PLANS } from '../../shared/coachPlans';
+import { errorMessage } from '../../shared/errorMessage';
 import {
   MIN_PAYOUT_CENTS,
   PAYOUT_CURRENCY,
@@ -48,9 +49,10 @@ export async function requireSupabaseAuth(req: Request, res: Response, next: Nex
  * Stripe errors that prove no transfer was created. Anything else (dropped connection, 5xx, timeout)
  * may have gone through, so it must never be treated as "not sent".
  */
-function stripeDefinitelyRejected(err: any): boolean {
+function stripeDefinitelyRejected(err: unknown): boolean {
+  const type = typeof err === 'object' && err !== null ? (err as { type?: unknown }).type : '';
   return ['StripeInvalidRequestError', 'StripePermissionError', 'StripeAuthenticationError', 'StripeRateLimitError'].includes(
-    String(err?.type || ''),
+    String(type || ''),
   );
 }
 
@@ -105,8 +107,8 @@ export function registerStripeRoutes(app: Express) {
         type: 'account_onboarding',
       });
       return res.json({ url: link.url });
-    } catch (err: any) {
-      console.error('[stripe] create-connect-account failed:', err?.message);
+    } catch (err) {
+      console.error('[stripe] create-connect-account failed:', errorMessage(err));
       return res.status(500).json({ error: 'Could not start Stripe onboarding. Try again.' });
     }
   });
@@ -121,8 +123,8 @@ export function registerStripeRoutes(app: Express) {
       }
       const link = await stripe.accounts.createLoginLink(profile.stripe_connect_account_id);
       return res.json({ url: link.url });
-    } catch (err: any) {
-      console.error('[stripe] create-login-link failed:', err?.message);
+    } catch (err) {
+      console.error('[stripe] create-login-link failed:', errorMessage(err));
       return res.status(500).json({ error: 'Could not open the Stripe dashboard. Try again.' });
     }
   });
@@ -176,8 +178,8 @@ export function registerStripeRoutes(app: Express) {
         payouts: ledger.payouts,
         transactions: ledger.transactions,
       });
-    } catch (err: any) {
-      console.error('[stripe] balance failed:', err?.message);
+    } catch (err) {
+      console.error('[stripe] balance failed:', errorMessage(err));
       return res.status(500).json({ error: 'Could not load your balance.' });
     }
   });
@@ -284,8 +286,8 @@ export function registerStripeRoutes(app: Express) {
       }
 
       return res.json({ success: true, payoutId: transfer.id, transferId: transfer.id, amountCents });
-    } catch (err: any) {
-      console.error('[stripe] create-payout failed:', err?.message);
+    } catch (err) {
+      console.error('[stripe] create-payout failed:', errorMessage(err));
       if (transferId) {
         console.error('[stripe] transfer', transferId, 'was sent; leaving ledger row', ledgerId, 'as processing for review.');
         return res.json({ success: true, payoutId: transferId, transferId, amountCents: Number(req.body?.amountCents) });
@@ -300,7 +302,7 @@ export function registerStripeRoutes(app: Express) {
       if (ledgerId) {
         await getSupabaseAdmin()
           ?.from('coach_payout_ledger')
-          .update({ status: 'failed', error_message: String(err?.message || 'transfer failed').slice(0, 300), updated_at: new Date().toISOString() })
+          .update({ status: 'failed', error_message: errorMessage(err, 'transfer failed').slice(0, 300), updated_at: new Date().toISOString() })
           .eq('id', ledgerId);
       }
       return res.status(502).json({ error: 'The withdrawal could not be sent. Your balance is unchanged. Try again later.' });
@@ -383,8 +385,8 @@ export function registerStripeRoutes(app: Express) {
       });
       if (!session.url) return res.status(502).json({ error: 'Stripe did not return a checkout page.' });
       return res.json({ url: session.url });
-    } catch (err: any) {
-      console.error('[stripe] create-checkout failed:', err?.message);
+    } catch (err) {
+      console.error('[stripe] create-checkout failed:', errorMessage(err));
       return res.status(500).json({ error: 'Could not start checkout.' });
     }
   });

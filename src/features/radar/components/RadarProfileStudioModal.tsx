@@ -58,7 +58,7 @@ export const RadarProfileStudioModal: React.FC<Props> = ({
   const pointerStartPos = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
   const hasMovedRef = useRef<boolean>(false);
   const cachedSlotRects = useRef<{ left: number; top: number; right: number; bottom: number }[]>([]);
-  const slotRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const slotRefs = useRef<(HTMLElement | null)[]>([]);
 
   const { ageRangeMin, ageRangeMax, setAgeRange } = buddy;
   useEffect(() => {
@@ -275,7 +275,7 @@ export const RadarProfileStudioModal: React.FC<Props> = ({
                         <button
                           key={`empty-${idx}`}
                           ref={(el) => {
-                            slotRefs.current[idx] = el as any;
+                            slotRefs.current[idx] = el;
                           }}
                           type="button"
                           onClick={handleOpenMasterVault}

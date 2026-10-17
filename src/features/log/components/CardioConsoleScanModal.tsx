@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { X, CheckCircle2, Sparkles } from 'lucide-react';
+import { errorMessage } from '../../../../shared/errorMessage';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { telemetryArbitrationService } from '../../telemetry/services/telemetryArbitrationService';
 import { useFuelStore } from '../../fuel/store/useFuelStore';
@@ -43,8 +44,8 @@ export const CardioConsoleScanModal: React.FC<CardioConsoleScanModalProps> = ({
       const data = await processCardioScanImage(base64Image, scanMode);
       setExtractedData(data);
       tactileEngine.playPRCelebration();
-    } catch (err: any) {
-      onSynced?.(err?.message || 'Could not parse screen numbers. Retake photo with less glare.');
+    } catch (err) {
+      onSynced?.(errorMessage(err, 'Could not parse screen numbers. Retake photo with less glare.'));
     } finally {
       setIsScanning(false);
     }

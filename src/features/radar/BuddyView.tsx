@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { useRadarStore } from '../../stores/useRadarStore';
+import { errorMessage } from '../../../shared/errorMessage';
 import { DemoAthlete } from './types';
 import { BuddyDeckCard } from './components/BuddyDeckCard';
 import { DiscoverHeader } from './components/DiscoverHeader';
@@ -213,10 +214,10 @@ export const BuddyView: React.FC = () => {
           useRadarStore.getState().setBuddies(ranked);
           setSearchResults(ranked);
         }
-      } catch (err: any) {
+      } catch (err) {
         if (!isCancelled) {
           console.error('[Radar] Live buddy_profiles query error:', err);
-          setSupabaseError(err?.message || 'Database network error reading buddy_profiles');
+          setSupabaseError(errorMessage(err, 'Database network error reading buddy_profiles'));
         }
       }
     };

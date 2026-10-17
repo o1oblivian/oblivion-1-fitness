@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { errorMessage } from '../../shared/errorMessage';
 import {
   enrollPaidProgram,
   getStripe,
@@ -50,7 +51,7 @@ export async function handleCreateIdentitySession(req: Request, res: Response) {
     }
 
     return res.json({ url: verificationSession.url, sessionId: verificationSession.id });
-  } catch (err: any) {
+  } catch (err) {
     console.error('Error in /api/stripe/create-identity-session:', err);
     return res.status(500).json({ error: 'Identity check could not start. Try again.' });
   }
@@ -72,7 +73,7 @@ async function constructVerifiedEvent(req: Request): Promise<any> {
   }
 
   const stripe = await getStripe();
-  const rawBody = (req as any).rawBody;
+  const rawBody = (req as Request & { rawBody?: Buffer }).rawBody;
   if (!stripe || !signature || !rawBody) {
     throw Object.assign(new Error('Missing Stripe signature, key, or raw body.'), { status: 400 });
   }
@@ -84,7 +85,7 @@ async function constructVerifiedEvent(req: Request): Promise<any> {
       lastError = err;
     }
   }
-  console.warn('[Stripe Webhook] Signature verification failed:', (lastError as Error)?.message);
+  console.warn('[Stripe Webhook] Signature verification failed:', errorMessage(lastError));
   throw Object.assign(new Error('Invalid Stripe signature'), { status: 400 });
 }
 
@@ -92,8 +93,9 @@ export async function handleStripeWebhook(req: Request, res: Response) {
   let event: any;
   try {
     event = await constructVerifiedEvent(req);
-  } catch (err: any) {
-    return res.status(err?.status || 400).json({ error: err?.message || 'Invalid webhook' });
+  } catch (err) {
+    const status = err instanceof Error && 'status' in err && typeof err.status === 'number' ? err.status : 400;
+    return res.status(status).json({ error: errorMessage(err, 'Invalid webhook') });
   }
 
   try {
@@ -185,10 +187,10 @@ export async function handleStripeWebhook(req: Request, res: Response) {
     }
 
     return res.json({ received: true });
-  } catch (err: any) {
+  } catch (err) {
     console.error('Error handling Stripe webhook:', err);
     // 500 makes Stripe retry, which is what we want for transient DB failures.
-    return res.status(500).json({ error: err.message });
+    return res.status(500).json({ error: errorMessage(err) });
   }
 }
 

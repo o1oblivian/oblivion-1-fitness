@@ -152,7 +152,7 @@ export const MembershipPlansModal: React.FC<MembershipPlansModalProps> = ({
           // Closing the store sheet is the athlete's choice, not an error.
           if (!/cancel/i.test(res.error || '')) setStoreStatusBanner(res.error || (nativeStore ? 'Store billing is unavailable.' : null));
         }
-      } catch (err: any) {
+      } catch {
         setStoreStatusBanner(nativeStore ? 'Store billing is unavailable on this device.' : null);
       } finally {
         setIsPurchasing(false);

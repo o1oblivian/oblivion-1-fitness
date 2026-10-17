@@ -59,7 +59,7 @@ export const MembershipCheckoutModal: React.FC<Props> = ({
       } else {
         setStatusMessage(nativeStore ? res.error || 'Store billing is unavailable.' : null);
       }
-    } catch (err: any) {
+    } catch {
       setStatusMessage(nativeStore ? 'Store billing is unavailable on this device.' : null);
     } finally {
       setIsProcessing(false);

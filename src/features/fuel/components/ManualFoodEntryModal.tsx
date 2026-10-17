@@ -4,14 +4,11 @@ import { FoodCategoryType, FoodItemRecord } from '../../../services/foodData/typ
 import { saveCustomFood } from '../../../services/customFoodDatabase';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { sanitizeNumericInput } from '../../../utils/numberInputUtils';
-import { MealCategory } from '../../../types';
-import { ExtendedMealCategory } from '../store/useFuelStore';
-
 interface ManualFoodEntryModalProps {
   isOpen: boolean;
   onClose: () => void;
   defaultCategory?: FoodCategoryType;
-  currentMealCategory: ExtendedMealCategory | MealCategory;
+  currentMealCategory: string;
   countryMarket?: string;
   onFoodSaved: (food: FoodItemRecord, logToMeal: boolean) => void;
 }

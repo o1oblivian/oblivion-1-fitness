@@ -1,5 +1,6 @@
 import { create } from 'zustand';
-import type { User, Session, AuthError } from '@supabase/supabase-js';
+import type { User, Session } from '@supabase/supabase-js';
+import { errorMessage } from '../../shared/errorMessage';
 import { supabase } from '../services/supabaseClient';
 import { safeStorage } from '../utils/safeStorage';
 import { useUserStore } from './useUserStore';
@@ -45,8 +46,8 @@ export interface AuthState {
 export const EMAIL_NOT_CONFIRMED = 'Confirm your email before signing in.';
 export const ACCOUNT_EXISTS = 'You already have an account with this email. Enter your password to sign in.';
 
-function parseAuthError(err: AuthError | Error | any): string {
-  const msg = err?.message || String(err || '');
+function parseAuthError(err: unknown): string {
+  const msg = errorMessage(err) || String(err || '');
   if (msg.includes('Invalid login credentials') || msg.includes('invalid_credentials')) {
     return 'That email and password don\u2019t match. Try again or reset your password.';
   }
@@ -167,7 +168,7 @@ export const useAuthStore = create<AuthState>((set) => ({
         return { success: true };
       }
       return { success: false, error: 'No user session returned.' };
-    } catch (err: any) {
+    } catch (err) {
       const formatted = parseAuthError(err);
       set({ error: formatted, isLoading: false });
       return { success: false, error: formatted };
@@ -201,7 +202,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       }
       set({ isLoading: false });
       return { success: true, needsConfirmation: true };
-    } catch (err: any) {
+    } catch (err) {
       const formatted = parseAuthError(err);
       set({ error: formatted, isLoading: false });
       return { success: false, error: formatted };

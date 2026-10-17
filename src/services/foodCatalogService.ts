@@ -7,12 +7,30 @@ import {
   RegionalDatabaseInfo,
 } from './theFoodDatabase';
 import { filterCustomFoods } from './customFoodDatabase';
+import { errorMessage, errorName } from '../../shared/errorMessage';
 import { FOOD_CATALOG } from '../features/fuel/data/foodCatalog';
 import { matchesFoodQuery, rankByFoodQuery } from '../features/fuel/utils/foodSearchMatch';
 import { apiFetch } from './apiBase';
 
 export type { FoodItemRecord, FoodCatalogQueryParams, FoodCategoryType, RegionalDatabaseInfo };
 export { getRegionalDatabaseInfo, getRegionalFallbackFoods };
+
+/** Row shape returned by `/api/fuel/live-food-search` (the server also accepts snake_case aliases). */
+interface LiveFoodRow {
+  id: string;
+  name: string;
+  brand?: string;
+  calories?: number | string;
+  protein?: number | string;
+  carbs?: number | string;
+  fats?: number | string;
+  servingSize?: string;
+  serving_size?: string;
+  servingGrams?: number | string;
+  serving_grams?: number | string;
+  country?: string;
+  source?: string;
+}
 
 function inferCatalogCountry(brand: string, name: string, fallback?: string): string {
   if (fallback) return fallback.toUpperCase();
@@ -136,7 +154,7 @@ export async function queryFoodCatalog({
       if (res.ok) {
         const json = await res.json();
         if (Array.isArray(json.items) && json.items.length > 0) {
-          const liveItems: FoodItemRecord[] = json.items.map((it: any) => ({
+          const liveItems: FoodItemRecord[] = (json.items as LiveFoodRow[]).map((it) => ({
             id: it.id,
             name: it.name,
             brand: it.brand || 'Verified Food',
@@ -169,9 +187,9 @@ export async function queryFoodCatalog({
       clearTimeout(hangWatch);
       signal?.removeEventListener('abort', onParentAbort);
     }
-  } catch (proxyErr: any) {
-    if (proxyErr?.name === 'AbortError' && signal?.aborted) throw proxyErr;
-    console.warn('[queryFoodCatalog] Live search unavailable:', proxyErr?.message);
+  } catch (proxyErr) {
+    if (errorName(proxyErr) === 'AbortError' && signal?.aborted) throw proxyErr;
+    console.warn('[queryFoodCatalog] Live search unavailable:', errorMessage(proxyErr));
   }
 
   // Return verified local matches with app catalog and custom foods

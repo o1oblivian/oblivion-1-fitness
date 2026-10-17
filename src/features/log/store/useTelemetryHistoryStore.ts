@@ -325,10 +325,10 @@ const telemetryHistoryStore = createStore<TelemetryHistoryState, TelemetryHistor
           if (nr.proteinG !== undefined) nr.proteinG = Math.round(nr.proteinG * 10) / 10;
           if (nr.fatsG !== undefined) nr.fatsG = Math.round(nr.fatsG * 10) / 10;
           if (nr.calories !== undefined) nr.calories = Math.round(nr.calories);
-          sanitizedRecord = nr as any;
+          sanitizedRecord = nr as unknown as typeof sanitizedRecord;
         }
 
-        if (category === 'workout' && (sanitizedRecord as any).exercises) {
+        if (category === 'workout' && (sanitizedRecord as Partial<WorkoutDayRecord>).exercises) {
           const wr = sanitizedRecord as Partial<WorkoutDayRecord>;
           const currentLifts = ((currentCategory as WorkoutDayRecord).exercises) || [];
           const currentHasSets = currentLifts.some((lift) => (lift.setLog?.length || 0) > 0);
