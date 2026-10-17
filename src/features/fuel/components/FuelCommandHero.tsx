@@ -276,21 +276,21 @@ export const FuelCommandHero: React.FC<FuelCommandHeroProps> = ({
               disabled={waterL <= 0}
               onClick={() => addWater(-0.25)}
               aria-label="Remove 250 millilitres"
-              className="w-10 h-10 rounded-xl bg-o1-text text-black hover:bg-[#C9C7BC] active:bg-[#C9C7BC] flex items-center justify-center disabled:opacity-30 disabled:hover:bg-o1-text transition-colors cursor-pointer"
+              className="w-10 h-8 rounded-xl bg-o1-text text-black hover:bg-[#C9C7BC] active:bg-[#C9C7BC] flex items-center justify-center disabled:opacity-30 disabled:hover:bg-o1-text transition-colors cursor-pointer"
             >
               <Minus className="w-4 h-4" />
             </button>
             <button
               type="button"
               onClick={() => addWater(0.25)}
-              className="flex-1 h-10 rounded-xl bg-o1-text text-sm font-bold text-black hover:bg-[#C9C7BC] active:bg-[#C9C7BC] transition-colors cursor-pointer"
+              className="flex-1 h-8 rounded-xl bg-o1-text text-sm font-bold text-black hover:bg-[#C9C7BC] active:bg-[#C9C7BC] transition-colors cursor-pointer"
             >
               +250 ml
             </button>
             <button
               type="button"
               onClick={() => addWater(0.5)}
-              className="flex-1 h-10 rounded-xl bg-o1-text text-sm font-bold text-black hover:bg-[#C9C7BC] active:bg-[#C9C7BC] transition-colors cursor-pointer"
+              className="flex-1 h-8 rounded-xl bg-o1-text text-sm font-bold text-black hover:bg-[#C9C7BC] active:bg-[#C9C7BC] transition-colors cursor-pointer"
             >
               +500 ml
             </button>

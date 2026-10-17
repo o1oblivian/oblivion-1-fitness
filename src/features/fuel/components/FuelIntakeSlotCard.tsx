@@ -10,7 +10,7 @@ const SLOT_NOTE: Partial<Record<SlotKey, string>> = {
 };
 
 const ICON_BUTTON =
-  'w-9 h-9 rounded-full bg-o1-text text-black hover:bg-[#C9C7BC] flex items-center justify-center transition-colors active:scale-95 cursor-pointer';
+  'w-9 h-9 rounded-full flex items-center justify-center hover:bg-white/[0.06] transition-colors active:scale-95 cursor-pointer';
 
 function g(n: number): string {
   return `${Math.round(n * 10) / 10}`;
@@ -55,9 +55,9 @@ export const FuelIntakeSlotCard: React.FC<FuelIntakeSlotCardProps> = ({
 
   return (
     <div id={`intake-slot-${slot.key}`} className="bg-o1-canvas border border-white/[0.08] rounded-2xl overflow-hidden">
-      <div className="flex items-center justify-between gap-3 px-3.5 py-3 bg-o1-text">
+      <div className="flex items-center justify-between gap-3 px-3.5 py-1.5 bg-o1-text">
         <div className="flex items-center gap-3 min-w-0">
-          <span className="flex items-center justify-center shrink-0">{slot.icon}</span>
+          <span className={`flex items-center justify-center shrink-0 ${slot.accent}`}>{slot.icon}</span>
           <div className="min-w-0">
             <h3 className="text-sm font-semibold text-black">{slot.label}</h3>
             <p className="text-[11px] text-black/60 tabular-nums truncate">{subtitle}</p>
@@ -108,7 +108,7 @@ export const FuelIntakeSlotCard: React.FC<FuelIntakeSlotCardProps> = ({
         </ul>
       )}
 
-      <div className="flex items-center justify-between px-3 py-2.5">
+      <div className="flex items-center justify-between px-3 py-1.5">
         <div className="flex items-center gap-2">
           <button
             id={`btn-add-${slot.key}`}
@@ -118,9 +118,9 @@ export const FuelIntakeSlotCard: React.FC<FuelIntakeSlotCardProps> = ({
               onOpenAddFoodModal(slot.label);
             }}
             aria-label={`Add food to ${slot.label}`}
-            className={ICON_BUTTON}
+            className={`${ICON_BUTTON} ${slot.accent}`}
           >
-            <Plus className="w-4 h-4 stroke-[2.5]" />
+            <Plus className="w-5 h-5 stroke-[2.5]" />
           </button>
         </div>
         <button
@@ -130,9 +130,9 @@ export const FuelIntakeSlotCard: React.FC<FuelIntakeSlotCardProps> = ({
             onOpenScanModal(slot.key);
           }}
           aria-label={`Scan food for ${slot.label}`}
-          className={ICON_BUTTON}
+          className={`${ICON_BUTTON} ${slot.accent}`}
         >
-          <Camera className="w-4 h-4" />
+          <Camera className="w-5 h-5" />
         </button>
       </div>
     </div>
