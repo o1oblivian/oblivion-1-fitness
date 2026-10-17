@@ -5,7 +5,8 @@ export interface WeekDayItem {
   dayName: string;
   dayNum: number;
   dateStr: string;
-  hasActivity: boolean;
+  /** A workout is logged on this day. */
+  trained: boolean;
   isToday: boolean;
 }
 
@@ -31,7 +32,7 @@ export const LogWeekStrip: React.FC<LogWeekStripProps> = ({
               key={item.dayName}
               type="button"
               aria-pressed={isSelected}
-              aria-label={`${item.dayName} ${item.dayNum}${item.isToday ? ', today' : ''}${item.hasActivity ? ', logged' : ''}`}
+              aria-label={`${item.dayName} ${item.dayNum}${item.isToday ? ', today' : ''}${item.trained ? ', workout logged' : ''}`}
               onClick={() => {
                 tactileEngine.triggerSelectionBuzz();
                 onSelectDate(item.dateStr, item.dayName, item.dayNum);
@@ -42,20 +43,18 @@ export const LogWeekStrip: React.FC<LogWeekStripProps> = ({
                   : 'bg-transparent border-transparent hover:bg-white/[0.03]'
               }`}
             >
-              <span className={`text-[10px] uppercase tracking-[0.12em] ${isSelected ? 'text-white' : 'text-o1-muted'}`}>
+              <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-white">
                 {item.dayName.slice(0, 3)}
               </span>
               <span
-                className={`font-mono text-[17px] leading-none font-light ${
-                  item.isToday ? 'text-[#C4121A]' : isSelected ? 'text-o1-text' : 'text-o1-text/80'
+                className={`font-mono text-[17px] leading-none ${
+                  item.trained
+                    ? 'font-semibold text-[#10b981]'
+                    : `font-light ${item.isToday ? 'text-[#C4121A]' : isSelected ? 'text-o1-text' : 'text-o1-text/80'}`
                 }`}
               >
                 {item.dayNum}
               </span>
-              <span
-                className={`w-1 h-1 rounded-full ${isSelected ? 'bg-white' : item.hasActivity ? 'bg-[#10b981]' : 'bg-transparent'}`}
-                aria-hidden
-              />
             </button>
           );
         })}

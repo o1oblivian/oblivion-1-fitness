@@ -167,24 +167,16 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({ sh
       const key = dateKeyOf(date);
       const record = historyByDate[key];
       const isToday = key === todayKey;
-      const hasActivity = Boolean(
-        record?.workout?.hasData ||
-        record?.cardio?.hasData ||
-        record?.nutrition?.hasData ||
-        record?.sleep?.hasData ||
-        (record?.meditation?.minutes || 0) > 0 ||
-        (isToday && (liveWorkout || liveFood || stepCount > 0)),
-      );
       return {
         dayName,
         dayNum: date.getDate(),
         dateStr: date.toDateString(),
         dateKey: key,
         isToday,
-        hasActivity,
+        trained: Boolean(record?.workout?.hasData || (isToday && liveWorkout)),
       };
     });
-  }, [mondayDate, historyByDate, todayKey, liveWorkout, liveFood, stepCount]);
+  }, [mondayDate, historyByDate, todayKey, liveWorkout]);
 
   const monthStart = useMemo(() => new Date(today.getFullYear(), today.getMonth() + monthOffset, 1), [today, monthOffset]);
 
@@ -202,16 +194,9 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({ sh
         isToday,
         isFuture: date.getTime() > today.getTime() && !isToday,
         trained,
-        hasActivity: Boolean(
-          record?.cardio?.hasData ||
-          record?.nutrition?.hasData ||
-          record?.sleep?.hasData ||
-          (record?.meditation?.minutes || 0) > 0 ||
-          (isToday && (liveFood || stepCount > 0)),
-        ),
       };
     });
-  }, [monthStart, historyByDate, todayKey, today, liveWorkout, liveFood, stepCount]);
+  }, [monthStart, historyByDate, todayKey, today, liveWorkout]);
 
   const weekOffsetFor = (target: Date): number => {
     const day = today.getDay();
