@@ -28,7 +28,7 @@ export const LogChannelRow: React.FC<LogChannelRowProps> = ({ title, icon, iconC
         <span className="block text-[13px] font-semibold text-o1-text">{title}</span>
         {headline.caption && <span className="block text-[11px] text-o1-muted truncate">{headline.caption}</span>}
       </span>
-      <span className="shrink-0 font-mono text-[20px] leading-none tabular-nums text-o1-text">
+      <span className="shrink-0 font-mono text-[17px] leading-none tabular-nums text-o1-text">
         {headline.value}
         <span className="ml-1 font-sans text-[11px] text-o1-muted">{headline.unit}</span>
       </span>

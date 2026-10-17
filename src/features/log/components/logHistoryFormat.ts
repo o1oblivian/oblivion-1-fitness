@@ -13,6 +13,19 @@ export function dateKeyOf(date: Date): string {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 }
 
+/**
+ * Title for a selected day. The calendar above already shows the date, so recent days use a plain
+ * name ("Today", "Yesterday", "Thursday") and only older or future days spell out the date.
+ */
+export function dayHeading(selected: Date, today: Date): string {
+  const midnight = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+  const daysAgo = Math.round((midnight(today) - midnight(selected)) / 86_400_000);
+  if (daysAgo === 0) return 'Today';
+  if (daysAgo === 1) return 'Yesterday';
+  if (daysAgo > 1 && daysAgo < 7) return selected.toLocaleDateString('en-US', { weekday: 'long' });
+  return selected.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+}
+
 export function part(value: number | null | undefined, suffix: string, digits = 0): string | null {
   if (value == null || !Number.isFinite(value) || value <= 0) return null;
   const shown = digits > 0

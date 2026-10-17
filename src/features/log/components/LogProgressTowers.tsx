@@ -17,9 +17,11 @@ const ARIA_NAME: Record<TelemetryCategory, string> = {
   meditation: 'Mindful minutes',
 };
 
-/** Seven wide capsules for a week; twelve months need slimmer ones to fit. */
-const WIDE_TOWER_PX = 34;
-const SLIM_TOWER_PX = 22;
+/** Seven capsules for a week; twelve months need slimmer ones to fit. */
+const WIDE_TOWER_PX = 26;
+const SLIM_TOWER_PX = 17;
+const TOWER_HEIGHT_PX = 128;
+const DAYS_IN_WEEK = 7;
 
 interface LogProgressTowersProps {
   category: TelemetryCategory;
@@ -43,7 +45,8 @@ export const LogProgressTowers: React.FC<LogProgressTowersProps> = ({
   const average = logged.length > 0 ? logged.reduce((sum, point) => sum + point.value, 0) / logged.length : 0;
   const peakIndex = points.findIndex((point) => point.value > 0 && point.value === peak);
   const peakPoint = peakIndex >= 0 ? points[peakIndex] : undefined;
-  const peakAccent = peakPoint ? dayTowerTheme(peakPoint.label, peakIndex).accent : undefined;
+  const isWeek = points.length === DAYS_IN_WEEK;
+  const peakAccent = peakPoint ? dayTowerTheme(peakPoint.label, peakIndex).ramp[1] : undefined;
 
   const towers: SegmentedTower[] = points.map((point, index) => {
     const theme = dayTowerTheme(point.label, index);
@@ -53,7 +56,7 @@ export const LogProgressTowers: React.FC<LogProgressTowersProps> = ({
       label: point.label.toUpperCase(),
       value: has ? point.value : null,
       slabs: theme.slabs,
-      accent: theme.accent,
+      accent: theme.ramp[1],
       ramp: theme.ramp,
       valueLabel: has ? formatValue(point.value) : '--',
       ariaValue: has ? `${formatValue(point.value)} ${unit}` : 'nothing logged',
@@ -66,21 +69,22 @@ export const LogProgressTowers: React.FC<LogProgressTowersProps> = ({
         <span className="text-o1-muted">{average > 0 ? `Average ${formatValue(average)} ${unit}` : 'No days logged'}</span>
         {peakPoint ? (
           <span className="font-semibold" style={{ color: peakAccent }}>
-            Peak {peakPoint.label} {formatValue(peakPoint.value)}
+            {/* The medal already marks the peak day in a week, so only the month and year views name it. */}
+            Peak {isWeek ? '' : `${peakPoint.label} `}{formatValue(peakPoint.value)}
           </span>
         ) : null}
       </div>
       <SegmentedTowers
         bold
         towers={towers}
-        tubeHeightPx={170}
-        maxTubeWidthPx={points.length > 7 ? SLIM_TOWER_PX : WIDE_TOWER_PX}
+        tubeHeightPx={TOWER_HEIGHT_PX}
+        maxTubeWidthPx={points.length > DAYS_IN_WEEK ? SLIM_TOWER_PX : WIDE_TOWER_PX}
         reference={average > 0 && logged.length > 1 ? { value: average, label: 'AVERAGE' } : null}
         activeKey={selectedKey ?? null}
         peakKey={peakPoint?.key ?? null}
         showValues
         onSelect={onSelect}
-        ariaLabel={`${ARIA_NAME[category]} by ${points.length === 12 ? 'month' : points.length === 7 ? 'day' : 'week'}`}
+        ariaLabel={`${ARIA_NAME[category]} by ${points.length === 12 ? 'month' : isWeek ? 'day' : 'week'}`}
       />
     </div>
   );

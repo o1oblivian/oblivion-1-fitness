@@ -6,7 +6,20 @@ import type {
   SleepDayRecord,
   WorkoutDayRecord,
 } from '../store/useTelemetryHistoryStore';
-import { cardioHeadline, foodHeadline, mindfulHeadline, sleepHeadline, workoutHeadline } from './logHistoryFormat';
+import { cardioHeadline, dayHeading, foodHeadline, mindfulHeadline, sleepHeadline, workoutHeadline } from './logHistoryFormat';
+
+describe('dayHeading', () => {
+  const today = new Date(2026, 9, 17, 15, 30);
+  it('names recent days plainly', () => {
+    expect(dayHeading(new Date(2026, 9, 17), today)).toBe('Today');
+    expect(dayHeading(new Date(2026, 9, 16), today)).toBe('Yesterday');
+    expect(dayHeading(new Date(2026, 9, 15), today)).toBe('Thursday');
+  });
+  it('spells out the date for older and future days', () => {
+    expect(dayHeading(new Date(2026, 9, 10), today)).toBe('Sat, Oct 10');
+    expect(dayHeading(new Date(2026, 9, 18), today)).toBe('Sun, Oct 18');
+  });
+});
 
 const record = <T>(fields: Partial<T>): T => ({ hasData: true, ...fields }) as T;
 

@@ -6,6 +6,7 @@ import {
   Apple,
   Moon,
   Brain,
+  ChevronDown,
   ChevronLeft,
   ChevronRight,
   Camera,
@@ -37,6 +38,7 @@ import {
   cleanNutrition,
   cleanWorkout,
   dateKeyOf,
+  dayHeading,
   foodHeadline,
   foodLine,
   line,
@@ -84,6 +86,7 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({ sh
   const [monthOffset, setMonthOffset] = useState(0);
   const [selectedDateStr, setSelectedDateStr] = useState(today.toDateString());
   const [openChannel, setOpenChannel] = useState<TelemetryCategory | null>(null);
+  const [towersOpen, setTowersOpen] = useState(true);
   const [towerChannel, setTowerChannel] = useState<TelemetryCategory>('workout');
   const [chartSpan, setChartSpan] = useState<'week' | 'month' | 'year'>('week');
   const [editor, setEditor] = useState<{ category: TelemetryCategory; mode: 'create' | 'edit'; lift?: string } | null>(null);
@@ -477,7 +480,7 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({ sh
   ];
   const loggedChannels = channels.flatMap((channel) => (channel.headline ? [{ ...channel, headline: channel.headline }] : []));
   const tower = towerPoints(towerChannel);
-  const ledgerTitle = selectedDate.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+  const ledgerTitle = dayHeading(selectedDate, today);
 
   const selectTowerKey = (key: string) => {
     if (chartSpan === 'week') {
@@ -697,52 +700,69 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({ sh
       </div>
 
       <div className="rounded-2xl bg-o1-card border border-white/[0.07] overflow-hidden text-neutral-100">
-        <div className="px-3 pt-3 pb-3">
-          <div className="flex flex-wrap gap-1.5" role="group" aria-label="Channel shown in the chart">
-            {channels.map((channel) => (
-              <button
-                key={channel.id}
-                type="button"
-                aria-pressed={towerChannel === channel.id}
-                onClick={() => {
-                  tactileEngine.triggerSelectionBuzz();
-                  setTowerChannel(channel.id);
-                }}
-                className={`px-2.5 py-1 rounded-full border text-[11px] font-semibold ${
-                  towerChannel === channel.id ? 'bg-o1-text text-o1-surface border-o1-text' : 'bg-o1-well border-white/[0.07] text-neutral-200'
-                }`}
-              >
-                {channel.title}
-              </button>
-            ))}
-          </div>
-          <div className="flex justify-center pt-3">
-            <div className="inline-flex bg-o1-well border border-white/[0.07] p-0.5 rounded-full">
-              {(['week', 'month', 'year'] as const).map((span) => (
+        <button
+          type="button"
+          aria-expanded={towersOpen}
+          onClick={() => {
+            tactileEngine.triggerSelectionBuzz();
+            setTowersOpen(!towersOpen);
+          }}
+          className="w-full px-4 py-3 flex items-center justify-between gap-3 text-left bg-transparent border-0 cursor-pointer"
+        >
+          <span className="text-[14px] font-semibold text-o1-text">Progress</span>
+          <span className="flex items-center gap-2 text-[11px] text-o1-muted">
+            {channels.find((channel) => channel.id === towerChannel)?.title} · {chartSpan === 'week' ? 'Week' : chartSpan === 'month' ? 'Month' : 'Year'}
+            <ChevronDown className={`w-4 h-4 transition-transform ${towersOpen ? 'rotate-180' : ''}`} />
+          </span>
+        </button>
+        {towersOpen && (
+          <div className="px-3 pb-3">
+            <div className="grid grid-cols-5 gap-1" role="group" aria-label="Channel shown in the chart">
+              {channels.map((channel) => (
                 <button
-                  key={span}
+                  key={channel.id}
                   type="button"
-                  aria-pressed={chartSpan === span}
+                  aria-pressed={towerChannel === channel.id}
                   onClick={() => {
                     tactileEngine.triggerSelectionBuzz();
-                    setChartSpan(span);
+                    setTowerChannel(channel.id);
                   }}
-                  className={`px-3 py-1 rounded-full text-[11px] font-semibold ${chartSpan === span ? 'bg-o1-crimson text-white' : 'text-neutral-400'}`}
+                  className={`px-0.5 py-1.5 rounded-full border text-[12px] font-semibold text-center truncate ${
+                    towerChannel === channel.id ? 'bg-o1-text text-o1-surface border-o1-text' : 'bg-o1-well border-white/[0.07] text-neutral-200'
+                  }`}
                 >
-                  {span === 'week' ? 'Week' : span === 'month' ? 'Month' : 'Year'}
+                  {channel.title}
                 </button>
               ))}
             </div>
+            <div className="flex justify-center pt-3">
+              <div className="inline-flex bg-o1-well border border-white/[0.07] p-0.5 rounded-full">
+                {(['week', 'month', 'year'] as const).map((span) => (
+                  <button
+                    key={span}
+                    type="button"
+                    aria-pressed={chartSpan === span}
+                    onClick={() => {
+                      tactileEngine.triggerSelectionBuzz();
+                      setChartSpan(span);
+                    }}
+                    className={`px-3 py-1 rounded-full text-[11px] font-semibold ${chartSpan === span ? 'bg-o1-crimson text-white' : 'text-neutral-400'}`}
+                  >
+                    {span === 'week' ? 'Week' : span === 'month' ? 'Month' : 'Year'}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <LogProgressTowers
+              category={towerChannel}
+              points={tower.points}
+              unit={tower.unit}
+              selectedKey={tower.selectedKey}
+              formatValue={(value) => formatTower(towerChannel, value)}
+              onSelect={selectTowerKey}
+            />
           </div>
-          <LogProgressTowers
-            category={towerChannel}
-            points={tower.points}
-            unit={tower.unit}
-            selectedKey={tower.selectedKey}
-            formatValue={(value) => formatTower(towerChannel, value)}
-            onSelect={selectTowerKey}
-          />
-        </div>
+        )}
 
         <div className="border-t border-white/[0.07] px-4 pt-3 pb-2.5 flex items-baseline justify-between gap-2">
           <h3 className="text-[14px] font-semibold text-o1-text">{ledgerTitle}</h3>

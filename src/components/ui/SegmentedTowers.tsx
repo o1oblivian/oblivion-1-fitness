@@ -24,7 +24,7 @@ interface SegmentedTowersProps {
   slabCount?: number;
   /** Slim towers clamp this to the 18–28px spec; bold towers use it as given. */
   maxTubeWidthPx: number;
-  /** Full capsules with a fine border in the tower's own colour, a peak ring, and an always-visible reference label. */
+  /** Full capsules with one half-transparent border in the tower's own colour and a medal on the peak. */
   bold?: boolean;
   reference?: { value: number; label: string } | null;
   activeKey?: string | null;
@@ -88,7 +88,7 @@ export const SegmentedTowers: React.FC<SegmentedTowersProps> = ({
           const isActive = activeKey === t.key;
           const isPeak = peakKey != null && peakKey === t.key;
           const border = bold
-            ? lit > 0 ? t.accent : TRACK_BORDER
+            ? lit > 0 ? `${t.accent}80` : TRACK_BORDER
             : isPeak ? `${CRIMSON}A6` : lit > 0 ? `${t.accent}59` : TRACK_BORDER;
           const slabColor = (i: number): string => {
             if (i >= lit) return TRACK;
@@ -121,7 +121,7 @@ export const SegmentedTowers: React.FC<SegmentedTowersProps> = ({
               )}
               {showValues && (
                 <span
-                  className={`flex items-center text-[11px] leading-none tabular-nums ${
+                  className={`flex items-center ${bold ? 'text-[10px]' : 'text-[11px]'} leading-none tabular-nums ${
                     isPeak || isActive ? 'text-white font-bold' : 'text-neutral-400 font-medium'
                   }`}
                   style={{ height: VALUE_ROW_H }}
@@ -137,7 +137,6 @@ export const SegmentedTowers: React.FC<SegmentedTowersProps> = ({
                   padding: gap,
                   borderRadius: radius,
                   border: `${frame}px solid ${border}`,
-                  ...(bold && isPeak ? { outline: `1px solid ${t.accent}`, outlineOffset: 3 } : null),
                 }}
               >
                 <span
@@ -178,7 +177,7 @@ export const SegmentedTowers: React.FC<SegmentedTowersProps> = ({
             className="pointer-events-none absolute inset-x-0 z-10 h-px"
             style={{
               bottom: refBottom,
-              backgroundImage: 'linear-gradient(to right, rgba(255,255,255,0.12) 50%, transparent 50%)',
+              backgroundImage: 'linear-gradient(to right, rgba(255,255,255,0.5) 50%, transparent 50%)',
               backgroundSize: '6px 1px',
             }}
           />
@@ -186,12 +185,12 @@ export const SegmentedTowers: React.FC<SegmentedTowersProps> = ({
             type="button"
             aria-label={`Show ${reference.label.toLowerCase()}`}
             onClick={revealReference}
-            className="absolute inset-x-0 z-20 h-3 cursor-pointer bg-transparent border-0 p-0"
-            style={{ bottom: refBottom - 6 }}
+            className="absolute inset-x-0 z-20 h-4 cursor-pointer bg-transparent border-0 p-0"
+            style={{ bottom: refBottom - 8 }}
           />
-          {(refOpen || bold) && (
+          {refOpen && (
             <span
-              role={bold ? undefined : 'status'}
+              role="status"
               className="pointer-events-none absolute right-0 z-30 rounded-md border border-white/20 bg-o1-canvas px-1.5 py-0.5 text-[9px] tracking-wide leading-none text-o1-text"
               style={{ bottom: refBottom + 4 }}
             >
