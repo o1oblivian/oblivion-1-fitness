@@ -3,8 +3,8 @@ import { Users, Shield } from 'lucide-react';
 import { supabase } from '../../services/supabaseClient';
 import { useAuthStore } from '../../stores/useAuthStore';
 import { tactileEngine } from '../../services/tactileEngine';
-import { O1FCoachCommandCenter } from './01FCoachCommandCenter';
-import { O1FCoachAthletePortal } from './01FCoachAthletePortal';
+import { CoachCommandCenter } from './CoachCommandCenter';
+import { CoachAthletePortal } from './CoachAthletePortal';
 import { onCoachConsoleRequested } from './services/coachConsoleBus';
 import { isValidUuid } from './services/coachService';
 import { CoachRootView, resolveCoachAccess, useCoachViewStore } from './store/useCoachViewStore';
@@ -15,7 +15,7 @@ const TOGGLES: { id: CoachRootView; label: string; icon: typeof Users }[] = [
 ];
 
 /** Coaches are members with the coach role or a public coach card. */
-export const O1FCoachRootView: React.FC = () => {
+export const CoachRoot: React.FC = () => {
   const userId = useAuthStore((s) => s.user?.id || '');
   const role = useAuthStore((s) => s.profile?.role);
   const view = useCoachViewStore((s) => s.view);
@@ -65,7 +65,7 @@ export const O1FCoachRootView: React.FC = () => {
   }, [userId, setCoachCard]);
 
   if (awaitingFirstCheck) return <div className="min-h-screen w-full bg-black" aria-busy="true" />;
-  if (!isCoach) return <O1FCoachAthletePortal isCoach={false} />;
+  if (!isCoach) return <CoachAthletePortal isCoach={false} />;
 
   return (
     <div className="w-full flex flex-col min-h-screen">
@@ -105,12 +105,12 @@ export const O1FCoachRootView: React.FC = () => {
 
       {visited.coach || view === 'coach' ? (
         <div hidden={view !== 'coach'}>
-          <O1FCoachCommandCenter isCoach />
+          <CoachCommandCenter isCoach />
         </div>
       ) : null}
       {visited.athlete || view === 'athlete' ? (
         <div hidden={view !== 'athlete'}>
-          <O1FCoachAthletePortal isCoach />
+          <CoachAthletePortal isCoach />
         </div>
       ) : null}
     </div>

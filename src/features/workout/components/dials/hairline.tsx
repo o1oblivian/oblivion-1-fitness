@@ -1,6 +1,6 @@
 import React from 'react';
 import { DialComponentProps, describeArc, polarToCartesian } from './dialTypes';
-import { fmtInt, fmtKm, pct } from './luxuryDialShared';
+import { fmtInt, fmtKm, pct } from './dialFormat';
 
 /** Hairline dial kit: flat ink, 1 px rules, coloured data. No plates, blur or text outlines. */
 export const INK = '#F4F2EA';

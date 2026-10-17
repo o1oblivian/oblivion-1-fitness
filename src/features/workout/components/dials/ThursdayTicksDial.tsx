@@ -1,6 +1,6 @@
 import React from 'react';
 import { DialComponentProps } from './dialTypes';
-import { fmtInt } from './luxuryDialShared';
+import { fmtInt } from './dialFormat';
 import {
   AMBER,
   CX,

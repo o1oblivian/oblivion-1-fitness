@@ -1,6 +1,6 @@
 import React from 'react';
-import { O1FCoachRootView } from './01FCoachRootView';
+import { CoachRoot } from './CoachRoot';
 
 export const CoachView: React.FC = () => {
-  return <O1FCoachRootView />;
+  return <CoachRoot />;
 };

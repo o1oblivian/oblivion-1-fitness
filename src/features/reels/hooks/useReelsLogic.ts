@@ -26,7 +26,7 @@ function titleCase(raw: string): string {
     .replace(/(^|[\s/&-])([a-z])/g, (_, lead: string, ch: string) => lead + ch.toUpperCase());
 }
 
-export function useEliteReelsLogic(
+export function useReelsLogic(
   initialCategory: ExploreReelItem['category'] = 'ALL',
   initialFilter: string = 'ALL',
 ) {

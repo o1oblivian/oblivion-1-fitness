@@ -3,7 +3,7 @@ import { useModalStore } from './useModalStore';
 
 // Modal component imports
 import { SettingsModal } from '../SettingsModal';
-import { EliteReelsHub } from '../../features/reels/EliteReelsHub';
+import { ReelsHub } from '../../features/reels/ReelsHub';
 import { CardioTelemetryModal } from '../../features/workout/components/cardio/CardioTelemetryModal';
 import { ProgramDetailModal } from '../../features/workout/components/ProgramDetailModal';
 import { RoutineSwapperModal } from '../../features/workout/components/RoutineSwapperModal';
@@ -59,8 +59,8 @@ export const ModalRegistry: React.FC = () => {
         onShowToast={(payload as GenericToastPayload)?.onShowToast}
       />
 
-      {/* 3. Full Elite Reels Modal (EliteReelsHub) */}
-      <EliteReelsHub
+      {/* 3. Full Elite Reels Modal (ReelsHub) */}
+      <ReelsHub
         isOpen={activeModal === 'FULL_ELITE_REELS'}
         onClose={closeModal}
         initialMode={(payload as EliteReelsPayload | null)?.initialMode}

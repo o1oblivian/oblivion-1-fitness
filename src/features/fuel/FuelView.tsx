@@ -5,7 +5,7 @@ import { FuelCommandHero, MacroMeter } from './components/FuelCommandHero';
 import { FuelSettingsSheet } from './components/FuelSettingsSheet';
 import { MifflinStJeorModal } from './components/MifflinStJeorModal';
 import { SupplementsElectrolytesAccordion } from './components/SupplementsElectrolytesAccordion';
-import { O1FCIntelMealSuggestionsSection } from './components/O1FCIntelMealSuggestionsSection';
+import { MealSuggestionsSection } from './components/MealSuggestionsSection';
 import { FuelIntakeSection } from './components/FuelIntakeSection';
 import { FuelModalsLayer } from './components/FuelModalsLayer';
 import { useFuelTotals } from './hooks/useFuelTotals';
@@ -188,7 +188,7 @@ export const FuelView: React.FC = () => {
         onOpenSettings={() => setSettingsOpen(true)}
       />
 
-      <O1FCIntelMealSuggestionsSection
+      <MealSuggestionsSection
         calibrated={calibrated}
         remaining={intelRemaining}
         loggedSlots={loggedSlots}

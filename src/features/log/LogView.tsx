@@ -3,7 +3,7 @@ import { ChevronRight, BarChart3 } from 'lucide-react';
 import { OblivionReportModal } from '../report/components/OblivionReportModal';
 import { useWeighInCapture } from '../report/weighInLog';
 import { UnifiedTopBoard } from './components/UnifiedTopBoard';
-import { GenuineLogHistoryView } from './components/GenuineLogHistoryView';
+import { LogHistoryView } from './components/LogHistoryView';
 import { InviteModal } from './components/InviteModal';
 import { CoachRoutineDispatchModal } from './components/CoachRoutineDispatchModal';
 import { ShareBenchmarkModal } from './components/ShareBenchmarkModal';
@@ -112,7 +112,7 @@ export const LogView: React.FC = () => {
       {/* ============================================================== */}
       {/* 2. GENUINE LOG HISTORY TAB (ZERO MOCK / FAKE DATA)             */}
       {/* ============================================================== */}
-      <GenuineLogHistoryView showToast={showToast} />
+      <LogHistoryView showToast={showToast} />
 
       {/* ============================================================== */}
       {/* 3. MODALS & SLIDE-OVERS                                        */}

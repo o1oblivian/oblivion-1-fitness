@@ -4,13 +4,13 @@ import { ReelExploreGrid } from './components/ReelExploreGrid';
 import { CoachBookingDrawer, ProfileTab } from './components/CoachBookingDrawer';
 import { CoachDirectMessageModal } from './components/CoachDirectMessageModal';
 import { ShareLinkSheet } from './components/ShareLinkSheet';
-import { useEliteReelsLogic, CATEGORIES } from './hooks/useEliteReelsLogic';
+import { useReelsLogic, CATEGORIES } from './hooks/useReelsLogic';
 import { useReelsStore } from '../../stores/useReelsStore';
 import { ExploreCoach, ExploreReelItem } from './reelTypes';
 import { openCoachConsole } from '../coach/services/coachConsoleBus';
 import { isReelVisible, useReelSafetyStore, useVisibleReels } from './services/reelSafety';
 
-export interface EliteReelsHubProps {
+export interface ReelsHubProps {
   isOpen: boolean;
   onClose: () => void;
   initialMode?: 'grid' | 'player';
@@ -21,7 +21,7 @@ export interface EliteReelsHubProps {
   initialProfileTab?: ProfileTab;
 }
 
-export const EliteReelsHub: React.FC<EliteReelsHubProps> = ({
+export const ReelsHub: React.FC<ReelsHubProps> = ({
   isOpen,
   onClose,
   initialMode = 'player',
@@ -80,7 +80,7 @@ export const EliteReelsHub: React.FC<EliteReelsHubProps> = ({
     flash,
     linkSheet,
     setLinkSheet,
-  } = useEliteReelsLogic(initialCategory, initialFilter);
+  } = useReelsLogic(initialCategory, initialFilter);
 
   useEffect(() => {
     if (!isOpen) return;

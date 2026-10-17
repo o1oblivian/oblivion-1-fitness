@@ -36,7 +36,7 @@ function fitTone(fit: number): string {
   return 'text-o1-muted border-white/[0.08]';
 }
 
-interface O1FCIntelMealSuggestionsSectionProps {
+interface MealSuggestionsSectionProps {
   calibrated: boolean;
   remaining: MacroBudget;
   loggedSlots: readonly MealSlot[];
@@ -47,7 +47,7 @@ interface O1FCIntelMealSuggestionsSectionProps {
   showToast: (msg: string) => void;
 }
 
-export const O1FCIntelMealSuggestionsSection: React.FC<O1FCIntelMealSuggestionsSectionProps> = ({
+export const MealSuggestionsSection: React.FC<MealSuggestionsSectionProps> = ({
   calibrated,
   remaining,
   loggedSlots,

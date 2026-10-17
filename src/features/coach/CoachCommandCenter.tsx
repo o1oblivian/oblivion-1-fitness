@@ -37,15 +37,13 @@ import { useCoachStore } from '../../stores/useCoachStore';
 import { liveClients } from './services/floorRoster';
 import { onCoachConsoleAction } from './services/coachConsoleBus';
 
-export interface O1FCoachCommandCenterProps {
+export interface CoachCommandCenterProps {
   isCoach?: boolean;
 }
 
 const NOTE_BADGE = 'bg-o1-sheet text-o1-text border-white/[0.07]';
 
-export const O1FCoachCommandCenter: React.FC<O1FCoachCommandCenterProps> = ({
-  isCoach = false,
-}) => {
+export const CoachCommandCenter: React.FC<CoachCommandCenterProps> = ({ isCoach = false }) => {
   const userRole = useAuthStore((s) => s.profile?.role);
   const profileName = useAuthStore((s) => s.profile?.name || '');
   const isVerifiedCoach = Boolean(isCoach || userRole === 'coach');

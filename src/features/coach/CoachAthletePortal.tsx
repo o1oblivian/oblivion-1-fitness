@@ -48,7 +48,7 @@ function cardToCoach(card: CoachCard): LinkedCoach {
   return { id: card.id, name: card.name, handle: card.handle, avatar: card.avatar };
 }
 
-export const O1FCoachAthletePortal: React.FC<{ isCoach?: boolean }> = ({ isCoach = false }) => {
+export const CoachAthletePortal: React.FC<{ isCoach?: boolean }> = ({ isCoach = false }) => {
   const openFullEliteReels = useModalStore((s) => s.openFullEliteReels);
   const profileName = useAuthStore((s) => s.profile?.name);
   const authUser = useAuthStore((s) => s.user);

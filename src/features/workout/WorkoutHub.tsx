@@ -14,7 +14,7 @@ import { CoachProtocolAccordionPanel } from './components/CoachProtocolAccordion
 import { IntelCoachAccordionPanel } from './components/IntelCoachAccordionPanel';
 import { MicrocycleStrainTracker } from './components/MicrocycleStrainTracker';
 import { IntelInsightsCard } from './components/IntelInsightsCard';
-import { EliteReelsHub } from '../reels/EliteReelsHub';
+import { ReelsHub } from '../reels/ReelsHub';
 import { readAthleteSettingsSnapshot } from '../../utils/athleteSettingsSnapshot';
 import { getAuthenticatedUserId } from '../../services/authUser';
 import type { AssignedWorkoutRow } from '../../types/coach';
@@ -180,7 +180,7 @@ export const WorkoutHub: React.FC = () => {
       {/* 7. BOTTOM BANNER CARDS */}
       <IntelInsightsCard />
 
-      <EliteReelsHub
+      <ReelsHub
         isOpen={isEliteReelsOpen}
         onClose={() => setIsEliteReelsOpen(false)}
         initialMode="grid"

@@ -60,7 +60,7 @@ import {
 import { exerciseFromSets, knownSets, setWorkKg, setsFromExercise } from '../liftLedger';
 import { forgetPendingArchives } from '../../../services/sessionArchive';
 
-interface GenuineLogHistoryViewProps {
+interface LogHistoryViewProps {
   showToast: (msg: string) => void;
 }
 
@@ -70,7 +70,7 @@ const MANUAL_LOG_LABEL: Partial<Record<TelemetryCategory, string>> = {
   meditation: 'Log mindful',
 };
 
-export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({ showToast }) => {
+export const LogHistoryView: React.FC<LogHistoryViewProps> = ({ showToast }) => {
   const workoutExercises = useWorkoutStore((s) => s.exercises);
   const sessionTonnageKg = useWorkoutStore((s) => s.sessionTonnageKg);
   const completedSetsCount = useWorkoutStore((s) => s.completedSetsCount);
