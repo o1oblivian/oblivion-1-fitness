@@ -20,7 +20,7 @@ import { handleCreateIdentitySession, handleStripeWebhook } from './stripeIdenti
  * except the webhook, which Stripe calls and which is authenticated by its signature instead.
  * The coach identity ALWAYS comes from the verified token, never from the request body.
  */
-export async function requireSupabaseAuth(req: Request, res: Response, next: NextFunction) {
+async function requireSupabaseAuth(req: Request, res: Response, next: NextFunction) {
   if (req.path === '/webhook') return next();
 
   const header = String(req.headers.authorization || '');

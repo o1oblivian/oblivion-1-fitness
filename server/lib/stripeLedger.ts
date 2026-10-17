@@ -12,7 +12,7 @@ export const MIN_PAYOUT_CENTS = 500;
  * Sales sit in PENDING for this many days before they become withdrawable.
  * Read lazily: env files are loaded by server.ts AFTER this module is imported.
  */
-export function payoutHoldDays(): number {
+function payoutHoldDays(): number {
   const raw = process.env.COACH_PAYOUT_HOLD_DAYS;
   const parsed = raw === undefined || raw === '' ? 7 : Number(raw);
   return Number.isFinite(parsed) ? Math.max(0, parsed) : 7;
