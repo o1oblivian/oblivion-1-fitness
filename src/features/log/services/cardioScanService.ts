@@ -1,9 +1,21 @@
-import { ExtractedCardioData } from '../components/scan/CardioScanMetricFields';
 import { parseTelemetryFromOcrText } from '../../../services/ocrTelemetryParser';
 import { analyzeCardioImageWithGemini } from '../../../services/mealScannerService';
 import Tesseract from 'tesseract.js';
 import { apiFetch } from '../../../services/apiBase';
 import { compressAndAnalyzeImage } from '../../../services/imageCompressionService';
+
+/** Unread metrics stay null and render as '--'. */
+interface ExtractedCardioData {
+  activityType: string;
+  distanceKm: number | null;
+  durationMinutes: number | null;
+  burnedKcal: number | null;
+  avgHeartRateBpm: number | null;
+  steps: number | null;
+  fieldsRead: number;
+  rawReadings?: string;
+  aliveAiNote?: string;
+}
 
 function readMetric(value: unknown, decimals = 0): number | null {
   if (value == null || (typeof value === 'string' && value.trim() === '')) return null;

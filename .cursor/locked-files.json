@@ -5,7 +5,6 @@
     "src/components/MealMacroScannerModal.tsx",
     "src/components/meal-scanner/MealScanActions.tsx",
     "src/components/meal-scanner/useMealMacroScanner.ts",
-    "src/features/log/components/CardioConsoleScanModal.tsx",
     "src/services/geminiVisionService.ts",
     "src/services/ocrTelemetryParser.ts",
     "ios/App/App/AppDelegate.swift",
