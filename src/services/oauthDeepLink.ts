@@ -134,6 +134,21 @@ function authCode(rawUrl: string): string | null {
   }
 }
 
+/**
+ * Supabase tags every sign-in redirect with `sb_flow_id` and keeps that flow's PKCE verifier in
+ * its own storage slot. A callback must hand the id back, or the verifier cannot be found
+ * ("PKCE code verifier not found in storage"). Links from older builds carry none.
+ */
+export function authFlowId(rawUrl: string): string | undefined {
+  const match = rawUrl.match(/[?&#]sb_flow_id=([^&#]+)/);
+  if (!match) return undefined;
+  try {
+    return decodeURIComponent(match[1]);
+  } catch {
+    return undefined;
+  }
+}
+
 /** The WebView cannot read the saved login code until it is in the foreground again. */
 async function waitUntilActive(): Promise<void> {
   await closeNativeBrowser();
@@ -176,10 +191,13 @@ export async function applyAuthCallbackUrl(rawUrl: string): Promise<boolean> {
     }
     try {
       if (code) {
-        let { error } = await supabase.auth.exchangeCodeForSession(code);
+        const flowId = authFlowId(rawUrl);
+        const exchange = () =>
+          supabase.auth.exchangeCodeForSession(code, flowId ? { flowId } : undefined);
+        let { error } = await exchange();
         if (error && /verifier/i.test(error.message)) {
           await new Promise((resolve) => window.setTimeout(resolve, 500));
-          ({ error } = await supabase.auth.exchangeCodeForSession(code));
+          ({ error } = await exchange());
         }
         if (error) {
           console.warn('[OAuth] exchangeCodeForSession failed:', error.message);
