@@ -1,10 +1,8 @@
 {
   "note": "Files confirmed working (owner on a real phone, or 3 agents + master test). Agents may not edit these. Only the owner unlocks by removing a path here.",
   "locked": [
-    "src/services/mealVisionService.ts",
     "src/components/MealMacroScannerModal.tsx",
     "src/components/meal-scanner/MealScanActions.tsx",
-    "src/components/meal-scanner/useMealMacroScanner.ts",
     "ios/App/App/AppDelegate.swift",
     "ios/App/CapApp-SPM/Package.swift"
   ]
