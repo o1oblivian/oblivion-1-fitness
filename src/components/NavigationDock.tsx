@@ -101,5 +101,4 @@ export const NavigationDock: React.FC<NavigationDockProps> = ({ currentMode, onS
   );
 };
 
-export const BottomNavigation = NavigationDock;
 export default NavigationDock;

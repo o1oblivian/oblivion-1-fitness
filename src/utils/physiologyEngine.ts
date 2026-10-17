@@ -119,36 +119,6 @@ export const calculateSessionTonnage = (
 };
 
 /**
- * Calculates tonnage for an individual exercise set.
- */
-export const calculateSetTonnage = (
-  weightKg: number,
-  reps: number,
-  isBodyweight: boolean = false,
-  athleteWeightKg: number = getAthleteWeightKg()
-): number => {
-  const safeWeight = athleteWeightKg > 30 ? athleteWeightKg : 75;
-  const load = isBodyweight ? safeWeight * 0.65 + weightKg : weightKg;
-  return Math.round(load * reps);
-};
-
-/**
- * 3. Session Strain / Training Load
- * formula: Training Load (TL) = Duration in Minutes * Session RPE (Borg CR10 Scale)
- *
- * @param durationMinutes Duration of training in minutes
- * @param sessionRpe Borg CR10 Scale (1 - 10)
- */
-export const calculateTrainingLoad = (
-  durationMinutes: number,
-  sessionRpe: number = 7.5
-): number => {
-  if (durationMinutes <= 0) return 0;
-  const clampedRpe = Math.max(1, Math.min(10, sessionRpe));
-  return Math.round(durationMinutes * clampedRpe);
-};
-
-/**
  * Dynamic Session Calorie Estimation from Exercise Definitions
  * Computes caloric burn by dividing session duration among exercises based on their baseMET and energy check-in.
  */

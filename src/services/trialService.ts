@@ -85,28 +85,3 @@ export function clearProSubscription(userId: string = ''): void {
   if (!current.hasSubscribedPro) return;
   safeStorage.setItem(`${TRIAL_STORAGE_KEY}_${userId}`, { startDate: current.startDate, hasSubscribedPro: false });
 }
-
-/**
- * Helper to simulate or test trial expiration for testing/admin purposes
- */
-export function simulateTrialExpired(userId: string = ''): void {
-  if (!userId) return;
-  const expiredStart = new Date(Date.now() - (TRIAL_DURATION_MS + 86400000)).toISOString();
-  safeStorage.setItem(`${TRIAL_STORAGE_KEY}_${userId}`, {
-    startDate: expiredStart,
-    hasSubscribedPro: false,
-  });
-}
-
-/**
- * Resets trial to fresh 90 days (for testing or customer care)
- */
-export function resetTrial90Days(userId: string = ''): void {
-  if (!userId) return;
-  const freshStart = new Date().toISOString();
-  safeStorage.setItem(`${TRIAL_STORAGE_KEY}_${userId}`, {
-    startDate: freshStart,
-    hasSubscribedPro: false,
-  });
-}
-

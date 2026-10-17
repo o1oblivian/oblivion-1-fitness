@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { safeStorage } from '../utils/sanitizers';
+import { safeStorage } from '../utils/safeStorage';
 import { useTelemetryStore } from '../features/telemetry/store/useTelemetryStore';
 import { tactileEngine } from '../services/tactileEngine';
 import { supabase } from '../services/supabaseClient';

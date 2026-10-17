@@ -3,7 +3,6 @@ import {
   ModalType,
   ModalPayloadMap,
   CardioScannerPayload,
-  MealScannerPayload,
   TravelPassPayload,
   ExerciseSwapperPayload,
   HydrationPayload,
@@ -26,7 +25,6 @@ export interface ModalStoreActions {
   openSettings: (payload?: GenericToastPayload) => void;
   openFullEliteReels: (options?: 'grid' | 'player' | EliteReelsPayload) => void;
   openCardioScanner: (payload?: CardioScannerPayload) => void;
-  openMealScanner: (payload?: MealScannerPayload) => void;
   openTravelPass: (payload?: TravelPassPayload) => void;
   openExerciseSwapper: (payload?: ExerciseSwapperPayload) => void;
   openHydration: (payload?: HydrationPayload) => void;
@@ -69,10 +67,6 @@ const modalStore = createStore<ModalStoreState, ModalStoreActions>(
       modalStore.actions.openModal('CARDIO_SCANNER', payload || {});
     },
 
-    openMealScanner: (payload) => {
-      modalStore.actions.openModal('MEAL_SCANNER', payload || {});
-    },
-
     openTravelPass: (payload) => {
       modalStore.actions.openModal('TRAVEL_PASS', payload || {});
     },
@@ -92,6 +86,4 @@ const modalStore = createStore<ModalStoreState, ModalStoreActions>(
 );
 
 export const useModalStore = modalStore.useStore;
-export const getModalState = modalStore.getState;
-export const setModalState = modalStore.setState;
 export const modalActions = modalStore.actions;

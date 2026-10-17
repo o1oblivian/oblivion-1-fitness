@@ -15,7 +15,7 @@ import { useLogStore } from '../stores/useLogStore';
 import { getTelemetryHistoryState } from '../features/log/store/useTelemetryHistoryStore';
 import { archiveSession } from '../services/sessionArchive';
 import { localNoonIso } from '../features/log/services/dayLogService';
-import { safeStorage } from './sanitizers';
+import { safeStorage } from './safeStorage';
 import { mergeWorkoutDay, sessionLedger } from '../features/workout/store/workoutSetOperations';
 import { estimateSessionEnergy } from '../features/workout/utils/sessionEnergy';
 

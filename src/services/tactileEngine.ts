@@ -149,7 +149,6 @@ class TactileEngineService {
 }
 
 export const tactileEngine = new TactileEngineService();
-export const TactileEngine = tactileEngine;
 export { TactileEngineService };
 
 export const triggerDialHaptic = (): void => tactileEngine.triggerDialHaptic();

@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { safeStorage } from '../../../utils/sanitizers';
+import { safeStorage } from '../../../utils/safeStorage';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { getAuthenticatedUserId } from '../../../services/authUser';
 import { registerExternalQueue } from '../../../services/syncOutbox';

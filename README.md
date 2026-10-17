@@ -10,16 +10,17 @@ High-performance tactical mobile fitness operating system built with React, Type
 
 ---
 
-## 1. Exporting & Pushing to GitHub
+## 1. Local Development
 
-1. In the top navigation bar of Google AI Studio, click **Share / Export** (or run `git init && git add . && git commit -m "Initial commit"`).
-2. Create a new repository on GitHub: `https://github.com/your-username/oblivion1-fitness-club`.
-3. Link and push your code:
-   ```bash
-   git remote add origin https://github.com/your-username/oblivion1-fitness-club.git
-   git branch -M main
-   git push -u origin main
-   ```
+Architecture, palette, permission and release rules live in `AGENTS.md`. Read it before changing anything.
+
+```bash
+npm install --legacy-peer-deps   # esbuild peer-range conflict, same flag CI uses
+npm run dev                      # Express + Vite on http://localhost:3000
+npm run typecheck                # tsc --noEmit
+npm run lint                     # oxlint src
+npm test                         # vitest run
+```
 
 ---
 
@@ -47,7 +48,7 @@ The included `codemagic.yaml` is pre-configured with two distribution workflows:
 
 ---
 
-## 3. Local Native Builds
+## 3. Native Builds
 
 ### Prerequisites
 - Node.js 20+
@@ -56,9 +57,6 @@ The included `codemagic.yaml` is pre-configured with two distribution workflows:
 
 ### Commands
 ```bash
-# Install dependencies
-npm install
-
 # Build web assets and sync native Capacitor projects
 npm run cap:build
 

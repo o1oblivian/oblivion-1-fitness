@@ -1,6 +1,6 @@
 import { createStore } from '../../../utils/createStore';
 import { tactileEngine } from '../../../services/tactileEngine';
-import { safeStorage } from '../../../utils/sanitizers';
+import { safeStorage } from '../../../utils/safeStorage';
 import { noteDailySteps } from '../../log/services/dayLogService';
 import {
   OperatorProfileMetrics,
@@ -217,6 +217,3 @@ const telemetryStore = createStore<TelemetryStoreState, TelemetryStoreActions>(
 );
 
 export const useTelemetryStore = telemetryStore.useStore;
-export const getTelemetryState = telemetryStore.getState;
-export const setTelemetryState = telemetryStore.setState;
-export const telemetryActions = telemetryStore.actions;

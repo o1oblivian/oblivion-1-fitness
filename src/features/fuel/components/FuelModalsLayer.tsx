@@ -1,5 +1,5 @@
 import React from 'react';
-import { AIMealScanModal } from '../../../components/AIMealScanModal';
+import { MealMacroScannerModal } from '../../../components/MealMacroScannerModal';
 import { AddFoodModal } from './AddFoodModal';
 import { ClientCountryMarketModal } from './ClientCountryMarketModal';
 import { DietaryPreferenceModal } from './DietaryPreferenceModal';
@@ -45,7 +45,7 @@ export const FuelModalsLayer: React.FC<FuelModalsLayerProps> = ({
 }) => {
   return (
     <>
-      <AIMealScanModal
+      <MealMacroScannerModal
         isOpen={isCameraOpen}
         onClose={onCloseCamera}
         targetSlot={scanSlot}

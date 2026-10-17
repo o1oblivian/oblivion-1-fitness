@@ -12,8 +12,6 @@ export type TrainingDay = 'Mon' | 'Tue' | 'Wed' | 'Thu' | 'Fri' | 'Sat' | 'Sun';
 export const FACILITY_KEYS: Facility[] = ['commercial', 'functional_box', 'garage_minimal', 'outdoor', 'bodyweight', 'other'];
 export const INJURY_KEYS: Injury[] = ['knees', 'lower_back', 'shoulders', 'wrists', 'none'];
 export const WEEK: TrainingDay[] = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-export const SESSION_MINUTES = [20, 30, 45, 60] as const;
-
 function parseList<T extends string>(raw: unknown, allowed: readonly T[]): T[] {
   const parts = Array.isArray(raw) ? raw : String(raw || '').split(',');
   const keys = parts.map((part) => String(part).trim()).filter((part): part is T => allowed.includes(part as T));

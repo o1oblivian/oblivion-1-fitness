@@ -569,26 +569,3 @@ export const EXERCISE_REPOSITORY: ExerciseDefinition[] = [
     movementPattern: 'mobility',
   },
 ];
-
-// Helper functions for querying exercise repository
-export const getExercisesByDiscipline = (discipline: 'lift' | 'sports' | 'recovery'): ExerciseDefinition[] => {
-  return EXERCISE_REPOSITORY.filter((e) => e.discipline === discipline);
-};
-
-export const getExercisesByMuscle = (muscleGroup: string): ExerciseDefinition[] => {
-  const norm = muscleGroup.toLowerCase();
-  return EXERCISE_REPOSITORY.filter(
-    (e) =>
-      e.primaryMuscleGroup?.toLowerCase().includes(norm) ||
-      (e.category && e.category.toLowerCase().includes(norm)) ||
-      e.secondaryMuscles?.some((m) => m.toLowerCase().includes(norm))
-  );
-};
-
-export const getExercisesByPattern = (pattern: string): ExerciseDefinition[] => {
-  return EXERCISE_REPOSITORY.filter((e) => e.movementPattern === pattern);
-};
-
-export const findExerciseById = (id: string): ExerciseDefinition | undefined => {
-  return EXERCISE_REPOSITORY.find((e) => e.id === id);
-};

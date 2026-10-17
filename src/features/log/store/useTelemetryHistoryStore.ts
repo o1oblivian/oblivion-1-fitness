@@ -1,5 +1,5 @@
 import { createStore } from '../../../utils/createStore';
-import { safeStorage } from '../../../utils/sanitizers';
+import { safeStorage } from '../../../utils/safeStorage';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { cancelDayLogSync, queueDayLogSync } from '../services/dayLogCloud';
 import { scrubLegacySleepDefaults } from './legacySleep';

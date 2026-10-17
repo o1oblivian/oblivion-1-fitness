@@ -57,11 +57,6 @@ export function likesUsedToday(): string[] {
   return Array.isArray(saved.ids) ? saved.ids : [];
 }
 
-export function likesLeft(isPro: boolean): number {
-  if (isPro) return Number.POSITIVE_INFINITY;
-  return Math.max(0, FREE_DAILY_LIKES - likesUsedToday().length);
-}
-
 export function rememberLike(id: string, unlimited = false): boolean {
   const ids = likesUsedToday();
   if (!ids.includes(id)) {
@@ -495,24 +490,4 @@ function passesDeckFilters(athlete: DemoAthlete, filters: DeckFilters): boolean 
   if (filters.place === 'home' && place !== 'home') return false;
   if (filters.place === 'outdoors' && place !== 'outdoors') return false;
   return true;
-}
-
-export function profileIsReady(profile: {
-  displayName: string;
-  age: number;
-  homeGym: string;
-  selectedDisciplines: string[];
-  buddyPhotos: string[];
-}): boolean {
-  const name = profile.displayName.trim();
-  return Boolean(
-    name &&
-      name !== 'Jordan Vance' &&
-      profile.age >= 18 &&
-      profile.age <= 80 &&
-      profile.homeGym.trim() &&
-      profile.homeGym !== 'Oblivion 1 • Downtown' &&
-      profile.selectedDisciplines.length > 0 &&
-      profile.buddyPhotos.length > 0,
-  );
 }

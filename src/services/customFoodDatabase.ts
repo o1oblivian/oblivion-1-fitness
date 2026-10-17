@@ -71,22 +71,6 @@ export function saveCustomFood(food: Omit<FoodItemRecord, 'id' | 'is_custom'> & 
 }
 
 /**
- * Deletes a custom food permanently from localStorage
- */
-export function deleteCustomFood(id: string): void {
-  const current = getCustomFoods();
-  const updated = current.filter((item) => item.id !== id);
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-    if (typeof window !== 'undefined') {
-      window.dispatchEvent(new CustomEvent('o1fc_custom_foods_updated'));
-    }
-  } catch (err) {
-    console.error('[customFoodDatabase] Failed to delete custom food:', err);
-  }
-}
-
-/**
  * Filters custom foods matching a specific category and query
  */
 export function filterCustomFoods(

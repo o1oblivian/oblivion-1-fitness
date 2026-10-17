@@ -1,6 +1,6 @@
 import { supabase } from '../../../services/supabaseClient';
 import { enqueueSync, flushSync, registerSyncHandler, rewriteSyncOps, scheduleSync } from '../../../services/syncOutbox';
-import { safeStorage } from '../../../utils/sanitizers';
+import { safeStorage } from '../../../utils/safeStorage';
 
 export type DayLogCategory = 'workout' | 'cardio' | 'nutrition' | 'sleep' | 'meditation';
 
@@ -113,11 +113,6 @@ export function queueDayLogDelete(dateKey: string, category: DayLogCategory): vo
 export function cancelDayLogSync(dateKey: string, category: DayLogCategory): void {
   const key = dayOpKey(dateKey, category);
   rewriteSyncOps((op) => (op.kind === 'day_log' && op.key === key ? null : op));
-}
-
-/** Send queued writes now, e.g. when the app is backgrounded. */
-export function flushDayLogSync(): void {
-  void flushSync();
 }
 
 function forgottenMap(): Record<string, true> {

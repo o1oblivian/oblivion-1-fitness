@@ -147,11 +147,3 @@ export const WALLPAPER_CATALOG: CatalogWallpaper[] = [
   w('nature', 'nature-29', '1470252649378-9c29740c9fa8', 'Evening meadow'),
   w('nature', 'nature-30', '1477346611705-65d1883cee1e', 'Dark crags'),
 ];
-
-export const WALLPAPER_COUNTS: Record<WallpaperCategory, number> = WALLPAPER_CATALOG.reduce(
-  (acc, item) => {
-    acc[item.category] += 1;
-    return acc;
-  },
-  { iron: 0, hyrox: 0, track: 0, combat: 0, nature: 0 } as Record<WallpaperCategory, number>,
-);

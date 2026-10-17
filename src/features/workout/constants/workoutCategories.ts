@@ -51,16 +51,3 @@ export const CATEGORIES_BY_DISCIPLINE: Record<DisciplineType, string[]> = {
     'ACTIVE RECOVERY FLUSH',
   ],
 };
-
-export const EQUIPMENT_FILTERS = [
-  'All',
-  'Barbell',
-  'Dumbbell',
-  'Kettlebell',
-  'Cable',
-  'Machine',
-  'Turf',
-  'Mat',
-  'Bodyweight',
-  'Drill',
-];

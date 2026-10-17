@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useEffect, useState } from 'react';
 import { fetchAthleteProfile, supabase } from '../services/supabaseClient';
 import { useUserStore } from '../stores/useUserStore';
 import { releaseDevice } from '../services/accountScope';
@@ -185,5 +185,3 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     </AuthContext.Provider>
   );
 };
-
-export const useAuth = () => useContext(AuthContext);

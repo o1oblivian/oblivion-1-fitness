@@ -34,15 +34,6 @@ async function toBlob(source: Blob | string): Promise<Blob | null> {
   }
 }
 
-function blobToDataUrl(blob: Blob): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(String(reader.result || ''));
-    reader.onerror = () => reject(reader.error);
-    reader.readAsDataURL(blob);
-  });
-}
-
 /** True for links that still work after a restart and on other phones. */
 export function isSharedUrl(url: string | null | undefined): boolean {
   return Boolean(url) && /^https?:\/\//.test(String(url));
@@ -68,25 +59,6 @@ export async function uploadMedia(source: Blob | string, folder: MediaFolder): P
     return null;
   }
   return { url: supabase.storage.from(MEDIA_BUCKET).getPublicUrl(path).data.publicUrl, path, remote: true };
-}
-
-/**
- * Uploads when possible. Otherwise keeps a copy on this phone: photos become data URLs so they
- * survive a restart; videos stay as a session link because they are too large to inline.
- */
-export async function storeMedia(source: Blob | string, folder: MediaFolder): Promise<StoredMedia> {
-  const uploaded = await uploadMedia(source, folder);
-  if (uploaded) return uploaded;
-  const blob = await toBlob(source);
-  if (blob && blob.type.startsWith('image/')) {
-    try {
-      return { url: await blobToDataUrl(blob), path: null, remote: false };
-    } catch {
-      /* fall through to a session link */
-    }
-  }
-  const url = typeof source === 'string' ? source : URL.createObjectURL(source);
-  return { url, path: null, remote: false };
 }
 
 export async function removeMedia(paths: (string | null | undefined)[]): Promise<void> {

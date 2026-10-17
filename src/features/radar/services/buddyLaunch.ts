@@ -22,23 +22,6 @@ export function areaKey(latitude: number, longitude: number): string {
   return `${latCell.toFixed(1)}:${lngCell.toFixed(1)}`;
 }
 
-export function radiusBox(latitude: number, longitude: number, radiusKm: number): {
-  minLat: number;
-  maxLat: number;
-  minLng: number;
-  maxLng: number;
-} {
-  const latDelta = radiusKm / 110.574;
-  const cos = Math.cos((latitude * Math.PI) / 180);
-  const lngDelta = radiusKm / (111.32 * Math.max(0.2, Math.abs(cos)));
-  return {
-    minLat: Math.max(-90, latitude - latDelta),
-    maxLat: Math.min(90, latitude + latDelta),
-    minLng: longitude - lngDelta,
-    maxLng: longitude + lngDelta,
-  };
-}
-
 export async function readBuddyGate(coords: { latitude: number; longitude: number } | null): Promise<BuddyGate> {
   try {
     const { data, error } = await supabase

@@ -234,6 +234,3 @@ const workoutStore = createStore<WorkoutStoreState, WorkoutStoreActions>(
 );
 
 export const useWorkoutStore = workoutStore.useStore;
-export const getWorkoutState = workoutStore.getState;
-export const setWorkoutState = workoutStore.setState;
-export const workoutActions = workoutStore.actions;

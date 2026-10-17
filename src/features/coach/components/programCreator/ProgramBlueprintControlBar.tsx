@@ -14,8 +14,6 @@ interface Props {
   onAutoProgramWeek?: () => void;
 }
 
-export const MUSCLE_TAGS = ALL_DISCIPLINES;
-
 export const ProgramBlueprintControlBar: React.FC<Props> = ({
   category,
   selectedMuscleTag,

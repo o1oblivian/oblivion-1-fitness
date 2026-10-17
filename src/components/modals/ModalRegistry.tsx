@@ -4,16 +4,14 @@ import { useModalStore } from './useModalStore';
 // Modal component imports
 import { SettingsModal } from '../SettingsModal';
 import { EliteReelsHub } from '../../features/reels/EliteReelsHub';
-import { CardioTelemetryModal } from '../../features/workout/components/CardioTelemetryModal';
+import { CardioTelemetryModal } from '../../features/workout/components/cardio/CardioTelemetryModal';
 import { ProgramDetailModal } from '../../features/workout/components/ProgramDetailModal';
 import { RoutineSwapperModal } from '../../features/workout/components/RoutineSwapperModal';
 import { HydrationIntelligenceModal } from '../../features/workout/components/HydrationIntelligenceModal';
 import { SupplementTimingModal } from '../../features/workout/components/SupplementTimingModal';
-import { AIMealScanModal } from '../AIMealScanModal';
 
 import {
   CardioScannerPayload,
-  MealScannerPayload,
   TravelPassPayload,
   ExerciseSwapperPayload,
   HydrationPayload,
@@ -86,19 +84,6 @@ export const ModalRegistry: React.FC = () => {
               steps: data.steps || (data.distanceKm != null ? Math.round(data.distanceKm * 1312) : 0),
             });
           }
-          closeModal();
-        }}
-      />
-
-      {/* 4B. Gemini 2.5 Flash Meal Scanner Modal (AIMealScanModal) */}
-      <AIMealScanModal
-        isOpen={activeModal === 'MEAL_SCANNER'}
-        onClose={closeModal}
-        targetSlot={(payload as MealScannerPayload)?.defaultSlot}
-        defaultSlot={(payload as MealScannerPayload)?.defaultSlot}
-        onConfirmMeal={(name, kcal, p, c, f) => {
-          const cb = (payload as MealScannerPayload)?.onConfirmMeal;
-          if (cb) cb(name, kcal, p, c, f);
           closeModal();
         }}
       />
