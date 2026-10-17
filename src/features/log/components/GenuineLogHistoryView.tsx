@@ -18,11 +18,8 @@ import { useWorkoutStore } from '../../workout/store/useWorkoutStore';
 import { useFuelStore } from '../../fuel/store/useFuelStore';
 import { useTelemetryStore } from '../../telemetry/store/useTelemetryStore';
 import {
-  CardioDayRecord,
   DayMeta,
-  MeditationDayRecord,
   NutritionDayRecord,
-  SleepDayRecord,
   TelemetryCategory,
   WorkoutDayRecord,
   useTelemetryHistoryStore,
@@ -33,123 +30,30 @@ import { CardioConsoleScanModal } from './CardioConsoleScanModal';
 import { LogWeekStrip } from './LogWeekStrip';
 import { LogMonthGrid, type MonthDayItem } from './LogMonthGrid';
 import { LogProgressTowers, TowerPoint } from './LogProgressTowers';
-import { LogLedger, type LedgerRowActions } from './LogLedger';
+import { type LedgerRowActions } from './LogLedger';
+import { ChannelDetail } from './LogChannelDetail';
+import {
+  WEEKDAYS,
+  cardioLine,
+  cleanCardio,
+  cleanNutrition,
+  cleanWorkout,
+  dateKeyOf,
+  foodLine,
+  line,
+  mindfulLine,
+  part,
+  readableSteps,
+  sessionKg,
+  sleepLine,
+  workoutLine,
+} from './logHistoryFormat';
 import { deleteDayLog, markForgotten, purgeArchivedDay, purgeArchivedLift } from '../services/dayLogService';
-import { collapsedReps, collapsedWeight, exerciseFromSets, formatLoad, knownSets, setWorkKg, setsFromExercise } from '../liftLedger';
-import { resistanceMet } from '../../workout/utils/sessionEnergy';
+import { exerciseFromSets, knownSets, setWorkKg, setsFromExercise } from '../liftLedger';
 import { forgetPendingArchives } from '../../../services/sessionArchive';
 
 interface GenuineLogHistoryViewProps {
   showToast: (msg: string) => void;
-}
-
-const WEEKDAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-
-function dateKeyOf(date: Date): string {
-  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-}
-
-function part(value: number | null | undefined, suffix: string, digits = 0): string | null {
-  if (value == null || !Number.isFinite(value) || value <= 0) return null;
-  const shown = digits > 0
-    ? String(Math.round(value * 10 ** digits) / 10 ** digits)
-    : Math.round(value).toLocaleString();
-  return `${shown}${suffix}`;
-}
-
-function line(parts: Array<string | null>): string {
-  const real = parts.filter((item): item is string => Boolean(item));
-  return real.length > 0 ? real.join(' · ') : '--';
-}
-
-function cleanWorkout(rec?: WorkoutDayRecord): WorkoutDayRecord | undefined {
-  if (!rec?.hasData) return undefined;
-  const poisoned = rec.durationMinutes === 45 && rec.intensityRpe === 8.5 && !rec.burnedKcal;
-  return {
-    ...rec,
-    durationMinutes: poisoned ? 0 : rec.durationMinutes || 0,
-    intensityRpe: poisoned ? 0 : rec.intensityRpe || 0,
-  };
-}
-
-function cleanCardio(rec?: CardioDayRecord): CardioDayRecord | undefined {
-  if (!rec?.hasData) return undefined;
-  const stepShadow = /step/i.test(rec.activityType || '') && (rec.avgHeartRateBpm === 135 || rec.avgHeartRateBpm === 142);
-  if (stepShadow) {
-    return {
-      ...rec,
-      distanceKm: 0,
-      burnedKcal: 0,
-      durationMinutes: 0,
-      avgHeartRateBpm: 0,
-      zone2Minutes: 0,
-      activityType: 'Steps',
-    };
-  }
-  const guessedZone = Math.round((rec.durationMinutes || 0) * 0.75);
-  const fillerHr = [135, 138, 142].includes(rec.avgHeartRateBpm) && rec.zone2Minutes === guessedZone && guessedZone > 0;
-  return {
-    ...rec,
-    avgHeartRateBpm: fillerHr ? 0 : rec.avgHeartRateBpm || 0,
-    zone2Minutes: fillerHr ? 0 : rec.zone2Minutes || 0,
-  };
-}
-
-function cleanNutrition(rec?: NutritionDayRecord): NutritionDayRecord | undefined {
-  if (!rec?.hasData) return undefined;
-  const poison = rec.calorieTarget === 2200 && rec.proteinTargetG === 165 && rec.carbsTargetG === 250 && rec.fatsTargetG === 60;
-  if (!poison) return rec;
-  return { ...rec, calorieTarget: 0, proteinTargetG: 0, carbsTargetG: 0, fatsTargetG: 0 };
-}
-
-function sessionKg(rec?: WorkoutDayRecord): number {
-  const fromSets = (rec?.exercises || []).reduce((sum, lift) => sum + setWorkKg(knownSets(lift)), 0);
-  if (fromSets > 0) return fromSets;
-  return rec?.tonnageKg || 0;
-}
-
-function workoutLine(rec?: WorkoutDayRecord): string {
-  if (!rec?.hasData) return '--';
-  return line([
-    part(sessionKg(rec), ' kg'),
-    part(rec.completedSets, ' sets'),
-    part(rec.durationMinutes, ' min'),
-    part(rec.burnedKcal, ' kcal active'),
-  ]);
-}
-
-/** A lone 1 is the old placeholder, not a sensor or manual reading. */
-function readableSteps(rec?: CardioDayRecord, steps = 0): number {
-  const raw = Number(rec?.steps ?? steps);
-  if (!Number.isFinite(raw) || raw <= 0) return 0;
-  const hasSession = (rec?.distanceKm || 0) > 0 || (rec?.durationMinutes || 0) > 0 || (rec?.burnedKcal || 0) > 0;
-  if (raw === 1 && !hasSession) return 0;
-  return raw;
-}
-
-function cardioLine(rec?: CardioDayRecord, steps = 0): string {
-  const logged = line([
-    part(rec?.distanceKm, ' km', 1),
-    part(rec?.durationMinutes, ' min'),
-    part(rec?.burnedKcal, ' kcal'),
-  ]);
-  if (logged !== '--') return logged;
-  return part(readableSteps(rec, steps), ' steps') || '--';
-}
-
-function foodLine(rec?: NutritionDayRecord): string {
-  return part(rec?.calories, ' kcal') || '--';
-}
-
-function sleepLine(rec?: SleepDayRecord): string {
-  return line([
-    part(rec?.durationHours, ' h', 1),
-    part(rec?.recoveryPercent, '% recovery'),
-  ]);
-}
-
-function mindfulLine(rec?: MeditationDayRecord): string {
-  return part(rec?.minutes, ' min') || '--';
 }
 
 export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({ showToast }) => {
@@ -907,183 +811,5 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({ sh
     </div>
   );
 };
-
-function sheetFig(value: number | null | undefined, digits = 0): string {
-  return part(value, '', digits) || '--';
-}
-
-function ChannelDetail({
-  category,
-  workout,
-  cardio,
-  food,
-  sleep,
-  mindful,
-  steps,
-  rowActions,
-}: {
-  category: TelemetryCategory;
-  workout?: WorkoutDayRecord;
-  cardio?: CardioDayRecord;
-  food?: NutritionDayRecord;
-  sleep?: SleepDayRecord;
-  mindful?: MeditationDayRecord;
-  steps: number;
-  rowActions?: LedgerRowActions;
-}) {
-  if (category === 'workout') {
-    const loggedLifts = (workout?.exercises || []).filter((exercise) => knownSets(exercise).length > 0 || (exercise.completed && ((exercise.reps || 0) > 0 || (exercise.weightKg || 0) > 0)));
-    if (!workout?.hasData || (loggedLifts.length === 0 && !(workout.completedSets > 0) && !(workout.tonnageKg > 0))) {
-      return <EmptyCopy>No lifts logged yet</EmptyCopy>;
-    }
-    const exercises = loggedLifts;
-    const rows = exercises.length > 0
-      ? exercises.map((exercise, index) => {
-          const setLog = knownSets(exercise);
-          return {
-            id: `${exercise.name}-${index}`,
-            name: exercise.name || 'Lift',
-            cells: [
-              setLog.length > 0 ? String(setLog.length) : sheetFig(exercise.sets),
-              collapsedReps(setLog, exercise.reps),
-              collapsedWeight(setLog, exercise.weightKg),
-            ],
-            details: setLog.length > 1
-              ? setLog.map((set, setIndex) => ({
-                  id: `${exercise.name}-${index}-${setIndex}`,
-                  name: String(setIndex + 1),
-                  cells: ['', sheetFig(set.reps), formatLoad(set.weightKg)],
-                }))
-              : undefined,
-          };
-        })
-      : [{
-          id: 'session',
-          name: workout.routineName || 'Workout',
-          cells: [sheetFig(workout.completedSets), '--', sheetFig(workout.tonnageKg)],
-        }];
-    return (
-      <>
-        <LogLedger
-          nameLabel="Lift"
-          columns={[{ label: 'Sets', width: '2.5rem' }, { label: 'Reps', width: '3.25rem' }, { label: 'kg', width: '4.75rem' }]}
-          rows={rows}
-          rowActions={exercises.length > 0 ? rowActions : undefined}
-        />
-        {(workout.burnedKcal ?? 0) > 0 && <BurnNote workout={workout} />}
-      </>
-    );
-  }
-
-  if (category === 'cardio') {
-    const logged = line([
-      part(cardio?.distanceKm, ' km', 1),
-      part(cardio?.durationMinutes, ' min'),
-      part(cardio?.burnedKcal, ' kcal'),
-    ]);
-    if (logged === '--' && steps > 0) {
-      return (
-        <LogLedger
-          nameLabel="Day"
-          columns={[{ label: 'steps', width: '4.5rem' }]}
-          rows={[{ id: 'steps', name: 'Steps', cells: [steps.toLocaleString()] }]}
-          rowActions={rowActions}
-        />
-      );
-    }
-    const summary = cardioLine(cardio, steps);
-    if (summary === '--') return <EmptyCopy>No cardio logged for this day.</EmptyCopy>;
-    const name = cardio?.activityType && cardio.activityType !== 'Steps' ? cardio.activityType : 'Cardio';
-    return (
-      <LogLedger
-        nameLabel="Session"
-        columns={[{ label: 'km', width: '3rem' }, { label: 'min', width: '3rem' }, { label: 'kcal', width: '3.25rem' }]}
-        rows={[{
-          id: 'cardio',
-          name,
-          cells: [sheetFig(cardio?.distanceKm, 1), sheetFig(cardio?.durationMinutes), sheetFig(cardio?.burnedKcal)],
-        }]}
-        rowActions={rowActions}
-      />
-    );
-  }
-
-  if (category === 'nutrition') {
-    if (!food?.hasData || (food.calories <= 0 && (food.meals || []).length === 0)) return <EmptyCopy>No food logged for this day.</EmptyCopy>;
-    const meals = food.meals || [];
-    const rows = meals.length > 0
-      ? meals.map((meal, index) => ({
-          id: `meal:${index}`,
-          name: meal.name || 'Meal',
-          cells: [sheetFig(meal.calories), sheetFig(meal.proteinG, 1), sheetFig(meal.carbsG, 1), sheetFig(meal.fatsG, 1)],
-        }))
-      : [{
-          id: 'day',
-          name: 'Day',
-          cells: [sheetFig(food.calories), sheetFig(food.proteinG, 1), sheetFig(food.carbsG, 1), sheetFig(food.fatsG, 1)],
-        }];
-    return (
-      <LogLedger
-        nameLabel="Meal"
-        columns={[
-          { label: 'kcal', width: '3.25rem' },
-          { label: 'P', width: '2.25rem' },
-          { label: 'C', width: '2.25rem' },
-          { label: 'F', width: '2.25rem' },
-        ]}
-        rows={rows}
-        rowActions={rowActions}
-      />
-    );
-  }
-
-  if (category === 'sleep') {
-    if (sleepLine(sleep) === '--') return <EmptyCopy>No sleep logged for this day.</EmptyCopy>;
-    const hasRecovery = (sleep?.recoveryPercent ?? 0) > 0;
-    return (
-      <LogLedger
-        nameLabel="Rest"
-        columns={hasRecovery ? [{ label: 'h', width: '3rem' }, { label: 'Recovery', width: '4.5rem' }] : [{ label: 'h', width: '3rem' }]}
-        rows={[{
-          id: 'sleep',
-          name: 'Sleep',
-          cells: hasRecovery ? [sheetFig(sleep?.durationHours, 1), `${sheetFig(sleep?.recoveryPercent)}%`] : [sheetFig(sleep?.durationHours, 1)],
-        }]}
-        rowActions={rowActions}
-      />
-    );
-  }
-
-  if (mindfulLine(mindful) === '--') return <EmptyCopy>No mindful session logged for this day.</EmptyCopy>;
-  const mindfulName = [mindful?.protocol, mindful?.coherence].filter(Boolean).join(' · ') || 'Mindful';
-  return (
-    <LogLedger
-      nameLabel="Session"
-      columns={[{ label: 'min', width: '3rem' }]}
-      rows={[{ id: 'mindful', name: mindfulName, cells: [sheetFig(mindful?.minutes)] }]}
-      rowActions={rowActions}
-    />
-  );
-}
-
-function BurnNote({ workout }: { workout: WorkoutDayRecord }) {
-  const rpe = workout.intensityRpe > 0 ? workout.intensityRpe : null;
-  const met = Math.round(resistanceMet(rpe) * 10) / 10;
-  const inputs = line([part(workout.durationMinutes, ' min'), rpe ? `RPE ${rpe}` : null, `${met} MET`]);
-  return (
-    <div className="mt-3 pt-2.5 border-t border-white/[0.07] space-y-1">
-      <p className="text-[12px] text-o1-text">
-        {Math.round(workout.burnedKcal ?? 0).toLocaleString()} kcal active <span className="text-o1-muted">· {inputs}</span>
-      </p>
-      <p className="text-[11px] leading-relaxed text-o1-muted">
-        Active burn only, from training time, effort and bodyweight. Watches add resting burn to the total, so they read higher for the same session.
-      </p>
-    </div>
-  );
-}
-
-function EmptyCopy({ children }: { children: React.ReactNode }) {
-  return <p className="pt-2 text-[11px] text-neutral-500">{children}</p>;
-}
 
 export default GenuineLogHistoryView;
