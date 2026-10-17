@@ -101,6 +101,7 @@ export const LiftHistoryCard: React.FC<{ embedded?: boolean }> = ({ embedded = f
   const bests = useMemo(() => [...lifts].sort((a, b) => dayOf(b.bestDay).getTime() - dayOf(a.bestDay).getTime()), [lifts]);
   const [view, setView] = useState<View>('lifts');
   const [openLift, setOpenLift] = useState<string | null>(null);
+  const [expanded, setExpanded] = useState(false);
 
   const estLabel = simple ? 'Strength score' : 'Est. 1RM';
 
@@ -114,7 +115,15 @@ export const LiftHistoryCard: React.FC<{ embedded?: boolean }> = ({ embedded = f
 
   return (
     <div className={embedded ? 'pt-2.5 border-t border-white/[0.05] space-y-2' : 'rounded-2xl bg-o1-card border border-white/[0.07] p-3 space-y-2.5'}>
-      <div className="flex items-center gap-2">
+      <button
+        type="button"
+        aria-expanded={expanded}
+        onClick={() => {
+          tactileEngine.triggerSelectionBuzz();
+          setExpanded((open) => !open);
+        }}
+        className="w-full min-h-[44px] flex items-center gap-2 text-left bg-transparent border-0 p-0"
+      >
         {!embedded && (
           <span className="o1-mark text-o1-gold">
             <Trophy />
@@ -124,25 +133,30 @@ export const LiftHistoryCard: React.FC<{ embedded?: boolean }> = ({ embedded = f
           {embedded ? 'All-time lift history' : 'Lift history'}
         </span>
         {loading && <span className="text-[10px] text-o1-muted">Loading…</span>}
-      </div>
+        <span className="ml-auto text-o1-muted shrink-0">
+          {expanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+        </span>
+      </button>
 
-      <div className="flex gap-1.5">
-        {tabs.map((tab) => (
-          <button
-            key={tab.id}
-            type="button"
-            onClick={() => {
-              tactileEngine.triggerSelectionBuzz();
-              setView(tab.id);
-            }}
-            className={`px-3 py-1 rounded-full text-[11px] font-semibold ${view === tab.id ? PILL_ON : PILL_OFF}`}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
+      {expanded && (
+        <div className="flex gap-1.5">
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              type="button"
+              onClick={() => {
+                tactileEngine.triggerSelectionBuzz();
+                setView(tab.id);
+              }}
+              className={`px-3 py-1 rounded-full text-[11px] font-semibold ${view === tab.id ? PILL_ON : PILL_OFF}`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+      )}
 
-      {view === 'lifts' && (
+      {expanded && view === 'lifts' && (
         lifts.length === 0
           ? empty('No lifts logged yet')
           : (
@@ -199,7 +213,7 @@ export const LiftHistoryCard: React.FC<{ embedded?: boolean }> = ({ embedded = f
           )
       )}
 
-      {view === 'bests' && (
+      {expanded && view === 'bests' && (
         bests.length === 0
           ? empty('Your best set on every lift shows here once you log one.')
           : (
@@ -220,7 +234,7 @@ export const LiftHistoryCard: React.FC<{ embedded?: boolean }> = ({ embedded = f
           )
       )}
 
-      {view === 'stuck' && (
+      {expanded && view === 'stuck' && (
         stuck.length === 0
           ? empty(
               lifts.some((l) => l.sessions >= 3)
