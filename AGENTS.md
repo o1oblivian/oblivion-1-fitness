@@ -54,8 +54,8 @@ All future agents and contributors MUST adhere strictly to these rules:
 AndroidManifest on `main` remains the permission golden baseline unless the user explicitly asks to change it.
 
 8. **Release lock (phone-verified code)**:
- - `RELEASE_CHECKLIST.md` is the release test list. Items move `TODO` → `FAIL` → `LOCKED` only on the owner's confirmation from a real phone, or (owner-approved Oct 2026) when 3 independent agents and a 4th master test all pass with recorded evidence and none of the item's files are involved in an open bug.
+ - Code counts as verified only on the owner's confirmation from a real phone. Agent-run browser tests and agent-written pass/fail tables do not count as evidence.
  - Files listed in `.cursor/locked-files.json` are tested and working. Never edit, delete, rewrite, or revert them, including via shell commands. A project hook denies these edits.
  - Only the owner unlocks a file (by saying "unlock <file>" and approving the lock-list edit). Never edit `.cursor/locked-files.json`, `.cursor/hooks.json`, or `.cursor/hooks/lock-guard.mjs` without that instruction.
  - If a fix seems to need a locked file, stop and ask the owner instead of working around it.
- - Each confirmed batch is committed and tagged `verified-<build>`. Push only when every checklist item is `LOCKED` and the pre-push gate passes.
+ - Each confirmed batch is committed and tagged `verified-<build>`. Push to `main` only when the owner says "push", and only after `tsc --noEmit`, `oxlint`, the tests and `vite build` pass.
