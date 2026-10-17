@@ -28,6 +28,10 @@ ios/App/.symlinks/
 *.traineddata
 *.jks
 *.keystore
+android/local.properties
+
+# Signed release builds (APK/AAB); built by Codemagic, kept locally only
+releases/
 
 # Web bundle copied in by `cap sync`; CI rebuilds it, and it embeds build-time keys
 android/app/src/main/assets/public/
