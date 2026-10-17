@@ -37,7 +37,9 @@ export function isValidImageBuffer(buf: Buffer | Uint8Array): boolean {
   return false;
 }
 
-export async function recognizeTelemetryFromBuffer(buf: Buffer): Promise<ParsedOcrTelemetry | null> {
+export async function recognizeTelemetryFromBuffer(
+  buf: Buffer,
+): Promise<ParsedOcrTelemetry | null> {
   if (!isValidImageBuffer(buf)) {
     return null;
   }
@@ -152,8 +154,9 @@ export function parseTelemetryFromOcrText(rawText: string): ParsedOcrTelemetry {
 
   // 5. Speed (km/h or mph)
   let speedKmh: number | null = null;
-  const speedMatch = normalized.match(/(?:speed|spd)[\s:\-_=]*([0-9]+(?:\.[0-9]+)?)/i) ||
-                     normalized.match(/([0-9]+(?:\.[0-9]+)?)[\s]*(?:km\/h|kmh|mph)/i);
+  const speedMatch =
+    normalized.match(/(?:speed|spd)[\s:\-_=]*([0-9]+(?:\.[0-9]+)?)/i) ||
+    normalized.match(/([0-9]+(?:\.[0-9]+)?)[\s]*(?:km\/h|kmh|mph)/i);
   if (speedMatch && speedMatch[1]) {
     // A screen that shows mph (and not km/h) is converted so the stored speed is always km/h.
     const isMph = /mph/i.test(normalized) && !/km\/h|kmh/i.test(normalized);
@@ -165,8 +168,9 @@ export function parseTelemetryFromOcrText(rawText: string): ParsedOcrTelemetry {
 
   // 6. Incline (%)
   let inclinePct: number | null = null;
-  const incMatch = normalized.match(/(?:incline|inc|grade)[\s:\-_=]*([0-9]+(?:\.[0-9]+)?)/i) ||
-                   normalized.match(/([0-9]+(?:\.[0-9]+)?)[\s]*%/i);
+  const incMatch =
+    normalized.match(/(?:incline|inc|grade)[\s:\-_=]*([0-9]+(?:\.[0-9]+)?)/i) ||
+    normalized.match(/([0-9]+(?:\.[0-9]+)?)[\s]*%/i);
   if (incMatch && incMatch[1]) {
     const inc = parseFloat(incMatch[1]);
     if (inc >= 0 && inc <= 30) {
@@ -175,8 +179,12 @@ export function parseTelemetryFromOcrText(rawText: string): ParsedOcrTelemetry {
   }
 
   // 7. Device classification
-  const isLikelyConsole = /(?:treadmill|matrix|life\s*fitness|techno\s*gym|precor|nordic\s*track|concept\s*2|woodway|stairmaster|keiser|schwinn|incline|mph|km\/h)/i.test(normalized) ||
-                          (speedKmh !== null) || (inclinePct !== null);
+  const isLikelyConsole =
+    /(?:treadmill|matrix|life\s*fitness|techno\s*gym|precor|nordic\s*track|concept\s*2|woodway|stairmaster|keiser|schwinn|incline|mph|km\/h)/i.test(
+      normalized,
+    ) ||
+    speedKmh !== null ||
+    inclinePct !== null;
   const deviceType: 'watch' | 'console' = isLikelyConsole ? 'console' : 'watch';
 
   // 8. Steps Detection
@@ -225,7 +233,8 @@ export function parseTelemetryFromOcrText(rawText: string): ParsedOcrTelemetry {
   }
 
   // A watch clock (4:14, P 4:11) is not a workout duration. Keep it off Time when steps were read.
-  const clockLike = elapsedDisplay !== '--' && !/(elapsed|duration|workout|timer)/i.test(normalized);
+  const clockLike =
+    elapsedDisplay !== '--' && !/(elapsed|duration|workout|timer)/i.test(normalized);
   if (deviceType === 'watch' && detectedSteps != null && clockLike) {
     elapsedDisplay = '--';
     elapsedMinutes = 0;

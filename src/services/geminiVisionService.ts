@@ -49,7 +49,10 @@ export async function analyzeConsoleTelemetry(base64Image: string): Promise<Card
     // Retry only a fast failure (dropped connection); a slow one already used the time budget.
     const retryable = () => attempt === 1 && Date.now() - startedAt < 5_000;
     try {
-      const headers: Record<string, string> = { 'Content-Type': 'application/json', Accept: 'application/json' };
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      };
       if (geminiKey) headers['x-gemini-key'] = geminiKey;
       const response = await apiFetch('/api/vision/cardio-telemetry', {
         method: 'POST',
@@ -59,7 +62,10 @@ export async function analyzeConsoleTelemetry(base64Image: string): Promise<Card
       });
       clearTimeout(timer);
       if (!response.ok) {
-        if (retryable()) { await new Promise((r) => setTimeout(r, 350)); continue; }
+        if (retryable()) {
+          await new Promise((r) => setTimeout(r, 350));
+          continue;
+        }
         break;
       }
       const json = await response.json();
@@ -81,7 +87,10 @@ export async function analyzeConsoleTelemetry(base64Image: string): Promise<Card
       }
     } catch {
       clearTimeout(timer);
-      if (retryable()) { await new Promise((r) => setTimeout(r, 350)); continue; }
+      if (retryable()) {
+        await new Promise((r) => setTimeout(r, 350));
+        continue;
+      }
       break;
     }
   }
@@ -104,13 +113,16 @@ export async function analyzeConsoleTelemetry(base64Image: string): Promise<Card
 
 export async function analyzeMealNutrients(
   base64Image: string,
-  scanMode: 'plate' | 'package' | 'barcode' = 'plate'
+  scanMode: 'plate' | 'package' | 'barcode' = 'plate',
 ): Promise<MealNutrientsResult> {
   const cleanBase64 = base64Image.replace(/^data:[^;]+;base64,/, '');
 
   for (let attempt = 1; attempt <= 2; attempt++) {
     try {
-      const headers: Record<string, string> = { 'Content-Type': 'application/json', Accept: 'application/json' };
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      };
       if (geminiKey) headers['x-gemini-key'] = geminiKey;
       const response = await apiFetch('/api/vision/meal-nutrients', {
         method: 'POST',
@@ -132,7 +144,9 @@ export async function analyzeMealNutrients(
           const cals = resolveCalories(readNutrient(n.calories), prot, carbs, fats);
 
           return {
-            mealName: n.mealName || (scanMode === 'package' ? 'Packaged Nutrition Item' : 'Analyzed Athletic Plate'),
+            mealName:
+              n.mealName ||
+              (scanMode === 'package' ? 'Packaged Nutrition Item' : 'Analyzed Athletic Plate'),
             detectedItems: Array.isArray(n.detectedItems) ? n.detectedItems : [],
             estimatedGrams: readNutrient(n.estimatedGrams),
             calories: cals,
@@ -140,7 +154,9 @@ export async function analyzeMealNutrients(
             carbsGrams: carbs,
             fatGrams: fats,
             confidenceScore: readConfidence(n.confidenceScore),
-            servingDescription: n.servingDescription || (n.estimatedGrams ? `${n.estimatedGrams}g portion` : '1 standard portion'),
+            servingDescription:
+              n.servingDescription ||
+              (n.estimatedGrams ? `${n.estimatedGrams}g portion` : '1 standard portion'),
           };
         }
       } else {
@@ -155,7 +171,9 @@ export async function analyzeMealNutrients(
         await new Promise((r) => setTimeout(r, 400));
         continue;
       }
-      throw err?.message ? err : new Error('Could not read this meal photo. Retake it with the food clearly in view.');
+      throw err?.message
+        ? err
+        : new Error('Could not read this meal photo. Retake it with the food clearly in view.');
     }
   }
 

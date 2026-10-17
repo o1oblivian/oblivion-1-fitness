@@ -8,11 +8,3 @@ supabase
 package-lock.json
 src/data/exercises
 src/services/foodData
-
-# Owner-locked files (see .cursor/locked-files.json). The formatter must not rewrite them.
-src/services/mealVisionService.ts
-src/components/MealMacroScannerModal.tsx
-src/components/meal-scanner/MealScanActions.tsx
-src/components/meal-scanner/useMealMacroScanner.ts
-src/services/geminiVisionService.ts
-src/services/ocrTelemetryParser.ts

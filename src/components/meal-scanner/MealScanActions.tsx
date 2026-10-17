@@ -17,8 +17,14 @@ interface MealScanActionsProps {
 }
 
 export const MealScanActions: React.FC<MealScanActionsProps> = ({
-  scanMode, barcodeInput, setBarcodeInput, onBarcodeLookup,
-  isLoading, cameraInputRef, fileInputRef, onFileUpload,
+  scanMode,
+  barcodeInput,
+  setBarcodeInput,
+  onBarcodeLookup,
+  isLoading,
+  cameraInputRef,
+  fileInputRef,
+  onFileUpload,
 }) => {
   const [showLiveScanner, setShowLiveScanner] = useState(false);
   const [captureError, setCaptureError] = useState<string | null>(null);
@@ -32,7 +38,9 @@ export const MealScanActions: React.FC<MealScanActionsProps> = ({
     void capturePhotoDataUrl(source)
       .then(async (dataUrl) => {
         const blob = await (await fetch(dataUrl)).blob();
-        const file = new File([blob], source === 'camera' ? 'meal.jpg' : 'meal-upload.jpg', { type: blob.type || 'image/jpeg' });
+        const file = new File([blob], source === 'camera' ? 'meal.jpg' : 'meal-upload.jpg', {
+          type: blob.type || 'image/jpeg',
+        });
         onFileUpload(file);
       })
       .catch((err: unknown) => {
@@ -75,7 +83,9 @@ export const MealScanActions: React.FC<MealScanActionsProps> = ({
               type="text"
               value={barcodeInput}
               onChange={(e) => setBarcodeInput(e.target.value)}
-              onKeyDown={(e) => { if (e.key === 'Enter') onBarcodeLookup(); }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') onBarcodeLookup();
+              }}
               placeholder="Enter UPC/EAN code or product name..."
               className="bg-transparent text-xs text-white placeholder-neutral-500 focus:outline-none flex-1 py-1"
             />
@@ -93,12 +103,16 @@ export const MealScanActions: React.FC<MealScanActionsProps> = ({
 
       {/* Tab 2: Package Nutrition Facts OCR Guide Overlay */}
       {scanMode === 'package' && (
-        <p className="text-[11px] text-neutral-400 text-center">Fill the photo with the Nutrition Facts table.</p>
+        <p className="text-[11px] text-neutral-400 text-center">
+          Fill the photo with the Nutrition Facts table.
+        </p>
       )}
 
       {/* Tab 3: Plate Interactive Estimate Guide */}
       {scanMode === 'plate' && (
-        <p className="text-[11px] text-neutral-400 text-center">Photograph the whole plate from above.</p>
+        <p className="text-[11px] text-neutral-400 text-center">
+          Photograph the whole plate from above.
+        </p>
       )}
 
       <input

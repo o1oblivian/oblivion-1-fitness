@@ -1,4 +1,10 @@
-import { readConfidence, readNutrient, resolveCalories, ScannedMealBreakdown, ScanMode } from './mealVisionTypes';
+import {
+  readConfidence,
+  readNutrient,
+  resolveCalories,
+  ScannedMealBreakdown,
+  ScanMode,
+} from './mealVisionTypes';
 import { tryDetectNativeBarcode, lookupBarcodeNumber } from './barcodeLookupService';
 import { compressAndAnalyzeImage } from './imageCompressionService';
 import { apiFetch } from './apiBase';
@@ -20,7 +26,7 @@ export async function analyzePackageNutritionPhoto(imageBlob: Blob): Promise<Sca
  */
 export async function analyzeMealImageWithGemini(
   imageBlob: Blob,
-  scanMode: ScanMode = 'plate'
+  scanMode: ScanMode = 'plate',
 ): Promise<ScannedMealBreakdown> {
   if (scanMode === 'barcode') {
     const detectedCode = await tryDetectNativeBarcode(imageBlob);
@@ -71,8 +77,12 @@ export async function analyzeMealImageWithGemini(
         const cals = resolveCalories(readNutrient(n.calories), prot, carbs, fats);
 
         return {
-          dishName: n.mealName || (scanMode === 'package' ? 'Packaged Nutrition Item' : 'Analyzed Athletic Plate'),
-          servingDescription: n.servingDescription || (n.estimatedGrams ? `${n.estimatedGrams}g portion` : '1 standard portion'),
+          dishName:
+            n.mealName ||
+            (scanMode === 'package' ? 'Packaged Nutrition Item' : 'Analyzed Athletic Plate'),
+          servingDescription:
+            n.servingDescription ||
+            (n.estimatedGrams ? `${n.estimatedGrams}g portion` : '1 standard portion'),
           calories: cals,
           proteinGrams: prot,
           carbsGrams: carbs,

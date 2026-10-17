@@ -1,6 +1,10 @@
 import { useState, useEffect } from 'react';
 import {
-  analyzeMealImageWithGemini, analyzePackageNutritionPhoto, lookupBarcodeNumber, ScannedMealBreakdown, ScanMode,
+  analyzeMealImageWithGemini,
+  analyzePackageNutritionPhoto,
+  lookupBarcodeNumber,
+  ScannedMealBreakdown,
+  ScanMode,
 } from '../../services/mealVisionService';
 import { useFuelStore, FuelMeals } from '../../features/fuel/store/useFuelStore';
 import { tactileEngine } from '../../services/tactileEngine';
@@ -12,15 +16,28 @@ interface UseMealMacroScannerParams {
   isOpen: boolean;
   targetSlot?: keyof FuelMeals | string;
   defaultSlot?: keyof FuelMeals | string;
-  onConfirmMeal?: (dishName: string, kcal: number, p: number, c: number, f: number, slotKey?: keyof FuelMeals) => void;
+  onConfirmMeal?: (
+    dishName: string,
+    kcal: number,
+    p: number,
+    c: number,
+    f: number,
+    slotKey?: keyof FuelMeals,
+  ) => void;
   showToast?: (msg: string, type?: 'success' | 'error' | 'info') => void;
 }
 
 export function useMealMacroScanner({
-  isOpen, targetSlot, defaultSlot = 'lunch', onConfirmMeal, showToast,
+  isOpen,
+  targetSlot,
+  defaultSlot = 'lunch',
+  onConfirmMeal,
+  showToast,
 }: UseMealMacroScannerParams) {
   const [imageFile, setImageFile] = useState<File | Blob | null>(null);
-  const [slot, setSlot] = useState<keyof FuelMeals>((targetSlot || defaultSlot || 'lunch') as keyof FuelMeals);
+  const [slot, setSlot] = useState<keyof FuelMeals>(
+    (targetSlot || defaultSlot || 'lunch') as keyof FuelMeals,
+  );
   const [scanMode, setScanMode] = useState<ScanMode>('plate');
   const [barcodeInput, setBarcodeInput] = useState('');
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -48,7 +65,12 @@ export function useMealMacroScanner({
   const commitAdjustedMeal = (name: string, kcal: number, p: number, c: number, f: number) => {
     const effectiveSlot = (slot || 'lunch') as keyof FuelMeals;
     useFuelStore.getState().addMealItem(effectiveSlot, {
-      id: `meal-ai-${Date.now()}`, name, calories: kcal, protein: p, carbs: c, fats: f,
+      id: `meal-ai-${Date.now()}`,
+      name,
+      calories: kcal,
+      protein: p,
+      carbs: c,
+      fats: f,
     });
     onConfirmMeal?.(name, kcal, p, c, f, effectiveSlot);
     triggerToast(`Added to ${effectiveSlot} · ${kcal} kcal`, 'success');
@@ -77,12 +99,19 @@ export function useMealMacroScanner({
           : err?.message || MEAL_SCAN_FAILED;
 
       // Provider and model errors are never shown verbatim.
-      if (/sensor standby|standby mode|gemini|google|genai|api[\s_-]?key|quota|model|\bai\b/i.test(errMsg)) {
+      if (
+        /sensor standby|standby mode|gemini|google|genai|api[\s_-]?key|quota|model|\bai\b/i.test(
+          errMsg,
+        )
+      ) {
         errMsg = MEAL_SCAN_FAILED;
       }
 
       setError(errMsg);
-      triggerToast('Vision analysis could not resolve plate. Switched to manual macro entry.', 'info');
+      triggerToast(
+        'Vision analysis could not resolve plate. Switched to manual macro entry.',
+        'info',
+      );
     } finally {
       setIsScanning(false);
       setIsLoading(false);
@@ -97,7 +126,9 @@ export function useMealMacroScanner({
 
     // Immediately dispatch the image to the genuine Gemini Vision multimodal API endpoint
     executeScan(() =>
-      scanMode === 'package' ? analyzePackageNutritionPhoto(file) : analyzeMealImageWithGemini(file, scanMode)
+      scanMode === 'package'
+        ? analyzePackageNutritionPhoto(file)
+        : analyzeMealImageWithGemini(file, scanMode),
     );
   };
 
@@ -108,7 +139,19 @@ export function useMealMacroScanner({
   };
 
   return {
-    scanMode, setScanMode, barcodeInput, setBarcodeInput, selectedImage, imageFile,
-    isScanning, isLoading, error, scannedMeal, handleFileUpload, handleBarcodeLookup, commitAdjustedMeal, slot,
+    scanMode,
+    setScanMode,
+    barcodeInput,
+    setBarcodeInput,
+    selectedImage,
+    imageFile,
+    isScanning,
+    isLoading,
+    error,
+    scannedMeal,
+    handleFileUpload,
+    handleBarcodeLookup,
+    commitAdjustedMeal,
+    slot,
   };
 }
