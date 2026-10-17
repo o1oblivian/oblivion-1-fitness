@@ -4,7 +4,7 @@ High-performance tactical mobile fitness operating system built with React, Type
 
 ## App Identity & Bundle Configuration
 - **App Name**: Oblivion 1 Fitness Club
-- **Bundle ID / Application ID**: `com.oblivion1.fitness`
+- **Bundle ID / Application ID**: `com.o1fc.fitness`
 - **Platforms**: Web, iOS (App Store), Android (Google Play)
 - **CI/CD**: Codemagic (`codemagic.yaml` included)
 
