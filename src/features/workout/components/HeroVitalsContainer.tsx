@@ -4,6 +4,7 @@ import { useTelemetryHistoryStore } from '../../log/store/useTelemetryHistorySto
 import { latestSleepRecord } from '../../report/vitals';
 import { useTelemetryStore } from '../../telemetry/store/useTelemetryStore';
 import { useFuelStore } from '../../fuel/store/useFuelStore';
+import { estimateKmFromSteps } from '../../telemetry/services/stepEstimate';
 import { hydrationGoalLiters } from '../../fuel/utils/fuelMath';
 import { useLogStore } from '../../../stores/useLogStore';
 import { useWallpaperStore } from '../../../stores/useWallpaperStore';
@@ -163,7 +164,7 @@ export const HeroVitalsContainer: React.FC<HeroVitalsContainerProps> = ({
       return {
         steps: cardio?.steps ?? 0,
         burn: loggedBurn,
-        dist: cardio?.distanceKm ?? 0,
+        dist: cardio?.distanceKm || (estimateKmFromSteps(cardio?.steps) ?? 0),
         intake: nutrition?.calories ?? 0,
         intakeGoal: nutrition && nutrition.calorieTarget > 0 ? nutrition.calorieTarget : target,
         isToday: false,
@@ -175,7 +176,8 @@ export const HeroVitalsContainer: React.FC<HeroVitalsContainerProps> = ({
       steps: liveSteps,
       // Fuel holds every burn logged today on any device; the day log covers it before Fuel hydrates.
       burn: propActiveKcal !== undefined ? propActiveKcal : Math.max(fuelBurnedKcal || 0, loggedBurn),
-      dist: propDistanceKm !== undefined ? Number(propDistanceKm) || 0 : (cardio?.distanceKm ?? 0),
+      // A logged distance wins; otherwise the day's steps give a walking estimate.
+      dist: (propDistanceKm !== undefined ? Number(propDistanceKm) || 0 : (cardio?.distanceKm ?? 0)) || (estimateKmFromSteps(liveSteps) ?? 0),
       intake: liveIntakeKcal,
       intakeGoal: target,
       isToday: true,

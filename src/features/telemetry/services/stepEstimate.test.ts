@@ -1,5 +1,17 @@
 import { describe, expect, it } from 'vitest';
-import { estimateKcalFromSteps, estimateStepsFromCardio } from './stepEstimate';
+import { estimateKcalFromSteps, estimateKmFromSteps, estimateStepsFromCardio } from './stepEstimate';
+
+describe('estimateKmFromSteps', () => {
+  it('turns steps into a walking distance', () => {
+    expect(estimateKmFromSteps(14000)).toBe(10);
+    expect(estimateKmFromSteps(12619)).toBe(9.01);
+  });
+
+  it('guesses nothing without steps', () => {
+    expect(estimateKmFromSteps(0)).toBeNull();
+    expect(estimateKmFromSteps(undefined)).toBeNull();
+  });
+});
 
 describe('estimateKcalFromSteps', () => {
   it('works out net walking burn from steps and bodyweight', () => {
