@@ -36,7 +36,7 @@ async function programRowsById(ids: string[]): Promise<Map<string, Record<string
   ]);
   const rows = [...(own.data ?? []), ...(catalog.data ?? [])] as Record<string, unknown>[];
   for (const row of await withProgramContent(
-    rows.filter((row) => row?.id && ids.includes(String(row.id))),
+    rows.filter((r) => r?.id && ids.includes(String(r.id))),
   )) {
     byId.set(String(row.id), row);
   }

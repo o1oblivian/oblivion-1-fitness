@@ -285,19 +285,12 @@ const buddyStore = createStore<BuddyProfileState, BuddyProfileActions>(
         set({ buddyPhotos: next });
         persistState(get());
         return false;
-      } else {
-        if (current.length >= 6) {
-          // If already 6, replace the last one or prepend
-          const next = [url, ...current.slice(0, 5)];
-          set({ buddyPhotos: next });
-          persistState(get());
-          return true;
-        }
-        const next = [...current, url];
-        set({ buddyPhotos: next });
-        persistState(get());
-        return true;
       }
+      // A card holds six photos; once full, the newest replaces the oldest.
+      const next = current.length >= 6 ? [url, ...current.slice(0, 5)] : [...current, url];
+      set({ buddyPhotos: next });
+      persistState(get());
+      return true;
     },
 
     isPhotoOnBuddy: (url: string) => {

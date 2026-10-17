@@ -13,7 +13,7 @@ class MemoryStorage {
     });
   }
   getItem(k: string) {
-    return this.data.has(k) ? this.data.get(k)! : null;
+    return this.data.get(k) ?? null;
   }
   setItem(k: string, v: string) {
     this.data.set(k, String(v));

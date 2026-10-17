@@ -184,7 +184,7 @@ async function attachLiveRecords(athletes: Athlete[]): Promise<Athlete[]> {
         water.get(key) || 0,
         goal.get(key) ?? null,
       ),
-      volume: volume.has(key) ? Math.round(volume.get(key)!) : null,
+      volume: volume.has(key) ? Math.round(Number(volume.get(key))) : null,
       lastActive: trained
         ? `Last session ${new Date(trained).toLocaleDateString()}`
         : athlete.lastActive,

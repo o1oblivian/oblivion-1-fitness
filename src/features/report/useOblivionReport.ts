@@ -106,7 +106,11 @@ export function useOblivionReport(enabled: boolean): UseOblivionReportResult {
     setTargetState(next);
   }, []);
 
-  const { report, sets, sleep } = useMemo(() => {
+  const {
+    report,
+    sets: allSets,
+    sleep: sleepSamples,
+  } = useMemo(() => {
     const sets: LoggedSet[] = [];
     const sleep: SleepSample[] = [];
 
@@ -159,8 +163,8 @@ export function useOblivionReport(enabled: boolean): UseOblivionReportResult {
 
   return {
     report,
-    sets,
-    sleep,
+    sets: allSets,
+    sleep: sleepSamples,
     historyByDate,
     loading,
     source: remote && remote.length > 0 ? 'cloud' : 'device',

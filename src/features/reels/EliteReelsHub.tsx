@@ -117,35 +117,34 @@ export const EliteReelsHub: React.FC<EliteReelsHubProps> = ({
 
   useEffect(() => {
     if (!isOpen || ((initialCoachId || initialReelId) && !feedSettled)) return;
-    const { coachesList, flash, setBookingCoach, setActiveReel, setActiveClip, setPlaylist } =
-      openerDeps.current;
-    setPlaylist(null);
+    const opener = openerDeps.current;
+    opener.setPlaylist(null);
     setReturnCoach(null);
     if (initialCoachId) {
       const coach =
         library.find((reel) => reel.coach?.id === initialCoachId)?.coach ||
-        coachesList.find((c) => c.id === initialCoachId);
+        opener.coachesList.find((c) => c.id === initialCoachId);
       setViewMode('grid');
-      if (coach) setBookingCoach(coach);
-      else flash('That coach profile is not available');
+      if (coach) opener.setBookingCoach(coach);
+      else opener.flash('That coach profile is not available');
       return;
     }
     if (initialReelId) {
       const match = library.find((reel) => reel.id === initialReelId);
       if (!match) {
         setViewMode('grid');
-        flash('That reel is no longer available');
+        opener.flash('That reel is no longer available');
         return;
       }
-      setActiveReel(match);
-      setActiveClip(match.filmstripClips?.[0] || null);
+      opener.setActiveReel(match);
+      opener.setActiveClip(match.filmstripClips?.[0] || null);
       setViewMode('player');
       return;
     }
     setViewMode(initialMode);
     if (initialMode !== 'player' || !library[0]) return;
-    setActiveReel(library[0]);
-    setActiveClip(library[0].filmstripClips?.[0] || null);
+    opener.setActiveReel(library[0]);
+    opener.setActiveClip(library[0].filmstripClips?.[0] || null);
     // Re-running when coachesList refreshes would reset whatever the member is watching.
   }, [isOpen, initialMode, initialReelId, initialCoachId, library, feedSettled]);
 

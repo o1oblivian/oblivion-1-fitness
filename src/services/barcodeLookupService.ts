@@ -69,10 +69,9 @@ export async function tryDetectNativeBarcode(
       const barcodes = await detector.detect(img);
       URL.revokeObjectURL(url);
       return barcodes?.[0]?.rawValue?.trim() || null;
-    } else {
-      const barcodes = await detector.detect(source);
-      return barcodes?.[0]?.rawValue?.trim() || null;
     }
+    const barcodes = await detector.detect(source);
+    return barcodes?.[0]?.rawValue?.trim() || null;
   } catch {
     return null;
   }

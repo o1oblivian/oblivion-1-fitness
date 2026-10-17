@@ -234,9 +234,9 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({ sh
   }, [monthStart, historyByDate, todayKey, today, liveWorkout]);
 
   const weekOffsetFor = (target: Date): number => {
-    const day = today.getDay();
+    const weekday = today.getDay();
     const currentMonday = new Date(today);
-    currentMonday.setDate(today.getDate() + (day === 0 ? -6 : 1 - day));
+    currentMonday.setDate(today.getDate() + (weekday === 0 ? -6 : 1 - weekday));
     currentMonday.setHours(0, 0, 0, 0);
     const start = new Date(target);
     start.setHours(0, 0, 0, 0);
@@ -374,12 +374,13 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({ sh
         (meal) => meal.name === target.name && meal.slot === target.slot,
       );
       if (savedIndex >= 0) {
-        const meals = saved.meals.filter((_, i) => i !== savedIndex);
-        const sum = (pick: (meal: (typeof meals)[number]) => number) =>
-          Math.round(meals.reduce((total, meal) => total + (pick(meal) || 0), 0) * 10) / 10;
+        const remainingMeals = saved.meals.filter((_, i) => i !== savedIndex);
+        const sum = (pick: (meal: (typeof remainingMeals)[number]) => number) =>
+          Math.round(remainingMeals.reduce((total, meal) => total + (pick(meal) || 0), 0) * 10) /
+          10;
         useTelemetryHistoryStore.getState().updateDayRecord(selectedDateKey, 'nutrition', {
           ...saved,
-          meals,
+          meals: remainingMeals,
           calories: Math.round(sum((meal) => meal.calories)),
           proteinG: sum((meal) => meal.proteinG),
           carbsG: sum((meal) => meal.carbsG),
@@ -535,17 +536,21 @@ export const GenuineLogHistoryView: React.FC<GenuineLogHistoryViewProps> = ({ sh
             ? 'h'
             : category === 'meditation'
               ? 'min'
-              : days.some((day) => typeof day.raw === 'object' && day.raw.minutes > 0)
+              : days.some((entry) => typeof entry.raw === 'object' && entry.raw.minutes > 0)
                 ? 'min'
                 : 'kcal';
     return {
       selectedKey: selectedDateStr,
       unit,
-      points: days.map((day) => ({
-        key: day.key,
-        label: day.label,
+      points: days.map((entry) => ({
+        key: entry.key,
+        label: entry.label,
         value:
-          typeof day.raw === 'number' ? day.raw : unit === 'min' ? day.raw.minutes : day.raw.kcal,
+          typeof entry.raw === 'number'
+            ? entry.raw
+            : unit === 'min'
+              ? entry.raw.minutes
+              : entry.raw.kcal,
       })),
     };
   };

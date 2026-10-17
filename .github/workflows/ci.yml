@@ -1,4 +1,4 @@
-# Typecheck on push. Signing, AAB, and IPA builds stay in codemagic.yaml.
+# Quality gate on push. Signing, AAB, and IPA builds stay in codemagic.yaml.
 name: Check
 
 on:
@@ -7,10 +7,10 @@ on:
   workflow_dispatch:
 
 jobs:
-  typecheck:
-    name: Typecheck
+  verify:
+    name: Typecheck, lint, format, test, build
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
 
     steps:
       - name: Checkout
@@ -26,4 +26,16 @@ jobs:
         run: npm ci --legacy-peer-deps || npm install --legacy-peer-deps
 
       - name: Typecheck
-        run: npx tsc --noEmit
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Format check
+        run: npm run format:check
+
+      - name: Test
+        run: npm run test
+
+      - name: Build
+        run: npm run build

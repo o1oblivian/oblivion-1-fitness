@@ -28,11 +28,11 @@ function resizeWeeks(
   numDays: number,
 ): ProgramWeekPlan[] {
   const days = Math.min(Math.max(numDays, 1), 7);
-  return Array.from({ length: Math.max(numWeeks, 1) }, (_, wIdx) => ({
+  return Array.from({ length: Math.max(numWeeks, 1) }, (_week, wIdx) => ({
     weekNumber: wIdx + 1,
     days: Array.from(
       { length: days },
-      (_, dIdx) =>
+      (_day, dIdx) =>
         current[wIdx]?.days[dIdx] ?? {
           id: `d-${wIdx + 1}-${dIdx + 1}`,
           dayName: DAY_NAMES[dIdx],

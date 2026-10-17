@@ -295,8 +295,9 @@ export const ActiveLogCard: React.FC<ActiveLogCardProps> = ({ onBuildWorkout }) 
   const handleConfirmDial = (val: number) => {
     if (!dialConfig.exerciseId) return;
     tactileEngine.triggerSelectionBuzz();
-    const unit = readAthleteSettingsSnapshot().weightUnit;
-    const numVal = dialConfig.type === 'weight' ? displayToKg(Number(val), unit) : Number(val);
+    const weightUnit = readAthleteSettingsSnapshot().weightUnit;
+    const numVal =
+      dialConfig.type === 'weight' ? displayToKg(Number(val), weightUnit) : Number(val);
     const fieldKey = dialConfig.type === 'weight' ? 'weightKg' : dialConfig.type;
 
     // Direct reactive state update matching setId, setNumber, or index

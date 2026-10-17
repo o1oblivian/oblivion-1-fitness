@@ -41,8 +41,10 @@ function getSafeEnv(key: string): string {
       typeof import.meta !== 'undefined'
         ? (import.meta.env as Record<string, string | undefined>)
         : undefined;
-    if (metaEnv?.[key]) return metaEnv[key]!;
-    if (typeof process !== 'undefined' && process?.env?.[key]) return process.env[key]!;
+    const fromMeta = metaEnv?.[key];
+    if (fromMeta) return fromMeta;
+    const fromProcess = typeof process !== 'undefined' ? process?.env?.[key] : undefined;
+    if (fromProcess) return fromProcess;
   } catch {}
   return '';
 }

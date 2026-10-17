@@ -16,7 +16,17 @@
     ],
     "react-hooks/rules-of-hooks": "error",
     "react-hooks/exhaustive-deps": "warn",
-    "no-console": ["warn", { "allow": ["warn", "error"] }]
+    "no-console": ["warn", { "allow": ["warn", "error"] }],
+    "no-var": "error",
+    "prefer-const": "error",
+    "no-debugger": "error",
+    "no-else-return": "error",
+    "no-empty": ["error", { "allowEmptyCatch": true }],
+    "no-shadow": "error",
+    "eqeqeq": ["error", "smart"],
+    "typescript/ban-ts-comment": "error",
+    "typescript/no-non-null-assertion": "error",
+    "typescript/no-explicit-any": "warn"
   },
   "overrides": [
     {

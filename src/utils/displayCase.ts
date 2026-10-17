@@ -62,9 +62,10 @@ function convertWord(raw: string, asTitle: boolean, isEdge: boolean): string {
   if (!stripped) return raw;
   const upper = stripped.toUpperCase();
   const lower = stripped.toLowerCase();
+  const proper = PROPER.get(lower);
   let next = stripped;
   if (ACRONYMS.has(upper)) next = upper;
-  else if (PROPER.has(lower)) next = PROPER.get(lower)!;
+  else if (proper !== undefined) next = proper;
   else if (asTitle && !isEdge && SMALL.has(lower)) next = lower;
   else next = stripped.charAt(0).toUpperCase() + stripped.slice(1).toLowerCase();
   return raw.replace(stripped, next);
