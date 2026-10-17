@@ -74,6 +74,7 @@ describe('accountScope', () => {
     releaseDevice();
     expect(localStorage.getItem('o1fc_telemetry_5day_history_v1')).toBeNull();
     expect(localStorage.getItem('o1fc_device_owner')).toBeNull();
-    await vi.waitFor(() => expect(reload).toHaveBeenCalledOnce());
+    // Sign-out waits up to 1.5 s for the store logout before it reloads, so allow longer than that.
+    await vi.waitFor(() => expect(reload).toHaveBeenCalledOnce(), { timeout: 4000 });
   });
 });
