@@ -5,6 +5,7 @@ import { tactileEngine } from '../../../services/tactileEngine';
 import { readAthleteSettingsSnapshot } from '../../../utils/athleteSettingsSnapshot';
 import { displayToKg, kgToDisplay, loadUnitLabel } from '../../../utils/weightUnits';
 import { setIsPr } from '../services/sessionPr';
+import { nextSetCue } from '../services/setCue';
 import { SwipeToReveal } from './SwipeToReveal';
 import { useSimpleMode } from '../../../stores/useDisplayPrefs';
 
@@ -18,6 +19,8 @@ const FEEL_CHOICES: { label: string; rpe: number }[] = [
 ];
 const RPE_PROMPT_MS = 9000;
 const LOCK_NOTE_MS = 2500;
+/** After effort is picked the set ticks itself; this is the window to undo it. */
+const AUTO_TICK_MS = 1300;
 /** Rest timer bar plus the tab dock. */
 const BOTTOM_CHROME_PX = 190;
 
@@ -54,6 +57,12 @@ export const ActiveLogSetRow: React.FC<ActiveLogSetRowProps> = ({
   const [showQuickAdjust, setShowQuickAdjust] = useState(false);
   const [askRpe, setAskRpe] = useState(false);
   const [lockNote, setLockNote] = useState(false);
+  const [rpeOpen, setRpeOpen] = useState(false);
+  const [pendingTick, setPendingTick] = useState(false);
+  const [touched, setTouched] = useState({ reps: false, weight: false });
+  const awaitingRpe = useRef(false);
+  const doneRef = useRef(Boolean(isDone));
+  const toggleRef = useRef(onToggleDone);
   const wasDone = useRef(Boolean(isDone));
   const rowRef = useRef<HTMLDivElement>(null);
   const celebrated = useRef(false);
@@ -77,6 +86,44 @@ export const ActiveLogSetRow: React.FC<ActiveLogSetRowProps> = ({
   const valueTone = isDone ? 'text-o1-text' : 'text-o1-muted';
   const canBump = Boolean(isActive && onQuickUpdateSet);
   const bumpsOpen = showQuickAdjust && canBump;
+
+  const cue = nextSetCue({
+    isActive: Boolean(isActive),
+    isDone: Boolean(isDone),
+    hasReps,
+    hasWeight,
+    hasRpe,
+    touchedReps: touched.reps,
+    touchedWeight: touched.weight,
+  });
+  const repsCue = cue === 'values' && !(hasReps && touched.reps);
+  const weightCue = cue === 'values' && hasWeight && !touched.weight;
+  const showRpe = Boolean(onQuickUpdateSet) && (rpeOpen || (askRpe && isDone) || (simple && cue === 'effort'));
+
+  useEffect(() => {
+    doneRef.current = Boolean(isDone);
+    toggleRef.current = onToggleDone;
+  });
+
+  useEffect(() => {
+    if (!pendingTick) return;
+    if (isDone) {
+      setPendingTick(false);
+      return;
+    }
+    const id = window.setTimeout(() => {
+      setPendingTick(false);
+      if (!doneRef.current) toggleRef.current?.();
+    }, AUTO_TICK_MS);
+    return () => window.clearTimeout(id);
+  }, [pendingTick, isDone]);
+
+  useEffect(() => {
+    if (!awaitingRpe.current || !hasRpe) return;
+    awaitingRpe.current = false;
+    setTouched({ reps: true, weight: true });
+    if (!isDone && hasReps) setPendingTick(true);
+  }, [hasRpe, rpeVal, isDone, hasReps]);
 
   useEffect(() => {
     const justTicked = Boolean(isDone) && !wasDone.current;
@@ -120,17 +167,47 @@ export const ActiveLogSetRow: React.FC<ActiveLogSetRowProps> = ({
       setLockNote(true);
       return;
     }
+    if (type === 'rpe') awaitingRpe.current = true;
+    else setTouched((t) => ({ ...t, [type]: true }));
     onOpenDial(type, value);
+  };
+
+  const toggleRpePanel = () => {
+    tactileEngine.triggerSelectionBuzz();
+    if (isDone) {
+      setLockNote(true);
+      return;
+    }
+    setPendingTick(false);
+    setRpeOpen((open) => !open);
+  };
+
+  /** Effort picked: close the panel and let the set tick itself unless undone. */
+  const pickRpe = (rpe: number) => {
+    tactileEngine.triggerSelectionBuzz();
+    onQuickUpdateSet?.({ rpe });
+    setAskRpe(false);
+    setRpeOpen(false);
+    setTouched({ reps: true, weight: true });
+    if (!isDone && hasReps) setPendingTick(true);
+  };
+
+  const undoAutoTick = () => {
+    tactileEngine.triggerSelectionBuzz();
+    setPendingTick(false);
+    setRpeOpen(true);
   };
 
   const handleQuickWeight = (displayDelta: number) => {
     tactileEngine.triggerSelectionBuzz();
+    setTouched((t) => ({ ...t, weight: true }));
     const nextKg = displayToKg(Math.max(0, displayLoad + displayDelta), weightUnit);
     onQuickUpdateSet?.({ weightKg: nextKg, weight: nextKg });
   };
 
   const handleQuickReps = (delta: number) => {
     tactileEngine.triggerSelectionBuzz();
+    setTouched((t) => ({ ...t, reps: true }));
     onQuickUpdateSet?.({ reps: Math.max(1, reps + delta) });
   };
 
@@ -158,7 +235,7 @@ export const ActiveLogSetRow: React.FC<ActiveLogSetRowProps> = ({
             aria-label={isDone ? `Set ${set.setNumber} done. Tap to undo` : `Mark set ${set.setNumber} done and start rest`}
             className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 font-mono text-[13px] cursor-pointer transition-all border ${
               isDone ? 'bg-o1-card border-[#10b981]/60 text-[#10b981]' : 'bg-o1-card border-white/[0.07] text-o1-text hover:border-[#C4121A]'
-            }`}
+            } ${cue === 'tick' ? 'o1-cue-wave' : ''}`}
           >
             {isDone ? <Check className="w-4 h-4" strokeWidth={2} /> : set.setNumber}
           </button>
@@ -166,7 +243,7 @@ export const ActiveLogSetRow: React.FC<ActiveLogSetRowProps> = ({
           <button
             type="button"
             onClick={() => openValue('reps', reps)}
-            className={`${pill} ${valueTone}`}
+            className={`${pill} ${valueTone} ${repsCue ? 'o1-cue-shake' : ''}`}
             aria-label={`Reps ${hasReps ? reps : 'not set'}${isDone ? ', locked' : ', target'}`}
           >
             {hasReps ? reps : '--'}
@@ -175,7 +252,7 @@ export const ActiveLogSetRow: React.FC<ActiveLogSetRowProps> = ({
           <button
             type="button"
             onClick={() => openValue('weight', weightKg)}
-            className={`${pill} ${valueTone}`}
+            className={`${pill} ${valueTone} ${weightCue ? 'o1-cue-shake' : ''}`}
             aria-label={`Load ${hasWeight ? `${displayLoad} ${unitLabel}` : 'not set'}${isDone ? ', locked' : ', target'}`}
           >
             {hasWeight ? `${displayLoad} ${unitLower}` : '--'}
@@ -184,8 +261,9 @@ export const ActiveLogSetRow: React.FC<ActiveLogSetRowProps> = ({
           {simple ? null : (
             <button
               type="button"
-              onClick={() => openValue('rpe', rpeVal)}
-              className={`${pill} ${valueTone}`}
+              onClick={toggleRpePanel}
+              aria-expanded={showRpe}
+              className={`${pill} ${valueTone} ${cue === 'effort' && !showRpe ? 'o1-cue-shake' : ''}`}
               aria-label={`RPE ${hasRpe ? rpeVal : 'not set'}${isDone ? ', locked' : ''}`}
             >
               {hasRpe ? rpeVal : '--'}
@@ -218,23 +296,19 @@ export const ActiveLogSetRow: React.FC<ActiveLogSetRowProps> = ({
           </p>
         )}
 
-        {askRpe && isDone && onQuickUpdateSet && (
+        {showRpe && (
           <p className="px-1 pt-0.5 text-[11px] text-o1-muted animate-in fade-in duration-150">
             {simple ? 'How did that feel?' : 'How hard was that? (RPE)'}
           </p>
         )}
 
-        {askRpe && isDone && onQuickUpdateSet && simple && (
+        {showRpe && simple && (
           <div className="flex items-center gap-1.5 px-1 animate-in fade-in duration-150" role="group" aria-label="How did that set feel?">
             {FEEL_CHOICES.map(({ label, rpe }) => (
               <button
                 key={label}
                 type="button"
-                onClick={() => {
-                  tactileEngine.triggerSelectionBuzz();
-                  onQuickUpdateSet({ rpe });
-                  setAskRpe(false);
-                }}
+                onClick={() => pickRpe(rpe)}
                 aria-pressed={rpeVal === rpe}
                 className={`flex-1 h-7 rounded-lg border text-[11px] cursor-pointer active:scale-[0.97] transition ${
                   rpeVal === rpe ? 'border-[#C4121A] text-o1-text bg-o1-sheet' : 'border-white/[0.07] text-o1-muted hover:text-o1-text'
@@ -246,17 +320,13 @@ export const ActiveLogSetRow: React.FC<ActiveLogSetRowProps> = ({
           </div>
         )}
 
-        {askRpe && isDone && onQuickUpdateSet && !simple && (
+        {showRpe && !simple && (
           <div className="flex items-center gap-1.5 px-1 animate-in fade-in duration-150" role="group" aria-label="How hard was that set?">
             {RPE_CHOICES.map((value) => (
               <button
                 key={value}
                 type="button"
-                onClick={() => {
-                  tactileEngine.triggerSelectionBuzz();
-                  onQuickUpdateSet({ rpe: value });
-                  setAskRpe(false);
-                }}
+                onClick={() => pickRpe(value)}
                 aria-pressed={rpeVal === value}
                 className={`flex-1 h-7 rounded-lg border font-mono text-[13px] cursor-pointer active:scale-[0.97] transition ${
                   rpeVal === value ? 'border-[#C4121A] text-o1-text bg-o1-sheet' : 'border-white/[0.07] text-o1-muted hover:text-o1-text'
@@ -265,6 +335,32 @@ export const ActiveLogSetRow: React.FC<ActiveLogSetRowProps> = ({
                 {value}
               </button>
             ))}
+            {isDone ? null : (
+              <button
+                type="button"
+                onClick={() => {
+                  setRpeOpen(false);
+                  openValue('rpe', rpeVal);
+                }}
+                aria-label="More RPE values"
+                className="w-8 h-7 shrink-0 rounded-lg border border-white/[0.07] text-[13px] text-o1-muted hover:text-o1-text cursor-pointer active:scale-[0.97] transition"
+              >
+                …
+              </button>
+            )}
+          </div>
+        )}
+
+        {pendingTick && !isDone && (
+          <div role="status" className="flex items-center justify-between px-1 text-[11px] text-o1-muted animate-in fade-in duration-150">
+            <span>Ticking set {set.setNumber}…</span>
+            <button
+              type="button"
+              onClick={undoAutoTick}
+              className="h-6 px-2.5 rounded-lg border border-white/[0.14] text-o1-text cursor-pointer active:scale-[0.97] transition"
+            >
+              Undo
+            </button>
           </div>
         )}
 

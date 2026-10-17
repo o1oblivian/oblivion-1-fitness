@@ -712,3 +712,25 @@ html[data-text-size] .text-6xl { font-size: calc(3.75rem * var(--o1-display-scal
   box-shadow: 0 0 0 1000px #0A0A0B inset;
   transition: background-color 600000s 0s;
 }
+
+/* Set logging cues: shake the values, then effort, then ripple the tick. One row at a time. */
+@keyframes o1-cue-shake {
+  0%, 24%, 100% { transform: translateX(0); }
+  4%, 12% { transform: translateX(-2px); }
+  8%, 16% { transform: translateX(2px); }
+}
+@keyframes o1-cue-wave {
+  0% { box-shadow: 0 0 0 0 rgb(196 18 26 / 0.5); }
+  70%, 100% { box-shadow: 0 0 0 7px rgb(196 18 26 / 0); }
+}
+.o1-cue-shake {
+  border-color: rgb(196 18 26 / 0.7) !important;
+  animation: o1-cue-shake 2.4s ease-in-out infinite;
+}
+.o1-cue-wave {
+  border-color: rgb(196 18 26 / 0.8) !important;
+  animation: o1-cue-wave 1.6s ease-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .o1-cue-shake, .o1-cue-wave { animation: none; }
+}
