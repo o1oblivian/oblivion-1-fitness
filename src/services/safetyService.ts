@@ -1,7 +1,7 @@
 import { supabase } from './supabaseClient';
 import { getAuthenticatedUserId } from './authUser';
 
-export type SafetyContext = 'buddy' | 'coach';
+export type SafetyContext = 'coach';
 
 export async function reportUser(input: {
   reportedId: string;

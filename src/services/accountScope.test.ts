@@ -36,7 +36,7 @@ beforeEach(() => {
   vi.stubGlobal('window', { location: { reload } });
   reload.mockClear();
   localStorage.setItem('o1fc_telemetry_5day_history_v1', '[workouts]');
-  localStorage.setItem('o1_buddy_local', '{}');
+  localStorage.setItem('o1_coach_notes_local', '{}');
   localStorage.setItem('o1fc_remember_email', 'a@b.co');
   localStorage.setItem('o1fc_athlete_trial_v2_user-a', '{}');
   sessionStorage.setItem('o1_session_origin', 'assigned');
@@ -55,7 +55,7 @@ describe('accountScope', () => {
     session('user-b');
     claimDeviceAtBoot();
     expect(localStorage.getItem('o1fc_telemetry_5day_history_v1')).toBeNull();
-    expect(localStorage.getItem('o1_buddy_local')).toBeNull();
+    expect(localStorage.getItem('o1_coach_notes_local')).toBeNull();
     expect(sessionStorage.getItem('o1_session_origin')).toBeNull();
     expect(localStorage.getItem('o1fc_remember_email')).toBe('a@b.co');
     expect(localStorage.getItem('o1fc_athlete_trial_v2_user-a')).toBe('{}');

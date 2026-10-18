@@ -89,14 +89,13 @@ export const TermsOfServiceModal: React.FC<Props> = ({ isOpen, onClose }) => {
 
           <div className="py-3 border-b border-white/[0.05] space-y-1.5 last:border-0">
             <div className="flex items-center gap-1.5 text-emerald-400 font-bold text-o1-label">
-              <span>4. Community &amp; Spotter Code of Conduct</span>
+              <span>4. Community Code of Conduct</span>
             </div>
             <p className="text-o1-label text-neutral-400">
-              Athletes utilizing the Buddy Match Radar agree to zero harassment, respect gym floor
-              etiquette, and practice certified spotter vigilance. There is no tolerance for
+              Coaches and athletes agree to zero harassment. There is no tolerance for
               objectionable, abusive, sexual, hateful or illegal content in profiles, photos, reels,
               reviews or messages. You can report any profile, reel, coach or message, and block any
-              athlete, from the menu on that item. We review reports within 24 hours and remove the
+              member, from the menu on that item. We review reports within 24 hours and remove the
               content and the offending account when a report is upheld. Harassment or misconduct
               results in immediate banishment and revocation of club credentials without refund. To
               reach us directly, write to legal@oblivion1.club.

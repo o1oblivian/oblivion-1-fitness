@@ -3,7 +3,6 @@ import {
   ModalType,
   ModalPayloadMap,
   CardioScannerPayload,
-  TravelPassPayload,
   ExerciseSwapperPayload,
   HydrationPayload,
   GenericToastPayload,
@@ -22,7 +21,6 @@ interface ModalStoreActions {
   openSettings: (payload?: GenericToastPayload) => void;
   openFullEliteReels: (options?: 'grid' | 'player' | EliteReelsPayload) => void;
   openCardioScanner: (payload?: CardioScannerPayload) => void;
-  openTravelPass: (payload?: TravelPassPayload) => void;
   openExerciseSwapper: (payload?: ExerciseSwapperPayload) => void;
   openHydration: (payload?: HydrationPayload) => void;
   openSupplements: (payload?: GenericToastPayload) => void;
@@ -63,10 +61,6 @@ const modalStore = createStore<ModalStoreState, ModalStoreActions>(initialState,
 
   openCardioScanner: (payload) => {
     modalStore.actions.openModal('CARDIO_SCANNER', payload || {});
-  },
-
-  openTravelPass: (payload) => {
-    modalStore.actions.openModal('TRAVEL_PASS', payload || {});
   },
 
   openExerciseSwapper: (payload) => {

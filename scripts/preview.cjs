@@ -118,30 +118,6 @@ function bundle() {
     exercises: [],
   }));
 
-  const photos = [
-    '/preview-buddies/buddy-mira.jpg',
-    '/preview-buddies/buddy-owen.jpg',
-    '/preview-buddies/buddy-sofia.jpg',
-    '/preview-buddies/buddy-jonah.jpg',
-    '/preview-buddies/buddy-priya.jpg',
-  ];
-  const buddies = PEOPLE.map(([name, discipline, split], index) => ({
-    id: id('buddy', index),
-    name,
-    handle: name.split(' ')[0].toLowerCase(),
-    discipline,
-    current_split: split,
-    home_gym: ['Local gym', 'Local gym', '', 'Local gym', ''][index],
-    bio: `${discipline}. Trains ${split.toLowerCase()}.`,
-    age: [28, 31, 27, 33, 29][index],
-    gender: ['women', 'men', 'women', 'men', 'women'][index],
-    time: ['Morning', 'Evening', 'Midday', 'Evening', 'Night'][index],
-    level: ['Intermediate', 'Advanced', 'Intermediate', 'Advanced', 'Beginner'][index],
-    looking_for: ['Training partner', 'Spotter', 'Run club', 'Program swap', 'Sauna and recover'][index],
-    where: ['gym', 'gym', 'outdoors', 'gym', 'home'][index],
-    avatar: photos[index],
-  }));
-
   return {
     coach: { id: COACH_ID, name: 'o1 oblivianfitness', handle: '', avatar: '' },
     athletes,
@@ -151,7 +127,6 @@ function bundle() {
     checkins,
     finished,
     assigned: { coachId: COACH_ID, title: 'Lower strength' },
-    buddies,
   };
 }
 
@@ -181,7 +156,7 @@ async function rest(method, table, query, body) {
 }
 
 async function clearRemote() {
-  const tables = ['coach_programs', 'coach_directives', 'coach_messages', 'buddy_profiles', 'athlete_checkins', 'workout_completions', 'assigned_workouts'];
+  const tables = ['coach_programs', 'coach_directives', 'coach_messages', 'athlete_checkins', 'workout_completions', 'assigned_workouts'];
   const results = [];
   for (const table of tables) {
     results.push(await rest('DELETE', table, `?id=like.${encodeURIComponent(PREFIX + '%')}`, null));

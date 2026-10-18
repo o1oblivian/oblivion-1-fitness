@@ -20,7 +20,7 @@ export function registerDevPreview(app: Express): void {
           else localStorage.removeItem(key);
         };
         if (${clearing ? 'true' : 'false'}) {
-          ['o1fc_custom_coach_clients','o1fc_day_checkins_v1','o1_finished_workouts_v1','o1_coach_custom_programs','o1_coach_notes_local','o1_coach_messages_local','o1_buddy_local'].forEach(drop);
+          ['o1fc_custom_coach_clients','o1fc_day_checkins_v1','o1_finished_workouts_v1','o1_coach_custom_programs','o1_coach_notes_local','o1_coach_messages_local'].forEach(drop);
           localStorage.removeItem('o1_assigned_local');
           const backup = localStorage.getItem('o1_preview_link_backup');
           if (backup) localStorage.setItem('o1_my_coach', backup); else localStorage.removeItem('o1_my_coach');
@@ -38,7 +38,6 @@ export function registerDevPreview(app: Express): void {
           keep('o1_coach_custom_programs', pack.programs);
           keep('o1_coach_notes_local', pack.notes);
           keep('o1_coach_messages_local', pack.messages);
-          keep('o1_buddy_local', pack.buddies);
           if (localStorage.getItem('o1_preview_link_backup') == null) localStorage.setItem('o1_preview_link_backup', localStorage.getItem('o1_my_coach') || '');
           const photo = localStorage.getItem('o1_profile_avatar_url') || '';
           localStorage.setItem('o1_my_coach', JSON.stringify(Object.assign({}, pack.coach, { avatar: photo })));

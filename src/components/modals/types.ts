@@ -2,7 +2,6 @@ export type ModalType =
   | 'SETTINGS'
   | 'FULL_ELITE_REELS'
   | 'CARDIO_SCANNER'
-  | 'TRAVEL_PASS'
   | 'EXERCISE_SWAPPER'
   | 'HYDRATION'
   | 'SUPPLEMENTS';
@@ -24,11 +23,6 @@ export interface CardioScannerPayload {
   }) => void;
 }
 
-export interface TravelPassPayload {
-  programTitle?: string;
-  onLoadWorkouts?: (title: string) => void;
-}
-
 export interface ExerciseSwapperPayload {
   activePreset?: string;
   onSelectPreset?: (preset: string) => void;
@@ -47,7 +41,6 @@ export type ModalPayloadMap = {
   SETTINGS: GenericToastPayload;
   FULL_ELITE_REELS: EliteReelsPayload;
   CARDIO_SCANNER: CardioScannerPayload;
-  TRAVEL_PASS: TravelPassPayload;
   EXERCISE_SWAPPER: ExerciseSwapperPayload;
   HYDRATION: HydrationPayload;
   SUPPLEMENTS: GenericToastPayload;

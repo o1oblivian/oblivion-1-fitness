@@ -16,21 +16,19 @@ export const REVENUECAT_TIER_MONTHLY = 'o1fc_pro_monthly';
 const STORAGE_KEY = 'o1fc_revenuecat_entitlements';
 const STATUS_KEY = 'o1fc_subscription_status';
 
-export type PlanKind = 'lifetime' | 'monthly' | 'travel' | 'coach';
+export type PlanKind = 'lifetime' | 'monthly' | 'coach';
 export type StorePlatform = 'ios' | 'android' | 'web';
 
 export function planKind(planId: string): PlanKind {
   const id = planId.toLowerCase();
   if (/founder|lifetime/.test(id)) return 'lifetime';
   if (id.includes('coach')) return 'coach';
-  if (id.includes('travel')) return 'travel';
   return 'monthly';
 }
 
 const PLAN_NAMES: Record<PlanKind, string> = {
   lifetime: 'O1 Founder Pass (Lifetime)',
   monthly: 'O1 Pass Pro (Monthly)',
-  travel: 'O1 Pass Pro + Travel (Monthly)',
   coach: 'O1 Coach Pro (Monthly)',
 };
 
@@ -101,8 +99,7 @@ export function findPackageForPlan(
       const label = packageLabel(pkg);
       if (kind === 'lifetime') return /founder|lifetime/.test(label);
       if (kind === 'coach') return label.includes('coach');
-      if (kind === 'travel') return label.includes('travel');
-      return /month/.test(label) && !/travel|coach|founder|lifetime/.test(label);
+      return /month/.test(label) && !/coach|founder|lifetime/.test(label);
     }) ?? null
   );
 }
@@ -131,9 +128,9 @@ export function ownsPlan(info: CustomerInfo | null | undefined, planId: string):
         productMatches(e.productIdentifier, planId) || /founder|lifetime/.test(e.productIdentifier),
     );
   }
-  // Monthly / travel Pro: require the o1fc_pro entitlement or a matching product.
+  // Monthly Pro: require the o1fc_pro entitlement or a matching product.
   if (active.some((e) => productMatches(e.productIdentifier, planId))) return true;
-  return kind === 'monthly' || kind === 'travel' ? hasProEntitlement(info) : active.length > 0;
+  return kind === 'monthly' ? hasProEntitlement(info) : active.length > 0;
 }
 
 /** Reads the paid plan straight from the store's customer record, with the store's own expiry. */

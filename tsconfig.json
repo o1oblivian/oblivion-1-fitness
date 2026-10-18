@@ -26,5 +26,5 @@
     "allowImportingTsExtensions": true,
     "noEmit": true
   },
-  "exclude": ["archive", "supabase", "node_modules", "dist"]
+  "exclude": ["supabase", "node_modules", "dist"]
 }

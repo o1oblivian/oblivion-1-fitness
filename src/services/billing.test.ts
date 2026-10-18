@@ -26,10 +26,9 @@ const pkg = (identifier: string, productId: string, packageType = 'CUSTOM') =>
   }) as unknown as PurchasesPackage;
 
 const monthly = pkg('$rc_monthly', 'o1fc_pro_monthly', 'MONTHLY');
-const travel = pkg('travel', 'o1fc_pro_travel_monthly', 'MONTHLY');
 const founder = pkg('$rc_lifetime', 'o1fc_founder_pass', 'LIFETIME');
 const coach = pkg('coach_pro', 'o1fc_coach_pro_monthly', 'MONTHLY');
-const catalog = [monthly, travel, founder, coach];
+const catalog = [monthly, founder, coach];
 
 function customer(parts: {
   active?: {
@@ -60,19 +59,18 @@ describe('planKind', () => {
   it('classifies every catalog product', () => {
     expect(planKind('o1fc_founder_pass')).toBe('lifetime');
     expect(planKind('o1fc_coach_pro_monthly')).toBe('coach');
-    expect(planKind('o1fc_pro_travel_monthly')).toBe('travel');
     expect(planKind('o1fc_pro_monthly')).toBe('monthly');
   });
 });
 
 describe('findPackageForPlan', () => {
   it('prefers an exact product match', () => {
-    expect(findPackageForPlan(catalog, 'o1fc_pro_travel_monthly')).toBe(travel);
+    expect(findPackageForPlan(catalog, 'o1fc_coach_pro_monthly')).toBe(coach);
   });
 
   it('never sells a sibling plan in place of the one chosen', () => {
-    expect(findPackageForPlan([travel, coach, founder], 'o1fc_pro_monthly')).toBeNull();
-    expect(findPackageForPlan([monthly, travel], 'o1fc_founder_pass')).toBeNull();
+    expect(findPackageForPlan([coach, founder], 'o1fc_pro_monthly')).toBeNull();
+    expect(findPackageForPlan([monthly], 'o1fc_founder_pass')).toBeNull();
     expect(findPackageForPlan([monthly, founder], 'o1fc_coach_pro_monthly')).toBeNull();
   });
 

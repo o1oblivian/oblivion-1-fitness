@@ -45,29 +45,12 @@ CREATE TABLE IF NOT EXISTS public.assigned_workouts (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 5. Buddy Profiles Table (Radar Corridor & Global Travel Matching)
-CREATE TABLE IF NOT EXISTS public.buddy_profiles (
-  id TEXT PRIMARY KEY,
-  name TEXT NOT NULL,
-  handle TEXT,
-  discipline TEXT,
-  home_gym TEXT,
-  city TEXT,
-  distance_km NUMERIC DEFAULT 5.0,
-  verified BOOLEAN DEFAULT TRUE,
-  is_ghost_mode BOOLEAN DEFAULT FALSE,
-  avatar TEXT,
-  created_at TIMESTAMPTZ DEFAULT NOW()
-);
-
 -- ============================================================================
 -- ROW LEVEL SECURITY: on, with no policies. Migrations add the per-user policies.
 -- ============================================================================
 ALTER TABLE public.user_entitlements ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.workout_sessions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.assigned_workouts ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.buddy_profiles ENABLE ROW LEVEL SECURITY;
-
 -- ============================================================================
 -- SUPABASE REALTIME REPLICATION (instant workout dispatch)
 -- ============================================================================

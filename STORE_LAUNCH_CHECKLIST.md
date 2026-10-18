@@ -28,7 +28,7 @@ Apple & Google developer accounts: **done** (you confirmed).
 - [ ] Play App Signing SHA-1 / SHA-256 (needed for Google OAuth)
 
 ### A3. RevenueCat
-- [x] Product IDs: `o1fc_pro_monthly`, `o1fc_pro_travel_monthly`, `o1fc_founder_pass`
+- [x] Product IDs: `o1fc_pro_monthly`, `o1fc_founder_pass`, `o1fc_coach_pro_monthly`
 - [x] Default offering mapped
 - [ ] Confirm `appl_` / `goog_` keys in env match **this** RC project
 - [ ] Store products created in App Store Connect + Play with those exact IDs, then linked in RC
@@ -72,7 +72,7 @@ Apple & Google developer accounts: **done** (you confirmed).
 | B6 | Account delete must fully delete Auth user + rows (Apple requirement) | Queued |
 | B7 | Strip Stripe Connect/Identity **simulated/mocked** in production | Queued |
 | B8 | Align iOS usage strings with real features (camera/BLE); drop unused mic/speech if unused | Queued |
-| B9 | **`npx cap sync` immediately before launch / store push** (after `npm run build`). Required so `@capacitor/geolocation` and web assets land in Android/iOS. Not needed for Brave/LAN. | Do before native package |
+| B9 | **`npx cap sync` immediately before launch / store push** (after `npm run build`). Required so the web assets and the current plugin list land in Android/iOS. Not needed for Brave/LAN. | Do before native package |
 
 ## C. Me — blocked until you ping
 

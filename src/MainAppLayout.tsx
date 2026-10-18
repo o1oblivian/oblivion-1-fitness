@@ -6,7 +6,6 @@ import { CoachView as CoachHub } from './features/coach/CoachView';
 import { LogView } from './features/log/LogView';
 import { FeatureErrorBoundary } from './components/common/FeatureErrorBoundary';
 import { ModalRegistry } from './components/modals/ModalRegistry';
-import { useModalStore } from './components/modals/useModalStore';
 import { BasementOfflineBanner } from './components/common/BasementOfflineBanner';
 import { armAthleteReminders } from './services/athleteReminderScheduler';
 import { startSync } from './services/localFirstSync';
@@ -16,8 +15,6 @@ import { useRestTimerStore } from './features/workout/store/useRestTimerStore';
 export const MainAppLayout: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabMode>('tracker');
 
-  const { activeModal } = useModalStore();
-  const isTravelPassOpen = activeModal === 'TRAVEL_PASS';
   const restActive = useRestTimerStore((s) => s.timer !== null);
 
   const mainRef = useRef<HTMLElement>(null);
@@ -41,7 +38,7 @@ export const MainAppLayout: React.FC = () => {
 
   React.useEffect(() => {
     const handleNavEvent = (e: Event) => {
-      // Links, hashes and events can name a tab that no longer exists (an old #radar link); ignore those.
+      // Links, hashes and events can name a tab that does not exist; ignore those.
       const tab = toTabMode((e as CustomEvent<unknown>).detail);
       if (tab) handleTabSelect(tab);
     };
@@ -51,13 +48,7 @@ export const MainAppLayout: React.FC = () => {
 
   return (
     <div className="relative min-h-dvh w-full bg-black text-o1-bone overflow-x-hidden selection:bg-o1-crimson selection:text-o1-bone transition-colors duration-200">
-      <div
-        className={`min-h-dvh w-full bg-transparent text-o1-bone flex flex-col justify-between font-sans origin-top transition-all duration-300 ease-out relative ${
-          isTravelPassOpen
-            ? 'scale-[0.94] rounded-2xl brightness-75 overflow-hidden pointer-events-none select-none'
-            : ''
-        }`}
-      >
+      <div className="min-h-dvh w-full bg-transparent text-o1-bone flex flex-col justify-between font-sans relative">
         <BasementOfflineBanner />
 
         <main

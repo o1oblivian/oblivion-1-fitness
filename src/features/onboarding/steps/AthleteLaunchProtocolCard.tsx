@@ -21,8 +21,8 @@ const PILLARS = [
   },
   {
     icon: Users,
-    title: 'Club',
-    body: 'Find a coach, meet training partners nearby and follow form reels.',
+    title: 'Coaching',
+    body: 'Find a coach, follow their programs and learn from form reels.',
   },
 ];
 

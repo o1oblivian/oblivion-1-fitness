@@ -5,14 +5,12 @@ import { useModalStore } from './useModalStore';
 import { SettingsModal } from '../SettingsModal';
 import { ReelsHub } from '../../features/reels/ReelsHub';
 import { CardioTelemetryModal } from '../../features/workout/components/cardio/CardioTelemetryModal';
-import { ProgramDetailModal } from '../../features/workout/components/ProgramDetailModal';
 import { RoutineSwapperModal } from '../../features/workout/components/RoutineSwapperModal';
 import { HydrationIntelligenceModal } from '../../features/workout/components/HydrationIntelligenceModal';
 import { SupplementTimingModal } from '../../features/workout/components/SupplementTimingModal';
 
 import {
   CardioScannerPayload,
-  TravelPassPayload,
   ExerciseSwapperPayload,
   HydrationPayload,
   GenericToastPayload,
@@ -86,18 +84,6 @@ export const ModalRegistry: React.FC = () => {
                 data.steps || (data.distanceKm != null ? Math.round(data.distanceKm * 1312) : 0),
             });
           }
-          closeModal();
-        }}
-      />
-
-      {/* 5. Travel Pass / Program Detail Modal (ProgramDetailModal) */}
-      <ProgramDetailModal
-        isOpen={activeModal === 'TRAVEL_PASS'}
-        onClose={closeModal}
-        programTitle={(payload as TravelPassPayload)?.programTitle ?? ''}
-        onLoadWorkouts={(title) => {
-          const cb = (payload as TravelPassPayload)?.onLoadWorkouts;
-          if (cb) cb(title);
           closeModal();
         }}
       />

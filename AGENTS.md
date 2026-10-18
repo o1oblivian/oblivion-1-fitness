@@ -38,10 +38,10 @@ All future agents and contributors MUST adhere strictly to these rules:
      * `android.permission.MODIFY_AUDIO_SETTINGS`
      * `android.permission.ACTIVITY_RECOGNITION`
      * `android.permission.BODY_SENSORS`
+     * `android.permission.ACCESS_COARSE_LOCATION`, `android.permission.ACCESS_FINE_LOCATION` (the app is workout, fuel and coaching only; there is no location feature)
    - ONLY PERMITTED PERMISSIONS:
      * `android.permission.INTERNET`
      * `android.permission.CAMERA`
- * `android.permission.ACCESS_COARSE_LOCATION`, `ACCESS_FINE_LOCATION` (Buddy Radar, approved Oct 2026)
      * `android.permission.BLUETOOTH`, `BLUETOOTH_ADMIN`, `BLUETOOTH_SCAN` (`neverForLocation`), `BLUETOOTH_CONNECT`
  * `com.android.vending.BILLING` (RevenueCat / Google Play subscriptions)
  * `android.permission.POST_NOTIFICATIONS` (on-device reminders, approved Oct 2026). `@capacitor/local-notifications` also merges `RECEIVE_BOOT_COMPLETED` and `WAKE_LOCK`; `SCHEDULE_EXACT_ALARM` is stripped with `tools:node="remove"`.

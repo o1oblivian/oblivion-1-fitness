@@ -9,9 +9,7 @@ const stripDevPreviewAssets = () => ({
   name: 'strip-dev-preview-assets',
   apply: 'build' as const,
   closeBundle() {
-    for (const name of ['preview-data.json', 'preview-buddies']) {
-      fs.rmSync(path.resolve(import.meta.dirname, 'dist', name), { recursive: true, force: true });
-    }
+    fs.rmSync(path.resolve(import.meta.dirname, 'dist', 'preview-data.json'), { force: true });
   },
 });
 
