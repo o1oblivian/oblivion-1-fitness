@@ -1,12 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Camera, Trash2, Check, X, Plus, Upload } from 'lucide-react';
 import { CrimsonSwitch } from './CrimsonSwitch';
+import { BodyMetricsEditor } from './BodyMetricsEditor';
 import { useUserStore } from '../../stores/useUserStore';
 import { useRoleStore } from '../../stores/useRoleStore';
 import { PhotoVaultModal } from '../../features/log/components/PhotoVaultModal';
 import { CoachVaultModal } from '../../features/coach/components/CoachVaultModal';
 import { tactileEngine } from '../../services/tactileEngine';
-import { parseCleanInt, parseCleanNumber } from '../../utils/numberInputUtils';
 import { compressPhoto } from '../../utils/mediaCompressor';
 import {
   fetchVaultRows,
@@ -15,9 +15,6 @@ import {
   saveVaultRow,
   uploadMedia,
 } from '../../services/mediaStorage';
-
-const LB_PER_KG = 2.20462;
-const CM_PER_IN = 2.54;
 
 interface ProfileSectionProps {
   name: string;
@@ -181,11 +178,6 @@ export const SettingsProfileSection: React.FC<ProfileSectionProps> = ({
     useUserStore.getState().setWeightKg(newWeight);
   };
 
-  const inLbs = weightUnit === 'lbs';
-  const inInches = heightUnit === 'in';
-  const shownWeight = Math.round(weightKg * (inLbs ? LB_PER_KG : 1) * 10) / 10;
-  const shownHeight = Math.round(inInches ? heightCm / CM_PER_IN : heightCm);
-
   return (
     <div className="space-y-2 select-none">
       <h3 className="text-xs font-tactical tracking-wider text-neutral-400 font-bold px-1">
@@ -313,78 +305,16 @@ export const SettingsProfileSection: React.FC<ProfileSectionProps> = ({
           className="hidden"
         />
 
-        {/* Metrics 3-column row with interactive input */}
-        <div className="grid grid-cols-3 divide-x divide-white/[0.05] bg-o1-well rounded-xl py-1.5 px-1 text-center border border-white/[0.07]">
-          <div className="px-1 flex flex-col items-center justify-center">
-            <span className="text-o1-label font-tactical text-neutral-400 font-semibold leading-none">
-              Age
-            </span>
-            <div className="flex items-center justify-center h-5 mt-0.5">
-              <input
-                type="number"
-                inputMode="numeric"
-                placeholder="--"
-                aria-label="Age"
-                value={age === 0 ? '' : age}
-                onFocus={(e) => e.target.select()}
-                onChange={(e) => {
-                  const next = parseCleanInt(e.target.value);
-                  onUpdateAge?.(next <= 0 ? 0 : Math.min(99, next));
-                }}
-                className="w-12 text-center bg-transparent font-mono font-bold text-xs text-white focus:outline-none p-0 m-0 leading-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-              />
-            </div>
-          </div>
-
-          <div className="px-1 flex flex-col items-center justify-center">
-            <span className="text-o1-label font-tactical text-neutral-400 font-semibold leading-none">
-              Height
-            </span>
-            <div className="flex items-center justify-center h-5 mt-0.5">
-              <input
-                type="number"
-                inputMode="numeric"
-                placeholder="--"
-                aria-label={`Height in ${heightUnit}`}
-                value={shownHeight === 0 ? '' : shownHeight}
-                onFocus={(e) => e.target.select()}
-                onChange={(e) => {
-                  const entered = parseCleanInt(e.target.value);
-                  onUpdateHeight?.(inInches ? entered * CM_PER_IN : entered);
-                }}
-                className="w-10 text-center bg-transparent font-mono font-bold text-xs text-white focus:outline-none p-0 m-0 leading-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-              />
-              <span className="text-o1-label text-neutral-400 font-mono font-semibold leading-none ml-0.5">
-                {heightUnit}
-              </span>
-            </div>
-          </div>
-
-          <div className="px-1 flex flex-col items-center justify-center">
-            <span className="text-o1-label font-tactical text-neutral-400 font-semibold leading-none">
-              Weight
-            </span>
-            <div className="flex items-center justify-center h-5 mt-0.5">
-              <input
-                type="number"
-                step="0.1"
-                inputMode="decimal"
-                placeholder="--"
-                aria-label={`Weight in ${weightUnit}`}
-                value={shownWeight === 0 ? '' : shownWeight}
-                onFocus={(e) => e.target.select()}
-                onChange={(e) => {
-                  const entered = parseCleanNumber(e.target.value);
-                  handleWeightChange(inLbs ? entered / LB_PER_KG : entered);
-                }}
-                className="w-12 text-center bg-transparent font-mono font-bold text-xs text-white focus:outline-none p-0 m-0 leading-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-              />
-              <span className="text-o1-label text-neutral-400 font-mono font-semibold leading-none ml-0.5">
-                {weightUnit}
-              </span>
-            </div>
-          </div>
-        </div>
+        <BodyMetricsEditor
+          age={age}
+          heightCm={heightCm}
+          weightKg={weightKg}
+          heightUnit={heightUnit === 'in' ? 'in' : 'cm'}
+          weightUnit={weightUnit === 'lbs' ? 'lbs' : 'kg'}
+          onUpdateAge={(years) => onUpdateAge?.(years)}
+          onUpdateHeight={(cm) => onUpdateHeight?.(cm)}
+          onUpdateWeight={handleWeightChange}
+        />
 
         {/* Athlete Bio Field */}
         <div>

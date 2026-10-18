@@ -21,6 +21,8 @@ interface Loaded {
   issue: string | null;
 }
 
+/** However the store behaves, the spinner ends with a reason after this long. */
+const PRICE_DEADLINE_MS = 20_000;
 const LOADING: Loaded = { status: 'loading', prices: {}, issue: null };
 const PAID_PRODUCTS = Object.values(IAP_PRODUCTS).filter((product) => !product.isFree);
 
@@ -63,8 +65,11 @@ export function useStorePlans(enabled: boolean = true): StorePlans {
     }
     let cancelled = false;
     setLoaded((current) => (current.status === 'ready' ? current : LOADING));
-    revenueCatService
-      .getOfferings()
+    let deadline: ReturnType<typeof setTimeout> | undefined;
+    const tooSlow = new Promise<never>((_, reject) => {
+      deadline = setTimeout(() => reject(new Error('store answer too slow')), PRICE_DEADLINE_MS);
+    });
+    Promise.race([revenueCatService.getOfferings(), tooSlow])
       .then((offerings) => {
         if (cancelled) return;
         const prices = pricesFrom(offerings);
@@ -85,9 +90,12 @@ export function useStorePlans(enabled: boolean = true): StorePlans {
           setLoaded({
             status: 'unavailable',
             prices: {},
-            issue: 'The store could not be reached. Check your connection and try again.',
+            issue:
+              revenueCatService.lastIssue ??
+              'The store did not answer in time. Check your connection and try again.',
           });
-      });
+      })
+      .finally(() => clearTimeout(deadline));
     return () => {
       cancelled = true;
     };

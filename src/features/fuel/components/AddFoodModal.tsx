@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import {
   X,
   Search,
@@ -40,9 +40,9 @@ interface AddFoodModalProps {
 const SEARCH_DEBOUNCE_MS = 400;
 const SEARCH_LIMIT = 60;
 
-/** What the list shows while nothing is typed: the country's Top 100, the person's own saved foods, or one category of the Top 100. */
-type Browse = 'top' | 'mine' | FoodBrowseId;
-const DEFAULT_BROWSE: Browse = 'top';
+/** What the list shows while nothing is typed: one category of the country's most popular foods, or the person's own saved foods. */
+type Browse = 'mine' | FoodBrowseId;
+const DEFAULT_BROWSE: Browse = FOOD_BROWSE_CATEGORIES[0].id;
 
 export const AddFoodModal: React.FC<AddFoodModalProps> = ({
   category,
@@ -157,9 +157,7 @@ export const AddFoodModal: React.FC<AddFoodModalProps> = ({
   const showingPopular = !typed && popularCategory !== null;
   const popularFoods = useMemo(() => {
     if (!popularList) return [];
-    return browse === 'top'
-      ? popularList.foods
-      : popularList.foods.filter((f) => f.browse === browse);
+    return popularList.foods.filter((f) => f.browse === browse);
   }, [popularList, browse]);
   const visibleFoods = useMemo(
     () => (showingPopular ? popularFoods : foods).filter((f) => foodMatchesDiet(f, dietPreference)),
@@ -171,11 +169,9 @@ export const AddFoodModal: React.FC<AddFoodModalProps> = ({
   const browseLabel =
     browse === 'mine'
       ? 'My foods'
-      : browse === 'top'
-        ? usingWorldList
-          ? 'Top 100 worldwide'
-          : 'Top 100'
-        : (FOOD_BROWSE_CATEGORIES.find((c) => c.id === browse)?.label ?? 'Popular');
+      : `${FOOD_BROWSE_CATEGORIES.find((c) => c.id === browse)?.label ?? 'Popular'} · ${
+          usingWorldList ? 'popular worldwide' : `popular in ${currentCountry.name}`
+        }`;
 
   if (!isOpen) return null;
 
@@ -295,11 +291,7 @@ export const AddFoodModal: React.FC<AddFoodModalProps> = ({
           aria-label="Food categories"
           className="flex gap-1.5 overflow-x-auto no-scrollbar shrink-0 -mx-0.5 px-0.5"
         >
-          {[
-            { id: 'top' as const, label: 'Top 100' },
-            { id: 'mine' as const, label: 'My foods' },
-            ...FOOD_BROWSE_CATEGORIES,
-          ].map((chip) => {
+          {[...FOOD_BROWSE_CATEGORIES, { id: 'mine' as const, label: 'My foods' }].map((chip) => {
             const active = !typed && browse === chip.id;
             return (
               <button

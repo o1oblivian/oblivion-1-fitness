@@ -14,7 +14,9 @@ import { ActiveLogSetRow } from './ActiveLogSetRow';
 import { SwipeToReveal } from './SwipeToReveal';
 import { useSimpleMode } from '../../../stores/useDisplayPrefs';
 
-const BEST_BUBBLE_MS = 2500;
+const BEST_BUBBLE_MS = 5000;
+/** Long enough to read two sentences; a tap closes it sooner. */
+const RPE_HELP_MS = 10_000;
 
 function shortDate(dateKey: string): string {
   const [y, m, d] = dateKey.split('-').map(Number);
@@ -85,6 +87,7 @@ export const ActiveLogExerciseAccordion: React.FC<ActiveLogExerciseAccordionProp
 }) => {
   const simple = useSimpleMode();
   const [showBest, setShowBest] = useState(false);
+  const [showRpeHelp, setShowRpeHelp] = useState(false);
   const setsList = exercise.sets || [];
   const done = setsList.filter((s) => s.completed).length;
   const activeIndex = setsList.findIndex((s) => !s.completed);
@@ -137,6 +140,12 @@ export const ActiveLogExerciseAccordion: React.FC<ActiveLogExerciseAccordionProp
         : (Number(nextSet?.reps) || 0) === advice.reps
           ? null
           : { reps: advice.reps };
+
+  useEffect(() => {
+    if (!showRpeHelp) return;
+    const id = window.setTimeout(() => setShowRpeHelp(false), RPE_HELP_MS);
+    return () => window.clearTimeout(id);
+  }, [showRpeHelp]);
 
   useEffect(() => {
     if (!showBest) return;
@@ -211,7 +220,7 @@ export const ActiveLogExerciseAccordion: React.FC<ActiveLogExerciseAccordionProp
       {showBest && (
         <div
           role="status"
-          className="absolute right-2 top-10 z-20 max-w-[85%] px-3 py-1.5 rounded-xl bg-o1-sheet border border-white/[0.07] text-o1-label text-o1-text shadow-lg animate-in fade-in duration-150 pointer-events-none"
+          className="absolute right-2 top-10 z-20 max-w-[85%] px-3 py-2 rounded-xl bg-o1-sheet border border-white/[0.07] text-xs text-o1-text shadow-lg animate-in fade-in duration-150 pointer-events-none"
         >
           {bestMessage}
         </div>
@@ -231,9 +240,40 @@ export const ActiveLogExerciseAccordion: React.FC<ActiveLogExerciseAccordionProp
             <span className="w-8 shrink-0 text-center">Set</span>
             <span className="flex-1 text-center">Reps</span>
             <span className="flex-1 text-center">{unitLower}</span>
-            {simple ? null : <span className="flex-1 text-center">RPE</span>}
+            {simple ? null : (
+              <span className="flex-1 text-center">
+                <button
+                  type="button"
+                  aria-expanded={showRpeHelp}
+                  aria-label="What is RPE?"
+                  onClick={() => {
+                    tactileEngine.triggerSelectionBuzz();
+                    setShowRpeHelp((open) => !open);
+                  }}
+                  className="uppercase tracking-[0.12em] underline decoration-dotted underline-offset-4 cursor-pointer active:text-o1-text"
+                >
+                  RPE
+                </button>
+              </span>
+            )}
             <span className="w-7 shrink-0" />
           </div>
+
+          {showRpeHelp && !simple && (
+            <button
+              type="button"
+              onClick={() => setShowRpeHelp(false)}
+              className="w-full text-left rounded-xl bg-o1-sheet border border-white/[0.07] px-3 py-2.5 normal-case tracking-normal animate-in fade-in duration-150 cursor-pointer"
+            >
+              <span className="block text-sm font-semibold text-o1-text">
+                RPE: Rate of Perceived Exertion
+              </span>
+              <span className="block text-xs text-o1-muted leading-snug mt-1">
+                How hard the set felt, from 1 to 10. 10 is all-out with nothing left, 8 leaves about
+                2 reps in reserve, 6 leaves about 4. Tap to close.
+              </span>
+            </button>
+          )}
 
           <div className="space-y-1">
             {setsList.map((set, setIndex) => {

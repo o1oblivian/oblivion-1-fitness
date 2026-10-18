@@ -343,7 +343,10 @@ class RevenueCatManager {
   async init(appUserId: string = ''): Promise<typeof Purchases | null> {
     if (!isNativeStorePlatform()) return null;
     const userId = await resolveAppUserId(appUserId);
-    if (!userId) return null;
+    if (!userId) {
+      this.issue = 'Your account could not be confirmed. Check your connection or sign in again.';
+      return null;
+    }
     if (!this.ready || this.ready.userId !== userId) {
       this.ready = { userId, connected: this.connect(userId) };
     }
@@ -392,7 +395,7 @@ class RevenueCatManager {
       return value;
     } catch (err) {
       console.warn('[RevenueCat] Products unavailable:', err);
-      this.issue = `${storeName()} products did not load: `;
+      this.issue = `${storeName()} products did not load: ${explainStoreFailure(errorMessage(err, 'no reason given'))}`;
       return { packages: [] };
     }
   }
