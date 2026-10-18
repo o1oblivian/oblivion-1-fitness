@@ -63,7 +63,8 @@ export default function App() {
       .getSession()
       .then(({ data }) => {
         const id = data.session?.user.id;
-        if (id) return revenueCatService.init(id);
+        // Connect the store and fetch the plans now, so the paywall opens with prices already in hand.
+        if (id) return revenueCatService.getOfferings(id);
         return null;
       })
       .catch(() => null);

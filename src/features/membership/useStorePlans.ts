@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+﻿import { useCallback, useEffect, useMemo, useState } from 'react';
 import { IAP_PRODUCTS, type IAPProductInfo } from '../../types/iap';
-import { revenueCatService } from '../../services/revenueCatService';
+import { revenueCatService, type StoreCatalog } from '../../services/revenueCatService';
 
 /** What a plan button can do right now. Paid plans are only `ready` once the store has priced them. */
 export type PlanAvailability = 'free' | 'ready' | 'loading' | 'unavailable';
@@ -24,13 +24,31 @@ interface Loaded {
 const LOADING: Loaded = { status: 'loading', prices: {}, issue: null };
 const PAID_PRODUCTS = Object.values(IAP_PRODUCTS).filter((product) => !product.isFree);
 
+/** Reads each paid plan's store price out of a product list. */
+function pricesFrom(catalog: StoreCatalog): Record<string, string> {
+  const prices: Record<string, string> = {};
+  for (const product of PAID_PRODUCTS) {
+    const price = revenueCatService.packageForPlan(catalog, product.productId)?.product
+      ?.priceString;
+    if (price) prices[product.productId] = price;
+  }
+  return prices;
+}
+
+/** A paywall opened after the store already answered starts with prices, not a spinner. */
+function initialState(): Loaded {
+  const cached = revenueCatService.peekOfferings();
+  if (!cached) return LOADING;
+  const prices = pricesFrom(cached);
+  return Object.keys(prices).length > 0 ? { status: 'ready', prices, issue: null } : LOADING;
+}
 /**
  * The one place every paywall learns what plans cost.
  * Prices come from the store only, never from the catalog, so a screen can never show a price
  * the store did not confirm, and a missing store is reported instead of waited on.
  */
 export function useStorePlans(enabled: boolean = true): StorePlans {
-  const [loaded, setLoaded] = useState<Loaded>(LOADING);
+  const [loaded, setLoaded] = useState<Loaded>(initialState);
   const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
@@ -44,17 +62,12 @@ export function useStorePlans(enabled: boolean = true): StorePlans {
       return;
     }
     let cancelled = false;
-    setLoaded(LOADING);
+    setLoaded((current) => (current.status === 'ready' ? current : LOADING));
     revenueCatService
       .getOfferings()
       .then((offerings) => {
         if (cancelled) return;
-        const prices: Record<string, string> = {};
-        for (const product of PAID_PRODUCTS) {
-          const price = revenueCatService.packageForPlan(offerings, product.productId)?.product
-            ?.priceString;
-          if (price) prices[product.productId] = price;
-        }
+        const prices = pricesFrom(offerings);
         setLoaded(
           Object.keys(prices).length > 0
             ? { status: 'ready', prices, issue: null }

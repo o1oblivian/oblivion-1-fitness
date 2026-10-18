@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+﻿import React, { useState, useRef, useEffect } from 'react';
 import { X, Camera, Image as ImageIcon, Activity, Loader2 } from 'lucide-react';
 import {
   analyzeConsoleTelemetry,
@@ -7,6 +7,7 @@ import {
 import { processCardioScanImage } from '../../../log/services/cardioScanService';
 import { Capacitor } from '@capacitor/core';
 import { capturePhotoDataUrl, PhotoSource } from '../../../../services/nativeCameraService';
+import { warmApi } from '../../../../services/apiBase';
 import { useLogStore } from '../../../../stores/useLogStore';
 import { useFuelStore } from '../../../fuel/store/useFuelStore';
 import { useTelemetryHistoryStore } from '../../../log/store/useTelemetryHistoryStore';
@@ -51,6 +52,10 @@ export const CardioTelemetryModal: React.FC<Props> = ({ isOpen, onClose, onPostC
   const [telemetry, setTelemetry] = useState<CardioTelemetryResult | null>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (isOpen) warmApi();
+  }, [isOpen]);
 
   if (!isOpen) return null;
 

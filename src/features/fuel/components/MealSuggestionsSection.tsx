@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+﻿import React, { useEffect, useMemo, useState } from 'react';
 import {
   Sparkles,
   ChevronDown,
@@ -14,6 +14,7 @@ import { MealItem } from '../store/useFuelStore';
 import { MacroBudget, MealSlot, slotBudget } from '../data/mealBudget';
 import type { MealSuggestion } from '../../../../shared/mealSuggestion';
 import { useLiveMealSuggestions } from '../hooks/useLiveMealSuggestions';
+import { warmApi } from '../../../services/apiBase';
 
 const SLOTS: { key: MealSlot; label: string }[] = [
   { key: 'breakfast', label: 'Breakfast' },
@@ -148,6 +149,7 @@ export const MealSuggestionsSection: React.FC<MealSuggestionsSectionProps> = ({
   onAddMealItem,
   showToast,
 }) => {
+  const [open, setOpen] = useState(false);
   const [showMore, setShowMore] = useState(false);
   const [slot, setSlot] = useState<MealSlot>(() => slotForNow(loggedSlots));
   const [loggedId, setLoggedId] = useState<string | null>(null);
@@ -158,13 +160,18 @@ export const MealSuggestionsSection: React.FC<MealSuggestionsSectionProps> = ({
   );
   const dayDone = remaining.kcal < 150;
   const { state, refresh, retry, clearExclusions } = useLiveMealSuggestions({
-    enabled: calibrated && !dayDone,
+    enabled: calibrated && !dayDone && open,
     slot,
     target: budget,
     diet: dietPreference,
     country,
     usuals: usualNames,
   });
+  // Collapsed means nothing is fetched yet; waking the server now makes the first tap on Eat Insight quick.
+  useEffect(() => {
+    if (calibrated) warmApi();
+  }, [calibrated]);
+
   const slotLabel = SLOTS.find((s) => s.key === slot)?.label ?? slot;
   const [best, ...others] = state.meals;
 
@@ -194,154 +201,172 @@ export const MealSuggestionsSection: React.FC<MealSuggestionsSectionProps> = ({
   return (
     <section
       id="o1fc-intel-meal-suggestions-tab"
-      aria-label="Eat next"
+      aria-label="Eat Insight"
       className="bg-o1-canvas border border-white/[0.08] rounded-2xl p-3.5 space-y-3 select-none"
     >
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <h2 className="flex items-center gap-2 text-o1-control font-semibold text-o1-text">
+      <button
+        type="button"
+        aria-expanded={open}
+        aria-controls="o1fc-eat-insight-body"
+        onClick={() => {
+          tactileEngine.triggerSelectionBuzz();
+          setOpen((v) => !v);
+        }}
+        className="w-full flex items-start justify-between gap-3 text-left cursor-pointer"
+      >
+        <span className="min-w-0">
+          <span className="flex items-center gap-2 text-o1-control font-semibold text-o1-text">
             <Sparkles className="w-4 h-4 text-emerald-500 shrink-0" />
-            Eat next
-          </h2>
-          <p className="mt-0.5 text-o1-label text-o1-muted tabular-nums">
+            Eat Insight
+          </span>
+          <span className="mt-0.5 block text-o1-label text-o1-muted tabular-nums">
             {dayDone
               ? "You've reached today's calorie target."
               : `${slotLabel} · about ${budget.kcal.toLocaleString()} kcal · ${remaining.protein}g protein left today`}
-          </p>
-        </div>
-        {state.status === 'loading' ? (
-          <Loader2 className="w-4 h-4 shrink-0 animate-spin text-o1-muted" aria-hidden />
-        ) : null}
-      </div>
-
-      {state.status === 'loading' ? <MealPlaceholder /> : null}
-
-      {state.status === 'error' ? (
-        <div
-          role="alert"
-          className="rounded-xl bg-o1-surface border border-white/[0.05] p-3.5 space-y-2.5"
-        >
-          <p className="text-o1-body text-o1-muted">{state.message}</p>
-          <button
-            type="button"
-            onClick={() => {
-              tactileEngine.triggerSelectionBuzz();
-              retry();
-            }}
-            className="h-9 px-4 rounded-full border border-white/[0.08] text-o1-body font-medium text-o1-text cursor-pointer"
-          >
-            Try again
-          </button>
-        </div>
-      ) : null}
-
-      {best ? (
-        <ul>
-          <MealOption meal={best} isLogged={loggedId === best.id} onLog={logMeal} />
-        </ul>
-      ) : null}
-
-      {state.status === 'ready' ? (
-        <button
-          type="button"
-          aria-expanded={showMore}
-          onClick={() => {
-            tactileEngine.triggerSelectionBuzz();
-            setShowMore((v) => !v);
-          }}
-          className="w-full h-10 flex items-center justify-center gap-1.5 rounded-xl border border-white/[0.08] text-o1-body font-medium text-o1-muted cursor-pointer"
-        >
-          {showMore ? 'Fewer options' : 'More options'}
+          </span>
+        </span>
+        {open && state.status === 'loading' ? (
+          <Loader2 className="w-4 h-4 shrink-0 mt-0.5 animate-spin text-o1-muted" aria-hidden />
+        ) : (
           <ChevronDown
-            className={`w-4 h-4 transition-transform duration-200 ${showMore ? 'rotate-180' : ''}`}
+            className={`w-4 h-4 shrink-0 mt-0.5 text-o1-muted transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
+            aria-hidden
           />
-        </button>
-      ) : null}
+        )}
+      </button>
 
-      {showMore && !dayDone ? (
-        <div className="space-y-3">
-          <div
-            className="grid grid-cols-4 gap-1 p-1 rounded-xl bg-o1-surface border border-white/[0.05]"
-            role="tablist"
-            aria-label="Meal slot"
-          >
-            {SLOTS.map((s) => {
-              const active = s.key === slot;
-              const done = loggedSlots.includes(s.key);
-              return (
-                <button
-                  key={s.key}
-                  type="button"
-                  role="tab"
-                  aria-selected={active}
-                  onClick={() => {
-                    tactileEngine.triggerSelectionBuzz();
-                    setSlot(s.key);
-                    clearExclusions();
-                  }}
-                  className={`h-9 rounded-lg text-o1-label font-semibold flex items-center justify-center gap-1 transition-colors cursor-pointer ${
-                    active ? 'bg-o1-text text-black' : 'text-o1-muted hover:text-o1-text'
-                  }`}
-                >
-                  {s.label}
-                  {done && <Check className="w-3 h-3 text-emerald-500" aria-label="logged" />}
-                </button>
-              );
-            })}
-          </div>
+      {open ? (
+        <div id="o1fc-eat-insight-body" className="space-y-3">
+          {state.status === 'loading' ? <MealPlaceholder /> : null}
 
-          <div className="flex items-center justify-between gap-3">
-            <p className="min-w-0 text-o1-label font-semibold tabular-nums">
-              <Macros
-                kcal={budget.kcal}
-                protein={budget.protein}
-                carbs={budget.carbs}
-                fats={budget.fats}
-              />
-              <span className="block font-normal text-o1-muted">budget for this meal</span>
-            </p>
-            <div className="flex items-center gap-2 shrink-0">
+          {state.status === 'error' ? (
+            <div
+              role="alert"
+              className="rounded-xl bg-o1-surface border border-white/[0.05] p-3.5 space-y-2.5"
+            >
+              <p className="text-o1-body text-o1-muted">{state.message}</p>
               <button
                 type="button"
                 onClick={() => {
                   tactileEngine.triggerSelectionBuzz();
-                  onOpenDietModal();
+                  retry();
                 }}
-                aria-label={`Diet: ${dietPreference}. Change diet`}
-                className="h-9 pl-2.5 pr-3 rounded-full border border-white/[0.08] text-o1-label font-medium text-o1-text flex items-center gap-1.5 cursor-pointer"
+                className="h-9 px-4 rounded-full border border-white/[0.08] text-o1-body font-medium text-o1-text cursor-pointer"
               >
-                <Utensils className="w-3 h-3 text-o1-muted" />
-                {dietPreference}
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  tactileEngine.triggerSelectionBuzz();
-                  refresh();
-                }}
-                aria-label="Show different meals"
-                className="w-9 h-9 rounded-full border border-white/[0.08] text-o1-muted hover:text-o1-text flex items-center justify-center active:scale-95 cursor-pointer"
-              >
-                <RefreshCw className="w-3.5 h-3.5" />
+                Try again
               </button>
             </div>
-          </div>
+          ) : null}
 
-          <ul className="space-y-2">
-            {others.map((meal) => (
-              <MealOption
-                key={meal.id}
-                meal={meal}
-                isLogged={loggedId === meal.id}
-                onLog={logMeal}
+          {best ? (
+            <ul>
+              <MealOption meal={best} isLogged={loggedId === best.id} onLog={logMeal} />
+            </ul>
+          ) : null}
+
+          {state.status === 'ready' ? (
+            <button
+              type="button"
+              aria-expanded={showMore}
+              onClick={() => {
+                tactileEngine.triggerSelectionBuzz();
+                setShowMore((v) => !v);
+              }}
+              className="w-full h-10 flex items-center justify-center gap-1.5 rounded-xl border border-white/[0.08] text-o1-body font-medium text-o1-muted cursor-pointer"
+            >
+              {showMore ? 'Fewer options' : 'More options'}
+              <ChevronDown
+                className={`w-4 h-4 transition-transform duration-200 ${showMore ? 'rotate-180' : ''}`}
               />
-            ))}
-          </ul>
+            </button>
+          ) : null}
 
-          <p className="text-o1-label text-o1-muted leading-relaxed">
-            Meals are suggested live. Every portion is sized from USDA FoodData Central values so
-            the calories match this meal; weights are as eaten.
-          </p>
+          {showMore && !dayDone ? (
+            <div className="space-y-3">
+              <div
+                className="grid grid-cols-4 gap-1 p-1 rounded-xl bg-o1-surface border border-white/[0.05]"
+                role="tablist"
+                aria-label="Meal slot"
+              >
+                {SLOTS.map((s) => {
+                  const active = s.key === slot;
+                  const done = loggedSlots.includes(s.key);
+                  return (
+                    <button
+                      key={s.key}
+                      type="button"
+                      role="tab"
+                      aria-selected={active}
+                      onClick={() => {
+                        tactileEngine.triggerSelectionBuzz();
+                        setSlot(s.key);
+                        clearExclusions();
+                      }}
+                      className={`h-9 rounded-lg text-o1-label font-semibold flex items-center justify-center gap-1 transition-colors cursor-pointer ${
+                        active ? 'bg-o1-text text-black' : 'text-o1-muted hover:text-o1-text'
+                      }`}
+                    >
+                      {s.label}
+                      {done && <Check className="w-3 h-3 text-emerald-500" aria-label="logged" />}
+                    </button>
+                  );
+                })}
+              </div>
+
+              <div className="flex items-center justify-between gap-3">
+                <p className="min-w-0 text-o1-label font-semibold tabular-nums">
+                  <Macros
+                    kcal={budget.kcal}
+                    protein={budget.protein}
+                    carbs={budget.carbs}
+                    fats={budget.fats}
+                  />
+                  <span className="block font-normal text-o1-muted">budget for this meal</span>
+                </p>
+                <div className="flex items-center gap-2 shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      tactileEngine.triggerSelectionBuzz();
+                      onOpenDietModal();
+                    }}
+                    aria-label={`Diet: ${dietPreference}. Change diet`}
+                    className="h-9 pl-2.5 pr-3 rounded-full border border-white/[0.08] text-o1-label font-medium text-o1-text flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <Utensils className="w-3 h-3 text-o1-muted" />
+                    {dietPreference}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      tactileEngine.triggerSelectionBuzz();
+                      refresh();
+                    }}
+                    aria-label="Show different meals"
+                    className="w-9 h-9 rounded-full border border-white/[0.08] text-o1-muted hover:text-o1-text flex items-center justify-center active:scale-95 cursor-pointer"
+                  >
+                    <RefreshCw className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+
+              <ul className="space-y-2">
+                {others.map((meal) => (
+                  <MealOption
+                    key={meal.id}
+                    meal={meal}
+                    isLogged={loggedId === meal.id}
+                    onLog={logMeal}
+                  />
+                ))}
+              </ul>
+
+              <p className="text-o1-label text-o1-muted leading-relaxed">
+                Meals are suggested live. Every portion is sized from USDA FoodData Central values
+                so the calories match this meal; weights are as eaten.
+              </p>
+            </div>
+          ) : null}
         </div>
       ) : null}
     </section>

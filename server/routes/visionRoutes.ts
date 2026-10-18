@@ -1,4 +1,4 @@
-import type { Express } from 'express';
+﻿import type { Express } from 'express';
 import { recognizeTelemetryFromBuffer } from '../../src/services/ocrTelemetryParser';
 import {
   generateContentWithFallback,
@@ -177,7 +177,7 @@ Return STRICT JSON matching this schema:
         (ocrExtracted.steps ||
           ocrExtracted.distanceKm ||
           ocrExtracted.caloriesBurned ||
-          ocrExtracted.elapsedMinutes > 0)
+          (ocrExtracted.elapsedMinutes ?? 0) > 0)
       ) {
         return res.json({
           success: true,
@@ -233,8 +233,7 @@ Return STRICT JSON matching this schema:
         return res.status(400).json({ error: 'Image base64 data required' });
       }
       const cleanBase64 = imageBase64.replace(/^data:image\/[a-z]+;base64,/, '');
-      const reqKey = (req.headers['x-gemini-key'] as string) || req.body?.geminiKey;
-      const genAI = getGenAI(reqKey);
+      const genAI = getGenAI();
 
       let prompt = `You are a clinical sports nutritionist. Analyze the meal photo. Estimate real portion sizes, macro ratios (protein, carbs, fats), and total calories based on FSANZ / AUSNUT Australian nutritional tables. Never return generic mock arrays. Return valid JSON only.
 

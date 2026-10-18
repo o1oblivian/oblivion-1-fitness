@@ -1,4 +1,4 @@
-import { Capacitor } from '@capacitor/core';
+﻿import { Capacitor } from '@capacitor/core';
 import {
   Purchases,
   type CustomerInfo,
@@ -231,6 +231,8 @@ function rememberEntitlement(info: EntitlementInfo): void {
 }
 
 const STORE_TIMEOUT_MS = 12_000;
+/** How long a fetched product list is reused before the store is asked again. */
+const CATALOG_TTL_MS = 5 * 60_000;
 /** The store sheet stays open while the buyer confirms with a fingerprint or card, so this only catches a sheet that never answers. */
 const PURCHASE_TIMEOUT_MS = 180_000;
 
@@ -280,6 +282,8 @@ function explainStoreFailure(message: string): string {
 class RevenueCatManager {
   private ready: { userId: string; connected: Promise<boolean> } | null = null;
   private issue: string | null = null;
+  private catalog: { userId: string; at: number; value: StoreCatalog } | null = null;
+  private catalogRequest: Promise<StoreCatalog> | null = null;
 
   isNative = (): boolean => isNativeStorePlatform();
 
@@ -292,6 +296,8 @@ class RevenueCatManager {
   async logOut(): Promise<void> {
     this.ready = null;
     this.issue = null;
+    this.catalog = null;
+    this.catalogRequest = null;
     try {
       localStorage.removeItem(STORAGE_KEY);
       localStorage.removeItem(STATUS_KEY);
@@ -347,7 +353,29 @@ class RevenueCatManager {
     return connected ? Purchases : null;
   }
 
+  /** The product list from the last successful fetch, while it is still fresh. Lets a paywall paint prices at once. */
+  peekOfferings(): StoreCatalog | null {
+    const hit = this.catalog;
+    if (!hit || !this.ready || hit.userId !== this.ready.userId) return null;
+    return Date.now() - hit.at < CATALOG_TTL_MS ? hit.value : null;
+  }
+
+  /**
+   * Store products for the signed-in account. A fresh copy is reused and a request already in flight is shared,
+   * so opening the paywall twice, or a purchase right after, does not ask the store again.
+   */
   async getOfferings(appUserId?: string): Promise<StoreCatalog> {
+    const cached = this.peekOfferings();
+    if (cached && (!appUserId || appUserId === this.ready?.userId)) return cached;
+    if (this.catalogRequest) return this.catalogRequest;
+    const request = this.fetchOfferings(appUserId).finally(() => {
+      if (this.catalogRequest === request) this.catalogRequest = null;
+    });
+    this.catalogRequest = request;
+    return request;
+  }
+
+  private async fetchOfferings(appUserId?: string): Promise<StoreCatalog> {
     try {
       const client = await this.init(appUserId);
       if (!client) return { packages: [] };
@@ -357,14 +385,17 @@ class RevenueCatManager {
       this.issue = packages.length
         ? null
         : `${storeName()} returned no products. Check that the subscriptions are attached to the default offering in RevenueCat.`;
-      return { packages };
+      const value = { packages };
+      if (packages.length && this.ready) {
+        this.catalog = { userId: this.ready.userId, at: Date.now(), value };
+      }
+      return value;
     } catch (err) {
       console.warn('[RevenueCat] Products unavailable:', err);
-      this.issue = `${storeName()} products did not load: ${explainStoreFailure(errorMessage(err, 'no reason given'))}`;
+      this.issue = `${storeName()} products did not load: `;
       return { packages: [] };
     }
   }
-
   packageForPlan(
     catalog: StoreCatalog | null | undefined,
     planId: string,
@@ -394,15 +425,14 @@ class RevenueCatManager {
         };
       }
 
-      const pkg = findPackageForPlan(
-        packagesFromOfferings(
-          await withStoreTimeout(
-            client.getOfferings(),
-            'Store products did not load. Check your connection and try again.',
-          ),
-        ),
-        planId,
-      );
+      const catalog = await this.getOfferings(userId);
+      const pkg = findPackageForPlan(catalog.packages, planId);
+      if (!pkg && catalog.packages.length === 0) {
+        return {
+          success: false,
+          error: this.issue ?? 'Store products did not load. Check your connection and try again.',
+        };
+      }
       if (!pkg) {
         return { success: false, error: `This plan is not live in ${storeName()} yet.` };
       }

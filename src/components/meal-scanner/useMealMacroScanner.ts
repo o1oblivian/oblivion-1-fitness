@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import {
   analyzeMealImageWithGemini,
   analyzePackageNutritionPhoto,
@@ -9,6 +9,7 @@ import {
 import { useFuelStore, FuelMeals } from '../../features/fuel/store/useFuelStore';
 import { tactileEngine } from '../../services/tactileEngine';
 import { useSubscription } from '../../context/SubscriptionContext';
+import { warmApi } from '../../services/apiBase';
 
 const MEAL_SCAN_FAILED = 'Could not read this meal photo. Retake it with the food clearly in view.';
 
@@ -49,6 +50,7 @@ export function useMealMacroScanner({
 
   useEffect(() => {
     if (isOpen) {
+      warmApi();
       setSlot((targetSlot || defaultSlot || 'lunch') as keyof FuelMeals);
       setSelectedImage(null);
       setImageFile(null);

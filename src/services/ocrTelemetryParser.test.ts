@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+﻿import { describe, expect, it } from 'vitest';
 import { parseTelemetryFromOcrText } from './ocrTelemetryParser';
 
 describe('watch step read', () => {
@@ -6,7 +6,7 @@ describe('watch step read', () => {
     const read = parseTelemetryFromOcrText('P 4:14  6 151');
     expect(read.deviceType).toBe('watch');
     expect(read.steps).toBe(6151);
-    expect(read.elapsedMinutes).toBe(0);
+    expect(read.elapsedMinutes).toBeNull();
   });
 
   it('reads a solid steps label from a sports digital', () => {

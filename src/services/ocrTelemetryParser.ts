@@ -1,5 +1,3 @@
-import Tesseract from 'tesseract.js';
-
 /**
  * Dedicated Optical Character Recognition Telemetry Parser
  * Real-time extraction from any watch face (Apple Watch, Garmin, Whoop, Fitbit,
@@ -11,7 +9,7 @@ export interface ParsedOcrTelemetry {
   deviceType: 'watch' | 'console';
   steps: number | null;
   elapsedDisplay: string;
-  elapsedMinutes: number;
+  elapsedMinutes: number | null;
   distanceKm: number | null;
   caloriesBurned: number | null;
   speedKmh: number | null;
@@ -44,6 +42,7 @@ export async function recognizeTelemetryFromBuffer(
     return null;
   }
   try {
+    const { default: Tesseract } = await import('tesseract.js');
     const ocrResult = await Tesseract.recognize(buf, 'eng');
     if (ocrResult?.data?.text) {
       return parseTelemetryFromOcrText(ocrResult.data.text);
@@ -60,7 +59,7 @@ export function parseTelemetryFromOcrText(rawText: string): ParsedOcrTelemetry {
       deviceType: 'watch',
       steps: null,
       elapsedDisplay: '--',
-      elapsedMinutes: 0,
+      elapsedMinutes: null,
       distanceKm: null,
       caloriesBurned: null,
       speedKmh: null,
@@ -78,7 +77,7 @@ export function parseTelemetryFromOcrText(rawText: string): ParsedOcrTelemetry {
   // 1. Elapsed / Clock Time Detection
   // Matches patterns like "02:48", "31:00", "01:24:50", "15:30"
   let elapsedDisplay = '--';
-  let elapsedMinutes = 0;
+  let elapsedMinutes: number | null = null;
   const timeMatch = normalized.match(/\b([0-9]{1,2}):([0-9]{2})(?::([0-9]{2}))?\b/);
   if (timeMatch) {
     const p1 = parseInt(timeMatch[1], 10);
@@ -237,7 +236,7 @@ export function parseTelemetryFromOcrText(rawText: string): ParsedOcrTelemetry {
     elapsedDisplay !== '--' && !/(elapsed|duration|workout|timer)/i.test(normalized);
   if (deviceType === 'watch' && detectedSteps != null && clockLike) {
     elapsedDisplay = '--';
-    elapsedMinutes = 0;
+    elapsedMinutes = null;
   }
 
   return {

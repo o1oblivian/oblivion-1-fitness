@@ -1,4 +1,4 @@
-# Oblivion 1 — Store launch checklists
+﻿# Oblivion 1 — Store launch checklists
 
 Ping me with **“external done”** plus which items are complete. I will then wire the matching integration.
 
@@ -53,7 +53,9 @@ Apple & Google developer accounts: **done** (you confirmed).
 - [x] Production HTTPS API that runs this repo’s Express `server.ts` (not localhost) — `https://oblivion-1-fitness.onrender.com`
 - [x] Send me `VITE_API_BASE_URL` e.g. `https://api.yourdomain.com`
 - [ ] `GEMINI_API_KEY` on that server
-- [ ] Stripe **live** keys only on that server + webhook → `/api/stripe/webhook`
+- [ ] Stripe **live** keys only on that server + webhook → `/api/stripe/webhook` (`STRIPE_CONNECT_WEBHOOK_SECRET` too if a separate Connect endpoint is registered)
+- [ ] `REVENUECAT_SECRET_API_KEY` on that server (RevenueCat secret key, `sk_`). Without it, deleting an account leaves the store customer behind
+- [ ] Upgrade the Render instance off Free before launch: it sleeps when idle and the first scan, meal search or webhook after a quiet spell waits for it to wake
 - [ ] Stripe Connect + Identity enabled if coach payouts/KYC must be live
 - [ ] Public https pages: `/privacy`, `/terms`, `/delete-account`
 

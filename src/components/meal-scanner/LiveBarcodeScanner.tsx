@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from 'react';
+﻿import React, { useRef, useEffect, useState } from 'react';
 import { Camera, X, AlertCircle } from 'lucide-react';
 import { tryDetectNativeBarcode } from '../../services/barcodeLookupService';
 
@@ -12,15 +12,23 @@ export const LiveBarcodeScanner: React.FC<LiveBarcodeScannerProps> = ({ onDetect
   const [error, setError] = useState<string | null>(null);
   const [isStreaming, setIsStreaming] = useState<boolean>(false);
   const streamRef = useRef<MediaStream | null>(null);
+  // The parent passes a fresh function every render; keeping it in a ref stops the camera restarting each time.
+  const onDetectedRef = useRef(onDetected);
+  onDetectedRef.current = onDetected;
 
   useEffect(() => {
     let active = true;
     let scanInterval: ReturnType<typeof setInterval> | null = null;
+    let reading = false;
 
     async function startCamera() {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: 'environment' },
+          video: {
+            facingMode: 'environment',
+            width: { ideal: 1280 },
+            height: { ideal: 720 },
+          },
         });
         if (!active) {
           stream.getTracks().forEach((t) => t.stop());
@@ -34,13 +42,16 @@ export const LiveBarcodeScanner: React.FC<LiveBarcodeScannerProps> = ({ onDetect
         }
 
         scanInterval = setInterval(async () => {
-          if (!videoRef.current || videoRef.current.readyState < 2) return;
+          if (reading || !videoRef.current || videoRef.current.readyState < 2) return;
+          reading = true;
           const code = await tryDetectNativeBarcode(videoRef.current);
-          if (code) {
+          reading = false;
+          if (code && active) {
+            active = false;
             if (scanInterval) clearInterval(scanInterval);
-            onDetected(code);
+            onDetectedRef.current(code);
           }
-        }, 350);
+        }, 200);
       } catch {
         setIsStreaming(false);
         setError('Camera permission denied or unavailable. Use manual lookup or photo upload.');
@@ -56,7 +67,7 @@ export const LiveBarcodeScanner: React.FC<LiveBarcodeScannerProps> = ({ onDetect
         streamRef.current.getTracks().forEach((t) => t.stop());
       }
     };
-  }, [onDetected]);
+  }, []);
 
   return (
     <div className="relative rounded-2xl overflow-hidden bg-black aspect-video flex flex-col items-center justify-center border border-white/[0.07]">

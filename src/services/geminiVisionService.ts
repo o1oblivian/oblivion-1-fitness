@@ -1,19 +1,10 @@
-/**
+﻿/**
  * Oblivion 1 - Gemini Multi-Model Vision Service
  * Precision optical telemetry extraction. Strict null contract for unread values.
  */
 import { downscaleBase64IfNeeded } from './imageDownscaleUtils';
 import { apiFetch } from './apiBase';
 import { readConfidence, readNutrient, resolveCalories } from './mealVisionTypes';
-
-// 1. PERMANENT GEMINI API KEY FALLBACK
-export const geminiKey: string =
-  (typeof process !== 'undefined' && process.env?.GEMINI_API_KEY) ||
-  (typeof import.meta !== 'undefined' && import.meta.env?.VITE_GEMINI_API_KEY) ||
-  (typeof import.meta !== 'undefined' &&
-    (import.meta.env as Record<string, string | undefined>)?.GEMINI_API_KEY_2) ||
-  (typeof process !== 'undefined' && process.env?.GEMINI_API_KEY_2) ||
-  '';
 
 export interface CardioTelemetryResult {
   elapsedDisplay?: string | number | null;
@@ -54,7 +45,6 @@ export async function analyzeConsoleTelemetry(base64Image: string): Promise<Card
         'Content-Type': 'application/json',
         Accept: 'application/json',
       };
-      if (geminiKey) headers['x-gemini-key'] = geminiKey;
       const response = await apiFetch('/api/vision/cardio-telemetry', {
         method: 'POST',
         headers,
@@ -124,7 +114,6 @@ export async function analyzeMealNutrients(
         'Content-Type': 'application/json',
         Accept: 'application/json',
       };
-      if (geminiKey) headers['x-gemini-key'] = geminiKey;
       const response = await apiFetch('/api/vision/meal-nutrients', {
         method: 'POST',
         headers,

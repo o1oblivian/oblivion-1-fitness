@@ -1,9 +1,10 @@
-import React, { RefObject, useState } from 'react';
+﻿import React, { RefObject, useState } from 'react';
 import { Capacitor } from '@capacitor/core';
 import { Camera, Upload, Scan, Video } from 'lucide-react';
 import { ScanMode } from '../../services/mealVisionTypes';
 import { capturePhotoDataUrl, PhotoSource } from '../../services/nativeCameraService';
 import { LiveBarcodeScanner } from './LiveBarcodeScanner';
+import { canDetectBarcodes } from '../../services/barcodeLookupService';
 
 interface MealScanActionsProps {
   scanMode: ScanMode;
@@ -64,7 +65,7 @@ export const MealScanActions: React.FC<MealScanActionsProps> = ({
               }}
               onClose={() => setShowLiveScanner(false)}
             />
-          ) : (
+          ) : canDetectBarcodes() ? (
             <div className="flex items-center gap-2">
               <button
                 type="button"
@@ -75,7 +76,7 @@ export const MealScanActions: React.FC<MealScanActionsProps> = ({
                 <span>Live Barcode Camera</span>
               </button>
             </div>
-          )}
+          ) : null}
 
           <div className="flex items-center gap-2 bg-o1-well border border-white/[0.07] rounded-xl px-3 py-1.5">
             <Scan className="w-4 h-4 text-neutral-400 shrink-0" />
@@ -86,7 +87,7 @@ export const MealScanActions: React.FC<MealScanActionsProps> = ({
               onKeyDown={(e) => {
                 if (e.key === 'Enter') onBarcodeLookup();
               }}
-              placeholder="Enter UPC/EAN code or product name..."
+              placeholder="Type the barcode number"
               className="bg-transparent text-xs text-white placeholder-neutral-500 focus:outline-none flex-1 py-1"
             />
             <button

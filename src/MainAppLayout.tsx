@@ -1,9 +1,7 @@
-import React, { useLayoutEffect, useRef, useState } from 'react';
+﻿import React, { Suspense, lazy, useLayoutEffect, useRef, useState } from 'react';
+import { Loader2 } from 'lucide-react';
 import { TabMode, NavigationDock, toTabMode } from './components/NavigationDock';
 import { WorkoutHub } from './features/workout/WorkoutHub';
-import { FuelView as FuelHub } from './features/fuel/FuelView';
-import { CoachView as CoachHub } from './features/coach/CoachView';
-import { LogView } from './features/log/LogView';
 import { FeatureErrorBoundary } from './components/common/FeatureErrorBoundary';
 import { ModalRegistry } from './components/modals/ModalRegistry';
 import { BasementOfflineBanner } from './components/common/BasementOfflineBanner';
@@ -12,6 +10,24 @@ import { startSync } from './services/localFirstSync';
 import { RestTimerBar } from './features/workout/components/RestTimerBar';
 import { useRestTimerStore } from './features/workout/store/useRestTimerStore';
 
+// Workout is the landing tab and loads with the app. The others load on first visit, and are fetched
+// in the background right after the first screen so a tab switch does not wait on the network or the disk.
+const loadFuel = () => import('./features/fuel/FuelView');
+const loadCoach = () => import('./features/coach/CoachView');
+const loadLog = () => import('./features/log/LogView');
+const FuelHub = lazy(() => loadFuel().then((m) => ({ default: m.FuelView })));
+const CoachHub = lazy(() => loadCoach().then((m) => ({ default: m.CoachView })));
+const LogView = lazy(() => loadLog().then((m) => ({ default: m.LogView })));
+
+const TabLoading: React.FC = () => (
+  <div
+    role="status"
+    aria-label="Loading"
+    className="min-h-[60dvh] flex items-center justify-center"
+  >
+    <Loader2 className="w-5 h-5 animate-spin text-o1-muted" aria-hidden />
+  </div>
+);
 export const MainAppLayout: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabMode>('tracker');
 
@@ -35,6 +51,20 @@ export const MainAppLayout: React.FC = () => {
   }, []);
 
   React.useEffect(() => startSync(), []);
+
+  React.useEffect(() => {
+    const prefetch = () => {
+      void loadFuel();
+      void loadCoach();
+      void loadLog();
+    };
+    if (typeof requestIdleCallback === 'function') {
+      const id = requestIdleCallback(prefetch, { timeout: 4000 });
+      return () => cancelIdleCallback(id);
+    }
+    const id = window.setTimeout(prefetch, 1500);
+    return () => window.clearTimeout(id);
+  }, []);
 
   React.useEffect(() => {
     const handleNavEvent = (e: Event) => {
@@ -64,9 +94,11 @@ export const MainAppLayout: React.FC = () => {
           <div className="o1-shell">
             <FeatureErrorBoundary key={activeTab} featureName={`${activeTab} View`}>
               {(activeTab === 'tracker' || activeTab === 'workout') && <WorkoutHub />}
-              {activeTab === 'fuel' && <FuelHub />}
-              {activeTab === 'coach' && <CoachHub />}
-              {activeTab === 'client' && <LogView />}
+              <Suspense fallback={<TabLoading />}>
+                {activeTab === 'fuel' && <FuelHub />}
+                {activeTab === 'coach' && <CoachHub />}
+                {activeTab === 'client' && <LogView />}
+              </Suspense>
             </FeatureErrorBoundary>
           </div>
         </main>

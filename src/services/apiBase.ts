@@ -69,6 +69,23 @@ export async function apiFetch(path: string, init: RequestInit = {}): Promise<Re
   return new Response(body, { status, headers: { 'Content-Type': 'application/json' } });
 }
 
+const WARM_EVERY_MS = 4 * 60_000;
+let lastWarmAt = 0;
+
+/**
+ * Wakes the hosted server and opens the connection before a scan or a meal search needs it.
+ * An idle instance can take most of a minute to start, so the first photo would otherwise pay for it.
+ * Safe to call as often as you like; it pings at most once every few minutes and never throws.
+ */
+export function warmApi(): void {
+  const now = Date.now();
+  if (now - lastWarmAt < WARM_EVERY_MS) return;
+  lastWarmAt = now;
+  void apiFetch('/api/health').catch(() => {
+    lastWarmAt = 0;
+  });
+}
+
 export const LEGAL_URLS = {
   privacy: `${API_ORIGIN}/privacy`,
   terms: `${API_ORIGIN}/terms`,

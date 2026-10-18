@@ -37,6 +37,9 @@ export async function analyzeMealImageWithGemini(
 
   // 1. Client-side downscaling (max dimension 1024px, JPEG 0.8)
   const { compressedBase64, mimeType } = await compressAndAnalyzeImage(imageBlob, 1024, 0.8);
+  if (!compressedBase64) {
+    throw new Error('This photo could not be opened. Take another one.');
+  }
 
   const maxAttempts = 2;
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {

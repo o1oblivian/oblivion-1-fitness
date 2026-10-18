@@ -1,6 +1,4 @@
-import { parseTelemetryFromOcrText } from '../../../services/ocrTelemetryParser';
-import { analyzeCardioImageWithGemini } from '../../../services/mealScannerService';
-import Tesseract from 'tesseract.js';
+﻿import { parseTelemetryFromOcrText } from '../../../services/ocrTelemetryParser';
 import { apiFetch } from '../../../services/apiBase';
 import { compressAndAnalyzeImage } from '../../../services/imageCompressionService';
 
@@ -63,40 +61,6 @@ function isEmptyTelemetry(data: ExtractedCardioData | null): boolean {
   return !data || data.fieldsRead === 0;
 }
 
-async function geminiWatchFallback(
-  base64Image: string,
-  scanMode: 'console' | 'watch',
-): Promise<ExtractedCardioData | null> {
-  try {
-    const parsed = await analyzeCardioImageWithGemini(base64Image, scanMode);
-    if (!parsed) return null;
-    const data = toExtracted(scanMode, {
-      activityType:
-        parsed.deviceType === 'WATCH' || scanMode === 'watch'
-          ? 'Smartwatch Pedometer'
-          : 'Cardio Console',
-      distanceKm: parsed.distanceKm,
-      durationMinutes: parsed.elapsedMinutes,
-      burnedKcal: parsed.caloriesBurned,
-      avgHeartRateBpm: parsed.avgHeartRateBpm,
-      steps: parsed.steps,
-    });
-    if (isEmptyTelemetry(data)) return null;
-    data.rawReadings = [
-      data.steps != null ? `${data.steps.toLocaleString()} steps` : null,
-      data.burnedKcal != null ? `${data.burnedKcal} kcal` : null,
-      data.distanceKm != null ? `${data.distanceKm} km` : null,
-    ]
-      .filter(Boolean)
-      .join(' • ');
-    data.aliveAiNote = 'Read from your photo. Check the numbers before saving.';
-    return data;
-  } catch (err) {
-    console.warn('[Optical Vision] Gemini watch OCR fallback failed:', err);
-    return null;
-  }
-}
-
 function withinMs<T>(work: Promise<T>, ms: number): Promise<T | null> {
   return Promise.race([work, new Promise<null>((resolve) => setTimeout(() => resolve(null), ms))]);
 }
@@ -150,7 +114,8 @@ export async function processCardioScanImage(
 
   if (isEmptyTelemetry(extracted)) {
     try {
-      const ocrResult = await withinMs(Tesseract.recognize(dataUrl, 'eng'), 25_000);
+      const { default: Tesseract } = await import('tesseract.js');
+      const ocrResult = await withinMs(Tesseract.recognize(dataUrl, 'eng'), 15_000);
       const rawText = ocrResult?.data?.text || '';
       if (rawText.trim().length > 0) {
         const parsed = parseTelemetryFromOcrText(rawText);
@@ -168,11 +133,6 @@ export async function processCardioScanImage(
     } catch (ocrErr) {
       console.warn('[Optical Vision] On-device OCR pass exception:', ocrErr);
     }
-  }
-
-  if (isEmptyTelemetry(extracted)) {
-    const geminiResult = await withinMs(geminiWatchFallback(dataUrl, scanMode), 25_000);
-    if (geminiResult) extracted = geminiResult;
   }
 
   if (extracted && !isEmptyTelemetry(extracted)) return extracted;
