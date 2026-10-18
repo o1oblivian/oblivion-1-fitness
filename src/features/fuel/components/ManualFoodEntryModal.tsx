@@ -11,7 +11,7 @@ import {
   Coffee,
   Utensils,
 } from 'lucide-react';
-import { FoodCategoryType, FoodItemRecord } from '../../../services/foodData/types';
+import { FoodCategoryType, FoodItemRecord } from '../../../services/foodTypes';
 import { saveCustomFood } from '../../../services/customFoodDatabase';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { sanitizeNumericInput } from '../../../utils/numberInputUtils';

@@ -1,4 +1,4 @@
-import { FoodItemRecord, FoodCategoryType } from './foodData/types';
+import { FoodItemRecord, FoodCategoryType } from './foodTypes';
 
 const STORAGE_KEY = 'o1fc_custom_foods_catalog';
 

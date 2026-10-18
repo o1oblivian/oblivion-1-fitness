@@ -3,7 +3,7 @@ import { Delete, X } from 'lucide-react';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { round1 } from '../../../utils/mathUtils';
 import { safeStorage } from '../../../utils/safeStorage';
-import type { MacroBudget } from '../data/intelMealEngine';
+import type { MacroBudget } from '../data/mealBudget';
 
 type Unit = 'g' | 'serv';
 

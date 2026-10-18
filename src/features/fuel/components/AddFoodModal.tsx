@@ -5,28 +5,20 @@ import {
   Plus,
   Flame,
   ChevronDown,
-  Apple,
-  Coffee,
-  Beef,
-  Wheat,
   Loader2,
   Database,
   Utensils,
+  WifiOff,
 } from 'lucide-react';
 import { MealFoodItem } from '../../../types';
 import { useFuelStore } from '../store/useFuelStore';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { FoodPortionDialModal } from './FoodPortionDialModal';
 import { ClientCountryMarketModal, COUNTRIES } from './ClientCountryMarketModal';
-import {
-  queryFoodCatalog,
-  FoodItemRecord,
-  getRegionalDatabaseInfo,
-} from '../../../services/foodCatalogService';
-import { FoodCategoryType } from '../../../services/foodData/types';
+import { searchFoods, FoodItemRecord } from '../../../services/foodCatalogService';
 import { ManualFoodEntryModal } from './ManualFoodEntryModal';
 import { foodMatchesDietSafe } from '../utils/dietFoodFilter';
-import type { MacroBudget } from '../data/intelMealEngine';
+import type { MacroBudget } from '../data/mealBudget';
 
 interface AddFoodModalProps {
   /** Slot label from the fuel screen ("Snacks", "Supplements & Electrolytes"); the store maps it to a slot. */
@@ -38,13 +30,9 @@ interface AddFoodModalProps {
   budget?: MacroBudget | null;
 }
 
-const CATEGORIES: { id: FoodCategoryType; label: string }[] = [
-  { id: 'protein', label: 'Protein' },
-  { id: 'carbs', label: 'Carbs' },
-  { id: 'fats', label: 'Fats' },
-  { id: 'fastfood', label: 'Fast Food' },
-  { id: 'drinks', label: 'Drinks' },
-];
+/** Wait this long after the last keystroke before searching, so one search is sent per word typed. */
+const SEARCH_DEBOUNCE_MS = 400;
+const SEARCH_LIMIT = 60;
 
 export const AddFoodModal: React.FC<AddFoodModalProps> = ({
   category,
@@ -59,11 +47,11 @@ export const AddFoodModal: React.FC<AddFoodModalProps> = ({
   const addFoodItem = useFuelStore((s) => s.addFoodItem);
   const setCountryMarket = useFuelStore((s) => s.setCountryMarket);
 
-  const [activeCategory, setActiveCategory] = useState<FoodCategoryType>('protein');
   const [searchQuery, setSearchQuery] = useState('');
-  const [dbFoods, setDbFoods] = useState<FoodItemRecord[]>([]);
+  const [foods, setFoods] = useState<FoodItemRecord[]>([]);
+  const [unavailable, setUnavailable] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedFoodForDial, setSelectedFoodForDial] = useState<FoodItemRecord | null>(null);
+  const [selectedFood, setSelectedFood] = useState<FoodItemRecord | null>(null);
   const [isDialModalOpen, setIsDialModalOpen] = useState(false);
   const [isCountryModalOpen, setIsCountryModalOpen] = useState(false);
   const [isManualModalOpen, setIsManualModalOpen] = useState(false);
@@ -72,99 +60,79 @@ export const AddFoodModal: React.FC<AddFoodModalProps> = ({
   useEffect(() => {
     if (isOpen) {
       setSearchQuery('');
-      setActiveCategory('protein');
-      setSelectedFoodForDial(null);
+      setSelectedFood(null);
       setIsDialModalOpen(false);
       setIsCountryModalOpen(false);
       setIsManualModalOpen(false);
     }
   }, [isOpen]);
 
-  // Curated catalog on browse; live OpenFoodFacts only after the athlete types a search
   useEffect(() => {
     if (!isOpen) return;
-
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort();
-    }
+    abortControllerRef.current?.abort();
     const controller = new AbortController();
     abortControllerRef.current = controller;
+    const typed = searchQuery.trim().length > 0;
+    setIsLoading(typed);
 
-    setIsLoading(true);
-
-    const debounceTimer = setTimeout(
+    const timer = setTimeout(
       async () => {
         try {
-          const items = await queryFoodCatalog({
+          const result = await searchFoods({
             query: searchQuery,
-            category: activeCategory,
             country: countryMarket || 'AU',
-            limit: 150,
+            limit: SEARCH_LIMIT,
             signal: controller.signal,
           });
-
-          if (!controller.signal.aborted) {
-            setDbFoods(items);
-            setIsLoading(false);
-          }
+          if (controller.signal.aborted) return;
+          setFoods(result.items);
+          setUnavailable(result.unavailable);
         } catch {
-          if (!controller.signal.aborted) {
-            setDbFoods([]);
-            setIsLoading(false);
-          }
+          if (controller.signal.aborted) return;
+          setFoods([]);
+          setUnavailable(['Search could not be reached']);
+        } finally {
+          if (!controller.signal.aborted) setIsLoading(false);
         }
       },
-      searchQuery ? 250 : 0,
+      typed ? SEARCH_DEBOUNCE_MS : 0,
     );
 
     return () => {
-      clearTimeout(debounceTimer);
+      clearTimeout(timer);
       controller.abort();
     };
-  }, [isOpen, activeCategory, searchQuery, countryMarket]);
+  }, [isOpen, searchQuery, countryMarket]);
 
-  const currentCountry = useMemo(() => {
-    return (
+  const currentCountry = useMemo(
+    () =>
       COUNTRIES.find((c) => c.code === countryMarket) || {
         flag: '🇦🇺',
         name: 'Australia',
         code: 'AU',
-      }
-    );
-  }, [countryMarket]);
+      },
+    [countryMarket],
+  );
 
-  const regionalDbInfo = useMemo(() => {
-    return getRegionalDatabaseInfo(countryMarket);
-  }, [countryMarket]);
-
-  const visibleFoods = useMemo(() => {
-    const filtered = dbFoods.filter((f) =>
-      foodMatchesDietSafe(f.name, f.brand || '', dietPreference),
-    );
-    if (activeCategory !== 'fastfood') return filtered;
-    return [...filtered].sort((a, b) => {
-      const brand = (a.brand || '').localeCompare(b.brand || '');
-      if (brand !== 0) return brand;
-      return a.name.localeCompare(b.name);
-    });
-  }, [dbFoods, dietPreference, activeCategory]);
+  const visibleFoods = useMemo(
+    () => foods.filter((f) => foodMatchesDietSafe(f.name, f.brand || '', dietPreference)),
+    [foods, dietPreference],
+  );
 
   if (!isOpen) return null;
 
   const handleOpenDial = (food: FoodItemRecord) => {
     tactileEngine.triggerSelectionBuzz();
-    setSelectedFoodForDial(food);
+    setSelectedFood(food);
     setIsDialModalOpen(true);
   };
 
   const handleManualFoodSaved = (food: FoodItemRecord, logToMeal: boolean) => {
-    // Add to dbFoods list immediately so it appears at top
-    setDbFoods((prev) => [food, ...prev.filter((f) => f.id !== food.id)]);
-
+    setFoods((prev) => [food, ...prev.filter((f) => f.id !== food.id)]);
     if (logToMeal) {
       handleCommitFoodWithGrams(food, food.serving_grams || 100);
     } else {
-      showToast?.(`Saved "${food.name}" to your food database`);
+      showToast?.(`Saved "${food.name}" to your foods`);
     }
   };
 
@@ -179,19 +147,14 @@ export const AddFoodModal: React.FC<AddFoodModalProps> = ({
 
   const commitFood = (food: FoodItemRecord, scale: number, portion: string) => {
     tactileEngine.playPRCelebration();
-    const scaledKcal = Math.round(food.calories * scale);
-    const scaledP = Math.round(food.protein * scale * 10) / 10;
-    const scaledC = Math.round(food.carbs * scale * 10) / 10;
-    const scaledF = Math.round(food.fats * scale * 10) / 10;
-
     const newItem: MealFoodItem = {
       id: `food-${food.id}-${Date.now()}`,
       name: food.name,
       portion,
-      calories: scaledKcal,
-      protein: scaledP,
-      carbs: scaledC,
-      fats: scaledF,
+      calories: Math.round(food.calories * scale),
+      protein: Math.round(food.protein * scale * 10) / 10,
+      carbs: Math.round(food.carbs * scale * 10) / 10,
+      fats: Math.round(food.fats * scale * 10) / 10,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       logged: true,
     };
@@ -201,30 +164,14 @@ export const AddFoodModal: React.FC<AddFoodModalProps> = ({
     onClose();
   };
 
-  const renderCategoryIcon = (cat: string) => {
-    switch (cat) {
-      case 'protein':
-        return <Beef className="w-4 h-4 text-o1-crimson" />;
-      case 'carbs':
-        return <Wheat className="w-4 h-4 text-amber-500" />;
-      case 'fats':
-        return <Apple className="w-4 h-4 text-emerald-500" />;
-      case 'fastfood':
-        return <Utensils className="w-4 h-4 text-amber-500" />;
-      case 'drinks':
-        return <Coffee className="w-4 h-4 text-sky-500" />;
-      default:
-        return <Beef className="w-4 h-4 text-o1-crimson" />;
-    }
-  };
+  const typed = searchQuery.trim().length > 0;
 
   return (
     <div className="fixed inset-0 z-50 bg-black/70 o1-sheet-scrim flex items-center justify-center animate-in fade-in duration-150 select-none">
       <div className="o1-sheet-card bg-o1-sheet border border-white/[0.08] p-3.5 shadow-xl flex flex-col overflow-hidden space-y-2.5">
-        {/* Top Header: Flame Icon, Title, Country Pill, Close Button */}
         <div className="flex items-center justify-between shrink-0 gap-2 pb-0.5">
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-10 h-10 rounded-2xl bg-red-950/30 text-o1-crimson flex items-center justify-center shrink-0 border border-red-900/40 shadow-2xs">
+            <div className="w-10 h-10 rounded-2xl bg-red-950/30 text-o1-crimson flex items-center justify-center shrink-0 border border-red-900/40">
               <Flame className="w-5 h-5 fill-o1-crimson/20 text-o1-crimson" />
             </div>
             <div className="min-w-0">
@@ -232,9 +179,7 @@ export const AddFoodModal: React.FC<AddFoodModalProps> = ({
                 Add To {category}
               </h3>
               <p className="text-o1-label text-o1-muted font-sans flex items-center gap-1.5 truncate mt-0.5">
-                <span className="truncate">
-                  {searchQuery.trim() ? 'Catalog + live search' : 'Verified catalog'}
-                </span>
+                <span className="truncate">{typed ? 'Live search' : 'My foods'}</span>
                 <span className="text-white/20">·</span>
                 <span className="truncate">{dietPreference}</span>
               </p>
@@ -242,55 +187,31 @@ export const AddFoodModal: React.FC<AddFoodModalProps> = ({
           </div>
 
           <div className="flex items-center gap-1.5 shrink-0">
-            {/* Country Selector Pill (e.g. 🇦🇺 AU ▾) */}
             <button
               type="button"
               onClick={() => {
                 tactileEngine.triggerSelectionBuzz();
                 setIsCountryModalOpen(true);
               }}
-              title="Select Regional Market Database"
-              className="flex items-center gap-1 px-2.5 py-1.5 rounded-full bg-o1-surface border border-white/[0.08] text-xs tabular-nums font-bold text-o1-text hover:border-white/[0.14] transition-colors cursor-pointer shadow-2xs active:scale-95"
+              title="Choose your country"
+              className="flex items-center gap-1 px-2.5 py-1.5 rounded-full bg-o1-surface border border-white/[0.08] text-xs tabular-nums font-bold text-o1-text hover:border-white/[0.14] transition-colors cursor-pointer active:scale-95"
             >
               <span>{currentCountry.flag}</span>
               <span>{currentCountry.code}</span>
               <ChevronDown className="w-3 h-3 text-o1-muted" />
             </button>
 
-            {/* Close Button - positioned cleanly with comfortable space */}
             <button
               type="button"
               onClick={onClose}
               aria-label="Close food modal"
-              className="w-8 h-8 rounded-full bg-o1-surface hover:bg-white/[0.06] border border-white/[0.08] flex items-center justify-center text-o1-text hover:text-o1-text transition-all cursor-pointer shadow-2xs active:scale-95"
+              className="w-8 h-8 rounded-full bg-o1-surface hover:bg-white/[0.06] border border-white/[0.08] flex items-center justify-center text-o1-text transition-all cursor-pointer active:scale-95"
             >
               <X className="w-4 h-4" />
             </button>
           </div>
         </div>
 
-        {/* 5 Category Pills: Protein, Carbs, Fats, Fast Food, Drinks (STRICT ZERO "All Foods" tab) */}
-        <div className="flex items-center gap-0.5 overflow-x-auto no-scrollbar border-b border-white/[0.05] pb-2 text-o1-label font-semibold shrink-0">
-          {CATEGORIES.map((cat) => (
-            <button
-              key={cat.id}
-              type="button"
-              onClick={() => {
-                tactileEngine.triggerSelectionBuzz();
-                setActiveCategory(cat.id);
-              }}
-              className={`px-2.5 py-1.5 rounded-full whitespace-nowrap transition-all cursor-pointer ${
-                activeCategory === cat.id
-                  ? 'border border-o1-crimson bg-o1-crimson text-o1-text font-bold shadow-xs'
-                  : 'text-o1-muted hover:text-o1-text'
-              }`}
-            >
-              {cat.label}
-            </button>
-          ))}
-        </div>
-
-        {/* Search bar row: Reduced length input + Small + button for manual food & permanent DB storage */}
         <div className="flex items-center gap-2 shrink-0">
           <div className="relative flex-1">
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-o1-muted" />
@@ -298,7 +219,7 @@ export const AddFoodModal: React.FC<AddFoodModalProps> = ({
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder={regionalDbInfo.searchPlaceholder}
+              placeholder="Search any food, brand or restaurant"
               className="w-full h-11 pl-10 pr-10 rounded-2xl bg-o1-surface border border-white/[0.08] text-xs font-sans text-o1-text placeholder-o1-muted focus:outline-none focus:border-o1-crimson"
             />
             {isLoading && (
@@ -306,38 +227,50 @@ export const AddFoodModal: React.FC<AddFoodModalProps> = ({
             )}
           </div>
 
-          {/* Small + Icon button to manually add custom food & permanently store in database */}
           <button
             type="button"
             onClick={() => {
               tactileEngine.triggerSelectionBuzz();
               setIsManualModalOpen(true);
             }}
-            title="Manually Add Food with Weight & Save to Database"
+            title="Add a food with your own numbers"
             aria-label="Add custom food with weight"
-            className="w-11 h-11 rounded-2xl bg-red-950/40 hover:bg-red-900/60 border border-red-900/60 text-o1-crimson flex items-center justify-center shrink-0 transition-all active:scale-95 cursor-pointer shadow-2xs"
+            className="w-11 h-11 rounded-2xl bg-red-950/40 hover:bg-red-900/60 border border-red-900/60 text-o1-crimson flex items-center justify-center shrink-0 transition-all active:scale-95 cursor-pointer"
           >
             <Plus className="w-5 h-5 stroke-[2.5]" />
           </button>
         </div>
 
-        {/* Foods Catalog List — Pure Real Database */}
+        {unavailable.length > 0 && typed ? (
+          <p
+            role="status"
+            className="shrink-0 flex items-center gap-2 rounded-xl bg-o1-warn-wash/60 px-3 py-2 text-o1-label text-o1-warn-ink"
+          >
+            <WifiOff className="w-3.5 h-3.5 shrink-0" aria-hidden />
+            <span>Not answering: {unavailable.join(', ')}. Results may be incomplete.</span>
+          </p>
+        ) : null}
+
         <div className="overflow-y-auto space-y-2 pr-1 flex-1">
           {isLoading && visibleFoods.length === 0 ? (
             <div className="py-16 text-center text-o1-muted font-sans text-xs flex flex-col items-center justify-center gap-2">
               <Loader2 className="w-5 h-5 animate-spin text-o1-crimson" />
-              <span>{searchQuery.trim() ? 'Searching OpenFoodFacts…' : 'Loading catalog…'}</span>
+              <span>Searching…</span>
             </div>
           ) : visibleFoods.length === 0 ? (
-            <div className="py-16 text-center text-o1-muted font-sans text-xs flex flex-col items-center justify-center gap-2">
+            <div className="py-16 px-4 text-center text-o1-muted font-sans text-xs flex flex-col items-center justify-center gap-2">
               <Database className="w-6 h-6 text-o1-muted/50" />
-              <span>
-                No {dietPreference} match for &quot;{searchQuery || activeCategory}&quot;. Try
-                another name or add a custom food.
-              </span>
-              <span className="text-o1-label text-o1-muted">
-                Tap below to log a custom food item with exact macros.
-              </span>
+              {typed ? (
+                <span>
+                  No {dietPreference} match for &quot;{searchQuery.trim()}&quot;. Try another name
+                  or add your own food.
+                </span>
+              ) : (
+                <>
+                  <span>Search any food, brand or restaurant.</span>
+                  <span className="text-o1-label">Foods you save yourself appear here.</span>
+                </>
+              )}
             </div>
           ) : (
             visibleFoods.map((food) => (
@@ -348,7 +281,7 @@ export const AddFoodModal: React.FC<AddFoodModalProps> = ({
                 className="w-full text-left p-3 rounded-2xl bg-o1-surface border border-white/[0.08] flex items-center justify-between gap-3 transition-colors cursor-pointer active:scale-[0.99]"
               >
                 <div className="w-10 h-10 rounded-2xl bg-o1-sheet border border-white/[0.08] flex items-center justify-center shrink-0">
-                  {renderCategoryIcon(food.category)}
+                  <Utensils className="w-4 h-4 text-o1-muted" />
                 </div>
 
                 <div className="min-w-0 flex-1">
@@ -400,7 +333,6 @@ export const AddFoodModal: React.FC<AddFoodModalProps> = ({
           )}
         </div>
 
-        {/* Bottom Bar: + Custom Food Item (Left) & Done Button (Right) */}
         <div className="pt-2 border-t border-white/[0.05] flex items-center justify-between shrink-0">
           <button
             type="button"
@@ -420,7 +352,7 @@ export const AddFoodModal: React.FC<AddFoodModalProps> = ({
               tactileEngine.triggerSelectionBuzz();
               onClose();
             }}
-            className="px-6 py-2.5 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover text-o1-text font-bold text-xs shadow-xs active:scale-95 transition-all cursor-pointer"
+            className="px-6 py-2.5 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover text-o1-text font-bold text-xs active:scale-95 transition-all cursor-pointer"
           >
             Done
           </button>
@@ -429,23 +361,18 @@ export const AddFoodModal: React.FC<AddFoodModalProps> = ({
 
       <FoodPortionDialModal
         isOpen={isDialModalOpen}
-        foodName={selectedFoodForDial ? selectedFoodForDial.name : 'Custom Portion'}
-        food={selectedFoodForDial}
+        foodName={selectedFood ? selectedFood.name : 'Custom Portion'}
+        food={selectedFood}
         budget={budget}
         onSetGrams={(g) => {
-          if (selectedFoodForDial) {
-            handleCommitFoodWithGrams(selectedFoodForDial, g);
-          }
+          if (selectedFood) handleCommitFoodWithGrams(selectedFood, g);
         }}
         onSetServings={(n) => {
-          if (selectedFoodForDial) {
-            handleCommitFoodServings(selectedFoodForDial, n);
-          }
+          if (selectedFood) handleCommitFoodServings(selectedFood, n);
         }}
         onClose={() => setIsDialModalOpen(false)}
       />
 
-      {/* Country Market Selection Modal */}
       <ClientCountryMarketModal
         isOpen={isCountryModalOpen}
         selectedCode={countryMarket}
@@ -453,11 +380,9 @@ export const AddFoodModal: React.FC<AddFoodModalProps> = ({
         onClose={() => setIsCountryModalOpen(false)}
       />
 
-      {/* Manual Food Entry & Permanent Storage Modal */}
       <ManualFoodEntryModal
         isOpen={isManualModalOpen}
         onClose={() => setIsManualModalOpen(false)}
-        defaultCategory={activeCategory}
         currentMealCategory={category}
         countryMarket={countryMarket}
         onFoodSaved={handleManualFoodSaved}

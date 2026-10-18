@@ -2,9 +2,14 @@ import type { Express } from 'express';
 import { SUPPLEMENT_KNOWLEDGE_BASE } from '../data/supplementKnowledgeBase';
 import { VERIFIED_BARCODES } from '../data/verifiedBarcodes';
 import { generateContentWithFallback, getGenAI, parseGeminiJson } from '../lib/gemini';
+import { registerLiveFoodSearch } from './liveFoodSearch';
+import { registerMealSuggestionRoute } from './mealSuggestionRoute';
 
-/** Barcode lookup, live food search and supplement search. */
+/** Barcode lookup, supplement search, and the live food and meal routes registered below. */
 export function registerFuelRoutes(app: Express): void {
+  registerLiveFoodSearch(app);
+  registerMealSuggestionRoute(app);
+
   // 2. REAL BARCODE SCANNER & OPEN FOOD FACTS LOOKUP
   app.post('/api/fuel/scan-barcode', async (req, res) => {
     try {
@@ -89,172 +94,6 @@ export function registerFuelRoutes(app: Express): void {
     } catch (err: any) {
       console.error('Error in /api/fuel/scan-barcode:', err);
       res.status(500).json({ error: err.message || 'Internal server error during barcode lookup' });
-    }
-  });
-
-  // Live branded search: OpenFoodFacts. Optional USDA FDC overlay for US when USDA_FDC_API_KEY is set.
-  app.get('/api/fuel/live-food-search', async (req, res) => {
-    try {
-      const q = String(req.query.q || '').trim();
-      const country = String(req.query.country || 'AU').toUpperCase();
-      const category = String(req.query.category || 'protein').toLowerCase();
-      const limit = Math.min(Number(req.query.limit) || 40, 100);
-
-      if (!q) {
-        return res.json({ success: true, items: [], source: 'none', live: false });
-      }
-
-      const items: any[] = [];
-      const domainMap: Record<string, string> = {
-        AU: 'au',
-        US: 'us',
-        GB: 'uk',
-        DE: 'de',
-        FR: 'fr',
-        IT: 'it',
-        ES: 'es',
-        NL: 'nl',
-        CA: 'ca',
-        JP: 'jp',
-        IN: 'in',
-        BR: 'br',
-        MX: 'mx',
-        ZA: 'za',
-        NZ: 'nz',
-      };
-      const offDomain = domainMap[country] || 'world';
-
-      try {
-        const offUrl = `https://${offDomain}.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(
-          q,
-        )}&search_simple=1&action=process&json=1&page_size=${Math.min(limit * 2, 40)}`;
-
-        const offRes = await fetch(offUrl, {
-          headers: {
-            'User-Agent': 'Oblivion1Fitness-FuelOS/1.0 (o1oblivionfitness@gmail.com)',
-            Accept: 'application/json',
-          },
-        });
-
-        if (offRes.ok) {
-          const offData = await offRes.json();
-          if (Array.isArray(offData.products)) {
-            for (const p of offData.products) {
-              if (!p || (!p.product_name && !p.product_name_en)) continue;
-              const name = (p.product_name || p.product_name_en || 'Food Item').trim();
-              const brand = (p.brands || p.brand_owner || 'OpenFoodFacts').split(',')[0].trim();
-
-              const rawKcal =
-                p.nutriments?.['energy-kcal_100g'] ??
-                p.nutriments?.['energy-kcal'] ??
-                p.nutriments?.['energy-kcal_serving'] ??
-                (p.nutriments?.['energy-kj_100g'] ? p.nutriments['energy-kj_100g'] / 4.184 : 0);
-
-              const calories = Math.round(Number(rawKcal) || 0);
-              const protein =
-                Math.round(
-                  Number(p.nutriments?.proteins_100g ?? p.nutriments?.proteins ?? 0) * 10,
-                ) / 10;
-              const carbs =
-                Math.round(
-                  Number(p.nutriments?.carbohydrates_100g ?? p.nutriments?.carbohydrates ?? 0) * 10,
-                ) / 10;
-              const fats =
-                Math.round(Number(p.nutriments?.fat_100g ?? p.nutriments?.fat ?? 0) * 10) / 10;
-
-              if (calories <= 0 && protein <= 0 && carbs <= 0 && fats <= 0) continue;
-
-              const rawServing = String(p.serving_size || '100g').trim();
-              let servingGrams = 100;
-              const match = rawServing.match(/(\d+(?:\.\d+)?)\s*(?:g|ml)/i);
-              if (match) {
-                servingGrams = parseFloat(match[1]) || 100;
-              }
-
-              items.push({
-                id: `off-${p.code || Math.random().toString(36).slice(2, 9)}`,
-                name,
-                brand,
-                calories,
-                protein,
-                carbs,
-                fats,
-                servingSize: rawServing,
-                servingGrams,
-                category,
-                country,
-                source: 'openfoodfacts',
-              });
-
-              if (items.length >= limit) break;
-            }
-          }
-        }
-      } catch (offErr) {
-        console.warn('OpenFoodFacts proxy search failed:', offErr);
-      }
-
-      const fdcKey = String(process.env.USDA_FDC_API_KEY || '').trim();
-      if (fdcKey && country === 'US' && items.length < limit) {
-        try {
-          const fdcUrl = `https://api.nal.usda.gov/fdc/v1/foods/search?api_key=${encodeURIComponent(fdcKey)}&query=${encodeURIComponent(q)}&pageSize=${Math.min(20, limit)}&dataType=Foundation,SR Legacy,Branded`;
-          const fdcRes = await fetch(fdcUrl, { headers: { Accept: 'application/json' } });
-          if (fdcRes.ok) {
-            const fdcData = await fdcRes.json();
-            const seen = new Set(items.map((it) => String(it.name).toLowerCase()));
-            for (const food of fdcData.foods || []) {
-              const name = String(food.description || '').trim();
-              if (!name) continue;
-              const nutrients = Array.isArray(food.foodNutrients) ? food.foodNutrients : [];
-              const pick = (names: string[]) => {
-                const row = nutrients.find((n: any) =>
-                  names.includes(String(n.nutrientName || n.nutrient?.name || '')),
-                );
-                return Number(row?.value ?? row?.amount ?? 0) || 0;
-              };
-              const calories = Math.round(
-                pick(['Energy', 'Energy (Atwater General Factors)', 'Calories']),
-              );
-              const protein = Math.round(pick(['Protein']) * 10) / 10;
-              const carbs =
-                Math.round(pick(['Carbohydrate, by difference', 'Carbohydrate']) * 10) / 10;
-              const fats =
-                Math.round(pick(['Total lipid (fat)', 'Total fat (NLEA)', 'Fat']) * 10) / 10;
-              if (calories <= 0 && protein <= 0 && carbs <= 0 && fats <= 0) continue;
-              if (seen.has(name.toLowerCase())) continue;
-              seen.add(name.toLowerCase());
-              items.push({
-                id: `usda-${food.fdcId}`,
-                name,
-                brand: food.brandOwner || food.brandName || 'USDA FDC',
-                calories,
-                protein,
-                carbs,
-                fats,
-                servingSize: '100g',
-                servingGrams: 100,
-                category,
-                country: 'US',
-                source: 'usda',
-              });
-              if (items.length >= limit) break;
-            }
-          }
-        } catch (fdcErr) {
-          console.warn('USDA FDC overlay failed:', fdcErr);
-        }
-      }
-
-      const sources = Array.from(new Set(items.map((it) => it.source).filter(Boolean)));
-      res.json({
-        success: true,
-        items,
-        source: sources.includes('usda') ? 'openfoodfacts+usda' : 'openfoodfacts',
-        live: true,
-      });
-    } catch (err: any) {
-      console.error('Error in /api/fuel/live-food-search:', err);
-      res.status(500).json({ error: err.message || 'Error searching live food database' });
     }
   });
 

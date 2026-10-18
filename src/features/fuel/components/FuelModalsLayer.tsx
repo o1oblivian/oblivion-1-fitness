@@ -4,7 +4,7 @@ import { AddFoodModal } from './AddFoodModal';
 import { ClientCountryMarketModal } from './ClientCountryMarketModal';
 import { DietaryPreferenceModal } from './DietaryPreferenceModal';
 import { SlotKey } from '../constants/fuelConstants';
-import type { MacroBudget } from '../data/intelMealEngine';
+import type { MacroBudget } from '../data/mealBudget';
 
 interface FuelModalsLayerProps {
   isCameraOpen: boolean;

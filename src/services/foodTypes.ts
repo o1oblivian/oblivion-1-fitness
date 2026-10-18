@@ -1,5 +1,6 @@
 export type FoodCategoryType = 'protein' | 'carbs' | 'fats' | 'fastfood' | 'drinks';
 
+/** A food the person can log. Calories and macros are for one `serving_grams` serving. */
 export interface FoodItemRecord {
   id: string;
   name: string;
@@ -10,10 +11,9 @@ export interface FoodItemRecord {
   fats: number;
   serving_size?: string;
   serving_grams?: number;
-  category: FoodCategoryType;
+  /** Set on foods the person saved themselves; live results carry none. */
+  category?: FoodCategoryType;
   country: string;
   is_custom?: boolean;
-  source?: 'catalog' | 'openfoodfacts' | 'custom' | 'regional' | 'usda';
+  source?: 'openfoodfacts' | 'custom' | 'usda';
 }
-
-export type RegionalFoodMap = Record<string, Record<FoodCategoryType, FoodItemRecord[]>>;

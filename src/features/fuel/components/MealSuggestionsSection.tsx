@@ -1,14 +1,19 @@
 import React, { useMemo, useState } from 'react';
-import { Sparkles, ChevronDown, RefreshCw, Plus, Check, Clock, Utensils } from 'lucide-react';
+import {
+  Sparkles,
+  ChevronDown,
+  RefreshCw,
+  Plus,
+  Check,
+  Clock,
+  Utensils,
+  Loader2,
+} from 'lucide-react';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { MealItem } from '../store/useFuelStore';
-import {
-  buildIntelMeals,
-  IntelMealSuggestion,
-  MacroBudget,
-  MealSlot,
-  slotBudget,
-} from '../data/intelMealEngine';
+import { MacroBudget, MealSlot, slotBudget } from '../data/mealBudget';
+import type { MealSuggestion } from '../../../../shared/mealSuggestion';
+import { useLiveMealSuggestions } from '../hooks/useLiveMealSuggestions';
 
 const SLOTS: { key: MealSlot; label: string }[] = [
   { key: 'breakfast', label: 'Breakfast' },
@@ -54,9 +59,9 @@ const Macros: React.FC<{ kcal: number; protein: number; carbs: number; fats: num
 );
 
 const MealOption: React.FC<{
-  meal: IntelMealSuggestion;
+  meal: MealSuggestion;
   isLogged: boolean;
-  onLog: (meal: IntelMealSuggestion) => void;
+  onLog: (meal: MealSuggestion) => void;
 }> = ({ meal, isLogged, onLog }) => (
   <li className="rounded-xl bg-o1-surface border border-white/[0.05] p-3 space-y-2.5">
     <div className="flex items-start justify-between gap-3">
@@ -102,29 +107,49 @@ const MealOption: React.FC<{
   </li>
 );
 
+const MealPlaceholder: React.FC = () => (
+  <div
+    role="status"
+    aria-label="Finding meals"
+    className="rounded-xl bg-o1-surface border border-white/[0.05] p-3 space-y-2.5 animate-pulse"
+  >
+    <div className="h-4 w-2/3 rounded bg-white/[0.08]" />
+    <div className="h-3 w-1/3 rounded bg-white/[0.06]" />
+    <div className="space-y-1.5 pt-1">
+      <div className="h-3 w-full rounded bg-white/[0.05]" />
+      <div className="h-3 w-5/6 rounded bg-white/[0.05]" />
+      <div className="h-3 w-4/6 rounded bg-white/[0.05]" />
+    </div>
+  </div>
+);
+
 interface MealSuggestionsSectionProps {
   calibrated: boolean;
   remaining: MacroBudget;
   loggedSlots: readonly MealSlot[];
   dietPreference?: string;
+  country: string;
+  /** Foods the person already logs often, so the ideas feel familiar. */
+  usualNames: string[];
   onOpenDietModal: () => void;
   onAddMealItem: (slot: MealSlot, item: MealItem) => void;
   showToast: (msg: string) => void;
 }
 
-/** The one meal worth eating next, sized to what is left today, with the alternatives a tap away. */
+/** The meal worth eating next, found live and sized to this meal's calories, with alternatives a tap away. */
 export const MealSuggestionsSection: React.FC<MealSuggestionsSectionProps> = ({
   calibrated,
   remaining,
   loggedSlots,
   dietPreference = 'Omnivore',
+  country,
+  usualNames,
   onOpenDietModal,
   onAddMealItem,
   showToast,
 }) => {
   const [showMore, setShowMore] = useState(false);
   const [slot, setSlot] = useState<MealSlot>(() => slotForNow(loggedSlots));
-  const [rotation, setRotation] = useState(0);
   const [loggedId, setLoggedId] = useState<string | null>(null);
 
   const budget = useMemo(
@@ -132,26 +157,27 @@ export const MealSuggestionsSection: React.FC<MealSuggestionsSectionProps> = ({
     [slot, remaining, loggedSlots],
   );
   const dayDone = remaining.kcal < 150;
-  const meals = useMemo(
-    () =>
-      calibrated && !dayDone
-        ? buildIntelMeals({ diet: dietPreference, slot, budget, rotation })
-        : [],
-    [calibrated, dayDone, dietPreference, slot, budget, rotation],
-  );
+  const { state, refresh, retry, clearExclusions } = useLiveMealSuggestions({
+    enabled: calibrated && !dayDone,
+    slot,
+    target: budget,
+    diet: dietPreference,
+    country,
+    usuals: usualNames,
+  });
   const slotLabel = SLOTS.find((s) => s.key === slot)?.label ?? slot;
-  const [best, ...others] = meals;
+  const [best, ...others] = state.meals;
 
   // Without targets the hero already asks for them; a second prompt here would only repeat it.
   if (!calibrated) return null;
 
-  const logMeal = (meal: IntelMealSuggestion) => {
+  const logMeal = (meal: MealSuggestion) => {
     tactileEngine.triggerImpactPulse();
     setLoggedId(meal.id);
     const stamp = Date.now();
     [...meal.ingredients].reverse().forEach((ing, i) => {
       onAddMealItem(slot, {
-        id: `intel-${stamp}-${i}-${meal.id}`,
+        id: `suggest-${stamp}-${i}-${meal.id}`,
         name: `${ing.label} · ${ing.display}`,
         calories: ing.calories,
         protein: ing.protein,
@@ -180,10 +206,34 @@ export const MealSuggestionsSection: React.FC<MealSuggestionsSectionProps> = ({
           <p className="mt-0.5 text-o1-label text-o1-muted tabular-nums">
             {dayDone
               ? "You've reached today's calorie target."
-              : `${slotLabel} · ${remaining.protein}g protein and ${remaining.kcal.toLocaleString()} kcal left today`}
+              : `${slotLabel} · about ${budget.kcal.toLocaleString()} kcal · ${remaining.protein}g protein left today`}
           </p>
         </div>
+        {state.status === 'loading' ? (
+          <Loader2 className="w-4 h-4 shrink-0 animate-spin text-o1-muted" aria-hidden />
+        ) : null}
       </div>
+
+      {state.status === 'loading' ? <MealPlaceholder /> : null}
+
+      {state.status === 'error' ? (
+        <div
+          role="alert"
+          className="rounded-xl bg-o1-surface border border-white/[0.05] p-3.5 space-y-2.5"
+        >
+          <p className="text-o1-body text-o1-muted">{state.message}</p>
+          <button
+            type="button"
+            onClick={() => {
+              tactileEngine.triggerSelectionBuzz();
+              retry();
+            }}
+            className="h-9 px-4 rounded-full border border-white/[0.08] text-o1-body font-medium text-o1-text cursor-pointer"
+          >
+            Try again
+          </button>
+        </div>
+      ) : null}
 
       {best ? (
         <ul>
@@ -191,7 +241,7 @@ export const MealSuggestionsSection: React.FC<MealSuggestionsSectionProps> = ({
         </ul>
       ) : null}
 
-      {!dayDone ? (
+      {state.status === 'ready' ? (
         <button
           type="button"
           aria-expanded={showMore}
@@ -227,7 +277,7 @@ export const MealSuggestionsSection: React.FC<MealSuggestionsSectionProps> = ({
                   onClick={() => {
                     tactileEngine.triggerSelectionBuzz();
                     setSlot(s.key);
-                    setRotation(0);
+                    clearExclusions();
                   }}
                   className={`h-9 rounded-lg text-o1-label font-semibold flex items-center justify-center gap-1 transition-colors cursor-pointer ${
                     active ? 'bg-o1-text text-black' : 'text-o1-muted hover:text-o1-text'
@@ -267,7 +317,7 @@ export const MealSuggestionsSection: React.FC<MealSuggestionsSectionProps> = ({
                 type="button"
                 onClick={() => {
                   tactileEngine.triggerSelectionBuzz();
-                  setRotation((n) => n + 1);
+                  refresh();
                 }}
                 aria-label="Show different meals"
                 className="w-9 h-9 rounded-full border border-white/[0.08] text-o1-muted hover:text-o1-text flex items-center justify-center active:scale-95 cursor-pointer"
@@ -289,8 +339,8 @@ export const MealSuggestionsSection: React.FC<MealSuggestionsSectionProps> = ({
           </ul>
 
           <p className="text-o1-label text-o1-muted leading-relaxed">
-            Portions are solved to your remaining macros. Nutrition values from USDA FoodData
-            Central; weights are cooked unless noted.
+            Meals are suggested live. Every portion is sized from USDA FoodData Central values so
+            the calories match this meal; weights are as eaten.
           </p>
         </div>
       ) : null}

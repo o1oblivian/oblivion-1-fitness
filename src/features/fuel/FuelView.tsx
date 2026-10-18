@@ -20,7 +20,7 @@ import { FuelWeekSlide } from './components/FuelWeekSlide';
 import { FuelUsualsRow } from './components/FuelUsualsRow';
 import { buildUsuals, slotForHour, Usual } from './utils/fuelUsuals';
 import { useTelemetryHistoryStore } from '../log/store/useTelemetryHistoryStore';
-import { MEAL_SLOT_SHARE, MealSlot, slotBudget } from './data/intelMealEngine';
+import { MEAL_SLOT_SHARE, MealSlot, slotBudget } from './data/mealBudget';
 
 function restingBurn(
   weightKg: number | null,
@@ -157,6 +157,7 @@ export const FuelView: React.FC = () => {
     () => buildUsuals(history, dateKey, usualSlot),
     [history, dateKey, usualSlot],
   );
+  const usualNames = useMemo(() => usuals.map((u) => u.name), [usuals]);
   const logUsual = useCallback(
     (usual: Usual) => {
       addMealItem(usual.slot, {
@@ -224,6 +225,8 @@ export const FuelView: React.FC = () => {
         remaining={intelRemaining}
         loggedSlots={loggedSlots}
         dietPreference={dietPreference}
+        country={countryMarket}
+        usualNames={usualNames}
         onOpenDietModal={() => modals.setIsDietModalOpen(true)}
         onAddMealItem={addMealItem}
         showToast={showToast}
