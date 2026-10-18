@@ -47,7 +47,7 @@ interface LogLedgerProps {
   rowActions?: LedgerRowActions;
 }
 
-const TABLE = 'w-full table-fixed border-collapse text-[11px]';
+const TABLE = 'w-full table-fixed border-collapse text-o1-label';
 
 export const LogLedger: React.FC<LogLedgerProps> = ({ nameLabel, columns, rows, rowActions }) => {
   const [openNameId, setOpenNameId] = useState<string | null>(null);
@@ -64,7 +64,7 @@ export const LogLedger: React.FC<LogLedgerProps> = ({ nameLabel, columns, rows, 
 
   const head = (
     <thead>
-      <tr className="text-[10px] text-neutral-500">
+      <tr className="text-o1-label text-neutral-500">
         <th className="text-left font-medium py-1.5 pr-2 border-b border-white/[0.07]">
           {nameLabel}
         </th>
@@ -97,7 +97,7 @@ export const LogLedger: React.FC<LogLedgerProps> = ({ nameLabel, columns, rows, 
                 tactileEngine.triggerSelectionBuzz();
                 setOpenNameId(nameOpen ? null : row.id);
               }}
-              className={`w-full min-h-[36px] text-left bg-transparent border-0 p-0 text-[11px] text-neutral-200 ${nameOpen ? 'whitespace-normal' : 'truncate'} ${canExpandName ? 'cursor-pointer' : 'cursor-default'}`}
+              className={`w-full min-h-[36px] text-left bg-transparent border-0 p-0 text-o1-label text-neutral-200 ${nameOpen ? 'whitespace-normal' : 'truncate'} ${canExpandName ? 'cursor-pointer' : 'cursor-default'}`}
             >
               {nameOpen ? row.name : short}
             </button>

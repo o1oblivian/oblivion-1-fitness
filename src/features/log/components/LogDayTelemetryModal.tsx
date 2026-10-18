@@ -66,7 +66,7 @@ export const LogDayTelemetryModal: React.FC<LogDayTelemetryModalProps> = ({
               <h3 className="font-tactical font-black text-xs tracking-wider text-white">
                 {mode === 'edit' ? theme.title.replace('Log ', 'Edit ') : theme.title}
               </h3>
-              <p className="text-[10px] font-mono text-neutral-400">
+              <p className="text-o1-label font-mono text-neutral-400">
                 Date: <span className="text-white font-bold">{dayMeta.dayLabel}</span> ·{' '}
                 {dayMeta.dateFormatted}
               </p>

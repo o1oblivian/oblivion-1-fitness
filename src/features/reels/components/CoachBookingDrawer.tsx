@@ -199,7 +199,7 @@ export const CoachBookingDrawer: React.FC<CoachBookingDrawerProps> = ({
         >
           <X size={20} />
         </button>
-        <span className="truncate text-[14px] font-semibold">{coach.handle}</span>
+        <span className="truncate text-o1-control font-semibold">{coach.handle}</span>
         <button
           type="button"
           onClick={() => void share()}
@@ -211,7 +211,7 @@ export const CoachBookingDrawer: React.FC<CoachBookingDrawerProps> = ({
       </div>
 
       {toast && (
-        <div className="absolute left-1/2 top-[calc(env(safe-area-inset-top)+4rem)] z-10 -translate-x-1/2 rounded-full border border-white/[0.07] bg-o1-sheet px-4 py-2 text-[12px] font-semibold text-o1-text">
+        <div className="absolute left-1/2 top-[calc(env(safe-area-inset-top)+4rem)] z-10 -translate-x-1/2 rounded-full border border-white/[0.07] bg-o1-sheet px-4 py-2 text-o1-caption font-semibold text-o1-text">
           {toast}
         </div>
       )}
@@ -297,7 +297,7 @@ export const CoachBookingDrawer: React.FC<CoachBookingDrawerProps> = ({
                   tactileEngine.triggerSelectionBuzz();
                   setTab(item.id);
                 }}
-                className={`flex h-11 flex-1 items-center justify-center gap-1.5 border-b-2 text-[12px] font-semibold ${on ? 'border-white text-white' : 'border-transparent text-o1-muted'}`}
+                className={`flex h-11 flex-1 items-center justify-center gap-1.5 border-b-2 text-o1-caption font-semibold ${on ? 'border-white text-white' : 'border-transparent text-o1-muted'}`}
               >
                 <Icon size={15} />
                 {item.label}
@@ -309,7 +309,7 @@ export const CoachBookingDrawer: React.FC<CoachBookingDrawerProps> = ({
         <div className="mx-auto w-full max-w-xl">
           {tab === 'reels' &&
             (coachReels.length === 0 ? (
-              <p className="py-10 text-center text-[13px] text-o1-muted">No reels yet.</p>
+              <p className="py-10 text-center text-o1-body text-o1-muted">No reels yet.</p>
             ) : (
               <div className="grid grid-cols-3 gap-0.5 pt-0.5">
                 {coachReels.map((reel) => (

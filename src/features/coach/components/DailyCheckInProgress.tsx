@@ -38,8 +38,8 @@ function sessionDate(iso: string): string {
 
 const Metric: React.FC<{ label: string; value: string }> = ({ label, value }) => (
   <div className="rounded-xl border border-white/[0.07] bg-o1-sheet p-2 text-center">
-    <span className="block text-[10px] text-o1-muted">{label}</span>
-    <span className="text-[12px] font-semibold tabular-nums text-o1-text">{value}</span>
+    <span className="block text-o1-label text-o1-muted">{label}</span>
+    <span className="text-o1-caption font-semibold tabular-nums text-o1-text">{value}</span>
   </div>
 );
 
@@ -49,11 +49,11 @@ const CoachReply: React.FC<{ coachName: string; text: string; when: string }> = 
   when,
 }) => (
   <div className="space-y-1 rounded-xl border border-white/[0.07] bg-o1-sheet p-2.5">
-    <div className="flex items-center justify-between text-[11px] text-o1-muted">
+    <div className="flex items-center justify-between text-o1-label text-o1-muted">
       <span className="font-semibold text-o1-text">{coachName}</span>
       {when ? <span>{when}</span> : null}
     </div>
-    <p className="text-[13px] leading-relaxed text-o1-text">{text}</p>
+    <p className="text-o1-body leading-relaxed text-o1-text">{text}</p>
   </div>
 );
 
@@ -110,8 +110,8 @@ export const DailyCheckInProgress: React.FC<DailyCheckInProgressProps> = ({
             <ClipboardCheck className="h-4 w-4" />
           </div>
           <div>
-            <h4 className="text-[13px] font-semibold text-o1-text">Check-in</h4>
-            <p className="text-[11px] text-o1-muted">Weight, sleep, and how the day felt</p>
+            <h4 className="text-o1-body font-semibold text-o1-text">Check-in</h4>
+            <p className="text-o1-label text-o1-muted">Weight, sleep, and how the day felt</p>
           </div>
         </div>
         <button
@@ -120,7 +120,7 @@ export const DailyCheckInProgress: React.FC<DailyCheckInProgressProps> = ({
             tactileEngine.triggerSelectionBuzz();
             setIsSubmitOpen((v) => !v);
           }}
-          className="flex min-h-[44px] items-center gap-1 rounded-xl bg-o1-crimson px-3 text-[12px] font-semibold text-white active:scale-95"
+          className="flex min-h-[44px] items-center gap-1 rounded-xl bg-o1-crimson px-3 text-o1-caption font-semibold text-white active:scale-95"
         >
           <span>{isSubmitOpen ? 'Close' : 'New check-in'}</span>
           <ChevronDown
@@ -134,11 +134,11 @@ export const DailyCheckInProgress: React.FC<DailyCheckInProgressProps> = ({
           role="alert"
           className="flex items-center justify-between gap-2 rounded-xl border border-o1-crimson/30 bg-o1-crimson/10 px-3 py-2"
         >
-          <p className="text-[12px] text-o1-text">Could not load your check-ins.</p>
+          <p className="text-o1-caption text-o1-text">Could not load your check-ins.</p>
           <button
             type="button"
             onClick={onRetry}
-            className="min-h-[36px] px-2 text-[12px] font-semibold text-o1-text"
+            className="min-h-[36px] px-2 text-o1-caption font-semibold text-o1-text"
           >
             Retry
           </button>
@@ -152,7 +152,7 @@ export const DailyCheckInProgress: React.FC<DailyCheckInProgressProps> = ({
         >
           <div className="grid grid-cols-2 gap-2.5">
             <label className="block">
-              <span className="mb-1 block text-[11px] text-o1-muted">Bodyweight (kg)</span>
+              <span className="mb-1 block text-o1-label text-o1-muted">Bodyweight (kg)</span>
               <input
                 type="number"
                 step="0.1"
@@ -161,11 +161,11 @@ export const DailyCheckInProgress: React.FC<DailyCheckInProgressProps> = ({
                 value={weightKg}
                 onFocus={(e) => e.target.select()}
                 onChange={(e) => setWeightKg(sanitizeNumericInput(e.target.value))}
-                className="h-10 w-full rounded-xl border border-white/[0.07] bg-o1-sheet px-3 text-[13px] tabular-nums text-o1-text focus:border-o1-crimson focus:outline-none"
+                className="h-10 w-full rounded-xl border border-white/[0.07] bg-o1-sheet px-3 text-o1-body tabular-nums text-o1-text focus:border-o1-crimson focus:outline-none"
               />
             </label>
             <label className="block">
-              <span className="mb-1 block text-[11px] text-o1-muted">Sleep (hours)</span>
+              <span className="mb-1 block text-o1-label text-o1-muted">Sleep (hours)</span>
               <input
                 type="number"
                 step="0.1"
@@ -174,14 +174,14 @@ export const DailyCheckInProgress: React.FC<DailyCheckInProgressProps> = ({
                 value={sleepHours}
                 onFocus={(e) => e.target.select()}
                 onChange={(e) => setSleepHours(sanitizeNumericInput(e.target.value))}
-                className="h-10 w-full rounded-xl border border-white/[0.07] bg-o1-sheet px-3 text-[13px] tabular-nums text-o1-text focus:border-o1-crimson focus:outline-none"
+                className="h-10 w-full rounded-xl border border-white/[0.07] bg-o1-sheet px-3 text-o1-body tabular-nums text-o1-text focus:border-o1-crimson focus:outline-none"
               />
             </label>
           </div>
 
           <div className="grid grid-cols-2 gap-2.5">
             <label className="block">
-              <span className="mb-1 flex items-center justify-between text-[11px] text-o1-muted">
+              <span className="mb-1 flex items-center justify-between text-o1-label text-o1-muted">
                 Soreness
                 <span className="font-semibold tabular-nums text-o1-text">{soreness || '--'}</span>
               </span>
@@ -195,7 +195,7 @@ export const DailyCheckInProgress: React.FC<DailyCheckInProgressProps> = ({
               />
             </label>
             <label className="block">
-              <span className="mb-1 flex items-center justify-between text-[11px] text-o1-muted">
+              <span className="mb-1 flex items-center justify-between text-o1-label text-o1-muted">
                 Stress
                 <span className="font-semibold tabular-nums text-o1-text">{stress || '--'}</span>
               </span>
@@ -211,18 +211,18 @@ export const DailyCheckInProgress: React.FC<DailyCheckInProgressProps> = ({
           </div>
 
           <label className="block">
-            <span className="mb-1 block text-[11px] text-o1-muted">Notes for {coachName}</span>
+            <span className="mb-1 block text-o1-label text-o1-muted">Notes for {coachName}</span>
             <textarea
               rows={2}
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder="How training felt, anything sore or tight"
-              className="w-full rounded-xl border border-white/[0.07] bg-o1-sheet p-2.5 text-[13px] text-o1-text placeholder:text-o1-muted focus:border-o1-crimson focus:outline-none"
+              className="w-full rounded-xl border border-white/[0.07] bg-o1-sheet p-2.5 text-o1-body text-o1-text placeholder:text-o1-muted focus:border-o1-crimson focus:outline-none"
             />
           </label>
 
           {sendFailed ? (
-            <p role="alert" className="text-[12px] text-o1-text">
+            <p role="alert" className="text-o1-caption text-o1-text">
               Could not send. Check your connection and try again.
             </p>
           ) : null}
@@ -230,7 +230,7 @@ export const DailyCheckInProgress: React.FC<DailyCheckInProgressProps> = ({
           <button
             type="submit"
             disabled={sending}
-            className="flex h-[44px] w-full items-center justify-center gap-1.5 rounded-xl bg-o1-crimson text-[13px] font-semibold text-white active:scale-[0.98] disabled:opacity-60"
+            className="flex h-[44px] w-full items-center justify-center gap-1.5 rounded-xl bg-o1-crimson text-o1-body font-semibold text-white active:scale-[0.98] disabled:opacity-60"
           >
             <Send className="h-3.5 w-3.5" />
             <span>{sending ? 'Sending…' : `Send to ${coachName}`}</span>
@@ -240,15 +240,15 @@ export const DailyCheckInProgress: React.FC<DailyCheckInProgressProps> = ({
 
       {reviewed.length > 0 && (
         <div className="space-y-2">
-          <p className="px-1 text-[13px] font-semibold text-o1-text">Session feedback</p>
+          <p className="px-1 text-o1-body font-semibold text-o1-text">Session feedback</p>
           {reviewed.map((w) => (
             <div
               key={w.id}
               className="space-y-2 rounded-2xl border border-white/[0.07] bg-o1-surface p-3"
             >
               <div className="flex items-baseline justify-between gap-2">
-                <p className="truncate text-[13px] font-semibold text-o1-text">{w.title}</p>
-                <p className="shrink-0 text-[11px] tabular-nums text-o1-muted">
+                <p className="truncate text-o1-body font-semibold text-o1-text">{w.title}</p>
+                <p className="shrink-0 text-o1-label tabular-nums text-o1-muted">
                   {[
                     sessionDate(w.completedAt),
                     w.tonnageKg ? `${w.tonnageKg.toLocaleString()} kg` : '',
@@ -269,11 +269,11 @@ export const DailyCheckInProgress: React.FC<DailyCheckInProgressProps> = ({
 
       <div className="space-y-2">
         {checkins === null ? (
-          <p className="py-6 text-center text-[13px] text-o1-muted">Loading check-ins…</p>
+          <p className="py-6 text-center text-o1-body text-o1-muted">Loading check-ins…</p>
         ) : checkins.length === 0 ? (
           <div className="space-y-1 rounded-2xl border border-dashed border-white/[0.07] bg-o1-surface p-6 text-center">
-            <p className="text-[13px] font-semibold text-o1-text">No check-ins yet</p>
-            <p className="text-[12px] text-o1-muted">
+            <p className="text-o1-body font-semibold text-o1-text">No check-ins yet</p>
+            <p className="text-o1-caption text-o1-muted">
               Your check-ins and {coachName}'s replies show here.
             </p>
           </div>
@@ -283,7 +283,7 @@ export const DailyCheckInProgress: React.FC<DailyCheckInProgressProps> = ({
               key={chk.id}
               className="space-y-2 rounded-2xl border border-white/[0.07] bg-o1-surface p-3"
             >
-              <p className="text-[12px] text-o1-muted">{chk.date || 'Check-in'}</p>
+              <p className="text-o1-caption text-o1-muted">{chk.date || 'Check-in'}</p>
               <div className="grid grid-cols-4 gap-2">
                 <Metric label="Weight" value={chk.weightKg > 0 ? `${chk.weightKg} kg` : '--'} />
                 <Metric label="Sleep" value={chk.sleepHours > 0 ? `${chk.sleepHours} h` : '--'} />
@@ -297,7 +297,7 @@ export const DailyCheckInProgress: React.FC<DailyCheckInProgressProps> = ({
                 />
               </div>
               {chk.notes ? (
-                <p className="text-[13px] leading-relaxed text-o1-text">{chk.notes}</p>
+                <p className="text-o1-body leading-relaxed text-o1-text">{chk.notes}</p>
               ) : null}
               {chk.coachFeedback?.feedbackText ? (
                 <CoachReply
@@ -306,7 +306,7 @@ export const DailyCheckInProgress: React.FC<DailyCheckInProgressProps> = ({
                   when={chk.coachFeedback.givenAt}
                 />
               ) : (
-                <p className="text-[12px] text-o1-muted">Waiting for {coachName} to reply</p>
+                <p className="text-o1-caption text-o1-muted">Waiting for {coachName} to reply</p>
               )}
             </div>
           ))

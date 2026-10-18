@@ -97,8 +97,8 @@ export const CoachProgramsHubModal: React.FC<CoachProgramsHubModalProps> = ({
               <Layers className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="text-[14px] font-semibold text-o1-text">Programs</h3>
-              <p className="text-[11px] text-o1-muted">
+              <h3 className="text-o1-control font-semibold text-o1-text">Programs</h3>
+              <p className="text-o1-label text-o1-muted">
                 {programs === null
                   ? 'Loading…'
                   : count === 1
@@ -121,7 +121,7 @@ export const CoachProgramsHubModal: React.FC<CoachProgramsHubModalProps> = ({
         </div>
 
         {notice ? (
-          <p role="status" className="text-[12px] text-o1-text">
+          <p role="status" className="text-o1-caption text-o1-text">
             {notice}
           </p>
         ) : null}
@@ -130,11 +130,11 @@ export const CoachProgramsHubModal: React.FC<CoachProgramsHubModalProps> = ({
             role="alert"
             className="flex items-center justify-between gap-2 rounded-xl border border-o1-crimson/30 bg-o1-crimson/10 px-3 py-2"
           >
-            <p className="text-[12px] text-o1-text">Could not load your programs.</p>
+            <p className="text-o1-caption text-o1-text">Could not load your programs.</p>
             <button
               type="button"
               onClick={() => void load()}
-              className="min-h-[36px] px-2 text-[12px] font-semibold text-o1-text"
+              className="min-h-[36px] px-2 text-o1-caption font-semibold text-o1-text"
             >
               Retry
             </button>
@@ -143,14 +143,14 @@ export const CoachProgramsHubModal: React.FC<CoachProgramsHubModalProps> = ({
 
         <div className="overflow-y-auto no-scrollbar flex-1 space-y-2">
           {programs === null ? (
-            <p className="py-8 text-center text-[13px] text-o1-muted">Loading programs…</p>
+            <p className="py-8 text-center text-o1-body text-o1-muted">Loading programs…</p>
           ) : programs.length === 0 ? (
             <div className="p-5 rounded-2xl border border-dashed border-white/[0.07] text-center space-y-2">
               <div className="w-10 h-10 rounded-xl bg-white/[0.08] flex items-center justify-center mx-auto text-o1-muted">
                 <Dumbbell className="w-5 h-5" />
               </div>
-              <h4 className="text-[13px] font-semibold text-o1-text">No programs yet</h4>
-              <p className="text-[12px] text-o1-muted max-w-xs mx-auto">
+              <h4 className="text-o1-body font-semibold text-o1-text">No programs yet</h4>
+              <p className="text-o1-caption text-o1-muted max-w-xs mx-auto">
                 Build a multi-week program to assign to your athletes or sell on your profile.
               </p>
             </div>
@@ -163,10 +163,10 @@ export const CoachProgramsHubModal: React.FC<CoachProgramsHubModalProps> = ({
                   className="p-3 rounded-2xl bg-o1-surface border border-white/[0.07] flex items-center justify-between gap-3"
                 >
                   <div className="min-w-0">
-                    <h4 className="text-[13px] font-semibold text-o1-text truncate">
+                    <h4 className="text-o1-body font-semibold text-o1-text truncate">
                       {prog.title}
                     </h4>
-                    <div className="flex items-center gap-2 text-[11px] text-o1-muted mt-0.5">
+                    <div className="flex items-center gap-2 text-o1-label text-o1-muted mt-0.5">
                       {prog.level ? <span>{prog.level}</span> : null}
                       {prog.level && prog.weeks ? <span aria-hidden>·</span> : null}
                       {prog.weeks ? (
@@ -191,7 +191,7 @@ export const CoachProgramsHubModal: React.FC<CoachProgramsHubModalProps> = ({
                     }
                     className={`flex h-10 shrink-0 items-center justify-center rounded-xl transition disabled:opacity-50 ${
                       confirmId === prog.id
-                        ? 'bg-o1-crimson px-3 text-[12px] font-semibold text-white'
+                        ? 'bg-o1-crimson px-3 text-o1-caption font-semibold text-white'
                         : 'w-10 text-o1-muted active:bg-white/[0.06]'
                     }`}
                   >
@@ -209,7 +209,7 @@ export const CoachProgramsHubModal: React.FC<CoachProgramsHubModalProps> = ({
             tactileEngine.triggerSelectionBuzz();
             setIsCreatorOpen(true);
           }}
-          className="w-full h-[48px] rounded-2xl bg-o1-crimson hover:bg-o1-crimson-hover text-white text-[13px] font-semibold flex items-center justify-center gap-1.5 active:scale-[0.98] transition"
+          className="w-full h-[48px] rounded-2xl bg-o1-crimson hover:bg-o1-crimson-hover text-white text-o1-body font-semibold flex items-center justify-center gap-1.5 active:scale-[0.98] transition"
         >
           <Plus className="w-4 h-4" />
           New program

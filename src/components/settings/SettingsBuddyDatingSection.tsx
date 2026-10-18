@@ -20,7 +20,7 @@ export const SettingsBuddyDatingSection: React.FC = () => {
           <div className="min-w-0">
             <div className="flex items-center gap-2">
               {buddy.isBuddyProfileActive ? (
-                <Radio className="w-4 h-4 text-[#6B8F5E] shrink-0" />
+                <Radio className="w-4 h-4 text-o1-olive shrink-0" />
               ) : (
                 <EyeOff className="w-4 h-4 text-neutral-400 shrink-0" />
               )}
@@ -28,7 +28,7 @@ export const SettingsBuddyDatingSection: React.FC = () => {
                 Enable Buddy Dating &amp; Radar
               </span>
             </div>
-            <span className="text-[11px] font-sans text-neutral-400 block pt-0.5 leading-tight">
+            <span className="text-o1-label font-sans text-neutral-400 block pt-0.5 leading-tight">
               {buddy.isBuddyProfileActive
                 ? 'Discover nearby training partners and spotters'
                 : 'Turned off — Pure fitness mode'}
@@ -52,7 +52,7 @@ export const SettingsBuddyDatingSection: React.FC = () => {
                 Stealth / Ghost Mode
               </span>
             </div>
-            <span className="text-[11px] font-sans text-neutral-400 block pt-0.5 leading-tight">
+            <span className="text-o1-label font-sans text-neutral-400 block pt-0.5 leading-tight">
               Browse radar without revealing your profile
             </span>
           </div>

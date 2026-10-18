@@ -66,7 +66,7 @@ export const SupplementTodayPane: React.FC<SupplementTodayPaneProps> = ({
           </span>
           {tracksCaffeine && (
             <span
-              className={`inline-flex items-center gap-1 text-[11px] tabular-nums ${overCaffeine ? 'text-amber-500' : 'text-o1-muted'}`}
+              className={`inline-flex items-center gap-1 text-o1-label tabular-nums ${overCaffeine ? 'text-amber-500' : 'text-o1-muted'}`}
             >
               <Coffee className="w-3 h-3" aria-hidden />
               {caffeineToday} / {CAFFEINE_DAILY_LIMIT_MG} mg caffeine
@@ -80,7 +80,7 @@ export const SupplementTodayPane: React.FC<SupplementTodayPaneProps> = ({
           />
         </div>
         {overCaffeine && (
-          <p className="text-[10px] text-amber-500">
+          <p className="text-o1-label text-amber-500">
             Above the 400 mg daily guidance for healthy adults.
           </p>
         )}
@@ -94,7 +94,7 @@ export const SupplementTodayPane: React.FC<SupplementTodayPaneProps> = ({
         return (
           <section key={timing} aria-label={timing} className="space-y-1.5">
             <div className="flex items-center justify-between">
-              <h5 className="text-[11px] font-semibold text-o1-muted">
+              <h5 className="text-o1-label font-semibold text-o1-muted">
                 {timing}{' '}
                 <span className="tabular-nums font-normal">
                   · {groupTaken}/{items.length}
@@ -104,7 +104,7 @@ export const SupplementTodayPane: React.FC<SupplementTodayPaneProps> = ({
                 <button
                   type="button"
                   onClick={() => toggleGroup(items, allTaken)}
-                  className="text-[11px] font-medium text-o1-text hover:text-o1-crimson cursor-pointer"
+                  className="text-o1-label font-medium text-o1-text hover:text-o1-crimson cursor-pointer"
                 >
                   {allTaken ? 'Undo all' : 'Take all'}
                 </button>
@@ -136,7 +136,7 @@ export const SupplementTodayPane: React.FC<SupplementTodayPaneProps> = ({
                     >
                       {item.name}
                     </span>
-                    <span className="block text-[10px] text-o1-muted mt-0.5 truncate tabular-nums">
+                    <span className="block text-o1-label text-o1-muted mt-0.5 truncate tabular-nums">
                       {item.dosage}
                       {item.caffeineMg ? ` · ${item.caffeineMg} mg caffeine` : ''}
                     </span>

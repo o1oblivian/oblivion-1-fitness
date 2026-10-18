@@ -25,7 +25,7 @@ const TABS: {
     sub: 'Made for today',
     icon: Dumbbell,
     drawerId: 'intel-coach-accordion-drawer',
-    tint: 'text-[#d97706]',
+    tint: 'text-o1-amber-deep',
   },
   {
     id: 'coach',
@@ -33,7 +33,7 @@ const TABS: {
     sub: 'From your coach',
     icon: UserRound,
     drawerId: 'my-coach-accordion-drawer',
-    tint: 'text-[#0284c7]',
+    tint: 'text-o1-sky',
   },
 ];
 
@@ -77,11 +77,11 @@ export const TrainingHubCards: React.FC<TrainingHubCardsProps> = ({
               )}
             </span>
             <span className="min-w-0 text-left">
-              <span className="block font-medium text-[13px] tracking-tight truncate leading-tight">
+              <span className="block font-medium text-o1-body tracking-tight truncate leading-tight">
                 {title}
               </span>
               <span
-                className={`block text-[11px] truncate leading-tight mt-0.5 ${note ? 'text-o1-text' : 'text-o1-muted'}`}
+                className={`block text-o1-label truncate leading-tight mt-0.5 ${note ? 'text-o1-text' : 'text-o1-muted'}`}
               >
                 {note || sub}
               </span>

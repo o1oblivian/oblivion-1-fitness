@@ -102,7 +102,7 @@ export const DispatchStackTab: React.FC<DispatchStackTabProps> = ({
         ) : (
           <div className="space-y-0.5 min-w-0">
             <p className="text-xs font-semibold text-o1-text truncate">{setup.title}</p>
-            <p className="text-[11px] text-o1-muted truncate">
+            <p className="text-o1-label text-o1-muted truncate">
               {dispatchDayLabel(setup.date)} · {setup.focus}
             </p>
           </div>

@@ -22,7 +22,7 @@ export const DisciplineSelectorTrack: React.FC<DisciplineSelectorTrackProps> = (
             : 'text-neutral-400 hover:text-white rounded-full px-3.5 py-1.5 text-xs font-semibold flex items-center justify-center gap-1.5 flex-1 transition-all cursor-pointer'
         }
       >
-        <Weight className="w-3.5 h-3.5 text-[#C4121A]" strokeWidth={1.75} />
+        <Weight className="w-3.5 h-3.5 text-o1-crimson" strokeWidth={1.75} />
         <span>Lift</span>
       </button>
       <button
@@ -35,7 +35,7 @@ export const DisciplineSelectorTrack: React.FC<DisciplineSelectorTrackProps> = (
             : 'text-neutral-400 hover:text-white rounded-full px-3.5 py-1.5 text-xs font-semibold flex items-center justify-center gap-1.5 flex-1 transition-all cursor-pointer'
         }
       >
-        <Trophy className="w-3.5 h-3.5 text-[#059669]" strokeWidth={1.75} />
+        <Trophy className="w-3.5 h-3.5 text-o1-emerald-deep" strokeWidth={1.75} />
         <span>Sports</span>
       </button>
       <button
@@ -48,7 +48,7 @@ export const DisciplineSelectorTrack: React.FC<DisciplineSelectorTrackProps> = (
             : 'text-neutral-400 hover:text-white rounded-full px-3.5 py-1.5 text-xs font-semibold flex items-center justify-center gap-1.5 flex-1 transition-all cursor-pointer'
         }
       >
-        <Leaf className="w-3.5 h-3.5 text-[#4F8F9A]" strokeWidth={1.75} />
+        <Leaf className="w-3.5 h-3.5 text-o1-teal" strokeWidth={1.75} />
         <span>Recovery</span>
       </button>
     </div>

@@ -34,7 +34,7 @@ function ReelTile({
       aria-label={
         item.clip ? `Play ${item.reel.title}, ${item.clip.title}` : `Play ${item.reel.title}`
       }
-      className={`group relative block w-full ${shape} cursor-pointer overflow-hidden rounded-2xl border border-white/[0.07] bg-[#0E0E0E] shadow-md transition-transform duration-200 active:scale-[0.98] focus-visible:outline focus-visible:outline-2 focus-visible:outline-white`}
+      className={`group relative block w-full ${shape} cursor-pointer overflow-hidden rounded-2xl border border-white/[0.07] bg-o1-card shadow-md transition-transform duration-200 active:scale-[0.98] focus-visible:outline focus-visible:outline-2 focus-visible:outline-white`}
     >
       <img
         src={item.thumbnail}
@@ -100,7 +100,7 @@ export const ReelMosaicSection: React.FC<ReelMosaicSectionProps> = ({ reels, onS
         <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl border border-white/[0.07] bg-o1-card text-neutral-500 shadow-sm">
           <Play className="h-5 w-5 opacity-40" />
         </div>
-        <h4 className="text-[13px] text-o1-muted">No reels here yet</h4>
+        <h4 className="text-o1-body text-o1-muted">No reels here yet</h4>
       </div>
     );
   }

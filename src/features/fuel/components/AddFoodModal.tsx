@@ -231,7 +231,7 @@ export const AddFoodModal: React.FC<AddFoodModalProps> = ({
               <h3 className="font-bold text-base text-o1-text leading-tight truncate">
                 Add To {category}
               </h3>
-              <p className="text-[11px] text-o1-muted font-sans flex items-center gap-1.5 truncate mt-0.5">
+              <p className="text-o1-label text-o1-muted font-sans flex items-center gap-1.5 truncate mt-0.5">
                 <span className="truncate">
                   {searchQuery.trim() ? 'Catalog + live search' : 'Verified catalog'}
                 </span>
@@ -270,7 +270,7 @@ export const AddFoodModal: React.FC<AddFoodModalProps> = ({
         </div>
 
         {/* 5 Category Pills: Protein, Carbs, Fats, Fast Food, Drinks (STRICT ZERO "All Foods" tab) */}
-        <div className="flex items-center gap-0.5 overflow-x-auto no-scrollbar border-b border-white/[0.05] pb-2 text-[11px] font-semibold shrink-0">
+        <div className="flex items-center gap-0.5 overflow-x-auto no-scrollbar border-b border-white/[0.05] pb-2 text-o1-label font-semibold shrink-0">
           {CATEGORIES.map((cat) => (
             <button
               key={cat.id}
@@ -335,7 +335,7 @@ export const AddFoodModal: React.FC<AddFoodModalProps> = ({
                 No {dietPreference} match for &quot;{searchQuery || activeCategory}&quot;. Try
                 another name or add a custom food.
               </span>
-              <span className="text-[10px] text-o1-muted">
+              <span className="text-o1-label text-o1-muted">
                 Tap below to log a custom food item with exact macros.
               </span>
             </div>
@@ -358,22 +358,22 @@ export const AddFoodModal: React.FC<AddFoodModalProps> = ({
                         {food.name}
                       </span>
                       {(food.is_custom || food.source === 'custom') && (
-                        <span className="px-1.5 py-0.5 rounded-md bg-white/[0.08] text-o1-text text-[9px] tabular-nums font-bold shrink-0 border border-white/[0.08]">
+                        <span className="px-1.5 py-0.5 rounded-md bg-white/[0.08] text-o1-text text-o1-label tabular-nums font-bold shrink-0 border border-white/[0.08]">
                           My Food
                         </span>
                       )}
                       {food.source === 'openfoodfacts' && (
-                        <span className="px-1.5 py-0.5 rounded-md bg-transparent text-sky-600 text-[9px] tabular-nums font-bold shrink-0 border border-sky-600/40">
+                        <span className="px-1.5 py-0.5 rounded-md bg-transparent text-sky-600 text-o1-label tabular-nums font-bold shrink-0 border border-sky-600/40">
                           Live
                         </span>
                       )}
                       {food.source === 'usda' && (
-                        <span className="px-1.5 py-0.5 rounded-md bg-o1-warn-wash text-amber-500 text-[9px] tabular-nums font-bold shrink-0 border border-amber-900/50">
+                        <span className="px-1.5 py-0.5 rounded-md bg-o1-warn-wash text-amber-500 text-o1-label tabular-nums font-bold shrink-0 border border-amber-900/50">
                           Usda
                         </span>
                       )}
                     </div>
-                    <span className="text-[11px] text-o1-muted font-sans truncate shrink-0 max-w-[110px]">
+                    <span className="text-o1-label text-o1-muted font-sans truncate shrink-0 max-w-[110px]">
                       {food.brand}
                     </span>
                   </div>
@@ -388,7 +388,7 @@ export const AddFoodModal: React.FC<AddFoodModalProps> = ({
                           (food.serving_grams ? `${food.serving_grams}g` : '1 serving')}
                       </span>
                     </div>
-                    <div className="flex items-center gap-2 text-[11px] tabular-nums">
+                    <div className="flex items-center gap-2 text-o1-label tabular-nums">
                       <span className="text-o1-crimson font-bold">{food.protein}p</span>
                       <span className="text-amber-500 font-bold">{food.carbs}c</span>
                       <span className="text-emerald-500 font-bold">{food.fats}f</span>

@@ -19,20 +19,20 @@ export const DeleteConfirm: React.FC<DeleteConfirmProps> = ({
   <div
     role="alertdialog"
     aria-label={label}
-    className="flex items-center gap-2 rounded-xl bg-o1-well border border-[#C4121A]/40 pl-3 pr-1.5 py-1.5"
+    className="flex items-center gap-2 rounded-xl bg-o1-well border border-o1-crimson/40 pl-3 pr-1.5 py-1.5"
   >
-    <p className="flex-1 min-w-0 text-[12px] text-o1-text leading-snug">{children}</p>
+    <p className="flex-1 min-w-0 text-o1-caption text-o1-text leading-snug">{children}</p>
     <button
       type="button"
       onClick={onCancel}
-      className="h-8 px-3 rounded-full text-[12px] text-o1-muted hover:text-o1-text cursor-pointer"
+      className="h-8 px-3 rounded-full text-o1-caption text-o1-muted hover:text-o1-text cursor-pointer"
     >
       Cancel
     </button>
     <button
       type="button"
       onClick={onConfirm}
-      className="h-8 px-3 rounded-full bg-[#C4121A] hover:bg-[#A30F16] active:bg-[#800C11] text-[12px] text-white cursor-pointer"
+      className="h-8 px-3 rounded-full bg-o1-crimson hover:bg-o1-crimson-hover active:bg-o1-crimson-press text-o1-caption text-white cursor-pointer"
     >
       Delete
     </button>

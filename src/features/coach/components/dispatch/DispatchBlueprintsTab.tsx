@@ -39,7 +39,7 @@ function Segmented<T extends string>({
 }) {
   return (
     <div role="radiogroup" aria-label={label}>
-      <span className="text-[11px] font-semibold text-o1-text block mb-1">{label}</span>
+      <span className="text-o1-label font-semibold text-o1-text block mb-1">{label}</span>
       <div className="flex p-1 rounded-xl bg-white/[0.08] gap-0.5">
         {options.map((opt) => (
           <button
@@ -51,7 +51,7 @@ function Segmented<T extends string>({
               tactileEngine.triggerSelectionBuzz();
               onChange(opt.value);
             }}
-            className={`flex-1 h-8 rounded-lg text-[11px] font-semibold truncate ${value === opt.value ? 'bg-o1-surface text-o1-text' : 'text-o1-muted'}`}
+            className={`flex-1 h-8 rounded-lg text-o1-label font-semibold truncate ${value === opt.value ? 'bg-o1-surface text-o1-text' : 'text-o1-muted'}`}
           >
             {opt.label}
           </button>
@@ -122,7 +122,7 @@ export const DispatchBlueprintsTab: React.FC<DispatchBlueprintsTabProps> = ({ on
       <div className="p-4 rounded-2xl border border-white/[0.07] bg-o1-surface space-y-3">
         <div>
           <h4 className="text-xs font-bold text-o1-text">{blueprint.title}</h4>
-          <p className="text-[11px] text-o1-muted">
+          <p className="text-o1-label text-o1-muted">
             {blueprint.durationMins}m · {blueprint.exercises.length} exercises · {blueprint.tagline}
           </p>
         </div>
@@ -139,13 +139,13 @@ export const DispatchBlueprintsTab: React.FC<DispatchBlueprintsTabProps> = ({ on
                   {ex.sets}x · {ex.reps} @ {ex.targetWeightKg > 0 ? `${ex.targetWeightKg}kg` : 'BW'}
                 </span>
               </div>
-              <div className="flex items-center justify-between text-[10px] text-o1-muted">
+              <div className="flex items-center justify-between text-o1-label text-o1-muted">
                 <span className="truncate">{ex.muscle}</span>
                 <span className="font-mono">
                   RPE {ex.rpe} · Tempo {ex.tempo}
                 </span>
               </div>
-              <p className="text-[10px] text-o1-muted italic truncate">"{ex.cue}"</p>
+              <p className="text-o1-label text-o1-muted italic truncate">"{ex.cue}"</p>
             </div>
           ))}
         </div>
@@ -158,7 +158,7 @@ export const DispatchBlueprintsTab: React.FC<DispatchBlueprintsTabProps> = ({ on
           <Plus size={14} />
           Use this workout
         </button>
-        <p className="text-[10px] text-o1-muted text-center">
+        <p className="text-o1-label text-o1-muted text-center">
           Consult a physician before beginning any training program.
         </p>
       </div>

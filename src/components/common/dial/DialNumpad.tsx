@@ -56,7 +56,7 @@ export const DialNumpad: React.FC<DialNumpadProps> = ({ value, unit, max, onChan
   return (
     <div className="o1-instrument o1-dial-stack w-full max-w-[270px] mx-auto flex flex-col items-center select-none">
       <div className="o1-dial-well w-full rounded-2xl bg-o1-well border border-white/[0.07] text-center">
-        <span className="text-[10px] font-mono tracking-wider text-neutral-400 block">
+        <span className="text-o1-label font-mono tracking-wider text-neutral-400 block">
           TARGET {unit}
         </span>
         <span className="text-3xl font-mono font-light text-o1-text">

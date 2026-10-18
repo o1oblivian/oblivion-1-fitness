@@ -20,10 +20,10 @@ export const MifflinMacroSection: React.FC<MifflinMacroSectionProps> = ({
   return (
     <div className="space-y-3 pt-2 border-t border-white/[0.05]">
       <div className="flex items-center justify-between">
-        <span className="text-[11px] tabular-nums font-bold tracking-wider text-o1-muted">
+        <span className="text-o1-label tabular-nums font-bold tracking-wider text-o1-muted">
           3. Macro Split
         </span>
-        <span className="text-[10px] tabular-nums text-o1-muted font-semibold">
+        <span className="text-o1-label tabular-nums text-o1-muted font-semibold">
           {proteinPerKg}g protein/kg
         </span>
       </div>
@@ -73,13 +73,13 @@ export const MifflinMacroSection: React.FC<MifflinMacroSectionProps> = ({
               <span className="text-xs font-bold">{m.label}</span>
               {macroKey === m.key && <Check className="w-3.5 h-3.5 text-o1-crimson stroke-[3]" />}
             </div>
-            <span className="text-[10px] tabular-nums text-o1-muted block mt-0.5">{m.sub}</span>
+            <span className="text-o1-label tabular-nums text-o1-muted block mt-0.5">{m.sub}</span>
           </button>
         ))}
       </div>
 
       <div className="p-3 bg-o1-surface border border-white/[0.08] rounded-2xl space-y-1.5">
-        <div className="flex items-center justify-between text-[10px] tabular-nums">
+        <div className="flex items-center justify-between text-o1-label tabular-nums">
           <span className="text-o1-muted">Protein Intake Target</span>
           <span className="text-o1-text font-bold">{proteinPerKg.toFixed(1)} g / kg</span>
         </div>
@@ -92,7 +92,7 @@ export const MifflinMacroSection: React.FC<MifflinMacroSectionProps> = ({
           onChange={(e) => setProteinPerKg(parseFloat(e.target.value))}
           className="w-full accent-o1-crimson h-1.5 bg-o1-sheet rounded-lg cursor-pointer"
         />
-        <div className="flex justify-between text-[9px] tabular-nums text-o1-muted">
+        <div className="flex justify-between text-o1-label tabular-nums text-o1-muted">
           <span>1.6g</span>
           <span>2.2g</span>
           <span>2.8g</span>

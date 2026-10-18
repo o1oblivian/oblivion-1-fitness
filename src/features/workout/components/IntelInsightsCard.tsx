@@ -32,13 +32,13 @@ export const IntelInsightsCard: React.FC = () => {
         />
 
         <span className="relative min-w-0 flex-1">
-          <span className="block text-[11px] font-medium tracking-[0.2em] uppercase text-o1-muted">
+          <span className="block text-o1-label font-medium tracking-[0.2em] uppercase text-o1-muted">
             Oblivion Pro
           </span>
-          <span className="block text-[15px] font-light tracking-wide text-[#FFFFFF] leading-tight mt-1">
+          <span className="block text-o1-control font-light tracking-wide text-[#FFFFFF] leading-tight mt-1">
             My progress
           </span>
-          <span className="flex flex-wrap items-center gap-x-1.5 mt-1.5 text-[11px] text-o1-muted leading-none">
+          <span className="flex flex-wrap items-center gap-x-1.5 mt-1.5 text-o1-label text-o1-muted leading-none">
             {FEATURES.map((f, i) => (
               <React.Fragment key={f}>
                 {i > 0 && (

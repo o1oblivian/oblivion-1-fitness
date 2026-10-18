@@ -57,12 +57,12 @@ export const StorefrontEditor: React.FC<StorefrontEditorProps> = ({
     <div className="space-y-2 rounded-2xl border border-white/[0.07] bg-o1-surface p-3">
       {FIELDS.map(([key, label]) => (
         <label key={key} className="flex items-center justify-between gap-3">
-          <span className="text-[13px] text-o1-muted">{label}</span>
+          <span className="text-o1-body text-o1-muted">{label}</span>
           <input
             inputMode="decimal"
             value={draft[key]}
             onChange={(event) => setDraft((prev) => ({ ...prev, [key]: event.target.value }))}
-            className="h-[44px] w-28 rounded-xl border border-white/[0.07] bg-o1-canvas px-3 text-right text-[13px] text-o1-text outline-none focus:border-o1-crimson"
+            className="h-[44px] w-28 rounded-xl border border-white/[0.07] bg-o1-canvas px-3 text-right text-o1-body text-o1-text outline-none focus:border-o1-crimson"
           />
         </label>
       ))}
@@ -70,7 +70,7 @@ export const StorefrontEditor: React.FC<StorefrontEditorProps> = ({
         <button
           type="button"
           onClick={onCancel}
-          className="h-[44px] flex-1 rounded-xl border border-white/[0.07] text-[13px] font-semibold text-o1-text"
+          className="h-[44px] flex-1 rounded-xl border border-white/[0.07] text-o1-body font-semibold text-o1-text"
         >
           Cancel
         </button>
@@ -78,7 +78,7 @@ export const StorefrontEditor: React.FC<StorefrontEditorProps> = ({
           type="button"
           disabled={saving}
           onClick={() => void save()}
-          className="h-[44px] flex-1 rounded-xl bg-o1-crimson text-[13px] font-semibold text-white disabled:opacity-40"
+          className="h-[44px] flex-1 rounded-xl bg-o1-crimson text-o1-body font-semibold text-white disabled:opacity-40"
         >
           {saving ? 'Saving' : 'Save'}
         </button>

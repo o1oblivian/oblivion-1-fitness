@@ -30,13 +30,13 @@ const TREND: Record<LiftTrend, { simple: string; pro: string; cls: string; strok
   declining: {
     simple: 'Dropping',
     pro: 'Declining',
-    cls: 'text-[#C4121A] border-[#C4121A]/40',
+    cls: 'text-o1-crimson border-o1-crimson/40',
     stroke: '#C4121A',
   },
 };
 
-const PILL_OFF = 'bg-[#000000] text-[#FFFFFF] border border-white/[0.14]';
-const PILL_ON = 'bg-[#FFFFFF] text-[#111113] border border-[#FFFFFF]';
+const PILL_OFF = 'bg-o1-canvas text-[#FFFFFF] border border-white/[0.14]';
+const PILL_ON = 'bg-[#FFFFFF] text-o1-surface border border-[#FFFFFF]';
 
 function dayOf(key: string): Date {
   const [y, m, d] = key.split('-').map(Number);
@@ -85,7 +85,7 @@ const ProgressChart: React.FC<{ lift: LiftProgress; stroke: string }> = ({ lift,
   });
   return (
     <div className="flex gap-2">
-      <div className="flex flex-col justify-between text-[10px] text-o1-muted text-right shrink-0">
+      <div className="flex flex-col justify-between text-o1-label text-o1-muted text-right shrink-0">
         <span>{kg(hi)}</span>
         {hi !== lo && <span>{kg(lo)}</span>}
       </div>
@@ -144,7 +144,7 @@ export const LiftHistoryCard: React.FC = () => {
   ];
 
   const empty = (text: string) => (
-    <p className="py-2 text-[11px] text-o1-muted leading-relaxed">{text}</p>
+    <p className="py-2 text-o1-label text-o1-muted leading-relaxed">{text}</p>
   );
 
   return (
@@ -161,8 +161,8 @@ export const LiftHistoryCard: React.FC = () => {
         <span className="o1-mark text-o1-gold">
           <Trophy />
         </span>
-        <span className="text-[13px] font-semibold text-o1-text">All-time lift history</span>
-        {loading && <span className="text-[10px] text-o1-muted">Loading…</span>}
+        <span className="text-o1-body font-semibold text-o1-text">All-time lift history</span>
+        {loading && <span className="text-o1-label text-o1-muted">Loading…</span>}
         <span className="ml-auto text-o1-muted shrink-0">
           {expanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
         </span>
@@ -178,7 +178,7 @@ export const LiftHistoryCard: React.FC = () => {
                 tactileEngine.triggerSelectionBuzz();
                 setView(tab.id);
               }}
-              className={`px-3 py-1 rounded-full text-[11px] font-semibold ${view === tab.id ? PILL_ON : PILL_OFF}`}
+              className={`px-3 py-1 rounded-full text-o1-label font-semibold ${view === tab.id ? PILL_ON : PILL_OFF}`}
             >
               {tab.label}
             </button>
@@ -206,16 +206,16 @@ export const LiftHistoryCard: React.FC = () => {
                     className="w-full min-h-[44px] py-2 flex items-center gap-2 text-left bg-transparent border-0"
                   >
                     <div className="flex-1 min-w-0">
-                      <div className="text-[13px] font-semibold text-white truncate">
+                      <div className="text-o1-body font-semibold text-white truncate">
                         {lift.name}
                       </div>
-                      <div className="text-[11px] text-o1-muted truncate">
+                      <div className="text-o1-label text-o1-muted truncate">
                         Last {kg(lift.lastWeightKg)} × {lift.lastReps} · {shortDay(lift.lastDay)}
                       </div>
                     </div>
                     {lift.sessions >= 2 && (
                       <span
-                        className={`shrink-0 px-2 py-0.5 rounded-full border text-[10px] font-semibold ${trend.cls}`}
+                        className={`shrink-0 px-2 py-0.5 rounded-full border text-o1-label font-semibold ${trend.cls}`}
                       >
                         {simple ? trend.simple : trend.pro}
                       </span>
@@ -231,7 +231,7 @@ export const LiftHistoryCard: React.FC = () => {
                       {lift.series.length > 1 && (
                         <ProgressChart lift={lift} stroke={trend.stroke} />
                       )}
-                      <p className="text-[11px] text-o1-muted">
+                      <p className="text-o1-label text-o1-muted">
                         {estLabel} {kg(lift.currentE1rm)} now · best {kg(lift.bestE1rm)} ·{' '}
                         {lift.sessions} session{lift.sessions === 1 ? '' : 's'}
                       </p>
@@ -242,7 +242,7 @@ export const LiftHistoryCard: React.FC = () => {
                           .map((s) => (
                             <li
                               key={s.day}
-                              className="flex items-center justify-between text-[12px]"
+                              className="flex items-center justify-between text-o1-caption"
                             >
                               <span className="text-o1-muted">{shortDay(s.day)}</span>
                               <span className="text-o1-text">
@@ -272,15 +272,15 @@ export const LiftHistoryCard: React.FC = () => {
                 className="min-h-[44px] py-2 flex items-center justify-between gap-3"
               >
                 <div className="min-w-0">
-                  <div className="text-[13px] font-semibold text-white truncate">{lift.name}</div>
-                  <div className="text-[11px] text-o1-muted">{shortDay(lift.bestDay)}</div>
+                  <div className="text-o1-body font-semibold text-white truncate">{lift.name}</div>
+                  <div className="text-o1-label text-o1-muted">{shortDay(lift.bestDay)}</div>
                 </div>
                 <div className="text-right shrink-0">
-                  <div className="text-[13px] font-semibold text-white">
+                  <div className="text-o1-body font-semibold text-white">
                     {kg(lift.bestWeightKg)} × {lift.bestReps}
                   </div>
                   {!simple && (
-                    <div className="text-[10px] text-o1-muted">
+                    <div className="text-o1-label text-o1-muted">
                       {estLabel} {kg(lift.bestE1rm)}
                     </div>
                   )}
@@ -308,17 +308,17 @@ export const LiftHistoryCard: React.FC = () => {
                   className="rounded-xl bg-o1-well border border-white/[0.07] px-3 py-2 space-y-0.5"
                 >
                   <div className="flex items-center justify-between gap-2">
-                    <span className="text-[13px] font-semibold text-white truncate">
+                    <span className="text-o1-body font-semibold text-white truncate">
                       {lift.name}
                     </span>
                     <span
-                      className={`shrink-0 px-2 py-0.5 rounded-full border text-[10px] font-semibold ${TREND[lift.trend].cls}`}
+                      className={`shrink-0 px-2 py-0.5 rounded-full border text-o1-label font-semibold ${TREND[lift.trend].cls}`}
                     >
                       {simple ? TREND[lift.trend].simple : TREND[lift.trend].pro}
                     </span>
                   </div>
-                  <p className="text-[12px] text-o1-text">{advice.headline}</p>
-                  <p className="text-[11px] text-o1-muted leading-relaxed">{advice.tip}</p>
+                  <p className="text-o1-caption text-o1-text">{advice.headline}</p>
+                  <p className="text-o1-label text-o1-muted leading-relaxed">{advice.tip}</p>
                 </li>
               );
             })}

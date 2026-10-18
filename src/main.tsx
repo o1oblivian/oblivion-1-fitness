@@ -94,7 +94,7 @@ class RootErrorBoundary extends Component<RootBoundaryProps, RootBoundaryState> 
       return (
         <div className="min-h-dvh w-full bg-black text-white flex flex-col items-stretch justify-start p-6 select-text font-sans">
           <h1 className="text-base font-bold tracking-wider mb-2 text-neutral-100">Launch error</h1>
-          <pre className="text-[11px] leading-relaxed whitespace-pre-wrap break-words text-amber-200 bg-black/60 border border-white/[0.07] rounded-xl p-3 overflow-auto mb-6">
+          <pre className="text-o1-label leading-relaxed whitespace-pre-wrap break-words text-amber-200 bg-black/60 border border-white/[0.07] rounded-xl p-3 overflow-auto mb-6">
             {details}
           </pre>
           <button

@@ -115,7 +115,7 @@ export const ScientificCitationsModal: React.FC<ScientificCitationsModalProps> =
                   </h4>
                 </div>
 
-                <div className="text-[11px] text-neutral-300 font-mono bg-black border border-white/[0.07] rounded-xl p-2.5 my-2">
+                <div className="text-o1-label text-neutral-300 font-mono bg-black border border-white/[0.07] rounded-xl p-2.5 my-2">
                   <span className="font-semibold text-neutral-100">Citation: </span>
                   {c.citation}
                 </div>

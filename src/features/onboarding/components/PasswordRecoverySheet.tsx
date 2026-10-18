@@ -65,8 +65,8 @@ export function PasswordRecoverySheet() {
         noValidate
         className="o1-machined w-full max-w-[440px] rounded-t-[28px] p-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] text-o1-text sm:rounded-[28px]"
       >
-        <h2 className="text-[22px] font-light tracking-[-0.01em]">Choose a new password</h2>
-        <p className="mt-1.5 text-[13px] font-normal text-o1-muted">For {user.email}</p>
+        <h2 className="text-o1-heading font-light tracking-[-0.01em]">Choose a new password</h2>
+        <p className="mt-1.5 text-o1-body font-normal text-o1-muted">For {user.email}</p>
         <label className="mt-5 block">
           <span className="relative block">
             <input
@@ -80,7 +80,7 @@ export function PasswordRecoverySheet() {
                 setPassword(event.target.value);
                 setError(null);
               }}
-              className="h-11 w-full rounded-xl border-0 bg-white/[0.05] px-3.5 pr-12 text-[14px] font-normal outline-none placeholder:text-[#5E5C55] focus:bg-white/[0.08] focus:ring-1 focus:ring-o1-crimson/60"
+              className="h-11 w-full rounded-xl border-0 bg-white/[0.05] px-3.5 pr-12 text-o1-control font-normal outline-none placeholder:text-[#5E5C55] focus:bg-white/[0.08] focus:ring-1 focus:ring-o1-crimson/60"
             />
             <button
               type="button"
@@ -99,7 +99,7 @@ export function PasswordRecoverySheet() {
         {error ? (
           <div
             role="alert"
-            className="mt-3 flex items-start gap-2.5 rounded-xl bg-o1-bad-wash/60 px-3.5 py-2.5 text-[12px] font-normal text-o1-bad-ink"
+            className="mt-3 flex items-start gap-2.5 rounded-xl bg-o1-bad-wash/60 px-3.5 py-2.5 text-o1-caption font-normal text-o1-bad-ink"
           >
             <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
             <span>{error}</span>
@@ -108,7 +108,7 @@ export function PasswordRecoverySheet() {
         <button
           type="submit"
           disabled={busy}
-          className="mt-4 flex h-11 w-full items-center justify-center rounded-full bg-o1-crimson text-[14px] font-medium text-white active:scale-[0.98] disabled:opacity-60"
+          className="mt-4 flex h-11 w-full items-center justify-center rounded-full bg-o1-crimson text-o1-control font-medium text-white active:scale-[0.98] disabled:opacity-60"
         >
           {busy ? <Loader2 className="h-5 w-5 animate-spin" /> : 'Save password'}
         </button>

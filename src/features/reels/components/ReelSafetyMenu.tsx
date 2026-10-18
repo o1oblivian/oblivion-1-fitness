@@ -28,7 +28,7 @@ interface ReelSafetyMenuProps {
 }
 
 const ROW =
-  'flex w-full min-h-[48px] items-center gap-3 rounded-xl border border-white/[0.07] bg-o1-surface px-3 text-left text-[14px] text-o1-text active:bg-white/[0.06] cursor-pointer';
+  'flex w-full min-h-[48px] items-center gap-3 rounded-xl border border-white/[0.07] bg-o1-surface px-3 text-left text-o1-control text-o1-text active:bg-white/[0.06] cursor-pointer';
 
 export const ReelSafetyMenu: React.FC<ReelSafetyMenuProps> = ({ reel, open, onClose }) => {
   const reportReel = useReelSafetyStore((s) => s.reportReel);
@@ -107,7 +107,7 @@ export const ReelSafetyMenu: React.FC<ReelSafetyMenuProps> = ({ reel, open, onCl
             <button
               type="button"
               onClick={finish}
-              className="w-full h-11 text-[13px] text-o1-muted cursor-pointer"
+              className="w-full h-11 text-o1-body text-o1-muted cursor-pointer"
             >
               Cancel
             </button>
@@ -116,8 +116,8 @@ export const ReelSafetyMenu: React.FC<ReelSafetyMenuProps> = ({ reel, open, onCl
 
         {step === 'block' && (
           <>
-            <p className="text-[15px] text-o1-text">Block {coachName}?</p>
-            <p className="text-[12px] text-o1-muted leading-snug">
+            <p className="text-o1-control text-o1-text">Block {coachName}?</p>
+            <p className="text-o1-caption text-o1-muted leading-snug">
               You will not see their reels, and they cannot message you. Blocking is private.
             </p>
             <button
@@ -128,14 +128,14 @@ export const ReelSafetyMenu: React.FC<ReelSafetyMenuProps> = ({ reel, open, onCl
                 setDoneText(`${coachName} is blocked. Their reels are hidden.`);
                 setStep('done');
               }}
-              className="w-full h-11 rounded-full bg-o1-crimson hover:bg-o1-crimson-hover text-[14px] text-white cursor-pointer"
+              className="w-full h-11 rounded-full bg-o1-crimson hover:bg-o1-crimson-hover text-o1-control text-white cursor-pointer"
             >
               Block
             </button>
             <button
               type="button"
               onClick={() => setStep('menu')}
-              className="w-full h-11 text-[13px] text-o1-muted cursor-pointer"
+              className="w-full h-11 text-o1-body text-o1-muted cursor-pointer"
             >
               Cancel
             </button>
@@ -144,13 +144,13 @@ export const ReelSafetyMenu: React.FC<ReelSafetyMenuProps> = ({ reel, open, onCl
 
         {step === 'done' && (
           <>
-            <p role="status" className="text-[13px] text-o1-text leading-snug">
+            <p role="status" className="text-o1-body text-o1-text leading-snug">
               {doneText}
             </p>
             <button
               type="button"
               onClick={finish}
-              className="w-full h-11 rounded-full bg-o1-surface border border-white/[0.07] text-[14px] text-o1-text cursor-pointer"
+              className="w-full h-11 rounded-full bg-o1-surface border border-white/[0.07] text-o1-control text-o1-text cursor-pointer"
             >
               Done
             </button>

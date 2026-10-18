@@ -74,7 +74,7 @@ export const CoachProfileEditSheet: React.FC<CoachProfileEditSheetProps> = ({
 };
 
 const inputClass =
-  'h-[44px] w-full rounded-xl border border-white/[0.07] bg-o1-canvas px-3 text-[14px] text-o1-text outline-none placeholder:text-o1-muted focus:border-o1-crimson';
+  'h-[44px] w-full rounded-xl border border-white/[0.07] bg-o1-canvas px-3 text-o1-control text-o1-text outline-none placeholder:text-o1-muted focus:border-o1-crimson';
 
 const EditSheetBody: React.FC<Omit<CoachProfileEditSheetProps, 'open'>> = ({
   initial,
@@ -200,12 +200,12 @@ const EditSheetBody: React.FC<Omit<CoachProfileEditSheetProps, 'open'>> = ({
 
   const numberField = (label: string, value: string, set: (next: string) => void) => (
     <label className="flex items-center justify-between gap-3">
-      <span className="text-[13px] text-o1-muted">{label}</span>
+      <span className="text-o1-body text-o1-muted">{label}</span>
       <input
         inputMode="decimal"
         value={value}
         onChange={(event) => set(event.target.value)}
-        className="h-[44px] w-28 rounded-xl border border-white/[0.07] bg-o1-canvas px-3 text-right text-[13px] text-o1-text outline-none focus:border-o1-crimson"
+        className="h-[44px] w-28 rounded-xl border border-white/[0.07] bg-o1-canvas px-3 text-right text-o1-body text-o1-text outline-none focus:border-o1-crimson"
       />
     </label>
   );
@@ -219,7 +219,7 @@ const EditSheetBody: React.FC<Omit<CoachProfileEditSheetProps, 'open'>> = ({
     >
       <div className="max-h-[92dvh] w-full max-w-md space-y-4 overflow-y-auto rounded-t-2xl border border-white/[0.07] bg-o1-sheet p-4 pb-[calc(env(safe-area-inset-bottom)+1rem)] sm:rounded-2xl">
         <div className="flex items-center justify-between">
-          <h2 className="text-[15px] font-semibold text-o1-text">Edit profile</h2>
+          <h2 className="text-o1-control font-semibold text-o1-text">Edit profile</h2>
           <button
             type="button"
             onClick={onClose}
@@ -256,7 +256,7 @@ const EditSheetBody: React.FC<Omit<CoachProfileEditSheetProps, 'open'>> = ({
             <button
               type="button"
               onClick={() => fileRef.current?.click()}
-              className="h-[40px] rounded-xl bg-o1-crimson text-[13px] font-semibold text-white active:scale-[0.98]"
+              className="h-[40px] rounded-xl bg-o1-crimson text-o1-body font-semibold text-white active:scale-[0.98]"
             >
               Upload photo
             </button>
@@ -264,7 +264,7 @@ const EditSheetBody: React.FC<Omit<CoachProfileEditSheetProps, 'open'>> = ({
               <button
                 type="button"
                 onClick={() => setAvatar('')}
-                className="h-[36px] rounded-xl border border-white/[0.07] text-[12px] font-semibold text-o1-muted active:scale-[0.98]"
+                className="h-[36px] rounded-xl border border-white/[0.07] text-o1-caption font-semibold text-o1-muted active:scale-[0.98]"
               >
                 Remove photo
               </button>
@@ -281,7 +281,7 @@ const EditSheetBody: React.FC<Omit<CoachProfileEditSheetProps, 'open'>> = ({
 
         {photos.length > 0 ? (
           <div className="space-y-1.5">
-            <p className="text-[12px] font-semibold text-o1-muted">From your Vault</p>
+            <p className="text-o1-caption font-semibold text-o1-muted">From your Vault</p>
             <div className="grid grid-cols-6 gap-1.5">
               {photos.map((url) => (
                 <button
@@ -306,7 +306,7 @@ const EditSheetBody: React.FC<Omit<CoachProfileEditSheetProps, 'open'>> = ({
         ) : null}
 
         <label className="block space-y-1">
-          <span className="text-[12px] font-semibold text-o1-muted">Name</span>
+          <span className="text-o1-caption font-semibold text-o1-muted">Name</span>
           <input
             value={name}
             onChange={(event) => setName(event.target.value)}
@@ -316,9 +316,9 @@ const EditSheetBody: React.FC<Omit<CoachProfileEditSheetProps, 'open'>> = ({
         </label>
 
         <label className="block space-y-1">
-          <span className="text-[12px] font-semibold text-o1-muted">Handle</span>
+          <span className="text-o1-caption font-semibold text-o1-muted">Handle</span>
           <div className="relative">
-            <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[14px] text-o1-muted">
+            <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-o1-control text-o1-muted">
               @
             </span>
             <input
@@ -334,12 +334,12 @@ const EditSheetBody: React.FC<Omit<CoachProfileEditSheetProps, 'open'>> = ({
             />
           </div>
           {handleError ? (
-            <span className="block text-[12px] text-o1-text">{handleError}</span>
+            <span className="block text-o1-caption text-o1-text">{handleError}</span>
           ) : null}
         </label>
 
         <label className="block space-y-1">
-          <span className="flex justify-between text-[12px] font-semibold text-o1-muted">
+          <span className="flex justify-between text-o1-caption font-semibold text-o1-muted">
             <span>Bio</span>
             <span className="tabular-nums">
               {bio.length}/{BIO_LIMIT}
@@ -350,12 +350,12 @@ const EditSheetBody: React.FC<Omit<CoachProfileEditSheetProps, 'open'>> = ({
             onChange={(event) => setBio(event.target.value.slice(0, BIO_LIMIT))}
             rows={3}
             placeholder="What you coach and who you coach"
-            className="w-full resize-none rounded-xl border border-white/[0.07] bg-o1-canvas p-3 text-[13px] leading-snug text-o1-text outline-none placeholder:text-o1-muted focus:border-o1-crimson"
+            className="w-full resize-none rounded-xl border border-white/[0.07] bg-o1-canvas p-3 text-o1-body leading-snug text-o1-text outline-none placeholder:text-o1-muted focus:border-o1-crimson"
           />
         </label>
 
         <label className="block space-y-1">
-          <span className="text-[12px] font-semibold text-o1-muted">Specialties</span>
+          <span className="text-o1-caption font-semibold text-o1-muted">Specialties</span>
           <input
             value={specialties}
             onChange={(event) => setSpecialties(event.target.value)}
@@ -363,7 +363,7 @@ const EditSheetBody: React.FC<Omit<CoachProfileEditSheetProps, 'open'>> = ({
             placeholder="Powerlifting, Hypertrophy, HYROX"
             className={inputClass}
           />
-          <span className="block text-[11px] text-o1-muted">
+          <span className="block text-o1-label text-o1-muted">
             Separate with commas. Up to {SPECIALTY_LIMIT}.
           </span>
         </label>
@@ -373,7 +373,7 @@ const EditSheetBody: React.FC<Omit<CoachProfileEditSheetProps, 'open'>> = ({
           {numberField('Athlete spots', capacity, setCapacity)}
           {numberField('Monthly price (USD)', monthly, setMonthly)}
           <label className="flex items-center justify-between gap-3">
-            <span className="text-[13px] text-o1-muted">Taking new athletes</span>
+            <span className="text-o1-body text-o1-muted">Taking new athletes</span>
             <button
               type="button"
               role="switch"
@@ -395,7 +395,7 @@ const EditSheetBody: React.FC<Omit<CoachProfileEditSheetProps, 'open'>> = ({
           <button
             type="button"
             onClick={onClose}
-            className="h-[44px] flex-1 rounded-xl border border-white/[0.07] text-[13px] font-semibold text-o1-text active:scale-[0.98]"
+            className="h-[44px] flex-1 rounded-xl border border-white/[0.07] text-o1-body font-semibold text-o1-text active:scale-[0.98]"
           >
             Cancel
           </button>
@@ -403,7 +403,7 @@ const EditSheetBody: React.FC<Omit<CoachProfileEditSheetProps, 'open'>> = ({
             type="button"
             disabled={busy !== null || Boolean(handleError)}
             onClick={() => void save()}
-            className="h-[44px] flex-1 rounded-xl bg-o1-crimson text-[13px] font-semibold text-white disabled:opacity-40 active:scale-[0.98]"
+            className="h-[44px] flex-1 rounded-xl bg-o1-crimson text-o1-body font-semibold text-white disabled:opacity-40 active:scale-[0.98]"
           >
             {busy === 'save' ? 'Saving' : 'Save'}
           </button>

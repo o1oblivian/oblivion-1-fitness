@@ -51,10 +51,10 @@ export const SafetyReportSheet: React.FC<SafetyReportSheetProps> = ({
       >
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-[15px] font-semibold text-o1-text">
+            <p className="text-o1-control font-semibold text-o1-text">
               {title ?? `Report ${name || 'this person'}`}
             </p>
-            <p className="mt-0.5 text-[12px] text-o1-muted">
+            <p className="mt-0.5 text-o1-caption text-o1-muted">
               Only the Oblivion 1 team sees reports. They are not told it was you.
             </p>
           </div>
@@ -76,7 +76,7 @@ export const SafetyReportSheet: React.FC<SafetyReportSheetProps> = ({
                 tactileEngine.triggerSelectionBuzz();
                 setReason(item);
               }}
-              className={`w-full rounded-xl border px-3 py-2.5 text-left text-[13px] ${
+              className={`w-full rounded-xl border px-3 py-2.5 text-left text-o1-body ${
                 reason === item
                   ? 'border-o1-crimson bg-o1-crimson/15 text-o1-text'
                   : 'border-white/[0.07] bg-o1-surface text-o1-text'
@@ -90,7 +90,7 @@ export const SafetyReportSheet: React.FC<SafetyReportSheetProps> = ({
           value={details}
           onChange={(event) => setDetails(event.target.value.slice(0, 1000))}
           placeholder="What happened (optional)"
-          className="mt-3 h-20 w-full rounded-xl border border-white/[0.07] bg-o1-surface px-3 py-2 text-[13px] text-o1-text outline-none"
+          className="mt-3 h-20 w-full rounded-xl border border-white/[0.07] bg-o1-surface px-3 py-2 text-o1-body text-o1-text outline-none"
         />
         <button
           type="button"
@@ -99,7 +99,7 @@ export const SafetyReportSheet: React.FC<SafetyReportSheetProps> = ({
           onClick={() => setAlsoBlock((on) => !on)}
           className="mt-2 flex w-full items-center justify-between rounded-xl border border-white/[0.07] bg-o1-surface px-3 py-2.5 text-left"
         >
-          <span className="text-[13px] text-o1-text">Also block {name || 'them'}</span>
+          <span className="text-o1-body text-o1-text">Also block {name || 'them'}</span>
           <span
             className={`h-6 w-11 rounded-full p-0.5 ${alsoBlock ? 'bg-o1-crimson' : 'bg-white/[0.08]'}`}
           >
@@ -115,7 +115,7 @@ export const SafetyReportSheet: React.FC<SafetyReportSheetProps> = ({
             onSubmit(reason, details.trim(), alsoBlock);
             close();
           }}
-          className="mt-3 h-12 w-full rounded-full bg-o1-crimson text-[14px] font-semibold text-white active:bg-o1-crimson-press disabled:opacity-40"
+          className="mt-3 h-12 w-full rounded-full bg-o1-crimson text-o1-control font-semibold text-white active:bg-o1-crimson-press disabled:opacity-40"
         >
           Send report
         </button>

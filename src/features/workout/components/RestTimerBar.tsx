@@ -54,11 +54,11 @@ export const RestTimerBar: React.FC = () => {
     >
       <div className="flex items-center gap-3 pl-4 pr-1.5 h-12">
         <span
-          className={`font-mono font-light text-[22px] tabular-nums leading-none ${warning ? 'text-[#C4121A]' : 'text-o1-text'}`}
+          className={`font-mono font-light text-o1-heading tabular-nums leading-none ${warning ? 'text-o1-crimson' : 'text-o1-text'}`}
         >
           {clock(remaining)}
         </span>
-        <span className="flex-1 min-w-0 text-[11px] text-o1-muted truncate">
+        <span className="flex-1 min-w-0 text-o1-label text-o1-muted truncate">
           Rest · {timer.exerciseName}
         </span>
         <button
@@ -67,7 +67,7 @@ export const RestTimerBar: React.FC = () => {
             tactileEngine.triggerSelectionBuzz();
             extend(30);
           }}
-          className="h-9 px-3 rounded-xl text-[12px] text-o1-text border border-white/[0.07] hover:border-white/[0.14] active:scale-[0.97] transition cursor-pointer"
+          className="h-9 px-3 rounded-xl text-o1-caption text-o1-text border border-white/[0.07] hover:border-white/[0.14] active:scale-[0.97] transition cursor-pointer"
         >
           +30s
         </button>
@@ -77,14 +77,14 @@ export const RestTimerBar: React.FC = () => {
             tactileEngine.triggerSelectionBuzz();
             skip();
           }}
-          className="h-9 px-3 rounded-xl text-[12px] text-o1-muted hover:text-o1-text active:scale-[0.97] transition cursor-pointer"
+          className="h-9 px-3 rounded-xl text-o1-caption text-o1-muted hover:text-o1-text active:scale-[0.97] transition cursor-pointer"
         >
           Skip
         </button>
       </div>
       <div className="h-[2px] bg-white/[0.06]" aria-hidden>
         <div
-          className="h-full bg-[#C4121A] transition-[width] duration-200 ease-linear"
+          className="h-full bg-o1-crimson transition-[width] duration-200 ease-linear"
           style={{ width: `${progress * 100}%` }}
         />
       </div>

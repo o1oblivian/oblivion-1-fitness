@@ -126,11 +126,11 @@ export const ChronoDialGauge: React.FC<ChronoDialGaugeProps> = ({
           aria-label={`${value} ${unit}. Tap for numpad`}
           className="w-32 h-32 rounded-full flex flex-col items-center justify-center text-center cursor-pointer pointer-events-auto active:scale-95 transition-transform"
         >
-          <span className="text-[11px] font-normal tracking-[0.16em] text-o1-muted">{unit}</span>
+          <span className="text-o1-label font-normal tracking-[0.16em] text-o1-muted">{unit}</span>
           <span className="text-5xl font-mono font-light text-o1-text tracking-tight leading-none my-1.5 tabular-nums">
             {value}
           </span>
-          <span className="text-[11px] font-normal text-o1-muted">tap for numpad</span>
+          <span className="text-o1-label font-normal text-o1-muted">tap for numpad</span>
         </button>
       </div>
     </div>

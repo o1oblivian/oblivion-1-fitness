@@ -141,7 +141,7 @@ export const UnifiedTopBoard: React.FC<UnifiedTopBoardProps> = ({
 
           {/* TARGET RPE Box */}
           <div className="shrink-0 bg-white/[0.03] rounded-xl p-2.5 flex flex-col items-center justify-center min-w-[76px] space-y-0.5">
-            <span className="text-[9px] font-bold text-neutral-500 tracking-wider text-center">
+            <span className="text-o1-label font-bold text-neutral-500 tracking-wider text-center">
               Target RPE
             </span>
             <span className="text-lg font-sans font-semibold text-white tabular-nums leading-none">
@@ -154,7 +154,7 @@ export const UnifiedTopBoard: React.FC<UnifiedTopBoardProps> = ({
                   <span
                     key={dot}
                     className={`w-1.5 h-1.5 rounded-full ${
-                      active ? 'bg-[#D4A017]' : 'bg-neutral-700'
+                      active ? 'bg-o1-gold' : 'bg-neutral-700'
                     }`}
                   />
                 );
@@ -192,7 +192,7 @@ export const UnifiedTopBoard: React.FC<UnifiedTopBoardProps> = ({
               <span className="text-2xl font-black text-white tracking-tight">{athleteWeight}</span>
               <span className="text-xs font-mono font-bold text-neutral-400">KG</span>
             </div>
-            <span className="text-[10px] font-mono font-bold text-neutral-400 tracking-wider">
+            <span className="text-o1-label font-mono font-bold text-neutral-400 tracking-wider">
               Bodyweight
             </span>
           </div>
@@ -202,7 +202,7 @@ export const UnifiedTopBoard: React.FC<UnifiedTopBoardProps> = ({
               <span className="text-2xl font-black text-white tracking-tight">{targetWeight}</span>
               <span className="text-xs font-mono font-bold text-neutral-400">KG</span>
             </div>
-            <span className="text-[10px] font-mono font-bold text-neutral-400 tracking-wider">
+            <span className="text-o1-label font-mono font-bold text-neutral-400 tracking-wider">
               Goal Weight
             </span>
           </div>
@@ -226,7 +226,7 @@ export const UnifiedTopBoard: React.FC<UnifiedTopBoardProps> = ({
               className="py-2 rounded-xl bg-white/[0.03] min-h-[44px] flex flex-col items-center justify-center"
             >
               <span className="text-xs font-bold text-white">{chip.value}</span>
-              <span className="text-[9px] tracking-wider text-neutral-500">{chip.label}</span>
+              <span className="text-o1-label tracking-wider text-neutral-500">{chip.label}</span>
             </div>
           ))}
         </div>

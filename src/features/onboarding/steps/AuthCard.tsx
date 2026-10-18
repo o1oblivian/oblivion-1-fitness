@@ -35,7 +35,7 @@ const SYSTEM_FONT =
   '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", system-ui, sans-serif';
 
 const fieldClass =
-  'o1-auth-field h-11 w-full rounded-xl border-0 bg-o1-surface/60 px-3.5 text-[14px] font-normal text-o1-text placeholder:text-[#5E5C55] outline-none transition-colors focus:bg-white/[0.08] focus:ring-1 focus:ring-o1-crimson/60';
+  'o1-auth-field h-11 w-full rounded-xl border-0 bg-o1-surface/60 px-3.5 text-o1-control font-normal text-o1-text placeholder:text-[#5E5C55] outline-none transition-colors focus:bg-white/[0.08] focus:ring-1 focus:ring-o1-crimson/60';
 
 function cleanEmail(value: string): string {
   return value.trim().toLowerCase();
@@ -204,7 +204,7 @@ export const AuthCard: React.FC<AuthCardProps> = ({ data, onUpdate, onNext, onOp
       {error ? (
         <div
           role="alert"
-          className="flex items-start gap-2.5 rounded-xl bg-o1-bad-wash/60 backdrop-blur-md px-3.5 py-2.5 text-[12px] font-normal leading-snug text-o1-bad-ink"
+          className="flex items-start gap-2.5 rounded-xl bg-o1-bad-wash/60 backdrop-blur-md px-3.5 py-2.5 text-o1-caption font-normal leading-snug text-o1-bad-ink"
         >
           <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
           <span>{error}</span>
@@ -213,7 +213,7 @@ export const AuthCard: React.FC<AuthCardProps> = ({ data, onUpdate, onNext, onOp
       {notice ? (
         <div
           role="status"
-          className="rounded-xl bg-white/[0.07] px-3.5 py-2.5 backdrop-blur-md text-[12px] font-normal leading-snug text-o1-text"
+          className="rounded-xl bg-white/[0.07] px-3.5 py-2.5 backdrop-blur-md text-o1-caption font-normal leading-snug text-o1-text"
         >
           {notice}
         </div>
@@ -232,7 +232,7 @@ export const AuthCard: React.FC<AuthCardProps> = ({ data, onUpdate, onNext, onOp
           className="h-auto w-[70%] max-w-[250px] select-none"
           draggable={false}
         />
-        <h1 className="mt-3 font-display text-[23px] font-light leading-tight tracking-[-0.01em] text-o1-text">
+        <h1 className="mt-3 font-display text-o1-heading font-light leading-tight tracking-[-0.01em] text-o1-text">
           {view === 'reset'
             ? 'Reset your password'
             : view === 'confirm'
@@ -242,7 +242,7 @@ export const AuthCard: React.FC<AuthCardProps> = ({ data, onUpdate, onNext, onOp
                 : 'Create your membership'}
         </h1>
         {view !== 'form' ? (
-          <p className="mt-1.5 max-w-[280px] text-[13px] font-normal leading-relaxed text-o1-muted/80">
+          <p className="mt-1.5 max-w-[280px] text-o1-body font-normal leading-relaxed text-o1-muted/80">
             {view === 'reset'
               ? 'We will email you a secure link to choose a new password.'
               : `We sent a link to ${cleanEmail(email)}. Open it on this phone to activate your account.`}
@@ -265,7 +265,7 @@ export const AuthCard: React.FC<AuthCardProps> = ({ data, onUpdate, onNext, onOp
                   role="tab"
                   aria-selected={mode === key}
                   onClick={() => switchMode(key)}
-                  className={`h-8 rounded-full text-[13px] font-normal transition-colors ${mode === key ? 'bg-white/[0.1] text-o1-text' : 'text-o1-muted'}`}
+                  className={`h-8 rounded-full text-o1-body font-normal transition-colors ${mode === key ? 'bg-white/[0.1] text-o1-text' : 'text-o1-muted'}`}
                 >
                   {key === 'signin' ? 'Sign in' : 'Create account'}
                 </button>
@@ -280,7 +280,7 @@ export const AuthCard: React.FC<AuthCardProps> = ({ data, onUpdate, onNext, onOp
                     onClick={() => void signInWithApple()}
                     disabled={busy !== null}
                     style={{ fontFamily: SYSTEM_FONT }}
-                    className="flex h-11 w-full items-center justify-center gap-2 o1-machined o1-see-through rounded-full text-[15px] font-normal text-[#FFFFFF] transition active:scale-[0.98] disabled:opacity-60"
+                    className="flex h-11 w-full items-center justify-center gap-2 o1-machined o1-see-through rounded-full text-o1-control font-normal text-[#FFFFFF] transition active:scale-[0.98] disabled:opacity-60"
                   >
                     {busy === 'apple' ? (
                       <Loader2 className="h-5 w-5 animate-spin" />
@@ -356,7 +356,7 @@ export const AuthCard: React.FC<AuthCardProps> = ({ data, onUpdate, onNext, onOp
                   <button
                     type="button"
                     onClick={() => go('reset')}
-                    className="h-8 text-[12px] font-normal text-o1-muted"
+                    className="h-8 text-o1-caption font-normal text-o1-muted"
                   >
                     Forgot password?
                   </button>
@@ -368,7 +368,7 @@ export const AuthCard: React.FC<AuthCardProps> = ({ data, onUpdate, onNext, onOp
               <button
                 type="submit"
                 disabled={busy !== null}
-                className="flex h-11 w-full items-center justify-center rounded-full bg-o1-crimson text-[14px] font-medium text-white transition hover:bg-o1-crimson-hover active:scale-[0.98] active:bg-o1-crimson-press disabled:opacity-60"
+                className="flex h-11 w-full items-center justify-center rounded-full bg-o1-crimson text-o1-control font-medium text-white transition hover:bg-o1-crimson-hover active:scale-[0.98] active:bg-o1-crimson-press disabled:opacity-60"
               >
                 {busy === 'email' ? (
                   <Loader2 className="h-5 w-5 animate-spin" />
@@ -405,14 +405,14 @@ export const AuthCard: React.FC<AuthCardProps> = ({ data, onUpdate, onNext, onOp
             <button
               type="submit"
               disabled={busy !== null}
-              className="flex h-11 w-full items-center justify-center rounded-full bg-o1-crimson text-[14px] font-medium text-white transition active:scale-[0.98] disabled:opacity-60"
+              className="flex h-11 w-full items-center justify-center rounded-full bg-o1-crimson text-o1-control font-medium text-white transition active:scale-[0.98] disabled:opacity-60"
             >
               {busy === 'reset' ? <Loader2 className="h-5 w-5 animate-spin" /> : 'Send reset link'}
             </button>
             <button
               type="button"
               onClick={() => go('form')}
-              className="flex h-11 w-full items-center justify-center gap-2 text-[14px] font-normal text-o1-muted"
+              className="flex h-11 w-full items-center justify-center gap-2 text-o1-control font-normal text-o1-muted"
             >
               <ArrowLeft className="h-4 w-4" />
               Back to sign in
@@ -432,7 +432,7 @@ export const AuthCard: React.FC<AuthCardProps> = ({ data, onUpdate, onNext, onOp
               type="button"
               onClick={() => void resend()}
               disabled={busy !== null || resendIn > 0}
-              className="flex h-11 w-full items-center justify-center rounded-full bg-white/[0.08] text-[14px] backdrop-blur-md font-normal text-o1-text transition active:scale-[0.98] disabled:opacity-50"
+              className="flex h-11 w-full items-center justify-center rounded-full bg-white/[0.08] text-o1-control backdrop-blur-md font-normal text-o1-text transition active:scale-[0.98] disabled:opacity-50"
             >
               {busy === 'resend' ? (
                 <Loader2 className="h-5 w-5 animate-spin" />
@@ -448,7 +448,7 @@ export const AuthCard: React.FC<AuthCardProps> = ({ data, onUpdate, onNext, onOp
                 setMode('signin');
                 go('form');
               }}
-              className="flex h-11 w-full items-center justify-center rounded-full bg-o1-crimson text-[14px] font-medium text-white transition active:scale-[0.98]"
+              className="flex h-11 w-full items-center justify-center rounded-full bg-o1-crimson text-o1-control font-medium text-white transition active:scale-[0.98]"
             >
               I confirmed, sign in
             </button>
@@ -456,7 +456,7 @@ export const AuthCard: React.FC<AuthCardProps> = ({ data, onUpdate, onNext, onOp
         ) : null}
       </div>
 
-      <p className="mt-4 text-center text-[11px] font-normal leading-relaxed text-o1-muted/80">
+      <p className="mt-4 text-center text-o1-label font-normal leading-relaxed text-o1-muted/80">
         By continuing you agree to our{' '}
         <button
           type="button"

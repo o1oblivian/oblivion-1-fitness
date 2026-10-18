@@ -78,7 +78,7 @@ export const DispatchLibraryTab: React.FC<DispatchLibraryTabProps> = ({ stack, o
               tactileEngine.triggerSelectionBuzz();
               setType(t);
             }}
-            className={`h-8 px-2.5 rounded-xl text-[11px] font-semibold ${type === t ? 'bg-o1-crimson text-white' : 'bg-white/[0.08] text-o1-muted'}`}
+            className={`h-8 px-2.5 rounded-xl text-o1-label font-semibold ${type === t ? 'bg-o1-crimson text-white' : 'bg-white/[0.08] text-o1-muted'}`}
           >
             {t}
           </button>
@@ -99,14 +99,14 @@ export const DispatchLibraryTab: React.FC<DispatchLibraryTabProps> = ({ stack, o
                 <div className="min-w-0 space-y-0.5">
                   <div className="flex items-center gap-2">
                     <h4 className="text-xs font-bold text-o1-text truncate">{item.name}</h4>
-                    <span className="px-1.5 py-0.5 rounded text-[9px] font-semibold bg-white/[0.08] text-o1-muted shrink-0">
+                    <span className="px-1.5 py-0.5 rounded text-o1-label font-semibold bg-white/[0.08] text-o1-muted shrink-0">
                       {item.type}
                     </span>
                   </div>
-                  <p className="text-[11px] text-o1-muted truncate">
+                  <p className="text-o1-label text-o1-muted truncate">
                     {item.muscleTarget} · {item.equipment}
                   </p>
-                  <p className="text-[10px] text-o1-muted font-mono">
+                  <p className="text-o1-label text-o1-muted font-mono">
                     {item.defaultSets} sets · {item.defaultReps} reps ·{' '}
                     {item.defaultWeightKg > 0 ? `${item.defaultWeightKg}kg` : 'BW'}
                   </p>

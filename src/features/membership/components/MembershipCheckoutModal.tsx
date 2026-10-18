@@ -66,14 +66,14 @@ export const MembershipCheckoutModal: React.FC<Props> = ({
         {/* Modal Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.05] bg-black">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-o1-well border border-white/[0.07] flex items-center justify-center text-[#4F8F9A]">
+            <div className="w-8 h-8 rounded-xl bg-o1-well border border-white/[0.07] flex items-center justify-center text-o1-teal">
               <Smartphone className="w-4 h-4" />
             </div>
             <div>
               <h2 className="text-xs font-tactical font-black text-white tracking-wider">
                 Store Checkout
               </h2>
-              <p className="text-[10px] font-mono text-neutral-400">
+              <p className="text-o1-label font-mono text-neutral-400">
                 {nativeStore ? 'App store & google play' : 'web preview'}
               </p>
             </div>
@@ -93,7 +93,7 @@ export const MembershipCheckoutModal: React.FC<Props> = ({
           <div className="p-4 rounded-2xl bg-o1-well border border-white/[0.07] space-y-1">
             <div className="flex items-center justify-between">
               <span className="text-xs font-mono font-bold text-neutral-500">Selected Plan</span>
-              <span className="text-[10px] font-sans px-2 py-0.5 rounded-full bg-o1-card border border-[#D4A017]/40 text-[#D4A017] font-semibold">
+              <span className="text-o1-label font-sans px-2 py-0.5 rounded-full bg-o1-card border border-o1-gold/40 text-o1-gold font-semibold">
                 Official tier
               </span>
             </div>
@@ -107,14 +107,14 @@ export const MembershipCheckoutModal: React.FC<Props> = ({
 
           {/* Clean Status Banner for Native Store Billing */}
           <div className="p-3.5 rounded-2xl bg-o1-well border border-white/[0.07] text-neutral-300 text-xs font-mono flex items-start gap-2.5">
-            <ShieldCheck className="w-4 h-4 text-[#6B8F5E] shrink-0 mt-0.5" />
+            <ShieldCheck className="w-4 h-4 text-o1-olive shrink-0 mt-0.5" />
             <div className="space-y-0.5">
-              <span className="font-bold block text-white tracking-wider text-[11px]">
+              <span className="font-bold block text-white tracking-wider text-o1-label">
                 {nativeStore
                   ? 'Membership Tier Available via App Store / Google Play'
                   : 'Pay with card — local preview'}
               </span>
-              <p className="text-[10px] text-neutral-400 font-sans leading-relaxed">
+              <p className="text-o1-label text-neutral-400 font-sans leading-relaxed">
                 {nativeStore
                   ? 'Club Pass memberships are billed through your App Store or Google Play account, and you manage or cancel them in your store settings.'
                   : 'Local browser checkout grants Pro on this device for development testing. Native iOS/Android builds open the store payment sheet.'}
@@ -151,7 +151,7 @@ export const MembershipCheckoutModal: React.FC<Props> = ({
             )}
           </button>
 
-          <div className="flex items-center justify-center gap-3 text-[10px] font-sans text-neutral-400">
+          <div className="flex items-center justify-center gap-3 text-o1-label font-sans text-neutral-400">
             <a
               href="https://www.apple.com/legal/internet-services/itunes/dev/stdeula/"
               target="_blank"

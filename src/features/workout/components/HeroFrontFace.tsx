@@ -225,7 +225,7 @@ export const HeroFrontFace: React.FC<HeroFrontFaceProps> = ({
           {dialCaption && (
             <span
               role="status"
-              className="absolute bottom-0 left-0 right-0 px-4 text-center text-[11px] font-medium text-white/80"
+              className="absolute bottom-0 left-0 right-0 px-4 text-center text-o1-label font-medium text-white/80"
               style={{ textShadow: '0 1px 2px rgba(0,0,0,0.8)' }}
             >
               {dialCaption}

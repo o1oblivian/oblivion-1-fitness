@@ -12,7 +12,7 @@ export interface HeroBottomDockProps {
 }
 
 const SIDE_PILL =
-  'h-11 px-4 rounded-full bg-black/45 backdrop-blur-md border border-white/15 text-neutral-200 flex items-center gap-1.5 cursor-pointer active:scale-95 transition-all text-[13px] font-sans font-normal shrink-0 hover:border-white/25 hover:bg-black/60 disabled:opacity-40 disabled:cursor-not-allowed';
+  'h-11 px-4 rounded-full bg-black/45 backdrop-blur-md border border-white/15 text-neutral-200 flex items-center gap-1.5 cursor-pointer active:scale-95 transition-all text-o1-body font-sans font-normal shrink-0 hover:border-white/25 hover:bg-black/60 disabled:opacity-40 disabled:cursor-not-allowed';
 
 export const HeroBottomDock: React.FC<HeroBottomDockProps> = ({
   activeDay,
@@ -59,7 +59,7 @@ export const HeroBottomDock: React.FC<HeroBottomDockProps> = ({
         e.stopPropagation();
         onLoadWorkout();
       }}
-      className={`h-11 min-w-0 px-4 rounded-full border text-[13px] flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 transition-all ${
+      className={`h-11 min-w-0 px-4 rounded-full border text-o1-body flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 transition-all ${
         hasSavedRoutine
           ? 'bg-o1-crimson border-o1-crimson hover:bg-o1-crimson-hover text-white'
           : 'bg-black/65 border-white/[0.12] hover:border-white/25 text-white'

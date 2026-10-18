@@ -60,28 +60,28 @@ export const BuddyDeckCard: React.FC<{
       )}
       <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 space-y-3 p-4 pb-5">
         {atYourGym ? (
-          <span className="inline-flex items-center rounded-full bg-o1-crimson px-2.5 py-1 text-[11px] font-semibold text-white">
+          <span className="inline-flex items-center rounded-full bg-o1-crimson px-2.5 py-1 text-o1-label font-semibold text-white">
             Trains at your gym
           </span>
         ) : null}
         {discipline ? (
-          <p className="text-[12px] font-semibold text-white/80">{discipline}</p>
+          <p className="text-o1-caption font-semibold text-white/80">{discipline}</p>
         ) : null}
         <button
           type="button"
           onClick={() => onOpen(athlete)}
           className="pointer-events-auto block text-left"
         >
-          <h2 className="text-[32px] font-semibold leading-none text-white">
+          <h2 className="text-o1-display font-semibold leading-none text-white">
             {age >= 18 ? `${athlete.name}, ${age}` : athlete.name}
           </h2>
-          <p className="mt-2 flex items-center gap-1.5 text-[13px] text-neutral-200">
+          <p className="mt-2 flex items-center gap-1.5 text-o1-body text-neutral-200">
             <MapPin className="h-3.5 w-3.5 text-o1-crimson" />
             {Number.isFinite(dist) ? `${dist} km` : 'Distance unknown'}
             {gym ? ` · ${gym}` : ''}
           </p>
           {prompt ? (
-            <p className="mt-3 max-w-[18rem] text-[15px] leading-snug text-white">{prompt}</p>
+            <p className="mt-3 max-w-[18rem] text-o1-control leading-snug text-white">{prompt}</p>
           ) : null}
         </button>
         <div className="pointer-events-auto flex gap-3 pt-1">
@@ -91,7 +91,7 @@ export const BuddyDeckCard: React.FC<{
               tactileEngine.triggerSelectionBuzz();
               onPass(athlete);
             }}
-            className="flex h-12 flex-1 items-center justify-center gap-2 rounded-full border border-white/[0.07] bg-[#161616] text-[13px] font-semibold text-white"
+            className="flex h-12 flex-1 items-center justify-center gap-2 rounded-full border border-white/[0.07] bg-o1-well text-o1-body font-semibold text-white"
           >
             <X className="h-4 w-4" />
             Pass
@@ -102,7 +102,7 @@ export const BuddyDeckCard: React.FC<{
               tactileEngine.playPRCelebration();
               onAccept(athlete);
             }}
-            className="flex h-12 flex-1 items-center justify-center gap-2 rounded-full bg-o1-crimson text-[13px] font-semibold text-white"
+            className="flex h-12 flex-1 items-center justify-center gap-2 rounded-full bg-o1-crimson text-o1-body font-semibold text-white"
           >
             <Check className="h-4 w-4" />
             Accept

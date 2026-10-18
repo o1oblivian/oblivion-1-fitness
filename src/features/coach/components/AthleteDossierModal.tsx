@@ -46,7 +46,7 @@ export const AthleteDossierModal: React.FC<AthleteDossierModalProps> = ({
             <div>
               <h3 className="font-bold text-sm text-o1-text flex items-center gap-2">
                 {athlete.name}
-                <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-o1-canvas border border-white/[0.07] text-o1-text">
+                <span className="text-o1-label font-mono px-1.5 py-0.5 rounded bg-o1-canvas border border-white/[0.07] text-o1-text">
                   {athlete.status}
                 </span>
               </h3>
@@ -69,29 +69,29 @@ export const AthleteDossierModal: React.FC<AthleteDossierModalProps> = ({
           {/* Readiness & Volume Metrics */}
           <div className="grid grid-cols-2 gap-2.5">
             <div className="p-3 rounded-2xl bg-o1-canvas border border-white/[0.07]">
-              <span className="text-[10px] font-mono text-o1-muted block">Readiness Score</span>
+              <span className="text-o1-label font-mono text-o1-muted block">Readiness Score</span>
               <div className="text-xl font-mono font-bold text-emerald-400 flex items-center gap-1 mt-0.5">
                 <Activity className="w-4 h-4" />
                 <span>{athlete.readiness ? `${athlete.readiness}%` : '--'}</span>
               </div>
-              <span className="text-[10px] text-o1-muted font-mono">Check-in</span>
+              <span className="text-o1-label text-o1-muted font-mono">Check-in</span>
             </div>
 
             <div className="p-3 rounded-2xl bg-o1-canvas border border-white/[0.07]">
-              <span className="text-[10px] font-mono text-o1-muted block">7-Day Volume</span>
+              <span className="text-o1-label font-mono text-o1-muted block">7-Day Volume</span>
               <div className="text-xl font-mono font-bold text-o1-crimson flex items-center gap-1 mt-0.5">
                 <Flame className="w-4 h-4" />
                 <span>{athlete.volume ? `${(athlete.volume / 1000).toFixed(1)}k kg` : '--'}</span>
               </div>
-              <span className="text-[10px] text-o1-muted font-mono">Tonnage logged</span>
+              <span className="text-o1-label text-o1-muted font-mono">Tonnage logged</span>
             </div>
           </div>
 
           {/* The Oblivion Report (athlete-consented snapshot) */}
           {!athlete.volume && !athlete.sets ? (
             <div className="rounded-2xl border border-white/[0.07] bg-o1-canvas p-4">
-              <p className="text-[13px] text-o1-text">Onboarding // Day 0</p>
-              <p className="mt-1 text-[12px] text-o1-muted">Awaiting first logged session.</p>
+              <p className="text-o1-body text-o1-text">Onboarding // Day 0</p>
+              <p className="mt-1 text-o1-caption text-o1-muted">Awaiting first logged session.</p>
             </div>
           ) : (
             <CoachAthleteReport
@@ -110,11 +110,11 @@ export const AthleteDossierModal: React.FC<AthleteDossierModalProps> = ({
             <div className="p-3 rounded-2xl border border-white/[0.07] bg-black/60 text-xs">
               <div className="flex items-center justify-between font-bold text-o1-text">
                 <span>Active Cycle</span>
-                <span className="text-[10px] font-mono text-o1-muted">
+                <span className="text-o1-label font-mono text-o1-muted">
                   {athlete.cycle || athlete.lastActive || '--'}
                 </span>
               </div>
-              <p className="text-[11px] text-o1-muted mt-1 font-mono">
+              <p className="text-o1-label text-o1-muted mt-1 font-mono">
                 {athlete.status}
                 {athlete.volume ? ` · ${athlete.volume.toLocaleString()} kg` : ''}
               </p>

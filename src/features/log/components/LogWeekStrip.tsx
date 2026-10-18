@@ -43,14 +43,14 @@ export const LogWeekStrip: React.FC<LogWeekStripProps> = ({
                   : 'bg-transparent border-transparent hover:bg-white/[0.03]'
               }`}
             >
-              <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-white">
+              <span className="text-o1-label font-bold uppercase tracking-[0.12em] text-white">
                 {item.dayName.slice(0, 3)}
               </span>
               <span
-                className={`font-mono text-[17px] leading-none ${
+                className={`font-mono text-o1-title leading-none ${
                   item.trained
-                    ? 'font-semibold text-[#10b981]'
-                    : `font-light ${item.isToday ? 'text-[#C4121A]' : isSelected ? 'text-o1-text' : 'text-o1-text/80'}`
+                    ? 'font-semibold text-o1-emerald'
+                    : `font-light ${item.isToday ? 'text-o1-crimson' : isSelected ? 'text-o1-text' : 'text-o1-text/80'}`
                 }`}
               >
                 {item.dayNum}

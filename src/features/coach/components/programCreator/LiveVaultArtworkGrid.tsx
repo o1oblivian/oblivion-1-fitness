@@ -37,7 +37,7 @@ export const LiveVaultArtworkGrid: React.FC<Props> = ({ coverImage, onSelectImag
   };
 
   const failure = failed ? (
-    <p role="alert" className="text-[12px] text-o1-text">
+    <p role="alert" className="text-o1-caption text-o1-text">
       Upload failed. Check your connection and try again.
     </p>
   ) : null;
@@ -83,7 +83,7 @@ export const LiveVaultArtworkGrid: React.FC<Props> = ({ coverImage, onSelectImag
         onChange={(e) => void handleFileUpload(e)}
         className="hidden"
       />
-      <div className="text-[10px] font-mono text-o1-muted tracking-wider px-0.5">
+      <div className="text-o1-label font-mono text-o1-muted tracking-wider px-0.5">
         Coach Media Vault ({vaultItems.length})
       </div>
       {failure}
@@ -98,7 +98,7 @@ export const LiveVaultArtworkGrid: React.FC<Props> = ({ coverImage, onSelectImag
           <div className="w-6 h-6 rounded-full bg-o1-crimson flex items-center justify-center shadow-xs">
             <Plus className="w-3.5 h-3.5 text-o1-text stroke-[3]" />
           </div>
-          <span className="text-[9px] font-tactical font-bold text-o1-text tracking-wider">
+          <span className="text-o1-label font-tactical font-bold text-o1-text tracking-wider">
             {uploading ? 'Uploading…' : '+ Upload'}
           </span>
         </button>
@@ -119,7 +119,7 @@ export const LiveVaultArtworkGrid: React.FC<Props> = ({ coverImage, onSelectImag
               }`}
             >
               <img src={item.url} alt={item.title} className="w-full h-full object-cover" />
-              <div className="absolute bottom-0 inset-x-0 bg-black/70 px-1 py-0.5 text-[8.5px] text-o1-text truncate font-medium">
+              <div className="absolute bottom-0 inset-x-0 bg-black/70 px-1 py-0.5 text-o1-label text-o1-text truncate font-medium">
                 {item.title}
               </div>
               {isSelected && (

@@ -44,7 +44,7 @@ export const DurationSelectModal: React.FC<DurationSelectModalProps> = ({
             <h3 className="text-sm font-tactical font-light text-white tracking-wider">
               Select Available Duration
             </h3>
-            <p className="text-[11px] font-sans text-neutral-400">
+            <p className="text-o1-label font-sans text-neutral-400">
               Autoregulated volume and rest cadence
             </p>
           </div>

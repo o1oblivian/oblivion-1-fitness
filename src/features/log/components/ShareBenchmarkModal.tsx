@@ -126,7 +126,7 @@ export const ShareBenchmarkModal: React.FC<ShareBenchmarkModalProps> = ({
         tactileEngine.triggerSelectionBuzz();
         set(!on);
       }}
-      className={`h-8 px-3 rounded-full text-[11px] font-semibold border cursor-pointer ${
+      className={`h-8 px-3 rounded-full text-o1-label font-semibold border cursor-pointer ${
         on
           ? 'bg-o1-well text-white border-white/30'
           : 'bg-transparent text-neutral-500 border-white/[0.07]'
@@ -158,8 +158,8 @@ export const ShareBenchmarkModal: React.FC<ShareBenchmarkModalProps> = ({
 
         <div className="rounded-2xl bg-black border border-white/[0.07] p-3.5 text-white space-y-3">
           <div className="flex items-baseline justify-between">
-            <span className="text-[11px] font-semibold text-neutral-300">Oblivion 1</span>
-            <span className="text-[11px] text-neutral-500 truncate max-w-[50%]">
+            <span className="text-o1-label font-semibold text-neutral-300">Oblivion 1</span>
+            <span className="text-o1-label text-neutral-500 truncate max-w-[50%]">
               {metrics.handle}
             </span>
           </div>
@@ -170,7 +170,7 @@ export const ShareBenchmarkModal: React.FC<ShareBenchmarkModalProps> = ({
             <button
               type="button"
               onClick={() => beforeRef.current?.click()}
-              className="aspect-[3/4] rounded-xl bg-o1-well border border-white/[0.14] overflow-hidden flex items-center justify-center text-[11px] text-neutral-400 cursor-pointer"
+              className="aspect-[3/4] rounded-xl bg-o1-well border border-white/[0.14] overflow-hidden flex items-center justify-center text-o1-label text-neutral-400 cursor-pointer"
             >
               {beforeUrl ? (
                 <img src={beforeUrl} alt="Before" className="w-full h-full object-cover" />
@@ -181,7 +181,7 @@ export const ShareBenchmarkModal: React.FC<ShareBenchmarkModalProps> = ({
             <button
               type="button"
               onClick={() => afterRef.current?.click()}
-              className="aspect-[3/4] rounded-xl bg-o1-well border border-white/[0.14] overflow-hidden flex items-center justify-center text-[11px] text-neutral-400 cursor-pointer"
+              className="aspect-[3/4] rounded-xl bg-o1-well border border-white/[0.14] overflow-hidden flex items-center justify-center text-o1-label text-neutral-400 cursor-pointer"
             >
               {afterUrl ? (
                 <img src={afterUrl} alt="After" className="w-full h-full object-cover" />
@@ -192,16 +192,16 @@ export const ShareBenchmarkModal: React.FC<ShareBenchmarkModalProps> = ({
           </div>
           <div className="space-y-1.5">
             {rows.map((row) => (
-              <div key={row.label} className="flex items-baseline justify-between text-[12px]">
+              <div key={row.label} className="flex items-baseline justify-between text-o1-caption">
                 <span className="text-neutral-500">{row.label}</span>
                 <span className="font-semibold tabular-nums">{row.value}</span>
               </div>
             ))}
           </div>
-          <div className="text-[10px] text-neutral-500">oblivion1.club</div>
+          <div className="text-o1-label text-neutral-500">oblivion1.club</div>
         </div>
 
-        <p className="text-[11px] text-neutral-500 leading-snug">
+        <p className="text-o1-label text-neutral-500 leading-snug">
           Empty frames and -- stay empty until a photo or a number exists. This is the post
           reviewers and athletes see.
         </p>
@@ -257,7 +257,7 @@ export const ShareBenchmarkModal: React.FC<ShareBenchmarkModalProps> = ({
             Share
           </button>
         </div>
-        {status && <p className="text-[11px] text-neutral-400 text-center">{status}</p>}
+        {status && <p className="text-o1-label text-neutral-400 text-center">{status}</p>}
       </div>
     </div>
   );

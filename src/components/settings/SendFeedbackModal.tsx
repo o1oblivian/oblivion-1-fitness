@@ -47,7 +47,7 @@ export const SendFeedbackModal: React.FC<SendFeedbackModalProps> = ({ isOpen, on
               >
                 Athlete Feedback Desk
               </h2>
-              <p className="text-[10px] font-mono text-neutral-500">
+              <p className="text-o1-label font-mono text-neutral-500">
                 Shape the Next Oblivion 1 Release
               </p>
             </div>
@@ -70,7 +70,7 @@ export const SendFeedbackModal: React.FC<SendFeedbackModalProps> = ({ isOpen, on
           className="py-4 space-y-3 flex-1 overflow-y-auto no-scrollbar"
         >
           <div className="space-y-1 text-center">
-            <label className="text-[10px] font-tactical font-bold text-neutral-500">
+            <label className="text-o1-label font-tactical font-bold text-neutral-500">
               Rate Athlete Experience
             </label>
             <div className="flex justify-center gap-2 pt-1">
@@ -95,7 +95,7 @@ export const SendFeedbackModal: React.FC<SendFeedbackModalProps> = ({ isOpen, on
           </div>
 
           <div className="space-y-1">
-            <label className="text-[10px] font-tactical font-bold text-neutral-500">
+            <label className="text-o1-label font-tactical font-bold text-neutral-500">
               Feature Focus
             </label>
             <div className="flex flex-wrap gap-1.5">
@@ -108,7 +108,7 @@ export const SendFeedbackModal: React.FC<SendFeedbackModalProps> = ({ isOpen, on
                     setCategory(cat);
                   }}
                   aria-pressed={category === cat}
-                  className={`px-3 min-h-[44px] rounded-xl text-[11px] font-mono transition-all cursor-pointer ${
+                  className={`px-3 min-h-[44px] rounded-xl text-o1-label font-mono transition-all cursor-pointer ${
                     category === cat
                       ? 'bg-o1-crimson text-white font-bold'
                       : 'bg-o1-well border border-white/[0.07] text-neutral-300'
@@ -123,7 +123,7 @@ export const SendFeedbackModal: React.FC<SendFeedbackModalProps> = ({ isOpen, on
           <div className="space-y-1">
             <label
               htmlFor="feedback-text"
-              className="text-[10px] font-tactical font-bold text-neutral-500"
+              className="text-o1-label font-tactical font-bold text-neutral-500"
             >
               Feedback or Feature Request
             </label>
@@ -147,7 +147,7 @@ export const SendFeedbackModal: React.FC<SendFeedbackModalProps> = ({ isOpen, on
             <Send className="w-3.5 h-3.5" />
             <span>Write email</span>
           </button>
-          <p className="text-[10px] font-sans text-neutral-500 text-center">
+          <p className="text-o1-label font-sans text-neutral-500 text-center">
             Opens your mail app with this feedback. Nothing is sent until you press send there.
           </p>
         </form>

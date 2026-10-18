@@ -32,8 +32,8 @@ export const HeroHeader: React.FC<HeroHeaderProps> = ({
       className="w-11 h-11 -ml-1.5 -mt-1.5 flex flex-col items-center justify-center gap-1 bg-transparent border-0 cursor-pointer active:scale-90 transition-transform"
     >
       <span className="w-1.5 h-1.5 rounded-full bg-o1-crimson" />
-      <span className="w-1.5 h-1.5 rounded-full bg-[#d97706]" />
-      <span className="w-1.5 h-1.5 rounded-full bg-[#0284c7]" />
+      <span className="w-1.5 h-1.5 rounded-full bg-o1-amber-deep" />
+      <span className="w-1.5 h-1.5 rounded-full bg-o1-sky" />
     </button>
 
     <button
@@ -55,14 +55,16 @@ export const HeroHeader: React.FC<HeroHeaderProps> = ({
       {readinessScore === null ? (
         <>
           <span className="w-1.5 h-1.5 rounded-full bg-o1-crimson" aria-hidden="true" />
-          <span className="text-[12px] font-medium text-white/90">Log sleep</span>
+          <span className="text-o1-caption font-medium text-white/90">Log sleep</span>
         </>
       ) : (
         <>
-          <span className="text-[11px] font-semibold tracking-[0.08em] text-white/75">
+          <span className="text-o1-label font-semibold tracking-[0.08em] text-white/75">
             Readiness
           </span>
-          <span className="text-[15px] font-mono font-medium tabular-nums">{readinessScore}%</span>
+          <span className="text-o1-control font-mono font-medium tabular-nums">
+            {readinessScore}%
+          </span>
         </>
       )}
     </button>

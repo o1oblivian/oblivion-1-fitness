@@ -39,13 +39,13 @@ export const MifflinBodyDetailsSection: React.FC<MifflinBodyDetailsSectionProps>
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <span className="text-[11px] tabular-nums font-bold tracking-wider text-o1-muted">
+        <span className="text-o1-label tabular-nums font-bold tracking-wider text-o1-muted">
           1. Your Body Details
         </span>
         <button
           type="button"
           onClick={() => setUseBodyFat(!useBodyFat)}
-          className={`text-[10px] tabular-nums font-bold px-2.5 py-1 rounded-xl border transition-colors cursor-pointer ${
+          className={`text-o1-label tabular-nums font-bold px-2.5 py-1 rounded-xl border transition-colors cursor-pointer ${
             useBodyFat
               ? 'bg-transparent border-sky-600 text-sky-600'
               : 'bg-o1-surface border-white/[0.08] text-o1-muted hover:text-o1-text'
@@ -57,7 +57,7 @@ export const MifflinBodyDetailsSection: React.FC<MifflinBodyDetailsSectionProps>
 
       <div className="grid grid-cols-3 gap-2">
         <div className="bg-o1-surface border border-white/[0.08] rounded-2xl p-2.5">
-          <label className="text-[9px] tabular-nums text-o1-muted block font-bold">
+          <label className="text-o1-label tabular-nums text-o1-muted block font-bold">
             Weight (kg)
           </label>
           <input
@@ -72,7 +72,7 @@ export const MifflinBodyDetailsSection: React.FC<MifflinBodyDetailsSectionProps>
         </div>
 
         <div className="bg-o1-surface border border-white/[0.08] rounded-2xl p-2.5">
-          <label className="text-[9px] tabular-nums text-o1-muted block font-bold">
+          <label className="text-o1-label tabular-nums text-o1-muted block font-bold">
             Height (cm)
           </label>
           <input
@@ -86,7 +86,9 @@ export const MifflinBodyDetailsSection: React.FC<MifflinBodyDetailsSectionProps>
         </div>
 
         <div className="bg-o1-surface border border-white/[0.08] rounded-2xl p-2.5">
-          <label className="text-[9px] tabular-nums text-o1-muted block font-bold">Age (yrs)</label>
+          <label className="text-o1-label tabular-nums text-o1-muted block font-bold">
+            Age (yrs)
+          </label>
           <input
             type="number"
             placeholder="--"
@@ -102,7 +104,7 @@ export const MifflinBodyDetailsSection: React.FC<MifflinBodyDetailsSectionProps>
       {useBodyFat && (
         <div className="p-2.5 border border-white/[0.08] rounded-2xl grid grid-cols-2 gap-2 animate-in fade-in duration-150">
           <div>
-            <label className="text-[9px] tabular-nums text-sky-600 block font-bold mb-1">
+            <label className="text-o1-label tabular-nums text-sky-600 block font-bold mb-1">
               Body Fat %
             </label>
             <input
@@ -116,7 +118,7 @@ export const MifflinBodyDetailsSection: React.FC<MifflinBodyDetailsSectionProps>
             />
           </div>
           <div>
-            <span className="text-[9px] tabular-nums text-o1-muted block font-bold mb-1">
+            <span className="text-o1-label tabular-nums text-o1-muted block font-bold mb-1">
               Lean Body Mass
             </span>
             <span className="o1-unread text-xs tabular-nums font-bold text-o1-text block py-1">
@@ -129,7 +131,7 @@ export const MifflinBodyDetailsSection: React.FC<MifflinBodyDetailsSectionProps>
       {/* Gender & Activity Multiplier */}
       <div className="grid grid-cols-2 gap-2">
         <div>
-          <label className="text-[9px] tabular-nums text-o1-muted block font-bold mb-1">
+          <label className="text-o1-label tabular-nums text-o1-muted block font-bold mb-1">
             Gender
           </label>
           <select
@@ -150,7 +152,7 @@ export const MifflinBodyDetailsSection: React.FC<MifflinBodyDetailsSectionProps>
         </div>
 
         <div>
-          <label className="text-[9px] tabular-nums text-o1-muted block font-bold mb-1">
+          <label className="text-o1-label tabular-nums text-o1-muted block font-bold mb-1">
             Daily Movement / Activity
           </label>
           <select

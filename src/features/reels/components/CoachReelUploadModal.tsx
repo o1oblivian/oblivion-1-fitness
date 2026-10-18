@@ -132,11 +132,11 @@ export const CoachReelUploadModal: React.FC<CoachReelUploadModalProps> = ({
               <Film className="w-4 h-4" />
             </div>
             <div>
-              <div className="flex items-center gap-1.5 text-[13px] font-semibold text-o1-text">
+              <div className="flex items-center gap-1.5 text-o1-body font-semibold text-o1-text">
                 <span>Publish a reel</span>
                 <ShieldCheck className="w-3.5 h-3.5 text-o1-crimson" />
               </div>
-              <p className="text-[11px] text-o1-muted">
+              <p className="text-o1-label text-o1-muted">
                 Up to {MAX_REEL_SECS} seconds. Reels play without sound.
               </p>
             </div>
@@ -164,7 +164,7 @@ export const CoachReelUploadModal: React.FC<CoachReelUploadModalProps> = ({
           {fileError ? (
             <p
               role="alert"
-              className="rounded-xl border border-[#d97706]/30 bg-[#d97706]/10 px-3 py-2 text-[12px] text-[#f59e0b]"
+              className="rounded-xl border border-o1-amber-deep/30 bg-o1-amber-deep/10 px-3 py-2 text-o1-caption text-o1-amber"
             >
               {fileError}
             </p>
@@ -191,10 +191,10 @@ export const CoachReelUploadModal: React.FC<CoachReelUploadModalProps> = ({
               className="mt-0.5 w-4 h-4 shrink-0 accent-o1-crimson cursor-pointer"
             />
             <span className="space-y-1">
-              <span className="block text-[12px] text-o1-text">
+              <span className="block text-o1-caption text-o1-text">
                 I filmed this clip or have permission to share it.
               </span>
-              <span className="block text-[11px] leading-snug text-o1-muted">
+              <span className="block text-o1-label leading-snug text-o1-muted">
                 No copyrighted music or footage, nudity, hate, harassment, or unsafe advice. Members
                 can report reels, and the Oblivion 1 team removes reels and accounts that break
                 these rules.
@@ -204,7 +204,7 @@ export const CoachReelUploadModal: React.FC<CoachReelUploadModalProps> = ({
           {publishError ? (
             <p
               role="alert"
-              className="rounded-xl border border-white/[0.07] bg-o1-surface px-3 py-2 text-[12px] text-o1-text"
+              className="rounded-xl border border-white/[0.07] bg-o1-surface px-3 py-2 text-o1-caption text-o1-text"
             >
               {publishError}
             </p>

@@ -48,7 +48,7 @@ export const HealthDisclaimerBanner: React.FC<Props> = ({ onLearnMore, compact =
 
       <div className="flex-1 min-w-0 space-y-1">
         <div className="flex items-center justify-between">
-          <span className="text-[10px] font-mono font-black tracking-wider text-amber-400">
+          <span className="text-o1-label font-mono font-black tracking-wider text-amber-400">
             Medical &amp; Biomechanical Disclaimer
           </span>
           <button
@@ -61,7 +61,7 @@ export const HealthDisclaimerBanner: React.FC<Props> = ({ onLearnMore, compact =
           </button>
         </div>
 
-        <p className="text-[10px] font-mono text-neutral-400 leading-tight">
+        <p className="text-o1-label font-mono text-neutral-400 leading-tight">
           {compact
             ? 'Optical meal estimates & coach directives do not constitute certified medical advice. Consult a physician before heavy load training.'
             : 'Optical meal scans, cardio OCR telemetry, and coach training directives are engineered solely for athletic conditioning reference and do not substitute professional medical diagnosis, cardiology clearance, or dietary prescription.'}
@@ -74,7 +74,7 @@ export const HealthDisclaimerBanner: React.FC<Props> = ({ onLearnMore, compact =
               tactileEngine.triggerSelectionBuzz();
               onLearnMore();
             }}
-            className="text-[9px] font-mono font-bold text-o1-ok hover:underline flex items-center gap-0.5 cursor-pointer pt-0.5"
+            className="text-o1-label font-mono font-bold text-o1-ok hover:underline flex items-center gap-0.5 cursor-pointer pt-0.5"
           >
             <span>Read the full terms</span>
             <ChevronRight className="w-2.5 h-2.5" />

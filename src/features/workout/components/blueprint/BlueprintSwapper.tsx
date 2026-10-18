@@ -32,10 +32,10 @@ export const BlueprintSwapper: React.FC = () => {
   return (
     <div className="p-3 rounded-2xl bg-o1-well border border-white/[0.07] space-y-2.5">
       <div className="flex items-center justify-between">
-        <span className="text-[10px] font-medium text-neutral-500 tracking-wider">
+        <span className="text-o1-label font-medium text-neutral-500 tracking-wider">
           Biomechanic Swapper
         </span>
-        <span className="text-[10px] text-neutral-400 truncate max-w-[180px]">
+        <span className="text-o1-label text-neutral-400 truncate max-w-[180px]">
           Replace {target.name}
         </span>
       </div>
@@ -52,7 +52,7 @@ export const BlueprintSwapper: React.FC = () => {
                 setSelectedId(ex.id);
               }}
               aria-pressed={isSelected}
-              className={`px-2.5 py-1 rounded-xl text-[10px] font-mono font-medium whitespace-nowrap transition-all border cursor-pointer ${
+              className={`px-2.5 py-1 rounded-xl text-o1-label font-mono font-medium whitespace-nowrap transition-all border cursor-pointer ${
                 isSelected
                   ? 'bg-o1-sheet text-o1-text border-o1-crimson'
                   : 'bg-o1-card text-neutral-400 border-white/[0.07]'
@@ -73,14 +73,14 @@ export const BlueprintSwapper: React.FC = () => {
             >
               <div>
                 <div className="text-xs font-medium text-white">{alt.name}</div>
-                <div className="text-[10px] text-neutral-500 font-mono">
+                <div className="text-o1-label text-neutral-500 font-mono">
                   {alt.category} • {alt.equipment}
                 </div>
               </div>
               <button
                 type="button"
                 onClick={() => applySwap(alt)}
-                className="px-2.5 py-1 rounded-xl bg-o1-crimson text-white text-[10px] font-medium tracking-wider hover:bg-o1-crimson-hover cursor-pointer"
+                className="px-2.5 py-1 rounded-xl bg-o1-crimson text-white text-o1-label font-medium tracking-wider hover:bg-o1-crimson-hover cursor-pointer"
               >
                 Swap
               </button>
@@ -88,7 +88,7 @@ export const BlueprintSwapper: React.FC = () => {
           ))}
         </div>
       ) : (
-        <div className="text-[10px] text-center text-neutral-500 py-1">
+        <div className="text-o1-label text-center text-neutral-500 py-1">
           No matching alternatives found for this movement pattern.
         </div>
       )}

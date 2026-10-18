@@ -66,10 +66,10 @@ const CORE_FOCUS: readonly string[] = [
   'Abs & Core',
 ];
 
-const PILL_OFF = 'bg-[#000000] text-[#FFFFFF] border border-white/[0.14] hover:bg-white/[0.06]';
-const PILL_ON = 'bg-[#F2F0EA] text-[#111113] border border-[#F2F0EA]';
+const PILL_OFF = 'bg-o1-canvas text-[#FFFFFF] border border-white/[0.14] hover:bg-white/[0.06]';
+const PILL_ON = 'bg-[#F2F0EA] text-o1-surface border border-[#F2F0EA]';
 const PILL_SUB_OFF = 'text-o1-muted';
-const PILL_SUB_ON = 'text-[#111113]/60';
+const PILL_SUB_ON = 'text-o1-surface/60';
 
 const GOAL_CARDS: {
   key: TrainingGoal;
@@ -83,28 +83,28 @@ const GOAL_CARDS: {
     label: 'Burn calories',
     sub: 'Sweat and fitness',
     icon: Flame,
-    color: 'text-[#C4121A]',
+    color: 'text-o1-crimson',
   },
   {
     key: 'muscle',
     label: 'Build muscle',
     sub: 'Size and strength',
     icon: Dumbbell,
-    color: 'text-[#d97706]',
+    color: 'text-o1-amber-deep',
   },
   {
     key: 'reset',
     label: 'Reset and move',
     sub: 'Easy mobility and recovery',
     icon: Activity,
-    color: 'text-[#4F8F9A]',
+    color: 'text-o1-teal',
   },
   {
     key: 'athletic',
     label: 'Athletic',
     sub: 'Speed and power',
     icon: Zap,
-    color: 'text-[#0284c7]',
+    color: 'text-o1-sky',
   },
 ];
 
@@ -227,14 +227,14 @@ export const IntelCoachAccordionPanel: React.FC<IntelCoachAccordionPanelProps> =
       {/* Header matching Screenshot 1 & 3 */}
       <div className="flex items-center justify-between border-b border-white/[0.05] pb-3">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-o1-well border border-white/[0.07] flex items-center justify-center text-[#d97706]">
+          <div className="w-8 h-8 rounded-xl bg-o1-well border border-white/[0.07] flex items-center justify-center text-o1-amber-deep">
             <SlidersHorizontal className="w-4 h-4 stroke-[2]" />
           </div>
           <div>
             <h3 className="font-mono text-xs font-medium tracking-wider text-white leading-tight">
               Build workout
             </h3>
-            <p className="text-[11px] text-neutral-400 leading-tight mt-0.5">
+            <p className="text-o1-label text-neutral-400 leading-tight mt-0.5">
               Made for how you feel today
             </p>
           </div>
@@ -245,9 +245,9 @@ export const IntelCoachAccordionPanel: React.FC<IntelCoachAccordionPanelProps> =
             tactileEngine.triggerSelectionBuzz();
             setIsLoadReportOpen(true);
           }}
-          className="min-h-[44px] px-3 rounded-full bg-o1-well border border-white/[0.1] hover:border-white/[0.2] text-[11px] font-mono font-medium text-white tracking-wider flex items-center gap-1.5 cursor-pointer active:scale-95 transition-all"
+          className="min-h-[44px] px-3 rounded-full bg-o1-well border border-white/[0.1] hover:border-white/[0.2] text-o1-label font-mono font-medium text-white tracking-wider flex items-center gap-1.5 cursor-pointer active:scale-95 transition-all"
         >
-          <Activity className="w-3.5 h-3.5 text-[#d97706]" />
+          <Activity className="w-3.5 h-3.5 text-o1-amber-deep" />
           Today's report
         </button>
       </div>
@@ -255,10 +255,10 @@ export const IntelCoachAccordionPanel: React.FC<IntelCoachAccordionPanelProps> =
       {/* 1. ENERGY CHECK-IN */}
       <div className="space-y-1.5">
         <div className="flex items-center justify-between">
-          <span className="text-[11px] font-medium text-neutral-300 tracking-wider font-mono">
+          <span className="text-o1-label font-medium text-neutral-300 tracking-wider font-mono">
             How do you feel today?
           </span>
-          <span className="text-[11px] font-mono font-medium text-neutral-400">
+          <span className="text-o1-label font-mono font-medium text-neutral-400">
             {energyLevel === 'LOW'
               ? 'Take it easy'
               : energyLevel === 'PRIME'
@@ -274,21 +274,21 @@ export const IntelCoachAccordionPanel: React.FC<IntelCoachAccordionPanelProps> =
                 label: 'Tired',
                 sub: 'Take it easy',
                 icon: Droplets,
-                color: 'text-[#0284c7]',
+                color: 'text-o1-sky',
               },
               {
                 key: 'STEADY',
                 label: 'Okay',
                 sub: 'Normal session',
                 icon: Zap,
-                color: 'text-[#d97706]',
+                color: 'text-o1-amber-deep',
               },
               {
                 key: 'PRIME',
                 label: 'Great',
                 sub: 'Go hard',
                 icon: BatteryCharging,
-                color: 'text-[#059669]',
+                color: 'text-o1-emerald-deep',
               },
             ] as const
           ).map((lvl) => {
@@ -309,7 +309,7 @@ export const IntelCoachAccordionPanel: React.FC<IntelCoachAccordionPanelProps> =
                   <Icon className={`w-3.5 h-3.5 ${lvl.color}`} />
                 </div>
                 <span
-                  className={`text-[11px] block truncate font-medium ${isSelected ? PILL_SUB_ON : PILL_SUB_OFF}`}
+                  className={`text-o1-label block truncate font-medium ${isSelected ? PILL_SUB_ON : PILL_SUB_OFF}`}
                 >
                   {lvl.sub}
                 </span>
@@ -321,7 +321,7 @@ export const IntelCoachAccordionPanel: React.FC<IntelCoachAccordionPanelProps> =
 
       {/* 2. TRAINING GOAL MODE */}
       <div className="space-y-1.5">
-        <span className="text-[11px] font-medium text-neutral-300 tracking-wider font-mono">
+        <span className="text-o1-label font-medium text-neutral-300 tracking-wider font-mono">
           What do you want from it?
         </span>
         <div className="grid grid-cols-2 gap-2">
@@ -341,7 +341,7 @@ export const IntelCoachAccordionPanel: React.FC<IntelCoachAccordionPanelProps> =
                   <span className="text-xs font-medium truncate">{label}</span>
                   <Icon className={`w-4 h-4 shrink-0 ${color}`} />
                 </div>
-                <p className={`text-[11px] truncate ${isSelected ? PILL_SUB_ON : PILL_SUB_OFF}`}>
+                <p className={`text-o1-label truncate ${isSelected ? PILL_SUB_ON : PILL_SUB_OFF}`}>
                   {sub}
                 </p>
               </button>
@@ -353,7 +353,7 @@ export const IntelCoachAccordionPanel: React.FC<IntelCoachAccordionPanelProps> =
       {/* 3. AVAILABLE DURATION */}
       <div className="space-y-1.5">
         <div className="flex items-center justify-between">
-          <span className="text-[11px] font-medium text-neutral-300 tracking-wider font-mono">
+          <span className="text-o1-label font-medium text-neutral-300 tracking-wider font-mono">
             How long have you got?
           </span>
         </div>
@@ -379,7 +379,7 @@ export const IntelCoachAccordionPanel: React.FC<IntelCoachAccordionPanelProps> =
       <div className="space-y-1.5">
         <div className="flex items-center gap-1.5">
           <Compass className="w-3.5 h-3.5 text-neutral-400" />
-          <span className="text-[11px] font-medium text-neutral-300 tracking-wider font-mono">
+          <span className="text-o1-label font-medium text-neutral-300 tracking-wider font-mono">
             What to train
           </span>
         </div>
@@ -422,7 +422,7 @@ export const IntelCoachAccordionPanel: React.FC<IntelCoachAccordionPanelProps> =
             <button
               type="button"
               onClick={handleEditOptions}
-              className="min-h-[44px] px-2 text-[11px] font-mono font-medium tracking-wider text-o1-muted hover:text-o1-text underline decoration-white/25 underline-offset-2 cursor-pointer shrink-0"
+              className="min-h-[44px] px-2 text-o1-label font-mono font-medium tracking-wider text-o1-muted hover:text-o1-text underline decoration-white/25 underline-offset-2 cursor-pointer shrink-0"
             >
               Edit
             </button>

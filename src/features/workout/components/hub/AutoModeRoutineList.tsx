@@ -49,7 +49,7 @@ export const AutoModeRoutineList: React.FC<AutoModeRoutineListProps> = ({
                 <span className="text-xs font-medium text-neutral-400 font-mono">{index + 1}</span>
                 <span className="text-sm font-semibold text-white">{exercise.name}</span>
               </div>
-              <div className="text-[11px] text-neutral-400 font-normal mt-0.5 ml-4">
+              <div className="text-o1-label text-neutral-400 font-normal mt-0.5 ml-4">
                 {exercise.subLabel ||
                   `${getMechanicLabel(exercise)} · ${getEquipmentLabel(exercise)}`}
               </div>

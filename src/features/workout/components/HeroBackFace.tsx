@@ -40,12 +40,12 @@ const Tile: React.FC<TileProps> = ({ label, icon, tone, value, sub, onOpen }) =>
     }}
     className="min-h-[44px] flex flex-col text-left cursor-pointer active:scale-95 transition-all p-1 bg-transparent border-0"
   >
-    <span className={`text-[11px] font-sans font-semibold flex items-center gap-1.5 ${tone}`}>
+    <span className={`text-o1-label font-sans font-semibold flex items-center gap-1.5 ${tone}`}>
       {icon}
       {label}
     </span>
     <span className="text-base font-mono font-light text-white tracking-tight mt-0.5">{value}</span>
-    <span className="text-[11px] font-sans font-medium text-white/75">{sub}</span>
+    <span className="text-o1-label font-sans font-medium text-white/75">{sub}</span>
   </button>
 );
 
@@ -133,11 +133,11 @@ export const HeroBackFace: React.FC<HeroBackFaceProps> = ({
           <span className="text-6xl sm:text-7xl font-mono font-light text-white tracking-tight">
             {readinessScore === null ? '--' : `${readinessScore}%`}
           </span>
-          <span className="text-o1-crimson font-sans font-semibold text-[13px] mt-1">
+          <span className="text-o1-crimson font-sans font-semibold text-o1-body mt-1">
             Restoration readiness
           </span>
           {readinessScore === null && (
-            <span className="text-white/75 font-sans text-[11px] font-semibold mt-1.5">
+            <span className="text-white/75 font-sans text-o1-label font-semibold mt-1.5">
               Log sleep to unlock
             </span>
           )}

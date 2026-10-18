@@ -81,7 +81,7 @@ export const SupplementTimingModal: React.FC<SupplementTimingModalProps> = ({
               role="tab"
               aria-selected={pane === id}
               onClick={() => selectPane(id)}
-              className={`py-1.5 rounded-xl text-[11px] font-semibold cursor-pointer ${
+              className={`py-1.5 rounded-xl text-o1-label font-semibold cursor-pointer ${
                 pane === id ? 'bg-o1-crimson text-white' : 'text-o1-muted'
               }`}
             >

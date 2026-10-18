@@ -93,7 +93,7 @@ export const MealScanActions: React.FC<MealScanActionsProps> = ({
               type="button"
               onClick={() => onBarcodeLookup()}
               disabled={!barcodeInput.trim() || isLoading}
-              className="px-3 py-1 bg-o1-crimson hover:bg-o1-crimson-hover text-white text-[11px] font-bold rounded-xl transition-colors disabled:opacity-40 cursor-pointer shrink-0"
+              className="px-3 py-1 bg-o1-crimson hover:bg-o1-crimson-hover text-white text-o1-label font-bold rounded-xl transition-colors disabled:opacity-40 cursor-pointer shrink-0"
             >
               Lookup
             </button>
@@ -103,14 +103,14 @@ export const MealScanActions: React.FC<MealScanActionsProps> = ({
 
       {/* Tab 2: Package Nutrition Facts OCR Guide Overlay */}
       {scanMode === 'package' && (
-        <p className="text-[11px] text-neutral-400 text-center">
+        <p className="text-o1-label text-neutral-400 text-center">
           Fill the photo with the Nutrition Facts table.
         </p>
       )}
 
       {/* Tab 3: Plate Interactive Estimate Guide */}
       {scanMode === 'plate' && (
-        <p className="text-[11px] text-neutral-400 text-center">
+        <p className="text-o1-label text-neutral-400 text-center">
           Photograph the whole plate from above.
         </p>
       )}
@@ -159,7 +159,7 @@ export const MealScanActions: React.FC<MealScanActionsProps> = ({
           <span>Upload Photo</span>
         </button>
       </div>
-      {captureError ? <p className="text-[12px] text-[#C4121A]">{captureError}</p> : null}
+      {captureError ? <p className="text-o1-caption text-o1-crimson">{captureError}</p> : null}
     </div>
   );
 };

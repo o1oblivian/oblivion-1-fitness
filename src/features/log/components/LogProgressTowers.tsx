@@ -66,7 +66,7 @@ export const LogProgressTowers: React.FC<LogProgressTowersProps> = ({
 
   return (
     <div className="pt-3 space-y-2">
-      <div className="flex items-center justify-between gap-2 px-1 text-[11px]">
+      <div className="flex items-center justify-between gap-2 px-1 text-o1-label">
         <span className="text-o1-muted">
           {average > 0 ? `Average ${formatValue(average)} ${unit}` : 'No days logged'}
         </span>

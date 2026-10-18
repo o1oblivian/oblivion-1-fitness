@@ -63,7 +63,7 @@ function DisciplineAndDays() {
                   tactileEngine.triggerSelectionBuzz();
                   void update({ primaryDiscipline: option.optionKey as Discipline });
                 }}
-                className={`o1-pill text-[11px] font-normal cursor-pointer ${
+                className={`o1-pill text-o1-label font-normal cursor-pointer ${
                   active
                     ? 'bg-o1-crimson border border-o1-crimson text-white'
                     : 'bg-o1-surface border border-white/[0.07] text-o1-muted hover:text-o1-text'
@@ -81,7 +81,7 @@ function DisciplineAndDays() {
           <span className="text-xs font-tactical font-semibold text-neutral-100">
             Active Training Days
           </span>
-          <span className="text-[11px] font-mono text-neutral-400">
+          <span className="text-o1-label font-mono text-neutral-400">
             {trainingDays.length === 0 ? 'Suggested · ' : ''}
             {shownDays.length} days / week
           </span>
@@ -96,7 +96,7 @@ function DisciplineAndDays() {
                 aria-pressed={active}
                 aria-label={day}
                 onClick={() => toggleDay(day)}
-                className={`flex h-8 w-full items-center justify-center rounded-full border text-[11px] font-normal transition-colors cursor-pointer ${
+                className={`flex h-8 w-full items-center justify-center rounded-full border text-o1-label font-normal transition-colors cursor-pointer ${
                   active
                     ? 'border-o1-crimson bg-o1-crimson text-white'
                     : 'border-white/[0.07] bg-o1-surface text-o1-muted'
@@ -132,7 +132,7 @@ function TrainingPlaces() {
         <span className="text-xs font-sans font-semibold text-neutral-100 block">
           Where you train
         </span>
-        <span className="text-[10px] font-sans text-neutral-400 block">
+        <span className="text-o1-label font-sans text-neutral-400 block">
           {facilities.length === 0
             ? 'Not set. Workouts can use any equipment.'
             : 'Suggested workouts only use equipment you have.'}
@@ -148,7 +148,7 @@ function TrainingPlaces() {
               role="checkbox"
               aria-checked={active}
               onClick={() => toggle(option.optionKey as Facility)}
-              className={`o1-pill text-[11px] font-normal cursor-pointer ${
+              className={`o1-pill text-o1-label font-normal cursor-pointer ${
                 active
                   ? 'bg-o1-crimson border border-o1-crimson text-white'
                   : 'bg-o1-surface border border-white/[0.07] text-o1-muted hover:text-o1-text'
@@ -229,12 +229,12 @@ export const SettingsTrainingSection: React.FC<TrainingSectionProps> = ({
               <span className="text-xs font-tactical font-semibold text-neutral-100 group-hover:text-o1-crimson block">
                 Home Gym
               </span>
-              <span className="text-[11px] font-sans text-neutral-400 block truncate">
+              <span className="text-o1-label font-sans text-neutral-400 block truncate">
                 {homeGym || 'Not set'}
               </span>
             </div>
             <div className="flex items-center gap-1 text-neutral-400 group-hover:text-white shrink-0">
-              <MapPin className="w-3.5 h-3.5 text-[#4F8F9A]" />
+              <MapPin className="w-3.5 h-3.5 text-o1-teal" />
               <ChevronRight className="w-4 h-4 text-neutral-400" />
             </div>
           </button>
@@ -244,7 +244,7 @@ export const SettingsTrainingSection: React.FC<TrainingSectionProps> = ({
               <span className="text-xs font-tactical font-semibold text-neutral-200 block">
                 Use my location
               </span>
-              <span className="text-[11px] font-sans text-neutral-400 block">
+              <span className="text-o1-label font-sans text-neutral-400 block">
                 {locating ? 'Asking for location…' : 'Find training buddies near you on Buddy'}
               </span>
             </div>
@@ -264,7 +264,7 @@ export const SettingsTrainingSection: React.FC<TrainingSectionProps> = ({
               <span className="text-xs font-tactical font-semibold text-neutral-200 block">
                 Auto plan
               </span>
-              <span className="text-[10px] font-sans text-neutral-400 block">
+              <span className="text-o1-label font-sans text-neutral-400 block">
                 Off means you design your own workouts
               </span>
             </div>
@@ -284,7 +284,7 @@ export const SettingsTrainingSection: React.FC<TrainingSectionProps> = ({
               <span className="text-xs font-tactical font-semibold text-neutral-200 block">
                 Recovery mode
               </span>
-              <span className="text-[10px] font-sans text-neutral-400 block">
+              <span className="text-o1-label font-sans text-neutral-400 block">
                 Open Workout on recovery sessions
               </span>
             </div>

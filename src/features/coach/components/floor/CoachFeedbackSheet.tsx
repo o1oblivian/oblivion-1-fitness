@@ -57,8 +57,10 @@ export const CoachFeedbackSheet: React.FC<CoachFeedbackSheetProps> = ({
         <div className="flex items-center gap-3">
           <AthleteAvatar name={target.name} avatar={target.avatar} size={40} />
           <div className="min-w-0 flex-1">
-            <p className="truncate text-[15px] font-semibold text-o1-text">{target.name}</p>
-            <p className="text-[12px] text-o1-muted">Only {target.name.split(' ')[0]} sees this.</p>
+            <p className="truncate text-o1-control font-semibold text-o1-text">{target.name}</p>
+            <p className="text-o1-caption text-o1-muted">
+              Only {target.name.split(' ')[0]} sees this.
+            </p>
           </div>
           <button
             type="button"
@@ -70,7 +72,7 @@ export const CoachFeedbackSheet: React.FC<CoachFeedbackSheetProps> = ({
           </button>
         </div>
 
-        <p className="mt-4 text-[12px] font-semibold text-o1-muted">Quick reply</p>
+        <p className="mt-4 text-o1-caption font-semibold text-o1-muted">Quick reply</p>
         <div className="mt-2 flex flex-wrap gap-1.5">
           {QUICK_REPLIES.map((reply) => (
             <button
@@ -78,24 +80,24 @@ export const CoachFeedbackSheet: React.FC<CoachFeedbackSheetProps> = ({
               type="button"
               disabled={sending}
               onClick={() => void send(reply)}
-              className="o1-pill border border-white/[0.07] bg-o1-canvas text-[12px] font-semibold text-o1-text active:scale-[0.98] disabled:opacity-50"
+              className="o1-pill border border-white/[0.07] bg-o1-canvas text-o1-caption font-semibold text-o1-text active:scale-[0.98] disabled:opacity-50"
             >
               {reply}
             </button>
           ))}
         </div>
 
-        <p className="mt-4 text-[12px] font-semibold text-o1-muted">Leave a note</p>
+        <p className="mt-4 text-o1-caption font-semibold text-o1-muted">Leave a note</p>
         <textarea
           value={note}
           onChange={(event) => setNote(event.target.value)}
           rows={3}
           maxLength={500}
           placeholder={`Write something for ${target.name.split(' ')[0]}`}
-          className="mt-2 w-full resize-none rounded-xl border border-white/[0.07] bg-o1-canvas px-3 py-2 text-[13px] text-o1-text outline-none focus:border-o1-crimson"
+          className="mt-2 w-full resize-none rounded-xl border border-white/[0.07] bg-o1-canvas px-3 py-2 text-o1-body text-o1-text outline-none focus:border-o1-crimson"
         />
         {failed ? (
-          <p role="alert" className="mt-2 text-[12px] text-o1-text">
+          <p role="alert" className="mt-2 text-o1-caption text-o1-text">
             Could not send. Check your connection and try again.
           </p>
         ) : null}
@@ -103,7 +105,7 @@ export const CoachFeedbackSheet: React.FC<CoachFeedbackSheetProps> = ({
           type="button"
           disabled={!note.trim() || sending}
           onClick={() => void send(note)}
-          className="mt-2 h-[44px] w-full rounded-xl bg-o1-crimson text-[13px] font-semibold text-white active:scale-[0.98] disabled:opacity-40"
+          className="mt-2 h-[44px] w-full rounded-xl bg-o1-crimson text-o1-body font-semibold text-white active:scale-[0.98] disabled:opacity-40"
         >
           {sending ? 'Sending…' : 'Send note'}
         </button>
@@ -114,7 +116,7 @@ export const CoachFeedbackSheet: React.FC<CoachFeedbackSheetProps> = ({
               <button
                 type="button"
                 onClick={onSendWorkout}
-                className="flex h-[44px] items-center justify-center gap-1.5 rounded-xl border border-white/[0.07] bg-o1-canvas text-[13px] font-semibold text-o1-text active:scale-[0.98]"
+                className="flex h-[44px] items-center justify-center gap-1.5 rounded-xl border border-white/[0.07] bg-o1-canvas text-o1-body font-semibold text-o1-text active:scale-[0.98]"
               >
                 <Dumbbell size={15} />
                 Send a workout
@@ -124,7 +126,7 @@ export const CoachFeedbackSheet: React.FC<CoachFeedbackSheetProps> = ({
               <button
                 type="button"
                 onClick={onViewProfile}
-                className="flex h-[44px] items-center justify-center gap-1.5 rounded-xl border border-white/[0.07] bg-o1-canvas text-[13px] font-semibold text-o1-text active:scale-[0.98]"
+                className="flex h-[44px] items-center justify-center gap-1.5 rounded-xl border border-white/[0.07] bg-o1-canvas text-o1-body font-semibold text-o1-text active:scale-[0.98]"
               >
                 <User size={15} />
                 View profile

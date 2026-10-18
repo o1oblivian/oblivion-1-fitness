@@ -48,7 +48,7 @@ function Segmented<T extends string>({
     <div>
       <div className="mb-2">
         <span className="text-xs font-tactical font-semibold text-neutral-100 block">{title}</span>
-        <span className="text-[11px] font-sans text-neutral-400 block">{subtitle}</span>
+        <span className="text-o1-label font-sans text-neutral-400 block">{subtitle}</span>
       </div>
       <div
         role="radiogroup"
@@ -139,7 +139,7 @@ export const SettingsAppearanceSection: React.FC<AppearanceSectionProps> = ({
             <span className="text-xs font-tactical font-semibold text-neutral-100 block">
               Input Style
             </span>
-            <span className="text-[11px] font-sans text-neutral-400 block">
+            <span className="text-o1-label font-sans text-neutral-400 block">
               Workout entry dial or keypad
             </span>
           </div>
@@ -171,7 +171,7 @@ export const SettingsAppearanceSection: React.FC<AppearanceSectionProps> = ({
               <span className="text-xs font-tactical font-semibold text-neutral-100 block">
                 Workout wallpaper
               </span>
-              <span className="text-[11px] font-sans text-neutral-400 block truncate">
+              <span className="text-o1-label font-sans text-neutral-400 block truncate">
                 {isEnabled
                   ? `${wallpaperTopicLabel(topic)} · ${isPaused ? 'Paused' : `${intervalSeconds}s`} · ${pool.length || 'live'} frames`
                   : 'Off — battery saver'}

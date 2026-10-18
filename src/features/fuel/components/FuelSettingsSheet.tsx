@@ -177,14 +177,14 @@ export const FuelSettingsSheet: React.FC<FuelSettingsSheetProps> = ({
         <div className="mt-4">
           <div className="flex items-baseline justify-between mb-2">
             <h3 className="text-xs font-semibold text-o1-muted">Daily targets</h3>
-            <span className="o1-unread text-[11px] tabular-nums text-o1-muted">
+            <span className="o1-unread text-o1-label tabular-nums text-o1-muted">
               Resting burn {bmr != null ? `${bmr.toLocaleString()} kcal` : '--'}
             </span>
           </div>
           <div className="grid grid-cols-4 gap-2">
             {MACRO_FIELDS.map((field) => (
               <label key={field.key} className="block">
-                <span className="block text-[10px] text-o1-muted mb-1">
+                <span className="block text-o1-label text-o1-muted mb-1">
                   {field.label} <span className="opacity-70">{field.unit}</span>
                 </span>
                 <input
@@ -201,7 +201,7 @@ export const FuelSettingsSheet: React.FC<FuelSettingsSheetProps> = ({
               </label>
             ))}
           </div>
-          <p className="mt-2 text-[11px] tabular-nums text-o1-muted">
+          <p className="mt-2 text-o1-label tabular-nums text-o1-muted">
             {macroGap == null
               ? 'Macros add up to --'
               : Math.abs(macroGap) <= 30

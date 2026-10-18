@@ -112,7 +112,7 @@ export const CoachConsultTab: React.FC<CoachConsultTabProps> = ({
             tactileEngine.triggerSelectionBuzz();
             onMessage();
           }}
-          className="flex h-[48px] w-full items-center justify-center gap-2 rounded-2xl border border-white/[0.07] bg-o1-surface text-[14px] font-semibold text-o1-text active:scale-[0.98]"
+          className="flex h-[48px] w-full items-center justify-center gap-2 rounded-2xl border border-white/[0.07] bg-o1-surface text-o1-control font-semibold text-o1-text active:scale-[0.98]"
         >
           <MessageCircle size={16} />
           Chat with {firstName}
@@ -121,21 +121,21 @@ export const CoachConsultTab: React.FC<CoachConsultTabProps> = ({
 
       <section className="space-y-1 rounded-2xl border border-white/[0.07] bg-o1-surface p-4">
         <div className="flex items-baseline justify-between gap-2">
-          <h3 className="text-[15px] font-semibold text-o1-text">1:1 coaching</h3>
+          <h3 className="text-o1-control font-semibold text-o1-text">1:1 coaching</h3>
           {monthly ? (
-            <span className="tabular-nums text-[14px] font-semibold text-o1-text">
+            <span className="tabular-nums text-o1-control font-semibold text-o1-text">
               {monthly}/mo
             </span>
           ) : null}
         </div>
-        <p className="text-[12px] text-o1-muted">
+        <p className="text-o1-caption text-o1-muted">
           Programming, form reviews, and check-ins from {firstName}.
           {spots != null ? ` ${spots} ${spots === 1 ? 'spot' : 'spots'} open.` : ''}
         </p>
       </section>
 
       {application && application.status !== 'declined' ? (
-        <p className="rounded-2xl border border-white/[0.07] bg-o1-surface px-4 py-3 text-[13px] text-o1-text">
+        <p className="rounded-2xl border border-white/[0.07] bg-o1-surface px-4 py-3 text-o1-body text-o1-text">
           {STATUS_COPY[application.status]}
         </p>
       ) : null}
@@ -154,7 +154,7 @@ export const CoachConsultTab: React.FC<CoachConsultTabProps> = ({
             await onPay();
             setPaying(false);
           }}
-          className="h-[48px] w-full rounded-full bg-o1-crimson text-[14px] font-semibold text-white disabled:opacity-40 active:scale-[0.98]"
+          className="h-[48px] w-full rounded-full bg-o1-crimson text-o1-control font-semibold text-white disabled:opacity-40 active:scale-[0.98]"
         >
           {paying ? 'Opening checkout…' : `Pay first month · ${monthly}`}
         </button>
@@ -162,27 +162,27 @@ export const CoachConsultTab: React.FC<CoachConsultTabProps> = ({
 
       {canApply && (
         <section className="space-y-3 rounded-2xl border border-white/[0.07] bg-o1-surface p-4">
-          <h3 className="text-[15px] font-semibold text-o1-text">Book a consultation</h3>
+          <h3 className="text-o1-control font-semibold text-o1-text">Book a consultation</h3>
           {application?.status === 'declined' ? (
-            <p className="text-[12px] text-o1-muted">{STATUS_COPY.declined}</p>
+            <p className="text-o1-caption text-o1-muted">{STATUS_COPY.declined}</p>
           ) : null}
           {Object.keys(intake).length > 0 ? (
             <dl className="grid grid-cols-2 gap-x-3 gap-y-2">
               {Object.entries(intake).map(([title, value]) => (
                 <div key={title} className="min-w-0">
-                  <dt className="text-[11px] text-o1-muted">{title}</dt>
-                  <dd className="truncate text-[13px] text-o1-text">{value}</dd>
+                  <dt className="text-o1-label text-o1-muted">{title}</dt>
+                  <dd className="truncate text-o1-body text-o1-text">{value}</dd>
                 </div>
               ))}
             </dl>
           ) : (
-            <p className="text-[12px] text-o1-muted">
+            <p className="text-o1-caption text-o1-muted">
               Your intake answers will appear here once induction is done.
             </p>
           )}
           {coachingQuestions.map(({ group, prompt, value, field }) => (
             <div key={group} className="space-y-1.5">
-              <p className="text-[11px] text-o1-muted">{prompt}</p>
+              <p className="text-o1-label text-o1-muted">{prompt}</p>
               <div className="flex flex-wrap gap-1.5" role="radiogroup" aria-label={prompt}>
                 {optionsIn(taxonomy, group).map((option) => {
                   const active = value === option.optionKey;
@@ -197,7 +197,7 @@ export const CoachConsultTab: React.FC<CoachConsultTabProps> = ({
                         tactileEngine.triggerSelectionBuzz();
                         void updateConsultation({ [field]: option.optionKey });
                       }}
-                      className={`h-8 rounded-full px-3 text-[11.5px] font-normal transition active:scale-[0.97] ${active ? 'bg-o1-crimson text-white' : 'bg-white/[0.06] text-o1-text'}`}
+                      className={`h-8 rounded-full px-3 text-o1-caption font-normal transition active:scale-[0.97] ${active ? 'bg-o1-crimson text-white' : 'bg-white/[0.06] text-o1-text'}`}
                     >
                       {option.label}
                     </button>
@@ -208,11 +208,11 @@ export const CoachConsultTab: React.FC<CoachConsultTabProps> = ({
           ))}
           {program ? (
             <div className="flex items-center justify-between gap-2 rounded-xl bg-black px-3 py-2">
-              <span className="truncate text-[13px] text-o1-text">Program: {program.title}</span>
+              <span className="truncate text-o1-body text-o1-text">Program: {program.title}</span>
               <button
                 type="button"
                 onClick={onClearProgram}
-                className="h-[44px] shrink-0 px-2 text-[12px] text-o1-muted"
+                className="h-[44px] shrink-0 px-2 text-o1-caption text-o1-muted"
               >
                 Remove
               </button>
@@ -223,7 +223,7 @@ export const CoachConsultTab: React.FC<CoachConsultTabProps> = ({
             onChange={(event) => setGoal(event.target.value)}
             rows={3}
             placeholder="What do you want from coaching?"
-            className="w-full resize-none rounded-xl border border-white/[0.07] bg-o1-canvas p-3 text-[13px] text-o1-text placeholder:text-o1-muted outline-none focus:border-o1-crimson"
+            className="w-full resize-none rounded-xl border border-white/[0.07] bg-o1-canvas p-3 text-o1-body text-o1-text placeholder:text-o1-muted outline-none focus:border-o1-crimson"
           />
           <button
             type="button"
@@ -233,7 +233,7 @@ export const CoachConsultTab: React.FC<CoachConsultTabProps> = ({
               setSending(true);
               void onSubmit(goal, intake).finally(() => setSending(false));
             }}
-            className="h-[48px] w-full rounded-full bg-o1-crimson text-[14px] font-semibold text-white disabled:opacity-40 active:scale-[0.98]"
+            className="h-[48px] w-full rounded-full bg-o1-crimson text-o1-control font-semibold text-white disabled:opacity-40 active:scale-[0.98]"
           >
             {sending ? 'Sending' : 'Send application'}
           </button>

@@ -204,7 +204,7 @@ export const SupplementStackPane: React.FC<SupplementStackPaneProps> = ({
     <div className="space-y-3">
       {stack.length > 0 && (
         <section aria-label="Your stack" className="space-y-1.5">
-          <h5 className="text-[11px] font-semibold text-o1-muted">Your stack · {stack.length}</h5>
+          <h5 className="text-o1-label font-semibold text-o1-muted">Your stack · {stack.length}</h5>
           {stack.map((item) => (
             <div
               key={item.id}
@@ -214,7 +214,7 @@ export const SupplementStackPane: React.FC<SupplementStackPaneProps> = ({
                 <span className="block text-xs font-semibold text-o1-text truncate">
                   {item.name}
                 </span>
-                <span className="block text-[10px] text-o1-muted mt-0.5 truncate tabular-nums">
+                <span className="block text-o1-label text-o1-muted mt-0.5 truncate tabular-nums">
                   {item.dosage} · {item.timing}
                   {item.caffeineMg ? ` · ${item.caffeineMg} mg caffeine` : ''}
                 </span>
@@ -278,16 +278,16 @@ export const SupplementStackPane: React.FC<SupplementStackPaneProps> = ({
                 <span className="flex items-center gap-1.5">
                   <span className="text-xs font-semibold text-o1-text truncate">{entry.name}</span>
                   <span
-                    className={`shrink-0 h-4 px-1.5 rounded-full border text-[9px] font-medium inline-flex items-center ${EVIDENCE_COPY[entry.evidence].className}`}
+                    className={`shrink-0 h-4 px-1.5 rounded-full border text-o1-label font-medium inline-flex items-center ${EVIDENCE_COPY[entry.evidence].className}`}
                   >
                     {EVIDENCE_COPY[entry.evidence].label.split(' ')[0]}
                   </span>
                 </span>
-                <span className="block text-[10px] text-o1-muted mt-0.5 truncate tabular-nums">
+                <span className="block text-o1-label text-o1-muted mt-0.5 truncate tabular-nums">
                   {formatDose(amount, entry.unit)} · {entry.timing} · {entry.category}
                 </span>
               </span>
-              <span className="shrink-0 text-[11px] font-medium text-o1-muted">
+              <span className="shrink-0 text-o1-label font-medium text-o1-muted">
                 {added ? (
                   'Added'
                 ) : (
@@ -311,7 +311,7 @@ export const SupplementStackPane: React.FC<SupplementStackPaneProps> = ({
               <span className="block text-xs font-semibold text-o1-text truncate">
                 {result.name}
               </span>
-              <span className="block text-[10px] text-o1-muted mt-0.5 truncate">
+              <span className="block text-o1-label text-o1-muted mt-0.5 truncate">
                 {[result.clinicalDosage, result.category].filter(Boolean).join(' · ')}
               </span>
             </span>
@@ -320,7 +320,7 @@ export const SupplementStackPane: React.FC<SupplementStackPaneProps> = ({
         ))}
 
         {trimmed && libraryMatches.length === 0 && online.status !== 'done' && (
-          <p className="text-center py-2 text-[11px] text-o1-muted">
+          <p className="text-center py-2 text-o1-label text-o1-muted">
             {online.status === 'loading'
               ? 'Searching online…'
               : online.status === 'error'
@@ -329,7 +329,7 @@ export const SupplementStackPane: React.FC<SupplementStackPaneProps> = ({
           </p>
         )}
         {online.status === 'done' && online.results.length === 0 && (
-          <p className="text-center py-2 text-[11px] text-o1-muted">
+          <p className="text-center py-2 text-o1-label text-o1-muted">
             No online matches. Add it manually below.
           </p>
         )}

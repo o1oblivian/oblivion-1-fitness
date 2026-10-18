@@ -163,7 +163,7 @@ export const MifflinStJeorModal: React.FC<MifflinStJeorModalProps> = ({
               <h3 className="font-bold text-sm text-o1-text leading-tight truncate">
                 Energy Engine
               </h3>
-              <p className="text-[10px] text-o1-muted truncate">
+              <p className="text-o1-label text-o1-muted truncate">
                 Personalized Calories, Mass Goals &amp; Evidence-Based Macros
               </p>
             </div>
@@ -228,26 +228,26 @@ export const MifflinStJeorModal: React.FC<MifflinStJeorModalProps> = ({
         <div className="pt-3 border-t border-white/[0.05] shrink-0 space-y-2.5">
           <div className="o1-unread border border-white/[0.08] rounded-2xl p-3">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-[10px] tabular-nums font-bold text-o1-muted">Blueprint</span>
-              <span className="text-[10px] tabular-nums font-bold text-o1-crimson">
+              <span className="text-o1-label tabular-nums font-bold text-o1-muted">Blueprint</span>
+              <span className="text-o1-label tabular-nums font-bold text-o1-crimson">
                 {isComplete ? `${netTargetCalories.toLocaleString()} kcal/day` : '--'}
               </span>
             </div>
             <div className="grid grid-cols-3 gap-1.5 text-center tabular-nums mb-2">
               <div>
-                <span className="text-[9px] text-o1-muted block">BMR</span>
+                <span className="text-o1-label text-o1-muted block">BMR</span>
                 <span className="text-xs font-bold">
                   {isComplete ? bmr.toLocaleString() : '--'}
                 </span>
               </div>
               <div>
-                <span className="text-[9px] text-o1-muted block">TDEE</span>
+                <span className="text-o1-label text-o1-muted block">TDEE</span>
                 <span className="text-xs font-bold">
                   {isComplete ? tdee.toLocaleString() : '--'}
                 </span>
               </div>
               <div>
-                <span className="text-[9px] text-o1-crimson block">Target</span>
+                <span className="text-o1-label text-o1-crimson block">Target</span>
                 <span className="text-xs font-bold text-o1-crimson">
                   {isComplete ? netTargetCalories.toLocaleString() : '--'}
                 </span>
@@ -268,13 +268,13 @@ export const MifflinStJeorModal: React.FC<MifflinStJeorModalProps> = ({
               />
             </div>
             <div className="grid grid-cols-3 gap-1 text-center tabular-nums mt-2">
-              <span className="text-[10px] text-o1-crimson">
+              <span className="text-o1-label text-o1-crimson">
                 {isComplete ? `${macroBreakdown.proteinG}g P` : '-- P'}
               </span>
-              <span className="text-[10px] text-amber-500">
+              <span className="text-o1-label text-amber-500">
                 {isComplete ? `${macroBreakdown.carbsG}g C` : '-- C'}
               </span>
-              <span className="text-[10px] text-emerald-500">
+              <span className="text-o1-label text-emerald-500">
                 {isComplete ? `${macroBreakdown.fatsG}g F` : '-- F'}
               </span>
             </div>

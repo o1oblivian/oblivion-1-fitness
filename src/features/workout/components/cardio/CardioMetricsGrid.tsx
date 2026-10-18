@@ -50,7 +50,7 @@ export const CardioMetricsGrid: React.FC<Props> = ({ metrics, onUpdateMetric }) 
               }`}
             >
               <div className="flex items-center justify-between gap-1 mb-1">
-                <span className="o1-num text-[10px] font-normal text-neutral-500 font-mono tracking-widest block truncate">
+                <span className="o1-num text-o1-label font-normal text-neutral-500 font-mono tracking-widest block truncate">
                   {m.label}
                 </span>
                 {onUpdateMetric && !isEditing && (
@@ -76,7 +76,7 @@ export const CardioMetricsGrid: React.FC<Props> = ({ metrics, onUpdateMetric }) 
                       if (e.key === 'Enter') saveEdit(m.id);
                       if (e.key === 'Escape') setEditingId(null);
                     }}
-                    className="w-full text-[14px] font-light tabular-nums text-white bg-o1-card border border-o1-crimson rounded px-1 py-0.5 outline-none text-center"
+                    className="w-full text-o1-control font-light tabular-nums text-white bg-o1-card border border-o1-crimson rounded px-1 py-0.5 outline-none text-center"
                   />
                   <button
                     type="button"
@@ -87,10 +87,10 @@ export const CardioMetricsGrid: React.FC<Props> = ({ metrics, onUpdateMetric }) 
                   </button>
                 </div>
               ) : (
-                <span className="text-[15px] font-light tabular-nums text-white truncate block">
+                <span className="text-o1-control font-light tabular-nums text-white truncate block">
                   {displayText}
                   {!isMissing && m.unit && (
-                    <span className="ml-1 text-[10px] font-light text-neutral-500">{m.unit}</span>
+                    <span className="ml-1 text-o1-label font-light text-neutral-500">{m.unit}</span>
                   )}
                 </span>
               )}
@@ -99,7 +99,7 @@ export const CardioMetricsGrid: React.FC<Props> = ({ metrics, onUpdateMetric }) 
         })}
       </div>
       {onUpdateMetric && (
-        <p className="text-[11px] font-light text-neutral-500 text-center">
+        <p className="text-o1-label font-light text-neutral-500 text-center">
           Numbers auto-extracted from photo. Tap any number to edit.
         </p>
       )}

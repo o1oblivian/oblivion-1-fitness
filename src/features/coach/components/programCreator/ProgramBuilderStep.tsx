@@ -162,7 +162,7 @@ export const ProgramBuilderStep: React.FC<{
               >
                 <span>Week {w.weekNumber}</span>
                 <span
-                  className={`text-[10px] font-mono ${isActive ? 'opacity-80' : 'text-o1-muted'}`}
+                  className={`text-o1-label font-mono ${isActive ? 'opacity-80' : 'text-o1-muted'}`}
                 >
                   {exCount} ex
                 </span>
@@ -213,9 +213,11 @@ export const ProgramBuilderStep: React.FC<{
             >
               <div className="flex items-center justify-between">
                 <span className="font-bold text-xs text-o1-text">{d.dayName}</span>
-                <span className="text-[10px] font-mono text-o1-muted">{d.exercises.length} ex</span>
+                <span className="text-o1-label font-mono text-o1-muted">
+                  {d.exercises.length} ex
+                </span>
               </div>
-              <div className="text-[11px] font-medium text-o1-muted truncate mt-0.5">
+              <div className="text-o1-label font-medium text-o1-muted truncate mt-0.5">
                 {d.splitFocus || 'Rest'}
               </div>
             </button>
@@ -242,7 +244,7 @@ export const ProgramBuilderStep: React.FC<{
             <h4 className="text-xs font-bold text-o1-text">
               {currentDay?.dayName} — {currentDay?.splitFocus}
             </h4>
-            <span className="text-[10px] font-mono text-o1-muted">
+            <span className="text-o1-label font-mono text-o1-muted">
               {currentDay?.exercises.length || 0} exercises programmed
             </span>
           </div>
@@ -251,7 +253,7 @@ export const ProgramBuilderStep: React.FC<{
             <button
               type="button"
               onClick={handleApplyBlueprint}
-              className="px-2.5 py-1.5 rounded-xl bg-white/[0.08] hover:bg-neutral-700 text-o1-text text-[11px] font-semibold flex items-center gap-1 transition-colors cursor-pointer border border-white/[0.07]"
+              className="px-2.5 py-1.5 rounded-xl bg-white/[0.08] hover:bg-neutral-700 text-o1-text text-o1-label font-semibold flex items-center gap-1 transition-colors cursor-pointer border border-white/[0.07]"
               title="Apply real-time blueprint to this day"
             >
               <Sparkles className="w-3 h-3 text-o1-crimson" />
@@ -287,7 +289,7 @@ export const ProgramBuilderStep: React.FC<{
             <p className="text-xs font-semibold text-o1-muted">
               No exercises programmed for {currentDay?.dayName}
             </p>
-            <p className="text-[11px] text-o1-muted">
+            <p className="text-o1-label text-o1-muted">
               Design a custom movement stack or auto-fill with calibrated protocols.
             </p>
             <div className="pt-2 flex justify-center gap-2">

@@ -30,7 +30,7 @@ export const SettingsFooterSection: React.FC<FooterActionsProps> = ({
           <AlertTriangle className="w-4 h-4 text-o1-crimson shrink-0 mt-0.5" />
           <div className="min-w-0 flex-1">
             <p className="text-xs font-semibold text-white">{changes} on this phone</p>
-            <p className="text-[11px] text-neutral-300 leading-snug">
+            <p className="text-o1-label text-neutral-300 leading-snug">
               Do not sign out or uninstall the app until they are backed up.
               {!online && ' Connect to the internet to back them up.'}
             </p>
@@ -43,7 +43,7 @@ export const SettingsFooterSection: React.FC<FooterActionsProps> = ({
                 tactileEngine.triggerSelectionBuzz();
                 void flushSync();
               }}
-              className="shrink-0 text-[11px] font-semibold text-white underline disabled:opacity-50 cursor-pointer"
+              className="shrink-0 text-o1-label font-semibold text-white underline disabled:opacity-50 cursor-pointer"
             >
               {syncing ? 'Backing up…' : 'Back up now'}
             </button>
@@ -54,11 +54,11 @@ export const SettingsFooterSection: React.FC<FooterActionsProps> = ({
         <div className="flex items-center justify-between">
           <div className="min-w-0">
             <span className="text-xs font-sans font-semibold text-white block">Active session</span>
-            <span className="text-[11px] font-sans text-neutral-400 block truncate">
+            <span className="text-o1-label font-sans text-neutral-400 block truncate">
               {activeEmail}
             </span>
           </div>
-          <span className="inline-flex items-center gap-1.5 text-[11px] font-sans text-neutral-400 shrink-0">
+          <span className="inline-flex items-center gap-1.5 text-o1-label font-sans text-neutral-400 shrink-0">
             <span className="w-1.5 h-1.5 rounded-full bg-o1-ok" />
             Secured
           </span>
@@ -129,7 +129,7 @@ export const SettingsFooterSection: React.FC<FooterActionsProps> = ({
                     tactileEngine.triggerSelectionBuzz();
                     void flushSync();
                   }}
-                  className="w-full min-h-[44px] rounded-xl bg-[#FFFFFF] text-[#111113] text-xs font-semibold disabled:opacity-60 cursor-pointer"
+                  className="w-full min-h-[44px] rounded-xl bg-[#FFFFFF] text-o1-surface text-xs font-semibold disabled:opacity-60 cursor-pointer"
                 >
                   {syncing ? 'Backing up…' : 'Back up now'}
                 </button>
@@ -144,7 +144,7 @@ export const SettingsFooterSection: React.FC<FooterActionsProps> = ({
                 className={`w-full min-h-[44px] rounded-xl text-xs font-semibold cursor-pointer ${
                   pending > 0
                     ? 'border border-o1-crimson/50 text-o1-crimson bg-transparent'
-                    : 'bg-[#FFFFFF] text-[#111113]'
+                    : 'bg-[#FFFFFF] text-o1-surface'
                 }`}
               >
                 {pending > 0 ? 'Sign out anyway' : 'Sign out'}

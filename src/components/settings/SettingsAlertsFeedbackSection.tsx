@@ -95,7 +95,7 @@ export const SettingsAlertsFeedbackSection: React.FC<AlertsFeedbackSectionProps>
                 <span className="text-xs font-sans font-semibold text-white block">
                   Allow reminders
                 </span>
-                <span className="text-[11px] font-sans text-neutral-400 block leading-tight">
+                <span className="text-o1-label font-sans text-neutral-400 block leading-tight">
                   {permission === 'denied'
                     ? BLOCKED_COPY
                     : 'Workout and recovery reminders on your lock screen'}
@@ -145,7 +145,7 @@ export const SettingsAlertsFeedbackSection: React.FC<AlertsFeedbackSectionProps>
               <span className="text-xs font-tactical font-semibold text-neutral-100 group-hover:text-white block">
                 Scheduled Session Reminders
               </span>
-              <span className="text-[11px] text-neutral-400 font-sans block">
+              <span className="text-o1-label text-neutral-400 font-sans block">
                 Pre-workout, evening recovery &amp; water
               </span>
             </div>
@@ -159,7 +159,7 @@ export const SettingsAlertsFeedbackSection: React.FC<AlertsFeedbackSectionProps>
               <span className="text-xs font-sans font-medium text-neutral-200 block">
                 Pre-Workout Reminder
               </span>
-              <span className="text-[11px] text-neutral-400 block">
+              <span className="text-o1-label text-neutral-400 block">
                 30 minutes before your training time
               </span>
             </div>
@@ -178,7 +178,7 @@ export const SettingsAlertsFeedbackSection: React.FC<AlertsFeedbackSectionProps>
               <span className="text-xs font-sans font-medium text-neutral-200 block">
                 Coach Routine Updates
               </span>
-              <span className="text-[11px] text-neutral-400 block">
+              <span className="text-o1-label text-neutral-400 block">
                 Show a note in the app when your coach sends a routine
               </span>
             </div>
@@ -201,7 +201,7 @@ export const SettingsAlertsFeedbackSection: React.FC<AlertsFeedbackSectionProps>
                 <span className="text-xs font-sans font-medium text-neutral-200 block">
                   Tactile Haptic Vibration
                 </span>
-                <span className="text-[11px] text-neutral-400 block">
+                <span className="text-o1-label text-neutral-400 block">
                   Physical buzz on weight dials, timers &amp; PRs
                 </span>
               </div>
@@ -223,7 +223,7 @@ export const SettingsAlertsFeedbackSection: React.FC<AlertsFeedbackSectionProps>
                 <span className="text-xs font-sans font-medium text-neutral-200 block">
                   Audio Effects &amp; Chimes
                 </span>
-                <span className="text-[11px] text-neutral-400 block">
+                <span className="text-o1-label text-neutral-400 block">
                   Dial ticks, rest countdown &amp; PR celebrations
                 </span>
               </div>
@@ -246,7 +246,7 @@ export const SettingsAlertsFeedbackSection: React.FC<AlertsFeedbackSectionProps>
               <span className="text-xs font-sans font-medium text-neutral-200 block">
                 On-device crash log
               </span>
-              <span className="text-[11px] text-neutral-400 block">
+              <span className="text-o1-label text-neutral-400 block">
                 Store the last render crash on this device. Nothing is sent remotely.
               </span>
             </div>

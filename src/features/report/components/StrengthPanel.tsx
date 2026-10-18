@@ -57,10 +57,10 @@ const shortDay = (key: string) => {
 export const StrengthPanel: React.FC<StrengthPanelProps> = ({ lifts, personalBests }) => (
   <section className="w-full rounded-2xl bg-black border border-white/[0.07] p-4 space-y-4">
     <div>
-      <h3 className="text-[10px] font-mono font-bold tracking-[0.18em] text-neutral-400">
+      <h3 className="text-o1-label font-mono font-bold tracking-[0.18em] text-neutral-400">
         Strength &amp; Progression
       </h3>
-      <p className="text-[11px] text-neutral-500 mt-0.5">
+      <p className="text-o1-label text-neutral-500 mt-0.5">
         Estimated 1RM (Epley), best set per session
       </p>
     </div>
@@ -83,12 +83,12 @@ export const StrengthPanel: React.FC<StrengthPanelProps> = ({ lifts, personalBes
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-bold text-white truncate">{lift.name}</span>
                   <span
-                    className={`shrink-0 px-2 py-0.5 rounded-full border text-[8px] font-mono font-bold tracking-wider ${style.cls}`}
+                    className={`shrink-0 px-2 py-0.5 rounded-full border text-o1-label font-mono font-bold tracking-wider ${style.cls}`}
                   >
                     {style.label}
                   </span>
                 </div>
-                <div className="flex items-center gap-3 text-[11px] font-mono text-neutral-500">
+                <div className="flex items-center gap-3 text-o1-label font-mono text-neutral-500">
                   <span>
                     e1RM <span className="text-neutral-200 font-bold">{lift.currentE1rm}</span> kg
                   </span>
@@ -109,7 +109,7 @@ export const StrengthPanel: React.FC<StrengthPanelProps> = ({ lifts, personalBes
                     </span>
                   </span>
                 </div>
-                <div className="text-[10px] font-mono text-neutral-600">
+                <div className="text-o1-label font-mono text-neutral-600">
                   Best {lift.bestE1rm} kg · {shortDay(lift.bestDay)} · {lift.sessions} sessions
                 </div>
               </div>
@@ -121,7 +121,7 @@ export const StrengthPanel: React.FC<StrengthPanelProps> = ({ lifts, personalBes
     )}
 
     <div className="space-y-2 pt-1 border-t border-white/[0.05]">
-      <h4 className="pt-3 text-[10px] font-mono font-bold tracking-[0.18em] text-neutral-400 flex items-center gap-1.5">
+      <h4 className="pt-3 text-o1-label font-mono font-bold tracking-[0.18em] text-neutral-400 flex items-center gap-1.5">
         <Trophy className="w-3.5 h-3.5 text-o1-crimson" />
         Personal bests · 60 days
       </h4>
@@ -138,7 +138,7 @@ export const StrengthPanel: React.FC<StrengthPanelProps> = ({ lifts, personalBes
             >
               <div className="min-w-0">
                 <div className="text-neutral-200 font-semibold truncate">{pb.exercise}</div>
-                <div className="text-[10px] font-mono text-neutral-500">
+                <div className="text-o1-label font-mono text-neutral-500">
                   {pb.weightKg} kg × {pb.reps} · {shortDay(pb.day)}
                 </div>
               </div>

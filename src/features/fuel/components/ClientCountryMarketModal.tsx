@@ -315,7 +315,7 @@ export const ClientCountryMarketModal: React.FC<ClientCountryMarketModalProps> =
                   <div className="flex items-center gap-2.5 min-w-0">
                     <span className="text-lg leading-none shrink-0">{c.flag}</span>
                     <span className="text-xs sm:text-sm font-medium truncate">{c.name}</span>
-                    <span className="text-[10px] tabular-nums text-o1-muted shrink-0">
+                    <span className="text-o1-label tabular-nums text-o1-muted shrink-0">
                       {c.code}
                     </span>
                   </div>
@@ -332,7 +332,7 @@ export const ClientCountryMarketModal: React.FC<ClientCountryMarketModalProps> =
 
         {/* Footer Note */}
         <div className="pt-2.5 border-t border-white/[0.05]">
-          <p className="text-[11px] text-o1-muted leading-normal text-left tabular-nums">
+          <p className="text-o1-label text-o1-muted leading-normal text-left tabular-nums">
             Brands and barcodes follow this flag. Search still uses live OpenFoodFacts.
           </p>
         </div>

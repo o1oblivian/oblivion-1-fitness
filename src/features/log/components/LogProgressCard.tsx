@@ -45,8 +45,8 @@ export const LogProgressCard: React.FC<LogProgressCardProps> = ({
       }}
       className="w-full px-4 py-3 flex items-center justify-between gap-3 text-left bg-transparent border-0 cursor-pointer"
     >
-      <span className="text-[14px] font-semibold text-o1-text">Progress</span>
-      <span className="flex items-center gap-2 text-[11px] text-o1-muted">
+      <span className="text-o1-control font-semibold text-o1-text">Progress</span>
+      <span className="flex items-center gap-2 text-o1-label text-o1-muted">
         {channels.find((entry) => entry.id === channel)?.title} ·{' '}
         {SPANS.find((entry) => entry.id === span)?.label}
         <ChevronDown className={`w-4 h-4 transition-transform ${open ? 'rotate-180' : ''}`} />
@@ -68,7 +68,7 @@ export const LogProgressCard: React.FC<LogProgressCardProps> = ({
                 tactileEngine.triggerSelectionBuzz();
                 onChannelChange(entry.id);
               }}
-              className={`px-0.5 py-1.5 rounded-full border text-[12px] font-semibold text-center truncate ${
+              className={`px-0.5 py-1.5 rounded-full border text-o1-caption font-semibold text-center truncate ${
                 channel === entry.id
                   ? 'bg-o1-text text-o1-surface border-o1-text'
                   : 'bg-o1-well border-white/[0.07] text-neutral-200'
@@ -89,7 +89,7 @@ export const LogProgressCard: React.FC<LogProgressCardProps> = ({
                   tactileEngine.triggerSelectionBuzz();
                   onSpanChange(entry.id);
                 }}
-                className={`px-3 py-1 rounded-full text-[11px] font-semibold ${span === entry.id ? 'bg-o1-crimson text-white' : 'text-neutral-400'}`}
+                className={`px-3 py-1 rounded-full text-o1-label font-semibold ${span === entry.id ? 'bg-o1-crimson text-white' : 'text-neutral-400'}`}
               >
                 {entry.label}
               </button>

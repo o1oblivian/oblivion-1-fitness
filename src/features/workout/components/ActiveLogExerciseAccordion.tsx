@@ -174,7 +174,7 @@ export const ActiveLogExerciseAccordion: React.FC<ActiveLogExerciseAccordionProp
             <span className="min-w-0 text-sm font-medium tracking-tight text-white leading-snug truncate py-0.5">
               {exercise.name}
             </span>
-            <span className="ml-auto shrink-0 font-mono text-[11px] text-o1-muted">
+            <span className="ml-auto shrink-0 font-mono text-o1-label text-o1-muted">
               {done}/{setsList.length}
             </span>
             {isExpanded ? (
@@ -195,9 +195,9 @@ export const ActiveLogExerciseAccordion: React.FC<ActiveLogExerciseAccordionProp
                 : `Personal best for ${exercise.name}`
             }
             aria-expanded={showBest}
-            className={`h-6 px-2 shrink-0 rounded-lg border font-mono text-[10px] cursor-pointer transition-colors ${
+            className={`h-6 px-2 shrink-0 rounded-lg border font-mono text-o1-label cursor-pointer transition-colors ${
               isPrToday
-                ? 'border-[#10b981]/60 text-[#10b981]'
+                ? 'border-o1-emerald/60 text-o1-emerald'
                 : showBest
                   ? 'border-white/[0.14] text-o1-text bg-o1-sheet'
                   : 'border-white/[0.07] text-o1-muted hover:text-o1-text'
@@ -211,7 +211,7 @@ export const ActiveLogExerciseAccordion: React.FC<ActiveLogExerciseAccordionProp
       {showBest && (
         <div
           role="status"
-          className="absolute right-2 top-10 z-20 max-w-[85%] px-3 py-1.5 rounded-xl bg-o1-sheet border border-white/[0.07] text-[11px] text-o1-text shadow-lg animate-in fade-in duration-150 pointer-events-none"
+          className="absolute right-2 top-10 z-20 max-w-[85%] px-3 py-1.5 rounded-xl bg-o1-sheet border border-white/[0.07] text-o1-label text-o1-text shadow-lg animate-in fade-in duration-150 pointer-events-none"
         >
           {bestMessage}
         </div>
@@ -220,14 +220,14 @@ export const ActiveLogExerciseAccordion: React.FC<ActiveLogExerciseAccordionProp
       {isExpanded && (
         <div className="space-y-1 pb-1 pt-1.5">
           {lastTime && (
-            <p className="px-1 text-[11px] text-o1-muted leading-snug">
+            <p className="px-1 text-o1-label text-o1-muted leading-snug">
               Last time · {shortDate(lastTime.dateKey)}:{' '}
               <span className="font-mono text-o1-text">
                 {lastTimeText(lastTime.sets, weightUnit)}
               </span>
             </p>
           )}
-          <div className="flex items-center gap-1.5 text-[10px] leading-none uppercase tracking-[0.12em] text-o1-muted px-1">
+          <div className="flex items-center gap-1.5 text-o1-label leading-none uppercase tracking-[0.12em] text-o1-muted px-1">
             <span className="w-8 shrink-0 text-center">Set</span>
             <span className="flex-1 text-center">Reps</span>
             <span className="flex-1 text-center">{unitLower}</span>
@@ -270,10 +270,10 @@ export const ActiveLogExerciseAccordion: React.FC<ActiveLogExerciseAccordionProp
             <div
               role="status"
               className={`flex items-center gap-2 rounded-xl border px-2.5 py-1.5 ${
-                advice.kind === 'stop' ? 'border-[#f59e0b]/40' : 'border-white/[0.07]'
+                advice.kind === 'stop' ? 'border-o1-amber/40' : 'border-white/[0.07]'
               } bg-o1-well`}
             >
-              <p className="flex-1 min-w-0 text-[11.5px] text-o1-text leading-snug">
+              <p className="flex-1 min-w-0 text-o1-caption text-o1-text leading-snug">
                 <span className="text-o1-muted">Set {nextSet.setNumber}: </span>
                 {adviceText(advice, weightUnit)}
               </p>
@@ -284,7 +284,7 @@ export const ActiveLogExerciseAccordion: React.FC<ActiveLogExerciseAccordionProp
                     tactileEngine.triggerSelectionBuzz();
                     onQuickUpdateSet(exercise.id, nextSet.setNumber, adviceChange);
                   }}
-                  className="h-7 px-2.5 shrink-0 rounded-lg border border-white/[0.14] text-[11px] text-o1-text hover:border-[#C4121A] cursor-pointer active:scale-[0.97] transition"
+                  className="h-7 px-2.5 shrink-0 rounded-lg border border-white/[0.14] text-o1-label text-o1-text hover:border-o1-crimson cursor-pointer active:scale-[0.97] transition"
                 >
                   Use
                 </button>
@@ -299,7 +299,7 @@ export const ActiveLogExerciseAccordion: React.FC<ActiveLogExerciseAccordionProp
                 tactileEngine.triggerSelectionBuzz();
                 onAddSet(exercise.id);
               }}
-              className="flex-1 h-8 border border-dashed border-white/[0.14] hover:border-[#C4121A]/60 text-o1-text text-[12px] rounded-xl flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+              className="flex-1 h-8 border border-dashed border-white/[0.14] hover:border-o1-crimson/60 text-o1-text text-o1-caption rounded-xl flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
             >
               <Plus className="w-3.5 h-3.5" />
               <span>Add set</span>

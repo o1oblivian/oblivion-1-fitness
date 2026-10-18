@@ -38,7 +38,7 @@ export const BleDeviceRow: React.FC<BleDeviceRowProps> = ({
             <span className="text-xs font-tactical font-semibold text-neutral-100 block">
               Heart rate sensor (HRV)
             </span>
-            <span className="text-[11px] font-sans text-neutral-400 block">
+            <span className="text-o1-label font-sans text-neutral-400 block">
               {!isSupported
                 ? "This phone can't use Bluetooth sensors"
                 : full
@@ -79,7 +79,7 @@ export const BleDeviceRow: React.FC<BleDeviceRowProps> = ({
                   {device.name}
                 </span>
                 <span
-                  className={`text-[11px] font-sans block ${
+                  className={`text-o1-label font-sans block ${
                     device.sendsBeatIntervals === false ? 'text-amber-300' : 'text-neutral-400'
                   }`}
                 >
@@ -102,7 +102,7 @@ export const BleDeviceRow: React.FC<BleDeviceRowProps> = ({
       {error && (
         <div
           role="alert"
-          className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-start gap-2 text-[11px] text-amber-300"
+          className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-start gap-2 text-o1-label text-amber-300"
         >
           <AlertCircle className="w-3.5 h-3.5 shrink-0 mt-0.5" aria-hidden />
           <span>{error}</span>

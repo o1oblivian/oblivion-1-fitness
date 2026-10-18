@@ -384,7 +384,7 @@ export const AthleteMessageModal: React.FC<Props> = ({
               <h3 className="text-xs font-bold text-white tracking-tight leading-none">
                 {athlete.name}
               </h3>
-              <p className="text-[10px] text-neutral-400 font-mono mt-0.5">
+              <p className="text-o1-label text-neutral-400 font-mono mt-0.5">
                 {[discipline, gym].filter(Boolean).join(' · ')}
               </p>
             </div>
@@ -398,7 +398,7 @@ export const AthleteMessageModal: React.FC<Props> = ({
                 tactileEngine.triggerSelectionBuzz();
                 setIsScheduleOpen((prev) => !prev);
               }}
-              className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-o1-crimson hover:bg-o1-crimson-hover text-white text-[11px] font-bold font-mono tracking-wider active:scale-95 transition cursor-pointer shadow-xs"
+              className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-o1-crimson hover:bg-o1-crimson-hover text-white text-o1-label font-bold font-mono tracking-wider active:scale-95 transition cursor-pointer shadow-xs"
             >
               <Calendar className="w-3.5 h-3.5 text-white" />
               <span>Book</span>
@@ -425,7 +425,7 @@ export const AthleteMessageModal: React.FC<Props> = ({
                 setMenuOpen(false);
                 onUnmatch?.();
               }}
-              className="flex w-full rounded-xl px-3 py-2.5 text-left text-[13px] text-white"
+              className="flex w-full rounded-xl px-3 py-2.5 text-left text-o1-body text-white"
             >
               Unmatch
             </button>
@@ -435,7 +435,7 @@ export const AthleteMessageModal: React.FC<Props> = ({
                 setMenuOpen(false);
                 onBlock?.();
               }}
-              className="flex w-full rounded-xl px-3 py-2.5 text-left text-[13px] text-white"
+              className="flex w-full rounded-xl px-3 py-2.5 text-left text-o1-body text-white"
             >
               Block
             </button>
@@ -445,7 +445,7 @@ export const AthleteMessageModal: React.FC<Props> = ({
                 setMenuOpen(false);
                 setReportOpen(true);
               }}
-              className="flex w-full rounded-xl px-3 py-2.5 text-left text-[13px] text-white"
+              className="flex w-full rounded-xl px-3 py-2.5 text-left text-o1-body text-white"
             >
               Report
             </button>
@@ -470,7 +470,7 @@ export const AthleteMessageModal: React.FC<Props> = ({
                   <h4 className="text-xs font-bold text-white leading-tight">
                     Schedule Training Session
                   </h4>
-                  <p className="text-[10px] text-neutral-400 font-mono">
+                  <p className="text-o1-label text-neutral-400 font-mono">
                     Invite {athlete.name} to a gym session
                   </p>
                 </div>
@@ -487,7 +487,7 @@ export const AthleteMessageModal: React.FC<Props> = ({
             {/* Date and Time Selectors */}
             <div className="grid grid-cols-2 gap-2">
               <div className="space-y-1">
-                <label className="text-[10px] font-mono font-bold text-neutral-400 flex items-center gap-1">
+                <label className="text-o1-label font-mono font-bold text-neutral-400 flex items-center gap-1">
                   <Calendar className="w-3 h-3 text-o1-crimson" />
                   <span>Date</span>
                 </label>
@@ -500,7 +500,7 @@ export const AthleteMessageModal: React.FC<Props> = ({
               </div>
 
               <div className="space-y-1">
-                <label className="text-[10px] font-mono font-bold text-neutral-400 flex items-center gap-1">
+                <label className="text-o1-label font-mono font-bold text-neutral-400 flex items-center gap-1">
                   <Clock className="w-3 h-3 text-o1-crimson" />
                   <span>Time</span>
                 </label>
@@ -520,7 +520,7 @@ export const AthleteMessageModal: React.FC<Props> = ({
 
             {/* Search Gym Worldwide */}
             <div className="space-y-1.5 pt-1">
-              <span className="text-[10px] font-mono font-bold text-neutral-400 flex items-center gap-1">
+              <span className="text-o1-label font-mono font-bold text-neutral-400 flex items-center gap-1">
                 <Search className="w-3 h-3 text-o1-crimson" />
                 <span>Search Gym Worldwide</span>
               </span>
@@ -531,28 +531,28 @@ export const AthleteMessageModal: React.FC<Props> = ({
                   value={gymSearch}
                   onChange={(e) => setGymSearch(e.target.value)}
                   placeholder="Gym name"
-                  className="bg-o1-well border border-white/[0.07] rounded-xl px-2 py-1.5 text-[10px] text-white placeholder-neutral-500 focus:outline-none focus:border-o1-crimson"
+                  className="bg-o1-well border border-white/[0.07] rounded-xl px-2 py-1.5 text-o1-label text-white placeholder-neutral-500 focus:outline-none focus:border-o1-crimson"
                 />
                 <input
                   type="text"
                   value={suburbSearch}
                   onChange={(e) => setSuburbSearch(e.target.value)}
                   placeholder="Suburb or city"
-                  className="bg-o1-well border border-white/[0.07] rounded-xl px-2 py-1.5 text-[10px] text-white placeholder-neutral-500 focus:outline-none focus:border-o1-crimson"
+                  className="bg-o1-well border border-white/[0.07] rounded-xl px-2 py-1.5 text-o1-label text-white placeholder-neutral-500 focus:outline-none focus:border-o1-crimson"
                 />
                 <input
                   type="text"
                   value={postcodeSearch}
                   onChange={(e) => setPostcodeSearch(e.target.value)}
                   placeholder="Postcode"
-                  className="bg-o1-well border border-white/[0.07] rounded-xl px-2 py-1.5 text-[10px] text-white placeholder-neutral-500 focus:outline-none focus:border-o1-crimson"
+                  className="bg-o1-well border border-white/[0.07] rounded-xl px-2 py-1.5 text-o1-label text-white placeholder-neutral-500 focus:outline-none focus:border-o1-crimson"
                 />
               </div>
 
               {/* Gym Venue Selection List */}
               <div className="space-y-1 pt-1 max-h-36 overflow-y-auto">
                 {venueNote ? (
-                  <p className="px-1 text-[11px] text-neutral-400">{venueNote}</p>
+                  <p className="px-1 text-o1-label text-neutral-400">{venueNote}</p>
                 ) : null}
                 {venues.map((v) => {
                   const isSelected = selectedVenue?.id === v.id;
@@ -572,7 +572,7 @@ export const AthleteMessageModal: React.FC<Props> = ({
                     >
                       <div>
                         <div className="text-xs font-bold leading-tight">{v.name}</div>
-                        <div className="text-[10px] font-mono text-neutral-400 mt-0.5">
+                        <div className="text-o1-label font-mono text-neutral-400 mt-0.5">
                           {v.address}
                         </div>
                       </div>
@@ -591,8 +591,8 @@ export const AthleteMessageModal: React.FC<Props> = ({
 
             {/* Commute Parity Split */}
             <div className="p-2.5 rounded-xl bg-o1-well border border-white/[0.07] flex items-center justify-between text-xs">
-              <span className="text-[11px] text-neutral-300">{athlete.name}</span>
-              <span className="text-[11px] font-semibold text-white">
+              <span className="text-o1-label text-neutral-300">{athlete.name}</span>
+              <span className="text-o1-label font-semibold text-white">
                 {Number.isFinite(Number(athlete.distance_km))
                   ? `${athlete.distance_km} km`
                   : 'Distance unknown'}
@@ -602,17 +602,17 @@ export const AthleteMessageModal: React.FC<Props> = ({
             {/* Selected Gym Summary Box */}
             <div className="p-3 rounded-xl bg-o1-well border border-white/[0.07] flex items-center justify-between">
               <div>
-                <span className="text-[9px] font-mono text-neutral-400 font-bold block">
+                <span className="text-o1-label font-mono text-neutral-400 font-bold block">
                   Selected Gym:
                 </span>
                 <span className="text-xs font-bold text-white block">
                   {selectedVenue ? selectedVenue.name : 'None yet'}
                 </span>
-                <span className="text-[10px] font-mono text-neutral-400">
+                <span className="text-o1-label font-mono text-neutral-400">
                   {selectedVenue?.address || 'Search a gym, suburb, or postcode'}
                 </span>
               </div>
-              <span className="text-[10px] font-mono text-neutral-400 bg-black/40 px-2 py-1 rounded">
+              <span className="text-o1-label font-mono text-neutral-400 bg-black/40 px-2 py-1 rounded">
                 {schedDate} @ {schedTime}
               </span>
             </div>
@@ -684,7 +684,7 @@ export const AthleteMessageModal: React.FC<Props> = ({
                       }`}
                     >
                       <p>{m.text}</p>
-                      <span className="text-[9px] font-mono text-white/70 block text-right mt-1">
+                      <span className="text-o1-label font-mono text-white/70 block text-right mt-1">
                         {m.time}
                       </span>
                     </div>
@@ -694,7 +694,7 @@ export const AthleteMessageModal: React.FC<Props> = ({
                   {m.invite && (
                     <div className="w-full max-w-[85%] rounded-2xl overflow-hidden bg-o1-card border border-white/[0.07] shadow-xl mt-1 text-white">
                       {/* Emerald Header */}
-                      <div className="bg-[#4F8F9A] text-white px-4 py-2 flex items-center gap-1.5 text-xs font-mono font-bold tracking-wider">
+                      <div className="bg-o1-teal text-white px-4 py-2 flex items-center gap-1.5 text-xs font-mono font-bold tracking-wider">
                         <Calendar className="w-4 h-4" />
                         <span>Gym Session Invite</span>
                       </div>
@@ -703,18 +703,18 @@ export const AthleteMessageModal: React.FC<Props> = ({
                       <div className="p-3.5 space-y-2.5">
                         <div className="space-y-1 text-xs">
                           <div className="flex items-center gap-2 font-medium">
-                            <Calendar className="w-3.5 h-3.5 text-[#4F8F9A]" />
+                            <Calendar className="w-3.5 h-3.5 text-o1-teal" />
                             <span>{m.invite.date}</span>
                           </div>
                           <div className="flex items-center gap-2 font-medium">
-                            <Clock className="w-3.5 h-3.5 text-[#4F8F9A]" />
+                            <Clock className="w-3.5 h-3.5 text-o1-teal" />
                             <span>{m.invite.time}</span>
                           </div>
                           <div className="flex items-start gap-2 font-medium">
-                            <MapPin className="w-3.5 h-3.5 text-[#4F8F9A] shrink-0 mt-0.5" />
+                            <MapPin className="w-3.5 h-3.5 text-o1-teal shrink-0 mt-0.5" />
                             <div>
                               <div className="font-bold">{m.invite.gym}</div>
-                              <div className="text-[10px] text-neutral-400 font-mono">
+                              <div className="text-o1-label text-neutral-400 font-mono">
                                 {m.invite.address}
                               </div>
                             </div>
@@ -723,12 +723,12 @@ export const AthleteMessageModal: React.FC<Props> = ({
 
                         {/* Commute Parity Breakdown Box */}
                         {m.invite.parity ? (
-                          <p className="text-[11px] text-neutral-400">{m.invite.parity} away</p>
+                          <p className="text-o1-label text-neutral-400">{m.invite.parity} away</p>
                         ) : null}
 
                         {/* Status & Directions Footer */}
                         <div className="flex items-center justify-between pt-1">
-                          <span className="text-[11px] text-neutral-300">{m.invite.status}</span>
+                          <span className="text-o1-label text-neutral-300">{m.invite.status}</span>
                           {m.sender === 'peer' && m.invite.status === 'Pending Response' && (
                             <button
                               type="button"
@@ -780,7 +780,7 @@ export const AthleteMessageModal: React.FC<Props> = ({
                                   onLine?.(`Accepted ${gymName}`);
                                 })();
                               }}
-                              className="rounded-full bg-o1-crimson px-3 py-1 text-[11px] font-semibold text-white"
+                              className="rounded-full bg-o1-crimson px-3 py-1 text-o1-label font-semibold text-white"
                             >
                               Accept
                             </button>
@@ -795,14 +795,14 @@ export const AthleteMessageModal: React.FC<Props> = ({
                                 `https://www.openstreetmap.org/?mlat=${m.invite.lat}&mlon=${m.invite.lng}#map=16/${m.invite.lat}/${m.invite.lng}`,
                               );
                             }}
-                            className="inline-flex items-center gap-1 text-[11px] font-mono text-neutral-200 hover:underline cursor-pointer"
+                            className="inline-flex items-center gap-1 text-o1-label font-mono text-neutral-200 hover:underline cursor-pointer"
                           >
                             <Navigation className="w-3 h-3" />
                             <span>Directions</span>
                           </button>
                         </div>
 
-                        <span className="text-[9px] font-mono text-neutral-400 block text-right">
+                        <span className="text-o1-label font-mono text-neutral-400 block text-right">
                           {m.time}
                         </span>
                       </div>
@@ -817,7 +817,7 @@ export const AthleteMessageModal: React.FC<Props> = ({
         {/* Bottom Chat Input Bar: Only unlocked when peer replies */}
         <div className="p-3 bg-black border-t border-white/[0.05]">
           {sendNote ? (
-            <p className="mb-2 text-center text-[11px] text-neutral-400">{sendNote}</p>
+            <p className="mb-2 text-center text-o1-label text-neutral-400">{sendNote}</p>
           ) : null}
           <div className="flex items-center gap-2">
             {allowCompose ? (
@@ -847,7 +847,7 @@ export const AthleteMessageModal: React.FC<Props> = ({
               </>
             ) : (
               <div className="w-full py-2.5 px-4 rounded-full bg-o1-well border border-white/[0.07] text-center">
-                <span className="text-[11px] font-mono text-neutral-400">
+                <span className="text-o1-label font-mono text-neutral-400">
                   Messages open when you both say yes
                 </span>
               </div>

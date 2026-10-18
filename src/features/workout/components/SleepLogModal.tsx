@@ -136,11 +136,11 @@ export const SleepLogModal: React.FC<SleepLogModalProps> = ({ isOpen, onClose })
                 <h3 className="font-tactical font-medium text-sm tracking-wider text-white">
                   Sleep Architecture Log
                 </h3>
-                <span className="px-1.5 py-0.5 rounded text-[9px] font-mono font-medium bg-white/10 text-sky-600">
+                <span className="px-1.5 py-0.5 rounded text-o1-label font-mono font-medium bg-white/10 text-sky-600">
                   Circadian
                 </span>
               </div>
-              <p className="text-[11px] font-mono text-neutral-400">
+              <p className="text-o1-label font-mono text-neutral-400">
                 Nocturnal Restoration &amp; REM Depth
               </p>
             </div>
@@ -159,7 +159,7 @@ export const SleepLogModal: React.FC<SleepLogModalProps> = ({ isOpen, onClose })
         <div className="bg-white/[0.03] border border-white/[0.07] rounded-2xl p-4 space-y-3">
           <div className="flex items-start justify-between">
             <div className="space-y-0.5">
-              <span className="text-[10px] font-mono tracking-wider text-neutral-400 font-medium block">
+              <span className="text-o1-label font-mono tracking-wider text-neutral-400 font-medium block">
                 Total Duration Recorded
               </span>
               <div className="flex items-baseline gap-2">
@@ -168,7 +168,7 @@ export const SleepLogModal: React.FC<SleepLogModalProps> = ({ isOpen, onClose })
                 </span>
                 <span className="text-xs font-mono text-neutral-400">({hours}h total)</span>
               </div>
-              <span className="text-[10px] font-mono font-medium text-sky-600 tracking-wider block">
+              <span className="text-o1-label font-mono font-medium text-sky-600 tracking-wider block">
                 {hours >= 8
                   ? 'Optimal Anabolic Restoration'
                   : hours >= 7
@@ -182,7 +182,7 @@ export const SleepLogModal: React.FC<SleepLogModalProps> = ({ isOpen, onClose })
               <span className="text-lg font-mono font-light text-sky-600 leading-none block">
                 {qualityScore === null ? '--' : `${qualityScore}%`}
               </span>
-              <span className="text-[9px] font-mono text-neutral-400 block mt-0.5">Quality</span>
+              <span className="text-o1-label font-mono text-neutral-400 block mt-0.5">Quality</span>
             </div>
           </div>
 
@@ -221,7 +221,7 @@ export const SleepLogModal: React.FC<SleepLogModalProps> = ({ isOpen, onClose })
 
         {/* 4 Fast Athletic Presets */}
         <div className="space-y-1.5">
-          <span className="text-[10px] font-mono tracking-wider text-neutral-400">
+          <span className="text-o1-label font-mono tracking-wider text-neutral-400">
             Athletic Sleep Protocols
           </span>
           <div className="grid grid-cols-2 gap-2">
@@ -244,12 +244,14 @@ export const SleepLogModal: React.FC<SleepLogModalProps> = ({ isOpen, onClose })
                       {p.label}
                     </span>
                     {isSelected && (
-                      <span className="shrink-0 rounded-full border border-o1-crimson/60 px-1.5 py-px text-[10px] leading-4 text-o1-text">
+                      <span className="shrink-0 rounded-full border border-o1-crimson/60 px-1.5 py-px text-o1-label leading-4 text-o1-text">
                         Active
                       </span>
                     )}
                   </span>
-                  <span className="text-[11px] text-o1-muted leading-tight truncate">{p.sub}</span>
+                  <span className="text-o1-label text-o1-muted leading-tight truncate">
+                    {p.sub}
+                  </span>
                 </button>
               );
             })}
@@ -257,7 +259,7 @@ export const SleepLogModal: React.FC<SleepLogModalProps> = ({ isOpen, onClose })
         </div>
 
         <div className="space-y-1.5">
-          <span className="text-[10px] font-mono tracking-wider text-neutral-400">
+          <span className="text-o1-label font-mono tracking-wider text-neutral-400">
             How rested do you feel?
           </span>
           <div className="grid grid-cols-4 gap-1.5" role="radiogroup" aria-label="Sleep quality">
@@ -273,7 +275,7 @@ export const SleepLogModal: React.FC<SleepLogModalProps> = ({ isOpen, onClose })
                     tactileEngine.triggerSelectionBuzz();
                     setQualityScore(q.value);
                   }}
-                  className={`min-h-[44px] rounded-xl border text-[12px] font-medium transition-colors active:scale-[0.97] cursor-pointer ${
+                  className={`min-h-[44px] rounded-xl border text-o1-caption font-medium transition-colors active:scale-[0.97] cursor-pointer ${
                     isSelected
                       ? 'bg-o1-sheet border-o1-crimson text-o1-text'
                       : 'bg-o1-surface border-white/[0.07] text-o1-muted hover:text-o1-text'
@@ -289,7 +291,9 @@ export const SleepLogModal: React.FC<SleepLogModalProps> = ({ isOpen, onClose })
         {/* Circadian Timestamps & Resting Heart Rate */}
         <div className="grid grid-cols-3 gap-2">
           <div className="bg-white/[0.03] border border-white/[0.07] rounded-2xl p-2.5 space-y-1">
-            <span className="text-[9px] font-mono text-neutral-400 block font-medium">Bedtime</span>
+            <span className="text-o1-label font-mono text-neutral-400 block font-medium">
+              Bedtime
+            </span>
             <input
               type="time"
               value={bedtime}
@@ -300,7 +304,7 @@ export const SleepLogModal: React.FC<SleepLogModalProps> = ({ isOpen, onClose })
           </div>
 
           <div className="bg-white/[0.03] border border-white/[0.07] rounded-2xl p-2.5 space-y-1">
-            <span className="text-[9px] font-mono text-neutral-400 block font-medium">
+            <span className="text-o1-label font-mono text-neutral-400 block font-medium">
               Wake Time
             </span>
             <input
@@ -313,7 +317,7 @@ export const SleepLogModal: React.FC<SleepLogModalProps> = ({ isOpen, onClose })
           </div>
 
           <div className="bg-white/[0.03] border border-white/[0.07] rounded-2xl p-2.5 space-y-1">
-            <span className="text-[9px] font-mono text-neutral-400 block font-medium">
+            <span className="text-o1-label font-mono text-neutral-400 block font-medium">
               Resting Hr
             </span>
             <div className="flex items-baseline gap-1">
@@ -328,12 +332,12 @@ export const SleepLogModal: React.FC<SleepLogModalProps> = ({ isOpen, onClose })
                 onBlur={() => setRestingHr((v) => (v !== null && v >= 25 && v <= 220 ? v : null))}
                 className="w-12 bg-transparent text-xs font-mono font-medium text-white focus:outline-none"
               />
-              <span className="text-[9px] font-mono text-neutral-400">bpm</span>
+              <span className="text-o1-label font-mono text-neutral-400">bpm</span>
             </div>
           </div>
         </div>
 
-        <p className="text-[11px] text-o1-muted leading-relaxed px-0.5">
+        <p className="text-o1-label text-o1-muted leading-relaxed px-0.5">
           Bed and wake times fill the duration for you. Resting heart rate is optional; leave it
           blank if you didn&apos;t measure it.
         </p>

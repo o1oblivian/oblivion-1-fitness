@@ -41,7 +41,7 @@ export const ProgramReviewStep: React.FC<{ data: ProgramFormData }> = ({ data })
           <img src={data.coverImage} alt={data.title} className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-black/20 p-3.5 flex flex-col justify-between">
             <div className="flex items-center justify-between">
-              <span className="px-2.5 py-1 rounded-xl bg-black/60 backdrop-blur-md text-o1-text text-[10px] font-bold tracking-wider border border-white/[0.07]">
+              <span className="px-2.5 py-1 rounded-xl bg-black/60 backdrop-blur-md text-o1-text text-o1-label font-bold tracking-wider border border-white/[0.07]">
                 {data.category}
               </span>
               <span className="px-3 py-1 rounded-xl bg-o1-crimson text-o1-text text-xs font-mono font-bold shadow-xs">
@@ -60,13 +60,13 @@ export const ProgramReviewStep: React.FC<{ data: ProgramFormData }> = ({ data })
         {/* Metrics Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center">
           <div className="p-2.5 rounded-xl bg-o1-sheet border border-white/[0.07]">
-            <span className="text-[9px] tracking-wider text-o1-muted block font-semibold">
+            <span className="text-o1-label tracking-wider text-o1-muted block font-semibold">
               Duration
             </span>
             <span className="text-xs font-bold text-o1-text">{data.durationWeeks} Weeks</span>
           </div>
           <div className="p-2.5 rounded-xl bg-o1-sheet border border-white/[0.07]">
-            <span className="text-[9px] tracking-wider text-o1-muted block font-semibold">
+            <span className="text-o1-label tracking-wider text-o1-muted block font-semibold">
               Frequency
             </span>
             <span className="text-xs font-bold text-o1-text">
@@ -74,13 +74,13 @@ export const ProgramReviewStep: React.FC<{ data: ProgramFormData }> = ({ data })
             </span>
           </div>
           <div className="p-2.5 rounded-xl bg-o1-sheet border border-white/[0.07]">
-            <span className="text-[9px] tracking-wider text-o1-muted block font-semibold">
+            <span className="text-o1-label tracking-wider text-o1-muted block font-semibold">
               Tier
             </span>
             <span className="text-xs font-bold text-o1-text">{data.difficulty}</span>
           </div>
           <div className="p-2.5 rounded-xl bg-o1-sheet border border-white/[0.07]">
-            <span className="text-[9px] tracking-wider text-o1-muted block font-semibold">
+            <span className="text-o1-label tracking-wider text-o1-muted block font-semibold">
               Volume
             </span>
             <span className="text-xs font-bold text-o1-text font-mono">
@@ -150,7 +150,7 @@ export const ProgramReviewStep: React.FC<{ data: ProgramFormData }> = ({ data })
                 >
                   <div className="flex items-center gap-2">
                     <span className="text-xs font-bold text-o1-text">Week {w.weekNumber}</span>
-                    <span className="text-[10px] font-mono text-o1-muted">
+                    <span className="text-o1-label font-mono text-o1-muted">
                       · {weekExCount} total exercises
                     </span>
                   </div>
@@ -172,12 +172,12 @@ export const ProgramReviewStep: React.FC<{ data: ProgramFormData }> = ({ data })
                           <span className="text-xs font-bold text-o1-text">
                             {d.dayName} — {d.splitFocus}
                           </span>
-                          <span className="text-[10px] font-mono text-o1-muted">
+                          <span className="text-o1-label font-mono text-o1-muted">
                             {d.exercises.length} exercises
                           </span>
                         </div>
                         {d.exercises.length === 0 ? (
-                          <div className="text-[10px] text-o1-muted font-mono">
+                          <div className="text-o1-label text-o1-muted font-mono">
                             Rest or Active Recovery
                           </div>
                         ) : (
@@ -185,12 +185,12 @@ export const ProgramReviewStep: React.FC<{ data: ProgramFormData }> = ({ data })
                             {d.exercises.map((ex, idx) => (
                               <div
                                 key={ex.id}
-                                className="flex items-center justify-between text-[11px] text-o1-text"
+                                className="flex items-center justify-between text-o1-label text-o1-text"
                               >
                                 <span className="truncate pr-2 font-medium">
                                   {idx + 1}. {ex.name || 'Unnamed Exercise'}
                                 </span>
-                                <span className="text-[10px] font-mono text-o1-muted shrink-0">
+                                <span className="text-o1-label font-mono text-o1-muted shrink-0">
                                   {ex.sets}×{ex.reps} ({ex.restSeconds}s rest)
                                 </span>
                               </div>

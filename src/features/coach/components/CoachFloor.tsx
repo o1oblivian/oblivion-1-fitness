@@ -158,7 +158,7 @@ function FilmTile({ film, onOpen }: { film: ProfileFilm; onOpen: () => void }) {
 }
 
 const Empty: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <p className="rounded-2xl border border-white/[0.07] bg-o1-surface px-4 py-6 text-center text-[13px] text-o1-muted">
+  <p className="rounded-2xl border border-white/[0.07] bg-o1-surface px-4 py-6 text-center text-o1-body text-o1-muted">
     {children}
   </p>
 );
@@ -168,11 +168,11 @@ const RetryAlert: React.FC<{ message: string; onRetry: () => void }> = ({ messag
     role="alert"
     className="flex items-center justify-between gap-2 rounded-xl border border-o1-crimson/30 bg-o1-crimson/10 px-3 py-2"
   >
-    <p className="text-[12px] text-o1-text">{message}</p>
+    <p className="text-o1-caption text-o1-text">{message}</p>
     <button
       type="button"
       onClick={onRetry}
-      className="min-h-[36px] px-2 text-[12px] font-semibold text-o1-text"
+      className="min-h-[36px] px-2 text-o1-caption font-semibold text-o1-text"
     >
       Retry
     </button>
@@ -451,7 +451,7 @@ export const CoachFloor: React.FC<CoachFloorProps> = ({
           <button
             type="button"
             onClick={() => setEditing(true)}
-            className="mt-2 flex min-h-[44px] w-full items-center justify-center rounded-xl border border-dashed border-white/[0.07] text-[12px] font-semibold text-o1-muted"
+            className="mt-2 flex min-h-[44px] w-full items-center justify-center rounded-xl border border-dashed border-white/[0.07] text-o1-caption font-semibold text-o1-muted"
           >
             Set up your public coach card so athletes can find you
           </button>
@@ -514,7 +514,7 @@ export const CoachFloor: React.FC<CoachFloorProps> = ({
               className={`flex min-h-[52px] flex-1 flex-col items-center justify-center gap-0.5 border-b-2 active:scale-[0.98] ${on ? 'border-o1-crimson text-o1-text' : 'border-transparent text-o1-muted'}`}
             >
               <Icon size={18} />
-              <span className="text-[10px] font-semibold">{item.label}</span>
+              <span className="text-o1-label font-semibold">{item.label}</span>
             </button>
           );
         })}
@@ -528,7 +528,7 @@ export const CoachFloor: React.FC<CoachFloorProps> = ({
           {films === null ? (
             <Empty>Loading films…</Empty>
           ) : filmList.length === 0 ? (
-            <p className="rounded-2xl border border-white/[0.07] bg-o1-surface px-4 py-8 text-center text-[13px] text-o1-text">
+            <p className="rounded-2xl border border-white/[0.07] bg-o1-surface px-4 py-8 text-center text-o1-body text-o1-text">
               No films yet. Tap + on your photo to open your Vault and publish a clip.
             </p>
           ) : (
@@ -553,14 +553,14 @@ export const CoachFloor: React.FC<CoachFloorProps> = ({
               tactileEngine.triggerSelectionBuzz();
               onShareInvite();
             }}
-            className="flex h-[44px] w-full items-center justify-center gap-2 rounded-xl border border-white/[0.07] bg-o1-surface text-[13px] font-semibold text-o1-text active:scale-[0.98]"
+            className="flex h-[44px] w-full items-center justify-center gap-2 rounded-xl border border-white/[0.07] bg-o1-surface text-o1-body font-semibold text-o1-text active:scale-[0.98]"
           >
             <UserPlus size={16} />
             Invite a client
           </button>
           {requests.length > 0 ? (
             <section className="space-y-2">
-              <h3 className="px-1 text-[13px] font-semibold text-o1-text">
+              <h3 className="px-1 text-o1-body font-semibold text-o1-text">
                 Coaching requests ({requests.length})
               </h3>
               {requests.map((request) => (
@@ -576,7 +576,7 @@ export const CoachFloor: React.FC<CoachFloorProps> = ({
             <RetryAlert message="Could not load your clients." onRetry={onRetryRoster} />
           ) : null}
           <section className="space-y-2">
-            <h3 className="px-1 text-[13px] font-semibold text-o1-text">
+            <h3 className="px-1 text-o1-body font-semibold text-o1-text">
               Clients{athletes === null ? '' : ` (${people.length}${rosterHasMore ? '+' : ''})`}
             </h3>
             {athletes === null ? (
@@ -614,14 +614,14 @@ export const CoachFloor: React.FC<CoachFloorProps> = ({
                   tactileEngine.triggerSelectionBuzz();
                   onLoadMoreRoster();
                 }}
-                className="flex h-[44px] w-full items-center justify-center rounded-full border border-white/[0.07] bg-o1-surface text-[13px] font-semibold text-o1-text active:scale-[0.99]"
+                className="flex h-[44px] w-full items-center justify-center rounded-full border border-white/[0.07] bg-o1-surface text-o1-body font-semibold text-o1-text active:scale-[0.99]"
               >
                 Show more clients
               </button>
             ) : null}
           </section>
           <section className="space-y-2">
-            <h3 className="px-1 text-[13px] font-semibold text-o1-text">Who trained this week</h3>
+            <h3 className="px-1 text-o1-body font-semibold text-o1-text">Who trained this week</h3>
             {finishedWorkouts.length === 0 ? (
               <Empty>No sessions finished yet.</Empty>
             ) : (
@@ -659,7 +659,7 @@ export const CoachFloor: React.FC<CoachFloorProps> = ({
           </section>
 
           <section className="space-y-2">
-            <h3 className="px-1 text-[13px] font-semibold text-o1-text">Check-ins waiting</h3>
+            <h3 className="px-1 text-o1-body font-semibold text-o1-text">Check-ins waiting</h3>
             {checkins === null ? (
               <Empty>Loading check-ins…</Empty>
             ) : pending.length === 0 ? (

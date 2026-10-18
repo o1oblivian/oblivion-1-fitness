@@ -318,7 +318,7 @@ export const SettingsProfileSection: React.FC<ProfileSectionProps> = ({
         {/* Metrics 3-column row with interactive input */}
         <div className="grid grid-cols-3 divide-x divide-white/[0.05] bg-o1-well rounded-xl py-1.5 px-1 text-center border border-white/[0.07]">
           <div className="px-1 flex flex-col items-center justify-center">
-            <span className="text-[10px] font-tactical text-neutral-400 font-semibold leading-none">
+            <span className="text-o1-label font-tactical text-neutral-400 font-semibold leading-none">
               Age
             </span>
             <div className="flex items-center justify-center h-5 mt-0.5">
@@ -339,7 +339,7 @@ export const SettingsProfileSection: React.FC<ProfileSectionProps> = ({
           </div>
 
           <div className="px-1 flex flex-col items-center justify-center">
-            <span className="text-[10px] font-tactical text-neutral-400 font-semibold leading-none">
+            <span className="text-o1-label font-tactical text-neutral-400 font-semibold leading-none">
               Height
             </span>
             <div className="flex items-center justify-center h-5 mt-0.5">
@@ -356,14 +356,14 @@ export const SettingsProfileSection: React.FC<ProfileSectionProps> = ({
                 }}
                 className="w-10 text-center bg-transparent font-mono font-bold text-xs text-white focus:outline-none p-0 m-0 leading-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               />
-              <span className="text-[10px] text-neutral-400 font-mono font-semibold leading-none ml-0.5">
+              <span className="text-o1-label text-neutral-400 font-mono font-semibold leading-none ml-0.5">
                 {heightUnit}
               </span>
             </div>
           </div>
 
           <div className="px-1 flex flex-col items-center justify-center">
-            <span className="text-[10px] font-tactical text-neutral-400 font-semibold leading-none">
+            <span className="text-o1-label font-tactical text-neutral-400 font-semibold leading-none">
               Weight
             </span>
             <div className="flex items-center justify-center h-5 mt-0.5">
@@ -381,7 +381,7 @@ export const SettingsProfileSection: React.FC<ProfileSectionProps> = ({
                 }}
                 className="w-12 text-center bg-transparent font-mono font-bold text-xs text-white focus:outline-none p-0 m-0 leading-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               />
-              <span className="text-[10px] text-neutral-400 font-mono font-semibold leading-none ml-0.5">
+              <span className="text-o1-label text-neutral-400 font-mono font-semibold leading-none ml-0.5">
                 {weightUnit}
               </span>
             </div>
@@ -390,7 +390,7 @@ export const SettingsProfileSection: React.FC<ProfileSectionProps> = ({
 
         {/* Athlete Bio Field */}
         <div>
-          <label className="text-[11px] font-tactical text-neutral-400 font-bold block mb-1 tracking-wide">
+          <label className="text-o1-label font-tactical text-neutral-400 font-bold block mb-1 tracking-wide">
             Athlete Bio
           </label>
           <textarea
@@ -408,7 +408,7 @@ export const SettingsProfileSection: React.FC<ProfileSectionProps> = ({
             <span className="text-xs font-tactical font-semibold text-neutral-100 block">
               Elite Reels Presence
             </span>
-            <span className="text-[11px] font-sans text-neutral-400 leading-tight block">
+            <span className="text-o1-label font-sans text-neutral-400 leading-tight block">
               Showcase your profile card and training highlights across reels
             </span>
           </div>
@@ -446,7 +446,7 @@ export const SettingsProfileSection: React.FC<ProfileSectionProps> = ({
               </button>
             </div>
 
-            <p className="text-[11px] text-neutral-400 leading-snug">
+            <p className="text-o1-label text-neutral-400 leading-snug">
               Select or upload your genuine profile photo. Avatars sync directly to your private{' '}
               {role === 'coach' ? 'Coach' : 'Athlete'} Vault.
             </p>
@@ -454,7 +454,7 @@ export const SettingsProfileSection: React.FC<ProfileSectionProps> = ({
             {avatarError ? (
               <p
                 role="alert"
-                className="rounded-xl border border-o1-crimson/40 bg-o1-crimson/10 px-3 py-2 text-[11px] font-semibold text-o1-text"
+                className="rounded-xl border border-o1-crimson/40 bg-o1-crimson/10 px-3 py-2 text-o1-label font-semibold text-o1-text"
               >
                 {avatarError}
               </p>
@@ -472,7 +472,7 @@ export const SettingsProfileSection: React.FC<ProfileSectionProps> = ({
 
             {vaultPhotos.length > 0 && (
               <div className="space-y-2">
-                <span className="text-[10px] font-mono font-bold text-neutral-400 block">
+                <span className="text-o1-label font-mono font-bold text-neutral-400 block">
                   Photos in Your Vault ({vaultPhotos.length})
                 </span>
                 <div className="grid grid-cols-4 gap-2 max-h-48 overflow-y-auto pr-1">
@@ -496,7 +496,7 @@ export const SettingsProfileSection: React.FC<ProfileSectionProps> = ({
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                         />
                         {isCurrent && (
-                          <span className="absolute top-1 right-1 w-4 h-4 rounded-full bg-o1-crimson text-white flex items-center justify-center text-[9px]">
+                          <span className="absolute top-1 right-1 w-4 h-4 rounded-full bg-o1-crimson text-white flex items-center justify-center text-o1-label">
                             <Check className="w-2.5 h-2.5" />
                           </span>
                         )}

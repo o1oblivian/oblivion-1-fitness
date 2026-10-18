@@ -104,12 +104,12 @@ export const MicrocycleStrainTracker: React.FC = () => {
             <Orbit />
           </span>
           <div className="min-w-0">
-            <h3 className="text-[15px] text-o1-text truncate">This week</h3>
-            <span className="text-[11px] text-o1-muted block truncate">{subtitle}</span>
+            <h3 className="text-o1-control text-o1-text truncate">This week</h3>
+            <span className="text-o1-label text-o1-muted block truncate">{subtitle}</span>
           </div>
         </div>
         <span
-          className={`shrink-0 text-[11px] font-mono px-2 py-0.5 rounded-full border bg-o1-well tabular-nums ${pillTone}`}
+          className={`shrink-0 text-o1-label font-mono px-2 py-0.5 rounded-full border bg-o1-well tabular-nums ${pillTone}`}
           title="This week's training compared with your usual 4-week average"
         >
           {pillText}
@@ -125,24 +125,26 @@ export const MicrocycleStrainTracker: React.FC = () => {
 
       <div className="grid grid-cols-2 gap-2.5">
         <div className="bg-o1-well border border-white/[0.07] rounded-2xl p-3 space-y-1">
-          <span className="text-[11px] uppercase tracking-[0.12em] text-o1-muted block">
+          <span className="text-o1-label uppercase tracking-[0.12em] text-o1-muted block">
             {simple ? 'Total lifted' : 'Volume'}
           </span>
-          <span className="font-mono font-light text-[15px] text-o1-text block tabular-nums">
+          <span className="font-mono font-light text-o1-control text-o1-text block tabular-nums">
             {totalVolume > 0 ? `${tonnes(kgToDisplay(totalVolume, unit))} ${unitLower}` : '--'}
           </span>
-          <span className="text-[11px] text-o1-muted block">
+          <span className="text-o1-label text-o1-muted block">
             {trainedDays.length > 0
               ? `${trainedDays.length} training day${trainedDays.length === 1 ? '' : 's'}`
               : 'No sessions logged'}
           </span>
         </div>
         <div className="bg-o1-well border border-white/[0.07] rounded-2xl p-3 space-y-1">
-          <span className="text-[11px] uppercase tracking-[0.12em] text-o1-muted block">Sets</span>
-          <span className="font-mono font-light text-[15px] text-o1-text block tabular-nums">
+          <span className="text-o1-label uppercase tracking-[0.12em] text-o1-muted block">
+            Sets
+          </span>
+          <span className="font-mono font-light text-o1-control text-o1-text block tabular-nums">
             {totalSets > 0 ? totalSets : '--'}
           </span>
-          <span className="text-[11px] text-o1-muted block">
+          <span className="text-o1-label text-o1-muted block">
             {acwr.completionPct != null
               ? `${acwr.completionPct}% of plan logged`
               : 'No plan scheduled'}

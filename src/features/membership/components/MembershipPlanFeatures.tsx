@@ -88,10 +88,10 @@ export const MembershipPlanFeatures: React.FC<Props> = ({
   return (
     <div className="space-y-3 pt-2 text-neutral-200">
       <div className="flex items-center justify-between pb-2 border-b border-white/[0.05]">
-        <span className="text-[11px] font-bold font-mono tracking-wider text-white">
+        <span className="text-o1-label font-bold font-mono tracking-wider text-white">
           {headingText}
         </span>
-        <span className="text-[10px] font-mono text-neutral-400">Compare Plans</span>
+        <span className="text-o1-label font-mono text-neutral-400">Compare Plans</span>
       </div>
 
       <div className="divide-y divide-white/[0.05]">
@@ -101,7 +101,7 @@ export const MembershipPlanFeatures: React.FC<Props> = ({
               <span>{item.label}</span>
               <Info className="w-3 h-3 text-neutral-500" />
             </div>
-            <span className="font-mono font-bold text-white text-[11px]">{item.value}</span>
+            <span className="font-mono font-bold text-white text-o1-label">{item.value}</span>
           </div>
         ))}
       </div>
@@ -124,16 +124,16 @@ export const MembershipPlanFeatures: React.FC<Props> = ({
       <div className="p-3 rounded-2xl bg-o1-well border border-white/[0.07] flex items-center justify-between">
         <div>
           <p className="text-xs font-bold text-white">Progress insights</p>
-          <p className="text-[10px] text-neutral-400">
+          <p className="text-o1-label text-neutral-400">
             Smart recovery, nutrition &amp; volume periodization
           </p>
         </div>
-        <span className="text-[11px] font-sans font-semibold text-neutral-400">
+        <span className="text-o1-label font-sans font-semibold text-neutral-400">
           Included with Pro
         </span>
       </div>
 
-      <div className="flex items-center justify-center gap-3 text-[10px] text-neutral-400 underline pt-1">
+      <div className="flex items-center justify-center gap-3 text-o1-label text-neutral-400 underline pt-1">
         <a
           href="https://www.apple.com/legal/internet-services/itunes/dev/stdeula/"
           target="_blank"

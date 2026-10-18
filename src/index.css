@@ -60,6 +60,24 @@
   --color-o1-iris: #8e7ca8;
   --color-o1-rose: #c9a3a8;
 
+  /* Type scale: the only font sizes the app uses. Text tokens follow the text-size setting;
+     display tokens follow the display scale. Nothing is smaller than 11px. */
+  --text-o1-label: calc(11px * var(--o1-text-scale, 1));
+  --text-o1-caption: calc(12px * var(--o1-text-scale, 1));
+  --text-o1-body: calc(13px * var(--o1-text-scale, 1));
+  --text-o1-control: calc(15px * var(--o1-text-scale, 1));
+  --text-o1-title: calc(17px * var(--o1-text-scale, 1));
+  --text-o1-heading: calc(22px * var(--o1-display-scale, 1));
+  --text-o1-display: calc(32px * var(--o1-display-scale, 1));
+  --text-o1-hero: calc(44px * var(--o1-display-scale, 1));
+
+  /* Status accents */
+  --color-o1-emerald: #10b981;
+  --color-o1-emerald-deep: #059669;
+  --color-o1-amber: #f59e0b;
+  --color-o1-amber-deep: #d97706;
+  --color-o1-sky: #0284c7;
+
   --color-o1-protein: #c4121a;
   --color-o1-carbs: #d4a017;
   --color-o1-fat: #6b8f5e;
@@ -758,56 +776,8 @@ svg.lucide,
   );
 }
 
-/* Text size setting. Sizes are fixed pixels in markup, so each one in use is scaled here.
-   html[data-text-size] is only set for Large and Extra large; Standard leaves every size untouched. */
-html[data-text-size] .text-\[7\.5px\] {
-  font-size: calc(7.5px * var(--o1-text-scale));
-}
-html[data-text-size] .text-\[8px\] {
-  font-size: calc(8px * var(--o1-text-scale));
-}
-html[data-text-size] .text-\[8\.5px\] {
-  font-size: calc(8.5px * var(--o1-text-scale));
-}
-html[data-text-size] .text-\[9px\] {
-  font-size: calc(9px * var(--o1-text-scale));
-}
-html[data-text-size] .text-\[9\.5px\] {
-  font-size: calc(9.5px * var(--o1-text-scale));
-}
-html[data-text-size] .text-\[10px\] {
-  font-size: calc(10px * var(--o1-text-scale));
-}
-html[data-text-size] .text-\[10\.5px\] {
-  font-size: calc(10.5px * var(--o1-text-scale));
-}
-html[data-text-size] .text-\[11px\] {
-  font-size: calc(11px * var(--o1-text-scale));
-}
-html[data-text-size] .text-\[11\.5px\] {
-  font-size: calc(11.5px * var(--o1-text-scale));
-}
-html[data-text-size] .text-\[12px\] {
-  font-size: calc(12px * var(--o1-text-scale));
-}
-html[data-text-size] .text-\[12\.5px\] {
-  font-size: calc(12.5px * var(--o1-text-scale));
-}
-html[data-text-size] .text-\[13px\] {
-  font-size: calc(13px * var(--o1-text-scale));
-}
-html[data-text-size] .text-\[14px\] {
-  font-size: calc(14px * var(--o1-text-scale));
-}
-html[data-text-size] .text-\[15px\] {
-  font-size: calc(15px * var(--o1-text-scale));
-}
-html[data-text-size] .text-\[16px\] {
-  font-size: calc(16px * var(--o1-text-scale));
-}
-html[data-text-size] .text-\[17px\] {
-  font-size: calc(17px * var(--o1-text-scale));
-}
+/* Text size setting. The o1 size tokens in @theme scale themselves; only the stock Tailwind sizes
+   still need a rule here. html[data-text-size] is only set for Large and Extra large. */
 html[data-text-size] .text-xs {
   font-size: calc(0.75rem * var(--o1-text-scale));
 }
@@ -822,30 +792,6 @@ html[data-text-size] .text-lg {
 }
 html[data-text-size] .text-xl {
   font-size: calc(1.25rem * var(--o1-text-scale));
-}
-html[data-text-size] .text-\[18px\] {
-  font-size: calc(18px * var(--o1-display-scale));
-}
-html[data-text-size] .text-\[19px\] {
-  font-size: calc(19px * var(--o1-display-scale));
-}
-html[data-text-size] .text-\[20px\] {
-  font-size: calc(20px * var(--o1-display-scale));
-}
-html[data-text-size] .text-\[22px\] {
-  font-size: calc(22px * var(--o1-display-scale));
-}
-html[data-text-size] .text-\[23px\] {
-  font-size: calc(23px * var(--o1-display-scale));
-}
-html[data-text-size] .text-\[32px\] {
-  font-size: calc(32px * var(--o1-display-scale));
-}
-html[data-text-size] .text-\[42px\] {
-  font-size: calc(42px * var(--o1-display-scale));
-}
-html[data-text-size] .text-\[44px\] {
-  font-size: calc(44px * var(--o1-display-scale));
 }
 html[data-text-size] .text-2xl {
   font-size: calc(1.5rem * var(--o1-display-scale));

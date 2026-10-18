@@ -23,7 +23,7 @@ export const ReelUploadMediaZone: React.FC<ReelUploadMediaZoneProps> = ({
 }) => {
   return (
     <div className="space-y-2">
-      <p className="text-[12px] text-o1-text">1. Video</p>
+      <p className="text-o1-caption text-o1-text">1. Video</p>
 
       <input
         type="file"
@@ -45,7 +45,7 @@ export const ReelUploadMediaZone: React.FC<ReelUploadMediaZoneProps> = ({
             <span className="text-xs font-bold text-white group-hover:text-o1-crimson transition-colors">
               Tap to Choose Video from Device
             </span>
-            <p className="text-[10px] text-neutral-400 mt-0.5">
+            <p className="text-o1-label text-neutral-400 mt-0.5">
               MP4, MOV or WebM · up to 60 seconds · plays without sound
             </p>
           </div>
@@ -71,14 +71,14 @@ export const ReelUploadMediaZone: React.FC<ReelUploadMediaZoneProps> = ({
             <button
               type="button"
               onClick={onSelectFile}
-              className="absolute top-2 right-2 px-2.5 py-1 rounded-full bg-black/75 backdrop-blur-md border border-white/[0.07] text-[10px] font-bold text-white hover:bg-black transition-colors cursor-pointer"
+              className="absolute top-2 right-2 px-2.5 py-1 rounded-full bg-black/75 backdrop-blur-md border border-white/[0.07] text-o1-label font-bold text-white hover:bg-black transition-colors cursor-pointer"
             >
               Change Video
             </button>
           </div>
 
           {compressedResult && (
-            <p className="px-1 text-[11px] text-o1-muted">
+            <p className="px-1 text-o1-label text-o1-muted">
               {compressedResult.formattedOriginal}
               {compressedResult.type === 'video' && (compressedResult.durationSecs ?? 0) > 0
                 ? ` · ${compressedResult.durationSecs}s`
@@ -90,7 +90,7 @@ export const ReelUploadMediaZone: React.FC<ReelUploadMediaZoneProps> = ({
 
       {isCompressing && (
         <div className="p-3 rounded-xl bg-o1-well border border-white/[0.07] space-y-1.5">
-          <div className="flex items-center justify-between text-[10px] font-mono text-neutral-400">
+          <div className="flex items-center justify-between text-o1-label font-mono text-neutral-400">
             <span>Preparing video…</span>
             <span className="text-emerald-400 font-bold">{compressionProgress}%</span>
           </div>

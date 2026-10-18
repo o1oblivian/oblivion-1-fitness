@@ -51,7 +51,7 @@ function Pill({ on, label, onClick }: { on: boolean; label: string; onClick: () 
         tactileEngine.triggerSelectionBuzz();
         onClick();
       }}
-      className={`h-9 rounded-full px-3 text-[13px] font-semibold ${on ? 'bg-o1-crimson text-white' : 'border border-white/[0.07] bg-[#161616] text-neutral-300'}`}
+      className={`h-9 rounded-full px-3 text-o1-body font-semibold ${on ? 'bg-o1-crimson text-white' : 'border border-white/[0.07] bg-o1-well text-neutral-300'}`}
     >
       {label}
     </button>
@@ -88,8 +88,10 @@ function Card({
 }) {
   return (
     <section className="rounded-2xl border border-white/[0.07] bg-[#121214] p-4">
-      <p className="text-[15px] font-semibold text-white">{title}</p>
-      {hint ? <p className="mt-1 text-[12px] leading-relaxed text-neutral-400">{hint}</p> : null}
+      <p className="text-o1-control font-semibold text-white">{title}</p>
+      {hint ? (
+        <p className="mt-1 text-o1-caption leading-relaxed text-neutral-400">{hint}</p>
+      ) : null}
       <div className="mt-3">{children}</div>
     </section>
   );
@@ -137,11 +139,11 @@ export const BuddyFilterSheet: React.FC<{
           >
             <X className="h-5 w-5" />
           </button>
-          <p className="text-[15px] font-semibold">Preferences</p>
+          <p className="text-o1-control font-semibold">Preferences</p>
           <span className="w-5" />
         </div>
 
-        <div className="mx-4 mb-3 grid grid-cols-2 rounded-full bg-[#161616] p-1">
+        <div className="mx-4 mb-3 grid grid-cols-2 rounded-full bg-o1-well p-1">
           {(['basic', 'advanced'] as const).map((item) => (
             <button
               key={item}
@@ -154,7 +156,7 @@ export const BuddyFilterSheet: React.FC<{
                 }
                 setMode(item);
               }}
-              className={`h-9 rounded-full text-[13px] font-semibold ${mode === item ? 'bg-o1-crimson text-white' : 'text-neutral-400'}`}
+              className={`h-9 rounded-full text-o1-body font-semibold ${mode === item ? 'bg-o1-crimson text-white' : 'text-neutral-400'}`}
             >
               {item === 'basic' ? 'Basic' : 'Advanced'}
             </button>
@@ -209,7 +211,7 @@ export const BuddyFilterSheet: React.FC<{
                   />
                 </div>
                 <div className="mt-3 flex items-center justify-between gap-3">
-                  <p className="text-[12px] text-neutral-400">
+                  <p className="text-o1-caption text-neutral-400">
                     Show people a little outside this range
                   </p>
                   <Toggle
@@ -233,7 +235,7 @@ export const BuddyFilterSheet: React.FC<{
                   className="w-full accent-white"
                 />
                 <div className="mt-3 flex items-center justify-between gap-3">
-                  <p className="text-[12px] text-neutral-400">
+                  <p className="text-o1-caption text-neutral-400">
                     Show people a little further if the deck runs thin
                   </p>
                   <Toggle
@@ -260,21 +262,21 @@ export const BuddyFilterSheet: React.FC<{
 
               <Card title="On the card">
                 <div className="flex items-center justify-between">
-                  <p className="text-[13px] text-neutral-200">Photo required</p>
+                  <p className="text-o1-body text-neutral-200">Photo required</p>
                   <Toggle
                     on={draft.photoOnly}
                     onClick={() => setDraft({ ...draft, photoOnly: !draft.photoOnly })}
                   />
                 </div>
                 <div className="mt-3 flex items-center justify-between">
-                  <p className="text-[13px] text-neutral-200">Verified only</p>
+                  <p className="text-o1-body text-neutral-200">Verified only</p>
                   <Toggle
                     on={draft.verifiedOnly}
                     onClick={() => setDraft({ ...draft, verifiedOnly: !draft.verifiedOnly })}
                   />
                 </div>
                 <div className="mt-3 flex items-center justify-between">
-                  <p className="text-[13px] text-neutral-200">My gym only</p>
+                  <p className="text-o1-body text-neutral-200">My gym only</p>
                   <Toggle
                     on={draft.sameGymOnly}
                     onClick={() => setDraft({ ...draft, sameGymOnly: !draft.sameGymOnly })}
@@ -340,7 +342,7 @@ export const BuddyFilterSheet: React.FC<{
           <button
             type="button"
             onClick={() => onApply(draft)}
-            className="h-12 w-full rounded-full bg-o1-crimson text-[15px] font-semibold text-white active:bg-o1-crimson-press"
+            className="h-12 w-full rounded-full bg-o1-crimson text-o1-control font-semibold text-white active:bg-o1-crimson-press"
           >
             Show people
           </button>

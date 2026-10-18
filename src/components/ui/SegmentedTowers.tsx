@@ -142,7 +142,7 @@ export const SegmentedTowers: React.FC<SegmentedTowersProps> = ({
               )}
               {showValues && (
                 <span
-                  className={`flex items-center ${bold ? 'text-[10px]' : 'text-[11px]'} leading-none tabular-nums ${
+                  className={`flex items-center ${bold ? 'text-o1-label' : 'text-o1-label'} leading-none tabular-nums ${
                     isPeak || isActive ? 'text-white font-bold' : 'text-neutral-400 font-medium'
                   }`}
                   style={{ height: VALUE_ROW_H }}
@@ -178,7 +178,7 @@ export const SegmentedTowers: React.FC<SegmentedTowersProps> = ({
                 style={{ height: LABEL_ROW_H }}
               >
                 <span
-                  className={`text-[11px] tracking-wide leading-none ${
+                  className={`text-o1-label tracking-wide leading-none ${
                     isActive
                       ? `${bold ? 'text-o1-text' : 'text-o1-crimson'} font-bold`
                       : 'text-neutral-300 font-medium'
@@ -210,7 +210,7 @@ export const SegmentedTowers: React.FC<SegmentedTowersProps> = ({
           {refOpen && (
             <span
               role="status"
-              className="pointer-events-none absolute right-0 z-30 rounded-md border border-white/10 bg-black/60 px-1.5 py-0.5 text-[9px] tracking-wide leading-none text-o1-text"
+              className="pointer-events-none absolute right-0 z-30 rounded-md border border-white/10 bg-black/60 px-1.5 py-0.5 text-o1-label tracking-wide leading-none text-o1-text"
               style={{ bottom: refBottom + 4 }}
             >
               {reference.label}

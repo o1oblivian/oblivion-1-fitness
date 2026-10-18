@@ -89,7 +89,7 @@ export const CoachRoot: React.FC = () => {
                   setView(id);
                   setVisited((prev) => (prev[id] ? prev : { ...prev, [id]: true }));
                 }}
-                className={`o1-pill text-[11px] font-semibold border ${
+                className={`o1-pill text-o1-label font-semibold border ${
                   active
                     ? 'bg-o1-crimson text-white border-o1-crimson'
                     : 'bg-o1-sheet text-o1-text border-white/[0.07]'

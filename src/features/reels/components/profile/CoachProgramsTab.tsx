@@ -46,19 +46,19 @@ export const CoachProgramsTab: React.FC<CoachProgramsTabProps> = ({
         tactileEngine.triggerSelectionBuzz();
         onCreate();
       }}
-      className="h-[44px] w-full rounded-xl border border-white/[0.07] bg-o1-surface text-[13px] font-semibold text-o1-text active:scale-[0.98]"
+      className="h-[44px] w-full rounded-xl border border-white/[0.07] bg-o1-surface text-o1-body font-semibold text-o1-text active:scale-[0.98]"
     >
       Create a program
     </button>
   ) : null;
 
   if (programs === null) {
-    return <p className="py-10 text-center text-[13px] text-o1-muted">Loading programs</p>;
+    return <p className="py-10 text-center text-o1-body text-o1-muted">Loading programs</p>;
   }
   if (programs.length === 0) {
     return (
       <div className="space-y-3 py-6">
-        <p className="text-center text-[13px] text-o1-muted">
+        <p className="text-center text-o1-body text-o1-muted">
           {isOwn ? 'You have not published a program yet.' : 'No programs published yet.'}
         </p>
         {createButton}
@@ -110,17 +110,17 @@ export const CoachProgramsTab: React.FC<CoachProgramsTabProps> = ({
                 <span className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
                 <div className="absolute inset-x-3 bottom-2.5 flex items-end justify-between gap-2">
                   <div className="min-w-0">
-                    <p className="truncate text-[15px] font-semibold text-o1-text">
+                    <p className="truncate text-o1-control font-semibold text-o1-text">
                       {program.title}
                     </p>
-                    {meta ? <p className="truncate text-[12px] text-white/80">{meta}</p> : null}
+                    {meta ? <p className="truncate text-o1-caption text-white/80">{meta}</p> : null}
                   </div>
                   {enrolled ? (
-                    <span className="shrink-0 rounded-full border border-white/[0.07] bg-o1-sheet px-2.5 py-1 text-[12px] font-semibold text-o1-text">
+                    <span className="shrink-0 rounded-full border border-white/[0.07] bg-o1-sheet px-2.5 py-1 text-o1-caption font-semibold text-o1-text">
                       Enrolled
                     </span>
                   ) : price ? (
-                    <span className="shrink-0 rounded-full border border-white/[0.07] bg-o1-sheet px-2.5 py-1 text-[12px] font-semibold text-o1-text">
+                    <span className="shrink-0 rounded-full border border-white/[0.07] bg-o1-sheet px-2.5 py-1 text-o1-caption font-semibold text-o1-text">
                       {price}
                     </span>
                   ) : null}
@@ -130,33 +130,35 @@ export const CoachProgramsTab: React.FC<CoachProgramsTabProps> = ({
             {open && (
               <div className="space-y-3 p-3">
                 {program.description ? (
-                  <p className="text-[13px] leading-relaxed text-o1-text">{program.description}</p>
+                  <p className="text-o1-body leading-relaxed text-o1-text">{program.description}</p>
                 ) : null}
                 {program.plan && program.plan.weeks.length > 0 ? (
-                  <p className="text-[12px] text-o1-muted">
+                  <p className="text-o1-caption text-o1-muted">
                     {program.plan.weeks.length} {program.plan.weeks.length === 1 ? 'week' : 'weeks'}{' '}
                     · {exerciseCount(program.plan)} exercises, set by set
                   </p>
                 ) : null}
                 {program.weekOne.length > 0 && (
                   <div className="space-y-1">
-                    <p className="text-[12px] font-semibold text-o1-muted">Week 1</p>
+                    <p className="text-o1-caption font-semibold text-o1-muted">Week 1</p>
                     {program.weekOne.map((day, index) => (
-                      <p key={`${program.id}-${index}`} className="text-[13px] text-o1-text">
+                      <p key={`${program.id}-${index}`} className="text-o1-body text-o1-text">
                         <span className="text-o1-muted">Day {index + 1}</span> · {day}
                       </p>
                     ))}
                   </div>
                 )}
                 {!isOwn && !enrolled && !free && !program.plan && program.weekOne.length === 0 ? (
-                  <p className="text-[12px] text-o1-muted">The full plan unlocks after you join.</p>
+                  <p className="text-o1-caption text-o1-muted">
+                    The full plan unlocks after you join.
+                  </p>
                 ) : null}
                 {isOwn ? (
-                  <p className="text-center text-[12px] text-o1-muted">
+                  <p className="text-center text-o1-caption text-o1-muted">
                     Athletes see this on your profile.
                   </p>
                 ) : enrolled ? (
-                  <p className="flex h-[44px] items-center justify-center rounded-full border border-white/[0.07] text-[13px] font-semibold text-o1-muted">
+                  <p className="flex h-[44px] items-center justify-center rounded-full border border-white/[0.07] text-o1-body font-semibold text-o1-muted">
                     In My programs on your Coach tab
                   </p>
                 ) : free || !onBuy ? (
@@ -167,7 +169,7 @@ export const CoachProgramsTab: React.FC<CoachProgramsTabProps> = ({
                       if (free) onEnroll?.(program);
                       else onApply?.(program);
                     }}
-                    className="h-[44px] w-full rounded-full bg-o1-crimson text-[13px] font-semibold text-white active:scale-[0.98]"
+                    className="h-[44px] w-full rounded-full bg-o1-crimson text-o1-body font-semibold text-white active:scale-[0.98]"
                   >
                     {free ? 'Enroll' : 'Apply for this program'}
                   </button>
@@ -182,7 +184,7 @@ export const CoachProgramsTab: React.FC<CoachProgramsTabProps> = ({
                         await onBuy(program);
                         setBuyingId(null);
                       }}
-                      className="h-[44px] w-full rounded-full bg-o1-crimson text-[13px] font-semibold text-white disabled:opacity-40 active:scale-[0.98]"
+                      className="h-[44px] w-full rounded-full bg-o1-crimson text-o1-body font-semibold text-white disabled:opacity-40 active:scale-[0.98]"
                     >
                       {buyingId === program.id ? 'Opening checkout…' : `Buy · ${price}`}
                     </button>
@@ -193,7 +195,7 @@ export const CoachProgramsTab: React.FC<CoachProgramsTabProps> = ({
                           tactileEngine.triggerSelectionBuzz();
                           onApply(program);
                         }}
-                        className="h-[44px] w-full text-[12px] font-semibold text-o1-muted"
+                        className="h-[44px] w-full text-o1-caption font-semibold text-o1-muted"
                       >
                         Ask the coach first
                       </button>

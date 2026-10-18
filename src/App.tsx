@@ -288,7 +288,7 @@ export default function App() {
                     <p className="text-xs font-tactical font-black text-white tracking-wider">
                       Membership Activated
                     </p>
-                    <p className="text-[10px] font-mono text-zinc-400">
+                    <p className="text-o1-label font-mono text-zinc-400">
                       Revenuecat IN-APP purchase verified
                     </p>
                   </div>

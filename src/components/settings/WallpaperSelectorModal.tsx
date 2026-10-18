@@ -129,7 +129,7 @@ export const WallpaperSelectorModal: React.FC<WallpaperSelectorModalProps> = ({
             >
               Workout wallpaper
             </h2>
-            <p className="text-[11px] text-neutral-400">
+            <p className="text-o1-label text-neutral-400">
               Hybrid · Iron · Track · Combat · Nature — pick, pause, or leave live
             </p>
           </div>
@@ -156,7 +156,7 @@ export const WallpaperSelectorModal: React.FC<WallpaperSelectorModalProps> = ({
                 <span className="font-tactical font-bold text-xs tracking-wider text-white block">
                   Show on console
                 </span>
-                <p className="text-[11px] text-neutral-400">
+                <p className="text-o1-label text-neutral-400">
                   {isEnabled
                     ? 'Live rotation on the workout hero'
                     : 'Off — no image load, saves battery'}
@@ -178,7 +178,7 @@ export const WallpaperSelectorModal: React.FC<WallpaperSelectorModalProps> = ({
                   key={id}
                   type="button"
                   onClick={() => setTopic(id)}
-                  className={`min-w-0 py-2 rounded-xl text-[9px] font-bold tracking-wide flex flex-col items-center gap-1 cursor-pointer ${
+                  className={`min-w-0 py-2 rounded-xl text-o1-label font-bold tracking-wide flex flex-col items-center gap-1 cursor-pointer ${
                     active
                       ? 'bg-zinc-100 text-neutral-950'
                       : 'bg-o1-well border border-white/[0.07] text-neutral-400'
@@ -204,8 +204,8 @@ export const WallpaperSelectorModal: React.FC<WallpaperSelectorModalProps> = ({
               />
               <div className="flex items-center justify-between px-3 py-2">
                 <div className="min-w-0">
-                  <p className="text-[11px] font-semibold truncate">{current.title}</p>
-                  <p className="text-[10px] text-neutral-500 font-mono truncate">
+                  <p className="text-o1-label font-semibold truncate">{current.title}</p>
+                  <p className="text-o1-label text-neutral-500 font-mono truncate">
                     {sourceLabel || 'Live'} · {slideCount} frames
                   </p>
                 </div>
@@ -244,7 +244,7 @@ export const WallpaperSelectorModal: React.FC<WallpaperSelectorModalProps> = ({
                   <SunDim className="w-4 h-4 text-neutral-500" />
                   <span className="font-tactical font-bold text-xs tracking-wider">Brightness</span>
                 </label>
-                <span className="text-[11px] font-mono text-neutral-400 tabular-nums">
+                <span className="text-o1-label font-mono text-neutral-400 tabular-nums">
                   {brightness}%
                 </span>
               </div>
@@ -256,10 +256,10 @@ export const WallpaperSelectorModal: React.FC<WallpaperSelectorModalProps> = ({
                 step={5}
                 value={brightness}
                 onChange={(e) => setBrightness(Number(e.target.value))}
-                className="w-full h-11 accent-[#C4121A] cursor-pointer"
+                className="w-full h-11 accent-o1-crimson cursor-pointer"
                 aria-valuetext={`${brightness}%`}
               />
-              <p className="text-[11px] text-neutral-500">
+              <p className="text-o1-label text-neutral-500">
                 Lower it to make the dials easier to read over bright photos.
               </p>
             </div>
@@ -301,7 +301,7 @@ export const WallpaperSelectorModal: React.FC<WallpaperSelectorModalProps> = ({
                 <Clock className="w-4 h-4 text-neutral-500" />
                 <span className="font-tactical font-bold text-xs tracking-wider">Auto-rotate</span>
               </div>
-              <span className="text-[10px] font-mono text-neutral-500">
+              <span className="text-o1-label font-mono text-neutral-500">
                 {isPaused ? 'Paused' : `${intervalSeconds}s`}
               </span>
             </div>
@@ -320,7 +320,7 @@ export const WallpaperSelectorModal: React.FC<WallpaperSelectorModalProps> = ({
                     key={sec}
                     type="button"
                     onClick={() => setIntervalSeconds(sec)}
-                    className={`py-1.5 rounded-xl text-[10px] font-mono font-bold cursor-pointer ${
+                    className={`py-1.5 rounded-xl text-o1-label font-mono font-bold cursor-pointer ${
                       intervalSeconds === sec ? 'bg-black text-white' : 'text-neutral-500'
                     }`}
                   >

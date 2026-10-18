@@ -93,7 +93,7 @@ export const DiscoverHeader: React.FC<Props> = ({
             }`}
           >
             <Compass className="w-3.5 h-3.5 text-o1-crimson" />
-            <span className="text-[11px] font-semibold tracking-tight font-tactical">Buddy</span>
+            <span className="text-o1-label font-semibold tracking-tight font-tactical">Buddy</span>
           </button>
 
           {/* Chats with Counter */}
@@ -109,9 +109,9 @@ export const DiscoverHeader: React.FC<Props> = ({
                 : 'text-neutral-400 hover:text-white'
             }`}
           >
-            <span className="text-[11px] font-medium tracking-tight font-tactical">Chats</span>
+            <span className="text-o1-label font-medium tracking-tight font-tactical">Chats</span>
             {matchedCount > 0 && (
-              <span className="px-1.5 py-0.5 rounded-full bg-o1-crimson text-white text-[9.5px] font-mono font-bold leading-none">
+              <span className="px-1.5 py-0.5 rounded-full bg-o1-crimson text-white text-o1-label font-mono font-bold leading-none">
                 {matchedCount}
               </span>
             )}
@@ -159,10 +159,14 @@ export const DiscoverHeader: React.FC<Props> = ({
               </div>
               <div className="flex items-center gap-1.5">
                 {travelOrigin && (
-                  <span className="text-[9px] font-medium text-neutral-400">{travelOrigin} ➔</span>
+                  <span className="text-o1-label font-medium text-neutral-400">
+                    {travelOrigin} ➔
+                  </span>
                 )}
-                <span className="text-[11px] font-bold text-white">{travelCity.toUpperCase()}</span>
-                <span className="text-[8.5px] text-o1-crimson font-semibold px-1 py-0.2 bg-o1-crimson/10 rounded border border-o1-crimson/20">
+                <span className="text-o1-label font-bold text-white">
+                  {travelCity.toUpperCase()}
+                </span>
+                <span className="text-o1-label text-o1-crimson font-semibold px-1 py-0.2 bg-o1-crimson/10 rounded border border-o1-crimson/20">
                   {radiusKm} KM RADIUS
                 </span>
               </div>
@@ -197,7 +201,7 @@ export const DiscoverHeader: React.FC<Props> = ({
                   ? `Search athletes & gyms in ${travelCity}...`
                   : 'Search gym, name, discipline...'
               }
-              className="w-full pl-9 pr-8 py-2 rounded-full bg-o1-well border border-white/[0.07] text-[11px] placeholder:text-[11px] placeholder-neutral-500 text-white focus:outline-none focus:border-white/[0.14] transition shadow-xs"
+              className="w-full pl-9 pr-8 py-2 rounded-full bg-o1-well border border-white/[0.07] text-o1-label placeholder:text-o1-label placeholder-neutral-500 text-white focus:outline-none focus:border-white/[0.14] transition shadow-xs"
             />
             {searchQuery && (
               <button

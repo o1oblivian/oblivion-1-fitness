@@ -5,7 +5,7 @@ import { NearbyCoach, coachDistanceLabel, coachPriceLabel } from '../services/co
 
 export function CoachPill() {
   return (
-    <span className="rounded-full bg-o1-crimson px-1.5 py-0.5 text-[10px] font-semibold text-white">
+    <span className="rounded-full bg-o1-crimson px-1.5 py-0.5 text-o1-label font-semibold text-white">
       Coach
     </span>
   );
@@ -20,10 +20,10 @@ export const CoachesNearbyStrip: React.FC<{
   return (
     <section className="pt-3" aria-label="Coaches nearby">
       <div className="flex items-baseline justify-between px-4 pb-2">
-        <h3 className="text-[13px] font-semibold text-o1-text">
+        <h3 className="text-o1-body font-semibold text-o1-text">
           {coaches.every((coach) => coach.sameGym) ? 'Coaches at your gym' : 'Coaches nearby'}
         </h3>
-        <span className="text-[11px] text-o1-muted">{coaches.length}</span>
+        <span className="text-o1-label text-o1-muted">{coaches.length}</span>
       </div>
       <div className="no-scrollbar flex gap-2 overflow-x-auto px-3 pb-1">
         {coaches.map((coach) => {
@@ -54,18 +54,18 @@ export const CoachesNearbyStrip: React.FC<{
                 </span>
               </span>
               <span className="block space-y-0.5 p-2">
-                <span className="block truncate text-[13px] font-semibold text-o1-text">
+                <span className="block truncate text-o1-body font-semibold text-o1-text">
                   {coach.name}
                 </span>
                 {coach.sameGym ? (
-                  <span className="block truncate text-[11px] font-semibold text-o1-crimson">
+                  <span className="block truncate text-o1-label font-semibold text-o1-crimson">
                     At your gym
                   </span>
                 ) : null}
                 {meta ? (
-                  <span className="block truncate text-[11px] text-o1-muted">{meta}</span>
+                  <span className="block truncate text-o1-label text-o1-muted">{meta}</span>
                 ) : null}
-                <span className="flex items-center gap-1 truncate text-[11px] text-o1-text">
+                <span className="flex items-center gap-1 truncate text-o1-label text-o1-text">
                   {coach.rating != null ? (
                     <>
                       <Star size={11} className="shrink-0 fill-amber-500 text-amber-500" />

@@ -70,7 +70,7 @@ const MAX_DAYS = 6;
 const glass = 'bg-white/[0.05] backdrop-blur-md';
 const glassActive = 'bg-white/[0.09] ring-1 ring-o1-crimson/70 backdrop-blur-md';
 const primaryButton =
-  'flex h-10 w-full shrink-0 items-center justify-center rounded-full bg-o1-crimson text-[13px] font-medium text-white transition hover:bg-o1-crimson-hover active:scale-[0.98] active:bg-o1-crimson-press disabled:opacity-40';
+  'flex h-10 w-full shrink-0 items-center justify-center rounded-full bg-o1-crimson text-o1-body font-medium text-white transition hover:bg-o1-crimson-hover active:scale-[0.98] active:bg-o1-crimson-press disabled:opacity-40';
 
 /** Steps that only make sense for some athletes. */
 function stepApplies(group: IntakeGroup, profile: ConsultationProfile): boolean {
@@ -311,13 +311,13 @@ export function InductionProtocol() {
           ) : (
             <span className="h-11 w-11" />
           )}
-          <span className="text-[11px] font-normal tabular-nums text-o1-muted">
+          <span className="text-o1-label font-normal tabular-nums text-o1-muted">
             {position} of {total}
           </span>
           <button
             type="button"
             onClick={skip}
-            className="-mr-2 h-11 px-2 text-[13px] font-normal text-o1-muted"
+            className="-mr-2 h-11 px-2 text-o1-body font-normal text-o1-muted"
           >
             Skip
           </button>
@@ -337,11 +337,11 @@ export function InductionProtocol() {
           key={group}
           className="mx-auto flex w-full max-w-[480px] min-h-0 flex-1 flex-col overflow-y-auto px-5 pb-[max(1rem,env(safe-area-inset-bottom))] pt-6 animate-in fade-in slide-in-from-right-4 duration-300"
         >
-          <p className="text-[10.5px] font-normal text-o1-muted">{INTAKE_TITLES[group]}</p>
-          <h1 className="mt-1.5 text-[19px] font-light leading-tight tracking-[-0.01em]">
+          <p className="text-o1-label font-normal text-o1-muted">{INTAKE_TITLES[group]}</p>
+          <h1 className="mt-1.5 text-o1-title font-light leading-tight tracking-[-0.01em]">
             {INTAKE_PROMPTS[group].title}
           </h1>
-          <p className="mt-1.5 text-[12px] font-normal leading-snug text-o1-muted">
+          <p className="mt-1.5 text-o1-caption font-normal leading-snug text-o1-muted">
             {INTAKE_PROMPTS[group].subtitle}
           </p>
 
@@ -362,7 +362,7 @@ export function InductionProtocol() {
                       aria-checked={active}
                       aria-label={DAY_NAMES[day]}
                       onClick={() => toggleDay(day)}
-                      className={`flex h-8 w-full items-center justify-center rounded-full border text-[11px] font-normal transition-colors ${active ? 'border-o1-crimson bg-o1-crimson text-white' : 'border-white/[0.07] bg-o1-surface text-o1-muted'}`}
+                      className={`flex h-8 w-full items-center justify-center rounded-full border text-o1-label font-normal transition-colors ${active ? 'border-o1-crimson bg-o1-crimson text-white' : 'border-white/[0.07] bg-o1-surface text-o1-muted'}`}
                     >
                       {day.slice(0, 2)}
                     </button>
@@ -370,7 +370,7 @@ export function InductionProtocol() {
                 })}
               </div>
               <p
-                className={`mt-3 text-[11px] font-normal ${daysValid ? 'text-o1-muted' : 'text-o1-gold'}`}
+                className={`mt-3 text-o1-label font-normal ${daysValid ? 'text-o1-muted' : 'text-o1-gold'}`}
               >
                 {daysValid
                   ? `${dayCount} training days, ${7 - dayCount} rest days`
@@ -390,17 +390,17 @@ export function InductionProtocol() {
               <label
                 className={`mt-5 flex min-h-[46px] items-center gap-3 rounded-2xl px-4 ${glass}`}
               >
-                <span className="flex-1 text-[13px] font-normal">Event date</span>
+                <span className="flex-1 text-o1-body font-normal">Event date</span>
                 <input
                   type="date"
                   min={todayIso()}
                   value={profile.competitionDate}
                   onChange={(event) => patch({ competitionDate: event.target.value })}
-                  className="bg-transparent text-right text-[13px] font-normal text-o1-text outline-none [color-scheme:dark]"
+                  className="bg-transparent text-right text-o1-body font-normal text-o1-text outline-none [color-scheme:dark]"
                 />
               </label>
               {profile.competitionDate ? (
-                <p className="mt-3 text-[11px] font-normal text-o1-muted">
+                <p className="mt-3 text-o1-label font-normal text-o1-muted">
                   {weeksUntilLabel(profile.competitionDate)}
                 </p>
               ) : null}
@@ -418,7 +418,7 @@ export function InductionProtocol() {
                   patch({ competitionDate: '' });
                   continueStep();
                 }}
-                className="h-10 w-full text-[12px] font-normal text-o1-muted"
+                className="h-10 w-full text-o1-caption font-normal text-o1-muted"
               >
                 No date yet
               </button>
@@ -442,11 +442,11 @@ export function InductionProtocol() {
                       className={`flex min-h-[46px] w-full items-center gap-3 rounded-2xl px-4 py-2.5 text-left transition active:scale-[0.99] ${active ? glassActive : glass}`}
                     >
                       <span className="min-w-0 flex-1">
-                        <span className="block text-[13px] font-normal leading-tight">
+                        <span className="block text-o1-body font-normal leading-tight">
                           {item.label}
                         </span>
                         {item.detail ? (
-                          <span className="mt-0.5 block text-[10.5px] font-normal leading-snug text-o1-muted">
+                          <span className="mt-0.5 block text-o1-label font-normal leading-snug text-o1-muted">
                             {item.detail}
                           </span>
                         ) : null}
@@ -478,10 +478,10 @@ export function InductionProtocol() {
       {phase === 'plans' ? (
         <>
           <main className="mx-auto w-full max-w-[480px] min-h-0 flex-1 overflow-y-auto px-5 pb-4 pt-6 animate-in fade-in duration-300">
-            <h1 className="text-[19px] font-light leading-tight tracking-[-0.01em]">
+            <h1 className="text-o1-title font-light leading-tight tracking-[-0.01em]">
               Choose your membership
             </h1>
-            <p className="mt-1.5 text-[12px] font-normal leading-snug text-o1-muted">
+            <p className="mt-1.5 text-o1-caption font-normal leading-snug text-o1-muted">
               Your plan is ready. Pick how you want to train.
             </p>
 
@@ -501,7 +501,7 @@ export function InductionProtocol() {
                     setPicked(key === 'athlete' ? 'pro' : 'coach_pro');
                     setStoreError(null);
                   }}
-                  className={`h-8 rounded-full text-[12px] font-normal transition-colors ${audience === key ? 'bg-white/[0.1] text-o1-text' : 'text-o1-muted'}`}
+                  className={`h-8 rounded-full text-o1-caption font-normal transition-colors ${audience === key ? 'bg-white/[0.1] text-o1-text' : 'text-o1-muted'}`}
                 >
                   {key === 'athlete' ? 'Athlete' : 'Coach'}
                 </button>
@@ -535,24 +535,24 @@ export function InductionProtocol() {
                     <div className="flex items-center justify-between gap-3">
                       <div className="min-w-0">
                         <div className="flex items-center gap-2">
-                          <span className="text-[14px] font-normal">{tier.label}</span>
+                          <span className="text-o1-control font-normal">{tier.label}</span>
                           {badge ? (
-                            <span className="rounded-full bg-o1-gold/10 px-1.5 py-px text-[10px] font-normal text-o1-gold">
+                            <span className="rounded-full bg-o1-gold/10 px-1.5 py-px text-o1-label font-normal text-o1-gold">
                               {badge}
                             </span>
                           ) : null}
                         </div>
-                        <p className="mt-0.5 text-[10.5px] font-normal leading-snug text-o1-muted">
+                        <p className="mt-0.5 text-o1-label font-normal leading-snug text-o1-muted">
                           {copy.headline}
                         </p>
                       </div>
                       <div className="flex shrink-0 items-center gap-3">
                         <span className="text-right">
-                          <span className="block text-[16px] font-light leading-none tabular-nums">
+                          <span className="block text-o1-title font-light leading-none tabular-nums">
                             {copy.product.isFree ? 'Free' : priceOf(copy.product)}
                           </span>
                           {!copy.product.isFree ? (
-                            <span className="mt-1 block text-[10px] font-normal text-o1-muted">
+                            <span className="mt-1 block text-o1-label font-normal text-o1-muted">
                               {PERIOD_LABEL[copy.product.periodText || ''] || ''}
                             </span>
                           ) : null}
@@ -565,7 +565,7 @@ export function InductionProtocol() {
                         {copy.highlights.map((line) => (
                           <li
                             key={line}
-                            className="flex items-start gap-2 text-[11px] font-normal leading-snug"
+                            className="flex items-start gap-2 text-o1-label font-normal leading-snug"
                           >
                             <Check
                               className="mt-0.5 h-3 w-3 shrink-0 text-o1-crimson"
@@ -586,7 +586,7 @@ export function InductionProtocol() {
             {storeError ? (
               <div
                 role="alert"
-                className="mb-2 flex items-start gap-2.5 rounded-xl bg-o1-bad-wash/60 px-3.5 py-2.5 text-[11px] font-normal leading-snug text-o1-bad-ink backdrop-blur-md"
+                className="mb-2 flex items-start gap-2.5 rounded-xl bg-o1-bad-wash/60 px-3.5 py-2.5 text-o1-label font-normal leading-snug text-o1-bad-ink backdrop-blur-md"
               >
                 <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
                 <span>{storeError}</span>
@@ -596,7 +596,7 @@ export function InductionProtocol() {
               type="button"
               onClick={() => void buy()}
               disabled={busy !== null}
-              className="flex h-10 w-full items-center justify-center rounded-full bg-o1-crimson text-[13px] font-medium text-white transition hover:bg-o1-crimson-hover active:scale-[0.98] active:bg-o1-crimson-press disabled:opacity-60"
+              className="flex h-10 w-full items-center justify-center rounded-full bg-o1-crimson text-o1-body font-medium text-white transition hover:bg-o1-crimson-hover active:scale-[0.98] active:bg-o1-crimson-press disabled:opacity-60"
             >
               {busy === 'buy' || busy === 'finish' ? (
                 <Loader2 className="h-5 w-5 animate-spin" />
@@ -613,19 +613,19 @@ export function InductionProtocol() {
                 type="button"
                 onClick={() => void finish(audience === 'athlete' ? 'core' : 'coach')}
                 disabled={busy !== null}
-                className="h-9 w-full text-[12px] font-normal text-o1-muted"
+                className="h-9 w-full text-o1-caption font-normal text-o1-muted"
               >
                 Not now, start free
               </button>
             ) : null}
-            <p className="mt-1 text-center text-[10px] font-normal leading-snug text-o1-muted/70">
+            <p className="mt-1 text-center text-o1-label font-normal leading-snug text-o1-muted/70">
               {plan.renews
                 ? `Renews monthly at ${price} until cancelled. Cancel at least 24 hours before renewal in your App Store or Google Play settings.`
                 : plan.product.isFree
                   ? 'No payment needed. Upgrade any time from Settings.'
                   : 'One payment through the App Store or Google Play. It never renews.'}
             </p>
-            <div className="flex items-center justify-center gap-5 text-[10.5px] font-normal text-o1-muted">
+            <div className="flex items-center justify-center gap-5 text-o1-label font-normal text-o1-muted">
               <button
                 type="button"
                 onClick={() => void restore()}
@@ -669,11 +669,11 @@ function WeekPreview({
   return (
     <>
       <main className="mx-auto w-full max-w-[480px] min-h-0 flex-1 overflow-y-auto px-5 pb-4 pt-6 animate-in fade-in slide-in-from-right-4 duration-300">
-        <p className="text-[10.5px] font-normal text-o1-muted">Your plan</p>
-        <h1 className="mt-1.5 text-[19px] font-light leading-tight tracking-[-0.01em]">
+        <p className="text-o1-label font-normal text-o1-muted">Your plan</p>
+        <h1 className="mt-1.5 text-o1-title font-light leading-tight tracking-[-0.01em]">
           Here is your first week
         </h1>
-        <p className="mt-1.5 text-[12px] font-normal leading-snug text-o1-muted">
+        <p className="mt-1.5 text-o1-caption font-normal leading-snug text-o1-muted">
           {trainingDays.length} {trainingDays.length === 1 ? 'workout' : 'workouts'}
           {average > 0 ? `, about ${average} minutes each` : ''}. Weights adjust as you log.
         </p>
@@ -683,7 +683,7 @@ function WeekPreview({
             {notes.map((note) => (
               <li
                 key={note}
-                className="flex items-start gap-2 text-[11px] font-normal leading-snug"
+                className="flex items-start gap-2 text-o1-label font-normal leading-snug"
               >
                 <Check className="mt-0.5 h-3 w-3 shrink-0 text-o1-crimson" strokeWidth={2.25} />
                 <span>{note}</span>
@@ -698,7 +698,7 @@ function WeekPreview({
               return (
                 <div
                   key={day}
-                  className="flex h-10 items-center justify-between rounded-2xl px-4 text-[12px] font-normal text-o1-muted"
+                  className="flex h-10 items-center justify-between rounded-2xl px-4 text-o1-caption font-normal text-o1-muted"
                 >
                   <span>{DAY_NAMES[day]}</span>
                   <span>Rest</span>
@@ -721,10 +721,10 @@ function WeekPreview({
                   className="flex min-h-[46px] w-full items-center gap-3 px-4 py-2.5 text-left"
                 >
                   <span className="min-w-0 flex-1">
-                    <span className="block text-[13px] font-normal leading-tight">
+                    <span className="block text-o1-body font-normal leading-tight">
                       {DAY_NAMES[day]} <span className="text-o1-muted">· {splitName}</span>
                     </span>
-                    <span className="mt-0.5 block truncate text-[10.5px] font-normal text-o1-muted">
+                    <span className="mt-0.5 block truncate text-o1-label font-normal text-o1-muted">
                       {exercises.length} exercises · about {estimateSessionMinutes(exercises)} min
                       {muscles ? ` · ${muscles}` : ''}
                     </span>
@@ -739,7 +739,7 @@ function WeekPreview({
                     {exercises.map((ex) => (
                       <li
                         key={ex.id}
-                        className="flex items-baseline justify-between gap-3 text-[11.5px] font-normal"
+                        className="flex items-baseline justify-between gap-3 text-o1-caption font-normal"
                       >
                         <span className="min-w-0 truncate">{ex.name}</span>
                         <span className="shrink-0 tabular-nums text-o1-muted">

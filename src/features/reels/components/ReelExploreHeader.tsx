@@ -36,7 +36,7 @@ export const ReelExploreHeader: React.FC<ReelExploreHeaderProps> = ({
   return (
     <div className="sticky top-0 z-30 bg-black border-b border-white/[0.05] px-4 pt-3 pb-3 flex flex-col gap-3 select-none">
       <div className="relative flex items-center justify-center w-full min-h-[44px]">
-        <h2 className="text-[15px] font-semibold text-[#EAE8DF]">Reels</h2>
+        <h2 className="text-o1-control font-semibold text-o1-text">Reels</h2>
         <button
           type="button"
           onClick={onClose}
@@ -87,10 +87,10 @@ export const ReelExploreHeader: React.FC<ReelExploreHeaderProps> = ({
                 tactileEngine.triggerLightTick();
                 setSelectedCategory(tab.id);
               }}
-              className={`shrink-0 px-3 py-1 rounded-full text-[11px] font-semibold whitespace-nowrap transition-all cursor-pointer ${
+              className={`shrink-0 px-3 py-1 rounded-full text-o1-label font-semibold whitespace-nowrap transition-all cursor-pointer ${
                 isSelected
                   ? 'bg-o1-crimson text-white'
-                  : 'bg-[#0E0E0E] text-[#8A887F] border border-[#1F1F1F]'
+                  : 'bg-o1-card text-o1-muted border border-[#1F1F1F]'
               }`}
             >
               {tab.label}

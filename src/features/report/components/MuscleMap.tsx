@@ -113,8 +113,8 @@ const LEGEND_LABEL: Record<VolumeStatus, string> = {
 
 const STATUS_TEXT: Record<VolumeStatus, string> = {
   none: 'text-o1-muted border-white/[0.1]',
-  under: 'text-[#f59e0b] border-[#d97706]/40',
-  optimal: 'text-[#10b981] border-[#10b981]/40',
+  under: 'text-o1-amber border-o1-amber-deep/40',
+  optimal: 'text-o1-emerald border-o1-emerald/40',
   over: 'text-[#e5484d] border-o1-crimson/50',
 };
 
@@ -167,8 +167,8 @@ export const MuscleMap: React.FC<MuscleMapProps> = ({ muscles }) => {
     <section className="w-full rounded-2xl bg-o1-canvas border border-white/[0.07] p-4 space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-[13px] font-bold text-o1-text">Muscle Map</h3>
-          <p className="text-[11px] text-o1-muted mt-0.5">Hard sets, last 7 days</p>
+          <h3 className="text-o1-body font-bold text-o1-text">Muscle Map</h3>
+          <p className="text-o1-label text-o1-muted mt-0.5">Hard sets, last 7 days</p>
         </div>
         <div
           className="flex p-0.5 rounded-full bg-o1-sheet border border-white/[0.07]"
@@ -182,7 +182,7 @@ export const MuscleMap: React.FC<MuscleMapProps> = ({ muscles }) => {
               role="tab"
               aria-selected={view === v}
               onClick={() => setView(v)}
-              className={`h-10 px-4 rounded-full text-[12px] font-semibold capitalize transition-colors ${
+              className={`h-10 px-4 rounded-full text-o1-caption font-semibold capitalize transition-colors ${
                 view === v
                   ? 'bg-white/[0.1] text-o1-text border border-white/[0.12]'
                   : 'text-o1-muted border border-transparent'
@@ -240,7 +240,7 @@ export const MuscleMap: React.FC<MuscleMapProps> = ({ muscles }) => {
         ))}
       </svg>
 
-      <div className="flex items-center justify-between text-[11px] text-o1-muted">
+      <div className="flex items-center justify-between text-o1-label text-o1-muted">
         {(['none', 'under', 'optimal', 'over'] as const).map((s) => (
           <span key={s} className="flex items-center gap-1.5">
             <span
@@ -257,7 +257,7 @@ export const MuscleMap: React.FC<MuscleMapProps> = ({ muscles }) => {
           <div className="flex items-center justify-between gap-3">
             <div>
               <div className="text-sm font-bold text-o1-text">{current.label}</div>
-              <div className="text-[11px] text-o1-muted">
+              <div className="text-o1-label text-o1-muted">
                 {current.lastTrainedDaysAgo === null
                   ? 'No sets in 28 days'
                   : current.lastTrainedDaysAgo === 0
@@ -266,7 +266,7 @@ export const MuscleMap: React.FC<MuscleMapProps> = ({ muscles }) => {
               </div>
             </div>
             <span
-              className={`px-2.5 py-1 rounded-full border text-[11px] font-semibold ${STATUS_TEXT[current.status]}`}
+              className={`px-2.5 py-1 rounded-full border text-o1-label font-semibold ${STATUS_TEXT[current.status]}`}
             >
               {STATUS_LABEL[current.status]}
             </span>
@@ -276,17 +276,17 @@ export const MuscleMap: React.FC<MuscleMapProps> = ({ muscles }) => {
             <div className="flex items-baseline justify-between">
               <span className="text-xl font-mono font-black text-o1-text">
                 {fmtSets(current.sets)}
-                <span className="ml-1 text-[11px] font-sans font-medium text-o1-muted">
+                <span className="ml-1 text-o1-label font-sans font-medium text-o1-muted">
                   sets this week
                 </span>
               </span>
-              <span className="text-[11px] text-o1-muted">
+              <span className="text-o1-label text-o1-muted">
                 target {current.min}–{current.max} / wk
               </span>
             </div>
             <div className="relative h-2 rounded-full bg-white/[0.06] overflow-hidden">
               <div
-                className="absolute inset-y-0 bg-[#10b981]/20"
+                className="absolute inset-y-0 bg-o1-emerald/20"
                 style={{
                   left: pct(current.min),
                   width: `calc(${pct(current.max)} - ${pct(current.min)})`,
@@ -302,7 +302,7 @@ export const MuscleMap: React.FC<MuscleMapProps> = ({ muscles }) => {
           </div>
 
           <div className="space-y-1.5">
-            <span className="text-[11px] text-o1-muted">4-week trend</span>
+            <span className="text-o1-label text-o1-muted">4-week trend</span>
             <div className="flex items-end gap-1.5 h-10">
               {current.weekly.map((v, i) => (
                 <div key={i} className="flex-1 flex items-end h-full">
@@ -316,7 +316,7 @@ export const MuscleMap: React.FC<MuscleMapProps> = ({ muscles }) => {
                 </div>
               ))}
             </div>
-            <div className="flex gap-1.5 text-[11px] font-mono text-o1-muted">
+            <div className="flex gap-1.5 text-o1-label font-mono text-o1-muted">
               {current.weekly.map((v, i) => (
                 <span key={i} className="flex-1 text-center">
                   {fmtSets(v)}

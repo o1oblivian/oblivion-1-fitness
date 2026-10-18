@@ -582,18 +582,18 @@ export const BuddyView: React.FC = () => {
       {supabaseError && (
         <div className="my-2 p-3 rounded-2xl bg-o1-well border border-white/[0.07] text-zinc-400 text-xs">
           <p className="font-semibold text-zinc-300">Radar unavailable</p>
-          <p className="text-[11px] mt-0.5">{supabaseError}</p>
+          <p className="text-o1-label mt-0.5">{supabaseError}</p>
         </div>
       )}
 
       {authReady && !radarUid && (
         <div className="mx-3 mt-3 w-[calc(100%-1.5rem)] rounded-2xl border border-white/[0.07] bg-[#121214] px-4 py-3 text-left">
-          <p className="text-[13px] font-semibold text-white">
+          <p className="text-o1-body font-semibold text-white">
             {typeof navigator !== 'undefined' && navigator.onLine === false
               ? 'You are offline'
               : 'Sign in to be seen'}
           </p>
-          <p className="mt-0.5 text-[12px] text-neutral-400">
+          <p className="mt-0.5 text-o1-caption text-neutral-400">
             {typeof navigator !== 'undefined' && navigator.onLine === false
               ? 'Your card loads again when the connection is back.'
               : 'Likes and your card save only after you are signed in.'}
@@ -609,8 +609,8 @@ export const BuddyView: React.FC = () => {
           }}
           className="mx-3 mt-3 w-[calc(100%-1.5rem)] rounded-2xl border border-white/[0.07] bg-[#121214] px-4 py-3 text-left"
         >
-          <span className="block text-[13px] font-semibold text-white">Your card is not live</span>
-          <span className="mt-0.5 block text-[12px] text-neutral-400">
+          <span className="block text-o1-body font-semibold text-white">Your card is not live</span>
+          <span className="mt-0.5 block text-o1-caption text-neutral-400">
             Add your name and an age of 18 or older so people can find you.
           </span>
         </button>
@@ -627,8 +627,8 @@ export const BuddyView: React.FC = () => {
             }}
             className="mx-3 mt-3 w-[calc(100%-1.5rem)] rounded-2xl border border-white/[0.07] bg-[#121214] px-4 py-3 text-left"
           >
-            <span className="block text-[13px] font-semibold text-white">Set Woman or Man</span>
-            <span className="mt-0.5 block text-[12px] text-neutral-400">
+            <span className="block text-o1-body font-semibold text-white">Set Woman or Man</span>
+            <span className="mt-0.5 block text-o1-caption text-neutral-400">
               People filtering by that will not see a blank card.
             </span>
           </button>
@@ -665,13 +665,13 @@ export const BuddyView: React.FC = () => {
                     {photo ? (
                       <img src={photo} alt="" className="h-12 w-12 rounded-full object-cover" />
                     ) : (
-                      <span className="h-12 w-12 rounded-full bg-[#161616]" />
+                      <span className="h-12 w-12 rounded-full bg-o1-well" />
                     )}
                     <span className="min-w-0">
-                      <span className="block truncate text-[15px] font-semibold text-white">
+                      <span className="block truncate text-o1-control font-semibold text-white">
                         {athlete.name}
                       </span>
-                      <span className="block truncate text-[12px] text-neutral-400">
+                      <span className="block truncate text-o1-caption text-neutral-400">
                         {lastLines[athlete.id] || 'New match'}
                       </span>
                     </span>
@@ -681,7 +681,7 @@ export const BuddyView: React.FC = () => {
             </div>
           )
         ) : !buddyReady ? (
-          <p className="px-5 pt-16 text-center text-[13px] text-neutral-400">Checking your area</p>
+          <p className="px-5 pt-16 text-center text-o1-body text-neutral-400">Checking your area</p>
         ) : !buddyLive ? (
           <FoundingLiftersQueue
             count={areaCount}
@@ -710,16 +710,16 @@ export const BuddyView: React.FC = () => {
           />
         ) : locationOn === null ? null : (
           <div id="radar-empty-state" className="flex flex-col items-center px-5 pt-16 text-center">
-            <p className="o1-num text-[42px] leading-none text-[#F2EFE6]">
+            <p className="o1-num text-o1-hero leading-none text-o1-bone">
               {deckFilters.distanceKm}
             </p>
-            <p className="mt-1 text-[13px] text-neutral-400">km radius</p>
-            <h3 className="mt-6 text-[22px] font-semibold leading-tight text-white">
+            <p className="mt-1 text-o1-body text-neutral-400">km radius</p>
+            <h3 className="mt-6 text-o1-heading font-semibold leading-tight text-white">
               {locationOn === false
                 ? 'Find training partners near you.'
                 : 'No training partners in this radius.'}
             </h3>
-            <p className="mt-2 max-w-[18rem] text-[14px] leading-relaxed text-neutral-400">
+            <p className="mt-2 max-w-[18rem] text-o1-control leading-relaxed text-neutral-400">
               {locationOn === false
                 ? 'Turn on Buddy to search. Only your rough area, about 1 km, is used.'
                 : 'Widen the radius and bring back people you passed.'}
@@ -794,7 +794,7 @@ export const BuddyView: React.FC = () => {
                   );
                 })();
               }}
-              className="mt-6 h-12 w-full max-w-sm rounded-full bg-o1-crimson text-[15px] font-semibold text-white active:bg-o1-crimson-press"
+              className="mt-6 h-12 w-full max-w-sm rounded-full bg-o1-crimson text-o1-control font-semibold text-white active:bg-o1-crimson-press"
             >
               {locationOn === false ? 'Turn on Buddy' : 'Widen search'}
             </button>

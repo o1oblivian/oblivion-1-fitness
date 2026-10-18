@@ -53,7 +53,7 @@ export const DispatchAthletePicker: React.FC<DispatchAthletePickerProps> = ({
             </div>
             <div>
               <h3 className="text-sm font-bold text-o1-text">Athletes ({count})</h3>
-              <p className="text-[11px] text-o1-muted">Choose who gets this workout</p>
+              <p className="text-o1-label text-o1-muted">Choose who gets this workout</p>
             </div>
           </div>
           <button
@@ -86,7 +86,7 @@ export const DispatchAthletePicker: React.FC<DispatchAthletePickerProps> = ({
                   tactileEngine.triggerSelectionBuzz();
                   onChange(athletes.map((a) => a.id));
                 }}
-                className="h-8 text-[11px] font-bold text-o1-crimson"
+                className="h-8 text-o1-label font-bold text-o1-crimson"
               >
                 Select all ({athletes.length})
               </button>
@@ -96,12 +96,12 @@ export const DispatchAthletePicker: React.FC<DispatchAthletePickerProps> = ({
                   tactileEngine.triggerSelectionBuzz();
                   onChange([]);
                 }}
-                className="h-8 text-[11px] font-medium text-o1-muted"
+                className="h-8 text-o1-label font-medium text-o1-muted"
               >
                 Clear
               </button>
             </div>
-            <span className="text-[11px] text-o1-muted font-mono">
+            <span className="text-o1-label text-o1-muted font-mono">
               {count} of {athletes.length}
             </span>
           </div>
@@ -114,7 +114,7 @@ export const DispatchAthletePicker: React.FC<DispatchAthletePickerProps> = ({
                 {athletes.length ? 'No athletes match.' : 'No athletes yet.'}
               </p>
               {athletes.length === 0 ? (
-                <p className="text-[11px] text-o1-muted">
+                <p className="text-o1-label text-o1-muted">
                   Share your invite link from the Coach tab to add athletes.
                 </p>
               ) : null}
@@ -150,13 +150,13 @@ export const DispatchAthletePicker: React.FC<DispatchAthletePickerProps> = ({
                       <span className="block text-xs font-bold text-o1-text truncate">
                         {ath.name}
                       </span>
-                      <span className="block text-[10px] text-o1-muted">
+                      <span className="block text-o1-label text-o1-muted">
                         Readiness {ath.readiness != null ? `${ath.readiness}%` : '--'}
                       </span>
                     </span>
                   </span>
                   <span
-                    className={`text-[10px] px-2 py-0.5 rounded-full font-bold shrink-0 ${statusTone(ath.status)}`}
+                    className={`text-o1-label px-2 py-0.5 rounded-full font-bold shrink-0 ${statusTone(ath.status)}`}
                   >
                     {ath.status}
                   </span>

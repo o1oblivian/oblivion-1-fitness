@@ -21,16 +21,16 @@ export const IntelPrescriptionCard: React.FC<IntelPrescriptionCardProps> = ({
   return (
     <div className="border-t border-white/[0.07] pt-3 space-y-2.5 animate-in fade-in duration-200">
       <div className="flex items-center justify-between pb-1">
-        <span className="text-[11px] uppercase tracking-[0.12em] text-o1-muted">
+        <span className="text-o1-label uppercase tracking-[0.12em] text-o1-muted">
           Prescription · {prescription.length} movements
         </span>
         {outdated ? (
-          <span className="text-[11px] font-mono font-light text-[#d97706]">
+          <span className="text-o1-label font-mono font-light text-o1-amber-deep">
             Options changed. Create again.
           </span>
         ) : (
           estCalories > 0 && (
-            <span className="text-[12px] font-mono font-light text-o1-text">
+            <span className="text-o1-caption font-mono font-light text-o1-text">
               ~{estCalories} kcal
             </span>
           )
@@ -57,16 +57,16 @@ export const IntelPrescriptionCard: React.FC<IntelPrescriptionCardProps> = ({
               key={drill.id || idx}
               className="bg-o1-well border border-white/[0.07] rounded-2xl px-3 py-3 flex items-center gap-3"
             >
-              <span className="w-6 h-6 rounded-lg border border-white/[0.14] text-o1-muted font-mono text-[11px] flex items-center justify-center shrink-0">
+              <span className="w-6 h-6 rounded-lg border border-white/[0.14] text-o1-muted font-mono text-o1-label flex items-center justify-center shrink-0">
                 {idx + 1}
               </span>
               <div className="min-w-0 flex-1">
-                <h5 className="text-[13px] text-o1-text truncate">{drill.name}</h5>
-                <p className="text-[11px] text-o1-muted mt-0.5 truncate">
+                <h5 className="text-o1-body text-o1-text truncate">{drill.name}</h5>
+                <p className="text-o1-label text-o1-muted mt-0.5 truncate">
                   {drill.targetMuscle || 'Compound'}
                 </p>
               </div>
-              <span className="text-[11px] font-mono font-light text-o1-text shrink-0 text-right">
+              <span className="text-o1-label font-mono font-light text-o1-text shrink-0 text-right">
                 {target}
               </span>
             </div>
@@ -74,7 +74,7 @@ export const IntelPrescriptionCard: React.FC<IntelPrescriptionCardProps> = ({
         })}
       </div>
 
-      <p className="text-[10px] text-o1-muted text-center pt-1">
+      <p className="text-o1-label text-o1-muted text-center pt-1">
         Consult a physician before beginning any training program.
       </p>
     </div>

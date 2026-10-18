@@ -149,7 +149,7 @@ export const ClubPassPaywallModal: React.FC = () => {
                 role="tab"
                 aria-selected={audience === tab}
                 onClick={() => switchAudience(tab)}
-                className={`py-2 rounded-lg text-[11px] font-mono font-bold uppercase tracking-wider cursor-pointer transition ${
+                className={`py-2 rounded-lg text-o1-label font-mono font-bold uppercase tracking-wider cursor-pointer transition ${
                   audience === tab
                     ? 'bg-o1-card text-white border border-white/[0.07]'
                     : 'text-neutral-400 hover:text-white'
@@ -191,18 +191,18 @@ export const ClubPassPaywallModal: React.FC = () => {
                   <div className="flex items-center gap-2">
                     <span className="text-xs font-bold font-mono text-white">{plan.name}</span>
                     {plan.badge && (
-                      <span className="text-[9px] font-mono px-2 py-0.5 rounded-full bg-o1-well text-zinc-400 border border-white/[0.07] font-bold">
+                      <span className="text-o1-label font-mono px-2 py-0.5 rounded-full bg-o1-well text-zinc-400 border border-white/[0.07] font-bold">
                         {plan.badge}
                       </span>
                     )}
                   </div>
-                  <span className="text-[10px] font-mono text-neutral-400 block mt-0.5">
+                  <span className="text-o1-label font-mono text-neutral-400 block mt-0.5">
                     {plan.description}
                   </span>
                 </div>
                 <span className="text-sm font-black font-mono text-white shrink-0 text-right">
                   {priceOf(plan)}
-                  <span className="text-[10px] font-normal text-neutral-400">
+                  <span className="text-o1-label font-normal text-neutral-400">
                     {plan.periodText}
                   </span>
                 </span>
@@ -239,7 +239,7 @@ export const ClubPassPaywallModal: React.FC = () => {
             )}
           </button>
 
-          <div className="flex items-center justify-center gap-3 text-[10px] font-sans text-neutral-400">
+          <div className="flex items-center justify-center gap-3 text-o1-label font-sans text-neutral-400">
             <button
               type="button"
               onClick={() => void openLegalUrl('terms')}
@@ -257,7 +257,7 @@ export const ClubPassPaywallModal: React.FC = () => {
             </button>
           </div>
 
-          <div className="flex items-center justify-between text-[10px] font-mono text-neutral-400 px-1">
+          <div className="flex items-center justify-between text-o1-label font-mono text-neutral-400 px-1">
             <button
               onClick={handleRestore}
               disabled={isRestoring}
@@ -269,7 +269,7 @@ export const ClubPassPaywallModal: React.FC = () => {
             <span>{kind === 'lifetime' ? 'One-time payment' : 'Cancel anytime in Store'}</span>
           </div>
 
-          <p className="text-[8.5px] font-mono text-neutral-500 text-center leading-tight">
+          <p className="text-o1-label font-mono text-neutral-500 text-center leading-tight">
             {kind === 'lifetime'
               ? 'Founder Pass is a one-time, non-recurring purchase. Billed via Apple App Store or Google Play.'
               : 'Subscriptions auto-renew unless cancelled 24h before period end. Billed via Apple App Store or Google Play.'}

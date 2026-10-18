@@ -21,7 +21,7 @@ export const MotionSensorRow: React.FC<MotionSensorRowProps> = ({ status, error,
             <span className="text-xs font-tactical font-semibold text-neutral-100 block">
               Phone step counter
             </span>
-            <span className="text-[11px] font-sans text-neutral-400 block truncate">
+            <span className="text-o1-label font-sans text-neutral-400 block truncate">
               {!status.isSupported
                 ? "This phone can't count steps"
                 : status.isActive
@@ -37,7 +37,7 @@ export const MotionSensorRow: React.FC<MotionSensorRowProps> = ({ status, error,
       {error && (
         <div
           role="alert"
-          className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-start gap-2 text-[11px] text-amber-300"
+          className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-start gap-2 text-o1-label text-amber-300"
         >
           <AlertCircle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
           <span>{error}</span>
@@ -47,23 +47,23 @@ export const MotionSensorRow: React.FC<MotionSensorRowProps> = ({ status, error,
       {status.isActive && (
         <div className="grid grid-cols-2 gap-2 pt-1">
           <div className="p-2.5 rounded-xl bg-o1-well border border-white/[0.07] text-center font-mono">
-            <span className="text-[9px] text-neutral-400 block font-tactical">
+            <span className="text-o1-label text-neutral-400 block font-tactical">
               Acceleration Vector
             </span>
             <span className="text-sm font-bold text-white">
               {status.liveMagnitude ?? '--'}{' '}
-              <span className="text-[10px] text-neutral-400">m/s²</span>
+              <span className="text-o1-label text-neutral-400">m/s²</span>
             </span>
           </div>
           <div className="p-2.5 rounded-xl bg-o1-well border border-white/[0.07] text-center font-mono">
-            <span className="text-[9px] text-neutral-400 block font-tactical">
+            <span className="text-o1-label text-neutral-400 block font-tactical">
               Barbell Velocity (VBT)
             </span>
             <span className="text-sm font-bold text-o1-crimson block">
               {status.estimatedVelocityMs === null ? '--' : status.estimatedVelocityMs.toFixed(1)}{' '}
-              <span className="text-[10px] text-neutral-400">m/s</span>
+              <span className="text-o1-label text-neutral-400">m/s</span>
             </span>
-            <span className="text-[9px] text-neutral-400 block mt-0.5 truncate">
+            <span className="text-o1-label text-neutral-400 block mt-0.5 truncate">
               {status.vbtStatus || 'Awaiting Barbell Motion'}
             </span>
           </div>

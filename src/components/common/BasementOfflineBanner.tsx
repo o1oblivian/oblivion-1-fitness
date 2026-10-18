@@ -12,7 +12,7 @@ export const BasementOfflineBanner: React.FC = () => {
     return (
       <aside
         aria-label="Offline status"
-        className="w-full bg-o1-well border-b border-white/[0.07] px-3 py-1.5 flex items-center gap-2 text-[11px] text-o1-muted select-none z-40"
+        className="w-full bg-o1-well border-b border-white/[0.07] px-3 py-1.5 flex items-center gap-2 text-o1-label text-o1-muted select-none z-40"
       >
         <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" />
         <span className="truncate">
@@ -26,7 +26,7 @@ export const BasementOfflineBanner: React.FC = () => {
     return (
       <aside
         aria-label="Backup status"
-        className="w-full bg-o1-well border-b border-white/[0.07] px-3 py-1.5 flex items-center justify-between gap-2 text-[11px] text-o1-muted select-none z-40"
+        className="w-full bg-o1-well border-b border-white/[0.07] px-3 py-1.5 flex items-center justify-between gap-2 text-o1-label text-o1-muted select-none z-40"
       >
         <span className="flex items-center gap-2 min-w-0">
           <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" />
@@ -38,7 +38,7 @@ export const BasementOfflineBanner: React.FC = () => {
           <button
             type="button"
             onClick={() => void flushSync()}
-            className="shrink-0 px-2.5 py-0.5 rounded-full border border-white/[0.14] text-o1-text text-[11px]"
+            className="shrink-0 px-2.5 py-0.5 rounded-full border border-white/[0.14] text-o1-text text-o1-label"
           >
             Retry
           </button>

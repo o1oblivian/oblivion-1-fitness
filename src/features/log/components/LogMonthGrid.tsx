@@ -33,7 +33,7 @@ export const LogMonthGrid: React.FC<LogMonthGridProps> = ({
         {HEAD.map((h, i) => (
           <span
             key={i}
-            className="text-center text-[10px] font-bold uppercase tracking-[0.12em] text-white"
+            className="text-center text-o1-label font-bold uppercase tracking-[0.12em] text-white"
           >
             {h}
           </span>
@@ -61,11 +61,11 @@ export const LogMonthGrid: React.FC<LogMonthGridProps> = ({
               }`}
             >
               <span
-                className={`font-mono text-[13px] leading-none ${
+                className={`font-mono text-o1-body leading-none ${
                   item.trained
-                    ? 'font-semibold text-[#10b981]'
+                    ? 'font-semibold text-o1-emerald'
                     : item.isToday
-                      ? 'text-[#C4121A]'
+                      ? 'text-o1-crimson'
                       : 'text-o1-text'
                 }`}
               >
@@ -75,9 +75,9 @@ export const LogMonthGrid: React.FC<LogMonthGridProps> = ({
           );
         })}
       </div>
-      <div className="text-[10px] text-o1-muted px-0.5">
+      <div className="text-o1-label text-o1-muted px-0.5">
         {trainedCount} workout day{trainedCount === 1 ? '' : 's'}{' '}
-        <span className="text-[#10b981]">in green</span>
+        <span className="text-o1-emerald">in green</span>
       </div>
     </div>
   );

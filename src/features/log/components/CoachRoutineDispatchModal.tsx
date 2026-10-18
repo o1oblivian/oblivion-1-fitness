@@ -105,7 +105,7 @@ export const CoachRoutineDispatchModal: React.FC<CoachRoutineDispatchModalProps>
             </div>
             <div>
               <h3 className="font-bold text-sm text-white tracking-wider">Choose a workout</h3>
-              <span className="text-[10px] text-neutral-400 block">Stored on this weekday</span>
+              <span className="text-o1-label text-neutral-400 block">Stored on this weekday</span>
             </div>
           </div>
 
@@ -121,11 +121,11 @@ export const CoachRoutineDispatchModal: React.FC<CoachRoutineDispatchModalProps>
         {coachSession ? (
           <div className="bg-o1-well border border-white/[0.07] rounded-2xl p-4 space-y-3">
             <div className="flex items-center justify-between">
-              <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-bold tracking-wider">
+              <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-o1-label font-bold tracking-wider">
                 ● Sent by your coach
               </span>
               {firstRpe ? (
-                <span className="text-[10px] font-mono text-neutral-400">
+                <span className="text-o1-label font-mono text-neutral-400">
                   Target RPE: {firstRpe}
                 </span>
               ) : null}

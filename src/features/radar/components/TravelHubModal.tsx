@@ -352,14 +352,14 @@ export const TravelHubModal: React.FC<Props> = ({ isOpen, onClose, onSelectDesti
             </div>
             <div>
               <div className="flex items-center gap-1.5">
-                <span className="text-[11px] font-mono font-black tracking-wider text-white">
+                <span className="text-o1-label font-mono font-black tracking-wider text-white">
                   Travel Radar Corridor
                 </span>
-                <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-o1-crimson/10 text-o1-crimson font-bold border border-o1-crimson/20">
+                <span className="text-o1-label font-mono px-1.5 py-0.5 rounded bg-o1-crimson/10 text-o1-crimson font-bold border border-o1-crimson/20">
                   Editable Corridor
                 </span>
               </div>
-              <p className="text-[11px] text-neutral-400 font-mono">
+              <p className="text-o1-label text-neutral-400 font-mono">
                 Set travel dates & meeting radius to connect with local athletes
               </p>
             </div>
@@ -392,7 +392,7 @@ export const TravelHubModal: React.FC<Props> = ({ isOpen, onClose, onSelectDesti
               <div className="flex-1 space-y-1">
                 <div className="flex items-center gap-1">
                   <TacticalPlaceBeaconIcon className="w-3 h-3 text-o1-crimson" />
-                  <span className="text-[9px] font-mono tracking-wider text-neutral-400 font-bold">
+                  <span className="text-o1-label font-mono tracking-wider text-neutral-400 font-bold">
                     Origin (tap to edit)
                   </span>
                 </div>
@@ -437,7 +437,7 @@ export const TravelHubModal: React.FC<Props> = ({ isOpen, onClose, onSelectDesti
 
               {/* Center Supersonic Flight Vector */}
               <div className="px-2 flex flex-col items-center shrink-0">
-                <div className="flex items-center gap-1 text-[10px] font-mono text-neutral-400 mb-0.5">
+                <div className="flex items-center gap-1 text-o1-label font-mono text-neutral-400 mb-0.5">
                   <span>
                     {routeDistanceKm == null
                       ? ''
@@ -453,7 +453,7 @@ export const TravelHubModal: React.FC<Props> = ({ isOpen, onClose, onSelectDesti
                   </div>
                   <div className="h-[2px] flex-1 border-t-2 border-dashed border-white/[0.07]" />
                 </div>
-                <span className="text-[8px] font-mono text-o1-crimson font-bold mt-1 tracking-wider">
+                <span className="text-o1-label font-mono text-o1-crimson font-bold mt-1 tracking-wider">
                   Active Radar
                 </span>
               </div>
@@ -461,7 +461,7 @@ export const TravelHubModal: React.FC<Props> = ({ isOpen, onClose, onSelectDesti
               {/* EDITABLE DESTINATION */}
               <div className="flex-1 space-y-1 text-right">
                 <div className="flex items-center justify-end gap-1">
-                  <span className="text-[9px] font-mono tracking-wider text-neutral-400 font-bold">
+                  <span className="text-o1-label font-mono tracking-wider text-neutral-400 font-bold">
                     Destination (tap to edit)
                   </span>
                   <Globe2 className="w-3 h-3 text-o1-crimson" />
@@ -517,7 +517,7 @@ export const TravelHubModal: React.FC<Props> = ({ isOpen, onClose, onSelectDesti
           {/* WILLING TO TRAVEL TO MEET RADIUS (KMs SLIDER & PRESETS) */}
           <div className="rounded-2xl bg-o1-well border border-white/[0.07] p-4 space-y-2.5">
             <div className="flex items-center justify-between">
-              <label className="text-[10px] font-mono font-bold text-neutral-400 tracking-wider flex items-center gap-1.5">
+              <label className="text-o1-label font-mono font-bold text-neutral-400 tracking-wider flex items-center gap-1.5">
                 <Navigation className="w-3.5 h-3.5 text-o1-crimson" />
                 <span>WILLING TO TRAVEL TO MEET IN {destinationCity.toUpperCase()}</span>
               </label>
@@ -549,7 +549,7 @@ export const TravelHubModal: React.FC<Props> = ({ isOpen, onClose, onSelectDesti
                       tactileEngine.triggerSelectionBuzz();
                       setRadiusKm(km);
                     }}
-                    className={`py-1 rounded-xl text-[10px] font-mono font-bold text-center border transition-all cursor-pointer ${
+                    className={`py-1 rounded-xl text-o1-label font-mono font-bold text-center border transition-all cursor-pointer ${
                       radiusKm === km
                         ? 'bg-o1-crimson text-white border-o1-crimson shadow-xs'
                         : 'bg-o1-card text-neutral-400 border-white/[0.07] hover:text-white'
@@ -565,11 +565,11 @@ export const TravelHubModal: React.FC<Props> = ({ isOpen, onClose, onSelectDesti
           {/* Interactive Travel Dates & Stay Length Matrix */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <label className="text-[10px] font-mono font-bold text-neutral-400 tracking-wider flex items-center gap-1">
+              <label className="text-o1-label font-mono font-bold text-neutral-400 tracking-wider flex items-center gap-1">
                 <Calendar className="w-3 h-3 text-o1-crimson" />
                 <span>Trip timeline & stay duration</span>
               </label>
-              <span className="text-[10px] font-mono font-bold text-o1-crimson">
+              <span className="text-o1-label font-mono font-bold text-o1-crimson">
                 {daysCount} {daysCount === 1 ? 'Day' : 'days'} IN {destinationCity.toUpperCase()}
               </span>
             </div>
@@ -589,7 +589,7 @@ export const TravelHubModal: React.FC<Props> = ({ isOpen, onClose, onSelectDesti
                     tactileEngine.triggerSelectionBuzz();
                     setTripPreset(p.id as TripPreset);
                   }}
-                  className={`py-1.5 px-1 rounded-xl text-[10px] font-mono font-bold text-center border transition-all cursor-pointer ${
+                  className={`py-1.5 px-1 rounded-xl text-o1-label font-mono font-bold text-center border transition-all cursor-pointer ${
                     tripPreset === p.id
                       ? 'bg-o1-crimson text-white border-o1-crimson'
                       : 'bg-o1-well text-neutral-400 border-white/[0.07] hover:text-white'
@@ -603,7 +603,7 @@ export const TravelHubModal: React.FC<Props> = ({ isOpen, onClose, onSelectDesti
             {/* Calendar Inputs */}
             <div className="grid grid-cols-2 gap-2.5 pt-1">
               <div className="space-y-1">
-                <span className="text-[9px] font-mono font-semibold text-neutral-400">
+                <span className="text-o1-label font-mono font-semibold text-neutral-400">
                   Arrival Date
                 </span>
                 <input
@@ -618,7 +618,7 @@ export const TravelHubModal: React.FC<Props> = ({ isOpen, onClose, onSelectDesti
               </div>
 
               <div className="space-y-1">
-                <span className="text-[9px] font-mono font-semibold text-neutral-400">
+                <span className="text-o1-label font-mono font-semibold text-neutral-400">
                   Departure Date
                 </span>
                 <input
@@ -637,10 +637,10 @@ export const TravelHubModal: React.FC<Props> = ({ isOpen, onClose, onSelectDesti
           {/* Quick Hub Grid / Presets */}
           <div className="space-y-1.5">
             <div className="flex items-center justify-between">
-              <label className="text-[10px] font-mono font-bold text-neutral-400 tracking-wider">
+              <label className="text-o1-label font-mono font-bold text-neutral-400 tracking-wider">
                 Or select popular destination corridors
               </label>
-              <span className="text-[10px] font-mono text-neutral-400">
+              <span className="text-o1-label font-mono text-neutral-400">
                 {filteredHubs.length} hubs
               </span>
             </div>
@@ -683,7 +683,7 @@ export const TravelHubModal: React.FC<Props> = ({ isOpen, onClose, onSelectDesti
                     <div className="flex items-center justify-between w-full">
                       <span className="text-base">{hub.flag}</span>
                       <span
-                        className={`text-[10px] font-mono font-bold px-1.5 py-0.2 rounded ${
+                        className={`text-o1-label font-mono font-bold px-1.5 py-0.2 rounded ${
                           isSelected ? 'bg-black/25 text-white' : 'bg-white/10 text-neutral-400'
                         }`}
                       >
@@ -695,7 +695,7 @@ export const TravelHubModal: React.FC<Props> = ({ isOpen, onClose, onSelectDesti
                         {hub.name}
                       </div>
                       <div
-                        className={`text-[10px] truncate mt-0.5 ${isSelected ? 'text-white/80' : 'text-neutral-400'}`}
+                        className={`text-o1-label truncate mt-0.5 ${isSelected ? 'text-white/80' : 'text-neutral-400'}`}
                       >
                         {hub.country}
                       </div>

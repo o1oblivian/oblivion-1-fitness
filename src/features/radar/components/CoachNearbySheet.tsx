@@ -108,20 +108,20 @@ export const CoachNearbySheet: React.FC<CoachNearbySheetProps> = ({
           </span>
           <div className="min-w-0 flex-1 space-y-0.5">
             <div className="flex items-center gap-1.5">
-              <h2 className="truncate text-[16px] font-semibold text-o1-text">{coach.name}</h2>
+              <h2 className="truncate text-o1-title font-semibold text-o1-text">{coach.name}</h2>
               <CoachPill />
             </div>
             {coach.handle ? (
-              <p className="truncate text-[12px] text-o1-muted">
+              <p className="truncate text-o1-caption text-o1-muted">
                 {coach.handle.startsWith('@') ? coach.handle : `@${coach.handle}`}
               </p>
             ) : null}
             {coach.discipline ? (
-              <p className="text-[13px] text-o1-text">{coach.discipline}</p>
+              <p className="text-o1-body text-o1-text">{coach.discipline}</p>
             ) : null}
-            {where ? <p className="truncate text-[12px] text-o1-muted">{where}</p> : null}
+            {where ? <p className="truncate text-o1-caption text-o1-muted">{where}</p> : null}
             {coach.sameGym && !isSelf ? (
-              <p className="text-[12px] font-semibold text-o1-crimson">Trains at your gym</p>
+              <p className="text-o1-caption font-semibold text-o1-crimson">Trains at your gym</p>
             ) : null}
           </div>
           <button
@@ -137,12 +137,14 @@ export const CoachNearbySheet: React.FC<CoachNearbySheetProps> = ({
         <dl className="grid grid-cols-3 gap-1.5">
           {stats.map((stat) => (
             <div key={stat.label} className="rounded-xl bg-o1-surface px-2 py-2 text-center">
-              <dd className="text-[14px] font-semibold tabular-nums text-o1-text">{stat.value}</dd>
-              <dt className="text-[10px] text-o1-muted">{stat.label}</dt>
+              <dd className="text-o1-control font-semibold tabular-nums text-o1-text">
+                {stat.value}
+              </dd>
+              <dt className="text-o1-label text-o1-muted">{stat.label}</dt>
             </div>
           ))}
         </dl>
-        {price ? <p className="text-center text-[12px] text-o1-muted">{price}</p> : null}
+        {price ? <p className="text-center text-o1-caption text-o1-muted">{price}</p> : null}
 
         <div className="space-y-2">
           {!isSelf ? (
@@ -150,12 +152,12 @@ export const CoachNearbySheet: React.FC<CoachNearbySheetProps> = ({
               type="button"
               disabled={intro !== 'idle' || !coach.accepting}
               onClick={() => void requestIntro()}
-              className="h-[48px] w-full rounded-xl bg-o1-crimson text-[14px] font-semibold text-white active:scale-[0.98] disabled:opacity-50"
+              className="h-[48px] w-full rounded-xl bg-o1-crimson text-o1-control font-semibold text-white active:scale-[0.98] disabled:opacity-50"
             >
               {introLabel}
             </button>
           ) : (
-            <p className="text-center text-[12px] text-o1-muted">
+            <p className="text-center text-o1-caption text-o1-muted">
               This is how athletes nearby see you.
             </p>
           )}
@@ -166,7 +168,7 @@ export const CoachNearbySheet: React.FC<CoachNearbySheetProps> = ({
               onClose();
               openFullEliteReels({ initialMode: 'grid', initialCoachId: coach.id });
             }}
-            className="h-[44px] w-full rounded-xl border border-white/[0.07] bg-o1-surface text-[13px] font-semibold text-o1-text active:scale-[0.98]"
+            className="h-[44px] w-full rounded-xl border border-white/[0.07] bg-o1-surface text-o1-body font-semibold text-o1-text active:scale-[0.98]"
           >
             View full profile
           </button>

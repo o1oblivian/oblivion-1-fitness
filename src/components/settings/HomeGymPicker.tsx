@@ -75,14 +75,14 @@ export const HomeGymPicker: React.FC<HomeGymPickerProps> = ({ open, current, onC
       <div className="o1-sheet-card bg-black border border-white/[0.07] w-full p-5 shadow-xl relative space-y-4 overflow-y-auto text-white">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-o1-well border border-white/[0.07] flex items-center justify-center text-[#4F8F9A]">
+            <div className="w-8 h-8 rounded-xl bg-o1-well border border-white/[0.07] flex items-center justify-center text-o1-teal">
               <MapPin className="w-4 h-4" />
             </div>
             <div>
               <h3 className="font-tactical font-bold text-sm text-neutral-100 tracking-wider">
                 Home Gym
               </h3>
-              <span className="text-[11px] text-neutral-400 block">
+              <span className="text-o1-label text-neutral-400 block">
                 Pick your gym from the live map search
               </span>
             </div>
@@ -99,7 +99,7 @@ export const HomeGymPicker: React.FC<HomeGymPickerProps> = ({ open, current, onC
 
         {current ? (
           <div className="flex items-center justify-between gap-2 rounded-xl bg-o1-well border border-white/[0.07] px-3 py-2">
-            <span className="text-[11px] text-neutral-300 truncate">Current: {current}</span>
+            <span className="text-o1-label text-neutral-300 truncate">Current: {current}</span>
             <button
               type="button"
               aria-label="Clear home gym"
@@ -117,7 +117,7 @@ export const HomeGymPicker: React.FC<HomeGymPickerProps> = ({ open, current, onC
         <div className="space-y-2">
           <label
             htmlFor="home-gym-search"
-            className="text-[11px] font-tactical font-bold text-neutral-400 block tracking-wider"
+            className="text-o1-label font-tactical font-bold text-neutral-400 block tracking-wider"
           >
             Search for your gym
           </label>
@@ -139,7 +139,7 @@ export const HomeGymPicker: React.FC<HomeGymPickerProps> = ({ open, current, onC
             ) : null}
           </div>
 
-          {note ? <p className="text-[11px] text-neutral-400 px-1">{note}</p> : null}
+          {note ? <p className="text-o1-label text-neutral-400 px-1">{note}</p> : null}
 
           {hits.length > 0 ? (
             <ul className="max-h-64 overflow-y-auto rounded-xl border border-white/[0.07] divide-y divide-white/[0.05]">
@@ -153,10 +153,10 @@ export const HomeGymPicker: React.FC<HomeGymPickerProps> = ({ open, current, onC
                     }}
                     className="w-full min-h-[48px] px-3 py-2 text-left flex items-start gap-2.5 cursor-pointer hover:bg-white/[0.04] active:bg-white/[0.06]"
                   >
-                    <MapPin className="w-3.5 h-3.5 mt-0.5 shrink-0 text-[#4F8F9A]" />
+                    <MapPin className="w-3.5 h-3.5 mt-0.5 shrink-0 text-o1-teal" />
                     <span className="min-w-0">
                       <span className="block text-xs text-neutral-100 truncate">{hit.name}</span>
-                      <span className="block text-[11px] text-neutral-400 truncate">
+                      <span className="block text-o1-label text-neutral-400 truncate">
                         {hit.address}
                       </span>
                     </span>
@@ -166,7 +166,7 @@ export const HomeGymPicker: React.FC<HomeGymPickerProps> = ({ open, current, onC
             </ul>
           ) : null}
 
-          <p className="text-[10px] text-neutral-500 px-1 leading-snug">
+          <p className="text-o1-label text-neutral-500 px-1 leading-snug">
             Only the words you type are sent to the OpenStreetMap-based Photon search. Your account
             and location are not sent.
           </p>

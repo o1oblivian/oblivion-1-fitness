@@ -141,11 +141,11 @@ export const IntelInsightsModal: React.FC<IntelInsightsModalProps> = ({
             <div>
               <div className="flex items-center gap-2">
                 <h3 className="text-lg font-light tracking-wide text-o1-text">My progress</h3>
-                <span className="px-1.5 py-0.5 rounded-md border border-o1-crimson/60 text-[10px] font-medium tracking-wider text-o1-text">
+                <span className="px-1.5 py-0.5 rounded-md border border-o1-crimson/60 text-o1-label font-medium tracking-wider text-o1-text">
                   PRO
                 </span>
               </div>
-              <div className="text-[11px] text-o1-muted">
+              <div className="text-o1-label text-o1-muted">
                 Computed on this device from your logs
               </div>
             </div>
@@ -168,7 +168,7 @@ export const IntelInsightsModal: React.FC<IntelInsightsModalProps> = ({
                 className="blur-[6px] opacity-60 pointer-events-none space-y-3"
               >
                 <div className="flex items-center gap-4">
-                  <div className="w-16 h-16 rounded-2xl border border-[#10b981]/40 flex items-center justify-center text-4xl font-light font-mono text-[#10b981]">
+                  <div className="w-16 h-16 rounded-2xl border border-o1-emerald/40 flex items-center justify-center text-4xl font-light font-mono text-o1-emerald">
                     B
                   </div>
                   <div className="space-y-2 flex-1">
@@ -191,12 +191,12 @@ export const IntelInsightsModal: React.FC<IntelInsightsModalProps> = ({
             </section>
             <section className="rounded-2xl bg-o1-sheet border border-white/[0.07] p-4 space-y-3">
               <div className="flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-[#d97706]" />
+                <Sparkles className="w-4 h-4 text-o1-amber-deep" />
                 <h4 className="text-sm font-medium">Part of Club Pass Pro</h4>
               </div>
               <ul className="space-y-2">
                 {LOCKED_FEATURES.map((f) => (
-                  <li key={f} className="flex items-start gap-2.5 text-[13px] text-o1-text/90">
+                  <li key={f} className="flex items-start gap-2.5 text-o1-body text-o1-text/90">
                     <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-o1-crimson shrink-0" />
                     {f}
                   </li>
@@ -231,7 +231,7 @@ export const IntelInsightsModal: React.FC<IntelInsightsModalProps> = ({
                     tactileEngine.triggerSelectionBuzz();
                     setActiveTab(tab.id);
                   }}
-                  className={`h-10 px-3.5 rounded-full text-[12px] font-semibold whitespace-nowrap flex items-center justify-center shrink-0 transition-all cursor-pointer border ${
+                  className={`h-10 px-3.5 rounded-full text-o1-caption font-semibold whitespace-nowrap flex items-center justify-center shrink-0 transition-all cursor-pointer border ${
                     activeTab === tab.id
                       ? 'bg-o1-sheet text-o1-text border-o1-crimson/70'
                       : 'bg-transparent text-o1-muted border-white/[0.07] hover:text-o1-text'
@@ -263,12 +263,12 @@ export const IntelInsightsModal: React.FC<IntelInsightsModalProps> = ({
                         </span>
                       </div>
                       <div className="min-w-0">
-                        <div className="text-[11px] text-o1-muted">Week grade</div>
+                        <div className="text-o1-label text-o1-muted">Week grade</div>
                         <div className="text-2xl font-light font-mono leading-none mt-0.5">
                           {weekly.score === null ? '--' : weekly.score}
                           <span className="text-sm text-o1-muted"> / 100</span>
                         </div>
-                        <p className="text-[11px] text-o1-muted mt-1">
+                        <p className="text-o1-label text-o1-muted mt-1">
                           {weekly.score === null
                             ? `Needs 2 of 4 areas logged (training, load, sleep, fuel). You have ${weekly.parts.filter((p) => p.value !== null).length}.`
                             : `From ${weekly.parts.filter((p) => p.value !== null).length} of 4 areas.`}
@@ -284,8 +284,8 @@ export const IntelInsightsModal: React.FC<IntelInsightsModalProps> = ({
                               style={{ background: TONE_HEX[f.tone] }}
                             />
                             <div className="min-w-0">
-                              <div className="text-[13px] font-medium text-o1-text">{f.title}</div>
-                              <p className="text-[11px] leading-snug text-o1-muted">{f.detail}</p>
+                              <div className="text-o1-body font-medium text-o1-text">{f.title}</div>
+                              <p className="text-o1-label leading-snug text-o1-muted">{f.detail}</p>
                             </div>
                           </li>
                         ))}
@@ -319,7 +319,7 @@ export const IntelInsightsModal: React.FC<IntelInsightsModalProps> = ({
                             key={p.id}
                             className="rounded-xl bg-o1-surface border border-white/[0.07] px-3 py-2 min-h-[44px] flex items-baseline justify-between"
                           >
-                            <span className="text-[11px] text-o1-muted">{p.label}</span>
+                            <span className="text-o1-label text-o1-muted">{p.label}</span>
                             <span className="text-sm font-light font-mono">{p.value}</span>
                           </div>
                         ))}
@@ -354,7 +354,7 @@ export const IntelInsightsModal: React.FC<IntelInsightsModalProps> = ({
                           );
                         })}
                       </ul>
-                      <div className="flex justify-end gap-4 text-[11px] text-o1-muted pr-0.5">
+                      <div className="flex justify-end gap-4 text-o1-label text-o1-muted pr-0.5">
                         <span className="w-14 text-right">This wk</span>
                         <span className="w-14 text-right">Last wk</span>
                         <span className="w-12 text-right">Change</span>
@@ -379,7 +379,7 @@ export const IntelInsightsModal: React.FC<IntelInsightsModalProps> = ({
                             />
                             <div className="min-w-0 space-y-0.5">
                               <div className="text-sm font-medium text-o1-text">{f.title}</div>
-                              <p className="text-[11px] leading-snug text-o1-muted">{f.detail}</p>
+                              <p className="text-o1-label leading-snug text-o1-muted">{f.detail}</p>
                             </div>
                           </li>
                         ))}
@@ -565,7 +565,7 @@ export const IntelInsightsModal: React.FC<IntelInsightsModalProps> = ({
                   tactileEngine.triggerSelectionBuzz();
                   setShowReport(true);
                 }}
-                className="w-full min-h-[48px] rounded-2xl bg-o1-sheet border border-white/[0.12] hover:border-white/[0.24] text-o1-text text-[13px] font-medium flex items-center justify-center gap-2 cursor-pointer transition-all active:scale-[0.99]"
+                className="w-full min-h-[48px] rounded-2xl bg-o1-sheet border border-white/[0.12] hover:border-white/[0.24] text-o1-text text-o1-body font-medium flex items-center justify-center gap-2 cursor-pointer transition-all active:scale-[0.99]"
               >
                 <FileBarChart className="w-4 h-4 text-o1-crimson" />
                 Open The Oblivion Report

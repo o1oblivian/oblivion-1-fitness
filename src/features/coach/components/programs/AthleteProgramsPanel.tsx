@@ -142,7 +142,7 @@ export const AthleteProgramsPanel: React.FC = () => {
     <section className="space-y-4" aria-label="Programs">
       {active.length > 0 && (
         <div className="space-y-2">
-          <p className="px-1 text-[13px] font-semibold text-o1-text">My programs</p>
+          <p className="px-1 text-o1-body font-semibold text-o1-text">My programs</p>
           {active.map((program, index) => (
             <button
               key={program.id}
@@ -160,11 +160,11 @@ export const AthleteProgramsPanel: React.FC = () => {
                 className="h-14 w-14 shrink-0 rounded-xl object-cover"
               />
               <span className="min-w-0 flex-1">
-                <span className="block text-[11px] text-o1-muted">Program {index + 1}</span>
-                <span className="block truncate text-[14px] font-semibold text-o1-text">
+                <span className="block text-o1-label text-o1-muted">Program {index + 1}</span>
+                <span className="block truncate text-o1-control font-semibold text-o1-text">
                   {program.title}
                 </span>
-                <span className="block truncate text-[12px] text-o1-muted">
+                <span className="block truncate text-o1-caption text-o1-muted">
                   {[program.coach.name, meta(program)].filter(Boolean).join(' · ')}
                 </span>
               </span>
@@ -179,7 +179,7 @@ export const AthleteProgramsPanel: React.FC = () => {
           <button
             type="button"
             onClick={() => setShowPast((v) => !v)}
-            className="flex min-h-[44px] w-full items-center justify-between px-1 text-[13px] font-semibold text-o1-muted"
+            className="flex min-h-[44px] w-full items-center justify-between px-1 text-o1-body font-semibold text-o1-muted"
             aria-expanded={showPast}
           >
             Past programs ({past.length})
@@ -202,10 +202,10 @@ export const AthleteProgramsPanel: React.FC = () => {
                   className="h-10 w-10 shrink-0 rounded-lg object-cover"
                 />
                 <span className="min-w-0 flex-1">
-                  <span className="block truncate text-[13px] font-semibold text-o1-text">
+                  <span className="block truncate text-o1-body font-semibold text-o1-text">
                     {program.title}
                   </span>
-                  <span className="block truncate text-[12px] text-o1-muted">
+                  <span className="block truncate text-o1-caption text-o1-muted">
                     {program.coach.name}
                   </span>
                 </span>
@@ -215,7 +215,7 @@ export const AthleteProgramsPanel: React.FC = () => {
       )}
 
       <div className="space-y-2">
-        <p className="px-1 text-[13px] font-semibold text-o1-text">Browse programs</p>
+        <p className="px-1 text-o1-body font-semibold text-o1-text">Browse programs</p>
         {disciplines.length > 2 && (
           <div className="-mx-1 flex gap-1.5 overflow-x-auto px-1 pb-1 [scrollbar-width:none]">
             {disciplines.map((name) => {
@@ -229,7 +229,7 @@ export const AthleteProgramsPanel: React.FC = () => {
                     setDiscipline(name);
                   }}
                   aria-pressed={on}
-                  className={`h-[36px] shrink-0 rounded-full border px-3.5 text-[12px] font-semibold ${
+                  className={`h-[36px] shrink-0 rounded-full border px-3.5 text-o1-caption font-semibold ${
                     on
                       ? 'border-o1-crimson bg-o1-crimson text-white'
                       : 'border-white/[0.07] bg-o1-surface text-o1-text'
@@ -242,9 +242,9 @@ export const AthleteProgramsPanel: React.FC = () => {
           </div>
         )}
         {browse === null ? (
-          <p className="px-1 py-4 text-[13px] text-o1-muted">Loading programs</p>
+          <p className="px-1 py-4 text-o1-body text-o1-muted">Loading programs</p>
         ) : shown.length === 0 ? (
-          <p className="px-1 py-4 text-[13px] text-o1-muted">
+          <p className="px-1 py-4 text-o1-body text-o1-muted">
             {browseFailed
               ? 'Could not load programs. Check your connection.'
               : 'No programs published yet.'}
@@ -274,25 +274,25 @@ export const AthleteProgramsPanel: React.FC = () => {
                     />
                     <span className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-transparent" />
                     {owned ? (
-                      <span className="absolute left-2 top-2 rounded-full bg-o1-crimson px-2 py-0.5 text-[11px] font-semibold text-white">
+                      <span className="absolute left-2 top-2 rounded-full bg-o1-crimson px-2 py-0.5 text-o1-label font-semibold text-white">
                         Enrolled
                       </span>
                     ) : price ? (
-                      <span className="absolute left-2 top-2 rounded-full bg-black/70 px-2 py-0.5 text-[11px] font-semibold text-o1-text">
+                      <span className="absolute left-2 top-2 rounded-full bg-black/70 px-2 py-0.5 text-o1-label font-semibold text-o1-text">
                         {price}
                       </span>
                     ) : null}
                     <span className="absolute inset-x-2 bottom-2">
-                      <span className="line-clamp-2 block text-[13px] font-semibold leading-tight text-o1-text">
+                      <span className="line-clamp-2 block text-o1-body font-semibold leading-tight text-o1-text">
                         {program.title}
                       </span>
-                      <span className="block truncate text-[11px] text-white/75">
+                      <span className="block truncate text-o1-label text-white/75">
                         {program.coach.name}
                       </span>
                     </span>
                   </span>
                   {meta(program) ? (
-                    <span className="block truncate px-2 py-1.5 text-[11px] text-o1-muted">
+                    <span className="block truncate px-2 py-1.5 text-o1-label text-o1-muted">
                       {meta(program)}
                     </span>
                   ) : null}

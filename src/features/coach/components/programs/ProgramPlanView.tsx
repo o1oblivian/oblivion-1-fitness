@@ -19,8 +19,8 @@ export const ProgramPlanView: React.FC<{ plan: ProgramPlanData }> = ({ plan }) =
     <div className="space-y-3">
       {plan.methodology ? (
         <div className="space-y-1">
-          <p className="text-[13px] font-semibold text-o1-muted">How it works</p>
-          <p className="whitespace-pre-line text-[14px] leading-relaxed text-o1-text">
+          <p className="text-o1-body font-semibold text-o1-muted">How it works</p>
+          <p className="whitespace-pre-line text-o1-control leading-relaxed text-o1-text">
             {plan.methodology}
           </p>
         </div>
@@ -44,7 +44,7 @@ export const ProgramPlanView: React.FC<{ plan: ProgramPlanData }> = ({ plan }) =
                   tactileEngine.triggerSelectionBuzz();
                   setWeekIndex(index);
                 }}
-                className={`h-9 shrink-0 rounded-full border px-3.5 text-[12px] font-semibold transition ${
+                className={`h-9 shrink-0 rounded-full border px-3.5 text-o1-caption font-semibold transition ${
                   active
                     ? 'border-o1-crimson bg-o1-crimson text-white'
                     : 'border-white/[0.07] bg-o1-surface text-o1-muted'
@@ -64,13 +64,13 @@ export const ProgramPlanView: React.FC<{ plan: ProgramPlanData }> = ({ plan }) =
             className="rounded-xl border border-white/[0.07] bg-o1-surface px-3 py-2.5"
           >
             <div className="flex items-baseline justify-between gap-2">
-              <p className="text-[14px] font-semibold text-o1-text">{day.dayName}</p>
+              <p className="text-o1-control font-semibold text-o1-text">{day.dayName}</p>
               {day.splitFocus ? (
-                <p className="truncate text-[12px] text-o1-muted">{day.splitFocus}</p>
+                <p className="truncate text-o1-caption text-o1-muted">{day.splitFocus}</p>
               ) : null}
             </div>
             {day.exercises.length === 0 ? (
-              <p className="pt-1 text-[12px] text-o1-muted">Rest or coach-guided session</p>
+              <p className="pt-1 text-o1-caption text-o1-muted">Rest or coach-guided session</p>
             ) : (
               <ol className="mt-2 space-y-2">
                 {day.exercises.map((ex, index) => {
@@ -82,16 +82,18 @@ export const ProgramPlanView: React.FC<{ plan: ProgramPlanData }> = ({ plan }) =
                     .join(' · ');
                   return (
                     <li key={ex.id} className="flex gap-2.5">
-                      <span className="w-4 shrink-0 pt-0.5 text-right text-[12px] tabular-nums text-o1-muted">
+                      <span className="w-4 shrink-0 pt-0.5 text-right text-o1-caption tabular-nums text-o1-muted">
                         {index + 1}
                       </span>
                       <div className="min-w-0">
-                        <p className="text-[13px] font-medium text-o1-text">{ex.name}</p>
+                        <p className="text-o1-body font-medium text-o1-text">{ex.name}</p>
                         {dose ? (
-                          <p className="text-[12px] tabular-nums text-o1-muted">{dose}</p>
+                          <p className="text-o1-caption tabular-nums text-o1-muted">{dose}</p>
                         ) : null}
                         {ex.cue ? (
-                          <p className="pt-0.5 text-[12px] leading-snug text-o1-muted">{ex.cue}</p>
+                          <p className="pt-0.5 text-o1-caption leading-snug text-o1-muted">
+                            {ex.cue}
+                          </p>
                         ) : null}
                       </div>
                     </li>

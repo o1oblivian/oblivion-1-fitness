@@ -22,7 +22,7 @@ export const TermsOfServiceModal: React.FC<Props> = ({ isOpen, onClose }) => {
               <h2 className="text-sm font-black tracking-wider text-neutral-100">
                 Terms of Service
               </h2>
-              <p className="text-[10px] font-mono text-neutral-400">
+              <p className="text-o1-label font-mono text-neutral-400">
                 Apple &amp; Google Distribution Compliance
               </p>
             </div>
@@ -41,11 +41,11 @@ export const TermsOfServiceModal: React.FC<Props> = ({ isOpen, onClose }) => {
 
         <div className="overflow-y-auto no-scrollbar py-4 space-y-4 text-xs font-mono text-neutral-300 leading-relaxed">
           <div className="py-3 border-b border-white/[0.05] space-y-1.5 last:border-0">
-            <div className="flex items-center gap-1.5 text-[#4F8F9A] font-bold text-[11px]">
+            <div className="flex items-center gap-1.5 text-o1-teal font-bold text-o1-label">
               <ShieldCheck className="w-3.5 h-3.5" />
               <span>1. Subscription Billing &amp; Auto-Renewal</span>
             </div>
-            <p className="text-[11px] text-neutral-400">
+            <p className="text-o1-label text-neutral-400">
               Club Pass subscriptions are billed directly through your Apple ID or Google Play
               Account, at the price shown in the store before you confirm. Subscriptions
               automatically renew unless auto-renew is cancelled at least 24 hours prior to the end
@@ -56,11 +56,11 @@ export const TermsOfServiceModal: React.FC<Props> = ({ isOpen, onClose }) => {
           </div>
 
           <div className="py-3 border-b border-white/[0.05] space-y-1.5 last:border-0">
-            <div className="flex items-center gap-1.5 text-o1-crimson font-bold text-[11px]">
+            <div className="flex items-center gap-1.5 text-o1-crimson font-bold text-o1-label">
               <AlertTriangle className="w-3.5 h-3.5" />
               <span>2. Not a Medical App</span>
             </div>
-            <p className="text-[11px] text-neutral-400">
+            <p className="text-o1-label text-neutral-400">
               Oblivion 1 is a training log and coaching tool. It is not a medical device and does
               not diagnose, treat, monitor or prevent any disease, injury or medical condition.
               Readiness scores, reports, estimated 1RMs, nutrition targets, scans and coach messages
@@ -73,11 +73,11 @@ export const TermsOfServiceModal: React.FC<Props> = ({ isOpen, onClose }) => {
           </div>
 
           <div className="py-3 border-b border-white/[0.05] space-y-1.5 last:border-0">
-            <div className="flex items-center gap-1.5 text-o1-crimson font-bold text-[11px]">
+            <div className="flex items-center gap-1.5 text-o1-crimson font-bold text-o1-label">
               <AlertTriangle className="w-3.5 h-3.5" />
               <span>3. Training Safety &amp; Assumption of Risk</span>
             </div>
-            <p className="text-[11px] text-neutral-400">
+            <p className="text-o1-label text-neutral-400">
               Strength and cardio training carry a risk of injury. You train at your own risk and
               are responsible for warming up, using correct technique, choosing loads within your
               ability, using spotters or safety equipment, and stopping when something hurts.
@@ -88,10 +88,10 @@ export const TermsOfServiceModal: React.FC<Props> = ({ isOpen, onClose }) => {
           </div>
 
           <div className="py-3 border-b border-white/[0.05] space-y-1.5 last:border-0">
-            <div className="flex items-center gap-1.5 text-emerald-400 font-bold text-[11px]">
+            <div className="flex items-center gap-1.5 text-emerald-400 font-bold text-o1-label">
               <span>4. Community &amp; Spotter Code of Conduct</span>
             </div>
-            <p className="text-[11px] text-neutral-400">
+            <p className="text-o1-label text-neutral-400">
               Athletes utilizing the Buddy Match Radar agree to zero harassment, respect gym floor
               etiquette, and practice certified spotter vigilance. There is no tolerance for
               objectionable, abusive, sexual, hateful or illegal content in profiles, photos, reels,
@@ -104,11 +104,11 @@ export const TermsOfServiceModal: React.FC<Props> = ({ isOpen, onClose }) => {
           </div>
 
           <div className="py-3 border-b border-white/[0.05] space-y-1.5 last:border-0">
-            <div className="flex items-center gap-1.5 text-sky-400 font-bold text-[11px]">
+            <div className="flex items-center gap-1.5 text-sky-400 font-bold text-o1-label">
               <ShieldCheck className="w-3.5 h-3.5" />
               <span>5. Local-First Architecture &amp; Data Ownership</span>
             </div>
-            <p className="text-[11px] text-neutral-400">
+            <p className="text-o1-label text-neutral-400">
               Oblivion 1 operates on a local-first model. Workout data, roster files, and nutrition
               telemetry reside on the user's hardware. Users maintain complete ownership of their
               local vault and are responsible for maintaining their exported backups.
@@ -116,8 +116,8 @@ export const TermsOfServiceModal: React.FC<Props> = ({ isOpen, onClose }) => {
           </div>
 
           <div className="py-3 border-b border-white/[0.05] space-y-1.5 last:border-0">
-            <div className="text-[11px] text-neutral-200 font-bold">6. Governing Law</div>
-            <p className="text-[11px] text-neutral-400">
+            <div className="text-o1-label text-neutral-200 font-bold">6. Governing Law</div>
+            <p className="text-o1-label text-neutral-400">
               Governed by commercial digital distribution standards of Apple Inc. and Google LLC.
               Contact: legal@oblivion1.club.
             </p>

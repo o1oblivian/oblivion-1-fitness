@@ -43,18 +43,18 @@ interface CommitWorkoutModalProps {
 }
 
 const TREND_TONE: Record<LiftHighlight['trend'], string> = {
-  up: 'text-[#10b981]',
+  up: 'text-o1-emerald',
   same: 'text-o1-muted',
   down: 'text-o1-muted',
-  first: 'text-[#0284c7]',
+  first: 'text-o1-sky',
 };
 
 const DAYS: DayCode[] = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
 const Stat: React.FC<{ label: string; value: string }> = ({ label, value }) => (
   <div className="bg-black rounded-2xl px-2 py-2.5 border border-white/[0.07] text-center">
-    <span className="text-[10px] uppercase tracking-[0.12em] text-o1-muted block">{label}</span>
-    <span className="font-mono font-light text-[15px] text-o1-text">{value}</span>
+    <span className="text-o1-label uppercase tracking-[0.12em] text-o1-muted block">{label}</span>
+    <span className="font-mono font-light text-o1-control text-o1-text">{value}</span>
   </div>
 );
 
@@ -107,10 +107,12 @@ export const CommitWorkoutModal: React.FC<CommitWorkoutModalProps> = ({
       >
         <div className="flex items-center justify-between border-b border-white/[0.07] pb-3">
           <div>
-            <h3 id="commit-workout-title" className="text-[15px] font-medium text-o1-text">
+            <h3 id="commit-workout-title" className="text-o1-control font-medium text-o1-text">
               {noneTicked ? 'Finish workout' : 'Nice work'}
             </h3>
-            <span className="text-[11px] text-o1-muted block">{feel ?? 'Here is how it went'}</span>
+            <span className="text-o1-label text-o1-muted block">
+              {feel ?? 'Here is how it went'}
+            </span>
           </div>
           <button
             type="button"
@@ -140,15 +142,15 @@ export const CommitWorkoutModal: React.FC<CommitWorkoutModalProps> = ({
           </div>
         )}
         {totalSets > 0 && burnedKcal == null && (
-          <p className="text-[11px] text-o1-muted text-center -mt-2">
+          <p className="text-o1-label text-o1-muted text-center -mt-2">
             Add your bodyweight in Profile to estimate workout burn.
           </p>
         )}
 
         {totalSets > 0 && (prCount > 0 || trend !== null) && (
-          <div className="flex items-center justify-center gap-3 text-[12px]">
+          <div className="flex items-center justify-center gap-3 text-o1-caption">
             {prCount > 0 && (
-              <span className="text-[#10b981]">
+              <span className="text-o1-emerald">
                 {prCount}{' '}
                 {simple ? (prCount === 1 ? 'new best' : 'new bests') : prCount === 1 ? 'PR' : 'PRs'}
               </span>
@@ -160,7 +162,7 @@ export const CommitWorkoutModal: React.FC<CommitWorkoutModalProps> = ({
             )}
             {trend !== null && (
               <span className="text-o1-muted">
-                <span className={trend >= 0 ? 'text-[#10b981]' : 'text-[#f59e0b]'}>
+                <span className={trend >= 0 ? 'text-o1-emerald' : 'text-o1-amber'}>
                   {trend >= 0 ? '+' : ''}
                   {trend}%
                 </span>{' '}
@@ -178,13 +180,13 @@ export const CommitWorkoutModal: React.FC<CommitWorkoutModalProps> = ({
             {highlights.map((h) => (
               <li key={h.name} className="flex items-center gap-2 px-3 py-2">
                 <div className="min-w-0 flex-1">
-                  <p className="text-[12.5px] text-o1-text truncate">{h.name}</p>
-                  <p className={`text-[11px] leading-snug ${TREND_TONE[h.trend]}`}>{h.note}</p>
+                  <p className="text-o1-body text-o1-text truncate">{h.name}</p>
+                  <p className={`text-o1-label leading-snug ${TREND_TONE[h.trend]}`}>{h.note}</p>
                 </div>
                 <div className="shrink-0 text-right">
-                  <p className="font-mono text-[12px] text-o1-text">{h.top}</p>
+                  <p className="font-mono text-o1-caption text-o1-text">{h.top}</p>
                   {h.best && (
-                    <p className="text-[10.5px] text-[#10b981]">{simple ? 'New best' : 'PR'}</p>
+                    <p className="text-o1-label text-o1-emerald">{simple ? 'New best' : 'PR'}</p>
                   )}
                 </div>
               </li>
@@ -194,12 +196,12 @@ export const CommitWorkoutModal: React.FC<CommitWorkoutModalProps> = ({
 
         {showDaySelector ? (
           <div className="p-3 rounded-2xl bg-o1-surface border border-white/[0.07] space-y-3 animate-in fade-in duration-200">
-            <div className="flex items-center justify-between text-[12px]">
+            <div className="flex items-center justify-between text-o1-caption">
               <span className="text-o1-text">Repeat this workout every</span>
               <button
                 type="button"
                 onClick={() => setShowDaySelector(false)}
-                className="text-[11px] text-o1-muted hover:text-o1-text underline underline-offset-2 cursor-pointer"
+                className="text-o1-label text-o1-muted hover:text-o1-text underline underline-offset-2 cursor-pointer"
               >
                 Back
               </button>
@@ -218,13 +220,13 @@ export const CommitWorkoutModal: React.FC<CommitWorkoutModalProps> = ({
                       tactileEngine.triggerSelectionBuzz();
                       setSelectedDay(day);
                     }}
-                    className={`h-11 rounded-xl text-center text-[12px] transition-colors cursor-pointer border flex flex-col items-center justify-center gap-0.5 ${
+                    className={`h-11 rounded-xl text-center text-o1-caption transition-colors cursor-pointer border flex flex-col items-center justify-center gap-0.5 ${
                       isSelected
                         ? 'bg-o1-sheet border-white/[0.14] text-white'
                         : 'border-transparent text-o1-muted hover:text-o1-text'
                     }`}
                   >
-                    <span className={day === systemToday ? 'text-[#C4121A]' : ''}>{day}</span>
+                    <span className={day === systemToday ? 'text-o1-crimson' : ''}>{day}</span>
                     <span
                       className={`w-1 h-1 rounded-full ${isSelected ? 'bg-white' : 'bg-transparent'}`}
                       aria-hidden
@@ -234,7 +236,7 @@ export const CommitWorkoutModal: React.FC<CommitWorkoutModalProps> = ({
               })}
             </div>
 
-            <p className="text-[11px] text-o1-muted leading-relaxed">
+            <p className="text-o1-label text-o1-muted leading-relaxed">
               From next week, opening {selectedDay} loads this exact workout.
             </p>
 
@@ -244,14 +246,14 @@ export const CommitWorkoutModal: React.FC<CommitWorkoutModalProps> = ({
                 tactileEngine.triggerSelectionBuzz();
                 onSaveRoutineToDay(selectedDay);
               }}
-              className="w-full min-h-[44px] rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover active:bg-o1-crimson-press active:scale-[0.98] text-white font-medium text-[13px] flex items-center justify-center gap-2 transition-all cursor-pointer"
+              className="w-full min-h-[44px] rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover active:bg-o1-crimson-press active:scale-[0.98] text-white font-medium text-o1-body flex items-center justify-center gap-2 transition-all cursor-pointer"
             >
               <BookmarkPlus className="w-4 h-4" />
               <span>Finish & repeat every {selectedDay}</span>
             </button>
           </div>
         ) : noneTicked ? (
-          <p className="text-[12px] text-[#f59e0b] text-center leading-relaxed">
+          <p className="text-o1-caption text-o1-amber text-center leading-relaxed">
             {untickedFilledSets > 0
               ? `None of your sets are ticked yet. Finishing ticks all ${untickedFilledSets} filled set${untickedFilledSets === 1 ? '' : 's'} and logs the totals above.`
               : 'No sets are ticked and none have reps entered. Enter reps and tick each set you completed.'}
@@ -268,7 +270,7 @@ export const CommitWorkoutModal: React.FC<CommitWorkoutModalProps> = ({
                 if (noneTicked) onTickFilledAndFinish();
                 else onRegisterLog();
               }}
-              className="w-full min-h-[48px] px-4 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover active:bg-o1-crimson-press active:scale-[0.98] text-white font-medium text-[13px] flex items-center justify-center transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+              className="w-full min-h-[48px] px-4 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover active:bg-o1-crimson-press active:scale-[0.98] text-white font-medium text-o1-body flex items-center justify-center transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
             >
               {noneTicked
                 ? `Tick ${untickedFilledSets} set${untickedFilledSets === 1 ? '' : 's'} & finish`
@@ -281,7 +283,7 @@ export const CommitWorkoutModal: React.FC<CommitWorkoutModalProps> = ({
                 tactileEngine.triggerSelectionBuzz();
                 setShowDaySelector(true);
               }}
-              className="w-full min-h-[44px] px-4 rounded-xl text-o1-text font-medium text-[13px] flex items-center justify-center gap-2 border border-white/[0.07] hover:border-white/[0.14] active:scale-[0.98] transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+              className="w-full min-h-[44px] px-4 rounded-xl text-o1-text font-medium text-o1-body flex items-center justify-center gap-2 border border-white/[0.07] hover:border-white/[0.14] active:scale-[0.98] transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
             >
               <BookmarkPlus className="w-4 h-4 text-o1-muted" />
               <span>Finish & save as weekly routine</span>

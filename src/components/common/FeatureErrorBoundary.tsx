@@ -70,7 +70,7 @@ export class FeatureErrorBoundary extends Component<Props, State> {
                 <AlertTriangle className="w-5 h-5" />
               </div>
               <div>
-                <span className="text-[9px] font-telemetry font-bold tracking-wider text-red-400 block">
+                <span className="text-o1-label font-telemetry font-bold tracking-wider text-red-400 block">
                   Module fault isolation // crash shield
                 </span>
                 <h3 className="font-tactical font-black text-sm text-white tracking-wide">
@@ -86,7 +86,7 @@ export class FeatureErrorBoundary extends Component<Props, State> {
 
             <div className="bg-black rounded-xl p-3 border border-white/[0.07] flex items-start gap-2">
               <Terminal className="w-3.5 h-3.5 text-zinc-500 shrink-0 mt-0.5" />
-              <code className="text-[11px] font-mono text-red-300/90 break-all leading-tight">
+              <code className="text-o1-label font-mono text-red-300/90 break-all leading-tight">
                 {this.state.errorMessage}
               </code>
             </div>

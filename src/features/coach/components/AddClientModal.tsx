@@ -58,7 +58,7 @@ export const AddClientModal: React.FC<AddClientModalProps> = ({
           <div className="flex items-start justify-between gap-3 border-b border-white/[0.07] pb-3">
             <div>
               <h3 className="text-sm font-semibold text-o1-text">Invite a client</h3>
-              <p className="text-[11px] text-o1-muted">
+              <p className="text-o1-label text-o1-muted">
                 Send this link. They join your roster when they sign up.
               </p>
             </div>
@@ -77,17 +77,17 @@ export const AddClientModal: React.FC<AddClientModalProps> = ({
               role="alert"
               className="flex items-center justify-between gap-2 rounded-xl border border-o1-crimson/30 bg-o1-crimson/10 px-3 py-2"
             >
-              <p className="text-[12px] text-o1-text">Could not create your invite link.</p>
+              <p className="text-o1-caption text-o1-text">Could not create your invite link.</p>
               <button
                 type="button"
                 onClick={onRetry}
-                className="min-h-[36px] px-2 text-[12px] font-semibold text-o1-text"
+                className="min-h-[36px] px-2 text-o1-caption font-semibold text-o1-text"
               >
                 Retry
               </button>
             </div>
           ) : (
-            <p className="truncate rounded-xl border border-white/[0.07] bg-o1-surface px-3 py-3 text-[12px] text-o1-text">
+            <p className="truncate rounded-xl border border-white/[0.07] bg-o1-surface px-3 py-3 text-o1-caption text-o1-text">
               {invite || 'Preparing your link…'}
             </p>
           )}
@@ -97,7 +97,7 @@ export const AddClientModal: React.FC<AddClientModalProps> = ({
               type="button"
               disabled={!invite}
               onClick={() => void copy()}
-              className="flex min-h-[44px] items-center justify-center gap-2 rounded-xl border border-white/[0.07] bg-o1-surface text-[13px] font-semibold text-o1-text active:scale-[0.98] disabled:opacity-40"
+              className="flex min-h-[44px] items-center justify-center gap-2 rounded-xl border border-white/[0.07] bg-o1-surface text-o1-body font-semibold text-o1-text active:scale-[0.98] disabled:opacity-40"
             >
               {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
               {copied ? 'Copied' : 'Copy link'}
@@ -106,7 +106,7 @@ export const AddClientModal: React.FC<AddClientModalProps> = ({
               type="button"
               disabled={!invite}
               onClick={() => void share()}
-              className="flex min-h-[44px] items-center justify-center gap-2 rounded-xl bg-o1-crimson text-[13px] font-semibold text-white active:scale-[0.98] disabled:opacity-40"
+              className="flex min-h-[44px] items-center justify-center gap-2 rounded-xl bg-o1-crimson text-o1-body font-semibold text-white active:scale-[0.98] disabled:opacity-40"
             >
               <Share2 className="h-4 w-4" />
               Share

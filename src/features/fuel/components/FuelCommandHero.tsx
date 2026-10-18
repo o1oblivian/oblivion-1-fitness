@@ -49,10 +49,10 @@ const SegmentedMeter: React.FC<MacroMeter> = ({ label, consumed, target, color }
   return (
     <div className="min-w-0">
       <div className="flex items-baseline justify-between gap-1 mb-1.5">
-        <span className="text-[11px] font-medium" style={{ color }}>
+        <span className="text-o1-label font-medium" style={{ color }}>
           {label}
         </span>
-        <span className="o1-unread text-[11px] tabular-nums text-o1-text truncate">
+        <span className="o1-unread text-o1-label tabular-nums text-o1-text truncate">
           {fmtGrams(consumed)}
           <span className="text-o1-muted">/{target != null ? target : '--'}g</span>
         </span>
@@ -74,7 +74,7 @@ const SegmentedMeter: React.FC<MacroMeter> = ({ label, consumed, target, color }
           );
         })}
       </div>
-      <span className="block mt-1 text-[10px] tabular-nums text-o1-muted h-3">
+      <span className="block mt-1 text-o1-label tabular-nums text-o1-muted h-3">
         {over > 0 ? `+${fmtGrams(Math.round(over * 10) / 10)}g over` : ''}
       </span>
     </div>
@@ -201,24 +201,24 @@ export const FuelCommandHero: React.FC<FuelCommandHeroProps> = ({
                       <span className="o1-unread text-2xl font-semibold tabular-nums text-o1-text leading-none">
                         --
                       </span>
-                      <span className="text-[10px] text-o1-muted mt-1">kcal left</span>
+                      <span className="text-o1-label text-o1-muted mt-1">kcal left</span>
                     </>
                   ) : isOver ? (
                     <>
                       <span className="text-2xl font-semibold tabular-nums text-o1-crimson leading-none">
                         +{balance.over.toLocaleString()}
                       </span>
-                      <span className="text-[10px] text-o1-crimson mt-1">over</span>
+                      <span className="text-o1-label text-o1-crimson mt-1">over</span>
                     </>
                   ) : (
                     <>
                       <span className="text-2xl font-semibold tabular-nums text-o1-text leading-none">
                         {(balance.remaining ?? 0).toLocaleString()}
                       </span>
-                      <span className="text-[10px] text-o1-muted mt-1">kcal left</span>
+                      <span className="text-o1-label text-o1-muted mt-1">kcal left</span>
                     </>
                   )}
-                  <span className="o1-unread text-[10px] tabular-nums text-o1-muted mt-0.5">
+                  <span className="o1-unread text-o1-label tabular-nums text-o1-muted mt-0.5">
                     of {hasTarget ? (balance.budget ?? 0).toLocaleString() : '--'}
                   </span>
                 </div>
@@ -227,7 +227,7 @@ export const FuelCommandHero: React.FC<FuelCommandHeroProps> = ({
               <div className="flex-1 min-w-0 space-y-3">
                 {balance.pace ? (
                   <span
-                    className={`inline-flex items-center h-6 px-2.5 rounded-full border text-[11px] font-medium ${PACE_COPY[balance.pace].className}`}
+                    className={`inline-flex items-center h-6 px-2.5 rounded-full border text-o1-label font-medium ${PACE_COPY[balance.pace].className}`}
                   >
                     {PACE_COPY[balance.pace].label}
                   </span>
@@ -235,20 +235,20 @@ export const FuelCommandHero: React.FC<FuelCommandHeroProps> = ({
                   <button
                     type="button"
                     onClick={onOpenSettings}
-                    className="inline-flex items-center h-7 px-3 rounded-full border border-o1-crimson/60 text-o1-crimson text-[11px] font-medium cursor-pointer"
+                    className="inline-flex items-center h-7 px-3 rounded-full border border-o1-crimson/60 text-o1-crimson text-o1-label font-medium cursor-pointer"
                   >
                     Set your targets
                   </button>
                 )}
                 <dl className="grid grid-cols-2 gap-2">
                   <div>
-                    <dt className="text-[10px] text-o1-muted">Eaten</dt>
+                    <dt className="text-o1-label text-o1-muted">Eaten</dt>
                     <dd className="text-base font-semibold tabular-nums text-o1-text">
                       {Math.round(eatenKcal).toLocaleString()}
                     </dd>
                   </div>
                   <div>
-                    <dt className="text-[10px] text-o1-muted">Burned</dt>
+                    <dt className="text-o1-label text-o1-muted">Burned</dt>
                     <dd className="text-base font-semibold tabular-nums text-o1-text">
                       {burnedKcal > 0 ? `+${Math.round(burnedKcal).toLocaleString()}` : '0'}
                     </dd>
@@ -300,8 +300,8 @@ export const FuelCommandHero: React.FC<FuelCommandHeroProps> = ({
             <Droplet className="w-4 h-4 text-sky-500 shrink-0" aria-hidden />
             <div className="flex-1 min-w-0">
               <div className="flex items-baseline justify-between">
-                <span className="text-[11px] text-o1-muted">Water</span>
-                <span className="o1-unread text-[11px] tabular-nums text-o1-text">
+                <span className="text-o1-label text-o1-muted">Water</span>
+                <span className="o1-unread text-o1-label tabular-nums text-o1-text">
                   {Number(waterL.toFixed(2))}
                   <span className="text-o1-muted">
                     {' '}

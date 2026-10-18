@@ -286,11 +286,11 @@ export const CardioTelemetryModal: React.FC<Props> = ({ isOpen, onClose, onPostC
             <div className="min-w-0 space-y-0.5">
               <h2
                 id="cardio-scan-title"
-                className="text-[14px] font-light text-white tracking-wide"
+                className="text-o1-control font-light text-white tracking-wide"
               >
                 Scan Cardio &amp; Watch
               </h2>
-              <p className="text-[11px] font-light text-neutral-400 leading-snug">
+              <p className="text-o1-label font-light text-neutral-400 leading-snug">
                 Take a photo of your treadmill screen, bike console, or watch dial to auto-sync your
                 metrics.
               </p>
@@ -326,7 +326,7 @@ export const CardioTelemetryModal: React.FC<Props> = ({ isOpen, onClose, onPostC
               type="button"
               onClick={() => handleCapture('camera')}
               disabled={isCapturing}
-              className="flex items-center justify-center gap-2 h-10 px-3 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover active:bg-o1-crimson-press text-white text-[12px] font-normal cursor-pointer active:scale-[0.98] transition disabled:opacity-60"
+              className="flex items-center justify-center gap-2 h-10 px-3 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover active:bg-o1-crimson-press text-white text-o1-caption font-normal cursor-pointer active:scale-[0.98] transition disabled:opacity-60"
             >
               <Camera className="w-3.5 h-3.5" strokeWidth={1.75} />{' '}
               {isCapturing ? 'Opening camera…' : 'Snap Screen / Dial'}
@@ -335,7 +335,7 @@ export const CardioTelemetryModal: React.FC<Props> = ({ isOpen, onClose, onPostC
               type="button"
               onClick={() => handleCapture('photos')}
               disabled={isCapturing}
-              className="flex items-center justify-center gap-2 h-10 px-3 rounded-xl bg-o1-well hover:bg-white/[0.06] text-neutral-200 text-[12px] font-normal cursor-pointer border border-white/[0.07] active:scale-[0.98] transition disabled:opacity-60"
+              className="flex items-center justify-center gap-2 h-10 px-3 rounded-xl bg-o1-well hover:bg-white/[0.06] text-neutral-200 text-o1-caption font-normal cursor-pointer border border-white/[0.07] active:scale-[0.98] transition disabled:opacity-60"
             >
               <ImageIcon className="w-3.5 h-3.5" strokeWidth={1.75} /> Choose from Photos
             </button>
@@ -344,7 +344,7 @@ export const CardioTelemetryModal: React.FC<Props> = ({ isOpen, onClose, onPostC
             <div className="relative rounded-2xl overflow-hidden bg-black max-h-48 flex items-center justify-center border border-white/[0.07]">
               <img src={selectedImage} alt="Cardio display" className="max-h-48 object-contain" />
               {isAnalyzing && (
-                <div className="absolute inset-0 bg-black/60 flex items-center justify-center gap-2 text-white text-[12px] font-light">
+                <div className="absolute inset-0 bg-black/60 flex items-center justify-center gap-2 text-white text-o1-caption font-light">
                   <Loader2 className="w-4 h-4 animate-spin text-o1-crimson" /> Reading numbers…
                 </div>
               )}
@@ -353,10 +353,10 @@ export const CardioTelemetryModal: React.FC<Props> = ({ isOpen, onClose, onPostC
           {statusMessage && (
             <p
               role="status"
-              className={`px-3 py-2 rounded-xl border text-[11px] font-light leading-snug ${
+              className={`px-3 py-2 rounded-xl border text-o1-label font-light leading-snug ${
                 statusMessage.ok
-                  ? 'bg-[#059669]/10 border-[#059669]/25 text-[#10b981]'
-                  : 'bg-[#d97706]/10 border-[#d97706]/25 text-[#f59e0b]'
+                  ? 'bg-o1-emerald-deep/10 border-o1-emerald-deep/25 text-o1-emerald'
+                  : 'bg-o1-amber-deep/10 border-o1-amber-deep/25 text-o1-amber'
               }`}
             >
               {statusMessage.text}
@@ -380,7 +380,7 @@ export const CardioTelemetryModal: React.FC<Props> = ({ isOpen, onClose, onPostC
                 (telemetry.avgHeartRateBpm || 0) > 0
               )
             }
-            className="w-full h-10 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover active:bg-o1-crimson-press text-white disabled:opacity-40 font-normal text-[13px] tracking-wide flex items-center justify-center cursor-pointer active:scale-[0.99] transition"
+            className="w-full h-10 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover active:bg-o1-crimson-press text-white disabled:opacity-40 font-normal text-o1-body tracking-wide flex items-center justify-center cursor-pointer active:scale-[0.99] transition"
           >
             Save Cardio Session
           </button>

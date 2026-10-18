@@ -240,7 +240,7 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
               {telemetry.muscleDistribution.slice(0, 2).map((m) => (
                 <span
                   key={m.muscle}
-                  className="px-2 py-0.5 rounded-md bg-o1-sheet border border-white/[0.07] text-[10px] font-semibold text-o1-text"
+                  className="px-2 py-0.5 rounded-md bg-o1-sheet border border-white/[0.07] text-o1-label font-semibold text-o1-text"
                 >
                   {m.muscle} <span className="text-o1-crimson">{m.percentage}%</span>
                 </span>
@@ -319,7 +319,7 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
             <h4 className="text-xs font-bold text-o1-text truncate">
               {setup.title} ({setup.date})
             </h4>
-            <p className="text-[11px] text-o1-muted truncate">
+            <p className="text-o1-label text-o1-muted truncate">
               {stack.length} exercises · {telemetry.sets} sets · For {target}
             </p>
           </div>
@@ -330,7 +330,7 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
             onChange={(e) => setCoachCue(e.target.value)}
             placeholder="Note for the athlete (optional)"
             aria-label="Note for the athlete"
-            className="h-[44px] w-full rounded-xl border border-white/[0.07] bg-o1-sheet px-3 text-[13px] text-o1-text placeholder:text-o1-muted outline-none focus:border-o1-crimson"
+            className="h-[44px] w-full rounded-xl border border-white/[0.07] bg-o1-sheet px-3 text-o1-body text-o1-text placeholder:text-o1-muted outline-none focus:border-o1-crimson"
           />
 
           <div className="flex items-center gap-2">
@@ -349,7 +349,7 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
               type="button"
               disabled={isSubmitting || stack.length === 0 || selectedIds.length === 0}
               onClick={() => void handleDispatch()}
-              className="h-[44px] flex-1 px-4 rounded-full bg-o1-crimson active:bg-o1-crimson-hover active:scale-95 disabled:opacity-50 text-white text-[13px] font-semibold flex items-center justify-center gap-1.5"
+              className="h-[44px] flex-1 px-4 rounded-full bg-o1-crimson active:bg-o1-crimson-hover active:scale-95 disabled:opacity-50 text-white text-o1-body font-semibold flex items-center justify-center gap-1.5"
             >
               <Send size={13} />
               {isSubmitting ? 'Sending…' : 'Send workout'}

@@ -112,16 +112,16 @@ export const SupplementComposer: React.FC<SupplementComposerProps> = ({
         </h5>
         {draft.evidence && (
           <span
-            className={`shrink-0 h-5 px-2 rounded-full border text-[10px] font-medium inline-flex items-center ${EVIDENCE_COPY[draft.evidence].className}`}
+            className={`shrink-0 h-5 px-2 rounded-full border text-o1-label font-medium inline-flex items-center ${EVIDENCE_COPY[draft.evidence].className}`}
           >
             {EVIDENCE_COPY[draft.evidence].label}
           </span>
         )}
       </div>
-      {draft.note && <p className="text-[11px] text-o1-muted -mt-1.5">{draft.note}</p>}
+      {draft.note && <p className="text-o1-label text-o1-muted -mt-1.5">{draft.note}</p>}
 
       <label className="block">
-        <span className="block text-[10px] text-o1-muted mb-1">Name</span>
+        <span className="block text-o1-label text-o1-muted mb-1">Name</span>
         <input
           type="text"
           value={draft.name}
@@ -132,13 +132,13 @@ export const SupplementComposer: React.FC<SupplementComposerProps> = ({
           aria-invalid={isDuplicate}
         />
         {isDuplicate && (
-          <span className="block mt-1 text-[10px] text-o1-crimson">Already in your stack</span>
+          <span className="block mt-1 text-o1-label text-o1-crimson">Already in your stack</span>
         )}
       </label>
 
       <div className="grid grid-cols-[1fr_auto] gap-2 items-end">
         <label className="block">
-          <span className="block text-[10px] text-o1-muted mb-1">Dose</span>
+          <span className="block text-o1-label text-o1-muted mb-1">Dose</span>
           <input
             type="text"
             inputMode="decimal"
@@ -151,7 +151,7 @@ export const SupplementComposer: React.FC<SupplementComposerProps> = ({
           />
         </label>
         <label className="block">
-          <span className="block text-[10px] text-o1-muted mb-1">Caffeine mg</span>
+          <span className="block text-o1-label text-o1-muted mb-1">Caffeine mg</span>
           <input
             type="text"
             inputMode="numeric"
@@ -179,7 +179,7 @@ export const SupplementComposer: React.FC<SupplementComposerProps> = ({
             role="radio"
             aria-checked={draft.unit === u}
             onClick={() => setDraft((d) => ({ ...d, unit: u }))}
-            className={`h-7 px-2.5 rounded-lg border text-[11px] font-medium cursor-pointer ${
+            className={`h-7 px-2.5 rounded-lg border text-o1-label font-medium cursor-pointer ${
               draft.unit === u
                 ? 'border-o1-crimson text-o1-text'
                 : 'border-white/[0.08] text-o1-muted'
@@ -191,7 +191,7 @@ export const SupplementComposer: React.FC<SupplementComposerProps> = ({
       </div>
 
       <div>
-        <span className="block text-[10px] text-o1-muted mb-1">When</span>
+        <span className="block text-o1-label text-o1-muted mb-1">When</span>
         <div className="grid grid-cols-5 gap-1" role="radiogroup" aria-label="Timing">
           {SUPPLEMENT_TIMINGS.map((t) => (
             <button
@@ -200,7 +200,7 @@ export const SupplementComposer: React.FC<SupplementComposerProps> = ({
               role="radio"
               aria-checked={draft.timing === t}
               onClick={() => setDraft((d) => ({ ...d, timing: t }))}
-              className={`h-8 rounded-lg border text-[10px] font-medium cursor-pointer ${
+              className={`h-8 rounded-lg border text-o1-label font-medium cursor-pointer ${
                 draft.timing === t
                   ? 'border-o1-crimson text-o1-text'
                   : 'border-white/[0.08] text-o1-muted'

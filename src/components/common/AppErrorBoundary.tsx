@@ -43,11 +43,11 @@ export class AppErrorBoundary extends Component<AppErrorBoundaryProps, AppErrorB
         : 'A render error stopped the screen. Turn on On-device crash log in Settings to keep a local stack trace.';
       return (
         <div className="min-h-screen w-full max-w-md mx-auto overflow-x-hidden bg-black text-white flex flex-col p-5 select-text font-sans">
-          <p className="text-[10px] font-mono tracking-widest text-o1-crimson mb-2">
+          <p className="text-o1-label font-mono tracking-widest text-o1-crimson mb-2">
             Runtime exception
           </p>
           <h1 className="text-sm font-bold tracking-wider mb-3">App failed to render</h1>
-          <pre className="flex-1 text-[11px] leading-relaxed whitespace-pre-wrap break-words text-amber-200 bg-black/50 border border-white/[0.07] rounded-xl p-3 overflow-auto">
+          <pre className="flex-1 text-o1-label leading-relaxed whitespace-pre-wrap break-words text-amber-200 bg-black/50 border border-white/[0.07] rounded-xl p-3 overflow-auto">
             {details}
           </pre>
           <button

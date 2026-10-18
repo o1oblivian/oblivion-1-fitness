@@ -105,13 +105,13 @@ export const IntelTodayPanel: React.FC<IntelTodayPanelProps> = ({
               <span className="text-2xl font-light font-mono tabular-nums leading-none">
                 {intel.readiness === null ? '--' : intel.readiness}
               </span>
-              <span className="text-[11px] text-o1-muted mt-1">Readiness</span>
+              <span className="text-o1-label text-o1-muted mt-1">Readiness</span>
             </div>
           </div>
           <div className="space-y-1.5 min-w-0">
             <ToneChip tone={tone}>{titleCase(intel.decision)}</ToneChip>
             <div className="text-sm font-medium text-o1-text leading-snug">{intel.headline}</div>
-            <p className="text-[11px] text-o1-muted leading-snug">{intel.detail}</p>
+            <p className="text-o1-label text-o1-muted leading-snug">{intel.detail}</p>
           </div>
         </div>
         <ul className="divide-y divide-white/[0.05] border-t border-white/[0.05]">
@@ -119,7 +119,7 @@ export const IntelTodayPanel: React.FC<IntelTodayPanelProps> = ({
             <li key={sig.id} className="min-h-[44px] py-2 flex items-center justify-between gap-3">
               <div className="min-w-0">
                 <div className="text-xs font-medium text-o1-text">{sig.label}</div>
-                <div className="text-[11px] text-o1-muted truncate">{sig.note}</div>
+                <div className="text-o1-label text-o1-muted truncate">{sig.note}</div>
               </div>
               <span
                 className="text-sm font-light font-mono shrink-0"
@@ -148,14 +148,14 @@ export const IntelTodayPanel: React.FC<IntelTodayPanelProps> = ({
                       {kg(rx.targetWeightKg)} kg × {rx.targetReps}
                     </span>
                   </div>
-                  <div className="flex items-baseline justify-between gap-3 text-[11px] font-mono text-o1-muted">
+                  <div className="flex items-baseline justify-between gap-3 text-o1-label font-mono text-o1-muted">
                     <span>
                       Last {kg(rx.lastWeightKg)} × {rx.lastReps} · {shortDay(rx.lastDay)}
                       {simple ? '' : ` · e1RM ${kg(rx.e1rm)}`}
                     </span>
                     {simple ? null : <span className="shrink-0">RPE ≤ {rx.rpeCap}</span>}
                   </div>
-                  <p className="text-[11px] text-o1-muted">{rx.rationale}</p>
+                  <p className="text-o1-label text-o1-muted">{rx.rationale}</p>
                 </li>
               ))}
             </ul>
@@ -168,7 +168,7 @@ export const IntelTodayPanel: React.FC<IntelTodayPanelProps> = ({
               Apply to today's session
             </button>
             {noMatch && (
-              <p role="status" className="text-[11px] text-[#f59e0b] leading-relaxed">
+              <p role="status" className="text-o1-label text-o1-amber leading-relaxed">
                 None of these lifts have open sets in your Active log. Add one of them first, then
                 apply.
               </p>
@@ -196,9 +196,9 @@ export const IntelTodayPanel: React.FC<IntelTodayPanelProps> = ({
                 <span className="text-3xl font-light font-mono tabular-nums text-o1-text">
                   {ratio === null ? '--' : ratio.toFixed(2)}
                 </span>
-                <span className="text-[11px] text-o1-muted">Acute : chronic</span>
+                <span className="text-o1-label text-o1-muted">Acute : chronic</span>
               </div>
-              <span className="text-[11px] text-o1-muted text-right">
+              <span className="text-o1-label text-o1-muted text-right">
                 {ratio === null ? 'Calibrating' : report.stats.acwrLabel}
               </span>
             </div>
@@ -226,7 +226,7 @@ export const IntelTodayPanel: React.FC<IntelTodayPanelProps> = ({
               >
                 <div className="min-w-0">
                   <div className="text-xs font-medium text-o1-text truncate">{m.label}</div>
-                  <div className="text-[11px] text-o1-muted">
+                  <div className="text-o1-label text-o1-muted">
                     {m.daysAgo === null
                       ? 'Not trained'
                       : m.daysAgo === 0
@@ -242,7 +242,7 @@ export const IntelTodayPanel: React.FC<IntelTodayPanelProps> = ({
             );
           })}
         </div>
-        <div className="flex items-center gap-4 text-[11px] text-o1-muted">
+        <div className="flex items-center gap-4 text-o1-label text-o1-muted">
           <span className="flex items-center gap-1.5">
             <i className="w-2 h-2 rounded-full" style={{ background: TONE_HEX.watch }} />
             Recovering

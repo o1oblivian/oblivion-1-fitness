@@ -107,7 +107,7 @@ export function CardioLogFields({ form }: { form: CardioLogForm }) {
   return (
     <div className="space-y-3.5">
       <div>
-        <label className="text-[10px] text-neutral-400 font-bold block mb-1">
+        <label className="text-o1-label text-neutral-400 font-bold block mb-1">
           Activity Modality
         </label>
         <div className="grid grid-cols-3 gap-1.5">
@@ -116,7 +116,7 @@ export function CardioLogFields({ form }: { form: CardioLogForm }) {
               key={m}
               type="button"
               onClick={() => setCardioType(m)}
-              className={`py-2 px-1 text-[10px] rounded-xl font-bold transition-all ${
+              className={`py-2 px-1 text-o1-label rounded-xl font-bold transition-all ${
                 cardioType === m
                   ? 'bg-sky-600 text-white'
                   : 'bg-o1-well border border-white/[0.07] text-neutral-400 hover:text-white'
@@ -130,7 +130,9 @@ export function CardioLogFields({ form }: { form: CardioLogForm }) {
 
       <div className="grid grid-cols-2 gap-2">
         <div>
-          <label className="text-[10px] text-neutral-400 font-bold block mb-1">Distance (KM)</label>
+          <label className="text-o1-label text-neutral-400 font-bold block mb-1">
+            Distance (KM)
+          </label>
           <input
             type="number"
             step="0.1"
@@ -142,7 +144,7 @@ export function CardioLogFields({ form }: { form: CardioLogForm }) {
           />
         </div>
         <div>
-          <label className="text-[10px] text-neutral-400 font-bold block mb-1">
+          <label className="text-o1-label text-neutral-400 font-bold block mb-1">
             Duration (MIN)
           </label>
           <input
@@ -158,7 +160,7 @@ export function CardioLogFields({ form }: { form: CardioLogForm }) {
 
       <div className="grid grid-cols-2 gap-2">
         <div>
-          <label className="text-[10px] text-neutral-400 font-bold block mb-1">
+          <label className="text-o1-label text-neutral-400 font-bold block mb-1">
             Burned Energy (KCAL)
           </label>
           <input
@@ -171,7 +173,7 @@ export function CardioLogFields({ form }: { form: CardioLogForm }) {
           />
         </div>
         <div>
-          <label className="text-[10px] text-neutral-400 font-bold block mb-1">
+          <label className="text-o1-label text-neutral-400 font-bold block mb-1">
             Avg Heart Rate (BPM)
           </label>
           <input

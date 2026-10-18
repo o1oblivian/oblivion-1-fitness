@@ -455,7 +455,7 @@ export const FoodPortionDialModal: React.FC<FoodPortionDialModalProps> = ({
         <div className="flex items-start justify-between gap-3 px-4 pt-3.5 pb-2">
           <div className="min-w-0">
             <p className="text-sm font-bold text-o1-text truncate">{foodName}</p>
-            <p className="text-[11px] text-o1-muted truncate">
+            <p className="text-o1-label text-o1-muted truncate">
               {[food.brand, food.serving_size].filter(Boolean).join(' · ')}
             </p>
           </div>
@@ -486,7 +486,7 @@ export const FoodPortionDialModal: React.FC<FoodPortionDialModalProps> = ({
                     role="tab"
                     aria-selected={unit === u}
                     onClick={() => switchUnit(u)}
-                    className={`px-4 py-1 rounded-full text-[11px] font-bold transition-colors cursor-pointer ${
+                    className={`px-4 py-1 rounded-full text-o1-label font-bold transition-colors cursor-pointer ${
                       unit === u ? 'bg-o1-text text-black' : 'text-o1-muted hover:text-o1-text'
                     }`}
                   >
@@ -535,7 +535,7 @@ export const FoodPortionDialModal: React.FC<FoodPortionDialModalProps> = ({
               )}
             </span>
             {budget && budget.kcal > 0 && (
-              <span className="block mt-1.5 text-[11px] text-o1-muted tabular-nums">
+              <span className="block mt-1.5 text-o1-label text-o1-muted tabular-nums">
                 {kcal <= budget.kcal
                   ? `${Math.round((kcal / budget.kcal) * 100)}% of the ${budget.kcal.toLocaleString()} kcal left today`
                   : `${(kcal - budget.kcal).toLocaleString()} kcal over what's left today`}
@@ -592,7 +592,7 @@ export const FoodPortionDialModal: React.FC<FoodPortionDialModalProps> = ({
                           tactileEngine.triggerSelectionBuzz();
                           glideTo(c.value);
                         }}
-                        className={`px-3 py-1.5 rounded-full text-[11px] font-bold tabular-nums border transition-colors cursor-pointer ${
+                        className={`px-3 py-1.5 rounded-full text-o1-label font-bold tabular-nums border transition-colors cursor-pointer ${
                           active
                             ? 'bg-o1-text text-black border-transparent'
                             : 'bg-o1-surface text-o1-muted border-white/[0.07] hover:text-o1-text'
@@ -655,7 +655,7 @@ export const FoodPortionDialModal: React.FC<FoodPortionDialModalProps> = ({
               return (
                 <div key={m.key} className="min-w-0">
                   <div className="flex items-baseline justify-between gap-1">
-                    <span className="text-[10px] font-semibold text-o1-muted">{m.name}</span>
+                    <span className="text-o1-label font-semibold text-o1-muted">{m.name}</span>
                     <span className={`text-xs font-bold tabular-nums ${m.text}`}>{m.value}g</span>
                   </div>
                   {hasBudget && (
@@ -667,7 +667,7 @@ export const FoodPortionDialModal: React.FC<FoodPortionDialModalProps> = ({
                         />
                       </div>
                       <p
-                        className={`mt-1 text-[10px] tabular-nums ${over ? 'text-amber-500' : 'text-o1-muted'}`}
+                        className={`mt-1 text-o1-label tabular-nums ${over ? 'text-amber-500' : 'text-o1-muted'}`}
                       >
                         {over
                           ? `+${round1(m.value - (m.left as number))}g over`

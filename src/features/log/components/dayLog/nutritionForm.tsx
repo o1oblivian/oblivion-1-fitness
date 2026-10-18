@@ -297,10 +297,10 @@ export function NutritionLogFields({ form }: { form: NutritionLogForm }) {
       {/* Client Daily Calorie Target Adjustment */}
       <div className="p-3 rounded-2xl bg-amber-950/20 border border-amber-800/40 space-y-1.5">
         <div className="flex items-center justify-between">
-          <label className="text-[10px] text-amber-400 font-bold tracking-wider block">
+          <label className="text-o1-label text-amber-400 font-bold tracking-wider block">
             Daily Calorie Target (KCAL)
           </label>
-          <span className="text-[9px] text-neutral-500 font-mono">Client Goal</span>
+          <span className="text-o1-label text-neutral-500 font-mono">Client Goal</span>
         </div>
         <input
           type="number"
@@ -310,7 +310,7 @@ export function NutritionLogFields({ form }: { form: NutritionLogForm }) {
           className="w-full bg-o1-card border border-amber-800/80 rounded-xl px-3 py-2 text-white font-mono font-bold focus:border-o1-crimson focus:outline-none text-sm placeholder:text-neutral-400"
           placeholder="Set custom daily goal (e.g. 2200, 2500)..."
         />
-        <p className="text-[9px] text-neutral-400 font-sans">
+        <p className="text-o1-label text-neutral-400 font-sans">
           Adjustable by client at any time. Saved across all nutrition and telemetry views.
         </p>
       </div>
@@ -319,7 +319,7 @@ export function NutritionLogFields({ form }: { form: NutritionLogForm }) {
         <div className="space-y-3">
           {mealDrafts.map((meal, mealIndex) => (
             <div key={`${meal.slot}-${meal.name}-${mealIndex}`} className="space-y-1.5">
-              <div className="text-[11px] font-sans font-semibold text-white">{meal.name}</div>
+              <div className="text-o1-label font-sans font-semibold text-white">{meal.name}</div>
               <div className="grid grid-cols-4 gap-1.5">
                 {(
                   [
@@ -330,7 +330,7 @@ export function NutritionLogFields({ form }: { form: NutritionLogForm }) {
                   ] as const
                 ).map(([label, field]) => (
                   <label key={field} className="space-y-1">
-                    <span className="text-[9px] text-neutral-500 block">{label}</span>
+                    <span className="text-o1-label text-neutral-500 block">{label}</span>
                     <input
                       type="number"
                       value={meal[field]}
@@ -355,7 +355,7 @@ export function NutritionLogFields({ form }: { form: NutritionLogForm }) {
         <div className="space-y-3.5">
           <div className="grid grid-cols-2 gap-2">
             <div>
-              <label className="text-[10px] text-neutral-400 font-bold block mb-1">
+              <label className="text-o1-label text-neutral-400 font-bold block mb-1">
                 Meal / Logged (KCAL)
               </label>
               <input
@@ -368,7 +368,7 @@ export function NutritionLogFields({ form }: { form: NutritionLogForm }) {
               />
             </div>
             <div>
-              <label className="text-[10px] text-neutral-400 font-bold block mb-1">
+              <label className="text-o1-label text-neutral-400 font-bold block mb-1">
                 Protein (G)
               </label>
               <input
@@ -384,7 +384,7 @@ export function NutritionLogFields({ form }: { form: NutritionLogForm }) {
 
           <div className="grid grid-cols-2 gap-2">
             <div>
-              <label className="text-[10px] text-neutral-400 font-bold block mb-1">
+              <label className="text-o1-label text-neutral-400 font-bold block mb-1">
                 Carbohydrates (G)
               </label>
               <input
@@ -397,7 +397,7 @@ export function NutritionLogFields({ form }: { form: NutritionLogForm }) {
               />
             </div>
             <div>
-              <label className="text-[10px] text-neutral-400 font-bold block mb-1">
+              <label className="text-o1-label text-neutral-400 font-bold block mb-1">
                 Lipids &amp; Fats (G)
               </label>
               <input
@@ -412,7 +412,7 @@ export function NutritionLogFields({ form }: { form: NutritionLogForm }) {
           </div>
 
           <div>
-            <label className="text-[10px] text-neutral-400 font-bold block mb-1">
+            <label className="text-o1-label text-neutral-400 font-bold block mb-1">
               Itemized Meal Summary
             </label>
             <input

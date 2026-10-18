@@ -77,7 +77,7 @@ export const NavigationDock: React.FC<NavigationDockProps> = ({ currentMode, onS
                   }`}
                 />
                 {isBuddy && buddyUnreadCount > 0 && (
-                  <span className="absolute -top-1 -right-1.5 min-w-[13px] h-[13px] px-0.5 rounded-full bg-o1-crimson text-white text-[8.5px] font-bold font-mono flex items-center justify-center border border-white/[0.07]">
+                  <span className="absolute -top-1 -right-1.5 min-w-[13px] h-[13px] px-0.5 rounded-full bg-o1-crimson text-white text-o1-label font-bold font-mono flex items-center justify-center border border-white/[0.07]">
                     {buddyUnreadCount > 9 ? '9+' : buddyUnreadCount}
                   </span>
                 )}
@@ -85,7 +85,7 @@ export const NavigationDock: React.FC<NavigationDockProps> = ({ currentMode, onS
 
               {/* Tab Label */}
               <span
-                className={`text-[9.5px] mt-0.5 tracking-tight leading-none select-none transition-colors ${
+                className={`text-o1-label mt-0.5 tracking-tight leading-none select-none transition-colors ${
                   isActive
                     ? 'text-o1-crimson font-bold'
                     : 'text-neutral-400 font-medium group-hover:text-neutral-100'

@@ -139,7 +139,7 @@ export const ReelPlayerView: React.FC<ReelPlayerViewProps> = ({
     >
       <ReelPlayerTopBar onClose={onClose} onOpenOptions={() => setOptionsOpen(true)} />
       {HEALTH_CATEGORIES.has(activeReel.category) ? (
-        <p className="absolute z-30 left-3 right-28 top-[calc(env(safe-area-inset-top)+0.9rem)] text-[11px] leading-snug text-white/75 drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)] pointer-events-none">
+        <p className="absolute z-30 left-3 right-28 top-[calc(env(safe-area-inset-top)+0.9rem)] text-o1-label leading-snug text-white/75 drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)] pointer-events-none">
           {NOT_MEDICAL_ADVICE}
         </p>
       ) : null}
@@ -171,7 +171,7 @@ export const ReelPlayerView: React.FC<ReelPlayerViewProps> = ({
 
         {failed ? (
           <div className="absolute inset-0 flex items-center justify-center bg-black/60 pointer-events-none">
-            <p className="rounded-full bg-[#0E0E0E] px-4 py-2 text-[13px] text-[#EAE8DF]">
+            <p className="rounded-full bg-o1-card px-4 py-2 text-o1-body text-o1-text">
               This video could not load
             </p>
           </div>

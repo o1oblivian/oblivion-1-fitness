@@ -229,7 +229,7 @@ export const CoachAthletePortal: React.FC<{ isCoach?: boolean }> = ({ isCoach = 
           <button
             type="button"
             onClick={() => setPanel('home')}
-            className="o1-pill border border-white/[0.07] bg-o1-sheet text-[11px] font-semibold text-o1-text"
+            className="o1-pill border border-white/[0.07] bg-o1-sheet text-o1-label font-semibold text-o1-text"
           >
             Coach
           </button>
@@ -256,7 +256,7 @@ export const CoachAthletePortal: React.FC<{ isCoach?: boolean }> = ({ isCoach = 
       <div id="o1fcoach-athlete-portal" className="w-full space-y-3 select-none pt-1">
         <AthleteProgramsPanel />
         {directory.length > 0 && (
-          <p className="px-1 pt-2 text-[13px] font-semibold text-o1-text">
+          <p className="px-1 pt-2 text-o1-body font-semibold text-o1-text">
             Coaches taking athletes
           </p>
         )}
@@ -275,13 +275,13 @@ export const CoachAthletePortal: React.FC<{ isCoach?: boolean }> = ({ isCoach = 
                 }}
               />
             ) : (
-              <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-o1-sheet text-[16px] font-semibold text-o1-text">
+              <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-o1-sheet text-o1-title font-semibold text-o1-text">
                 {card.name.slice(0, 1).toUpperCase()}
               </span>
             )}
             <div className="min-w-0 flex-1">
-              <p className="truncate text-[14px] font-semibold text-o1-text">{card.name}</p>
-              <p className="truncate text-[12px] text-o1-muted">
+              <p className="truncate text-o1-control font-semibold text-o1-text">{card.name}</p>
+              <p className="truncate text-o1-caption text-o1-muted">
                 {card.specialties.slice(0, 2).join(' · ') || formatHandle(card.handle) || 'Coach'}
               </p>
             </div>
@@ -291,7 +291,7 @@ export const CoachAthletePortal: React.FC<{ isCoach?: boolean }> = ({ isCoach = 
                 tactileEngine.triggerSelectionBuzz();
                 openFullEliteReels({ initialMode: 'grid', initialCoachId: card.id });
               }}
-              className="h-[44px] shrink-0 rounded-full border border-white/[0.07] bg-o1-sheet px-4 text-[13px] font-semibold text-o1-text active:scale-[0.98]"
+              className="h-[44px] shrink-0 rounded-full border border-white/[0.07] bg-o1-sheet px-4 text-o1-body font-semibold text-o1-text active:scale-[0.98]"
             >
               View
             </button>
@@ -315,7 +315,7 @@ export const CoachAthletePortal: React.FC<{ isCoach?: boolean }> = ({ isCoach = 
   return (
     <div id="o1fcoach-athlete-portal" className="w-full space-y-3 select-none pt-1">
       <AthleteProgramsPanel />
-      <p className="px-1 pt-2 text-[13px] font-semibold text-o1-text">
+      <p className="px-1 pt-2 text-o1-body font-semibold text-o1-text">
         {isCoach ? 'How athletes see you' : 'My coach'}
       </p>
       <div className="flex items-center gap-4">
@@ -329,20 +329,20 @@ export const CoachAthletePortal: React.FC<{ isCoach?: boolean }> = ({ isCoach = 
           )}
         </div>
         <div className="min-w-0 flex-1">
-          <h2 className="truncate text-[16px] font-semibold text-o1-text">{coach.name}</h2>
-          {handle ? <p className="truncate text-[12px] text-o1-muted">{handle}</p> : null}
+          <h2 className="truncate text-o1-title font-semibold text-o1-text">{coach.name}</h2>
+          {handle ? <p className="truncate text-o1-caption text-o1-muted">{handle}</p> : null}
           <div className="mt-2 grid grid-cols-2">
             <div className="text-center">
-              <span className="tabular-nums block text-[15px] text-o1-text">
+              <span className="tabular-nums block text-o1-control text-o1-text">
                 {films === null ? '--' : figureCount(filmList.length)}
               </span>
-              <span className="text-[11px] text-o1-muted">Films</span>
+              <span className="text-o1-label text-o1-muted">Films</span>
             </div>
             <div className="text-center">
-              <span className="tabular-nums block text-[15px] text-o1-text">
+              <span className="tabular-nums block text-o1-control text-o1-text">
                 {programCount === null ? '--' : figureCount(programCount)}
               </span>
-              <span className="text-[11px] text-o1-muted">Programs</span>
+              <span className="text-o1-label text-o1-muted">Programs</span>
             </div>
           </div>
         </div>
@@ -352,7 +352,7 @@ export const CoachAthletePortal: React.FC<{ isCoach?: boolean }> = ({ isCoach = 
         <button
           type="button"
           onClick={() => openFilm()}
-          className="h-[44px] flex-1 rounded-xl border border-white/[0.07] bg-o1-sheet text-[13px] font-semibold text-o1-text"
+          className="h-[44px] flex-1 rounded-xl border border-white/[0.07] bg-o1-sheet text-o1-body font-semibold text-o1-text"
         >
           Profile
         </button>
@@ -363,7 +363,7 @@ export const CoachAthletePortal: React.FC<{ isCoach?: boolean }> = ({ isCoach = 
               tactileEngine.triggerSelectionBuzz();
               setPanel('checkin');
             }}
-            className="h-[44px] flex-1 rounded-xl border border-white/[0.07] bg-o1-sheet text-[13px] font-semibold text-o1-text"
+            className="h-[44px] flex-1 rounded-xl border border-white/[0.07] bg-o1-sheet text-o1-body font-semibold text-o1-text"
           >
             Check-in
           </button>
@@ -383,10 +383,10 @@ export const CoachAthletePortal: React.FC<{ isCoach?: boolean }> = ({ isCoach = 
           className="flex min-h-[44px] w-full items-center justify-between rounded-2xl bg-o1-crimson px-3 text-left"
         >
           <span>
-            <span className="block text-[11px] text-white/80">Workout from {firstName}</span>
-            <span className="block text-[13px] font-semibold text-white">{sentTitle}</span>
+            <span className="block text-o1-label text-white/80">Workout from {firstName}</span>
+            <span className="block text-o1-body font-semibold text-white">{sentTitle}</span>
           </span>
-          <span className="text-[13px] font-semibold text-white">Start</span>
+          <span className="text-o1-body font-semibold text-white">Start</span>
         </button>
       ) : null}
 
@@ -420,14 +420,14 @@ export const CoachAthletePortal: React.FC<{ isCoach?: boolean }> = ({ isCoach = 
           }}
           className="flex min-h-[44px] w-full items-center justify-between rounded-2xl border border-white/[0.07] bg-o1-surface px-3"
         >
-          <span className="text-[13px] font-semibold text-o1-text">Log today's check-in</span>
+          <span className="text-o1-body font-semibold text-o1-text">Log today's check-in</span>
         </button>
       )}
 
       {reply && !isCoach ? (
         <div className="rounded-2xl border border-white/[0.07] bg-o1-surface px-3 py-3">
-          <p className="text-[11px] text-o1-muted">Latest from {firstName}</p>
-          <p className="text-[13px] text-o1-text">{reply}</p>
+          <p className="text-o1-label text-o1-muted">Latest from {firstName}</p>
+          <p className="text-o1-body text-o1-text">{reply}</p>
         </div>
       ) : null}
 
@@ -436,8 +436,10 @@ export const CoachAthletePortal: React.FC<{ isCoach?: boolean }> = ({ isCoach = 
           key={note.id}
           className="rounded-2xl border border-white/[0.07] bg-o1-surface px-3 py-3"
         >
-          <p className="text-[13px] font-semibold text-o1-text">{note.title}</p>
-          {note.summary ? <p className="mt-1 text-[12px] text-o1-muted">{note.summary}</p> : null}
+          <p className="text-o1-body font-semibold text-o1-text">{note.title}</p>
+          {note.summary ? (
+            <p className="mt-1 text-o1-caption text-o1-muted">{note.summary}</p>
+          ) : null}
         </div>
       ))}
 
@@ -469,23 +471,23 @@ export const CoachAthletePortal: React.FC<{ isCoach?: boolean }> = ({ isCoach = 
                 if (messageState !== 'sending') setMessageState('idle');
               }}
               placeholder={`Message ${firstName}`}
-              className="h-[44px] min-w-0 flex-1 rounded-xl border border-white/[0.07] bg-o1-sheet px-3 text-[13px] text-o1-text outline-none"
+              className="h-[44px] min-w-0 flex-1 rounded-xl border border-white/[0.07] bg-o1-sheet px-3 text-o1-body text-o1-text outline-none"
             />
             <button
               type="submit"
               disabled={messageState === 'sending'}
-              className="h-[44px] rounded-xl border border-white/[0.07] bg-o1-sheet px-4 text-[13px] font-semibold text-o1-text disabled:opacity-60"
+              className="h-[44px] rounded-xl border border-white/[0.07] bg-o1-sheet px-4 text-o1-body font-semibold text-o1-text disabled:opacity-60"
             >
               {messageState === 'sending' ? 'Sending…' : 'Send'}
             </button>
           </form>
           {messageState === 'sent' ? (
-            <p role="status" className="text-[12px] text-o1-muted">
+            <p role="status" className="text-o1-caption text-o1-muted">
               Sent to {firstName}
             </p>
           ) : null}
           {messageState === 'failed' ? (
-            <p role="alert" className="text-[12px] text-o1-text">
+            <p role="alert" className="text-o1-caption text-o1-text">
               Could not send. Try again.
             </p>
           ) : null}
@@ -498,7 +500,7 @@ export const CoachAthletePortal: React.FC<{ isCoach?: boolean }> = ({ isCoach = 
             }}
             className="flex min-h-[44px] w-full items-center justify-between rounded-2xl border border-white/[0.07] bg-o1-surface px-3"
           >
-            <span className="text-[13px] font-semibold text-o1-text">Inbox</span>
+            <span className="text-o1-body font-semibold text-o1-text">Inbox</span>
           </button>
         </>
       )}

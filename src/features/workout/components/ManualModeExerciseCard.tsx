@@ -25,21 +25,21 @@ export const ManualModeExerciseCard: React.FC<ManualModeExerciseCardProps> = ({
     <div className="p-3 bg-o1-card border border-white/[0.07] rounded-xl text-white shadow-xs flex items-center justify-between gap-3 select-none transition-colors">
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-1.5 flex-wrap">
-          <span className="text-[9px] font-mono text-neutral-400 font-medium tracking-wider">
+          <span className="text-o1-label font-mono text-neutral-400 font-medium tracking-wider">
             {exercise.category || exercise.primaryMuscleGroup}
           </span>
           <span className="text-neutral-600">•</span>
-          <span className="text-[9px] font-mono text-neutral-400 font-medium">
+          <span className="text-o1-label font-mono text-neutral-400 font-medium">
             {exercise.equipment}
           </span>
           {exercise.tier && (
-            <span className="text-[8px] font-mono text-neutral-300 bg-white/10 px-1.5 py-0.5 rounded">
+            <span className="text-o1-label font-mono text-neutral-300 bg-white/10 px-1.5 py-0.5 rounded">
               {exercise.tier}
             </span>
           )}
         </div>
         <h5 className="font-medium text-xs text-white truncate mt-0.5">{exercise.name}</h5>
-        <div className="flex items-center gap-2 text-[10px] font-mono text-neutral-400 mt-0.5">
+        <div className="flex items-center gap-2 text-o1-label font-mono text-neutral-400 mt-0.5">
           <span>
             {exercise.defaultSets || 3} sets × {exercise.defaultReps || 10} reps
           </span>
@@ -51,7 +51,7 @@ export const ManualModeExerciseCard: React.FC<ManualModeExerciseCardProps> = ({
       <button
         type="button"
         onClick={() => onAdd(exercise)}
-        className="px-3 py-1.5 rounded-xl border border-white/[0.07] text-neutral-200 hover:bg-white/[0.06] hover:text-white active:scale-95 text-[11px] font-semibold flex items-center gap-1 transition-all cursor-pointer shrink-0"
+        className="px-3 py-1.5 rounded-xl border border-white/[0.07] text-neutral-200 hover:bg-white/[0.06] hover:text-white active:scale-95 text-o1-label font-semibold flex items-center gap-1 transition-all cursor-pointer shrink-0"
       >
         <Plus className="w-3.5 h-3.5" />
         <span>Add</span>

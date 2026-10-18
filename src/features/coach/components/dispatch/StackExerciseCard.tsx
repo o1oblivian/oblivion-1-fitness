@@ -29,8 +29,8 @@ export const StackExerciseCard: React.FC<StackExerciseCardProps> = ({ exercise, 
           <Dumbbell size={15} />
         </div>
         <div className="min-w-0">
-          <h4 className="text-[13px] font-bold text-o1-text truncate">{exercise.name}</h4>
-          <p className="text-[11px] text-o1-muted truncate">{exercise.muscle}</p>
+          <h4 className="text-o1-body font-bold text-o1-text truncate">{exercise.name}</h4>
+          <p className="text-o1-label text-o1-muted truncate">{exercise.muscle}</p>
         </div>
       </div>
 
@@ -58,7 +58,7 @@ export const StackExerciseCard: React.FC<StackExerciseCardProps> = ({ exercise, 
     {exercise.expanded ? (
       <div className="p-3 pt-0 border-t border-white/[0.07] space-y-2.5">
         <div className="space-y-1.5 pt-2">
-          <div className="grid grid-cols-12 gap-1.5 text-[10px] font-semibold text-o1-muted text-center items-center">
+          <div className="grid grid-cols-12 gap-1.5 text-o1-label font-semibold text-o1-muted text-center items-center">
             <span className="col-span-2">Set</span>
             <span className="col-span-3">KG</span>
             <span className="col-span-3">Reps</span>
@@ -114,14 +114,14 @@ export const StackExerciseCard: React.FC<StackExerciseCardProps> = ({ exercise, 
 
         <div className="p-3 rounded-xl bg-o1-sheet border border-white/[0.07] space-y-2">
           <div className="flex items-center justify-between">
-            <span className="font-bold text-[11px] text-o1-crimson flex items-center gap-1.5">
+            <span className="font-bold text-o1-label text-o1-crimson flex items-center gap-1.5">
               <Sparkles size={11} />
               Form cue
             </span>
             <button
               type="button"
               onClick={() => actions.resetCue(exercise.id)}
-              className="flex h-8 items-center gap-1 text-[11px] text-o1-muted active:text-o1-text"
+              className="flex h-8 items-center gap-1 text-o1-label text-o1-muted active:text-o1-text"
             >
               <RotateCcw size={10} />
               Reset
@@ -142,7 +142,7 @@ export const StackExerciseCard: React.FC<StackExerciseCardProps> = ({ exercise, 
                 key={chip}
                 type="button"
                 onClick={() => actions.appendCue(exercise.id, chip)}
-                className="px-2 py-1 rounded-md bg-white/[0.08] text-[11px] font-medium text-o1-text border border-white/[0.07] active:bg-o1-crimson/10"
+                className="px-2 py-1 rounded-md bg-white/[0.08] text-o1-label font-medium text-o1-text border border-white/[0.07] active:bg-o1-crimson/10"
               >
                 + {chip}
               </button>

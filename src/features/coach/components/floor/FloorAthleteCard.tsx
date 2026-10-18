@@ -38,7 +38,7 @@ export function AthleteAvatar({
       {avatar ? (
         <img src={avatar} alt="" className="h-full w-full object-cover" />
       ) : (
-        <span className="text-[15px] font-semibold text-o1-text">{initial}</span>
+        <span className="text-o1-control font-semibold text-o1-text">{initial}</span>
       )}
     </span>
   );
@@ -67,11 +67,11 @@ export const FloorAthleteCard: React.FC<FloorAthleteCardProps> = ({
         <AthleteAvatar name={name} avatar={avatar} />
         <span className="min-w-0 flex-1">
           <span className="flex items-baseline justify-between gap-2">
-            <span className="truncate text-[15px] font-semibold text-o1-text">{name}</span>
-            {meta ? <span className="shrink-0 text-[11px] text-o1-muted">{meta}</span> : null}
+            <span className="truncate text-o1-control font-semibold text-o1-text">{name}</span>
+            {meta ? <span className="shrink-0 text-o1-label text-o1-muted">{meta}</span> : null}
           </span>
           {subtitle ? (
-            <span className="block truncate text-[12px] text-o1-muted">{subtitle}</span>
+            <span className="block truncate text-o1-caption text-o1-muted">{subtitle}</span>
           ) : null}
         </span>
       </button>
@@ -80,8 +80,8 @@ export const FloorAthleteCard: React.FC<FloorAthleteCardProps> = ({
         <dl className="mt-3 grid grid-cols-3 gap-1.5">
           {stats.map((stat) => (
             <div key={stat.label} className="rounded-xl bg-o1-surface px-2 py-1.5 text-center">
-              <dt className="text-[10px] text-o1-muted">{stat.label}</dt>
-              <dd className="text-[13px] font-semibold tabular-nums text-o1-text">{stat.value}</dd>
+              <dt className="text-o1-label text-o1-muted">{stat.label}</dt>
+              <dd className="text-o1-body font-semibold tabular-nums text-o1-text">{stat.value}</dd>
             </div>
           ))}
         </dl>
@@ -90,7 +90,7 @@ export const FloorAthleteCard: React.FC<FloorAthleteCardProps> = ({
       {badge ? (
         <p
           role="status"
-          className={`mt-2 inline-flex items-center rounded-full border px-2.5 py-1 text-[12px] font-bold ${
+          className={`mt-2 inline-flex items-center rounded-full border px-2.5 py-1 text-o1-caption font-bold ${
             badge.tone === 'ok'
               ? 'border-emerald-500/40 bg-o1-ok-wash text-o1-ok-ink'
               : 'border-amber-500/40 bg-o1-warn-wash text-o1-warn-ink'
@@ -99,7 +99,7 @@ export const FloorAthleteCard: React.FC<FloorAthleteCardProps> = ({
           {badge.label}
         </p>
       ) : lastFeedback ? (
-        <p className="mt-2 truncate rounded-lg bg-o1-ok-wash px-2 py-1 text-[11px] font-semibold text-o1-ok-ink">
+        <p className="mt-2 truncate rounded-lg bg-o1-ok-wash px-2 py-1 text-o1-label font-semibold text-o1-ok-ink">
           You said: {lastFeedback}
         </p>
       ) : null}
@@ -112,7 +112,7 @@ export const FloorAthleteCard: React.FC<FloorAthleteCardProps> = ({
               key={action.label}
               type="button"
               onClick={action.onClick}
-              className={`flex h-[40px] flex-1 items-center justify-center gap-1.5 rounded-xl text-[12px] font-semibold active:scale-[0.98] ${
+              className={`flex h-[40px] flex-1 items-center justify-center gap-1.5 rounded-xl text-o1-caption font-semibold active:scale-[0.98] ${
                 action.primary
                   ? 'bg-o1-crimson text-o1-text'
                   : 'border border-white/[0.07] bg-o1-surface text-o1-text'

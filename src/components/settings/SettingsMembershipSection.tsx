@@ -34,7 +34,7 @@ export const SettingsMembershipSection: React.FC<MembershipSectionProps> = ({
   return (
     <div className="space-y-2 select-none">
       <h3 className="text-xs font-tactical tracking-wider text-neutral-400 font-bold px-1 flex items-center gap-1.5">
-        <Sparkles className="w-3.5 h-3.5 text-[#D4A017]" /> Membership &amp; Entitlements
+        <Sparkles className="w-3.5 h-3.5 text-o1-gold" /> Membership &amp; Entitlements
       </h3>
 
       <div className="bg-o1-card rounded-2xl border border-white/[0.07] p-3 space-y-2 shadow-xs">
@@ -76,7 +76,7 @@ export const SettingsMembershipSection: React.FC<MembershipSectionProps> = ({
         {/* 90-Day Trial Progress Meter if on Core Free */}
         {isTrialActive && !isPro && (
           <div className="p-3 rounded-xl bg-o1-well border border-white/[0.07] space-y-1.5">
-            <div className="flex items-center justify-between text-[11px] font-mono">
+            <div className="flex items-center justify-between text-o1-label font-mono">
               <span className="text-neutral-300 font-bold">90-Day Complimentary Window</span>
               <span className="text-o1-crimson font-bold">
                 {isExpired ? 'Ended' : `${trialState.daysRemaining} of 90 days left`}
@@ -90,7 +90,7 @@ export const SettingsMembershipSection: React.FC<MembershipSectionProps> = ({
                 }}
               />
             </div>
-            <p className="text-[10px] text-neutral-400 font-mono">
+            <p className="text-o1-label text-neutral-400 font-mono">
               {isExpired
                 ? 'Basic workout logging is always free. Premium analytics and Radar need an active pass.'
                 : 'Workout Logger and Hydration stay free forever even after 90 days.'}
@@ -99,7 +99,7 @@ export const SettingsMembershipSection: React.FC<MembershipSectionProps> = ({
         )}
 
         <div className="pt-2 border-t border-white/[0.05] flex items-center justify-between">
-          <div className="flex items-center gap-1.5 text-[10px] font-mono text-neutral-400">
+          <div className="flex items-center gap-1.5 text-o1-label font-mono text-neutral-400">
             <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
             <span>Private backup • Zero 3rd-party trackers</span>
           </div>

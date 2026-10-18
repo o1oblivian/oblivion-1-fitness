@@ -33,7 +33,7 @@ export const MifflinGoalSection: React.FC<MifflinGoalSectionProps> = ({
 }) => {
   return (
     <div className="space-y-3 pt-2 border-t border-white/[0.05]">
-      <span className="text-[11px] tabular-nums font-bold tracking-wider text-o1-muted block">
+      <span className="text-o1-label tabular-nums font-bold tracking-wider text-o1-muted block">
         2. Choose Your Goal
       </span>
 
@@ -55,7 +55,7 @@ export const MifflinGoalSection: React.FC<MifflinGoalSectionProps> = ({
         >
           <Flame className="w-4 h-4 mx-auto mb-1 text-o1-crimson" />
           <span className="text-xs block font-bold">Fat Loss / Cut</span>
-          <span className="text-[9px] tabular-nums opacity-70 block">-400 kcal</span>
+          <span className="text-o1-label tabular-nums opacity-70 block">-400 kcal</span>
         </button>
 
         {/* 2. Maintain */}
@@ -74,7 +74,7 @@ export const MifflinGoalSection: React.FC<MifflinGoalSectionProps> = ({
         >
           <Scale className="w-4 h-4 mx-auto mb-1 text-sky-600" />
           <span className="text-xs block font-bold">Maintain / Recomp</span>
-          <span className="text-[9px] tabular-nums opacity-70 block">0 kcal</span>
+          <span className="text-o1-label tabular-nums opacity-70 block">0 kcal</span>
         </button>
 
         {/* 3. Lean Mass */}
@@ -93,7 +93,7 @@ export const MifflinGoalSection: React.FC<MifflinGoalSectionProps> = ({
         >
           <TrendingUp className="w-4 h-4 mx-auto mb-1 text-amber-500" />
           <span className="text-xs block font-bold">Lean Mass Gain</span>
-          <span className="text-[9px] tabular-nums opacity-70 block">+250 kcal</span>
+          <span className="text-o1-label tabular-nums opacity-70 block">+250 kcal</span>
         </button>
 
         {/* 4. Muscle Bulk */}
@@ -112,7 +112,7 @@ export const MifflinGoalSection: React.FC<MifflinGoalSectionProps> = ({
         >
           <Zap className="w-4 h-4 mx-auto mb-1 text-amber-500" />
           <span className="text-xs block font-bold">Muscle Bulk</span>
-          <span className="text-[9px] tabular-nums opacity-70 block">+450 kcal</span>
+          <span className="text-o1-label tabular-nums opacity-70 block">+450 kcal</span>
         </button>
 
         {/* 5. Heavy Mass */}
@@ -131,14 +131,14 @@ export const MifflinGoalSection: React.FC<MifflinGoalSectionProps> = ({
         >
           <Flame className="w-4 h-4 mx-auto mb-1 text-o1-crimson" />
           <span className="text-xs block font-bold">Heavy Mass Gain</span>
-          <span className="text-[9px] tabular-nums opacity-70 block">+700 kcal</span>
+          <span className="text-o1-label tabular-nums opacity-70 block">+700 kcal</span>
         </button>
       </div>
 
       {/* Target Weight & Delta */}
       <div className="grid grid-cols-2 gap-2">
         <div className="bg-o1-surface border border-white/[0.08] rounded-2xl p-2.5">
-          <label className="text-[9px] tabular-nums text-o1-muted block font-bold">
+          <label className="text-o1-label tabular-nums text-o1-muted block font-bold">
             Target Goal Weight
           </label>
           <div className="flex items-center gap-1">
@@ -156,7 +156,7 @@ export const MifflinGoalSection: React.FC<MifflinGoalSectionProps> = ({
         </div>
 
         <div className="bg-o1-surface border border-white/[0.08] rounded-2xl p-2.5">
-          <label className="text-[9px] tabular-nums text-o1-muted block font-bold">
+          <label className="text-o1-label tabular-nums text-o1-muted block font-bold">
             Target Difference
           </label>
           <div className="tabular-nums font-bold text-sm text-o1-crimson pt-0.5">
@@ -167,7 +167,7 @@ export const MifflinGoalSection: React.FC<MifflinGoalSectionProps> = ({
 
       {/* Target Pace (Weekly Rate) */}
       <div>
-        <label className="text-[9px] tabular-nums text-o1-muted block font-bold mb-1">
+        <label className="text-o1-label tabular-nums text-o1-muted block font-bold mb-1">
           Target Pace
         </label>
         <div className="grid grid-cols-3 gap-1.5">
@@ -189,8 +189,8 @@ export const MifflinGoalSection: React.FC<MifflinGoalSectionProps> = ({
                   : 'border-white/[0.08] bg-o1-surface text-o1-muted hover:text-o1-text'
               }`}
             >
-              <span className="text-[11px] block font-bold">{p.label}</span>
-              <span className="text-[9px] tabular-nums opacity-80 block">{p.sub}</span>
+              <span className="text-o1-label block font-bold">{p.label}</span>
+              <span className="text-o1-label tabular-nums opacity-80 block">{p.sub}</span>
             </button>
           ))}
         </div>
@@ -204,7 +204,7 @@ export const MifflinGoalSection: React.FC<MifflinGoalSectionProps> = ({
             Est. Timeline: <strong className="text-o1-text">{timelineWeeks} wks</strong>
           </span>
         </div>
-        <span className="text-o1-muted text-[10px]">Target: {targetDateStr}</span>
+        <span className="text-o1-muted text-o1-label">Target: {targetDateStr}</span>
       </div>
     </div>
   );

@@ -77,7 +77,7 @@ export const ScheduledRemindersModal: React.FC<ScheduledRemindersModalProps> = (
               <h3 className="font-tactical font-bold text-sm text-neutral-100 tracking-wider">
                 Scheduled Reminders
               </h3>
-              <span className="text-[11px] text-neutral-400 block">
+              <span className="text-o1-label text-neutral-400 block">
                 Set on this phone. Nothing is sent anywhere.
               </span>
             </div>
@@ -95,7 +95,7 @@ export const ScheduledRemindersModal: React.FC<ScheduledRemindersModalProps> = (
         {blockedReason ? (
           <p
             role="status"
-            className="rounded-xl border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-[11px] text-amber-300"
+            className="rounded-xl border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-o1-label text-amber-300"
           >
             {blockedReason}
           </p>
@@ -107,7 +107,7 @@ export const ScheduledRemindersModal: React.FC<ScheduledRemindersModalProps> = (
               <span className="text-xs font-tactical font-bold text-white block">
                 Training time
               </span>
-              <span className="text-[11px] text-neutral-400 block">
+              <span className="text-o1-label text-neutral-400 block">
                 {preWorkoutOn
                   ? `Reminder ${PRE_WORKOUT_LEAD_MIN} min before`
                   : 'Pre-workout reminder is off in Settings'}
@@ -151,7 +151,7 @@ export const ScheduledRemindersModal: React.FC<ScheduledRemindersModalProps> = (
             <span className="text-xs font-tactical font-bold text-white block">
               Recovery check-in
             </span>
-            <span className="text-[11px] text-neutral-400 block">
+            <span className="text-o1-label text-neutral-400 block">
               Every evening: log sleep and how you feel
             </span>
           </div>
@@ -175,7 +175,7 @@ export const ScheduledRemindersModal: React.FC<ScheduledRemindersModalProps> = (
         <div className="bg-o1-well border border-white/[0.07] rounded-xl p-3 flex items-center justify-between gap-3">
           <div className="space-y-0.5 min-w-0">
             <span className="text-xs font-tactical font-bold text-white block">Drink water</span>
-            <span className="text-[11px] text-neutral-400 block">
+            <span className="text-o1-label text-neutral-400 block">
               {HYDRATION_START_HOUR}am to {HYDRATION_END_HOUR - 12}pm
             </span>
           </div>

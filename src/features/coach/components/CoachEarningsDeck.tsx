@@ -180,8 +180,8 @@ export const CoachEarningsDeck: React.FC<CoachEarningsDeckProps> = ({
         <div className="flex items-start gap-3">
           <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-o1-bad-ink" />
           <div className="min-w-0">
-            <p className="text-[14px] font-semibold text-o1-bad-ink">{copy.title}</p>
-            <p className="mt-0.5 text-[12px] text-o1-text">{copy.detail}</p>
+            <p className="text-o1-control font-semibold text-o1-bad-ink">{copy.title}</p>
+            <p className="mt-0.5 text-o1-caption text-o1-text">{copy.detail}</p>
           </div>
         </div>
         <button
@@ -191,7 +191,7 @@ export const CoachEarningsDeck: React.FC<CoachEarningsDeckProps> = ({
             void loadData();
           }}
           disabled={isLoading}
-          className="flex h-[44px] w-full items-center justify-center gap-2 rounded-xl border border-white/[0.07] bg-o1-canvas text-[13px] font-semibold text-o1-text active:scale-[0.98] disabled:opacity-60"
+          className="flex h-[44px] w-full items-center justify-center gap-2 rounded-xl border border-white/[0.07] bg-o1-canvas text-o1-body font-semibold text-o1-text active:scale-[0.98] disabled:opacity-60"
         >
           <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
           {isLoading ? 'Retrying…' : 'Retry'}
@@ -204,7 +204,7 @@ export const CoachEarningsDeck: React.FC<CoachEarningsDeckProps> = ({
     <div className="space-y-3 select-none">
       <section className="space-y-3 rounded-2xl border border-white/[0.07] bg-o1-surface p-4">
         <div className="flex items-center justify-between">
-          <p className="text-[13px] font-semibold text-o1-text">
+          <p className="text-o1-body font-semibold text-o1-text">
             {balance ? 'Ready to withdraw' : 'Earnings'}
           </p>
           <button
@@ -219,7 +219,7 @@ export const CoachEarningsDeck: React.FC<CoachEarningsDeckProps> = ({
         </div>
         {balance ? (
           <>
-            <p className="text-[32px] font-semibold leading-none tabular-nums text-o1-text">
+            <p className="text-o1-display font-semibold leading-none tabular-nums text-o1-text">
               {money(availableCents, currency)}
             </p>
             <dl className="grid grid-cols-3 gap-1.5">
@@ -229,24 +229,24 @@ export const CoachEarningsDeck: React.FC<CoachEarningsDeckProps> = ({
                 { label: `Fees (${feeLabel})`, value: balance.platformFeeCents },
               ].map((row) => (
                 <div key={row.label} className="rounded-xl bg-o1-canvas px-2 py-1.5 text-center">
-                  <dt className="text-[10px] text-o1-muted">{row.label}</dt>
-                  <dd className="text-[13px] font-semibold tabular-nums text-o1-text">
+                  <dt className="text-o1-label text-o1-muted">{row.label}</dt>
+                  <dd className="text-o1-body font-semibold tabular-nums text-o1-text">
                     {money(row.value, currency)}
                   </dd>
                 </div>
               ))}
             </dl>
-            <p className="text-[11px] text-o1-muted">
+            <p className="text-o1-label text-o1-muted">
               {planLabel} plan · we keep {feeLabel} of each program sale
             </p>
             {!isOnboarded ? (
-              <p className="text-[13px] text-o1-muted">
+              <p className="text-o1-body text-o1-muted">
                 Connect a bank account to get paid for program sales.
               </p>
             ) : null}
           </>
         ) : (
-          <p className="text-[13px] text-o1-muted">Loading earnings…</p>
+          <p className="text-o1-body text-o1-muted">Loading earnings…</p>
         )}
         {!balance ? null : isOnboarded && availableCents > 0 ? (
           <button
@@ -255,7 +255,7 @@ export const CoachEarningsDeck: React.FC<CoachEarningsDeckProps> = ({
               tactileEngine.triggerSelectionBuzz();
               setIsWithdrawOpen(true);
             }}
-            className="h-[44px] w-full rounded-xl bg-o1-crimson text-[13px] font-semibold text-o1-text active:scale-[0.98]"
+            className="h-[44px] w-full rounded-xl bg-o1-crimson text-o1-body font-semibold text-o1-text active:scale-[0.98]"
           >
             Withdraw
           </button>
@@ -265,17 +265,19 @@ export const CoachEarningsDeck: React.FC<CoachEarningsDeckProps> = ({
             onClick={() => {
               void startPayoutSetup();
             }}
-            className="h-[44px] w-full rounded-xl bg-o1-crimson text-[13px] font-semibold text-o1-text active:scale-[0.98]"
+            className="h-[44px] w-full rounded-xl bg-o1-crimson text-o1-body font-semibold text-o1-text active:scale-[0.98]"
           >
             Set up payouts
           </button>
         ) : null}
-        {setupNote ? <p className="text-center text-[12px] text-o1-muted">{setupNote}</p> : null}
+        {setupNote ? (
+          <p className="text-center text-o1-caption text-o1-muted">{setupNote}</p>
+        ) : null}
       </section>
 
       {ledger.length > 0 && (
         <section className="space-y-2">
-          <p className="px-1 text-[13px] font-semibold text-o1-text">History</p>
+          <p className="px-1 text-o1-body font-semibold text-o1-text">History</p>
           {ledger.map((item) => (
             <div
               key={item.id}
@@ -283,21 +285,21 @@ export const CoachEarningsDeck: React.FC<CoachEarningsDeckProps> = ({
             >
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
-                  <span className="truncate text-[13px] font-semibold text-o1-text">
+                  <span className="truncate text-o1-body font-semibold text-o1-text">
                     {item.title}
                   </span>
                   <span
-                    className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold ${statusTone(item.status)}`}
+                    className={`shrink-0 rounded-full px-2 py-0.5 text-o1-label font-semibold ${statusTone(item.status)}`}
                   >
                     {STATUS_LABEL[item.status] || item.status}
                   </span>
                 </div>
-                <span className="mt-0.5 block text-[11px] text-o1-muted">
+                <span className="mt-0.5 block text-o1-label text-o1-muted">
                   {new Date(item.createdAt).toLocaleDateString()}
                 </span>
               </div>
               <span
-                className={`shrink-0 text-[13px] font-semibold tabular-nums ${item.amountCents > 0 ? 'text-o1-text' : 'text-o1-muted'}`}
+                className={`shrink-0 text-o1-body font-semibold tabular-nums ${item.amountCents > 0 ? 'text-o1-text' : 'text-o1-muted'}`}
               >
                 {item.amountCents > 0 ? '+' : '−'}
                 {money(Math.abs(item.amountCents), item.currency)}

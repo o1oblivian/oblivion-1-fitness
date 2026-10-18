@@ -43,10 +43,10 @@ export const AthleteLaunchProtocolCard: React.FC<AthleteLaunchProtocolCardProps>
           className="h-auto w-[70%] max-w-[250px] select-none"
           draggable={false}
         />
-        <h1 className="mt-3 font-display text-[23px] font-light leading-tight tracking-[-0.01em]">
+        <h1 className="mt-3 font-display text-o1-heading font-light leading-tight tracking-[-0.01em]">
           Welcome to the club
         </h1>
-        <p className="mt-1.5 max-w-[290px] text-[13px] font-normal leading-relaxed text-o1-muted/80">
+        <p className="mt-1.5 max-w-[290px] text-o1-body font-normal leading-relaxed text-o1-muted/80">
           {consulted
             ? 'Your profile is set. Everything is ready on the floor.'
             : 'A short consultation tailors your training, then you choose your membership.'}
@@ -60,14 +60,16 @@ export const AthleteLaunchProtocolCard: React.FC<AthleteLaunchProtocolCardProps>
               <Icon className="h-4 w-4 text-o1-text" strokeWidth={1.5} />
             </span>
             <div>
-              <p className="text-[14px] font-normal">{title}</p>
-              <p className="mt-0.5 text-[12px] font-normal leading-relaxed text-o1-muted">{body}</p>
+              <p className="text-o1-control font-normal">{title}</p>
+              <p className="mt-0.5 text-o1-caption font-normal leading-relaxed text-o1-muted">
+                {body}
+              </p>
             </div>
           </div>
         ))}
       </div>
 
-      <p className="mt-3 px-2 text-center text-[11px] font-normal leading-relaxed text-o1-muted/80">
+      <p className="mt-3 px-2 text-center text-o1-label font-normal leading-relaxed text-o1-muted/80">
         Camera, location and notifications are only requested when you open a feature that uses
         them.
       </p>
@@ -79,7 +81,7 @@ export const AthleteLaunchProtocolCard: React.FC<AthleteLaunchProtocolCardProps>
             tactileEngine.triggerDialHaptic();
             onLaunch();
           }}
-          className="flex h-11 w-full items-center justify-center gap-2 rounded-full bg-o1-crimson text-[14px] font-medium text-white transition hover:bg-o1-crimson-hover active:scale-[0.98] active:bg-o1-crimson-press"
+          className="flex h-11 w-full items-center justify-center gap-2 rounded-full bg-o1-crimson text-o1-control font-medium text-white transition hover:bg-o1-crimson-hover active:scale-[0.98] active:bg-o1-crimson-press"
         >
           {consulted ? 'Enter the club' : 'Begin consultation'}
           <ArrowRight className="h-4 w-4" />
@@ -91,7 +93,7 @@ export const AthleteLaunchProtocolCard: React.FC<AthleteLaunchProtocolCardProps>
               tactileEngine.triggerSelectionBuzz();
               onSkip();
             }}
-            className="h-10 w-full text-[13px] font-normal text-o1-muted"
+            className="h-10 w-full text-o1-body font-normal text-o1-muted"
           >
             Close
           </button>

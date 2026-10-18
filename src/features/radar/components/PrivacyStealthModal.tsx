@@ -54,7 +54,7 @@ export const PrivacyStealthModal: React.FC<Props> = ({ isOpen, onClose, onSaved 
               <h3 className="text-xs font-mono font-bold tracking-wider text-white font-tactical leading-tight">
                 PRIVACY
               </h3>
-              <p className="text-[10px] text-neutral-400 font-mono">Who can see you on Buddy</p>
+              <p className="text-o1-label text-neutral-400 font-mono">Who can see you on Buddy</p>
             </div>
           </div>
           <button
@@ -90,7 +90,7 @@ export const PrivacyStealthModal: React.FC<Props> = ({ isOpen, onClose, onSaved 
                     <span className="block text-xs font-semibold text-white tracking-wide font-tactical">
                       {row.title}
                     </span>
-                    <span className="block text-[11px] text-neutral-400 leading-snug">
+                    <span className="block text-o1-label text-neutral-400 leading-snug">
                       {row.desc}
                     </span>
                   </span>

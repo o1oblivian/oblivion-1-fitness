@@ -194,7 +194,7 @@ export const ProgramCreatorModal: React.FC<{
         {publishError ? (
           <p
             role="alert"
-            className="shrink-0 border-t border-white/[0.07] bg-o1-surface px-4 py-2 text-[12px] text-o1-text"
+            className="shrink-0 border-t border-white/[0.07] bg-o1-surface px-4 py-2 text-o1-caption text-o1-text"
           >
             {publishError}
           </p>

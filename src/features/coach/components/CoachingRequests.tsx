@@ -50,12 +50,12 @@ export const CoachingRequestCard: React.FC<{
         <AthleteAvatar name={name} />
         <div className="min-w-0 flex-1">
           <div className="flex items-baseline justify-between gap-2">
-            <span className="truncate text-[15px] font-semibold text-o1-text">{name}</span>
-            <span className="shrink-0 text-[11px] text-o1-muted">Wants coaching</span>
+            <span className="truncate text-o1-control font-semibold text-o1-text">{name}</span>
+            <span className="shrink-0 text-o1-label text-o1-muted">Wants coaching</span>
           </div>
-          <p className="text-[13px] text-o1-text">{request.goal}</p>
+          <p className="text-o1-body text-o1-text">{request.goal}</p>
           {intake.length > 0 ? (
-            <p className="mt-0.5 text-[12px] text-o1-muted">{intake.join(' · ')}</p>
+            <p className="mt-0.5 text-o1-caption text-o1-muted">{intake.join(' · ')}</p>
           ) : null}
         </div>
       </div>
@@ -65,7 +65,7 @@ export const CoachingRequestCard: React.FC<{
             key={String(accept)}
             type="button"
             onClick={() => onDecide(request, accept)}
-            className={`h-[44px] flex-1 rounded-xl text-[13px] font-semibold active:scale-[0.98] ${
+            className={`h-[44px] flex-1 rounded-xl text-o1-body font-semibold active:scale-[0.98] ${
               accept
                 ? 'bg-o1-crimson text-white'
                 : 'border border-white/[0.07] bg-o1-canvas text-o1-text'

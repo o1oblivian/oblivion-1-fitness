@@ -19,9 +19,9 @@ const PartCell: React.FC<{ part: ScorePart; children?: React.ReactNode }> = ({
   part,
   children,
 }) => (
-  <div className="rounded-xl bg-[#111113] border border-white/[0.07] p-3 space-y-2 min-h-[88px]">
+  <div className="rounded-xl bg-o1-surface border border-white/[0.07] p-3 space-y-2 min-h-[88px]">
     <div className="flex items-baseline justify-between">
-      <span className="text-[10px] font-mono font-bold tracking-wider text-neutral-400">
+      <span className="text-o1-label font-mono font-bold tracking-wider text-neutral-400">
         {part.label}
       </span>
       <span className="text-lg font-black font-mono text-white leading-none">
@@ -34,7 +34,7 @@ const PartCell: React.FC<{ part: ScorePart; children?: React.ReactNode }> = ({
         style={{ width: `${part.value ?? 0}%`, background: tone(part.value) }}
       />
     </div>
-    <p className="text-[10px] leading-snug text-neutral-500 font-mono">{part.detail}</p>
+    <p className="text-o1-label leading-snug text-neutral-500 font-mono">{part.detail}</p>
     {children}
   </div>
 );
@@ -45,7 +45,7 @@ export const ScoreHero: React.FC<ScoreHeroProps> = ({ report, targetSessions, on
   const stat = (label: string, value: string) => (
     <div className="flex-1 min-w-0 text-center">
       <div className="text-sm font-black font-mono text-white truncate">{value}</div>
-      <div className="text-[9px] font-mono tracking-wider text-neutral-500">{label}</div>
+      <div className="text-o1-label font-mono tracking-wider text-neutral-500">{label}</div>
     </div>
   );
 
@@ -69,19 +69,19 @@ export const ScoreHero: React.FC<ScoreHeroProps> = ({ report, targetSessions, on
             />
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <span className="text-[44px] leading-none font-black font-mono text-white tabular-nums">
+            <span className="text-o1-hero leading-none font-black font-mono text-white tabular-nums">
               {score === null ? '--' : score}
             </span>
-            <span className="text-[9px] font-mono tracking-[0.2em] text-neutral-500 mt-1">
+            <span className="text-o1-label font-mono tracking-[0.2em] text-neutral-500 mt-1">
               Athlete score
             </span>
           </div>
         </div>
-        <span className="px-3 py-1 rounded-full border border-white/[0.12] text-[10px] font-mono font-bold tracking-[0.2em] text-neutral-200">
+        <span className="px-3 py-1 rounded-full border border-white/[0.12] text-o1-label font-mono font-bold tracking-[0.2em] text-neutral-200">
           {grade}
         </span>
         {score === null && (
-          <p className="text-[11px] text-neutral-500 text-center max-w-[280px]">
+          <p className="text-o1-label text-neutral-500 text-center max-w-[280px]">
             The score needs two of the four components. Log training, sleep or bodyweight and it
             calibrates automatically.
           </p>
@@ -93,7 +93,7 @@ export const ScoreHero: React.FC<ScoreHeroProps> = ({ report, targetSessions, on
           part.id === 'consistency' && targetSessions !== undefined && onTargetChange ? (
             <PartCell key={part.id} part={part}>
               <div className="flex items-center justify-between pt-0.5">
-                <span className="text-[9px] font-mono tracking-wider text-neutral-600">
+                <span className="text-o1-label font-mono tracking-wider text-neutral-600">
                   Target / wk
                 </span>
                 <div className="flex items-center gap-1">

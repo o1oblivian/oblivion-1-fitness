@@ -77,7 +77,7 @@ export function MeditationLogFields({ form }: { form: MeditationLogForm }) {
     <div className="space-y-3.5">
       <div className="grid grid-cols-2 gap-2">
         <div>
-          <label className="text-[10px] text-neutral-400 font-bold block mb-1">
+          <label className="text-o1-label text-neutral-400 font-bold block mb-1">
             Mindful Time (MIN)
           </label>
           <input
@@ -90,7 +90,7 @@ export function MeditationLogFields({ form }: { form: MeditationLogForm }) {
           />
         </div>
         <div>
-          <label className="text-[10px] text-neutral-400 font-bold block mb-1">
+          <label className="text-o1-label text-neutral-400 font-bold block mb-1">
             Brainwave Coherence
           </label>
           <select
@@ -107,7 +107,7 @@ export function MeditationLogFields({ form }: { form: MeditationLogForm }) {
       </div>
 
       <div>
-        <label className="text-[10px] text-neutral-400 font-bold block mb-1">
+        <label className="text-o1-label text-neutral-400 font-bold block mb-1">
           Resonance Protocol
         </label>
         <div className="space-y-1.5">

@@ -19,7 +19,7 @@ import {
 import { SectionCard } from './IntelParts';
 
 const inputCls =
-  'w-full min-h-[44px] rounded-xl bg-[#111113] border border-white/[0.07] px-3 text-sm font-mono text-white placeholder:text-neutral-600 focus:outline-none focus:border-white/30';
+  'w-full min-h-[44px] rounded-xl bg-o1-surface border border-white/[0.07] px-3 text-sm font-mono text-white placeholder:text-neutral-600 focus:outline-none focus:border-white/30';
 
 const fmtDate = (key: string) => {
   const [y, m, d] = key.split('-').map(Number);
@@ -86,7 +86,7 @@ export const DexaPanel: React.FC = () => {
         <form onSubmit={save} className="space-y-3" noValidate>
           <div className="grid grid-cols-2 gap-2">
             <label className="space-y-1">
-              <span className="text-[10px] font-mono font-bold tracking-wider text-neutral-500">
+              <span className="text-o1-label font-mono font-bold tracking-wider text-neutral-500">
                 Scan date
               </span>
               <input
@@ -98,7 +98,7 @@ export const DexaPanel: React.FC = () => {
               />
             </label>
             <label className="space-y-1">
-              <span className="text-[10px] font-mono font-bold tracking-wider text-neutral-500">
+              <span className="text-o1-label font-mono font-bold tracking-wider text-neutral-500">
                 Body fat %
               </span>
               <input
@@ -114,13 +114,13 @@ export const DexaPanel: React.FC = () => {
           </div>
 
           <div className="space-y-1.5">
-            <span className="text-[10px] font-mono font-bold tracking-wider text-neutral-500">
+            <span className="text-o1-label font-mono font-bold tracking-wider text-neutral-500">
               Segmental lean mass (kg, optional)
             </span>
             <div className="grid grid-cols-2 gap-2">
               {LEAN_SEGMENTS.map((seg) => (
                 <label key={seg.id} className="space-y-1">
-                  <span className="text-[10px] font-mono text-neutral-500">{seg.label}</span>
+                  <span className="text-o1-label font-mono text-neutral-500">{seg.label}</span>
                   <input
                     type="number"
                     inputMode="decimal"
@@ -137,7 +137,7 @@ export const DexaPanel: React.FC = () => {
           </div>
 
           {error && (
-            <p role="alert" className="text-[11px] font-mono text-[#d97706]">
+            <p role="alert" className="text-o1-label font-mono text-o1-amber-deep">
               {error}
             </p>
           )}
@@ -166,11 +166,11 @@ export const DexaPanel: React.FC = () => {
                 {latest.bodyFatPct}
                 <span className="text-sm text-neutral-500"> % body fat</span>
               </div>
-              <div className="text-[11px] font-mono text-neutral-500 mt-1.5">
+              <div className="text-o1-label font-mono text-neutral-500 mt-1.5">
                 Scanned {fmtDate(latest.date)} · {ageText(scanAgeDays(latest))}
               </div>
               {previous && (
-                <div className="text-[11px] font-mono text-neutral-400 mt-0.5">
+                <div className="text-o1-label font-mono text-neutral-400 mt-0.5">
                   {signed(Math.round((latest.bodyFatPct - previous.bodyFatPct) * 10) / 10, ' pts')}{' '}
                   since {fmtDate(previous.date)}
                 </div>
@@ -222,14 +222,14 @@ export const DexaPanel: React.FC = () => {
           )}
 
           {(armGap !== null || legGap !== null) && (
-            <div className="rounded-xl bg-[#111113] border border-white/[0.07] px-3 py-2 text-[11px] font-mono text-neutral-400 space-y-0.5">
+            <div className="rounded-xl bg-o1-surface border border-white/[0.07] px-3 py-2 text-o1-label font-mono text-neutral-400 space-y-0.5">
               {armGap !== null && <div>Arm left − right: {signed(armGap, ' kg')}</div>}
               {legGap !== null && <div>Leg left − right: {signed(legGap, ' kg')}</div>}
             </div>
           )}
 
           {scans.length > 1 && (
-            <p className="text-[10px] font-mono text-neutral-600">
+            <p className="text-o1-label font-mono text-neutral-600">
               {scans.length} scans saved on this device.
             </p>
           )}
@@ -260,7 +260,7 @@ export const DexaPanel: React.FC = () => {
         </div>
       )}
 
-      <p className="text-[10px] font-mono text-neutral-600 leading-relaxed">
+      <p className="text-o1-label font-mono text-neutral-600 leading-relaxed">
         Values are shown exactly as you entered them. Oblivion does not measure body composition and
         does not use these numbers in your scores or share them with your coach.
       </p>

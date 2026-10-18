@@ -46,7 +46,7 @@ export const HelpCenterModal: React.FC<HelpCenterModalProps> = ({ isOpen, onClos
             </div>
             <div>
               <h2 className="text-sm font-bold tracking-wider font-tactical">Help</h2>
-              <p className="text-[10px] font-mono text-neutral-500">How Oblivion 1 works</p>
+              <p className="text-o1-label font-mono text-neutral-500">How Oblivion 1 works</p>
             </div>
           </div>
           <button
@@ -82,7 +82,7 @@ export const HelpCenterModal: React.FC<HelpCenterModalProps> = ({ isOpen, onClos
                     <Icon className="w-4 h-4 text-o1-crimson shrink-0" />
                     <div>
                       <h4 className="font-bold text-xs font-tactical">{t.title}</h4>
-                      <p className="text-[10px] text-neutral-500 font-mono">{t.summary}</p>
+                      <p className="text-o1-label text-neutral-500 font-mono">{t.summary}</p>
                     </div>
                   </div>
                   {isExp ? (
@@ -92,7 +92,7 @@ export const HelpCenterModal: React.FC<HelpCenterModalProps> = ({ isOpen, onClos
                   )}
                 </button>
                 {isExp && (
-                  <div className="px-3.5 pb-3.5 pt-1 text-[11px] font-mono text-neutral-300 leading-relaxed border-t border-white/[0.05]">
+                  <div className="px-3.5 pb-3.5 pt-1 text-o1-label font-mono text-neutral-300 leading-relaxed border-t border-white/[0.05]">
                     {t.desc}
                   </div>
                 )}

@@ -93,11 +93,11 @@ export const BioSyncIntelligenceModal: React.FC<BioSyncIntelligenceModalProps> =
                 <h3 className="font-tactical font-medium text-sm tracking-wider text-white">
                   Bio-Sync Intelligence
                 </h3>
-                <span className="px-1.5 py-0.5 rounded text-[9px] font-mono font-medium bg-white/10 text-sky-600">
+                <span className="px-1.5 py-0.5 rounded text-o1-label font-mono font-medium bg-white/10 text-sky-600">
                   Endocrine
                 </span>
               </div>
-              <p className="text-[11px] font-mono text-neutral-400">
+              <p className="text-o1-label font-mono text-neutral-400">
                 Endocrine Rhythm &amp; Neuromuscular Peaking
               </p>
             </div>
@@ -114,7 +114,7 @@ export const BioSyncIntelligenceModal: React.FC<BioSyncIntelligenceModalProps> =
 
         {/* Phase Timeline Pushers (4-Slot Tactical Bar) */}
         <div className="space-y-1.5">
-          <div className="flex items-center justify-between text-[10px] font-mono tracking-wider text-neutral-400">
+          <div className="flex items-center justify-between text-o1-label font-mono tracking-wider text-neutral-400">
             <span>Biological Cycle Phase</span>
             <span className="text-sky-600 font-mono">{currentMeta.daySpan}</span>
           </div>
@@ -142,8 +142,8 @@ export const BioSyncIntelligenceModal: React.FC<BioSyncIntelligenceModalProps> =
                       : 'text-neutral-400 hover:text-white'
                   }`}
                 >
-                  <span className="text-[11px] font-mono font-medium block">{p.label}</span>
-                  <span className="text-[9px] font-mono opacity-70 block">{p.code}</span>
+                  <span className="text-o1-label font-mono font-medium block">{p.label}</span>
+                  <span className="text-o1-label font-mono opacity-70 block">{p.code}</span>
                 </button>
               );
             })}
@@ -153,10 +153,10 @@ export const BioSyncIntelligenceModal: React.FC<BioSyncIntelligenceModalProps> =
         {/* Phase Intelligence Spotlight Card (Zero Dark Fog) */}
         <div className="bg-white/[0.03] border border-white/[0.07] rounded-2xl p-4 space-y-3">
           <div className="flex items-center justify-between">
-            <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-medium tracking-wider bg-sky-500/10 text-sky-600 border border-sky-500/30">
+            <span className="px-2 py-0.5 rounded-full text-o1-label font-mono font-medium tracking-wider bg-sky-500/10 text-sky-600 border border-sky-500/30">
               {currentMeta.daySpan} • {activePhase}
             </span>
-            <span className="text-[10px] font-mono font-medium text-emerald-500 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full">
+            <span className="text-o1-label font-mono font-medium text-emerald-500 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full">
               OFFSET: {currentMeta.rpeOffset}
             </span>
           </div>
@@ -173,7 +173,7 @@ export const BioSyncIntelligenceModal: React.FC<BioSyncIntelligenceModalProps> =
           {/* Neuromuscular Metrics Grid */}
           <div className="grid grid-cols-2 gap-2 pt-1 border-t border-white/[0.05]">
             <div className="p-2.5 rounded-xl bg-black/40 border border-white/[0.07]">
-              <span className="text-[9px] font-mono tracking-wider text-neutral-400 block font-medium">
+              <span className="text-o1-label font-mono tracking-wider text-neutral-400 block font-medium">
                 Recovery Window
               </span>
               <span className="text-xs font-mono font-medium text-white mt-0.5 block">
@@ -181,7 +181,7 @@ export const BioSyncIntelligenceModal: React.FC<BioSyncIntelligenceModalProps> =
               </span>
             </div>
             <div className="p-2.5 rounded-xl bg-black/40 border border-white/[0.07]">
-              <span className="text-[9px] font-mono tracking-wider text-neutral-400 block font-medium">
+              <span className="text-o1-label font-mono tracking-wider text-neutral-400 block font-medium">
                 Target Intensity
               </span>
               <span className="text-xs font-mono font-medium text-sky-600 mt-0.5 block">
@@ -193,14 +193,14 @@ export const BioSyncIntelligenceModal: React.FC<BioSyncIntelligenceModalProps> =
 
         {/* Auto-Regulation Recommendation Box */}
         <div className="p-3 rounded-xl bg-white/[0.03] border border-white/[0.07] text-xs text-neutral-300 space-y-1">
-          <span className="text-[10px] font-mono tracking-wider text-neutral-400 font-medium flex items-center gap-1.5">
+          <span className="text-o1-label font-mono tracking-wider text-neutral-400 font-medium flex items-center gap-1.5">
             <Activity className="w-3.5 h-3.5 text-sky-600" />
             <span>How it affects training</span>
           </span>
-          <p className="text-[11px] text-neutral-300 font-sans pl-5">{currentMeta.powerImpact}</p>
+          <p className="text-o1-label text-neutral-300 font-sans pl-5">{currentMeta.powerImpact}</p>
         </div>
 
-        <p className="text-[11px] text-o1-muted leading-relaxed px-0.5">
+        <p className="text-o1-label text-o1-muted leading-relaxed px-0.5">
           A guide to training by cycle phase. It doesn&apos;t change your plan; adjust your RPE
           targets using it as you see fit.
         </p>

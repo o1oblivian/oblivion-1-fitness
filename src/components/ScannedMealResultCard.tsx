@@ -75,24 +75,24 @@ export const ScannedMealResultCard: React.FC<ScannedMealResultCardProps> = ({
       <div className="flex items-start justify-between gap-2">
         <div>
           <h4 className="font-bold text-sm text-white font-tactical">{scannedMeal.dishName}</h4>
-          <span className="text-[10px] text-neutral-400 font-mono">
+          <span className="text-o1-label text-neutral-400 font-mono">
             {scannedMeal.servingDescription || `${weight}g portion`}
           </span>
         </div>
         {isBarcode ? (
-          <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 flex items-center gap-1">
+          <span className="text-o1-label font-mono px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 flex items-center gap-1">
             <ShieldCheck className="w-3 h-3 text-emerald-400" />
             100% Match
           </span>
         ) : confidence !== null && confidence > 0 ? (
-          <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-sky-500/15 text-sky-400 border border-sky-500/30">
+          <span className="text-o1-label font-mono px-2 py-0.5 rounded-full bg-sky-500/15 text-sky-400 border border-sky-500/30">
             {confidence}% Match
           </span>
         ) : null}
       </div>
 
       {/* Universal Modifiers */}
-      <div className="space-y-1.5 pt-1 border-t border-white/[0.05] text-[10px]">
+      <div className="space-y-1.5 pt-1 border-t border-white/[0.05] text-o1-label">
         <div className="flex items-center gap-1.5 flex-wrap">
           <span className="font-mono text-neutral-400 w-9">Prep:</span>
           {(['lean', 'oil'] as const).map((p) => (
@@ -149,7 +149,7 @@ export const ScannedMealResultCard: React.FC<ScannedMealResultCardProps> = ({
               onChange={(e) => setWeightText(e.target.value.replace(/\D/g, '').slice(0, 4))}
               className="w-12 bg-transparent text-center font-mono font-bold text-xs text-white focus:outline-hidden"
             />
-            <span className="text-[10px] font-mono text-neutral-400">g</span>
+            <span className="text-o1-label font-mono text-neutral-400">g</span>
           </div>
         </div>
         <div className="grid grid-cols-4 gap-1.5">
@@ -161,7 +161,7 @@ export const ScannedMealResultCard: React.FC<ScannedMealResultCardProps> = ({
                 tactileEngine.triggerSelectionBuzz();
                 setWeight((w) => w + delta);
               }}
-              className="py-1 rounded-xl bg-white/10 hover:bg-white/20 text-[10px] font-mono font-bold text-neutral-200 transition cursor-pointer active:scale-95"
+              className="py-1 rounded-xl bg-white/10 hover:bg-white/20 text-o1-label font-mono font-bold text-neutral-200 transition cursor-pointer active:scale-95"
             >
               {delta > 0 ? `+${delta}g` : `${delta}g`}
             </button>
@@ -178,7 +178,7 @@ export const ScannedMealResultCard: React.FC<ScannedMealResultCardProps> = ({
           { label: 'FAT', val: fat === null ? '--' : `${fat}g`, color: 'text-emerald-400' },
         ].map((m) => (
           <div key={m.label} className="p-1.5 rounded-xl bg-o1-well border border-white/[0.07]">
-            <span className="text-[9px] text-neutral-400 block font-sans font-semibold">
+            <span className="text-o1-label text-neutral-400 block font-sans font-semibold">
               {m.label}
             </span>
             <span className={`text-xs font-bold font-mono ${m.color}`}>{m.val}</span>
@@ -187,7 +187,7 @@ export const ScannedMealResultCard: React.FC<ScannedMealResultCardProps> = ({
       </div>
 
       {!hasAllMacros && (
-        <p className="text-[10px] font-mono text-amber-400 text-center">
+        <p className="text-o1-label font-mono text-amber-400 text-center">
           Some macros could not be read. Add this meal manually to log exact values.
         </p>
       )}
@@ -204,7 +204,7 @@ export const ScannedMealResultCard: React.FC<ScannedMealResultCardProps> = ({
       </button>
 
       {/* Apple 1.4.1 / Google Health Compliance Disclaimer Footer */}
-      <p className="text-[9px] font-mono text-neutral-400 text-center leading-tight pt-0.5">
+      <p className="text-o1-label font-mono text-neutral-400 text-center leading-tight pt-0.5">
         Nutritional values are estimates for general wellness only. Not medical or dietetic advice.
       </p>
     </div>

@@ -117,7 +117,7 @@ export const MealSuggestionsSection: React.FC<MealSuggestionsSectionProps> = ({
           </span>
         </span>
         <span className="flex items-center gap-2 shrink-0">
-          <span className="text-[11px] text-o1-muted tabular-nums">
+          <span className="text-o1-label text-o1-muted tabular-nums">
             {calibrated
               ? dayDone
                 ? 'Day target reached'
@@ -140,7 +140,7 @@ export const MealSuggestionsSection: React.FC<MealSuggestionsSectionProps> = ({
               <button
                 type="button"
                 onClick={onOpenSettings}
-                className="shrink-0 h-8 px-3 rounded-full bg-o1-crimson hover:bg-[#A30F16] active:bg-[#800C11] text-white text-xs font-semibold cursor-pointer"
+                className="shrink-0 h-8 px-3 rounded-full bg-o1-crimson hover:bg-o1-crimson-hover active:bg-o1-crimson-press text-white text-xs font-semibold cursor-pointer"
               >
                 Set targets
               </button>
@@ -166,7 +166,7 @@ export const MealSuggestionsSection: React.FC<MealSuggestionsSectionProps> = ({
                         setSlot(s.key);
                         setRotation(0);
                       }}
-                      className={`h-8 rounded-lg text-[11px] font-semibold flex items-center justify-center gap-1 transition-colors cursor-pointer ${
+                      className={`h-8 rounded-lg text-o1-label font-semibold flex items-center justify-center gap-1 transition-colors cursor-pointer ${
                         active
                           ? 'bg-o1-text text-black border border-transparent'
                           : 'text-o1-muted hover:text-o1-text border border-transparent'
@@ -181,7 +181,9 @@ export const MealSuggestionsSection: React.FC<MealSuggestionsSectionProps> = ({
 
               <div className="flex items-center justify-between gap-3">
                 <div className="min-w-0">
-                  <p className="text-[11px] text-o1-muted">{slotLabel} budget · from what's left</p>
+                  <p className="text-o1-label text-o1-muted">
+                    {slotLabel} budget · from what's left
+                  </p>
                   <p className="text-xs font-semibold tabular-nums mt-0.5">
                     <span className="text-o1-text">{budget.kcal.toLocaleString()} kcal</span>
                     <span className="text-o1-muted"> · </span>
@@ -200,7 +202,7 @@ export const MealSuggestionsSection: React.FC<MealSuggestionsSectionProps> = ({
                       onOpenDietModal();
                     }}
                     aria-label={`Diet: ${dietPreference}. Change diet`}
-                    className="h-8 pl-2.5 pr-3 rounded-full border border-white/[0.08] hover:border-white/20 text-[11px] font-medium text-o1-text flex items-center gap-1.5 cursor-pointer"
+                    className="h-8 pl-2.5 pr-3 rounded-full border border-white/[0.08] hover:border-white/20 text-o1-label font-medium text-o1-text flex items-center gap-1.5 cursor-pointer"
                   >
                     <Utensils className="w-3 h-3 text-o1-muted" />
                     {dietPreference}
@@ -234,10 +236,10 @@ export const MealSuggestionsSection: React.FC<MealSuggestionsSectionProps> = ({
                       >
                         <div className="flex items-start justify-between gap-3">
                           <div className="min-w-0">
-                            <h4 className="text-[13px] font-semibold text-o1-text leading-snug">
+                            <h4 className="text-o1-body font-semibold text-o1-text leading-snug">
                               {meal.name}
                             </h4>
-                            <span className="mt-0.5 flex items-center gap-2 text-[10px] text-o1-muted">
+                            <span className="mt-0.5 flex items-center gap-2 text-o1-label text-o1-muted">
                               <span className="inline-flex items-center gap-1">
                                 <Clock className="w-2.5 h-2.5" />
                                 {meal.prepTime}
@@ -256,7 +258,7 @@ export const MealSuggestionsSection: React.FC<MealSuggestionsSectionProps> = ({
                             className={`shrink-0 h-8 px-3 rounded-full text-xs font-semibold flex items-center gap-1 transition-colors active:scale-95 cursor-pointer ${
                               isLogged
                                 ? 'bg-emerald-600 text-white'
-                                : 'bg-o1-crimson hover:bg-[#A30F16] active:bg-[#800C11] text-white'
+                                : 'bg-o1-crimson hover:bg-o1-crimson-hover active:bg-o1-crimson-press text-white'
                             }`}
                           >
                             {isLogged ? (
@@ -272,7 +274,7 @@ export const MealSuggestionsSection: React.FC<MealSuggestionsSectionProps> = ({
                           {meal.ingredients.map((ing) => (
                             <li
                               key={ing.label}
-                              className="flex items-baseline justify-between gap-3 text-[11px]"
+                              className="flex items-baseline justify-between gap-3 text-o1-label"
                             >
                               <span className="text-o1-text truncate">{ing.label}</span>
                               <span className="text-o1-muted tabular-nums shrink-0">
@@ -282,7 +284,7 @@ export const MealSuggestionsSection: React.FC<MealSuggestionsSectionProps> = ({
                           ))}
                         </ul>
 
-                        <p className="pt-2 border-t border-white/[0.05] text-[11px] font-semibold tabular-nums">
+                        <p className="pt-2 border-t border-white/[0.05] text-o1-label font-semibold tabular-nums">
                           <span className="text-o1-text">
                             {meal.calories.toLocaleString()} kcal
                           </span>
@@ -299,7 +301,7 @@ export const MealSuggestionsSection: React.FC<MealSuggestionsSectionProps> = ({
                 </ul>
               )}
 
-              <p className="text-[10px] text-o1-muted leading-relaxed">
+              <p className="text-o1-label text-o1-muted leading-relaxed">
                 Portions are solved to your remaining macros. Nutrition values from USDA FoodData
                 Central; weights are cooked unless noted.
               </p>

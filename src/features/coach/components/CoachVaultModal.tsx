@@ -240,7 +240,7 @@ export const VaultView: React.FC<VaultViewProps> = ({ audience = 'coach', onSave
       />
 
       <div className="flex items-center justify-between px-1">
-        <span className="flex items-center gap-2 text-[12px] text-o1-muted">
+        <span className="flex items-center gap-2 text-o1-caption text-o1-muted">
           <Radio className="h-3.5 w-3.5 text-o1-crimson" />
           On your Buddy card: <strong className="text-o1-text">{buddy.buddyPhotos.length}/6</strong>
         </span>
@@ -249,7 +249,7 @@ export const VaultView: React.FC<VaultViewProps> = ({ audience = 'coach', onSave
       {notice && (
         <div
           role={notice.tone === 'error' ? 'alert' : 'status'}
-          className={`flex items-center gap-2 rounded-xl border p-2.5 text-[12px] font-semibold ${
+          className={`flex items-center gap-2 rounded-xl border p-2.5 text-o1-caption font-semibold ${
             notice.tone === 'error'
               ? 'border-o1-crimson/40 bg-o1-crimson/10 text-o1-text'
               : 'border-emerald-600/30 bg-emerald-600/10 text-emerald-500'
@@ -275,7 +275,7 @@ export const VaultView: React.FC<VaultViewProps> = ({ audience = 'coach', onSave
                 tactileEngine.triggerSelectionBuzz();
                 setTab(id);
               }}
-              className={`flex min-h-[36px] items-center gap-1.5 whitespace-nowrap rounded-xl px-3 text-[12px] font-semibold ${
+              className={`flex min-h-[36px] items-center gap-1.5 whitespace-nowrap rounded-xl px-3 text-o1-caption font-semibold ${
                 tab === id ? 'bg-o1-surface text-o1-text' : 'text-o1-muted'
               }`}
             >
@@ -293,7 +293,7 @@ export const VaultView: React.FC<VaultViewProps> = ({ audience = 'coach', onSave
             if (isCoach && tab === 'video') setReelUploadOpen(true);
             else fileInputRef.current?.click();
           }}
-          className="flex min-h-[40px] items-center gap-1.5 rounded-2xl bg-o1-crimson px-3.5 text-[12px] font-semibold text-white active:scale-95 hover:bg-o1-crimson-hover disabled:opacity-60"
+          className="flex min-h-[40px] items-center gap-1.5 rounded-2xl bg-o1-crimson px-3.5 text-o1-caption font-semibold text-white active:scale-95 hover:bg-o1-crimson-hover disabled:opacity-60"
         >
           {busy === 'upload' ? (
             <Loader2 size={14} className="animate-spin" />
@@ -307,9 +307,9 @@ export const VaultView: React.FC<VaultViewProps> = ({ audience = 'coach', onSave
       </div>
 
       {status === 'loading' ? (
-        <p className="py-16 text-center text-[13px] text-o1-muted">Loading your Vault…</p>
+        <p className="py-16 text-center text-o1-body text-o1-muted">Loading your Vault…</p>
       ) : status === 'error' ? (
-        <p role="alert" className="py-16 text-center text-[13px] text-o1-text">
+        <p role="alert" className="py-16 text-center text-o1-body text-o1-text">
           Sign in to use your Vault.
         </p>
       ) : visible.length === 0 ? (
@@ -317,8 +317,8 @@ export const VaultView: React.FC<VaultViewProps> = ({ audience = 'coach', onSave
           <div className="flex h-16 w-16 items-center justify-center rounded-full border border-white/[0.07] bg-o1-sheet text-o1-muted">
             <Camera size={26} />
           </div>
-          <p className="text-[13px] font-semibold text-o1-text">Nothing here yet</p>
-          <p className="max-w-xs text-[12px] text-o1-muted">
+          <p className="text-o1-body font-semibold text-o1-text">Nothing here yet</p>
+          <p className="max-w-xs text-o1-caption text-o1-muted">
             Tap Add to upload photos and training clips. They are backed up to your account.
           </p>
         </div>
@@ -358,16 +358,16 @@ export const VaultView: React.FC<VaultViewProps> = ({ audience = 'coach', onSave
                 </span>
               ) : null}
               {isPublished(item) ? (
-                <span className="absolute left-2 top-2 flex items-center gap-1 rounded-md bg-o1-crimson px-1.5 py-0.5 text-[10px] font-semibold text-white">
+                <span className="absolute left-2 top-2 flex items-center gap-1 rounded-md bg-o1-crimson px-1.5 py-0.5 text-o1-label font-semibold text-white">
                   <Film size={10} />
                   Reel
                 </span>
               ) : null}
               <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-2.5">
-                <span className="block truncate text-[12px] font-semibold text-o1-text">
+                <span className="block truncate text-o1-caption font-semibold text-o1-text">
                   {item.title}
                 </span>
-                <span className="block text-[10px] text-o1-muted">{item.createdAt}</span>
+                <span className="block text-o1-label text-o1-muted">{item.createdAt}</span>
               </span>
             </button>
           ))}
@@ -383,7 +383,7 @@ export const VaultView: React.FC<VaultViewProps> = ({ audience = 'coach', onSave
         >
           <div className="flex w-full max-w-2xl flex-col overflow-hidden rounded-2xl border border-white/[0.07] bg-o1-sheet text-o1-text">
             <div className="flex items-center justify-between border-b border-white/[0.07] p-3">
-              <h3 className="max-w-xs truncate text-[13px] font-semibold sm:max-w-md">
+              <h3 className="max-w-xs truncate text-o1-body font-semibold sm:max-w-md">
                 {preview.title}
               </h3>
               <div className="flex items-center gap-1">
@@ -432,13 +432,13 @@ export const VaultView: React.FC<VaultViewProps> = ({ audience = 'coach', onSave
                 return (
                   <>
                     <div className="flex items-center justify-between rounded-xl border border-white/[0.07] bg-o1-sheet p-2">
-                      <span className="text-[12px] text-o1-text">
+                      <span className="text-o1-caption text-o1-text">
                         {onBuddy ? 'Shown on your Buddy card' : 'Not on your Buddy card'}
                       </span>
                       <button
                         type="button"
                         onClick={() => buddy.toggleVaultPhotoOnBuddy(cover)}
-                        className={`min-h-[36px] rounded-xl px-3 text-[12px] font-semibold ${onBuddy ? 'bg-o1-crimson text-white' : 'bg-white/[0.08] text-o1-text'}`}
+                        className={`min-h-[36px] rounded-xl px-3 text-o1-caption font-semibold ${onBuddy ? 'bg-o1-crimson text-white' : 'bg-white/[0.08] text-o1-text'}`}
                       >
                         {onBuddy ? 'Remove' : 'Show'}
                       </button>
@@ -448,7 +448,7 @@ export const VaultView: React.FC<VaultViewProps> = ({ audience = 'coach', onSave
                         type="button"
                         disabled={busy !== null}
                         onClick={() => void handleSetAsAvatar(preview)}
-                        className="flex min-h-[44px] items-center justify-center gap-1.5 rounded-xl bg-white/[0.08] text-[12px] font-semibold text-o1-text disabled:opacity-50"
+                        className="flex min-h-[44px] items-center justify-center gap-1.5 rounded-xl bg-white/[0.08] text-o1-caption font-semibold text-o1-text disabled:opacity-50"
                       >
                         {busy === 'avatar' ? (
                           <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -462,7 +462,7 @@ export const VaultView: React.FC<VaultViewProps> = ({ audience = 'coach', onSave
                           type="button"
                           disabled={published || busy !== null}
                           onClick={() => void handlePublishToReels(preview)}
-                          className={`flex min-h-[44px] items-center justify-center gap-1.5 rounded-xl text-[12px] font-semibold ${
+                          className={`flex min-h-[44px] items-center justify-center gap-1.5 rounded-xl text-o1-caption font-semibold ${
                             published
                               ? 'border border-white/[0.07] text-o1-muted'
                               : 'bg-o1-crimson text-white hover:bg-o1-crimson-hover disabled:opacity-50'
@@ -479,7 +479,7 @@ export const VaultView: React.FC<VaultViewProps> = ({ audience = 'coach', onSave
                         <button
                           type="button"
                           onClick={() => setPreview(null)}
-                          className="min-h-[44px] rounded-xl bg-white/[0.08] text-[12px] font-semibold text-o1-text"
+                          className="min-h-[44px] rounded-xl bg-white/[0.08] text-o1-caption font-semibold text-o1-text"
                         >
                           Done
                         </button>
@@ -523,7 +523,7 @@ export const CoachVaultModal: React.FC<CoachVaultModalProps> = ({ isOpen = true,
       aria-label="Vault"
     >
       <div className="sticky top-0 z-20 flex min-h-[52px] items-center justify-between border-b border-white/[0.07] bg-o1-canvas/95 px-4 pt-[env(safe-area-inset-top)] backdrop-blur-md">
-        <span className="text-[14px] font-semibold text-o1-text">Vault</span>
+        <span className="text-o1-control font-semibold text-o1-text">Vault</span>
         <button
           type="button"
           onClick={() => {

@@ -83,8 +83,10 @@ export const CoachProfileHeader: React.FC<CoachProfileHeaderProps> = ({
         {stats.map((stat) => {
           const body = (
             <>
-              <dd className="text-[17px] font-semibold tabular-nums text-o1-text">{stat.value}</dd>
-              <dt className="text-[11px] text-o1-muted">{stat.label}</dt>
+              <dd className="text-o1-title font-semibold tabular-nums text-o1-text">
+                {stat.value}
+              </dd>
+              <dt className="text-o1-label text-o1-muted">{stat.label}</dt>
             </>
           );
           return stat.onPress ? (
@@ -110,7 +112,7 @@ export const CoachProfileHeader: React.FC<CoachProfileHeaderProps> = ({
 
     <div className="space-y-0.5">
       <div className="flex items-center gap-1">
-        <h2 className="truncate text-[15px] font-semibold text-o1-text">{name}</h2>
+        <h2 className="truncate text-o1-control font-semibold text-o1-text">{name}</h2>
         {verified ? (
           <BadgeCheck size={16} className="shrink-0 text-sky-600" aria-label="Verified" />
         ) : null}
@@ -125,10 +127,10 @@ export const CoachProfileHeader: React.FC<CoachProfileHeaderProps> = ({
           </button>
         ) : null}
       </div>
-      {handle ? <p className="truncate text-[12px] text-o1-muted">{handle}</p> : null}
-      {specialty ? <p className="text-[13px] text-o1-muted">{specialty}</p> : null}
+      {handle ? <p className="truncate text-o1-caption text-o1-muted">{handle}</p> : null}
+      {specialty ? <p className="text-o1-body text-o1-muted">{specialty}</p> : null}
       {bio ? (
-        <p className="line-clamp-3 pt-1 text-[13px] leading-snug text-o1-text">{bio}</p>
+        <p className="line-clamp-3 pt-1 text-o1-body leading-snug text-o1-text">{bio}</p>
       ) : null}
     </div>
 
@@ -152,7 +154,7 @@ export function ProfileActionButton({
         tactileEngine.triggerSelectionBuzz();
         onPress();
       }}
-      className={`h-9 flex-1 rounded-xl text-[13px] font-semibold active:scale-[0.98] ${
+      className={`h-9 flex-1 rounded-xl text-o1-body font-semibold active:scale-[0.98] ${
         primary
           ? 'bg-o1-crimson text-white'
           : 'border border-white/[0.07] bg-o1-surface text-o1-text'

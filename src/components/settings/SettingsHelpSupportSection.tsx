@@ -85,7 +85,7 @@ export const SettingsHelpSupportSection: React.FC<HelpSupportSectionProps> = ({
             }}
             className="o1-pill border border-white/[0.07] bg-o1-well hover:bg-white/[0.06] text-neutral-200 text-xs font-sans font-semibold cursor-pointer"
           >
-            <Lock className="w-3.5 h-3.5 text-[#4F8F9A]" />
+            <Lock className="w-3.5 h-3.5 text-o1-teal" />
             <span>Privacy</span>
           </button>
         </div>
@@ -97,7 +97,7 @@ export const SettingsHelpSupportSection: React.FC<HelpSupportSectionProps> = ({
               tactileEngine.triggerSelectionBuzz();
               onOpenCitations();
             }}
-            className="w-full min-h-[44px] text-center text-[11px] font-sans text-neutral-400 hover:text-neutral-200 transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+            className="w-full min-h-[44px] text-center text-o1-label font-sans text-neutral-400 hover:text-neutral-200 transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
           >
             <ShieldAlert className="w-3.5 h-3.5 text-amber-500" />
             <span>Health &amp; Biomechanical Disclaimers</span>

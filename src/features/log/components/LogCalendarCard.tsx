@@ -51,7 +51,7 @@ export const LogCalendarCard: React.FC<LogCalendarCardProps> = ({
                 tactileEngine.triggerSelectionBuzz();
                 onViewChange(month);
               }}
-              className={`px-2.5 py-0.5 rounded-full text-[11px] font-semibold ${monthView === month ? 'bg-o1-crimson text-white' : 'text-neutral-400'}`}
+              className={`px-2.5 py-0.5 rounded-full text-o1-label font-semibold ${monthView === month ? 'bg-o1-crimson text-white' : 'text-neutral-400'}`}
             >
               {month ? 'Month' : 'Week'}
             </button>
@@ -59,7 +59,7 @@ export const LogCalendarCard: React.FC<LogCalendarCardProps> = ({
         </div>
       </div>
       <div className="flex items-center gap-1">
-        <span className="text-[10px] font-semibold text-neutral-400 mr-1">{rangeLabel}</span>
+        <span className="text-o1-label font-semibold text-neutral-400 mr-1">{rangeLabel}</span>
         <button
           type="button"
           onClick={() => {
@@ -77,7 +77,7 @@ export const LogCalendarCard: React.FC<LogCalendarCardProps> = ({
             tactileEngine.triggerSelectionBuzz();
             onToday();
           }}
-          className={`px-2.5 py-0.5 rounded-full border text-[11px] ${atPresent ? 'border-[#C4121A]/60 text-o1-text' : 'border-white/[0.14] text-o1-muted hover:text-o1-text'}`}
+          className={`px-2.5 py-0.5 rounded-full border text-o1-label ${atPresent ? 'border-o1-crimson/60 text-o1-text' : 'border-white/[0.14] text-o1-muted hover:text-o1-text'}`}
         >
           Today
         </button>

@@ -63,7 +63,7 @@ export const ProgramReaderSheet: React.FC<ProgramReaderSheetProps> = ({
         >
           <ArrowLeft size={20} />
         </button>
-        <span className="truncate text-[14px] font-semibold">{label}</span>
+        <span className="truncate text-o1-control font-semibold">{label}</span>
       </div>
 
       <div className="flex-1 overflow-y-auto pb-10">
@@ -83,9 +83,11 @@ export const ProgramReaderSheet: React.FC<ProgramReaderSheetProps> = ({
             <span className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
             <div className="absolute inset-x-4 bottom-3">
               {program.discipline ? (
-                <p className="text-[12px] font-semibold text-o1-text/80">{program.discipline}</p>
+                <p className="text-o1-caption font-semibold text-o1-text/80">
+                  {program.discipline}
+                </p>
               ) : null}
-              <h2 className="text-[20px] font-semibold leading-tight">{program.title}</h2>
+              <h2 className="text-o1-heading font-semibold leading-tight">{program.title}</h2>
             </div>
           </div>
 
@@ -106,15 +108,15 @@ export const ProgramReaderSheet: React.FC<ProgramReaderSheetProps> = ({
                   className="h-9 w-9 shrink-0 rounded-full object-cover"
                 />
               ) : (
-                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/[0.07] text-[13px] font-semibold">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/[0.07] text-o1-body font-semibold">
                   {(program.coach.name || '?').slice(0, 1).toUpperCase()}
                 </span>
               )}
               <span className="min-w-0">
-                <span className="block truncate text-[14px] font-semibold">
+                <span className="block truncate text-o1-control font-semibold">
                   {program.coach.name}
                 </span>
-                <span className="block truncate text-[12px] text-o1-muted">
+                <span className="block truncate text-o1-caption text-o1-muted">
                   {closed
                     ? `Closed ${shortDate(program.closedAt)}`
                     : enrolled
@@ -131,15 +133,15 @@ export const ProgramReaderSheet: React.FC<ProgramReaderSheetProps> = ({
                     key={name}
                     className="rounded-xl border border-white/[0.07] bg-o1-surface px-3 py-2"
                   >
-                    <p className="text-[11px] text-o1-muted">{name}</p>
-                    <p className="text-[13px] font-semibold">{value}</p>
+                    <p className="text-o1-label text-o1-muted">{name}</p>
+                    <p className="text-o1-body font-semibold">{value}</p>
                   </div>
                 ))}
               </div>
             )}
 
             {program.description ? (
-              <p className="text-[14px] leading-relaxed">{program.description}</p>
+              <p className="text-o1-control leading-relaxed">{program.description}</p>
             ) : null}
 
             {program.plan && program.plan.weeks.length > 0 ? (
@@ -147,14 +149,14 @@ export const ProgramReaderSheet: React.FC<ProgramReaderSheetProps> = ({
             ) : (
               program.weekOne.length > 0 && (
                 <div className="space-y-2">
-                  <p className="text-[13px] font-semibold text-o1-muted">Week 1</p>
+                  <p className="text-o1-body font-semibold text-o1-muted">Week 1</p>
                   {program.weekOne.map((day, index) => (
                     <div
                       key={`${program.id}-${index}`}
                       className="rounded-xl border border-white/[0.07] bg-o1-surface px-3 py-2.5"
                     >
-                      <p className="text-[11px] text-o1-muted">Day {index + 1}</p>
-                      <p className="text-[14px]">{day}</p>
+                      <p className="text-o1-label text-o1-muted">Day {index + 1}</p>
+                      <p className="text-o1-control">{day}</p>
                     </div>
                   ))}
                 </div>
@@ -167,7 +169,7 @@ export const ProgramReaderSheet: React.FC<ProgramReaderSheetProps> = ({
                 tactileEngine.triggerSelectionBuzz();
                 onMessageCoach(program);
               }}
-              className="flex h-[44px] w-full items-center justify-center gap-2 rounded-xl border border-white/[0.07] bg-o1-surface text-[13px] font-semibold"
+              className="flex h-[44px] w-full items-center justify-center gap-2 rounded-xl border border-white/[0.07] bg-o1-surface text-o1-body font-semibold"
             >
               <MessageCircle size={16} />
               Message {program.coach.name.split(' ')[0] || 'coach'}
@@ -178,20 +180,20 @@ export const ProgramReaderSheet: React.FC<ProgramReaderSheetProps> = ({
                 type="button"
                 disabled={busy}
                 onClick={() => onSetStatus(program, 'active')}
-                className="h-[44px] w-full rounded-xl bg-o1-crimson text-[13px] font-semibold text-white disabled:opacity-50"
+                className="h-[44px] w-full rounded-xl bg-o1-crimson text-o1-body font-semibold text-white disabled:opacity-50"
               >
                 Restart program
               </button>
             ) : confirming ? (
               <div className="space-y-2 rounded-2xl border border-white/[0.07] bg-o1-surface p-3">
-                <p className="text-[13px]">
+                <p className="text-o1-body">
                   Close this program? It moves to Past programs and you can restart it anytime.
                 </p>
                 <div className="flex gap-2">
                   <button
                     type="button"
                     onClick={() => setConfirming(false)}
-                    className="h-[44px] flex-1 rounded-xl border border-white/[0.07] text-[13px] font-semibold"
+                    className="h-[44px] flex-1 rounded-xl border border-white/[0.07] text-o1-body font-semibold"
                   >
                     Keep it
                   </button>
@@ -199,7 +201,7 @@ export const ProgramReaderSheet: React.FC<ProgramReaderSheetProps> = ({
                     type="button"
                     disabled={busy}
                     onClick={() => onSetStatus(program, 'closed')}
-                    className="h-[44px] flex-1 rounded-xl bg-o1-crimson text-[13px] font-semibold text-o1-text disabled:opacity-50"
+                    className="h-[44px] flex-1 rounded-xl bg-o1-crimson text-o1-body font-semibold text-o1-text disabled:opacity-50"
                   >
                     Close program
                   </button>
@@ -209,7 +211,7 @@ export const ProgramReaderSheet: React.FC<ProgramReaderSheetProps> = ({
               <button
                 type="button"
                 onClick={() => setConfirming(true)}
-                className="h-[44px] w-full rounded-xl text-[13px] font-semibold text-o1-muted"
+                className="h-[44px] w-full rounded-xl text-o1-body font-semibold text-o1-muted"
               >
                 Close program
               </button>

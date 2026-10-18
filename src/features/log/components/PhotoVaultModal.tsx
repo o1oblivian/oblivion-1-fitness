@@ -20,7 +20,7 @@ export const PhotoVaultModal: React.FC<PhotoVaultModalProps> = ({ isOpen, onClos
       aria-label="Athlete Vault"
     >
       <div className="sticky top-0 z-20 flex min-h-[52px] items-center justify-between border-b border-white/[0.07] bg-o1-canvas/95 px-4 pt-[env(safe-area-inset-top)] backdrop-blur-md">
-        <span className="text-[14px] font-semibold text-o1-text">Athlete Vault</span>
+        <span className="text-o1-control font-semibold text-o1-text">Athlete Vault</span>
         <button
           type="button"
           onClick={() => {

@@ -29,7 +29,7 @@ export const DietaryPreferenceModal: React.FC<DietaryPreferenceModalProps> = ({
           </div>
           <div>
             <h3 className="text-sm font-semibold text-o1-text">Diet</h3>
-            <p className="text-[11px] text-o1-muted">Filters the food catalog and Intel meals</p>
+            <p className="text-o1-label text-o1-muted">Filters the food catalog and Intel meals</p>
           </div>
         </div>
         <button
@@ -74,11 +74,13 @@ export const DietaryPreferenceModal: React.FC<DietaryPreferenceModalProps> = ({
                 )}
               </div>
               <span
-                className={`mt-1.5 block text-[12px] font-semibold ${isSelected ? d.accentDark : 'text-o1-text'}`}
+                className={`mt-1.5 block text-o1-caption font-semibold ${isSelected ? d.accentDark : 'text-o1-text'}`}
               >
                 {d.label}
               </span>
-              <span className="mt-0.5 block text-[10px] leading-snug text-o1-muted">{d.short}</span>
+              <span className="mt-0.5 block text-o1-label leading-snug text-o1-muted">
+                {d.short}
+              </span>
             </button>
           );
         })}

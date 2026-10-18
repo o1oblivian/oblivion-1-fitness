@@ -59,8 +59,8 @@ export const ContactSupportModal: React.FC<ContactSupportModalProps> = ({
       <div className="o1-sheet-card w-full bg-o1-card border border-white/[0.07] p-5 shadow-xl flex flex-col overflow-y-auto text-white">
         <div className="flex items-center justify-between border-b border-white/[0.05] pb-3">
           <div className="flex items-center gap-2">
-            <div className="p-1.5 rounded-lg bg-[#4F8F9A]/10 border border-[#4F8F9A]/30">
-              <Headphones className="w-4 h-4 text-[#4F8F9A]" />
+            <div className="p-1.5 rounded-lg bg-o1-teal/10 border border-o1-teal/30">
+              <Headphones className="w-4 h-4 text-o1-teal" />
             </div>
             <div>
               <h2
@@ -69,7 +69,7 @@ export const ContactSupportModal: React.FC<ContactSupportModalProps> = ({
               >
                 Contact support
               </h2>
-              <p className="text-[10px] font-mono text-neutral-500">We reply by email</p>
+              <p className="text-o1-label font-mono text-neutral-500">We reply by email</p>
             </div>
           </div>
           <button
@@ -96,7 +96,7 @@ export const ContactSupportModal: React.FC<ContactSupportModalProps> = ({
             <button
               type="button"
               onClick={() => void handleCopyEmail()}
-              className="min-h-[44px] px-3 rounded-xl bg-white/[0.08] text-[11px] font-mono flex items-center gap-1 hover:text-white cursor-pointer shrink-0"
+              className="min-h-[44px] px-3 rounded-xl bg-white/[0.08] text-o1-label font-mono flex items-center gap-1 hover:text-white cursor-pointer shrink-0"
             >
               {copied ? (
                 <Check className="w-3 h-3 text-emerald-400" />
@@ -110,7 +110,7 @@ export const ContactSupportModal: React.FC<ContactSupportModalProps> = ({
           <div className="space-y-1">
             <label
               htmlFor="support-topic"
-              className="text-[10px] font-tactical font-bold text-neutral-500"
+              className="text-o1-label font-tactical font-bold text-neutral-500"
             >
               Topic
             </label>
@@ -131,7 +131,7 @@ export const ContactSupportModal: React.FC<ContactSupportModalProps> = ({
           <div className="space-y-1">
             <label
               htmlFor="support-message"
-              className="text-[10px] font-tactical font-bold text-neutral-500"
+              className="text-o1-label font-tactical font-bold text-neutral-500"
             >
               Message
             </label>
@@ -150,12 +150,12 @@ export const ContactSupportModal: React.FC<ContactSupportModalProps> = ({
           <button
             type="submit"
             disabled={!message.trim()}
-            className="w-full min-h-[44px] rounded-xl bg-[#4F8F9A] text-white text-xs font-tactical font-semibold tracking-wider transition flex items-center justify-center gap-2 cursor-pointer active:scale-95 disabled:opacity-50"
+            className="w-full min-h-[44px] rounded-xl bg-o1-teal text-white text-xs font-tactical font-semibold tracking-wider transition flex items-center justify-center gap-2 cursor-pointer active:scale-95 disabled:opacity-50"
           >
             <Send className="w-3.5 h-3.5" />
             <span>Write email</span>
           </button>
-          <p className="text-[10px] font-sans text-neutral-500 text-center">
+          <p className="text-o1-label font-sans text-neutral-500 text-center">
             Opens your mail app with this message. Nothing is sent until you press send there.
           </p>
         </form>

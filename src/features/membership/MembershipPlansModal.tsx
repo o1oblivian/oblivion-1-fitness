@@ -216,7 +216,7 @@ export const MembershipPlansModal: React.FC<MembershipPlansModalProps> = ({
           <div className="flex items-center justify-between px-5 pt-4 pb-3 shrink-0 border-b border-white/[0.05] bg-o1-card">
             <div>
               <h2 className="text-sm font-bold text-white tracking-wide">Choose Your Plan</h2>
-              <p className="text-[11px] text-neutral-400 font-mono">O1FC Official Membership</p>
+              <p className="text-o1-label text-neutral-400 font-mono">O1FC Official Membership</p>
             </div>
             <button
               type="button"
@@ -258,10 +258,10 @@ export const MembershipPlansModal: React.FC<MembershipPlansModalProps> = ({
                 className="p-3 rounded-2xl bg-o1-well border border-white/[0.07] flex items-center justify-between cursor-pointer hover:border-o1-crimson/50 transition-colors"
               >
                 <div>
-                  <span className="text-[10px] font-mono font-bold tracking-wider text-neutral-300">
+                  <span className="text-o1-label font-mono font-bold tracking-wider text-neutral-300">
                     Launch special
                   </span>
-                  <p className="text-[11px] text-neutral-400 mt-0.5 leading-snug">
+                  <p className="text-o1-label text-neutral-400 mt-0.5 leading-snug">
                     <strong className="text-white">
                       {priceOf(IAP_PRODUCTS.founder_pass)} Lifetime Founder Pass
                     </strong>{' '}
@@ -293,8 +293,8 @@ export const MembershipPlansModal: React.FC<MembershipPlansModalProps> = ({
             />
 
             {/* Billing Notice */}
-            <div className="flex items-start gap-2 pt-1 text-[11px] text-neutral-400 leading-snug">
-              <Shield className="w-4 h-4 text-[#6B8F5E] shrink-0 mt-0.5" />
+            <div className="flex items-start gap-2 pt-1 text-o1-label text-neutral-400 leading-snug">
+              <Shield className="w-4 h-4 text-o1-olive shrink-0 mt-0.5" />
               <span>
                 {isFreePlanSelected
                   ? userType === 'athletes'
@@ -347,7 +347,7 @@ export const MembershipPlansModal: React.FC<MembershipPlansModalProps> = ({
             </button>
 
             {/* Footer Links & Restore */}
-            <div className="flex items-center justify-center gap-2.5 text-[10px] font-mono text-neutral-400 flex-wrap">
+            <div className="flex items-center justify-center gap-2.5 text-o1-label font-mono text-neutral-400 flex-wrap">
               <span>App Store or Google Play</span>
               <span>•</span>
               <span>Cancel Anytime</span>

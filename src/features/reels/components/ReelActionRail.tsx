@@ -28,7 +28,7 @@ const BUTTON =
 const ICON = 'w-6 h-6 drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)] transition-all stroke-[1.4]';
 const IDLE = 'text-white/85 group-hover:text-white group-hover:scale-105';
 const LABEL =
-  'text-[10px] font-sans font-medium text-white/85 drop-shadow-[0_1px_2px_rgba(0,0,0,0.85)]';
+  'text-o1-label font-sans font-medium text-white/85 drop-shadow-[0_1px_2px_rgba(0,0,0,0.85)]';
 
 export const ReelActionRail: React.FC<ReelActionRailProps> = ({
   activeReel,
@@ -59,7 +59,9 @@ export const ReelActionRail: React.FC<ReelActionRailProps> = ({
         aria-label={liked ? 'Unlike reel' : 'Like reel'}
         aria-pressed={liked}
       >
-        <Heart className={`${ICON} ${liked ? 'fill-[#C4121A] text-[#C4121A] scale-105' : IDLE}`} />
+        <Heart
+          className={`${ICON} ${liked ? 'fill-o1-crimson text-o1-crimson scale-105' : IDLE}`}
+        />
         <span className={LABEL}>{likeCount != null ? compact(likeCount) : 'Like'}</span>
       </button>
 
@@ -82,9 +84,7 @@ export const ReelActionRail: React.FC<ReelActionRailProps> = ({
         aria-label={saved ? 'Remove from vault' : 'Save to vault'}
         aria-pressed={saved}
       >
-        <Bookmark
-          className={`${ICON} ${saved ? 'fill-[#f59e0b] text-[#f59e0b] scale-105' : IDLE}`}
-        />
+        <Bookmark className={`${ICON} ${saved ? 'fill-o1-amber text-o1-amber scale-105' : IDLE}`} />
         <span className={LABEL}>{saved ? 'Saved' : 'Save'}</span>
       </button>
 
@@ -102,7 +102,7 @@ export const ReelActionRail: React.FC<ReelActionRailProps> = ({
         aria-pressed={logged}
       >
         {logged ? (
-          <Check className={`${ICON} text-[#10b981]`} />
+          <Check className={`${ICON} text-o1-emerald`} />
         ) : (
           <Plus className={`${ICON} text-white/85 group-hover:text-white`} />
         )}

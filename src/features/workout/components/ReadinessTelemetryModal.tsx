@@ -59,7 +59,7 @@ export const ReadinessTelemetryModal: React.FC<Props> = ({ isOpen, onClose, scor
               <Heart className="w-4 h-4 fill-sky-500/20" />
             </div>
             <div>
-              <span className="text-[10px] font-mono tracking-widest text-sky-600 font-medium block">
+              <span className="text-o1-label font-mono tracking-widest text-sky-600 font-medium block">
                 Biometric Telemetry
               </span>
               <h3 className="text-sm font-medium text-white tracking-tight">Readiness</h3>
@@ -82,7 +82,7 @@ export const ReadinessTelemetryModal: React.FC<Props> = ({ isOpen, onClose, scor
         {/* Score */}
         <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/[0.07] flex items-center justify-between">
           <div>
-            <span className="text-[10px] font-mono tracking-wider text-neutral-400 font-medium block">
+            <span className="text-o1-label font-mono tracking-wider text-neutral-400 font-medium block">
               Readiness Score
             </span>
             <div className="flex items-baseline gap-2 mt-0.5">
@@ -102,36 +102,36 @@ export const ReadinessTelemetryModal: React.FC<Props> = ({ isOpen, onClose, scor
         {/* Logged biometrics */}
         <div className="grid grid-cols-2 gap-2.5">
           <div className="p-3.5 rounded-2xl bg-o1-card border border-white/[0.07] space-y-1">
-            <div className="flex items-center gap-1.5 text-neutral-400 text-[10px] font-mono font-medium">
+            <div className="flex items-center gap-1.5 text-neutral-400 text-o1-label font-mono font-medium">
               <Activity className="w-3.5 h-3.5 text-sky-600" />
               <span>HRV (Variability)</span>
             </div>
             <div className="text-base font-mono font-medium text-white">
               {hrv ? `${hrv.rmssdMs} ms` : '--'}
             </div>
-            <div className="text-[10px] font-mono text-neutral-500 truncate">{hrvSource}</div>
+            <div className="text-o1-label font-mono text-neutral-500 truncate">{hrvSource}</div>
           </div>
 
           <div className="p-3.5 rounded-2xl bg-o1-card border border-white/[0.07] space-y-1">
-            <div className="flex items-center gap-1.5 text-neutral-400 text-[10px] font-mono font-medium">
+            <div className="flex items-center gap-1.5 text-neutral-400 text-o1-label font-mono font-medium">
               <Heart className="w-3.5 h-3.5 text-o1-crimson" />
               <span>Resting Heart Rate</span>
             </div>
             <div className="text-base font-mono font-medium text-white">{restingHr}</div>
-            <div className="text-[10px] font-mono text-neutral-500">
+            <div className="text-o1-label font-mono text-neutral-500">
               {restingHr === '--' ? 'Not logged' : 'From your sleep log'}
             </div>
           </div>
 
           <div className="col-span-2 p-3.5 rounded-2xl bg-o1-card border border-white/[0.07] space-y-1.5">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-1.5 text-neutral-400 text-[10px] font-mono font-medium">
+              <div className="flex items-center gap-1.5 text-neutral-400 text-o1-label font-mono font-medium">
                 <Moon className="w-3.5 h-3.5 text-sky-600" />
                 <span>Sleep</span>
               </div>
               <span className="text-xs font-mono font-medium text-white">{totalSleep}</span>
             </div>
-            <div className="flex items-center justify-between text-[11px] font-mono text-neutral-300 pt-0.5">
+            <div className="flex items-center justify-between text-o1-label font-mono text-neutral-300 pt-0.5">
               <span>
                 Deep:{' '}
                 <strong className="text-white">{fmtMinutes(sleep?.deepSleepMinutes ?? 0)}</strong>
@@ -145,7 +145,7 @@ export const ReadinessTelemetryModal: React.FC<Props> = ({ isOpen, onClose, scor
           </div>
         </div>
 
-        <p className="text-[11px] font-mono text-neutral-500 leading-relaxed">
+        <p className="text-o1-label font-mono text-neutral-500 leading-relaxed">
           Values come only from what you log or a connected device. Anything unread stays as --.
         </p>
 

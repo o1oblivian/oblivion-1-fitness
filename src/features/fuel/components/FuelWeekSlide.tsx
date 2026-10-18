@@ -80,14 +80,14 @@ export const FuelWeekSlide: React.FC<FuelWeekSlideProps> = ({ days, targets }) =
           <span className="o1-unread text-2xl font-semibold tabular-nums leading-none">
             {fmt(selected ? (selectedTotals?.calories ?? null) : t.avgCalories)}
           </span>
-          <span className="text-[11px] text-o1-muted truncate">
+          <span className="text-o1-label text-o1-muted truncate">
             {selected
               ? 'kcal'
               : `avg kcal${targets.calories ? ` / ${targets.calories.toLocaleString()}` : ''}`}
           </span>
         </div>
         <span
-          className={`shrink-0 text-[11px] ${selected ? 'text-o1-text font-medium' : 'text-o1-muted'}`}
+          className={`shrink-0 text-o1-label ${selected ? 'text-o1-text font-medium' : 'text-o1-muted'}`}
         >
           {selected
             ? parseKey(selected.dateKey).toLocaleDateString(undefined, { weekday: 'long' })
@@ -95,7 +95,7 @@ export const FuelWeekSlide: React.FC<FuelWeekSlideProps> = ({ days, targets }) =
         </span>
       </div>
       <p
-        className={`text-[11px] tabular-nums mt-1 text-o1-muted truncate ${selected ? 'o1-unread' : ''}`}
+        className={`text-o1-label tabular-nums mt-1 text-o1-muted truncate ${selected ? 'o1-unread' : ''}`}
       >
         {selected ? (
           selectedTotals ? (
@@ -136,7 +136,7 @@ export const FuelWeekSlide: React.FC<FuelWeekSlideProps> = ({ days, targets }) =
         />
       </div>
 
-      <dl className="o1-unread mt-auto pt-2 space-y-1 text-[11px] tabular-nums">
+      <dl className="o1-unread mt-auto pt-2 space-y-1 text-o1-label tabular-nums">
         <div className="flex items-center justify-between gap-2">
           <dt className="text-o1-crimson font-medium w-14 shrink-0">Protein</dt>
           <dd className="text-o1-text">

@@ -426,13 +426,15 @@ export const LogHistoryView: React.FC<LogHistoryViewProps> = ({ showToast }) => 
         />
 
         <div className="border-t border-white/[0.07] px-4 pt-3 pb-2.5 flex items-baseline justify-between gap-2">
-          <h3 className="text-[14px] font-semibold text-o1-text">{ledgerTitle}</h3>
-          <span className="text-[11px] text-o1-muted">
+          <h3 className="text-o1-control font-semibold text-o1-text">{ledgerTitle}</h3>
+          <span className="text-o1-label text-o1-muted">
             {loggedChannels.length} of {channels.length} logged
           </span>
         </div>
         {loggedChannels.length === 0 && (
-          <p className="px-4 pb-3 text-[12px] text-o1-muted">Nothing is logged for this day yet.</p>
+          <p className="px-4 pb-3 text-o1-caption text-o1-muted">
+            Nothing is logged for this day yet.
+          </p>
         )}
         {loggedChannels.map((channel) => (
           <LogChannelRow

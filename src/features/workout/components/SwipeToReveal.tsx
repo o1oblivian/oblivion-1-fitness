@@ -213,7 +213,7 @@ export const SwipeToReveal: React.FC<SwipeToRevealProps> = ({
               secondaryAction.onAction();
             }}
             aria-label={secondaryAction.ariaLabel}
-            className={`h-9 px-3.5 rounded-full bg-o1-sheet border border-white/[0.14] hover:border-white/25 text-[12px] text-o1-text cursor-pointer transition-opacity ${
+            className={`h-9 px-3.5 rounded-full bg-o1-sheet border border-white/[0.14] hover:border-white/25 text-o1-caption text-o1-text cursor-pointer transition-opacity ${
               actionVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'
             }`}
           >
@@ -230,7 +230,7 @@ export const SwipeToReveal: React.FC<SwipeToRevealProps> = ({
           }}
           aria-label={actionAriaLabel}
           tabIndex={0}
-          className={`h-9 px-3.5 max-w-[60vw] truncate rounded-full bg-[#C4121A] hover:bg-[#A30F16] active:bg-[#800C11] text-[12px] text-white cursor-pointer transition-opacity ${
+          className={`h-9 px-3.5 max-w-[60vw] truncate rounded-full bg-o1-crimson hover:bg-o1-crimson-hover active:bg-o1-crimson-press text-o1-caption text-white cursor-pointer transition-opacity ${
             actionVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'
           }`}
         >

@@ -33,14 +33,14 @@ export const LogChannelRow: React.FC<LogChannelRowProps> = ({
     >
       <span className={`o1-mark ${iconClass}`}>{icon}</span>
       <span className="flex-1 min-w-0">
-        <span className="block text-[13px] font-semibold text-o1-text">{title}</span>
+        <span className="block text-o1-body font-semibold text-o1-text">{title}</span>
         {headline.caption && (
-          <span className="block text-[11px] text-o1-muted truncate">{headline.caption}</span>
+          <span className="block text-o1-label text-o1-muted truncate">{headline.caption}</span>
         )}
       </span>
-      <span className="shrink-0 font-mono text-[17px] leading-none tabular-nums text-o1-text">
+      <span className="shrink-0 font-mono text-o1-title leading-none tabular-nums text-o1-text">
         {headline.value}
-        <span className="ml-1 font-sans text-[11px] text-o1-muted">{headline.unit}</span>
+        <span className="ml-1 font-sans text-o1-label text-o1-muted">{headline.unit}</span>
       </span>
       {open ? (
         <ChevronUp className="w-4 h-4 text-o1-muted shrink-0" />
@@ -64,7 +64,7 @@ export const LogStillToLog: React.FC<{ actions: LogQuickAction[] }> = ({ actions
   if (actions.length === 0) return null;
   return (
     <div className="border-t border-white/[0.07] px-4 pt-3 pb-3.5">
-      <p className="text-[11px] text-o1-muted mb-2">Still to log</p>
+      <p className="text-o1-label text-o1-muted mb-2">Still to log</p>
       <div className="flex flex-wrap gap-2">
         {actions.map((action, index) => (
           <button

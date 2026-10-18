@@ -57,9 +57,9 @@ const BACKUP_TEXT: Record<BackupState, string> = {
 };
 
 const STATUS_DOT: Record<LogStatus['kind'], string> = {
-  saved: 'bg-[#10b981]',
-  info: 'bg-[#0284c7]',
-  warn: 'bg-[#f59e0b]',
+  saved: 'bg-o1-emerald',
+  info: 'bg-o1-sky',
+  warn: 'bg-o1-amber',
 };
 
 /** Lifts where a ticked set beat every earlier day's best estimated 1RM. */
@@ -448,8 +448,8 @@ export const ActiveLogCard: React.FC<ActiveLogCardProps> = ({ onBuildWorkout }) 
     <>
       <div className="w-full bg-o1-card rounded-2xl p-2 border border-white/[0.07] space-y-2 text-o1-text select-none transition-colors">
         <div className="flex items-baseline justify-between gap-2 px-0.5">
-          <span className="text-[15px] text-o1-text">Active log</span>
-          <span className="font-mono text-[11px] text-o1-muted truncate">
+          <span className="text-o1-control text-o1-text">Active log</span>
+          <span className="font-mono text-o1-label text-o1-muted truncate">
             {kgToDisplay(totalVolume, unit).toLocaleString()} {unitLower} · {totalSets}{' '}
             {totalSets === 1 ? 'set' : 'sets'} · {totalReps} reps
           </span>
@@ -465,15 +465,15 @@ export const ActiveLogCard: React.FC<ActiveLogCardProps> = ({ onBuildWorkout }) 
               className={`mt-[7px] w-1.5 h-1.5 rounded-full shrink-0 ${STATUS_DOT[visibleStatus.kind]}`}
             />
             <div className="min-w-0 flex-1 py-0.5 space-y-0.5">
-              <p className="text-[12px] text-o1-text leading-snug">{visibleStatus.text}</p>
+              <p className="text-o1-caption text-o1-text leading-snug">{visibleStatus.text}</p>
               {visibleStatus.routineDay && (
-                <p className="text-[11px] text-o1-muted leading-snug">
+                <p className="text-o1-label text-o1-muted leading-snug">
                   Loads again every {visibleStatus.routineDay}.
                 </p>
               )}
               {visibleStatus.backup && (
                 <p
-                  className={`text-[11px] leading-snug ${visibleStatus.backup === 'queued' ? 'text-[#f59e0b]' : 'text-o1-muted'}`}
+                  className={`text-o1-label leading-snug ${visibleStatus.backup === 'queued' ? 'text-o1-amber' : 'text-o1-muted'}`}
                 >
                   {BACKUP_TEXT[visibleStatus.backup]}
                 </p>
@@ -493,11 +493,11 @@ export const ActiveLogCard: React.FC<ActiveLogCardProps> = ({ onBuildWorkout }) 
         {planned ? (
           <div className="px-0.5 pb-0.5 space-y-2.5">
             {loggedToday ? (
-              <p className="text-[12px] text-o1-muted leading-snug">
+              <p className="text-o1-caption text-o1-muted leading-snug">
                 Today's workout is saved. Rest up, or start another below.
               </p>
             ) : planned.exercises.length > 0 ? (
-              <p className="text-[12px] text-o1-muted leading-snug truncate">
+              <p className="text-o1-caption text-o1-muted leading-snug truncate">
                 <span className="text-o1-text">{restPlan ? 'Rest day' : planned.title}</span> ·{' '}
                 {planned.exercises.length} {restPlan ? 'light ' : ''}
                 {planned.exercises.length === 1 ? 'exercise' : 'exercises'}
@@ -505,7 +505,7 @@ export const ActiveLogCard: React.FC<ActiveLogCardProps> = ({ onBuildWorkout }) 
                 {restPlan ? '' : ` · ${planned.detail}`}
               </p>
             ) : (
-              <p className="text-[12px] text-o1-muted leading-snug">
+              <p className="text-o1-caption text-o1-muted leading-snug">
                 {planned.title === 'Rest day'
                   ? 'Rest day. Recover, or build a light session.'
                   : 'No workout planned for today yet.'}
@@ -516,7 +516,7 @@ export const ActiveLogCard: React.FC<ActiveLogCardProps> = ({ onBuildWorkout }) 
               <button
                 type="button"
                 onClick={handleStartToday}
-                className="w-full h-12 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover active:bg-o1-crimson-press active:scale-[0.99] text-white font-medium text-[14px] flex items-center justify-center transition cursor-pointer"
+                className="w-full h-12 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover active:bg-o1-crimson-press active:scale-[0.99] text-white font-medium text-o1-control flex items-center justify-center transition cursor-pointer"
               >
                 {planned.exercises.length === 0
                   ? 'Build a workout'
@@ -526,7 +526,7 @@ export const ActiveLogCard: React.FC<ActiveLogCardProps> = ({ onBuildWorkout }) 
               </button>
             )}
 
-            <div className="flex items-center justify-center gap-2 text-[12px] text-o1-muted">
+            <div className="flex items-center justify-center gap-2 text-o1-caption text-o1-muted">
               {(loggedToday || planned.exercises.length > 0) && (
                 <>
                   <button
@@ -565,15 +565,15 @@ export const ActiveLogCard: React.FC<ActiveLogCardProps> = ({ onBuildWorkout }) 
                     className="p-3 text-left rounded-xl bg-o1-well border border-white/[0.07] hover:border-white/[0.14] transition-colors cursor-pointer flex flex-col justify-between active:scale-[0.99]"
                   >
                     <div>
-                      <span className="text-[11px] px-1.5 py-0.5 rounded-full border border-white/[0.14] text-o1-muted">
+                      <span className="text-o1-label px-1.5 py-0.5 rounded-full border border-white/[0.14] text-o1-muted">
                         {starter.badge}
                       </span>
-                      <h5 className="text-[13px] text-o1-text leading-tight mt-1.5">
+                      <h5 className="text-o1-body text-o1-text leading-tight mt-1.5">
                         {starter.title}
                       </h5>
-                      <p className="text-[11px] text-o1-muted mt-0.5">{starter.subtitle}</p>
+                      <p className="text-o1-label text-o1-muted mt-0.5">{starter.subtitle}</p>
                     </div>
-                    <div className="mt-2 pt-1.5 border-t border-white/[0.07] text-[11px] text-o1-muted flex items-center justify-between">
+                    <div className="mt-2 pt-1.5 border-t border-white/[0.07] text-o1-label text-o1-muted flex items-center justify-between">
                       <span>{starter.movements.length} exercises</span>
                       <span>Tap to load</span>
                     </div>
@@ -620,7 +620,7 @@ export const ActiveLogCard: React.FC<ActiveLogCardProps> = ({ onBuildWorkout }) 
           <button
             type="button"
             onClick={handleFinishAndSave}
-            className="w-full h-10 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover active:bg-o1-crimson-press active:scale-[0.99] text-white font-medium text-[13px] flex items-center justify-center transition cursor-pointer"
+            className="w-full h-10 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover active:bg-o1-crimson-press active:scale-[0.99] text-white font-medium text-o1-body flex items-center justify-center transition cursor-pointer"
           >
             Finish workout
           </button>

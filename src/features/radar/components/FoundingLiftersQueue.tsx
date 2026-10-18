@@ -32,14 +32,14 @@ export const FoundingLiftersQueue: React.FC<Props> = ({
 
   return (
     <div id="founding-lifters" className="flex flex-col items-center px-5 pt-12 text-center">
-      <p className="text-[12px] tracking-wide text-neutral-400">Founding lifters</p>
-      <p className="o1-num mt-3 text-[42px] leading-none text-[#F2EFE6]">
+      <p className="text-o1-caption tracking-wide text-neutral-400">Founding lifters</p>
+      <p className="o1-num mt-3 text-o1-hero leading-none text-o1-bone">
         {count == null ? '—' : count}
-        <span className="text-[22px] text-neutral-500"> / {safeThreshold}</span>
+        <span className="text-o1-heading text-neutral-500"> / {safeThreshold}</span>
       </p>
-      <p className="mt-2 text-[13px] text-neutral-400">lifters to unlock in your area</p>
-      <div className="mt-6 h-1.5 w-full max-w-sm overflow-hidden rounded-full bg-[#161616]">
-        <div className="h-full bg-[#F2EFE6]" style={{ width: `${progress}%` }} />
+      <p className="mt-2 text-o1-body text-neutral-400">lifters to unlock in your area</p>
+      <div className="mt-6 h-1.5 w-full max-w-sm overflow-hidden rounded-full bg-o1-well">
+        <div className="h-full bg-o1-bone" style={{ width: `${progress}%` }} />
       </div>
       {locationOff ? (
         <>
@@ -47,7 +47,7 @@ export const FoundingLiftersQueue: React.FC<Props> = ({
             type="button"
             onClick={onEnableLocation}
             disabled={locating}
-            className="mt-6 max-w-[18rem] text-[14px] leading-relaxed text-neutral-400 underline decoration-white/20 underline-offset-4"
+            className="mt-6 max-w-[18rem] text-o1-control leading-relaxed text-neutral-400 underline decoration-white/20 underline-offset-4"
           >
             {detail}
           </button>
@@ -55,20 +55,22 @@ export const FoundingLiftersQueue: React.FC<Props> = ({
             type="button"
             onClick={onEnableLocation}
             disabled={locating}
-            className="mt-6 flex h-12 w-full max-w-sm items-center justify-center gap-2 rounded-full bg-o1-crimson text-[15px] font-semibold text-white disabled:opacity-60"
+            className="mt-6 flex h-12 w-full max-w-sm items-center justify-center gap-2 rounded-full bg-o1-crimson text-o1-control font-semibold text-white disabled:opacity-60"
           >
             <MapPin className="h-4 w-4" />
             {locating ? 'Finding you…' : 'Turn on location'}
           </button>
         </>
       ) : (
-        <p className="mt-6 max-w-[18rem] text-[14px] leading-relaxed text-neutral-400">{detail}</p>
+        <p className="mt-6 max-w-[18rem] text-o1-control leading-relaxed text-neutral-400">
+          {detail}
+        </p>
       )}
       {!cardLive && !locationOff && (
         <button
           type="button"
           onClick={onOpenProfile}
-          className="mt-6 h-12 w-full max-w-sm rounded-full bg-o1-crimson text-[15px] font-semibold text-white active:bg-o1-crimson-press"
+          className="mt-6 h-12 w-full max-w-sm rounded-full bg-o1-crimson text-o1-control font-semibold text-white active:bg-o1-crimson-press"
         >
           Build your profile
         </button>

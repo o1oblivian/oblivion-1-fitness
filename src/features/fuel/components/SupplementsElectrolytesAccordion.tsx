@@ -72,7 +72,7 @@ export const SupplementsElectrolytesAccordion: React.FC<SupplementsElectrolytesA
             <h4 className="font-semibold text-sm text-o1-text leading-tight truncate">
               Supplements &amp; Electrolytes
             </h4>
-            <p className="text-[11px] text-o1-muted truncate mt-0.5 tabular-nums">
+            <p className="text-o1-label text-o1-muted truncate mt-0.5 tabular-nums">
               {stack.length > 0
                 ? `${takenCount}/${stack.length} taken today`
                 : 'Build your daily stack'}
@@ -97,7 +97,7 @@ export const SupplementsElectrolytesAccordion: React.FC<SupplementsElectrolytesA
                 role="tab"
                 aria-selected={pane === tab.id}
                 onClick={() => selectPane(tab.id)}
-                className={`py-1.5 rounded-xl text-[11px] font-semibold cursor-pointer ${
+                className={`py-1.5 rounded-xl text-o1-label font-semibold cursor-pointer ${
                   pane === tab.id ? 'bg-o1-text text-black' : 'text-o1-muted hover:text-o1-text'
                 }`}
               >
@@ -117,7 +117,7 @@ export const SupplementsElectrolytesAccordion: React.FC<SupplementsElectrolytesA
           )}
           {pane === 'salts' && (
             <div className="space-y-2">
-              <p className="text-[11px] text-o1-muted">
+              <p className="text-o1-label text-o1-muted">
                 Log electrolytes from food and drinks. Nothing is estimated.
               </p>
               <div className="grid grid-cols-3 gap-2">
@@ -129,7 +129,7 @@ export const SupplementsElectrolytesAccordion: React.FC<SupplementsElectrolytesA
                       key={el.key}
                       className="border border-white/[0.08] p-2.5 rounded-xl text-center space-y-1.5"
                     >
-                      <span className="text-[10px] text-o1-muted block font-semibold">
+                      <span className="text-o1-label text-o1-muted block font-semibold">
                         {el.name}
                       </span>
                       <span className="text-xs font-semibold tabular-nums block">{current} mg</span>

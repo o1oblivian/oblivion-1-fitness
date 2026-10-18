@@ -65,16 +65,16 @@ export const FuelIntakeSlotCard: React.FC<FuelIntakeSlotCardProps> = ({
           </span>
           <div className="min-w-0">
             <h3 className="text-sm font-semibold text-black">{slot.label}</h3>
-            <p className="text-[11px] text-black/60 tabular-nums truncate">{subtitle}</p>
+            <p className="text-o1-label text-black/60 tabular-nums truncate">{subtitle}</p>
           </div>
         </div>
         <div className="text-right shrink-0 tabular-nums">
           <span className="o1-unread block text-sm font-semibold text-black">
             {hasItems ? Math.round(total.calories).toLocaleString() : '--'}{' '}
-            <span className="text-[10px] font-normal text-black/60">kcal</span>
+            <span className="text-o1-label font-normal text-black/60">kcal</span>
           </span>
           {hasItems && (
-            <span className="block text-[10px] font-semibold">
+            <span className="block text-o1-label font-semibold">
               <span className="text-o1-crimson">{g(total.protein)}P</span>
               <span className="text-black/40"> · </span>
               <span className="text-amber-700">{g(total.carbs)}C</span>
@@ -94,7 +94,7 @@ export const FuelIntakeSlotCard: React.FC<FuelIntakeSlotCardProps> = ({
             >
               <div className="min-w-0">
                 <span className="block text-xs font-medium text-o1-text truncate">{item.name}</span>
-                <span className="block text-[11px] tabular-nums mt-0.5">
+                <span className="block text-o1-label tabular-nums mt-0.5">
                   <span className="text-o1-text">
                     {Math.round(Number(item.calories) || 0)} kcal
                   </span>

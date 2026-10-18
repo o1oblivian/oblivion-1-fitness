@@ -165,7 +165,7 @@ export const CoachInboxView: React.FC<CoachInboxViewProps> = ({
       <button
         type="button"
         onClick={() => setReportOpen(true)}
-        className="h-9 rounded-full px-3 text-[12px] font-semibold text-o1-muted"
+        className="h-9 rounded-full px-3 text-o1-caption font-semibold text-o1-muted"
       >
         Report
       </button>
@@ -173,7 +173,7 @@ export const CoachInboxView: React.FC<CoachInboxViewProps> = ({
         <button
           type="button"
           onClick={() => void block(other)}
-          className="h-9 rounded-full px-3 text-[12px] font-semibold text-o1-muted"
+          className="h-9 rounded-full px-3 text-o1-caption font-semibold text-o1-muted"
         >
           Block
         </button>
@@ -232,14 +232,14 @@ export const CoachInboxView: React.FC<CoachInboxViewProps> = ({
   const failureNote = loadFailed ? (
     <p
       role="alert"
-      className="rounded-xl border border-white/[0.07] bg-o1-canvas px-3 py-2 text-[12px] text-o1-text"
+      className="rounded-xl border border-white/[0.07] bg-o1-canvas px-3 py-2 text-o1-caption text-o1-text"
     >
       Could not load messages. Check your connection.
     </p>
   ) : sendFailed ? (
     <p
       role="alert"
-      className="rounded-xl border border-white/[0.07] bg-o1-canvas px-3 py-2 text-[12px] text-o1-text"
+      className="rounded-xl border border-white/[0.07] bg-o1-canvas px-3 py-2 text-o1-caption text-o1-text"
     >
       Message not sent. Check your connection and try again.
     </p>
@@ -262,12 +262,12 @@ export const CoachInboxView: React.FC<CoachInboxViewProps> = ({
             : `Message ${coachName || 'your coach'}`
         }
         maxLength={500}
-        className="h-[44px] min-w-0 flex-1 rounded-xl border border-white/[0.07] bg-o1-canvas px-3 text-[13px] text-o1-text outline-none focus:border-o1-crimson"
+        className="h-[44px] min-w-0 flex-1 rounded-xl border border-white/[0.07] bg-o1-canvas px-3 text-o1-body text-o1-text outline-none focus:border-o1-crimson"
       />
       <button
         type="submit"
         disabled={!reply.trim() || sending}
-        className="h-[44px] rounded-xl bg-o1-crimson px-4 text-[13px] font-semibold text-o1-text active:scale-[0.98] disabled:opacity-40"
+        className="h-[44px] rounded-xl bg-o1-crimson px-4 text-o1-body font-semibold text-o1-text active:scale-[0.98] disabled:opacity-40"
       >
         Send
       </button>
@@ -289,14 +289,14 @@ export const CoachInboxView: React.FC<CoachInboxViewProps> = ({
               <ChevronLeft size={20} />
             </button>
             <AthleteAvatar name={open.name} avatar={open.avatar} size={36} />
-            <p className="min-w-0 flex-1 truncate text-[15px] font-semibold text-o1-text">
+            <p className="min-w-0 flex-1 truncate text-o1-control font-semibold text-o1-text">
               {open.name}
             </p>
             {safetyActions}
           </div>
         ) : (
           <div className="flex items-center justify-between gap-2">
-            <p className="min-w-0 truncate text-[13px] font-semibold text-o1-text">
+            <p className="min-w-0 truncate text-o1-body font-semibold text-o1-text">
               Messages with {coachName || 'your coach'}
             </p>
             {safetyActions}
@@ -305,15 +305,15 @@ export const CoachInboxView: React.FC<CoachInboxViewProps> = ({
         {notice ? (
           <p
             role="status"
-            className="rounded-xl border border-white/[0.07] bg-o1-canvas px-3 py-2 text-[12px] text-o1-text"
+            className="rounded-xl border border-white/[0.07] bg-o1-canvas px-3 py-2 text-o1-caption text-o1-text"
           >
             {notice}
           </p>
         ) : null}
         {isLoading ? (
-          <p className="py-6 text-center text-[13px] text-o1-muted">Loading messages…</p>
+          <p className="py-6 text-center text-o1-body text-o1-muted">Loading messages…</p>
         ) : rows.length === 0 ? (
-          <p className="py-6 text-center text-[13px] text-o1-muted">No messages yet.</p>
+          <p className="py-6 text-center text-o1-body text-o1-muted">No messages yet.</p>
         ) : (
           <ul className="space-y-2">
             {rows.map((row) => {
@@ -323,10 +323,10 @@ export const CoachInboxView: React.FC<CoachInboxViewProps> = ({
                   <div
                     className={`max-w-[80%] rounded-2xl px-3 py-2 ${mine ? 'bg-o1-crimson text-o1-text' : 'bg-o1-canvas text-o1-text border border-white/[0.07]'}`}
                   >
-                    <p className="whitespace-pre-wrap text-[13px]">{row.message}</p>
+                    <p className="whitespace-pre-wrap text-o1-body">{row.message}</p>
                     {row.time ? (
                       <p
-                        className={`mt-0.5 text-[10px] tabular-nums ${mine ? 'text-white/70' : 'text-o1-muted'}`}
+                        className={`mt-0.5 text-o1-label tabular-nums ${mine ? 'text-white/70' : 'text-o1-muted'}`}
                       >
                         {row.time}
                       </p>
@@ -339,7 +339,7 @@ export const CoachInboxView: React.FC<CoachInboxViewProps> = ({
         )}
         {failureNote}
         {otherBlocked ? (
-          <p className="text-center text-[12px] text-o1-muted">
+          <p className="text-center text-o1-caption text-o1-muted">
             You blocked {other.name}. Messages are off.
           </p>
         ) : (
@@ -356,11 +356,11 @@ export const CoachInboxView: React.FC<CoachInboxViewProps> = ({
     <section className="space-y-3">
       <div className="flex items-baseline justify-between px-1">
         <div>
-          <p className="text-[13px] font-semibold text-o1-text">Inbox</p>
-          <p className="text-[12px] text-o1-muted">Messages from your athletes.</p>
+          <p className="text-o1-body font-semibold text-o1-text">Inbox</p>
+          <p className="text-o1-caption text-o1-muted">Messages from your athletes.</p>
         </div>
         {waitingCount > 0 ? (
-          <span className="text-[12px] font-semibold tabular-nums text-o1-text">
+          <span className="text-o1-caption font-semibold tabular-nums text-o1-text">
             {waitingCount} to reply
           </span>
         ) : null}
@@ -369,14 +369,14 @@ export const CoachInboxView: React.FC<CoachInboxViewProps> = ({
       {failureNote}
 
       {isLoading ? (
-        <p className="rounded-2xl border border-white/[0.07] bg-o1-surface px-4 py-6 text-center text-[13px] text-o1-muted">
+        <p className="rounded-2xl border border-white/[0.07] bg-o1-surface px-4 py-6 text-center text-o1-body text-o1-muted">
           Loading messages…
         </p>
       ) : threads.length === 0 ? (
         <div className="space-y-1 rounded-2xl border border-white/[0.07] bg-o1-surface px-4 py-6 text-center">
           <Inbox className="mx-auto h-6 w-6 text-o1-muted" />
-          <p className="text-[13px] font-semibold text-o1-text">No messages yet</p>
-          <p className="text-[12px] text-o1-muted">
+          <p className="text-o1-body font-semibold text-o1-text">No messages yet</p>
+          <p className="text-o1-caption text-o1-muted">
             When an athlete messages you, it shows up here.
           </p>
         </div>
@@ -396,16 +396,16 @@ export const CoachInboxView: React.FC<CoachInboxViewProps> = ({
               <AthleteAvatar name={thread.name} avatar={thread.avatar} />
               <span className="min-w-0 flex-1">
                 <span className="flex items-baseline justify-between gap-2">
-                  <span className="truncate text-[14px] font-semibold text-o1-text">
+                  <span className="truncate text-o1-control font-semibold text-o1-text">
                     {thread.name}
                   </span>
                   {last.time ? (
-                    <span className="shrink-0 text-[11px] tabular-nums text-o1-muted">
+                    <span className="shrink-0 text-o1-label tabular-nums text-o1-muted">
                       {last.time}
                     </span>
                   ) : null}
                 </span>
-                <span className="block truncate text-[12px] text-o1-muted">
+                <span className="block truncate text-o1-caption text-o1-muted">
                   {fromCoach(last) ? 'You: ' : ''}
                   {last.message}
                 </span>

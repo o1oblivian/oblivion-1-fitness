@@ -246,11 +246,11 @@ function BurnNote({ workout }: { workout: WorkoutDayRecord }) {
   ]);
   return (
     <div className="mt-3 pt-2.5 border-t border-white/[0.07] space-y-1">
-      <p className="text-[12px] text-o1-text">
+      <p className="text-o1-caption text-o1-text">
         {Math.round(workout.burnedKcal ?? 0).toLocaleString()} kcal active{' '}
         <span className="text-o1-muted">· {inputs}</span>
       </p>
-      <p className="text-[11px] leading-relaxed text-o1-muted">
+      <p className="text-o1-label leading-relaxed text-o1-muted">
         Active burn only, from training time, effort and bodyweight. Watches add resting burn to the
         total, so they read higher for the same session.
       </p>
@@ -259,5 +259,5 @@ function BurnNote({ workout }: { workout: WorkoutDayRecord }) {
 }
 
 function EmptyCopy({ children }: { children: React.ReactNode }) {
-  return <p className="pt-2 text-[11px] text-neutral-500">{children}</p>;
+  return <p className="pt-2 text-o1-label text-neutral-500">{children}</p>;
 }

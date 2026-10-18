@@ -120,21 +120,21 @@ export const SettingsUnitsDefaultsSection: React.FC<UnitsDefaultsSectionProps> =
             className="w-full p-4 flex items-center justify-between text-left hover:bg-white/[0.06] transition-colors cursor-pointer"
           >
             <div className="flex items-center gap-2.5 min-w-0">
-              <div className="w-8 h-8 rounded-xl bg-o1-well border border-white/[0.07] flex items-center justify-center text-[#4F8F9A] shrink-0">
+              <div className="w-8 h-8 rounded-xl bg-o1-well border border-white/[0.07] flex items-center justify-center text-o1-teal shrink-0">
                 <Footprints className="w-4 h-4" />
               </div>
               <div className="min-w-0">
                 <span className="text-xs font-tactical font-semibold text-neutral-100 block">
                   Daily Step Target
                 </span>
-                <span className="text-[10px] font-sans text-white tabular-nums block truncate font-semibold">
+                <span className="text-o1-label font-sans text-white tabular-nums block truncate font-semibold">
                   {stepTarget.toLocaleString()} steps / day
                 </span>
               </div>
             </div>
 
             <div className="flex items-center gap-1.5 text-neutral-400 shrink-0">
-              <span className="text-[10px] font-mono">{stepsExpanded ? 'Close' : 'Adjust'}</span>
+              <span className="text-o1-label font-mono">{stepsExpanded ? 'Close' : 'Adjust'}</span>
               {stepsExpanded ? (
                 <ChevronUp className="w-4 h-4 text-neutral-400" />
               ) : (
@@ -147,7 +147,7 @@ export const SettingsUnitsDefaultsSection: React.FC<UnitsDefaultsSectionProps> =
             <div className="px-4 pb-4 pt-1 border-t border-white/[0.05] space-y-3.5 animate-in fade-in duration-150">
               {/* Tactical Mobile Keypad Input Card */}
               <div className="p-4 rounded-xl bg-o1-well border border-white/[0.07] flex flex-col items-center gap-3">
-                <span className="text-[10px] font-tactical font-bold text-neutral-400 tracking-wider">
+                <span className="text-o1-label font-tactical font-bold text-neutral-400 tracking-wider">
                   Target Steps / Day
                 </span>
 
@@ -195,7 +195,7 @@ export const SettingsUnitsDefaultsSection: React.FC<UnitsDefaultsSectionProps> =
                 </div>
 
                 {/* Telemetry Estimation */}
-                <div className="flex items-center justify-center gap-3 text-[11px] font-mono text-neutral-400">
+                <div className="flex items-center justify-center gap-3 text-o1-label font-mono text-neutral-400">
                   <span>
                     ~
                     {distanceUnit === 'mi'
@@ -239,14 +239,14 @@ export const SettingsUnitsDefaultsSection: React.FC<UnitsDefaultsSectionProps> =
             className="w-full p-4 flex items-center justify-between text-left hover:bg-white/[0.06] transition-colors cursor-pointer"
           >
             <div className="flex items-center gap-2.5 min-w-0">
-              <div className="w-8 h-8 rounded-xl bg-o1-well border border-white/[0.07] flex items-center justify-center text-[#D4A017] shrink-0">
+              <div className="w-8 h-8 rounded-xl bg-o1-well border border-white/[0.07] flex items-center justify-center text-o1-gold shrink-0">
                 <Scale className="w-4 h-4" />
               </div>
               <div className="min-w-0">
                 <span className="text-xs font-tactical font-semibold text-neutral-100 block">
                   Units &amp; Barbell Defaults
                 </span>
-                <span className="text-[10px] font-mono text-neutral-400 block truncate">
+                <span className="text-o1-label font-mono text-neutral-400 block truncate">
                   {weightUnit.toUpperCase()} · {distanceUnit.toUpperCase()} · Bar:{' '}
                   {weightUnit === 'lbs'
                     ? `${Math.round(defaultBarbellKg * 2.20462)}lbs`
@@ -257,7 +257,7 @@ export const SettingsUnitsDefaultsSection: React.FC<UnitsDefaultsSectionProps> =
             </div>
 
             <div className="flex items-center gap-1.5 text-neutral-400 shrink-0">
-              <span className="text-[10px] font-mono">{unitsExpanded ? 'Close' : 'Adjust'}</span>
+              <span className="text-o1-label font-mono">{unitsExpanded ? 'Close' : 'Adjust'}</span>
               {unitsExpanded ? (
                 <ChevronUp className="w-4 h-4 text-neutral-400" />
               ) : (
@@ -271,7 +271,7 @@ export const SettingsUnitsDefaultsSection: React.FC<UnitsDefaultsSectionProps> =
               {/* Unit System Toggles */}
               <div className="grid grid-cols-3 gap-2">
                 <div>
-                  <span className="text-[10px] font-tactical font-bold text-neutral-400 block mb-1">
+                  <span className="text-o1-label font-tactical font-bold text-neutral-400 block mb-1">
                     Weight Unit
                   </span>
                   <div className="grid grid-cols-2 bg-o1-well p-0.5 rounded-lg border border-white/[0.07]">
@@ -307,7 +307,7 @@ export const SettingsUnitsDefaultsSection: React.FC<UnitsDefaultsSectionProps> =
                 </div>
 
                 <div>
-                  <span className="text-[10px] font-tactical font-bold text-neutral-400 block mb-1">
+                  <span className="text-o1-label font-tactical font-bold text-neutral-400 block mb-1">
                     Distance
                   </span>
                   <div className="grid grid-cols-2 bg-o1-well p-0.5 rounded-lg border border-white/[0.07]">
@@ -343,7 +343,7 @@ export const SettingsUnitsDefaultsSection: React.FC<UnitsDefaultsSectionProps> =
                 </div>
 
                 <div>
-                  <span className="text-[10px] font-tactical font-bold text-neutral-400 block mb-1">
+                  <span className="text-o1-label font-tactical font-bold text-neutral-400 block mb-1">
                     Height Unit
                   </span>
                   <div className="grid grid-cols-2 bg-o1-well p-0.5 rounded-lg border border-white/[0.07]">
@@ -383,7 +383,7 @@ export const SettingsUnitsDefaultsSection: React.FC<UnitsDefaultsSectionProps> =
               <div className="space-y-1.5 pt-1">
                 <div className="flex items-center gap-1.5">
                   <Dumbbell className="w-3.5 h-3.5 text-neutral-400" />
-                  <span className="text-[10px] font-tactical font-bold text-neutral-400 block">
+                  <span className="text-o1-label font-tactical font-bold text-neutral-400 block">
                     Default Olympic Barbell Type
                   </span>
                 </div>
@@ -404,7 +404,7 @@ export const SettingsUnitsDefaultsSection: React.FC<UnitsDefaultsSectionProps> =
                     >
                       <span>{b.label}</span>
                       <span
-                        className={`font-mono text-[11px] ${defaultBarbellKg === b.value ? 'text-white/80' : 'text-neutral-400'}`}
+                        className={`font-mono text-o1-label ${defaultBarbellKg === b.value ? 'text-white/80' : 'text-neutral-400'}`}
                       >
                         {weightUnit === 'lbs'
                           ? `${Math.round(b.value * 2.20462)} lbs`
@@ -420,7 +420,7 @@ export const SettingsUnitsDefaultsSection: React.FC<UnitsDefaultsSectionProps> =
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1.5">
                     <Clock className="w-3.5 h-3.5 text-neutral-400" />
-                    <span className="text-[10px] font-tactical font-bold text-neutral-400 block">
+                    <span className="text-o1-label font-tactical font-bold text-neutral-400 block">
                       Rest timer
                     </span>
                   </div>
@@ -428,7 +428,7 @@ export const SettingsUnitsDefaultsSection: React.FC<UnitsDefaultsSectionProps> =
                     {defaultRestSeconds === 0 ? 'Off' : `${defaultRestSeconds} seconds`}
                   </span>
                 </div>
-                <p className="text-[10px] font-sans text-neutral-400 leading-snug">
+                <p className="text-o1-label font-sans text-neutral-400 leading-snug">
                   {defaultRestSeconds === 0
                     ? "The timer won't start by itself after a set."
                     : 'Starts after each set. Exercises with their own rest time use that instead.'}

@@ -35,7 +35,7 @@ export const FuelIntakeSection: React.FC<FuelIntakeSectionProps> = ({
       >
         <span className="flex items-center gap-2">
           <span className="text-base font-semibold text-o1-text">Intake</span>
-          <span className="px-2 py-0.5 rounded-full text-[10px] font-medium tabular-nums border border-white/[0.08] text-o1-muted">
+          <span className="px-2 py-0.5 rounded-full text-o1-label font-medium tabular-nums border border-white/[0.08] text-o1-muted">
             {filledSlots}/{MEAL_SLOTS.length} logged
           </span>
         </span>

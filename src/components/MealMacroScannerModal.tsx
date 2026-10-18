@@ -57,7 +57,7 @@ export const MealMacroScannerModal: React.FC<MealMacroScannerModalProps> = (prop
             </div>
             <div>
               <h2 className="text-sm font-bold text-white">Meal Macro Scanner</h2>
-              <p className="text-[11px] text-neutral-500">Vision · barcode · plate</p>
+              <p className="text-o1-label text-neutral-500">Vision · barcode · plate</p>
             </div>
           </div>
           <button
@@ -92,16 +92,16 @@ export const MealMacroScannerModal: React.FC<MealMacroScannerModalProps> = (prop
             </div>
           ) : scanMode !== 'barcode' && !scannedMeal && !imageFile && !isLoading && !isScanning ? (
             <div className="rounded-xl border border-white/[0.07] bg-black px-3 py-4 text-center">
-              <p className="text-[11px] text-neutral-500">Your photo shows here.</p>
+              <p className="text-o1-label text-neutral-500">Your photo shows here.</p>
             </div>
           ) : null}
 
           {error && (
             <div
               role="alert"
-              className="w-full px-3 py-2 rounded-xl bg-o1-well border border-[#C4121A]/40 text-o1-text text-xs flex items-start gap-2"
+              className="w-full px-3 py-2 rounded-xl bg-o1-well border border-o1-crimson/40 text-o1-text text-xs flex items-start gap-2"
             >
-              <AlertCircle className="w-4 h-4 shrink-0 mt-px text-[#C4121A]" />
+              <AlertCircle className="w-4 h-4 shrink-0 mt-px text-o1-crimson" />
               <span className="flex-1 min-w-0 break-words leading-snug">{error}</span>
             </div>
           )}

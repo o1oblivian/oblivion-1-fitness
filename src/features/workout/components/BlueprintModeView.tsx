@@ -108,7 +108,7 @@ export const BlueprintModeView: React.FC<BlueprintModeViewProps> = ({ onLoaded }
               setShowSwapper((prev) => !prev);
             }}
             aria-expanded={showSwapper}
-            className="text-[10px] font-mono text-neutral-500 hover:text-neutral-300 flex items-center gap-1 transition-colors cursor-pointer"
+            className="text-o1-label font-mono text-neutral-500 hover:text-neutral-300 flex items-center gap-1 transition-colors cursor-pointer"
           >
             <ArrowLeftRight className="w-3 h-3" />
             <span>{showSwapper ? 'Hide Swapper' : 'Exercise Swapper'}</span>

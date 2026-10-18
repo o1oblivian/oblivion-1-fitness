@@ -104,7 +104,7 @@ export const LogView: React.FC = () => {
         </span>
         <div className="flex-1 min-w-0">
           <div className="text-sm font-bold text-white">The Oblivion Report</div>
-          <div className="text-[11px] text-neutral-500">Score, muscle map, strength trends</div>
+          <div className="text-o1-label text-neutral-500">Score, muscle map, strength trends</div>
         </div>
         <ChevronRight className="w-4 h-4 text-neutral-500 shrink-0" />
       </button>

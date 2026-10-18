@@ -63,7 +63,7 @@ export const OblivionReportModal: React.FC<OblivionReportModalProps> = ({ isOpen
     >
       <div className="w-full max-w-[420px] mx-auto space-y-3">
         <div className="flex flex-wrap items-center min-h-11">
-          <div className="flex-1 text-[10px] font-mono tracking-wider text-neutral-500">
+          <div className="flex-1 text-o1-label font-mono tracking-wider text-neutral-500">
             {loading
               ? 'Loading history…'
               : source === 'cloud'
@@ -97,7 +97,7 @@ export const OblivionReportModal: React.FC<OblivionReportModalProps> = ({ isOpen
           />
           <div className="flex-1 min-w-0">
             <div className="text-sm font-bold text-white">Share with my coach</div>
-            <div className="text-[11px] text-neutral-500 leading-snug">
+            <div className="text-o1-label text-neutral-500 leading-snug">
               {syncState === 'error'
                 ? 'Could not update sharing. Check your connection and try again.'
                 : shared
@@ -126,7 +126,7 @@ export const OblivionReportModal: React.FC<OblivionReportModalProps> = ({ isOpen
 
         <DexaPanel />
 
-        <p className="text-[10px] font-mono text-neutral-600 text-center leading-relaxed pt-2">
+        <p className="text-o1-label font-mono text-neutral-600 text-center leading-relaxed pt-2">
           Computed on this device from your logs. Metrics without data show --.
         </p>
       </div>

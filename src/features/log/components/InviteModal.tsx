@@ -110,10 +110,10 @@ export const InviteModal: React.FC<InviteModalProps> = ({
         </div>
 
         <div className="rounded-2xl bg-o1-well border border-white/[0.07] p-3 space-y-1">
-          <span className="text-[10px] text-neutral-500 block">{userHandle}</span>
+          <span className="text-o1-label text-neutral-500 block">{userHandle}</span>
           <div className="text-sm font-semibold text-white break-all">{link}</div>
-          <div className="text-[12px] font-semibold tracking-wide text-neutral-200">{code}</div>
-          <p className="text-[11px] text-neutral-400">
+          <div className="text-o1-caption font-semibold tracking-wide text-neutral-200">{code}</div>
+          <p className="text-o1-label text-neutral-400">
             {isLive
               ? 'This invite is live on your account.'
               : 'Sign in so this invite links to your account.'}
@@ -140,12 +140,12 @@ export const InviteModal: React.FC<InviteModalProps> = ({
               className="flex flex-col items-center gap-1.5"
             >
               <span
-                className="w-11 h-11 rounded-2xl flex items-center justify-center text-[11px] font-semibold text-white"
+                className="w-11 h-11 rounded-2xl flex items-center justify-center text-o1-label font-semibold text-white"
                 style={{ background: item.color }}
               >
                 {item.name.slice(0, 1)}
               </span>
-              <span className="text-[10px] text-neutral-400">{item.name}</span>
+              <span className="text-o1-label text-neutral-400">{item.name}</span>
             </a>
           ))}
         </div>
@@ -160,7 +160,7 @@ export const InviteModal: React.FC<InviteModalProps> = ({
         </button>
 
         <form onSubmit={handleJoin} className="space-y-1.5">
-          <label className="text-[11px] text-neutral-400 block">Save a friend’s invite</label>
+          <label className="text-o1-label text-neutral-400 block">Save a friend’s invite</label>
           <div className="flex items-center gap-2">
             <input
               type="text"
@@ -179,7 +179,7 @@ export const InviteModal: React.FC<InviteModalProps> = ({
           </div>
         </form>
 
-        {status && <p className="text-[11px] text-neutral-400 text-center">{status}</p>}
+        {status && <p className="text-o1-label text-neutral-400 text-center">{status}</p>}
       </div>
     </div>
   );

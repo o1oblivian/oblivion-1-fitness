@@ -217,7 +217,7 @@ export const RadarProfileStudioModal: React.FC<Props> = ({ isOpen, onClose, onAp
       <div className="o1-sheet-card o1-page flex flex-col overflow-hidden bg-black">
         {/* HEADER */}
         <div className="px-4 py-3 border-b border-white/[0.05] bg-o1-card/95 backdrop-blur-sm flex items-center justify-between shrink-0">
-          <h2 className="text-[15px] font-semibold text-white">Your profile</h2>
+          <h2 className="text-o1-control font-semibold text-white">Your profile</h2>
 
           <button
             type="button"
@@ -245,7 +245,7 @@ export const RadarProfileStudioModal: React.FC<Props> = ({ isOpen, onClose, onAp
                     <h3 className="text-xs font-tactical font-bold tracking-wider text-white">
                       Profile Photos ({currentPhotos.length}/6)
                     </h3>
-                    <p className="text-[10px] text-neutral-400 font-sans">
+                    <p className="text-o1-label text-neutral-400 font-sans">
                       Hold and drag to arrange · Tap to swap
                     </p>
                   </div>
@@ -356,7 +356,7 @@ export const RadarProfileStudioModal: React.FC<Props> = ({ isOpen, onClose, onAp
 
               {/* About Me (Bio) */}
               <div className="space-y-3 rounded-2xl border border-white/[0.07] bg-[#121214] p-4">
-                <h3 className="text-[15px] font-semibold text-white">Prompts</h3>
+                <h3 className="text-o1-control font-semibold text-white">Prompts</h3>
                 {[
                   { label: 'I train', placeholder: 'Push three mornings a week' },
                   { label: "I'm looking for", placeholder: 'A spotter who shows up' },
@@ -367,7 +367,7 @@ export const RadarProfileStudioModal: React.FC<Props> = ({ isOpen, onClose, onAp
                     : [buddy.partnerBio, '', ''];
                   return (
                     <label key={prompt.label} className="block">
-                      <span className="text-[12px] text-neutral-400">{prompt.label}</span>
+                      <span className="text-o1-caption text-neutral-400">{prompt.label}</span>
                       <input
                         value={
                           index === 0 && !buddy.partnerBio.includes('\n')
@@ -383,7 +383,7 @@ export const RadarProfileStudioModal: React.FC<Props> = ({ isOpen, onClose, onAp
                           buddy.setPartnerBio(next.join('\n').slice(0, 300));
                         }}
                         placeholder={prompt.placeholder}
-                        className="mt-1 h-11 w-full rounded-xl border border-white/[0.07] bg-[#161616] px-3 text-[13px] text-white placeholder:text-neutral-500 focus:outline-none"
+                        className="mt-1 h-11 w-full rounded-xl border border-white/[0.07] bg-o1-well px-3 text-o1-body text-white placeholder:text-neutral-500 focus:outline-none"
                       />
                     </label>
                   );
@@ -392,11 +392,13 @@ export const RadarProfileStudioModal: React.FC<Props> = ({ isOpen, onClose, onAp
 
               {/* Basic Info */}
               <div className="bg-o1-card p-4 rounded-2xl border border-white/[0.07] space-y-3 shadow-xs">
-                <h3 className="text-[15px] font-semibold text-white">You</h3>
+                <h3 className="text-o1-control font-semibold text-white">You</h3>
 
                 <div className="grid grid-cols-3 gap-2">
                   <div className="col-span-2 space-y-1">
-                    <label className="text-[10px] font-mono text-neutral-400 font-bold">Name</label>
+                    <label className="text-o1-label font-mono text-neutral-400 font-bold">
+                      Name
+                    </label>
                     <input
                       type="text"
                       value={buddy.displayName}
@@ -405,7 +407,9 @@ export const RadarProfileStudioModal: React.FC<Props> = ({ isOpen, onClose, onAp
                     />
                   </div>
                   <div className="space-y-1">
-                    <label className="text-[10px] font-mono text-neutral-400 font-bold">Age</label>
+                    <label className="text-o1-label font-mono text-neutral-400 font-bold">
+                      Age
+                    </label>
                     <input
                       type="number"
                       inputMode="numeric"
@@ -422,7 +426,7 @@ export const RadarProfileStudioModal: React.FC<Props> = ({ isOpen, onClose, onAp
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-[10px] font-mono text-neutral-400 font-bold flex items-center gap-1">
+                  <label className="text-o1-label font-mono text-neutral-400 font-bold flex items-center gap-1">
                     <MapPin className="w-3 h-3 text-o1-crimson" />
                     <span>Home Gym</span>
                   </label>
@@ -430,7 +434,7 @@ export const RadarProfileStudioModal: React.FC<Props> = ({ isOpen, onClose, onAp
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-mono text-neutral-400 font-bold block">
+                  <label className="text-o1-label font-mono text-neutral-400 font-bold block">
                     I am
                   </label>
                   <div className="flex flex-wrap gap-1.5">
@@ -444,7 +448,7 @@ export const RadarProfileStudioModal: React.FC<Props> = ({ isOpen, onClose, onAp
                         key={id}
                         type="button"
                         onClick={() => buddy.setGender(buddy.gender === id ? '' : id)}
-                        className={`rounded-full px-3 py-1.5 text-[12px] font-semibold ${buddy.gender === id ? 'bg-o1-crimson text-white' : 'border border-white/[0.07] bg-[#161616] text-neutral-300'}`}
+                        className={`rounded-full px-3 py-1.5 text-o1-caption font-semibold ${buddy.gender === id ? 'bg-o1-crimson text-white' : 'border border-white/[0.07] bg-o1-well text-neutral-300'}`}
                       >
                         {label}
                       </button>
@@ -453,7 +457,7 @@ export const RadarProfileStudioModal: React.FC<Props> = ({ isOpen, onClose, onAp
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-mono text-neutral-400 font-bold block">
+                  <label className="text-o1-label font-mono text-neutral-400 font-bold block">
                     Where I train
                   </label>
                   <div className="flex flex-wrap gap-1.5">
@@ -468,7 +472,7 @@ export const RadarProfileStudioModal: React.FC<Props> = ({ isOpen, onClose, onAp
                         key={id}
                         type="button"
                         onClick={() => buddy.setTrainingPlace(buddy.trainingPlace === id ? '' : id)}
-                        className={`rounded-full px-3 py-1.5 text-[12px] font-semibold ${buddy.trainingPlace === id ? 'bg-o1-crimson text-white' : 'border border-white/[0.07] bg-[#161616] text-neutral-300'}`}
+                        className={`rounded-full px-3 py-1.5 text-o1-caption font-semibold ${buddy.trainingPlace === id ? 'bg-o1-crimson text-white' : 'border border-white/[0.07] bg-o1-well text-neutral-300'}`}
                       >
                         {label}
                       </button>
@@ -478,7 +482,7 @@ export const RadarProfileStudioModal: React.FC<Props> = ({ isOpen, onClose, onAp
 
                 {/* Fitness Disciplines */}
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-mono text-neutral-400 font-bold block">
+                  <label className="text-o1-label font-mono text-neutral-400 font-bold block">
                     Fitness Interests
                   </label>
                   <div className="flex flex-wrap gap-1.5">
@@ -496,10 +500,10 @@ export const RadarProfileStudioModal: React.FC<Props> = ({ isOpen, onClose, onAp
                               : [...current, d];
                             buddy.setSelectedDisciplines(next);
                           }}
-                          className={`rounded-full px-3 py-1.5 text-[12px] font-semibold transition cursor-pointer ${
+                          className={`rounded-full px-3 py-1.5 text-o1-caption font-semibold transition cursor-pointer ${
                             isSelected
                               ? 'bg-o1-crimson text-white'
-                              : 'border border-white/[0.07] bg-[#161616] text-neutral-300'
+                              : 'border border-white/[0.07] bg-o1-well text-neutral-300'
                           }`}
                         >
                           {d}
@@ -517,7 +521,7 @@ export const RadarProfileStudioModal: React.FC<Props> = ({ isOpen, onClose, onAp
           <button
             type="button"
             onClick={handleDone}
-            className="flex w-full items-center justify-center rounded-full bg-o1-crimson py-3 text-[13px] font-semibold text-white"
+            className="flex w-full items-center justify-center rounded-full bg-o1-crimson py-3 text-o1-body font-semibold text-white"
           >
             Done
           </button>

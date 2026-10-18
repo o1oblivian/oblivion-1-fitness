@@ -196,7 +196,7 @@ export const ProgramReelsScroller: React.FC<ProgramReelsScrollerProps> = ({
                   )}
                 </span>
               </span>
-              <span className="mt-1.5 block w-full px-0.5 text-center font-sans text-[11px] font-medium truncate text-white">
+              <span className="mt-1.5 block w-full px-0.5 text-center font-sans text-o1-label font-medium truncate text-white">
                 {story.name}
               </span>
             </button>

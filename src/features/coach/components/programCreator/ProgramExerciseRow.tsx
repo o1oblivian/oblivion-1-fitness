@@ -19,7 +19,7 @@ export const ProgramExerciseRow: React.FC<ProgramExerciseRowProps> = ({
     <div className="p-3.5 rounded-2xl bg-o1-surface border border-white/[0.07] space-y-2.5 shadow-2xs transition-all hover:border-white/[0.07]">
       {/* Top Header: Index + Exercise Name + Remove */}
       <div className="flex items-center gap-2">
-        <span className="w-5 h-5 rounded-full bg-white/[0.08] text-[10px] font-bold flex items-center justify-center text-o1-muted shrink-0 font-mono">
+        <span className="w-5 h-5 rounded-full bg-white/[0.08] text-o1-label font-bold flex items-center justify-center text-o1-muted shrink-0 font-mono">
           {index + 1}
         </span>
         <input
@@ -42,7 +42,7 @@ export const ProgramExerciseRow: React.FC<ProgramExerciseRowProps> = ({
       {/* Numerical Matrix: Sets, Reps, Rest */}
       <div className="grid grid-cols-3 gap-2">
         <div className="bg-o1-sheet border border-white/[0.07] rounded-xl p-1.5 text-center">
-          <label className="text-[9px] font-bold tracking-wider text-o1-muted block mb-0.5">
+          <label className="text-o1-label font-bold tracking-wider text-o1-muted block mb-0.5">
             Sets
           </label>
           <input
@@ -54,7 +54,7 @@ export const ProgramExerciseRow: React.FC<ProgramExerciseRowProps> = ({
           />
         </div>
         <div className="bg-o1-sheet border border-white/[0.07] rounded-xl p-1.5 text-center">
-          <label className="text-[9px] font-bold tracking-wider text-o1-muted block mb-0.5">
+          <label className="text-o1-label font-bold tracking-wider text-o1-muted block mb-0.5">
             Reps
           </label>
           <input
@@ -66,7 +66,7 @@ export const ProgramExerciseRow: React.FC<ProgramExerciseRowProps> = ({
           />
         </div>
         <div className="bg-o1-sheet border border-white/[0.07] rounded-xl p-1.5 text-center">
-          <label className="text-[9px] font-bold tracking-wider text-o1-muted block mb-0.5">
+          <label className="text-o1-label font-bold tracking-wider text-o1-muted block mb-0.5">
             Rest (sec)
           </label>
           <input
@@ -87,14 +87,14 @@ export const ProgramExerciseRow: React.FC<ProgramExerciseRowProps> = ({
           value={exercise.cue || ''}
           onChange={(e) => onChange({ cue: e.target.value })}
           placeholder="Biomechanical cue / tempo (e.g. 3-sec eccentric, pause at chest)"
-          className="w-full px-3 py-1.5 rounded-xl bg-o1-sheet border border-white/[0.07] text-[11px] text-o1-text placeholder:text-o1-muted focus:outline-none focus:border-white transition-colors"
+          className="w-full px-3 py-1.5 rounded-xl bg-o1-sheet border border-white/[0.07] text-o1-label text-o1-text placeholder:text-o1-muted focus:outline-none focus:border-white transition-colors"
         />
         <input
           type="text"
           value={exercise.demoUrl || ''}
           onChange={(e) => onChange({ demoUrl: e.target.value })}
           placeholder="Video reference / vault media URL (optional)"
-          className="w-full px-3 py-1.5 rounded-xl bg-o1-sheet border border-white/[0.07] text-[11px] text-o1-text placeholder:text-o1-muted focus:outline-none focus:border-white transition-colors"
+          className="w-full px-3 py-1.5 rounded-xl bg-o1-sheet border border-white/[0.07] text-o1-label text-o1-text placeholder:text-o1-muted focus:outline-none focus:border-white transition-colors"
         />
       </div>
     </div>
