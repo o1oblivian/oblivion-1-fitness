@@ -1,0 +1,902 @@
+[
+  {
+    "id": "usda-325871",
+    "name": "Paine alba",
+    "cat": "carbs",
+    "kcal": 270,
+    "protein": 9.4,
+    "carbs": 49.2,
+    "fats": 3.6
+  },
+  {
+    "id": "usda-171890",
+    "name": "Cafea neagra",
+    "cat": "drinks",
+    "kcal": 1,
+    "protein": 0.1,
+    "carbs": 0,
+    "fats": 0
+  },
+  {
+    "id": "usda-170698",
+    "name": "Cartofi prajiti",
+    "cat": "fastfood",
+    "kcal": 312,
+    "protein": 3.4,
+    "carbs": 41.4,
+    "fats": 14.7
+  },
+  {
+    "id": "usda-168746",
+    "name": "Bere",
+    "cat": "drinks",
+    "kcal": 43,
+    "protein": 0.5,
+    "carbs": 3.6,
+    "fats": 0
+  },
+  {
+    "id": "usda-173420",
+    "name": "Telemea de vaca",
+    "cat": "dairy",
+    "kcal": 265,
+    "protein": 14.2,
+    "carbs": 3.9,
+    "fats": 21.5
+  },
+  {
+    "id": "usda-173424",
+    "name": "Oua fierte",
+    "cat": "protein",
+    "kcal": 155,
+    "protein": 12.6,
+    "carbs": 1.1,
+    "fats": 10.6
+  },
+  {
+    "id": "usda-171477",
+    "name": "Piept de pui la gratar",
+    "cat": "protein",
+    "kcal": 165,
+    "protein": 31,
+    "carbs": 0,
+    "fats": 3.6
+  },
+  {
+    "id": "usda-171689",
+    "name": "Mar",
+    "cat": "fruit",
+    "kcal": 48,
+    "protein": 0.3,
+    "carbs": 12.8,
+    "fats": 0.1
+  },
+  {
+    "id": "usda-170457",
+    "name": "Rosii",
+    "cat": "veg",
+    "kcal": 18,
+    "protein": 0.9,
+    "carbs": 3.9,
+    "fats": 0.2
+  },
+  {
+    "id": "usda-170317",
+    "name": "Pizza Margherita",
+    "cat": "fastfood",
+    "kcal": 268,
+    "protein": 10.4,
+    "carbs": 29,
+    "fats": 12.3
+  },
+  {
+    "id": "usda-330137",
+    "name": "Iaurt grecesc",
+    "cat": "dairy",
+    "kcal": 61,
+    "protein": 10.3,
+    "carbs": 3.6,
+    "fats": 0.4
+  },
+  {
+    "id": "usda-173657",
+    "name": "Apa minerala",
+    "cat": "drinks",
+    "kcal": 0,
+    "protein": 0,
+    "carbs": 0,
+    "fats": 0
+  },
+  {
+    "id": "usda-173944",
+    "name": "Banane",
+    "cat": "fruit",
+    "kcal": 89,
+    "protein": 1.1,
+    "carbs": 22.8,
+    "fats": 0.3
+  },
+  {
+    "id": "usda-168878",
+    "name": "Orez fiert",
+    "cat": "carbs",
+    "kcal": 130,
+    "protein": 2.7,
+    "carbs": 28.2,
+    "fats": 0.3
+  },
+  {
+    "id": "usda-2346406",
+    "name": "Castraveti",
+    "cat": "veg",
+    "kcal": 16,
+    "protein": 0.6,
+    "carbs": 3,
+    "fats": 0.2
+  },
+  {
+    "id": "usda-167587",
+    "name": "Ciocolata cu lapte",
+    "cat": "snacks",
+    "kcal": 535,
+    "protein": 7.7,
+    "carbs": 59.4,
+    "fats": 29.7
+  },
+  {
+    "id": "usda-170717",
+    "name": "Burger McDonald's",
+    "cat": "fastfood",
+    "kcal": 264,
+    "protein": 12.9,
+    "carbs": 30.3,
+    "fats": 10.1
+  },
+  {
+    "id": "usda-746782",
+    "name": "Lapte 3.5%",
+    "cat": "dairy",
+    "kcal": 60,
+    "protein": 3.3,
+    "carbs": 4.6,
+    "fats": 3.2
+  },
+  {
+    "id": "usda-170187",
+    "name": "Nuci",
+    "cat": "fats",
+    "kcal": 654,
+    "protein": 15.2,
+    "carbs": 13.7,
+    "fats": 65.2
+  },
+  {
+    "id": "usda-169094",
+    "name": "Masline",
+    "cat": "fats",
+    "kcal": 116,
+    "protein": 0.8,
+    "carbs": 6,
+    "fats": 10.9
+  },
+  {
+    "id": "usda-170000",
+    "name": "Ceapa",
+    "cat": "veg",
+    "kcal": 40,
+    "protein": 1.1,
+    "carbs": 9.3,
+    "fats": 0.1
+  },
+  {
+    "id": "usda-170026",
+    "name": "Cartofi fierti",
+    "cat": "carbs",
+    "kcal": 77,
+    "protein": 2.1,
+    "carbs": 17.5,
+    "fats": 0.1
+  },
+  {
+    "id": "usda-174863",
+    "name": "Bere fara alcool",
+    "cat": "drinks",
+    "kcal": 37,
+    "protein": 0.2,
+    "carbs": 8.1,
+    "fats": 0.1
+  },
+  {
+    "id": "usda-173321",
+    "name": "KFC Crispy Strips",
+    "cat": "fastfood",
+    "kcal": 271,
+    "protein": 19.2,
+    "carbs": 17.2,
+    "fats": 14
+  },
+  {
+    "id": "usda-171257",
+    "name": "Smantana",
+    "cat": "dairy",
+    "kcal": 198,
+    "protein": 2.4,
+    "carbs": 4.6,
+    "fats": 19.4
+  },
+  {
+    "id": "usda-171164",
+    "name": "Ciorba de burta",
+    "cat": "protein",
+    "kcal": 66,
+    "protein": 2.4,
+    "carbs": 10.7,
+    "fats": 1.6
+  },
+  {
+    "id": "usda-746769",
+    "name": "Salata verde",
+    "cat": "veg",
+    "kcal": 17,
+    "protein": 1.2,
+    "carbs": 3.2,
+    "fats": 0.3
+  },
+  {
+    "id": "usda-171450",
+    "name": "Pui la rotisor",
+    "cat": "protein",
+    "kcal": 239,
+    "protein": 27.3,
+    "carbs": 0,
+    "fats": 13.6
+  },
+  {
+    "id": "usda-172717",
+    "name": "Biscuiti",
+    "cat": "snacks",
+    "kcal": 444,
+    "protein": 3.6,
+    "carbs": 65.8,
+    "fats": 19.8
+  },
+  {
+    "id": "usda-171354",
+    "name": "Suc de portocale",
+    "cat": "drinks",
+    "kcal": 45,
+    "protein": 0.6,
+    "carbs": 10.2,
+    "fats": 0.3
+  },
+  {
+    "id": "usda-171413",
+    "name": "Ulei de masline",
+    "cat": "fats",
+    "kcal": 884,
+    "protein": 0,
+    "carbs": 0,
+    "fats": 100
+  },
+  {
+    "id": "usda-171705",
+    "name": "Avocado",
+    "cat": "fats",
+    "kcal": 160,
+    "protein": 2,
+    "carbs": 8.5,
+    "fats": 14.7
+  },
+  {
+    "id": "usda-328637",
+    "name": "Cascaval",
+    "cat": "dairy",
+    "kcal": 408,
+    "protein": 23.3,
+    "carbs": 2.4,
+    "fats": 34
+  },
+  {
+    "id": "usda-173718",
+    "name": "Peste (pastrav)",
+    "cat": "protein",
+    "kcal": 168,
+    "protein": 23.8,
+    "carbs": 0,
+    "fats": 7.4
+  },
+  {
+    "id": "usda-175203",
+    "name": "Fasole batuta",
+    "cat": "protein",
+    "kcal": 139,
+    "protein": 9.7,
+    "carbs": 25.1,
+    "fats": 0.4
+  },
+  {
+    "id": "usda-169737",
+    "name": "Paste fainoase",
+    "cat": "carbs",
+    "kcal": 158,
+    "protein": 5.8,
+    "carbs": 30.9,
+    "fats": 0.9
+  },
+  {
+    "id": "usda-174648",
+    "name": "Cereale mic dejun",
+    "cat": "carbs",
+    "kcal": 384,
+    "protein": 5.9,
+    "carbs": 88,
+    "fats": 0.9
+  },
+  {
+    "id": "usda-169677",
+    "name": "Chipsuri",
+    "cat": "snacks",
+    "kcal": 532,
+    "protein": 6.4,
+    "carbs": 53.8,
+    "fats": 34
+  },
+  {
+    "id": "usda-173190",
+    "name": "Vin rosu",
+    "cat": "drinks",
+    "kcal": 85,
+    "protein": 0.1,
+    "carbs": 2.6,
+    "fats": 0
+  },
+  {
+    "id": "usda-173410",
+    "name": "Unt",
+    "cat": "fats",
+    "kcal": 717,
+    "protein": 0.9,
+    "carbs": 0.1,
+    "fats": 81.1
+  },
+  {
+    "id": "usda-170427",
+    "name": "Ardei gras",
+    "cat": "veg",
+    "kcal": 20,
+    "protein": 0.9,
+    "carbs": 4.6,
+    "fats": 0.2
+  },
+  {
+    "id": "usda-174682",
+    "name": "Struguri",
+    "cat": "fruit",
+    "kcal": 67,
+    "protein": 0.6,
+    "carbs": 17.2,
+    "fats": 0.4
+  },
+  {
+    "id": "usda-169251",
+    "name": "Ciuperci",
+    "cat": "veg",
+    "kcal": 22,
+    "protein": 3.1,
+    "carbs": 3.3,
+    "fats": 0.3
+  },
+  {
+    "id": "usda-167522",
+    "name": "Prajitura cu mere",
+    "cat": "snacks",
+    "kcal": 290,
+    "protein": 2.2,
+    "carbs": 44.5,
+    "fats": 11.5
+  },
+  {
+    "id": "usda-170295",
+    "name": "Shaorma pui",
+    "cat": "fastfood",
+    "kcal": 250,
+    "protein": 16.3,
+    "carbs": 20.9,
+    "fats": 11.2
+  },
+  {
+    "id": "usda-170874",
+    "name": "Kefir",
+    "cat": "dairy",
+    "kcal": 40,
+    "protein": 3.3,
+    "carbs": 4.8,
+    "fats": 1.1
+  },
+  {
+    "id": "usda-170562",
+    "name": "Seminte de floarea soarelui",
+    "cat": "fats",
+    "kcal": 584,
+    "protein": 20.8,
+    "carbs": 20,
+    "fats": 51.5
+  },
+  {
+    "id": "usda-174992",
+    "name": "Papanasi",
+    "cat": "snacks",
+    "kcal": 426,
+    "protein": 5.2,
+    "carbs": 50.8,
+    "fats": 22.9
+  },
+  {
+    "id": "usda-171946",
+    "name": "Ceai negru",
+    "cat": "drinks",
+    "kcal": 0,
+    "protein": 0,
+    "carbs": 0,
+    "fats": 0
+  },
+  {
+    "id": "usda-167886",
+    "name": "Sunca presata",
+    "cat": "protein",
+    "kcal": 167,
+    "protein": 20.9,
+    "carbs": 0.5,
+    "fats": 8.4
+  },
+  {
+    "id": "usda-168525",
+    "name": "Porumb fiert",
+    "cat": "veg",
+    "kcal": 96,
+    "protein": 3.4,
+    "carbs": 21,
+    "fats": 1.5
+  },
+  {
+    "id": "usda-335240",
+    "name": "Paine integrala",
+    "cat": "carbs",
+    "kcal": 254,
+    "protein": 12.3,
+    "carbs": 43.1,
+    "fats": 3.6
+  },
+  {
+    "id": "usda-170567",
+    "name": "Migdale",
+    "cat": "fats",
+    "kcal": 579,
+    "protein": 21.2,
+    "carbs": 21.6,
+    "fats": 49.9
+  },
+  {
+    "id": "usda-171719",
+    "name": "Cirese",
+    "cat": "fruit",
+    "kcal": 63,
+    "protein": 1.1,
+    "carbs": 16,
+    "fats": 0.2
+  },
+  {
+    "id": "usda-167765",
+    "name": "Pepene rosu",
+    "cat": "fruit",
+    "kcal": 30,
+    "protein": 0.6,
+    "carbs": 7.6,
+    "fats": 0.2
+  },
+  {
+    "id": "usda-172179",
+    "name": "Branza de vaci",
+    "cat": "dairy",
+    "kcal": 98,
+    "protein": 11.1,
+    "carbs": 3.4,
+    "fats": 4.3
+  },
+  {
+    "id": "usda-172096",
+    "name": "Pizza Domino's",
+    "cat": "fastfood",
+    "kcal": 274,
+    "protein": 14.4,
+    "carbs": 24.7,
+    "fats": 13.1
+  },
+  {
+    "id": "usda-174851",
+    "name": "Bautura racoritoare",
+    "cat": "drinks",
+    "kcal": 41,
+    "protein": 0,
+    "carbs": 10.6,
+    "fats": 0
+  },
+  {
+    "id": "usda-169611",
+    "name": "Orez cu lapte",
+    "cat": "carbs",
+    "kcal": 111,
+    "protein": 3.3,
+    "carbs": 20.8,
+    "fats": 1.6
+  },
+  {
+    "id": "usda-170393",
+    "name": "Morcovi",
+    "cat": "veg",
+    "kcal": 41,
+    "protein": 0.9,
+    "carbs": 9.6,
+    "fats": 0.2
+  },
+  {
+    "id": "usda-170102",
+    "name": "Mazare",
+    "cat": "veg",
+    "kcal": 84,
+    "protein": 5.4,
+    "carbs": 15.6,
+    "fats": 0.2
+  },
+  {
+    "id": "usda-172470",
+    "name": "Unt de arahide",
+    "cat": "fats",
+    "kcal": 598,
+    "protein": 22.2,
+    "carbs": 22.3,
+    "fats": 51.4
+  },
+  {
+    "id": "usda-171596",
+    "name": "Supa crema de legume",
+    "cat": "veg",
+    "kcal": 69,
+    "protein": 5.1,
+    "carbs": 8.8,
+    "fats": 2
+  },
+  {
+    "id": "usda-167555",
+    "name": "Covrigi",
+    "cat": "snacks",
+    "kcal": 384,
+    "protein": 10,
+    "carbs": 80.4,
+    "fats": 2.9
+  },
+  {
+    "id": "usda-171286",
+    "name": "Iaurt cu fructe",
+    "cat": "dairy",
+    "kcal": 105,
+    "protein": 4.9,
+    "carbs": 18.6,
+    "fats": 1.4
+  },
+  {
+    "id": "usda-167820",
+    "name": "Carne de porc",
+    "cat": "protein",
+    "kcal": 242,
+    "protein": 27.3,
+    "carbs": 0,
+    "fats": 13.9
+  },
+  {
+    "id": "usda-168484",
+    "name": "Cartofi dulci",
+    "cat": "carbs",
+    "kcal": 76,
+    "protein": 1.4,
+    "carbs": 17.7,
+    "fats": 0.1
+  },
+  {
+    "id": "usda-2346409",
+    "name": "Capsuni",
+    "cat": "fruit",
+    "kcal": 36,
+    "protein": 0.6,
+    "carbs": 8,
+    "fats": 0.2
+  },
+  {
+    "id": "usda-167959",
+    "name": "Popcorn",
+    "cat": "snacks",
+    "kcal": 387,
+    "protein": 12.9,
+    "carbs": 77.8,
+    "fats": 4.5
+  },
+  {
+    "id": "usda-175037",
+    "name": "Tortilla",
+    "cat": "carbs",
+    "kcal": 306,
+    "protein": 8.2,
+    "carbs": 49.4,
+    "fats": 8
+  },
+  {
+    "id": "usda-747693",
+    "name": "Ketchup",
+    "cat": "snacks",
+    "kcal": 117,
+    "protein": 1.1,
+    "carbs": 26.8,
+    "fats": 0.6
+  },
+  {
+    "id": "usda-326698",
+    "name": "Mustar",
+    "cat": "snacks",
+    "kcal": 61,
+    "protein": 4.3,
+    "carbs": 5.3,
+    "fats": 3.4
+  },
+  {
+    "id": "usda-174032",
+    "name": "Carne de vita",
+    "cat": "protein",
+    "kcal": 250,
+    "protein": 25.9,
+    "carbs": 0,
+    "fats": 15.4
+  },
+  {
+    "id": "usda-175168",
+    "name": "Peste (somon)",
+    "cat": "protein",
+    "kcal": 206,
+    "protein": 22.1,
+    "carbs": 0,
+    "fats": 12.4
+  },
+  {
+    "id": "usda-169141",
+    "name": "Fasole verde",
+    "cat": "veg",
+    "kcal": 35,
+    "protein": 1.9,
+    "carbs": 7.9,
+    "fats": 0.3
+  },
+  {
+    "id": "usda-169118",
+    "name": "Pere",
+    "cat": "fruit",
+    "kcal": 57,
+    "protein": 0.4,
+    "carbs": 15.2,
+    "fats": 0.1
+  },
+  {
+    "id": "usda-171254",
+    "name": "Branza topita",
+    "cat": "dairy",
+    "kcal": 290,
+    "protein": 16.4,
+    "carbs": 8.7,
+    "fats": 21.2
+  },
+  {
+    "id": "usda-173905",
+    "name": "Ovaz",
+    "cat": "carbs",
+    "kcal": 71,
+    "protein": 2.5,
+    "carbs": 12,
+    "fats": 1.5
+  },
+  {
+    "id": "usda-170556",
+    "name": "Seminte de dovleac",
+    "cat": "fats",
+    "kcal": 559,
+    "protein": 30.2,
+    "carbs": 10.7,
+    "fats": 49
+  },
+  {
+    "id": "usda-2685577",
+    "name": "Vinete",
+    "cat": "veg",
+    "kcal": 26,
+    "protein": 0.9,
+    "carbs": 5.4,
+    "fats": 0.1
+  },
+  {
+    "id": "usda-169949",
+    "name": "Prune",
+    "cat": "fruit",
+    "kcal": 46,
+    "protein": 0.7,
+    "carbs": 11.4,
+    "fats": 0.3
+  },
+  {
+    "id": "usda-2259793",
+    "name": "Iaurt natural",
+    "cat": "dairy",
+    "kcal": 78,
+    "protein": 3.8,
+    "carbs": 5.6,
+    "fats": 4.5
+  },
+  {
+    "id": "usda-168749",
+    "name": "Bere neagra",
+    "cat": "drinks",
+    "kcal": 29,
+    "protein": 0.2,
+    "carbs": 1.6,
+    "fats": 0
+  },
+  {
+    "id": "usda-172725",
+    "name": "Biscuiti cu ovaz",
+    "cat": "snacks",
+    "kcal": 450,
+    "protein": 6.2,
+    "carbs": 68.7,
+    "fats": 18.1
+  },
+  {
+    "id": "usda-168157",
+    "name": "Suc de mere",
+    "cat": "drinks",
+    "kcal": 21,
+    "protein": 0.3,
+    "carbs": 6.7,
+    "fats": 0.2
+  },
+  {
+    "id": "usda-171016",
+    "name": "Ulei de floarea soarelui",
+    "cat": "fats",
+    "kcal": 884,
+    "protein": 0,
+    "carbs": 0,
+    "fats": 100
+  },
+  {
+    "id": "usda-2685573",
+    "name": "Conopida",
+    "cat": "veg",
+    "kcal": 28,
+    "protein": 1.6,
+    "carbs": 4.7,
+    "fats": 0.2
+  },
+  {
+    "id": "usda-325430",
+    "name": "Piersici",
+    "cat": "fruit",
+    "kcal": 42,
+    "protein": 0.9,
+    "carbs": 10.1,
+    "fats": 0.3
+  },
+  {
+    "id": "usda-170728",
+    "name": "Burger King Whopper",
+    "cat": "fastfood",
+    "kcal": 250,
+    "protein": 11.2,
+    "carbs": 16.7,
+    "fats": 15.3
+  },
+  {
+    "id": "usda-171937",
+    "name": "Bautura energizanta",
+    "cat": "drinks",
+    "kcal": 58,
+    "protein": 0.3,
+    "carbs": 12.7,
+    "fats": 0.2
+  },
+  {
+    "id": "usda-172475",
+    "name": "Tofu",
+    "cat": "protein",
+    "kcal": 144,
+    "protein": 17.3,
+    "carbs": 2.8,
+    "fats": 8.7
+  },
+  {
+    "id": "usda-2515374",
+    "name": "Nuci caju",
+    "cat": "fats",
+    "kcal": 565,
+    "protein": 17.4,
+    "carbs": 36.3,
+    "fats": 38.9
+  },
+  {
+    "id": "usda-747447",
+    "name": "Broccoli",
+    "cat": "veg",
+    "kcal": 31,
+    "protein": 2.6,
+    "carbs": 6.3,
+    "fats": 0.3
+  },
+  {
+    "id": "usda-169097",
+    "name": "Portocale",
+    "cat": "fruit",
+    "kcal": 47,
+    "protein": 0.9,
+    "carbs": 11.8,
+    "fats": 0.1
+  },
+  {
+    "id": "usda-172037",
+    "name": "KFC Hot Wings",
+    "cat": "fastfood",
+    "kcal": 308,
+    "protein": 7.8,
+    "carbs": 28,
+    "fats": 18.9
+  },
+  {
+    "id": "usda-172421",
+    "name": "Linte",
+    "cat": "protein",
+    "kcal": 116,
+    "protein": 9,
+    "carbs": 20.1,
+    "fats": 0.4
+  },
+  {
+    "id": "usda-2515379",
+    "name": "Fistic",
+    "cat": "fats",
+    "kcal": 598,
+    "protein": 20.5,
+    "carbs": 27.7,
+    "fats": 45
+  },
+  {
+    "id": "usda-169291",
+    "name": "Dovlecel",
+    "cat": "veg",
+    "kcal": 17,
+    "protein": 1.2,
+    "carbs": 3.1,
+    "fats": 0.3
+  },
+  {
+    "id": "usda-327046",
+    "name": "Kiwi",
+    "cat": "fruit",
+    "kcal": 58,
+    "protein": 1.1,
+    "carbs": 14,
+    "fats": 0.4
+  },
+  {
+    "id": "usda-171250",
+    "name": "Branza de burduf",
+    "cat": "dairy",
+    "kcal": 369,
+    "protein": 21.5,
+    "carbs": 2,
+    "fats": 30.6
+  }
+]

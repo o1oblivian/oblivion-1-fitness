@@ -1,51 +1,69 @@
-import { errorMessage, errorName } from '../../shared/errorMessage';
-import type { FoodBrowseId } from '../../shared/foodBrowse';
-import { apiFetch } from './apiBase';
-import { liveRowToRecord, type LiveFoodRow } from './foodCatalogService';
+﻿import type { FoodBrowseId } from '../../shared/foodBrowse';
+import { GLOBAL_MARKET, isPopularFood, type PopularFood } from '../../shared/popularFoods';
 import type { FoodItemRecord } from './foodTypes';
 
-/** The first request of the day makes the server look up to 50 foods, so it is given time. */
-const POPULAR_TIMEOUT_MS = 150_000;
+/** A food from a country's Top 100 list, with the category chip it belongs under. */
+export type PopularFoodRecord = FoodItemRecord & { browse: FoodBrowseId };
 
-const remembered = new Map<string, FoodItemRecord[]>();
+export interface PopularList {
+  /** The list actually used: the country's own, or the world list when the country has none. */
+  market: string;
+  foods: PopularFoodRecord[];
+}
+
+/** One small file per country, built into the app. Each is fetched only when its country is chosen. */
+const lists = import.meta.glob<unknown>('../data/popularFoods/*.json', { import: 'default' });
+
+const remembered = new Map<string, Promise<PopularList>>();
+
+function pathFor(code: string): string {
+  return `../data/popularFoods/${code}.json`;
+}
+
+/** The market whose list serves this country. */
+export function popularMarketFor(country: string): string {
+  const code = (country || '').toUpperCase();
+  return pathFor(code) in lists ? code : GLOBAL_MARKET;
+}
+
+function toRecord(food: PopularFood, market: string): PopularFoodRecord {
+  return {
+    id: food.id,
+    name: food.name,
+    brand: 'USDA',
+    calories: food.kcal,
+    protein: food.protein,
+    carbs: food.carbs,
+    fats: food.fats,
+    serving_size: '100 g',
+    serving_grams: 100,
+    country: market,
+    source: 'usda',
+    browse: food.cat,
+  };
+}
 
 /**
- * The most searched foods in one category, read live (ranked by a model, numbers from USDA).
- * Kept in memory for the session so switching categories back and forth is instant.
- * Throws a message fit for the screen when the list cannot be loaded.
+ * The country's Top 100 foods, as ranked by a model's judgement of what people there eat most, with USDA numbers.
+ * Built into the app, so it opens at once and works offline.
  */
-export async function fetchPopularFoods(
-  category: FoodBrowseId,
-  country: string,
-  signal?: AbortSignal,
-): Promise<FoodItemRecord[]> {
-  const market = (country || 'AU').toUpperCase();
-  const key = `${category}|${market}`;
-  const known = remembered.get(key);
+export function loadPopularFoods(country: string): Promise<PopularList> {
+  const market = popularMarketFor(country);
+  const known = remembered.get(market);
   if (known) return known;
-
-  const controller = new AbortController();
-  const abort = () => controller.abort();
-  signal?.addEventListener('abort', abort);
-  const timer = setTimeout(abort, POPULAR_TIMEOUT_MS);
-  try {
-    const params = new URLSearchParams({ category, country: market });
-    const res = await apiFetch(`/api/fuel/popular-foods?${params.toString()}`, {
-      signal: controller.signal,
-      headers: { Accept: 'application/json' },
-    });
-    const json = (await res.json().catch(() => ({}))) as { items?: LiveFoodRow[]; error?: string };
-    if (!res.ok) throw new Error(json.error || `Popular foods answered ${res.status}`);
-    const items = (json.items ?? []).map((row) => liveRowToRecord(row, market));
-    if (items.length === 0) throw new Error('No popular foods came back.');
-    remembered.set(key, items);
-    return items;
-  } catch (err) {
-    if (signal?.aborted) throw err;
-    if (errorName(err) === 'AbortError') throw new Error('Popular foods took too long to load.');
-    throw new Error(errorMessage(err, 'Popular foods could not be reached.'));
-  } finally {
-    clearTimeout(timer);
-    signal?.removeEventListener('abort', abort);
-  }
+  const load = lists[pathFor(market)];
+  const pending = (
+    load
+      ? load().then((raw) => {
+          const foods = (Array.isArray(raw) ? raw : []).filter(isPopularFood);
+          if (foods.length === 0) throw new Error('The popular foods list is empty.');
+          return { market, foods: foods.map((food) => toRecord(food, market)) };
+        })
+      : Promise.reject(new Error('The popular foods list is missing from this build.'))
+  ).catch((err: unknown) => {
+    remembered.delete(market);
+    throw err;
+  });
+  remembered.set(market, pending);
+  return pending;
 }

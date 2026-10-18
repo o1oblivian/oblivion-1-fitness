@@ -1,0 +1,902 @@
+[
+  {
+    "id": "usda-173227",
+    "name": "Tea, black",
+    "cat": "drinks",
+    "kcal": 1,
+    "protein": 0,
+    "carbs": 0.3,
+    "fats": 0
+  },
+  {
+    "id": "usda-170114",
+    "name": "Potatoes, boiled",
+    "cat": "carbs",
+    "kcal": 87,
+    "protein": 1.9,
+    "carbs": 20.1,
+    "fats": 0.1
+  },
+  {
+    "id": "usda-746782",
+    "name": "Milk, whole",
+    "cat": "dairy",
+    "kcal": 60,
+    "protein": 3.3,
+    "carbs": 4.6,
+    "fats": 3.2
+  },
+  {
+    "id": "usda-325871",
+    "name": "Bread, white sliced",
+    "cat": "carbs",
+    "kcal": 270,
+    "protein": 9.4,
+    "carbs": 49.2,
+    "fats": 3.6
+  },
+  {
+    "id": "usda-171890",
+    "name": "Coffee, black",
+    "cat": "drinks",
+    "kcal": 1,
+    "protein": 0.1,
+    "carbs": 0,
+    "fats": 0
+  },
+  {
+    "id": "usda-173410",
+    "name": "Butter",
+    "cat": "fats",
+    "kcal": 717,
+    "protein": 0.9,
+    "carbs": 0.1,
+    "fats": 81.1
+  },
+  {
+    "id": "usda-171477",
+    "name": "Chicken breast, roasted",
+    "cat": "protein",
+    "kcal": 165,
+    "protein": 31,
+    "carbs": 0,
+    "fats": 3.6
+  },
+  {
+    "id": "usda-173424",
+    "name": "Eggs, boiled",
+    "cat": "protein",
+    "kcal": 155,
+    "protein": 12.6,
+    "carbs": 1.1,
+    "fats": 10.6
+  },
+  {
+    "id": "usda-328637",
+    "name": "Cheddar cheese",
+    "cat": "dairy",
+    "kcal": 408,
+    "protein": 23.3,
+    "carbs": 2.4,
+    "fats": 34
+  },
+  {
+    "id": "usda-173944",
+    "name": "Bananas",
+    "cat": "fruit",
+    "kcal": 89,
+    "protein": 1.1,
+    "carbs": 22.8,
+    "fats": 0.3
+  },
+  {
+    "id": "usda-171689",
+    "name": "Apples",
+    "cat": "fruit",
+    "kcal": 48,
+    "protein": 0.3,
+    "carbs": 12.8,
+    "fats": 0.1
+  },
+  {
+    "id": "usda-173904",
+    "name": "Porridge oats",
+    "cat": "carbs",
+    "kcal": 379,
+    "protein": 13.2,
+    "carbs": 67.7,
+    "fats": 6.5
+  },
+  {
+    "id": "usda-168878",
+    "name": "Rice, white, cooked",
+    "cat": "carbs",
+    "kcal": 130,
+    "protein": 2.7,
+    "carbs": 28.2,
+    "fats": 0.3
+  },
+  {
+    "id": "usda-169737",
+    "name": "Pasta, cooked",
+    "cat": "carbs",
+    "kcal": 158,
+    "protein": 5.8,
+    "carbs": 30.9,
+    "fats": 0.9
+  },
+  {
+    "id": "usda-170000",
+    "name": "Onions",
+    "cat": "veg",
+    "kcal": 40,
+    "protein": 1.1,
+    "carbs": 9.3,
+    "fats": 0.1
+  },
+  {
+    "id": "usda-170393",
+    "name": "Carrots",
+    "cat": "veg",
+    "kcal": 41,
+    "protein": 0.9,
+    "carbs": 9.6,
+    "fats": 0.2
+  },
+  {
+    "id": "usda-170457",
+    "name": "Tomatoes",
+    "cat": "veg",
+    "kcal": 18,
+    "protein": 0.9,
+    "carbs": 3.9,
+    "fats": 0.2
+  },
+  {
+    "id": "usda-170720",
+    "name": "McDonald's Big Mac",
+    "cat": "fastfood",
+    "kcal": 257,
+    "protein": 11.8,
+    "carbs": 20.1,
+    "fats": 15
+  },
+  {
+    "id": "usda-170698",
+    "name": "Chips, takeaway",
+    "cat": "fastfood",
+    "kcal": 312,
+    "protein": 3.4,
+    "carbs": 41.4,
+    "fats": 14.7
+  },
+  {
+    "id": "usda-174578",
+    "name": "Sausages, pork",
+    "cat": "protein",
+    "kcal": 325,
+    "protein": 18.5,
+    "carbs": 1.4,
+    "fats": 27.2
+  },
+  {
+    "id": "usda-168322",
+    "name": "Rashers, bacon",
+    "cat": "protein",
+    "kcal": 468,
+    "protein": 33.9,
+    "carbs": 1.7,
+    "fats": 35.1
+  },
+  {
+    "id": "usda-2259793",
+    "name": "Yoghurt, natural",
+    "cat": "dairy",
+    "kcal": 78,
+    "protein": 3.8,
+    "carbs": 5.6,
+    "fats": 4.5
+  },
+  {
+    "id": "usda-335240",
+    "name": "Bread, brown soda",
+    "cat": "carbs",
+    "kcal": 254,
+    "protein": 12.3,
+    "carbs": 43.1,
+    "fats": 3.6
+  },
+  {
+    "id": "usda-175182",
+    "name": "Beans, baked",
+    "cat": "protein",
+    "kcal": 94,
+    "protein": 4.8,
+    "carbs": 21.1,
+    "fats": 0.4
+  },
+  {
+    "id": "usda-175168",
+    "name": "Salmon, cooked",
+    "cat": "fats",
+    "kcal": 206,
+    "protein": 22.1,
+    "carbs": 0,
+    "fats": 12.4
+  },
+  {
+    "id": "usda-171705",
+    "name": "Avocado",
+    "cat": "fats",
+    "kcal": 160,
+    "protein": 2,
+    "carbs": 8.5,
+    "fats": 14.7
+  },
+  {
+    "id": "usda-167587",
+    "name": "Chocolate, milk",
+    "cat": "snacks",
+    "kcal": 535,
+    "protein": 7.7,
+    "carbs": 59.4,
+    "fats": 29.7
+  },
+  {
+    "id": "usda-169677",
+    "name": "Crisps, potato",
+    "cat": "snacks",
+    "kcal": 532,
+    "protein": 6.4,
+    "carbs": 53.8,
+    "fats": 34
+  },
+  {
+    "id": "usda-168746",
+    "name": "Beer, lager",
+    "cat": "drinks",
+    "kcal": 43,
+    "protein": 0.5,
+    "carbs": 3.6,
+    "fats": 0
+  },
+  {
+    "id": "usda-173190",
+    "name": "Wine, red",
+    "cat": "drinks",
+    "kcal": 85,
+    "protein": 0.1,
+    "carbs": 2.6,
+    "fats": 0
+  },
+  {
+    "id": "usda-170762",
+    "name": "Pizza, pepperoni",
+    "cat": "fastfood",
+    "kcal": 331,
+    "protein": 14,
+    "carbs": 29,
+    "fats": 17.6
+  },
+  {
+    "id": "usda-747447",
+    "name": "Broccoli",
+    "cat": "veg",
+    "kcal": 31,
+    "protein": 2.6,
+    "carbs": 6.3,
+    "fats": 0.3
+  },
+  {
+    "id": "usda-170017",
+    "name": "Peas, frozen",
+    "cat": "veg",
+    "kcal": 78,
+    "protein": 5.2,
+    "carbs": 14.3,
+    "fats": 0.3
+  },
+  {
+    "id": "usda-2346406",
+    "name": "Cucumber",
+    "cat": "veg",
+    "kcal": 16,
+    "protein": 0.6,
+    "carbs": 3,
+    "fats": 0.2
+  },
+  {
+    "id": "usda-2346388",
+    "name": "Lettuce",
+    "cat": "veg",
+    "kcal": 17,
+    "protein": 0.7,
+    "carbs": 3.4,
+    "fats": 0.1
+  },
+  {
+    "id": "usda-170108",
+    "name": "Peppers, bell",
+    "cat": "veg",
+    "kcal": 26,
+    "protein": 1,
+    "carbs": 6,
+    "fats": 0.3
+  },
+  {
+    "id": "usda-169251",
+    "name": "Mushrooms",
+    "cat": "veg",
+    "kcal": 22,
+    "protein": 3.1,
+    "carbs": 3.3,
+    "fats": 0.3
+  },
+  {
+    "id": "usda-168462",
+    "name": "Spinach",
+    "cat": "veg",
+    "kcal": 23,
+    "protein": 2.9,
+    "carbs": 3.6,
+    "fats": 0.4
+  },
+  {
+    "id": "usda-1104647",
+    "name": "Garlic",
+    "cat": "veg",
+    "kcal": 143,
+    "protein": 6.6,
+    "carbs": 28.2,
+    "fats": 0.4
+  },
+  {
+    "id": "usda-2346409",
+    "name": "Strawberries",
+    "cat": "veg",
+    "kcal": 36,
+    "protein": 0.6,
+    "carbs": 8,
+    "fats": 0.2
+  },
+  {
+    "id": "usda-2346411",
+    "name": "Blueberries",
+    "cat": "fruit",
+    "kcal": 64,
+    "protein": 0.7,
+    "carbs": 14.6,
+    "fats": 0.3
+  },
+  {
+    "id": "usda-2346412",
+    "name": "Grapes",
+    "cat": "fruit",
+    "kcal": 86,
+    "protein": 0.9,
+    "carbs": 20.2,
+    "fats": 0.2
+  },
+  {
+    "id": "usda-169097",
+    "name": "Oranges",
+    "cat": "fruit",
+    "kcal": 47,
+    "protein": 0.9,
+    "carbs": 11.8,
+    "fats": 0.1
+  },
+  {
+    "id": "usda-169118",
+    "name": "Pears",
+    "cat": "fruit",
+    "kcal": 57,
+    "protein": 0.4,
+    "carbs": 15.2,
+    "fats": 0.1
+  },
+  {
+    "id": "usda-2346410",
+    "name": "Raspberries",
+    "cat": "fruit",
+    "kcal": 57,
+    "protein": 1,
+    "carbs": 12.9,
+    "fats": 0.2
+  },
+  {
+    "id": "usda-746770",
+    "name": "Melon, cantaloupe",
+    "cat": "fruit",
+    "kcal": 34,
+    "protein": 0.8,
+    "carbs": 8.2,
+    "fats": 0.2
+  },
+  {
+    "id": "usda-169124",
+    "name": "Pineapple",
+    "cat": "fruit",
+    "kcal": 50,
+    "protein": 0.5,
+    "carbs": 13.1,
+    "fats": 0.1
+  },
+  {
+    "id": "usda-174032",
+    "name": "Beef, mince",
+    "cat": "protein",
+    "kcal": 250,
+    "protein": 25.9,
+    "carbs": 0,
+    "fats": 15.4
+  },
+  {
+    "id": "usda-174322",
+    "name": "Lamb, chop",
+    "cat": "protein",
+    "kcal": 361,
+    "protein": 22.1,
+    "carbs": 0,
+    "fats": 29.6
+  },
+  {
+    "id": "usda-171956",
+    "name": "Cod, fillet",
+    "cat": "protein",
+    "kcal": 105,
+    "protein": 22.8,
+    "carbs": 0,
+    "fats": 0.9
+  },
+  {
+    "id": "usda-334194",
+    "name": "Tuna, canned",
+    "cat": "protein",
+    "kcal": 90,
+    "protein": 19,
+    "carbs": 0.1,
+    "fats": 0.9
+  },
+  {
+    "id": "usda-171479",
+    "name": "Turkey breast",
+    "cat": "protein",
+    "kcal": 189,
+    "protein": 28.6,
+    "carbs": 0.1,
+    "fats": 7.4
+  },
+  {
+    "id": "usda-172475",
+    "name": "Tofu, firm",
+    "cat": "protein",
+    "kcal": 144,
+    "protein": 17.3,
+    "carbs": 2.8,
+    "fats": 8.7
+  },
+  {
+    "id": "usda-172421",
+    "name": "Lentils, cooked",
+    "cat": "protein",
+    "kcal": 116,
+    "protein": 9,
+    "carbs": 20.1,
+    "fats": 0.4
+  },
+  {
+    "id": "usda-173800",
+    "name": "Chickpeas, canned",
+    "cat": "protein",
+    "kcal": 139,
+    "protein": 7.1,
+    "carbs": 22.5,
+    "fats": 2.8
+  },
+  {
+    "id": "usda-170567",
+    "name": "Almonds",
+    "cat": "fats",
+    "kcal": 579,
+    "protein": 21.2,
+    "carbs": 21.6,
+    "fats": 49.9
+  },
+  {
+    "id": "usda-170187",
+    "name": "Walnuts",
+    "cat": "fats",
+    "kcal": 654,
+    "protein": 15.2,
+    "carbs": 13.7,
+    "fats": 65.2
+  },
+  {
+    "id": "usda-172470",
+    "name": "Peanut butter",
+    "cat": "fats",
+    "kcal": 598,
+    "protein": 22.2,
+    "carbs": 22.3,
+    "fats": 51.4
+  },
+  {
+    "id": "usda-171413",
+    "name": "Olive oil",
+    "cat": "fats",
+    "kcal": 884,
+    "protein": 0,
+    "carbs": 0,
+    "fats": 100
+  },
+  {
+    "id": "usda-170562",
+    "name": "Sunflower seeds",
+    "cat": "fats",
+    "kcal": 584,
+    "protein": 20.8,
+    "carbs": 20,
+    "fats": 51.5
+  },
+  {
+    "id": "usda-170554",
+    "name": "Chia seeds",
+    "cat": "fats",
+    "kcal": 486,
+    "protein": 16.5,
+    "carbs": 42.1,
+    "fats": 30.7
+  },
+  {
+    "id": "usda-172179",
+    "name": "Cottage cheese",
+    "cat": "dairy",
+    "kcal": 98,
+    "protein": 11.1,
+    "carbs": 3.4,
+    "fats": 4.3
+  },
+  {
+    "id": "usda-330137",
+    "name": "Greek yoghurt",
+    "cat": "dairy",
+    "kcal": 61,
+    "protein": 10.3,
+    "carbs": 3.6,
+    "fats": 0.4
+  },
+  {
+    "id": "usda-174832",
+    "name": "Milk, almond",
+    "cat": "dairy",
+    "kcal": 15,
+    "protein": 0.4,
+    "carbs": 1.3,
+    "fats": 1
+  },
+  {
+    "id": "usda-170874",
+    "name": "Kefir",
+    "cat": "dairy",
+    "kcal": 40,
+    "protein": 3.3,
+    "carbs": 4.8,
+    "fats": 1.1
+  },
+  {
+    "id": "usda-173177",
+    "name": "Protein powder, whey",
+    "cat": "protein",
+    "kcal": 359,
+    "protein": 58.1,
+    "carbs": 29.1,
+    "fats": 1.2
+  },
+  {
+    "id": "usda-167542",
+    "name": "Protein bar",
+    "cat": "snacks",
+    "kcal": 471,
+    "protein": 10.1,
+    "carbs": 64.4,
+    "fats": 19.8
+  },
+  {
+    "id": "usda-172717",
+    "name": "Biscuits, digestive",
+    "cat": "snacks",
+    "kcal": 444,
+    "protein": 3.6,
+    "carbs": 65.8,
+    "fats": 19.8
+  },
+  {
+    "id": "usda-167959",
+    "name": "Popcorn, air-popped",
+    "cat": "snacks",
+    "kcal": 387,
+    "protein": 12.9,
+    "carbs": 77.8,
+    "fats": 4.5
+  },
+  {
+    "id": "usda-175057",
+    "name": "Crackers, cream",
+    "cat": "snacks",
+    "kcal": 434,
+    "protein": 9.2,
+    "carbs": 71.5,
+    "fats": 11.8
+  },
+  {
+    "id": "usda-174158",
+    "name": "Water, bottled",
+    "cat": "drinks",
+    "kcal": 0,
+    "protein": 0,
+    "carbs": 0,
+    "fats": 0
+  },
+  {
+    "id": "usda-171354",
+    "name": "Orange juice",
+    "cat": "drinks",
+    "kcal": 45,
+    "protein": 0.6,
+    "carbs": 10.2,
+    "fats": 0.3
+  },
+  {
+    "id": "usda-174851",
+    "name": "Cola, regular",
+    "cat": "drinks",
+    "kcal": 41,
+    "protein": 0,
+    "carbs": 10.6,
+    "fats": 0
+  },
+  {
+    "id": "usda-170728",
+    "name": "Burger King Whopper",
+    "cat": "fastfood",
+    "kcal": 250,
+    "protein": 11.2,
+    "carbs": 16.7,
+    "fats": 15.3
+  },
+  {
+    "id": "usda-172043",
+    "name": "Domino's Pizza, cheese",
+    "cat": "fastfood",
+    "kcal": 298,
+    "protein": 12.3,
+    "carbs": 28.2,
+    "fats": 15.1
+  },
+  {
+    "id": "usda-172053",
+    "name": "Pizza Hut, pepperoni",
+    "cat": "fastfood",
+    "kcal": 291,
+    "protein": 11.5,
+    "carbs": 31.8,
+    "fats": 13.1
+  },
+  {
+    "id": "usda-170336",
+    "name": "Taco Bell, taco",
+    "cat": "fastfood",
+    "kcal": 350,
+    "protein": 4.3,
+    "carbs": 34.9,
+    "fats": 21.5
+  },
+  {
+    "id": "usda-168919",
+    "name": "Noodles, egg",
+    "cat": "carbs",
+    "kcal": 138,
+    "protein": 4.5,
+    "carbs": 25.2,
+    "fats": 2.1
+  },
+  {
+    "id": "usda-175037",
+    "name": "Tortilla, flour",
+    "cat": "carbs",
+    "kcal": 306,
+    "protein": 8.2,
+    "carbs": 49.4,
+    "fats": 8
+  },
+  {
+    "id": "usda-168484",
+    "name": "Sweet potato",
+    "cat": "veg",
+    "kcal": 76,
+    "protein": 1.4,
+    "carbs": 17.7,
+    "fats": 0.1
+  },
+  {
+    "id": "usda-169291",
+    "name": "Zucchini",
+    "cat": "veg",
+    "kcal": 17,
+    "protein": 1.2,
+    "carbs": 3.1,
+    "fats": 0.3
+  },
+  {
+    "id": "usda-2685573",
+    "name": "Cauliflower",
+    "cat": "veg",
+    "kcal": 28,
+    "protein": 1.6,
+    "carbs": 4.7,
+    "fats": 0.2
+  },
+  {
+    "id": "usda-168389",
+    "name": "Asparagus",
+    "cat": "veg",
+    "kcal": 20,
+    "protein": 2.2,
+    "carbs": 3.9,
+    "fats": 0.1
+  },
+  {
+    "id": "usda-173573",
+    "name": "Avocado oil",
+    "cat": "fats",
+    "kcal": 884,
+    "protein": 0,
+    "carbs": 0,
+    "fats": 100
+  },
+  {
+    "id": "usda-170556",
+    "name": "Pumpkin seeds",
+    "cat": "fats",
+    "kcal": 559,
+    "protein": 30.2,
+    "carbs": 10.7,
+    "fats": 49
+  },
+  {
+    "id": "usda-2515374",
+    "name": "Cashews",
+    "cat": "fats",
+    "kcal": 565,
+    "protein": 17.4,
+    "carbs": 36.3,
+    "fats": 38.9
+  },
+  {
+    "id": "usda-173420",
+    "name": "Feta cheese",
+    "cat": "dairy",
+    "kcal": 265,
+    "protein": 14.2,
+    "carbs": 3.9,
+    "fats": 21.5
+  },
+  {
+    "id": "usda-170845",
+    "name": "Mozzarella",
+    "cat": "dairy",
+    "kcal": 299,
+    "protein": 22.2,
+    "carbs": 2.4,
+    "fats": 22.1
+  },
+  {
+    "id": "usda-325036",
+    "name": "Parmesan",
+    "cat": "dairy",
+    "kcal": 421,
+    "protein": 29.6,
+    "carbs": 12.4,
+    "fats": 28
+  },
+  {
+    "id": "usda-171942",
+    "name": "Milk, oat",
+    "cat": "dairy",
+    "kcal": 47,
+    "protein": 0.3,
+    "carbs": 9.2,
+    "fats": 1
+  },
+  {
+    "id": "usda-172467",
+    "name": "Tempeh",
+    "cat": "protein",
+    "kcal": 195,
+    "protein": 19.9,
+    "carbs": 7.6,
+    "fats": 11.4
+  },
+  {
+    "id": "usda-175180",
+    "name": "Prawns, cooked",
+    "cat": "protein",
+    "kcal": 99,
+    "protein": 24,
+    "carbs": 0.2,
+    "fats": 0.3
+  },
+  {
+    "id": "usda-175119",
+    "name": "Mackerel, smoked",
+    "cat": "fats",
+    "kcal": 205,
+    "protein": 18.6,
+    "carbs": 0,
+    "fats": 13.9
+  },
+  {
+    "id": "usda-173946",
+    "name": "Blackberries",
+    "cat": "fruit",
+    "kcal": 43,
+    "protein": 1.4,
+    "carbs": 9.6,
+    "fats": 0.5
+  },
+  {
+    "id": "usda-171719",
+    "name": "Cherries",
+    "cat": "fruit",
+    "kcal": 63,
+    "protein": 1.1,
+    "carbs": 16,
+    "fats": 0.2
+  },
+  {
+    "id": "usda-327046",
+    "name": "Kiwi",
+    "cat": "fruit",
+    "kcal": 58,
+    "protein": 1.1,
+    "carbs": 14,
+    "fats": 0.4
+  },
+  {
+    "id": "usda-169910",
+    "name": "Mango",
+    "cat": "fruit",
+    "kcal": 60,
+    "protein": 0.8,
+    "carbs": 15,
+    "fats": 0.4
+  },
+  {
+    "id": "usda-325430",
+    "name": "Peach",
+    "cat": "fruit",
+    "kcal": 42,
+    "protein": 0.9,
+    "carbs": 10.1,
+    "fats": 0.3
+  },
+  {
+    "id": "usda-169949",
+    "name": "Plums",
+    "cat": "fruit",
+    "kcal": 46,
+    "protein": 0.7,
+    "carbs": 11.4,
+    "fats": 0.3
+  },
+  {
+    "id": "usda-167765",
+    "name": "Watermelon",
+    "cat": "fruit",
+    "kcal": 30,
+    "protein": 0.6,
+    "carbs": 7.6,
+    "fats": 0.2
+  }
+]

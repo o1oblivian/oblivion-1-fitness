@@ -1,0 +1,902 @@
+[
+  {
+    "id": "usda-168746",
+    "name": "Pilsner Urquell",
+    "cat": "drinks",
+    "kcal": 43,
+    "protein": 0.5,
+    "carbs": 3.6,
+    "fats": 0
+  },
+  {
+    "id": "usda-325871",
+    "name": "Rohlík",
+    "cat": "carbs",
+    "kcal": 270,
+    "protein": 9.4,
+    "carbs": 49.2,
+    "fats": 3.6
+  },
+  {
+    "id": "usda-169269",
+    "name": "Bramborový salát",
+    "cat": "veg",
+    "kcal": 143,
+    "protein": 2.7,
+    "carbs": 11.2,
+    "fats": 8.2
+  },
+  {
+    "id": "usda-174852",
+    "name": "Kofola",
+    "cat": "drinks",
+    "kcal": 42,
+    "protein": 0,
+    "carbs": 10.4,
+    "fats": 0.3
+  },
+  {
+    "id": "usda-173330",
+    "name": "Guláš",
+    "cat": "protein",
+    "kcal": 99,
+    "protein": 4.4,
+    "carbs": 7.9,
+    "fats": 5.5
+  },
+  {
+    "id": "usda-170720",
+    "name": "McDonald's Big Mac",
+    "cat": "fastfood",
+    "kcal": 257,
+    "protein": 11.8,
+    "carbs": 20.1,
+    "fats": 15
+  },
+  {
+    "id": "usda-172037",
+    "name": "KFC Zinger Burger",
+    "cat": "fastfood",
+    "kcal": 308,
+    "protein": 7.8,
+    "carbs": 28,
+    "fats": 18.9
+  },
+  {
+    "id": "usda-172178",
+    "name": "Hermelín",
+    "cat": "dairy",
+    "kcal": 300,
+    "protein": 19.8,
+    "carbs": 0.5,
+    "fats": 24.3
+  },
+  {
+    "id": "usda-172180",
+    "name": "Tvaroh",
+    "cat": "dairy",
+    "kcal": 97,
+    "protein": 10.7,
+    "carbs": 4.6,
+    "fats": 3.9
+  },
+  {
+    "id": "usda-170874",
+    "name": "Kefír",
+    "cat": "dairy",
+    "kcal": 40,
+    "protein": 3.3,
+    "carbs": 4.8,
+    "fats": 1.1
+  },
+  {
+    "id": "usda-170114",
+    "name": "Brambory vařené",
+    "cat": "carbs",
+    "kcal": 87,
+    "protein": 1.9,
+    "carbs": 20.1,
+    "fats": 0.1
+  },
+  {
+    "id": "usda-168092",
+    "name": "Šunka",
+    "cat": "protein",
+    "kcal": 134,
+    "protein": 19.6,
+    "carbs": 0.9,
+    "fats": 5.8
+  },
+  {
+    "id": "usda-173419",
+    "name": "Eidam 30%",
+    "cat": "dairy",
+    "kcal": 357,
+    "protein": 25,
+    "carbs": 1.4,
+    "fats": 28.6
+  },
+  {
+    "id": "usda-171689",
+    "name": "Jablka",
+    "cat": "fruit",
+    "kcal": 48,
+    "protein": 0.3,
+    "carbs": 12.8,
+    "fats": 0.1
+  },
+  {
+    "id": "usda-173944",
+    "name": "Banány",
+    "cat": "fruit",
+    "kcal": 89,
+    "protein": 1.1,
+    "carbs": 22.8,
+    "fats": 0.3
+  },
+  {
+    "id": "usda-171890",
+    "name": "Káva černá",
+    "cat": "drinks",
+    "kcal": 1,
+    "protein": 0.1,
+    "carbs": 0,
+    "fats": 0
+  },
+  {
+    "id": "usda-171946",
+    "name": "Čaj černý",
+    "cat": "drinks",
+    "kcal": 0,
+    "protein": 0,
+    "carbs": 0,
+    "fats": 0
+  },
+  {
+    "id": "usda-170317",
+    "name": "Pizza Margherita",
+    "cat": "fastfood",
+    "kcal": 268,
+    "protein": 10.4,
+    "carbs": 29,
+    "fats": 12.3
+  },
+  {
+    "id": "usda-170698",
+    "name": "Hranolky",
+    "cat": "fastfood",
+    "kcal": 312,
+    "protein": 3.4,
+    "carbs": 41.4,
+    "fats": 14.7
+  },
+  {
+    "id": "usda-169055",
+    "name": "Tatarka",
+    "cat": "fats",
+    "kcal": 542,
+    "protein": 2.2,
+    "carbs": 3.3,
+    "fats": 57.8
+  },
+  {
+    "id": "usda-173424",
+    "name": "Vejce vařené",
+    "cat": "protein",
+    "kcal": 155,
+    "protein": 12.6,
+    "carbs": 1.1,
+    "fats": 10.6
+  },
+  {
+    "id": "usda-167719",
+    "name": "Kuřecí řízek",
+    "cat": "protein",
+    "kcal": 234,
+    "protein": 21.3,
+    "carbs": 8.5,
+    "fats": 12.8
+  },
+  {
+    "id": "usda-168878",
+    "name": "Rýže vařená",
+    "cat": "carbs",
+    "kcal": 130,
+    "protein": 2.7,
+    "carbs": 28.2,
+    "fats": 0.3
+  },
+  {
+    "id": "usda-169737",
+    "name": "Těstoviny",
+    "cat": "carbs",
+    "kcal": 158,
+    "protein": 5.8,
+    "carbs": 30.9,
+    "fats": 0.9
+  },
+  {
+    "id": "usda-173904",
+    "name": "Ovesné vločky",
+    "cat": "carbs",
+    "kcal": 379,
+    "protein": 13.2,
+    "carbs": 67.7,
+    "fats": 6.5
+  },
+  {
+    "id": "usda-2259793",
+    "name": "Jogurt bílý",
+    "cat": "dairy",
+    "kcal": 78,
+    "protein": 3.8,
+    "carbs": 5.6,
+    "fats": 4.5
+  },
+  {
+    "id": "usda-746778",
+    "name": "Mléko polotučné",
+    "cat": "dairy",
+    "kcal": 50,
+    "protein": 3.4,
+    "carbs": 4.9,
+    "fats": 1.9
+  },
+  {
+    "id": "usda-173410",
+    "name": "Máslo",
+    "cat": "fats",
+    "kcal": 717,
+    "protein": 0.9,
+    "carbs": 0.1,
+    "fats": 81.1
+  },
+  {
+    "id": "usda-172336",
+    "name": "Olej řepkový",
+    "cat": "fats",
+    "kcal": 884,
+    "protein": 0,
+    "carbs": 0,
+    "fats": 100
+  },
+  {
+    "id": "usda-170187",
+    "name": "Vlašské ořechy",
+    "cat": "fats",
+    "kcal": 654,
+    "protein": 15.2,
+    "carbs": 13.7,
+    "fats": 65.2
+  },
+  {
+    "id": "usda-170567",
+    "name": "Mandle",
+    "cat": "fats",
+    "kcal": 579,
+    "protein": 21.2,
+    "carbs": 21.6,
+    "fats": 49.9
+  },
+  {
+    "id": "usda-2346406",
+    "name": "Okurka salátová",
+    "cat": "veg",
+    "kcal": 16,
+    "protein": 0.6,
+    "carbs": 3,
+    "fats": 0.2
+  },
+  {
+    "id": "usda-170050",
+    "name": "Rajčata",
+    "cat": "veg",
+    "kcal": 18,
+    "protein": 1,
+    "carbs": 4,
+    "fats": 0.1
+  },
+  {
+    "id": "usda-170427",
+    "name": "Paprika",
+    "cat": "veg",
+    "kcal": 20,
+    "protein": 0.9,
+    "carbs": 4.6,
+    "fats": 0.2
+  },
+  {
+    "id": "usda-170000",
+    "name": "Cibule",
+    "cat": "veg",
+    "kcal": 40,
+    "protein": 1.1,
+    "carbs": 9.3,
+    "fats": 0.1
+  },
+  {
+    "id": "usda-1104647",
+    "name": "Česnek",
+    "cat": "veg",
+    "kcal": 143,
+    "protein": 6.6,
+    "carbs": 28.2,
+    "fats": 0.4
+  },
+  {
+    "id": "usda-170393",
+    "name": "Mrkev",
+    "cat": "veg",
+    "kcal": 41,
+    "protein": 0.9,
+    "carbs": 9.6,
+    "fats": 0.2
+  },
+  {
+    "id": "usda-747447",
+    "name": "Brokolice",
+    "cat": "veg",
+    "kcal": 31,
+    "protein": 2.6,
+    "carbs": 6.3,
+    "fats": 0.3
+  },
+  {
+    "id": "usda-168462",
+    "name": "Špenát",
+    "cat": "veg",
+    "kcal": 23,
+    "protein": 2.9,
+    "carbs": 3.6,
+    "fats": 0.4
+  },
+  {
+    "id": "usda-169118",
+    "name": "Hrušky",
+    "cat": "fruit",
+    "kcal": 57,
+    "protein": 0.4,
+    "carbs": 15.2,
+    "fats": 0.1
+  },
+  {
+    "id": "usda-2346409",
+    "name": "Jahody",
+    "cat": "fruit",
+    "kcal": 36,
+    "protein": 0.6,
+    "carbs": 8,
+    "fats": 0.2
+  },
+  {
+    "id": "usda-2346411",
+    "name": "Borůvky",
+    "cat": "fruit",
+    "kcal": 64,
+    "protein": 0.7,
+    "carbs": 14.6,
+    "fats": 0.3
+  },
+  {
+    "id": "usda-169097",
+    "name": "Pomeranče",
+    "cat": "fruit",
+    "kcal": 47,
+    "protein": 0.9,
+    "carbs": 11.8,
+    "fats": 0.1
+  },
+  {
+    "id": "usda-168164",
+    "name": "Rozinky",
+    "cat": "fruit",
+    "kcal": 301,
+    "protein": 3.3,
+    "carbs": 80,
+    "fats": 0.2
+  },
+  {
+    "id": "usda-173180",
+    "name": "Proteinový prášek",
+    "cat": "protein",
+    "kcal": 352,
+    "protein": 78.1,
+    "carbs": 6.3,
+    "fats": 1.6
+  },
+  {
+    "id": "usda-167722",
+    "name": "Tofu",
+    "cat": "protein",
+    "kcal": 94,
+    "protein": 3.5,
+    "carbs": 16,
+    "fats": 1.8
+  },
+  {
+    "id": "usda-172421",
+    "name": "Čočka",
+    "cat": "protein",
+    "kcal": 116,
+    "protein": 9,
+    "carbs": 20.1,
+    "fats": 0.4
+  },
+  {
+    "id": "usda-175194",
+    "name": "Fazole",
+    "cat": "protein",
+    "kcal": 127,
+    "protein": 8.7,
+    "carbs": 22.8,
+    "fats": 0.5
+  },
+  {
+    "id": "usda-175168",
+    "name": "Losos",
+    "cat": "protein",
+    "kcal": 206,
+    "protein": 22.1,
+    "carbs": 0,
+    "fats": 12.4
+  },
+  {
+    "id": "usda-334194",
+    "name": "Tuňák v konzervě",
+    "cat": "protein",
+    "kcal": 90,
+    "protein": 19,
+    "carbs": 0.1,
+    "fats": 0.9
+  },
+  {
+    "id": "usda-172684",
+    "name": "Chléb žitný",
+    "cat": "carbs",
+    "kcal": 259,
+    "protein": 8.5,
+    "carbs": 48.3,
+    "fats": 3.3
+  },
+  {
+    "id": "usda-174081",
+    "name": "Tortilla",
+    "cat": "carbs",
+    "kcal": 310,
+    "protein": 9.8,
+    "carbs": 45.9,
+    "fats": 9.8
+  },
+  {
+    "id": "usda-169700",
+    "name": "Kuskus",
+    "cat": "carbs",
+    "kcal": 112,
+    "protein": 3.8,
+    "carbs": 23.2,
+    "fats": 0.2
+  },
+  {
+    "id": "usda-171705",
+    "name": "Avokádo",
+    "cat": "fats",
+    "kcal": 160,
+    "protein": 2,
+    "carbs": 8.5,
+    "fats": 14.7
+  },
+  {
+    "id": "usda-171413",
+    "name": "Olivový olej",
+    "cat": "fats",
+    "kcal": 884,
+    "protein": 0,
+    "carbs": 0,
+    "fats": 100
+  },
+  {
+    "id": "usda-172469",
+    "name": "Arašídové máslo",
+    "cat": "fats",
+    "kcal": 589,
+    "protein": 24.1,
+    "carbs": 21.6,
+    "fats": 49.9
+  },
+  {
+    "id": "usda-170562",
+    "name": "Slunečnicová semínka",
+    "cat": "fats",
+    "kcal": 584,
+    "protein": 20.8,
+    "carbs": 20,
+    "fats": 51.5
+  },
+  {
+    "id": "usda-169592",
+    "name": "Čokoláda hořká",
+    "cat": "snacks",
+    "kcal": 556,
+    "protein": 5.5,
+    "carbs": 60.5,
+    "fats": 32.4
+  },
+  {
+    "id": "usda-172717",
+    "name": "Sušenky",
+    "cat": "snacks",
+    "kcal": 444,
+    "protein": 3.6,
+    "carbs": 65.8,
+    "fats": 19.8
+  },
+  {
+    "id": "usda-169677",
+    "name": "Chipsy",
+    "cat": "snacks",
+    "kcal": 532,
+    "protein": 6.4,
+    "carbs": 53.8,
+    "fats": 34
+  },
+  {
+    "id": "usda-167959",
+    "name": "Popcorn",
+    "cat": "snacks",
+    "kcal": 387,
+    "protein": 12.9,
+    "carbs": 77.8,
+    "fats": 4.5
+  },
+  {
+    "id": "usda-167925",
+    "name": "Krekry",
+    "cat": "snacks",
+    "kcal": 490,
+    "protein": 8.9,
+    "carbs": 58.8,
+    "fats": 24.4
+  },
+  {
+    "id": "usda-169104",
+    "name": "Džus pomerančový",
+    "cat": "drinks",
+    "kcal": 43,
+    "protein": 0.6,
+    "carbs": 10.3,
+    "fats": 0.1
+  },
+  {
+    "id": "usda-175103",
+    "name": "Voda",
+    "cat": "drinks",
+    "kcal": 0,
+    "protein": 0,
+    "carbs": 0,
+    "fats": 0
+  },
+  {
+    "id": "usda-174837",
+    "name": "Víno bílé",
+    "cat": "drinks",
+    "kcal": 82,
+    "protein": 0.1,
+    "carbs": 2.6,
+    "fats": 0
+  },
+  {
+    "id": "usda-173190",
+    "name": "Víno červené",
+    "cat": "drinks",
+    "kcal": 85,
+    "protein": 0.1,
+    "carbs": 2.6,
+    "fats": 0
+  },
+  {
+    "id": "usda-170695",
+    "name": "Subway Sandwich",
+    "cat": "fastfood",
+    "kcal": 244,
+    "protein": 15.2,
+    "carbs": 22.2,
+    "fats": 10.3
+  },
+  {
+    "id": "usda-172096",
+    "name": "Pizza Pepperoni",
+    "cat": "fastfood",
+    "kcal": 274,
+    "protein": 14.4,
+    "carbs": 24.7,
+    "fats": 13.1
+  },
+  {
+    "id": "usda-170718",
+    "name": "KFC Kyblík",
+    "cat": "fastfood",
+    "kcal": 307,
+    "protein": 15.9,
+    "carbs": 14.9,
+    "fats": 20.4
+  },
+  {
+    "id": "usda-170728",
+    "name": "Burger King Whopper",
+    "cat": "fastfood",
+    "kcal": 250,
+    "protein": 11.2,
+    "carbs": 16.7,
+    "fats": 15.3
+  },
+  {
+    "id": "usda-170373",
+    "name": "Domino's Pizza",
+    "cat": "fastfood",
+    "kcal": 263,
+    "protein": 11.9,
+    "carbs": 28.8,
+    "fats": 11.1
+  },
+  {
+    "id": "usda-172038",
+    "name": "Taco Bell Burrito",
+    "cat": "fastfood",
+    "kcal": 206,
+    "protein": 6.5,
+    "carbs": 32.9,
+    "fats": 6.2
+  },
+  {
+    "id": "usda-167821",
+    "name": "Vepřové maso",
+    "cat": "protein",
+    "kcal": 248,
+    "protein": 27.1,
+    "carbs": 0,
+    "fats": 14.6
+  },
+  {
+    "id": "usda-174034",
+    "name": "Hovězí maso",
+    "cat": "protein",
+    "kcal": 256,
+    "protein": 27.7,
+    "carbs": 0,
+    "fats": 15.3
+  },
+  {
+    "id": "usda-171479",
+    "name": "Krůtí prsa",
+    "cat": "protein",
+    "kcal": 189,
+    "protein": 28.6,
+    "carbs": 0.1,
+    "fats": 7.4
+  },
+  {
+    "id": "usda-175180",
+    "name": "Krevety",
+    "cat": "protein",
+    "kcal": 99,
+    "protein": 24,
+    "carbs": 0.2,
+    "fats": 0.3
+  },
+  {
+    "id": "usda-172467",
+    "name": "Tempeh",
+    "cat": "protein",
+    "kcal": 195,
+    "protein": 19.9,
+    "carbs": 7.6,
+    "fats": 11.4
+  },
+  {
+    "id": "usda-170419",
+    "name": "Hrách",
+    "cat": "protein",
+    "kcal": 81,
+    "protein": 5.4,
+    "carbs": 14.4,
+    "fats": 0.4
+  },
+  {
+    "id": "usda-170287",
+    "name": "Bulgur",
+    "cat": "carbs",
+    "kcal": 83,
+    "protein": 3.1,
+    "carbs": 18.6,
+    "fats": 0.2
+  },
+  {
+    "id": "usda-168917",
+    "name": "Quinoa",
+    "cat": "carbs",
+    "kcal": 120,
+    "protein": 4.4,
+    "carbs": 21.3,
+    "fats": 1.9
+  },
+  {
+    "id": "usda-169732",
+    "name": "Nudle",
+    "cat": "carbs",
+    "kcal": 138,
+    "protein": 4.5,
+    "carbs": 25.2,
+    "fats": 2.1
+  },
+  {
+    "id": "usda-170556",
+    "name": "Dýňová semínka",
+    "cat": "fats",
+    "kcal": 559,
+    "protein": 30.2,
+    "carbs": 10.7,
+    "fats": 49
+  },
+  {
+    "id": "usda-2515374",
+    "name": "Kešu",
+    "cat": "fats",
+    "kcal": 565,
+    "protein": 17.4,
+    "carbs": 36.3,
+    "fats": 38.9
+  },
+  {
+    "id": "usda-2515375",
+    "name": "Lískové ořechy",
+    "cat": "fats",
+    "kcal": 641,
+    "protein": 13.5,
+    "carbs": 26.5,
+    "fats": 53.5
+  },
+  {
+    "id": "usda-2685577",
+    "name": "Lilek",
+    "cat": "veg",
+    "kcal": 26,
+    "protein": 0.9,
+    "carbs": 5.4,
+    "fats": 0.1
+  },
+  {
+    "id": "usda-169291",
+    "name": "Cuketa",
+    "cat": "veg",
+    "kcal": 17,
+    "protein": 1.2,
+    "carbs": 3.1,
+    "fats": 0.3
+  },
+  {
+    "id": "usda-2685573",
+    "name": "Květák",
+    "cat": "veg",
+    "kcal": 28,
+    "protein": 1.6,
+    "carbs": 4.7,
+    "fats": 0.2
+  },
+  {
+    "id": "usda-2346388",
+    "name": "Salát ledový",
+    "cat": "veg",
+    "kcal": 17,
+    "protein": 0.7,
+    "carbs": 3.4,
+    "fats": 0.1
+  },
+  {
+    "id": "usda-169276",
+    "name": "Ředkvičky",
+    "cat": "veg",
+    "kcal": 16,
+    "protein": 0.7,
+    "carbs": 3.4,
+    "fats": 0.1
+  },
+  {
+    "id": "usda-169124",
+    "name": "Ananas",
+    "cat": "fruit",
+    "kcal": 50,
+    "protein": 0.5,
+    "carbs": 13.1,
+    "fats": 0.1
+  },
+  {
+    "id": "usda-174682",
+    "name": "Hroznové víno",
+    "cat": "fruit",
+    "kcal": 67,
+    "protein": 0.6,
+    "carbs": 17.2,
+    "fats": 0.4
+  },
+  {
+    "id": "usda-171697",
+    "name": "Meruňky",
+    "cat": "fruit",
+    "kcal": 48,
+    "protein": 1.4,
+    "carbs": 11.1,
+    "fats": 0.4
+  },
+  {
+    "id": "usda-169949",
+    "name": "Švestky",
+    "cat": "fruit",
+    "kcal": 46,
+    "protein": 0.7,
+    "carbs": 11.4,
+    "fats": 0.3
+  },
+  {
+    "id": "usda-171719",
+    "name": "Třešně",
+    "cat": "fruit",
+    "kcal": 63,
+    "protein": 1.1,
+    "carbs": 16,
+    "fats": 0.2
+  },
+  {
+    "id": "usda-170845",
+    "name": "Sýr Mozzarella",
+    "cat": "dairy",
+    "kcal": 299,
+    "protein": 22.2,
+    "carbs": 2.4,
+    "fats": 22.1
+  },
+  {
+    "id": "usda-172175",
+    "name": "Sýr Niva",
+    "cat": "dairy",
+    "kcal": 353,
+    "protein": 21.4,
+    "carbs": 2.3,
+    "fats": 28.7
+  },
+  {
+    "id": "usda-171257",
+    "name": "Zakysaná smetana",
+    "cat": "dairy",
+    "kcal": 198,
+    "protein": 2.4,
+    "carbs": 4.6,
+    "fats": 19.4
+  },
+  {
+    "id": "usda-174832",
+    "name": "Mléko mandlové",
+    "cat": "dairy",
+    "kcal": 15,
+    "protein": 0.4,
+    "carbs": 1.3,
+    "fats": 1
+  },
+  {
+    "id": "usda-167990",
+    "name": "Lízátka",
+    "cat": "snacks",
+    "kcal": 394,
+    "protein": 0,
+    "carbs": 98,
+    "fats": 0.2
+  },
+  {
+    "id": "usda-167555",
+    "name": "Preclíky",
+    "cat": "snacks",
+    "kcal": 384,
+    "protein": 10,
+    "carbs": 80.4,
+    "fats": 2.9
+  }
+]

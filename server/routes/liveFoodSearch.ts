@@ -1,4 +1,4 @@
-import type { Express } from 'express';
+﻿import type { Express } from 'express';
 import type { DietFacts } from '../../shared/foodDiet';
 import { dietFactsFromOff, type OffDietTags } from '../lib/offDiet';
 import { searchFdc } from '../lib/usda';
@@ -38,7 +38,7 @@ const OFF_DOMAINS: Record<string, string> = {
   NZ: 'nz',
 };
 
-const OFF_TIMEOUT_MS = 5_000;
+const OFF_TIMEOUT_MS = 4_000;
 /** Only what a food row needs, which keeps each Open Food Facts answer small and quick. */
 const OFF_FIELDS = [
   'code',
@@ -116,25 +116,24 @@ async function fetchOffProducts(
   return body.products ?? [];
 }
 
-/** The person's country site first, then the world site, which is a separate server when one is busy. */
+/** The person's country site and the world site are asked together; whichever answers first wins. */
 async function searchOff(query: string, country: string, limit: number): Promise<FoodRow[]> {
   if (Date.now() < offPausedUntil) throw new Error('Open Food Facts is busy, skipped for now');
   const local = OFF_DOMAINS[country];
   const domains = local ? [local, 'world'] : ['world'];
-  let failure: unknown;
-  for (const domain of domains) {
-    try {
-      const products = await fetchOffProducts(domain, query, limit);
-      offPausedUntil = 0;
-      return products
-        .map((p) => rowFromOff(p, country))
-        .filter((row): row is FoodRow => row !== null);
-    } catch (err) {
-      failure = err;
-    }
+  try {
+    const products = await Promise.any(
+      domains.map((domain) => fetchOffProducts(domain, query, limit)),
+    );
+    offPausedUntil = 0;
+    return products
+      .map((p) => rowFromOff(p, country))
+      .filter((row): row is FoodRow => row !== null);
+  } catch (err) {
+    offPausedUntil = Date.now() + OFF_PAUSE_MS;
+    const first = err instanceof AggregateError ? err.errors[0] : err;
+    throw first instanceof Error ? first : new Error('Open Food Facts did not answer');
   }
-  offPausedUntil = Date.now() + OFF_PAUSE_MS;
-  throw failure instanceof Error ? failure : new Error('Open Food Facts did not answer');
 }
 
 async function searchUsda(
@@ -169,37 +168,70 @@ async function searchUsda(
   return [...generic, ...branded].map(toRow);
 }
 
-/** Live food search: USDA FoodData Central for plain foods, Open Food Facts for packaged and local ones. */
+/** A search repeated within this time is answered from memory, which also spares the free upstream APIs. */
+const RESULT_CACHE_MS = 10 * 60 * 1000;
+const RESULT_CACHE_MAX = 500;
+const resultCache = new Map<string, { at: number; rows: FoodRow[] }>();
+
+function remember(key: string, rows: FoodRow[]): void {
+  if (resultCache.size >= RESULT_CACHE_MAX) {
+    const oldest = resultCache.keys().next().value;
+    if (oldest !== undefined) resultCache.delete(oldest);
+  }
+  resultCache.set(key, { at: Date.now(), rows });
+}
+
+type Source = 'usda' | 'off';
+
+/**
+ * Live food search: USDA FoodData Central for plain foods, Open Food Facts for packaged and local ones.
+ * The app asks for each source separately (`source=usda`, `source=off`) so USDA results show as soon as
+ * they arrive instead of waiting on the slower registry. Without `source`, both are searched together.
+ */
 export function registerLiveFoodSearch(app: Express): void {
   app.get('/api/fuel/live-food-search', async (req, res) => {
     const query = String(req.query.q || '').trim();
     const country = String(req.query.country || 'AU').toUpperCase();
     const limit = Math.min(Number(req.query.limit) || 40, 100);
+    const only =
+      req.query.source === 'usda' || req.query.source === 'off' ? req.query.source : null;
     if (!query) return res.json({ success: true, items: [], failed: [] });
 
     const apiKey = String(process.env.USDA_FDC_API_KEY || '').trim();
     const failed: string[] = [];
-    const settle = async (label: string, work: Promise<FoodRow[]>): Promise<FoodRow[]> => {
+    const labels: Record<Source, string> = { usda: 'USDA', off: 'Open Food Facts' };
+
+    const run = async (source: Source): Promise<FoodRow[]> => {
+      if (source === 'usda' && !apiKey) {
+        failed.push('USDA (no key on the server)');
+        return [];
+      }
+      const key = `${source}|${country}|${limit}|${query.toLowerCase()}`;
+      const hit = resultCache.get(key);
+      if (hit && Date.now() - hit.at < RESULT_CACHE_MS) return hit.rows;
       try {
-        return await work;
+        const rows =
+          source === 'usda'
+            ? await searchUsda(query, country, apiKey, limit)
+            : await searchOff(query, country, limit);
+        remember(key, rows);
+        return rows;
       } catch (err) {
         console.warn(
-          `[live-food-search] ${label} failed:`,
+          `[live-food-search] ${labels[source]} failed:`,
           err instanceof Error ? err.message : err,
         );
-        failed.push(label);
+        failed.push(labels[source]);
         return [];
       }
     };
 
-    const [usda, off] = await Promise.all([
-      apiKey ? settle('USDA', searchUsda(query, country, apiKey, limit)) : Promise.resolve([]),
-      settle('Open Food Facts', searchOff(query, country, limit)),
-    ]);
-    if (!apiKey) failed.push('USDA (no key on the server)');
+    const sources: Source[] = only ? [only] : ['usda', 'off'];
+    const results = await Promise.all(sources.map(run));
 
     const seen = new Set<string>();
-    const items = [...usda, ...off]
+    const items = results
+      .flat()
       .filter((row) => {
         const key = `${row.name.toLowerCase()}|${row.brand.toLowerCase()}`;
         if (seen.has(key)) return false;

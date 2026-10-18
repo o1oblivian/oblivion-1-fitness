@@ -1,0 +1,902 @@
+[
+  {
+    "id": "usda-168013",
+    "name": "Rugbrød",
+    "cat": "carbs",
+    "kcal": 265,
+    "protein": 13.4,
+    "carbs": 43.3,
+    "fats": 4.2
+  },
+  {
+    "id": "usda-171890",
+    "name": "Kaffe",
+    "cat": "drinks",
+    "kcal": 1,
+    "protein": 0.1,
+    "carbs": 0,
+    "fats": 0
+  },
+  {
+    "id": "usda-746778",
+    "name": "Mælk, letmælk",
+    "cat": "dairy",
+    "kcal": 50,
+    "protein": 3.4,
+    "carbs": 4.9,
+    "fats": 1.9
+  },
+  {
+    "id": "usda-173904",
+    "name": "Havregryn",
+    "cat": "carbs",
+    "kcal": 379,
+    "protein": 13.2,
+    "carbs": 67.7,
+    "fats": 6.5
+  },
+  {
+    "id": "usda-170114",
+    "name": "Kartofler, kogte",
+    "cat": "carbs",
+    "kcal": 87,
+    "protein": 1.9,
+    "carbs": 20.1,
+    "fats": 0.1
+  },
+  {
+    "id": "usda-170695",
+    "name": "Smørrebrød med roastbeef",
+    "cat": "fastfood",
+    "kcal": 244,
+    "protein": 15.2,
+    "carbs": 22.2,
+    "fats": 10.3
+  },
+  {
+    "id": "usda-330137",
+    "name": "Skyr",
+    "cat": "dairy",
+    "kcal": 61,
+    "protein": 10.3,
+    "carbs": 3.6,
+    "fats": 0.4
+  },
+  {
+    "id": "usda-168746",
+    "name": "Øl, pilsner",
+    "cat": "drinks",
+    "kcal": 43,
+    "protein": 0.5,
+    "carbs": 3.6,
+    "fats": 0
+  },
+  {
+    "id": "usda-2346406",
+    "name": "Agurk",
+    "cat": "veg",
+    "kcal": 16,
+    "protein": 0.6,
+    "carbs": 3,
+    "fats": 0.2
+  },
+  {
+    "id": "usda-170457",
+    "name": "Tomater",
+    "cat": "veg",
+    "kcal": 18,
+    "protein": 0.9,
+    "carbs": 3.9,
+    "fats": 0.2
+  },
+  {
+    "id": "usda-171241",
+    "name": "Ost, Danbo",
+    "cat": "dairy",
+    "kcal": 356,
+    "protein": 24.9,
+    "carbs": 2.2,
+    "fats": 27.4
+  },
+  {
+    "id": "usda-173424",
+    "name": "Æg, kogte",
+    "cat": "protein",
+    "kcal": 155,
+    "protein": 12.6,
+    "carbs": 1.1,
+    "fats": 10.6
+  },
+  {
+    "id": "usda-175103",
+    "name": "Vand",
+    "cat": "drinks",
+    "kcal": 0,
+    "protein": 0,
+    "carbs": 0,
+    "fats": 0
+  },
+  {
+    "id": "usda-170720",
+    "name": "McDonald's Big Mac",
+    "cat": "fastfood",
+    "kcal": 257,
+    "protein": 11.8,
+    "carbs": 20.1,
+    "fats": 15
+  },
+  {
+    "id": "usda-175168",
+    "name": "Laks, ovnbagt",
+    "cat": "fats",
+    "kcal": 206,
+    "protein": 22.1,
+    "carbs": 0,
+    "fats": 12.4
+  },
+  {
+    "id": "usda-171689",
+    "name": "Æbler",
+    "cat": "fruit",
+    "kcal": 48,
+    "protein": 0.3,
+    "carbs": 12.8,
+    "fats": 0.1
+  },
+  {
+    "id": "usda-173944",
+    "name": "Bananer",
+    "cat": "fruit",
+    "kcal": 89,
+    "protein": 1.1,
+    "carbs": 22.8,
+    "fats": 0.3
+  },
+  {
+    "id": "usda-169737",
+    "name": "Pasta, kogt",
+    "cat": "carbs",
+    "kcal": 158,
+    "protein": 5.8,
+    "carbs": 30.9,
+    "fats": 0.9
+  },
+  {
+    "id": "usda-171477",
+    "name": "Kyllingebryst, stegt",
+    "cat": "protein",
+    "kcal": 165,
+    "protein": 31,
+    "carbs": 0,
+    "fats": 3.6
+  },
+  {
+    "id": "usda-171705",
+    "name": "Avocado",
+    "cat": "fats",
+    "kcal": 160,
+    "protein": 2,
+    "carbs": 8.5,
+    "fats": 14.7
+  },
+  {
+    "id": "usda-170567",
+    "name": "Mandler",
+    "cat": "fats",
+    "kcal": 579,
+    "protein": 21.2,
+    "carbs": 21.6,
+    "fats": 49.9
+  },
+  {
+    "id": "usda-170393",
+    "name": "Gulerødder",
+    "cat": "veg",
+    "kcal": 41,
+    "protein": 0.9,
+    "carbs": 9.6,
+    "fats": 0.2
+  },
+  {
+    "id": "usda-746769",
+    "name": "Salat, blandet",
+    "cat": "veg",
+    "kcal": 17,
+    "protein": 1.2,
+    "carbs": 3.2,
+    "fats": 0.3
+  },
+  {
+    "id": "usda-2259793",
+    "name": "Yoghurt, naturel",
+    "cat": "dairy",
+    "kcal": 78,
+    "protein": 3.8,
+    "carbs": 5.6,
+    "fats": 4.5
+  },
+  {
+    "id": "usda-169592",
+    "name": "Chokolade, mørk",
+    "cat": "snacks",
+    "kcal": 556,
+    "protein": 5.5,
+    "carbs": 60.5,
+    "fats": 32.4
+  },
+  {
+    "id": "usda-170317",
+    "name": "Pizza, Margherita",
+    "cat": "fastfood",
+    "kcal": 268,
+    "protein": 10.4,
+    "carbs": 29,
+    "fats": 12.3
+  },
+  {
+    "id": "usda-171354",
+    "name": "Appelsinjuice",
+    "cat": "drinks",
+    "kcal": 45,
+    "protein": 0.6,
+    "carbs": 10.2,
+    "fats": 0.3
+  },
+  {
+    "id": "usda-172179",
+    "name": "Hytteost",
+    "cat": "dairy",
+    "kcal": 98,
+    "protein": 11.1,
+    "carbs": 3.4,
+    "fats": 4.3
+  },
+  {
+    "id": "usda-175118",
+    "name": "Sild, marineret",
+    "cat": "fats",
+    "kcal": 262,
+    "protein": 14.2,
+    "carbs": 9.6,
+    "fats": 18
+  },
+  {
+    "id": "usda-168878",
+    "name": "Ris, kogte",
+    "cat": "carbs",
+    "kcal": 130,
+    "protein": 2.7,
+    "carbs": 28.2,
+    "fats": 0.3
+  },
+  {
+    "id": "usda-174034",
+    "name": "Hakket oksekød",
+    "cat": "protein",
+    "kcal": 256,
+    "protein": 27.7,
+    "carbs": 0,
+    "fats": 15.3
+  },
+  {
+    "id": "usda-171413",
+    "name": "Olivenolie",
+    "cat": "fats",
+    "kcal": 884,
+    "protein": 0,
+    "carbs": 0,
+    "fats": 100
+  },
+  {
+    "id": "usda-747447",
+    "name": "Broccoli",
+    "cat": "veg",
+    "kcal": 31,
+    "protein": 2.6,
+    "carbs": 6.3,
+    "fats": 0.3
+  },
+  {
+    "id": "usda-2346411",
+    "name": "Blåbær",
+    "cat": "fruit",
+    "kcal": 64,
+    "protein": 0.7,
+    "carbs": 14.6,
+    "fats": 0.3
+  },
+  {
+    "id": "usda-167545",
+    "name": "Proteinbar",
+    "cat": "snacks",
+    "kcal": 466,
+    "protein": 5.8,
+    "carbs": 63.8,
+    "fats": 24.9
+  },
+  {
+    "id": "usda-170728",
+    "name": "Burger King Whopper",
+    "cat": "fastfood",
+    "kcal": 250,
+    "protein": 11.2,
+    "carbs": 16.7,
+    "fats": 15.3
+  },
+  {
+    "id": "usda-171956",
+    "name": "Torsk, dampet",
+    "cat": "protein",
+    "kcal": 105,
+    "protein": 22.8,
+    "carbs": 0,
+    "fats": 0.9
+  },
+  {
+    "id": "usda-169975",
+    "name": "Hvidkål",
+    "cat": "veg",
+    "kcal": 25,
+    "protein": 1.3,
+    "carbs": 5.8,
+    "fats": 0.1
+  },
+  {
+    "id": "usda-2346409",
+    "name": "Jordbær",
+    "cat": "fruit",
+    "kcal": 36,
+    "protein": 0.6,
+    "carbs": 8,
+    "fats": 0.2
+  },
+  {
+    "id": "usda-170874",
+    "name": "Kefir",
+    "cat": "dairy",
+    "kcal": 40,
+    "protein": 3.3,
+    "carbs": 4.8,
+    "fats": 1.1
+  },
+  {
+    "id": "usda-169677",
+    "name": "Chips, kartoffel",
+    "cat": "snacks",
+    "kcal": 532,
+    "protein": 6.4,
+    "carbs": 53.8,
+    "fats": 34
+  },
+  {
+    "id": "usda-173190",
+    "name": "Vin, rød",
+    "cat": "drinks",
+    "kcal": 85,
+    "protein": 0.1,
+    "carbs": 2.6,
+    "fats": 0
+  },
+  {
+    "id": "usda-172421",
+    "name": "Linser, kogte",
+    "cat": "protein",
+    "kcal": 116,
+    "protein": 9,
+    "carbs": 20.1,
+    "fats": 0.4
+  },
+  {
+    "id": "usda-173410",
+    "name": "Smør",
+    "cat": "fats",
+    "kcal": 717,
+    "protein": 0.9,
+    "carbs": 0.1,
+    "fats": 81.1
+  },
+  {
+    "id": "usda-168462",
+    "name": "Spinat",
+    "cat": "veg",
+    "kcal": 23,
+    "protein": 2.9,
+    "carbs": 3.6,
+    "fats": 0.4
+  },
+  {
+    "id": "usda-169118",
+    "name": "Pærer",
+    "cat": "fruit",
+    "kcal": 57,
+    "protein": 0.4,
+    "carbs": 15.2,
+    "fats": 0.1
+  },
+  {
+    "id": "usda-173418",
+    "name": "Flødeost",
+    "cat": "dairy",
+    "kcal": 350,
+    "protein": 6.2,
+    "carbs": 5.5,
+    "fats": 34.4
+  },
+  {
+    "id": "usda-172718",
+    "name": "Kiks, Digestive",
+    "cat": "snacks",
+    "kcal": 464,
+    "protein": 5.2,
+    "carbs": 71,
+    "fats": 19.1
+  },
+  {
+    "id": "usda-170698",
+    "name": "Pommes frites",
+    "cat": "fastfood",
+    "kcal": 312,
+    "protein": 3.4,
+    "carbs": 41.4,
+    "fats": 14.7
+  },
+  {
+    "id": "usda-172475",
+    "name": "Tofu",
+    "cat": "protein",
+    "kcal": 144,
+    "protein": 17.3,
+    "carbs": 2.8,
+    "fats": 8.7
+  },
+  {
+    "id": "usda-174081",
+    "name": "Tortilla, hvede",
+    "cat": "carbs",
+    "kcal": 310,
+    "protein": 9.8,
+    "carbs": 45.9,
+    "fats": 9.8
+  },
+  {
+    "id": "usda-170556",
+    "name": "Græskarkerner",
+    "cat": "fats",
+    "kcal": 559,
+    "protein": 30.2,
+    "carbs": 10.7,
+    "fats": 49
+  },
+  {
+    "id": "usda-170427",
+    "name": "Peberfrugt",
+    "cat": "veg",
+    "kcal": 20,
+    "protein": 0.9,
+    "carbs": 4.6,
+    "fats": 0.2
+  },
+  {
+    "id": "usda-174682",
+    "name": "Vindruer",
+    "cat": "fruit",
+    "kcal": 67,
+    "protein": 0.6,
+    "carbs": 17.2,
+    "fats": 0.4
+  },
+  {
+    "id": "usda-2257046",
+    "name": "Mælk, havredrik",
+    "cat": "dairy",
+    "kcal": 48,
+    "protein": 0.8,
+    "carbs": 5.1,
+    "fats": 2.8
+  },
+  {
+    "id": "usda-167959",
+    "name": "Popcorn",
+    "cat": "snacks",
+    "kcal": 387,
+    "protein": 12.9,
+    "carbs": 77.8,
+    "fats": 4.5
+  },
+  {
+    "id": "usda-172096",
+    "name": "Domino's Pizza",
+    "cat": "fastfood",
+    "kcal": 274,
+    "protein": 14.4,
+    "carbs": 24.7,
+    "fats": 13.1
+  },
+  {
+    "id": "usda-170187",
+    "name": "Valnødder",
+    "cat": "fats",
+    "kcal": 654,
+    "protein": 15.2,
+    "carbs": 13.7,
+    "fats": 65.2
+  },
+  {
+    "id": "usda-170000",
+    "name": "Løg",
+    "cat": "veg",
+    "kcal": 40,
+    "protein": 1.1,
+    "carbs": 9.3,
+    "fats": 0.1
+  },
+  {
+    "id": "usda-167765",
+    "name": "Melon, vandmelon",
+    "cat": "fruit",
+    "kcal": 30,
+    "protein": 0.6,
+    "carbs": 7.6,
+    "fats": 0.2
+  },
+  {
+    "id": "usda-170903",
+    "name": "Skyr med vanilje",
+    "cat": "dairy",
+    "kcal": 73,
+    "protein": 10,
+    "carbs": 3.9,
+    "fats": 1.9
+  },
+  {
+    "id": "usda-173321",
+    "name": "Kylling nuggets",
+    "cat": "fastfood",
+    "kcal": 271,
+    "protein": 19.2,
+    "carbs": 17.2,
+    "fats": 14
+  },
+  {
+    "id": "usda-175194",
+    "name": "Bønner, kidney",
+    "cat": "protein",
+    "kcal": 127,
+    "protein": 8.7,
+    "carbs": 22.8,
+    "fats": 0.5
+  },
+  {
+    "id": "usda-174084",
+    "name": "Knækbrød",
+    "cat": "carbs",
+    "kcal": 412,
+    "protein": 9.6,
+    "carbs": 57.3,
+    "fats": 16
+  },
+  {
+    "id": "usda-169414",
+    "name": "Hørfrø",
+    "cat": "fats",
+    "kcal": 534,
+    "protein": 18.3,
+    "carbs": 28.9,
+    "fats": 42.2
+  },
+  {
+    "id": "usda-2685573",
+    "name": "Blomkål",
+    "cat": "veg",
+    "kcal": 28,
+    "protein": 1.6,
+    "carbs": 4.7,
+    "fats": 0.2
+  },
+  {
+    "id": "usda-169124",
+    "name": "Ananas",
+    "cat": "fruit",
+    "kcal": 50,
+    "protein": 0.5,
+    "carbs": 13.1,
+    "fats": 0.1
+  },
+  {
+    "id": "usda-170273",
+    "name": "Mørk chokolade 70%",
+    "cat": "snacks",
+    "kcal": 598,
+    "protein": 7.8,
+    "carbs": 45.9,
+    "fats": 42.6
+  },
+  {
+    "id": "usda-172037",
+    "name": "KFC Fried Chicken",
+    "cat": "fastfood",
+    "kcal": 308,
+    "protein": 7.8,
+    "carbs": 28,
+    "fats": 18.9
+  },
+  {
+    "id": "usda-171496",
+    "name": "Kalkunbryst",
+    "cat": "protein",
+    "kcal": 147,
+    "protein": 30.1,
+    "carbs": 0,
+    "fats": 2.1
+  },
+  {
+    "id": "usda-170287",
+    "name": "Bulgur",
+    "cat": "carbs",
+    "kcal": 83,
+    "protein": 3.1,
+    "carbs": 18.6,
+    "fats": 0.2
+  },
+  {
+    "id": "usda-170554",
+    "name": "Chiafrø",
+    "cat": "fats",
+    "kcal": 486,
+    "protein": 16.5,
+    "carbs": 42.1,
+    "fats": 30.7
+  },
+  {
+    "id": "usda-169291",
+    "name": "Squash",
+    "cat": "veg",
+    "kcal": 17,
+    "protein": 1.2,
+    "carbs": 3.1,
+    "fats": 0.3
+  },
+  {
+    "id": "usda-169910",
+    "name": "Mango",
+    "cat": "fruit",
+    "kcal": 60,
+    "protein": 0.8,
+    "carbs": 15,
+    "fats": 0.4
+  },
+  {
+    "id": "usda-170847",
+    "name": "Mozzarella",
+    "cat": "dairy",
+    "kcal": 254,
+    "protein": 24.3,
+    "carbs": 2.8,
+    "fats": 15.9
+  },
+  {
+    "id": "usda-167555",
+    "name": "Saltstænger",
+    "cat": "snacks",
+    "kcal": 384,
+    "protein": 10,
+    "carbs": 80.4,
+    "fats": 2.9
+  },
+  {
+    "id": "usda-170763",
+    "name": "Taco Bell Taco",
+    "cat": "fastfood",
+    "kcal": 206,
+    "protein": 9.3,
+    "carbs": 20.2,
+    "fats": 9.8
+  },
+  {
+    "id": "usda-170419",
+    "name": "Ærter",
+    "cat": "protein",
+    "kcal": 81,
+    "protein": 5.4,
+    "carbs": 14.4,
+    "fats": 0.4
+  },
+  {
+    "id": "usda-168917",
+    "name": "Quinoa",
+    "cat": "carbs",
+    "kcal": 120,
+    "protein": 4.4,
+    "carbs": 21.3,
+    "fats": 1.9
+  },
+  {
+    "id": "usda-172470",
+    "name": "Peanutbutter",
+    "cat": "fats",
+    "kcal": 598,
+    "protein": 22.2,
+    "carbs": 22.3,
+    "fats": 51.4
+  },
+  {
+    "id": "usda-169251",
+    "name": "Champignon",
+    "cat": "veg",
+    "kcal": 22,
+    "protein": 3.1,
+    "carbs": 3.3,
+    "fats": 0.3
+  },
+  {
+    "id": "usda-327046",
+    "name": "Kiwi",
+    "cat": "fruit",
+    "kcal": 58,
+    "protein": 1.1,
+    "carbs": 14,
+    "fats": 0.4
+  },
+  {
+    "id": "usda-173420",
+    "name": "Feta",
+    "cat": "dairy",
+    "kcal": 265,
+    "protein": 14.2,
+    "carbs": 3.9,
+    "fats": 21.5
+  },
+  {
+    "id": "usda-170373",
+    "name": "Pizza Hut Pizza",
+    "cat": "fastfood",
+    "kcal": 263,
+    "protein": 11.9,
+    "carbs": 28.8,
+    "fats": 11.1
+  },
+  {
+    "id": "usda-170150",
+    "name": "Sesamfrø",
+    "cat": "fats",
+    "kcal": 573,
+    "protein": 17.7,
+    "carbs": 23.4,
+    "fats": 49.7
+  },
+  {
+    "id": "usda-168389",
+    "name": "Asparges",
+    "cat": "veg",
+    "kcal": 20,
+    "protein": 2.2,
+    "carbs": 3.9,
+    "fats": 0.1
+  },
+  {
+    "id": "usda-173945",
+    "name": "Banan, tørret",
+    "cat": "fruit",
+    "kcal": 346,
+    "protein": 3.9,
+    "carbs": 88.3,
+    "fats": 1.8
+  },
+  {
+    "id": "usda-167841",
+    "name": "Svinekotelet",
+    "cat": "protein",
+    "kcal": 196,
+    "protein": 26.6,
+    "carbs": 0,
+    "fats": 9.1
+  },
+  {
+    "id": "usda-2515375",
+    "name": "Hasselnødder",
+    "cat": "fats",
+    "kcal": 641,
+    "protein": 13.5,
+    "carbs": 26.5,
+    "fats": 53.5
+  },
+  {
+    "id": "usda-2685577",
+    "name": "Aubergine",
+    "cat": "veg",
+    "kcal": 26,
+    "protein": 0.9,
+    "carbs": 5.4,
+    "fats": 0.1
+  },
+  {
+    "id": "usda-325430",
+    "name": "Fersken",
+    "cat": "fruit",
+    "kcal": 42,
+    "protein": 0.9,
+    "carbs": 10.1,
+    "fats": 0.3
+  },
+  {
+    "id": "usda-171257",
+    "name": "Creme fraiche 18%",
+    "cat": "dairy",
+    "kcal": 198,
+    "protein": 2.4,
+    "carbs": 4.6,
+    "fats": 19.4
+  },
+  {
+    "id": "usda-167587",
+    "name": "Mælkechokolade",
+    "cat": "snacks",
+    "kcal": 535,
+    "protein": 7.7,
+    "carbs": 59.4,
+    "fats": 29.7
+  },
+  {
+    "id": "usda-170320",
+    "name": "McDonald's Cheeseburger",
+    "cat": "fastfood",
+    "kcal": 263,
+    "protein": 13,
+    "carbs": 27.8,
+    "fats": 11.8
+  },
+  {
+    "id": "usda-334194",
+    "name": "Tun i vand",
+    "cat": "protein",
+    "kcal": 90,
+    "protein": 19,
+    "carbs": 0.1,
+    "fats": 0.9
+  },
+  {
+    "id": "usda-2515374",
+    "name": "Cashewnødder",
+    "cat": "fats",
+    "kcal": 565,
+    "protein": 17.4,
+    "carbs": 36.3,
+    "fats": 38.9
+  },
+  {
+    "id": "usda-323505",
+    "name": "Grønkål",
+    "cat": "veg",
+    "kcal": 35,
+    "protein": 2.9,
+    "carbs": 4.4,
+    "fats": 1.5
+  },
+  {
+    "id": "usda-2346410",
+    "name": "Hindbær",
+    "cat": "fruit",
+    "kcal": 57,
+    "protein": 1,
+    "carbs": 12.9,
+    "fats": 0.2
+  },
+  {
+    "id": "usda-172177",
+    "name": "Brie",
+    "cat": "dairy",
+    "kcal": 334,
+    "protein": 20.8,
+    "carbs": 0.5,
+    "fats": 27.7
+  },
+  {
+    "id": "usda-172749",
+    "name": "Kiks, Digestive fuldkorn",
+    "cat": "snacks",
+    "kcal": 427,
+    "protein": 10.6,
+    "carbs": 69.6,
+    "fats": 14.1
+  }
+]

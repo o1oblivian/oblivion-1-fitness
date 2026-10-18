@@ -1,0 +1,902 @@
+[
+  {
+    "id": "usda-174915",
+    "name": "Lavash",
+    "cat": "carbs",
+    "kcal": 275,
+    "protein": 9.1,
+    "carbs": 55.7,
+    "fats": 1.2
+  },
+  {
+    "id": "usda-2259793",
+    "name": "Matzoon (Armenian yogurt)",
+    "cat": "dairy",
+    "kcal": 78,
+    "protein": 3.8,
+    "carbs": 5.6,
+    "fats": 4.5
+  },
+  {
+    "id": "usda-171891",
+    "name": "Armenian coffee",
+    "cat": "drinks",
+    "kcal": 9,
+    "protein": 0.1,
+    "carbs": 1.7,
+    "fats": 0.2
+  },
+  {
+    "id": "usda-167820",
+    "name": "Pork khorovats (shashlik)",
+    "cat": "protein",
+    "kcal": 242,
+    "protein": 27.3,
+    "carbs": 0,
+    "fats": 13.9
+  },
+  {
+    "id": "usda-2346406",
+    "name": "Cucumber",
+    "cat": "veg",
+    "kcal": 16,
+    "protein": 0.6,
+    "carbs": 3,
+    "fats": 0.2
+  },
+  {
+    "id": "usda-170457",
+    "name": "Tomato",
+    "cat": "veg",
+    "kcal": 18,
+    "protein": 0.9,
+    "carbs": 3.9,
+    "fats": 0.2
+  },
+  {
+    "id": "usda-171054",
+    "name": "Chicken khorovats (shashlik)",
+    "cat": "protein",
+    "kcal": 190,
+    "protein": 28.9,
+    "carbs": 0,
+    "fats": 7.4
+  },
+  {
+    "id": "usda-325871",
+    "name": "Matnakash (Armenian bread)",
+    "cat": "carbs",
+    "kcal": 270,
+    "protein": 9.4,
+    "carbs": 49.2,
+    "fats": 3.6
+  },
+  {
+    "id": "usda-172176",
+    "name": "Lori cheese",
+    "cat": "dairy",
+    "kcal": 371,
+    "protein": 23.2,
+    "carbs": 2.8,
+    "fats": 29.7
+  },
+  {
+    "id": "usda-174158",
+    "name": "Water",
+    "cat": "drinks",
+    "kcal": 0,
+    "protein": 0,
+    "carbs": 0,
+    "fats": 0
+  },
+  {
+    "id": "usda-173420",
+    "name": "Chanakh cheese",
+    "cat": "dairy",
+    "kcal": 265,
+    "protein": 14.2,
+    "carbs": 3.9,
+    "fats": 21.5
+  },
+  {
+    "id": "usda-173294",
+    "name": "Lahmajoun (Armenian meat pizza)",
+    "cat": "fastfood",
+    "kcal": 302,
+    "protein": 12.8,
+    "carbs": 31.2,
+    "fats": 14
+  },
+  {
+    "id": "usda-170686",
+    "name": "Buckwheat (Grechka), cooked",
+    "cat": "carbs",
+    "kcal": 92,
+    "protein": 3.4,
+    "carbs": 19.9,
+    "fats": 0.6
+  },
+  {
+    "id": "usda-167765",
+    "name": "Watermelon",
+    "cat": "fruit",
+    "kcal": 30,
+    "protein": 0.6,
+    "carbs": 7.6,
+    "fats": 0.2
+  },
+  {
+    "id": "usda-170416",
+    "name": "Fresh herbs plate (tarhun, rehan, parsley)",
+    "cat": "veg",
+    "kcal": 36,
+    "protein": 3,
+    "carbs": 6.3,
+    "fats": 0.8
+  },
+  {
+    "id": "usda-171697",
+    "name": "Armenian apricot",
+    "cat": "fruit",
+    "kcal": 48,
+    "protein": 1.4,
+    "carbs": 11.1,
+    "fats": 0.4
+  },
+  {
+    "id": "usda-170287",
+    "name": "Bulgur pilaf",
+    "cat": "carbs",
+    "kcal": 83,
+    "protein": 3.1,
+    "carbs": 18.6,
+    "fats": 0.2
+  },
+  {
+    "id": "usda-173424",
+    "name": "Boiled egg",
+    "cat": "protein",
+    "kcal": 155,
+    "protein": 12.6,
+    "carbs": 1.1,
+    "fats": 10.6
+  },
+  {
+    "id": "usda-325524",
+    "name": "Roasted sunflower seeds (Semechki)",
+    "cat": "fats",
+    "kcal": 612,
+    "protein": 21,
+    "carbs": 17.1,
+    "fats": 56.1
+  },
+  {
+    "id": "usda-171797",
+    "name": "Beef lyulya kebab",
+    "cat": "protein",
+    "kcal": 270,
+    "protein": 25.8,
+    "carbs": 0,
+    "fats": 17.8
+  },
+  {
+    "id": "usda-172754",
+    "name": "Gata (Armenian sweet bread)",
+    "cat": "snacks",
+    "kcal": 374,
+    "protein": 8,
+    "carbs": 37.2,
+    "fats": 21.9
+  },
+  {
+    "id": "usda-170187",
+    "name": "Walnuts",
+    "cat": "fats",
+    "kcal": 654,
+    "protein": 15.2,
+    "carbs": 13.7,
+    "fats": 65.2
+  },
+  {
+    "id": "usda-171257",
+    "name": "Smetana (sour cream 20%)",
+    "cat": "dairy",
+    "kcal": 198,
+    "protein": 2.4,
+    "carbs": 4.6,
+    "fats": 19.4
+  },
+  {
+    "id": "usda-173718",
+    "name": "Sevan trout (Ishkhan), baked",
+    "cat": "protein",
+    "kcal": 168,
+    "protein": 23.8,
+    "carbs": 0,
+    "fats": 7.4
+  },
+  {
+    "id": "usda-170093",
+    "name": "Khorovats potatoes",
+    "cat": "carbs",
+    "kcal": 93,
+    "protein": 2.5,
+    "carbs": 21.2,
+    "fats": 0.1
+  },
+  {
+    "id": "usda-325430",
+    "name": "Peach",
+    "cat": "fruit",
+    "kcal": 42,
+    "protein": 0.9,
+    "carbs": 10.1,
+    "fats": 0.3
+  },
+  {
+    "id": "usda-171719",
+    "name": "Sweet cherries",
+    "cat": "fruit",
+    "kcal": 63,
+    "protein": 1.1,
+    "carbs": 16,
+    "fats": 0.2
+  },
+  {
+    "id": "usda-168878",
+    "name": "White rice, cooked",
+    "cat": "carbs",
+    "kcal": 130,
+    "protein": 2.7,
+    "carbs": 28.2,
+    "fats": 0.3
+  },
+  {
+    "id": "usda-170745",
+    "name": "KFC Original Recipe chicken drumstick",
+    "cat": "fastfood",
+    "kcal": 239,
+    "protein": 22.3,
+    "carbs": 5.4,
+    "fats": 14.2
+  },
+  {
+    "id": "usda-170845",
+    "name": "Sulguni cheese",
+    "cat": "dairy",
+    "kcal": 299,
+    "protein": 22.2,
+    "carbs": 2.4,
+    "fats": 22.1
+  },
+  {
+    "id": "usda-174851",
+    "name": "Coca-Cola",
+    "cat": "drinks",
+    "kcal": 41,
+    "protein": 0,
+    "carbs": 10.6,
+    "fats": 0
+  },
+  {
+    "id": "usda-169229",
+    "name": "Roasted eggplant",
+    "cat": "veg",
+    "kcal": 35,
+    "protein": 0.8,
+    "carbs": 8.7,
+    "fats": 0.2
+  },
+  {
+    "id": "usda-170108",
+    "name": "Bell pepper, red",
+    "cat": "veg",
+    "kcal": 26,
+    "protein": 1,
+    "carbs": 6,
+    "fats": 0.3
+  },
+  {
+    "id": "usda-169134",
+    "name": "Pomegranate",
+    "cat": "fruit",
+    "kcal": 83,
+    "protein": 1.7,
+    "carbs": 18.7,
+    "fats": 1.2
+  },
+  {
+    "id": "usda-172181",
+    "name": "Tvorog (Armenian cottage cheese)",
+    "cat": "dairy",
+    "kcal": 72,
+    "protein": 10.3,
+    "carbs": 6.7,
+    "fats": 0.3
+  },
+  {
+    "id": "usda-172935",
+    "name": "Ishli kufta",
+    "cat": "protein",
+    "kcal": 261,
+    "protein": 12.6,
+    "carbs": 1.9,
+    "fats": 22.2
+  },
+  {
+    "id": "usda-167587",
+    "name": "Grand Candy milk chocolate",
+    "cat": "snacks",
+    "kcal": 535,
+    "protein": 7.7,
+    "carbs": 59.4,
+    "fats": 29.7
+  },
+  {
+    "id": "usda-174683",
+    "name": "Grapes, red or green",
+    "cat": "fruit",
+    "kcal": 69,
+    "protein": 0.7,
+    "carbs": 18.1,
+    "fats": 0.2
+  },
+  {
+    "id": "usda-171017",
+    "name": "Sunflower oil",
+    "cat": "fats",
+    "kcal": 884,
+    "protein": 0,
+    "carbs": 0,
+    "fats": 100
+  },
+  {
+    "id": "usda-171689",
+    "name": "Apple",
+    "cat": "fruit",
+    "kcal": 48,
+    "protein": 0.3,
+    "carbs": 12.8,
+    "fats": 0.1
+  },
+  {
+    "id": "usda-171116",
+    "name": "Chicken lyulya kebab",
+    "cat": "protein",
+    "kcal": 143,
+    "protein": 17.4,
+    "carbs": 0,
+    "fats": 8.1
+  },
+  {
+    "id": "usda-169975",
+    "name": "Cabbage salad",
+    "cat": "veg",
+    "kcal": 25,
+    "protein": 1.3,
+    "carbs": 5.8,
+    "fats": 0.1
+  },
+  {
+    "id": "usda-173430",
+    "name": "Butter",
+    "cat": "fats",
+    "kcal": 717,
+    "protein": 0.9,
+    "carbs": 0.1,
+    "fats": 81.1
+  },
+  {
+    "id": "usda-173295",
+    "name": "Tashir Pizza pepperoni",
+    "cat": "fastfood",
+    "kcal": 282,
+    "protein": 11.7,
+    "carbs": 32,
+    "fats": 11.9
+  },
+  {
+    "id": "usda-167854",
+    "name": "Pork ribs, grilled",
+    "cat": "protein",
+    "kcal": 397,
+    "protein": 29.1,
+    "carbs": 0,
+    "fats": 30.3
+  },
+  {
+    "id": "usda-329370",
+    "name": "Chechil (Armenian string cheese)",
+    "cat": "dairy",
+    "kcal": 298,
+    "protein": 23.7,
+    "carbs": 4.4,
+    "fats": 20.4
+  },
+  {
+    "id": "usda-168746",
+    "name": "Beer (Kilikia)",
+    "cat": "drinks",
+    "kcal": 43,
+    "protein": 0.5,
+    "carbs": 3.6,
+    "fats": 0
+  },
+  {
+    "id": "usda-171914",
+    "name": "Compote (homemade fruit punch)",
+    "cat": "drinks",
+    "kcal": 48,
+    "protein": 0,
+    "carbs": 12,
+    "fats": 0
+  },
+  {
+    "id": "usda-173944",
+    "name": "Banana",
+    "cat": "fruit",
+    "kcal": 89,
+    "protein": 1.1,
+    "carbs": 22.8,
+    "fats": 0.3
+  },
+  {
+    "id": "usda-168928",
+    "name": "Macaroni / Pasta, cooked",
+    "cat": "carbs",
+    "kcal": 158,
+    "protein": 5.8,
+    "carbs": 30.9,
+    "fats": 0.9
+  },
+  {
+    "id": "usda-169060",
+    "name": "Sharots (Churchkhela)",
+    "cat": "snacks",
+    "kcal": 398,
+    "protein": 3.3,
+    "carbs": 92.4,
+    "fats": 1.7
+  },
+  {
+    "id": "usda-169141",
+    "name": "Green beans, stewed",
+    "cat": "veg",
+    "kcal": 35,
+    "protein": 1.9,
+    "carbs": 7.9,
+    "fats": 0.3
+  },
+  {
+    "id": "usda-171549",
+    "name": "Lentil soup (Armenian style)",
+    "cat": "protein",
+    "kcal": 56,
+    "protein": 3.7,
+    "carbs": 8.2,
+    "fats": 1.1
+  },
+  {
+    "id": "usda-173293",
+    "name": "Khachapuri (Adjarian)",
+    "cat": "fastfood",
+    "kcal": 271,
+    "protein": 10.8,
+    "carbs": 33.2,
+    "fats": 10.5
+  },
+  {
+    "id": "usda-173205",
+    "name": "Kilikia lemonade (Tarragon / Tarkhun)",
+    "cat": "drinks",
+    "kcal": 41,
+    "protein": 0.1,
+    "carbs": 10.4,
+    "fats": 0
+  },
+  {
+    "id": "usda-173905",
+    "name": "Oatmeal, cooked",
+    "cat": "carbs",
+    "kcal": 71,
+    "protein": 2.5,
+    "carbs": 12,
+    "fats": 1.5
+  },
+  {
+    "id": "usda-169949",
+    "name": "Plum",
+    "cat": "fruit",
+    "kcal": 46,
+    "protein": 0.7,
+    "carbs": 11.4,
+    "fats": 0.3
+  },
+  {
+    "id": "usda-173423",
+    "name": "Fried eggs",
+    "cat": "protein",
+    "kcal": 196,
+    "protein": 13.6,
+    "carbs": 0.8,
+    "fats": 14.8
+  },
+  {
+    "id": "usda-173941",
+    "name": "Armenian dried apricots (Chir)",
+    "cat": "fruit",
+    "kcal": 241,
+    "protein": 3.4,
+    "carbs": 62.6,
+    "fats": 0.5
+  },
+  {
+    "id": "usda-170076",
+    "name": "Aveluk (wild sorrel) salad",
+    "cat": "veg",
+    "kcal": 22,
+    "protein": 2,
+    "carbs": 3.2,
+    "fats": 0.7
+  },
+  {
+    "id": "usda-746782",
+    "name": "Whole milk (3.2%)",
+    "cat": "dairy",
+    "kcal": 60,
+    "protein": 3.3,
+    "carbs": 4.6,
+    "fats": 3.2
+  },
+  {
+    "id": "usda-173305",
+    "name": "KFC Zinger burger",
+    "cat": "fastfood",
+    "kcal": 273,
+    "protein": 10.4,
+    "carbs": 28,
+    "fats": 13.2
+  },
+  {
+    "id": "usda-170691",
+    "name": "Cheeseburger",
+    "cat": "fastfood",
+    "kcal": 270,
+    "protein": 13.5,
+    "carbs": 25.5,
+    "fats": 12.9
+  },
+  {
+    "id": "usda-171009",
+    "name": "Mayonnaise",
+    "cat": "fats",
+    "kcal": 680,
+    "protein": 1,
+    "carbs": 0.6,
+    "fats": 74.8
+  },
+  {
+    "id": "usda-170904",
+    "name": "Kefir 2.5%",
+    "cat": "dairy",
+    "kcal": 43,
+    "protein": 3.8,
+    "carbs": 4.8,
+    "fats": 1
+  },
+  {
+    "id": "usda-168554",
+    "name": "Potato puree (Mashed potatoes)",
+    "cat": "carbs",
+    "kcal": 108,
+    "protein": 2.1,
+    "carbs": 14.4,
+    "fats": 4.9
+  },
+  {
+    "id": "usda-324653",
+    "name": "Pickled cucumbers",
+    "cat": "veg",
+    "kcal": 12,
+    "protein": 0.5,
+    "carbs": 2,
+    "fats": 0.4
+  },
+  {
+    "id": "usda-168162",
+    "name": "Dried prunes (Chir)",
+    "cat": "fruit",
+    "kcal": 240,
+    "protein": 2.2,
+    "carbs": 63.9,
+    "fats": 0.4
+  },
+  {
+    "id": "usda-174815",
+    "name": "Armenian brandy (Cognac)",
+    "cat": "drinks",
+    "kcal": 231,
+    "protein": 0,
+    "carbs": 0,
+    "fats": 0
+  },
+  {
+    "id": "usda-169677",
+    "name": "Lay's classic potato chips",
+    "cat": "snacks",
+    "kcal": 532,
+    "protein": 6.4,
+    "carbs": 53.8,
+    "fats": 34
+  },
+  {
+    "id": "usda-171413",
+    "name": "Olive oil",
+    "cat": "fats",
+    "kcal": 884,
+    "protein": 0,
+    "carbs": 0,
+    "fats": 100
+  },
+  {
+    "id": "usda-169096",
+    "name": "Green olives",
+    "cat": "fats",
+    "kcal": 145,
+    "protein": 1,
+    "carbs": 3.8,
+    "fats": 15.3
+  },
+  {
+    "id": "usda-174246",
+    "name": "Sig (whitefish), fried",
+    "cat": "protein",
+    "kcal": 172,
+    "protein": 24.5,
+    "carbs": 0,
+    "fats": 7.5
+  },
+  {
+    "id": "usda-172421",
+    "name": "Red lentils, cooked",
+    "cat": "protein",
+    "kcal": 116,
+    "protein": 9,
+    "carbs": 20.1,
+    "fats": 0.4
+  },
+  {
+    "id": "usda-746770",
+    "name": "Cantaloupe (melon)",
+    "cat": "fruit",
+    "kcal": 34,
+    "protein": 0.8,
+    "carbs": 8.2,
+    "fats": 0.2
+  },
+  {
+    "id": "usda-170604",
+    "name": "Basturma (cured beef)",
+    "cat": "protein",
+    "kcal": 153,
+    "protein": 31.1,
+    "carbs": 2.8,
+    "fats": 1.9
+  },
+  {
+    "id": "usda-170737",
+    "name": "Kfc french fries",
+    "cat": "fastfood",
+    "kcal": 351,
+    "protein": 17.7,
+    "carbs": 21.2,
+    "fats": 21.7
+  },
+  {
+    "id": "usda-167831",
+    "name": "Pork cutlet, fried",
+    "cat": "protein",
+    "kcal": 222,
+    "protein": 24.4,
+    "carbs": 0,
+    "fats": 13
+  },
+  {
+    "id": "usda-167787",
+    "name": "Pomegranate juice",
+    "cat": "drinks",
+    "kcal": 54,
+    "protein": 0.2,
+    "carbs": 13.1,
+    "fats": 0.3
+  },
+  {
+    "id": "usda-2346409",
+    "name": "Strawberries",
+    "cat": "fruit",
+    "kcal": 36,
+    "protein": 0.6,
+    "carbs": 8,
+    "fats": 0.2
+  },
+  {
+    "id": "usda-169276",
+    "name": "Radish",
+    "cat": "veg",
+    "kcal": 16,
+    "protein": 0.7,
+    "carbs": 3.4,
+    "fats": 0.1
+  },
+  {
+    "id": "usda-172940",
+    "name": "Sujukh (spiced dry beef sausage)",
+    "cat": "protein",
+    "kcal": 362,
+    "protein": 17.4,
+    "carbs": 3.3,
+    "fats": 30.4
+  },
+  {
+    "id": "usda-172909",
+    "name": "Chicken soup with vermicelli",
+    "cat": "protein",
+    "kcal": 24,
+    "protein": 1.2,
+    "carbs": 3,
+    "fats": 0.8
+  },
+  {
+    "id": "usda-169828",
+    "name": "Armenian mountain tea (Thyme/Urts)",
+    "cat": "drinks",
+    "kcal": 2,
+    "protein": 0.1,
+    "carbs": 0,
+    "fats": 0.2
+  },
+  {
+    "id": "usda-170567",
+    "name": "Almonds",
+    "cat": "fats",
+    "kcal": 579,
+    "protein": 21.2,
+    "carbs": 21.6,
+    "fats": 49.9
+  },
+  {
+    "id": "usda-171705",
+    "name": "Avocado",
+    "cat": "fats",
+    "kcal": 160,
+    "protein": 2,
+    "carbs": 8.5,
+    "fats": 14.7
+  },
+  {
+    "id": "usda-175034",
+    "name": "Choreg (Armenian sweet brioche)",
+    "cat": "snacks",
+    "kcal": 372,
+    "protein": 6.2,
+    "carbs": 50.9,
+    "fats": 16.4
+  },
+  {
+    "id": "usda-169292",
+    "name": "Zucchini, sauteed",
+    "cat": "veg",
+    "kcal": 15,
+    "protein": 1.1,
+    "carbs": 2.7,
+    "fats": 0.4
+  },
+  {
+    "id": "usda-174973",
+    "name": "Grand Candy wafer biscuits",
+    "cat": "snacks",
+    "kcal": 441,
+    "protein": 5,
+    "carbs": 73.6,
+    "fats": 15.2
+  },
+  {
+    "id": "usda-170000",
+    "name": "Onion, yellow",
+    "cat": "veg",
+    "kcal": 40,
+    "protein": 1.1,
+    "carbs": 9.3,
+    "fats": 0.1
+  },
+  {
+    "id": "usda-172675",
+    "name": "Baguette / French loaf",
+    "cat": "carbs",
+    "kcal": 272,
+    "protein": 10.8,
+    "carbs": 51.9,
+    "fats": 2.4
+  },
+  {
+    "id": "usda-173021",
+    "name": "Fig, fresh",
+    "cat": "fruit",
+    "kcal": 74,
+    "protein": 0.8,
+    "carbs": 19.2,
+    "fats": 0.3
+  },
+  {
+    "id": "usda-169118",
+    "name": "Pear",
+    "cat": "fruit",
+    "kcal": 57,
+    "protein": 0.4,
+    "carbs": 15.2,
+    "fats": 0.1
+  },
+  {
+    "id": "usda-170725",
+    "name": "Nuggets, chicken",
+    "cat": "fastfood",
+    "kcal": 326,
+    "protein": 16.5,
+    "carbs": 14.3,
+    "fats": 22.6
+  },
+  {
+    "id": "usda-172746",
+    "name": "Salted crackers",
+    "cat": "snacks",
+    "kcal": 418,
+    "protein": 9.5,
+    "carbs": 74,
+    "fats": 8.6
+  },
+  {
+    "id": "usda-2515375",
+    "name": "Hazelnut",
+    "cat": "fats",
+    "kcal": 641,
+    "protein": 13.5,
+    "carbs": 26.5,
+    "fats": 53.5
+  },
+  {
+    "id": "usda-169097",
+    "name": "Orange",
+    "cat": "fruit",
+    "kcal": 47,
+    "protein": 0.9,
+    "carbs": 11.8,
+    "fats": 0.1
+  },
+  {
+    "id": "usda-169708",
+    "name": "Rice pilaf with vermicelli",
+    "cat": "carbs",
+    "kcal": 123,
+    "protein": 2.9,
+    "carbs": 26,
+    "fats": 0.4
+  },
+  {
+    "id": "usda-167575",
+    "name": "Ice cream, vanilla",
+    "cat": "dairy",
+    "kcal": 207,
+    "protein": 3.5,
+    "carbs": 23.6,
+    "fats": 11
+  },
+  {
+    "id": "usda-167976",
+    "name": "Grand Candy chocolate candy (Jelly/praline)",
+    "cat": "snacks",
+    "kcal": 480,
+    "protein": 4.2,
+    "carbs": 63.9,
+    "fats": 30
+  }
+]

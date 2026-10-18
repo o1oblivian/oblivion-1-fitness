@@ -1,0 +1,902 @@
+[
+  {
+    "id": "usda-168880",
+    "name": "Bhutanese red rice, cooked",
+    "cat": "carbs",
+    "kcal": 130,
+    "protein": 2.4,
+    "carbs": 28.6,
+    "fats": 0.2
+  },
+  {
+    "id": "usda-168935",
+    "name": "White rice, cooked",
+    "cat": "carbs",
+    "kcal": 130,
+    "protein": 2.7,
+    "carbs": 28.2,
+    "fats": 0.3
+  },
+  {
+    "id": "usda-172894",
+    "name": "Ema datshi (Chilli and cheese stew)",
+    "cat": "veg",
+    "kcal": 92,
+    "protein": 3.8,
+    "carbs": 6.5,
+    "fats": 5.8
+  },
+  {
+    "id": "usda-170442",
+    "name": "Kewa datshi (Potato and cheese stew)",
+    "cat": "carbs",
+    "kcal": 134,
+    "protein": 5.1,
+    "carbs": 11.3,
+    "fats": 7.6
+  },
+  {
+    "id": "usda-170604",
+    "name": "Shakam paa (Dried beef stew)",
+    "cat": "protein",
+    "kcal": 153,
+    "protein": 31.1,
+    "carbs": 2.8,
+    "fats": 1.9
+  },
+  {
+    "id": "usda-167847",
+    "name": "Phaksha paa (Pork with radishes and chilies)",
+    "cat": "protein",
+    "kcal": 194,
+    "protein": 26.8,
+    "carbs": 0,
+    "fats": 8.9
+  },
+  {
+    "id": "usda-746765",
+    "name": "Chhurpi (Hard yak cheese)",
+    "cat": "dairy",
+    "kcal": 326,
+    "protein": 24.5,
+    "carbs": 2.1,
+    "fats": 24.3
+  },
+  {
+    "id": "usda-170848",
+    "name": "Chura kampo (Dried cheese)",
+    "cat": "dairy",
+    "kcal": 392,
+    "protein": 35.8,
+    "carbs": 3.2,
+    "fats": 25
+  },
+  {
+    "id": "usda-172187",
+    "name": "Gondo datshi (Egg cheese scramble)",
+    "cat": "protein",
+    "kcal": 149,
+    "protein": 10,
+    "carbs": 1.6,
+    "fats": 11
+  },
+  {
+    "id": "usda-167723",
+    "name": "Ara (Traditional rice wine)",
+    "cat": "drinks",
+    "kcal": 134,
+    "protein": 0.5,
+    "carbs": 5,
+    "fats": 0
+  },
+  {
+    "id": "usda-168746",
+    "name": "Druk 11000 beer",
+    "cat": "drinks",
+    "kcal": 43,
+    "protein": 0.5,
+    "carbs": 3.6,
+    "fats": 0
+  },
+  {
+    "id": "usda-334536",
+    "name": "Fried rice, egg",
+    "cat": "carbs",
+    "kcal": 174,
+    "protein": 3.8,
+    "carbs": 32.5,
+    "fats": 3.2
+  },
+  {
+    "id": "usda-167712",
+    "name": "Sikam paa (Dried pork belly)",
+    "cat": "protein",
+    "kcal": 541,
+    "protein": 37,
+    "carbs": 1.4,
+    "fats": 41.8
+  },
+  {
+    "id": "usda-172773",
+    "name": "Buckwheat pancake (Khuley)",
+    "cat": "carbs",
+    "kcal": 222,
+    "protein": 6.1,
+    "carbs": 29,
+    "fats": 9.2
+  },
+  {
+    "id": "usda-168907",
+    "name": "Buckwheat noodles (Puta)",
+    "cat": "carbs",
+    "kcal": 99,
+    "protein": 5.1,
+    "carbs": 21.4,
+    "fats": 0.1
+  },
+  {
+    "id": "usda-172421",
+    "name": "Dal (Lentil soup)",
+    "cat": "protein",
+    "kcal": 116,
+    "protein": 9,
+    "carbs": 20.1,
+    "fats": 0.4
+  },
+  {
+    "id": "usda-170106",
+    "name": "Ezay (Bhutanese chili dip)",
+    "cat": "veg",
+    "kcal": 40,
+    "protein": 1.9,
+    "carbs": 8.8,
+    "fats": 0.4
+  },
+  {
+    "id": "usda-167819",
+    "name": "Pork curry",
+    "cat": "protein",
+    "kcal": 239,
+    "protein": 27.2,
+    "carbs": 0,
+    "fats": 13.6
+  },
+  {
+    "id": "usda-746782",
+    "name": "Cow milk, fresh, boiled",
+    "cat": "dairy",
+    "kcal": 60,
+    "protein": 3.3,
+    "carbs": 4.6,
+    "fats": 3.2
+  },
+  {
+    "id": "usda-2259793",
+    "name": "Yoghurt, plain, whole milk",
+    "cat": "dairy",
+    "kcal": 78,
+    "protein": 3.8,
+    "carbs": 5.6,
+    "fats": 4.5
+  },
+  {
+    "id": "usda-173430",
+    "name": "Yak butter",
+    "cat": "fats",
+    "kcal": 717,
+    "protein": 0.9,
+    "carbs": 0.1,
+    "fats": 81.1
+  },
+  {
+    "id": "usda-172337",
+    "name": "Mustard oil",
+    "cat": "fats",
+    "kcal": 884,
+    "protein": 0,
+    "carbs": 0,
+    "fats": 100
+  },
+  {
+    "id": "usda-173412",
+    "name": "Ghee",
+    "cat": "fats",
+    "kcal": 876,
+    "protein": 0.3,
+    "carbs": 0,
+    "fats": 99.5
+  },
+  {
+    "id": "usda-173410",
+    "name": "Butter, salted",
+    "cat": "fats",
+    "kcal": 717,
+    "protein": 0.9,
+    "carbs": 0.1,
+    "fats": 81.1
+  },
+  {
+    "id": "usda-170187",
+    "name": "Walnuts, local",
+    "cat": "fats",
+    "kcal": 654,
+    "protein": 15.2,
+    "carbs": 13.7,
+    "fats": 65.2
+  },
+  {
+    "id": "usda-169412",
+    "name": "Perilla seeds (Zimtsi)",
+    "cat": "fats",
+    "kcal": 631,
+    "protein": 20.4,
+    "carbs": 11.7,
+    "fats": 61.2
+  },
+  {
+    "id": "usda-171017",
+    "name": "Sunflower oil",
+    "cat": "fats",
+    "kcal": 884,
+    "protein": 0,
+    "carbs": 0,
+    "fats": 100
+  },
+  {
+    "id": "usda-170497",
+    "name": "Green chillies",
+    "cat": "veg",
+    "kcal": 40,
+    "protein": 2,
+    "carbs": 9.5,
+    "fats": 0.2
+  },
+  {
+    "id": "usda-170932",
+    "name": "Red chillies, dried",
+    "cat": "veg",
+    "kcal": 318,
+    "protein": 12,
+    "carbs": 56.6,
+    "fats": 17.3
+  },
+  {
+    "id": "usda-168452",
+    "name": "Radish (Labu), boiled",
+    "cat": "veg",
+    "kcal": 17,
+    "protein": 0.7,
+    "carbs": 3.4,
+    "fats": 0.2
+  },
+  {
+    "id": "usda-168463",
+    "name": "Spinach, cooked",
+    "cat": "veg",
+    "kcal": 23,
+    "protein": 3,
+    "carbs": 3.8,
+    "fats": 0.3
+  },
+  {
+    "id": "usda-169976",
+    "name": "Cabbage, stir-fried",
+    "cat": "veg",
+    "kcal": 23,
+    "protein": 1.3,
+    "carbs": 5.5,
+    "fats": 0.1
+  },
+  {
+    "id": "usda-168520",
+    "name": "Cauliflower, stir-fried",
+    "cat": "veg",
+    "kcal": 23,
+    "protein": 1.8,
+    "carbs": 4.1,
+    "fats": 0.5
+  },
+  {
+    "id": "usda-170114",
+    "name": "Potatoes, boiled",
+    "cat": "carbs",
+    "kcal": 87,
+    "protein": 1.9,
+    "carbs": 20.1,
+    "fats": 0.1
+  },
+  {
+    "id": "usda-169405",
+    "name": "Fiddlehead ferns (Nakay)",
+    "cat": "veg",
+    "kcal": 34,
+    "protein": 4.6,
+    "carbs": 5.5,
+    "fats": 0.4
+  },
+  {
+    "id": "usda-173944",
+    "name": "Bananas",
+    "cat": "fruit",
+    "kcal": 89,
+    "protein": 1.1,
+    "carbs": 22.8,
+    "fats": 0.3
+  },
+  {
+    "id": "usda-171689",
+    "name": "Apples, local Bhutanese",
+    "cat": "fruit",
+    "kcal": 48,
+    "protein": 0.3,
+    "carbs": 12.8,
+    "fats": 0.1
+  },
+  {
+    "id": "usda-169105",
+    "name": "Mandarin oranges",
+    "cat": "fruit",
+    "kcal": 53,
+    "protein": 0.8,
+    "carbs": 13.3,
+    "fats": 0.3
+  },
+  {
+    "id": "usda-169926",
+    "name": "Papaya",
+    "cat": "fruit",
+    "kcal": 43,
+    "protein": 0.5,
+    "carbs": 10.8,
+    "fats": 0.3
+  },
+  {
+    "id": "usda-169910",
+    "name": "Mango",
+    "cat": "fruit",
+    "kcal": 60,
+    "protein": 0.8,
+    "carbs": 15,
+    "fats": 0.4
+  },
+  {
+    "id": "usda-173044",
+    "name": "Guava",
+    "cat": "fruit",
+    "kcal": 68,
+    "protein": 2.6,
+    "carbs": 14.3,
+    "fats": 1
+  },
+  {
+    "id": "usda-169118",
+    "name": "Pears",
+    "cat": "fruit",
+    "kcal": 57,
+    "protein": 0.4,
+    "carbs": 15.2,
+    "fats": 0.1
+  },
+  {
+    "id": "usda-167765",
+    "name": "Watermelon",
+    "cat": "fruit",
+    "kcal": 30,
+    "protein": 0.6,
+    "carbs": 7.6,
+    "fats": 0.2
+  },
+  {
+    "id": "usda-169134",
+    "name": "Pomegranate",
+    "cat": "fruit",
+    "kcal": 83,
+    "protein": 1.7,
+    "carbs": 18.7,
+    "fats": 1.2
+  },
+  {
+    "id": "usda-325430",
+    "name": "Peaches",
+    "cat": "fruit",
+    "kcal": 42,
+    "protein": 0.9,
+    "carbs": 10.1,
+    "fats": 0.3
+  },
+  {
+    "id": "usda-174957",
+    "name": "Parle-G biscuits",
+    "cat": "snacks",
+    "kcal": 430,
+    "protein": 6.7,
+    "carbs": 77.7,
+    "fats": 10.6
+  },
+  {
+    "id": "usda-169677",
+    "name": "Lay's potato chips, India/Bhutan style",
+    "cat": "snacks",
+    "kcal": 532,
+    "protein": 6.4,
+    "carbs": 53.8,
+    "fats": 34
+  },
+  {
+    "id": "usda-167537",
+    "name": "Kurkure masala munch",
+    "cat": "snacks",
+    "kcal": 539,
+    "protein": 6.2,
+    "carbs": 57.3,
+    "fats": 33.4
+  },
+  {
+    "id": "usda-174950",
+    "name": "Britannia Good Day butter cookies",
+    "cat": "snacks",
+    "kcal": 467,
+    "protein": 6.1,
+    "carbs": 68.9,
+    "fats": 18.8
+  },
+  {
+    "id": "usda-168857",
+    "name": "Roasted corn (Khabzey)",
+    "cat": "snacks",
+    "kcal": 387,
+    "protein": 8.1,
+    "carbs": 83.4,
+    "fats": 2.4
+  },
+  {
+    "id": "usda-174967",
+    "name": "Khabzey (Bhutanese fried snack/biscuit)",
+    "cat": "snacks",
+    "kcal": 514,
+    "protein": 5.4,
+    "carbs": 63.8,
+    "fats": 26.2
+  },
+  {
+    "id": "usda-169739",
+    "name": "Roasted barley flour (Zow)",
+    "cat": "carbs",
+    "kcal": 345,
+    "protein": 10.5,
+    "carbs": 74.5,
+    "fats": 1.6
+  },
+  {
+    "id": "usda-174852",
+    "name": "Coca-Cola",
+    "cat": "drinks",
+    "kcal": 42,
+    "protein": 0,
+    "carbs": 10.4,
+    "fats": 0.3
+  },
+  {
+    "id": "usda-173205",
+    "name": "Sprite",
+    "cat": "drinks",
+    "kcal": 41,
+    "protein": 0.1,
+    "carbs": 10.4,
+    "fats": 0
+  },
+  {
+    "id": "usda-174854",
+    "name": "Fanta Orange",
+    "cat": "drinks",
+    "kcal": 48,
+    "protein": 0,
+    "carbs": 12.3,
+    "fats": 0
+  },
+  {
+    "id": "usda-173657",
+    "name": "Bottled mineral water",
+    "cat": "drinks",
+    "kcal": 0,
+    "protein": 0,
+    "carbs": 0,
+    "fats": 0
+  },
+  {
+    "id": "usda-167672",
+    "name": "French fries",
+    "cat": "fastfood",
+    "kcal": 282,
+    "protein": 3.4,
+    "carbs": 35.2,
+    "fats": 14.1
+  },
+  {
+    "id": "usda-170295",
+    "name": "Burger, chicken patty",
+    "cat": "fastfood",
+    "kcal": 250,
+    "protein": 16.3,
+    "carbs": 20.9,
+    "fats": 11.2
+  },
+  {
+    "id": "usda-173292",
+    "name": "Cheese pizza, regular crust",
+    "cat": "fastfood",
+    "kcal": 266,
+    "protein": 11.4,
+    "carbs": 33.3,
+    "fats": 9.7
+  },
+  {
+    "id": "usda-170765",
+    "name": "Chicken pakora",
+    "cat": "fastfood",
+    "kcal": 294,
+    "protein": 15,
+    "carbs": 24,
+    "fats": 15.2
+  },
+  {
+    "id": "usda-173424",
+    "name": "Boiled egg",
+    "cat": "protein",
+    "kcal": 155,
+    "protein": 12.6,
+    "carbs": 1.1,
+    "fats": 10.6
+  },
+  {
+    "id": "usda-173423",
+    "name": "Fried egg",
+    "cat": "protein",
+    "kcal": 196,
+    "protein": 13.6,
+    "carbs": 0.8,
+    "fats": 14.8
+  },
+  {
+    "id": "usda-172185",
+    "name": "Omelette, plain",
+    "cat": "protein",
+    "kcal": 154,
+    "protein": 10.6,
+    "carbs": 0.6,
+    "fats": 11.7
+  },
+  {
+    "id": "usda-174190",
+    "name": "Dried fish (Natsom) fried",
+    "cat": "protein",
+    "kcal": 290,
+    "protein": 62.8,
+    "carbs": 0,
+    "fats": 2.4
+  },
+  {
+    "id": "usda-172448",
+    "name": "Tofu, firm, cooked",
+    "cat": "protein",
+    "kcal": 78,
+    "protein": 9,
+    "carbs": 2.9,
+    "fats": 4.2
+  },
+  {
+    "id": "usda-173757",
+    "name": "Chickpeas (Chana), boiled",
+    "cat": "protein",
+    "kcal": 164,
+    "protein": 8.9,
+    "carbs": 27.4,
+    "fats": 2.6
+  },
+  {
+    "id": "usda-174271",
+    "name": "Soybeans, boiled",
+    "cat": "protein",
+    "kcal": 172,
+    "protein": 18.2,
+    "carbs": 8.4,
+    "fats": 9
+  },
+  {
+    "id": "usda-174075",
+    "name": "Roti / Chapati, wheat",
+    "cat": "carbs",
+    "kcal": 299,
+    "protein": 7.9,
+    "carbs": 46.1,
+    "fats": 9.2
+  },
+  {
+    "id": "usda-174924",
+    "name": "Tingmo (Tibetan/Bhutanese steamed bread)",
+    "cat": "carbs",
+    "kcal": 266,
+    "protein": 8.9,
+    "carbs": 49.4,
+    "fats": 3.3
+  },
+  {
+    "id": "usda-173905",
+    "name": "Oatmeal, cooked",
+    "cat": "carbs",
+    "kcal": 71,
+    "protein": 2.5,
+    "carbs": 12,
+    "fats": 1.5
+  },
+  {
+    "id": "usda-171651",
+    "name": "Mani (Puffed rice)",
+    "cat": "carbs",
+    "kcal": 383,
+    "protein": 7,
+    "carbs": 87.8,
+    "fats": 0.9
+  },
+  {
+    "id": "usda-172440",
+    "name": "Roasted soybeans (Bhatmas)",
+    "cat": "protein",
+    "kcal": 469,
+    "protein": 38.6,
+    "carbs": 30.2,
+    "fats": 25.4
+  },
+  {
+    "id": "usda-171290",
+    "name": "Cheddar style cheese (Processed)",
+    "cat": "dairy",
+    "kcal": 371,
+    "protein": 18.1,
+    "carbs": 3.7,
+    "fats": 31.8
+  },
+  {
+    "id": "usda-171254",
+    "name": "Processed cheese spread",
+    "cat": "dairy",
+    "kcal": 290,
+    "protein": 16.4,
+    "carbs": 8.7,
+    "fats": 21.2
+  },
+  {
+    "id": "usda-171275",
+    "name": "Condensed milk, sweetened",
+    "cat": "dairy",
+    "kcal": 321,
+    "protein": 7.9,
+    "carbs": 54.4,
+    "fats": 8.7
+  },
+  {
+    "id": "usda-170876",
+    "name": "Milk powder, whole",
+    "cat": "dairy",
+    "kcal": 496,
+    "protein": 26.3,
+    "carbs": 38.4,
+    "fats": 26.7
+  },
+  {
+    "id": "usda-172446",
+    "name": "Soy milk, plain",
+    "cat": "dairy",
+    "kcal": 54,
+    "protein": 3.3,
+    "carbs": 6.3,
+    "fats": 1.8
+  },
+  {
+    "id": "usda-172336",
+    "name": "Rapeseed / Canola oil",
+    "cat": "fats",
+    "kcal": 884,
+    "protein": 0,
+    "carbs": 0,
+    "fats": 100
+  },
+  {
+    "id": "usda-173806",
+    "name": "Peanuts, roasted, salted",
+    "cat": "fats",
+    "kcal": 587,
+    "protein": 24.4,
+    "carbs": 21.3,
+    "fats": 49.7
+  },
+  {
+    "id": "usda-169421",
+    "name": "Cashews, roasted",
+    "cat": "fats",
+    "kcal": 574,
+    "protein": 15.3,
+    "carbs": 32.7,
+    "fats": 46.4
+  },
+  {
+    "id": "usda-170567",
+    "name": "Almonds",
+    "cat": "fats",
+    "kcal": 579,
+    "protein": 21.2,
+    "carbs": 21.6,
+    "fats": 49.9
+  },
+  {
+    "id": "usda-170557",
+    "name": "Pumpkin seeds, dried",
+    "cat": "fats",
+    "kcal": 574,
+    "protein": 29.8,
+    "carbs": 14.7,
+    "fats": 49
+  },
+  {
+    "id": "usda-171705",
+    "name": "Avocado",
+    "cat": "fats",
+    "kcal": 160,
+    "protein": 2,
+    "carbs": 8.5,
+    "fats": 14.7
+  },
+  {
+    "id": "usda-171411",
+    "name": "Soybean oil",
+    "cat": "fats",
+    "kcal": 884,
+    "protein": 0,
+    "carbs": 0,
+    "fats": 100
+  },
+  {
+    "id": "usda-168394",
+    "name": "Bitter gourd (Karela), cooked",
+    "cat": "veg",
+    "kcal": 19,
+    "protein": 0.8,
+    "carbs": 4.3,
+    "fats": 0.2
+  },
+  {
+    "id": "usda-169229",
+    "name": "Eggplant, cooked",
+    "cat": "veg",
+    "kcal": 35,
+    "protein": 0.8,
+    "carbs": 8.7,
+    "fats": 0.2
+  },
+  {
+    "id": "usda-169261",
+    "name": "Okra (Ladyfinger), cooked",
+    "cat": "veg",
+    "kcal": 22,
+    "protein": 1.9,
+    "carbs": 4.5,
+    "fats": 0.2
+  },
+  {
+    "id": "usda-170000",
+    "name": "Onions, raw",
+    "cat": "veg",
+    "kcal": 40,
+    "protein": 1.1,
+    "carbs": 9.3,
+    "fats": 0.1
+  },
+  {
+    "id": "usda-170457",
+    "name": "Tomatoes, raw",
+    "cat": "veg",
+    "kcal": 18,
+    "protein": 0.9,
+    "carbs": 3.9,
+    "fats": 0.2
+  },
+  {
+    "id": "usda-1104647",
+    "name": "Garlic, raw",
+    "cat": "veg",
+    "kcal": 143,
+    "protein": 6.6,
+    "carbs": 28.2,
+    "fats": 0.4
+  },
+  {
+    "id": "usda-169231",
+    "name": "Ginger, raw",
+    "cat": "veg",
+    "kcal": 80,
+    "protein": 1.8,
+    "carbs": 17.8,
+    "fats": 0.8
+  },
+  {
+    "id": "usda-171917",
+    "name": "Green tea",
+    "cat": "drinks",
+    "kcal": 1,
+    "protein": 0.2,
+    "carbs": 0,
+    "fats": 0
+  },
+  {
+    "id": "usda-174146",
+    "name": "Apple cider, fermented (Druk Ciders)",
+    "cat": "drinks",
+    "kcal": 56,
+    "protein": 0,
+    "carbs": 5.9,
+    "fats": 0
+  },
+  {
+    "id": "usda-167785",
+    "name": "Mango Frooti juice drink",
+    "cat": "drinks",
+    "kcal": 51,
+    "protein": 0.1,
+    "carbs": 13.1,
+    "fats": 0.1
+  },
+  {
+    "id": "usda-173667",
+    "name": "Lemonade / Nimbu pani",
+    "cat": "drinks",
+    "kcal": 43,
+    "protein": 0.1,
+    "carbs": 10.8,
+    "fats": 0.2
+  },
+  {
+    "id": "usda-171354",
+    "name": "Orange juice, 100%",
+    "cat": "drinks",
+    "kcal": 45,
+    "protein": 0.6,
+    "carbs": 10.2,
+    "fats": 0.3
+  },
+  {
+    "id": "usda-171691",
+    "name": "Apples, dried",
+    "cat": "fruit",
+    "kcal": 243,
+    "protein": 0.9,
+    "carbs": 65.9,
+    "fats": 0.3
+  },
+  {
+    "id": "usda-169097",
+    "name": "Oranges, sweet",
+    "cat": "fruit",
+    "kcal": 47,
+    "protein": 0.9,
+    "carbs": 11.8,
+    "fats": 0.1
+  },
+  {
+    "id": "usda-174683",
+    "name": "Grapes, green or red",
+    "cat": "fruit",
+    "kcal": 69,
+    "protein": 0.7,
+    "carbs": 18.1,
+    "fats": 0.2
+  },
+  {
+    "id": "usda-169949",
+    "name": "Plums",
+    "cat": "fruit",
+    "kcal": 46,
+    "protein": 0.7,
+    "carbs": 11.4,
+    "fats": 0.3
+  }
+]

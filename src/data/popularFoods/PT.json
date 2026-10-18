@@ -1,0 +1,902 @@
+[
+  {
+    "id": "usda-171956",
+    "name": "Bacalhau cozido",
+    "cat": "protein",
+    "kcal": 105,
+    "protein": 22.8,
+    "carbs": 0,
+    "fats": 0.9
+  },
+  {
+    "id": "usda-325871",
+    "name": "Pão de forma",
+    "cat": "carbs",
+    "kcal": 270,
+    "protein": 9.4,
+    "carbs": 49.2,
+    "fats": 3.6
+  },
+  {
+    "id": "usda-171891",
+    "name": "Café expresso",
+    "cat": "drinks",
+    "kcal": 9,
+    "protein": 0.1,
+    "carbs": 1.7,
+    "fats": 0.2
+  },
+  {
+    "id": "usda-171413",
+    "name": "Azeite",
+    "cat": "fats",
+    "kcal": 884,
+    "protein": 0,
+    "carbs": 0,
+    "fats": 100
+  },
+  {
+    "id": "usda-170114",
+    "name": "Batata cozida",
+    "cat": "carbs",
+    "kcal": 87,
+    "protein": 1.9,
+    "carbs": 20.1,
+    "fats": 0.1
+  },
+  {
+    "id": "usda-168878",
+    "name": "Arroz branco",
+    "cat": "carbs",
+    "kcal": 130,
+    "protein": 2.7,
+    "carbs": 28.2,
+    "fats": 0.3
+  },
+  {
+    "id": "usda-746778",
+    "name": "Leite meio-gordo",
+    "cat": "dairy",
+    "kcal": 50,
+    "protein": 3.4,
+    "carbs": 4.9,
+    "fats": 1.9
+  },
+  {
+    "id": "usda-173424",
+    "name": "Ovos cozidos",
+    "cat": "protein",
+    "kcal": 155,
+    "protein": 12.6,
+    "carbs": 1.1,
+    "fats": 10.6
+  },
+  {
+    "id": "usda-171689",
+    "name": "Maçã",
+    "cat": "fruit",
+    "kcal": 48,
+    "protein": 0.3,
+    "carbs": 12.8,
+    "fats": 0.1
+  },
+  {
+    "id": "usda-173419",
+    "name": "Queijo flamengo",
+    "cat": "dairy",
+    "kcal": 357,
+    "protein": 25,
+    "carbs": 1.4,
+    "fats": 28.6
+  },
+  {
+    "id": "usda-168746",
+    "name": "Cerveja",
+    "cat": "drinks",
+    "kcal": 43,
+    "protein": 0.5,
+    "carbs": 3.6,
+    "fats": 0
+  },
+  {
+    "id": "usda-171450",
+    "name": "Frango assado",
+    "cat": "protein",
+    "kcal": 239,
+    "protein": 27.3,
+    "carbs": 0,
+    "fats": 13.6
+  },
+  {
+    "id": "usda-172754",
+    "name": "Pastel de nata",
+    "cat": "snacks",
+    "kcal": 374,
+    "protein": 8,
+    "carbs": 37.2,
+    "fats": 21.9
+  },
+  {
+    "id": "usda-171190",
+    "name": "Sopa de legumes",
+    "cat": "veg",
+    "kcal": 48,
+    "protein": 3.2,
+    "carbs": 6.2,
+    "fats": 1.2
+  },
+  {
+    "id": "usda-173944",
+    "name": "Banana",
+    "cat": "fruit",
+    "kcal": 89,
+    "protein": 1.1,
+    "carbs": 22.8,
+    "fats": 0.3
+  },
+  {
+    "id": "usda-170457",
+    "name": "Tomate",
+    "cat": "veg",
+    "kcal": 18,
+    "protein": 0.9,
+    "carbs": 3.9,
+    "fats": 0.2
+  },
+  {
+    "id": "usda-746769",
+    "name": "Alface",
+    "cat": "veg",
+    "kcal": 17,
+    "protein": 1.2,
+    "carbs": 3.2,
+    "fats": 0.3
+  },
+  {
+    "id": "usda-170000",
+    "name": "Cebola",
+    "cat": "veg",
+    "kcal": 40,
+    "protein": 1.1,
+    "carbs": 9.3,
+    "fats": 0.1
+  },
+  {
+    "id": "usda-172687",
+    "name": "Pão alentejano",
+    "cat": "carbs",
+    "kcal": 313,
+    "protein": 13,
+    "carbs": 55.8,
+    "fats": 4.3
+  },
+  {
+    "id": "usda-173190",
+    "name": "Vinho tinto",
+    "cat": "drinks",
+    "kcal": 85,
+    "protein": 0.1,
+    "carbs": 2.6,
+    "fats": 0
+  },
+  {
+    "id": "usda-2259793",
+    "name": "Iogurte natural",
+    "cat": "dairy",
+    "kcal": 78,
+    "protein": 3.8,
+    "carbs": 5.6,
+    "fats": 4.5
+  },
+  {
+    "id": "usda-173118",
+    "name": "Bife de vaca",
+    "cat": "protein",
+    "kcal": 187,
+    "protein": 29.5,
+    "carbs": 0,
+    "fats": 6.7
+  },
+  {
+    "id": "usda-170698",
+    "name": "Batata frita",
+    "cat": "fastfood",
+    "kcal": 312,
+    "protein": 3.4,
+    "carbs": 41.4,
+    "fats": 14.7
+  },
+  {
+    "id": "usda-169096",
+    "name": "Azeitonas",
+    "cat": "fats",
+    "kcal": 145,
+    "protein": 1,
+    "carbs": 3.8,
+    "fats": 15.3
+  },
+  {
+    "id": "usda-173410",
+    "name": "Manteiga",
+    "cat": "fats",
+    "kcal": 717,
+    "protein": 0.9,
+    "carbs": 0.1,
+    "fats": 81.1
+  },
+  {
+    "id": "usda-169097",
+    "name": "Laranja",
+    "cat": "fruit",
+    "kcal": 47,
+    "protein": 0.9,
+    "carbs": 11.8,
+    "fats": 0.1
+  },
+  {
+    "id": "usda-175139",
+    "name": "Sardinhas assadas",
+    "cat": "protein",
+    "kcal": 208,
+    "protein": 24.6,
+    "carbs": 0,
+    "fats": 11.4
+  },
+  {
+    "id": "usda-171991",
+    "name": "Pescada cozida",
+    "cat": "protein",
+    "kcal": 112,
+    "protein": 24.4,
+    "carbs": 0,
+    "fats": 0.9
+  },
+  {
+    "id": "usda-175194",
+    "name": "Feijão cozido",
+    "cat": "protein",
+    "kcal": 127,
+    "protein": 8.7,
+    "carbs": 22.8,
+    "fats": 0.5
+  },
+  {
+    "id": "usda-172421",
+    "name": "Grão-de-bico",
+    "cat": "protein",
+    "kcal": 116,
+    "protein": 9,
+    "carbs": 20.1,
+    "fats": 0.4
+  },
+  {
+    "id": "usda-169737",
+    "name": "Esparguete",
+    "cat": "carbs",
+    "kcal": 158,
+    "protein": 5.8,
+    "carbs": 30.9,
+    "fats": 0.9
+  },
+  {
+    "id": "usda-170393",
+    "name": "Cenoura",
+    "cat": "veg",
+    "kcal": 41,
+    "protein": 0.9,
+    "carbs": 9.6,
+    "fats": 0.2
+  },
+  {
+    "id": "usda-2346406",
+    "name": "Pepino",
+    "cat": "veg",
+    "kcal": 16,
+    "protein": 0.6,
+    "carbs": 3,
+    "fats": 0.2
+  },
+  {
+    "id": "usda-170427",
+    "name": "Pimento",
+    "cat": "veg",
+    "kcal": 20,
+    "protein": 0.9,
+    "carbs": 4.6,
+    "fats": 0.2
+  },
+  {
+    "id": "usda-747447",
+    "name": "Brócolos",
+    "cat": "veg",
+    "kcal": 31,
+    "protein": 2.6,
+    "carbs": 6.3,
+    "fats": 0.3
+  },
+  {
+    "id": "usda-169291",
+    "name": "Courgette",
+    "cat": "veg",
+    "kcal": 17,
+    "protein": 1.2,
+    "carbs": 3.1,
+    "fats": 0.3
+  },
+  {
+    "id": "usda-168462",
+    "name": "Espinafres",
+    "cat": "veg",
+    "kcal": 23,
+    "protein": 2.9,
+    "carbs": 3.6,
+    "fats": 0.4
+  },
+  {
+    "id": "usda-1104647",
+    "name": "Alho",
+    "cat": "veg",
+    "kcal": 143,
+    "protein": 6.6,
+    "carbs": 28.2,
+    "fats": 0.4
+  },
+  {
+    "id": "usda-2685574",
+    "name": "Couve portuguesa",
+    "cat": "veg",
+    "kcal": 47,
+    "protein": 3,
+    "carbs": 7,
+    "fats": 0.8
+  },
+  {
+    "id": "usda-169118",
+    "name": "Pêra",
+    "cat": "fruit",
+    "kcal": 57,
+    "protein": 0.4,
+    "carbs": 15.2,
+    "fats": 0.1
+  },
+  {
+    "id": "usda-2346412",
+    "name": "Uvas",
+    "cat": "fruit",
+    "kcal": 86,
+    "protein": 0.9,
+    "carbs": 20.2,
+    "fats": 0.2
+  },
+  {
+    "id": "usda-2346409",
+    "name": "Morango",
+    "cat": "fruit",
+    "kcal": 36,
+    "protein": 0.6,
+    "carbs": 8,
+    "fats": 0.2
+  },
+  {
+    "id": "usda-167765",
+    "name": "Melancia",
+    "cat": "fruit",
+    "kcal": 30,
+    "protein": 0.6,
+    "carbs": 7.6,
+    "fats": 0.2
+  },
+  {
+    "id": "usda-325430",
+    "name": "Pêssego",
+    "cat": "fruit",
+    "kcal": 42,
+    "protein": 0.9,
+    "carbs": 10.1,
+    "fats": 0.3
+  },
+  {
+    "id": "usda-173021",
+    "name": "Figos",
+    "cat": "fruit",
+    "kcal": 74,
+    "protein": 0.8,
+    "carbs": 19.2,
+    "fats": 0.3
+  },
+  {
+    "id": "usda-170567",
+    "name": "Amêndoas",
+    "cat": "fats",
+    "kcal": 579,
+    "protein": 21.2,
+    "carbs": 21.6,
+    "fats": 49.9
+  },
+  {
+    "id": "usda-170187",
+    "name": "Nozes",
+    "cat": "fats",
+    "kcal": 654,
+    "protein": 15.2,
+    "carbs": 13.7,
+    "fats": 65.2
+  },
+  {
+    "id": "usda-173417",
+    "name": "Queijo fresco",
+    "cat": "dairy",
+    "kcal": 72,
+    "protein": 12.4,
+    "carbs": 2.7,
+    "fats": 1
+  },
+  {
+    "id": "usda-172470",
+    "name": "Manteiga de amendoim",
+    "cat": "fats",
+    "kcal": 598,
+    "protein": 22.2,
+    "carbs": 22.3,
+    "fats": 51.4
+  },
+  {
+    "id": "usda-171705",
+    "name": "Abacate",
+    "cat": "fats",
+    "kcal": 160,
+    "protein": 2,
+    "carbs": 8.5,
+    "fats": 14.7
+  },
+  {
+    "id": "usda-175168",
+    "name": "Salmão",
+    "cat": "fats",
+    "kcal": 206,
+    "protein": 22.1,
+    "carbs": 0,
+    "fats": 12.4
+  },
+  {
+    "id": "usda-334194",
+    "name": "Atum em lata",
+    "cat": "protein",
+    "kcal": 90,
+    "protein": 19,
+    "carbs": 0.1,
+    "fats": 0.9
+  },
+  {
+    "id": "usda-173905",
+    "name": "Aveia",
+    "cat": "carbs",
+    "kcal": 71,
+    "protein": 2.5,
+    "carbs": 12,
+    "fats": 1.5
+  },
+  {
+    "id": "usda-174648",
+    "name": "Cereais de pequeno-almoço",
+    "cat": "carbs",
+    "kcal": 384,
+    "protein": 5.9,
+    "carbs": 88,
+    "fats": 0.9
+  },
+  {
+    "id": "usda-174081",
+    "name": "Tortilha de trigo",
+    "cat": "carbs",
+    "kcal": 310,
+    "protein": 9.8,
+    "carbs": 45.9,
+    "fats": 9.8
+  },
+  {
+    "id": "usda-171867",
+    "name": "Bolachas Maria",
+    "cat": "snacks",
+    "kcal": 406,
+    "protein": 7.1,
+    "carbs": 70.5,
+    "fats": 10.6
+  },
+  {
+    "id": "usda-169592",
+    "name": "Chocolate negro",
+    "cat": "snacks",
+    "kcal": 556,
+    "protein": 5.5,
+    "carbs": 60.5,
+    "fats": 32.4
+  },
+  {
+    "id": "usda-169677",
+    "name": "Batatas fritas de pacote",
+    "cat": "snacks",
+    "kcal": 532,
+    "protein": 6.4,
+    "carbs": 53.8,
+    "fats": 34
+  },
+  {
+    "id": "usda-167959",
+    "name": "Pipocas",
+    "cat": "snacks",
+    "kcal": 387,
+    "protein": 12.9,
+    "carbs": 77.8,
+    "fats": 4.5
+  },
+  {
+    "id": "usda-171354",
+    "name": "Sumo de laranja",
+    "cat": "drinks",
+    "kcal": 45,
+    "protein": 0.6,
+    "carbs": 10.2,
+    "fats": 0.3
+  },
+  {
+    "id": "usda-174851",
+    "name": "Refrigerante cola",
+    "cat": "drinks",
+    "kcal": 41,
+    "protein": 0,
+    "carbs": 10.6,
+    "fats": 0
+  },
+  {
+    "id": "usda-171910",
+    "name": "Chá verde",
+    "cat": "drinks",
+    "kcal": 0,
+    "protein": 0,
+    "carbs": 0,
+    "fats": 0
+  },
+  {
+    "id": "usda-175103",
+    "name": "Água",
+    "cat": "drinks",
+    "kcal": 0,
+    "protein": 0,
+    "carbs": 0,
+    "fats": 0
+  },
+  {
+    "id": "usda-170720",
+    "name": "Big Mac",
+    "cat": "fastfood",
+    "kcal": 257,
+    "protein": 11.8,
+    "carbs": 20.1,
+    "fats": 15
+  },
+  {
+    "id": "usda-170762",
+    "name": "Pizza pepperoni",
+    "cat": "fastfood",
+    "kcal": 331,
+    "protein": 14,
+    "carbs": 29,
+    "fats": 17.6
+  },
+  {
+    "id": "usda-172037",
+    "name": "Frango frito",
+    "cat": "fastfood",
+    "kcal": 308,
+    "protein": 7.8,
+    "carbs": 28,
+    "fats": 18.9
+  },
+  {
+    "id": "usda-170308",
+    "name": "Subway sandes",
+    "cat": "fastfood",
+    "kcal": 146,
+    "protein": 10.7,
+    "carbs": 20.4,
+    "fats": 2.4
+  },
+  {
+    "id": "usda-170763",
+    "name": "Taco",
+    "cat": "fastfood",
+    "kcal": 206,
+    "protein": 9.3,
+    "carbs": 20.2,
+    "fats": 9.8
+  },
+  {
+    "id": "usda-170297",
+    "name": "Francesinha",
+    "cat": "fastfood",
+    "kcal": 279,
+    "protein": 11.3,
+    "carbs": 26.4,
+    "fats": 14.6
+  },
+  {
+    "id": "usda-170695",
+    "name": "Prego no pão",
+    "cat": "fastfood",
+    "kcal": 244,
+    "protein": 15.2,
+    "carbs": 22.2,
+    "fats": 10.3
+  },
+  {
+    "id": "usda-172446",
+    "name": "Leite de soja",
+    "cat": "dairy",
+    "kcal": 54,
+    "protein": 3.3,
+    "carbs": 6.3,
+    "fats": 1.8
+  },
+  {
+    "id": "usda-2647437",
+    "name": "Kefir",
+    "cat": "dairy",
+    "kcal": 50,
+    "protein": 4.2,
+    "carbs": 8.1,
+    "fats": 0.1
+  },
+  {
+    "id": "usda-172179",
+    "name": "Queijo cottage",
+    "cat": "dairy",
+    "kcal": 98,
+    "protein": 11.1,
+    "carbs": 3.4,
+    "fats": 4.3
+  },
+  {
+    "id": "usda-173180",
+    "name": "Proteína whey",
+    "cat": "protein",
+    "kcal": 352,
+    "protein": 78.1,
+    "carbs": 6.3,
+    "fats": 1.6
+  },
+  {
+    "id": "usda-172475",
+    "name": "Tofu",
+    "cat": "protein",
+    "kcal": 144,
+    "protein": 17.3,
+    "carbs": 2.8,
+    "fats": 8.7
+  },
+  {
+    "id": "usda-172467",
+    "name": "Tempeh",
+    "cat": "protein",
+    "kcal": 195,
+    "protein": 19.9,
+    "carbs": 7.6,
+    "fats": 11.4
+  },
+  {
+    "id": "usda-172684",
+    "name": "Pão de centeio",
+    "cat": "carbs",
+    "kcal": 259,
+    "protein": 8.5,
+    "carbs": 48.3,
+    "fats": 3.3
+  },
+  {
+    "id": "usda-168484",
+    "name": "Batata doce",
+    "cat": "carbs",
+    "kcal": 76,
+    "protein": 1.4,
+    "carbs": 17.7,
+    "fats": 0.1
+  },
+  {
+    "id": "usda-169732",
+    "name": "Noodles",
+    "cat": "carbs",
+    "kcal": 138,
+    "protein": 4.5,
+    "carbs": 25.2,
+    "fats": 2.1
+  },
+  {
+    "id": "usda-170554",
+    "name": "Sementes de chia",
+    "cat": "fats",
+    "kcal": 486,
+    "protein": 16.5,
+    "carbs": 42.1,
+    "fats": 30.7
+  },
+  {
+    "id": "usda-170562",
+    "name": "Sementes de girassol",
+    "cat": "fats",
+    "kcal": 584,
+    "protein": 20.8,
+    "carbs": 20,
+    "fats": 51.5
+  },
+  {
+    "id": "usda-169251",
+    "name": "Cogumelos",
+    "cat": "veg",
+    "kcal": 22,
+    "protein": 3.1,
+    "carbs": 3.3,
+    "fats": 0.3
+  },
+  {
+    "id": "usda-2685577",
+    "name": "Beringela",
+    "cat": "veg",
+    "kcal": 26,
+    "protein": 0.9,
+    "carbs": 5.4,
+    "fats": 0.1
+  },
+  {
+    "id": "usda-2685573",
+    "name": "Couve-flor",
+    "cat": "veg",
+    "kcal": 28,
+    "protein": 1.6,
+    "carbs": 4.7,
+    "fats": 0.2
+  },
+  {
+    "id": "usda-168448",
+    "name": "Abóbora",
+    "cat": "veg",
+    "kcal": 26,
+    "protein": 1,
+    "carbs": 6.5,
+    "fats": 0.1
+  },
+  {
+    "id": "usda-169124",
+    "name": "Ananás",
+    "cat": "fruit",
+    "kcal": 50,
+    "protein": 0.5,
+    "carbs": 13.1,
+    "fats": 0.1
+  },
+  {
+    "id": "usda-327046",
+    "name": "Kiwi",
+    "cat": "fruit",
+    "kcal": 58,
+    "protein": 1.1,
+    "carbs": 14,
+    "fats": 0.4
+  },
+  {
+    "id": "usda-2346411",
+    "name": "Mirtilos",
+    "cat": "fruit",
+    "kcal": 64,
+    "protein": 0.7,
+    "carbs": 14.6,
+    "fats": 0.3
+  },
+  {
+    "id": "usda-2346410",
+    "name": "Framboesas",
+    "cat": "fruit",
+    "kcal": 57,
+    "protein": 1,
+    "carbs": 12.9,
+    "fats": 0.2
+  },
+  {
+    "id": "usda-175057",
+    "name": "Bolachas de água e sal",
+    "cat": "snacks",
+    "kcal": 434,
+    "protein": 9.2,
+    "carbs": 71.5,
+    "fats": 11.8
+  },
+  {
+    "id": "usda-170369",
+    "name": "Pizza Hut pizza",
+    "cat": "fastfood",
+    "kcal": 333,
+    "protein": 14.1,
+    "carbs": 32.7,
+    "fats": 16.2
+  },
+  {
+    "id": "usda-170728",
+    "name": "Burger King Whopper",
+    "cat": "fastfood",
+    "kcal": 250,
+    "protein": 11.2,
+    "carbs": 16.7,
+    "fats": 15.3
+  },
+  {
+    "id": "usda-168068",
+    "name": "Feijoada",
+    "cat": "protein",
+    "kcal": 103,
+    "protein": 5.1,
+    "carbs": 14.8,
+    "fats": 2.6
+  },
+  {
+    "id": "usda-167821",
+    "name": "Carne de porco",
+    "cat": "protein",
+    "kcal": 248,
+    "protein": 27.1,
+    "carbs": 0,
+    "fats": 14.6
+  },
+  {
+    "id": "usda-171479",
+    "name": "Peru",
+    "cat": "protein",
+    "kcal": 189,
+    "protein": 28.6,
+    "carbs": 0.1,
+    "fats": 7.4
+  },
+  {
+    "id": "usda-168917",
+    "name": "Quinoa",
+    "cat": "carbs",
+    "kcal": 120,
+    "protein": 4.4,
+    "carbs": 21.3,
+    "fats": 1.9
+  },
+  {
+    "id": "usda-169700",
+    "name": "Cuscuz",
+    "cat": "carbs",
+    "kcal": 112,
+    "protein": 3.8,
+    "carbs": 23.2,
+    "fats": 0.2
+  },
+  {
+    "id": "usda-174916",
+    "name": "Pão de mistura",
+    "cat": "carbs",
+    "kcal": 262,
+    "protein": 9.8,
+    "carbs": 55.9,
+    "fats": 1.7
+  },
+  {
+    "id": "usda-170556",
+    "name": "Sementes de abóbora",
+    "cat": "fats",
+    "kcal": 559,
+    "protein": 30.2,
+    "carbs": 10.7,
+    "fats": 49
+  },
+  {
+    "id": "usda-330458",
+    "name": "Óleo de coco",
+    "cat": "fats",
+    "kcal": 833,
+    "protein": 0,
+    "carbs": 0.8,
+    "fats": 99.1
+  }
+]

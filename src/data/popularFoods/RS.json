@@ -1,0 +1,902 @@
+[
+  {
+    "id": "usda-170710",
+    "name": "Pljeskavica",
+    "cat": "fastfood",
+    "kcal": 256,
+    "protein": 15.7,
+    "carbs": 22.1,
+    "fats": 11.6
+  },
+  {
+    "id": "usda-174032",
+    "name": "Ćevapi",
+    "cat": "protein",
+    "kcal": 250,
+    "protein": 25.9,
+    "carbs": 0,
+    "fats": 15.4
+  },
+  {
+    "id": "usda-171891",
+    "name": "Kafa (domaća)",
+    "cat": "drinks",
+    "kcal": 9,
+    "protein": 0.1,
+    "carbs": 1.7,
+    "fats": 0.2
+  },
+  {
+    "id": "usda-2259793",
+    "name": "Jogurt",
+    "cat": "dairy",
+    "kcal": 78,
+    "protein": 3.8,
+    "carbs": 5.6,
+    "fats": 4.5
+  },
+  {
+    "id": "usda-325871",
+    "name": "Hleb beli",
+    "cat": "carbs",
+    "kcal": 270,
+    "protein": 9.4,
+    "carbs": 49.2,
+    "fats": 3.6
+  },
+  {
+    "id": "usda-171257",
+    "name": "Kajmak",
+    "cat": "dairy",
+    "kcal": 198,
+    "protein": 2.4,
+    "carbs": 4.6,
+    "fats": 19.4
+  },
+  {
+    "id": "usda-168746",
+    "name": "Pivo",
+    "cat": "drinks",
+    "kcal": 43,
+    "protein": 0.5,
+    "carbs": 3.6,
+    "fats": 0
+  },
+  {
+    "id": "usda-171919",
+    "name": "Rakija",
+    "cat": "drinks",
+    "kcal": 250,
+    "protein": 0,
+    "carbs": 0.1,
+    "fats": 0
+  },
+  {
+    "id": "usda-167825",
+    "name": "Svinjski vrat",
+    "cat": "protein",
+    "kcal": 254,
+    "protein": 24.3,
+    "carbs": 0,
+    "fats": 16.7
+  },
+  {
+    "id": "usda-170093",
+    "name": "Krompir pečen",
+    "cat": "carbs",
+    "kcal": 93,
+    "protein": 2.5,
+    "carbs": 21.2,
+    "fats": 0.1
+  },
+  {
+    "id": "usda-173420",
+    "name": "Sir feta",
+    "cat": "dairy",
+    "kcal": 265,
+    "protein": 14.2,
+    "carbs": 3.9,
+    "fats": 21.5
+  },
+  {
+    "id": "usda-170457",
+    "name": "Paradajz",
+    "cat": "veg",
+    "kcal": 18,
+    "protein": 0.9,
+    "carbs": 3.9,
+    "fats": 0.2
+  },
+  {
+    "id": "usda-2346406",
+    "name": "Krastavac",
+    "cat": "veg",
+    "kcal": 16,
+    "protein": 0.6,
+    "carbs": 3,
+    "fats": 0.2
+  },
+  {
+    "id": "usda-172718",
+    "name": "Plazma keks",
+    "cat": "snacks",
+    "kcal": 464,
+    "protein": 5.2,
+    "carbs": 71,
+    "fats": 19.1
+  },
+  {
+    "id": "usda-170317",
+    "name": "Pizza Margherita",
+    "cat": "fastfood",
+    "kcal": 268,
+    "protein": 10.4,
+    "carbs": 29,
+    "fats": 12.3
+  },
+  {
+    "id": "usda-746780",
+    "name": "Kobasica roštiljska",
+    "cat": "protein",
+    "kcal": 322,
+    "protein": 18.2,
+    "carbs": 2.2,
+    "fats": 26.2
+  },
+  {
+    "id": "usda-173731",
+    "name": "Pasulj prebranac",
+    "cat": "carbs",
+    "kcal": 155,
+    "protein": 5.5,
+    "carbs": 21.6,
+    "fats": 5.2
+  },
+  {
+    "id": "usda-169279",
+    "name": "Kiseo kupus",
+    "cat": "veg",
+    "kcal": 19,
+    "protein": 0.9,
+    "carbs": 4.3,
+    "fats": 0.1
+  },
+  {
+    "id": "usda-173423",
+    "name": "Jaja pržena",
+    "cat": "protein",
+    "kcal": 196,
+    "protein": 13.6,
+    "carbs": 0.8,
+    "fats": 14.8
+  },
+  {
+    "id": "usda-171016",
+    "name": "Suncokretovo ulje",
+    "cat": "fats",
+    "kcal": 884,
+    "protein": 0,
+    "carbs": 0,
+    "fats": 100
+  },
+  {
+    "id": "usda-171689",
+    "name": "Jabuke",
+    "cat": "fruit",
+    "kcal": 48,
+    "protein": 0.3,
+    "carbs": 12.8,
+    "fats": 0.1
+  },
+  {
+    "id": "usda-172430",
+    "name": "Kikiriki",
+    "cat": "fats",
+    "kcal": 567,
+    "protein": 25.8,
+    "carbs": 16.1,
+    "fats": 49.2
+  },
+  {
+    "id": "usda-167587",
+    "name": "Čokolada mlečna",
+    "cat": "snacks",
+    "kcal": 535,
+    "protein": 7.7,
+    "carbs": 59.4,
+    "fats": 29.7
+  },
+  {
+    "id": "usda-170720",
+    "name": "McDonald's Big Mac",
+    "cat": "fastfood",
+    "kcal": 257,
+    "protein": 11.8,
+    "carbs": 20.1,
+    "fats": 15
+  },
+  {
+    "id": "usda-170348",
+    "name": "KFC Crispy Strips",
+    "cat": "fastfood",
+    "kcal": 268,
+    "protein": 21.2,
+    "carbs": 8.5,
+    "fats": 16.6
+  },
+  {
+    "id": "usda-171477",
+    "name": "Piletina belo meso",
+    "cat": "protein",
+    "kcal": 165,
+    "protein": 31,
+    "carbs": 0,
+    "fats": 3.6
+  },
+  {
+    "id": "usda-168878",
+    "name": "Pirinač kuvani",
+    "cat": "carbs",
+    "kcal": 130,
+    "protein": 2.7,
+    "carbs": 28.2,
+    "fats": 0.3
+  },
+  {
+    "id": "usda-169737",
+    "name": "Špagete",
+    "cat": "carbs",
+    "kcal": 158,
+    "protein": 5.8,
+    "carbs": 30.9,
+    "fats": 0.9
+  },
+  {
+    "id": "usda-168600",
+    "name": "Orašasti plodovi mix",
+    "cat": "fats",
+    "kcal": 607,
+    "protein": 20,
+    "carbs": 21,
+    "fats": 54
+  },
+  {
+    "id": "usda-171705",
+    "name": "Avokado",
+    "cat": "fats",
+    "kcal": 160,
+    "protein": 2,
+    "carbs": 8.5,
+    "fats": 14.7
+  },
+  {
+    "id": "usda-169096",
+    "name": "Masline",
+    "cat": "fats",
+    "kcal": 145,
+    "protein": 1,
+    "carbs": 3.8,
+    "fats": 15.3
+  },
+  {
+    "id": "usda-170393",
+    "name": "Šargarepa",
+    "cat": "veg",
+    "kcal": 41,
+    "protein": 0.9,
+    "carbs": 9.6,
+    "fats": 0.2
+  },
+  {
+    "id": "usda-170000",
+    "name": "Luk crni",
+    "cat": "veg",
+    "kcal": 40,
+    "protein": 1.1,
+    "carbs": 9.3,
+    "fats": 0.1
+  },
+  {
+    "id": "usda-1104647",
+    "name": "Beli luk",
+    "cat": "veg",
+    "kcal": 143,
+    "protein": 6.6,
+    "carbs": 28.2,
+    "fats": 0.4
+  },
+  {
+    "id": "usda-170427",
+    "name": "Paprika sveža",
+    "cat": "veg",
+    "kcal": 20,
+    "protein": 0.9,
+    "carbs": 4.6,
+    "fats": 0.2
+  },
+  {
+    "id": "usda-173944",
+    "name": "Banane",
+    "cat": "fruit",
+    "kcal": 89,
+    "protein": 1.1,
+    "carbs": 22.8,
+    "fats": 0.3
+  },
+  {
+    "id": "usda-169949",
+    "name": "Šljive",
+    "cat": "fruit",
+    "kcal": 46,
+    "protein": 0.7,
+    "carbs": 11.4,
+    "fats": 0.3
+  },
+  {
+    "id": "usda-174683",
+    "name": "Grožđe",
+    "cat": "fruit",
+    "kcal": 69,
+    "protein": 0.7,
+    "carbs": 18.1,
+    "fats": 0.2
+  },
+  {
+    "id": "usda-168162",
+    "name": "Suve šljive",
+    "cat": "fruit",
+    "kcal": 240,
+    "protein": 2.2,
+    "carbs": 63.9,
+    "fats": 0.4
+  },
+  {
+    "id": "usda-746778",
+    "name": "Mleko 2.8% mm",
+    "cat": "dairy",
+    "kcal": 50,
+    "protein": 3.4,
+    "carbs": 4.9,
+    "fats": 1.9
+  },
+  {
+    "id": "usda-173417",
+    "name": "Sir mladi",
+    "cat": "dairy",
+    "kcal": 72,
+    "protein": 12.4,
+    "carbs": 2.7,
+    "fats": 1
+  },
+  {
+    "id": "usda-328637",
+    "name": "Kačkavalj",
+    "cat": "dairy",
+    "kcal": 408,
+    "protein": 23.3,
+    "carbs": 2.4,
+    "fats": 34
+  },
+  {
+    "id": "usda-169677",
+    "name": "Čips",
+    "cat": "snacks",
+    "kcal": 532,
+    "protein": 6.4,
+    "carbs": 53.8,
+    "fats": 34
+  },
+  {
+    "id": "usda-167949",
+    "name": "Smoki",
+    "cat": "snacks",
+    "kcal": 567,
+    "protein": 5.5,
+    "carbs": 54.5,
+    "fats": 36.5
+  },
+  {
+    "id": "usda-172717",
+    "name": "Keks sa čokoladom",
+    "cat": "snacks",
+    "kcal": 444,
+    "protein": 3.6,
+    "carbs": 65.8,
+    "fats": 19.8
+  },
+  {
+    "id": "usda-174158",
+    "name": "Voda",
+    "cat": "drinks",
+    "kcal": 0,
+    "protein": 0,
+    "carbs": 0,
+    "fats": 0
+  },
+  {
+    "id": "usda-174852",
+    "name": "Gazirani sok",
+    "cat": "drinks",
+    "kcal": 42,
+    "protein": 0,
+    "carbs": 10.4,
+    "fats": 0.3
+  },
+  {
+    "id": "usda-171946",
+    "name": "Čaj crni",
+    "cat": "drinks",
+    "kcal": 0,
+    "protein": 0,
+    "carbs": 0,
+    "fats": 0
+  },
+  {
+    "id": "usda-170698",
+    "name": "Pomfrit",
+    "cat": "fastfood",
+    "kcal": 312,
+    "protein": 3.4,
+    "carbs": 41.4,
+    "fats": 14.7
+  },
+  {
+    "id": "usda-170298",
+    "name": "Subway sendvič",
+    "cat": "fastfood",
+    "kcal": 156,
+    "protein": 12.2,
+    "carbs": 20.3,
+    "fats": 2.7
+  },
+  {
+    "id": "usda-172096",
+    "name": "Domino's Pizza",
+    "cat": "fastfood",
+    "kcal": 274,
+    "protein": 14.4,
+    "carbs": 24.7,
+    "fats": 13.1
+  },
+  {
+    "id": "usda-173708",
+    "name": "Tuna konzerva",
+    "cat": "protein",
+    "kcal": 198,
+    "protein": 29.1,
+    "carbs": 0,
+    "fats": 8.2
+  },
+  {
+    "id": "usda-172421",
+    "name": "Sočivo",
+    "cat": "protein",
+    "kcal": 116,
+    "protein": 9,
+    "carbs": 20.1,
+    "fats": 0.4
+  },
+  {
+    "id": "usda-175194",
+    "name": "Pasulj kuvani",
+    "cat": "protein",
+    "kcal": 127,
+    "protein": 8.7,
+    "carbs": 22.8,
+    "fats": 0.5
+  },
+  {
+    "id": "usda-173905",
+    "name": "Ovsene pahuljice",
+    "cat": "carbs",
+    "kcal": 71,
+    "protein": 2.5,
+    "carbs": 12,
+    "fats": 1.5
+  },
+  {
+    "id": "usda-172684",
+    "name": "Hleb ražani",
+    "cat": "carbs",
+    "kcal": 259,
+    "protein": 8.5,
+    "carbs": 48.3,
+    "fats": 3.3
+  },
+  {
+    "id": "usda-175037",
+    "name": "Tortilja",
+    "cat": "carbs",
+    "kcal": 306,
+    "protein": 8.2,
+    "carbs": 49.4,
+    "fats": 8
+  },
+  {
+    "id": "usda-170556",
+    "name": "Seme bundeve",
+    "cat": "fats",
+    "kcal": 559,
+    "protein": 30.2,
+    "carbs": 10.7,
+    "fats": 49
+  },
+  {
+    "id": "usda-170562",
+    "name": "Seme suncokreta",
+    "cat": "fats",
+    "kcal": 584,
+    "protein": 20.8,
+    "carbs": 20,
+    "fats": 51.5
+  },
+  {
+    "id": "usda-173410",
+    "name": "Maslac",
+    "cat": "fats",
+    "kcal": 717,
+    "protein": 0.9,
+    "carbs": 0.1,
+    "fats": 81.1
+  },
+  {
+    "id": "usda-169291",
+    "name": "Tikvice",
+    "cat": "veg",
+    "kcal": 17,
+    "protein": 1.2,
+    "carbs": 3.1,
+    "fats": 0.3
+  },
+  {
+    "id": "usda-169975",
+    "name": "Kupus salata",
+    "cat": "veg",
+    "kcal": 25,
+    "protein": 1.3,
+    "carbs": 5.8,
+    "fats": 0.1
+  },
+  {
+    "id": "usda-2346409",
+    "name": "Jagode",
+    "cat": "fruit",
+    "kcal": 36,
+    "protein": 0.6,
+    "carbs": 8,
+    "fats": 0.2
+  },
+  {
+    "id": "usda-169118",
+    "name": "Kruške",
+    "cat": "fruit",
+    "kcal": 57,
+    "protein": 0.4,
+    "carbs": 15.2,
+    "fats": 0.1
+  },
+  {
+    "id": "usda-171286",
+    "name": "Jogurt voćni",
+    "cat": "dairy",
+    "kcal": 105,
+    "protein": 4.9,
+    "carbs": 18.6,
+    "fats": 1.4
+  },
+  {
+    "id": "usda-169674",
+    "name": "Proteinski bar",
+    "cat": "snacks",
+    "kcal": 418,
+    "protein": 5.7,
+    "carbs": 70.2,
+    "fats": 16.6
+  },
+  {
+    "id": "usda-167959",
+    "name": "Kokice",
+    "cat": "snacks",
+    "kcal": 387,
+    "protein": 12.9,
+    "carbs": 77.8,
+    "fats": 4.5
+  },
+  {
+    "id": "usda-169099",
+    "name": "Sok od pomorandže",
+    "cat": "drinks",
+    "kcal": 47,
+    "protein": 0.7,
+    "carbs": 11,
+    "fats": 0.2
+  },
+  {
+    "id": "usda-170728",
+    "name": "Burger King Whopper",
+    "cat": "fastfood",
+    "kcal": 250,
+    "protein": 11.2,
+    "carbs": 16.7,
+    "fats": 15.3
+  },
+  {
+    "id": "usda-172374",
+    "name": "KFC pileći batak",
+    "cat": "fastfood",
+    "kcal": 268,
+    "protein": 22,
+    "carbs": 8.3,
+    "fats": 15.8
+  },
+  {
+    "id": "usda-171797",
+    "name": "Govedina",
+    "cat": "protein",
+    "kcal": 270,
+    "protein": 25.8,
+    "carbs": 0,
+    "fats": 17.8
+  },
+  {
+    "id": "usda-171479",
+    "name": "Ćuretina",
+    "cat": "protein",
+    "kcal": 189,
+    "protein": 28.6,
+    "carbs": 0.1,
+    "fats": 7.4
+  },
+  {
+    "id": "usda-173718",
+    "name": "Pastrmka",
+    "cat": "protein",
+    "kcal": 168,
+    "protein": 23.8,
+    "carbs": 0,
+    "fats": 7.4
+  },
+  {
+    "id": "usda-172475",
+    "name": "Tofu",
+    "cat": "protein",
+    "kcal": 144,
+    "protein": 17.3,
+    "carbs": 2.8,
+    "fats": 8.7
+  },
+  {
+    "id": "usda-168917",
+    "name": "Kinoa",
+    "cat": "carbs",
+    "kcal": 120,
+    "protein": 4.4,
+    "carbs": 21.3,
+    "fats": 1.9
+  },
+  {
+    "id": "usda-168525",
+    "name": "Kukuruz",
+    "cat": "carbs",
+    "kcal": 96,
+    "protein": 3.4,
+    "carbs": 21,
+    "fats": 1.5
+  },
+  {
+    "id": "usda-170686",
+    "name": "Heljda",
+    "cat": "carbs",
+    "kcal": 92,
+    "protein": 3.4,
+    "carbs": 19.9,
+    "fats": 0.6
+  },
+  {
+    "id": "usda-323294",
+    "name": "Badem",
+    "cat": "fats",
+    "kcal": 620,
+    "protein": 20.4,
+    "carbs": 16.2,
+    "fats": 57.8
+  },
+  {
+    "id": "usda-170187",
+    "name": "Orasi",
+    "cat": "fats",
+    "kcal": 654,
+    "protein": 15.2,
+    "carbs": 13.7,
+    "fats": 65.2
+  },
+  {
+    "id": "usda-170150",
+    "name": "Susam",
+    "cat": "fats",
+    "kcal": 573,
+    "protein": 17.7,
+    "carbs": 23.4,
+    "fats": 49.7
+  },
+  {
+    "id": "usda-747447",
+    "name": "Brokoli",
+    "cat": "veg",
+    "kcal": 31,
+    "protein": 2.6,
+    "carbs": 6.3,
+    "fats": 0.3
+  },
+  {
+    "id": "usda-2685573",
+    "name": "Karfiol",
+    "cat": "veg",
+    "kcal": 28,
+    "protein": 1.6,
+    "carbs": 4.7,
+    "fats": 0.2
+  },
+  {
+    "id": "usda-2685577",
+    "name": "Patlidžan",
+    "cat": "veg",
+    "kcal": 26,
+    "protein": 0.9,
+    "carbs": 5.4,
+    "fats": 0.1
+  },
+  {
+    "id": "usda-2346410",
+    "name": "Maline",
+    "cat": "fruit",
+    "kcal": 57,
+    "protein": 1,
+    "carbs": 12.9,
+    "fats": 0.2
+  },
+  {
+    "id": "usda-2346411",
+    "name": "Borovnice",
+    "cat": "fruit",
+    "kcal": 64,
+    "protein": 0.7,
+    "carbs": 14.6,
+    "fats": 0.3
+  },
+  {
+    "id": "usda-174832",
+    "name": "Mleko bademovo",
+    "cat": "dairy",
+    "kcal": 15,
+    "protein": 0.4,
+    "carbs": 1.3,
+    "fats": 1
+  },
+  {
+    "id": "usda-172470",
+    "name": "Kikiriki puter",
+    "cat": "fats",
+    "kcal": 598,
+    "protein": 22.2,
+    "carbs": 22.3,
+    "fats": 51.4
+  },
+  {
+    "id": "usda-173628",
+    "name": "KFC krilca",
+    "cat": "fastfood",
+    "kcal": 324,
+    "protein": 19.9,
+    "carbs": 10.9,
+    "fats": 21.8
+  },
+  {
+    "id": "usda-167821",
+    "name": "Svinjetina",
+    "cat": "protein",
+    "kcal": 248,
+    "protein": 27.1,
+    "carbs": 0,
+    "fats": 14.6
+  },
+  {
+    "id": "usda-171991",
+    "name": "Oslić",
+    "cat": "protein",
+    "kcal": 112,
+    "protein": 24.4,
+    "carbs": 0,
+    "fats": 0.9
+  },
+  {
+    "id": "usda-170102",
+    "name": "Grašak",
+    "cat": "carbs",
+    "kcal": 84,
+    "protein": 5.4,
+    "carbs": 15.6,
+    "fats": 0.2
+  },
+  {
+    "id": "usda-169700",
+    "name": "Kuskus",
+    "cat": "carbs",
+    "kcal": 112,
+    "protein": 3.8,
+    "carbs": 23.2,
+    "fats": 0.2
+  },
+  {
+    "id": "usda-168871",
+    "name": "Proso",
+    "cat": "carbs",
+    "kcal": 119,
+    "protein": 3.5,
+    "carbs": 23.7,
+    "fats": 1
+  },
+  {
+    "id": "usda-2515375",
+    "name": "Lešnik",
+    "cat": "fats",
+    "kcal": 641,
+    "protein": 13.5,
+    "carbs": 26.5,
+    "fats": 53.5
+  },
+  {
+    "id": "usda-171413",
+    "name": "Maslinovo ulje",
+    "cat": "fats",
+    "kcal": 884,
+    "protein": 0,
+    "carbs": 0,
+    "fats": 100
+  },
+  {
+    "id": "usda-168462",
+    "name": "Spanać",
+    "cat": "veg",
+    "kcal": 23,
+    "protein": 2.9,
+    "carbs": 3.6,
+    "fats": 0.4
+  },
+  {
+    "id": "usda-746769",
+    "name": "Zelena salata",
+    "cat": "veg",
+    "kcal": 17,
+    "protein": 1.2,
+    "carbs": 3.2,
+    "fats": 0.3
+  },
+  {
+    "id": "usda-2685576",
+    "name": "Cvekla",
+    "cat": "veg",
+    "kcal": 45,
+    "protein": 1.7,
+    "carbs": 8.8,
+    "fats": 0.3
+  },
+  {
+    "id": "usda-325430",
+    "name": "Breskve",
+    "cat": "fruit",
+    "kcal": 42,
+    "protein": 0.9,
+    "carbs": 10.1,
+    "fats": 0.3
+  },
+  {
+    "id": "usda-173954",
+    "name": "Višnje",
+    "cat": "fruit",
+    "kcal": 50,
+    "protein": 1,
+    "carbs": 12.2,
+    "fats": 0.3
+  }
+]

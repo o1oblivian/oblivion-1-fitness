@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+﻿import React, { useState, useEffect, useMemo, useRef } from 'react';
 import {
   X,
   Search,
@@ -20,7 +20,11 @@ import { ManualFoodEntryModal } from './ManualFoodEntryModal';
 import { foodMatchesDiet } from '../utils/dietFoodFilter';
 import type { MacroBudget } from '../data/mealBudget';
 import { FOOD_BROWSE_CATEGORIES, type FoodBrowseId } from '../../../../shared/foodBrowse';
-import { fetchPopularFoods } from '../../../services/popularFoodsService';
+import {
+  loadPopularFoods,
+  popularMarketFor,
+  type PopularList,
+} from '../../../services/popularFoodsService';
 
 interface AddFoodModalProps {
   /** Slot label from the fuel screen ("Snacks", "Supplements & Electrolytes"); the store maps it to a slot. */
@@ -36,9 +40,9 @@ interface AddFoodModalProps {
 const SEARCH_DEBOUNCE_MS = 400;
 const SEARCH_LIMIT = 60;
 
-/** What the list shows while nothing is typed: the person's own saved foods, or one popular category. */
-type Browse = 'mine' | FoodBrowseId;
-const DEFAULT_BROWSE: Browse = 'protein';
+/** What the list shows while nothing is typed: the country's Top 100, the person's own saved foods, or one category of the Top 100. */
+type Browse = 'top' | 'mine' | FoodBrowseId;
+const DEFAULT_BROWSE: Browse = 'top';
 
 export const AddFoodModal: React.FC<AddFoodModalProps> = ({
   category,
@@ -63,8 +67,7 @@ export const AddFoodModal: React.FC<AddFoodModalProps> = ({
   const [isManualModalOpen, setIsManualModalOpen] = useState(false);
   const abortControllerRef = useRef<AbortController | null>(null);
   const [browse, setBrowse] = useState<Browse>(DEFAULT_BROWSE);
-  const [popular, setPopular] = useState<FoodItemRecord[]>([]);
-  const [popularLoading, setPopularLoading] = useState(false);
+  const [popularList, setPopularList] = useState<PopularList | null>(null);
   const [popularError, setPopularError] = useState<string | null>(null);
   const [popularAttempt, setPopularAttempt] = useState(0);
 
@@ -95,6 +98,11 @@ export const AddFoodModal: React.FC<AddFoodModalProps> = ({
             country: countryMarket || 'AU',
             limit: SEARCH_LIMIT,
             signal: controller.signal,
+            onPartial: (partial) => {
+              if (controller.signal.aborted) return;
+              setFoods(partial.items);
+              setUnavailable(partial.unavailable);
+            },
           });
           if (controller.signal.aborted) return;
           setFoods(result.items);
@@ -119,26 +127,23 @@ export const AddFoodModal: React.FC<AddFoodModalProps> = ({
   const typed = searchQuery.trim().length > 0;
   const popularCategory = browse === 'mine' ? null : browse;
 
+  // The list is built into the app. It is read as soon as the country is known, so opening the sheet shows it at once.
   useEffect(() => {
-    if (!isOpen || typed || !popularCategory) return;
-    const controller = new AbortController();
-    setPopular([]);
+    let cancelled = false;
     setPopularError(null);
-    setPopularLoading(true);
-    fetchPopularFoods(popularCategory, countryMarket || 'AU', controller.signal)
-      .then((items) => {
-        if (!controller.signal.aborted) setPopular(items);
+    loadPopularFoods(countryMarket || 'AU')
+      .then((list) => {
+        if (!cancelled) setPopularList(list);
       })
       .catch((err: unknown) => {
-        if (controller.signal.aborted) return;
+        if (cancelled) return;
+        setPopularList(null);
         setPopularError(err instanceof Error ? err.message : 'Popular foods could not be loaded.');
-      })
-      .finally(() => {
-        if (!controller.signal.aborted) setPopularLoading(false);
       });
-    return () => controller.abort();
-  }, [isOpen, typed, popularCategory, countryMarket, popularAttempt]);
-
+    return () => {
+      cancelled = true;
+    };
+  }, [countryMarket, popularAttempt]);
   const currentCountry = useMemo(
     () =>
       COUNTRIES.find((c) => c.code === countryMarket) || {
@@ -150,15 +155,27 @@ export const AddFoodModal: React.FC<AddFoodModalProps> = ({
   );
 
   const showingPopular = !typed && popularCategory !== null;
+  const popularFoods = useMemo(() => {
+    if (!popularList) return [];
+    return browse === 'top'
+      ? popularList.foods
+      : popularList.foods.filter((f) => f.browse === browse);
+  }, [popularList, browse]);
   const visibleFoods = useMemo(
-    () => (showingPopular ? popular : foods).filter((f) => foodMatchesDiet(f, dietPreference)),
-    [showingPopular, popular, foods, dietPreference],
+    () => (showingPopular ? popularFoods : foods).filter((f) => foodMatchesDiet(f, dietPreference)),
+    [showingPopular, popularFoods, foods, dietPreference],
   );
-  const listLoading = showingPopular ? popularLoading : isLoading;
+  const listLoading = showingPopular ? popularList === null && !popularError : isLoading;
+  const usingWorldList =
+    popularMarketFor(countryMarket || 'AU') !== (countryMarket || 'AU').toUpperCase();
   const browseLabel =
     browse === 'mine'
       ? 'My foods'
-      : (FOOD_BROWSE_CATEGORIES.find((c) => c.id === browse)?.label ?? 'Popular');
+      : browse === 'top'
+        ? usingWorldList
+          ? 'Top 100 worldwide'
+          : 'Top 100'
+        : (FOOD_BROWSE_CATEGORIES.find((c) => c.id === browse)?.label ?? 'Popular');
 
   if (!isOpen) return null;
 
@@ -278,7 +295,11 @@ export const AddFoodModal: React.FC<AddFoodModalProps> = ({
           aria-label="Food categories"
           className="flex gap-1.5 overflow-x-auto no-scrollbar shrink-0 -mx-0.5 px-0.5"
         >
-          {[{ id: 'mine' as const, label: 'My foods' }, ...FOOD_BROWSE_CATEGORIES].map((chip) => {
+          {[
+            { id: 'top' as const, label: 'Top 100' },
+            { id: 'mine' as const, label: 'My foods' },
+            ...FOOD_BROWSE_CATEGORIES,
+          ].map((chip) => {
             const active = !typed && browse === chip.id;
             return (
               <button
@@ -313,9 +334,7 @@ export const AddFoodModal: React.FC<AddFoodModalProps> = ({
           {listLoading && visibleFoods.length === 0 ? (
             <div className="py-16 text-center text-o1-muted font-sans text-xs flex flex-col items-center justify-center gap-2">
               <Loader2 className="w-5 h-5 animate-spin text-o1-crimson" />
-              <span>
-                {showingPopular ? `Loading popular ${browseLabel.toLowerCase()}…` : 'Searching…'}
-              </span>
+              <span>{showingPopular ? 'Loading foods…' : 'Searching…'}</span>
             </div>
           ) : showingPopular && popularError ? (
             <div
