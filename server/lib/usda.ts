@@ -127,6 +127,21 @@ export function pickBestFood(query: string, foods: UsdaFood[]): UsdaFood | null 
 }
 
 const lookupCache = new Map<string, UsdaFood | null>();
+const brandedCache = new Map<string, UsdaFood | null>();
+
+/** The best packaged-product match for a name, for takeaway and snack items plain-food records lack. */
+export async function lookupBranded(
+  query: string,
+  apiKey: string,
+  fetchImpl?: FetchLike,
+): Promise<UsdaFood | null> {
+  const key = query.trim().toLowerCase();
+  if (brandedCache.has(key)) return brandedCache.get(key) ?? null;
+  const foods = await searchFdc(key, apiKey, { pageSize: 10, dataTypes: ['Branded'] }, fetchImpl);
+  const food = pickBestFood(key, foods);
+  brandedCache.set(key, food);
+  return food;
+}
 
 /** The single best FDC match for a plain food name, remembered for the life of the server. */
 export async function lookupPer100g(

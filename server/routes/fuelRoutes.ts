@@ -4,11 +4,13 @@ import { VERIFIED_BARCODES } from '../data/verifiedBarcodes';
 import { generateContentWithFallback, getGenAI, parseGeminiJson } from '../lib/gemini';
 import { registerLiveFoodSearch } from './liveFoodSearch';
 import { registerMealSuggestionRoute } from './mealSuggestionRoute';
+import { registerPopularFoods } from './popularFoods';
 
 /** Barcode lookup, supplement search, and the live food and meal routes registered below. */
 export function registerFuelRoutes(app: Express): void {
   registerLiveFoodSearch(app);
   registerMealSuggestionRoute(app);
+  registerPopularFoods(app);
 
   // 2. REAL BARCODE SCANNER & OPEN FOOD FACTS LOOKUP
   app.post('/api/fuel/scan-barcode', async (req, res) => {

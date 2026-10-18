@@ -19,6 +19,8 @@ import { searchFoods, FoodItemRecord } from '../../../services/foodCatalogServic
 import { ManualFoodEntryModal } from './ManualFoodEntryModal';
 import { foodMatchesDietSafe } from '../utils/dietFoodFilter';
 import type { MacroBudget } from '../data/mealBudget';
+import { FOOD_BROWSE_CATEGORIES, type FoodBrowseId } from '../../../../shared/foodBrowse';
+import { fetchPopularFoods } from '../../../services/popularFoodsService';
 
 interface AddFoodModalProps {
   /** Slot label from the fuel screen ("Snacks", "Supplements & Electrolytes"); the store maps it to a slot. */
@@ -33,6 +35,10 @@ interface AddFoodModalProps {
 /** Wait this long after the last keystroke before searching, so one search is sent per word typed. */
 const SEARCH_DEBOUNCE_MS = 400;
 const SEARCH_LIMIT = 60;
+
+/** What the list shows while nothing is typed: the person's own saved foods, or one popular category. */
+type Browse = 'mine' | FoodBrowseId;
+const DEFAULT_BROWSE: Browse = 'protein';
 
 export const AddFoodModal: React.FC<AddFoodModalProps> = ({
   category,
@@ -56,10 +62,16 @@ export const AddFoodModal: React.FC<AddFoodModalProps> = ({
   const [isCountryModalOpen, setIsCountryModalOpen] = useState(false);
   const [isManualModalOpen, setIsManualModalOpen] = useState(false);
   const abortControllerRef = useRef<AbortController | null>(null);
+  const [browse, setBrowse] = useState<Browse>(DEFAULT_BROWSE);
+  const [popular, setPopular] = useState<FoodItemRecord[]>([]);
+  const [popularLoading, setPopularLoading] = useState(false);
+  const [popularError, setPopularError] = useState<string | null>(null);
+  const [popularAttempt, setPopularAttempt] = useState(0);
 
   useEffect(() => {
     if (isOpen) {
       setSearchQuery('');
+      setBrowse(DEFAULT_BROWSE);
       setSelectedFood(null);
       setIsDialModalOpen(false);
       setIsCountryModalOpen(false);
@@ -104,6 +116,29 @@ export const AddFoodModal: React.FC<AddFoodModalProps> = ({
     };
   }, [isOpen, searchQuery, countryMarket]);
 
+  const typed = searchQuery.trim().length > 0;
+  const popularCategory = browse === 'mine' ? null : browse;
+
+  useEffect(() => {
+    if (!isOpen || typed || !popularCategory) return;
+    const controller = new AbortController();
+    setPopular([]);
+    setPopularError(null);
+    setPopularLoading(true);
+    fetchPopularFoods(popularCategory, countryMarket || 'AU', controller.signal)
+      .then((items) => {
+        if (!controller.signal.aborted) setPopular(items);
+      })
+      .catch((err: unknown) => {
+        if (controller.signal.aborted) return;
+        setPopularError(err instanceof Error ? err.message : 'Popular foods could not be loaded.');
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setPopularLoading(false);
+      });
+    return () => controller.abort();
+  }, [isOpen, typed, popularCategory, countryMarket, popularAttempt]);
+
   const currentCountry = useMemo(
     () =>
       COUNTRIES.find((c) => c.code === countryMarket) || {
@@ -114,10 +149,19 @@ export const AddFoodModal: React.FC<AddFoodModalProps> = ({
     [countryMarket],
   );
 
+  const showingPopular = !typed && popularCategory !== null;
   const visibleFoods = useMemo(
-    () => foods.filter((f) => foodMatchesDietSafe(f.name, f.brand || '', dietPreference)),
-    [foods, dietPreference],
+    () =>
+      (showingPopular ? popular : foods).filter((f) =>
+        foodMatchesDietSafe(f.name, f.brand || '', dietPreference),
+      ),
+    [showingPopular, popular, foods, dietPreference],
   );
+  const listLoading = showingPopular ? popularLoading : isLoading;
+  const browseLabel =
+    browse === 'mine'
+      ? 'My foods'
+      : (FOOD_BROWSE_CATEGORIES.find((c) => c.id === browse)?.label ?? 'Popular');
 
   if (!isOpen) return null;
 
@@ -164,7 +208,11 @@ export const AddFoodModal: React.FC<AddFoodModalProps> = ({
     onClose();
   };
 
-  const typed = searchQuery.trim().length > 0;
+  const chooseBrowse = (next: Browse) => {
+    tactileEngine.triggerSelectionBuzz();
+    setSearchQuery('');
+    setBrowse(next);
+  };
 
   return (
     <div className="fixed inset-0 z-50 bg-black/70 o1-sheet-scrim flex items-center justify-center animate-in fade-in duration-150 select-none">
@@ -179,7 +227,7 @@ export const AddFoodModal: React.FC<AddFoodModalProps> = ({
                 Add To {category}
               </h3>
               <p className="text-o1-label text-o1-muted font-sans flex items-center gap-1.5 truncate mt-0.5">
-                <span className="truncate">{typed ? 'Live search' : 'My foods'}</span>
+                <span className="truncate">{typed ? 'Live search' : browseLabel}</span>
                 <span className="text-white/20">·</span>
                 <span className="truncate">{dietPreference}</span>
               </p>
@@ -222,23 +270,36 @@ export const AddFoodModal: React.FC<AddFoodModalProps> = ({
               placeholder="Search any food, brand or restaurant"
               className="w-full h-11 pl-10 pr-10 rounded-2xl bg-o1-surface border border-white/[0.08] text-xs font-sans text-o1-text placeholder-o1-muted focus:outline-none focus:border-o1-crimson"
             />
-            {isLoading && (
+            {listLoading && (
               <Loader2 className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 animate-spin text-o1-crimson" />
             )}
           </div>
+        </div>
 
-          <button
-            type="button"
-            onClick={() => {
-              tactileEngine.triggerSelectionBuzz();
-              setIsManualModalOpen(true);
-            }}
-            title="Add a food with your own numbers"
-            aria-label="Add custom food with weight"
-            className="w-11 h-11 rounded-2xl bg-red-950/40 hover:bg-red-900/60 border border-red-900/60 text-o1-crimson flex items-center justify-center shrink-0 transition-all active:scale-95 cursor-pointer"
-          >
-            <Plus className="w-5 h-5 stroke-[2.5]" />
-          </button>
+        <div
+          role="tablist"
+          aria-label="Food categories"
+          className="flex gap-1.5 overflow-x-auto no-scrollbar shrink-0 -mx-0.5 px-0.5"
+        >
+          {[{ id: 'mine' as const, label: 'My foods' }, ...FOOD_BROWSE_CATEGORIES].map((chip) => {
+            const active = !typed && browse === chip.id;
+            return (
+              <button
+                key={chip.id}
+                type="button"
+                role="tab"
+                aria-selected={active}
+                onClick={() => chooseBrowse(chip.id)}
+                className={`shrink-0 h-8 px-3 rounded-full border text-xs font-sans font-semibold transition-colors cursor-pointer active:scale-95 ${
+                  active
+                    ? 'bg-o1-crimson border-o1-crimson text-o1-text'
+                    : 'bg-o1-surface border-white/[0.08] text-o1-muted hover:text-o1-text'
+                }`}
+              >
+                {chip.label}
+              </button>
+            );
+          })}
         </div>
 
         {unavailable.length > 0 && typed ? (
@@ -252,10 +313,27 @@ export const AddFoodModal: React.FC<AddFoodModalProps> = ({
         ) : null}
 
         <div className="overflow-y-auto space-y-2 pr-1 flex-1">
-          {isLoading && visibleFoods.length === 0 ? (
+          {listLoading && visibleFoods.length === 0 ? (
             <div className="py-16 text-center text-o1-muted font-sans text-xs flex flex-col items-center justify-center gap-2">
               <Loader2 className="w-5 h-5 animate-spin text-o1-crimson" />
-              <span>Searching…</span>
+              <span>
+                {showingPopular ? `Loading popular ${browseLabel.toLowerCase()}…` : 'Searching…'}
+              </span>
+            </div>
+          ) : showingPopular && popularError ? (
+            <div
+              role="alert"
+              className="py-12 px-4 text-center text-o1-muted font-sans text-xs flex flex-col items-center justify-center gap-3"
+            >
+              <WifiOff className="w-6 h-6 text-o1-muted/50" />
+              <span>{popularError}</span>
+              <button
+                type="button"
+                onClick={() => setPopularAttempt((count) => count + 1)}
+                className="px-4 py-2 rounded-xl bg-o1-surface border border-white/[0.08] text-o1-text font-bold cursor-pointer active:scale-95"
+              >
+                Try again
+              </button>
             </div>
           ) : visibleFoods.length === 0 ? (
             <div className="py-16 px-4 text-center text-o1-muted font-sans text-xs flex flex-col items-center justify-center gap-2">
@@ -265,10 +343,14 @@ export const AddFoodModal: React.FC<AddFoodModalProps> = ({
                   No {dietPreference} match for &quot;{searchQuery.trim()}&quot;. Try another name
                   or add your own food.
                 </span>
+              ) : showingPopular ? (
+                <span>No {dietPreference} foods in this category. Search for one instead.</span>
               ) : (
                 <>
-                  <span>Search any food, brand or restaurant.</span>
-                  <span className="text-o1-label">Foods you save yourself appear here.</span>
+                  <span>You have not saved any foods yet.</span>
+                  <span className="text-o1-label">
+                    Use Custom Food Item below to save one with your own numbers.
+                  </span>
                 </>
               )}
             </div>
@@ -298,11 +380,6 @@ export const AddFoodModal: React.FC<AddFoodModalProps> = ({
                       {food.source === 'openfoodfacts' && (
                         <span className="px-1.5 py-0.5 rounded-md bg-transparent text-sky-600 text-o1-label tabular-nums font-bold shrink-0 border border-sky-600/40">
                           Live
-                        </span>
-                      )}
-                      {food.source === 'usda' && (
-                        <span className="px-1.5 py-0.5 rounded-md bg-o1-warn-wash text-amber-500 text-o1-label tabular-nums font-bold shrink-0 border border-amber-900/50">
-                          Usda
                         </span>
                       )}
                     </div>

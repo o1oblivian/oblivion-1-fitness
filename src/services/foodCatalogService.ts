@@ -10,7 +10,7 @@ export type { FoodItemRecord };
 const SEARCH_TIMEOUT_MS = 12_000;
 
 /** Row shape returned by `/api/fuel/live-food-search`. Numbers are for 100 g. */
-interface LiveFoodRow {
+export interface LiveFoodRow {
   id: string;
   name: string;
   brand?: string;
@@ -37,7 +37,7 @@ export interface FoodSearchParams {
   signal?: AbortSignal;
 }
 
-function liveRowToRecord(row: LiveFoodRow, country: string): FoodItemRecord {
+export function liveRowToRecord(row: LiveFoodRow, country: string): FoodItemRecord {
   return {
     id: row.id,
     name: row.name,

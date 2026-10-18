@@ -2,7 +2,7 @@ import type { Express } from 'express';
 import { searchFdc } from '../lib/usda';
 
 /** One food as the app receives it. All numbers are for 100 g, so the portion dial can scale them directly. */
-interface FoodRow {
+export interface FoodRow {
   id: string;
   name: string;
   brand: string;
