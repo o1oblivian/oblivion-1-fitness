@@ -34,15 +34,7 @@ export const FuelIntakeSlotCard: React.FC<FuelIntakeSlotCardProps> = ({
   onOpenAddFoodModal,
   onOpenScanModal,
 }) => {
-  const total = items.reduce(
-    (acc, it) => ({
-      calories: acc.calories + (Number(it.calories) || 0),
-      protein: acc.protein + (Number(it.protein) || 0),
-      carbs: acc.carbs + (Number(it.carbs) || 0),
-      fats: acc.fats + (Number(it.fats) || 0),
-    }),
-    { calories: 0, protein: 0, carbs: 0, fats: 0 },
-  );
+  const totalKcal = items.reduce((sum, it) => sum + (Number(it.calories) || 0), 0);
   const hasItems = items.length > 0;
   const note = SLOT_NOTE[slot.key];
   const subtitle =
@@ -70,18 +62,9 @@ export const FuelIntakeSlotCard: React.FC<FuelIntakeSlotCardProps> = ({
         </div>
         <div className="text-right shrink-0 tabular-nums">
           <span className="o1-unread block text-sm font-semibold text-black">
-            {hasItems ? Math.round(total.calories).toLocaleString() : '--'}{' '}
+            {hasItems ? Math.round(totalKcal).toLocaleString() : '--'}{' '}
             <span className="text-o1-label font-normal text-black/60">kcal</span>
           </span>
-          {hasItems && (
-            <span className="block text-o1-label font-semibold">
-              <span className="text-o1-crimson">{g(total.protein)}P</span>
-              <span className="text-black/40"> · </span>
-              <span className="text-amber-700">{g(total.carbs)}C</span>
-              <span className="text-black/40"> · </span>
-              <span className="text-emerald-700">{g(total.fats)}F</span>
-            </span>
-          )}
         </div>
       </div>
 
