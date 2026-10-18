@@ -250,8 +250,7 @@ describe('web checkout', () => {
     });
   });
 
-  it('never offers the preview package as a real product', () => {
+  it('never offers a plan the store does not list', () => {
     expect(revenueCatService.packageForPlan({ packages: [] }, 'o1fc_pro_monthly')).toBeNull();
-    expect(revenueCatService.listPackages({ packages: [] })[0]?.isFallback).toBe(true);
   });
 });

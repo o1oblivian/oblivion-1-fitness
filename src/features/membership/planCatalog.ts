@@ -1,6 +1,4 @@
-import { useEffect, useState } from 'react';
 import { IAP_PRODUCTS, IAPProductInfo } from '../../types/iap';
-import { revenueCatService } from '../../services/revenueCatService';
 import type { MembershipTier } from '../induction/consultationTypes';
 
 export interface PlanCopy {
@@ -73,33 +71,3 @@ export const TIER_PLANS: Record<MembershipTier, PlanCopy> = {
     renews: true,
   },
 };
-
-/** Live store prices keyed by product id; falls back to the catalog price when the store has none. */
-export function useStorePrices(): (product: IAPProductInfo) => string {
-  const [live, setLive] = useState<Record<string, string>>({});
-
-  useEffect(() => {
-    let cancelled = false;
-    revenueCatService
-      .getOfferings()
-      .then((offerings) => {
-        if (cancelled) return;
-        const next: Record<string, string> = {};
-        Object.values(IAP_PRODUCTS).forEach((product) => {
-          if (product.isFree) return;
-          const pkg = revenueCatService.packageForPlan(offerings, product.productId);
-          const price = pkg?.product?.priceString;
-          if (typeof price === 'string' && price) next[product.productId] = price;
-        });
-        setLive(next);
-      })
-      .catch(() => {
-        /* catalog prices stay */
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  return (product) => live[product.productId] || product.price;
-}

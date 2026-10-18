@@ -1,6 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { CheckCircle2, Loader2, X } from 'lucide-react';
 import { MainAppLayout } from './MainAppLayout';
+import { BootSplash } from './components/common/BootSplash';
+import { useSessionGate } from './hooks/useSessionGate';
 import { lockDarkTheme } from './utils/lockDarkTheme';
 import { useAuthStore } from './stores/useAuthStore';
 import { initMidnightRolloverListener } from './utils/midnightRollover';
@@ -13,6 +15,7 @@ import { InductionProtocol } from './features/induction/InductionProtocol';
 import { useConsultationStore } from './features/induction/useConsultationStore';
 import { revenueCatService } from './services/revenueCatService';
 import { tactileEngine } from './services/tactileEngine';
+import { supabase } from './services/supabaseClient';
 import { safeStorage } from './utils/safeStorage';
 import { Capacitor } from '@capacitor/core';
 import { applyAuthCallbackUrl } from './services/oauthDeepLink';
@@ -29,23 +32,47 @@ function onboardingCompleted(): boolean {
 }
 
 export default function App() {
-  const [showOnboarding, setShowOnboarding] = useState(() => {
-    const hasAuth = Boolean(safeStorage.getItem('o1fc_user_id'));
-    return !onboardingCompleted() || !hasAuth;
-  });
+  const gate = useSessionGate();
+  const [showOnboarding, setShowOnboarding] = useState(() => !onboardingCompleted());
+  const [authEpoch, setAuthEpoch] = useState(0);
+  const wasSignedIn = useRef(false);
   const [onboardingReplay, setOnboardingReplay] = useState(false);
   const [signingOut, setSigningOut] = useState(false);
   const [membershipSuccessBanner, setMembershipSuccessBanner] = useState(false);
   const consultationLocked = useConsultationStore((state) => state.locked);
+  const onboardingOpen = gate === 'out' || (gate === 'in' && showOnboarding);
+
+  // Nobody reaches the app without a Supabase session: no session means Sign In, before anything else.
+  useEffect(() => {
+    if (gate === 'in') {
+      wasSignedIn.current = true;
+    } else if (gate === 'out') {
+      if (wasSignedIn.current) {
+        wasSignedIn.current = false;
+        setAuthEpoch((n) => n + 1);
+      }
+      setOnboardingReplay(false);
+      setShowOnboarding(true);
+    }
+  }, [gate]);
+
+  // The store customer is the verified account, never a leftover id from local storage.
+  useEffect(() => {
+    if (gate !== 'in') return;
+    void supabase.auth
+      .getSession()
+      .then(({ data }) => {
+        const id = data.session?.user.id;
+        if (id) return revenueCatService.init(id);
+        return null;
+      })
+      .catch(() => null);
+  }, [gate]);
 
   useEffect(() => {
     lockDarkTheme();
     useAuthStore.getState().initialize();
     const cleanupRollover = initMidnightRolloverListener();
-    const storedUserId = safeStorage.getItem('o1fc_user_id');
-    if (typeof storedUserId === 'string' && storedUserId) {
-      revenueCatService.init(storedUserId).catch(() => null);
-    }
 
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
@@ -257,11 +284,14 @@ export default function App() {
       <div className="min-h-screen w-full overflow-x-hidden relative bg-black">
         <AuthProvider>
           <SubscriptionProvider>
-            <MainAppLayout />
-            <ClubPassPaywallModal />
-            {!showOnboarding && !consultationLocked && <InductionProtocol />}
-            {showOnboarding && (
+            {gate === 'in' && <MainAppLayout />}
+            {gate === 'in' && <ClubPassPaywallModal />}
+            {gate === 'in' && !onboardingOpen && !consultationLocked && <InductionProtocol />}
+            {gate === 'checking' && <BootSplash />}
+            {onboardingOpen && (
               <OnboardingCoordinator
+                key={authEpoch}
+                hasSession={gate === 'in'}
                 replay={onboardingReplay}
                 onComplete={() => {
                   setShowOnboarding(false);

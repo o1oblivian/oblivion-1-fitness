@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { AlertCircle, ArrowLeft, Check, ChevronDown, Loader2 } from 'lucide-react';
 import { tactileEngine } from '../../services/tactileEngine';
-import { revenueCatService } from '../../services/revenueCatService';
 import { getAuthenticatedUserId } from '../../services/authUser';
 import { openLegalUrl } from '../../services/apiBase';
 import { useSubscription } from '../../context/SubscriptionContext';
-import { TIER_PLANS, useStorePrices } from '../membership/planCatalog';
+import { TIER_PLANS } from '../membership/planCatalog';
+import { useStorePlans } from '../membership/useStorePlans';
+import { useStorePurchase } from '../membership/useStorePurchase';
 import {
   bumpDayRoutines,
   estimateSessionMinutes,
@@ -85,8 +86,8 @@ export function InductionProtocol() {
   const profile = useConsultationStore((state) => state);
   const patch = useConsultationStore((state) => state.patch);
   const lockIn = useConsultationStore((state) => state.lockIn);
-  const { activatePlan, restorePurchases } = useSubscription();
-  const priceOf = useStorePrices();
+  const { restorePurchases } = useSubscription();
+  const purchase = useStorePurchase();
   const groups = INTAKE_GROUPS.filter(
     (group) =>
       stepApplies(group, profile) &&
@@ -101,8 +102,9 @@ export function InductionProtocol() {
   const [step, setStep] = useState(0);
   const [audience, setAudience] = useState<'athlete' | 'coach'>('athlete');
   const [picked, setPicked] = useState<MembershipTier>('pro');
-  const [busy, setBusy] = useState<'buy' | 'restore' | 'finish' | null>(null);
+  const [busy, setBusy] = useState<'restore' | 'finish' | null>(null);
   const [storeError, setStoreError] = useState<string | null>(null);
+  const storePlans = useStorePlans(phase === 'plans');
   const [planStyle, setPlanStyle] = useState<'auto' | 'own'>(() =>
     readAthleteSettingsSnapshot().autoDispatch ? 'auto' : 'own',
   );
@@ -222,24 +224,30 @@ export function InductionProtocol() {
   };
 
   const plan = TIER_PLANS[picked];
-  const price = priceOf(plan.product);
+  const price = storePlans.priceOf(plan.product);
+  const availability = storePlans.availability(plan.product);
+  const working = busy !== null || purchase.busy;
+  const shownError = storeError ?? purchase.error ?? storePlans.notice(plan.product);
+
+  const pick = (key: MembershipTier) => {
+    setPicked(key);
+    setStoreError(null);
+    purchase.clearError();
+  };
 
   const buy = async () => {
     tactileEngine.triggerSelectionBuzz();
     setStoreError(null);
+    purchase.clearError();
     if (plan.product.isFree) {
       await finish(picked);
       return;
     }
-    setBusy('buy');
-    const res = await revenueCatService.purchasePackage(plan.product.productId);
-    if (!res.success) {
-      setBusy(null);
-      setStoreError(res.error || 'The store is unavailable right now.');
+    if (availability === 'unavailable') {
+      storePlans.retry();
       return;
     }
-    await activatePlan(plan.product.productId);
-    await finish(picked);
+    if (await purchase.buy(plan.product.productId)) await finish(picked);
   };
 
   const restore = async () => {
@@ -282,7 +290,7 @@ export function InductionProtocol() {
     tactileEngine.triggerSelectionBuzz();
     if (phase === 'questions') advance();
     else if (phase === 'preview') setPhase('plans');
-    else if (busy === null) void finish(audience === 'athlete' ? 'core' : 'coach');
+    else if (!working) void finish(audience === 'athlete' ? 'core' : 'coach');
   };
   const audienceTiers = tiers
     .filter((tier) => TIER_PLANS[tier.optionKey as MembershipTier].audience === audience)
@@ -498,8 +506,7 @@ export function InductionProtocol() {
                   onClick={() => {
                     tactileEngine.triggerSelectionBuzz();
                     setAudience(key);
-                    setPicked(key === 'athlete' ? 'pro' : 'coach_pro');
-                    setStoreError(null);
+                    pick(key === 'athlete' ? 'pro' : 'coach_pro');
                   }}
                   className={`h-8 rounded-full text-o1-caption font-normal transition-colors ${audience === key ? 'bg-white/[0.1] text-o1-text' : 'text-o1-muted'}`}
                 >
@@ -527,8 +534,7 @@ export function InductionProtocol() {
                     aria-checked={active}
                     onClick={() => {
                       tactileEngine.triggerSelectionBuzz();
-                      setPicked(key);
-                      setStoreError(null);
+                      pick(key);
                     }}
                     className={`w-full rounded-2xl px-4 py-3.5 text-left transition ${active ? glassActive : glass}`}
                   >
@@ -549,7 +555,7 @@ export function InductionProtocol() {
                       <div className="flex shrink-0 items-center gap-3">
                         <span className="text-right">
                           <span className="block text-o1-title font-light leading-none tabular-nums">
-                            {copy.product.isFree ? 'Free' : priceOf(copy.product)}
+                            {copy.product.isFree ? 'Free' : storePlans.priceOf(copy.product)}
                           </span>
                           {!copy.product.isFree ? (
                             <span className="mt-1 block text-o1-label font-normal text-o1-muted">
@@ -583,25 +589,27 @@ export function InductionProtocol() {
           </main>
 
           <footer className="mx-auto w-full max-w-[480px] shrink-0 bg-gradient-to-t from-black via-black/90 to-black/0 px-5 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-3">
-            {storeError ? (
+            {shownError ? (
               <div
                 role="alert"
                 className="mb-2 flex items-start gap-2.5 rounded-xl bg-o1-bad-wash/60 px-3.5 py-2.5 text-o1-label font-normal leading-snug text-o1-bad-ink backdrop-blur-md"
               >
                 <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
-                <span>{storeError}</span>
+                <span>{shownError}</span>
               </div>
             ) : null}
             <button
               type="button"
               onClick={() => void buy()}
-              disabled={busy !== null}
+              disabled={working || availability === 'loading'}
               className="flex h-10 w-full items-center justify-center rounded-full bg-o1-crimson text-o1-body font-medium text-white transition hover:bg-o1-crimson-hover active:scale-[0.98] active:bg-o1-crimson-press disabled:opacity-60"
             >
-              {busy === 'buy' || busy === 'finish' ? (
+              {working || availability === 'loading' ? (
                 <Loader2 className="h-5 w-5 animate-spin" />
               ) : plan.product.isFree ? (
                 `Start with ${picked === 'coach' ? 'Coach Starter' : 'Core'}`
+              ) : availability === 'unavailable' ? (
+                'Retry store connection'
               ) : plan.renews ? (
                 `Subscribe · ${price} per month`
               ) : (
@@ -612,24 +620,26 @@ export function InductionProtocol() {
               <button
                 type="button"
                 onClick={() => void finish(audience === 'athlete' ? 'core' : 'coach')}
-                disabled={busy !== null}
+                disabled={working}
                 className="h-9 w-full text-o1-caption font-normal text-o1-muted"
               >
                 Not now, start free
               </button>
             ) : null}
             <p className="mt-1 text-center text-o1-label font-normal leading-snug text-o1-muted/70">
-              {plan.renews
-                ? `Renews monthly at ${price} until cancelled. Cancel at least 24 hours before renewal in your App Store or Google Play settings.`
-                : plan.product.isFree
-                  ? 'No payment needed. Upgrade any time from Settings.'
-                  : 'One payment through the App Store or Google Play. It never renews.'}
+              {plan.product.isFree
+                ? 'No payment needed. Upgrade any time from Settings.'
+                : availability !== 'ready'
+                  ? 'Prices come from the App Store or Google Play.'
+                  : plan.renews
+                    ? `Renews monthly at ${price} until cancelled. Cancel at least 24 hours before renewal in your App Store or Google Play settings.`
+                    : 'One payment through the App Store or Google Play. It never renews.'}
             </p>
             <div className="flex items-center justify-center gap-5 text-o1-label font-normal text-o1-muted">
               <button
                 type="button"
                 onClick={() => void restore()}
-                disabled={busy !== null}
+                disabled={working}
                 className="h-8"
               >
                 {busy === 'restore' ? 'Restoring…' : 'Restore purchases'}

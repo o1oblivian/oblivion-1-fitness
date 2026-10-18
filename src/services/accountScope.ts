@@ -56,7 +56,7 @@ interface SessionUser {
   email?: string | null;
 }
 
-function storedSessionUser(): SessionUser | null {
+export function storedSessionUser(): SessionUser | null {
   try {
     const key = Object.keys(localStorage).find((k) => /^sb-.+-auth-token$/.test(k));
     if (!key) return null;

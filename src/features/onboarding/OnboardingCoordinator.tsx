@@ -16,13 +16,18 @@ const SIGN_IN_EVENTS = new Set<string>(['SIGNED_IN', 'INITIAL_SESSION', 'USER_UP
 
 type Phase = 'auth' | 'routing' | 'protocol';
 
-export const OnboardingCoordinator: React.FC<{ onComplete: () => void; replay?: boolean }> = ({
+interface OnboardingCoordinatorProps {
+  onComplete: () => void;
+  replay?: boolean;
+  /** Supabase confirmed a session when this screen opened. Only read once, so signing in here does not skip steps. */
+  hasSession: boolean;
+}
+
+export const OnboardingCoordinator: React.FC<OnboardingCoordinatorProps> = ({
   onComplete,
   replay = false,
+  hasSession,
 }) => {
-  const hasSession =
-    typeof window !== 'undefined' &&
-    Boolean(localStorage.getItem('o1fc_user_id') || safeStorage.getItem('o1fc_user_id'));
   const tutorialOnly = replay || hasSession;
   const [phase, setPhase] = useState<Phase>(tutorialOnly ? 'protocol' : 'auth');
   const [data, setData] = useState<OnboardingData>(INITIAL_ONBOARDING_DATA);

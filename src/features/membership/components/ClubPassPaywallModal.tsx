@@ -1,10 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { X, ShieldCheck, RotateCcw, Check, Sparkles, Loader2 } from 'lucide-react';
 import { useSubscription } from '../../../context/SubscriptionContext';
 import { tactileEngine } from '../../../services/tactileEngine';
-import { planKind, revenueCatService } from '../../../services/revenueCatService';
+import { planKind } from '../../../services/revenueCatService';
 import { openLegalUrl } from '../../../services/apiBase';
 import { IAP_PRODUCTS, IAPProductInfo } from '../../../types/iap';
+import { useStorePlans } from '../useStorePlans';
+import { useStorePurchase } from '../useStorePurchase';
 
 type Audience = 'athletes' | 'coaches';
 
@@ -23,10 +25,6 @@ const DEFAULT_PLAN: Record<Audience, string> = {
   coaches: IAP_PRODUCTS.coach_pro.productId,
 };
 
-const PAID_PLAN_IDS = [...PLANS.athletes, ...PLANS.coaches]
-  .filter((p) => !p.isFree)
-  .map((p) => p.productId);
-
 const PERKS = [
   'Meal scan and the cardio console',
   'Coach programs and the video vault',
@@ -34,72 +32,58 @@ const PERKS = [
 ];
 
 export const ClubPassPaywallModal: React.FC = () => {
-  const { isPaywallOpen, closePaywall, activatePlan, restorePurchases } = useSubscription();
+  const { isPaywallOpen, closePaywall, restorePurchases } = useSubscription();
   const [audience, setAudience] = useState<Audience>('athletes');
   const [selectedId, setSelectedId] = useState(DEFAULT_PLAN.athletes);
-  const [isPurchasing, setIsPurchasing] = useState(false);
   const [isRestoring, setIsRestoring] = useState(false);
   const [statusMsg, setStatusMsg] = useState<string | null>(null);
-  const [storePrices, setStorePrices] = useState<Record<string, string>>({});
-
-  useEffect(() => {
-    if (!isPaywallOpen || !revenueCatService.isNative()) return;
-    let live = true;
-    revenueCatService
-      .getOfferings()
-      .then((offerings) => {
-        const next: Record<string, string> = {};
-        for (const id of PAID_PLAN_IDS) {
-          const price = revenueCatService.packageForPlan(offerings, id)?.product?.priceString;
-          if (price) next[id] = String(price);
-        }
-        if (live) setStorePrices(next);
-      })
-      .catch(() => undefined);
-    return () => {
-      live = false;
-    };
-  }, [isPaywallOpen]);
+  const storePlans = useStorePlans(isPaywallOpen);
+  const purchase = useStorePurchase();
 
   if (!isPaywallOpen) return null;
 
   const plans = PLANS[audience];
   const selected = plans.find((p) => p.productId === selectedId) || plans[0];
   const kind = planKind(selected.productId);
-  // Paid prices come only from the store, in the buyer's own currency. Until they load, show '--' and block purchase.
-  const priceOf = (plan: IAPProductInfo) =>
-    storePrices[plan.productId] || (plan.isFree ? plan.price : '--');
-  const priceMissing = !selected.isFree && !storePrices[selected.productId];
+  const availability = storePlans.availability(selected);
+  const priceOf = storePlans.priceOf;
+  const notice = statusMsg ?? purchase.error ?? storePlans.notice(selected);
+  const waiting = purchase.busy || availability === 'loading';
   const ctaLabel = selected.isFree
     ? 'Continue Free →'
-    : kind === 'lifetime'
-      ? `Get Lifetime Access → ${priceOf(selected)}`
-      : `Subscribe → ${priceOf(selected)}/mo`;
+    : availability === 'unavailable'
+      ? 'Retry store connection'
+      : kind === 'lifetime'
+        ? `Get Lifetime Access → ${priceOf(selected)}`
+        : `Subscribe → ${priceOf(selected)}/mo`;
+
+  const select = (productId: string) => {
+    purchase.clearError();
+    setSelectedId(productId);
+    setStatusMsg(null);
+  };
 
   const switchAudience = (next: Audience) => {
     tactileEngine.triggerSelectionBuzz();
     setAudience(next);
-    setSelectedId(DEFAULT_PLAN[next]);
-    setStatusMsg(null);
+    select(DEFAULT_PLAN[next]);
   };
 
   const handlePrimary = async () => {
     tactileEngine.triggerSelectionBuzz();
+    purchase.clearError();
     setStatusMsg(null);
     if (selected.isFree) {
       closePaywall();
       return;
     }
-    setIsPurchasing(true);
-    const res = await revenueCatService.purchasePackage(selected.productId);
-    setIsPurchasing(false);
-    if (res.success) {
+    if (availability === 'unavailable') {
+      storePlans.retry();
+      return;
+    }
+    if (await purchase.buy(selected.productId)) {
       tactileEngine.playPRCelebration();
-      await activatePlan(selected.productId);
       closePaywall();
-    } else if (!/cancel/i.test(res.error || '')) {
-      // Closing the store sheet is the athlete's choice, not an error.
-      setStatusMsg(res.error || 'Available via the App Store or Google Play.');
     }
   };
 
@@ -178,8 +162,7 @@ export const ClubPassPaywallModal: React.FC = () => {
                 type="button"
                 onClick={() => {
                   tactileEngine.triggerSelectionBuzz();
-                  setSelectedId(plan.productId);
-                  setStatusMsg(null);
+                  select(plan.productId);
                 }}
                 className={`w-full p-3 rounded-2xl border text-left flex items-center justify-between gap-3 cursor-pointer transition-all ${
                   selected.productId === plan.productId
@@ -209,13 +192,13 @@ export const ClubPassPaywallModal: React.FC = () => {
               </button>
             ))}
           </div>
-          {statusMsg && (
+          {notice && (
             <div
-              role="status"
+              role="alert"
               className="p-3 rounded-2xl bg-o1-warn-wash border border-amber-500/30 text-o1-warn-ink text-xs font-mono text-center flex items-center justify-center gap-2"
             >
               <ShieldCheck className="w-4 h-4 shrink-0" />
-              <span>{statusMsg}</span>
+              <span>{notice}</span>
             </div>
           )}
         </div>
@@ -223,13 +206,13 @@ export const ClubPassPaywallModal: React.FC = () => {
         <div className="p-4 border-t border-white/[0.05] bg-o1-card space-y-2">
           <button
             onClick={handlePrimary}
-            disabled={isPurchasing || priceMissing}
+            disabled={waiting}
             className="w-full py-3.5 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover text-white font-tactical font-black text-xs tracking-wider flex items-center justify-center gap-2 cursor-pointer shadow-md active:scale-98 transition disabled:opacity-50"
           >
-            {isPurchasing ? (
+            {waiting ? (
               <>
                 <Loader2 className="w-4 h-4 animate-spin text-white" />
-                <span>Connecting to store billing...</span>
+                <span>{purchase.busy ? 'Opening the store...' : 'Loading store prices...'}</span>
               </>
             ) : (
               <>

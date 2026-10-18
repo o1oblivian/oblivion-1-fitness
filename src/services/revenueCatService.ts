@@ -35,41 +35,6 @@ const PLAN_NAMES: Record<PlanKind, string> = {
   coach: 'O1 Coach Pro (Monthly)',
 };
 
-interface StoreProductSummary {
-  identifier: string;
-  title: string;
-  priceString: string;
-  price: number;
-}
-
-/** What the plan screens read from a package. Real store packages satisfy this shape. */
-export interface StorePackage {
-  identifier: string;
-  packageType?: string;
-  product: StoreProductSummary;
-  webCheckoutProduct?: StoreProductSummary;
-  isFallback?: boolean;
-}
-
-/** Shown only when the store returns no packages (web preview); it can never be purchased. */
-export const REVENUECAT_FALLBACK_MONTHLY_PACKAGE = {
-  identifier: '$rc_monthly',
-  packageType: 'MONTHLY',
-  isFallback: true,
-  product: {
-    identifier: REVENUECAT_TIER_MONTHLY,
-    title: 'Monthly Pro Access',
-    priceString: '$9.99',
-    price: 9.99,
-  },
-  webCheckoutProduct: {
-    identifier: REVENUECAT_TIER_MONTHLY,
-    title: 'Monthly Pro Access',
-    priceString: '$9.99',
-    price: 9.99,
-  },
-} satisfies StorePackage;
-
 export interface StoreCatalog {
   packages: PurchasesPackage[];
 }
@@ -266,7 +231,8 @@ function rememberEntitlement(info: EntitlementInfo): void {
 }
 
 const STORE_TIMEOUT_MS = 12_000;
-const PURCHASE_TIMEOUT_MS = 20_000;
+/** The store sheet stays open while the buyer confirms with a fingerprint or card, so this only catches a sheet that never answers. */
+const PURCHASE_TIMEOUT_MS = 180_000;
 
 function withStoreTimeout<T>(
   work: Promise<T>,
@@ -399,11 +365,6 @@ class RevenueCatManager {
     }
   }
 
-  listPackages(catalog?: StoreCatalog | null): StorePackage[] {
-    const packages = catalog?.packages ?? [];
-    return packages.length ? packages : [REVENUECAT_FALLBACK_MONTHLY_PACKAGE];
-  }
-
   packageForPlan(
     catalog: StoreCatalog | null | undefined,
     planId: string,
@@ -442,13 +403,13 @@ class RevenueCatManager {
         ),
         planId,
       );
-      if (!pkg || (pkg as { isFallback?: boolean }).isFallback) {
+      if (!pkg) {
         return { success: false, error: `This plan is not live in ${storeName()} yet.` };
       }
 
       const { customerInfo } = await withStoreTimeout(
         client.purchasePackage({ aPackage: pkg }),
-        `The payment window did not open. Install the app from ${storeName()}, then try again.`,
+        `${storeName()} did not confirm the purchase. If you were charged, tap Restore Purchases.`,
         PURCHASE_TIMEOUT_MS,
       );
       if (!ownsPlan(customerInfo, planId)) {
