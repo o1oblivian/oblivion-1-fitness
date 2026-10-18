@@ -5,7 +5,7 @@ All future agents and contributors MUST adhere strictly to these rules:
 
 1. **Single Genuine Application (100% Clean)**:
    - Absolutely NO secondary, mock, demo, or placeholder apps.
-   - All tabs in the main layout (`Workout`, `Fuel`, `Radar`, `Coach`, `Log`) connect directly to production feature modules in `/src/features/`.
+   - All tabs in the main layout (`Workout`, `Fuel`, `Coach`, `Log`) connect directly to production feature modules in `/src/features/`.
    - Never introduce speculative frameworks, dummy sidebars, or mock views.
 
 2. **Pure OLED Only & Natural Organic Colors (Zero Neon)**:

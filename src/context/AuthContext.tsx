@@ -2,8 +2,6 @@ import React, { createContext, useEffect, useState } from 'react';
 import { fetchAthleteProfile, supabase } from '../services/supabaseClient';
 import { useUserStore } from '../stores/useUserStore';
 import { releaseDevice } from '../services/accountScope';
-import { withdrawBuddyCardForSignOut } from '../services/buddyPresenceSync';
-
 interface AuthContextType {
   userId: string;
   email: string | null;
@@ -162,7 +160,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const signOut = async () => {
-    await withdrawBuddyCardForSignOut();
     try {
       await supabase.auth.signOut({ scope: 'local' });
     } catch {}

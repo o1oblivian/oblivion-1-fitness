@@ -15,8 +15,6 @@ export interface AthleteSettingsSnapshot {
   soundEffects: boolean;
   crashReports: boolean;
   osPushEnabled: boolean;
-  ghostMode: boolean;
-  buddyRadarDiscovery: boolean;
 }
 
 const DEFAULTS: AthleteSettingsSnapshot = {
@@ -33,8 +31,6 @@ const DEFAULTS: AthleteSettingsSnapshot = {
   soundEffects: true,
   crashReports: true,
   osPushEnabled: false,
-  ghostMode: false,
-  buddyRadarDiscovery: true,
 };
 
 export function readAthleteSettingsSnapshot(): AthleteSettingsSnapshot {

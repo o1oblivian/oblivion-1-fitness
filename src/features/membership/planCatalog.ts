@@ -17,8 +17,6 @@ export const TIER_PLANS: Record<MembershipTier, PlanCopy> = {
     highlights: [
       'Workout logger for every exercise',
       'Hydration, supplement and basic fuel tracking',
-      'Radar within 25 km, 5 connections a day',
-      '3 direct messages a day',
     ],
     renews: false,
   },
@@ -29,7 +27,6 @@ export const TIER_PLANS: Record<MembershipTier, PlanCopy> = {
     highlights: [
       'Meal scan and the full fuel tracker',
       'Deep analytics and training load balance',
-      'Radar within 250 km, unlimited messages',
       'Every wallpaper and dial face, plus data export',
     ],
     renews: true,
@@ -40,7 +37,6 @@ export const TIER_PLANS: Record<MembershipTier, PlanCopy> = {
     headline: 'Pay once. Pro access for life.',
     highlights: [
       'Everything in Pro, permanently',
-      'Global radar included',
       'Founding member badge',
       'One payment, never renews',
     ],

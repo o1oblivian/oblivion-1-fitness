@@ -92,7 +92,7 @@ export const SettingsMembershipSection: React.FC<MembershipSectionProps> = ({
             </div>
             <p className="text-o1-label text-neutral-400 font-mono">
               {isExpired
-                ? 'Basic workout logging is always free. Premium analytics and Radar need an active pass.'
+                ? 'Basic workout logging is always free. Premium analytics need an active pass.'
                 : 'Workout Logger and Hydration stay free forever even after 90 days.'}
             </p>
           </div>

@@ -6,7 +6,6 @@ import {
   compressPhoto,
   CompressedMediaResult,
 } from '../../../utils/mediaCompressor';
-import { useBuddyProfileStore } from '../../../stores/useBuddyProfileStore';
 import { useAuthStore } from '../../../stores/useAuthStore';
 import { useUserStore } from '../../../stores/useUserStore';
 import { ReelUploadMediaZone } from './ReelUploadMediaZone';
@@ -28,7 +27,6 @@ export const CoachReelUploadModal: React.FC<CoachReelUploadModalProps> = ({
   onClose,
   onReelPublished,
 }) => {
-  const buddy = useBuddyProfileStore();
   const profile = useAuthStore((s) => s.profile);
   const user = useUserStore();
 
@@ -36,7 +34,6 @@ export const CoachReelUploadModal: React.FC<CoachReelUploadModalProps> = ({
   const [selectedFilterTag, setSelectedFilterTag] = useState<BodyPartTag | null>(null);
   const [title, setTitle] = useState('');
   const [cues, setCues] = useState('');
-  const [showOnBuddy, setShowOnBuddy] = useState(true);
   const [rulesAccepted, setRulesAccepted] = useState(false);
   const [fileError, setFileError] = useState('');
   const [isCompressing, setIsCompressing] = useState(false);
@@ -106,9 +103,6 @@ export const CoachReelUploadModal: React.FC<CoachReelUploadModalProps> = ({
         return;
       }
       tactileEngine.playPRCelebration();
-      const cover = result.reel.thumbnail;
-      if (showOnBuddy && cover && !buddy.isPhotoOnBuddy(cover))
-        buddy.toggleVaultPhotoOnBuddy(cover);
       onReelPublished?.(title, selectedCategory);
       onClose();
     } finally {
@@ -175,14 +169,7 @@ export const CoachReelUploadModal: React.FC<CoachReelUploadModalProps> = ({
             selectedFilterTag={selectedFilterTag}
             onSelectFilterTag={setSelectedFilterTag}
           />
-          <ReelFormFields
-            title={title}
-            setTitle={setTitle}
-            cues={cues}
-            setCues={setCues}
-            showOnBuddy={showOnBuddy}
-            setShowOnBuddy={setShowOnBuddy}
-          />
+          <ReelFormFields title={title} setTitle={setTitle} cues={cues} setCues={setCues} />
           <label className="flex items-start gap-2.5 rounded-2xl border border-white/[0.07] bg-o1-well p-3 cursor-pointer">
             <input
               type="checkbox"

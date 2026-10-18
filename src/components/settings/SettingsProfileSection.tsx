@@ -3,7 +3,6 @@ import { Camera, Trash2, Check, X, Plus, Upload } from 'lucide-react';
 import { CrimsonSwitch } from './CrimsonSwitch';
 import { useUserStore } from '../../stores/useUserStore';
 import { useRoleStore } from '../../stores/useRoleStore';
-import { useBuddyProfileStore } from '../../stores/useBuddyProfileStore';
 import { PhotoVaultModal } from '../../features/log/components/PhotoVaultModal';
 import { CoachVaultModal } from '../../features/coach/components/CoachVaultModal';
 import { tactileEngine } from '../../services/tactileEngine';
@@ -96,7 +95,6 @@ export const SettingsProfileSection: React.FC<ProfileSectionProps> = ({
         media_url: stored.url,
         storage_path: stored.path,
       });
-      useBuddyProfileStore.getState().addBuddyPhoto(stored.url);
       setIsAvatarPickerOpen(false);
     } finally {
       setAvatarBusy(false);

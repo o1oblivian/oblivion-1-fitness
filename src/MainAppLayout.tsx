@@ -1,8 +1,7 @@
 import React, { useLayoutEffect, useRef, useState } from 'react';
-import { TabMode, NavigationDock } from './components/NavigationDock';
+import { TabMode, NavigationDock, toTabMode } from './components/NavigationDock';
 import { WorkoutHub } from './features/workout/WorkoutHub';
 import { FuelView as FuelHub } from './features/fuel/FuelView';
-import { BuddyView as BuddyHub } from './features/radar/BuddyView';
 import { CoachView as CoachHub } from './features/coach/CoachView';
 import { LogView } from './features/log/LogView';
 import { FeatureErrorBoundary } from './components/common/FeatureErrorBoundary';
@@ -42,10 +41,9 @@ export const MainAppLayout: React.FC = () => {
 
   React.useEffect(() => {
     const handleNavEvent = (e: Event) => {
-      const { detail } = e as CustomEvent<TabMode>;
-      if (detail) {
-        handleTabSelect(detail);
-      }
+      // Links, hashes and events can name a tab that no longer exists (an old #radar link); ignore those.
+      const tab = toTabMode((e as CustomEvent<unknown>).detail);
+      if (tab) handleTabSelect(tab);
     };
     window.addEventListener('app_navigate_tab', handleNavEvent);
     return () => window.removeEventListener('app_navigate_tab', handleNavEvent);
@@ -76,9 +74,8 @@ export const MainAppLayout: React.FC = () => {
             <FeatureErrorBoundary key={activeTab} featureName={`${activeTab} View`}>
               {(activeTab === 'tracker' || activeTab === 'workout') && <WorkoutHub />}
               {activeTab === 'fuel' && <FuelHub />}
-              {activeTab === 'radar' && <BuddyHub />}
               {activeTab === 'coach' && <CoachHub />}
-              {(activeTab === 'client' || (activeTab as string) === 'log') && <LogView />}
+              {activeTab === 'client' && <LogView />}
             </FeatureErrorBoundary>
           </div>
         </main>

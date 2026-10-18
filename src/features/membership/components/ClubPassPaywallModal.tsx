@@ -11,12 +11,7 @@ import { useStorePurchase } from '../useStorePurchase';
 type Audience = 'athletes' | 'coaches';
 
 const PLANS: Record<Audience, readonly IAPProductInfo[]> = {
-  athletes: [
-    IAP_PRODUCTS.founder_pass,
-    IAP_PRODUCTS.core_free,
-    IAP_PRODUCTS.premium,
-    IAP_PRODUCTS.premium_travel,
-  ],
+  athletes: [IAP_PRODUCTS.founder_pass, IAP_PRODUCTS.core_free, IAP_PRODUCTS.premium],
   coaches: [IAP_PRODUCTS.coach_free, IAP_PRODUCTS.coach_pro],
 };
 
@@ -28,7 +23,7 @@ const DEFAULT_PLAN: Record<Audience, string> = {
 const PERKS = [
   'Meal scan and the cardio console',
   'Coach programs and the video vault',
-  'Radar and the rest of Club Pass',
+  'Every wallpaper and dial face, plus data export',
 ];
 
 export const ClubPassPaywallModal: React.FC = () => {

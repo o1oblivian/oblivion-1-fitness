@@ -8,7 +8,7 @@ interface SendFeedbackModalProps {
   onClose: () => void;
 }
 
-const CATEGORIES = ['Workout Logging', 'Fuel OS', 'Radar & Spotters', 'App Speed', 'Other'];
+const CATEGORIES = ['Workout Logging', 'Fuel OS', 'App Speed', 'Other'];
 
 export const SendFeedbackModal: React.FC<SendFeedbackModalProps> = ({ isOpen, onClose }) => {
   const [rating, setRating] = useState(5);

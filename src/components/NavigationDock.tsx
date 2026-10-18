@@ -1,9 +1,18 @@
 import React from 'react';
-import { Dumbbell, Utensils, Heart, Users, FileText } from 'lucide-react';
+import { Dumbbell, Utensils, Users, FileText } from 'lucide-react';
 import { tactileEngine } from '../services/tactileEngine';
-import { useBuddyMessageStore } from '../stores/useBuddyMessageStore';
 
-export type TabMode = 'tracker' | 'fuel' | 'radar' | 'coach' | 'client' | 'workout';
+export type TabMode = 'tracker' | 'fuel' | 'coach' | 'client' | 'workout';
+
+/** Turns a tab name from a link, a hash or an event into a real tab, or null when there is no such tab. */
+export function toTabMode(name: unknown): TabMode | null {
+  const key = String(name ?? '').toLowerCase();
+  if (key === 'log') return 'client';
+  if (key === 'dashboard') return 'tracker';
+  return (
+    (['tracker', 'fuel', 'coach', 'client', 'workout'] as const).find((tab) => tab === key) ?? null
+  );
+}
 export interface NavigationDockProps {
   currentMode: TabMode;
   onSelectTab: (mode: TabMode) => void;
@@ -13,20 +22,16 @@ interface TabConfig {
   id: TabMode;
   label: string;
   icon: React.ComponentType<{ className?: string }>;
-  isBuddy?: boolean;
 }
 
 const TABS: TabConfig[] = [
   { id: 'tracker', label: 'Workout', icon: Dumbbell },
   { id: 'fuel', label: 'Fuel', icon: Utensils },
-  { id: 'radar', label: 'Buddy', icon: Heart, isBuddy: true },
   { id: 'coach', label: 'Coach', icon: Users },
   { id: 'client', label: 'Log', icon: FileText },
 ];
 
 export const NavigationDock: React.FC<NavigationDockProps> = ({ currentMode, onSelectTab }) => {
-  const buddyUnreadCount = useBuddyMessageStore((s) => s.unreadCount);
-
   return (
     <nav
       id="navigation-dock-floating"
@@ -44,7 +49,6 @@ export const NavigationDock: React.FC<NavigationDockProps> = ({ currentMode, onS
           const Icon = tab.icon;
           const isActive =
             currentMode === tab.id || (tab.id === 'tracker' && currentMode === 'workout');
-          const isBuddy = tab.isBuddy;
 
           return (
             <button
@@ -66,21 +70,12 @@ export const NavigationDock: React.FC<NavigationDockProps> = ({ currentMode, onS
               {/* Tab Icon */}
               <div className="relative flex items-center justify-center">
                 <Icon
-                  className={`${isBuddy ? 'w-[21px] h-[21px]' : 'w-[18px] h-[18px]'} transition-colors ${
-                    isBuddy
-                      ? isActive
-                        ? 'text-o1-crimson fill-o1-crimson stroke-[2.2]'
-                        : 'text-o1-crimson fill-o1-crimson opacity-90 stroke-[2]'
-                      : isActive
-                        ? 'text-o1-crimson stroke-[2.4]'
-                        : 'text-neutral-400 stroke-[1.9] group-hover:text-neutral-100'
+                  className={`w-[18px] h-[18px] transition-colors ${
+                    isActive
+                      ? 'text-o1-crimson stroke-[2.4]'
+                      : 'text-neutral-400 stroke-[1.9] group-hover:text-neutral-100'
                   }`}
                 />
-                {isBuddy && buddyUnreadCount > 0 && (
-                  <span className="absolute -top-1 -right-1.5 min-w-[13px] h-[13px] px-0.5 rounded-full bg-o1-crimson text-white text-o1-label font-bold font-mono flex items-center justify-center border border-white/[0.07]">
-                    {buddyUnreadCount > 9 ? '9+' : buddyUnreadCount}
-                  </span>
-                )}
               </div>
 
               {/* Tab Label */}

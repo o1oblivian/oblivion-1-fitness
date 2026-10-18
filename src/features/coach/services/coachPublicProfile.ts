@@ -55,7 +55,7 @@ async function saveHandle(uid: string, raw: string, current: string): Promise<Ha
   return error.code === '23505' ? 'taken' : 'failed';
 }
 
-/** Writes the public card athletes see on Buddy, in Reels and in the coach directory. */
+/** Writes the public card athletes see in Reels and in the coach directory. */
 export async function saveMyPublicProfile(
   profile: CoachPublicProfile,
   currentHandle: string,

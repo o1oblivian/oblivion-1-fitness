@@ -12,7 +12,6 @@ interface ContactSupportModalProps {
 const TOPICS: { value: string; label: string }[] = [
   { value: 'technical', label: "Something isn't working" },
   { value: 'billing', label: 'Club Pass & billing' },
-  { value: 'radar', label: 'Buddy Radar' },
   { value: 'other', label: 'Something else' },
 ];
 

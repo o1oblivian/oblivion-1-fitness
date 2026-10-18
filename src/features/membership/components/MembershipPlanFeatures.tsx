@@ -23,13 +23,6 @@ export const MembershipPlanFeatures: React.FC<Props> = ({
   const isFreeCoach = selectedProductId === 'o1fc_coach_free';
 
   const athleteFeatures = [
-    { label: 'Likes / Connections', value: isFreeAthlete ? '5 / day' : 'Unlimited' },
-    { label: 'Direct Messages', value: isFreeAthlete ? '3 / day' : 'Unlimited' },
-    { label: 'Radar Radius', value: isFreeAthlete ? '25 km' : '250 km' },
-    {
-      label: 'Travel Pass',
-      value: selectedProductId === 'o1fc_pro_travel_monthly' ? '✓' : isFreeAthlete ? '—' : 'Add-on',
-    },
     { label: 'HD Form Reels', value: '✓' },
     { label: 'Workout Logger', value: 'All exercises' },
     { label: 'Fuel Tracker', value: isFreeAthlete ? 'Basic' : 'Full + Intel Scan' },

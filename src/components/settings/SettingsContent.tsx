@@ -1,7 +1,6 @@
 import React from 'react';
 import { useProductionSettings } from '../../hooks/useAthleteSettings';
 import { SettingsProfileSection } from './SettingsProfileSection';
-import { SettingsBuddyDatingSection } from './SettingsBuddyDatingSection';
 import { SettingsTrainingSection } from './SettingsTrainingSection';
 import { SettingsUnitsDefaultsSection } from './SettingsUnitsDefaultsSection';
 import { SettingsMembershipSection } from './SettingsMembershipSection';
@@ -62,16 +61,12 @@ export const SettingsContent: React.FC<SettingsContentProps> = ({
         onUpdateWeight={s.setWeightKg}
       />
 
-      {/* 2. Workout Partner & Buddy Dating (Dual Purpose / Solo Mode) */}
-      <SettingsBuddyDatingSection />
-
-      {/* 3. Training Discipline, Schedule & Facility Location */}
+      {/* 2. Training Discipline & Schedule */}
       <SettingsTrainingSection
         autoDispatch={s.autoDispatch}
         restRecoveryMode={s.restRecoveryMode}
         onToggleAutoDispatch={s.setAutoDispatch}
         onToggleRestMode={s.setRestRecoveryMode}
-        onShowToast={onShowToast}
       />
 
       {/* 4. Daily Step Target & Units Defaults */}

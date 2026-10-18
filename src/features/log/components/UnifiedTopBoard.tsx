@@ -9,8 +9,6 @@ import { useDayRoutineRevision } from '../../workout/services/dayRoutineService'
 import { resolveTodaySession, startTodaySession } from '../todaySession';
 import { SplitOption } from '../types';
 import { athleteLabel } from '../athleteLabel';
-import { useBuddyProfileStore } from '../../../stores/useBuddyProfileStore';
-
 interface UnifiedTopBoardProps {
   onOpenInvite: () => void;
   onChooseRoutine: (split: SplitOption) => void;
@@ -27,7 +25,6 @@ export const UnifiedTopBoard: React.FC<UnifiedTopBoardProps> = ({
   onOpenSettings,
 }) => {
   const user = useUserStore();
-  const buddyName = useBuddyProfileStore((s) => s.displayName);
   // Subscriptions re-render this board when any input to resolveTodaySession changes.
   useCoachStore((s) => s.assignedWorkouts);
   useActiveProgramStore((s) => s.hasActiveProgram);
@@ -35,7 +32,7 @@ export const UnifiedTopBoard: React.FC<UnifiedTopBoardProps> = ({
   useActiveProgramStore((s) => s.programTitle);
   useDayRoutineRevision();
 
-  const athleteName = athleteLabel(user.name, user.handle, buddyName);
+  const athleteName = athleteLabel(user.name, user.handle);
   const athleteWeight = user.weightKg > 0 ? user.weightKg.toFixed(1) : '--';
   const targetWeight = user.targetWeightKg > 0 ? user.targetWeightKg.toFixed(1) : '--';
 

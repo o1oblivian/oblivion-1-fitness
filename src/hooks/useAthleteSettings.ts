@@ -9,7 +9,6 @@ import { clearAccountData, releaseDevice } from '../services/accountScope';
 import { useUserStore } from '../stores/useUserStore';
 import { clearReminders, notifyRemindersChanged } from '../services/athleteReminderScheduler';
 import { bluetoothSensorService } from '../services/bluetoothSensorService';
-import { withdrawBuddyCardForSignOut } from '../services/buddyPresenceSync';
 import { exportJsonFile } from '../services/dataExport';
 
 export const O1_SETTINGS_KEY = 'o1fc_production_settings_v3';
@@ -302,8 +301,7 @@ export const useProductionSettings = (onShowToast?: (msg: string) => void) => {
 
   const handleLogout = (onLogoutCallback?: () => void) => {
     tactileEngine.triggerSelectionBuzz();
-    // Take the athlete off the Buddy Radar and delete their stored area while the session still works.
-    void withdrawBuddyCardForSignOut().then(() => finishLogout(onLogoutCallback));
+    finishLogout(onLogoutCallback);
   };
 
   const finishLogout = (onLogoutCallback?: () => void) => {

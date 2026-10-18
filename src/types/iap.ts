@@ -41,16 +41,6 @@ export const IAP_PRODUCTS = {
     isFree: false,
     userType: 'athlete' as const,
   },
-  premium_travel: {
-    productId: 'o1fc_pro_travel_monthly',
-    name: 'Pro + Travel',
-    periodText: '/mo',
-    description: 'Full training + Global corridor radar',
-    badge: 'ALL-ACCESS',
-    recommended: false,
-    isFree: false,
-    userType: 'athlete' as const,
-  },
   coach_free: {
     productId: 'o1fc_coach_free',
     name: 'Coach Starter',

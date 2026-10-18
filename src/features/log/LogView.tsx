@@ -18,8 +18,6 @@ import { getAuthenticatedUserId } from '../../services/authUser';
 import { useCoachStore } from '../../stores/useCoachStore';
 import { mapAssignedRow } from './todaySession';
 import { athleteLabel } from './athleteLabel';
-import { useBuddyProfileStore } from '../../stores/useBuddyProfileStore';
-
 export const LogView: React.FC = () => {
   useLogHydration();
   useWeighInCapture();
@@ -38,8 +36,7 @@ export const LogView: React.FC = () => {
   );
   const openSettings = useModalStore((s) => s.openSettings);
   const user = useUserStore();
-  const buddyName = useBuddyProfileStore((s) => s.displayName);
-  const label = athleteLabel(user.name, user.handle, buddyName);
+  const label = athleteLabel(user.name, user.handle);
   const training = useTrainingSummary();
 
   // Modal visibility states

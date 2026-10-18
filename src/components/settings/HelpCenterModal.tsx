@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, BookOpen, Activity, Zap, Compass, ChevronDown, ChevronUp } from 'lucide-react';
+import { X, BookOpen, Activity, Zap, ChevronDown, ChevronUp } from 'lucide-react';
 import { tactileEngine } from '../../services/tactileEngine';
 
 interface HelpCenterModalProps {
@@ -21,13 +21,6 @@ const MANUAL_TOPICS = [
     title: 'Food tracking',
     summary: 'Calories, protein, carbs and fat',
     desc: 'Fuel sets daily targets for calories, protein, carbs and fat from your profile, whether you want to lose, keep or gain weight. Log meals with Quick-Add or by scanning your meal with the camera.',
-  },
-  {
-    id: 'radar',
-    icon: Compass,
-    title: 'Buddy Radar and privacy',
-    summary: 'Find training partners nearby',
-    desc: 'Radar shows verified members training near you so you can find a partner or a spotter. Turn on Ghost mode in Settings to browse without appearing to anyone nearby.',
   },
 ];
 

@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { X, Camera, Trash2, Play, Film, UserCheck, Check, Loader2, Radio } from 'lucide-react';
+import { X, Camera, Trash2, Play, Film, UserCheck, Check, Loader2 } from 'lucide-react';
 import { tactileEngine } from '../../../services/tactileEngine';
-import { useBuddyProfileStore } from '../../../stores/useBuddyProfileStore';
 import { useUserStore } from '../../../stores/useUserStore';
 import { useReelsStore } from '../../../stores/useReelsStore';
 import { getAuthenticatedUserId } from '../../../services/authUser';
@@ -53,7 +52,6 @@ export interface VaultViewProps {
 
 export const VaultView: React.FC<VaultViewProps> = ({ audience = 'coach', onSaved }) => {
   const isCoach = audience === 'coach';
-  const buddy = useBuddyProfileStore();
   const user = useUserStore();
   const reels = useReelsStore((s) => s.reels);
   const addCoachReel = useReelsStore((s) => s.addCoachReel);
@@ -211,8 +209,6 @@ export const VaultView: React.FC<VaultViewProps> = ({ audience = 'coach', onSave
 
   const handleDelete = (item: VaultMediaItem) => {
     tactileEngine.triggerSelectionBuzz();
-    const cover = item.thumbnailUrl || item.url;
-    if (buddy.isPhotoOnBuddy(cover)) buddy.toggleVaultPhotoOnBuddy(cover);
     const urls = [item.url, item.thumbnailUrl].filter(Boolean);
     const inUse =
       urls.includes(user.avatarUrl) ||
@@ -238,13 +234,6 @@ export const VaultView: React.FC<VaultViewProps> = ({ audience = 'coach', onSave
         onChange={(e) => void handleFileChange(e)}
         className="hidden"
       />
-
-      <div className="flex items-center justify-between px-1">
-        <span className="flex items-center gap-2 text-o1-caption text-o1-muted">
-          <Radio className="h-3.5 w-3.5 text-o1-crimson" />
-          On your Buddy card: <strong className="text-o1-text">{buddy.buddyPhotos.length}/6</strong>
-        </span>
-      </div>
 
       {notice && (
         <div
@@ -426,23 +415,9 @@ export const VaultView: React.FC<VaultViewProps> = ({ audience = 'coach', onSave
 
             <div className="space-y-2 border-t border-white/[0.07] bg-o1-canvas p-4">
               {(() => {
-                const cover = preview.thumbnailUrl || preview.url;
-                const onBuddy = buddy.isPhotoOnBuddy(cover);
                 const published = isPublished(preview);
                 return (
                   <>
-                    <div className="flex items-center justify-between rounded-xl border border-white/[0.07] bg-o1-sheet p-2">
-                      <span className="text-o1-caption text-o1-text">
-                        {onBuddy ? 'Shown on your Buddy card' : 'Not on your Buddy card'}
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => buddy.toggleVaultPhotoOnBuddy(cover)}
-                        className={`min-h-[36px] rounded-xl px-3 text-o1-caption font-semibold ${onBuddy ? 'bg-o1-crimson text-white' : 'bg-white/[0.08] text-o1-text'}`}
-                      >
-                        {onBuddy ? 'Remove' : 'Show'}
-                      </button>
-                    </div>
                     <div className="grid grid-cols-2 gap-2">
                       <button
                         type="button"

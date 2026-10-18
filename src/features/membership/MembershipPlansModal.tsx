@@ -25,7 +25,6 @@ const ATHLETE_PRODUCTS: readonly IAPProductInfo[] = [
   IAP_PRODUCTS.founder_pass,
   IAP_PRODUCTS.core_free,
   IAP_PRODUCTS.premium,
-  IAP_PRODUCTS.premium_travel,
 ];
 
 const COACH_PRODUCTS: readonly IAPProductInfo[] = [IAP_PRODUCTS.coach_free, IAP_PRODUCTS.coach_pro];
@@ -181,21 +180,29 @@ export const MembershipPlansModal: React.FC<MembershipPlansModalProps> = ({
                   <strong className="text-white">
                     {plans.priceOf(IAP_PRODUCTS.founder_pass)} Lifetime Founder Pass
                   </strong>{' '}
-                  — Training OS Pro + Global Radar forever.
+                  — Training OS Pro forever.
                 </p>
               </div>
             </div>
           )}
 
-          {/* Plans Grid: 2x2 for Athletes, 2 cols for Coaches */}
+          {/* Plans grid: two columns; a last plan with no partner takes the full row. */}
           <div className="grid grid-cols-2 gap-2.5">
-            {currentProducts.map((p) => (
-              <MembershipPlanCard
+            {currentProducts.map((p, index) => (
+              <div
                 key={p.productId}
-                product={{ ...p, price: plans.priceOf(p) }}
-                isSelected={selectedProductId === p.productId}
-                onSelect={handleSelectPlan}
-              />
+                className={
+                  index === currentProducts.length - 1 && currentProducts.length % 2 === 1
+                    ? 'col-span-2 flex flex-col'
+                    : 'flex flex-col'
+                }
+              >
+                <MembershipPlanCard
+                  product={{ ...p, price: plans.priceOf(p) }}
+                  isSelected={selectedProductId === p.productId}
+                  onSelect={handleSelectPlan}
+                />
+              </div>
             ))}
           </div>
 

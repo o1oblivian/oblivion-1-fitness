@@ -6,7 +6,6 @@ type AthleticFocusType =
   | 'LONGEVITY & HEALTH';
 
 interface DevicePermissions {
-  location: boolean;
   camera: boolean;
   notifications: boolean;
 }
@@ -24,8 +23,6 @@ export interface OnboardingData {
   disciplines?: string[];
   preferredTime?: 'Morning' | 'Afternoon' | 'Evening';
   trainingFrequency?: number;
-  homeGym?: string;
-  showOnRadar?: boolean;
 }
 
 export const INITIAL_ONBOARDING_DATA: OnboardingData = {
@@ -39,9 +36,7 @@ export const INITIAL_ONBOARDING_DATA: OnboardingData = {
   disciplines: ['Bodybuilding', 'Powerlifting'],
   preferredTime: 'Morning',
   trainingFrequency: 5,
-  showOnRadar: true,
   permissions: {
-    location: false,
     camera: false,
     notifications: false,
   },
