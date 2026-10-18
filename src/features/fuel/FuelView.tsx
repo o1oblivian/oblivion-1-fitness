@@ -17,6 +17,9 @@ import {
   WeekDayEntry,
 } from './utils/fuelMath';
 import { FuelWeekSlide } from './components/FuelWeekSlide';
+import { FuelUsualsRow } from './components/FuelUsualsRow';
+import { buildUsuals, slotForHour, Usual } from './utils/fuelUsuals';
+import { useTelemetryHistoryStore } from '../log/store/useTelemetryHistoryStore';
 import { MEAL_SLOT_SHARE, MealSlot, slotBudget } from './data/intelMealEngine';
 
 function restingBurn(
@@ -148,6 +151,26 @@ export const FuelView: React.FC = () => {
     }
     return out;
   }, [calorieTarget, intelRemaining, loggedSlots]);
+  const history = useTelemetryHistoryStore((s) => s.historyByDate);
+  const usualSlot = slotForHour(new Date().getHours());
+  const usuals = useMemo(
+    () => buildUsuals(history, dateKey, usualSlot),
+    [history, dateKey, usualSlot],
+  );
+  const logUsual = useCallback(
+    (usual: Usual) => {
+      addMealItem(usual.slot, {
+        id: '',
+        name: usual.name,
+        calories: usual.calories,
+        protein: usual.protein,
+        carbs: usual.carbs,
+        fats: usual.fats,
+      });
+      showToast(`Logged ${usual.name} · ${usual.calories} kcal`);
+    },
+    [addMealItem, showToast],
+  );
   const [y, m, d] = dateKey.split('-').map(Number);
   const weekDays: WeekDayEntry[] = lastSevenDateKeys(new Date(y, m - 1, d)).map((key) =>
     key === dateKey
@@ -186,6 +209,14 @@ export const FuelView: React.FC = () => {
         waterGoalL={hydrationGoalLiters(hydrationTargetL, weightKg)}
         onAddWater={logHydration}
         onOpenSettings={() => setSettingsOpen(true)}
+      />
+
+      <FuelUsualsRow
+        usuals={usuals}
+        slotLabel={
+          usualSlot === 'snack' ? 'Snacks' : usualSlot[0].toUpperCase() + usualSlot.slice(1)
+        }
+        onLog={logUsual}
       />
 
       <MealSuggestionsSection
