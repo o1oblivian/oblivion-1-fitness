@@ -38,7 +38,7 @@ const OFF_DOMAINS: Record<string, string> = {
   NZ: 'nz',
 };
 
-const OFF_TIMEOUT_MS = 8_000;
+const OFF_TIMEOUT_MS = 5_000;
 /** Only what a food row needs, which keeps each Open Food Facts answer small and quick. */
 const OFF_FIELDS = [
   'code',
@@ -94,8 +94,15 @@ function rowFromOff(product: OffProduct, country: string): FoodRow | null {
   };
 }
 
-async function searchOff(query: string, country: string, limit: number): Promise<FoodRow[]> {
-  const domain = OFF_DOMAINS[country] ?? 'world';
+/** After Open Food Facts fails every host, searches skip it for a short while instead of each waiting out a timeout. */
+const OFF_PAUSE_MS = 30_000;
+let offPausedUntil = 0;
+
+async function fetchOffProducts(
+  domain: string,
+  query: string,
+  limit: number,
+): Promise<OffProduct[]> {
   const url =
     `https://${domain}.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(query)}` +
     `&search_simple=1&action=process&json=1&page_size=${Math.min(limit * 2, 40)}` +
@@ -106,9 +113,28 @@ async function searchOff(query: string, country: string, limit: number): Promise
   });
   if (!res.ok) throw new Error(`Open Food Facts answered ${res.status}`);
   const body = (await res.json()) as { products?: OffProduct[] };
-  return (body.products ?? [])
-    .map((p) => rowFromOff(p, country))
-    .filter((row): row is FoodRow => row !== null);
+  return body.products ?? [];
+}
+
+/** The person's country site first, then the world site, which is a separate server when one is busy. */
+async function searchOff(query: string, country: string, limit: number): Promise<FoodRow[]> {
+  if (Date.now() < offPausedUntil) throw new Error('Open Food Facts is busy, skipped for now');
+  const local = OFF_DOMAINS[country];
+  const domains = local ? [local, 'world'] : ['world'];
+  let failure: unknown;
+  for (const domain of domains) {
+    try {
+      const products = await fetchOffProducts(domain, query, limit);
+      offPausedUntil = 0;
+      return products
+        .map((p) => rowFromOff(p, country))
+        .filter((row): row is FoodRow => row !== null);
+    } catch (err) {
+      failure = err;
+    }
+  }
+  offPausedUntil = Date.now() + OFF_PAUSE_MS;
+  throw failure instanceof Error ? failure : new Error('Open Food Facts did not answer');
 }
 
 async function searchUsda(

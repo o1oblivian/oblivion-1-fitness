@@ -40,6 +40,17 @@ describe('normalizeFdcFood', () => {
     expect(row?.calories).toBe(380);
   });
 
+  it('keeps a food that reports zero energy, such as water', () => {
+    const row = normalizeFdcFood({
+      fdcId: 4,
+      description: 'Water, bottled, generic',
+      foodNutrients: [
+        { nutrientNumber: '208', nutrientName: 'Energy', unitName: 'KCAL', value: 0 },
+      ],
+    });
+    expect(row).toMatchObject({ name: 'Water, bottled, generic', calories: 0 });
+  });
+
   it('drops foods with no nutrition and foods with no id', () => {
     expect(normalizeFdcFood({ fdcId: 3, description: 'Mystery', foodNutrients: [] })).toBeNull();
     expect(
@@ -60,12 +71,82 @@ describe('pickBestFood', () => {
     expect(picked?.name).toContain('meat only');
   });
 
+  it('prefers coconut water over its dried form', () => {
+    const dried: UsdaFood = {
+      ...food('Beverages, coconut water, dried'),
+      calories: 230,
+      protein: 2,
+      carbs: 50,
+      fats: 3,
+    };
+    const fresh: UsdaFood = {
+      ...food('Beverages, coconut water, ready-to-drink, unsweetened'),
+      calories: 19,
+      protein: 0.7,
+      carbs: 3.7,
+      fats: 0.2,
+    };
+    expect(pickBestFood('coconut water', [dried, fresh])).toBe(fresh);
+  });
+
   it('keeps a prepared variant when the query asks for it', () => {
     const picked = pickBestFood('fried chicken breast', [
       food('Chicken breast, fried'),
       food('Chicken breast, roasted'),
     ]);
     expect(picked?.name).toBe('Chicken breast, fried');
+  });
+
+  it('refuses a different food that only shares generic words', () => {
+    const shrimp = food('Fast foods, shrimp, breaded and fried');
+    expect(pickBestFood('Fast foods, mozzarella sticks, breaded, fried', [shrimp])).toBeNull();
+    expect(
+      pickBestFood("McDONALD'S, Baked Apple Pie", [food("McDONALD'S, Cheeseburger")]),
+    ).toBeNull();
+    expect(
+      pickBestFood('Meat pie, individually wrapped, baked', [food('Pie crust, baked')]),
+    ).toBeNull();
+  });
+
+  it('refuses a sub with a different filling', () => {
+    const blt = food('SUBWAY, B.L.T. sub on white bread with bacon, lettuce and tomato');
+    expect(pickBestFood('SUBWAY, ITALIAN B.M.T. sub on white bread with cheese', [blt])).toBeNull();
+  });
+
+  it('accepts plural and singular spellings of the same word', () => {
+    const tomatoes: UsdaFood = {
+      ...food('Tomatoes, red, ripe, raw', 18),
+      protein: 0.9,
+      carbs: 3.9,
+      fats: 0.2,
+    };
+    const picked = pickBestFood('tomato, raw', [tomatoes]);
+    expect(picked?.name).toBe('Tomatoes, red, ripe, raw');
+  });
+
+  it('skips a record whose energy does not fit its macros', () => {
+    const odd: UsdaFood = {
+      ...food('Water, flavoured'),
+      calories: 19,
+      protein: 0,
+      carbs: 0,
+      fats: 0,
+    };
+    expect(
+      pickBestFood('water', [odd, { ...odd, id: 'usda-2', name: 'Water, bottled', calories: 0 }])
+        ?.name,
+    ).toBe('Water, bottled');
+  });
+
+  it('keeps alcoholic drinks, whose energy the macros do not show', () => {
+    const wine: UsdaFood = {
+      ...food('Wine, red'),
+      calories: 85,
+      protein: 0.1,
+      carbs: 2.6,
+      fats: 0,
+    };
+    expect(pickBestFood('wine red', [wine])?.name).toBe('Wine, red');
   });
 
   it('returns null when nothing resembles the query', () => {

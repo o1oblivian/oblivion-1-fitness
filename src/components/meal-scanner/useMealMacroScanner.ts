@@ -92,11 +92,12 @@ export function useMealMacroScanner({
       const detected = await action();
       setScannedMeal(detected);
       tactileEngine.playPRCelebration();
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const failure = err instanceof Error ? err : null;
       let errMsg =
-        err?.message?.includes('permission') || err?.name === 'NotAllowedError'
+        failure?.message.includes('permission') || failure?.name === 'NotAllowedError'
           ? 'Camera permission denied. Manual macro entry enabled.'
-          : err?.message || MEAL_SCAN_FAILED;
+          : failure?.message || MEAL_SCAN_FAILED;
 
       // Provider and model errors are never shown verbatim.
       if (

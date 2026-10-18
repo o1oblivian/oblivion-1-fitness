@@ -19,7 +19,7 @@ const UID = '11111111-2222-3333-4444-555555555555';
 const sessions = () =>
   pendingSyncOps()
     .filter((op) => op.kind === 'session')
-    .map((op) => op.payload as Record<string, any>);
+    .map((op) => op.payload as Record<string, unknown>);
 
 beforeEach(() => {
   safeStorage.clear();

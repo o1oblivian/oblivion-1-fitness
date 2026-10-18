@@ -38,7 +38,7 @@ export const FOOD_BROWSE_CATEGORIES = [
   {
     id: 'fastfood',
     label: 'Fast food',
-    hint: 'burgers, pizza, fried chicken, wraps, fries and other takeaway meals',
+    hint: "burgers, pizza, fried chicken, wraps, fries and other takeaway meals, mostly from big chains with published nutrition such as McDonald's, KFC, Burger King, Subway, Domino's, Pizza Hut and Taco Bell",
   },
 ] as const;
 

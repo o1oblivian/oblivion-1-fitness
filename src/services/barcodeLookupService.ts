@@ -50,12 +50,20 @@ async function fetchOpenFoodFactsProduct(barcode: string): Promise<ScannedMealBr
   return null;
 }
 
+/** The browser's built-in barcode reader, which TypeScript's DOM types do not describe. */
+interface BarcodeDetectorLike {
+  detect(source: Blob | HTMLImageElement | HTMLVideoElement): Promise<Array<{ rawValue?: string }>>;
+}
+type BarcodeDetectorConstructor = new (options: { formats: string[] }) => BarcodeDetectorLike;
+
 export async function tryDetectNativeBarcode(
   source: Blob | HTMLVideoElement,
 ): Promise<string | null> {
   if (typeof window === 'undefined' || !('BarcodeDetector' in window)) return null;
   try {
-    const detector = new (window as any).BarcodeDetector({
+    const Detector = (window as unknown as { BarcodeDetector: BarcodeDetectorConstructor })
+      .BarcodeDetector;
+    const detector = new Detector({
       formats: ['ean_13', 'ean_8', 'upc_a', 'upc_e', 'code_128', 'code_39', 'qr_code'],
     });
     if (source instanceof Blob) {

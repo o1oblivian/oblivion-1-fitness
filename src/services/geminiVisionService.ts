@@ -10,7 +10,8 @@ import { readConfidence, readNutrient, resolveCalories } from './mealVisionTypes
 export const geminiKey: string =
   (typeof process !== 'undefined' && process.env?.GEMINI_API_KEY) ||
   (typeof import.meta !== 'undefined' && import.meta.env?.VITE_GEMINI_API_KEY) ||
-  (typeof import.meta !== 'undefined' && (import.meta.env as any)?.GEMINI_API_KEY_2) ||
+  (typeof import.meta !== 'undefined' &&
+    (import.meta.env as Record<string, string | undefined>)?.GEMINI_API_KEY_2) ||
   (typeof process !== 'undefined' && process.env?.GEMINI_API_KEY_2) ||
   '';
 
@@ -165,13 +166,13 @@ export async function analyzeMealNutrients(
           throw new Error(errJson.error);
         }
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('[MealScanner Failure]', err);
       if (attempt === 1) {
         await new Promise((r) => setTimeout(r, 400));
         continue;
       }
-      throw err?.message
+      throw err instanceof Error && err.message
         ? err
         : new Error('Could not read this meal photo. Retake it with the food clearly in view.');
     }

@@ -68,7 +68,11 @@ export function normalizeFdcFood(food: FdcFood): UsdaFood | null {
   const protein = round1(valueOf(nutrients, ['203']));
   const carbs = round1(valueOf(nutrients, ['205']));
   const fats = round1(valueOf(nutrients, ['204']));
-  if (calories <= 0 && protein <= 0 && carbs <= 0 && fats <= 0) return null;
+  const reportsZeroEnergy = nutrients.some(
+    (n) => ENERGY_NUMBERS.includes(String(n.nutrientNumber)) && Number(n.value) === 0,
+  );
+  // A record with no numbers at all is unusable, but a food that reports 0 kcal (water) is real.
+  if (calories <= 0 && protein <= 0 && carbs <= 0 && fats <= 0 && !reportsZeroEnergy) return null;
   return {
     id: `usda-${food.fdcId}`,
     name,
@@ -101,24 +105,87 @@ export async function searchFdc(
 const TOKEN = /[a-z0-9]+/g;
 /** Words that mean a different food than the plain one the query names. */
 const PREPARED =
-  /\b(breaded|battered|fried|frozen|canned|dehydrated|dry|powder|imitation|substitute)\b/;
+  /\b(breaded|battered|fried|frozen|canned|dehydrated|dried|dry|powder|powdered|concentrate|condensed|imitation|substitute)\b/;
 
 function tokens(text: string): string[] {
   return text.toLowerCase().match(TOKEN) ?? [];
 }
 
-/** Picks the entry that best matches the plain food named in the query, not a prepared variant of it. */
+/** Words that appear in many unrelated records, so matching them proves nothing. */
+const GENERIC = new Set([
+  'fast',
+  'food',
+  'foods',
+  'restaurant',
+  'all',
+  'type',
+  'types',
+  'with',
+  'and',
+  'the',
+  'of',
+  'on',
+  'in',
+  'no',
+  'a',
+  'an',
+  'or',
+  'only',
+  'regular',
+]);
+/** A query word this long that the record lacks means it is a different food. */
+const DISTINCTIVE_LENGTH = 6;
+const MIN_SHARE = 0.7;
+
+/** The same word as a record might spell it: plural or singular. */
+function spellings(word: string): string[] {
+  return [
+    word,
+    `${word}s`,
+    `${word}es`,
+    word.replace(/ies$/, 'y'),
+    word.replace(/es$/, ''),
+    word.replace(/s$/, ''),
+  ];
+}
+
+/**
+ * Whether the energy fits the macros. Energy is about 4 kcal per gram of protein or carbohydrate
+ * and 9 per gram of fat, so a record far from that is a data error. Alcohol adds energy the
+ * macros do not show, so drinks that contain it are exempt.
+ */
+function energyFitsMacros(food: UsdaFood): boolean {
+  if (
+    /\b(beer|wine|vodka|whisk(?:e)?y|rum|gin|liqueur|cider|spirits?|alcohol|brandy|tequila)\b/i.test(
+      food.name,
+    )
+  )
+    return true;
+  const fromMacros = food.protein * 4 + food.carbs * 4 + food.fats * 9;
+  return (
+    Math.abs(food.calories - fromMacros) <= Math.max(15, 0.4 * Math.max(food.calories, fromMacros))
+  );
+}
+
+/**
+ * Picks the record that is the food the query names, not a prepared variant of it. Returns null
+ * rather than a near miss: a missing food is better than the wrong food under its name.
+ */
 export function pickBestFood(query: string, foods: UsdaFood[]): UsdaFood | null {
-  const wanted = new Set(tokens(query));
-  if (wanted.size === 0 || foods.length === 0) return null;
+  const wanted = [...new Set(tokens(query))].filter((word) => !GENERIC.has(word));
+  if (wanted.length === 0 || foods.length === 0) return null;
   const queryText = query.toLowerCase();
   let best: { food: UsdaFood; score: number } | null = null;
   for (const food of foods) {
+    if (!energyFitsMacros(food)) continue;
     const have = new Set(tokens(food.name));
-    let hits = 0;
-    for (const word of wanted) if (have.has(word)) hits += 1;
-    if (hits === 0) continue;
-    let score = hits / wanted.size - (have.size - hits) * 0.02;
+    const found = wanted.filter((word) => spellings(word).some((form) => have.has(form)));
+    if (found.length / wanted.length < MIN_SHARE) continue;
+    const missingDistinct = wanted.some(
+      (word) => word.length >= DISTINCTIVE_LENGTH && !found.includes(word),
+    );
+    if (missingDistinct) continue;
+    let score = found.length / wanted.length - (have.size - found.length) * 0.02;
     const prepared = food.name.toLowerCase().match(PREPARED);
     if (prepared && !queryText.includes(prepared[1])) score -= 0.5;
     if (!best || score > best.score) best = { food, score };

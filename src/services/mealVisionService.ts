@@ -93,13 +93,14 @@ export async function analyzeMealImageWithGemini(
       } else if (!proxyRes.ok && data?.error && attempt === maxAttempts) {
         throw new Error(data.error);
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       clearTimeout(timeoutId);
       if (attempt < maxAttempts) {
         await new Promise((r) => setTimeout(r, 600));
         continue;
       }
-      if (err?.message && !err.message.includes('Sensor Standby')) {
+      const message = err instanceof Error ? err.message : '';
+      if (message && !message.includes('Sensor Standby')) {
         throw err;
       }
     }

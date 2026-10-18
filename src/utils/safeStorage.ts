@@ -11,7 +11,7 @@ import {
 const memoryStore = new Map<string, string>();
 
 export const safeStorage = {
-  getItem<T = any>(key: string, fallback?: T): T {
+  getItem<T = unknown>(key: string, fallback?: T): T {
     try {
       if (typeof window !== 'undefined' && window.localStorage) {
         const item = window.localStorage.getItem(key);

@@ -47,6 +47,20 @@ async function withRetry<T>(work: () => Promise<T>): Promise<T> {
   }
 }
 
+/** The model service answers "high demand" in bursts, so a failed request is repeated after a pause. */
+const MODEL_RETRY_DELAYS_MS = [2_000, 6_000, 12_000];
+
+async function withModelRetries<T>(work: () => Promise<T>): Promise<T> {
+  for (const delay of MODEL_RETRY_DELAYS_MS) {
+    try {
+      return await work();
+    } catch {
+      await new Promise((resolve) => setTimeout(resolve, delay));
+    }
+  }
+  return work();
+}
+
 async function findFood(draft: PopularDraft, apiKey: string): Promise<UsdaFood | null> {
   try {
     return (
@@ -69,36 +83,64 @@ async function buildPopularRows(
 ): Promise<FoodRow[]> {
   const genAI = getGenAI();
   if (!genAI) throw new Error('Gemini key missing');
-  const response = await generateContentWithFallback(
-    genAI,
-    [{ role: 'user', parts: [{ text: buildPopularPrompt(label, hint, country) }] }],
-    { responseMimeType: 'application/json', temperature: 0.2 },
-  );
-  const drafts = parsePopularDrafts(parseGeminiJson(response.text || ''));
+
+  const askForDrafts = (exclude: string[]) =>
+    withModelRetries(async () => {
+      const response = await generateContentWithFallback(
+        genAI,
+        [{ role: 'user', parts: [{ text: buildPopularPrompt(label, hint, country, exclude) }] }],
+        { responseMimeType: 'application/json', temperature: 0.2 },
+      );
+      const parsed = parsePopularDrafts(parseGeminiJson(response.text || ''));
+      if (parsed.length === 0) throw new Error('The model named no foods');
+      return parsed;
+    });
 
   const rows: FoodRow[] = [];
   const seen = new Set<string>();
-  for (let start = 0; start < drafts.length && rows.length < POPULAR_COUNT; start += LOOKUP_BATCH) {
-    const batch = drafts.slice(start, start + LOOKUP_BATCH);
-    const found = await Promise.all(batch.map((draft) => findFood(draft, apiKey)));
-    batch.forEach((draft, index) => {
-      const food = found[index];
-      if (!food || seen.has(food.id) || rows.length >= POPULAR_COUNT) return;
-      seen.add(food.id);
-      rows.push({
-        id: food.id,
-        name: draft.name,
-        brand: food.dataType === 'Branded' ? food.brand : 'USDA',
-        calories: food.calories,
-        protein: food.protein,
-        carbs: food.carbs,
-        fats: food.fats,
-        servingSize: '100 g',
-        servingGrams: 100,
-        country: 'US',
-        source: 'usda',
+  const asked: string[] = [];
+
+  const fillFrom = async (drafts: PopularDraft[]) => {
+    for (
+      let start = 0;
+      start < drafts.length && rows.length < POPULAR_COUNT;
+      start += LOOKUP_BATCH
+    ) {
+      const batch = drafts.slice(start, start + LOOKUP_BATCH);
+      const found = await Promise.all(batch.map((draft) => findFood(draft, apiKey)));
+      batch.forEach((draft, index) => {
+        const food = found[index];
+        if (!food || seen.has(food.id) || rows.length >= POPULAR_COUNT) return;
+        seen.add(food.id);
+        rows.push({
+          id: food.id,
+          name: draft.name,
+          brand: food.dataType === 'Branded' ? food.brand : 'USDA',
+          calories: food.calories,
+          protein: food.protein,
+          carbs: food.carbs,
+          fats: food.fats,
+          servingSize: '100 g',
+          servingGrams: 100,
+          country: 'US',
+          source: 'usda',
+        });
       });
-    });
+    }
+  };
+
+  const first = await askForDrafts([]);
+  asked.push(...first.map((draft) => draft.name));
+  await fillFrom(first);
+
+  // Some foods are not in the database; ask once more for other foods to make up the count.
+  if (rows.length < POPULAR_COUNT) {
+    try {
+      const more = (await askForDrafts(asked)).filter((draft) => !asked.includes(draft.name));
+      await fillFrom(more);
+    } catch (err) {
+      console.warn('[popular-foods] top-up skipped:', err instanceof Error ? err.message : err);
+    }
   }
   return rows;
 }

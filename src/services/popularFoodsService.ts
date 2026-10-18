@@ -5,7 +5,7 @@ import { liveRowToRecord, type LiveFoodRow } from './foodCatalogService';
 import type { FoodItemRecord } from './foodTypes';
 
 /** The first request of the day makes the server look up to 50 foods, so it is given time. */
-const POPULAR_TIMEOUT_MS = 90_000;
+const POPULAR_TIMEOUT_MS = 150_000;
 
 const remembered = new Map<string, FoodItemRecord[]>();
 
