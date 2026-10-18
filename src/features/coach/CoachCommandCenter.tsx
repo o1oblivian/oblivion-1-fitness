@@ -16,6 +16,7 @@ import { DirectiveItem } from './types/coachDirectives';
 import type { NoteDraft } from './components/DirectiveSignalsSection';
 import { CoachFloor } from './components/CoachFloor';
 import { AddClientModal } from './components/AddClientModal';
+import { RosterCapNotice } from './components/RosterCapNotice';
 import {
   CoachCommandCenterModals,
   type CoachModalFlags,
@@ -252,6 +253,7 @@ export const CoachCommandCenter: React.FC<CoachCommandCenterProps> = ({ isCoach 
       )}
 
       <div className="space-y-4">
+        <RosterCapNotice seated={roster.length} />
         <CoachFloor
           coachId={coachId}
           card={card}

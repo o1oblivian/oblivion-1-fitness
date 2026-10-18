@@ -1,5 +1,6 @@
 import { timingSafeEqual } from 'node:crypto';
 import type { Request, Response } from 'express';
+import { coachPlanFromTier } from '../../shared/coachPlans';
 import { getSupabaseAdmin } from '../lib/stripeLedger';
 
 export interface RevenueCatEvent {
@@ -58,6 +59,32 @@ export function entitlementChangeFor(event: RevenueCatEvent): EntitlementChange 
   return null;
 }
 
+export interface StoredEntitlement {
+  tier: string;
+  status: string;
+  expires_at: string | null;
+}
+
+/**
+ * `user_entitlements` keeps one row per user, and the coach plan (fee rate and roster cap) is read from it.
+ * A lesser product, such as the Founder Pass or athlete Pro, must therefore never replace or switch off a
+ * Coach Pro row that is still live. Coach Pro events always win.
+ */
+export function writableChange(
+  existing: StoredEntitlement | null,
+  change: EntitlementChange,
+  now: number = Date.now(),
+): EntitlementChange | null {
+  const isCoach = (tier: string) => coachPlanFromTier(tier) === 'pro';
+  if (isCoach(change.tier)) return change;
+  const coachIsLive =
+    existing !== null &&
+    existing.status === 'active' &&
+    isCoach(existing.tier) &&
+    (!existing.expires_at || Date.parse(existing.expires_at) > now);
+  return coachIsLive ? null : change;
+}
+
 export function webhookAuthorized(header: string | undefined, secret: string): boolean {
   if (!secret || !header) return false;
   const expected = Buffer.from(`Bearer ${secret}`);
@@ -85,7 +112,17 @@ export async function handleRevenueCatWebhook(req: Request, res: Response): Prom
     res.status(503).json({ error: 'Entitlement storage is not configured.' });
     return;
   }
-  const change = entitlementChangeFor(event);
+  const incoming = entitlementChangeFor(event);
+  const existing = incoming
+    ? (
+        await admin
+          .from('user_entitlements')
+          .select('tier, status, expires_at')
+          .eq('user_id', incoming.userId)
+          .maybeSingle()
+      ).data
+    : null;
+  const change = incoming ? writableChange(existing, incoming) : null;
   if (change) {
     const now = new Date().toISOString();
     const { error } = await admin.from('user_entitlements').upsert({

@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { X, ShieldCheck, RotateCcw, Check, Sparkles, Loader2 } from 'lucide-react';
 import { useSubscription } from '../../../context/SubscriptionContext';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { planKind } from '../../../services/revenueCatService';
 import { openLegalUrl } from '../../../services/apiBase';
 import { IAP_PRODUCTS, IAPProductInfo } from '../../../types/iap';
+import { COACH_PAYWALL_FEATURE } from '../planCatalog';
 import { useStorePlans } from '../useStorePlans';
 import { useStorePurchase } from '../useStorePurchase';
 
@@ -27,13 +28,21 @@ const PERKS = [
 ];
 
 export const ClubPassPaywallModal: React.FC = () => {
-  const { isPaywallOpen, closePaywall, restorePurchases } = useSubscription();
+  const { isPaywallOpen, gatedFeature, closePaywall, restorePurchases } = useSubscription();
   const [audience, setAudience] = useState<Audience>('athletes');
   const [selectedId, setSelectedId] = useState(DEFAULT_PLAN.athletes);
   const [isRestoring, setIsRestoring] = useState(false);
   const [statusMsg, setStatusMsg] = useState<string | null>(null);
   const storePlans = useStorePlans(isPaywallOpen);
   const purchase = useStorePurchase();
+
+  // Opening from a coach prompt (roster full) lands on the coach plans; every other entry starts on athletes.
+  useEffect(() => {
+    if (!isPaywallOpen) return;
+    const next: Audience = gatedFeature === COACH_PAYWALL_FEATURE ? 'coaches' : 'athletes';
+    setAudience(next);
+    setSelectedId(DEFAULT_PLAN[next]);
+  }, [isPaywallOpen, gatedFeature]);
 
   if (!isPaywallOpen) return null;
 

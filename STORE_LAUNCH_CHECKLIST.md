@@ -37,7 +37,8 @@ Apple & Google developer accounts: **done** (you confirmed).
 - [ ] Submit the first subscriptions together with the new app version
 - [ ] Archive the Test Store products, the `$rc_annual` (Yearly) package and the old travel products in RC
 - [x] Entitlement `o1fc_pro` attached to all three products (a coach plan includes Pro)
-- [ ] Coach roster cap (5 free athletes) enforced server-side. Today it is only shown in the UI
+- [x] Coach roster cap (5 free athletes) built as a database trigger. Run `supabase/migrations/20261018_coach_roster_cap.sql` in production, then redeploy Render (webhook no longer lets a Founder Pass overwrite a live Coach Pro)
+- [ ] Give the owner's own coach account a `user_entitlements` row with a `coach_pro` tier, otherwise it is capped at 5 athletes and the 15% fee
 - [ ] Webhook URL (wait until production API URL exists) + `REVENUECAT_WEBHOOK_AUTH`
 
 ### A4. Supabase

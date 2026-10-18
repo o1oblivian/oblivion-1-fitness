@@ -1,6 +1,9 @@
 import { IAP_PRODUCTS, IAPProductInfo } from '../../types/iap';
 import type { MembershipTier } from '../induction/consultationTypes';
 
+/** `openPaywall(COACH_PAYWALL_FEATURE)` opens the paywall on the coach plans. */
+export const COACH_PAYWALL_FEATURE = 'Coach Pro';
+
 export interface PlanCopy {
   product: IAPProductInfo;
   audience: 'athlete' | 'coach';
@@ -58,12 +61,7 @@ export const TIER_PLANS: Record<MembershipTier, PlanCopy> = {
     product: IAP_PRODUCTS.coach_pro,
     audience: 'coach',
     headline: 'Unlimited roster, lower fees.',
-    highlights: [
-      'Unlimited athletes',
-      'Automated periodization',
-      'Priority support',
-      '10% fee on program sales',
-    ],
+    highlights: ['Unlimited athletes', '10% fee on program sales', 'Everything in Club Pass Pro'],
     renews: true,
   },
 };

@@ -31,7 +31,7 @@ export const MembershipPlanFeatures: React.FC<Props> = ({
     { label: 'Alcohol Impact Tracker', value: '✓' },
     { label: 'Weekly Progress Charts', value: '✓' },
     { label: 'Share Progress Cards', value: '✓' },
-    { label: 'Coach Marketplace', value: isFreeAthlete ? 'Browse + message' : 'Priority Access' },
+    { label: 'Coach Marketplace', value: 'Browse + message' },
     { label: 'Wallpapers', value: isFreeAthlete ? '3 presets' : 'All unlocked' },
     { label: 'Watch Dial Faces', value: isFreeAthlete ? '1 default' : 'All unlocked' },
     { label: 'Body stats', value: isFreeAthlete ? 'View only' : 'Deep Analytics' },
@@ -42,8 +42,6 @@ export const MembershipPlanFeatures: React.FC<Props> = ({
   const athleteExtFeatures = [
     { label: '5-Axis Athlete Polygon', value: isFreeAthlete ? '—' : '✓' },
     { label: 'Training load balance', value: isFreeAthlete ? '—' : '✓' },
-    { label: 'Metabolic Locomotion Audits', value: isFreeAthlete ? '—' : '✓' },
-    { label: 'Intracellular Hydration Model', value: isFreeAthlete ? '—' : '✓' },
   ];
 
   const coachFeatures = [
@@ -56,14 +54,10 @@ export const MembershipPlanFeatures: React.FC<Props> = ({
     { label: 'Transformation Studio', value: '✓' },
     { label: 'Client Progress Export', value: '✓' },
     { label: 'Earnings Dashboard', value: '✓' },
+    { label: 'Club Pass Pro features', value: isFreeCoach ? '—' : '✓' },
   ];
 
-  const coachExtFeatures = [
-    { label: 'Automated Periodization', value: isFreeCoach ? '—' : '✓' },
-    { label: 'Team Kinetic Rollups', value: isFreeCoach ? '—' : '✓' },
-    { label: 'Soft-Tissue Injury Predictor', value: isFreeCoach ? '—' : '✓' },
-    { label: 'Priority Support Concierge', value: isFreeCoach ? '—' : '✓' },
-  ];
+  const coachExtFeatures: { label: string; value: string }[] = [];
 
   const base = userType === 'athletes' ? athleteFeatures : coachFeatures;
   const ext = userType === 'athletes' ? athleteExtFeatures : coachExtFeatures;

@@ -10,7 +10,11 @@ import { AthleteAvatar } from './floor/FloorAthleteCard';
 const REQUESTS_EVENT = 'o1-coaching-requests-changed';
 
 /** Pending consultation requests for a coach, kept in sync across every view that shows them. */
-export function useCoachingRequests(coachId: string, onAccepted?: () => void) {
+export function useCoachingRequests(
+  coachId: string,
+  onAccepted?: () => void,
+  onRosterFull?: () => void,
+) {
   const [requests, setRequests] = useState<CoachingApplication[]>([]);
 
   const load = useCallback(() => {
@@ -28,8 +32,12 @@ export function useCoachingRequests(coachId: string, onAccepted?: () => void) {
 
   const decide = async (request: CoachingApplication, accept: boolean) => {
     tactileEngine.triggerSelectionBuzz();
-    const ok = await decideApplication(request, accept);
-    if (!ok) return;
+    const result = await decideApplication(request, accept);
+    if (result === 'roster_full') {
+      onRosterFull?.();
+      return;
+    }
+    if (result !== 'ok') return;
     setRequests((prev) => prev.filter((row) => row.id !== request.id));
     window.dispatchEvent(new CustomEvent(REQUESTS_EVENT));
     if (accept) onAccepted?.();

@@ -8,6 +8,7 @@ import { isSampleId } from './sampleIds';
 import { isValidUuid } from './coachService';
 import { ensureCoachCard } from './coachPublicProfile';
 import { fetchCoachCard } from './coachDirectory';
+import { isRosterFull } from './rosterCap';
 import { buildProgramPlan, weekOneLines } from './programPlan';
 import type { ProgramFormData } from '../components/programCreator/types';
 import {
@@ -42,12 +43,22 @@ export async function publishCoachInvite(
   return !error;
 }
 
+export interface InviteOutcome {
+  coach: LinkedCoach | null;
+  /** True when the invite was valid but the coach has no open spot; the pending invite is dropped. */
+  rosterFull: boolean;
+}
+
 export async function acceptCoachInvite(): Promise<LinkedCoach | null> {
+  return (await acceptCoachInviteOutcome()).coach;
+}
+
+export async function acceptCoachInviteOutcome(): Promise<InviteOutcome> {
   const code = readPendingInvite();
-  if (!code) return readLinkedCoach();
+  if (!code) return { coach: readLinkedCoach(), rosterFull: false };
   const { data: auth } = await supabase.auth.getUser();
   const user = auth.user;
-  if (!user?.id) return readLinkedCoach();
+  if (!user?.id) return { coach: readLinkedCoach(), rosterFull: false };
   const meta = user.user_metadata ?? {};
   const name = String(meta.full_name || meta.name || user.email?.split('@')[0] || 'Athlete');
   const avatar = typeof meta.avatar_url === 'string' ? meta.avatar_url : '';
@@ -62,7 +73,13 @@ export async function acceptCoachInvite(): Promise<LinkedCoach | null> {
     coach_handle?: string;
     coach_avatar?: string;
   } | null;
-  if (error || !row?.coach_id || !row.coach_name) return readLinkedCoach();
+  if (isRosterFull(error)) {
+    localStorage.removeItem('o1_pending_invite');
+    return { coach: readLinkedCoach(), rosterFull: true };
+  }
+  if (error || !row?.coach_id || !row.coach_name) {
+    return { coach: readLinkedCoach(), rosterFull: false };
+  }
   const coach: LinkedCoach = {
     id: String(row.coach_id),
     name: String(row.coach_name),
@@ -71,7 +88,7 @@ export async function acceptCoachInvite(): Promise<LinkedCoach | null> {
   };
   localStorage.removeItem('o1_pending_invite');
   saveLinkedCoach(coach);
-  return coach;
+  return { coach, rosterFull: false };
 }
 
 /**

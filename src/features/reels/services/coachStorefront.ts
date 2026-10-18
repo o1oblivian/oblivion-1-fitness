@@ -354,21 +354,28 @@ export async function fetchCoachApplications(coachId: string): Promise<CoachingA
   return Array.isArray(data) ? data.map(mapApplication) : [];
 }
 
+export type DecisionResult = 'ok' | 'roster_full' | 'failed';
+
+/**
+ * Accepting seats the athlete first, so a full roster never leaves an application marked accepted
+ * with nobody on the roster. Declining only records the decision.
+ */
 export async function decideApplication(
   application: CoachingApplication,
   accept: boolean,
-): Promise<boolean> {
+): Promise<DecisionResult> {
+  if (accept) {
+    const linked = await linkCoachClient(application.coachId, {
+      id: application.athleteId,
+      name: application.athleteName || 'Athlete',
+    });
+    if (linked !== 'linked') return linked;
+  }
   const { error } = await supabase
     .from('coaching_applications')
     .update({ status: accept ? 'accepted' : 'declined', decided_at: new Date().toISOString() })
     .eq('id', application.id);
-  if (error) return false;
-  if (accept)
-    await linkCoachClient(application.coachId, {
-      id: application.athleteId,
-      name: application.athleteName || 'Athlete',
-    });
-  return true;
+  return error ? 'failed' : 'ok';
 }
 
 export async function adoptAcceptedCoach(): Promise<boolean> {

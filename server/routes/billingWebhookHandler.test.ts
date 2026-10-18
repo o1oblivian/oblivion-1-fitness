@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { entitlementChangeFor, webhookAuthorized } from './billingWebhookHandler';
+import {
+  entitlementChangeFor,
+  webhookAuthorized,
+  writableChange,
+  type StoredEntitlement,
+} from './billingWebhookHandler';
 
 const base = {
   app_user_id: 'user-1',
@@ -84,5 +89,49 @@ describe('entitlementChangeFor', () => {
     ).toBeNull();
     expect(entitlementChangeFor({ ...base, type: 'TEST' })).toBeNull();
     expect(entitlementChangeFor({ ...base, type: 'BILLING_ISSUE' })).toBeNull();
+  });
+});
+
+describe('writableChange', () => {
+  const now = Date.UTC(2026, 9, 18);
+  const liveCoach: StoredEntitlement = {
+    tier: 'o1fc_coach_pro_monthly',
+    status: 'active',
+    expires_at: '2026-11-18T00:00:00.000Z',
+  };
+  const founder = entitlementChangeFor({
+    ...base,
+    type: 'NON_RENEWING_PURCHASE',
+    product_id: 'o1fc_founder_pass',
+    expiration_at_ms: null,
+  });
+  const coachExpired = entitlementChangeFor({
+    ...base,
+    type: 'EXPIRATION',
+    product_id: 'o1fc_coach_pro_monthly:monthly',
+  });
+
+  it('writes when the user has no row yet', () => {
+    expect(founder && writableChange(null, founder, now)).toEqual(founder);
+  });
+
+  it('does not let a Founder Pass purchase replace a live Coach Pro row', () => {
+    expect(founder && writableChange(liveCoach, founder, now)).toBeNull();
+  });
+
+  it('does not let an athlete Pro expiry switch off a live Coach Pro row', () => {
+    const athleteExpired = entitlementChangeFor({ ...base, type: 'EXPIRATION' });
+    expect(athleteExpired && writableChange(liveCoach, athleteExpired, now)).toBeNull();
+  });
+
+  it('lets the Coach Pro expiry through, including the Play base-plan id', () => {
+    expect(coachExpired && writableChange(liveCoach, coachExpired, now)).toEqual(coachExpired);
+  });
+
+  it('lets a lesser product write once Coach Pro has lapsed', () => {
+    const lapsed: StoredEntitlement = { ...liveCoach, expires_at: '2026-10-01T00:00:00.000Z' };
+    const inactive: StoredEntitlement = { ...liveCoach, status: 'inactive' };
+    expect(founder && writableChange(lapsed, founder, now)).toEqual(founder);
+    expect(founder && writableChange(inactive, founder, now)).toEqual(founder);
   });
 });

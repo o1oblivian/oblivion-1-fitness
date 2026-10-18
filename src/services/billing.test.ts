@@ -152,6 +152,27 @@ describe('entitlementFromCustomerInfo', () => {
     });
   });
 
+  it('prefers Coach Pro over a Founder Pass held by the same account', () => {
+    const info = customer({
+      active: [
+        {
+          identifier: 'founder',
+          productIdentifier: 'o1fc_founder_pass',
+          expirationDate: null,
+          willRenew: false,
+        },
+        {
+          identifier: 'o1fc_pro',
+          productIdentifier: 'o1fc_coach_pro_monthly',
+          expirationDate: '2026-11-14T00:00:00Z',
+        },
+      ],
+    });
+    expect(entitlementFromCustomerInfo(info, 'ios')).toMatchObject({
+      tierId: 'o1fc_coach_pro_monthly',
+    });
+  });
+
   it('prefers a lifetime entitlement over a subscription', () => {
     const info = customer({
       active: [

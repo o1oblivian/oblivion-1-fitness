@@ -140,7 +140,11 @@ export function entitlementFromCustomerInfo(
 ): EntitlementInfo {
   if (!info) return freeEntitlement(platform);
   const active = Object.values(info.entitlements.active).filter((e) => e.isActive);
-  const best = active.find((e) => e.expirationDate === null) ?? active[0];
+  // A Coach Pro subscription outranks a Founder Pass held by the same person, so the fee shown matches the server.
+  const best =
+    active.find((e) => planKind(e.productIdentifier) === 'coach') ??
+    active.find((e) => e.expirationDate === null) ??
+    active[0];
   if (best) {
     return {
       isActive: true,

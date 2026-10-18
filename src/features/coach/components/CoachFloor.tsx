@@ -38,6 +38,7 @@ import { CoachEarningsDeck } from './CoachEarningsDeck';
 import { FloorAthleteCard, type FloorCardAction } from './floor/FloorAthleteCard';
 import { CoachFeedbackSheet } from './floor/CoachFeedbackSheet';
 import { CoachingRequestCard, useCoachingRequests } from './CoachingRequests';
+import { ROSTER_FULL_COACH_MESSAGE } from '../services/rosterCap';
 import {
   CoachProfileHeader,
   ProfileActionButton,
@@ -231,7 +232,9 @@ export const CoachFloor: React.FC<CoachFloorProps> = ({
   const [storefront, setStorefront] = useState<StorefrontStats>(EMPTY_STATS);
   const [programs, setPrograms] = useState<StorefrontProgram[] | null>(null);
   const [editing, setEditing] = useState(false);
-  const { requests, decide } = useCoachingRequests(coachId, onRosterChanged);
+  const { requests, decide } = useCoachingRequests(coachId, onRosterChanged, () =>
+    onShowToast?.(ROSTER_FULL_COACH_MESSAGE),
+  );
 
   const loadFilms = useCallback(async () => {
     if (!coachId) return;

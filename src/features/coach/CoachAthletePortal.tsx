@@ -13,8 +13,9 @@ import { LinkedCoach, readLinkedCoach } from './services/coachLink';
 import { CoachCard, fetchCoachCards, formatHandle } from './services/coachDirectory';
 import { fetchMyCoachCard } from './services/coachPublicProfile';
 import { adoptAcceptedCoach, fetchStorefrontPrograms } from '../reels/services/coachStorefront';
+import { ROSTER_FULL_ATHLETE_MESSAGE } from './services/rosterCap';
 import {
-  acceptCoachInvite,
+  acceptCoachInviteOutcome,
   fetchAthleteCheckins,
   fetchCoachNotes,
   fetchMyFinishedWorkouts,
@@ -59,6 +60,7 @@ export const CoachAthletePortal: React.FC<{ isCoach?: boolean }> = ({ isCoach = 
     isCoach ? null : readLinkedCoach(),
   );
   const [directory, setDirectory] = useState<CoachCard[]>([]);
+  const [joinNotice, setJoinNotice] = useState('');
   const [programCount, setProgramCount] = useState<number | null>(null);
   const [films, setFilms] = useState<ProfileFilm[] | null>(null);
   const [notes, setNotes] = useState<Note[]>([]);
@@ -78,7 +80,8 @@ export const CoachAthletePortal: React.FC<{ isCoach?: boolean }> = ({ isCoach = 
         if (!cancelled && card) setCoach(cardToCoach(card));
         return;
       }
-      await acceptCoachInvite();
+      const invite = await acceptCoachInviteOutcome();
+      if (!cancelled && invite.rosterFull) setJoinNotice(ROSTER_FULL_ATHLETE_MESSAGE);
       let linked = await fetchMyLinkedCoach();
       if (linked && !linked.coach && (await adoptAcceptedCoach()))
         linked = await fetchMyLinkedCoach();
@@ -254,6 +257,14 @@ export const CoachAthletePortal: React.FC<{ isCoach?: boolean }> = ({ isCoach = 
   if (!coach) {
     return (
       <div id="o1fcoach-athlete-portal" className="w-full space-y-3 select-none pt-1">
+        {joinNotice && (
+          <p
+            role="status"
+            className="rounded-2xl border border-white/[0.07] bg-o1-surface p-3 text-o1-body text-o1-text"
+          >
+            {joinNotice}
+          </p>
+        )}
         <AthleteProgramsPanel />
         {directory.length > 0 && (
           <p className="px-1 pt-2 text-o1-body font-semibold text-o1-text">

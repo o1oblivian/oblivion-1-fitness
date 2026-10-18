@@ -3,6 +3,7 @@ import { hydrationGoalLiters } from '../../fuel/utils/fuelMath';
 import { DirectiveItem } from '../types/coachDirectives';
 import { WORKOUT_BLUEPRINTS } from '../../../data/workoutBlueprints';
 import { isSampleId } from './sampleIds';
+import { isRosterFull } from './rosterCap';
 
 export interface Athlete {
   id: string;
@@ -223,12 +224,14 @@ export async function fetchCoachClients(coachId: string, offset = 0): Promise<At
   }
 }
 
-/** Links an athlete to a coach. Safe to call twice; the pair is unique. */
+export type LinkResult = 'linked' | 'roster_full' | 'failed';
+
+/** Links an athlete to a coach. Safe to call twice; the pair is unique. 'roster_full' means the coach is at their cap. */
 export async function linkCoachClient(
   coachId: string,
   client: { id: string; name: string; avatar?: string },
-): Promise<boolean> {
-  if (!isValidUuid(coachId) || !isValidUuid(client.id)) return false;
+): Promise<LinkResult> {
+  if (!isValidUuid(coachId) || !isValidUuid(client.id)) return 'failed';
   const { error } = await supabase.from('coach_clients').upsert(
     {
       coach_id: coachId,
@@ -239,8 +242,10 @@ export async function linkCoachClient(
     },
     { onConflict: 'coach_id,client_id' },
   );
-  if (error) console.warn('[coachService] link client failed:', error.message);
-  return !error;
+  if (!error) return 'linked';
+  if (isRosterFull(error)) return 'roster_full';
+  console.warn('[coachService] link client failed:', error.message);
+  return 'failed';
 }
 
 const BLUEPRINT_TITLES = new Set(WORKOUT_BLUEPRINTS.map((row) => row.title.trim().toLowerCase()));
