@@ -23,8 +23,6 @@ export const FuelIntakeSection: React.FC<FuelIntakeSectionProps> = ({
   onOpenAddFoodModal,
   onOpenScanModal,
 }) => {
-  const filledSlots = MEAL_SLOTS.filter((slot) => (meals[slot.key] || []).length > 0).length;
-
   return (
     <section id="verified-intake-categories" className="space-y-3 select-none">
       <button
@@ -33,12 +31,7 @@ export const FuelIntakeSection: React.FC<FuelIntakeSectionProps> = ({
         aria-expanded={isIntakeExpanded}
         className="w-full flex items-center justify-between px-1 cursor-pointer bg-transparent border-0"
       >
-        <span className="flex items-center gap-2">
-          <span className="text-base font-semibold text-o1-text">Intake</span>
-          <span className="px-2 py-0.5 rounded-full text-o1-label font-medium tabular-nums border border-white/[0.08] text-o1-muted">
-            {filledSlots}/{MEAL_SLOTS.length} logged
-          </span>
-        </span>
+        <span className="text-base font-semibold text-o1-text">Intake</span>
         <span className="w-7 h-7 rounded-full border border-white/[0.08] flex items-center justify-center text-o1-muted">
           <ChevronUp
             className={`w-4 h-4 transition-transform duration-200 ${isIntakeExpanded ? '' : 'rotate-180'}`}

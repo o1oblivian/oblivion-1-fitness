@@ -60,12 +60,12 @@ export const FuelIntakeSlotCard: React.FC<FuelIntakeSlotCardProps> = ({
             <p className="text-o1-label text-black/60 tabular-nums truncate">{subtitle}</p>
           </div>
         </div>
-        <div className="text-right shrink-0 tabular-nums">
-          <span className="o1-unread block text-sm font-semibold text-black">
-            {hasItems ? Math.round(totalKcal).toLocaleString() : '--'}{' '}
+        {hasItems ? (
+          <span className="shrink-0 text-right text-sm font-semibold tabular-nums text-black">
+            {Math.round(totalKcal).toLocaleString()}{' '}
             <span className="text-o1-label font-normal text-black/60">kcal</span>
           </span>
-        </div>
+        ) : null}
       </div>
 
       {hasItems && (

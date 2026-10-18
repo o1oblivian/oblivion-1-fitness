@@ -45,6 +45,12 @@ export const SupplementsElectrolytesAccordion: React.FC<SupplementsElectrolytesA
   const taken = new Set(takenIds);
   const takenCount = stack.filter((s) => taken.has(s.id)).length;
 
+  const dueToday = stack.filter((s) => !taken.has(s.id));
+  const takeSupplement = (id: string, name: string, dosage: string) => {
+    useFuelStore.getState().toggleSupplementTaken(id);
+    onShowToast?.(`Took ${name} · ${dosage}`);
+  };
+
   const selectPane = (next: Pane) => {
     tactileEngine.triggerSelectionBuzz();
     setPane(next);
@@ -83,6 +89,27 @@ export const SupplementsElectrolytesAccordion: React.FC<SupplementsElectrolytesA
           className={`w-4 h-4 text-o1-muted transition-transform ${isOpen ? 'rotate-180' : ''}`}
         />
       </button>
+
+      {!isOpen && dueToday.length > 0 && (
+        <div
+          className="flex gap-2 overflow-x-auto no-scrollbar"
+          style={{ scrollbarWidth: 'none' }}
+          role="group"
+          aria-label="Supplements still to take"
+        >
+          {dueToday.map((item) => (
+            <button
+              key={item.id}
+              type="button"
+              onClick={() => takeSupplement(item.id, item.name, item.dosage)}
+              aria-label={`Mark ${item.name} taken`}
+              className="h-9 shrink-0 rounded-full border border-white/[0.08] px-3.5 text-o1-body font-medium text-o1-text active:bg-o1-surface cursor-pointer"
+            >
+              {item.name}
+            </button>
+          ))}
+        </div>
+      )}
 
       {isOpen && (
         <div className="pt-3 space-y-3.5 border-t border-white/[0.08] animate-in fade-in duration-200">

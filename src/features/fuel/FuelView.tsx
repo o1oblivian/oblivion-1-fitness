@@ -225,7 +225,6 @@ export const FuelView: React.FC = () => {
         loggedSlots={loggedSlots}
         dietPreference={dietPreference}
         onOpenDietModal={() => modals.setIsDietModalOpen(true)}
-        onOpenSettings={() => setSettingsOpen(true)}
         onAddMealItem={addMealItem}
         showToast={showToast}
       />
