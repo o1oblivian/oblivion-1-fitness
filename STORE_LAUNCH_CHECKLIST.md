@@ -31,8 +31,13 @@ Apple & Google developer accounts: **done** (you confirmed).
 - [x] Product IDs: `o1fc_pro_monthly`, `o1fc_founder_pass`, `o1fc_coach_pro_monthly`
 - [x] Default offering mapped
 - [ ] Confirm `appl_` / `goog_` keys in env match **this** RC project
-- [ ] Store products created in App Store Connect + Play with those exact IDs, then linked in RC
-- [x] Entitlement `o1fc_pro` attached to all three products
+- [x] Google Play: `o1fc_pro_monthly`, `o1fc_coach_pro_monthly`, `o1fc_founder_pass` created and linked in RC
+- [ ] App Store Connect: all three products show "Missing Metadata" in RC. Each needs display name, description, price, availability and a review screenshot
+- [ ] App Store Connect: put Coach Pro at Level 1 above Pro Monthly in the subscription group (it includes Pro)
+- [ ] Submit the first subscriptions together with the new app version
+- [ ] Archive the Test Store products, the `$rc_annual` (Yearly) package and the old travel products in RC
+- [x] Entitlement `o1fc_pro` attached to all three products (a coach plan includes Pro)
+- [ ] Coach roster cap (5 free athletes) enforced server-side. Today it is only shown in the UI
 - [ ] Webhook URL (wait until production API URL exists) + `REVENUECAT_WEBHOOK_AUTH`
 
 ### A4. Supabase
