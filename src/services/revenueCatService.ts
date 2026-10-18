@@ -13,7 +13,6 @@ import { isNativeStorePlatform, resolveNativeStoreKey } from './purchasesService
 export const REVENUECAT_ENTITLEMENT_PRO = 'o1fc_pro';
 /** Google Play base product (base plan id is appended as `o1fc_pro_monthly:monthly`). */
 export const REVENUECAT_TIER_MONTHLY = 'o1fc_pro_monthly';
-export const REVENUECAT_TIER_FOUNDER = 'o1fc_founder_pass';
 const STORAGE_KEY = 'o1fc_revenuecat_entitlements';
 const STATUS_KEY = 'o1fc_subscription_status';
 

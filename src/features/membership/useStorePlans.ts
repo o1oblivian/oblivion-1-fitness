@@ -90,7 +90,7 @@ export function useStorePlans(enabled: boolean = true): StorePlans {
     };
     return {
       priceOf: (product) =>
-        product.isFree ? product.price : (loaded.prices[product.productId] ?? '--'),
+        product.isFree ? (product.price ?? '$0') : (loaded.prices[product.productId] ?? '--'),
       availability,
       notice: (product) => {
         const state = availability(product);

@@ -72,10 +72,6 @@ function foodQueryScore(name: string, brand: string, query: string): number {
   return score;
 }
 
-export function matchesFoodQuery(name: string, brand: string, query: string): boolean {
-  return foodQueryScore(name, brand, query) > 0;
-}
-
 /** Stable sort by match score; unmatched rows (e.g. live results with odd names) keep their order at the end. */
 export function rankByFoodQuery<T extends { name: string; brand: string }>(
   items: T[],

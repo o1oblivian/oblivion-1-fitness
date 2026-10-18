@@ -2,6 +2,7 @@ import { filterCustomFoods } from './customFoodDatabase';
 import { errorMessage, errorName } from '../../shared/errorMessage';
 import { rankByFoodQuery } from '../features/fuel/utils/foodSearchMatch';
 import { apiFetch } from './apiBase';
+import type { DietFacts } from '../../shared/foodDiet';
 import type { FoodItemRecord } from './foodTypes';
 
 export type { FoodItemRecord };
@@ -22,6 +23,7 @@ export interface LiveFoodRow {
   servingGrams?: number | string;
   country?: string;
   source?: string;
+  diet?: DietFacts;
 }
 
 export interface FoodSearchResult {
@@ -50,12 +52,8 @@ export function liveRowToRecord(row: LiveFoodRow, country: string): FoodItemReco
     serving_grams: Number(row.servingGrams) || 100,
     country: row.country || country,
     source: row.source === 'usda' ? 'usda' : 'openfoodfacts',
+    diet: row.diet,
   };
-}
-
-/** The person's own saved foods, newest first. Shown when nothing is typed. */
-export function listCustomFoods(): FoodItemRecord[] {
-  return filterCustomFoods();
 }
 
 /**

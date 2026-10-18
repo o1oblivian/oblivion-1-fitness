@@ -1,7 +1,8 @@
 export interface IAPProductInfo {
   readonly productId: string;
   readonly name: string;
-  readonly price: string;
+  /** Only free plans carry a price here. Paid prices come from the store, never from the app. */
+  readonly price?: string;
   readonly periodText?: string;
   readonly description: string;
   readonly badge?: string;
@@ -14,7 +15,6 @@ export const IAP_PRODUCTS = {
   founder_pass: {
     productId: 'o1fc_founder_pass',
     name: 'Founder Pass',
-    price: '$24.00',
     periodText: '/once',
     description: 'Lifetime All-Access forever • one-time, non-recurring',
     badge: 'POPULAR',
@@ -34,7 +34,6 @@ export const IAP_PRODUCTS = {
   premium: {
     productId: 'o1fc_pro_monthly',
     name: 'Monthly Pro Access',
-    price: '$9.99',
     periodText: '/mo',
     description: 'Full training & Fuel OS',
     badge: 'POPULAR',
@@ -45,7 +44,6 @@ export const IAP_PRODUCTS = {
   premium_travel: {
     productId: 'o1fc_pro_travel_monthly',
     name: 'Pro + Travel',
-    price: '$15.99',
     periodText: '/mo',
     description: 'Full training + Global corridor radar',
     badge: 'ALL-ACCESS',
@@ -65,7 +63,6 @@ export const IAP_PRODUCTS = {
   coach_pro: {
     productId: 'o1fc_coach_pro_monthly',
     name: 'Coach Pro',
-    price: '$29.99',
     periodText: '/mo',
     description: 'Unlimited athletes • 10% fee on program sales',
     badge: 'POPULAR',

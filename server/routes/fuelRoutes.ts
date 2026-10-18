@@ -1,6 +1,5 @@
 import type { Express } from 'express';
 import { SUPPLEMENT_KNOWLEDGE_BASE } from '../data/supplementKnowledgeBase';
-import { VERIFIED_BARCODES } from '../data/verifiedBarcodes';
 import { generateContentWithFallback, getGenAI, parseGeminiJson } from '../lib/gemini';
 import { registerLiveFoodSearch } from './liveFoodSearch';
 import { registerMealSuggestionRoute } from './mealSuggestionRoute';
@@ -21,16 +20,6 @@ export function registerFuelRoutes(app: Express): void {
       }
 
       const cleanCode = barcode.trim().replace(/[^0-9]/g, '');
-
-      // Check verified local database first
-      if (VERIFIED_BARCODES[cleanCode]) {
-        return res.json({
-          success: true,
-          found: true,
-          source: 'O1 Verified Fitness Catalog',
-          item: VERIFIED_BARCODES[cleanCode],
-        });
-      }
 
       // Query OpenFoodFacts API for genuine global food products
       try {

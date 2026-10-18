@@ -456,7 +456,3 @@ export async function sendCoachMessage(input: {
   });
   return !error;
 }
-
-export async function currentAthleteId(): Promise<string> {
-  return (await getAuthenticatedUserId()) || '';
-}

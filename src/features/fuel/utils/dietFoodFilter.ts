@@ -1,3 +1,5 @@
+import type { DietFacts } from '../../../../shared/foodDiet';
+
 const MEAT =
   /\b(chicken|beef|pork|lamb|turkey|bacon|ham|salami|chorizo|duck|bison|venison|kangaroo|boar|liver|gizzard|pepperoni|prosciutto|mince|steak|sirloin|ribeye|whopper|burger|grill'?d|nando|chipotle chicken|gyg|rotisserie)\b/i;
 const LAND_MEAT =
@@ -15,10 +17,8 @@ const ALCOHOL = /\b(wine|beer|vodka|whisky|rum|alcohol)\b/i;
 const GRAIN_DAIRY =
   /\b(oat|rice|bread|pasta|yogurt|milk|cheese|whey|bean|lentil|quinoa|potato|sweet potato)\b/i;
 
-function foodMatchesDiet(name: string, brand: string, diet?: string): boolean {
-  const protocol = (diet || 'Omnivore').toLowerCase();
-  if (!protocol || protocol === 'omnivore') return true;
-
+/** Judges a food by its name alone. Used when the food database states nothing about the diet. */
+function matchesByName(name: string, brand: string, protocol: string): boolean {
   const hay = `${name} ${brand}`;
 
   if (protocol === 'vegan') {
@@ -72,10 +72,35 @@ function isLikelyCarnivoreStaple(name: string, brand: string): boolean {
   return MEAT.test(hay) || FISH.test(hay) || EGG.test(hay) || /\b(whey|casein)\b/i.test(hay);
 }
 
-export function foodMatchesDietSafe(name: string, brand: string, diet?: string): boolean {
+/** The fact each diet depends on, when a database can state it. */
+const FACT_FOR_DIET: Record<string, keyof DietFacts> = {
+  vegan: 'vegan',
+  vegetarian: 'vegetarian',
+  'gluten-free': 'glutenFree',
+  'dairy-free': 'dairyFree',
+  halal: 'halal',
+  kosher: 'kosher',
+};
+
+interface DietCheckable {
+  name: string;
+  brand?: string;
+  diet?: DietFacts;
+}
+
+/**
+ * Whether a food fits the chosen diet. The food database's own statement (Open Food Facts
+ * vegan, gluten and allergen data) decides when it has one; otherwise the food's name does.
+ */
+export function foodMatchesDiet(food: DietCheckable, diet?: string): boolean {
   const protocol = (diet || 'Omnivore').toLowerCase();
-  if (protocol === 'carnivore') {
-    return isLikelyCarnivoreStaple(name, brand);
-  }
-  return foodMatchesDiet(name, brand, diet);
+  if (protocol === 'omnivore') return true;
+
+  const fact = FACT_FOR_DIET[protocol];
+  const stated = fact ? food.diet?.[fact] : undefined;
+  if (stated !== undefined) return stated;
+  // A vegetarian product is also fine for a pescatarian.
+  if (protocol === 'pescatarian' && food.diet?.vegetarian === true) return true;
+
+  return matchesByName(food.name, food.brand ?? '', protocol);
 }

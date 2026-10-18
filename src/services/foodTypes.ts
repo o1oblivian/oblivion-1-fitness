@@ -1,3 +1,5 @@
+import type { DietFacts } from '../../shared/foodDiet';
+
 export type FoodCategoryType = 'protein' | 'carbs' | 'fats' | 'fastfood' | 'drinks';
 
 /** A food the person can log. Calories and macros are for one `serving_grams` serving. */
@@ -16,4 +18,6 @@ export interface FoodItemRecord {
   country: string;
   is_custom?: boolean;
   source?: 'openfoodfacts' | 'custom' | 'usda';
+  /** What the food database states about vegan, gluten free and similar. */
+  diet?: DietFacts;
 }

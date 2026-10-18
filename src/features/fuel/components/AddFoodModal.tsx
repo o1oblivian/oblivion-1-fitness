@@ -17,7 +17,7 @@ import { FoodPortionDialModal } from './FoodPortionDialModal';
 import { ClientCountryMarketModal, COUNTRIES } from './ClientCountryMarketModal';
 import { searchFoods, FoodItemRecord } from '../../../services/foodCatalogService';
 import { ManualFoodEntryModal } from './ManualFoodEntryModal';
-import { foodMatchesDietSafe } from '../utils/dietFoodFilter';
+import { foodMatchesDiet } from '../utils/dietFoodFilter';
 import type { MacroBudget } from '../data/mealBudget';
 import { FOOD_BROWSE_CATEGORIES, type FoodBrowseId } from '../../../../shared/foodBrowse';
 import { fetchPopularFoods } from '../../../services/popularFoodsService';
@@ -151,10 +151,7 @@ export const AddFoodModal: React.FC<AddFoodModalProps> = ({
 
   const showingPopular = !typed && popularCategory !== null;
   const visibleFoods = useMemo(
-    () =>
-      (showingPopular ? popular : foods).filter((f) =>
-        foodMatchesDietSafe(f.name, f.brand || '', dietPreference),
-      ),
+    () => (showingPopular ? popular : foods).filter((f) => foodMatchesDiet(f, dietPreference)),
     [showingPopular, popular, foods, dietPreference],
   );
   const listLoading = showingPopular ? popularLoading : isLoading;

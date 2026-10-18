@@ -1,4 +1,6 @@
 import type { Express } from 'express';
+import type { DietFacts } from '../../shared/foodDiet';
+import { dietFactsFromOff, type OffDietTags } from '../lib/offDiet';
 import { searchFdc } from '../lib/usda';
 
 /** One food as the app receives it. All numbers are for 100 g, so the portion dial can scale them directly. */
@@ -14,6 +16,8 @@ export interface FoodRow {
   servingGrams: number;
   country: string;
   source: 'usda' | 'openfoodfacts';
+  /** What the database states about vegan, gluten free and similar. Absent when it states nothing. */
+  diet?: DietFacts;
 }
 
 const OFF_DOMAINS: Record<string, string> = {
@@ -35,13 +39,25 @@ const OFF_DOMAINS: Record<string, string> = {
 };
 
 const OFF_TIMEOUT_MS = 8_000;
+/** Only what a food row needs, which keeps each Open Food Facts answer small and quick. */
+const OFF_FIELDS = [
+  'code',
+  'product_name',
+  'product_name_en',
+  'brands',
+  'brand_owner',
+  'nutriments',
+  'labels_tags',
+  'allergens_tags',
+  'ingredients_analysis_tags',
+].join(',');
 const USER_AGENT = 'Oblivion1Fitness-FuelOS/1.0 (o1oblivionfitness@gmail.com)';
 
 function round1(n: number): number {
   return Math.round(n * 10) / 10;
 }
 
-interface OffProduct {
+interface OffProduct extends OffDietTags {
   code?: string;
   product_name?: string;
   product_name_en?: string;
@@ -74,6 +90,7 @@ function rowFromOff(product: OffProduct, country: string): FoodRow | null {
     servingGrams: 100,
     country,
     source: 'openfoodfacts',
+    diet: dietFactsFromOff(product),
   };
 }
 
@@ -81,7 +98,8 @@ async function searchOff(query: string, country: string, limit: number): Promise
   const domain = OFF_DOMAINS[country] ?? 'world';
   const url =
     `https://${domain}.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(query)}` +
-    `&search_simple=1&action=process&json=1&page_size=${Math.min(limit * 2, 40)}`;
+    `&search_simple=1&action=process&json=1&page_size=${Math.min(limit * 2, 40)}` +
+    `&fields=${OFF_FIELDS}`;
   const res = await fetch(url, {
     headers: { 'User-Agent': USER_AGENT, Accept: 'application/json' },
     signal: AbortSignal.timeout(OFF_TIMEOUT_MS),
