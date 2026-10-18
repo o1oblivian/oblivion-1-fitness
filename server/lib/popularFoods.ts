@@ -2,7 +2,7 @@
 
 export const POPULAR_COUNT = 50;
 /** Ask for a few extra so foods the database cannot match do not leave the list short. */
-const REQUEST_COUNT = 60;
+const REQUEST_COUNT = 80;
 
 /** One food as the model named it, before any nutrition is looked up. */
 export interface PopularDraft {

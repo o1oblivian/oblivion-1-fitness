@@ -12,17 +12,49 @@ import type { FoodRow } from './liveFoodSearch';
 
 /** What counts as popular changes slowly, so a day-old list is as good as a fresh one. */
 const CACHE_MS = 24 * 60 * 60 * 1000;
-/** USDA lookups run this many at a time, to stay inside its rate limit. */
-const LOOKUP_BATCH = 16;
+/** A list that came back short (USDA was busy) is retried soon instead of being kept for a day. */
+const SHORT_LIST = 40;
+const SHORT_CACHE_MS = 2 * 60 * 1000;
+/** Foods looked up per round. */
+const LOOKUP_BATCH = 20;
+/** USDA calls in flight at once across every category, to stay inside its rate limit. */
+const MAX_CONCURRENT_LOOKUPS = 10;
+const RETRY_DELAY_MS = 900;
 
-const cache = new Map<string, { at: number; rows: Promise<FoodRow[]> }>();
+const cache = new Map<string, { at: number; ttl: number; rows: Promise<FoodRow[]> }>();
+
+let active = 0;
+const waiting: Array<() => void> = [];
+
+async function limited<T>(work: () => Promise<T>): Promise<T> {
+  if (active >= MAX_CONCURRENT_LOOKUPS) await new Promise<void>((resolve) => waiting.push(resolve));
+  active += 1;
+  try {
+    return await work();
+  } finally {
+    active -= 1;
+    waiting.shift()?.();
+  }
+}
+
+/** One USDA lookup that is tried a second time when the first fails, since rate limits come in bursts. */
+async function withRetry<T>(work: () => Promise<T>): Promise<T> {
+  try {
+    return await limited(work);
+  } catch {
+    await new Promise((resolve) => setTimeout(resolve, RETRY_DELAY_MS));
+    return limited(work);
+  }
+}
 
 async function findFood(draft: PopularDraft, apiKey: string): Promise<UsdaFood | null> {
   try {
     return (
-      (await lookupPer100g(draft.usda, apiKey)) ??
-      (draft.usda === draft.name ? null : await lookupPer100g(draft.name, apiKey)) ??
-      (await lookupBranded(draft.name, apiKey))
+      (await withRetry(() => lookupPer100g(draft.usda, apiKey))) ??
+      (draft.usda === draft.name
+        ? null
+        : await withRetry(() => lookupPer100g(draft.name, apiKey))) ??
+      (await withRetry(() => lookupBranded(draft.name, apiKey)))
     );
   } catch {
     return null;
@@ -96,17 +128,22 @@ export function registerPopularFoods(app: Express): void {
     const key = `${category.id}|${country}`;
     const hit = cache.get(key);
     let rows: Promise<FoodRow[]>;
-    if (hit && Date.now() - hit.at < CACHE_MS) {
+    if (hit && Date.now() - hit.at < hit.ttl) {
       rows = hit.rows;
     } else {
       const started = Date.now();
-      rows = buildPopularRows(category.label, category.hint, country, apiKey).then((built) => {
-        console.log(
-          `[popular-foods] ${key}: ${built.length} foods in ${Math.round((Date.now() - started) / 1000)}s`,
-        );
-        return built;
-      });
-      cache.set(key, { at: Date.now(), rows });
+      const entry = { at: started, ttl: CACHE_MS, rows: Promise.resolve<FoodRow[]>([]) };
+      entry.rows = buildPopularRows(category.label, category.hint, country, apiKey).then(
+        (built) => {
+          entry.ttl = built.length >= SHORT_LIST ? CACHE_MS : SHORT_CACHE_MS;
+          console.log(
+            `[popular-foods] ${key}: ${built.length} foods in ${Math.round((Date.now() - started) / 1000)}s`,
+          );
+          return built;
+        },
+      );
+      cache.set(key, entry);
+      rows = entry.rows;
     }
 
     try {
