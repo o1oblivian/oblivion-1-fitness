@@ -7,7 +7,7 @@ import { IntelInsightsModal } from './IntelInsightsModal';
 const FEATURES = ['Week grade', 'Readiness', 'Load', 'Muscle map'];
 
 export const IntelInsightsCard: React.FC = () => {
-  const { isPro } = useSubscription();
+  const { hasFullAccess } = useSubscription();
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -19,7 +19,7 @@ export const IntelInsightsCard: React.FC = () => {
           tactileEngine.triggerSelectionBuzz();
           setIsOpen(true);
         }}
-        aria-label={isPro ? 'Open My progress' : 'My progress, Pro feature'}
+        aria-label={hasFullAccess ? 'Open My progress' : 'My progress, Pro feature'}
         className="group relative overflow-hidden w-full text-left rounded-2xl border border-white/[0.09] hover:border-white/[0.16] bg-o1-surface px-4 py-3.5 mb-3 transition-colors cursor-pointer select-none flex items-center gap-4 active:scale-[0.99]"
       >
         <span
@@ -54,7 +54,7 @@ export const IntelInsightsCard: React.FC = () => {
         </span>
 
         <span className="relative w-9 h-9 rounded-full border border-white/[0.12] bg-black/40 flex items-center justify-center shrink-0 transition-colors group-hover:border-white/[0.24]">
-          {isPro ? (
+          {hasFullAccess ? (
             <ChevronRight className="w-4 h-4 text-o1-text group-hover:translate-x-0.5 transition-transform" />
           ) : (
             <Lock className="w-3.5 h-3.5 text-o1-text" aria-hidden="true" />

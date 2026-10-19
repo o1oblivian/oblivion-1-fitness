@@ -327,6 +327,19 @@ export async function updateCoachNote(
   return !error && Array.isArray(data) && data.length > 0;
 }
 
+/** Takes a client off this coach's roster, which also frees a spot under the roster cap. */
+export async function removeCoachClient(coachId: string, clientId: string): Promise<boolean> {
+  if (!isValidUuid(coachId) || !isValidUuid(clientId)) return false;
+  const { data, error } = await supabase
+    .from('coach_clients')
+    .delete()
+    .eq('coach_id', coachId)
+    .eq('client_id', clientId)
+    .select('client_id');
+  if (error) console.warn('[coachService] remove client failed:', error.message);
+  return !error && Array.isArray(data) && data.length > 0;
+}
+
 export async function deleteCoachNote(coachId: string, id: string): Promise<boolean> {
   if (!isValidUuid(coachId) || !id) return false;
   const { error } = await supabase

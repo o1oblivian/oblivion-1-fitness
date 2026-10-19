@@ -46,7 +46,7 @@ export function useMealMacroScanner({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [scannedMeal, setScannedMeal] = useState<ScannedMealBreakdown | null>(null);
-  const { isPro, openPaywall } = useSubscription();
+  const { hasFullAccess, openPaywall } = useSubscription();
 
   useEffect(() => {
     if (isOpen) {
@@ -80,7 +80,7 @@ export function useMealMacroScanner({
   };
 
   const executeScan = async (action: () => Promise<ScannedMealBreakdown>) => {
-    if (!isPro) {
+    if (!hasFullAccess) {
       openPaywall('Vision Macro & Nutrition Scanner');
       return;
     }

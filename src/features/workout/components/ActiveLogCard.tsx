@@ -24,7 +24,7 @@ import { localDayKey, releaseForgotten } from '../../log/services/dayLogService'
 import { sessionLedger } from '../store/workoutSetOperations';
 import { archiveSession } from '../../../services/sessionArchive';
 import { readLinkedCoach } from '../../coach/services/coachLink';
-import { publishFinishedWorkout } from '../../coach/services/coachBridge';
+import { fetchMyLinkedCoach, publishFinishedWorkout } from '../../coach/services/coachBridge';
 import { readAthleteSettingsSnapshot } from '../../../utils/athleteSettingsSnapshot';
 import { displayToKg, kgToDisplay, loadUnitLabel } from '../../../utils/weightUnits';
 import { localTodayKey, priorBestKg, setIsPr } from '../services/sessionPr';
@@ -357,7 +357,6 @@ export const ActiveLogCard: React.FC<ActiveLogCardProps> = ({ onBuildWorkout }) 
       tactileEngine.playPRCelebration();
 
       const athleteUser = useUserStore.getState();
-      const linkedCoach = readLinkedCoach();
       const finished = {
         id: crypto.randomUUID(),
         athleteId: athleteUser.userId || '',
@@ -379,7 +378,11 @@ export const ActiveLogCard: React.FC<ActiveLogCardProps> = ({ onBuildWorkout }) 
         })),
       };
       useCoachStore.getState().recordFinishedWorkout(finished);
-      if (linkedCoach?.id) void publishFinishedWorkout(finished, linkedCoach.id);
+      // The saved link only exists once the Coach tab has opened since joining, so ask the account too.
+      void (async () => {
+        const coachId = readLinkedCoach()?.id || (await fetchMyLinkedCoach())?.coach?.id;
+        if (coachId) await publishFinishedWorkout(finished, coachId);
+      })();
 
       const settled = settleFinishedSession();
       const burn = session.burnedKcal ? ` · ~${session.burnedKcal} kcal` : '';

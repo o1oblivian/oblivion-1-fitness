@@ -146,11 +146,15 @@ export default function App() {
         }
       };
 
-      const webHref = window.location.href;
-      if (captureInviteFromUrl(webHref)) {
+      /** Joins the coach from a saved invite. Call after sign-in has finished, never beside it. */
+      const redeemInvite = () =>
         void import('./features/coach/services/coachBridge').then(({ acceptCoachInvite }) =>
           acceptCoachInvite(),
         );
+
+      const webHref = window.location.href;
+      if (captureInviteFromUrl(webHref)) {
+        redeemInvite();
         try {
           const cleaned = new URL(webHref);
           cleaned.searchParams.delete('invite');
@@ -177,6 +181,25 @@ export default function App() {
           /* ignore */
         }
       }
+      /** A paid checkout finished: show the Coach tab and re-read programs while the webhook lands. */
+      const showCheckoutResult = () => {
+        window.dispatchEvent(new CustomEvent('app_navigate_tab', { detail: 'coach' }));
+        void import('./features/reels/services/coachStorefront').then(({ PROGRAMS_EVENT }) => {
+          [2000, 6000, 12000].forEach((ms) =>
+            setTimeout(() => window.dispatchEvent(new CustomEvent(PROGRAMS_EVENT)), ms),
+          );
+        });
+      };
+      // On the phone Stripe opens in the browser and cannot send the person back to the app, so
+      // refresh when they return to it after opening a checkout.
+      const onCheckoutReturn = () => {
+        if (document.visibilityState !== 'visible') return;
+        void import('./services/stripeConnectService').then(({ takeCheckoutPending }) => {
+          if (takeCheckoutPending()) showCheckoutResult();
+        });
+      };
+      document.addEventListener('visibilitychange', onCheckoutReturn);
+
       const checkoutResult = new URL(webHref).searchParams.get('checkout');
       if (checkoutResult) {
         const cleaned = new URL(webHref);
@@ -187,17 +210,11 @@ export default function App() {
           document.title,
           cleaned.pathname + cleaned.search + cleaned.hash,
         );
-        if (checkoutResult === 'success') {
-          window.dispatchEvent(new CustomEvent('app_navigate_tab', { detail: 'coach' }));
-          void import('./features/reels/services/coachStorefront').then(({ PROGRAMS_EVENT }) => {
-            [2000, 6000].forEach((ms) =>
-              setTimeout(() => window.dispatchEvent(new CustomEvent(PROGRAMS_EVENT)), ms),
-            );
-          });
-        }
+        if (checkoutResult === 'success') showCheckoutResult();
       }
       if (webHref.includes('access_token') || webHref.includes('code=')) {
         handleAuthUrl(webHref).then(() => {
+          redeemInvite();
           try {
             window.history.replaceState({}, document.title, window.location.pathname);
           } catch {
@@ -215,10 +232,8 @@ export default function App() {
               if (!url) return;
               captureInviteFromUrl(url);
               captureReelLink(url);
-              void import('./features/coach/services/coachBridge').then(({ acceptCoachInvite }) =>
-                acceptCoachInvite(),
-              );
               await handleAuthUrl(url);
+              redeemInvite();
             })
               .then((handle) => {
                 appUrlListenerHandle = handle;
@@ -245,10 +260,7 @@ export default function App() {
                 if (!launch?.url) return;
                 captureInviteFromUrl(launch.url);
                 captureReelLink(launch.url);
-                void import('./features/coach/services/coachBridge').then(({ acceptCoachInvite }) =>
-                  acceptCoachInvite(),
-                );
-                void handleAuthUrl(launch.url);
+                void handleAuthUrl(launch.url).then(redeemInvite);
               })
               .catch((err) => {
                 console.warn('[App] getLaunchUrl unavailable:', err);
@@ -261,6 +273,7 @@ export default function App() {
 
       return () => {
         cleanupRollover();
+        document.removeEventListener('visibilitychange', onCheckoutReturn);
         if (Capacitor.isNativePlatform()) {
           try {
             appUrlListenerHandle?.remove();

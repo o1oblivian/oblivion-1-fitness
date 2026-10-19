@@ -22,6 +22,7 @@ export interface CoachCommandCenterModalsProps {
   setDispatchAthlete: (athlete: Athlete | null) => void;
   floorRoster: Athlete[];
   onProgramsChanged?: () => void;
+  onRemoveClient?: (athlete: Athlete) => Promise<boolean>;
 }
 
 export const CoachCommandCenterModals: React.FC<CoachCommandCenterModalsProps> = ({
@@ -34,6 +35,7 @@ export const CoachCommandCenterModals: React.FC<CoachCommandCenterModalsProps> =
   setDispatchAthlete,
   floorRoster,
   onProgramsChanged,
+  onRemoveClient,
 }) => (
   <>
     <CoachProgramsHubModal
@@ -66,6 +68,7 @@ export const CoachCommandCenterModals: React.FC<CoachCommandCenterModalsProps> =
       athlete={dossierAthlete}
       isOpen={!!dossierAthlete}
       onClose={() => setDossierAthlete(null)}
+      onRemoveClient={onRemoveClient}
       onOpenDispatchStudio={(athlete) => {
         setDispatchAthlete(athlete);
         setModals((m) => ({ ...m, workout: true }));

@@ -10,6 +10,7 @@ import {
   fetchCoachDirectives,
   isValidUuid,
   publishCoachNote,
+  removeCoachClient,
   updateCoachNote,
 } from './services/coachService';
 import { DirectiveItem } from './types/coachDirectives';
@@ -135,6 +136,19 @@ export const CoachCommandCenter: React.FC<CoachCommandCenterProps> = ({ isCoach 
     const rows = await fetchFinishedForCoach(coachId);
     if (rows) useCoachStore.getState().setFinishedWorkouts(rows);
   }, [coachId]);
+
+  const removeClient = useCallback(
+    async (athlete: Athlete) => {
+      if (!coachId) return false;
+      const ok = await removeCoachClient(coachId, athlete.client_id || athlete.id);
+      if (ok) {
+        await loadRoster();
+        showToast(`${athlete.name} removed from your roster`);
+      }
+      return ok;
+    },
+    [coachId, loadRoster, showToast],
+  );
 
   const registerInvite = useCallback(async () => {
     if (!coachId) return;
@@ -300,6 +314,7 @@ export const CoachCommandCenter: React.FC<CoachCommandCenterProps> = ({ isCoach 
         setDispatchAthlete={setDispatchAthlete}
         floorRoster={floorRoster}
         onProgramsChanged={() => setProgramsRevision((n) => n + 1)}
+        onRemoveClient={removeClient}
       />
       <AddClientModal
         isOpen={shareOpen}

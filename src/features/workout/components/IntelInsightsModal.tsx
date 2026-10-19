@@ -98,10 +98,10 @@ export const IntelInsightsModal: React.FC<IntelInsightsModalProps> = ({
   onClose,
   initialTab = 'week',
 }) => {
-  const { isPro, openPaywall } = useSubscription();
+  const { hasFullAccess, openPaywall } = useSubscription();
   const [activeTab, setActiveTab] = useState<IntelTab>(initialTab);
   const [showReport, setShowReport] = useState(false);
-  const { report, sets, sleep, historyByDate } = useOblivionReport(isOpen && isPro);
+  const { report, sets, sleep, historyByDate } = useOblivionReport(isOpen && hasFullAccess);
 
   useEffect(() => {
     if (isOpen) setActiveTab(initialTab);
@@ -160,7 +160,7 @@ export const IntelInsightsModal: React.FC<IntelInsightsModalProps> = ({
           </button>
         </div>
 
-        {!isPro ? (
+        {!hasFullAccess ? (
           <div className="flex-1 min-h-0 overflow-y-auto py-3 space-y-3">
             <section className="relative overflow-hidden rounded-2xl bg-o1-surface border border-white/[0.07] p-4">
               <div

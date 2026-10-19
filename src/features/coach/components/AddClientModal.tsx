@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Check, Copy, Share2, X } from 'lucide-react';
 import { tactileEngine } from '../../../services/tactileEngine';
-import { copyText } from '../../log/publicShare';
+import { copyText, inviteUrl } from '../../log/publicShare';
 import { shareLink } from '../../reels/services/reelLinks';
 import { ShareLinkSheet, ShareLinkTarget } from '../../reels/components/ShareLinkSheet';
 
@@ -23,7 +23,7 @@ export const AddClientModal: React.FC<AddClientModalProps> = ({
 }) => {
   const [copied, setCopied] = useState(false);
   const [sheet, setSheet] = useState<ShareLinkTarget | null>(null);
-  const invite = code ? `https://oblivion1.club/join?coach=${encodeURIComponent(code)}` : '';
+  const invite = code ? inviteUrl(code) : '';
 
   if (!isOpen) return null;
 
@@ -59,7 +59,7 @@ export const AddClientModal: React.FC<AddClientModalProps> = ({
             <div>
               <h3 className="text-sm font-semibold text-o1-text">Invite a client</h3>
               <p className="text-o1-label text-o1-muted">
-                Send this link. They join your roster when they sign up.
+                Send this link, or give them the code. They join your roster when they sign in.
               </p>
             </div>
             <button
@@ -89,6 +89,12 @@ export const AddClientModal: React.FC<AddClientModalProps> = ({
           ) : (
             <p className="truncate rounded-xl border border-white/[0.07] bg-o1-surface px-3 py-3 text-o1-caption text-o1-text">
               {invite || 'Preparing your link…'}
+            </p>
+          )}
+          {code && !failed && (
+            <p className="text-o1-label text-o1-muted">
+              Code <span className="font-semibold tracking-wide text-o1-text">{code}</span>. In the
+              app they open Log, Invite and enter it under coach’s invite code.
             </p>
           )}
 

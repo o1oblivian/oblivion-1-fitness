@@ -43,7 +43,10 @@ const creatorSignedIn = (): boolean =>
 const launchPreviewAllowed = (): boolean => creatorSignedIn() || signedInAs(REVIEWER_EMAIL);
 
 export interface SubscriptionContextType {
+  /** Paid: an active store plan (or the owner account). */
   isPro: boolean;
+  /** Everything Club Pass unlocks: a paid plan, the owner account, or the 90-day full-access window. */
+  hasFullAccess: boolean;
   currentPlan: string;
   trialState: TrialState;
   purchasePro: (planId?: string) => Promise<boolean>;
@@ -70,6 +73,7 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
   const [isCreator, setIsCreator] = useState(() => creatorSignedIn());
   const [canPreviewLaunch, setCanPreviewLaunch] = useState(launchPreviewAllowed);
   const authEmail = useAuthStore((s) => s.user?.email || s.profile?.email || '');
+  const authUserId = useAuthStore((s) => s.user?.id || '');
   useEffect(() => {
     setIsCreator(creatorSignedIn());
     setCanPreviewLaunch(launchPreviewAllowed());
@@ -115,7 +119,8 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
     return () => {
       mounted = false;
     };
-  }, []);
+    // Runs again when someone signs in or out, so a new account gets its own 90-day window.
+  }, [authUserId]);
 
   const purchasePro = useCallback(async (planId?: string) => {
     setIsLoading(true);
@@ -185,6 +190,7 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
       value={{
         // The owner account has every Club Pass feature without a store purchase.
         isPro: isPro || isCreator,
+        hasFullAccess: isPro || isCreator || trial.isTrialActive,
         isCreator,
         canPreviewLaunch,
         currentPlan: isCreator && !isPro ? PLUS_ENTITLEMENT : currentPlan,
@@ -209,6 +215,7 @@ export const useSubscription = (): SubscriptionContextType => {
   if (!ctx) {
     return {
       isPro: false,
+      hasFullAccess: false,
       isCreator: false,
       canPreviewLaunch: false,
       currentPlan: 'o1fc_core_free',

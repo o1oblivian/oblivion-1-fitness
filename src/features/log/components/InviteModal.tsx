@@ -29,6 +29,7 @@ export const InviteModal: React.FC<InviteModalProps> = ({
   const [status, setStatus] = useState('');
   const [copied, setCopied] = useState(false);
   const [friendCode, setFriendCode] = useState(readPendingInvite());
+  const [joining, setJoining] = useState(false);
 
   if (!isOpen) return null;
 
@@ -60,13 +61,32 @@ export const InviteModal: React.FC<InviteModalProps> = ({
     mark(ok ? 'Invite link copied.' : 'Could not copy on this preview. The link is shown above.');
   };
 
-  const handleJoin = (event: React.FormEvent) => {
+  const handleJoin = async (event: React.FormEvent) => {
     event.preventDefault();
     const next = friendCode.trim();
-    if (!next) return;
+    if (!next || joining) return;
     tactileEngine.triggerSelectionBuzz();
     savePendingInvite(next);
-    mark('Invite saved on this device. It links both accounts once you are signed in.');
+    if (!isLive) {
+      mark('Code saved on this device. Sign in and it is used straight away.');
+      return;
+    }
+    setJoining(true);
+    try {
+      const { acceptCoachInviteOutcome } = await import('../../coach/services/coachBridge');
+      const outcome = await acceptCoachInviteOutcome();
+      mark(
+        outcome.rosterFull
+          ? 'That coach has no open spot on their roster right now.'
+          : outcome.coach
+            ? `You joined ${outcome.coach.name}'s roster.`
+            : 'That code was not found. Check it with the person who sent it.',
+      );
+    } catch {
+      mark('Could not reach the server. The code is saved and will be tried again.');
+    } finally {
+      setJoining(false);
+    }
   };
 
   const social = [
@@ -114,9 +134,7 @@ export const InviteModal: React.FC<InviteModalProps> = ({
           <div className="text-sm font-semibold text-white break-all">{link}</div>
           <div className="text-o1-caption font-semibold tracking-wide text-neutral-200">{code}</div>
           <p className="text-o1-label text-neutral-400">
-            {isLive
-              ? 'This invite is live on your account.'
-              : 'Sign in so this invite links to your account.'}
+            Anyone who opens this link lands on Oblivion 1 Fitness Club.
           </p>
         </div>
 
@@ -159,20 +177,23 @@ export const InviteModal: React.FC<InviteModalProps> = ({
           Copy link
         </button>
 
-        <form onSubmit={handleJoin} className="space-y-1.5">
-          <label className="text-o1-label text-neutral-400 block">Save a friend’s invite</label>
+        <form onSubmit={(e) => void handleJoin(e)} className="space-y-1.5">
+          <label className="text-o1-label text-neutral-400 block">
+            Have a coach’s invite code?
+          </label>
           <div className="flex items-center gap-2">
             <input
               type="text"
               value={friendCode}
               onChange={(e) => setFriendCode(e.target.value)}
-              placeholder="Their code"
+              placeholder="Invite code"
               className="flex-1 bg-o1-well border border-white/[0.07] rounded-xl px-3 py-2.5 text-xs text-white placeholder:text-neutral-500 focus:outline-none"
             />
             <button
               type="submit"
-              className="w-10 h-10 rounded-xl bg-o1-crimson text-white flex items-center justify-center cursor-pointer"
-              aria-label="Save invite"
+              disabled={joining}
+              className="w-10 h-10 rounded-xl bg-o1-crimson text-white flex items-center justify-center cursor-pointer disabled:opacity-50"
+              aria-label="Use invite code"
             >
               <Send className="w-4 h-4" />
             </button>

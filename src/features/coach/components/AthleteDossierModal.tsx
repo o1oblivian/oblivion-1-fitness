@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { X, Activity, Flame, Calendar, Send } from 'lucide-react';
 import { Athlete } from '../services/coachService';
 import { tactileEngine } from '../../../services/tactileEngine';
@@ -9,6 +9,8 @@ export interface AthleteDossierModalProps {
   isOpen?: boolean;
   onClose: () => void;
   onOpenDispatchStudio?: (athlete: Athlete) => void;
+  /** Takes the client off the roster. Resolves true when the link was removed. */
+  onRemoveClient?: (athlete: Athlete) => Promise<boolean>;
 }
 
 export const AthleteDossierModal: React.FC<AthleteDossierModalProps> = ({
@@ -16,14 +18,35 @@ export const AthleteDossierModal: React.FC<AthleteDossierModalProps> = ({
   isOpen = true,
   onClose,
   onOpenDispatchStudio,
+  onRemoveClient,
 }) => {
+  const [confirmRemove, setConfirmRemove] = useState(false);
+  const [removing, setRemoving] = useState(false);
+  const [removeFailed, setRemoveFailed] = useState(false);
+
   if (!isOpen || !athlete) return null;
+
+  const closeDossier = () => {
+    setConfirmRemove(false);
+    setRemoveFailed(false);
+    onClose();
+  };
+
+  const remove = async () => {
+    if (!onRemoveClient || removing) return;
+    setRemoving(true);
+    setRemoveFailed(false);
+    const ok = await onRemoveClient(athlete);
+    setRemoving(false);
+    if (ok) closeDossier();
+    else setRemoveFailed(true);
+  };
 
   const dispatch = () => {
     if (!onOpenDispatchStudio) return;
     tactileEngine.selection();
     onOpenDispatchStudio(athlete);
-    onClose();
+    closeDossier();
   };
 
   return (
@@ -56,7 +79,7 @@ export const AthleteDossierModal: React.FC<AthleteDossierModalProps> = ({
           <button
             onClick={() => {
               tactileEngine.selection();
-              onClose();
+              closeDossier();
             }}
             className="p-1 rounded-lg hover:bg-white/[0.06] text-o1-muted"
           >
@@ -133,6 +156,46 @@ export const AthleteDossierModal: React.FC<AthleteDossierModalProps> = ({
               <Send className="w-4 h-4" />
               <span>Send workout</span>
             </button>
+          </div>
+        )}
+        {onRemoveClient && (
+          <div className="p-3 pt-0 bg-o1-canvas space-y-2">
+            {removeFailed && (
+              <p role="alert" className="text-o1-label text-o1-muted text-center">
+                Could not remove this client. Check your connection and try again.
+              </p>
+            )}
+            {confirmRemove ? (
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  disabled={removing}
+                  onClick={() => setConfirmRemove(false)}
+                  className="min-h-[40px] rounded-xl border border-white/[0.07] bg-o1-surface text-o1-text text-xs font-semibold cursor-pointer disabled:opacity-50"
+                >
+                  Keep client
+                </button>
+                <button
+                  type="button"
+                  disabled={removing}
+                  onClick={() => void remove()}
+                  className="min-h-[40px] rounded-xl bg-o1-crimson text-white text-xs font-semibold cursor-pointer disabled:opacity-50"
+                >
+                  {removing ? 'Removing…' : 'Remove client'}
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => {
+                  tactileEngine.selection();
+                  setConfirmRemove(true);
+                }}
+                className="w-full min-h-[40px] rounded-xl border border-white/[0.07] text-o1-muted text-xs font-semibold cursor-pointer"
+              >
+                Remove from roster
+              </button>
+            )}
           </div>
         )}
       </div>

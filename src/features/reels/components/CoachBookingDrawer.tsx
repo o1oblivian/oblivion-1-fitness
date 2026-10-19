@@ -30,7 +30,7 @@ import {
 } from '../../coach/components/profile/CoachProfileHeader';
 import { StorefrontEditor } from '../../coach/components/profile/StorefrontEditor';
 import type { CoachConsoleAction } from '../../coach/services/coachConsoleBus';
-import { stripeConnectService } from '../../../services/stripeConnectService';
+import { markCheckoutPending, stripeConnectService } from '../../../services/stripeConnectService';
 import { Capacitor } from '@capacitor/core';
 
 const NATIVE_APP = Capacitor.isNativePlatform();
@@ -65,6 +65,7 @@ export const CoachBookingDrawer: React.FC<CoachBookingDrawerProps> = ({
   const [applyProgram, setApplyProgram] = useState<StorefrontProgram | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const checkingOut = useRef(false);
   const [linkSheet, setLinkSheet] = useState<ShareLinkTarget | null>(null);
   const [enrolledIds, setEnrolledIds] = useState<Set<string>>(() => new Set());
   const [editing, setEditing] = useState(false);
@@ -157,16 +158,24 @@ export const CoachBookingDrawer: React.FC<CoachBookingDrawerProps> = ({
   };
 
   const checkout = async (input: { kind: 'program' | 'coaching'; programId?: string }) => {
-    const res = await stripeConnectService.createCheckout({
-      ...input,
-      coachId: coach.id,
-      athleteName: athleteName(),
-    });
-    if (res.url) {
-      window.location.assign(res.url);
-      return;
+    if (checkingOut.current) return;
+    checkingOut.current = true;
+    try {
+      const res = await stripeConnectService.createCheckout({
+        ...input,
+        coachId: coach.id,
+        athleteName: athleteName(),
+      });
+      if (res.url) {
+        // On the phone Stripe opens in the browser, so the app only learns of the payment when it returns.
+        markCheckoutPending();
+        window.location.assign(res.url);
+        return;
+      }
+      flash(res.error || 'Could not start checkout');
+    } finally {
+      checkingOut.current = false;
     }
-    flash(res.error || 'Could not start checkout');
   };
 
   const share = async () => {

@@ -47,6 +47,29 @@ export type BalanceFailure = 'offline' | 'unconfigured' | 'signed-out' | 'server
 
 const errorMessage = (err: unknown): string => (err instanceof Error ? err.message : '');
 
+const CHECKOUT_PENDING_KEY = 'o1_checkout_pending';
+const CHECKOUT_PENDING_MS = 60 * 60_000;
+
+/** Remembers that Stripe Checkout was opened, so the app can refresh when the person comes back to it. */
+export function markCheckoutPending(): void {
+  try {
+    localStorage.setItem(CHECKOUT_PENDING_KEY, String(Date.now()));
+  } catch {
+    /* private mode */
+  }
+}
+
+/** True once per opened checkout, within the hour after it was opened. */
+export function takeCheckoutPending(): boolean {
+  try {
+    const at = Number(localStorage.getItem(CHECKOUT_PENDING_KEY));
+    localStorage.removeItem(CHECKOUT_PENDING_KEY);
+    return Number.isFinite(at) && at > 0 && Date.now() - at < CHECKOUT_PENDING_MS;
+  } catch {
+    return false;
+  }
+}
+
 async function authHeaders(): Promise<Record<string, string>> {
   const {
     data: { session },
