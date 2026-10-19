@@ -131,7 +131,7 @@ export const IntelInsightsModal: React.FC<IntelInsightsModalProps> = ({
     <div
       role="dialog"
       aria-modal="true"
-      aria-label="My progress"
+      aria-label="Oblivion Intel Insights"
       className="fixed inset-0 z-50 bg-o1-canvas select-none flex flex-col animate-in fade-in duration-150"
     >
       <div className="w-full max-w-[420px] mx-auto h-full flex flex-col px-4 text-o1-text">
@@ -140,7 +140,9 @@ export const IntelInsightsModal: React.FC<IntelInsightsModalProps> = ({
             <span className="mt-1 w-1 h-9 rounded-full bg-o1-crimson" aria-hidden="true" />
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="text-lg font-light tracking-wide text-o1-text">My progress</h3>
+                <h3 className="text-lg font-light tracking-wide text-o1-text">
+                  Oblivion Intel Insights
+                </h3>
                 <span className="px-1.5 py-0.5 rounded-md border border-o1-crimson/60 text-o1-label font-medium tracking-wider text-o1-text">
                   PRO
                 </span>
@@ -211,7 +213,7 @@ export const IntelInsightsModal: React.FC<IntelInsightsModalProps> = ({
                 className="w-full min-h-[48px] rounded-2xl bg-o1-crimson hover:bg-o1-crimson-hover active:bg-o1-crimson-press text-white text-sm font-medium flex items-center justify-center gap-2 transition-colors cursor-pointer"
               >
                 <Lock className="w-4 h-4" />
-                Unlock My progress
+                Unlock Oblivion Intel Insights
               </button>
             </section>
           </div>

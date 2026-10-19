@@ -352,6 +352,16 @@ export const useProductionSettings = (onShowToast?: (msg: string) => void) => {
         if (onShowToast) onShowToast('Sign in again to delete this account.');
         return;
       }
+      // People who signed in with Apple confirm once more so the server can revoke Apple's token.
+      // If they close that sheet the account is still deleted; they can remove the link in iOS Settings.
+      const usesApple =
+        userData.user?.app_metadata?.provider === 'apple' ||
+        (userData.user?.identities ?? []).some((identity) => identity.provider === 'apple');
+      const appleAuthorizationCode = usesApple
+        ? await import('../services/nativeSocialSignIn')
+            .then((m) => m.appleRevocationCode())
+            .catch(() => null)
+        : null;
       // The server removes the sign-in itself. Only report success once it confirms.
       const res = await apiFetch('/api/account/delete', {
         method: 'POST',
@@ -359,6 +369,7 @@ export const useProductionSettings = (onShowToast?: (msg: string) => void) => {
           Authorization: `Bearer ${accessToken}`,
           'Content-Type': 'application/json',
         },
+        body: JSON.stringify(appleAuthorizationCode ? { appleAuthorizationCode } : {}),
       });
       if (!res.ok) {
         const payload = await res.json().catch(() => ({}));

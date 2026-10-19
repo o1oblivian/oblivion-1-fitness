@@ -52,6 +52,32 @@ function cancelled(err: unknown): boolean {
   return /cancel|dismiss|user.?closed|1001/i.test(message);
 }
 
+/**
+ * Asks Apple for a fresh one-time authorization code. The server trades it for a token and revokes it
+ * when the account is deleted, which App Review requires for apps with Sign in with Apple.
+ * Returns null on any other platform, when the sheet is closed, or when Apple gives no code.
+ * Never signs the athlete in again.
+ */
+export async function appleRevocationCode(): Promise<string | null> {
+  if (!hasNativeAppleSignIn()) return null;
+  try {
+    const { SocialLogin } = await plugin();
+    const { hashed } = await nonces();
+    const res = await withNativeTimeout(
+      SocialLogin.login({
+        provider: 'apple',
+        options: { scopes: ['name', 'email'], nonce: hashed },
+      }),
+      'Apple did not answer.',
+      NATIVE_PROMPT_TIMEOUT_MS,
+    );
+    // Without proper token exchange the plugin hands the authorization code back as the access token.
+    return res.result.authorizationCode || res.result.accessToken?.token || null;
+  } catch {
+    return null;
+  }
+}
+
 /** Resolves true when signed in, false when the athlete closed the sheet. */
 export async function nativeAppleSignIn(): Promise<boolean> {
   if (!hasNativeAppleSignIn()) {

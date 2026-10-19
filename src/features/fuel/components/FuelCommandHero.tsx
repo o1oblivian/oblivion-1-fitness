@@ -17,6 +17,8 @@ interface FuelCommandHeroProps {
   burnedKcal: number;
   macros: MacroMeter[];
   weekSlide: React.ReactNode;
+  /** Sits at the foot of the card, under the water row. */
+  insight?: React.ReactNode;
   waterL: number;
   waterGoalL: number | null;
   onAddWater: (liters: number) => void;
@@ -31,6 +33,7 @@ const RING_R = 54;
 const RING_C = 2 * Math.PI * RING_R;
 const BONE = '#EAE8DF';
 const CRIMSON = '#C4121A';
+const EMERALD = '#10B981';
 
 const PACE_COPY: Record<FuelPace, { label: string; className: string }> = {
   ahead: { label: 'Ahead of pace', className: 'text-amber-500 border-amber-600/40' },
@@ -48,14 +51,17 @@ const SegmentedMeter: React.FC<MacroMeter> = ({ label, consumed, target, color }
   const over = target && target > 0 && consumed > target ? consumed - target : 0;
   return (
     <div className="min-w-0">
-      <div className="flex items-baseline justify-between gap-1 mb-1.5">
-        <span className="text-o1-label font-medium" style={{ color }}>
-          {label}
-        </span>
-        <span className="o1-unread text-o1-label tabular-nums text-o1-text truncate">
-          {fmtGrams(consumed)}
-          <span className="text-o1-muted">/{target != null ? target : '--'}g</span>
-        </span>
+      <div className="flex items-center gap-1.5 mb-0.5">
+        <span
+          className="w-1.5 h-1.5 rounded-full shrink-0"
+          style={{ backgroundColor: color }}
+          aria-hidden
+        />
+        <span className="text-o1-caption font-semibold text-o1-text">{label}</span>
+      </div>
+      <div className="o1-unread text-o1-body tabular-nums text-o1-text mb-1.5 truncate">
+        {fmtGrams(consumed)}
+        <span className="text-o1-muted">/{target != null ? target : '--'}g</span>
       </div>
       <div
         className="grid gap-[3px]"
@@ -65,7 +71,7 @@ const SegmentedMeter: React.FC<MacroMeter> = ({ label, consumed, target, color }
         {Array.from({ length: SEGMENTS }, (_, i) => {
           const fill = Math.max(0, Math.min(1, lit - i));
           return (
-            <span key={i} className="h-2 rounded-[2px] bg-white/[0.08] overflow-hidden">
+            <span key={i} className="h-2 rounded-[2px] bg-white/[0.15] overflow-hidden">
               <span
                 className="block h-full transition-[width] duration-300"
                 style={{ width: `${fill * 100}%`, backgroundColor: color }}
@@ -88,6 +94,7 @@ export const FuelCommandHero: React.FC<FuelCommandHeroProps> = ({
   burnedKcal,
   macros,
   weekSlide,
+  insight,
   waterL,
   waterGoalL,
   onAddWater,
@@ -95,7 +102,7 @@ export const FuelCommandHero: React.FC<FuelCommandHeroProps> = ({
 }) => {
   const isOver = balance.over > 0;
   const hasTarget = balance.budget != null;
-  const ringColor = isOver ? CRIMSON : BONE;
+  const ringColor = isOver ? CRIMSON : balance.pace === 'on_pace' ? EMERALD : BONE;
   const dash = RING_C * (1 - (isOver ? 1 : balance.progress));
   const waterShare = waterGoalL ? Math.min(1, waterL / waterGoalL) : 0;
 
@@ -134,8 +141,10 @@ export const FuelCommandHero: React.FC<FuelCommandHeroProps> = ({
     <section id="fuel-command" className="bg-o1-canvas select-none">
       <header className="flex items-center justify-between px-1 pb-3">
         <div className="flex items-baseline gap-2">
-          <h1 className="text-xl font-semibold text-o1-text">Fuel</h1>
-          <span className="text-xs text-o1-muted">{dateLabel}</span>
+          <h1 className="text-o1-display font-semibold tracking-tight leading-none text-o1-text">
+            Fuel
+          </h1>
+          <span className="text-o1-caption text-o1-muted">{dateLabel}</span>
         </div>
         <button
           type="button"
@@ -150,7 +159,7 @@ export const FuelCommandHero: React.FC<FuelCommandHeroProps> = ({
         </button>
       </header>
 
-      <div className="rounded-3xl border border-white/[0.08] p-4">
+      <div className="rounded-3xl border border-white/[0.1] bg-gradient-to-b from-o1-sheet to-o1-surface p-4">
         <div
           ref={trackRef}
           onScroll={onTrackScroll}
@@ -167,14 +176,14 @@ export const FuelCommandHero: React.FC<FuelCommandHeroProps> = ({
             className="w-full shrink-0 snap-start snap-always px-4"
           >
             <div className="flex items-center gap-4">
-              <div className="relative w-[132px] h-[132px] shrink-0">
+              <div className="relative w-[144px] h-[144px] shrink-0">
                 <svg className="w-full h-full -rotate-90" viewBox="0 0 128 128" aria-hidden>
                   <circle
                     cx="64"
                     cy="64"
                     r={RING_R}
-                    stroke="rgba(255,255,255,0.08)"
-                    strokeWidth="8"
+                    stroke="rgba(255,255,255,0.15)"
+                    strokeWidth="9"
                     fill="none"
                   />
                   {hasTarget && (
@@ -183,7 +192,7 @@ export const FuelCommandHero: React.FC<FuelCommandHeroProps> = ({
                       cy="64"
                       r={RING_R}
                       stroke={ringColor}
-                      strokeWidth="8"
+                      strokeWidth="9"
                       strokeLinecap="round"
                       strokeDasharray={RING_C}
                       strokeDashoffset={dash}
@@ -198,21 +207,21 @@ export const FuelCommandHero: React.FC<FuelCommandHeroProps> = ({
                 >
                   {!hasTarget ? (
                     <>
-                      <span className="o1-unread text-2xl font-semibold tabular-nums text-o1-text leading-none">
+                      <span className="o1-unread text-o1-display font-semibold tracking-tight tabular-nums text-o1-text leading-none">
                         --
                       </span>
                       <span className="text-o1-label text-o1-muted mt-1">kcal left</span>
                     </>
                   ) : isOver ? (
                     <>
-                      <span className="text-2xl font-semibold tabular-nums text-o1-crimson leading-none">
+                      <span className="text-o1-display font-semibold tracking-tight tabular-nums text-o1-crimson leading-none">
                         +{balance.over.toLocaleString()}
                       </span>
                       <span className="text-o1-label text-o1-crimson mt-1">over</span>
                     </>
                   ) : (
                     <>
-                      <span className="text-2xl font-semibold tabular-nums text-o1-text leading-none">
+                      <span className="text-o1-display font-semibold tracking-tight tabular-nums text-o1-text leading-none">
                         {(balance.remaining ?? 0).toLocaleString()}
                       </span>
                       <span className="text-o1-label text-o1-muted mt-1">kcal left</span>
@@ -309,7 +318,7 @@ export const FuelCommandHero: React.FC<FuelCommandHeroProps> = ({
                   </span>
                 </span>
               </div>
-              <div className="h-1.5 mt-1.5 rounded-full bg-white/[0.12] overflow-hidden">
+              <div className="h-1.5 mt-1.5 rounded-full bg-white/[0.15] overflow-hidden">
                 <div
                   className="h-full rounded-full bg-sky-500 transition-[width] duration-300"
                   style={{ width: `${waterShare * 100}%` }}
@@ -323,26 +332,27 @@ export const FuelCommandHero: React.FC<FuelCommandHeroProps> = ({
               disabled={waterL <= 0}
               onClick={() => addWater(-0.25)}
               aria-label="Remove 250 millilitres"
-              className="w-10 h-8 rounded-xl bg-o1-text text-black hover:bg-[#C9C7BC] active:bg-[#C9C7BC] flex items-center justify-center disabled:opacity-30 disabled:hover:bg-o1-text transition-colors cursor-pointer"
+              className="w-10 h-8 rounded-xl bg-o1-well border border-white/[0.1] text-o1-text hover:bg-o1-sheet active:bg-o1-sheet flex items-center justify-center disabled:opacity-30 transition-colors cursor-pointer"
             >
               <Minus className="w-4 h-4" />
             </button>
             <button
               type="button"
               onClick={() => addWater(0.25)}
-              className="flex-1 h-8 rounded-xl bg-o1-text text-sm font-bold text-black hover:bg-[#C9C7BC] active:bg-[#C9C7BC] transition-colors cursor-pointer"
+              className="flex-1 h-8 rounded-xl bg-o1-well border border-white/[0.1] text-sm font-semibold text-o1-text hover:bg-o1-sheet active:bg-o1-sheet transition-colors cursor-pointer"
             >
               +250 ml
             </button>
             <button
               type="button"
               onClick={() => addWater(0.5)}
-              className="flex-1 h-8 rounded-xl bg-o1-text text-sm font-bold text-black hover:bg-[#C9C7BC] active:bg-[#C9C7BC] transition-colors cursor-pointer"
+              className="flex-1 h-8 rounded-xl bg-o1-well border border-white/[0.1] text-sm font-semibold text-o1-text hover:bg-o1-sheet active:bg-o1-sheet transition-colors cursor-pointer"
             >
               +500 ml
             </button>
           </div>
         </div>
+        {insight}
       </div>
     </section>
   );

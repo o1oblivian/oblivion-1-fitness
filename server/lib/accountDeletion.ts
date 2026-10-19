@@ -1,3 +1,4 @@
+import { revokeAppleSignIn } from './appleRevoke';
 import {
   getCoachBalance,
   getCoachConnectProfile,
@@ -75,7 +76,10 @@ async function listUserFiles(admin: Admin, folder: string, depth = 0): Promise<s
 
 export type DeletionResult = { ok: true } | { ok: false; status: number; error: string };
 
-export async function deleteAccountData(uid: string): Promise<DeletionResult> {
+export async function deleteAccountData(
+  uid: string,
+  options: { appleAuthorizationCode?: string } = {},
+): Promise<DeletionResult> {
   const admin = getSupabaseAdmin();
   if (!admin) return { ok: false, status: 503, error: 'Account deletion is not configured.' };
 
@@ -138,6 +142,12 @@ export async function deleteAccountData(uid: string): Promise<DeletionResult> {
     } catch (e) {
       console.warn('[account/delete] revenuecat delete skipped:', (e as Error)?.message);
     }
+  }
+
+  // Apple requires the Sign in with Apple link to be revoked when the account is deleted.
+  if (options.appleAuthorizationCode) {
+    const outcome = await revokeAppleSignIn(options.appleAuthorizationCode);
+    if (outcome !== 'revoked') console.warn(`[account/delete] apple token revoke: ${outcome}`);
   }
 
   const { error: delErr } = await admin.auth.admin.deleteUser(uid);

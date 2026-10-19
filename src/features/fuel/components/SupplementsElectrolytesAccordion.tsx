@@ -57,10 +57,7 @@ export const SupplementsElectrolytesAccordion: React.FC<SupplementsElectrolytesA
   };
 
   return (
-    <div
-      id="supplements-electrolytes-accordion"
-      className="border border-white/[0.08] rounded-2xl px-3.5 py-3 space-y-3.5 select-none"
-    >
+    <div id="supplements-electrolytes-accordion" className="px-3.5 py-2 space-y-2.5 select-none">
       <button
         type="button"
         onClick={() => {
@@ -68,14 +65,14 @@ export const SupplementsElectrolytesAccordion: React.FC<SupplementsElectrolytesA
           setIsOpen(!isOpen);
         }}
         aria-expanded={isOpen}
-        className="w-full flex items-center justify-between gap-3 text-left cursor-pointer"
+        className="w-full min-h-[44px] flex items-center justify-between gap-3 text-left cursor-pointer"
       >
         <div className="flex items-center gap-3 min-w-0">
-          <div className="w-9 h-9 rounded-xl bg-red-950/40 border border-red-800/60 flex items-center justify-center text-o1-crimson shrink-0">
-            <Pill className="w-4 h-4 -rotate-45" />
+          <div className="w-10 h-10 flex items-center justify-center text-o1-crimson shrink-0">
+            <Pill className="w-6 h-6 stroke-[1.75] -rotate-45" />
           </div>
           <div className="min-w-0">
-            <h4 className="font-semibold text-sm text-o1-text leading-tight truncate">
+            <h4 className="font-semibold text-o1-control text-o1-text leading-tight truncate">
               Supplements &amp; Electrolytes
             </h4>
             <p className="text-o1-label text-o1-muted truncate mt-0.5 tabular-nums">
@@ -92,7 +89,7 @@ export const SupplementsElectrolytesAccordion: React.FC<SupplementsElectrolytesA
 
       {!isOpen && dueToday.length > 0 && (
         <div
-          className="flex gap-2 overflow-x-auto no-scrollbar"
+          className="flex gap-2 overflow-x-auto no-scrollbar ml-[52px] pb-1"
           style={{ scrollbarWidth: 'none' }}
           role="group"
           aria-label="Supplements still to take"

@@ -206,6 +206,19 @@ export const FuelView: React.FC = () => {
             }}
           />
         }
+        insight={
+          <MealSuggestionsSection
+            calibrated={calibrated}
+            remaining={intelRemaining}
+            loggedSlots={loggedSlots}
+            dietPreference={dietPreference}
+            country={countryMarket}
+            usualNames={usualNames}
+            onOpenDietModal={() => modals.setIsDietModalOpen(true)}
+            onAddMealItem={addMealItem}
+            showToast={showToast}
+          />
+        }
         waterL={hydrationCurrentL}
         waterGoalL={hydrationGoalLiters(hydrationTargetL, weightKg)}
         onAddWater={logHydration}
@@ -218,18 +231,6 @@ export const FuelView: React.FC = () => {
           usualSlot === 'snack' ? 'Snacks' : usualSlot[0].toUpperCase() + usualSlot.slice(1)
         }
         onLog={logUsual}
-      />
-
-      <MealSuggestionsSection
-        calibrated={calibrated}
-        remaining={intelRemaining}
-        loggedSlots={loggedSlots}
-        dietPreference={dietPreference}
-        country={countryMarket}
-        usualNames={usualNames}
-        onOpenDietModal={() => modals.setIsDietModalOpen(true)}
-        onAddMealItem={addMealItem}
-        showToast={showToast}
       />
 
       <FuelIntakeSection
@@ -246,9 +247,8 @@ export const FuelView: React.FC = () => {
           modals.setScanSlot(slot);
           modals.setIsCameraOpen(true);
         }}
+        footer={<SupplementsElectrolytesAccordion onShowToast={showToast} weightKg={weightKg} />}
       />
-
-      <SupplementsElectrolytesAccordion onShowToast={showToast} weightKg={weightKg} />
 
       <FuelSettingsSheet
         isOpen={settingsOpen}

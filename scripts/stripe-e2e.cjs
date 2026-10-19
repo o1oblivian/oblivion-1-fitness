@@ -278,7 +278,6 @@ async function payoutChecks(coachJwt, net) {
 }
 
 async function refundChecks(s, session, coachJwt) {
-  let b;
   const pi = typeof session.payment_intent === 'string' ? session.payment_intent : session.payment_intent.id;
   await stripe.refunds.create({ payment_intent: pi, amount: 1000 });
   let charge = await stripe.charges.retrieve((await stripe.paymentIntents.retrieve(pi)).latest_charge);
@@ -296,7 +295,7 @@ async function refundChecks(s, session, coachJwt) {
   await webhook('charge.refunded', charge);
   refunded = await sale(s.coachId);
   check('full refund marks sale REFUNDED', refunded.status === 'REFUNDED', refunded.status);
-  b = await balance(coachJwt);
+  const b = await balance(coachJwt);
   check('refunded sale leaves no balance', b.availableCents === 0 && b.grossCents === 0, `available ${b.availableCents} gross ${b.grossCents}`);
 }
 

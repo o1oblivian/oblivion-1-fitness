@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { ChevronRight, Lock } from 'lucide-react';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { useSubscription } from '../../../context/SubscriptionContext';
 import { IntelInsightsModal } from './IntelInsightsModal';
@@ -19,7 +18,9 @@ export const IntelInsightsCard: React.FC = () => {
           tactileEngine.triggerSelectionBuzz();
           setIsOpen(true);
         }}
-        aria-label={hasFullAccess ? 'Open My progress' : 'My progress, Pro feature'}
+        aria-label={
+          hasFullAccess ? 'Open Oblivion Intel Insights' : 'Oblivion Intel Insights, Pro feature'
+        }
         className="group relative overflow-hidden w-full text-left rounded-2xl border border-white/[0.09] hover:border-white/[0.16] bg-o1-surface px-4 py-3.5 mb-3 transition-colors cursor-pointer select-none flex items-center gap-4 active:scale-[0.99]"
       >
         <span
@@ -32,11 +33,8 @@ export const IntelInsightsCard: React.FC = () => {
         />
 
         <span className="relative min-w-0 flex-1">
-          <span className="block text-o1-label font-medium tracking-[0.2em] uppercase text-o1-muted">
-            Oblivion Pro
-          </span>
-          <span className="block text-o1-control font-light tracking-wide text-[#FFFFFF] leading-tight mt-1">
-            My progress
+          <span className="block text-o1-control font-light tracking-wide text-[#FFFFFF] leading-tight">
+            Oblivion Intel Insights
           </span>
           <span className="flex flex-wrap items-center gap-x-1.5 mt-1.5 text-o1-label text-o1-muted leading-none">
             {FEATURES.map((f, i) => (
@@ -53,12 +51,11 @@ export const IntelInsightsCard: React.FC = () => {
           </span>
         </span>
 
-        <span className="relative w-9 h-9 rounded-full border border-white/[0.12] bg-black/40 flex items-center justify-center shrink-0 transition-colors group-hover:border-white/[0.24]">
-          {hasFullAccess ? (
-            <ChevronRight className="w-4 h-4 text-o1-text group-hover:translate-x-0.5 transition-transform" />
-          ) : (
-            <Lock className="w-3.5 h-3.5 text-o1-text" aria-hidden="true" />
-          )}
+        <span
+          aria-hidden="true"
+          className="relative shrink-0 px-2 py-1 rounded-md border border-o1-crimson/60 text-o1-label font-medium tracking-wider text-o1-text"
+        >
+          PRO
         </span>
       </button>
 

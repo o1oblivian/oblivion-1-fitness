@@ -8,8 +8,19 @@ export type PhotoSource = 'camera' | 'photos';
 
 const MAX_PHOTO_PX = 1600;
 
-/** Opens the phone camera or the photo picker and returns a data URL. Throws with the reason it failed. */
-export async function capturePhotoDataUrl(source: PhotoSource): Promise<string> {
+/** Loads the camera plugin ahead of the tap, so the camera opens without waiting for it. */
+export function preloadNativeCamera(): void {
+  if (Capacitor.isNativePlatform()) void import('@capacitor/camera').catch(() => undefined);
+}
+
+/**
+ * Opens the phone camera or the photo picker and returns a data URL. Throws with the reason it failed.
+ * `maxPx` caps the longer side; a smaller photo crosses the native bridge and uploads sooner.
+ */
+export async function capturePhotoDataUrl(
+  source: PhotoSource,
+  maxPx: number = MAX_PHOTO_PX,
+): Promise<string> {
   if (!Capacitor.isNativePlatform()) {
     throw new Error('Open the installed app to use the camera.');
   }
@@ -31,9 +42,9 @@ export async function capturePhotoDataUrl(source: PhotoSource): Promise<string> 
   }
   const photoRequest = Camera.getPhoto({
     quality: 85,
-    // Resize on the phone before the photo crosses the native bridge. The scanners downscale to 1600px or less anyway.
-    width: MAX_PHOTO_PX,
-    height: MAX_PHOTO_PX,
+    // Resize on the phone before the photo crosses the native bridge.
+    width: maxPx,
+    height: maxPx,
     allowEditing: false,
     resultType: CameraResultType.Base64,
     source: source === 'camera' ? CameraSource.Camera : CameraSource.Photos,

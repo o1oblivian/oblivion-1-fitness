@@ -8,7 +8,7 @@ export interface MealSlotConfig {
   key: SlotKey;
   label: string;
   icon: React.ReactNode;
-  /** Text colour shared by the slot icon and its + / camera buttons. */
+  /** Text colour of the bare line icon; the icon has no background. */
   accent: string;
 }
 
@@ -16,31 +16,39 @@ export const MEAL_SLOTS: MealSlotConfig[] = [
   {
     key: 'breakfast',
     label: 'Breakfast',
-    icon: <Sun className="w-6 h-6 stroke-[2.2]" />,
-    accent: 'text-amber-600',
+    icon: <Sun className="w-6 h-6 stroke-[1.75]" />,
+    accent: 'text-amber-500',
   },
   {
     key: 'lunch',
     label: 'Lunch',
-    icon: <Utensils className="w-6 h-6 stroke-[2.2]" />,
-    accent: 'text-red-600',
+    icon: <Utensils className="w-6 h-6 stroke-[1.75]" />,
+    accent: 'text-red-500',
   },
   {
     key: 'dinner',
     label: 'Dinner',
-    icon: <Moon className="w-6 h-6 stroke-[2.2]" />,
-    accent: 'text-sky-600',
+    icon: <Moon className="w-6 h-6 stroke-[1.75]" />,
+    accent: 'text-sky-500',
   },
   {
     key: 'snack',
     label: 'Snack',
-    icon: <Box className="w-6 h-6 stroke-[2.2]" />,
-    accent: 'text-emerald-600',
+    icon: <Box className="w-6 h-6 stroke-[1.75]" />,
+    accent: 'text-emerald-500',
   },
   {
     key: 'drinks',
     label: 'Drinks',
-    icon: <Coffee className="w-6 h-6 stroke-[2.2]" />,
-    accent: 'text-[#8F6FB8]',
+    icon: <Coffee className="w-6 h-6 stroke-[1.75]" />,
+    accent: 'text-[#A98BCB]',
   },
 ];
+
+/** The meal a photo most likely belongs to at this time of day. */
+export function slotForHour(hour: number): SlotKey {
+  if (hour < 11) return 'breakfast';
+  if (hour < 15) return 'lunch';
+  if (hour < 17) return 'snack';
+  return 'dinner';
+}

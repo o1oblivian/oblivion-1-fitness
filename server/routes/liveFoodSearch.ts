@@ -1,7 +1,9 @@
 ﻿import type { Express } from 'express';
 import type { DietFacts } from '../../shared/foodDiet';
 import { dietFactsFromOff, type OffDietTags } from '../lib/offDiet';
+import { searchGeneric } from '../lib/browseFoods';
 import { searchFdc } from '../lib/usda';
+import { peekCatalog } from '../lib/usdaCatalog';
 
 /** One food as the app receives it. All numbers are for 100 g, so the portion dial can scale them directly. */
 export interface FoodRow {
@@ -51,13 +53,13 @@ const OFF_FIELDS = [
   'allergens_tags',
   'ingredients_analysis_tags',
 ].join(',');
-const USER_AGENT = 'Oblivion1Fitness-FuelOS/1.0 (o1oblivionfitness@gmail.com)';
+export const USER_AGENT = 'Oblivion1Fitness-FuelOS/1.0 (o1oblivionfitness@gmail.com)';
 
 function round1(n: number): number {
   return Math.round(n * 10) / 10;
 }
 
-interface OffProduct extends OffDietTags {
+export interface OffProduct extends OffDietTags {
   code?: string;
   product_name?: string;
   product_name_en?: string;
@@ -66,7 +68,7 @@ interface OffProduct extends OffDietTags {
   nutriments?: Record<string, number | string | undefined>;
 }
 
-function rowFromOff(product: OffProduct, country: string): FoodRow | null {
+export function rowFromOff(product: OffProduct, country: string): FoodRow | null {
   const name = String(product.product_name || product.product_name_en || '').trim();
   const n = product.nutriments ?? {};
   if (!name) return null;
@@ -145,7 +147,7 @@ async function searchUsda(
   const toRow = (food: Awaited<ReturnType<typeof searchFdc>>[number]): FoodRow => ({
     id: food.id,
     name: food.name,
-    brand: food.dataType === 'Branded' ? food.brand : 'USDA',
+    brand: food.dataType === 'Branded' ? food.brand : 'Generic',
     calories: food.calories,
     protein: food.protein,
     carbs: food.carbs,
@@ -156,16 +158,19 @@ async function searchUsda(
     source: 'usda',
   });
   // Plain foods are the same everywhere; branded products in this database are American.
-  const [generic, branded] = await Promise.all([
-    searchFdc(query, apiKey, {
-      pageSize: Math.min(limit, 20),
-      dataTypes: ['Foundation', 'SR Legacy'],
-    }),
+  const branded: Promise<Awaited<ReturnType<typeof searchFdc>>> =
     country === 'US'
-      ? searchFdc(query, apiKey, { pageSize: 10, dataTypes: ['Branded'] })
-      : Promise.resolve([]),
-  ]);
-  return [...generic, ...branded].map(toRow);
+      ? searchFdc(query, apiKey, { pageSize: 10, dataTypes: ['Branded'] }).catch(() => [])
+      : Promise.resolve([]);
+  // The catalogue is already in memory, so plain foods are answered without a trip to USDA.
+  const catalog = peekCatalog();
+  const inMemory = catalog ? searchGeneric(catalog, query, Math.min(limit, 40)) : [];
+  if (inMemory.length > 0) return [...inMemory, ...(await branded).map(toRow)];
+  const generic = await searchFdc(query, apiKey, {
+    pageSize: Math.min(limit, 20),
+    dataTypes: ['Foundation', 'SR Legacy'],
+  });
+  return [...generic, ...(await branded)].map(toRow);
 }
 
 /** A search repeated within this time is answered from memory, which also spares the free upstream APIs. */

@@ -46,12 +46,13 @@ export const InviteModal: React.FC<InviteModalProps> = ({
       text: 'Train with me on Oblivion 1.',
       url: link,
     });
+    if (result === 'cancelled') return;
     mark(
       result === 'shared'
-        ? 'Share sheet opened.'
+        ? 'Invite shared.'
         : result === 'copied'
           ? 'Invite link copied.'
-          : 'Share was cancelled.',
+          : 'Could not share. Copy the link instead.',
     );
   };
 
@@ -100,7 +101,6 @@ export const InviteModal: React.FC<InviteModalProps> = ({
       href: `https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent('Train with me on Oblivion 1.')}`,
       color: '#229ED9',
     },
-    { name: 'Messages', href: `sms:?body=${encodeURIComponent(shareText)}`, color: '#34C759' },
     {
       name: 'X',
       href: `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`,
@@ -131,28 +131,38 @@ export const InviteModal: React.FC<InviteModalProps> = ({
 
         <div className="rounded-2xl bg-o1-well border border-white/[0.07] p-3 space-y-1">
           <span className="text-o1-label text-neutral-500 block">{userHandle}</span>
-          <div className="text-sm font-semibold text-white break-all">{link}</div>
           <div className="text-o1-caption font-semibold tracking-wide text-neutral-200">{code}</div>
           <p className="text-o1-label text-neutral-400">
             Anyone who opens this link lands on Oblivion 1 Fitness Club.
           </p>
         </div>
 
-        <button
-          type="button"
-          onClick={() => void handleShare()}
-          className="w-full min-h-[44px] rounded-xl bg-o1-crimson text-white text-xs font-semibold flex items-center justify-center gap-2 cursor-pointer"
-        >
-          <Share2 className="w-4 h-4" />
-          Share invite
-        </button>
+        <div className="grid grid-cols-2 gap-2">
+          <button
+            type="button"
+            onClick={() => void handleShare()}
+            className="min-h-[44px] rounded-xl bg-o1-crimson text-white text-xs font-semibold flex items-center justify-center gap-2 cursor-pointer"
+          >
+            <Share2 className="w-4 h-4" />
+            Share invite
+          </button>
+          <button
+            type="button"
+            onClick={() => void handleCopy()}
+            className="min-h-[44px] rounded-xl bg-o1-well border border-white/[0.07] text-neutral-200 text-xs font-semibold flex items-center justify-center gap-2 cursor-pointer"
+          >
+            {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+            Copy link
+          </button>
+        </div>
+        {status && <p className="text-o1-label text-neutral-300 text-center">{status}</p>}
 
-        <div className="grid grid-cols-4 gap-2">
+        <div className="grid grid-cols-3 gap-2">
           {social.map((item) => (
             <a
               key={item.name}
               href={item.href}
-              target={item.name === 'Messages' ? undefined : '_blank'}
+              target="_blank"
               rel="noopener noreferrer"
               onClick={() => tactileEngine.triggerSelectionBuzz()}
               className="flex flex-col items-center gap-1.5"
@@ -167,15 +177,6 @@ export const InviteModal: React.FC<InviteModalProps> = ({
             </a>
           ))}
         </div>
-
-        <button
-          type="button"
-          onClick={() => void handleCopy()}
-          className="w-full min-h-[40px] rounded-xl bg-o1-well border border-white/[0.07] text-neutral-200 text-xs font-semibold flex items-center justify-center gap-2 cursor-pointer"
-        >
-          {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-          Copy link
-        </button>
 
         <form onSubmit={(e) => void handleJoin(e)} className="space-y-1.5">
           <label className="text-o1-label text-neutral-400 block">
@@ -199,8 +200,6 @@ export const InviteModal: React.FC<InviteModalProps> = ({
             </button>
           </div>
         </form>
-
-        {status && <p className="text-o1-label text-neutral-400 text-center">{status}</p>}
       </div>
     </div>
   );

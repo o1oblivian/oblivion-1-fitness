@@ -71,8 +71,8 @@ export async function renderProgressCard(input: ProgressCardInput): Promise<File
 
   ctx.fillStyle = '#F2EFE6';
   ctx.textAlign = 'left';
-  ctx.font = '600 28px Manrope, sans-serif';
-  ctx.fillText('Oblivion 1', 72, 96);
+  ctx.font = '800 56px Manrope, sans-serif';
+  ctx.fillText('O1FC', 72, 104);
 
   ctx.fillStyle = '#FFFFFF';
   ctx.font = '700 64px Manrope, sans-serif';
@@ -129,7 +129,7 @@ export async function renderProgressCard(input: ProgressCardInput): Promise<File
   ctx.fillStyle = '#A39E92';
   ctx.font = '500 24px Manrope, sans-serif';
   ctx.textAlign = 'left';
-  ctx.fillText('oblivion1.club', 72, H - 72);
+  ctx.fillText('Oblivion 1 Fitness Club', 72, H - 72);
 
   const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/png'));
   if (!blob) throw new Error('Could not build the card');

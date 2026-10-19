@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { X, Share2, Download } from 'lucide-react';
 import { tactileEngine } from '../../../services/tactileEngine';
-import { PUBLIC_SITE, shareContent, downloadFile } from '../publicShare';
+import { PUBLIC_SITE, shareContent, downloadFile, saveImage } from '../publicShare';
 import { loadImageFile, renderProgressCard } from '../shareCardCanvas';
 
 interface ShareBenchmarkModalProps {
@@ -89,19 +89,22 @@ export const ShareBenchmarkModal: React.FC<ShareBenchmarkModalProps> = ({
     try {
       const file = await buildFile();
       const result = await shareContent({
-        title: 'Oblivion 1',
-        text: `${metrics.name || 'Set your name'} on Oblivion 1`,
+        title: 'O1FC',
+        text: `${metrics.name || 'Set your name'} on O1FC, Oblivion 1 Fitness Club`,
         url: PUBLIC_SITE,
         file,
       });
-      setStatus(
-        result === 'shared'
-          ? 'Share sheet opened.'
-          : result === 'copied'
-            ? 'Link copied. The card is ready to save.'
-            : 'Share was cancelled.',
-      );
-      if (result !== 'shared') downloadFile(file);
+      if (result === 'shared') setStatus('Shared.');
+      else if (result === 'cancelled') setStatus('');
+      else {
+        // No share sheet here (a desktop browser): keep the card so it can still be posted.
+        downloadFile(file);
+        setStatus(
+          result === 'copied'
+            ? 'Link copied. The card was saved to this device.'
+            : 'The card was saved to this device.',
+        );
+      }
     } catch {
       setStatus('The card could not be built on this device.');
     }
@@ -111,8 +114,10 @@ export const ShareBenchmarkModal: React.FC<ShareBenchmarkModalProps> = ({
     tactileEngine.triggerSelectionBuzz();
     try {
       const file = await buildFile();
-      downloadFile(file);
-      setStatus('Card saved. Post that image.');
+      const result = await saveImage(file);
+      if (result === 'saved') setStatus('Card ready. Post that image.');
+      else if (result === 'cancelled') setStatus('');
+      else setStatus('The card could not be saved on this device.');
     } catch {
       setStatus('The card could not be built on this device.');
     }
@@ -158,7 +163,7 @@ export const ShareBenchmarkModal: React.FC<ShareBenchmarkModalProps> = ({
 
         <div className="rounded-2xl bg-black border border-white/[0.07] p-3.5 text-white space-y-3">
           <div className="flex items-baseline justify-between">
-            <span className="text-o1-label font-semibold text-neutral-300">Oblivion 1</span>
+            <span className="text-2xl font-extrabold tracking-tight text-o1-text">O1FC</span>
             <span className="text-o1-label text-neutral-500 truncate max-w-[50%]">
               {metrics.handle}
             </span>
@@ -198,7 +203,7 @@ export const ShareBenchmarkModal: React.FC<ShareBenchmarkModalProps> = ({
               </div>
             ))}
           </div>
-          <div className="text-o1-label text-neutral-500">oblivion1.club</div>
+          <div className="text-o1-label text-neutral-500">Oblivion 1 Fitness Club</div>
         </div>
 
         <p className="text-o1-label text-neutral-500 leading-snug">

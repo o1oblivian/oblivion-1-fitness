@@ -1,12 +1,14 @@
 ﻿import type { Express } from 'express';
 import { SUPPLEMENT_KNOWLEDGE_BASE } from '../data/supplementKnowledgeBase';
 import { generateContentWithFallback, getGenAI, parseGeminiJson } from '../lib/gemini';
+import { registerBrowseFoods } from './browseFoods';
 import { registerLiveFoodSearch } from './liveFoodSearch';
 import { registerMealSuggestionRoute } from './mealSuggestionRoute';
 
 /** Barcode lookup, supplement search, and the live food and meal routes registered below. */
 export function registerFuelRoutes(app: Express): void {
   registerLiveFoodSearch(app);
+  registerBrowseFoods(app);
   registerMealSuggestionRoute(app);
 
   // 2. REAL BARCODE SCANNER & OPEN FOOD FACTS LOOKUP

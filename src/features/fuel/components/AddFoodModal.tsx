@@ -1,4 +1,11 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, {
+  useState,
+  useEffect,
+  useMemo,
+  useRef,
+  type Dispatch,
+  type SetStateAction,
+} from 'react';
 import {
   X,
   Search,
@@ -18,13 +25,12 @@ import { ClientCountryMarketModal, COUNTRIES } from './ClientCountryMarketModal'
 import { searchFoods, FoodItemRecord } from '../../../services/foodCatalogService';
 import { ManualFoodEntryModal } from './ManualFoodEntryModal';
 import { foodMatchesDiet } from '../utils/dietFoodFilter';
+import { filterByFoodQuery } from '../utils/foodSearchMatch';
+import { filterCustomFoods } from '../../../services/customFoodDatabase';
 import type { MacroBudget } from '../data/mealBudget';
 import { FOOD_BROWSE_CATEGORIES, type FoodBrowseId } from '../../../../shared/foodBrowse';
-import {
-  loadPopularFoods,
-  popularMarketFor,
-  type PopularList,
-} from '../../../services/popularFoodsService';
+import { loadPopularFoods, type PopularList } from '../../../services/popularFoodsService';
+import { browseFoods, mergeFoods, type BrowseAnswer } from '../../../services/browseFoodsService';
 
 interface AddFoodModalProps {
   /** Slot label from the fuel screen ("Snacks", "Supplements & Electrolytes"); the store maps it to a slot. */
@@ -37,8 +43,14 @@ interface AddFoodModalProps {
 }
 
 /** Wait this long after the last keystroke before searching, so one search is sent per word typed. */
-const SEARCH_DEBOUNCE_MS = 400;
+const SEARCH_DEBOUNCE_MS = 150;
+/** Waits before a category part that did not answer is asked again in the background. */
+const RETRY_AFTER_MS = [8_000, 20_000, 45_000, 90_000, 180_000];
 const SEARCH_LIMIT = 60;
+/** A category list shows this many foods, and this many more each time "Show more" is tapped. */
+const PAGE_SIZE = 100;
+/** Packaged products from the country's own shelves that are listed ahead of the plain foods. */
+const LOCAL_FIRST = 30;
 
 /** What the list shows while nothing is typed: one category of the country's most popular foods, or the person's own saved foods. */
 type Browse = 'mine' | FoodBrowseId;
@@ -59,7 +71,6 @@ export const AddFoodModal: React.FC<AddFoodModalProps> = ({
 
   const [searchQuery, setSearchQuery] = useState('');
   const [foods, setFoods] = useState<FoodItemRecord[]>([]);
-  const [unavailable, setUnavailable] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedFood, setSelectedFood] = useState<FoodItemRecord | null>(null);
   const [isDialModalOpen, setIsDialModalOpen] = useState(false);
@@ -70,6 +81,11 @@ export const AddFoodModal: React.FC<AddFoodModalProps> = ({
   const [popularList, setPopularList] = useState<PopularList | null>(null);
   const [popularError, setPopularError] = useState<string | null>(null);
   const [popularAttempt, setPopularAttempt] = useState(0);
+  const [livePlain, setLivePlain] = useState<BrowseAnswer | null>(null);
+  const [liveLocal, setLiveLocal] = useState<BrowseAnswer | null>(null);
+  const [shownCount, setShownCount] = useState(PAGE_SIZE);
+  /** Foods already on the phone, searched at once while the network answers. */
+  const instantPoolRef = useRef<FoodItemRecord[]>([]);
 
   useEffect(() => {
     if (isOpen) {
@@ -89,6 +105,14 @@ export const AddFoodModal: React.FC<AddFoodModalProps> = ({
     abortControllerRef.current = controller;
     const typed = searchQuery.trim().length > 0;
     setIsLoading(typed);
+    // Matches from the saved foods and the lists already loaded show on the keystroke itself.
+    const instant = typed
+      ? mergeFoods(
+          filterCustomFoods(undefined, searchQuery.trim()),
+          filterByFoodQuery(instantPoolRef.current, searchQuery),
+        ).slice(0, SEARCH_LIMIT)
+      : [];
+    if (typed) setFoods(instant);
 
     const timer = setTimeout(
       async () => {
@@ -99,18 +123,16 @@ export const AddFoodModal: React.FC<AddFoodModalProps> = ({
             limit: SEARCH_LIMIT,
             signal: controller.signal,
             onPartial: (partial) => {
-              if (controller.signal.aborted) return;
+              if (controller.signal.aborted || partial.items.length === 0) return;
               setFoods(partial.items);
-              setUnavailable(partial.unavailable);
+              setIsLoading(false);
             },
           });
           if (controller.signal.aborted) return;
-          setFoods(result.items);
-          setUnavailable(result.unavailable);
+          setFoods(result.items.length > 0 ? result.items : instant);
         } catch {
           if (controller.signal.aborted) return;
-          setFoods([]);
-          setUnavailable(['Search could not be reached']);
+          setFoods(instant);
         } finally {
           if (!controller.signal.aborted) setIsLoading(false);
         }
@@ -144,6 +166,51 @@ export const AddFoodModal: React.FC<AddFoodModalProps> = ({
       cancelled = true;
     };
   }, [countryMarket, popularAttempt]);
+
+  // The whole category is read live: plain foods at once, the country's packaged products when they arrive.
+  // A part that does not answer is asked again quietly in the background, and the list fills in when it does.
+  useEffect(() => {
+    if (!isOpen || popularCategory === null) return;
+    setLivePlain(null);
+    setLiveLocal(null);
+    setShownCount(PAGE_SIZE);
+    const controller = new AbortController();
+    const retries: ReturnType<typeof setTimeout>[] = [];
+    const country = countryMarket || 'AU';
+    const read = (
+      part: 'plain' | 'local',
+      set: Dispatch<SetStateAction<BrowseAnswer | null>>,
+      attempt: number,
+    ) => {
+      browseFoods({ category: popularCategory, country, part, signal: controller.signal })
+        .then((answer) => {
+          if (controller.signal.aborted) return;
+          // A refresh that comes back empty never replaces foods already on screen.
+          set((shown) => (shown !== null && answer.items.length === 0 ? shown : answer));
+          if (answer.failed.length > 0) {
+            const wait = RETRY_AFTER_MS[Math.min(attempt, RETRY_AFTER_MS.length - 1)];
+            retries.push(setTimeout(() => read(part, set, attempt + 1), wait));
+          }
+        })
+        .catch(() => undefined);
+    };
+    read('plain', setLivePlain, 0);
+    read('local', setLiveLocal, 0);
+    return () => {
+      controller.abort();
+      retries.forEach(clearTimeout);
+    };
+  }, [isOpen, popularCategory, countryMarket]);
+
+  // Everything already loaded can be searched without waiting for the network.
+  useEffect(() => {
+    instantPoolRef.current = mergeFoods(
+      popularList?.foods ?? [],
+      livePlain?.items ?? [],
+      liveLocal?.items ?? [],
+    );
+  }, [popularList, livePlain, liveLocal]);
+
   const currentCountry = useMemo(
     () =>
       COUNTRIES.find((c) => c.code === countryMarket) || {
@@ -159,19 +226,32 @@ export const AddFoodModal: React.FC<AddFoodModalProps> = ({
     if (!popularList) return [];
     return popularList.foods.filter((f) => f.browse === browse);
   }, [popularList, browse]);
+  // The country's staples lead, then its best-scanned packaged products, then every plain food in the category.
+  const categoryFoods = useMemo(() => {
+    const local = liveLocal?.items ?? [];
+    return mergeFoods(
+      popularFoods,
+      local.slice(0, LOCAL_FIRST),
+      livePlain?.items ?? [],
+      local.slice(LOCAL_FIRST),
+    );
+  }, [popularFoods, livePlain, liveLocal]);
   const visibleFoods = useMemo(
-    () => (showingPopular ? popularFoods : foods).filter((f) => foodMatchesDiet(f, dietPreference)),
-    [showingPopular, popularFoods, foods, dietPreference],
+    () =>
+      (showingPopular ? categoryFoods : foods).filter((f) => foodMatchesDiet(f, dietPreference)),
+    [showingPopular, categoryFoods, foods, dietPreference],
   );
-  const listLoading = showingPopular ? popularList === null && !popularError : isLoading;
-  const usingWorldList =
-    popularMarketFor(countryMarket || 'AU') !== (countryMarket || 'AU').toUpperCase();
+  const shownFoods = showingPopular ? visibleFoods.slice(0, shownCount) : visibleFoods;
+  const stillLoading = showingPopular && (livePlain === null || liveLocal === null);
+  const listLoading = showingPopular
+    ? popularList === null && !popularError && livePlain === null
+    : isLoading;
   const browseLabel =
     browse === 'mine'
       ? 'My foods'
-      : `${FOOD_BROWSE_CATEGORIES.find((c) => c.id === browse)?.label ?? 'Popular'} · ${
-          usingWorldList ? 'popular worldwide' : `popular in ${currentCountry.name}`
-        }`;
+      : `${FOOD_BROWSE_CATEGORIES.find((c) => c.id === browse)?.label ?? 'Foods'} · ${
+          visibleFoods.length
+        }${stillLoading ? '+' : ''} foods`;
 
   if (!isOpen) return null;
 
@@ -312,23 +392,13 @@ export const AddFoodModal: React.FC<AddFoodModalProps> = ({
           })}
         </div>
 
-        {unavailable.length > 0 && typed ? (
-          <p
-            role="status"
-            className="shrink-0 flex items-center gap-2 rounded-xl bg-o1-warn-wash/60 px-3 py-2 text-o1-label text-o1-warn-ink"
-          >
-            <WifiOff className="w-3.5 h-3.5 shrink-0" aria-hidden />
-            <span>Not answering: {unavailable.join(', ')}. Results may be incomplete.</span>
-          </p>
-        ) : null}
-
         <div className="overflow-y-auto space-y-2 pr-1 flex-1">
-          {listLoading && visibleFoods.length === 0 ? (
+          {(listLoading || stillLoading) && visibleFoods.length === 0 ? (
             <div className="py-16 text-center text-o1-muted font-sans text-xs flex flex-col items-center justify-center gap-2">
               <Loader2 className="w-5 h-5 animate-spin text-o1-crimson" />
               <span>{showingPopular ? 'Loading foods…' : 'Searching…'}</span>
             </div>
-          ) : showingPopular && popularError ? (
+          ) : showingPopular && popularError && visibleFoods.length === 0 && !stillLoading ? (
             <div
               role="alert"
               className="py-12 px-4 text-center text-o1-muted font-sans text-xs flex flex-col items-center justify-center gap-3"
@@ -363,7 +433,7 @@ export const AddFoodModal: React.FC<AddFoodModalProps> = ({
               )}
             </div>
           ) : (
-            visibleFoods.map((food) => (
+            shownFoods.map((food) => (
               <button
                 key={food.id}
                 type="button"
@@ -416,9 +486,42 @@ export const AddFoodModal: React.FC<AddFoodModalProps> = ({
               </button>
             ))
           )}
+
+          {showingPopular && visibleFoods.length > 0 ? (
+            <>
+              {visibleFoods.length > shownCount ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    tactileEngine.triggerSelectionBuzz();
+                    setShownCount((count) => count + PAGE_SIZE);
+                  }}
+                  className="w-full h-11 rounded-2xl border border-white/[0.08] bg-o1-surface text-xs font-sans font-semibold text-o1-text cursor-pointer active:scale-[0.99]"
+                >
+                  Show {Math.min(PAGE_SIZE, visibleFoods.length - shownCount)} more
+                  <span className="text-o1-muted"> · {visibleFoods.length - shownCount} left</span>
+                </button>
+              ) : null}
+              {stillLoading ? (
+                <p className="flex items-center justify-center gap-2 py-3 text-o1-label text-o1-muted">
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" aria-hidden />
+                  Loading more foods…
+                </p>
+              ) : (
+                <p className="py-3 text-center text-o1-label text-o1-muted">
+                  {browse === 'fastfood'
+                    ? 'Chain menu values are from US menus, via USDA FoodData Central'
+                    : 'Plain foods from USDA FoodData Central'}
+                  {(liveLocal?.items.length ?? 0) > 0
+                    ? ' · packaged products from Open Food Facts'
+                    : ''}
+                </p>
+              )}
+            </>
+          ) : null}
         </div>
 
-        <div className="pt-2 border-t border-white/[0.05] flex items-center justify-between shrink-0">
+        <div className="pt-2 border-t border-white/[0.05] flex items-center shrink-0">
           <button
             type="button"
             onClick={() => {
@@ -429,17 +532,6 @@ export const AddFoodModal: React.FC<AddFoodModalProps> = ({
           >
             <Plus className="w-4 h-4 stroke-[3]" />
             <span>Custom Food Item</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => {
-              tactileEngine.triggerSelectionBuzz();
-              onClose();
-            }}
-            className="px-6 py-2.5 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover text-o1-text font-bold text-xs active:scale-95 transition-all cursor-pointer"
-          >
-            Done
           </button>
         </div>
       </div>

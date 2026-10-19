@@ -61,7 +61,9 @@ export const MealMacroScannerModal: React.FC<MealMacroScannerModalProps> = (prop
             </div>
           </div>
           <button
+            type="button"
             onClick={onClose}
+            aria-label="Close meal scanner"
             className="p-1.5 rounded-full hover:bg-white/[0.06] text-neutral-400 hover:text-white"
           >
             <X className="w-4 h-4" />
@@ -116,15 +118,6 @@ export const MealMacroScannerModal: React.FC<MealMacroScannerModalProps> = (prop
               }}
             />
           )}
-        </div>
-
-        <div className="px-3 py-2 bg-black flex justify-end">
-          <button
-            onClick={onClose}
-            className="px-5 py-2 rounded-xl bg-o1-well hover:bg-white/[0.06] text-neutral-300 text-xs font-medium cursor-pointer"
-          >
-            Done
-          </button>
         </div>
       </div>
     </div>

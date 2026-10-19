@@ -149,8 +149,8 @@ export function registerStripeRoutes(app: Express) {
   app.get('/api/stripe/balance', async (_req, res) => {
     try {
       const coachId = res.locals.userId as string;
-      if (!getSupabaseAdmin())
-        return res.status(503).json({ error: 'Payments backend is not configured.' });
+      const admin = getSupabaseAdmin();
+      if (!admin) return res.status(503).json({ error: 'Payments backend is not configured.' });
 
       let profile = await getCoachConnectProfile(coachId);
 
@@ -161,7 +161,7 @@ export function registerStripeRoutes(app: Express) {
           try {
             const account = await stripe.accounts.retrieve(profile.stripe_connect_account_id);
             if (account.payouts_enabled) {
-              await getSupabaseAdmin()!
+              await admin
                 .from('coach_profiles')
                 .update({ stripe_payouts_enabled: true })
                 .eq('id', coachId);
@@ -384,8 +384,8 @@ export function registerStripeRoutes(app: Express) {
         return res.status(400).json({ error: 'You can’t buy from yourself.' });
 
       const stripe = await getStripe();
-      if (!stripe || !getSupabaseAdmin())
-        return res.status(503).json({ error: 'Payments are not configured.' });
+      const admin = getSupabaseAdmin();
+      if (!stripe || !admin) return res.status(503).json({ error: 'Payments are not configured.' });
 
       const coach = await getCoachConnectProfile(coachId);
       if (!coach?.stripe_connect_account_id) {
@@ -409,7 +409,7 @@ export function registerStripeRoutes(app: Express) {
 
       // A program is bought once. Without this, a second tap or a second device charges the card again.
       if (item.kind === 'program' && item.programId) {
-        const owned = await getSupabaseAdmin()!
+        const owned = await admin
           .from('program_enrollments')
           .select('status')
           .eq('athlete_id', athleteId)

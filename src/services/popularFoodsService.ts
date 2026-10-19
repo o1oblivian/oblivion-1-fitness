@@ -30,7 +30,7 @@ function toRecord(food: PopularFood, market: string): PopularFoodRecord {
   return {
     id: food.id,
     name: food.name,
-    brand: 'USDA',
+    brand: 'Generic',
     calories: food.kcal,
     protein: food.protein,
     carbs: food.carbs,

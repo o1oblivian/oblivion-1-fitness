@@ -1,5 +1,5 @@
 import React from 'react';
-import { Dumbbell, UserRound, ChevronDown } from 'lucide-react';
+import { Dumbbell, UserRound } from 'lucide-react';
 import { tactileEngine } from '../../../services/tactileEngine';
 
 type HubTab = 'intel' | 'coach';
@@ -42,7 +42,10 @@ export const TrainingHubCards: React.FC<TrainingHubCardsProps> = ({
   onToggleTab,
   coachNote,
 }) => (
-  <div id="training-hub-cards-section" className="grid grid-cols-2 gap-2.5 my-2 select-none">
+  <div
+    id="training-hub-cards-section"
+    className="flex items-center justify-center gap-2.5 my-2 select-none"
+  >
     {TABS.map(({ id, title, sub, icon: Icon, drawerId, tint }) => {
       const active = expandedHubTab === id;
       const note = id === 'coach' ? coachNote : null;
@@ -58,7 +61,7 @@ export const TrainingHubCards: React.FC<TrainingHubCardsProps> = ({
             tactileEngine.triggerSelectionBuzz();
             onToggleTab(id);
           }}
-          className={`min-h-[52px] rounded-full p-2 pr-3 transition-all active:scale-[0.98] cursor-pointer flex items-center justify-between border text-white ${
+          className={`min-w-0 min-h-[52px] rounded-full py-2 pl-2 pr-4 transition-all active:scale-[0.98] cursor-pointer flex items-center border text-white ${
             active
               ? 'bg-o1-sheet border-o1-crimson/70'
               : 'bg-o1-surface border-white/[0.07] hover:border-white/[0.14]'
@@ -87,9 +90,6 @@ export const TrainingHubCards: React.FC<TrainingHubCardsProps> = ({
               </span>
             </span>
           </span>
-          <ChevronDown
-            className={`w-4 h-4 shrink-0 ml-1 stroke-[2.2] transition-transform ${active ? 'rotate-180 text-white' : 'text-neutral-400'}`}
-          />
         </button>
       );
     })}

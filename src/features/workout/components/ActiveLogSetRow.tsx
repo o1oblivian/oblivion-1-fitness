@@ -17,7 +17,6 @@ const FEEL_CHOICES: { label: string; rpe: number }[] = [
   { label: 'Hard', rpe: 8.5 },
   { label: 'Max', rpe: 10 },
 ];
-const RPE_PROMPT_MS = 9000;
 const LOCK_NOTE_MS = 2500;
 /** After effort is picked the set ticks itself; this is the window to undo it. */
 const AUTO_TICK_MS = 1300;
@@ -55,7 +54,6 @@ export const ActiveLogSetRow: React.FC<ActiveLogSetRowProps> = ({
 }) => {
   const simple = useSimpleMode();
   const [showQuickAdjust, setShowQuickAdjust] = useState(false);
-  const [askRpe, setAskRpe] = useState(false);
   const [lockNote, setLockNote] = useState(false);
   const [rpeOpen, setRpeOpen] = useState(false);
   const [pendingTick, setPendingTick] = useState(false);
@@ -100,8 +98,7 @@ export const ActiveLogSetRow: React.FC<ActiveLogSetRowProps> = ({
   });
   const repsCue = cue === 'values' && !(hasReps && touched.reps);
   const weightCue = cue === 'values' && hasWeight && !touched.weight;
-  const showRpe =
-    Boolean(onQuickUpdateSet) && (rpeOpen || (askRpe && isDone) || (simple && cue === 'effort'));
+  const showRpe = Boolean(onQuickUpdateSet) && (rpeOpen || (simple && cue === 'effort'));
 
   useEffect(() => {
     doneRef.current = Boolean(isDone);
@@ -132,8 +129,6 @@ export const ActiveLogSetRow: React.FC<ActiveLogSetRowProps> = ({
     const justTicked = Boolean(isDone) && !wasDone.current;
     wasDone.current = Boolean(isDone);
     if (!justTicked) return;
-    setAskRpe(true);
-    const id = window.setTimeout(() => setAskRpe(false), RPE_PROMPT_MS);
     const frame = window.requestAnimationFrame(() => {
       const el = rowRef.current;
       if (el && el.getBoundingClientRect().bottom > window.innerHeight - BOTTOM_CHROME_PX) {
@@ -141,7 +136,6 @@ export const ActiveLogSetRow: React.FC<ActiveLogSetRowProps> = ({
       }
     });
     return () => {
-      window.clearTimeout(id);
       window.cancelAnimationFrame(frame);
     };
   }, [isDone]);
@@ -189,7 +183,6 @@ export const ActiveLogSetRow: React.FC<ActiveLogSetRowProps> = ({
   const pickRpe = (rpe: number) => {
     tactileEngine.triggerSelectionBuzz();
     onQuickUpdateSet?.({ rpe });
-    setAskRpe(false);
     setRpeOpen(false);
     setTouched({ reps: true, weight: true });
     if (!isDone && hasReps) setPendingTick(true);
@@ -305,12 +298,6 @@ export const ActiveLogSetRow: React.FC<ActiveLogSetRowProps> = ({
             className="px-1 text-o1-label text-o1-muted animate-in fade-in duration-150"
           >
             Set done. Tap the tick to undo, then edit.
-          </p>
-        )}
-
-        {showRpe && (
-          <p className="px-1 pt-0.5 text-o1-label text-o1-muted animate-in fade-in duration-150">
-            {simple ? 'How did that feel?' : 'How hard was that? (RPE)'}
           </p>
         )}
 

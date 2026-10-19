@@ -1,10 +1,17 @@
-﻿import React, { RefObject, useState } from 'react';
+﻿import React, { RefObject, useEffect, useState } from 'react';
 import { Capacitor } from '@capacitor/core';
 import { Camera, Upload, Scan, Video } from 'lucide-react';
 import { ScanMode } from '../../services/mealVisionTypes';
-import { capturePhotoDataUrl, PhotoSource } from '../../services/nativeCameraService';
+import {
+  capturePhotoDataUrl,
+  preloadNativeCamera,
+  PhotoSource,
+} from '../../services/nativeCameraService';
 import { LiveBarcodeScanner } from './LiveBarcodeScanner';
 import { canDetectBarcodes } from '../../services/barcodeLookupService';
+
+/** The scanner sends the photo at 1024px, so the phone is asked for no more than that. */
+const SCAN_PHOTO_PX = 1024;
 
 interface MealScanActionsProps {
   scanMode: ScanMode;
@@ -30,13 +37,17 @@ export const MealScanActions: React.FC<MealScanActionsProps> = ({
   const [showLiveScanner, setShowLiveScanner] = useState(false);
   const [captureError, setCaptureError] = useState<string | null>(null);
 
+  useEffect(() => {
+    preloadNativeCamera();
+  }, []);
+
   const openPhoto = (source: PhotoSource) => {
     if (!Capacitor.isNativePlatform()) {
       (source === 'camera' ? cameraInputRef : fileInputRef).current?.click();
       return;
     }
     setCaptureError(null);
-    void capturePhotoDataUrl(source)
+    void capturePhotoDataUrl(source, SCAN_PHOTO_PX)
       .then(async (dataUrl) => {
         const blob = await (await fetch(dataUrl)).blob();
         const file = new File([blob], source === 'camera' ? 'meal.jpg' : 'meal-upload.jpg', {

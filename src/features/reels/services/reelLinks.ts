@@ -14,11 +14,11 @@ export interface ReelLink {
 export type ShareResult = 'shared' | 'cancelled' | 'options';
 
 export function reelUrl(reelId: string): string {
-  return `${PUBLIC_SITE}/?reel=${encodeURIComponent(reelId)}`;
+  return `${PUBLIC_SITE}/join?reel=${encodeURIComponent(reelId)}`;
 }
 
 export function coachUrl(coachId: string): string {
-  return `${PUBLIC_SITE}/?coach=${encodeURIComponent(coachId)}`;
+  return `${PUBLIC_SITE}/join?coach=${encodeURIComponent(coachId)}`;
 }
 
 function isCancel(error: unknown): boolean {

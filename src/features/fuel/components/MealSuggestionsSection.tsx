@@ -64,7 +64,7 @@ const MealOption: React.FC<{
   isLogged: boolean;
   onLog: (meal: MealSuggestion) => void;
 }> = ({ meal, isLogged, onLog }) => (
-  <li className="rounded-xl bg-o1-surface border border-white/[0.05] p-3 space-y-2.5">
+  <li className="rounded-xl bg-o1-well border border-white/[0.08] p-3 space-y-2.5">
     <div className="flex items-start justify-between gap-3">
       <div className="min-w-0">
         <h4 className="text-o1-body font-semibold text-o1-text leading-snug">{meal.name}</h4>
@@ -112,7 +112,7 @@ const MealPlaceholder: React.FC = () => (
   <div
     role="status"
     aria-label="Finding meals"
-    className="rounded-xl bg-o1-surface border border-white/[0.05] p-3 space-y-2.5 animate-pulse"
+    className="rounded-xl bg-o1-well border border-white/[0.08] p-3 space-y-2.5 animate-pulse"
   >
     <div className="h-4 w-2/3 rounded bg-white/[0.08]" />
     <div className="h-3 w-1/3 rounded bg-white/[0.06]" />
@@ -202,7 +202,7 @@ export const MealSuggestionsSection: React.FC<MealSuggestionsSectionProps> = ({
     <section
       id="o1fc-intel-meal-suggestions-tab"
       aria-label="Eat Insight"
-      className="bg-o1-canvas border border-white/[0.08] rounded-2xl p-3.5 space-y-3 select-none"
+      className="mt-3 pt-3 border-t border-white/[0.08] space-y-3 select-none"
     >
       <button
         type="button"
@@ -242,7 +242,7 @@ export const MealSuggestionsSection: React.FC<MealSuggestionsSectionProps> = ({
           {state.status === 'error' ? (
             <div
               role="alert"
-              className="rounded-xl bg-o1-surface border border-white/[0.05] p-3.5 space-y-2.5"
+              className="rounded-xl bg-o1-well border border-white/[0.08] p-3.5 space-y-2.5"
             >
               <p className="text-o1-body text-o1-muted">{state.message}</p>
               <button
@@ -284,7 +284,7 @@ export const MealSuggestionsSection: React.FC<MealSuggestionsSectionProps> = ({
           {showMore && !dayDone ? (
             <div className="space-y-3">
               <div
-                className="grid grid-cols-4 gap-1 p-1 rounded-xl bg-o1-surface border border-white/[0.05]"
+                className="grid grid-cols-4 gap-1 p-1 rounded-xl bg-o1-well border border-white/[0.08]"
                 role="tablist"
                 aria-label="Meal slot"
               >

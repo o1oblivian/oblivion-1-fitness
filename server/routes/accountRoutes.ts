@@ -22,7 +22,10 @@ export function registerAccountRoutes(app: Express): void {
         return res.status(401).json({ error: 'Not authenticated.' });
       }
 
-      const result = await deleteAccountData(uid);
+      const code = req.body?.appleAuthorizationCode;
+      const appleAuthorizationCode =
+        typeof code === 'string' && code.length > 0 && code.length <= 4096 ? code : undefined;
+      const result = await deleteAccountData(uid, { appleAuthorizationCode });
       if (!result.ok) return res.status(result.status).json({ error: result.error });
       return res.json({ success: true });
     } catch (err: any) {
