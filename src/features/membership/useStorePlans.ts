@@ -1,6 +1,7 @@
 ﻿import { useCallback, useEffect, useMemo, useState } from 'react';
 import { IAP_PRODUCTS, type IAPProductInfo } from '../../types/iap';
 import { revenueCatService, type StoreCatalog } from '../../services/revenueCatService';
+import { BUILD_STAMP } from '../../services/buildStamp';
 
 /** What a plan button can do right now. Paid plans are only `ready` once the store has priced them. */
 export type PlanAvailability = 'free' | 'ready' | 'loading' | 'unavailable';
@@ -13,6 +14,8 @@ export interface StorePlans {
   notice: (product: IAPProductInfo) => string | null;
   /** Asks the store again after a failure. */
   retry: () => void;
+  /** Which build this is and which store step it is on. Empty once prices are in. Shown small under the buy button. */
+  detail: string;
 }
 
 interface Loaded {
@@ -101,6 +104,14 @@ export function useStorePlans(enabled: boolean = true): StorePlans {
     };
   }, [enabled, attempt]);
 
+  // While waiting, redraw each second so the step and its timer on screen stay current.
+  const [tick, setTick] = useState(0);
+  useEffect(() => {
+    if (!enabled || loaded.status !== 'loading') return;
+    const id = setInterval(() => setTick((n) => n + 1), 1000);
+    return () => clearInterval(id);
+  }, [enabled, loaded.status]);
+
   const retry = useCallback(() => setAttempt((count) => count + 1), []);
 
   return useMemo<StorePlans>(() => {
@@ -121,6 +132,9 @@ export function useStorePlans(enabled: boolean = true): StorePlans {
           : loaded.issue;
       },
       retry,
+      detail:
+        loaded.status === 'ready' ? '' : `Build ${BUILD_STAMP} · ${revenueCatService.progress}`,
     };
-  }, [loaded, retry]);
+    // `tick` makes the step timer redraw while waiting.
+  }, [loaded, retry, tick]);
 }

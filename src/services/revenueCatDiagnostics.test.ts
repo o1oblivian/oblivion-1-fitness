@@ -72,4 +72,33 @@ describe('store diagnostics', () => {
     expect(catalog.packages).toHaveLength(1);
     expect(revenueCatService.lastIssue).toBeNull();
   });
+
+  it('gives up with a reason when the store never answers the product request', async () => {
+    vi.useFakeTimers();
+    try {
+      purchases.configure.mockResolvedValue(undefined);
+      purchases.getOfferings.mockReturnValue(new Promise(() => undefined));
+      const pending = revenueCatService.getOfferings('user-1');
+      await vi.advanceTimersByTimeAsync(13_000);
+      const catalog = await pending;
+      expect(catalog.packages).toEqual([]);
+      expect(revenueCatService.lastIssue).toContain('Store products did not load');
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('gives up with a reason when the store never finishes connecting', async () => {
+    vi.useFakeTimers();
+    try {
+      purchases.configure.mockReturnValue(new Promise(() => undefined));
+      const pending = revenueCatService.getOfferings('user-1');
+      await vi.advanceTimersByTimeAsync(13_000);
+      const catalog = await pending;
+      expect(catalog.packages).toEqual([]);
+      expect(revenueCatService.lastIssue).toContain('billing did not answer');
+    } finally {
+      vi.useRealTimers();
+    }
+  });
 });

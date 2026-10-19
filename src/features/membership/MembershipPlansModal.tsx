@@ -270,6 +270,12 @@ export const MembershipPlansModal: React.FC<MembershipPlansModalProps> = ({
             )}
           </button>
 
+          {plans.detail ? (
+            <p className="text-o1-label font-mono text-neutral-500 text-center break-words">
+              {plans.detail}
+            </p>
+          ) : null}
+
           {/* Footer Links & Restore */}
           <div className="flex items-center justify-center gap-2.5 text-o1-label font-mono text-neutral-400 flex-wrap">
             <span>App Store or Google Play</span>

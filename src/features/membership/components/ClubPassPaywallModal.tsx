@@ -226,6 +226,12 @@ export const ClubPassPaywallModal: React.FC = () => {
             )}
           </button>
 
+          {storePlans.detail ? (
+            <p className="text-o1-label font-mono text-neutral-500 text-center break-words">
+              {storePlans.detail}
+            </p>
+          ) : null}
+
           <div className="flex items-center justify-center gap-3 text-o1-label font-sans text-neutral-400">
             <button
               type="button"

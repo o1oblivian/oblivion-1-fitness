@@ -282,6 +282,18 @@ function explainStoreFailure(message: string): string {
 class RevenueCatManager {
   private ready: { userId: string; connected: Promise<boolean> } | null = null;
   private issue: string | null = null;
+  private stepName = 'not started';
+  private stepAt = Date.now();
+
+  private markStep(name: string): void {
+    this.stepName = name;
+    this.stepAt = Date.now();
+  }
+
+  /** The step the store connection is on, and how long it has been there. Shown on the paywall so a stall names itself. */
+  get progress(): string {
+    return `${this.stepName} (${Math.round((Date.now() - this.stepAt) / 1000)}s)`;
+  }
   private catalog: { userId: string; at: number; value: StoreCatalog } | null = null;
   private catalogRequest: Promise<StoreCatalog> | null = null;
 
@@ -342,16 +354,20 @@ class RevenueCatManager {
   /** Configures the store once per signed-in user; later calls reuse that connection. */
   async init(appUserId: string = ''): Promise<typeof Purchases | null> {
     if (!isNativeStorePlatform()) return null;
+    this.markStep('finding your account');
     const userId = await resolveAppUserId(appUserId);
     if (!userId) {
       this.issue = 'Your account could not be confirmed. Check your connection or sign in again.';
+      this.markStep('account not confirmed');
       return null;
     }
     if (!this.ready || this.ready.userId !== userId) {
+      this.markStep(`connecting to ${storeName()}`);
       this.ready = { userId, connected: this.connect(userId) };
     }
     const attempt = this.ready;
     const connected = await attempt.connected;
+    this.markStep(connected ? 'connected' : 'connection failed');
     if (!connected && this.ready === attempt) this.ready = null;
     return connected ? Purchases : null;
   }
@@ -382,9 +398,11 @@ class RevenueCatManager {
     try {
       const client = await this.init(appUserId);
       if (!client) return { packages: [] };
+      this.markStep(`asking ${storeName()} for products`);
       const packages = packagesFromOfferings(
         await withStoreTimeout(client.getOfferings(), 'Store products did not load.'),
       );
+      this.markStep(`received ${packages.length} products`);
       this.issue = packages.length
         ? null
         : `${storeName()} returned no products. Check that the subscriptions are attached to the default offering in RevenueCat.`;
@@ -395,6 +413,7 @@ class RevenueCatManager {
       return value;
     } catch (err) {
       console.warn('[RevenueCat] Products unavailable:', err);
+      this.markStep('products failed');
       this.issue = `${storeName()} products did not load: ${explainStoreFailure(errorMessage(err, 'no reason given'))}`;
       return { packages: [] };
     }
