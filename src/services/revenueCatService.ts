@@ -6,6 +6,7 @@ import {
   type PurchasesPackage,
 } from '@revenuecat/purchases-capacitor';
 import { errorMessage } from '../../shared/errorMessage';
+import { withNativeTimeout } from '../utils/nativeTimeout';
 import { getAuthenticatedUserId, getCachedUserId } from './authUser';
 import { isNativeStorePlatform, resolveNativeStoreKey } from './purchasesService';
 
@@ -235,25 +236,15 @@ const STORE_TIMEOUT_MS = 12_000;
 const CATALOG_TTL_MS = 5 * 60_000;
 /** The store sheet stays open while the buyer confirms with a fingerprint or card, so this only catches a sheet that never answers. */
 const PURCHASE_TIMEOUT_MS = 180_000;
+/** Restore asks the store for every past purchase, which is slower than a catalog read. */
+const RESTORE_TIMEOUT_MS = 30_000;
 
 function withStoreTimeout<T>(
   work: Promise<T>,
   message: string,
   timeoutMs = STORE_TIMEOUT_MS,
 ): Promise<T> {
-  return new Promise<T>((resolve, reject) => {
-    const timer = setTimeout(() => reject(new Error(message)), timeoutMs);
-    work.then(
-      (value) => {
-        clearTimeout(timer);
-        resolve(value);
-      },
-      (err) => {
-        clearTimeout(timer);
-        reject(err);
-      },
-    );
-  });
+  return withNativeTimeout(work, message, timeoutMs);
 }
 
 async function resolveAppUserId(preferred?: string): Promise<string | null> {
@@ -512,7 +503,11 @@ class RevenueCatManager {
   async restore(userId: string = ''): Promise<{ success: boolean; info: EntitlementInfo }> {
     try {
       if (await this.init(userId)) {
-        const { customerInfo } = await Purchases.restorePurchases();
+        const { customerInfo } = await withStoreTimeout(
+          Purchases.restorePurchases(),
+          'Restoring purchases did not answer.',
+          RESTORE_TIMEOUT_MS,
+        );
         const info = entitlementFromCustomerInfo(customerInfo, currentPlatform());
         await this.recordPlan(info, (await resolveAppUserId(userId)) || '');
         return { success: info.isActive, info };

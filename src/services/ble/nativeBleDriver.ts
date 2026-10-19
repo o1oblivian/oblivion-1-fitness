@@ -4,6 +4,7 @@
  */
 
 import { Capacitor } from '@capacitor/core';
+import { withNativeTimeout } from '../../utils/nativeTimeout';
 import type { BleClientInterface } from '@capacitor-community/bluetooth-le';
 import {
   BLE_UUIDS,
@@ -22,7 +23,8 @@ export class NativeBleDriver implements BleDriver {
     return Capacitor.isNativePlatform();
   }
 
-  private async ready(): Promise<BleClientInterface | null> {
+  /** Boxed on purpose: a plugin object returned straight from an async function is awaited as a promise. */
+  private async ready(): Promise<{ client: BleClientInterface } | null> {
     if (!this.isSupported()) return null;
     if (!this.client) {
       try {
@@ -34,10 +36,13 @@ export class NativeBleDriver implements BleDriver {
     }
     if (!this.initialized) {
       // Matches the manifest: BLUETOOTH_SCAN is declared neverForLocation, so no location prompt.
-      await this.client.initialize({ androidNeverForLocation: true });
+      await withNativeTimeout(
+        this.client.initialize({ androidNeverForLocation: true }),
+        'Bluetooth did not start. Close the app, open it again and retry.',
+      );
       this.initialized = true;
     }
-    return this.client;
+    return { client: this.client };
   }
 
   public async connect(
@@ -47,9 +52,10 @@ export class NativeBleDriver implements BleDriver {
   ): Promise<BleConnectResult> {
     let deviceId = '';
     try {
-      const client = await this.ready();
-      if (!client) return { success: false, error: 'Bluetooth is not available on this device.' };
-      if (!(await client.isEnabled()))
+      const boxed = await this.ready();
+      if (!boxed) return { success: false, error: 'Bluetooth is not available on this device.' };
+      const { client } = boxed;
+      if (!(await withNativeTimeout(client.isEnabled(), 'Bluetooth did not answer.')))
         return { success: false, error: 'Bluetooth is off. Turn it on and try again.' };
 
       const device = await client.requestDevice({ services: [BLE_UUIDS.HEART_RATE_SERVICE] });

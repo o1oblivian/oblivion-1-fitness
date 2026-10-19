@@ -4,6 +4,7 @@ import {
   readAthleteSettingsSnapshot,
   type AthleteSettingsSnapshot,
 } from '../utils/athleteSettingsSnapshot';
+import { NATIVE_PROMPT_TIMEOUT_MS, withNativeTimeout } from '../utils/nativeTimeout';
 import { safeStorage } from '../utils/safeStorage';
 
 /** Reminders are scheduled by the phone itself. Nothing is sent to a server. */
@@ -144,7 +145,16 @@ export async function reminderPermission(ask: boolean): Promise<ReminderPermissi
   try {
     if (Capacitor.isNativePlatform()) {
       const { plugin } = await nativePlugin();
-      const status = ask ? await plugin.requestPermissions() : await plugin.checkPermissions();
+      const status = ask
+        ? await withNativeTimeout(
+            plugin.requestPermissions(),
+            'The notification permission prompt did not answer.',
+            NATIVE_PROMPT_TIMEOUT_MS,
+          )
+        : await withNativeTimeout(
+            plugin.checkPermissions(),
+            'The phone did not report the notification permission.',
+          );
       return status.display === 'granted'
         ? 'granted'
         : status.display === 'denied'
@@ -164,15 +174,27 @@ export async function reminderPermission(ask: boolean): Promise<ReminderPermissi
 
 async function applyNative(plan: PlannedReminder[]): Promise<void> {
   const { plugin } = await nativePlugin();
-  const pending = await plugin.getPending();
+  const pending = await withNativeTimeout(plugin.getPending(), 'The phone did not list reminders.');
   const ours = pending.notifications.filter((n) => n.id >= ID_MIN && n.id <= ID_MAX);
-  if (ours.length > 0) await plugin.cancel({ notifications: ours.map((n) => ({ id: n.id })) });
-  if (plan.length === 0) return;
-  if ((await plugin.checkPermissions()).display !== 'granted') return;
-  if (Capacitor.getPlatform() === 'android') {
-    await plugin.createChannel({ id: CHANNEL_ID, name: 'Reminders', importance: 3, visibility: 1 });
+  if (ours.length > 0) {
+    await withNativeTimeout(
+      plugin.cancel({ notifications: ours.map((n) => ({ id: n.id })) }),
+      'The phone did not clear old reminders.',
+    );
   }
-  await plugin.schedule({
+  if (plan.length === 0) return;
+  const permission = await withNativeTimeout(
+    plugin.checkPermissions(),
+    'The phone did not report the notification permission.',
+  );
+  if (permission.display !== 'granted') return;
+  if (Capacitor.getPlatform() === 'android') {
+    await withNativeTimeout(
+      plugin.createChannel({ id: CHANNEL_ID, name: 'Reminders', importance: 3, visibility: 1 }),
+      'The phone did not create the reminder channel.',
+    );
+  }
+  const scheduled = plugin.schedule({
     notifications: plan.map((item) => ({
       id: item.id,
       title: TITLE,
@@ -188,6 +210,7 @@ async function applyNative(plan: PlannedReminder[]): Promise<void> {
       },
     })),
   });
+  await withNativeTimeout(scheduled, 'The phone did not save the reminders.');
 }
 
 function nextOccurrence(item: PlannedReminder, now: Date): number {

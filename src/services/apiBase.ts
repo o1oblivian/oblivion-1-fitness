@@ -1,5 +1,6 @@
 import { Browser } from '@capacitor/browser';
 import { Capacitor, CapacitorHttp } from '@capacitor/core';
+import { withNativeTimeout } from '../utils/nativeTimeout';
 
 const API_ORIGIN = String(import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '');
 
@@ -106,7 +107,7 @@ export async function openLegalUrl(kind: 'privacy' | 'terms' | 'delete-account')
 export async function openExternalUrl(url: string): Promise<void> {
   try {
     if (Capacitor.isNativePlatform()) {
-      await Browser.open({ url });
+      await withNativeTimeout(Browser.open({ url }), 'The in-app browser did not open.');
       return;
     }
   } catch {

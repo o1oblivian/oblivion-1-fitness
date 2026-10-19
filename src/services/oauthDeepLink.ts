@@ -1,5 +1,6 @@
 import { Capacitor } from '@capacitor/core';
 import { supabase } from './supabaseClient';
+import { withNativeTimeout } from '../utils/nativeTimeout';
 import { safeStorage } from '../utils/safeStorage';
 
 const NATIVE_OAUTH_REDIRECT = 'com.o1fc.fitness://auth/callback';
@@ -44,7 +45,7 @@ async function closeNativeBrowser(): Promise<void> {
   if (!Capacitor.isNativePlatform()) return;
   try {
     const { Browser } = await import('@capacitor/browser');
-    await Browser.close();
+    await withNativeTimeout(Browser.close(), 'The in-app browser did not close.', 5_000);
   } catch {
     /* already closed */
   }
@@ -268,7 +269,7 @@ async function openOAuthUrl(url: string): Promise<void> {
   if (Capacitor.isNativePlatform()) {
     try {
       const { Browser } = await import('@capacitor/browser');
-      await Browser.open({ url });
+      await withNativeTimeout(Browser.open({ url }), 'The in-app browser did not open.');
       return;
     } catch (err) {
       console.warn('[OAuth] Capacitor Browser unavailable, using system navigation:', err);

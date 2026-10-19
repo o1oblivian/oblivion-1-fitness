@@ -18,10 +18,14 @@ export function isNativeStorePlatform(): boolean {
   }
 }
 
+/** The App Store key only on iOS, the Google Play key only on Android, nothing anywhere else. */
 export function resolveNativeStoreKey(): string {
   try {
-    return Capacitor.getPlatform() === 'ios' ? NATIVE_APPLE_SDK_KEY : NATIVE_GOOGLE_SDK_KEY;
+    const platform = Capacitor.getPlatform();
+    if (platform === 'ios') return NATIVE_APPLE_SDK_KEY;
+    if (platform === 'android') return NATIVE_GOOGLE_SDK_KEY;
+    return '';
   } catch {
-    return NATIVE_GOOGLE_SDK_KEY;
+    return '';
   }
 }

@@ -1,4 +1,5 @@
 import { Capacitor } from '@capacitor/core';
+import { NATIVE_PROMPT_TIMEOUT_MS, withNativeTimeout } from '../utils/nativeTimeout';
 import { supabase } from './supabaseClient';
 import { persistAuthenticatedUser } from './oauthDeepLink';
 
@@ -22,7 +23,10 @@ let initialized: Promise<void> | null = null;
 
 async function plugin() {
   const { SocialLogin } = await import('@capgo/capacitor-social-login');
-  initialized ??= SocialLogin.initialize({ apple: { redirectUrl: '' } }).catch((err) => {
+  initialized ??= withNativeTimeout(
+    SocialLogin.initialize({ apple: { redirectUrl: '' } }),
+    'Apple sign-in did not start. Close the app, open it again and retry.',
+  ).catch((err) => {
     initialized = null;
     throw err;
   });
@@ -57,10 +61,14 @@ export async function nativeAppleSignIn(): Promise<boolean> {
   const { raw, hashed } = await nonces();
   let idToken: string | null = null;
   try {
-    const res = await SocialLogin.login({
-      provider: 'apple',
-      options: { scopes: ['name', 'email'], nonce: hashed },
-    });
+    const res = await withNativeTimeout(
+      SocialLogin.login({
+        provider: 'apple',
+        options: { scopes: ['name', 'email'], nonce: hashed },
+      }),
+      'Apple sign-in did not answer. Try again.',
+      NATIVE_PROMPT_TIMEOUT_MS,
+    );
     idToken = res.result.idToken;
   } catch (err) {
     if (cancelled(err)) return false;
