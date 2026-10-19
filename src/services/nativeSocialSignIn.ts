@@ -27,7 +27,9 @@ async function plugin() {
     throw err;
   });
   await initialized;
-  return SocialLogin;
+  // In an object on purpose: a Capacitor plugin returned straight from an async function is treated
+  // as a promise, which sends a `then` call to the phone that is never answered.
+  return { SocialLogin };
 }
 
 /** Supabase checks sha256(rawNonce) inside Apple's ID token against the raw nonce it receives. */
@@ -51,7 +53,7 @@ export async function nativeAppleSignIn(): Promise<boolean> {
   if (!hasNativeAppleSignIn()) {
     throw new Error('Apple native sign-in is not available on this device.');
   }
-  const SocialLogin = await plugin();
+  const { SocialLogin } = await plugin();
   const { raw, hashed } = await nonces();
   let idToken: string | null = null;
   try {

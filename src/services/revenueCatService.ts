@@ -351,15 +351,19 @@ class RevenueCatManager {
     }
   }
 
-  /** Configures the store once per signed-in user; later calls reuse that connection. */
-  async init(appUserId: string = ''): Promise<typeof Purchases | null> {
-    if (!isNativeStorePlatform()) return null;
+  /**
+   * Configures the store once per signed-in user; later calls reuse that connection.
+   * Answers true or false, never the plugin itself: a Capacitor plugin handed back from an async
+   * function is treated as a promise, which sends a `then` call to the phone that is never answered.
+   */
+  async init(appUserId: string = ''): Promise<boolean> {
+    if (!isNativeStorePlatform()) return false;
     this.markStep('finding your account');
     const userId = await resolveAppUserId(appUserId);
     if (!userId) {
       this.issue = 'Your account could not be confirmed. Check your connection or sign in again.';
       this.markStep('account not confirmed');
-      return null;
+      return false;
     }
     if (!this.ready || this.ready.userId !== userId) {
       this.markStep(`connecting to ${storeName()}`);
@@ -369,7 +373,7 @@ class RevenueCatManager {
     const connected = await attempt.connected;
     this.markStep(connected ? 'connected' : 'connection failed');
     if (!connected && this.ready === attempt) this.ready = null;
-    return connected ? Purchases : null;
+    return connected;
   }
 
   /** The product list from the last successful fetch, while it is still fresh. Lets a paywall paint prices at once. */
@@ -396,11 +400,10 @@ class RevenueCatManager {
 
   private async fetchOfferings(appUserId?: string): Promise<StoreCatalog> {
     try {
-      const client = await this.init(appUserId);
-      if (!client) return { packages: [] };
+      if (!(await this.init(appUserId))) return { packages: [] };
       this.markStep(`asking ${storeName()} for products`);
       const packages = packagesFromOfferings(
-        await withStoreTimeout(client.getOfferings(), 'Store products did not load.'),
+        await withStoreTimeout(Purchases.getOfferings(), 'Store products did not load.'),
       );
       this.markStep(`received ${packages.length} products`);
       this.issue = packages.length
@@ -439,8 +442,7 @@ class RevenueCatManager {
         };
       }
 
-      const client = await this.init(userId);
-      if (!client) {
+      if (!(await this.init(userId))) {
         return {
           success: false,
           error: `Billing is unavailable. ${this.issue ?? 'The store did not answer.'} Install the app from ${storeName()} to subscribe.`,
@@ -460,7 +462,7 @@ class RevenueCatManager {
       }
 
       const { customerInfo } = await withStoreTimeout(
-        client.purchasePackage({ aPackage: pkg }),
+        Purchases.purchasePackage({ aPackage: pkg }),
         `${storeName()} did not confirm the purchase. If you were charged, tap Restore Purchases.`,
         PURCHASE_TIMEOUT_MS,
       );
@@ -489,10 +491,9 @@ class RevenueCatManager {
   /** Asks the store first. Returns null only when the store could not be reached. */
   async verifyWithStore(userId: string = ''): Promise<EntitlementInfo | null> {
     try {
-      const client = await this.init(userId);
-      if (!client) return null;
+      if (!(await this.init(userId))) return null;
       const { customerInfo } = await withStoreTimeout(
-        client.getCustomerInfo(),
+        Purchases.getCustomerInfo(),
         'Store account did not load.',
       );
       const info = entitlementFromCustomerInfo(customerInfo, currentPlatform());
@@ -510,9 +511,8 @@ class RevenueCatManager {
 
   async restore(userId: string = ''): Promise<{ success: boolean; info: EntitlementInfo }> {
     try {
-      const client = await this.init(userId);
-      if (client) {
-        const { customerInfo } = await client.restorePurchases();
+      if (await this.init(userId)) {
+        const { customerInfo } = await Purchases.restorePurchases();
         const info = entitlementFromCustomerInfo(customerInfo, currentPlatform());
         await this.recordPlan(info, (await resolveAppUserId(userId)) || '');
         return { success: info.isActive, info };

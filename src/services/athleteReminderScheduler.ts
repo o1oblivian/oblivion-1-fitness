@@ -130,16 +130,20 @@ export function planReminders(
 
 export type ReminderPermission = 'granted' | 'denied' | 'prompt' | 'unsupported';
 
+/**
+ * Wrapped in an object on purpose: a Capacitor plugin returned straight from an async function is
+ * treated as a promise, which sends a `then` call to the phone that is never answered.
+ */
 async function nativePlugin() {
   const { LocalNotifications } = await import('@capacitor/local-notifications');
-  return LocalNotifications;
+  return { plugin: LocalNotifications };
 }
 
 /** Reads the phone's notification permission; with `ask`, shows the system prompt when allowed to. */
 export async function reminderPermission(ask: boolean): Promise<ReminderPermission> {
   try {
     if (Capacitor.isNativePlatform()) {
-      const plugin = await nativePlugin();
+      const { plugin } = await nativePlugin();
       const status = ask ? await plugin.requestPermissions() : await plugin.checkPermissions();
       return status.display === 'granted'
         ? 'granted'
@@ -159,7 +163,7 @@ export async function reminderPermission(ask: boolean): Promise<ReminderPermissi
 }
 
 async function applyNative(plan: PlannedReminder[]): Promise<void> {
-  const plugin = await nativePlugin();
+  const { plugin } = await nativePlugin();
   const pending = await plugin.getPending();
   const ours = pending.notifications.filter((n) => n.id >= ID_MIN && n.id <= ID_MAX);
   if (ours.length > 0) await plugin.cancel({ notifications: ours.map((n) => ({ id: n.id })) });
