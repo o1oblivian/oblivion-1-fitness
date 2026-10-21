@@ -33,7 +33,11 @@ async function startServer() {
   app.use(
     express.json({
       limit: '50mb',
-      verify: (req: any, _res, buf) => {
+      verify: (
+        req: http.IncomingMessage & { originalUrl?: string; rawBody?: Buffer },
+        _res,
+        buf,
+      ) => {
         if (req.originalUrl?.startsWith('/api/stripe/webhook')) {
           req.rawBody = buf;
         }

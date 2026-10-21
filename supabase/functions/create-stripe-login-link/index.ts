@@ -61,8 +61,9 @@ serve(async (req: Request) => {
       status: 200,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
-  } catch (err: any) {
-    return new Response(JSON.stringify({ error: err.message || 'Failed to create Stripe portal link' }), {
+  } catch (err) {
+    const message = err instanceof Error && err.message ? err.message : 'Failed to create Stripe portal link';
+    return new Response(JSON.stringify({ error: message }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });

@@ -3,9 +3,10 @@ import { recognizeTelemetryFromBuffer } from '../../src/services/ocrTelemetryPar
 import {
   generateContentWithFallback,
   getGenAI,
-  parseGeminiJson,
+  parseGeminiObject,
   QUICK_READ_THINKING,
 } from '../lib/gemini';
+import { errorMessage } from '../../shared/errorMessage';
 
 /** Photo reading: cardio consoles and watches, and meal photos. */
 export function registerVisionRoutes(app: Express): void {
@@ -81,7 +82,7 @@ Return STRICT JSON matching this schema:
           );
 
           const text = response?.text || '';
-          const parsed = parseGeminiJson(text);
+          const parsed = parseGeminiObject(text);
 
           // Normalize elapsed time
           let normalizedElapsed: string | null = null;
@@ -163,10 +164,10 @@ Return STRICT JSON matching this schema:
                 : 'Optical OCR calibrated.',
             });
           }
-        } catch (genErr: any) {
+        } catch (genErr) {
           console.warn(
             'Gemini vision API unavailable or interrupted, falling back to pure Tesseract OCR pass:',
-            genErr?.message || genErr,
+            errorMessage(genErr, String(genErr)),
           );
         }
       }
@@ -219,7 +220,7 @@ Return STRICT JSON matching this schema:
         calibrationNote:
           'No readable numbers detected on image. Tap any metric to enter manually or retake photo.',
       });
-    } catch (err: any) {
+    } catch (err) {
       console.error('Error in /api/vision/cardio-telemetry:', err);
       // A server fault is not "no numbers on the screen". Let the app try its on-device reader.
       res.status(500).json({ error: 'The scanner could not process this photo.' });
@@ -308,7 +309,7 @@ Return valid JSON only matching:
           );
 
           const text = response.text || '';
-          const parsed = parseGeminiJson(text);
+          const parsed = parseGeminiObject(text);
           const proteinG = Math.max(0, Math.round(Number(parsed.proteinGrams) || 0));
           const carbsG = Math.max(0, Math.round(Number(parsed.carbsGrams) || 0));
           const fatG = Math.max(0, Math.round(Number(parsed.fatGrams) || 0));
@@ -348,8 +349,11 @@ Return valid JSON only matching:
               ),
             },
           });
-        } catch (aiErr: any) {
-          console.warn('Gemini vision API error during meal analysis:', aiErr?.message || aiErr);
+        } catch (aiErr) {
+          console.warn(
+            'Gemini vision API error during meal analysis:',
+            errorMessage(aiErr, String(aiErr)),
+          );
         }
       }
 
@@ -357,9 +361,9 @@ Return valid JSON only matching:
         error:
           'Could not resolve meal macronutrients. Retake photo with clear lighting and full plate visibility.',
       });
-    } catch (err: any) {
+    } catch (err) {
       console.error('Error in /api/vision/meal-nutrients:', err);
-      res.status(500).json({ error: err.message || 'Error analyzing meal photo' });
+      res.status(500).json({ error: errorMessage(err, 'Error analyzing meal photo') });
     }
   });
 }

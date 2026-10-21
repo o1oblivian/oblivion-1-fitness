@@ -1,4 +1,5 @@
 ﻿import type { Express } from 'express';
+import { errorMessage } from '../../shared/errorMessage';
 import { SUPPLEMENT_KNOWLEDGE_BASE } from '../data/supplementKnowledgeBase';
 import { generateContentWithFallback, getGenAI, parseGeminiJson } from '../lib/gemini';
 import { registerBrowseFoods } from './browseFoods';
@@ -82,9 +83,11 @@ export function registerFuelRoutes(app: Express): void {
         barcode: cleanCode,
         message: 'Barcode recognized but not yet mapped in global registry. Quick-log enabled.',
       });
-    } catch (err: any) {
+    } catch (err) {
       console.error('Error in /api/fuel/scan-barcode:', err);
-      res.status(500).json({ error: err.message || 'Internal server error during barcode lookup' });
+      res
+        .status(500)
+        .json({ error: errorMessage(err, 'Internal server error during barcode lookup') });
     }
   });
 
@@ -143,9 +146,11 @@ Respond ONLY with a valid JSON object matching this schema:
       }
 
       res.json({ success: true, supplements: results, provider: 'o1-pharmacopeia' });
-    } catch (err: any) {
+    } catch (err) {
       console.error('Error in /api/fuel/supplement-search:', err);
-      res.status(500).json({ error: err.message || 'Internal server error searching supplements' });
+      res
+        .status(500)
+        .json({ error: errorMessage(err, 'Internal server error searching supplements') });
     }
   });
 }

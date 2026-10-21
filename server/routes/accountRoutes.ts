@@ -1,5 +1,6 @@
 import type { Express } from 'express';
 import { createClient } from '@supabase/supabase-js';
+import { errorMessage } from '../../shared/errorMessage';
 import { deleteAccountData } from '../lib/accountDeletion';
 
 export function registerAccountRoutes(app: Express): void {
@@ -28,8 +29,8 @@ export function registerAccountRoutes(app: Express): void {
       const result = await deleteAccountData(uid, { appleAuthorizationCode });
       if (!result.ok) return res.status(result.status).json({ error: result.error });
       return res.json({ success: true });
-    } catch (err: any) {
-      console.error('[account/delete] failed:', err?.message);
+    } catch (err) {
+      console.error('[account/delete] failed:', errorMessage(err));
       return res.status(500).json({ error: 'Account deletion failed. Try again.' });
     }
   });

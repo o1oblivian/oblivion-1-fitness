@@ -63,11 +63,32 @@ export async function handleCreateIdentitySession(req: Request, res: Response) {
   }
 }
 
+/** The fields of a webhook payload this handler reads. Each event type carries a different subset. */
+interface WebhookObject {
+  id?: string;
+  status?: string | null;
+  payouts_enabled?: boolean;
+  payment_status?: string;
+  amount_total?: number | null;
+  amount?: number;
+  amount_refunded?: number;
+  amount_reversed?: number;
+  currency?: string | null;
+  metadata?: Record<string, string> | null;
+  payment_intent?: string | { id: string } | null;
+  charge?: string | { id: string } | null;
+}
+
+interface WebhookEvent {
+  type?: string;
+  data?: { object?: WebhookObject };
+}
+
 /**
  * Verifies the signature against every configured endpoint secret (platform events and Connect events
  * use separate secrets in Stripe). An unsigned webhook is only tolerated outside production.
  */
-async function constructVerifiedEvent(req: Request): Promise<any> {
+async function constructVerifiedEvent(req: Request): Promise<WebhookEvent> {
   const secrets = [
     process.env.STRIPE_WEBHOOK_SECRET,
     process.env.STRIPE_CONNECT_WEBHOOK_SECRET,
@@ -87,7 +108,12 @@ async function constructVerifiedEvent(req: Request): Promise<any> {
   let lastError: unknown = null;
   for (const secret of secrets) {
     try {
-      return stripe.webhooks.constructEvent(rawBody, signature as string, secret);
+      // The signature is verified; the cast narrows Stripe's full event union to the fields read below.
+      return stripe.webhooks.constructEvent(
+        rawBody,
+        signature as string,
+        secret,
+      ) as unknown as WebhookEvent;
     } catch (err) {
       lastError = err;
     }
@@ -97,7 +123,7 @@ async function constructVerifiedEvent(req: Request): Promise<any> {
 }
 
 export async function handleStripeWebhook(req: Request, res: Response) {
-  let event: any;
+  let event: WebhookEvent;
   try {
     event = await constructVerifiedEvent(req);
   } catch (err) {
@@ -185,7 +211,10 @@ export async function handleStripeWebhook(req: Request, res: Response) {
     }
 
     if (type === 'transfer.reversed' && object?.id) {
-      return res.json({ received: true, ...(await recordTransferReversal(object)) });
+      return res.json({
+        received: true,
+        ...(await recordTransferReversal({ ...object, id: object.id })),
+      });
     }
 
     if (type === 'identity.verification_session.verified') {
