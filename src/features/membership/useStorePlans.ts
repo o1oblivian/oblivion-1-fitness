@@ -105,7 +105,7 @@ export function useStorePlans(enabled: boolean = true): StorePlans {
   }, [enabled, attempt]);
 
   // While waiting, redraw each second so the step and its timer on screen stay current.
-  const [tick, setTick] = useState(0);
+  const [, setTick] = useState(0);
   useEffect(() => {
     if (!enabled || loaded.status !== 'loading') return;
     const id = setInterval(() => setTick((n) => n + 1), 1000);
@@ -113,6 +113,9 @@ export function useStorePlans(enabled: boolean = true): StorePlans {
   }, [enabled, loaded.status]);
 
   const retry = useCallback(() => setAttempt((count) => count + 1), []);
+
+  // Read on every render: the text carries the seconds elapsed, so it changes as the timer redraws.
+  const progress = revenueCatService.progress;
 
   return useMemo<StorePlans>(() => {
     const availability = (product: IAPProductInfo): PlanAvailability => {
@@ -132,9 +135,7 @@ export function useStorePlans(enabled: boolean = true): StorePlans {
           : loaded.issue;
       },
       retry,
-      detail:
-        loaded.status === 'ready' ? '' : `Build ${BUILD_STAMP} · ${revenueCatService.progress}`,
+      detail: loaded.status === 'ready' ? '' : `Build ${BUILD_STAMP} · ${progress}`,
     };
-    // `tick` makes the step timer redraw while waiting.
-  }, [loaded, retry, tick]);
+  }, [loaded, retry, progress]);
 }
