@@ -48,5 +48,6 @@ describe('user-facing copy', () => {
       });
     }
     expect(hits).toEqual([]);
-  });
+    // Reads every source file, so give it room when the machine is busy.
+  }, 30_000);
 });
